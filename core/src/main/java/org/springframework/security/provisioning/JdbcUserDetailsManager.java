@@ -110,7 +110,7 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 	protected final Log logger = LogFactory.getLog(getClass());
 
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
-			.getContextHolderStrategy();
+		.getContextHolderStrategy();
 
 	private String createUserSql = DEF_CREATE_USER_SQL;
 
@@ -276,7 +276,7 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 		if (this.authenticationManager != null) {
 			this.logger.debug(LogMessage.format("Reauthenticating user '%s' for password change request.", username));
 			this.authenticationManager
-					.authenticate(UsernamePasswordAuthenticationToken.unauthenticated(username, oldPassword));
+				.authenticate(UsernamePasswordAuthenticationToken.unauthenticated(username, oldPassword));
 		}
 		else {
 			this.logger.debug("No authentication manager set. Password won't be re-checked.");

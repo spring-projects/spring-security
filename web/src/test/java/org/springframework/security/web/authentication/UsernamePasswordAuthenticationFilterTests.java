@@ -123,7 +123,7 @@ public class UsernamePasswordAuthenticationFilterTests {
 		given(am.authenticate(any(Authentication.class))).willThrow(new BadCredentialsException(""));
 		filter.setAuthenticationManager(am);
 		assertThatExceptionOfType(AuthenticationException.class)
-				.isThrownBy(() -> filter.attemptAuthentication(request, new MockHttpServletResponse()));
+			.isThrownBy(() -> filter.attemptAuthentication(request, new MockHttpServletResponse()));
 	}
 
 	@Test
@@ -159,7 +159,7 @@ public class UsernamePasswordAuthenticationFilterTests {
 	private AuthenticationManager createAuthenticationManager() {
 		AuthenticationManager am = mock(AuthenticationManager.class);
 		given(am.authenticate(any(Authentication.class)))
-				.willAnswer((Answer<Authentication>) (invocation) -> (Authentication) invocation.getArguments()[0]);
+			.willAnswer((Answer<Authentication>) (invocation) -> (Authentication) invocation.getArguments()[0]);
 		return am;
 	}
 

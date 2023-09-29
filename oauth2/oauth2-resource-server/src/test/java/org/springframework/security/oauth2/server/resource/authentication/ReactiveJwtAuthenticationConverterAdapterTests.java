@@ -84,8 +84,10 @@ public class ReactiveJwtAuthenticationConverterAdapterTests {
 
 	@Test
 	public void convertWhenTokenHasBothScopeAndScpThenScopeAttributeIsTranslatedToAuthorities() {
-		Jwt jwt = TestJwts.jwt().claim("scp", Arrays.asList("message:read", "message:write"))
-				.claim("scope", "missive:read missive:write").build();
+		Jwt jwt = TestJwts.jwt()
+			.claim("scp", Arrays.asList("message:read", "message:write"))
+			.claim("scope", "missive:read missive:write")
+			.build();
 		AbstractAuthenticationToken authentication = this.jwtAuthenticationConverter.convert(jwt).block();
 		Collection<GrantedAuthority> authorities = authentication.getAuthorities();
 		// @formatter:off

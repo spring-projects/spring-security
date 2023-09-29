@@ -50,12 +50,12 @@ class Saml2AuthenticationExceptionMixinTests {
 	@Test
 	void shouldDeserialize() throws Exception {
 		Saml2AuthenticationException exception = this.mapper
-				.readValue(TestSaml2JsonPayloads.DEFAULT_SAML_AUTH_EXCEPTION_JSON, Saml2AuthenticationException.class);
+			.readValue(TestSaml2JsonPayloads.DEFAULT_SAML_AUTH_EXCEPTION_JSON, Saml2AuthenticationException.class);
 
 		assertThat(exception).isNotNull();
 		assertThat(exception.getMessage()).isEqualTo("exceptionMessage");
 		assertThat(exception.getSaml2Error()).extracting(Saml2Error::getErrorCode, Saml2Error::getDescription)
-				.contains("errorCode", "errorDescription");
+			.contains("errorCode", "errorDescription");
 	}
 
 }

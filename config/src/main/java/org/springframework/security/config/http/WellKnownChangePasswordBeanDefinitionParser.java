@@ -46,9 +46,10 @@ public final class WellKnownChangePasswordBeanDefinitionParser implements BeanDe
 	@Override
 	public BeanDefinition parse(Element element, ParserContext parserContext) {
 		BeanDefinition changePasswordFilter = BeanDefinitionBuilder
-				.rootBeanDefinition(RequestMatcherRedirectFilter.class)
-				.addConstructorArgValue(new AntPathRequestMatcher(WELL_KNOWN_CHANGE_PASSWORD_PATTERN))
-				.addConstructorArgValue(getChangePasswordPage(element)).getBeanDefinition();
+			.rootBeanDefinition(RequestMatcherRedirectFilter.class)
+			.addConstructorArgValue(new AntPathRequestMatcher(WELL_KNOWN_CHANGE_PASSWORD_PATTERN))
+			.addConstructorArgValue(getChangePasswordPage(element))
+			.getBeanDefinition();
 		parserContext.getReaderContext().registerWithGeneratedName(changePasswordFilter);
 		return changePasswordFilter;
 	}

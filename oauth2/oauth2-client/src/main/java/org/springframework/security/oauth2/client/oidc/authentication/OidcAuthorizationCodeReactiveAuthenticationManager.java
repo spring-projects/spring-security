@@ -118,16 +118,19 @@ public class OidcAuthorizationCodeReactiveAuthenticationManager implements React
 			// https://openid.net/specs/openid-connect-core-1_0.html#AuthRequest
 			// scope REQUIRED. OpenID Connect requests MUST contain the "openid" scope
 			// value.
-			if (!authorizationCodeAuthentication.getAuthorizationExchange().getAuthorizationRequest().getScopes()
-					.contains("openid")) {
+			if (!authorizationCodeAuthentication.getAuthorizationExchange()
+				.getAuthorizationRequest()
+				.getScopes()
+				.contains("openid")) {
 				// This is an OpenID Connect Authentication Request so return empty
 				// and let OAuth2LoginReactiveAuthenticationManager handle it instead
 				return Mono.empty();
 			}
 			OAuth2AuthorizationRequest authorizationRequest = authorizationCodeAuthentication.getAuthorizationExchange()
-					.getAuthorizationRequest();
+				.getAuthorizationRequest();
 			OAuth2AuthorizationResponse authorizationResponse = authorizationCodeAuthentication
-					.getAuthorizationExchange().getAuthorizationResponse();
+				.getAuthorizationExchange()
+				.getAuthorizationResponse();
 			if (authorizationResponse.statusError()) {
 				return Mono.error(new OAuth2AuthenticationException(authorizationResponse.getError(),
 						authorizationResponse.getError().toString()));
@@ -139,16 +142,16 @@ public class OidcAuthorizationCodeReactiveAuthenticationManager implements React
 			OAuth2AuthorizationCodeGrantRequest authzRequest = new OAuth2AuthorizationCodeGrantRequest(
 					authorizationCodeAuthentication.getClientRegistration(),
 					authorizationCodeAuthentication.getAuthorizationExchange());
-			return this.accessTokenResponseClient.getTokenResponse(authzRequest).flatMap(
-					(accessTokenResponse) -> authenticationResult(authorizationCodeAuthentication, accessTokenResponse))
-					.onErrorMap(OAuth2AuthorizationException.class,
-							(e) -> new OAuth2AuthenticationException(e.getError(), e.getError().toString(), e))
-					.onErrorMap(JwtException.class, (e) -> {
-						OAuth2Error invalidIdTokenError = new OAuth2Error(INVALID_ID_TOKEN_ERROR_CODE, e.getMessage(),
-								null);
-						return new OAuth2AuthenticationException(invalidIdTokenError, invalidIdTokenError.toString(),
-								e);
-					});
+			return this.accessTokenResponseClient.getTokenResponse(authzRequest)
+				.flatMap((accessTokenResponse) -> authenticationResult(authorizationCodeAuthentication,
+						accessTokenResponse))
+				.onErrorMap(OAuth2AuthorizationException.class,
+						(e) -> new OAuth2AuthenticationException(e.getError(), e.getError().toString(), e))
+				.onErrorMap(JwtException.class, (e) -> {
+					OAuth2Error invalidIdTokenError = new OAuth2Error(INVALID_ID_TOKEN_ERROR_CODE, e.getMessage(),
+							null);
+					return new OAuth2AuthenticationException(invalidIdTokenError, invalidIdTokenError.toString(), e);
+				});
 		});
 	}
 
@@ -220,8 +223,9 @@ public class OidcAuthorizationCodeReactiveAuthenticationManager implements React
 
 	private static Mono<OidcIdToken> validateNonce(
 			OAuth2AuthorizationCodeAuthenticationToken authorizationCodeAuthentication, OidcIdToken idToken) {
-		String requestNonce = authorizationCodeAuthentication.getAuthorizationExchange().getAuthorizationRequest()
-				.getAttribute(OidcParameterNames.NONCE);
+		String requestNonce = authorizationCodeAuthentication.getAuthorizationExchange()
+			.getAuthorizationRequest()
+			.getAttribute(OidcParameterNames.NONCE);
 		if (requestNonce != null) {
 			String nonceHash = getNonceHash(requestNonce);
 			String nonceHashClaim = idToken.getNonce();

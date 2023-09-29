@@ -106,23 +106,23 @@ public class DelegatingAuthenticationFailureHandlerTests {
 	@Test
 	public void handlersIsNull() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new DelegatingAuthenticationFailureHandler(null, this.defaultHandler))
-				.withMessage("handlers cannot be null or empty");
+			.isThrownBy(() -> new DelegatingAuthenticationFailureHandler(null, this.defaultHandler))
+			.withMessage("handlers cannot be null or empty");
 	}
 
 	@Test
 	public void handlersIsEmpty() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new DelegatingAuthenticationFailureHandler(this.handlers, this.defaultHandler))
-				.withMessage("handlers cannot be null or empty");
+			.isThrownBy(() -> new DelegatingAuthenticationFailureHandler(this.handlers, this.defaultHandler))
+			.withMessage("handlers cannot be null or empty");
 	}
 
 	@Test
 	public void defaultHandlerIsNull() {
 		this.handlers.put(BadCredentialsException.class, this.handler1);
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new DelegatingAuthenticationFailureHandler(this.handlers, null))
-				.withMessage("defaultHandler cannot be null");
+			.isThrownBy(() -> new DelegatingAuthenticationFailureHandler(this.handlers, null))
+			.withMessage("defaultHandler cannot be null");
 	}
 
 }

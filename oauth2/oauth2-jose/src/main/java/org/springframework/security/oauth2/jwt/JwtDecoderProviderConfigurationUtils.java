@@ -101,8 +101,10 @@ final class JwtDecoderProviderConfigurationUtils {
 	}
 
 	static <C extends SecurityContext> Set<JWSAlgorithm> getJWSAlgorithms(JWKSource<C> jwkSource) {
-		JWKMatcher jwkMatcher = new JWKMatcher.Builder().publicOnly(true).keyUses(KeyUse.SIGNATURE, null)
-				.keyTypes(KeyType.RSA, KeyType.EC).build();
+		JWKMatcher jwkMatcher = new JWKMatcher.Builder().publicOnly(true)
+			.keyUses(KeyUse.SIGNATURE, null)
+			.keyTypes(KeyType.RSA, KeyType.EC)
+			.build();
 		Set<JWSAlgorithm> jwsAlgorithms = new HashSet<>();
 		try {
 			List<? extends JWK> jwks = jwkSource.get(new JWKSelector(jwkMatcher), null);

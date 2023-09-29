@@ -76,20 +76,20 @@ public class JaasAuthenticationProviderTests {
 	@Test
 	public void testBadPassword() {
 		assertThatExceptionOfType(AuthenticationException.class).isThrownBy(() -> this.jaasProvider
-				.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("user", "asdf")));
+			.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("user", "asdf")));
 		assertThat(this.eventCheck.failedEvent).as("Failure event not fired").isNotNull();
 		assertThat(this.eventCheck.failedEvent.getException()).withFailMessage("Failure event exception was null")
-				.isNotNull();
+			.isNotNull();
 		assertThat(this.eventCheck.successEvent).as("Success event was fired").isNull();
 	}
 
 	@Test
 	public void testBadUser() {
 		assertThatExceptionOfType(AuthenticationException.class).isThrownBy(() -> this.jaasProvider
-				.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("asdf", "password")));
+			.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("asdf", "password")));
 		assertThat(this.eventCheck.failedEvent).as("Failure event not fired").isNotNull();
 		assertThat(this.eventCheck.failedEvent.getException()).withFailMessage("Failure event exception was null")
-				.isNotNull();
+			.isNotNull();
 		assertThat(this.eventCheck.successEvent).as("Success event was fired").isNull();
 	}
 
@@ -110,7 +110,7 @@ public class JaasAuthenticationProviderTests {
 		myJaasProvider.setCallbackHandlers(this.jaasProvider.getCallbackHandlers());
 		myJaasProvider.setLoginContextName(this.jaasProvider.getLoginContextName());
 		assertThatIllegalArgumentException().isThrownBy(() -> myJaasProvider.afterPropertiesSet())
-				.withMessageStartingWith("loginConfig must be set on");
+			.withMessageStartingWith("loginConfig must be set on");
 	}
 
 	// SEC-1239
@@ -150,10 +150,10 @@ public class JaasAuthenticationProviderTests {
 		myJaasProvider.setLoginConfig(this.jaasProvider.getLoginConfig());
 		myJaasProvider.setLoginContextName(null);
 		assertThatIllegalArgumentException().isThrownBy(myJaasProvider::afterPropertiesSet)
-				.withMessageStartingWith("loginContextName must be set on");
+			.withMessageStartingWith("loginContextName must be set on");
 		myJaasProvider.setLoginContextName("");
 		assertThatIllegalArgumentException().isThrownBy(myJaasProvider::afterPropertiesSet)
-				.withMessageStartingWith("loginContextName must be set on");
+			.withMessageStartingWith("loginContextName must be set on");
 	}
 
 	@Test
@@ -169,7 +169,7 @@ public class JaasAuthenticationProviderTests {
 		Collection<? extends GrantedAuthority> list = auth.getAuthorities();
 		Set<String> set = AuthorityUtils.authorityListToSet(list);
 		assertThat(set.contains("ROLE_ONE")).withFailMessage("GrantedAuthorities should not contain ROLE_ONE")
-				.isFalse();
+			.isFalse();
 		assertThat(set.contains("ROLE_TEST1")).withFailMessage("GrantedAuthorities should contain ROLE_TEST1").isTrue();
 		assertThat(set.contains("ROLE_TEST2")).withFailMessage("GrantedAuthorities should contain ROLE_TEST2").isTrue();
 		boolean foundit = false;
@@ -177,14 +177,14 @@ public class JaasAuthenticationProviderTests {
 			if (a instanceof JaasGrantedAuthority) {
 				JaasGrantedAuthority grant = (JaasGrantedAuthority) a;
 				assertThat(grant.getPrincipal()).withFailMessage("Principal was null on JaasGrantedAuthority")
-						.isNotNull();
+					.isNotNull();
 				foundit = true;
 			}
 		}
 		assertThat(foundit).as("Could not find a JaasGrantedAuthority").isTrue();
 		assertThat(this.eventCheck.successEvent).as("Success event should be fired").isNotNull();
 		assertThat(this.eventCheck.successEvent.getAuthentication()).withFailMessage("Auth objects should be equal")
-				.isEqualTo(auth);
+			.isEqualTo(auth);
 		assertThat(this.eventCheck.failedEvent).as("Failure event should not be fired").isNull();
 	}
 
@@ -226,13 +226,13 @@ public class JaasAuthenticationProviderTests {
 		assertThat(this.jaasProvider.supports(UsernamePasswordAuthenticationToken.class)).isTrue();
 		Authentication auth = this.jaasProvider.authenticate(token);
 		assertThat(auth.getAuthorities()).withFailMessage("Only ROLE_TEST1 and ROLE_TEST2 should have been returned")
-				.hasSize(2);
+			.hasSize(2);
 	}
 
 	@Test
 	public void testUnsupportedAuthenticationObjectReturnsNull() {
 		assertThat(this.jaasProvider
-				.authenticate(new TestingAuthenticationToken("foo", "bar", AuthorityUtils.NO_AUTHORITIES))).isNull();
+			.authenticate(new TestingAuthenticationToken("foo", "bar", AuthorityUtils.NO_AUTHORITIES))).isNull();
 	}
 
 	private static class MockLoginContext extends LoginContext {

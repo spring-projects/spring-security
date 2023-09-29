@@ -69,7 +69,7 @@ import org.springframework.web.filter.GenericFilterBean;
 public class RememberMeAuthenticationFilter extends GenericFilterBean implements ApplicationEventPublisherAware {
 
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
-			.getContextHolderStrategy();
+		.getContextHolderStrategy();
 
 	private ApplicationEventPublisher eventPublisher;
 
@@ -105,8 +105,8 @@ public class RememberMeAuthenticationFilter extends GenericFilterBean implements
 			throws IOException, ServletException {
 		if (this.securityContextHolderStrategy.getContext().getAuthentication() != null) {
 			this.logger.debug(LogMessage
-					.of(() -> "SecurityContextHolder not populated with remember-me token, as it already contained: '"
-							+ this.securityContextHolderStrategy.getContext().getAuthentication() + "'"));
+				.of(() -> "SecurityContextHolder not populated with remember-me token, as it already contained: '"
+						+ this.securityContextHolderStrategy.getContext().getAuthentication() + "'"));
 			chain.doFilter(request, response);
 			return;
 		}
@@ -134,9 +134,9 @@ public class RememberMeAuthenticationFilter extends GenericFilterBean implements
 			}
 			catch (AuthenticationException ex) {
 				this.logger.debug(LogMessage
-						.format("SecurityContextHolder not populated with remember-me token, as AuthenticationManager "
-								+ "rejected Authentication returned by RememberMeServices: '%s'; "
-								+ "invalidating remember-me token", rememberMeAuth),
+					.format("SecurityContextHolder not populated with remember-me token, as AuthenticationManager "
+							+ "rejected Authentication returned by RememberMeServices: '%s'; "
+							+ "invalidating remember-me token", rememberMeAuth),
 						ex);
 				this.rememberMeServices.loginFail(request, response);
 				onUnsuccessfulAuthentication(request, response, ex);

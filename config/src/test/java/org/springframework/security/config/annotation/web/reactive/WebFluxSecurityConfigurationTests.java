@@ -39,16 +39,20 @@ public class WebFluxSecurityConfigurationTests {
 
 	@Test
 	public void loadConfigWhenReactiveUserDetailsServiceConfiguredThenWebFilterChainProxyExists() {
-		this.spring.register(ServerHttpSecurityConfiguration.class, ReactiveAuthenticationTestConfiguration.class,
-				WebFluxSecurityConfiguration.class).autowire();
+		this.spring
+			.register(ServerHttpSecurityConfiguration.class, ReactiveAuthenticationTestConfiguration.class,
+					WebFluxSecurityConfiguration.class)
+			.autowire();
 		WebFilterChainProxy webFilterChainProxy = this.spring.getContext().getBean(WebFilterChainProxy.class);
 		assertThat(webFilterChainProxy).isNotNull();
 	}
 
 	@Test
 	public void loadConfigWhenBeanProxyingEnabledAndSubclassThenWebFilterChainProxyExists() {
-		this.spring.register(ServerHttpSecurityConfiguration.class, ReactiveAuthenticationTestConfiguration.class,
-				WebFluxSecurityConfigurationTests.SubclassConfig.class).autowire();
+		this.spring
+			.register(ServerHttpSecurityConfiguration.class, ReactiveAuthenticationTestConfiguration.class,
+					WebFluxSecurityConfigurationTests.SubclassConfig.class)
+			.autowire();
 		WebFilterChainProxy webFilterChainProxy = this.spring.getContext().getBean(WebFilterChainProxy.class);
 		assertThat(webFilterChainProxy).isNotNull();
 	}

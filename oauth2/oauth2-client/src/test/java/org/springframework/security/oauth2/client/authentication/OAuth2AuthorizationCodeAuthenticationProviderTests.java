@@ -81,41 +81,44 @@ public class OAuth2AuthorizationCodeAuthenticationProviderTests {
 	@Test
 	public void authenticateWhenAuthorizationErrorResponseThenThrowOAuth2AuthorizationException() {
 		OAuth2AuthorizationResponse authorizationResponse = TestOAuth2AuthorizationResponses.error()
-				.errorCode(OAuth2ErrorCodes.INVALID_REQUEST).build();
+			.errorCode(OAuth2ErrorCodes.INVALID_REQUEST)
+			.build();
 		OAuth2AuthorizationExchange authorizationExchange = new OAuth2AuthorizationExchange(this.authorizationRequest,
 				authorizationResponse);
 		assertThatExceptionOfType(OAuth2AuthorizationException.class)
-				.isThrownBy(() -> this.authenticationProvider.authenticate(
-						new OAuth2AuthorizationCodeAuthenticationToken(this.clientRegistration, authorizationExchange)))
-				.withMessageContaining(OAuth2ErrorCodes.INVALID_REQUEST);
+			.isThrownBy(() -> this.authenticationProvider.authenticate(
+					new OAuth2AuthorizationCodeAuthenticationToken(this.clientRegistration, authorizationExchange)))
+			.withMessageContaining(OAuth2ErrorCodes.INVALID_REQUEST);
 	}
 
 	@Test
 	public void authenticateWhenAuthorizationResponseStateNotEqualAuthorizationRequestStateThenThrowOAuth2AuthorizationException() {
-		OAuth2AuthorizationResponse authorizationResponse = TestOAuth2AuthorizationResponses.success().state("67890")
-				.build();
+		OAuth2AuthorizationResponse authorizationResponse = TestOAuth2AuthorizationResponses.success()
+			.state("67890")
+			.build();
 		OAuth2AuthorizationExchange authorizationExchange = new OAuth2AuthorizationExchange(this.authorizationRequest,
 				authorizationResponse);
 		assertThatExceptionOfType(OAuth2AuthorizationException.class)
-				.isThrownBy(() -> this.authenticationProvider.authenticate(
-						new OAuth2AuthorizationCodeAuthenticationToken(this.clientRegistration, authorizationExchange)))
-				.withMessageContaining("invalid_state_parameter");
+			.isThrownBy(() -> this.authenticationProvider.authenticate(
+					new OAuth2AuthorizationCodeAuthenticationToken(this.clientRegistration, authorizationExchange)))
+			.withMessageContaining("invalid_state_parameter");
 	}
 
 	@Test
 	public void authenticateWhenAuthorizationSuccessResponseThenExchangedForAccessToken() {
 		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses.accessTokenResponse()
-				.refreshToken("refresh").build();
+			.refreshToken("refresh")
+			.build();
 		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(accessTokenResponse);
 		OAuth2AuthorizationExchange authorizationExchange = new OAuth2AuthorizationExchange(this.authorizationRequest,
 				TestOAuth2AuthorizationResponses.success().build());
 		OAuth2AuthorizationCodeAuthenticationToken authenticationResult = (OAuth2AuthorizationCodeAuthenticationToken) this.authenticationProvider
-				.authenticate(
-						new OAuth2AuthorizationCodeAuthenticationToken(this.clientRegistration, authorizationExchange));
+			.authenticate(
+					new OAuth2AuthorizationCodeAuthenticationToken(this.clientRegistration, authorizationExchange));
 		assertThat(authenticationResult.isAuthenticated()).isTrue();
 		assertThat(authenticationResult.getPrincipal()).isEqualTo(this.clientRegistration.getClientId());
 		assertThat(authenticationResult.getCredentials())
-				.isEqualTo(accessTokenResponse.getAccessToken().getTokenValue());
+			.isEqualTo(accessTokenResponse.getAccessToken().getTokenValue());
 		assertThat(authenticationResult.getAuthorities()).isEqualTo(Collections.emptyList());
 		assertThat(authenticationResult.getClientRegistration()).isEqualTo(this.clientRegistration);
 		assertThat(authenticationResult.getAuthorizationExchange()).isEqualTo(authorizationExchange);
@@ -130,15 +133,16 @@ public class OAuth2AuthorizationCodeAuthenticationProviderTests {
 		additionalParameters.put("param1", "value1");
 		additionalParameters.put("param2", "value2");
 		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses.accessTokenResponse()
-				.additionalParameters(additionalParameters).build();
+			.additionalParameters(additionalParameters)
+			.build();
 		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(accessTokenResponse);
 		OAuth2AuthorizationExchange authorizationExchange = new OAuth2AuthorizationExchange(this.authorizationRequest,
 				TestOAuth2AuthorizationResponses.success().build());
 		OAuth2AuthorizationCodeAuthenticationToken authentication = (OAuth2AuthorizationCodeAuthenticationToken) this.authenticationProvider
-				.authenticate(
-						new OAuth2AuthorizationCodeAuthenticationToken(this.clientRegistration, authorizationExchange));
+			.authenticate(
+					new OAuth2AuthorizationCodeAuthenticationToken(this.clientRegistration, authorizationExchange));
 		assertThat(authentication.getAdditionalParameters())
-				.containsAllEntriesOf(accessTokenResponse.getAdditionalParameters());
+			.containsAllEntriesOf(accessTokenResponse.getAdditionalParameters());
 	}
 
 }

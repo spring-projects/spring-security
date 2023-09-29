@@ -58,7 +58,7 @@ public class HttpBasicServerAuthenticationEntryPointTests {
 		this.entryPoint.commence(this.exchange, this.exception).block();
 		assertThat(this.exchange.getResponse().getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
 		assertThat(this.exchange.getResponse().getHeaders().get("WWW-Authenticate"))
-				.containsOnly("Basic realm=\"Realm\"");
+			.containsOnly("Basic realm=\"Realm\"");
 	}
 
 	@Test
@@ -68,7 +68,7 @@ public class HttpBasicServerAuthenticationEntryPointTests {
 		this.entryPoint.commence(this.exchange, this.exception).block();
 		assertThat(this.exchange.getResponse().getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
 		assertThat(this.exchange.getResponse().getHeaders().get("WWW-Authenticate"))
-				.containsOnly("Basic realm=\"Custom\"");
+			.containsOnly("Basic realm=\"Custom\"");
 	}
 
 	@Test

@@ -62,8 +62,13 @@ public class WebFilterChainProxyTests {
 		ServerWebExchangeMatcher notMatch = (exchange) -> MatchResult.notMatch();
 		MatcherSecurityWebFilterChain chain = new MatcherSecurityWebFilterChain(notMatch, filters);
 		WebFilterChainProxy filter = new WebFilterChainProxy(chain);
-		WebTestClient.bindToController(new Object()).webFilter(filter).build().get().exchange().expectStatus()
-				.isNotFound();
+		WebTestClient.bindToController(new Object())
+			.webFilter(filter)
+			.build()
+			.get()
+			.exchange()
+			.expectStatus()
+			.isNotFound();
 	}
 
 	@Test

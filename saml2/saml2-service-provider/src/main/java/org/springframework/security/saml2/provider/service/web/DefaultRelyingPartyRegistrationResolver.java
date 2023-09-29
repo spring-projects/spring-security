@@ -69,8 +69,9 @@ public final class DefaultRelyingPartyRegistrationResolver
 				this.logger.trace("Attempting to resolve from " + this.registrationRequestMatcher
 						+ " since registrationId is null");
 			}
-			relyingPartyRegistrationId = this.registrationRequestMatcher.matcher(request).getVariables()
-					.get("registrationId");
+			relyingPartyRegistrationId = this.registrationRequestMatcher.matcher(request)
+				.getVariables()
+				.get("registrationId");
 		}
 		if (relyingPartyRegistrationId == null) {
 			if (this.logger.isTraceEnabled()) {
@@ -79,18 +80,18 @@ public final class DefaultRelyingPartyRegistrationResolver
 			return null;
 		}
 		RelyingPartyRegistration registration = this.relyingPartyRegistrationRepository
-				.findByRegistrationId(relyingPartyRegistrationId);
+			.findByRegistrationId(relyingPartyRegistrationId);
 		if (registration == null) {
 			return null;
 		}
 		UriResolver uriResolver = RelyingPartyRegistrationPlaceholderResolvers.uriResolver(request, registration);
-		return registration.mutate().entityId(uriResolver.resolve(registration.getEntityId()))
-				.assertionConsumerServiceLocation(
-						uriResolver.resolve(registration.getAssertionConsumerServiceLocation()))
-				.singleLogoutServiceLocation(uriResolver.resolve(registration.getSingleLogoutServiceLocation()))
-				.singleLogoutServiceResponseLocation(
-						uriResolver.resolve(registration.getSingleLogoutServiceResponseLocation()))
-				.build();
+		return registration.mutate()
+			.entityId(uriResolver.resolve(registration.getEntityId()))
+			.assertionConsumerServiceLocation(uriResolver.resolve(registration.getAssertionConsumerServiceLocation()))
+			.singleLogoutServiceLocation(uriResolver.resolve(registration.getSingleLogoutServiceLocation()))
+			.singleLogoutServiceResponseLocation(
+					uriResolver.resolve(registration.getSingleLogoutServiceResponseLocation()))
+			.build();
 	}
 
 }

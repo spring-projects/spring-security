@@ -62,7 +62,7 @@ public class ServerX509AuthenticationConverterTests {
 	@Test
 	public void shouldReturnNullForInvalidCertificate() {
 		Authentication authentication = this.converter.convert(MockServerWebExchange.from(this.request.build()))
-				.block();
+			.block();
 		assertThat(authentication).isNull();
 	}
 
@@ -71,7 +71,7 @@ public class ServerX509AuthenticationConverterTests {
 		givenExtractPrincipalWillReturn();
 		this.request.sslInfo(new MockSslInfo(this.certificate));
 		Authentication authentication = this.converter.convert(MockServerWebExchange.from(this.request.build()))
-				.block();
+			.block();
 		assertThat(authentication.getName()).isEqualTo("Luke Taylor");
 		assertThat(authentication.getCredentials()).isEqualTo(this.certificate);
 	}

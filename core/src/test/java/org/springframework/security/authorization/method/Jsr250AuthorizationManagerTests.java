@@ -53,7 +53,7 @@ public class Jsr250AuthorizationManagerTests {
 	public void setRolePrefixWhenNullThenException() {
 		Jsr250AuthorizationManager manager = new Jsr250AuthorizationManager();
 		assertThatIllegalArgumentException().isThrownBy(() -> manager.setRolePrefix(null))
-				.withMessage("rolePrefix cannot be null");
+			.withMessage("rolePrefix cannot be null");
 	}
 
 	@Test
@@ -130,7 +130,7 @@ public class Jsr250AuthorizationManagerTests {
 				"multipleAnnotations");
 		Jsr250AuthorizationManager manager = new Jsr250AuthorizationManager();
 		assertThatExceptionOfType(AnnotationConfigurationException.class)
-				.isThrownBy(() -> manager.check(authentication, methodInvocation));
+			.isThrownBy(() -> manager.check(authentication, methodInvocation));
 	}
 
 	@Test
@@ -176,7 +176,7 @@ public class Jsr250AuthorizationManagerTests {
 				"inheritedAnnotations");
 		Jsr250AuthorizationManager manager = new Jsr250AuthorizationManager();
 		assertThatExceptionOfType(AnnotationConfigurationException.class)
-				.isThrownBy(() -> manager.check(authentication, methodInvocation));
+			.isThrownBy(() -> manager.check(authentication, methodInvocation));
 	}
 
 	@Test
@@ -186,7 +186,7 @@ public class Jsr250AuthorizationManagerTests {
 				ClassLevelAnnotations.class, "inheritedAnnotations");
 		Jsr250AuthorizationManager manager = new Jsr250AuthorizationManager();
 		assertThatExceptionOfType(AnnotationConfigurationException.class)
-				.isThrownBy(() -> manager.check(authentication, methodInvocation));
+			.isThrownBy(() -> manager.check(authentication, methodInvocation));
 	}
 
 	public static class TestClass implements InterfaceAnnotationsOne, InterfaceAnnotationsTwo {

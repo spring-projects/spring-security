@@ -98,9 +98,9 @@ public class Saml2MetadataFilterTests {
 	public void doFilterWhenRelyingPartyRegistrationFoundThenInvokesMetadataResolver() throws Exception {
 		this.request.setPathInfo("/saml2/service-provider-metadata/validRegistration");
 		RelyingPartyRegistration validRegistration = TestRelyingPartyRegistrations.noCredentials()
-				.assertingPartyDetails((party) -> party.verificationX509Credentials(
-						(c) -> c.add(TestSaml2X509Credentials.relyingPartyVerifyingCredential())))
-				.build();
+			.assertingPartyDetails((party) -> party
+				.verificationX509Credentials((c) -> c.add(TestSaml2X509Credentials.relyingPartyVerifyingCredential())))
+			.build();
 		String generatedMetadata = "<xml>test</xml>";
 		given(this.resolver.resolve(validRegistration)).willReturn(generatedMetadata);
 		this.filter = new Saml2MetadataFilter((request, registrationId) -> validRegistration, this.resolver);
@@ -133,7 +133,7 @@ public class Saml2MetadataFilterTests {
 		this.filter.setMetadataFilename(testMetadataFilename);
 		this.filter.doFilter(this.request, this.response, this.chain);
 		assertThat(this.response.getHeaderValue(HttpHeaders.CONTENT_DISPOSITION)).asString()
-				.isEqualTo("attachment; filename=\"%s\"; filename*=UTF-8''%s", fileName, encodedFileName);
+			.isEqualTo("attachment; filename=\"%s\"; filename*=UTF-8''%s", fileName, encodedFileName);
 	}
 
 	@Test
@@ -178,7 +178,7 @@ public class Saml2MetadataFilterTests {
 		assertThat(this.response.getCharacterEncoding()).isEqualTo(StandardCharsets.UTF_8.name());
 		assertThat(this.response.getContentAsString(StandardCharsets.UTF_8)).isEqualTo(generatedMetadata);
 		assertThat(this.response.getContentLength())
-				.isEqualTo(generatedMetadata.getBytes(StandardCharsets.UTF_8).length);
+			.isEqualTo(generatedMetadata.getBytes(StandardCharsets.UTF_8).length);
 	}
 
 	@Test
@@ -189,14 +189,14 @@ public class Saml2MetadataFilterTests {
 	@Test
 	public void setMetadataFilenameWhenEmptyThenThrowsException() {
 		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> this.filter.setMetadataFilename(" "))
-				.withMessage("metadataFilename cannot be empty");
+			.withMessage("metadataFilename cannot be empty");
 	}
 
 	@Test
 	public void setMetadataFilenameWhenMissingRegistrationIdVariableThenThrowsException() {
 		assertThatExceptionOfType(IllegalArgumentException.class)
-				.isThrownBy(() -> this.filter.setMetadataFilename("metadata-filename.xml"))
-				.withMessage("metadataFilename must contain a {registrationId} match variable");
+			.isThrownBy(() -> this.filter.setMetadataFilename("metadata-filename.xml"))
+			.withMessage("metadataFilename must contain a {registrationId} match variable");
 	}
 
 	@Test

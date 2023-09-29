@@ -56,7 +56,7 @@ public class AccountStatusUserDetailsChecker implements UserDetailsChecker, Mess
 		if (!user.isCredentialsNonExpired()) {
 			this.logger.debug("Failed to authenticate since user account credentials have expired");
 			throw new CredentialsExpiredException(this.messages
-					.getMessage("AccountStatusUserDetailsChecker.credentialsExpired", "User credentials have expired"));
+				.getMessage("AccountStatusUserDetailsChecker.credentialsExpired", "User credentials have expired"));
 		}
 	}
 

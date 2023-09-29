@@ -49,7 +49,7 @@ public class CurrentSecurityContextArgumentResolverTests {
 	@Test
 	public void resolveArgumentWhenAuthenticationPrincipalAndEmptyContextThenNull() {
 		Object result = this.resolver.resolveArgument(arg0("currentSecurityContextOnMonoSecurityContext"), null)
-				.block();
+			.block();
 		assertThat(result).isNull();
 	}
 
@@ -57,8 +57,9 @@ public class CurrentSecurityContextArgumentResolverTests {
 	public void resolveArgumentWhenAuthenticationPrincipalThenFound() {
 		Authentication authentication = TestAuthentication.authenticatedUser();
 		Mono<SecurityContext> result = (Mono<SecurityContext>) this.resolver
-				.resolveArgument(arg0("currentSecurityContextOnMonoSecurityContext"), null)
-				.contextWrite(ReactiveSecurityContextHolder.withAuthentication(authentication)).block();
+			.resolveArgument(arg0("currentSecurityContextOnMonoSecurityContext"), null)
+			.contextWrite(ReactiveSecurityContextHolder.withAuthentication(authentication))
+			.block();
 		assertThat(result.block().getAuthentication()).isEqualTo(authentication);
 	}
 
@@ -75,8 +76,9 @@ public class CurrentSecurityContextArgumentResolverTests {
 	public void resolveArgumentWhenMonoAndAuthenticationPrincipalThenFound() {
 		Authentication authentication = TestAuthentication.authenticatedUser();
 		Mono<UserDetails> result = (Mono<UserDetails>) this.resolver
-				.resolveArgument(arg0("currentUserOnMonoUserDetails"), null)
-				.contextWrite(ReactiveSecurityContextHolder.withAuthentication(authentication)).block();
+			.resolveArgument(arg0("currentUserOnMonoUserDetails"), null)
+			.contextWrite(ReactiveSecurityContextHolder.withAuthentication(authentication))
+			.block();
 		assertThat(result.block()).isEqualTo(authentication.getPrincipal());
 	}
 
@@ -88,8 +90,9 @@ public class CurrentSecurityContextArgumentResolverTests {
 	public void resolveArgumentWhenExpressionThenFound() {
 		Authentication authentication = TestAuthentication.authenticatedUser();
 		Mono<String> result = (Mono<String>) this.resolver
-				.resolveArgument(arg0("authenticationPrincipalExpression"), null)
-				.contextWrite(ReactiveSecurityContextHolder.withAuthentication(authentication)).block();
+			.resolveArgument(arg0("authenticationPrincipalExpression"), null)
+			.contextWrite(ReactiveSecurityContextHolder.withAuthentication(authentication))
+			.block();
 		assertThat(result.block()).isEqualTo(authentication.getName());
 	}
 

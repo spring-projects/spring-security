@@ -96,8 +96,8 @@ public final class PathPatternParserServerWebExchangeMatcher implements ServerWe
 		Map<String, String> pathVariables = this.pattern.matchAndExtract(path).getUriVariables();
 		Map<String, Object> variables = new HashMap<>(pathVariables);
 		if (logger.isDebugEnabled()) {
-			logger.debug(
-					"Checking match of request : '" + path + "'; against '" + this.pattern.getPatternString() + "'");
+			logger
+				.debug("Checking match of request : '" + path + "'; against '" + this.pattern.getPatternString() + "'");
 		}
 		return MatchResult.match(variables);
 	}

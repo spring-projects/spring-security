@@ -55,17 +55,17 @@ public class HttpSecurityDeferAddFilterTests {
 	@Test
 	public void addFilterAfterFilterNotRegisteredYetThenThrowIllegalArgument() {
 		assertThatExceptionOfType(UnsatisfiedDependencyException.class)
-				.isThrownBy(
-						() -> this.spring.register(MyOtherFilterAfterMyFilterNotRegisteredYetConfig.class).autowire())
-				.havingRootCause().isInstanceOf(IllegalArgumentException.class);
+			.isThrownBy(() -> this.spring.register(MyOtherFilterAfterMyFilterNotRegisteredYetConfig.class).autowire())
+			.havingRootCause()
+			.isInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
 	public void addFilterBeforeFilterNotRegisteredYetThenThrowIllegalArgument() {
 		assertThatExceptionOfType(UnsatisfiedDependencyException.class)
-				.isThrownBy(
-						() -> this.spring.register(MyOtherFilterBeforeMyFilterNotRegisteredYetConfig.class).autowire())
-				.havingRootCause().isInstanceOf(IllegalArgumentException.class);
+			.isThrownBy(() -> this.spring.register(MyOtherFilterBeforeMyFilterNotRegisteredYetConfig.class).autowire())
+			.havingRootCause()
+			.isInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
@@ -134,8 +134,10 @@ public class HttpSecurityDeferAddFilterTests {
 
 	private ListAssert<Class<?>> assertThatFilters() {
 		FilterChainProxy filterChain = this.spring.getContext().getBean(FilterChainProxy.class);
-		List<Class<?>> filters = filterChain.getFilters("/").stream().map(Object::getClass)
-				.collect(Collectors.toList());
+		List<Class<?>> filters = filterChain.getFilters("/")
+			.stream()
+			.map(Object::getClass)
+			.collect(Collectors.toList());
 		return assertThat(filters);
 	}
 

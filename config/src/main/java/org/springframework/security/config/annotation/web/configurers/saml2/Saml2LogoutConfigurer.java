@@ -301,7 +301,7 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 	private Saml2RelyingPartyInitiatedLogoutSuccessHandler createSaml2LogoutRequestSuccessHandler(
 			RelyingPartyRegistrationRepository registrations) {
 		Saml2LogoutRequestResolver logoutRequestResolver = this.logoutRequestConfigurer
-				.logoutRequestResolver(registrations);
+			.logoutRequestResolver(registrations);
 		return new Saml2RelyingPartyInitiatedLogoutSuccessHandler(logoutRequestResolver);
 	}
 

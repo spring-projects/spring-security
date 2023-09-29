@@ -45,7 +45,7 @@ class CrossOriginOpenerPolicyHeaderWriterTests {
 	@Test
 	void setOpenerPolicyWhenNullOpenerPolicyThenThrowsIllegalArgument() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.writer.setPolicy(null))
-				.withMessage("openerPolicy cannot be null");
+			.withMessage("openerPolicy cannot be null");
 	}
 
 	@Test

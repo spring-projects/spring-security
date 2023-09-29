@@ -49,12 +49,14 @@ public class OpenSamlSigningUtilsTests {
 	@BeforeEach
 	public void setup() {
 		this.registration = RelyingPartyRegistration.withRegistrationId("saml-idp")
-				.entityId("https://some.idp.example.com/entity-id").signingX509Credentials((c) -> {
-					c.add(TestSaml2X509Credentials.relyingPartySigningCredential());
-					c.add(TestSaml2X509Credentials.assertingPartySigningCredential());
-				}).assertingPartyDetails((c) -> c.entityId("https://some.idp.example.com/entity-id")
-						.singleSignOnServiceLocation("https://some.idp.example.com/service-location"))
-				.build();
+			.entityId("https://some.idp.example.com/entity-id")
+			.signingX509Credentials((c) -> {
+				c.add(TestSaml2X509Credentials.relyingPartySigningCredential());
+				c.add(TestSaml2X509Credentials.assertingPartySigningCredential());
+			})
+			.assertingPartyDetails((c) -> c.entityId("https://some.idp.example.com/entity-id")
+				.singleSignOnServiceLocation("https://some.idp.example.com/service-location"))
+			.build();
 	}
 
 	@Test

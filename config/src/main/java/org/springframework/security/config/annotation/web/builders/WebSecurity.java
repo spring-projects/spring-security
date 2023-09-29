@@ -291,13 +291,13 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 			SecurityFilterChain securityFilterChain = new DefaultSecurityFilterChain(ignoredRequest);
 			securityFilterChains.add(securityFilterChain);
 			requestMatcherPrivilegeEvaluatorsEntries
-					.add(getRequestMatcherPrivilegeEvaluatorsEntry(securityFilterChain));
+				.add(getRequestMatcherPrivilegeEvaluatorsEntry(securityFilterChain));
 		}
 		for (SecurityBuilder<? extends SecurityFilterChain> securityFilterChainBuilder : this.securityFilterChainBuilders) {
 			SecurityFilterChain securityFilterChain = securityFilterChainBuilder.build();
 			securityFilterChains.add(securityFilterChain);
 			requestMatcherPrivilegeEvaluatorsEntries
-					.add(getRequestMatcherPrivilegeEvaluatorsEntry(securityFilterChain));
+				.add(getRequestMatcherPrivilegeEvaluatorsEntry(securityFilterChain));
 		}
 		if (this.privilegeEvaluator == null) {
 			this.privilegeEvaluator = new RequestMatcherDelegatingWebInvocationPrivilegeEvaluator(
@@ -346,7 +346,7 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 			}
 			if (filter instanceof AuthorizationFilter) {
 				AuthorizationManager<HttpServletRequest> authorizationManager = ((AuthorizationFilter) filter)
-						.getAuthorizationManager();
+					.getAuthorizationManager();
 				AuthorizationManagerWebInvocationPrivilegeEvaluator evaluator = new AuthorizationManagerWebInvocationPrivilegeEvaluator(
 						authorizationManager);
 				evaluator.setServletContext(this.servletContext);
@@ -366,7 +366,7 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 		}
 		try {
 			this.defaultWebSecurityExpressionHandler
-					.setPermissionEvaluator(applicationContext.getBean(PermissionEvaluator.class));
+				.setPermissionEvaluator(applicationContext.getBean(PermissionEvaluator.class));
 		}
 		catch (NoSuchBeanDefinitionException ex) {
 		}

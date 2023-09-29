@@ -48,7 +48,7 @@ public class ClientRegistrationTests {
 	private static final String REDIRECT_URI = "https://example.com";
 
 	private static final Set<String> SCOPES = Collections
-			.unmodifiableSet(Stream.of("openid", "profile", "email").collect(Collectors.toSet()));
+		.unmodifiableSet(Stream.of("openid", "profile", "email").collect(Collectors.toSet()));
 
 	private static final String AUTHORIZATION_URI = "https://provider.com/oauth2/authorization";
 
@@ -61,7 +61,7 @@ public class ClientRegistrationTests {
 	private static final String CLIENT_NAME = "Client 1";
 
 	private static final Map<String, Object> PROVIDER_CONFIGURATION_METADATA = Collections
-			.unmodifiableMap(createProviderConfigurationMetadata());
+		.unmodifiableMap(createProviderConfigurationMetadata());
 
 	private static Map<String, Object> createProviderConfigurationMetadata() {
 		Map<String, Object> configurationMetadata = new LinkedHashMap<>();
@@ -114,18 +114,18 @@ public class ClientRegistrationTests {
 		assertThat(registration.getClientId()).isEqualTo(CLIENT_ID);
 		assertThat(registration.getClientSecret()).isEqualTo(CLIENT_SECRET);
 		assertThat(registration.getClientAuthenticationMethod())
-				.isEqualTo(ClientAuthenticationMethod.CLIENT_SECRET_BASIC);
+			.isEqualTo(ClientAuthenticationMethod.CLIENT_SECRET_BASIC);
 		assertThat(registration.getAuthorizationGrantType()).isEqualTo(AuthorizationGrantType.AUTHORIZATION_CODE);
 		assertThat(registration.getRedirectUri()).isEqualTo(REDIRECT_URI);
 		assertThat(registration.getScopes()).isEqualTo(SCOPES);
 		assertThat(registration.getProviderDetails().getAuthorizationUri()).isEqualTo(AUTHORIZATION_URI);
 		assertThat(registration.getProviderDetails().getTokenUri()).isEqualTo(TOKEN_URI);
 		assertThat(registration.getProviderDetails().getUserInfoEndpoint().getAuthenticationMethod())
-				.isEqualTo(AuthenticationMethod.FORM);
+			.isEqualTo(AuthenticationMethod.FORM);
 		assertThat(registration.getProviderDetails().getJwkSetUri()).isEqualTo(JWK_SET_URI);
 		assertThat(registration.getProviderDetails().getIssuerUri()).isEqualTo(ISSUER_URI);
 		assertThat(registration.getProviderDetails().getConfigurationMetadata())
-				.isEqualTo(PROVIDER_CONFIGURATION_METADATA);
+			.isEqualTo(PROVIDER_CONFIGURATION_METADATA);
 		assertThat(registration.getClientName()).isEqualTo(CLIENT_NAME);
 	}
 
@@ -208,7 +208,7 @@ public class ClientRegistrationTests {
 				.build();
 		// @formatter:on
 		assertThat(clientRegistration.getClientAuthenticationMethod())
-				.isEqualTo(ClientAuthenticationMethod.CLIENT_SECRET_BASIC);
+			.isEqualTo(ClientAuthenticationMethod.CLIENT_SECRET_BASIC);
 	}
 
 	@Test
@@ -469,7 +469,7 @@ public class ClientRegistrationTests {
 		assertThat(registration.getClientId()).isEqualTo(CLIENT_ID);
 		assertThat(registration.getClientSecret()).isEqualTo(CLIENT_SECRET);
 		assertThat(registration.getClientAuthenticationMethod())
-				.isEqualTo(ClientAuthenticationMethod.CLIENT_SECRET_BASIC);
+			.isEqualTo(ClientAuthenticationMethod.CLIENT_SECRET_BASIC);
 		assertThat(registration.getAuthorizationGrantType()).isEqualTo(AuthorizationGrantType.CLIENT_CREDENTIALS);
 		assertThat(registration.getScopes()).isEqualTo(SCOPES);
 		assertThat(registration.getProviderDetails().getTokenUri()).isEqualTo(TOKEN_URI);
@@ -478,18 +478,24 @@ public class ClientRegistrationTests {
 
 	@Test
 	public void buildWhenClientCredentialsGrantRegistrationIdIsNullThenThrowIllegalArgumentException() {
-		assertThatIllegalArgumentException().isThrownBy(
-				() -> ClientRegistration.withRegistrationId(null).clientId(CLIENT_ID).clientSecret(CLIENT_SECRET)
-						.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
-						.authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS).tokenUri(TOKEN_URI).build());
+		assertThatIllegalArgumentException().isThrownBy(() -> ClientRegistration.withRegistrationId(null)
+			.clientId(CLIENT_ID)
+			.clientSecret(CLIENT_SECRET)
+			.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
+			.authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
+			.tokenUri(TOKEN_URI)
+			.build());
 	}
 
 	@Test
 	public void buildWhenClientCredentialsGrantClientIdIsNullThenThrowIllegalArgumentException() {
-		assertThatIllegalArgumentException().isThrownBy(
-				() -> ClientRegistration.withRegistrationId(REGISTRATION_ID).clientId(null).clientSecret(CLIENT_SECRET)
-						.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
-						.authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS).tokenUri(TOKEN_URI).build());
+		assertThatIllegalArgumentException().isThrownBy(() -> ClientRegistration.withRegistrationId(REGISTRATION_ID)
+			.clientId(null)
+			.clientSecret(CLIENT_SECRET)
+			.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
+			.authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
+			.tokenUri(TOKEN_URI)
+			.build());
 	}
 
 	@Test
@@ -517,28 +523,31 @@ public class ClientRegistrationTests {
 				.build();
 		// @formatter:on
 		assertThat(clientRegistration.getClientAuthenticationMethod())
-				.isEqualTo(ClientAuthenticationMethod.CLIENT_SECRET_BASIC);
+			.isEqualTo(ClientAuthenticationMethod.CLIENT_SECRET_BASIC);
 	}
 
 	@Test
 	public void buildWhenClientCredentialsGrantTokenUriIsNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> ClientRegistration.withRegistrationId(REGISTRATION_ID)
-				.clientId(CLIENT_ID).clientSecret(CLIENT_SECRET)
-				.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
-				.authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS).tokenUri(null).build());
+			.clientId(CLIENT_ID)
+			.clientSecret(CLIENT_SECRET)
+			.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
+			.authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
+			.tokenUri(null)
+			.build());
 	}
 
 	// gh-6256
 	@Test
 	public void buildWhenScopesContainASpaceThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> TestClientRegistrations.clientCredentials().scope("openid profile email").build());
+			.isThrownBy(() -> TestClientRegistrations.clientCredentials().scope("openid profile email").build());
 	}
 
 	@Test
 	public void buildWhenScopesContainAnInvalidCharacterThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> TestClientRegistrations.clientCredentials().scope("an\"invalid\"scope").build());
+			.isThrownBy(() -> TestClientRegistrations.clientCredentials().scope("an\"invalid\"scope").build());
 	}
 
 	@Test
@@ -558,7 +567,7 @@ public class ClientRegistrationTests {
 		assertThat(registration.getClientId()).isEqualTo(CLIENT_ID);
 		assertThat(registration.getClientSecret()).isEqualTo(CLIENT_SECRET);
 		assertThat(registration.getClientAuthenticationMethod())
-				.isEqualTo(ClientAuthenticationMethod.CLIENT_SECRET_BASIC);
+			.isEqualTo(ClientAuthenticationMethod.CLIENT_SECRET_BASIC);
 		assertThat(registration.getAuthorizationGrantType()).isEqualTo(AuthorizationGrantType.PASSWORD);
 		assertThat(registration.getScopes()).isEqualTo(SCOPES);
 		assertThat(registration.getProviderDetails().getTokenUri()).isEqualTo(TOKEN_URI);
@@ -620,7 +629,7 @@ public class ClientRegistrationTests {
 				.build();
 		// @formatter:on
 		assertThat(clientRegistration.getClientAuthenticationMethod())
-				.isEqualTo(ClientAuthenticationMethod.CLIENT_SECRET_BASIC);
+			.isEqualTo(ClientAuthenticationMethod.CLIENT_SECRET_BASIC);
 	}
 
 	@Test
@@ -657,7 +666,7 @@ public class ClientRegistrationTests {
 		assertThat(registration.getClientId()).isEqualTo(CLIENT_ID);
 		assertThat(registration.getClientSecret()).isEqualTo(CLIENT_SECRET);
 		assertThat(registration.getClientAuthenticationMethod())
-				.isEqualTo(ClientAuthenticationMethod.CLIENT_SECRET_BASIC);
+			.isEqualTo(ClientAuthenticationMethod.CLIENT_SECRET_BASIC);
 		assertThat(registration.getAuthorizationGrantType()).isEqualTo(customGrantType);
 		assertThat(registration.getScopes()).isEqualTo(SCOPES);
 		assertThat(registration.getProviderDetails().getTokenUri()).isEqualTo(TOKEN_URI);
@@ -671,9 +680,9 @@ public class ClientRegistrationTests {
 		assertThat(clientRegistration.getScopes()).isEqualTo(updated.getScopes());
 		assertThat(clientRegistration.getScopes()).isNotSameAs(updated.getScopes());
 		assertThat(clientRegistration.getProviderDetails().getConfigurationMetadata())
-				.isEqualTo(updated.getProviderDetails().getConfigurationMetadata());
+			.isEqualTo(updated.getProviderDetails().getConfigurationMetadata());
 		assertThat(clientRegistration.getProviderDetails().getConfigurationMetadata())
-				.isNotSameAs(updated.getProviderDetails().getConfigurationMetadata());
+			.isNotSameAs(updated.getProviderDetails().getConfigurationMetadata());
 	}
 
 	@Test
@@ -684,7 +693,7 @@ public class ClientRegistrationTests {
 		assertThat(clientRegistration.getClientId()).isEqualTo(updated.getClientId());
 		assertThat(clientRegistration.getClientSecret()).isEqualTo(updated.getClientSecret());
 		assertThat(clientRegistration.getClientAuthenticationMethod())
-				.isEqualTo(updated.getClientAuthenticationMethod());
+			.isEqualTo(updated.getClientAuthenticationMethod());
 		assertThat(clientRegistration.getAuthorizationGrantType()).isEqualTo(updated.getAuthorizationGrantType());
 		assertThat(clientRegistration.getRedirectUri()).isEqualTo(updated.getRedirectUri());
 		assertThat(clientRegistration.getScopes()).isEqualTo(updated.getScopes());
@@ -694,16 +703,16 @@ public class ClientRegistrationTests {
 		assertThat(providerDetails.getTokenUri()).isEqualTo(updatedProviderDetails.getTokenUri());
 		ClientRegistration.ProviderDetails.UserInfoEndpoint userInfoEndpoint = providerDetails.getUserInfoEndpoint();
 		ClientRegistration.ProviderDetails.UserInfoEndpoint updatedUserInfoEndpoint = updatedProviderDetails
-				.getUserInfoEndpoint();
+			.getUserInfoEndpoint();
 		assertThat(userInfoEndpoint.getUri()).isEqualTo(updatedUserInfoEndpoint.getUri());
 		assertThat(userInfoEndpoint.getAuthenticationMethod())
-				.isEqualTo(updatedUserInfoEndpoint.getAuthenticationMethod());
+			.isEqualTo(updatedUserInfoEndpoint.getAuthenticationMethod());
 		assertThat(userInfoEndpoint.getUserNameAttributeName())
-				.isEqualTo(updatedUserInfoEndpoint.getUserNameAttributeName());
+			.isEqualTo(updatedUserInfoEndpoint.getUserNameAttributeName());
 		assertThat(providerDetails.getJwkSetUri()).isEqualTo(updatedProviderDetails.getJwkSetUri());
 		assertThat(providerDetails.getIssuerUri()).isEqualTo(updatedProviderDetails.getIssuerUri());
 		assertThat(providerDetails.getConfigurationMetadata())
-				.isEqualTo(updatedProviderDetails.getConfigurationMetadata());
+			.isEqualTo(updatedProviderDetails.getConfigurationMetadata());
 		assertThat(clientRegistration.getClientName()).isEqualTo(updated.getClientName());
 	}
 
@@ -722,9 +731,9 @@ public class ClientRegistrationTests {
 		assertThat(clientRegistration.getScopes()).doesNotContain("a-new-scope");
 		assertThat(updated.getScopes()).containsExactly("a-new-scope");
 		assertThat(clientRegistration.getProviderDetails().getConfigurationMetadata()).doesNotContainKey("a-new-config")
-				.doesNotContainValue("a-new-value");
+			.doesNotContainValue("a-new-value");
 		assertThat(updated.getProviderDetails().getConfigurationMetadata()).containsOnlyKeys("a-new-config")
-				.containsValue("a-new-value");
+			.containsValue("a-new-value");
 	}
 
 	// gh-8903

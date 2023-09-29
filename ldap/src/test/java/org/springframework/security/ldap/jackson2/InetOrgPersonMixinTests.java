@@ -115,7 +115,7 @@ public class InetOrgPersonMixinTests {
 	@Test
 	public void deserializeWhenMixinNotRegisteredThenThrowJsonProcessingException() {
 		assertThatExceptionOfType(JsonProcessingException.class)
-				.isThrownBy(() -> new ObjectMapper().readValue(INET_ORG_PERSON_JSON, InetOrgPerson.class));
+			.isThrownBy(() -> new ObjectMapper().readValue(INET_ORG_PERSON_JSON, InetOrgPerson.class));
 	}
 
 	@Test
@@ -129,7 +129,7 @@ public class InetOrgPersonMixinTests {
 		assertThat(authentication.getCarLicense()).isEqualTo(expectedAuthentication.getCarLicense());
 		assertThat(authentication.getDepartmentNumber()).isEqualTo(expectedAuthentication.getDepartmentNumber());
 		assertThat(authentication.getDestinationIndicator())
-				.isEqualTo(expectedAuthentication.getDestinationIndicator());
+			.isEqualTo(expectedAuthentication.getDestinationIndicator());
 		assertThat(authentication.getDn()).isEqualTo(expectedAuthentication.getDn());
 		assertThat(authentication.getDescription()).isEqualTo(expectedAuthentication.getDescription());
 		assertThat(authentication.getDisplayName()).isEqualTo(expectedAuthentication.getDisplayName());
@@ -153,14 +153,14 @@ public class InetOrgPersonMixinTests {
 		assertThat(authentication.getGivenName()).isEqualTo(expectedAuthentication.getGivenName());
 		assertThat(authentication.getTelephoneNumber()).isEqualTo(expectedAuthentication.getTelephoneNumber());
 		assertThat(authentication.getGraceLoginsRemaining())
-				.isEqualTo(expectedAuthentication.getGraceLoginsRemaining());
+			.isEqualTo(expectedAuthentication.getGraceLoginsRemaining());
 		assertThat(authentication.getTimeBeforeExpiration())
-				.isEqualTo(expectedAuthentication.getTimeBeforeExpiration());
+			.isEqualTo(expectedAuthentication.getTimeBeforeExpiration());
 		assertThat(authentication.isAccountNonExpired()).isEqualTo(expectedAuthentication.isAccountNonExpired());
 		assertThat(authentication.isAccountNonLocked()).isEqualTo(expectedAuthentication.isAccountNonLocked());
 		assertThat(authentication.isEnabled()).isEqualTo(expectedAuthentication.isEnabled());
 		assertThat(authentication.isCredentialsNonExpired())
-				.isEqualTo(expectedAuthentication.isCredentialsNonExpired());
+			.isEqualTo(expectedAuthentication.isCredentialsNonExpired());
 	}
 
 	private DirContextAdapter createUserContext() {

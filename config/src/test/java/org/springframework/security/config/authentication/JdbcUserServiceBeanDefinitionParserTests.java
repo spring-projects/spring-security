@@ -65,7 +65,7 @@ public class JdbcUserServiceBeanDefinitionParserTests {
 	@Test
 	public void beanNameIsCorrect() {
 		assertThat(JdbcUserDetailsManager.class.getName())
-				.isEqualTo(new JdbcUserServiceBeanDefinitionParser().getBeanClassName(mock(Element.class)));
+			.isEqualTo(new JdbcUserServiceBeanDefinitionParser().getBeanClassName(mock(Element.class)));
 	}
 
 	@Test
@@ -112,7 +112,7 @@ public class JdbcUserServiceBeanDefinitionParserTests {
 		setContext("<jdbc-user-service id='myUserService' cache-ref='userCache' data-source-ref='dataSource'/>"
 				+ DATA_SOURCE + USER_CACHE_XML);
 		CachingUserDetailsService cachingUserService = (CachingUserDetailsService) this.appContext
-				.getBean("myUserService" + AbstractUserDetailsServiceBeanDefinitionParser.CACHING_SUFFIX);
+			.getBean("myUserService" + AbstractUserDetailsServiceBeanDefinitionParser.CACHING_SUFFIX);
 		assertThat(this.appContext.getBean("userCache")).isSameAs(cachingUserService.getUserCache());
 		assertThat(cachingUserService.loadUserByUsername("rod")).isNotNull();
 		assertThat(cachingUserService.loadUserByUsername("rod")).isNotNull();
@@ -148,7 +148,7 @@ public class JdbcUserServiceBeanDefinitionParserTests {
 		assertThat(this.appContext.getBean("userCache")).isSameAs(provider.getUserCache());
 		provider.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("rod", "koala"));
 		assertThat(provider.getUserCache().getUserFromCache("rod")).isNotNull()
-				.withFailMessage("Cache should contain user after authentication");
+			.withFailMessage("Cache should contain user after authentication");
 	}
 
 	@Test

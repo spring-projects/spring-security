@@ -50,7 +50,7 @@ final class Saml2LogoutBeanDefinitionParserUtils {
 
 	static BeanMetadataElement getRelyingPartyRegistrationRepository(Element element) {
 		String relyingPartyRegistrationRepositoryRef = element
-				.getAttribute(ATT_RELYING_PARTY_REGISTRATION_REPOSITORY_REF);
+			.getAttribute(ATT_RELYING_PARTY_REGISTRATION_REPOSITORY_REF);
 		if (StringUtils.hasText(relyingPartyRegistrationRepositoryRef)) {
 			return new RuntimeBeanReference(relyingPartyRegistrationRepositoryRef);
 		}
@@ -64,7 +64,8 @@ final class Saml2LogoutBeanDefinitionParserUtils {
 		}
 		return BeanDefinitionBuilder.rootBeanDefinition(
 				"org.springframework.security.saml2.provider.service.web.authentication.logout.OpenSaml4LogoutResponseResolver")
-				.addConstructorArgValue(registrations).getBeanDefinition();
+			.addConstructorArgValue(registrations)
+			.getBeanDefinition();
 	}
 
 	static BeanMetadataElement getLogoutRequestValidator(Element element) {
@@ -98,7 +99,8 @@ final class Saml2LogoutBeanDefinitionParserUtils {
 		}
 		return BeanDefinitionBuilder.rootBeanDefinition(
 				"org.springframework.security.saml2.provider.service.web.authentication.logout.OpenSaml4LogoutRequestResolver")
-				.addConstructorArgValue(registrations).getBeanDefinition();
+			.addConstructorArgValue(registrations)
+			.getBeanDefinition();
 	}
 
 }

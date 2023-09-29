@@ -77,7 +77,7 @@ public class DefaultLdapAuthoritiesPopulatorTests {
 		this.populator.setDefaultRole("ROLE_USER");
 
 		Collection<GrantedAuthority> authorities = this.populator
-				.getGrantedAuthorities(new DirContextAdapter(new DistinguishedName("cn=notused")), "notused");
+			.getGrantedAuthorities(new DirContextAdapter(new DistinguishedName("cn=notused")), "notused");
 		assertThat(authorities).hasSize(1);
 		assertThat(AuthorityUtils.authorityListToSet(authorities).contains("ROLE_USER")).isTrue();
 	}
@@ -112,7 +112,7 @@ public class DefaultLdapAuthoritiesPopulatorTests {
 				new DistinguishedName("uid=ben,ou=people,dc=springframework,dc=org"));
 
 		Set<String> authorities = AuthorityUtils
-				.authorityListToSet(this.populator.getGrantedAuthorities(ctx, "manager"));
+			.authorityListToSet(this.populator.getGrantedAuthorities(ctx, "manager"));
 
 		assertThat(authorities).as("Should have 1 role").hasSize(1);
 		assertThat(authorities.contains("ROLE_MANAGER")).isTrue();
@@ -127,7 +127,7 @@ public class DefaultLdapAuthoritiesPopulatorTests {
 				new DistinguishedName("uid=ben,ou=people,dc=springframework,dc=org"));
 
 		Set<String> authorities = AuthorityUtils
-				.authorityListToSet(this.populator.getGrantedAuthorities(ctx, "manager"));
+			.authorityListToSet(this.populator.getGrantedAuthorities(ctx, "manager"));
 
 		assertThat(authorities).as("Should have 2 roles").hasSize(2);
 		assertThat(authorities.contains("ROLE_MANAGER")).isTrue();
@@ -144,7 +144,7 @@ public class DefaultLdapAuthoritiesPopulatorTests {
 				new DistinguishedName("uid=ben,ou=people,dc=springframework,dc=org"));
 
 		Set<String> authorities = AuthorityUtils
-				.authorityListToSet(this.populator.getGrantedAuthorities(ctx, "manager"));
+			.authorityListToSet(this.populator.getGrantedAuthorities(ctx, "manager"));
 
 		assertThat(authorities).as("Should have 3 roles").hasSize(3);
 		assertThat(authorities.contains("ROLE_MANAGER")).isTrue();
@@ -162,7 +162,7 @@ public class DefaultLdapAuthoritiesPopulatorTests {
 		};
 
 		Collection<GrantedAuthority> authorities = this.populator
-				.getGrantedAuthorities(new DirContextAdapter(new DistinguishedName("cn=notused")), "notused");
+			.getGrantedAuthorities(new DirContextAdapter(new DistinguishedName("cn=notused")), "notused");
 		assertThat(authorities).hasSize(1);
 		assertThat(AuthorityUtils.authorityListToSet(authorities).contains("ROLE_EXTRA")).isTrue();
 	}
@@ -177,7 +177,7 @@ public class DefaultLdapAuthoritiesPopulatorTests {
 				new DistinguishedName("cn=mouse\\, jerry,ou=people,dc=springframework,dc=org"));
 
 		Set<String> authorities = AuthorityUtils
-				.authorityListToSet(this.populator.getGrantedAuthorities(ctx, "notused"));
+			.authorityListToSet(this.populator.getGrantedAuthorities(ctx, "notused"));
 
 		assertThat(authorities).as("Should have 1 role").hasSize(1);
 		assertThat(authorities.contains("ROLE_MANAGER")).isTrue();

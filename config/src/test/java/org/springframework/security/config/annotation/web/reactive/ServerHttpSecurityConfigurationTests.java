@@ -39,16 +39,20 @@ public class ServerHttpSecurityConfigurationTests {
 
 	@Test
 	public void loadConfigWhenReactiveUserDetailsServiceConfiguredThenServerHttpSecurityExists() {
-		this.spring.register(ServerHttpSecurityConfiguration.class, ReactiveAuthenticationTestConfiguration.class,
-				WebFluxSecurityConfiguration.class).autowire();
+		this.spring
+			.register(ServerHttpSecurityConfiguration.class, ReactiveAuthenticationTestConfiguration.class,
+					WebFluxSecurityConfiguration.class)
+			.autowire();
 		ServerHttpSecurity serverHttpSecurity = this.spring.getContext().getBean(ServerHttpSecurity.class);
 		assertThat(serverHttpSecurity).isNotNull();
 	}
 
 	@Test
 	public void loadConfigWhenProxyingEnabledAndSubclassThenServerHttpSecurityExists() {
-		this.spring.register(SubclassConfig.class, ReactiveAuthenticationTestConfiguration.class,
-				WebFluxSecurityConfiguration.class).autowire();
+		this.spring
+			.register(SubclassConfig.class, ReactiveAuthenticationTestConfiguration.class,
+					WebFluxSecurityConfiguration.class)
+			.autowire();
 		ServerHttpSecurity serverHttpSecurity = this.spring.getContext().getBean(ServerHttpSecurity.class);
 		assertThat(serverHttpSecurity).isNotNull();
 	}

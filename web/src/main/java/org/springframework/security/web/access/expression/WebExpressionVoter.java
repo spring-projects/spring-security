@@ -53,7 +53,7 @@ public class WebExpressionVoter implements AccessDecisionVoter<FilterInvocation>
 		WebExpressionConfigAttribute webExpressionConfigAttribute = findConfigAttribute(attributes);
 		if (webExpressionConfigAttribute == null) {
 			this.logger
-					.trace("Abstained since did not find a config attribute of instance WebExpressionConfigAttribute");
+				.trace("Abstained since did not find a config attribute of instance WebExpressionConfigAttribute");
 			return ACCESS_ABSTAIN;
 		}
 		EvaluationContext ctx = webExpressionConfigAttribute.postProcess(

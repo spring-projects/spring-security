@@ -35,28 +35,29 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 public class JwtBearerGrantRequestTests {
 
 	private final ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration()
-			.authorizationGrantType(AuthorizationGrantType.JWT_BEARER).build();
+		.authorizationGrantType(AuthorizationGrantType.JWT_BEARER)
+		.build();
 
 	private final Jwt jwtAssertion = TestJwts.jwt().build();
 
 	@Test
 	public void constructorWhenClientRegistrationIsNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> new JwtBearerGrantRequest(null, this.jwtAssertion))
-				.withMessage("clientRegistration cannot be null");
+			.withMessage("clientRegistration cannot be null");
 	}
 
 	@Test
 	public void constructorWhenJwtIsNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> new JwtBearerGrantRequest(this.clientRegistration, null))
-				.withMessage("jwt cannot be null");
+			.withMessage("jwt cannot be null");
 	}
 
 	@Test
 	public void constructorWhenClientRegistrationInvalidGrantTypeThenThrowIllegalArgumentException() {
 		ClientRegistration registration = TestClientRegistrations.clientCredentials().build();
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new JwtBearerGrantRequest(registration, this.jwtAssertion))
-				.withMessage("clientRegistration.authorizationGrantType must be AuthorizationGrantType.JWT_BEARER");
+			.isThrownBy(() -> new JwtBearerGrantRequest(registration, this.jwtAssertion))
+			.withMessage("clientRegistration.authorizationGrantType must be AuthorizationGrantType.JWT_BEARER");
 	}
 
 	@Test

@@ -85,8 +85,11 @@ public class NamespaceHttpExpressionHandlerTests {
 
 		@Bean
 		UserDetailsService userDetailsService() {
-			UserDetails user = User.withDefaultPasswordEncoder().username("rod").password("password")
-					.roles("USER", "ADMIN").build();
+			UserDetails user = User.withDefaultPasswordEncoder()
+				.username("rod")
+				.password("password")
+				.roles("USER", "ADMIN")
+				.build();
 			return new InMemoryUserDetailsManager(user);
 		}
 

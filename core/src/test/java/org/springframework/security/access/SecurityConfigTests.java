@@ -48,7 +48,7 @@ public class SecurityConfigTests {
 	@Test
 	public void testNoArgConstructorDoesntExist() throws Exception {
 		assertThatExceptionOfType(NoSuchMethodException.class)
-				.isThrownBy(() -> SecurityConfig.class.getDeclaredConstructor((Class[]) null));
+			.isThrownBy(() -> SecurityConfig.class.getDeclaredConstructor((Class[]) null));
 	}
 
 	@Test

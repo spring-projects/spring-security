@@ -96,7 +96,7 @@ public final class OpenSamlAuthenticationTokenConverter implements Authenticatio
 		XMLObjectProviderRegistry registry = ConfigurationService.get(XMLObjectProviderRegistry.class);
 		this.parserPool = registry.getParserPool();
 		this.unmarshaller = (ResponseUnmarshaller) XMLObjectProviderRegistrySupport.getUnmarshallerFactory()
-				.getUnmarshaller(Response.DEFAULT_ELEMENT_NAME);
+			.getUnmarshaller(Response.DEFAULT_ELEMENT_NAME);
 		this.registrations = registrations;
 		this.loader = new HttpSessionSaml2AuthenticationRequestRepository()::loadAuthenticationRequest;
 	}
@@ -183,9 +183,10 @@ public final class OpenSamlAuthenticationTokenConverter implements Authenticatio
 		String serialized = request.getParameter(Saml2ParameterNames.SAML_RESPONSE);
 		String decoded = inflateIfRequired(request, samlDecode(serialized));
 		UriResolver resolver = RelyingPartyRegistrationPlaceholderResolvers.uriResolver(request, registration);
-		registration = registration.mutate().entityId(resolver.resolve(registration.getEntityId()))
-				.assertionConsumerServiceLocation(resolver.resolve(registration.getAssertionConsumerServiceLocation()))
-				.build();
+		registration = registration.mutate()
+			.entityId(resolver.resolve(registration.getEntityId()))
+			.assertionConsumerServiceLocation(resolver.resolve(registration.getAssertionConsumerServiceLocation()))
+			.build();
 		return new Saml2AuthenticationToken(registration, decoded, authenticationRequest);
 	}
 
@@ -249,7 +250,7 @@ public final class OpenSamlAuthenticationTokenConverter implements Authenticatio
 	private Response parse(String request) throws Saml2Exception {
 		try {
 			Document document = this.parserPool
-					.parse(new ByteArrayInputStream(request.getBytes(StandardCharsets.UTF_8)));
+				.parse(new ByteArrayInputStream(request.getBytes(StandardCharsets.UTF_8)));
 			Element element = document.getDocumentElement();
 			return (Response) this.unmarshaller.unmarshall(element);
 		}
@@ -268,7 +269,7 @@ public final class OpenSamlAuthenticationTokenConverter implements Authenticatio
 
 		private static int[] genValueMapping() {
 			byte[] alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
-					.getBytes(StandardCharsets.ISO_8859_1);
+				.getBytes(StandardCharsets.ISO_8859_1);
 
 			int[] values = new int[256];
 			Arrays.fill(values, -1);
@@ -293,14 +294,14 @@ public final class OpenSamlAuthenticationTokenConverter implements Authenticatio
 
 			// in cases of an incomplete final chunk, ensure the unused bits are zero
 			switch (goodChars % 4) {
-			case 0:
-				return true;
-			case 2:
-				return (lastGoodCharVal & 0b1111) == 0;
-			case 3:
-				return (lastGoodCharVal & 0b11) == 0;
-			default:
-				return false;
+				case 0:
+					return true;
+				case 2:
+					return (lastGoodCharVal & 0b1111) == 0;
+				case 3:
+					return (lastGoodCharVal & 0b11) == 0;
+				default:
+					return false;
 			}
 		}
 

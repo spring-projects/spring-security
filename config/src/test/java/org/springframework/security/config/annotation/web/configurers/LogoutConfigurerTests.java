@@ -82,36 +82,36 @@ public class LogoutConfigurerTests {
 	@Test
 	public void configureWhenDefaultLogoutSuccessHandlerForHasNullLogoutHandlerThenException() {
 		assertThatExceptionOfType(BeanCreationException.class)
-				.isThrownBy(() -> this.spring.register(NullLogoutSuccessHandlerConfig.class).autowire())
-				.withRootCauseInstanceOf(IllegalArgumentException.class);
+			.isThrownBy(() -> this.spring.register(NullLogoutSuccessHandlerConfig.class).autowire())
+			.withRootCauseInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
 	public void configureWhenDefaultLogoutSuccessHandlerForHasNullLogoutHandlerInLambdaThenException() {
 		assertThatExceptionOfType(BeanCreationException.class)
-				.isThrownBy(() -> this.spring.register(NullLogoutSuccessHandlerInLambdaConfig.class).autowire())
-				.withRootCauseInstanceOf(IllegalArgumentException.class);
+			.isThrownBy(() -> this.spring.register(NullLogoutSuccessHandlerInLambdaConfig.class).autowire())
+			.withRootCauseInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
 	public void configureWhenDefaultLogoutSuccessHandlerForHasNullMatcherThenException() {
 		assertThatExceptionOfType(BeanCreationException.class)
-				.isThrownBy(() -> this.spring.register(NullMatcherConfig.class).autowire())
-				.withRootCauseInstanceOf(IllegalArgumentException.class);
+			.isThrownBy(() -> this.spring.register(NullMatcherConfig.class).autowire())
+			.withRootCauseInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
 	public void configureWhenDefaultLogoutSuccessHandlerForHasNullMatcherInLambdaThenException() {
 		assertThatExceptionOfType(BeanCreationException.class)
-				.isThrownBy(() -> this.spring.register(NullMatcherInLambdaConfig.class).autowire())
-				.withRootCauseInstanceOf(IllegalArgumentException.class);
+			.isThrownBy(() -> this.spring.register(NullMatcherInLambdaConfig.class).autowire())
+			.withRootCauseInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
 	public void configureWhenRegisteringObjectPostProcessorThenInvokedOnLogoutFilter() {
 		this.spring.register(ObjectPostProcessorConfig.class).autowire();
 		ObjectPostProcessor<LogoutFilter> objectPostProcessor = this.spring.getContext()
-				.getBean(ObjectPostProcessor.class);
+			.getBean(ObjectPostProcessor.class);
 		verify(objectPostProcessor).postProcess(any(LogoutFilter.class));
 	}
 
@@ -221,23 +221,24 @@ public class LogoutConfigurerTests {
 	@Test
 	public void configureWhenLogoutHandlerNullThenException() {
 		assertThatExceptionOfType(BeanCreationException.class)
-				.isThrownBy(() -> this.spring.register(NullLogoutHandlerConfig.class).autowire())
-				.withRootCauseInstanceOf(IllegalArgumentException.class);
+			.isThrownBy(() -> this.spring.register(NullLogoutHandlerConfig.class).autowire())
+			.withRootCauseInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
 	public void configureWhenLogoutHandlerNullInLambdaThenException() {
 		assertThatExceptionOfType(BeanCreationException.class)
-				.isThrownBy(() -> this.spring.register(NullLogoutHandlerInLambdaConfig.class).autowire())
-				.withRootCauseInstanceOf(IllegalArgumentException.class);
+			.isThrownBy(() -> this.spring.register(NullLogoutHandlerInLambdaConfig.class).autowire())
+			.withRootCauseInstanceOf(IllegalArgumentException.class);
 	}
 
 	// SEC-3170
 	@Test
 	public void rememberMeWhenRememberMeServicesNotLogoutHandlerThenRedirectsToLogin() throws Exception {
 		this.spring.register(RememberMeNoLogoutHandler.class).autowire();
-		this.mvc.perform(post("/logout").with(csrf())).andExpect(status().isFound())
-				.andExpect(redirectedUrl("/login?logout"));
+		this.mvc.perform(post("/logout").with(csrf()))
+			.andExpect(status().isFound())
+			.andExpect(redirectedUrl("/login?logout"));
 	}
 
 	@Test

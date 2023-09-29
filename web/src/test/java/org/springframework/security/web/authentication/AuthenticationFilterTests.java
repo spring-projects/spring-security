@@ -130,7 +130,7 @@ public class AuthenticationFilterTests {
 		verify(chain).doFilter(any(ServletRequest.class), any(ServletResponse.class));
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
 		assertThat(request.getAttribute(RequestAttributeSecurityContextRepository.DEFAULT_REQUEST_ATTR_NAME))
-				.isNotNull();
+			.isNotNull();
 	}
 
 	@Test
@@ -169,7 +169,7 @@ public class AuthenticationFilterTests {
 		verify(chain).doFilter(any(ServletRequest.class), any(ServletResponse.class));
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
 		assertThat(request.getAttribute(RequestAttributeSecurityContextRepository.DEFAULT_REQUEST_ATTR_NAME))
-				.isNotNull();
+			.isNotNull();
 	}
 
 	@Test
@@ -234,7 +234,7 @@ public class AuthenticationFilterTests {
 		verifyNoMoreInteractions(this.failureHandler);
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
 		assertThat(request.getAttribute(RequestAttributeSecurityContextRepository.DEFAULT_REQUEST_ATTR_NAME))
-				.isNotNull();
+			.isNotNull();
 	}
 
 	@Test

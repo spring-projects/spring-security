@@ -59,7 +59,7 @@ final class PostAuthorizeExpressionAttributeRegistry extends AbstractExpressionA
 			return ExpressionAttribute.NULL_ATTRIBUTE;
 		}
 		Expression postAuthorizeExpression = this.expressionHandler.getExpressionParser()
-				.parseExpression(postAuthorize.value());
+			.parseExpression(postAuthorize.value());
 		return new ExpressionAttribute(postAuthorizeExpression);
 	}
 

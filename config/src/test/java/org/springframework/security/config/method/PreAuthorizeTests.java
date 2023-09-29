@@ -48,30 +48,30 @@ public class PreAuthorizeTests {
 	@Test
 	public void preAuthorizeAdminRoleDenied() {
 		SecurityContextHolder.getContext()
-				.setAuthentication(new TestingAuthenticationToken("user", "pass", "ROLE_USER"));
+			.setAuthentication(new TestingAuthenticationToken("user", "pass", "ROLE_USER"));
 		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(this.service::preAuthorizeAdminRole);
 	}
 
 	@Test
 	public void preAuthorizeAdminRoleGranted() {
 		SecurityContextHolder.getContext()
-				.setAuthentication(new TestingAuthenticationToken("user", "pass", "ROLE_ADMIN"));
+			.setAuthentication(new TestingAuthenticationToken("user", "pass", "ROLE_ADMIN"));
 		this.service.preAuthorizeAdminRole();
 	}
 
 	@Test
 	public void preAuthorizeContactPermissionGranted() {
 		SecurityContextHolder.getContext()
-				.setAuthentication(new TestingAuthenticationToken("user", "pass", "ROLE_ADMIN"));
+			.setAuthentication(new TestingAuthenticationToken("user", "pass", "ROLE_ADMIN"));
 		this.service.contactPermission(new Contact("user"));
 	}
 
 	@Test
 	public void preAuthorizeContactPermissionDenied() {
 		SecurityContextHolder.getContext()
-				.setAuthentication(new TestingAuthenticationToken("user", "pass", "ROLE_ADMIN"));
+			.setAuthentication(new TestingAuthenticationToken("user", "pass", "ROLE_ADMIN"));
 		assertThatExceptionOfType(AccessDeniedException.class)
-				.isThrownBy(() -> this.service.contactPermission(new Contact("admin")));
+			.isThrownBy(() -> this.service.contactPermission(new Contact("admin")));
 	}
 
 }

@@ -92,7 +92,7 @@ public class AuthorizationFilterTests {
 	public void filterWhenAuthorizationManagerVerifyPassesThenNextFilter() throws Exception {
 		AuthorizationManager<HttpServletRequest> mockAuthorizationManager = mock(AuthorizationManager.class);
 		given(mockAuthorizationManager.check(any(Supplier.class), any(HttpServletRequest.class)))
-				.willReturn(new AuthorizationDecision(true));
+			.willReturn(new AuthorizationDecision(true));
 		AuthorizationFilter filter = new AuthorizationFilter(mockAuthorizationManager);
 		TestingAuthenticationToken authenticationToken = new TestingAuthenticationToken("user", "password");
 
@@ -129,12 +129,12 @@ public class AuthorizationFilterTests {
 		MockHttpServletResponse mockResponse = new MockHttpServletResponse();
 		FilterChain mockFilterChain = mock(FilterChain.class);
 
-		willThrow(new AccessDeniedException("Access Denied")).given(mockAuthorizationManager).check(any(),
-				eq(mockRequest));
+		willThrow(new AccessDeniedException("Access Denied")).given(mockAuthorizationManager)
+			.check(any(), eq(mockRequest));
 
 		assertThatExceptionOfType(AccessDeniedException.class)
-				.isThrownBy(() -> filter.doFilter(mockRequest, mockResponse, mockFilterChain))
-				.withMessage("Access Denied");
+			.isThrownBy(() -> filter.doFilter(mockRequest, mockResponse, mockFilterChain))
+			.withMessage("Access Denied");
 
 		ArgumentCaptor<Supplier<Authentication>> authenticationCaptor = ArgumentCaptor.forClass(Supplier.class);
 		verify(mockAuthorizationManager).check(authenticationCaptor.capture(), eq(mockRequest));
@@ -152,8 +152,8 @@ public class AuthorizationFilterTests {
 		FilterChain mockFilterChain = mock(FilterChain.class);
 
 		assertThatExceptionOfType(AuthenticationCredentialsNotFoundException.class)
-				.isThrownBy(() -> filter.doFilter(mockRequest, mockResponse, mockFilterChain))
-				.withMessage("An Authentication object was not found in the SecurityContext");
+			.isThrownBy(() -> filter.doFilter(mockRequest, mockResponse, mockFilterChain))
+			.withMessage("An Authentication object was not found in the SecurityContext");
 
 		verifyNoInteractions(mockFilterChain);
 	}
@@ -170,7 +170,7 @@ public class AuthorizationFilterTests {
 		AuthorizationManager<HttpServletRequest> authorizationManager = mock(AuthorizationManager.class);
 		AuthorizationFilter authorizationFilter = new AuthorizationFilter(authorizationManager);
 		assertThatIllegalArgumentException().isThrownBy(() -> authorizationFilter.setAuthorizationEventPublisher(null))
-				.withMessage("eventPublisher cannot be null");
+			.withMessage("eventPublisher cannot be null");
 	}
 
 	@Test

@@ -74,7 +74,7 @@ class MessageExpressionConfigAttribute implements ConfigAttribute, EvaluationCon
 	public EvaluationContext postProcess(EvaluationContext ctx, Message<?> message) {
 		if (this.matcher instanceof SimpDestinationMessageMatcher) {
 			Map<String, String> variables = ((SimpDestinationMessageMatcher) this.matcher)
-					.extractPathVariables(message);
+				.extractPathVariables(message);
 			for (Map.Entry<String, String> entry : variables.entrySet()) {
 				ctx.setVariable(entry.getKey(), entry.getValue());
 			}

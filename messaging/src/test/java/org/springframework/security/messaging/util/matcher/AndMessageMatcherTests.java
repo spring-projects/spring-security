@@ -65,13 +65,13 @@ public class AndMessageMatcherTests {
 	@Test
 	public void constructorNullList() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new AndMessageMatcher<>((List<MessageMatcher<Object>>) null));
+			.isThrownBy(() -> new AndMessageMatcher<>((List<MessageMatcher<Object>>) null));
 	}
 
 	@Test
 	public void constructorListContainsNull() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new AndMessageMatcher<>(Arrays.asList((MessageMatcher<Object>) null)));
+			.isThrownBy(() -> new AndMessageMatcher<>(Arrays.asList((MessageMatcher<Object>) null)));
 	}
 
 	@Test

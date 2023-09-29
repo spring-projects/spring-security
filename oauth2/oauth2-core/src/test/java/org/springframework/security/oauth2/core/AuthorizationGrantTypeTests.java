@@ -51,7 +51,7 @@ public class AuthorizationGrantTypeTests {
 	@Test
 	public void getValueWhenJwtBearerGrantTypeThenReturnJwtBearer() {
 		assertThat(AuthorizationGrantType.JWT_BEARER.getValue())
-				.isEqualTo("urn:ietf:params:oauth:grant-type:jwt-bearer");
+			.isEqualTo("urn:ietf:params:oauth:grant-type:jwt-bearer");
 	}
 
 }

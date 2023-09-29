@@ -68,39 +68,39 @@ public class SecurityRequestsTests {
 	@Test
 	public void requestProtectedUrlWithUser() throws Exception {
 		this.mvc.perform(get("/").with(user("user")))
-				// Ensure we got past Security
-				.andExpect(status().isNotFound())
-				// Ensure it appears we are authenticated with user
-				.andExpect(authenticated().withUsername("user"));
+			// Ensure we got past Security
+			.andExpect(status().isNotFound())
+			// Ensure it appears we are authenticated with user
+			.andExpect(authenticated().withUsername("user"));
 	}
 
 	@Test
 	public void requestProtectedUrlWithAdmin() throws Exception {
 		this.mvc.perform(get("/admin").with(user("admin").roles("ADMIN")))
-				// Ensure we got past Security
-				.andExpect(status().isNotFound())
-				// Ensure it appears we are authenticated with admin
-				.andExpect(authenticated().withUsername("admin"));
+			// Ensure we got past Security
+			.andExpect(status().isNotFound())
+			// Ensure it appears we are authenticated with admin
+			.andExpect(authenticated().withUsername("admin"));
 	}
 
 	@Test
 	public void requestProtectedUrlWithUserDetails() throws Exception {
 		UserDetails user = this.userDetailsService.loadUserByUsername("user");
 		this.mvc.perform(get("/").with(user(user)))
-				// Ensure we got past Security
-				.andExpect(status().isNotFound())
-				// Ensure it appears we are authenticated with user
-				.andExpect(authenticated().withAuthenticationPrincipal(user));
+			// Ensure we got past Security
+			.andExpect(status().isNotFound())
+			// Ensure it appears we are authenticated with user
+			.andExpect(authenticated().withAuthenticationPrincipal(user));
 	}
 
 	@Test
 	public void requestProtectedUrlWithAuthentication() throws Exception {
 		Authentication authentication = new TestingAuthenticationToken("test", "notused", "ROLE_USER");
 		this.mvc.perform(get("/").with(authentication(authentication)))
-				// Ensure we got past Security
-				.andExpect(status().isNotFound())
-				// Ensure it appears we are authenticated with user
-				.andExpect(authenticated().withAuthentication(authentication));
+			// Ensure we got past Security
+			.andExpect(status().isNotFound())
+			// Ensure it appears we are authenticated with user
+			.andExpect(authenticated().withAuthentication(authentication));
 	}
 
 	@Configuration

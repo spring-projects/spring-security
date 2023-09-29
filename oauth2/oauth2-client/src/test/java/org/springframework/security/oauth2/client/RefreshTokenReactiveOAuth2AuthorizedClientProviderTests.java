@@ -80,8 +80,8 @@ public class RefreshTokenReactiveOAuth2AuthorizedClientProviderTests {
 	@Test
 	public void setAccessTokenResponseClientWhenClientIsNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> this.authorizedClientProvider.setAccessTokenResponseClient(null))
-				.withMessage("accessTokenResponseClient cannot be null");
+			.isThrownBy(() -> this.authorizedClientProvider.setAccessTokenResponseClient(null))
+			.withMessage("accessTokenResponseClient cannot be null");
 	}
 
 	@Test
@@ -161,7 +161,8 @@ public class RefreshTokenReactiveOAuth2AuthorizedClientProviderTests {
 	@Test
 	public void authorizeWhenAuthorizedAndAccessTokenNotExpiredButClockSkewForcesExpiryThenReauthorize() {
 		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses.accessTokenResponse()
-				.refreshToken("new-refresh-token").build();
+			.refreshToken("new-refresh-token")
+			.build();
 		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(Mono.just(accessTokenResponse));
 		Instant now = Instant.now();
 		Instant issuedAt = now.minus(Duration.ofMinutes(60));
@@ -174,9 +175,11 @@ public class RefreshTokenReactiveOAuth2AuthorizedClientProviderTests {
 		// force it to expire on the client
 		this.authorizedClientProvider.setClockSkew(Duration.ofSeconds(90));
 		OAuth2AuthorizationContext authorizationContext = OAuth2AuthorizationContext
-				.withAuthorizedClient(authorizedClient).principal(this.principal).build();
+			.withAuthorizedClient(authorizedClient)
+			.principal(this.principal)
+			.build();
 		OAuth2AuthorizedClient reauthorizedClient = this.authorizedClientProvider.authorize(authorizationContext)
-				.block();
+			.block();
 		assertThat(reauthorizedClient.getClientRegistration()).isSameAs(this.clientRegistration);
 		assertThat(reauthorizedClient.getPrincipalName()).isEqualTo(this.principal.getName());
 		assertThat(reauthorizedClient.getAccessToken()).isEqualTo(accessTokenResponse.getAccessToken());
@@ -186,12 +189,15 @@ public class RefreshTokenReactiveOAuth2AuthorizedClientProviderTests {
 	@Test
 	public void authorizeWhenAuthorizedAndAccessTokenExpiredThenReauthorize() {
 		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses.accessTokenResponse()
-				.refreshToken("new-refresh-token").build();
+			.refreshToken("new-refresh-token")
+			.build();
 		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(Mono.just(accessTokenResponse));
 		OAuth2AuthorizationContext authorizationContext = OAuth2AuthorizationContext
-				.withAuthorizedClient(this.authorizedClient).principal(this.principal).build();
+			.withAuthorizedClient(this.authorizedClient)
+			.principal(this.principal)
+			.build();
 		OAuth2AuthorizedClient reauthorizedClient = this.authorizedClientProvider.authorize(authorizationContext)
-				.block();
+			.block();
 		assertThat(reauthorizedClient.getClientRegistration()).isSameAs(this.clientRegistration);
 		assertThat(reauthorizedClient.getPrincipalName()).isEqualTo(this.principal.getName());
 		assertThat(reauthorizedClient.getAccessToken()).isEqualTo(accessTokenResponse.getAccessToken());
@@ -201,7 +207,8 @@ public class RefreshTokenReactiveOAuth2AuthorizedClientProviderTests {
 	@Test
 	public void authorizeWhenAuthorizedAndRequestScopeProvidedThenScopeRequested() {
 		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses.accessTokenResponse()
-				.refreshToken("new-refresh-token").build();
+			.refreshToken("new-refresh-token")
+			.build();
 		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(Mono.just(accessTokenResponse));
 		String[] requestScope = new String[] { "read", "write" };
 		// @formatter:off
@@ -213,10 +220,10 @@ public class RefreshTokenReactiveOAuth2AuthorizedClientProviderTests {
 		// @formatter:on
 		this.authorizedClientProvider.authorize(authorizationContext).block();
 		ArgumentCaptor<OAuth2RefreshTokenGrantRequest> refreshTokenGrantRequestArgCaptor = ArgumentCaptor
-				.forClass(OAuth2RefreshTokenGrantRequest.class);
+			.forClass(OAuth2RefreshTokenGrantRequest.class);
 		verify(this.accessTokenResponseClient).getTokenResponse(refreshTokenGrantRequestArgCaptor.capture());
 		assertThat(refreshTokenGrantRequestArgCaptor.getValue().getScopes())
-				.isEqualTo(new HashSet<>(Arrays.asList(requestScope)));
+			.isEqualTo(new HashSet<>(Arrays.asList(requestScope)));
 	}
 
 	@Test
@@ -230,9 +237,9 @@ public class RefreshTokenReactiveOAuth2AuthorizedClientProviderTests {
 				.build();
 		// @formatter:on
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> this.authorizedClientProvider.authorize(authorizationContext).block())
-				.withMessageStartingWith("The context attribute must be of type String[] '"
-						+ OAuth2AuthorizationContext.REQUEST_SCOPE_ATTRIBUTE_NAME + "'");
+			.isThrownBy(() -> this.authorizedClientProvider.authorize(authorizationContext).block())
+			.withMessageStartingWith("The context attribute must be of type String[] '"
+					+ OAuth2AuthorizationContext.REQUEST_SCOPE_ATTRIBUTE_NAME + "'");
 	}
 
 }

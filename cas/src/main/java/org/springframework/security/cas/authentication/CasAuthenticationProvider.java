@@ -108,7 +108,8 @@ public class CasAuthenticationProvider implements AuthenticationProvider, Initia
 					"Failed to provide a CAS service ticket to validate"));
 		}
 
-		boolean stateless = (authentication instanceof CasServiceTicketAuthenticationToken token && token.isStateless());
+		boolean stateless = (authentication instanceof CasServiceTicketAuthenticationToken token
+				&& token.isStateless());
 		CasAuthenticationToken result = null;
 
 		if (stateless) {

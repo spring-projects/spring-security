@@ -66,7 +66,7 @@ public class SavedCookieMixinTests extends AbstractMixinTests {
 	public void serializeWithOverrideConfigurationTest() throws JsonProcessingException, JSONException {
 		SavedCookie savedCookie = new SavedCookie(new Cookie("SESSION", "123456789"));
 		this.mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.PUBLIC_ONLY)
-				.setVisibility(PropertyAccessor.GETTER, JsonAutoDetect.Visibility.ANY);
+			.setVisibility(PropertyAccessor.GETTER, JsonAutoDetect.Visibility.ANY);
 		String actualJson = this.mapper.writeValueAsString(savedCookie);
 		JSONAssert.assertEquals(COOKIE_JSON, actualJson, true);
 	}

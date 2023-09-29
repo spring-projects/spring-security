@@ -124,7 +124,8 @@ public class AuthenticationManagerBeanDefinitionParserTests {
 	@Test
 	public void clearCredentialsPropertyIsRespected() {
 		ConfigurableApplicationContext appContext = this.spring
-				.context("<authentication-manager erase-credentials='false'/>").getContext();
+			.context("<authentication-manager erase-credentials='false'/>")
+			.getContext();
 		ProviderManager pm = (ProviderManager) appContext.getBeansOfType(ProviderManager.class).values().toArray()[0];
 		assertThat(pm.isEraseCredentialsAfterAuthentication()).isFalse();
 	}

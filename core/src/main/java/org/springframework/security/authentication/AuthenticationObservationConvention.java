@@ -65,9 +65,9 @@ public final class AuthenticationObservationConvention
 	@Override
 	public KeyValues getLowCardinalityKeyValues(@NonNull AuthenticationObservationContext context) {
 		return KeyValues.of("authentication.request.type", getAuthenticationType(context))
-				.and("authentication.method", getAuthenticationMethod(context))
-				.and("authentication.result.type", getAuthenticationResult(context))
-				.and("authentication.failure.type", getAuthenticationFailureType(context));
+			.and("authentication.method", getAuthenticationMethod(context))
+			.and("authentication.result.type", getAuthenticationResult(context))
+			.and("authentication.failure.type", getAuthenticationFailureType(context));
 	}
 
 	private String getAuthenticationType(AuthenticationObservationContext context) {

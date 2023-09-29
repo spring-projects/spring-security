@@ -70,7 +70,7 @@ class HttpSecurityConfiguration {
 	private ApplicationContext context;
 
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
-			.getContextHolderStrategy();
+		.getContextHolderStrategy();
 
 	private ContentNegotiationStrategy contentNegotiationStrategy = new HeaderContentNegotiationStrategy();
 
@@ -142,7 +142,7 @@ class HttpSecurityConfiguration {
 	private void applyDefaultConfigurers(HttpSecurity http) throws Exception {
 		ClassLoader classLoader = this.context.getClassLoader();
 		List<AbstractHttpConfigurer> defaultHttpConfigurers = SpringFactoriesLoader
-				.loadFactories(AbstractHttpConfigurer.class, classLoader);
+			.loadFactories(AbstractHttpConfigurer.class, classLoader);
 		for (AbstractHttpConfigurer configurer : defaultHttpConfigurers) {
 			http.apply(configurer);
 		}

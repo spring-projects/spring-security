@@ -55,7 +55,7 @@ public class JwtAuthenticationTokenTests {
 	@Test
 	public void constructorWhenJwtIsNullThenThrowsException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> new JwtAuthenticationToken(null))
-				.withMessageContaining("token cannot be null");
+			.withMessageContaining("token cannot be null");
 	}
 
 	@Test

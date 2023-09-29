@@ -190,7 +190,7 @@ public class AbstractAuthenticationProcessingFilterTests {
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
 		assertThat(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString()).isEqualTo("test");
 		assertThat(request.getAttribute(RequestAttributeSecurityContextRepository.DEFAULT_REQUEST_ATTR_NAME))
-				.isNotNull();
+			.isNotNull();
 		// Should still have the same session
 		assertThat(request.getSession()).isEqualTo(sessionPreAuth);
 	}
@@ -219,7 +219,7 @@ public class AbstractAuthenticationProcessingFilterTests {
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
 		assertThat(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString()).isEqualTo("test");
 		assertThat(request.getAttribute(RequestAttributeSecurityContextRepository.DEFAULT_REQUEST_ATTR_NAME))
-				.isNotNull();
+			.isNotNull();
 		// Should still have the same session
 		assertThat(request.getSession()).isEqualTo(sessionPreAuth);
 	}
@@ -250,7 +250,7 @@ public class AbstractAuthenticationProcessingFilterTests {
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
 		assertThat(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString()).isEqualTo("test");
 		assertThat(request.getAttribute(RequestAttributeSecurityContextRepository.DEFAULT_REQUEST_ATTR_NAME))
-				.isNotNull();
+			.isNotNull();
 		// Should still have the same session
 		assertThat(request.getSession()).isEqualTo(sessionPreAuth);
 	}
@@ -263,7 +263,7 @@ public class AbstractAuthenticationProcessingFilterTests {
 		filter.setAuthenticationSuccessHandler(this.successHandler);
 		filter.setFilterProcessesUrl("/login");
 		assertThatIllegalArgumentException().isThrownBy(filter::afterPropertiesSet)
-				.withMessage("authenticationManager must be specified");
+			.withMessage("authenticationManager must be specified");
 	}
 
 	@Test
@@ -273,7 +273,7 @@ public class AbstractAuthenticationProcessingFilterTests {
 		filter.setAuthenticationManager(mock(AuthenticationManager.class));
 		filter.setAuthenticationSuccessHandler(this.successHandler);
 		assertThatIllegalArgumentException().isThrownBy(() -> filter.setFilterProcessesUrl(null))
-				.withMessage("Pattern cannot be null or empty");
+			.withMessage("Pattern cannot be null or empty");
 	}
 
 	@Test
@@ -331,7 +331,7 @@ public class AbstractAuthenticationProcessingFilterTests {
 				any(Authentication.class));
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
 		assertThat(request.getAttribute(RequestAttributeSecurityContextRepository.DEFAULT_REQUEST_ATTR_NAME))
-				.isNotNull();
+			.isNotNull();
 	}
 
 	@Test

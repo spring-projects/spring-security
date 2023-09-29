@@ -55,7 +55,7 @@ public class OpaqueTokenReactiveAuthenticationManagerTests {
 	@Test
 	public void authenticateWhenActiveTokenThenOk() throws Exception {
 		OAuth2AuthenticatedPrincipal authority = TestOAuth2AuthenticatedPrincipals
-				.active((attributes) -> attributes.put("extension_field", "twenty-seven"));
+			.active((attributes) -> attributes.put("extension_field", "twenty-seven"));
 		ReactiveOpaqueTokenIntrospector introspector = mock(ReactiveOpaqueTokenIntrospector.class);
 		given(introspector.introspect(any())).willReturn(Mono.just(authority));
 		OpaqueTokenReactiveAuthenticationManager provider = new OpaqueTokenReactiveAuthenticationManager(introspector);
@@ -101,10 +101,10 @@ public class OpaqueTokenReactiveAuthenticationManagerTests {
 	public void authenticateWhenIntrospectionEndpointThrowsExceptionThenInvalidToken() {
 		ReactiveOpaqueTokenIntrospector introspector = mock(ReactiveOpaqueTokenIntrospector.class);
 		given(introspector.introspect(any()))
-				.willReturn(Mono.error(new OAuth2IntrospectionException("with \"invalid\" chars")));
+			.willReturn(Mono.error(new OAuth2IntrospectionException("with \"invalid\" chars")));
 		OpaqueTokenReactiveAuthenticationManager provider = new OpaqueTokenReactiveAuthenticationManager(introspector);
 		assertThatExceptionOfType(AuthenticationServiceException.class)
-				.isThrownBy(() -> provider.authenticate(new BearerTokenAuthenticationToken("token")).block());
+			.isThrownBy(() -> provider.authenticate(new BearerTokenAuthenticationToken("token")).block());
 	}
 
 	@Test
@@ -135,7 +135,7 @@ public class OpaqueTokenReactiveAuthenticationManagerTests {
 		ReactiveOpaqueTokenAuthenticationConverter authenticationConverter = mock(
 				ReactiveOpaqueTokenAuthenticationConverter.class);
 		given(authenticationConverter.convert(any(), any(OAuth2AuthenticatedPrincipal.class)))
-				.willReturn(Mono.just(new TestingAuthenticationToken(principal, null, Collections.emptyList())));
+			.willReturn(Mono.just(new TestingAuthenticationToken(principal, null, Collections.emptyList())));
 		provider.setAuthenticationConverter(authenticationConverter);
 
 		Authentication result = provider.authenticate(new BearerTokenAuthenticationToken("token")).block();

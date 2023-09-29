@@ -123,7 +123,7 @@ public class JwtIssuerAuthenticationManagerResolverTests {
 			AuthenticationManager authenticationManager = authenticationManagerResolver.resolve(null);
 			assertThat(authenticationManager).isNotNull();
 			assertThatExceptionOfType(IllegalArgumentException.class)
-					.isThrownBy(() -> authenticationManager.authenticate(token));
+				.isThrownBy(() -> authenticationManager.authenticate(token));
 			Authentication authentication = authenticationManager.authenticate(token);
 			assertThat(authentication.isAuthenticated()).isTrue();
 		}
@@ -133,10 +133,12 @@ public class JwtIssuerAuthenticationManagerResolverTests {
 	public void resolveWhenUsingSameIssuerThenReturnsSameAuthenticationManager() throws Exception {
 		try (MockWebServer server = new MockWebServer()) {
 			String issuer = server.url("").toString();
-			server.enqueue(new MockResponse().setResponseCode(200).setHeader("Content-Type", "application/json")
-					.setBody(String.format(DEFAULT_RESPONSE_TEMPLATE, issuer, issuer)));
-			server.enqueue(new MockResponse().setResponseCode(200).setHeader("Content-Type", "application/json")
-					.setBody(JWK_SET));
+			server.enqueue(new MockResponse().setResponseCode(200)
+				.setHeader("Content-Type", "application/json")
+				.setBody(String.format(DEFAULT_RESPONSE_TEMPLATE, issuer, issuer)));
+			server.enqueue(new MockResponse().setResponseCode(200)
+				.setHeader("Content-Type", "application/json")
+				.setBody(JWK_SET));
 			TrustedIssuerJwtAuthenticationManagerResolver resolver = new TrustedIssuerJwtAuthenticationManagerResolver(
 					(iss) -> iss.equals(issuer));
 			AuthenticationManager authenticationManager = resolver.resolve(issuer);
@@ -231,15 +233,15 @@ public class JwtIssuerAuthenticationManagerResolverTests {
 	@Test
 	public void constructorWhenNullOrEmptyIssuersThenException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new JwtIssuerAuthenticationManagerResolver((Collection) null));
+			.isThrownBy(() -> new JwtIssuerAuthenticationManagerResolver((Collection) null));
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new JwtIssuerAuthenticationManagerResolver(Collections.emptyList()));
+			.isThrownBy(() -> new JwtIssuerAuthenticationManagerResolver(Collections.emptyList()));
 	}
 
 	@Test
 	public void constructorWhenNullAuthenticationManagerResolverThenException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new JwtIssuerAuthenticationManagerResolver((AuthenticationManagerResolver) null));
+			.isThrownBy(() -> new JwtIssuerAuthenticationManagerResolver((AuthenticationManagerResolver) null));
 	}
 
 	private Authentication withBearerToken(String token) {

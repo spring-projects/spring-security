@@ -85,11 +85,11 @@ public class CompositeSessionAuthenticationStrategyTests {
 	@Test
 	public void delegateShortCircuits() {
 		willThrow(new SessionAuthenticationException("oops")).given(this.strategy1)
-				.onAuthentication(this.authentication, this.request, this.response);
+			.onAuthentication(this.authentication, this.request, this.response);
 		CompositeSessionAuthenticationStrategy strategy = new CompositeSessionAuthenticationStrategy(
 				Arrays.asList(this.strategy1, this.strategy2));
 		assertThatExceptionOfType(SessionAuthenticationException.class)
-				.isThrownBy(() -> strategy.onAuthentication(this.authentication, this.request, this.response));
+			.isThrownBy(() -> strategy.onAuthentication(this.authentication, this.request, this.response));
 		verify(this.strategy1).onAuthentication(this.authentication, this.request, this.response);
 		verify(this.strategy2, times(0)).onAuthentication(this.authentication, this.request, this.response);
 	}

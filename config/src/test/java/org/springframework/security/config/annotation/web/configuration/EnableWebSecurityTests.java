@@ -60,14 +60,14 @@ public class EnableWebSecurityTests {
 	public void configureWhenEnableWebMvcThenAuthenticationPrincipalResolvable() throws Exception {
 		this.spring.register(AuthenticationPrincipalConfig.class).autowire();
 		this.mockMvc.perform(get("/").with(authentication(new TestingAuthenticationToken("user1", "password"))))
-				.andExpect(content().string("user1"));
+			.andExpect(content().string("user1"));
 	}
 
 	@Test
 	public void securityFilterChainWhenEnableWebMvcThenAuthenticationPrincipalResolvable() throws Exception {
 		this.spring.register(SecurityFilterChainAuthenticationPrincipalConfig.class).autowire();
 		this.mockMvc.perform(get("/").with(authentication(new TestingAuthenticationToken("user1", "password"))))
-				.andExpect(content().string("user1"));
+			.andExpect(content().string("user1"));
 	}
 
 	@Test

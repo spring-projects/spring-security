@@ -98,9 +98,9 @@ public class MethodSecurityInterceptorWithAopConfigTests {
 		ITargetObject target = (ITargetObject) this.appContext.getBean("target");
 		// Check both against interface and class
 		assertThatExceptionOfType(AuthenticationCredentialsNotFoundException.class)
-				.isThrownBy(() -> target.makeLowerCase("TEST"));
+			.isThrownBy(() -> target.makeLowerCase("TEST"));
 		assertThatExceptionOfType(AuthenticationCredentialsNotFoundException.class)
-				.isThrownBy(() -> target.makeUpperCase("test"));
+			.isThrownBy(() -> target.makeUpperCase("test"));
 	}
 
 	@Test
@@ -126,9 +126,9 @@ public class MethodSecurityInterceptorWithAopConfigTests {
 
 		ITargetObject target = (ITargetObject) this.appContext.getBean("target");
 		assertThatExceptionOfType(AuthenticationCredentialsNotFoundException.class)
-				.isThrownBy(() -> target.makeLowerCase("TEST"));
+			.isThrownBy(() -> target.makeLowerCase("TEST"));
 		assertThatExceptionOfType(AuthenticationCredentialsNotFoundException.class)
-				.isThrownBy(() -> target.makeUpperCase("test"));
+			.isThrownBy(() -> target.makeUpperCase("test"));
 	}
 
 	private void setContext(String context) {

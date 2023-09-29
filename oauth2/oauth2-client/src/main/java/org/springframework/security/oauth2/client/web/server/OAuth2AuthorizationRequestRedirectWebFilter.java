@@ -147,7 +147,7 @@ public class OAuth2AuthorizationRequestRedirectWebFilter implements WebFilter {
 			Mono<Void> saveAuthorizationRequest = Mono.empty();
 			if (AuthorizationGrantType.AUTHORIZATION_CODE.equals(authorizationRequest.getGrantType())) {
 				saveAuthorizationRequest = this.authorizationRequestRepository
-						.saveAuthorizationRequest(authorizationRequest, exchange);
+					.saveAuthorizationRequest(authorizationRequest, exchange);
 			}
 			// @formatter:off
 			URI redirectUri = UriComponentsBuilder.fromUriString(authorizationRequest.getAuthorizationRequestUri())
@@ -155,7 +155,7 @@ public class OAuth2AuthorizationRequestRedirectWebFilter implements WebFilter {
 					.toUri();
 			// @formatter:on
 			return saveAuthorizationRequest
-					.then(this.authorizationRedirectStrategy.sendRedirect(exchange, redirectUri));
+				.then(this.authorizationRedirectStrategy.sendRedirect(exchange, redirectUri));
 		});
 	}
 

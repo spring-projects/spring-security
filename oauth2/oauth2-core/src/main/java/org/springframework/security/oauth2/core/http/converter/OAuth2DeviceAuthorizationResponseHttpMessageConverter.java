@@ -57,7 +57,7 @@ public class OAuth2DeviceAuthorizationResponseHttpMessageConverter
 	};
 
 	private final GenericHttpMessageConverter<Object> jsonMessageConverter = HttpMessageConverters
-			.getJsonMessageConverter();
+		.getJsonMessageConverter();
 
 	private Converter<Map<String, Object>, OAuth2DeviceAuthorizationResponse> deviceAuthorizationResponseConverter = new DefaultMapOAuth2DeviceAuthorizationResponseConverter();
 
@@ -75,7 +75,7 @@ public class OAuth2DeviceAuthorizationResponseHttpMessageConverter
 
 		try {
 			Map<String, Object> deviceAuthorizationResponseParameters = (Map<String, Object>) this.jsonMessageConverter
-					.read(STRING_OBJECT_MAP.getType(), null, inputMessage);
+				.read(STRING_OBJECT_MAP.getType(), null, inputMessage);
 			return this.deviceAuthorizationResponseConverter.convert(deviceAuthorizationResponseParameters);
 		}
 		catch (Exception ex) {
@@ -91,7 +91,7 @@ public class OAuth2DeviceAuthorizationResponseHttpMessageConverter
 
 		try {
 			Map<String, Object> deviceAuthorizationResponseParameters = this.deviceAuthorizationResponseParametersConverter
-					.convert(deviceAuthorizationResponse);
+				.convert(deviceAuthorizationResponse);
 			this.jsonMessageConverter.write(deviceAuthorizationResponseParameters, STRING_OBJECT_MAP.getType(),
 					MediaType.APPLICATION_JSON, outputMessage);
 		}

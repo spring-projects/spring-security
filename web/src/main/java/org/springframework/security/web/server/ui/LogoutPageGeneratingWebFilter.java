@@ -45,8 +45,10 @@ public class LogoutPageGeneratingWebFilter implements WebFilter {
 
 	@Override
 	public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
-		return this.matcher.matches(exchange).filter(ServerWebExchangeMatcher.MatchResult::isMatch)
-				.switchIfEmpty(chain.filter(exchange).then(Mono.empty())).flatMap((matchResult) -> render(exchange));
+		return this.matcher.matches(exchange)
+			.filter(ServerWebExchangeMatcher.MatchResult::isMatch)
+			.switchIfEmpty(chain.filter(exchange).then(Mono.empty()))
+			.flatMap((matchResult) -> render(exchange));
 	}
 
 	private Mono<Void> render(ServerWebExchange exchange) {

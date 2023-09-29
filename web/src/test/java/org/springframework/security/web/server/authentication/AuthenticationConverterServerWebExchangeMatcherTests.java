@@ -61,7 +61,7 @@ public class AuthenticationConverterServerWebExchangeMatcherTests {
 	@Test
 	public void constructorConverterWhenConverterNullThenThrowsException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new AuthenticationConverterServerWebExchangeMatcher(null));
+			.isThrownBy(() -> new AuthenticationConverterServerWebExchangeMatcher(null));
 	}
 
 	@Test

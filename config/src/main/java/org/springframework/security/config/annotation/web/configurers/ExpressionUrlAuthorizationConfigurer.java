@@ -174,7 +174,7 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
 			String[] grantedAuthorityDefaultsBeanNames = context.getBeanNamesForType(GrantedAuthorityDefaults.class);
 			if (grantedAuthorityDefaultsBeanNames.length == 1) {
 				GrantedAuthorityDefaults grantedAuthorityDefaults = context
-						.getBean(grantedAuthorityDefaultsBeanNames[0], GrantedAuthorityDefaults.class);
+					.getBean(grantedAuthorityDefaultsBeanNames[0], GrantedAuthorityDefaults.class);
 				defaultHandler.setDefaultRolePrefix(grantedAuthorityDefaults.getRolePrefix());
 			}
 			String[] permissionEvaluatorBeanNames = context.getBeanNamesForType(PermissionEvaluator.class);
@@ -294,7 +294,7 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
 		 */
 		public ExpressionInterceptUrlRegistry hasRole(String role) {
 			return access(ExpressionUrlAuthorizationConfigurer
-					.hasRole(ExpressionUrlAuthorizationConfigurer.this.rolePrefix, role));
+				.hasRole(ExpressionUrlAuthorizationConfigurer.this.rolePrefix, role));
 		}
 
 		/**
@@ -308,7 +308,7 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
 		 */
 		public ExpressionInterceptUrlRegistry hasAnyRole(String... roles) {
 			return access(ExpressionUrlAuthorizationConfigurer
-					.hasAnyRole(ExpressionUrlAuthorizationConfigurer.this.rolePrefix, roles));
+				.hasAnyRole(ExpressionUrlAuthorizationConfigurer.this.rolePrefix, roles));
 		}
 
 		/**

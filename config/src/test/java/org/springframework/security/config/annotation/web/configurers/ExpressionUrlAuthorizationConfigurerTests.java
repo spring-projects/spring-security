@@ -95,9 +95,10 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 	@Test
 	public void configureWhenHasRoleStartingWithStringRoleThenException() {
 		assertThatExceptionOfType(BeanCreationException.class)
-				.isThrownBy(() -> this.spring.register(HasRoleStartingWithRoleConfig.class).autowire())
-				.withRootCauseInstanceOf(IllegalArgumentException.class).withMessageContaining(
-						"role should not start with 'ROLE_' since it is automatically inserted. Got 'ROLE_USER'");
+			.isThrownBy(() -> this.spring.register(HasRoleStartingWithRoleConfig.class).autowire())
+			.withRootCauseInstanceOf(IllegalArgumentException.class)
+			.withMessageContaining(
+					"role should not start with 'ROLE_' since it is automatically inserted. Got 'ROLE_USER'");
 	}
 
 	@Test
@@ -109,15 +110,16 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 	@Test
 	public void configureWhenAuthorizedRequestsAndNoRequestsThenException() {
 		assertThatExceptionOfType(BeanCreationException.class)
-				.isThrownBy(() -> this.spring.register(NoRequestsConfig.class).autowire()).withMessageContaining(
-						"At least one mapping is required (i.e. authorizeRequests().anyRequest().authenticated())");
+			.isThrownBy(() -> this.spring.register(NoRequestsConfig.class).autowire())
+			.withMessageContaining(
+					"At least one mapping is required (i.e. authorizeRequests().anyRequest().authenticated())");
 	}
 
 	@Test
 	public void configureWhenAnyRequestIncompleteMappingThenException() {
 		assertThatExceptionOfType(BeanCreationException.class)
-				.isThrownBy(() -> this.spring.register(IncompleteMappingConfig.class).autowire())
-				.withMessageContaining("An incomplete mapping was found for ");
+			.isThrownBy(() -> this.spring.register(IncompleteMappingConfig.class).autowire())
+			.withMessageContaining("An incomplete mapping was found for ");
 	}
 
 	@Test

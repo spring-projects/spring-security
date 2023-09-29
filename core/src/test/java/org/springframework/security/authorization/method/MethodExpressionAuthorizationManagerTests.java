@@ -38,19 +38,19 @@ class MethodExpressionAuthorizationManagerTests {
 	@Test
 	void instantiateWhenExpressionStringNullThenIllegalArgumentException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> new MethodExpressionAuthorizationManager(null))
-				.withMessage("expressionString cannot be empty");
+			.withMessage("expressionString cannot be empty");
 	}
 
 	@Test
 	void instantiateWhenExpressionStringEmptyThenIllegalArgumentException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> new MethodExpressionAuthorizationManager(""))
-				.withMessage("expressionString cannot be empty");
+			.withMessage("expressionString cannot be empty");
 	}
 
 	@Test
 	void instantiateWhenExpressionStringBlankThenIllegalArgumentException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> new MethodExpressionAuthorizationManager(" "))
-				.withMessage("expressionString cannot be empty");
+			.withMessage("expressionString cannot be empty");
 	}
 
 	@Test
@@ -63,7 +63,7 @@ class MethodExpressionAuthorizationManagerTests {
 	void setExpressionHandlerWhenNullThenIllegalArgumentException() {
 		MethodExpressionAuthorizationManager manager = new MethodExpressionAuthorizationManager("hasRole('ADMIN')");
 		assertThatIllegalArgumentException().isThrownBy(() -> manager.setExpressionHandler(null))
-				.withMessage("expressionHandler cannot be null");
+			.withMessage("expressionHandler cannot be null");
 	}
 
 	@Test

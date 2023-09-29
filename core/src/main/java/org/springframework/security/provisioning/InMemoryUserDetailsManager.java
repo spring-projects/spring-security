@@ -57,7 +57,7 @@ public class InMemoryUserDetailsManager implements UserDetailsManager, UserDetai
 	private final Map<String, MutableUserDetails> users = new HashMap<>();
 
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
-			.getContextHolderStrategy();
+		.getContextHolderStrategy();
 
 	private AuthenticationManager authenticationManager;
 
@@ -130,7 +130,7 @@ public class InMemoryUserDetailsManager implements UserDetailsManager, UserDetai
 		if (this.authenticationManager != null) {
 			this.logger.debug(LogMessage.format("Reauthenticating user '%s' for password change request.", username));
 			this.authenticationManager
-					.authenticate(UsernamePasswordAuthenticationToken.unauthenticated(username, oldPassword));
+				.authenticate(UsernamePasswordAuthenticationToken.unauthenticated(username, oldPassword));
 		}
 		else {
 			this.logger.debug("No authentication manager set. Password won't be re-checked.");

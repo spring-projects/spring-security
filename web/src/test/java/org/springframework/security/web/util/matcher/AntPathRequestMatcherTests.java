@@ -182,7 +182,7 @@ public class AntPathRequestMatcherTests {
 		assertThat(new AntPathRequestMatcher("/xyz")).isNotEqualTo(new AntPathRequestMatcher("/xxx"));
 		assertThat(new AntPathRequestMatcher("/xyz").equals(AnyRequestMatcher.INSTANCE)).isFalse();
 		assertThat(new AntPathRequestMatcher("/xyz", "GET", false))
-				.isNotEqualTo(new AntPathRequestMatcher("/xyz", "GET", true));
+			.isNotEqualTo(new AntPathRequestMatcher("/xyz", "GET", true));
 	}
 
 	@Test
@@ -230,13 +230,13 @@ public class AntPathRequestMatcherTests {
 	@Test
 	public void staticAntMatcherWhenMethodNullThenException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> antMatcher((HttpMethod) null))
-				.withMessage("method cannot be null");
+			.withMessage("method cannot be null");
 	}
 
 	@Test
 	public void staticAntMatcherWhenPatternNullThenException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> antMatcher((String) null))
-				.withMessage("pattern cannot be empty");
+			.withMessage("pattern cannot be empty");
 	}
 
 	@Test

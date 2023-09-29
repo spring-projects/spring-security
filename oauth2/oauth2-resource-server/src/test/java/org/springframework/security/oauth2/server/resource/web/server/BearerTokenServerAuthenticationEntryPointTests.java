@@ -53,7 +53,7 @@ public class BearerTokenServerAuthenticationEntryPointTests {
 		this.entryPoint.setRealmName("Realm");
 		this.entryPoint.commence(this.exchange, new BadCredentialsException("")).block();
 		assertThat(getResponse().getHeaders().getFirst(HttpHeaders.WWW_AUTHENTICATE))
-				.isEqualTo("Bearer realm=\"Realm\"");
+			.isEqualTo("Bearer realm=\"Realm\"");
 		assertThat(getResponse().getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
 	}
 
@@ -63,7 +63,7 @@ public class BearerTokenServerAuthenticationEntryPointTests {
 		OAuth2AuthenticationException exception = new OAuth2AuthenticationException(oauthError);
 		this.entryPoint.commence(this.exchange, exception).block();
 		assertThat(getResponse().getHeaders().getFirst(HttpHeaders.WWW_AUTHENTICATE))
-				.isEqualTo("Bearer error=\"invalid_request\"");
+			.isEqualTo("Bearer error=\"invalid_request\"");
 		assertThat(getResponse().getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
 	}
 

@@ -80,7 +80,7 @@ public class RedirectServerAuthenticationSuccessHandlerTests {
 	public void successWhenSubscribeThenStatusAndLocationSet() {
 		this.exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/").build());
 		this.handler.onAuthenticationSuccess(new WebFilterExchange(this.exchange, this.chain), this.authentication)
-				.block();
+			.block();
 		assertThat(this.exchange.getResponse().getStatusCode()).isEqualTo(HttpStatus.FOUND);
 		assertThat(this.exchange.getResponse().getHeaders().getLocation()).isEqualTo(this.location);
 	}
@@ -92,7 +92,7 @@ public class RedirectServerAuthenticationSuccessHandlerTests {
 		this.handler.setRedirectStrategy(this.redirectStrategy);
 		this.exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/").build());
 		this.handler.onAuthenticationSuccess(new WebFilterExchange(this.exchange, this.chain), this.authentication)
-				.block();
+			.block();
 		redirectResult.assertWasSubscribed();
 		verify(this.redirectStrategy).sendRedirect(any(), eq(this.location));
 	}

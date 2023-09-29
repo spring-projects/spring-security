@@ -82,9 +82,9 @@ public class ObservationReactiveAuthenticationManagerTests {
 	void authenticationWhenErrorsThenObserves() {
 		given(this.handler.supportsContext(any())).willReturn(true);
 		given(this.authenticationManager.authenticate(any()))
-				.willReturn(Mono.error(new BadCredentialsException("fail")));
+			.willReturn(Mono.error(new BadCredentialsException("fail")));
 		assertThatExceptionOfType(BadCredentialsException.class)
-				.isThrownBy(() -> this.tested.authenticate(this.token).block());
+			.isThrownBy(() -> this.tested.authenticate(this.token).block());
 		ArgumentCaptor<Observation.Context> captor = ArgumentCaptor.forClass(Observation.Context.class);
 		verify(this.handler).onStart(captor.capture());
 		assertThat(captor.getValue().getName()).isEqualTo(AuthenticationObservationConvention.OBSERVATION_NAME);
@@ -99,7 +99,7 @@ public class ObservationReactiveAuthenticationManagerTests {
 	@Test
 	void setObservationConventionWhenNullThenException() {
 		assertThatExceptionOfType(IllegalArgumentException.class)
-				.isThrownBy(() -> this.tested.setObservationConvention(null));
+			.isThrownBy(() -> this.tested.setObservationConvention(null));
 	}
 
 }

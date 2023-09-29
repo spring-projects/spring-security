@@ -104,8 +104,8 @@ public final class OAuth2AuthorizedClientProviderBuilder {
 	 * @return the {@link OAuth2AuthorizedClientProviderBuilder}
 	 */
 	public OAuth2AuthorizedClientProviderBuilder refreshToken(Consumer<RefreshTokenGrantBuilder> builderConsumer) {
-		RefreshTokenGrantBuilder builder = (RefreshTokenGrantBuilder) this.builders.computeIfAbsent(
-				RefreshTokenOAuth2AuthorizedClientProvider.class, (k) -> new RefreshTokenGrantBuilder());
+		RefreshTokenGrantBuilder builder = (RefreshTokenGrantBuilder) this.builders
+			.computeIfAbsent(RefreshTokenOAuth2AuthorizedClientProvider.class, (k) -> new RefreshTokenGrantBuilder());
 		builderConsumer.accept(builder);
 		return OAuth2AuthorizedClientProviderBuilder.this;
 	}
@@ -163,7 +163,7 @@ public final class OAuth2AuthorizedClientProviderBuilder {
 	@Deprecated
 	public OAuth2AuthorizedClientProviderBuilder password(Consumer<PasswordGrantBuilder> builderConsumer) {
 		PasswordGrantBuilder builder = (PasswordGrantBuilder) this.builders
-				.computeIfAbsent(PasswordOAuth2AuthorizedClientProvider.class, (k) -> new PasswordGrantBuilder());
+			.computeIfAbsent(PasswordOAuth2AuthorizedClientProvider.class, (k) -> new PasswordGrantBuilder());
 		builderConsumer.accept(builder);
 		return OAuth2AuthorizedClientProviderBuilder.this;
 	}

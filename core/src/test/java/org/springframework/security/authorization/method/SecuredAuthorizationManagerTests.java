@@ -51,7 +51,7 @@ public class SecuredAuthorizationManagerTests {
 	public void setAuthoritiesAuthorizationManagerWhenNullThenException() {
 		SecuredAuthorizationManager manager = new SecuredAuthorizationManager();
 		assertThatIllegalArgumentException().isThrownBy(() -> manager.setAuthoritiesAuthorizationManager(null))
-				.withMessage("authoritiesAuthorizationManager cannot be null");
+			.withMessage("authoritiesAuthorizationManager cannot be null");
 	}
 
 	@Test
@@ -141,7 +141,7 @@ public class SecuredAuthorizationManagerTests {
 				"inheritedAnnotations");
 		SecuredAuthorizationManager manager = new SecuredAuthorizationManager();
 		assertThatExceptionOfType(AnnotationConfigurationException.class)
-				.isThrownBy(() -> manager.check(authentication, methodInvocation));
+			.isThrownBy(() -> manager.check(authentication, methodInvocation));
 	}
 
 	@Test
@@ -151,7 +151,7 @@ public class SecuredAuthorizationManagerTests {
 				ClassLevelAnnotations.class, "inheritedAnnotations");
 		SecuredAuthorizationManager manager = new SecuredAuthorizationManager();
 		assertThatExceptionOfType(AnnotationConfigurationException.class)
-				.isThrownBy(() -> manager.check(authentication, methodInvocation));
+			.isThrownBy(() -> manager.check(authentication, methodInvocation));
 	}
 
 	@Test

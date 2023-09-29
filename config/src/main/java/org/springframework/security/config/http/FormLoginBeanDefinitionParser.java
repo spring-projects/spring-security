@@ -159,7 +159,7 @@ public class FormLoginBeanDefinitionParser {
 		}
 		this.filterBean.setSource(source);
 		BeanDefinitionBuilder entryPointBuilder = BeanDefinitionBuilder
-				.rootBeanDefinition(LoginUrlAuthenticationEntryPoint.class);
+			.rootBeanDefinition(LoginUrlAuthenticationEntryPoint.class);
 		entryPointBuilder.getRawBeanDefinition().setSource(source);
 		entryPointBuilder.addConstructorArgValue((this.loginPage != null) ? this.loginPage : DEF_LOGIN_PAGE);
 		entryPointBuilder.addPropertyValue("portMapper", this.portMapper);
@@ -178,7 +178,7 @@ public class FormLoginBeanDefinitionParser {
 		}
 		this.loginProcessingUrl = loginUrl;
 		BeanDefinitionBuilder matcherBuilder = BeanDefinitionBuilder
-				.rootBeanDefinition("org.springframework.security.web.util.matcher.AntPathRequestMatcher");
+			.rootBeanDefinition("org.springframework.security.web.util.matcher.AntPathRequestMatcher");
 		matcherBuilder.addConstructorArgValue(loginUrl);
 		if (this.loginMethod != null) {
 			matcherBuilder.addConstructorArgValue("POST");
@@ -189,13 +189,13 @@ public class FormLoginBeanDefinitionParser {
 		}
 		else if (StringUtils.hasText(authenticationSuccessForwardUrl)) {
 			BeanDefinitionBuilder forwardSuccessHandler = BeanDefinitionBuilder
-					.rootBeanDefinition(ForwardAuthenticationSuccessHandler.class);
+				.rootBeanDefinition(ForwardAuthenticationSuccessHandler.class);
 			forwardSuccessHandler.addConstructorArgValue(authenticationSuccessForwardUrl);
 			filterBuilder.addPropertyValue("authenticationSuccessHandler", forwardSuccessHandler.getBeanDefinition());
 		}
 		else {
 			BeanDefinitionBuilder successHandler = BeanDefinitionBuilder
-					.rootBeanDefinition(SavedRequestAwareAuthenticationSuccessHandler.class);
+				.rootBeanDefinition(SavedRequestAwareAuthenticationSuccessHandler.class);
 			if ("true".equals(alwaysUseDefault)) {
 				successHandler.addPropertyValue("alwaysUseDefaultTargetUrl", Boolean.TRUE);
 			}
@@ -215,13 +215,13 @@ public class FormLoginBeanDefinitionParser {
 		}
 		else if (StringUtils.hasText(authenticationFailureForwardUrl)) {
 			BeanDefinitionBuilder forwardFailureHandler = BeanDefinitionBuilder
-					.rootBeanDefinition(ForwardAuthenticationFailureHandler.class);
+				.rootBeanDefinition(ForwardAuthenticationFailureHandler.class);
 			forwardFailureHandler.addConstructorArgValue(authenticationFailureForwardUrl);
 			filterBuilder.addPropertyValue("authenticationFailureHandler", forwardFailureHandler.getBeanDefinition());
 		}
 		else {
 			BeanDefinitionBuilder failureHandler = BeanDefinitionBuilder
-					.rootBeanDefinition(SimpleUrlAuthenticationFailureHandler.class);
+				.rootBeanDefinition(SimpleUrlAuthenticationFailureHandler.class);
 			if (!StringUtils.hasText(authenticationFailureUrl)) {
 				// Fall back to re-displaying the custom login page, if one was specified.
 				if (StringUtils.hasText(loginPage)) {

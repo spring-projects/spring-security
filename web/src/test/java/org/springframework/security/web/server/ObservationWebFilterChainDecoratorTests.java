@@ -93,17 +93,23 @@ public class ObservationWebFilterChainDecoratorTests {
 				List.of((e, c) -> c.filter(e).then(Mono.deferContextual((context) -> {
 					Observation parentObservation = context.getOrDefault(ObservationThreadLocalAccessor.KEY, null);
 					Observation observation = Observation.createNotStarted("custom", registry)
-							.parentObservation(parentObservation).contextualName("custom").start();
-					return Mono.just("3").doOnSuccess((v) -> observation.stop()).doOnCancel(observation::stop)
-							.doOnError((t) -> {
-								observation.error(t);
-								observation.stop();
-							}).then(Mono.empty());
+						.parentObservation(parentObservation)
+						.contextualName("custom")
+						.start();
+					return Mono.just("3")
+						.doOnSuccess((v) -> observation.stop())
+						.doOnCancel(observation::stop)
+						.doOnError((t) -> {
+							observation.error(t);
+							observation.stop();
+						})
+						.then(Mono.empty());
 				}))));
 		Observation http = Observation.start("http", registry).contextualName("http");
 		try {
 			decorated.filter(MockServerWebExchange.from(MockServerHttpRequest.get("/").build()))
-					.contextWrite((context) -> context.put(ObservationThreadLocalAccessor.KEY, http)).block();
+				.contextWrite((context) -> context.put(ObservationThreadLocalAccessor.KEY, http))
+				.block();
 		}
 		finally {
 			http.stop();
@@ -138,7 +144,7 @@ public class ObservationWebFilterChainDecoratorTests {
 		verify(handler, times(3)).onStop(context.capture());
 
 		assertThat(context.getValue().getLowCardinalityKeyValue("spring.security.reached.filter.name").getValue())
-				.isEqualTo(expectedFilterNameTag);
+			.isEqualTo(expectedFilterNameTag);
 	}
 
 	static Stream<Arguments> decorateFiltersWhenCompletesThenHasSpringSecurityReachedFilterNameTagArguments() {

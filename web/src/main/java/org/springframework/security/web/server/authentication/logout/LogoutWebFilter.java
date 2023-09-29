@@ -58,12 +58,15 @@ public class LogoutWebFilter implements WebFilter {
 
 	@Override
 	public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
-		return this.requiresLogout.matches(exchange).filter((result) -> result.isMatch())
-				.switchIfEmpty(chain.filter(exchange).then(Mono.empty())).map((result) -> exchange)
-				.flatMap(this::flatMapAuthentication).flatMap((authentication) -> {
-					WebFilterExchange webFilterExchange = new WebFilterExchange(exchange, chain);
-					return logout(webFilterExchange, authentication);
-				});
+		return this.requiresLogout.matches(exchange)
+			.filter((result) -> result.isMatch())
+			.switchIfEmpty(chain.filter(exchange).then(Mono.empty()))
+			.map((result) -> exchange)
+			.flatMap(this::flatMapAuthentication)
+			.flatMap((authentication) -> {
+				WebFilterExchange webFilterExchange = new WebFilterExchange(exchange, chain);
+				return logout(webFilterExchange, authentication);
+			});
 	}
 
 	private Mono<Authentication> flatMapAuthentication(ServerWebExchange exchange) {
@@ -73,8 +76,8 @@ public class LogoutWebFilter implements WebFilter {
 	private Mono<Void> logout(WebFilterExchange webFilterExchange, Authentication authentication) {
 		logger.debug(LogMessage.format("Logging out user '%s' and transferring to logout destination", authentication));
 		return this.logoutHandler.logout(webFilterExchange, authentication)
-				.then(this.logoutSuccessHandler.onLogoutSuccess(webFilterExchange, authentication))
-				.contextWrite(ReactiveSecurityContextHolder.clearContext());
+			.then(this.logoutSuccessHandler.onLogoutSuccess(webFilterExchange, authentication))
+			.contextWrite(ReactiveSecurityContextHolder.clearContext());
 	}
 
 	/**

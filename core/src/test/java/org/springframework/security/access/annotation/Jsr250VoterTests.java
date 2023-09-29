@@ -42,15 +42,16 @@ public class Jsr250VoterTests {
 		attrs.add(new Jsr250SecurityConfig("B"));
 		attrs.add(new Jsr250SecurityConfig("C"));
 		assertThat(voter.vote(new TestingAuthenticationToken("user", "pwd", "A"), new Object(), attrs))
-				.isEqualTo(AccessDecisionVoter.ACCESS_GRANTED);
+			.isEqualTo(AccessDecisionVoter.ACCESS_GRANTED);
 		assertThat(voter.vote(new TestingAuthenticationToken("user", "pwd", "B"), new Object(), attrs))
-				.isEqualTo(AccessDecisionVoter.ACCESS_GRANTED);
+			.isEqualTo(AccessDecisionVoter.ACCESS_GRANTED);
 		assertThat(voter.vote(new TestingAuthenticationToken("user", "pwd", "C"), new Object(), attrs))
-				.isEqualTo(AccessDecisionVoter.ACCESS_GRANTED);
+			.isEqualTo(AccessDecisionVoter.ACCESS_GRANTED);
 		assertThat(voter.vote(new TestingAuthenticationToken("user", "pwd", "NONE"), new Object(), attrs))
-				.isEqualTo(AccessDecisionVoter.ACCESS_DENIED);
+			.isEqualTo(AccessDecisionVoter.ACCESS_DENIED);
 		assertThat(voter.vote(new TestingAuthenticationToken("user", "pwd", "A"), new Object(),
-				SecurityConfig.createList("A", "B", "C"))).isEqualTo(AccessDecisionVoter.ACCESS_ABSTAIN);
+				SecurityConfig.createList("A", "B", "C")))
+			.isEqualTo(AccessDecisionVoter.ACCESS_ABSTAIN);
 	}
 
 }

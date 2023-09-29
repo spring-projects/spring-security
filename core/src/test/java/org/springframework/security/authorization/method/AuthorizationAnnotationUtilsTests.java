@@ -38,7 +38,7 @@ class AuthorizationAnnotationUtilsTests {
 				(p, m, args) -> null);
 		Method method = proxy.getClass().getDeclaredMethod("findAll");
 		assertThatNoException()
-				.isThrownBy(() -> AuthorizationAnnotationUtils.findUniqueAnnotation(method, PreAuthorize.class));
+			.isThrownBy(() -> AuthorizationAnnotationUtils.findUniqueAnnotation(method, PreAuthorize.class));
 	}
 
 	private interface BaseRepository<T> {

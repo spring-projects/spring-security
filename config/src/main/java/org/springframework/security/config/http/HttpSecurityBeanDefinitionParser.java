@@ -125,7 +125,8 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 		// Obtain the filter chains and add the new chain to it
 		BeanDefinition listFactoryBean = pc.getRegistry().getBeanDefinition(BeanIds.FILTER_CHAINS);
 		List<BeanReference> filterChains = (List<BeanReference>) listFactoryBean.getPropertyValues()
-				.getPropertyValue("sourceList").getValue();
+			.getPropertyValue("sourceList")
+			.getValue();
 		filterChains.add(createFilterChain(element, pc));
 		pc.popAndRegisterContainingComponent();
 		return null;
@@ -140,8 +141,9 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 			validateSecuredFilterChainElement(element, pc);
 			for (int i = 0; i < element.getChildNodes().getLength(); i++) {
 				if (element.getChildNodes().item(i) instanceof Element) {
-					pc.getReaderContext().error("If you are using <http> to define an unsecured pattern, "
-							+ "it cannot contain child elements.", pc.extractSource(element));
+					pc.getReaderContext()
+						.error("If you are using <http> to define an unsecured pattern, "
+								+ "it cannot contain child elements.", pc.extractSource(element));
 				}
 			}
 			return createSecurityFilterChainBean(element, pc, Collections.emptyList());
@@ -198,9 +200,9 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 		String filterChainPattern = element.getAttribute(ATT_PATH_PATTERN);
 		if (StringUtils.hasText(requestMatcherRef)) {
 			if (StringUtils.hasText(filterChainPattern)) {
-				pc.getReaderContext().error(
-						"You can't define a pattern and a request-matcher-ref for the " + "same filter chain",
-						pc.extractSource(element));
+				pc.getReaderContext()
+					.error("You can't define a pattern and a request-matcher-ref for the " + "same filter chain",
+							pc.extractSource(element));
 			}
 			filterChainMatcher = new RuntimeBeanReference(requestMatcherRef);
 
@@ -212,7 +214,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 			filterChainMatcher = new RootBeanDefinition(AnyRequestMatcher.class);
 		}
 		BeanDefinitionBuilder filterChainBldr = BeanDefinitionBuilder
-				.rootBeanDefinition(DefaultSecurityFilterChain.class);
+			.rootBeanDefinition(DefaultSecurityFilterChain.class);
 		filterChainBldr.addConstructorArgValue(filterChainMatcher);
 		filterChainBldr.addConstructorArgValue(filterChain);
 		BeanDefinition filterChainBean = filterChainBldr.getBeanDefinition();
@@ -231,7 +233,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 		// Register the portMapper. A default will always be created, even if no element
 		// exists.
 		BeanDefinition portMapper = new PortMappingsBeanDefinitionParser()
-				.parse(DomUtils.getChildElementByTagName(elt, Elements.PORT_MAPPINGS), pc);
+			.parse(DomUtils.getChildElementByTagName(elt, Elements.PORT_MAPPINGS), pc);
 		String portMapperName = pc.getReaderContext().generateBeanName(portMapper);
 		pc.registerBeanComponent(new BeanComponentDefinition(portMapper, portMapperName));
 		return new RuntimeBeanReference(portMapperName);
@@ -257,7 +259,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 			ManagedList<BeanReference> authenticationProviders) {
 		String parentMgrRef = element.getAttribute(ATT_AUTHENTICATION_MANAGER_REF);
 		BeanDefinitionBuilder authManager = BeanDefinitionBuilder
-				.rootBeanDefinition(ChildAuthenticationManagerFactoryBean.class);
+			.rootBeanDefinition(ChildAuthenticationManagerFactoryBean.class);
 		authManager.addConstructorArgValue(authenticationProviders);
 		if (StringUtils.hasText(parentMgrRef)) {
 			RuntimeBeanReference parentAuthManager = new RuntimeBeanReference(parentMgrRef);
@@ -265,8 +267,8 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 			RootBeanDefinition clearCredentials = new RootBeanDefinition(
 					ClearCredentialsMethodInvokingFactoryBean.class);
 			clearCredentials.getPropertyValues().addPropertyValue("targetObject", parentAuthManager);
-			clearCredentials.getPropertyValues().addPropertyValue("targetMethod",
-					"isEraseCredentialsAfterAuthentication");
+			clearCredentials.getPropertyValues()
+				.addPropertyValue("targetMethod", "isEraseCredentialsAfterAuthentication");
 			authManager.addPropertyValue("eraseCredentialsAfterAuthentication", clearCredentials);
 		}
 		else {
@@ -276,8 +278,8 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 			pc.registerBeanComponent(new BeanComponentDefinition(amfb, amfbId));
 			RootBeanDefinition clearCredentials = new RootBeanDefinition(MethodInvokingFactoryBean.class);
 			clearCredentials.getPropertyValues().addPropertyValue("targetObject", new RuntimeBeanReference(amfbId));
-			clearCredentials.getPropertyValues().addPropertyValue("targetMethod",
-					"isEraseCredentialsAfterAuthentication");
+			clearCredentials.getPropertyValues()
+				.addPropertyValue("targetMethod", "isEraseCredentialsAfterAuthentication");
 			authManager.addConstructorArgValue(new RuntimeBeanReference(amfbId));
 			authManager.addPropertyValue("eraseCredentialsAfterAuthentication", clearCredentials);
 		}
@@ -300,12 +302,12 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 				OrderDecorator previous = filters.get(i - 1);
 				if (filter.getOrder() == previous.getOrder()) {
 					pc.getReaderContext()
-							.error("Filter beans '" + filter.bean + "' and '" + previous.bean
-									+ "' have the same 'order' value. When using custom filters, "
-									+ "please make sure the positions do not conflict with default filters. "
-									+ "Alternatively you can disable the default filters by removing the corresponding "
-									+ "child elements from <http> and avoiding the use of <http auto-config='true'>.",
-									source);
+						.error("Filter beans '" + filter.bean + "' and '" + previous.bean
+								+ "' have the same 'order' value. When using custom filters, "
+								+ "please make sure the positions do not conflict with default filters. "
+								+ "Alternatively you can disable the default filters by removing the corresponding "
+								+ "child elements from <http> and avoiding the use of <http auto-config='true'>.",
+								source);
 				}
 			}
 		}
@@ -324,8 +326,9 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 			}
 			RuntimeBeanReference bean = new RuntimeBeanReference(ref);
 			if (WebConfigUtils.countNonEmpty(new String[] { after, before, position }) != 1) {
-				pc.getReaderContext().error("A single '" + ATT_AFTER + "', '" + ATT_BEFORE + "', or '" + ATT_POSITION
-						+ "' attribute must be supplied", pc.extractSource(elt));
+				pc.getReaderContext()
+					.error("A single '" + ATT_AFTER + "', '" + ATT_BEFORE + "', or '" + ATT_POSITION
+							+ "' attribute must be supplied", pc.extractSource(elt));
 			}
 			if (StringUtils.hasText(position)) {
 				customFilters.add(new OrderDecorator(bean, SecurityFilters.valueOf(position)));
@@ -368,14 +371,15 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 		fcpBldr.addConstructorArgReference(BeanIds.FILTER_CHAINS);
 		fcpBldr.addPropertyValue("filterChainValidator", new RootBeanDefinition(DefaultFilterChainValidator.class));
 		BeanDefinition filterChainDecorator = BeanDefinitionBuilder
-				.rootBeanDefinition(FilterChainDecoratorFactory.class)
-				.addPropertyValue("observationRegistry", getObservationRegistry(element)).getBeanDefinition();
+			.rootBeanDefinition(FilterChainDecoratorFactory.class)
+			.addPropertyValue("observationRegistry", getObservationRegistry(element))
+			.getBeanDefinition();
 		fcpBldr.addPropertyValue("filterChainDecorator", filterChainDecorator);
 		BeanDefinition fcpBean = fcpBldr.getBeanDefinition();
 		pc.registerBeanComponent(new BeanComponentDefinition(fcpBean, BeanIds.FILTER_CHAIN_PROXY));
 		registry.registerAlias(BeanIds.FILTER_CHAIN_PROXY, BeanIds.SPRING_SECURITY_FILTER_CHAIN);
 		BeanDefinitionBuilder requestRejected = BeanDefinitionBuilder
-				.rootBeanDefinition(RequestRejectedHandlerPostProcessor.class);
+			.rootBeanDefinition(RequestRejectedHandlerPostProcessor.class);
 		requestRejected.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
 		requestRejected.addConstructorArgValue("requestRejectedHandler");
 		requestRejected.addConstructorArgValue(BeanIds.FILTER_CHAIN_PROXY);
@@ -414,13 +418,14 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 		public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
 			if (registry.containsBeanDefinition(this.beanName)) {
 				BeanDefinition beanDefinition = registry.getBeanDefinition(this.targetBeanName);
-				beanDefinition.getPropertyValues().add(this.targetPropertyName,
-						new RuntimeBeanReference(this.beanName));
+				beanDefinition.getPropertyValues()
+					.add(this.targetPropertyName, new RuntimeBeanReference(this.beanName));
 			}
 			else if (!this.observationRegistry.isNoop()) {
 				BeanDefinition observable = BeanDefinitionBuilder
-						.rootBeanDefinition(ObservationMarkingRequestRejectedHandler.class)
-						.addConstructorArgValue(this.observationRegistry).getBeanDefinition();
+					.rootBeanDefinition(ObservationMarkingRequestRejectedHandler.class)
+					.addConstructorArgValue(this.observationRegistry)
+					.getBeanDefinition();
 				BeanDefinition beanDefinition = registry.getBeanDefinition(this.targetBeanName);
 				beanDefinition.getPropertyValues().add(this.targetPropertyName, observable);
 			}

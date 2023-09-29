@@ -89,8 +89,9 @@ public final class RequestMatcherMetadataResponseResolverTests {
 		MockHttpServletRequest request = get("/saml2/metadata");
 		Saml2MetadataResponse response = resolver.resolve(request);
 		assertThat(response.getMetadata()).isEqualTo("metadata");
-		assertThat(response.getFileName()).doesNotContain(one.getRegistrationId()).contains("saml")
-				.contains("metadata.xml");
+		assertThat(response.getFileName()).doesNotContain(one.getRegistrationId())
+			.contains("saml")
+			.contains("metadata.xml");
 		verify(this.metadataFactory).resolve(any(Collection.class));
 	}
 
@@ -126,8 +127,10 @@ public final class RequestMatcherMetadataResponseResolverTests {
 	}
 
 	private RelyingPartyRegistration withEntityId(String entityId) {
-		return TestRelyingPartyRegistrations.relyingPartyRegistration().registrationId(entityId)
-				.entityId("{registrationId}").build();
+		return TestRelyingPartyRegistrations.relyingPartyRegistration()
+			.registrationId(entityId)
+			.entityId("{registrationId}")
+			.build();
 	}
 
 }

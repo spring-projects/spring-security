@@ -149,7 +149,7 @@ public final class OpenSaml4AuthenticationProvider implements AuthenticationProv
 	static {
 		XMLObjectProviderRegistry registry = ConfigurationService.get(XMLObjectProviderRegistry.class);
 		authnRequestUnmarshaller = (AuthnRequestUnmarshaller) registry.getUnmarshallerFactory()
-				.getUnmarshaller(AuthnRequest.DEFAULT_ELEMENT_NAME);
+			.getUnmarshaller(AuthnRequest.DEFAULT_ELEMENT_NAME);
 	}
 
 	private final ParserPool parserPool;
@@ -174,7 +174,7 @@ public final class OpenSaml4AuthenticationProvider implements AuthenticationProv
 	public OpenSaml4AuthenticationProvider() {
 		XMLObjectProviderRegistry registry = ConfigurationService.get(XMLObjectProviderRegistry.class);
 		this.responseUnmarshaller = (ResponseUnmarshaller) registry.getUnmarshallerFactory()
-				.getUnmarshaller(Response.DEFAULT_ELEMENT_NAME);
+			.getUnmarshaller(Response.DEFAULT_ELEMENT_NAME);
 		this.parserPool = registry.getParserPool();
 	}
 
@@ -389,8 +389,9 @@ public final class OpenSaml4AuthenticationProvider implements AuthenticationProv
 						+ "]";
 				result = result.concat(new Saml2Error(Saml2ErrorCodes.INVALID_DESTINATION, message));
 			}
-			String assertingPartyEntityId = token.getRelyingPartyRegistration().getAssertingPartyDetails()
-					.getEntityId();
+			String assertingPartyEntityId = token.getRelyingPartyRegistration()
+				.getAssertingPartyDetails()
+				.getEntityId();
 			if (!StringUtils.hasText(issuer) || !issuer.equals(assertingPartyEntityId)) {
 				String message = String.format("Invalid issuer [%s] for SAML response [%s]", issuer, response.getID());
 				result = result.concat(new Saml2Error(Saml2ErrorCodes.INVALID_ISSUER, message));
@@ -412,13 +413,13 @@ public final class OpenSaml4AuthenticationProvider implements AuthenticationProv
 			String message = "The response contained an InResponseTo attribute [" + inResponseTo + "]"
 					+ " but no saved authentication request was found";
 			return Saml2ResponseValidatorResult
-					.failure(new Saml2Error(Saml2ErrorCodes.INVALID_IN_RESPONSE_TO, message));
+				.failure(new Saml2Error(Saml2ErrorCodes.INVALID_IN_RESPONSE_TO, message));
 		}
 		if (!inResponseTo.equals(storedRequest.getId())) {
 			String message = "The InResponseTo attribute [" + inResponseTo + "] does not match the ID of the "
 					+ "authentication request [" + storedRequest.getId() + "]";
 			return Saml2ResponseValidatorResult
-					.failure(new Saml2Error(Saml2ErrorCodes.INVALID_IN_RESPONSE_TO, message));
+				.failure(new Saml2Error(Saml2ErrorCodes.INVALID_IN_RESPONSE_TO, message));
 		}
 		return Saml2ResponseValidatorResult.success();
 	}
@@ -501,7 +502,7 @@ public final class OpenSaml4AuthenticationProvider implements AuthenticationProv
 			Response response = parseResponse(serializedResponse);
 			process(token, response);
 			AbstractAuthenticationToken authenticationResponse = this.responseAuthenticationConverter
-					.convert(new ResponseToken(response, token));
+				.convert(new ResponseToken(response, token));
 			if (authenticationResponse != null) {
 				authenticationResponse.setDetails(authentication.getDetails());
 			}
@@ -523,7 +524,7 @@ public final class OpenSaml4AuthenticationProvider implements AuthenticationProv
 	private Response parseResponse(String response) throws Saml2Exception, Saml2AuthenticationException {
 		try {
 			Document document = this.parserPool
-					.parse(new ByteArrayInputStream(response.getBytes(StandardCharsets.UTF_8)));
+				.parse(new ByteArrayInputStream(response.getBytes(StandardCharsets.UTF_8)));
 			Element element = document.getDocumentElement();
 			return (Response) this.responseUnmarshaller.unmarshall(element);
 		}
@@ -576,8 +577,8 @@ public final class OpenSaml4AuthenticationProvider implements AuthenticationProv
 						+ "]: " + errors);
 			}
 			else if (this.logger.isDebugEnabled()) {
-				this.logger.debug(
-						"Found " + errors.size() + " validation errors in SAML response [" + response.getID() + "]");
+				this.logger
+					.debug("Found " + errors.size() + " validation errors in SAML response [" + response.getID() + "]");
 			}
 			Saml2Error first = errors.iterator().next();
 			throw createAuthenticationException(first.getErrorCode(), first.getDescription(), null);

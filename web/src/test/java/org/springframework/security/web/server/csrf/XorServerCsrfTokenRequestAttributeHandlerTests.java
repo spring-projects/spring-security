@@ -156,28 +156,34 @@ public class XorServerCsrfTokenRequestAttributeHandlerTests {
 
 	@Test
 	public void resolveCsrfTokenValueWhenFormDataSetThenReturnsTokenValue() {
-		this.exchange = MockServerWebExchange.builder(MockServerHttpRequest.post("/")
+		this.exchange = MockServerWebExchange
+			.builder(MockServerHttpRequest.post("/")
 				.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-				.body(this.token.getParameterName() + "=" + XOR_CSRF_TOKEN_VALUE)).build();
+				.body(this.token.getParameterName() + "=" + XOR_CSRF_TOKEN_VALUE))
+			.build();
 		Mono<String> csrfToken = this.handler.resolveCsrfTokenValue(this.exchange, this.token);
 		StepVerifier.create(csrfToken).expectNext(this.token.getToken()).verifyComplete();
 	}
 
 	@Test
 	public void resolveCsrfTokenValueWhenHeaderSetThenReturnsTokenValue() {
-		this.exchange = MockServerWebExchange.builder(MockServerHttpRequest.post("/")
+		this.exchange = MockServerWebExchange
+			.builder(MockServerHttpRequest.post("/")
 				.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-				.header(this.token.getHeaderName(), XOR_CSRF_TOKEN_VALUE)).build();
+				.header(this.token.getHeaderName(), XOR_CSRF_TOKEN_VALUE))
+			.build();
 		Mono<String> csrfToken = this.handler.resolveCsrfTokenValue(this.exchange, this.token);
 		StepVerifier.create(csrfToken).expectNext(this.token.getToken()).verifyComplete();
 	}
 
 	@Test
 	public void resolveCsrfTokenValueWhenHeaderAndFormDataSetThenFormDataIsPreferred() {
-		this.exchange = MockServerWebExchange.builder(MockServerHttpRequest.post("/")
+		this.exchange = MockServerWebExchange
+			.builder(MockServerHttpRequest.post("/")
 				.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
 				.header(this.token.getHeaderName(), "header")
-				.body(this.token.getParameterName() + "=" + XOR_CSRF_TOKEN_VALUE)).build();
+				.body(this.token.getParameterName() + "=" + XOR_CSRF_TOKEN_VALUE))
+			.build();
 		Mono<String> csrfToken = this.handler.resolveCsrfTokenValue(this.exchange, this.token);
 		StepVerifier.create(csrfToken).expectNext(this.token.getToken()).verifyComplete();
 	}

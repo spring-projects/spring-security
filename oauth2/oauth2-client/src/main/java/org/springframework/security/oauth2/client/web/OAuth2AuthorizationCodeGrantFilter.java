@@ -105,7 +105,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 public class OAuth2AuthorizationCodeGrantFilter extends OncePerRequestFilter {
 
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
-			.getContextHolderStrategy();
+		.getContextHolderStrategy();
 
 	private final ClientRegistrationRepository clientRegistrationRepository;
 
@@ -189,7 +189,7 @@ public class OAuth2AuthorizationCodeGrantFilter extends OncePerRequestFilter {
 			return false;
 		}
 		OAuth2AuthorizationRequest authorizationRequest = this.authorizationRequestRepository
-				.loadAuthorizationRequest(request);
+			.loadAuthorizationRequest(request);
 		if (authorizationRequest == null) {
 			return false;
 		}
@@ -219,7 +219,7 @@ public class OAuth2AuthorizationCodeGrantFilter extends OncePerRequestFilter {
 	private void processAuthorizationResponse(HttpServletRequest request, HttpServletResponse response)
 			throws IOException {
 		OAuth2AuthorizationRequest authorizationRequest = this.authorizationRequestRepository
-				.removeAuthorizationRequest(request, response);
+			.removeAuthorizationRequest(request, response);
 		String registrationId = authorizationRequest.getAttribute(OAuth2ParameterNames.REGISTRATION_ID);
 		ClientRegistration clientRegistration = this.clientRegistrationRepository.findByRegistrationId(registrationId);
 		MultiValueMap<String, String> params = OAuth2AuthorizationResponseUtils.toMultiMap(request.getParameterMap());
@@ -232,12 +232,12 @@ public class OAuth2AuthorizationCodeGrantFilter extends OncePerRequestFilter {
 		OAuth2AuthorizationCodeAuthenticationToken authenticationResult;
 		try {
 			authenticationResult = (OAuth2AuthorizationCodeAuthenticationToken) this.authenticationManager
-					.authenticate(authenticationRequest);
+				.authenticate(authenticationRequest);
 		}
 		catch (OAuth2AuthorizationException ex) {
 			OAuth2Error error = ex.getError();
 			UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUriString(authorizationRequest.getRedirectUri())
-					.queryParam(OAuth2ParameterNames.ERROR, error.getErrorCode());
+				.queryParam(OAuth2ParameterNames.ERROR, error.getErrorCode());
 			if (!StringUtils.isEmpty(error.getDescription())) {
 				uriBuilder.queryParam(OAuth2ParameterNames.ERROR_DESCRIPTION, error.getDescription());
 			}

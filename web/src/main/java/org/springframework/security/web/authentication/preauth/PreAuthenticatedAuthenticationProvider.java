@@ -94,7 +94,7 @@ public class PreAuthenticatedAuthenticationProvider implements AuthenticationPro
 			return null;
 		}
 		UserDetails userDetails = this.preAuthenticatedUserDetailsService
-				.loadUserDetails((PreAuthenticatedAuthenticationToken) authentication);
+			.loadUserDetails((PreAuthenticatedAuthenticationToken) authentication);
 		this.userDetailsChecker.check(userDetails);
 		PreAuthenticatedAuthenticationToken result = new PreAuthenticatedAuthenticationToken(userDetails,
 				authentication.getCredentials(), userDetails.getAuthorities());

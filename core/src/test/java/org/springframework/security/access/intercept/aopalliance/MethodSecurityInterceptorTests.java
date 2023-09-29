@@ -216,7 +216,7 @@ public class MethodSecurityInterceptorTests {
 		mdsReturnsNull();
 		SecurityContextHolder.getContext().setAuthentication(this.token);
 		assertThat(this.advisedTarget.publicMakeLowerCase("HELLO"))
-				.isEqualTo("hello org.springframework.security.authentication.TestingAuthenticationToken false");
+			.isEqualTo("hello org.springframework.security.authentication.TestingAuthenticationToken false");
 		assertThat(!this.token.isAuthenticated()).isTrue();
 	}
 
@@ -227,7 +227,7 @@ public class MethodSecurityInterceptorTests {
 		mdsReturnsUserRole();
 		given(this.authman.authenticate(token)).willThrow(new BadCredentialsException("rejected"));
 		assertThatExceptionOfType(AuthenticationException.class)
-				.isThrownBy(() -> this.advisedTarget.makeLowerCase("HELLO"));
+			.isThrownBy(() -> this.advisedTarget.makeLowerCase("HELLO"));
 	}
 
 	@Test
@@ -239,7 +239,7 @@ public class MethodSecurityInterceptorTests {
 		String result = this.advisedTarget.makeLowerCase("HELLO");
 		// Note we check the isAuthenticated remained true in following line
 		assertThat(result)
-				.isEqualTo("hello org.springframework.security.authentication.TestingAuthenticationToken true");
+			.isEqualTo("hello org.springframework.security.authentication.TestingAuthenticationToken true");
 		verify(this.eventPublisher).publishEvent(any(AuthorizedEvent.class));
 	}
 
@@ -251,10 +251,10 @@ public class MethodSecurityInterceptorTests {
 		createTarget(true);
 		mdsReturnsUserRole();
 		given(this.authman.authenticate(this.token)).willReturn(this.token);
-		willThrow(new AccessDeniedException("rejected")).given(this.adm).decide(any(Authentication.class),
-				any(MethodInvocation.class), any(List.class));
+		willThrow(new AccessDeniedException("rejected")).given(this.adm)
+			.decide(any(Authentication.class), any(MethodInvocation.class), any(List.class));
 		assertThatExceptionOfType(AccessDeniedException.class)
-				.isThrownBy(() -> this.advisedTarget.makeUpperCase("HELLO"));
+			.isThrownBy(() -> this.advisedTarget.makeUpperCase("HELLO"));
 		verify(this.eventPublisher).publishEvent(any(AuthorizationFailureEvent.class));
 	}
 
@@ -305,7 +305,7 @@ public class MethodSecurityInterceptorTests {
 	public void emptySecurityContextIsRejected() {
 		mdsReturnsUserRole();
 		assertThatExceptionOfType(AuthenticationCredentialsNotFoundException.class)
-				.isThrownBy(() -> this.advisedTarget.makeUpperCase("hello"));
+			.isThrownBy(() -> this.advisedTarget.makeUpperCase("hello"));
 	}
 
 	@Test

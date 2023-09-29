@@ -168,7 +168,7 @@ public class JwtDecodersTests {
 	public void issuerWhenResponseIsNonCompliantThenThrowsRuntimeException() {
 		prepareConfigurationResponse("{ \"missing_required_keys\" : \"and_values\" }");
 		assertThatExceptionOfType(RuntimeException.class)
-				.isThrownBy(() -> JwtDecoders.fromOidcIssuerLocation(this.issuer));
+			.isThrownBy(() -> JwtDecoders.fromOidcIssuerLocation(this.issuer));
 	}
 
 	@Test

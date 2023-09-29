@@ -109,14 +109,14 @@ class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
 		if (servicesRefSet && (dataSourceSet || tokenRepoSet || userServiceSet || tokenValiditySet || useSecureCookieSet
 				|| remembermeParameterSet || remembermeCookieSet)) {
 			pc.getReaderContext()
-					.error(ATT_SERVICES_REF + " can't be used in combination with attributes " + ATT_TOKEN_REPOSITORY
-							+ "," + ATT_DATA_SOURCE + ", " + ATT_USER_SERVICE_REF + ", " + ATT_TOKEN_VALIDITY + ", "
-							+ ATT_SECURE_COOKIE + ", " + ATT_FORM_REMEMBERME_PARAMETER + " or " + ATT_REMEMBERME_COOKIE,
-							source);
+				.error(ATT_SERVICES_REF + " can't be used in combination with attributes " + ATT_TOKEN_REPOSITORY + ","
+						+ ATT_DATA_SOURCE + ", " + ATT_USER_SERVICE_REF + ", " + ATT_TOKEN_VALIDITY + ", "
+						+ ATT_SECURE_COOKIE + ", " + ATT_FORM_REMEMBERME_PARAMETER + " or " + ATT_REMEMBERME_COOKIE,
+						source);
 		}
 		if (dataSourceSet && tokenRepoSet) {
-			pc.getReaderContext().error("Specify " + ATT_TOKEN_REPOSITORY + " or " + ATT_DATA_SOURCE + " but not both",
-					source);
+			pc.getReaderContext()
+				.error("Specify " + ATT_TOKEN_REPOSITORY + " or " + ATT_DATA_SOURCE + " but not both", source);
 		}
 		boolean isPersistent = dataSourceSet | tokenRepoSet;
 		if (isPersistent) {
@@ -127,8 +127,8 @@ class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
 			}
 			else {
 				tokenRepo = new RootBeanDefinition(JdbcTokenRepositoryImpl.class);
-				((BeanDefinition) tokenRepo).getPropertyValues().addPropertyValue("dataSource",
-						new RuntimeBeanReference(dataSource));
+				((BeanDefinition) tokenRepo).getPropertyValues()
+					.addPropertyValue("dataSource", new RuntimeBeanReference(dataSource));
 			}
 			services.getConstructorArgumentValues().addIndexedArgumentValue(2, tokenRepo);
 		}
@@ -151,8 +151,9 @@ class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
 			if (tokenValiditySet) {
 				boolean isTokenValidityNegative = tokenValiditySeconds.startsWith("-");
 				if (isTokenValidityNegative && isPersistent) {
-					pc.getReaderContext().error(ATT_TOKEN_VALIDITY + " cannot be negative if using"
-							+ " a persistent remember-me token repository", source);
+					pc.getReaderContext()
+						.error(ATT_TOKEN_VALIDITY + " cannot be negative if using"
+								+ " a persistent remember-me token repository", source);
 				}
 				services.getPropertyValues().addPropertyValue("tokenValiditySeconds", tokenValiditySeconds);
 			}

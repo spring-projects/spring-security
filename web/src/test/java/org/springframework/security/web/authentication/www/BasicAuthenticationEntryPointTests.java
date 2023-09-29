@@ -41,7 +41,7 @@ public class BasicAuthenticationEntryPointTests {
 	public void testDetectsMissingRealmName() {
 		BasicAuthenticationEntryPoint ep = new BasicAuthenticationEntryPoint();
 		assertThatIllegalArgumentException().isThrownBy(ep::afterPropertiesSet)
-				.withMessage("realmName must be specified");
+			.withMessage("realmName must be specified");
 	}
 
 	@Test

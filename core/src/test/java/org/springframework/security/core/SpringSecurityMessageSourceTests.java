@@ -33,8 +33,8 @@ public class SpringSecurityMessageSourceTests {
 	@Test
 	public void testOperation() {
 		SpringSecurityMessageSource msgs = new SpringSecurityMessageSource();
-		assertThat("\u4E0D\u5141\u8BB8\u8BBF\u95EE").isEqualTo(
-				msgs.getMessage("AbstractAccessDecisionManager.accessDenied", null, Locale.SIMPLIFIED_CHINESE));
+		assertThat("\u4E0D\u5141\u8BB8\u8BBF\u95EE")
+			.isEqualTo(msgs.getMessage("AbstractAccessDecisionManager.accessDenied", null, Locale.SIMPLIFIED_CHINESE));
 	}
 
 	@Test
@@ -59,7 +59,7 @@ public class SpringSecurityMessageSourceTests {
 		LocaleContextHolder.setLocale(Locale.US);
 		MessageSourceAccessor msgs = SpringSecurityMessageSource.getAccessor();
 		assertThat("Access is denied")
-				.isEqualTo(msgs.getMessage("AbstractAccessDecisionManager.accessDenied", "Ooops"));
+			.isEqualTo(msgs.getMessage("AbstractAccessDecisionManager.accessDenied", "Ooops"));
 		// Revert to original Locale
 		Locale.setDefault(beforeSystem);
 		LocaleContextHolder.setLocale(beforeHolder);

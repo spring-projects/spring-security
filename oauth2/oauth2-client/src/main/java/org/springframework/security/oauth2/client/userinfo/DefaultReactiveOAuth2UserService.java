@@ -84,8 +84,10 @@ public class DefaultReactiveOAuth2UserService implements ReactiveOAuth2UserServi
 	public Mono<OAuth2User> loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
 		return Mono.defer(() -> {
 			Assert.notNull(userRequest, "userRequest cannot be null");
-			String userInfoUri = userRequest.getClientRegistration().getProviderDetails().getUserInfoEndpoint()
-					.getUri();
+			String userInfoUri = userRequest.getClientRegistration()
+				.getProviderDetails()
+				.getUserInfoEndpoint()
+				.getUri();
 			if (!StringUtils.hasText(userInfoUri)) {
 				OAuth2Error oauth2Error = new OAuth2Error(MISSING_USER_INFO_URI_ERROR_CODE,
 						"Missing required UserInfo Uri in UserInfoEndpoint for Client Registration: "
@@ -93,8 +95,10 @@ public class DefaultReactiveOAuth2UserService implements ReactiveOAuth2UserServi
 						null);
 				throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
 			}
-			String userNameAttributeName = userRequest.getClientRegistration().getProviderDetails()
-					.getUserInfoEndpoint().getUserNameAttributeName();
+			String userNameAttributeName = userRequest.getClientRegistration()
+				.getProviderDetails()
+				.getUserInfoEndpoint()
+				.getUserNameAttributeName();
 			if (!StringUtils.hasText(userNameAttributeName)) {
 				OAuth2Error oauth2Error = new OAuth2Error(MISSING_USER_NAME_ATTRIBUTE_ERROR_CODE,
 						"Missing required \"user name\" attribute name in UserInfoEndpoint for Client Registration: "
@@ -102,8 +106,10 @@ public class DefaultReactiveOAuth2UserService implements ReactiveOAuth2UserServi
 						null);
 				throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
 			}
-			AuthenticationMethod authenticationMethod = userRequest.getClientRegistration().getProviderDetails()
-					.getUserInfoEndpoint().getAuthenticationMethod();
+			AuthenticationMethod authenticationMethod = userRequest.getClientRegistration()
+				.getProviderDetails()
+				.getUserInfoEndpoint()
+				.getAuthenticationMethod();
 			WebClient.RequestHeadersSpec<?> requestHeadersSpec = getRequestHeaderSpec(userRequest, userInfoUri,
 					authenticationMethod);
 			// @formatter:off
@@ -195,7 +201,7 @@ public class DefaultReactiveOAuth2UserService implements ReactiveOAuth2UserServi
 		}
 		// Other error?
 		return httpResponse.bodyToMono(STRING_STRING_MAP)
-				.map((body) -> new UserInfoErrorResponse(ErrorObject.parse(new JSONObject(body))));
+			.map((body) -> new UserInfoErrorResponse(ErrorObject.parse(new JSONObject(body))));
 	}
 
 }

@@ -61,44 +61,44 @@ public class ServerWebExchangeDelegatingServerHttpHeadersWriterTests {
 	@Test
 	public void constructorWhenNullWebExchangeMatcherThenException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new ServerWebExchangeDelegatingServerHttpHeadersWriter(null, this.delegate))
-				.withMessage("webExchangeMatcher cannot be null");
+			.isThrownBy(() -> new ServerWebExchangeDelegatingServerHttpHeadersWriter(null, this.delegate))
+			.withMessage("webExchangeMatcher cannot be null");
 	}
 
 	@Test
 	public void constructorWhenNullWebExchangeMatcherEntryThenException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new ServerWebExchangeDelegatingServerHttpHeadersWriter(null))
-				.withMessage("headersWriter cannot be null");
+			.isThrownBy(() -> new ServerWebExchangeDelegatingServerHttpHeadersWriter(null))
+			.withMessage("headersWriter cannot be null");
 	}
 
 	@Test
 	public void constructorWhenNullDelegateHeadersWriterThenException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new ServerWebExchangeDelegatingServerHttpHeadersWriter(this.matcher, null))
-				.withMessage("delegateHeadersWriter cannot be null");
+			.isThrownBy(() -> new ServerWebExchangeDelegatingServerHttpHeadersWriter(this.matcher, null))
+			.withMessage("delegateHeadersWriter cannot be null");
 	}
 
 	@Test
 	public void constructorWhenEntryWithNullMatcherThenException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new ServerWebExchangeDelegatingServerHttpHeadersWriter(
-						new ServerWebExchangeMatcherEntry<>(null, this.delegate)))
-				.withMessage("webExchangeMatcher cannot be null");
+			.isThrownBy(() -> new ServerWebExchangeDelegatingServerHttpHeadersWriter(
+					new ServerWebExchangeMatcherEntry<>(null, this.delegate)))
+			.withMessage("webExchangeMatcher cannot be null");
 	}
 
 	@Test
 	public void constructorWhenEntryWithNullEntryThenException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new ServerWebExchangeDelegatingServerHttpHeadersWriter(
-						new ServerWebExchangeMatcherEntry<>(this.matcher, null)))
-				.withMessage("delegateHeadersWriter cannot be null");
+			.isThrownBy(() -> new ServerWebExchangeDelegatingServerHttpHeadersWriter(
+					new ServerWebExchangeMatcherEntry<>(this.matcher, null)))
+			.withMessage("delegateHeadersWriter cannot be null");
 	}
 
 	@Test
 	public void writeHeadersWhenMatchThenDelegateWriteHttpHeaders() {
 		given(this.matcher.matches(this.exchange))
-				.willReturn(ServerWebExchangeMatcher.MatchResult.match(Collections.emptyMap()));
+			.willReturn(ServerWebExchangeMatcher.MatchResult.match(Collections.emptyMap()));
 		given(this.delegate.writeHttpHeaders(this.exchange)).willReturn(Mono.empty());
 		this.headerWriter.writeHttpHeaders(this.exchange).block();
 		verify(this.delegate).writeHttpHeaders(this.exchange);

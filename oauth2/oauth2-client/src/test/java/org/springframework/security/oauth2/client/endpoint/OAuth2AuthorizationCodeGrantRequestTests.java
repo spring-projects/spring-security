@@ -48,13 +48,13 @@ public class OAuth2AuthorizationCodeGrantRequestTests {
 	@Test
 	public void constructorWhenClientRegistrationIsNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new OAuth2AuthorizationCodeGrantRequest(null, this.authorizationExchange));
+			.isThrownBy(() -> new OAuth2AuthorizationCodeGrantRequest(null, this.authorizationExchange));
 	}
 
 	@Test
 	public void constructorWhenAuthorizationExchangeIsNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new OAuth2AuthorizationCodeGrantRequest(this.clientRegistration, null));
+			.isThrownBy(() -> new OAuth2AuthorizationCodeGrantRequest(this.clientRegistration, null));
 	}
 
 	@Test

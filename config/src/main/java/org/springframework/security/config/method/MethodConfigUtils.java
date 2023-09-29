@@ -38,8 +38,9 @@ abstract class MethodConfigUtils {
 	@SuppressWarnings("unchecked")
 	static void registerDefaultMethodAccessManagerIfNecessary(ParserContext parserContext) {
 		if (!parserContext.getRegistry().containsBeanDefinition(BeanIds.METHOD_ACCESS_MANAGER)) {
-			parserContext.getRegistry().registerBeanDefinition(BeanIds.METHOD_ACCESS_MANAGER,
-					createAccessManagerBean(RoleVoter.class, AuthenticatedVoter.class));
+			parserContext.getRegistry()
+				.registerBeanDefinition(BeanIds.METHOD_ACCESS_MANAGER,
+						createAccessManagerBean(RoleVoter.class, AuthenticatedVoter.class));
 		}
 	}
 

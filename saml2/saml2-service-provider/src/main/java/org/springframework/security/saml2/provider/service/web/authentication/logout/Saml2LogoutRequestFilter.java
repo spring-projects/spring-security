@@ -70,7 +70,7 @@ public final class Saml2LogoutRequestFilter extends OncePerRequestFilter {
 	private final Log logger = LogFactory.getLog(getClass());
 
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
-			.getContextHolderStrategy();
+		.getContextHolderStrategy();
 
 	private final Saml2LogoutRequestValidatorParametersResolver logoutRequestResolver;
 
@@ -167,7 +167,7 @@ public final class Saml2LogoutRequestFilter extends OncePerRequestFilter {
 		Assert.isInstanceOf(Saml2AssertingPartyLogoutRequestResolver.class, this.logoutRequestResolver,
 				"saml2LogoutRequestResolver and logoutRequestMatcher cannot both be set. Please set the request matcher in the saml2LogoutRequestResolver itself.");
 		((Saml2AssertingPartyLogoutRequestResolver) this.logoutRequestResolver)
-				.setLogoutRequestMatcher(logoutRequestMatcher);
+			.setLogoutRequestMatcher(logoutRequestMatcher);
 	}
 
 	/**
@@ -185,7 +185,7 @@ public final class Saml2LogoutRequestFilter extends OncePerRequestFilter {
 			Saml2LogoutResponse logoutResponse) throws IOException {
 		String location = logoutResponse.getResponseLocation();
 		UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUriString(location)
-				.query(logoutResponse.getParametersQuery());
+			.query(logoutResponse.getParametersQuery());
 		this.redirectStrategy.sendRedirect(request, response, uriBuilder.build(true).toUriString());
 	}
 
@@ -203,7 +203,7 @@ public final class Saml2LogoutRequestFilter extends OncePerRequestFilter {
 		html.append("<!DOCTYPE html>\n");
 		html.append("<html>\n").append("    <head>\n");
 		html.append("        <meta http-equiv=\"Content-Security-Policy\" ")
-				.append("content=\"script-src 'sha256-oZhLbc2kO8b8oaYLrUc7uye1MgVKMyLtPqWR4WtKF+c='\">\n");
+			.append("content=\"script-src 'sha256-oZhLbc2kO8b8oaYLrUc7uye1MgVKMyLtPqWR4WtKF+c='\">\n");
 		html.append("        <meta charset=\"utf-8\" />\n");
 		html.append("    </head>\n");
 		html.append("    <body>\n");
@@ -274,17 +274,23 @@ public final class Saml2LogoutRequestFilter extends OncePerRequestFilter {
 			String entityId = uriResolver.resolve(registration.getEntityId());
 			String logoutLocation = uriResolver.resolve(registration.getSingleLogoutServiceLocation());
 			String logoutResponseLocation = uriResolver.resolve(registration.getSingleLogoutServiceResponseLocation());
-			registration = registration.mutate().entityId(entityId).singleLogoutServiceLocation(logoutLocation)
-					.singleLogoutServiceResponseLocation(logoutResponseLocation).build();
+			registration = registration.mutate()
+				.entityId(entityId)
+				.singleLogoutServiceLocation(logoutLocation)
+				.singleLogoutServiceResponseLocation(logoutResponseLocation)
+				.build();
 			Saml2MessageBinding saml2MessageBinding = Saml2MessageBindingUtils.resolveBinding(request);
 			Saml2LogoutRequest logoutRequest = Saml2LogoutRequest.withRelyingPartyRegistration(registration)
-					.samlRequest(serialized).relayState(request.getParameter(Saml2ParameterNames.RELAY_STATE))
-					.binding(saml2MessageBinding).location(registration.getSingleLogoutServiceLocation())
-					.parameters((params) -> params.put(Saml2ParameterNames.SIG_ALG,
-							request.getParameter(Saml2ParameterNames.SIG_ALG)))
-					.parameters((params) -> params.put(Saml2ParameterNames.SIGNATURE,
-							request.getParameter(Saml2ParameterNames.SIGNATURE)))
-					.parametersQuery((params) -> request.getQueryString()).build();
+				.samlRequest(serialized)
+				.relayState(request.getParameter(Saml2ParameterNames.RELAY_STATE))
+				.binding(saml2MessageBinding)
+				.location(registration.getSingleLogoutServiceLocation())
+				.parameters((params) -> params.put(Saml2ParameterNames.SIG_ALG,
+						request.getParameter(Saml2ParameterNames.SIG_ALG)))
+				.parameters((params) -> params.put(Saml2ParameterNames.SIGNATURE,
+						request.getParameter(Saml2ParameterNames.SIGNATURE)))
+				.parametersQuery((params) -> request.getQueryString())
+				.build();
 			return new Saml2LogoutRequestValidatorParameters(logoutRequest, registration, authentication);
 		}
 

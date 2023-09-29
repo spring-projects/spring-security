@@ -87,7 +87,7 @@ public class NamespaceRememberMeTests {
 		Cookie rememberMe = result.getResponse().getCookie("remember-me");
 		assertThat(rememberMe).isNotNull();
 		this.mvc.perform(get("/authentication-class").cookie(rememberMe))
-				.andExpect(content().string(RememberMeAuthenticationToken.class.getName()));
+			.andExpect(content().string(RememberMeAuthenticationToken.class.getName()));
 		// @formatter:off
 		MockHttpServletRequestBuilder logoutRequest = post("/logout")
 				.with(csrf())

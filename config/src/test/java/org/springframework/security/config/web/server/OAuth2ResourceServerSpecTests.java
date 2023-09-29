@@ -295,9 +295,9 @@ public class OAuth2ResourceServerSpecTests {
 	public void getWhenUsingCustomAuthenticationManagerThenUsesItAccordingly() {
 		this.spring.register(CustomAuthenticationManagerConfig.class).autowire();
 		ReactiveAuthenticationManager authenticationManager = this.spring.getContext()
-				.getBean(ReactiveAuthenticationManager.class);
+			.getBean(ReactiveAuthenticationManager.class);
 		given(authenticationManager.authenticate(any(Authentication.class)))
-				.willReturn(Mono.error(new OAuth2AuthenticationException(new OAuth2Error("mock-failure"))));
+			.willReturn(Mono.error(new OAuth2AuthenticationException(new OAuth2Error("mock-failure"))));
 		// @formatter:off
 		this.client.get()
 				.headers((headers) -> headers
@@ -313,9 +313,9 @@ public class OAuth2ResourceServerSpecTests {
 	public void getWhenUsingCustomAuthenticationManagerInLambdaThenUsesItAccordingly() {
 		this.spring.register(CustomAuthenticationManagerInLambdaConfig.class).autowire();
 		ReactiveAuthenticationManager authenticationManager = this.spring.getContext()
-				.getBean(ReactiveAuthenticationManager.class);
+			.getBean(ReactiveAuthenticationManager.class);
 		given(authenticationManager.authenticate(any(Authentication.class)))
-				.willReturn(Mono.error(new OAuth2AuthenticationException(new OAuth2Error("mock-failure"))));
+			.willReturn(Mono.error(new OAuth2AuthenticationException(new OAuth2Error("mock-failure"))));
 		// @formatter:off
 		this.client.get()
 				.headers((headers) -> headers
@@ -331,13 +331,14 @@ public class OAuth2ResourceServerSpecTests {
 	public void getWhenUsingCustomAuthenticationManagerResolverThenUsesItAccordingly() {
 		this.spring.register(CustomAuthenticationManagerResolverConfig.class).autowire();
 		ReactiveAuthenticationManagerResolver<ServerWebExchange> authenticationManagerResolver = this.spring
-				.getContext().getBean(ReactiveAuthenticationManagerResolver.class);
+			.getContext()
+			.getBean(ReactiveAuthenticationManagerResolver.class);
 		ReactiveAuthenticationManager authenticationManager = this.spring.getContext()
-				.getBean(ReactiveAuthenticationManager.class);
+			.getBean(ReactiveAuthenticationManager.class);
 		given(authenticationManagerResolver.resolve(any(ServerWebExchange.class)))
-				.willReturn(Mono.just(authenticationManager));
+			.willReturn(Mono.just(authenticationManager));
 		given(authenticationManager.authenticate(any(Authentication.class)))
-				.willReturn(Mono.error(new OAuth2AuthenticationException(new OAuth2Error("mock-failure"))));
+			.willReturn(Mono.error(new OAuth2AuthenticationException(new OAuth2Error("mock-failure"))));
 		// @formatter:off
 		this.client.get()
 				.headers((headers) -> headers
@@ -353,11 +354,11 @@ public class OAuth2ResourceServerSpecTests {
 	public void getWhenUsingCustomAuthenticationFailureHandlerThenUsesIsAccordingly() {
 		this.spring.register(CustomAuthenticationFailureHandlerConfig.class).autowire();
 		ServerAuthenticationFailureHandler handler = this.spring.getContext()
-				.getBean(ServerAuthenticationFailureHandler.class);
+			.getBean(ServerAuthenticationFailureHandler.class);
 		ReactiveAuthenticationManager authenticationManager = this.spring.getContext()
-				.getBean(ReactiveAuthenticationManager.class);
+			.getBean(ReactiveAuthenticationManager.class);
 		given(authenticationManager.authenticate(any()))
-				.willReturn(Mono.error(() -> new BadCredentialsException("bad")));
+			.willReturn(Mono.error(() -> new BadCredentialsException("bad")));
 		given(handler.onAuthenticationFailure(any(), any())).willReturn(Mono.empty());
 		// @formatter:off
 		this.client.get()
@@ -557,8 +558,9 @@ public class OAuth2ResourceServerSpecTests {
 	@Test
 	public void introspectWhenValidThenReturnsOk() {
 		this.spring.register(IntrospectionConfig.class, RootController.class).autowire();
-		this.spring.getContext().getBean(MockWebServer.class)
-				.setDispatcher(requiresAuth(this.clientId, this.clientSecret, this.active));
+		this.spring.getContext()
+			.getBean(MockWebServer.class)
+			.setDispatcher(requiresAuth(this.clientId, this.clientSecret, this.active));
 		// @formatter:off
 		this.client.get()
 				.headers((headers) -> headers
@@ -572,8 +574,9 @@ public class OAuth2ResourceServerSpecTests {
 	@Test
 	public void introspectWhenValidAndIntrospectionInLambdaThenReturnsOk() {
 		this.spring.register(IntrospectionInLambdaConfig.class, RootController.class).autowire();
-		this.spring.getContext().getBean(MockWebServer.class)
-				.setDispatcher(requiresAuth(this.clientId, this.clientSecret, this.active));
+		this.spring.getContext()
+			.getBean(MockWebServer.class)
+			.setDispatcher(requiresAuth(this.clientId, this.clientSecret, this.active));
 		// @formatter:off
 		this.client.get()
 				.headers((headers) -> headers
@@ -587,19 +590,20 @@ public class OAuth2ResourceServerSpecTests {
 	@Test
 	public void configureWhenUsingBothAuthenticationManagerResolverAndOpaqueThenWiringException() {
 		assertThatExceptionOfType(BeanCreationException.class)
-				.isThrownBy(() -> this.spring.register(AuthenticationManagerResolverPlusOtherConfig.class).autowire())
-				.withMessageContaining("authenticationManagerResolver");
+			.isThrownBy(() -> this.spring.register(AuthenticationManagerResolverPlusOtherConfig.class).autowire())
+			.withMessageContaining("authenticationManagerResolver");
 	}
 
 	@Test
 	public void getWhenCustomAuthenticationConverterThenConverts() {
 		this.spring.register(ReactiveOpaqueTokenAuthenticationConverterConfig.class, RootController.class).autowire();
-		this.spring.getContext().getBean(MockWebServer.class)
-				.setDispatcher(requiresAuth(this.clientId, this.clientSecret, this.active));
+		this.spring.getContext()
+			.getBean(MockWebServer.class)
+			.setDispatcher(requiresAuth(this.clientId, this.clientSecret, this.active));
 		ReactiveOpaqueTokenAuthenticationConverter authenticationConverter = this.spring.getContext()
-				.getBean(ReactiveOpaqueTokenAuthenticationConverter.class);
+			.getBean(ReactiveOpaqueTokenAuthenticationConverter.class);
 		given(authenticationConverter.convert(anyString(), any(OAuth2AuthenticatedPrincipal.class)))
-				.willReturn(Mono.just(new TestingAuthenticationToken("jdoe", null, Collections.emptyList())));
+			.willReturn(Mono.just(new TestingAuthenticationToken("jdoe", null, Collections.emptyList())));
 		// @formatter:off
 		this.client.get()
 				.headers((headers) -> headers
@@ -631,8 +635,8 @@ public class OAuth2ResourceServerSpecTests {
 	}
 
 	private static MockResponse ok(String response) {
-		return new MockResponse().setBody(response).setHeader(org.springframework.http.HttpHeaders.CONTENT_TYPE,
-				MediaType.APPLICATION_JSON_VALUE);
+		return new MockResponse().setBody(response)
+			.setHeader(org.springframework.http.HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
 	}
 
 	private static MockResponse unauthorized() {
@@ -975,7 +979,7 @@ public class OAuth2ResourceServerSpecTests {
 		@Bean
 		ServerAuthenticationConverter bearerTokenAuthenticationConverter() {
 			return (exchange) -> Mono.justOrEmpty(exchange.getRequest().getCookies().getFirst("TOKEN").getValue())
-					.map(BearerTokenAuthenticationToken::new);
+				.map(BearerTokenAuthenticationToken::new);
 		}
 
 	}

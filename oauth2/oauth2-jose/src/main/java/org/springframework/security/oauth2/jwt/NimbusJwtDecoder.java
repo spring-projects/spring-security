@@ -91,7 +91,7 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 	private final JWTProcessor<SecurityContext> jwtProcessor;
 
 	private Converter<Map<String, Object>, Map<String, Object>> claimSetConverter = MappedJwtClaimSetConverter
-			.withDefaults(Collections.emptyMap());
+		.withDefaults(Collections.emptyMap());
 
 	private OAuth2TokenValidator<Jwt> jwtValidator = JwtValidators.createDefault();
 
@@ -220,7 +220,7 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 	public static JwkSetUriJwtDecoderBuilder withIssuerLocation(String issuer) {
 		return new JwkSetUriJwtDecoderBuilder((rest) -> {
 			Map<String, Object> configuration = JwtDecoderProviderConfigurationUtils
-					.getConfigurationForIssuerLocation(issuer, rest);
+				.getConfigurationForIssuerLocation(issuer, rest);
 			JwtDecoderProviderConfigurationUtils.validateIssuer(configuration, issuer);
 			return configuration.get("jwks_uri").toString();
 		}, JwtDecoderProviderConfigurationUtils::getJWSAlgorithms);
@@ -264,7 +264,7 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 		private Function<RestOperations, String> jwkSetUri;
 
 		private Function<JWKSource<SecurityContext>, Set<JWSAlgorithm>> defaultAlgorithms = (source) -> Set
-				.of(JWSAlgorithm.RS256);
+			.of(JWSAlgorithm.RS256);
 
 		private Set<SignatureAlgorithm> signatureAlgorithms = new HashSet<>();
 

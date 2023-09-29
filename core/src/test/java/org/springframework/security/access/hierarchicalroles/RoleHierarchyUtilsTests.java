@@ -60,8 +60,8 @@ public class RoleHierarchyUtilsTests {
 
 	@Test
 	public void roleHierarchyFromMapWhenMapEmptyThenThrowsIllegalArgumentException() {
-		assertThatIllegalArgumentException().isThrownBy(
-				() -> RoleHierarchyUtils.roleHierarchyFromMap(Collections.<String, List<String>>emptyMap()));
+		assertThatIllegalArgumentException()
+			.isThrownBy(() -> RoleHierarchyUtils.roleHierarchyFromMap(Collections.<String, List<String>>emptyMap()));
 	}
 
 	@Test
@@ -69,7 +69,7 @@ public class RoleHierarchyUtilsTests {
 		Map<String, List<String>> roleHierarchyMap = new HashMap<>();
 		roleHierarchyMap.put(null, Arrays.asList("ROLE_B", "ROLE_C"));
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> RoleHierarchyUtils.roleHierarchyFromMap(roleHierarchyMap));
+			.isThrownBy(() -> RoleHierarchyUtils.roleHierarchyFromMap(roleHierarchyMap));
 	}
 
 	@Test
@@ -77,7 +77,7 @@ public class RoleHierarchyUtilsTests {
 		Map<String, List<String>> roleHierarchyMap = new HashMap<>();
 		roleHierarchyMap.put("", Arrays.asList("ROLE_B", "ROLE_C"));
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> RoleHierarchyUtils.roleHierarchyFromMap(roleHierarchyMap));
+			.isThrownBy(() -> RoleHierarchyUtils.roleHierarchyFromMap(roleHierarchyMap));
 	}
 
 	@Test
@@ -85,7 +85,7 @@ public class RoleHierarchyUtilsTests {
 		Map<String, List<String>> roleHierarchyMap = new HashMap<>();
 		roleHierarchyMap.put("ROLE_A", null);
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> RoleHierarchyUtils.roleHierarchyFromMap(roleHierarchyMap));
+			.isThrownBy(() -> RoleHierarchyUtils.roleHierarchyFromMap(roleHierarchyMap));
 	}
 
 	@Test
@@ -93,7 +93,7 @@ public class RoleHierarchyUtilsTests {
 		Map<String, List<String>> roleHierarchyMap = new HashMap<>();
 		roleHierarchyMap.put("ROLE_A", Collections.<String>emptyList());
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> RoleHierarchyUtils.roleHierarchyFromMap(roleHierarchyMap));
+			.isThrownBy(() -> RoleHierarchyUtils.roleHierarchyFromMap(roleHierarchyMap));
 	}
 
 }

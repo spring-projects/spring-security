@@ -78,14 +78,14 @@ public class CsrfTokenArgumentResolverTests {
 	@Test
 	public void resolveArgumentNotFound() throws Exception {
 		assertThat(this.resolver.resolveArgument(token(), this.mavContainer, this.webRequest, this.binderFactory))
-				.isNull();
+			.isNull();
 	}
 
 	@Test
 	public void resolveArgumentFound() throws Exception {
 		this.request.setAttribute(CsrfToken.class.getName(), this.token);
 		assertThat(this.resolver.resolveArgument(token(), this.mavContainer, this.webRequest, this.binderFactory))
-				.isSameAs(this.token);
+			.isSameAs(this.token);
 	}
 
 	private MethodParameter noToken() {

@@ -52,15 +52,15 @@ public class AuthorizationManagerAfterMethodInterceptorTests {
 	public void instantiateWhenMethodMatcherNullThenException() {
 		AuthorizationManager<MethodInvocationResult> mockAuthorizationManager = mock(AuthorizationManager.class);
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new AuthorizationManagerAfterMethodInterceptor(null, mockAuthorizationManager))
-				.withMessage("pointcut cannot be null");
+			.isThrownBy(() -> new AuthorizationManagerAfterMethodInterceptor(null, mockAuthorizationManager))
+			.withMessage("pointcut cannot be null");
 	}
 
 	@Test
 	public void instantiateWhenAuthorizationManagerNullThenException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new AuthorizationManagerAfterMethodInterceptor(mock(Pointcut.class), null))
-				.withMessage("authorizationManager cannot be null");
+			.isThrownBy(() -> new AuthorizationManagerAfterMethodInterceptor(mock(Pointcut.class), null))
+			.withMessage("authorizationManager cannot be null");
 	}
 
 	@Test
@@ -83,7 +83,7 @@ public class AuthorizationManagerAfterMethodInterceptorTests {
 		given(strategy.getContext()).willReturn(new SecurityContextImpl(authentication));
 		MethodInvocation invocation = mock(MethodInvocation.class);
 		AuthorizationManager<MethodInvocationResult> authorizationManager = AuthenticatedAuthorizationManager
-				.authenticated();
+			.authenticated();
 		AuthorizationManagerAfterMethodInterceptor advice = new AuthorizationManagerAfterMethodInterceptor(
 				Pointcut.TRUE, authorizationManager);
 		advice.setSecurityContextHolderStrategy(strategy);
@@ -96,7 +96,7 @@ public class AuthorizationManagerAfterMethodInterceptorTests {
 		AuthorizationManagerAfterMethodInterceptor advice = new AuthorizationManagerAfterMethodInterceptor(
 				Pointcut.TRUE, AuthenticatedAuthorizationManager.authenticated());
 		assertThatIllegalArgumentException().isThrownBy(() -> advice.setAuthorizationEventPublisher(null))
-				.withMessage("eventPublisher cannot be null");
+			.withMessage("eventPublisher cannot be null");
 	}
 
 	@Test

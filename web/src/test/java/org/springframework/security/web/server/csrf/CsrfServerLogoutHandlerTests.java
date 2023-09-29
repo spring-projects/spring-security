@@ -62,14 +62,15 @@ public class CsrfServerLogoutHandlerTests {
 	@Test
 	public void constructorNullCsrfTokenRepository() {
 		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> new CsrfServerLogoutHandler(null))
-				.withMessage("csrfTokenRepository cannot be null").withNoCause();
+			.withMessage("csrfTokenRepository cannot be null")
+			.withNoCause();
 	}
 
 	@Test
 	public void logoutRemovesCsrfToken() {
 		given(this.csrfTokenRepository.saveToken(this.exchange, null)).willReturn(Mono.empty());
 		this.handler.logout(this.filterExchange, new TestingAuthenticationToken("user", "password", "ROLE_USER"))
-				.block();
+			.block();
 		verify(this.csrfTokenRepository).saveToken(this.exchange, null);
 	}
 

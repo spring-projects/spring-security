@@ -161,7 +161,7 @@ public class AuthenticationProviderBeanDefinitionParserTests {
 
 	private AuthenticationProvider getProvider() {
 		List<AuthenticationProvider> providers = ((ProviderManager) this.appContext
-				.getBean(BeanIds.AUTHENTICATION_MANAGER)).getProviders();
+			.getBean(BeanIds.AUTHENTICATION_MANAGER)).getProviders();
 		return providers.get(0);
 	}
 

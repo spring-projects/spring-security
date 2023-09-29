@@ -35,7 +35,7 @@ public class RoleHierarchyVoterTests {
 		TestingAuthenticationToken auth = new TestingAuthenticationToken("user", "password", "ROLE_A");
 		RoleHierarchyVoter voter = new RoleHierarchyVoter(roleHierarchyImpl);
 		assertThat(voter.vote(auth, new Object(), SecurityConfig.createList("ROLE_B")))
-				.isEqualTo(AccessDecisionVoter.ACCESS_GRANTED);
+			.isEqualTo(AccessDecisionVoter.ACCESS_GRANTED);
 	}
 
 }

@@ -104,7 +104,7 @@ public class CsrfWebFilterTests {
 		StepVerifier.create(result).verifyComplete();
 		assertThat(this.post.getResponse().getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
 		StepVerifier.create(this.post.getResponse().getBodyAsString())
-				.assertNext((body) -> assertThat(body).contains("An expected CSRF token cannot be found"));
+			.assertNext((body) -> assertThat(body).contains("An expected CSRF token cannot be found"));
 	}
 
 	@Test
@@ -112,7 +112,7 @@ public class CsrfWebFilterTests {
 		this.csrfFilter.setCsrfTokenRepository(this.repository);
 		given(this.repository.loadToken(any())).willReturn(Mono.just(this.token));
 		this.post = MockServerWebExchange.from(MockServerHttpRequest.post("/")
-				.body(this.token.getParameterName() + "=" + this.token.getToken() + "INVALID"));
+			.body(this.token.getParameterName() + "=" + this.token.getToken() + "INVALID"));
 		Mono<Void> result = this.csrfFilter.filter(this.post, this.chain);
 		StepVerifier.create(result).verifyComplete();
 		assertThat(this.post.getResponse().getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
@@ -126,9 +126,9 @@ public class CsrfWebFilterTests {
 		given(this.repository.loadToken(any())).willReturn(Mono.just(this.token));
 		given(this.repository.generateToken(any())).willReturn(Mono.just(this.token));
 		CsrfToken csrfToken = createXorCsrfToken();
-		this.post = MockServerWebExchange
-				.from(MockServerHttpRequest.post("/").contentType(MediaType.APPLICATION_FORM_URLENCODED)
-						.body(csrfToken.getParameterName() + "=" + csrfToken.getToken()));
+		this.post = MockServerWebExchange.from(MockServerHttpRequest.post("/")
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.body(csrfToken.getParameterName() + "=" + csrfToken.getToken()));
 		Mono<Void> result = this.csrfFilter.filter(this.post, this.chain);
 		StepVerifier.create(result).verifyComplete();
 		chainResult.assertWasSubscribed();
@@ -154,7 +154,7 @@ public class CsrfWebFilterTests {
 		given(this.repository.generateToken(any())).willReturn(Mono.just(this.token));
 		CsrfToken csrfToken = createXorCsrfToken();
 		this.post = MockServerWebExchange
-				.from(MockServerHttpRequest.post("/").header(csrfToken.getHeaderName(), csrfToken.getToken()));
+			.from(MockServerHttpRequest.post("/").header(csrfToken.getHeaderName(), csrfToken.getToken()));
 		Mono<Void> result = this.csrfFilter.filter(this.post, this.chain);
 		StepVerifier.create(result).verifyComplete();
 		chainResult.assertWasSubscribed();
@@ -164,7 +164,7 @@ public class CsrfWebFilterTests {
 	public void filterWhenRequestHandlerSetThenUsed() {
 		ServerCsrfTokenRequestHandler requestHandler = mock(ServerCsrfTokenRequestHandler.class);
 		given(requestHandler.resolveCsrfTokenValue(any(ServerWebExchange.class), any(CsrfToken.class)))
-				.willReturn(Mono.just(this.token.getToken()));
+			.willReturn(Mono.just(this.token.getToken()));
 		this.csrfFilter.setRequestHandler(requestHandler);
 
 		PublisherProbe<Void> chainResult = PublisherProbe.empty();
@@ -173,7 +173,7 @@ public class CsrfWebFilterTests {
 		given(this.repository.loadToken(any())).willReturn(Mono.just(this.token));
 		given(this.repository.generateToken(any())).willReturn(Mono.just(this.token));
 		this.post = MockServerWebExchange
-				.from(MockServerHttpRequest.post("/").header(this.token.getHeaderName(), this.token.getToken()));
+			.from(MockServerHttpRequest.post("/").header(this.token.getHeaderName(), this.token.getToken()));
 		Mono<Void> result = this.csrfFilter.filter(this.post, this.chain);
 		StepVerifier.create(result).verifyComplete();
 		chainResult.assertWasSubscribed();
@@ -192,7 +192,7 @@ public class CsrfWebFilterTests {
 
 		CsrfToken csrfToken = createXorCsrfToken();
 		this.post = MockServerWebExchange
-				.from(MockServerHttpRequest.post("/").header(csrfToken.getHeaderName(), csrfToken.getToken()));
+			.from(MockServerHttpRequest.post("/").header(csrfToken.getHeaderName(), csrfToken.getToken()));
 		StepVerifier.create(this.csrfFilter.filter(this.post, this.chain)).verifyComplete();
 		chainResult.assertWasSubscribed();
 	}
@@ -205,7 +205,7 @@ public class CsrfWebFilterTests {
 		XorServerCsrfTokenRequestAttributeHandler requestHandler = new XorServerCsrfTokenRequestAttributeHandler();
 		this.csrfFilter.setRequestHandler(requestHandler);
 		this.post = MockServerWebExchange
-				.from(MockServerHttpRequest.post("/").header(this.token.getHeaderName(), this.token.getToken()));
+			.from(MockServerHttpRequest.post("/").header(this.token.getHeaderName(), this.token.getToken()));
 		Mono<Void> result = this.csrfFilter.filter(this.post, this.chain);
 		StepVerifier.create(result).verifyComplete();
 		chainResult.assertWasNotSubscribed();
@@ -216,10 +216,10 @@ public class CsrfWebFilterTests {
 	// gh-8452
 	public void matchesRequireCsrfProtectionWhenNonStandardHTTPMethodIsUsed() {
 		MockServerWebExchange nonStandardHttpExchange = MockServerWebExchange
-				.from(MockServerHttpRequest.method("non-standard-http-method", "/"));
+			.from(MockServerHttpRequest.method("non-standard-http-method", "/"));
 		ServerWebExchangeMatcher serverWebExchangeMatcher = CsrfWebFilter.DEFAULT_CSRF_MATCHER;
 		assertThat(serverWebExchangeMatcher.matches(nonStandardHttpExchange).map(MatchResult::isMatch).block())
-				.isTrue();
+			.isTrue();
 	}
 
 	@Test
@@ -239,9 +239,13 @@ public class CsrfWebFilterTests {
 		this.csrfFilter.setCsrfTokenRepository(this.repository);
 		given(this.repository.loadToken(any())).willReturn(Mono.just(this.token));
 		WebTestClient client = WebTestClient.bindToController(new OkController()).webFilter(this.csrfFilter).build();
-		client.post().uri("/").contentType(MediaType.MULTIPART_FORM_DATA)
-				.body(BodyInserters.fromMultipartData(this.token.getParameterName(), this.token.getToken())).exchange()
-				.expectStatus().isForbidden();
+		client.post()
+			.uri("/")
+			.contentType(MediaType.MULTIPART_FORM_DATA)
+			.body(BodyInserters.fromMultipartData(this.token.getParameterName(), this.token.getToken()))
+			.exchange()
+			.expectStatus()
+			.isForbidden();
 	}
 
 	@Test
@@ -253,9 +257,13 @@ public class CsrfWebFilterTests {
 		given(this.repository.loadToken(any())).willReturn(Mono.just(this.token));
 		given(this.repository.generateToken(any())).willReturn(Mono.just(this.token));
 		WebTestClient client = WebTestClient.bindToController(new OkController()).webFilter(this.csrfFilter).build();
-		client.post().uri("/").contentType(MediaType.MULTIPART_FORM_DATA)
-				.body(BodyInserters.fromMultipartData(this.token.getParameterName(), this.token.getToken())).exchange()
-				.expectStatus().is2xxSuccessful();
+		client.post()
+			.uri("/")
+			.contentType(MediaType.MULTIPART_FORM_DATA)
+			.body(BodyInserters.fromMultipartData(this.token.getParameterName(), this.token.getToken()))
+			.exchange()
+			.expectStatus()
+			.is2xxSuccessful();
 	}
 
 	@Test
@@ -267,8 +275,12 @@ public class CsrfWebFilterTests {
 		given(this.repository.loadToken(any())).willReturn(Mono.just(this.token));
 		given(this.repository.generateToken(any())).willReturn(Mono.just(this.token));
 		WebTestClient client = WebTestClient.bindToController(new OkController()).webFilter(this.csrfFilter).build();
-		client.post().uri("/").header(this.token.getHeaderName(), this.token.getToken()).exchange().expectStatus()
-				.is2xxSuccessful();
+		client.post()
+			.uri("/")
+			.header(this.token.getHeaderName(), this.token.getToken())
+			.exchange()
+			.expectStatus()
+			.is2xxSuccessful();
 	}
 
 	@Test
@@ -280,9 +292,13 @@ public class CsrfWebFilterTests {
 		given(this.repository.loadToken(any())).willReturn(Mono.just(this.token));
 		given(this.repository.generateToken(any())).willReturn(Mono.just(this.token));
 		WebTestClient client = WebTestClient.bindToController(new OkController()).webFilter(this.csrfFilter).build();
-		client.post().uri("/").contentType(MediaType.APPLICATION_FORM_URLENCODED)
-				.bodyValue(this.token.getParameterName() + "=" + this.token.getToken()).exchange().expectStatus()
-				.is2xxSuccessful();
+		client.post()
+			.uri("/")
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.bodyValue(this.token.getParameterName() + "=" + this.token.getToken())
+			.exchange()
+			.expectStatus()
+			.is2xxSuccessful();
 	}
 
 	@Test
@@ -293,9 +309,13 @@ public class CsrfWebFilterTests {
 		this.csrfFilter.setRequestHandler(requestHandler);
 		given(this.repository.loadToken(any())).willReturn(Mono.just(this.token));
 		WebTestClient client = WebTestClient.bindToController(new OkController()).webFilter(this.csrfFilter).build();
-		client.post().uri("/").contentType(MediaType.MULTIPART_MIXED)
-				.bodyValue(this.token.getParameterName() + "=" + this.token.getToken()).exchange().expectStatus()
-				.isForbidden();
+		client.post()
+			.uri("/")
+			.contentType(MediaType.MULTIPART_MIXED)
+			.bodyValue(this.token.getParameterName() + "=" + this.token.getToken())
+			.exchange()
+			.expectStatus()
+			.isForbidden();
 	}
 
 	// gh-9561
@@ -309,9 +329,13 @@ public class CsrfWebFilterTests {
 		given(token.getParameterName()).willReturn(this.token.getParameterName());
 		given(this.repository.loadToken(any())).willReturn(Mono.just(token));
 		WebTestClient client = WebTestClient.bindToController(new OkController()).webFilter(this.csrfFilter).build();
-		client.post().uri("/").contentType(MediaType.APPLICATION_FORM_URLENCODED)
-				.bodyValue(this.token.getParameterName() + "=" + this.token.getToken()).exchange().expectStatus()
-				.isForbidden();
+		client.post()
+			.uri("/")
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.bodyValue(this.token.getParameterName() + "=" + this.token.getToken())
+			.exchange()
+			.expectStatus()
+			.isForbidden();
 	}
 	// gh-9113
 

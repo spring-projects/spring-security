@@ -103,7 +103,7 @@ public class AbstractPreAuthenticatedProcessingFilterTests {
 		this.filter.setAuthenticationManager(am);
 		this.filter.afterPropertiesSet();
 		assertThatExceptionOfType(BadCredentialsException.class).isThrownBy(() -> this.filter
-				.doFilter(new MockHttpServletRequest(), new MockHttpServletResponse(), mock(FilterChain.class)));
+			.doFilter(new MockHttpServletRequest(), new MockHttpServletResponse(), mock(FilterChain.class)));
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
 	}
 
@@ -137,7 +137,7 @@ public class AbstractPreAuthenticatedProcessingFilterTests {
 	@Test
 	public void nullPreAuthenticationClearsPreviousUser() throws Exception {
 		SecurityContextHolder.getContext()
-				.setAuthentication(new TestingAuthenticationToken("oldUser", "pass", "ROLE_USER"));
+			.setAuthentication(new TestingAuthenticationToken("oldUser", "pass", "ROLE_USER"));
 		ConcretePreAuthenticatedProcessingFilter filter = new ConcretePreAuthenticatedProcessingFilter();
 		filter.principal = null;
 		filter.setCheckForPrincipalChanges(true);
@@ -159,7 +159,7 @@ public class AbstractPreAuthenticatedProcessingFilterTests {
 	public void requiresAuthenticationFalsePrincipalString() throws Exception {
 		Object principal = "sameprincipal";
 		SecurityContextHolder.getContext()
-				.setAuthentication(new TestingAuthenticationToken(principal, "something", "ROLE_USER"));
+			.setAuthentication(new TestingAuthenticationToken(principal, "something", "ROLE_USER"));
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		MockFilterChain chain = new MockFilterChain();
@@ -248,7 +248,7 @@ public class AbstractPreAuthenticatedProcessingFilterTests {
 		filter.setCheckForPrincipalChanges(true);
 		AuthenticationManager am = mock(AuthenticationManager.class);
 		given(am.authenticate(any(PreAuthenticatedAuthenticationToken.class)))
-				.willThrow(new PreAuthenticatedCredentialsNotFoundException("invalid"));
+			.willThrow(new PreAuthenticatedCredentialsNotFoundException("invalid"));
 		filter.setAuthenticationManager(am);
 		filter.afterPropertiesSet();
 		filter.doFilter(request, response, chain);
@@ -262,7 +262,7 @@ public class AbstractPreAuthenticatedProcessingFilterTests {
 	public void requiresAuthenticationFalsePrincipalNotString() throws Exception {
 		Object principal = new Object();
 		SecurityContextHolder.getContext()
-				.setAuthentication(new TestingAuthenticationToken(principal, "something", "ROLE_USER"));
+			.setAuthentication(new TestingAuthenticationToken(principal, "something", "ROLE_USER"));
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		MockFilterChain chain = new MockFilterChain();
@@ -280,7 +280,7 @@ public class AbstractPreAuthenticatedProcessingFilterTests {
 	public void requiresAuthenticationFalsePrincipalUser() throws Exception {
 		User currentPrincipal = new User("user", "password", AuthorityUtils.createAuthorityList("ROLE_USER"));
 		UsernamePasswordAuthenticationToken currentAuthentication = UsernamePasswordAuthenticationToken
-				.authenticated(currentPrincipal, currentPrincipal.getPassword(), currentPrincipal.getAuthorities());
+			.authenticated(currentPrincipal, currentPrincipal.getPassword(), currentPrincipal.getAuthorities());
 		SecurityContextHolder.getContext().setAuthentication(currentAuthentication);
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
@@ -319,7 +319,7 @@ public class AbstractPreAuthenticatedProcessingFilterTests {
 	public void requiresAuthenticationOverridePrincipalChangedTrue() throws Exception {
 		Object principal = new Object();
 		SecurityContextHolder.getContext()
-				.setAuthentication(new TestingAuthenticationToken(principal, "something", "ROLE_USER"));
+			.setAuthentication(new TestingAuthenticationToken(principal, "something", "ROLE_USER"));
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		MockFilterChain chain = new MockFilterChain();
@@ -342,7 +342,7 @@ public class AbstractPreAuthenticatedProcessingFilterTests {
 	public void requiresAuthenticationOverridePrincipalChangedFalse() throws Exception {
 		Object principal = new Object();
 		SecurityContextHolder.getContext()
-				.setAuthentication(new TestingAuthenticationToken(principal, "something", "ROLE_USER"));
+			.setAuthentication(new TestingAuthenticationToken(principal, "something", "ROLE_USER"));
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		MockFilterChain chain = new MockFilterChain();
@@ -404,7 +404,7 @@ public class AbstractPreAuthenticatedProcessingFilterTests {
 		}
 		else {
 			given(am.authenticate(any(Authentication.class)))
-					.willAnswer((Answer<Authentication>) (invocation) -> (Authentication) invocation.getArguments()[0]);
+				.willAnswer((Answer<Authentication>) (invocation) -> (Authentication) invocation.getArguments()[0]);
 		}
 		filter.setAuthenticationManager(am);
 		filter.afterPropertiesSet();

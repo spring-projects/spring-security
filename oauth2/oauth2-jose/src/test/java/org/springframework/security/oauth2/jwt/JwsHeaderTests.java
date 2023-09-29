@@ -33,13 +33,13 @@ public class JwsHeaderTests {
 	@Test
 	public void withWhenNullThenThrowIllegalArgumentException() {
 		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> JwsHeader.with(null))
-				.withMessage("jwsAlgorithm cannot be null");
+			.withMessage("jwsAlgorithm cannot be null");
 	}
 
 	@Test
 	public void fromWhenNullThenThrowIllegalArgumentException() {
 		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> JwsHeader.from(null))
-				.withMessage("headers cannot be null");
+			.withMessage("headers cannot be null");
 	}
 
 	@Test
@@ -89,15 +89,15 @@ public class JwsHeaderTests {
 	@Test
 	public void headerWhenNameNullThenThrowIllegalArgumentException() {
 		assertThatExceptionOfType(IllegalArgumentException.class)
-				.isThrownBy(() -> JwsHeader.with(SignatureAlgorithm.RS256).header(null, "value"))
-				.withMessage("name cannot be empty");
+			.isThrownBy(() -> JwsHeader.with(SignatureAlgorithm.RS256).header(null, "value"))
+			.withMessage("name cannot be empty");
 	}
 
 	@Test
 	public void headerWhenValueNullThenThrowIllegalArgumentException() {
 		assertThatExceptionOfType(IllegalArgumentException.class)
-				.isThrownBy(() -> JwsHeader.with(SignatureAlgorithm.RS256).header("name", null))
-				.withMessage("value cannot be null");
+			.isThrownBy(() -> JwsHeader.with(SignatureAlgorithm.RS256).header("name", null))
+			.withMessage("value cannot be null");
 	}
 
 	@Test
@@ -105,7 +105,7 @@ public class JwsHeaderTests {
 		JwsHeader jwsHeader = TestJwsHeaders.jwsHeader().build();
 
 		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> jwsHeader.getHeader(null))
-				.withMessage("name cannot be empty");
+			.withMessage("name cannot be empty");
 	}
 
 }

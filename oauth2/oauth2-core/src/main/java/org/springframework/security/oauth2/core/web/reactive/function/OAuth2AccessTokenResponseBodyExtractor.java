@@ -62,16 +62,16 @@ class OAuth2AccessTokenResponseBodyExtractor
 	@Override
 	public Mono<OAuth2AccessTokenResponse> extract(ReactiveHttpInputMessage inputMessage, Context context) {
 		BodyExtractor<Mono<Map<String, Object>>, ReactiveHttpInputMessage> delegate = BodyExtractors
-				.toMono(STRING_OBJECT_MAP);
+			.toMono(STRING_OBJECT_MAP);
 		return delegate.extract(inputMessage, context)
-				.onErrorMap((ex) -> new OAuth2AuthorizationException(
-						invalidTokenResponse("An error occurred parsing the Access Token response: " + ex.getMessage()),
-						ex))
-				.switchIfEmpty(Mono.error(() -> new OAuth2AuthorizationException(
-						invalidTokenResponse("Empty OAuth 2.0 Access Token Response"))))
-				.map(OAuth2AccessTokenResponseBodyExtractor::parse)
-				.flatMap(OAuth2AccessTokenResponseBodyExtractor::oauth2AccessTokenResponse)
-				.map(OAuth2AccessTokenResponseBodyExtractor::oauth2AccessTokenResponse);
+			.onErrorMap((ex) -> new OAuth2AuthorizationException(
+					invalidTokenResponse("An error occurred parsing the Access Token response: " + ex.getMessage()),
+					ex))
+			.switchIfEmpty(Mono.error(() -> new OAuth2AuthorizationException(
+					invalidTokenResponse("Empty OAuth 2.0 Access Token Response"))))
+			.map(OAuth2AccessTokenResponseBodyExtractor::parse)
+			.flatMap(OAuth2AccessTokenResponseBodyExtractor::oauth2AccessTokenResponse)
+			.map(OAuth2AccessTokenResponseBodyExtractor::oauth2AccessTokenResponse);
 	}
 
 	private static TokenResponse parse(Map<String, Object> json) {

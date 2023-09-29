@@ -38,14 +38,15 @@ public class RelyingPartyRegistrationPlaceholderResolversTests {
 		String resolved = uriResolver.resolve("{baseUrl}/extension");
 		assertThat(resolved).isEqualTo("http://localhost/extension");
 		assertThatExceptionOfType(IllegalArgumentException.class)
-				.isThrownBy(() -> uriResolver.resolve("{baseUrl}/extension/{registrationId}"));
+			.isThrownBy(() -> uriResolver.resolve("{baseUrl}/extension/{registrationId}"));
 	}
 
 	@Test
 	void uriResolverGivenRequestAndRegistrationCreatesResolver() {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		RelyingPartyRegistration registration = TestRelyingPartyRegistrations.relyingPartyRegistration()
-				.entityId("http://sp.example.org").build();
+			.entityId("http://sp.example.org")
+			.build();
 		UriResolver uriResolver = RelyingPartyRegistrationPlaceholderResolvers.uriResolver(request, registration);
 		String resolved = uriResolver.resolve("{baseUrl}/extension/{registrationId}");
 		assertThat(resolved).isEqualTo("http://localhost/extension/simplesamlphp");

@@ -55,8 +55,9 @@ abstract class AbstractOAuth2AuthorizationGrantRequestEntityConverter<T extends 
 		HttpHeaders headers = getHeadersConverter().convert(authorizationGrantRequest);
 		MultiValueMap<String, String> parameters = getParametersConverter().convert(authorizationGrantRequest);
 		URI uri = UriComponentsBuilder
-				.fromUriString(authorizationGrantRequest.getClientRegistration().getProviderDetails().getTokenUri())
-				.build().toUri();
+			.fromUriString(authorizationGrantRequest.getClientRegistration().getProviderDetails().getTokenUri())
+			.build()
+			.toUri();
 		return new RequestEntity<>(parameters, headers, HttpMethod.POST, uri);
 	}
 

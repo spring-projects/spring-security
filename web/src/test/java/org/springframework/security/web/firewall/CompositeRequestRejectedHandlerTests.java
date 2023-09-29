@@ -30,9 +30,10 @@ public class CompositeRequestRejectedHandlerTests {
 		RequestRejectedException requestRejectedException = new RequestRejectedException("rejected");
 		CompositeRequestRejectedHandler handler = new CompositeRequestRejectedHandler(
 				new DefaultRequestRejectedHandler());
-		assertThatExceptionOfType(RequestRejectedException.class).isThrownBy(() -> handler
-				.handle(mock(HttpServletRequest.class), mock(HttpServletResponse.class), requestRejectedException))
-				.withMessage("rejected");
+		assertThatExceptionOfType(RequestRejectedException.class)
+			.isThrownBy(() -> handler.handle(mock(HttpServletRequest.class), mock(HttpServletResponse.class),
+					requestRejectedException))
+			.withMessage("rejected");
 	}
 
 	@Test

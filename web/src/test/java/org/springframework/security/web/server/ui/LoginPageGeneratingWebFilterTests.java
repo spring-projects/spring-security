@@ -31,7 +31,7 @@ public class LoginPageGeneratingWebFilterTests {
 		LoginPageGeneratingWebFilter filter = new LoginPageGeneratingWebFilter();
 		filter.setFormLoginEnabled(true);
 		MockServerWebExchange exchange = MockServerWebExchange
-				.from(MockServerHttpRequest.get("/test/login").contextPath("/test"));
+			.from(MockServerHttpRequest.get("/test/login").contextPath("/test"));
 		filter.filter(exchange, (e) -> Mono.empty()).block();
 		assertThat(exchange.getResponse().getBodyAsString().block()).contains("action=\"/test/login\"");
 	}

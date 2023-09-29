@@ -77,7 +77,7 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClient
 			body.with(OAuth2ParameterNames.REDIRECT_URI, redirectUri);
 		}
 		String codeVerifier = authorizationExchange.getAuthorizationRequest()
-				.getAttribute(PkceParameterNames.CODE_VERIFIER);
+			.getAttribute(PkceParameterNames.CODE_VERIFIER);
 		if (codeVerifier != null) {
 			body.with(PkceParameterNames.CODE_VERIFIER, codeVerifier);
 		}

@@ -29,13 +29,13 @@ public class JaasGrantedAuthorityTests {
 	@Test
 	public void authorityWithNullRoleFailsAssertion() {
 		assertThatIllegalArgumentException().isThrownBy(() -> new JaasGrantedAuthority(null, null))
-				.withMessageContaining("role cannot be null");
+			.withMessageContaining("role cannot be null");
 	}
 
 	@Test
 	public void authorityWithNullPrincipleFailsAssertion() {
 		assertThatIllegalArgumentException().isThrownBy(() -> new JaasGrantedAuthority("role", null))
-				.withMessageContaining("principal cannot be null");
+			.withMessageContaining("principal cannot be null");
 	}
 
 }

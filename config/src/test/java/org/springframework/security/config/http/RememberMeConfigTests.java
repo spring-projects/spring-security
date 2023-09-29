@@ -186,7 +186,7 @@ public class RememberMeConfigTests {
 	@Test
 	public void configureWhenUsingDataSourceAndANegativeTokenValidityThenThrowsWiringException() {
 		assertThatExceptionOfType(FatalBeanException.class)
-				.isThrownBy(() -> this.spring.configLocations(xml("NegativeTokenValidityWithDataSource")).autowire());
+			.isThrownBy(() -> this.spring.configLocations(xml("NegativeTokenValidityWithDataSource")).autowire());
 	}
 
 	@Test
@@ -194,14 +194,14 @@ public class RememberMeConfigTests {
 			throws Exception {
 		this.spring.configLocations(xml("Sec2165")).autowire();
 		rememberAuthentication("user", "password")
-				.andExpect(cookie().maxAge(AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY, 30));
+			.andExpect(cookie().maxAge(AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY, 30));
 	}
 
 	@Test
 	public void requestWithRememberMeWhenUseSecureCookieIsTrueThenCookieIsSecure() throws Exception {
 		this.spring.configLocations(xml("SecureCookie")).autowire();
 		rememberAuthentication("user", "password")
-				.andExpect(cookie().secure(AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY, true));
+			.andExpect(cookie().secure(AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY, true));
 	}
 
 	/**
@@ -211,7 +211,7 @@ public class RememberMeConfigTests {
 	public void requestWithRememberMeWhenUseSecureCookieIsFalseThenCookieIsNotSecure() throws Exception {
 		this.spring.configLocations(xml("Sec1827")).autowire();
 		rememberAuthentication("user", "password")
-				.andExpect(cookie().secure(AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY, false));
+			.andExpect(cookie().secure(AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY, false));
 	}
 
 	@Test
@@ -238,7 +238,7 @@ public class RememberMeConfigTests {
 		this.spring.configLocations(xml("WithUserDetailsService")).autowire();
 		UserDetailsService userDetailsService = this.spring.getContext().getBean(UserDetailsService.class);
 		given(userDetailsService.loadUserByUsername("user"))
-				.willAnswer((invocation) -> new User("user", "{noop}password", Collections.emptyList()));
+			.willAnswer((invocation) -> new User("user", "{noop}password", Collections.emptyList()));
 		MvcResult result = rememberAuthentication("user", "password").andReturn();
 		Cookie cookie = rememberMeCookie(result);
 		// @formatter:off
@@ -290,7 +290,7 @@ public class RememberMeConfigTests {
 	@Test
 	public void configureWhenUsingRememberMeParameterAndServicesRefThenThrowsWiringException() {
 		assertThatExceptionOfType(BeanDefinitionParsingException.class)
-				.isThrownBy(() -> this.spring.configLocations(xml("WithRememberMeParameterAndServicesRef")).autowire());
+			.isThrownBy(() -> this.spring.configLocations(xml("WithRememberMeParameterAndServicesRef")).autowire());
 	}
 
 	/**
@@ -311,11 +311,10 @@ public class RememberMeConfigTests {
 	@Test
 	public void configureWhenUsingRememberMeCookieAndServicesRefThenThrowsWiringException() {
 		assertThatExceptionOfType(BeanDefinitionParsingException.class)
-				.isThrownBy(() -> this.spring.configLocations(xml("WithRememberMeCookieAndServicesRef")).autowire())
-				.withMessageContaining(
-						"Configuration problem: services-ref can't be used in combination with attributes "
-								+ "token-repository-ref,data-source-ref, user-service-ref, token-validity-seconds, "
-								+ "use-secure-cookie, remember-me-parameter or remember-me-cookie");
+			.isThrownBy(() -> this.spring.configLocations(xml("WithRememberMeCookieAndServicesRef")).autowire())
+			.withMessageContaining("Configuration problem: services-ref can't be used in combination with attributes "
+					+ "token-repository-ref,data-source-ref, user-service-ref, token-validity-seconds, "
+					+ "use-secure-cookie, remember-me-parameter or remember-me-cookie");
 	}
 
 	private ResultActions rememberAuthentication(String username, String password) throws Exception {

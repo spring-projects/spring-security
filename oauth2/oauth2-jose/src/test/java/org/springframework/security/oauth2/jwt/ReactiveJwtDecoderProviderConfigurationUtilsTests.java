@@ -109,7 +109,8 @@ public class ReactiveJwtDecoderProviderConfigurationUtilsTests {
 	public void issuerWhenResponseIsTypicalThenReturnedConfigurationContainsJwksUri() {
 		prepareConfigurationResponse();
 		Map<String, Object> configuration = ReactiveJwtDecoderProviderConfigurationUtils
-				.getConfigurationForIssuerLocation(this.issuer, this.web).block();
+			.getConfigurationForIssuerLocation(this.issuer, this.web)
+			.block();
 		assertThat(configuration).containsKey("jwks_uri");
 	}
 
@@ -117,7 +118,8 @@ public class ReactiveJwtDecoderProviderConfigurationUtilsTests {
 	public void issuerWhenOidcFallbackResponseIsTypicalThenReturnedConfigurationContainsJwksUri() {
 		prepareConfigurationResponseOidc();
 		Map<String, Object> configuration = ReactiveJwtDecoderProviderConfigurationUtils
-				.getConfigurationForIssuerLocation(this.issuer, this.web).block();
+			.getConfigurationForIssuerLocation(this.issuer, this.web)
+			.block();
 		assertThat(configuration).containsKey("jwks_uri");
 	}
 
@@ -125,7 +127,8 @@ public class ReactiveJwtDecoderProviderConfigurationUtilsTests {
 	public void issuerWhenOAuth2ResponseIsTypicalThenReturnedConfigurationContainsJwksUri() {
 		prepareConfigurationResponseOAuth2();
 		Map<String, Object> configuration = ReactiveJwtDecoderProviderConfigurationUtils
-				.getConfigurationForIssuerLocation(this.issuer, this.web).block();
+			.getConfigurationForIssuerLocation(this.issuer, this.web)
+			.block();
 		assertThat(configuration).containsKey("jwks_uri");
 	}
 

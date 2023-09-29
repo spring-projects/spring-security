@@ -96,7 +96,7 @@ public final class SecurityContextConfigurer<H extends HttpSecurityBuilder<H>>
 
 	SecurityContextRepository getSecurityContextRepository() {
 		SecurityContextRepository securityContextRepository = getBuilder()
-				.getSharedObject(SecurityContextRepository.class);
+			.getSharedObject(SecurityContextRepository.class);
 		if (securityContextRepository == null) {
 			securityContextRepository = new DelegatingSecurityContextRepository(
 					new RequestAttributeSecurityContextRepository(), new HttpSessionSecurityContextRepository());

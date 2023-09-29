@@ -51,7 +51,7 @@ public class WebExpressionVoterTests {
 		WebExpressionVoter voter = new WebExpressionVoter();
 		assertThat(voter.supports(
 				new WebExpressionConfigAttribute(mock(Expression.class), mock(EvaluationContextPostProcessor.class))))
-						.isTrue();
+			.isTrue();
 		assertThat(voter.supports(FilterInvocation.class)).isTrue();
 		assertThat(voter.supports(MethodInvocation.class)).isFalse();
 	}
@@ -61,7 +61,7 @@ public class WebExpressionVoterTests {
 		WebExpressionVoter voter = new WebExpressionVoter();
 		assertThat(
 				voter.vote(this.user, new FilterInvocation("/path", "GET"), SecurityConfig.createList("A", "B", "C")))
-						.isEqualTo(AccessDecisionVoter.ACCESS_ABSTAIN);
+			.isEqualTo(AccessDecisionVoter.ACCESS_ABSTAIN);
 	}
 
 	@Test
@@ -70,7 +70,7 @@ public class WebExpressionVoterTests {
 		Expression ex = mock(Expression.class);
 		EvaluationContextPostProcessor postProcessor = mock(EvaluationContextPostProcessor.class);
 		given(postProcessor.postProcess(any(EvaluationContext.class), any(FilterInvocation.class)))
-				.willAnswer((invocation) -> invocation.getArgument(0));
+			.willAnswer((invocation) -> invocation.getArgument(0));
 		WebExpressionConfigAttribute weca = new WebExpressionConfigAttribute(ex, postProcessor);
 		EvaluationContext ctx = mock(EvaluationContext.class);
 		SecurityExpressionHandler eh = mock(SecurityExpressionHandler.class);

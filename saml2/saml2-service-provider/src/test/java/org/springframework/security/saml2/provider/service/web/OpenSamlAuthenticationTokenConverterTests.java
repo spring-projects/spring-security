@@ -79,7 +79,7 @@ public final class OpenSamlAuthenticationTokenConverterTests {
 		Saml2AuthenticationToken token = converter.convert(request);
 		assertThat(token.getSaml2Response()).isEqualTo("response");
 		assertThat(token.getRelyingPartyRegistration().getRegistrationId())
-				.isEqualTo(this.registration.getRegistrationId());
+			.isEqualTo(this.registration.getRegistrationId());
 	}
 
 	@Test
@@ -89,11 +89,11 @@ public final class OpenSamlAuthenticationTokenConverterTests {
 		MockHttpServletRequest request = post("/login/saml2/sso/" + this.registration.getRegistrationId());
 		request.setParameter(Saml2ParameterNames.SAML_RESPONSE, "invalid");
 		assertThatExceptionOfType(Saml2AuthenticationException.class).isThrownBy(() -> converter.convert(request))
-				.withCauseInstanceOf(IllegalArgumentException.class)
-				.satisfies((ex) -> assertThat(ex.getSaml2Error().getErrorCode())
-						.isEqualTo(Saml2ErrorCodes.INVALID_RESPONSE))
-				.satisfies((ex) -> assertThat(ex.getSaml2Error().getDescription())
-						.isEqualTo("Failed to decode SAMLResponse"));
+			.withCauseInstanceOf(IllegalArgumentException.class)
+			.satisfies(
+					(ex) -> assertThat(ex.getSaml2Error().getErrorCode()).isEqualTo(Saml2ErrorCodes.INVALID_RESPONSE))
+			.satisfies(
+					(ex) -> assertThat(ex.getSaml2Error().getDescription()).isEqualTo("Failed to decode SAMLResponse"));
 	}
 
 	@Test
@@ -131,7 +131,7 @@ public final class OpenSamlAuthenticationTokenConverterTests {
 		Saml2AuthenticationToken token = converter.convert(request);
 		assertThat(token.getSaml2Response()).isEqualTo("response");
 		assertThat(token.getRelyingPartyRegistration().getRegistrationId())
-				.isEqualTo(this.registration.getRegistrationId());
+			.isEqualTo(this.registration.getRegistrationId());
 	}
 
 	@Test
@@ -143,11 +143,10 @@ public final class OpenSamlAuthenticationTokenConverterTests {
 		String encoded = Saml2Utils.samlEncode(invalidDeflated);
 		request.setParameter(Saml2ParameterNames.SAML_RESPONSE, encoded);
 		assertThatExceptionOfType(Saml2AuthenticationException.class).isThrownBy(() -> converter.convert(request))
-				.withCauseInstanceOf(IOException.class)
-				.satisfies((ex) -> assertThat(ex.getSaml2Error().getErrorCode())
-						.isEqualTo(Saml2ErrorCodes.INVALID_RESPONSE))
-				.satisfies(
-						(ex) -> assertThat(ex.getSaml2Error().getDescription()).isEqualTo("Unable to inflate string"));
+			.withCauseInstanceOf(IOException.class)
+			.satisfies(
+					(ex) -> assertThat(ex.getSaml2Error().getErrorCode()).isEqualTo(Saml2ErrorCodes.INVALID_RESPONSE))
+			.satisfies((ex) -> assertThat(ex.getSaml2Error().getDescription()).isEqualTo("Unable to inflate string"));
 	}
 
 	@Test
@@ -170,14 +169,14 @@ public final class OpenSamlAuthenticationTokenConverterTests {
 		converter.setAuthenticationRequestRepository(authenticationRequestRepository);
 		given(this.registrations.findByRegistrationId(any())).willReturn(this.registration);
 		given(authenticationRequestRepository.loadAuthenticationRequest(any(HttpServletRequest.class)))
-				.willReturn(authenticationRequest);
+			.willReturn(authenticationRequest);
 		MockHttpServletRequest request = post("/login/saml2/sso/" + this.registration.getRegistrationId());
 		request.setParameter(Saml2ParameterNames.SAML_RESPONSE,
 				Saml2Utils.samlEncode("response".getBytes(StandardCharsets.UTF_8)));
 		Saml2AuthenticationToken token = converter.convert(request);
 		assertThat(token.getSaml2Response()).isEqualTo("response");
 		assertThat(token.getRelyingPartyRegistration().getRegistrationId())
-				.isEqualTo(this.registration.getRegistrationId());
+			.isEqualTo(this.registration.getRegistrationId());
 		assertThat(token.getAuthenticationRequest()).isEqualTo(authenticationRequest);
 	}
 
@@ -187,13 +186,13 @@ public final class OpenSamlAuthenticationTokenConverterTests {
 		String response = serialize(signed(response()));
 		String encoded = Saml2Utils.samlEncode(response.getBytes(StandardCharsets.UTF_8));
 		given(this.registrations.findUniqueByAssertingPartyEntityId(TestOpenSamlObjects.ASSERTING_PARTY_ENTITY_ID))
-				.willReturn(this.registration);
+			.willReturn(this.registration);
 		MockHttpServletRequest request = post("/login/saml2/sso");
 		request.setParameter(Saml2ParameterNames.SAML_RESPONSE, encoded);
 		Saml2AuthenticationToken token = converter.convert(request);
 		assertThat(token.getSaml2Response()).isEqualTo(response);
 		assertThat(token.getRelyingPartyRegistration().getRegistrationId())
-				.isEqualTo(this.registration.getRegistrationId());
+			.isEqualTo(this.registration.getRegistrationId());
 	}
 
 	@Test
@@ -205,13 +204,13 @@ public final class OpenSamlAuthenticationTokenConverterTests {
 	public void setAuthenticationRequestRepositoryWhenNullThenIllegalArgument() {
 		OpenSamlAuthenticationTokenConverter converter = new OpenSamlAuthenticationTokenConverter(this.registrations);
 		assertThatExceptionOfType(IllegalArgumentException.class)
-				.isThrownBy(() -> converter.setAuthenticationRequestRepository(null));
+			.isThrownBy(() -> converter.setAuthenticationRequestRepository(null));
 	}
 
 	private void validateSsoCircleXml(String xml) {
 		assertThat(xml).contains("InResponseTo=\"ARQ9a73ead-7dcf-45a8-89eb-26f3c9900c36\"")
-				.contains(" ID=\"s246d157446618e90e43fb79bdd4d9e9e19cf2c7c4\"")
-				.contains("<saml:Issuer>https://idp.ssocircle.com</saml:Issuer>");
+			.contains(" ID=\"s246d157446618e90e43fb79bdd4d9e9e19cf2c7c4\"")
+			.contains("<saml:Issuer>https://idp.ssocircle.com</saml:Issuer>");
 	}
 
 	private String getSsoCircleEncodedXml() throws IOException {

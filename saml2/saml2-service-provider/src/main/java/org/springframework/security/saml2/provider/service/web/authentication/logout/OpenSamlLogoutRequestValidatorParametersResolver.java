@@ -79,7 +79,7 @@ public final class OpenSamlLogoutRequestValidatorParametersResolver
 		XMLObjectProviderRegistry registry = ConfigurationService.get(XMLObjectProviderRegistry.class);
 		this.parserPool = registry.getParserPool();
 		this.unmarshaller = (LogoutRequestUnmarshaller) XMLObjectProviderRegistrySupport.getUnmarshallerFactory()
-				.getUnmarshaller(LogoutRequest.DEFAULT_ELEMENT_NAME);
+			.getUnmarshaller(LogoutRequest.DEFAULT_ELEMENT_NAME);
 		this.registrations = registrations;
 	}
 
@@ -186,13 +186,16 @@ public final class OpenSamlLogoutRequestValidatorParametersResolver
 		registration = fromRequest(request, registration);
 		String serialized = request.getParameter(Saml2ParameterNames.SAML_REQUEST);
 		Saml2LogoutRequest logoutRequest = Saml2LogoutRequest.withRelyingPartyRegistration(registration)
-				.samlRequest(serialized).relayState(request.getParameter(Saml2ParameterNames.RELAY_STATE))
-				.binding(saml2MessageBinding).location(registration.getSingleLogoutServiceLocation())
-				.parameters((params) -> params.put(Saml2ParameterNames.SIG_ALG,
-						request.getParameter(Saml2ParameterNames.SIG_ALG)))
-				.parameters((params) -> params.put(Saml2ParameterNames.SIGNATURE,
-						request.getParameter(Saml2ParameterNames.SIGNATURE)))
-				.parametersQuery((params) -> request.getQueryString()).build();
+			.samlRequest(serialized)
+			.relayState(request.getParameter(Saml2ParameterNames.RELAY_STATE))
+			.binding(saml2MessageBinding)
+			.location(registration.getSingleLogoutServiceLocation())
+			.parameters((params) -> params.put(Saml2ParameterNames.SIG_ALG,
+					request.getParameter(Saml2ParameterNames.SIG_ALG)))
+			.parameters((params) -> params.put(Saml2ParameterNames.SIGNATURE,
+					request.getParameter(Saml2ParameterNames.SIGNATURE)))
+			.parametersQuery((params) -> request.getQueryString())
+			.build();
 		return new Saml2LogoutRequestValidatorParameters(logoutRequest, registration, authentication);
 	}
 
@@ -206,7 +209,7 @@ public final class OpenSamlLogoutRequestValidatorParametersResolver
 	private LogoutRequest parse(String request) throws Saml2Exception {
 		try {
 			Document document = this.parserPool
-					.parse(new ByteArrayInputStream(request.getBytes(StandardCharsets.UTF_8)));
+				.parse(new ByteArrayInputStream(request.getBytes(StandardCharsets.UTF_8)));
 			Element element = document.getDocumentElement();
 			return (LogoutRequest) this.unmarshaller.unmarshall(element);
 		}
@@ -217,12 +220,15 @@ public final class OpenSamlLogoutRequestValidatorParametersResolver
 
 	private RelyingPartyRegistration fromRequest(HttpServletRequest request, RelyingPartyRegistration registration) {
 		RelyingPartyRegistrationPlaceholderResolvers.UriResolver uriResolver = RelyingPartyRegistrationPlaceholderResolvers
-				.uriResolver(request, registration);
+			.uriResolver(request, registration);
 		String entityId = uriResolver.resolve(registration.getEntityId());
 		String logoutLocation = uriResolver.resolve(registration.getSingleLogoutServiceLocation());
 		String logoutResponseLocation = uriResolver.resolve(registration.getSingleLogoutServiceResponseLocation());
-		return registration.mutate().entityId(entityId).singleLogoutServiceLocation(logoutLocation)
-				.singleLogoutServiceResponseLocation(logoutResponseLocation).build();
+		return registration.mutate()
+			.entityId(entityId)
+			.singleLogoutServiceLocation(logoutLocation)
+			.singleLogoutServiceResponseLocation(logoutResponseLocation)
+			.build();
 	}
 
 }

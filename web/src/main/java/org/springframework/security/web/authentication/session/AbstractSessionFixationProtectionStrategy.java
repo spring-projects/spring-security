@@ -126,7 +126,7 @@ public abstract class AbstractSessionFixationProtectionStrategy
 	 */
 	protected void onSessionChange(String originalSessionId, HttpSession newSession, Authentication auth) {
 		this.applicationEventPublisher
-				.publishEvent(new SessionFixationProtectionEvent(auth, originalSessionId, newSession.getId()));
+			.publishEvent(new SessionFixationProtectionEvent(auth, originalSessionId, newSession.getId()));
 	}
 
 	/**

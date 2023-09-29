@@ -150,7 +150,7 @@ public class DefaultFilterChainValidator implements FilterChainProxy.FilterChain
 			return;
 		}
 		String loginPage = ((LoginUrlAuthenticationEntryPoint) exceptions.getAuthenticationEntryPoint())
-				.getLoginFormUrl();
+			.getLoginFormUrl();
 		this.logger.info("Checking whether login URL '" + loginPage + "' is accessible with your configuration");
 		FilterInvocation loginRequest = new FilterInvocation(loginPage, "POST");
 		List<Filter> filters = null;
@@ -219,7 +219,7 @@ public class DefaultFilterChainValidator implements FilterChainProxy.FilterChain
 		AuthorizationFilter authorizationFilter = getFilter(AuthorizationFilter.class, filters);
 		if (authorizationFilter != null) {
 			AuthorizationManager<HttpServletRequest> authorizationManager = authorizationFilter
-					.getAuthorizationManager();
+				.getAuthorizationManager();
 			try {
 				AuthorizationDecision decision = authorizationManager.check(() -> TEST, loginRequest.getHttpRequest());
 				return decision != null && decision.isGranted();
@@ -251,7 +251,7 @@ public class DefaultFilterChainValidator implements FilterChainProxy.FilterChain
 		if (authorizationFilter != null) {
 			return () -> {
 				AuthorizationManager<HttpServletRequest> authorizationManager = authorizationFilter
-						.getAuthorizationManager();
+					.getAuthorizationManager();
 				AuthorizationDecision decision = authorizationManager.check(() -> token, loginRequest.getHttpRequest());
 				return decision != null && decision.isGranted();
 			};

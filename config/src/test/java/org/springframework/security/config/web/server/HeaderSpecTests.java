@@ -459,7 +459,7 @@ public class HeaderSpecTests {
 	public void headersWhenCrossOriginPoliciesCustomEnabledThenCustomCrossOriginPoliciesWritten() {
 		this.expectedHeaders.add(CrossOriginOpenerPolicyServerHttpHeadersWriter.OPENER_POLICY,
 				CrossOriginOpenerPolicyServerHttpHeadersWriter.CrossOriginOpenerPolicy.SAME_ORIGIN_ALLOW_POPUPS
-						.getPolicy());
+					.getPolicy());
 		this.expectedHeaders.add(CrossOriginEmbedderPolicyServerHttpHeadersWriter.EMBEDDER_POLICY,
 				CrossOriginEmbedderPolicyServerHttpHeadersWriter.CrossOriginEmbedderPolicy.REQUIRE_CORP.getPolicy());
 		this.expectedHeaders.add(CrossOriginResourcePolicyServerHttpHeadersWriter.RESOURCE_POLICY,
@@ -482,7 +482,7 @@ public class HeaderSpecTests {
 	public void headersWhenCrossOriginPoliciesCustomEnabledInLambdaThenCustomCrossOriginPoliciesWritten() {
 		this.expectedHeaders.add(CrossOriginOpenerPolicyServerHttpHeadersWriter.OPENER_POLICY,
 				CrossOriginOpenerPolicyServerHttpHeadersWriter.CrossOriginOpenerPolicy.SAME_ORIGIN_ALLOW_POPUPS
-						.getPolicy());
+					.getPolicy());
 		this.expectedHeaders.add(CrossOriginEmbedderPolicyServerHttpHeadersWriter.EMBEDDER_POLICY,
 				CrossOriginEmbedderPolicyServerHttpHeadersWriter.CrossOriginEmbedderPolicy.REQUIRE_CORP.getPolicy());
 		this.expectedHeaders.add(CrossOriginResourcePolicyServerHttpHeadersWriter.RESOURCE_POLICY,
@@ -511,8 +511,10 @@ public class HeaderSpecTests {
 
 	private void assertHeaders() {
 		WebTestClient client = buildClient();
-		FluxExchangeResult<String> response = client.get().uri("https://example.com/").exchange()
-				.returnResult(String.class);
+		FluxExchangeResult<String> response = client.get()
+			.uri("https://example.com/")
+			.exchange()
+			.returnResult(String.class);
 		Map<String, List<String>> responseHeaders = response.getResponseHeaders();
 		if (!this.expectedHeaders.isEmpty()) {
 			assertThat(responseHeaders).describedAs(response.toString()).containsAllEntriesOf(this.expectedHeaders);

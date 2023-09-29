@@ -331,7 +331,7 @@ public class SwitchUserFilterTests {
 		FilterChain chain = mock(FilterChain.class);
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		assertThatExceptionOfType(AuthenticationException.class)
-				.isThrownBy(() -> filter.doFilter(request, response, chain));
+			.isThrownBy(() -> filter.doFilter(request, response, chain));
 		verify(chain, never()).doFilter(request, response);
 	}
 
@@ -466,7 +466,7 @@ public class SwitchUserFilterTests {
 	@Test
 	public void switchAuthorityRoleCannotBeNull() {
 		assertThatIllegalArgumentException().isThrownBy(() -> switchToUserWithAuthorityRole("dano", null))
-				.withMessage("switchAuthorityRole cannot be null");
+			.withMessage("switchAuthorityRole cannot be null");
 	}
 
 	// gh-3697
@@ -513,7 +513,7 @@ public class SwitchUserFilterTests {
 	void filterWhenDefaultSecurityContextRepositoryThenHttpSessionRepository() {
 		SwitchUserFilter switchUserFilter = new SwitchUserFilter();
 		assertThat(ReflectionTestUtils.getField(switchUserFilter, "securityContextRepository"))
-				.isInstanceOf(HttpSessionSecurityContextRepository.class);
+			.isInstanceOf(HttpSessionSecurityContextRepository.class);
 	}
 
 	@Test

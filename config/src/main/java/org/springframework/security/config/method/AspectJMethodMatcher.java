@@ -37,8 +37,8 @@ class AspectJMethodMatcher implements MethodMatcher, ClassFilter, Pointcut {
 		supportedPrimitives.add(PointcutPrimitive.EXECUTION);
 		supportedPrimitives.add(PointcutPrimitive.ARGS);
 		supportedPrimitives.add(PointcutPrimitive.REFERENCE);
-		parser = PointcutParser.getPointcutParserSupportingSpecifiedPrimitivesAndUsingContextClassloaderForResolution(
-				supportedPrimitives);
+		parser = PointcutParser
+			.getPointcutParserSupportingSpecifiedPrimitivesAndUsingContextClassloaderForResolution(supportedPrimitives);
 	}
 
 	private final PointcutExpression expression;

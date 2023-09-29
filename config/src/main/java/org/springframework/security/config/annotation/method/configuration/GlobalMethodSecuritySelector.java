@@ -51,7 +51,7 @@ final class GlobalMethodSecuritySelector implements ImportSelector {
 		Class<?> importingClass = ClassUtils.resolveClassName(importingClassMetadata.getClassName(),
 				ClassUtils.getDefaultClassLoader());
 		boolean skipMethodSecurityConfiguration = GlobalMethodSecurityConfiguration.class
-				.isAssignableFrom(importingClass);
+			.isAssignableFrom(importingClass);
 		AdviceMode mode = attributes.getEnum("mode");
 		boolean isProxy = AdviceMode.PROXY == mode;
 		String autoProxyClassName = isProxy ? AutoProxyRegistrar.class.getName()

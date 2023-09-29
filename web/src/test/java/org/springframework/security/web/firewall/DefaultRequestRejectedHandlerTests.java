@@ -29,9 +29,10 @@ public class DefaultRequestRejectedHandlerTests {
 	public void defaultRequestRejectedHandlerRethrowsTheException() throws Exception {
 		RequestRejectedException requestRejectedException = new RequestRejectedException("rejected");
 		DefaultRequestRejectedHandler sut = new DefaultRequestRejectedHandler();
-		assertThatExceptionOfType(RequestRejectedException.class).isThrownBy(() -> sut
-				.handle(mock(HttpServletRequest.class), mock(HttpServletResponse.class), requestRejectedException))
-				.withMessage("rejected");
+		assertThatExceptionOfType(RequestRejectedException.class)
+			.isThrownBy(() -> sut.handle(mock(HttpServletRequest.class), mock(HttpServletResponse.class),
+					requestRejectedException))
+			.withMessage("rejected");
 	}
 
 }

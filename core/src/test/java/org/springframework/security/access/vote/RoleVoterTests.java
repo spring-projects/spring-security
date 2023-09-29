@@ -37,7 +37,7 @@ public class RoleVoterTests {
 		Authentication userAB = new TestingAuthenticationToken("user", "pass", "A", "B");
 		// Vote on attribute list that has two attributes A and C (i.e. only one matching)
 		assertThat(voter.vote(userAB, this, SecurityConfig.createList("A", "C")))
-				.isEqualTo(AccessDecisionVoter.ACCESS_GRANTED);
+			.isEqualTo(AccessDecisionVoter.ACCESS_GRANTED);
 	}
 
 	// SEC-3128
@@ -47,7 +47,7 @@ public class RoleVoterTests {
 		voter.setRolePrefix("");
 		Authentication notAuthenitcated = null;
 		assertThat(voter.vote(notAuthenitcated, this, SecurityConfig.createList("A")))
-				.isEqualTo(AccessDecisionVoter.ACCESS_DENIED);
+			.isEqualTo(AccessDecisionVoter.ACCESS_DENIED);
 	}
 
 }

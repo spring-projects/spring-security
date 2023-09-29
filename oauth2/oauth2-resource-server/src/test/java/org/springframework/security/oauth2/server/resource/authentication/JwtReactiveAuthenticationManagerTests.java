@@ -91,7 +91,7 @@ public class JwtReactiveAuthenticationManagerTests {
 		BearerTokenAuthenticationToken token = new BearerTokenAuthenticationToken("token-1");
 		given(this.jwtDecoder.decode(any())).willReturn(Mono.error(new BadJwtException("Oops")));
 		assertThatExceptionOfType(OAuth2AuthenticationException.class)
-				.isThrownBy(() -> this.manager.authenticate(token).block());
+			.isThrownBy(() -> this.manager.authenticate(token).block());
 	}
 
 	// gh-7549

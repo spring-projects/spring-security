@@ -66,7 +66,7 @@ public final class OpenSamlLogoutRequestValidator implements Saml2LogoutRequestV
 		XMLObjectProviderRegistry registry = ConfigurationService.get(XMLObjectProviderRegistry.class);
 		this.parserPool = registry.getParserPool();
 		this.unmarshaller = (LogoutRequestUnmarshaller) XMLObjectProviderRegistrySupport.getUnmarshallerFactory()
-				.getUnmarshaller(LogoutRequest.DEFAULT_ELEMENT_NAME);
+			.getUnmarshaller(LogoutRequest.DEFAULT_ELEMENT_NAME);
 	}
 
 	/**
@@ -79,8 +79,10 @@ public final class OpenSamlLogoutRequestValidator implements Saml2LogoutRequestV
 		Authentication authentication = parameters.getAuthentication();
 		byte[] b = Saml2Utils.samlDecode(request.getSamlRequest());
 		LogoutRequest logoutRequest = parse(inflateIfRequired(request, b));
-		return Saml2LogoutValidatorResult.withErrors().errors(verifySignature(request, logoutRequest, registration))
-				.errors(validateRequest(logoutRequest, registration, authentication)).build();
+		return Saml2LogoutValidatorResult.withErrors()
+			.errors(verifySignature(request, logoutRequest, registration))
+			.errors(validateRequest(logoutRequest, registration, authentication))
+			.build();
 	}
 
 	private String inflateIfRequired(Saml2LogoutRequest request, byte[] b) {
@@ -93,7 +95,7 @@ public final class OpenSamlLogoutRequestValidator implements Saml2LogoutRequestV
 	private LogoutRequest parse(String request) throws Saml2Exception {
 		try {
 			Document document = this.parserPool
-					.parse(new ByteArrayInputStream(request.getBytes(StandardCharsets.UTF_8)));
+				.parse(new ByteArrayInputStream(request.getBytes(StandardCharsets.UTF_8)));
 			Element element = document.getDocumentElement();
 			return (LogoutRequest) this.unmarshaller.unmarshall(element);
 		}
@@ -133,8 +135,8 @@ public final class OpenSamlLogoutRequestValidator implements Saml2LogoutRequestV
 			}
 			String issuer = request.getIssuer().getValue();
 			if (!issuer.equals(registration.getAssertingPartyDetails().getEntityId())) {
-				errors.add(
-						new Saml2Error(Saml2ErrorCodes.INVALID_ISSUER, "Failed to match issuer to configured issuer"));
+				errors
+					.add(new Saml2Error(Saml2ErrorCodes.INVALID_ISSUER, "Failed to match issuer to configured issuer"));
 			}
 		};
 	}
@@ -163,8 +165,8 @@ public final class OpenSamlLogoutRequestValidator implements Saml2LogoutRequestV
 			}
 			NameID nameId = getNameId(request, registration);
 			if (nameId == null) {
-				errors.add(
-						new Saml2Error(Saml2ErrorCodes.SUBJECT_NOT_FOUND, "Failed to find subject in LogoutRequest"));
+				errors
+					.add(new Saml2Error(Saml2ErrorCodes.SUBJECT_NOT_FOUND, "Failed to find subject in LogoutRequest"));
 				return;
 			}
 

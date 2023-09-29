@@ -40,17 +40,18 @@ import org.springframework.util.MimeTypeUtils;
 public class BasicAuthenticationPayloadExchangeConverter implements PayloadExchangeAuthenticationConverter {
 
 	private MimeType metadataMimetype = MimeTypeUtils
-			.parseMimeType(WellKnownMimeType.MESSAGE_RSOCKET_COMPOSITE_METADATA.getString());
+		.parseMimeType(WellKnownMimeType.MESSAGE_RSOCKET_COMPOSITE_METADATA.getString());
 
 	private MetadataExtractor metadataExtractor = createDefaultExtractor();
 
 	@Override
 	public Mono<Authentication> convert(PayloadExchange exchange) {
 		return Mono.fromCallable(() -> this.metadataExtractor.extract(exchange.getPayload(), this.metadataMimetype))
-				.flatMap((metadata) -> Mono
-						.justOrEmpty(metadata.get(UsernamePasswordMetadata.BASIC_AUTHENTICATION_MIME_TYPE.toString())))
-				.cast(UsernamePasswordMetadata.class).map((credentials) -> UsernamePasswordAuthenticationToken
-						.unauthenticated(credentials.getUsername(), credentials.getPassword()));
+			.flatMap((metadata) -> Mono
+				.justOrEmpty(metadata.get(UsernamePasswordMetadata.BASIC_AUTHENTICATION_MIME_TYPE.toString())))
+			.cast(UsernamePasswordMetadata.class)
+			.map((credentials) -> UsernamePasswordAuthenticationToken.unauthenticated(credentials.getUsername(),
+					credentials.getPassword()));
 	}
 
 	private static MetadataExtractor createDefaultExtractor() {

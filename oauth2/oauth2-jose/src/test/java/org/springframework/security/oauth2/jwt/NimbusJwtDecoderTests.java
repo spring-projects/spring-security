@@ -317,10 +317,10 @@ public class NimbusJwtDecoderTests {
 	public void decodeWhenIssuerLocationThenOk() {
 		String issuer = "https://example.org/issuer";
 		RestOperations restOperations = mock(RestOperations.class);
-		given(restOperations.exchange(any(RequestEntity.class), any(ParameterizedTypeReference.class))).willReturn(
-				new ResponseEntity<>(Map.of("issuer", issuer, "jwks_uri", issuer + "/jwks"), HttpStatus.OK));
+		given(restOperations.exchange(any(RequestEntity.class), any(ParameterizedTypeReference.class)))
+			.willReturn(new ResponseEntity<>(Map.of("issuer", issuer, "jwks_uri", issuer + "/jwks"), HttpStatus.OK));
 		given(restOperations.exchange(any(RequestEntity.class), eq(String.class)))
-				.willReturn(new ResponseEntity<>(JWK_SET, HttpStatus.OK));
+			.willReturn(new ResponseEntity<>(JWK_SET, HttpStatus.OK));
 		JwtDecoder jwtDecoder = NimbusJwtDecoder.withIssuerLocation(issuer).restOperations(restOperations).build();
 		Jwt jwt = jwtDecoder.decode(SIGNED_JWT);
 		assertThat(jwt.hasClaim(JwtClaimNames.EXP)).isNotNull();
@@ -430,8 +430,9 @@ public class NimbusJwtDecoderTests {
 
 	@Test
 	public void decodeWhenSignatureMismatchesAlgorithmThenThrowsException() throws Exception {
-		NimbusJwtDecoder decoder = NimbusJwtDecoder.withPublicKey(key()).signatureAlgorithm(SignatureAlgorithm.RS512)
-				.build();
+		NimbusJwtDecoder decoder = NimbusJwtDecoder.withPublicKey(key())
+			.signatureAlgorithm(SignatureAlgorithm.RS512)
+			.build();
 		// @formatter:off
 		assertThatExceptionOfType(BadJwtException.class)
 				.isThrownBy(() -> decoder.decode(RS256_SIGNED_JWT));
@@ -445,7 +446,7 @@ public class NimbusJwtDecoderTests {
 		RSAPrivateKey privateKey = TestKeys.DEFAULT_PRIVATE_KEY;
 		JWSHeader header = new JWSHeader.Builder(JWSAlgorithm.RS256).type(new JOSEObjectType("JWS")).build();
 		JWTClaimsSet claimsSet = new JWTClaimsSet.Builder().expirationTime(Date.from(Instant.now().plusSeconds(60)))
-				.build();
+			.build();
 		SignedJWT signedJwt = signedJwt(privateKey, header, claimsSet);
 		// @formatter:off
 		NimbusJwtDecoder decoder = NimbusJwtDecoder.withPublicKey(publicKey)
@@ -589,7 +590,7 @@ public class NimbusJwtDecoderTests {
 	public void jwsKeySelectorWhenNoAlgorithmThenReturnsRS256Selector() {
 		JWKSource<SecurityContext> jwkSource = mock(JWKSource.class);
 		JWSKeySelector<SecurityContext> jwsKeySelector = NimbusJwtDecoder.withJwkSetUri(JWK_SET_URI)
-				.jwsKeySelector(jwkSource);
+			.jwsKeySelector(jwkSource);
 		assertThat(jwsKeySelector instanceof JWSVerificationKeySelector);
 		JWSVerificationKeySelector<?> jwsVerificationKeySelector = (JWSVerificationKeySelector<?>) jwsKeySelector;
 		assertThat(jwsVerificationKeySelector.isAllowed(JWSAlgorithm.RS256)).isTrue();
@@ -628,7 +629,7 @@ public class NimbusJwtDecoderTests {
 	public void decodeWhenJwkSetRequestedThenAcceptHeaderJsonAndJwkSetJson() {
 		RestOperations restOperations = mock(RestOperations.class);
 		given(restOperations.exchange(any(RequestEntity.class), eq(String.class)))
-				.willReturn(new ResponseEntity<>(JWK_SET, HttpStatus.OK));
+			.willReturn(new ResponseEntity<>(JWK_SET, HttpStatus.OK));
 		// @formatter:off
 		JWTProcessor<SecurityContext> processor = NimbusJwtDecoder.withJwkSetUri(JWK_SET_URI)
 				.restOperations(restOperations)
@@ -647,7 +648,7 @@ public class NimbusJwtDecoderTests {
 		Cache cache = new ConcurrentMapCache("test-jwk-set-cache");
 		RestOperations restOperations = mock(RestOperations.class);
 		given(restOperations.exchange(any(RequestEntity.class), eq(String.class)))
-				.willReturn(new ResponseEntity<>(JWK_SET, HttpStatus.OK));
+			.willReturn(new ResponseEntity<>(JWK_SET, HttpStatus.OK));
 		// @formatter:off
 		NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withJwkSetUri(JWK_SET_URI)
 				.restOperations(restOperations)
@@ -668,7 +669,7 @@ public class NimbusJwtDecoderTests {
 		Cache cache = new ConcurrentMapCache("test-jwk-set-cache");
 		RestOperations restOperations = mock(RestOperations.class);
 		given(restOperations.exchange(any(RequestEntity.class), eq(String.class)))
-				.willReturn(new ResponseEntity<>(JWK_SET, HttpStatus.OK));
+			.willReturn(new ResponseEntity<>(JWK_SET, HttpStatus.OK));
 		// @formatter:off
 		NimbusJwtDecoder jwtDecoder1 = NimbusJwtDecoder.withJwkSetUri(JWK_SET_URI)
 				.restOperations(restOperations)
@@ -717,7 +718,7 @@ public class NimbusJwtDecoderTests {
 		given(cache.get(eq(JWK_SET_URI), eq(String.class))).willReturn(JWK_SET);
 		given(cache.get(eq(JWK_SET_URI))).willReturn(new SimpleValueWrapper(JWK_SET));
 		given(restOperations.exchange(any(RequestEntity.class), eq(String.class)))
-				.willReturn(new ResponseEntity<>(NEW_KID_JWK_SET, HttpStatus.OK));
+			.willReturn(new ResponseEntity<>(NEW_KID_JWK_SET, HttpStatus.OK));
 
 		// @formatter:off
 		NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withJwkSetUri(JWK_SET_URI)
@@ -768,7 +769,7 @@ public class NimbusJwtDecoderTests {
 		Cache cache = new ConcurrentMapCache("test-jwk-set-cache");
 		RestOperations restOperations = mock(RestOperations.class);
 		given(restOperations.exchange(any(RequestEntity.class), eq(String.class)))
-				.willThrow(new RestClientException("Cannot retrieve JWK Set"));
+			.willThrow(new RestClientException("Cannot retrieve JWK Set"));
 		// @formatter:off
 		NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withJwkSetUri(JWK_SET_URI)
 				.restOperations(restOperations)
@@ -807,7 +808,7 @@ public class NimbusJwtDecoderTests {
 	public void withJwkSetUriWhenUsingCustomTypeHeaderThenRefuseOmittedType() throws Exception {
 		RestOperations restOperations = mock(RestOperations.class);
 		given(restOperations.exchange(any(RequestEntity.class), eq(String.class)))
-				.willReturn(new ResponseEntity<>(JWK_SET, HttpStatus.OK));
+			.willReturn(new ResponseEntity<>(JWK_SET, HttpStatus.OK));
 		// @formatter:off
 		NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withJwkSetUri(JWK_SET_URI)
 				.restOperations(restOperations)
@@ -861,7 +862,7 @@ public class NimbusJwtDecoderTests {
 	private static JWTProcessor<SecurityContext> withSigning(String jwkResponse) {
 		RestOperations restOperations = mock(RestOperations.class);
 		given(restOperations.exchange(any(RequestEntity.class), eq(String.class)))
-				.willReturn(new ResponseEntity<>(jwkResponse, HttpStatus.OK));
+			.willReturn(new ResponseEntity<>(jwkResponse, HttpStatus.OK));
 		// @formatter:off
 		return NimbusJwtDecoder.withJwkSetUri(JWK_SET_URI)
 				.restOperations(restOperations)

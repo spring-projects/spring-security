@@ -40,9 +40,9 @@ class WithSecurityContextTestRuntimeHints implements TestRuntimeHintsRegistrar {
 	@Override
 	public void registerHints(RuntimeHints hints, Class<?> testClass, ClassLoader classLoader) {
 		Stream.concat(getClassAnnotations(testClass), getMethodAnnotations(testClass))
-				.filter(MergedAnnotation::isPresent)
-				.map((withSecurityContext) -> withSecurityContext.getClass("factory"))
-				.forEach((factory) -> registerDeclaredConstructors(hints, factory));
+			.filter(MergedAnnotation::isPresent)
+			.map((withSecurityContext) -> withSecurityContext.getClass("factory"))
+			.forEach((factory) -> registerDeclaredConstructors(hints, factory));
 	}
 
 	private Stream<MergedAnnotation<WithSecurityContext>> getClassAnnotations(Class<?> testClass) {
@@ -51,7 +51,7 @@ class WithSecurityContextTestRuntimeHints implements TestRuntimeHintsRegistrar {
 
 	private Stream<MergedAnnotation<WithSecurityContext>> getMethodAnnotations(Class<?> testClass) {
 		return Arrays.stream(testClass.getDeclaredMethods())
-				.map((method) -> MergedAnnotations.from(method, SUPERCLASS).get(WithSecurityContext.class));
+			.map((method) -> MergedAnnotations.from(method, SUPERCLASS).get(WithSecurityContext.class));
 	}
 
 	private void registerDeclaredConstructors(RuntimeHints hints, Class<?> factory) {

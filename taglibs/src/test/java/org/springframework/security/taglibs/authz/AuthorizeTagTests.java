@@ -66,7 +66,7 @@ public class AuthorizeTagTests {
 		SecurityContextHolder.getContext().setAuthentication(this.currentUser);
 		StaticWebApplicationContext ctx = new StaticWebApplicationContext();
 		BeanDefinitionBuilder webExpressionHandler = BeanDefinitionBuilder
-				.rootBeanDefinition(DefaultWebSecurityExpressionHandler.class);
+			.rootBeanDefinition(DefaultWebSecurityExpressionHandler.class);
 		webExpressionHandler.addPropertyValue("permissionEvaluator", this.permissionEvaluator);
 		ctx.registerBeanDefinition("expressionHandler", webExpressionHandler.getBeanDefinition());
 		ctx.registerSingleton("wipe", MockWebInvocationPrivilegeEvaluator.class);

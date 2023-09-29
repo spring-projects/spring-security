@@ -95,19 +95,19 @@ public class SCryptPasswordEncoderTests {
 	@Test
 	public void invalidCpuCostParameter() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new SCryptPasswordEncoder(Integer.MIN_VALUE, 16, 2, 32, 16));
+			.isThrownBy(() -> new SCryptPasswordEncoder(Integer.MIN_VALUE, 16, 2, 32, 16));
 	}
 
 	@Test
 	public void invalidMemoryCostParameter() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new SCryptPasswordEncoder(2, Integer.MAX_VALUE, 2, 32, 16));
+			.isThrownBy(() -> new SCryptPasswordEncoder(2, Integer.MAX_VALUE, 2, 32, 16));
 	}
 
 	@Test
 	public void invalidParallelizationParameter() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new SCryptPasswordEncoder(2, 8, Integer.MAX_VALUE, 32, 16));
+			.isThrownBy(() -> new SCryptPasswordEncoder(2, 8, Integer.MAX_VALUE, 32, 16));
 	}
 
 	@Test

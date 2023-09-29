@@ -50,12 +50,12 @@ public class OAuth2AuthorizationCodeGrantRequestEntityConverter
 		parameters.add(OAuth2ParameterNames.CODE, authorizationExchange.getAuthorizationResponse().getCode());
 		String redirectUri = authorizationExchange.getAuthorizationRequest().getRedirectUri();
 		String codeVerifier = authorizationExchange.getAuthorizationRequest()
-				.getAttribute(PkceParameterNames.CODE_VERIFIER);
+			.getAttribute(PkceParameterNames.CODE_VERIFIER);
 		if (redirectUri != null) {
 			parameters.add(OAuth2ParameterNames.REDIRECT_URI, redirectUri);
 		}
 		if (!ClientAuthenticationMethod.CLIENT_SECRET_BASIC
-				.equals(clientRegistration.getClientAuthenticationMethod())) {
+			.equals(clientRegistration.getClientAuthenticationMethod())) {
 			parameters.add(OAuth2ParameterNames.CLIENT_ID, clientRegistration.getClientId());
 		}
 		if (ClientAuthenticationMethod.CLIENT_SECRET_POST.equals(clientRegistration.getClientAuthenticationMethod())) {

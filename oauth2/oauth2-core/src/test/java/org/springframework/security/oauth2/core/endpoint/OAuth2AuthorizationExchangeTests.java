@@ -36,8 +36,8 @@ public class OAuth2AuthorizationExchangeTests {
 
 	@Test
 	public void constructorWhenAuthorizationResponseIsNullThenThrowIllegalArgumentException() {
-		assertThatIllegalArgumentException().isThrownBy(
-				() -> new OAuth2AuthorizationExchange(TestOAuth2AuthorizationRequests.request().build(), null));
+		assertThatIllegalArgumentException()
+			.isThrownBy(() -> new OAuth2AuthorizationExchange(TestOAuth2AuthorizationRequests.request().build(), null));
 	}
 
 	@Test

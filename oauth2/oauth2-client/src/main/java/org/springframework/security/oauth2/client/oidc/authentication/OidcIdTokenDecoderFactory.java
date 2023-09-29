@@ -118,8 +118,8 @@ public final class OidcIdTokenDecoderFactory implements JwtDecoderFactory<Client
 
 	private static Converter<Object, ?> getConverter(TypeDescriptor targetDescriptor) {
 		TypeDescriptor sourceDescriptor = TypeDescriptor.valueOf(Object.class);
-		return (source) -> ClaimConversionService.getSharedInstance().convert(source, sourceDescriptor,
-				targetDescriptor);
+		return (source) -> ClaimConversionService.getSharedInstance()
+			.convert(source, sourceDescriptor, targetDescriptor);
 	}
 
 	@Override
@@ -129,7 +129,7 @@ public final class OidcIdTokenDecoderFactory implements JwtDecoderFactory<Client
 			NimbusJwtDecoder jwtDecoder = buildDecoder(clientRegistration);
 			jwtDecoder.setJwtValidator(this.jwtValidatorFactory.apply(clientRegistration));
 			Converter<Map<String, Object>, Map<String, Object>> claimTypeConverter = this.claimTypeConverterFactory
-					.apply(clientRegistration);
+				.apply(clientRegistration);
 			if (claimTypeConverter != null) {
 				jwtDecoder.setClaimSetConverter(claimTypeConverter);
 			}

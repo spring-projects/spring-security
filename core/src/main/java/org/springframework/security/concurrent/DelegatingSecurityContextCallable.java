@@ -49,7 +49,7 @@ public final class DelegatingSecurityContextCallable<V> implements Callable<V> {
 	private SecurityContext delegateSecurityContext;
 
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
-			.getContextHolderStrategy();
+		.getContextHolderStrategy();
 
 	/**
 	 * The {@link SecurityContext} that was on the {@link SecurityContextHolder} prior to

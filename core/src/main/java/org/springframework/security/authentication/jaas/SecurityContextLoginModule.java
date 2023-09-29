@@ -58,7 +58,7 @@ public class SecurityContextLoginModule implements LoginModule {
 	private static final Log log = LogFactory.getLog(SecurityContextLoginModule.class);
 
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
-			.getContextHolderStrategy();
+		.getContextHolderStrategy();
 
 	private Authentication authen;
 

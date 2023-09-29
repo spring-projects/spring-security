@@ -130,8 +130,8 @@ public class PrePostAnnotationSecurityMetadataSource extends AbstractMethodSecur
 		// actually implement the method)
 		annotation = AnnotationUtils.findAnnotation(specificMethod.getDeclaringClass(), annotationClass);
 		if (annotation != null) {
-			this.logger.debug(
-					LogMessage.format("%s found on: %s", annotation, specificMethod.getDeclaringClass().getName()));
+			this.logger
+				.debug(LogMessage.format("%s found on: %s", annotation, specificMethod.getDeclaringClass().getName()));
 			return annotation;
 		}
 		return null;

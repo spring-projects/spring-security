@@ -41,7 +41,7 @@ public class AuthorityAuthorizationManagerTests {
 	@Test
 	public void hasRoleWhenNullThenException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> AuthorityAuthorizationManager.hasRole(null))
-				.withMessage("role cannot be null");
+			.withMessage("role cannot be null");
 	}
 
 	@Test
@@ -49,40 +49,40 @@ public class AuthorityAuthorizationManagerTests {
 		String ROLE_PREFIX = "ROLE_";
 		String ROLE_USER = ROLE_PREFIX + "USER";
 		assertThatIllegalArgumentException().isThrownBy(() -> AuthorityAuthorizationManager.hasRole(ROLE_USER))
-				.withMessage(ROLE_USER + " should not start with " + ROLE_PREFIX + " since " + ROLE_PREFIX
-						+ " is automatically prepended when using hasRole. Consider using hasAuthority instead.");
+			.withMessage(ROLE_USER + " should not start with " + ROLE_PREFIX + " since " + ROLE_PREFIX
+					+ " is automatically prepended when using hasRole. Consider using hasAuthority instead.");
 	}
 
 	@Test
 	public void hasAuthorityWhenNullThenException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> AuthorityAuthorizationManager.hasAuthority(null))
-				.withMessage("authority cannot be null");
+			.withMessage("authority cannot be null");
 	}
 
 	@Test
 	public void hasAnyRoleWhenNullThenException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> AuthorityAuthorizationManager.hasAnyRole(null))
-				.withMessage("roles cannot be empty");
+			.withMessage("roles cannot be empty");
 	}
 
 	@Test
 	public void hasAnyRoleWhenEmptyThenException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> AuthorityAuthorizationManager.hasAnyRole(new String[] {}))
-				.withMessage("roles cannot be empty");
+			.withMessage("roles cannot be empty");
 	}
 
 	@Test
 	public void hasAnyRoleWhenContainNullThenException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> AuthorityAuthorizationManager.hasAnyRole("ADMIN", null, "USER"))
-				.withMessage("roles cannot contain null values");
+			.isThrownBy(() -> AuthorityAuthorizationManager.hasAnyRole("ADMIN", null, "USER"))
+			.withMessage("roles cannot contain null values");
 	}
 
 	@Test
 	public void hasAnyRoleWhenCustomRolePrefixNullThenException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> AuthorityAuthorizationManager.hasAnyRole(null, new String[] { "ADMIN", "USER" }))
-				.withMessage("rolePrefix cannot be null");
+			.isThrownBy(() -> AuthorityAuthorizationManager.hasAnyRole(null, new String[] { "ADMIN", "USER" }))
+			.withMessage("rolePrefix cannot be null");
 	}
 
 	@Test
@@ -90,29 +90,29 @@ public class AuthorityAuthorizationManagerTests {
 		String ROLE_PREFIX = "ROLE_";
 		String ROLE_USER = ROLE_PREFIX + "USER";
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> AuthorityAuthorizationManager.hasAnyRole(new String[] { ROLE_USER }))
-				.withMessage(ROLE_USER + " should not start with " + ROLE_PREFIX + " since " + ROLE_PREFIX
-						+ " is automatically prepended when using hasAnyRole. Consider using hasAnyAuthority instead.");
+			.isThrownBy(() -> AuthorityAuthorizationManager.hasAnyRole(new String[] { ROLE_USER }))
+			.withMessage(ROLE_USER + " should not start with " + ROLE_PREFIX + " since " + ROLE_PREFIX
+					+ " is automatically prepended when using hasAnyRole. Consider using hasAnyAuthority instead.");
 	}
 
 	@Test
 	public void hasAnyAuthorityWhenNullThenException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> AuthorityAuthorizationManager.hasAnyAuthority(null))
-				.withMessage("authorities cannot be empty");
+			.withMessage("authorities cannot be empty");
 	}
 
 	@Test
 	public void hasAnyAuthorityWhenEmptyThenException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> AuthorityAuthorizationManager.hasAnyAuthority(new String[] {}))
-				.withMessage("authorities cannot be empty");
+			.isThrownBy(() -> AuthorityAuthorizationManager.hasAnyAuthority(new String[] {}))
+			.withMessage("authorities cannot be empty");
 	}
 
 	@Test
 	public void hasAnyAuthorityWhenContainNullThenException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> AuthorityAuthorizationManager.hasAnyAuthority("ADMIN", null, "USER"))
-				.withMessage("authorities cannot contain null values");
+			.isThrownBy(() -> AuthorityAuthorizationManager.hasAnyAuthority("ADMIN", null, "USER"))
+			.withMessage("authorities cannot contain null values");
 	}
 
 	@Test
@@ -237,7 +237,7 @@ public class AuthorityAuthorizationManagerTests {
 	public void setRoleHierarchyWhenNullThenIllegalArgumentException() {
 		AuthorityAuthorizationManager<Object> manager = AuthorityAuthorizationManager.hasRole("USER");
 		assertThatIllegalArgumentException().isThrownBy(() -> manager.setRoleHierarchy(null))
-				.withMessage("roleHierarchy cannot be null");
+			.withMessage("roleHierarchy cannot be null");
 	}
 
 	@Test

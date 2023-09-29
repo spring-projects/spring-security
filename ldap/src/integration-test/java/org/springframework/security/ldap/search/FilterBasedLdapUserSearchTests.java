@@ -86,7 +86,7 @@ public class FilterBasedLdapUserSearchTests {
 	public void searchFailsOnMultipleMatches() {
 		FilterBasedLdapUserSearch locator = new FilterBasedLdapUserSearch("ou=people", "(cn=*)", this.contextSource);
 		assertThatExceptionOfType(IncorrectResultSizeDataAccessException.class)
-				.isThrownBy(() -> locator.searchForUser("Ignored"));
+			.isThrownBy(() -> locator.searchForUser("Ignored"));
 	}
 
 	@Test

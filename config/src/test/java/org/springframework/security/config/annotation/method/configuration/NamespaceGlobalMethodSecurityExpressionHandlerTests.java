@@ -64,7 +64,7 @@ public class NamespaceGlobalMethodSecurityExpressionHandlerTests {
 		this.spring.register(CustomAccessDecisionManagerConfig.class, MethodSecurityServiceConfig.class).autowire();
 		assertThat(this.service.postHasPermission("granted")).isNull();
 		assertThatExceptionOfType(AccessDeniedException.class)
-				.isThrownBy(() -> this.service.postHasPermission("denied"));
+			.isThrownBy(() -> this.service.postHasPermission("denied"));
 	}
 
 	@Configuration

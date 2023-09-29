@@ -81,7 +81,7 @@ public class ExceptionHandlingConfigurerAccessDeniedHandlerTests {
 	static class RequestMatcherBasedAccessDeniedHandlerConfig {
 
 		AccessDeniedHandler teapotDeniedHandler = (request, response, exception) -> response
-				.setStatus(HttpStatus.I_AM_A_TEAPOT.value());
+			.setStatus(HttpStatus.I_AM_A_TEAPOT.value());
 
 		@Bean
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -108,7 +108,7 @@ public class ExceptionHandlingConfigurerAccessDeniedHandlerTests {
 	static class RequestMatcherBasedAccessDeniedHandlerInLambdaConfig {
 
 		AccessDeniedHandler teapotDeniedHandler = (request, response, exception) -> response
-				.setStatus(HttpStatus.I_AM_A_TEAPOT.value());
+			.setStatus(HttpStatus.I_AM_A_TEAPOT.value());
 
 		@Bean
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -140,7 +140,7 @@ public class ExceptionHandlingConfigurerAccessDeniedHandlerTests {
 	static class SingleRequestMatcherAccessDeniedHandlerConfig {
 
 		AccessDeniedHandler teapotDeniedHandler = (request, response, exception) -> response
-				.setStatus(HttpStatus.I_AM_A_TEAPOT.value());
+			.setStatus(HttpStatus.I_AM_A_TEAPOT.value());
 
 		@Bean
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {

@@ -62,29 +62,29 @@ public class WithUserClassLevelAuthenticationTests {
 	@Test
 	public void requestProtectedUrlWithUser() throws Exception {
 		this.mvc.perform(get("/"))
-				// Ensure we got past Security
-				.andExpect(status().isNotFound())
-				// Ensure it appears we are authenticated with user
-				.andExpect(authenticated().withUsername("user"));
+			// Ensure we got past Security
+			.andExpect(status().isNotFound())
+			// Ensure it appears we are authenticated with user
+			.andExpect(authenticated().withUsername("user"));
 	}
 
 	@Test
 	public void requestProtectedUrlWithAdmin() throws Exception {
 		this.mvc.perform(get("/admin"))
-				// Ensure we got past Security
-				.andExpect(status().isNotFound())
-				// Ensure it appears we are authenticated with user
-				.andExpect(authenticated().withUsername("user").withRoles("ADMIN"));
+			// Ensure we got past Security
+			.andExpect(status().isNotFound())
+			// Ensure it appears we are authenticated with user
+			.andExpect(authenticated().withUsername("user").withRoles("ADMIN"));
 	}
 
 	@Test
 	@WithAnonymousUser
 	public void requestProtectedUrlWithAnonymous() throws Exception {
 		this.mvc.perform(get("/"))
-				// Ensure did not get past security
-				.andExpect(status().isUnauthorized())
-				// Ensure not authenticated
-				.andExpect(unauthenticated());
+			// Ensure did not get past security
+			.andExpect(status().isUnauthorized())
+			// Ensure not authenticated
+			.andExpect(unauthenticated());
 	}
 
 	@Configuration

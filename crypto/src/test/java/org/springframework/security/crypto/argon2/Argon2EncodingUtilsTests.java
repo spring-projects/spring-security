@@ -34,16 +34,24 @@ public class Argon2EncodingUtilsTests {
 	private TestDataEntry testDataEntry1 = new TestDataEntry(
 			"$argon2i$v=19$m=1024,t=3,p=2$Y1JkRmJDdzIzZ3oyTWx4aw$cGE5Cbd/cx7micVhXVBdH5qTr66JI1iUyuNNVAnErXs",
 			new Argon2EncodingUtils.Argon2Hash(this.decoder.decode("cGE5Cbd/cx7micVhXVBdH5qTr66JI1iUyuNNVAnErXs"),
-					(new Argon2Parameters.Builder(Argon2Parameters.ARGON2_i)).withVersion(19).withMemoryAsKB(1024)
-							.withIterations(3).withParallelism(2).withSalt("cRdFbCw23gz2Mlxk".getBytes()).build()));
+					(new Argon2Parameters.Builder(Argon2Parameters.ARGON2_i)).withVersion(19)
+						.withMemoryAsKB(1024)
+						.withIterations(3)
+						.withParallelism(2)
+						.withSalt("cRdFbCw23gz2Mlxk".getBytes())
+						.build()));
 
 	private TestDataEntry testDataEntry2 = new TestDataEntry(
 			"$argon2id$v=19$m=333,t=5,p=2$JDR8N3k1QWx0$+PrEoHOHsWkU9lnsxqnOFrWTVEuOh7ZRIUIbe2yUG8FgTYNCWJfHQI09JAAFKzr2JAvoejEpTMghUt0WsntQYA",
 			new Argon2EncodingUtils.Argon2Hash(
 					this.decoder.decode(
 							"+PrEoHOHsWkU9lnsxqnOFrWTVEuOh7ZRIUIbe2yUG8FgTYNCWJfHQI09JAAFKzr2JAvoejEpTMghUt0WsntQYA"),
-					(new Argon2Parameters.Builder(Argon2Parameters.ARGON2_id)).withVersion(19).withMemoryAsKB(333)
-							.withIterations(5).withParallelism(2).withSalt("$4|7y5Alt".getBytes()).build()));
+					(new Argon2Parameters.Builder(Argon2Parameters.ARGON2_id)).withVersion(19)
+						.withMemoryAsKB(333)
+						.withIterations(5)
+						.withParallelism(2)
+						.withSalt("$4|7y5Alt".getBytes())
+						.build()));
 
 	@Test
 	public void decodeWhenValidEncodedHashWithIThenDecodeCorrectly() {
@@ -58,20 +66,25 @@ public class Argon2EncodingUtilsTests {
 	@Test
 	public void encodeWhenValidArgumentsWithIThenEncodeToCorrectHash() {
 		assertThat(Argon2EncodingUtils.encode(this.testDataEntry1.decoded.getHash(),
-				this.testDataEntry1.decoded.getParameters())).isEqualTo(this.testDataEntry1.encoded);
+				this.testDataEntry1.decoded.getParameters()))
+			.isEqualTo(this.testDataEntry1.encoded);
 	}
 
 	@Test
 	public void encodeWhenValidArgumentsWithID2ThenEncodeToCorrectHash() {
 		assertThat(Argon2EncodingUtils.encode(this.testDataEntry2.decoded.getHash(),
-				this.testDataEntry2.decoded.getParameters())).isEqualTo(this.testDataEntry2.encoded);
+				this.testDataEntry2.decoded.getParameters()))
+			.isEqualTo(this.testDataEntry2.encoded);
 	}
 
 	@Test
 	public void encodeWhenNonexistingAlgorithmThenThrowException() {
-		assertThatIllegalArgumentException().isThrownBy(
-				() -> Argon2EncodingUtils.encode(new byte[] { 0, 1, 2, 3 }, (new Argon2Parameters.Builder(3))
-						.withVersion(19).withMemoryAsKB(333).withIterations(5).withParallelism(2).build()));
+		assertThatIllegalArgumentException().isThrownBy(() -> Argon2EncodingUtils.encode(new byte[] { 0, 1, 2, 3 },
+				(new Argon2Parameters.Builder(3)).withVersion(19)
+					.withMemoryAsKB(333)
+					.withIterations(5)
+					.withParallelism(2)
+					.build()));
 	}
 
 	@Test
@@ -81,56 +94,56 @@ public class Argon2EncodingUtilsTests {
 
 	@Test
 	public void decodeWhenNonexistingAlgorithmThenThrowException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> Argon2EncodingUtils.decode(
-				"$argon2x$v=19$m=1024,t=3,p=2$Y1JkRmJDdzIzZ3oyTWx4aw$cGE5Cbd/cx7micVhXVBdH5qTr66JI1iUyuNNVAnErXs"));
+		assertThatIllegalArgumentException().isThrownBy(() -> Argon2EncodingUtils
+			.decode("$argon2x$v=19$m=1024,t=3,p=2$Y1JkRmJDdzIzZ3oyTWx4aw$cGE5Cbd/cx7micVhXVBdH5qTr66JI1iUyuNNVAnErXs"));
 	}
 
 	@Test
 	public void decodeWhenIllegalVersionParameterThenThrowException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> Argon2EncodingUtils.decode(
-				"$argon2i$v=x$m=1024,t=3,p=2$Y1JkRmJDdzIzZ3oyTWx4aw$cGE5Cbd/cx7micVhXVBdH5qTr66JI1iUyuNNVAnErXs"));
+		assertThatIllegalArgumentException().isThrownBy(() -> Argon2EncodingUtils
+			.decode("$argon2i$v=x$m=1024,t=3,p=2$Y1JkRmJDdzIzZ3oyTWx4aw$cGE5Cbd/cx7micVhXVBdH5qTr66JI1iUyuNNVAnErXs"));
 	}
 
 	@Test
 	public void decodeWhenIllegalMemoryParameterThenThrowException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> Argon2EncodingUtils.decode(
-				"$argon2i$v=19$m=x,t=3,p=2$Y1JkRmJDdzIzZ3oyTWx4aw$cGE5Cbd/cx7micVhXVBdH5qTr66JI1iUyuNNVAnErXs"));
+		assertThatIllegalArgumentException().isThrownBy(() -> Argon2EncodingUtils
+			.decode("$argon2i$v=19$m=x,t=3,p=2$Y1JkRmJDdzIzZ3oyTWx4aw$cGE5Cbd/cx7micVhXVBdH5qTr66JI1iUyuNNVAnErXs"));
 	}
 
 	@Test
 	public void decodeWhenIllegalIterationsParameterThenThrowException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> Argon2EncodingUtils.decode(
-				"$argon2i$v=19$m=1024,t=x,p=2$Y1JkRmJDdzIzZ3oyTWx4aw$cGE5Cbd/cx7micVhXVBdH5qTr66JI1iUyuNNVAnErXs"));
+		assertThatIllegalArgumentException().isThrownBy(() -> Argon2EncodingUtils
+			.decode("$argon2i$v=19$m=1024,t=x,p=2$Y1JkRmJDdzIzZ3oyTWx4aw$cGE5Cbd/cx7micVhXVBdH5qTr66JI1iUyuNNVAnErXs"));
 	}
 
 	@Test
 	public void decodeWhenIllegalParallelityParameterThenThrowException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> Argon2EncodingUtils.decode(
-				"$argon2i$v=19$m=1024,t=3,p=x$Y1JkRmJDdzIzZ3oyTWx4aw$cGE5Cbd/cx7micVhXVBdH5qTr66JI1iUyuNNVAnErXs"));
+		assertThatIllegalArgumentException().isThrownBy(() -> Argon2EncodingUtils
+			.decode("$argon2i$v=19$m=1024,t=3,p=x$Y1JkRmJDdzIzZ3oyTWx4aw$cGE5Cbd/cx7micVhXVBdH5qTr66JI1iUyuNNVAnErXs"));
 	}
 
 	@Test
 	public void decodeWhenMissingVersionParameterThenThrowException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> Argon2EncodingUtils
-				.decode("$argon2i$m=1024,t=3,p=x$Y1JkRmJDdzIzZ3oyTWx4aw$cGE5Cbd/cx7micVhXVBdH5qTr66JI1iUyuNNVAnErXs"));
+			.decode("$argon2i$m=1024,t=3,p=x$Y1JkRmJDdzIzZ3oyTWx4aw$cGE5Cbd/cx7micVhXVBdH5qTr66JI1iUyuNNVAnErXs"));
 	}
 
 	@Test
 	public void decodeWhenMissingMemoryParameterThenThrowException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> Argon2EncodingUtils
-				.decode("$argon2i$v=19$t=3,p=2$Y1JkRmJDdzIzZ3oyTWx4aw$cGE5Cbd/cx7micVhXVBdH5qTr66JI1iUyuNNVAnErXs"));
+			.decode("$argon2i$v=19$t=3,p=2$Y1JkRmJDdzIzZ3oyTWx4aw$cGE5Cbd/cx7micVhXVBdH5qTr66JI1iUyuNNVAnErXs"));
 	}
 
 	@Test
 	public void decodeWhenMissingIterationsParameterThenThrowException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> Argon2EncodingUtils
-				.decode("$argon2i$v=19$m=1024,p=2$Y1JkRmJDdzIzZ3oyTWx4aw$cGE5Cbd/cx7micVhXVBdH5qTr66JI1iUyuNNVAnErXs"));
+			.decode("$argon2i$v=19$m=1024,p=2$Y1JkRmJDdzIzZ3oyTWx4aw$cGE5Cbd/cx7micVhXVBdH5qTr66JI1iUyuNNVAnErXs"));
 	}
 
 	@Test
 	public void decodeWhenMissingParallelityParameterThenThrowException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> Argon2EncodingUtils
-				.decode("$argon2i$v=19$m=1024,t=3$Y1JkRmJDdzIzZ3oyTWx4aw$cGE5Cbd/cx7micVhXVBdH5qTr66JI1iUyuNNVAnErXs"));
+			.decode("$argon2i$v=19$m=1024,t=3$Y1JkRmJDdzIzZ3oyTWx4aw$cGE5Cbd/cx7micVhXVBdH5qTr66JI1iUyuNNVAnErXs"));
 	}
 
 	private void assertArgon2HashEquals(Argon2EncodingUtils.Argon2Hash expected,

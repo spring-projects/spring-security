@@ -39,13 +39,13 @@ public class MapReactiveUserDetailsServiceTests {
 	@Test
 	public void constructorNullUsers() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new MapReactiveUserDetailsService((Collection<UserDetails>) null));
+			.isThrownBy(() -> new MapReactiveUserDetailsService((Collection<UserDetails>) null));
 	}
 
 	@Test
 	public void constructorEmptyUsers() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new MapReactiveUserDetailsService(Collections.emptyList()));
+			.isThrownBy(() -> new MapReactiveUserDetailsService(Collections.emptyList()));
 	}
 
 	@Test

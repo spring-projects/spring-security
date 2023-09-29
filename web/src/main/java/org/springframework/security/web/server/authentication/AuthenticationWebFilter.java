@@ -82,7 +82,7 @@ public class AuthenticationWebFilter implements WebFilter {
 			new HttpBasicServerAuthenticationEntryPoint());
 
 	private ServerSecurityContextRepository securityContextRepository = NoOpServerSecurityContextRepository
-			.getInstance();
+		.getInstance();
 
 	private ServerWebExchangeMatcher requiresAuthenticationMatcher = ServerWebExchangeMatchers.anyExchange();
 
@@ -108,23 +108,24 @@ public class AuthenticationWebFilter implements WebFilter {
 
 	@Override
 	public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
-		return this.requiresAuthenticationMatcher.matches(exchange).filter((matchResult) -> matchResult.isMatch())
-				.flatMap((matchResult) -> this.authenticationConverter.convert(exchange))
-				.switchIfEmpty(chain.filter(exchange).then(Mono.empty()))
-				.flatMap((token) -> authenticate(exchange, chain, token))
-				.onErrorResume(AuthenticationException.class, (ex) -> this.authenticationFailureHandler
-						.onAuthenticationFailure(new WebFilterExchange(exchange, chain), ex));
+		return this.requiresAuthenticationMatcher.matches(exchange)
+			.filter((matchResult) -> matchResult.isMatch())
+			.flatMap((matchResult) -> this.authenticationConverter.convert(exchange))
+			.switchIfEmpty(chain.filter(exchange).then(Mono.empty()))
+			.flatMap((token) -> authenticate(exchange, chain, token))
+			.onErrorResume(AuthenticationException.class, (ex) -> this.authenticationFailureHandler
+				.onAuthenticationFailure(new WebFilterExchange(exchange, chain), ex));
 	}
 
 	private Mono<Void> authenticate(ServerWebExchange exchange, WebFilterChain chain, Authentication token) {
 		return this.authenticationManagerResolver.resolve(exchange)
-				.flatMap((authenticationManager) -> authenticationManager.authenticate(token))
-				.switchIfEmpty(Mono.defer(
-						() -> Mono.error(new IllegalStateException("No provider found for " + token.getClass()))))
-				.flatMap((authentication) -> onAuthenticationSuccess(authentication,
-						new WebFilterExchange(exchange, chain)))
-				.doOnError(AuthenticationException.class,
-						(ex) -> logger.debug(LogMessage.format("Authentication failed: %s", ex.getMessage())));
+			.flatMap((authenticationManager) -> authenticationManager.authenticate(token))
+			.switchIfEmpty(Mono
+				.defer(() -> Mono.error(new IllegalStateException("No provider found for " + token.getClass()))))
+			.flatMap(
+					(authentication) -> onAuthenticationSuccess(authentication, new WebFilterExchange(exchange, chain)))
+			.doOnError(AuthenticationException.class,
+					(ex) -> logger.debug(LogMessage.format("Authentication failed: %s", ex.getMessage())));
 	}
 
 	protected Mono<Void> onAuthenticationSuccess(Authentication authentication, WebFilterExchange webFilterExchange) {
@@ -132,8 +133,8 @@ public class AuthenticationWebFilter implements WebFilter {
 		SecurityContextImpl securityContext = new SecurityContextImpl();
 		securityContext.setAuthentication(authentication);
 		return this.securityContextRepository.save(exchange, securityContext)
-				.then(this.authenticationSuccessHandler.onAuthenticationSuccess(webFilterExchange, authentication))
-				.contextWrite(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(securityContext)));
+			.then(this.authenticationSuccessHandler.onAuthenticationSuccess(webFilterExchange, authentication))
+			.contextWrite(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(securityContext)));
 	}
 
 	/**

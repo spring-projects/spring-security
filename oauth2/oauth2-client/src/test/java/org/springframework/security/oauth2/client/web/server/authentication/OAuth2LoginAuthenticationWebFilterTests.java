@@ -67,7 +67,7 @@ public class OAuth2LoginAuthenticationWebFilterTests {
 	private ClientRegistration.Builder registration = TestClientRegistrations.clientRegistration();
 
 	private OAuth2AuthorizationResponse.Builder authorizationResponseBldr = OAuth2AuthorizationResponse.success("code")
-			.state("state");
+		.state("state");
 
 	@BeforeEach
 	public void setup() {

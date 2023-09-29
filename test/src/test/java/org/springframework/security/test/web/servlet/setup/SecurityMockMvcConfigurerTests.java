@@ -91,7 +91,7 @@ public class SecurityMockMvcConfigurerTests {
 
 	private void assertFilterAdded(Filter filter) {
 		ArgumentCaptor<SecurityMockMvcConfigurer.DelegateFilter> filterArg = ArgumentCaptor
-				.forClass(SecurityMockMvcConfigurer.DelegateFilter.class);
+			.forClass(SecurityMockMvcConfigurer.DelegateFilter.class);
 		verify(this.builder).addFilters(filterArg.capture());
 		assertThat(filterArg.getValue().getDelegate()).isEqualTo(filter);
 	}

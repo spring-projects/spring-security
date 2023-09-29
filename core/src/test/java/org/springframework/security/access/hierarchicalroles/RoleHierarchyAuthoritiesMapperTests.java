@@ -36,7 +36,7 @@ public class RoleHierarchyAuthoritiesMapperTests {
 		rh.setHierarchy("ROLE_A > ROLE_B\nROLE_B > ROLE_C");
 		RoleHierarchyAuthoritiesMapper mapper = new RoleHierarchyAuthoritiesMapper(rh);
 		Collection<? extends GrantedAuthority> authorities = mapper
-				.mapAuthorities(AuthorityUtils.createAuthorityList("ROLE_A", "ROLE_D"));
+			.mapAuthorities(AuthorityUtils.createAuthorityList("ROLE_A", "ROLE_D"));
 		assertThat(authorities).hasSize(4);
 		mapper = new RoleHierarchyAuthoritiesMapper(new NullRoleHierarchy());
 		authorities = mapper.mapAuthorities(AuthorityUtils.createAuthorityList("ROLE_A", "ROLE_D"));

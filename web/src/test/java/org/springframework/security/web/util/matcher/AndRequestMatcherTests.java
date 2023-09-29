@@ -80,13 +80,13 @@ public class AndRequestMatcherTests {
 	@Test
 	public void constructorListContainsNull() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new AndRequestMatcher(Arrays.asList((RequestMatcher) null)));
+			.isThrownBy(() -> new AndRequestMatcher(Arrays.asList((RequestMatcher) null)));
 	}
 
 	@Test
 	public void constructorEmptyList() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new AndRequestMatcher(Collections.<RequestMatcher>emptyList()));
+			.isThrownBy(() -> new AndRequestMatcher(Collections.<RequestMatcher>emptyList()));
 	}
 
 	@Test
@@ -149,7 +149,7 @@ public class AndRequestMatcherTests {
 		given(this.delegate2.matcher(this.request)).willReturn(MatchResult.match(Map.of("param", "value")));
 		result = this.matcher.matcher(this.request);
 		assertThat(result.getVariables())
-				.containsExactlyInAnyOrderEntriesOf(Map.of("otherparam", "value", "param", "value"));
+			.containsExactlyInAnyOrderEntriesOf(Map.of("otherparam", "value", "param", "value"));
 	}
 
 }

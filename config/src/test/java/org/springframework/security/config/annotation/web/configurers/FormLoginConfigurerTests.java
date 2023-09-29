@@ -120,7 +120,7 @@ public class FormLoginConfigurerTests {
 		SecurityContextHolderStrategy strategy = this.spring.getContext().getBean(SecurityContextHolderStrategy.class);
 		verify(strategy, atLeastOnce()).getContext();
 		SecurityContextChangedListener listener = this.spring.getContext()
-				.getBean(SecurityContextChangedListener.class);
+			.getBean(SecurityContextChangedListener.class);
 		verify(listener).securityContextChanged(setAuthentication(UsernamePasswordAuthenticationToken.class));
 	}
 
@@ -361,7 +361,7 @@ public class FormLoginConfigurerTests {
 		ObjectPostProcessorConfig.objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
 		this.spring.register(ObjectPostProcessorConfig.class).autowire();
 		verify(ObjectPostProcessorConfig.objectPostProcessor)
-				.postProcess(any(UsernamePasswordAuthenticationFilter.class));
+			.postProcess(any(UsernamePasswordAuthenticationFilter.class));
 	}
 
 	@Test
@@ -618,7 +618,8 @@ public class FormLoginConfigurerTests {
 					.portMapper(PORT_MAPPER);
 			// @formatter:on
 			LoginUrlAuthenticationEntryPoint authenticationEntryPoint = (LoginUrlAuthenticationEntryPoint) http
-					.getConfigurer(FormLoginConfigurer.class).getAuthenticationEntryPoint();
+				.getConfigurer(FormLoginConfigurer.class)
+				.getAuthenticationEntryPoint();
 			authenticationEntryPoint.setForceHttps(true);
 			return http.build();
 		}

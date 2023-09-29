@@ -119,7 +119,7 @@ public class SwitchUserFilter extends GenericFilterBean implements ApplicationEv
 	public static final String ROLE_PREVIOUS_ADMINISTRATOR = "ROLE_PREVIOUS_ADMINISTRATOR";
 
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
-			.getContextHolderStrategy();
+		.getContextHolderStrategy();
 
 	private ApplicationEventPublisher eventPublisher;
 
@@ -258,7 +258,7 @@ public class SwitchUserFilter extends GenericFilterBean implements ApplicationEv
 		Authentication current = this.securityContextHolderStrategy.getContext().getAuthentication();
 		if (current == null) {
 			throw new AuthenticationCredentialsNotFoundException(this.messages
-					.getMessage("SwitchUserFilter.noCurrentUser", "No current user associated with this request"));
+				.getMessage("SwitchUserFilter.noCurrentUser", "No current user associated with this request"));
 		}
 		// check to see if the current user did actual switch to another user
 		// if so, get the original source user so we can switch back
@@ -266,7 +266,7 @@ public class SwitchUserFilter extends GenericFilterBean implements ApplicationEv
 		if (original == null) {
 			this.logger.debug("Failed to find original user");
 			throw new AuthenticationCredentialsNotFoundException(this.messages
-					.getMessage("SwitchUserFilter.noOriginalAuthentication", "Failed to find original user"));
+				.getMessage("SwitchUserFilter.noOriginalAuthentication", "Failed to find original user"));
 		}
 		// get the source user details
 		UserDetails originalUser = null;

@@ -53,7 +53,7 @@ public class LdapAuthenticationProviderConfigurerTests {
 		assertThat(ReflectionTestUtils.getField(this.configurer, "ldapAuthoritiesPopulator")).isNull();
 		this.configurer.ldapAuthoritiesPopulator(new NullLdapAuthoritiesPopulator());
 		assertThat(ReflectionTestUtils.getField(this.configurer, "ldapAuthoritiesPopulator"))
-				.isInstanceOf(NullLdapAuthoritiesPopulator.class);
+			.isInstanceOf(NullLdapAuthoritiesPopulator.class);
 	}
 
 	@Test

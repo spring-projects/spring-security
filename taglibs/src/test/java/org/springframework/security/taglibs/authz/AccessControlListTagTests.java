@@ -123,7 +123,7 @@ public class AccessControlListTagTests {
 	public void childContext() throws Exception {
 		ServletContext servletContext = this.pageContext.getServletContext();
 		WebApplicationContext wac = (WebApplicationContext) servletContext
-				.getAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
+			.getAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
 		servletContext.removeAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
 		servletContext.setAttribute("org.springframework.web.servlet.FrameworkServlet.CONTEXT.dispatcher", wac);
 		Object domainObject = new Object();

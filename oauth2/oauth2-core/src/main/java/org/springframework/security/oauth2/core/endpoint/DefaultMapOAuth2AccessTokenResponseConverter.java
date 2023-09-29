@@ -67,7 +67,7 @@ public final class DefaultMapOAuth2AccessTokenResponseConverter
 
 	private static OAuth2AccessToken.TokenType getAccessTokenType(Map<String, Object> tokenResponseParameters) {
 		if (OAuth2AccessToken.TokenType.BEARER.getValue()
-				.equalsIgnoreCase(getParameterValue(tokenResponseParameters, OAuth2ParameterNames.TOKEN_TYPE))) {
+			.equalsIgnoreCase(getParameterValue(tokenResponseParameters, OAuth2ParameterNames.TOKEN_TYPE))) {
 			return OAuth2AccessToken.TokenType.BEARER;
 		}
 		return null;

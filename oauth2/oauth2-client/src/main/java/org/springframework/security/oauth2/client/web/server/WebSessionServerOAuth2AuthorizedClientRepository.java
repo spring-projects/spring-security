@@ -40,7 +40,7 @@ import org.springframework.web.server.WebSession;
 public final class WebSessionServerOAuth2AuthorizedClientRepository implements ServerOAuth2AuthorizedClientRepository {
 
 	private static final String DEFAULT_AUTHORIZED_CLIENTS_ATTR_NAME = WebSessionServerOAuth2AuthorizedClientRepository.class
-			.getName() + ".AUTHORIZED_CLIENTS";
+		.getName() + ".AUTHORIZED_CLIENTS";
 
 	private final String sessionAttributeName = DEFAULT_AUTHORIZED_CLIENTS_ATTR_NAME;
 

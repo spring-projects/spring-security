@@ -67,7 +67,7 @@ public class OpenSaml4LogoutRequestResolverTests {
 	@Test
 	public void setParametersConsumerWhenNullThenIllegalArgument() {
 		assertThatExceptionOfType(IllegalArgumentException.class)
-				.isThrownBy(() -> this.logoutRequestResolver.setParametersConsumer(null));
+			.isThrownBy(() -> this.logoutRequestResolver.setParametersConsumer(null));
 	}
 
 	@Test

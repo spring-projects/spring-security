@@ -194,7 +194,7 @@ public class MvcRequestMatcherTests {
 	@Test
 	public void matchesGetMatchableHandlerMappingThrows() throws Exception {
 		given(this.introspector.getMatchableHandlerMapping(this.request))
-				.willThrow(new HttpRequestMethodNotSupportedException(this.request.getMethod()));
+			.willThrow(new HttpRequestMethodNotSupportedException(this.request.getMethod()));
 		assertThat(this.matcher.matches(this.request)).isTrue();
 	}
 
@@ -249,7 +249,7 @@ public class MvcRequestMatcherTests {
 	@Test
 	public void builderWhenServletPathThenServletPathPresent() {
 		MvcRequestMatcher matcher = new MvcRequestMatcher.Builder(this.introspector).servletPath("/path")
-				.pattern("/endpoint");
+			.pattern("/endpoint");
 		assertThat(matcher.getServletPath()).isEqualTo("/path");
 		assertThat(ReflectionTestUtils.getField(matcher, "pattern")).isEqualTo("/endpoint");
 		assertThat(ReflectionTestUtils.getField(matcher, "method")).isNull();

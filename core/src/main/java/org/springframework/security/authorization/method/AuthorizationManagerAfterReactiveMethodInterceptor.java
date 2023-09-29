@@ -99,9 +99,12 @@ public final class AuthorizationManagerAfterReactiveMethodInterceptor
 	public Object invoke(MethodInvocation mi) throws Throwable {
 		Method method = mi.getMethod();
 		Class<?> type = method.getReturnType();
-		Assert.state(Publisher.class.isAssignableFrom(type),
-				() -> String.format("The returnType %s on %s must return an instance of org.reactivestreams.Publisher "
-						+ "(for example, a Mono or Flux) in order to support Reactor Context", type, method));
+		Assert
+			.state(Publisher.class.isAssignableFrom(type),
+					() -> String.format(
+							"The returnType %s on %s must return an instance of org.reactivestreams.Publisher "
+									+ "(for example, a Mono or Flux) in order to support Reactor Context",
+							type, method));
 		Mono<Authentication> authentication = ReactiveAuthenticationUtils.getAuthentication();
 		Function<Object, Mono<?>> postAuthorize = (result) -> postAuthorize(authentication, mi, result);
 		ReactiveAdapter adapter = ReactiveAdapterRegistry.getSharedInstance().getAdapter(type);
@@ -123,7 +126,7 @@ public final class AuthorizationManagerAfterReactiveMethodInterceptor
 
 	private Mono<?> postAuthorize(Mono<Authentication> authentication, MethodInvocation mi, Object result) {
 		return this.authorizationManager.verify(authentication, new MethodInvocationResult(mi, result))
-				.thenReturn(result);
+			.thenReturn(result);
 	}
 
 	@Override

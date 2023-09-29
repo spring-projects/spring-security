@@ -346,7 +346,7 @@ public class BasicAuthenticationFilterTests {
 		assertThat(SecurityContextHolder.getContext().getAuthentication().getName()).isEqualTo("rod");
 		assertThat(SecurityContextHolder.getContext().getAuthentication().getCredentials()).isEqualTo("äöü");
 		assertThat(request.getAttribute(RequestAttributeSecurityContextRepository.DEFAULT_REQUEST_ATTR_NAME))
-				.isNotNull();
+			.isNotNull();
 	}
 
 	@Test

@@ -34,7 +34,7 @@ import org.springframework.util.Assert;
 abstract class AbstractDelegatingSecurityContextSupport {
 
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
-			.getContextHolderStrategy();
+		.getContextHolderStrategy();
 
 	private final SecurityContext securityContext;
 

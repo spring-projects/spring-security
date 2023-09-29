@@ -43,7 +43,7 @@ import org.springframework.util.MimeTypeUtils;
 public class BearerTokenAuthenticationEncoder extends AbstractEncoder<BearerTokenMetadata> {
 
 	private static final MimeType AUTHENTICATION_MIME_TYPE = MimeTypeUtils
-			.parseMimeType("message/x.rsocket.authentication.v0");
+		.parseMimeType("message/x.rsocket.authentication.v0");
 
 	private NettyDataBufferFactory defaultBufferFactory = new NettyDataBufferFactory(ByteBufAllocator.DEFAULT);
 
@@ -55,7 +55,7 @@ public class BearerTokenAuthenticationEncoder extends AbstractEncoder<BearerToke
 	public Flux<DataBuffer> encode(Publisher<? extends BearerTokenMetadata> inputStream,
 			DataBufferFactory bufferFactory, ResolvableType elementType, MimeType mimeType, Map<String, Object> hints) {
 		return Flux.from(inputStream)
-				.map((credentials) -> encodeValue(credentials, bufferFactory, elementType, mimeType, hints));
+			.map((credentials) -> encodeValue(credentials, bufferFactory, elementType, mimeType, hints));
 	}
 
 	@Override

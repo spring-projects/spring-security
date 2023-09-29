@@ -31,7 +31,7 @@ import org.springframework.util.Assert;
 public final class NullSecurityContextRepository implements SecurityContextRepository {
 
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
-			.getContextHolderStrategy();
+		.getContextHolderStrategy();
 
 	@Override
 	public boolean containsContext(HttpServletRequest request) {

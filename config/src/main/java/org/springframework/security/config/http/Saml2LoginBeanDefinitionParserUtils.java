@@ -48,7 +48,7 @@ final class Saml2LoginBeanDefinitionParserUtils {
 
 	static BeanMetadataElement getRelyingPartyRegistrationRepository(Element element) {
 		String relyingPartyRegistrationRepositoryRef = element
-				.getAttribute(ATT_RELYING_PARTY_REGISTRATION_REPOSITORY_REF);
+			.getAttribute(ATT_RELYING_PARTY_REGISTRATION_REPOSITORY_REF);
 		if (StringUtils.hasText(relyingPartyRegistrationRepositoryRef)) {
 			return new RuntimeBeanReference(relyingPartyRegistrationRepositoryRef);
 		}
@@ -61,7 +61,7 @@ final class Saml2LoginBeanDefinitionParserUtils {
 			return new RuntimeBeanReference(authenticationRequestRepositoryRef);
 		}
 		return BeanDefinitionBuilder.rootBeanDefinition(HttpSessionSaml2AuthenticationRequestRepository.class)
-				.getBeanDefinition();
+			.getBeanDefinition();
 	}
 
 	static BeanMetadataElement getAuthenticationRequestResolver(Element element) {
@@ -75,17 +75,19 @@ final class Saml2LoginBeanDefinitionParserUtils {
 	static BeanMetadataElement createDefaultAuthenticationRequestResolver(
 			BeanMetadataElement relyingPartyRegistrationRepository) {
 		BeanMetadataElement defaultRelyingPartyRegistrationResolver = BeanDefinitionBuilder
-				.rootBeanDefinition(DefaultRelyingPartyRegistrationResolver.class)
-				.addConstructorArgValue(relyingPartyRegistrationRepository).getBeanDefinition();
+			.rootBeanDefinition(DefaultRelyingPartyRegistrationResolver.class)
+			.addConstructorArgValue(relyingPartyRegistrationRepository)
+			.getBeanDefinition();
 		return BeanDefinitionBuilder.rootBeanDefinition(
 				"org.springframework.security.saml2.provider.service.web.authentication.OpenSaml4AuthenticationRequestResolver")
-				.addConstructorArgValue(defaultRelyingPartyRegistrationResolver).getBeanDefinition();
+			.addConstructorArgValue(defaultRelyingPartyRegistrationResolver)
+			.getBeanDefinition();
 	}
 
 	static BeanDefinition createAuthenticationProvider() {
 		return BeanDefinitionBuilder.rootBeanDefinition(
 				"org.springframework.security.saml2.provider.service.authentication.OpenSaml4AuthenticationProvider")
-				.getBeanDefinition();
+			.getBeanDefinition();
 	}
 
 	static BeanMetadataElement getAuthenticationConverter(Element element) {
@@ -98,10 +100,12 @@ final class Saml2LoginBeanDefinitionParserUtils {
 
 	static BeanDefinition createDefaultAuthenticationConverter(BeanMetadataElement relyingPartyRegistrationRepository) {
 		AbstractBeanDefinition resolver = BeanDefinitionBuilder
-				.rootBeanDefinition(DefaultRelyingPartyRegistrationResolver.class)
-				.addConstructorArgValue(relyingPartyRegistrationRepository).getBeanDefinition();
+			.rootBeanDefinition(DefaultRelyingPartyRegistrationResolver.class)
+			.addConstructorArgValue(relyingPartyRegistrationRepository)
+			.getBeanDefinition();
 		return BeanDefinitionBuilder.rootBeanDefinition(Saml2AuthenticationTokenConverter.class)
-				.addConstructorArgValue(resolver).getBeanDefinition();
+			.addConstructorArgValue(resolver)
+			.getBeanDefinition();
 	}
 
 }

@@ -335,7 +335,7 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		OpenSaml4AuthenticationRequestResolver openSaml4AuthenticationRequestResolver = new OpenSaml4AuthenticationRequestResolver(
 				relyingPartyRegistrationRepository(http));
 		openSaml4AuthenticationRequestResolver
-				.setRequestMatcher(new AntPathRequestMatcher(this.authenticationRequestUri));
+			.setRequestMatcher(new AntPathRequestMatcher(this.authenticationRequestUri));
 		return openSaml4AuthenticationRequestResolver;
 	}
 
@@ -375,7 +375,7 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 
 	private void initDefaultLoginFilter(B http) {
 		DefaultLoginPageGeneratingFilter loginPageGeneratingFilter = http
-				.getSharedObject(DefaultLoginPageGeneratingFilter.class);
+			.getSharedObject(DefaultLoginPageGeneratingFilter.class);
 		if (loginPageGeneratingFilter == null || this.isCustomLoginPage()) {
 			return;
 		}

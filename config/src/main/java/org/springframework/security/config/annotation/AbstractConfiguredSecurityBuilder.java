@@ -176,7 +176,7 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 	private <C extends SecurityConfigurer<O, B>> void add(C configurer) {
 		Assert.notNull(configurer, "configurer cannot be null");
 		Class<? extends SecurityConfigurer<O, B>> clazz = (Class<? extends SecurityConfigurer<O, B>>) configurer
-				.getClass();
+			.getClass();
 		synchronized (this.configurers) {
 			if (this.buildState.isConfigured()) {
 				throw new IllegalStateException("Cannot apply " + configurer + " to already built object");

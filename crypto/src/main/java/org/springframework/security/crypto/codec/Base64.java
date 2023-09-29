@@ -338,29 +338,29 @@ public final class Base64 {
 				| ((numSigBytes > 2) ? ((source[srcOffset + 2] << 24) >>> 24) : 0);
 
 		switch (numSigBytes) {
-		case 3:
-			destination[destOffset] = ALPHABET[(inBuff >>> 18)];
-			destination[destOffset + 1] = ALPHABET[(inBuff >>> 12) & 0x3f];
-			destination[destOffset + 2] = ALPHABET[(inBuff >>> 6) & 0x3f];
-			destination[destOffset + 3] = ALPHABET[(inBuff) & 0x3f];
-			return destination;
+			case 3:
+				destination[destOffset] = ALPHABET[(inBuff >>> 18)];
+				destination[destOffset + 1] = ALPHABET[(inBuff >>> 12) & 0x3f];
+				destination[destOffset + 2] = ALPHABET[(inBuff >>> 6) & 0x3f];
+				destination[destOffset + 3] = ALPHABET[(inBuff) & 0x3f];
+				return destination;
 
-		case 2:
-			destination[destOffset] = ALPHABET[(inBuff >>> 18)];
-			destination[destOffset + 1] = ALPHABET[(inBuff >>> 12) & 0x3f];
-			destination[destOffset + 2] = ALPHABET[(inBuff >>> 6) & 0x3f];
-			destination[destOffset + 3] = EQUALS_SIGN;
-			return destination;
+			case 2:
+				destination[destOffset] = ALPHABET[(inBuff >>> 18)];
+				destination[destOffset + 1] = ALPHABET[(inBuff >>> 12) & 0x3f];
+				destination[destOffset + 2] = ALPHABET[(inBuff >>> 6) & 0x3f];
+				destination[destOffset + 3] = EQUALS_SIGN;
+				return destination;
 
-		case 1:
-			destination[destOffset] = ALPHABET[(inBuff >>> 18)];
-			destination[destOffset + 1] = ALPHABET[(inBuff >>> 12) & 0x3f];
-			destination[destOffset + 2] = EQUALS_SIGN;
-			destination[destOffset + 3] = EQUALS_SIGN;
-			return destination;
+			case 1:
+				destination[destOffset] = ALPHABET[(inBuff >>> 18)];
+				destination[destOffset + 1] = ALPHABET[(inBuff >>> 12) & 0x3f];
+				destination[destOffset + 2] = EQUALS_SIGN;
+				destination[destOffset + 3] = EQUALS_SIGN;
+				return destination;
 
-		default:
-			return destination;
+			default:
+				return destination;
 		}
 	}
 
@@ -391,8 +391,8 @@ public final class Base64 {
 		} // end if: len < 0
 
 		if (off + len > source.length) {
-			throw new IllegalArgumentException(String.format(
-					"Cannot have offset of %d and length of %d with array of length %d", off, len, source.length));
+			throw new IllegalArgumentException(String
+				.format("Cannot have offset of %d and length of %d with array of length %d", off, len, source.length));
 		} // end if: off < 0
 
 		boolean breakLines = (options & DO_BREAK_LINES) > 0;
@@ -608,7 +608,7 @@ public final class Base64 {
 			else {
 				// There's a bad input character in the Base64 stream.
 				throw new InvalidBase64CharacterException(String
-						.format("Bad Base64 input character decimal %d in array position %d", (source[i]) & 0xFF, i));
+					.format("Bad Base64 input character decimal %d in array position %d", (source[i]) & 0xFF, i));
 			}
 		}
 

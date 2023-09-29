@@ -51,7 +51,7 @@ import org.springframework.web.filter.GenericFilterBean;
 public class AnonymousAuthenticationFilter extends GenericFilterBean implements InitializingBean {
 
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
-			.getContextHolderStrategy();
+		.getContextHolderStrategy();
 
 	private AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource = new WebAuthenticationDetailsSource();
 
@@ -96,7 +96,7 @@ public class AnonymousAuthenticationFilter extends GenericFilterBean implements 
 			throws IOException, ServletException {
 		Supplier<SecurityContext> deferredContext = this.securityContextHolderStrategy.getDeferredContext();
 		this.securityContextHolderStrategy
-				.setDeferredContext(defaultWithAnonymous((HttpServletRequest) req, deferredContext));
+			.setDeferredContext(defaultWithAnonymous((HttpServletRequest) req, deferredContext));
 		chain.doFilter(req, res);
 	}
 

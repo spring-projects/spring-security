@@ -30,10 +30,15 @@ public final class TestHttpSecurity {
 	public static void disableDefaults(HttpSecurity http) throws Exception {
 		List<Object> orderedFilters = (List<Object>) ReflectionTestUtils.getField(http, "filters");
 		orderedFilters.clear();
-		http.csrf((c) -> c.disable()).exceptionHandling((c) -> c.disable()).headers((c) -> c.disable())
-				.sessionManagement((c) -> c.disable()).securityContext((c) -> c.disable())
-				.requestCache((c) -> c.disable()).anonymous((c) -> c.disable()).servletApi((c) -> c.disable())
-				.removeConfigurer(DefaultLoginPageConfigurer.class);
+		http.csrf((c) -> c.disable())
+			.exceptionHandling((c) -> c.disable())
+			.headers((c) -> c.disable())
+			.sessionManagement((c) -> c.disable())
+			.securityContext((c) -> c.disable())
+			.requestCache((c) -> c.disable())
+			.anonymous((c) -> c.disable())
+			.servletApi((c) -> c.disable())
+			.removeConfigurer(DefaultLoginPageConfigurer.class);
 		http.logout((c) -> c.disable());
 	}
 

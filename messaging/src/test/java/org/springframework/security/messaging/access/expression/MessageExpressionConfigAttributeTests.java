@@ -60,7 +60,7 @@ public class MessageExpressionConfigAttributeTests {
 	@Test
 	public void constructorNullMatcher() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new MessageExpressionConfigAttribute(this.expression, null));
+			.isThrownBy(() -> new MessageExpressionConfigAttribute(this.expression, null));
 	}
 
 	@Test

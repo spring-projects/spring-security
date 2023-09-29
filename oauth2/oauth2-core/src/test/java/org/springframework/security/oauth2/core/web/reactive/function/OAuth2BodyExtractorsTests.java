@@ -85,7 +85,7 @@ public class OAuth2BodyExtractorsTests {
 	@Test
 	public void oauth2AccessTokenResponseWhenInvalidJsonThenException() {
 		BodyExtractor<Mono<OAuth2AccessTokenResponse>, ReactiveHttpInputMessage> extractor = OAuth2BodyExtractors
-				.oauth2AccessTokenResponse();
+			.oauth2AccessTokenResponse();
 		MockClientHttpResponse response = new MockClientHttpResponse(HttpStatus.OK);
 		response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
 		response.setBody("{");
@@ -100,7 +100,7 @@ public class OAuth2BodyExtractorsTests {
 	@Test
 	public void oauth2AccessTokenResponseWhenEmptyThenException() {
 		BodyExtractor<Mono<OAuth2AccessTokenResponse>, ReactiveHttpInputMessage> extractor = OAuth2BodyExtractors
-				.oauth2AccessTokenResponse();
+			.oauth2AccessTokenResponse();
 		MockClientHttpResponse response = new MockClientHttpResponse(HttpStatus.OK);
 		Mono<OAuth2AccessTokenResponse> result = extractor.extract(response, this.context);
 		// @formatter:off
@@ -113,7 +113,7 @@ public class OAuth2BodyExtractorsTests {
 	@Test
 	public void oauth2AccessTokenResponseWhenValidThenCreated() {
 		BodyExtractor<Mono<OAuth2AccessTokenResponse>, ReactiveHttpInputMessage> extractor = OAuth2BodyExtractors
-				.oauth2AccessTokenResponse();
+			.oauth2AccessTokenResponse();
 		MockClientHttpResponse response = new MockClientHttpResponse(HttpStatus.OK);
 		response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
 		// @formatter:off
@@ -139,7 +139,7 @@ public class OAuth2BodyExtractorsTests {
 	// gh-6087
 	public void oauth2AccessTokenResponseWhenMultipleAttributeTypesThenCreated() {
 		BodyExtractor<Mono<OAuth2AccessTokenResponse>, ReactiveHttpInputMessage> extractor = OAuth2BodyExtractors
-				.oauth2AccessTokenResponse();
+			.oauth2AccessTokenResponse();
 		MockClientHttpResponse response = new MockClientHttpResponse(HttpStatus.OK);
 		response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
 		// @formatter:off

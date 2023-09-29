@@ -77,28 +77,28 @@ public class RequestMatcherRedirectFilterTests {
 	@Test
 	public void constructWhenRequestMatcherNull() {
 		assertThatIllegalArgumentException().isThrownBy(() -> new RequestMatcherRedirectFilter(null, "/test"))
-				.withMessage("requestMatcher cannot be null");
+			.withMessage("requestMatcher cannot be null");
 	}
 
 	@Test
 	public void constructWhenRedirectUrlNull() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new RequestMatcherRedirectFilter(new AntPathRequestMatcher("/**"), null))
-				.withMessage("redirectUrl cannot be empty");
+			.isThrownBy(() -> new RequestMatcherRedirectFilter(new AntPathRequestMatcher("/**"), null))
+			.withMessage("redirectUrl cannot be empty");
 	}
 
 	@Test
 	public void constructWhenRedirectUrlEmpty() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new RequestMatcherRedirectFilter(new AntPathRequestMatcher("/**"), ""))
-				.withMessage("redirectUrl cannot be empty");
+			.isThrownBy(() -> new RequestMatcherRedirectFilter(new AntPathRequestMatcher("/**"), ""))
+			.withMessage("redirectUrl cannot be empty");
 	}
 
 	@Test
 	public void constructWhenRedirectUrlBlank() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new RequestMatcherRedirectFilter(new AntPathRequestMatcher("/**"), " "))
-				.withMessage("redirectUrl cannot be empty");
+			.isThrownBy(() -> new RequestMatcherRedirectFilter(new AntPathRequestMatcher("/**"), " "))
+			.withMessage("redirectUrl cannot be empty");
 	}
 
 }

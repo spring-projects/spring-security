@@ -44,7 +44,7 @@ public class DelegatingOAuth2UserServiceTests {
 	@Test
 	public void constructorWhenUserServicesIsEmptyThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new DelegatingOAuth2UserService<>(Collections.emptyList()));
+			.isThrownBy(() -> new DelegatingOAuth2UserService<>(Collections.emptyList()));
 	}
 
 	@Test

@@ -55,7 +55,8 @@ public final class ObservationReactiveAuthorizationManager<T> implements Reactiv
 		});
 		return Mono.deferContextual((contextView) -> {
 			Observation observation = Observation.createNotStarted(this.convention, () -> context, this.registry)
-					.parentObservation(contextView.getOrDefault(ObservationThreadLocalAccessor.KEY, null)).start();
+				.parentObservation(contextView.getOrDefault(ObservationThreadLocalAccessor.KEY, null))
+				.start();
 			return this.delegate.check(wrapped, object).doOnSuccess((decision) -> {
 				context.setDecision(decision);
 				if (decision == null || !decision.isGranted()) {

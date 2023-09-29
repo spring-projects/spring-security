@@ -50,7 +50,7 @@ public class LdapPasswordComparisonAuthenticationManagerFactoryITests {
 		this.spring.register(CustomPasswordEncoderConfig.class).autowire();
 
 		this.mockMvc.perform(formLogin().user("bcrypt").password("password"))
-				.andExpect(authenticated().withUsername("bcrypt"));
+			.andExpect(authenticated().withUsername("bcrypt"));
 	}
 
 	@Test

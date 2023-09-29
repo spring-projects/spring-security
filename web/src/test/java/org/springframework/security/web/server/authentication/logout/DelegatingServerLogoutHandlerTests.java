@@ -62,33 +62,36 @@ public class DelegatingServerLogoutHandlerTests {
 
 	private void givenDelegate1WillReturn() {
 		given(this.delegate1.logout(any(WebFilterExchange.class), any(Authentication.class)))
-				.willReturn(this.delegate1Result.mono());
+			.willReturn(this.delegate1Result.mono());
 	}
 
 	private void givenDelegate2WillReturn() {
 		given(this.delegate2.logout(any(WebFilterExchange.class), any(Authentication.class)))
-				.willReturn(this.delegate2Result.mono());
+			.willReturn(this.delegate2Result.mono());
 	}
 
 	@Test
 	public void constructorWhenNullVargsThenIllegalArgumentException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new DelegatingServerLogoutHandler((ServerLogoutHandler[]) null))
-				.withMessage("delegates cannot be null or empty").withNoCause();
+			.isThrownBy(() -> new DelegatingServerLogoutHandler((ServerLogoutHandler[]) null))
+			.withMessage("delegates cannot be null or empty")
+			.withNoCause();
 	}
 
 	@Test
 	public void constructorWhenNullListThenIllegalArgumentException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new DelegatingServerLogoutHandler((List<ServerLogoutHandler>) null))
-				.withMessage("delegates cannot be null or empty").withNoCause();
+			.isThrownBy(() -> new DelegatingServerLogoutHandler((List<ServerLogoutHandler>) null))
+			.withMessage("delegates cannot be null or empty")
+			.withNoCause();
 	}
 
 	@Test
 	public void constructorWhenEmptyThenIllegalArgumentException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new DelegatingServerLogoutHandler(new ServerLogoutHandler[0]))
-				.withMessage("delegates cannot be null or empty").withNoCause();
+			.isThrownBy(() -> new DelegatingServerLogoutHandler(new ServerLogoutHandler[0]))
+			.withMessage("delegates cannot be null or empty")
+			.withNoCause();
 	}
 
 	@Test
@@ -113,8 +116,8 @@ public class DelegatingServerLogoutHandlerTests {
 	public void logoutSequential() throws Exception {
 		AtomicBoolean slowDone = new AtomicBoolean();
 		CountDownLatch latch = new CountDownLatch(1);
-		ServerLogoutHandler slow = (exchange, authentication) -> Mono.delay(Duration.ofMillis(100))
-				.doOnSuccess((__) -> slowDone.set(true)).then();
+		ServerLogoutHandler slow = (exchange,
+				authentication) -> Mono.delay(Duration.ofMillis(100)).doOnSuccess((__) -> slowDone.set(true)).then();
 		ServerLogoutHandler second = (exchange, authentication) -> Mono.fromRunnable(() -> {
 			latch.countDown();
 			assertThat(slowDone.get()).describedAs("ServerLogoutHandler should be executed sequentially").isTrue();

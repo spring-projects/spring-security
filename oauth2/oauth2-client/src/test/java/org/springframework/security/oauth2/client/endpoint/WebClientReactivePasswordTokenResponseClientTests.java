@@ -114,13 +114,13 @@ public class WebClientReactivePasswordTokenResponseClientTests {
 		OAuth2PasswordGrantRequest passwordGrantRequest = new OAuth2PasswordGrantRequest(clientRegistration,
 				this.username, this.password);
 		OAuth2AccessTokenResponse accessTokenResponse = this.tokenResponseClient.getTokenResponse(passwordGrantRequest)
-				.block();
+			.block();
 		Instant expiresAtAfter = Instant.now().plusSeconds(3600);
 		RecordedRequest recordedRequest = this.server.takeRequest();
 		assertThat(recordedRequest.getMethod()).isEqualTo(HttpMethod.POST.toString());
 		assertThat(recordedRequest.getHeader(HttpHeaders.ACCEPT)).isEqualTo(MediaType.APPLICATION_JSON_VALUE);
 		assertThat(recordedRequest.getHeader(HttpHeaders.CONTENT_TYPE))
-				.isEqualTo(MediaType.APPLICATION_FORM_URLENCODED_VALUE + ";charset=UTF-8");
+			.isEqualTo(MediaType.APPLICATION_FORM_URLENCODED_VALUE + ";charset=UTF-8");
 		String formParameters = recordedRequest.getBody().readUtf8();
 		assertThat(formParameters).contains("grant_type=password");
 		assertThat(formParameters).contains("username=user1");
@@ -149,13 +149,13 @@ public class WebClientReactivePasswordTokenResponseClientTests {
 		OAuth2PasswordGrantRequest passwordGrantRequest = new OAuth2PasswordGrantRequest(clientRegistration,
 				this.username, this.password);
 		OAuth2AccessTokenResponse accessTokenResponse = this.tokenResponseClient.getTokenResponse(passwordGrantRequest)
-				.block();
+			.block();
 		Instant expiresAtAfter = Instant.now().plusSeconds(3600);
 		RecordedRequest recordedRequest = this.server.takeRequest();
 		assertThat(recordedRequest.getMethod()).isEqualTo(HttpMethod.POST.toString());
 		assertThat(recordedRequest.getHeader(HttpHeaders.ACCEPT)).isEqualTo(MediaType.APPLICATION_JSON_VALUE);
 		assertThat(recordedRequest.getHeader(HttpHeaders.CONTENT_TYPE))
-				.isEqualTo(MediaType.APPLICATION_FORM_URLENCODED_VALUE + ";charset=UTF-8");
+			.isEqualTo(MediaType.APPLICATION_FORM_URLENCODED_VALUE + ";charset=UTF-8");
 		String formParameters = recordedRequest.getBody().readUtf8();
 		assertThat(formParameters).contains("grant_type=password");
 		assertThat(formParameters).contains("username=user1");
@@ -165,7 +165,7 @@ public class WebClientReactivePasswordTokenResponseClientTests {
 		assertThat(accessTokenResponse.getAccessToken().getTokenType()).isEqualTo(OAuth2AccessToken.TokenType.BEARER);
 		assertThat(accessTokenResponse.getAccessToken().getExpiresAt()).isBetween(expiresAtBefore, expiresAtAfter);
 		assertThat(accessTokenResponse.getAccessToken().getScopes())
-				.containsExactly(clientRegistration.getScopes().toArray(new String[0]));
+			.containsExactly(clientRegistration.getScopes().toArray(new String[0]));
 		assertThat(accessTokenResponse.getRefreshToken()).isNull();
 	}
 
@@ -180,7 +180,8 @@ public class WebClientReactivePasswordTokenResponseClientTests {
 		// @formatter:on
 		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
 		ClientRegistration clientRegistration = this.clientRegistrationBuilder
-				.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST).build();
+			.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST)
+			.build();
 		OAuth2PasswordGrantRequest passwordGrantRequest = new OAuth2PasswordGrantRequest(clientRegistration,
 				this.username, this.password);
 		this.tokenResponseClient.getTokenResponse(passwordGrantRequest).block();
@@ -277,11 +278,11 @@ public class WebClientReactivePasswordTokenResponseClientTests {
 		OAuth2PasswordGrantRequest passwordGrantRequest = new OAuth2PasswordGrantRequest(
 				this.clientRegistrationBuilder.build(), this.username, this.password);
 		assertThatExceptionOfType(OAuth2AuthorizationException.class)
-				.isThrownBy(() -> this.tokenResponseClient.getTokenResponse(passwordGrantRequest).block())
-				.satisfies((ex) -> assertThat(ex.getError().getErrorCode()).isEqualTo("invalid_token_response"))
-				.withMessageContaining("[invalid_token_response]")
-				.withMessageContaining("An error occurred parsing the Access Token response")
-				.withCauseInstanceOf(Throwable.class);
+			.isThrownBy(() -> this.tokenResponseClient.getTokenResponse(passwordGrantRequest).block())
+			.satisfies((ex) -> assertThat(ex.getError().getErrorCode()).isEqualTo("invalid_token_response"))
+			.withMessageContaining("[invalid_token_response]")
+			.withMessageContaining("An error occurred parsing the Access Token response")
+			.withCauseInstanceOf(Throwable.class);
 	}
 
 	@Test
@@ -298,7 +299,7 @@ public class WebClientReactivePasswordTokenResponseClientTests {
 		OAuth2PasswordGrantRequest passwordGrantRequest = new OAuth2PasswordGrantRequest(
 				this.clientRegistrationBuilder.build(), this.username, this.password);
 		OAuth2AccessTokenResponse accessTokenResponse = this.tokenResponseClient.getTokenResponse(passwordGrantRequest)
-				.block();
+			.block();
 		RecordedRequest recordedRequest = this.server.takeRequest();
 		String formParameters = recordedRequest.getBody().readUtf8();
 		assertThat(formParameters).contains("scope=read");
@@ -316,9 +317,9 @@ public class WebClientReactivePasswordTokenResponseClientTests {
 		OAuth2PasswordGrantRequest passwordGrantRequest = new OAuth2PasswordGrantRequest(
 				this.clientRegistrationBuilder.build(), this.username, this.password);
 		assertThatExceptionOfType(OAuth2AuthorizationException.class)
-				.isThrownBy(() -> this.tokenResponseClient.getTokenResponse(passwordGrantRequest).block())
-				.satisfies((ex) -> assertThat(ex.getError().getErrorCode()).isEqualTo("unauthorized_client"))
-				.withMessageContaining("[unauthorized_client]");
+			.isThrownBy(() -> this.tokenResponseClient.getTokenResponse(passwordGrantRequest).block())
+			.satisfies((ex) -> assertThat(ex.getError().getErrorCode()).isEqualTo("unauthorized_client"))
+			.withMessageContaining("[unauthorized_client]");
 	}
 
 	@Test
@@ -327,10 +328,10 @@ public class WebClientReactivePasswordTokenResponseClientTests {
 		OAuth2PasswordGrantRequest passwordGrantRequest = new OAuth2PasswordGrantRequest(
 				this.clientRegistrationBuilder.build(), this.username, this.password);
 		assertThatExceptionOfType(OAuth2AuthorizationException.class)
-				.isThrownBy(() -> this.tokenResponseClient.getTokenResponse(passwordGrantRequest).block())
-				.satisfies((ex) -> assertThat(ex.getError().getErrorCode()).isEqualTo("invalid_token_response"))
-				.withMessageContaining("[invalid_token_response]")
-				.withMessageContaining("Empty OAuth 2.0 Access Token Response");
+			.isThrownBy(() -> this.tokenResponseClient.getTokenResponse(passwordGrantRequest).block())
+			.satisfies((ex) -> assertThat(ex.getError().getErrorCode()).isEqualTo("invalid_token_response"))
+			.withMessageContaining("[invalid_token_response]")
+			.withMessageContaining("Empty OAuth 2.0 Access Token Response");
 	}
 
 	private MockResponse jsonResponse(String json) {
@@ -345,14 +346,14 @@ public class WebClientReactivePasswordTokenResponseClientTests {
 	@Test
 	public void setHeadersConverterWhenNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.tokenResponseClient.setHeadersConverter(null))
-				.withMessage("headersConverter cannot be null");
+			.withMessage("headersConverter cannot be null");
 	}
 
 	// gh-10130
 	@Test
 	public void addHeadersConverterWhenNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.tokenResponseClient.addHeadersConverter(null))
-				.withMessage("headersConverter cannot be null");
+			.withMessage("headersConverter cannot be null");
 	}
 
 	// gh-10130
@@ -378,7 +379,7 @@ public class WebClientReactivePasswordTokenResponseClientTests {
 		verify(addedHeadersConverter).convert(request);
 		RecordedRequest actualRequest = this.server.takeRequest();
 		assertThat(actualRequest.getHeader(HttpHeaders.AUTHORIZATION))
-				.isEqualTo("Basic Y2xpZW50LWlkOmNsaWVudC1zZWNyZXQ=");
+			.isEqualTo("Basic Y2xpZW50LWlkOmNsaWVudC1zZWNyZXQ=");
 		assertThat(actualRequest.getHeader("custom-header-name")).isEqualTo("custom-header-value");
 	}
 
@@ -406,19 +407,19 @@ public class WebClientReactivePasswordTokenResponseClientTests {
 		verify(headersConverter).convert(request);
 		RecordedRequest actualRequest = this.server.takeRequest();
 		assertThat(actualRequest.getHeader(HttpHeaders.AUTHORIZATION))
-				.isEqualTo("Basic Y2xpZW50LWlkOmNsaWVudC1zZWNyZXQ=");
+			.isEqualTo("Basic Y2xpZW50LWlkOmNsaWVudC1zZWNyZXQ=");
 	}
 
 	@Test
 	public void setParametersConverterWhenNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.tokenResponseClient.setParametersConverter(null))
-				.withMessage("parametersConverter cannot be null");
+			.withMessage("parametersConverter cannot be null");
 	}
 
 	@Test
 	public void addParametersConverterWhenNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.tokenResponseClient.addParametersConverter(null))
-				.withMessage("parametersConverter cannot be null");
+			.withMessage("parametersConverter cannot be null");
 	}
 
 	@Test

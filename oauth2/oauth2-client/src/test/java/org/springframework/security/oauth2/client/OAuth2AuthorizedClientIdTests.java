@@ -31,13 +31,13 @@ public class OAuth2AuthorizedClientIdTests {
 	@Test
 	public void constructorWhenRegistrationIdNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> new OAuth2AuthorizedClientId(null, "test-principal"))
-				.withMessage("clientRegistrationId cannot be empty");
+			.withMessage("clientRegistrationId cannot be empty");
 	}
 
 	@Test
 	public void constructorWhenPrincipalNameNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> new OAuth2AuthorizedClientId("test-client", null))
-				.withMessage("principalName cannot be empty");
+			.withMessage("principalName cannot be empty");
 	}
 
 	@Test

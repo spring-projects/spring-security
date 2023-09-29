@@ -42,7 +42,7 @@ import org.springframework.util.StringUtils;
 final class WithMockUserSecurityContextFactory implements WithSecurityContextFactory<WithMockUser> {
 
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
-			.getContextHolderStrategy();
+		.getContextHolderStrategy();
 
 	@Override
 	public SecurityContext createSecurityContext(WithMockUser withUser) {

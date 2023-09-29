@@ -135,7 +135,7 @@ public class NimbusReactiveOpaqueTokenIntrospectorTests {
 			NimbusReactiveOpaqueTokenIntrospector introspectionClient = new NimbusReactiveOpaqueTokenIntrospector(
 					introspectUri, CLIENT_ID, "wrong");
 			assertThatExceptionOfType(OAuth2IntrospectionException.class)
-					.isThrownBy(() -> introspectionClient.introspect("token").block());
+				.isThrownBy(() -> introspectionClient.introspect("token").block());
 
 		}
 	}
@@ -146,8 +146,8 @@ public class NimbusReactiveOpaqueTokenIntrospectorTests {
 		NimbusReactiveOpaqueTokenIntrospector introspectionClient = new NimbusReactiveOpaqueTokenIntrospector(
 				INTROSPECTION_URL, webClient);
 		assertThatExceptionOfType(BadOpaqueTokenException.class)
-				.isThrownBy(() -> introspectionClient.introspect("token").block())
-				.withMessage("Provided token isn't active");
+			.isThrownBy(() -> introspectionClient.introspect("token").block())
+			.withMessage("Provided token isn't active");
 	}
 
 	@Test
@@ -189,7 +189,7 @@ public class NimbusReactiveOpaqueTokenIntrospectorTests {
 		NimbusReactiveOpaqueTokenIntrospector introspectionClient = new NimbusReactiveOpaqueTokenIntrospector(
 				INTROSPECTION_URL, webClient);
 		assertThatExceptionOfType(OAuth2IntrospectionException.class)
-				.isThrownBy(() -> introspectionClient.introspect("token").block());
+			.isThrownBy(() -> introspectionClient.introspect("token").block());
 	}
 
 	@Test
@@ -209,31 +209,31 @@ public class NimbusReactiveOpaqueTokenIntrospectorTests {
 		NimbusReactiveOpaqueTokenIntrospector introspectionClient = new NimbusReactiveOpaqueTokenIntrospector(
 				INTROSPECTION_URL, webClient);
 		assertThatExceptionOfType(OAuth2IntrospectionException.class)
-				.isThrownBy(() -> introspectionClient.introspect("token").block());
+			.isThrownBy(() -> introspectionClient.introspect("token").block());
 	}
 
 	@Test
 	public void constructorWhenIntrospectionUriIsEmptyThenIllegalArgumentException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new NimbusReactiveOpaqueTokenIntrospector("", CLIENT_ID, CLIENT_SECRET));
+			.isThrownBy(() -> new NimbusReactiveOpaqueTokenIntrospector("", CLIENT_ID, CLIENT_SECRET));
 	}
 
 	@Test
 	public void constructorWhenClientIdIsEmptyThenIllegalArgumentException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new NimbusReactiveOpaqueTokenIntrospector(INTROSPECTION_URL, "", CLIENT_SECRET));
+			.isThrownBy(() -> new NimbusReactiveOpaqueTokenIntrospector(INTROSPECTION_URL, "", CLIENT_SECRET));
 	}
 
 	@Test
 	public void constructorWhenClientSecretIsNullThenIllegalArgumentException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new NimbusReactiveOpaqueTokenIntrospector(INTROSPECTION_URL, CLIENT_ID, null));
+			.isThrownBy(() -> new NimbusReactiveOpaqueTokenIntrospector(INTROSPECTION_URL, CLIENT_ID, null));
 	}
 
 	@Test
 	public void constructorWhenRestOperationsIsNullThenIllegalArgumentException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new NimbusReactiveOpaqueTokenIntrospector(INTROSPECTION_URL, null));
+			.isThrownBy(() -> new NimbusReactiveOpaqueTokenIntrospector(INTROSPECTION_URL, null));
 	}
 
 	@Test
@@ -244,7 +244,7 @@ public class NimbusReactiveOpaqueTokenIntrospectorTests {
 				INTROSPECTION_URL, client);
 
 		assertThatExceptionOfType(OAuth2IntrospectionException.class)
-				.isThrownBy(() -> introspectionClient.introspect("sometokenhere").block());
+			.isThrownBy(() -> introspectionClient.introspect("sometokenhere").block());
 	}
 
 	@ParameterizedTest(name = "{displayName} when Content-Type={0}")
@@ -257,7 +257,7 @@ public class NimbusReactiveOpaqueTokenIntrospectorTests {
 				INTROSPECTION_URL, client);
 
 		assertThatExceptionOfType(OAuth2IntrospectionException.class)
-				.isThrownBy(() -> introspectionClient.introspect("sometokenhere").block());
+			.isThrownBy(() -> introspectionClient.introspect("sometokenhere").block());
 	}
 
 	private WebClient mockResponse(String response) {

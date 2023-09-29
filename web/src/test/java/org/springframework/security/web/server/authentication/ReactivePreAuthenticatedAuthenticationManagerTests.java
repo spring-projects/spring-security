@@ -65,44 +65,45 @@ public class ReactivePreAuthenticatedAuthenticationManagerTests {
 	public void returnsAuthenticatedTokenForValidAccount() {
 		given(this.mockUserDetailsService.findByUsername(anyString())).willReturn(Mono.just(this.validAccount));
 		Authentication authentication = this.manager.authenticate(tokenForUser(this.validAccount.getUsername()))
-				.block();
+			.block();
 		assertThat(authentication.isAuthenticated()).isEqualTo(true);
 	}
 
 	@Test
 	public void returnsNullForNonExistingAccount() {
 		given(this.mockUserDetailsService.findByUsername(anyString())).willReturn(Mono.empty());
-		assertThatExceptionOfType(UsernameNotFoundException.class).isThrownBy(
-				() -> this.manager.authenticate(tokenForUser(this.nonExistingAccount.getUsername())).block());
+		assertThatExceptionOfType(UsernameNotFoundException.class)
+			.isThrownBy(() -> this.manager.authenticate(tokenForUser(this.nonExistingAccount.getUsername())).block());
 	}
 
 	@Test
 	public void throwsExceptionForLockedAccount() {
 		given(this.mockUserDetailsService.findByUsername(anyString())).willReturn(Mono.just(this.lockedAccount));
 		assertThatExceptionOfType(LockedException.class)
-				.isThrownBy(() -> this.manager.authenticate(tokenForUser(this.lockedAccount.getUsername())).block());
+			.isThrownBy(() -> this.manager.authenticate(tokenForUser(this.lockedAccount.getUsername())).block());
 	}
 
 	@Test
 	public void throwsExceptionForDisabledAccount() {
 		given(this.mockUserDetailsService.findByUsername(anyString())).willReturn(Mono.just(this.disabledAccount));
 		assertThatExceptionOfType(DisabledException.class)
-				.isThrownBy(() -> this.manager.authenticate(tokenForUser(this.disabledAccount.getUsername())).block());
+			.isThrownBy(() -> this.manager.authenticate(tokenForUser(this.disabledAccount.getUsername())).block());
 	}
 
 	@Test
 	public void throwsExceptionForExpiredAccount() {
 		given(this.mockUserDetailsService.findByUsername(anyString())).willReturn(Mono.just(this.expiredAccount));
 		assertThatExceptionOfType(AccountExpiredException.class)
-				.isThrownBy(() -> this.manager.authenticate(tokenForUser(this.expiredAccount.getUsername())).block());
+			.isThrownBy(() -> this.manager.authenticate(tokenForUser(this.expiredAccount.getUsername())).block());
 	}
 
 	@Test
 	public void throwsExceptionForAccountWithExpiredCredentials() {
 		given(this.mockUserDetailsService.findByUsername(anyString()))
-				.willReturn(Mono.just(this.accountWithExpiredCredentials));
-		assertThatExceptionOfType(CredentialsExpiredException.class).isThrownBy(() -> this.manager
-				.authenticate(tokenForUser(this.accountWithExpiredCredentials.getUsername())).block());
+			.willReturn(Mono.just(this.accountWithExpiredCredentials));
+		assertThatExceptionOfType(CredentialsExpiredException.class)
+			.isThrownBy(() -> this.manager.authenticate(tokenForUser(this.accountWithExpiredCredentials.getUsername()))
+				.block());
 	}
 
 	private Authentication tokenForUser(String username) {

@@ -52,37 +52,39 @@ public class PasswordManagementConfigurerTests {
 	public void whenChangePasswordPageNotSetThenDefaultChangePasswordPageUsed() throws Exception {
 		this.spring.register(PasswordManagementWithDefaultChangePasswordPageConfig.class).autowire();
 
-		this.mvc.perform(get("/.well-known/change-password")).andExpect(status().isFound())
-				.andExpect(redirectedUrl("/change-password"));
+		this.mvc.perform(get("/.well-known/change-password"))
+			.andExpect(status().isFound())
+			.andExpect(redirectedUrl("/change-password"));
 	}
 
 	@Test
 	public void whenChangePasswordPageSetThenSpecifiedChangePasswordPageUsed() throws Exception {
 		this.spring.register(PasswordManagementWithCustomChangePasswordPageConfig.class).autowire();
 
-		this.mvc.perform(get("/.well-known/change-password")).andExpect(status().isFound())
-				.andExpect(redirectedUrl("/custom-change-password-page"));
+		this.mvc.perform(get("/.well-known/change-password"))
+			.andExpect(status().isFound())
+			.andExpect(redirectedUrl("/custom-change-password-page"));
 	}
 
 	@Test
 	public void whenSettingNullChangePasswordPage() {
 		PasswordManagementConfigurer configurer = new PasswordManagementConfigurer();
 		assertThatIllegalArgumentException().isThrownBy(() -> configurer.changePasswordPage(null))
-				.withMessage("changePasswordPage cannot be empty");
+			.withMessage("changePasswordPage cannot be empty");
 	}
 
 	@Test
 	public void whenSettingEmptyChangePasswordPage() {
 		PasswordManagementConfigurer configurer = new PasswordManagementConfigurer();
 		assertThatIllegalArgumentException().isThrownBy(() -> configurer.changePasswordPage(""))
-				.withMessage("changePasswordPage cannot be empty");
+			.withMessage("changePasswordPage cannot be empty");
 	}
 
 	@Test
 	public void whenSettingBlankChangePasswordPage() {
 		PasswordManagementConfigurer configurer = new PasswordManagementConfigurer();
 		assertThatIllegalArgumentException().isThrownBy(() -> configurer.changePasswordPage(" "))
-				.withMessage("changePasswordPage cannot be empty");
+			.withMessage("changePasswordPage cannot be empty");
 	}
 
 	@Configuration

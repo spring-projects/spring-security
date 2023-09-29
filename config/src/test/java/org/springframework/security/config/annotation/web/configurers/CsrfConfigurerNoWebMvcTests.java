@@ -64,7 +64,7 @@ public class CsrfConfigurerNoWebMvcTests {
 	public void overrideCsrfRequestDataValueProcessor() {
 		loadContext(EnableWebOverrideRequestDataConfig.class);
 		assertThat(this.context.getBean(RequestDataValueProcessor.class).getClass())
-				.isNotEqualTo(CsrfRequestDataValueProcessor.class);
+			.isNotEqualTo(CsrfRequestDataValueProcessor.class);
 	}
 
 	private void loadContext(Class<?> configs) {

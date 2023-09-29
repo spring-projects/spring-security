@@ -39,8 +39,8 @@ import org.springframework.web.servlet.support.RequestDataValueProcessor;
  * Used to add a {@link RequestDataValueProcessor} for Spring MVC and Spring Security CSRF
  * integration. This configuration is added whenever {@link EnableWebMvc} is added by
  * <a href="
- * {@docRoot}/org/springframework/security/config/annotation/web/configuration/SpringWebMvcImportSelector.html">SpringWebMvcImportSelector</a>
- * and the DispatcherServlet is present on the classpath. It also adds the
+ * {@docRoot}/org/springframework/security/config/annotation/web/configuration/SpringWebMvcImportSelector.html">SpringWebMvcImportSelector</a> and
+ * the DispatcherServlet is present on the classpath. It also adds the
  * {@link AuthenticationPrincipalArgumentResolver} as a
  * {@link HandlerMethodArgumentResolver}.
  *
@@ -53,7 +53,7 @@ class WebMvcSecurityConfiguration implements WebMvcConfigurer, ApplicationContex
 	private BeanResolver beanResolver;
 
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
-			.getContextHolderStrategy();
+		.getContextHolderStrategy();
 
 	@Override
 	@SuppressWarnings("deprecation")
@@ -63,7 +63,7 @@ class WebMvcSecurityConfiguration implements WebMvcConfigurer, ApplicationContex
 		authenticationPrincipalResolver.setSecurityContextHolderStrategy(this.securityContextHolderStrategy);
 		argumentResolvers.add(authenticationPrincipalResolver);
 		argumentResolvers
-				.add(new org.springframework.security.web.bind.support.AuthenticationPrincipalArgumentResolver());
+			.add(new org.springframework.security.web.bind.support.AuthenticationPrincipalArgumentResolver());
 		CurrentSecurityContextArgumentResolver currentSecurityContextArgumentResolver = new CurrentSecurityContextArgumentResolver();
 		currentSecurityContextArgumentResolver.setBeanResolver(this.beanResolver);
 		currentSecurityContextArgumentResolver.setSecurityContextHolderStrategy(this.securityContextHolderStrategy);

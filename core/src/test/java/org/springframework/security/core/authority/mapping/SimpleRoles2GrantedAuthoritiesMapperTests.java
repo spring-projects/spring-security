@@ -125,8 +125,8 @@ public class SimpleRoles2GrantedAuthoritiesMapperTests {
 		}
 		Collection<String> expectedColl = Arrays.asList(expectedGas);
 		assertThat(expectedColl.containsAll(resultColl) && resultColl.containsAll(expectedColl))
-				.withFailMessage("Role collections do not match; result: " + resultColl + ", expected: " + expectedColl)
-				.isTrue();
+			.withFailMessage("Role collections do not match; result: " + resultColl + ", expected: " + expectedColl)
+			.isTrue();
 	}
 
 	private SimpleAttributes2GrantedAuthoritiesMapper getDefaultMapper() {

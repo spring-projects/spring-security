@@ -42,7 +42,7 @@ public final class DelegatingSecurityContextRunnable implements Runnable {
 	private final boolean explicitSecurityContextProvided;
 
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
-			.getContextHolderStrategy();
+		.getContextHolderStrategy();
 
 	/**
 	 * The {@link SecurityContext} that the delegate {@link Runnable} will be ran as.

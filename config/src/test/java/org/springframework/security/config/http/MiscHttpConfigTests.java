@@ -363,23 +363,22 @@ public class MiscHttpConfigTests {
 		this.spring.configLocations(xml("CustomFilters")).autowire();
 		List<Filter> filters = getFilters("/");
 		Class<?> userFilterClass = this.spring.getContext().getBean("userFilter").getClass();
-		assertThat(filters).extracting((Extractor<Filter, Class<?>>) (filter) -> filter.getClass()).containsSubsequence(
-				userFilterClass, userFilterClass, SecurityContextHolderFilter.class, LogoutFilter.class,
-				userFilterClass);
+		assertThat(filters).extracting((Extractor<Filter, Class<?>>) (filter) -> filter.getClass())
+			.containsSubsequence(userFilterClass, userFilterClass, SecurityContextHolderFilter.class,
+					LogoutFilter.class, userFilterClass);
 	}
 
 	@Test
 	public void configureWhenTwoFiltersWithSameOrderThenException() {
 		assertThatExceptionOfType(BeanDefinitionParsingException.class)
-				.isThrownBy(() -> this.spring.configLocations(xml("CollidingFilters")).autowire());
+			.isThrownBy(() -> this.spring.configLocations(xml("CollidingFilters")).autowire());
 	}
 
 	@Test
 	public void configureWhenUsingX509ThenAddsX509FilterCorrectly() {
 		this.spring.configLocations(xml("X509")).autowire();
 		assertThat(getFilters("/")).extracting((Extractor<Filter, Class<?>>) (filter) -> filter.getClass())
-				.containsSubsequence(CsrfFilter.class, X509AuthenticationFilter.class,
-						ExceptionTranslationFilter.class);
+			.containsSubsequence(CsrfFilter.class, X509AuthenticationFilter.class, ExceptionTranslationFilter.class);
 	}
 
 	@Test
@@ -410,7 +409,7 @@ public class MiscHttpConfigTests {
 	@Test
 	public void configureWhenUsingInvalidLogoutSuccessUrlThenThrowsException() {
 		assertThatExceptionOfType(BeanCreationException.class)
-				.isThrownBy(() -> this.spring.configLocations(xml("InvalidLogoutSuccessUrl")).autowire());
+			.isThrownBy(() -> this.spring.configLocations(xml("InvalidLogoutSuccessUrl")).autowire());
 	}
 
 	@Test
@@ -458,7 +457,7 @@ public class MiscHttpConfigTests {
 	public void configureWhenUsingCustomUserDetailsServiceThenBeanPostProcessorsAreStillApplied() {
 		this.spring.configLocations(xml("Sec750")).autowire();
 		BeanNameCollectingPostProcessor postProcessor = this.spring.getContext()
-				.getBean(BeanNameCollectingPostProcessor.class);
+			.getBean(BeanNameCollectingPostProcessor.class);
 		assertThat(postProcessor.getBeforeInitPostProcessedBeans()).contains("authenticationProvider", "userService");
 		assertThat(postProcessor.getAfterInitPostProcessedBeans()).contains("authenticationProvider", "userService");
 	}
@@ -481,7 +480,7 @@ public class MiscHttpConfigTests {
 		SecurityContextRepository repository = this.spring.getContext().getBean(SecurityContextRepository.class);
 		SecurityContext context = new SecurityContextImpl(new TestingAuthenticationToken("user", "password"));
 		given(repository.loadDeferredContext(any(HttpServletRequest.class)))
-				.willReturn(new TestDeferredSecurityContext(context, false));
+			.willReturn(new TestDeferredSecurityContext(context, false));
 		// @formatter:off
 		MvcResult result = this.mvc.perform(get("/protected").with(userCredentials()))
 				.andExpect(status().isOk())
@@ -497,7 +496,7 @@ public class MiscHttpConfigTests {
 		SecurityContextRepository repository = this.spring.getContext().getBean(SecurityContextRepository.class);
 		SecurityContext context = new SecurityContextImpl(new TestingAuthenticationToken("user", "password"));
 		given(repository.loadDeferredContext(any(HttpServletRequest.class)))
-				.willReturn(new TestDeferredSecurityContext(context, false));
+			.willReturn(new TestDeferredSecurityContext(context, false));
 		// @formatter:off
 		MvcResult result = this.mvc.perform(formLogin())
 				.andExpect(status().is3xxRedirection())
@@ -518,7 +517,7 @@ public class MiscHttpConfigTests {
 				.andReturn();
 		// @formatter:on
 		assertThat(repository.loadContext(new HttpRequestResponseHolder(result.getRequest(), result.getResponse()))
-				.getAuthentication()).isNotNull();
+			.getAuthentication()).isNotNull();
 	}
 
 	@Test
@@ -539,7 +538,7 @@ public class MiscHttpConfigTests {
 		this.spring.configLocations(xml("ExpressionHandler")).autowire();
 		PermissionEvaluator permissionEvaluator = this.spring.getContext().getBean(PermissionEvaluator.class);
 		given(permissionEvaluator.hasPermission(any(Authentication.class), any(Object.class), any(Object.class)))
-				.willReturn(false);
+			.willReturn(false);
 		// @formatter:off
 		this.mvc.perform(get("/").with(userCredentials()))
 				.andExpect(status().isForbidden());
@@ -926,8 +925,10 @@ public class MiscHttpConfigTests {
 
 		@GetMapping("/roles")
 		String roles(Authentication authentication) {
-			return authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority)
-					.collect(Collectors.joining(","));
+			return authentication.getAuthorities()
+				.stream()
+				.map(GrantedAuthority::getAuthority)
+				.collect(Collectors.joining(","));
 		}
 
 		@GetMapping("/details")
