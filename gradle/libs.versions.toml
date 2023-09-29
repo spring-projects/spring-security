@@ -56,7 +56,7 @@ org-apache-directory-server-apacheds-entry = { module = "org.apache.directory.se
 org-apache-directory-server-apacheds-protocol-ldap = { module = "org.apache.directory.server:apacheds-protocol-ldap", version.ref = "org-apache-directory-server" }
 org-apache-directory-server-apacheds-protocol-shared = { module = "org.apache.directory.server:apacheds-protocol-shared", version.ref = "org-apache-directory-server" }
 org-apache-directory-server-apacheds-server-jndi = { module = "org.apache.directory.server:apacheds-server-jndi", version.ref = "org-apache-directory-server" }
-org-apache-directory-shared-shared-ldap = "org.apache.directory.shared:shared-ldap:0.9.15"
+org-apache-directory-shared-shared-ldap = "org.apache.directory.shared:shared-ldap:0.9.19"
 org-apache-httpcomponents-httpclient = "org.apache.httpcomponents:httpclient:4.5.14"
 org-apache-logging-log4j-log4j-core = "org.apache.logging.log4j:log4j-core:2.17.1"
 org-aspectj-aspectjrt = { module = "org.aspectj:aspectjrt", version.ref = "org-aspectj" }
