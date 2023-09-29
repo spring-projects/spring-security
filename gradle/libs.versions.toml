@@ -93,7 +93,7 @@ org-springframework-spring-framework-bom = { module = "org.springframework:sprin
 org-synchronoss-cloud-nio-multipart-parser = "org.synchronoss.cloud:nio-multipart-parser:1.1.0"
 spring-io-github-changelog-generator = "spring-io:github-changelog-generator:0.0.6"
 
-com-google-code-gson-gson = "com.google.code.gson:gson:2.8.6"
+com-google-code-gson-gson = "com.google.code.gson:gson:2.8.9"
 com-thaiopensource-trag = "com.thaiopensource:trang:20091111"
 net-sourceforge-saxon-saxon = "net.sourceforge.saxon:saxon:9.1.0.8"
 org-yaml-snakeyaml = "org.yaml:snakeyaml:1.30"
