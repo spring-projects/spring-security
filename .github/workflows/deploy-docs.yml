@@ -1,7 +1,12 @@
 name: Deploy Docs
 on:
+  pull_request:
+    branches-ignore:
+      - "dependabot/**"
   push:
-    branches-ignore: [ "gh-pages", "dependabot/**" ]
+    branches-ignore:
+      - "gh-pages"
+      - "dependabot/**"
     tags: '**'
   repository_dispatch:
     types: request-build-reference # legacy
