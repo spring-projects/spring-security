@@ -1,0 +1,80 @@
+version: 2
+updates:
+
+  - package-ecosystem: "gradle"
+    target-branch: "main"
+    milestone: 319 # 6.2.x
+    directory: "/"
+    schedule:
+      interval: "daily"
+      time: "03:00"
+      timezone: "Etc/UTC"
+    labels: [ "type: dependency-upgrade" ]
+    ignore:
+      - dependency-name: "com.nimbusds:nimbus-jose-jwt" # nimbus-jose-jwt gets updated when oauth2-oidc-sdk is updated to ensure consistency
+      - dependency-name: "org.python:jython" # jython updates break integration tests
+      - dependency-name: "org.junit:junit-bom"
+        update-types: [ "version-update:semver-major" ]
+      - dependency-name: "org.mockito:mockito-bom"
+        update-types: [ "version-update:semver-major" ]
+      - dependency-name: "*"
+        update-types: [ "version-update:semver-major", "version-update:semver-minor" ]
+
+  - package-ecosystem: "gradle"
+    target-branch: "6.1.x"
+    milestone: 318 # 6.1.x
+    directory: "/"
+    schedule:
+      interval: "daily"
+      time: "03:00"
+      timezone: "Etc/UTC"
+    labels: [ "type: dependency-upgrade" ]
+    ignore:
+      - dependency-name: "com.nimbusds:nimbus-jose-jwt" # nimbus-jose-jwt gets updated when oauth2-oidc-sdk is updated to ensure consistency
+      - dependency-name: "org.python:jython" # jython updates break integration tests
+      - dependency-name: "org.junit:junit-bom"
+        update-types: [ "version-update:semver-major" ]
+      - dependency-name: "org.mockito:mockito-bom"
+        update-types: [ "version-update:semver-major" ]
+      - dependency-name: "*"
+        update-types: [ "version-update:semver-major", "version-update:semver-minor" ]
+
+  - package-ecosystem: "gradle"
+    target-branch: "6.0.x"
+    milestone: 143 # 6.0.x
+    directory: "/"
+    schedule:
+      interval: "daily"
+      time: "03:00"
+      timezone: "Etc/UTC"
+    labels: [ "type: dependency-upgrade" ]
+    ignore:
+      - dependency-name: "com.nimbusds:nimbus-jose-jwt" # nimbus-jose-jwt gets updated when oauth2-oidc-sdk is updated to ensure consistency
+      - dependency-name: "org.python:jython" # jython updates break integration tests
+      - dependency-name: "org.junit:junit-bom"
+        update-types: [ "version-update:semver-major" ]
+      - dependency-name: "org.mockito:mockito-bom"
+        update-types: [ "version-update:semver-major" ]
+      - dependency-name: "*"
+        update-types: [ "version-update:semver-major", "version-update:semver-minor" ]
+
+  - package-ecosystem: "gradle"
+    target-branch: "5.8.x"
+    milestone: 246 # 5.8.x
+    directory: "/"
+    schedule:
+      interval: "daily"
+      time: "03:00"
+      timezone: "Etc/UTC"
+    labels: [ "type: dependency-upgrade" ]
+    ignore:
+      - dependency-name: "com.nimbusds:nimbus-jose-jwt" # nimbus-jose-jwt gets updated when oauth2-oidc-sdk is updated to ensure consistency
+      - dependency-name: "org.python:jython" # jython updates break integration tests
+      - dependency-name: "io.mockk:mockk" # mockk updates break tests
+      - dependency-name: "org.opensaml:*" # org.opensaml maintains two different versions, so it must be updated manually
+      - dependency-name: "org.junit:junit-bom"
+        update-types: [ "version-update:semver-major" ]
+      - dependency-name: "org.mockito:mockito-bom"
+        update-types: [ "version-update:semver-major" ]
+      - dependency-name: "*"
+        update-types: [ "version-update:semver-major", "version-update:semver-minor" ]
