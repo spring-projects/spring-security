@@ -55,12 +55,12 @@ public abstract class AbstractUserDetailsServiceBeanDefinitionParser implements 
 		// Register a caching version of the user service if there's a cache-ref
 		if (StringUtils.hasText(cacheRef)) {
 			BeanDefinitionBuilder cachingUSBuilder = BeanDefinitionBuilder
-					.rootBeanDefinition(CachingUserDetailsService.class);
+				.rootBeanDefinition(CachingUserDetailsService.class);
 			cachingUSBuilder.addConstructorArgReference(beanId);
 			cachingUSBuilder.addPropertyValue("userCache", new RuntimeBeanReference(cacheRef));
 			BeanDefinition cachingUserService = cachingUSBuilder.getBeanDefinition();
 			parserContext
-					.registerBeanComponent(new BeanComponentDefinition(cachingUserService, beanId + CACHING_SUFFIX));
+				.registerBeanComponent(new BeanComponentDefinition(cachingUserService, beanId + CACHING_SUFFIX));
 		}
 		return null;
 	}

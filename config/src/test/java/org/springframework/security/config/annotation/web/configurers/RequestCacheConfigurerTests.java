@@ -227,8 +227,9 @@ public class RequestCacheConfigurerTests {
 	// gh-6102
 	@Test
 	public void getWhenRequestCacheIsDisabledThenExceptionTranslationFilterDoesNotStoreRequest() throws Exception {
-		this.spring.register(RequestCacheDisabledConfig.class,
-				ExceptionHandlingConfigurerTests.DefaultSecurityConfig.class).autowire();
+		this.spring
+			.register(RequestCacheDisabledConfig.class, ExceptionHandlingConfigurerTests.DefaultSecurityConfig.class)
+			.autowire();
 		// @formatter:off
 		MockHttpSession session = (MockHttpSession) this.mvc.perform(get("/bob"))
 				.andReturn()

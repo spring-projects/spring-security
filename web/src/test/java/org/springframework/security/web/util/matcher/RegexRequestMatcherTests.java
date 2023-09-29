@@ -157,13 +157,13 @@ public class RegexRequestMatcherTests {
 	@Test
 	public void staticRegexMatcherWhenNoPatternThenException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> regexMatcher((String) null))
-				.withMessage("pattern cannot be empty");
+			.withMessage("pattern cannot be empty");
 	}
 
 	@Test
 	public void staticRegexMatcherNoMethodThenException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> regexMatcher((HttpMethod) null))
-				.withMessage("method cannot be null");
+			.withMessage("method cannot be null");
 	}
 
 	private HttpServletRequest createRequestWithNullMethod(String path) {

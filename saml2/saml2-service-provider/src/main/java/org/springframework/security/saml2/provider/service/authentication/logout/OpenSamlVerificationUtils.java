@@ -165,7 +165,7 @@ final class OpenSamlVerificationUtils {
 		private SignatureTrustEngine trustEngine(RelyingPartyRegistration registration) {
 			Set<Credential> credentials = new HashSet<>();
 			Collection<Saml2X509Credential> keys = registration.getAssertingPartyDetails()
-					.getVerificationX509Credentials();
+				.getVerificationX509Credentials();
 			for (Saml2X509Credential key : keys) {
 				BasicX509Credential cred = new BasicX509Credential(key.getCertificate());
 				cred.setUsageType(UsageType.SIGNING);
@@ -193,8 +193,11 @@ final class OpenSamlVerificationUtils {
 				else {
 					this.signature = null;
 				}
-				Map<String, String> queryParams = UriComponentsBuilder.newInstance().query(request.getParametersQuery())
-						.build(true).getQueryParams().toSingleValueMap();
+				Map<String, String> queryParams = UriComponentsBuilder.newInstance()
+					.query(request.getParametersQuery())
+					.build(true)
+					.getQueryParams()
+					.toSingleValueMap();
 				this.content = getContent(Saml2ParameterNames.SAML_REQUEST, request.getRelayState(), queryParams);
 			}
 
@@ -207,22 +210,26 @@ final class OpenSamlVerificationUtils {
 					this.signature = null;
 				}
 				Map<String, String> queryParams = UriComponentsBuilder.newInstance()
-						.query(response.getParametersQuery()).build(true).getQueryParams().toSingleValueMap();
+					.query(response.getParametersQuery())
+					.build(true)
+					.getQueryParams()
+					.toSingleValueMap();
 				this.content = getContent(Saml2ParameterNames.SAML_RESPONSE, response.getRelayState(), queryParams);
 			}
 
 			static byte[] getContent(String samlObject, String relayState, final Map<String, String> queryParams) {
 				if (Objects.nonNull(relayState)) {
 					return String
-							.format("%s=%s&%s=%s&%s=%s", samlObject, queryParams.get(samlObject),
-									Saml2ParameterNames.RELAY_STATE, queryParams.get(Saml2ParameterNames.RELAY_STATE),
-									Saml2ParameterNames.SIG_ALG, queryParams.get(Saml2ParameterNames.SIG_ALG))
-							.getBytes(StandardCharsets.UTF_8);
+						.format("%s=%s&%s=%s&%s=%s", samlObject, queryParams.get(samlObject),
+								Saml2ParameterNames.RELAY_STATE, queryParams.get(Saml2ParameterNames.RELAY_STATE),
+								Saml2ParameterNames.SIG_ALG, queryParams.get(Saml2ParameterNames.SIG_ALG))
+						.getBytes(StandardCharsets.UTF_8);
 				}
 				else {
-					return String.format("%s=%s&%s=%s", samlObject, queryParams.get(samlObject),
-							Saml2ParameterNames.SIG_ALG, queryParams.get(Saml2ParameterNames.SIG_ALG))
-							.getBytes(StandardCharsets.UTF_8);
+					return String
+						.format("%s=%s&%s=%s", samlObject, queryParams.get(samlObject), Saml2ParameterNames.SIG_ALG,
+								queryParams.get(Saml2ParameterNames.SIG_ALG))
+						.getBytes(StandardCharsets.UTF_8);
 				}
 			}
 

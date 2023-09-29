@@ -98,9 +98,9 @@ public class ThrowableAnalyzerTests {
 			for (int j = 0; j < i; ++j) {
 				Class prevClazz = registeredTypes[j];
 				assertThat(prevClazz.isAssignableFrom(clazz))
-						.withFailMessage(
-								"Unexpected order of registered classes: " + prevClazz + " is assignable from " + clazz)
-						.isFalse();
+					.withFailMessage(
+							"Unexpected order of registered classes: " + prevClazz + " is assignable from " + clazz)
+					.isFalse();
 			}
 		}
 	}
@@ -117,7 +117,7 @@ public class ThrowableAnalyzerTests {
 			}
 		};
 		assertThat(analyzer.getRegisteredTypes().length).withFailMessage("Unexpected number of registered types")
-				.isZero();
+			.isZero();
 		Throwable t = this.testTrace[0];
 		Throwable[] chain = analyzer.determineCauseChain(t);
 		// Without extractors only the root throwable is available
@@ -129,7 +129,7 @@ public class ThrowableAnalyzerTests {
 	public void testDetermineCauseChainWithDefaultExtractors() {
 		ThrowableAnalyzer analyzer = this.standardAnalyzer;
 		assertThat(analyzer.getRegisteredTypes().length).withFailMessage("Unexpected number of registered types")
-				.isEqualTo(2);
+			.isEqualTo(2);
 		Throwable[] chain = analyzer.determineCauseChain(this.testTrace[0]);
 		// Element at index 2 is a NonStandardException which cannot be analyzed further
 		// by default
@@ -193,14 +193,14 @@ public class ThrowableAnalyzerTests {
 	@Test
 	public void testVerifyThrowableHierarchyWithNull() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> ThrowableAnalyzer.verifyThrowableHierarchy(null, Throwable.class));
+			.isThrownBy(() -> ThrowableAnalyzer.verifyThrowableHierarchy(null, Throwable.class));
 	}
 
 	@Test
 	public void testVerifyThrowableHierarchyWithNonmatchingType() {
 		Throwable throwable = new IllegalStateException("Test");
-		assertThatIllegalArgumentException().isThrownBy(
-				() -> ThrowableAnalyzer.verifyThrowableHierarchy(throwable, InvocationTargetException.class));
+		assertThatIllegalArgumentException()
+			.isThrownBy(() -> ThrowableAnalyzer.verifyThrowableHierarchy(throwable, InvocationTargetException.class));
 	}
 
 	/**

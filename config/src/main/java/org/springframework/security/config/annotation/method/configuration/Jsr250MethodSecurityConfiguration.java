@@ -44,13 +44,13 @@ final class Jsr250MethodSecurityConfiguration {
 	private final Jsr250AuthorizationManager jsr250AuthorizationManager = new Jsr250AuthorizationManager();
 
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
-			.getContextHolderStrategy();
+		.getContextHolderStrategy();
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 	MethodInterceptor jsr250AuthorizationMethodInterceptor() {
 		AuthorizationManagerBeforeMethodInterceptor interceptor = AuthorizationManagerBeforeMethodInterceptor
-				.jsr250(this.jsr250AuthorizationManager);
+			.jsr250(this.jsr250AuthorizationManager);
 		interceptor.setSecurityContextHolderStrategy(this.securityContextHolderStrategy);
 		return interceptor;
 	}

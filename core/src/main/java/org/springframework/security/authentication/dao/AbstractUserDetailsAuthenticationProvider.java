@@ -138,7 +138,7 @@ public abstract class AbstractUserDetailsAuthenticationProvider
 					throw ex;
 				}
 				throw new BadCredentialsException(this.messages
-						.getMessage("AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"));
+					.getMessage("AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"));
 			}
 			Assert.notNull(user, "retrieveUser returned null - a violation of the interface contract");
 		}
@@ -320,21 +320,21 @@ public abstract class AbstractUserDetailsAuthenticationProvider
 		public void check(UserDetails user) {
 			if (!user.isAccountNonLocked()) {
 				AbstractUserDetailsAuthenticationProvider.this.logger
-						.debug("Failed to authenticate since user account is locked");
+					.debug("Failed to authenticate since user account is locked");
 				throw new LockedException(AbstractUserDetailsAuthenticationProvider.this.messages
-						.getMessage("AbstractUserDetailsAuthenticationProvider.locked", "User account is locked"));
+					.getMessage("AbstractUserDetailsAuthenticationProvider.locked", "User account is locked"));
 			}
 			if (!user.isEnabled()) {
 				AbstractUserDetailsAuthenticationProvider.this.logger
-						.debug("Failed to authenticate since user account is disabled");
+					.debug("Failed to authenticate since user account is disabled");
 				throw new DisabledException(AbstractUserDetailsAuthenticationProvider.this.messages
-						.getMessage("AbstractUserDetailsAuthenticationProvider.disabled", "User is disabled"));
+					.getMessage("AbstractUserDetailsAuthenticationProvider.disabled", "User is disabled"));
 			}
 			if (!user.isAccountNonExpired()) {
 				AbstractUserDetailsAuthenticationProvider.this.logger
-						.debug("Failed to authenticate since user account has expired");
+					.debug("Failed to authenticate since user account has expired");
 				throw new AccountExpiredException(AbstractUserDetailsAuthenticationProvider.this.messages
-						.getMessage("AbstractUserDetailsAuthenticationProvider.expired", "User account has expired"));
+					.getMessage("AbstractUserDetailsAuthenticationProvider.expired", "User account has expired"));
 			}
 		}
 
@@ -346,10 +346,10 @@ public abstract class AbstractUserDetailsAuthenticationProvider
 		public void check(UserDetails user) {
 			if (!user.isCredentialsNonExpired()) {
 				AbstractUserDetailsAuthenticationProvider.this.logger
-						.debug("Failed to authenticate since user account credentials have expired");
+					.debug("Failed to authenticate since user account credentials have expired");
 				throw new CredentialsExpiredException(AbstractUserDetailsAuthenticationProvider.this.messages
-						.getMessage("AbstractUserDetailsAuthenticationProvider.credentialsExpired",
-								"User credentials have expired"));
+					.getMessage("AbstractUserDetailsAuthenticationProvider.credentialsExpired",
+							"User credentials have expired"));
 			}
 		}
 

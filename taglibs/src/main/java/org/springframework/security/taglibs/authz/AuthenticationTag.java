@@ -47,7 +47,7 @@ import org.springframework.web.util.TagUtils;
 public class AuthenticationTag extends TagSupport {
 
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
-			.getContextHolderStrategy();
+		.getContextHolderStrategy();
 
 	private String var;
 
@@ -87,7 +87,7 @@ public class AuthenticationTag extends TagSupport {
 		super.setPageContext(pageContext);
 		ServletContext servletContext = pageContext.getServletContext();
 		ApplicationContext context = SecurityWebApplicationContextUtils
-				.findRequiredWebApplicationContext(servletContext);
+			.findRequiredWebApplicationContext(servletContext);
 		String[] names = context.getBeanNamesForType(SecurityContextHolderStrategy.class);
 		if (names.length == 1) {
 			SecurityContextHolderStrategy strategy = context.getBean(SecurityContextHolderStrategy.class);

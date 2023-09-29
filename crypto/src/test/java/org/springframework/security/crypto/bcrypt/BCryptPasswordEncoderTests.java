@@ -218,7 +218,7 @@ public class BCryptPasswordEncoderTests {
 	public void checkWhenNoRoundsThenTrue() {
 		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 		assertThat(encoder.matches("password", "$2a$00$9N8N35BVs5TLqGL3pspAte5OWWA2a2aZIs.EGp7At7txYakFERMue"))
-				.isTrue();
+			.isTrue();
 		assertThat(encoder.matches("wrong", "$2a$00$9N8N35BVs5TLqGL3pspAte5OWWA2a2aZIs.EGp7At7txYakFERMue")).isFalse();
 	}
 

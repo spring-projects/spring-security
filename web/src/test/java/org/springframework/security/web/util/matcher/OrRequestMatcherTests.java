@@ -91,13 +91,13 @@ public class OrRequestMatcherTests {
 	@Test
 	public void constructorListContainsNull() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new OrRequestMatcher(Arrays.asList((RequestMatcher) null)));
+			.isThrownBy(() -> new OrRequestMatcher(Arrays.asList((RequestMatcher) null)));
 	}
 
 	@Test
 	public void constructorEmptyList() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new OrRequestMatcher(Collections.<RequestMatcher>emptyList()));
+			.isThrownBy(() -> new OrRequestMatcher(Collections.<RequestMatcher>emptyList()));
 	}
 
 	@Test

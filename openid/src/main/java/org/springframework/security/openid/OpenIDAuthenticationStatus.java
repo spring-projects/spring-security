@@ -18,6 +18,7 @@ package org.springframework.security.openid;
 
 /**
  * Authentication status codes, based on JanRain status codes
+ *
  * @author JanRain Inc.
  * @author Robin Bramley, Opsera Ltd
  * @author Luke Taylor

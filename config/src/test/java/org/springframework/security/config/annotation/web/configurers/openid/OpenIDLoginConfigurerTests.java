@@ -111,29 +111,34 @@ public class OpenIDLoginConfigurerTests {
 		given(mockAuthRequest.getDestinationUrl(anyBoolean())).willReturn("mockUrl");
 		given(OpenIdAttributesInLambdaConfig.CONSUMER_MANAGER.associate(any())).willReturn(mockDiscoveryInformation);
 		given(OpenIdAttributesInLambdaConfig.CONSUMER_MANAGER.authenticate(any(DiscoveryInformation.class), any(),
-				any())).willReturn(mockAuthRequest);
+				any()))
+			.willReturn(mockAuthRequest);
 		this.spring.register(OpenIdAttributesInLambdaConfig.class).autowire();
 		try (MockWebServer server = new MockWebServer()) {
 			String endpoint = server.url("/").toString();
 			server.enqueue(new MockResponse().addHeader(YadisResolver.YADIS_XRDS_LOCATION, endpoint));
 			server.enqueue(new MockResponse()
-					.setBody(String.format("<XRDS><XRD><Service><URI>%s</URI></Service></XRD></XRDS>", endpoint)));
-			MvcResult mvcResult = this.mvc.perform(
-					get("/login/openid").param(OpenIDAuthenticationFilter.DEFAULT_CLAIMED_IDENTITY_FIELD, endpoint))
-					.andExpect(status().isFound()).andReturn();
-			Object attributeObject = mvcResult.getRequest().getSession()
-					.getAttribute("SPRING_SECURITY_OPEN_ID_ATTRIBUTES_FETCH_LIST");
+				.setBody(String.format("<XRDS><XRD><Service><URI>%s</URI></Service></XRD></XRDS>", endpoint)));
+			MvcResult mvcResult = this.mvc
+				.perform(
+						get("/login/openid").param(OpenIDAuthenticationFilter.DEFAULT_CLAIMED_IDENTITY_FIELD, endpoint))
+				.andExpect(status().isFound())
+				.andReturn();
+			Object attributeObject = mvcResult.getRequest()
+				.getSession()
+				.getAttribute("SPRING_SECURITY_OPEN_ID_ATTRIBUTES_FETCH_LIST");
 			assertThat(attributeObject).isInstanceOf(List.class);
 			List<OpenIDAttribute> attributeList = (List<OpenIDAttribute>) attributeObject;
 			assertThat(
 					attributeList.stream()
-							.anyMatch((attribute) -> "nickname".equals(attribute.getName())
-									&& "https://schema.openid.net/namePerson/friendly".equals(attribute.getType())))
-											.isTrue();
+						.anyMatch((attribute) -> "nickname".equals(attribute.getName())
+								&& "https://schema.openid.net/namePerson/friendly".equals(attribute.getType())))
+				.isTrue();
 			assertThat(attributeList.stream()
-					.anyMatch((attribute) -> "email".equals(attribute.getName())
-							&& "https://schema.openid.net/contact/email".equals(attribute.getType())
-							&& attribute.isRequired() && attribute.getCount() == 2)).isTrue();
+				.anyMatch((attribute) -> "email".equals(attribute.getName())
+						&& "https://schema.openid.net/contact/email".equals(attribute.getType())
+						&& attribute.isRequired() && attribute.getCount() == 2))
+				.isTrue();
 		}
 	}
 
@@ -145,13 +150,14 @@ public class OpenIDLoginConfigurerTests {
 		given(mockAuthRequest.getDestinationUrl(anyBoolean())).willReturn("mockUrl");
 		given(OpenIdAttributesNullNameConfig.CONSUMER_MANAGER.associate(any())).willReturn(mockDiscoveryInformation);
 		given(OpenIdAttributesNullNameConfig.CONSUMER_MANAGER.authenticate(any(DiscoveryInformation.class), any(),
-				any())).willReturn(mockAuthRequest);
+				any()))
+			.willReturn(mockAuthRequest);
 		this.spring.register(OpenIdAttributesNullNameConfig.class).autowire();
 		try (MockWebServer server = new MockWebServer()) {
 			String endpoint = server.url("/").toString();
 			server.enqueue(new MockResponse().addHeader(YadisResolver.YADIS_XRDS_LOCATION, endpoint));
 			server.enqueue(new MockResponse()
-					.setBody(String.format("<XRDS><XRD><Service><URI>%s</URI></Service></XRD></XRDS>", endpoint)));
+				.setBody(String.format("<XRDS><XRD><Service><URI>%s</URI></Service></XRD></XRDS>", endpoint)));
 			// @formatter:off
 			MockHttpServletRequestBuilder request = get("/login/openid")
 					.param(OpenIDAuthenticationFilter.DEFAULT_CLAIMED_IDENTITY_FIELD, endpoint);

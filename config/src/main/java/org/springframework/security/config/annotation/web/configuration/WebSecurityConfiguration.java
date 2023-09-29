@@ -106,8 +106,8 @@ public class WebSecurityConfiguration implements ImportAware, BeanClassLoaderAwa
 				"Found WebSecurityConfigurerAdapter as well as SecurityFilterChain. Please select just one.");
 		if (!hasConfigurers && !hasFilterChain) {
 			WebSecurityConfigurerAdapter adapter = this.objectObjectPostProcessor
-					.postProcess(new WebSecurityConfigurerAdapter() {
-					});
+				.postProcess(new WebSecurityConfigurerAdapter() {
+				});
 			this.webSecurity.apply(adapter);
 		}
 		for (SecurityFilterChain securityFilterChain : this.securityFilterChains) {
@@ -154,7 +154,8 @@ public class WebSecurityConfiguration implements ImportAware, BeanClassLoaderAwa
 			this.webSecurity.debug(this.debugEnabled);
 		}
 		List<SecurityConfigurer<Filter, WebSecurity>> webSecurityConfigurers = new AutowiredWebSecurityConfigurersIgnoreParents(
-				beanFactory).getWebSecurityConfigurers();
+				beanFactory)
+			.getWebSecurityConfigurers();
 		webSecurityConfigurers.sort(AnnotationAwareOrderComparator.INSTANCE);
 		Integer previousOrder = null;
 		Object previousConfig = null;
@@ -191,7 +192,7 @@ public class WebSecurityConfiguration implements ImportAware, BeanClassLoaderAwa
 	@Override
 	public void setImportMetadata(AnnotationMetadata importMetadata) {
 		Map<String, Object> enableWebSecurityAttrMap = importMetadata
-				.getAnnotationAttributes(EnableWebSecurity.class.getName());
+			.getAnnotationAttributes(EnableWebSecurity.class.getName());
 		AnnotationAttributes enableWebSecurityAttrs = AnnotationAttributes.fromMap(enableWebSecurityAttrMap);
 		this.debugEnabled = enableWebSecurityAttrs.getBoolean("debug");
 		if (this.webSecurity != null) {

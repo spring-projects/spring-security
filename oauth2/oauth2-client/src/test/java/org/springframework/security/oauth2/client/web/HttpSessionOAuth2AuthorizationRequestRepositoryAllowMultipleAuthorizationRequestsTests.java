@@ -59,17 +59,17 @@ public class HttpSessionOAuth2AuthorizationRequestRepositoryAllowMultipleAuthori
 		this.authorizationRequestRepository.saveAuthorizationRequest(authorizationRequest3, request, response);
 		request.addParameter(OAuth2ParameterNames.STATE, state1);
 		OAuth2AuthorizationRequest loadedAuthorizationRequest1 = this.authorizationRequestRepository
-				.loadAuthorizationRequest(request);
+			.loadAuthorizationRequest(request);
 		assertThat(loadedAuthorizationRequest1).isEqualTo(authorizationRequest1);
 		request.removeParameter(OAuth2ParameterNames.STATE);
 		request.addParameter(OAuth2ParameterNames.STATE, state2);
 		OAuth2AuthorizationRequest loadedAuthorizationRequest2 = this.authorizationRequestRepository
-				.loadAuthorizationRequest(request);
+			.loadAuthorizationRequest(request);
 		assertThat(loadedAuthorizationRequest2).isEqualTo(authorizationRequest2);
 		request.removeParameter(OAuth2ParameterNames.STATE);
 		request.addParameter(OAuth2ParameterNames.STATE, state3);
 		OAuth2AuthorizationRequest loadedAuthorizationRequest3 = this.authorizationRequestRepository
-				.loadAuthorizationRequest(request);
+			.loadAuthorizationRequest(request);
 		assertThat(loadedAuthorizationRequest3).isEqualTo(authorizationRequest3);
 	}
 

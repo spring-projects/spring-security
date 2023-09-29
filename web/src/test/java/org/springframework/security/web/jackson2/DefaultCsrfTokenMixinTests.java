@@ -63,14 +63,14 @@ public class DefaultCsrfTokenMixinTests extends AbstractMixinTests {
 	public void defaultCsrfTokenDeserializeWithoutClassTest() throws IOException {
 		String tokenJson = "{\"headerName\": \"csrf-header\", \"parameterName\": \"_csrf\", \"token\": \"1\"}";
 		assertThatExceptionOfType(JsonMappingException.class)
-				.isThrownBy(() -> this.mapper.readValue(tokenJson, DefaultCsrfToken.class));
+			.isThrownBy(() -> this.mapper.readValue(tokenJson, DefaultCsrfToken.class));
 	}
 
 	@Test
 	public void defaultCsrfTokenDeserializeNullValuesTest() throws IOException {
 		String tokenJson = "{\"@class\": \"org.springframework.security.web.csrf.DefaultCsrfToken\", \"headerName\": \"\", \"parameterName\": null, \"token\": \"1\"}";
 		assertThatExceptionOfType(JsonMappingException.class)
-				.isThrownBy(() -> this.mapper.readValue(tokenJson, DefaultCsrfToken.class));
+			.isThrownBy(() -> this.mapper.readValue(tokenJson, DefaultCsrfToken.class));
 	}
 
 }

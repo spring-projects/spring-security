@@ -41,8 +41,9 @@ public final class IpAddressReactiveAuthorizationManager implements ReactiveAuth
 
 	@Override
 	public Mono<AuthorizationDecision> check(Mono<Authentication> authentication, AuthorizationContext context) {
-		return Mono.just(context.getExchange()).flatMap(this.ipAddressExchangeMatcher::matches)
-				.map((matchResult) -> new AuthorizationDecision(matchResult.isMatch()));
+		return Mono.just(context.getExchange())
+			.flatMap(this.ipAddressExchangeMatcher::matches)
+			.map((matchResult) -> new AuthorizationDecision(matchResult.isMatch()));
 	}
 
 	/**

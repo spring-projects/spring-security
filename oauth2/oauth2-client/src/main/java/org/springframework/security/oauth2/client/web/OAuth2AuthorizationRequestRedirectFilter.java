@@ -193,7 +193,7 @@ public class OAuth2AuthorizationRequestRedirectFilter extends OncePerRequestFilt
 			// Check to see if we need to handle ClientAuthorizationRequiredException
 			Throwable[] causeChain = this.throwableAnalyzer.determineCauseChain(ex);
 			ClientAuthorizationRequiredException authzEx = (ClientAuthorizationRequiredException) this.throwableAnalyzer
-					.getFirstThrowableOfType(ClientAuthorizationRequiredException.class, causeChain);
+				.getFirstThrowableOfType(ClientAuthorizationRequiredException.class, causeChain);
 			if (authzEx != null) {
 				try {
 					OAuth2AuthorizationRequest authorizationRequest = this.authorizationRequestResolver.resolve(request,

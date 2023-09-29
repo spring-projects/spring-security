@@ -94,8 +94,10 @@ public class NamespaceHttpCustomFilterTests {
 
 	private ListAssert<Class<?>> assertThatFilters() {
 		FilterChainProxy filterChain = this.spring.getContext().getBean(FilterChainProxy.class);
-		List<Class<?>> filters = filterChain.getFilters("/").stream().map(Object::getClass)
-				.collect(Collectors.toList());
+		List<Class<?>> filters = filterChain.getFilters("/")
+			.stream()
+			.map(Object::getClass)
+			.collect(Collectors.toList());
 		return assertThat(filters);
 	}
 

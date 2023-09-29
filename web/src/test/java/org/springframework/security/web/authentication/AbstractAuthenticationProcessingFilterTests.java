@@ -257,7 +257,7 @@ public class AbstractAuthenticationProcessingFilterTests {
 		filter.setAuthenticationSuccessHandler(this.successHandler);
 		filter.setFilterProcessesUrl("/login");
 		assertThatIllegalArgumentException().isThrownBy(filter::afterPropertiesSet)
-				.withMessage("authenticationManager must be specified");
+			.withMessage("authenticationManager must be specified");
 	}
 
 	@Test
@@ -267,7 +267,7 @@ public class AbstractAuthenticationProcessingFilterTests {
 		filter.setAuthenticationManager(mock(AuthenticationManager.class));
 		filter.setAuthenticationSuccessHandler(this.successHandler);
 		assertThatIllegalArgumentException().isThrownBy(() -> filter.setFilterProcessesUrl(null))
-				.withMessage("Pattern cannot be null or empty");
+			.withMessage("Pattern cannot be null or empty");
 	}
 
 	@Test

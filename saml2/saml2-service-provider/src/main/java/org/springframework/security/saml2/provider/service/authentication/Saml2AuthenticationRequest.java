@@ -114,8 +114,9 @@ public final class Saml2AuthenticationRequest {
 	 */
 	public static Builder withAuthenticationRequestContext(Saml2AuthenticationRequestContext context) {
 		return new Builder().assertionConsumerServiceUrl(context.getAssertionConsumerServiceUrl())
-				.issuer(context.getIssuer()).destination(context.getDestination())
-				.credentials((c) -> c.addAll(context.getRelyingPartyRegistration().getCredentials()));
+			.issuer(context.getIssuer())
+			.destination(context.getDestination())
+			.credentials((c) -> c.addAll(context.getRelyingPartyRegistration().getCredentials()));
 	}
 
 	/**

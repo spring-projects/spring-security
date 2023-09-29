@@ -50,25 +50,26 @@ public class InvalidConfigurationTests {
 	@Test
 	public void passwordEncoderCannotAppearAtTopLevel() {
 		assertThatExceptionOfType(XmlBeanDefinitionStoreException.class)
-				.isThrownBy(() -> setContext("<password-encoder hash='md5'/>"));
+			.isThrownBy(() -> setContext("<password-encoder hash='md5'/>"));
 	}
 
 	@Test
 	public void authenticationProviderCannotAppearAtTopLevel() {
 		assertThatExceptionOfType(XmlBeanDefinitionStoreException.class)
-				.isThrownBy(() -> setContext("<authentication-provider ref='blah'/>"));
+			.isThrownBy(() -> setContext("<authentication-provider ref='blah'/>"));
 	}
 
 	@Test
 	public void missingAuthenticationManagerGivesSensibleErrorMessage() {
 		assertThatExceptionOfType(BeanCreationException.class)
-				.isThrownBy(() -> setContext("<http auto-config='true' />")).satisfies((ex) -> {
-					Throwable cause = ultimateCause(ex);
-					assertThat(cause).isInstanceOf(NoSuchBeanDefinitionException.class);
-					NoSuchBeanDefinitionException nsbe = (NoSuchBeanDefinitionException) cause;
-					assertThat(nsbe.getBeanName()).isEqualTo(BeanIds.AUTHENTICATION_MANAGER);
-					assertThat(nsbe.getMessage()).endsWith(AuthenticationManagerFactoryBean.MISSING_BEAN_ERROR_MESSAGE);
-				});
+			.isThrownBy(() -> setContext("<http auto-config='true' />"))
+			.satisfies((ex) -> {
+				Throwable cause = ultimateCause(ex);
+				assertThat(cause).isInstanceOf(NoSuchBeanDefinitionException.class);
+				NoSuchBeanDefinitionException nsbe = (NoSuchBeanDefinitionException) cause;
+				assertThat(nsbe.getBeanName()).isEqualTo(BeanIds.AUTHENTICATION_MANAGER);
+				assertThat(nsbe.getMessage()).endsWith(AuthenticationManagerFactoryBean.MISSING_BEAN_ERROR_MESSAGE);
+			});
 	}
 
 	private Throwable ultimateCause(Throwable ex) {

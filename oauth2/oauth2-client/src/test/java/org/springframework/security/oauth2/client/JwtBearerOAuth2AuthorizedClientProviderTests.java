@@ -85,15 +85,15 @@ public class JwtBearerOAuth2AuthorizedClientProviderTests {
 	@Test
 	public void setAccessTokenResponseClientWhenClientIsNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> this.authorizedClientProvider.setAccessTokenResponseClient(null))
-				.withMessage("accessTokenResponseClient cannot be null");
+			.isThrownBy(() -> this.authorizedClientProvider.setAccessTokenResponseClient(null))
+			.withMessage("accessTokenResponseClient cannot be null");
 	}
 
 	@Test
 	public void setJwtAssertionResolverWhenNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> this.authorizedClientProvider.setJwtAssertionResolver(null))
-				.withMessage("jwtAssertionResolver cannot be null");
+			.isThrownBy(() -> this.authorizedClientProvider.setJwtAssertionResolver(null))
+			.withMessage("jwtAssertionResolver cannot be null");
 	}
 
 	@Test

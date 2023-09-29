@@ -116,8 +116,8 @@ public class DefaultLoginPageGeneratingFilterTests {
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/login");
 		filter.doFilter(request, response, this.chain);
 		assertThat(response
-				.getContentLength() == response.getContentAsString().getBytes(response.getCharacterEncoding()).length)
-						.isTrue();
+			.getContentLength() == response.getContentAsString().getBytes(response.getCharacterEncoding()).length)
+			.isTrue();
 	}
 
 	@Test
@@ -165,7 +165,7 @@ public class DefaultLoginPageGeneratingFilterTests {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		filter.doFilter(new MockHttpServletRequest("GET", "/login"), response, this.chain);
 		assertThat(response.getContentAsString())
-				.contains("<a href=\"/oauth2/authorization/google\">Google &lt; &gt; &quot; &#39; &amp;</a>");
+			.contains("<a href=\"/oauth2/authorization/google\">Google &lt; &gt; &quot; &#39; &amp;</a>");
 	}
 
 	@Test
@@ -179,7 +179,7 @@ public class DefaultLoginPageGeneratingFilterTests {
 		filter.doFilter(new MockHttpServletRequest("GET", "/login"), response, this.chain);
 		assertThat(response.getContentAsString()).contains("Login with SAML 2.0");
 		assertThat(response.getContentAsString())
-				.contains("<a href=\"/saml/sso/google\">Google &lt; &gt; &quot; &#39; &amp;</a>");
+			.contains("<a href=\"/saml/sso/google\">Google &lt; &gt; &quot; &#39; &amp;</a>");
 	} // Fake OpenID filter (since it's not in this module
 
 	@SuppressWarnings("unused")

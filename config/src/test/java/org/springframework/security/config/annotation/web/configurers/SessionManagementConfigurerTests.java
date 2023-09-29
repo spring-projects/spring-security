@@ -102,11 +102,11 @@ public class SessionManagementConfigurerTests {
 	public void sessionManagementWhenConfiguredThenDoesNotOverrideSecurityContextRepository() throws Exception {
 		SessionManagementSecurityContextRepositoryConfig.SECURITY_CONTEXT_REPO = mock(SecurityContextRepository.class);
 		given(SessionManagementSecurityContextRepositoryConfig.SECURITY_CONTEXT_REPO
-				.loadContext(any(HttpRequestResponseHolder.class))).willReturn(mock(SecurityContext.class));
+			.loadContext(any(HttpRequestResponseHolder.class))).willReturn(mock(SecurityContext.class));
 		this.spring.register(SessionManagementSecurityContextRepositoryConfig.class).autowire();
 		this.mvc.perform(get("/"));
 		verify(SessionManagementSecurityContextRepositoryConfig.SECURITY_CONTEXT_REPO)
-				.saveContext(any(SecurityContext.class), any(HttpServletRequest.class), any(HttpServletResponse.class));
+			.saveContext(any(SecurityContext.class), any(HttpServletRequest.class), any(HttpServletResponse.class));
 	}
 
 	@Test
@@ -246,7 +246,7 @@ public class SessionManagementConfigurerTests {
 		ObjectPostProcessorConfig.objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
 		this.spring.register(ObjectPostProcessorConfig.class).autowire();
 		verify(ObjectPostProcessorConfig.objectPostProcessor)
-				.postProcess(any(ConcurrentSessionControlAuthenticationStrategy.class));
+			.postProcess(any(ConcurrentSessionControlAuthenticationStrategy.class));
 	}
 
 	@Test
@@ -254,7 +254,7 @@ public class SessionManagementConfigurerTests {
 		ObjectPostProcessorConfig.objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
 		this.spring.register(ObjectPostProcessorConfig.class).autowire();
 		verify(ObjectPostProcessorConfig.objectPostProcessor)
-				.postProcess(any(CompositeSessionAuthenticationStrategy.class));
+			.postProcess(any(CompositeSessionAuthenticationStrategy.class));
 	}
 
 	@Test
@@ -262,7 +262,7 @@ public class SessionManagementConfigurerTests {
 		ObjectPostProcessorConfig.objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
 		this.spring.register(ObjectPostProcessorConfig.class).autowire();
 		verify(ObjectPostProcessorConfig.objectPostProcessor)
-				.postProcess(any(RegisterSessionAuthenticationStrategy.class));
+			.postProcess(any(RegisterSessionAuthenticationStrategy.class));
 	}
 
 	@Test
@@ -270,7 +270,7 @@ public class SessionManagementConfigurerTests {
 		ObjectPostProcessorConfig.objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
 		this.spring.register(ObjectPostProcessorConfig.class).autowire();
 		verify(ObjectPostProcessorConfig.objectPostProcessor)
-				.postProcess(any(ChangeSessionIdAuthenticationStrategy.class));
+			.postProcess(any(ChangeSessionIdAuthenticationStrategy.class));
 	}
 
 	@Test

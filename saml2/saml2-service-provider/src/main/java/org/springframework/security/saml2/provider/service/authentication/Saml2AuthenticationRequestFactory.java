@@ -82,11 +82,12 @@ public interface Saml2AuthenticationRequestFactory {
 			Saml2AuthenticationRequestContext context) {
 		// backwards compatible with 5.2.x settings
 		Saml2AuthenticationRequest.Builder resultBuilder = Saml2AuthenticationRequest
-				.withAuthenticationRequestContext(context);
+			.withAuthenticationRequestContext(context);
 		String samlRequest = createAuthenticationRequest(resultBuilder.build());
 		samlRequest = Saml2Utils.samlEncode(Saml2Utils.samlDeflate(samlRequest));
-		return Saml2RedirectAuthenticationRequest.withAuthenticationRequestContext(context).samlRequest(samlRequest)
-				.build();
+		return Saml2RedirectAuthenticationRequest.withAuthenticationRequestContext(context)
+			.samlRequest(samlRequest)
+			.build();
 	}
 
 	/**
@@ -110,11 +111,12 @@ public interface Saml2AuthenticationRequestFactory {
 	default Saml2PostAuthenticationRequest createPostAuthenticationRequest(Saml2AuthenticationRequestContext context) {
 		// backwards compatible with 5.2.x settings
 		Saml2AuthenticationRequest.Builder resultBuilder = Saml2AuthenticationRequest
-				.withAuthenticationRequestContext(context);
+			.withAuthenticationRequestContext(context);
 		String samlRequest = createAuthenticationRequest(resultBuilder.build());
 		samlRequest = Saml2Utils.samlEncode(samlRequest.getBytes(StandardCharsets.UTF_8));
-		return Saml2PostAuthenticationRequest.withAuthenticationRequestContext(context).samlRequest(samlRequest)
-				.build();
+		return Saml2PostAuthenticationRequest.withAuthenticationRequestContext(context)
+			.samlRequest(samlRequest)
+			.build();
 	}
 
 }

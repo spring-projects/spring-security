@@ -275,7 +275,7 @@ public class CsrfFilterTests {
 		for (String method : Arrays.asList("GET", "TRACE", "OPTIONS", "HEAD")) {
 			resetRequestResponse();
 			given(this.tokenRepository.loadDeferredToken(this.request, this.response))
-					.willReturn(new TestDeferredCsrfToken(this.token, false));
+				.willReturn(new TestDeferredCsrfToken(this.token, false));
 			this.request.setMethod(method);
 			this.filter.doFilter(this.request, this.response, this.filterChain);
 			verify(this.filterChain).doFilter(this.request, this.response);
@@ -296,7 +296,7 @@ public class CsrfFilterTests {
 		for (String method : Arrays.asList("get", "TrAcE", "oPTIOnS", "hEaD")) {
 			resetRequestResponse();
 			given(this.tokenRepository.loadDeferredToken(this.request, this.response))
-					.willReturn(new TestDeferredCsrfToken(this.token, false));
+				.willReturn(new TestDeferredCsrfToken(this.token, false));
 			this.request.setMethod(method);
 			this.filter.doFilter(this.request, this.response, this.filterChain);
 			verify(this.deniedHandler).handle(eq(this.request), eq(this.response),
@@ -312,7 +312,7 @@ public class CsrfFilterTests {
 		for (String method : Arrays.asList("POST", "PUT", "PATCH", "DELETE", "INVALID")) {
 			resetRequestResponse();
 			given(this.tokenRepository.loadDeferredToken(this.request, this.response))
-					.willReturn(new TestDeferredCsrfToken(this.token, false));
+				.willReturn(new TestDeferredCsrfToken(this.token, false));
 			this.request.setMethod(method);
 			this.filter.doFilter(this.request, this.response, this.filterChain);
 			verify(this.deniedHandler).handle(eq(this.request), eq(this.response),

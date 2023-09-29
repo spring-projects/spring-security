@@ -69,7 +69,7 @@ public class BearerTokenAuthenticationFilter extends OncePerRequestFilter {
 	private final AuthenticationManagerResolver<HttpServletRequest> authenticationManagerResolver;
 
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
-			.getContextHolderStrategy();
+		.getContextHolderStrategy();
 
 	private AuthenticationEntryPoint authenticationEntryPoint = new BearerTokenAuthenticationEntryPoint();
 

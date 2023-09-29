@@ -157,7 +157,7 @@ public class SpringOpaqueTokenIntrospectorTests {
 			OpaqueTokenIntrospector introspectionClient = new SpringOpaqueTokenIntrospector(introspectUri, CLIENT_ID,
 					"wrong");
 			assertThatExceptionOfType(OAuth2IntrospectionException.class)
-					.isThrownBy(() -> introspectionClient.introspect("token"));
+				.isThrownBy(() -> introspectionClient.introspect("token"));
 		}
 	}
 
@@ -184,7 +184,7 @@ public class SpringOpaqueTokenIntrospectorTests {
 		OpaqueTokenIntrospector introspectionClient = new SpringOpaqueTokenIntrospector(INTROSPECTION_URL,
 				restOperations);
 		given(restOperations.exchange(any(RequestEntity.class), eq(STRING_OBJECT_MAP)))
-				.willReturn(response(introspectedValues));
+			.willReturn(response(introspectedValues));
 		OAuth2AuthenticatedPrincipal authority = introspectionClient.introspect("token");
 		// @formatter:off
 		assertThat(authority.getAttributes())
@@ -203,7 +203,7 @@ public class SpringOpaqueTokenIntrospectorTests {
 		OpaqueTokenIntrospector introspectionClient = new SpringOpaqueTokenIntrospector(INTROSPECTION_URL,
 				restOperations);
 		given(restOperations.exchange(any(RequestEntity.class), eq(STRING_OBJECT_MAP)))
-				.willThrow(new IllegalStateException("server was unresponsive"));
+			.willThrow(new IllegalStateException("server was unresponsive"));
 		// @formatter:off
 		assertThatExceptionOfType(OAuth2IntrospectionException.class)
 				.isThrownBy(() -> introspectionClient.introspect("token"))
@@ -218,7 +218,7 @@ public class SpringOpaqueTokenIntrospectorTests {
 				restOperations);
 		given(restOperations.exchange(any(RequestEntity.class), eq(STRING_OBJECT_MAP))).willReturn(response("{}"));
 		assertThatExceptionOfType(OAuth2IntrospectionException.class)
-				.isThrownBy(() -> introspectionClient.introspect("token"));
+			.isThrownBy(() -> introspectionClient.introspect("token"));
 	}
 
 	@Test
@@ -228,7 +228,7 @@ public class SpringOpaqueTokenIntrospectorTests {
 				restOperations);
 		given(restOperations.exchange(any(RequestEntity.class), eq(STRING_OBJECT_MAP))).willReturn(INVALID);
 		assertThatExceptionOfType(OAuth2IntrospectionException.class)
-				.isThrownBy(() -> introspectionClient.introspect("token"));
+			.isThrownBy(() -> introspectionClient.introspect("token"));
 	}
 
 	// gh-7563
@@ -247,25 +247,25 @@ public class SpringOpaqueTokenIntrospectorTests {
 	@Test
 	public void constructorWhenIntrospectionUriIsNullThenIllegalArgumentException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new SpringOpaqueTokenIntrospector(null, CLIENT_ID, CLIENT_SECRET));
+			.isThrownBy(() -> new SpringOpaqueTokenIntrospector(null, CLIENT_ID, CLIENT_SECRET));
 	}
 
 	@Test
 	public void constructorWhenClientIdIsNullThenIllegalArgumentException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new SpringOpaqueTokenIntrospector(INTROSPECTION_URL, null, CLIENT_SECRET));
+			.isThrownBy(() -> new SpringOpaqueTokenIntrospector(INTROSPECTION_URL, null, CLIENT_SECRET));
 	}
 
 	@Test
 	public void constructorWhenClientSecretIsNullThenIllegalArgumentException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new SpringOpaqueTokenIntrospector(INTROSPECTION_URL, CLIENT_ID, null));
+			.isThrownBy(() -> new SpringOpaqueTokenIntrospector(INTROSPECTION_URL, CLIENT_ID, null));
 	}
 
 	@Test
 	public void constructorWhenRestOperationsIsNullThenIllegalArgumentException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new SpringOpaqueTokenIntrospector(INTROSPECTION_URL, null));
+			.isThrownBy(() -> new SpringOpaqueTokenIntrospector(INTROSPECTION_URL, null));
 	}
 
 	@Test
@@ -274,7 +274,7 @@ public class SpringOpaqueTokenIntrospectorTests {
 		SpringOpaqueTokenIntrospector introspectionClient = new SpringOpaqueTokenIntrospector(INTROSPECTION_URL,
 				restOperations);
 		assertThatExceptionOfType(IllegalArgumentException.class)
-				.isThrownBy(() -> introspectionClient.setRequestEntityConverter(null));
+			.isThrownBy(() -> introspectionClient.setRequestEntityConverter(null));
 	}
 
 	@SuppressWarnings("unchecked")

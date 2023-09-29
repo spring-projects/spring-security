@@ -97,10 +97,12 @@ public class Saml2AuthenticationToken extends AbstractAuthenticationToken {
 			String localSpEntityId, List<Saml2X509Credential> credentials) {
 		super(null);
 		this.relyingPartyRegistration = RelyingPartyRegistration.withRegistrationId(idpEntityId)
-				.entityId(localSpEntityId).assertionConsumerServiceLocation(recipientUri)
-				.credentials((c) -> c.addAll(credentials)).assertingPartyDetails((assertingParty) -> assertingParty
-						.entityId(idpEntityId).singleSignOnServiceLocation(idpEntityId))
-				.build();
+			.entityId(localSpEntityId)
+			.assertionConsumerServiceLocation(recipientUri)
+			.credentials((c) -> c.addAll(credentials))
+			.assertingPartyDetails(
+					(assertingParty) -> assertingParty.entityId(idpEntityId).singleSignOnServiceLocation(idpEntityId))
+			.build();
 		this.saml2Response = saml2Response;
 		this.authenticationRequest = null;
 	}

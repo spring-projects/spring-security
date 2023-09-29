@@ -93,7 +93,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 public class BasicAuthenticationFilter extends OncePerRequestFilter {
 
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
-			.getContextHolderStrategy();
+		.getContextHolderStrategy();
 
 	private AuthenticationEntryPoint authenticationEntryPoint;
 

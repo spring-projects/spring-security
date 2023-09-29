@@ -65,7 +65,7 @@ public class JeeConfigurerTests {
 		ObjectPostProcessorConfig.objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
 		this.spring.register(ObjectPostProcessorConfig.class).autowire();
 		verify(ObjectPostProcessorConfig.objectPostProcessor)
-				.postProcess(any(J2eePreAuthenticatedProcessingFilter.class));
+			.postProcess(any(J2eePreAuthenticatedProcessingFilter.class));
 	}
 
 	@Test
@@ -73,7 +73,7 @@ public class JeeConfigurerTests {
 		ObjectPostProcessorConfig.objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
 		this.spring.register(ObjectPostProcessorConfig.class).autowire();
 		verify(ObjectPostProcessorConfig.objectPostProcessor)
-				.postProcess(any(J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource.class));
+			.postProcess(any(J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource.class));
 	}
 
 	@Test
@@ -125,7 +125,7 @@ public class JeeConfigurerTests {
 				});
 		// @formatter:on
 		SecurityMockMvcResultMatchers.AuthenticatedMatcher authenticatedAsUser = authenticated()
-				.withAuthorities(AuthorityUtils.createAuthorityList("ROLE_USER"));
+			.withAuthorities(AuthorityUtils.createAuthorityList("ROLE_USER"));
 		this.mvc.perform(authRequest).andExpect(authenticatedAsUser);
 	}
 
@@ -138,7 +138,7 @@ public class JeeConfigurerTests {
 				AuthorityUtils.createAuthorityList("ROLE_USER"));
 		given(user.getName()).willReturn("user");
 		given(JeeCustomAuthenticatedUserDetailsServiceConfig.authenticationUserDetailsService.loadUserDetails(any()))
-				.willReturn(userDetails);
+			.willReturn(userDetails);
 		// @formatter:off
 		MockHttpServletRequestBuilder authRequest = get("/")
 				.principal(user)

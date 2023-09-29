@@ -29,7 +29,6 @@ import org.springframework.core.Ordered;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
 
 /**
- *
  * @author Rob Winch
  * @since 5.0
  */

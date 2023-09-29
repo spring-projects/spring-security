@@ -57,7 +57,7 @@ public class InMemoryUserDetailsManagerTests {
 		String newPassword = "newPassword";
 		this.manager.updatePassword(userNotLowerCase, newPassword);
 		assertThat(this.manager.loadUserByUsername(userNotLowerCase.getUsername()).getPassword())
-				.isEqualTo(newPassword);
+			.isEqualTo(newPassword);
 	}
 
 	@Test
@@ -75,7 +75,7 @@ public class InMemoryUserDetailsManagerTests {
 		Properties properties = new Properties();
 		properties.setProperty("joe", "");
 		assertThatIllegalArgumentException().isThrownBy(() -> new InMemoryUserDetailsManager(properties))
-				.withMessage("The entry with username 'joe' could not be converted to an UserDetails");
+			.withMessage("The entry with username 'joe' could not be converted to an UserDetails");
 	}
 
 	@Test
@@ -83,7 +83,7 @@ public class InMemoryUserDetailsManagerTests {
 		Properties properties = new Properties();
 		properties.setProperty("joe", "{noop}joespassword");
 		assertThatIllegalArgumentException().isThrownBy(() -> new InMemoryUserDetailsManager(properties))
-				.withMessage("The entry with username 'joe' could not be converted to an UserDetails");
+			.withMessage("The entry with username 'joe' could not be converted to an UserDetails");
 	}
 
 	@Test

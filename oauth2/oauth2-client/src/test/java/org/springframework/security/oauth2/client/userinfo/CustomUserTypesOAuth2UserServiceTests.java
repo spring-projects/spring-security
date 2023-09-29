@@ -88,7 +88,7 @@ public class CustomUserTypesOAuth2UserServiceTests {
 	@Test
 	public void constructorWhenCustomUserTypesIsEmptyThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new CustomUserTypesOAuth2UserService(Collections.emptyMap()));
+			.isThrownBy(() -> new CustomUserTypesOAuth2UserService(Collections.emptyMap()));
 	}
 
 	@Test
@@ -156,10 +156,9 @@ public class CustomUserTypesOAuth2UserServiceTests {
 		String userInfoUri = this.server.url("/user").toString();
 		ClientRegistration clientRegistration = this.clientRegistrationBuilder.userInfoUri(userInfoUri).build();
 		assertThatExceptionOfType(OAuth2AuthenticationException.class)
-				.isThrownBy(
-						() -> this.userService.loadUser(new OAuth2UserRequest(clientRegistration, this.accessToken)))
-				.withMessageContaining(
-						"[invalid_user_info_response] An error occurred while attempting to retrieve the UserInfo Resource");
+			.isThrownBy(() -> this.userService.loadUser(new OAuth2UserRequest(clientRegistration, this.accessToken)))
+			.withMessageContaining(
+					"[invalid_user_info_response] An error occurred while attempting to retrieve the UserInfo Resource");
 	}
 
 	@Test
@@ -168,10 +167,9 @@ public class CustomUserTypesOAuth2UserServiceTests {
 		String userInfoUri = this.server.url("/user").toString();
 		ClientRegistration clientRegistration = this.clientRegistrationBuilder.userInfoUri(userInfoUri).build();
 		assertThatExceptionOfType(OAuth2AuthenticationException.class)
-				.isThrownBy(
-						() -> this.userService.loadUser(new OAuth2UserRequest(clientRegistration, this.accessToken)))
-				.withMessageContaining(
-						"[invalid_user_info_response] An error occurred while attempting to retrieve the UserInfo Resource: 500 Server Error");
+			.isThrownBy(() -> this.userService.loadUser(new OAuth2UserRequest(clientRegistration, this.accessToken)))
+			.withMessageContaining(
+					"[invalid_user_info_response] An error occurred while attempting to retrieve the UserInfo Resource: 500 Server Error");
 	}
 
 	@Test
@@ -179,10 +177,9 @@ public class CustomUserTypesOAuth2UserServiceTests {
 		String userInfoUri = "https://invalid-provider.com/user";
 		ClientRegistration clientRegistration = this.clientRegistrationBuilder.userInfoUri(userInfoUri).build();
 		assertThatExceptionOfType(OAuth2AuthenticationException.class)
-				.isThrownBy(
-						() -> this.userService.loadUser(new OAuth2UserRequest(clientRegistration, this.accessToken)))
-				.withMessageContaining(
-						"[invalid_user_info_response] An error occurred while attempting to retrieve the UserInfo Resource");
+			.isThrownBy(() -> this.userService.loadUser(new OAuth2UserRequest(clientRegistration, this.accessToken)))
+			.withMessageContaining(
+					"[invalid_user_info_response] An error occurred while attempting to retrieve the UserInfo Resource");
 	}
 
 	private ClientRegistration.Builder withRegistrationId(String registrationId) {

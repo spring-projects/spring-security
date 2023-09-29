@@ -287,8 +287,11 @@ public class UrlAuthorizationConfigurerTests {
 
 		@Bean
 		UserDetailsService userDetailsService() {
-			UserDetails user = User.withDefaultPasswordEncoder().username("user").password("password").roles("USER")
-					.build();
+			UserDetails user = User.withDefaultPasswordEncoder()
+				.username("user")
+				.password("password")
+				.roles("USER")
+				.build();
 			return new InMemoryUserDetailsManager(user);
 		}
 

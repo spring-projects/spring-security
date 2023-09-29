@@ -196,10 +196,12 @@ public class OAuth2LoginConfigurerTests {
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
 		// assertions
 		Authentication authentication = this.securityContextRepository
-				.loadContext(new HttpRequestResponseHolder(this.request, this.response)).getAuthentication();
+			.loadContext(new HttpRequestResponseHolder(this.request, this.response))
+			.getAuthentication();
 		assertThat(authentication.getAuthorities()).hasSize(1);
-		assertThat(authentication.getAuthorities()).first().isInstanceOf(OAuth2UserAuthority.class)
-				.hasToString("ROLE_USER");
+		assertThat(authentication.getAuthorities()).first()
+			.isInstanceOf(OAuth2UserAuthority.class)
+			.hasToString("ROLE_USER");
 	}
 
 	@Test
@@ -211,10 +213,12 @@ public class OAuth2LoginConfigurerTests {
 		this.request.setParameter("state", authorizationRequest.getState());
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
 		Authentication authentication = this.securityContextRepository
-				.loadContext(new HttpRequestResponseHolder(this.request, this.response)).getAuthentication();
+			.loadContext(new HttpRequestResponseHolder(this.request, this.response))
+			.getAuthentication();
 		assertThat(authentication.getAuthorities()).hasSize(1);
-		assertThat(authentication.getAuthorities()).first().isInstanceOf(OAuth2UserAuthority.class)
-				.hasToString("ROLE_USER");
+		assertThat(authentication.getAuthorities()).first()
+			.isInstanceOf(OAuth2UserAuthority.class)
+			.hasToString("ROLE_USER");
 		SecurityContextHolderStrategy strategy = this.context.getBean(SecurityContextHolderStrategy.class);
 		verify(strategy, atLeastOnce()).getContext();
 		SecurityContextChangedListener listener = this.context.getBean(SecurityContextChangedListener.class);
@@ -230,10 +234,12 @@ public class OAuth2LoginConfigurerTests {
 		this.request.setParameter("state", authorizationRequest.getState());
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
 		Authentication authentication = this.securityContextRepository
-				.loadContext(new HttpRequestResponseHolder(this.request, this.response)).getAuthentication();
+			.loadContext(new HttpRequestResponseHolder(this.request, this.response))
+			.getAuthentication();
 		assertThat(authentication.getAuthorities()).hasSize(1);
-		assertThat(authentication.getAuthorities()).first().isInstanceOf(OAuth2UserAuthority.class)
-				.hasToString("ROLE_USER");
+		assertThat(authentication.getAuthorities()).first()
+			.isInstanceOf(OAuth2UserAuthority.class)
+			.hasToString("ROLE_USER");
 	}
 
 	// gh-6009
@@ -269,7 +275,8 @@ public class OAuth2LoginConfigurerTests {
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
 		// assertions
 		Authentication authentication = this.securityContextRepository
-				.loadContext(new HttpRequestResponseHolder(this.request, this.response)).getAuthentication();
+			.loadContext(new HttpRequestResponseHolder(this.request, this.response))
+			.getAuthentication();
 		assertThat(authentication.getAuthorities()).hasSize(2);
 		assertThat(authentication.getAuthorities()).first().hasToString("ROLE_USER");
 		assertThat(authentication.getAuthorities()).last().hasToString("ROLE_OAUTH2_USER");
@@ -289,7 +296,8 @@ public class OAuth2LoginConfigurerTests {
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
 		// assertions
 		Authentication authentication = this.securityContextRepository
-				.loadContext(new HttpRequestResponseHolder(this.request, this.response)).getAuthentication();
+			.loadContext(new HttpRequestResponseHolder(this.request, this.response))
+			.getAuthentication();
 		assertThat(authentication.getAuthorities()).hasSize(2);
 		assertThat(authentication.getAuthorities()).first().hasToString("ROLE_USER");
 		assertThat(authentication.getAuthorities()).last().hasToString("ROLE_OAUTH2_USER");
@@ -309,7 +317,8 @@ public class OAuth2LoginConfigurerTests {
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
 		// assertions
 		Authentication authentication = this.securityContextRepository
-				.loadContext(new HttpRequestResponseHolder(this.request, this.response)).getAuthentication();
+			.loadContext(new HttpRequestResponseHolder(this.request, this.response))
+			.getAuthentication();
 		assertThat(authentication.getAuthorities()).hasSize(2);
 		assertThat(authentication.getAuthorities()).first().hasToString("ROLE_USER");
 		assertThat(authentication.getAuthorities()).last().hasToString("ROLE_OAUTH2_USER");
@@ -331,10 +340,12 @@ public class OAuth2LoginConfigurerTests {
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
 		// assertions
 		Authentication authentication = this.securityContextRepository
-				.loadContext(new HttpRequestResponseHolder(this.request, this.response)).getAuthentication();
+			.loadContext(new HttpRequestResponseHolder(this.request, this.response))
+			.getAuthentication();
 		assertThat(authentication.getAuthorities()).hasSize(1);
-		assertThat(authentication.getAuthorities()).first().isInstanceOf(OAuth2UserAuthority.class)
-				.hasToString("ROLE_USER");
+		assertThat(authentication.getAuthorities()).first()
+			.isInstanceOf(OAuth2UserAuthority.class)
+			.hasToString("ROLE_USER");
 	}
 
 	// gh-5521
@@ -342,7 +353,7 @@ public class OAuth2LoginConfigurerTests {
 	public void oauth2LoginWithCustomAuthorizationRequestParameters() throws Exception {
 		loadConfig(OAuth2LoginConfigCustomAuthorizationRequestResolver.class);
 		OAuth2AuthorizationRequestResolver resolver = this.context
-				.getBean(OAuth2LoginConfigCustomAuthorizationRequestResolver.class).resolver;
+			.getBean(OAuth2LoginConfigCustomAuthorizationRequestResolver.class).resolver;
 		// @formatter:off
 		OAuth2AuthorizationRequest result = OAuth2AuthorizationRequest.authorizationCode()
 				.authorizationUri("https://accounts.google.com/authorize")
@@ -366,7 +377,7 @@ public class OAuth2LoginConfigurerTests {
 			throws Exception {
 		loadConfig(OAuth2LoginConfigCustomAuthorizationRequestResolverInLambda.class);
 		OAuth2AuthorizationRequestResolver resolver = this.context
-				.getBean(OAuth2LoginConfigCustomAuthorizationRequestResolverInLambda.class).resolver;
+			.getBean(OAuth2LoginConfigCustomAuthorizationRequestResolverInLambda.class).resolver;
 		// @formatter:off
 		OAuth2AuthorizationRequest result = OAuth2AuthorizationRequest.authorizationCode()
 				.authorizationUri("https://accounts.google.com/authorize")
@@ -390,7 +401,7 @@ public class OAuth2LoginConfigurerTests {
 			throws Exception {
 		loadConfig(OAuth2LoginConfigCustomAuthorizationRedirectStrategy.class);
 		RedirectStrategy redirectStrategy = this.context
-				.getBean(OAuth2LoginConfigCustomAuthorizationRedirectStrategy.class).redirectStrategy;
+			.getBean(OAuth2LoginConfigCustomAuthorizationRedirectStrategy.class).redirectStrategy;
 		String requestUri = "/oauth2/authorization/google";
 		this.request = new MockHttpServletRequest("GET", requestUri);
 		this.request.setServletPath(requestUri);
@@ -403,7 +414,7 @@ public class OAuth2LoginConfigurerTests {
 			throws Exception {
 		loadConfig(OAuth2LoginConfigCustomAuthorizationRedirectStrategyInLambda.class);
 		RedirectStrategy redirectStrategy = this.context
-				.getBean(OAuth2LoginConfigCustomAuthorizationRedirectStrategyInLambda.class).redirectStrategy;
+			.getBean(OAuth2LoginConfigCustomAuthorizationRedirectStrategyInLambda.class).redirectStrategy;
 		String requestUri = "/oauth2/authorization/google";
 		this.request = new MockHttpServletRequest("GET", requestUri);
 		this.request.setServletPath(requestUri);
@@ -540,10 +551,12 @@ public class OAuth2LoginConfigurerTests {
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
 		// assertions
 		Authentication authentication = this.securityContextRepository
-				.loadContext(new HttpRequestResponseHolder(this.request, this.response)).getAuthentication();
+			.loadContext(new HttpRequestResponseHolder(this.request, this.response))
+			.getAuthentication();
 		assertThat(authentication.getAuthorities()).hasSize(1);
-		assertThat(authentication.getAuthorities()).first().isInstanceOf(OidcUserAuthority.class)
-				.hasToString("ROLE_USER");
+		assertThat(authentication.getAuthorities()).first()
+			.isInstanceOf(OidcUserAuthority.class)
+			.hasToString("ROLE_USER");
 	}
 
 	@Test
@@ -560,10 +573,12 @@ public class OAuth2LoginConfigurerTests {
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
 		// assertions
 		Authentication authentication = this.securityContextRepository
-				.loadContext(new HttpRequestResponseHolder(this.request, this.response)).getAuthentication();
+			.loadContext(new HttpRequestResponseHolder(this.request, this.response))
+			.getAuthentication();
 		assertThat(authentication.getAuthorities()).hasSize(1);
-		assertThat(authentication.getAuthorities()).first().isInstanceOf(OidcUserAuthority.class)
-				.hasToString("ROLE_USER");
+		assertThat(authentication.getAuthorities()).first()
+			.isInstanceOf(OidcUserAuthority.class)
+			.hasToString("ROLE_USER");
 	}
 
 	@Test
@@ -580,7 +595,8 @@ public class OAuth2LoginConfigurerTests {
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
 		// assertions
 		Authentication authentication = this.securityContextRepository
-				.loadContext(new HttpRequestResponseHolder(this.request, this.response)).getAuthentication();
+			.loadContext(new HttpRequestResponseHolder(this.request, this.response))
+			.getAuthentication();
 		assertThat(authentication.getAuthorities()).hasSize(2);
 		assertThat(authentication.getAuthorities()).first().hasToString("ROLE_USER");
 		assertThat(authentication.getAuthorities()).last().hasToString("ROLE_OIDC_USER");
@@ -600,7 +616,8 @@ public class OAuth2LoginConfigurerTests {
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
 		// assertions
 		Authentication authentication = this.securityContextRepository
-				.loadContext(new HttpRequestResponseHolder(this.request, this.response)).getAuthentication();
+			.loadContext(new HttpRequestResponseHolder(this.request, this.response))
+			.getAuthentication();
 		assertThat(authentication.getAuthorities()).hasSize(2);
 		assertThat(authentication.getAuthorities()).first().hasToString("ROLE_USER");
 		assertThat(authentication.getAuthorities()).last().hasToString("ROLE_OIDC_USER");
@@ -609,11 +626,11 @@ public class OAuth2LoginConfigurerTests {
 	@Test
 	public void oidcLoginCustomWithNoUniqueJwtDecoderFactory() {
 		assertThatExceptionOfType(BeanCreationException.class)
-				.isThrownBy(() -> loadConfig(OAuth2LoginConfig.class, NoUniqueJwtDecoderFactoryConfig.class))
-				.withRootCauseInstanceOf(NoUniqueBeanDefinitionException.class)
-				.withMessageContaining("No qualifying bean of type "
-						+ "'org.springframework.security.oauth2.jwt.JwtDecoderFactory<org.springframework.security.oauth2.client.registration.ClientRegistration>' "
-						+ "available: expected single matching bean but found 2: jwtDecoderFactory1,jwtDecoderFactory2");
+			.isThrownBy(() -> loadConfig(OAuth2LoginConfig.class, NoUniqueJwtDecoderFactoryConfig.class))
+			.withRootCauseInstanceOf(NoUniqueBeanDefinitionException.class)
+			.withMessageContaining("No qualifying bean of type "
+					+ "'org.springframework.security.oauth2.jwt.JwtDecoderFactory<org.springframework.security.oauth2.client.registration.ClientRegistration>' "
+					+ "available: expected single matching bean but found 2: jwtDecoderFactory1,jwtDecoderFactory2");
 	}
 
 	@Test
@@ -622,7 +639,7 @@ public class OAuth2LoginConfigurerTests {
 		OAuth2AuthenticationToken token = new OAuth2AuthenticationToken(TestOidcUsers.create(),
 				AuthorityUtils.NO_AUTHORITIES, "registration-id");
 		this.mvc.perform(post("/logout").with(authentication(token)).with(csrf()))
-				.andExpect(redirectedUrl("https://logout?id_token_hint=id-token"));
+			.andExpect(redirectedUrl("https://logout?id_token_hint=id-token"));
 	}
 
 	private void loadConfig(Class<?>... configs) {
@@ -658,8 +675,10 @@ public class OAuth2LoginConfigurerTests {
 			if (request.getAuthorizationExchange().getAuthorizationRequest().getScopes().contains("openid")) {
 				additionalParameters.put(OidcParameterNames.ID_TOKEN, "token123");
 			}
-			return OAuth2AccessTokenResponse.withToken("accessToken123").tokenType(OAuth2AccessToken.TokenType.BEARER)
-					.additionalParameters(additionalParameters).build();
+			return OAuth2AccessTokenResponse.withToken("accessToken123")
+				.tokenType(OAuth2AccessToken.TokenType.BEARER)
+				.additionalParameters(additionalParameters)
+				.build();
 		};
 	}
 
@@ -1057,7 +1076,8 @@ public class OAuth2LoginConfigurerTests {
 		ClientRegistrationRepository clientRegistrationRepository() {
 			Map<String, Object> providerMetadata = Collections.singletonMap("end_session_endpoint", "https://logout");
 			return new InMemoryClientRegistrationRepository(TestClientRegistrations.clientRegistration()
-					.providerConfigurationMetadata(providerMetadata).build());
+				.providerConfigurationMetadata(providerMetadata)
+				.build());
 		}
 
 	}

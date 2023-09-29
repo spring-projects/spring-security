@@ -141,7 +141,7 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 	private static final String OAUTH2_AUTHORIZED_CLIENT_ATTR_NAME = OAuth2AuthorizedClient.class.getName();
 
 	private static final String CLIENT_REGISTRATION_ID_ATTR_NAME = OAuth2AuthorizedClient.class.getName()
-			.concat(".CLIENT_REGISTRATION_ID");
+		.concat(".CLIENT_REGISTRATION_ID");
 
 	private static final String AUTHENTICATION_ATTR_NAME = Authentication.class.getName();
 
@@ -153,7 +153,7 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 			"anonymousUser", AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
 
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
-			.getContextHolderStrategy();
+		.getContextHolderStrategy();
 
 	@Deprecated
 	private Duration accessTokenExpiresSkew = Duration.ofMinutes(1);
@@ -275,7 +275,7 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 				.build();
 		// @formatter:on
 		((DefaultOAuth2AuthorizedClientManager) this.authorizedClientManager)
-				.setAuthorizedClientProvider(authorizedClientProvider);
+			.setAuthorizedClientProvider(authorizedClientProvider);
 	}
 
 	private void updateClientCredentialsProvider(
@@ -473,7 +473,7 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 
 	private Mono<ClientResponse> exchangeAndHandleResponse(ClientRequest request, ExchangeFunction next) {
 		return next.exchange(request)
-				.transform((responseMono) -> this.clientResponseHandler.handleResponse(request, responseMono));
+			.transform((responseMono) -> this.clientResponseHandler.handleResponse(request, responseMono));
 	}
 
 	private Mono<ClientRequest> mergeRequestAttributesIfNecessary(ClientRequest request) {
@@ -488,8 +488,8 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 	private Mono<ClientRequest> mergeRequestAttributesFromContext(ClientRequest request) {
 		ClientRequest.Builder builder = ClientRequest.from(request);
 		return Mono.subscriberContext()
-				.map((ctx) -> builder.attributes((attrs) -> populateRequestAttributes(attrs, ctx)))
-				.map(ClientRequest.Builder::build);
+			.map((ctx) -> builder.attributes((attrs) -> populateRequestAttributes(attrs, ctx)))
+			.map(ClientRequest.Builder::build);
 	}
 
 	private void populateRequestAttributes(Map<String, Object> attrs, Context ctx) {
@@ -558,14 +558,14 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 		HttpServletRequest servletRequest = getRequest(attrs);
 		HttpServletResponse servletResponse = getResponse(attrs);
 		OAuth2AuthorizeRequest.Builder builder = OAuth2AuthorizeRequest.withClientRegistrationId(clientRegistrationId)
-				.principal(authentication);
+			.principal(authentication);
 		builder.attributes((attributes) -> addToAttributes(attributes, servletRequest, servletResponse));
 		OAuth2AuthorizeRequest authorizeRequest = builder.build();
 		// NOTE: 'authorizedClientManager.authorize()' needs to be executed on a dedicated
 		// thread via subscribeOn(Schedulers.boundedElastic()) since it performs a
 		// blocking I/O operation using RestTemplate internally
 		return Mono.fromSupplier(() -> this.authorizedClientManager.authorize(authorizeRequest))
-				.subscribeOn(Schedulers.boundedElastic());
+			.subscribeOn(Schedulers.boundedElastic());
 	}
 
 	private Mono<OAuth2AuthorizedClient> reauthorizeClient(OAuth2AuthorizedClient authorizedClient,
@@ -581,14 +581,14 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 		HttpServletRequest servletRequest = getRequest(attrs);
 		HttpServletResponse servletResponse = getResponse(attrs);
 		OAuth2AuthorizeRequest.Builder builder = OAuth2AuthorizeRequest.withAuthorizedClient(authorizedClient)
-				.principal(authentication);
+			.principal(authentication);
 		builder.attributes((attributes) -> addToAttributes(attributes, servletRequest, servletResponse));
 		OAuth2AuthorizeRequest reauthorizeRequest = builder.build();
 		// NOTE: 'authorizedClientManager.authorize()' needs to be executed on a dedicated
 		// thread via subscribeOn(Schedulers.boundedElastic()) since it performs a
 		// blocking I/O operation using RestTemplate internally
 		return Mono.fromSupplier(() -> this.authorizedClientManager.authorize(reauthorizeRequest))
-				.subscribeOn(Schedulers.boundedElastic());
+			.subscribeOn(Schedulers.boundedElastic());
 	}
 
 	private void addToAttributes(Map<String, Object> attributes, HttpServletRequest servletRequest,
@@ -685,10 +685,10 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 		@Override
 		public Mono<ClientResponse> handleResponse(ClientRequest request, Mono<ClientResponse> responseMono) {
 			return responseMono.flatMap((response) -> handleResponse(request, response).thenReturn(response))
-					.onErrorResume(WebClientResponseException.class,
-							(e) -> handleWebClientResponseException(request, e).then(Mono.error(e)))
-					.onErrorResume(OAuth2AuthorizationException.class,
-							(e) -> handleAuthorizationException(request, e).then(Mono.error(e)));
+				.onErrorResume(WebClientResponseException.class,
+						(e) -> handleWebClientResponseException(request, e).then(Mono.error(e)))
+				.onErrorResume(OAuth2AuthorizationException.class,
+						(e) -> handleAuthorizationException(request, e).then(Mono.error(e)));
 		}
 
 		private Mono<Void> handleResponse(ClientRequest request, ClientResponse response) {

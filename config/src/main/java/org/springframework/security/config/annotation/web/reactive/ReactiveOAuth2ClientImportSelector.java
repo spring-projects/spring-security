@@ -117,7 +117,12 @@ final class ReactiveOAuth2ClientImportSelector implements ImportSelector {
 			ReactiveOAuth2AuthorizedClientManager authorizedClientManager = null;
 			if (this.authorizedClientRepository != null && this.clientRegistrationRepository != null) {
 				ReactiveOAuth2AuthorizedClientProvider authorizedClientProvider = ReactiveOAuth2AuthorizedClientProviderBuilder
-						.builder().authorizationCode().refreshToken().clientCredentials().password().build();
+					.builder()
+					.authorizationCode()
+					.refreshToken()
+					.clientCredentials()
+					.password()
+					.build();
 				DefaultReactiveOAuth2AuthorizedClientManager defaultReactiveOAuth2AuthorizedClientManager = new DefaultReactiveOAuth2AuthorizedClientManager(
 						this.clientRegistrationRepository, getAuthorizedClientRepository());
 				defaultReactiveOAuth2AuthorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);

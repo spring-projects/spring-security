@@ -150,7 +150,7 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 	private final ParserPool parserPool;
 
 	private Converter<Assertion, Collection<? extends GrantedAuthority>> authoritiesExtractor = ((a) -> Collections
-			.singletonList(new SimpleGrantedAuthority("ROLE_USER")));
+		.singletonList(new SimpleGrantedAuthority("ROLE_USER")));
 
 	private GrantedAuthoritiesMapper authoritiesMapper = ((a) -> a);
 
@@ -176,7 +176,7 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 	public OpenSamlAuthenticationProvider() {
 		this.registry = ConfigurationService.get(XMLObjectProviderRegistry.class);
 		this.responseUnmarshaller = (ResponseUnmarshaller) this.registry.getUnmarshallerFactory()
-				.getUnmarshaller(Response.DEFAULT_ELEMENT_NAME);
+			.getUnmarshaller(Response.DEFAULT_ELEMENT_NAME);
 		this.parserPool = this.registry.getParserPool();
 	}
 
@@ -463,7 +463,7 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 	private Response parse(String response) throws Saml2Exception, Saml2AuthenticationException {
 		try {
 			Document document = this.parserPool
-					.parse(new ByteArrayInputStream(response.getBytes(StandardCharsets.UTF_8)));
+				.parse(new ByteArrayInputStream(response.getBytes(StandardCharsets.UTF_8)));
 			Element element = document.getDocumentElement();
 			return (Response) this.responseUnmarshaller.unmarshall(element);
 		}
@@ -512,8 +512,8 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 						+ "]: " + errors);
 			}
 			else if (logger.isDebugEnabled()) {
-				logger.debug(
-						"Found " + errors.size() + " validation errors in SAML response [" + response.getID() + "]");
+				logger
+					.debug("Found " + errors.size() + " validation errors in SAML response [" + response.getID() + "]");
 			}
 			Saml2Error first = errors.iterator().next();
 			throw createAuthenticationException(first.getErrorCode(), first.getDescription(), null);
@@ -568,8 +568,9 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 						+ "]";
 				result = result.concat(new Saml2Error(Saml2ErrorCodes.INVALID_DESTINATION, message));
 			}
-			String assertingPartyEntityId = token.getRelyingPartyRegistration().getAssertingPartyDetails()
-					.getEntityId();
+			String assertingPartyEntityId = token.getRelyingPartyRegistration()
+				.getAssertingPartyDetails()
+				.getEntityId();
 			if (!StringUtils.hasText(issuer) || !issuer.equals(assertingPartyEntityId)) {
 				String message = String.format("Invalid issuer [%s] for SAML response [%s]", issuer, response.getID());
 				result = result.concat(new Saml2Error(Saml2ErrorCodes.INVALID_ISSUER, message));
@@ -617,9 +618,8 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 	private Converter<AssertionToken, Saml2ResponseValidatorResult> createCompatibleAssertionValidator() {
 		return createAssertionValidator(Saml2ErrorCodes.INVALID_ASSERTION,
 				(assertionToken) -> SAML20AssertionValidators.attributeValidator,
-				(assertionToken) -> createValidationContext(assertionToken,
-						(params) -> params.put(SAML2AssertionValidationParameters.CLOCK_SKEW,
-								this.responseTimeValidationSkew.toMillis())));
+				(assertionToken) -> createValidationContext(assertionToken, (params) -> params
+					.put(SAML2AssertionValidationParameters.CLOCK_SKEW, this.responseTimeValidationSkew.toMillis())));
 	}
 
 	private Converter<ResponseToken, Saml2Authentication> createCompatibleResponseAuthenticationConverter() {

@@ -174,7 +174,8 @@ public class Saml2LogoutConfigurerTests {
 		this.spring.register(Saml2LogoutDefaultsConfig.class).autowire();
 		TestingAuthenticationToken user = new TestingAuthenticationToken("user", "password");
 		MvcResult result = this.mvc.perform(post("/logout").with(authentication(user)).with(csrf()))
-				.andExpect(status().isFound()).andReturn();
+			.andExpect(status().isFound())
+			.andReturn();
 		String location = result.getResponse().getHeader("Location");
 		LogoutHandler logoutHandler = this.spring.getContext().getBean(LogoutHandler.class);
 		assertThat(location).isEqualTo("/login?logout");
@@ -185,7 +186,8 @@ public class Saml2LogoutConfigurerTests {
 	public void saml2LogoutWhenDefaultsThenLogsOutAndSendsLogoutRequest() throws Exception {
 		this.spring.register(Saml2LogoutDefaultsConfig.class).autowire();
 		MvcResult result = this.mvc.perform(post("/logout").with(authentication(this.user)).with(csrf()))
-				.andExpect(status().isFound()).andReturn();
+			.andExpect(status().isFound())
+			.andReturn();
 		String location = result.getResponse().getHeader("Location");
 		LogoutHandler logoutHandler = this.spring.getContext().getBean(LogoutHandler.class);
 		assertThat(location).startsWith("https://ap.example.org/logout/saml2/request");
@@ -195,8 +197,9 @@ public class Saml2LogoutConfigurerTests {
 	@Test
 	public void saml2LogoutWhenUnauthenticatedThenEntryPoint() throws Exception {
 		this.spring.register(Saml2LogoutDefaultsConfig.class).autowire();
-		this.mvc.perform(post("/logout").with(csrf())).andExpect(status().isFound())
-				.andExpect(redirectedUrl("/login?logout"));
+		this.mvc.perform(post("/logout").with(csrf()))
+			.andExpect(status().isFound())
+			.andExpect(redirectedUrl("/login?logout"));
 	}
 
 	@Test
@@ -209,8 +212,9 @@ public class Saml2LogoutConfigurerTests {
 	@Test
 	public void saml2LogoutWhenGetThenDefaultLogoutPage() throws Exception {
 		this.spring.register(Saml2LogoutDefaultsConfig.class).autowire();
-		MvcResult result = this.mvc.perform(get("/logout").with(authentication(this.user))).andExpect(status().isOk())
-				.andReturn();
+		MvcResult result = this.mvc.perform(get("/logout").with(authentication(this.user)))
+			.andExpect(status().isOk())
+			.andReturn();
 		assertThat(result.getResponse().getContentAsString()).contains("Are you sure you want to log out?");
 		verifyNoInteractions(getBean(LogoutHandler.class));
 	}
@@ -220,7 +224,7 @@ public class Saml2LogoutConfigurerTests {
 		this.spring.register(Saml2LogoutDefaultsConfig.class).autowire();
 		this.mvc.perform(put("/logout").with(authentication(this.user)).with(csrf())).andExpect(status().isNotFound());
 		this.mvc.perform(delete("/logout").with(authentication(this.user)).with(csrf()))
-				.andExpect(status().isNotFound());
+			.andExpect(status().isNotFound());
 		verifyNoInteractions(this.spring.getContext().getBean(LogoutHandler.class));
 	}
 
@@ -233,7 +237,7 @@ public class Saml2LogoutConfigurerTests {
 		Saml2Authentication authentication = new Saml2Authentication(principal, "response",
 				AuthorityUtils.createAuthorityList("ROLE_USER"));
 		this.mvc.perform(post("/logout").with(authentication(authentication)).with(csrf()))
-				.andExpect(status().isUnauthorized());
+			.andExpect(status().isUnauthorized());
 	}
 
 	@Test
@@ -249,8 +253,11 @@ public class Saml2LogoutConfigurerTests {
 		this.spring.register(Saml2LogoutComponentsConfig.class).autowire();
 		RelyingPartyRegistration registration = this.repository.findByRegistrationId("registration-id");
 		Saml2LogoutRequest logoutRequest = Saml2LogoutRequest.withRelyingPartyRegistration(registration)
-				.samlRequest(this.rpLogoutRequest).id(this.rpLogoutRequestId).relayState(this.rpLogoutRequestRelayState)
-				.parameters((params) -> params.put("Signature", this.rpLogoutRequestSignature)).build();
+			.samlRequest(this.rpLogoutRequest)
+			.id(this.rpLogoutRequestId)
+			.relayState(this.rpLogoutRequestRelayState)
+			.parameters((params) -> params.put("Signature", this.rpLogoutRequestSignature))
+			.build();
 		given(getBean(Saml2LogoutRequestResolver.class).resolve(any(), any())).willReturn(logoutRequest);
 		this.mvc.perform(post("/logout").with(authentication(this.user)).with(csrf()));
 		verify(getBean(Saml2LogoutRequestResolver.class)).resolve(any(), any());
@@ -264,10 +271,15 @@ public class Saml2LogoutConfigurerTests {
 		principal.setRelyingPartyRegistrationId("get");
 		Saml2Authentication user = new Saml2Authentication(principal, "response",
 				AuthorityUtils.createAuthorityList("ROLE_USER"));
-		MvcResult result = this.mvc.perform(get("/logout/saml2/slo").param("SAMLRequest", this.apLogoutRequest)
-				.param("RelayState", this.apLogoutRequestRelayState).param("SigAlg", this.apLogoutRequestSigAlg)
-				.param("Signature", this.apLogoutRequestSignature).with(samlQueryString()).with(authentication(user)))
-				.andExpect(status().isFound()).andReturn();
+		MvcResult result = this.mvc
+			.perform(get("/logout/saml2/slo").param("SAMLRequest", this.apLogoutRequest)
+				.param("RelayState", this.apLogoutRequestRelayState)
+				.param("SigAlg", this.apLogoutRequestSigAlg)
+				.param("Signature", this.apLogoutRequestSignature)
+				.with(samlQueryString())
+				.with(authentication(user)))
+			.andExpect(status().isFound())
+			.andReturn();
 		String location = result.getResponse().getHeader("Location");
 		assertThat(location).startsWith("https://ap.example.org/logout/saml2/response");
 		verify(getBean(LogoutHandler.class)).logout(any(), any(), any());
@@ -281,10 +293,15 @@ public class Saml2LogoutConfigurerTests {
 		principal.setRelyingPartyRegistrationId("get");
 		Saml2Authentication user = new Saml2Authentication(principal, "response",
 				AuthorityUtils.createAuthorityList("ROLE_USER"));
-		MvcResult result = this.mvc.perform(get("/logout/saml2/slo").param("SAMLRequest", this.apLogoutRequest)
-				.param("RelayState", this.apLogoutRequestRelayState).param("SigAlg", this.apLogoutRequestSigAlg)
-				.param("Signature", this.apLogoutRequestSignature).with(samlQueryString()).with(authentication(user)))
-				.andExpect(status().isFound()).andReturn();
+		MvcResult result = this.mvc
+			.perform(get("/logout/saml2/slo").param("SAMLRequest", this.apLogoutRequest)
+				.param("RelayState", this.apLogoutRequestRelayState)
+				.param("SigAlg", this.apLogoutRequestSigAlg)
+				.param("Signature", this.apLogoutRequestSignature)
+				.with(samlQueryString())
+				.with(authentication(user)))
+			.andExpect(status().isFound())
+			.andReturn();
 		String location = result.getResponse().getHeader("Location");
 		assertThat(location).startsWith("https://ap.example.org/logout/saml2/response");
 		verify(getBean(LogoutHandler.class)).logout(any(), any(), any());
@@ -308,11 +325,14 @@ public class Saml2LogoutConfigurerTests {
 		Saml2Authentication user = new Saml2Authentication(principal, "response",
 				AuthorityUtils.createAuthorityList("ROLE_USER"));
 		MvcResult result = this.mvc
-				.perform(get("/logout/saml2/slo").param("SAMLRequest", apLogoutRequest)
-						.param("RelayState", apLogoutRequestRelayState).param("SigAlg", this.apLogoutRequestSigAlg)
-						.param("Signature", apLogoutRequestSignature)
-						.with(new SamlQueryStringRequestPostProcessor(true)).with(authentication(user)))
-				.andExpect(status().isFound()).andReturn();
+			.perform(get("/logout/saml2/slo").param("SAMLRequest", apLogoutRequest)
+				.param("RelayState", apLogoutRequestRelayState)
+				.param("SigAlg", this.apLogoutRequestSigAlg)
+				.param("Signature", apLogoutRequestSignature)
+				.with(new SamlQueryStringRequestPostProcessor(true))
+				.with(authentication(user)))
+			.andExpect(status().isFound())
+			.andReturn();
 		String location = result.getResponse().getHeader("Location");
 		assertThat(location).startsWith("https://ap.example.org/logout/saml2/response");
 		verify(getBean(LogoutHandler.class)).logout(any(), any(), any());
@@ -336,11 +356,14 @@ public class Saml2LogoutConfigurerTests {
 		Saml2Authentication user = new Saml2Authentication(principal, "response",
 				AuthorityUtils.createAuthorityList("ROLE_USER"));
 		MvcResult result = this.mvc
-				.perform(get("/logout/saml2/slo").param("SAMLRequest", apLogoutRequest)
-						.param("SigAlg", this.apLogoutRequestSigAlg).param("RelayState", apLogoutRequestRelayState)
-						.param("Signature", apLogoutRequestSignature)
-						.with(new SamlQueryStringRequestPostProcessor(true)).with(authentication(user)))
-				.andExpect(status().isFound()).andReturn();
+			.perform(get("/logout/saml2/slo").param("SAMLRequest", apLogoutRequest)
+				.param("SigAlg", this.apLogoutRequestSigAlg)
+				.param("RelayState", apLogoutRequestRelayState)
+				.param("Signature", apLogoutRequestSignature)
+				.with(new SamlQueryStringRequestPostProcessor(true))
+				.with(authentication(user)))
+			.andExpect(status().isFound())
+			.andReturn();
 		String location = result.getResponse().getHeader("Location");
 		assertThat(location).startsWith("https://ap.example.org/logout/saml2/response");
 		verify(getBean(LogoutHandler.class)).logout(any(), any(), any());
@@ -354,19 +377,25 @@ public class Saml2LogoutConfigurerTests {
 		principal.setRelyingPartyRegistrationId("wrong");
 		Saml2Authentication user = new Saml2Authentication(principal, "response",
 				AuthorityUtils.createAuthorityList("ROLE_USER"));
-		this.mvc.perform(get("/logout/saml2/slo").param("SAMLRequest", this.apLogoutRequest)
-				.param("RelayState", this.apLogoutRequestRelayState).param("SigAlg", this.apLogoutRequestSigAlg)
-				.param("Signature", this.apLogoutRequestSignature).with(authentication(user)))
-				.andExpect(status().isBadRequest());
+		this.mvc
+			.perform(get("/logout/saml2/slo").param("SAMLRequest", this.apLogoutRequest)
+				.param("RelayState", this.apLogoutRequestRelayState)
+				.param("SigAlg", this.apLogoutRequestSigAlg)
+				.param("Signature", this.apLogoutRequestSignature)
+				.with(authentication(user)))
+			.andExpect(status().isBadRequest());
 		verifyNoInteractions(getBean(LogoutHandler.class));
 	}
 
 	@Test
 	public void saml2LogoutRequestWhenInvalidSamlRequestThen401() throws Exception {
 		this.spring.register(Saml2LogoutDefaultsConfig.class).autowire();
-		this.mvc.perform(get("/logout/saml2/slo").param("SAMLRequest", this.apLogoutRequest)
-				.param("RelayState", this.apLogoutRequestRelayState).param("SigAlg", this.apLogoutRequestSigAlg)
-				.with(authentication(this.user))).andExpect(status().isUnauthorized());
+		this.mvc
+			.perform(get("/logout/saml2/slo").param("SAMLRequest", this.apLogoutRequest)
+				.param("RelayState", this.apLogoutRequestRelayState)
+				.param("SigAlg", this.apLogoutRequestSigAlg)
+				.with(authentication(this.user)))
+			.andExpect(status().isUnauthorized());
 		verifyNoInteractions(getBean(LogoutHandler.class));
 	}
 
@@ -377,11 +406,11 @@ public class Saml2LogoutConfigurerTests {
 		LogoutRequest logoutRequest = TestOpenSamlObjects.assertingPartyLogoutRequest(registration);
 		logoutRequest.setIssueInstant(Instant.now());
 		given(getBean(Saml2LogoutRequestValidator.class).validate(any()))
-				.willReturn(Saml2LogoutValidatorResult.success());
+			.willReturn(Saml2LogoutValidatorResult.success());
 		Saml2LogoutResponse logoutResponse = Saml2LogoutResponse.withRelyingPartyRegistration(registration).build();
 		given(getBean(Saml2LogoutResponseResolver.class).resolve(any(), any())).willReturn(logoutResponse);
 		this.mvc.perform(post("/logout/saml2/slo").param("SAMLRequest", "samlRequest").with(authentication(this.user)))
-				.andReturn();
+			.andReturn();
 		verify(getBean(Saml2LogoutRequestValidator.class)).validate(any());
 		verify(getBean(Saml2LogoutResponseResolver.class)).resolve(any(), any());
 	}
@@ -391,15 +420,23 @@ public class Saml2LogoutConfigurerTests {
 		this.spring.register(Saml2LogoutDefaultsConfig.class).autowire();
 		RelyingPartyRegistration registration = this.repository.findByRegistrationId("get");
 		Saml2LogoutRequest logoutRequest = Saml2LogoutRequest.withRelyingPartyRegistration(registration)
-				.samlRequest(this.rpLogoutRequest).id(this.rpLogoutRequestId).relayState(this.rpLogoutRequestRelayState)
-				.parameters((params) -> params.put("Signature", this.rpLogoutRequestSignature)).build();
+			.samlRequest(this.rpLogoutRequest)
+			.id(this.rpLogoutRequestId)
+			.relayState(this.rpLogoutRequestRelayState)
+			.parameters((params) -> params.put("Signature", this.rpLogoutRequestSignature))
+			.build();
 		this.logoutRequestRepository.saveLogoutRequest(logoutRequest, this.request, this.response);
 		this.request.setParameter("RelayState", logoutRequest.getRelayState());
 		assertThat(this.logoutRequestRepository.loadLogoutRequest(this.request)).isNotNull();
-		this.mvc.perform(get("/logout/saml2/slo").session(((MockHttpSession) this.request.getSession()))
-				.param("SAMLResponse", this.apLogoutResponse).param("RelayState", this.apLogoutResponseRelayState)
-				.param("SigAlg", this.apLogoutResponseSigAlg).param("Signature", this.apLogoutResponseSignature)
-				.with(samlQueryString())).andExpect(status().isFound()).andExpect(redirectedUrl("/login?logout"));
+		this.mvc
+			.perform(get("/logout/saml2/slo").session(((MockHttpSession) this.request.getSession()))
+				.param("SAMLResponse", this.apLogoutResponse)
+				.param("RelayState", this.apLogoutResponseRelayState)
+				.param("SigAlg", this.apLogoutResponseSigAlg)
+				.param("Signature", this.apLogoutResponseSignature)
+				.with(samlQueryString()))
+			.andExpect(status().isFound())
+			.andExpect(redirectedUrl("/login?logout"));
 		verifyNoInteractions(getBean(LogoutHandler.class));
 		assertThat(this.logoutRequestRepository.loadLogoutRequest(this.request)).isNull();
 	}
@@ -409,16 +446,23 @@ public class Saml2LogoutConfigurerTests {
 		this.spring.register(Saml2LogoutDefaultsConfig.class).autowire();
 		RelyingPartyRegistration registration = this.repository.findByRegistrationId("registration-id");
 		Saml2LogoutRequest logoutRequest = Saml2LogoutRequest.withRelyingPartyRegistration(registration)
-				.samlRequest(this.rpLogoutRequest).id(this.rpLogoutRequestId).relayState(this.rpLogoutRequestRelayState)
-				.parameters((params) -> params.put("Signature", this.rpLogoutRequestSignature)).build();
+			.samlRequest(this.rpLogoutRequest)
+			.id(this.rpLogoutRequestId)
+			.relayState(this.rpLogoutRequestRelayState)
+			.parameters((params) -> params.put("Signature", this.rpLogoutRequestSignature))
+			.build();
 		this.logoutRequestRepository.saveLogoutRequest(logoutRequest, this.request, this.response);
 		String deflatedApLogoutResponse = Saml2Utils.samlEncode(
 				Saml2Utils.samlInflate(Saml2Utils.samlDecode(this.apLogoutResponse)).getBytes(StandardCharsets.UTF_8));
-		this.mvc.perform(post("/logout/saml2/slo").session((MockHttpSession) this.request.getSession())
-				.param("SAMLResponse", deflatedApLogoutResponse).param("RelayState", this.rpLogoutRequestRelayState)
-				.param("SigAlg", this.apLogoutRequestSigAlg).param("Signature", this.apLogoutResponseSignature)
-				.with(samlQueryString())).andExpect(status().reason(containsString("invalid_signature")))
-				.andExpect(status().isUnauthorized());
+		this.mvc
+			.perform(post("/logout/saml2/slo").session((MockHttpSession) this.request.getSession())
+				.param("SAMLResponse", deflatedApLogoutResponse)
+				.param("RelayState", this.rpLogoutRequestRelayState)
+				.param("SigAlg", this.apLogoutRequestSigAlg)
+				.param("Signature", this.apLogoutResponseSignature)
+				.with(samlQueryString()))
+			.andExpect(status().reason(containsString("invalid_signature")))
+			.andExpect(status().isUnauthorized());
 		verifyNoInteractions(getBean(LogoutHandler.class));
 	}
 
@@ -427,11 +471,14 @@ public class Saml2LogoutConfigurerTests {
 		this.spring.register(Saml2LogoutComponentsConfig.class).autowire();
 		RelyingPartyRegistration registration = this.repository.findByRegistrationId("get");
 		Saml2LogoutRequest logoutRequest = Saml2LogoutRequest.withRelyingPartyRegistration(registration)
-				.samlRequest(this.rpLogoutRequest).id(this.rpLogoutRequestId).relayState(this.rpLogoutRequestRelayState)
-				.parameters((params) -> params.put("Signature", this.rpLogoutRequestSignature)).build();
+			.samlRequest(this.rpLogoutRequest)
+			.id(this.rpLogoutRequestId)
+			.relayState(this.rpLogoutRequestRelayState)
+			.parameters((params) -> params.put("Signature", this.rpLogoutRequestSignature))
+			.build();
 		given(getBean(Saml2LogoutRequestRepository.class).removeLogoutRequest(any(), any())).willReturn(logoutRequest);
 		given(getBean(Saml2LogoutResponseValidator.class).validate(any()))
-				.willReturn(Saml2LogoutValidatorResult.success());
+			.willReturn(Saml2LogoutValidatorResult.success());
 		this.mvc.perform(get("/logout/saml2/slo").param("SAMLResponse", "samlResponse")).andReturn();
 		verify(getBean(Saml2LogoutResponseValidator.class)).validate(any());
 	}
@@ -441,8 +488,11 @@ public class Saml2LogoutConfigurerTests {
 		this.spring.register(Saml2LogoutComponentsConfig.class).autowire();
 		RelyingPartyRegistration registration = this.repository.findByRegistrationId("registration-id");
 		Saml2LogoutRequest logoutRequest = Saml2LogoutRequest.withRelyingPartyRegistration(registration)
-				.samlRequest(this.rpLogoutRequest).id(this.rpLogoutRequestId).relayState(this.rpLogoutRequestRelayState)
-				.parameters((params) -> params.put("Signature", this.rpLogoutRequestSignature)).build();
+			.samlRequest(this.rpLogoutRequest)
+			.id(this.rpLogoutRequestId)
+			.relayState(this.rpLogoutRequestRelayState)
+			.parameters((params) -> params.put("Signature", this.rpLogoutRequestSignature))
+			.build();
 		given(getBean(Saml2LogoutRequestResolver.class).resolve(any(), any())).willReturn(logoutRequest);
 		this.mvc.perform(post("/logout").with(authentication(this.user)).with(csrf()));
 		verify(getBean(Saml2LogoutRequestRepository.class)).saveLogoutRequest(eq(logoutRequest), any(), any());
@@ -452,7 +502,8 @@ public class Saml2LogoutConfigurerTests {
 	public void saml2LogoutWhenLogoutGetThenLogsOutAndSendsLogoutRequest() throws Exception {
 		this.spring.register(Saml2LogoutWithHttpGet.class).autowire();
 		MvcResult result = this.mvc.perform(get("/logout").with(authentication(this.user)))
-				.andExpect(status().isFound()).andReturn();
+			.andExpect(status().isFound())
+			.andReturn();
 		String location = result.getResponse().getHeader("Location");
 		LogoutHandler logoutHandler = this.spring.getContext().getBean(LogoutHandler.class);
 		assertThat(location).startsWith("https://ap.example.org/logout/saml2/request");
@@ -465,7 +516,7 @@ public class Saml2LogoutConfigurerTests {
 		Saml2DefaultsWithObjectPostProcessorConfig.objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
 		this.spring.register(Saml2DefaultsWithObjectPostProcessorConfig.class).autowire();
 		verify(Saml2DefaultsWithObjectPostProcessorConfig.objectPostProcessor)
-				.postProcess(any(Saml2LogoutRequestFilter.class));
+			.postProcess(any(Saml2LogoutRequestFilter.class));
 
 	}
 
@@ -475,7 +526,7 @@ public class Saml2LogoutConfigurerTests {
 		Saml2DefaultsWithObjectPostProcessorConfig.objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
 		this.spring.register(Saml2DefaultsWithObjectPostProcessorConfig.class).autowire();
 		verify(Saml2DefaultsWithObjectPostProcessorConfig.objectPostProcessor)
-				.postProcess(any(Saml2LogoutResponseFilter.class));
+			.postProcess(any(Saml2LogoutResponseFilter.class));
 
 	}
 
@@ -485,7 +536,7 @@ public class Saml2LogoutConfigurerTests {
 		Saml2DefaultsWithObjectPostProcessorConfig.objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
 		this.spring.register(Saml2DefaultsWithObjectPostProcessorConfig.class).autowire();
 		verify(Saml2DefaultsWithObjectPostProcessorConfig.objectPostProcessor, atLeastOnce())
-				.postProcess(any(LogoutFilter.class));
+			.postProcess(any(LogoutFilter.class));
 
 	}
 
@@ -672,16 +723,18 @@ public class Saml2LogoutConfigurerTests {
 			Saml2X509Credential signing = TestSaml2X509Credentials.assertingPartySigningCredential();
 			Saml2X509Credential verification = TestSaml2X509Credentials.relyingPartyVerifyingCredential();
 			RelyingPartyRegistration.Builder withCreds = TestRelyingPartyRegistrations.noCredentials()
-					.signingX509Credentials(credential(signing))
-					.assertingPartyDetails((party) -> party.verificationX509Credentials(credential(verification)));
+				.signingX509Credentials(credential(signing))
+				.assertingPartyDetails((party) -> party.verificationX509Credentials(credential(verification)));
 			RelyingPartyRegistration post = withCreds.build();
 			RelyingPartyRegistration get = withCreds.registrationId("get")
-					.singleLogoutServiceBinding(Saml2MessageBinding.REDIRECT).build();
-			RelyingPartyRegistration ap = withCreds.registrationId("ap").entityId("ap-entity-id")
-					.assertingPartyDetails((party) -> party
-							.singleLogoutServiceLocation("https://rp.example.org/logout/saml2/request")
+				.singleLogoutServiceBinding(Saml2MessageBinding.REDIRECT)
+				.build();
+			RelyingPartyRegistration ap = withCreds.registrationId("ap")
+				.entityId("ap-entity-id")
+				.assertingPartyDetails(
+						(party) -> party.singleLogoutServiceLocation("https://rp.example.org/logout/saml2/request")
 							.singleLogoutServiceResponseLocation("https://rp.example.org/logout/saml2/response"))
-					.build();
+				.build();
 
 			return new InMemoryRelyingPartyRegistrationRepository(ap, get, post);
 		}

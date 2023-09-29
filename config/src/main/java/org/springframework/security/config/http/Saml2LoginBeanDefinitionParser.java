@@ -119,34 +119,35 @@ final class Saml2LoginBeanDefinitionParser implements BeanDefinitionParser {
 			this.loginProcessingUrl = loginProcessingUrl;
 		}
 		BeanDefinition saml2LoginBeanConfig = BeanDefinitionBuilder.rootBeanDefinition(Saml2LoginBeanConfig.class)
-				.getBeanDefinition();
+			.getBeanDefinition();
 		String saml2LoginBeanConfigId = pc.getReaderContext().generateBeanName(saml2LoginBeanConfig);
 		pc.registerBeanComponent(new BeanComponentDefinition(saml2LoginBeanConfig, saml2LoginBeanConfigId));
 		registerDefaultCsrfOverride();
 		BeanMetadataElement relyingPartyRegistrationRepository = Saml2LoginBeanDefinitionParserUtils
-				.getRelyingPartyRegistrationRepository(element);
+			.getRelyingPartyRegistrationRepository(element);
 		BeanMetadataElement authenticationRequestRepository = Saml2LoginBeanDefinitionParserUtils
-				.getAuthenticationRequestRepository(element);
+			.getAuthenticationRequestRepository(element);
 		BeanMetadataElement authenticationRequestResolver = Saml2LoginBeanDefinitionParserUtils
-				.getAuthenticationRequestResolver(element);
+			.getAuthenticationRequestResolver(element);
 		if (authenticationRequestResolver == null) {
 			authenticationRequestResolver = Saml2LoginBeanDefinitionParserUtils
-					.createDefaultAuthenticationRequestResolver(relyingPartyRegistrationRepository);
+				.createDefaultAuthenticationRequestResolver(relyingPartyRegistrationRepository);
 		}
 		BeanMetadataElement authenticationConverter = Saml2LoginBeanDefinitionParserUtils
-				.getAuthenticationConverter(element);
+			.getAuthenticationConverter(element);
 		if (authenticationConverter == null) {
 			if (!this.loginProcessingUrl.contains("{registrationId}")) {
 				pc.getReaderContext().error("loginProcessingUrl must contain {registrationId} path variable", element);
 			}
 			authenticationConverter = Saml2LoginBeanDefinitionParserUtils
-					.createDefaultAuthenticationConverter(relyingPartyRegistrationRepository);
+				.createDefaultAuthenticationConverter(relyingPartyRegistrationRepository);
 		}
 		// Configure the Saml2WebSsoAuthenticationFilter
 		BeanDefinitionBuilder saml2WebSsoAuthenticationFilterBuilder = BeanDefinitionBuilder
-				.rootBeanDefinition(Saml2WebSsoAuthenticationFilter.class)
-				.addConstructorArgValue(authenticationConverter).addConstructorArgValue(this.loginProcessingUrl)
-				.addPropertyValue("authenticationRequestRepository", authenticationRequestRepository);
+			.rootBeanDefinition(Saml2WebSsoAuthenticationFilter.class)
+			.addConstructorArgValue(authenticationConverter)
+			.addConstructorArgValue(this.loginProcessingUrl)
+			.addPropertyValue("authenticationRequestRepository", authenticationRequestRepository);
 		resolveLoginPage(element, pc);
 		resolveAuthenticationSuccessHandler(element, saml2WebSsoAuthenticationFilterBuilder);
 		resolveAuthenticationFailureHandler(element, saml2WebSsoAuthenticationFilterBuilder);
@@ -154,16 +155,16 @@ final class Saml2LoginBeanDefinitionParser implements BeanDefinitionParser {
 		resolveSecurityContextRepository(element, saml2WebSsoAuthenticationFilterBuilder);
 		// Configure the Saml2WebSsoAuthenticationRequestFilter
 		this.saml2WebSsoAuthenticationRequestFilter = BeanDefinitionBuilder
-				.rootBeanDefinition(Saml2WebSsoAuthenticationRequestFilter.class)
-				.addConstructorArgValue(authenticationRequestResolver)
-				.addPropertyValue("authenticationRequestRepository", authenticationRequestRepository)
-				.getBeanDefinition();
+			.rootBeanDefinition(Saml2WebSsoAuthenticationRequestFilter.class)
+			.addConstructorArgValue(authenticationRequestResolver)
+			.addPropertyValue("authenticationRequestRepository", authenticationRequestRepository)
+			.getBeanDefinition();
 		BeanDefinition saml2AuthenticationProvider = Saml2LoginBeanDefinitionParserUtils.createAuthenticationProvider();
 		this.authenticationProviders.add(
 				new RuntimeBeanReference(pc.getReaderContext().registerWithGeneratedName(saml2AuthenticationProvider)));
 		this.saml2AuthenticationUrlToProviderName = BeanDefinitionBuilder.rootBeanDefinition(Map.class)
-				.setFactoryMethodOnBean("getAuthenticationUrlToProviderName", saml2LoginBeanConfigId)
-				.getBeanDefinition();
+			.setFactoryMethodOnBean("getAuthenticationUrlToProviderName", saml2LoginBeanConfigId)
+			.getBeanDefinition();
 		return saml2WebSsoAuthenticationFilterBuilder.getBeanDefinition();
 	}
 
@@ -195,23 +196,27 @@ final class Saml2LoginBeanDefinitionParser implements BeanDefinitionParser {
 		if (StringUtils.hasText(loginPage)) {
 			WebConfigUtils.validateHttpRedirect(loginPage, parserContext, source);
 			saml2LoginAuthenticationEntryPoint = BeanDefinitionBuilder
-					.rootBeanDefinition(LoginUrlAuthenticationEntryPoint.class).addConstructorArgValue(loginPage)
-					.addPropertyValue("portMapper", this.portMapper).addPropertyValue("portResolver", this.portResolver)
-					.getBeanDefinition();
+				.rootBeanDefinition(LoginUrlAuthenticationEntryPoint.class)
+				.addConstructorArgValue(loginPage)
+				.addPropertyValue("portMapper", this.portMapper)
+				.addPropertyValue("portResolver", this.portResolver)
+				.getBeanDefinition();
 		}
 		else {
 			Map<String, String> identityProviderUrlMap = getIdentityProviderUrlMap(element);
 			if (identityProviderUrlMap.size() == 1) {
 				String loginUrl = identityProviderUrlMap.entrySet().iterator().next().getKey();
 				saml2LoginAuthenticationEntryPoint = BeanDefinitionBuilder
-						.rootBeanDefinition(LoginUrlAuthenticationEntryPoint.class).addConstructorArgValue(loginUrl)
-						.addPropertyValue("portMapper", this.portMapper)
-						.addPropertyValue("portResolver", this.portResolver).getBeanDefinition();
+					.rootBeanDefinition(LoginUrlAuthenticationEntryPoint.class)
+					.addConstructorArgValue(loginUrl)
+					.addPropertyValue("portMapper", this.portMapper)
+					.addPropertyValue("portResolver", this.portResolver)
+					.getBeanDefinition();
 			}
 		}
 		if (saml2LoginAuthenticationEntryPoint != null) {
 			BeanDefinitionBuilder requestMatcherBuilder = BeanDefinitionBuilder
-					.rootBeanDefinition(AntPathRequestMatcher.class);
+				.rootBeanDefinition(AntPathRequestMatcher.class);
 			requestMatcherBuilder.addConstructorArgValue(this.loginProcessingUrl);
 			BeanDefinition requestMatcher = requestMatcherBuilder.getBeanDefinition();
 			this.entryPoints.put(requestMatcher, saml2LoginAuthenticationEntryPoint);
@@ -244,9 +249,10 @@ final class Saml2LoginBeanDefinitionParser implements BeanDefinitionParser {
 					authenticationSuccessHandlerRef);
 		}
 		else {
-			BeanDefinitionBuilder successHandlerBuilder = BeanDefinitionBuilder.rootBeanDefinition(
-					"org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler")
-					.addPropertyValue("requestCache", this.requestCache);
+			BeanDefinitionBuilder successHandlerBuilder = BeanDefinitionBuilder
+				.rootBeanDefinition(
+						"org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler")
+				.addPropertyValue("requestCache", this.requestCache);
 			saml2WebSsoAuthenticationFilterBuilder.addPropertyValue("authenticationSuccessHandler",
 					successHandlerBuilder.getBeanDefinition());
 		}
@@ -254,7 +260,7 @@ final class Saml2LoginBeanDefinitionParser implements BeanDefinitionParser {
 
 	private void registerDefaultCsrfOverride() {
 		BeanDefinitionBuilder requestMatcherBuilder = BeanDefinitionBuilder
-				.rootBeanDefinition(AntPathRequestMatcher.class);
+			.rootBeanDefinition(AntPathRequestMatcher.class);
 		requestMatcherBuilder.addConstructorArgValue(this.loginProcessingUrl);
 		BeanDefinition requestMatcher = requestMatcherBuilder.getBeanDefinition();
 		this.csrfIgnoreRequestMatchers.add(requestMatcher);
@@ -296,7 +302,7 @@ final class Saml2LoginBeanDefinitionParser implements BeanDefinitionParser {
 		Map<String, String> getAuthenticationUrlToProviderName() {
 			Iterable<RelyingPartyRegistration> relyingPartyRegistrations = null;
 			RelyingPartyRegistrationRepository relyingPartyRegistrationRepository = this.context
-					.getBean(RelyingPartyRegistrationRepository.class);
+				.getBean(RelyingPartyRegistrationRepository.class);
 			ResolvableType type = ResolvableType.forInstance(relyingPartyRegistrationRepository).as(Iterable.class);
 			if (type != ResolvableType.NONE
 					&& RelyingPartyRegistration.class.isAssignableFrom(type.resolveGenerics()[0])) {

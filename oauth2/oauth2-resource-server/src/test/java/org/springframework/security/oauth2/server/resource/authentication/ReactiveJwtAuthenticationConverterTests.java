@@ -53,15 +53,15 @@ public class ReactiveJwtAuthenticationConverterTests {
 	@Test
 	public void whenSettingNullGrantedAuthoritiesConverter() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> this.jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(null))
-				.withMessage("jwtGrantedAuthoritiesConverter cannot be null");
+			.isThrownBy(() -> this.jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(null))
+			.withMessage("jwtGrantedAuthoritiesConverter cannot be null");
 	}
 
 	@Test
 	public void convertWithOverriddenGrantedAuthoritiesConverter() {
 		Jwt jwt = TestJwts.jwt().claim("scope", "message:read message:write").build();
 		Converter<Jwt, Flux<GrantedAuthority>> grantedAuthoritiesConverter = (token) -> Flux
-				.just(new SimpleGrantedAuthority("blah"));
+			.just(new SimpleGrantedAuthority("blah"));
 		this.jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter);
 		AbstractAuthenticationToken authentication = this.jwtAuthenticationConverter.convert(jwt).block();
 		Collection<GrantedAuthority> authorities = authentication.getAuthorities();

@@ -280,7 +280,7 @@ public final class LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 			PermitAllSupport.permitAll(http, this.getLogoutRequestMatcher(http));
 		}
 		DefaultLoginPageGeneratingFilter loginPageGeneratingFilter = http
-				.getSharedObject(DefaultLoginPageGeneratingFilter.class);
+			.getSharedObject(DefaultLoginPageGeneratingFilter.class);
 		if (loginPageGeneratingFilter != null && !isCustomLogoutSuccess()) {
 			loginPageGeneratingFilter.setLogoutSuccessUrl(getLogoutSuccessUrl());
 		}

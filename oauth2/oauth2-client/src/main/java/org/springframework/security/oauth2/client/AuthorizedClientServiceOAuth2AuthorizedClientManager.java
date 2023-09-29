@@ -75,7 +75,9 @@ import org.springframework.util.StringUtils;
 public final class AuthorizedClientServiceOAuth2AuthorizedClientManager implements OAuth2AuthorizedClientManager {
 
 	private static final OAuth2AuthorizedClientProvider DEFAULT_AUTHORIZED_CLIENT_PROVIDER = OAuth2AuthorizedClientProviderBuilder
-			.builder().clientCredentials().build();
+		.builder()
+		.clientCredentials()
+		.build();
 
 	private final ClientRegistrationRepository clientRegistrationRepository;
 
@@ -105,10 +107,10 @@ public final class AuthorizedClientServiceOAuth2AuthorizedClientManager implemen
 		this.authorizedClientProvider = DEFAULT_AUTHORIZED_CLIENT_PROVIDER;
 		this.contextAttributesMapper = new DefaultContextAttributesMapper();
 		this.authorizationSuccessHandler = (authorizedClient, principal, attributes) -> authorizedClientService
-				.saveAuthorizedClient(authorizedClient, principal);
+			.saveAuthorizedClient(authorizedClient, principal);
 		this.authorizationFailureHandler = new RemoveAuthorizedClientOAuth2AuthorizationFailureHandler(
 				(clientRegistrationId, principal, attributes) -> authorizedClientService
-						.removeAuthorizedClient(clientRegistrationId, principal.getName()));
+					.removeAuthorizedClient(clientRegistrationId, principal.getName()));
 	}
 
 	@Nullable
@@ -124,7 +126,7 @@ public final class AuthorizedClientServiceOAuth2AuthorizedClientManager implemen
 		}
 		else {
 			ClientRegistration clientRegistration = this.clientRegistrationRepository
-					.findByRegistrationId(clientRegistrationId);
+				.findByRegistrationId(clientRegistrationId);
 			Assert.notNull(clientRegistration,
 					"Could not find ClientRegistration with id '" + clientRegistrationId + "'");
 			authorizedClient = this.authorizedClientService.loadAuthorizedClient(clientRegistrationId,

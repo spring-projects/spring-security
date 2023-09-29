@@ -49,8 +49,8 @@ public class OpenSamlMetadataRelyingPartyRegistrationConverterTests {
 	public void convertWhenDefaultsThenAssertingPartyInstanceOfOpenSaml() throws Exception {
 		try (InputStream source = new ByteArrayInputStream(this.metadata.getBytes(StandardCharsets.UTF_8))) {
 			this.converter.convert(source)
-					.forEach((registration) -> assertThat(registration.build().getAssertingPartyDetails())
-							.isInstanceOf(OpenSamlAssertingPartyDetails.class));
+				.forEach((registration) -> assertThat(registration.build().getAssertingPartyDetails())
+					.isInstanceOf(OpenSamlAssertingPartyDetails.class));
 		}
 	}
 

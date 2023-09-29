@@ -62,8 +62,8 @@ public class HttpSessionRequestCache implements RequestCache {
 	public void saveRequest(HttpServletRequest request, HttpServletResponse response) {
 		if (!this.requestMatcher.matches(request)) {
 			if (this.logger.isTraceEnabled()) {
-				this.logger.trace(
-						LogMessage.format("Did not save request since it did not match [%s]", this.requestMatcher));
+				this.logger
+					.trace(LogMessage.format("Did not save request since it did not match [%s]", this.requestMatcher));
 			}
 			return;
 		}

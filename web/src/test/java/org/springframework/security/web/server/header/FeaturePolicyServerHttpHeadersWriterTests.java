@@ -59,7 +59,7 @@ public class FeaturePolicyServerHttpHeadersWriterTests {
 		HttpHeaders headers = this.exchange.getResponse().getHeaders();
 		assertThat(headers).hasSize(1);
 		assertThat(headers.get(FeaturePolicyServerHttpHeadersWriter.FEATURE_POLICY))
-				.containsOnly(DEFAULT_POLICY_DIRECTIVES);
+			.containsOnly(DEFAULT_POLICY_DIRECTIVES);
 	}
 
 	@Test

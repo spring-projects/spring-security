@@ -61,13 +61,13 @@ public class DelegatingRequestMatcherHeaderWriterTests {
 	@Test
 	public void constructorNullRequestMatcher() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new DelegatingRequestMatcherHeaderWriter(null, this.delegate));
+			.isThrownBy(() -> new DelegatingRequestMatcherHeaderWriter(null, this.delegate));
 	}
 
 	@Test
 	public void constructorNullDelegate() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new DelegatingRequestMatcherHeaderWriter(this.matcher, null));
+			.isThrownBy(() -> new DelegatingRequestMatcherHeaderWriter(this.matcher, null));
 	}
 
 	@Test

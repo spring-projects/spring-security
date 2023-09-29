@@ -116,28 +116,28 @@ public class CsrfChannelInterceptorTests {
 	public void preSendNoToken() {
 		this.messageHeaders.removeNativeHeader(this.token.getHeaderName());
 		assertThatExceptionOfType(InvalidCsrfTokenException.class)
-				.isThrownBy(() -> this.interceptor.preSend(message(), this.channel));
+			.isThrownBy(() -> this.interceptor.preSend(message(), this.channel));
 	}
 
 	@Test
 	public void preSendInvalidToken() {
 		this.messageHeaders.setNativeHeader(this.token.getHeaderName(), this.token.getToken() + "invalid");
 		assertThatExceptionOfType(InvalidCsrfTokenException.class)
-				.isThrownBy(() -> this.interceptor.preSend(message(), this.channel));
+			.isThrownBy(() -> this.interceptor.preSend(message(), this.channel));
 	}
 
 	@Test
 	public void preSendMissingToken() {
 		this.messageHeaders.getSessionAttributes().clear();
 		assertThatExceptionOfType(MissingCsrfTokenException.class)
-				.isThrownBy(() -> this.interceptor.preSend(message(), this.channel));
+			.isThrownBy(() -> this.interceptor.preSend(message(), this.channel));
 	}
 
 	@Test
 	public void preSendMissingTokenNullSessionAttributes() {
 		this.messageHeaders.setSessionAttributes(null);
 		assertThatExceptionOfType(MissingCsrfTokenException.class)
-				.isThrownBy(() -> this.interceptor.preSend(message(), this.channel));
+			.isThrownBy(() -> this.interceptor.preSend(message(), this.channel));
 	}
 
 	private Message<String> message() {

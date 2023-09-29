@@ -209,8 +209,9 @@ public final class ResolvableMethod {
 	}
 
 	private String formatMethod() {
-		return this.method().getName() + Arrays.stream(this.method.getParameters()).map(this::formatParameter)
-				.collect(Collectors.joining(",\n\t", "(\n\t", "\n)"));
+		return this.method().getName() + Arrays.stream(this.method.getParameters())
+			.map(this::formatParameter)
+			.collect(Collectors.joining(",\n\t", "(\n\t", "\n)"));
 	}
 
 	private String formatParameter(Parameter param) {
@@ -335,7 +336,7 @@ public final class ResolvableMethod {
 		public final Builder<T> annotPresent(Class<? extends Annotation>... annotationTypes) {
 			String message = "annotationPresent=" + Arrays.toString(annotationTypes);
 			addFilter(message, (candidate) -> Arrays.stream(annotationTypes)
-					.allMatch((annotType) -> AnnotatedElementUtils.findMergedAnnotation(candidate, annotType) != null));
+				.allMatch((annotType) -> AnnotatedElementUtils.findMergedAnnotation(candidate, annotType) != null));
 			return this;
 		}
 
@@ -347,8 +348,9 @@ public final class ResolvableMethod {
 			String message = "annotationNotPresent=" + Arrays.toString(annotationTypes);
 			addFilter(message, (candidate) -> {
 				if (annotationTypes.length != 0) {
-					return Arrays.stream(annotationTypes).noneMatch(
-							(annotType) -> AnnotatedElementUtils.findMergedAnnotation(candidate, annotType) != null);
+					return Arrays.stream(annotationTypes)
+						.noneMatch((
+								annotType) -> AnnotatedElementUtils.findMergedAnnotation(candidate, annotType) != null);
 				}
 				else {
 					return candidate.getAnnotations().length == 0;
@@ -408,8 +410,9 @@ public final class ResolvableMethod {
 		}
 
 		private String formatMethods(Set<Method> methods) {
-			return "\nMatched:\n" + methods.stream().map(Method::toGenericString)
-					.collect(Collectors.joining(",\n\t", "[\n\t", "\n]"));
+			return "\nMatched:\n" + methods.stream()
+				.map(Method::toGenericString)
+				.collect(Collectors.joining(",\n\t", "[\n\t", "\n]"));
 		}
 
 		public ResolvableMethod mockCall(Consumer<T> invoker) {
@@ -483,8 +486,9 @@ public final class ResolvableMethod {
 		}
 
 		private String formatFilters() {
-			return this.filters.stream().map(Object::toString)
-					.collect(Collectors.joining(",\n\t\t", "[\n\t\t", "\n\t]"));
+			return this.filters.stream()
+				.map(Object::toString)
+				.collect(Collectors.joining(",\n\t\t", "[\n\t\t", "\n\t]"));
 		}
 
 	}

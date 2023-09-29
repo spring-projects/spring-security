@@ -70,7 +70,7 @@ import org.springframework.web.filter.GenericFilterBean;
 public class SecurityContextHolderAwareRequestFilter extends GenericFilterBean {
 
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
-			.getContextHolderStrategy();
+		.getContextHolderStrategy();
 
 	private String rolePrefix = "ROLE_";
 

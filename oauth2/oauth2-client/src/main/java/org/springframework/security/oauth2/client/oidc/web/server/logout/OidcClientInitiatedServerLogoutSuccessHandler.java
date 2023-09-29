@@ -97,8 +97,9 @@ public class OidcClientInitiatedServerLogoutSuccessHandler implements ServerLogo
 
 	private URI endSessionEndpoint(ClientRegistration clientRegistration) {
 		if (clientRegistration != null) {
-			Object endSessionEndpoint = clientRegistration.getProviderDetails().getConfigurationMetadata()
-					.get("end_session_endpoint");
+			Object endSessionEndpoint = clientRegistration.getProviderDetails()
+				.getConfigurationMetadata()
+				.get("end_session_endpoint");
 			if (endSessionEndpoint != null) {
 				return URI.create(endSessionEndpoint.toString());
 			}

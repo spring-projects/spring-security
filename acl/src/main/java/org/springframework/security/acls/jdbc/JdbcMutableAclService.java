@@ -66,7 +66,7 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
 	private static final String DEFAULT_INSERT_INTO_ACL_CLASS_WITH_ID = "insert into acl_class (class, class_id_type) values (?, ?)";
 
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
-			.getContextHolderStrategy();
+		.getContextHolderStrategy();
 
 	private boolean foreignKeysInDatabase = true;
 

@@ -78,14 +78,14 @@ public class FilterInvocationTests {
 	public void testRejectsNullServletRequest() {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new FilterInvocation(null, response, mock(FilterChain.class)));
+			.isThrownBy(() -> new FilterInvocation(null, response, mock(FilterChain.class)));
 	}
 
 	@Test
 	public void testRejectsNullServletResponse() {
 		MockHttpServletRequest request = new MockHttpServletRequest(null, null);
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new FilterInvocation(request, null, mock(FilterChain.class)));
+			.isThrownBy(() -> new FilterInvocation(request, null, mock(FilterChain.class)));
 	}
 
 	@Test
@@ -124,7 +124,7 @@ public class FilterInvocationTests {
 	@Test
 	public void dummyChainRejectsInvocation() throws Exception {
 		assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> FilterInvocation.DUMMY_CHAIN
-				.doFilter(mock(HttpServletRequest.class), mock(HttpServletResponse.class)));
+			.doFilter(mock(HttpServletRequest.class), mock(HttpServletResponse.class)));
 	}
 
 	@Test

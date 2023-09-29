@@ -299,7 +299,7 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 	private Saml2RelyingPartyInitiatedLogoutSuccessHandler createSaml2LogoutRequestSuccessHandler(
 			RelyingPartyRegistrationResolver relyingPartyRegistrationResolver) {
 		Saml2LogoutRequestResolver logoutRequestResolver = this.logoutRequestConfigurer
-				.logoutRequestResolver(relyingPartyRegistrationResolver);
+			.logoutRequestResolver(relyingPartyRegistrationResolver);
 		return new Saml2RelyingPartyInitiatedLogoutSuccessHandler(logoutRequestResolver);
 	}
 
@@ -314,7 +314,7 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 			return version;
 		}
 		boolean openSaml4ClassPresent = ClassUtils
-				.isPresent("org.opensaml.core.xml.persist.impl.PassthroughSourceStrategy", null);
+			.isPresent("org.opensaml.core.xml.persist.impl.PassthroughSourceStrategy", null);
 		if (openSaml4ClassPresent) {
 			return OPEN_SAML_4_VERSION;
 		}
@@ -543,8 +543,8 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 						"org.springframework.security.saml2.provider.service.web.authentication.logout.OpenSaml4LogoutResponseResolver",
 						OpenSaml4LogoutSupportFactory.class.getClassLoader());
 				return (Saml2LogoutResponseResolver) logoutResponseResolver
-						.getDeclaredConstructor(RelyingPartyRegistrationResolver.class)
-						.newInstance(relyingPartyRegistrationResolver);
+					.getDeclaredConstructor(RelyingPartyRegistrationResolver.class)
+					.newInstance(relyingPartyRegistrationResolver);
 			}
 			catch (ReflectiveOperationException ex) {
 				throw new IllegalStateException("Could not instantiate OpenSaml4LogoutResponseResolver", ex);
@@ -558,8 +558,8 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 						"org.springframework.security.saml2.provider.service.web.authentication.logout.OpenSaml4LogoutRequestResolver",
 						OpenSaml4LogoutSupportFactory.class.getClassLoader());
 				return (Saml2LogoutRequestResolver) logoutRequestResolver
-						.getDeclaredConstructor(RelyingPartyRegistrationResolver.class)
-						.newInstance(relyingPartyRegistrationResolver);
+					.getDeclaredConstructor(RelyingPartyRegistrationResolver.class)
+					.newInstance(relyingPartyRegistrationResolver);
 			}
 			catch (ReflectiveOperationException ex) {
 				throw new IllegalStateException("Could not instantiate OpenSaml4LogoutRequestResolver", ex);

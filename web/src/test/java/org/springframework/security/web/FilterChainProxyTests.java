@@ -192,10 +192,10 @@ public class FilterChainProxyTests {
 		given(this.matcher.matches(any(HttpServletRequest.class))).willReturn(true);
 		willAnswer((Answer<Object>) (inv) -> {
 			SecurityContextHolder.getContext()
-					.setAuthentication(new TestingAuthenticationToken("username", "password"));
+				.setAuthentication(new TestingAuthenticationToken("username", "password"));
 			return null;
-		}).given(this.filter).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class),
-				any(FilterChain.class));
+		}).given(this.filter)
+			.doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class), any(FilterChain.class));
 		this.fcp.doFilter(this.request, this.response, this.chain);
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
 	}
@@ -214,12 +214,12 @@ public class FilterChainProxyTests {
 		given(this.matcher.matches(any(HttpServletRequest.class))).willReturn(true);
 		willAnswer((Answer<Object>) (inv) -> {
 			SecurityContextHolder.getContext()
-					.setAuthentication(new TestingAuthenticationToken("username", "password"));
+				.setAuthentication(new TestingAuthenticationToken("username", "password"));
 			throw new ServletException("oops");
-		}).given(this.filter).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class),
-				any(FilterChain.class));
+		}).given(this.filter)
+			.doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class), any(FilterChain.class));
 		assertThatExceptionOfType(ServletException.class)
-				.isThrownBy(() -> this.fcp.doFilter(this.request, this.response, this.chain));
+			.isThrownBy(() -> this.fcp.doFilter(this.request, this.response, this.chain));
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
 	}
 
@@ -234,13 +234,13 @@ public class FilterChainProxyTests {
 			willAnswer((Answer<Object>) (inv1) -> {
 				innerChain.doFilter(this.request, this.response);
 				return null;
-			}).given(this.filter).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class),
-					any(FilterChain.class));
+			}).given(this.filter)
+				.doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class), any(FilterChain.class));
 			this.fcp.doFilter(this.request, this.response, innerChain);
 			assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(expected);
 			return null;
-		}).given(this.filter).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class),
-				any(FilterChain.class));
+		}).given(this.filter)
+			.doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class), any(FilterChain.class));
 		this.fcp.doFilter(this.request, this.response, this.chain);
 		verify(innerChain).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();

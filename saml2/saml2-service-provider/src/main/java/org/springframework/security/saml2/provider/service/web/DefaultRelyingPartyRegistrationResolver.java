@@ -79,8 +79,9 @@ public final class DefaultRelyingPartyRegistrationResolver
 				this.logger.trace("Attempting to resolve from " + this.registrationRequestMatcher
 						+ " since registrationId is null");
 			}
-			relyingPartyRegistrationId = this.registrationRequestMatcher.matcher(request).getVariables()
-					.get("registrationId");
+			relyingPartyRegistrationId = this.registrationRequestMatcher.matcher(request)
+				.getVariables()
+				.get("registrationId");
 		}
 		if (relyingPartyRegistrationId == null) {
 			if (this.logger.isTraceEnabled()) {
@@ -89,7 +90,7 @@ public final class DefaultRelyingPartyRegistrationResolver
 			return null;
 		}
 		RelyingPartyRegistration relyingPartyRegistration = this.relyingPartyRegistrationRepository
-				.findByRegistrationId(relyingPartyRegistrationId);
+			.findByRegistrationId(relyingPartyRegistrationId);
 		if (relyingPartyRegistration == null) {
 			return null;
 		}
@@ -97,15 +98,17 @@ public final class DefaultRelyingPartyRegistrationResolver
 		Function<String, String> templateResolver = templateResolver(applicationUri, relyingPartyRegistration);
 		String relyingPartyEntityId = templateResolver.apply(relyingPartyRegistration.getEntityId());
 		String assertionConsumerServiceLocation = templateResolver
-				.apply(relyingPartyRegistration.getAssertionConsumerServiceLocation());
+			.apply(relyingPartyRegistration.getAssertionConsumerServiceLocation());
 		String singleLogoutServiceLocation = templateResolver
-				.apply(relyingPartyRegistration.getSingleLogoutServiceLocation());
+			.apply(relyingPartyRegistration.getSingleLogoutServiceLocation());
 		String singleLogoutServiceResponseLocation = templateResolver
-				.apply(relyingPartyRegistration.getSingleLogoutServiceResponseLocation());
+			.apply(relyingPartyRegistration.getSingleLogoutServiceResponseLocation());
 		return RelyingPartyRegistration.withRelyingPartyRegistration(relyingPartyRegistration)
-				.entityId(relyingPartyEntityId).assertionConsumerServiceLocation(assertionConsumerServiceLocation)
-				.singleLogoutServiceLocation(singleLogoutServiceLocation)
-				.singleLogoutServiceResponseLocation(singleLogoutServiceResponseLocation).build();
+			.entityId(relyingPartyEntityId)
+			.assertionConsumerServiceLocation(assertionConsumerServiceLocation)
+			.singleLogoutServiceLocation(singleLogoutServiceLocation)
+			.singleLogoutServiceResponseLocation(singleLogoutServiceResponseLocation)
+			.build();
 	}
 
 	private Function<String, String> templateResolver(String applicationUri, RelyingPartyRegistration relyingParty) {
@@ -119,8 +122,10 @@ public final class DefaultRelyingPartyRegistrationResolver
 		String entityId = relyingParty.getAssertingPartyDetails().getEntityId();
 		String registrationId = relyingParty.getRegistrationId();
 		Map<String, String> uriVariables = new HashMap<>();
-		UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl(baseUrl).replaceQuery(null).fragment(null)
-				.build();
+		UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl(baseUrl)
+			.replaceQuery(null)
+			.fragment(null)
+			.build();
 		String scheme = uriComponents.getScheme();
 		uriVariables.put("baseScheme", (scheme != null) ? scheme : "");
 		String host = uriComponents.getHost();
@@ -141,7 +146,10 @@ public final class DefaultRelyingPartyRegistrationResolver
 
 	private static String getApplicationUri(HttpServletRequest request) {
 		UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl(UrlUtils.buildFullRequestUrl(request))
-				.replacePath(request.getContextPath()).replaceQuery(null).fragment(null).build();
+			.replacePath(request.getContextPath())
+			.replaceQuery(null)
+			.fragment(null)
+			.build();
 		return uriComponents.toUriString();
 	}
 

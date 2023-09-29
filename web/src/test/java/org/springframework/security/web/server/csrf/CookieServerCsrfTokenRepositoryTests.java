@@ -254,7 +254,7 @@ public class CookieServerCsrfTokenRepositoryTests {
 
 	private void loadAndAssertExpectedValues() {
 		MockServerHttpRequest.BodyBuilder request = MockServerHttpRequest.post("/someUri")
-				.cookie(new HttpCookie(this.expectedCookieName, this.expectedCookieValue));
+			.cookie(new HttpCookie(this.expectedCookieName, this.expectedCookieValue));
 		MockServerWebExchange exchange = MockServerWebExchange.from(request);
 		CsrfToken csrfToken = this.csrfTokenRepository.loadToken(exchange).block();
 		if (StringUtils.hasText(this.expectedCookieValue)) {

@@ -114,7 +114,7 @@ public final class Saml2LogoutResponseFilter extends OncePerRequestFilter {
 				logoutRequest.getRelyingPartyRegistrationId());
 		if (registration == null) {
 			this.logger
-					.trace("Did not process logout response since failed to find associated RelyingPartyRegistration");
+				.trace("Did not process logout response since failed to find associated RelyingPartyRegistration");
 			Saml2Error error = new Saml2Error(Saml2ErrorCodes.RELYING_PARTY_REGISTRATION_NOT_FOUND,
 					"Failed to find associated RelyingPartyRegistration");
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST, error.toString());
@@ -136,13 +136,16 @@ public final class Saml2LogoutResponseFilter extends OncePerRequestFilter {
 
 		String serialized = request.getParameter(Saml2ParameterNames.SAML_RESPONSE);
 		Saml2LogoutResponse logoutResponse = Saml2LogoutResponse.withRelyingPartyRegistration(registration)
-				.samlResponse(serialized).relayState(request.getParameter(Saml2ParameterNames.RELAY_STATE))
-				.binding(saml2MessageBinding).location(registration.getSingleLogoutServiceResponseLocation())
-				.parameters((params) -> params.put(Saml2ParameterNames.SIG_ALG,
-						request.getParameter(Saml2ParameterNames.SIG_ALG)))
-				.parameters((params) -> params.put(Saml2ParameterNames.SIGNATURE,
-						request.getParameter(Saml2ParameterNames.SIGNATURE)))
-				.parametersQuery((params) -> request.getQueryString()).build();
+			.samlResponse(serialized)
+			.relayState(request.getParameter(Saml2ParameterNames.RELAY_STATE))
+			.binding(saml2MessageBinding)
+			.location(registration.getSingleLogoutServiceResponseLocation())
+			.parameters((params) -> params.put(Saml2ParameterNames.SIG_ALG,
+					request.getParameter(Saml2ParameterNames.SIG_ALG)))
+			.parameters((params) -> params.put(Saml2ParameterNames.SIGNATURE,
+					request.getParameter(Saml2ParameterNames.SIGNATURE)))
+			.parametersQuery((params) -> request.getQueryString())
+			.build();
 		Saml2LogoutResponseValidatorParameters parameters = new Saml2LogoutResponseValidatorParameters(logoutResponse,
 				logoutRequest, registration);
 		Saml2LogoutValidatorResult result = this.logoutResponseValidator.validate(parameters);

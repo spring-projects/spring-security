@@ -160,7 +160,7 @@ public class WithSecurityContextTestExcecutionListenerTests {
 		given(testContext.getApplicationContext()).willThrow(new IllegalStateException(""));
 		this.listener.beforeTestMethod(testContext);
 		assertThat(SecurityContextHolder.getContext().getAuthentication().getPrincipal())
-				.isInstanceOf(WithSuperClassWithSecurityContext.class);
+			.isInstanceOf(WithSuperClassWithSecurityContext.class);
 	}
 
 	@WithSuperClassWithSecurityContext

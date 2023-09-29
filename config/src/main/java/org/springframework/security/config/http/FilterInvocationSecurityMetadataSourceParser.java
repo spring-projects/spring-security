@@ -69,17 +69,18 @@ public class FilterInvocationSecurityMetadataSourceParser implements BeanDefinit
 		// Check for attributes that aren't allowed in this context
 		for (Element elt : interceptUrls) {
 			if (StringUtils.hasLength(elt.getAttribute(HttpSecurityBeanDefinitionParser.ATT_REQUIRES_CHANNEL))) {
-				parserContext.getReaderContext().error("The attribute '"
-						+ HttpSecurityBeanDefinitionParser.ATT_REQUIRES_CHANNEL + "' isn't allowed here.", elt);
+				parserContext.getReaderContext()
+					.error("The attribute '" + HttpSecurityBeanDefinitionParser.ATT_REQUIRES_CHANNEL
+							+ "' isn't allowed here.", elt);
 			}
 			if (StringUtils.hasLength(elt.getAttribute(HttpSecurityBeanDefinitionParser.ATT_FILTERS))) {
-				parserContext.getReaderContext().error(
-						"The attribute '" + HttpSecurityBeanDefinitionParser.ATT_FILTERS + "' isn't allowed here.",
-						elt);
+				parserContext.getReaderContext()
+					.error("The attribute '" + HttpSecurityBeanDefinitionParser.ATT_FILTERS + "' isn't allowed here.",
+							elt);
 			}
 			if (StringUtils.hasLength(elt.getAttribute(ATT_SERVLET_PATH))) {
-				parserContext.getReaderContext().error("The attribute '" + ATT_SERVLET_PATH + "' isn't allowed here.",
-						elt);
+				parserContext.getReaderContext()
+					.error("The attribute '" + ATT_SERVLET_PATH + "' isn't allowed here.", elt);
 			}
 		}
 		BeanDefinition mds = createSecurityMetadataSource(interceptUrls, false, element, parserContext);
@@ -110,7 +111,7 @@ public class FilterInvocationSecurityMetadataSourceParser implements BeanDefinit
 				expressionHandlerRef = registerDefaultExpressionHandler(pc);
 			}
 			fidsBuilder = BeanDefinitionBuilder
-					.rootBeanDefinition(ExpressionBasedFilterInvocationSecurityMetadataSource.class);
+				.rootBeanDefinition(ExpressionBasedFilterInvocationSecurityMetadataSource.class);
 			fidsBuilder.addConstructorArgValue(requestToAttributesMap);
 			fidsBuilder.addConstructorArgReference(expressionHandlerRef);
 		}
@@ -159,9 +160,9 @@ public class FilterInvocationSecurityMetadataSourceParser implements BeanDefinit
 				servletPath = null;
 			}
 			else if (!MatcherType.mvc.equals(matcherType)) {
-				parserContext.getReaderContext().error(
-						ATT_SERVLET_PATH + " is not applicable for request-matcher: '" + matcherType.name() + "'",
-						urlElt);
+				parserContext.getReaderContext()
+					.error(ATT_SERVLET_PATH + " is not applicable for request-matcher: '" + matcherType.name() + "'",
+							urlElt);
 			}
 			BeanMetadataElement matcher = hasMatcherRef ? new RuntimeBeanReference(matcherRef)
 					: matcherType.createMatcher(parserContext, path, method, servletPath);

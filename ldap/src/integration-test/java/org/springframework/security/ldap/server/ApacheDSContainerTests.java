@@ -115,7 +115,7 @@ public class ApacheDSContainerTests {
 		server.setPort(ports.get(0));
 		server.setLdapOverSslEnabled(true);
 		assertThatIllegalArgumentException().isThrownBy(server::afterPropertiesSet)
-				.withMessage("When LdapOverSsl is enabled, the keyStoreFile property must be set.");
+			.withMessage("When LdapOverSsl is enabled, the keyStoreFile property must be set.");
 	}
 
 	@Test
@@ -137,7 +137,8 @@ public class ApacheDSContainerTests {
 		server.setKeyStoreFile(temporaryKeyStoreFile);
 		server.setCertificatePassord("incorrect-password");
 		assertThatExceptionOfType(RuntimeException.class).isThrownBy(server::afterPropertiesSet)
-				.withMessage("Server startup failed").withRootCauseInstanceOf(UnrecoverableKeyException.class);
+			.withMessage("Server startup failed")
+			.withRootCauseInstanceOf(UnrecoverableKeyException.class);
 	}
 
 	/**

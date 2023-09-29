@@ -45,7 +45,7 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 	static final String DEFAULT_CSRF_HEADER_NAME = "X-XSRF-TOKEN";
 
 	private static final String CSRF_TOKEN_REMOVED_ATTRIBUTE_NAME = CookieCsrfTokenRepository.class.getName()
-			.concat(".REMOVED");
+		.concat(".REMOVED");
 
 	private String parameterName = DEFAULT_CSRF_PARAMETER_NAME;
 

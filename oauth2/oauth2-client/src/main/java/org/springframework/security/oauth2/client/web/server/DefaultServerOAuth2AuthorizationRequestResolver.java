@@ -86,7 +86,7 @@ public class DefaultServerOAuth2AuthorizationRequestResolver implements ServerOA
 			Base64.getUrlEncoder().withoutPadding(), 96);
 
 	private static final Consumer<OAuth2AuthorizationRequest.Builder> DEFAULT_PKCE_APPLIER = OAuth2AuthorizationRequestCustomizers
-			.withPkce();
+		.withPkce();
 
 	private final ServerWebExchangeMatcher authorizationRequestMatcher;
 
@@ -139,7 +139,7 @@ public class DefaultServerOAuth2AuthorizationRequestResolver implements ServerOA
 	@Override
 	public Mono<OAuth2AuthorizationRequest> resolve(ServerWebExchange exchange, String clientRegistrationId) {
 		return findByRegistrationId(exchange, clientRegistrationId)
-				.map((clientRegistration) -> authorizationRequest(exchange, clientRegistration));
+			.map((clientRegistration) -> authorizationRequest(exchange, clientRegistration));
 	}
 
 	/**

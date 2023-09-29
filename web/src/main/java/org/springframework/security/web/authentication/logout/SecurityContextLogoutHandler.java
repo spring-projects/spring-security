@@ -50,7 +50,7 @@ public class SecurityContextLogoutHandler implements LogoutHandler {
 	protected final Log logger = LogFactory.getLog(this.getClass());
 
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
-			.getContextHolderStrategy();
+		.getContextHolderStrategy();
 
 	private boolean invalidateHttpSession = true;
 

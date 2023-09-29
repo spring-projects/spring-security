@@ -44,7 +44,7 @@ public class XContentTypeOptionsServerHttpHeadersWriterTests {
 		this.writer.writeHttpHeaders(this.exchange);
 		assertThat(this.headers).hasSize(1);
 		assertThat(this.headers.get(XContentTypeOptionsServerHttpHeadersWriter.X_CONTENT_OPTIONS))
-				.containsOnly(XContentTypeOptionsServerHttpHeadersWriter.NOSNIFF);
+			.containsOnly(XContentTypeOptionsServerHttpHeadersWriter.NOSNIFF);
 	}
 
 	@Test
@@ -54,7 +54,7 @@ public class XContentTypeOptionsServerHttpHeadersWriterTests {
 		this.writer.writeHttpHeaders(this.exchange);
 		assertThat(this.headers).hasSize(1);
 		assertThat(this.headers.get(XContentTypeOptionsServerHttpHeadersWriter.X_CONTENT_OPTIONS))
-				.containsOnly(headerValue);
+			.containsOnly(headerValue);
 	}
 
 	@Test

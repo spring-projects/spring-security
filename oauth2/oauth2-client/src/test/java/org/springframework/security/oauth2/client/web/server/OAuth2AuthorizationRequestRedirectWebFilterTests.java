@@ -86,7 +86,7 @@ public class OAuth2AuthorizationRequestRedirectWebFilterTests {
 	public void constructorWhenClientRegistrationRepositoryNullThenIllegalArgumentException() {
 		this.clientRepository = null;
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new OAuth2AuthorizationRequestRedirectWebFilter(this.clientRepository));
+			.isThrownBy(() -> new OAuth2AuthorizationRequestRedirectWebFilter(this.clientRepository));
 	}
 
 	@Test
@@ -107,7 +107,7 @@ public class OAuth2AuthorizationRequestRedirectWebFilterTests {
 	@Test
 	public void filterWhenDoesMatchThenClientRegistrationRepositoryNotSubscribed() {
 		given(this.clientRepository.findByRegistrationId(this.registration.getRegistrationId()))
-				.willReturn(Mono.just(this.registration));
+			.willReturn(Mono.just(this.registration));
 		given(this.authzRequestRepository.saveAuthorizationRequest(any(), any())).willReturn(Mono.empty());
 		// @formatter:off
 		FluxExchangeResult<String> result = this.client.get()
@@ -118,10 +118,14 @@ public class OAuth2AuthorizationRequestRedirectWebFilterTests {
 		// @formatter:on
 		result.assertWithDiagnostics(() -> {
 			URI location = result.getResponseHeaders().getLocation();
-			assertThat(location).hasScheme("https").hasHost("example.com").hasPath("/login/oauth/authorize")
-					.hasParameter("response_type", "code").hasParameter("client_id", "client-id")
-					.hasParameter("scope", "read:user").hasParameter("state")
-					.hasParameter("redirect_uri", "https://example.com/login/oauth2/code/registration-id");
+			assertThat(location).hasScheme("https")
+				.hasHost("example.com")
+				.hasPath("/login/oauth/authorize")
+				.hasParameter("response_type", "code")
+				.hasParameter("client_id", "client-id")
+				.hasParameter("scope", "read:user")
+				.hasParameter("state")
+				.hasParameter("redirect_uri", "https://example.com/login/oauth2/code/registration-id");
 		});
 		verify(this.authzRequestRepository).saveAuthorizationRequest(any(), any());
 	}
@@ -130,7 +134,7 @@ public class OAuth2AuthorizationRequestRedirectWebFilterTests {
 	@Test
 	public void filterWhenDoesMatchThenResolveRedirectUriExpandedExcludesQueryString() {
 		given(this.clientRepository.findByRegistrationId(this.registration.getRegistrationId()))
-				.willReturn(Mono.just(this.registration));
+			.willReturn(Mono.just(this.registration));
 		given(this.authzRequestRepository.saveAuthorizationRequest(any(), any())).willReturn(Mono.empty());
 		// @formatter:off
 		FluxExchangeResult<String> result = this.client.get()
@@ -154,7 +158,7 @@ public class OAuth2AuthorizationRequestRedirectWebFilterTests {
 	@Test
 	public void filterWhenExceptionThenRedirected() {
 		given(this.clientRepository.findByRegistrationId(this.registration.getRegistrationId()))
-				.willReturn(Mono.just(this.registration));
+			.willReturn(Mono.just(this.registration));
 		given(this.authzRequestRepository.saveAuthorizationRequest(any(), any())).willReturn(Mono.empty());
 		FilteringWebHandler webHandler = new FilteringWebHandler(
 				(e) -> Mono.error(new ClientAuthorizationRequiredException(this.registration.getRegistrationId())),
@@ -173,7 +177,7 @@ public class OAuth2AuthorizationRequestRedirectWebFilterTests {
 	@Test
 	public void filterWhenExceptionThenSaveRequestSessionAttribute() {
 		given(this.clientRepository.findByRegistrationId(this.registration.getRegistrationId()))
-				.willReturn(Mono.just(this.registration));
+			.willReturn(Mono.just(this.registration));
 		given(this.authzRequestRepository.saveAuthorizationRequest(any(), any())).willReturn(Mono.empty());
 		this.filter.setRequestCache(this.requestCache);
 		given(this.requestCache.saveRequest(any())).willReturn(Mono.empty());
@@ -195,7 +199,7 @@ public class OAuth2AuthorizationRequestRedirectWebFilterTests {
 	@Test
 	public void filterWhenPathMatchesThenRequestSessionAttributeNotSaved() {
 		given(this.clientRepository.findByRegistrationId(this.registration.getRegistrationId()))
-				.willReturn(Mono.just(this.registration));
+			.willReturn(Mono.just(this.registration));
 		given(this.authzRequestRepository.saveAuthorizationRequest(any(), any())).willReturn(Mono.empty());
 		this.filter.setRequestCache(this.requestCache);
 		// @formatter:off
@@ -211,14 +215,15 @@ public class OAuth2AuthorizationRequestRedirectWebFilterTests {
 	@Test
 	public void filterWhenCustomRedirectStrategySetThenRedirectUriInResponseBody() {
 		given(this.clientRepository.findByRegistrationId(this.registration.getRegistrationId()))
-				.willReturn(Mono.just(this.registration));
+			.willReturn(Mono.just(this.registration));
 		given(this.authzRequestRepository.saveAuthorizationRequest(any(), any())).willReturn(Mono.empty());
 		ServerRedirectStrategy customRedirectStrategy = (exchange, location) -> {
 			ServerHttpResponse response = exchange.getResponse();
 			response.setStatusCode(HttpStatus.OK);
 			response.getHeaders().setContentType(MediaType.TEXT_PLAIN);
-			DataBuffer buffer = exchange.getResponse().bufferFactory()
-					.wrap(location.toASCIIString().getBytes(StandardCharsets.UTF_8));
+			DataBuffer buffer = exchange.getResponse()
+				.bufferFactory()
+				.wrap(location.toASCIIString().getBytes(StandardCharsets.UTF_8));
 
 			return exchange.getResponse().writeWith(Flux.just(buffer));
 		};
@@ -226,8 +231,13 @@ public class OAuth2AuthorizationRequestRedirectWebFilterTests {
 		this.filter.setRequestCache(this.requestCache);
 
 		FluxExchangeResult<String> result = this.client.get()
-				.uri("https://example.com/oauth2/authorization/registration-id").exchange().expectHeader()
-				.contentType(MediaType.TEXT_PLAIN).expectStatus().isOk().returnResult(String.class);
+			.uri("https://example.com/oauth2/authorization/registration-id")
+			.exchange()
+			.expectHeader()
+			.contentType(MediaType.TEXT_PLAIN)
+			.expectStatus()
+			.isOk()
+			.returnResult(String.class);
 
 		// @formatter:off
 		StepVerifier.create(result.getResponseBody())

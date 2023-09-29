@@ -110,7 +110,7 @@ public final class NimbusJwtClientAuthenticationParametersConverter<T extends Ab
 		ClientRegistration clientRegistration = authorizationGrantRequest.getClientRegistration();
 		if (!ClientAuthenticationMethod.PRIVATE_KEY_JWT.equals(clientRegistration.getClientAuthenticationMethod())
 				&& !ClientAuthenticationMethod.CLIENT_SECRET_JWT
-						.equals(clientRegistration.getClientAuthenticationMethod())) {
+					.equals(clientRegistration.getClientAuthenticationMethod())) {
 			return null;
 		}
 

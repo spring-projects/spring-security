@@ -73,7 +73,7 @@ public class UserDeserializerTests extends AbstractMixinTests {
 		String userJsonWithoutPasswordString = USER_JSON.replace(SimpleGrantedAuthorityMixinTests.AUTHORITIES_SET_JSON,
 				"[]");
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> this.mapper.readValue(userJsonWithoutPasswordString, User.class));
+			.isThrownBy(() -> this.mapper.readValue(userJsonWithoutPasswordString, User.class));
 	}
 
 	@Test

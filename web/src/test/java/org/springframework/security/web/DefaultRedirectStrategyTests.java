@@ -61,7 +61,7 @@ public class DefaultRedirectStrategyTests {
 		request.setContextPath("/context");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> rds.sendRedirect(request, response, "https://redirectme.somewhere.else"));
+			.isThrownBy(() -> rds.sendRedirect(request, response, "https://redirectme.somewhere.else"));
 	}
 
 }

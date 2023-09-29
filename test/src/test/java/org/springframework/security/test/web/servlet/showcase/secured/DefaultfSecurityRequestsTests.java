@@ -54,34 +54,36 @@ public class DefaultfSecurityRequestsTests {
 	@BeforeEach
 	public void setup() {
 		this.mvc = MockMvcBuilders.webAppContextSetup(this.context)
-				.defaultRequest(get("/").with(user("user").roles("ADMIN"))).apply(springSecurity()).build();
+			.defaultRequest(get("/").with(user("user").roles("ADMIN")))
+			.apply(springSecurity())
+			.build();
 	}
 
 	@Test
 	public void requestProtectedUrlWithUser() throws Exception {
 		this.mvc.perform(get("/"))
-				// Ensure we got past Security
-				.andExpect(status().isNotFound())
-				// Ensure it appears we are authenticated with user
-				.andExpect(authenticated().withUsername("user"));
+			// Ensure we got past Security
+			.andExpect(status().isNotFound())
+			// Ensure it appears we are authenticated with user
+			.andExpect(authenticated().withUsername("user"));
 	}
 
 	@Test
 	public void requestProtectedUrlWithAdmin() throws Exception {
 		this.mvc.perform(get("/admin"))
-				// Ensure we got past Security
-				.andExpect(status().isNotFound())
-				// Ensure it appears we are authenticated with user
-				.andExpect(authenticated().withUsername("user"));
+			// Ensure we got past Security
+			.andExpect(status().isNotFound())
+			// Ensure it appears we are authenticated with user
+			.andExpect(authenticated().withUsername("user"));
 	}
 
 	@Test
 	public void requestProtectedUrlWithAnonymous() throws Exception {
 		this.mvc.perform(get("/admin").with(anonymous()))
-				// Ensure we got past Security
-				.andExpect(status().isUnauthorized())
-				// Ensure it appears we are authenticated with user
-				.andExpect(unauthenticated());
+			// Ensure we got past Security
+			.andExpect(status().isUnauthorized())
+			// Ensure it appears we are authenticated with user
+			.andExpect(unauthenticated());
 	}
 
 	@EnableWebSecurity

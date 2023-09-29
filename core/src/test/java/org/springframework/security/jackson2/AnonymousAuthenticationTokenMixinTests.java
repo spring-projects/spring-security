@@ -71,7 +71,7 @@ public class AnonymousAuthenticationTokenMixinTests extends AbstractMixinTests {
 				+ "\"principal\": \"user\", \"authenticated\": true, \"keyHash\": " + HASH_KEY.hashCode() + ","
 				+ "\"authorities\": [\"java.util.ArrayList\", []]}";
 		assertThatExceptionOfType(JsonMappingException.class)
-				.isThrownBy(() -> this.mapper.readValue(jsonString, AnonymousAuthenticationToken.class));
+			.isThrownBy(() -> this.mapper.readValue(jsonString, AnonymousAuthenticationToken.class));
 	}
 
 	@Test

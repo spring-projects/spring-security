@@ -92,19 +92,22 @@ public class AuthenticationManagerBuilderTests {
 		AuthenticationEventPublisher aep = mock(AuthenticationEventPublisher.class);
 		given(opp.postProcess(any())).willAnswer((a) -> a.getArgument(0));
 		AuthenticationManager am = new AuthenticationManagerBuilder(opp).authenticationEventPublisher(aep)
-				.inMemoryAuthentication().and().build();
-		assertThatExceptionOfType(AuthenticationException.class).isThrownBy(
-				() -> am.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("user", "password")));
+			.inMemoryAuthentication()
+			.and()
+			.build();
+		assertThatExceptionOfType(AuthenticationException.class)
+			.isThrownBy(() -> am.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("user", "password")));
 		verify(aep).publishAuthenticationFailure(any(), any());
 	}
 
 	@Test
 	public void getAuthenticationManagerWhenGlobalPasswordEncoderBeanThenUsed() throws Exception {
 		this.spring.register(PasswordEncoderGlobalConfig.class).autowire();
-		AuthenticationManager manager = this.spring.getContext().getBean(AuthenticationConfiguration.class)
-				.getAuthenticationManager();
+		AuthenticationManager manager = this.spring.getContext()
+			.getBean(AuthenticationConfiguration.class)
+			.getAuthenticationManager();
 		Authentication auth = manager
-				.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("user", "password"));
+			.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("user", "password"));
 		assertThat(auth.getName()).isEqualTo("user");
 		assertThat(auth.getAuthorities()).extracting(GrantedAuthority::getAuthority).containsOnly("ROLE_USER");
 	}
@@ -112,10 +115,11 @@ public class AuthenticationManagerBuilderTests {
 	@Test
 	public void getAuthenticationManagerWhenProtectedPasswordEncoderBeanThenUsed() throws Exception {
 		this.spring.register(PasswordEncoderGlobalConfig.class).autowire();
-		AuthenticationManager manager = this.spring.getContext().getBean(AuthenticationConfiguration.class)
-				.getAuthenticationManager();
+		AuthenticationManager manager = this.spring.getContext()
+			.getBean(AuthenticationConfiguration.class)
+			.getAuthenticationManager();
 		Authentication auth = manager
-				.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("user", "password"));
+			.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("user", "password"));
 		assertThat(auth.getName()).isEqualTo("user");
 		assertThat(auth.getAuthorities()).extracting(GrantedAuthority::getAuthority).containsOnly("ROLE_USER");
 	}
@@ -124,10 +128,10 @@ public class AuthenticationManagerBuilderTests {
 	public void authenticationManagerWhenMultipleProvidersThenWorks() throws Exception {
 		this.spring.register(MultiAuthenticationProvidersConfig.class).autowire();
 		SecurityMockMvcResultMatchers.AuthenticatedMatcher user = authenticated().withUsername("user")
-				.withRoles("USER");
+			.withRoles("USER");
 		this.mockMvc.perform(formLogin()).andExpect(user);
 		SecurityMockMvcResultMatchers.AuthenticatedMatcher admin = authenticated().withUsername("admin")
-				.withRoles("USER", "ADMIN");
+			.withRoles("USER", "ADMIN");
 		this.mockMvc.perform(formLogin().user("admin")).andExpect(admin);
 	}
 
@@ -162,7 +166,7 @@ public class AuthenticationManagerBuilderTests {
 	public void buildWhenUserFromProperties() throws Exception {
 		this.spring.register(UserFromPropertiesConfig.class).autowire();
 		this.mockMvc.perform(formLogin().user("joe", "joespassword"))
-				.andExpect(authenticated().withUsername("joe").withRoles("USER"));
+			.andExpect(authenticated().withUsername("joe").withRoles("USER"));
 	}
 
 	@EnableWebSecurity

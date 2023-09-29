@@ -93,7 +93,7 @@ public class NamespaceHttpTests {
 		AccessDecisionManagerRefConfig.ACCESS_DECISION_MANAGER = mock(AccessDecisionManager.class);
 		given(AccessDecisionManagerRefConfig.ACCESS_DECISION_MANAGER.supports(FilterInvocation.class)).willReturn(true);
 		given(AccessDecisionManagerRefConfig.ACCESS_DECISION_MANAGER.supports(any(ConfigAttribute.class)))
-				.willReturn(true);
+			.willReturn(true);
 		this.spring.register(AccessDecisionManagerRefConfig.class).autowire();
 		this.mockMvc.perform(get("/"));
 		verify(AccessDecisionManagerRefConfig.ACCESS_DECISION_MANAGER, times(1)).decide(any(Authentication.class),
@@ -103,8 +103,9 @@ public class NamespaceHttpTests {
 	@Test // http@access-denied-page
 	public void configureWhenAccessDeniedPageSetAndRequestForbiddenThenForwardedToAccessDeniedPage() throws Exception {
 		this.spring.register(AccessDeniedPageConfig.class).autowire();
-		this.mockMvc.perform(get("/admin").with(user(PasswordEncodedUser.user()))).andExpect(status().isForbidden())
-				.andExpect(forwardedUrl("/AccessDeniedPage"));
+		this.mockMvc.perform(get("/admin").with(user(PasswordEncodedUser.user())))
+			.andExpect(status().isForbidden())
+			.andExpect(forwardedUrl("/AccessDeniedPage"));
 	}
 
 	@Test // http@authentication-manager-ref
@@ -191,7 +192,7 @@ public class NamespaceHttpTests {
 		FilterChainProxy filterChainProxy = this.spring.getContext().getBean(FilterChainProxy.class);
 		assertThat(filterChainProxy.getFilterChains().get(0)).isInstanceOf(DefaultSecurityFilterChain.class);
 		DefaultSecurityFilterChain securityFilterChain = (DefaultSecurityFilterChain) filterChainProxy.getFilterChains()
-				.get(0);
+			.get(0);
 		assertThat(securityFilterChain.getRequestMatcher()).isInstanceOf(AntPathRequestMatcher.class);
 	}
 
@@ -201,7 +202,7 @@ public class NamespaceHttpTests {
 		FilterChainProxy filterChainProxy = this.spring.getContext().getBean(FilterChainProxy.class);
 		assertThat(filterChainProxy.getFilterChains().get(0)).isInstanceOf(DefaultSecurityFilterChain.class);
 		DefaultSecurityFilterChain securityFilterChain = (DefaultSecurityFilterChain) filterChainProxy.getFilterChains()
-				.get(0);
+			.get(0);
 		assertThat(securityFilterChain.getRequestMatcher()).isInstanceOf(RegexRequestMatcher.class);
 	}
 
@@ -211,9 +212,9 @@ public class NamespaceHttpTests {
 		FilterChainProxy filterChainProxy = this.spring.getContext().getBean(FilterChainProxy.class);
 		assertThat(filterChainProxy.getFilterChains().get(0)).isInstanceOf(DefaultSecurityFilterChain.class);
 		DefaultSecurityFilterChain securityFilterChain = (DefaultSecurityFilterChain) filterChainProxy.getFilterChains()
-				.get(0);
+			.get(0);
 		assertThat(securityFilterChain.getRequestMatcher())
-				.isInstanceOf(RequestMatcherRefConfig.MyRequestMatcher.class);
+			.isInstanceOf(RequestMatcherRefConfig.MyRequestMatcher.class);
 	}
 
 	@Test // http@security=none
@@ -222,16 +223,16 @@ public class NamespaceHttpTests {
 		FilterChainProxy filterChainProxy = this.spring.getContext().getBean(FilterChainProxy.class);
 		assertThat(filterChainProxy.getFilterChains().get(0)).isInstanceOf(DefaultSecurityFilterChain.class);
 		DefaultSecurityFilterChain securityFilterChain = (DefaultSecurityFilterChain) filterChainProxy.getFilterChains()
-				.get(0);
+			.get(0);
 		assertThat(securityFilterChain.getRequestMatcher()).isInstanceOf(AntPathRequestMatcher.class);
 		assertThat(((AntPathRequestMatcher) securityFilterChain.getRequestMatcher()).getPattern())
-				.isEqualTo("/resources/**");
+			.isEqualTo("/resources/**");
 		assertThat(securityFilterChain.getFilters()).isEmpty();
 		assertThat(filterChainProxy.getFilterChains().get(1)).isInstanceOf(DefaultSecurityFilterChain.class);
 		securityFilterChain = (DefaultSecurityFilterChain) filterChainProxy.getFilterChains().get(1);
 		assertThat(securityFilterChain.getRequestMatcher()).isInstanceOf(AntPathRequestMatcher.class);
 		assertThat(((AntPathRequestMatcher) securityFilterChain.getRequestMatcher()).getPattern())
-				.isEqualTo("/public/**");
+			.isEqualTo("/public/**");
 		assertThat(securityFilterChain.getFilters()).isEmpty();
 	}
 
@@ -248,7 +249,7 @@ public class NamespaceHttpTests {
 		this.spring.register(ServletApiProvisionConfig.class, MainController.class).autowire();
 		this.mockMvc.perform(get("/"));
 		assertThat(MainController.HTTP_SERVLET_REQUEST_TYPE)
-				.isNotInstanceOf(SecurityContextHolderAwareRequestWrapper.class);
+			.isNotInstanceOf(SecurityContextHolderAwareRequestWrapper.class);
 	}
 
 	@Test // http@servlet-api-provision defaults to true
@@ -256,7 +257,7 @@ public class NamespaceHttpTests {
 		this.spring.register(ServletApiProvisionDefaultsConfig.class, MainController.class).autowire();
 		this.mockMvc.perform(get("/"));
 		assertThat(SecurityContextHolderAwareRequestWrapper.class)
-				.isAssignableFrom(MainController.HTTP_SERVLET_REQUEST_TYPE);
+			.isAssignableFrom(MainController.HTTP_SERVLET_REQUEST_TYPE);
 	}
 
 	@Test // http@use-expressions=true
@@ -264,7 +265,7 @@ public class NamespaceHttpTests {
 		this.spring.register(UseExpressionsConfig.class).autowire();
 		UseExpressionsConfig config = this.spring.getContext().getBean(UseExpressionsConfig.class);
 		assertThat(ExpressionBasedFilterInvocationSecurityMetadataSource.class)
-				.isAssignableFrom(config.filterInvocationSecurityMetadataSourceType);
+			.isAssignableFrom(config.filterInvocationSecurityMetadataSourceType);
 	}
 
 	@Test // http@use-expressions=false
@@ -272,7 +273,7 @@ public class NamespaceHttpTests {
 		this.spring.register(DisableUseExpressionsConfig.class).autowire();
 		DisableUseExpressionsConfig config = this.spring.getContext().getBean(DisableUseExpressionsConfig.class);
 		assertThat(DefaultFilterInvocationSecurityMetadataSource.class)
-				.isAssignableFrom(config.filterInvocationSecurityMetadataSourceType);
+			.isAssignableFrom(config.filterInvocationSecurityMetadataSourceType);
 	}
 
 	@EnableWebSecurity
@@ -610,7 +611,8 @@ public class NamespaceHttpTests {
 			web.postBuildAction(() -> {
 				FilterSecurityInterceptor securityInterceptor = http.getSharedObject(FilterSecurityInterceptor.class);
 				UseExpressionsConfig.this.filterInvocationSecurityMetadataSourceType = securityInterceptor
-						.getSecurityMetadataSource().getClass();
+					.getSecurityMetadataSource()
+					.getClass();
 			});
 		}
 
@@ -639,7 +641,8 @@ public class NamespaceHttpTests {
 			web.postBuildAction(() -> {
 				FilterSecurityInterceptor securityInterceptor = http.getSharedObject(FilterSecurityInterceptor.class);
 				DisableUseExpressionsConfig.this.filterInvocationSecurityMetadataSourceType = securityInterceptor
-						.getSecurityMetadataSource().getClass();
+					.getSecurityMetadataSource()
+					.getClass();
 			});
 		}
 

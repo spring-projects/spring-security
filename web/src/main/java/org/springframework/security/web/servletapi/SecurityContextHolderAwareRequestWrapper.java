@@ -52,7 +52,7 @@ import org.springframework.util.Assert;
 public class SecurityContextHolderAwareRequestWrapper extends HttpServletRequestWrapper {
 
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
-			.getContextHolderStrategy();
+		.getContextHolderStrategy();
 
 	private final AuthenticationTrustResolver trustResolver;
 

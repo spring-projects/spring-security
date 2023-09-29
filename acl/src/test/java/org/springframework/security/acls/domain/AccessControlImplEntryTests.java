@@ -77,14 +77,14 @@ public class AccessControlImplEntryTests {
 		assertThat(ace).isNotNull();
 		assertThat(ace).isNotEqualTo(100L);
 		assertThat(ace).isEqualTo(ace);
-		assertThat(ace).isEqualTo(
-				new AccessControlEntryImpl(1L, mockAcl, sid, BasePermission.ADMINISTRATION, true, true, true));
+		assertThat(ace)
+			.isEqualTo(new AccessControlEntryImpl(1L, mockAcl, sid, BasePermission.ADMINISTRATION, true, true, true));
 		assertThat(ace).isNotEqualTo(
 				new AccessControlEntryImpl(2L, mockAcl, sid, BasePermission.ADMINISTRATION, true, true, true));
 		assertThat(ace).isNotEqualTo(new AccessControlEntryImpl(1L, mockAcl, new PrincipalSid("scott"),
 				BasePermission.ADMINISTRATION, true, true, true));
 		assertThat(ace)
-				.isNotEqualTo(new AccessControlEntryImpl(1L, mockAcl, sid, BasePermission.WRITE, true, true, true));
+			.isNotEqualTo(new AccessControlEntryImpl(1L, mockAcl, sid, BasePermission.WRITE, true, true, true));
 		assertThat(ace).isNotEqualTo(
 				new AccessControlEntryImpl(1L, mockAcl, sid, BasePermission.ADMINISTRATION, false, true, true));
 		assertThat(ace).isNotEqualTo(

@@ -35,8 +35,13 @@ public class AuthorizeExchangeSpecTests {
 
 	@Test
 	public void antMatchersWhenMethodAndPatternsThenDiscriminatesByMethod() {
-		this.http.csrf().disable().authorizeExchange().pathMatchers(HttpMethod.POST, "/a", "/b").denyAll().anyExchange()
-				.permitAll();
+		this.http.csrf()
+			.disable()
+			.authorizeExchange()
+			.pathMatchers(HttpMethod.POST, "/a", "/b")
+			.denyAll()
+			.anyExchange()
+			.permitAll();
 		WebTestClient client = buildClient();
 		// @formatter:off
 		client.get()
@@ -84,8 +89,8 @@ public class AuthorizeExchangeSpecTests {
 
 	@Test
 	public void antMatchersWhenPatternsInLambdaThenAnyMethod() {
-		this.http.csrf(ServerHttpSecurity.CsrfSpec::disable).authorizeExchange(
-				(exchanges) -> exchanges.pathMatchers("/a", "/b").denyAll().anyExchange().permitAll());
+		this.http.csrf(ServerHttpSecurity.CsrfSpec::disable)
+			.authorizeExchange((exchanges) -> exchanges.pathMatchers("/a", "/b").denyAll().anyExchange().permitAll());
 		WebTestClient client = buildClient();
 		// @formatter:off
 		client.get()
@@ -111,7 +116,7 @@ public class AuthorizeExchangeSpecTests {
 	public void antMatchersWhenNoAccessAndAnotherMatcherThenThrowsException() {
 		this.http.authorizeExchange().pathMatchers("/incomplete");
 		assertThatIllegalStateException()
-				.isThrownBy(() -> this.http.authorizeExchange().pathMatchers("/throws-exception"));
+			.isThrownBy(() -> this.http.authorizeExchange().pathMatchers("/throws-exception"));
 	}
 
 	@Test

@@ -88,9 +88,9 @@ class SecurityContextHolderFilterTests {
 		Authentication authentication = TestAuthentication.authenticatedUser();
 		SecurityContext expectedContext = new SecurityContextImpl(authentication);
 		given(this.repository.loadDeferredContext(this.requestArg.capture()))
-				.willReturn(new SupplierDeferredSecurityContext(() -> expectedContext, this.strategy));
+			.willReturn(new SupplierDeferredSecurityContext(() -> expectedContext, this.strategy));
 		FilterChain filterChain = (request, response) -> assertThat(SecurityContextHolder.getContext())
-				.isEqualTo(expectedContext);
+			.isEqualTo(expectedContext);
 
 		this.filter.doFilter(this.request, this.response, filterChain);
 
@@ -102,7 +102,7 @@ class SecurityContextHolderFilterTests {
 		Authentication authentication = TestAuthentication.authenticatedUser();
 		SecurityContext expectedContext = new SecurityContextImpl(authentication);
 		given(this.repository.loadDeferredContext(this.requestArg.capture()))
-				.willReturn(new SupplierDeferredSecurityContext(() -> expectedContext, this.strategy));
+			.willReturn(new SupplierDeferredSecurityContext(() -> expectedContext, this.strategy));
 		FilterChain filterChain = (request, response) -> {
 		};
 
@@ -125,8 +125,8 @@ class SecurityContextHolderFilterTests {
 
 	@Test
 	void doFilterWhenNotAppliedThenSetsAndRemovesAttribute() throws Exception {
-		given(this.repository.loadDeferredContext(this.requestArg.capture())).willReturn(
-				new SupplierDeferredSecurityContext(SecurityContextHolder::createEmptyContext, this.strategy));
+		given(this.repository.loadDeferredContext(this.requestArg.capture()))
+			.willReturn(new SupplierDeferredSecurityContext(SecurityContextHolder::createEmptyContext, this.strategy));
 
 		this.filter.doFilter(this.request, this.response, new MockFilterChain());
 
@@ -143,9 +143,9 @@ class SecurityContextHolderFilterTests {
 		Authentication authentication = TestAuthentication.authenticatedUser();
 		SecurityContext expectedContext = new SecurityContextImpl(authentication);
 		given(this.repository.loadDeferredContext(this.requestArg.capture()))
-				.willReturn(new SupplierDeferredSecurityContext(() -> expectedContext, this.strategy));
+			.willReturn(new SupplierDeferredSecurityContext(() -> expectedContext, this.strategy));
 		FilterChain filterChain = (request, response) -> assertThat(SecurityContextHolder.getContext())
-				.isEqualTo(expectedContext);
+			.isEqualTo(expectedContext);
 
 		this.filter.doFilter(this.request, this.response, filterChain);
 	}

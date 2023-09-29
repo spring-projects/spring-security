@@ -61,11 +61,11 @@ public class DefaultSaml2AuthenticationRequestContextResolverTests {
 		this.request = new MockHttpServletRequest();
 		this.request.setPathInfo("/saml2/authenticate/registration-id");
 		this.relyingPartyBuilder = RelyingPartyRegistration.withRegistrationId(REGISTRATION_ID)
-				.localEntityIdTemplate(RELYING_PARTY_ENTITY_ID)
-				.providerDetails((c) -> c.entityId(ASSERTING_PARTY_ENTITY_ID))
-				.providerDetails((c) -> c.webSsoUrl(ASSERTING_PARTY_SSO_URL))
-				.assertionConsumerServiceUrlTemplate(RELYING_PARTY_SSO_URL)
-				.credentials((c) -> c.add(TestSaml2X509Credentials.relyingPartyVerifyingCredential()));
+			.localEntityIdTemplate(RELYING_PARTY_ENTITY_ID)
+			.providerDetails((c) -> c.entityId(ASSERTING_PARTY_ENTITY_ID))
+			.providerDetails((c) -> c.webSsoUrl(ASSERTING_PARTY_SSO_URL))
+			.assertionConsumerServiceUrlTemplate(RELYING_PARTY_SSO_URL)
+			.credentials((c) -> c.add(TestSaml2X509Credentials.relyingPartyVerifyingCredential()));
 	}
 
 	@Test
@@ -78,7 +78,7 @@ public class DefaultSaml2AuthenticationRequestContextResolverTests {
 		assertThat(context.getDestination()).isEqualTo(ASSERTING_PARTY_SSO_URL);
 		assertThat(context.getIssuer()).isEqualTo(RELYING_PARTY_ENTITY_ID);
 		assertThat(context.getRelyingPartyRegistration().getRegistrationId())
-				.isSameAs(this.relyingPartyBuilder.build().getRegistrationId());
+			.isSameAs(this.relyingPartyBuilder.build().getRegistrationId());
 	}
 
 	@Test
@@ -93,7 +93,7 @@ public class DefaultSaml2AuthenticationRequestContextResolverTests {
 		this.relyingPartyBuilder.assertionConsumerServiceLocation("{baseUrl}/saml2/authenticate/{registrationId}");
 		Saml2AuthenticationRequestContext context = this.authenticationRequestContextResolver.resolve(this.request);
 		assertThat(context.getAssertionConsumerServiceUrl())
-				.isEqualTo("http://localhost/saml2/authenticate/registration-id");
+			.isEqualTo("http://localhost/saml2/authenticate/registration-id");
 	}
 
 	@Test

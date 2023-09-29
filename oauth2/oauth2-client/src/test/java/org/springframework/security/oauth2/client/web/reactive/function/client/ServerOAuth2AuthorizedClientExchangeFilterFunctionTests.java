@@ -206,32 +206,33 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 	@Test
 	public void constructorWhenAuthorizedClientManagerIsNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new ServerOAuth2AuthorizedClientExchangeFilterFunction(null));
+			.isThrownBy(() -> new ServerOAuth2AuthorizedClientExchangeFilterFunction(null));
 	}
 
 	@Test
 	public void setClientCredentialsTokenResponseClientWhenClientIsNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> this.function.setClientCredentialsTokenResponseClient(null))
-				.withMessage("clientCredentialsTokenResponseClient cannot be null");
+			.isThrownBy(() -> this.function.setClientCredentialsTokenResponseClient(null))
+			.withMessage("clientCredentialsTokenResponseClient cannot be null");
 	}
 
 	@Test
 	public void setClientCredentialsTokenResponseClientWhenNotDefaultAuthorizedClientManagerThenThrowIllegalStateException() {
 		assertThatIllegalStateException()
-				.isThrownBy(() -> this.function.setClientCredentialsTokenResponseClient(
-						new WebClientReactiveClientCredentialsTokenResponseClient()))
-				.withMessage(
-						"The client cannot be set when the constructor used is \"ServerOAuth2AuthorizedClientExchangeFilterFunction(ReactiveOAuth2AuthorizedClientManager)\". "
-								+ "Instead, use the constructor \"ServerOAuth2AuthorizedClientExchangeFilterFunction(ClientRegistrationRepository, OAuth2AuthorizedClientRepository)\".");
+			.isThrownBy(() -> this.function
+				.setClientCredentialsTokenResponseClient(new WebClientReactiveClientCredentialsTokenResponseClient()))
+			.withMessage(
+					"The client cannot be set when the constructor used is \"ServerOAuth2AuthorizedClientExchangeFilterFunction(ReactiveOAuth2AuthorizedClientManager)\". "
+							+ "Instead, use the constructor \"ServerOAuth2AuthorizedClientExchangeFilterFunction(ClientRegistrationRepository, OAuth2AuthorizedClientRepository)\".");
 	}
 
 	@Test
 	public void setAccessTokenExpiresSkewWhenNotDefaultAuthorizedClientManagerThenThrowIllegalStateException() {
 		assertThatIllegalStateException()
-				.isThrownBy(() -> this.function.setAccessTokenExpiresSkew(Duration.ofSeconds(30))).withMessage(
-						"The accessTokenExpiresSkew cannot be set when the constructor used is \"ServerOAuth2AuthorizedClientExchangeFilterFunction(ReactiveOAuth2AuthorizedClientManager)\". "
-								+ "Instead, use the constructor \"ServerOAuth2AuthorizedClientExchangeFilterFunction(ClientRegistrationRepository, OAuth2AuthorizedClientRepository)\".");
+			.isThrownBy(() -> this.function.setAccessTokenExpiresSkew(Duration.ofSeconds(30)))
+			.withMessage(
+					"The accessTokenExpiresSkew cannot be set when the constructor used is \"ServerOAuth2AuthorizedClientExchangeFilterFunction(ReactiveOAuth2AuthorizedClientManager)\". "
+							+ "Instead, use the constructor \"ServerOAuth2AuthorizedClientExchangeFilterFunction(ClientRegistrationRepository, OAuth2AuthorizedClientRepository)\".");
 	}
 
 	@Test
@@ -246,14 +247,14 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration, "principalName",
 				this.accessToken);
 		ClientRequest request = ClientRequest.create(HttpMethod.GET, URI.create("https://example.com"))
-				.attributes(ServerOAuth2AuthorizedClientExchangeFilterFunction.oauth2AuthorizedClient(authorizedClient))
-				.build();
+			.attributes(ServerOAuth2AuthorizedClientExchangeFilterFunction.oauth2AuthorizedClient(authorizedClient))
+			.build();
 		// @formatter:off
 		this.function.filter(request, this.exchange).subscriberContext(serverWebExchange())
 				.block();
 		// @formatter:on
 		assertThat(this.exchange.getRequest().headers().getFirst(HttpHeaders.AUTHORIZATION))
-				.isEqualTo("Bearer " + this.accessToken.getTokenValue());
+			.isEqualTo("Bearer " + this.accessToken.getTokenValue());
 	}
 
 	@Test
@@ -282,7 +283,7 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 				.build();
 		// @formatter:on
 		given(this.clientCredentialsTokenResponseClient.getTokenResponse(any()))
-				.willReturn(Mono.just(accessTokenResponse));
+			.willReturn(Mono.just(accessTokenResponse));
 		ClientRegistration registration = TestClientRegistrations.clientCredentials().build();
 		Instant issuedAt = Instant.now().minus(Duration.ofDays(1));
 		Instant accessTokenExpiresAt = issuedAt.plus(Duration.ofHours(1));
@@ -340,7 +341,10 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 	public void filterWhenRefreshRequiredThenRefresh() {
 		setupMocks();
 		OAuth2AccessTokenResponse response = OAuth2AccessTokenResponse.withToken("token-1")
-				.tokenType(OAuth2AccessToken.TokenType.BEARER).expiresIn(3600).refreshToken("refresh-1").build();
+			.tokenType(OAuth2AccessToken.TokenType.BEARER)
+			.expiresIn(3600)
+			.refreshToken("refresh-1")
+			.build();
 		given(this.refreshTokenTokenResponseClient.getTokenResponse(any())).willReturn(Mono.just(response));
 		Instant issuedAt = Instant.now().minus(Duration.ofDays(1));
 		Instant accessTokenExpiresAt = issuedAt.plus(Duration.ofHours(1));
@@ -380,7 +384,10 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 	public void filterWhenRefreshRequiredAndEmptyReactiveSecurityContextThenSaved() {
 		setupMocks();
 		OAuth2AccessTokenResponse response = OAuth2AccessTokenResponse.withToken("token-1")
-				.tokenType(OAuth2AccessToken.TokenType.BEARER).expiresIn(3600).refreshToken("refresh-1").build();
+			.tokenType(OAuth2AccessToken.TokenType.BEARER)
+			.expiresIn(3600)
+			.refreshToken("refresh-1")
+			.build();
 		given(this.refreshTokenTokenResponseClient.getTokenResponse(any())).willReturn(Mono.just(response));
 		Instant issuedAt = Instant.now().minus(Duration.ofDays(1));
 		Instant accessTokenExpiresAt = issuedAt.plus(Duration.ofHours(1));
@@ -412,7 +419,9 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 	public void filterWhenJwtBearerClientNotAuthorizedThenExchangeToken() {
 		setupMocks();
 		OAuth2AccessTokenResponse accessTokenResponse = OAuth2AccessTokenResponse.withToken("exchanged-token")
-				.tokenType(OAuth2AccessToken.TokenType.BEARER).expiresIn(360).build();
+			.tokenType(OAuth2AccessToken.TokenType.BEARER)
+			.expiresIn(360)
+			.build();
 		given(this.jwtBearerTokenResponseClient.getTokenResponse(any())).willReturn(Mono.just(accessTokenResponse));
 		// @formatter:off
 		ClientRegistration registration = ClientRegistration.withRegistrationId("jwt-bearer")
@@ -425,19 +434,21 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 				.build();
 		// @formatter:on
 		given(this.clientRegistrationRepository.findByRegistrationId(eq(registration.getRegistrationId())))
-				.willReturn(Mono.just(registration));
+			.willReturn(Mono.just(registration));
 		Jwt jwtAssertion = TestJwts.jwt().build();
 		Authentication jwtAuthentication = new TestingAuthenticationToken(jwtAssertion, jwtAssertion);
 		given(this.authorizedClientRepository.loadAuthorizedClient(eq(registration.getRegistrationId()),
-				eq(jwtAuthentication), any())).willReturn(Mono.empty());
+				eq(jwtAuthentication), any()))
+			.willReturn(Mono.empty());
 		// @formatter:off
 		ClientRequest request = ClientRequest.create(HttpMethod.GET, URI.create("https://example.com"))
 				.attributes(ServerOAuth2AuthorizedClientExchangeFilterFunction.clientRegistrationId(registration.getRegistrationId()))
 				.build();
 		// @formatter:on
 		this.function.filter(request, this.exchange)
-				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(jwtAuthentication))
-				.subscriberContext(serverWebExchange()).block();
+			.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(jwtAuthentication))
+			.subscriberContext(serverWebExchange())
+			.block();
 		verify(this.jwtBearerTokenResponseClient).getTokenResponse(any());
 		verify(this.authorizedClientRepository).loadAuthorizedClient(eq(registration.getRegistrationId()),
 				eq(jwtAuthentication), any());
@@ -500,7 +511,7 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		this.function.setAuthorizationFailureHandler(this.authorizationFailureHandler);
 		PublisherProbe<Void> publisherProbe = PublisherProbe.empty();
 		given(this.authorizationFailureHandler.onAuthorizationFailure(any(), any(), any()))
-				.willReturn(publisherProbe.mono());
+			.willReturn(publisherProbe.mono());
 		OAuth2RefreshToken refreshToken = new OAuth2RefreshToken("refresh-token", this.accessToken.getIssuedAt());
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration, "principalName",
 				this.accessToken, refreshToken);
@@ -515,15 +526,15 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		verify(this.authorizationFailureHandler).onAuthorizationFailure(this.authorizationExceptionCaptor.capture(),
 				this.authenticationCaptor.capture(), this.attributesCaptor.capture());
 		assertThat(this.authorizationExceptionCaptor.getValue())
-				.isInstanceOfSatisfying(ClientAuthorizationException.class, (ex) -> {
-					assertThat(ex.getClientRegistrationId()).isEqualTo(this.registration.getRegistrationId());
-					assertThat(ex.getError().getErrorCode()).isEqualTo("invalid_token");
-					assertThat(ex).hasNoCause();
-					assertThat(ex).hasMessageContaining("[invalid_token]");
-				});
+			.isInstanceOfSatisfying(ClientAuthorizationException.class, (ex) -> {
+				assertThat(ex.getClientRegistrationId()).isEqualTo(this.registration.getRegistrationId());
+				assertThat(ex.getError().getErrorCode()).isEqualTo("invalid_token");
+				assertThat(ex).hasNoCause();
+				assertThat(ex).hasMessageContaining("[invalid_token]");
+			});
 		assertThat(this.authenticationCaptor.getValue()).isInstanceOf(AnonymousAuthenticationToken.class);
 		assertThat(this.attributesCaptor.getValue())
-				.containsExactly(entry(ServerWebExchange.class.getName(), this.serverWebExchange));
+			.containsExactly(entry(ServerWebExchange.class.getName(), this.serverWebExchange));
 	}
 
 	@Test
@@ -531,7 +542,7 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		this.function.setAuthorizationFailureHandler(this.authorizationFailureHandler);
 		PublisherProbe<Void> publisherProbe = PublisherProbe.empty();
 		given(this.authorizationFailureHandler.onAuthorizationFailure(any(), any(), any()))
-				.willReturn(publisherProbe.mono());
+			.willReturn(publisherProbe.mono());
 		OAuth2RefreshToken refreshToken = new OAuth2RefreshToken("refresh-token", this.accessToken.getIssuedAt());
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration, "principalName",
 				this.accessToken, refreshToken);
@@ -566,7 +577,7 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		// @formatter:on
 		assertThat(this.authenticationCaptor.getValue()).isInstanceOf(AnonymousAuthenticationToken.class);
 		assertThat(this.attributesCaptor.getValue())
-				.containsExactly(entry(ServerWebExchange.class.getName(), this.serverWebExchange));
+			.containsExactly(entry(ServerWebExchange.class.getName(), this.serverWebExchange));
 	}
 
 	@Test
@@ -575,7 +586,7 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		this.function.setAuthorizationFailureHandler(this.authorizationFailureHandler);
 		PublisherProbe<Void> publisherProbe = PublisherProbe.empty();
 		given(this.authorizationFailureHandler.onAuthorizationFailure(any(), any(), any()))
-				.willReturn(publisherProbe.mono());
+			.willReturn(publisherProbe.mono());
 		OAuth2RefreshToken refreshToken = new OAuth2RefreshToken("refresh-token", this.accessToken.getIssuedAt());
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration, "principalName",
 				this.accessToken, refreshToken);
@@ -590,15 +601,15 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		verify(this.authorizationFailureHandler).onAuthorizationFailure(this.authorizationExceptionCaptor.capture(),
 				this.authenticationCaptor.capture(), this.attributesCaptor.capture());
 		assertThat(this.authorizationExceptionCaptor.getValue())
-				.isInstanceOfSatisfying(ClientAuthorizationException.class, (ex) -> {
-					assertThat(ex.getClientRegistrationId()).isEqualTo(this.registration.getRegistrationId());
-					assertThat(ex.getError().getErrorCode()).isEqualTo("insufficient_scope");
-					assertThat(ex).hasNoCause();
-					assertThat(ex).hasMessageContaining("[insufficient_scope]");
-				});
+			.isInstanceOfSatisfying(ClientAuthorizationException.class, (ex) -> {
+				assertThat(ex.getClientRegistrationId()).isEqualTo(this.registration.getRegistrationId());
+				assertThat(ex.getError().getErrorCode()).isEqualTo("insufficient_scope");
+				assertThat(ex).hasNoCause();
+				assertThat(ex).hasMessageContaining("[insufficient_scope]");
+			});
 		assertThat(this.authenticationCaptor.getValue()).isInstanceOf(AnonymousAuthenticationToken.class);
 		assertThat(this.attributesCaptor.getValue())
-				.containsExactly(entry(ServerWebExchange.class.getName(), this.serverWebExchange));
+			.containsExactly(entry(ServerWebExchange.class.getName(), this.serverWebExchange));
 	}
 
 	@Test
@@ -606,13 +617,13 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		this.function.setAuthorizationFailureHandler(this.authorizationFailureHandler);
 		PublisherProbe<Void> publisherProbe = PublisherProbe.empty();
 		given(this.authorizationFailureHandler.onAuthorizationFailure(any(), any(), any()))
-				.willReturn(publisherProbe.mono());
+			.willReturn(publisherProbe.mono());
 		OAuth2RefreshToken refreshToken = new OAuth2RefreshToken("refresh-token", this.accessToken.getIssuedAt());
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration, "principalName",
 				this.accessToken, refreshToken);
 		ClientRequest request = ClientRequest.create(HttpMethod.GET, URI.create("https://example.com"))
-				.attributes(ServerOAuth2AuthorizedClientExchangeFilterFunction.oauth2AuthorizedClient(authorizedClient))
-				.build();
+			.attributes(ServerOAuth2AuthorizedClientExchangeFilterFunction.oauth2AuthorizedClient(authorizedClient))
+			.build();
 		WebClientResponseException exception = WebClientResponseException.create(HttpStatus.FORBIDDEN.value(),
 				HttpStatus.FORBIDDEN.getReasonPhrase(), HttpHeaders.EMPTY, new byte[0], StandardCharsets.UTF_8);
 		ExchangeFunction throwingExchangeFunction = (r) -> Mono.error(exception);
@@ -629,15 +640,15 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		verify(this.authorizationFailureHandler).onAuthorizationFailure(this.authorizationExceptionCaptor.capture(),
 				this.authenticationCaptor.capture(), this.attributesCaptor.capture());
 		assertThat(this.authorizationExceptionCaptor.getValue())
-				.isInstanceOfSatisfying(ClientAuthorizationException.class, (ex) -> {
-					assertThat(ex.getClientRegistrationId()).isEqualTo(this.registration.getRegistrationId());
-					assertThat(ex.getError().getErrorCode()).isEqualTo("insufficient_scope");
-					assertThat(ex).hasCause(exception);
-					assertThat(ex).hasMessageContaining("[insufficient_scope]");
-				});
+			.isInstanceOfSatisfying(ClientAuthorizationException.class, (ex) -> {
+				assertThat(ex.getClientRegistrationId()).isEqualTo(this.registration.getRegistrationId());
+				assertThat(ex.getError().getErrorCode()).isEqualTo("insufficient_scope");
+				assertThat(ex).hasCause(exception);
+				assertThat(ex).hasMessageContaining("[insufficient_scope]");
+			});
 		assertThat(this.authenticationCaptor.getValue()).isInstanceOf(AnonymousAuthenticationToken.class);
 		assertThat(this.attributesCaptor.getValue())
-				.containsExactly(entry(ServerWebExchange.class.getName(), this.serverWebExchange));
+			.containsExactly(entry(ServerWebExchange.class.getName(), this.serverWebExchange));
 	}
 
 	@Test
@@ -645,37 +656,37 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		this.function.setAuthorizationFailureHandler(this.authorizationFailureHandler);
 		PublisherProbe<Void> publisherProbe = PublisherProbe.empty();
 		given(this.authorizationFailureHandler.onAuthorizationFailure(any(), any(), any()))
-				.willReturn(publisherProbe.mono());
+			.willReturn(publisherProbe.mono());
 		OAuth2RefreshToken refreshToken = new OAuth2RefreshToken("refresh-token", this.accessToken.getIssuedAt());
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration, "principalName",
 				this.accessToken, refreshToken);
 		ClientRequest request = ClientRequest.create(HttpMethod.GET, URI.create("https://example.com"))
-				.attributes(ServerOAuth2AuthorizedClientExchangeFilterFunction.oauth2AuthorizedClient(authorizedClient))
-				.build();
+			.attributes(ServerOAuth2AuthorizedClientExchangeFilterFunction.oauth2AuthorizedClient(authorizedClient))
+			.build();
 		String wwwAuthenticateHeader = "Bearer error=\"insufficient_scope\", "
 				+ "error_description=\"The request requires higher privileges than provided by the access token.\", "
 				+ "error_uri=\"https://tools.ietf.org/html/rfc6750#section-3.1\"";
 		ClientResponse.Headers headers = mock(ClientResponse.Headers.class);
 		given(headers.header(eq(HttpHeaders.WWW_AUTHENTICATE)))
-				.willReturn(Collections.singletonList(wwwAuthenticateHeader));
+			.willReturn(Collections.singletonList(wwwAuthenticateHeader));
 		given(this.exchange.getResponse().headers()).willReturn(headers);
 		this.function.filter(request, this.exchange).subscriberContext(serverWebExchange()).block();
 		assertThat(publisherProbe.wasSubscribed()).isTrue();
 		verify(this.authorizationFailureHandler).onAuthorizationFailure(this.authorizationExceptionCaptor.capture(),
 				this.authenticationCaptor.capture(), this.attributesCaptor.capture());
 		assertThat(this.authorizationExceptionCaptor.getValue())
-				.isInstanceOfSatisfying(ClientAuthorizationException.class, (ex) -> {
-					assertThat(ex.getClientRegistrationId()).isEqualTo(this.registration.getRegistrationId());
-					assertThat(ex.getError().getErrorCode()).isEqualTo(OAuth2ErrorCodes.INSUFFICIENT_SCOPE);
-					assertThat(ex.getError().getDescription())
-							.isEqualTo("The request requires higher privileges than provided by the access token.");
-					assertThat(ex.getError().getUri()).isEqualTo("https://tools.ietf.org/html/rfc6750#section-3.1");
-					assertThat(ex).hasNoCause();
-					assertThat(ex).hasMessageContaining(OAuth2ErrorCodes.INSUFFICIENT_SCOPE);
-				});
+			.isInstanceOfSatisfying(ClientAuthorizationException.class, (ex) -> {
+				assertThat(ex.getClientRegistrationId()).isEqualTo(this.registration.getRegistrationId());
+				assertThat(ex.getError().getErrorCode()).isEqualTo(OAuth2ErrorCodes.INSUFFICIENT_SCOPE);
+				assertThat(ex.getError().getDescription())
+					.isEqualTo("The request requires higher privileges than provided by the access token.");
+				assertThat(ex.getError().getUri()).isEqualTo("https://tools.ietf.org/html/rfc6750#section-3.1");
+				assertThat(ex).hasNoCause();
+				assertThat(ex).hasMessageContaining(OAuth2ErrorCodes.INSUFFICIENT_SCOPE);
+			});
 		assertThat(this.authenticationCaptor.getValue()).isInstanceOf(AnonymousAuthenticationToken.class);
 		assertThat(this.attributesCaptor.getValue())
-				.containsExactly(entry(ServerWebExchange.class.getName(), this.serverWebExchange));
+			.containsExactly(entry(ServerWebExchange.class.getName(), this.serverWebExchange));
 	}
 
 	@Test
@@ -683,26 +694,28 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		this.function.setAuthorizationFailureHandler(this.authorizationFailureHandler);
 		PublisherProbe<Void> publisherProbe = PublisherProbe.empty();
 		given(this.authorizationFailureHandler.onAuthorizationFailure(any(), any(), any()))
-				.willReturn(publisherProbe.mono());
+			.willReturn(publisherProbe.mono());
 		OAuth2RefreshToken refreshToken = new OAuth2RefreshToken("refresh-token", this.accessToken.getIssuedAt());
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration, "principalName",
 				this.accessToken, refreshToken);
 		ClientRequest request = ClientRequest.create(HttpMethod.GET, URI.create("https://example.com"))
-				.attributes(ServerOAuth2AuthorizedClientExchangeFilterFunction.oauth2AuthorizedClient(authorizedClient))
-				.build();
+			.attributes(ServerOAuth2AuthorizedClientExchangeFilterFunction.oauth2AuthorizedClient(authorizedClient))
+			.build();
 		OAuth2AuthorizationException exception = new OAuth2AuthorizationException(
 				new OAuth2Error(OAuth2ErrorCodes.INVALID_TOKEN, null, null));
 		ExchangeFunction throwingExchangeFunction = (r) -> Mono.error(exception);
-		assertThatExceptionOfType(OAuth2AuthorizationException.class).isThrownBy(() -> this.function
-				.filter(request, throwingExchangeFunction).subscriberContext(serverWebExchange()).block())
-				.isEqualTo(exception);
+		assertThatExceptionOfType(OAuth2AuthorizationException.class)
+			.isThrownBy(() -> this.function.filter(request, throwingExchangeFunction)
+				.subscriberContext(serverWebExchange())
+				.block())
+			.isEqualTo(exception);
 		assertThat(publisherProbe.wasSubscribed()).isTrue();
 		verify(this.authorizationFailureHandler).onAuthorizationFailure(this.authorizationExceptionCaptor.capture(),
 				this.authenticationCaptor.capture(), this.attributesCaptor.capture());
 		assertThat(this.authorizationExceptionCaptor.getValue()).isSameAs(exception);
 		assertThat(this.authenticationCaptor.getValue()).isInstanceOf(AnonymousAuthenticationToken.class);
 		assertThat(this.attributesCaptor.getValue())
-				.containsExactly(entry(ServerWebExchange.class.getName(), this.serverWebExchange));
+			.containsExactly(entry(ServerWebExchange.class.getName(), this.serverWebExchange));
 	}
 
 	@Test
@@ -713,8 +726,8 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration, "principalName",
 				this.accessToken, refreshToken);
 		ClientRequest request = ClientRequest.create(HttpMethod.GET, URI.create("https://example.com"))
-				.attributes(ServerOAuth2AuthorizedClientExchangeFilterFunction.oauth2AuthorizedClient(authorizedClient))
-				.build();
+			.attributes(ServerOAuth2AuthorizedClientExchangeFilterFunction.oauth2AuthorizedClient(authorizedClient))
+			.build();
 		given(this.exchange.getResponse().rawStatusCode()).willReturn(HttpStatus.BAD_REQUEST.value());
 		this.function.filter(request, this.exchange).subscriberContext(serverWebExchange()).block();
 		verify(this.authorizationFailureHandler, never()).onAuthorizationFailure(any(), any(), any());
@@ -726,12 +739,15 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		TestingAuthenticationToken authentication = new TestingAuthenticationToken("test", "this");
 		ClientRegistration registration = TestClientRegistrations.password().build();
 		OAuth2AccessTokenResponse accessTokenResponse = OAuth2AccessTokenResponse.withToken("new-token")
-				.tokenType(OAuth2AccessToken.TokenType.BEARER).expiresIn(360).build();
+			.tokenType(OAuth2AccessToken.TokenType.BEARER)
+			.expiresIn(360)
+			.build();
 		given(this.passwordTokenResponseClient.getTokenResponse(any())).willReturn(Mono.just(accessTokenResponse));
 		given(this.clientRegistrationRepository.findByRegistrationId(eq(registration.getRegistrationId())))
-				.willReturn(Mono.just(registration));
+			.willReturn(Mono.just(registration));
 		given(this.authorizedClientRepository.loadAuthorizedClient(eq(registration.getRegistrationId()),
-				eq(authentication), any())).willReturn(Mono.empty());
+				eq(authentication), any()))
+			.willReturn(Mono.empty());
 		// Set custom contextAttributesMapper capable of mapping the form parameters
 		this.authorizedClientManager.setContextAttributesMapper((authorizeRequest) -> {
 			ServerWebExchange serverWebExchange = authorizeRequest.getAttribute(ServerWebExchange.class.getName());
@@ -746,16 +762,19 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 				return contextAttributes;
 			});
 		});
-		this.serverWebExchange = MockServerWebExchange.builder(MockServerHttpRequest.post("/")
-				.contentType(MediaType.APPLICATION_FORM_URLENCODED).body("username=username&password=password"))
-				.build();
+		this.serverWebExchange = MockServerWebExchange
+			.builder(MockServerHttpRequest.post("/")
+				.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+				.body("username=username&password=password"))
+			.build();
 		ClientRequest request = ClientRequest.create(HttpMethod.GET, URI.create("https://example.com"))
-				.attributes(ServerOAuth2AuthorizedClientExchangeFilterFunction
-						.clientRegistrationId(registration.getRegistrationId()))
-				.build();
+			.attributes(ServerOAuth2AuthorizedClientExchangeFilterFunction
+				.clientRegistrationId(registration.getRegistrationId()))
+			.build();
 		this.function.filter(request, this.exchange)
-				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(authentication))
-				.subscriberContext(serverWebExchange()).block();
+			.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(authentication))
+			.subscriberContext(serverWebExchange())
+			.block();
 		verify(this.passwordTokenResponseClient).getTokenResponse(any());
 		verify(this.authorizedClientRepository).saveAuthorizedClient(any(), eq(authentication), any());
 		List<ClientRequest> requests = this.exchange.getRequests();
@@ -773,11 +792,11 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration, "principalName",
 				this.accessToken, refreshToken);
 		given(this.authorizedClientRepository.loadAuthorizedClient(any(), any(), any()))
-				.willReturn(Mono.just(authorizedClient));
+			.willReturn(Mono.just(authorizedClient));
 		ClientRequest request = ClientRequest.create(HttpMethod.GET, URI.create("https://example.com"))
-				.attributes(ServerOAuth2AuthorizedClientExchangeFilterFunction
-						.clientRegistrationId(this.registration.getRegistrationId()))
-				.build();
+			.attributes(ServerOAuth2AuthorizedClientExchangeFilterFunction
+				.clientRegistrationId(this.registration.getRegistrationId()))
+			.build();
 		this.function.filter(request, this.exchange).subscriberContext(serverWebExchange()).block();
 		List<ClientRequest> requests = this.exchange.getRequests();
 		assertThat(requests).hasSize(1);
@@ -795,7 +814,7 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration, "principalName",
 				this.accessToken, refreshToken);
 		given(this.authorizedClientRepository.loadAuthorizedClient(any(), any(), any()))
-				.willReturn(Mono.just(authorizedClient));
+			.willReturn(Mono.just(authorizedClient));
 		ClientRequest request = ClientRequest.create(HttpMethod.GET, URI.create("https://example.com")).build();
 		this.function.filter(request, this.exchange).subscriberContext(serverWebExchange()).block();
 		List<ClientRequest> requests = this.exchange.getRequests();
@@ -814,15 +833,16 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration, "principalName",
 				this.accessToken, refreshToken);
 		given(this.authorizedClientRepository.loadAuthorizedClient(any(), any(), any()))
-				.willReturn(Mono.just(authorizedClient));
+			.willReturn(Mono.just(authorizedClient));
 		ClientRequest request = ClientRequest.create(HttpMethod.GET, URI.create("https://example.com")).build();
 		OAuth2User user = new DefaultOAuth2User(AuthorityUtils.createAuthorityList("ROLE_USER"),
 				Collections.singletonMap("user", "rob"), "user");
 		OAuth2AuthenticationToken authentication = new OAuth2AuthenticationToken(user, user.getAuthorities(),
 				"client-id");
 		this.function.filter(request, this.exchange)
-				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(authentication))
-				.subscriberContext(serverWebExchange()).block();
+			.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(authentication))
+			.subscriberContext(serverWebExchange())
+			.block();
 		List<ClientRequest> requests = this.exchange.getRequests();
 		assertThat(requests).hasSize(1);
 		ClientRequest request0 = requests.get(0);
@@ -855,7 +875,7 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration, "principalName",
 				this.accessToken, refreshToken);
 		given(this.authorizedClientRepository.loadAuthorizedClient(any(), any(), any()))
-				.willReturn(Mono.just(authorizedClient));
+			.willReturn(Mono.just(authorizedClient));
 		// @formatter:off
 		ClientRequest request = ClientRequest.create(HttpMethod.GET, URI.create("https://example.com"))
 				.attributes(ServerOAuth2AuthorizedClientExchangeFilterFunction.clientRegistrationId(this.registration.getRegistrationId()))
@@ -880,12 +900,14 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 				unauthenticatedAuthorizedClientRepository);
 		this.function.setClientCredentialsTokenResponseClient(this.clientCredentialsTokenResponseClient);
 		OAuth2AccessTokenResponse accessTokenResponse = OAuth2AccessTokenResponse.withToken("new-token")
-				.tokenType(OAuth2AccessToken.TokenType.BEARER).expiresIn(360).build();
+			.tokenType(OAuth2AccessToken.TokenType.BEARER)
+			.expiresIn(360)
+			.build();
 		given(this.clientCredentialsTokenResponseClient.getTokenResponse(any()))
-				.willReturn(Mono.just(accessTokenResponse));
+			.willReturn(Mono.just(accessTokenResponse));
 		ClientRegistration registration = TestClientRegistrations.clientCredentials().build();
 		given(this.clientRegistrationRepository.findByRegistrationId(eq(registration.getRegistrationId())))
-				.willReturn(Mono.just(registration));
+			.willReturn(Mono.just(registration));
 		// @formatter:off
 		ClientRequest request = ClientRequest.create(HttpMethod.GET, URI.create("https://example.com"))
 				.attributes(ServerOAuth2AuthorizedClientExchangeFilterFunction.clientRegistrationId(registration.getRegistrationId()))

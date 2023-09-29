@@ -61,15 +61,15 @@ class RequestAttributeSecurityContextRepositoryTests {
 	void saveContextAndLoadContextThenFound() {
 		this.repository.saveContext(this.expectedSecurityContext, this.request, this.response);
 		SecurityContext securityContext = this.repository
-				.loadContext(new HttpRequestResponseHolder(this.request, this.response));
+			.loadContext(new HttpRequestResponseHolder(this.request, this.response));
 		assertThat(securityContext).isEqualTo(this.expectedSecurityContext);
 	}
 
 	@Test
 	void saveContextWhenLoadContextAndNewRequestThenNotFound() {
 		this.repository.saveContext(this.expectedSecurityContext, this.request, this.response);
-		SecurityContext securityContext = this.repository.loadContext(
-				new HttpRequestResponseHolder(new MockHttpServletRequest(), new MockHttpServletResponse()));
+		SecurityContext securityContext = this.repository
+			.loadContext(new HttpRequestResponseHolder(new MockHttpServletRequest(), new MockHttpServletResponse()));
 		assertThat(securityContext).isEqualTo(SecurityContextHolder.createEmptyContext());
 	}
 
@@ -93,7 +93,7 @@ class RequestAttributeSecurityContextRepositoryTests {
 	@Test
 	void loadContextWhenNotPresentThenEmptyContext() {
 		SecurityContext context = this.repository
-				.loadContext(new HttpRequestResponseHolder(this.request, this.response));
+			.loadContext(new HttpRequestResponseHolder(this.request, this.response));
 		assertThat(context).isEqualTo(SecurityContextHolder.createEmptyContext());
 	}
 

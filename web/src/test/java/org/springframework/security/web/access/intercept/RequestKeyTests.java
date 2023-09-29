@@ -65,7 +65,7 @@ public class RequestKeyTests {
 	@Test
 	public void keysWithNullUrlFailsAssertion() {
 		assertThatIllegalArgumentException().isThrownBy(() -> new RequestKey(null, null))
-				.withMessage("url cannot be null");
+			.withMessage("url cannot be null");
 	}
 
 }

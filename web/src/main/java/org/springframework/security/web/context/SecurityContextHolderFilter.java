@@ -52,7 +52,7 @@ public class SecurityContextHolderFilter extends GenericFilterBean {
 	private final SecurityContextRepository securityContextRepository;
 
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
-			.getContextHolderStrategy();
+		.getContextHolderStrategy();
 
 	/**
 	 * Creates a new instance.

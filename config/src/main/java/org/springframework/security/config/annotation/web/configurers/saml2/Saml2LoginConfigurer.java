@@ -394,7 +394,7 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 
 	private void initDefaultLoginFilter(B http) {
 		DefaultLoginPageGeneratingFilter loginPageGeneratingFilter = http
-				.getSharedObject(DefaultLoginPageGeneratingFilter.class);
+			.getSharedObject(DefaultLoginPageGeneratingFilter.class);
 		if (loginPageGeneratingFilter == null || this.isCustomLoginPage()) {
 			return;
 		}
@@ -433,7 +433,7 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 			return version;
 		}
 		boolean openSaml4ClassPresent = ClassUtils
-				.isPresent("org.opensaml.core.xml.persist.impl.PassthroughSourceStrategy", null);
+			.isPresent("org.opensaml.core.xml.persist.impl.PassthroughSourceStrategy", null);
 		if (openSaml4ClassPresent) {
 			return OPEN_SAML_4_VERSION;
 		}
@@ -475,7 +475,7 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 						"org.springframework.security.saml2.provider.service.authentication.OpenSaml4AuthenticationRequestFactory",
 						OpenSaml4LoginSupportFactory.class.getClassLoader());
 				return (Saml2AuthenticationRequestFactory) authenticationRequestFactory.getDeclaredConstructor()
-						.newInstance();
+					.newInstance();
 			}
 			catch (ReflectiveOperationException ex) {
 				throw new IllegalStateException("Could not instantiate OpenSaml4AuthenticationRequestFactory", ex);

@@ -44,18 +44,19 @@ public class DefaultOAuth2AuthenticatedPrincipalTests {
 	@Test
 	public void constructorWhenAttributesIsNullOrEmptyThenIllegalArgumentException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new DefaultOAuth2AuthenticatedPrincipal(null, this.authorities));
+			.isThrownBy(() -> new DefaultOAuth2AuthenticatedPrincipal(null, this.authorities));
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new DefaultOAuth2AuthenticatedPrincipal(Collections.emptyMap(), this.authorities));
+			.isThrownBy(() -> new DefaultOAuth2AuthenticatedPrincipal(Collections.emptyMap(), this.authorities));
 	}
 
 	@Test
 	public void constructorWhenAuthoritiesIsNullOrEmptyThenNoAuthorities() {
 		Collection<? extends GrantedAuthority> authorities = new DefaultOAuth2AuthenticatedPrincipal(this.attributes,
-				null).getAuthorities();
+				null)
+			.getAuthorities();
 		assertThat(authorities).isEmpty();
 		authorities = new DefaultOAuth2AuthenticatedPrincipal(this.attributes, Collections.emptyList())
-				.getAuthorities();
+			.getAuthorities();
 		assertThat(authorities).isEmpty();
 	}
 

@@ -54,7 +54,7 @@ public class Saml2PostAuthenticationRequest extends AbstractSaml2AuthenticationR
 	 */
 	public static Builder withAuthenticationRequestContext(Saml2AuthenticationRequestContext context) {
 		return new Builder(context.getRelyingPartyRegistration()).authenticationRequestUri(context.getDestination())
-				.relayState(context.getRelayState());
+			.relayState(context.getRelayState());
 	}
 
 	/**

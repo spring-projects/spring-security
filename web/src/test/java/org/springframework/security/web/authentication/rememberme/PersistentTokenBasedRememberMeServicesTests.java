@@ -55,16 +55,16 @@ public class PersistentTokenBasedRememberMeServicesTests {
 	@Test
 	public void loginIsRejectedWithWrongNumberOfCookieTokens() {
 		assertThatExceptionOfType(InvalidCookieException.class)
-				.isThrownBy(() -> this.services.processAutoLoginCookie(new String[] { "series", "token", "extra" },
-						new MockHttpServletRequest(), new MockHttpServletResponse()));
+			.isThrownBy(() -> this.services.processAutoLoginCookie(new String[] { "series", "token", "extra" },
+					new MockHttpServletRequest(), new MockHttpServletResponse()));
 	}
 
 	@Test
 	public void loginIsRejectedWhenNoTokenMatchingSeriesIsFound() {
 		this.services = create(null);
 		assertThatExceptionOfType(RememberMeAuthenticationException.class)
-				.isThrownBy(() -> this.services.processAutoLoginCookie(new String[] { "series", "token" },
-						new MockHttpServletRequest(), new MockHttpServletResponse()));
+			.isThrownBy(() -> this.services.processAutoLoginCookie(new String[] { "series", "token" },
+					new MockHttpServletRequest(), new MockHttpServletResponse()));
 	}
 
 	@Test
@@ -73,16 +73,16 @@ public class PersistentTokenBasedRememberMeServicesTests {
 				new Date(System.currentTimeMillis() - TimeUnit.SECONDS.toMillis(1) - 100)));
 		this.services.setTokenValiditySeconds(1);
 		assertThatExceptionOfType(RememberMeAuthenticationException.class)
-				.isThrownBy(() -> this.services.processAutoLoginCookie(new String[] { "series", "token" },
-						new MockHttpServletRequest(), new MockHttpServletResponse()));
+			.isThrownBy(() -> this.services.processAutoLoginCookie(new String[] { "series", "token" },
+					new MockHttpServletRequest(), new MockHttpServletResponse()));
 	}
 
 	@Test
 	public void cookieTheftIsDetectedWhenSeriesAndTokenDontMatch() {
 		this.services = create(new PersistentRememberMeToken("joe", "series", "wrongtoken", new Date()));
 		assertThatExceptionOfType(CookieTheftException.class)
-				.isThrownBy(() -> this.services.processAutoLoginCookie(new String[] { "series", "token" },
-						new MockHttpServletRequest(), new MockHttpServletResponse()));
+			.isThrownBy(() -> this.services.processAutoLoginCookie(new String[] { "series", "token" },
+					new MockHttpServletRequest(), new MockHttpServletResponse()));
 	}
 
 	@Test

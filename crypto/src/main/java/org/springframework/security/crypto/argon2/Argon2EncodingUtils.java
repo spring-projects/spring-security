@@ -59,20 +59,26 @@ final class Argon2EncodingUtils {
 	static String encode(byte[] hash, Argon2Parameters parameters) throws IllegalArgumentException {
 		StringBuilder stringBuilder = new StringBuilder();
 		switch (parameters.getType()) {
-		case Argon2Parameters.ARGON2_d:
-			stringBuilder.append("$argon2d");
-			break;
-		case Argon2Parameters.ARGON2_i:
-			stringBuilder.append("$argon2i");
-			break;
-		case Argon2Parameters.ARGON2_id:
-			stringBuilder.append("$argon2id");
-			break;
-		default:
-			throw new IllegalArgumentException("Invalid algorithm type: " + parameters.getType());
+			case Argon2Parameters.ARGON2_d:
+				stringBuilder.append("$argon2d");
+				break;
+			case Argon2Parameters.ARGON2_i:
+				stringBuilder.append("$argon2i");
+				break;
+			case Argon2Parameters.ARGON2_id:
+				stringBuilder.append("$argon2id");
+				break;
+			default:
+				throw new IllegalArgumentException("Invalid algorithm type: " + parameters.getType());
 		}
-		stringBuilder.append("$v=").append(parameters.getVersion()).append("$m=").append(parameters.getMemory())
-				.append(",t=").append(parameters.getIterations()).append(",p=").append(parameters.getLanes());
+		stringBuilder.append("$v=")
+			.append(parameters.getVersion())
+			.append("$m=")
+			.append(parameters.getMemory())
+			.append(",t=")
+			.append(parameters.getIterations())
+			.append(",p=")
+			.append(parameters.getLanes());
 		if (parameters.getSalt() != null) {
 			stringBuilder.append("$").append(b64encoder.encodeToString(parameters.getSalt()));
 		}
@@ -108,17 +114,17 @@ final class Argon2EncodingUtils {
 		}
 		int currentPart = 1;
 		switch (parts[currentPart++]) {
-		case "argon2d":
-			paramsBuilder = new Argon2Parameters.Builder(Argon2Parameters.ARGON2_d);
-			break;
-		case "argon2i":
-			paramsBuilder = new Argon2Parameters.Builder(Argon2Parameters.ARGON2_i);
-			break;
-		case "argon2id":
-			paramsBuilder = new Argon2Parameters.Builder(Argon2Parameters.ARGON2_id);
-			break;
-		default:
-			throw new IllegalArgumentException("Invalid algorithm type: " + parts[0]);
+			case "argon2d":
+				paramsBuilder = new Argon2Parameters.Builder(Argon2Parameters.ARGON2_d);
+				break;
+			case "argon2i":
+				paramsBuilder = new Argon2Parameters.Builder(Argon2Parameters.ARGON2_i);
+				break;
+			case "argon2id":
+				paramsBuilder = new Argon2Parameters.Builder(Argon2Parameters.ARGON2_id);
+				break;
+			default:
+				throw new IllegalArgumentException("Invalid algorithm type: " + parts[0]);
 		}
 		if (parts[currentPart].startsWith("v=")) {
 			paramsBuilder.withVersion(Integer.parseInt(parts[currentPart].substring(2)));

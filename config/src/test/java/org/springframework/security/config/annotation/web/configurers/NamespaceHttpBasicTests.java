@@ -124,7 +124,7 @@ public class NamespaceHttpBasicTests {
 	public void basicAuthenticationWhenUsingAuthenticationDetailsSourceRefThenMatchesNamespace() throws Exception {
 		this.spring.register(AuthenticationDetailsSourceHttpBasicConfig.class, UserConfig.class).autowire();
 		AuthenticationDetailsSource<HttpServletRequest, ?> source = this.spring.getContext()
-				.getBean(AuthenticationDetailsSource.class);
+			.getBean(AuthenticationDetailsSource.class);
 		this.mvc.perform(get("/").with(httpBasic("user", "password")));
 		verify(source).buildDetails(any(HttpServletRequest.class));
 	}
@@ -134,7 +134,7 @@ public class NamespaceHttpBasicTests {
 			throws Exception {
 		this.spring.register(AuthenticationDetailsSourceHttpBasicLambdaConfig.class, UserConfig.class).autowire();
 		AuthenticationDetailsSource<HttpServletRequest, ?> source = this.spring.getContext()
-				.getBean(AuthenticationDetailsSource.class);
+			.getBean(AuthenticationDetailsSource.class);
 		this.mvc.perform(get("/").with(httpBasic("user", "password")));
 		verify(source).buildDetails(any(HttpServletRequest.class));
 	}

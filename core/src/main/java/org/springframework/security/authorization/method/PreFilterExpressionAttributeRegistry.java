@@ -59,7 +59,7 @@ final class PreFilterExpressionAttributeRegistry
 			return PreFilterExpressionAttribute.NULL_ATTRIBUTE;
 		}
 		Expression preFilterExpression = this.expressionHandler.getExpressionParser()
-				.parseExpression(preFilter.value());
+			.parseExpression(preFilter.value());
 		return new PreFilterExpressionAttribute(preFilterExpression, preFilter.filterTarget());
 	}
 

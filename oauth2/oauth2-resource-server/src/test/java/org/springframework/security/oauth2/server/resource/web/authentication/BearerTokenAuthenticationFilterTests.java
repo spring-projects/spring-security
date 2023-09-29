@@ -107,7 +107,7 @@ public class BearerTokenAuthenticationFilterTests {
 				new BearerTokenAuthenticationFilter(this.authenticationManager));
 		filter.doFilter(this.request, this.response, this.filterChain);
 		ArgumentCaptor<BearerTokenAuthenticationToken> captor = ArgumentCaptor
-				.forClass(BearerTokenAuthenticationToken.class);
+			.forClass(BearerTokenAuthenticationToken.class);
 		verify(this.authenticationManager).authenticate(captor.capture());
 		assertThat(captor.getValue().getPrincipal()).isEqualTo("token");
 	}
@@ -124,7 +124,7 @@ public class BearerTokenAuthenticationFilterTests {
 		filter.setSecurityContextRepository(securityContextRepository);
 		filter.doFilter(this.request, this.response, this.filterChain);
 		ArgumentCaptor<BearerTokenAuthenticationToken> captor = ArgumentCaptor
-				.forClass(BearerTokenAuthenticationToken.class);
+			.forClass(BearerTokenAuthenticationToken.class);
 		verify(this.authenticationManager).authenticate(captor.capture());
 		assertThat(captor.getValue().getPrincipal()).isEqualTo(token);
 		ArgumentCaptor<SecurityContext> contextArg = ArgumentCaptor.forClass(SecurityContext.class);
@@ -140,7 +140,7 @@ public class BearerTokenAuthenticationFilterTests {
 		given(this.authenticationManagerResolver.resolve(any())).willReturn(this.authenticationManager);
 		filter.doFilter(this.request, this.response, this.filterChain);
 		ArgumentCaptor<BearerTokenAuthenticationToken> captor = ArgumentCaptor
-				.forClass(BearerTokenAuthenticationToken.class);
+			.forClass(BearerTokenAuthenticationToken.class);
 		verify(this.authenticationManager).authenticate(captor.capture());
 		assertThat(captor.getValue().getPrincipal()).isEqualTo("token");
 	}
@@ -198,7 +198,7 @@ public class BearerTokenAuthenticationFilterTests {
 		BearerTokenAuthenticationFilter filter = addMocks(
 				new BearerTokenAuthenticationFilter(this.authenticationManager));
 		assertThatExceptionOfType(AuthenticationServiceException.class)
-				.isThrownBy(() -> filter.doFilter(this.request, this.response, this.filterChain));
+			.isThrownBy(() -> filter.doFilter(this.request, this.response, this.filterChain));
 	}
 
 	@Test

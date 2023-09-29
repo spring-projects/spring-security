@@ -38,31 +38,31 @@ public class AbstractRequestMatcherRegistryAnyMatcherTests {
 	@Test
 	public void antMatchersCanNotWorkAfterAnyRequest() {
 		assertThatExceptionOfType(BeanCreationException.class)
-				.isThrownBy(() -> loadConfig(AntMatchersAfterAnyRequestConfig.class));
+			.isThrownBy(() -> loadConfig(AntMatchersAfterAnyRequestConfig.class));
 	}
 
 	@Test
 	public void mvcMatchersCanNotWorkAfterAnyRequest() {
 		assertThatExceptionOfType(BeanCreationException.class)
-				.isThrownBy(() -> loadConfig(MvcMatchersAfterAnyRequestConfig.class));
+			.isThrownBy(() -> loadConfig(MvcMatchersAfterAnyRequestConfig.class));
 	}
 
 	@Test
 	public void regexMatchersCanNotWorkAfterAnyRequest() {
 		assertThatExceptionOfType(BeanCreationException.class)
-				.isThrownBy(() -> loadConfig(RegexMatchersAfterAnyRequestConfig.class));
+			.isThrownBy(() -> loadConfig(RegexMatchersAfterAnyRequestConfig.class));
 	}
 
 	@Test
 	public void anyRequestCanNotWorkAfterItself() {
 		assertThatExceptionOfType(BeanCreationException.class)
-				.isThrownBy(() -> loadConfig(AnyRequestAfterItselfConfig.class));
+			.isThrownBy(() -> loadConfig(AnyRequestAfterItselfConfig.class));
 	}
 
 	@Test
 	public void requestMatchersCanNotWorkAfterAnyRequest() {
 		assertThatExceptionOfType(BeanCreationException.class)
-				.isThrownBy(() -> loadConfig(RequestMatchersAfterAnyRequestConfig.class));
+			.isThrownBy(() -> loadConfig(RequestMatchersAfterAnyRequestConfig.class));
 	}
 
 	private void loadConfig(Class<?>... configs) {

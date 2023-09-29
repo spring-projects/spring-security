@@ -120,7 +120,7 @@ public class RememberMeAuthenticationTokenMixinTests extends AbstractMixinTests 
 		assertThat(((User) token.getPrincipal()).getUsername()).isEqualTo("admin");
 		assertThat(((User) token.getPrincipal()).getPassword()).isEqualTo("1234");
 		assertThat(((User) token.getPrincipal()).getAuthorities()).hasSize(1)
-				.contains(new SimpleGrantedAuthority("ROLE_USER"));
+			.contains(new SimpleGrantedAuthority("ROLE_USER"));
 		assertThat(token.getAuthorities()).hasSize(1).contains(new SimpleGrantedAuthority("ROLE_USER"));
 		assertThat(((User) token.getPrincipal()).isEnabled()).isEqualTo(true);
 	}

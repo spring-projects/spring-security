@@ -83,8 +83,8 @@ public class ServerBearerTokenAuthenticationConverterTests {
 	// gh-7011
 	@Test
 	public void resolveWhenValidHeaderIsEmptyStringThenTokenIsResolved() {
-		MockServerHttpRequest.BaseBuilder<?> request = MockServerHttpRequest.get("/").header(HttpHeaders.AUTHORIZATION,
-				"Bearer ");
+		MockServerHttpRequest.BaseBuilder<?> request = MockServerHttpRequest.get("/")
+			.header(HttpHeaders.AUTHORIZATION, "Bearer ");
 		// @formatter:off
 		assertThatExceptionOfType(OAuth2AuthenticationException.class)
 				.isThrownBy(() -> convertToToken(request))
@@ -205,15 +205,15 @@ public class ServerBearerTokenAuthenticationConverterTests {
 
 	@Test
 	void resolveWhenQueryParameterHasMultipleAccessTokensThenOAuth2AuthenticationException() {
-		MockServerHttpRequest.BaseBuilder<?> request = MockServerHttpRequest.get("/").queryParam("access_token",
-				TEST_TOKEN, TEST_TOKEN);
+		MockServerHttpRequest.BaseBuilder<?> request = MockServerHttpRequest.get("/")
+			.queryParam("access_token", TEST_TOKEN, TEST_TOKEN);
 		assertThatExceptionOfType(OAuth2AuthenticationException.class).isThrownBy(() -> convertToToken(request))
-				.satisfies((ex) -> {
-					BearerTokenError error = (BearerTokenError) ex.getError();
-					assertThat(error.getErrorCode()).isEqualTo(BearerTokenErrorCodes.INVALID_REQUEST);
-					assertThat(error.getUri()).isEqualTo("https://tools.ietf.org/html/rfc6750#section-3.1");
-					assertThat(error.getHttpStatus()).isEqualTo(HttpStatus.BAD_REQUEST);
-				});
+			.satisfies((ex) -> {
+				BearerTokenError error = (BearerTokenError) ex.getError();
+				assertThat(error.getErrorCode()).isEqualTo(BearerTokenErrorCodes.INVALID_REQUEST);
+				assertThat(error.getUri()).isEqualTo("https://tools.ietf.org/html/rfc6750#section-3.1");
+				assertThat(error.getHttpStatus()).isEqualTo(HttpStatus.BAD_REQUEST);
+			});
 
 	}
 

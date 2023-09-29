@@ -50,7 +50,8 @@ public final class ClearSiteDataServerHttpHeadersWriter implements ServerHttpHea
 	public ClearSiteDataServerHttpHeadersWriter(Directive... directives) {
 		Assert.notEmpty(directives, "directives cannot be empty or null");
 		this.headerWriterDelegate = StaticServerHttpHeadersWriter.builder()
-				.header(CLEAR_SITE_DATA_HEADER, transformToHeaderValue(directives)).build();
+			.header(CLEAR_SITE_DATA_HEADER, transformToHeaderValue(directives))
+			.build();
 	}
 
 	@Override

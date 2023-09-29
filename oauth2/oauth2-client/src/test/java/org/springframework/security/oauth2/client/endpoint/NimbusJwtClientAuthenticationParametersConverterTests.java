@@ -73,20 +73,20 @@ public class NimbusJwtClientAuthenticationParametersConverterTests {
 	@Test
 	public void constructorWhenJwkResolverNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new NimbusJwtClientAuthenticationParametersConverter<>(null))
-				.withMessage("jwkResolver cannot be null");
+			.isThrownBy(() -> new NimbusJwtClientAuthenticationParametersConverter<>(null))
+			.withMessage("jwkResolver cannot be null");
 	}
 
 	@Test
 	public void convertWhenAuthorizationGrantRequestNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.converter.convert(null))
-				.withMessage("authorizationGrantRequest cannot be null");
+			.withMessage("authorizationGrantRequest cannot be null");
 	}
 
 	@Test
 	public void setJwtClientAssertionCustomizerWhenNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.converter.setJwtClientAssertionCustomizer(null))
-				.withMessage("jwtClientAssertionCustomizer cannot be null");
+			.withMessage("jwtClientAssertionCustomizer cannot be null");
 	}
 
 	@Test
@@ -112,9 +112,9 @@ public class NimbusJwtClientAuthenticationParametersConverterTests {
 		OAuth2ClientCredentialsGrantRequest clientCredentialsGrantRequest = new OAuth2ClientCredentialsGrantRequest(
 				clientRegistration);
 		assertThatExceptionOfType(OAuth2AuthorizationException.class)
-				.isThrownBy(() -> this.converter.convert(clientCredentialsGrantRequest))
-				.withMessage("[invalid_key] Failed to resolve JWK signing key for client registration '"
-						+ clientRegistration.getRegistrationId() + "'.");
+			.isThrownBy(() -> this.converter.convert(clientCredentialsGrantRequest))
+			.withMessage("[invalid_key] Failed to resolve JWK signing key for client registration '"
+					+ clientRegistration.getRegistrationId() + "'.");
 	}
 
 	@Test
@@ -133,7 +133,7 @@ public class NimbusJwtClientAuthenticationParametersConverterTests {
 		MultiValueMap<String, String> parameters = this.converter.convert(clientCredentialsGrantRequest);
 
 		assertThat(parameters.getFirst(OAuth2ParameterNames.CLIENT_ASSERTION_TYPE))
-				.isEqualTo("urn:ietf:params:oauth:client-assertion-type:jwt-bearer");
+			.isEqualTo("urn:ietf:params:oauth:client-assertion-type:jwt-bearer");
 		String encodedJws = parameters.getFirst(OAuth2ParameterNames.CLIENT_ASSERTION);
 		assertThat(encodedJws).isNotNull();
 
@@ -145,7 +145,7 @@ public class NimbusJwtClientAuthenticationParametersConverterTests {
 		assertThat(jws.<String>getClaim(JwtClaimNames.ISS)).isEqualTo(clientRegistration.getClientId());
 		assertThat(jws.getSubject()).isEqualTo(clientRegistration.getClientId());
 		assertThat(jws.getAudience())
-				.isEqualTo(Collections.singletonList(clientRegistration.getProviderDetails().getTokenUri()));
+			.isEqualTo(Collections.singletonList(clientRegistration.getProviderDetails().getTokenUri()));
 		assertThat(jws.getId()).isNotNull();
 		assertThat(jws.getIssuedAt()).isNotNull();
 		assertThat(jws.getExpiresAt()).isNotNull();
@@ -167,7 +167,7 @@ public class NimbusJwtClientAuthenticationParametersConverterTests {
 		MultiValueMap<String, String> parameters = this.converter.convert(clientCredentialsGrantRequest);
 
 		assertThat(parameters.getFirst(OAuth2ParameterNames.CLIENT_ASSERTION_TYPE))
-				.isEqualTo("urn:ietf:params:oauth:client-assertion-type:jwt-bearer");
+			.isEqualTo("urn:ietf:params:oauth:client-assertion-type:jwt-bearer");
 		String encodedJws = parameters.getFirst(OAuth2ParameterNames.CLIENT_ASSERTION);
 		assertThat(encodedJws).isNotNull();
 
@@ -179,7 +179,7 @@ public class NimbusJwtClientAuthenticationParametersConverterTests {
 		assertThat(jws.<String>getClaim(JwtClaimNames.ISS)).isEqualTo(clientRegistration.getClientId());
 		assertThat(jws.getSubject()).isEqualTo(clientRegistration.getClientId());
 		assertThat(jws.getAudience())
-				.isEqualTo(Collections.singletonList(clientRegistration.getProviderDetails().getTokenUri()));
+			.isEqualTo(Collections.singletonList(clientRegistration.getProviderDetails().getTokenUri()));
 		assertThat(jws.getId()).isNotNull();
 		assertThat(jws.getIssuedAt()).isNotNull();
 		assertThat(jws.getExpiresAt()).isNotNull();
@@ -210,7 +210,7 @@ public class NimbusJwtClientAuthenticationParametersConverterTests {
 		MultiValueMap<String, String> parameters = this.converter.convert(clientCredentialsGrantRequest);
 
 		assertThat(parameters.getFirst(OAuth2ParameterNames.CLIENT_ASSERTION_TYPE))
-				.isEqualTo("urn:ietf:params:oauth:client-assertion-type:jwt-bearer");
+			.isEqualTo("urn:ietf:params:oauth:client-assertion-type:jwt-bearer");
 		String encodedJws = parameters.getFirst(OAuth2ParameterNames.CLIENT_ASSERTION);
 		assertThat(encodedJws).isNotNull();
 
@@ -223,7 +223,7 @@ public class NimbusJwtClientAuthenticationParametersConverterTests {
 		assertThat(jws.<String>getClaim(JwtClaimNames.ISS)).isEqualTo(clientRegistration.getClientId());
 		assertThat(jws.getSubject()).isEqualTo(clientRegistration.getClientId());
 		assertThat(jws.getAudience())
-				.isEqualTo(Collections.singletonList(clientRegistration.getProviderDetails().getTokenUri()));
+			.isEqualTo(Collections.singletonList(clientRegistration.getProviderDetails().getTokenUri()));
 		assertThat(jws.getId()).isNotNull();
 		assertThat(jws.getIssuedAt()).isNotNull();
 		assertThat(jws.getExpiresAt()).isNotNull();

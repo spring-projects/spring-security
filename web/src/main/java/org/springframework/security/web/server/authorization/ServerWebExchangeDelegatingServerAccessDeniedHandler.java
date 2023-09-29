@@ -69,9 +69,12 @@ public class ServerWebExchangeDelegatingServerAccessDeniedHandler implements Ser
 
 	@Override
 	public Mono<Void> handle(ServerWebExchange exchange, AccessDeniedException denied) {
-		return Flux.fromIterable(this.handlers).filterWhen((entry) -> isMatch(exchange, entry)).next()
-				.map(DelegateEntry::getAccessDeniedHandler).defaultIfEmpty(this.defaultHandler)
-				.flatMap((handler) -> handler.handle(exchange, denied));
+		return Flux.fromIterable(this.handlers)
+			.filterWhen((entry) -> isMatch(exchange, entry))
+			.next()
+			.map(DelegateEntry::getAccessDeniedHandler)
+			.defaultIfEmpty(this.defaultHandler)
+			.flatMap((handler) -> handler.handle(exchange, denied));
 	}
 
 	/**

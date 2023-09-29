@@ -47,7 +47,7 @@ public class MethodExpressionVoterTests {
 		MethodInvocation mi = new SimpleMethodInvocation(new TargetImpl(), methodTakingAnArray());
 		assertThat(this.am.vote(this.joe, mi,
 				createAttributes(new PreInvocationExpressionAttribute(null, null, "hasRole('blah')"))))
-						.isEqualTo(AccessDecisionVoter.ACCESS_GRANTED);
+			.isEqualTo(AccessDecisionVoter.ACCESS_GRANTED);
 	}
 
 	@Test
@@ -64,7 +64,7 @@ public class MethodExpressionVoterTests {
 		assertThat(this.am.vote(this.joe, mi,
 				createAttributes(new PreInvocationExpressionAttribute(null, null,
 						"(#argument == principal) and (principal == 'joe')"))))
-								.isEqualTo(AccessDecisionVoter.ACCESS_GRANTED);
+			.isEqualTo(AccessDecisionVoter.ACCESS_GRANTED);
 	}
 
 	@Test
@@ -73,7 +73,7 @@ public class MethodExpressionVoterTests {
 		MethodInvocation mi = new SimpleMethodInvocation(new TargetImpl(), methodTakingACollection(), arg);
 		assertThat(this.am.vote(this.joe, mi,
 				createAttributes(new PreInvocationExpressionAttribute("(filterObject == 'jim')", "collection", null))))
-						.isEqualTo(AccessDecisionVoter.ACCESS_GRANTED);
+			.isEqualTo(AccessDecisionVoter.ACCESS_GRANTED);
 		// All objects should have been removed, because the expression is always false
 		assertThat(arg).isEmpty();
 	}
@@ -117,7 +117,7 @@ public class MethodExpressionVoterTests {
 		assertThat(this.am.vote(this.joe, mi,
 				createAttributes(new PreInvocationExpressionAttribute(null, null,
 						"T(org.springframework.security.access.expression.method.SecurityRules).isJoe(#argument)"))))
-								.isEqualTo(AccessDecisionVoter.ACCESS_GRANTED);
+			.isEqualTo(AccessDecisionVoter.ACCESS_GRANTED);
 	}
 
 	private List<ConfigAttribute> createAttributes(ConfigAttribute... attributes) {

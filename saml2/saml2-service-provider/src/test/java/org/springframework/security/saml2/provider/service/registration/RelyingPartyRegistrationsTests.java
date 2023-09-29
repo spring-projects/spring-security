@@ -62,11 +62,13 @@ public class RelyingPartyRegistrationsTests {
 		try (MockWebServer server = new MockWebServer()) {
 			server.enqueue(new MockResponse().setBody(this.metadata).setResponseCode(200));
 			RelyingPartyRegistration registration = RelyingPartyRegistrations
-					.fromMetadataLocation(server.url("/").toString()).entityId("rp").build();
+				.fromMetadataLocation(server.url("/").toString())
+				.entityId("rp")
+				.build();
 			RelyingPartyRegistration.AssertingPartyDetails details = registration.getAssertingPartyDetails();
 			assertThat(details.getEntityId()).isEqualTo("https://idp.example.com/idp/shibboleth");
 			assertThat(details.getSingleSignOnServiceLocation())
-					.isEqualTo("https://idp.example.com/idp/profile/SAML2/POST/SSO");
+				.isEqualTo("https://idp.example.com/idp/profile/SAML2/POST/SSO");
 			assertThat(details.getSingleSignOnServiceBinding()).isEqualTo(Saml2MessageBinding.POST);
 			assertThat(details.getVerificationX509Credentials()).hasSize(1);
 			assertThat(details.getEncryptionX509Credentials()).hasSize(1);
@@ -80,7 +82,7 @@ public class RelyingPartyRegistrationsTests {
 			String url = server.url("/").toString();
 			server.shutdown();
 			assertThatExceptionOfType(Saml2Exception.class)
-					.isThrownBy(() -> RelyingPartyRegistrations.fromMetadataLocation(url));
+				.isThrownBy(() -> RelyingPartyRegistrations.fromMetadataLocation(url));
 		}
 	}
 
@@ -90,7 +92,7 @@ public class RelyingPartyRegistrationsTests {
 			server.enqueue(new MockResponse().setBody("malformed").setResponseCode(200));
 			String url = server.url("/").toString();
 			assertThatExceptionOfType(Saml2Exception.class)
-					.isThrownBy(() -> RelyingPartyRegistrations.fromMetadataLocation(url));
+				.isThrownBy(() -> RelyingPartyRegistrations.fromMetadataLocation(url));
 		}
 	}
 
@@ -98,11 +100,13 @@ public class RelyingPartyRegistrationsTests {
 	public void fromMetadataFileLocationWhenResolvableThenPopulatesBuilder() {
 		File file = new File("src/test/resources/test-metadata.xml");
 		RelyingPartyRegistration registration = RelyingPartyRegistrations
-				.fromMetadataLocation("file:" + file.getAbsolutePath()).entityId("rp").build();
+			.fromMetadataLocation("file:" + file.getAbsolutePath())
+			.entityId("rp")
+			.build();
 		RelyingPartyRegistration.AssertingPartyDetails details = registration.getAssertingPartyDetails();
 		assertThat(details.getEntityId()).isEqualTo("https://idp.example.com/idp/shibboleth");
 		assertThat(details.getSingleSignOnServiceLocation())
-				.isEqualTo("https://idp.example.com/idp/profile/SAML2/POST/SSO");
+			.isEqualTo("https://idp.example.com/idp/profile/SAML2/POST/SSO");
 		assertThat(details.getSingleSignOnServiceBinding()).isEqualTo(Saml2MessageBinding.POST);
 		assertThat(details.getVerificationX509Credentials()).hasSize(1);
 		assertThat(details.getEncryptionX509Credentials()).hasSize(1);
@@ -111,18 +115,19 @@ public class RelyingPartyRegistrationsTests {
 	@Test
 	public void fromMetadataFileLocationWhenNotFoundThenSaml2Exception() {
 		assertThatExceptionOfType(Saml2Exception.class)
-				.isThrownBy(() -> RelyingPartyRegistrations.fromMetadataLocation("filePath"));
+			.isThrownBy(() -> RelyingPartyRegistrations.fromMetadataLocation("filePath"));
 	}
 
 	@Test
 	public void fromMetadataInputStreamWhenResolvableThenPopulatesBuilder() throws Exception {
 		try (InputStream source = new ByteArrayInputStream(this.metadata.getBytes())) {
-			RelyingPartyRegistration registration = RelyingPartyRegistrations.fromMetadata(source).entityId("rp")
-					.build();
+			RelyingPartyRegistration registration = RelyingPartyRegistrations.fromMetadata(source)
+				.entityId("rp")
+				.build();
 			RelyingPartyRegistration.AssertingPartyDetails details = registration.getAssertingPartyDetails();
 			assertThat(details.getEntityId()).isEqualTo("https://idp.example.com/idp/shibboleth");
 			assertThat(details.getSingleSignOnServiceLocation())
-					.isEqualTo("https://idp.example.com/idp/profile/SAML2/POST/SSO");
+				.isEqualTo("https://idp.example.com/idp/profile/SAML2/POST/SSO");
 			assertThat(details.getSingleSignOnServiceBinding()).isEqualTo(Saml2MessageBinding.POST);
 			assertThat(details.getVerificationX509Credentials()).hasSize(1);
 			assertThat(details.getEncryptionX509Credentials()).hasSize(1);
@@ -133,7 +138,7 @@ public class RelyingPartyRegistrationsTests {
 	public void fromMetadataInputStreamWhenEmptyThenSaml2Exception() throws Exception {
 		try (InputStream source = new ByteArrayInputStream("".getBytes())) {
 			assertThatExceptionOfType(Saml2Exception.class)
-					.isThrownBy(() -> RelyingPartyRegistrations.fromMetadata(source));
+				.isThrownBy(() -> RelyingPartyRegistrations.fromMetadata(source));
 		}
 	}
 
@@ -142,14 +147,16 @@ public class RelyingPartyRegistrationsTests {
 		try (MockWebServer server = new MockWebServer()) {
 			server.enqueue(new MockResponse().setBody(this.entitiesDescriptor).setResponseCode(200));
 			List<RelyingPartyRegistration> registrations = RelyingPartyRegistrations
-					.collectionFromMetadataLocation(server.url("/").toString()).stream()
-					.map((r) -> r.entityId("rp").build()).collect(Collectors.toList());
+				.collectionFromMetadataLocation(server.url("/").toString())
+				.stream()
+				.map((r) -> r.entityId("rp").build())
+				.collect(Collectors.toList());
 			assertThat(registrations).hasSize(2);
 			RelyingPartyRegistration first = registrations.get(0);
 			RelyingPartyRegistration.AssertingPartyDetails details = first.getAssertingPartyDetails();
 			assertThat(details.getEntityId()).isEqualTo("https://idp.example.com/idp/shibboleth");
 			assertThat(details.getSingleSignOnServiceLocation())
-					.isEqualTo("https://idp.example.com/idp/profile/SAML2/POST/SSO");
+				.isEqualTo("https://idp.example.com/idp/profile/SAML2/POST/SSO");
 			assertThat(details.getSingleSignOnServiceBinding()).isEqualTo(Saml2MessageBinding.POST);
 			assertThat(details.getVerificationX509Credentials()).hasSize(1);
 			assertThat(details.getEncryptionX509Credentials()).hasSize(1);
@@ -157,7 +164,7 @@ public class RelyingPartyRegistrationsTests {
 			details = second.getAssertingPartyDetails();
 			assertThat(details.getEntityId()).isEqualTo("https://ap.example.org/idp/shibboleth");
 			assertThat(details.getSingleSignOnServiceLocation())
-					.isEqualTo("https://ap.example.org/idp/profile/SAML2/POST/SSO");
+				.isEqualTo("https://ap.example.org/idp/profile/SAML2/POST/SSO");
 			assertThat(details.getSingleSignOnServiceBinding()).isEqualTo(Saml2MessageBinding.POST);
 			assertThat(details.getVerificationX509Credentials()).hasSize(1);
 			assertThat(details.getEncryptionX509Credentials()).hasSize(1);
@@ -171,7 +178,7 @@ public class RelyingPartyRegistrationsTests {
 			String url = server.url("/").toString();
 			server.shutdown();
 			assertThatExceptionOfType(Saml2Exception.class)
-					.isThrownBy(() -> RelyingPartyRegistrations.collectionFromMetadataLocation(url));
+				.isThrownBy(() -> RelyingPartyRegistrations.collectionFromMetadataLocation(url));
 		}
 	}
 
@@ -181,7 +188,7 @@ public class RelyingPartyRegistrationsTests {
 			server.enqueue(new MockResponse().setBody("malformed").setResponseCode(200));
 			String url = server.url("/").toString();
 			assertThatExceptionOfType(Saml2Exception.class)
-					.isThrownBy(() -> RelyingPartyRegistrations.collectionFromMetadataLocation(url));
+				.isThrownBy(() -> RelyingPartyRegistrations.collectionFromMetadataLocation(url));
 		}
 	}
 
@@ -189,12 +196,15 @@ public class RelyingPartyRegistrationsTests {
 	public void collectionFromMetadataFileWhenResolvableThenPopulatesBuilder() {
 		File file = new File("src/test/resources/test-entitiesdescriptor.xml");
 		RelyingPartyRegistration registration = RelyingPartyRegistrations
-				.collectionFromMetadataLocation("file:" + file.getAbsolutePath()).stream()
-				.map((r) -> r.entityId("rp").build()).findFirst().get();
+			.collectionFromMetadataLocation("file:" + file.getAbsolutePath())
+			.stream()
+			.map((r) -> r.entityId("rp").build())
+			.findFirst()
+			.get();
 		RelyingPartyRegistration.AssertingPartyDetails details = registration.getAssertingPartyDetails();
 		assertThat(details.getEntityId()).isEqualTo("https://idp.example.com/idp/shibboleth");
 		assertThat(details.getSingleSignOnServiceLocation())
-				.isEqualTo("https://idp.example.com/idp/profile/SAML2/POST/SSO");
+			.isEqualTo("https://idp.example.com/idp/profile/SAML2/POST/SSO");
 		assertThat(details.getSingleSignOnServiceBinding()).isEqualTo(Saml2MessageBinding.POST);
 		assertThat(details.getVerificationX509Credentials()).hasSize(1);
 		assertThat(details.getEncryptionX509Credentials()).hasSize(1);
@@ -204,12 +214,15 @@ public class RelyingPartyRegistrationsTests {
 	public void collectionFromMetadataFileWhenContainsOnlyEntityDescriptorThenPopulatesBuilder() {
 		File file = new File("src/test/resources/test-metadata.xml");
 		RelyingPartyRegistration registration = RelyingPartyRegistrations
-				.collectionFromMetadataLocation("file:" + file.getAbsolutePath()).stream()
-				.map((r) -> r.entityId("rp").build()).findFirst().get();
+			.collectionFromMetadataLocation("file:" + file.getAbsolutePath())
+			.stream()
+			.map((r) -> r.entityId("rp").build())
+			.findFirst()
+			.get();
 		RelyingPartyRegistration.AssertingPartyDetails details = registration.getAssertingPartyDetails();
 		assertThat(details.getEntityId()).isEqualTo("https://idp.example.com/idp/shibboleth");
 		assertThat(details.getSingleSignOnServiceLocation())
-				.isEqualTo("https://idp.example.com/idp/profile/SAML2/POST/SSO");
+			.isEqualTo("https://idp.example.com/idp/profile/SAML2/POST/SSO");
 		assertThat(details.getSingleSignOnServiceBinding()).isEqualTo(Saml2MessageBinding.POST);
 		assertThat(details.getVerificationX509Credentials()).hasSize(1);
 		assertThat(details.getEncryptionX509Credentials()).hasSize(1);
@@ -218,18 +231,21 @@ public class RelyingPartyRegistrationsTests {
 	@Test
 	public void collectionFromMetadataFileWhenNotFoundThenSaml2Exception() {
 		assertThatExceptionOfType(Saml2Exception.class)
-				.isThrownBy(() -> RelyingPartyRegistrations.collectionFromMetadataLocation("filePath"));
+			.isThrownBy(() -> RelyingPartyRegistrations.collectionFromMetadataLocation("filePath"));
 	}
 
 	@Test
 	public void collectionFromMetadataInputStreamWhenResolvableThenPopulatesBuilder() throws Exception {
 		try (InputStream source = new ByteArrayInputStream(this.entitiesDescriptor.getBytes())) {
-			RelyingPartyRegistration registration = RelyingPartyRegistrations.collectionFromMetadata(source).stream()
-					.map((r) -> r.entityId("rp").build()).findFirst().get();
+			RelyingPartyRegistration registration = RelyingPartyRegistrations.collectionFromMetadata(source)
+				.stream()
+				.map((r) -> r.entityId("rp").build())
+				.findFirst()
+				.get();
 			RelyingPartyRegistration.AssertingPartyDetails details = registration.getAssertingPartyDetails();
 			assertThat(details.getEntityId()).isEqualTo("https://idp.example.com/idp/shibboleth");
 			assertThat(details.getSingleSignOnServiceLocation())
-					.isEqualTo("https://idp.example.com/idp/profile/SAML2/POST/SSO");
+				.isEqualTo("https://idp.example.com/idp/profile/SAML2/POST/SSO");
 			assertThat(details.getSingleSignOnServiceBinding()).isEqualTo(Saml2MessageBinding.POST);
 			assertThat(details.getVerificationX509Credentials()).hasSize(1);
 			assertThat(details.getEncryptionX509Credentials()).hasSize(1);
@@ -240,21 +256,21 @@ public class RelyingPartyRegistrationsTests {
 	public void collectionFromMetadataInputStreamWhenEmptyThenSaml2Exception() throws Exception {
 		try (InputStream source = new ByteArrayInputStream("".getBytes())) {
 			assertThatExceptionOfType(Saml2Exception.class)
-					.isThrownBy(() -> RelyingPartyRegistrations.collectionFromMetadata(source));
+				.isThrownBy(() -> RelyingPartyRegistrations.collectionFromMetadata(source));
 		}
 	}
 
 	@Test
 	public void collectionFromMetadataLocationCanHandleFederationMetadata() {
 		Collection<RelyingPartyRegistration.Builder> federationMetadataWithSkippedSPEntries = RelyingPartyRegistrations
-				.collectionFromMetadataLocation("classpath:test-federated-metadata.xml");
+			.collectionFromMetadataLocation("classpath:test-federated-metadata.xml");
 		assertThat(federationMetadataWithSkippedSPEntries.size()).isEqualTo(1);
 	}
 
 	@Test
 	public void collectionFromMetadataLocationWithoutIdpThenSaml2Exception() {
 		assertThatExceptionOfType(Saml2Exception.class).isThrownBy(() -> RelyingPartyRegistrations
-				.collectionFromMetadataLocation("classpath:test-metadata-without-idp.xml"));
+			.collectionFromMetadataLocation("classpath:test-metadata-without-idp.xml"));
 	}
 
 }

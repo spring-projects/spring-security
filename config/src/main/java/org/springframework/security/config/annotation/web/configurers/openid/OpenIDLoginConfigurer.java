@@ -357,7 +357,7 @@ public final class OpenIDLoginConfigurer<H extends HttpSecurityBuilder<H>>
 	 */
 	private void initDefaultLoginFilter(H http) {
 		DefaultLoginPageGeneratingFilter loginPageGeneratingFilter = http
-				.getSharedObject(DefaultLoginPageGeneratingFilter.class);
+			.getSharedObject(DefaultLoginPageGeneratingFilter.class);
 		if (loginPageGeneratingFilter != null && !isCustomLoginPage()) {
 			loginPageGeneratingFilter.setOpenIdEnabled(true);
 			loginPageGeneratingFilter.setOpenIDauthenticationUrl(getLoginProcessingUrl());
@@ -367,7 +367,7 @@ public final class OpenIDLoginConfigurer<H extends HttpSecurityBuilder<H>>
 				loginPageGeneratingFilter.setFailureUrl(getFailureUrl());
 			}
 			loginPageGeneratingFilter
-					.setOpenIDusernameParameter(OpenIDAuthenticationFilter.DEFAULT_CLAIMED_IDENTITY_FIELD);
+				.setOpenIDusernameParameter(OpenIDAuthenticationFilter.DEFAULT_CLAIMED_IDENTITY_FIELD);
 		}
 	}
 

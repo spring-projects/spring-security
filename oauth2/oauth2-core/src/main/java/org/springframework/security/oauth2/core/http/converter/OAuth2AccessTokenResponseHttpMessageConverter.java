@@ -89,14 +89,14 @@ public class OAuth2AccessTokenResponseHttpMessageConverter
 			HttpInputMessage inputMessage) throws HttpMessageNotReadableException {
 		try {
 			Map<String, Object> tokenResponseParameters = (Map<String, Object>) this.jsonMessageConverter
-					.read(STRING_OBJECT_MAP.getType(), null, inputMessage);
+				.read(STRING_OBJECT_MAP.getType(), null, inputMessage);
 			// Only use deprecated converter if it has been set directly
 			if (this.tokenResponseConverter.getClass() != MapOAuth2AccessTokenResponseConverter.class) {
 				// gh-6463: Parse parameter values as Object in order to handle potential
 				// JSON Object and then convert values to String
 				Map<String, String> stringTokenResponseParameters = new HashMap<>();
 				tokenResponseParameters
-						.forEach((key, value) -> stringTokenResponseParameters.put(key, String.valueOf(value)));
+					.forEach((key, value) -> stringTokenResponseParameters.put(key, String.valueOf(value)));
 				return this.tokenResponseConverter.convert(stringTokenResponseParameters);
 			}
 			return this.accessTokenResponseConverter.convert(tokenResponseParameters);

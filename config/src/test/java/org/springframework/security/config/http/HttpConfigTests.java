@@ -80,7 +80,7 @@ public class HttpConfigTests {
 	public void getWhenUsingAuthorizationManagerThenRedirectsToLogin() throws Exception {
 		this.spring.configLocations(this.xml("AuthorizationManager")).autowire();
 		AuthorizationManager<HttpServletRequest> authorizationManager = this.spring.getContext()
-				.getBean(AuthorizationManager.class);
+			.getBean(AuthorizationManager.class);
 		given(authorizationManager.check(any(), any())).willReturn(new AuthorizationDecision(false));
 		// @formatter:off
 		this.mvc.perform(get("/"))

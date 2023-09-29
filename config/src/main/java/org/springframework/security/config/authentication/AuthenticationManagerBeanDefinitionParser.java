@@ -64,8 +64,8 @@ public class AuthenticationManagerBeanDefinitionParser implements BeanDefinition
 		String id = element.getAttribute("id");
 		if (!StringUtils.hasText(id)) {
 			if (pc.getRegistry().containsBeanDefinition(BeanIds.AUTHENTICATION_MANAGER)) {
-				pc.getReaderContext().warning("Overriding globally registered AuthenticationManager",
-						pc.extractSource(element));
+				pc.getReaderContext()
+					.warning("Overriding globally registered AuthenticationManager", pc.extractSource(element));
 			}
 			id = BeanIds.AUTHENTICATION_MANAGER;
 		}
@@ -124,14 +124,16 @@ public class AuthenticationManagerBeanDefinitionParser implements BeanDefinition
 			return new RuntimeBeanReference(providerId);
 		}
 		if (providerElement.getAttributes().getLength() > 1) {
-			pc.getReaderContext().error("authentication-provider element cannot be used with other attributes "
-					+ "when using 'ref' attribute", pc.extractSource(element));
+			pc.getReaderContext()
+				.error("authentication-provider element cannot be used with other attributes "
+						+ "when using 'ref' attribute", pc.extractSource(element));
 		}
 		NodeList providerChildren = providerElement.getChildNodes();
 		for (int i = 0; i < providerChildren.getLength(); i++) {
 			if (providerChildren.item(i) instanceof Element) {
-				pc.getReaderContext().error("authentication-provider element cannot have child elements when used "
-						+ "with 'ref' attribute", pc.extractSource(element));
+				pc.getReaderContext()
+					.error("authentication-provider element cannot have child elements when used "
+							+ "with 'ref' attribute", pc.extractSource(element));
 			}
 		}
 		return new RuntimeBeanReference(ref);

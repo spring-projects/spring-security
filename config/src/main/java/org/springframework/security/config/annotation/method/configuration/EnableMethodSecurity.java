@@ -33,6 +33,7 @@ import org.springframework.security.access.prepost.PreFilter;
 
 /**
  * Enables Spring Security Method Security.
+ *
  * @author Evgeniy Cheban
  * @author Josh Cummings
  * @since 5.6

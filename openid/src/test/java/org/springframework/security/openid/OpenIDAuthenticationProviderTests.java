@@ -62,7 +62,8 @@ public class OpenIDAuthenticationProviderTests {
 				null);
 		assertThat(preAuth.isAuthenticated()).isFalse();
 		assertThatExceptionOfType(AuthenticationCancelledException.class)
-				.isThrownBy(() -> provider.authenticate(preAuth)).withMessage("Log in cancelled");
+			.isThrownBy(() -> provider.authenticate(preAuth))
+			.withMessage("Log in cancelled");
 	}
 
 	/*
@@ -77,7 +78,7 @@ public class OpenIDAuthenticationProviderTests {
 		Authentication preAuth = new OpenIDAuthenticationToken(OpenIDAuthenticationStatus.ERROR, USERNAME, "", null);
 		assertThat(preAuth.isAuthenticated()).isFalse();
 		assertThatExceptionOfType(AuthenticationServiceException.class).isThrownBy(() -> provider.authenticate(preAuth))
-				.withMessage("Error message from server: ");
+			.withMessage("Error message from server: ");
 	}
 
 	/*
@@ -88,12 +89,12 @@ public class OpenIDAuthenticationProviderTests {
 	@Test
 	public void testAuthenticateFailure() {
 		OpenIDAuthenticationProvider provider = new OpenIDAuthenticationProvider();
-		provider.setAuthenticationUserDetailsService(
-				new UserDetailsByNameServiceWrapper<>(new MockUserDetailsService()));
+		provider
+			.setAuthenticationUserDetailsService(new UserDetailsByNameServiceWrapper<>(new MockUserDetailsService()));
 		Authentication preAuth = new OpenIDAuthenticationToken(OpenIDAuthenticationStatus.FAILURE, USERNAME, "", null);
 		assertThat(preAuth.isAuthenticated()).isFalse();
 		assertThatExceptionOfType(BadCredentialsException.class).isThrownBy(() -> provider.authenticate(preAuth))
-				.withMessage("Log in failed - identity could not be verified");
+			.withMessage("Log in failed - identity could not be verified");
 	}
 
 	/*
@@ -109,7 +110,7 @@ public class OpenIDAuthenticationProviderTests {
 				null);
 		assertThat(preAuth.isAuthenticated()).isFalse();
 		assertThatExceptionOfType(AuthenticationServiceException.class).isThrownBy(() -> provider.authenticate(preAuth))
-				.withMessage("The server responded setup was needed, which shouldn't happen");
+			.withMessage("The server responded setup was needed, which shouldn't happen");
 	}
 
 	/*

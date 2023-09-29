@@ -41,9 +41,9 @@ public class DigestAuthUtilsTests {
 		assertThat(headerMap.get("username")).isEqualTo("rod");
 		assertThat(headerMap.get("realm")).isEqualTo("Contacts Realm");
 		assertThat(headerMap.get("nonce"))
-				.isEqualTo("MTEwOTAyMzU1MTQ4NDo1YzY3OWViYWM5NDNmZWUwM2UwY2NmMDBiNDQzMTQ0OQ==");
+			.isEqualTo("MTEwOTAyMzU1MTQ4NDo1YzY3OWViYWM5NDNmZWUwM2UwY2NmMDBiNDQzMTQ0OQ==");
 		assertThat(headerMap.get("uri"))
-				.isEqualTo("/spring-security-sample-contacts-filter/secure/adminPermission.htm?contactId=4");
+			.isEqualTo("/spring-security-sample-contacts-filter/secure/adminPermission.htm?contactId=4");
 		assertThat(headerMap.get("response")).isEqualTo("38644211cf9ac3da63ab639807e2baff");
 		assertThat(headerMap.get("qop")).isEqualTo("auth");
 		assertThat(headerMap.get("nc")).isEqualTo("00000004");
@@ -59,9 +59,9 @@ public class DigestAuthUtilsTests {
 		assertThat(headerMap.get("username")).isEqualTo("\"rod\"");
 		assertThat(headerMap.get("realm")).isEqualTo("\"Contacts Realm\"");
 		assertThat(headerMap.get("nonce"))
-				.isEqualTo("\"MTEwOTAyMzU1MTQ4NDo1YzY3OWViYWM5NDNmZWUwM2UwY2NmMDBiNDQzMTQ0OQ==\"");
+			.isEqualTo("\"MTEwOTAyMzU1MTQ4NDo1YzY3OWViYWM5NDNmZWUwM2UwY2NmMDBiNDQzMTQ0OQ==\"");
 		assertThat(headerMap.get("uri"))
-				.isEqualTo("\"/spring-security-sample-contacts-filter/secure/adminPermission.htm?contactId=4\"");
+			.isEqualTo("\"/spring-security-sample-contacts-filter/secure/adminPermission.htm?contactId=4\"");
 		assertThat(headerMap.get("response")).isEqualTo("\"38644211cf9ac3da63ab639807e2baff\"");
 		assertThat(headerMap.get("qop")).isEqualTo("auth");
 		assertThat(headerMap.get("nc")).isEqualTo("00000004");
@@ -95,7 +95,7 @@ public class DigestAuthUtilsTests {
 		assertThatIllegalArgumentException().isThrownBy(() -> DigestAuthUtils.split("sdch=dfgf", null));
 		assertThatIllegalArgumentException().isThrownBy(() -> DigestAuthUtils.split("fvfv=dcdc", ""));
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> DigestAuthUtils.split("dfdc=dcdc", "BIGGER_THAN_ONE_CHARACTER"));
+			.isThrownBy(() -> DigestAuthUtils.split("dfdc=dcdc", "BIGGER_THAN_ONE_CHARACTER"));
 	}
 
 	@Test

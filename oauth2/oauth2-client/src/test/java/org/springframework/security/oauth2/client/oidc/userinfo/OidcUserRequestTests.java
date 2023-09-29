@@ -63,19 +63,19 @@ public class OidcUserRequestTests {
 	@Test
 	public void constructorWhenClientRegistrationIsNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new OidcUserRequest(null, this.accessToken, this.idToken));
+			.isThrownBy(() -> new OidcUserRequest(null, this.accessToken, this.idToken));
 	}
 
 	@Test
 	public void constructorWhenAccessTokenIsNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new OidcUserRequest(this.clientRegistration, null, this.idToken));
+			.isThrownBy(() -> new OidcUserRequest(this.clientRegistration, null, this.idToken));
 	}
 
 	@Test
 	public void constructorWhenIdTokenIsNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new OidcUserRequest(this.clientRegistration, this.accessToken, null));
+			.isThrownBy(() -> new OidcUserRequest(this.clientRegistration, this.accessToken, null));
 	}
 
 	@Test

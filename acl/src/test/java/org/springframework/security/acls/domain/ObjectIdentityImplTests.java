@@ -60,7 +60,7 @@ public class ObjectIdentityImplTests {
 	public void testGetIdMethodConstraints() {
 		// Check the getId() method is present
 		assertThatExceptionOfType(IdentityUnavailableException.class)
-				.isThrownBy(() -> new ObjectIdentityImpl("A_STRING_OBJECT"));
+			.isThrownBy(() -> new ObjectIdentityImpl("A_STRING_OBJECT"));
 		// getId() should return a non-null value
 		MockIdDomainObject mockId = new MockIdDomainObject();
 		assertThatIllegalArgumentException().isThrownBy(() -> new ObjectIdentityImpl(mockId));

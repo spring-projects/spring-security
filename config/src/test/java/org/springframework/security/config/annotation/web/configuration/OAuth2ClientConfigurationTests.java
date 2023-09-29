@@ -82,14 +82,16 @@ public class OAuth2ClientConfigurationTests {
 		TestingAuthenticationToken authentication = new TestingAuthenticationToken(principalName, "password");
 		ClientRegistrationRepository clientRegistrationRepository = mock(ClientRegistrationRepository.class);
 		ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration()
-				.registrationId(clientRegistrationId).build();
+			.registrationId(clientRegistrationId)
+			.build();
 		given(clientRegistrationRepository.findByRegistrationId(eq(clientRegistrationId)))
-				.willReturn(clientRegistration);
+			.willReturn(clientRegistration);
 		OAuth2AuthorizedClientRepository authorizedClientRepository = mock(OAuth2AuthorizedClientRepository.class);
 		OAuth2AuthorizedClient authorizedClient = mock(OAuth2AuthorizedClient.class);
 		given(authorizedClient.getClientRegistration()).willReturn(clientRegistration);
 		given(authorizedClientRepository.loadAuthorizedClient(eq(clientRegistrationId), eq(authentication),
-				any(HttpServletRequest.class))).willReturn(authorizedClient);
+				any(HttpServletRequest.class)))
+			.willReturn(authorizedClient);
 		OAuth2AccessToken accessToken = mock(OAuth2AccessToken.class);
 		given(authorizedClient.getAccessToken()).willReturn(accessToken);
 		OAuth2AccessTokenResponseClient accessTokenResponseClient = mock(OAuth2AccessTokenResponseClient.class);
@@ -115,7 +117,8 @@ public class OAuth2ClientConfigurationTests {
 		OAuth2AuthorizedClientRepository authorizedClientRepository = mock(OAuth2AuthorizedClientRepository.class);
 		OAuth2AccessTokenResponseClient accessTokenResponseClient = mock(OAuth2AccessTokenResponseClient.class);
 		ClientRegistration clientRegistration = TestClientRegistrations.clientCredentials()
-				.registrationId(clientRegistrationId).build();
+			.registrationId(clientRegistrationId)
+			.build();
 		given(clientRegistrationRepository.findByRegistrationId(clientRegistrationId)).willReturn(clientRegistration);
 		// @formatter:off
 		OAuth2AccessTokenResponse accessTokenResponse = OAuth2AccessTokenResponse
@@ -125,13 +128,13 @@ public class OAuth2ClientConfigurationTests {
 				.build();
 		// @formatter:on
 		given(accessTokenResponseClient.getTokenResponse(any(OAuth2ClientCredentialsGrantRequest.class)))
-				.willReturn(accessTokenResponse);
+			.willReturn(accessTokenResponse);
 		OAuth2AuthorizedClientArgumentResolverConfig.CLIENT_REGISTRATION_REPOSITORY = clientRegistrationRepository;
 		OAuth2AuthorizedClientArgumentResolverConfig.AUTHORIZED_CLIENT_REPOSITORY = authorizedClientRepository;
 		OAuth2AuthorizedClientArgumentResolverConfig.ACCESS_TOKEN_RESPONSE_CLIENT = accessTokenResponseClient;
 		this.spring.register(OAuth2AuthorizedClientArgumentResolverConfig.class).autowire();
 		MockHttpServletRequestBuilder authenticatedRequest = get("/authorized-client")
-				.with(authentication(authentication));
+			.with(authentication(authentication));
 		// @formatter:off
 		this.mockMvc.perform(authenticatedRequest)
 				.andExpect(status().isOk())
@@ -143,20 +146,22 @@ public class OAuth2ClientConfigurationTests {
 	// gh-5321
 	@Test
 	public void loadContextWhenOAuth2AuthorizedClientRepositoryRegisteredTwiceThenThrowNoUniqueBeanDefinitionException() {
-		assertThatExceptionOfType(BeanCreationException.class).isThrownBy(
-				() -> this.spring.register(OAuth2AuthorizedClientRepositoryRegisteredTwiceConfig.class).autowire())
-				.withRootCauseInstanceOf(NoUniqueBeanDefinitionException.class).withMessageContaining(
-						"Expected single matching bean of type '" + OAuth2AuthorizedClientRepository.class.getName()
-								+ "' but found 2: authorizedClientRepository1,authorizedClientRepository2");
+		assertThatExceptionOfType(BeanCreationException.class)
+			.isThrownBy(
+					() -> this.spring.register(OAuth2AuthorizedClientRepositoryRegisteredTwiceConfig.class).autowire())
+			.withRootCauseInstanceOf(NoUniqueBeanDefinitionException.class)
+			.withMessageContaining(
+					"Expected single matching bean of type '" + OAuth2AuthorizedClientRepository.class.getName()
+							+ "' but found 2: authorizedClientRepository1,authorizedClientRepository2");
 	}
 
 	@Test
 	public void loadContextWhenClientRegistrationRepositoryNotRegisteredThenThrowNoSuchBeanDefinitionException() {
 		assertThatExceptionOfType(Exception.class)
-				.isThrownBy(
-						() -> this.spring.register(ClientRegistrationRepositoryNotRegisteredConfig.class).autowire())
-				.withRootCauseInstanceOf(NoSuchBeanDefinitionException.class).withMessageContaining(
-						"No qualifying bean of type '" + ClientRegistrationRepository.class.getName() + "' available");
+			.isThrownBy(() -> this.spring.register(ClientRegistrationRepositoryNotRegisteredConfig.class).autowire())
+			.withRootCauseInstanceOf(NoSuchBeanDefinitionException.class)
+			.withMessageContaining(
+					"No qualifying bean of type '" + ClientRegistrationRepository.class.getName() + "' available");
 	}
 
 	@Test
@@ -192,7 +197,8 @@ public class OAuth2ClientConfigurationTests {
 		OAuth2AuthorizedClientRepository authorizedClientRepository = mock(OAuth2AuthorizedClientRepository.class);
 		OAuth2AuthorizedClientManager authorizedClientManager = mock(OAuth2AuthorizedClientManager.class);
 		ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration()
-				.registrationId(clientRegistrationId).build();
+			.registrationId(clientRegistrationId)
+			.build();
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(clientRegistration, principalName,
 				TestOAuth2AccessTokens.noScopes());
 		given(authorizedClientManager.authorize(any())).willReturn(authorizedClient);
@@ -201,7 +207,7 @@ public class OAuth2ClientConfigurationTests {
 		OAuth2AuthorizedClientManagerRegisteredConfig.AUTHORIZED_CLIENT_MANAGER = authorizedClientManager;
 		this.spring.register(OAuth2AuthorizedClientManagerRegisteredConfig.class).autowire();
 		MockHttpServletRequestBuilder authenticatedRequest = get("/authorized-client")
-				.with(authentication(authentication));
+			.with(authentication(authentication));
 		// @formatter:off
 		this.mockMvc
 				.perform(authenticatedRequest)

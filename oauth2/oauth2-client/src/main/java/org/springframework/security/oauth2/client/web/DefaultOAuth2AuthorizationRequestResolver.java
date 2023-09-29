@@ -76,7 +76,7 @@ public final class DefaultOAuth2AuthorizationRequestResolver implements OAuth2Au
 			Base64.getUrlEncoder().withoutPadding(), 96);
 
 	private static final Consumer<OAuth2AuthorizationRequest.Builder> DEFAULT_PKCE_APPLIER = OAuth2AuthorizationRequestCustomizers
-			.withPkce();
+		.withPkce();
 
 	private final ClientRegistrationRepository clientRegistrationRepository;
 
@@ -198,8 +198,9 @@ public final class DefaultOAuth2AuthorizationRequestResolver implements OAuth2Au
 
 	private String resolveRegistrationId(HttpServletRequest request) {
 		if (this.authorizationRequestMatcher.matches(request)) {
-			return this.authorizationRequestMatcher.matcher(request).getVariables()
-					.get(REGISTRATION_ID_URI_VARIABLE_NAME);
+			return this.authorizationRequestMatcher.matcher(request)
+				.getVariables()
+				.get(REGISTRATION_ID_URI_VARIABLE_NAME);
 		}
 		return null;
 	}
@@ -248,8 +249,9 @@ public final class DefaultOAuth2AuthorizationRequestResolver implements OAuth2Au
 		uriVariables.put("basePath", (path != null) ? path : "");
 		uriVariables.put("baseUrl", uriComponents.toUriString());
 		uriVariables.put("action", (action != null) ? action : "");
-		return UriComponentsBuilder.fromUriString(clientRegistration.getRedirectUri()).buildAndExpand(uriVariables)
-				.toUriString();
+		return UriComponentsBuilder.fromUriString(clientRegistration.getRedirectUri())
+			.buildAndExpand(uriVariables)
+			.toUriString();
 	}
 
 	/**

@@ -58,7 +58,7 @@ class Saml2LogoutRequestMixinTests {
 		assertThat(logoutRequest).isNotNull();
 		assertThat(logoutRequest.getId()).isEqualTo(TestSaml2JsonPayloads.ID);
 		assertThat(logoutRequest.getRelyingPartyRegistrationId())
-				.isEqualTo(TestSaml2JsonPayloads.RELYINGPARTY_REGISTRATION_ID);
+			.isEqualTo(TestSaml2JsonPayloads.RELYINGPARTY_REGISTRATION_ID);
 		assertThat(logoutRequest.getSamlRequest()).isEqualTo(TestSaml2JsonPayloads.SAML_REQUEST);
 		assertThat(logoutRequest.getRelayState()).isEqualTo(TestSaml2JsonPayloads.RELAY_STATE);
 		assertThat(logoutRequest.getLocation()).isEqualTo(TestSaml2JsonPayloads.LOCATION);

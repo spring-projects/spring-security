@@ -66,7 +66,7 @@ public class AesBytesEncryptorTests {
 		AesBytesEncryptor encryptor = new AesBytesEncryptor(this.password, this.hexSalt, this.generator);
 		byte[] encryption = encryptor.encrypt(this.secret.getBytes());
 		assertThat(new String(Hex.encode(encryption)))
-				.isEqualTo("4b0febebd439db7ca77153cb254520c3b7232ac29355d07869433f1ecf55fe94");
+			.isEqualTo("4b0febebd439db7ca77153cb254520c3b7232ac29355d07869433f1ecf55fe94");
 		byte[] decryption = encryptor.decrypt(encryption);
 		assertThat(new String(decryption)).isEqualTo(this.secret);
 	}
@@ -78,7 +78,7 @@ public class AesBytesEncryptorTests {
 				CipherAlgorithm.GCM);
 		byte[] encryption = encryptor.encrypt(this.secret.getBytes());
 		assertThat(new String(Hex.encode(encryption)))
-				.isEqualTo("4b0febebd439db7ca77153cb254520c3e4d61ae38207b4e42b820d311dc3d4e0e2f37ed5ee");
+			.isEqualTo("4b0febebd439db7ca77153cb254520c3e4d61ae38207b4e42b820d311dc3d4e0e2f37ed5ee");
 		byte[] decryption = encryptor.decrypt(encryption);
 		assertThat(new String(decryption)).isEqualTo(this.secret);
 	}
@@ -91,7 +91,7 @@ public class AesBytesEncryptorTests {
 		AesBytesEncryptor encryptor = new AesBytesEncryptor(secretKey, this.generator, CipherAlgorithm.GCM);
 		byte[] encryption = encryptor.encrypt(this.secret.getBytes());
 		assertThat(new String(Hex.encode(encryption)))
-				.isEqualTo("4b0febebd439db7ca77153cb254520c3e4d61ae38207b4e42b820d311dc3d4e0e2f37ed5ee");
+			.isEqualTo("4b0febebd439db7ca77153cb254520c3e4d61ae38207b4e42b820d311dc3d4e0e2f37ed5ee");
 		byte[] decryption = encryptor.decrypt(encryption);
 		assertThat(new String(decryption)).isEqualTo(this.secret);
 	}

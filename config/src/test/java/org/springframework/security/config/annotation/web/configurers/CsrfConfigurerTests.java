@@ -114,72 +114,72 @@ public class CsrfConfigurerTests {
 	@Test
 	public void postWhenWebSecurityEnabledThenRespondsWithForbidden() throws Exception {
 		this.spring
-				.register(CsrfAppliedDefaultConfig.class, AllowHttpMethodsFirewallConfig.class, BasicController.class)
-				.autowire();
+			.register(CsrfAppliedDefaultConfig.class, AllowHttpMethodsFirewallConfig.class, BasicController.class)
+			.autowire();
 		this.mvc.perform(post("/")).andExpect(status().isForbidden());
 	}
 
 	@Test
 	public void putWhenWebSecurityEnabledThenRespondsWithForbidden() throws Exception {
 		this.spring
-				.register(CsrfAppliedDefaultConfig.class, AllowHttpMethodsFirewallConfig.class, BasicController.class)
-				.autowire();
+			.register(CsrfAppliedDefaultConfig.class, AllowHttpMethodsFirewallConfig.class, BasicController.class)
+			.autowire();
 		this.mvc.perform(put("/")).andExpect(status().isForbidden());
 	}
 
 	@Test
 	public void patchWhenWebSecurityEnabledThenRespondsWithForbidden() throws Exception {
 		this.spring
-				.register(CsrfAppliedDefaultConfig.class, AllowHttpMethodsFirewallConfig.class, BasicController.class)
-				.autowire();
+			.register(CsrfAppliedDefaultConfig.class, AllowHttpMethodsFirewallConfig.class, BasicController.class)
+			.autowire();
 		this.mvc.perform(patch("/")).andExpect(status().isForbidden());
 	}
 
 	@Test
 	public void deleteWhenWebSecurityEnabledThenRespondsWithForbidden() throws Exception {
 		this.spring
-				.register(CsrfAppliedDefaultConfig.class, AllowHttpMethodsFirewallConfig.class, BasicController.class)
-				.autowire();
+			.register(CsrfAppliedDefaultConfig.class, AllowHttpMethodsFirewallConfig.class, BasicController.class)
+			.autowire();
 		this.mvc.perform(delete("/")).andExpect(status().isForbidden());
 	}
 
 	@Test
 	public void invalidWhenWebSecurityEnabledThenRespondsWithForbidden() throws Exception {
 		this.spring
-				.register(CsrfAppliedDefaultConfig.class, AllowHttpMethodsFirewallConfig.class, BasicController.class)
-				.autowire();
+			.register(CsrfAppliedDefaultConfig.class, AllowHttpMethodsFirewallConfig.class, BasicController.class)
+			.autowire();
 		this.mvc.perform(request("INVALID", URI.create("/"))).andExpect(status().isForbidden());
 	}
 
 	@Test
 	public void getWhenWebSecurityEnabledThenRespondsWithOk() throws Exception {
 		this.spring
-				.register(CsrfAppliedDefaultConfig.class, AllowHttpMethodsFirewallConfig.class, BasicController.class)
-				.autowire();
+			.register(CsrfAppliedDefaultConfig.class, AllowHttpMethodsFirewallConfig.class, BasicController.class)
+			.autowire();
 		this.mvc.perform(get("/")).andExpect(status().isOk());
 	}
 
 	@Test
 	public void headWhenWebSecurityEnabledThenRespondsWithOk() throws Exception {
 		this.spring
-				.register(CsrfAppliedDefaultConfig.class, AllowHttpMethodsFirewallConfig.class, BasicController.class)
-				.autowire();
+			.register(CsrfAppliedDefaultConfig.class, AllowHttpMethodsFirewallConfig.class, BasicController.class)
+			.autowire();
 		this.mvc.perform(head("/")).andExpect(status().isOk());
 	}
 
 	@Test
 	public void traceWhenWebSecurityEnabledThenRespondsWithOk() throws Exception {
 		this.spring
-				.register(CsrfAppliedDefaultConfig.class, AllowHttpMethodsFirewallConfig.class, BasicController.class)
-				.autowire();
+			.register(CsrfAppliedDefaultConfig.class, AllowHttpMethodsFirewallConfig.class, BasicController.class)
+			.autowire();
 		this.mvc.perform(request(HttpMethod.TRACE, "/")).andExpect(status().isOk());
 	}
 
 	@Test
 	public void optionsWhenWebSecurityEnabledThenRespondsWithOk() throws Exception {
 		this.spring
-				.register(CsrfAppliedDefaultConfig.class, AllowHttpMethodsFirewallConfig.class, BasicController.class)
-				.autowire();
+			.register(CsrfAppliedDefaultConfig.class, AllowHttpMethodsFirewallConfig.class, BasicController.class)
+			.autowire();
 		this.mvc.perform(options("/")).andExpect(status().isOk());
 	}
 
@@ -206,9 +206,12 @@ public class CsrfConfigurerTests {
 	public void loginWhenCsrfDisabledThenRedirectsToPreviousPostRequest() throws Exception {
 		this.spring.register(DisableCsrfEnablesRequestCacheConfig.class).autowire();
 		MvcResult mvcResult = this.mvc.perform(post("/to-save")).andReturn();
-		this.mvc.perform(post("/login").param("username", "user").param("password", "password")
-				.session((MockHttpSession) mvcResult.getRequest().getSession())).andExpect(status().isFound())
-				.andExpect(redirectedUrl("http://localhost/to-save"));
+		this.mvc
+			.perform(post("/login").param("username", "user")
+				.param("password", "password")
+				.session((MockHttpSession) mvcResult.getRequest().getSession()))
+			.andExpect(status().isFound())
+			.andExpect(redirectedUrl("http://localhost/to-save"));
 	}
 
 	@Test
@@ -216,14 +219,19 @@ public class CsrfConfigurerTests {
 		CsrfDisablesPostRequestFromRequestCacheConfig.REPO = mock(CsrfTokenRepository.class);
 		DefaultCsrfToken csrfToken = new DefaultCsrfToken("X-CSRF-TOKEN", "_csrf", "token");
 		given(CsrfDisablesPostRequestFromRequestCacheConfig.REPO.loadDeferredToken(any(HttpServletRequest.class),
-				any(HttpServletResponse.class))).willReturn(new TestDeferredCsrfToken(csrfToken));
+				any(HttpServletResponse.class)))
+			.willReturn(new TestDeferredCsrfToken(csrfToken));
 		this.spring.register(CsrfDisablesPostRequestFromRequestCacheConfig.class).autowire();
 		MvcResult mvcResult = this.mvc.perform(post("/some-url")).andReturn();
-		this.mvc.perform(post("/login").param("username", "user").param("password", "password").with(csrf())
-				.session((MockHttpSession) mvcResult.getRequest().getSession())).andExpect(status().isFound())
-				.andExpect(redirectedUrl("/"));
+		this.mvc
+			.perform(post("/login").param("username", "user")
+				.param("password", "password")
+				.with(csrf())
+				.session((MockHttpSession) mvcResult.getRequest().getSession()))
+			.andExpect(status().isFound())
+			.andExpect(redirectedUrl("/"));
 		verify(CsrfDisablesPostRequestFromRequestCacheConfig.REPO, atLeastOnce())
-				.loadDeferredToken(any(HttpServletRequest.class), any(HttpServletResponse.class));
+			.loadDeferredToken(any(HttpServletRequest.class), any(HttpServletResponse.class));
 	}
 
 	@Test
@@ -231,24 +239,31 @@ public class CsrfConfigurerTests {
 		CsrfDisablesPostRequestFromRequestCacheConfig.REPO = mock(CsrfTokenRepository.class);
 		DefaultCsrfToken csrfToken = new DefaultCsrfToken("X-CSRF-TOKEN", "_csrf", "token");
 		given(CsrfDisablesPostRequestFromRequestCacheConfig.REPO.loadDeferredToken(any(HttpServletRequest.class),
-				any(HttpServletResponse.class))).willReturn(new TestDeferredCsrfToken(csrfToken));
+				any(HttpServletResponse.class)))
+			.willReturn(new TestDeferredCsrfToken(csrfToken));
 		this.spring.register(CsrfDisablesPostRequestFromRequestCacheConfig.class).autowire();
 		MvcResult mvcResult = this.mvc.perform(get("/some-url")).andReturn();
-		this.mvc.perform(post("/login").param("username", "user").param("password", "password").with(csrf())
-				.session((MockHttpSession) mvcResult.getRequest().getSession())).andExpect(status().isFound())
-				.andExpect(redirectedUrl("http://localhost/some-url"));
+		this.mvc
+			.perform(post("/login").param("username", "user")
+				.param("password", "password")
+				.with(csrf())
+				.session((MockHttpSession) mvcResult.getRequest().getSession()))
+			.andExpect(status().isFound())
+			.andExpect(redirectedUrl("http://localhost/some-url"));
 		verify(CsrfDisablesPostRequestFromRequestCacheConfig.REPO, atLeastOnce())
-				.loadDeferredToken(any(HttpServletRequest.class), any(HttpServletResponse.class));
+			.loadDeferredToken(any(HttpServletRequest.class), any(HttpServletResponse.class));
 	}
 
 	// SEC-2422
 	@Test
 	public void postWhenCsrfEnabledAndSessionIsExpiredThenRespondsWithForbidden() throws Exception {
 		this.spring.register(InvalidSessionUrlConfig.class).autowire();
-		MvcResult mvcResult = this.mvc.perform(post("/").param("_csrf", "abc")).andExpect(status().isFound())
-				.andExpect(redirectedUrl("/error/sessionError")).andReturn();
+		MvcResult mvcResult = this.mvc.perform(post("/").param("_csrf", "abc"))
+			.andExpect(status().isFound())
+			.andExpect(redirectedUrl("/error/sessionError"))
+			.andReturn();
 		this.mvc.perform(post("/").session((MockHttpSession) mvcResult.getRequest().getSession()))
-				.andExpect(status().isForbidden());
+			.andExpect(status().isForbidden());
 	}
 
 	@Test
@@ -287,7 +302,7 @@ public class CsrfConfigurerTests {
 		CsrfTokenRepositoryConfig.REPO = mock(CsrfTokenRepository.class);
 		given(CsrfTokenRepositoryConfig.REPO.loadDeferredToken(any(HttpServletRequest.class),
 				any(HttpServletResponse.class)))
-						.willReturn(new TestDeferredCsrfToken(new DefaultCsrfToken("X-CSRF-TOKEN", "_csrf", "token")));
+			.willReturn(new TestDeferredCsrfToken(new DefaultCsrfToken("X-CSRF-TOKEN", "_csrf", "token")));
 		this.spring.register(CsrfTokenRepositoryConfig.class, BasicController.class).autowire();
 		this.mvc.perform(get("/")).andExpect(status().isOk());
 		verify(CsrfTokenRepositoryConfig.REPO).loadDeferredToken(any(HttpServletRequest.class),
@@ -309,7 +324,8 @@ public class CsrfConfigurerTests {
 		DefaultCsrfToken csrfToken = new DefaultCsrfToken("X-CSRF-TOKEN", "_csrf", "token");
 		given(CsrfTokenRepositoryConfig.REPO.loadToken(any())).willReturn(csrfToken);
 		given(CsrfTokenRepositoryConfig.REPO.loadDeferredToken(any(HttpServletRequest.class),
-				any(HttpServletResponse.class))).willReturn(new TestDeferredCsrfToken(csrfToken));
+				any(HttpServletResponse.class)))
+			.willReturn(new TestDeferredCsrfToken(csrfToken));
 		this.spring.register(CsrfTokenRepositoryConfig.class, BasicController.class).autowire();
 		// @formatter:off
 		MockHttpServletRequestBuilder loginRequest = post("/login")
@@ -328,7 +344,7 @@ public class CsrfConfigurerTests {
 		CsrfTokenRepositoryInLambdaConfig.REPO = mock(CsrfTokenRepository.class);
 		given(CsrfTokenRepositoryInLambdaConfig.REPO.loadDeferredToken(any(HttpServletRequest.class),
 				any(HttpServletResponse.class)))
-						.willReturn(new TestDeferredCsrfToken(new DefaultCsrfToken("X-CSRF-TOKEN", "_csrf", "token")));
+			.willReturn(new TestDeferredCsrfToken(new DefaultCsrfToken("X-CSRF-TOKEN", "_csrf", "token")));
 		this.spring.register(CsrfTokenRepositoryInLambdaConfig.class, BasicController.class).autowire();
 		this.mvc.perform(get("/")).andExpect(status().isOk());
 		verify(CsrfTokenRepositoryInLambdaConfig.REPO).loadDeferredToken(any(HttpServletRequest.class),
@@ -398,8 +414,8 @@ public class CsrfConfigurerTests {
 	@Test
 	public void configureWhenRequireCsrfProtectionMatcherNullThenException() {
 		assertThatExceptionOfType(BeanCreationException.class)
-				.isThrownBy(() -> this.spring.register(NullRequireCsrfProtectionMatcherConfig.class).autowire())
-				.withRootCauseInstanceOf(IllegalArgumentException.class);
+			.isThrownBy(() -> this.spring.register(NullRequireCsrfProtectionMatcherConfig.class).autowire())
+			.withRootCauseInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
@@ -412,8 +428,8 @@ public class CsrfConfigurerTests {
 	@Test
 	public void getWhenNullAuthenticationStrategyThenException() {
 		assertThatExceptionOfType(BeanCreationException.class)
-				.isThrownBy(() -> this.spring.register(NullAuthenticationStrategy.class).autowire())
-				.withRootCauseInstanceOf(IllegalArgumentException.class);
+			.isThrownBy(() -> this.spring.register(NullAuthenticationStrategy.class).autowire())
+			.withRootCauseInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
@@ -436,12 +452,13 @@ public class CsrfConfigurerTests {
 		CsrfTokenRepository csrfTokenRepository = mock(CsrfTokenRepository.class);
 		CsrfToken csrfToken = new DefaultCsrfToken("X-CSRF-TOKEN", "_csrf", "token");
 		given(csrfTokenRepository.loadDeferredToken(any(HttpServletRequest.class), any(HttpServletResponse.class)))
-				.willReturn(new TestDeferredCsrfToken(csrfToken));
+			.willReturn(new TestDeferredCsrfToken(csrfToken));
 		CsrfTokenRequestHandlerConfig.REPO = csrfTokenRepository;
 		CsrfTokenRequestHandlerConfig.HANDLER = new CsrfTokenRequestAttributeHandler();
 		this.spring.register(CsrfTokenRequestHandlerConfig.class, BasicController.class).autowire();
-		this.mvc.perform(get("/login")).andExpect(status().isOk())
-				.andExpect(content().string(containsString(csrfToken.getToken())));
+		this.mvc.perform(get("/login"))
+			.andExpect(status().isOk())
+			.andExpect(content().string(containsString(csrfToken.getToken())));
 		verify(csrfTokenRepository).loadDeferredToken(any(HttpServletRequest.class), any(HttpServletResponse.class));
 		verifyNoMoreInteractions(csrfTokenRepository);
 	}
@@ -452,7 +469,7 @@ public class CsrfConfigurerTests {
 		CsrfTokenRepository csrfTokenRepository = mock(CsrfTokenRepository.class);
 		given(csrfTokenRepository.loadToken(any(HttpServletRequest.class))).willReturn(csrfToken);
 		given(csrfTokenRepository.loadDeferredToken(any(HttpServletRequest.class), any(HttpServletResponse.class)))
-				.willReturn(new TestDeferredCsrfToken(csrfToken));
+			.willReturn(new TestDeferredCsrfToken(csrfToken));
 		CsrfTokenRequestHandlerConfig.REPO = csrfTokenRepository;
 		CsrfTokenRequestHandlerConfig.HANDLER = new CsrfTokenRequestAttributeHandler();
 		this.spring.register(CsrfTokenRequestHandlerConfig.class, BasicController.class).autowire();
@@ -476,12 +493,13 @@ public class CsrfConfigurerTests {
 		CsrfTokenRepository csrfTokenRepository = mock(CsrfTokenRepository.class);
 		CsrfToken csrfToken = new DefaultCsrfToken("X-CSRF-TOKEN", "_csrf", "token");
 		given(csrfTokenRepository.loadDeferredToken(any(HttpServletRequest.class), any(HttpServletResponse.class)))
-				.willReturn(new TestDeferredCsrfToken(csrfToken));
+			.willReturn(new TestDeferredCsrfToken(csrfToken));
 		CsrfTokenRequestHandlerConfig.REPO = csrfTokenRepository;
 		CsrfTokenRequestHandlerConfig.HANDLER = new XorCsrfTokenRequestAttributeHandler();
 		this.spring.register(CsrfTokenRequestHandlerConfig.class, BasicController.class).autowire();
-		this.mvc.perform(get("/login")).andExpect(status().isOk())
-				.andExpect(content().string(not(containsString(csrfToken.getToken()))));
+		this.mvc.perform(get("/login"))
+			.andExpect(status().isOk())
+			.andExpect(content().string(not(containsString(csrfToken.getToken()))));
 		verify(csrfTokenRepository).loadDeferredToken(any(HttpServletRequest.class), any(HttpServletResponse.class));
 		verifyNoMoreInteractions(csrfTokenRepository);
 	}
@@ -492,7 +510,7 @@ public class CsrfConfigurerTests {
 		CsrfTokenRepository csrfTokenRepository = mock(CsrfTokenRepository.class);
 		given(csrfTokenRepository.loadToken(any(HttpServletRequest.class))).willReturn(csrfToken);
 		given(csrfTokenRepository.loadDeferredToken(any(HttpServletRequest.class), any(HttpServletResponse.class)))
-				.willReturn(new TestDeferredCsrfToken(csrfToken));
+			.willReturn(new TestDeferredCsrfToken(csrfToken));
 		CsrfTokenRequestHandlerConfig.REPO = csrfTokenRepository;
 		CsrfTokenRequestHandlerConfig.HANDLER = new XorCsrfTokenRequestAttributeHandler();
 		this.spring.register(CsrfTokenRequestHandlerConfig.class, BasicController.class).autowire();

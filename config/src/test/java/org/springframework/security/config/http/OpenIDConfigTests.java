@@ -106,7 +106,7 @@ public class OpenIDConfigTests {
 	@Test
 	public void configureWhenOpenIDAndFormLoginBothConfigureLoginPagesThenWiringException() {
 		assertThatExceptionOfType(BeanDefinitionParsingException.class)
-				.isThrownBy(() -> this.spring.configLocations(this.xml("WithFormLoginAndOpenIDLoginPages")).autowire());
+			.isThrownBy(() -> this.spring.configLocations(this.xml("WithFormLoginAndOpenIDLoginPages")).autowire());
 	}
 
 	@Test
@@ -119,10 +119,13 @@ public class OpenIDConfigTests {
 		openIDFilter.setReturnToUrlParameters(returnToUrlParameters);
 		OpenIDConsumer consumer = mock(OpenIDConsumer.class);
 		given(consumer.beginConsumption(any(HttpServletRequest.class), anyString(), anyString(), anyString()))
-				.will((invocation) -> openIdEndpointUrl + invocation.getArgument(2));
+			.will((invocation) -> openIdEndpointUrl + invocation.getArgument(2));
 		openIDFilter.setConsumer(consumer);
 		String expectedReturnTo = new StringBuilder("http://localhost/login/openid").append("?")
-				.append(AbstractRememberMeServices.DEFAULT_PARAMETER).append("=").append("on").toString();
+			.append(AbstractRememberMeServices.DEFAULT_PARAMETER)
+			.append("=")
+			.append("on")
+			.toString();
 		// @formatter:off
 		this.mvc.perform(get("/"))
 				.andExpect(status().isFound())
@@ -150,15 +153,17 @@ public class OpenIDConfigTests {
 			String endpoint = server.url("/").toString();
 			server.enqueue(new MockResponse().addHeader(YadisResolver.YADIS_XRDS_LOCATION, endpoint));
 			server.enqueue(new MockResponse()
-					.setBody(String.format("<XRDS><XRD><Service><URI>%s</URI></Service></XRD></XRDS>", endpoint)));
-			this.mvc.perform(
-					get("/login/openid").param(OpenIDAuthenticationFilter.DEFAULT_CLAIMED_IDENTITY_FIELD, endpoint))
-					.andExpect(status().isFound())
-					.andExpect((result) -> result.getResponse().getRedirectedUrl().endsWith(
-							"openid.ext1.type.nickname=http%3A%2F%2Fschema.openid.net%2FnamePerson%2Ffriendly&"
-									+ "openid.ext1.if_available=nickname&"
-									+ "openid.ext1.type.email=http%3A%2F%2Fschema.openid.net%2Fcontact%2Femail&"
-									+ "openid.ext1.required=email&" + "openid.ext1.count.email=2"));
+				.setBody(String.format("<XRDS><XRD><Service><URI>%s</URI></Service></XRD></XRDS>", endpoint)));
+			this.mvc
+				.perform(
+						get("/login/openid").param(OpenIDAuthenticationFilter.DEFAULT_CLAIMED_IDENTITY_FIELD, endpoint))
+				.andExpect(status().isFound())
+				.andExpect((result) -> result.getResponse()
+					.getRedirectedUrl()
+					.endsWith("openid.ext1.type.nickname=http%3A%2F%2Fschema.openid.net%2FnamePerson%2Ffriendly&"
+							+ "openid.ext1.if_available=nickname&"
+							+ "openid.ext1.type.email=http%3A%2F%2Fschema.openid.net%2Fcontact%2Femail&"
+							+ "openid.ext1.required=email&" + "openid.ext1.count.email=2"));
 		}
 	}
 

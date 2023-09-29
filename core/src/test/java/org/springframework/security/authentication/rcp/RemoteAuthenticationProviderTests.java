@@ -64,7 +64,7 @@ public class RemoteAuthenticationProviderTests {
 		RemoteAuthenticationProvider provider = new RemoteAuthenticationProvider();
 		provider.setRemoteAuthenticationManager(new MockRemoteAuthenticationManager(true));
 		Authentication result = provider
-				.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("rod", "password"));
+			.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("rod", "password"));
 		assertThat(result.getPrincipal()).isEqualTo("rod");
 		assertThat(result.getCredentials()).isEqualTo("password");
 		assertThat(AuthorityUtils.authorityListToSet(result.getAuthorities())).contains("foo");
@@ -74,8 +74,8 @@ public class RemoteAuthenticationProviderTests {
 	public void testNullCredentialsDoesNotCauseNullPointerException() {
 		RemoteAuthenticationProvider provider = new RemoteAuthenticationProvider();
 		provider.setRemoteAuthenticationManager(new MockRemoteAuthenticationManager(false));
-		assertThatExceptionOfType(RemoteAuthenticationException.class).isThrownBy(
-				() -> provider.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("rod", null)));
+		assertThatExceptionOfType(RemoteAuthenticationException.class)
+			.isThrownBy(() -> provider.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("rod", null)));
 	}
 
 	@Test

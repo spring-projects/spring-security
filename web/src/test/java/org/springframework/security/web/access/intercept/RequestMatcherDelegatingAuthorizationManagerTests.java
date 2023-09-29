@@ -43,32 +43,35 @@ public class RequestMatcherDelegatingAuthorizationManagerTests {
 	@Test
 	public void buildWhenMappingsEmptyThenException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> RequestMatcherDelegatingAuthorizationManager.builder().build())
-				.withMessage("mappings cannot be empty");
+			.isThrownBy(() -> RequestMatcherDelegatingAuthorizationManager.builder().build())
+			.withMessage("mappings cannot be empty");
 	}
 
 	@Test
 	public void addWhenMatcherNullThenException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> RequestMatcherDelegatingAuthorizationManager.builder()
-						.add(null, (a, o) -> new AuthorizationDecision(true)).build())
-				.withMessage("matcher cannot be null");
+			.isThrownBy(() -> RequestMatcherDelegatingAuthorizationManager.builder()
+				.add(null, (a, o) -> new AuthorizationDecision(true))
+				.build())
+			.withMessage("matcher cannot be null");
 	}
 
 	@Test
 	public void addWhenManagerNullThenException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> RequestMatcherDelegatingAuthorizationManager.builder()
-						.add(new MvcRequestMatcher(null, "/grant"), null).build())
-				.withMessage("manager cannot be null");
+			.isThrownBy(() -> RequestMatcherDelegatingAuthorizationManager.builder()
+				.add(new MvcRequestMatcher(null, "/grant"), null)
+				.build())
+			.withMessage("manager cannot be null");
 	}
 
 	@Test
 	public void checkWhenMultipleMappingsConfiguredThenDelegatesMatchingManager() {
 		RequestMatcherDelegatingAuthorizationManager manager = RequestMatcherDelegatingAuthorizationManager.builder()
-				.add(new MvcRequestMatcher(null, "/grant"), (a, o) -> new AuthorizationDecision(true))
-				.add(new MvcRequestMatcher(null, "/deny"), (a, o) -> new AuthorizationDecision(false))
-				.add(new MvcRequestMatcher(null, "/neutral"), (a, o) -> null).build();
+			.add(new MvcRequestMatcher(null, "/grant"), (a, o) -> new AuthorizationDecision(true))
+			.add(new MvcRequestMatcher(null, "/deny"), (a, o) -> new AuthorizationDecision(false))
+			.add(new MvcRequestMatcher(null, "/neutral"), (a, o) -> null)
+			.build();
 
 		Supplier<Authentication> authentication = () -> new TestingAuthenticationToken("user", "password", "ROLE_USER");
 
@@ -90,14 +93,15 @@ public class RequestMatcherDelegatingAuthorizationManagerTests {
 	@Test
 	public void checkWhenMultipleMappingsConfiguredWithConsumerThenDelegatesMatchingManager() {
 		RequestMatcherDelegatingAuthorizationManager manager = RequestMatcherDelegatingAuthorizationManager.builder()
-				.mappings((m) -> {
-					m.add(new RequestMatcherEntry<>(new MvcRequestMatcher(null, "/grant"),
-							(a, o) -> new AuthorizationDecision(true)));
-					m.add(new RequestMatcherEntry<>(AnyRequestMatcher.INSTANCE,
-							AuthorityAuthorizationManager.hasRole("ADMIN")));
-					m.add(new RequestMatcherEntry<>(new MvcRequestMatcher(null, "/afterAny"),
-							(a, o) -> new AuthorizationDecision(true)));
-				}).build();
+			.mappings((m) -> {
+				m.add(new RequestMatcherEntry<>(new MvcRequestMatcher(null, "/grant"),
+						(a, o) -> new AuthorizationDecision(true)));
+				m.add(new RequestMatcherEntry<>(AnyRequestMatcher.INSTANCE,
+						AuthorityAuthorizationManager.hasRole("ADMIN")));
+				m.add(new RequestMatcherEntry<>(new MvcRequestMatcher(null, "/afterAny"),
+						(a, o) -> new AuthorizationDecision(true)));
+			})
+			.build();
 
 		Supplier<Authentication> authentication = () -> new TestingAuthenticationToken("user", "password", "ROLE_USER");
 
@@ -118,8 +122,8 @@ public class RequestMatcherDelegatingAuthorizationManagerTests {
 	@Test
 	public void addWhenMappingsConsumerNullThenException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> RequestMatcherDelegatingAuthorizationManager.builder().mappings(null).build())
-				.withMessage("mappingsConsumer cannot be null");
+			.isThrownBy(() -> RequestMatcherDelegatingAuthorizationManager.builder().mappings(null).build())
+			.withMessage("mappingsConsumer cannot be null");
 	}
 
 }

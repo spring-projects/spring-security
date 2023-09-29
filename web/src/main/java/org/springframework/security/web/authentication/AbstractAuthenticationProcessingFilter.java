@@ -116,7 +116,7 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 		implements ApplicationEventPublisherAware, MessageSourceAware {
 
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
-			.getContextHolderStrategy();
+		.getContextHolderStrategy();
 
 	protected ApplicationEventPublisher eventPublisher;
 
@@ -268,7 +268,7 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 		}
 		if (this.logger.isTraceEnabled()) {
 			this.logger
-					.trace(LogMessage.format("Did not match request to %s", this.requiresAuthenticationRequestMatcher));
+				.trace(LogMessage.format("Did not match request to %s", this.requiresAuthenticationRequestMatcher));
 		}
 		return false;
 	}

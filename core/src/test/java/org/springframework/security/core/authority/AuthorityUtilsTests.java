@@ -33,7 +33,7 @@ public class AuthorityUtilsTests {
 	@Test
 	public void commaSeparatedStringIsParsedCorrectly() {
 		List<GrantedAuthority> authorityArray = AuthorityUtils
-				.commaSeparatedStringToAuthorityList(" ROLE_A, B, C, ROLE_D\n,\n E ");
+			.commaSeparatedStringToAuthorityList(" ROLE_A, B, C, ROLE_D\n,\n E ");
 		Set<String> authorities = AuthorityUtils.authorityListToSet(authorityArray);
 		assertThat(authorities.contains("B")).isTrue();
 		assertThat(authorities.contains("C")).isTrue();

@@ -118,8 +118,8 @@ public final class ReactiveOidcIdTokenDecoderFactory implements ReactiveJwtDecod
 
 	private static Converter<Object, ?> getConverter(TypeDescriptor targetDescriptor) {
 		final TypeDescriptor sourceDescriptor = TypeDescriptor.valueOf(Object.class);
-		return (source) -> ClaimConversionService.getSharedInstance().convert(source, sourceDescriptor,
-				targetDescriptor);
+		return (source) -> ClaimConversionService.getSharedInstance()
+			.convert(source, sourceDescriptor, targetDescriptor);
 	}
 
 	@Override
@@ -129,7 +129,7 @@ public final class ReactiveOidcIdTokenDecoderFactory implements ReactiveJwtDecod
 			NimbusReactiveJwtDecoder jwtDecoder = buildDecoder(clientRegistration);
 			jwtDecoder.setJwtValidator(this.jwtValidatorFactory.apply(clientRegistration));
 			Converter<Map<String, Object>, Map<String, Object>> claimTypeConverter = this.claimTypeConverterFactory
-					.apply(clientRegistration);
+				.apply(clientRegistration);
 			if (claimTypeConverter != null) {
 				jwtDecoder.setClaimSetConverter(claimTypeConverter);
 			}
@@ -163,8 +163,9 @@ public final class ReactiveOidcIdTokenDecoderFactory implements ReactiveJwtDecod
 						null);
 				throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
 			}
-			return NimbusReactiveJwtDecoder.withJwkSetUri(jwkSetUri).jwsAlgorithm((SignatureAlgorithm) jwsAlgorithm)
-					.build();
+			return NimbusReactiveJwtDecoder.withJwkSetUri(jwkSetUri)
+				.jwsAlgorithm((SignatureAlgorithm) jwsAlgorithm)
+				.build();
 		}
 		if (jwsAlgorithm != null && MacAlgorithm.class.isAssignableFrom(jwsAlgorithm.getClass())) {
 			// https://openid.net/specs/openid-connect-core-1_0.html#IDTokenValidation
@@ -189,8 +190,9 @@ public final class ReactiveOidcIdTokenDecoderFactory implements ReactiveJwtDecod
 			}
 			SecretKeySpec secretKeySpec = new SecretKeySpec(clientSecret.getBytes(StandardCharsets.UTF_8),
 					JCA_ALGORITHM_MAPPINGS.get(jwsAlgorithm));
-			return NimbusReactiveJwtDecoder.withSecretKey(secretKeySpec).macAlgorithm((MacAlgorithm) jwsAlgorithm)
-					.build();
+			return NimbusReactiveJwtDecoder.withSecretKey(secretKeySpec)
+				.macAlgorithm((MacAlgorithm) jwsAlgorithm)
+				.build();
 		}
 		OAuth2Error oauth2Error = new OAuth2Error(MISSING_SIGNATURE_VERIFIER_ERROR_CODE,
 				"Failed to find a Signature Verifier for Client Registration: '"

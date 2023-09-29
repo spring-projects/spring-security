@@ -63,7 +63,7 @@ public class LdapUserDetailsManagerModifyPasswordTests {
 	@WithMockUser(username = "bob", password = "bobspassword", authorities = "ROLE_USER")
 	public void changePasswordWhenOldPasswordIsIncorrectThenThrowsException() {
 		assertThatExceptionOfType(BadCredentialsException.class)
-				.isThrownBy(() -> this.userDetailsManager.changePassword("wrongoldpassword", "bobsnewpassword"));
+			.isThrownBy(() -> this.userDetailsManager.changePassword("wrongoldpassword", "bobsnewpassword"));
 	}
 
 	@Test
@@ -76,7 +76,7 @@ public class LdapUserDetailsManagerModifyPasswordTests {
 
 		assertThat(template.compare("uid=bob,ou=people", "userPassword",
 				"bobsshinynewandformidablylongandnearlyimpossibletorememberthoughdemonstrablyhardtocrackduetoitshighlevelofentropypasswordofjustice"))
-						.isTrue();
+			.isTrue();
 	}
 
 	@Configuration

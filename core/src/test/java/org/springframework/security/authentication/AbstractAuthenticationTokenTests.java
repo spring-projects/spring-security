@@ -53,7 +53,7 @@ public class AbstractAuthenticationTokenTests {
 		List<GrantedAuthority> gotAuthorities = (List<GrantedAuthority>) token.getAuthorities();
 		assertThat(gotAuthorities).isNotSameAs(this.authorities);
 		assertThatExceptionOfType(UnsupportedOperationException.class)
-				.isThrownBy(() -> gotAuthorities.set(0, new SimpleGrantedAuthority("ROLE_SUPER_USER")));
+			.isThrownBy(() -> gotAuthorities.set(0, new SimpleGrantedAuthority("ROLE_SUPER_USER")));
 	}
 
 	@Test

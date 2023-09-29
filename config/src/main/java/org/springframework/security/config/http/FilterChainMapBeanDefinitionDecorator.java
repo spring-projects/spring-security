@@ -53,13 +53,14 @@ public class FilterChainMapBeanDefinitionDecorator implements BeanDefinitionDeco
 			String path = chain.getAttribute(HttpSecurityBeanDefinitionParser.ATT_PATH_PATTERN);
 			String filters = chain.getAttribute(HttpSecurityBeanDefinitionParser.ATT_FILTERS);
 			if (!StringUtils.hasText(path)) {
-				parserContext.getReaderContext().error(
-						"The attribute '" + HttpSecurityBeanDefinitionParser.ATT_PATH_PATTERN + "' must not be empty",
-						elt);
+				parserContext.getReaderContext()
+					.error("The attribute '" + HttpSecurityBeanDefinitionParser.ATT_PATH_PATTERN
+							+ "' must not be empty", elt);
 			}
 			if (!StringUtils.hasText(filters)) {
-				parserContext.getReaderContext().error(
-						"The attribute '" + HttpSecurityBeanDefinitionParser.ATT_FILTERS + "'must not be empty", elt);
+				parserContext.getReaderContext()
+					.error("The attribute '" + HttpSecurityBeanDefinitionParser.ATT_FILTERS + "'must not be empty",
+							elt);
 			}
 			BeanDefinition matcher = matcherType.createMatcher(parserContext, path, null);
 			if (filters.equals(HttpSecurityBeanDefinitionParser.OPT_FILTERS_NONE)) {

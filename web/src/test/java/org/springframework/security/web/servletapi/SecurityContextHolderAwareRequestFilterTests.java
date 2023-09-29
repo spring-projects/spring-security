@@ -136,7 +136,7 @@ public class SecurityContextHolderAwareRequestFilterTests {
 	@Test
 	public void authenticateTrue() throws Exception {
 		SecurityContextHolder.getContext()
-				.setAuthentication(new TestingAuthenticationToken("test", "password", "ROLE_USER"));
+			.setAuthentication(new TestingAuthenticationToken("test", "password", "ROLE_USER"));
 		assertThat(wrappedRequest().authenticate(this.response)).isTrue();
 		verifyNoMoreInteractions(this.authenticationEntryPoint, this.authenticationManager, this.logoutHandler);
 		verify(this.request, times(0)).authenticate(any(HttpServletResponse.class));
@@ -165,7 +165,7 @@ public class SecurityContextHolderAwareRequestFilterTests {
 	public void login() throws Exception {
 		TestingAuthenticationToken expectedAuth = new TestingAuthenticationToken("user", "password", "ROLE_USER");
 		given(this.authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
-				.willReturn(expectedAuth);
+			.willReturn(expectedAuth);
 		wrappedRequest().login(expectedAuth.getName(), String.valueOf(expectedAuth.getCredentials()));
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(expectedAuth);
 		verifyNoMoreInteractions(this.authenticationEntryPoint, this.logoutHandler);
@@ -188,9 +188,10 @@ public class SecurityContextHolderAwareRequestFilterTests {
 	public void loginFail() throws Exception {
 		AuthenticationException authException = new BadCredentialsException("Invalid");
 		given(this.authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
-				.willThrow(authException);
+			.willThrow(authException);
 		assertThatExceptionOfType(ServletException.class)
-				.isThrownBy(() -> wrappedRequest().login("invalid", "credentials")).withCause(authException);
+			.isThrownBy(() -> wrappedRequest().login("invalid", "credentials"))
+			.withCause(authException);
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
 		verifyNoMoreInteractions(this.authenticationEntryPoint, this.logoutHandler);
 		verify(this.request, times(0)).login(anyString(), anyString());
@@ -216,7 +217,7 @@ public class SecurityContextHolderAwareRequestFilterTests {
 		ServletException authException = new ServletException("Failed Login");
 		willThrow(authException).given(this.request).login(username, password);
 		assertThatExceptionOfType(ServletException.class).isThrownBy(() -> wrappedRequest().login(username, password))
-				.isEqualTo(authException);
+			.isEqualTo(authException);
 		verifyNoMoreInteractions(this.authenticationEntryPoint, this.authenticationManager, this.logoutHandler);
 	}
 
@@ -230,7 +231,7 @@ public class SecurityContextHolderAwareRequestFilterTests {
 		wrappedRequest().login("username", "password");
 
 		ArgumentCaptor<UsernamePasswordAuthenticationToken> authenticationCaptor = ArgumentCaptor
-				.forClass(UsernamePasswordAuthenticationToken.class);
+			.forClass(UsernamePasswordAuthenticationToken.class);
 		verify(this.authenticationManager).authenticate(authenticationCaptor.capture());
 
 		UsernamePasswordAuthenticationToken authenticationRequest = authenticationCaptor.getValue();
@@ -282,7 +283,7 @@ public class SecurityContextHolderAwareRequestFilterTests {
 		verifyNoMoreInteractions(this.authenticationManager, this.logoutHandler);
 		verify(asyncContext).start(runnableCaptor.capture());
 		DelegatingSecurityContextRunnable wrappedRunnable = (DelegatingSecurityContextRunnable) runnableCaptor
-				.getValue();
+			.getValue();
 		assertThat(ReflectionTestUtils.getField(wrappedRunnable, "delegateSecurityContext")).isEqualTo(context);
 		assertThat(ReflectionTestUtils.getField(wrappedRunnable, "delegate"));
 	}
@@ -302,7 +303,7 @@ public class SecurityContextHolderAwareRequestFilterTests {
 		verifyNoMoreInteractions(this.authenticationManager, this.logoutHandler);
 		verify(asyncContext).start(runnableCaptor.capture());
 		DelegatingSecurityContextRunnable wrappedRunnable = (DelegatingSecurityContextRunnable) runnableCaptor
-				.getValue();
+			.getValue();
 		assertThat(ReflectionTestUtils.getField(wrappedRunnable, "delegateSecurityContext")).isEqualTo(context);
 		assertThat(ReflectionTestUtils.getField(wrappedRunnable, "delegate"));
 	}
@@ -322,7 +323,7 @@ public class SecurityContextHolderAwareRequestFilterTests {
 		verifyNoMoreInteractions(this.authenticationManager, this.logoutHandler);
 		verify(asyncContext).start(runnableCaptor.capture());
 		DelegatingSecurityContextRunnable wrappedRunnable = (DelegatingSecurityContextRunnable) runnableCaptor
-				.getValue();
+			.getValue();
 		assertThat(ReflectionTestUtils.getField(wrappedRunnable, "delegateSecurityContext")).isEqualTo(context);
 		assertThat(ReflectionTestUtils.getField(wrappedRunnable, "delegate"));
 	}
@@ -331,7 +332,7 @@ public class SecurityContextHolderAwareRequestFilterTests {
 	@Test
 	public void updateRequestFactory() throws Exception {
 		SecurityContextHolder.getContext()
-				.setAuthentication(new TestingAuthenticationToken("user", "password", "PREFIX_USER"));
+			.setAuthentication(new TestingAuthenticationToken("user", "password", "PREFIX_USER"));
 		this.filter.setRolePrefix("PREFIX_");
 		assertThat(wrappedRequest().isUserInRole("PREFIX_USER")).isTrue();
 	}

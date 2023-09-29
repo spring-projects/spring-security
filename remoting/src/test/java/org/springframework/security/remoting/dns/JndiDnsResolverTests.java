@@ -64,9 +64,9 @@ public class JndiDnsResolverTests {
 	@Test
 	public void testResolveIpAddressNotExisting() throws Exception {
 		given(this.context.getAttributes(any(String.class), any(String[].class)))
-				.willThrow(new NameNotFoundException("not found"));
+			.willThrow(new NameNotFoundException("not found"));
 		assertThatExceptionOfType(DnsEntryNotFoundException.class)
-				.isThrownBy(() -> this.dnsResolver.resolveIpAddress("notexisting.ansdansdugiuzgguzgioansdiandwq.foo"));
+			.isThrownBy(() -> this.dnsResolver.resolveIpAddress("notexisting.ansdansdugiuzgguzgioansdiandwq.foo"));
 	}
 
 	@Test
@@ -80,9 +80,9 @@ public class JndiDnsResolverTests {
 	@Test
 	public void testResolveServiceEntryNotExisting() throws Exception {
 		given(this.context.getAttributes(any(String.class), any(String[].class)))
-				.willThrow(new NameNotFoundException("not found"));
+			.willThrow(new NameNotFoundException("not found"));
 		assertThatExceptionOfType(DnsEntryNotFoundException.class)
-				.isThrownBy(() -> this.dnsResolver.resolveServiceEntry("wrong", "secpod.de"));
+			.isThrownBy(() -> this.dnsResolver.resolveServiceEntry("wrong", "secpod.de"));
 	}
 
 	@Test
@@ -108,7 +108,7 @@ public class JndiDnsResolverTests {
 	@Test
 	public void testUnknowError() throws Exception {
 		given(this.context.getAttributes(any(String.class), any(String[].class)))
-				.willThrow(new NamingException("error"));
+			.willThrow(new NamingException("error"));
 		assertThatExceptionOfType(DnsLookupException.class).isThrownBy(() -> this.dnsResolver.resolveIpAddress(""));
 	}
 

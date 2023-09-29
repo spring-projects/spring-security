@@ -67,8 +67,8 @@ public class PasswordReactiveOAuth2AuthorizedClientProviderTests {
 	@Test
 	public void setAccessTokenResponseClientWhenClientIsNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> this.authorizedClientProvider.setAccessTokenResponseClient(null))
-				.withMessage("accessTokenResponseClient cannot be null");
+			.isThrownBy(() -> this.authorizedClientProvider.setAccessTokenResponseClient(null))
+			.withMessage("accessTokenResponseClient cannot be null");
 	}
 
 	@Test
@@ -233,7 +233,7 @@ public class PasswordReactiveOAuth2AuthorizedClientProviderTests {
 				.build();
 		// @formatter:on
 		OAuth2AuthorizedClient reauthorizedClient = this.authorizedClientProvider.authorize(authorizationContext)
-				.block();
+			.block();
 		assertThat(reauthorizedClient.getClientRegistration()).isSameAs(this.clientRegistration);
 		assertThat(reauthorizedClient.getPrincipalName()).isEqualTo(this.principal.getName());
 		assertThat(reauthorizedClient.getAccessToken()).isEqualTo(accessTokenResponse.getAccessToken());

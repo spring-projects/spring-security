@@ -120,10 +120,11 @@ class OpenSamlMetadataAssertingPartyDetailsConverter {
 					"Metadata response is missing verification certificates, necessary for verifying SAML assertions");
 		}
 		RelyingPartyRegistration.AssertingPartyDetails.Builder party = OpenSamlAssertingPartyDetails
-				.withEntityDescriptor(descriptor).entityId(descriptor.getEntityID())
-				.wantAuthnRequestsSigned(Boolean.TRUE.equals(idpssoDescriptor.getWantAuthnRequestsSigned()))
-				.verificationX509Credentials((c) -> c.addAll(verification))
-				.encryptionX509Credentials((c) -> c.addAll(encryption));
+			.withEntityDescriptor(descriptor)
+			.entityId(descriptor.getEntityID())
+			.wantAuthnRequestsSigned(Boolean.TRUE.equals(idpssoDescriptor.getWantAuthnRequestsSigned()))
+			.verificationX509Credentials((c) -> c.addAll(verification))
+			.encryptionX509Credentials((c) -> c.addAll(encryption));
 		List<SigningMethod> signingMethods = signingMethods(idpssoDescriptor);
 		for (SigningMethod method : signingMethods) {
 			party.signingAlgorithms((algorithms) -> algorithms.add(method.getAlgorithm()));
@@ -160,7 +161,8 @@ class OpenSamlMetadataAssertingPartyDetailsConverter {
 			String responseLocation = (singleLogoutService.getResponseLocation() == null)
 					? singleLogoutService.getLocation() : singleLogoutService.getResponseLocation();
 			party.singleLogoutServiceLocation(singleLogoutService.getLocation())
-					.singleLogoutServiceResponseLocation(responseLocation).singleLogoutServiceBinding(binding);
+				.singleLogoutServiceResponseLocation(responseLocation)
+				.singleLogoutServiceBinding(binding);
 			break;
 		}
 		return party;

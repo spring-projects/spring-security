@@ -46,7 +46,7 @@ public class SEC936ApplicationContextTests {
 	@Test
 	public void securityInterceptorHandlesCallWithNoTargetObject() {
 		SecurityContextHolder.getContext()
-				.setAuthentication(UsernamePasswordAuthenticationToken.unauthenticated("bob", "bobspassword"));
+			.setAuthentication(UsernamePasswordAuthenticationToken.unauthenticated("bob", "bobspassword"));
 		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(this.sessionRegistry::getAllPrincipals);
 	}
 

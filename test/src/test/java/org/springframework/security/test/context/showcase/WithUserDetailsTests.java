@@ -51,7 +51,7 @@ public class WithUserDetailsTests {
 	@Test
 	public void getMessageUnauthenticated() {
 		assertThatExceptionOfType(AuthenticationCredentialsNotFoundException.class)
-				.isThrownBy(() -> this.messageService.getMessage());
+			.isThrownBy(() -> this.messageService.getMessage());
 	}
 
 	@Test

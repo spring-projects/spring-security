@@ -79,7 +79,7 @@ public class InterceptMethodsBeanDefinitionDecorator implements BeanDefinitionDe
 		protected BeanDefinition createInterceptorDefinition(Node node) {
 			Element interceptMethodsElt = (Element) node;
 			BeanDefinitionBuilder interceptor = BeanDefinitionBuilder
-					.rootBeanDefinition(AuthorizationManagerBeforeMethodInterceptor.class);
+				.rootBeanDefinition(AuthorizationManagerBeforeMethodInterceptor.class);
 			interceptor.setAutowireMode(AbstractBeanDefinition.AUTOWIRE_BY_TYPE);
 			Map<Pointcut, BeanMetadataElement> managers = new ManagedMap<>();
 			List<Element> methods = DomUtils.getChildElementsByTagName(interceptMethodsElt, Elements.PROTECT);
@@ -88,7 +88,8 @@ public class InterceptMethodsBeanDefinitionDecorator implements BeanDefinitionDe
 						authorizationManager(interceptMethodsElt, protectElt));
 			}
 			return interceptor.addConstructorArgValue(Pointcut.TRUE)
-					.addConstructorArgValue(authorizationManager(managers)).getBeanDefinition();
+				.addConstructorArgValue(authorizationManager(managers))
+				.getBeanDefinition();
 		}
 
 		boolean supports(Node node) {
@@ -112,12 +113,14 @@ public class InterceptMethodsBeanDefinitionDecorator implements BeanDefinitionDe
 			}
 			String access = protectElt.getAttribute(ATT_ACCESS);
 			return BeanDefinitionBuilder.rootBeanDefinition(MethodExpressionAuthorizationManager.class)
-					.addConstructorArgValue(access).getBeanDefinition();
+				.addConstructorArgValue(access)
+				.getBeanDefinition();
 		}
 
 		private BeanMetadataElement authorizationManager(Map<Pointcut, BeanMetadataElement> managers) {
 			return BeanDefinitionBuilder.rootBeanDefinition(PointcutDelegatingAuthorizationManager.class)
-					.addConstructorArgValue(managers).getBeanDefinition();
+				.addConstructorArgValue(managers)
+				.getBeanDefinition();
 		}
 
 	}
@@ -143,7 +146,7 @@ public class InterceptMethodsBeanDefinitionDecorator implements BeanDefinitionDe
 		protected BeanDefinition createInterceptorDefinition(Node node) {
 			Element interceptMethodsElt = (Element) node;
 			BeanDefinitionBuilder interceptor = BeanDefinitionBuilder
-					.rootBeanDefinition(MethodSecurityInterceptor.class);
+				.rootBeanDefinition(MethodSecurityInterceptor.class);
 			// Default to autowiring to pick up after invocation mgr
 			interceptor.setAutowireMode(AbstractBeanDefinition.AUTOWIRE_BY_TYPE);
 			String accessManagerId = interceptMethodsElt.getAttribute(ATT_ACCESS_MGR);

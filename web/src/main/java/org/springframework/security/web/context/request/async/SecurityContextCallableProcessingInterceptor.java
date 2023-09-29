@@ -46,7 +46,7 @@ public final class SecurityContextCallableProcessingInterceptor extends Callable
 	private volatile SecurityContext securityContext;
 
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
-			.getContextHolderStrategy();
+		.getContextHolderStrategy();
 
 	/**
 	 * Create a new {@link SecurityContextCallableProcessingInterceptor} that uses the

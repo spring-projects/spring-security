@@ -46,7 +46,6 @@ import org.springframework.test.web.servlet.MockMvc;
  * </ul>
  *
  * @see WithMockUser
- *
  * @author Rob Winch
  * @since 4.0
  */

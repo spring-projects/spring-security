@@ -1522,8 +1522,9 @@ public class ServerHttpSecurity {
 		}
 		ServerWebExchangeDelegatingServerAccessDeniedHandler result = new ServerWebExchangeDelegatingServerAccessDeniedHandler(
 				this.defaultAccessDeniedHandlers);
-		result.setDefaultAccessDeniedHandler(this.defaultAccessDeniedHandlers
-				.get(this.defaultAccessDeniedHandlers.size() - 1).getAccessDeniedHandler());
+		result.setDefaultAccessDeniedHandler(
+				this.defaultAccessDeniedHandlers.get(this.defaultAccessDeniedHandlers.size() - 1)
+					.getAccessDeniedHandler());
 		return result;
 	}
 
@@ -1599,7 +1600,7 @@ public class ServerHttpSecurity {
 		private static final String REQUEST_MAPPING_HANDLER_MAPPING_BEAN_NAME = "requestMappingHandlerMapping";
 
 		private DelegatingReactiveAuthorizationManager.Builder managerBldr = DelegatingReactiveAuthorizationManager
-				.builder();
+			.builder();
 
 		private ServerWebExchangeMatcher matcher;
 
@@ -1747,7 +1748,7 @@ public class ServerHttpSecurity {
 			 */
 			public AuthorizeExchangeSpec access(ReactiveAuthorizationManager<AuthorizationContext> manager) {
 				AuthorizeExchangeSpec.this.managerBldr
-						.add(new ServerWebExchangeMatcherEntry<>(AuthorizeExchangeSpec.this.matcher, manager));
+					.add(new ServerWebExchangeMatcherEntry<>(AuthorizeExchangeSpec.this.matcher, manager));
 				AuthorizeExchangeSpec.this.matcher = null;
 				return AuthorizeExchangeSpec.this;
 			}
@@ -1933,7 +1934,7 @@ public class ServerHttpSecurity {
 				this.filter.setCsrfTokenRepository(this.csrfTokenRepository);
 				if (ServerHttpSecurity.this.logout != null) {
 					ServerHttpSecurity.this.logout
-							.addLogoutHandler(new CsrfServerLogoutHandler(this.csrfTokenRepository));
+						.addLogoutHandler(new CsrfServerLogoutHandler(this.csrfTokenRepository));
 				}
 			}
 			http.addFilterAt(this.filter, SecurityWebFiltersOrder.CSRF);
@@ -2047,9 +2048,9 @@ public class ServerHttpSecurity {
 	public final class HttpBasicSpec {
 
 		private final ServerWebExchangeMatcher xhrMatcher = (exchange) -> Mono.just(exchange.getRequest().getHeaders())
-				.filter((h) -> h.getOrEmpty("X-Requested-With").contains("XMLHttpRequest"))
-				.flatMap((h) -> ServerWebExchangeMatcher.MatchResult.match())
-				.switchIfEmpty(ServerWebExchangeMatcher.MatchResult.notMatch());
+			.filter((h) -> h.getOrEmpty("X-Requested-With").contains("XMLHttpRequest"))
+			.flatMap((h) -> ServerWebExchangeMatcher.MatchResult.match())
+			.switchIfEmpty(ServerWebExchangeMatcher.MatchResult.notMatch());
 
 		private ReactiveAuthenticationManager authenticationManager;
 
@@ -2062,7 +2063,7 @@ public class ServerHttpSecurity {
 		private HttpBasicSpec() {
 			List<DelegateEntry> entryPoints = new ArrayList<>();
 			entryPoints
-					.add(new DelegateEntry(this.xhrMatcher, new HttpStatusServerEntryPoint(HttpStatus.UNAUTHORIZED)));
+				.add(new DelegateEntry(this.xhrMatcher, new HttpStatusServerEntryPoint(HttpStatus.UNAUTHORIZED)));
 			DelegatingServerAuthenticationEntryPoint defaultEntryPoint = new DelegatingServerAuthenticationEntryPoint(
 					entryPoints);
 			defaultEntryPoint.setDefaultEntryPoint(new HttpBasicServerAuthenticationEntryPoint());
@@ -3544,7 +3545,7 @@ public class ServerHttpSecurity {
 				oauth2Manager.setAuthoritiesMapper(authoritiesMapper);
 			}
 			boolean oidcAuthenticationProviderEnabled = ClassUtils
-					.isPresent("org.springframework.security.oauth2.jwt.JwtDecoder", this.getClass().getClassLoader());
+				.isPresent("org.springframework.security.oauth2.jwt.JwtDecoder", this.getClass().getClassLoader());
 			if (!oidcAuthenticationProviderEnabled) {
 				return oauth2Manager;
 			}
@@ -3580,9 +3581,9 @@ public class ServerHttpSecurity {
 			ServerOAuth2AuthorizationCodeAuthenticationTokenConverter delegate = new ServerOAuth2AuthorizationCodeAuthenticationTokenConverter(
 					clientRegistrationRepository);
 			delegate.setAuthorizationRequestRepository(getAuthorizationRequestRepository());
-			ServerAuthenticationConverter authenticationConverter = (exchange) -> delegate.convert(exchange).onErrorMap(
-					OAuth2AuthorizationException.class,
-					(e) -> new OAuth2AuthenticationException(e.getError(), e.getError().toString()));
+			ServerAuthenticationConverter authenticationConverter = (exchange) -> delegate.convert(exchange)
+				.onErrorMap(OAuth2AuthorizationException.class,
+						(e) -> new OAuth2AuthenticationException(e.getError(), e.getError().toString()));
 			this.authenticationConverter = authenticationConverter;
 			return authenticationConverter;
 		}
@@ -3683,7 +3684,7 @@ public class ServerHttpSecurity {
 					authorizedClientRepository);
 			authenticationFilter.setRequiresAuthenticationMatcher(getAuthenticationMatcher());
 			authenticationFilter
-					.setServerAuthenticationConverter(getAuthenticationConverter(clientRegistrationRepository));
+				.setServerAuthenticationConverter(getAuthenticationConverter(clientRegistrationRepository));
 			authenticationFilter.setAuthenticationSuccessHandler(getAuthenticationSuccessHandler(http));
 			authenticationFilter.setAuthenticationFailureHandler(getAuthenticationFailureHandler());
 			authenticationFilter.setSecurityContextRepository(this.securityContextRepository);
@@ -4215,9 +4216,9 @@ public class ServerHttpSecurity {
 		private void registerDefaultAccessDeniedHandler(ServerHttpSecurity http) {
 			if (http.exceptionHandling != null) {
 				http.defaultAccessDeniedHandlers
-						.add(new ServerWebExchangeDelegatingServerAccessDeniedHandler.DelegateEntry(
-								this.authenticationConverterServerWebExchangeMatcher,
-								OAuth2ResourceServerSpec.this.accessDeniedHandler));
+					.add(new ServerWebExchangeDelegatingServerAccessDeniedHandler.DelegateEntry(
+							this.authenticationConverterServerWebExchangeMatcher,
+							OAuth2ResourceServerSpec.this.accessDeniedHandler));
 			}
 		}
 

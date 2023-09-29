@@ -103,7 +103,7 @@ public class CasAuthenticationTokenTests {
 	@Test
 	public void testNoArgConstructorDoesntExist() {
 		assertThatExceptionOfType(NoSuchMethodException.class)
-				.isThrownBy(() -> CasAuthenticationToken.class.getDeclaredConstructor((Class[]) null));
+			.isThrownBy(() -> CasAuthenticationToken.class.getDeclaredConstructor((Class[]) null));
 	}
 
 	@Test

@@ -47,16 +47,18 @@ public class WellKnownChangePasswordBeanDefinitionParserTests {
 	public void whenChangePasswordPageNotSetThenDefaultChangePasswordPageUsed() throws Exception {
 		this.spring.configLocations(xml("DefaultChangePasswordPage")).autowire();
 
-		this.mvc.perform(get("/.well-known/change-password")).andExpect(status().isFound())
-				.andExpect(redirectedUrl("/change-password"));
+		this.mvc.perform(get("/.well-known/change-password"))
+			.andExpect(status().isFound())
+			.andExpect(redirectedUrl("/change-password"));
 	}
 
 	@Test
 	public void whenChangePasswordPageSetThenSpecifiedChangePasswordPageUsed() throws Exception {
 		this.spring.configLocations(xml("CustomChangePasswordPage")).autowire();
 
-		this.mvc.perform(get("/.well-known/change-password")).andExpect(status().isFound())
-				.andExpect(redirectedUrl("/custom-change-password-page"));
+		this.mvc.perform(get("/.well-known/change-password"))
+			.andExpect(status().isFound())
+			.andExpect(redirectedUrl("/custom-change-password-page"));
 	}
 
 	private String xml(String configName) {

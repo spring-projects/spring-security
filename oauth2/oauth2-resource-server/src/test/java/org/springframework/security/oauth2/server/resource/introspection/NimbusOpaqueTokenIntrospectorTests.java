@@ -165,7 +165,7 @@ public class NimbusOpaqueTokenIntrospectorTests {
 			OpaqueTokenIntrospector introspectionClient = new NimbusOpaqueTokenIntrospector(introspectUri, CLIENT_ID,
 					"wrong");
 			assertThatExceptionOfType(OAuth2IntrospectionException.class)
-					.isThrownBy(() -> introspectionClient.introspect("token"));
+				.isThrownBy(() -> introspectionClient.introspect("token"));
 		}
 	}
 
@@ -192,7 +192,7 @@ public class NimbusOpaqueTokenIntrospectorTests {
 		OpaqueTokenIntrospector introspectionClient = new NimbusOpaqueTokenIntrospector(INTROSPECTION_URL,
 				restOperations);
 		given(restOperations.exchange(any(RequestEntity.class), eq(String.class)))
-				.willReturn(response(new JSONObject(introspectedValues).toJSONString()));
+			.willReturn(response(new JSONObject(introspectedValues).toJSONString()));
 		OAuth2AuthenticatedPrincipal authority = introspectionClient.introspect("token");
 		// @formatter:off
 		assertThat(authority.getAttributes())
@@ -211,7 +211,7 @@ public class NimbusOpaqueTokenIntrospectorTests {
 		OpaqueTokenIntrospector introspectionClient = new NimbusOpaqueTokenIntrospector(INTROSPECTION_URL,
 				restOperations);
 		given(restOperations.exchange(any(RequestEntity.class), eq(String.class)))
-				.willThrow(new IllegalStateException("server was unresponsive"));
+			.willThrow(new IllegalStateException("server was unresponsive"));
 		// @formatter:off
 		assertThatExceptionOfType(OAuth2IntrospectionException.class)
 				.isThrownBy(() -> introspectionClient.introspect("token"))
@@ -226,7 +226,7 @@ public class NimbusOpaqueTokenIntrospectorTests {
 				restOperations);
 		given(restOperations.exchange(any(RequestEntity.class), eq(String.class))).willReturn(response("malformed"));
 		assertThatExceptionOfType(OAuth2IntrospectionException.class)
-				.isThrownBy(() -> introspectionClient.introspect("token"));
+			.isThrownBy(() -> introspectionClient.introspect("token"));
 	}
 
 	@Test
@@ -236,7 +236,7 @@ public class NimbusOpaqueTokenIntrospectorTests {
 				restOperations);
 		given(restOperations.exchange(any(RequestEntity.class), eq(String.class))).willReturn(INVALID);
 		assertThatExceptionOfType(OAuth2IntrospectionException.class)
-				.isThrownBy(() -> introspectionClient.introspect("token"));
+			.isThrownBy(() -> introspectionClient.introspect("token"));
 	}
 
 	@Test
@@ -246,7 +246,7 @@ public class NimbusOpaqueTokenIntrospectorTests {
 				restOperations);
 		given(restOperations.exchange(any(RequestEntity.class), eq(String.class))).willReturn(MALFORMED_ISSUER);
 		assertThatExceptionOfType(OAuth2IntrospectionException.class)
-				.isThrownBy(() -> introspectionClient.introspect("token"));
+			.isThrownBy(() -> introspectionClient.introspect("token"));
 	}
 
 	// gh-7563
@@ -265,25 +265,25 @@ public class NimbusOpaqueTokenIntrospectorTests {
 	@Test
 	public void constructorWhenIntrospectionUriIsNullThenIllegalArgumentException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new NimbusOpaqueTokenIntrospector(null, CLIENT_ID, CLIENT_SECRET));
+			.isThrownBy(() -> new NimbusOpaqueTokenIntrospector(null, CLIENT_ID, CLIENT_SECRET));
 	}
 
 	@Test
 	public void constructorWhenClientIdIsNullThenIllegalArgumentException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new NimbusOpaqueTokenIntrospector(INTROSPECTION_URL, null, CLIENT_SECRET));
+			.isThrownBy(() -> new NimbusOpaqueTokenIntrospector(INTROSPECTION_URL, null, CLIENT_SECRET));
 	}
 
 	@Test
 	public void constructorWhenClientSecretIsNullThenIllegalArgumentException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new NimbusOpaqueTokenIntrospector(INTROSPECTION_URL, CLIENT_ID, null));
+			.isThrownBy(() -> new NimbusOpaqueTokenIntrospector(INTROSPECTION_URL, CLIENT_ID, null));
 	}
 
 	@Test
 	public void constructorWhenRestOperationsIsNullThenIllegalArgumentException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new NimbusOpaqueTokenIntrospector(INTROSPECTION_URL, null));
+			.isThrownBy(() -> new NimbusOpaqueTokenIntrospector(INTROSPECTION_URL, null));
 	}
 
 	@Test
@@ -292,7 +292,7 @@ public class NimbusOpaqueTokenIntrospectorTests {
 		NimbusOpaqueTokenIntrospector introspectionClient = new NimbusOpaqueTokenIntrospector(INTROSPECTION_URL,
 				restOperations);
 		assertThatExceptionOfType(IllegalArgumentException.class)
-				.isThrownBy(() -> introspectionClient.setRequestEntityConverter(null));
+			.isThrownBy(() -> introspectionClient.setRequestEntityConverter(null));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -324,7 +324,7 @@ public class NimbusOpaqueTokenIntrospectorTests {
 		assumeThat(stubResponse.getHeaders().getContentType()).isNull();
 
 		assertThatExceptionOfType(OAuth2IntrospectionException.class)
-				.isThrownBy(() -> introspectionClient.introspect("sometokenhere"));
+			.isThrownBy(() -> introspectionClient.introspect("sometokenhere"));
 	}
 
 	@ParameterizedTest(name = "{displayName} when Content-Type={0}")
@@ -332,14 +332,15 @@ public class NimbusOpaqueTokenIntrospectorTests {
 			MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_OCTET_STREAM_VALUE })
 	public void handleNonJsonContentType(String type) {
 		RestOperations restOperations = mock(RestOperations.class);
-		ResponseEntity<String> stubResponse = ResponseEntity.ok().contentType(MediaType.parseMediaType(type))
-				.body(ACTIVE_RESPONSE);
+		ResponseEntity<String> stubResponse = ResponseEntity.ok()
+			.contentType(MediaType.parseMediaType(type))
+			.body(ACTIVE_RESPONSE);
 		given(restOperations.exchange(any(RequestEntity.class), eq(String.class))).willReturn(stubResponse);
 		OpaqueTokenIntrospector introspectionClient = new NimbusOpaqueTokenIntrospector(INTROSPECTION_URL,
 				restOperations);
 
 		assertThatExceptionOfType(OAuth2IntrospectionException.class)
-				.isThrownBy(() -> introspectionClient.introspect("sometokenhere"));
+			.isThrownBy(() -> introspectionClient.introspect("sometokenhere"));
 	}
 
 	private static ResponseEntity<String> response(String content) {

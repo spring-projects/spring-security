@@ -45,7 +45,7 @@ class CrossOriginResourcePolicyHeaderWriterTests {
 	@Test
 	void setResourcePolicyWhenNullThenThrowsIllegalArgument() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.writer.setPolicy(null))
-				.withMessage("resourcePolicy cannot be null");
+			.withMessage("resourcePolicy cannot be null");
 	}
 
 	@Test

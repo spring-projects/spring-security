@@ -40,7 +40,7 @@ public final class OAuth2AccessTokenResponseMapConverter
 	public Map<String, String> convert(OAuth2AccessTokenResponse tokenResponse) {
 		Map<String, String> stringTokenResponseParameters = new HashMap<>();
 		this.delegate.convert(tokenResponse)
-				.forEach((key, value) -> stringTokenResponseParameters.put(key, String.valueOf(value)));
+			.forEach((key, value) -> stringTokenResponseParameters.put(key, String.valueOf(value)));
 		return stringTokenResponseParameters;
 	}
 

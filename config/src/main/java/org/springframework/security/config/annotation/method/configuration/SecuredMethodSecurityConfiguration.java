@@ -41,7 +41,7 @@ import org.springframework.security.core.context.SecurityContextHolderStrategy;
 final class SecuredMethodSecurityConfiguration {
 
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
-			.getContextHolderStrategy();
+		.getContextHolderStrategy();
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)

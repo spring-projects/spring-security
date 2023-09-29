@@ -70,7 +70,8 @@ public final class OpenSamlMetadataResolver implements Saml2MetadataResolver {
 
 	public OpenSamlMetadataResolver() {
 		this.entityDescriptorMarshaller = (EntityDescriptorMarshaller) XMLObjectProviderRegistrySupport
-				.getMarshallerFactory().getMarshaller(EntityDescriptor.DEFAULT_ELEMENT_NAME);
+			.getMarshallerFactory()
+			.getMarshaller(EntityDescriptor.DEFAULT_ELEMENT_NAME);
 		Assert.notNull(this.entityDescriptorMarshaller, "entityDescriptorMarshaller cannot be null");
 	}
 
@@ -81,7 +82,7 @@ public final class OpenSamlMetadataResolver implements Saml2MetadataResolver {
 		SPSSODescriptor spSsoDescriptor = buildSpSsoDescriptor(relyingPartyRegistration);
 		entityDescriptor.getRoleDescriptors(SPSSODescriptor.DEFAULT_ELEMENT_NAME).add(spSsoDescriptor);
 		this.entityDescriptorCustomizer
-				.accept(new EntityDescriptorParameters(entityDescriptor, relyingPartyRegistration));
+			.accept(new EntityDescriptorParameters(entityDescriptor, relyingPartyRegistration));
 		return serialize(entityDescriptor);
 	}
 
@@ -100,9 +101,9 @@ public final class OpenSamlMetadataResolver implements Saml2MetadataResolver {
 		SPSSODescriptor spSsoDescriptor = build(SPSSODescriptor.DEFAULT_ELEMENT_NAME);
 		spSsoDescriptor.addSupportedProtocol(SAMLConstants.SAML20P_NS);
 		spSsoDescriptor.getKeyDescriptors()
-				.addAll(buildKeys(registration.getSigningX509Credentials(), UsageType.SIGNING));
+			.addAll(buildKeys(registration.getSigningX509Credentials(), UsageType.SIGNING));
 		spSsoDescriptor.getKeyDescriptors()
-				.addAll(buildKeys(registration.getDecryptionX509Credentials(), UsageType.ENCRYPTION));
+			.addAll(buildKeys(registration.getDecryptionX509Credentials(), UsageType.ENCRYPTION));
 		spSsoDescriptor.getAssertionConsumerServices().add(buildAssertionConsumerService(registration));
 		if (registration.getSingleLogoutServiceLocation() != null) {
 			for (Saml2MessageBinding binding : registration.getSingleLogoutServiceBindings()) {

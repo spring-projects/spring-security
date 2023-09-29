@@ -81,7 +81,7 @@ public class DelegatingSecurityContextCallableTests {
 			@Override
 			public Object answer(InvocationOnMock invocation) throws Throwable {
 				assertThat(strategy.getContext())
-						.isEqualTo(DelegatingSecurityContextCallableTests.this.securityContext);
+					.isEqualTo(DelegatingSecurityContextCallableTests.this.securityContext);
 				return super.answer(invocation);
 			}
 		});
@@ -100,7 +100,7 @@ public class DelegatingSecurityContextCallableTests {
 	@Test
 	public void constructorNullDelegateNonNullSecurityContext() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new DelegatingSecurityContextCallable<>(null, this.securityContext));
+			.isThrownBy(() -> new DelegatingSecurityContextCallable<>(null, this.securityContext));
 	}
 
 	@Test
@@ -111,7 +111,7 @@ public class DelegatingSecurityContextCallableTests {
 	@Test
 	public void constructorNullSecurityContext() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new DelegatingSecurityContextCallable<>(this.delegate, null));
+			.isThrownBy(() -> new DelegatingSecurityContextCallable<>(this.delegate, null));
 	}
 
 	@Test
@@ -158,7 +158,7 @@ public class DelegatingSecurityContextCallableTests {
 	@Test
 	public void createNullDelegate() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> DelegatingSecurityContextCallable.create(null, this.securityContext));
+			.isThrownBy(() -> DelegatingSecurityContextCallable.create(null, this.securityContext));
 	}
 
 	@Test

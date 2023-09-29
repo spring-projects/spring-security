@@ -48,7 +48,7 @@ public class HeaderWriterLogoutHandlerTests {
 	@Test
 	public void constructorWhenHeaderWriterIsNullThenThrowsException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> new HeaderWriterLogoutHandler(null))
-				.withMessage("headerWriter cannot be null");
+			.withMessage("headerWriter cannot be null");
 	}
 
 	@Test

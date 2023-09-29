@@ -81,7 +81,7 @@ public class NamespaceHttpFormLoginTests {
 		this.spring.register(FormLoginCustomConfig.class, UserDetailsServiceConfig.class).autowire();
 		this.mvc.perform(get("/")).andExpect(redirectedUrl("http://localhost/authentication/login"));
 		this.mvc.perform(post("/authentication/login/process").with(csrf()))
-				.andExpect(redirectedUrl("/authentication/login?failed"));
+			.andExpect(redirectedUrl("/authentication/login?failed"));
 		// @formatter:off
 		MockHttpServletRequestBuilder request = post("/authentication/login/process")
 				.param("username", "user")

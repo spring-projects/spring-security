@@ -62,7 +62,7 @@ public class SecurityMockMvcRequestPostProcessorsAuthenticationTests {
 	public void setup() {
 		this.request = new MockHttpServletRequest();
 		this.webTestUtils.when(() -> WebTestUtils.getSecurityContextRepository(this.request))
-				.thenReturn(this.repository);
+			.thenReturn(this.repository);
 	}
 
 	@AfterEach

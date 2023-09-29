@@ -82,7 +82,7 @@ public class ServerAuthenticationEntryPointFailureHandlerTests {
 		AuthenticationServiceException e = new AuthenticationServiceException("fail");
 		this.handler.setRethrowAuthenticationServiceException(true);
 		assertThatExceptionOfType(AuthenticationServiceException.class)
-				.isThrownBy(() -> this.handler.onAuthenticationFailure(this.filterExchange, e).block());
+			.isThrownBy(() -> this.handler.onAuthenticationFailure(this.filterExchange, e).block());
 	}
 
 }

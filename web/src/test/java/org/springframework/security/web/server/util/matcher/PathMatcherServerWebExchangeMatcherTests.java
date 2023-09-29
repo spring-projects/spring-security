@@ -69,13 +69,13 @@ public class PathMatcherServerWebExchangeMatcherTests {
 	@Test
 	public void constructorPatternWhenPatternNullThenThrowsException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new PathPatternParserServerWebExchangeMatcher((PathPattern) null));
+			.isThrownBy(() -> new PathPatternParserServerWebExchangeMatcher((PathPattern) null));
 	}
 
 	@Test
 	public void constructorPatternAndMethodWhenPatternNullThenThrowsException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new PathPatternParserServerWebExchangeMatcher((PathPattern) null, HttpMethod.GET));
+			.isThrownBy(() -> new PathPatternParserServerWebExchangeMatcher((PathPattern) null, HttpMethod.GET));
 	}
 
 	@Test

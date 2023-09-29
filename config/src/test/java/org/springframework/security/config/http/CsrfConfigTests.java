@@ -285,7 +285,7 @@ public class CsrfConfigTests {
 	@Test
 	public void postWhenUsingCsrfAndCustomAccessDeniedHandlerThenTheHandlerIsAppropriatelyEngaged() throws Exception {
 		this.spring.configLocations(this.xml("WithAccessDeniedHandler"), this.xml("shared-access-denied-handler"))
-				.autowire();
+			.autowire();
 		// @formatter:off
 		this.mvc.perform(post("/ok"))
 				.andExpect(status().isIAmATeapot());
@@ -304,7 +304,7 @@ public class CsrfConfigTests {
 	@Test
 	public void postWhenUsingCsrfAndXorCsrfTokenRequestAttributeHandlerThenOk() throws Exception {
 		this.spring.configLocations(this.xml("WithXorCsrfTokenRequestAttributeHandler"), this.xml("shared-controllers"))
-				.autowire();
+			.autowire();
 		// @formatter:off
 		MvcResult mvcResult = this.mvc.perform(get("/ok"))
 				.andExpect(status().isOk())
@@ -320,7 +320,7 @@ public class CsrfConfigTests {
 	@Test
 	public void postWhenUsingCsrfAndXorCsrfTokenRequestAttributeHandlerWithRawTokenThenForbidden() throws Exception {
 		this.spring.configLocations(this.xml("WithXorCsrfTokenRequestAttributeHandler"), this.xml("shared-controllers"))
-				.autowire();
+			.autowire();
 		// @formatter:off
 		MvcResult mvcResult = this.mvc.perform(get("/csrf"))
 				.andExpect(status().isOk())
@@ -342,7 +342,8 @@ public class CsrfConfigTests {
 		this.spring.configLocations(this.xml("CsrfEnabled")).autowire();
 		// simulates a request that has no authentication (e.g. session time-out)
 		MvcResult result = this.mvc.perform(post("/authenticated").with(csrf()))
-				.andExpect(redirectedUrl("http://localhost/login")).andReturn();
+			.andExpect(redirectedUrl("http://localhost/login"))
+			.andReturn();
 		MockHttpSession session = (MockHttpSession) result.getRequest().getSession();
 		// if the request cache is consulted, then it will redirect back to /some-url,
 		// which we don't want
@@ -362,8 +363,9 @@ public class CsrfConfigTests {
 			throws Exception {
 		this.spring.configLocations(this.xml("CsrfEnabled")).autowire();
 		// simulates a request that has no authentication (e.g. session time-out)
-		MvcResult result = this.mvc.perform(get("/authenticated")).andExpect(redirectedUrl("http://localhost/login"))
-				.andReturn();
+		MvcResult result = this.mvc.perform(get("/authenticated"))
+			.andExpect(redirectedUrl("http://localhost/login"))
+			.andReturn();
 		MockHttpSession session = (MockHttpSession) result.getRequest().getSession();
 		// if the request cache is consulted, then it will redirect back to /some-url,
 		// which we do want
@@ -510,7 +512,7 @@ public class CsrfConfigTests {
 			assertThat(first).isNotNull();
 			assertThat(second).isNotNull();
 			assertThat(first.getResponse().getContentAsString())
-					.isNotEqualTo(second.getResponse().getContentAsString());
+				.isNotEqualTo(second.getResponse().getContentAsString());
 		};
 	}
 
@@ -537,8 +539,9 @@ public class CsrfConfigTests {
 			return csrfInBody(token);
 		}
 
-		@RequestMapping(value = "/csrf", method = { RequestMethod.POST, RequestMethod.PUT, RequestMethod.PATCH,
-				RequestMethod.DELETE, RequestMethod.GET })
+		@RequestMapping(value = "/csrf",
+				method = { RequestMethod.POST, RequestMethod.PUT, RequestMethod.PATCH, RequestMethod.DELETE,
+						RequestMethod.GET })
 		@ResponseBody
 		String csrfInBody(CsrfToken token) {
 			return token.getToken();

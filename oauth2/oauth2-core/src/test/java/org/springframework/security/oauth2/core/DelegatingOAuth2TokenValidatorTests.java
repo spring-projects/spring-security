@@ -65,9 +65,9 @@ public class DelegatingOAuth2TokenValidatorTests {
 		OAuth2TokenValidator<AbstractOAuth2Token> secondFailure = mock(OAuth2TokenValidator.class);
 		OAuth2Error otherDetail = new OAuth2Error("another-error");
 		given(firstFailure.validate(any(AbstractOAuth2Token.class)))
-				.willReturn(OAuth2TokenValidatorResult.failure(DETAIL));
+			.willReturn(OAuth2TokenValidatorResult.failure(DETAIL));
 		given(secondFailure.validate(any(AbstractOAuth2Token.class)))
-				.willReturn(OAuth2TokenValidatorResult.failure(otherDetail));
+			.willReturn(OAuth2TokenValidatorResult.failure(otherDetail));
 		DelegatingOAuth2TokenValidator<AbstractOAuth2Token> tokenValidator = new DelegatingOAuth2TokenValidator<>(
 				firstFailure, secondFailure);
 		AbstractOAuth2Token token = mock(AbstractOAuth2Token.class);

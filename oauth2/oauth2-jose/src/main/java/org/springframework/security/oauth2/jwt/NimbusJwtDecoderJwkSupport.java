@@ -58,7 +58,7 @@ public final class NimbusJwtDecoderJwkSupport implements JwtDecoder {
 	private OAuth2TokenValidator<Jwt> jwtValidator = JwtValidators.createDefault();
 
 	private Converter<Map<String, Object>, Map<String, Object>> claimSetConverter = MappedJwtClaimSetConverter
-			.withDefaults(Collections.emptyMap());
+		.withDefaults(Collections.emptyMap());
 
 	private NimbusJwtDecoder delegate;
 
@@ -80,7 +80,7 @@ public final class NimbusJwtDecoderJwkSupport implements JwtDecoder {
 		Assert.hasText(jwkSetUrl, "jwkSetUrl cannot be empty");
 		Assert.hasText(jwsAlgorithm, "jwsAlgorithm cannot be empty");
 		this.jwtDecoderBuilder = NimbusJwtDecoder.withJwkSetUri(jwkSetUrl)
-				.jwsAlgorithm(SignatureAlgorithm.from(jwsAlgorithm));
+			.jwsAlgorithm(SignatureAlgorithm.from(jwsAlgorithm));
 		this.delegate = makeDelegate();
 	}
 

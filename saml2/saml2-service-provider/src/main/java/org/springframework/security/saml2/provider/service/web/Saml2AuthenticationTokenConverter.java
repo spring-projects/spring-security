@@ -163,7 +163,7 @@ public final class Saml2AuthenticationTokenConverter implements AuthenticationCo
 
 		private static int[] genValueMapping() {
 			byte[] alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
-					.getBytes(StandardCharsets.ISO_8859_1);
+				.getBytes(StandardCharsets.ISO_8859_1);
 
 			int[] values = new int[256];
 			Arrays.fill(values, -1);
@@ -188,14 +188,14 @@ public final class Saml2AuthenticationTokenConverter implements AuthenticationCo
 
 			// in cases of an incomplete final chunk, ensure the unused bits are zero
 			switch (goodChars % 4) {
-			case 0:
-				return true;
-			case 2:
-				return (lastGoodCharVal & 0b1111) == 0;
-			case 3:
-				return (lastGoodCharVal & 0b11) == 0;
-			default:
-				return false;
+				case 0:
+					return true;
+				case 2:
+					return (lastGoodCharVal & 0b1111) == 0;
+				case 3:
+					return (lastGoodCharVal & 0b11) == 0;
+				default:
+					return false;
 			}
 		}
 

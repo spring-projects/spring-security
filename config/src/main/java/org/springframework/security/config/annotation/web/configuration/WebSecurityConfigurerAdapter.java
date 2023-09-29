@@ -230,7 +230,7 @@ public abstract class WebSecurityConfigurerAdapter implements WebSecurityConfigu
 			applyDefaultConfiguration(this.http);
 			ClassLoader classLoader = this.context.getClassLoader();
 			List<AbstractHttpConfigurer> defaultHttpConfigurers = SpringFactoriesLoader
-					.loadFactories(AbstractHttpConfigurer.class, classLoader);
+				.loadFactories(AbstractHttpConfigurer.class, classLoader);
 			for (AbstractHttpConfigurer configurer : defaultHttpConfigurers) {
 				this.http.apply(configurer);
 			}

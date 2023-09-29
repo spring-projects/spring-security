@@ -50,7 +50,7 @@ public class HttpPathParameterStrippingTests {
 		request.setSession(createAuthenticatedSession("ROLE_USER"));
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		assertThatExceptionOfType(RequestRejectedException.class)
-				.isThrownBy(() -> this.fcp.doFilter(request, response, new MockFilterChain()));
+			.isThrownBy(() -> this.fcp.doFilter(request, response, new MockFilterChain()));
 	}
 
 	@Test
@@ -60,7 +60,7 @@ public class HttpPathParameterStrippingTests {
 		request.setSession(createAuthenticatedSession("ROLE_USER"));
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		assertThatExceptionOfType(RequestRejectedException.class)
-				.isThrownBy(() -> this.fcp.doFilter(request, response, new MockFilterChain()));
+			.isThrownBy(() -> this.fcp.doFilter(request, response, new MockFilterChain()));
 	}
 
 	@Test
@@ -71,13 +71,13 @@ public class HttpPathParameterStrippingTests {
 		request.setSession(createAuthenticatedSession("ROLE_USER"));
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		assertThatExceptionOfType(RequestRejectedException.class)
-				.isThrownBy(() -> this.fcp.doFilter(request, response, new MockFilterChain()));
+			.isThrownBy(() -> this.fcp.doFilter(request, response, new MockFilterChain()));
 	}
 
 	public HttpSession createAuthenticatedSession(String... roles) {
 		MockHttpSession session = new MockHttpSession();
 		SecurityContextHolder.getContext()
-				.setAuthentication(new TestingAuthenticationToken("bob", "bobspassword", roles));
+			.setAuthentication(new TestingAuthenticationToken("bob", "bobspassword", roles));
 		session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
 				SecurityContextHolder.getContext());
 		SecurityContextHolder.clearContext();

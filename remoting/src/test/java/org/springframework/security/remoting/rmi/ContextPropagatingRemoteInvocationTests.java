@@ -62,9 +62,10 @@ public class ContextPropagatingRemoteInvocationTests {
 		// Set up the wrong arguments.
 		remoteInvocation.setArguments(new Object[] {});
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> remoteInvocation.invoke(TargetObject.class.newInstance()));
+			.isThrownBy(() -> remoteInvocation.invoke(TargetObject.class.newInstance()));
 		assertThat(SecurityContextHolder.getContext().getAuthentication())
-				.withFailMessage("Authentication must be null").isNull();
+			.withFailMessage("Authentication must be null")
+			.isNull();
 	}
 
 	@Test

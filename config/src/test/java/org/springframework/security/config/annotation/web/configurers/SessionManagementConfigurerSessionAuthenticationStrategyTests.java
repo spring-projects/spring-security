@@ -55,8 +55,8 @@ public class SessionManagementConfigurerSessionAuthenticationStrategyTests {
 	public void requestWhenCustomSessionAuthenticationStrategyProvidedThenCalled() throws Exception {
 		this.spring.register(CustomSessionAuthenticationStrategyConfig.class).autowire();
 		this.mvc.perform(formLogin().user("user").password("password"));
-		verify(CustomSessionAuthenticationStrategyConfig.customSessionAuthenticationStrategy).onAuthentication(
-				any(Authentication.class), any(HttpServletRequest.class), any(HttpServletResponse.class));
+		verify(CustomSessionAuthenticationStrategyConfig.customSessionAuthenticationStrategy)
+			.onAuthentication(any(Authentication.class), any(HttpServletRequest.class), any(HttpServletResponse.class));
 	}
 
 	@EnableWebSecurity

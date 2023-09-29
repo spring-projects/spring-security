@@ -36,7 +36,7 @@ class UnmodifiableMapDeserializerTests extends AbstractMixinTests {
 	@Test
 	void shouldSerialize() throws Exception {
 		String mapJson = mapper
-				.writeValueAsString(Collections.unmodifiableMap(Collections.singletonMap("Key", "Value")));
+			.writeValueAsString(Collections.unmodifiableMap(Collections.singletonMap("Key", "Value")));
 
 		JSONAssert.assertEquals(DEFAULT_MAP_JSON, mapJson, true);
 	}
@@ -46,8 +46,9 @@ class UnmodifiableMapDeserializerTests extends AbstractMixinTests {
 		Map<String, String> map = mapper.readValue(DEFAULT_MAP_JSON,
 				Collections.unmodifiableMap(Collections.emptyMap()).getClass());
 
-		assertThat(map).isNotNull().isInstanceOf(Collections.unmodifiableMap(Collections.emptyMap()).getClass())
-				.containsAllEntriesOf(Collections.singletonMap("Key", "Value"));
+		assertThat(map).isNotNull()
+			.isInstanceOf(Collections.unmodifiableMap(Collections.emptyMap()).getClass())
+			.containsAllEntriesOf(Collections.singletonMap("Key", "Value"));
 	}
 
 }

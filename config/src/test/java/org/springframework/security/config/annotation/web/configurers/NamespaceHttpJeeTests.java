@@ -81,8 +81,9 @@ public class NamespaceHttpJeeTests {
 		User result = new User(user.getName(), "N/A", true, true, true, true,
 				AuthorityUtils.createAuthorityList("ROLE_user"));
 		given(bean(AuthenticationUserDetailsService.class).loadUserDetails(any())).willReturn(result);
-		this.mvc.perform(get("/roles").principal(user)).andExpect(status().isOk())
-				.andExpect(content().string("ROLE_user"));
+		this.mvc.perform(get("/roles").principal(user))
+			.andExpect(status().isOk())
+			.andExpect(content().string("ROLE_user"));
 		verifyBean(AuthenticationUserDetailsService.class).loadUserDetails(any());
 	}
 

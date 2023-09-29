@@ -78,7 +78,7 @@ public class OpenSamlAuthenticationRequestFactory implements Saml2Authentication
 		this.authenticationRequestContextConverter = this::createAuthnRequest;
 		XMLObjectProviderRegistry registry = ConfigurationService.get(XMLObjectProviderRegistry.class);
 		this.authnRequestBuilder = (AuthnRequestBuilder) registry.getBuilderFactory()
-				.getBuilder(AuthnRequest.DEFAULT_ELEMENT_NAME);
+			.getBuilder(AuthnRequest.DEFAULT_ELEMENT_NAME);
 		this.issuerBuilder = (IssuerBuilder) registry.getBuilderFactory().getBuilder(Issuer.DEFAULT_ELEMENT_NAME);
 	}
 
@@ -87,13 +87,18 @@ public class OpenSamlAuthenticationRequestFactory implements Saml2Authentication
 	public String createAuthenticationRequest(Saml2AuthenticationRequest request) {
 		Saml2MessageBinding binding = this.protocolBindingResolver.convert(null);
 		RelyingPartyRegistration registration = RelyingPartyRegistration.withRegistrationId("noId")
-				.assertionConsumerServiceBinding(binding)
-				.assertionConsumerServiceLocation(request.getAssertionConsumerServiceUrl())
-				.entityId(request.getIssuer()).remoteIdpEntityId("noIssuer").idpWebSsoUrl("noUrl")
-				.credentials((credentials) -> credentials.addAll(request.getCredentials())).build();
+			.assertionConsumerServiceBinding(binding)
+			.assertionConsumerServiceLocation(request.getAssertionConsumerServiceUrl())
+			.entityId(request.getIssuer())
+			.remoteIdpEntityId("noIssuer")
+			.idpWebSsoUrl("noUrl")
+			.credentials((credentials) -> credentials.addAll(request.getCredentials()))
+			.build();
 		Saml2AuthenticationRequestContext context = Saml2AuthenticationRequestContext.builder()
-				.relyingPartyRegistration(registration).issuer(request.getIssuer())
-				.assertionConsumerServiceUrl(request.getAssertionConsumerServiceUrl()).build();
+			.relyingPartyRegistration(registration)
+			.issuer(request.getIssuer())
+			.assertionConsumerServiceUrl(request.getAssertionConsumerServiceUrl())
+			.build();
 		AuthnRequest authnRequest = this.authenticationRequestContextConverter.convert(context);
 		return OpenSamlSigningUtils.serialize(OpenSamlSigningUtils.sign(authnRequest, registration));
 	}
@@ -107,7 +112,8 @@ public class OpenSamlAuthenticationRequestFactory implements Saml2Authentication
 		}
 		String xml = OpenSamlSigningUtils.serialize(authnRequest);
 		return Saml2PostAuthenticationRequest.withAuthenticationRequestContext(context)
-				.samlRequest(Saml2Utils.samlEncode(xml.getBytes(StandardCharsets.UTF_8))).build();
+			.samlRequest(Saml2Utils.samlEncode(xml.getBytes(StandardCharsets.UTF_8)))
+			.build();
 	}
 
 	@Override
@@ -117,18 +123,19 @@ public class OpenSamlAuthenticationRequestFactory implements Saml2Authentication
 		RelyingPartyRegistration registration = context.getRelyingPartyRegistration();
 		String xml = OpenSamlSigningUtils.serialize(authnRequest);
 		Saml2RedirectAuthenticationRequest.Builder result = Saml2RedirectAuthenticationRequest
-				.withAuthenticationRequestContext(context);
+			.withAuthenticationRequestContext(context);
 		String deflatedAndEncoded = Saml2Utils.samlEncode(Saml2Utils.samlDeflate(xml));
 		result.samlRequest(deflatedAndEncoded).relayState(context.getRelayState());
 		if (registration.getAssertingPartyDetails().getWantAuthnRequestsSigned()) {
 			QueryParametersPartial partial = OpenSamlSigningUtils.sign(registration)
-					.param(Saml2ParameterNames.SAML_REQUEST, deflatedAndEncoded);
+				.param(Saml2ParameterNames.SAML_REQUEST, deflatedAndEncoded);
 			if (StringUtils.hasText(context.getRelayState())) {
 				partial.param(Saml2ParameterNames.RELAY_STATE, context.getRelayState());
 			}
 			Map<String, String> parameters = partial.parameters();
 			return result.sigAlg(parameters.get(Saml2ParameterNames.SIG_ALG))
-					.signature(parameters.get(Saml2ParameterNames.SIGNATURE)).build();
+				.signature(parameters.get(Saml2ParameterNames.SIGNATURE))
+				.build();
 		}
 		return result.build();
 	}

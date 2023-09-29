@@ -92,7 +92,7 @@ public class ServletApiConfigurerTests {
 	public void configureWhenRegisteringObjectPostProcessorThenInvokedOnSecurityContextHolderAwareRequestFilter() {
 		this.spring.register(ObjectPostProcessorConfig.class).autowire();
 		verify(ObjectPostProcessorConfig.objectPostProcessor)
-				.postProcess(any(SecurityContextHolderAwareRequestFilter.class));
+			.postProcess(any(SecurityContextHolderAwareRequestFilter.class));
 	}
 
 	// SEC-2215
@@ -153,7 +153,7 @@ public class ServletApiConfigurerTests {
 	public void requestWhenServletApiWithDefaultsInLambdaThenUsesDefaultRolePrefix() throws Exception {
 		this.spring.register(ServletApiWithDefaultsInLambdaConfig.class, AdminController.class).autowire();
 		MockHttpServletRequestBuilder request = get("/admin")
-				.with(user("user").authorities(AuthorityUtils.createAuthorityList("ROLE_ADMIN")));
+			.with(user("user").authorities(AuthorityUtils.createAuthorityList("ROLE_ADMIN")));
 		this.mvc.perform(request).andExpect(status().isOk());
 	}
 

@@ -31,7 +31,7 @@ public final class TestSaml2AuthenticationTokens {
 
 	public static Saml2AuthenticationToken token() {
 		RelyingPartyRegistration relyingPartyRegistration = TestRelyingPartyRegistrations.relyingPartyRegistration()
-				.build();
+			.build();
 		return new Saml2AuthenticationToken(relyingPartyRegistration, "saml2-xml-response-object");
 	}
 

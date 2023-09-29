@@ -90,13 +90,13 @@ public class AndRequestMatcherTests {
 	@Test
 	public void constructorListContainsNull() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new AndRequestMatcher(Arrays.asList((RequestMatcher) null)));
+			.isThrownBy(() -> new AndRequestMatcher(Arrays.asList((RequestMatcher) null)));
 	}
 
 	@Test
 	public void constructorEmptyList() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new AndRequestMatcher(Collections.<RequestMatcher>emptyList()));
+			.isThrownBy(() -> new AndRequestMatcher(Collections.<RequestMatcher>emptyList()));
 	}
 
 	@Test

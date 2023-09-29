@@ -75,9 +75,10 @@ public class PreAuthenticatedGrantedAuthoritiesUserDetailsServiceTests {
 		// Password is not saved by
 		// PreAuthenticatedGrantedAuthoritiesUserDetailsService
 		// assertThat(password).isEqualTo(ud.getPassword());
-		assertThat(gas.containsAll(ud.getAuthorities()) && ud.getAuthorities().containsAll(gas)).withFailMessage(
-				"GrantedAuthority collections do not match; result: " + ud.getAuthorities() + ", expected: " + gas)
-				.isTrue();
+		assertThat(gas.containsAll(ud.getAuthorities()) && ud.getAuthorities().containsAll(gas))
+			.withFailMessage(
+					"GrantedAuthority collections do not match; result: " + ud.getAuthorities() + ", expected: " + gas)
+			.isTrue();
 	}
 
 }

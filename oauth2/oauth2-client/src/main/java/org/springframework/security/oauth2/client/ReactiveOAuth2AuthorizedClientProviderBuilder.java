@@ -165,8 +165,8 @@ public final class ReactiveOAuth2AuthorizedClientProviderBuilder {
 	 */
 	@Deprecated
 	public ReactiveOAuth2AuthorizedClientProviderBuilder password(Consumer<PasswordGrantBuilder> builderConsumer) {
-		PasswordGrantBuilder builder = (PasswordGrantBuilder) this.builders.computeIfAbsent(
-				PasswordReactiveOAuth2AuthorizedClientProvider.class, (k) -> new PasswordGrantBuilder());
+		PasswordGrantBuilder builder = (PasswordGrantBuilder) this.builders
+			.computeIfAbsent(PasswordReactiveOAuth2AuthorizedClientProvider.class, (k) -> new PasswordGrantBuilder());
 		builderConsumer.accept(builder);
 		return ReactiveOAuth2AuthorizedClientProviderBuilder.this;
 	}
@@ -177,8 +177,10 @@ public final class ReactiveOAuth2AuthorizedClientProviderBuilder {
 	 * @return the {@link DelegatingReactiveOAuth2AuthorizedClientProvider}
 	 */
 	public ReactiveOAuth2AuthorizedClientProvider build() {
-		List<ReactiveOAuth2AuthorizedClientProvider> authorizedClientProviders = this.builders.values().stream()
-				.map(Builder::build).collect(Collectors.toList());
+		List<ReactiveOAuth2AuthorizedClientProvider> authorizedClientProviders = this.builders.values()
+			.stream()
+			.map(Builder::build)
+			.collect(Collectors.toList());
 		return new DelegatingReactiveOAuth2AuthorizedClientProvider(authorizedClientProviders);
 	}
 

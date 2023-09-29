@@ -77,16 +77,17 @@ public class PermitAllSupportTests {
 	@Test
 	public void configureWhenNotAuthorizeRequestsThenException() {
 		assertThatExceptionOfType(BeanCreationException.class)
-				.isThrownBy(() -> this.spring.register(NoAuthorizedUrlsConfig.class).autowire()).withMessageContaining(
-						"permitAll only works with either HttpSecurity.authorizeRequests() or HttpSecurity.authorizeHttpRequests()");
+			.isThrownBy(() -> this.spring.register(NoAuthorizedUrlsConfig.class).autowire())
+			.withMessageContaining(
+					"permitAll only works with either HttpSecurity.authorizeRequests() or HttpSecurity.authorizeHttpRequests()");
 	}
 
 	@Test
 	public void configureWhenBothAuthorizeRequestsAndAuthorizeHttpRequestsThenException() {
 		assertThatExceptionOfType(BeanCreationException.class)
-				.isThrownBy(() -> this.spring.register(PermitAllConfigWithBothConfigs.class).autowire())
-				.withMessageContaining(
-						"permitAll only works with either HttpSecurity.authorizeRequests() or HttpSecurity.authorizeHttpRequests()");
+			.isThrownBy(() -> this.spring.register(PermitAllConfigWithBothConfigs.class).autowire())
+			.withMessageContaining(
+					"permitAll only works with either HttpSecurity.authorizeRequests() or HttpSecurity.authorizeHttpRequests()");
 	}
 
 	@EnableWebSecurity

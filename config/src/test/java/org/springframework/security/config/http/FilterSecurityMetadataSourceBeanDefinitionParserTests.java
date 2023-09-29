@@ -67,7 +67,7 @@ public class FilterSecurityMetadataSourceBeanDefinitionParserTests {
 				+ "</filter-security-metadata-source>");
 		// @formatter:on
 		DefaultFilterInvocationSecurityMetadataSource fids = (DefaultFilterInvocationSecurityMetadataSource) this.appContext
-				.getBean("fids");
+			.getBean("fids");
 		Collection<ConfigAttribute> cad = fids.getAttributes(createFilterInvocation("/anything", "GET"));
 		assertThat(cad).contains(new SecurityConfig("ROLE_A"));
 	}
@@ -80,9 +80,9 @@ public class FilterSecurityMetadataSourceBeanDefinitionParserTests {
 				+ "</filter-security-metadata-source>");
 		// @formatter:on
 		ExpressionBasedFilterInvocationSecurityMetadataSource fids = (ExpressionBasedFilterInvocationSecurityMetadataSource) this.appContext
-				.getBean("fids");
+			.getBean("fids");
 		ConfigAttribute[] cad = fids.getAttributes(createFilterInvocation("/anything", "GET"))
-				.toArray(new ConfigAttribute[0]);
+			.toArray(new ConfigAttribute[0]);
 		assertThat(cad).hasSize(1);
 		assertThat(cad[0].toString()).isEqualTo("hasRole('ROLE_A')");
 	}
@@ -97,7 +97,7 @@ public class FilterSecurityMetadataSourceBeanDefinitionParserTests {
 				+ "   <intercept-url pattern='${secure.url}' access='${secure.role}'/>"
 				+ "</filter-security-metadata-source>");
 		DefaultFilterInvocationSecurityMetadataSource fids = (DefaultFilterInvocationSecurityMetadataSource) this.appContext
-				.getBean("fids");
+			.getBean("fids");
 		Collection<ConfigAttribute> cad = fids.getAttributes(createFilterInvocation("/secure", "GET"));
 		assertThat(cad).containsExactly(new SecurityConfig("ROLE_A"));
 	}
@@ -123,9 +123,9 @@ public class FilterSecurityMetadataSourceBeanDefinitionParserTests {
 	@Test
 	public void parsingInterceptUrlServletPathFails() {
 		assertThatExceptionOfType(BeanDefinitionParsingException.class)
-				.isThrownBy(() -> setContext("<filter-security-metadata-source id='fids' use-expressions='false'>"
-						+ "   <intercept-url pattern='/secure' access='ROLE_USER' servlet-path='/spring' />"
-						+ "</filter-security-metadata-source>"));
+			.isThrownBy(() -> setContext("<filter-security-metadata-source id='fids' use-expressions='false'>"
+					+ "   <intercept-url pattern='/secure' access='ROLE_USER' servlet-path='/spring' />"
+					+ "</filter-security-metadata-source>"));
 	}
 
 	private FilterInvocation createFilterInvocation(String path, String method) {

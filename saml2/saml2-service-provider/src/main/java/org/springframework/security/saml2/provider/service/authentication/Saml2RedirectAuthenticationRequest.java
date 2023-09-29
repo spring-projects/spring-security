@@ -76,7 +76,7 @@ public final class Saml2RedirectAuthenticationRequest extends AbstractSaml2Authe
 	 */
 	public static Builder withAuthenticationRequestContext(Saml2AuthenticationRequestContext context) {
 		return new Builder(context.getRelyingPartyRegistration()).authenticationRequestUri(context.getDestination())
-				.relayState(context.getRelayState());
+			.relayState(context.getRelayState());
 	}
 
 	/**

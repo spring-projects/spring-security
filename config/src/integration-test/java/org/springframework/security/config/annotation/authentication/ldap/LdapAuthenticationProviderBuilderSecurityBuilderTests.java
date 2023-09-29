@@ -74,8 +74,8 @@ public class LdapAuthenticationProviderBuilderSecurityBuilderTests {
 		assertThat(authoritiesPopulator).hasFieldOrPropertyWithValue("groupRoleAttribute", "cn");
 		assertThat(authoritiesPopulator).hasFieldOrPropertyWithValue("groupSearchBase", "");
 		assertThat(authoritiesPopulator).hasFieldOrPropertyWithValue("groupSearchFilter", "(uniqueMember={0})");
-		assertThat(authoritiesPopulator).extracting("searchControls").hasFieldOrPropertyWithValue("searchScope",
-				SearchControls.ONELEVEL_SCOPE);
+		assertThat(authoritiesPopulator).extracting("searchControls")
+			.hasFieldOrPropertyWithValue("searchScope", SearchControls.ONELEVEL_SCOPE);
 		assertThat(ReflectionTestUtils.getField(getAuthoritiesMapper(provider), "prefix")).isEqualTo("ROLE_");
 	}
 
@@ -85,7 +85,7 @@ public class LdapAuthenticationProviderBuilderSecurityBuilderTests {
 		LdapAuthenticationProvider provider = ldapProvider();
 
 		assertThat(ReflectionTestUtils.getField(getAuthoritiesPopulator(provider), "groupRoleAttribute"))
-				.isEqualTo("group");
+			.isEqualTo("group");
 	}
 
 	@Test
@@ -94,7 +94,7 @@ public class LdapAuthenticationProviderBuilderSecurityBuilderTests {
 		LdapAuthenticationProvider provider = ldapProvider();
 
 		assertThat(ReflectionTestUtils.getField(getAuthoritiesPopulator(provider), "groupSearchFilter"))
-				.isEqualTo("ou=groupName");
+			.isEqualTo("ou=groupName");
 	}
 
 	@Test
@@ -103,7 +103,8 @@ public class LdapAuthenticationProviderBuilderSecurityBuilderTests {
 		LdapAuthenticationProvider provider = ldapProvider();
 
 		assertThat(ReflectionTestUtils.getField(getAuthoritiesPopulator(provider), "searchControls"))
-				.extracting("searchScope").isEqualTo(SearchControls.SUBTREE_SCOPE);
+			.extracting("searchScope")
+			.isEqualTo(SearchControls.SUBTREE_SCOPE);
 	}
 
 	@Test
@@ -119,8 +120,8 @@ public class LdapAuthenticationProviderBuilderSecurityBuilderTests {
 		this.spring.register(BindAuthenticationConfig.class).autowire();
 
 		this.mockMvc.perform(formLogin().user("bob").password("bobspassword"))
-				.andExpect(authenticated().withUsername("bob")
-						.withAuthorities(Collections.singleton(new SimpleGrantedAuthority("ROLE_DEVELOPERS"))));
+			.andExpect(authenticated().withUsername("bob")
+				.withAuthorities(Collections.singleton(new SimpleGrantedAuthority("ROLE_DEVELOPERS"))));
 	}
 
 	// SEC-2472
@@ -129,13 +130,14 @@ public class LdapAuthenticationProviderBuilderSecurityBuilderTests {
 		this.spring.register(PasswordEncoderConfig.class).autowire();
 
 		this.mockMvc.perform(formLogin().user("bcrypt").password("password"))
-				.andExpect(authenticated().withUsername("bcrypt")
-						.withAuthorities(Collections.singleton(new SimpleGrantedAuthority("ROLE_DEVELOPERS"))));
+			.andExpect(authenticated().withUsername("bcrypt")
+				.withAuthorities(Collections.singleton(new SimpleGrantedAuthority("ROLE_DEVELOPERS"))));
 	}
 
 	private LdapAuthenticationProvider ldapProvider() {
 		return ((List<LdapAuthenticationProvider>) ReflectionTestUtils.getField(this.authenticationManager,
-				"providers")).get(0);
+				"providers"))
+			.get(0);
 	}
 
 	private LdapAuthoritiesPopulator getAuthoritiesPopulator(LdapAuthenticationProvider provider) {

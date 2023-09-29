@@ -69,21 +69,24 @@ public class CustomConfigAuthenticationTests {
 	@Test
 	public void authenticationSuccess() throws Exception {
 		this.mvc.perform(formLogin("/authenticate").user("user", "user").password("pass", "password"))
-				.andExpect(status().isFound()).andExpect(redirectedUrl("/"))
-				.andExpect(authenticated().withUsername("user"));
+			.andExpect(status().isFound())
+			.andExpect(redirectedUrl("/"))
+			.andExpect(authenticated().withUsername("user"));
 	}
 
 	@Test
 	public void withUserSuccess() throws Exception {
-		this.mvc.perform(get("/").with(user("user"))).andExpect(status().isNotFound())
-				.andExpect(authenticated().withUsername("user"));
+		this.mvc.perform(get("/").with(user("user")))
+			.andExpect(status().isNotFound())
+			.andExpect(authenticated().withUsername("user"));
 	}
 
 	@Test
 	public void authenticationFailed() throws Exception {
 		this.mvc.perform(formLogin("/authenticate").user("user", "notfound").password("pass", "invalid"))
-				.andExpect(status().isFound()).andExpect(redirectedUrl("/authenticate?error"))
-				.andExpect(unauthenticated());
+			.andExpect(status().isFound())
+			.andExpect(redirectedUrl("/authenticate?error"))
+			.andExpect(unauthenticated());
 	}
 
 	@EnableWebSecurity

@@ -235,7 +235,7 @@ public class MessageSecurityMetadataSourceRegistry {
 			matcherToExpression.put(entry.getKey().build(), entry.getValue());
 		}
 		return ExpressionBasedMessageSecurityMetadataSourceFactory
-				.createExpressionMessageMetadataSource(matcherToExpression, this.expressionHandler);
+			.createExpressionMessageMetadataSource(matcherToExpression, this.expressionHandler);
 	}
 
 	/**

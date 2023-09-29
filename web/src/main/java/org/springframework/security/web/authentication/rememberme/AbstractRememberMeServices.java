@@ -389,7 +389,7 @@ public abstract class AbstractRememberMeServices
 	@Override
 	public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
 		this.logger.debug(LogMessage
-				.of(() -> "Logout of user " + ((authentication != null) ? authentication.getName() : "Unknown")));
+			.of(() -> "Logout of user " + ((authentication != null) ? authentication.getName() : "Unknown")));
 		cancelCookie(request, response);
 	}
 

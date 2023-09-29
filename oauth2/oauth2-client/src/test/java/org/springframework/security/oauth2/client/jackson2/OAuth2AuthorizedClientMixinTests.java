@@ -113,7 +113,7 @@ public class OAuth2AuthorizedClientMixinTests {
 				this.principalName, this.accessToken);
 		String json = asJson(authorizedClient);
 		assertThatExceptionOfType(JsonProcessingException.class)
-				.isThrownBy(() -> new ObjectMapper().readValue(json, OAuth2AuthorizedClient.class));
+			.isThrownBy(() -> new ObjectMapper().readValue(json, OAuth2AuthorizedClient.class));
 	}
 
 	@Test
@@ -130,27 +130,27 @@ public class OAuth2AuthorizedClientMixinTests {
 		assertThat(clientRegistration.getClientId()).isEqualTo(expectedClientRegistration.getClientId());
 		assertThat(clientRegistration.getClientSecret()).isEqualTo(expectedClientRegistration.getClientSecret());
 		assertThat(clientRegistration.getClientAuthenticationMethod())
-				.isEqualTo(expectedClientRegistration.getClientAuthenticationMethod());
+			.isEqualTo(expectedClientRegistration.getClientAuthenticationMethod());
 		assertThat(clientRegistration.getAuthorizationGrantType())
-				.isEqualTo(expectedClientRegistration.getAuthorizationGrantType());
+			.isEqualTo(expectedClientRegistration.getAuthorizationGrantType());
 		assertThat(clientRegistration.getRedirectUri()).isEqualTo(expectedClientRegistration.getRedirectUri());
 		assertThat(clientRegistration.getScopes()).isEqualTo(expectedClientRegistration.getScopes());
 		assertThat(clientRegistration.getProviderDetails().getAuthorizationUri())
-				.isEqualTo(expectedClientRegistration.getProviderDetails().getAuthorizationUri());
+			.isEqualTo(expectedClientRegistration.getProviderDetails().getAuthorizationUri());
 		assertThat(clientRegistration.getProviderDetails().getTokenUri())
-				.isEqualTo(expectedClientRegistration.getProviderDetails().getTokenUri());
+			.isEqualTo(expectedClientRegistration.getProviderDetails().getTokenUri());
 		assertThat(clientRegistration.getProviderDetails().getUserInfoEndpoint().getUri())
-				.isEqualTo(expectedClientRegistration.getProviderDetails().getUserInfoEndpoint().getUri());
-		assertThat(clientRegistration.getProviderDetails().getUserInfoEndpoint().getAuthenticationMethod()).isEqualTo(
-				expectedClientRegistration.getProviderDetails().getUserInfoEndpoint().getAuthenticationMethod());
+			.isEqualTo(expectedClientRegistration.getProviderDetails().getUserInfoEndpoint().getUri());
+		assertThat(clientRegistration.getProviderDetails().getUserInfoEndpoint().getAuthenticationMethod())
+			.isEqualTo(expectedClientRegistration.getProviderDetails().getUserInfoEndpoint().getAuthenticationMethod());
 		assertThat(clientRegistration.getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName()).isEqualTo(
 				expectedClientRegistration.getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName());
 		assertThat(clientRegistration.getProviderDetails().getJwkSetUri())
-				.isEqualTo(expectedClientRegistration.getProviderDetails().getJwkSetUri());
+			.isEqualTo(expectedClientRegistration.getProviderDetails().getJwkSetUri());
 		assertThat(clientRegistration.getProviderDetails().getIssuerUri())
-				.isEqualTo(expectedClientRegistration.getProviderDetails().getIssuerUri());
+			.isEqualTo(expectedClientRegistration.getProviderDetails().getIssuerUri());
 		assertThat(clientRegistration.getProviderDetails().getConfigurationMetadata())
-				.containsExactlyEntriesOf(clientRegistration.getProviderDetails().getConfigurationMetadata());
+			.containsExactlyEntriesOf(clientRegistration.getProviderDetails().getConfigurationMetadata());
 		assertThat(clientRegistration.getClientName()).isEqualTo(expectedClientRegistration.getClientName());
 		assertThat(authorizedClient.getPrincipalName()).isEqualTo(expectedAuthorizedClient.getPrincipalName());
 		OAuth2AccessToken accessToken = authorizedClient.getAccessToken();
@@ -187,18 +187,18 @@ public class OAuth2AuthorizedClientMixinTests {
 		assertThat(clientRegistration.getClientId()).isEqualTo(expectedClientRegistration.getClientId());
 		assertThat(clientRegistration.getClientSecret()).isEmpty();
 		assertThat(clientRegistration.getClientAuthenticationMethod())
-				.isEqualTo(expectedClientRegistration.getClientAuthenticationMethod());
+			.isEqualTo(expectedClientRegistration.getClientAuthenticationMethod());
 		assertThat(clientRegistration.getAuthorizationGrantType())
-				.isEqualTo(expectedClientRegistration.getAuthorizationGrantType());
+			.isEqualTo(expectedClientRegistration.getAuthorizationGrantType());
 		assertThat(clientRegistration.getRedirectUri()).isEqualTo(expectedClientRegistration.getRedirectUri());
 		assertThat(clientRegistration.getScopes()).isEqualTo(expectedClientRegistration.getScopes());
 		assertThat(clientRegistration.getProviderDetails().getAuthorizationUri())
-				.isEqualTo(expectedClientRegistration.getProviderDetails().getAuthorizationUri());
+			.isEqualTo(expectedClientRegistration.getProviderDetails().getAuthorizationUri());
 		assertThat(clientRegistration.getProviderDetails().getTokenUri())
-				.isEqualTo(expectedClientRegistration.getProviderDetails().getTokenUri());
+			.isEqualTo(expectedClientRegistration.getProviderDetails().getTokenUri());
 		assertThat(clientRegistration.getProviderDetails().getUserInfoEndpoint().getUri()).isNull();
-		assertThat(clientRegistration.getProviderDetails().getUserInfoEndpoint().getAuthenticationMethod()).isEqualTo(
-				expectedClientRegistration.getProviderDetails().getUserInfoEndpoint().getAuthenticationMethod());
+		assertThat(clientRegistration.getProviderDetails().getUserInfoEndpoint().getAuthenticationMethod())
+			.isEqualTo(expectedClientRegistration.getProviderDetails().getUserInfoEndpoint().getAuthenticationMethod());
 		assertThat(clientRegistration.getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName()).isNull();
 		assertThat(clientRegistration.getProviderDetails().getJwkSetUri()).isNull();
 		assertThat(clientRegistration.getProviderDetails().getIssuerUri()).isNull();
@@ -235,9 +235,11 @@ public class OAuth2AuthorizedClientMixinTests {
 		}
 		String configurationMetadata = "\"@class\": \"java.util.Collections$UnmodifiableMap\"";
 		if (!CollectionUtils.isEmpty(providerDetails.getConfigurationMetadata())) {
-			configurationMetadata += "," + providerDetails.getConfigurationMetadata().keySet().stream()
-					.map((key) -> "\"" + key + "\": \"" + providerDetails.getConfigurationMetadata().get(key) + "\"")
-					.collect(Collectors.joining(","));
+			configurationMetadata += "," + providerDetails.getConfigurationMetadata()
+				.keySet()
+				.stream()
+				.map((key) -> "\"" + key + "\": \"" + providerDetails.getConfigurationMetadata().get(key) + "\"")
+				.collect(Collectors.joining(","));
 		}
 		// @formatter:off
 		return "{\n" +

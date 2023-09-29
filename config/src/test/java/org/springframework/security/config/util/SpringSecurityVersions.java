@@ -34,7 +34,7 @@ public final class SpringSecurityVersions {
 	public static String getCurrentXsdVersionFromSpringSchemas() {
 		Properties properties = new Properties();
 		try (InputStream is = SpringSecurityCoreVersion.class.getClassLoader()
-				.getResourceAsStream("META-INF/spring.schemas")) {
+			.getResourceAsStream("META-INF/spring.schemas")) {
 			properties.load(is);
 		}
 		catch (IOException ex) {
@@ -42,7 +42,7 @@ public final class SpringSecurityVersions {
 		}
 
 		String inPackageLocation = properties
-				.getProperty("https://www.springframework.org/schema/security/spring-security.xsd");
+			.getProperty("https://www.springframework.org/schema/security/spring-security.xsd");
 		Matcher matcher = SCHEMA_VERSION_PATTERN.matcher(inPackageLocation);
 		if (matcher.find()) {
 			return matcher.group(0);

@@ -292,7 +292,7 @@ public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>>
 		SecurityContextConfigurer<?> securityContextConfigurer = http.getConfigurer(SecurityContextConfigurer.class);
 		if (securityContextConfigurer != null && securityContextConfigurer.isRequireExplicitSave()) {
 			SecurityContextRepository securityContextRepository = securityContextConfigurer
-					.getSecurityContextRepository();
+				.getSecurityContextRepository();
 			rememberMeFilter.setSecurityContextRepository(securityContextRepository);
 		}
 		rememberMeFilter.setSecurityContextHolderStrategy(getSecurityContextHolderStrategy());
@@ -325,7 +325,7 @@ public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>>
 	 */
 	private void initDefaultLoginFilter(H http) {
 		DefaultLoginPageGeneratingFilter loginPageGeneratingFilter = http
-				.getSharedObject(DefaultLoginPageGeneratingFilter.class);
+			.getSharedObject(DefaultLoginPageGeneratingFilter.class);
 		if (loginPageGeneratingFilter != null) {
 			loginPageGeneratingFilter.setRememberMeParameter(getRememberMeParameter());
 		}

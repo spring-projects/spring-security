@@ -120,8 +120,9 @@ public class SecurityMockMvcRequestPostProcessorsJwtTests {
 
 	@Test
 	public void jwtWhenProvidingCustomAuthoritiesThenProducesJwtAuthentication() {
-		jwt().jwt((jwt) -> jwt.claim("scope", "ignored authorities")).authorities(this.authority1, this.authority2)
-				.postProcessRequest(this.request);
+		jwt().jwt((jwt) -> jwt.claim("scope", "ignored authorities"))
+			.authorities(this.authority1, this.authority2)
+			.postProcessRequest(this.request);
 		verify(this.repository).saveContext(this.contextCaptor.capture(), eq(this.request),
 				any(HttpServletResponse.class));
 		SecurityContext context = this.contextCaptor.getValue();
@@ -135,14 +136,15 @@ public class SecurityMockMvcRequestPostProcessorsJwtTests {
 		verify(this.repository).saveContext(this.contextCaptor.capture(), eq(this.request),
 				any(HttpServletResponse.class));
 		SecurityContext context = this.contextCaptor.getValue();
-		assertThat((List<GrantedAuthority>) context.getAuthentication().getAuthorities()).containsOnly(
-				new SimpleGrantedAuthority("SCOPE_scoped"), new SimpleGrantedAuthority("SCOPE_authorities"));
+		assertThat((List<GrantedAuthority>) context.getAuthentication().getAuthorities())
+			.containsOnly(new SimpleGrantedAuthority("SCOPE_scoped"), new SimpleGrantedAuthority("SCOPE_authorities"));
 	}
 
 	@Test
 	public void jwtWhenProvidingGrantedAuthoritiesThenProducesJwtAuthentication() {
 		jwt().jwt((jwt) -> jwt.claim("scope", "ignored authorities"))
-				.authorities((jwt) -> Arrays.asList(this.authority1)).postProcessRequest(this.request);
+			.authorities((jwt) -> Arrays.asList(this.authority1))
+			.postProcessRequest(this.request);
 		verify(this.repository).saveContext(this.contextCaptor.capture(), eq(this.request),
 				any(HttpServletResponse.class));
 		SecurityContext context = this.contextCaptor.getValue();

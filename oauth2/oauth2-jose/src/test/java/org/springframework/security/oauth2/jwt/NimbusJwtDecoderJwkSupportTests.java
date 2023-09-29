@@ -242,7 +242,7 @@ public class NimbusJwtDecoderJwkSupportTests {
 	private static RestOperations mockJwkSetResponse(String response) {
 		RestOperations restOperations = mock(RestOperations.class);
 		given(restOperations.exchange(any(RequestEntity.class), eq(String.class)))
-				.willReturn(new ResponseEntity<>(response, HttpStatus.OK));
+			.willReturn(new ResponseEntity<>(response, HttpStatus.OK));
 		return restOperations;
 	}
 

@@ -91,7 +91,7 @@ public class DefaultWebInvocationPrivilegeEvaluator implements WebInvocationPriv
 		Assert.notNull(uri, "uri parameter is required");
 		FilterInvocation filterInvocation = new FilterInvocation(contextPath, uri, method, this.servletContext);
 		Collection<ConfigAttribute> attributes = this.securityInterceptor.obtainSecurityMetadataSource()
-				.getAttributes(filterInvocation);
+			.getAttributes(filterInvocation);
 		if (attributes == null) {
 			return (!this.securityInterceptor.isRejectPublicInvocations());
 		}

@@ -46,13 +46,13 @@ public class Sec2515Tests {
 	@Test
 	public void loadConfigWhenAuthenticationManagerNotConfiguredAndRegisterBeanThenThrowFatalBeanException() {
 		assertThatExceptionOfType(FatalBeanException.class)
-				.isThrownBy(() -> this.spring.register(StackOverflowSecurityConfig.class).autowire());
+			.isThrownBy(() -> this.spring.register(StackOverflowSecurityConfig.class).autowire());
 	}
 
 	@Test
 	public void loadConfigWhenAuthenticationManagerNotConfiguredAndRegisterBeanCustomNameThenThrowFatalBeanException() {
 		assertThatExceptionOfType(FatalBeanException.class)
-				.isThrownBy(() -> this.spring.register(CustomBeanNameStackOverflowSecurityConfig.class).autowire());
+			.isThrownBy(() -> this.spring.register(CustomBeanNameStackOverflowSecurityConfig.class).autowire());
 	}
 
 	// SEC-2549
@@ -61,7 +61,7 @@ public class Sec2515Tests {
 		CanLoadWithChildConfig.AUTHENTICATION_MANAGER = mock(AuthenticationManager.class);
 		this.spring.register(CanLoadWithChildConfig.class);
 		AnnotationConfigWebApplicationContext context = (AnnotationConfigWebApplicationContext) this.spring
-				.getContext();
+			.getContext();
 		context.setClassLoader(new URLClassLoader(new URL[0], context.getClassLoader()));
 		this.spring.autowire();
 		assertThat(this.spring.getContext().getBean(AuthenticationManager.class)).isNotNull();

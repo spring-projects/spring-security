@@ -54,9 +54,9 @@ public class OpenSaml3LogoutResponseResolverTests {
 		logoutResponseResolver.setParametersConsumer(parametersConsumer);
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		RelyingPartyRegistration registration = TestRelyingPartyRegistrations.relyingPartyRegistration()
-				.assertingPartyDetails(
-						(party) -> party.singleLogoutServiceResponseLocation("https://ap.example.com/logout"))
-				.build();
+			.assertingPartyDetails(
+					(party) -> party.singleLogoutServiceResponseLocation("https://ap.example.com/logout"))
+			.build();
 		Authentication authentication = new TestingAuthenticationToken("user", "password");
 		LogoutRequest logoutRequest = TestOpenSamlObjects.assertingPartyLogoutRequest(registration);
 		request.setParameter(Saml2ParameterNames.SAML_REQUEST,
@@ -72,7 +72,7 @@ public class OpenSaml3LogoutResponseResolverTests {
 		OpenSaml3LogoutRequestResolver logoutRequestResolver = new OpenSaml3LogoutRequestResolver(
 				this.relyingPartyRegistrationResolver);
 		assertThatExceptionOfType(IllegalArgumentException.class)
-				.isThrownBy(() -> logoutRequestResolver.setParametersConsumer(null));
+			.isThrownBy(() -> logoutRequestResolver.setParametersConsumer(null));
 	}
 
 }

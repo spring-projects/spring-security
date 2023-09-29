@@ -126,20 +126,20 @@ public class WebSecurityConfigurerAdapterTests {
 				ContentNegotiationStrategy.class);
 		this.spring.register(OverrideContentNegotiationStrategySharedObjectConfig.class).autowire();
 		OverrideContentNegotiationStrategySharedObjectConfig securityConfig = this.spring.getContext()
-				.getBean(OverrideContentNegotiationStrategySharedObjectConfig.class);
+			.getBean(OverrideContentNegotiationStrategySharedObjectConfig.class);
 		assertThat(securityConfig.contentNegotiationStrategySharedObject).isNotNull();
 		assertThat(securityConfig.contentNegotiationStrategySharedObject)
-				.isSameAs(OverrideContentNegotiationStrategySharedObjectConfig.CONTENT_NEGOTIATION_STRATEGY_BEAN);
+			.isSameAs(OverrideContentNegotiationStrategySharedObjectConfig.CONTENT_NEGOTIATION_STRATEGY_BEAN);
 	}
 
 	@Test
 	public void loadConfigWhenDefaultContentNegotiationStrategyThenHeaderContentNegotiationStrategy() {
 		this.spring.register(ContentNegotiationStrategyDefaultSharedObjectConfig.class).autowire();
 		ContentNegotiationStrategyDefaultSharedObjectConfig securityConfig = this.spring.getContext()
-				.getBean(ContentNegotiationStrategyDefaultSharedObjectConfig.class);
+			.getBean(ContentNegotiationStrategyDefaultSharedObjectConfig.class);
 		assertThat(securityConfig.contentNegotiationStrategySharedObject).isNotNull();
 		assertThat(securityConfig.contentNegotiationStrategySharedObject)
-				.isInstanceOf(HeaderContentNegotiationStrategy.class);
+			.isInstanceOf(HeaderContentNegotiationStrategy.class);
 	}
 
 	@Test
@@ -148,7 +148,7 @@ public class WebSecurityConfigurerAdapterTests {
 		MyFilter myFilter = this.spring.getContext().getBean(MyFilter.class);
 		myFilter.userDetailsService.loadUserByUsername("user");
 		assertThatExceptionOfType(UsernameNotFoundException.class)
-				.isThrownBy(() -> myFilter.userDetailsService.loadUserByUsername("admin"));
+			.isThrownBy(() -> myFilter.userDetailsService.loadUserByUsername("admin"));
 	}
 
 	// SEC-2274: WebSecurityConfigurer adds ApplicationContext as a shared object
@@ -156,7 +156,7 @@ public class WebSecurityConfigurerAdapterTests {
 	public void loadConfigWhenSharedObjectsCreatedThenApplicationContextAdded() {
 		this.spring.register(ApplicationContextSharedObjectConfig.class).autowire();
 		ApplicationContextSharedObjectConfig securityConfig = this.spring.getContext()
-				.getBean(ApplicationContextSharedObjectConfig.class);
+			.getBean(ApplicationContextSharedObjectConfig.class);
 		assertThat(securityConfig.applicationContextSharedObject).isNotNull();
 		assertThat(securityConfig.applicationContextSharedObject).isSameAs(this.spring.getContext());
 	}
@@ -168,14 +168,14 @@ public class WebSecurityConfigurerAdapterTests {
 		CustomTrustResolverConfig securityConfig = this.spring.getContext().getBean(CustomTrustResolverConfig.class);
 		assertThat(securityConfig.authenticationTrustResolverSharedObject).isNotNull();
 		assertThat(securityConfig.authenticationTrustResolverSharedObject)
-				.isSameAs(CustomTrustResolverConfig.AUTHENTICATION_TRUST_RESOLVER_BEAN);
+			.isSameAs(CustomTrustResolverConfig.AUTHENTICATION_TRUST_RESOLVER_BEAN);
 	}
 
 	@Test
 	public void compareOrderWebSecurityConfigurerAdapterWhenLowestOrderToDefaultOrderThenGreaterThanZero() {
 		AnnotationAwareOrderComparator comparator = new AnnotationAwareOrderComparator();
 		assertThat(comparator.compare(new LowestPriorityWebSecurityConfig(), new DefaultOrderWebSecurityConfig()))
-				.isGreaterThan(0);
+			.isGreaterThan(0);
 	}
 
 	// gh-7515
@@ -183,7 +183,7 @@ public class WebSecurityConfigurerAdapterTests {
 	public void performWhenUsingAuthenticationEventPublisherBeanThenUses() throws Exception {
 		this.spring.register(CustomAuthenticationEventPublisherBean.class).autowire();
 		AuthenticationEventPublisher authenticationEventPublisher = this.spring.getContext()
-				.getBean(AuthenticationEventPublisher.class);
+			.getBean(AuthenticationEventPublisher.class);
 		this.mockMvc.perform(get("/").with(httpBasic("user", "password")));
 		verify(authenticationEventPublisher).publishAuthenticationSuccess(any(Authentication.class));
 	}

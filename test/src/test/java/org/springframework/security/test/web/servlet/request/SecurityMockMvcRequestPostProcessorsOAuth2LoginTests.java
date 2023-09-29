@@ -99,16 +99,17 @@ public class SecurityMockMvcRequestPostProcessorsOAuth2LoginTests {
 
 	@Test
 	public void oauth2LoginWhenAuthoritiesSpecifiedThenGrantsAccess() throws Exception {
-		this.mvc.perform(
-				get("/admin/scopes").with(oauth2Login().authorities(new SimpleGrantedAuthority("SCOPE_admin"))))
-				.andExpect(content().string("[\"SCOPE_admin\"]"));
+		this.mvc
+			.perform(get("/admin/scopes").with(oauth2Login().authorities(new SimpleGrantedAuthority("SCOPE_admin"))))
+			.andExpect(content().string("[\"SCOPE_admin\"]"));
 	}
 
 	@Test
 	public void oauth2LoginWhenAttributeSpecifiedThenUserHasAttribute() throws Exception {
-		this.mvc.perform(
-				get("/attributes/iss").with(oauth2Login().attributes((a) -> a.put("iss", "https://idp.example.org"))))
-				.andExpect(content().string("https://idp.example.org"));
+		this.mvc
+			.perform(get("/attributes/iss")
+				.with(oauth2Login().attributes((a) -> a.put("iss", "https://idp.example.org"))))
+			.andExpect(content().string("https://idp.example.org"));
 	}
 
 	@Test
@@ -116,30 +117,34 @@ public class SecurityMockMvcRequestPostProcessorsOAuth2LoginTests {
 		OAuth2User oauth2User = new DefaultOAuth2User(AuthorityUtils.commaSeparatedStringToAuthorityList("SCOPE_read"),
 				Collections.singletonMap("custom-attribute", "test-subject"), "custom-attribute");
 		this.mvc.perform(get("/attributes/custom-attribute").with(oauth2Login().oauth2User(oauth2User)))
-				.andExpect(content().string("test-subject"));
+			.andExpect(content().string("test-subject"));
 		this.mvc.perform(get("/name").with(oauth2Login().oauth2User(oauth2User)))
-				.andExpect(content().string("test-subject"));
+			.andExpect(content().string("test-subject"));
 		this.mvc.perform(get("/client-name").with(oauth2Login().oauth2User(oauth2User)))
-				.andExpect(content().string("test-subject"));
+			.andExpect(content().string("test-subject"));
 	}
 
 	@Test
 	public void oauth2LoginWhenClientRegistrationSpecifiedThenUses() throws Exception {
-		this.mvc.perform(get("/client-id")
+		this.mvc
+			.perform(get("/client-id")
 				.with(oauth2Login().clientRegistration(TestClientRegistrations.clientRegistration().build())))
-				.andExpect(content().string("client-id"));
+			.andExpect(content().string("client-id"));
 	}
 
 	@Test
 	public void oauth2LoginWhenOAuth2UserSpecifiedThenLastCalledTakesPrecedence() throws Exception {
 		OAuth2User oauth2User = new DefaultOAuth2User(AuthorityUtils.createAuthorityList("SCOPE_read"),
 				Collections.singletonMap("username", "user"), "username");
-		this.mvc.perform(get("/attributes/sub")
+		this.mvc
+			.perform(get("/attributes/sub")
 				.with(oauth2Login().attributes((a) -> a.put("sub", "bar")).oauth2User(oauth2User)))
-				.andExpect(status().isOk()).andExpect(content().string("no-attribute"));
-		this.mvc.perform(get("/attributes/sub")
+			.andExpect(status().isOk())
+			.andExpect(content().string("no-attribute"));
+		this.mvc
+			.perform(get("/attributes/sub")
 				.with(oauth2Login().oauth2User(oauth2User).attributes((a) -> a.put("sub", "bar"))))
-				.andExpect(content().string("bar"));
+			.andExpect(content().string("bar"));
 	}
 
 	@EnableWebSecurity

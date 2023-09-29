@@ -47,7 +47,7 @@ final class PermitAllSupport {
 	static void permitAll(HttpSecurityBuilder<? extends HttpSecurityBuilder<?>> http,
 			RequestMatcher... requestMatchers) {
 		ExpressionUrlAuthorizationConfigurer<?> configurer = http
-				.getConfigurer(ExpressionUrlAuthorizationConfigurer.class);
+			.getConfigurer(ExpressionUrlAuthorizationConfigurer.class);
 		AuthorizeHttpRequestsConfigurer<?> httpConfigurer = http.getConfigurer(AuthorizeHttpRequestsConfigurer.class);
 
 		boolean oneConfigurerPresent = configurer == null ^ httpConfigurer == null;
@@ -58,8 +58,9 @@ final class PermitAllSupport {
 		for (RequestMatcher matcher : requestMatchers) {
 			if (matcher != null) {
 				if (configurer != null) {
-					configurer.getRegistry().addMapping(0, new UrlMapping(matcher,
-							SecurityConfig.createList(ExpressionUrlAuthorizationConfigurer.permitAll)));
+					configurer.getRegistry()
+						.addMapping(0, new UrlMapping(matcher,
+								SecurityConfig.createList(ExpressionUrlAuthorizationConfigurer.permitAll)));
 				}
 				else {
 					httpConfigurer.addFirst(matcher, AuthorizeHttpRequestsConfigurer.permitAllAuthorizationManager);

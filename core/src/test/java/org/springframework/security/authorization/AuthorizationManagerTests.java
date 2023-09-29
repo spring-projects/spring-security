@@ -59,7 +59,8 @@ public class AuthorizationManagerTests {
 		Object object = new Object();
 
 		assertThatExceptionOfType(AccessDeniedException.class)
-				.isThrownBy(() -> manager.verify(() -> authentication, object)).withMessage("Access Denied");
+			.isThrownBy(() -> manager.verify(() -> authentication, object))
+			.withMessage("Access Denied");
 	}
 
 }

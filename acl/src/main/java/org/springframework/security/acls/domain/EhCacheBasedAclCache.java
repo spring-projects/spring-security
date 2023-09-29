@@ -110,9 +110,9 @@ public class EhCacheBasedAclCache implements AclCache {
 		if (this.aclAuthorizationStrategy == null) {
 			if (acl instanceof AclImpl) {
 				this.aclAuthorizationStrategy = (AclAuthorizationStrategy) FieldUtils
-						.getProtectedFieldValue("aclAuthorizationStrategy", acl);
+					.getProtectedFieldValue("aclAuthorizationStrategy", acl);
 				this.permissionGrantingStrategy = (PermissionGrantingStrategy) FieldUtils
-						.getProtectedFieldValue("permissionGrantingStrategy", acl);
+					.getProtectedFieldValue("permissionGrantingStrategy", acl);
 			}
 		}
 		if ((acl.getParentAcl() != null) && (acl.getParentAcl() instanceof MutableAcl)) {

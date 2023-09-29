@@ -47,7 +47,7 @@ public class ClearSiteDataServerHttpHeadersWriterTests {
 	public void writeHttpHeadersWhenSecureConnectionThenHeaderWritten() {
 		ClearSiteDataServerHttpHeadersWriter writer = new ClearSiteDataServerHttpHeadersWriter(Directive.ALL);
 		ServerWebExchange secureExchange = MockServerWebExchange
-				.from(MockServerHttpRequest.get("https://localhost").build());
+			.from(MockServerHttpRequest.get("https://localhost").build());
 		writer.writeHttpHeaders(secureExchange);
 		assertThat(secureExchange.getResponse()).hasClearSiteDataHeaderDirectives(Directive.ALL);
 	}
@@ -65,7 +65,7 @@ public class ClearSiteDataServerHttpHeadersWriterTests {
 		ClearSiteDataServerHttpHeadersWriter writer = new ClearSiteDataServerHttpHeadersWriter(Directive.CACHE,
 				Directive.COOKIES);
 		ServerWebExchange secureExchange = MockServerWebExchange
-				.from(MockServerHttpRequest.get("https://localhost").build());
+			.from(MockServerHttpRequest.get("https://localhost").build());
 		writer.writeHttpHeaders(secureExchange);
 		assertThat(secureExchange.getResponse()).hasClearSiteDataHeaderDirectives(Directive.CACHE, Directive.COOKIES);
 	}
@@ -84,8 +84,9 @@ public class ClearSiteDataServerHttpHeadersWriterTests {
 			isNotNull();
 			List<String> header = getHeader();
 			String actualHeaderValue = String.join("", header);
-			String expectedHeaderVale = Stream.of(directives).map(Directive::getHeaderValue)
-					.collect(Collectors.joining(", "));
+			String expectedHeaderVale = Stream.of(directives)
+				.map(Directive::getHeaderValue)
+				.collect(Collectors.joining(", "));
 			if (!actualHeaderValue.equals(expectedHeaderVale)) {
 				failWithMessage("Expected to have %s as Clear-Site-Data header value but found %s", expectedHeaderVale,
 						actualHeaderValue);

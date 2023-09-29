@@ -331,7 +331,7 @@ public class InterceptUrlConfigTests {
 	@Test
 	public void configureWhenUsingAntMatcherAndServletPathThenThrowsException() {
 		assertThatExceptionOfType(BeanDefinitionParsingException.class)
-				.isThrownBy(() -> this.spring.configLocations(this.xml("AntMatcherServletPath")).autowire());
+			.isThrownBy(() -> this.spring.configLocations(this.xml("AntMatcherServletPath")).autowire());
 	}
 
 	@Test
@@ -343,7 +343,7 @@ public class InterceptUrlConfigTests {
 	@Test
 	public void configureWhenUsingRegexMatcherAndServletPathThenThrowsException() {
 		assertThatExceptionOfType(BeanDefinitionParsingException.class)
-				.isThrownBy(() -> this.spring.configLocations(this.xml("RegexMatcherServletPath")).autowire());
+			.isThrownBy(() -> this.spring.configLocations(this.xml("RegexMatcherServletPath")).autowire());
 	}
 
 	@Test
@@ -355,25 +355,27 @@ public class InterceptUrlConfigTests {
 	@Test
 	public void configureWhenUsingCiRegexMatcherAndServletPathThenThrowsException() {
 		assertThatExceptionOfType(BeanDefinitionParsingException.class)
-				.isThrownBy(() -> this.spring.configLocations(this.xml("CiRegexMatcherServletPath")).autowire());
+			.isThrownBy(() -> this.spring.configLocations(this.xml("CiRegexMatcherServletPath")).autowire());
 	}
 
 	@Test
 	public void configureWhenUsingCiRegexMatcherAndServletPathAndAuthorizationManagerThenThrowsException() {
-		assertThatExceptionOfType(BeanDefinitionParsingException.class).isThrownBy(() -> this.spring
-				.configLocations(this.xml("CiRegexMatcherServletPathAuthorizationManager")).autowire());
+		assertThatExceptionOfType(BeanDefinitionParsingException.class)
+			.isThrownBy(() -> this.spring.configLocations(this.xml("CiRegexMatcherServletPathAuthorizationManager"))
+				.autowire());
 	}
 
 	@Test
 	public void configureWhenUsingDefaultMatcherAndServletPathThenThrowsException() {
 		assertThatExceptionOfType(BeanDefinitionParsingException.class)
-				.isThrownBy(() -> this.spring.configLocations(this.xml("DefaultMatcherServletPath")).autowire());
+			.isThrownBy(() -> this.spring.configLocations(this.xml("DefaultMatcherServletPath")).autowire());
 	}
 
 	@Test
 	public void configureWhenUsingDefaultMatcherAndServletPathAndAuthorizationManagerThenThrowsException() {
-		assertThatExceptionOfType(BeanDefinitionParsingException.class).isThrownBy(() -> this.spring
-				.configLocations(this.xml("DefaultMatcherServletPathAuthorizationManager")).autowire());
+		assertThatExceptionOfType(BeanDefinitionParsingException.class)
+			.isThrownBy(() -> this.spring.configLocations(this.xml("DefaultMatcherServletPathAuthorizationManager"))
+				.autowire());
 	}
 
 	@Test

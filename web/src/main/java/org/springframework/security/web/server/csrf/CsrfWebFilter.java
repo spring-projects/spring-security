@@ -126,7 +126,7 @@ public class CsrfWebFilter implements WebFilter {
 	public void setTokenFromMultipartDataEnabled(boolean tokenFromMultipartDataEnabled) {
 		if (this.requestHandler instanceof ServerCsrfTokenRequestAttributeHandler) {
 			((ServerCsrfTokenRequestAttributeHandler) this.requestHandler)
-					.setTokenFromMultipartDataEnabled(tokenFromMultipartDataEnabled);
+				.setTokenFromMultipartDataEnabled(tokenFromMultipartDataEnabled);
 		}
 	}
 
@@ -135,11 +135,13 @@ public class CsrfWebFilter implements WebFilter {
 		if (Boolean.TRUE.equals(exchange.getAttribute(SHOULD_NOT_FILTER))) {
 			return chain.filter(exchange).then(Mono.empty());
 		}
-		return this.requireCsrfProtectionMatcher.matches(exchange).filter(MatchResult::isMatch)
-				.filter((matchResult) -> !exchange.getAttributes().containsKey(CsrfToken.class.getName()))
-				.flatMap((m) -> validateToken(exchange)).flatMap((m) -> continueFilterChain(exchange, chain))
-				.switchIfEmpty(continueFilterChain(exchange, chain).then(Mono.empty()))
-				.onErrorResume(CsrfException.class, (ex) -> this.accessDeniedHandler.handle(exchange, ex));
+		return this.requireCsrfProtectionMatcher.matches(exchange)
+			.filter(MatchResult::isMatch)
+			.filter((matchResult) -> !exchange.getAttributes().containsKey(CsrfToken.class.getName()))
+			.flatMap((m) -> validateToken(exchange))
+			.flatMap((m) -> continueFilterChain(exchange, chain))
+			.switchIfEmpty(continueFilterChain(exchange, chain).then(Mono.empty()))
+			.onErrorResume(CsrfException.class, (ex) -> this.accessDeniedHandler.handle(exchange, ex));
 	}
 
 	public static void skipExchange(ServerWebExchange exchange) {
@@ -148,15 +150,15 @@ public class CsrfWebFilter implements WebFilter {
 
 	private Mono<Void> validateToken(ServerWebExchange exchange) {
 		return this.csrfTokenRepository.loadToken(exchange)
-				.switchIfEmpty(
-						Mono.defer(() -> Mono.error(new CsrfException("An expected CSRF token cannot be found"))))
-				.filterWhen((expected) -> containsValidCsrfToken(exchange, expected))
-				.switchIfEmpty(Mono.defer(() -> Mono.error(new CsrfException("Invalid CSRF Token")))).then();
+			.switchIfEmpty(Mono.defer(() -> Mono.error(new CsrfException("An expected CSRF token cannot be found"))))
+			.filterWhen((expected) -> containsValidCsrfToken(exchange, expected))
+			.switchIfEmpty(Mono.defer(() -> Mono.error(new CsrfException("Invalid CSRF Token"))))
+			.then();
 	}
 
 	private Mono<Boolean> containsValidCsrfToken(ServerWebExchange exchange, CsrfToken expected) {
 		return this.requestHandler.resolveCsrfTokenValue(exchange, expected)
-				.map((actual) -> equalsConstantTime(actual, expected.getToken()));
+			.map((actual) -> equalsConstantTime(actual, expected.getToken()));
 	}
 
 	private Mono<Void> continueFilterChain(ServerWebExchange exchange, WebFilterChain chain) {
@@ -192,7 +194,8 @@ public class CsrfWebFilter implements WebFilter {
 
 	private Mono<CsrfToken> generateToken(ServerWebExchange exchange) {
 		return this.csrfTokenRepository.generateToken(exchange)
-				.delayUntil((token) -> this.csrfTokenRepository.saveToken(exchange, token)).cache();
+			.delayUntil((token) -> this.csrfTokenRepository.saveToken(exchange, token))
+			.cache();
 	}
 
 	private static class DefaultRequireCsrfProtectionMatcher implements ServerWebExchangeMatcher {
@@ -202,9 +205,11 @@ public class CsrfWebFilter implements WebFilter {
 
 		@Override
 		public Mono<MatchResult> matches(ServerWebExchange exchange) {
-			return Mono.just(exchange.getRequest()).flatMap((r) -> Mono.justOrEmpty(r.getMethod()))
-					.filter(ALLOWED_METHODS::contains).flatMap((m) -> MatchResult.notMatch())
-					.switchIfEmpty(MatchResult.match());
+			return Mono.just(exchange.getRequest())
+				.flatMap((r) -> Mono.justOrEmpty(r.getMethod()))
+				.filter(ALLOWED_METHODS::contains)
+				.flatMap((m) -> MatchResult.notMatch())
+				.switchIfEmpty(MatchResult.match());
 		}
 
 	}

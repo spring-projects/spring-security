@@ -62,7 +62,7 @@ public final class MethodExpressionAuthorizationManager implements Authorization
 		Assert.notNull(expressionHandler, "expressionHandler cannot be null");
 		this.expressionHandler = expressionHandler;
 		this.expression = expressionHandler.getExpressionParser()
-				.parseExpression(this.expression.getExpressionString());
+			.parseExpression(this.expression.getExpressionString());
 	}
 
 	/**

@@ -66,7 +66,7 @@ public class DelegatingAuthenticationFailureHandler implements AuthenticationFai
 	public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
 			AuthenticationException exception) throws IOException, ServletException {
 		for (Map.Entry<Class<? extends AuthenticationException>, AuthenticationFailureHandler> entry : this.handlers
-				.entrySet()) {
+			.entrySet()) {
 			Class<? extends AuthenticationException> handlerMappedExceptionClass = entry.getKey();
 			if (handlerMappedExceptionClass.isAssignableFrom(exception.getClass())) {
 				AuthenticationFailureHandler handler = entry.getValue();

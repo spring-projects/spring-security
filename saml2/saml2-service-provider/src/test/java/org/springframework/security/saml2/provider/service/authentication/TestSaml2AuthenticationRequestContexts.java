@@ -27,9 +27,11 @@ public final class TestSaml2AuthenticationRequestContexts {
 	}
 
 	public static Saml2AuthenticationRequestContext.Builder authenticationRequestContext() {
-		return Saml2AuthenticationRequestContext.builder().relayState("relayState").issuer("issuer")
-				.relyingPartyRegistration(TestRelyingPartyRegistrations.relyingPartyRegistration().build())
-				.assertionConsumerServiceUrl("assertionConsumerServiceUrl");
+		return Saml2AuthenticationRequestContext.builder()
+			.relayState("relayState")
+			.issuer("issuer")
+			.relyingPartyRegistration(TestRelyingPartyRegistrations.relyingPartyRegistration().build())
+			.assertionConsumerServiceUrl("assertionConsumerServiceUrl");
 	}
 
 }

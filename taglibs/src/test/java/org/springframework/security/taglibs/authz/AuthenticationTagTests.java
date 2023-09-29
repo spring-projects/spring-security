@@ -69,8 +69,8 @@ public class AuthenticationTagTests {
 
 	@Test
 	public void testOperationWhenPrincipalIsAString() throws JspException {
-		SecurityContextHolder.getContext().setAuthentication(
-				new TestingAuthenticationToken("rodAsString", "koala", AuthorityUtils.NO_AUTHORITIES));
+		SecurityContextHolder.getContext()
+			.setAuthentication(new TestingAuthenticationToken("rodAsString", "koala", AuthorityUtils.NO_AUTHORITIES));
 		this.authenticationTag.setProperty("principal");
 		assertThat(this.authenticationTag.doStartTag()).isEqualTo(Tag.SKIP_BODY);
 		assertThat(this.authenticationTag.doEndTag()).isEqualTo(Tag.EVAL_PAGE);
@@ -89,7 +89,7 @@ public class AuthenticationTagTests {
 	@Test
 	public void testOperationWhenPrincipalIsNull() throws JspException {
 		SecurityContextHolder.getContext()
-				.setAuthentication(new TestingAuthenticationToken(null, "koala", AuthorityUtils.NO_AUTHORITIES));
+			.setAuthentication(new TestingAuthenticationToken(null, "koala", AuthorityUtils.NO_AUTHORITIES));
 		this.authenticationTag.setProperty("principal");
 		assertThat(this.authenticationTag.doStartTag()).isEqualTo(Tag.SKIP_BODY);
 		assertThat(this.authenticationTag.doEndTag()).isEqualTo(Tag.EVAL_PAGE);

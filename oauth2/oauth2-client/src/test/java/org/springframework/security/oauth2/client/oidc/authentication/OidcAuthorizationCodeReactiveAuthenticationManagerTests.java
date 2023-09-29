@@ -119,16 +119,16 @@ public class OidcAuthorizationCodeReactiveAuthenticationManagerTests {
 	public void constructorWhenNullAccessTokenResponseClientThenIllegalArgumentException() {
 		this.accessTokenResponseClient = null;
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new OidcAuthorizationCodeReactiveAuthenticationManager(this.accessTokenResponseClient,
-						this.userService));
+			.isThrownBy(() -> new OidcAuthorizationCodeReactiveAuthenticationManager(this.accessTokenResponseClient,
+					this.userService));
 	}
 
 	@Test
 	public void constructorWhenNullUserServiceThenIllegalArgumentException() {
 		this.userService = null;
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new OidcAuthorizationCodeReactiveAuthenticationManager(this.accessTokenResponseClient,
-						this.userService));
+			.isThrownBy(() -> new OidcAuthorizationCodeReactiveAuthenticationManager(this.accessTokenResponseClient,
+					this.userService));
 	}
 
 	@Test
@@ -163,14 +163,14 @@ public class OidcAuthorizationCodeReactiveAuthenticationManagerTests {
 				.state("state");
 		// @formatter:on
 		assertThatExceptionOfType(OAuth2AuthenticationException.class)
-				.isThrownBy(() -> this.manager.authenticate(loginToken()).block());
+			.isThrownBy(() -> this.manager.authenticate(loginToken()).block());
 	}
 
 	@Test
 	public void authenticationWhenStateDoesNotMatchThenOAuth2AuthenticationException() {
 		this.authorizationResponseBldr.state("notmatch");
 		assertThatExceptionOfType(OAuth2AuthenticationException.class)
-				.isThrownBy(() -> this.manager.authenticate(loginToken()).block());
+			.isThrownBy(() -> this.manager.authenticate(loginToken()).block());
 	}
 
 	@Test
@@ -185,8 +185,8 @@ public class OidcAuthorizationCodeReactiveAuthenticationManagerTests {
 		given(this.jwtDecoder.decode(any())).willThrow(new JwtException("ID Token Validation Error"));
 		this.manager.setJwtDecoderFactory((c) -> this.jwtDecoder);
 		assertThatExceptionOfType(OAuth2AuthenticationException.class)
-				.isThrownBy(() -> this.manager.authenticate(loginToken()).block())
-				.withMessageContaining("[invalid_id_token] ID Token Validation Error");
+			.isThrownBy(() -> this.manager.authenticate(loginToken()).block())
+			.withMessageContaining("[invalid_id_token] ID Token Validation Error");
 	}
 
 	@Test
@@ -209,8 +209,8 @@ public class OidcAuthorizationCodeReactiveAuthenticationManagerTests {
 		given(this.jwtDecoder.decode(any())).willReturn(Mono.just(idToken));
 		this.manager.setJwtDecoderFactory((c) -> this.jwtDecoder);
 		assertThatExceptionOfType(OAuth2AuthenticationException.class)
-				.isThrownBy(() -> this.manager.authenticate(authorizationCodeAuthentication).block())
-				.withMessageContaining("[invalid_nonce]");
+			.isThrownBy(() -> this.manager.authenticate(authorizationCodeAuthentication).block())
+			.withMessageContaining("[invalid_nonce]");
 	}
 
 	@Test
@@ -259,7 +259,8 @@ public class OidcAuthorizationCodeReactiveAuthenticationManagerTests {
 		given(this.jwtDecoder.decode(any())).willReturn(Mono.just(idToken));
 		this.manager.setJwtDecoderFactory((c) -> this.jwtDecoder);
 		OAuth2LoginAuthenticationToken result = (OAuth2LoginAuthenticationToken) this.manager
-				.authenticate(authorizationCodeAuthentication).block();
+			.authenticate(authorizationCodeAuthentication)
+			.block();
 		assertThat(result.getPrincipal()).isEqualTo(user);
 		assertThat(result.getAuthorities()).containsOnlyElementsOf(user.getAuthorities());
 		assertThat(result.isAuthenticated()).isTrue();
@@ -289,7 +290,8 @@ public class OidcAuthorizationCodeReactiveAuthenticationManagerTests {
 		given(this.jwtDecoder.decode(any())).willReturn(Mono.just(idToken));
 		this.manager.setJwtDecoderFactory((c) -> this.jwtDecoder);
 		OAuth2LoginAuthenticationToken result = (OAuth2LoginAuthenticationToken) this.manager
-				.authenticate(authorizationCodeAuthentication).block();
+			.authenticate(authorizationCodeAuthentication)
+			.block();
 		assertThat(result.getPrincipal()).isEqualTo(user);
 		assertThat(result.getAuthorities()).containsOnlyElementsOf(user.getAuthorities());
 		assertThat(result.isAuthenticated()).isTrue();
@@ -326,7 +328,7 @@ public class OidcAuthorizationCodeReactiveAuthenticationManagerTests {
 		this.manager.setJwtDecoderFactory((c) -> this.jwtDecoder);
 		this.manager.authenticate(authorizationCodeAuthentication).block();
 		assertThat(userRequestArgCaptor.getValue().getAdditionalParameters())
-				.containsAllEntriesOf(accessTokenResponse.getAdditionalParameters());
+			.containsAllEntriesOf(accessTokenResponse.getAdditionalParameters());
 	}
 
 	@Test
@@ -353,7 +355,7 @@ public class OidcAuthorizationCodeReactiveAuthenticationManagerTests {
 		List<GrantedAuthority> mappedAuthorities = AuthorityUtils.createAuthorityList("ROLE_OIDC_USER");
 		GrantedAuthoritiesMapper authoritiesMapper = mock(GrantedAuthoritiesMapper.class);
 		given(authoritiesMapper.mapAuthorities(anyCollection()))
-				.willAnswer((Answer<List<GrantedAuthority>>) (invocation) -> mappedAuthorities);
+			.willAnswer((Answer<List<GrantedAuthority>>) (invocation) -> mappedAuthorities);
 		given(this.jwtDecoder.decode(any())).willReturn(Mono.just(idToken));
 		this.manager.setJwtDecoderFactory((c) -> this.jwtDecoder);
 		this.manager.setAuthoritiesMapper(authoritiesMapper);

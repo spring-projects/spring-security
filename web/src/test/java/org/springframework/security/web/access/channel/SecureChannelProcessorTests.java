@@ -93,7 +93,7 @@ public class SecureChannelProcessorTests {
 		SecureChannelProcessor processor = new SecureChannelProcessor();
 		processor.setEntryPoint(null);
 		assertThatIllegalArgumentException().isThrownBy(processor::afterPropertiesSet)
-				.withMessage("entryPoint required");
+			.withMessage("entryPoint required");
 	}
 
 	@Test
@@ -101,10 +101,10 @@ public class SecureChannelProcessorTests {
 		SecureChannelProcessor processor = new SecureChannelProcessor();
 		processor.setSecureKeyword(null);
 		assertThatIllegalArgumentException().isThrownBy(processor::afterPropertiesSet)
-				.withMessage("secureKeyword required");
+			.withMessage("secureKeyword required");
 		processor.setSecureKeyword("");
 		assertThatIllegalArgumentException().isThrownBy(() -> processor.afterPropertiesSet())
-				.withMessage("secureKeyword required");
+			.withMessage("secureKeyword required");
 	}
 
 	@Test

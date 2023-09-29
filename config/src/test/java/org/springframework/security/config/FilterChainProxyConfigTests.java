@@ -115,7 +115,7 @@ public class FilterChainProxyConfigTests {
 		assertThat(getPattern(chains.get(0))).isEqualTo("/login*");
 		assertThat(getPattern(chains.get(1))).isEqualTo("/logout");
 		assertThat(((DefaultSecurityFilterChain) chains.get(2)).getRequestMatcher() instanceof AnyRequestMatcher)
-				.isTrue();
+			.isTrue();
 	}
 
 	private String getPattern(SecurityFilterChain chain) {

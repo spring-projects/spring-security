@@ -132,7 +132,7 @@ public class OpenID4JavaConsumer implements OpenIDConsumer {
 					"DiscoveryInformation is not available. Possible causes are lost session or replay attack");
 		}
 		List<OpenIDAttribute> attributesToFetch = (List<OpenIDAttribute>) request.getSession()
-				.getAttribute(ATTRIBUTE_LIST_KEY);
+			.getAttribute(ATTRIBUTE_LIST_KEY);
 		request.getSession().removeAttribute(DISCOVERY_INFO_KEY);
 		request.getSession().removeAttribute(ATTRIBUTE_LIST_KEY);
 		// extract the receiving URL from the HTTP request

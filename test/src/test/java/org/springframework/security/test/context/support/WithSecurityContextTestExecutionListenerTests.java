@@ -135,10 +135,10 @@ public class WithSecurityContextTestExecutionListenerTests {
 		securityContext.setAuthentication(new TestingAuthenticationToken("user", "passsword", "ROLE_USER"));
 		Supplier<SecurityContext> supplier = () -> securityContext;
 		given(this.testContext.removeAttribute(WithSecurityContextTestExecutionListener.SECURITY_CONTEXT_ATTR_NAME))
-				.willReturn(supplier);
+			.willReturn(supplier);
 		this.listener.beforeTestExecution(this.testContext);
 		assertThat(TestSecurityContextHolder.getContext().getAuthentication())
-				.isEqualTo(securityContext.getAuthentication());
+			.isEqualTo(securityContext.getAuthentication());
 	}
 
 	@Configuration

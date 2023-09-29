@@ -54,8 +54,8 @@ public class CsrfTokenRequestAttributeHandlerTests {
 	@Test
 	public void handleWhenRequestIsNullThenThrowsIllegalArgumentException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> this.handler.handle(null, this.response, () -> this.token))
-				.withMessage("request cannot be null");
+			.isThrownBy(() -> this.handler.handle(null, this.response, () -> this.token))
+			.withMessage("request cannot be null");
 	}
 
 	@Test
@@ -70,7 +70,7 @@ public class CsrfTokenRequestAttributeHandlerTests {
 	@Test
 	public void handleWhenCsrfTokenSupplierIsNullThenThrowsIllegalArgumentException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.handler.handle(this.request, this.response, null))
-				.withMessage("deferredCsrfToken cannot be null");
+			.withMessage("deferredCsrfToken cannot be null");
 	}
 
 	@Test
@@ -101,13 +101,13 @@ public class CsrfTokenRequestAttributeHandlerTests {
 	@Test
 	public void resolveCsrfTokenValueWhenRequestIsNullThenThrowsIllegalArgumentException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.handler.resolveCsrfTokenValue(null, this.token))
-				.withMessage("request cannot be null");
+			.withMessage("request cannot be null");
 	}
 
 	@Test
 	public void resolveCsrfTokenValueWhenCsrfTokenIsNullThenThrowsIllegalArgumentException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.handler.resolveCsrfTokenValue(this.request, null))
-				.withMessage("csrfToken cannot be null");
+			.withMessage("csrfToken cannot be null");
 	}
 
 	@Test

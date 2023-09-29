@@ -52,7 +52,7 @@ public class HttpSecurityAuthenticationManagerTests {
 		this.spring.register(AuthenticationManagerConfig.class).autowire();
 
 		given(AuthenticationManagerConfig.AUTHENTICATION_MANAGER.authenticate(any()))
-				.willReturn(new TestingAuthenticationToken("user", "test", "ROLE_USER"));
+			.willReturn(new TestingAuthenticationToken("user", "test", "ROLE_USER"));
 
 		this.mvc.perform(get("/").with(httpBasic("user", "test")));
 
@@ -65,7 +65,7 @@ public class HttpSecurityAuthenticationManagerTests {
 		this.spring.register(AuthenticationManagerBuilderConfig.class).autowire();
 
 		given(AuthenticationManagerBuilderConfig.AUTHENTICATION_MANAGER.authenticate(any()))
-				.willReturn(new TestingAuthenticationToken("user", "test", "ROLE_USER"));
+			.willReturn(new TestingAuthenticationToken("user", "test", "ROLE_USER"));
 
 		this.mvc.perform(get("/").with(httpBasic("user", "test")));
 

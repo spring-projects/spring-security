@@ -31,7 +31,7 @@ class Saml2PostAuthenticationRequestTests {
 		Saml2PostAuthenticationRequest authenticationRequest = getAuthenticationRequestBuilder().build();
 		byte[] bytes = SerializationUtils.serialize(authenticationRequest);
 		Saml2PostAuthenticationRequest deserializedAuthenticationRequest = (Saml2PostAuthenticationRequest) SerializationUtils
-				.deserialize(bytes);
+			.deserialize(bytes);
 		assertThat(deserializedAuthenticationRequest).usingRecursiveComparison().isEqualTo(authenticationRequest);
 	}
 
@@ -39,18 +39,20 @@ class Saml2PostAuthenticationRequestTests {
 	void serializeWhenDeserializeAndCompareToOtherThenNotSame() {
 		Saml2PostAuthenticationRequest authenticationRequest = getAuthenticationRequestBuilder().build();
 		Saml2PostAuthenticationRequest otherAuthenticationRequest = getAuthenticationRequestBuilder()
-				.relayState("relay").build();
+			.relayState("relay")
+			.build();
 		byte[] bytes = SerializationUtils.serialize(otherAuthenticationRequest);
 		Saml2PostAuthenticationRequest deserializedAuthenticationRequest = (Saml2PostAuthenticationRequest) SerializationUtils
-				.deserialize(bytes);
+			.deserialize(bytes);
 		assertThat(deserializedAuthenticationRequest).usingRecursiveComparison().isNotEqualTo(authenticationRequest);
 	}
 
 	private Saml2PostAuthenticationRequest.Builder getAuthenticationRequestBuilder() {
 		return Saml2PostAuthenticationRequest
-				.withAuthenticationRequestContext(
-						TestSaml2AuthenticationRequestContexts.authenticationRequestContext().build())
-				.samlRequest("request").authenticationRequestUri(IDP_SSO_URL);
+			.withAuthenticationRequestContext(
+					TestSaml2AuthenticationRequestContexts.authenticationRequestContext().build())
+			.samlRequest("request")
+			.authenticationRequestUri(IDP_SSO_URL);
 	}
 
 }

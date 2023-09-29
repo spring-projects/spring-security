@@ -60,7 +60,7 @@ public class HttpStatusReturningLogoutSuccessHandlerTests {
 	@Test
 	public void testThatSettNullHttpStatusThrowsException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> new HttpStatusReturningLogoutSuccessHandler(null))
-				.withMessage("The provided HttpStatus must not be null.");
+			.withMessage("The provided HttpStatus must not be null.");
 	}
 
 }

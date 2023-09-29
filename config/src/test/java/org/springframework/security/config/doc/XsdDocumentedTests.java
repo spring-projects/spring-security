@@ -151,7 +151,7 @@ public class XsdDocumentedTests {
 				.list((dir, name) -> name.endsWith(".xsd"));
 		// @formatter:on
 		assertThat(schemas.length).isEqualTo(21)
-				.withFailMessage("the count is equal to 21, if not then schemaDocument needs updating");
+			.withFailMessage("the count is equal to 21, if not then schemaDocument needs updating");
 	}
 
 	/**
@@ -257,11 +257,11 @@ public class XsdDocumentedTests {
 			}
 		});
 		assertThat(docAttrNameToChildren)
-				.describedAs(toString(docAttrNameToChildren) + "\n!=\n\n" + toString(schemaAttrNameToChildren))
-				.containsExactlyInAnyOrderEntriesOf(schemaAttrNameToChildren);
+			.describedAs(toString(docAttrNameToChildren) + "\n!=\n\n" + toString(schemaAttrNameToChildren))
+			.containsExactlyInAnyOrderEntriesOf(schemaAttrNameToChildren);
 		assertThat(docAttrNameToParents)
-				.describedAs(toString(docAttrNameToParents) + "\n!=\n\n" + toString(schemaAttrNameToParents))
-				.containsExactlyInAnyOrderEntriesOf(schemaAttrNameToParents);
+			.describedAs(toString(docAttrNameToParents) + "\n!=\n\n" + toString(schemaAttrNameToParents))
+			.containsExactlyInAnyOrderEntriesOf(schemaAttrNameToParents);
 	}
 
 	private String toString(Map<?, ?> map) {

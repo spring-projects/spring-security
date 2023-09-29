@@ -103,7 +103,7 @@ public class AclImplTests {
 		assertThatIllegalArgumentException().isThrownBy(
 				() -> new AclImpl(null, 1, this.authzStrategy, this.pgs, null, null, true, new PrincipalSid("joe")));
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new AclImpl(null, 1, this.authzStrategy, this.mockAuditLogger));
+			.isThrownBy(() -> new AclImpl(null, 1, this.authzStrategy, this.mockAuditLogger));
 	}
 
 	@Test
@@ -111,7 +111,7 @@ public class AclImplTests {
 		assertThatIllegalArgumentException().isThrownBy(() -> new AclImpl(this.objectIdentity, null, this.authzStrategy,
 				this.pgs, null, null, true, new PrincipalSid("joe")));
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new AclImpl(this.objectIdentity, null, this.authzStrategy, this.mockAuditLogger));
+			.isThrownBy(() -> new AclImpl(this.objectIdentity, null, this.authzStrategy, this.mockAuditLogger));
 	}
 
 	@Test
@@ -120,7 +120,7 @@ public class AclImplTests {
 				new DefaultPermissionGrantingStrategy(this.mockAuditLogger), null, null, true,
 				new PrincipalSid("joe")));
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new AclImpl(this.objectIdentity, 1, null, this.mockAuditLogger));
+			.isThrownBy(() -> new AclImpl(this.objectIdentity, 1, null, this.mockAuditLogger));
 	}
 
 	@Test
@@ -128,7 +128,7 @@ public class AclImplTests {
 		MutableAcl acl = new AclImpl(this.objectIdentity, 1, this.authzStrategy, this.pgs, null, null, true,
 				new PrincipalSid("joe"));
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> acl.insertAce(0, null, new GrantedAuthoritySid("ROLE_IGNORED"), true));
+			.isThrownBy(() -> acl.insertAce(0, null, new GrantedAuthoritySid("ROLE_IGNORED"), true));
 		assertThatIllegalArgumentException().isThrownBy(() -> acl.insertAce(0, BasePermission.READ, null, true));
 	}
 
@@ -175,7 +175,7 @@ public class AclImplTests {
 		acl.insertAce(0, BasePermission.READ, new GrantedAuthoritySid("ROLE_TEST1"), true);
 		service.updateAcl(acl);
 		assertThatExceptionOfType(NotFoundException.class)
-				.isThrownBy(() -> acl.insertAce(55, BasePermission.READ, new GrantedAuthoritySid("ROLE_TEST2"), true));
+			.isThrownBy(() -> acl.insertAce(55, BasePermission.READ, new GrantedAuthoritySid("ROLE_TEST2"), true));
 	}
 
 	@Test
@@ -223,7 +223,7 @@ public class AclImplTests {
 				new PrincipalSid("joe"));
 		Sid ben = new PrincipalSid("ben");
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> acl.isGranted(new ArrayList<>(0), Arrays.asList(ben), false));
+			.isThrownBy(() -> acl.isGranted(new ArrayList<>(0), Arrays.asList(ben), false));
 		assertThatIllegalArgumentException().isThrownBy(() -> acl.isGranted(READ, new ArrayList<>(0), false));
 	}
 
@@ -246,12 +246,14 @@ public class AclImplTests {
 		List<Sid> sids = Arrays.asList(new PrincipalSid("ben"), new GrantedAuthoritySid("ROLE_GUEST"));
 		assertThat(rootAcl.isGranted(permissions, sids, false)).isFalse();
 		assertThatExceptionOfType(NotFoundException.class)
-				.isThrownBy(() -> rootAcl.isGranted(permissions, SCOTT, false));
+			.isThrownBy(() -> rootAcl.isGranted(permissions, SCOTT, false));
 		assertThat(rootAcl.isGranted(WRITE, SCOTT, false)).isTrue();
 		assertThat(rootAcl.isGranted(WRITE,
-				Arrays.asList(new PrincipalSid("rod"), new GrantedAuthoritySid("WRITE_ACCESS_ROLE")), false)).isFalse();
+				Arrays.asList(new PrincipalSid("rod"), new GrantedAuthoritySid("WRITE_ACCESS_ROLE")), false))
+			.isFalse();
 		assertThat(rootAcl.isGranted(WRITE,
-				Arrays.asList(new GrantedAuthoritySid("WRITE_ACCESS_ROLE"), new PrincipalSid("rod")), false)).isTrue();
+				Arrays.asList(new GrantedAuthoritySid("WRITE_ACCESS_ROLE"), new PrincipalSid("rod")), false))
+			.isTrue();
 		// Change the type of the Sid and check the granting process
 		assertThatExceptionOfType(NotFoundException.class).isThrownBy(() -> rootAcl.isGranted(WRITE,
 				Arrays.asList(new GrantedAuthoritySid("rod"), new PrincipalSid("WRITE_ACCESS_ROLE")), false));
@@ -292,7 +294,7 @@ public class AclImplTests {
 		// Check granting process for parent1
 		assertThat(parentAcl1.isGranted(READ, SCOTT, false)).isTrue();
 		assertThat(parentAcl1.isGranted(READ, Arrays.asList((Sid) new GrantedAuthoritySid("ROLE_USER_READ")), false))
-				.isTrue();
+			.isTrue();
 		assertThat(parentAcl1.isGranted(WRITE, BEN, false)).isTrue();
 		assertThat(parentAcl1.isGranted(DELETE, BEN, false)).isFalse();
 		assertThat(parentAcl1.isGranted(DELETE, SCOTT, false)).isFalse();
@@ -303,13 +305,13 @@ public class AclImplTests {
 		// Check granting process for child1
 		assertThat(childAcl1.isGranted(CREATE, SCOTT, false)).isTrue();
 		assertThat(childAcl1.isGranted(READ, Arrays.asList((Sid) new GrantedAuthoritySid("ROLE_USER_READ")), false))
-				.isTrue();
+			.isTrue();
 		assertThat(childAcl1.isGranted(DELETE, BEN, false)).isFalse();
 		// Check granting process for child2 (doesn't inherit the permissions from its
 		// parent)
 		assertThatExceptionOfType(NotFoundException.class).isThrownBy(() -> childAcl2.isGranted(CREATE, SCOTT, false));
 		assertThatExceptionOfType(NotFoundException.class)
-				.isThrownBy(() -> childAcl2.isGranted(CREATE, Arrays.asList((Sid) new PrincipalSid("joe")), false));
+			.isThrownBy(() -> childAcl2.isGranted(CREATE, Arrays.asList((Sid) new PrincipalSid("joe")), false));
 	}
 
 	@Test
@@ -396,20 +398,20 @@ public class AclImplTests {
 				new PrincipalSid("joe"));
 		assertThat(acl.isSidLoaded(loadedSids)).isTrue();
 		assertThat(acl.isSidLoaded(Arrays.asList(new GrantedAuthoritySid("ROLE_IGNORED"), new PrincipalSid("ben"))))
-				.isTrue();
+			.isTrue();
 		assertThat(acl.isSidLoaded(Arrays.asList((Sid) new GrantedAuthoritySid("ROLE_IGNORED")))).isTrue();
 		assertThat(acl.isSidLoaded(BEN)).isTrue();
 		assertThat(acl.isSidLoaded(null)).isTrue();
 		assertThat(acl.isSidLoaded(new ArrayList<>(0))).isTrue();
 		assertThat(acl.isSidLoaded(
 				Arrays.asList(new GrantedAuthoritySid("ROLE_IGNORED"), new GrantedAuthoritySid("ROLE_IGNORED"))))
-						.isTrue();
+			.isTrue();
 		assertThat(acl.isSidLoaded(
 				Arrays.asList(new GrantedAuthoritySid("ROLE_GENERAL"), new GrantedAuthoritySid("ROLE_IGNORED"))))
-						.isFalse();
+			.isFalse();
 		assertThat(acl.isSidLoaded(
 				Arrays.asList(new GrantedAuthoritySid("ROLE_IGNORED"), new GrantedAuthoritySid("ROLE_GENERAL"))))
-						.isFalse();
+			.isFalse();
 	}
 
 	@Test
@@ -417,7 +419,7 @@ public class AclImplTests {
 		AclImpl acl = new AclImpl(this.objectIdentity, 1, this.authzStrategy, this.pgs, null, null, true,
 				new PrincipalSid("joe"));
 		assertThatExceptionOfType(NotFoundException.class)
-				.isThrownBy(() -> acl.insertAce(-1, mock(Permission.class), mock(Sid.class), true));
+			.isThrownBy(() -> acl.insertAce(-1, mock(Permission.class), mock(Sid.class), true));
 	}
 
 	@Test
@@ -435,7 +437,7 @@ public class AclImplTests {
 		acl.insertAce(0, mock(Permission.class), mock(Sid.class), true);
 		// Size is now 1
 		assertThatExceptionOfType(NotFoundException.class)
-				.isThrownBy(() -> acl.insertAce(2, mock(Permission.class), mock(Sid.class), true));
+			.isThrownBy(() -> acl.insertAce(2, mock(Permission.class), mock(Sid.class), true));
 	}
 
 	// SEC-1151
@@ -466,7 +468,7 @@ public class AclImplTests {
 		AclImpl acl = new AclImpl(this.objectIdentity, 1, this.authzStrategy, maskPgs, null, null, true,
 				new PrincipalSid("joe"));
 		Permission permission = this.permissionFactory
-				.buildFromMask(BasePermission.READ.getMask() | BasePermission.WRITE.getMask());
+			.buildFromMask(BasePermission.READ.getMask() | BasePermission.WRITE.getMask());
 		Sid sid = new PrincipalSid("ben");
 		acl.insertAce(0, permission, sid, true);
 		service.updateAcl(acl);

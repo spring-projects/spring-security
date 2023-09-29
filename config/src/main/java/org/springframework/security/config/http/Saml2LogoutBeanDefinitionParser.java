@@ -113,40 +113,47 @@ final class Saml2LogoutBeanDefinitionParser implements BeanDefinitionParser {
 			this.logoutSuccessHandler = createDefaultLogoutSuccessHandler();
 		}
 		BeanMetadataElement relyingPartyRegistrationRepository = Saml2LogoutBeanDefinitionParserUtils
-				.getRelyingPartyRegistrationRepository(element);
+			.getRelyingPartyRegistrationRepository(element);
 		BeanMetadataElement registrations = BeanDefinitionBuilder
-				.rootBeanDefinition(DefaultRelyingPartyRegistrationResolver.class)
-				.addConstructorArgValue(relyingPartyRegistrationRepository).getBeanDefinition();
+			.rootBeanDefinition(DefaultRelyingPartyRegistrationResolver.class)
+			.addConstructorArgValue(relyingPartyRegistrationRepository)
+			.getBeanDefinition();
 		BeanMetadataElement logoutResponseResolver = Saml2LogoutBeanDefinitionParserUtils
-				.getLogoutResponseResolver(element, registrations);
+			.getLogoutResponseResolver(element, registrations);
 		BeanMetadataElement logoutRequestValidator = Saml2LogoutBeanDefinitionParserUtils
-				.getLogoutRequestValidator(element);
+			.getLogoutRequestValidator(element);
 		BeanMetadataElement logoutRequestMatcher = createSaml2LogoutRequestMatcher();
 		this.logoutRequestFilter = BeanDefinitionBuilder.rootBeanDefinition(Saml2LogoutRequestFilter.class)
-				.addConstructorArgValue(registrations).addConstructorArgValue(logoutRequestValidator)
-				.addConstructorArgValue(logoutResponseResolver).addConstructorArgValue(this.logoutHandlers)
-				.addPropertyValue("logoutRequestMatcher", logoutRequestMatcher)
-				.addPropertyValue("securityContextHolderStrategy",
-						this.authenticationFilterSecurityContextHolderStrategy)
-				.getBeanDefinition();
+			.addConstructorArgValue(registrations)
+			.addConstructorArgValue(logoutRequestValidator)
+			.addConstructorArgValue(logoutResponseResolver)
+			.addConstructorArgValue(this.logoutHandlers)
+			.addPropertyValue("logoutRequestMatcher", logoutRequestMatcher)
+			.addPropertyValue("securityContextHolderStrategy", this.authenticationFilterSecurityContextHolderStrategy)
+			.getBeanDefinition();
 		BeanMetadataElement logoutResponseValidator = Saml2LogoutBeanDefinitionParserUtils
-				.getLogoutResponseValidator(element);
+			.getLogoutResponseValidator(element);
 		BeanMetadataElement logoutRequestRepository = Saml2LogoutBeanDefinitionParserUtils
-				.getLogoutRequestRepository(element);
+			.getLogoutRequestRepository(element);
 		BeanMetadataElement logoutResponseMatcher = createSaml2LogoutResponseMatcher();
 		this.logoutResponseFilter = BeanDefinitionBuilder.rootBeanDefinition(Saml2LogoutResponseFilter.class)
-				.addConstructorArgValue(registrations).addConstructorArgValue(logoutResponseValidator)
-				.addConstructorArgValue(this.logoutSuccessHandler)
-				.addPropertyValue("logoutRequestMatcher", logoutResponseMatcher)
-				.addPropertyValue("logoutRequestRepository", logoutRequestRepository).getBeanDefinition();
+			.addConstructorArgValue(registrations)
+			.addConstructorArgValue(logoutResponseValidator)
+			.addConstructorArgValue(this.logoutSuccessHandler)
+			.addPropertyValue("logoutRequestMatcher", logoutResponseMatcher)
+			.addPropertyValue("logoutRequestRepository", logoutRequestRepository)
+			.getBeanDefinition();
 		BeanMetadataElement logoutRequestResolver = Saml2LogoutBeanDefinitionParserUtils
-				.getLogoutRequestResolver(element, registrations);
+			.getLogoutRequestResolver(element, registrations);
 		BeanMetadataElement saml2LogoutRequestSuccessHandler = BeanDefinitionBuilder
-				.rootBeanDefinition(Saml2RelyingPartyInitiatedLogoutSuccessHandler.class)
-				.addConstructorArgValue(logoutRequestResolver).getBeanDefinition();
+			.rootBeanDefinition(Saml2RelyingPartyInitiatedLogoutSuccessHandler.class)
+			.addConstructorArgValue(logoutRequestResolver)
+			.getBeanDefinition();
 		this.logoutFilter = BeanDefinitionBuilder.rootBeanDefinition(LogoutFilter.class)
-				.addConstructorArgValue(saml2LogoutRequestSuccessHandler).addConstructorArgValue(this.logoutHandlers)
-				.addPropertyValue("logoutRequestMatcher", createLogoutRequestMatcher()).getBeanDefinition();
+			.addConstructorArgValue(saml2LogoutRequestSuccessHandler)
+			.addConstructorArgValue(this.logoutHandlers)
+			.addPropertyValue("logoutRequestMatcher", createLogoutRequestMatcher())
+			.getBeanDefinition();
 		return null;
 	}
 
@@ -154,45 +161,54 @@ final class Saml2LogoutBeanDefinitionParser implements BeanDefinitionParser {
 		List<BeanMetadataElement> handlers = new ManagedList<>();
 		handlers.add(BeanDefinitionBuilder.rootBeanDefinition(SecurityContextLogoutHandler.class).getBeanDefinition());
 		handlers.add(BeanDefinitionBuilder.rootBeanDefinition(LogoutSuccessEventPublishingLogoutHandler.class)
-				.getBeanDefinition());
+			.getBeanDefinition());
 		return handlers;
 	}
 
 	private static BeanMetadataElement createDefaultLogoutSuccessHandler() {
 		return BeanDefinitionBuilder.rootBeanDefinition(SimpleUrlLogoutSuccessHandler.class)
-				.addPropertyValue("defaultTargetUrl", "/login?logout").getBeanDefinition();
+			.addPropertyValue("defaultTargetUrl", "/login?logout")
+			.getBeanDefinition();
 	}
 
 	private BeanMetadataElement createLogoutRequestMatcher() {
 		BeanMetadataElement logoutMatcher = BeanDefinitionBuilder.rootBeanDefinition(AntPathRequestMatcher.class)
-				.addConstructorArgValue(this.logoutUrl).addConstructorArgValue("POST").getBeanDefinition();
+			.addConstructorArgValue(this.logoutUrl)
+			.addConstructorArgValue("POST")
+			.getBeanDefinition();
 		BeanMetadataElement saml2Matcher = BeanDefinitionBuilder.rootBeanDefinition(Saml2RequestMatcher.class)
-				.addPropertyValue("securityContextHolderStrategy",
-						this.authenticationFilterSecurityContextHolderStrategy)
-				.getBeanDefinition();
+			.addPropertyValue("securityContextHolderStrategy", this.authenticationFilterSecurityContextHolderStrategy)
+			.getBeanDefinition();
 		return BeanDefinitionBuilder.rootBeanDefinition(AndRequestMatcher.class)
-				.addConstructorArgValue(toManagedList(logoutMatcher, saml2Matcher)).getBeanDefinition();
+			.addConstructorArgValue(toManagedList(logoutMatcher, saml2Matcher))
+			.getBeanDefinition();
 	}
 
 	private BeanMetadataElement createSaml2LogoutRequestMatcher() {
 		BeanMetadataElement logoutRequestMatcher = BeanDefinitionBuilder.rootBeanDefinition(AntPathRequestMatcher.class)
-				.addConstructorArgValue(this.logoutRequestUrl).getBeanDefinition();
+			.addConstructorArgValue(this.logoutRequestUrl)
+			.getBeanDefinition();
 		BeanMetadataElement saml2RequestMatcher = BeanDefinitionBuilder
-				.rootBeanDefinition(ParameterRequestMatcher.class).addConstructorArgValue("SAMLRequest")
-				.getBeanDefinition();
+			.rootBeanDefinition(ParameterRequestMatcher.class)
+			.addConstructorArgValue("SAMLRequest")
+			.getBeanDefinition();
 		return BeanDefinitionBuilder.rootBeanDefinition(AndRequestMatcher.class)
-				.addConstructorArgValue(toManagedList(logoutRequestMatcher, saml2RequestMatcher)).getBeanDefinition();
+			.addConstructorArgValue(toManagedList(logoutRequestMatcher, saml2RequestMatcher))
+			.getBeanDefinition();
 	}
 
 	private BeanMetadataElement createSaml2LogoutResponseMatcher() {
 		BeanMetadataElement logoutResponseMatcher = BeanDefinitionBuilder
-				.rootBeanDefinition(AntPathRequestMatcher.class).addConstructorArgValue(this.logoutResponseUrl)
-				.getBeanDefinition();
+			.rootBeanDefinition(AntPathRequestMatcher.class)
+			.addConstructorArgValue(this.logoutResponseUrl)
+			.getBeanDefinition();
 		BeanMetadataElement saml2ResponseMatcher = BeanDefinitionBuilder
-				.rootBeanDefinition(ParameterRequestMatcher.class).addConstructorArgValue("SAMLResponse")
-				.getBeanDefinition();
+			.rootBeanDefinition(ParameterRequestMatcher.class)
+			.addConstructorArgValue("SAMLResponse")
+			.getBeanDefinition();
 		return BeanDefinitionBuilder.rootBeanDefinition(AndRequestMatcher.class)
-				.addConstructorArgValue(toManagedList(logoutResponseMatcher, saml2ResponseMatcher)).getBeanDefinition();
+			.addConstructorArgValue(toManagedList(logoutResponseMatcher, saml2ResponseMatcher))
+			.getBeanDefinition();
 	}
 
 	private static List<BeanMetadataElement> toManagedList(BeanMetadataElement... elements) {
@@ -233,7 +249,7 @@ final class Saml2LogoutBeanDefinitionParser implements BeanDefinitionParser {
 	public static class Saml2RequestMatcher implements RequestMatcher {
 
 		private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
-				.getContextHolderStrategy();
+			.getContextHolderStrategy();
 
 		@Override
 		public boolean matches(HttpServletRequest request) {

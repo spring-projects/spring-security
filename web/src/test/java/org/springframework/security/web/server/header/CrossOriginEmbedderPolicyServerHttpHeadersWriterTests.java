@@ -42,7 +42,7 @@ class CrossOriginEmbedderPolicyServerHttpHeadersWriterTests {
 	@Test
 	void setEmbedderPolicyWhenNullEmbedderPolicyThenThrowsIllegalArgument() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.writer.setPolicy(null))
-				.withMessage("embedderPolicy cannot be null");
+			.withMessage("embedderPolicy cannot be null");
 	}
 
 	@Test
@@ -54,13 +54,14 @@ class CrossOriginEmbedderPolicyServerHttpHeadersWriterTests {
 
 	@Test
 	void writeHeadersWhenResponseHeaderExistsThenDontOverride() {
-		this.exchange.getResponse().getHeaders().add(CrossOriginEmbedderPolicyServerHttpHeadersWriter.EMBEDDER_POLICY,
-				"require-corp");
+		this.exchange.getResponse()
+			.getHeaders()
+			.add(CrossOriginEmbedderPolicyServerHttpHeadersWriter.EMBEDDER_POLICY, "require-corp");
 		this.writer.writeHttpHeaders(this.exchange);
 		HttpHeaders headers = this.exchange.getResponse().getHeaders();
 		assertThat(headers).hasSize(1);
 		assertThat(headers.get(CrossOriginEmbedderPolicyServerHttpHeadersWriter.EMBEDDER_POLICY))
-				.containsOnly("require-corp");
+			.containsOnly("require-corp");
 	}
 
 	@Test
@@ -70,7 +71,7 @@ class CrossOriginEmbedderPolicyServerHttpHeadersWriterTests {
 		HttpHeaders headers = this.exchange.getResponse().getHeaders();
 		assertThat(headers).hasSize(1);
 		assertThat(headers.get(CrossOriginEmbedderPolicyServerHttpHeadersWriter.EMBEDDER_POLICY))
-				.containsOnly("require-corp");
+			.containsOnly("require-corp");
 	}
 
 }

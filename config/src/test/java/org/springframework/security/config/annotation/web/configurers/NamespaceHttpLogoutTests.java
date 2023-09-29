@@ -151,7 +151,8 @@ public class NamespaceHttpLogoutTests {
 
 	ResultMatcher authenticated(boolean authenticated) {
 		return (result) -> assertThat(Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication())
-				.map(Authentication::isAuthenticated).orElse(false)).isEqualTo(authenticated);
+			.map(Authentication::isAuthenticated)
+			.orElse(false)).isEqualTo(authenticated);
 	}
 
 	ResultMatcher noCookies() {
@@ -160,7 +161,7 @@ public class NamespaceHttpLogoutTests {
 
 	ResultMatcher session(Predicate<HttpSession> sessionPredicate) {
 		return (result) -> assertThat(result.getRequest().getSession(false))
-				.is(new Condition<>(sessionPredicate, "sessionPredicate failed"));
+			.is(new Condition<>(sessionPredicate, "sessionPredicate failed"));
 	}
 
 	@EnableWebSecurity

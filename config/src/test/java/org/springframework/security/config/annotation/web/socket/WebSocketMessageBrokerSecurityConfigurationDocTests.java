@@ -77,8 +77,8 @@ public class WebSocketMessageBrokerSecurityConfigurationDocTests {
 		loadConfig(WebSocketSecurityConfig.class);
 		clientInboundChannel().send(message("/user/queue/errors", SimpMessageType.SUBSCRIBE));
 		assertThatExceptionOfType(MessageDeliveryException.class)
-				.isThrownBy(() -> clientInboundChannel().send(message("/denyAll", SimpMessageType.MESSAGE)))
-				.withCauseInstanceOf(AccessDeniedException.class);
+			.isThrownBy(() -> clientInboundChannel().send(message("/denyAll", SimpMessageType.MESSAGE)))
+			.withCauseInstanceOf(AccessDeniedException.class);
 	}
 
 	private void loadConfig(Class<?>... configs) {
@@ -127,15 +127,21 @@ public class WebSocketMessageBrokerSecurityConfigurationDocTests {
 		@Bean
 		AuthorizationManager<Message<?>> authorizationManager(
 				MessageMatcherDelegatingAuthorizationManager.Builder messages) {
-			messages.nullDestMatcher().authenticated()
-					// <1>
-					.simpSubscribeDestMatchers("/user/queue/errors").permitAll()
-					// <2>
-					.simpDestMatchers("/app/**").hasRole("USER")
-					// <3>
-					.simpSubscribeDestMatchers("/user/**", "/topic/friends/*").hasRole("USER") // <4>
-					.simpTypeMatchers(SimpMessageType.MESSAGE, SimpMessageType.SUBSCRIBE).denyAll() // <5>
-					.anyMessage().denyAll(); // <6>
+			messages.nullDestMatcher()
+				.authenticated()
+				// <1>
+				.simpSubscribeDestMatchers("/user/queue/errors")
+				.permitAll()
+				// <2>
+				.simpDestMatchers("/app/**")
+				.hasRole("USER")
+				// <3>
+				.simpSubscribeDestMatchers("/user/**", "/topic/friends/*")
+				.hasRole("USER") // <4>
+				.simpTypeMatchers(SimpMessageType.MESSAGE, SimpMessageType.SUBSCRIBE)
+				.denyAll() // <5>
+				.anyMessage()
+				.denyAll(); // <6>
 			return messages.build();
 		}
 

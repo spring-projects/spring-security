@@ -167,7 +167,7 @@ public class OAuth2LoginAuthenticationFilter extends AbstractAuthenticationProce
 			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
 		}
 		OAuth2AuthorizationRequest authorizationRequest = this.authorizationRequestRepository
-				.removeAuthorizationRequest(request, response);
+			.removeAuthorizationRequest(request, response);
 		if (authorizationRequest == null) {
 			OAuth2Error oauth2Error = new OAuth2Error(AUTHORIZATION_REQUEST_NOT_FOUND_ERROR_CODE);
 			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
@@ -192,9 +192,10 @@ public class OAuth2LoginAuthenticationFilter extends AbstractAuthenticationProce
 				new OAuth2AuthorizationExchange(authorizationRequest, authorizationResponse));
 		authenticationRequest.setDetails(authenticationDetails);
 		OAuth2LoginAuthenticationToken authenticationResult = (OAuth2LoginAuthenticationToken) this
-				.getAuthenticationManager().authenticate(authenticationRequest);
+			.getAuthenticationManager()
+			.authenticate(authenticationRequest);
 		OAuth2AuthenticationToken oauth2Authentication = this.authenticationResultConverter
-				.convert(authenticationResult);
+			.convert(authenticationResult);
 		Assert.notNull(oauth2Authentication, "authentication result cannot be null");
 		oauth2Authentication.setDetails(authenticationDetails);
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(

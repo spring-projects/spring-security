@@ -60,7 +60,7 @@ public class FirewalledResponseTests {
 	@Test
 	public void sendRedirectWhenHasCrlfThenThrowsException() throws Exception {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.fwResponse.sendRedirect("/theURL\r\nsomething"))
-				.withMessageContaining(CRLF_MESSAGE);
+			.withMessageContaining(CRLF_MESSAGE);
 	}
 
 	@Test
@@ -78,15 +78,15 @@ public class FirewalledResponseTests {
 	@Test
 	public void addHeaderWhenHeaderValueHasCrlfThenException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> this.fwResponse.addHeader("foo", "abc\r\nContent-Length:100"))
-				.withMessageContaining(CRLF_MESSAGE);
+			.isThrownBy(() -> this.fwResponse.addHeader("foo", "abc\r\nContent-Length:100"))
+			.withMessageContaining(CRLF_MESSAGE);
 	}
 
 	@Test
 	public void addHeaderWhenHeaderNameHasCrlfThenException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> this.fwResponse.addHeader("abc\r\nContent-Length:100", "bar"))
-				.withMessageContaining(CRLF_MESSAGE);
+			.isThrownBy(() -> this.fwResponse.addHeader("abc\r\nContent-Length:100", "bar"))
+			.withMessageContaining(CRLF_MESSAGE);
 	}
 
 	@Test
@@ -115,14 +115,14 @@ public class FirewalledResponseTests {
 			}
 		};
 		assertThatIllegalArgumentException().isThrownBy(() -> this.fwResponse.addCookie(cookie))
-				.withMessageContaining(CRLF_MESSAGE);
+			.withMessageContaining(CRLF_MESSAGE);
 	}
 
 	@Test
 	public void addCookieWhenCookieValueContainsCrlfThenException() {
 		Cookie cookie = new Cookie("foo", "foo\r\nbar");
 		assertThatIllegalArgumentException().isThrownBy(() -> this.fwResponse.addCookie(cookie))
-				.withMessageContaining(CRLF_MESSAGE);
+			.withMessageContaining(CRLF_MESSAGE);
 	}
 
 	@Test
@@ -130,7 +130,7 @@ public class FirewalledResponseTests {
 		Cookie cookie = new Cookie("foo", "bar");
 		cookie.setPath("/foo\r\nbar");
 		assertThatIllegalArgumentException().isThrownBy(() -> this.fwResponse.addCookie(cookie))
-				.withMessageContaining(CRLF_MESSAGE);
+			.withMessageContaining(CRLF_MESSAGE);
 	}
 
 	@Test
@@ -138,7 +138,7 @@ public class FirewalledResponseTests {
 		Cookie cookie = new Cookie("foo", "bar");
 		cookie.setDomain("foo\r\nbar");
 		assertThatIllegalArgumentException().isThrownBy(() -> this.fwResponse.addCookie(cookie))
-				.withMessageContaining(CRLF_MESSAGE);
+			.withMessageContaining(CRLF_MESSAGE);
 	}
 
 	@Test
@@ -146,7 +146,7 @@ public class FirewalledResponseTests {
 		Cookie cookie = new Cookie("foo", "bar");
 		cookie.setComment("foo\r\nbar");
 		assertThatIllegalArgumentException().isThrownBy(() -> this.fwResponse.addCookie(cookie))
-				.withMessageContaining(CRLF_MESSAGE);
+			.withMessageContaining(CRLF_MESSAGE);
 	}
 
 	@Test

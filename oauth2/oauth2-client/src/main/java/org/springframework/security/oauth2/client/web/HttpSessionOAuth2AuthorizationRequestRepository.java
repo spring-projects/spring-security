@@ -42,7 +42,7 @@ public final class HttpSessionOAuth2AuthorizationRequestRepository
 		implements AuthorizationRequestRepository<OAuth2AuthorizationRequest> {
 
 	private static final String DEFAULT_AUTHORIZATION_REQUEST_ATTR_NAME = HttpSessionOAuth2AuthorizationRequestRepository.class
-			.getName() + ".AUTHORIZATION_REQUEST";
+		.getName() + ".AUTHORIZATION_REQUEST";
 
 	private final String sessionAttributeName = DEFAULT_AUTHORIZATION_REQUEST_ATTR_NAME;
 
@@ -93,8 +93,8 @@ public final class HttpSessionOAuth2AuthorizationRequestRepository
 			request.getSession().removeAttribute(this.sessionAttributeName);
 		}
 		else if (authorizationRequests.size() == 1) {
-			request.getSession().setAttribute(this.sessionAttributeName,
-					authorizationRequests.values().iterator().next());
+			request.getSession()
+				.setAttribute(this.sessionAttributeName, authorizationRequests.values().iterator().next());
 		}
 		else {
 			request.getSession().setAttribute(this.sessionAttributeName, authorizationRequests);

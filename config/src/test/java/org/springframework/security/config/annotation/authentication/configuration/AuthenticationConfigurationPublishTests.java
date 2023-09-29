@@ -48,7 +48,7 @@ public class AuthenticationConfigurationPublishTests {
 	@Test
 	public void authenticationEventPublisherBeanUsedByDefault() {
 		this.authenticationManager
-				.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("user", "password"));
+			.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("user", "password"));
 		assertThat(this.listener.getEvents()).hasSize(1);
 	}
 

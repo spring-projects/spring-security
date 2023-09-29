@@ -143,7 +143,10 @@ public class OAuth2AuthorizedClientArgumentResolverTests {
 				this.registration2, this.registration3);
 		this.authorizedClientRepository = mock(OAuth2AuthorizedClientRepository.class);
 		OAuth2AuthorizedClientProvider authorizedClientProvider = OAuth2AuthorizedClientProviderBuilder.builder()
-				.authorizationCode().refreshToken().clientCredentials().build();
+			.authorizationCode()
+			.refreshToken()
+			.clientCredentials()
+			.build();
 		DefaultOAuth2AuthorizedClientManager authorizedClientManager = new DefaultOAuth2AuthorizedClientManager(
 				this.clientRegistrationRepository, this.authorizedClientRepository);
 		authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
@@ -151,11 +154,13 @@ public class OAuth2AuthorizedClientArgumentResolverTests {
 		this.authorizedClient1 = new OAuth2AuthorizedClient(this.registration1, this.principalName,
 				mock(OAuth2AccessToken.class));
 		given(this.authorizedClientRepository.loadAuthorizedClient(eq(this.registration1.getRegistrationId()),
-				any(Authentication.class), any(HttpServletRequest.class))).willReturn(this.authorizedClient1);
+				any(Authentication.class), any(HttpServletRequest.class)))
+			.willReturn(this.authorizedClient1);
 		this.authorizedClient2 = new OAuth2AuthorizedClient(this.registration2, this.principalName,
 				mock(OAuth2AccessToken.class));
 		given(this.authorizedClientRepository.loadAuthorizedClient(eq(this.registration2.getRegistrationId()),
-				any(Authentication.class), any(HttpServletRequest.class))).willReturn(this.authorizedClient2);
+				any(Authentication.class), any(HttpServletRequest.class)))
+			.willReturn(this.authorizedClient2);
 		this.request = new MockHttpServletRequest();
 		this.response = new MockHttpServletResponse();
 	}
@@ -168,13 +173,13 @@ public class OAuth2AuthorizedClientArgumentResolverTests {
 	@Test
 	public void constructorWhenClientRegistrationRepositoryIsNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new OAuth2AuthorizedClientArgumentResolver(null, this.authorizedClientRepository));
+			.isThrownBy(() -> new OAuth2AuthorizedClientArgumentResolver(null, this.authorizedClientRepository));
 	}
 
 	@Test
 	public void constructorWhenOAuth2AuthorizedClientRepositoryIsNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new OAuth2AuthorizedClientArgumentResolver(this.clientRegistrationRepository, null));
+			.isThrownBy(() -> new OAuth2AuthorizedClientArgumentResolver(this.clientRegistrationRepository, null));
 	}
 
 	@Test
@@ -185,19 +190,19 @@ public class OAuth2AuthorizedClientArgumentResolverTests {
 	@Test
 	public void setClientCredentialsTokenResponseClientWhenClientIsNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> this.argumentResolver.setClientCredentialsTokenResponseClient(null))
-				.withMessage("clientCredentialsTokenResponseClient cannot be null");
+			.isThrownBy(() -> this.argumentResolver.setClientCredentialsTokenResponseClient(null))
+			.withMessage("clientCredentialsTokenResponseClient cannot be null");
 	}
 
 	@Test
 	public void setClientCredentialsTokenResponseClientWhenNotDefaultAuthorizedClientManagerThenThrowIllegalStateException() {
 		assertThatIllegalStateException()
-				.isThrownBy(() -> this.argumentResolver
-						.setClientCredentialsTokenResponseClient(new DefaultClientCredentialsTokenResponseClient()))
-				.withMessage("The client cannot be set when the constructor used is "
-						+ "\"OAuth2AuthorizedClientArgumentResolver(OAuth2AuthorizedClientManager)\". "
-						+ "Instead, use the constructor \"OAuth2AuthorizedClientArgumentResolver(ClientRegistrationRepository, "
-						+ "OAuth2AuthorizedClientRepository)\".");
+			.isThrownBy(() -> this.argumentResolver
+				.setClientCredentialsTokenResponseClient(new DefaultClientCredentialsTokenResponseClient()))
+			.withMessage("The client cannot be set when the constructor used is "
+					+ "\"OAuth2AuthorizedClientArgumentResolver(OAuth2AuthorizedClientManager)\". "
+					+ "Instead, use the constructor \"OAuth2AuthorizedClientArgumentResolver(ClientRegistrationRepository, "
+					+ "OAuth2AuthorizedClientRepository)\".");
 	}
 
 	@Test
@@ -231,10 +236,10 @@ public class OAuth2AuthorizedClientArgumentResolverTests {
 	public void resolveArgumentWhenRegistrationIdEmptyAndNotOAuth2AuthenticationThenThrowIllegalArgumentException() {
 		MethodParameter methodParameter = this.getMethodParameter("registrationIdEmpty", OAuth2AuthorizedClient.class);
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> this.argumentResolver.resolveArgument(methodParameter, null, null, null))
-				.withMessage("Unable to resolve the Client Registration Identifier. It must be provided via "
-						+ "@RegisteredOAuth2AuthorizedClient(\"client1\") or "
-						+ "@RegisteredOAuth2AuthorizedClient(registrationId = \"client1\").");
+			.isThrownBy(() -> this.argumentResolver.resolveArgument(methodParameter, null, null, null))
+			.withMessage("Unable to resolve the Client Registration Identifier. It must be provided via "
+					+ "@RegisteredOAuth2AuthorizedClient(\"client1\") or "
+					+ "@RegisteredOAuth2AuthorizedClient(registrationId = \"client1\").");
 	}
 
 	@Test
@@ -246,7 +251,8 @@ public class OAuth2AuthorizedClientArgumentResolverTests {
 		SecurityContextHolder.setContext(securityContext);
 		MethodParameter methodParameter = this.getMethodParameter("registrationIdEmpty", OAuth2AuthorizedClient.class);
 		assertThat(this.argumentResolver.resolveArgument(methodParameter, null,
-				new ServletWebRequest(this.request, this.response), null)).isSameAs(this.authorizedClient1);
+				new ServletWebRequest(this.request, this.response), null))
+			.isSameAs(this.authorizedClient1);
 	}
 
 	@Test
@@ -254,7 +260,8 @@ public class OAuth2AuthorizedClientArgumentResolverTests {
 		MethodParameter methodParameter = this.getMethodParameter("paramTypeAuthorizedClient",
 				OAuth2AuthorizedClient.class);
 		assertThat(this.argumentResolver.resolveArgument(methodParameter, null,
-				new ServletWebRequest(this.request, this.response), null)).isSameAs(this.authorizedClient1);
+				new ServletWebRequest(this.request, this.response), null))
+			.isSameAs(this.authorizedClient1);
 	}
 
 	@Test
@@ -265,7 +272,8 @@ public class OAuth2AuthorizedClientArgumentResolverTests {
 		MethodParameter methodParameter = this.getMethodParameter("paramTypeAuthorizedClient",
 				OAuth2AuthorizedClient.class);
 		assertThat(this.argumentResolver.resolveArgument(methodParameter, null,
-				new ServletWebRequest(this.request, this.response), null)).isSameAs(this.authorizedClient1);
+				new ServletWebRequest(this.request, this.response), null))
+			.isSameAs(this.authorizedClient1);
 		verify(strategy, atLeastOnce()).getContext();
 	}
 
@@ -274,19 +282,19 @@ public class OAuth2AuthorizedClientArgumentResolverTests {
 		MethodParameter methodParameter = this.getMethodParameter("registrationIdInvalid",
 				OAuth2AuthorizedClient.class);
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> this.argumentResolver.resolveArgument(methodParameter, null,
-						new ServletWebRequest(this.request, this.response), null))
-				.withMessage("Could not find ClientRegistration with id 'invalid'");
+			.isThrownBy(() -> this.argumentResolver.resolveArgument(methodParameter, null,
+					new ServletWebRequest(this.request, this.response), null))
+			.withMessage("Could not find ClientRegistration with id 'invalid'");
 	}
 
 	@Test
 	public void resolveArgumentWhenAuthorizedClientNotFoundForAuthorizationCodeClientThenThrowClientAuthorizationRequiredException() {
 		given(this.authorizedClientRepository.loadAuthorizedClient(anyString(), any(), any(HttpServletRequest.class)))
-				.willReturn(null);
+			.willReturn(null);
 		MethodParameter methodParameter = this.getMethodParameter("paramTypeAuthorizedClient",
 				OAuth2AuthorizedClient.class);
 		assertThatExceptionOfType(ClientAuthorizationRequiredException.class).isThrownBy(() -> this.argumentResolver
-				.resolveArgument(methodParameter, null, new ServletWebRequest(this.request, this.response), null));
+			.resolveArgument(methodParameter, null, new ServletWebRequest(this.request, this.response), null));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -302,14 +310,16 @@ public class OAuth2AuthorizedClientArgumentResolverTests {
 		authorizedClientManager.setAuthorizedClientProvider(clientCredentialsAuthorizedClientProvider);
 		this.argumentResolver = new OAuth2AuthorizedClientArgumentResolver(authorizedClientManager);
 		OAuth2AccessTokenResponse accessTokenResponse = OAuth2AccessTokenResponse.withToken("access-token-1234")
-				.tokenType(OAuth2AccessToken.TokenType.BEARER).expiresIn(3600).build();
+			.tokenType(OAuth2AccessToken.TokenType.BEARER)
+			.expiresIn(3600)
+			.build();
 		given(clientCredentialsTokenResponseClient.getTokenResponse(any())).willReturn(accessTokenResponse);
 		given(this.authorizedClientRepository.loadAuthorizedClient(anyString(), any(), any(HttpServletRequest.class)))
-				.willReturn(null);
+			.willReturn(null);
 		MethodParameter methodParameter = this.getMethodParameter("clientCredentialsClient",
 				OAuth2AuthorizedClient.class);
 		OAuth2AuthorizedClient authorizedClient = (OAuth2AuthorizedClient) this.argumentResolver
-				.resolveArgument(methodParameter, null, new ServletWebRequest(this.request, this.response), null);
+			.resolveArgument(methodParameter, null, new ServletWebRequest(this.request, this.response), null);
 		assertThat(authorizedClient).isNotNull();
 		assertThat(authorizedClient.getClientRegistration()).isSameAs(this.registration2);
 		assertThat(authorizedClient.getPrincipalName()).isEqualTo(this.principalName);
@@ -343,15 +353,17 @@ public class OAuth2AuthorizedClientArgumentResolverTests {
 		});
 		this.argumentResolver = new OAuth2AuthorizedClientArgumentResolver(authorizedClientManager);
 		OAuth2AccessTokenResponse accessTokenResponse = OAuth2AccessTokenResponse.withToken("access-token-1234")
-				.tokenType(OAuth2AccessToken.TokenType.BEARER).expiresIn(3600).build();
+			.tokenType(OAuth2AccessToken.TokenType.BEARER)
+			.expiresIn(3600)
+			.build();
 		given(passwordTokenResponseClient.getTokenResponse(any())).willReturn(accessTokenResponse);
 		given(this.authorizedClientRepository.loadAuthorizedClient(anyString(), any(), any(HttpServletRequest.class)))
-				.willReturn(null);
+			.willReturn(null);
 		MethodParameter methodParameter = this.getMethodParameter("passwordClient", OAuth2AuthorizedClient.class);
 		this.request.setParameter(OAuth2ParameterNames.USERNAME, "username");
 		this.request.setParameter(OAuth2ParameterNames.PASSWORD, "password");
 		OAuth2AuthorizedClient authorizedClient = (OAuth2AuthorizedClient) this.argumentResolver
-				.resolveArgument(methodParameter, null, new ServletWebRequest(this.request, this.response), null);
+			.resolveArgument(methodParameter, null, new ServletWebRequest(this.request, this.response), null);
 		assertThat(authorizedClient).isNotNull();
 		assertThat(authorizedClient.getClientRegistration()).isSameAs(this.registration3);
 		assertThat(authorizedClient.getPrincipalName()).isEqualTo(this.principalName);

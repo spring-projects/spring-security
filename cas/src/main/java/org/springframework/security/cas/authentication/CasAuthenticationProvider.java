@@ -98,7 +98,7 @@ public class CasAuthenticationProvider implements AuthenticationProvider, Initia
 		if (authentication instanceof UsernamePasswordAuthenticationToken
 				&& (!CasAuthenticationFilter.CAS_STATEFUL_IDENTIFIER.equals(authentication.getPrincipal().toString())
 						&& !CasAuthenticationFilter.CAS_STATELESS_IDENTIFIER
-								.equals(authentication.getPrincipal().toString()))) {
+							.equals(authentication.getPrincipal().toString()))) {
 			// UsernamePasswordAuthenticationToken not CAS related
 			return null;
 		}

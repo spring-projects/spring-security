@@ -66,8 +66,8 @@ public class OAuth2ClientCredentialsGrantRequestTests {
 				.build();
 		// @formatter:on
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new OAuth2ClientCredentialsGrantRequest(clientRegistration)).withMessage(
-						"clientRegistration.authorizationGrantType must be AuthorizationGrantType.CLIENT_CREDENTIALS");
+			.isThrownBy(() -> new OAuth2ClientCredentialsGrantRequest(clientRegistration))
+			.withMessage("clientRegistration.authorizationGrantType must be AuthorizationGrantType.CLIENT_CREDENTIALS");
 	}
 
 	@Test

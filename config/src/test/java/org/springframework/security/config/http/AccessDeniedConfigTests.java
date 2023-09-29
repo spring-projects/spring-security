@@ -58,7 +58,7 @@ public class AccessDeniedConfigTests {
 	public void configureWhenAccessDeniedHandlerIsMissingLeadingSlashThenException() {
 		SpringTestContext context = this.spring.configLocations(this.xml("NoLeadingSlash"));
 		assertThatExceptionOfType(BeanCreationException.class).isThrownBy(() -> context.autowire())
-				.withMessageContaining("errorPage must begin with '/'");
+			.withMessageContaining("errorPage must begin with '/'");
 	}
 
 	@Test
@@ -72,7 +72,7 @@ public class AccessDeniedConfigTests {
 	public void configureWhenAccessDeniedHandlerUsesPathAndRefThenException() {
 		SpringTestContext context = this.spring.configLocations(this.xml("UsesPathAndRef"));
 		assertThatExceptionOfType(BeanDefinitionParsingException.class).isThrownBy(() -> context.autowire())
-				.withMessageContaining("attribute error-page cannot be used together with the 'ref' attribute");
+			.withMessageContaining("attribute error-page cannot be used together with the 'ref' attribute");
 	}
 
 	private String xml(String configName) {

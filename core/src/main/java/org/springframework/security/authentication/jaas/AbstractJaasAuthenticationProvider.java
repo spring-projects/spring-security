@@ -248,8 +248,8 @@ public abstract class AbstractJaasAuthenticationProvider implements Authenticati
 
 	private void logout(JaasAuthenticationToken token, LoginContext loginContext) throws LoginException {
 		if (loginContext != null) {
-			this.log.debug(
-					LogMessage.of(() -> "Logging principal: [" + token.getPrincipal() + "] out of LoginContext"));
+			this.log
+				.debug(LogMessage.of(() -> "Logging principal: [" + token.getPrincipal() + "] out of LoginContext"));
 			loginContext.logout();
 			return;
 		}

@@ -184,8 +184,9 @@ public class AuthenticationConfiguration {
 			return Collections.emptyList();
 		}
 		for (String beanName : beanNamesForType) {
-			if (((ConfigurableApplicationContext) this.applicationContext).getBeanFactory().getBeanDefinition(beanName)
-					.isPrimary()) {
+			if (((ConfigurableApplicationContext) this.applicationContext).getBeanFactory()
+				.getBeanDefinition(beanName)
+				.isPrimary()) {
 				list.add(beanName);
 			}
 		}
@@ -218,7 +219,7 @@ public class AuthenticationConfiguration {
 		@Override
 		public void init(AuthenticationManagerBuilder auth) {
 			Map<String, Object> beansWithAnnotation = this.context
-					.getBeansWithAnnotation(EnableGlobalAuthentication.class);
+				.getBeansWithAnnotation(EnableGlobalAuthentication.class);
 			if (logger.isTraceEnabled()) {
 				logger.trace(LogMessage.format("Eagerly initializing %s", beansWithAnnotation));
 			}

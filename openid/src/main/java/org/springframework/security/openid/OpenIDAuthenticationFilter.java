@@ -165,7 +165,8 @@ public class OpenIDAuthenticationFilter extends AbstractAuthenticationProcessing
 				URL url = new URL(returnToUrl);
 				int port = url.getPort();
 				StringBuilder realmBuffer = new StringBuilder(returnToUrl.length()).append(url.getProtocol())
-						.append("://").append(url.getHost());
+					.append("://")
+					.append(url.getHost());
 				if (port > 0) {
 					realmBuffer.append(":").append(port);
 				}

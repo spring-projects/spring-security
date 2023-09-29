@@ -44,8 +44,9 @@ public class SecurityTestExecutionListenerTests {
 	@WithMockUser
 	@Test
 	public void reactorContextTestSecurityContextHolderExecutionListenerTestIsRegistered() {
-		Mono<String> name = ReactiveSecurityContextHolder.getContext().map(SecurityContext::getAuthentication)
-				.map(Principal::getName);
+		Mono<String> name = ReactiveSecurityContextHolder.getContext()
+			.map(SecurityContext::getAuthentication)
+			.map(Principal::getName);
 		StepVerifier.create(name).expectNext("user").verifyComplete();
 	}
 

@@ -42,8 +42,13 @@ public class ExchangeMatcherRedirectWebFilterTests {
 				Collections.singletonList(filter));
 
 		WebTestClient client = WebTestClient.bindToWebHandler(handler).build();
-		client.get().uri("/context").exchange().expectStatus().isFound().expectHeader()
-				.valueEquals(HttpHeaders.LOCATION, "/test");
+		client.get()
+			.uri("/context")
+			.exchange()
+			.expectStatus()
+			.isFound()
+			.expectHeader()
+			.valueEquals(HttpHeaders.LOCATION, "/test");
 	}
 
 	@Test
@@ -60,28 +65,28 @@ public class ExchangeMatcherRedirectWebFilterTests {
 	@Test
 	public void constructWhenExchangeMatcherNull() {
 		assertThatIllegalArgumentException().isThrownBy(() -> new ExchangeMatcherRedirectWebFilter(null, "/test"))
-				.withMessage("exchangeMatcher cannot be null");
+			.withMessage("exchangeMatcher cannot be null");
 	}
 
 	@Test
 	public void constructWhenRedirectUrlNull() {
 		assertThatIllegalArgumentException().isThrownBy(
 				() -> new ExchangeMatcherRedirectWebFilter(new PathPatternParserServerWebExchangeMatcher("/**"), null))
-				.withMessage("redirectUrl cannot be empty");
+			.withMessage("redirectUrl cannot be empty");
 	}
 
 	@Test
 	public void constructWhenRedirectUrlEmpty() {
 		assertThatIllegalArgumentException().isThrownBy(
 				() -> new ExchangeMatcherRedirectWebFilter(new PathPatternParserServerWebExchangeMatcher("/**"), ""))
-				.withMessage("redirectUrl cannot be empty");
+			.withMessage("redirectUrl cannot be empty");
 	}
 
 	@Test
 	public void constructWhenRedirectUrlBlank() {
 		assertThatIllegalArgumentException().isThrownBy(
 				() -> new ExchangeMatcherRedirectWebFilter(new PathPatternParserServerWebExchangeMatcher("/**"), " "))
-				.withMessage("redirectUrl cannot be empty");
+			.withMessage("redirectUrl cannot be empty");
 	}
 
 }

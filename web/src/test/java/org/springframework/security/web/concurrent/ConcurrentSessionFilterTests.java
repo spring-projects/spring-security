@@ -77,7 +77,7 @@ public class ConcurrentSessionFilterTests {
 	@SuppressWarnings("deprecation")
 	public void constructorSessionRegistryExpiresUrlWhenInvalidUrlThenExceptionThrown() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new ConcurrentSessionFilter(new SessionRegistryImpl(), "oops"));
+			.isThrownBy(() -> new ConcurrentSessionFilter(new SessionRegistryImpl(), "oops"));
 	}
 
 	@Test
@@ -130,8 +130,8 @@ public class ConcurrentSessionFilterTests {
 		filter.doFilter(request, response, fc);
 		verifyNoMoreInteractions(fc);
 		assertThat(response.getContentAsString())
-				.isEqualTo("This session has been expired (possibly due to multiple concurrent logins being "
-						+ "attempted as the same user).");
+			.isEqualTo("This session has been expired (possibly due to multiple concurrent logins being "
+					+ "attempted as the same user).");
 	}
 
 	@Test

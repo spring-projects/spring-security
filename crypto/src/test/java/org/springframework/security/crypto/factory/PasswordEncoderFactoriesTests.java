@@ -133,7 +133,7 @@ public class PasswordEncoderFactoriesTests {
 	void constructWhenAlgorithmNotAvailableThenSkip() {
 		try (MockedStatic<Pbkdf2PasswordEncoder> pbkdf2PasswordEncoderMock = mockStatic(Pbkdf2PasswordEncoder.class)) {
 			pbkdf2PasswordEncoderMock.when(Pbkdf2PasswordEncoder::defaultsForSpringSecurity_v5_8)
-					.thenThrow(new IllegalArgumentException(new NoSuchAlgorithmException()));
+				.thenThrow(new IllegalArgumentException(new NoSuchAlgorithmException()));
 
 			assertThatNoException().isThrownBy(PasswordEncoderFactories::createDelegatingPasswordEncoder);
 		}

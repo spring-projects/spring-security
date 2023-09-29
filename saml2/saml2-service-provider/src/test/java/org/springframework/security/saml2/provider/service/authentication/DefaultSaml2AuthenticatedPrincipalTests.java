@@ -44,13 +44,13 @@ public class DefaultSaml2AuthenticatedPrincipalTests {
 		Map<String, List<Object>> attributes = new LinkedHashMap<>();
 		attributes.put("email", Arrays.asList("john.doe@example.com", "doe.john@example.com"));
 		assertThatIllegalArgumentException().isThrownBy(() -> new DefaultSaml2AuthenticatedPrincipal(null, attributes))
-				.withMessageContaining("name cannot be null");
+			.withMessageContaining("name cannot be null");
 	}
 
 	@Test
 	public void createDefaultSaml2AuthenticatedPrincipalWhenAttributesNullThenException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> new DefaultSaml2AuthenticatedPrincipal("user", null))
-				.withMessageContaining("attributes cannot be null");
+			.withMessageContaining("attributes cannot be null");
 	}
 
 	@Test

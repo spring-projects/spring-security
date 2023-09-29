@@ -93,7 +93,7 @@ public class IpAddressMatcherTests {
 	public void ipv4RequiredAddressMaskTooLongThenIllegalArgumentException() {
 		String ipv4AddressWithTooLongMask = "192.168.1.104/33";
 		assertThatIllegalArgumentException().isThrownBy(() -> new IpAddressMatcher(ipv4AddressWithTooLongMask))
-				.withMessage(String.format("IP address %s is too short for bitmask of length %d", "192.168.1.104", 33));
+			.withMessage(String.format("IP address %s is too short for bitmask of length %d", "192.168.1.104", 33));
 	}
 
 	// SEC-2576
@@ -101,8 +101,8 @@ public class IpAddressMatcherTests {
 	public void ipv6RequiredAddressMaskTooLongThenIllegalArgumentException() {
 		String ipv6AddressWithTooLongMask = "fe80::21f:5bff:fe33:bd68/129";
 		assertThatIllegalArgumentException().isThrownBy(() -> new IpAddressMatcher(ipv6AddressWithTooLongMask))
-				.withMessage(String.format("IP address %s is too short for bitmask of length %d",
-						"fe80::21f:5bff:fe33:bd68", 129));
+			.withMessage(String.format("IP address %s is too short for bitmask of length %d",
+					"fe80::21f:5bff:fe33:bd68", 129));
 	}
 
 }

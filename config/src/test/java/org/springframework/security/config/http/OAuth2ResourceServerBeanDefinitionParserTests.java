@@ -159,7 +159,7 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 				.andExpect(status().isNotFound());
 		// @formatter:on
 		SecurityContextHolderStrategy securityContextHolderStrategy = this.spring.getContext()
-				.getBean(SecurityContextHolderStrategy.class);
+			.getBean(SecurityContextHolderStrategy.class);
 		verify(securityContextHolderStrategy, atLeastOnce()).getContext();
 	}
 
@@ -280,11 +280,12 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 	public void postWhenBearerTokenAsFormParameterThenIgnoresToken() throws Exception {
 		this.spring.configLocations(xml("JwkSetUri")).autowire();
 		this.mvc.perform(post("/") // engage csrf
-				.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-				.param("access_token", "token")).andExpect(status().isForbidden())
-				.andExpect(header().string(HttpHeaders.WWW_AUTHENTICATE, "Bearer")); // different
-																						// from
-																						// DSL
+			.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+			.param("access_token", "token"))
+			.andExpect(status().isForbidden())
+			.andExpect(header().string(HttpHeaders.WWW_AUTHENTICATE, "Bearer")); // different
+																					// from
+																					// DSL
 	}
 
 	@Test
@@ -452,7 +453,7 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 	@Test
 	public void getWhenCustomBearerTokenResolverThenUses() throws Exception {
 		this.spring.configLocations(xml("MockBearerTokenResolver"), xml("MockJwtDecoder"), xml("BearerTokenResolver"))
-				.autowire();
+			.autowire();
 		JwtDecoder decoder = this.spring.getContext().getBean(JwtDecoder.class);
 		given(decoder.decode("token")).willReturn(TestJwts.jwt().build());
 		BearerTokenResolver bearerTokenResolver = this.spring.getContext().getBean(BearerTokenResolver.class);
@@ -535,14 +536,14 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 		JwtDecoder decoder = this.spring.getContext().getBean(JwtDecoder.class);
 		given(decoder.decode(anyString())).willReturn(TestJwts.jwt().build());
 		this.mvc.perform(get("/authenticated").header("Authorization", "Bearer token"))
-				.andExpect(status().isNotFound());
+			.andExpect(status().isNotFound());
 		verify(decoder).decode("token");
 	}
 
 	@Test
 	public void configureWhenDecoderAndJwkSetUriThenException() {
 		assertThatExceptionOfType(BeanDefinitionParsingException.class)
-				.isThrownBy(() -> this.spring.configLocations(xml("JwtDecoderAndJwkSetUri")).autowire());
+			.isThrownBy(() -> this.spring.configLocations(xml("JwtDecoderAndJwkSetUri")).autowire());
 	}
 
 	@Test
@@ -609,12 +610,15 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 
 	@Test
 	public void requestWhenJwtAuthenticationConverterThenUsed() throws Exception {
-		this.spring.configLocations(xml("MockJwtDecoder"), xml("MockJwtAuthenticationConverter"),
-				xml("JwtAuthenticationConverter")).autowire();
+		this.spring
+			.configLocations(xml("MockJwtDecoder"), xml("MockJwtAuthenticationConverter"),
+					xml("JwtAuthenticationConverter"))
+			.autowire();
 		Converter<Jwt, JwtAuthenticationToken> jwtAuthenticationConverter = (Converter<Jwt, JwtAuthenticationToken>) this.spring
-				.getContext().getBean("jwtAuthenticationConverter");
+			.getContext()
+			.getBean("jwtAuthenticationConverter");
 		given(jwtAuthenticationConverter.convert(any(Jwt.class)))
-				.willReturn(new JwtAuthenticationToken(TestJwts.jwt().build(), Collections.emptyList()));
+			.willReturn(new JwtAuthenticationToken(TestJwts.jwt().build(), Collections.emptyList()));
 		JwtDecoder jwtDecoder = this.spring.getContext().getBean(JwtDecoder.class);
 		given(jwtDecoder.decode(anyString())).willReturn(TestJwts.jwt().build());
 		// @formatter:off
@@ -667,7 +671,7 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 	@Test
 	public void configureWhenIntrospectingWithAuthenticationConverterThenUses() throws Exception {
 		this.spring.configLocations(xml("OpaqueTokenRestOperations"), xml("OpaqueTokenAndAuthenticationConverter"))
-				.autowire();
+			.autowire();
 		mockRestOperations(json("Active"));
 		OpaqueTokenAuthenticationConverter converter = bean(OpaqueTokenAuthenticationConverter.class);
 		given(converter.convert(any(), any())).willReturn(new TestingAuthenticationToken("user", "pass", "app"));
@@ -705,20 +709,20 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 	@Test
 	public void configureWhenOnlyIntrospectionUrlThenException() {
 		assertThatExceptionOfType(BeanDefinitionParsingException.class)
-				.isThrownBy(() -> this.spring.configLocations(xml("OpaqueTokenHalfConfigured")).autowire());
+			.isThrownBy(() -> this.spring.configLocations(xml("OpaqueTokenHalfConfigured")).autowire());
 	}
 
 	@Test
 	public void configureWhenIntrospectorAndIntrospectionUriThenError() {
 		assertThatExceptionOfType(BeanDefinitionParsingException.class)
-				.isThrownBy(() -> this.spring.configLocations(xml("OpaqueTokenAndIntrospectionUri")).autowire());
+			.isThrownBy(() -> this.spring.configLocations(xml("OpaqueTokenAndIntrospectionUri")).autowire());
 	}
 
 	@Test
 	public void getWhenAuthenticationManagerResolverThenUses() throws Exception {
 		this.spring.configLocations(xml("AuthenticationManagerResolver")).autowire();
 		AuthenticationManagerResolver<HttpServletRequest> authenticationManagerResolver = this.spring.getContext()
-				.getBean(AuthenticationManagerResolver.class);
+			.getBean(AuthenticationManagerResolver.class);
 		given(authenticationManagerResolver.resolve(any(HttpServletRequest.class))).willReturn(
 				(authentication) -> new JwtAuthenticationToken(TestJwts.jwt().build(), Collections.emptyList()));
 		// @formatter:off
@@ -813,22 +817,23 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 	@Test
 	public void configuredWhenMissingJwtAuthenticationProviderThenWiringException() {
 		assertThatExceptionOfType(BeanDefinitionParsingException.class)
-				.isThrownBy(() -> this.spring.configLocations(xml("Jwtless")).autowire())
-				.withMessageContaining("Please select one");
+			.isThrownBy(() -> this.spring.configLocations(xml("Jwtless")).autowire())
+			.withMessageContaining("Please select one");
 	}
 
 	@Test
 	public void configureWhenMissingJwkSetUriThenWiringException() {
 		assertThatExceptionOfType(BeanDefinitionParsingException.class)
-				.isThrownBy(() -> this.spring.configLocations(xml("JwtHalfConfigured")).autowire())
-				.withMessageContaining("Please specify either");
+			.isThrownBy(() -> this.spring.configLocations(xml("JwtHalfConfigured")).autowire())
+			.withMessageContaining("Please specify either");
 	}
 
 	@Test
 	public void configureWhenUsingBothAuthenticationManagerResolverAndJwtThenException() {
-		assertThatExceptionOfType(BeanDefinitionParsingException.class).isThrownBy(
-				() -> this.spring.configLocations(xml("AuthenticationManagerResolverPlusOtherConfig")).autowire())
-				.withMessageContaining("authentication-manager-resolver-ref");
+		assertThatExceptionOfType(BeanDefinitionParsingException.class)
+			.isThrownBy(
+					() -> this.spring.configLocations(xml("AuthenticationManagerResolverPlusOtherConfig")).autowire())
+			.withMessageContaining("authentication-manager-resolver-ref");
 	}
 
 	@Test
@@ -837,7 +842,7 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 				null, null, null);
 		Element element = mock(Element.class);
 		given(element.hasAttribute(OAuth2ResourceServerBeanDefinitionParser.AUTHENTICATION_MANAGER_RESOLVER_REF))
-				.willReturn(true);
+			.willReturn(true);
 		Element child = mock(Element.class);
 		ParserContext pc = new ParserContext(mock(XmlReaderContext.class), mock(BeanDefinitionParserDelegate.class));
 		parser.validateConfiguration(element, child, null, pc);
@@ -853,7 +858,7 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 				null, null, null);
 		Element element = mock(Element.class);
 		given(element.hasAttribute(OAuth2ResourceServerBeanDefinitionParser.AUTHENTICATION_MANAGER_RESOLVER_REF))
-				.willReturn(false);
+			.willReturn(false);
 		ParserContext pc = new ParserContext(mock(XmlReaderContext.class), mock(BeanDefinitionParserDelegate.class));
 		parser.validateConfiguration(element, null, null, pc);
 		verify(pc.getReaderContext()).error(anyString(), eq(element));
@@ -940,7 +945,8 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 
 	private void mockWebServer(String response) {
 		this.web.enqueue(new MockResponse().setResponseCode(200)
-				.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE).setBody(response));
+			.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+			.setBody(response));
 	}
 
 	private void mockRestOperations(String response) {

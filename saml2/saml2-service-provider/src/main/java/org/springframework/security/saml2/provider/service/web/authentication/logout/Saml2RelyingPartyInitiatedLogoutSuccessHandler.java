@@ -102,7 +102,7 @@ public final class Saml2RelyingPartyInitiatedLogoutSuccessHandler implements Log
 			throws IOException {
 		String location = logoutRequest.getLocation();
 		UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUriString(location)
-				.query(logoutRequest.getParametersQuery());
+			.query(logoutRequest.getParametersQuery());
 		this.redirectStrategy.sendRedirect(request, response, uriBuilder.build(true).toUriString());
 	}
 
@@ -120,7 +120,7 @@ public final class Saml2RelyingPartyInitiatedLogoutSuccessHandler implements Log
 		html.append("<!DOCTYPE html>\n");
 		html.append("<html>\n").append("    <head>\n");
 		html.append("        <meta http-equiv=\"Content-Security-Policy\" ")
-				.append("content=\"script-src 'sha256-oZhLbc2kO8b8oaYLrUc7uye1MgVKMyLtPqWR4WtKF+c='\">\n");
+			.append("content=\"script-src 'sha256-oZhLbc2kO8b8oaYLrUc7uye1MgVKMyLtPqWR4WtKF+c='\">\n");
 		html.append("        <meta charset=\"utf-8\" />\n");
 		html.append("    </head>\n");
 		html.append("    <body>\n");

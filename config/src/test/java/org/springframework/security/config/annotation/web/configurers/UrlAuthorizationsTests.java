@@ -156,7 +156,8 @@ public class UrlAuthorizationsTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			ApplicationContext context = getApplicationContext();
 			UrlAuthorizationConfigurer<HttpSecurity>.StandardInterceptUrlRegistry registry = http
-					.apply(new UrlAuthorizationConfigurer(context)).getRegistry();
+				.apply(new UrlAuthorizationConfigurer(context))
+				.getRegistry();
 			// @formatter:off
 			registry
 					.antMatchers("/a").hasRole("ADMIN")

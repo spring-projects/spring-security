@@ -65,8 +65,8 @@ public final class WebClientReactivePasswordTokenResponseClient
 	BodyInserters.FormInserter<String> populateTokenRequestBody(OAuth2PasswordGrantRequest grantRequest,
 			BodyInserters.FormInserter<String> body) {
 		return super.populateTokenRequestBody(grantRequest, body)
-				.with(OAuth2ParameterNames.USERNAME, grantRequest.getUsername())
-				.with(OAuth2ParameterNames.PASSWORD, grantRequest.getPassword());
+			.with(OAuth2ParameterNames.USERNAME, grantRequest.getUsername())
+			.with(OAuth2ParameterNames.PASSWORD, grantRequest.getPassword());
 	}
 
 }

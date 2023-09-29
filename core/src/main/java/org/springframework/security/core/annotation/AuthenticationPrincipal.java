@@ -32,8 +32,8 @@ import org.springframework.security.core.Authentication;
  * @since 4.0
  *
  * See: <a href=
- * "{@docRoot}/org/springframework/security/web/method/annotation/AuthenticationPrincipalArgumentResolver.html"
- * > AuthenticationPrincipalArgumentResolver </a>
+ * "{@docRoot}/org/springframework/security/web/method/annotation/AuthenticationPrincipalArgumentResolver.html" >
+ * AuthenticationPrincipalArgumentResolver </a>
  */
 @Target({ ElementType.PARAMETER, ElementType.ANNOTATION_TYPE })
 @Retention(RetentionPolicy.RUNTIME)

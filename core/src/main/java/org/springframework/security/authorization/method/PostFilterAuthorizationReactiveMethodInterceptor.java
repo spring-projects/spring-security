@@ -83,12 +83,15 @@ public final class PostFilterAuthorizationReactiveMethodInterceptor
 			return ReactiveMethodInvocationUtils.proceed(mi);
 		}
 		Mono<EvaluationContext> toInvoke = ReactiveAuthenticationUtils.getAuthentication()
-				.map((auth) -> this.registry.getExpressionHandler().createEvaluationContext(auth, mi));
+			.map((auth) -> this.registry.getExpressionHandler().createEvaluationContext(auth, mi));
 		Method method = mi.getMethod();
 		Class<?> type = method.getReturnType();
-		Assert.state(Publisher.class.isAssignableFrom(type),
-				() -> String.format("The parameter type %s on %s must be an instance of org.reactivestreams.Publisher "
-						+ "(for example, a Mono or Flux) in order to support Reactor Context", type, method));
+		Assert
+			.state(Publisher.class.isAssignableFrom(type),
+					() -> String.format(
+							"The parameter type %s on %s must be an instance of org.reactivestreams.Publisher "
+									+ "(for example, a Mono or Flux) in order to support Reactor Context",
+							type, method));
 		ReactiveAdapter adapter = ReactiveAdapterRegistry.getSharedInstance().getAdapter(type);
 		if (isMultiValue(type, adapter)) {
 			Publisher<?> publisher = Flux.defer(() -> ReactiveMethodInvocationUtils.proceed(mi));
@@ -108,13 +111,15 @@ public final class PostFilterAuthorizationReactiveMethodInterceptor
 	}
 
 	private Mono<?> filterSingleValue(Publisher<?> publisher, EvaluationContext ctx, ExpressionAttribute attribute) {
-		return Mono.from(publisher).doOnNext((result) -> setFilterObject(ctx, result))
-				.flatMap((result) -> postFilter(ctx, result, attribute));
+		return Mono.from(publisher)
+			.doOnNext((result) -> setFilterObject(ctx, result))
+			.flatMap((result) -> postFilter(ctx, result, attribute));
 	}
 
 	private Flux<?> filterMultiValue(Publisher<?> publisher, EvaluationContext ctx, ExpressionAttribute attribute) {
-		return Flux.from(publisher).doOnNext((result) -> setFilterObject(ctx, result))
-				.flatMap((result) -> postFilter(ctx, result, attribute));
+		return Flux.from(publisher)
+			.doOnNext((result) -> setFilterObject(ctx, result))
+			.flatMap((result) -> postFilter(ctx, result, attribute));
 	}
 
 	private void setFilterObject(EvaluationContext ctx, Object result) {
@@ -123,7 +128,7 @@ public final class PostFilterAuthorizationReactiveMethodInterceptor
 
 	private Mono<?> postFilter(EvaluationContext ctx, Object result, ExpressionAttribute attribute) {
 		return ReactiveExpressionUtils.evaluateAsBoolean(attribute.getExpression(), ctx)
-				.flatMap((granted) -> granted ? Mono.just(result) : Mono.empty());
+			.flatMap((granted) -> granted ? Mono.just(result) : Mono.empty());
 	}
 
 	@Override

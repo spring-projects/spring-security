@@ -373,8 +373,12 @@ public class DefaultSavedRequest implements SavedRequest {
 		if (queryString == null || queryString.length() == 0) {
 			return matchingRequestParameterName;
 		}
-		return UriComponentsBuilder.newInstance().query(queryString).replaceQueryParam(matchingRequestParameterName)
-				.queryParam(matchingRequestParameterName).build().getQuery();
+		return UriComponentsBuilder.newInstance()
+			.query(queryString)
+			.replaceQueryParam(matchingRequestParameterName)
+			.queryParam(matchingRequestParameterName)
+			.build()
+			.getQuery();
 	}
 
 	/**

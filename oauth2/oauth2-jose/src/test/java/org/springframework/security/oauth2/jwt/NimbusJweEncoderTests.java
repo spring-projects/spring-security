@@ -145,7 +145,7 @@ public class NimbusJweEncoderTests {
 		Jwt encodedJweNestedJws = this.jweEncoder.encode(JwtEncoderParameters.from(jwsHeader, jwtClaimsSet));
 
 		assertThat(encodedJweNestedJws.getHeaders().get(JoseHeaderNames.ALG))
-				.isEqualTo(DEFAULT_JWE_HEADER.getAlgorithm());
+			.isEqualTo(DEFAULT_JWE_HEADER.getAlgorithm());
 		assertThat(encodedJweNestedJws.getHeaders().get("enc")).isEqualTo(DEFAULT_JWE_HEADER.<String>getHeader("enc"));
 		assertThat(encodedJweNestedJws.getHeaders().get(JoseHeaderNames.JKU)).isNull();
 		assertThat(encodedJweNestedJws.getHeaders().get(JoseHeaderNames.JWK)).isNull();
@@ -446,9 +446,11 @@ public class NimbusJweEncoderTests {
 				builder.criticalParams(critical);
 			}
 
-			Map<String, Object> customHeaders = headers.getHeaders().entrySet().stream()
-					.filter((header) -> !JWEHeader.getRegisteredParameterNames().contains(header.getKey()))
-					.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+			Map<String, Object> customHeaders = headers.getHeaders()
+				.entrySet()
+				.stream()
+				.filter((header) -> !JWEHeader.getRegisteredParameterNames().contains(header.getKey()))
+				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 			if (!CollectionUtils.isEmpty(customHeaders)) {
 				builder.customParams(customHeaders);
 			}

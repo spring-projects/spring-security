@@ -69,13 +69,13 @@ public class RememberMeAuthenticationFilterTests {
 	@Test
 	public void testDetectsAuthenticationManagerProperty() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new RememberMeAuthenticationFilter(null, new NullRememberMeServices()));
+			.isThrownBy(() -> new RememberMeAuthenticationFilter(null, new NullRememberMeServices()));
 	}
 
 	@Test
 	public void testDetectsRememberMeServicesProperty() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new RememberMeAuthenticationFilter(mock(AuthenticationManager.class), null));
+			.isThrownBy(() -> new RememberMeAuthenticationFilter(mock(AuthenticationManager.class), null));
 	}
 
 	@Test

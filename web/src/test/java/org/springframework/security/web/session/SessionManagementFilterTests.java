@@ -117,8 +117,8 @@ public class SessionManagementFilterTests {
 		FilterChain fc = mock(FilterChain.class);
 		authenticateUser();
 		SessionAuthenticationException exception = new SessionAuthenticationException("Failure");
-		willThrow(exception).given(strategy).onAuthentication(SecurityContextHolder.getContext().getAuthentication(),
-				request, response);
+		willThrow(exception).given(strategy)
+			.onAuthentication(SecurityContextHolder.getContext().getAuthentication(), request, response);
 		filter.doFilter(request, response, fc);
 		verifyNoMoreInteractions(fc);
 		verify(failureHandler).onAuthenticationFailure(request, response, exception);

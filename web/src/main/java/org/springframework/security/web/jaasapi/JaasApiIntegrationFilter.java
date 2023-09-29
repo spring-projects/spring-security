@@ -54,7 +54,7 @@ import org.springframework.web.filter.GenericFilterBean;
 public class JaasApiIntegrationFilter extends GenericFilterBean {
 
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
-			.getContextHolderStrategy();
+		.getContextHolderStrategy();
 
 	private boolean createEmptySubject;
 

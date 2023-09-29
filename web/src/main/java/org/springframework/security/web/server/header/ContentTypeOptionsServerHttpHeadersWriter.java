@@ -36,7 +36,8 @@ public class ContentTypeOptionsServerHttpHeadersWriter implements ServerHttpHead
 	 * The delegate to write all the cache control related headers
 	 */
 	private static final ServerHttpHeadersWriter CONTENT_TYPE_HEADERS = StaticServerHttpHeadersWriter.builder()
-			.header(X_CONTENT_OPTIONS, NOSNIFF).build();
+		.header(X_CONTENT_OPTIONS, NOSNIFF)
+		.build();
 
 	@Override
 	public Mono<Void> writeHttpHeaders(ServerWebExchange exchange) {

@@ -87,7 +87,7 @@ public class AuthorizationCodeOAuth2AuthorizedClientProviderTests {
 				.build();
 		// @formatter:on
 		assertThatExceptionOfType(ClientAuthorizationRequiredException.class)
-				.isThrownBy(() -> this.authorizedClientProvider.authorize(authorizationContext));
+			.isThrownBy(() -> this.authorizedClientProvider.authorize(authorizationContext));
 	}
 
 }

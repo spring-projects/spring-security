@@ -47,12 +47,12 @@ public final class RequestAttributeSecurityContextRepository implements Security
 	 * The default request attribute name to use.
 	 */
 	public static final String DEFAULT_REQUEST_ATTR_NAME = RequestAttributeSecurityContextRepository.class.getName()
-			.concat(".SPRING_SECURITY_CONTEXT");
+		.concat(".SPRING_SECURITY_CONTEXT");
 
 	private final String requestAttributeName;
 
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
-			.getContextHolderStrategy();
+		.getContextHolderStrategy();
 
 	/**
 	 * Creates a new instance using {@link #DEFAULT_REQUEST_ATTR_NAME}.

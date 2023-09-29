@@ -188,8 +188,9 @@ public class AbstractRequestMatcherRegistryTests {
 		mockMvcPresentClasspath(true);
 		mockMvcIntrospector(false);
 		assertThatExceptionOfType(NoSuchBeanDefinitionException.class)
-				.isThrownBy(() -> this.matcherRegistry.requestMatchers("/path")).withMessageContaining(
-						"Please ensure Spring Security & Spring MVC are configured in a shared ApplicationContext");
+			.isThrownBy(() -> this.matcherRegistry.requestMatchers("/path"))
+			.withMessageContaining(
+					"Please ensure Spring Security & Spring MVC are configured in a shared ApplicationContext");
 	}
 
 	@Test
@@ -215,7 +216,7 @@ public class AbstractRequestMatcherRegistryTests {
 		servletContext.addServlet("dispatcherServlet", DispatcherServlet.class).addMapping("/");
 		servletContext.addServlet("servletTwo", Servlet.class).addMapping("/servlet/**");
 		assertThatExceptionOfType(IllegalArgumentException.class)
-				.isThrownBy(() -> this.matcherRegistry.requestMatchers("/**"));
+			.isThrownBy(() -> this.matcherRegistry.requestMatchers("/**"));
 	}
 
 	@Test

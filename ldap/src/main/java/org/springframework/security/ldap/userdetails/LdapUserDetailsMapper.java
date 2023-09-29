@@ -83,7 +83,7 @@ public class LdapUserDetailsMapper implements UserDetailsContextMapper {
 		}
 		// Check for PPolicy data
 		PasswordPolicyResponseControl ppolicy = (PasswordPolicyResponseControl) ctx
-				.getObjectAttribute(PasswordPolicyControl.OID);
+			.getObjectAttribute(PasswordPolicyControl.OID);
 		if (ppolicy != null) {
 			essence.setTimeBeforeExpiration(ppolicy.getTimeBeforeExpiration());
 			essence.setGraceLoginsRemaining(ppolicy.getGraceLoginsRemaining());

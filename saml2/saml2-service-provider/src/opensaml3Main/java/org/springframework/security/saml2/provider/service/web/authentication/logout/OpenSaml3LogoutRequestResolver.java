@@ -63,7 +63,7 @@ public final class OpenSaml3LogoutRequestResolver implements Saml2LogoutRequestR
 		return this.logoutRequestResolver.resolve(request, authentication, (registration, logoutRequest) -> {
 			logoutRequest.setIssueInstant(new DateTime(this.clock.millis()));
 			this.parametersConsumer
-					.accept(new LogoutRequestParameters(request, registration, authentication, logoutRequest));
+				.accept(new LogoutRequestParameters(request, registration, authentication, logoutRequest));
 		});
 	}
 

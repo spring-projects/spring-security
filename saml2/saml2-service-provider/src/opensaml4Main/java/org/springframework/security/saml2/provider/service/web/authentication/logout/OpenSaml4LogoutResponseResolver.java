@@ -61,7 +61,7 @@ public final class OpenSaml4LogoutResponseResolver implements Saml2LogoutRespons
 		return this.logoutResponseResolver.resolve(request, authentication, (registration, logoutResponse) -> {
 			logoutResponse.setIssueInstant(Instant.now(this.clock));
 			this.parametersConsumer
-					.accept(new LogoutResponseParameters(request, registration, authentication, logoutResponse));
+				.accept(new LogoutResponseParameters(request, registration, authentication, logoutResponse));
 		});
 	}
 

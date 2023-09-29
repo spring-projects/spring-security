@@ -99,55 +99,59 @@ public class SecurityMockMvcRequestPostProcessorsOAuth2ClientTests {
 	@Test
 	public void oauth2ClientWhenUsingDefaultsThenException() throws Exception {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> oauth2Client().postProcessRequest(new MockHttpServletRequest()))
-				.withMessageContaining("ClientRegistration");
+			.isThrownBy(() -> oauth2Client().postProcessRequest(new MockHttpServletRequest()))
+			.withMessageContaining("ClientRegistration");
 	}
 
 	@Test
 	public void oauth2ClientWhenUsingDefaultsThenProducesDefaultAuthorizedClient() throws Exception {
 		this.mvc.perform(get("/access-token").with(oauth2Client("registration-id")))
-				.andExpect(content().string("access-token"));
+			.andExpect(content().string("access-token"));
 		this.mvc.perform(get("/client-id").with(oauth2Client("registration-id")))
-				.andExpect(content().string("test-client"));
+			.andExpect(content().string("test-client"));
 	}
 
 	@Test
 	public void oauth2ClientWhenClientRegistrationThenUses() throws Exception {
 		ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration()
-				.registrationId("registration-id").clientId("client-id").build();
+			.registrationId("registration-id")
+			.clientId("client-id")
+			.build();
 		this.mvc.perform(get("/client-id").with(oauth2Client().clientRegistration(clientRegistration)))
-				.andExpect(content().string("client-id"));
+			.andExpect(content().string("client-id"));
 	}
 
 	@Test
 	public void oauth2ClientWhenClientRegistrationConsumerThenUses() throws Exception {
-		this.mvc.perform(get("/client-id")
+		this.mvc
+			.perform(get("/client-id")
 				.with(oauth2Client("registration-id").clientRegistration((c) -> c.clientId("client-id"))))
-				.andExpect(content().string("client-id"));
+			.andExpect(content().string("client-id"));
 	}
 
 	@Test
 	public void oauth2ClientWhenPrincipalNameThenUses() throws Exception {
 		this.mvc.perform(get("/principal-name").with(oauth2Client("registration-id").principalName("test-subject")))
-				.andExpect(content().string("test-subject"));
+			.andExpect(content().string("test-subject"));
 	}
 
 	@Test
 	public void oauth2ClientWhenAccessTokenThenUses() throws Exception {
 		OAuth2AccessToken accessToken = TestOAuth2AccessTokens.noScopes();
 		this.mvc.perform(get("/access-token").with(oauth2Client("registration-id").accessToken(accessToken)))
-				.andExpect(content().string("no-scopes"));
+			.andExpect(content().string("no-scopes"));
 	}
 
 	@Test
 	public void oauth2ClientWhenUsedOnceThenDoesNotAffectRemainingTests() throws Exception {
 		this.mvc.perform(get("/client-id").with(oauth2Client("registration-id")))
-				.andExpect(content().string("test-client"));
+			.andExpect(content().string("test-client"));
 		OAuth2AuthorizedClient client = new OAuth2AuthorizedClient(TestClientRegistrations.clientRegistration().build(),
 				"sub", TestOAuth2AccessTokens.noScopes());
 		OAuth2AuthorizedClientRepository repository = this.context.getBean(OAuth2AuthorizedClientRepository.class);
 		given(repository.loadAuthorizedClient(eq("registration-id"), any(Authentication.class),
-				any(HttpServletRequest.class))).willReturn(client);
+				any(HttpServletRequest.class)))
+			.willReturn(client);
 		this.mvc.perform(get("/client-id")).andExpect(content().string("client-id"));
 		verify(repository).loadAuthorizedClient(eq("registration-id"), any(Authentication.class),
 				any(HttpServletRequest.class));
@@ -157,10 +161,12 @@ public class SecurityMockMvcRequestPostProcessorsOAuth2ClientTests {
 	@Test
 	public void oauth2ClientWhenUsedThenSetsClientToRepository() throws Exception {
 		HttpServletRequest request = this.mvc.perform(get("/client-id").with(oauth2Client("registration-id")))
-				.andExpect(content().string("test-client")).andReturn().getRequest();
+			.andExpect(content().string("test-client"))
+			.andReturn()
+			.getRequest();
 		OAuth2AuthorizedClientManager manager = this.context.getBean(OAuth2AuthorizedClientManager.class);
 		OAuth2AuthorizedClientRepository repository = (OAuth2AuthorizedClientRepository) ReflectionTestUtils
-				.getField(manager, "authorizedClientRepository");
+			.getField(manager, "authorizedClientRepository");
 		assertThat(repository).isInstanceOf(TestOAuth2AuthorizedClientRepository.class);
 		assertThat((OAuth2AuthorizedClient) repository.loadAuthorizedClient("id", null, request)).isNotNull();
 	}

@@ -66,13 +66,13 @@ public class OAuth2LoginAuthenticationTokenTests {
 	@Test
 	public void constructorAuthorizationRequestResponseWhenClientRegistrationIsNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new OAuth2LoginAuthenticationToken(null, this.authorizationExchange));
+			.isThrownBy(() -> new OAuth2LoginAuthenticationToken(null, this.authorizationExchange));
 	}
 
 	@Test
 	public void constructorAuthorizationRequestResponseWhenAuthorizationExchangeIsNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new OAuth2LoginAuthenticationToken(this.clientRegistration, null));
+			.isThrownBy(() -> new OAuth2LoginAuthenticationToken(this.clientRegistration, null));
 	}
 
 	@Test
@@ -97,15 +97,15 @@ public class OAuth2LoginAuthenticationTokenTests {
 	@Test
 	public void constructorTokenRequestResponseWhenAuthorizationExchangeIsNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new OAuth2LoginAuthenticationToken(this.clientRegistration, null, this.principal,
-						this.authorities, this.accessToken));
+			.isThrownBy(() -> new OAuth2LoginAuthenticationToken(this.clientRegistration, null, this.principal,
+					this.authorities, this.accessToken));
 	}
 
 	@Test
 	public void constructorTokenRequestResponseWhenPrincipalIsNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new OAuth2LoginAuthenticationToken(this.clientRegistration,
-						this.authorizationExchange, null, this.authorities, this.accessToken));
+			.isThrownBy(() -> new OAuth2LoginAuthenticationToken(this.clientRegistration, this.authorizationExchange,
+					null, this.authorities, this.accessToken));
 	}
 
 	@Test
@@ -123,8 +123,8 @@ public class OAuth2LoginAuthenticationTokenTests {
 	@Test
 	public void constructorTokenRequestResponseWhenAccessTokenIsNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new OAuth2LoginAuthenticationToken(this.clientRegistration,
-						this.authorizationExchange, this.principal, this.authorities, null));
+			.isThrownBy(() -> new OAuth2LoginAuthenticationToken(this.clientRegistration, this.authorizationExchange,
+					this.principal, this.authorities, null));
 	}
 
 	@Test

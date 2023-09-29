@@ -63,7 +63,7 @@ public final class OidcClientInitiatedLogoutSuccessHandler extends SimpleUrlLogo
 		if (authentication instanceof OAuth2AuthenticationToken && authentication.getPrincipal() instanceof OidcUser) {
 			String registrationId = ((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId();
 			ClientRegistration clientRegistration = this.clientRegistrationRepository
-					.findByRegistrationId(registrationId);
+				.findByRegistrationId(registrationId);
 			URI endSessionEndpoint = this.endSessionEndpoint(clientRegistration);
 			if (endSessionEndpoint != null) {
 				String idToken = idToken(authentication);

@@ -152,8 +152,8 @@ public class AuthorizeRequestsTests {
 		SecurityContext securityContext = new SecurityContextImpl();
 		securityContext.setAuthentication(UsernamePasswordAuthenticationToken.authenticated("test", "notused",
 				AuthorityUtils.createAuthorityList("ROLE_USER")));
-		this.request.getSession().setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
-				securityContext);
+		this.request.getSession()
+			.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, securityContext);
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
 	}

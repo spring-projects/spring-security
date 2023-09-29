@@ -72,7 +72,7 @@ public class OidcReactiveOAuth2UserServiceTests {
 	private ReactiveOAuth2UserService<OAuth2UserRequest, OAuth2User> oauth2UserService;
 
 	private ClientRegistration.Builder registration = TestClientRegistrations.clientRegistration()
-			.userNameAttributeName(IdTokenClaimNames.SUB);
+		.userNameAttributeName(IdTokenClaimNames.SUB);
 
 	private OidcIdToken idToken = TestOidcIdTokens.idToken().build();
 
@@ -89,7 +89,7 @@ public class OidcReactiveOAuth2UserServiceTests {
 	@Test
 	public void createDefaultClaimTypeConvertersWhenCalledThenDefaultsAreCorrect() {
 		Map<String, Converter<Object, ?>> claimTypeConverters = OidcReactiveOAuth2UserService
-				.createDefaultClaimTypeConverters();
+			.createDefaultClaimTypeConverters();
 		assertThat(claimTypeConverters).containsKey(StandardClaimNames.EMAIL_VERIFIED);
 		assertThat(claimTypeConverters).containsKey(StandardClaimNames.PHONE_NUMBER_VERIFIED);
 		assertThat(claimTypeConverters).containsKey(StandardClaimNames.UPDATED_AT);
@@ -120,7 +120,7 @@ public class OidcReactiveOAuth2UserServiceTests {
 				Collections.singletonMap("user", "rob"), "user");
 		given(this.oauth2UserService.loadUser(any())).willReturn(Mono.just(oauth2User));
 		assertThatExceptionOfType(OAuth2AuthenticationException.class)
-				.isThrownBy(() -> this.userService.loadUser(userRequest()).block());
+			.isThrownBy(() -> this.userService.loadUser(userRequest()).block());
 	}
 
 	@Test
@@ -132,7 +132,7 @@ public class OidcReactiveOAuth2UserServiceTests {
 				"user");
 		given(this.oauth2UserService.loadUser(any())).willReturn(Mono.just(oauth2User));
 		assertThatExceptionOfType(OAuth2AuthenticationException.class)
-				.isThrownBy(() -> this.userService.loadUser(userRequest()).block());
+			.isThrownBy(() -> this.userService.loadUser(userRequest()).block());
 	}
 
 	@Test
@@ -171,7 +171,7 @@ public class OidcReactiveOAuth2UserServiceTests {
 				Function.class);
 		this.userService.setClaimTypeConverterFactory(customClaimTypeConverterFactory);
 		given(customClaimTypeConverterFactory.apply(same(userRequest.getClientRegistration())))
-				.willReturn(new ClaimTypeConverter(OidcReactiveOAuth2UserService.createDefaultClaimTypeConverters()));
+			.willReturn(new ClaimTypeConverter(OidcReactiveOAuth2UserService.createDefaultClaimTypeConverters()));
 		this.userService.loadUser(userRequest).block().getUserInfo();
 		verify(customClaimTypeConverterFactory).apply(same(userRequest.getClientRegistration()));
 	}

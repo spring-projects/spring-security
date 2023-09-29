@@ -92,7 +92,7 @@ public class NimbusAuthorizationCodeTokenResponseClient
 		ClientID clientId = new ClientID(clientRegistration.getClientId());
 		Secret clientSecret = new Secret(clientRegistration.getClientSecret());
 		boolean isPost = ClientAuthenticationMethod.CLIENT_SECRET_POST
-				.equals(clientRegistration.getClientAuthenticationMethod())
+			.equals(clientRegistration.getClientAuthenticationMethod())
 				|| ClientAuthenticationMethod.POST.equals(clientRegistration.getClientAuthenticationMethod());
 		ClientAuthentication clientAuthentication = isPost ? new ClientSecretPost(clientId, clientSecret)
 				: new ClientSecretBasic(clientId, clientSecret);
@@ -107,7 +107,7 @@ public class NimbusAuthorizationCodeTokenResponseClient
 		String accessToken = accessTokenResponse.getTokens().getAccessToken().getValue();
 		OAuth2AccessToken.TokenType accessTokenType = null;
 		if (OAuth2AccessToken.TokenType.BEARER.getValue()
-				.equalsIgnoreCase(accessTokenResponse.getTokens().getAccessToken().getType().getValue())) {
+			.equalsIgnoreCase(accessTokenResponse.getTokens().getAccessToken().getType().getValue())) {
 			accessTokenType = OAuth2AccessToken.TokenType.BEARER;
 		}
 		long expiresIn = accessTokenResponse.getTokens().getAccessToken().getLifetime();

@@ -95,9 +95,10 @@ public class Saml2WebSsoAuthenticationRequestFilterTests {
 			}
 		};
 		this.rpBuilder = RelyingPartyRegistration.withRegistrationId("registration-id")
-				.providerDetails((c) -> c.entityId("idp-entity-id")).providerDetails((c) -> c.webSsoUrl(IDP_SSO_URL))
-				.assertionConsumerServiceUrlTemplate("template")
-				.credentials((c) -> c.add(TestSaml2X509Credentials.assertingPartyPrivateCredential()));
+			.providerDetails((c) -> c.entityId("idp-entity-id"))
+			.providerDetails((c) -> c.webSsoUrl(IDP_SSO_URL))
+			.assertionConsumerServiceUrlTemplate("template")
+			.credentials((c) -> c.add(TestSaml2X509Credentials.assertingPartyPrivateCredential()));
 		this.filter.setAuthenticationRequestRepository(this.authenticationRequestRepository);
 	}
 
@@ -117,20 +118,23 @@ public class Saml2WebSsoAuthenticationRequestFilterTests {
 
 	private static Saml2RedirectAuthenticationRequest.Builder redirectAuthenticationRequest(
 			Saml2AuthenticationRequestContext context) {
-		return Saml2RedirectAuthenticationRequest.withAuthenticationRequestContext(context).samlRequest("request")
-				.authenticationRequestUri(IDP_SSO_URL);
+		return Saml2RedirectAuthenticationRequest.withAuthenticationRequestContext(context)
+			.samlRequest("request")
+			.authenticationRequestUri(IDP_SSO_URL);
 	}
 
 	private static Saml2RedirectAuthenticationRequest.Builder redirectAuthenticationRequest(
 			RelyingPartyRegistration registration) {
-		return Saml2RedirectAuthenticationRequest.withRelyingPartyRegistration(registration).samlRequest("request")
-				.authenticationRequestUri(IDP_SSO_URL);
+		return Saml2RedirectAuthenticationRequest.withRelyingPartyRegistration(registration)
+			.samlRequest("request")
+			.authenticationRequestUri(IDP_SSO_URL);
 	}
 
 	private static Saml2PostAuthenticationRequest.Builder postAuthenticationRequest(
 			Saml2AuthenticationRequestContext context) {
-		return Saml2PostAuthenticationRequest.withAuthenticationRequestContext(context).samlRequest("request")
-				.authenticationRequestUri(IDP_SSO_URL);
+		return Saml2PostAuthenticationRequest.withAuthenticationRequestContext(context)
+			.samlRequest("request")
+			.authenticationRequestUri(IDP_SSO_URL);
 	}
 
 	@Test
@@ -153,19 +157,21 @@ public class Saml2WebSsoAuthenticationRequestFilterTests {
 		given(this.factory.createRedirectAuthenticationRequest(any())).willReturn(request);
 		this.filter.doFilterInternal(this.request, this.response, this.filterChain);
 		assertThat(this.response.getHeader("Location")).contains("RelayState=" + relayStateEncoded)
-				.startsWith(IDP_SSO_URL);
+			.startsWith(IDP_SSO_URL);
 	}
 
 	@Test
 	public void doFilterWhenSimpleSignatureSpecifiedThenSignatureParametersAreInTheRedirectURL() throws Exception {
 		Saml2AuthenticationRequestContext context = authenticationRequestContext().build();
 		Saml2RedirectAuthenticationRequest request = redirectAuthenticationRequest(context).sigAlg("sigalg")
-				.signature("signature").build();
+			.signature("signature")
+			.build();
 		given(this.resolver.resolve(any())).willReturn(context);
 		given(this.factory.createRedirectAuthenticationRequest(any())).willReturn(request);
 		this.filter.doFilterInternal(this.request, this.response, this.filterChain);
-		assertThat(this.response.getHeader("Location")).contains("SigAlg=").contains("Signature=")
-				.startsWith(IDP_SSO_URL);
+		assertThat(this.response.getHeader("Location")).contains("SigAlg=")
+			.contains("Signature=")
+			.startsWith(IDP_SSO_URL);
 	}
 
 	@Test
@@ -175,8 +181,9 @@ public class Saml2WebSsoAuthenticationRequestFilterTests {
 		given(this.resolver.resolve(any())).willReturn(context);
 		given(this.factory.createRedirectAuthenticationRequest(any())).willReturn(request);
 		this.filter.doFilterInternal(this.request, this.response, this.filterChain);
-		assertThat(this.response.getHeader("Location")).doesNotContain("SigAlg=").doesNotContain("Signature=")
-				.startsWith(IDP_SSO_URL);
+		assertThat(this.response.getHeader("Location")).doesNotContain("SigAlg=")
+			.doesNotContain("Signature=")
+			.startsWith(IDP_SSO_URL);
 	}
 
 	@Test
@@ -184,10 +191,11 @@ public class Saml2WebSsoAuthenticationRequestFilterTests {
 		String relayStateValue = "https://my-relay-state.example.com?with=param&other=param&javascript{alert('1');}";
 		String relayStateEncoded = HtmlUtils.htmlEscape(relayStateValue);
 		RelyingPartyRegistration registration = this.rpBuilder
-				.assertingPartyDetails((asserting) -> asserting.singleSignOnServiceBinding(Saml2MessageBinding.POST))
-				.build();
+			.assertingPartyDetails((asserting) -> asserting.singleSignOnServiceBinding(Saml2MessageBinding.POST))
+			.build();
 		Saml2AuthenticationRequestContext context = authenticationRequestContext().relayState(relayStateValue)
-				.relyingPartyRegistration(registration).build();
+			.relyingPartyRegistration(registration)
+			.build();
 		Saml2PostAuthenticationRequest request = postAuthenticationRequest(context).build();
 		given(this.resolver.resolve(any())).willReturn(context);
 		given(this.factory.createPostAuthenticationRequest(any())).willReturn(request);
@@ -195,10 +203,10 @@ public class Saml2WebSsoAuthenticationRequestFilterTests {
 		assertThat(this.response.getHeader("Location")).isNull();
 		assertThat(this.response.getContentAsString()).contains(
 				"<meta http-equiv=\"Content-Security-Policy\" content=\"script-src 'sha256-oZhLbc2kO8b8oaYLrUc7uye1MgVKMyLtPqWR4WtKF+c='\">")
-				.contains("<script>window.onload = function() { document.forms[0].submit(); }</script>")
-				.contains("<form action=\"https://sso-url.example.com/IDP/SSO\" method=\"post\">")
-				.contains("<input type=\"hidden\" name=\"SAMLRequest\"")
-				.contains("value=\"" + relayStateEncoded + "\"");
+			.contains("<script>window.onload = function() { document.forms[0].submit(); }</script>")
+			.contains("<form action=\"https://sso-url.example.com/IDP/SSO\" method=\"post\">")
+			.contains("<input type=\"hidden\" name=\"SAMLRequest\"")
+			.contains("value=\"" + relayStateEncoded + "\"");
 	}
 
 	@Test
@@ -265,22 +273,24 @@ public class Saml2WebSsoAuthenticationRequestFilterTests {
 	@Test
 	public void doFilterWhenPostThenSaveRedirectRequest() throws ServletException, IOException {
 		RelyingPartyRegistration registration = this.rpBuilder
-				.assertingPartyDetails((asserting) -> asserting.singleSignOnServiceBinding(Saml2MessageBinding.POST))
-				.build();
+			.assertingPartyDetails((asserting) -> asserting.singleSignOnServiceBinding(Saml2MessageBinding.POST))
+			.build();
 		Saml2AuthenticationRequestContext context = authenticationRequestContext()
-				.relyingPartyRegistration(registration).build();
+			.relyingPartyRegistration(registration)
+			.build();
 		Saml2PostAuthenticationRequest request = postAuthenticationRequest(context).build();
 		given(this.resolver.resolve(any())).willReturn(context);
 		given(this.factory.createPostAuthenticationRequest(any())).willReturn(request);
 		this.filter.doFilterInternal(this.request, this.response, this.filterChain);
-		verify(this.authenticationRequestRepository).saveAuthenticationRequest(
-				any(Saml2PostAuthenticationRequest.class), eq(this.request), eq(this.response));
+		verify(this.authenticationRequestRepository)
+			.saveAuthenticationRequest(any(Saml2PostAuthenticationRequest.class), eq(this.request), eq(this.response));
 	}
 
 	@Test
 	public void doFilterWhenPathStartsWithRegistrationIdThenPosts() throws Exception {
 		RelyingPartyRegistration registration = TestRelyingPartyRegistrations.full()
-				.assertingPartyDetails((party) -> party.singleSignOnServiceBinding(Saml2MessageBinding.POST)).build();
+			.assertingPartyDetails((party) -> party.singleSignOnServiceBinding(Saml2MessageBinding.POST))
+			.build();
 		RequestMatcher matcher = new AntPathRequestMatcher("/{registrationId}/saml2/authenticate");
 		DefaultRelyingPartyRegistrationResolver delegate = new DefaultRelyingPartyRegistrationResolver(this.repository);
 		RelyingPartyRegistrationResolver resolver = (request, id) -> {

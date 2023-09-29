@@ -351,7 +351,7 @@ public class RSocketSecurity {
 	public class AuthorizePayloadsSpec {
 
 		private PayloadExchangeMatcherReactiveAuthorizationManager.Builder authzBuilder = PayloadExchangeMatcherReactiveAuthorizationManager
-				.builder();
+			.builder();
 
 		public Access setup() {
 			return matcher(PayloadExchangeMatchers.setup());
@@ -427,7 +427,7 @@ public class RSocketSecurity {
 			public AuthorizePayloadsSpec access(
 					ReactiveAuthorizationManager<PayloadExchangeAuthorizationContext> authorization) {
 				AuthorizePayloadsSpec.this.authzBuilder
-						.add(new PayloadExchangeMatcherEntry<>(this.matcher, authorization));
+					.add(new PayloadExchangeMatcherEntry<>(this.matcher, authorization));
 				return AuthorizePayloadsSpec.this;
 			}
 

@@ -43,7 +43,7 @@ public class LdapUserDetailsServiceTests {
 	@Test
 	public void rejectsNullSearchObject() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new LdapUserDetailsService(null, new NullLdapAuthoritiesPopulator()));
+			.isThrownBy(() -> new LdapUserDetailsService(null, new NullLdapAuthoritiesPopulator()));
 	}
 
 	@Test

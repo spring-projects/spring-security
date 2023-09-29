@@ -258,7 +258,7 @@ public class DigestAuthenticationFilterTests {
 		executeFilterInContainerSimulator(this.filter, this.request, true);
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
 		assertThat(((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername())
-				.isEqualTo(USERNAME);
+			.isEqualTo(USERNAME);
 	}
 
 	@Test
@@ -270,7 +270,7 @@ public class DigestAuthenticationFilterTests {
 		executeFilterInContainerSimulator(this.filter, this.request, true);
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
 		assertThat(((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername())
-				.isEqualTo(USERNAME);
+			.isEqualTo(USERNAME);
 		assertThat(SecurityContextHolder.getContext().getAuthentication().isAuthenticated()).isFalse();
 	}
 
@@ -284,10 +284,10 @@ public class DigestAuthenticationFilterTests {
 		executeFilterInContainerSimulator(this.filter, this.request, true);
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
 		assertThat(((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername())
-				.isEqualTo(USERNAME);
+			.isEqualTo(USERNAME);
 		assertThat(SecurityContextHolder.getContext().getAuthentication().isAuthenticated()).isTrue();
 		assertThat(SecurityContextHolder.getContext().getAuthentication().getAuthorities())
-				.isEqualTo(AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"));
+			.isEqualTo(AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"));
 	}
 
 	@Test
@@ -420,10 +420,10 @@ public class DigestAuthenticationFilterTests {
 		MockHttpServletResponse response = executeFilterInContainerSimulator(this.filter, this.request, true);
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
 		assertThat(((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername())
-				.isEqualTo(USERNAME);
+			.isEqualTo(USERNAME);
 		assertThat(SecurityContextHolder.getContext().getAuthentication().isAuthenticated()).isTrue();
 		assertThat(SecurityContextHolder.getContext().getAuthentication().getAuthorities())
-				.isEqualTo(AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"));
+			.isEqualTo(AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"));
 		verify(securityContextRepository).saveContext(contextArg.capture(), eq(this.request), eq(response));
 		assertThat(contextArg.getValue().getAuthentication().getName()).isEqualTo(USERNAME);
 	}

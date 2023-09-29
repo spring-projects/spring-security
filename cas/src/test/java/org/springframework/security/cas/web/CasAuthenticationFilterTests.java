@@ -132,13 +132,14 @@ public class CasAuthenticationFilterTests {
 		assertThat(filter.requiresAuthentication(request, response)).isFalse();
 		request.setParameter(properties.getArtifactParameter(), "value");
 		assertThat(filter.requiresAuthentication(request, response)).isTrue();
-		SecurityContextHolder.getContext().setAuthentication(new AnonymousAuthenticationToken("key", "principal",
-				AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS")));
+		SecurityContextHolder.getContext()
+			.setAuthentication(new AnonymousAuthenticationToken("key", "principal",
+					AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS")));
 		assertThat(filter.requiresAuthentication(request, response)).isTrue();
 		SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("un", "principal"));
 		assertThat(filter.requiresAuthentication(request, response)).isTrue();
 		SecurityContextHolder.getContext()
-				.setAuthentication(new TestingAuthenticationToken("un", "principal", "ROLE_ANONYMOUS"));
+			.setAuthentication(new TestingAuthenticationToken("un", "principal", "ROLE_ANONYMOUS"));
 		assertThat(filter.requiresAuthentication(request, response)).isFalse();
 	}
 
@@ -174,7 +175,7 @@ public class CasAuthenticationFilterTests {
 		filter.afterPropertiesSet();
 		filter.doFilter(request, response, chain);
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull()
-				.withFailMessage("Authentication should not be null");
+			.withFailMessage("Authentication should not be null");
 		verify(chain).doFilter(request, response);
 		verifyNoMoreInteractions(successHandler);
 		// validate for when the filterProcessUrl matches
@@ -206,7 +207,7 @@ public class CasAuthenticationFilterTests {
 		filter.afterPropertiesSet();
 		filter.doFilter(request, response, chain);
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull()
-				.withFailMessage("Authentication should not be null");
+			.withFailMessage("Authentication should not be null");
 		verify(chain).doFilter(request, response);
 		// validate for when the filterProcessUrl matches
 		filter.setFilterProcessesUrl(request.getServletPath());

@@ -75,7 +75,7 @@ public abstract class AbstractWebClientReactiveOAuth2AccessTokenResponseClient<T
 	private Converter<T, MultiValueMap<String, String>> parametersConverter = this::populateTokenRequestParameters;
 
 	private BodyExtractor<Mono<OAuth2AccessTokenResponse>, ReactiveHttpInputMessage> bodyExtractor = OAuth2BodyExtractors
-			.oauth2AccessTokenResponse();
+		.oauth2AccessTokenResponse();
 
 	AbstractWebClientReactiveOAuth2AccessTokenResponseClient() {
 	}
@@ -225,7 +225,7 @@ public abstract class AbstractWebClientReactiveOAuth2AccessTokenResponseClient<T
 	 */
 	private Mono<OAuth2AccessTokenResponse> readTokenResponse(T grantRequest, ClientResponse response) {
 		return response.body(this.bodyExtractor)
-				.map((tokenResponse) -> populateTokenResponse(grantRequest, tokenResponse));
+			.map((tokenResponse) -> populateTokenResponse(grantRequest, tokenResponse));
 	}
 
 	/**

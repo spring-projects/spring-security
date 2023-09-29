@@ -61,10 +61,13 @@ final class WebSocketMessageBrokerSecurityConfiguration
 	private MessageMatcherDelegatingAuthorizationManager b;
 
 	private static final AuthorizationManager<Message<?>> ANY_MESSAGE_AUTHENTICATED = MessageMatcherDelegatingAuthorizationManager
-			.builder().anyMessage().authenticated().build();
+		.builder()
+		.anyMessage()
+		.authenticated()
+		.build();
 
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
-			.getContextHolderStrategy();
+		.getContextHolderStrategy();
 
 	private final SecurityContextChannelInterceptor securityContextChannelInterceptor = new SecurityContextChannelInterceptor();
 
@@ -95,7 +98,7 @@ final class WebSocketMessageBrokerSecurityConfiguration
 		}
 
 		this.authorizationChannelInterceptor
-				.setAuthorizationEventPublisher(new SpringAuthorizationEventPublisher(this.context));
+			.setAuthorizationEventPublisher(new SpringAuthorizationEventPublisher(this.context));
 		this.authorizationChannelInterceptor.setSecurityContextHolderStrategy(this.securityContextHolderStrategy);
 		this.securityContextChannelInterceptor.setSecurityContextHolderStrategy(this.securityContextHolderStrategy);
 		registration.interceptors(this.securityContextChannelInterceptor, this.csrfChannelInterceptor,

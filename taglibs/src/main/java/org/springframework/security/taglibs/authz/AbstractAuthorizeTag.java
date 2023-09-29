@@ -174,7 +174,7 @@ public abstract class AbstractAuthorizeTag {
 
 	private SecurityContext getContext() {
 		ApplicationContext appContext = SecurityWebApplicationContextUtils
-				.findRequiredWebApplicationContext(getServletContext());
+			.findRequiredWebApplicationContext(getServletContext());
 		String[] names = appContext.getBeanNamesForType(SecurityContextHolderStrategy.class);
 		if (names.length == 1) {
 			SecurityContextHolderStrategy strategy = appContext.getBean(SecurityContextHolderStrategy.class);
@@ -186,11 +186,11 @@ public abstract class AbstractAuthorizeTag {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private SecurityExpressionHandler<FilterInvocation> getExpressionHandler() throws IOException {
 		ApplicationContext appContext = SecurityWebApplicationContextUtils
-				.findRequiredWebApplicationContext(getServletContext());
+			.findRequiredWebApplicationContext(getServletContext());
 		Map<String, SecurityExpressionHandler> handlers = appContext.getBeansOfType(SecurityExpressionHandler.class);
 		for (SecurityExpressionHandler handler : handlers.values()) {
-			if (FilterInvocation.class.equals(
-					GenericTypeResolver.resolveTypeArgument(handler.getClass(), SecurityExpressionHandler.class))) {
+			if (FilterInvocation.class
+				.equals(GenericTypeResolver.resolveTypeArgument(handler.getClass(), SecurityExpressionHandler.class))) {
 				return handler;
 			}
 		}
@@ -200,12 +200,12 @@ public abstract class AbstractAuthorizeTag {
 
 	private WebInvocationPrivilegeEvaluator getPrivilegeEvaluator() throws IOException {
 		WebInvocationPrivilegeEvaluator privEvaluatorFromRequest = (WebInvocationPrivilegeEvaluator) getRequest()
-				.getAttribute(WebAttributes.WEB_INVOCATION_PRIVILEGE_EVALUATOR_ATTRIBUTE);
+			.getAttribute(WebAttributes.WEB_INVOCATION_PRIVILEGE_EVALUATOR_ATTRIBUTE);
 		if (privEvaluatorFromRequest != null) {
 			return privEvaluatorFromRequest;
 		}
 		ApplicationContext ctx = SecurityWebApplicationContextUtils
-				.findRequiredWebApplicationContext(getServletContext());
+			.findRequiredWebApplicationContext(getServletContext());
 		Map<String, WebInvocationPrivilegeEvaluator> wipes = ctx.getBeansOfType(WebInvocationPrivilegeEvaluator.class);
 		if (wipes.size() == 0) {
 			throw new IOException(

@@ -43,7 +43,7 @@ public class RemoteAuthenticationManagerImplTests {
 		given(am.authenticate(any(Authentication.class))).willThrow(new BadCredentialsException(""));
 		manager.setAuthenticationManager(am);
 		assertThatExceptionOfType(RemoteAuthenticationException.class)
-				.isThrownBy(() -> manager.attemptAuthentication("rod", "password"));
+			.isThrownBy(() -> manager.attemptAuthentication("rod", "password"));
 	}
 
 	@Test

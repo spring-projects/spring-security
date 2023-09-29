@@ -75,7 +75,7 @@ public final class DefaultRefreshTokenTokenResponseClient
 		if (CollectionUtils.isEmpty(tokenResponse.getAccessToken().getScopes())
 				|| tokenResponse.getRefreshToken() == null) {
 			OAuth2AccessTokenResponse.Builder tokenResponseBuilder = OAuth2AccessTokenResponse
-					.withResponse(tokenResponse);
+				.withResponse(tokenResponse);
 			if (CollectionUtils.isEmpty(tokenResponse.getAccessToken().getScopes())) {
 				// As per spec, in Section 5.1 Successful Access Token Response
 				// https://tools.ietf.org/html/rfc6749#section-5.1

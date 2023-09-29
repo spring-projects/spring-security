@@ -55,7 +55,7 @@ public class SampleEnableGlobalMethodSecurityTests {
 	@BeforeEach
 	public void setup() {
 		SecurityContextHolder.getContext()
-				.setAuthentication(new TestingAuthenticationToken("user", "password", "ROLE_USER"));
+			.setAuthentication(new TestingAuthenticationToken("user", "password", "ROLE_USER"));
 	}
 
 	@Test
@@ -64,7 +64,7 @@ public class SampleEnableGlobalMethodSecurityTests {
 		assertThat(this.methodSecurityService.secured()).isNull();
 		assertThat(this.methodSecurityService.jsr250()).isNull();
 		assertThatExceptionOfType(AccessDeniedException.class)
-				.isThrownBy(() -> this.methodSecurityService.preAuthorize());
+			.isThrownBy(() -> this.methodSecurityService.preAuthorize());
 	}
 
 	@Test
@@ -72,7 +72,7 @@ public class SampleEnableGlobalMethodSecurityTests {
 		this.spring.register(CustomPermissionEvaluatorWebSecurityConfig.class).autowire();
 		assertThat(this.methodSecurityService.hasPermission("allowed")).isNull();
 		assertThatExceptionOfType(AccessDeniedException.class)
-				.isThrownBy(() -> this.methodSecurityService.hasPermission("denied"));
+			.isThrownBy(() -> this.methodSecurityService.hasPermission("denied"));
 	}
 
 	@EnableGlobalMethodSecurity(prePostEnabled = true)

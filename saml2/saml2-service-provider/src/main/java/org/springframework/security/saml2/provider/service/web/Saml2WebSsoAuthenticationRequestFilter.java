@@ -101,7 +101,8 @@ public class Saml2WebSsoAuthenticationRequestFilter extends OncePerRequestFilter
 		}
 		try {
 			return (Saml2AuthenticationRequestFactory) ClassUtils.forName(opensamlClassName, null)
-					.getDeclaredConstructor().newInstance();
+				.getDeclaredConstructor()
+				.newInstance();
 		}
 		catch (Exception ex) {
 			throw new IllegalStateException(ex);
@@ -198,7 +199,7 @@ public class Saml2WebSsoAuthenticationRequestFilter extends OncePerRequestFilter
 			Saml2RedirectAuthenticationRequest authenticationRequest) throws IOException {
 		this.authenticationRequestRepository.saveAuthenticationRequest(authenticationRequest, request, response);
 		UriComponentsBuilder uriBuilder = UriComponentsBuilder
-				.fromUriString(authenticationRequest.getAuthenticationRequestUri());
+			.fromUriString(authenticationRequest.getAuthenticationRequestUri());
 		addParameter(Saml2ParameterNames.SAML_REQUEST, authenticationRequest.getSamlRequest(), uriBuilder);
 		addParameter(Saml2ParameterNames.RELAY_STATE, authenticationRequest.getRelayState(), uriBuilder);
 		addParameter(Saml2ParameterNames.SIG_ALG, authenticationRequest.getSigAlg(), uriBuilder);
@@ -231,7 +232,7 @@ public class Saml2WebSsoAuthenticationRequestFilter extends OncePerRequestFilter
 		html.append("<!DOCTYPE html>\n");
 		html.append("<html>\n").append("    <head>\n");
 		html.append("        <meta http-equiv=\"Content-Security-Policy\" ")
-				.append("content=\"script-src 'sha256-oZhLbc2kO8b8oaYLrUc7uye1MgVKMyLtPqWR4WtKF+c='\">\n");
+			.append("content=\"script-src 'sha256-oZhLbc2kO8b8oaYLrUc7uye1MgVKMyLtPqWR4WtKF+c='\">\n");
 		html.append("        <meta charset=\"utf-8\" />\n");
 		html.append("    </head>\n");
 		html.append("    <body>\n");
@@ -295,8 +296,9 @@ public class Saml2WebSsoAuthenticationRequestFilter extends OncePerRequestFilter
 			if (context == null) {
 				return null;
 			}
-			Saml2MessageBinding binding = context.getRelyingPartyRegistration().getAssertingPartyDetails()
-					.getSingleSignOnServiceBinding();
+			Saml2MessageBinding binding = context.getRelyingPartyRegistration()
+				.getAssertingPartyDetails()
+				.getSingleSignOnServiceBinding();
 			if (binding == Saml2MessageBinding.REDIRECT) {
 				return this.authenticationRequestFactory.createRedirectAuthenticationRequest(context);
 			}

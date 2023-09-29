@@ -78,7 +78,7 @@ public class ExceptionHandlingConfigurerAccessDeniedHandlerTests {
 	static class RequestMatcherBasedAccessDeniedHandlerConfig extends WebSecurityConfigurerAdapter {
 
 		AccessDeniedHandler teapotDeniedHandler = (request, response, exception) -> response
-				.setStatus(HttpStatus.I_AM_A_TEAPOT.value());
+			.setStatus(HttpStatus.I_AM_A_TEAPOT.value());
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
@@ -103,7 +103,7 @@ public class ExceptionHandlingConfigurerAccessDeniedHandlerTests {
 	static class RequestMatcherBasedAccessDeniedHandlerInLambdaConfig extends WebSecurityConfigurerAdapter {
 
 		AccessDeniedHandler teapotDeniedHandler = (request, response, exception) -> response
-				.setStatus(HttpStatus.I_AM_A_TEAPOT.value());
+			.setStatus(HttpStatus.I_AM_A_TEAPOT.value());
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
@@ -133,7 +133,7 @@ public class ExceptionHandlingConfigurerAccessDeniedHandlerTests {
 	static class SingleRequestMatcherAccessDeniedHandlerConfig extends WebSecurityConfigurerAdapter {
 
 		AccessDeniedHandler teapotDeniedHandler = (request, response, exception) -> response
-				.setStatus(HttpStatus.I_AM_A_TEAPOT.value());
+			.setStatus(HttpStatus.I_AM_A_TEAPOT.value());
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {

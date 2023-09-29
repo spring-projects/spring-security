@@ -68,7 +68,7 @@ public class SecuredAnnotationDrivenBeanDefinitionParserTests {
 	@Test
 	public void targetShouldPreventProtectedMethodInvocationWithNoContext() {
 		assertThatExceptionOfType(AuthenticationCredentialsNotFoundException.class)
-				.isThrownBy(this.target::someUserMethod1);
+			.isThrownBy(this.target::someUserMethod1);
 	}
 
 	@Test
@@ -92,13 +92,13 @@ public class SecuredAnnotationDrivenBeanDefinitionParserTests {
 	public void targetIsSerializableBeforeUse() throws Exception {
 		BusinessService chompedTarget = (BusinessService) serializeAndDeserialize(this.target);
 		assertThatExceptionOfType(AuthenticationCredentialsNotFoundException.class)
-				.isThrownBy(chompedTarget::someAdminMethod);
+			.isThrownBy(chompedTarget::someAdminMethod);
 	}
 
 	@Test
 	public void targetIsSerializableAfterUse() throws Exception {
 		assertThatExceptionOfType(AuthenticationCredentialsNotFoundException.class)
-				.isThrownBy(this.target::someAdminMethod);
+			.isThrownBy(this.target::someAdminMethod);
 		SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("u", "p", "ROLE_A"));
 		BusinessService chompedTarget = (BusinessService) serializeAndDeserialize(this.target);
 		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(chompedTarget::someAdminMethod);

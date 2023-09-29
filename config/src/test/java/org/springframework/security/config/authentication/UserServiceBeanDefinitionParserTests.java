@@ -102,9 +102,9 @@ public class UserServiceBeanDefinitionParserTests {
 		// @formatter:on
 		UserDetailsService userService = (UserDetailsService) this.appContext.getBean("service");
 		assertThat(userService.loadUserByUsername("https://joe.myopenid.com/").getUsername())
-				.isEqualTo("https://joe.myopenid.com/");
+			.isEqualTo("https://joe.myopenid.com/");
 		assertThat(userService.loadUserByUsername("https://www.google.com/accounts/o8/id?id=MPtOaenBIk5yzW9n7n9")
-				.getUsername()).isEqualTo("https://www.google.com/accounts/o8/id?id=MPtOaenBIk5yzW9n7n9");
+			.getUsername()).isEqualTo("https://www.google.com/accounts/o8/id?id=MPtOaenBIk5yzW9n7n9");
 	}
 
 	@Test
@@ -143,8 +143,8 @@ public class UserServiceBeanDefinitionParserTests {
 
 	@Test
 	public void userServiceWithMissingPropertiesFileThrowsException() {
-		assertThatExceptionOfType(FatalBeanException.class).isThrownBy(
-				() -> setContext("<user-service id='service' properties='classpath:doesntexist.properties'/>"));
+		assertThatExceptionOfType(FatalBeanException.class)
+			.isThrownBy(() -> setContext("<user-service id='service' properties='classpath:doesntexist.properties'/>"));
 	}
 
 	private void setContext(String context) {

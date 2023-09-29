@@ -43,7 +43,7 @@ public class SpringSecurityAuthenticationSource implements AuthenticationSource 
 	private static final Log log = LogFactory.getLog(SpringSecurityAuthenticationSource.class);
 
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
-			.getContextHolderStrategy();
+		.getContextHolderStrategy();
 
 	/**
 	 * Get the principals of the logged in user, in this case the distinguished name.

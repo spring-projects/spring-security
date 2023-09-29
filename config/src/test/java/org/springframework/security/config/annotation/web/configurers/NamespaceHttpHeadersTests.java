@@ -89,7 +89,7 @@ public class NamespaceHttpHeadersTests {
 	public void requestWhenHstsCustomThenBehaviorMatchesNamespace() throws Exception {
 		this.spring.register(HstsCustomConfig.class).autowire();
 		this.mvc.perform(get("/"))
-				.andExpect(includes(Collections.singletonMap("Strict-Transport-Security", "max-age=15768000")));
+			.andExpect(includes(Collections.singletonMap("Strict-Transport-Security", "max-age=15768000")));
 	}
 
 	@Test
@@ -102,7 +102,7 @@ public class NamespaceHttpHeadersTests {
 	public void requestWhenFrameOptionsAllowFromThenBehaviorMatchesNamespace() throws Exception {
 		this.spring.register(FrameOptionsAllowFromConfig.class).autowire();
 		this.mvc.perform(get("/"))
-				.andExpect(includes(Collections.singletonMap("X-Frame-Options", "ALLOW-FROM https://example.com")));
+			.andExpect(includes(Collections.singletonMap("X-Frame-Options", "ALLOW-FROM https://example.com")));
 	}
 
 	@Test
@@ -127,7 +127,7 @@ public class NamespaceHttpHeadersTests {
 	public void requestWhenCustomHeaderOnlyThenBehaviorMatchesNamespace() throws Exception {
 		this.spring.register(HeaderRefConfig.class).autowire();
 		this.mvc.perform(get("/"))
-				.andExpect(includes(Collections.singletonMap("customHeaderName", "customHeaderValue")));
+			.andExpect(includes(Collections.singletonMap("customHeaderName", "customHeaderValue")));
 	}
 
 	private static ResultMatcher includesDefaults() {

@@ -127,7 +127,7 @@ public class RetryWithHttpEntryPointTests {
 		ep.setPortMapper(portMapper);
 		ep.commence(request, response);
 		assertThat(response.getRedirectedUrl())
-				.isEqualTo("http://localhost:8888/bigWebApp/hello/pathInfo.html?open=true");
+			.isEqualTo("http://localhost:8888/bigWebApp/hello/pathInfo.html?open=true");
 	}
 
 }

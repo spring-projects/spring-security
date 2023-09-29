@@ -102,31 +102,40 @@ public class NamespaceHttpOpenIDLoginTests {
 		DiscoveryInformation mockDiscoveryInformation = mock(DiscoveryInformation.class);
 		given(mockAuthRequest.getDestinationUrl(anyBoolean())).willReturn("mockUrl");
 		given(OpenIDLoginAttributeExchangeConfig.CONSUMER_MANAGER.associate(any()))
-				.willReturn(mockDiscoveryInformation);
+			.willReturn(mockDiscoveryInformation);
 		given(OpenIDLoginAttributeExchangeConfig.CONSUMER_MANAGER.authenticate(any(DiscoveryInformation.class), any(),
-				any())).willReturn(mockAuthRequest);
+				any()))
+			.willReturn(mockAuthRequest);
 		this.spring.register(OpenIDLoginAttributeExchangeConfig.class).autowire();
 		try (MockWebServer server = new MockWebServer()) {
 			String endpoint = server.url("/").toString();
 			server.enqueue(new MockResponse().addHeader(YadisResolver.YADIS_XRDS_LOCATION, endpoint));
 			server.enqueue(new MockResponse()
-					.setBody(String.format("<XRDS><XRD><Service><URI>%s</URI></Service></XRD></XRDS>", endpoint)));
-			MvcResult mvcResult = this.mvc.perform(get("/login/openid")
-					.param(OpenIDAuthenticationFilter.DEFAULT_CLAIMED_IDENTITY_FIELD, "https://www.google.com/1"))
-					.andExpect(status().isFound()).andReturn();
-			Object attributeObject = mvcResult.getRequest().getSession()
-					.getAttribute("SPRING_SECURITY_OPEN_ID_ATTRIBUTES_FETCH_LIST");
+				.setBody(String.format("<XRDS><XRD><Service><URI>%s</URI></Service></XRD></XRDS>", endpoint)));
+			MvcResult mvcResult = this.mvc
+				.perform(get("/login/openid").param(OpenIDAuthenticationFilter.DEFAULT_CLAIMED_IDENTITY_FIELD,
+						"https://www.google.com/1"))
+				.andExpect(status().isFound())
+				.andReturn();
+			Object attributeObject = mvcResult.getRequest()
+				.getSession()
+				.getAttribute("SPRING_SECURITY_OPEN_ID_ATTRIBUTES_FETCH_LIST");
 			assertThat(attributeObject).isInstanceOf(List.class);
 			List<OpenIDAttribute> attributeList = (List<OpenIDAttribute>) attributeObject;
-			assertThat(attributeList.stream().anyMatch((attribute) -> "firstname".equals(attribute.getName())
-					&& "https://axschema.org/namePerson/first".equals(attribute.getType()) && attribute.isRequired()))
-							.isTrue();
-			assertThat(attributeList.stream().anyMatch((attribute) -> "lastname".equals(attribute.getName())
-					&& "https://axschema.org/namePerson/last".equals(attribute.getType()) && attribute.isRequired()))
-							.isTrue();
-			assertThat(attributeList.stream().anyMatch((attribute) -> "email".equals(attribute.getName())
-					&& "https://axschema.org/contact/email".equals(attribute.getType()) && attribute.isRequired()))
-							.isTrue();
+			assertThat(attributeList.stream()
+				.anyMatch((attribute) -> "firstname".equals(attribute.getName())
+						&& "https://axschema.org/namePerson/first".equals(attribute.getType())
+						&& attribute.isRequired()))
+				.isTrue();
+			assertThat(attributeList.stream()
+				.anyMatch((attribute) -> "lastname".equals(attribute.getName())
+						&& "https://axschema.org/namePerson/last".equals(attribute.getType())
+						&& attribute.isRequired()))
+				.isTrue();
+			assertThat(attributeList.stream()
+				.anyMatch((attribute) -> "email".equals(attribute.getName())
+						&& "https://axschema.org/contact/email".equals(attribute.getType()) && attribute.isRequired()))
+				.isTrue();
 		}
 	}
 
@@ -135,7 +144,7 @@ public class NamespaceHttpOpenIDLoginTests {
 		this.spring.register(OpenIDLoginCustomConfig.class).autowire();
 		this.mvc.perform(get("/")).andExpect(redirectedUrl("http://localhost/authentication/login"));
 		this.mvc.perform(post("/authentication/login/process").with(csrf()))
-				.andExpect(redirectedUrl("/authentication/login?failed"));
+			.andExpect(redirectedUrl("/authentication/login?failed"));
 	}
 
 	@Test
@@ -149,7 +158,7 @@ public class NamespaceHttpOpenIDLoginTests {
 		OpenIDLoginCustomRefsConfig.CONSUMER = mock(OpenIDConsumer.class);
 		this.spring.register(OpenIDLoginCustomRefsConfig.class, UserDetailsServiceConfig.class).autowire();
 		given(OpenIDLoginCustomRefsConfig.CONSUMER.endConsumption(any(HttpServletRequest.class)))
-				.willThrow(new AuthenticationServiceException("boom"));
+			.willThrow(new AuthenticationServiceException("boom"));
 		// @formatter:off
 		MockHttpServletRequestBuilder login = post("/login/openid")
 				.with(csrf())

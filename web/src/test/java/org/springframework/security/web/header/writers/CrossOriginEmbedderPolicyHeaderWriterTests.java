@@ -45,7 +45,7 @@ class CrossOriginEmbedderPolicyHeaderWriterTests {
 	@Test
 	void setEmbedderPolicyWhenNullEmbedderPolicyThenThrowsIllegalArgument() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.writer.setPolicy(null))
-				.withMessage("embedderPolicy cannot be null");
+			.withMessage("embedderPolicy cannot be null");
 	}
 
 	@Test

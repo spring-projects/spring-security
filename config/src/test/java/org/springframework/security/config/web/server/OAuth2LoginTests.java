@@ -129,11 +129,15 @@ public class OAuth2LoginTests {
 	@Autowired
 	private WebFilterChainProxy springSecurity;
 
-	private static ClientRegistration github = CommonOAuth2Provider.GITHUB.getBuilder("github").clientId("client")
-			.clientSecret("secret").build();
+	private static ClientRegistration github = CommonOAuth2Provider.GITHUB.getBuilder("github")
+		.clientId("client")
+		.clientSecret("secret")
+		.build();
 
-	private static ClientRegistration google = CommonOAuth2Provider.GOOGLE.getBuilder("google").clientId("client")
-			.clientSecret("secret").build();
+	private static ClientRegistration google = CommonOAuth2Provider.GOOGLE.getBuilder("google")
+		.clientId("client")
+		.clientSecret("secret")
+		.build();
 
 	// @formatter:off
 	private static ClientRegistration clientCredentials = TestClientRegistrations.clientCredentials()
@@ -235,8 +239,10 @@ public class OAuth2LoginTests {
 
 	@Test
 	public void defaultLoginPageWithOAuth2LoginHttpBasicAndXhrRequestThenUnauthorized() {
-		this.spring.register(OAuth2LoginWithSingleClientRegistrations.class, OAuth2LoginWithHttpBasic.class,
-				WebFluxConfig.class).autowire();
+		this.spring
+			.register(OAuth2LoginWithSingleClientRegistrations.class, OAuth2LoginWithHttpBasic.class,
+					WebFluxConfig.class)
+			.autowire();
 		// @formatter:off
 		this.client.get()
 				.uri("/")
@@ -248,10 +254,12 @@ public class OAuth2LoginTests {
 
 	@Test
 	public void oauth2AuthorizeWhenCustomObjectsThenUsed() {
-		this.spring.register(OAuth2LoginWithSingleClientRegistrations.class, OAuth2AuthorizeWithMockObjectsConfig.class,
-				AuthorizedClientController.class).autowire();
+		this.spring
+			.register(OAuth2LoginWithSingleClientRegistrations.class, OAuth2AuthorizeWithMockObjectsConfig.class,
+					AuthorizedClientController.class)
+			.autowire();
 		OAuth2AuthorizeWithMockObjectsConfig config = this.spring.getContext()
-				.getBean(OAuth2AuthorizeWithMockObjectsConfig.class);
+			.getBean(OAuth2AuthorizeWithMockObjectsConfig.class);
 		ServerOAuth2AuthorizedClientRepository authorizedClientRepository = config.authorizedClientRepository;
 		ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository = config.authorizationRequestRepository;
 		ServerRequestCache requestCache = config.requestCache;
@@ -272,12 +280,13 @@ public class OAuth2LoginTests {
 
 	@Test
 	public void oauth2LoginWhenCustomObjectsThenUsed() {
-		this.spring.register(OAuth2LoginWithSingleClientRegistrations.class,
-				OAuth2LoginMockAuthenticationManagerConfig.class).autowire();
+		this.spring
+			.register(OAuth2LoginWithSingleClientRegistrations.class, OAuth2LoginMockAuthenticationManagerConfig.class)
+			.autowire();
 		String redirectLocation = "/custom-redirect-location";
 		WebTestClient webTestClient = WebTestClientBuilder.bindToWebFilters(this.springSecurity).build();
 		OAuth2LoginMockAuthenticationManagerConfig config = this.spring.getContext()
-				.getBean(OAuth2LoginMockAuthenticationManagerConfig.class);
+			.getBean(OAuth2LoginMockAuthenticationManagerConfig.class);
 		ServerAuthenticationConverter converter = config.authenticationConverter;
 		ReactiveAuthenticationManager manager = config.manager;
 		ServerWebExchangeMatcher matcher = config.matcher;
@@ -296,7 +305,7 @@ public class OAuth2LoginTests {
 			WebFilterExchange webFilterExchange = invocation.getArgument(0);
 			Authentication authentication = invocation.getArgument(1);
 			return new RedirectServerAuthenticationSuccessHandler(redirectLocation)
-					.onAuthenticationSuccess(webFilterExchange, authentication);
+				.onAuthenticationSuccess(webFilterExchange, authentication);
 		});
 		// @formatter:off
 		webTestClient.get()
@@ -314,8 +323,9 @@ public class OAuth2LoginTests {
 
 	@Test
 	public void oauth2LoginFailsWhenCustomObjectsThenUsed() {
-		this.spring.register(OAuth2LoginWithSingleClientRegistrations.class,
-				OAuth2LoginMockAuthenticationManagerConfig.class).autowire();
+		this.spring
+			.register(OAuth2LoginWithSingleClientRegistrations.class, OAuth2LoginMockAuthenticationManagerConfig.class)
+			.autowire();
 		String redirectLocation = "/custom-redirect-location";
 		String failureRedirectLocation = "/failure-redirect-location";
 		// @formatter:off
@@ -324,7 +334,7 @@ public class OAuth2LoginTests {
 				.build();
 		// @formatter:on
 		OAuth2LoginMockAuthenticationManagerConfig config = this.spring.getContext()
-				.getBean(OAuth2LoginMockAuthenticationManagerConfig.class);
+			.getBean(OAuth2LoginMockAuthenticationManagerConfig.class);
 		ServerAuthenticationConverter converter = config.authenticationConverter;
 		ReactiveAuthenticationManager manager = config.manager;
 		ServerWebExchangeMatcher matcher = config.matcher;
@@ -333,20 +343,20 @@ public class OAuth2LoginTests {
 		ServerAuthenticationFailureHandler failureHandler = config.failureHandler;
 		given(converter.convert(any())).willReturn(Mono.just(new TestingAuthenticationToken("a", "b", "c")));
 		given(manager.authenticate(any()))
-				.willReturn(Mono.error(new OAuth2AuthenticationException(new OAuth2Error("error"), "message")));
+			.willReturn(Mono.error(new OAuth2AuthenticationException(new OAuth2Error("error"), "message")));
 		given(matcher.matches(any())).willReturn(ServerWebExchangeMatcher.MatchResult.match());
 		given(resolver.resolve(any())).willReturn(Mono.empty());
 		given(successHandler.onAuthenticationSuccess(any(), any())).willAnswer((Answer<Mono<Void>>) (invocation) -> {
 			WebFilterExchange webFilterExchange = invocation.getArgument(0);
 			Authentication authentication = invocation.getArgument(1);
 			return new RedirectServerAuthenticationSuccessHandler(redirectLocation)
-					.onAuthenticationSuccess(webFilterExchange, authentication);
+				.onAuthenticationSuccess(webFilterExchange, authentication);
 		});
 		given(failureHandler.onAuthenticationFailure(any(), any())).willAnswer((Answer<Mono<Void>>) (invocation) -> {
 			WebFilterExchange webFilterExchange = invocation.getArgument(0);
 			AuthenticationException authenticationException = invocation.getArgument(1);
 			return new RedirectServerAuthenticationFailureHandler(failureRedirectLocation)
-					.onAuthenticationFailure(webFilterExchange, authenticationException);
+				.onAuthenticationFailure(webFilterExchange, authenticationException);
 		});
 		// @formatter:off
 		webTestClient.get()
@@ -364,12 +374,14 @@ public class OAuth2LoginTests {
 
 	@Test
 	public void oauth2LoginWhenCustomObjectsInLambdaThenUsed() {
-		this.spring.register(OAuth2LoginWithSingleClientRegistrations.class,
-				OAuth2LoginMockAuthenticationManagerInLambdaConfig.class).autowire();
+		this.spring
+			.register(OAuth2LoginWithSingleClientRegistrations.class,
+					OAuth2LoginMockAuthenticationManagerInLambdaConfig.class)
+			.autowire();
 		String redirectLocation = "/custom-redirect-location";
 		WebTestClient webTestClient = WebTestClientBuilder.bindToWebFilters(this.springSecurity).build();
 		OAuth2LoginMockAuthenticationManagerInLambdaConfig config = this.spring.getContext()
-				.getBean(OAuth2LoginMockAuthenticationManagerInLambdaConfig.class);
+			.getBean(OAuth2LoginMockAuthenticationManagerInLambdaConfig.class);
 		ServerAuthenticationConverter converter = config.authenticationConverter;
 		ReactiveAuthenticationManager manager = config.manager;
 		ServerWebExchangeMatcher matcher = config.matcher;
@@ -388,7 +400,7 @@ public class OAuth2LoginTests {
 			WebFilterExchange webFilterExchange = invocation.getArgument(0);
 			Authentication authentication = invocation.getArgument(1);
 			return new RedirectServerAuthenticationSuccessHandler(redirectLocation)
-					.onAuthenticationSuccess(webFilterExchange, authentication);
+				.onAuthenticationSuccess(webFilterExchange, authentication);
 		});
 		// @formatter:off
 		webTestClient.get()
@@ -407,14 +419,14 @@ public class OAuth2LoginTests {
 	@Test
 	public void oauth2LoginWhenCustomBeansThenUsed() {
 		this.spring.register(OAuth2LoginWithMultipleClientRegistrations.class, OAuth2LoginWithCustomBeansConfig.class)
-				.autowire();
+			.autowire();
 		// @formatter:off
 		WebTestClient webTestClient = WebTestClientBuilder
 				.bindToWebFilters(this.springSecurity)
 				.build();
 		// @formatter:on
 		OAuth2LoginWithCustomBeansConfig config = this.spring.getContext()
-				.getBean(OAuth2LoginWithCustomBeansConfig.class);
+			.getBean(OAuth2LoginWithCustomBeansConfig.class);
 		OAuth2AuthorizationRequest request = TestOAuth2AuthorizationRequests.request().scope("openid").build();
 		OAuth2AuthorizationResponse response = TestOAuth2AuthorizationResponses.success().build();
 		OAuth2AuthorizationExchange exchange = new OAuth2AuthorizationExchange(request, response);
@@ -456,7 +468,7 @@ public class OAuth2LoginTests {
 	@Test
 	public void oauth2LoginWhenAccessTokenRequestFailsThenDefaultRedirectToLogin() {
 		this.spring.register(OAuth2LoginWithMultipleClientRegistrations.class, OAuth2LoginWithCustomBeansConfig.class)
-				.autowire();
+			.autowire();
 		// @formatter:off
 		WebTestClient webTestClient = WebTestClientBuilder
 				.bindToWebFilters(this.springSecurity)
@@ -472,7 +484,7 @@ public class OAuth2LoginTests {
 		OAuth2AuthorizationCodeAuthenticationToken authenticationToken = new OAuth2AuthorizationCodeAuthenticationToken(
 				google, exchange, accessToken);
 		OAuth2LoginWithCustomBeansConfig config = this.spring.getContext()
-				.getBean(OAuth2LoginWithCustomBeansConfig.class);
+			.getBean(OAuth2LoginWithCustomBeansConfig.class);
 		ServerAuthenticationConverter converter = config.authenticationConverter;
 		given(converter.convert(any())).willReturn(Mono.just(authenticationToken));
 		ReactiveOAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> tokenResponseClient = config.tokenResponseClient;
@@ -491,10 +503,10 @@ public class OAuth2LoginTests {
 	@Test
 	public void oauth2LoginWhenIdTokenValidationFailsThenDefaultRedirectToLogin() {
 		this.spring.register(OAuth2LoginWithMultipleClientRegistrations.class, OAuth2LoginWithCustomBeansConfig.class)
-				.autowire();
+			.autowire();
 		WebTestClient webTestClient = WebTestClientBuilder.bindToWebFilters(this.springSecurity).build();
 		OAuth2LoginWithCustomBeansConfig config = this.spring.getContext()
-				.getBean(OAuth2LoginWithCustomBeansConfig.class);
+			.getBean(OAuth2LoginWithCustomBeansConfig.class);
 		// @formatter:off
 		OAuth2AuthorizationRequest request = TestOAuth2AuthorizationRequests
 				.request()
@@ -525,7 +537,7 @@ public class OAuth2LoginTests {
 		ReactiveJwtDecoderFactory<ClientRegistration> jwtDecoderFactory = config.jwtDecoderFactory;
 		OAuth2Error oauth2Error = new OAuth2Error("invalid_id_token", "Invalid ID Token", null);
 		given(jwtDecoderFactory.createDecoder(any())).willReturn((token) -> Mono
-				.error(new JwtValidationException("ID Token validation failed", Collections.singleton(oauth2Error))));
+			.error(new JwtValidationException("ID Token validation failed", Collections.singleton(oauth2Error))));
 		// @formatter:off
 		webTestClient.get()
 				.uri("/login/oauth2/code/google")
@@ -656,7 +668,7 @@ public class OAuth2LoginTests {
 		@Bean
 		SecurityWebFilterChain springSecurityFilter(ServerHttpSecurity http) {
 			ReactiveUserDetailsService reactiveUserDetailsService = ReactiveAuthenticationTestConfiguration
-					.userDetailsService();
+				.userDetailsService();
 			ReactiveAuthenticationManager authenticationManager = new UserDetailsRepositoryReactiveAuthenticationManager(
 					reactiveUserDetailsService);
 			http.authenticationManager(authenticationManager);
@@ -680,7 +692,7 @@ public class OAuth2LoginTests {
 		@Bean
 		SecurityWebFilterChain springSecurityFilter(ServerHttpSecurity http) {
 			ReactiveUserDetailsService reactiveUserDetailsService = ReactiveAuthenticationTestConfiguration
-					.userDetailsService();
+				.userDetailsService();
 			ReactiveAuthenticationManager authenticationManager = new UserDetailsRepositoryReactiveAuthenticationManager(
 					reactiveUserDetailsService);
 			http.authenticationManager(authenticationManager);
@@ -844,8 +856,8 @@ public class OAuth2LoginTests {
 		private final ServerSecurityContextRepository repository = mock(ServerSecurityContextRepository.class);
 
 		private final ClientRegistration withLogout = TestClientRegistrations.clientRegistration()
-				.providerConfigurationMetadata(Collections.singletonMap("end_session_endpoint", "https://logout"))
-				.build();
+			.providerConfigurationMetadata(Collections.singletonMap("end_session_endpoint", "https://logout"))
+			.build();
 
 		@Bean
 		SecurityWebFilterChain springSecurity(ServerHttpSecurity http) {

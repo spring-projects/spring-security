@@ -132,7 +132,7 @@ public class CasAuthenticationTokenMixinTests {
 		assertThat(token.getAssertion()).isNotNull().isInstanceOf(AssertionImpl.class);
 		assertThat(token.getKeyHash()).isEqualTo(KEY.hashCode());
 		assertThat(token.getUserDetails().getAuthorities()).extracting(GrantedAuthority::getAuthority)
-				.containsOnly("ROLE_USER");
+			.containsOnly("ROLE_USER");
 		assertThat(token.getAssertion().getAuthenticationDate()).isEqualTo(START_DATE);
 		assertThat(token.getAssertion().getValidFromDate()).isEqualTo(START_DATE);
 		assertThat(token.getAssertion().getValidUntilDate()).isEqualTo(END_DATE);
@@ -143,7 +143,7 @@ public class CasAuthenticationTokenMixinTests {
 	private CasAuthenticationToken createCasAuthenticationToken() {
 		User principal = new User("admin", "1234", Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")));
 		Collection<? extends GrantedAuthority> authorities = Collections
-				.singletonList(new SimpleGrantedAuthority("ROLE_USER"));
+			.singletonList(new SimpleGrantedAuthority("ROLE_USER"));
 		Assertion assertion = new AssertionImpl(new AttributePrincipalImpl("assertName"), START_DATE, END_DATE,
 				START_DATE, Collections.<String, Object>emptyMap());
 		return new CasAuthenticationToken(KEY, principal, principal.getPassword(), authorities,

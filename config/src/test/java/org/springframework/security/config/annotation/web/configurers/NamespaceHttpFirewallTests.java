@@ -56,21 +56,21 @@ public class NamespaceHttpFirewallTests {
 	public void requestWhenPathContainsDoubleDotsThenBehaviorMatchesNamespace() {
 		this.rule.register(HttpFirewallConfig.class).autowire();
 		assertThatExceptionOfType(RequestRejectedException.class)
-				.isThrownBy(() -> this.mvc.perform(get("/public/../private/")));
+			.isThrownBy(() -> this.mvc.perform(get("/public/../private/")));
 	}
 
 	@Test
 	public void requestWithCustomFirewallThenBehaviorMatchesNamespace() {
 		this.rule.register(CustomHttpFirewallConfig.class).autowire();
 		assertThatExceptionOfType(RequestRejectedException.class)
-				.isThrownBy(() -> this.mvc.perform(get("/").param("deny", "true")));
+			.isThrownBy(() -> this.mvc.perform(get("/").param("deny", "true")));
 	}
 
 	@Test
 	public void requestWithCustomFirewallBeanThenBehaviorMatchesNamespace() {
 		this.rule.register(CustomHttpFirewallBeanConfig.class).autowire();
 		assertThatExceptionOfType(RequestRejectedException.class)
-				.isThrownBy(() -> this.mvc.perform(get("/").param("deny", "true")));
+			.isThrownBy(() -> this.mvc.perform(get("/").param("deny", "true")));
 	}
 
 	@EnableWebSecurity

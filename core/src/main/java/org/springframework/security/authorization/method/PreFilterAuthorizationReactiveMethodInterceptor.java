@@ -96,21 +96,24 @@ public final class PreFilterAuthorizationReactiveMethodInterceptor
 		}
 		FilterTarget filterTarget = findFilterTarget(attribute.getFilterTarget(), mi);
 		Mono<EvaluationContext> toInvoke = ReactiveAuthenticationUtils.getAuthentication()
-				.map((auth) -> this.registry.getExpressionHandler().createEvaluationContext(auth, mi));
+			.map((auth) -> this.registry.getExpressionHandler().createEvaluationContext(auth, mi));
 		Method method = mi.getMethod();
 		Class<?> type = filterTarget.value.getClass();
-		Assert.state(Publisher.class.isAssignableFrom(type),
-				() -> String.format("The parameter type %s on %s must be an instance of org.reactivestreams.Publisher "
-						+ "(for example, a Mono or Flux) in order to support Reactor Context", type, method));
+		Assert
+			.state(Publisher.class.isAssignableFrom(type),
+					() -> String.format(
+							"The parameter type %s on %s must be an instance of org.reactivestreams.Publisher "
+									+ "(for example, a Mono or Flux) in order to support Reactor Context",
+							type, method));
 		ReactiveAdapter adapter = ReactiveAdapterRegistry.getSharedInstance().getAdapter(type);
 		if (isMultiValue(type, adapter)) {
 			Flux<?> result = toInvoke
-					.flatMapMany((ctx) -> filterMultiValue(filterTarget.value, attribute.getExpression(), ctx));
+				.flatMapMany((ctx) -> filterMultiValue(filterTarget.value, attribute.getExpression(), ctx));
 			mi.getArguments()[filterTarget.index] = (adapter != null) ? adapter.fromPublisher(result) : result;
 		}
 		else {
 			Mono<?> result = toInvoke
-					.flatMap((ctx) -> filterSingleValue(filterTarget.value, attribute.getExpression(), ctx));
+				.flatMap((ctx) -> filterSingleValue(filterTarget.value, attribute.getExpression(), ctx));
 			mi.getArguments()[filterTarget.index] = (adapter != null) ? adapter.fromPublisher(result) : result;
 		}
 		return ReactiveMethodInvocationUtils.proceed(mi);
@@ -157,7 +160,7 @@ public final class PreFilterAuthorizationReactiveMethodInterceptor
 
 	private Mono<?> filterSingleValue(Publisher<?> filterTarget, Expression filterExpression, EvaluationContext ctx) {
 		MethodSecurityExpressionOperations rootObject = (MethodSecurityExpressionOperations) ctx.getRootObject()
-				.getValue();
+			.getValue();
 		return Mono.from(filterTarget).filterWhen((filterObject) -> {
 			rootObject.setFilterObject(filterObject);
 			return ReactiveExpressionUtils.evaluateAsBoolean(filterExpression, ctx);
@@ -166,7 +169,7 @@ public final class PreFilterAuthorizationReactiveMethodInterceptor
 
 	private Flux<?> filterMultiValue(Publisher<?> filterTarget, Expression filterExpression, EvaluationContext ctx) {
 		MethodSecurityExpressionOperations rootObject = (MethodSecurityExpressionOperations) ctx.getRootObject()
-				.getValue();
+			.getValue();
 		return Flux.from(filterTarget).filterWhen((filterObject) -> {
 			rootObject.setFilterObject(filterObject);
 			return ReactiveExpressionUtils.evaluateAsBoolean(filterExpression, ctx);

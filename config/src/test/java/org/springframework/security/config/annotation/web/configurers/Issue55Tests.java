@@ -72,7 +72,7 @@ public class Issue55Tests {
 		FilterSecurityInterceptor secondFilter = (FilterSecurityInterceptor) findFilter(FilterSecurityInterceptor.class,
 				1);
 		assertThat(secondFilter.getAuthenticationManager().authenticate(token))
-				.isEqualTo(CustomAuthenticationManager.RESULT);
+			.isEqualTo(CustomAuthenticationManager.RESULT);
 	}
 
 	Filter findFilter(Class<?> filter, int index) {

@@ -45,7 +45,7 @@ public final class TestOAuth2AccessTokenResponses {
 		Map<String, Object> additionalParameters = new HashMap<>();
 		additionalParameters.put(OidcParameterNames.ID_TOKEN, "id-token");
 		return accessTokenResponse().scopes(Collections.singleton(OidcScopes.OPENID))
-				.additionalParameters(additionalParameters);
+			.additionalParameters(additionalParameters);
 	}
 
 }

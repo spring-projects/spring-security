@@ -53,27 +53,27 @@ final class ClientRegistrationDeserializer extends JsonDeserializer<ClientRegist
 		JsonNode providerDetailsNode = JsonNodeUtils.findObjectNode(clientRegistrationNode, "providerDetails");
 		JsonNode userInfoEndpointNode = JsonNodeUtils.findObjectNode(providerDetailsNode, "userInfoEndpoint");
 		return ClientRegistration
-				.withRegistrationId(JsonNodeUtils.findStringValue(clientRegistrationNode, "registrationId"))
-				.clientId(JsonNodeUtils.findStringValue(clientRegistrationNode, "clientId"))
-				.clientSecret(JsonNodeUtils.findStringValue(clientRegistrationNode, "clientSecret"))
-				.clientAuthenticationMethod(CLIENT_AUTHENTICATION_METHOD_CONVERTER
-						.convert(JsonNodeUtils.findObjectNode(clientRegistrationNode, "clientAuthenticationMethod")))
-				.authorizationGrantType(AUTHORIZATION_GRANT_TYPE_CONVERTER
-						.convert(JsonNodeUtils.findObjectNode(clientRegistrationNode, "authorizationGrantType")))
-				.redirectUri(JsonNodeUtils.findStringValue(clientRegistrationNode, "redirectUri"))
-				.scope(JsonNodeUtils.findValue(clientRegistrationNode, "scopes", JsonNodeUtils.STRING_SET, mapper))
-				.clientName(JsonNodeUtils.findStringValue(clientRegistrationNode, "clientName"))
-				.authorizationUri(JsonNodeUtils.findStringValue(providerDetailsNode, "authorizationUri"))
-				.tokenUri(JsonNodeUtils.findStringValue(providerDetailsNode, "tokenUri"))
-				.userInfoUri(JsonNodeUtils.findStringValue(userInfoEndpointNode, "uri"))
-				.userInfoAuthenticationMethod(AUTHENTICATION_METHOD_CONVERTER
-						.convert(JsonNodeUtils.findObjectNode(userInfoEndpointNode, "authenticationMethod")))
-				.userNameAttributeName(JsonNodeUtils.findStringValue(userInfoEndpointNode, "userNameAttributeName"))
-				.jwkSetUri(JsonNodeUtils.findStringValue(providerDetailsNode, "jwkSetUri"))
-				.issuerUri(JsonNodeUtils.findStringValue(providerDetailsNode, "issuerUri"))
-				.providerConfigurationMetadata(JsonNodeUtils.findValue(providerDetailsNode, "configurationMetadata",
-						JsonNodeUtils.STRING_OBJECT_MAP, mapper))
-				.build();
+			.withRegistrationId(JsonNodeUtils.findStringValue(clientRegistrationNode, "registrationId"))
+			.clientId(JsonNodeUtils.findStringValue(clientRegistrationNode, "clientId"))
+			.clientSecret(JsonNodeUtils.findStringValue(clientRegistrationNode, "clientSecret"))
+			.clientAuthenticationMethod(CLIENT_AUTHENTICATION_METHOD_CONVERTER
+				.convert(JsonNodeUtils.findObjectNode(clientRegistrationNode, "clientAuthenticationMethod")))
+			.authorizationGrantType(AUTHORIZATION_GRANT_TYPE_CONVERTER
+				.convert(JsonNodeUtils.findObjectNode(clientRegistrationNode, "authorizationGrantType")))
+			.redirectUri(JsonNodeUtils.findStringValue(clientRegistrationNode, "redirectUri"))
+			.scope(JsonNodeUtils.findValue(clientRegistrationNode, "scopes", JsonNodeUtils.STRING_SET, mapper))
+			.clientName(JsonNodeUtils.findStringValue(clientRegistrationNode, "clientName"))
+			.authorizationUri(JsonNodeUtils.findStringValue(providerDetailsNode, "authorizationUri"))
+			.tokenUri(JsonNodeUtils.findStringValue(providerDetailsNode, "tokenUri"))
+			.userInfoUri(JsonNodeUtils.findStringValue(userInfoEndpointNode, "uri"))
+			.userInfoAuthenticationMethod(AUTHENTICATION_METHOD_CONVERTER
+				.convert(JsonNodeUtils.findObjectNode(userInfoEndpointNode, "authenticationMethod")))
+			.userNameAttributeName(JsonNodeUtils.findStringValue(userInfoEndpointNode, "userNameAttributeName"))
+			.jwkSetUri(JsonNodeUtils.findStringValue(providerDetailsNode, "jwkSetUri"))
+			.issuerUri(JsonNodeUtils.findStringValue(providerDetailsNode, "issuerUri"))
+			.providerConfigurationMetadata(JsonNodeUtils.findValue(providerDetailsNode, "configurationMetadata",
+					JsonNodeUtils.STRING_OBJECT_MAP, mapper))
+			.build();
 	}
 
 }

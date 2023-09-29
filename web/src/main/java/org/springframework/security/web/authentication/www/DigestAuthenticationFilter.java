@@ -96,7 +96,7 @@ public class DigestAuthenticationFilter extends GenericFilterBean implements Mes
 	private static final Log logger = LogFactory.getLog(DigestAuthenticationFilter.class);
 
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
-			.getContextHolderStrategy();
+		.getContextHolderStrategy();
 
 	private AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource = new WebAuthenticationDetailsSource();
 

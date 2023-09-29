@@ -220,7 +220,7 @@ public final class OAuth2AuthorizeRequest {
 			OAuth2AuthorizeRequest authorizeRequest = new OAuth2AuthorizeRequest();
 			if (this.authorizedClient != null) {
 				authorizeRequest.clientRegistrationId = this.authorizedClient.getClientRegistration()
-						.getRegistrationId();
+					.getRegistrationId();
 				authorizeRequest.authorizedClient = this.authorizedClient;
 			}
 			else {

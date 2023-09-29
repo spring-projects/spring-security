@@ -82,10 +82,12 @@ public final class DefaultSaml2AuthenticationRequestContextResolver
 	private Saml2AuthenticationRequestContext createRedirectAuthenticationRequestContext(HttpServletRequest request,
 			RelyingPartyRegistration relyingParty) {
 
-		return Saml2AuthenticationRequestContext.builder().issuer(relyingParty.getEntityId())
-				.relyingPartyRegistration(relyingParty)
-				.assertionConsumerServiceUrl(relyingParty.getAssertionConsumerServiceLocation())
-				.relayState(request.getParameter(Saml2ParameterNames.RELAY_STATE)).build();
+		return Saml2AuthenticationRequestContext.builder()
+			.issuer(relyingParty.getEntityId())
+			.relyingPartyRegistration(relyingParty)
+			.assertionConsumerServiceUrl(relyingParty.getAssertionConsumerServiceLocation())
+			.relayState(request.getParameter(Saml2ParameterNames.RELAY_STATE))
+			.build();
 	}
 
 }

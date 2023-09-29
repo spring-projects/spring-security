@@ -39,7 +39,7 @@ import org.springframework.util.Assert;
 public final class HttpSessionOAuth2AuthorizedClientRepository implements OAuth2AuthorizedClientRepository {
 
 	private static final String DEFAULT_AUTHORIZED_CLIENTS_ATTR_NAME = HttpSessionOAuth2AuthorizedClientRepository.class
-			.getName() + ".AUTHORIZED_CLIENTS";
+		.getName() + ".AUTHORIZED_CLIENTS";
 
 	private final String sessionAttributeName = DEFAULT_AUTHORIZED_CLIENTS_ATTR_NAME;
 

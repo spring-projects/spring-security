@@ -285,7 +285,7 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 			this.authFilter.setAuthenticationDetailsSource(this.authenticationDetailsSource);
 		}
 		SessionAuthenticationStrategy sessionAuthenticationStrategy = http
-				.getSharedObject(SessionAuthenticationStrategy.class);
+			.getSharedObject(SessionAuthenticationStrategy.class);
 		if (sessionAuthenticationStrategy != null) {
 			this.authFilter.setSessionAuthenticationStrategy(sessionAuthenticationStrategy);
 		}
@@ -296,7 +296,7 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 		SecurityContextConfigurer securityContextConfigurer = http.getConfigurer(SecurityContextConfigurer.class);
 		if (securityContextConfigurer != null && securityContextConfigurer.isRequireExplicitSave()) {
 			SecurityContextRepository securityContextRepository = securityContextConfigurer
-					.getSecurityContextRepository();
+				.getSecurityContextRepository();
 			this.authFilter.setSecurityContextRepository(securityContextRepository);
 		}
 		this.authFilter.setSecurityContextHolderStrategy(getSecurityContextHolderStrategy());

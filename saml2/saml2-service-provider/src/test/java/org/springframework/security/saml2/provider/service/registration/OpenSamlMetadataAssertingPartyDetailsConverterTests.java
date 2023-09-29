@@ -69,7 +69,7 @@ public class OpenSamlMetadataAssertingPartyDetailsConverterTests {
 		String payload = String.format(ENTITY_DESCRIPTOR_TEMPLATE, "");
 		InputStream inputStream = new ByteArrayInputStream(payload.getBytes());
 		assertThatExceptionOfType(Saml2Exception.class).isThrownBy(() -> this.converter.convert(inputStream))
-				.withMessageContaining("Metadata response is missing the necessary IDPSSODescriptor element");
+			.withMessageContaining("Metadata response is missing the necessary IDPSSODescriptor element");
 	}
 
 	@Test
@@ -77,8 +77,8 @@ public class OpenSamlMetadataAssertingPartyDetailsConverterTests {
 		String payload = String.format(ENTITY_DESCRIPTOR_TEMPLATE, String.format(IDP_SSO_DESCRIPTOR_TEMPLATE, ""));
 		InputStream inputStream = new ByteArrayInputStream(payload.getBytes());
 		assertThatExceptionOfType(Saml2Exception.class).isThrownBy(() -> this.converter.convert(inputStream))
-				.withMessageContaining(
-						"Metadata response is missing verification certificates, necessary for verifying SAML assertions");
+			.withMessageContaining(
+					"Metadata response is missing verification certificates, necessary for verifying SAML assertions");
 	}
 
 	@Test
@@ -87,8 +87,8 @@ public class OpenSamlMetadataAssertingPartyDetailsConverterTests {
 				String.format(IDP_SSO_DESCRIPTOR_TEMPLATE, String.format(KEY_DESCRIPTOR_TEMPLATE, "use=\"signing\"")));
 		InputStream inputStream = new ByteArrayInputStream(payload.getBytes());
 		assertThatExceptionOfType(Saml2Exception.class).isThrownBy(() -> this.converter.convert(inputStream))
-				.withMessageContaining(
-						"Metadata response is missing a SingleSignOnService, necessary for sending AuthnRequests");
+			.withMessageContaining(
+					"Metadata response is missing a SingleSignOnService, necessary for sending AuthnRequests");
 	}
 
 	@Test
@@ -99,8 +99,10 @@ public class OpenSamlMetadataAssertingPartyDetailsConverterTests {
 								+ String.format(KEY_DESCRIPTOR_TEMPLATE, "use=\"encryption\"") + EXTENSIONS_TEMPLATE
 								+ String.format(SINGLE_SIGN_ON_SERVICE_TEMPLATE)));
 		InputStream inputStream = new ByteArrayInputStream(payload.getBytes());
-		RelyingPartyRegistration.AssertingPartyDetails details = this.converter.convert(inputStream).iterator().next()
-				.build();
+		RelyingPartyRegistration.AssertingPartyDetails details = this.converter.convert(inputStream)
+			.iterator()
+			.next()
+			.build();
 		assertThat(details.getWantAuthnRequestsSigned()).isFalse();
 		assertThat(details.getSigningAlgorithms()).containsExactly(SignatureConstants.ALGO_ID_DIGEST_SHA512);
 		assertThat(details.getSingleSignOnServiceLocation()).isEqualTo("sso-location");
@@ -108,10 +110,10 @@ public class OpenSamlMetadataAssertingPartyDetailsConverterTests {
 		assertThat(details.getEntityId()).isEqualTo("entity-id");
 		assertThat(details.getVerificationX509Credentials()).hasSize(1);
 		assertThat(details.getVerificationX509Credentials().iterator().next().getCertificate())
-				.isEqualTo(x509Certificate(CERTIFICATE));
+			.isEqualTo(x509Certificate(CERTIFICATE));
 		assertThat(details.getEncryptionX509Credentials()).hasSize(1);
 		assertThat(details.getEncryptionX509Credentials().iterator().next().getCertificate())
-				.isEqualTo(x509Certificate(CERTIFICATE));
+			.isEqualTo(x509Certificate(CERTIFICATE));
 		assertThat(details).isInstanceOf(OpenSamlAssertingPartyDetails.class);
 		OpenSamlAssertingPartyDetails openSamlDetails = (OpenSamlAssertingPartyDetails) details;
 		EntityDescriptor entityDescriptor = openSamlDetails.getEntityDescriptor();
@@ -129,18 +131,20 @@ public class OpenSamlMetadataAssertingPartyDetailsConverterTests {
 										+ String.format(KEY_DESCRIPTOR_TEMPLATE, "use=\"encryption\"")
 										+ String.format(SINGLE_SIGN_ON_SERVICE_TEMPLATE))));
 		InputStream inputStream = new ByteArrayInputStream(payload.getBytes());
-		RelyingPartyRegistration.AssertingPartyDetails details = this.converter.convert(inputStream).iterator().next()
-				.build();
+		RelyingPartyRegistration.AssertingPartyDetails details = this.converter.convert(inputStream)
+			.iterator()
+			.next()
+			.build();
 		assertThat(details.getWantAuthnRequestsSigned()).isFalse();
 		assertThat(details.getSingleSignOnServiceLocation()).isEqualTo("sso-location");
 		assertThat(details.getSingleSignOnServiceBinding()).isEqualTo(Saml2MessageBinding.REDIRECT);
 		assertThat(details.getEntityId()).isEqualTo("entity-id");
 		assertThat(details.getVerificationX509Credentials()).hasSize(1);
 		assertThat(details.getVerificationX509Credentials().iterator().next().getCertificate())
-				.isEqualTo(x509Certificate(CERTIFICATE));
+			.isEqualTo(x509Certificate(CERTIFICATE));
 		assertThat(details.getEncryptionX509Credentials()).hasSize(1);
 		assertThat(details.getEncryptionX509Credentials().iterator().next().getCertificate())
-				.isEqualTo(x509Certificate(CERTIFICATE));
+			.isEqualTo(x509Certificate(CERTIFICATE));
 	}
 
 	@Test
@@ -148,13 +152,15 @@ public class OpenSamlMetadataAssertingPartyDetailsConverterTests {
 		String payload = String.format(ENTITY_DESCRIPTOR_TEMPLATE, String.format(IDP_SSO_DESCRIPTOR_TEMPLATE,
 				String.format(KEY_DESCRIPTOR_TEMPLATE, "") + String.format(SINGLE_SIGN_ON_SERVICE_TEMPLATE)));
 		InputStream inputStream = new ByteArrayInputStream(payload.getBytes());
-		RelyingPartyRegistration.AssertingPartyDetails details = this.converter.convert(inputStream).iterator().next()
-				.build();
+		RelyingPartyRegistration.AssertingPartyDetails details = this.converter.convert(inputStream)
+			.iterator()
+			.next()
+			.build();
 		assertThat(details.getVerificationX509Credentials().iterator().next().getCertificate())
-				.isEqualTo(x509Certificate(CERTIFICATE));
+			.isEqualTo(x509Certificate(CERTIFICATE));
 		assertThat(details.getEncryptionX509Credentials()).hasSize(1);
 		assertThat(details.getEncryptionX509Credentials().iterator().next().getCertificate())
-				.isEqualTo(x509Certificate(CERTIFICATE));
+			.isEqualTo(x509Certificate(CERTIFICATE));
 	}
 
 	X509Certificate x509Certificate(String data) {
@@ -173,7 +179,7 @@ public class OpenSamlMetadataAssertingPartyDetailsConverterTests {
 		String payload = "<saml2:Assertion xmlns:saml2=\"https://some.endpoint\"/>";
 		InputStream inputStream = new ByteArrayInputStream(payload.getBytes());
 		assertThatExceptionOfType(Saml2Exception.class).isThrownBy(() -> this.converter.convert(inputStream))
-				.withMessage("Unsupported element of type saml2:Assertion");
+			.withMessage("Unsupported element of type saml2:Assertion");
 	}
 
 }

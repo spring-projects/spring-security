@@ -68,7 +68,7 @@ public class OpenID4JavaConsumerTests {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		consumer.beginConsumption(request, "", "", "");
 		assertThat(request.getSession().getAttribute("SPRING_SECURITY_OPEN_ID_ATTRIBUTES_FETCH_LIST"))
-				.isEqualTo(this.attributes);
+			.isEqualTo(this.attributes);
 		assertThat(request.getSession().getAttribute(DiscoveryInformation.class.getName())).isEqualTo(di);
 		// Check with empty attribute fetch list
 		consumer = new OpenID4JavaConsumer(mgr, new NullAxFetchListFactory());
@@ -82,7 +82,7 @@ public class OpenID4JavaConsumerTests {
 		OpenID4JavaConsumer consumer = new OpenID4JavaConsumer(mgr, new NullAxFetchListFactory());
 		given(mgr.discover(any())).willThrow(new DiscoveryException("msg"));
 		assertThatExceptionOfType(OpenIDConsumerException.class)
-				.isThrownBy(() -> consumer.beginConsumption(new MockHttpServletRequest(), "", "", ""));
+			.isThrownBy(() -> consumer.beginConsumption(new MockHttpServletRequest(), "", "", ""));
 	}
 
 	@Test
@@ -90,11 +90,11 @@ public class OpenID4JavaConsumerTests {
 		ConsumerManager mgr = mock(ConsumerManager.class);
 		OpenID4JavaConsumer consumer = new OpenID4JavaConsumer(mgr, new NullAxFetchListFactory());
 		given(mgr.authenticate(ArgumentMatchers.<DiscoveryInformation>any(), any(), any()))
-				.willThrow(new MessageException("msg"), new ConsumerException("msg"));
+			.willThrow(new MessageException("msg"), new ConsumerException("msg"));
 		assertThatExceptionOfType(OpenIDConsumerException.class)
-				.isThrownBy(() -> consumer.beginConsumption(new MockHttpServletRequest(), "", "", ""));
+			.isThrownBy(() -> consumer.beginConsumption(new MockHttpServletRequest(), "", "", ""));
 		assertThatExceptionOfType(OpenIDConsumerException.class)
-				.isThrownBy(() -> consumer.beginConsumption(new MockHttpServletRequest(), "", "", ""));
+			.isThrownBy(() -> consumer.beginConsumption(new MockHttpServletRequest(), "", "", ""));
 	}
 
 	@Test
@@ -115,7 +115,7 @@ public class OpenID4JavaConsumerTests {
 		ConsumerManager mgr = mock(ConsumerManager.class);
 		OpenID4JavaConsumer consumer = new OpenID4JavaConsumer(mgr, new NullAxFetchListFactory());
 		given(mgr.verify(any(), any(ParameterList.class), any(DiscoveryInformation.class)))
-				.willThrow(new MessageException(""), new AssociationException(""), new DiscoveryException(""));
+			.willThrow(new MessageException(""), new AssociationException(""), new DiscoveryException(""));
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setQueryString("x=5");
 		assertThatExceptionOfType(OpenIDConsumerException.class).isThrownBy(() -> consumer.endConsumption(request));
@@ -164,14 +164,14 @@ public class OpenID4JavaConsumerTests {
 		given(msg.getExtension(AxMessage.OPENID_NS_AX)).willThrow(new MessageException(""));
 		given(fr.getAttributeValues("a")).willReturn(Arrays.asList("x", "y"));
 		assertThatExceptionOfType(OpenIDConsumerException.class)
-				.isThrownBy(() -> consumer.fetchAxAttributes(msg, this.attributes));
+			.isThrownBy(() -> consumer.fetchAxAttributes(msg, this.attributes));
 	}
 
 	@Test
 	public void missingDiscoveryInformationThrowsException() throws Exception {
 		OpenID4JavaConsumer consumer = new OpenID4JavaConsumer(new NullAxFetchListFactory());
 		assertThatExceptionOfType(OpenIDConsumerException.class)
-				.isThrownBy(() -> consumer.endConsumption(new MockHttpServletRequest()));
+			.isThrownBy(() -> consumer.endConsumption(new MockHttpServletRequest()));
 	}
 
 	@Test

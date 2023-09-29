@@ -68,10 +68,10 @@ final class PrePostMethodSecurityConfiguration {
 	PrePostMethodSecurityConfiguration(ApplicationContext context) {
 		this.preAuthorizeAuthorizationManager.setExpressionHandler(this.expressionHandler);
 		this.preAuthorizeAuthorizationMethodInterceptor = AuthorizationManagerBeforeMethodInterceptor
-				.preAuthorize(this.preAuthorizeAuthorizationManager);
+			.preAuthorize(this.preAuthorizeAuthorizationManager);
 		this.postAuthorizeAuthorizationManager.setExpressionHandler(this.expressionHandler);
 		this.postAuthorizeAuthorizaitonMethodInterceptor = AuthorizationManagerAfterMethodInterceptor
-				.postAuthorize(this.postAuthorizeAuthorizationManager);
+			.postAuthorize(this.postAuthorizeAuthorizationManager);
 		this.preFilterAuthorizationMethodInterceptor.setExpressionHandler(this.expressionHandler);
 		this.postFilterAuthorizationMethodInterceptor.setExpressionHandler(this.expressionHandler);
 		this.expressionHandler.setApplicationContext(context);
