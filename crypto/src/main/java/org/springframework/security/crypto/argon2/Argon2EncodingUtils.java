@@ -58,12 +58,13 @@ final class Argon2EncodingUtils {
 	 */
 	static String encode(byte[] hash, Argon2Parameters parameters) throws IllegalArgumentException {
 		StringBuilder stringBuilder = new StringBuilder();
-		stringBuilder.append(switch (parameters.getType()) {
+		String type = switch (parameters.getType()) {
 			case Argon2Parameters.ARGON2_d -> "$argon2d";
 			case Argon2Parameters.ARGON2_i -> "$argon2i";
 			case Argon2Parameters.ARGON2_id -> "$argon2id";
 			default -> throw new IllegalArgumentException("Invalid algorithm type: " + parameters.getType());
-		});
+		};
+		stringBuilder.append(type);
 		stringBuilder.append("$v=")
 			.append(parameters.getVersion())
 			.append("$m=")
