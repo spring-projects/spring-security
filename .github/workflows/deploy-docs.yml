@@ -1,8 +1,5 @@
 name: Deploy Docs
 on:
-  pull_request:
-    branches-ignore:
-      - "dependabot/**"
   push:
     branches-ignore:
       - "gh-pages"
