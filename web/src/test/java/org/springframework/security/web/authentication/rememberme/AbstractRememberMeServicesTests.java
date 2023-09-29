@@ -63,7 +63,7 @@ public class AbstractRememberMeServicesTests {
 	@Test
 	public void nonBase64CookieShouldBeDetected() {
 		assertThatExceptionOfType(InvalidCookieException.class)
-				.isThrownBy(() -> new MockRememberMeServices(this.uds).decodeCookie("nonBase64CookieValue%"));
+			.isThrownBy(() -> new MockRememberMeServices(this.uds).decodeCookie("nonBase64CookieValue%"));
 	}
 
 	@Test

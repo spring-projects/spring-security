@@ -66,7 +66,7 @@ public class DefaultMapOAuth2AccessTokenResponseConverterTests {
 		assertThat(scopes).contains("read");
 		assertThat(scopes).contains("write");
 		assertThat(Duration.between(accessToken.getIssuedAt(), accessToken.getExpiresAt()).getSeconds())
-				.isEqualTo(3600);
+			.isEqualTo(3600);
 		OAuth2RefreshToken refreshToken = converted.getRefreshToken();
 		assertThat(refreshToken).isNotNull();
 		assertThat(refreshToken.getTokenValue()).isEqualTo("refresh-token-1234");
@@ -133,7 +133,7 @@ public class DefaultMapOAuth2AccessTokenResponseConverterTests {
 		assertThat(accessToken.getTokenValue()).isEqualTo("access-token-1234");
 		assertThat(accessToken.getTokenType()).isEqualTo(OAuth2AccessToken.TokenType.BEARER);
 		assertThat(Duration.between(accessToken.getIssuedAt(), accessToken.getExpiresAt()).getSeconds())
-				.isEqualTo(3600);
+			.isEqualTo(3600);
 	}
 
 	// gh-9685
@@ -161,7 +161,7 @@ public class DefaultMapOAuth2AccessTokenResponseConverterTests {
 		assertThat(scopes).contains("read");
 		assertThat(scopes).contains("write");
 		assertThat(Duration.between(accessToken.getIssuedAt(), accessToken.getExpiresAt()).getSeconds())
-				.isEqualTo(3600);
+			.isEqualTo(3600);
 		OAuth2RefreshToken refreshToken = converted.getRefreshToken();
 		assertThat(refreshToken).isNotNull();
 		assertThat(refreshToken.getTokenValue()).isEqualTo("refresh-token-1234");

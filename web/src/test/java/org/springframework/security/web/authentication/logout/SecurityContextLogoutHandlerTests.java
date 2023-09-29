@@ -103,15 +103,15 @@ public class SecurityContextLogoutHandlerTests {
 	@Test
 	public void constructorWhenDefaultSecurityContextRepositoryThenHttpSessionSecurityContextRepository() {
 		SecurityContextRepository securityContextRepository = (SecurityContextRepository) ReflectionTestUtils
-				.getField(this.handler, "securityContextRepository");
+			.getField(this.handler, "securityContextRepository");
 		assertThat(securityContextRepository).isInstanceOf(HttpSessionSecurityContextRepository.class);
 	}
 
 	@Test
 	public void setSecurityContextRepositoryWhenNullThenException() {
 		assertThatExceptionOfType(IllegalArgumentException.class)
-				.isThrownBy(() -> this.handler.setSecurityContextRepository(null))
-				.withMessage("securityContextRepository cannot be null");
+			.isThrownBy(() -> this.handler.setSecurityContextRepository(null))
+			.withMessage("securityContextRepository cannot be null");
 	}
 
 }

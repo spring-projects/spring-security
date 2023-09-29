@@ -119,8 +119,9 @@ public class DefaultMessageSecurityExpressionHandlerTests {
 		EvaluationContext context = this.handler.createEvaluationContext(mockAuthenticationSupplier, this.message);
 		verifyNoInteractions(mockAuthenticationSupplier);
 		assertThat(context.getRootObject()).extracting(TypedValue::getValue)
-				.asInstanceOf(InstanceOfAssertFactories.type(MessageSecurityExpressionRoot.class))
-				.extracting(SecurityExpressionRoot::getAuthentication).isEqualTo(this.authentication);
+			.asInstanceOf(InstanceOfAssertFactories.type(MessageSecurityExpressionRoot.class))
+			.extracting(SecurityExpressionRoot::getAuthentication)
+			.isEqualTo(this.authentication);
 		verify(mockAuthenticationSupplier).get();
 	}
 

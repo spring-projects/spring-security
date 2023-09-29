@@ -35,10 +35,10 @@ public class AuthenticationTrustResolverImplTests {
 		AuthenticationTrustResolverImpl trustResolver = new AuthenticationTrustResolverImpl();
 		assertThat(trustResolver.isAnonymous(
 				new AnonymousAuthenticationToken("ignored", "ignored", AuthorityUtils.createAuthorityList("ignored"))))
-						.isTrue();
+			.isTrue();
 		assertThat(trustResolver.isAnonymous(
 				new TestingAuthenticationToken("ignored", "ignored", AuthorityUtils.createAuthorityList("ignored"))))
-						.isFalse();
+			.isFalse();
 	}
 
 	@Test
@@ -46,10 +46,10 @@ public class AuthenticationTrustResolverImplTests {
 		AuthenticationTrustResolverImpl trustResolver = new AuthenticationTrustResolverImpl();
 		assertThat(trustResolver.isRememberMe(
 				new RememberMeAuthenticationToken("ignored", "ignored", AuthorityUtils.createAuthorityList("ignored"))))
-						.isTrue();
+			.isTrue();
 		assertThat(trustResolver.isAnonymous(
 				new TestingAuthenticationToken("ignored", "ignored", AuthorityUtils.createAuthorityList("ignored"))))
-						.isFalse();
+			.isFalse();
 	}
 
 	@Test

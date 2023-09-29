@@ -158,8 +158,10 @@ public class SpringSecurityXsdParser {
 	 * @return
 	 */
 	private String desc(XmlNode element) {
-		return element.child("annotation").flatMap((annotation) -> annotation.child("documentation"))
-				.map((documentation) -> documentation.text()).orElse(null);
+		return element.child("annotation")
+			.flatMap((annotation) -> annotation.child("documentation"))
+			.map((documentation) -> documentation.text())
+			.orElse(null);
 	}
 
 	/**

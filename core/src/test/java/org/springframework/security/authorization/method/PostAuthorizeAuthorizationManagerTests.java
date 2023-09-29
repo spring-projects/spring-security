@@ -58,7 +58,7 @@ public class PostAuthorizeAuthorizationManagerTests {
 	public void setExpressionHandlerWhenNullThenException() {
 		PostAuthorizeAuthorizationManager manager = new PostAuthorizeAuthorizationManager();
 		assertThatIllegalArgumentException().isThrownBy(() -> manager.setExpressionHandler(null))
-				.withMessage("expressionHandler cannot be null");
+			.withMessage("expressionHandler cannot be null");
 	}
 
 	@Test
@@ -153,7 +153,7 @@ public class PostAuthorizeAuthorizationManagerTests {
 		MethodInvocationResult result = new MethodInvocationResult(methodInvocation, null);
 		PostAuthorizeAuthorizationManager manager = new PostAuthorizeAuthorizationManager();
 		assertThatExceptionOfType(AnnotationConfigurationException.class)
-				.isThrownBy(() -> manager.check(authentication, result));
+			.isThrownBy(() -> manager.check(authentication, result));
 	}
 
 	@Test
@@ -164,7 +164,7 @@ public class PostAuthorizeAuthorizationManagerTests {
 		MethodInvocationResult result = new MethodInvocationResult(methodInvocation, null);
 		PostAuthorizeAuthorizationManager manager = new PostAuthorizeAuthorizationManager();
 		assertThatExceptionOfType(AnnotationConfigurationException.class)
-				.isThrownBy(() -> manager.check(authentication, result));
+			.isThrownBy(() -> manager.check(authentication, result));
 	}
 
 	public static class TestClass implements InterfaceAnnotationsOne, InterfaceAnnotationsTwo {

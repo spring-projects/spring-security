@@ -69,7 +69,7 @@ public final class OAuth2AuthorizedClientArgumentResolver implements HandlerMeth
 			"anonymousUser", AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
 
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
-			.getContextHolderStrategy();
+		.getContextHolderStrategy();
 
 	private OAuth2AuthorizedClientManager authorizedClientManager;
 
@@ -103,7 +103,7 @@ public final class OAuth2AuthorizedClientArgumentResolver implements HandlerMeth
 	public boolean supportsParameter(MethodParameter parameter) {
 		Class<?> parameterType = parameter.getParameterType();
 		return (OAuth2AuthorizedClient.class.isAssignableFrom(parameterType) && (AnnotatedElementUtils
-				.findMergedAnnotation(parameter.getParameter(), RegisteredOAuth2AuthorizedClient.class) != null));
+			.findMergedAnnotation(parameter.getParameter(), RegisteredOAuth2AuthorizedClient.class) != null));
 	}
 
 	@NonNull
@@ -135,7 +135,7 @@ public final class OAuth2AuthorizedClientArgumentResolver implements HandlerMeth
 
 	private String resolveClientRegistrationId(MethodParameter parameter) {
 		RegisteredOAuth2AuthorizedClient authorizedClientAnnotation = AnnotatedElementUtils
-				.findMergedAnnotation(parameter.getParameter(), RegisteredOAuth2AuthorizedClient.class);
+			.findMergedAnnotation(parameter.getParameter(), RegisteredOAuth2AuthorizedClient.class);
 		Authentication principal = this.securityContextHolderStrategy.getContext().getAuthentication();
 		if (StringUtils.hasLength(authorizedClientAnnotation.registrationId())) {
 			return authorizedClientAnnotation.registrationId();

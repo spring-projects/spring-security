@@ -177,7 +177,7 @@ public class OAuth2AuthorizationCodeGrantWebFilter implements WebFilter {
 	private void updateDefaultAuthenticationConverter() {
 		if (this.defaultAuthenticationConverter) {
 			((ServerOAuth2AuthorizationCodeAuthenticationTokenConverter) this.authenticationConverter)
-					.setAuthorizationRequestRepository(this.authorizationRequestRepository);
+				.setAuthorizationRequestRepository(this.authorizationRequestRepository);
 		}
 	}
 
@@ -197,7 +197,7 @@ public class OAuth2AuthorizationCodeGrantWebFilter implements WebFilter {
 
 	private void updateDefaultAuthenticationSuccessHandler() {
 		((RedirectServerAuthenticationSuccessHandler) this.authenticationSuccessHandler)
-				.setRequestCache(this.requestCache);
+			.setRequestCache(this.requestCache);
 	}
 
 	@Override
@@ -221,13 +221,13 @@ public class OAuth2AuthorizationCodeGrantWebFilter implements WebFilter {
 	private Mono<Void> authenticate(ServerWebExchange exchange, WebFilterChain chain, Authentication token) {
 		WebFilterExchange webFilterExchange = new WebFilterExchange(exchange, chain);
 		return this.authenticationManager.authenticate(token)
-				.onErrorMap(OAuth2AuthorizationException.class,
-						(ex) -> new OAuth2AuthenticationException(ex.getError(), ex.getError().toString()))
-				.switchIfEmpty(Mono.defer(
-						() -> Mono.error(new IllegalStateException("No provider found for " + token.getClass()))))
-				.flatMap((authentication) -> onAuthenticationSuccess(authentication, webFilterExchange))
-				.onErrorResume(AuthenticationException.class,
-						(e) -> this.authenticationFailureHandler.onAuthenticationFailure(webFilterExchange, e));
+			.onErrorMap(OAuth2AuthorizationException.class,
+					(ex) -> new OAuth2AuthenticationException(ex.getError(), ex.getError().toString()))
+			.switchIfEmpty(Mono
+				.defer(() -> Mono.error(new IllegalStateException("No provider found for " + token.getClass()))))
+			.flatMap((authentication) -> onAuthenticationSuccess(authentication, webFilterExchange))
+			.onErrorResume(AuthenticationException.class,
+					(e) -> this.authenticationFailureHandler.onAuthenticationFailure(webFilterExchange, e));
 	}
 
 	private Mono<Void> onAuthenticationSuccess(Authentication authentication, WebFilterExchange webFilterExchange) {

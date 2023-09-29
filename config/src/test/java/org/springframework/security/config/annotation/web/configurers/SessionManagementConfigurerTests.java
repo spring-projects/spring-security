@@ -119,8 +119,8 @@ public class SessionManagementConfigurerTests {
 	public void sessionManagementWhenConfiguredThenDoesNotOverrideSecurityContextRepository() throws Exception {
 		SessionManagementSecurityContextRepositoryConfig.SECURITY_CONTEXT_REPO = mock(SecurityContextRepository.class);
 		given(SessionManagementSecurityContextRepositoryConfig.SECURITY_CONTEXT_REPO
-				.loadDeferredContext(any(HttpServletRequest.class)))
-						.willReturn(new TestDeferredSecurityContext(mock(SecurityContext.class), false));
+			.loadDeferredContext(any(HttpServletRequest.class)))
+			.willReturn(new TestDeferredSecurityContext(mock(SecurityContext.class), false));
 		this.spring.register(SessionManagementSecurityContextRepositoryConfig.class).autowire();
 		this.mvc.perform(get("/"));
 	}
@@ -129,12 +129,12 @@ public class SessionManagementConfigurerTests {
 	public void sessionManagementWhenSecurityContextRepositoryIsConfiguredThenUseIt() throws Exception {
 		SessionManagementSecurityContextRepositoryConfig.SECURITY_CONTEXT_REPO = mock(SecurityContextRepository.class);
 		given(SessionManagementSecurityContextRepositoryConfig.SECURITY_CONTEXT_REPO
-				.loadDeferredContext(any(HttpServletRequest.class)))
-						.willReturn(new TestDeferredSecurityContext(mock(SecurityContext.class), false));
+			.loadDeferredContext(any(HttpServletRequest.class)))
+			.willReturn(new TestDeferredSecurityContext(mock(SecurityContext.class), false));
 		this.spring.register(SessionManagementSecurityContextRepositoryConfig.class).autowire();
 		this.mvc.perform(get("/"));
 		verify(SessionManagementSecurityContextRepositoryConfig.SECURITY_CONTEXT_REPO)
-				.containsContext(any(HttpServletRequest.class));
+			.containsContext(any(HttpServletRequest.class));
 	}
 
 	@Test
@@ -274,7 +274,7 @@ public class SessionManagementConfigurerTests {
 		ObjectPostProcessorConfig.objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
 		this.spring.register(ObjectPostProcessorConfig.class).autowire();
 		verify(ObjectPostProcessorConfig.objectPostProcessor)
-				.postProcess(any(ConcurrentSessionControlAuthenticationStrategy.class));
+			.postProcess(any(ConcurrentSessionControlAuthenticationStrategy.class));
 	}
 
 	@Test
@@ -282,7 +282,7 @@ public class SessionManagementConfigurerTests {
 		ObjectPostProcessorConfig.objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
 		this.spring.register(ObjectPostProcessorConfig.class).autowire();
 		verify(ObjectPostProcessorConfig.objectPostProcessor)
-				.postProcess(any(CompositeSessionAuthenticationStrategy.class));
+			.postProcess(any(CompositeSessionAuthenticationStrategy.class));
 	}
 
 	@Test
@@ -290,7 +290,7 @@ public class SessionManagementConfigurerTests {
 		ObjectPostProcessorConfig.objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
 		this.spring.register(ObjectPostProcessorConfig.class).autowire();
 		verify(ObjectPostProcessorConfig.objectPostProcessor)
-				.postProcess(any(RegisterSessionAuthenticationStrategy.class));
+			.postProcess(any(RegisterSessionAuthenticationStrategy.class));
 	}
 
 	@Test
@@ -298,7 +298,7 @@ public class SessionManagementConfigurerTests {
 		ObjectPostProcessorConfig.objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
 		this.spring.register(ObjectPostProcessorConfig.class).autowire();
 		verify(ObjectPostProcessorConfig.objectPostProcessor)
-				.postProcess(any(ChangeSessionIdAuthenticationStrategy.class));
+			.postProcess(any(ChangeSessionIdAuthenticationStrategy.class));
 	}
 
 	@Test
@@ -379,7 +379,7 @@ public class SessionManagementConfigurerTests {
 		HttpSession session = mvcResult.getRequest().getSession(false);
 		assertThat(session).isNull();
 		SecurityContext securityContext = (SecurityContext) mvcResult.getRequest()
-				.getAttribute(RequestAttributeSecurityContextRepository.DEFAULT_REQUEST_ATTR_NAME);
+			.getAttribute(RequestAttributeSecurityContextRepository.DEFAULT_REQUEST_ATTR_NAME);
 		assertThat(securityContext).isNotNull();
 	}
 

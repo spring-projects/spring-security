@@ -70,7 +70,7 @@ public class SupplierJwtDecoderTests {
 		given(broken.get()).willThrow(RuntimeException.class);
 		JwtDecoder supplierJwtDecoder = new SupplierJwtDecoder(broken);
 		assertThatExceptionOfType(JwtDecoderInitializationException.class)
-				.isThrownBy(() -> supplierJwtDecoder.decode("token"));
+			.isThrownBy(() -> supplierJwtDecoder.decode("token"));
 		reset(broken);
 		given(broken.get()).willReturn(jwtDecoder);
 		supplierJwtDecoder.decode("token");

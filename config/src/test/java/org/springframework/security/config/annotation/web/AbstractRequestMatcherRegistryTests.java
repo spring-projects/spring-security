@@ -73,7 +73,7 @@ public class AbstractRequestMatcherRegistryTests {
 	@Test
 	public void regexMatchersWhenHttpMethodAndPatternParamsThenReturnRegexRequestMatcherType() {
 		List<RequestMatcher> requestMatchers = this.matcherRegistry
-				.requestMatchers(new RegexRequestMatcher("/a.*", HttpMethod.GET.name()));
+			.requestMatchers(new RegexRequestMatcher("/a.*", HttpMethod.GET.name()));
 		assertThat(requestMatchers).isNotEmpty();
 		assertThat(requestMatchers).hasSize(1);
 		assertThat(requestMatchers.get(0)).isExactlyInstanceOf(RegexRequestMatcher.class);
@@ -82,7 +82,7 @@ public class AbstractRequestMatcherRegistryTests {
 	@Test
 	public void regexMatchersWhenPatternParamThenReturnRegexRequestMatcherType() {
 		List<RequestMatcher> requestMatchers = this.matcherRegistry
-				.requestMatchers(new RegexRequestMatcher("/a.*", null));
+			.requestMatchers(new RegexRequestMatcher("/a.*", null));
 		assertThat(requestMatchers).isNotEmpty();
 		assertThat(requestMatchers).hasSize(1);
 		assertThat(requestMatchers.get(0)).isExactlyInstanceOf(RegexRequestMatcher.class);
@@ -91,7 +91,7 @@ public class AbstractRequestMatcherRegistryTests {
 	@Test
 	public void antMatchersWhenHttpMethodAndPatternParamsThenReturnAntPathRequestMatcherType() {
 		List<RequestMatcher> requestMatchers = this.matcherRegistry
-				.requestMatchers(new AntPathRequestMatcher("/a.*", HttpMethod.GET.name()));
+			.requestMatchers(new AntPathRequestMatcher("/a.*", HttpMethod.GET.name()));
 		assertThat(requestMatchers).isNotEmpty();
 		assertThat(requestMatchers).hasSize(1);
 		assertThat(requestMatchers.get(0)).isExactlyInstanceOf(AntPathRequestMatcher.class);
@@ -150,8 +150,9 @@ public class AbstractRequestMatcherRegistryTests {
 	public void requestMatchersWhenMvcPresentInClassPathAndMvcIntrospectorBeanNotAvailableThenException() {
 		mockMvcIntrospector(false);
 		assertThatExceptionOfType(NoSuchBeanDefinitionException.class)
-				.isThrownBy(() -> this.matcherRegistry.requestMatchers("/path")).withMessageContaining(
-						"Please ensure Spring Security & Spring MVC are configured in a shared ApplicationContext");
+			.isThrownBy(() -> this.matcherRegistry.requestMatchers("/path"))
+			.withMessageContaining(
+					"Please ensure Spring Security & Spring MVC are configured in a shared ApplicationContext");
 	}
 
 	@Test
@@ -177,7 +178,7 @@ public class AbstractRequestMatcherRegistryTests {
 		servletContext.addServlet("dispatcherServlet", DispatcherServlet.class).addMapping("/");
 		servletContext.addServlet("servletTwo", Servlet.class).addMapping("/servlet/**");
 		assertThatExceptionOfType(IllegalArgumentException.class)
-				.isThrownBy(() -> this.matcherRegistry.requestMatchers("/**"));
+			.isThrownBy(() -> this.matcherRegistry.requestMatchers("/**"));
 	}
 
 	@Test

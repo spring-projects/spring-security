@@ -149,7 +149,7 @@ public abstract class AbstractBasicLookupStrategyTests {
 		// Deliberately use an integer for the child, to reproduce bug report in SEC-819
 		ObjectIdentity childOid = new ObjectIdentityImpl(TARGET_CLASS, 102);
 		Map<ObjectIdentity, Acl> map = this.strategy
-				.readAclsById(Arrays.asList(topParentOid, middleParentOid, childOid), null);
+			.readAclsById(Arrays.asList(topParentOid, middleParentOid, childOid), null);
 		checkEntries(topParentOid, middleParentOid, childOid, map);
 	}
 
@@ -163,7 +163,7 @@ public abstract class AbstractBasicLookupStrategyTests {
 		// Let's empty the database to force acls retrieval from cache
 		emptyDatabase();
 		Map<ObjectIdentity, Acl> map = this.strategy
-				.readAclsById(Arrays.asList(topParentOid, middleParentOid, childOid), null);
+			.readAclsById(Arrays.asList(topParentOid, middleParentOid, childOid), null);
 		checkEntries(topParentOid, middleParentOid, childOid, map);
 	}
 
@@ -176,7 +176,7 @@ public abstract class AbstractBasicLookupStrategyTests {
 		// acls
 		this.strategy.setBatchSize(1);
 		Map<ObjectIdentity, Acl> map = this.strategy
-				.readAclsById(Arrays.asList(topParentOid, middleParentOid, childOid), null);
+			.readAclsById(Arrays.asList(topParentOid, middleParentOid, childOid), null);
 		checkEntries(topParentOid, middleParentOid, childOid, map);
 	}
 
@@ -303,7 +303,7 @@ public abstract class AbstractBasicLookupStrategyTests {
 		getJdbcTemplate().execute(query);
 		ObjectIdentity oid = new ObjectIdentityImpl(TARGET_CLASS, 104L);
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> this.strategy.readAclsById(Arrays.asList(oid), Arrays.asList(BEN_SID)));
+			.isThrownBy(() -> this.strategy.readAclsById(Arrays.asList(oid), Arrays.asList(BEN_SID)));
 	}
 
 	@Test

@@ -97,8 +97,7 @@ final class ProtectPointcutPostProcessor implements BeanPostProcessor {
 		// supportedPrimitives.add(PointcutPrimitive.AT_ARGS);
 		// supportedPrimitives.add(PointcutPrimitive.AT_TARGET);
 		this.parser = PointcutParser
-				.getPointcutParserSupportingSpecifiedPrimitivesAndUsingContextClassloaderForResolution(
-						supportedPrimitives);
+			.getPointcutParserSupportingSpecifiedPrimitivesAndUsingContextClassloaderForResolution(supportedPrimitives);
 	}
 
 	@Override

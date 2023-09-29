@@ -172,8 +172,10 @@ public class HttpSecurityConfigurationTests {
 
 	@Test
 	public void asyncDispatchWhenCustomSecurityContextHolderStrategyThenUses() throws Exception {
-		this.spring.register(DefaultWithFilterChainConfig.class, SecurityContextChangedListenerConfig.class,
-				NameController.class).autowire();
+		this.spring
+			.register(DefaultWithFilterChainConfig.class, SecurityContextChangedListenerConfig.class,
+					NameController.class)
+			.autowire();
 		// @formatter:off
 		MockHttpServletRequestBuilder requestWithBob = get("/name").with(user("Bob"));
 		MvcResult mvcResult = this.mockMvc.perform(requestWithBob)
@@ -266,8 +268,8 @@ public class HttpSecurityConfigurationTests {
 	@Test
 	public void loginWhenUsingDefaultThenAuthenticationEventPublished() throws Exception {
 		this.spring
-				.register(SecurityEnabledConfig.class, UserDetailsConfig.class, AuthenticationEventListenerConfig.class)
-				.autowire();
+			.register(SecurityEnabledConfig.class, UserDetailsConfig.class, AuthenticationEventListenerConfig.class)
+			.autowire();
 		AuthenticationEventListenerConfig.clearEvents();
 		this.mockMvc.perform(formLogin()).andExpect(status().is3xxRedirection());
 		assertThat(AuthenticationEventListenerConfig.EVENTS).isNotEmpty();
@@ -277,8 +279,8 @@ public class HttpSecurityConfigurationTests {
 	@Test
 	public void loginWhenUsingDefaultAndNoUserDetailsServiceThenAuthenticationEventPublished() throws Exception {
 		this.spring
-				.register(SecurityEnabledConfig.class, UserDetailsConfig.class, AuthenticationEventListenerConfig.class)
-				.autowire();
+			.register(SecurityEnabledConfig.class, UserDetailsConfig.class, AuthenticationEventListenerConfig.class)
+			.autowire();
 		AuthenticationEventListenerConfig.clearEvents();
 		this.mockMvc.perform(formLogin()).andExpect(status().is3xxRedirection());
 		assertThat(AuthenticationEventListenerConfig.EVENTS).isNotEmpty();
@@ -287,8 +289,10 @@ public class HttpSecurityConfigurationTests {
 
 	@Test
 	public void loginWhenUsingCustomAuthenticationEventPublisherThenAuthenticationEventPublished() throws Exception {
-		this.spring.register(SecurityEnabledConfig.class, UserDetailsConfig.class,
-				CustomAuthenticationEventPublisherConfig.class).autowire();
+		this.spring
+			.register(SecurityEnabledConfig.class, UserDetailsConfig.class,
+					CustomAuthenticationEventPublisherConfig.class)
+			.autowire();
 		CustomAuthenticationEventPublisherConfig.clearEvents();
 		this.mockMvc.perform(formLogin()).andExpect(status().is3xxRedirection());
 		assertThat(CustomAuthenticationEventPublisherConfig.EVENTS).isNotEmpty();
@@ -308,27 +312,25 @@ public class HttpSecurityConfigurationTests {
 	@Test
 	public void configureWhenAuthorizeHttpRequestsBeforeAuthorizeRequestThenException() {
 		assertThatExceptionOfType(BeanCreationException.class)
-				.isThrownBy(
-						() -> this.spring.register(AuthorizeHttpRequestsBeforeAuthorizeRequestsConfig.class).autowire())
-				.withMessageContaining(
-						"authorizeHttpRequests cannot be used in conjunction with authorizeRequests. Please select just one.");
+			.isThrownBy(() -> this.spring.register(AuthorizeHttpRequestsBeforeAuthorizeRequestsConfig.class).autowire())
+			.withMessageContaining(
+					"authorizeHttpRequests cannot be used in conjunction with authorizeRequests. Please select just one.");
 	}
 
 	@Test
 	public void configureWhenAuthorizeHttpRequestsAfterAuthorizeRequestThenException() {
 		assertThatExceptionOfType(BeanCreationException.class)
-				.isThrownBy(
-						() -> this.spring.register(AuthorizeHttpRequestsAfterAuthorizeRequestsConfig.class).autowire())
-				.withMessageContaining(
-						"authorizeHttpRequests cannot be used in conjunction with authorizeRequests. Please select just one.");
+			.isThrownBy(() -> this.spring.register(AuthorizeHttpRequestsAfterAuthorizeRequestsConfig.class).autowire())
+			.withMessageContaining(
+					"authorizeHttpRequests cannot be used in conjunction with authorizeRequests. Please select just one.");
 	}
 
 	@Test
 	public void configureWhenDefaultConfigurerAsSpringFactoryThenDefaultConfigurerApplied() {
 		DefaultConfigurer configurer = new DefaultConfigurer();
-		this.springFactoriesLoader.when(
-				() -> SpringFactoriesLoader.loadFactories(AbstractHttpConfigurer.class, getClass().getClassLoader()))
-				.thenReturn(Arrays.asList(configurer));
+		this.springFactoriesLoader
+			.when(() -> SpringFactoriesLoader.loadFactories(AbstractHttpConfigurer.class, getClass().getClassLoader()))
+			.thenReturn(Arrays.asList(configurer));
 		this.spring.register(DefaultWithFilterChainConfig.class).autowire();
 		assertThat(configurer.init).isTrue();
 		assertThat(configurer.configure).isTrue();
@@ -339,7 +341,7 @@ public class HttpSecurityConfigurationTests {
 		this.spring.register(CustomContentNegotiationStrategyConfig.class).autowire();
 		this.mockMvc.perform(get("/"));
 		verify(CustomContentNegotiationStrategyConfig.CNS, atLeastOnce())
-				.resolveMediaTypes(any(NativeWebRequest.class));
+			.resolveMediaTypes(any(NativeWebRequest.class));
 	}
 
 	// gh-13084
@@ -363,8 +365,11 @@ public class HttpSecurityConfigurationTests {
 	public void configureWhenCorsConfigurationSourceThenApplyCors() {
 		this.spring.register(CorsConfigurationSourceConfig.class, DefaultWithFilterChainConfig.class).autowire();
 		SecurityFilterChain filterChain = this.spring.getContext().getBean(SecurityFilterChain.class);
-		CorsFilter corsFilter = (CorsFilter) filterChain.getFilters().stream().filter((f) -> f instanceof CorsFilter)
-				.findFirst().get();
+		CorsFilter corsFilter = (CorsFilter) filterChain.getFilters()
+			.stream()
+			.filter((f) -> f instanceof CorsFilter)
+			.findFirst()
+			.get();
 		Object configSource = ReflectionTestUtils.getField(corsFilter, "configSource");
 		assertThat(configSource).isInstanceOf(UrlBasedCorsConfigurationSource.class);
 	}
@@ -380,9 +385,9 @@ public class HttpSecurityConfigurationTests {
 
 	@Test
 	public void configureWhenCustomDslAddedFromFactoriesAndDisablingUsingWithThenNotApplied() throws Exception {
-		this.springFactoriesLoader.when(
-				() -> SpringFactoriesLoader.loadFactories(AbstractHttpConfigurer.class, getClass().getClassLoader()))
-				.thenReturn(List.of(new WithCustomDsl()));
+		this.springFactoriesLoader
+			.when(() -> SpringFactoriesLoader.loadFactories(AbstractHttpConfigurer.class, getClass().getClassLoader()))
+			.thenReturn(List.of(new WithCustomDsl()));
 		this.spring.register(WithCustomDslDisabledConfig.class, UserDetailsConfig.class).autowire();
 		SecurityFilterChain filterChain = this.spring.getContext().getBean(SecurityFilterChain.class);
 		List<Filter> filters = filterChain.getFilters();

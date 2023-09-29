@@ -166,8 +166,8 @@ public class JdbcOAuth2AuthorizedClientService implements OAuth2AuthorizedClient
 	public void saveAuthorizedClient(OAuth2AuthorizedClient authorizedClient, Authentication principal) {
 		Assert.notNull(authorizedClient, "authorizedClient cannot be null");
 		Assert.notNull(principal, "principal cannot be null");
-		boolean existsAuthorizedClient = null != this.loadAuthorizedClient(
-				authorizedClient.getClientRegistration().getRegistrationId(), principal.getName());
+		boolean existsAuthorizedClient = null != this
+			.loadAuthorizedClient(authorizedClient.getClientRegistration().getRegistrationId(), principal.getName());
 		if (existsAuthorizedClient) {
 			updateAuthorizedClient(authorizedClient, principal);
 		}
@@ -183,7 +183,7 @@ public class JdbcOAuth2AuthorizedClientService implements OAuth2AuthorizedClient
 
 	private void updateAuthorizedClient(OAuth2AuthorizedClient authorizedClient, Authentication principal) {
 		List<SqlParameterValue> parameters = this.authorizedClientParametersMapper
-				.apply(new OAuth2AuthorizedClientHolder(authorizedClient, principal));
+			.apply(new OAuth2AuthorizedClientHolder(authorizedClient, principal));
 		SqlParameterValue clientRegistrationIdParameter = parameters.remove(0);
 		SqlParameterValue principalNameParameter = parameters.remove(0);
 		parameters.add(clientRegistrationIdParameter);
@@ -197,7 +197,7 @@ public class JdbcOAuth2AuthorizedClientService implements OAuth2AuthorizedClient
 
 	private void insertAuthorizedClient(OAuth2AuthorizedClient authorizedClient, Authentication principal) {
 		List<SqlParameterValue> parameters = this.authorizedClientParametersMapper
-				.apply(new OAuth2AuthorizedClientHolder(authorizedClient, principal));
+			.apply(new OAuth2AuthorizedClientHolder(authorizedClient, principal));
 		try (LobCreator lobCreator = this.lobHandler.getLobCreator()) {
 			PreparedStatementSetter pss = new LobCreatorArgumentPreparedStatementSetter(lobCreator,
 					parameters.toArray());
@@ -265,7 +265,7 @@ public class JdbcOAuth2AuthorizedClientService implements OAuth2AuthorizedClient
 		public OAuth2AuthorizedClient mapRow(ResultSet rs, int rowNum) throws SQLException {
 			String clientRegistrationId = rs.getString("client_registration_id");
 			ClientRegistration clientRegistration = this.clientRegistrationRepository
-					.findByRegistrationId(clientRegistrationId);
+				.findByRegistrationId(clientRegistrationId);
 			if (clientRegistration == null) {
 				throw new DataRetrievalFailureException(
 						"The ClientRegistration with id '" + clientRegistrationId + "' exists in the data source, "
@@ -320,8 +320,8 @@ public class JdbcOAuth2AuthorizedClientService implements OAuth2AuthorizedClient
 			parameters.add(new SqlParameterValue(Types.VARCHAR, clientRegistration.getRegistrationId()));
 			parameters.add(new SqlParameterValue(Types.VARCHAR, principal.getName()));
 			parameters.add(new SqlParameterValue(Types.VARCHAR, accessToken.getTokenType().getValue()));
-			parameters.add(
-					new SqlParameterValue(Types.BLOB, accessToken.getTokenValue().getBytes(StandardCharsets.UTF_8)));
+			parameters
+				.add(new SqlParameterValue(Types.BLOB, accessToken.getTokenValue().getBytes(StandardCharsets.UTF_8)));
 			parameters.add(new SqlParameterValue(Types.TIMESTAMP, Timestamp.from(accessToken.getIssuedAt())));
 			parameters.add(new SqlParameterValue(Types.TIMESTAMP, Timestamp.from(accessToken.getExpiresAt())));
 			String accessTokenScopes = null;

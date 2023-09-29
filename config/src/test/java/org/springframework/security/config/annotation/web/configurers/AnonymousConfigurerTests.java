@@ -72,11 +72,13 @@ public class AnonymousConfigurerTests {
 
 	@Test
 	public void requestWhenCustomSecurityContextHolderStrategyThenUses() throws Exception {
-		this.spring.register(AnonymousPrincipalInLambdaConfig.class, SecurityContextChangedListenerConfig.class,
-				PrincipalController.class).autowire();
+		this.spring
+			.register(AnonymousPrincipalInLambdaConfig.class, SecurityContextChangedListenerConfig.class,
+					PrincipalController.class)
+			.autowire();
 		this.mockMvc.perform(get("/")).andExpect(content().string("principal"));
 		SecurityContextChangedListener listener = this.spring.getContext()
-				.getBean(SecurityContextChangedListener.class);
+			.getBean(SecurityContextChangedListener.class);
 		verify(listener).securityContextChanged(setAuthentication(AnonymousAuthenticationToken.class));
 	}
 

@@ -100,8 +100,8 @@ public class ReactorContextTestExecutionListenerTests {
 		TestSecurityContextHolder.setAuthentication(contextHolder);
 		this.listener.beforeTestMethod(this.testContext);
 		Mono<Authentication> authentication = Mono.just("any")
-				.flatMap((s) -> ReactiveSecurityContextHolder.getContext().map(SecurityContext::getAuthentication))
-				.contextWrite(ReactiveSecurityContextHolder.withAuthentication(expectedAuthentication));
+			.flatMap((s) -> ReactiveSecurityContextHolder.getContext().map(SecurityContext::getAuthentication))
+			.contextWrite(ReactiveSecurityContextHolder.withAuthentication(expectedAuthentication));
 		StepVerifier.create(authentication).expectNext(expectedAuthentication).verifyComplete();
 	}
 
@@ -114,8 +114,8 @@ public class ReactorContextTestExecutionListenerTests {
 		TestSecurityContextHolder.setAuthentication(contextHolder);
 		this.listener.beforeTestMethod(this.testContext);
 		Mono<Authentication> authentication = Mono.just("any")
-				.flatMap((s) -> ReactiveSecurityContextHolder.getContext().map(SecurityContext::getAuthentication))
-				.contextWrite(ReactiveSecurityContextHolder.clearContext());
+			.flatMap((s) -> ReactiveSecurityContextHolder.getContext().map(SecurityContext::getAuthentication))
+			.contextWrite(ReactiveSecurityContextHolder.clearContext());
 		StepVerifier.create(authentication).verifyComplete();
 	}
 
@@ -161,7 +161,7 @@ public class ReactorContextTestExecutionListenerTests {
 
 	public void assertAuthentication(Authentication expected) {
 		Mono<Authentication> authentication = ReactiveSecurityContextHolder.getContext()
-				.map(SecurityContext::getAuthentication);
+			.map(SecurityContext::getAuthentication);
 		StepVerifier.create(authentication).expectNext(expected).verifyComplete();
 	}
 

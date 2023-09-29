@@ -32,7 +32,7 @@ class Saml2RedirectAuthenticationRequestTests {
 		Saml2RedirectAuthenticationRequest authenticationRequest = getAuthenticationRequestBuilder().build();
 		byte[] bytes = SerializationUtils.serialize(authenticationRequest);
 		Saml2RedirectAuthenticationRequest deserializedAuthenticationRequest = (Saml2RedirectAuthenticationRequest) SerializationUtils
-				.deserialize(bytes);
+			.deserialize(bytes);
 		assertThat(deserializedAuthenticationRequest).usingRecursiveComparison().isEqualTo(authenticationRequest);
 	}
 
@@ -40,17 +40,19 @@ class Saml2RedirectAuthenticationRequestTests {
 	void serializeWhenDeserializeAndCompareToOtherThenNotSame() {
 		Saml2RedirectAuthenticationRequest authenticationRequest = getAuthenticationRequestBuilder().build();
 		Saml2RedirectAuthenticationRequest otherAuthenticationRequest = getAuthenticationRequestBuilder()
-				.relayState("relay").build();
+			.relayState("relay")
+			.build();
 		byte[] bytes = SerializationUtils.serialize(otherAuthenticationRequest);
 		Saml2RedirectAuthenticationRequest deserializedAuthenticationRequest = (Saml2RedirectAuthenticationRequest) SerializationUtils
-				.deserialize(bytes);
+			.deserialize(bytes);
 		assertThat(deserializedAuthenticationRequest).usingRecursiveComparison().isNotEqualTo(authenticationRequest);
 	}
 
 	private Saml2RedirectAuthenticationRequest.Builder getAuthenticationRequestBuilder() {
 		return Saml2RedirectAuthenticationRequest
-				.withRelyingPartyRegistration(TestRelyingPartyRegistrations.relyingPartyRegistration().build())
-				.samlRequest("request").authenticationRequestUri(IDP_SSO_URL);
+			.withRelyingPartyRegistration(TestRelyingPartyRegistrations.relyingPartyRegistration().build())
+			.samlRequest("request")
+			.authenticationRequestUri(IDP_SSO_URL);
 	}
 
 }

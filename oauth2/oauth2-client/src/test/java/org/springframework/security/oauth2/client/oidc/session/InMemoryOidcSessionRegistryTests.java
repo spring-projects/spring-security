@@ -52,7 +52,7 @@ public class InMemoryOidcSessionRegistryTests {
 		OidcSessionInformation info = TestOidcSessionInformations.create("client", user);
 		sessionRegistry.saveSessionInformation(info);
 		OidcLogoutToken logoutToken = TestOidcLogoutTokens.withSessionId(idToken.getIssuer().toString(), "provider")
-				.build();
+			.build();
 		Iterable<OidcSessionInformation> infos = sessionRegistry.removeSessionInformation(logoutToken);
 		assertThat(infos).containsExactly(info);
 	}
@@ -73,7 +73,8 @@ public class InMemoryOidcSessionRegistryTests {
 		OidcSessionInformation threeSession = TestOidcSessionInformations.create("clientThree", user);
 		sessionRegistry.saveSessionInformation(threeSession);
 		OidcLogoutToken logoutToken = TestOidcLogoutTokens
-				.withSubject(idToken.getIssuer().toString(), idToken.getSubject()).build();
+			.withSubject(idToken.getIssuer().toString(), idToken.getSubject())
+			.build();
 		Iterable<OidcSessionInformation> infos = sessionRegistry.removeSessionInformation(logoutToken);
 		assertThat(infos).containsExactlyInAnyOrder(twoSession, threeSession);
 		logoutToken = TestOidcLogoutTokens.withSubject(idToken.getIssuer().toString(), "otheruser").build();
@@ -89,7 +90,7 @@ public class InMemoryOidcSessionRegistryTests {
 		OidcSessionInformation info = TestOidcSessionInformations.create("client", user);
 		sessionRegistry.saveSessionInformation(info);
 		OidcLogoutToken logoutToken = TestOidcLogoutTokens.withSessionId(idToken.getIssuer().toString(), "wrong")
-				.build();
+			.build();
 		Iterable<?> infos = sessionRegistry.removeSessionInformation(logoutToken);
 		assertThat(infos).isNotNull();
 		assertThat(infos).isEmpty();

@@ -65,7 +65,7 @@ public class SubjectDnX509PrincipalExtractorTests {
 	public void matchOnShoeSizeThrowsBadCredentials() throws Exception {
 		this.extractor.setSubjectDnRegex("shoeSize=(.*?),");
 		assertThatExceptionOfType(BadCredentialsException.class)
-				.isThrownBy(() -> this.extractor.extractPrincipal(X509TestUtils.buildTestCertificate()));
+			.isThrownBy(() -> this.extractor.extractPrincipal(X509TestUtils.buildTestCertificate()));
 	}
 
 	@Test

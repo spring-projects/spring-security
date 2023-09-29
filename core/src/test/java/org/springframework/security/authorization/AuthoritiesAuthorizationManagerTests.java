@@ -42,7 +42,7 @@ class AuthoritiesAuthorizationManagerTests {
 	void setRoleHierarchyWhenNullThenIllegalArgumentException() {
 		AuthoritiesAuthorizationManager manager = new AuthoritiesAuthorizationManager();
 		assertThatIllegalArgumentException().isThrownBy(() -> manager.setRoleHierarchy(null))
-				.withMessage("roleHierarchy cannot be null");
+			.withMessage("roleHierarchy cannot be null");
 	}
 
 	@Test

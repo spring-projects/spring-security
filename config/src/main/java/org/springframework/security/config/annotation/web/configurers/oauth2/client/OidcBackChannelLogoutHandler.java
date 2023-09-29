@@ -107,8 +107,10 @@ final class OidcBackChannelLogoutHandler implements LogoutHandler {
 			headers.add(credential.getKey(), credential.getValue());
 		}
 		String url = request.getRequestURL().toString();
-		String logout = UriComponentsBuilder.fromHttpUrl(url).replacePath(this.logoutEndpointName).build()
-				.toUriString();
+		String logout = UriComponentsBuilder.fromHttpUrl(url)
+			.replacePath(this.logoutEndpointName)
+			.build()
+			.toUriString();
 		HttpEntity<?> entity = new HttpEntity<>(null, headers);
 		this.restOperations.postForEntity(logout, entity, Object.class);
 	}

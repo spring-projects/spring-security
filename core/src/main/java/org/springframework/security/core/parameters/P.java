@@ -28,7 +28,6 @@ import java.lang.annotation.Target;
  * contain the parameter names.
  *
  * @see AnnotationParameterNameDiscoverer
- *
  * @author Rob Winch
  * @since 5.0
  */

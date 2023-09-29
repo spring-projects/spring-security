@@ -75,13 +75,14 @@ class AuthorizationFilterParser implements BeanDefinitionParser {
 	@Override
 	public BeanDefinition parse(Element element, ParserContext parserContext) {
 		if (!isUseExpressions(element)) {
-			parserContext.getReaderContext().error("AuthorizationManager must be used with `use-expressions=\"true\"",
-					element);
+			parserContext.getReaderContext()
+				.error("AuthorizationManager must be used with `use-expressions=\"true\"", element);
 			return null;
 		}
 		if (StringUtils.hasText(element.getAttribute(ATT_ACCESS_DECISION_MANAGER_REF))) {
-			parserContext.getReaderContext().error(
-					"AuthorizationManager cannot be used in conjunction with `access-decision-manager-ref`", element);
+			parserContext.getReaderContext()
+				.error("AuthorizationManager cannot be used in conjunction with `access-decision-manager-ref`",
+						element);
 			return null;
 		}
 		this.authorizationManagerRef = createAuthorizationManager(element, parserContext);
@@ -92,8 +93,8 @@ class AuthorizationFilterParser implements BeanDefinitionParser {
 			filterBuilder.addPropertyValue("shouldFilterAllDispatcherTypes", Boolean.FALSE);
 		}
 		BeanDefinition filter = filterBuilder
-				.addPropertyValue("securityContextHolderStrategy", this.securityContextHolderStrategy)
-				.getBeanDefinition();
+			.addPropertyValue("securityContextHolderStrategy", this.securityContextHolderStrategy)
+			.getBeanDefinition();
 		String id = element.getAttribute(AbstractBeanDefinitionParser.ID_ATTRIBUTE);
 		if (StringUtils.hasText(id)) {
 			parserContext.registerComponent(new BeanComponentDefinition(filter, id));
@@ -123,16 +124,16 @@ class AuthorizationFilterParser implements BeanDefinitionParser {
 		for (Element interceptMessage : interceptMessages) {
 			String accessExpression = interceptMessage.getAttribute(ATT_ACCESS);
 			BeanDefinitionBuilder authorizationManager = BeanDefinitionBuilder
-					.rootBeanDefinition(WebExpressionAuthorizationManager.class);
+				.rootBeanDefinition(WebExpressionAuthorizationManager.class);
 			authorizationManager.addPropertyReference("expressionHandler", expressionHandlerRef);
 			authorizationManager.addConstructorArgValue(accessExpression);
 			BeanMetadataElement matcher = createMatcher(matcherType, interceptMessage, parserContext);
 			matcherToExpression.put(matcher, authorizationManager.getBeanDefinition());
 		}
 		BeanDefinitionBuilder mds = BeanDefinitionBuilder
-				.rootBeanDefinition(RequestMatcherDelegatingAuthorizationManagerFactory.class)
-				.addPropertyValue("requestMatcherMap", matcherToExpression)
-				.addPropertyValue("observationRegistry", getObservationRegistry(element));
+			.rootBeanDefinition(RequestMatcherDelegatingAuthorizationManagerFactory.class)
+			.addPropertyValue("requestMatcherMap", matcherToExpression)
+			.addPropertyValue("observationRegistry", getObservationRegistry(element));
 		return context.registerWithGeneratedName(mds.getBeanDefinition());
 	}
 
@@ -152,8 +153,9 @@ class AuthorizationFilterParser implements BeanDefinitionParser {
 			servletPath = null;
 		}
 		else if (!MatcherType.mvc.equals(matcherType)) {
-			parserContext.getReaderContext().error(
-					ATT_SERVLET_PATH + " is not applicable for request-matcher: '" + matcherType.name() + "'", urlElt);
+			parserContext.getReaderContext()
+				.error(ATT_SERVLET_PATH + " is not applicable for request-matcher: '" + matcherType.name() + "'",
+						urlElt);
 		}
 		return hasMatcherRef ? new RuntimeBeanReference(matcherRef)
 				: matcherType.createMatcher(parserContext, path, method, servletPath);
@@ -190,9 +192,9 @@ class AuthorizationFilterParser implements BeanDefinitionParser {
 		@Override
 		public AuthorizationManager<HttpServletRequest> getObject() throws Exception {
 			RequestMatcherDelegatingAuthorizationManager.Builder builder = RequestMatcherDelegatingAuthorizationManager
-					.builder();
+				.builder();
 			for (Map.Entry<RequestMatcher, AuthorizationManager<RequestAuthorizationContext>> entry : this.beans
-					.entrySet()) {
+				.entrySet()) {
 				builder.add(entry.getKey(), entry.getValue());
 			}
 			AuthorizationManager<HttpServletRequest> manager = builder.build();

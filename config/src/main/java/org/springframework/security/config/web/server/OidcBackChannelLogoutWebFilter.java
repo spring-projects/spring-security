@@ -85,17 +85,20 @@ class OidcBackChannelLogoutWebFilter implements WebFilter {
 				return Mono.error(ex);
 			}
 			return handleAuthenticationFailure(exchange.getResponse(), ex).then(Mono.empty());
-		}).switchIfEmpty(chain.filter(exchange).then(Mono.empty())).flatMap(this.authenticationManager::authenticate)
-				.onErrorResume(AuthenticationException.class, (ex) -> {
-					this.logger.debug("Failed to process OIDC Back-Channel Logout", ex);
-					if (ex instanceof AuthenticationServiceException) {
-						return Mono.error(ex);
-					}
-					return handleAuthenticationFailure(exchange.getResponse(), ex).then(Mono.empty());
-				}).flatMap((authentication) -> {
-					WebFilterExchange webFilterExchange = new WebFilterExchange(exchange, chain);
-					return this.logoutHandler.logout(webFilterExchange, authentication);
-				});
+		})
+			.switchIfEmpty(chain.filter(exchange).then(Mono.empty()))
+			.flatMap(this.authenticationManager::authenticate)
+			.onErrorResume(AuthenticationException.class, (ex) -> {
+				this.logger.debug("Failed to process OIDC Back-Channel Logout", ex);
+				if (ex instanceof AuthenticationServiceException) {
+					return Mono.error(ex);
+				}
+				return handleAuthenticationFailure(exchange.getResponse(), ex).then(Mono.empty());
+			})
+			.flatMap((authentication) -> {
+				WebFilterExchange webFilterExchange = new WebFilterExchange(exchange, chain);
+				return this.logoutHandler.logout(webFilterExchange, authentication);
+			});
 	}
 
 	private Mono<Void> handleAuthenticationFailure(ServerHttpResponse response, Exception ex) {
@@ -108,8 +111,7 @@ class OidcBackChannelLogoutWebFilter implements WebFilter {
 					"error_description": "%s",
 					"error_uri: "%s"
 				}
-				""", error.getErrorCode(), error.getDescription(), error.getUri())
-				.getBytes(StandardCharsets.UTF_8);
+				""", error.getErrorCode(), error.getDescription(), error.getUri()).getBytes(StandardCharsets.UTF_8);
 		DataBuffer buffer = response.bufferFactory().wrap(bytes);
 		return response.writeWith(Flux.just(buffer));
 	}

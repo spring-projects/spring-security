@@ -100,7 +100,7 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 	public void targetShouldPreventProtectedMethodInvocationWithNoContext() {
 		loadContext();
 		assertThatExceptionOfType(AuthenticationCredentialsNotFoundException.class)
-				.isThrownBy(this.target::someUserMethod1);
+			.isThrownBy(this.target::someUserMethod1);
 	}
 
 	@Test
@@ -136,7 +136,7 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 				+ "<b:bean id='beanPostProcessor' class='org.springframework.security.config.MockUserServiceBeanPostProcessor'/>");
 		// @formatter:on
 		PostProcessedMockUserDetailsService service = (PostProcessedMockUserDetailsService) this.appContext
-				.getBean("myUserService");
+			.getBean("myUserService");
 		assertThat(service.getPostProcessorWasHere()).isEqualTo("Hello from the post processor!");
 	}
 
@@ -171,7 +171,7 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 				+ ConfigTestUtils.AUTH_PROVIDER_XML);
 		// @formatter:on
 		SecurityContextHolder.getContext()
-				.setAuthentication(UsernamePasswordAuthenticationToken.unauthenticated("user", "password"));
+			.setAuthentication(UsernamePasswordAuthenticationToken.unauthenticated("user", "password"));
 		this.target = (BusinessService) this.appContext.getBean("target");
 		// someOther(int) should not be matched by someOther(String), but should require
 		// ROLE_USER
@@ -197,16 +197,16 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 		this.target.someOther("somestring");
 		// All others should require ROLE_USER
 		assertThatExceptionOfType(AuthenticationCredentialsNotFoundException.class)
-				.isThrownBy(() -> this.target.someOther(0));
+			.isThrownBy(() -> this.target.someOther(0));
 		SecurityContextHolder.getContext()
-				.setAuthentication(UsernamePasswordAuthenticationToken.unauthenticated("user", "password"));
+			.setAuthentication(UsernamePasswordAuthenticationToken.unauthenticated("user", "password"));
 		this.target.someOther(0);
 	}
 
 	@Test
 	public void duplicateElementCausesError() {
 		assertThatExceptionOfType(BeanDefinitionParsingException.class)
-				.isThrownBy(() -> setContext("<global-method-security />" + "<global-method-security />"));
+			.isThrownBy(() -> setContext("<global-method-security />" + "<global-method-security />"));
 	}
 
 	// Expression configuration tests
@@ -214,17 +214,20 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 	@Test
 	public void expressionVoterAndAfterInvocationProviderUseSameExpressionHandlerInstance() throws Exception {
 		setContext("<global-method-security pre-post-annotations='enabled'/>" + ConfigTestUtils.AUTH_PROVIDER_XML);
-		AffirmativeBased adm = (AffirmativeBased) this.appContext.getBeansOfType(AffirmativeBased.class).values()
-				.toArray()[0];
+		AffirmativeBased adm = (AffirmativeBased) this.appContext.getBeansOfType(AffirmativeBased.class)
+			.values()
+			.toArray()[0];
 		List voters = (List) FieldUtils.getFieldValue(adm, "decisionVoters");
 		PreInvocationAuthorizationAdviceVoter mev = (PreInvocationAuthorizationAdviceVoter) voters.get(0);
 		MethodSecurityMetadataSourceAdvisor msi = (MethodSecurityMetadataSourceAdvisor) this.appContext
-				.getBeansOfType(MethodSecurityMetadataSourceAdvisor.class).values().toArray()[0];
+			.getBeansOfType(MethodSecurityMetadataSourceAdvisor.class)
+			.values()
+			.toArray()[0];
 		AfterInvocationProviderManager pm = (AfterInvocationProviderManager) ((MethodSecurityInterceptor) msi
-				.getAdvice()).getAfterInvocationManager();
+			.getAdvice()).getAfterInvocationManager();
 		PostInvocationAdviceProvider aip = (PostInvocationAdviceProvider) pm.getProviders().get(0);
 		assertThat(FieldUtils.getFieldValue(mev, "preAdvice.expressionHandler"))
-				.isSameAs(FieldUtils.getFieldValue(aip, "postAdvice.expressionHandler"));
+			.isSameAs(FieldUtils.getFieldValue(aip, "postAdvice.expressionHandler"));
 	}
 
 	@Test
@@ -251,7 +254,7 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 		// @formatter:on
 		SecurityContextHolder.getContext().setAuthentication(this.bob);
 		ExpressionProtectedBusinessServiceImpl target = (ExpressionProtectedBusinessServiceImpl) this.appContext
-				.getBean("target");
+			.getBean("target");
 		target.methodWithBeanNamePropertyAccessExpression("x");
 	}
 
@@ -347,7 +350,9 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 				parent);
 		RunAsManagerImpl ram = (RunAsManagerImpl) this.appContext.getBean("runAsMgr");
 		MethodSecurityMetadataSourceAdvisor msi = (MethodSecurityMetadataSourceAdvisor) this.appContext
-				.getBeansOfType(MethodSecurityMetadataSourceAdvisor.class).values().toArray()[0];
+			.getBeansOfType(MethodSecurityMetadataSourceAdvisor.class)
+			.values()
+			.toArray()[0];
 		assertThat(ram).isSameAs(FieldUtils.getFieldValue(msi.getAdvice(), "runAsManager"));
 	}
 
@@ -367,7 +372,7 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 		Foo foo = (Foo) this.appContext.getBean("target");
 		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(() -> foo.foo(new SecurityConfig("A")));
 		SecurityContextHolder.getContext()
-				.setAuthentication(UsernamePasswordAuthenticationToken.unauthenticated("admin", "password"));
+			.setAuthentication(UsernamePasswordAuthenticationToken.unauthenticated("admin", "password"));
 		foo.foo(new SecurityConfig("A"));
 	}
 
@@ -388,7 +393,7 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 		Foo foo = (Foo) this.appContext.getBean("target");
 		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(() -> foo.foo(new SecurityConfig("A")));
 		SecurityContextHolder.getContext()
-				.setAuthentication(UsernamePasswordAuthenticationToken.unauthenticated("admin", "password"));
+			.setAuthentication(UsernamePasswordAuthenticationToken.unauthenticated("admin", "password"));
 		foo.foo(new SecurityConfig("A"));
 	}
 

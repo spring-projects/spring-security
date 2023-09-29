@@ -125,7 +125,7 @@ public class DefaultAuthenticationEventPublisher
 
 	private Constructor<? extends AbstractAuthenticationEvent> getEventConstructor(AuthenticationException exception) {
 		Constructor<? extends AbstractAuthenticationEvent> eventConstructor = this.exceptionMappings
-				.get(exception.getClass().getName());
+			.get(exception.getClass().getName());
 		return (eventConstructor != null) ? eventConstructor : this.defaultAuthenticationFailureEventConstructor;
 	}
 
@@ -169,7 +169,7 @@ public class DefaultAuthenticationEventPublisher
 			Map<Class<? extends AuthenticationException>, Class<? extends AbstractAuthenticationFailureEvent>> mappings) {
 		Assert.notEmpty(mappings, "The mappings Map must not be empty nor null");
 		for (Map.Entry<Class<? extends AuthenticationException>, Class<? extends AbstractAuthenticationFailureEvent>> entry : mappings
-				.entrySet()) {
+			.entrySet()) {
 			Class<?> exceptionClass = entry.getKey();
 			Class<?> eventClass = entry.getValue();
 			Assert.notNull(exceptionClass, "exceptionClass cannot be null");
@@ -190,7 +190,7 @@ public class DefaultAuthenticationEventPublisher
 				"defaultAuthenticationFailureEventClass must not be null");
 		try {
 			this.defaultAuthenticationFailureEventConstructor = defaultAuthenticationFailureEventClass
-					.getConstructor(Authentication.class, AuthenticationException.class);
+				.getConstructor(Authentication.class, AuthenticationException.class);
 		}
 		catch (NoSuchMethodException ex) {
 			throw new RuntimeException("Default Authentication Failure event class "
@@ -201,7 +201,7 @@ public class DefaultAuthenticationEventPublisher
 	private void addMapping(String exceptionClass, Class<? extends AbstractAuthenticationFailureEvent> eventClass) {
 		try {
 			Constructor<? extends AbstractAuthenticationEvent> constructor = eventClass
-					.getConstructor(Authentication.class, AuthenticationException.class);
+				.getConstructor(Authentication.class, AuthenticationException.class);
 			this.exceptionMappings.put(exceptionClass, constructor);
 		}
 		catch (NoSuchMethodException ex) {

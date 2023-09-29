@@ -97,8 +97,8 @@ public class OidcUserService implements OAuth2UserService<OidcUserRequest, OidcU
 
 	private static Converter<Object, ?> getConverter(TypeDescriptor targetDescriptor) {
 		TypeDescriptor sourceDescriptor = TypeDescriptor.valueOf(Object.class);
-		return (source) -> ClaimConversionService.getSharedInstance().convert(source, sourceDescriptor,
-				targetDescriptor);
+		return (source) -> ClaimConversionService.getSharedInstance()
+			.convert(source, sourceDescriptor, targetDescriptor);
 	}
 
 	@Override
@@ -138,7 +138,7 @@ public class OidcUserService implements OAuth2UserService<OidcUserRequest, OidcU
 
 	private Map<String, Object> getClaims(OidcUserRequest userRequest, OAuth2User oauth2User) {
 		Converter<Map<String, Object>, Map<String, Object>> converter = this.claimTypeConverterFactory
-				.apply(userRequest.getClientRegistration());
+			.apply(userRequest.getClientRegistration());
 		if (converter != null) {
 			return converter.convert(oauth2User.getAttributes());
 		}
@@ -170,7 +170,7 @@ public class OidcUserService implements OAuth2UserService<OidcUserRequest, OidcU
 		// The Authorization Code Grant Flow, which is response_type=code, results in an
 		// Access Token being issued.
 		if (AuthorizationGrantType.AUTHORIZATION_CODE
-				.equals(userRequest.getClientRegistration().getAuthorizationGrantType())) {
+			.equals(userRequest.getClientRegistration().getAuthorizationGrantType())) {
 			// Return true if there is at least one match between the authorized scope(s)
 			// and accessible scope(s)
 			//

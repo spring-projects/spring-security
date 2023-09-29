@@ -166,7 +166,7 @@ public abstract class WebTestUtils {
 			return result;
 		}
 		WebApplicationContext webApplicationContext = WebApplicationContextUtils
-				.getWebApplicationContext(servletContext);
+			.getWebApplicationContext(servletContext);
 		if (webApplicationContext == null) {
 			return null;
 		}

@@ -61,9 +61,10 @@ public class HttpCorsConfigTests {
 	@Test
 	public void autowireWhenMissingMvcThenGivesInformativeError() {
 		assertThatExceptionOfType(BeanCreationException.class)
-				.isThrownBy(() -> this.spring.configLocations(this.xml("RequiresMvc")).autowire()).havingRootCause()
-				.withMessageContaining(
-						"Please ensure Spring Security & Spring MVC are configured in a shared ApplicationContext");
+			.isThrownBy(() -> this.spring.configLocations(this.xml("RequiresMvc")).autowire())
+			.havingRootCause()
+			.withMessageContaining(
+					"Please ensure Spring Security & Spring MVC are configured in a shared ApplicationContext");
 	}
 
 	@Test

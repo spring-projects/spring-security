@@ -74,9 +74,10 @@ public class Saml2WebSsoAuthenticationFilterTests {
 
 	@Test
 	public void constructingFilterWithMissingRegistrationIdVariableThenThrowsException() {
-		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(
-				() -> this.filter = new Saml2WebSsoAuthenticationFilter(this.repository, "/url/missing/variable"))
-				.withMessage("filterProcessesUrl must contain a {registrationId} match variable");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(
+					() -> this.filter = new Saml2WebSsoAuthenticationFilter(this.repository, "/url/missing/variable"))
+			.withMessage("filterProcessesUrl must contain a {registrationId} match variable");
 	}
 
 	@Test
@@ -110,8 +111,8 @@ public class Saml2WebSsoAuthenticationFilterTests {
 		this.request.setPathInfo("/some/other/path/non-existent-id");
 		this.request.setParameter(Saml2ParameterNames.SAML_RESPONSE, "response");
 		assertThatExceptionOfType(Saml2AuthenticationException.class)
-				.isThrownBy(() -> this.filter.attemptAuthentication(this.request, this.response))
-				.withMessage("No relying party registration found");
+			.isThrownBy(() -> this.filter.attemptAuthentication(this.request, this.response))
+			.withMessage("No relying party registration found");
 	}
 
 	@Test
@@ -161,7 +162,7 @@ public class Saml2WebSsoAuthenticationFilterTests {
 	@Test
 	public void setAuthenticationRequestRepositoryWhenNullThenThrowsIllegalArgument() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.filter.setAuthenticationRequestRepository(null))
-				.withMessage("authenticationRequestRepository cannot be null");
+			.withMessage("authenticationRequestRepository cannot be null");
 	}
 
 	@Test

@@ -195,7 +195,7 @@ public class RSocketMessageHandlerITests {
 		String data = "a";
 		assertThatExceptionOfType(ApplicationErrorException.class).isThrownBy(
 				() -> this.requester.route("secure.hello").data(data).retrieveFlux(String.class).collectList().block())
-				.withMessageContaining("Access Denied");
+			.withMessageContaining("Access Denied");
 		assertThat(this.controller.payloads).isEmpty();
 	}
 

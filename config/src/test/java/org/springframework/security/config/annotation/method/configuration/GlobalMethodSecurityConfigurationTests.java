@@ -95,7 +95,7 @@ public class GlobalMethodSecurityConfigurationTests {
 	@Test
 	public void configureWhenGlobalMethodSecurityIsMissingMetadataSourceThenException() {
 		assertThatExceptionOfType(UnsatisfiedDependencyException.class)
-				.isThrownBy(() -> this.spring.register(IllegalStateGlobalMethodSecurityConfig.class).autowire());
+			.isThrownBy(() -> this.spring.register(IllegalStateGlobalMethodSecurityConfig.class).autowire());
 	}
 
 	@Test
@@ -107,9 +107,9 @@ public class GlobalMethodSecurityConfigurationTests {
 	public void methodSecurityAuthenticationManagerPublishesEvent() {
 		this.spring.register(InMemoryAuthWithGlobalMethodSecurityConfig.class).autowire();
 		assertThatExceptionOfType(AuthenticationException.class).isThrownBy(() -> this.authenticationManager
-				.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("foo", "bar")));
+			.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("foo", "bar")));
 		assertThat(this.events.getEvents()).extracting(Object::getClass)
-				.containsOnly((Class) AuthenticationFailureBadCredentialsEvent.class);
+			.containsOnly((Class) AuthenticationFailureBadCredentialsEvent.class);
 	}
 
 	@Test
@@ -119,7 +119,7 @@ public class GlobalMethodSecurityConfigurationTests {
 		AuthenticationTrustResolver trustResolver = this.spring.getContext().getBean(AuthenticationTrustResolver.class);
 		given(trustResolver.isAnonymous(any())).willReturn(true, false);
 		assertThatExceptionOfType(AccessDeniedException.class)
-				.isThrownBy(() -> this.service.preAuthorizeNotAnonymous());
+			.isThrownBy(() -> this.service.preAuthorizeNotAnonymous());
 		this.service.preAuthorizeNotAnonymous();
 		verify(trustResolver, atLeastOnce()).isAnonymous(any());
 	}
@@ -152,7 +152,7 @@ public class GlobalMethodSecurityConfigurationTests {
 		this.service.hasPermission("something");
 		// no exception
 		assertThatExceptionOfType(AccessDeniedException.class)
-				.isThrownBy(() -> this.service.hasPermission("something"));
+			.isThrownBy(() -> this.service.hasPermission("something"));
 	}
 
 	@Test
@@ -250,7 +250,7 @@ public class GlobalMethodSecurityConfigurationTests {
 	public void grantedAuthorityDefaultsAutowires() {
 		this.spring.register(CustomGrantedAuthorityConfig.class).autowire();
 		CustomGrantedAuthorityConfig.CustomAuthorityService customService = this.spring.getContext()
-				.getBean(CustomGrantedAuthorityConfig.CustomAuthorityService.class);
+			.getBean(CustomGrantedAuthorityConfig.CustomAuthorityService.class);
 		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(() -> this.service.preAuthorize());
 		customService.customPrefixRoleUser();
 		// no exception
@@ -261,7 +261,7 @@ public class GlobalMethodSecurityConfigurationTests {
 	public void grantedAuthorityDefaultsWithEmptyRolePrefix() {
 		this.spring.register(EmptyRolePrefixGrantedAuthorityConfig.class).autowire();
 		EmptyRolePrefixGrantedAuthorityConfig.CustomAuthorityService customService = this.spring.getContext()
-				.getBean(EmptyRolePrefixGrantedAuthorityConfig.CustomAuthorityService.class);
+			.getBean(EmptyRolePrefixGrantedAuthorityConfig.CustomAuthorityService.class);
 		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(() -> this.service.securedUser());
 		customService.emptyPrefixRoleUser();
 		// no exception
@@ -271,9 +271,9 @@ public class GlobalMethodSecurityConfigurationTests {
 	public void methodSecurityInterceptorUsesMetadataSourceBeanWhenProxyingDisabled() {
 		this.spring.register(CustomMetadataSourceBeanProxyEnabledConfig.class).autowire();
 		MethodSecurityInterceptor methodInterceptor = (MethodSecurityInterceptor) this.spring.getContext()
-				.getBean(MethodInterceptor.class);
+			.getBean(MethodInterceptor.class);
 		MethodSecurityMetadataSource methodSecurityMetadataSource = this.spring.getContext()
-				.getBean(MethodSecurityMetadataSource.class);
+			.getBean(MethodSecurityMetadataSource.class);
 		assertThat(methodInterceptor.getSecurityMetadataSource()).isSameAs(methodSecurityMetadataSource);
 	}
 

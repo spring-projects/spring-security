@@ -49,7 +49,7 @@ public class ReactiveUserDetailsServiceResourceFactoryBeanPropertiesResourceITes
 		@Bean
 		ReactiveUserDetailsServiceResourceFactoryBean userDetailsService() {
 			return ReactiveUserDetailsServiceResourceFactoryBean
-					.fromResource(new InMemoryResource("user=password,ROLE_USER"));
+				.fromResource(new InMemoryResource("user=password,ROLE_USER"));
 		}
 
 	}

@@ -109,9 +109,9 @@ public class CsrfBeanDefinitionParser implements BeanDefinitionParser {
 		}
 		if (!StringUtils.hasText(this.csrfRepositoryRef)) {
 			BeanDefinitionBuilder httpSessionCsrfTokenRepository = BeanDefinitionBuilder
-					.rootBeanDefinition(HttpSessionCsrfTokenRepository.class);
+				.rootBeanDefinition(HttpSessionCsrfTokenRepository.class);
 			this.csrfRepositoryRef = pc.getReaderContext()
-					.generateBeanName(httpSessionCsrfTokenRepository.getBeanDefinition());
+				.generateBeanName(httpSessionCsrfTokenRepository.getBeanDefinition());
 			pc.registerBeanComponent(new BeanComponentDefinition(httpSessionCsrfTokenRepository.getBeanDefinition(),
 					this.csrfRepositoryRef));
 		}
@@ -159,19 +159,20 @@ public class CsrfBeanDefinitionParser implements BeanDefinitionParser {
 		}
 		ManagedMap<Class<? extends AccessDeniedException>, BeanDefinition> handlers = new ManagedMap<>();
 		BeanDefinitionBuilder invalidSessionHandlerBldr = BeanDefinitionBuilder
-				.rootBeanDefinition(InvalidSessionAccessDeniedHandler.class);
+			.rootBeanDefinition(InvalidSessionAccessDeniedHandler.class);
 		invalidSessionHandlerBldr.addConstructorArgValue(invalidSessionStrategy);
 		handlers.put(MissingCsrfTokenException.class, invalidSessionHandlerBldr.getBeanDefinition());
 		BeanDefinitionBuilder deniedBldr = BeanDefinitionBuilder
-				.rootBeanDefinition(DelegatingAccessDeniedHandler.class);
+			.rootBeanDefinition(DelegatingAccessDeniedHandler.class);
 		deniedBldr.addConstructorArgValue(handlers);
 		deniedBldr.addConstructorArgValue(defaultDeniedHandler);
 		BeanDefinition denied = deniedBldr.getBeanDefinition();
 		ManagedList compositeList = new ManagedList();
 		BeanDefinitionBuilder compositeBldr = BeanDefinitionBuilder
-				.rootBeanDefinition(CompositeAccessDeniedHandler.class);
+			.rootBeanDefinition(CompositeAccessDeniedHandler.class);
 		BeanDefinition observing = BeanDefinitionBuilder.rootBeanDefinition(ObservationMarkingAccessDeniedHandler.class)
-				.addConstructorArgValue(this.observationRegistry).getBeanDefinition();
+			.addConstructorArgValue(this.observationRegistry)
+			.getBeanDefinition();
 		compositeList.add(denied);
 		compositeList.add(observing);
 		compositeBldr.addConstructorArgValue(compositeList);
@@ -180,14 +181,14 @@ public class CsrfBeanDefinitionParser implements BeanDefinitionParser {
 
 	BeanDefinition getCsrfAuthenticationStrategy() {
 		BeanDefinitionBuilder csrfAuthenticationStrategy = BeanDefinitionBuilder
-				.rootBeanDefinition(CsrfAuthenticationStrategy.class);
+			.rootBeanDefinition(CsrfAuthenticationStrategy.class);
 		csrfAuthenticationStrategy.addConstructorArgReference(this.csrfRepositoryRef);
 		return csrfAuthenticationStrategy.getBeanDefinition();
 	}
 
 	BeanDefinition getCsrfLogoutHandler() {
 		BeanDefinitionBuilder csrfAuthenticationStrategy = BeanDefinitionBuilder
-				.rootBeanDefinition(CsrfLogoutHandler.class);
+			.rootBeanDefinition(CsrfLogoutHandler.class);
 		csrfAuthenticationStrategy.addConstructorArgReference(this.csrfRepositoryRef);
 		return csrfAuthenticationStrategy.getBeanDefinition();
 	}

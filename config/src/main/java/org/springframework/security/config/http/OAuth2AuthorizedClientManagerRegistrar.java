@@ -89,8 +89,8 @@ final class OAuth2AuthorizedClientManagerRegistrar implements BeanDefinitionRegi
 		}
 
 		BeanDefinition beanDefinition = BeanDefinitionBuilder
-				.genericBeanDefinition(OAuth2AuthorizedClientManager.class, this::getAuthorizedClientManager)
-				.getBeanDefinition();
+			.genericBeanDefinition(OAuth2AuthorizedClientManager.class, this::getAuthorizedClientManager)
+			.getBeanDefinition();
 
 		registry.registerBeanDefinition(this.beanNameGenerator.generateBeanName(beanDefinition, registry),
 				beanDefinition);
@@ -107,14 +107,14 @@ final class OAuth2AuthorizedClientManagerRegistrar implements BeanDefinitionRegi
 
 	private OAuth2AuthorizedClientManager getAuthorizedClientManager() {
 		ClientRegistrationRepository clientRegistrationRepository = BeanFactoryUtils
-				.beanOfTypeIncludingAncestors(this.beanFactory, ClientRegistrationRepository.class, true, true);
+			.beanOfTypeIncludingAncestors(this.beanFactory, ClientRegistrationRepository.class, true, true);
 
 		OAuth2AuthorizedClientRepository authorizedClientRepository = BeanFactoryUtils
-				.beanOfTypeIncludingAncestors(this.beanFactory, OAuth2AuthorizedClientRepository.class, true, true);
+			.beanOfTypeIncludingAncestors(this.beanFactory, OAuth2AuthorizedClientRepository.class, true, true);
 
 		Collection<OAuth2AuthorizedClientProvider> authorizedClientProviderBeans = BeanFactoryUtils
-				.beansOfTypeIncludingAncestors(this.beanFactory, OAuth2AuthorizedClientProvider.class, true, true)
-				.values();
+			.beansOfTypeIncludingAncestors(this.beanFactory, OAuth2AuthorizedClientProvider.class, true, true)
+			.values();
 
 		OAuth2AuthorizedClientProvider authorizedClientProvider;
 		if (hasDelegatingAuthorizedClientProvider(authorizedClientProviderBeans)) {
@@ -229,7 +229,7 @@ final class OAuth2AuthorizedClientManagerRegistrar implements BeanDefinitionRegi
 				authorizedClientProviders, JwtBearerOAuth2AuthorizedClientProvider.class);
 
 		OAuth2AccessTokenResponseClient<JwtBearerGrantRequest> accessTokenResponseClient = getBeanOfType(ResolvableType
-				.forClassWithGenerics(OAuth2AccessTokenResponseClient.class, JwtBearerGrantRequest.class));
+			.forClassWithGenerics(OAuth2AccessTokenResponseClient.class, JwtBearerGrantRequest.class));
 		if (accessTokenResponseClient != null) {
 			if (authorizedClientProvider == null) {
 				authorizedClientProvider = new JwtBearerOAuth2AuthorizedClientProvider();
@@ -246,7 +246,7 @@ final class OAuth2AuthorizedClientManagerRegistrar implements BeanDefinitionRegi
 		List<OAuth2AuthorizedClientProvider> additionalAuthorizedClientProviders = new ArrayList<>(
 				authorizedClientProviders);
 		additionalAuthorizedClientProviders
-				.removeIf((provider) -> KNOWN_AUTHORIZED_CLIENT_PROVIDERS.contains(provider.getClass()));
+			.removeIf((provider) -> KNOWN_AUTHORIZED_CLIENT_PROVIDERS.contains(provider.getClass()));
 		return additionalAuthorizedClientProviders;
 	}
 

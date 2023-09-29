@@ -95,7 +95,7 @@ public class BasicAuthenticationConverter implements AuthenticationConverter {
 			throw new BadCredentialsException("Invalid basic authentication token");
 		}
 		UsernamePasswordAuthenticationToken result = UsernamePasswordAuthenticationToken
-				.unauthenticated(token.substring(0, delim), token.substring(delim + 1));
+			.unauthenticated(token.substring(0, delim), token.substring(delim + 1));
 		result.setDetails(this.authenticationDetailsSource.buildDetails(request));
 		return result;
 	}

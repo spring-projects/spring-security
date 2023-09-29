@@ -63,11 +63,11 @@ public class ObservationSecurityContextChangedListenerTests {
 		given(this.observationRegistry.getCurrentObservation()).willReturn(observation);
 		Supplier<SecurityContext> one = mock(Supplier.class);
 		this.tested
-				.securityContextChanged(new SecurityContextChangedEvent(one, SecurityContextChangedEvent.NO_CONTEXT));
+			.securityContextChanged(new SecurityContextChangedEvent(one, SecurityContextChangedEvent.NO_CONTEXT));
 		ArgumentCaptor<Observation.Event> event = ArgumentCaptor.forClass(Observation.Event.class);
 		verify(observation).event(event.capture());
 		assertThat(event.getValue().getName())
-				.isEqualTo(ObservationSecurityContextChangedListener.SECURITY_CONTEXT_CLEARED);
+			.isEqualTo(ObservationSecurityContextChangedListener.SECURITY_CONTEXT_CLEARED);
 		verifyNoInteractions(one);
 	}
 
@@ -87,7 +87,7 @@ public class ObservationSecurityContextChangedListenerTests {
 		ArgumentCaptor<Observation.Event> event = ArgumentCaptor.forClass(Observation.Event.class);
 		verify(observation).event(event.capture());
 		assertThat(event.getValue().getName())
-				.isEqualTo(ObservationSecurityContextChangedListener.SECURITY_CONTEXT_CHANGED);
+			.isEqualTo(ObservationSecurityContextChangedListener.SECURITY_CONTEXT_CHANGED);
 	}
 
 	@Test
@@ -98,7 +98,7 @@ public class ObservationSecurityContextChangedListenerTests {
 		ArgumentCaptor<Observation.Event> event = ArgumentCaptor.forClass(Observation.Event.class);
 		verify(observation).event(event.capture());
 		assertThat(event.getValue().getName())
-				.isEqualTo(ObservationSecurityContextChangedListener.SECURITY_CONTEXT_CREATED);
+			.isEqualTo(ObservationSecurityContextChangedListener.SECURITY_CONTEXT_CREATED);
 	}
 
 }

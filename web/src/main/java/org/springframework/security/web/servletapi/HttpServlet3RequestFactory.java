@@ -79,7 +79,7 @@ final class HttpServlet3RequestFactory implements HttpServletRequestFactory {
 	private Log logger = LogFactory.getLog(getClass());
 
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
-			.getContextHolderStrategy();
+		.getContextHolderStrategy();
 
 	private final String rolePrefix;
 
@@ -238,14 +238,14 @@ final class HttpServlet3RequestFactory implements HttpServletRequestFactory {
 			}
 			AuthenticationManager authManager = HttpServlet3RequestFactory.this.authenticationManager;
 			if (authManager == null) {
-				HttpServlet3RequestFactory.this.logger.debug(
-						"authenticationManager is null, so allowing original HttpServletRequest to handle login");
+				HttpServlet3RequestFactory.this.logger
+					.debug("authenticationManager is null, so allowing original HttpServletRequest to handle login");
 				super.login(username, password);
 				return;
 			}
 			Authentication authentication = getAuthentication(authManager, username, password);
 			SecurityContext context = HttpServlet3RequestFactory.this.securityContextHolderStrategy
-					.createEmptyContext();
+				.createEmptyContext();
 			context.setAuthentication(authentication);
 			HttpServlet3RequestFactory.this.securityContextHolderStrategy.setContext(context);
 			HttpServlet3RequestFactory.this.securityContextRepository.saveContext(context, this, this.response);
@@ -255,7 +255,7 @@ final class HttpServlet3RequestFactory implements HttpServletRequestFactory {
 				throws ServletException {
 			try {
 				UsernamePasswordAuthenticationToken authentication = UsernamePasswordAuthenticationToken
-						.unauthenticated(username, password);
+					.unauthenticated(username, password);
 				Object details = HttpServlet3RequestFactory.this.authenticationDetailsSource.buildDetails(this);
 				authentication.setDetails(details);
 				return authManager.authenticate(authentication);
@@ -271,12 +271,12 @@ final class HttpServlet3RequestFactory implements HttpServletRequestFactory {
 			List<LogoutHandler> handlers = HttpServlet3RequestFactory.this.logoutHandlers;
 			if (CollectionUtils.isEmpty(handlers)) {
 				HttpServlet3RequestFactory.this.logger
-						.debug("logoutHandlers is null, so allowing original HttpServletRequest to handle logout");
+					.debug("logoutHandlers is null, so allowing original HttpServletRequest to handle logout");
 				super.logout();
 				return;
 			}
 			Authentication authentication = HttpServlet3RequestFactory.this.securityContextHolderStrategy.getContext()
-					.getAuthentication();
+				.getAuthentication();
 			for (LogoutHandler handler : handlers) {
 				handler.logout(this, this.response, authentication);
 			}

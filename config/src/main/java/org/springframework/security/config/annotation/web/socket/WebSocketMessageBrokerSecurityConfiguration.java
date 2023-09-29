@@ -64,10 +64,13 @@ final class WebSocketMessageBrokerSecurityConfiguration
 	private MessageMatcherDelegatingAuthorizationManager b;
 
 	private static final AuthorizationManager<Message<?>> ANY_MESSAGE_AUTHENTICATED = MessageMatcherDelegatingAuthorizationManager
-			.builder().anyMessage().authenticated().build();
+		.builder()
+		.anyMessage()
+		.authenticated()
+		.build();
 
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
-			.getContextHolderStrategy();
+		.getContextHolderStrategy();
 
 	private final SecurityContextChannelInterceptor securityContextChannelInterceptor = new SecurityContextChannelInterceptor();
 

@@ -61,7 +61,7 @@ public class DigestAuthenticationEntryPointTests {
 		ep.setKey("dcdc");
 		ep.setNonceValiditySeconds(12);
 		assertThatIllegalArgumentException().isThrownBy(ep::afterPropertiesSet)
-				.withMessage("realmName must be specified");
+			.withMessage("realmName must be specified");
 	}
 
 	@Test

@@ -70,7 +70,7 @@ public class RetryWithHttpsEntryPointTests {
 		ep.setPortResolver(new MockPortResolver(80, 443));
 		ep.commence(request, response);
 		assertThat(response.getRedirectedUrl())
-				.isEqualTo("https://www.example.com/bigWebApp/hello/pathInfo.html?open=true");
+			.isEqualTo("https://www.example.com/bigWebApp/hello/pathInfo.html?open=true");
 	}
 
 	@Test
@@ -119,7 +119,7 @@ public class RetryWithHttpsEntryPointTests {
 		ep.setPortMapper(portMapper);
 		ep.commence(request, response);
 		assertThat(response.getRedirectedUrl())
-				.isEqualTo("https://www.example.com:9999/bigWebApp/hello/pathInfo.html?open=true");
+			.isEqualTo("https://www.example.com:9999/bigWebApp/hello/pathInfo.html?open=true");
 	}
 
 }

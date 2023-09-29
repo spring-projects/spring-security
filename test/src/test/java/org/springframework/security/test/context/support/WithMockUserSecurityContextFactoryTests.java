@@ -52,7 +52,7 @@ public class WithMockUserSecurityContextFactoryTests {
 		given(this.withUser.roles()).willReturn(new String[] { "USER" });
 		given(this.withUser.authorities()).willReturn(new String[] {});
 		assertThat(this.factory.createSecurityContext(this.withUser).getAuthentication().getName())
-				.isEqualTo(this.withUser.value());
+			.isEqualTo(this.withUser.value());
 	}
 
 	@Test
@@ -62,7 +62,7 @@ public class WithMockUserSecurityContextFactoryTests {
 		given(this.withUser.roles()).willReturn(new String[] { "USER" });
 		given(this.withUser.authorities()).willReturn(new String[] {});
 		assertThat(this.factory.createSecurityContext(this.withUser).getAuthentication().getName())
-				.isEqualTo(this.withUser.username());
+			.isEqualTo(this.withUser.username());
 	}
 
 	@Test
@@ -72,7 +72,8 @@ public class WithMockUserSecurityContextFactoryTests {
 		given(this.withUser.roles()).willReturn(new String[] { "USER", "CUSTOM" });
 		given(this.withUser.authorities()).willReturn(new String[] {});
 		assertThat(this.factory.createSecurityContext(this.withUser).getAuthentication().getAuthorities())
-				.extracting("authority").containsOnly("ROLE_USER", "ROLE_CUSTOM");
+			.extracting("authority")
+			.containsOnly("ROLE_USER", "ROLE_CUSTOM");
 	}
 
 	@Test
@@ -82,7 +83,8 @@ public class WithMockUserSecurityContextFactoryTests {
 		given(this.withUser.roles()).willReturn(new String[] { "USER" });
 		given(this.withUser.authorities()).willReturn(new String[] { "USER", "CUSTOM" });
 		assertThat(this.factory.createSecurityContext(this.withUser).getAuthentication().getAuthorities())
-				.extracting("authority").containsOnly("USER", "CUSTOM");
+			.extracting("authority")
+			.containsOnly("USER", "CUSTOM");
 	}
 
 	@Test

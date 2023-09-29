@@ -107,7 +107,8 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClientTests {
 		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
 		Instant expiresAtBefore = Instant.now().plusSeconds(3600);
 		OAuth2AccessTokenResponse accessTokenResponse = this.tokenResponseClient
-				.getTokenResponse(authorizationCodeGrantRequest()).block();
+			.getTokenResponse(authorizationCodeGrantRequest())
+			.block();
 		String body = this.server.takeRequest().getBody().readUtf8();
 		assertThat(body).isEqualTo(
 				"grant_type=authorization_code&code=code&redirect_uri=%7BbaseUrl%7D%2F%7Baction%7D%2Foauth2%2Fcode%2F%7BregistrationId%7D");
@@ -194,23 +195,23 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClientTests {
 	@Test
 	public void getTokenResponseWhenErrorResponseThenThrowOAuth2AuthorizationException() {
 		String accessTokenErrorResponse = "{\n" + "   \"error\": \"unauthorized_client\"\n" + "}\n";
-		this.server.enqueue(
-				jsonResponse(accessTokenErrorResponse).setResponseCode(HttpStatus.INTERNAL_SERVER_ERROR.value()));
+		this.server
+			.enqueue(jsonResponse(accessTokenErrorResponse).setResponseCode(HttpStatus.INTERNAL_SERVER_ERROR.value()));
 		assertThatExceptionOfType(OAuth2AuthorizationException.class)
-				.isThrownBy(() -> this.tokenResponseClient.getTokenResponse(authorizationCodeGrantRequest()).block())
-				.satisfies((ex) -> assertThat(ex.getError().getErrorCode()).isEqualTo("unauthorized_client"))
-				.withMessageContaining("unauthorized_client");
+			.isThrownBy(() -> this.tokenResponseClient.getTokenResponse(authorizationCodeGrantRequest()).block())
+			.satisfies((ex) -> assertThat(ex.getError().getErrorCode()).isEqualTo("unauthorized_client"))
+			.withMessageContaining("unauthorized_client");
 	}
 
 	// gh-5594
 	@Test
 	public void getTokenResponseWhenServerErrorResponseThenThrowOAuth2AuthorizationException() {
 		String accessTokenErrorResponse = "{}";
-		this.server.enqueue(
-				jsonResponse(accessTokenErrorResponse).setResponseCode(HttpStatus.INTERNAL_SERVER_ERROR.value()));
+		this.server
+			.enqueue(jsonResponse(accessTokenErrorResponse).setResponseCode(HttpStatus.INTERNAL_SERVER_ERROR.value()));
 		assertThatExceptionOfType(OAuth2AuthorizationException.class)
-				.isThrownBy(() -> this.tokenResponseClient.getTokenResponse(authorizationCodeGrantRequest()).block())
-				.withMessageContaining("server_error");
+			.isThrownBy(() -> this.tokenResponseClient.getTokenResponse(authorizationCodeGrantRequest()).block())
+			.withMessageContaining("server_error");
 	}
 
 	@Test
@@ -224,8 +225,8 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClientTests {
 		// @formatter:on
 		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
 		assertThatExceptionOfType(OAuth2AuthorizationException.class)
-				.isThrownBy(() -> this.tokenResponseClient.getTokenResponse(authorizationCodeGrantRequest()).block())
-				.withMessageContaining("invalid_token_response");
+			.isThrownBy(() -> this.tokenResponseClient.getTokenResponse(authorizationCodeGrantRequest()).block())
+			.withMessageContaining("invalid_token_response");
 	}
 
 	@Test
@@ -241,7 +242,8 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClientTests {
 		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
 		this.clientRegistration.scope("openid", "profile", "email", "address");
 		OAuth2AccessTokenResponse accessTokenResponse = this.tokenResponseClient
-				.getTokenResponse(authorizationCodeGrantRequest()).block();
+			.getTokenResponse(authorizationCodeGrantRequest())
+			.block();
 		assertThat(accessTokenResponse.getAccessToken().getScopes()).containsExactly("openid", "profile");
 	}
 
@@ -257,7 +259,8 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClientTests {
 		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
 		this.clientRegistration.scope("openid", "profile", "email", "address");
 		OAuth2AccessTokenResponse accessTokenResponse = this.tokenResponseClient
-				.getTokenResponse(authorizationCodeGrantRequest()).block();
+			.getTokenResponse(authorizationCodeGrantRequest())
+			.block();
 		assertThat(accessTokenResponse.getAccessToken().getScopes()).isEmpty();
 	}
 
@@ -267,11 +270,16 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClientTests {
 
 	private OAuth2AuthorizationCodeGrantRequest authorizationCodeGrantRequest(ClientRegistration registration) {
 		OAuth2AuthorizationRequest authorizationRequest = OAuth2AuthorizationRequest.authorizationCode()
-				.clientId(registration.getClientId()).state("state")
-				.authorizationUri(registration.getProviderDetails().getAuthorizationUri())
-				.redirectUri(registration.getRedirectUri()).scopes(registration.getScopes()).build();
-		OAuth2AuthorizationResponse authorizationResponse = OAuth2AuthorizationResponse.success("code").state("state")
-				.redirectUri(registration.getRedirectUri()).build();
+			.clientId(registration.getClientId())
+			.state("state")
+			.authorizationUri(registration.getProviderDetails().getAuthorizationUri())
+			.redirectUri(registration.getRedirectUri())
+			.scopes(registration.getScopes())
+			.build();
+		OAuth2AuthorizationResponse authorizationResponse = OAuth2AuthorizationResponse.success("code")
+			.state("state")
+			.redirectUri(registration.getRedirectUri())
+			.build();
 		OAuth2AuthorizationExchange authorizationExchange = new OAuth2AuthorizationExchange(authorizationRequest,
 				authorizationResponse);
 		return new OAuth2AuthorizationCodeGrantRequest(registration, authorizationExchange);
@@ -302,7 +310,7 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClientTests {
 		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
 		this.clientRegistration.scope("openid", "profile", "email", "address");
 		OAuth2AccessTokenResponse response = this.tokenResponseClient.getTokenResponse(authorizationCodeGrantRequest())
-				.block();
+			.block();
 		verify(customClient, atLeastOnce()).post();
 	}
 
@@ -324,8 +332,9 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClientTests {
 	}
 
 	private OAuth2AuthorizationCodeGrantRequest pkceAuthorizationCodeGrantRequest() {
-		ClientRegistration registration = this.clientRegistration.clientAuthenticationMethod(null).clientSecret(null)
-				.build();
+		ClientRegistration registration = this.clientRegistration.clientAuthenticationMethod(null)
+			.clientSecret(null)
+			.build();
 		Map<String, Object> attributes = new HashMap<>();
 		attributes.put(PkceParameterNames.CODE_VERIFIER, "code-verifier-1234");
 		Map<String, Object> additionalParameters = new HashMap<>();
@@ -356,14 +365,14 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClientTests {
 	@Test
 	public void setHeadersConverterWhenNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.tokenResponseClient.setHeadersConverter(null))
-				.withMessage("headersConverter cannot be null");
+			.withMessage("headersConverter cannot be null");
 	}
 
 	// gh-10130
 	@Test
 	public void addHeadersConverterWhenNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.tokenResponseClient.addHeadersConverter(null))
-				.withMessage("headersConverter cannot be null");
+			.withMessage("headersConverter cannot be null");
 	}
 
 	// gh-10130
@@ -388,7 +397,7 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClientTests {
 		verify(addedHeadersConverter).convert(request);
 		RecordedRequest actualRequest = this.server.takeRequest();
 		assertThat(actualRequest.getHeader(HttpHeaders.AUTHORIZATION))
-				.isEqualTo("Basic Y2xpZW50LWlkOmNsaWVudC1zZWNyZXQ=");
+			.isEqualTo("Basic Y2xpZW50LWlkOmNsaWVudC1zZWNyZXQ=");
 		assertThat(actualRequest.getHeader("custom-header-name")).isEqualTo("custom-header-value");
 	}
 
@@ -415,19 +424,19 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClientTests {
 		verify(headersConverter).convert(request);
 		RecordedRequest actualRequest = this.server.takeRequest();
 		assertThat(actualRequest.getHeader(HttpHeaders.AUTHORIZATION))
-				.isEqualTo("Basic Y2xpZW50LWlkOmNsaWVudC1zZWNyZXQ=");
+			.isEqualTo("Basic Y2xpZW50LWlkOmNsaWVudC1zZWNyZXQ=");
 	}
 
 	@Test
 	public void setParametersConverterWhenNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.tokenResponseClient.setParametersConverter(null))
-				.withMessage("parametersConverter cannot be null");
+			.withMessage("parametersConverter cannot be null");
 	}
 
 	@Test
 	public void addParametersConverterWhenNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.tokenResponseClient.addParametersConverter(null))
-				.withMessage("parametersConverter cannot be null");
+			.withMessage("parametersConverter cannot be null");
 	}
 
 	@Test
@@ -495,7 +504,7 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClientTests {
 
 		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
 		OAuth2AccessTokenResponse accessTokenResponse = customClient.getTokenResponse(authorizationCodeGrantRequest())
-				.block();
+			.block();
 		assertThat(accessTokenResponse.getAccessToken()).isNotNull();
 
 	}
@@ -504,22 +513,24 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClientTests {
 	@Test
 	public void getTokenResponseWhenCustomClientAuthenticationMethodThenIllegalArgument() {
 		ClientRegistration clientRegistration = this.clientRegistration
-				.clientAuthenticationMethod(new ClientAuthenticationMethod("basic")).build();
+			.clientAuthenticationMethod(new ClientAuthenticationMethod("basic"))
+			.build();
 		OAuth2AuthorizationCodeGrantRequest authorizationCodeGrantRequest = authorizationCodeGrantRequest(
 				clientRegistration);
 		assertThatExceptionOfType(IllegalArgumentException.class)
-				.isThrownBy(() -> this.tokenResponseClient.getTokenResponse(authorizationCodeGrantRequest).block());
+			.isThrownBy(() -> this.tokenResponseClient.getTokenResponse(authorizationCodeGrantRequest).block());
 	}
 
 	// gh-13144
 	@Test
 	public void getTokenResponseWhenUnsupportedClientAuthenticationMethodThenIllegalArgument() {
 		ClientRegistration clientRegistration = this.clientRegistration
-				.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_JWT).build();
+			.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_JWT)
+			.build();
 		OAuth2AuthorizationCodeGrantRequest authorizationCodeGrantRequest = authorizationCodeGrantRequest(
 				clientRegistration);
 		assertThatExceptionOfType(IllegalArgumentException.class)
-				.isThrownBy(() -> this.tokenResponseClient.getTokenResponse(authorizationCodeGrantRequest).block());
+			.isThrownBy(() -> this.tokenResponseClient.getTokenResponse(authorizationCodeGrantRequest).block());
 	}
 
 }

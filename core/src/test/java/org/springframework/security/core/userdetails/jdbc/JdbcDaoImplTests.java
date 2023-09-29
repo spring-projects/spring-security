@@ -100,7 +100,7 @@ public class JdbcDaoImplTests {
 	public void testLookupFailsWithWrongUsername() throws Exception {
 		JdbcDaoImpl dao = makePopulatedJdbcDao();
 		assertThatExceptionOfType(UsernameNotFoundException.class)
-				.isThrownBy(() -> dao.loadUserByUsername("UNKNOWN_USER"));
+			.isThrownBy(() -> dao.loadUserByUsername("UNKNOWN_USER"));
 	}
 
 	@Test
@@ -119,7 +119,7 @@ public class JdbcDaoImplTests {
 		assertThat(user.getAuthorities()).hasSize(2);
 		assertThat(AuthorityUtils.authorityListToSet(user.getAuthorities())).contains("ARBITRARY_PREFIX_ROLE_TELLER");
 		assertThat(AuthorityUtils.authorityListToSet(user.getAuthorities()))
-				.contains("ARBITRARY_PREFIX_ROLE_SUPERVISOR");
+			.contains("ARBITRARY_PREFIX_ROLE_SUPERVISOR");
 	}
 
 	@Test

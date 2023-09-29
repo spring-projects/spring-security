@@ -59,8 +59,10 @@ public class SecurityMockMvcRequestPostProcessorsTestSecurityContextStatelessTes
 
 	@BeforeEach
 	public void setup() {
-		this.mvc = MockMvcBuilders.webAppContextSetup(this.context).addFilters(this.springSecurityFilterChain)
-				.defaultRequest(get("/").with(testSecurityContext())).build();
+		this.mvc = MockMvcBuilders.webAppContextSetup(this.context)
+			.addFilters(this.springSecurityFilterChain)
+			.defaultRequest(get("/").with(testSecurityContext()))
+			.build();
 	}
 
 	@Test

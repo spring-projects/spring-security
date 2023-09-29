@@ -44,7 +44,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 public class OAuth2UserRequestEntityConverter implements Converter<OAuth2UserRequest, RequestEntity<?>> {
 
 	private static final MediaType DEFAULT_CONTENT_TYPE = MediaType
-			.valueOf(MediaType.APPLICATION_FORM_URLENCODED_VALUE + ";charset=UTF-8");
+		.valueOf(MediaType.APPLICATION_FORM_URLENCODED_VALUE + ";charset=UTF-8");
 
 	/**
 	 * Returns the {@link RequestEntity} used for the UserInfo Request.
@@ -58,7 +58,9 @@ public class OAuth2UserRequestEntityConverter implements Converter<OAuth2UserReq
 		HttpHeaders headers = new HttpHeaders();
 		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
 		URI uri = UriComponentsBuilder
-				.fromUriString(clientRegistration.getProviderDetails().getUserInfoEndpoint().getUri()).build().toUri();
+			.fromUriString(clientRegistration.getProviderDetails().getUserInfoEndpoint().getUri())
+			.build()
+			.toUri();
 
 		RequestEntity<?> request;
 		if (HttpMethod.POST.equals(httpMethod)) {
@@ -77,7 +79,7 @@ public class OAuth2UserRequestEntityConverter implements Converter<OAuth2UserReq
 
 	private HttpMethod getHttpMethod(ClientRegistration clientRegistration) {
 		if (AuthenticationMethod.FORM
-				.equals(clientRegistration.getProviderDetails().getUserInfoEndpoint().getAuthenticationMethod())) {
+			.equals(clientRegistration.getProviderDetails().getUserInfoEndpoint().getAuthenticationMethod())) {
 			return HttpMethod.POST;
 		}
 		return HttpMethod.GET;

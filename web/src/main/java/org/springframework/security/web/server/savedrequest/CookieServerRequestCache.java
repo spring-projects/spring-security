@@ -72,27 +72,35 @@ public class CookieServerRequestCache implements ServerRequestCache {
 
 	@Override
 	public Mono<Void> saveRequest(ServerWebExchange exchange) {
-		return this.saveRequestMatcher.matches(exchange).filter((m) -> m.isMatch()).map((m) -> exchange.getResponse())
-				.map(ServerHttpResponse::getCookies).doOnNext((cookies) -> {
-					ResponseCookie redirectUriCookie = createRedirectUriCookie(exchange.getRequest());
-					cookies.add(REDIRECT_URI_COOKIE_NAME, redirectUriCookie);
-					logger.debug(LogMessage.format("Request added to Cookie: %s", redirectUriCookie));
-				}).then();
+		return this.saveRequestMatcher.matches(exchange)
+			.filter((m) -> m.isMatch())
+			.map((m) -> exchange.getResponse())
+			.map(ServerHttpResponse::getCookies)
+			.doOnNext((cookies) -> {
+				ResponseCookie redirectUriCookie = createRedirectUriCookie(exchange.getRequest());
+				cookies.add(REDIRECT_URI_COOKIE_NAME, redirectUriCookie);
+				logger.debug(LogMessage.format("Request added to Cookie: %s", redirectUriCookie));
+			})
+			.then();
 	}
 
 	@Override
 	public Mono<URI> getRedirectUri(ServerWebExchange exchange) {
 		MultiValueMap<String, HttpCookie> cookieMap = exchange.getRequest().getCookies();
-		return Mono.justOrEmpty(cookieMap.getFirst(REDIRECT_URI_COOKIE_NAME)).map(HttpCookie::getValue)
-				.map(CookieServerRequestCache::decodeCookie)
-				.onErrorResume(IllegalArgumentException.class, (ex) -> Mono.empty()).map(URI::create);
+		return Mono.justOrEmpty(cookieMap.getFirst(REDIRECT_URI_COOKIE_NAME))
+			.map(HttpCookie::getValue)
+			.map(CookieServerRequestCache::decodeCookie)
+			.onErrorResume(IllegalArgumentException.class, (ex) -> Mono.empty())
+			.map(URI::create);
 	}
 
 	@Override
 	public Mono<ServerHttpRequest> removeMatchingRequest(ServerWebExchange exchange) {
-		return Mono.just(exchange.getResponse()).map(ServerHttpResponse::getCookies).doOnNext(
-				(cookies) -> cookies.add(REDIRECT_URI_COOKIE_NAME, invalidateRedirectUriCookie(exchange.getRequest())))
-				.thenReturn(exchange.getRequest());
+		return Mono.just(exchange.getResponse())
+			.map(ServerHttpResponse::getCookies)
+			.doOnNext((cookies) -> cookies.add(REDIRECT_URI_COOKIE_NAME,
+					invalidateRedirectUriCookie(exchange.getRequest())))
+			.thenReturn(exchange.getRequest());
 	}
 
 	private static ResponseCookie createRedirectUriCookie(ServerHttpRequest request) {
@@ -108,8 +116,12 @@ public class CookieServerRequestCache implements ServerRequestCache {
 
 	private static ResponseCookie createResponseCookie(ServerHttpRequest request, String cookieValue, Duration age) {
 		return ResponseCookie.from(REDIRECT_URI_COOKIE_NAME, cookieValue)
-				.path(request.getPath().contextPath().value() + "/").maxAge(age).httpOnly(true)
-				.secure("https".equalsIgnoreCase(request.getURI().getScheme())).sameSite("Lax").build();
+			.path(request.getPath().contextPath().value() + "/")
+			.maxAge(age)
+			.httpOnly(true)
+			.secure("https".equalsIgnoreCase(request.getURI().getScheme()))
+			.sameSite("Lax")
+			.build();
 	}
 
 	private static String encodeCookie(String cookieValue) {

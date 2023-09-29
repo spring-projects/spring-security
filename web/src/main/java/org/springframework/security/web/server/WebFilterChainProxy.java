@@ -54,12 +54,13 @@ public class WebFilterChainProxy implements WebFilter {
 	@Override
 	public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
 		return Flux.fromIterable(this.filters)
-				.filterWhen((securityWebFilterChain) -> securityWebFilterChain.matches(exchange)).next()
-				.switchIfEmpty(
-						Mono.defer(() -> this.filterChainDecorator.decorate(chain).filter(exchange).then(Mono.empty())))
-				.flatMap((securityWebFilterChain) -> securityWebFilterChain.getWebFilters().collectList())
-				.map((filters) -> this.filterChainDecorator.decorate(chain, filters))
-				.flatMap((securedChain) -> securedChain.filter(exchange));
+			.filterWhen((securityWebFilterChain) -> securityWebFilterChain.matches(exchange))
+			.next()
+			.switchIfEmpty(
+					Mono.defer(() -> this.filterChainDecorator.decorate(chain).filter(exchange).then(Mono.empty())))
+			.flatMap((securityWebFilterChain) -> securityWebFilterChain.getWebFilters().collectList())
+			.map((filters) -> this.filterChainDecorator.decorate(chain, filters))
+			.flatMap((securedChain) -> securedChain.filter(exchange));
 	}
 
 	/**

@@ -35,7 +35,7 @@ public class AuthenticationEventTests {
 
 	private Authentication getAuthentication() {
 		UsernamePasswordAuthenticationToken authentication = UsernamePasswordAuthenticationToken
-				.unauthenticated("Principal", "Credentials");
+			.unauthenticated("Principal", "Credentials");
 		authentication.setDetails("127.0.0.1");
 		return authentication;
 	}
@@ -65,7 +65,7 @@ public class AuthenticationEventTests {
 	@Test
 	public void testRejectsNullAuthenticationException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new AuthenticationFailureDisabledEvent(getAuthentication(), null));
+			.isThrownBy(() -> new AuthenticationFailureDisabledEvent(getAuthentication(), null));
 	}
 
 }

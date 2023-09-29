@@ -336,17 +336,21 @@ public class FilterInvocation {
 				return invokeDefaultMethodForJdk8(proxy, method, args);
 			}
 			return MethodHandles.lookup()
-					.findSpecial(method.getDeclaringClass(), method.getName(),
-							MethodType.methodType(method.getReturnType(), new Class[0]), method.getDeclaringClass())
-					.bindTo(proxy).invokeWithArguments(args);
+				.findSpecial(method.getDeclaringClass(), method.getName(),
+						MethodType.methodType(method.getReturnType(), new Class[0]), method.getDeclaringClass())
+				.bindTo(proxy)
+				.invokeWithArguments(args);
 		}
 
 		private Object invokeDefaultMethodForJdk8(Object proxy, Method method, Object[] args) throws Throwable {
 			Constructor<Lookup> constructor = Lookup.class.getDeclaredConstructor(Class.class);
 			constructor.setAccessible(true);
 			Class<?> clazz = method.getDeclaringClass();
-			return constructor.newInstance(clazz).in(clazz).unreflectSpecial(method, clazz).bindTo(proxy)
-					.invokeWithArguments(args);
+			return constructor.newInstance(clazz)
+				.in(clazz)
+				.unreflectSpecial(method, clazz)
+				.bindTo(proxy)
+				.invokeWithArguments(args);
 		}
 
 		private boolean isJdk8OrEarlier() {

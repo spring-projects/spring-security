@@ -313,7 +313,7 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 		ExceptionHandlingConfigurer<H> exceptionHandling = http.getConfigurer(ExceptionHandlingConfigurer.class);
 		if (exceptionHandling != null) {
 			ContentNegotiationStrategy contentNegotiationStrategy = http
-					.getSharedObject(ContentNegotiationStrategy.class);
+				.getSharedObject(ContentNegotiationStrategy.class);
 			if (contentNegotiationStrategy == null) {
 				contentNegotiationStrategy = new HeaderContentNegotiationStrategy();
 			}

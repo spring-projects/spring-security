@@ -140,7 +140,7 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 			extends AbstractRequestMatcherRegistry<AuthorizedUrl> {
 
 		private final RequestMatcherDelegatingAuthorizationManager.Builder managerBuilder = RequestMatcherDelegatingAuthorizationManager
-				.builder();
+			.builder();
 
 		private List<RequestMatcher> unmappedMatchers;
 
@@ -288,7 +288,7 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 		 */
 		public AuthorizationManagerRequestMatcherRegistry hasRole(String role) {
 			return access(withRoleHierarchy(AuthorityAuthorizationManager
-					.hasAnyRole(AuthorizeHttpRequestsConfigurer.this.rolePrefix, new String[] { role })));
+				.hasAnyRole(AuthorizeHttpRequestsConfigurer.this.rolePrefix, new String[] { role })));
 		}
 
 		/**

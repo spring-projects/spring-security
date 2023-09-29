@@ -98,11 +98,11 @@ class OpenSamlMetadataRelyingPartyRegistrationConverter {
 					"Metadata response is missing verification certificates, necessary for verifying SAML assertions");
 		}
 		OpenSamlRelyingPartyRegistration.Builder builder = OpenSamlRelyingPartyRegistration
-				.withAssertingPartyEntityDescriptor(descriptor)
-				.assertingPartyDetails((party) -> party.entityId(descriptor.getEntityID())
-						.wantAuthnRequestsSigned(Boolean.TRUE.equals(idpssoDescriptor.getWantAuthnRequestsSigned()))
-						.verificationX509Credentials((c) -> c.addAll(verification))
-						.encryptionX509Credentials((c) -> c.addAll(encryption)));
+			.withAssertingPartyEntityDescriptor(descriptor)
+			.assertingPartyDetails((party) -> party.entityId(descriptor.getEntityID())
+				.wantAuthnRequestsSigned(Boolean.TRUE.equals(idpssoDescriptor.getWantAuthnRequestsSigned()))
+				.verificationX509Credentials((c) -> c.addAll(verification))
+				.encryptionX509Credentials((c) -> c.addAll(encryption)));
 
 		List<SigningMethod> signingMethods = signingMethods(idpssoDescriptor);
 		for (SigningMethod method : signingMethods) {
@@ -124,9 +124,9 @@ class OpenSamlMetadataRelyingPartyRegistrationConverter {
 			else {
 				continue;
 			}
-			builder.assertingPartyDetails(
-					(party) -> party.singleSignOnServiceLocation(singleSignOnService.getLocation())
-							.singleSignOnServiceBinding(binding));
+			builder
+				.assertingPartyDetails((party) -> party.singleSignOnServiceLocation(singleSignOnService.getLocation())
+					.singleSignOnServiceBinding(binding));
 			break;
 		}
 		for (SingleLogoutService singleLogoutService : idpssoDescriptor.getSingleLogoutServices()) {
@@ -142,9 +142,10 @@ class OpenSamlMetadataRelyingPartyRegistrationConverter {
 			}
 			String responseLocation = (singleLogoutService.getResponseLocation() == null)
 					? singleLogoutService.getLocation() : singleLogoutService.getResponseLocation();
-			builder.assertingPartyDetails(
-					(party) -> party.singleLogoutServiceLocation(singleLogoutService.getLocation())
-							.singleLogoutServiceResponseLocation(responseLocation).singleLogoutServiceBinding(binding));
+			builder
+				.assertingPartyDetails((party) -> party.singleLogoutServiceLocation(singleLogoutService.getLocation())
+					.singleLogoutServiceResponseLocation(responseLocation)
+					.singleLogoutServiceBinding(binding));
 			break;
 		}
 

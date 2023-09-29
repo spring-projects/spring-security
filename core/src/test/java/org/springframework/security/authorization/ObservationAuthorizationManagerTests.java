@@ -93,15 +93,15 @@ public class ObservationAuthorizationManagerTests {
 		given(this.handler.supportsContext(any())).willReturn(true);
 		given(this.authorizationManager.check(any(), any())).willReturn(this.deny);
 		given(source.getMessage(eq("AbstractAccessDecisionManager.accessDenied"), any(), any(), any()))
-				.willReturn("accessDenied");
+			.willReturn("accessDenied");
 		assertThatExceptionOfType(AccessDeniedException.class)
-				.isThrownBy(() -> this.tested.verify(this.token, this.object));
+			.isThrownBy(() -> this.tested.verify(this.token, this.object));
 		ArgumentCaptor<Observation.Context> captor = ArgumentCaptor.forClass(Observation.Context.class);
 		verify(this.handler).onStart(captor.capture());
 		assertThat(captor.getValue().getName()).isEqualTo(AuthorizationObservationConvention.OBSERVATION_NAME);
 		assertThat(captor.getValue().getError()).isInstanceOf(AccessDeniedException.class);
 		assertThat(Optional.ofNullable(captor.getValue().getError()).map(Throwable::getMessage).orElse(""))
-				.isEqualTo("accessDenied");
+			.isEqualTo("accessDenied");
 		assertThat(captor.getValue()).isInstanceOf(AuthorizationObservationContext.class);
 		AuthorizationObservationContext<?> context = (AuthorizationObservationContext<?>) captor.getValue();
 		assertThat(context.getAuthentication()).isNull();
@@ -130,7 +130,7 @@ public class ObservationAuthorizationManagerTests {
 	@Test
 	void setObservationConventionWhenNullThenException() {
 		assertThatExceptionOfType(IllegalArgumentException.class)
-				.isThrownBy(() -> this.tested.setObservationConvention(null));
+			.isThrownBy(() -> this.tested.setObservationConvention(null));
 	}
 
 }

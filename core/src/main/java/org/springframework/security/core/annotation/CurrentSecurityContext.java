@@ -31,14 +31,14 @@ import java.lang.annotation.Target;
  *
  * <p>
  * See: <a href=
- * "{@docRoot}/org/springframework/security/web/bind/support/CurrentSecurityContextArgumentResolver.html"
- * > CurrentSecurityContextArgumentResolver</a> For Servlet
+ * "{@docRoot}/org/springframework/security/web/bind/support/CurrentSecurityContextArgumentResolver.html" >
+ * CurrentSecurityContextArgumentResolver</a> For Servlet
  * </p>
  *
  * <p>
  * See: <a href=
- * "{@docRoot}/org/springframework/security/web/reactive/result/method/annotation/CurrentSecurityContextArgumentResolver.html"
- * > CurrentSecurityContextArgumentResolver</a> For WebFlux
+ * "{@docRoot}/org/springframework/security/web/reactive/result/method/annotation/CurrentSecurityContextArgumentResolver.html" >
+ * CurrentSecurityContextArgumentResolver</a> For WebFlux
  * </p>
  */
 @Target({ ElementType.PARAMETER, ElementType.ANNOTATION_TYPE })

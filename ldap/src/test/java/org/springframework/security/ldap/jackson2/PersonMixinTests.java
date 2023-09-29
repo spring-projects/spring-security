@@ -94,7 +94,7 @@ public class PersonMixinTests {
 	@Test
 	public void deserializeWhenMixinNotRegisteredThenThrowJsonProcessingException() {
 		assertThatExceptionOfType(JsonProcessingException.class)
-				.isThrownBy(() -> new ObjectMapper().readValue(PERSON_JSON, Person.class));
+			.isThrownBy(() -> new ObjectMapper().readValue(PERSON_JSON, Person.class));
 	}
 
 	@Test
@@ -113,14 +113,14 @@ public class PersonMixinTests {
 		assertThat(authentication.getGivenName()).isEqualTo(expectedAuthentication.getGivenName());
 		assertThat(authentication.getTelephoneNumber()).isEqualTo(expectedAuthentication.getTelephoneNumber());
 		assertThat(authentication.getGraceLoginsRemaining())
-				.isEqualTo(expectedAuthentication.getGraceLoginsRemaining());
+			.isEqualTo(expectedAuthentication.getGraceLoginsRemaining());
 		assertThat(authentication.getTimeBeforeExpiration())
-				.isEqualTo(expectedAuthentication.getTimeBeforeExpiration());
+			.isEqualTo(expectedAuthentication.getTimeBeforeExpiration());
 		assertThat(authentication.isAccountNonExpired()).isEqualTo(expectedAuthentication.isAccountNonExpired());
 		assertThat(authentication.isAccountNonLocked()).isEqualTo(expectedAuthentication.isAccountNonLocked());
 		assertThat(authentication.isEnabled()).isEqualTo(expectedAuthentication.isEnabled());
 		assertThat(authentication.isCredentialsNonExpired())
-				.isEqualTo(expectedAuthentication.isCredentialsNonExpired());
+			.isEqualTo(expectedAuthentication.isCredentialsNonExpired());
 	}
 
 	private DirContextAdapter createUserContext() {

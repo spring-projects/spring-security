@@ -128,7 +128,7 @@ public class AspectJMethodSecurityInterceptorTests {
 		willThrow(new AccessDeniedException("denied")).given(this.adm).decide(any(), any(), any());
 		SecurityContextHolder.getContext().setAuthentication(this.token);
 		assertThatExceptionOfType(AccessDeniedException.class)
-				.isThrownBy(() -> this.interceptor.invoke(this.joinPoint, this.aspectJCallback));
+			.isThrownBy(() -> this.interceptor.invoke(this.joinPoint, this.aspectJCallback));
 		verify(this.aspectJCallback, never()).proceedWithObject();
 	}
 
@@ -153,7 +153,7 @@ public class AspectJMethodSecurityInterceptorTests {
 		this.interceptor.setAfterInvocationManager(aim);
 		given(this.aspectJCallback.proceedWithObject()).willThrow(new RuntimeException());
 		assertThatExceptionOfType(RuntimeException.class)
-				.isThrownBy(() -> this.interceptor.invoke(this.joinPoint, this.aspectJCallback));
+			.isThrownBy(() -> this.interceptor.invoke(this.joinPoint, this.aspectJCallback));
 		verifyNoMoreInteractions(aim);
 	}
 
@@ -171,7 +171,7 @@ public class AspectJMethodSecurityInterceptorTests {
 		given(runAs.buildRunAs(eq(this.token), any(MethodInvocation.class), any(List.class))).willReturn(runAsToken);
 		given(this.aspectJCallback.proceedWithObject()).willThrow(new RuntimeException());
 		assertThatExceptionOfType(RuntimeException.class)
-				.isThrownBy(() -> this.interceptor.invoke(this.joinPoint, this.aspectJCallback));
+			.isThrownBy(() -> this.interceptor.invoke(this.joinPoint, this.aspectJCallback));
 		// Check we've changed back
 		assertThat(SecurityContextHolder.getContext()).isSameAs(ctx);
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(this.token);

@@ -369,7 +369,7 @@ class ComparableVersion implements Comparable<ComparableVersion> {
 			return switch (item.getType()) {
 				case INT_ITEM, LONG_ITEM, BIGINTEGER_ITEM -> -1; // 1.any < 1.1 ?
 				case STRING_ITEM ->
-						comparableQualifier(value).compareTo(comparableQualifier(((StringItem) item).value));
+					comparableQualifier(value).compareTo(comparableQualifier(((StringItem) item).value));
 				case LIST_ITEM -> -1; // 1.any < 1-1
 				default -> throw new IllegalStateException("invalid item: " + item.getClass());
 			};

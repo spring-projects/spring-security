@@ -67,7 +67,7 @@ public class WebSpherePreAuthenticatedWebAuthenticationDetailsSource implements
 	private Collection<? extends GrantedAuthority> getWebSphereGroupsBasedGrantedAuthorities() {
 		List<String> webSphereGroups = this.wasHelper.getGroupsForCurrentUser();
 		Collection<? extends GrantedAuthority> userGas = this.webSphereGroups2GrantedAuthoritiesMapper
-				.getGrantedAuthorities(webSphereGroups);
+			.getGrantedAuthorities(webSphereGroups);
 		this.logger.debug(
 				LogMessage.format("WebSphere groups: %s mapped to Granted Authorities: %s", webSphereGroups, userGas));
 		return userGas;

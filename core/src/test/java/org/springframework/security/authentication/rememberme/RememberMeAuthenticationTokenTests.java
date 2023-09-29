@@ -41,10 +41,10 @@ public class RememberMeAuthenticationTokenTests {
 	@Test
 	public void testConstructorRejectsNulls() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new RememberMeAuthenticationToken(null, "Test", ROLES_12));
+			.isThrownBy(() -> new RememberMeAuthenticationToken(null, "Test", ROLES_12));
 		assertThatIllegalArgumentException().isThrownBy(() -> new RememberMeAuthenticationToken("key", null, ROLES_12));
-		assertThatIllegalArgumentException().isThrownBy(
-				() -> new RememberMeAuthenticationToken("key", "Test", Arrays.asList((GrantedAuthority) null)));
+		assertThatIllegalArgumentException()
+			.isThrownBy(() -> new RememberMeAuthenticationToken("key", "Test", Arrays.asList((GrantedAuthority) null)));
 	}
 
 	@Test

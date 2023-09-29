@@ -177,8 +177,9 @@ public class SecurityContextHolderAwareRequestConfigTests {
 	@Test
 	public void servletLogoutWhenUsingCustomLogoutThenUsesSpringSecurity() throws Exception {
 		this.spring.configLocations(this.xml("Logout")).autowire();
-		this.mvc.perform(get("/authenticate")).andExpect(status().isFound())
-				.andExpect(redirectedUrl("http://localhost/signin"));
+		this.mvc.perform(get("/authenticate"))
+			.andExpect(status().isFound())
+			.andExpect(redirectedUrl("http://localhost/signin"));
 		// @formatter:off
 		MvcResult result = this.mvc.perform(get("/good-login"))
 				.andReturn();

@@ -44,7 +44,7 @@ public class SimpleAuthoritiesMapperTests {
 	public void defaultPrefixIsCorrectlyApplied() {
 		SimpleAuthorityMapper mapper = new SimpleAuthorityMapper();
 		Set<String> mapped = AuthorityUtils
-				.authorityListToSet(mapper.mapAuthorities(AuthorityUtils.createAuthorityList("AaA", "ROLE_bbb")));
+			.authorityListToSet(mapper.mapAuthorities(AuthorityUtils.createAuthorityList("AaA", "ROLE_bbb")));
 		assertThat(mapped).contains("ROLE_AaA");
 		assertThat(mapped).contains("ROLE_bbb");
 	}
@@ -76,7 +76,7 @@ public class SimpleAuthoritiesMapperTests {
 		SimpleAuthorityMapper mapper = new SimpleAuthorityMapper();
 		mapper.setConvertToUpperCase(true);
 		Set<String> mapped = AuthorityUtils
-				.authorityListToSet(mapper.mapAuthorities(AuthorityUtils.createAuthorityList("AaA", "AAA")));
+			.authorityListToSet(mapper.mapAuthorities(AuthorityUtils.createAuthorityList("AaA", "AAA")));
 		assertThat(mapped).hasSize(1);
 	}
 

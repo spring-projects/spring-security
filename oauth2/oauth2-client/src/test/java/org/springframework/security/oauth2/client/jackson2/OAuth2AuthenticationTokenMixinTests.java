@@ -100,7 +100,7 @@ public class OAuth2AuthenticationTokenMixinTests {
 		OAuth2AuthenticationToken authentication = TestOAuth2AuthenticationTokens.oidcAuthenticated();
 		String json = asJson(authentication);
 		assertThatExceptionOfType(JsonProcessingException.class)
-				.isThrownBy(() -> new ObjectMapper().readValue(json, OAuth2AuthenticationToken.class));
+			.isThrownBy(() -> new ObjectMapper().readValue(json, OAuth2AuthenticationToken.class));
 	}
 
 	@Test
@@ -113,7 +113,7 @@ public class OAuth2AuthenticationTokenMixinTests {
 		assertThat(authentication.getDetails()).isEqualTo(expectedAuthentication.getDetails());
 		assertThat(authentication.isAuthenticated()).isEqualTo(expectedAuthentication.isAuthenticated());
 		assertThat(authentication.getAuthorizedClientRegistrationId())
-				.isEqualTo(expectedAuthentication.getAuthorizedClientRegistrationId());
+			.isEqualTo(expectedAuthentication.getAuthorizedClientRegistrationId());
 		DefaultOidcUser expectedOidcUser = (DefaultOidcUser) expectedAuthentication.getPrincipal();
 		DefaultOidcUser oidcUser = (DefaultOidcUser) authentication.getPrincipal();
 		assertThat(oidcUser.getAuthorities().containsAll(expectedOidcUser.getAuthorities())).isTrue();
@@ -136,7 +136,7 @@ public class OAuth2AuthenticationTokenMixinTests {
 		assertThat(authentication.getDetails()).isEqualTo(expectedAuthentication.getDetails());
 		assertThat(authentication.isAuthenticated()).isEqualTo(expectedAuthentication.isAuthenticated());
 		assertThat(authentication.getAuthorizedClientRegistrationId())
-				.isEqualTo(expectedAuthentication.getAuthorizedClientRegistrationId());
+			.isEqualTo(expectedAuthentication.getAuthorizedClientRegistrationId());
 		DefaultOAuth2User expectedOauth2User = (DefaultOAuth2User) expectedAuthentication.getPrincipal();
 		DefaultOAuth2User oauth2User = (DefaultOAuth2User) authentication.getPrincipal();
 		assertThat(oauth2User.getAuthorities().containsAll(expectedOauth2User.getAuthorities())).isTrue();
@@ -156,7 +156,7 @@ public class OAuth2AuthenticationTokenMixinTests {
 		assertThat(authentication.getDetails()).isEqualTo(expectedAuthentication.getDetails());
 		assertThat(authentication.isAuthenticated()).isEqualTo(expectedAuthentication.isAuthenticated());
 		assertThat(authentication.getAuthorizedClientRegistrationId())
-				.isEqualTo(expectedAuthentication.getAuthorizedClientRegistrationId());
+			.isEqualTo(expectedAuthentication.getAuthorizedClientRegistrationId());
 		DefaultOidcUser principal = (DefaultOidcUser) authentication.getPrincipal();
 		assertThat(principal.getAuthorities().containsAll(expectedPrincipal.getAuthorities())).isTrue();
 		assertThat(principal.getAttributes()).containsExactlyEntriesOf(expectedPrincipal.getAttributes());

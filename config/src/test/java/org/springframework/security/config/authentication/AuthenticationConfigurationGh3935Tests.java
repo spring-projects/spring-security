@@ -71,7 +71,7 @@ public class AuthenticationConfigurationGh3935Tests {
 		AuthenticationManager authenticationManager = this.adapter.authenticationManager;
 		assertThat(authenticationManager).isNotNull();
 		Authentication auth = authenticationManager
-				.authenticate(UsernamePasswordAuthenticationToken.unauthenticated(username, password));
+			.authenticate(UsernamePasswordAuthenticationToken.unauthenticated(username, password));
 		verify(this.uds).loadUserByUsername(username);
 		assertThat(auth.getPrincipal()).isEqualTo(PasswordEncodedUser.user());
 	}

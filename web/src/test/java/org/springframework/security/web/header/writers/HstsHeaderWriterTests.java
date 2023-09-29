@@ -73,7 +73,7 @@ public class HstsHeaderWriterTests {
 		this.writer.writeHeaders(this.request, this.response);
 		assertThat(this.response.getHeaderNames()).hasSize(1);
 		assertThat(this.response.getHeader("Strict-Transport-Security"))
-				.isEqualTo("max-age=15768000 ; includeSubDomains");
+			.isEqualTo("max-age=15768000 ; includeSubDomains");
 	}
 
 	@Test
@@ -89,7 +89,7 @@ public class HstsHeaderWriterTests {
 		this.writer.writeHeaders(this.request, this.response);
 		assertThat(this.response.getHeaderNames()).hasSize(1);
 		assertThat(this.response.getHeader("Strict-Transport-Security"))
-				.isEqualTo("max-age=31536000 ; includeSubDomains");
+			.isEqualTo("max-age=31536000 ; includeSubDomains");
 	}
 
 	@Test
@@ -122,7 +122,7 @@ public class HstsHeaderWriterTests {
 		this.writer.writeHeaders(this.request, this.response);
 		assertThat(this.response.getHeaderNames()).hasSize(1);
 		assertThat(this.response.getHeader("Strict-Transport-Security"))
-				.isEqualTo("max-age=31536000 ; includeSubDomains");
+			.isEqualTo("max-age=31536000 ; includeSubDomains");
 	}
 
 	@Test

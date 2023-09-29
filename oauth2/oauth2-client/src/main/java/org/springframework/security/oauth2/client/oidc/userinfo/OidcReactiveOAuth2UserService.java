@@ -90,8 +90,8 @@ public class OidcReactiveOAuth2UserService implements ReactiveOAuth2UserService<
 
 	private static Converter<Object, ?> getConverter(TypeDescriptor targetDescriptor) {
 		final TypeDescriptor sourceDescriptor = TypeDescriptor.valueOf(Object.class);
-		return (source) -> ClaimConversionService.getSharedInstance().convert(source, sourceDescriptor,
-				targetDescriptor);
+		return (source) -> ClaimConversionService.getSharedInstance()
+			.convert(source, sourceDescriptor, targetDescriptor);
 	}
 
 	@Override
@@ -144,7 +144,7 @@ public class OidcReactiveOAuth2UserService implements ReactiveOAuth2UserService<
 
 	private Map<String, Object> convertClaims(Map<String, Object> claims, ClientRegistration clientRegistration) {
 		Converter<Map<String, Object>, Map<String, Object>> claimTypeConverter = this.claimTypeConverterFactory
-				.apply(clientRegistration);
+			.apply(clientRegistration);
 		return (claimTypeConverter != null) ? claimTypeConverter.convert(claims)
 				: DEFAULT_CLAIM_TYPE_CONVERTER.convert(claims);
 	}

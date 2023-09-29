@@ -83,13 +83,14 @@ public class ServletBearerExchangeFilterFunctionTests {
 		ClientRequest request = ClientRequest.create(HttpMethod.GET, URI.create("https://example.com")).build();
 		this.function.filter(request, this.exchange).contextWrite(context(this.authentication)).block();
 		assertThat(this.exchange.getRequest().headers().getFirst(HttpHeaders.AUTHORIZATION))
-				.isEqualTo("Bearer " + this.accessToken.getTokenValue());
+			.isEqualTo("Bearer " + this.accessToken.getTokenValue());
 	}
 
 	@Test
 	public void filterWhenExistingAuthorizationThenSingleAuthorizationHeader() {
 		ClientRequest request = ClientRequest.create(HttpMethod.GET, URI.create("https://example.com"))
-				.header(HttpHeaders.AUTHORIZATION, "Existing").build();
+			.header(HttpHeaders.AUTHORIZATION, "Existing")
+			.build();
 		this.function.filter(request, this.exchange).contextWrite(context(this.authentication)).block();
 		HttpHeaders headers = this.exchange.getRequest().headers();
 		assertThat(headers.get(HttpHeaders.AUTHORIZATION)).containsOnly("Bearer " + this.accessToken.getTokenValue());

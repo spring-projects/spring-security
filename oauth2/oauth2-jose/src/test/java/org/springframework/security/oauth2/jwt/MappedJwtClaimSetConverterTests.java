@@ -50,7 +50,7 @@ public class MappedJwtClaimSetConverterTests {
 		Converter<Object, Instant> expiresAtConverter = mock(Converter.class);
 		given(expiresAtConverter.convert(any())).willReturn(at);
 		MappedJwtClaimSetConverter converter = MappedJwtClaimSetConverter
-				.withDefaults(Collections.singletonMap(JwtClaimNames.EXP, expiresAtConverter));
+			.withDefaults(Collections.singletonMap(JwtClaimNames.EXP, expiresAtConverter));
 		Map<String, Object> source = new HashMap<>();
 		Map<String, Object> target = converter.convert(source);
 		assertThat(target).containsEntry(JwtClaimNames.IAT, Instant.ofEpochMilli(at.toEpochMilli()).minusSeconds(1));
@@ -103,7 +103,7 @@ public class MappedJwtClaimSetConverterTests {
 	public void convertWhenUsingCustomConverterThenAllOtherDefaultsAreStillUsed() {
 		Converter<Object, String> claimConverter = mock(Converter.class);
 		MappedJwtClaimSetConverter converter = MappedJwtClaimSetConverter
-				.withDefaults(Collections.singletonMap(JwtClaimNames.SUB, claimConverter));
+			.withDefaults(Collections.singletonMap(JwtClaimNames.SUB, claimConverter));
 		given(claimConverter.convert(any(Object.class))).willReturn("1234");
 		Map<String, Object> source = new HashMap<>();
 		source.put(JwtClaimNames.JTI, 1);
@@ -127,7 +127,7 @@ public class MappedJwtClaimSetConverterTests {
 	@Test
 	public void convertWhenConverterReturnsNullThenClaimIsRemoved() {
 		MappedJwtClaimSetConverter converter = MappedJwtClaimSetConverter
-				.withDefaults(Collections.singletonMap(JwtClaimNames.NBF, (nbfClaimValue) -> null));
+			.withDefaults(Collections.singletonMap(JwtClaimNames.NBF, (nbfClaimValue) -> null));
 		Map<String, Object> source = Collections.singletonMap(JwtClaimNames.NBF, Instant.now());
 		Map<String, Object> target = converter.convert(source);
 		assertThat(target).doesNotContainKey(JwtClaimNames.NBF);
@@ -145,7 +145,7 @@ public class MappedJwtClaimSetConverterTests {
 	public void convertWhenConverterReturnsValueWhenEntryIsMissingThenEntryIsAdded() {
 		Converter<Object, String> claimConverter = mock(Converter.class);
 		MappedJwtClaimSetConverter converter = MappedJwtClaimSetConverter
-				.withDefaults(Collections.singletonMap("custom-claim", claimConverter));
+			.withDefaults(Collections.singletonMap("custom-claim", claimConverter));
 		given(claimConverter.convert(any())).willReturn("custom-value");
 		Map<String, Object> source = new HashMap<>();
 		Map<String, Object> target = converter.convert(source);

@@ -91,7 +91,7 @@ import org.springframework.util.Assert;
 public class SecurityEvaluationContextExtension implements EvaluationContextExtension {
 
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
-			.getContextHolderStrategy();
+		.getContextHolderStrategy();
 
 	private Authentication authentication;
 

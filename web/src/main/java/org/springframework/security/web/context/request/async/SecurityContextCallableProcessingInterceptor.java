@@ -45,7 +45,7 @@ public final class SecurityContextCallableProcessingInterceptor implements Calla
 	private volatile SecurityContext securityContext;
 
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
-			.getContextHolderStrategy();
+		.getContextHolderStrategy();
 
 	/**
 	 * Create a new {@link SecurityContextCallableProcessingInterceptor} that uses the

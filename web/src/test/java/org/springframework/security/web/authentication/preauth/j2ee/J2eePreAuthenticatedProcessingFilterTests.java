@@ -37,13 +37,13 @@ public class J2eePreAuthenticatedProcessingFilterTests {
 	public final void testGetPreAuthenticatedPrincipal() {
 		String user = "testUser";
 		assertThat(user).isEqualTo(new J2eePreAuthenticatedProcessingFilter()
-				.getPreAuthenticatedPrincipal(getRequest(user, new String[] {})));
+			.getPreAuthenticatedPrincipal(getRequest(user, new String[] {})));
 	}
 
 	@Test
 	public final void testGetPreAuthenticatedCredentials() {
 		assertThat("N/A").isEqualTo(new J2eePreAuthenticatedProcessingFilter()
-				.getPreAuthenticatedCredentials(getRequest("testUser", new String[] {})));
+			.getPreAuthenticatedCredentials(getRequest("testUser", new String[] {})));
 	}
 
 	private HttpServletRequest getRequest(final String aUserName, final String[] aRoles) {

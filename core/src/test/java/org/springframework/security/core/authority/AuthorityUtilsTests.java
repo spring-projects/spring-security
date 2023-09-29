@@ -35,7 +35,7 @@ public class AuthorityUtilsTests {
 	@Test
 	public void commaSeparatedStringIsParsedCorrectly() {
 		List<GrantedAuthority> authorityArray = AuthorityUtils
-				.commaSeparatedStringToAuthorityList(" ROLE_A, B, C, ROLE_D\n,\n E ");
+			.commaSeparatedStringToAuthorityList(" ROLE_A, B, C, ROLE_D\n,\n E ");
 		Set<String> authorities = AuthorityUtils.authorityListToSet(authorityArray);
 		assertThat(authorities).contains("B");
 		assertThat(authorities).contains("C");
@@ -47,7 +47,7 @@ public class AuthorityUtilsTests {
 	@Test
 	public void createAuthorityList() {
 		List<GrantedAuthority> authorities = AuthorityUtils
-				.createAuthorityList(Arrays.asList("ROLE_A", "ROLE_B", "ROLE_C"));
+			.createAuthorityList(Arrays.asList("ROLE_A", "ROLE_B", "ROLE_C"));
 		assertThat(authorities).hasSize(3);
 		assertThat(authorities).element(0).extracting(GrantedAuthority::getAuthority).isEqualTo("ROLE_A");
 		assertThat(authorities).element(1).extracting(GrantedAuthority::getAuthority).isEqualTo("ROLE_B");

@@ -42,7 +42,7 @@ public final class WebSessionOAuth2ServerAuthorizationRequestRepository
 		implements ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> {
 
 	private static final String DEFAULT_AUTHORIZATION_REQUEST_ATTR_NAME = WebSessionOAuth2ServerAuthorizationRequestRepository.class
-			.getName() + ".AUTHORIZATION_REQUEST";
+		.getName() + ".AUTHORIZATION_REQUEST";
 
 	private final String sessionAttributeName = DEFAULT_AUTHORIZATION_REQUEST_ATTR_NAME;
 

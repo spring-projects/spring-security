@@ -59,19 +59,19 @@ public class InMemoryConfigurationTests {
 	@Test
 	public void constructorNullMapped() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new InMemoryConfiguration((Map<String, AppConfigurationEntry[]>) null));
+			.isThrownBy(() -> new InMemoryConfiguration((Map<String, AppConfigurationEntry[]>) null));
 	}
 
 	@Test
 	public void constructorEmptyMap() {
 		assertThat(new InMemoryConfiguration(Collections.<String, AppConfigurationEntry[]>emptyMap())
-				.getAppConfigurationEntry("name")).isNull();
+			.getAppConfigurationEntry("name")).isNull();
 	}
 
 	@Test
 	public void constructorEmptyMapNullDefault() {
 		assertThat(new InMemoryConfiguration(Collections.<String, AppConfigurationEntry[]>emptyMap(), null)
-				.getAppConfigurationEntry("name")).isNull();
+			.getAppConfigurationEntry("name")).isNull();
 	}
 
 	@Test

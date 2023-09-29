@@ -196,8 +196,8 @@ final class OAuth2ClientConfiguration {
 			}
 
 			BeanDefinition beanDefinition = BeanDefinitionBuilder
-					.genericBeanDefinition(OAuth2AuthorizedClientManager.class, this::getAuthorizedClientManager)
-					.getBeanDefinition();
+				.genericBeanDefinition(OAuth2AuthorizedClientManager.class, this::getAuthorizedClientManager)
+				.getBeanDefinition();
 
 			registry.registerBeanDefinition(this.beanNameGenerator.generateBeanName(beanDefinition, registry),
 					beanDefinition);
@@ -222,14 +222,14 @@ final class OAuth2ClientConfiguration {
 
 		private OAuth2AuthorizedClientManager getAuthorizedClientManager() {
 			ClientRegistrationRepository clientRegistrationRepository = BeanFactoryUtils
-					.beanOfTypeIncludingAncestors(this.beanFactory, ClientRegistrationRepository.class, true, true);
+				.beanOfTypeIncludingAncestors(this.beanFactory, ClientRegistrationRepository.class, true, true);
 
 			OAuth2AuthorizedClientRepository authorizedClientRepository = BeanFactoryUtils
-					.beanOfTypeIncludingAncestors(this.beanFactory, OAuth2AuthorizedClientRepository.class, true, true);
+				.beanOfTypeIncludingAncestors(this.beanFactory, OAuth2AuthorizedClientRepository.class, true, true);
 
 			Collection<OAuth2AuthorizedClientProvider> authorizedClientProviderBeans = BeanFactoryUtils
-					.beansOfTypeIncludingAncestors(this.beanFactory, OAuth2AuthorizedClientProvider.class, true, true)
-					.values();
+				.beansOfTypeIncludingAncestors(this.beanFactory, OAuth2AuthorizedClientProvider.class, true, true)
+				.values();
 
 			OAuth2AuthorizedClientProvider authorizedClientProvider;
 			if (hasDelegatingAuthorizedClientProvider(authorizedClientProviderBeans)) {
@@ -238,10 +238,10 @@ final class OAuth2ClientConfiguration {
 			else {
 				List<OAuth2AuthorizedClientProvider> authorizedClientProviders = new ArrayList<>();
 				authorizedClientProviders
-						.add(getAuthorizationCodeAuthorizedClientProvider(authorizedClientProviderBeans));
+					.add(getAuthorizationCodeAuthorizedClientProvider(authorizedClientProviderBeans));
 				authorizedClientProviders.add(getRefreshTokenAuthorizedClientProvider(authorizedClientProviderBeans));
 				authorizedClientProviders
-						.add(getClientCredentialsAuthorizedClientProvider(authorizedClientProviderBeans));
+					.add(getClientCredentialsAuthorizedClientProvider(authorizedClientProviderBeans));
 				authorizedClientProviders.add(getPasswordAuthorizedClientProvider(authorizedClientProviderBeans));
 
 				OAuth2AuthorizedClientProvider jwtBearerAuthorizedClientProvider = getJwtBearerAuthorizedClientProvider(
@@ -364,7 +364,7 @@ final class OAuth2ClientConfiguration {
 			List<OAuth2AuthorizedClientProvider> additionalAuthorizedClientProviders = new ArrayList<>(
 					authorizedClientProviders);
 			additionalAuthorizedClientProviders
-					.removeIf((provider) -> KNOWN_AUTHORIZED_CLIENT_PROVIDERS.contains(provider.getClass()));
+				.removeIf((provider) -> KNOWN_AUTHORIZED_CLIENT_PROVIDERS.contains(provider.getClass()));
 			return additionalAuthorizedClientProviders;
 		}
 

@@ -102,8 +102,8 @@ public class DefaultFilterChainValidatorTests {
 	@Test
 	public void validateCheckLoginPageIsntProtectedThrowsIllegalArgumentException() {
 		IllegalArgumentException toBeThrown = new IllegalArgumentException("failed to eval expression");
-		willThrow(toBeThrown).given(this.accessDecisionManager).decide(any(Authentication.class), any(),
-				any(Collection.class));
+		willThrow(toBeThrown).given(this.accessDecisionManager)
+			.decide(any(Authentication.class), any(), any(Collection.class));
 		this.validator.validate(this.chain);
 		verify(this.logger).info(
 				"Unable to check access to the login page to determine if anonymous access is allowed. This might be an error, but can happen under normal circumstances.",

@@ -114,13 +114,13 @@ public class FormLoginConfigTests {
 	@Test
 	public void autowireWhenLoginPageIsMisconfiguredThenDetects() {
 		assertThatExceptionOfType(BeanCreationException.class)
-				.isThrownBy(() -> this.spring.configLocations(this.xml("NoLeadingSlashLoginPage")).autowire());
+			.isThrownBy(() -> this.spring.configLocations(this.xml("NoLeadingSlashLoginPage")).autowire());
 	}
 
 	@Test
 	public void autowireWhenDefaultTargetUrlIsMisconfiguredThenDetects() {
 		assertThatExceptionOfType(BeanCreationException.class)
-				.isThrownBy(() -> this.spring.configLocations(this.xml("NoLeadingSlashDefaultTargetUrl")).autowire());
+			.isThrownBy(() -> this.spring.configLocations(this.xml("NoLeadingSlashDefaultTargetUrl")).autowire());
 	}
 
 	@Test
@@ -146,7 +146,7 @@ public class FormLoginConfigTests {
 	public void authenticateWhenCustomUsernameAndPasswordParametersThenSucceeds() throws Exception {
 		this.spring.configLocations(this.xml("WithUsernameAndPasswordParameters")).autowire();
 		this.mvc.perform(post("/login").param("xname", "user").param("xpass", "password").with(csrf()))
-				.andExpect(redirectedUrl("/"));
+			.andExpect(redirectedUrl("/"));
 	}
 
 	@Test

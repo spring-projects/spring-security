@@ -128,7 +128,7 @@ public final class OidcLogoutConfigurer<B extends HttpSecurityBuilder<B>>
 		private AuthenticationConverter authenticationConverter(B http) {
 			if (this.authenticationConverter == null) {
 				ClientRegistrationRepository clientRegistrationRepository = OAuth2ClientConfigurerUtils
-						.getClientRegistrationRepository(http);
+					.getClientRegistrationRepository(http);
 				this.authenticationConverter = new OidcLogoutAuthenticationConverter(clientRegistrationRepository);
 			}
 			return this.authenticationConverter;

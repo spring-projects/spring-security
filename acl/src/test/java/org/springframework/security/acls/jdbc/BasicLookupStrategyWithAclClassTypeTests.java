@@ -116,7 +116,7 @@ public class BasicLookupStrategyWithAclClassTypeTests extends AbstractBasicLooku
 	public void testReadObjectIdentityUsingNonUuidInDatabase() {
 		ObjectIdentity oid = new ObjectIdentityImpl(TARGET_CLASS_WITH_UUID, OBJECT_IDENTITY_LONG_AS_UUID);
 		assertThatExceptionOfType(ConversionFailedException.class)
-				.isThrownBy(() -> this.uuidEnabledStrategy.readAclsById(Arrays.asList(oid), Arrays.asList(BEN_SID)));
+			.isThrownBy(() -> this.uuidEnabledStrategy.readAclsById(Arrays.asList(oid), Arrays.asList(BEN_SID)));
 	}
 
 }

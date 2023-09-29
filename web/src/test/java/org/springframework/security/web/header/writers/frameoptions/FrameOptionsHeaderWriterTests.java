@@ -60,7 +60,7 @@ public class FrameOptionsHeaderWriterTests {
 	@Test
 	public void constructorAllowFromNoAllowFromStrategy() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new XFrameOptionsHeaderWriter(XFrameOptionsMode.ALLOW_FROM));
+			.isThrownBy(() -> new XFrameOptionsHeaderWriter(XFrameOptionsMode.ALLOW_FROM));
 	}
 
 	@Test
@@ -83,7 +83,7 @@ public class FrameOptionsHeaderWriterTests {
 		this.writer.writeHeaders(this.request, this.response);
 		assertThat(this.response.getHeaderNames()).hasSize(1);
 		assertThat(this.response.getHeader(XFrameOptionsHeaderWriter.XFRAME_OPTIONS_HEADER))
-				.isEqualTo("ALLOW-FROM " + allowFromValue);
+			.isEqualTo("ALLOW-FROM " + allowFromValue);
 	}
 
 	@Test

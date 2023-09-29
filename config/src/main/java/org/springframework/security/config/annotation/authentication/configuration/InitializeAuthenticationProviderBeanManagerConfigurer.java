@@ -67,7 +67,7 @@ class InitializeAuthenticationProviderBeanManagerConfigurer extends GlobalAuthen
 		 */
 		private <T> T getBeanOrNull(Class<T> type) {
 			String[] beanNames = InitializeAuthenticationProviderBeanManagerConfigurer.this.context
-					.getBeanNamesForType(type);
+				.getBeanNamesForType(type);
 			if (beanNames.length != 1) {
 				return null;
 			}

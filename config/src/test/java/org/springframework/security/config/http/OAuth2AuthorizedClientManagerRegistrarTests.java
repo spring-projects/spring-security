@@ -162,7 +162,7 @@ public class OAuth2AuthorizedClientManagerRegistrarTests {
 	private void testRefreshTokenGrant() {
 		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses.accessTokenResponse().build();
 		given(MOCK_RESPONSE_CLIENT.getTokenResponse(any(OAuth2RefreshTokenGrantRequest.class)))
-				.willReturn(accessTokenResponse);
+			.willReturn(accessTokenResponse);
 
 		TestingAuthenticationToken authentication = new TestingAuthenticationToken("user", null);
 		ClientRegistration clientRegistration = this.clientRegistrationRepository.findByRegistrationId("google");
@@ -182,12 +182,12 @@ public class OAuth2AuthorizedClientManagerRegistrarTests {
 		assertThat(authorizedClient).isNotNull();
 
 		ArgumentCaptor<OAuth2RefreshTokenGrantRequest> grantRequestCaptor = ArgumentCaptor
-				.forClass(OAuth2RefreshTokenGrantRequest.class);
+			.forClass(OAuth2RefreshTokenGrantRequest.class);
 		verify(MOCK_RESPONSE_CLIENT).getTokenResponse(grantRequestCaptor.capture());
 
 		OAuth2RefreshTokenGrantRequest grantRequest = grantRequestCaptor.getValue();
 		assertThat(grantRequest.getClientRegistration().getRegistrationId())
-				.isEqualTo(clientRegistration.getRegistrationId());
+			.isEqualTo(clientRegistration.getRegistrationId());
 		assertThat(grantRequest.getGrantType()).isEqualTo(AuthorizationGrantType.REFRESH_TOKEN);
 		assertThat(grantRequest.getAccessToken()).isEqualTo(existingAuthorizedClient.getAccessToken());
 		assertThat(grantRequest.getRefreshToken()).isEqualTo(existingAuthorizedClient.getRefreshToken());
@@ -208,7 +208,7 @@ public class OAuth2AuthorizedClientManagerRegistrarTests {
 	private void testClientCredentialsGrant() {
 		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses.accessTokenResponse().build();
 		given(MOCK_RESPONSE_CLIENT.getTokenResponse(any(OAuth2ClientCredentialsGrantRequest.class)))
-				.willReturn(accessTokenResponse);
+			.willReturn(accessTokenResponse);
 
 		TestingAuthenticationToken authentication = new TestingAuthenticationToken("user", null);
 		ClientRegistration clientRegistration = this.clientRegistrationRepository.findByRegistrationId("github");
@@ -224,12 +224,12 @@ public class OAuth2AuthorizedClientManagerRegistrarTests {
 		assertThat(authorizedClient).isNotNull();
 
 		ArgumentCaptor<OAuth2ClientCredentialsGrantRequest> grantRequestCaptor = ArgumentCaptor
-				.forClass(OAuth2ClientCredentialsGrantRequest.class);
+			.forClass(OAuth2ClientCredentialsGrantRequest.class);
 		verify(MOCK_RESPONSE_CLIENT).getTokenResponse(grantRequestCaptor.capture());
 
 		OAuth2ClientCredentialsGrantRequest grantRequest = grantRequestCaptor.getValue();
 		assertThat(grantRequest.getClientRegistration().getRegistrationId())
-				.isEqualTo(clientRegistration.getRegistrationId());
+			.isEqualTo(clientRegistration.getRegistrationId());
 		assertThat(grantRequest.getGrantType()).isEqualTo(AuthorizationGrantType.CLIENT_CREDENTIALS);
 	}
 
@@ -248,7 +248,7 @@ public class OAuth2AuthorizedClientManagerRegistrarTests {
 	private void testPasswordGrant() {
 		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses.accessTokenResponse().build();
 		given(MOCK_RESPONSE_CLIENT.getTokenResponse(any(OAuth2PasswordGrantRequest.class)))
-				.willReturn(accessTokenResponse);
+			.willReturn(accessTokenResponse);
 
 		TestingAuthenticationToken authentication = new TestingAuthenticationToken("user", "password");
 		ClientRegistration clientRegistration = this.clientRegistrationRepository.findByRegistrationId("facebook");
@@ -266,12 +266,12 @@ public class OAuth2AuthorizedClientManagerRegistrarTests {
 		assertThat(authorizedClient).isNotNull();
 
 		ArgumentCaptor<OAuth2PasswordGrantRequest> grantRequestCaptor = ArgumentCaptor
-				.forClass(OAuth2PasswordGrantRequest.class);
+			.forClass(OAuth2PasswordGrantRequest.class);
 		verify(MOCK_RESPONSE_CLIENT).getTokenResponse(grantRequestCaptor.capture());
 
 		OAuth2PasswordGrantRequest grantRequest = grantRequestCaptor.getValue();
 		assertThat(grantRequest.getClientRegistration().getRegistrationId())
-				.isEqualTo(clientRegistration.getRegistrationId());
+			.isEqualTo(clientRegistration.getRegistrationId());
 		assertThat(grantRequest.getGrantType()).isEqualTo(AuthorizationGrantType.PASSWORD);
 		assertThat(grantRequest.getUsername()).isEqualTo("user");
 		assertThat(grantRequest.getPassword()).isEqualTo("password");
@@ -311,7 +311,7 @@ public class OAuth2AuthorizedClientManagerRegistrarTests {
 
 		JwtBearerGrantRequest grantRequest = grantRequestCaptor.getValue();
 		assertThat(grantRequest.getClientRegistration().getRegistrationId())
-				.isEqualTo(clientRegistration.getRegistrationId());
+			.isEqualTo(clientRegistration.getRegistrationId());
 		assertThat(grantRequest.getGrantType()).isEqualTo(AuthorizationGrantType.JWT_BEARER);
 		assertThat(grantRequest.getJwt().getSubject()).isEqualTo("user");
 	}
@@ -363,7 +363,7 @@ public class OAuth2AuthorizedClientManagerRegistrarTests {
 	public static Consumer<DefaultOAuth2AuthorizedClientManager> authorizedClientManagerConsumer() {
 		return (authorizedClientManager) -> authorizedClientManager.setContextAttributesMapper((authorizeRequest) -> {
 			HttpServletRequest request = Objects
-					.requireNonNull(authorizeRequest.getAttribute(HttpServletRequest.class.getName()));
+				.requireNonNull(authorizeRequest.getAttribute(HttpServletRequest.class.getName()));
 			String username = request.getParameter(OAuth2ParameterNames.USERNAME);
 			String password = request.getParameter(OAuth2ParameterNames.PASSWORD);
 

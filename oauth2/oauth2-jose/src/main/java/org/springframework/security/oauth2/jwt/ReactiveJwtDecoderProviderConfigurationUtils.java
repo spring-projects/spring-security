@@ -60,15 +60,17 @@ final class ReactiveJwtDecoderProviderConfigurationUtils {
 		}
 		JWKSource<C> delegate = ((JWSVerificationKeySelector<C>) selector).getJWKSource();
 		return getJWSAlgorithms(jwkSource).map((algorithms) -> new JWSVerificationKeySelector<>(algorithms, delegate))
-				.map((replacement) -> {
-					jwtProcessor.setJWSKeySelector(replacement);
-					return jwtProcessor;
-				});
+			.map((replacement) -> {
+				jwtProcessor.setJWSKeySelector(replacement);
+				return jwtProcessor;
+			});
 	}
 
 	static Mono<Set<JWSAlgorithm>> getJWSAlgorithms(ReactiveRemoteJWKSource jwkSource) {
-		JWKMatcher jwkMatcher = new JWKMatcher.Builder().publicOnly(true).keyUses(KeyUse.SIGNATURE, null)
-				.keyTypes(KeyType.RSA, KeyType.EC).build();
+		JWKMatcher jwkMatcher = new JWKMatcher.Builder().publicOnly(true)
+			.keyUses(KeyUse.SIGNATURE, null)
+			.keyTypes(KeyType.RSA, KeyType.EC)
+			.build();
 		return jwkSource.get(new JWKSelector(jwkMatcher)).map((jwks) -> {
 			Set<JWSAlgorithm> jwsAlgorithms = new HashSet<>();
 			for (JWK jwk : jwks) {
@@ -121,23 +123,22 @@ final class ReactiveJwtDecoderProviderConfigurationUtils {
 
 	private static Mono<Map<String, Object>> getConfiguration(String issuer, WebClient web, URI... uris) {
 		String errorMessage = "Unable to resolve the Configuration with the provided Issuer of " + "\"" + issuer + "\"";
-		return Flux.just(uris).concatMap((uri) -> web.get().uri(uri).retrieve().bodyToMono(STRING_OBJECT_MAP))
-				.flatMap((configuration) -> {
-					if (configuration.get("jwks_uri") == null) {
-						return Mono
-								.error(() -> new IllegalArgumentException("The public JWK set URI must not be null"));
-					}
-					return Mono.just(configuration);
-				})
-				.onErrorContinue(
-						(ex) -> ex instanceof WebClientResponseException
-								&& ((WebClientResponseException) ex).getStatusCode().is4xxClientError(),
-						(ex, object) -> {
-						})
-				.onErrorMap(RuntimeException.class,
-						(ex) -> (ex instanceof IllegalArgumentException) ? ex
-								: new IllegalArgumentException(errorMessage, ex))
-				.next().switchIfEmpty(Mono.error(() -> new IllegalArgumentException(errorMessage)));
+		return Flux.just(uris)
+			.concatMap((uri) -> web.get().uri(uri).retrieve().bodyToMono(STRING_OBJECT_MAP))
+			.flatMap((configuration) -> {
+				if (configuration.get("jwks_uri") == null) {
+					return Mono.error(() -> new IllegalArgumentException("The public JWK set URI must not be null"));
+				}
+				return Mono.just(configuration);
+			})
+			.onErrorContinue((ex) -> ex instanceof WebClientResponseException
+					&& ((WebClientResponseException) ex).getStatusCode().is4xxClientError(), (ex, object) -> {
+					})
+			.onErrorMap(RuntimeException.class,
+					(ex) -> (ex instanceof IllegalArgumentException) ? ex
+							: new IllegalArgumentException(errorMessage, ex))
+			.next()
+			.switchIfEmpty(Mono.error(() -> new IllegalArgumentException(errorMessage)));
 	}
 
 	private ReactiveJwtDecoderProviderConfigurationUtils() {

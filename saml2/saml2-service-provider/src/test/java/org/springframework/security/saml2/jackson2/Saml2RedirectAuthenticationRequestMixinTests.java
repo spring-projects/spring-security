@@ -40,7 +40,7 @@ class Saml2RedirectAuthenticationRequestMixinTests {
 	@Test
 	void shouldSerialize() throws Exception {
 		Saml2RedirectAuthenticationRequest request = TestSaml2JsonPayloads
-				.createDefaultSaml2RedirectAuthenticationRequest();
+			.createDefaultSaml2RedirectAuthenticationRequest();
 
 		String requestJson = this.mapper.writeValueAsString(request);
 
@@ -56,11 +56,11 @@ class Saml2RedirectAuthenticationRequestMixinTests {
 		assertThat(authRequest.getSamlRequest()).isEqualTo(TestSaml2JsonPayloads.SAML_REQUEST);
 		assertThat(authRequest.getRelayState()).isEqualTo(TestSaml2JsonPayloads.RELAY_STATE);
 		assertThat(authRequest.getAuthenticationRequestUri())
-				.isEqualTo(TestSaml2JsonPayloads.AUTHENTICATION_REQUEST_URI);
+			.isEqualTo(TestSaml2JsonPayloads.AUTHENTICATION_REQUEST_URI);
 		assertThat(authRequest.getSigAlg()).isEqualTo(TestSaml2JsonPayloads.SIG_ALG);
 		assertThat(authRequest.getSignature()).isEqualTo(TestSaml2JsonPayloads.SIGNATURE);
 		assertThat(authRequest.getRelyingPartyRegistrationId())
-				.isEqualTo(TestSaml2JsonPayloads.RELYINGPARTY_REGISTRATION_ID);
+			.isEqualTo(TestSaml2JsonPayloads.RELYINGPARTY_REGISTRATION_ID);
 	}
 
 	@Test
@@ -75,7 +75,7 @@ class Saml2RedirectAuthenticationRequestMixinTests {
 		assertThat(authRequest.getSamlRequest()).isEqualTo(TestSaml2JsonPayloads.SAML_REQUEST);
 		assertThat(authRequest.getRelayState()).isEqualTo(TestSaml2JsonPayloads.RELAY_STATE);
 		assertThat(authRequest.getAuthenticationRequestUri())
-				.isEqualTo(TestSaml2JsonPayloads.AUTHENTICATION_REQUEST_URI);
+			.isEqualTo(TestSaml2JsonPayloads.AUTHENTICATION_REQUEST_URI);
 		assertThat(authRequest.getSigAlg()).isEqualTo(TestSaml2JsonPayloads.SIG_ALG);
 		assertThat(authRequest.getSignature()).isEqualTo(TestSaml2JsonPayloads.SIGNATURE);
 		assertThat(authRequest.getRelyingPartyRegistrationId()).isNull();

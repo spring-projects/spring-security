@@ -119,7 +119,7 @@ public class DefaultMethodSecurityExpressionHandler extends AbstractSecurityExpr
 	@Override
 	public Object filter(Object filterTarget, Expression filterExpression, EvaluationContext ctx) {
 		MethodSecurityExpressionOperations rootObject = (MethodSecurityExpressionOperations) ctx.getRootObject()
-				.getValue();
+			.getValue();
 		this.logger.debug(LogMessage.format("Filtering with expression: %s", filterExpression.getExpressionString()));
 		if (filterTarget instanceof Collection) {
 			return filterCollection((Collection<?>) filterTarget, filterExpression, ctx, rootObject);

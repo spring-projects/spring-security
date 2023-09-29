@@ -192,8 +192,8 @@ public final class JeeConfigurer<H extends HttpSecurityBuilder<H>> extends Abstr
 		PreAuthenticatedAuthenticationProvider authenticationProvider = new PreAuthenticatedAuthenticationProvider();
 		authenticationProvider.setPreAuthenticatedUserDetailsService(getUserDetailsService());
 		authenticationProvider = postProcess(authenticationProvider);
-		http.authenticationProvider(authenticationProvider).setSharedObject(AuthenticationEntryPoint.class,
-				new Http403ForbiddenEntryPoint());
+		http.authenticationProvider(authenticationProvider)
+			.setSharedObject(AuthenticationEntryPoint.class, new Http403ForbiddenEntryPoint());
 	}
 
 	@Override
@@ -214,9 +214,9 @@ public final class JeeConfigurer<H extends HttpSecurityBuilder<H>> extends Abstr
 			this.j2eePreAuthenticatedProcessingFilter = new J2eePreAuthenticatedProcessingFilter();
 			this.j2eePreAuthenticatedProcessingFilter.setAuthenticationManager(authenticationManager);
 			this.j2eePreAuthenticatedProcessingFilter
-					.setAuthenticationDetailsSource(createWebAuthenticationDetailsSource());
+				.setAuthenticationDetailsSource(createWebAuthenticationDetailsSource());
 			this.j2eePreAuthenticatedProcessingFilter
-					.setSecurityContextHolderStrategy(getSecurityContextHolderStrategy());
+				.setSecurityContextHolderStrategy(getSecurityContextHolderStrategy());
 			this.j2eePreAuthenticatedProcessingFilter = postProcess(this.j2eePreAuthenticatedProcessingFilter);
 		}
 

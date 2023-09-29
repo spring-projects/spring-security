@@ -67,8 +67,8 @@ public class DelegatingJwtGrantedAuthoritiesConverterTests {
 	@Test
 	public void constructorWhenAuthoritiesConverterIsNullThenIllegalArgumentException() {
 		assertThatExceptionOfType(IllegalArgumentException.class)
-				.isThrownBy(() -> new DelegatingJwtGrantedAuthoritiesConverter(
-						(Collection<Converter<Jwt, Collection<GrantedAuthority>>>) null));
+			.isThrownBy(() -> new DelegatingJwtGrantedAuthoritiesConverter(
+					(Collection<Converter<Jwt, Collection<GrantedAuthority>>>) null));
 	}
 
 	private Collection<String> authorityListToOrderedSet(Collection<GrantedAuthority> grantedAuthorities) {

@@ -194,8 +194,8 @@ public final class OAuth2AccessTokenResponse {
 				accessTokenResponse.refreshToken = new OAuth2RefreshToken(this.refreshToken, issuedAt);
 			}
 			accessTokenResponse.additionalParameters = Collections
-					.unmodifiableMap(CollectionUtils.isEmpty(this.additionalParameters) ? Collections.emptyMap()
-							: this.additionalParameters);
+				.unmodifiableMap(CollectionUtils.isEmpty(this.additionalParameters) ? Collections.emptyMap()
+						: this.additionalParameters);
 			return accessTokenResponse;
 		}
 

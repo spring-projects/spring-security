@@ -58,12 +58,13 @@ public class AndServerWebExchangeMatcher implements ServerWebExchangeMatcher {
 		return Mono.defer(() -> {
 			Map<String, Object> variables = new HashMap<>();
 			return Flux.fromIterable(this.matchers)
-					.doOnNext((matcher) -> logger.debug(LogMessage.format("Trying to match using %s", matcher)))
-					.flatMap((matcher) -> matcher.matches(exchange))
-					.doOnNext((matchResult) -> variables.putAll(matchResult.getVariables())).all(MatchResult::isMatch)
-					.flatMap((allMatch) -> allMatch ? MatchResult.match(variables) : MatchResult.notMatch())
-					.doOnNext((matchResult) -> logger
-							.debug(matchResult.isMatch() ? "All requestMatchers returned true" : "Did not match"));
+				.doOnNext((matcher) -> logger.debug(LogMessage.format("Trying to match using %s", matcher)))
+				.flatMap((matcher) -> matcher.matches(exchange))
+				.doOnNext((matchResult) -> variables.putAll(matchResult.getVariables()))
+				.all(MatchResult::isMatch)
+				.flatMap((allMatch) -> allMatch ? MatchResult.match(variables) : MatchResult.notMatch())
+				.doOnNext((matchResult) -> logger
+					.debug(matchResult.isMatch() ? "All requestMatchers returned true" : "Did not match"));
 		});
 	}
 

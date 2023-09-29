@@ -36,8 +36,9 @@ final class ReactiveAuthenticationUtils {
 			AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
 
 	static Mono<Authentication> getAuthentication() {
-		return ReactiveSecurityContextHolder.getContext().map(SecurityContext::getAuthentication)
-				.defaultIfEmpty(ANONYMOUS);
+		return ReactiveSecurityContextHolder.getContext()
+			.map(SecurityContext::getAuthentication)
+			.defaultIfEmpty(ANONYMOUS);
 	}
 
 	private ReactiveAuthenticationUtils() {

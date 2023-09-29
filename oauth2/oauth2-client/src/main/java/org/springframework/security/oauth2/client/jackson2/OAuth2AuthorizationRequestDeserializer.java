@@ -53,7 +53,7 @@ final class OAuth2AuthorizationRequestDeserializer extends JsonDeserializer<OAut
 	private OAuth2AuthorizationRequest deserialize(JsonParser parser, ObjectMapper mapper, JsonNode root)
 			throws JsonParseException {
 		AuthorizationGrantType authorizationGrantType = AUTHORIZATION_GRANT_TYPE_CONVERTER
-				.convert(JsonNodeUtils.findObjectNode(root, "authorizationGrantType"));
+			.convert(JsonNodeUtils.findObjectNode(root, "authorizationGrantType"));
 		Builder builder = getBuilder(parser, authorizationGrantType);
 		builder.authorizationUri(JsonNodeUtils.findStringValue(root, "authorizationUri"));
 		builder.clientId(JsonNodeUtils.findStringValue(root, "clientId"));

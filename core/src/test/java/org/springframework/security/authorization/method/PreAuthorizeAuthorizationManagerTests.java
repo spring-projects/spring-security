@@ -56,7 +56,7 @@ public class PreAuthorizeAuthorizationManagerTests {
 	public void setExpressionHandlerWhenNullThenException() {
 		PreAuthorizeAuthorizationManager manager = new PreAuthorizeAuthorizationManager();
 		assertThatIllegalArgumentException().isThrownBy(() -> manager.setExpressionHandler(null))
-				.withMessage("expressionHandler cannot be null");
+			.withMessage("expressionHandler cannot be null");
 	}
 
 	@Test
@@ -121,7 +121,7 @@ public class PreAuthorizeAuthorizationManagerTests {
 				"inheritedAnnotations");
 		PreAuthorizeAuthorizationManager manager = new PreAuthorizeAuthorizationManager();
 		assertThatExceptionOfType(AnnotationConfigurationException.class)
-				.isThrownBy(() -> manager.check(authentication, methodInvocation));
+			.isThrownBy(() -> manager.check(authentication, methodInvocation));
 	}
 
 	@Test
@@ -131,7 +131,7 @@ public class PreAuthorizeAuthorizationManagerTests {
 				ClassLevelAnnotations.class, "inheritedAnnotations");
 		PreAuthorizeAuthorizationManager manager = new PreAuthorizeAuthorizationManager();
 		assertThatExceptionOfType(AnnotationConfigurationException.class)
-				.isThrownBy(() -> manager.check(authentication, methodInvocation));
+			.isThrownBy(() -> manager.check(authentication, methodInvocation));
 	}
 
 	@Test

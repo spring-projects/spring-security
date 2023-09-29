@@ -96,7 +96,7 @@ public class LdapUserServiceBeanDefinitionParser extends AbstractUserDetailsServ
 		if (StringUtils.hasText(userSearchBase)) {
 			if (!StringUtils.hasText(userSearchFilter)) {
 				parserContext.getReaderContext()
-						.error(ATT_USER_SEARCH_BASE + " cannot be used without a " + ATT_USER_SEARCH_FILTER, source);
+					.error(ATT_USER_SEARCH_BASE + " cannot be used without a " + ATT_USER_SEARCH_FILTER, source);
 			}
 		}
 		else {
@@ -143,8 +143,9 @@ public class LdapUserServiceBeanDefinitionParser extends AbstractUserDetailsServ
 		String userDetailsClass = elt.getAttribute(ATT_USER_CLASS);
 		String userMapperRef = elt.getAttribute(ATT_USER_CONTEXT_MAPPER_REF);
 		if (StringUtils.hasText(userDetailsClass) && StringUtils.hasText(userMapperRef)) {
-			parserContext.getReaderContext().error("Attributes " + ATT_USER_CLASS + " and "
-					+ ATT_USER_CONTEXT_MAPPER_REF + " cannot be used together.", parserContext.extractSource(elt));
+			parserContext.getReaderContext()
+				.error("Attributes " + ATT_USER_CLASS + " and " + ATT_USER_CONTEXT_MAPPER_REF
+						+ " cannot be used together.", parserContext.extractSource(elt));
 		}
 		if (StringUtils.hasText(userMapperRef)) {
 			return new RuntimeBeanReference(userMapperRef);

@@ -48,7 +48,7 @@ public class SupplierReactiveJwtDecoderTests {
 		given(broken.get()).willThrow(RuntimeException.class);
 		ReactiveJwtDecoder jwtDecoder = new SupplierReactiveJwtDecoder(broken);
 		assertThatExceptionOfType(JwtDecoderInitializationException.class)
-				.isThrownBy(() -> jwtDecoder.decode("token").block());
+			.isThrownBy(() -> jwtDecoder.decode("token").block());
 		verify(broken).get();
 	}
 
@@ -73,7 +73,7 @@ public class SupplierReactiveJwtDecoderTests {
 		given(jwtDecoder.decode("token")).willReturn(Mono.empty());
 		ReactiveJwtDecoder supplierReactiveJwtDecoder = new SupplierReactiveJwtDecoder(broken);
 		assertThatExceptionOfType(JwtDecoderInitializationException.class)
-				.isThrownBy(() -> supplierReactiveJwtDecoder.decode("token").block());
+			.isThrownBy(() -> supplierReactiveJwtDecoder.decode("token").block());
 		reset(broken);
 		given(broken.get()).willReturn(jwtDecoder);
 		supplierReactiveJwtDecoder.decode("token").block();

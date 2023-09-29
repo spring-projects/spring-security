@@ -108,7 +108,7 @@ public final class OpenSamlLogoutRequestValidatorParametersResolverTests {
 		String encoded = Saml2Utils.samlEncode(logoutRequest.getBytes(StandardCharsets.UTF_8));
 		request.setParameter(Saml2ParameterNames.SAML_REQUEST, encoded);
 		given(this.registrations.findUniqueByAssertingPartyEntityId(TestOpenSamlObjects.ASSERTING_PARTY_ENTITY_ID))
-				.willReturn(this.registration);
+			.willReturn(this.registration);
 		Saml2LogoutRequestValidatorParameters parameters = this.resolver.resolve(request, null);
 		assertThat(parameters.getAuthentication()).isNull();
 		assertThat(parameters.getRelyingPartyRegistration().getRegistrationId()).isEqualTo(registrationId);
@@ -120,7 +120,7 @@ public final class OpenSamlLogoutRequestValidatorParametersResolverTests {
 		MockHttpServletRequest request = post("/logout/saml2/slo/id");
 		request.setParameter(Saml2ParameterNames.SAML_REQUEST, "request");
 		assertThatExceptionOfType(Saml2AuthenticationException.class)
-				.isThrownBy(() -> this.resolver.resolve(request, null));
+			.isThrownBy(() -> this.resolver.resolve(request, null));
 	}
 
 	private MockHttpServletRequest post(String uri) {

@@ -45,7 +45,7 @@ final class WithUserDetailsSecurityContextFactory implements WithSecurityContext
 	private static final boolean reactorPresent;
 
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
-			.getContextHolderStrategy();
+		.getContextHolderStrategy();
 
 	private BeanFactory beans;
 

@@ -83,7 +83,7 @@ final class PrePostMethodSecurityConfiguration {
 		manager.setExpressionHandler(
 				new DeferringMethodSecurityExpressionHandler(expressionHandlerProvider, defaultsProvider, context));
 		AuthorizationManagerBeforeMethodInterceptor preAuthorize = AuthorizationManagerBeforeMethodInterceptor
-				.preAuthorize(manager(manager, registryProvider));
+			.preAuthorize(manager(manager, registryProvider));
 		strategyProvider.ifAvailable(preAuthorize::setSecurityContextHolderStrategy);
 		eventPublisherProvider.ifAvailable(preAuthorize::setAuthorizationEventPublisher);
 		return preAuthorize;
@@ -101,7 +101,7 @@ final class PrePostMethodSecurityConfiguration {
 		manager.setExpressionHandler(
 				new DeferringMethodSecurityExpressionHandler(expressionHandlerProvider, defaultsProvider, context));
 		AuthorizationManagerAfterMethodInterceptor postAuthorize = AuthorizationManagerAfterMethodInterceptor
-				.postAuthorize(manager(manager, registryProvider));
+			.postAuthorize(manager(manager, registryProvider));
 		strategyProvider.ifAvailable(postAuthorize::setSecurityContextHolderStrategy);
 		eventPublisherProvider.ifAvailable(postAuthorize::setAuthorizationEventPublisher);
 		return postAuthorize;
@@ -141,7 +141,7 @@ final class PrePostMethodSecurityConfiguration {
 				ObjectProvider<MethodSecurityExpressionHandler> expressionHandlerProvider,
 				ObjectProvider<GrantedAuthorityDefaults> defaultsProvider, ApplicationContext applicationContext) {
 			this.expressionHandler = SingletonSupplier.of(() -> expressionHandlerProvider
-					.getIfAvailable(() -> defaultExpressionHandler(defaultsProvider, applicationContext)));
+				.getIfAvailable(() -> defaultExpressionHandler(defaultsProvider, applicationContext)));
 		}
 
 		@Override

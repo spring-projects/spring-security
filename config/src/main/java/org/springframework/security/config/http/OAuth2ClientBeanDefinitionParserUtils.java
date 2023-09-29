@@ -68,13 +68,14 @@ final class OAuth2ClientBeanDefinitionParserUtils {
 			BeanMetadataElement authorizedClientService) {
 		if (authorizedClientService == null) {
 			authorizedClientService = BeanDefinitionBuilder
-					.rootBeanDefinition(
-							"org.springframework.security.oauth2.client.InMemoryOAuth2AuthorizedClientService")
-					.addConstructorArgValue(clientRegistrationRepository).getBeanDefinition();
+				.rootBeanDefinition("org.springframework.security.oauth2.client.InMemoryOAuth2AuthorizedClientService")
+				.addConstructorArgValue(clientRegistrationRepository)
+				.getBeanDefinition();
 		}
 		return BeanDefinitionBuilder.rootBeanDefinition(
 				"org.springframework.security.oauth2.client.web.AuthenticatedPrincipalOAuth2AuthorizedClientRepository")
-				.addConstructorArgValue(authorizedClientService).getBeanDefinition();
+			.addConstructorArgValue(authorizedClientService)
+			.getBeanDefinition();
 	}
 
 }

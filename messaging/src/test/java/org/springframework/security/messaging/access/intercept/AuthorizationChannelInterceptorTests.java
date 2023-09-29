@@ -89,13 +89,13 @@ public class AuthorizationChannelInterceptorTests {
 	public void preSendWhenDenyThenException() {
 		given(this.authorizationManager.check(any(), any())).willReturn(new AuthorizationDecision(false));
 		assertThatExceptionOfType(AccessDeniedException.class)
-				.isThrownBy(() -> this.interceptor.preSend(this.message, this.channel));
+			.isThrownBy(() -> this.interceptor.preSend(this.message, this.channel));
 	}
 
 	@Test
 	public void setEventPublisherWhenNullThenException() {
 		assertThatExceptionOfType(IllegalArgumentException.class)
-				.isThrownBy(() -> this.interceptor.setAuthorizationEventPublisher(null));
+			.isThrownBy(() -> this.interceptor.setAuthorizationEventPublisher(null));
 	}
 
 	@Test

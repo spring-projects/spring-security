@@ -58,8 +58,11 @@ public final class MessageMatcherDelegatingAuthorizationManagerTests {
 
 	@Test
 	void checkWhenSimpDestinationMatchesThenUses() {
-		AuthorizationManager<Message<?>> authorizationManager = builder().simpDestMatchers("destination").permitAll()
-				.anyMessage().denyAll().build();
+		AuthorizationManager<Message<?>> authorizationManager = builder().simpDestMatchers("destination")
+			.permitAll()
+			.anyMessage()
+			.denyAll()
+			.build();
 		MessageHeaders headers = new MessageHeaders(
 				Map.of(SimpMessageHeaderAccessor.DESTINATION_HEADER, "destination"));
 		Message<?> message = new GenericMessage<>(new Object(), headers);
@@ -68,8 +71,11 @@ public final class MessageMatcherDelegatingAuthorizationManagerTests {
 
 	@Test
 	void checkWhenNullDestinationHeaderMatchesThenUses() {
-		AuthorizationManager<Message<?>> authorizationManager = builder().nullDestMatcher().permitAll().anyMessage()
-				.denyAll().build();
+		AuthorizationManager<Message<?>> authorizationManager = builder().nullDestMatcher()
+			.permitAll()
+			.anyMessage()
+			.denyAll()
+			.build();
 		Message<?> message = new GenericMessage<>(new Object());
 		assertThat(authorizationManager.check(mock(Supplier.class), message).isGranted()).isTrue();
 		MessageHeaders headers = new MessageHeaders(
@@ -81,7 +87,10 @@ public final class MessageMatcherDelegatingAuthorizationManagerTests {
 	@Test
 	void checkWhenSimpTypeMatchesThenUses() {
 		AuthorizationManager<Message<?>> authorizationManager = builder().simpTypeMatchers(SimpMessageType.CONNECT)
-				.permitAll().anyMessage().denyAll().build();
+			.permitAll()
+			.anyMessage()
+			.denyAll()
+			.build();
 		MessageHeaders headers = new MessageHeaders(
 				Map.of(SimpMessageHeaderAccessor.MESSAGE_TYPE_HEADER, SimpMessageType.CONNECT));
 		Message<?> message = new GenericMessage<>(new Object(), headers);
@@ -92,7 +101,10 @@ public final class MessageMatcherDelegatingAuthorizationManagerTests {
 	@Test
 	void checkWhenSimpDestinationMatchesThenVariablesExtracted() {
 		AuthorizationManager<Message<?>> authorizationManager = builder().simpDestMatchers("destination/{id}")
-				.access(variable("id").isEqualTo("3")).anyMessage().denyAll().build();
+			.access(variable("id").isEqualTo("3"))
+			.anyMessage()
+			.denyAll()
+			.build();
 		MessageHeaders headers = new MessageHeaders(
 				Map.of(SimpMessageHeaderAccessor.DESTINATION_HEADER, "destination/3"));
 		Message<?> message = new GenericMessage<>(new Object(), headers);

@@ -57,7 +57,7 @@ final class OAuth2ClientWebMvcSecurityPostProcessor implements BeanDefinitionReg
 			BeanDefinition beanDefinition = registry.getBeanDefinition(beanName);
 			if (RequestMappingHandlerAdapter.class.getName().equals(beanDefinition.getBeanClassName())) {
 				PropertyValue currentArgumentResolvers = beanDefinition.getPropertyValues()
-						.getPropertyValue(CUSTOM_ARGUMENT_RESOLVERS_PROPERTY);
+					.getPropertyValue(CUSTOM_ARGUMENT_RESOLVERS_PROPERTY);
 				ManagedList<Object> argumentResolvers = new ManagedList<>();
 				if (currentArgumentResolvers != null) {
 					argumentResolvers.addAll((ManagedList<?>) currentArgumentResolvers.getValue());
@@ -65,7 +65,7 @@ final class OAuth2ClientWebMvcSecurityPostProcessor implements BeanDefinitionReg
 				String[] authorizedClientManagerBeanNames = BeanFactoryUtils.beanNamesForTypeIncludingAncestors(
 						(ListableBeanFactory) this.beanFactory, OAuth2AuthorizedClientManager.class, false, false);
 				BeanDefinitionBuilder beanDefinitionBuilder = BeanDefinitionBuilder
-						.genericBeanDefinition(OAuth2AuthorizedClientArgumentResolver.class);
+					.genericBeanDefinition(OAuth2AuthorizedClientArgumentResolver.class);
 				if (authorizedClientManagerBeanNames.length == 1) {
 					beanDefinitionBuilder.addConstructorArgReference(authorizedClientManagerBeanNames[0]);
 				}

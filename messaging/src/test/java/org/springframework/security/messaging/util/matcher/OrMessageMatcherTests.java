@@ -65,13 +65,13 @@ public class OrMessageMatcherTests {
 	@Test
 	public void constructorNullList() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new OrMessageMatcher<>((List<MessageMatcher<Object>>) null));
+			.isThrownBy(() -> new OrMessageMatcher<>((List<MessageMatcher<Object>>) null));
 	}
 
 	@Test
 	public void constructorListContainsNull() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new OrMessageMatcher<>(Arrays.asList((MessageMatcher<Object>) null)));
+			.isThrownBy(() -> new OrMessageMatcher<>(Arrays.asList((MessageMatcher<Object>) null)));
 	}
 
 	@Test

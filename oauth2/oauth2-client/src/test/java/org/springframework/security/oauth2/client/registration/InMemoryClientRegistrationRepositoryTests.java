@@ -45,19 +45,19 @@ public class InMemoryClientRegistrationRepositoryTests {
 	@Test
 	public void constructorListClientRegistrationWhenNullThenIllegalArgumentException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new InMemoryClientRegistrationRepository((List<ClientRegistration>) null));
+			.isThrownBy(() -> new InMemoryClientRegistrationRepository((List<ClientRegistration>) null));
 	}
 
 	@Test
 	public void constructorListClientRegistrationWhenEmptyThenIllegalArgumentException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new InMemoryClientRegistrationRepository(Collections.emptyList()));
+			.isThrownBy(() -> new InMemoryClientRegistrationRepository(Collections.emptyList()));
 	}
 
 	@Test
 	public void constructorMapClientRegistrationWhenNullThenIllegalArgumentException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new InMemoryClientRegistrationRepository((Map<String, ClientRegistration>) null));
+			.isThrownBy(() -> new InMemoryClientRegistrationRepository((Map<String, ClientRegistration>) null));
 	}
 
 	@Test

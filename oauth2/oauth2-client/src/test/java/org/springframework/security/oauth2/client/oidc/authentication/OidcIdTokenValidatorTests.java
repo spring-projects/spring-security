@@ -168,8 +168,9 @@ public class OidcIdTokenValidatorTests {
 	@Test
 	public void validateWhenExpiresAtNullThenHasErrors() {
 		this.expiresAt = null;
-		assertThat(this.validateIdToken()).hasSize(1).extracting(OAuth2Error::getDescription)
-				.allMatch((msg) -> msg.contains(IdTokenClaimNames.EXP));
+		assertThat(this.validateIdToken()).hasSize(1)
+			.extracting(OAuth2Error::getDescription)
+			.allMatch((msg) -> msg.contains(IdTokenClaimNames.EXP));
 	}
 
 	@Test

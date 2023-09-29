@@ -233,8 +233,8 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
 			this.logger.debug("Failed to locate AD-specific sub-error code in message");
 			return;
 		}
-		this.logger.info(
-				LogMessage.of(() -> "Active Directory authentication failed: " + subCodeToLogMessage(subErrorCode)));
+		this.logger
+			.info(LogMessage.of(() -> "Active Directory authentication failed: " + subCodeToLogMessage(subErrorCode)));
 		if (this.convertSubErrorCodesToExceptions) {
 			raiseExceptionForErrorCode(subErrorCode, exception);
 		}
@@ -260,8 +260,8 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
 		String hexString = Integer.toHexString(code);
 		Throwable cause = new ActiveDirectoryAuthenticationException(hexString, exception.getMessage(), exception);
 		switch (code) {
-			case PASSWORD_EXPIRED -> throw new CredentialsExpiredException(this.messages.getMessage(
-					"LdapAuthenticationProvider.credentialsExpired", "User credentials have expired"), cause);
+			case PASSWORD_EXPIRED -> throw new CredentialsExpiredException(this.messages
+				.getMessage("LdapAuthenticationProvider.credentialsExpired", "User credentials have expired"), cause);
 			case ACCOUNT_DISABLED -> throw new DisabledException(
 					this.messages.getMessage("LdapAuthenticationProvider.disabled", "User is disabled"), cause);
 			case ACCOUNT_EXPIRED -> throw new AccountExpiredException(
@@ -296,8 +296,8 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
 	}
 
 	private InternalAuthenticationServiceException badLdapConnection(Throwable cause) {
-		return new InternalAuthenticationServiceException(this.messages.getMessage(
-				"LdapAuthenticationProvider.badLdapConnection", "Connection to LDAP server failed."), cause);
+		return new InternalAuthenticationServiceException(this.messages
+			.getMessage("LdapAuthenticationProvider.badLdapConnection", "Connection to LDAP server failed."), cause);
 	}
 
 	private DirContextOperations searchForUser(DirContext context, String username) throws NamingException {

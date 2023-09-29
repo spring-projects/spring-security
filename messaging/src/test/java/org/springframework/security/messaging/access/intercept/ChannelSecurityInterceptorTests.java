@@ -118,10 +118,10 @@ public class ChannelSecurityInterceptorTests {
 	@Test
 	public void preSendDeny() {
 		given(this.source.getAttributes(this.message)).willReturn(this.attrs);
-		willThrow(new AccessDeniedException("")).given(this.accessDecisionManager).decide(any(Authentication.class),
-				eq(this.message), eq(this.attrs));
+		willThrow(new AccessDeniedException("")).given(this.accessDecisionManager)
+			.decide(any(Authentication.class), eq(this.message), eq(this.attrs));
 		assertThatExceptionOfType(AccessDeniedException.class)
-				.isThrownBy(() -> this.interceptor.preSend(this.message, this.channel));
+			.isThrownBy(() -> this.interceptor.preSend(this.message, this.channel));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -129,7 +129,7 @@ public class ChannelSecurityInterceptorTests {
 	public void preSendPostSendRunAs() {
 		given(this.source.getAttributes(this.message)).willReturn(this.attrs);
 		given(this.runAsManager.buildRunAs(any(Authentication.class), any(), any(Collection.class)))
-				.willReturn(this.runAs);
+			.willReturn(this.runAs);
 		Message<?> preSend = this.interceptor.preSend(this.message, this.channel);
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(this.runAs);
 		this.interceptor.postSend(preSend, this.channel, true);
@@ -146,7 +146,7 @@ public class ChannelSecurityInterceptorTests {
 	public void preSendFinallySendRunAs() {
 		given(this.source.getAttributes(this.message)).willReturn(this.attrs);
 		given(this.runAsManager.buildRunAs(any(Authentication.class), any(), any(Collection.class)))
-				.willReturn(this.runAs);
+			.willReturn(this.runAs);
 		Message<?> preSend = this.interceptor.preSend(this.message, this.channel);
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(this.runAs);
 		this.interceptor.afterSendCompletion(preSend, this.channel, true, new RuntimeException());

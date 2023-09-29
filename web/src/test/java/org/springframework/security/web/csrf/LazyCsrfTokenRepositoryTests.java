@@ -66,7 +66,7 @@ public class LazyCsrfTokenRepositoryTests {
 	@Test
 	public void generateTokenNullResponseAttribute() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> this.repository.generateToken(mock(HttpServletRequest.class)));
+			.isThrownBy(() -> this.repository.generateToken(mock(HttpServletRequest.class)));
 	}
 
 	@Test

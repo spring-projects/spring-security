@@ -130,9 +130,12 @@ public final class RequestMatcherMetadataResponseResolver implements Saml2Metada
 				String ssoLocation = uriResolver.resolve(registration.getAssertionConsumerServiceLocation());
 				String sloLocation = uriResolver.resolve(registration.getSingleLogoutServiceLocation());
 				String sloResponseLocation = uriResolver.resolve(registration.getSingleLogoutServiceResponseLocation());
-				return registration.mutate().entityId(entityId).assertionConsumerServiceLocation(ssoLocation)
-						.singleLogoutServiceLocation(sloLocation)
-						.singleLogoutServiceResponseLocation(sloResponseLocation).build();
+				return registration.mutate()
+					.entityId(entityId)
+					.assertionConsumerServiceLocation(ssoLocation)
+					.singleLogoutServiceLocation(sloLocation)
+					.singleLogoutServiceResponseLocation(sloResponseLocation)
+					.build();
 			});
 		}
 		String metadata = this.metadata.resolve(results.values());

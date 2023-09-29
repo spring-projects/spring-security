@@ -41,7 +41,7 @@ public class WebSessionServerCsrfTokenRepository implements ServerCsrfTokenRepos
 	private static final String DEFAULT_CSRF_HEADER_NAME = "X-CSRF-TOKEN";
 
 	private static final String DEFAULT_CSRF_TOKEN_ATTR_NAME = WebSessionServerCsrfTokenRepository.class.getName()
-			.concat(".CSRF_TOKEN");
+		.concat(".CSRF_TOKEN");
 
 	private String parameterName = DEFAULT_CSRF_PARAMETER_NAME;
 
@@ -56,8 +56,9 @@ public class WebSessionServerCsrfTokenRepository implements ServerCsrfTokenRepos
 
 	@Override
 	public Mono<Void> saveToken(ServerWebExchange exchange, CsrfToken token) {
-		return exchange.getSession().doOnNext((session) -> putToken(session.getAttributes(), token))
-				.flatMap((session) -> session.changeSessionId());
+		return exchange.getSession()
+			.doOnNext((session) -> putToken(session.getAttributes(), token))
+			.flatMap((session) -> session.changeSessionId());
 	}
 
 	private void putToken(Map<String, Object> attributes, CsrfToken token) {
@@ -71,8 +72,9 @@ public class WebSessionServerCsrfTokenRepository implements ServerCsrfTokenRepos
 
 	@Override
 	public Mono<CsrfToken> loadToken(ServerWebExchange exchange) {
-		return exchange.getSession().filter((session) -> session.getAttributes().containsKey(this.sessionAttributeName))
-				.map((session) -> session.getAttribute(this.sessionAttributeName));
+		return exchange.getSession()
+			.filter((session) -> session.getAttributes().containsKey(this.sessionAttributeName))
+			.map((session) -> session.getAttribute(this.sessionAttributeName));
 	}
 
 	/**

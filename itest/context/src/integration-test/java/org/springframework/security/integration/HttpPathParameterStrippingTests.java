@@ -76,7 +76,7 @@ public class HttpPathParameterStrippingTests {
 	public HttpSession createAuthenticatedSession(String... roles) {
 		MockHttpSession session = new MockHttpSession();
 		SecurityContextHolder.getContext()
-				.setAuthentication(new TestingAuthenticationToken("bob", "bobspassword", roles));
+			.setAuthentication(new TestingAuthenticationToken("bob", "bobspassword", roles));
 		session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
 				SecurityContextHolder.getContext());
 		SecurityContextHolder.clearContext();

@@ -79,7 +79,7 @@ public class JdbcMutableAclServiceTestsWithAclClassId extends JdbcMutableAclServ
 		ObjectIdentity oid = new ObjectIdentityImpl(TARGET_CLASS_WITH_UUID, id);
 		getJdbcMutableAclService().createAcl(oid);
 		assertThat(getJdbcMutableAclService().readAclById(new ObjectIdentityImpl(TARGET_CLASS_WITH_UUID, id)))
-				.isNotNull();
+			.isNotNull();
 	}
 
 }

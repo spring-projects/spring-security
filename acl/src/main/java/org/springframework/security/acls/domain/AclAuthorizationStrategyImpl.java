@@ -49,7 +49,7 @@ import org.springframework.util.Assert;
 public class AclAuthorizationStrategyImpl implements AclAuthorizationStrategy {
 
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
-			.getContextHolderStrategy();
+		.getContextHolderStrategy();
 
 	private final GrantedAuthority gaGeneralChanges;
 

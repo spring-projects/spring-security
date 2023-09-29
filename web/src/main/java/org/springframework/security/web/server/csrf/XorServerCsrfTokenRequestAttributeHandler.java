@@ -52,16 +52,18 @@ public final class XorServerCsrfTokenRequestAttributeHandler extends ServerCsrfT
 	public void handle(ServerWebExchange exchange, Mono<CsrfToken> csrfToken) {
 		Assert.notNull(exchange, "exchange cannot be null");
 		Assert.notNull(csrfToken, "csrfToken cannot be null");
-		Mono<CsrfToken> updatedCsrfToken = csrfToken.map((token) -> new DefaultCsrfToken(token.getHeaderName(),
-				token.getParameterName(), createXoredCsrfToken(this.secureRandom, token.getToken())))
-				.cast(CsrfToken.class).cache();
+		Mono<CsrfToken> updatedCsrfToken = csrfToken
+			.map((token) -> new DefaultCsrfToken(token.getHeaderName(), token.getParameterName(),
+					createXoredCsrfToken(this.secureRandom, token.getToken())))
+			.cast(CsrfToken.class)
+			.cache();
 		super.handle(exchange, updatedCsrfToken);
 	}
 
 	@Override
 	public Mono<String> resolveCsrfTokenValue(ServerWebExchange exchange, CsrfToken csrfToken) {
 		return super.resolveCsrfTokenValue(exchange, csrfToken)
-				.flatMap((actualToken) -> Mono.justOrEmpty(getTokenValue(actualToken, csrfToken.getToken())));
+			.flatMap((actualToken) -> Mono.justOrEmpty(getTokenValue(actualToken, csrfToken.getToken())));
 	}
 
 	private static String getTokenValue(String actualToken, String token) {

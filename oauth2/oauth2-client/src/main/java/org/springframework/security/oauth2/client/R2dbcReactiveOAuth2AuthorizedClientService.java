@@ -140,17 +140,19 @@ public class R2dbcReactiveOAuth2AuthorizedClientService implements ReactiveOAuth
 		Assert.hasText(principalName, "principalName cannot be empty");
 
 		return (Mono<T>) this.databaseClient.sql(LOAD_AUTHORIZED_CLIENT_SQL)
-				.bind("clientRegistrationId", clientRegistrationId).bind("principalName", principalName)
-				.map(this.authorizedClientRowMapper).first().flatMap(this::getAuthorizedClient);
+			.bind("clientRegistrationId", clientRegistrationId)
+			.bind("principalName", principalName)
+			.map(this.authorizedClientRowMapper)
+			.first()
+			.flatMap(this::getAuthorizedClient);
 	}
 
 	private Mono<OAuth2AuthorizedClient> getAuthorizedClient(OAuth2AuthorizedClientHolder authorizedClientHolder) {
 		return this.clientRegistrationRepository.findByRegistrationId(authorizedClientHolder.getClientRegistrationId())
-				.switchIfEmpty(
-						Mono.error(dataRetrievalFailureException(authorizedClientHolder.getClientRegistrationId())))
-				.map((clientRegistration) -> new OAuth2AuthorizedClient(clientRegistration,
-						authorizedClientHolder.getPrincipalName(), authorizedClientHolder.getAccessToken(),
-						authorizedClientHolder.getRefreshToken()));
+			.switchIfEmpty(Mono.error(dataRetrievalFailureException(authorizedClientHolder.getClientRegistrationId())))
+			.map((clientRegistration) -> new OAuth2AuthorizedClient(clientRegistration,
+					authorizedClientHolder.getPrincipalName(), authorizedClientHolder.getAccessToken(),
+					authorizedClientHolder.getRefreshToken()));
 	}
 
 	private static Throwable dataRetrievalFailureException(String clientRegistrationId) {
@@ -163,15 +165,17 @@ public class R2dbcReactiveOAuth2AuthorizedClientService implements ReactiveOAuth
 		Assert.notNull(authorizedClient, "authorizedClient cannot be null");
 		Assert.notNull(principal, "principal cannot be null");
 		return this
-				.loadAuthorizedClient(authorizedClient.getClientRegistration().getRegistrationId(), principal.getName())
-				.flatMap((dbAuthorizedClient) -> updateAuthorizedClient(authorizedClient, principal))
-				.switchIfEmpty(Mono.defer(() -> insertAuthorizedClient(authorizedClient, principal))).then();
+			.loadAuthorizedClient(authorizedClient.getClientRegistration().getRegistrationId(), principal.getName())
+			.flatMap((dbAuthorizedClient) -> updateAuthorizedClient(authorizedClient, principal))
+			.switchIfEmpty(Mono.defer(() -> insertAuthorizedClient(authorizedClient, principal)))
+			.then();
 	}
 
 	private Mono<Long> updateAuthorizedClient(OAuth2AuthorizedClient authorizedClient, Authentication principal) {
 		GenericExecuteSpec executeSpec = this.databaseClient.sql(UPDATE_AUTHORIZED_CLIENT_SQL);
 		for (Entry<String, Parameter> entry : this.authorizedClientParametersMapper
-				.apply(new OAuth2AuthorizedClientHolder(authorizedClient, principal)).entrySet()) {
+			.apply(new OAuth2AuthorizedClientHolder(authorizedClient, principal))
+			.entrySet()) {
 			executeSpec = executeSpec.bind(entry.getKey(), entry.getValue());
 		}
 		return executeSpec.fetch().rowsUpdated();
@@ -180,7 +184,8 @@ public class R2dbcReactiveOAuth2AuthorizedClientService implements ReactiveOAuth
 	private Mono<Long> insertAuthorizedClient(OAuth2AuthorizedClient authorizedClient, Authentication principal) {
 		GenericExecuteSpec executeSpec = this.databaseClient.sql(SAVE_AUTHORIZED_CLIENT_SQL);
 		for (Entry<String, Parameter> entry : this.authorizedClientParametersMapper
-				.apply(new OAuth2AuthorizedClientHolder(authorizedClient, principal)).entrySet()) {
+			.apply(new OAuth2AuthorizedClientHolder(authorizedClient, principal))
+			.entrySet()) {
 			executeSpec = executeSpec.bind(entry.getKey(), entry.getValue());
 		}
 		return executeSpec.fetch().rowsUpdated();
@@ -190,8 +195,10 @@ public class R2dbcReactiveOAuth2AuthorizedClientService implements ReactiveOAuth
 	public Mono<Void> removeAuthorizedClient(String clientRegistrationId, String principalName) {
 		Assert.hasText(clientRegistrationId, "clientRegistrationId cannot be empty");
 		Assert.hasText(principalName, "principalName cannot be empty");
-		return this.databaseClient.sql(REMOVE_AUTHORIZED_CLIENT_SQL).bind("clientRegistrationId", clientRegistrationId)
-				.bind("principalName", principalName).then();
+		return this.databaseClient.sql(REMOVE_AUTHORIZED_CLIENT_SQL)
+			.bind("clientRegistrationId", clientRegistrationId)
+			.bind("principalName", principalName)
+			.then();
 	}
 
 	/**
@@ -310,10 +317,10 @@ public class R2dbcReactiveOAuth2AuthorizedClientService implements ReactiveOAuth
 					Parameter.fromOrEmpty(accessToken.getTokenType().getValue(), String.class));
 			parameters.put("accessTokenValue", Parameter.fromOrEmpty(
 					ByteBuffer.wrap(accessToken.getTokenValue().getBytes(StandardCharsets.UTF_8)), ByteBuffer.class));
-			parameters.put("accessTokenIssuedAt", Parameter.fromOrEmpty(
-					LocalDateTime.ofInstant(accessToken.getIssuedAt(), ZoneOffset.UTC), LocalDateTime.class));
-			parameters.put("accessTokenExpiresAt", Parameter.fromOrEmpty(
-					LocalDateTime.ofInstant(accessToken.getExpiresAt(), ZoneOffset.UTC), LocalDateTime.class));
+			parameters.put("accessTokenIssuedAt", Parameter
+				.fromOrEmpty(LocalDateTime.ofInstant(accessToken.getIssuedAt(), ZoneOffset.UTC), LocalDateTime.class));
+			parameters.put("accessTokenExpiresAt", Parameter
+				.fromOrEmpty(LocalDateTime.ofInstant(accessToken.getExpiresAt(), ZoneOffset.UTC), LocalDateTime.class));
 			String accessTokenScopes = null;
 			if (!CollectionUtils.isEmpty(accessToken.getScopes())) {
 				accessTokenScopes = StringUtils.collectionToDelimitedString(accessToken.getScopes(), ",");
@@ -350,7 +357,7 @@ public class R2dbcReactiveOAuth2AuthorizedClientService implements ReactiveOAuth
 			String dbClientRegistrationId = row.get("client_registration_id", String.class);
 			OAuth2AccessToken.TokenType tokenType = null;
 			if (OAuth2AccessToken.TokenType.BEARER.getValue()
-					.equalsIgnoreCase(row.get("access_token_type", String.class))) {
+				.equalsIgnoreCase(row.get("access_token_type", String.class))) {
 				tokenType = OAuth2AccessToken.TokenType.BEARER;
 			}
 			String tokenValue = new String(row.get("access_token_value", ByteBuffer.class).array(),

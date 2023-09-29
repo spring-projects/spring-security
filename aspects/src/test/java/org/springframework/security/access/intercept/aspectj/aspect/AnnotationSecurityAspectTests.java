@@ -101,7 +101,7 @@ public class AnnotationSecurityAspectTests {
 	@Test
 	public void securedClassMethodDeniesUnauthenticatedAccess() {
 		assertThatExceptionOfType(AuthenticationCredentialsNotFoundException.class)
-				.isThrownBy(() -> this.secured.securedClassMethod());
+			.isThrownBy(() -> this.secured.securedClassMethod());
 	}
 
 	@Test

@@ -45,7 +45,7 @@ final class OAuth2ClientConfigurerUtils {
 
 	static <B extends HttpSecurityBuilder<B>> ClientRegistrationRepository getClientRegistrationRepository(B builder) {
 		ClientRegistrationRepository clientRegistrationRepository = builder
-				.getSharedObject(ClientRegistrationRepository.class);
+			.getSharedObject(ClientRegistrationRepository.class);
 		if (clientRegistrationRepository == null) {
 			clientRegistrationRepository = getClientRegistrationRepositoryBean(builder);
 			builder.setSharedObject(ClientRegistrationRepository.class, clientRegistrationRepository);
@@ -61,7 +61,7 @@ final class OAuth2ClientConfigurerUtils {
 	static <B extends HttpSecurityBuilder<B>> OAuth2AuthorizedClientRepository getAuthorizedClientRepository(
 			B builder) {
 		OAuth2AuthorizedClientRepository authorizedClientRepository = builder
-				.getSharedObject(OAuth2AuthorizedClientRepository.class);
+			.getSharedObject(OAuth2AuthorizedClientRepository.class);
 		if (authorizedClientRepository == null) {
 			authorizedClientRepository = getAuthorizedClientRepositoryBean(builder);
 			if (authorizedClientRepository == null) {
@@ -76,8 +76,8 @@ final class OAuth2ClientConfigurerUtils {
 	private static <B extends HttpSecurityBuilder<B>> OAuth2AuthorizedClientRepository getAuthorizedClientRepositoryBean(
 			B builder) {
 		Map<String, OAuth2AuthorizedClientRepository> authorizedClientRepositoryMap = BeanFactoryUtils
-				.beansOfTypeIncludingAncestors(builder.getSharedObject(ApplicationContext.class),
-						OAuth2AuthorizedClientRepository.class);
+			.beansOfTypeIncludingAncestors(builder.getSharedObject(ApplicationContext.class),
+					OAuth2AuthorizedClientRepository.class);
 		if (authorizedClientRepositoryMap.size() > 1) {
 			throw new NoUniqueBeanDefinitionException(OAuth2AuthorizedClientRepository.class,
 					authorizedClientRepositoryMap.size(),
@@ -102,8 +102,8 @@ final class OAuth2ClientConfigurerUtils {
 	private static <B extends HttpSecurityBuilder<B>> OAuth2AuthorizedClientService getAuthorizedClientServiceBean(
 			B builder) {
 		Map<String, OAuth2AuthorizedClientService> authorizedClientServiceMap = BeanFactoryUtils
-				.beansOfTypeIncludingAncestors(builder.getSharedObject(ApplicationContext.class),
-						OAuth2AuthorizedClientService.class);
+			.beansOfTypeIncludingAncestors(builder.getSharedObject(ApplicationContext.class),
+					OAuth2AuthorizedClientService.class);
 		if (authorizedClientServiceMap.size() > 1) {
 			throw new NoUniqueBeanDefinitionException(OAuth2AuthorizedClientService.class,
 					authorizedClientServiceMap.size(),

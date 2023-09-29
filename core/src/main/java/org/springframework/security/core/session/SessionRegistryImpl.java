@@ -41,8 +41,8 @@ import org.springframework.util.Assert;
  * <p>
  * For this class to function correctly in a web application, it is important that you
  * register an <a href="
- * {@docRoot}/org/springframework/security/web/session/HttpSessionEventPublisher.html">HttpSessionEventPublisher</a>
- * in the <tt>web.xml</tt> file so that this class is notified of sessions that expire.
+ * {@docRoot}/org/springframework/security/web/session/HttpSessionEventPublisher.html">HttpSessionEventPublisher</a> in
+ * the <tt>web.xml</tt> file so that this class is notified of sessions that expire.
  *
  * @author Ben Alex
  * @author Luke Taylor
@@ -156,16 +156,16 @@ public class SessionRegistryImpl implements SessionRegistry, ApplicationListener
 		}
 		this.sessionIds.remove(sessionId);
 		this.principals.computeIfPresent(info.getPrincipal(), (key, sessionsUsedByPrincipal) -> {
-			this.logger.debug(
-					LogMessage.format("Removing session %s from principal's set of registered sessions", sessionId));
+			this.logger
+				.debug(LogMessage.format("Removing session %s from principal's set of registered sessions", sessionId));
 			sessionsUsedByPrincipal.remove(sessionId);
 			if (sessionsUsedByPrincipal.isEmpty()) {
 				// No need to keep object in principals Map anymore
 				this.logger.debug(LogMessage.format("Removing principal %s from registry", info.getPrincipal()));
 				sessionsUsedByPrincipal = null;
 			}
-			this.logger.trace(
-					LogMessage.format("Sessions used by '%s' : %s", info.getPrincipal(), sessionsUsedByPrincipal));
+			this.logger
+				.trace(LogMessage.format("Sessions used by '%s' : %s", info.getPrincipal(), sessionsUsedByPrincipal));
 			return sessionsUsedByPrincipal;
 		});
 	}

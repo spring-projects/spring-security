@@ -150,7 +150,8 @@ public class WebSecurityConfiguration implements ImportAware, BeanClassLoaderAwa
 			this.webSecurity.debug(this.debugEnabled);
 		}
 		List<SecurityConfigurer<Filter, WebSecurity>> webSecurityConfigurers = new AutowiredWebSecurityConfigurersIgnoreParents(
-				beanFactory).getWebSecurityConfigurers();
+				beanFactory)
+			.getWebSecurityConfigurers();
 		webSecurityConfigurers.sort(AnnotationAwareOrderComparator.INSTANCE);
 		Integer previousOrder = null;
 		Object previousConfig = null;
@@ -187,7 +188,7 @@ public class WebSecurityConfiguration implements ImportAware, BeanClassLoaderAwa
 	@Override
 	public void setImportMetadata(AnnotationMetadata importMetadata) {
 		Map<String, Object> enableWebSecurityAttrMap = importMetadata
-				.getAnnotationAttributes(EnableWebSecurity.class.getName());
+			.getAnnotationAttributes(EnableWebSecurity.class.getName());
 		AnnotationAttributes enableWebSecurityAttrs = AnnotationAttributes.fromMap(enableWebSecurityAttrMap);
 		this.debugEnabled = enableWebSecurityAttrs.getBoolean("debug");
 		if (this.webSecurity != null) {

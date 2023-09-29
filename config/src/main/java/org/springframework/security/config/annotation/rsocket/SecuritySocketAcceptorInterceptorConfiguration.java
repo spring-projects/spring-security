@@ -37,7 +37,7 @@ class SecuritySocketAcceptorInterceptorConfiguration {
 			ObjectProvider<PayloadSocketAcceptorInterceptor> rsocketInterceptor,
 			ObjectProvider<RSocketSecurity> rsocketSecurity) {
 		PayloadSocketAcceptorInterceptor delegate = rsocketInterceptor
-				.getIfAvailable(() -> defaultInterceptor(rsocketSecurity));
+			.getIfAvailable(() -> defaultInterceptor(rsocketSecurity));
 		return new SecuritySocketAcceptorInterceptor(delegate);
 	}
 

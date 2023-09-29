@@ -48,7 +48,7 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 	static final String DEFAULT_CSRF_HEADER_NAME = "X-XSRF-TOKEN";
 
 	private static final String CSRF_TOKEN_REMOVED_ATTRIBUTE_NAME = CookieCsrfTokenRepository.class.getName()
-			.concat(".REMOVED");
+		.concat(".REMOVED");
 
 	private String parameterName = DEFAULT_CSRF_PARAMETER_NAME;
 
@@ -90,10 +90,11 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 		String tokenValue = (token != null) ? token.getToken() : "";
 
 		ResponseCookie.ResponseCookieBuilder cookieBuilder = ResponseCookie.from(this.cookieName, tokenValue)
-				.secure((this.secure != null) ? this.secure : request.isSecure())
-				.path(StringUtils.hasLength(this.cookiePath) ? this.cookiePath : this.getRequestContext(request))
-				.maxAge((token != null) ? this.cookieMaxAge : 0).httpOnly(this.cookieHttpOnly)
-				.domain(this.cookieDomain);
+			.secure((this.secure != null) ? this.secure : request.isSecure())
+			.path(StringUtils.hasLength(this.cookiePath) ? this.cookiePath : this.getRequestContext(request))
+			.maxAge((token != null) ? this.cookieMaxAge : 0)
+			.httpOnly(this.cookieHttpOnly)
+			.domain(this.cookieDomain);
 
 		this.cookieCustomizer.accept(cookieBuilder);
 

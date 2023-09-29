@@ -108,7 +108,7 @@ public class GlobalMethodSecurityConfiguration implements ImportAware, SmartInit
 	};
 
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
-			.getContextHolderStrategy();
+		.getContextHolderStrategy();
 
 	private DefaultMethodSecurityExpressionHandler defaultMethodExpressionHandler = new DefaultMethodSecurityExpressionHandler();
 
@@ -320,7 +320,7 @@ public class GlobalMethodSecurityConfiguration implements ImportAware, SmartInit
 	protected AuthenticationManager authenticationManager() throws Exception {
 		if (this.authenticationManager == null) {
 			DefaultAuthenticationEventPublisher eventPublisher = this.objectPostProcessor
-					.postProcess(new DefaultAuthenticationEventPublisher());
+				.postProcess(new DefaultAuthenticationEventPublisher());
 			this.auth = new AuthenticationManagerBuilder(this.objectPostProcessor);
 			this.auth.authenticationEventPublisher(eventPublisher);
 			configure(this.auth);
@@ -375,7 +375,7 @@ public class GlobalMethodSecurityConfiguration implements ImportAware, SmartInit
 		if (isJsr250Enabled) {
 			GrantedAuthorityDefaults grantedAuthorityDefaults = getSingleBeanOrNull(GrantedAuthorityDefaults.class);
 			Jsr250MethodSecurityMetadataSource jsr250MethodSecurityMetadataSource = this.context
-					.getBean(Jsr250MethodSecurityMetadataSource.class);
+				.getBean(Jsr250MethodSecurityMetadataSource.class);
 			if (grantedAuthorityDefaults != null) {
 				jsr250MethodSecurityMetadataSource.setDefaultRolePrefix(grantedAuthorityDefaults.getRolePrefix());
 			}
@@ -403,7 +403,7 @@ public class GlobalMethodSecurityConfiguration implements ImportAware, SmartInit
 	@Override
 	public final void setImportMetadata(AnnotationMetadata importMetadata) {
 		Map<String, Object> annotationAttributes = importMetadata
-				.getAnnotationAttributes(EnableGlobalMethodSecurity.class.getName());
+			.getAnnotationAttributes(EnableGlobalMethodSecurity.class.getName());
 		this.enableMethodSecurity = AnnotationAttributes.fromMap(annotationAttributes);
 	}
 

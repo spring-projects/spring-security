@@ -90,37 +90,38 @@ public class AuthorizeHttpRequestsConfigurerTests {
 	@Test
 	public void configureWhenAuthorizedHttpRequestsAndNoRequestsThenException() {
 		assertThatExceptionOfType(BeanCreationException.class)
-				.isThrownBy(() -> this.spring.register(NoRequestsConfig.class).autowire()).withMessageContaining(
-						"At least one mapping is required (for example, authorizeHttpRequests().anyRequest().authenticated())");
+			.isThrownBy(() -> this.spring.register(NoRequestsConfig.class).autowire())
+			.withMessageContaining(
+					"At least one mapping is required (for example, authorizeHttpRequests().anyRequest().authenticated())");
 	}
 
 	@Test
 	public void configureNoParameterWhenAuthorizedHttpRequestsAndNoRequestsThenException() {
 		assertThatExceptionOfType(BeanCreationException.class)
-				.isThrownBy(() -> this.spring.register(NoRequestsNoParameterConfig.class).autowire())
-				.withMessageContaining(
-						"At least one mapping is required (for example, authorizeHttpRequests().anyRequest().authenticated())");
+			.isThrownBy(() -> this.spring.register(NoRequestsNoParameterConfig.class).autowire())
+			.withMessageContaining(
+					"At least one mapping is required (for example, authorizeHttpRequests().anyRequest().authenticated())");
 	}
 
 	@Test
 	public void configureWhenAnyRequestIncompleteMappingThenException() {
 		assertThatExceptionOfType(BeanCreationException.class)
-				.isThrownBy(() -> this.spring.register(IncompleteMappingConfig.class).autowire())
-				.withMessageContaining("An incomplete mapping was found for ");
+			.isThrownBy(() -> this.spring.register(IncompleteMappingConfig.class).autowire())
+			.withMessageContaining("An incomplete mapping was found for ");
 	}
 
 	@Test
 	public void configureNoParameterWhenAnyRequestIncompleteMappingThenException() {
 		assertThatExceptionOfType(BeanCreationException.class)
-				.isThrownBy(() -> this.spring.register(IncompleteMappingNoParameterConfig.class).autowire())
-				.withMessageContaining("An incomplete mapping was found for ");
+			.isThrownBy(() -> this.spring.register(IncompleteMappingNoParameterConfig.class).autowire())
+			.withMessageContaining("An incomplete mapping was found for ");
 	}
 
 	@Test
 	public void configureWhenMvcMatcherAfterAnyRequestThenException() {
 		assertThatExceptionOfType(BeanCreationException.class)
-				.isThrownBy(() -> this.spring.register(AfterAnyRequestConfig.class).autowire())
-				.withMessageContaining("Can't configure mvcMatchers after anyRequest");
+			.isThrownBy(() -> this.spring.register(AfterAnyRequestConfig.class).autowire())
+			.withMessageContaining("Can't configure mvcMatchers after anyRequest");
 	}
 
 	@Test
@@ -143,8 +144,8 @@ public class AuthorizeHttpRequestsConfigurerTests {
 	public void configureMvcMatcherAccessAuthorizationManagerWhenNullThenException() {
 		CustomAuthorizationManagerConfig.authorizationManager = null;
 		assertThatExceptionOfType(BeanCreationException.class)
-				.isThrownBy(() -> this.spring.register(CustomAuthorizationManagerConfig.class).autowire())
-				.withMessageContaining("manager cannot be null");
+			.isThrownBy(() -> this.spring.register(CustomAuthorizationManagerConfig.class).autowire())
+			.withMessageContaining("manager cannot be null");
 	}
 
 	@Test
@@ -958,7 +959,7 @@ public class AuthorizeHttpRequestsConfigurerTests {
 		@Bean
 		SecurityFilterChain filterChain(HttpSecurity http, HandlerMappingIntrospector introspector) throws Exception {
 			MvcRequestMatcher.Builder mvcMatcherBuilder = new MvcRequestMatcher.Builder(introspector)
-					.servletPath("/spring");
+				.servletPath("/spring");
 			// @formatter:off
 			return http
 					.authorizeHttpRequests((requests) -> requests

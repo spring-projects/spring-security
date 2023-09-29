@@ -231,8 +231,8 @@ public final class OAuth2DeviceAuthorizationResponse {
 			deviceAuthorizationResponse.verificationUriComplete = this.verificationUriComplete;
 			deviceAuthorizationResponse.interval = this.interval;
 			deviceAuthorizationResponse.additionalParameters = Collections
-					.unmodifiableMap(CollectionUtils.isEmpty(this.additionalParameters) ? Collections.emptyMap()
-							: this.additionalParameters);
+				.unmodifiableMap(CollectionUtils.isEmpty(this.additionalParameters) ? Collections.emptyMap()
+						: this.additionalParameters);
 
 			return deviceAuthorizationResponse;
 		}

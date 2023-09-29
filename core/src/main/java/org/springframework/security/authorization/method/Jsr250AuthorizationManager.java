@@ -112,7 +112,8 @@ public final class Jsr250AuthorizationManager implements AuthorizationManager<Me
 				return (a, o) -> new AuthorizationDecision(true);
 			}
 			if (annotation instanceof RolesAllowed rolesAllowed) {
-				return (a, o) -> Jsr250AuthorizationManager.this.authoritiesAuthorizationManager.check(a, getAllowedRolesWithPrefix(rolesAllowed));
+				return (a, o) -> Jsr250AuthorizationManager.this.authoritiesAuthorizationManager.check(a,
+						getAllowedRolesWithPrefix(rolesAllowed));
 			}
 			return NULL_MANAGER;
 		}

@@ -45,7 +45,7 @@ public class UsernamePasswordAuthenticationTokenTests {
 		// Now let's create a UsernamePasswordAuthenticationToken without any
 		// GrantedAuthorty[]s (different constructor)
 		UsernamePasswordAuthenticationToken noneGrantedToken = UsernamePasswordAuthenticationToken
-				.unauthenticated("Test", "Password");
+			.unauthenticated("Test", "Password");
 		assertThat(!noneGrantedToken.isAuthenticated()).isTrue();
 		// check we're allowed to still set it to untrusted
 		noneGrantedToken.setAuthenticated(false);
@@ -68,7 +68,7 @@ public class UsernamePasswordAuthenticationTokenTests {
 	public void testNoArgConstructorDoesntExist() throws Exception {
 		Class<?> clazz = UsernamePasswordAuthenticationToken.class;
 		assertThatExceptionOfType(NoSuchMethodException.class)
-				.isThrownBy(() -> clazz.getDeclaredConstructor((Class[]) null));
+			.isThrownBy(() -> clazz.getDeclaredConstructor((Class[]) null));
 	}
 
 	@Test

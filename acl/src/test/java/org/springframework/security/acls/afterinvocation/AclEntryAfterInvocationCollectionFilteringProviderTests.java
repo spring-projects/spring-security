@@ -85,7 +85,8 @@ public class AclEntryAfterInvocationCollectionFilteringProviderTests {
 		AclEntryAfterInvocationCollectionFilteringProvider provider = new AclEntryAfterInvocationCollectionFilteringProvider(
 				service, Arrays.asList(mock(Permission.class)));
 		assertThat(provider.decide(mock(Authentication.class), new Object(),
-				SecurityConfig.createList("AFTER_ACL_COLLECTION_READ"), null)).isNull();
+				SecurityConfig.createList("AFTER_ACL_COLLECTION_READ"), null))
+			.isNull();
 		verify(service, never()).readAclById(any(ObjectIdentity.class), any(List.class));
 	}
 

@@ -135,9 +135,10 @@ public class RsaKeyConversionServicePostProcessorTests {
 
 	@Test
 	public void valueWhenOverridingConversionServiceThenUsed() {
-		assertThatExceptionOfType(Exception.class).isThrownBy(
-				() -> this.spring.register(OverrideConversionServiceConfig.class, DefaultConfig.class).autowire())
-				.withRootCauseInstanceOf(IllegalArgumentException.class);
+		assertThatExceptionOfType(Exception.class)
+			.isThrownBy(
+					() -> this.spring.register(OverrideConversionServiceConfig.class, DefaultConfig.class).autowire())
+			.withRootCauseInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Configuration
@@ -152,7 +153,7 @@ public class RsaKeyConversionServicePostProcessorTests {
 		@Bean
 		BeanFactoryPostProcessor conversionServiceCustomizer() {
 			return (beanFactory) -> beanFactory.getBean(RsaKeyConversionServicePostProcessor.class)
-					.setResourceLoader(new CustomResourceLoader());
+				.setResourceLoader(new CustomResourceLoader());
 		}
 
 	}

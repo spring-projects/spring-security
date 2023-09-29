@@ -57,7 +57,7 @@ public class Issue50Tests {
 	@BeforeEach
 	public void setup() {
 		SecurityContextHolder.getContext()
-				.setAuthentication(new TestingAuthenticationToken("test", null, "ROLE_ADMIN"));
+			.setAuthentication(new TestingAuthenticationToken("test", null, "ROLE_ADMIN"));
 	}
 
 	@AfterEach
@@ -74,21 +74,21 @@ public class Issue50Tests {
 	@Test
 	public void authenticateWhenMissingUserThenUsernameNotFoundException() {
 		assertThatExceptionOfType(UsernameNotFoundException.class).isThrownBy(() -> this.authenticationManager
-				.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("test", "password")));
+			.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("test", "password")));
 	}
 
 	@Test
 	public void authenticateWhenInvalidPasswordThenBadCredentialsException() {
 		this.userRepo.save(User.withUsernameAndPassword("test", "password"));
 		assertThatExceptionOfType(BadCredentialsException.class).isThrownBy(() -> this.authenticationManager
-				.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("test", "invalid")));
+			.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("test", "invalid")));
 	}
 
 	@Test
 	public void authenticateWhenValidUserThenAuthenticates() {
 		this.userRepo.save(User.withUsernameAndPassword("test", "password"));
 		Authentication result = this.authenticationManager
-				.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("test", "password"));
+			.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("test", "password"));
 		assertThat(result.getName()).isEqualTo("test");
 	}
 
@@ -97,7 +97,7 @@ public class Issue50Tests {
 		SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("test", null, "ROLE_USER"));
 		this.userRepo.save(User.withUsernameAndPassword("denied", "password"));
 		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(() -> this.authenticationManager
-				.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("test", "password")));
+			.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("test", "password")));
 	}
 
 }

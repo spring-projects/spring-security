@@ -124,10 +124,15 @@ public class OidcLogoutConfigurerTests {
 		this.spring.register(WebServerConfig.class, OidcProviderConfig.class, DefaultConfig.class).autowire();
 		String registrationId = this.clientRegistration.getRegistrationId();
 		MockHttpSession session = login();
-		String logoutToken = this.mvc.perform(get("/token/logout").session(session)).andExpect(status().isOk())
-				.andReturn().getResponse().getContentAsString();
-		this.mvc.perform(post(this.web.url("/logout/connect/back-channel/" + registrationId).toString())
-				.param("logout_token", logoutToken)).andExpect(status().isOk());
+		String logoutToken = this.mvc.perform(get("/token/logout").session(session))
+			.andExpect(status().isOk())
+			.andReturn()
+			.getResponse()
+			.getContentAsString();
+		this.mvc
+			.perform(post(this.web.url("/logout/connect/back-channel/" + registrationId).toString())
+				.param("logout_token", logoutToken))
+			.andExpect(status().isOk());
 		this.mvc.perform(get("/token/logout").session(session)).andExpect(status().isUnauthorized());
 	}
 
@@ -137,18 +142,27 @@ public class OidcLogoutConfigurerTests {
 		this.mvc.perform(get("/token/logout")).andExpect(status().isUnauthorized());
 		String registrationId = this.clientRegistration.getRegistrationId();
 		MvcResult result = this.mvc.perform(get("/oauth2/authorization/" + registrationId))
-				.andExpect(status().isFound()).andReturn();
+			.andExpect(status().isFound())
+			.andReturn();
 		MockHttpSession session = (MockHttpSession) result.getRequest().getSession();
 		String redirectUrl = UrlUtils.decode(result.getResponse().getRedirectedUrl());
 		String state = this.mvc
-				.perform(get(redirectUrl).with(
-						httpBasic(this.clientRegistration.getClientId(), this.clientRegistration.getClientSecret())))
-				.andReturn().getResponse().getContentAsString();
-		result = this.mvc.perform(get("/login/oauth2/code/" + registrationId).param("code", "code")
-				.param("state", state).session(session)).andExpect(status().isFound()).andReturn();
+			.perform(get(redirectUrl)
+				.with(httpBasic(this.clientRegistration.getClientId(), this.clientRegistration.getClientSecret())))
+			.andReturn()
+			.getResponse()
+			.getContentAsString();
+		result = this.mvc
+			.perform(get("/login/oauth2/code/" + registrationId).param("code", "code")
+				.param("state", state)
+				.session(session))
+			.andExpect(status().isFound())
+			.andReturn();
 		session = (MockHttpSession) result.getRequest().getSession();
-		this.mvc.perform(post(this.web.url("/logout/connect/back-channel/" + registrationId).toString())
-				.param("logout_token", "invalid")).andExpect(status().isBadRequest());
+		this.mvc
+			.perform(post(this.web.url("/logout/connect/back-channel/" + registrationId).toString())
+				.param("logout_token", "invalid"))
+			.andExpect(status().isBadRequest());
 		this.mvc.perform(get("/token/logout").session(session)).andExpect(status().isOk());
 	}
 
@@ -159,16 +173,26 @@ public class OidcLogoutConfigurerTests {
 		MockHttpSession one = login();
 		MockHttpSession two = login();
 		MockHttpSession three = login();
-		String logoutToken = this.mvc.perform(get("/token/logout").session(one)).andExpect(status().isOk()).andReturn()
-				.getResponse().getContentAsString();
-		this.mvc.perform(post(this.web.url("/logout/connect/back-channel/" + registrationId).toString())
-				.param("logout_token", logoutToken)).andExpect(status().isOk());
+		String logoutToken = this.mvc.perform(get("/token/logout").session(one))
+			.andExpect(status().isOk())
+			.andReturn()
+			.getResponse()
+			.getContentAsString();
+		this.mvc
+			.perform(post(this.web.url("/logout/connect/back-channel/" + registrationId).toString())
+				.param("logout_token", logoutToken))
+			.andExpect(status().isOk());
 		this.mvc.perform(get("/token/logout").session(one)).andExpect(status().isUnauthorized());
 		this.mvc.perform(get("/token/logout").session(two)).andExpect(status().isOk());
-		logoutToken = this.mvc.perform(get("/token/logout/all").session(three)).andExpect(status().isOk()).andReturn()
-				.getResponse().getContentAsString();
-		this.mvc.perform(post(this.web.url("/logout/connect/back-channel/" + registrationId).toString())
-				.param("logout_token", logoutToken)).andExpect(status().isOk());
+		logoutToken = this.mvc.perform(get("/token/logout/all").session(three))
+			.andExpect(status().isOk())
+			.andReturn()
+			.getResponse()
+			.getContentAsString();
+		this.mvc
+			.perform(post(this.web.url("/logout/connect/back-channel/" + registrationId).toString())
+				.param("logout_token", logoutToken))
+			.andExpect(status().isOk());
 		this.mvc.perform(get("/token/logout").session(two)).andExpect(status().isUnauthorized());
 		this.mvc.perform(get("/token/logout").session(three)).andExpect(status().isUnauthorized());
 	}
@@ -180,24 +204,34 @@ public class OidcLogoutConfigurerTests {
 		willThrow(IllegalStateException.class).given(logoutHandler).logout(any(), any(), any());
 		String registrationId = this.clientRegistration.getRegistrationId();
 		MockHttpSession one = login();
-		String logoutToken = this.mvc.perform(get("/token/logout/all").session(one)).andExpect(status().isOk())
-				.andReturn().getResponse().getContentAsString();
-		this.mvc.perform(post(this.web.url("/logout/connect/back-channel/" + registrationId).toString())
-				.param("logout_token", logoutToken)).andExpect(status().isBadRequest())
-				.andExpect(content().string(containsString("partial_logout")));
+		String logoutToken = this.mvc.perform(get("/token/logout/all").session(one))
+			.andExpect(status().isOk())
+			.andReturn()
+			.getResponse()
+			.getContentAsString();
+		this.mvc
+			.perform(post(this.web.url("/logout/connect/back-channel/" + registrationId).toString())
+				.param("logout_token", logoutToken))
+			.andExpect(status().isBadRequest())
+			.andExpect(content().string(containsString("partial_logout")));
 		this.mvc.perform(get("/token/logout").session(one)).andExpect(status().isOk());
 	}
 
 	@Test
 	void logoutWhenCustomComponentsThenUses() throws Exception {
 		this.spring.register(WebServerConfig.class, OidcProviderConfig.class, WithCustomComponentsConfig.class)
-				.autowire();
+			.autowire();
 		String registrationId = this.clientRegistration.getRegistrationId();
 		MockHttpSession session = login();
-		String logoutToken = this.mvc.perform(get("/token/logout").session(session)).andExpect(status().isOk())
-				.andReturn().getResponse().getContentAsString();
-		this.mvc.perform(post(this.web.url("/logout/connect/back-channel/" + registrationId).toString())
-				.param("logout_token", logoutToken)).andExpect(status().isOk());
+		String logoutToken = this.mvc.perform(get("/token/logout").session(session))
+			.andExpect(status().isOk())
+			.andReturn()
+			.getResponse()
+			.getContentAsString();
+		this.mvc
+			.perform(post(this.web.url("/logout/connect/back-channel/" + registrationId).toString())
+				.param("logout_token", logoutToken))
+			.andExpect(status().isOk());
 		this.mvc.perform(get("/token/logout").session(session)).andExpect(status().isUnauthorized());
 		OidcSessionRegistry sessionRegistry = this.spring.getContext().getBean(OidcSessionRegistry.class);
 		verify(sessionRegistry).saveSessionInformation(any());
@@ -209,15 +243,22 @@ public class OidcLogoutConfigurerTests {
 		this.mvc.perform(get("/token/logout")).andExpect(status().isUnauthorized());
 		String registrationId = this.clientRegistration.getRegistrationId();
 		MvcResult result = this.mvc.perform(get("/oauth2/authorization/" + registrationId))
-				.andExpect(status().isFound()).andReturn();
+			.andExpect(status().isFound())
+			.andReturn();
 		MockHttpSession session = (MockHttpSession) result.getRequest().getSession();
 		String redirectUrl = UrlUtils.decode(result.getResponse().getRedirectedUrl());
 		String state = this.mvc
-				.perform(get(redirectUrl).with(
-						httpBasic(this.clientRegistration.getClientId(), this.clientRegistration.getClientSecret())))
-				.andReturn().getResponse().getContentAsString();
-		result = this.mvc.perform(get("/login/oauth2/code/" + registrationId).param("code", "code")
-				.param("state", state).session(session)).andExpect(status().isFound()).andReturn();
+			.perform(get(redirectUrl)
+				.with(httpBasic(this.clientRegistration.getClientId(), this.clientRegistration.getClientSecret())))
+			.andReturn()
+			.getResponse()
+			.getContentAsString();
+		result = this.mvc
+			.perform(get("/login/oauth2/code/" + registrationId).param("code", "code")
+				.param("state", state)
+				.session(session))
+			.andExpect(status().isFound())
+			.andReturn();
 		session = (MockHttpSession) result.getRequest().getSession();
 		dispatcher.registerSession(session);
 		return session;
@@ -235,8 +276,13 @@ public class OidcLogoutConfigurerTests {
 				return TestClientRegistrations.clientRegistration().build();
 			}
 			String issuer = this.web.url("/").toString();
-			return TestClientRegistrations.clientRegistration().issuerUri(issuer).jwkSetUri(issuer + "jwks")
-					.tokenUri(issuer + "token").userInfoUri(issuer + "user").scope("openid").build();
+			return TestClientRegistrations.clientRegistration()
+				.issuerUri(issuer)
+				.jwkSetUri(issuer + "jwks")
+				.tokenUri(issuer + "token")
+				.userInfoUri(issuer + "user")
+				.scope("openid")
+				.build();
 		}
 
 		@Bean

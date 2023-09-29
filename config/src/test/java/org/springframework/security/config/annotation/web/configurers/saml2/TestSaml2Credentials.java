@@ -68,7 +68,7 @@ public final class TestSaml2Credentials {
 		try {
 			final CertificateFactory factory = CertificateFactory.getInstance("X.509");
 			return (X509Certificate) factory
-					.generateCertificate(new ByteArrayInputStream(source.getBytes(StandardCharsets.UTF_8)));
+				.generateCertificate(new ByteArrayInputStream(source.getBytes(StandardCharsets.UTF_8)));
 		}
 		catch (Exception ex) {
 			throw new IllegalArgumentException(ex);

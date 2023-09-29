@@ -93,7 +93,7 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
 	protected final Log logger = LogFactory.getLog(this.getClass());
 
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
-			.getContextHolderStrategy();
+		.getContextHolderStrategy();
 
 	/**
 	 * SecurityContext instance used to check for equality with default (unauthenticated)
@@ -227,8 +227,8 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
 		}
 
 		if (this.logger.isTraceEnabled()) {
-			this.logger.trace(
-					LogMessage.format("Retrieved %s from %s", contextFromSession, this.springSecurityContextKey));
+			this.logger
+				.trace(LogMessage.format("Retrieved %s from %s", contextFromSession, this.springSecurityContextKey));
 		}
 		else if (this.logger.isDebugEnabled()) {
 			this.logger.debug(LogMessage.format("Retrieved %s", contextFromSession));

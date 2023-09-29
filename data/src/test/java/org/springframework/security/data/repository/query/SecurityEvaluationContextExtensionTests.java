@@ -95,7 +95,7 @@ public class SecurityEvaluationContextExtensionTests {
 		TestingAuthenticationToken explicit = new TestingAuthenticationToken("explicit", "password", "ROLE_EXPLICIT");
 		this.securityExtension = new SecurityEvaluationContextExtension(explicit);
 		assertThatIllegalArgumentException().isThrownBy(() -> this.securityExtension.setTrustResolver(null))
-				.withMessage("trustResolver cannot be null");
+			.withMessage("trustResolver cannot be null");
 	}
 
 	@Test
@@ -112,7 +112,7 @@ public class SecurityEvaluationContextExtensionTests {
 		TestingAuthenticationToken explicit = new TestingAuthenticationToken("explicit", "password", "ROLE_EXPLICIT");
 		this.securityExtension = new SecurityEvaluationContextExtension(explicit);
 		assertThatIllegalArgumentException().isThrownBy(() -> this.securityExtension.setRoleHierarchy(null))
-				.withMessage("roleHierarchy cannot be null");
+			.withMessage("roleHierarchy cannot be null");
 	}
 
 	@Test
@@ -129,7 +129,7 @@ public class SecurityEvaluationContextExtensionTests {
 		TestingAuthenticationToken explicit = new TestingAuthenticationToken("explicit", "password", "ROLE_EXPLICIT");
 		this.securityExtension = new SecurityEvaluationContextExtension(explicit);
 		assertThatIllegalArgumentException().isThrownBy(() -> this.securityExtension.setPermissionEvaluator(null))
-				.withMessage("permissionEvaluator cannot be null");
+			.withMessage("permissionEvaluator cannot be null");
 	}
 
 	@Test

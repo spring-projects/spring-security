@@ -55,7 +55,7 @@ public class SessionManagementFilter extends GenericFilterBean {
 	static final String FILTER_APPLIED = "__spring_security_session_mgmt_filter_applied";
 
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
-			.getContextHolderStrategy();
+		.getContextHolderStrategy();
 
 	private final SecurityContextRepository securityContextRepository;
 

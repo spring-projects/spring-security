@@ -73,7 +73,8 @@ public class ConsensusBased extends AbstractAccessDecisionManager {
 			switch (result) {
 				case AccessDecisionVoter.ACCESS_GRANTED -> grant++;
 				case AccessDecisionVoter.ACCESS_DENIED -> deny++;
-				default -> { }
+				default -> {
+				}
 			}
 		}
 		if (grant > deny) {

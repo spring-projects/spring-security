@@ -68,8 +68,9 @@ public class HttpInterceptUrlTests {
 		this.context = context;
 		context.getAutowireCapableBeanFactory().autowireBean(this);
 		Filter springSecurityFilterChain = context.getBean("springSecurityFilterChain", Filter.class);
-		this.mockMvc = MockMvcBuilders.standaloneSetup(new FooController()).addFilters(springSecurityFilterChain)
-				.build();
+		this.mockMvc = MockMvcBuilders.standaloneSetup(new FooController())
+			.addFilters(springSecurityFilterChain)
+			.build();
 	}
 
 	@RestController

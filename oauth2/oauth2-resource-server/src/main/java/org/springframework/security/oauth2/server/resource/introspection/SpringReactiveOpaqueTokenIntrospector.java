@@ -123,15 +123,16 @@ public class SpringReactiveOpaqueTokenIntrospector implements ReactiveOpaqueToke
 		// relying solely on the authorization server to validate this token (not checking
 		// 'exp', for example)
 		return responseEntity.bodyToMono(STRING_OBJECT_MAP)
-				.filter((body) -> (boolean) body.compute(OAuth2TokenIntrospectionClaimNames.ACTIVE, (k, v) -> {
-					if (v instanceof String) {
-						return Boolean.parseBoolean((String) v);
-					}
-					if (v instanceof Boolean) {
-						return v;
-					}
-					return false;
-				})).switchIfEmpty(Mono.error(() -> new BadOpaqueTokenException("Provided token isn't active")));
+			.filter((body) -> (boolean) body.compute(OAuth2TokenIntrospectionClaimNames.ACTIVE, (k, v) -> {
+				if (v instanceof String) {
+					return Boolean.parseBoolean((String) v);
+				}
+				if (v instanceof Boolean) {
+					return v;
+				}
+				return false;
+			}))
+			.switchIfEmpty(Mono.error(() -> new BadOpaqueTokenException("Provided token isn't active")));
 	}
 
 	private OAuth2AuthenticatedPrincipal convertClaimsSet(Map<String, Object> claims) {

@@ -53,7 +53,7 @@ public class HttpStatusServerEntryPointTests {
 	@Test
 	public void constructorNullStatus() {
 		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> new HttpStatusServerEntryPoint(null))
-				.withMessage("httpStatus cannot be null");
+			.withMessage("httpStatus cannot be null");
 	}
 
 	@Test

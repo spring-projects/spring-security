@@ -98,9 +98,10 @@ public class DefaultReactiveOAuth2UserServiceTests {
 	@Test
 	public void loadUserWhenUserInfoUriIsNullThenThrowOAuth2AuthenticationException() {
 		this.clientRegistration.userInfoUri(null);
-		StepVerifier.create(this.userService.loadUser(oauth2UserRequest())).expectErrorSatisfies((ex) -> assertThat(ex)
-				.isInstanceOf(OAuth2AuthenticationException.class).hasMessageContaining("missing_user_info_uri"))
-				.verify();
+		StepVerifier.create(this.userService.loadUser(oauth2UserRequest()))
+			.expectErrorSatisfies((ex) -> assertThat(ex).isInstanceOf(OAuth2AuthenticationException.class)
+				.hasMessageContaining("missing_user_info_uri"))
+			.verify();
 	}
 
 	@Test
@@ -159,7 +160,8 @@ public class DefaultReactiveOAuth2UserServiceTests {
 				+ "}\n";
 		// @formatter:on
 		this.server.enqueue(new MockResponse().setResponseCode(201)
-				.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE).setBody(userInfoResponse));
+			.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+			.setBody(userInfoResponse));
 		assertThatNoException().isThrownBy(() -> this.userService.loadUser(oauth2UserRequest()).block());
 	}
 
@@ -183,7 +185,7 @@ public class DefaultReactiveOAuth2UserServiceTests {
 		assertThat(request.getMethod()).isEqualTo(HttpMethod.GET.name());
 		assertThat(request.getHeader(HttpHeaders.ACCEPT)).isEqualTo(MediaType.APPLICATION_JSON_VALUE);
 		assertThat(request.getHeader(HttpHeaders.AUTHORIZATION))
-				.isEqualTo("Bearer " + this.accessToken.getTokenValue());
+			.isEqualTo("Bearer " + this.accessToken.getTokenValue());
 	}
 
 	// gh-5500
@@ -223,24 +225,25 @@ public class DefaultReactiveOAuth2UserServiceTests {
 		// @formatter:on
 		enqueueApplicationJsonBody(userInfoResponse);
 		assertThatExceptionOfType(OAuth2AuthenticationException.class)
-				.isThrownBy(() -> this.userService.loadUser(oauth2UserRequest()).block())
-				.withMessageContaining("invalid_user_info_response");
+			.isThrownBy(() -> this.userService.loadUser(oauth2UserRequest()).block())
+			.withMessageContaining("invalid_user_info_response");
 	}
 
 	@Test
 	public void loadUserWhenUserInfoErrorResponseThenThrowOAuth2AuthenticationException() {
 		this.server.enqueue(new MockResponse().setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-				.setResponseCode(500).setBody("{}"));
+			.setResponseCode(500)
+			.setBody("{}"));
 		assertThatExceptionOfType(OAuth2AuthenticationException.class)
-				.isThrownBy(() -> this.userService.loadUser(oauth2UserRequest()).block())
-				.withMessageContaining("invalid_user_info_response");
+			.isThrownBy(() -> this.userService.loadUser(oauth2UserRequest()).block())
+			.withMessageContaining("invalid_user_info_response");
 	}
 
 	@Test
 	public void loadUserWhenUserInfoUriInvalidThenThrowOAuth2AuthenticationException() {
 		this.clientRegistration.userInfoUri("https://invalid-provider.com/user");
 		assertThatExceptionOfType(OAuth2AuthenticationException.class)
-				.isThrownBy(() -> this.userService.loadUser(oauth2UserRequest()).block());
+			.isThrownBy(() -> this.userService.loadUser(oauth2UserRequest()).block());
 	}
 
 	@Test
@@ -280,11 +283,11 @@ public class DefaultReactiveOAuth2UserServiceTests {
 		this.server.enqueue(response);
 		OAuth2UserRequest userRequest = oauth2UserRequest();
 		assertThatExceptionOfType(OAuth2AuthenticationException.class)
-				.isThrownBy(() -> this.userService.loadUser(userRequest).block()).withMessageContaining(
-						"[invalid_user_info_response] An error occurred while attempting to "
-								+ "retrieve the UserInfo Resource from '" + userRequest.getClientRegistration()
-										.getProviderDetails().getUserInfoEndpoint().getUri()
-								+ "': " + "response contains invalid content type 'text/plain'");
+			.isThrownBy(() -> this.userService.loadUser(userRequest).block())
+			.withMessageContaining("[invalid_user_info_response] An error occurred while attempting to "
+					+ "retrieve the UserInfo Resource from '"
+					+ userRequest.getClientRegistration().getProviderDetails().getUserInfoEndpoint().getUri() + "': "
+					+ "response contains invalid content type 'text/plain'");
 	}
 
 	private DefaultReactiveOAuth2UserService withMockResponse(Map<String, Object> body) {

@@ -62,7 +62,7 @@ public class MethodInvocationPrivilegeEvaluator implements InitializingBean {
 		Assert.notNull(invocation, "MethodInvocation required");
 		Assert.notNull(invocation.getMethod(), "MethodInvocation must provide a non-null getMethod()");
 		Collection<ConfigAttribute> attrs = this.securityInterceptor.obtainSecurityMetadataSource()
-				.getAttributes(invocation);
+			.getAttributes(invocation);
 		if (attrs == null) {
 			return !this.securityInterceptor.isRejectPublicInvocations();
 		}

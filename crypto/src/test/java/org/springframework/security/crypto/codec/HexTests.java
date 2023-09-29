@@ -31,7 +31,7 @@ public class HexTests {
 	@Test
 	public void encode() {
 		assertThat(Hex.encode(new byte[] { (byte) 'A', (byte) 'B', (byte) 'C', (byte) 'D' }))
-				.isEqualTo(new char[] { '4', '1', '4', '2', '4', '3', '4', '4' });
+			.isEqualTo(new char[] { '4', '1', '4', '2', '4', '3', '4', '4' });
 	}
 
 	@Test
@@ -52,25 +52,25 @@ public class HexTests {
 	@Test
 	public void decodeNotEven() {
 		assertThatIllegalArgumentException().isThrownBy(() -> Hex.decode("414243444"))
-				.withMessage("Hex-encoded string must have an even number of characters");
+			.withMessage("Hex-encoded string must have an even number of characters");
 	}
 
 	@Test
 	public void decodeExistNonHexCharAtFirst() {
 		assertThatIllegalArgumentException().isThrownBy(() -> Hex.decode("G0"))
-				.withMessage("Detected a Non-hex character at 1 or 2 position");
+			.withMessage("Detected a Non-hex character at 1 or 2 position");
 	}
 
 	@Test
 	public void decodeExistNonHexCharAtSecond() {
 		assertThatIllegalArgumentException().isThrownBy(() -> Hex.decode("410G"))
-				.withMessage("Detected a Non-hex character at 3 or 4 position");
+			.withMessage("Detected a Non-hex character at 3 or 4 position");
 	}
 
 	@Test
 	public void decodeExistNonHexCharAtBoth() {
 		assertThatIllegalArgumentException().isThrownBy(() -> Hex.decode("4142GG"))
-				.withMessage("Detected a Non-hex character at 5 or 6 position");
+			.withMessage("Detected a Non-hex character at 5 or 6 position");
 	}
 
 }

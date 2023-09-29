@@ -89,8 +89,9 @@ public class ExceptionTranslationWebFilterTests {
 	@Test
 	public void filterWhenNotAccessDeniedExceptionThenNotHandled() {
 		given(this.chain.filter(this.exchange)).willReturn(Mono.error(new IllegalArgumentException("oops")));
-		StepVerifier.create(this.filter.filter(this.exchange, this.chain)).expectError(IllegalArgumentException.class)
-				.verify();
+		StepVerifier.create(this.filter.filter(this.exchange, this.chain))
+			.expectError(IllegalArgumentException.class)
+			.verify();
 		this.deniedPublisher.assertWasNotSubscribed();
 		this.entryPointPublisher.assertWasNotSubscribed();
 	}

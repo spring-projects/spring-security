@@ -152,7 +152,7 @@ public class ChannelDecisionManagerImplTests {
 	public void testStartupFailsWithEmptyChannelProcessorsList() throws Exception {
 		ChannelDecisionManagerImpl cdm = new ChannelDecisionManagerImpl();
 		assertThatIllegalArgumentException().isThrownBy(cdm::afterPropertiesSet)
-				.withMessage("A list of ChannelProcessors is required");
+			.withMessage("A list of ChannelProcessors is required");
 	}
 
 	private class MockChannelProcessor implements ChannelProcessor {

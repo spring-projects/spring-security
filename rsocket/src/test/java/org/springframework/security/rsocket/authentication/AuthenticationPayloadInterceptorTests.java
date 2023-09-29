@@ -66,7 +66,7 @@ import static org.mockito.Mockito.verify;
 public class AuthenticationPayloadInterceptorTests {
 
 	static final MimeType COMPOSITE_METADATA = MimeTypeUtils
-			.parseMimeType(WellKnownMimeType.MESSAGE_RSOCKET_COMPOSITE_METADATA.getString());
+		.parseMimeType(WellKnownMimeType.MESSAGE_RSOCKET_COMPOSITE_METADATA.getString());
 
 	@Mock
 	ReactiveAuthenticationManager authenticationManager;
@@ -90,7 +90,7 @@ public class AuthenticationPayloadInterceptorTests {
 		Authentication authentication = authenticationPayloadChain.getAuthentication();
 		verify(this.authenticationManager).authenticate(this.authenticationArg.capture());
 		assertThat(this.authenticationArg.getValue()).usingRecursiveComparison()
-				.isEqualTo(UsernamePasswordAuthenticationToken.unauthenticated("user", "password"));
+			.isEqualTo(UsernamePasswordAuthenticationToken.unauthenticated("user", "password"));
 		assertThat(authentication).isEqualTo(expectedAuthentication);
 	}
 
@@ -104,7 +104,8 @@ public class AuthenticationPayloadInterceptorTests {
 		PayloadInterceptorChain chain = mock(PayloadInterceptorChain.class);
 		given(chain.next(any())).willReturn(voidResult.mono());
 		StepVerifier.create(interceptor.intercept(exchange, chain))
-				.then(() -> assertThat(voidResult.subscribeCount()).isEqualTo(1)).verifyComplete();
+			.then(() -> assertThat(voidResult.subscribeCount()).isEqualTo(1))
+			.verifyComplete();
 	}
 
 	private Payload createRequestPayload() {

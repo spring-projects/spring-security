@@ -134,7 +134,7 @@ public class AbstractSecurityWebApplicationInitializerTests {
 		}.onStartup(context);
 		DelegatingFilterProxy proxy = proxyCaptor.getValue();
 		assertThat(proxy.getContextAttribute())
-				.isEqualTo("org.springframework.web.servlet.FrameworkServlet.CONTEXT.dispatcher");
+			.isEqualTo("org.springframework.web.servlet.FrameworkServlet.CONTEXT.dispatcher");
 		assertThat(proxy).hasFieldOrPropertyWithValue("targetBeanName", "springSecurityFilterChain");
 		verify(registration).addMappingForUrlPatterns(DEFAULT_DISPATCH, false, "/*");
 		verify(registration).setAsyncSupported(true);
@@ -145,8 +145,9 @@ public class AbstractSecurityWebApplicationInitializerTests {
 	public void onStartupWhenSpringSecurityFilterChainAlreadyRegisteredThenException() {
 		ServletContext context = mock(ServletContext.class);
 		assertThatIllegalStateException().isThrownBy(() -> new AbstractSecurityWebApplicationInitializer() {
-		}.onStartup(context)).withMessage("Duplicate Filter registration for 'springSecurityFilterChain'. "
-				+ "Check to ensure the Filter is only configured once.");
+		}.onStartup(context))
+			.withMessage("Duplicate Filter registration for 'springSecurityFilterChain'. "
+					+ "Check to ensure the Filter is only configured once.");
 	}
 
 	@Test
@@ -187,8 +188,9 @@ public class AbstractSecurityWebApplicationInitializerTests {
 				insertFilters(context, filter1);
 			}
 
-		}.onStartup(context)).withMessage(
-				"Duplicate Filter registration for 'object'. Check to ensure the Filter is only configured once.");
+		}.onStartup(context))
+			.withMessage(
+					"Duplicate Filter registration for 'object'. Check to ensure the Filter is only configured once.");
 		assertProxyDefaults(proxyCaptor.getValue());
 		verify(registration).addMappingForUrlPatterns(DEFAULT_DISPATCH, false, "/*");
 		verify(context).addFilter(anyString(), eq(filter1));
@@ -267,8 +269,9 @@ public class AbstractSecurityWebApplicationInitializerTests {
 				appendFilters(context, filter1);
 			}
 
-		}.onStartup(context)).withMessage(
-				"Duplicate Filter registration for 'object'. " + "Check to ensure the Filter is only configured once.");
+		}.onStartup(context))
+			.withMessage("Duplicate Filter registration for 'object'. "
+					+ "Check to ensure the Filter is only configured once.");
 		assertProxyDefaults(proxyCaptor.getValue());
 		verify(registration).addMappingForUrlPatterns(DEFAULT_DISPATCH, false, "/*");
 		verify(context).addFilter(anyString(), eq(filter1));
@@ -316,7 +319,7 @@ public class AbstractSecurityWebApplicationInitializerTests {
 		FilterRegistration.Dynamic registration = mock(FilterRegistration.Dynamic.class);
 		ArgumentCaptor<DelegatingFilterProxy> proxyCaptor = ArgumentCaptor.forClass(DelegatingFilterProxy.class);
 		given(context.addFilter(eq("springSecurityFilterChain"), any(DelegatingFilterProxy.class)))
-				.willReturn(registration);
+			.willReturn(registration);
 		@SuppressWarnings("unchecked")
 		ArgumentCaptor<Set<SessionTrackingMode>> modesCaptor = ArgumentCaptor.forClass(Set.class);
 		new AbstractSecurityWebApplicationInitializer() {
@@ -335,7 +338,7 @@ public class AbstractSecurityWebApplicationInitializerTests {
 		FilterRegistration.Dynamic registration = mock(FilterRegistration.Dynamic.class);
 		ArgumentCaptor<DelegatingFilterProxy> proxyCaptor = ArgumentCaptor.forClass(DelegatingFilterProxy.class);
 		given(context.addFilter(eq("springSecurityFilterChain"), any(DelegatingFilterProxy.class)))
-				.willReturn(registration);
+			.willReturn(registration);
 		@SuppressWarnings("unchecked")
 		ArgumentCaptor<Set<SessionTrackingMode>> modesCaptor = ArgumentCaptor.forClass(Set.class);
 		willDoNothing().given(context).setSessionTrackingModes(any());
@@ -356,7 +359,7 @@ public class AbstractSecurityWebApplicationInitializerTests {
 	@Test
 	public void defaultFilterNameEqualsSpringSecurityFilterChain() {
 		assertThat(AbstractSecurityWebApplicationInitializer.DEFAULT_FILTER_NAME)
-				.isEqualTo("springSecurityFilterChain");
+			.isEqualTo("springSecurityFilterChain");
 	}
 
 	private static void verifyNoAddListener(ServletContext context) {

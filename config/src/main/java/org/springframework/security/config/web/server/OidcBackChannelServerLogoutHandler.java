@@ -79,30 +79,27 @@ final class OidcBackChannelServerLogoutHandler implements ServerLogoutHandler {
 		}
 		AtomicInteger totalCount = new AtomicInteger(0);
 		AtomicInteger invalidatedCount = new AtomicInteger(0);
-		return this.sessionRegistry.removeSessionInformation(token.getPrincipal())
-			.concatMap((session) -> {
-				totalCount.incrementAndGet();
-				return eachLogout(exchange, session)
-						.flatMap((response) -> {
-							invalidatedCount.incrementAndGet();
-							return Mono.empty();
-						})
-						.onErrorResume((ex) -> {
-							this.logger.debug("Failed to invalidate session", ex);
-							return this.sessionRegistry.saveSessionInformation(session)
-									.then(Mono.just(ex.getMessage()));
-						});
-			}).collectList().flatMap((list) -> {
-				if (this.logger.isTraceEnabled()) {
-					this.logger.trace(String.format("Invalidated %d out of %d sessions", invalidatedCount.intValue(), totalCount.intValue()));
-				}
-				if (!list.isEmpty()) {
-					return handleLogoutFailure(exchange.getExchange().getResponse(), oauth2Error(list));
-				}
-				else {
-					return Mono.empty();
-				}
+		return this.sessionRegistry.removeSessionInformation(token.getPrincipal()).concatMap((session) -> {
+			totalCount.incrementAndGet();
+			return eachLogout(exchange, session).flatMap((response) -> {
+				invalidatedCount.incrementAndGet();
+				return Mono.empty();
+			}).onErrorResume((ex) -> {
+				this.logger.debug("Failed to invalidate session", ex);
+				return this.sessionRegistry.saveSessionInformation(session).then(Mono.just(ex.getMessage()));
 			});
+		}).collectList().flatMap((list) -> {
+			if (this.logger.isTraceEnabled()) {
+				this.logger.trace(String.format("Invalidated %d out of %d sessions", invalidatedCount.intValue(),
+						totalCount.intValue()));
+			}
+			if (!list.isEmpty()) {
+				return handleLogoutFailure(exchange.getExchange().getResponse(), oauth2Error(list));
+			}
+			else {
+				return Mono.empty();
+			}
+		});
 	}
 
 	private Mono<ResponseEntity<Void>> eachLogout(WebFilterExchange exchange, OidcSessionInformation session) {
@@ -112,8 +109,10 @@ final class OidcBackChannelServerLogoutHandler implements ServerLogoutHandler {
 			headers.add(credential.getKey(), credential.getValue());
 		}
 		String url = exchange.getExchange().getRequest().getURI().toString();
-		String logout = UriComponentsBuilder.fromHttpUrl(url).replacePath(this.logoutEndpointName).build()
-				.toUriString();
+		String logout = UriComponentsBuilder.fromHttpUrl(url)
+			.replacePath(this.logoutEndpointName)
+			.build()
+			.toUriString();
 		return this.web.post().uri(logout).headers((h) -> h.putAll(headers)).retrieve().toBodilessEntity();
 	}
 
@@ -130,8 +129,7 @@ final class OidcBackChannelServerLogoutHandler implements ServerLogoutHandler {
 					"error_description": "%s",
 					"error_uri: "%s"
 				}
-				""", error.getErrorCode(), error.getDescription(), error.getUri())
-				.getBytes(StandardCharsets.UTF_8);
+				""", error.getErrorCode(), error.getDescription(), error.getUri()).getBytes(StandardCharsets.UTF_8);
 		DataBuffer buffer = response.bufferFactory().wrap(bytes);
 		return response.writeWith(Flux.just(buffer));
 	}

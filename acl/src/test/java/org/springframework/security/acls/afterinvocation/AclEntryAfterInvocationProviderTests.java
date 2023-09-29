@@ -54,7 +54,7 @@ public class AclEntryAfterInvocationProviderTests {
 	@Test
 	public void rejectsMissingPermissions() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new AclEntryAfterInvocationProvider(mock(AclService.class), null));
+			.isThrownBy(() -> new AclEntryAfterInvocationProvider(mock(AclService.class), null));
 		assertThatIllegalArgumentException().isThrownBy(
 				() -> new AclEntryAfterInvocationProvider(mock(AclService.class), Collections.<Permission>emptyList()));
 	}
@@ -112,12 +112,12 @@ public class AclEntryAfterInvocationProviderTests {
 		provider.setProcessDomainObjectClass(Object.class);
 		provider.setSidRetrievalStrategy(mock(SidRetrievalStrategy.class));
 		assertThatExceptionOfType(AccessDeniedException.class)
-				.isThrownBy(() -> provider.decide(mock(Authentication.class), new Object(),
-						SecurityConfig.createList("UNSUPPORTED", "MY_ATTRIBUTE"), new Object()));
+			.isThrownBy(() -> provider.decide(mock(Authentication.class), new Object(),
+					SecurityConfig.createList("UNSUPPORTED", "MY_ATTRIBUTE"), new Object()));
 		// Second scenario with no acls found
 		assertThatExceptionOfType(AccessDeniedException.class)
-				.isThrownBy(() -> provider.decide(mock(Authentication.class), new Object(),
-						SecurityConfig.createList("UNSUPPORTED", "MY_ATTRIBUTE"), new Object()));
+			.isThrownBy(() -> provider.decide(mock(Authentication.class), new Object(),
+					SecurityConfig.createList("UNSUPPORTED", "MY_ATTRIBUTE"), new Object()));
 	}
 
 	@Test
@@ -126,7 +126,8 @@ public class AclEntryAfterInvocationProviderTests {
 		AclEntryAfterInvocationProvider provider = new AclEntryAfterInvocationProvider(service,
 				Arrays.asList(mock(Permission.class)));
 		assertThat(provider.decide(mock(Authentication.class), new Object(),
-				SecurityConfig.createList("AFTER_ACL_COLLECTION_READ"), null)).isNull();
+				SecurityConfig.createList("AFTER_ACL_COLLECTION_READ"), null))
+			.isNull();
 		verify(service, never()).readAclById(any(ObjectIdentity.class), any(List.class));
 	}
 

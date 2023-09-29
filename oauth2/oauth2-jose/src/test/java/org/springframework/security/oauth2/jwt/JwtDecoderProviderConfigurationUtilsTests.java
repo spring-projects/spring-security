@@ -49,7 +49,8 @@ public class JwtDecoderProviderConfigurationUtilsTests {
 	public void getSignatureAlgorithmsWhenJwkSetSpecifiesAlgorithmThenUses() throws Exception {
 		JWKSource<SecurityContext> jwkSource = mock(JWKSource.class);
 		RSAKey key = new RSAKey.Builder(TestKeys.DEFAULT_PUBLIC_KEY).keyUse(KeyUse.SIGNATURE)
-				.algorithm(JWSAlgorithm.RS384).build();
+			.algorithm(JWSAlgorithm.RS384)
+			.build();
 		given(jwkSource.get(any(JWKSelector.class), isNull())).willReturn(Collections.singletonList(key));
 		Set<SignatureAlgorithm> algorithms = JwtDecoderProviderConfigurationUtils.getSignatureAlgorithms(jwkSource);
 		assertThat(algorithms).containsOnly(SignatureAlgorithm.RS384);
@@ -60,7 +61,7 @@ public class JwtDecoderProviderConfigurationUtilsTests {
 		JWKSource<SecurityContext> jwkSource = mock(JWKSource.class);
 		given(jwkSource.get(any(JWKSelector.class), isNull())).willReturn(Collections.emptyList());
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> JwtDecoderProviderConfigurationUtils.getSignatureAlgorithms(jwkSource));
+			.isThrownBy(() -> JwtDecoderProviderConfigurationUtils.getSignatureAlgorithms(jwkSource));
 	}
 
 	@Test
@@ -68,7 +69,9 @@ public class JwtDecoderProviderConfigurationUtilsTests {
 		JWKSource<SecurityContext> jwkSource = mock(JWKSource.class);
 		// Test parameters are from Anders Rundgren, public only
 		ECKey ecKey = new ECKey.Builder(Curve.P_256, new Base64URL("3l2Da_flYc-AuUTm2QzxgyvJxYM_2TeB9DMlwz7j1PE"),
-				new Base64URL("-kjT7Wrfhwsi9SG6H4UXiyUiVE9GHCLauslksZ3-_t0")).keyUse(KeyUse.SIGNATURE).build();
+				new Base64URL("-kjT7Wrfhwsi9SG6H4UXiyUiVE9GHCLauslksZ3-_t0"))
+			.keyUse(KeyUse.SIGNATURE)
+			.build();
 		RSAKey rsaKey = new RSAKey.Builder(TestKeys.DEFAULT_PUBLIC_KEY).keyUse(KeyUse.ENCRYPTION).build();
 		given(jwkSource.get(any(JWKSelector.class), isNull())).willReturn(Arrays.asList(ecKey, rsaKey));
 		Set<SignatureAlgorithm> algorithms = JwtDecoderProviderConfigurationUtils.getSignatureAlgorithms(jwkSource);
@@ -80,7 +83,8 @@ public class JwtDecoderProviderConfigurationUtilsTests {
 	public void getSignatureAlgorithmsWhenAlgorithmThenParses() throws Exception {
 		JWKSource<SecurityContext> jwkSource = mock(JWKSource.class);
 		RSAKey key = new RSAKey.Builder(TestKeys.DEFAULT_PUBLIC_KEY).keyUse(KeyUse.SIGNATURE)
-				.algorithm(new Algorithm(JwsAlgorithms.RS256)).build();
+			.algorithm(new Algorithm(JwsAlgorithms.RS256))
+			.build();
 		given(jwkSource.get(any(JWKSelector.class), isNull())).willReturn(Collections.singletonList(key));
 		Set<SignatureAlgorithm> algorithms = JwtDecoderProviderConfigurationUtils.getSignatureAlgorithms(jwkSource);
 		assertThat(algorithms).containsOnly(SignatureAlgorithm.RS256);

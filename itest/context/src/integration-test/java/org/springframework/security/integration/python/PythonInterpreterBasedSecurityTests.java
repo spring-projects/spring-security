@@ -35,7 +35,7 @@ public class PythonInterpreterBasedSecurityTests {
 	@Test
 	public void serviceMethod() {
 		SecurityContextHolder.getContext()
-				.setAuthentication(UsernamePasswordAuthenticationToken.unauthenticated("bob", "bobspassword"));
+			.setAuthentication(UsernamePasswordAuthenticationToken.unauthenticated("bob", "bobspassword"));
 
 		// for (int i=0; i < 1000; i++) {
 		this.service.someMethod();

@@ -58,7 +58,7 @@ public class PreAuthenticatedGrantedAuthoritiesUserDetailsService
 		Assert.notNull(token.getDetails(), "token.getDetails() cannot be null");
 		Assert.isInstanceOf(GrantedAuthoritiesContainer.class, token.getDetails());
 		Collection<? extends GrantedAuthority> authorities = ((GrantedAuthoritiesContainer) token.getDetails())
-				.getGrantedAuthorities();
+			.getGrantedAuthorities();
 		return createUserDetails(token, authorities);
 	}
 

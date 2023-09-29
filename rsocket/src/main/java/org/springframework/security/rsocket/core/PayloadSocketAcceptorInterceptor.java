@@ -42,7 +42,7 @@ public class PayloadSocketAcceptorInterceptor implements SocketAcceptorIntercept
 	private MimeType defaultDataMimeType;
 
 	private MimeType defaultMetadataMimeType = MimeTypeUtils
-			.parseMimeType(WellKnownMimeType.MESSAGE_RSOCKET_COMPOSITE_METADATA.getString());
+		.parseMimeType(WellKnownMimeType.MESSAGE_RSOCKET_COMPOSITE_METADATA.getString());
 
 	public PayloadSocketAcceptorInterceptor(List<PayloadInterceptor> interceptors) {
 		this.interceptors = interceptors;

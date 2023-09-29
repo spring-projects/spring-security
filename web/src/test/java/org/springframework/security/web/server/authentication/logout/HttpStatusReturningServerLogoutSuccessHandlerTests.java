@@ -39,7 +39,7 @@ public class HttpStatusReturningServerLogoutSuccessHandlerTests {
 	public void defaultHttpStatusBeingReturned() {
 		WebFilterExchange filterExchange = buildFilterExchange();
 		new HttpStatusReturningServerLogoutSuccessHandler().onLogoutSuccess(filterExchange, mock(Authentication.class))
-				.block();
+			.block();
 		assertThat(filterExchange.getExchange().getResponse().getStatusCode()).isEqualTo(HttpStatus.OK);
 	}
 
@@ -47,15 +47,16 @@ public class HttpStatusReturningServerLogoutSuccessHandlerTests {
 	public void customHttpStatusBeingReturned() {
 		WebFilterExchange filterExchange = buildFilterExchange();
 		new HttpStatusReturningServerLogoutSuccessHandler(HttpStatus.NO_CONTENT)
-				.onLogoutSuccess(filterExchange, mock(Authentication.class)).block();
+			.onLogoutSuccess(filterExchange, mock(Authentication.class))
+			.block();
 		assertThat(filterExchange.getExchange().getResponse().getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
 	}
 
 	@Test
 	public void nullHttpStatusThrowsException() {
 		assertThatExceptionOfType(IllegalArgumentException.class)
-				.isThrownBy(() -> new HttpStatusReturningServerLogoutSuccessHandler(null))
-				.withMessage("The provided HttpStatus must not be null.");
+			.isThrownBy(() -> new HttpStatusReturningServerLogoutSuccessHandler(null))
+			.withMessage("The provided HttpStatus must not be null.");
 	}
 
 	private static WebFilterExchange buildFilterExchange() {

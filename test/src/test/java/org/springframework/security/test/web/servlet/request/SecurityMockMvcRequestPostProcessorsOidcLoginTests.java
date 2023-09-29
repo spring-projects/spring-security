@@ -107,19 +107,19 @@ public class SecurityMockMvcRequestPostProcessorsOidcLoginTests {
 	@Test
 	public void oidcLoginWhenAuthoritiesSpecifiedThenGrantsAccess() throws Exception {
 		this.mvc.perform(get("/admin/scopes").with(oidcLogin().authorities(new SimpleGrantedAuthority("SCOPE_admin"))))
-				.andExpect(content().string("[\"SCOPE_admin\"]"));
+			.andExpect(content().string("[\"SCOPE_admin\"]"));
 	}
 
 	@Test
 	public void oidcLoginWhenIdTokenSpecifiedThenUserHasClaims() throws Exception {
 		this.mvc.perform(get("/id-token/iss").with(oidcLogin().idToken((i) -> i.issuer("https://idp.example.org"))))
-				.andExpect(content().string("https://idp.example.org"));
+			.andExpect(content().string("https://idp.example.org"));
 	}
 
 	@Test
 	public void oidcLoginWhenUserInfoSpecifiedThenUserHasClaims() throws Exception {
 		this.mvc.perform(get("/user-info/email").with(oidcLogin().userInfoToken((u) -> u.email("email@email"))))
-				.andExpect(content().string("email@email"));
+			.andExpect(content().string("email@email"));
 	}
 
 	@Test
@@ -128,10 +128,10 @@ public class SecurityMockMvcRequestPostProcessorsOidcLoginTests {
 				OidcIdToken.withTokenValue("id-token").claim("custom-attribute", "test-subject").build(),
 				"custom-attribute");
 		this.mvc.perform(get("/id-token/custom-attribute").with(oidcLogin().oidcUser(oidcUser)))
-				.andExpect(content().string("test-subject"));
+			.andExpect(content().string("test-subject"));
 		this.mvc.perform(get("/name").with(oidcLogin().oidcUser(oidcUser))).andExpect(content().string("test-subject"));
 		this.mvc.perform(get("/client-name").with(oidcLogin().oidcUser(oidcUser)))
-				.andExpect(content().string("test-subject"));
+			.andExpect(content().string("test-subject"));
 	}
 
 	// gh-7794
@@ -140,9 +140,10 @@ public class SecurityMockMvcRequestPostProcessorsOidcLoginTests {
 		OidcUser oidcUser = new DefaultOidcUser(AuthorityUtils.createAuthorityList("SCOPE_read"),
 				TestOidcIdTokens.idToken().build());
 		this.mvc.perform(get("/id-token/sub").with(oidcLogin().idToken((i) -> i.subject("foo")).oidcUser(oidcUser)))
-				.andExpect(status().isOk()).andExpect(content().string("subject"));
+			.andExpect(status().isOk())
+			.andExpect(content().string("subject"));
 		this.mvc.perform(get("/id-token/sub").with(oidcLogin().oidcUser(oidcUser).idToken((i) -> i.subject("bar"))))
-				.andExpect(content().string("bar"));
+			.andExpect(content().string("bar"));
 	}
 
 	@Configuration

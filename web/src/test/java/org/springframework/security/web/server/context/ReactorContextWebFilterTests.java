@@ -105,8 +105,10 @@ public class ReactorContextWebFilterTests {
 		SecurityContextImpl context = new SecurityContextImpl(this.principal);
 		given(this.repository.load(any())).willReturn(Mono.just(context));
 		this.handler = WebTestHandler.bindToWebFilters(this.filter,
-				(e, c) -> ReactiveSecurityContextHolder.getContext().map(SecurityContext::getAuthentication)
-						.doOnSuccess((p) -> assertThat(p).isSameAs(this.principal)).flatMap((p) -> c.filter(e)));
+				(e, c) -> ReactiveSecurityContextHolder.getContext()
+					.map(SecurityContext::getAuthentication)
+					.doOnSuccess((p) -> assertThat(p).isSameAs(this.principal))
+					.flatMap((p) -> c.filter(e)));
 		WebTestHandler.WebHandlerResult result = this.handler.exchange(this.exchange);
 		this.securityContext.assertWasNotSubscribed();
 	}

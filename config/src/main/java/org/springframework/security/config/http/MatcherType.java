@@ -39,8 +39,8 @@ import org.springframework.util.StringUtils;
  */
 public enum MatcherType {
 
-	ant(AntPathRequestMatcher.class), regex(RegexRequestMatcher.class), ciRegex(RegexRequestMatcher.class), mvc(
-			MvcRequestMatcher.class);
+	ant(AntPathRequestMatcher.class), regex(RegexRequestMatcher.class), ciRegex(RegexRequestMatcher.class),
+	mvc(MvcRequestMatcher.class);
 
 	private static final String HANDLER_MAPPING_INTROSPECTOR = "org.springframework.web.servlet.handler.HandlerMappingIntrospector";
 

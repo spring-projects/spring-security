@@ -69,7 +69,7 @@ public class LdapProviderBeanDefinitionParser implements BeanDefinitionParser {
 			this.logger.info("No search information or DN pattern specified. Using default search filter '"
 					+ DEF_USER_SEARCH_FILTER + "'");
 			BeanDefinitionBuilder searchBeanBuilder = BeanDefinitionBuilder
-					.rootBeanDefinition(LdapUserServiceBeanDefinitionParser.LDAP_SEARCH_CLASS);
+				.rootBeanDefinition(LdapUserServiceBeanDefinitionParser.LDAP_SEARCH_CLASS);
 			searchBeanBuilder.getRawBeanDefinition().setSource(elt);
 			searchBeanBuilder.addConstructorArgValue("");
 			searchBeanBuilder.addConstructorArgValue(DEF_USER_SEARCH_FILTER);
@@ -89,9 +89,9 @@ public class LdapProviderBeanDefinitionParser implements BeanDefinitionParser {
 			String hash = passwordCompareElt.getAttribute(ATT_HASH);
 			if (passwordEncoderElement != null) {
 				if (StringUtils.hasText(hash)) {
-					parserContext.getReaderContext().warning(
-							"Attribute 'hash' cannot be used with 'password-encoder' and " + "will be ignored.",
-							parserContext.extractSource(elt));
+					parserContext.getReaderContext()
+						.warning("Attribute 'hash' cannot be used with 'password-encoder' and " + "will be ignored.",
+								parserContext.extractSource(elt));
 				}
 				PasswordEncoderParser pep = new PasswordEncoderParser(passwordEncoderElement, parserContext);
 				authenticatorBuilder.addPropertyValue("passwordEncoder", pep.getPasswordEncoder());
@@ -108,8 +108,8 @@ public class LdapProviderBeanDefinitionParser implements BeanDefinitionParser {
 		}
 		BeanDefinitionBuilder ldapProvider = BeanDefinitionBuilder.rootBeanDefinition(PROVIDER_CLASS);
 		ldapProvider.addConstructorArgValue(authenticatorBuilder.getBeanDefinition());
-		ldapProvider.addConstructorArgValue(
-				LdapUserServiceBeanDefinitionParser.parseAuthoritiesPopulator(elt, parserContext));
+		ldapProvider
+			.addConstructorArgValue(LdapUserServiceBeanDefinitionParser.parseAuthoritiesPopulator(elt, parserContext));
 		ldapProvider.addPropertyValue("userDetailsContextMapper",
 				LdapUserServiceBeanDefinitionParser.parseUserDetailsClassOrUserMapperRef(elt, parserContext));
 		return ldapProvider.getBeanDefinition();

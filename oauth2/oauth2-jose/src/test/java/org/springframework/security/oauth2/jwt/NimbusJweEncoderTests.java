@@ -446,9 +446,11 @@ public class NimbusJweEncoderTests {
 				builder.criticalParams(critical);
 			}
 
-			Map<String, Object> customHeaders = headers.getHeaders().entrySet().stream()
-					.filter((header) -> !JWEHeader.getRegisteredParameterNames().contains(header.getKey()))
-					.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+			Map<String, Object> customHeaders = headers.getHeaders()
+				.entrySet()
+				.stream()
+				.filter((header) -> !JWEHeader.getRegisteredParameterNames().contains(header.getKey()))
+				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 			if (!CollectionUtils.isEmpty(customHeaders)) {
 				builder.customParams(customHeaders);
 			}

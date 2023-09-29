@@ -66,7 +66,7 @@ public class OidcIdTokenDecoderFactoryTests {
 	@Test
 	public void createDefaultClaimTypeConvertersWhenCalledThenDefaultsAreCorrect() {
 		Map<String, Converter<Object, ?>> claimTypeConverters = OidcIdTokenDecoderFactory
-				.createDefaultClaimTypeConverters();
+			.createDefaultClaimTypeConverters();
 		assertThat(claimTypeConverters).containsKey(IdTokenClaimNames.ISS);
 		assertThat(claimTypeConverters).containsKey(IdTokenClaimNames.AUD);
 		assertThat(claimTypeConverters).containsKey(IdTokenClaimNames.NONCE);
@@ -92,7 +92,7 @@ public class OidcIdTokenDecoderFactoryTests {
 	@Test
 	public void setClaimTypeConverterFactoryWhenNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> this.idTokenDecoderFactory.setClaimTypeConverterFactory(null));
+			.isThrownBy(() -> this.idTokenDecoderFactory.setClaimTypeConverterFactory(null));
 	}
 
 	@Test
@@ -103,41 +103,40 @@ public class OidcIdTokenDecoderFactoryTests {
 	@Test
 	public void createDecoderWhenJwsAlgorithmDefaultAndJwkSetUriEmptyThenThrowOAuth2AuthenticationException() {
 		assertThatExceptionOfType(OAuth2AuthenticationException.class)
-				.isThrownBy(() -> this.idTokenDecoderFactory.createDecoder(this.registration.jwkSetUri(null).build()))
-				.withMessage("[missing_signature_verifier] Failed to find a Signature Verifier "
-						+ "for Client Registration: 'registration-id'. "
-						+ "Check to ensure you have configured the JwkSet URI.");
+			.isThrownBy(() -> this.idTokenDecoderFactory.createDecoder(this.registration.jwkSetUri(null).build()))
+			.withMessage("[missing_signature_verifier] Failed to find a Signature Verifier "
+					+ "for Client Registration: 'registration-id'. "
+					+ "Check to ensure you have configured the JwkSet URI.");
 	}
 
 	@Test
 	public void createDecoderWhenJwsAlgorithmEcAndJwkSetUriEmptyThenThrowOAuth2AuthenticationException() {
 		this.idTokenDecoderFactory.setJwsAlgorithmResolver((clientRegistration) -> SignatureAlgorithm.ES256);
 		assertThatExceptionOfType(OAuth2AuthenticationException.class)
-				.isThrownBy(() -> this.idTokenDecoderFactory.createDecoder(this.registration.jwkSetUri(null).build()))
-				.withMessage("[missing_signature_verifier] Failed to find a Signature Verifier "
-						+ "for Client Registration: 'registration-id'. "
-						+ "Check to ensure you have configured the JwkSet URI.");
+			.isThrownBy(() -> this.idTokenDecoderFactory.createDecoder(this.registration.jwkSetUri(null).build()))
+			.withMessage("[missing_signature_verifier] Failed to find a Signature Verifier "
+					+ "for Client Registration: 'registration-id'. "
+					+ "Check to ensure you have configured the JwkSet URI.");
 	}
 
 	@Test
 	public void createDecoderWhenJwsAlgorithmHmacAndClientSecretNullThenThrowOAuth2AuthenticationException() {
 		this.idTokenDecoderFactory.setJwsAlgorithmResolver((clientRegistration) -> MacAlgorithm.HS256);
 		assertThatExceptionOfType(OAuth2AuthenticationException.class)
-				.isThrownBy(
-						() -> this.idTokenDecoderFactory.createDecoder(this.registration.clientSecret(null).build()))
-				.withMessage("[missing_signature_verifier] Failed to find a Signature Verifier "
-						+ "for Client Registration: 'registration-id'. "
-						+ "Check to ensure you have configured the client secret.");
+			.isThrownBy(() -> this.idTokenDecoderFactory.createDecoder(this.registration.clientSecret(null).build()))
+			.withMessage("[missing_signature_verifier] Failed to find a Signature Verifier "
+					+ "for Client Registration: 'registration-id'. "
+					+ "Check to ensure you have configured the client secret.");
 	}
 
 	@Test
 	public void createDecoderWhenJwsAlgorithmNullThenThrowOAuth2AuthenticationException() {
 		this.idTokenDecoderFactory.setJwsAlgorithmResolver((clientRegistration) -> null);
 		assertThatExceptionOfType(OAuth2AuthenticationException.class)
-				.isThrownBy(() -> this.idTokenDecoderFactory.createDecoder(this.registration.build()))
-				.withMessage("[missing_signature_verifier] Failed to find a Signature Verifier "
-						+ "for Client Registration: 'registration-id'. "
-						+ "Check to ensure you have configured a valid JWS Algorithm: 'null'");
+			.isThrownBy(() -> this.idTokenDecoderFactory.createDecoder(this.registration.build()))
+			.withMessage("[missing_signature_verifier] Failed to find a Signature Verifier "
+					+ "for Client Registration: 'registration-id'. "
+					+ "Check to ensure you have configured a valid JWS Algorithm: 'null'");
 	}
 
 	@Test
@@ -151,7 +150,7 @@ public class OidcIdTokenDecoderFactoryTests {
 		this.idTokenDecoderFactory.setJwtValidatorFactory(customJwtValidatorFactory);
 		ClientRegistration clientRegistration = this.registration.build();
 		given(customJwtValidatorFactory.apply(same(clientRegistration)))
-				.willReturn(new OidcIdTokenValidator(clientRegistration));
+			.willReturn(new OidcIdTokenValidator(clientRegistration));
 		this.idTokenDecoderFactory.createDecoder(clientRegistration);
 		verify(customJwtValidatorFactory).apply(same(clientRegistration));
 	}
@@ -173,7 +172,7 @@ public class OidcIdTokenDecoderFactoryTests {
 		this.idTokenDecoderFactory.setClaimTypeConverterFactory(customClaimTypeConverterFactory);
 		ClientRegistration clientRegistration = this.registration.build();
 		given(customClaimTypeConverterFactory.apply(same(clientRegistration)))
-				.willReturn(new ClaimTypeConverter(OidcIdTokenDecoderFactory.createDefaultClaimTypeConverters()));
+			.willReturn(new ClaimTypeConverter(OidcIdTokenDecoderFactory.createDefaultClaimTypeConverters()));
 		this.idTokenDecoderFactory.createDecoder(clientRegistration);
 		verify(customClaimTypeConverterFactory).apply(same(clientRegistration));
 	}

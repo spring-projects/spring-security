@@ -55,7 +55,7 @@ public final class XorCsrfChannelInterceptor implements ChannelInterceptor {
 			throw new MissingCsrfTokenException(null);
 		}
 		String actualToken = SimpMessageHeaderAccessor.wrap(message)
-				.getFirstNativeHeader(expectedToken.getHeaderName());
+			.getFirstNativeHeader(expectedToken.getHeaderName());
 		String actualTokenValue = XorCsrfTokenUtils.getTokenValue(actualToken, expectedToken.getToken());
 		boolean csrfCheckPassed = equalsConstantTime(expectedToken.getToken(), actualTokenValue);
 		if (!csrfCheckPassed) {

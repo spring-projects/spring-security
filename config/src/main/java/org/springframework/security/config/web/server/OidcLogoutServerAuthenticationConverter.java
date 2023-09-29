@@ -57,22 +57,24 @@ final class OidcLogoutServerAuthenticationConverter implements ServerAuthenticat
 
 	@Override
 	public Mono<Authentication> convert(ServerWebExchange exchange) {
-		return this.exchangeMatcher.matches(exchange).filter(ServerWebExchangeMatcher.MatchResult::isMatch)
-				.flatMap((match) -> {
-					String registrationId = (String) match.getVariables().get("registrationId");
-					return this.clientRegistrationRepository.findByRegistrationId(registrationId)
-							.switchIfEmpty(Mono.error(() -> {
-								this.logger.debug(
-										"Did not process OIDC Back-Channel Logout since no ClientRegistration was found");
-								return new OAuth2AuthenticationException(OAuth2ErrorCodes.INVALID_REQUEST);
-							}));
-				}).flatMap((clientRegistration) -> exchange.getFormData().map((data) -> {
-					String logoutToken = data.getFirst("logout_token");
-					return new OidcLogoutAuthenticationToken(logoutToken, clientRegistration);
-				}).switchIfEmpty(Mono.error(() -> {
-					this.logger.debug("Failed to process OIDC Back-Channel Logout since no logout token was found");
-					return new OAuth2AuthenticationException(OAuth2ErrorCodes.INVALID_REQUEST);
-				})));
+		return this.exchangeMatcher.matches(exchange)
+			.filter(ServerWebExchangeMatcher.MatchResult::isMatch)
+			.flatMap((match) -> {
+				String registrationId = (String) match.getVariables().get("registrationId");
+				return this.clientRegistrationRepository.findByRegistrationId(registrationId)
+					.switchIfEmpty(Mono.error(() -> {
+						this.logger
+							.debug("Did not process OIDC Back-Channel Logout since no ClientRegistration was found");
+						return new OAuth2AuthenticationException(OAuth2ErrorCodes.INVALID_REQUEST);
+					}));
+			})
+			.flatMap((clientRegistration) -> exchange.getFormData().map((data) -> {
+				String logoutToken = data.getFirst("logout_token");
+				return new OidcLogoutAuthenticationToken(logoutToken, clientRegistration);
+			}).switchIfEmpty(Mono.error(() -> {
+				this.logger.debug("Failed to process OIDC Back-Channel Logout since no logout token was found");
+				return new OAuth2AuthenticationException(OAuth2ErrorCodes.INVALID_REQUEST);
+			})));
 	}
 
 	/**

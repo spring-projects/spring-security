@@ -51,7 +51,7 @@ public class LdapAuthenticationProviderConfigurerTests {
 		this.spring.register(MultiLdapAuthenticationProvidersConfig.class).autowire();
 
 		this.mockMvc.perform(formLogin().user("bob").password("bobspassword"))
-				.andExpect(authenticated().withUsername("bob"));
+			.andExpect(authenticated().withUsername("bob"));
 	}
 
 	@Test

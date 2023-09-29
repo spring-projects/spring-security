@@ -75,13 +75,13 @@ public class NimbusJwtEncoderTests {
 	@Test
 	public void constructorWhenJwkSourceNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> new NimbusJwtEncoder(null))
-				.withMessage("jwkSource cannot be null");
+			.withMessage("jwkSource cannot be null");
 	}
 
 	@Test
 	public void encodeWhenParametersNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.jwtEncoder.encode(null))
-				.withMessage("parameters cannot be null");
+			.withMessage("parameters cannot be null");
 	}
 
 	@Test
@@ -89,8 +89,8 @@ public class NimbusJwtEncoderTests {
 		JwsHeader jwsHeader = JwsHeader.with(SignatureAlgorithm.RS256).build();
 
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> this.jwtEncoder.encode(JwtEncoderParameters.from(jwsHeader, null)))
-				.withMessage("claims cannot be null");
+			.isThrownBy(() -> this.jwtEncoder.encode(JwtEncoderParameters.from(jwsHeader, null)))
+			.withMessage("claims cannot be null");
 	}
 
 	@Test
@@ -103,8 +103,8 @@ public class NimbusJwtEncoderTests {
 		JwtClaimsSet jwtClaimsSet = TestJwtClaimsSets.jwtClaimsSet().build();
 
 		assertThatExceptionOfType(JwtEncodingException.class)
-				.isThrownBy(() -> this.jwtEncoder.encode(JwtEncoderParameters.from(jwsHeader, jwtClaimsSet)))
-				.withMessageContaining("Failed to select a JWK signing key -> key source error");
+			.isThrownBy(() -> this.jwtEncoder.encode(JwtEncoderParameters.from(jwsHeader, jwtClaimsSet)))
+			.withMessageContaining("Failed to select a JWK signing key -> key source error");
 	}
 
 	@Test
@@ -117,8 +117,8 @@ public class NimbusJwtEncoderTests {
 		JwtClaimsSet jwtClaimsSet = TestJwtClaimsSets.jwtClaimsSet().build();
 
 		assertThatExceptionOfType(JwtEncodingException.class)
-				.isThrownBy(() -> this.jwtEncoder.encode(JwtEncoderParameters.from(jwsHeader, jwtClaimsSet)))
-				.withMessageContaining("Found multiple JWK signing keys for algorithm 'RS256'");
+			.isThrownBy(() -> this.jwtEncoder.encode(JwtEncoderParameters.from(jwsHeader, jwtClaimsSet)))
+			.withMessageContaining("Found multiple JWK signing keys for algorithm 'RS256'");
 	}
 
 	@Test
@@ -127,8 +127,8 @@ public class NimbusJwtEncoderTests {
 		JwtClaimsSet jwtClaimsSet = TestJwtClaimsSets.jwtClaimsSet().build();
 
 		assertThatExceptionOfType(JwtEncodingException.class)
-				.isThrownBy(() -> this.jwtEncoder.encode(JwtEncoderParameters.from(jwsHeader, jwtClaimsSet)))
-				.withMessageContaining("Failed to select a JWK signing key");
+			.isThrownBy(() -> this.jwtEncoder.encode(JwtEncoderParameters.from(jwsHeader, jwtClaimsSet)))
+			.withMessageContaining("Failed to select a JWK signing key");
 	}
 
 	@Test
@@ -184,7 +184,8 @@ public class NimbusJwtEncoderTests {
 		// @formatter:on
 
 		JwsHeader jwsHeader = JwsHeader.with(SignatureAlgorithm.RS256)
-				.x509SHA256Thumbprint(rsaJwk1.getX509CertSHA256Thumbprint().toString()).build();
+			.x509SHA256Thumbprint(rsaJwk1.getX509CertSHA256Thumbprint().toString())
+			.build();
 		JwtClaimsSet jwtClaimsSet = TestJwtClaimsSets.jwtClaimsSet().build();
 
 		Jwt encodedJws = this.jwtEncoder.encode(JwtEncoderParameters.from(jwsHeader, jwtClaimsSet));
@@ -210,9 +211,9 @@ public class NimbusJwtEncoderTests {
 		JwtClaimsSet jwtClaimsSet = TestJwtClaimsSets.jwtClaimsSet().build();
 
 		assertThatExceptionOfType(JwtEncodingException.class)
-				.isThrownBy(() -> this.jwtEncoder.encode(JwtEncoderParameters.from(jwsHeader, jwtClaimsSet)))
-				.withMessageContaining(
-						"Failed to create a JWS Signer -> The JWK use must be sig (signature) or unspecified");
+			.isThrownBy(() -> this.jwtEncoder.encode(JwtEncoderParameters.from(jwsHeader, jwtClaimsSet)))
+			.withMessageContaining(
+					"Failed to create a JWS Signer -> The JWK use must be sig (signature) or unspecified");
 	}
 
 	@Test

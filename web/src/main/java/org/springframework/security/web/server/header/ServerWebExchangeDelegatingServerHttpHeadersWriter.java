@@ -62,8 +62,10 @@ public final class ServerWebExchangeDelegatingServerHttpHeadersWriter implements
 
 	@Override
 	public Mono<Void> writeHttpHeaders(ServerWebExchange exchange) {
-		return this.headersWriter.getMatcher().matches(exchange).filter(ServerWebExchangeMatcher.MatchResult::isMatch)
-				.flatMap((matchResult) -> this.headersWriter.getEntry().writeHttpHeaders(exchange));
+		return this.headersWriter.getMatcher()
+			.matches(exchange)
+			.filter(ServerWebExchangeMatcher.MatchResult::isMatch)
+			.flatMap((matchResult) -> this.headersWriter.getEntry().writeHttpHeaders(exchange));
 	}
 
 }

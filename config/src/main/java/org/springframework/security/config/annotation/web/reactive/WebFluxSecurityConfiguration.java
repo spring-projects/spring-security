@@ -138,7 +138,7 @@ class WebFluxSecurityConfiguration {
 		static boolean shouldConfigure(ApplicationContext context) {
 			ClassLoader loader = context.getClassLoader();
 			Class<?> reactiveClientRegistrationRepositoryClass = ClassUtils
-					.resolveClassName(REACTIVE_CLIENT_REGISTRATION_REPOSITORY_CLASSNAME, loader);
+				.resolveClassName(REACTIVE_CLIENT_REGISTRATION_REPOSITORY_CLASSNAME, loader);
 			return context.getBeanNamesForType(reactiveClientRegistrationRepositoryClass).length == 1;
 		}
 

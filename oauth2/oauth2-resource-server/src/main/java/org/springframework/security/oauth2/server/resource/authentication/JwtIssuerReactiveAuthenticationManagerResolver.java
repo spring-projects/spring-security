@@ -180,9 +180,9 @@ public final class JwtIssuerReactiveAuthenticationManagerResolver
 					"Authentication must be of type BearerTokenAuthenticationToken");
 			BearerTokenAuthenticationToken token = (BearerTokenAuthenticationToken) authentication;
 			return this.issuerConverter.convert(token)
-					.flatMap((issuer) -> this.issuerAuthenticationManagerResolver.resolve(issuer).switchIfEmpty(
-							Mono.error(() -> new InvalidBearerTokenException("Invalid issuer " + issuer))))
-					.flatMap((manager) -> manager.authenticate(authentication));
+				.flatMap((issuer) -> this.issuerAuthenticationManagerResolver.resolve(issuer)
+					.switchIfEmpty(Mono.error(() -> new InvalidBearerTokenException("Invalid issuer " + issuer))))
+				.flatMap((manager) -> manager.authenticate(authentication));
 		}
 
 	}

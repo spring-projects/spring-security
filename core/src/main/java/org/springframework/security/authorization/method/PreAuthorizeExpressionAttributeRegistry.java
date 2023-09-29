@@ -63,7 +63,7 @@ final class PreAuthorizeExpressionAttributeRegistry extends AbstractExpressionAt
 			return ExpressionAttribute.NULL_ATTRIBUTE;
 		}
 		Expression preAuthorizeExpression = this.expressionHandler.getExpressionParser()
-				.parseExpression(preAuthorize.value());
+			.parseExpression(preAuthorize.value());
 		return new ExpressionAttribute(preAuthorizeExpression);
 	}
 

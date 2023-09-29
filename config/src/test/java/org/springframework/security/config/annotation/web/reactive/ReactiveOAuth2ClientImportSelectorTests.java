@@ -79,7 +79,8 @@ public class ReactiveOAuth2ClientImportSelectorTests {
 		ReactiveOAuth2AuthorizedClientManager authorizedClientManager = mock(
 				ReactiveOAuth2AuthorizedClientManager.class);
 		ClientRegistration clientRegistration = TestClientRegistrations.clientCredentials()
-				.registrationId(clientRegistrationId).build();
+			.registrationId(clientRegistrationId)
+			.build();
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(clientRegistration, principalName,
 				TestOAuth2AccessTokens.noScopes());
 		given(authorizedClientManager.authorize(any())).willReturn(Mono.just(authorizedClient));
@@ -108,14 +109,15 @@ public class ReactiveOAuth2ClientImportSelectorTests {
 		ServerOAuth2AuthorizedClientRepository authorizedClientRepository = mock(
 				ServerOAuth2AuthorizedClientRepository.class);
 		ClientRegistration clientRegistration = TestClientRegistrations.clientCredentials()
-				.registrationId(clientRegistrationId).build();
+			.registrationId(clientRegistrationId)
+			.build();
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(clientRegistration, principalName,
 				TestOAuth2AccessTokens.noScopes());
 		OAuth2AuthorizedClientManagerRegisteredConfig.CLIENT_REGISTRATION_REPOSITORY = clientRegistrationRepository;
 		OAuth2AuthorizedClientManagerRegisteredConfig.AUTHORIZED_CLIENT_REPOSITORY = authorizedClientRepository;
 		OAuth2AuthorizedClientManagerRegisteredConfig.AUTHORIZED_CLIENT_MANAGER = null;
 		given(authorizedClientRepository.loadAuthorizedClient(any(), any(), any()))
-				.willReturn(Mono.just(authorizedClient));
+			.willReturn(Mono.just(authorizedClient));
 		this.spring.register(OAuth2AuthorizedClientManagerRegisteredConfig.class).autowire();
 		// @formatter:off
 		this.client

@@ -54,7 +54,7 @@ public class OpaqueTokenAuthenticationProviderTests {
 	@Test
 	public void authenticateWhenActiveTokenThenOk() throws Exception {
 		OAuth2AuthenticatedPrincipal principal = TestOAuth2AuthenticatedPrincipals
-				.active((attributes) -> attributes.put("extension_field", "twenty-seven"));
+			.active((attributes) -> attributes.put("extension_field", "twenty-seven"));
 		OpaqueTokenIntrospector introspector = mock(OpaqueTokenIntrospector.class);
 		given(introspector.introspect(any())).willReturn(principal);
 		OpaqueTokenAuthenticationProvider provider = new OpaqueTokenAuthenticationProvider(introspector);
@@ -106,7 +106,7 @@ public class OpaqueTokenAuthenticationProviderTests {
 		given(introspector.introspect(any())).willThrow(new OAuth2IntrospectionException("with \"invalid\" chars"));
 		OpaqueTokenAuthenticationProvider provider = new OpaqueTokenAuthenticationProvider(introspector);
 		assertThatExceptionOfType(AuthenticationServiceException.class)
-				.isThrownBy(() -> provider.authenticate(new BearerTokenAuthenticationToken("token")));
+			.isThrownBy(() -> provider.authenticate(new BearerTokenAuthenticationToken("token")));
 	}
 
 	@Test
@@ -136,7 +136,7 @@ public class OpaqueTokenAuthenticationProviderTests {
 		OpaqueTokenAuthenticationProvider provider = new OpaqueTokenAuthenticationProvider(introspector);
 		OpaqueTokenAuthenticationConverter authenticationConverter = mock(OpaqueTokenAuthenticationConverter.class);
 		given(authenticationConverter.convert(any(), any(OAuth2AuthenticatedPrincipal.class)))
-				.willReturn(new TestingAuthenticationToken(principal, null, Collections.emptyList()));
+			.willReturn(new TestingAuthenticationToken(principal, null, Collections.emptyList()));
 		provider.setAuthenticationConverter(authenticationConverter);
 
 		Authentication result = provider.authenticate(new BearerTokenAuthenticationToken("token"));

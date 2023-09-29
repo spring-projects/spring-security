@@ -74,7 +74,7 @@ public class PostFilterAuthorizationMethodInterceptorTests {
 	public void setExpressionHandlerWhenNullThenException() {
 		PostFilterAuthorizationMethodInterceptor advice = new PostFilterAuthorizationMethodInterceptor();
 		assertThatIllegalArgumentException().isThrownBy(() -> advice.setExpressionHandler(null))
-				.withMessage("expressionHandler cannot be null");
+			.withMessage("expressionHandler cannot be null");
 	}
 
 	@Test
@@ -82,7 +82,7 @@ public class PostFilterAuthorizationMethodInterceptorTests {
 		PostFilterAuthorizationMethodInterceptor advice = new PostFilterAuthorizationMethodInterceptor();
 		MethodMatcher methodMatcher = advice.getPointcut().getMethodMatcher();
 		assertThat(methodMatcher.matches(NoPostFilterClass.class.getMethod("doSomething"), NoPostFilterClass.class))
-				.isFalse();
+			.isFalse();
 	}
 
 	@Test
@@ -91,7 +91,7 @@ public class PostFilterAuthorizationMethodInterceptorTests {
 		MethodMatcher methodMatcher = advice.getPointcut().getMethodMatcher();
 		assertThat(
 				methodMatcher.matches(TestClass.class.getMethod("doSomethingArray", String[].class), TestClass.class))
-						.isTrue();
+			.isTrue();
 	}
 
 	@Test
@@ -115,7 +115,7 @@ public class PostFilterAuthorizationMethodInterceptorTests {
 				"inheritedAnnotations");
 		PostFilterAuthorizationMethodInterceptor advice = new PostFilterAuthorizationMethodInterceptor();
 		assertThatExceptionOfType(AnnotationConfigurationException.class)
-				.isThrownBy(() -> advice.invoke(methodInvocation));
+			.isThrownBy(() -> advice.invoke(methodInvocation));
 	}
 
 	@Test
@@ -124,7 +124,7 @@ public class PostFilterAuthorizationMethodInterceptorTests {
 				ConflictingAnnotations.class, "inheritedAnnotations");
 		PostFilterAuthorizationMethodInterceptor advice = new PostFilterAuthorizationMethodInterceptor();
 		assertThatExceptionOfType(AnnotationConfigurationException.class)
-				.isThrownBy(() -> advice.invoke(methodInvocation));
+			.isThrownBy(() -> advice.invoke(methodInvocation));
 	}
 
 	@Test

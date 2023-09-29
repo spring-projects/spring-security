@@ -305,8 +305,10 @@ public class EnableWebFluxSecurityTests {
 	@Test
 	// gh-8596
 	public void resolveAuthenticationPrincipalArgumentResolverFirstDoesNotCauseBeanCurrentlyInCreationException() {
-		this.spring.register(EnableWebFluxSecurityConfiguration.class, ReactiveAuthenticationTestConfiguration.class,
-				DelegatingWebFluxConfiguration.class).autowire();
+		this.spring
+			.register(EnableWebFluxSecurityConfiguration.class, ReactiveAuthenticationTestConfiguration.class,
+					DelegatingWebFluxConfiguration.class)
+			.autowire();
 	}
 
 	@Test
@@ -369,8 +371,10 @@ public class EnableWebFluxSecurityTests {
 		@Order(Ordered.HIGHEST_PRECEDENCE)
 		@Bean
 		SecurityWebFilterChain apiHttpSecurity(ServerHttpSecurity http) {
-			http.securityMatcher(new PathPatternParserServerWebExchangeMatcher("/api/**")).authorizeExchange()
-					.anyExchange().denyAll();
+			http.securityMatcher(new PathPatternParserServerWebExchangeMatcher("/api/**"))
+				.authorizeExchange()
+				.anyExchange()
+				.denyAll();
 			return http.build();
 		}
 

@@ -102,7 +102,7 @@ public class LdapShaPasswordEncoderTests {
 	public void malformedPrefixIsRejected() {
 		// No right brace
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> this.sha.matches("somepassword", "{SSHA25ro4PKC8jhQZ26jVsozhX/xaP0suHgX"));
+			.isThrownBy(() -> this.sha.matches("somepassword", "{SSHA25ro4PKC8jhQZ26jVsozhX/xaP0suHgX"));
 	}
 
 }

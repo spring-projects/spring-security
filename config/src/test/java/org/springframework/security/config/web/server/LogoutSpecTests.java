@@ -58,7 +58,8 @@ public class LogoutSpecTests {
 				.build();
 		// @formatter:on
 		FormLoginTests.DefaultLoginPage loginPage = FormLoginTests.HomePage
-				.to(driver, FormLoginTests.DefaultLoginPage.class).assertAt();
+			.to(driver, FormLoginTests.DefaultLoginPage.class)
+			.assertAt();
 		// @formatter:off
 		loginPage = loginPage.loginForm()
 				.username("user")
@@ -95,7 +96,8 @@ public class LogoutSpecTests {
 				.build();
 		// @formatter:on
 		FormLoginTests.DefaultLoginPage loginPage = FormLoginTests.HomePage
-				.to(driver, FormLoginTests.DefaultLoginPage.class).assertAt();
+			.to(driver, FormLoginTests.DefaultLoginPage.class)
+			.assertAt();
 		// @formatter:off
 		loginPage = loginPage.loginForm()
 					.username("user")
@@ -132,7 +134,8 @@ public class LogoutSpecTests {
 				.build();
 		// @formatter:on
 		FormLoginTests.DefaultLoginPage loginPage = FormLoginTests.HomePage
-				.to(driver, FormLoginTests.DefaultLoginPage.class).assertAt();
+			.to(driver, FormLoginTests.DefaultLoginPage.class)
+			.assertAt();
 		// @formatter:off
 		loginPage = loginPage.loginForm()
 				.username("user")
@@ -166,7 +169,8 @@ public class LogoutSpecTests {
 				.build();
 		// @formatter:on
 		FormLoginTests.DefaultLoginPage loginPage = FormLoginTests.HomePage
-				.to(driver, FormLoginTests.DefaultLoginPage.class).assertAt();
+			.to(driver, FormLoginTests.DefaultLoginPage.class)
+			.assertAt();
 		// @formatter:off
 		FormLoginTests.HomePage homePage = loginPage.loginForm()
 				.username("user")
@@ -199,7 +203,8 @@ public class LogoutSpecTests {
 				.build();
 		// @formatter:on
 		FormLoginTests.DefaultLoginPage loginPage = FormLoginTests.HomePage
-				.to(driver, FormLoginTests.DefaultLoginPage.class).assertAt();
+			.to(driver, FormLoginTests.DefaultLoginPage.class)
+			.assertAt();
 		// @formatter:off
 		FormLoginTests.HomePage homePage = loginPage.loginForm()
 				.username("user")

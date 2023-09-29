@@ -145,7 +145,7 @@ public class JdbcTokenRepositoryImplTests {
 		// 'joesseries'");
 		this.repo.removeUserTokens("joeuser");
 		List<Map<String, Object>> results = this.template
-				.queryForList("select * from persistent_logins where username = 'joeuser'");
+			.queryForList("select * from persistent_logins where username = 'joeuser'");
 		assertThat(results).isEmpty();
 	}
 
@@ -156,7 +156,7 @@ public class JdbcTokenRepositoryImplTests {
 				+ "('joesseries', 'joeuser', 'atoken', '" + ts.toString() + "')");
 		this.repo.updateToken("joesseries", "newtoken", new Date());
 		Map<String, Object> results = this.template
-				.queryForMap("select * from persistent_logins where series = 'joesseries'");
+			.queryForMap("select * from persistent_logins where series = 'joesseries'");
 		assertThat(results).containsEntry("username", "joeuser");
 		assertThat(results).containsEntry("series", "joesseries");
 		assertThat(results).containsEntry("token", "newtoken");

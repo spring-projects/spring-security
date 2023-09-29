@@ -103,8 +103,8 @@ public class JdbcUserDetailsManagerTests {
 		this.template.execute("create table users(username varchar(20) not null primary key,"
 				+ "password varchar(20) not null, enabled boolean not null)");
 		this.template
-				.execute("create table authorities (username varchar(20) not null, authority varchar(20) not null, "
-						+ "constraint fk_authorities_users foreign key(username) references users(username))");
+			.execute("create table authorities (username varchar(20) not null, authority varchar(20) not null, "
+					+ "constraint fk_authorities_users foreign key(username) references users(username))");
 		PopulatedDatabase.createGroupTables(this.template);
 		PopulatedDatabase.insertGroupData(this.template);
 	}
@@ -195,7 +195,7 @@ public class JdbcUserDetailsManagerTests {
 	@Test
 	public void changePasswordFailsForUnauthenticatedUser() {
 		assertThatExceptionOfType(AccessDeniedException.class)
-				.isThrownBy(() -> this.manager.changePassword("password", "newPassword"));
+			.isThrownBy(() -> this.manager.changePassword("password", "newPassword"));
 	}
 
 	@Test
@@ -246,7 +246,7 @@ public class JdbcUserDetailsManagerTests {
 		given(am.authenticate(any(Authentication.class))).willThrow(new BadCredentialsException(""));
 		this.manager.setAuthenticationManager(am);
 		assertThatExceptionOfType(BadCredentialsException.class)
-				.isThrownBy(() -> this.manager.changePassword("password", "newPassword"));
+			.isThrownBy(() -> this.manager.changePassword("password", "newPassword"));
 		// Check password hasn't changed.
 		UserDetails newJoe = this.manager.loadUserByUsername("joe");
 		assertThat(newJoe.getPassword()).isEqualTo("password");
@@ -298,7 +298,7 @@ public class JdbcUserDetailsManagerTests {
 	public void renameGroupIsSuccessful() {
 		this.manager.renameGroup("GROUP_0", "GROUP_X");
 		assertThat(this.template.queryForObject("select id from groups where group_name = 'GROUP_X'", Integer.class))
-				.isZero();
+			.isZero();
 	}
 
 	@Test
@@ -311,13 +311,13 @@ public class JdbcUserDetailsManagerTests {
 	public void removeUserFromGroupDeletesGroupMemberRow() {
 		this.manager.removeUserFromGroup("jerry", "GROUP_1");
 		assertThat(this.template.queryForList("select group_id from group_members where username = 'jerry'"))
-				.hasSize(1);
+			.hasSize(1);
 	}
 
 	@Test
 	public void findGroupAuthoritiesReturnsCorrectAuthorities() {
 		assertThat(AuthorityUtils.createAuthorityList("ROLE_A"))
-				.isEqualTo(this.manager.findGroupAuthorities("GROUP_0"));
+			.isEqualTo(this.manager.findGroupAuthorities("GROUP_0"));
 	}
 
 	@Test

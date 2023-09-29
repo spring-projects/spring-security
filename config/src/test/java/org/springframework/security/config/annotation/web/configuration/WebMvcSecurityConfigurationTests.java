@@ -79,15 +79,15 @@ public class WebMvcSecurityConfigurationTests {
 	@Test
 	public void authenticationPrincipalResolved() throws Exception {
 		this.mockMvc.perform(get("/authentication-principal"))
-				.andExpect(assertResult(this.authentication.getPrincipal()))
-				.andExpect(view().name("authentication-principal-view"));
+			.andExpect(assertResult(this.authentication.getPrincipal()))
+			.andExpect(view().name("authentication-principal-view"));
 	}
 
 	@Test
 	public void deprecatedAuthenticationPrincipalResolved() throws Exception {
 		this.mockMvc.perform(get("/deprecated-authentication-principal"))
-				.andExpect(assertResult(this.authentication.getPrincipal()))
-				.andExpect(view().name("deprecated-authentication-principal-view"));
+			.andExpect(assertResult(this.authentication.getPrincipal()))
+			.andExpect(view().name("deprecated-authentication-principal-view"));
 	}
 
 	@Test

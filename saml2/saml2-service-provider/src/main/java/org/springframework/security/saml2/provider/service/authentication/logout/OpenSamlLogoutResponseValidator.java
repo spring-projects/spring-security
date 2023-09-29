@@ -63,7 +63,7 @@ public class OpenSamlLogoutResponseValidator implements Saml2LogoutResponseValid
 		XMLObjectProviderRegistry registry = ConfigurationService.get(XMLObjectProviderRegistry.class);
 		this.parserPool = registry.getParserPool();
 		this.unmarshaller = (LogoutResponseUnmarshaller) XMLObjectProviderRegistrySupport.getUnmarshallerFactory()
-				.getUnmarshaller(LogoutResponse.DEFAULT_ELEMENT_NAME);
+			.getUnmarshaller(LogoutResponse.DEFAULT_ELEMENT_NAME);
 	}
 
 	/**
@@ -76,9 +76,11 @@ public class OpenSamlLogoutResponseValidator implements Saml2LogoutResponseValid
 		RelyingPartyRegistration registration = parameters.getRelyingPartyRegistration();
 		byte[] b = Saml2Utils.samlDecode(response.getSamlResponse());
 		LogoutResponse logoutResponse = parse(inflateIfRequired(response, b));
-		return Saml2LogoutValidatorResult.withErrors().errors(verifySignature(response, logoutResponse, registration))
-				.errors(validateRequest(logoutResponse, registration))
-				.errors(validateLogoutRequest(logoutResponse, request.getId())).build();
+		return Saml2LogoutValidatorResult.withErrors()
+			.errors(verifySignature(response, logoutResponse, registration))
+			.errors(validateRequest(logoutResponse, registration))
+			.errors(validateLogoutRequest(logoutResponse, request.getId()))
+			.build();
 	}
 
 	private String inflateIfRequired(Saml2LogoutResponse response, byte[] b) {
@@ -91,7 +93,7 @@ public class OpenSamlLogoutResponseValidator implements Saml2LogoutResponseValid
 	private LogoutResponse parse(String response) throws Saml2Exception {
 		try {
 			Document document = this.parserPool
-					.parse(new ByteArrayInputStream(response.getBytes(StandardCharsets.UTF_8)));
+				.parse(new ByteArrayInputStream(response.getBytes(StandardCharsets.UTF_8)));
 			Element element = document.getDocumentElement();
 			return (LogoutResponse) this.unmarshaller.unmarshall(element);
 		}
@@ -131,8 +133,8 @@ public class OpenSamlLogoutResponseValidator implements Saml2LogoutResponseValid
 			}
 			String issuer = response.getIssuer().getValue();
 			if (!issuer.equals(registration.getAssertingPartyDetails().getEntityId())) {
-				errors.add(
-						new Saml2Error(Saml2ErrorCodes.INVALID_ISSUER, "Failed to match issuer to configured issuer"));
+				errors
+					.add(new Saml2Error(Saml2ErrorCodes.INVALID_ISSUER, "Failed to match issuer to configured issuer"));
 			}
 		};
 	}

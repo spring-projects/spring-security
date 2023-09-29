@@ -69,7 +69,7 @@ public class SecurityMockMvcRequestPostProcessorsUserTests {
 	public void setup() {
 		this.request = new MockHttpServletRequest();
 		this.webTestUtils.when(() -> WebTestUtils.getSecurityContextRepository(this.request))
-				.thenReturn(this.repository);
+			.thenReturn(this.repository);
 	}
 
 	@AfterEach
@@ -100,8 +100,8 @@ public class SecurityMockMvcRequestPostProcessorsUserTests {
 		assertThat(context.getAuthentication()).isInstanceOf(UsernamePasswordAuthenticationToken.class);
 		assertThat(context.getAuthentication().getName()).isEqualTo(username);
 		assertThat(context.getAuthentication().getCredentials()).isEqualTo("newpass");
-		assertThat(context.getAuthentication().getAuthorities()).extracting("authority").containsOnly("ROLE_CUSTOM",
-				"ROLE_ADMIN");
+		assertThat(context.getAuthentication().getAuthorities()).extracting("authority")
+			.containsOnly("ROLE_CUSTOM", "ROLE_ADMIN");
 	}
 
 	@Test
@@ -118,7 +118,7 @@ public class SecurityMockMvcRequestPostProcessorsUserTests {
 	@Test
 	public void userRolesWithRolePrefixErrors() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> user("user").roles("ROLE_INVALID").postProcessRequest(this.request));
+			.isThrownBy(() -> user("user").roles("ROLE_INVALID").postProcessRequest(this.request));
 	}
 
 	@Test

@@ -41,9 +41,11 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 public class SecurityMockServerConfigurersAnnotatedTests extends AbstractMockServerConfigurersTests {
 
 	WebTestClient client = WebTestClient.bindToController(this.controller)
-			.webFilter(new SecurityContextServerWebExchangeWebFilter())
-			.apply(SecurityMockServerConfigurers.springSecurity()).configureClient()
-			.defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE).build();
+		.webFilter(new SecurityContextServerWebExchangeWebFilter())
+		.apply(SecurityMockServerConfigurers.springSecurity())
+		.configureClient()
+		.defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+		.build();
 
 	@Test
 	@WithMockUser
@@ -59,10 +61,12 @@ public class SecurityMockServerConfigurersAnnotatedTests extends AbstractMockSer
 		TestingAuthenticationToken authentication = new TestingAuthenticationToken("authentication", "secret",
 				"ROLE_USER");
 		this.client = WebTestClient.bindToController(this.controller)
-				.webFilter(new SecurityContextServerWebExchangeWebFilter())
-				.apply(SecurityMockServerConfigurers.springSecurity())
-				.apply(SecurityMockServerConfigurers.mockAuthentication(authentication)).configureClient()
-				.defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE).build();
+			.webFilter(new SecurityContextServerWebExchangeWebFilter())
+			.apply(SecurityMockServerConfigurers.springSecurity())
+			.apply(SecurityMockServerConfigurers.mockAuthentication(authentication))
+			.configureClient()
+			.defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+			.build();
 		this.client.get().exchange().expectStatus().isOk();
 		this.controller.assertPrincipalIsEqualTo(authentication);
 	}
@@ -72,8 +76,11 @@ public class SecurityMockServerConfigurersAnnotatedTests extends AbstractMockSer
 	public void withMockUserWhenMutateWithMockPrincipalThenOverridesAnnotation() {
 		TestingAuthenticationToken authentication = new TestingAuthenticationToken("authentication", "secret",
 				"ROLE_USER");
-		this.client.mutateWith(SecurityMockServerConfigurers.mockAuthentication(authentication)).get().exchange()
-				.expectStatus().isOk();
+		this.client.mutateWith(SecurityMockServerConfigurers.mockAuthentication(authentication))
+			.get()
+			.exchange()
+			.expectStatus()
+			.isOk();
 		this.controller.assertPrincipalIsEqualTo(authentication);
 	}
 
@@ -82,8 +89,11 @@ public class SecurityMockServerConfigurersAnnotatedTests extends AbstractMockSer
 	public void withMockUserWhenMutateWithMockPrincipalAndNoMutateThenOverridesAnnotationAndUsesAnnotation() {
 		TestingAuthenticationToken authentication = new TestingAuthenticationToken("authentication", "secret",
 				"ROLE_USER");
-		this.client.mutateWith(SecurityMockServerConfigurers.mockAuthentication(authentication)).get().exchange()
-				.expectStatus().isOk();
+		this.client.mutateWith(SecurityMockServerConfigurers.mockAuthentication(authentication))
+			.get()
+			.exchange()
+			.expectStatus()
+			.isOk();
 		this.controller.assertPrincipalIsEqualTo(authentication);
 		this.client.get().exchange().expectStatus().isOk();
 		assertPrincipalCreatedFromUserDetails(this.controller.removePrincipal(), this.userBuilder.build());
@@ -103,9 +113,12 @@ public class SecurityMockServerConfigurersAnnotatedTests extends AbstractMockSer
 		TestingAuthenticationToken authentication = new TestingAuthenticationToken("authentication", "secret",
 				"ROLE_USER");
 		ForkJoinPool.commonPool()
-				.submit(() -> this.client.mutateWith(SecurityMockServerConfigurers.mockAuthentication(authentication))
-						.get().exchange().expectStatus().isOk())
-				.join();
+			.submit(() -> this.client.mutateWith(SecurityMockServerConfigurers.mockAuthentication(authentication))
+				.get()
+				.exchange()
+				.expectStatus()
+				.isOk())
+			.join();
 		this.controller.assertPrincipalIsEqualTo(authentication);
 		ForkJoinPool.commonPool().submit(() -> this.client.get().exchange().expectStatus().isOk()).join();
 		assertPrincipalCreatedFromUserDetails(this.controller.removePrincipal(), this.userBuilder.build());

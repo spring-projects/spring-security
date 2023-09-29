@@ -60,9 +60,9 @@ public class AuthenticationProviderBeanDefinitionParser implements BeanDefinitio
 		if (StringUtils.hasText(ref)) {
 			if (userServiceElt != null) {
 				pc.getReaderContext()
-						.error("The " + ATT_USER_DETAILS_REF + " attribute cannot be used in combination with child"
-								+ "elements '" + Elements.USER_SERVICE + "', '" + Elements.JDBC_USER_SERVICE + "' or '"
-								+ Elements.LDAP_USER_SERVICE + "'", element);
+					.error("The " + ATT_USER_DETAILS_REF + " attribute cannot be used in combination with child"
+							+ "elements '" + Elements.USER_SERVICE + "', '" + Elements.JDBC_USER_SERVICE + "' or '"
+							+ Elements.LDAP_USER_SERVICE + "'", element);
 			}
 			authProvider.getPropertyValues().add("userDetailsService", new RuntimeBeanReference(ref));
 		}

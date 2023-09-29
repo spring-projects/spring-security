@@ -82,7 +82,7 @@ public class SupplierClientRegistrationRepositoryTests {
 		SupplierClientRegistrationRepository test = new SupplierClientRegistrationRepository(
 				this.clientRegistrationRepositorySupplier);
 		given(this.clientRegistrationRepositorySupplier.get())
-				.willReturn(new InMemoryClientRegistrationRepository(this.registration));
+			.willReturn(new InMemoryClientRegistrationRepository(this.registration));
 		String id = this.registration.getRegistrationId();
 		assertThat(test.findByRegistrationId(id)).isEqualTo(this.registration);
 		id = this.registration.getRegistrationId();

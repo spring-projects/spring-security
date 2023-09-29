@@ -197,7 +197,7 @@ public class CasAuthenticationFilter extends AbstractAuthenticationProcessingFil
 	private SecurityContextRepository securityContextRepository = new HttpSessionSecurityContextRepository();
 
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
-			.getContextHolderStrategy();
+		.getContextHolderStrategy();
 
 	public CasAuthenticationFilter() {
 		super("/login/cas");

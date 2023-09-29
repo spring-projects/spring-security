@@ -95,7 +95,7 @@ public class DigestAuthUtilsTests {
 		assertThatIllegalArgumentException().isThrownBy(() -> DigestAuthUtils.split("sdch=dfgf", null));
 		assertThatIllegalArgumentException().isThrownBy(() -> DigestAuthUtils.split("fvfv=dcdc", ""));
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> DigestAuthUtils.split("dfdc=dcdc", "BIGGER_THAN_ONE_CHARACTER"));
+			.isThrownBy(() -> DigestAuthUtils.split("dfdc=dcdc", "BIGGER_THAN_ONE_CHARACTER"));
 	}
 
 	@Test

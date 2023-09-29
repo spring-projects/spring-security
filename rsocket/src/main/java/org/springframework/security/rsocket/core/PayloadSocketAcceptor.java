@@ -48,7 +48,7 @@ class PayloadSocketAcceptor implements SocketAcceptor {
 	private MimeType defaultDataMimeType;
 
 	private MimeType defaultMetadataMimeType = MimeTypeUtils
-			.parseMimeType(WellKnownMimeType.MESSAGE_RSOCKET_COMPOSITE_METADATA.getString());
+		.parseMimeType(WellKnownMimeType.MESSAGE_RSOCKET_COMPOSITE_METADATA.getString());
 
 	PayloadSocketAcceptor(SocketAcceptor delegate, List<PayloadInterceptor> interceptors) {
 		Assert.notNull(delegate, "delegate cannot be null");
@@ -69,13 +69,11 @@ class PayloadSocketAcceptor implements SocketAcceptor {
 		MimeType metadataMimeType = parseMimeType(setup.metadataMimeType(), this.defaultMetadataMimeType);
 		Assert.notNull(metadataMimeType, "No `metadataMimeType` in ConnectionSetupPayload and no default value");
 		// FIXME do we want to make the sendingSocket available in the PayloadExchange
-		return intercept(setup, dataMimeType,
-				metadataMimeType)
-						.flatMap(
-								(ctx) -> this.delegate.accept(setup, sendingSocket)
-										.map((acceptingSocket) -> new PayloadInterceptorRSocket(acceptingSocket,
-												this.interceptors, metadataMimeType, dataMimeType, ctx))
-										.contextWrite(ctx));
+		return intercept(setup, dataMimeType, metadataMimeType)
+			.flatMap((ctx) -> this.delegate.accept(setup, sendingSocket)
+				.map((acceptingSocket) -> new PayloadInterceptorRSocket(acceptingSocket, this.interceptors,
+						metadataMimeType, dataMimeType, ctx))
+				.contextWrite(ctx));
 	}
 
 	private Mono<Context> intercept(Payload payload, MimeType dataMimeType, MimeType metadataMimeType) {

@@ -58,7 +58,7 @@ final class PostFilterExpressionAttributeRegistry extends AbstractExpressionAttr
 			return ExpressionAttribute.NULL_ATTRIBUTE;
 		}
 		Expression postFilterExpression = this.expressionHandler.getExpressionParser()
-				.parseExpression(postFilter.value());
+			.parseExpression(postFilter.value());
 		return new ExpressionAttribute(postFilterExpression);
 	}
 

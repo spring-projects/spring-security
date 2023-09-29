@@ -50,8 +50,9 @@ public class DelegatingServerLogoutHandler implements ServerLogoutHandler {
 
 	@Override
 	public Mono<Void> logout(WebFilterExchange exchange, Authentication authentication) {
-		return Flux.fromIterable(this.delegates).concatMap((delegate) -> delegate.logout(exchange, authentication))
-				.then();
+		return Flux.fromIterable(this.delegates)
+			.concatMap((delegate) -> delegate.logout(exchange, authentication))
+			.then();
 	}
 
 }

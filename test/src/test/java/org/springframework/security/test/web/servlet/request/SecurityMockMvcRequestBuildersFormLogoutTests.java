@@ -69,7 +69,7 @@ public class SecurityMockMvcRequestBuildersFormLogoutTests {
 	@Test
 	public void customWithUriVars() {
 		MockHttpServletRequest request = logout().logoutUrl("/uri-logout/{var1}/{var2}", "val1", "val2")
-				.buildRequest(this.servletContext);
+			.buildRequest(this.servletContext);
 		CsrfToken token = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
 		assertThat(request.getMethod()).isEqualTo("POST");
 		assertThat(request.getParameter(token.getParameterName())).isEqualTo(token.getToken());
@@ -86,11 +86,12 @@ public class SecurityMockMvcRequestBuildersFormLogoutTests {
 		RequestPostProcessor postProcessor = mock(RequestPostProcessor.class);
 		given(postProcessor.postProcessRequest(any())).willAnswer((i) -> i.getArgument(0));
 		MockMvc mockMvc = MockMvcBuilders.standaloneSetup(new Object())
-				.defaultRequest(MockMvcRequestBuilders.get("/").with(postProcessor)).build();
+			.defaultRequest(MockMvcRequestBuilders.get("/").with(postProcessor))
+			.build();
 		MvcResult mvcResult = mockMvc.perform(logout()).andReturn();
 		assertThat(mvcResult.getRequest().getMethod()).isEqualTo(HttpMethod.POST.name());
 		assertThat(mvcResult.getRequest().getHeader("Accept"))
-				.isEqualTo(MediaType.toString(Arrays.asList(MediaType.TEXT_HTML, MediaType.ALL)));
+			.isEqualTo(MediaType.toString(Arrays.asList(MediaType.TEXT_HTML, MediaType.ALL)));
 		assertThat(mvcResult.getRequest().getRequestURI()).isEqualTo("/logout");
 		assertThat(mvcResult.getRequest().getParameter("_csrf")).isNotEmpty();
 		verify(postProcessor).postProcessRequest(any());

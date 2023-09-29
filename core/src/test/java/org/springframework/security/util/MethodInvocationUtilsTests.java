@@ -47,8 +47,8 @@ public class MethodInvocationUtilsTests {
 
 	@Test
 	public void exceptionIsRaisedIfArgInfoOmittedAndMethodNameIsNotUnique() {
-		assertThatIllegalArgumentException().isThrownBy(
-				() -> MethodInvocationUtils.createFromClass(BusinessServiceImpl.class, "methodReturningAList"));
+		assertThatIllegalArgumentException()
+			.isThrownBy(() -> MethodInvocationUtils.createFromClass(BusinessServiceImpl.class, "methodReturningAList"));
 	}
 
 	@Test

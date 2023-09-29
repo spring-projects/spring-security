@@ -44,8 +44,10 @@ public class ServerWebExchangeDelegatingReactiveAuthenticationManagerResolverTes
 	@Test
 	public void resolveWhenMatchesThenReturnsReactiveAuthenticationManager() {
 		ServerWebExchangeDelegatingReactiveAuthenticationManagerResolver resolver = ServerWebExchangeDelegatingReactiveAuthenticationManagerResolver
-				.builder().add(new PathPatternParserServerWebExchangeMatcher("/one/**"), this.one)
-				.add(new PathPatternParserServerWebExchangeMatcher("/two/**"), this.two).build();
+			.builder()
+			.add(new PathPatternParserServerWebExchangeMatcher("/one/**"), this.one)
+			.add(new PathPatternParserServerWebExchangeMatcher("/two/**"), this.two)
+			.build();
 
 		MockServerHttpRequest request = MockServerHttpRequest.get("/one/location").build();
 		assertThat(resolver.resolve(MockServerWebExchange.from(request)).block()).isEqualTo(this.one);
@@ -54,16 +56,18 @@ public class ServerWebExchangeDelegatingReactiveAuthenticationManagerResolverTes
 	@Test
 	public void resolveWhenDoesNotMatchThenReturnsDefaultReactiveAuthenticationManager() {
 		ServerWebExchangeDelegatingReactiveAuthenticationManagerResolver resolver = ServerWebExchangeDelegatingReactiveAuthenticationManagerResolver
-				.builder().add(new PathPatternParserServerWebExchangeMatcher("/one/**"), this.one)
-				.add(new PathPatternParserServerWebExchangeMatcher("/two/**"), this.two).build();
+			.builder()
+			.add(new PathPatternParserServerWebExchangeMatcher("/one/**"), this.one)
+			.add(new PathPatternParserServerWebExchangeMatcher("/two/**"), this.two)
+			.build();
 
 		MockServerHttpRequest request = MockServerHttpRequest.get("/wrong/location").build();
 		ReactiveAuthenticationManager authenticationManager = resolver.resolve(MockServerWebExchange.from(request))
-				.block();
+			.block();
 
 		Authentication authentication = new TestingAuthenticationToken("principal", "creds");
 		assertThatExceptionOfType(AuthenticationServiceException.class)
-				.isThrownBy(() -> authenticationManager.authenticate(authentication).block());
+			.isThrownBy(() -> authenticationManager.authenticate(authentication).block());
 	}
 
 }

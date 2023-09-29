@@ -77,14 +77,14 @@ public class CsrfAuthenticationStrategyTests {
 	@Test
 	public void setRequestHandlerWhenNullThenIllegalStateException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.strategy.setRequestHandler(null))
-				.withMessage("requestHandler cannot be null");
+			.withMessage("requestHandler cannot be null");
 	}
 
 	@Test
 	public void onAuthenticationWhenCustomRequestHandlerThenUsed() {
 		given(this.csrfTokenRepository.loadToken(this.request)).willReturn(this.existingToken);
 		given(this.csrfTokenRepository.loadDeferredToken(this.request, this.response))
-				.willReturn(new TestDeferredCsrfToken(this.existingToken, false));
+			.willReturn(new TestDeferredCsrfToken(this.existingToken, false));
 
 		CsrfTokenRequestHandler requestHandler = mock(CsrfTokenRequestHandler.class);
 		this.strategy.setRequestHandler(requestHandler);
@@ -100,7 +100,7 @@ public class CsrfAuthenticationStrategyTests {
 	public void logoutRemovesCsrfTokenAndLoadsNewDeferredCsrfToken() {
 		given(this.csrfTokenRepository.loadToken(this.request)).willReturn(this.existingToken);
 		given(this.csrfTokenRepository.loadDeferredToken(this.request, this.response))
-				.willReturn(new TestDeferredCsrfToken(this.generatedToken, false));
+			.willReturn(new TestDeferredCsrfToken(this.generatedToken, false));
 		this.strategy.onAuthentication(new TestingAuthenticationToken("user", "password", "ROLE_USER"), this.request,
 				this.response);
 		verify(this.csrfTokenRepository).loadToken(this.request);

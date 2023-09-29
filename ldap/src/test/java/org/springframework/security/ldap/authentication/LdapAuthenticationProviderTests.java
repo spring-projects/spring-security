@@ -70,7 +70,7 @@ public class LdapAuthenticationProviderTests {
 		assertThatExceptionOfType(BadCredentialsException.class).isThrownBy(
 				() -> ldapProvider.authenticate(UsernamePasswordAuthenticationToken.unauthenticated(null, "password")));
 		assertThatExceptionOfType(BadCredentialsException.class).isThrownBy(() -> ldapProvider
-				.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("", "bobspassword")));
+			.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("", "bobspassword")));
 	}
 
 	@Test
@@ -151,7 +151,9 @@ public class LdapAuthenticationProviderTests {
 		given(mockAuthenticator.authenticate(authRequest)).willThrow(expectedCause);
 		LdapAuthenticationProvider ldapProvider = new LdapAuthenticationProvider(mockAuthenticator);
 		assertThatExceptionOfType(InternalAuthenticationServiceException.class)
-				.isThrownBy(() -> ldapProvider.authenticate(authRequest)).havingCause().isSameAs(expectedCause);
+			.isThrownBy(() -> ldapProvider.authenticate(authRequest))
+			.havingCause()
+			.isSameAs(expectedCause);
 	}
 
 	class MockAuthenticator implements LdapAuthenticator {

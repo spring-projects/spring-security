@@ -48,14 +48,14 @@ public class SecuredTests {
 	@Test
 	public void securedAdminRoleDenied() {
 		SecurityContextHolder.getContext()
-				.setAuthentication(new TestingAuthenticationToken("user", "pass", "ROLE_USER"));
+			.setAuthentication(new TestingAuthenticationToken("user", "pass", "ROLE_USER"));
 		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(this.service::securedAdminRole);
 	}
 
 	@Test
 	public void securedAdminRoleGranted() {
 		SecurityContextHolder.getContext()
-				.setAuthentication(new TestingAuthenticationToken("user", "pass", "ROLE_ADMIN"));
+			.setAuthentication(new TestingAuthenticationToken("user", "pass", "ROLE_ADMIN"));
 		this.service.securedAdminRole();
 	}
 

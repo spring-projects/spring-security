@@ -146,8 +146,8 @@ public class NamespaceJdbcUserServiceTests {
 		@Bean
 		DataSource dataSource() {
 			EmbeddedDatabaseBuilder builder = new EmbeddedDatabaseBuilder()
-					// simulate that the DB already has the schema loaded and users in it
-					.addScript("CustomJdbcUserServiceSampleConfig.sql");
+				// simulate that the DB already has the schema loaded and users in it
+				.addScript("CustomJdbcUserServiceSampleConfig.sql");
 			return builder.setType(EmbeddedDatabaseType.HSQL).build();
 		}
 

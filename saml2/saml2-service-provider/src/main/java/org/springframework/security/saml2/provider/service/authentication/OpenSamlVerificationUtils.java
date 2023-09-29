@@ -186,24 +186,23 @@ final class OpenSamlVerificationUtils {
 			byte[] getContent() {
 				if (this.request.getParameter(Saml2ParameterNames.RELAY_STATE) != null) {
 					return String
-							.format("%s=%s&%s=%s&%s=%s", this.objectParameterName,
-									UriUtils.encode(this.request.getParameter(this.objectParameterName),
-											StandardCharsets.ISO_8859_1),
-									Saml2ParameterNames.RELAY_STATE,
-									UriUtils.encode(this.request.getParameter(Saml2ParameterNames.RELAY_STATE),
-											StandardCharsets.ISO_8859_1),
-									Saml2ParameterNames.SIG_ALG,
-									UriUtils.encode(getAlgorithm(), StandardCharsets.ISO_8859_1))
-							.getBytes(StandardCharsets.UTF_8);
+						.format("%s=%s&%s=%s&%s=%s", this.objectParameterName, UriUtils
+							.encode(this.request.getParameter(this.objectParameterName), StandardCharsets.ISO_8859_1),
+								Saml2ParameterNames.RELAY_STATE,
+								UriUtils.encode(this.request.getParameter(Saml2ParameterNames.RELAY_STATE),
+										StandardCharsets.ISO_8859_1),
+								Saml2ParameterNames.SIG_ALG,
+								UriUtils.encode(getAlgorithm(), StandardCharsets.ISO_8859_1))
+						.getBytes(StandardCharsets.UTF_8);
 				}
 				else {
 					return String
-							.format("%s=%s&%s=%s", this.objectParameterName,
-									UriUtils.encode(this.request.getParameter(this.objectParameterName),
-											StandardCharsets.ISO_8859_1),
-									Saml2ParameterNames.SIG_ALG,
-									UriUtils.encode(getAlgorithm(), StandardCharsets.ISO_8859_1))
-							.getBytes(StandardCharsets.UTF_8);
+						.format("%s=%s&%s=%s", this.objectParameterName,
+								UriUtils.encode(this.request.getParameter(this.objectParameterName),
+										StandardCharsets.ISO_8859_1),
+								Saml2ParameterNames.SIG_ALG,
+								UriUtils.encode(getAlgorithm(), StandardCharsets.ISO_8859_1))
+						.getBytes(StandardCharsets.UTF_8);
 				}
 			}
 

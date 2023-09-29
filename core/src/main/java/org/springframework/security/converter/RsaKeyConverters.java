@@ -205,7 +205,7 @@ public final class RsaKeyConverters {
 			byte[] x509 = Base64.getDecoder().decode(base64Encoded.toString());
 			try (InputStream x509CertStream = new ByteArrayInputStream(x509)) {
 				X509Certificate certificate = (X509Certificate) this.certificateFactory
-						.generateCertificate(x509CertStream);
+					.generateCertificate(x509CertStream);
 				return (RSAPublicKey) certificate.getPublicKey();
 			}
 			catch (CertificateException | IOException ex) {

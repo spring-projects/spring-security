@@ -69,9 +69,8 @@ public class PreAuthenticatedAuthenticationTokenTests {
 		assertThat(token.getAuthorities()).isNotNull();
 		Collection<GrantedAuthority> resultColl = token.getAuthorities();
 		assertThat(gas.containsAll(resultColl) && resultColl.containsAll(gas))
-				.withFailMessage(
-						"GrantedAuthority collections do not match; result: " + resultColl + ", expected: " + gas)
-				.isTrue();
+			.withFailMessage("GrantedAuthority collections do not match; result: " + resultColl + ", expected: " + gas)
+			.isTrue();
 	}
 
 }

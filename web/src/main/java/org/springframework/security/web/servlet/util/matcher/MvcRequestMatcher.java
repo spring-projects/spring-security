@@ -183,7 +183,7 @@ public class MvcRequestMatcher implements RequestMatcher, RequestVariablesExtrac
 			String lookupPath = this.pathHelper.getLookupPathForRequest(request);
 			if (matches(lookupPath)) {
 				Map<String, String> variables = this.pathMatcher
-						.extractUriTemplateVariables(MvcRequestMatcher.this.pattern, lookupPath);
+					.extractUriTemplateVariables(MvcRequestMatcher.this.pattern, lookupPath);
 				return MatchResult.match(variables);
 			}
 			return MatchResult.notMatch();

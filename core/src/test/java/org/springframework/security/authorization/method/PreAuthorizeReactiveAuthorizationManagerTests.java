@@ -53,7 +53,7 @@ public class PreAuthorizeReactiveAuthorizationManagerTests {
 	@Test
 	public void setExpressionHandlerWhenNullThenException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> new PreAuthorizeReactiveAuthorizationManager(null))
-				.withMessage("expressionHandler cannot be null");
+			.withMessage("expressionHandler cannot be null");
 	}
 
 	@Test
@@ -62,7 +62,8 @@ public class PreAuthorizeReactiveAuthorizationManagerTests {
 				"doSomething", new Class[] {}, new Object[] {});
 		PreAuthorizeReactiveAuthorizationManager manager = new PreAuthorizeReactiveAuthorizationManager();
 		AuthorizationDecision decision = manager
-				.check(ReactiveAuthenticationUtils.getAuthentication(), methodInvocation).block();
+			.check(ReactiveAuthenticationUtils.getAuthentication(), methodInvocation)
+			.block();
 		assertThat(decision).isNull();
 	}
 
@@ -72,7 +73,8 @@ public class PreAuthorizeReactiveAuthorizationManagerTests {
 				"doSomethingString", new Class[] { String.class }, new Object[] { "grant" });
 		PreAuthorizeReactiveAuthorizationManager manager = new PreAuthorizeReactiveAuthorizationManager();
 		AuthorizationDecision decision = manager
-				.check(ReactiveAuthenticationUtils.getAuthentication(), methodInvocation).block();
+			.check(ReactiveAuthenticationUtils.getAuthentication(), methodInvocation)
+			.block();
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isTrue();
 	}
@@ -83,7 +85,8 @@ public class PreAuthorizeReactiveAuthorizationManagerTests {
 				"doSomethingString", new Class[] { String.class }, new Object[] { "deny" });
 		PreAuthorizeReactiveAuthorizationManager manager = new PreAuthorizeReactiveAuthorizationManager();
 		AuthorizationDecision decision = manager
-				.check(ReactiveAuthenticationUtils.getAuthentication(), methodInvocation).block();
+			.check(ReactiveAuthenticationUtils.getAuthentication(), methodInvocation)
+			.block();
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isFalse();
 	}
@@ -91,7 +94,7 @@ public class PreAuthorizeReactiveAuthorizationManagerTests {
 	@Test
 	public void checkRequiresAdminWhenClassAnnotationsThenMethodAnnotationsTakePrecedence() throws Exception {
 		Mono<Authentication> authentication = Mono
-				.just(new TestingAuthenticationToken("user", "password", "ROLE_USER"));
+			.just(new TestingAuthenticationToken("user", "password", "ROLE_USER"));
 		MockMethodInvocation methodInvocation = new MockMethodInvocation(new ClassLevelAnnotations(),
 				ClassLevelAnnotations.class, "securedAdmin");
 		PreAuthorizeReactiveAuthorizationManager manager = new PreAuthorizeReactiveAuthorizationManager();
@@ -107,7 +110,7 @@ public class PreAuthorizeReactiveAuthorizationManagerTests {
 	@Test
 	public void checkRequiresUserWhenClassAnnotationsThenApplies() throws Exception {
 		Mono<Authentication> authentication = Mono
-				.just(new TestingAuthenticationToken("user", "password", "ROLE_USER"));
+			.just(new TestingAuthenticationToken("user", "password", "ROLE_USER"));
 		MockMethodInvocation methodInvocation = new MockMethodInvocation(new ClassLevelAnnotations(),
 				ClassLevelAnnotations.class, "securedUser");
 		PreAuthorizeReactiveAuthorizationManager manager = new PreAuthorizeReactiveAuthorizationManager();
@@ -123,23 +126,23 @@ public class PreAuthorizeReactiveAuthorizationManagerTests {
 	@Test
 	public void checkInheritedAnnotationsWhenDuplicatedThenAnnotationConfigurationException() throws Exception {
 		Mono<Authentication> authentication = Mono
-				.just(new TestingAuthenticationToken("user", "password", "ROLE_USER"));
+			.just(new TestingAuthenticationToken("user", "password", "ROLE_USER"));
 		MockMethodInvocation methodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
 				"inheritedAnnotations");
 		PreAuthorizeReactiveAuthorizationManager manager = new PreAuthorizeReactiveAuthorizationManager();
 		assertThatExceptionOfType(AnnotationConfigurationException.class)
-				.isThrownBy(() -> manager.check(authentication, methodInvocation));
+			.isThrownBy(() -> manager.check(authentication, methodInvocation));
 	}
 
 	@Test
 	public void checkInheritedAnnotationsWhenConflictingThenAnnotationConfigurationException() throws Exception {
 		Mono<Authentication> authentication = Mono
-				.just(new TestingAuthenticationToken("user", "password", "ROLE_USER"));
+			.just(new TestingAuthenticationToken("user", "password", "ROLE_USER"));
 		MockMethodInvocation methodInvocation = new MockMethodInvocation(new ClassLevelAnnotations(),
 				ClassLevelAnnotations.class, "inheritedAnnotations");
 		PreAuthorizeReactiveAuthorizationManager manager = new PreAuthorizeReactiveAuthorizationManager();
 		assertThatExceptionOfType(AnnotationConfigurationException.class)
-				.isThrownBy(() -> manager.check(authentication, methodInvocation));
+			.isThrownBy(() -> manager.check(authentication, methodInvocation));
 	}
 
 	public static class TestClass implements InterfaceAnnotationsOne, InterfaceAnnotationsTwo {

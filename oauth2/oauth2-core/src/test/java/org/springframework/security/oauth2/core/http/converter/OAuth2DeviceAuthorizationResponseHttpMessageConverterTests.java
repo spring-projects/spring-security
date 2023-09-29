@@ -61,13 +61,13 @@ public class OAuth2DeviceAuthorizationResponseHttpMessageConverterTests {
 	@Test
 	public void setDeviceAuthorizationResponseConverterWhenConverterIsNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> this.messageConverter.setDeviceAuthorizationResponseConverter(null));
+			.isThrownBy(() -> this.messageConverter.setDeviceAuthorizationResponseConverter(null));
 	}
 
 	@Test
 	public void setDeviceAuthorizationResponseParametersConverterWhenConverterIsNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> this.messageConverter.setDeviceAuthorizationResponseParametersConverter(null));
+			.isThrownBy(() -> this.messageConverter.setDeviceAuthorizationResponseParametersConverter(null));
 	}
 
 	@Test
@@ -88,20 +88,19 @@ public class OAuth2DeviceAuthorizationResponseHttpMessageConverterTests {
 		// @formatter:on
 		MockClientHttpResponse response = new MockClientHttpResponse(authorizationResponse.getBytes(), HttpStatus.OK);
 		OAuth2DeviceAuthorizationResponse deviceAuthorizationResponse = this.messageConverter
-				.readInternal(OAuth2DeviceAuthorizationResponse.class, response);
-		assertThat(deviceAuthorizationResponse.getDeviceCode().getTokenValue())
-				.isEqualTo("GmRhm_DnyEy");
+			.readInternal(OAuth2DeviceAuthorizationResponse.class, response);
+		assertThat(deviceAuthorizationResponse.getDeviceCode().getTokenValue()).isEqualTo("GmRhm_DnyEy");
 		assertThat(deviceAuthorizationResponse.getDeviceCode().getIssuedAt()).isNotNull();
 		assertThat(deviceAuthorizationResponse.getDeviceCode().getExpiresAt())
-				.isBeforeOrEqualTo(Instant.now().plusSeconds(1800));
+			.isBeforeOrEqualTo(Instant.now().plusSeconds(1800));
 		assertThat(deviceAuthorizationResponse.getUserCode().getTokenValue()).isEqualTo("WDJB-MJHT");
 		assertThat(deviceAuthorizationResponse.getUserCode().getIssuedAt())
-				.isEqualTo(deviceAuthorizationResponse.getDeviceCode().getIssuedAt());
+			.isEqualTo(deviceAuthorizationResponse.getDeviceCode().getIssuedAt());
 		assertThat(deviceAuthorizationResponse.getUserCode().getExpiresAt())
-				.isEqualTo(deviceAuthorizationResponse.getDeviceCode().getExpiresAt());
+			.isEqualTo(deviceAuthorizationResponse.getDeviceCode().getExpiresAt());
 		assertThat(deviceAuthorizationResponse.getVerificationUri()).isEqualTo("https://example.com/device");
 		assertThat(deviceAuthorizationResponse.getVerificationUriComplete())
-				.isEqualTo("https://example.com/device?user_code=WDJB-MJHT");
+			.isEqualTo("https://example.com/device?user_code=WDJB-MJHT");
 		assertThat(deviceAuthorizationResponse.getInterval()).isEqualTo(5);
 		assertThat(deviceAuthorizationResponse.getAdditionalParameters()).containsExactly(
 				entry("custom_parameter_1", "custom-value-1"), entry("custom_parameter_2", "custom-value-2"));
@@ -123,17 +122,16 @@ public class OAuth2DeviceAuthorizationResponseHttpMessageConverterTests {
 		// @formatter:on
 		MockClientHttpResponse response = new MockClientHttpResponse(authorizationResponse.getBytes(), HttpStatus.OK);
 		OAuth2DeviceAuthorizationResponse deviceAuthorizationResponse = this.messageConverter
-				.readInternal(OAuth2DeviceAuthorizationResponse.class, response);
-		assertThat(deviceAuthorizationResponse.getDeviceCode().getTokenValue())
-				.isEqualTo("GmRhm_DnyEy");
+			.readInternal(OAuth2DeviceAuthorizationResponse.class, response);
+		assertThat(deviceAuthorizationResponse.getDeviceCode().getTokenValue()).isEqualTo("GmRhm_DnyEy");
 		assertThat(deviceAuthorizationResponse.getDeviceCode().getIssuedAt()).isNotNull();
 		assertThat(deviceAuthorizationResponse.getDeviceCode().getExpiresAt())
-				.isBeforeOrEqualTo(Instant.now().plusSeconds(1800));
+			.isBeforeOrEqualTo(Instant.now().plusSeconds(1800));
 		assertThat(deviceAuthorizationResponse.getUserCode().getTokenValue()).isEqualTo("WDJB-MJHT");
 		assertThat(deviceAuthorizationResponse.getUserCode().getIssuedAt())
-				.isEqualTo(deviceAuthorizationResponse.getDeviceCode().getIssuedAt());
+			.isEqualTo(deviceAuthorizationResponse.getDeviceCode().getIssuedAt());
 		assertThat(deviceAuthorizationResponse.getUserCode().getExpiresAt())
-				.isEqualTo(deviceAuthorizationResponse.getDeviceCode().getExpiresAt());
+			.isEqualTo(deviceAuthorizationResponse.getDeviceCode().getExpiresAt());
 		assertThat(deviceAuthorizationResponse.getVerificationUri()).isEqualTo("https://example.com/device");
 		assertThat(deviceAuthorizationResponse.getVerificationUriComplete()).isNull();
 		assertThat(deviceAuthorizationResponse.getInterval()).isEqualTo(0);
@@ -149,8 +147,8 @@ public class OAuth2DeviceAuthorizationResponseHttpMessageConverterTests {
 		String authorizationResponse = "{}";
 		MockClientHttpResponse response = new MockClientHttpResponse(authorizationResponse.getBytes(), HttpStatus.OK);
 		assertThatExceptionOfType(HttpMessageNotReadableException.class)
-				.isThrownBy(() -> this.messageConverter.readInternal(OAuth2DeviceAuthorizationResponse.class, response))
-				.withMessageContaining("An error occurred reading the OAuth 2.0 Device Authorization Response");
+			.isThrownBy(() -> this.messageConverter.readInternal(OAuth2DeviceAuthorizationResponse.class, response))
+			.withMessageContaining("An error occurred reading the OAuth 2.0 Device Authorization Response");
 	}
 
 	@Test
@@ -175,7 +173,7 @@ public class OAuth2DeviceAuthorizationResponseHttpMessageConverterTests {
 		assertThat(authorizationResponse).contains("\"user_code\":\"WDJB-MJHT\"");
 		assertThat(authorizationResponse).contains("\"verification_uri\":\"https://example.com/device\"");
 		assertThat(authorizationResponse)
-				.contains("\"verification_uri_complete\":\"https://example.com/device?user_code=WDJB-MJHT\"");
+			.contains("\"verification_uri_complete\":\"https://example.com/device?user_code=WDJB-MJHT\"");
 		assertThat(authorizationResponse).contains("\"expires_in\":1800");
 		assertThat(authorizationResponse).contains("\"interval\":5");
 		assertThat(authorizationResponse).contains("\"custom_parameter_1\":\"custom-value-1\"");
@@ -189,7 +187,7 @@ public class OAuth2DeviceAuthorizationResponseHttpMessageConverterTests {
 				Converter.class);
 		given(deviceAuthorizationResponseParametersConverter.convert(any())).willThrow(RuntimeException.class);
 		this.messageConverter
-				.setDeviceAuthorizationResponseParametersConverter(deviceAuthorizationResponseParametersConverter);
+			.setDeviceAuthorizationResponseParametersConverter(deviceAuthorizationResponseParametersConverter);
 		// @formatter:off
 		OAuth2DeviceAuthorizationResponse deviceAuthorizationResponse =
 				OAuth2DeviceAuthorizationResponse.with("GmRhm_DnyEy", "WDJB-MJHT")
@@ -199,8 +197,8 @@ public class OAuth2DeviceAuthorizationResponseHttpMessageConverterTests {
 		// @formatter:on
 		MockHttpOutputMessage outputMessage = new MockHttpOutputMessage();
 		assertThatExceptionOfType(HttpMessageNotWritableException.class)
-				.isThrownBy(() -> this.messageConverter.writeInternal(deviceAuthorizationResponse, outputMessage))
-				.withMessageContaining("An error occurred writing the OAuth 2.0 Device Authorization Response");
+			.isThrownBy(() -> this.messageConverter.writeInternal(deviceAuthorizationResponse, outputMessage))
+			.withMessageContaining("An error occurred writing the OAuth 2.0 Device Authorization Response");
 	}
 
 }

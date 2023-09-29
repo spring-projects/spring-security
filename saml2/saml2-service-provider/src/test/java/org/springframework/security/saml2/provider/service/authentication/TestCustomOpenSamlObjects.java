@@ -46,15 +46,17 @@ public final class TestCustomOpenSamlObjects {
 
 	static {
 		OpenSamlInitializationService.initialize();
-		XMLObjectProviderRegistrySupport.getMarshallerFactory().registerMarshaller(CustomOpenSamlObject.TYPE_NAME,
-				new TestCustomOpenSamlObjects.CustomSamlObjectMarshaller());
-		XMLObjectProviderRegistrySupport.getUnmarshallerFactory().registerUnmarshaller(CustomOpenSamlObject.TYPE_NAME,
-				new TestCustomOpenSamlObjects.CustomSamlObjectUnmarshaller());
+		XMLObjectProviderRegistrySupport.getMarshallerFactory()
+			.registerMarshaller(CustomOpenSamlObject.TYPE_NAME,
+					new TestCustomOpenSamlObjects.CustomSamlObjectMarshaller());
+		XMLObjectProviderRegistrySupport.getUnmarshallerFactory()
+			.registerUnmarshaller(CustomOpenSamlObject.TYPE_NAME,
+					new TestCustomOpenSamlObjects.CustomSamlObjectUnmarshaller());
 	}
 
 	public static CustomOpenSamlObject instance() {
 		CustomOpenSamlObject samlObject = new TestCustomOpenSamlObjects.CustomSamlObjectBuilder()
-				.buildObject(AttributeValue.DEFAULT_ELEMENT_NAME, CustomOpenSamlObject.TYPE_NAME);
+			.buildObject(AttributeValue.DEFAULT_ELEMENT_NAME, CustomOpenSamlObject.TYPE_NAME);
 		XSAny street = new XSAnyBuilder().buildObject(CustomOpenSamlObject.CUSTOM_NS, "Street",
 				CustomOpenSamlObject.TYPE_CUSTOM_PREFIX);
 		street.setTextContent("Test Street");

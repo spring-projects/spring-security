@@ -53,13 +53,14 @@ public class HeadersConfigurerEagerHeadersTests {
 	@Test
 	public void requestWhenHeadersEagerlyConfiguredThenHeadersAreWritten() throws Exception {
 		this.spring.register(HeadersAtTheBeginningOfRequestConfig.class, HomeController.class).autowire();
-		this.mvc.perform(get("/").secure(true)).andExpect(header().string("X-Content-Type-Options", "nosniff"))
-				.andExpect(header().string("X-Frame-Options", "DENY"))
-				.andExpect(header().string("Strict-Transport-Security", "max-age=31536000 ; includeSubDomains"))
-				.andExpect(header().string(HttpHeaders.CACHE_CONTROL, "no-cache, no-store, max-age=0, must-revalidate"))
-				.andExpect(header().string(HttpHeaders.EXPIRES, "0"))
-				.andExpect(header().string(HttpHeaders.PRAGMA, "no-cache"))
-				.andExpect(header().string("X-XSS-Protection", "0"));
+		this.mvc.perform(get("/").secure(true))
+			.andExpect(header().string("X-Content-Type-Options", "nosniff"))
+			.andExpect(header().string("X-Frame-Options", "DENY"))
+			.andExpect(header().string("Strict-Transport-Security", "max-age=31536000 ; includeSubDomains"))
+			.andExpect(header().string(HttpHeaders.CACHE_CONTROL, "no-cache, no-store, max-age=0, must-revalidate"))
+			.andExpect(header().string(HttpHeaders.EXPIRES, "0"))
+			.andExpect(header().string(HttpHeaders.PRAGMA, "no-cache"))
+			.andExpect(header().string("X-XSS-Protection", "0"));
 	}
 
 	@Configuration

@@ -68,7 +68,7 @@ public class ConsensusBasedTests {
 		TestingAuthenticationToken auth = makeTestToken();
 		ConsensusBased mgr = makeDecisionManager();
 		assertThatExceptionOfType(AccessDeniedException.class)
-				.isThrownBy(() -> mgr.decide(auth, new Object(), SecurityConfig.createList("ROLE_WE_DO_NOT_HAVE")));
+			.isThrownBy(() -> mgr.decide(auth, new Object(), SecurityConfig.createList("ROLE_WE_DO_NOT_HAVE")));
 	}
 
 	@Test
@@ -77,7 +77,7 @@ public class ConsensusBasedTests {
 		ConsensusBased mgr = makeDecisionManager();
 		assertThat(!mgr.isAllowIfAllAbstainDecisions()).isTrue(); // check default
 		assertThatExceptionOfType(AccessDeniedException.class)
-				.isThrownBy(() -> mgr.decide(auth, new Object(), SecurityConfig.createList("IGNORED_BY_ALL")));
+			.isThrownBy(() -> mgr.decide(auth, new Object(), SecurityConfig.createList("IGNORED_BY_ALL")));
 	}
 
 	@Test

@@ -84,8 +84,9 @@ public class AnonymousPayloadInterceptor implements PayloadInterceptor, Ordered 
 		return ReactiveSecurityContextHolder.getContext().switchIfEmpty(Mono.defer(() -> {
 			AnonymousAuthenticationToken authentication = new AnonymousAuthenticationToken(this.key, this.principal,
 					this.authorities);
-			return chain.next(exchange).contextWrite(ReactiveSecurityContextHolder.withAuthentication(authentication))
-					.then(Mono.empty());
+			return chain.next(exchange)
+				.contextWrite(ReactiveSecurityContextHolder.withAuthentication(authentication))
+				.then(Mono.empty());
 		})).flatMap((securityContext) -> chain.next(exchange));
 	}
 
