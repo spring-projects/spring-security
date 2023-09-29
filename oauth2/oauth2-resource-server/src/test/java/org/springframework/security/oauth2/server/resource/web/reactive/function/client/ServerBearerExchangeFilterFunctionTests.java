@@ -69,9 +69,10 @@ public class ServerBearerExchangeFilterFunctionTests {
 	public void filterWhenAuthenticatedThenAuthorizationHeaderNull() throws Exception {
 		ClientRequest request = ClientRequest.create(HttpMethod.GET, URI.create("https://example.com")).build();
 		this.function.filter(request, this.exchange)
-				.contextWrite(ReactiveSecurityContextHolder.withAuthentication(this.authentication)).block();
+			.contextWrite(ReactiveSecurityContextHolder.withAuthentication(this.authentication))
+			.block();
 		assertThat(this.exchange.getRequest().headers().getFirst(HttpHeaders.AUTHORIZATION))
-				.isEqualTo("Bearer " + this.accessToken.getTokenValue());
+			.isEqualTo("Bearer " + this.accessToken.getTokenValue());
 	}
 
 	// gh-7353
@@ -80,16 +81,19 @@ public class ServerBearerExchangeFilterFunctionTests {
 		ClientRequest request = ClientRequest.create(HttpMethod.GET, URI.create("https://example.com")).build();
 		TestingAuthenticationToken token = new TestingAuthenticationToken("user", "pass");
 		this.function.filter(request, this.exchange)
-				.contextWrite(ReactiveSecurityContextHolder.withAuthentication(token)).block();
+			.contextWrite(ReactiveSecurityContextHolder.withAuthentication(token))
+			.block();
 		assertThat(this.exchange.getRequest().headers().getFirst(HttpHeaders.AUTHORIZATION)).isNull();
 	}
 
 	@Test
 	public void filterWhenExistingAuthorizationThenSingleAuthorizationHeader() {
 		ClientRequest request = ClientRequest.create(HttpMethod.GET, URI.create("https://example.com"))
-				.header(HttpHeaders.AUTHORIZATION, "Existing").build();
+			.header(HttpHeaders.AUTHORIZATION, "Existing")
+			.build();
 		this.function.filter(request, this.exchange)
-				.contextWrite(ReactiveSecurityContextHolder.withAuthentication(this.authentication)).block();
+			.contextWrite(ReactiveSecurityContextHolder.withAuthentication(this.authentication))
+			.block();
 		HttpHeaders headers = this.exchange.getRequest().headers();
 		assertThat(headers.get(HttpHeaders.AUTHORIZATION)).containsOnly("Bearer " + this.accessToken.getTokenValue());
 	}

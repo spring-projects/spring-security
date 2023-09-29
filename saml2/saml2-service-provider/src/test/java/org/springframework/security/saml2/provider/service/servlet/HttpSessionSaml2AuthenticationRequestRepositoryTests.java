@@ -54,7 +54,7 @@ public class HttpSessionSaml2AuthenticationRequestRepositoryTests {
 	@Test
 	public void loadAuthenticationRequestWhenInvalidSessionThenNull() {
 		AbstractSaml2AuthenticationRequest authenticationRequest = this.authenticationRequestRepository
-				.loadAuthenticationRequest(this.request);
+			.loadAuthenticationRequest(this.request);
 		assertThat(authenticationRequest).isNull();
 	}
 
@@ -62,7 +62,7 @@ public class HttpSessionSaml2AuthenticationRequestRepositoryTests {
 	public void loadAuthenticationRequestWhenNoAttributeInSessionThenNull() {
 		this.request.getSession();
 		AbstractSaml2AuthenticationRequest authenticationRequest = this.authenticationRequestRepository
-				.loadAuthenticationRequest(this.request);
+			.loadAuthenticationRequest(this.request);
 		assertThat(authenticationRequest).isNull();
 	}
 
@@ -74,7 +74,7 @@ public class HttpSessionSaml2AuthenticationRequestRepositoryTests {
 		this.authenticationRequestRepository.saveAuthenticationRequest(mockAuthenticationRequest, this.request,
 				this.response);
 		AbstractSaml2AuthenticationRequest authenticationRequest = this.authenticationRequestRepository
-				.loadAuthenticationRequest(this.request);
+			.loadAuthenticationRequest(this.request);
 		assertThat(authenticationRequest.getAuthenticationRequestUri()).isEqualTo(IDP_SSO_URL);
 	}
 
@@ -84,7 +84,7 @@ public class HttpSessionSaml2AuthenticationRequestRepositoryTests {
 		this.authenticationRequestRepository.saveAuthenticationRequest(mockAuthenticationRequest, this.request,
 				this.response);
 		AbstractSaml2AuthenticationRequest authenticationRequest = this.authenticationRequestRepository
-				.loadAuthenticationRequest(this.request);
+			.loadAuthenticationRequest(this.request);
 		assertThat(authenticationRequest).isNotNull();
 	}
 
@@ -95,7 +95,7 @@ public class HttpSessionSaml2AuthenticationRequestRepositoryTests {
 		this.authenticationRequestRepository.saveAuthenticationRequest(mockAuthenticationRequest, this.request,
 				this.response);
 		AbstractSaml2AuthenticationRequest authenticationRequest = this.authenticationRequestRepository
-				.loadAuthenticationRequest(this.request);
+			.loadAuthenticationRequest(this.request);
 		assertThat(authenticationRequest).isNotNull();
 	}
 
@@ -104,14 +104,14 @@ public class HttpSessionSaml2AuthenticationRequestRepositoryTests {
 		this.request.getSession();
 		this.authenticationRequestRepository.saveAuthenticationRequest(null, this.request, this.response);
 		AbstractSaml2AuthenticationRequest authenticationRequest = this.authenticationRequestRepository
-				.loadAuthenticationRequest(this.request);
+			.loadAuthenticationRequest(this.request);
 		assertThat(authenticationRequest).isNull();
 	}
 
 	@Test
 	public void removeAuthenticationRequestWhenInvalidSessionThenReturnNull() {
 		AbstractSaml2AuthenticationRequest authenticationRequest = this.authenticationRequestRepository
-				.removeAuthenticationRequest(this.request, this.response);
+			.removeAuthenticationRequest(this.request, this.response);
 		assertThat(authenticationRequest).isNull();
 	}
 
@@ -123,9 +123,9 @@ public class HttpSessionSaml2AuthenticationRequestRepositoryTests {
 		this.authenticationRequestRepository.saveAuthenticationRequest(mockAuthenticationRequest, this.request,
 				this.response);
 		AbstractSaml2AuthenticationRequest authenticationRequest = this.authenticationRequestRepository
-				.removeAuthenticationRequest(this.request, this.response);
+			.removeAuthenticationRequest(this.request, this.response);
 		AbstractSaml2AuthenticationRequest authenticationRequestAfterRemove = this.authenticationRequestRepository
-				.loadAuthenticationRequest(this.request);
+			.loadAuthenticationRequest(this.request);
 		assertThat(authenticationRequest.getAuthenticationRequestUri()).isEqualTo(IDP_SSO_URL);
 		assertThat(authenticationRequestAfterRemove).isNull();
 	}
@@ -136,7 +136,7 @@ public class HttpSessionSaml2AuthenticationRequestRepositoryTests {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setSession(session);
 		AbstractSaml2AuthenticationRequest authenticationRequest = this.authenticationRequestRepository
-				.removeAuthenticationRequest(request, this.response);
+			.removeAuthenticationRequest(request, this.response);
 		verify(session).getAttribute(anyString());
 		assertThat(authenticationRequest).isNull();
 	}

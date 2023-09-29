@@ -68,7 +68,8 @@ public class ServerRequestCacheWebFilterTests {
 	public void filterWhenRequestMatchesThenRequestUpdated() {
 		ServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/"));
 		ServerHttpRequest savedRequest = MockServerHttpRequest.get("/")
-				.header(HttpHeaders.ACCEPT, MediaType.TEXT_HTML.getType()).build();
+			.header(HttpHeaders.ACCEPT, MediaType.TEXT_HTML.getType())
+			.build();
 		given(this.requestCache.removeMatchingRequest(any())).willReturn(Mono.just(savedRequest));
 		this.requestCacheFilter.filter(exchange, this.chain).block();
 		verify(this.chain).filter(this.exchangeCaptor.capture());

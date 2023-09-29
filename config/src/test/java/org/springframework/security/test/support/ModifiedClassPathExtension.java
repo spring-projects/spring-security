@@ -102,7 +102,8 @@ class ModifiedClassPathExtension implements InvocationInterceptor {
 		Class<?> testClass = classLoader.loadClass(testClassName);
 		Method testMethod = findMethod(testClass, testMethodName);
 		LauncherDiscoveryRequest request = LauncherDiscoveryRequestBuilder.request()
-				.selectors(DiscoverySelectors.selectMethod(testClass, testMethod)).build();
+			.selectors(DiscoverySelectors.selectMethod(testClass, testMethod))
+			.build();
 		Launcher launcher = LauncherFactory.create();
 		TestPlan testPlan = launcher.discover(request);
 		SummaryGeneratingListener listener = new SummaryGeneratingListener();

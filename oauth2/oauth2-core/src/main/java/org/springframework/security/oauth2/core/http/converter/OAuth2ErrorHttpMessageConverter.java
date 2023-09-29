@@ -75,9 +75,10 @@ public class OAuth2ErrorHttpMessageConverter extends AbstractHttpMessageConverte
 			// gh-8157: Parse parameter values as Object in order to handle potential JSON
 			// Object and then convert values to String
 			Map<String, Object> errorParameters = (Map<String, Object>) this.jsonMessageConverter
-					.read(STRING_OBJECT_MAP.getType(), null, inputMessage);
-			return this.errorConverter.convert(errorParameters.entrySet().stream()
-					.collect(Collectors.toMap(Map.Entry::getKey, (entry) -> String.valueOf(entry.getValue()))));
+				.read(STRING_OBJECT_MAP.getType(), null, inputMessage);
+			return this.errorConverter.convert(errorParameters.entrySet()
+				.stream()
+				.collect(Collectors.toMap(Map.Entry::getKey, (entry) -> String.valueOf(entry.getValue()))));
 		}
 		catch (Exception ex) {
 			throw new HttpMessageNotReadableException(

@@ -42,7 +42,7 @@ public class CsrfInputTagTests {
 		String value = this.tag.handleToken(token);
 		assertThat(value).as("The returned value should not be null.").isNotNull();
 		assertThat(value).withFailMessage("The output is not correct.")
-				.isEqualTo("<input type=\"hidden\" name=\"_csrf\" value=\"abc123def456ghi789\" />");
+			.isEqualTo("<input type=\"hidden\" name=\"_csrf\" value=\"abc123def456ghi789\" />");
 	}
 
 	@Test
@@ -51,7 +51,7 @@ public class CsrfInputTagTests {
 		String value = this.tag.handleToken(token);
 		assertThat(value).as("The returned value should not be null.").isNotNull();
 		assertThat(value).withFailMessage("The output is not correct.")
-				.isEqualTo("<input type=\"hidden\" name=\"csrfParameter\" value=\"fooBarBazQux\" />");
+			.isEqualTo("<input type=\"hidden\" name=\"csrfParameter\" value=\"fooBarBazQux\" />");
 	}
 
 }

@@ -101,7 +101,7 @@ public class JdbcAclServiceTests {
 		ObjectIdentity objectIdentity = new ObjectIdentityImpl(Object.class, 1);
 		List<Sid> sids = Arrays.<Sid>asList(new PrincipalSid("user"));
 		assertThatExceptionOfType(NotFoundException.class)
-				.isThrownBy(() -> this.aclService.readAclById(objectIdentity, sids));
+			.isThrownBy(() -> this.aclService.readAclById(objectIdentity, sids));
 	}
 
 	@Test
@@ -168,20 +168,20 @@ public class JdbcAclServiceTests {
 		assertThat(objectIdentities.size()).isEqualTo(1);
 		assertThat(objectIdentities.get(0).getType()).isEqualTo("costcenter");
 		assertThat(objectIdentities.get(0).getIdentifier())
-				.isEqualTo(UUID.fromString("25d93b3f-c3aa-4814-9d5e-c7c96ced7762"));
+			.isEqualTo(UUID.fromString("25d93b3f-c3aa-4814-9d5e-c7c96ced7762"));
 	}
 
 	@Test
 	public void setObjectIdentityGeneratorWhenNullThenThrowsIllegalArgumentException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> this.aclServiceIntegration.setObjectIdentityGenerator(null))
-				.withMessage("objectIdentityGenerator cannot be null");
+			.isThrownBy(() -> this.aclServiceIntegration.setObjectIdentityGenerator(null))
+			.withMessage("objectIdentityGenerator cannot be null");
 	}
 
 	@Test
 	public void findChildrenWhenObjectIdentityGeneratorSetThenUsed() {
 		this.aclServiceIntegration
-				.setObjectIdentityGenerator((id, type) -> new ObjectIdentityImpl(type, "prefix:" + id));
+			.setObjectIdentityGenerator((id, type) -> new ObjectIdentityImpl(type, "prefix:" + id));
 
 		ObjectIdentity objectIdentity = new ObjectIdentityImpl("location", "US");
 		this.aclServiceIntegration.setAclClassIdSupported(true);

@@ -47,7 +47,7 @@ import static org.mockito.BDDMockito.given;
 public class RoutePayloadExchangeMatcherTests {
 
 	static final MimeType COMPOSITE_METADATA = MimeTypeUtils
-			.parseMimeType(WellKnownMimeType.MESSAGE_RSOCKET_COMPOSITE_METADATA.getString());
+		.parseMimeType(WellKnownMimeType.MESSAGE_RSOCKET_COMPOSITE_METADATA.getString());
 
 	@Mock
 	private MetadataExtractor metadataExtractor;
@@ -86,7 +86,7 @@ public class RoutePayloadExchangeMatcherTests {
 	public void matchesWhenNotMatchThenNotMatch() {
 		String route = "route";
 		given(this.metadataExtractor.extract(any(), any()))
-				.willReturn(Collections.singletonMap(MetadataExtractor.ROUTE_KEY, route));
+			.willReturn(Collections.singletonMap(MetadataExtractor.ROUTE_KEY, route));
 		PayloadExchangeMatcher.MatchResult result = this.matcher.matches(this.exchange).block();
 		assertThat(result.isMatch()).isFalse();
 	}
@@ -95,7 +95,7 @@ public class RoutePayloadExchangeMatcherTests {
 	public void matchesWhenMatchAndNoVariablesThenMatch() {
 		String route = "route";
 		given(this.metadataExtractor.extract(any(), any()))
-				.willReturn(Collections.singletonMap(MetadataExtractor.ROUTE_KEY, route));
+			.willReturn(Collections.singletonMap(MetadataExtractor.ROUTE_KEY, route));
 		given(this.routeMatcher.parseRoute(any())).willReturn(this.route);
 		given(this.routeMatcher.matchAndExtract(any(), any())).willReturn(Collections.emptyMap());
 		PayloadExchangeMatcher.MatchResult result = this.matcher.matches(this.exchange).block();
@@ -107,7 +107,7 @@ public class RoutePayloadExchangeMatcherTests {
 		String route = "route";
 		Map<String, String> variables = Collections.singletonMap("a", "b");
 		given(this.metadataExtractor.extract(any(), any()))
-				.willReturn(Collections.singletonMap(MetadataExtractor.ROUTE_KEY, route));
+			.willReturn(Collections.singletonMap(MetadataExtractor.ROUTE_KEY, route));
 		given(this.routeMatcher.parseRoute(any())).willReturn(this.route);
 		given(this.routeMatcher.matchAndExtract(any(), any())).willReturn(variables);
 		PayloadExchangeMatcher.MatchResult result = this.matcher.matches(this.exchange).block();

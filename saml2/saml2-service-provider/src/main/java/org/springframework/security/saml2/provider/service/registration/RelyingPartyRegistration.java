@@ -297,8 +297,8 @@ public final class RelyingPartyRegistration {
 
 	public static Builder withAssertingPartyDetails(AssertingPartyDetails assertingPartyDetails) {
 		Assert.notNull(assertingPartyDetails, "assertingPartyDetails cannot be null");
-		return withRegistrationId(assertingPartyDetails.getEntityId()).assertingPartyDetails((party) -> party
-				.entityId(assertingPartyDetails.getEntityId())
+		return withRegistrationId(assertingPartyDetails.getEntityId())
+			.assertingPartyDetails((party) -> party.entityId(assertingPartyDetails.getEntityId())
 				.wantAuthnRequestsSigned(assertingPartyDetails.getWantAuthnRequestsSigned())
 				.signingAlgorithms((algorithms) -> algorithms.addAll(assertingPartyDetails.getSigningAlgorithms()))
 				.verificationX509Credentials((c) -> c.addAll(assertingPartyDetails.getVerificationX509Credentials()))
@@ -319,33 +319,29 @@ public final class RelyingPartyRegistration {
 	public static Builder withRelyingPartyRegistration(RelyingPartyRegistration registration) {
 		Assert.notNull(registration, "registration cannot be null");
 		return withRegistrationId(registration.getRegistrationId()).entityId(registration.getEntityId())
-				.signingX509Credentials((c) -> c.addAll(registration.getSigningX509Credentials()))
-				.decryptionX509Credentials((c) -> c.addAll(registration.getDecryptionX509Credentials()))
-				.assertionConsumerServiceLocation(registration.getAssertionConsumerServiceLocation())
-				.assertionConsumerServiceBinding(registration.getAssertionConsumerServiceBinding())
-				.singleLogoutServiceLocation(registration.getSingleLogoutServiceLocation())
-				.singleLogoutServiceResponseLocation(registration.getSingleLogoutServiceResponseLocation())
-				.singleLogoutServiceBindings((c) -> c.addAll(registration.getSingleLogoutServiceBindings()))
-				.nameIdFormat(registration.getNameIdFormat())
-				.assertingPartyDetails((assertingParty) -> assertingParty
-						.entityId(registration.getAssertingPartyDetails().getEntityId())
-						.wantAuthnRequestsSigned(registration.getAssertingPartyDetails().getWantAuthnRequestsSigned())
-						.signingAlgorithms((algorithms) -> algorithms
-								.addAll(registration.getAssertingPartyDetails().getSigningAlgorithms()))
-						.verificationX509Credentials((c) -> c
-								.addAll(registration.getAssertingPartyDetails().getVerificationX509Credentials()))
-						.encryptionX509Credentials(
-								(c) -> c.addAll(registration.getAssertingPartyDetails().getEncryptionX509Credentials()))
-						.singleSignOnServiceLocation(
-								registration.getAssertingPartyDetails().getSingleSignOnServiceLocation())
-						.singleSignOnServiceBinding(
-								registration.getAssertingPartyDetails().getSingleSignOnServiceBinding())
-						.singleLogoutServiceLocation(
-								registration.getAssertingPartyDetails().getSingleLogoutServiceLocation())
-						.singleLogoutServiceResponseLocation(
-								registration.getAssertingPartyDetails().getSingleLogoutServiceResponseLocation())
-						.singleLogoutServiceBinding(
-								registration.getAssertingPartyDetails().getSingleLogoutServiceBinding()));
+			.signingX509Credentials((c) -> c.addAll(registration.getSigningX509Credentials()))
+			.decryptionX509Credentials((c) -> c.addAll(registration.getDecryptionX509Credentials()))
+			.assertionConsumerServiceLocation(registration.getAssertionConsumerServiceLocation())
+			.assertionConsumerServiceBinding(registration.getAssertionConsumerServiceBinding())
+			.singleLogoutServiceLocation(registration.getSingleLogoutServiceLocation())
+			.singleLogoutServiceResponseLocation(registration.getSingleLogoutServiceResponseLocation())
+			.singleLogoutServiceBindings((c) -> c.addAll(registration.getSingleLogoutServiceBindings()))
+			.nameIdFormat(registration.getNameIdFormat())
+			.assertingPartyDetails((assertingParty) -> assertingParty
+				.entityId(registration.getAssertingPartyDetails().getEntityId())
+				.wantAuthnRequestsSigned(registration.getAssertingPartyDetails().getWantAuthnRequestsSigned())
+				.signingAlgorithms((algorithms) -> algorithms
+					.addAll(registration.getAssertingPartyDetails().getSigningAlgorithms()))
+				.verificationX509Credentials(
+						(c) -> c.addAll(registration.getAssertingPartyDetails().getVerificationX509Credentials()))
+				.encryptionX509Credentials(
+						(c) -> c.addAll(registration.getAssertingPartyDetails().getEncryptionX509Credentials()))
+				.singleSignOnServiceLocation(registration.getAssertingPartyDetails().getSingleSignOnServiceLocation())
+				.singleSignOnServiceBinding(registration.getAssertingPartyDetails().getSingleSignOnServiceBinding())
+				.singleLogoutServiceLocation(registration.getAssertingPartyDetails().getSingleLogoutServiceLocation())
+				.singleLogoutServiceResponseLocation(
+						registration.getAssertingPartyDetails().getSingleLogoutServiceResponseLocation())
+				.singleLogoutServiceBinding(registration.getAssertingPartyDetails().getSingleLogoutServiceBinding()));
 	}
 
 	/**

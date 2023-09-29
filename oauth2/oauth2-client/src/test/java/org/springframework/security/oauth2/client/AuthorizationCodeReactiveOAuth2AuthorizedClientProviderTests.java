@@ -90,7 +90,7 @@ public class AuthorizationCodeReactiveOAuth2AuthorizedClientProviderTests {
 				.build();
 		// @formatter:on
 		assertThatExceptionOfType(ClientAuthorizationRequiredException.class)
-				.isThrownBy(() -> this.authorizedClientProvider.authorize(authorizationContext).block());
+			.isThrownBy(() -> this.authorizedClientProvider.authorize(authorizationContext).block());
 	}
 
 }

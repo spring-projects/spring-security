@@ -53,8 +53,8 @@ public final class AuthorizationObservationConvention
 	@Override
 	public KeyValues getLowCardinalityKeyValues(AuthorizationObservationContext<?> context) {
 		return KeyValues.of("spring.security.authentication.type", getAuthenticationType(context))
-				.and("spring.security.object", getObjectType(context))
-				.and("spring.security.authorization.decision", getAuthorizationDecision(context));
+			.and("spring.security.object", getObjectType(context))
+			.and("spring.security.authorization.decision", getAuthorizationDecision(context));
 	}
 
 	/**
@@ -63,7 +63,7 @@ public final class AuthorizationObservationConvention
 	@Override
 	public KeyValues getHighCardinalityKeyValues(AuthorizationObservationContext<?> context) {
 		return KeyValues.of("spring.security.authentication.authorities", getAuthorities(context))
-				.and("spring.security.authorization.decision.details", getDecisionDetails(context));
+			.and("spring.security.authorization.decision.details", getDecisionDetails(context));
 	}
 
 	@Override

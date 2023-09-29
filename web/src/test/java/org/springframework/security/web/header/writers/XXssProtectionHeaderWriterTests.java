@@ -90,7 +90,7 @@ public class XXssProtectionHeaderWriterTests {
 	@Test
 	public void setHeaderValueNullThenThrowsIllegalArgumentException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.writer.setHeaderValue(null))
-				.withMessage("headerValue cannot be null");
+			.withMessage("headerValue cannot be null");
 	}
 
 }

@@ -68,21 +68,21 @@ public class Jsr250MethodSecurityMetadataSourceTests {
 	@Test
 	public void noRoleMethodHasNoAttributes() throws Exception {
 		Collection<ConfigAttribute> accessAttributes = this.mds
-				.findAttributes(this.a.getClass().getMethod("noRoleMethod"), null);
+			.findAttributes(this.a.getClass().getMethod("noRoleMethod"), null);
 		assertThat(accessAttributes).isNull();
 	}
 
 	@Test
 	public void classRoleIsAppliedToNoRoleMethod() throws Exception {
 		Collection<ConfigAttribute> accessAttributes = this.mds
-				.findAttributes(this.userAllowed.getClass().getMethod("noRoleMethod"), null);
+			.findAttributes(this.userAllowed.getClass().getMethod("noRoleMethod"), null);
 		assertThat(accessAttributes).isNull();
 	}
 
 	@Test
 	public void methodRoleOverridesClassRole() throws Exception {
 		Collection<ConfigAttribute> accessAttributes = this.mds
-				.findAttributes(this.userAllowed.getClass().getMethod("adminMethod"), null);
+			.findAttributes(this.userAllowed.getClass().getMethod("adminMethod"), null);
 		assertThat(accessAttributes).hasSize(1);
 		assertThat(accessAttributes.toArray()[0].toString()).isEqualTo("ROLE_ADMIN");
 	}

@@ -99,9 +99,12 @@ public final class AuthorizationManagerBeforeReactiveMethodInterceptor
 	public Object invoke(MethodInvocation mi) throws Throwable {
 		Method method = mi.getMethod();
 		Class<?> type = method.getReturnType();
-		Assert.state(Publisher.class.isAssignableFrom(type),
-				() -> String.format("The returnType %s on %s must return an instance of org.reactivestreams.Publisher "
-						+ "(for example, a Mono or Flux) in order to support Reactor Context", type, method));
+		Assert
+			.state(Publisher.class.isAssignableFrom(type),
+					() -> String.format(
+							"The returnType %s on %s must return an instance of org.reactivestreams.Publisher "
+									+ "(for example, a Mono or Flux) in order to support Reactor Context",
+							type, method));
 		Mono<Authentication> authentication = ReactiveAuthenticationUtils.getAuthentication();
 		ReactiveAdapter adapter = ReactiveAdapterRegistry.getSharedInstance().getAdapter(type);
 		Mono<Void> preAuthorize = this.authorizationManager.verify(authentication, mi);

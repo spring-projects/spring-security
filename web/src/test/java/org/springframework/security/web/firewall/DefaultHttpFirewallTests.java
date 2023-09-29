@@ -37,10 +37,10 @@ public class DefaultHttpFirewallTests {
 			MockHttpServletRequest request = new MockHttpServletRequest();
 			request.setServletPath(path);
 			assertThatExceptionOfType(RequestRejectedException.class)
-					.isThrownBy(() -> fw.getFirewalledRequest(request));
+				.isThrownBy(() -> fw.getFirewalledRequest(request));
 			request.setPathInfo(path);
 			assertThatExceptionOfType(RequestRejectedException.class)
-					.isThrownBy(() -> fw.getFirewalledRequest(request));
+				.isThrownBy(() -> fw.getFirewalledRequest(request));
 		}
 	}
 

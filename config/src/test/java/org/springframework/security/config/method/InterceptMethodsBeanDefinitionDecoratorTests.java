@@ -109,7 +109,7 @@ public class InterceptMethodsBeanDefinitionDecoratorTests implements Application
 	@Test
 	public void targetShouldPreventProtectedMethodInvocationWithNoContext() {
 		assertThatExceptionOfType(AuthenticationCredentialsNotFoundException.class)
-				.isThrownBy(this.target::doSomething);
+			.isThrownBy(this.target::doSomething);
 	}
 
 	@Test
@@ -141,7 +141,7 @@ public class InterceptMethodsBeanDefinitionDecoratorTests implements Application
 	@Test
 	public void targetAuthorizationManagerShouldPreventProtectedMethodInvocationWithNoContext() {
 		assertThatExceptionOfType(AuthenticationCredentialsNotFoundException.class)
-				.isThrownBy(this.targetAuthorizationManager::doSomething);
+			.isThrownBy(this.targetAuthorizationManager::doSomething);
 	}
 
 	@Test
@@ -163,7 +163,7 @@ public class InterceptMethodsBeanDefinitionDecoratorTests implements Application
 	@Test
 	public void transactionalAuthorizationManagerMethodsShouldBeSecured() {
 		assertThatExceptionOfType(AuthenticationException.class)
-				.isThrownBy(this.transactionalTargetAuthorizationManager::doSomething);
+			.isThrownBy(this.transactionalTargetAuthorizationManager::doSomething);
 	}
 
 	@Test

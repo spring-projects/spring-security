@@ -51,11 +51,11 @@ final class SecuredMethodSecurityConfiguration {
 			ObjectProvider<ObservationRegistry> registryProvider) {
 		SecuredAuthorizationManager secured = new SecuredAuthorizationManager();
 		SecurityContextHolderStrategy strategy = strategyProvider
-				.getIfAvailable(SecurityContextHolder::getContextHolderStrategy);
+			.getIfAvailable(SecurityContextHolder::getContextHolderStrategy);
 		AuthorizationManager<MethodInvocation> manager = new DeferringObservationAuthorizationManager<>(
 				registryProvider, secured);
 		AuthorizationManagerBeforeMethodInterceptor interceptor = AuthorizationManagerBeforeMethodInterceptor
-				.secured(manager);
+			.secured(manager);
 		interceptor.setSecurityContextHolderStrategy(strategy);
 		return interceptor;
 	}

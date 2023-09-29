@@ -53,7 +53,7 @@ public final class CsrfChannelInterceptor implements ChannelInterceptor {
 			throw new MissingCsrfTokenException(null);
 		}
 		String actualTokenValue = SimpMessageHeaderAccessor.wrap(message)
-				.getFirstNativeHeader(expectedToken.getHeaderName());
+			.getFirstNativeHeader(expectedToken.getHeaderName());
 		boolean csrfCheckPassed = expectedToken.getToken().equals(actualTokenValue);
 		if (!csrfCheckPassed) {
 			throw new InvalidCsrfTokenException(expectedToken, actualTokenValue);

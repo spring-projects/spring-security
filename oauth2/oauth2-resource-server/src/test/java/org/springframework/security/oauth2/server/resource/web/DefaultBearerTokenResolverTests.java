@@ -94,7 +94,7 @@ public class DefaultBearerTokenResolverTests {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("Authorization", "Bearer ");
 		assertThatExceptionOfType(OAuth2AuthenticationException.class).isThrownBy(() -> this.resolver.resolve(request))
-				.withMessageContaining(("Bearer token is malformed"));
+			.withMessageContaining(("Bearer token is malformed"));
 	}
 
 	@Test
@@ -102,7 +102,7 @@ public class DefaultBearerTokenResolverTests {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("Authorization", "Bearer an\"invalid\"token");
 		assertThatExceptionOfType(OAuth2AuthenticationException.class).isThrownBy(() -> this.resolver.resolve(request))
-				.withMessageContaining(("Bearer token is malformed"));
+			.withMessageContaining(("Bearer token is malformed"));
 	}
 
 	@Test
@@ -113,7 +113,7 @@ public class DefaultBearerTokenResolverTests {
 		request.setContentType("application/x-www-form-urlencoded");
 		request.addParameter("access_token", TEST_TOKEN);
 		assertThatExceptionOfType(OAuth2AuthenticationException.class).isThrownBy(() -> this.resolver.resolve(request))
-				.withMessageContaining("Found multiple bearer tokens in the request");
+			.withMessageContaining("Found multiple bearer tokens in the request");
 	}
 
 	@Test
@@ -123,7 +123,7 @@ public class DefaultBearerTokenResolverTests {
 		request.setMethod("GET");
 		request.addParameter("access_token", TEST_TOKEN);
 		assertThatExceptionOfType(OAuth2AuthenticationException.class).isThrownBy(() -> this.resolver.resolve(request))
-				.withMessageContaining("Found multiple bearer tokens in the request");
+			.withMessageContaining("Found multiple bearer tokens in the request");
 	}
 
 	// gh-10326
@@ -133,7 +133,7 @@ public class DefaultBearerTokenResolverTests {
 		request.setMethod("GET");
 		request.addParameter("access_token", "token1", "token2");
 		assertThatExceptionOfType(OAuth2AuthenticationException.class).isThrownBy(() -> this.resolver.resolve(request))
-				.withMessageContaining("Found multiple bearer tokens in the request");
+			.withMessageContaining("Found multiple bearer tokens in the request");
 	}
 
 	// gh-10326
@@ -144,7 +144,7 @@ public class DefaultBearerTokenResolverTests {
 		request.setContentType("application/x-www-form-urlencoded");
 		request.addParameter("access_token", "token1", "token2");
 		assertThatExceptionOfType(OAuth2AuthenticationException.class).isThrownBy(() -> this.resolver.resolve(request))
-				.withMessageContaining("Found multiple bearer tokens in the request");
+			.withMessageContaining("Found multiple bearer tokens in the request");
 	}
 
 	// gh-10326

@@ -143,37 +143,37 @@ public class AuthorityReactiveAuthorizationManagerTests {
 	@Test
 	public void hasRoleWhenNullThenException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> AuthorityReactiveAuthorizationManager.hasRole((String) null));
+			.isThrownBy(() -> AuthorityReactiveAuthorizationManager.hasRole((String) null));
 	}
 
 	@Test
 	public void hasAuthorityWhenNullThenException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> AuthorityReactiveAuthorizationManager.hasAuthority((String) null));
+			.isThrownBy(() -> AuthorityReactiveAuthorizationManager.hasAuthority((String) null));
 	}
 
 	@Test
 	public void hasAnyRoleWhenNullThenException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> AuthorityReactiveAuthorizationManager.hasAnyRole((String) null));
+			.isThrownBy(() -> AuthorityReactiveAuthorizationManager.hasAnyRole((String) null));
 	}
 
 	@Test
 	public void hasAnyAuthorityWhenNullThenException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> AuthorityReactiveAuthorizationManager.hasAnyAuthority((String) null));
+			.isThrownBy(() -> AuthorityReactiveAuthorizationManager.hasAnyAuthority((String) null));
 	}
 
 	@Test
 	public void hasAnyRoleWhenOneIsNullThenException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> AuthorityReactiveAuthorizationManager.hasAnyRole("ROLE_ADMIN", (String) null));
+			.isThrownBy(() -> AuthorityReactiveAuthorizationManager.hasAnyRole("ROLE_ADMIN", (String) null));
 	}
 
 	@Test
 	public void hasAnyAuthorityWhenOneIsNullThenException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> AuthorityReactiveAuthorizationManager.hasAnyAuthority("ADMIN", (String) null));
+			.isThrownBy(() -> AuthorityReactiveAuthorizationManager.hasAnyAuthority("ADMIN", (String) null));
 	}
 
 }

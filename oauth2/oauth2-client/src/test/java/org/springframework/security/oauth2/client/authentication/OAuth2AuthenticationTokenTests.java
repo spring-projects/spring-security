@@ -68,7 +68,7 @@ public class OAuth2AuthenticationTokenTests {
 	@Test
 	public void constructorWhenAuthorizedClientRegistrationIdIsNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new OAuth2AuthenticationToken(this.principal, this.authorities, null));
+			.isThrownBy(() -> new OAuth2AuthenticationToken(this.principal, this.authorities, null));
 	}
 
 	@Test

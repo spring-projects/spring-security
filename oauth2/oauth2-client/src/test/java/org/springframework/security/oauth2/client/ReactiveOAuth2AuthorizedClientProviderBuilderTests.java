@@ -75,7 +75,7 @@ public class ReactiveOAuth2AuthorizedClientProviderBuilderTests {
 	@Test
 	public void providerWhenNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> ReactiveOAuth2AuthorizedClientProviderBuilder.builder().provider(null));
+			.isThrownBy(() -> ReactiveOAuth2AuthorizedClientProviderBuilder.builder().provider(null));
 	}
 
 	@Test
@@ -91,7 +91,7 @@ public class ReactiveOAuth2AuthorizedClientProviderBuilderTests {
 				.build();
 		// @formatter:on
 		assertThatExceptionOfType(ClientAuthorizationRequiredException.class)
-				.isThrownBy(() -> authorizedClientProvider.authorize(authorizationContext).block());
+			.isThrownBy(() -> authorizedClientProvider.authorize(authorizationContext).block());
 	}
 
 	@Test
@@ -151,7 +151,9 @@ public class ReactiveOAuth2AuthorizedClientProviderBuilderTests {
 				+ "   \"token_type\": \"bearer\",\n" + "   \"expires_in\": \"3600\"\n" + "}\n";
 		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
 		ReactiveOAuth2AuthorizedClientProvider authorizedClientProvider = ReactiveOAuth2AuthorizedClientProviderBuilder
-				.builder().password().build();
+			.builder()
+			.password()
+			.build();
 		// @formatter:off
 		OAuth2AuthorizationContext authorizationContext = OAuth2AuthorizationContext
 				.withClientRegistration(
@@ -178,7 +180,12 @@ public class ReactiveOAuth2AuthorizedClientProviderBuilderTests {
 		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
 		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
 		ReactiveOAuth2AuthorizedClientProvider authorizedClientProvider = ReactiveOAuth2AuthorizedClientProviderBuilder
-				.builder().authorizationCode().refreshToken().clientCredentials().password().build();
+			.builder()
+			.authorizationCode()
+			.refreshToken()
+			.clientCredentials()
+			.password()
+			.build();
 		// authorization_code
 		// @formatter:off
 		OAuth2AuthorizationContext authorizationCodeContext = OAuth2AuthorizationContext
@@ -187,12 +194,14 @@ public class ReactiveOAuth2AuthorizedClientProviderBuilderTests {
 				.build();
 		// @formatter:on
 		assertThatExceptionOfType(ClientAuthorizationRequiredException.class)
-				.isThrownBy(() -> authorizedClientProvider.authorize(authorizationCodeContext).block());
+			.isThrownBy(() -> authorizedClientProvider.authorize(authorizationCodeContext).block());
 		// refresh_token
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.clientRegistrationBuilder.build(),
 				this.principal.getName(), expiredAccessToken(), TestOAuth2RefreshTokens.refreshToken());
 		OAuth2AuthorizationContext refreshTokenContext = OAuth2AuthorizationContext
-				.withAuthorizedClient(authorizedClient).principal(this.principal).build();
+			.withAuthorizedClient(authorizedClient)
+			.principal(this.principal)
+			.build();
 		OAuth2AuthorizedClient reauthorizedClient = authorizedClientProvider.authorize(refreshTokenContext).block();
 		assertThat(reauthorizedClient).isNotNull();
 		assertThat(this.server.getRequestCount()).isEqualTo(1);

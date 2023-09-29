@@ -46,7 +46,7 @@ public final class SecurityContextChannelInterceptor implements ExecutorChannelI
 	private static final ThreadLocal<Stack<SecurityContext>> originalContext = new ThreadLocal<>();
 
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
-			.getContextHolderStrategy();
+		.getContextHolderStrategy();
 
 	private SecurityContext empty = this.securityContextHolderStrategy.createEmptyContext();
 

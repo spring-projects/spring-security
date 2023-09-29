@@ -67,7 +67,7 @@ public class ExpressionBasedMessageSecurityMetadataSourceFactoryTests {
 		this.matcherToExpression.put(this.matcher1, this.expression1);
 		this.matcherToExpression.put(this.matcher2, this.expression2);
 		this.source = ExpressionBasedMessageSecurityMetadataSourceFactory
-				.createExpressionMessageMetadataSource(this.matcherToExpression);
+			.createExpressionMessageMetadataSource(this.matcherToExpression);
 		this.rootObject = new MessageSecurityExpressionRoot(this.authentication, this.message);
 	}
 
@@ -85,7 +85,7 @@ public class ExpressionBasedMessageSecurityMetadataSourceFactoryTests {
 		ConfigAttribute attr = attrs.iterator().next();
 		assertThat(attr).isInstanceOf(MessageExpressionConfigAttribute.class);
 		assertThat(((MessageExpressionConfigAttribute) attr).getAuthorizeExpression().getValue(this.rootObject))
-				.isEqualTo(true);
+			.isEqualTo(true);
 	}
 
 	@Test
@@ -96,7 +96,7 @@ public class ExpressionBasedMessageSecurityMetadataSourceFactoryTests {
 		ConfigAttribute attr = attrs.iterator().next();
 		assertThat(attr).isInstanceOf(MessageExpressionConfigAttribute.class);
 		assertThat(((MessageExpressionConfigAttribute) attr).getAuthorizeExpression().getValue(this.rootObject))
-				.isEqualTo(false);
+			.isEqualTo(false);
 	}
 
 }

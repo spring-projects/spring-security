@@ -109,7 +109,7 @@ public class X509ConfigurerTests {
 		SecurityContextHolderStrategy strategy = this.spring.getContext().getBean(SecurityContextHolderStrategy.class);
 		verify(strategy, atLeastOnce()).getContext();
 		SecurityContextChangedListener listener = this.spring.getContext()
-				.getBean(SecurityContextChangedListener.class);
+			.getBean(SecurityContextChangedListener.class);
 		verify(listener).securityContextChanged(setAuthentication(PreAuthenticatedAuthenticationToken.class));
 	}
 
@@ -214,8 +214,11 @@ public class X509ConfigurerTests {
 
 		@Bean
 		UserDetailsService userDetailsService() {
-			UserDetails user = User.withDefaultPasswordEncoder().username("rod").password("password")
-					.roles("USER", "ADMIN").build();
+			UserDetails user = User.withDefaultPasswordEncoder()
+				.username("rod")
+				.password("password")
+				.roles("USER", "ADMIN")
+				.build();
 			return new InMemoryUserDetailsManager(user);
 		}
 
@@ -236,8 +239,11 @@ public class X509ConfigurerTests {
 
 		@Bean
 		UserDetailsService userDetailsService() {
-			UserDetails user = User.withDefaultPasswordEncoder().username("rod").password("password")
-					.roles("USER", "ADMIN").build();
+			UserDetails user = User.withDefaultPasswordEncoder()
+				.username("rod")
+				.password("password")
+				.roles("USER", "ADMIN")
+				.build();
 			return new InMemoryUserDetailsManager(user);
 		}
 
@@ -261,8 +267,11 @@ public class X509ConfigurerTests {
 
 		@Bean
 		UserDetailsService userDetailsService() {
-			UserDetails user = User.withDefaultPasswordEncoder().username("rod").password("password")
-					.roles("USER", "ADMIN").build();
+			UserDetails user = User.withDefaultPasswordEncoder()
+				.username("rod")
+				.password("password")
+				.roles("USER", "ADMIN")
+				.build();
 			return new InMemoryUserDetailsManager(user);
 		}
 
@@ -341,8 +350,11 @@ public class X509ConfigurerTests {
 
 		@Bean
 		UserDetailsService userDetailsService() {
-			UserDetails user = User.withDefaultPasswordEncoder().username("rod").password("password")
-					.roles("USER", "ADMIN").build();
+			UserDetails user = User.withDefaultPasswordEncoder()
+				.username("rod")
+				.password("password")
+				.roles("USER", "ADMIN")
+				.build();
 			return new InMemoryUserDetailsManager(user);
 		}
 

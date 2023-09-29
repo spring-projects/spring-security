@@ -78,11 +78,11 @@ public class PasswordComparisonAuthenticatorTests {
 	public void testFailedSearchGivesUserNotFoundException() throws Exception {
 		this.authenticator = new PasswordComparisonAuthenticator(this.contextSource);
 		assertThat(this.authenticator.getUserDns("Bob")).withFailMessage("User DN matches shouldn't be available")
-				.isEmpty();
+			.isEmpty();
 		this.authenticator.setUserSearch(new MockUserSearch(null));
 		this.authenticator.afterPropertiesSet();
 		assertThatExceptionOfType(UsernameNotFoundException.class).isThrownBy(() -> this.authenticator
-				.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("Joe", "pass")));
+			.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("Joe", "pass")));
 	}
 
 	@Test
@@ -90,7 +90,7 @@ public class PasswordComparisonAuthenticatorTests {
 		// Don't retrieve the password
 		this.authenticator.setUserAttributes(new String[] { "uid", "cn", "sn" });
 		assertThatExceptionOfType(BadCredentialsException.class).isThrownBy(() -> this.authenticator
-				.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("bob", "wrongpass")));
+			.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("bob", "wrongpass")));
 	}
 
 	@Test
@@ -146,14 +146,14 @@ public class PasswordComparisonAuthenticatorTests {
 		this.authenticator = new PasswordComparisonAuthenticator(this.contextSource);
 		this.authenticator.setPasswordEncoder(NoOpPasswordEncoder.getInstance());
 		assertThat(this.authenticator.getUserDns("Bob")).withFailMessage("User DN matches shouldn't be available")
-				.isEmpty();
+			.isEmpty();
 
 		DirContextAdapter ctx = new DirContextAdapter(new DistinguishedName("uid=Bob,ou=people"));
 		ctx.setAttributeValue("userPassword", "bobspassword");
 
 		this.authenticator.setUserSearch(new MockUserSearch(ctx));
 		this.authenticator
-				.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("shouldntbeused", "bobspassword"));
+			.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("shouldntbeused", "bobspassword"));
 	}
 
 }

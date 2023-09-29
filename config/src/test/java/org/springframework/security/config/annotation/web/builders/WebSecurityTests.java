@@ -264,7 +264,7 @@ public class WebSecurityTests {
 		@Bean
 		WebSecurityCustomizer webSecurityCustomizer() {
 			return (web) -> web
-					.requestRejectedHandler(new HttpStatusRequestRejectedHandler(HttpStatus.BAD_REQUEST.value()));
+				.requestRejectedHandler(new HttpStatusRequestRejectedHandler(HttpStatus.BAD_REQUEST.value()));
 		}
 
 	}

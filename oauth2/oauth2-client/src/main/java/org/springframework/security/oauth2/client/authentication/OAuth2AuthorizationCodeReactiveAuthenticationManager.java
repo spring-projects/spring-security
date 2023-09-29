@@ -85,12 +85,12 @@ public class OAuth2AuthorizationCodeReactiveAuthenticationManager implements Rea
 		return Mono.defer(() -> {
 			OAuth2AuthorizationCodeAuthenticationToken token = (OAuth2AuthorizationCodeAuthenticationToken) authentication;
 			OAuth2AuthorizationResponse authorizationResponse = token.getAuthorizationExchange()
-					.getAuthorizationResponse();
+				.getAuthorizationResponse();
 			if (authorizationResponse.statusError()) {
 				return Mono.error(new OAuth2AuthorizationException(authorizationResponse.getError()));
 			}
 			OAuth2AuthorizationRequest authorizationRequest = token.getAuthorizationExchange()
-					.getAuthorizationRequest();
+				.getAuthorizationRequest();
 			if (!authorizationResponse.getState().equals(authorizationRequest.getState())) {
 				OAuth2Error oauth2Error = new OAuth2Error(INVALID_STATE_PARAMETER_ERROR_CODE);
 				return Mono.error(new OAuth2AuthorizationException(oauth2Error));

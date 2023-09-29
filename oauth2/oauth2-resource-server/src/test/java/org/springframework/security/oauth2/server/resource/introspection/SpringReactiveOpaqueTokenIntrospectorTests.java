@@ -133,7 +133,7 @@ public class SpringReactiveOpaqueTokenIntrospectorTests {
 			SpringReactiveOpaqueTokenIntrospector introspectionClient = new SpringReactiveOpaqueTokenIntrospector(
 					introspectUri, CLIENT_ID, "wrong");
 			assertThatExceptionOfType(OAuth2IntrospectionException.class)
-					.isThrownBy(() -> introspectionClient.introspect("token").block());
+				.isThrownBy(() -> introspectionClient.introspect("token").block());
 
 		}
 	}
@@ -144,8 +144,8 @@ public class SpringReactiveOpaqueTokenIntrospectorTests {
 		SpringReactiveOpaqueTokenIntrospector introspectionClient = new SpringReactiveOpaqueTokenIntrospector(
 				INTROSPECTION_URL, webClient);
 		assertThatExceptionOfType(BadOpaqueTokenException.class)
-				.isThrownBy(() -> introspectionClient.introspect("token").block())
-				.withMessage("Provided token isn't active");
+			.isThrownBy(() -> introspectionClient.introspect("token").block())
+			.withMessage("Provided token isn't active");
 	}
 
 	@Test
@@ -196,25 +196,25 @@ public class SpringReactiveOpaqueTokenIntrospectorTests {
 	@Test
 	public void constructorWhenIntrospectionUriIsEmptyThenIllegalArgumentException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new SpringReactiveOpaqueTokenIntrospector("", CLIENT_ID, CLIENT_SECRET));
+			.isThrownBy(() -> new SpringReactiveOpaqueTokenIntrospector("", CLIENT_ID, CLIENT_SECRET));
 	}
 
 	@Test
 	public void constructorWhenClientIdIsEmptyThenIllegalArgumentException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new SpringReactiveOpaqueTokenIntrospector(INTROSPECTION_URL, "", CLIENT_SECRET));
+			.isThrownBy(() -> new SpringReactiveOpaqueTokenIntrospector(INTROSPECTION_URL, "", CLIENT_SECRET));
 	}
 
 	@Test
 	public void constructorWhenClientSecretIsNullThenIllegalArgumentException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new SpringReactiveOpaqueTokenIntrospector(INTROSPECTION_URL, CLIENT_ID, null));
+			.isThrownBy(() -> new SpringReactiveOpaqueTokenIntrospector(INTROSPECTION_URL, CLIENT_ID, null));
 	}
 
 	@Test
 	public void constructorWhenRestOperationsIsNullThenIllegalArgumentException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new SpringReactiveOpaqueTokenIntrospector(INTROSPECTION_URL, null));
+			.isThrownBy(() -> new SpringReactiveOpaqueTokenIntrospector(INTROSPECTION_URL, null));
 	}
 
 	private WebClient mockResponse(String response) {

@@ -62,7 +62,7 @@ public class Jsr250AnnotationDrivenBeanDefinitionParserTests {
 	@Test
 	public void targetShouldPreventProtectedMethodInvocationWithNoContext() {
 		assertThatExceptionOfType(AuthenticationCredentialsNotFoundException.class)
-				.isThrownBy(() -> this.target.someUserMethod1());
+			.isThrownBy(() -> this.target.someUserMethod1());
 	}
 
 	@Test

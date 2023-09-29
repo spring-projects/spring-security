@@ -127,7 +127,7 @@ public class UserDetailsRepositoryReactiveAuthenticationManagerTests {
 		UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.unauthenticated(this.user,
 				this.user.getPassword());
 		assertThatExceptionOfType(BadCredentialsException.class)
-				.isThrownBy(() -> this.manager.authenticate(token).block());
+			.isThrownBy(() -> this.manager.authenticate(token).block());
 		verifyNoMoreInteractions(this.userDetailsPasswordService);
 	}
 
@@ -151,9 +151,11 @@ public class UserDetailsRepositoryReactiveAuthenticationManagerTests {
 		given(this.encoder.matches(any(), any())).willReturn(true);
 		this.manager.setPasswordEncoder(this.encoder);
 		this.manager.setPostAuthenticationChecks(this.postAuthenticationChecks);
-		assertThatExceptionOfType(LockedException.class).isThrownBy(() -> this.manager
+		assertThatExceptionOfType(LockedException.class)
+			.isThrownBy(() -> this.manager
 				.authenticate(UsernamePasswordAuthenticationToken.unauthenticated(this.user, this.user.getPassword()))
-				.block()).withMessage("account is locked");
+				.block())
+			.withMessage("account is locked");
 		verify(this.postAuthenticationChecks).check(eq(this.user));
 	}
 
@@ -182,7 +184,7 @@ public class UserDetailsRepositoryReactiveAuthenticationManagerTests {
 		UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.unauthenticated(expiredUser,
 				expiredUser.getPassword());
 		assertThatExceptionOfType(AccountExpiredException.class)
-				.isThrownBy(() -> this.manager.authenticate(token).block());
+			.isThrownBy(() -> this.manager.authenticate(token).block());
 	}
 
 	@Test

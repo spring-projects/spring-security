@@ -63,8 +63,8 @@ public class HttpSessionRequestCache implements RequestCache {
 	public void saveRequest(HttpServletRequest request, HttpServletResponse response) {
 		if (!this.requestMatcher.matches(request)) {
 			if (this.logger.isTraceEnabled()) {
-				this.logger.trace(
-						LogMessage.format("Did not save request since it did not match [%s]", this.requestMatcher));
+				this.logger
+					.trace(LogMessage.format("Did not save request since it did not match [%s]", this.requestMatcher));
 			}
 			return;
 		}
@@ -104,8 +104,10 @@ public class HttpSessionRequestCache implements RequestCache {
 	public HttpServletRequest getMatchingRequest(HttpServletRequest request, HttpServletResponse response) {
 		if (this.matchingRequestParameterName != null) {
 			if (!StringUtils.hasText(request.getQueryString())
-					|| !UriComponentsBuilder.fromUriString(UrlUtils.buildRequestUrl(request)).build().getQueryParams()
-							.containsKey(this.matchingRequestParameterName)) {
+					|| !UriComponentsBuilder.fromUriString(UrlUtils.buildRequestUrl(request))
+						.build()
+						.getQueryParams()
+						.containsKey(this.matchingRequestParameterName)) {
 				this.logger.trace(
 						"matchingRequestParameterName is required for getMatchingRequest to lookup a value, but not provided");
 				return null;

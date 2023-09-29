@@ -146,7 +146,7 @@ public class Element {
 	public Map<String, Element> getAllChildElmts() {
 		Map<String, Element> result = new HashMap<>();
 		this.childElmts.values()
-				.forEach((elmt) -> elmt.subGrps.forEach((subElmt) -> result.put(subElmt.name, subElmt)));
+			.forEach((elmt) -> elmt.subGrps.forEach((subElmt) -> result.put(subElmt.name, subElmt)));
 		result.putAll(this.childElmts);
 		return result;
 	}
@@ -154,7 +154,7 @@ public class Element {
 	public Map<String, Element> getAllParentElmts() {
 		Map<String, Element> result = new HashMap<>();
 		this.parentElmts.values()
-				.forEach((elmt) -> elmt.subGrps.forEach((subElmt) -> result.put(subElmt.name, subElmt)));
+			.forEach((elmt) -> elmt.subGrps.forEach((subElmt) -> result.put(subElmt.name, subElmt)));
 		result.putAll(this.parentElmts);
 		return result;
 	}

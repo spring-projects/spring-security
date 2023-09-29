@@ -57,15 +57,15 @@ public class AfterInvocationProviderManagerTests {
 		List<ConfigAttribute> attr2and3 = SecurityConfig.createList(new String[] { "GIVE_ME_SWAP2", "GIVE_ME_SWAP3" });
 		List<ConfigAttribute> attr4 = SecurityConfig.createList(new String[] { "NEVER_CAUSES_SWAP" });
 		assertThat(manager.decide(null, new SimpleMethodInvocation(), attr1, "content-before-swapping"))
-				.isEqualTo("swap1");
+			.isEqualTo("swap1");
 		assertThat(manager.decide(null, new SimpleMethodInvocation(), attr2, "content-before-swapping"))
-				.isEqualTo("swap2");
+			.isEqualTo("swap2");
 		assertThat(manager.decide(null, new SimpleMethodInvocation(), attr3, "content-before-swapping"))
-				.isEqualTo("swap3");
+			.isEqualTo("swap3");
 		assertThat(manager.decide(null, new SimpleMethodInvocation(), attr4, "content-before-swapping"))
-				.isEqualTo("content-before-swapping");
+			.isEqualTo("content-before-swapping");
 		assertThat(manager.decide(null, new SimpleMethodInvocation(), attr2and3, "content-before-swapping"))
-				.isEqualTo("swap3");
+			.isEqualTo("swap3");
 	}
 
 	@Test

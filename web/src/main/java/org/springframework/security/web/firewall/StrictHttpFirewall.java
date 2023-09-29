@@ -91,19 +91,19 @@ public class StrictHttpFirewall implements HttpFirewall {
 	private static final String PERCENT = "%";
 
 	private static final List<String> FORBIDDEN_ENCODED_PERIOD = Collections
-			.unmodifiableList(Arrays.asList("%2e", "%2E"));
+		.unmodifiableList(Arrays.asList("%2e", "%2E"));
 
 	private static final List<String> FORBIDDEN_SEMICOLON = Collections
-			.unmodifiableList(Arrays.asList(";", "%3b", "%3B"));
+		.unmodifiableList(Arrays.asList(";", "%3b", "%3B"));
 
 	private static final List<String> FORBIDDEN_FORWARDSLASH = Collections
-			.unmodifiableList(Arrays.asList("%2f", "%2F"));
+		.unmodifiableList(Arrays.asList("%2f", "%2F"));
 
 	private static final List<String> FORBIDDEN_DOUBLE_FORWARDSLASH = Collections
-			.unmodifiableList(Arrays.asList("//", "%2f%2f", "%2f%2F", "%2F%2f", "%2F%2F"));
+		.unmodifiableList(Arrays.asList("//", "%2f%2f", "%2f%2F", "%2F%2f", "%2F%2F"));
 
 	private static final List<String> FORBIDDEN_BACKSLASH = Collections
-			.unmodifiableList(Arrays.asList("\\", "%5c", "%5C"));
+		.unmodifiableList(Arrays.asList("\\", "%5c", "%5C"));
 
 	private static final List<String> FORBIDDEN_NULL = Collections.unmodifiableList(Arrays.asList("\0", "%00"));
 
@@ -114,7 +114,7 @@ public class StrictHttpFirewall implements HttpFirewall {
 	private static final List<String> FORBIDDEN_LINE_SEPARATOR = Collections.unmodifiableList(Arrays.asList("\u2028"));
 
 	private static final List<String> FORBIDDEN_PARAGRAPH_SEPARATOR = Collections
-			.unmodifiableList(Arrays.asList("\u2029"));
+		.unmodifiableList(Arrays.asList("\u2029"));
 
 	private Set<String> encodedUrlBlocklist = new HashSet<>();
 
@@ -125,7 +125,7 @@ public class StrictHttpFirewall implements HttpFirewall {
 	private Predicate<String> allowedHostnames = (hostname) -> true;
 
 	private static final Pattern ASSIGNED_AND_NOT_ISO_CONTROL_PATTERN = Pattern
-			.compile("[\\p{IsAssigned}&&[^\\p{IsControl}]]*");
+		.compile("[\\p{IsAssigned}&&[^\\p{IsControl}]]*");
 
 	private static final Predicate<String> ASSIGNED_AND_NOT_ISO_CONTROL_PREDICATE = (
 			s) -> ASSIGNED_AND_NOT_ISO_CONTROL_PATTERN.matcher(s).matches();
@@ -513,8 +513,8 @@ public class StrictHttpFirewall implements HttpFirewall {
 
 	private void rejectNonPrintableAsciiCharactersInFieldName(String toCheck, String propertyName) {
 		if (!containsOnlyPrintableAsciiCharacters(toCheck)) {
-			throw new RequestRejectedException(String.format(
-					"The %s was rejected because it can only contain printable ASCII characters.", propertyName));
+			throw new RequestRejectedException(String
+				.format("The %s was rejected because it can only contain printable ASCII characters.", propertyName));
 		}
 	}
 

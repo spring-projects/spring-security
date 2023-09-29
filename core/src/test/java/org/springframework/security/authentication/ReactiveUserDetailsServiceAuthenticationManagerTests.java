@@ -66,7 +66,7 @@ public class ReactiveUserDetailsServiceAuthenticationManagerTests {
 	@Test
 	public void constructorNullUserDetailsService() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new UserDetailsRepositoryReactiveAuthenticationManager(null));
+			.isThrownBy(() -> new UserDetailsRepositoryReactiveAuthenticationManager(null));
 	}
 
 	@Test

@@ -113,7 +113,7 @@ public class AbstractAuthorizeTagTests {
 		this.tag.setUrl(uri);
 		WebApplicationContext wac = mock(WebApplicationContext.class);
 		given(wac.getBeansOfType(WebInvocationPrivilegeEvaluator.class))
-				.willReturn(Collections.singletonMap("wipe", expected));
+			.willReturn(Collections.singletonMap("wipe", expected));
 		given(wac.getBeanNamesForType(SecurityContextHolderStrategy.class)).willReturn(new String[0]);
 		this.servletContext.setAttribute("org.springframework.web.servlet.FrameworkServlet.CONTEXT.dispatcher", wac);
 		this.tag.authorizeUsingUrlCheck();
@@ -128,7 +128,7 @@ public class AbstractAuthorizeTagTests {
 		this.tag.setAccess("permitAll");
 		WebApplicationContext wac = mock(WebApplicationContext.class);
 		given(wac.getBeansOfType(SecurityExpressionHandler.class))
-				.willReturn(Collections.<String, SecurityExpressionHandler>singletonMap("wipe", expected));
+			.willReturn(Collections.<String, SecurityExpressionHandler>singletonMap("wipe", expected));
 		given(wac.getBeanNamesForType(SecurityContextHolderStrategy.class)).willReturn(new String[0]);
 		this.servletContext.setAttribute("org.springframework.web.servlet.FrameworkServlet.CONTEXT.dispatcher", wac);
 		assertThat(this.tag.authorize()).isTrue();

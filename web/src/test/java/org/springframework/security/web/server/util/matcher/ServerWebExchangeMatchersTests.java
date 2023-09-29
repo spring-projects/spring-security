@@ -43,26 +43,26 @@ public class ServerWebExchangeMatchersTests {
 	@Test
 	public void pathMatchersWhenSingleAndSamePatternAndMethodThenMatches() {
 		assertThat(ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, "/").matches(this.exchange).block().isMatch())
-				.isTrue();
+			.isTrue();
 	}
 
 	@Test
 	public void pathMatchersWhenSingleAndSamePatternAndDiffMethodThenDoesNotMatch() {
 		assertThat(
 				ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, "/").matches(this.exchange).block().isMatch())
-						.isFalse();
+			.isFalse();
 	}
 
 	@Test
 	public void pathMatchersWhenSingleAndDifferentPatternThenDoesNotMatch() {
 		assertThat(ServerWebExchangeMatchers.pathMatchers("/foobar").matches(this.exchange).block().isMatch())
-				.isFalse();
+			.isFalse();
 	}
 
 	@Test
 	public void pathMatchersWhenMultiThenMatches() {
 		assertThat(ServerWebExchangeMatchers.pathMatchers("/foobar", "/").matches(this.exchange).block().isMatch())
-				.isTrue();
+			.isTrue();
 	}
 
 	@Test

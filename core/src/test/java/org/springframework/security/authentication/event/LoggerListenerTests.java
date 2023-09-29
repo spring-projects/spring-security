@@ -31,7 +31,7 @@ public class LoggerListenerTests {
 
 	private Authentication getAuthentication() {
 		UsernamePasswordAuthenticationToken authentication = UsernamePasswordAuthenticationToken
-				.unauthenticated("Principal", "Credentials");
+			.unauthenticated("Principal", "Credentials");
 		authentication.setDetails("127.0.0.1");
 		return authentication;
 	}

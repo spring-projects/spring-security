@@ -104,14 +104,14 @@ public class SecurityReactorContextConfigurationTests {
 			}
 		};
 		CoreSubscriber<Object> resultSubscriber = this.subscriberRegistrar
-				.createSubscriberIfNecessary(originalSubscriber);
+			.createSubscriberIfNecessary(originalSubscriber);
 		assertThat(resultSubscriber).isSameAs(originalSubscriber);
 	}
 
 	@Test
 	public void createSubscriberIfNecessaryWhenWebSecurityContextAvailableThenCreateWithParentContext() {
 		RequestContextHolder
-				.setRequestAttributes(new ServletRequestAttributes(this.servletRequest, this.servletResponse));
+			.setRequestAttributes(new ServletRequestAttributes(this.servletRequest, this.servletResponse));
 		SecurityContextHolder.getContext().setAuthentication(this.authentication);
 		String testKey = "test_key";
 		String testValue = "test_value";
@@ -125,7 +125,7 @@ public class SecurityReactorContextConfigurationTests {
 		Context resultContext = subscriber.currentContext();
 		assertThat(resultContext.getOrEmpty(testKey)).hasValue(testValue);
 		Map<Object, Object> securityContextAttributes = resultContext
-				.getOrDefault(SecurityReactorContextSubscriber.SECURITY_CONTEXT_ATTRIBUTES, null);
+			.getOrDefault(SecurityReactorContextSubscriber.SECURITY_CONTEXT_ATTRIBUTES, null);
 		assertThat(securityContextAttributes).hasSize(3);
 		assertThat(securityContextAttributes).contains(entry(HttpServletRequest.class, this.servletRequest),
 				entry(HttpServletResponse.class, this.servletResponse),
@@ -135,7 +135,7 @@ public class SecurityReactorContextConfigurationTests {
 	@Test
 	public void createSubscriberIfNecessaryWhenParentContextContainsSecurityContextAttributesThenUseParentContext() {
 		RequestContextHolder
-				.setRequestAttributes(new ServletRequestAttributes(this.servletRequest, this.servletResponse));
+			.setRequestAttributes(new ServletRequestAttributes(this.servletRequest, this.servletResponse));
 		SecurityContextHolder.getContext().setAuthentication(this.authentication);
 		Context parentContext = Context.of(SecurityReactorContextSubscriber.SECURITY_CONTEXT_ATTRIBUTES,
 				new HashMap<>());
@@ -191,7 +191,7 @@ public class SecurityReactorContextConfigurationTests {
 			}
 		});
 		CoreSubscriber<Object> subscriber = this.subscriberRegistrar
-				.createSubscriberIfNecessary(Operators.emptySubscriber());
+			.createSubscriberIfNecessary(Operators.emptySubscriber());
 		assertThat(subscriber).isInstanceOf(SecurityReactorContextConfiguration.SecurityReactorContextSubscriber.class);
 	}
 
@@ -202,7 +202,7 @@ public class SecurityReactorContextConfigurationTests {
 		this.spring.register(SecurityConfig.class).autowire();
 		// Setup for SecurityReactorContextSubscriberRegistrar
 		RequestContextHolder
-				.setRequestAttributes(new ServletRequestAttributes(this.servletRequest, this.servletResponse));
+			.setRequestAttributes(new ServletRequestAttributes(this.servletRequest, this.servletResponse));
 		SecurityContextHolder.getContext().setAuthentication(this.authentication);
 		ClientResponse clientResponseOk = ClientResponse.create(HttpStatus.OK).build();
 		// @formatter:off
@@ -228,7 +228,7 @@ public class SecurityReactorContextConfigurationTests {
 		expectedContextAttributes.put(HttpServletResponse.class, this.servletResponse);
 		expectedContextAttributes.put(Authentication.class, this.authentication);
 		Mono<ClientResponse> clientResponseMono = filter.filter(clientRequest, exchange)
-				.flatMap((response) -> filter.filter(clientRequest, exchange));
+			.flatMap((response) -> filter.filter(clientRequest, exchange));
 		// @formatter:off
 		StepVerifier.create(clientResponseMono)
 				.expectAccessibleContext()
@@ -259,7 +259,7 @@ public class SecurityReactorContextConfigurationTests {
 		expectedContextAttributes.put(HttpServletResponse.class, null);
 		expectedContextAttributes.put(Authentication.class, this.authentication);
 		Mono<ClientResponse> clientResponseMono = filter.filter(clientRequest, exchange)
-				.flatMap((response) -> filter.filter(clientRequest, exchange));
+			.flatMap((response) -> filter.filter(clientRequest, exchange));
 		// @formatter:off
 		StepVerifier.create(clientResponseMono)
 				.expectAccessibleContext()

@@ -81,12 +81,11 @@ public final class ClientCredentialsReactiveOAuth2AuthorizedClientProvider
 		// Therefore, renewing an expired access token (re-authorization)
 		// is the same as acquiring a new access token (authorization).
 		return Mono.just(new OAuth2ClientCredentialsGrantRequest(clientRegistration))
-				.flatMap(this.accessTokenResponseClient::getTokenResponse)
-				.onErrorMap(OAuth2AuthorizationException.class,
-						(ex) -> new ClientAuthorizationException(ex.getError(), clientRegistration.getRegistrationId(),
-								ex))
-				.map((tokenResponse) -> new OAuth2AuthorizedClient(clientRegistration, context.getPrincipal().getName(),
-						tokenResponse.getAccessToken()));
+			.flatMap(this.accessTokenResponseClient::getTokenResponse)
+			.onErrorMap(OAuth2AuthorizationException.class,
+					(ex) -> new ClientAuthorizationException(ex.getError(), clientRegistration.getRegistrationId(), ex))
+			.map((tokenResponse) -> new OAuth2AuthorizedClient(clientRegistration, context.getPrincipal().getName(),
+					tokenResponse.getAccessToken()));
 	}
 
 	private boolean hasTokenExpired(OAuth2Token token) {

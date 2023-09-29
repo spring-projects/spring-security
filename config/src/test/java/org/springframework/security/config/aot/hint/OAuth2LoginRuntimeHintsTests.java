@@ -40,14 +40,16 @@ class OAuth2LoginRuntimeHintsTests {
 
 	@BeforeEach
 	void setup() {
-		SpringFactoriesLoader.forResourceLocation("META-INF/spring/aot.factories").load(RuntimeHintsRegistrar.class)
-				.forEach((registrar) -> registrar.registerHints(this.hints, ClassUtils.getDefaultClassLoader()));
+		SpringFactoriesLoader.forResourceLocation("META-INF/spring/aot.factories")
+			.load(RuntimeHintsRegistrar.class)
+			.forEach((registrar) -> registrar.registerHints(this.hints, ClassUtils.getDefaultClassLoader()));
 	}
 
 	@Test
 	void jwtDecoderHasHints() {
-		assertThat(RuntimeHintsPredicates.reflection().onType(JwtDecoder.class)
-				.withMemberCategories(MemberCategory.INVOKE_PUBLIC_METHODS)).accepts(this.hints);
+		assertThat(RuntimeHintsPredicates.reflection()
+			.onType(JwtDecoder.class)
+			.withMemberCategories(MemberCategory.INVOKE_PUBLIC_METHODS)).accepts(this.hints);
 	}
 
 }

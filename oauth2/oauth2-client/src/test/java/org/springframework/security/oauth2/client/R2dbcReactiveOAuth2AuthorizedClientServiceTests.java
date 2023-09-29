@@ -77,7 +77,7 @@ public class R2dbcReactiveOAuth2AuthorizedClientServiceTests {
 		this.clientRegistration = TestClientRegistrations.clientRegistration().build();
 		this.clientRegistrationRepository = mock(ReactiveClientRegistrationRepository.class);
 		given(this.clientRegistrationRepository.findByRegistrationId(anyString()))
-				.willReturn(Mono.just(this.clientRegistration));
+			.willReturn(Mono.just(this.clientRegistration));
 		this.databaseClient = DatabaseClient.create(connectionFactory);
 		this.authorizedClientService = new R2dbcReactiveOAuth2AuthorizedClientService(this.databaseClient,
 				this.clientRegistrationRepository);
@@ -86,67 +86,71 @@ public class R2dbcReactiveOAuth2AuthorizedClientServiceTests {
 	@Test
 	public void constructorWhenDatabaseClientIsNullThenThrowIllegalArgumentException() {
 		assertThatExceptionOfType(IllegalArgumentException.class)
-				.isThrownBy(
-						() -> new R2dbcReactiveOAuth2AuthorizedClientService(null, this.clientRegistrationRepository))
-				.withMessageContaining("databaseClient cannot be null");
+			.isThrownBy(() -> new R2dbcReactiveOAuth2AuthorizedClientService(null, this.clientRegistrationRepository))
+			.withMessageContaining("databaseClient cannot be null");
 	}
 
 	@Test
 	public void constructorWhenClientRegistrationRepositoryIsNullThenThrowIllegalArgumentException() {
 		assertThatExceptionOfType(IllegalArgumentException.class)
-				.isThrownBy(() -> new R2dbcReactiveOAuth2AuthorizedClientService(this.databaseClient, null))
-				.withMessageContaining("clientRegistrationRepository cannot be null");
+			.isThrownBy(() -> new R2dbcReactiveOAuth2AuthorizedClientService(this.databaseClient, null))
+			.withMessageContaining("clientRegistrationRepository cannot be null");
 	}
 
 	@Test
 	public void loadAuthorizedClientWhenClientRegistrationIdIsNullThenThrowIllegalArgumentException() {
 		assertThatExceptionOfType(IllegalArgumentException.class)
-				.isThrownBy(() -> this.authorizedClientService.loadAuthorizedClient(null, "principalName"))
-				.withMessageContaining("clientRegistrationId cannot be empty");
+			.isThrownBy(() -> this.authorizedClientService.loadAuthorizedClient(null, "principalName"))
+			.withMessageContaining("clientRegistrationId cannot be empty");
 	}
 
 	@Test
 	public void loadAuthorizedClientWhenPrincipalNameIsNullThenThrowIllegalArgumentException() {
 		assertThatExceptionOfType(IllegalArgumentException.class)
-				.isThrownBy(() -> this.authorizedClientService
-						.loadAuthorizedClient(this.clientRegistration.getRegistrationId(), null))
-				.withMessageContaining("principalName cannot be empty");
+			.isThrownBy(() -> this.authorizedClientService
+				.loadAuthorizedClient(this.clientRegistration.getRegistrationId(), null))
+			.withMessageContaining("principalName cannot be empty");
 	}
 
 	@Test
 	public void loadAuthorizedClientWhenDoesNotExistThenReturnNull() {
 		this.authorizedClientService.loadAuthorizedClient("registration-not-found", "principalName")
-				.as(StepVerifier::create).expectNextCount(0).verifyComplete();
+			.as(StepVerifier::create)
+			.expectNextCount(0)
+			.verifyComplete();
 	}
 
 	@Test
 	public void loadAuthorizedClientWhenExistsThenReturnAuthorizedClient() {
 		Authentication principal = createPrincipal();
 		OAuth2AuthorizedClient expected = createAuthorizedClient(principal, this.clientRegistration);
-		this.authorizedClientService.saveAuthorizedClient(expected, principal).as(StepVerifier::create)
-				.verifyComplete();
+		this.authorizedClientService.saveAuthorizedClient(expected, principal)
+			.as(StepVerifier::create)
+			.verifyComplete();
 
 		this.authorizedClientService
-				.loadAuthorizedClient(this.clientRegistration.getRegistrationId(), principal.getName())
-				.as(StepVerifier::create).assertNext((authorizedClient) -> {
-					assertThat(authorizedClient).isNotNull();
-					assertThat(authorizedClient.getClientRegistration()).isEqualTo(expected.getClientRegistration());
-					assertThat(authorizedClient.getPrincipalName()).isEqualTo(expected.getPrincipalName());
-					assertThat(authorizedClient.getAccessToken().getTokenType())
-							.isEqualTo(expected.getAccessToken().getTokenType());
-					assertThat(authorizedClient.getAccessToken().getTokenValue())
-							.isEqualTo(expected.getAccessToken().getTokenValue());
-					assertThat(authorizedClient.getAccessToken().getIssuedAt())
-							.isEqualTo(expected.getAccessToken().getIssuedAt());
-					assertThat(authorizedClient.getAccessToken().getExpiresAt())
-							.isEqualTo(expected.getAccessToken().getExpiresAt());
-					assertThat(authorizedClient.getAccessToken().getScopes())
-							.isEqualTo(expected.getAccessToken().getScopes());
-					assertThat(authorizedClient.getRefreshToken().getTokenValue())
-							.isEqualTo(expected.getRefreshToken().getTokenValue());
-					assertThat(authorizedClient.getRefreshToken().getIssuedAt())
-							.isEqualTo(expected.getRefreshToken().getIssuedAt());
-				}).verifyComplete();
+			.loadAuthorizedClient(this.clientRegistration.getRegistrationId(), principal.getName())
+			.as(StepVerifier::create)
+			.assertNext((authorizedClient) -> {
+				assertThat(authorizedClient).isNotNull();
+				assertThat(authorizedClient.getClientRegistration()).isEqualTo(expected.getClientRegistration());
+				assertThat(authorizedClient.getPrincipalName()).isEqualTo(expected.getPrincipalName());
+				assertThat(authorizedClient.getAccessToken().getTokenType())
+					.isEqualTo(expected.getAccessToken().getTokenType());
+				assertThat(authorizedClient.getAccessToken().getTokenValue())
+					.isEqualTo(expected.getAccessToken().getTokenValue());
+				assertThat(authorizedClient.getAccessToken().getIssuedAt())
+					.isEqualTo(expected.getAccessToken().getIssuedAt());
+				assertThat(authorizedClient.getAccessToken().getExpiresAt())
+					.isEqualTo(expected.getAccessToken().getExpiresAt());
+				assertThat(authorizedClient.getAccessToken().getScopes())
+					.isEqualTo(expected.getAccessToken().getScopes());
+				assertThat(authorizedClient.getRefreshToken().getTokenValue())
+					.isEqualTo(expected.getRefreshToken().getTokenValue());
+				assertThat(authorizedClient.getRefreshToken().getIssuedAt())
+					.isEqualTo(expected.getRefreshToken().getIssuedAt());
+			})
+			.verifyComplete();
 	}
 
 	@Test
@@ -155,16 +159,16 @@ public class R2dbcReactiveOAuth2AuthorizedClientServiceTests {
 		Authentication principal = createPrincipal();
 		OAuth2AuthorizedClient expected = createAuthorizedClient(principal, this.clientRegistration);
 
-		this.authorizedClientService.saveAuthorizedClient(expected, principal).as(StepVerifier::create)
-				.verifyComplete();
+		this.authorizedClientService.saveAuthorizedClient(expected, principal)
+			.as(StepVerifier::create)
+			.verifyComplete();
 
 		this.authorizedClientService
-				.loadAuthorizedClient(this.clientRegistration.getRegistrationId(), principal.getName())
-				.as(StepVerifier::create)
-				.verifyErrorSatisfies((exception) -> assertThat(exception)
-						.isInstanceOf(DataRetrievalFailureException.class)
-						.hasMessage("The ClientRegistration with id '" + this.clientRegistration.getRegistrationId()
-								+ "' exists in the data source, however, it was not found in the ReactiveClientRegistrationRepository."));
+			.loadAuthorizedClient(this.clientRegistration.getRegistrationId(), principal.getName())
+			.as(StepVerifier::create)
+			.verifyErrorSatisfies((exception) -> assertThat(exception).isInstanceOf(DataRetrievalFailureException.class)
+				.hasMessage("The ClientRegistration with id '" + this.clientRegistration.getRegistrationId()
+						+ "' exists in the data source, however, it was not found in the ReactiveClientRegistrationRepository."));
 	}
 
 	@Test
@@ -172,8 +176,8 @@ public class R2dbcReactiveOAuth2AuthorizedClientServiceTests {
 		Authentication principal = createPrincipal();
 
 		assertThatExceptionOfType(IllegalArgumentException.class)
-				.isThrownBy(() -> this.authorizedClientService.saveAuthorizedClient(null, principal))
-				.withMessageContaining("authorizedClient cannot be null");
+			.isThrownBy(() -> this.authorizedClientService.saveAuthorizedClient(null, principal))
+			.withMessageContaining("authorizedClient cannot be null");
 	}
 
 	@Test
@@ -181,8 +185,8 @@ public class R2dbcReactiveOAuth2AuthorizedClientServiceTests {
 		Authentication principal = createPrincipal();
 		OAuth2AuthorizedClient authorizedClient = createAuthorizedClient(principal, this.clientRegistration);
 		assertThatExceptionOfType(IllegalArgumentException.class)
-				.isThrownBy(() -> this.authorizedClientService.saveAuthorizedClient(authorizedClient, null))
-				.withMessageContaining("principal cannot be null");
+			.isThrownBy(() -> this.authorizedClientService.saveAuthorizedClient(authorizedClient, null))
+			.withMessageContaining("principal cannot be null");
 	}
 
 	@Test
@@ -190,57 +194,62 @@ public class R2dbcReactiveOAuth2AuthorizedClientServiceTests {
 		Authentication principal = createPrincipal();
 		final OAuth2AuthorizedClient expected = createAuthorizedClient(principal, this.clientRegistration);
 
-		this.authorizedClientService.saveAuthorizedClient(expected, principal).as(StepVerifier::create)
-				.verifyComplete();
+		this.authorizedClientService.saveAuthorizedClient(expected, principal)
+			.as(StepVerifier::create)
+			.verifyComplete();
 
 		this.authorizedClientService
-				.loadAuthorizedClient(this.clientRegistration.getRegistrationId(), principal.getName())
-				.as(StepVerifier::create).assertNext((authorizedClient) -> {
-					assertThat(authorizedClient).isNotNull();
-					assertThat(authorizedClient.getClientRegistration()).isEqualTo(expected.getClientRegistration());
-					assertThat(authorizedClient.getPrincipalName()).isEqualTo(expected.getPrincipalName());
-					assertThat(authorizedClient.getAccessToken().getTokenType())
-							.isEqualTo(expected.getAccessToken().getTokenType());
-					assertThat(authorizedClient.getAccessToken().getTokenValue())
-							.isEqualTo(expected.getAccessToken().getTokenValue());
-					assertThat(authorizedClient.getAccessToken().getIssuedAt())
-							.isEqualTo(expected.getAccessToken().getIssuedAt());
-					assertThat(authorizedClient.getAccessToken().getExpiresAt())
-							.isEqualTo(expected.getAccessToken().getExpiresAt());
-					assertThat(authorizedClient.getAccessToken().getScopes())
-							.isEqualTo(expected.getAccessToken().getScopes());
-					assertThat(authorizedClient.getRefreshToken().getTokenValue())
-							.isEqualTo(expected.getRefreshToken().getTokenValue());
-					assertThat(authorizedClient.getRefreshToken().getIssuedAt())
-							.isEqualTo(expected.getRefreshToken().getIssuedAt());
-				}).verifyComplete();
+			.loadAuthorizedClient(this.clientRegistration.getRegistrationId(), principal.getName())
+			.as(StepVerifier::create)
+			.assertNext((authorizedClient) -> {
+				assertThat(authorizedClient).isNotNull();
+				assertThat(authorizedClient.getClientRegistration()).isEqualTo(expected.getClientRegistration());
+				assertThat(authorizedClient.getPrincipalName()).isEqualTo(expected.getPrincipalName());
+				assertThat(authorizedClient.getAccessToken().getTokenType())
+					.isEqualTo(expected.getAccessToken().getTokenType());
+				assertThat(authorizedClient.getAccessToken().getTokenValue())
+					.isEqualTo(expected.getAccessToken().getTokenValue());
+				assertThat(authorizedClient.getAccessToken().getIssuedAt())
+					.isEqualTo(expected.getAccessToken().getIssuedAt());
+				assertThat(authorizedClient.getAccessToken().getExpiresAt())
+					.isEqualTo(expected.getAccessToken().getExpiresAt());
+				assertThat(authorizedClient.getAccessToken().getScopes())
+					.isEqualTo(expected.getAccessToken().getScopes());
+				assertThat(authorizedClient.getRefreshToken().getTokenValue())
+					.isEqualTo(expected.getRefreshToken().getTokenValue());
+				assertThat(authorizedClient.getRefreshToken().getIssuedAt())
+					.isEqualTo(expected.getRefreshToken().getIssuedAt());
+			})
+			.verifyComplete();
 
 		// Test save/load of NOT NULL attributes only
 		principal = createPrincipal();
 		OAuth2AuthorizedClient updatedExpectedPrincipal = createAuthorizedClient(principal, this.clientRegistration,
 				true);
-		this.authorizedClientService.saveAuthorizedClient(updatedExpectedPrincipal, principal).as(StepVerifier::create)
-				.verifyComplete();
+		this.authorizedClientService.saveAuthorizedClient(updatedExpectedPrincipal, principal)
+			.as(StepVerifier::create)
+			.verifyComplete();
 
 		this.authorizedClientService
-				.loadAuthorizedClient(this.clientRegistration.getRegistrationId(), principal.getName())
-				.as(StepVerifier::create).assertNext((authorizedClient) -> {
-					assertThat(authorizedClient).isNotNull();
-					assertThat(authorizedClient.getClientRegistration())
-							.isEqualTo(updatedExpectedPrincipal.getClientRegistration());
-					assertThat(authorizedClient.getPrincipalName())
-							.isEqualTo(updatedExpectedPrincipal.getPrincipalName());
-					assertThat(authorizedClient.getAccessToken().getTokenType())
-							.isEqualTo(updatedExpectedPrincipal.getAccessToken().getTokenType());
-					assertThat(authorizedClient.getAccessToken().getTokenValue())
-							.isEqualTo(updatedExpectedPrincipal.getAccessToken().getTokenValue());
-					assertThat(authorizedClient.getAccessToken().getIssuedAt())
-							.isEqualTo(updatedExpectedPrincipal.getAccessToken().getIssuedAt());
-					assertThat(authorizedClient.getAccessToken().getExpiresAt())
-							.isEqualTo(updatedExpectedPrincipal.getAccessToken().getExpiresAt());
-					assertThat(authorizedClient.getAccessToken().getScopes()).isEmpty();
-					assertThat(authorizedClient.getRefreshToken()).isNull();
-				}).verifyComplete();
+			.loadAuthorizedClient(this.clientRegistration.getRegistrationId(), principal.getName())
+			.as(StepVerifier::create)
+			.assertNext((authorizedClient) -> {
+				assertThat(authorizedClient).isNotNull();
+				assertThat(authorizedClient.getClientRegistration())
+					.isEqualTo(updatedExpectedPrincipal.getClientRegistration());
+				assertThat(authorizedClient.getPrincipalName()).isEqualTo(updatedExpectedPrincipal.getPrincipalName());
+				assertThat(authorizedClient.getAccessToken().getTokenType())
+					.isEqualTo(updatedExpectedPrincipal.getAccessToken().getTokenType());
+				assertThat(authorizedClient.getAccessToken().getTokenValue())
+					.isEqualTo(updatedExpectedPrincipal.getAccessToken().getTokenValue());
+				assertThat(authorizedClient.getAccessToken().getIssuedAt())
+					.isEqualTo(updatedExpectedPrincipal.getAccessToken().getIssuedAt());
+				assertThat(authorizedClient.getAccessToken().getExpiresAt())
+					.isEqualTo(updatedExpectedPrincipal.getAccessToken().getExpiresAt());
+				assertThat(authorizedClient.getAccessToken().getScopes()).isEmpty();
+				assertThat(authorizedClient.getRefreshToken()).isNull();
+			})
+			.verifyComplete();
 	}
 
 	@Test
@@ -248,52 +257,55 @@ public class R2dbcReactiveOAuth2AuthorizedClientServiceTests {
 		// Given a saved authorized client
 		Authentication principal = createPrincipal();
 		OAuth2AuthorizedClient authorizedClient = createAuthorizedClient(principal, this.clientRegistration);
-		this.authorizedClientService.saveAuthorizedClient(authorizedClient, principal).as(StepVerifier::create)
-				.verifyComplete();
+		this.authorizedClientService.saveAuthorizedClient(authorizedClient, principal)
+			.as(StepVerifier::create)
+			.verifyComplete();
 
 		// When a client with the same principal and registration id is saved
 		OAuth2AuthorizedClient updatedAuthorizedClient = createAuthorizedClient(principal, this.clientRegistration);
-		this.authorizedClientService.saveAuthorizedClient(updatedAuthorizedClient, principal).as(StepVerifier::create)
-				.verifyComplete();
+		this.authorizedClientService.saveAuthorizedClient(updatedAuthorizedClient, principal)
+			.as(StepVerifier::create)
+			.verifyComplete();
 
 		// Then the saved client is updated
 		this.authorizedClientService
-				.loadAuthorizedClient(this.clientRegistration.getRegistrationId(), principal.getName())
-				.as(StepVerifier::create).assertNext((savedClient) -> {
-					assertThat(savedClient).isNotNull();
-					assertThat(savedClient.getClientRegistration())
-							.isEqualTo(updatedAuthorizedClient.getClientRegistration());
-					assertThat(savedClient.getPrincipalName()).isEqualTo(updatedAuthorizedClient.getPrincipalName());
-					assertThat(savedClient.getAccessToken().getTokenType())
-							.isEqualTo(updatedAuthorizedClient.getAccessToken().getTokenType());
-					assertThat(savedClient.getAccessToken().getTokenValue())
-							.isEqualTo(updatedAuthorizedClient.getAccessToken().getTokenValue());
-					assertThat(savedClient.getAccessToken().getIssuedAt())
-							.isEqualTo(updatedAuthorizedClient.getAccessToken().getIssuedAt());
-					assertThat(savedClient.getAccessToken().getExpiresAt())
-							.isEqualTo(updatedAuthorizedClient.getAccessToken().getExpiresAt());
-					assertThat(savedClient.getAccessToken().getScopes())
-							.isEqualTo(updatedAuthorizedClient.getAccessToken().getScopes());
-					assertThat(savedClient.getRefreshToken().getTokenValue())
-							.isEqualTo(updatedAuthorizedClient.getRefreshToken().getTokenValue());
-					assertThat(savedClient.getRefreshToken().getIssuedAt())
-							.isEqualTo(updatedAuthorizedClient.getRefreshToken().getIssuedAt());
-				});
+			.loadAuthorizedClient(this.clientRegistration.getRegistrationId(), principal.getName())
+			.as(StepVerifier::create)
+			.assertNext((savedClient) -> {
+				assertThat(savedClient).isNotNull();
+				assertThat(savedClient.getClientRegistration())
+					.isEqualTo(updatedAuthorizedClient.getClientRegistration());
+				assertThat(savedClient.getPrincipalName()).isEqualTo(updatedAuthorizedClient.getPrincipalName());
+				assertThat(savedClient.getAccessToken().getTokenType())
+					.isEqualTo(updatedAuthorizedClient.getAccessToken().getTokenType());
+				assertThat(savedClient.getAccessToken().getTokenValue())
+					.isEqualTo(updatedAuthorizedClient.getAccessToken().getTokenValue());
+				assertThat(savedClient.getAccessToken().getIssuedAt())
+					.isEqualTo(updatedAuthorizedClient.getAccessToken().getIssuedAt());
+				assertThat(savedClient.getAccessToken().getExpiresAt())
+					.isEqualTo(updatedAuthorizedClient.getAccessToken().getExpiresAt());
+				assertThat(savedClient.getAccessToken().getScopes())
+					.isEqualTo(updatedAuthorizedClient.getAccessToken().getScopes());
+				assertThat(savedClient.getRefreshToken().getTokenValue())
+					.isEqualTo(updatedAuthorizedClient.getRefreshToken().getTokenValue());
+				assertThat(savedClient.getRefreshToken().getIssuedAt())
+					.isEqualTo(updatedAuthorizedClient.getRefreshToken().getIssuedAt());
+			});
 	}
 
 	@Test
 	public void removeAuthorizedClientWhenClientRegistrationIdIsNullThenThrowIllegalArgumentException() {
 		assertThatExceptionOfType(IllegalArgumentException.class)
-				.isThrownBy(() -> this.authorizedClientService.removeAuthorizedClient(null, "principalName"))
-				.withMessageContaining("clientRegistrationId cannot be empty");
+			.isThrownBy(() -> this.authorizedClientService.removeAuthorizedClient(null, "principalName"))
+			.withMessageContaining("clientRegistrationId cannot be empty");
 	}
 
 	@Test
 	public void removeAuthorizedClientWhenPrincipalNameIsNullThenThrowIllegalArgumentException() {
 		assertThatExceptionOfType(IllegalArgumentException.class)
-				.isThrownBy(() -> this.authorizedClientService
-						.removeAuthorizedClient(this.clientRegistration.getRegistrationId(), null))
-				.withMessageContaining("principalName cannot be empty");
+			.isThrownBy(() -> this.authorizedClientService
+				.removeAuthorizedClient(this.clientRegistration.getRegistrationId(), null))
+			.withMessageContaining("principalName cannot be empty");
 	}
 
 	@Test
@@ -301,46 +313,53 @@ public class R2dbcReactiveOAuth2AuthorizedClientServiceTests {
 		Authentication principal = createPrincipal();
 		OAuth2AuthorizedClient authorizedClient = createAuthorizedClient(principal, this.clientRegistration);
 
-		this.authorizedClientService.saveAuthorizedClient(authorizedClient, principal).as(StepVerifier::create)
-				.verifyComplete();
+		this.authorizedClientService.saveAuthorizedClient(authorizedClient, principal)
+			.as(StepVerifier::create)
+			.verifyComplete();
 
 		this.authorizedClientService
-				.loadAuthorizedClient(this.clientRegistration.getRegistrationId(), principal.getName())
-				.as(StepVerifier::create).assertNext((dbAuthorizedClient) -> assertThat(dbAuthorizedClient).isNotNull())
-				.verifyComplete();
+			.loadAuthorizedClient(this.clientRegistration.getRegistrationId(), principal.getName())
+			.as(StepVerifier::create)
+			.assertNext((dbAuthorizedClient) -> assertThat(dbAuthorizedClient).isNotNull())
+			.verifyComplete();
 
 		this.authorizedClientService
-				.removeAuthorizedClient(this.clientRegistration.getRegistrationId(), principal.getName())
-				.as(StepVerifier::create).verifyComplete();
+			.removeAuthorizedClient(this.clientRegistration.getRegistrationId(), principal.getName())
+			.as(StepVerifier::create)
+			.verifyComplete();
 
 		this.authorizedClientService
-				.loadAuthorizedClient(this.clientRegistration.getRegistrationId(), principal.getName())
-				.as(StepVerifier::create).expectNextCount(0).verifyComplete();
+			.loadAuthorizedClient(this.clientRegistration.getRegistrationId(), principal.getName())
+			.as(StepVerifier::create)
+			.expectNextCount(0)
+			.verifyComplete();
 	}
 
 	@Test
 	public void setAuthorizedClientRowMapperWhenNullThenThrowIllegalArgumentException() {
 		assertThatExceptionOfType(IllegalArgumentException.class)
-				.isThrownBy(() -> this.authorizedClientService.setAuthorizedClientRowMapper(null))
-				.withMessageContaining("authorizedClientRowMapper cannot be nul");
+			.isThrownBy(() -> this.authorizedClientService.setAuthorizedClientRowMapper(null))
+			.withMessageContaining("authorizedClientRowMapper cannot be nul");
 	}
 
 	@Test
 	public void setAuthorizedClientParametersMapperWhenNullThenThrowIllegalArgumentException() {
 		assertThatExceptionOfType(IllegalArgumentException.class)
-				.isThrownBy(() -> this.authorizedClientService.setAuthorizedClientParametersMapper(null))
-				.withMessageContaining("authorizedClientParametersMapper cannot be nul");
+			.isThrownBy(() -> this.authorizedClientService.setAuthorizedClientParametersMapper(null))
+			.withMessageContaining("authorizedClientParametersMapper cannot be nul");
 	}
 
 	private static ConnectionFactory createDb() {
 		ConnectionFactory connectionFactory = H2ConnectionFactory.inMemory("oauth-test");
 
 		Mono.from(connectionFactory.create())
-				.flatMapMany((connection) -> Flux
-						.from(connection.createStatement("drop table oauth2_authorized_client").execute())
-						.flatMap(Result::getRowsUpdated).onErrorResume((e) -> Mono.empty())
-						.thenMany(connection.close()))
-				.as(StepVerifier::create).verifyComplete();
+			.flatMapMany((connection) -> Flux
+				.from(connection.createStatement("drop table oauth2_authorized_client").execute())
+				.flatMap(Result::getRowsUpdated)
+				.onErrorResume((e) -> Mono.empty())
+				.thenMany(connection.close()))
+			.as(StepVerifier::create)
+			.verifyComplete();
 		ConnectionFactoryInitializer createDb = createDb(OAUTH2_CLIENT_SCHEMA_SQL_RESOURCE);
 		createDb.setConnectionFactory(connectionFactory);
 		createDb.afterPropertiesSet();

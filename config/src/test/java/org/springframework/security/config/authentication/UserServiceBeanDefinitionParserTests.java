@@ -128,8 +128,8 @@ public class UserServiceBeanDefinitionParserTests {
 
 	@Test
 	public void userServiceWithMissingPropertiesFileThrowsException() {
-		assertThatExceptionOfType(FatalBeanException.class).isThrownBy(
-				() -> setContext("<user-service id='service' properties='classpath:doesntexist.properties'/>"));
+		assertThatExceptionOfType(FatalBeanException.class)
+			.isThrownBy(() -> setContext("<user-service id='service' properties='classpath:doesntexist.properties'/>"));
 	}
 
 	private void setContext(String context) {

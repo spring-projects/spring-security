@@ -78,7 +78,7 @@ public abstract class AbstractWebClientReactiveOAuth2AccessTokenResponseClient<T
 	private Converter<T, MultiValueMap<String, String>> parametersConverter = this::populateTokenRequestParameters;
 
 	private BodyExtractor<Mono<OAuth2AccessTokenResponse>, ReactiveHttpInputMessage> bodyExtractor = OAuth2BodyExtractors
-			.oauth2AccessTokenResponse();
+		.oauth2AccessTokenResponse();
 
 	AbstractWebClientReactiveOAuth2AccessTokenResponseClient() {
 	}
@@ -121,13 +121,15 @@ public abstract class AbstractWebClientReactiveOAuth2AccessTokenResponseClient<T
 	}
 
 	private RequestHeadersSpec<?> populateRequest(T grantRequest) {
-		return this.webClient.post().uri(clientRegistration(grantRequest).getProviderDetails().getTokenUri())
-				.headers((headers) -> {
-					HttpHeaders headersToAdd = getHeadersConverter().convert(grantRequest);
-					if (headersToAdd != null) {
-						headers.addAll(headersToAdd);
-					}
-				}).body(createTokenRequestBody(grantRequest));
+		return this.webClient.post()
+			.uri(clientRegistration(grantRequest).getProviderDetails().getTokenUri())
+			.headers((headers) -> {
+				HttpHeaders headersToAdd = getHeadersConverter().convert(grantRequest);
+				if (headersToAdd != null) {
+					headers.addAll(headersToAdd);
+				}
+			})
+			.body(createTokenRequestBody(grantRequest));
 	}
 
 	/**
@@ -202,7 +204,7 @@ public abstract class AbstractWebClientReactiveOAuth2AccessTokenResponseClient<T
 			BodyInserters.FormInserter<String> body) {
 		ClientRegistration clientRegistration = clientRegistration(grantRequest);
 		if (!ClientAuthenticationMethod.CLIENT_SECRET_BASIC
-				.equals(clientRegistration.getClientAuthenticationMethod())) {
+			.equals(clientRegistration.getClientAuthenticationMethod())) {
 			body.with(OAuth2ParameterNames.CLIENT_ID, clientRegistration.getClientId());
 		}
 		if (ClientAuthenticationMethod.CLIENT_SECRET_POST.equals(clientRegistration.getClientAuthenticationMethod())) {
@@ -247,7 +249,7 @@ public abstract class AbstractWebClientReactiveOAuth2AccessTokenResponseClient<T
 	 */
 	private Mono<OAuth2AccessTokenResponse> readTokenResponse(T grantRequest, ClientResponse response) {
 		return response.body(this.bodyExtractor)
-				.map((tokenResponse) -> populateTokenResponse(grantRequest, tokenResponse));
+			.map((tokenResponse) -> populateTokenResponse(grantRequest, tokenResponse));
 	}
 
 	/**

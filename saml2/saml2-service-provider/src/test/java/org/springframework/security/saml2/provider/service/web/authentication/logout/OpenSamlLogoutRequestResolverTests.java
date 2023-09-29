@@ -75,7 +75,8 @@ public class OpenSamlLogoutRequestResolverTests {
 	@Test
 	public void resolvePostWhenAuthenticatedThenIncludesName() {
 		RelyingPartyRegistration registration = TestRelyingPartyRegistrations.full()
-				.assertingPartyDetails((party) -> party.singleLogoutServiceBinding(Saml2MessageBinding.POST)).build();
+			.assertingPartyDetails((party) -> party.singleLogoutServiceBinding(Saml2MessageBinding.POST))
+			.build();
 		Saml2Authentication authentication = authentication(registration);
 		HttpServletRequest request = new MockHttpServletRequest();
 		given(this.relyingPartyRegistrationResolver.resolve(any(), any())).willReturn(registration);
@@ -106,10 +107,11 @@ public class OpenSamlLogoutRequestResolverTests {
 		}
 		try {
 			Document document = XMLObjectProviderRegistrySupport.getParserPool()
-					.parse(new ByteArrayInputStream(samlRequest.getBytes(StandardCharsets.UTF_8)));
+				.parse(new ByteArrayInputStream(samlRequest.getBytes(StandardCharsets.UTF_8)));
 			Element element = document.getDocumentElement();
-			return (LogoutRequest) XMLObjectProviderRegistrySupport.getUnmarshallerFactory().getUnmarshaller(element)
-					.unmarshall(element);
+			return (LogoutRequest) XMLObjectProviderRegistrySupport.getUnmarshallerFactory()
+				.getUnmarshaller(element)
+				.unmarshall(element);
 		}
 		catch (Exception ex) {
 			throw new Saml2Exception(ex);

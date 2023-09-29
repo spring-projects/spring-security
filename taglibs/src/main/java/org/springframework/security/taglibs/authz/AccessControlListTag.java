@@ -58,7 +58,7 @@ public class AccessControlListTag extends TagSupport {
 	protected static final Log logger = LogFactory.getLog(AccessControlListTag.class);
 
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
-			.getContextHolderStrategy();
+		.getContextHolderStrategy();
 
 	private ApplicationContext applicationContext;
 
@@ -152,7 +152,7 @@ public class AccessControlListTag extends TagSupport {
 		String[] names = this.applicationContext.getBeanNamesForType(SecurityContextHolderStrategy.class);
 		if (names.length == 1) {
 			SecurityContextHolderStrategy strategy = this.applicationContext
-					.getBean(SecurityContextHolderStrategy.class);
+				.getBean(SecurityContextHolderStrategy.class);
 			this.securityContextHolderStrategy = strategy;
 		}
 	}
@@ -160,7 +160,7 @@ public class AccessControlListTag extends TagSupport {
 	private <T> T getBeanOfType(Class<T> type) throws JspException {
 		Map<String, T> map = this.applicationContext.getBeansOfType(type);
 		for (ApplicationContext context = this.applicationContext.getParent(); context != null; context = context
-				.getParent()) {
+			.getParent()) {
 			map.putAll(context.getBeansOfType(type));
 		}
 		if (map.size() == 0) {

@@ -77,8 +77,8 @@ public class OpenSamlLogoutRequestValidatorTests {
 	@Test
 	public void handleWhenRedirectBindingThenValidatesSignatureParameter() {
 		RelyingPartyRegistration registration = registration()
-				.assertingPartyDetails((party) -> party.singleLogoutServiceBinding(Saml2MessageBinding.REDIRECT))
-				.build();
+			.assertingPartyDetails((party) -> party.singleLogoutServiceBinding(Saml2MessageBinding.REDIRECT))
+			.build();
 		LogoutRequest logoutRequest = TestOpenSamlObjects.assertingPartyLogoutRequest(registration);
 		Saml2LogoutRequest request = redirect(logoutRequest, registration, OpenSamlSigningUtils.sign(registration));
 		Saml2LogoutRequestValidatorParameters parameters = new Saml2LogoutRequestValidatorParameters(request,
@@ -150,10 +150,12 @@ public class OpenSamlLogoutRequestValidatorTests {
 		LogoutRequest logoutRequest = TestOpenSamlObjects.assertingPartyLogoutRequest(registration);
 		sign(logoutRequest, registration);
 		String encoded = new StringBuffer(
-				Saml2Utils.samlEncode(serialize(logoutRequest).getBytes(StandardCharsets.UTF_8))).insert(10, "\r\n")
-						.toString();
-		Saml2LogoutRequest request = Saml2LogoutRequest.withRelyingPartyRegistration(registration).samlRequest(encoded)
-				.build();
+				Saml2Utils.samlEncode(serialize(logoutRequest).getBytes(StandardCharsets.UTF_8)))
+			.insert(10, "\r\n")
+			.toString();
+		Saml2LogoutRequest request = Saml2LogoutRequest.withRelyingPartyRegistration(registration)
+			.samlRequest(encoded)
+			.build();
 		Saml2LogoutRequestValidatorParameters parameters = new Saml2LogoutRequestValidatorParameters(request,
 				registration, authentication(registration));
 		Saml2LogoutValidatorResult result = this.manager.validate(parameters);
@@ -162,22 +164,22 @@ public class OpenSamlLogoutRequestValidatorTests {
 
 	private RelyingPartyRegistration.Builder registration() {
 		return signing(verifying(TestRelyingPartyRegistrations.noCredentials()))
-				.assertingPartyDetails((party) -> party.singleLogoutServiceBinding(Saml2MessageBinding.POST));
+			.assertingPartyDetails((party) -> party.singleLogoutServiceBinding(Saml2MessageBinding.POST));
 	}
 
 	private RelyingPartyRegistration.Builder decrypting(RelyingPartyRegistration.Builder builder) {
 		return builder
-				.decryptionX509Credentials((c) -> c.add(TestSaml2X509Credentials.relyingPartyDecryptingCredential()));
+			.decryptionX509Credentials((c) -> c.add(TestSaml2X509Credentials.relyingPartyDecryptingCredential()));
 	}
 
 	private RelyingPartyRegistration.Builder encrypting(RelyingPartyRegistration.Builder builder) {
-		return builder.assertingPartyDetails((party) -> party.encryptionX509Credentials(
-				(c) -> c.add(TestSaml2X509Credentials.assertingPartyEncryptingCredential())));
+		return builder.assertingPartyDetails((party) -> party
+			.encryptionX509Credentials((c) -> c.add(TestSaml2X509Credentials.assertingPartyEncryptingCredential())));
 	}
 
 	private RelyingPartyRegistration.Builder verifying(RelyingPartyRegistration.Builder builder) {
 		return builder.assertingPartyDetails((party) -> party
-				.verificationX509Credentials((c) -> c.add(TestSaml2X509Credentials.relyingPartyVerifyingCredential())));
+			.verificationX509Credentials((c) -> c.add(TestSaml2X509Credentials.relyingPartyVerifyingCredential())));
 	}
 
 	private RelyingPartyRegistration.Builder signing(RelyingPartyRegistration.Builder builder) {
@@ -192,15 +194,18 @@ public class OpenSamlLogoutRequestValidatorTests {
 
 	private Saml2LogoutRequest post(LogoutRequest logoutRequest, RelyingPartyRegistration registration) {
 		return Saml2LogoutRequest.withRelyingPartyRegistration(registration)
-				.samlRequest(Saml2Utils.samlEncode(serialize(logoutRequest).getBytes(StandardCharsets.UTF_8))).build();
+			.samlRequest(Saml2Utils.samlEncode(serialize(logoutRequest).getBytes(StandardCharsets.UTF_8)))
+			.build();
 	}
 
 	private Saml2LogoutRequest redirect(LogoutRequest logoutRequest, RelyingPartyRegistration registration,
 			QueryParametersPartial partial) {
 		String serialized = Saml2Utils.samlEncode(Saml2Utils.samlDeflate(serialize(logoutRequest)));
 		Map<String, String> parameters = partial.param(Saml2ParameterNames.SAML_REQUEST, serialized).parameters();
-		return Saml2LogoutRequest.withRelyingPartyRegistration(registration).samlRequest(serialized)
-				.parameters((params) -> params.putAll(parameters)).build();
+		return Saml2LogoutRequest.withRelyingPartyRegistration(registration)
+			.samlRequest(serialized)
+			.parameters((params) -> params.putAll(parameters))
+			.build();
 	}
 
 	private void sign(LogoutRequest logoutRequest, RelyingPartyRegistration registration) {

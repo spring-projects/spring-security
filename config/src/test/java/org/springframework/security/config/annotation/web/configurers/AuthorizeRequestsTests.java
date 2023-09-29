@@ -154,8 +154,8 @@ public class AuthorizeRequestsTests {
 		SecurityContext securityContext = new SecurityContextImpl();
 		securityContext.setAuthentication(UsernamePasswordAuthenticationToken.authenticated("test", "notused",
 				AuthorityUtils.createAuthorityList("ROLE_USER")));
-		this.request.getSession().setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
-				securityContext);
+		this.request.getSession()
+			.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, securityContext);
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
 	}
@@ -474,7 +474,7 @@ public class AuthorizeRequestsTests {
 		@Bean
 		SecurityFilterChain filterChain(HttpSecurity http, HandlerMappingIntrospector introspector) throws Exception {
 			MvcRequestMatcher.Builder mvcMatcherBuilder = new MvcRequestMatcher.Builder(introspector)
-					.servletPath("/spring");
+				.servletPath("/spring");
 			// @formatter:off
 			http
 				.httpBasic().and()
@@ -509,7 +509,7 @@ public class AuthorizeRequestsTests {
 		@Bean
 		SecurityFilterChain filterChain(HttpSecurity http, HandlerMappingIntrospector introspector) throws Exception {
 			MvcRequestMatcher.Builder mvcMatcherBuilder = new MvcRequestMatcher.Builder(introspector)
-					.servletPath("/spring");
+				.servletPath("/spring");
 			// @formatter:off
 			http
 				.httpBasic(withDefaults())

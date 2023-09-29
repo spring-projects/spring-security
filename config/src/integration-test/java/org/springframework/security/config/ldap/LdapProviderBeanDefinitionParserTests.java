@@ -56,7 +56,7 @@ public class LdapProviderBeanDefinitionParserTests {
 		AuthenticationManager authenticationManager = this.appCtx.getBean(BeanIds.AUTHENTICATION_MANAGER,
 				AuthenticationManager.class);
 		Authentication auth = authenticationManager
-				.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("ben", "benspassword"));
+			.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("ben", "benspassword"));
 		UserDetails ben = (UserDetails) auth.getPrincipal();
 		assertThat(ben.getAuthorities()).hasSize(3);
 	}
@@ -71,7 +71,7 @@ public class LdapProviderBeanDefinitionParserTests {
 		ProviderManager providerManager = this.appCtx.getBean(BeanIds.AUTHENTICATION_MANAGER, ProviderManager.class);
 		assertThat(providerManager.getProviders()).hasSize(2);
 		assertThat(providerManager.getProviders()).extracting("authoritiesPopulator.groupSearchFilter")
-				.containsExactly("member={0}", "uniqueMember={0}");
+			.containsExactly("member={0}", "uniqueMember={0}");
 	}
 
 	@Test
@@ -89,7 +89,7 @@ public class LdapProviderBeanDefinitionParserTests {
 		AuthenticationManager authenticationManager = this.appCtx.getBean(BeanIds.AUTHENTICATION_MANAGER,
 				AuthenticationManager.class);
 		Authentication auth = authenticationManager
-				.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("ben", "benspassword"));
+			.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("ben", "benspassword"));
 
 		assertThat(auth).isNotNull();
 	}
@@ -105,7 +105,7 @@ public class LdapProviderBeanDefinitionParserTests {
 		AuthenticationManager authenticationManager = this.appCtx.getBean(BeanIds.AUTHENTICATION_MANAGER,
 				AuthenticationManager.class);
 		Authentication auth = authenticationManager
-				.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("ben", "ben"));
+			.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("ben", "ben"));
 
 		assertThat(auth).isNotNull();
 	}
@@ -122,7 +122,7 @@ public class LdapProviderBeanDefinitionParserTests {
 		AuthenticationManager authenticationManager = this.appCtx.getBean(BeanIds.AUTHENTICATION_MANAGER,
 				AuthenticationManager.class);
 		Authentication auth = authenticationManager
-				.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("bcrypt", "password"));
+			.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("bcrypt", "password"));
 
 		assertThat(auth).isNotNull();
 	}
@@ -137,8 +137,8 @@ public class LdapProviderBeanDefinitionParserTests {
 
 		ProviderManager providerManager = this.appCtx.getBean(BeanIds.AUTHENTICATION_MANAGER, ProviderManager.class);
 		assertThat(providerManager.getProviders()).hasSize(1);
-		assertThat(providerManager.getProviders()).extracting("userDetailsContextMapper").allSatisfy(
-				(contextMapper) -> assertThat(contextMapper).isInstanceOf(InetOrgPersonContextMapper.class));
+		assertThat(providerManager.getProviders()).extracting("userDetailsContextMapper")
+			.allSatisfy((contextMapper) -> assertThat(contextMapper).isInstanceOf(InetOrgPersonContextMapper.class));
 	}
 
 	@Test
@@ -155,10 +155,10 @@ public class LdapProviderBeanDefinitionParserTests {
 
 		AuthenticationProvider authenticationProvider = providerManager.getProviders().get(0);
 		assertThat(authenticationProvider).extracting("authenticator.userDnFormat")
-				.satisfies((messageFormats) -> assertThat(messageFormats)
-						.isEqualTo(new MessageFormat[] { new MessageFormat("uid={0},ou=people") }));
+			.satisfies((messageFormats) -> assertThat(messageFormats)
+				.isEqualTo(new MessageFormat[] { new MessageFormat("uid={0},ou=people") }));
 		assertThat(authenticationProvider).extracting("authoritiesPopulator.groupSearchFilter")
-				.satisfies((searchFilter) -> assertThat(searchFilter).isEqualTo("member={0}"));
+			.satisfies((searchFilter) -> assertThat(searchFilter).isEqualTo("member={0}"));
 	}
 
 }

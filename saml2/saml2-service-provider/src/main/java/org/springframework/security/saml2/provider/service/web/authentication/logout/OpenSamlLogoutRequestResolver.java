@@ -81,17 +81,17 @@ final class OpenSamlLogoutRequestResolver {
 		this.relyingPartyRegistrationResolver = relyingPartyRegistrationResolver;
 		XMLObjectProviderRegistry registry = ConfigurationService.get(XMLObjectProviderRegistry.class);
 		this.marshaller = (LogoutRequestMarshaller) registry.getMarshallerFactory()
-				.getMarshaller(LogoutRequest.DEFAULT_ELEMENT_NAME);
+			.getMarshaller(LogoutRequest.DEFAULT_ELEMENT_NAME);
 		Assert.notNull(this.marshaller, "logoutRequestMarshaller must be configured in OpenSAML");
 		this.logoutRequestBuilder = (LogoutRequestBuilder) registry.getBuilderFactory()
-				.getBuilder(LogoutRequest.DEFAULT_ELEMENT_NAME);
+			.getBuilder(LogoutRequest.DEFAULT_ELEMENT_NAME);
 		Assert.notNull(this.logoutRequestBuilder, "logoutRequestBuilder must be configured in OpenSAML");
 		this.issuerBuilder = (IssuerBuilder) registry.getBuilderFactory().getBuilder(Issuer.DEFAULT_ELEMENT_NAME);
 		Assert.notNull(this.issuerBuilder, "issuerBuilder must be configured in OpenSAML");
 		this.nameIdBuilder = (NameIDBuilder) registry.getBuilderFactory().getBuilder(NameID.DEFAULT_ELEMENT_NAME);
 		Assert.notNull(this.nameIdBuilder, "nameIdBuilder must be configured in OpenSAML");
 		this.sessionIndexBuilder = (SessionIndexBuilder) registry.getBuilderFactory()
-				.getBuilder(SessionIndex.DEFAULT_ELEMENT_NAME);
+			.getBuilder(SessionIndex.DEFAULT_ELEMENT_NAME);
 		Assert.notNull(this.sessionIndexBuilder, "sessionIndexBuilder must be configured in OpenSAML");
 	}
 
@@ -142,7 +142,7 @@ final class OpenSamlLogoutRequestResolver {
 		}
 		String relayState = UUID.randomUUID().toString();
 		Saml2LogoutRequest.Builder result = Saml2LogoutRequest.withRelyingPartyRegistration(registration)
-				.id(logoutRequest.getID());
+			.id(logoutRequest.getID());
 		if (registration.getAssertingPartyDetails().getSingleLogoutServiceBinding() == Saml2MessageBinding.POST) {
 			String xml = serialize(OpenSamlSigningUtils.sign(logoutRequest, registration));
 			String samlRequest = Saml2Utils.samlEncode(xml.getBytes(StandardCharsets.UTF_8));
@@ -153,8 +153,8 @@ final class OpenSamlLogoutRequestResolver {
 			String deflatedAndEncoded = Saml2Utils.samlEncode(Saml2Utils.samlDeflate(xml));
 			result.samlRequest(deflatedAndEncoded);
 			QueryParametersPartial partial = OpenSamlSigningUtils.sign(registration)
-					.param(Saml2ParameterNames.SAML_REQUEST, deflatedAndEncoded)
-					.param(Saml2ParameterNames.RELAY_STATE, relayState);
+				.param(Saml2ParameterNames.SAML_REQUEST, deflatedAndEncoded)
+				.param(Saml2ParameterNames.RELAY_STATE, relayState);
 			return result.parameters((params) -> params.putAll(partial.parameters())).build();
 		}
 	}

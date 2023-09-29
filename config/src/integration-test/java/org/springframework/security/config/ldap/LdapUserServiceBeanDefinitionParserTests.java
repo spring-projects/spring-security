@@ -58,17 +58,17 @@ public class LdapUserServiceBeanDefinitionParserTests {
 	@Test
 	public void beanClassNamesAreCorrect() {
 		assertThat(FilterBasedLdapUserSearch.class.getName())
-				.isEqualTo(LdapUserServiceBeanDefinitionParser.LDAP_SEARCH_CLASS);
+			.isEqualTo(LdapUserServiceBeanDefinitionParser.LDAP_SEARCH_CLASS);
 		assertThat(PersonContextMapper.class.getName())
-				.isEqualTo(LdapUserServiceBeanDefinitionParser.PERSON_MAPPER_CLASS);
+			.isEqualTo(LdapUserServiceBeanDefinitionParser.PERSON_MAPPER_CLASS);
 		assertThat(InetOrgPersonContextMapper.class.getName())
-				.isEqualTo(LdapUserServiceBeanDefinitionParser.INET_ORG_PERSON_MAPPER_CLASS);
+			.isEqualTo(LdapUserServiceBeanDefinitionParser.INET_ORG_PERSON_MAPPER_CLASS);
 		assertThat(LdapUserDetailsMapper.class.getName())
-				.isEqualTo(LdapUserServiceBeanDefinitionParser.LDAP_USER_MAPPER_CLASS);
+			.isEqualTo(LdapUserServiceBeanDefinitionParser.LDAP_USER_MAPPER_CLASS);
 		assertThat(DefaultLdapAuthoritiesPopulator.class.getName())
-				.isEqualTo(LdapUserServiceBeanDefinitionParser.LDAP_AUTHORITIES_POPULATOR_CLASS);
+			.isEqualTo(LdapUserServiceBeanDefinitionParser.LDAP_AUTHORITIES_POPULATOR_CLASS);
 		assertThat(new LdapUserServiceBeanDefinitionParser().getBeanClassName(mock(Element.class)))
-				.isEqualTo(LdapUserDetailsService.class.getName());
+			.isEqualTo(LdapUserDetailsService.class.getName());
 	}
 
 	@Test

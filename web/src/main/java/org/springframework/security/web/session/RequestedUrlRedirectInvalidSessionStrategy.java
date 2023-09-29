@@ -43,8 +43,11 @@ public final class RequestedUrlRedirectInvalidSessionStrategy implements Invalid
 
 	@Override
 	public void onInvalidSessionDetected(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		String destinationUrl = ServletUriComponentsBuilder.fromRequest(request).host(null).scheme(null).port(null)
-				.toUriString();
+		String destinationUrl = ServletUriComponentsBuilder.fromRequest(request)
+			.host(null)
+			.scheme(null)
+			.port(null)
+			.toUriString();
 		if (this.logger.isDebugEnabled()) {
 			this.logger.debug("Starting new session (if required) and redirecting to '" + destinationUrl + "'");
 		}

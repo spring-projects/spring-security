@@ -77,7 +77,7 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 public final class CurrentSecurityContextArgumentResolver implements HandlerMethodArgumentResolver {
 
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
-			.getContextHolderStrategy();
+		.getContextHolderStrategy();
 
 	private ExpressionParser parser = new SpelExpressionParser();
 

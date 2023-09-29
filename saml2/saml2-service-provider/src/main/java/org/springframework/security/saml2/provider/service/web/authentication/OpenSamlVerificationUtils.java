@@ -156,7 +156,7 @@ final class OpenSamlVerificationUtils {
 		private SignatureTrustEngine trustEngine(RelyingPartyRegistration registration) {
 			Set<Credential> credentials = new HashSet<>();
 			Collection<Saml2X509Credential> keys = registration.getAssertingPartyDetails()
-					.getVerificationX509Credentials();
+				.getVerificationX509Credentials();
 			for (Saml2X509Credential key : keys) {
 				BasicX509Credential cred = new BasicX509Credential(key.getCertificate());
 				cred.setUsageType(UsageType.SIGNING);

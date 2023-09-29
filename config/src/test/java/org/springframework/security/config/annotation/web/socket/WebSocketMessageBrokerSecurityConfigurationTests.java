@@ -125,8 +125,8 @@ public class WebSocketMessageBrokerSecurityConfigurationTests {
 		loadConfig(SockJsSecurityConfig.class);
 		clientInboundChannel().send(message("/permitAll"));
 		assertThatExceptionOfType(MessageDeliveryException.class)
-				.isThrownBy(() -> clientInboundChannel().send(message("/denyAll")))
-				.withCauseInstanceOf(AccessDeniedException.class);
+			.isThrownBy(() -> clientInboundChannel().send(message("/denyAll")))
+			.withCauseInstanceOf(AccessDeniedException.class);
 	}
 
 	@Test
@@ -151,7 +151,7 @@ public class WebSocketMessageBrokerSecurityConfigurationTests {
 		Message<String> message = message("/permitAll/authentication");
 		messageChannel.send(message);
 		assertThat(this.context.getBean(MyController.class).authenticationPrincipal)
-				.isEqualTo((String) this.messageUser.getPrincipal());
+			.isEqualTo((String) this.messageUser.getPrincipal());
 	}
 
 	@Test
@@ -161,7 +161,7 @@ public class WebSocketMessageBrokerSecurityConfigurationTests {
 		Message<String> message = message("/permitAll/authentication");
 		messageChannel.send(message);
 		assertThat(this.context.getBean(MyController.class).authenticationPrincipal)
-				.isEqualTo((String) this.messageUser.getPrincipal());
+			.isEqualTo((String) this.messageUser.getPrincipal());
 	}
 
 	@Test
@@ -171,7 +171,7 @@ public class WebSocketMessageBrokerSecurityConfigurationTests {
 		Message<?> message = message(headers, "/authentication");
 		MessageChannel messageChannel = clientInboundChannel();
 		assertThatExceptionOfType(MessageDeliveryException.class).isThrownBy(() -> messageChannel.send(message))
-				.withCauseInstanceOf(MissingCsrfTokenException.class);
+			.withCauseInstanceOf(MissingCsrfTokenException.class);
 	}
 
 	@Test
@@ -181,7 +181,7 @@ public class WebSocketMessageBrokerSecurityConfigurationTests {
 		Message<?> message = message(headers, "/authentication");
 		MessageChannel messageChannel = clientInboundChannel();
 		assertThatExceptionOfType(MessageDeliveryException.class).isThrownBy(() -> messageChannel.send(message))
-				.withCauseInstanceOf(MissingCsrfTokenException.class);
+			.withCauseInstanceOf(MissingCsrfTokenException.class);
 	}
 
 	@Test
@@ -199,7 +199,9 @@ public class WebSocketMessageBrokerSecurityConfigurationTests {
 		loadConfig(SockJsProxylessSecurityConfig.class);
 		MessageChannel messageChannel = clientInboundChannel();
 		Stream<Class<? extends ChannelInterceptor>> interceptors = ((AbstractMessageChannel) messageChannel)
-				.getInterceptors().stream().map(ChannelInterceptor::getClass);
+			.getInterceptors()
+			.stream()
+			.map(ChannelInterceptor::getClass);
 		assertThat(interceptors).contains(XorCsrfChannelInterceptor.class);
 	}
 
@@ -253,8 +255,8 @@ public class WebSocketMessageBrokerSecurityConfigurationTests {
 		loadConfig(MsmsRegistryCustomPatternMatcherConfig.class);
 		clientInboundChannel().send(message("/app/a.b"));
 		assertThatExceptionOfType(MessageDeliveryException.class)
-				.isThrownBy(() -> clientInboundChannel().send(message("/app/a.b.c")))
-				.withCauseInstanceOf(AccessDeniedException.class);
+			.isThrownBy(() -> clientInboundChannel().send(message("/app/a.b.c")))
+			.withCauseInstanceOf(AccessDeniedException.class);
 	}
 
 	@Test
@@ -262,8 +264,8 @@ public class WebSocketMessageBrokerSecurityConfigurationTests {
 		loadConfig(OverrideMsmsRegistryCustomPatternMatcherConfig.class);
 		clientInboundChannel().send(message("/app/a/b"));
 		assertThatExceptionOfType(MessageDeliveryException.class)
-				.isThrownBy(() -> clientInboundChannel().send(message("/app/a/b/c")))
-				.withCauseInstanceOf(AccessDeniedException.class);
+			.isThrownBy(() -> clientInboundChannel().send(message("/app/a/b/c")))
+			.withCauseInstanceOf(AccessDeniedException.class);
 	}
 
 	@Test
@@ -271,8 +273,8 @@ public class WebSocketMessageBrokerSecurityConfigurationTests {
 		loadConfig(DefaultPatternMatcherConfig.class);
 		clientInboundChannel().send(message("/app/a/b"));
 		assertThatExceptionOfType(MessageDeliveryException.class)
-				.isThrownBy(() -> clientInboundChannel().send(message("/app/a/b/c")))
-				.withCauseInstanceOf(AccessDeniedException.class);
+			.isThrownBy(() -> clientInboundChannel().send(message("/app/a/b/c")))
+			.withCauseInstanceOf(AccessDeniedException.class);
 	}
 
 	@Test
@@ -281,8 +283,8 @@ public class WebSocketMessageBrokerSecurityConfigurationTests {
 		clientInboundChannel().send(message("/denyRob"));
 		this.messageUser = new TestingAuthenticationToken("rob", "password", "ROLE_USER");
 		assertThatExceptionOfType(MessageDeliveryException.class)
-				.isThrownBy(() -> clientInboundChannel().send(message("/denyRob")))
-				.withCauseInstanceOf(AccessDeniedException.class);
+			.isThrownBy(() -> clientInboundChannel().send(message("/denyRob")))
+			.withCauseInstanceOf(AccessDeniedException.class);
 	}
 
 	@Test
@@ -293,7 +295,7 @@ public class WebSocketMessageBrokerSecurityConfigurationTests {
 		for (ChannelInterceptor interceptor : messageChannel.getInterceptors()) {
 			if (interceptor instanceof AuthorizationChannelInterceptor) {
 				assertThat(ReflectionTestUtils.getField(interceptor, "preSendAuthorizationManager"))
-						.isSameAs(authorizationManager);
+					.isSameAs(authorizationManager);
 				return;
 			}
 		}
@@ -305,7 +307,9 @@ public class WebSocketMessageBrokerSecurityConfigurationTests {
 		loadConfig(SockJsProxylessSecurityConfig.class);
 		MessageChannel messageChannel = clientInboundChannel();
 		Stream<Class<? extends ChannelInterceptor>> interceptors = ((AbstractMessageChannel) messageChannel)
-				.getInterceptors().stream().map(ChannelInterceptor::getClass);
+			.getInterceptors()
+			.stream()
+			.map(ChannelInterceptor::getClass);
 		assertThat(interceptors).contains(SecurityContextChannelInterceptor.class);
 	}
 
@@ -314,7 +318,9 @@ public class WebSocketMessageBrokerSecurityConfigurationTests {
 		loadConfig(SockJsProxylessSecurityConfig.class);
 		MessageChannel messageChannel = clientInboundChannel();
 		Stream<Class<? extends ChannelInterceptor>> interceptors = ((AbstractMessageChannel) messageChannel)
-				.getInterceptors().stream().map(ChannelInterceptor::getClass);
+			.getInterceptors()
+			.stream()
+			.map(ChannelInterceptor::getClass);
 		assertThat(interceptors).contains(AuthorizationChannelInterceptor.class);
 	}
 
@@ -324,8 +330,8 @@ public class WebSocketMessageBrokerSecurityConfigurationTests {
 		this.messageUser = new RememberMeAuthenticationToken("key", "user",
 				AuthorityUtils.createAuthorityList("ROLE_USER"));
 		assertThatExceptionOfType(MessageDeliveryException.class)
-				.isThrownBy(() -> clientInboundChannel().send(message("/fullyAuthenticated")))
-				.withCauseInstanceOf(AccessDeniedException.class);
+			.isThrownBy(() -> clientInboundChannel().send(message("/fullyAuthenticated")))
+			.withCauseInstanceOf(AccessDeniedException.class);
 	}
 
 	@Test
@@ -339,8 +345,8 @@ public class WebSocketMessageBrokerSecurityConfigurationTests {
 		loadConfig(WebSocketSecurityConfig.class);
 		this.messageUser = null;
 		assertThatExceptionOfType(MessageDeliveryException.class)
-				.isThrownBy(() -> clientInboundChannel().send(message("/rememberMe")))
-				.withCauseInstanceOf(AccessDeniedException.class);
+			.isThrownBy(() -> clientInboundChannel().send(message("/rememberMe")))
+			.withCauseInstanceOf(AccessDeniedException.class);
 	}
 
 	@Test
@@ -363,8 +369,8 @@ public class WebSocketMessageBrokerSecurityConfigurationTests {
 	public void sendMessageWhenAnonymousConfiguredAndLoggedInUserThenAccessDeniedException() {
 		loadConfig(WebSocketSecurityConfig.class);
 		assertThatExceptionOfType(MessageDeliveryException.class)
-				.isThrownBy(() -> clientInboundChannel().send(message("/anonymous")))
-				.withCauseInstanceOf(AccessDeniedException.class);
+			.isThrownBy(() -> clientInboundChannel().send(message("/anonymous")))
+			.withCauseInstanceOf(AccessDeniedException.class);
 
 	}
 
@@ -372,7 +378,7 @@ public class WebSocketMessageBrokerSecurityConfigurationTests {
 		TestHandshakeHandler handshakeHandler = this.context.getBean(TestHandshakeHandler.class);
 		assertThatCsrfToken(handshakeHandler.attributes.get(CsrfToken.class.getName())).isEqualTo(this.token);
 		assertThat(handshakeHandler.attributes.get(this.sessionAttr))
-				.isEqualTo(request.getSession().getAttribute(this.sessionAttr));
+			.isEqualTo(request.getSession().getAttribute(this.sessionAttr));
 	}
 
 	private HttpRequestHandler handler(HttpServletRequest request) throws Exception {
@@ -631,7 +637,7 @@ public class WebSocketMessageBrokerSecurityConfigurationTests {
 				// work around SPR-12716
 				SockJsWebSocketHandler sockJs = (SockJsWebSocketHandler) wsHandler;
 				WebSocketServerSockJsSession session = (WebSocketServerSockJsSession) ReflectionTestUtils
-						.getField(sockJs, "sockJsSession");
+					.getField(sockJs, "sockJsSession");
 				this.attributes = session.getAttributes();
 			}
 			return true;

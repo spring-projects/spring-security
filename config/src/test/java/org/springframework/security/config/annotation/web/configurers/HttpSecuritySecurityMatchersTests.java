@@ -123,10 +123,13 @@ public class HttpSecuritySecurityMatchersTests {
 		setup();
 		this.request.setServletPath("/path/");
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
-		List<RequestMatcher> requestMatchers = this.springSecurityFilterChain.getFilterChains().stream()
-				.map((chain) -> ((DefaultSecurityFilterChain) chain).getRequestMatcher())
-				.map((matcher) -> ReflectionTestUtils.getField(matcher, "requestMatchers"))
-				.map((matchers) -> (List<RequestMatcher>) matchers).findFirst().get();
+		List<RequestMatcher> requestMatchers = this.springSecurityFilterChain.getFilterChains()
+			.stream()
+			.map((chain) -> ((DefaultSecurityFilterChain) chain).getRequestMatcher())
+			.map((matcher) -> ReflectionTestUtils.getField(matcher, "requestMatchers"))
+			.map((matchers) -> (List<RequestMatcher>) matchers)
+			.findFirst()
+			.get();
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_UNAUTHORIZED);
 		assertThat(requestMatchers).hasOnlyElementsOfType(MvcRequestMatcher.class);
 	}
@@ -421,7 +424,7 @@ public class HttpSecuritySecurityMatchersTests {
 		@Bean
 		SecurityFilterChain appSecurity(HttpSecurity http, HandlerMappingIntrospector introspector) throws Exception {
 			MvcRequestMatcher.Builder mvcMatcherBuilder = new MvcRequestMatcher.Builder(introspector)
-					.servletPath("/spring");
+				.servletPath("/spring");
 			// @formatter:off
 			http
 				.securityMatchers()
@@ -456,7 +459,7 @@ public class HttpSecuritySecurityMatchersTests {
 		@Bean
 		SecurityFilterChain appSecurity(HttpSecurity http, HandlerMappingIntrospector introspector) throws Exception {
 			MvcRequestMatcher.Builder mvcMatcherBuilder = new MvcRequestMatcher.Builder(introspector)
-					.servletPath("/spring");
+				.servletPath("/spring");
 			// @formatter:off
 			http
 				.securityMatchers((matchers) -> matchers
@@ -488,8 +491,11 @@ public class HttpSecuritySecurityMatchersTests {
 
 		@Bean
 		UserDetailsService userDetailsService() {
-			UserDetails user = User.withDefaultPasswordEncoder().username("user").password("password").roles("USER")
-					.build();
+			UserDetails user = User.withDefaultPasswordEncoder()
+				.username("user")
+				.password("password")
+				.roles("USER")
+				.build();
 			return new InMemoryUserDetailsManager(user);
 		}
 

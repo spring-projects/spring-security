@@ -93,8 +93,10 @@ public class SecurityReactorContextConfigurationResourceServerTests {
 	@Test
 	public void requestWhenCustomSecurityContextHolderStrategyThenUses() throws Exception {
 		BearerTokenAuthentication authentication = TestBearerTokenAuthentications.bearer();
-		this.spring.register(BearerFilterConfig.class, WebServerConfig.class, Controller.class,
-				SecurityContextChangedListenerConfig.class).autowire();
+		this.spring
+			.register(BearerFilterConfig.class, WebServerConfig.class, Controller.class,
+					SecurityContextChangedListenerConfig.class)
+			.autowire();
 		MockHttpServletRequestBuilder authenticatedRequest = get("/token").with(authentication(authentication));
 		// @formatter:off
 		this.mockMvc.perform(authenticatedRequest)

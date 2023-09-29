@@ -66,7 +66,7 @@ public class OAuth2UserAuthorityTests {
 	@Test
 	public void constructorWhenAttributesIsEmptyThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new OAuth2UserAuthority(AUTHORITY, Collections.emptyMap()));
+			.isThrownBy(() -> new OAuth2UserAuthority(AUTHORITY, Collections.emptyMap()));
 	}
 
 	@Test

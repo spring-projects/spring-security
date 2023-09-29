@@ -66,8 +66,8 @@ public class PasswordOAuth2AuthorizedClientProviderTests {
 	@Test
 	public void setAccessTokenResponseClientWhenClientIsNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> this.authorizedClientProvider.setAccessTokenResponseClient(null))
-				.withMessage("accessTokenResponseClient cannot be null");
+			.isThrownBy(() -> this.authorizedClientProvider.setAccessTokenResponseClient(null))
+			.withMessage("accessTokenResponseClient cannot be null");
 	}
 
 	@Test

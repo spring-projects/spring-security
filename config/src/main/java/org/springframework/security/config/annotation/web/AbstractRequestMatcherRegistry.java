@@ -213,7 +213,7 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 	private Map<String, ? extends ServletRegistration> mappableServletRegistrations(ServletContext servletContext) {
 		Map<String, ServletRegistration> mappable = new LinkedHashMap<>();
 		for (Map.Entry<String, ? extends ServletRegistration> entry : servletContext.getServletRegistrations()
-				.entrySet()) {
+			.entrySet()) {
 			if (!entry.getValue().getMappings().isEmpty()) {
 				mappable.put(entry.getKey(), entry.getValue());
 			}

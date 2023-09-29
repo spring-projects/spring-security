@@ -134,8 +134,8 @@ public final class DefaultReactiveOAuth2AuthorizedClientManager implements React
 		this.clientRegistrationRepository = clientRegistrationRepository;
 		this.authorizedClientRepository = authorizedClientRepository;
 		this.authorizationSuccessHandler = (authorizedClient, principal, attributes) -> authorizedClientRepository
-				.saveAuthorizedClient(authorizedClient, principal,
-						(ServerWebExchange) attributes.get(ServerWebExchange.class.getName()));
+			.saveAuthorizedClient(authorizedClient, principal,
+					(ServerWebExchange) attributes.get(ServerWebExchange.class.getName()));
 		this.authorizationFailureHandler = new RemoveAuthorizedClientReactiveOAuth2AuthorizationFailureHandler(
 				(clientRegistrationId, principal, attributes) -> authorizedClientRepository.removeAuthorizedClient(
 						clientRegistrationId, principal,

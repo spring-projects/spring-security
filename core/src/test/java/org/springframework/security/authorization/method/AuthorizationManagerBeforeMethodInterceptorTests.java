@@ -51,16 +51,15 @@ public class AuthorizationManagerBeforeMethodInterceptorTests {
 	@Test
 	public void instantiateWhenMethodMatcherNullThenException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(
-						() -> new AuthorizationManagerBeforeMethodInterceptor(null, mock(AuthorizationManager.class)))
-				.withMessage("pointcut cannot be null");
+			.isThrownBy(() -> new AuthorizationManagerBeforeMethodInterceptor(null, mock(AuthorizationManager.class)))
+			.withMessage("pointcut cannot be null");
 	}
 
 	@Test
 	public void instantiateWhenAuthorizationManagerNullThenException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new AuthorizationManagerBeforeMethodInterceptor(mock(Pointcut.class), null))
-				.withMessage("authorizationManager cannot be null");
+			.isThrownBy(() -> new AuthorizationManagerBeforeMethodInterceptor(mock(Pointcut.class), null))
+			.withMessage("authorizationManager cannot be null");
 	}
 
 	@Test
@@ -93,7 +92,7 @@ public class AuthorizationManagerBeforeMethodInterceptorTests {
 		AuthorizationManagerBeforeMethodInterceptor advice = new AuthorizationManagerBeforeMethodInterceptor(
 				Pointcut.TRUE, AuthenticatedAuthorizationManager.authenticated());
 		assertThatIllegalArgumentException().isThrownBy(() -> advice.setAuthorizationEventPublisher(null))
-				.withMessage("eventPublisher cannot be null");
+			.withMessage("eventPublisher cannot be null");
 	}
 
 	@Test

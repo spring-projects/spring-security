@@ -446,7 +446,8 @@ public class TokenBasedRememberMeServicesTests {
 		assertThat(cookie).isNotNull();
 		// Check the expiry time is within 50ms of two weeks from current time
 		assertThat(determineExpiryTimeFromBased64EncodedToken(cookie.getValue())
-				- System.currentTimeMillis() > AbstractRememberMeServices.TWO_WEEKS_S - 50).isTrue();
+				- System.currentTimeMillis() > AbstractRememberMeServices.TWO_WEEKS_S - 50)
+			.isTrue();
 		assertThat(cookie.getMaxAge()).isEqualTo(-1);
 		assertThat(CodecTestUtils.isBase64(cookie.getValue().getBytes())).isTrue();
 	}
@@ -454,15 +455,15 @@ public class TokenBasedRememberMeServicesTests {
 	@Test
 	public void constructorWhenEncodingAlgorithmNullThenException() {
 		assertThatExceptionOfType(IllegalArgumentException.class)
-				.isThrownBy(() -> new TokenBasedRememberMeServices("key", this.uds, null))
-				.withMessage("encodingAlgorithm cannot be null");
+			.isThrownBy(() -> new TokenBasedRememberMeServices("key", this.uds, null))
+			.withMessage("encodingAlgorithm cannot be null");
 	}
 
 	@Test
 	public void constructorWhenNoEncodingAlgorithmSpecifiedThenSha256() {
 		TokenBasedRememberMeServices rememberMeServices = new TokenBasedRememberMeServices("key", this.uds);
 		RememberMeTokenAlgorithm encodingAlgorithm = (RememberMeTokenAlgorithm) ReflectionTestUtils
-				.getField(rememberMeServices, "encodingAlgorithm");
+			.getField(rememberMeServices, "encodingAlgorithm");
 		assertThat(encodingAlgorithm).isSameAs(RememberMeTokenAlgorithm.SHA256);
 	}
 

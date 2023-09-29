@@ -49,7 +49,7 @@ class Saml2AuthenticationMixinTests {
 	@Test
 	void shouldDeserialize() throws Exception {
 		Saml2Authentication authentication = this.mapper
-				.readValue(TestSaml2JsonPayloads.DEFAULT_SAML2AUTHENTICATION_JSON, Saml2Authentication.class);
+			.readValue(TestSaml2JsonPayloads.DEFAULT_SAML2AUTHENTICATION_JSON, Saml2Authentication.class);
 
 		assertThat(authentication).isNotNull();
 		assertThat(authentication.getDetails()).isEqualTo(TestSaml2JsonPayloads.DETAILS);
@@ -57,7 +57,7 @@ class Saml2AuthenticationMixinTests {
 		assertThat(authentication.getSaml2Response()).isEqualTo(TestSaml2JsonPayloads.SAML_RESPONSE);
 		assertThat(authentication.getAuthorities()).isEqualTo(TestSaml2JsonPayloads.AUTHORITIES);
 		assertThat(authentication.getPrincipal()).usingRecursiveComparison()
-				.isEqualTo(TestSaml2JsonPayloads.createDefaultPrincipal());
+			.isEqualTo(TestSaml2JsonPayloads.createDefaultPrincipal());
 		assertThat(authentication.getDetails()).usingRecursiveComparison().isEqualTo(TestSaml2JsonPayloads.DETAILS);
 	}
 

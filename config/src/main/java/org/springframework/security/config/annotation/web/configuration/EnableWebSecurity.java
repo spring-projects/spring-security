@@ -75,7 +75,6 @@ import org.springframework.security.web.SecurityFilterChain;
  * </pre>
  *
  * @see WebSecurityConfigurer
- *
  * @author Rob Winch
  * @since 3.2
  */

@@ -37,7 +37,7 @@ public class HeaderWriterServerLogoutHandlerTests {
 	@Test
 	public void constructorWhenHeadersWriterIsNullThenExceptionThrown() {
 		assertThatExceptionOfType(IllegalArgumentException.class)
-				.isThrownBy(() -> new HeaderWriterServerLogoutHandler(null));
+			.isThrownBy(() -> new HeaderWriterServerLogoutHandler(null));
 	}
 
 	@Test

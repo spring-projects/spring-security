@@ -59,7 +59,7 @@ public class AbstractCsrfTagTests {
 		int returned = this.tag.doEndTag();
 		assertThat(returned).as("The returned value is not correct.").isEqualTo(Tag.EVAL_PAGE);
 		assertThat(this.response.getContentAsString()).withFailMessage("The output value is not correct.")
-				.isEqualTo("");
+			.isEqualTo("");
 	}
 
 	@Test
@@ -70,7 +70,7 @@ public class AbstractCsrfTagTests {
 		int returned = this.tag.doEndTag();
 		assertThat(returned).as("The returned value is not correct.").isEqualTo(Tag.EVAL_PAGE);
 		assertThat(this.response.getContentAsString()).withFailMessage("The output value is not correct.")
-				.isEqualTo("fooBarBazQux");
+			.isEqualTo("fooBarBazQux");
 		assertThat(this.tag.token).as("The token is not correct.").isSameAs(token);
 	}
 
@@ -82,7 +82,7 @@ public class AbstractCsrfTagTests {
 		int returned = this.tag.doEndTag();
 		assertThat(returned).as("The returned value is not correct.").isEqualTo(Tag.EVAL_PAGE);
 		assertThat(this.response.getContentAsString()).withFailMessage("The output value is not correct.")
-				.isEqualTo("<input type=\"hidden\" />");
+			.isEqualTo("<input type=\"hidden\" />");
 		assertThat(this.tag.token).as("The token is not correct.").isSameAs(token);
 	}
 

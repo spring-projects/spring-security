@@ -60,13 +60,13 @@ public class FeaturePolicyHeaderWriterTests {
 	@Test
 	public void createWriterWithNullDirectivesShouldThrowException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> new FeaturePolicyHeaderWriter(null))
-				.withMessage("policyDirectives must not be null or empty");
+			.withMessage("policyDirectives must not be null or empty");
 	}
 
 	@Test
 	public void createWriterWithEmptyDirectivesShouldThrowException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> new FeaturePolicyHeaderWriter(""))
-				.withMessage("policyDirectives must not be null or empty");
+			.withMessage("policyDirectives must not be null or empty");
 	}
 
 	@Test

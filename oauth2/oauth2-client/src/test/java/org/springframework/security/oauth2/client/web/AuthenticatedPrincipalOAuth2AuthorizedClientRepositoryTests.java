@@ -60,7 +60,7 @@ public class AuthenticatedPrincipalOAuth2AuthorizedClientRepositoryTests {
 		this.authorizedClientRepository = new AuthenticatedPrincipalOAuth2AuthorizedClientRepository(
 				this.authorizedClientService);
 		this.authorizedClientRepository
-				.setAnonymousAuthorizedClientRepository(this.anonymousAuthorizedClientRepository);
+			.setAnonymousAuthorizedClientRepository(this.anonymousAuthorizedClientRepository);
 		this.request = new MockHttpServletRequest();
 		this.response = new MockHttpServletResponse();
 	}
@@ -68,13 +68,13 @@ public class AuthenticatedPrincipalOAuth2AuthorizedClientRepositoryTests {
 	@Test
 	public void constructorWhenAuthorizedClientServiceIsNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new AuthenticatedPrincipalOAuth2AuthorizedClientRepository(null));
+			.isThrownBy(() -> new AuthenticatedPrincipalOAuth2AuthorizedClientRepository(null));
 	}
 
 	@Test
 	public void setAuthorizedClientRepositoryWhenAuthorizedClientRepositoryIsNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> this.authorizedClientRepository.setAnonymousAuthorizedClientRepository(null));
+			.isThrownBy(() -> this.authorizedClientRepository.setAnonymousAuthorizedClientRepository(null));
 	}
 
 	@Test

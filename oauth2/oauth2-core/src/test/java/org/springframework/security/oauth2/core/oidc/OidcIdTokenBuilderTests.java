@@ -58,7 +58,7 @@ public class OidcIdTokenBuilderTests {
 		idToken = idTokenBuilder.expiresAt(now).build();
 		assertThat(idToken.getExpiresAt()).isSameAs(now);
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> idTokenBuilder.claim(IdTokenClaimNames.EXP, "not an instant").build());
+			.isThrownBy(() -> idTokenBuilder.claim(IdTokenClaimNames.EXP, "not an instant").build());
 	}
 
 	@Test
@@ -70,7 +70,7 @@ public class OidcIdTokenBuilderTests {
 		idToken = idTokenBuilder.issuedAt(now).build();
 		assertThat(idToken.getIssuedAt()).isSameAs(now);
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> idTokenBuilder.claim(IdTokenClaimNames.IAT, "not an instant").build());
+			.isThrownBy(() -> idTokenBuilder.claim(IdTokenClaimNames.IAT, "not an instant").build());
 	}
 
 	@Test

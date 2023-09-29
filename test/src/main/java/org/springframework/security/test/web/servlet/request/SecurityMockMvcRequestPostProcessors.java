@@ -464,7 +464,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 
 	private static SecurityContextHolderStrategy getSecurityContextHolderStrategy(HttpServletRequest request) {
 		WebApplicationContext context = WebApplicationContextUtils
-				.findWebApplicationContext(request.getServletContext());
+			.findWebApplicationContext(request.getServletContext());
 		if (context == null) {
 			return DEFAULT_SECURITY_CONTEXT_HOLDER_STRATEGY;
 		}
@@ -1075,8 +1075,10 @@ public final class SecurityMockMvcRequestPostProcessors {
 		 * @return the {@link JwtRequestPostProcessor} for additional customization
 		 */
 		public JwtRequestPostProcessor jwt(Consumer<Jwt.Builder> jwtBuilderConsumer) {
-			Jwt.Builder jwtBuilder = Jwt.withTokenValue("token").header("alg", "none").claim(JwtClaimNames.SUB, "user")
-					.claim("scope", "read");
+			Jwt.Builder jwtBuilder = Jwt.withTokenValue("token")
+				.header("alg", "none")
+				.claim(JwtClaimNames.SUB, "user")
+				.claim("scope", "read");
 			jwtBuilderConsumer.accept(jwtBuilder);
 			this.jwt = jwtBuilder.build();
 			return this;
@@ -1242,8 +1244,9 @@ public final class SecurityMockMvcRequestPostProcessors {
 		}
 
 		private Collection<GrantedAuthority> getAuthorities(Collection<?> scopes) {
-			return scopes.stream().map((scope) -> new SimpleGrantedAuthority("SCOPE_" + scope))
-					.collect(Collectors.toList());
+			return scopes.stream()
+				.map((scope) -> new SimpleGrantedAuthority("SCOPE_" + scope))
+				.collect(Collectors.toList());
 		}
 
 		private OAuth2AccessToken getOAuth2AccessToken(OAuth2AuthenticatedPrincipal principal) {
@@ -1359,12 +1362,16 @@ public final class SecurityMockMvcRequestPostProcessors {
 					this.clientRegistration.getRegistrationId());
 			request = new AuthenticationRequestPostProcessor(token).postProcessRequest(request);
 			return new OAuth2ClientRequestPostProcessor().clientRegistration(this.clientRegistration)
-					.principalName(oauth2User.getName()).accessToken(this.accessToken).postProcessRequest(request);
+				.principalName(oauth2User.getName())
+				.accessToken(this.accessToken)
+				.postProcessRequest(request);
 		}
 
 		private ClientRegistration.Builder clientRegistrationBuilder() {
-			return ClientRegistration.withRegistrationId("test").authorizationGrantType(AuthorizationGrantType.PASSWORD)
-					.clientId("test-client").tokenUri("https://token-uri.example.org");
+			return ClientRegistration.withRegistrationId("test")
+				.authorizationGrantType(AuthorizationGrantType.PASSWORD)
+				.clientId("test-client")
+				.tokenUri("https://token-uri.example.org");
 		}
 
 		private Collection<GrantedAuthority> defaultAuthorities() {
@@ -1491,12 +1498,15 @@ public final class SecurityMockMvcRequestPostProcessors {
 		public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
 			OidcUser oidcUser = this.oidcUser.get();
 			return new OAuth2LoginRequestPostProcessor(this.accessToken).oauth2User(oidcUser)
-					.clientRegistration(this.clientRegistration).postProcessRequest(request);
+				.clientRegistration(this.clientRegistration)
+				.postProcessRequest(request);
 		}
 
 		private ClientRegistration.Builder clientRegistrationBuilder() {
-			return ClientRegistration.withRegistrationId("test").authorizationGrantType(AuthorizationGrantType.PASSWORD)
-					.clientId("test-client").tokenUri("https://token-uri.example.org");
+			return ClientRegistration.withRegistrationId("test")
+				.authorizationGrantType(AuthorizationGrantType.PASSWORD)
+				.clientId("test-client")
+				.tokenUri("https://token-uri.example.org");
 		}
 
 		private Collection<GrantedAuthority> getAuthorities() {
@@ -1605,7 +1615,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 			OAuth2AuthorizedClient client = new OAuth2AuthorizedClient(this.clientRegistration, this.principalName,
 					this.accessToken);
 			OAuth2AuthorizedClientRepository authorizedClientRepository = OAuth2ClientServletTestUtils
-					.getAuthorizedClientRepository(request);
+				.getAuthorizedClientRepository(request);
 			if (!(authorizedClientRepository instanceof TestOAuth2AuthorizedClientRepository)) {
 				authorizedClientRepository = new TestOAuth2AuthorizedClientRepository(authorizedClientRepository);
 				OAuth2ClientServletTestUtils.setAuthorizedClientRepository(request, authorizedClientRepository);
@@ -1617,8 +1627,10 @@ public final class SecurityMockMvcRequestPostProcessors {
 
 		private ClientRegistration.Builder clientRegistrationBuilder() {
 			return ClientRegistration.withRegistrationId(this.registrationId)
-					.authorizationGrantType(AuthorizationGrantType.PASSWORD).clientId("test-client")
-					.clientSecret("test-secret").tokenUri("https://idp.example.org/oauth/token");
+				.authorizationGrantType(AuthorizationGrantType.PASSWORD)
+				.clientId("test-client")
+				.clientSecret("test-secret")
+				.tokenUri("https://idp.example.org/oauth/token");
 		}
 
 		/**
@@ -1628,7 +1640,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 		private static final class TestOAuth2AuthorizedClientManager implements OAuth2AuthorizedClientManager {
 
 			static final String ENABLED_ATTR_NAME = TestOAuth2AuthorizedClientManager.class.getName()
-					.concat(".ENABLED");
+				.concat(".ENABLED");
 
 			private final OAuth2AuthorizedClientManager delegate;
 
@@ -1667,7 +1679,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 			static final String TOKEN_ATTR_NAME = TestOAuth2AuthorizedClientRepository.class.getName().concat(".TOKEN");
 
 			static final String ENABLED_ATTR_NAME = TestOAuth2AuthorizedClientRepository.class.getName()
-					.concat(".ENABLED");
+				.concat(".ENABLED");
 
 			private final OAuth2AuthorizedClientRepository delegate;
 

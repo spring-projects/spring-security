@@ -92,7 +92,7 @@ public class NamespaceHttpInterceptUrlTests {
 		MockHttpServletRequestBuilder postWithUser = post("/admin/post").with(authentication(user("ROLE_USER")));
 		this.mvc.perform(postWithUser).andExpect(status().isForbidden());
 		MockHttpServletRequestBuilder requestWithAdmin = post("/admin/post").with(csrf())
-				.with(authentication(user("ROLE_ADMIN")));
+			.with(authentication(user("ROLE_ADMIN")));
 		this.mvc.perform(requestWithAdmin).andExpect(status().isOk());
 	}
 

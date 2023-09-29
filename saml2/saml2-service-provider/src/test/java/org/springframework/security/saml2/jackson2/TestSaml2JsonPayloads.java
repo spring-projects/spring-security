@@ -144,35 +144,47 @@ final class TestSaml2JsonPayloads {
 	// @formatter:on
 
 	static Saml2PostAuthenticationRequest createDefaultSaml2PostAuthenticationRequest() {
-		return Saml2PostAuthenticationRequest.withRelyingPartyRegistration(
-				TestRelyingPartyRegistrations.full().registrationId(RELYINGPARTY_REGISTRATION_ID)
-						.assertingPartyDetails((party) -> party.singleSignOnServiceLocation(AUTHENTICATION_REQUEST_URI))
-						.build())
-				.samlRequest(SAML_REQUEST).relayState(RELAY_STATE).id(ID).build();
+		return Saml2PostAuthenticationRequest
+			.withRelyingPartyRegistration(TestRelyingPartyRegistrations.full()
+				.registrationId(RELYINGPARTY_REGISTRATION_ID)
+				.assertingPartyDetails((party) -> party.singleSignOnServiceLocation(AUTHENTICATION_REQUEST_URI))
+				.build())
+			.samlRequest(SAML_REQUEST)
+			.relayState(RELAY_STATE)
+			.id(ID)
+			.build();
 	}
 
 	static Saml2RedirectAuthenticationRequest createDefaultSaml2RedirectAuthenticationRequest() {
 		return Saml2RedirectAuthenticationRequest
-				.withRelyingPartyRegistration(TestRelyingPartyRegistrations.full()
-						.registrationId(RELYINGPARTY_REGISTRATION_ID)
-						.assertingPartyDetails((party) -> party.singleSignOnServiceLocation(AUTHENTICATION_REQUEST_URI))
-						.build())
-				.samlRequest(SAML_REQUEST).relayState(RELAY_STATE).sigAlg(SIG_ALG).signature(SIGNATURE).id(ID).build();
+			.withRelyingPartyRegistration(TestRelyingPartyRegistrations.full()
+				.registrationId(RELYINGPARTY_REGISTRATION_ID)
+				.assertingPartyDetails((party) -> party.singleSignOnServiceLocation(AUTHENTICATION_REQUEST_URI))
+				.build())
+			.samlRequest(SAML_REQUEST)
+			.relayState(RELAY_STATE)
+			.sigAlg(SIG_ALG)
+			.signature(SIGNATURE)
+			.id(ID)
+			.build();
 	}
 
 	static Saml2LogoutRequest createDefaultSaml2LogoutRequest() {
 		return Saml2LogoutRequest
-				.withRelyingPartyRegistration(
-						TestRelyingPartyRegistrations.full().registrationId(RELYINGPARTY_REGISTRATION_ID)
-								.assertingPartyDetails((party) -> party.singleLogoutServiceLocation(LOCATION)
-										.singleLogoutServiceBinding(Saml2MessageBinding.REDIRECT))
-								.build())
-				.id(ID).samlRequest(SAML_REQUEST).relayState(RELAY_STATE)
-				.parameters((params) -> params.put("AdditionalParam", ADDITIONAL_PARAM)).build();
+			.withRelyingPartyRegistration(TestRelyingPartyRegistrations.full()
+				.registrationId(RELYINGPARTY_REGISTRATION_ID)
+				.assertingPartyDetails((party) -> party.singleLogoutServiceLocation(LOCATION)
+					.singleLogoutServiceBinding(Saml2MessageBinding.REDIRECT))
+				.build())
+			.id(ID)
+			.samlRequest(SAML_REQUEST)
+			.relayState(RELAY_STATE)
+			.parameters((params) -> params.put("AdditionalParam", ADDITIONAL_PARAM))
+			.build();
 	}
 
 	static final Collection<GrantedAuthority> AUTHORITIES = Collections
-			.unmodifiableList(Arrays.asList(new SimpleGrantedAuthority("Role1"), new SimpleGrantedAuthority("Role2")));
+		.unmodifiableList(Arrays.asList(new SimpleGrantedAuthority("Role1"), new SimpleGrantedAuthority("Role2")));
 
 	static final Object DETAILS = User.withUsername("username").password("empty").authorities("A", "B").build();
 	static final String SAML_RESPONSE = "samlResponseValue";

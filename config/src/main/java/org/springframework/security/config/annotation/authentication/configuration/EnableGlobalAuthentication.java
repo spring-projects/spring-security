@@ -97,7 +97,6 @@ import org.springframework.security.config.annotation.web.servlet.configuration.
  * @see EnableWebMvcSecurity
  * @see EnableWebSecurity
  * @see EnableGlobalMethodSecurity
- *
  * @author Rob Winch
  *
  */

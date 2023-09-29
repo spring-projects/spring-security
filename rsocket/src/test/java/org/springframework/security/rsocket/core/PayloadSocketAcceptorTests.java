@@ -84,27 +84,27 @@ public class PayloadSocketAcceptorTests {
 	public void constructorWhenNullDelegateThenException() {
 		this.delegate = null;
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new PayloadSocketAcceptor(this.delegate, this.interceptors));
+			.isThrownBy(() -> new PayloadSocketAcceptor(this.delegate, this.interceptors));
 	}
 
 	@Test
 	public void constructorWhenNullInterceptorsThenException() {
 		this.interceptors = null;
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new PayloadSocketAcceptor(this.delegate, this.interceptors));
+			.isThrownBy(() -> new PayloadSocketAcceptor(this.delegate, this.interceptors));
 	}
 
 	@Test
 	public void constructorWhenEmptyInterceptorsThenException() {
 		this.interceptors = Collections.emptyList();
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new PayloadSocketAcceptor(this.delegate, this.interceptors));
+			.isThrownBy(() -> new PayloadSocketAcceptor(this.delegate, this.interceptors));
 	}
 
 	@Test
 	public void acceptWhenDataMimeTypeNullThenException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> this.acceptor.accept(this.setupPayload, this.rSocket).block());
+			.isThrownBy(() -> this.acceptor.accept(this.setupPayload, this.rSocket).block());
 	}
 
 	@Test
@@ -112,7 +112,7 @@ public class PayloadSocketAcceptorTests {
 		given(this.setupPayload.dataMimeType()).willReturn(MediaType.APPLICATION_JSON_VALUE);
 		PayloadExchange exchange = captureExchange();
 		assertThat(exchange.getMetadataMimeType().toString())
-				.isEqualTo(WellKnownMimeType.MESSAGE_RSOCKET_COMPOSITE_METADATA.getString());
+			.isEqualTo(WellKnownMimeType.MESSAGE_RSOCKET_COMPOSITE_METADATA.getString());
 		assertThat(exchange.getDataMimeType()).isEqualTo(MediaType.APPLICATION_JSON);
 	}
 
@@ -130,7 +130,7 @@ public class PayloadSocketAcceptorTests {
 		this.acceptor.setDefaultDataMimeType(MediaType.APPLICATION_JSON);
 		PayloadExchange exchange = captureExchange();
 		assertThat(exchange.getMetadataMimeType().toString())
-				.isEqualTo(WellKnownMimeType.MESSAGE_RSOCKET_COMPOSITE_METADATA.getString());
+			.isEqualTo(WellKnownMimeType.MESSAGE_RSOCKET_COMPOSITE_METADATA.getString());
 		assertThat(exchange.getDataMimeType()).isEqualTo(MediaType.APPLICATION_JSON);
 	}
 
@@ -154,7 +154,7 @@ public class PayloadSocketAcceptorTests {
 				this.rSocket);
 		PayloadInterceptor authenticateInterceptor = (exchange, chain) -> {
 			Context withSecurityContext = ReactiveSecurityContextHolder
-					.withSecurityContext(Mono.just(expectedSecurityContext));
+				.withSecurityContext(Mono.just(expectedSecurityContext));
 			return chain.next(exchange).contextWrite(withSecurityContext);
 		};
 		List<PayloadInterceptor> interceptors = Arrays.asList(authenticateInterceptor);

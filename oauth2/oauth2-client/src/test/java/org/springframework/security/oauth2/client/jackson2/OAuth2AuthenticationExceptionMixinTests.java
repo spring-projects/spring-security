@@ -69,7 +69,7 @@ public class OAuth2AuthenticationExceptionMixinTests {
 	public void deserializeWhenMixinNotRegisteredThenThrowJsonProcessingException() {
 		String json = asJson(new OAuth2AuthenticationException(new OAuth2Error("[authorization_request_not_found]")));
 		assertThatExceptionOfType(JsonProcessingException.class)
-				.isThrownBy(() -> new ObjectMapper().readValue(json, OAuth2AuthenticationException.class));
+			.isThrownBy(() -> new ObjectMapper().readValue(json, OAuth2AuthenticationException.class));
 	}
 
 	@Test

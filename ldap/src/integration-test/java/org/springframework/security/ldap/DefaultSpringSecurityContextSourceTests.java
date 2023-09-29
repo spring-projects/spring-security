@@ -75,7 +75,7 @@ public class DefaultSpringSecurityContextSourceTests {
 		ctxSrc.setPassword("password");
 		ctxSrc.afterPropertiesSet();
 		assertThat(ctxSrc.getAuthenticatedEnvForTest("manager", "password"))
-				.containsKey(AbstractContextSource.SUN_LDAP_POOLING_FLAG);
+			.containsKey(AbstractContextSource.SUN_LDAP_POOLING_FLAG);
 	}
 
 	@Test
@@ -86,7 +86,7 @@ public class DefaultSpringSecurityContextSourceTests {
 		ctxSrc.setPassword("password");
 		ctxSrc.afterPropertiesSet();
 		assertThat(ctxSrc.getAuthenticatedEnvForTest("user", "password"))
-				.doesNotContainKey(AbstractContextSource.SUN_LDAP_POOLING_FLAG);
+			.doesNotContainKey(AbstractContextSource.SUN_LDAP_POOLING_FLAG);
 	}
 
 	// SEC-1145. Confirms that there is no issue here with pooling.
@@ -96,8 +96,9 @@ public class DefaultSpringSecurityContextSourceTests {
 		// com.sun.jndi.ldap.LdapPoolManager.showStats(System.out);
 		// com.sun.jndi.ldap.LdapPoolManager.showStats(System.out);
 		// Now get it gain, with wrong password. Should fail.
-		assertThatExceptionOfType(AuthenticationException.class).isThrownBy(() -> this.contextSource
-				.getContext("uid=Bob,ou=people,dc=springframework,dc=org", "wrongpassword").close());
+		assertThatExceptionOfType(AuthenticationException.class).isThrownBy(
+				() -> this.contextSource.getContext("uid=Bob,ou=people,dc=springframework,dc=org", "wrongpassword")
+					.close());
 	}
 
 	@Test
@@ -166,7 +167,7 @@ public class DefaultSpringSecurityContextSourceTests {
 		// this url should be rejected because the root DN goes into a separate parameter
 		serverUrls.add("ldap://bar:389/dc=foobar,dc=org");
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new DefaultSpringSecurityContextSource(serverUrls, "dc=springframework,dc=org"));
+			.isThrownBy(() -> new DefaultSpringSecurityContextSource(serverUrls, "dc=springframework,dc=org"));
 	}
 
 	static class EnvExposingDefaultSpringSecurityContextSource extends DefaultSpringSecurityContextSource {

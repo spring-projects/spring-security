@@ -92,12 +92,12 @@ public final class RefreshTokenReactiveOAuth2AuthorizedClientProvider
 		ClientRegistration clientRegistration = context.getClientRegistration();
 		OAuth2RefreshTokenGrantRequest refreshTokenGrantRequest = new OAuth2RefreshTokenGrantRequest(clientRegistration,
 				authorizedClient.getAccessToken(), authorizedClient.getRefreshToken(), scopes);
-		return Mono.just(refreshTokenGrantRequest).flatMap(this.accessTokenResponseClient::getTokenResponse)
-				.onErrorMap(OAuth2AuthorizationException.class,
-						(e) -> new ClientAuthorizationException(e.getError(), clientRegistration.getRegistrationId(),
-								e))
-				.map((tokenResponse) -> new OAuth2AuthorizedClient(clientRegistration, context.getPrincipal().getName(),
-						tokenResponse.getAccessToken(), tokenResponse.getRefreshToken()));
+		return Mono.just(refreshTokenGrantRequest)
+			.flatMap(this.accessTokenResponseClient::getTokenResponse)
+			.onErrorMap(OAuth2AuthorizationException.class,
+					(e) -> new ClientAuthorizationException(e.getError(), clientRegistration.getRegistrationId(), e))
+			.map((tokenResponse) -> new OAuth2AuthorizedClient(clientRegistration, context.getPrincipal().getName(),
+					tokenResponse.getAccessToken(), tokenResponse.getRefreshToken()));
 	}
 
 	private boolean hasTokenExpired(OAuth2Token token) {

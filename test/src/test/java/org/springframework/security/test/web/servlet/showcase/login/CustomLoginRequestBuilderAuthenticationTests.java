@@ -63,14 +63,18 @@ public class CustomLoginRequestBuilderAuthenticationTests {
 
 	@Test
 	public void authenticationSuccess() throws Exception {
-		this.mvc.perform(login()).andExpect(status().isFound()).andExpect(redirectedUrl("/"))
-				.andExpect(authenticated().withUsername("user"));
+		this.mvc.perform(login())
+			.andExpect(status().isFound())
+			.andExpect(redirectedUrl("/"))
+			.andExpect(authenticated().withUsername("user"));
 	}
 
 	@Test
 	public void authenticationFailed() throws Exception {
-		this.mvc.perform(login().user("notfound").password("invalid")).andExpect(status().isFound())
-				.andExpect(redirectedUrl("/authenticate?error")).andExpect(unauthenticated());
+		this.mvc.perform(login().user("notfound").password("invalid"))
+			.andExpect(status().isFound())
+			.andExpect(redirectedUrl("/authenticate?error"))
+			.andExpect(unauthenticated());
 	}
 
 	static FormLoginRequestBuilder login() {

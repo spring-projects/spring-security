@@ -105,7 +105,7 @@ public class RemoveAuthorizedClientReactiveOAuth2AuthorizationFailureHandler
 		Assert.notNull(authorizedClientRemover, "authorizedClientRemover cannot be null");
 		Assert.notNull(removeAuthorizedClientErrorCodes, "removeAuthorizedClientErrorCodes cannot be null");
 		this.removeAuthorizedClientErrorCodes = Collections
-				.unmodifiableSet(new HashSet<>(removeAuthorizedClientErrorCodes));
+			.unmodifiableSet(new HashSet<>(removeAuthorizedClientErrorCodes));
 		this.delegate = authorizedClientRemover;
 	}
 

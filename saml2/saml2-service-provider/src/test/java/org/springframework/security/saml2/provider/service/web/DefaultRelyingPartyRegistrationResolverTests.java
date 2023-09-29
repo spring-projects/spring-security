@@ -33,7 +33,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 public class DefaultRelyingPartyRegistrationResolverTests {
 
 	private final RelyingPartyRegistration registration = TestRelyingPartyRegistrations.relyingPartyRegistration()
-			.build();
+		.build();
 
 	private final RelyingPartyRegistrationRepository repository = new InMemoryRelyingPartyRegistrationRepository(
 			this.registration);
@@ -49,12 +49,12 @@ public class DefaultRelyingPartyRegistrationResolverTests {
 		assertThat(registration).isNotNull();
 		assertThat(registration.getRegistrationId()).isEqualTo(this.registration.getRegistrationId());
 		assertThat(registration.getEntityId())
-				.isEqualTo("http://localhost/saml2/service-provider-metadata/" + this.registration.getRegistrationId());
+			.isEqualTo("http://localhost/saml2/service-provider-metadata/" + this.registration.getRegistrationId());
 		assertThat(registration.getAssertionConsumerServiceLocation())
-				.isEqualTo("http://localhost/login/saml2/sso/" + this.registration.getRegistrationId());
+			.isEqualTo("http://localhost/login/saml2/sso/" + this.registration.getRegistrationId());
 		assertThat(registration.getSingleLogoutServiceLocation()).isEqualTo("http://localhost/logout/saml2/slo");
 		assertThat(registration.getSingleLogoutServiceResponseLocation())
-				.isEqualTo("http://localhost/logout/saml2/slo");
+			.isEqualTo("http://localhost/logout/saml2/slo");
 	}
 
 	@Test

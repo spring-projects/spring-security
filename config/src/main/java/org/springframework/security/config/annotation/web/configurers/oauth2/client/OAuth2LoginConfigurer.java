@@ -325,7 +325,7 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		}
 		http.authenticationProvider(this.postProcess(oauth2LoginAuthenticationProvider));
 		boolean oidcAuthenticationProviderEnabled = ClassUtils
-				.isPresent("org.springframework.security.oauth2.jwt.JwtDecoder", this.getClass().getClassLoader());
+			.isPresent("org.springframework.security.oauth2.jwt.JwtDecoder", this.getClass().getClassLoader());
 		if (oidcAuthenticationProviderEnabled) {
 			OAuth2UserService<OidcUserRequest, OidcUser> oidcUserService = getOidcUserService();
 			OidcAuthorizationCodeAuthenticationProvider oidcAuthorizationCodeAuthenticationProvider = new OidcAuthorizationCodeAuthenticationProvider(
@@ -363,11 +363,11 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		}
 		if (this.authorizationEndpointConfig.authorizationRequestRepository != null) {
 			authorizationRequestFilter
-					.setAuthorizationRequestRepository(this.authorizationEndpointConfig.authorizationRequestRepository);
+				.setAuthorizationRequestRepository(this.authorizationEndpointConfig.authorizationRequestRepository);
 		}
 		if (this.authorizationEndpointConfig.authorizationRedirectStrategy != null) {
 			authorizationRequestFilter
-					.setAuthorizationRedirectStrategy(this.authorizationEndpointConfig.authorizationRedirectStrategy);
+				.setAuthorizationRedirectStrategy(this.authorizationEndpointConfig.authorizationRedirectStrategy);
 		}
 		RequestCache requestCache = http.getSharedObject(RequestCache.class);
 		if (requestCache != null) {
@@ -380,7 +380,7 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		}
 		if (this.authorizationEndpointConfig.authorizationRequestRepository != null) {
 			authenticationFilter
-					.setAuthorizationRequestRepository(this.authorizationEndpointConfig.authorizationRequestRepository);
+				.setAuthorizationRequestRepository(this.authorizationEndpointConfig.authorizationRequestRepository);
 		}
 		super.configure(http);
 	}
@@ -398,15 +398,16 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 			throw new NoUniqueBeanDefinitionException(type, names);
 		}
 		if (names.length == 1) {
-			return (JwtDecoderFactory<ClientRegistration>) this.getBuilder().getSharedObject(ApplicationContext.class)
-					.getBean(names[0]);
+			return (JwtDecoderFactory<ClientRegistration>) this.getBuilder()
+				.getSharedObject(ApplicationContext.class)
+				.getBean(names[0]);
 		}
 		return null;
 	}
 
 	private GrantedAuthoritiesMapper getGrantedAuthoritiesMapper() {
 		GrantedAuthoritiesMapper grantedAuthoritiesMapper = this.getBuilder()
-				.getSharedObject(GrantedAuthoritiesMapper.class);
+			.getSharedObject(GrantedAuthoritiesMapper.class);
 		if (grantedAuthoritiesMapper == null) {
 			grantedAuthoritiesMapper = this.getGrantedAuthoritiesMapperBean();
 			if (grantedAuthoritiesMapper != null) {
@@ -418,8 +419,8 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 
 	private GrantedAuthoritiesMapper getGrantedAuthoritiesMapperBean() {
 		Map<String, GrantedAuthoritiesMapper> grantedAuthoritiesMapperMap = BeanFactoryUtils
-				.beansOfTypeIncludingAncestors(this.getBuilder().getSharedObject(ApplicationContext.class),
-						GrantedAuthoritiesMapper.class);
+			.beansOfTypeIncludingAncestors(this.getBuilder().getSharedObject(ApplicationContext.class),
+					GrantedAuthoritiesMapper.class);
 		return (!grantedAuthoritiesMapperMap.isEmpty() ? grantedAuthoritiesMapperMap.values().iterator().next() : null);
 	}
 
@@ -456,7 +457,7 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 
 	private void initDefaultLoginFilter(B http) {
 		DefaultLoginPageGeneratingFilter loginPageGeneratingFilter = http
-				.getSharedObject(DefaultLoginPageGeneratingFilter.class);
+			.getSharedObject(DefaultLoginPageGeneratingFilter.class);
 		if (loginPageGeneratingFilter == null || this.isCustomLoginPage()) {
 			return;
 		}
@@ -470,7 +471,7 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 	private Map<String, String> getLoginLinks() {
 		Iterable<ClientRegistration> clientRegistrations = null;
 		ClientRegistrationRepository clientRegistrationRepository = OAuth2ClientConfigurerUtils
-				.getClientRegistrationRepository(this.getBuilder());
+			.getClientRegistrationRepository(this.getBuilder());
 		ResolvableType type = ResolvableType.forInstance(clientRegistrationRepository).as(Iterable.class);
 		if (type != ResolvableType.NONE && ClientRegistration.class.isAssignableFrom(type.resolveGenerics()[0])) {
 			clientRegistrations = (Iterable<ClientRegistration>) clientRegistrationRepository;
@@ -510,13 +511,13 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 
 	private RequestMatcher getFormLoginNotEnabledRequestMatcher(B http) {
 		DefaultLoginPageGeneratingFilter defaultLoginPageGeneratingFilter = http
-				.getSharedObject(DefaultLoginPageGeneratingFilter.class);
+			.getSharedObject(DefaultLoginPageGeneratingFilter.class);
 		Field formLoginEnabledField = (defaultLoginPageGeneratingFilter != null)
 				? ReflectionUtils.findField(DefaultLoginPageGeneratingFilter.class, "formLoginEnabled") : null;
 		if (formLoginEnabledField != null) {
 			ReflectionUtils.makeAccessible(formLoginEnabledField);
 			return (request) -> Boolean.FALSE
-					.equals(ReflectionUtils.getField(formLoginEnabledField, defaultLoginPageGeneratingFilter));
+				.equals(ReflectionUtils.getField(formLoginEnabledField, defaultLoginPageGeneratingFilter));
 		}
 		return AnyRequestMatcher.INSTANCE;
 	}
@@ -710,8 +711,8 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		 */
 		public UserInfoEndpointConfig userAuthoritiesMapper(GrantedAuthoritiesMapper userAuthoritiesMapper) {
 			Assert.notNull(userAuthoritiesMapper, "userAuthoritiesMapper cannot be null");
-			OAuth2LoginConfigurer.this.getBuilder().setSharedObject(GrantedAuthoritiesMapper.class,
-					userAuthoritiesMapper);
+			OAuth2LoginConfigurer.this.getBuilder()
+				.setSharedObject(GrantedAuthoritiesMapper.class, userAuthoritiesMapper);
 			return this;
 		}
 
@@ -731,7 +732,7 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 			OAuth2LoginAuthenticationToken authorizationCodeAuthentication = (OAuth2LoginAuthenticationToken) authentication;
 			OAuth2AuthorizationRequest authorizationRequest = authorizationCodeAuthentication.getAuthorizationExchange()
-					.getAuthorizationRequest();
+				.getAuthorizationRequest();
 			if (authorizationRequest.getScopes().contains(OidcScopes.OPENID)) {
 				// Section 3.1.2.1 Authentication Request -
 				// https://openid.net/specs/openid-connect-core-1_0.html#AuthRequest scope

@@ -37,7 +37,7 @@ public class AclFormattingUtilsTests {
 		assertThatIllegalArgumentException().isThrownBy(() -> AclFormattingUtils.demergePatterns(null, "SOME STRING"));
 		assertThatIllegalArgumentException().isThrownBy(() -> AclFormattingUtils.demergePatterns("SOME STRING", null));
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> AclFormattingUtils.demergePatterns("SOME STRING", "LONGER SOME STRING"));
+			.isThrownBy(() -> AclFormattingUtils.demergePatterns("SOME STRING", "LONGER SOME STRING"));
 		assertThatNoException().isThrownBy(() -> AclFormattingUtils.demergePatterns("SOME STRING", "SAME LENGTH"));
 	}
 
@@ -46,7 +46,7 @@ public class AclFormattingUtilsTests {
 		String original = "...........................A...R";
 		String removeBits = "...............................R";
 		assertThat(AclFormattingUtils.demergePatterns(original, removeBits))
-				.isEqualTo("...........................A....");
+			.isEqualTo("...........................A....");
 		assertThat(AclFormattingUtils.demergePatterns("ABCDEF", "......")).isEqualTo("ABCDEF");
 		assertThat(AclFormattingUtils.demergePatterns("ABCDEF", "GHIJKL")).isEqualTo("......");
 	}
@@ -56,7 +56,7 @@ public class AclFormattingUtilsTests {
 		assertThatIllegalArgumentException().isThrownBy(() -> AclFormattingUtils.mergePatterns(null, "SOME STRING"));
 		assertThatIllegalArgumentException().isThrownBy(() -> AclFormattingUtils.mergePatterns("SOME STRING", null));
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> AclFormattingUtils.mergePatterns("SOME STRING", "LONGER SOME STRING"));
+			.isThrownBy(() -> AclFormattingUtils.mergePatterns("SOME STRING", "LONGER SOME STRING"));
 		assertThatNoException().isThrownBy(() -> AclFormattingUtils.mergePatterns("SOME STRING", "SAME LENGTH"));
 	}
 
@@ -73,9 +73,9 @@ public class AclFormattingUtilsTests {
 	public final void testBinaryPrints() {
 		assertThat(AclFormattingUtils.printBinary(15)).isEqualTo("............................****");
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> AclFormattingUtils.printBinary(15, Permission.RESERVED_ON));
+			.isThrownBy(() -> AclFormattingUtils.printBinary(15, Permission.RESERVED_ON));
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> AclFormattingUtils.printBinary(15, Permission.RESERVED_OFF));
+			.isThrownBy(() -> AclFormattingUtils.printBinary(15, Permission.RESERVED_OFF));
 		assertThat(AclFormattingUtils.printBinary(15, 'x')).isEqualTo("............................xxxx");
 	}
 

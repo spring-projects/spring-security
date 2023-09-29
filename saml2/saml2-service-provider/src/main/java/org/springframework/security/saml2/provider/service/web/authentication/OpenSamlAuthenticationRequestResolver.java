@@ -89,17 +89,17 @@ class OpenSamlAuthenticationRequestResolver {
 		this.relyingPartyRegistrationResolver = relyingPartyRegistrationResolver;
 		XMLObjectProviderRegistry registry = ConfigurationService.get(XMLObjectProviderRegistry.class);
 		this.marshaller = (AuthnRequestMarshaller) registry.getMarshallerFactory()
-				.getMarshaller(AuthnRequest.DEFAULT_ELEMENT_NAME);
+			.getMarshaller(AuthnRequest.DEFAULT_ELEMENT_NAME);
 		Assert.notNull(this.marshaller, "logoutRequestMarshaller must be configured in OpenSAML");
 		this.authnRequestBuilder = (AuthnRequestBuilder) XMLObjectProviderRegistrySupport.getBuilderFactory()
-				.getBuilder(AuthnRequest.DEFAULT_ELEMENT_NAME);
+			.getBuilder(AuthnRequest.DEFAULT_ELEMENT_NAME);
 		Assert.notNull(this.authnRequestBuilder, "authnRequestBuilder must be configured in OpenSAML");
 		this.issuerBuilder = (IssuerBuilder) registry.getBuilderFactory().getBuilder(Issuer.DEFAULT_ELEMENT_NAME);
 		Assert.notNull(this.issuerBuilder, "issuerBuilder must be configured in OpenSAML");
 		this.nameIdBuilder = (NameIDBuilder) registry.getBuilderFactory().getBuilder(NameID.DEFAULT_ELEMENT_NAME);
 		Assert.notNull(this.nameIdBuilder, "nameIdBuilder must be configured in OpenSAML");
 		this.nameIdPolicyBuilder = (NameIDPolicyBuilder) registry.getBuilderFactory()
-				.getBuilder(NameIDPolicy.DEFAULT_ELEMENT_NAME);
+			.getBuilder(NameIDPolicy.DEFAULT_ELEMENT_NAME);
 		Assert.notNull(this.nameIdPolicyBuilder, "nameIdPolicyBuilder must be configured in OpenSAML");
 	}
 
@@ -153,21 +153,27 @@ class OpenSamlAuthenticationRequestResolver {
 			}
 			String xml = serialize(authnRequest);
 			String encoded = Saml2Utils.samlEncode(xml.getBytes(StandardCharsets.UTF_8));
-			return (T) Saml2PostAuthenticationRequest.withRelyingPartyRegistration(registration).samlRequest(encoded)
-					.relayState(relayState).id(authnRequest.getID()).build();
+			return (T) Saml2PostAuthenticationRequest.withRelyingPartyRegistration(registration)
+				.samlRequest(encoded)
+				.relayState(relayState)
+				.id(authnRequest.getID())
+				.build();
 		}
 		else {
 			String xml = serialize(authnRequest);
 			String deflatedAndEncoded = Saml2Utils.samlEncode(Saml2Utils.samlDeflate(xml));
 			Saml2RedirectAuthenticationRequest.Builder builder = Saml2RedirectAuthenticationRequest
-					.withRelyingPartyRegistration(registration).samlRequest(deflatedAndEncoded).relayState(relayState)
-					.id(authnRequest.getID());
+				.withRelyingPartyRegistration(registration)
+				.samlRequest(deflatedAndEncoded)
+				.relayState(relayState)
+				.id(authnRequest.getID());
 			if (registration.getAssertingPartyDetails().getWantAuthnRequestsSigned()) {
 				Map<String, String> parameters = OpenSamlSigningUtils.sign(registration)
-						.param(Saml2ParameterNames.SAML_REQUEST, deflatedAndEncoded)
-						.param(Saml2ParameterNames.RELAY_STATE, relayState).parameters();
+					.param(Saml2ParameterNames.SAML_REQUEST, deflatedAndEncoded)
+					.param(Saml2ParameterNames.RELAY_STATE, relayState)
+					.parameters();
 				builder.sigAlg(parameters.get(Saml2ParameterNames.SIG_ALG))
-						.signature(parameters.get(Saml2ParameterNames.SIGNATURE));
+					.signature(parameters.get(Saml2ParameterNames.SIGNATURE));
 			}
 			return (T) builder.build();
 		}

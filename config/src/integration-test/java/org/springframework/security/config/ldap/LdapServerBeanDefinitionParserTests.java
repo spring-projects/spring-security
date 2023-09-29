@@ -52,7 +52,7 @@ public class LdapServerBeanDefinitionParserTests {
 		this.appCtx = new InMemoryXmlApplicationContext("<ldap-server ldif='classpath:test-server.ldif' port='0'/>");
 
 		DefaultSpringSecurityContextSource contextSource = (DefaultSpringSecurityContextSource) this.appCtx
-				.getBean(BeanIds.CONTEXT_SOURCE);
+			.getBean(BeanIds.CONTEXT_SOURCE);
 
 		// Check data is loaded
 		LdapTemplate template = new LdapTemplate(contextSource);
@@ -71,7 +71,7 @@ public class LdapServerBeanDefinitionParserTests {
 		this.appCtx.getBean(BeanIds.CONTEXT_SOURCE);
 
 		DefaultSpringSecurityContextSource contextSource = (DefaultSpringSecurityContextSource) this.appCtx
-				.getBean("blah");
+			.getBean("blah");
 
 		// Check data is loaded as before
 		LdapTemplate template = new LdapTemplate(contextSource);
@@ -83,7 +83,7 @@ public class LdapServerBeanDefinitionParserTests {
 		this.appCtx = new InMemoryXmlApplicationContext(
 				"<ldap-server ldif='classpath*:test-server2.xldif' root='dc=monkeymachine,dc=co,dc=uk' port='0'/>");
 		DefaultSpringSecurityContextSource contextSource = (DefaultSpringSecurityContextSource) this.appCtx
-				.getBean(BeanIds.CONTEXT_SOURCE);
+			.getBean(BeanIds.CONTEXT_SOURCE);
 
 		LdapTemplate template = new LdapTemplate(contextSource);
 		template.lookup("uid=pg,ou=gorillas");

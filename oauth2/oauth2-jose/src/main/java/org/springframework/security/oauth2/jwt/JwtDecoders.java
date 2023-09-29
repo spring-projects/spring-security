@@ -54,7 +54,7 @@ public final class JwtDecoders {
 	public static <T extends JwtDecoder> T fromOidcIssuerLocation(String oidcIssuerLocation) {
 		Assert.hasText(oidcIssuerLocation, "oidcIssuerLocation cannot be empty");
 		Map<String, Object> configuration = JwtDecoderProviderConfigurationUtils
-				.getConfigurationForOidcIssuerLocation(oidcIssuerLocation);
+			.getConfigurationForOidcIssuerLocation(oidcIssuerLocation);
 		return (T) withProviderConfiguration(configuration, oidcIssuerLocation);
 	}
 
@@ -90,7 +90,7 @@ public final class JwtDecoders {
 	public static <T extends JwtDecoder> T fromIssuerLocation(String issuer) {
 		Assert.hasText(issuer, "issuer cannot be empty");
 		Map<String, Object> configuration = JwtDecoderProviderConfigurationUtils
-				.getConfigurationForIssuerLocation(issuer);
+			.getConfigurationForIssuerLocation(issuer);
 		return (T) withProviderConfiguration(configuration, issuer);
 	}
 
@@ -110,7 +110,8 @@ public final class JwtDecoders {
 		OAuth2TokenValidator<Jwt> jwtValidator = JwtValidators.createDefaultWithIssuer(issuer);
 		String jwkSetUri = configuration.get("jwks_uri").toString();
 		NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withJwkSetUri(jwkSetUri)
-				.jwtProcessorCustomizer(JwtDecoderProviderConfigurationUtils::addJWSAlgorithms).build();
+			.jwtProcessorCustomizer(JwtDecoderProviderConfigurationUtils::addJWSAlgorithms)
+			.build();
 		jwtDecoder.setJwtValidator(jwtValidator);
 		return jwtDecoder;
 	}

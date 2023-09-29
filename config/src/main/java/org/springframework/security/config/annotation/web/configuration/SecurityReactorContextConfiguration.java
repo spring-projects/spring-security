@@ -65,7 +65,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 class SecurityReactorContextConfiguration {
 
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
-			.getContextHolderStrategy();
+		.getContextHolderStrategy();
 
 	@Bean
 	SecurityReactorContextSubscriberRegistrar securityReactorContextSubscriberRegistrar() {
@@ -87,7 +87,7 @@ class SecurityReactorContextConfiguration {
 		private final Map<Object, Supplier<Object>> CONTEXT_ATTRIBUTE_VALUE_LOADERS = new HashMap<>();
 
 		private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
-				.getContextHolderStrategy();
+			.getContextHolderStrategy();
 
 		SecurityReactorContextSubscriberRegistrar() {
 			this.CONTEXT_ATTRIBUTE_VALUE_LOADERS.put(HttpServletRequest.class,
@@ -100,7 +100,7 @@ class SecurityReactorContextConfiguration {
 		@Override
 		public void afterPropertiesSet() throws Exception {
 			Function<? super Publisher<Object>, ? extends Publisher<Object>> lifter = Operators
-					.liftPublisher((pub, sub) -> createSubscriberIfNecessary(sub));
+				.liftPublisher((pub, sub) -> createSubscriberIfNecessary(sub));
 			Hooks.onLastOperator(SECURITY_REACTOR_CONTEXT_OPERATOR_KEY, lifter::apply);
 		}
 

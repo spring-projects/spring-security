@@ -77,7 +77,7 @@ public class OAuth2AccessTokenResponseTests {
 				.build();
 		// @formatter:on
 		assertThat(tokenResponse.getAccessToken().getExpiresAt())
-				.isEqualTo(tokenResponse.getAccessToken().getIssuedAt().plusSeconds(1));
+			.isEqualTo(tokenResponse.getAccessToken().getIssuedAt().plusSeconds(1));
 	}
 
 	@Test
@@ -89,7 +89,7 @@ public class OAuth2AccessTokenResponseTests {
 				.build();
 		// @formatter:on
 		assertThat(tokenResponse.getAccessToken().getExpiresAt())
-				.isEqualTo(tokenResponse.getAccessToken().getIssuedAt().plusSeconds(1));
+			.isEqualTo(tokenResponse.getAccessToken().getIssuedAt().plusSeconds(1));
 	}
 
 	@Test
@@ -136,14 +136,14 @@ public class OAuth2AccessTokenResponseTests {
 		// @formatter:on
 		OAuth2AccessTokenResponse withResponse = OAuth2AccessTokenResponse.withResponse(tokenResponse).build();
 		assertThat(withResponse.getAccessToken().getTokenValue())
-				.isEqualTo(tokenResponse.getAccessToken().getTokenValue());
+			.isEqualTo(tokenResponse.getAccessToken().getTokenValue());
 		assertThat(withResponse.getAccessToken().getTokenType()).isEqualTo(OAuth2AccessToken.TokenType.BEARER);
 		assertThat(withResponse.getAccessToken().getIssuedAt()).isEqualTo(tokenResponse.getAccessToken().getIssuedAt());
 		assertThat(withResponse.getAccessToken().getExpiresAt())
-				.isEqualTo(tokenResponse.getAccessToken().getExpiresAt());
+			.isEqualTo(tokenResponse.getAccessToken().getExpiresAt());
 		assertThat(withResponse.getAccessToken().getScopes()).isEqualTo(tokenResponse.getAccessToken().getScopes());
 		assertThat(withResponse.getRefreshToken().getTokenValue())
-				.isEqualTo(tokenResponse.getRefreshToken().getTokenValue());
+			.isEqualTo(tokenResponse.getRefreshToken().getTokenValue());
 		assertThat(withResponse.getAdditionalParameters()).isEqualTo(tokenResponse.getAdditionalParameters());
 	}
 
@@ -175,9 +175,10 @@ public class OAuth2AccessTokenResponseTests {
 		// @formatter:on
 		long expiresIn = 30;
 		OAuth2AccessTokenResponse withResponse = OAuth2AccessTokenResponse.withResponse(tokenResponse)
-				.expiresIn(expiresIn).build();
+			.expiresIn(expiresIn)
+			.build();
 		assertThat(withResponse.getAccessToken().getExpiresAt())
-				.isEqualTo(withResponse.getAccessToken().getIssuedAt().plusSeconds(expiresIn));
+			.isEqualTo(withResponse.getAccessToken().getIssuedAt().plusSeconds(expiresIn));
 	}
 
 }

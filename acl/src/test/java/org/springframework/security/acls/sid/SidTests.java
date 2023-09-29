@@ -46,9 +46,9 @@ public class SidTests {
 		// Check one Authentication-argument constructor
 		assertThatIllegalArgumentException().isThrownBy(() -> new PrincipalSid((Authentication) null));
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new PrincipalSid(new TestingAuthenticationToken(null, "password")));
+			.isThrownBy(() -> new PrincipalSid(new TestingAuthenticationToken(null, "password")));
 		assertThatNoException()
-				.isThrownBy(() -> new PrincipalSid(new TestingAuthenticationToken("johndoe", "password")));
+			.isThrownBy(() -> new PrincipalSid(new TestingAuthenticationToken("johndoe", "password")));
 	}
 
 	@Test
@@ -60,7 +60,7 @@ public class SidTests {
 		// Check one GrantedAuthority-argument constructor
 		assertThatIllegalArgumentException().isThrownBy(() -> new GrantedAuthoritySid((GrantedAuthority) null));
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new GrantedAuthoritySid(new SimpleGrantedAuthority(null)));
+			.isThrownBy(() -> new GrantedAuthoritySid(new SimpleGrantedAuthority(null)));
 		assertThatNoException().isThrownBy(() -> new GrantedAuthoritySid(new SimpleGrantedAuthority("ROLE_TEST")));
 	}
 
@@ -100,7 +100,7 @@ public class SidTests {
 		assertThat(principalSid.hashCode()).isEqualTo(new PrincipalSid("johndoe").hashCode());
 		assertThat(principalSid.hashCode()).isNotEqualTo(new PrincipalSid("scott").hashCode());
 		assertThat(principalSid.hashCode())
-				.isNotEqualTo(new PrincipalSid(new TestingAuthenticationToken("scott", "password")).hashCode());
+			.isNotEqualTo(new PrincipalSid(new TestingAuthenticationToken("scott", "password")).hashCode());
 	}
 
 	@Test
@@ -111,7 +111,7 @@ public class SidTests {
 		assertThat(gaSid.hashCode()).isEqualTo(new GrantedAuthoritySid("ROLE_TEST").hashCode());
 		assertThat(gaSid.hashCode()).isNotEqualTo(new GrantedAuthoritySid("ROLE_TEST_2").hashCode());
 		assertThat(gaSid.hashCode())
-				.isNotEqualTo(new GrantedAuthoritySid(new SimpleGrantedAuthority("ROLE_TEST_2")).hashCode());
+			.isNotEqualTo(new GrantedAuthoritySid(new SimpleGrantedAuthority("ROLE_TEST_2")).hashCode());
 	}
 
 	@Test

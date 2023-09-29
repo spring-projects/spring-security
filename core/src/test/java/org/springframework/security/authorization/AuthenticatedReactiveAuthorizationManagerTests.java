@@ -41,7 +41,7 @@ public class AuthenticatedReactiveAuthorizationManagerTests {
 	Authentication authentication;
 
 	AuthenticatedReactiveAuthorizationManager<Object> manager = AuthenticatedReactiveAuthorizationManager
-			.authenticated();
+		.authenticated();
 
 	@Test
 	public void checkWhenAuthenticatedThenReturnTrue() {

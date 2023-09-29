@@ -123,25 +123,27 @@ public class HttpBasicConfigurerTests {
 	public void httpBasicWhenRememberMeConfiguredThenSetsRememberMeCookie() throws Exception {
 		this.spring.register(BasicUsesRememberMeConfig.class).autowire();
 		MockHttpServletRequestBuilder rememberMeRequest = get("/").with(httpBasic("user", "password"))
-				.param("remember-me", "true");
+			.param("remember-me", "true");
 		this.mvc.perform(rememberMeRequest).andExpect(cookie().exists("remember-me"));
 	}
 
 	@Test
 	public void httpBasicWhenDefaultsThenAcceptsBasicCredentials() throws Exception {
 		this.spring.register(HttpBasic.class, Users.class, Home.class).autowire();
-		this.mvc.perform(get("/").with(httpBasic("user", "password"))).andExpect(status().isOk())
-				.andExpect(content().string("user"));
+		this.mvc.perform(get("/").with(httpBasic("user", "password")))
+			.andExpect(status().isOk())
+			.andExpect(content().string("user"));
 	}
 
 	@Test
 	public void httpBasicWhenCustomSecurityContextHolderStrategyThenUses() throws Exception {
 		this.spring.register(HttpBasic.class, Users.class, Home.class, SecurityContextChangedListenerConfig.class)
-				.autowire();
-		this.mvc.perform(get("/").with(httpBasic("user", "password"))).andExpect(status().isOk())
-				.andExpect(content().string("user"));
+			.autowire();
+		this.mvc.perform(get("/").with(httpBasic("user", "password")))
+			.andExpect(status().isOk())
+			.andExpect(content().string("user"));
 		SecurityContextChangedListener listener = this.spring.getContext()
-				.getBean(SecurityContextChangedListener.class);
+			.getBean(SecurityContextChangedListener.class);
 		verify(listener).securityContextChanged(setAuthentication(UsernamePasswordAuthenticationToken.class));
 	}
 
@@ -314,7 +316,7 @@ public class HttpBasicConfigurerTests {
 		@Bean
 		SecurityFilterChain web(HttpSecurity http) throws Exception {
 			http.authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated())
-					.httpBasic(Customizer.withDefaults());
+				.httpBasic(Customizer.withDefaults());
 
 			return http.build();
 		}

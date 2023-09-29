@@ -162,7 +162,8 @@ public class UrlAuthorizationsTests {
 		@Bean
 		SecurityFilterChain filterChain(HttpSecurity http, ApplicationContext context) throws Exception {
 			UrlAuthorizationConfigurer<HttpSecurity>.StandardInterceptUrlRegistry registry = http
-					.apply(new UrlAuthorizationConfigurer(context)).getRegistry();
+				.apply(new UrlAuthorizationConfigurer(context))
+				.getRegistry();
 			// @formatter:off
 			registry
 					.requestMatchers("/a").hasRole("ADMIN")

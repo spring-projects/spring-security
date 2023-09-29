@@ -48,8 +48,8 @@ class AuthorizationManagerWebInvocationPrivilegeEvaluatorTests {
 	@Test
 	void constructorWhenAuthorizationManagerNullThenIllegalArgument() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new AuthorizationManagerWebInvocationPrivilegeEvaluator(null))
-				.withMessage("authorizationManager cannot be null");
+			.isThrownBy(() -> new AuthorizationManagerWebInvocationPrivilegeEvaluator(null))
+			.withMessage("authorizationManager cannot be null");
 	}
 
 	@Test

@@ -87,7 +87,7 @@ public class SecurityMockMvcRequestPostProcessorsDigestTests {
 		String username = "custom";
 		this.password = "secret";
 		MockHttpServletRequest postProcessedRequest = digest(username).password(this.password)
-				.postProcessRequest(this.request);
+			.postProcessRequest(this.request);
 		assertThat(extractUser()).isEqualTo(username);
 	}
 
@@ -96,7 +96,7 @@ public class SecurityMockMvcRequestPostProcessorsDigestTests {
 		String username = "admin";
 		this.entryPoint.setRealmName("Custom");
 		MockHttpServletRequest postProcessedRequest = digest(username).realm(this.entryPoint.getRealmName())
-				.postProcessRequest(this.request);
+			.postProcessRequest(this.request);
 		assertThat(extractUser()).isEqualTo(username);
 	}
 
@@ -104,7 +104,7 @@ public class SecurityMockMvcRequestPostProcessorsDigestTests {
 	public void digestWithFilterFails() throws Exception {
 		String username = "admin";
 		MockHttpServletRequest postProcessedRequest = digest(username).realm("Invalid")
-				.postProcessRequest(this.request);
+			.postProcessRequest(this.request);
 		assertThat(extractUser()).isNull();
 	}
 

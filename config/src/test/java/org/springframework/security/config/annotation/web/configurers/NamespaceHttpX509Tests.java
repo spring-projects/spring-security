@@ -141,8 +141,11 @@ public class NamespaceHttpX509Tests {
 
 		@Bean
 		UserDetailsService userDetailsService() {
-			UserDetails user = User.withDefaultPasswordEncoder().username("rod").password("password")
-					.roles("USER", "ADMIN").build();
+			UserDetails user = User.withDefaultPasswordEncoder()
+				.username("rod")
+				.password("password")
+				.roles("USER", "ADMIN")
+				.build();
 			return new InMemoryUserDetailsManager(user);
 		}
 
@@ -167,8 +170,11 @@ public class NamespaceHttpX509Tests {
 
 		@Bean
 		UserDetailsService userDetailsService() {
-			UserDetails user = User.withDefaultPasswordEncoder().username("rod").password("password")
-					.roles("USER", "ADMIN").build();
+			UserDetails user = User.withDefaultPasswordEncoder()
+				.username("rod")
+				.password("password")
+				.roles("USER", "ADMIN")
+				.build();
 			return new InMemoryUserDetailsManager(user);
 		}
 
@@ -199,8 +205,11 @@ public class NamespaceHttpX509Tests {
 
 		@Bean
 		UserDetailsService userDetailsService() {
-			UserDetails user = User.withDefaultPasswordEncoder().username("rod").password("password")
-					.roles("USER", "ADMIN").build();
+			UserDetails user = User.withDefaultPasswordEncoder()
+				.username("rod")
+				.password("password")
+				.roles("USER", "ADMIN")
+				.build();
 			return new InMemoryUserDetailsManager(user);
 		}
 
@@ -226,8 +235,11 @@ public class NamespaceHttpX509Tests {
 
 		@Bean
 		UserDetailsService userDetailsService() {
-			UserDetails user = User.withDefaultPasswordEncoder().username("rod@example.com").password("password")
-					.roles("USER", "ADMIN").build();
+			UserDetails user = User.withDefaultPasswordEncoder()
+				.username("rod@example.com")
+				.password("password")
+				.roles("USER", "ADMIN")
+				.build();
 			return new InMemoryUserDetailsManager(user);
 		}
 
@@ -258,8 +270,11 @@ public class NamespaceHttpX509Tests {
 
 		@Bean
 		UserDetailsService userDetailsService() {
-			UserDetails user = User.withDefaultPasswordEncoder().username("rod").password("password")
-					.roles("USER", "ADMIN").build();
+			UserDetails user = User.withDefaultPasswordEncoder()
+				.username("rod")
+				.password("password")
+				.roles("USER", "ADMIN")
+				.build();
 			return new InMemoryUserDetailsManager(user);
 		}
 
@@ -285,8 +300,11 @@ public class NamespaceHttpX509Tests {
 
 		@Bean
 		UserDetailsService userDetailsService() {
-			UserDetails user = User.withDefaultPasswordEncoder().username("rod").password("password")
-					.roles("USER", "ADMIN").build();
+			UserDetails user = User.withDefaultPasswordEncoder()
+				.username("rod")
+				.password("password")
+				.roles("USER", "ADMIN")
+				.build();
 			return new InMemoryUserDetailsManager(user);
 		}
 

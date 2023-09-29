@@ -38,7 +38,7 @@ import org.springframework.security.core.context.SecurityContextHolderStrategy;
 final class WithAnonymousUserSecurityContextFactory implements WithSecurityContextFactory<WithAnonymousUser> {
 
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
-			.getContextHolderStrategy();
+		.getContextHolderStrategy();
 
 	@Override
 	public SecurityContext createSecurityContext(WithAnonymousUser withUser) {

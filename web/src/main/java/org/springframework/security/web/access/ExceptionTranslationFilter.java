@@ -84,7 +84,7 @@ import org.springframework.web.filter.GenericFilterBean;
 public class ExceptionTranslationFilter extends GenericFilterBean implements MessageSourceAware {
 
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
-			.getContextHolderStrategy();
+		.getContextHolderStrategy();
 
 	private AccessDeniedHandler accessDeniedHandler = new AccessDeniedHandlerImpl();
 
@@ -132,10 +132,10 @@ public class ExceptionTranslationFilter extends GenericFilterBean implements Mes
 			// Try to extract a SpringSecurityException from the stacktrace
 			Throwable[] causeChain = this.throwableAnalyzer.determineCauseChain(ex);
 			RuntimeException securityException = (AuthenticationException) this.throwableAnalyzer
-					.getFirstThrowableOfType(AuthenticationException.class, causeChain);
+				.getFirstThrowableOfType(AuthenticationException.class, causeChain);
 			if (securityException == null) {
 				securityException = (AccessDeniedException) this.throwableAnalyzer
-						.getFirstThrowableOfType(AccessDeniedException.class, causeChain);
+					.getFirstThrowableOfType(AccessDeniedException.class, causeChain);
 			}
 			if (securityException == null) {
 				rethrow(ex);

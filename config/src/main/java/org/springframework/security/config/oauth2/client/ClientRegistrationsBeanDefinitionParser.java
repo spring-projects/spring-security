@@ -91,10 +91,11 @@ public final class ClientRegistrationsBeanDefinitionParser implements BeanDefini
 		Map<String, Map<String, String>> providers = getProviders(element, parserContext);
 		List<ClientRegistration> clientRegistrations = getClientRegistrations(element, parserContext, providers);
 		BeanDefinition clientRegistrationRepositoryBean = BeanDefinitionBuilder
-				.rootBeanDefinition(InMemoryClientRegistrationRepository.class)
-				.addConstructorArgValue(clientRegistrations).getBeanDefinition();
+			.rootBeanDefinition(InMemoryClientRegistrationRepository.class)
+			.addConstructorArgValue(clientRegistrations)
+			.getBeanDefinition();
 		String clientRegistrationRepositoryId = parserContext.getReaderContext()
-				.generateBeanName(clientRegistrationRepositoryBean);
+			.generateBeanName(clientRegistrationRepositoryBean);
 		parserContext.registerBeanComponent(
 				new BeanComponentDefinition(clientRegistrationRepositoryBean, clientRegistrationRepositoryId));
 		parserContext.popAndRegisterContainingComponent();
@@ -120,19 +121,22 @@ public final class ClientRegistrationsBeanDefinitionParser implements BeanDefini
 				}
 			}
 			getOptionalIfNotEmpty(parserContext, clientRegistrationElt.getAttribute(ATT_CLIENT_ID))
-					.ifPresent(builder::clientId);
+				.ifPresent(builder::clientId);
 			getOptionalIfNotEmpty(parserContext, clientRegistrationElt.getAttribute(ATT_CLIENT_SECRET))
-					.ifPresent(builder::clientSecret);
+				.ifPresent(builder::clientSecret);
 			getOptionalIfNotEmpty(parserContext, clientRegistrationElt.getAttribute(ATT_CLIENT_AUTHENTICATION_METHOD))
-					.map(ClientAuthenticationMethod::new).ifPresent(builder::clientAuthenticationMethod);
+				.map(ClientAuthenticationMethod::new)
+				.ifPresent(builder::clientAuthenticationMethod);
 			getOptionalIfNotEmpty(parserContext, clientRegistrationElt.getAttribute(ATT_AUTHORIZATION_GRANT_TYPE))
-					.map(AuthorizationGrantType::new).ifPresent(builder::authorizationGrantType);
+				.map(AuthorizationGrantType::new)
+				.ifPresent(builder::authorizationGrantType);
 			getOptionalIfNotEmpty(parserContext, clientRegistrationElt.getAttribute(ATT_REDIRECT_URI))
-					.ifPresent(builder::redirectUri);
+				.ifPresent(builder::redirectUri);
 			getOptionalIfNotEmpty(parserContext, clientRegistrationElt.getAttribute(ATT_SCOPE))
-					.map(StringUtils::commaDelimitedListToSet).ifPresent(builder::scope);
+				.map(StringUtils::commaDelimitedListToSet)
+				.ifPresent(builder::scope);
 			getOptionalIfNotEmpty(parserContext, clientRegistrationElt.getAttribute(ATT_CLIENT_NAME))
-					.ifPresent(builder::clientName);
+				.ifPresent(builder::clientName);
 			clientRegistrations.add(builder.build());
 		}
 		return clientRegistrations;
@@ -146,19 +150,19 @@ public final class ClientRegistrationsBeanDefinitionParser implements BeanDefini
 			String providerId = providerElt.getAttribute(ATT_PROVIDER_ID);
 			provider.put(ATT_PROVIDER_ID, providerId);
 			getOptionalIfNotEmpty(parserContext, providerElt.getAttribute(ATT_AUTHORIZATION_URI))
-					.ifPresent((value) -> provider.put(ATT_AUTHORIZATION_URI, value));
+				.ifPresent((value) -> provider.put(ATT_AUTHORIZATION_URI, value));
 			getOptionalIfNotEmpty(parserContext, providerElt.getAttribute(ATT_TOKEN_URI))
-					.ifPresent((value) -> provider.put(ATT_TOKEN_URI, value));
+				.ifPresent((value) -> provider.put(ATT_TOKEN_URI, value));
 			getOptionalIfNotEmpty(parserContext, providerElt.getAttribute(ATT_USER_INFO_URI))
-					.ifPresent((value) -> provider.put(ATT_USER_INFO_URI, value));
+				.ifPresent((value) -> provider.put(ATT_USER_INFO_URI, value));
 			getOptionalIfNotEmpty(parserContext, providerElt.getAttribute(ATT_USER_INFO_AUTHENTICATION_METHOD))
-					.ifPresent((value) -> provider.put(ATT_USER_INFO_AUTHENTICATION_METHOD, value));
+				.ifPresent((value) -> provider.put(ATT_USER_INFO_AUTHENTICATION_METHOD, value));
 			getOptionalIfNotEmpty(parserContext, providerElt.getAttribute(ATT_USER_INFO_USER_NAME_ATTRIBUTE))
-					.ifPresent((value) -> provider.put(ATT_USER_INFO_USER_NAME_ATTRIBUTE, value));
+				.ifPresent((value) -> provider.put(ATT_USER_INFO_USER_NAME_ATTRIBUTE, value));
 			getOptionalIfNotEmpty(parserContext, providerElt.getAttribute(ATT_JWK_SET_URI))
-					.ifPresent((value) -> provider.put(ATT_JWK_SET_URI, value));
+				.ifPresent((value) -> provider.put(ATT_JWK_SET_URI, value));
 			getOptionalIfNotEmpty(parserContext, providerElt.getAttribute(ATT_ISSUER_URI))
-					.ifPresent((value) -> provider.put(ATT_ISSUER_URI, value));
+				.ifPresent((value) -> provider.put(ATT_ISSUER_URI, value));
 			providers.put(providerId, provider);
 		}
 		return providers;
@@ -172,7 +176,7 @@ public final class ClientRegistrationsBeanDefinitionParser implements BeanDefini
 			String issuer = provider.get(ATT_ISSUER_URI);
 			if (!StringUtils.isEmpty(issuer)) {
 				ClientRegistration.Builder builder = ClientRegistrations.fromIssuerLocation(issuer)
-						.registrationId(registrationId);
+					.registrationId(registrationId);
 				return getBuilder(parserContext, builder, provider);
 			}
 		}
@@ -200,16 +204,18 @@ public final class ClientRegistrationsBeanDefinitionParser implements BeanDefini
 		getOptionalIfNotEmpty(parserContext, provider.get(ATT_TOKEN_URI)).ifPresent(builder::tokenUri);
 		getOptionalIfNotEmpty(parserContext, provider.get(ATT_USER_INFO_URI)).ifPresent(builder::userInfoUri);
 		getOptionalIfNotEmpty(parserContext, provider.get(ATT_USER_INFO_AUTHENTICATION_METHOD))
-				.map(AuthenticationMethod::new).ifPresent(builder::userInfoAuthenticationMethod);
+			.map(AuthenticationMethod::new)
+			.ifPresent(builder::userInfoAuthenticationMethod);
 		getOptionalIfNotEmpty(parserContext, provider.get(ATT_JWK_SET_URI)).ifPresent(builder::jwkSetUri);
 		getOptionalIfNotEmpty(parserContext, provider.get(ATT_USER_INFO_USER_NAME_ATTRIBUTE))
-				.ifPresent(builder::userNameAttributeName);
+			.ifPresent(builder::userNameAttributeName);
 		return builder;
 	}
 
 	private static Optional<String> getOptionalIfNotEmpty(ParserContext parserContext, String str) {
-		return Optional.ofNullable(str).filter((s) -> !s.isEmpty())
-				.map(parserContext.getReaderContext().getEnvironment()::resolvePlaceholders);
+		return Optional.ofNullable(str)
+			.filter((s) -> !s.isEmpty())
+			.map(parserContext.getReaderContext().getEnvironment()::resolvePlaceholders);
 	}
 
 	private static CommonOAuth2Provider getCommonProvider(String providerId) {
@@ -244,8 +250,10 @@ public final class ClientRegistrationsBeanDefinitionParser implements BeanDefini
 
 	private static String getCanonicalName(String name) {
 		StringBuilder canonicalName = new StringBuilder(name.length());
-		name.chars().filter(Character::isLetterOrDigit).map(Character::toLowerCase)
-				.forEach((c) -> canonicalName.append((char) c));
+		name.chars()
+			.filter(Character::isLetterOrDigit)
+			.map(Character::toLowerCase)
+			.forEach((c) -> canonicalName.append((char) c));
 		return canonicalName.toString();
 	}
 

@@ -77,7 +77,7 @@ public class WebClientReactiveClientCredentialsTokenResponseClientTests {
 		this.server = new MockWebServer();
 		this.server.start();
 		this.clientRegistration = TestClientRegistrations.clientCredentials()
-				.tokenUri(this.server.url("/oauth2/token").uri().toASCIIString());
+			.tokenUri(this.server.url("/oauth2/token").uri().toASCIIString());
 	}
 
 	@AfterEach
@@ -105,7 +105,7 @@ public class WebClientReactiveClientCredentialsTokenResponseClientTests {
 		assertThat(response.getAccessToken()).isNotNull();
 		assertThat(response.getAccessToken().getScopes()).containsExactly("create");
 		assertThat(actualRequest.getHeader(HttpHeaders.AUTHORIZATION))
-				.isEqualTo("Basic Y2xpZW50LWlkOmNsaWVudC1zZWNyZXQ=");
+			.isEqualTo("Basic Y2xpZW50LWlkOmNsaWVudC1zZWNyZXQ=");
 		assertThat(body).isEqualTo("grant_type=client_credentials&scope=read%3Auser");
 	}
 
@@ -124,7 +124,8 @@ public class WebClientReactiveClientCredentialsTokenResponseClientTests {
 		String clientCredentialWithAnsiKeyboardSpecialCharacters = "~!@#$%^&*()_+{}|:\"<>?`-=[]\\;',./ ";
 		OAuth2ClientCredentialsGrantRequest request = new OAuth2ClientCredentialsGrantRequest(
 				this.clientRegistration.clientId(clientCredentialWithAnsiKeyboardSpecialCharacters)
-						.clientSecret(clientCredentialWithAnsiKeyboardSpecialCharacters).build());
+					.clientSecret(clientCredentialWithAnsiKeyboardSpecialCharacters)
+					.build());
 		OAuth2AccessTokenResponse response = this.client.getTokenResponse(request).block();
 		RecordedRequest actualRequest = this.server.takeRequest();
 		String body = actualRequest.getBody().readUtf8();
@@ -133,8 +134,8 @@ public class WebClientReactiveClientCredentialsTokenResponseClientTests {
 		String urlEncodedClientCredentialecret = URLEncoder.encode(clientCredentialWithAnsiKeyboardSpecialCharacters,
 				StandardCharsets.UTF_8.toString());
 		String clientCredentials = Base64.getEncoder()
-				.encodeToString((urlEncodedClientCredentialecret + ":" + urlEncodedClientCredentialecret)
-						.getBytes(StandardCharsets.UTF_8));
+			.encodeToString((urlEncodedClientCredentialecret + ":" + urlEncodedClientCredentialecret)
+				.getBytes(StandardCharsets.UTF_8));
 		assertThat(actualRequest.getHeader(HttpHeaders.AUTHORIZATION)).isEqualTo("Basic " + clientCredentials);
 		assertThat(body).isEqualTo("grant_type=client_credentials&scope=read%3Auser");
 	}
@@ -142,7 +143,8 @@ public class WebClientReactiveClientCredentialsTokenResponseClientTests {
 	@Test
 	public void getTokenResponseWhenPostThenSuccess() throws Exception {
 		ClientRegistration registration = this.clientRegistration
-				.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST).build();
+			.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST)
+			.build();
 		// @formatter:off
 		enqueueJson("{\n"
 			+ "  \"access_token\":\"MTQ0NjJkZmQ5OTM2NDE1ZTZjNGZmZjI3\",\n"
@@ -278,10 +280,10 @@ public class WebClientReactiveClientCredentialsTokenResponseClientTests {
 		enqueueUnexpectedResponse();
 		OAuth2ClientCredentialsGrantRequest request = new OAuth2ClientCredentialsGrantRequest(registration);
 		assertThatExceptionOfType(OAuth2AuthorizationException.class)
-				.isThrownBy(() -> this.client.getTokenResponse(request).block())
-				.satisfies((ex) -> assertThat(ex.getError().getErrorCode()).isEqualTo("invalid_token_response"))
-				.withMessageContaining("[invalid_token_response]")
-				.withMessageContaining("Empty OAuth 2.0 Access Token Response");
+			.isThrownBy(() -> this.client.getTokenResponse(request).block())
+			.satisfies((ex) -> assertThat(ex.getError().getErrorCode()).isEqualTo("invalid_token_response"))
+			.withMessageContaining("[invalid_token_response]")
+			.withMessageContaining("Empty OAuth 2.0 Access Token Response");
 	}
 
 	private void enqueueUnexpectedResponse() {
@@ -294,8 +296,8 @@ public class WebClientReactiveClientCredentialsTokenResponseClientTests {
 	}
 
 	private void enqueueJson(String body) {
-		MockResponse response = new MockResponse().setBody(body).setHeader(HttpHeaders.CONTENT_TYPE,
-				MediaType.APPLICATION_JSON_VALUE);
+		MockResponse response = new MockResponse().setBody(body)
+			.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
 		this.server.enqueue(response);
 	}
 
@@ -303,14 +305,14 @@ public class WebClientReactiveClientCredentialsTokenResponseClientTests {
 	@Test
 	public void setHeadersConverterWhenNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.client.setHeadersConverter(null))
-				.withMessage("headersConverter cannot be null");
+			.withMessage("headersConverter cannot be null");
 	}
 
 	// gh-10130
 	@Test
 	public void addHeadersConverterWhenNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.client.addHeadersConverter(null))
-				.withMessage("headersConverter cannot be null");
+			.withMessage("headersConverter cannot be null");
 	}
 
 	// gh-10130
@@ -335,7 +337,7 @@ public class WebClientReactiveClientCredentialsTokenResponseClientTests {
 		verify(addedHeadersConverter).convert(request);
 		RecordedRequest actualRequest = this.server.takeRequest();
 		assertThat(actualRequest.getHeader(HttpHeaders.AUTHORIZATION))
-				.isEqualTo("Basic Y2xpZW50LWlkOmNsaWVudC1zZWNyZXQ=");
+			.isEqualTo("Basic Y2xpZW50LWlkOmNsaWVudC1zZWNyZXQ=");
 		assertThat(actualRequest.getHeader("custom-header-name")).isEqualTo("custom-header-value");
 	}
 
@@ -362,19 +364,19 @@ public class WebClientReactiveClientCredentialsTokenResponseClientTests {
 		verify(headersConverter).convert(request);
 		RecordedRequest actualRequest = this.server.takeRequest();
 		assertThat(actualRequest.getHeader(HttpHeaders.AUTHORIZATION))
-				.isEqualTo("Basic Y2xpZW50LWlkOmNsaWVudC1zZWNyZXQ=");
+			.isEqualTo("Basic Y2xpZW50LWlkOmNsaWVudC1zZWNyZXQ=");
 	}
 
 	@Test
 	public void setParametersConverterWhenNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.client.setParametersConverter(null))
-				.withMessage("parametersConverter cannot be null");
+			.withMessage("parametersConverter cannot be null");
 	}
 
 	@Test
 	public void addParametersConverterWhenNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.client.addParametersConverter(null))
-				.withMessage("parametersConverter cannot be null");
+			.withMessage("parametersConverter cannot be null");
 	}
 
 	@Test
@@ -452,22 +454,24 @@ public class WebClientReactiveClientCredentialsTokenResponseClientTests {
 	@Test
 	public void getTokenResponseWhenCustomClientAuthenticationMethodThenIllegalArgument() {
 		ClientRegistration clientRegistration = this.clientRegistration
-				.clientAuthenticationMethod(new ClientAuthenticationMethod("basic")).build();
+			.clientAuthenticationMethod(new ClientAuthenticationMethod("basic"))
+			.build();
 		OAuth2ClientCredentialsGrantRequest clientCredentialsGrantRequest = new OAuth2ClientCredentialsGrantRequest(
 				clientRegistration);
 		assertThatExceptionOfType(IllegalArgumentException.class)
-				.isThrownBy(() -> this.client.getTokenResponse(clientCredentialsGrantRequest).block());
+			.isThrownBy(() -> this.client.getTokenResponse(clientCredentialsGrantRequest).block());
 	}
 
 	// gh-13144
 	@Test
 	public void getTokenResponseWhenUnsupportedClientAuthenticationMethodThenIllegalArgument() {
 		ClientRegistration clientRegistration = this.clientRegistration
-				.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_JWT).build();
+			.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_JWT)
+			.build();
 		OAuth2ClientCredentialsGrantRequest clientCredentialsGrantRequest = new OAuth2ClientCredentialsGrantRequest(
 				clientRegistration);
 		assertThatExceptionOfType(IllegalArgumentException.class)
-				.isThrownBy(() -> this.client.getTokenResponse(clientCredentialsGrantRequest).block());
+			.isThrownBy(() -> this.client.getTokenResponse(clientCredentialsGrantRequest).block());
 	}
 
 }

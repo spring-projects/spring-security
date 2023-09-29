@@ -76,7 +76,7 @@ public final class ObservationFilterChainDecorator implements FilterChainProxy.F
 		return (req, res) -> {
 			AroundFilterObservation parent = observation((HttpServletRequest) req);
 			Observation observation = Observation.createNotStarted(SECURED_OBSERVATION_NAME, this.registry)
-					.contextualName("secured request");
+				.contextualName("secured request");
 			parent.wrap(FilterObservation.create(observation).wrap(original)).doFilter(req, res);
 		};
 	}
@@ -84,7 +84,7 @@ public final class ObservationFilterChainDecorator implements FilterChainProxy.F
 	private FilterChain wrapUnsecured(FilterChain original) {
 		return (req, res) -> {
 			Observation observation = Observation.createNotStarted(UNSECURED_OBSERVATION_NAME, this.registry)
-					.contextualName("unsecured request");
+				.contextualName("unsecured request");
 			FilterObservation.create(observation).wrap(original).doFilter(req, res);
 		};
 	}
@@ -518,10 +518,10 @@ public final class ObservationFilterChainDecorator implements FilterChainProxy.F
 		@Override
 		public KeyValues getLowCardinalityKeyValues(FilterChainObservationContext context) {
 			return KeyValues.of(CHAIN_SIZE_NAME, String.valueOf(context.getChainSize()))
-					.and(CHAIN_POSITION_NAME, String.valueOf(context.getChainPosition()))
-					.and(FILTER_SECTION_NAME, context.getFilterSection())
-					.and(FILTER_NAME, (StringUtils.hasText(context.getFilterName())) ? context.getFilterName()
-							: KeyValue.NONE_VALUE);
+				.and(CHAIN_POSITION_NAME, String.valueOf(context.getChainPosition()))
+				.and(FILTER_SECTION_NAME, context.getFilterSection())
+				.and(FILTER_NAME,
+						(StringUtils.hasText(context.getFilterName())) ? context.getFilterName() : KeyValue.NONE_VALUE);
 		}
 
 		@Override

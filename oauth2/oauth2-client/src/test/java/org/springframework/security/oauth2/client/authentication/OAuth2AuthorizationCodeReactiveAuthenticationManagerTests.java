@@ -96,7 +96,7 @@ public class OAuth2AuthorizationCodeReactiveAuthenticationManagerTests {
 	@Test
 	public void authenticateWhenOAuth2AuthorizationExceptionThenOAuth2AuthorizationException() {
 		given(this.accessTokenResponseClient.getTokenResponse(any()))
-				.willReturn(Mono.error(() -> new OAuth2AuthorizationException(new OAuth2Error("error"))));
+			.willReturn(Mono.error(() -> new OAuth2AuthorizationException(new OAuth2Error("error"))));
 		assertThatExceptionOfType(OAuth2AuthorizationException.class).isThrownBy(() -> authenticate());
 	}
 

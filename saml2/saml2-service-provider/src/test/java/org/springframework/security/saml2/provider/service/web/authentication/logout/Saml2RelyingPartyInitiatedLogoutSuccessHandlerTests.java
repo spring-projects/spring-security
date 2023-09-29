@@ -70,7 +70,8 @@ public class Saml2RelyingPartyInitiatedLogoutSuccessHandlerTests {
 		Authentication authentication = authentication(registration);
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 		Saml2LogoutRequest logoutRequest = Saml2LogoutRequest.withRelyingPartyRegistration(registration)
-				.samlRequest("request").build();
+			.samlRequest("request")
+			.build();
 		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/saml2/logout");
 		request.setServletPath("/saml2/logout");
 		MockHttpServletResponse response = new MockHttpServletResponse();
@@ -84,11 +85,13 @@ public class Saml2RelyingPartyInitiatedLogoutSuccessHandlerTests {
 	@Test
 	public void onLogoutSuccessWhenPostThenPostsToAssertingParty() throws Exception {
 		RelyingPartyRegistration registration = TestRelyingPartyRegistrations.full()
-				.assertingPartyDetails((party) -> party.singleLogoutServiceBinding(Saml2MessageBinding.POST)).build();
+			.assertingPartyDetails((party) -> party.singleLogoutServiceBinding(Saml2MessageBinding.POST))
+			.build();
 		Authentication authentication = authentication(registration);
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 		Saml2LogoutRequest logoutRequest = Saml2LogoutRequest.withRelyingPartyRegistration(registration)
-				.samlRequest("request").build();
+			.samlRequest("request")
+			.build();
 		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/saml2/logout");
 		request.setServletPath("/saml2/logout");
 		MockHttpServletResponse response = new MockHttpServletResponse();

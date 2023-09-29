@@ -51,7 +51,7 @@ import org.springframework.web.filter.GenericFilterBean;
 public class AuthorizationFilter extends GenericFilterBean {
 
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
-			.getContextHolderStrategy();
+		.getContextHolderStrategy();
 
 	private final AuthorizationManager<HttpServletRequest> authorizationManager;
 

@@ -76,7 +76,7 @@ public class DefaultServerRedirectStrategyTests {
 		this.strategy.sendRedirect(this.exchange, this.location).block();
 		assertThat(this.exchange.getResponse().getStatusCode()).isEqualTo(HttpStatus.FOUND);
 		assertThat(this.exchange.getResponse().getHeaders().getLocation())
-				.hasPath("/context" + this.location.getPath());
+			.hasPath("/context" + this.location.getPath());
 	}
 
 	@Test

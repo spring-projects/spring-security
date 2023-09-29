@@ -46,8 +46,9 @@ public class JdbcUserServiceBeanDefinitionParser extends AbstractUserDetailsServ
 			builder.addPropertyReference("dataSource", dataSource);
 		}
 		else {
-			parserContext.getReaderContext().error(ATT_DATA_SOURCE + " is required for " + Elements.JDBC_USER_SERVICE,
-					parserContext.extractSource(element));
+			parserContext.getReaderContext()
+				.error(ATT_DATA_SOURCE + " is required for " + Elements.JDBC_USER_SERVICE,
+						parserContext.extractSource(element));
 		}
 		String usersQuery = element.getAttribute(ATT_USERS_BY_USERNAME_QUERY);
 		String authoritiesQuery = element.getAttribute(ATT_AUTHORITIES_BY_USERNAME_QUERY);

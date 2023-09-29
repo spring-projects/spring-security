@@ -49,15 +49,15 @@ class Saml2PostAuthenticationRequestMixinTests {
 	@Test
 	void shouldDeserialize() throws Exception {
 		Saml2PostAuthenticationRequest authRequest = this.mapper
-				.readValue(TestSaml2JsonPayloads.DEFAULT_POST_AUTH_REQUEST_JSON, Saml2PostAuthenticationRequest.class);
+			.readValue(TestSaml2JsonPayloads.DEFAULT_POST_AUTH_REQUEST_JSON, Saml2PostAuthenticationRequest.class);
 
 		assertThat(authRequest).isNotNull();
 		assertThat(authRequest.getSamlRequest()).isEqualTo(TestSaml2JsonPayloads.SAML_REQUEST);
 		assertThat(authRequest.getRelayState()).isEqualTo(TestSaml2JsonPayloads.RELAY_STATE);
 		assertThat(authRequest.getAuthenticationRequestUri())
-				.isEqualTo(TestSaml2JsonPayloads.AUTHENTICATION_REQUEST_URI);
+			.isEqualTo(TestSaml2JsonPayloads.AUTHENTICATION_REQUEST_URI);
 		assertThat(authRequest.getRelyingPartyRegistrationId())
-				.isEqualTo(TestSaml2JsonPayloads.RELYINGPARTY_REGISTRATION_ID);
+			.isEqualTo(TestSaml2JsonPayloads.RELYINGPARTY_REGISTRATION_ID);
 		assertThat(authRequest.getId()).isEqualTo(TestSaml2JsonPayloads.ID);
 	}
 
@@ -72,7 +72,7 @@ class Saml2PostAuthenticationRequestMixinTests {
 		assertThat(authRequest.getSamlRequest()).isEqualTo(TestSaml2JsonPayloads.SAML_REQUEST);
 		assertThat(authRequest.getRelayState()).isEqualTo(TestSaml2JsonPayloads.RELAY_STATE);
 		assertThat(authRequest.getAuthenticationRequestUri())
-				.isEqualTo(TestSaml2JsonPayloads.AUTHENTICATION_REQUEST_URI);
+			.isEqualTo(TestSaml2JsonPayloads.AUTHENTICATION_REQUEST_URI);
 		assertThat(authRequest.getRelyingPartyRegistrationId()).isNull();
 		assertThat(authRequest.getId()).isEqualTo(TestSaml2JsonPayloads.ID);
 	}
@@ -80,7 +80,7 @@ class Saml2PostAuthenticationRequestMixinTests {
 	@Test
 	void shouldDeserializeWithNoId() throws Exception {
 		String json = TestSaml2JsonPayloads.DEFAULT_POST_AUTH_REQUEST_JSON
-				.replace(", \"id\": \"" + TestSaml2JsonPayloads.ID + "\"", "");
+			.replace(", \"id\": \"" + TestSaml2JsonPayloads.ID + "\"", "");
 
 		Saml2PostAuthenticationRequest authRequest = this.mapper.readValue(json, Saml2PostAuthenticationRequest.class);
 
@@ -88,9 +88,9 @@ class Saml2PostAuthenticationRequestMixinTests {
 		assertThat(authRequest.getSamlRequest()).isEqualTo(TestSaml2JsonPayloads.SAML_REQUEST);
 		assertThat(authRequest.getRelayState()).isEqualTo(TestSaml2JsonPayloads.RELAY_STATE);
 		assertThat(authRequest.getAuthenticationRequestUri())
-				.isEqualTo(TestSaml2JsonPayloads.AUTHENTICATION_REQUEST_URI);
+			.isEqualTo(TestSaml2JsonPayloads.AUTHENTICATION_REQUEST_URI);
 		assertThat(authRequest.getRelyingPartyRegistrationId())
-				.isEqualTo(TestSaml2JsonPayloads.RELYINGPARTY_REGISTRATION_ID);
+			.isEqualTo(TestSaml2JsonPayloads.RELYINGPARTY_REGISTRATION_ID);
 		assertThat(authRequest.getId()).isNull();
 	}
 

@@ -63,8 +63,10 @@ public class LoginPageGeneratingWebFilter implements WebFilter {
 
 	@Override
 	public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
-		return this.matcher.matches(exchange).filter(ServerWebExchangeMatcher.MatchResult::isMatch)
-				.switchIfEmpty(chain.filter(exchange).then(Mono.empty())).flatMap((matchResult) -> render(exchange));
+		return this.matcher.matches(exchange)
+			.filter(ServerWebExchangeMatcher.MatchResult::isMatch)
+			.switchIfEmpty(chain.filter(exchange).then(Mono.empty()))
+			.flatMap((matchResult) -> render(exchange));
 	}
 
 	private Mono<Void> render(ServerWebExchange exchange) {
@@ -148,7 +150,7 @@ public class LoginPageGeneratingWebFilter implements WebFilter {
 		sb.append(createError(isError));
 		sb.append("<table class=\"table table-striped\">\n");
 		for (Map.Entry<String, String> clientAuthenticationUrlToClientName : oauth2AuthenticationUrlToClientName
-				.entrySet()) {
+			.entrySet()) {
 			sb.append(" <tr><td>");
 			String url = clientAuthenticationUrlToClientName.getKey();
 			sb.append("<a href=\"").append(contextPath).append(url).append("\">");

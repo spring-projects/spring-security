@@ -61,11 +61,11 @@ public class AffirmativeBasedTests {
 		this.abstain = mock(AccessDecisionVoter.class);
 		this.deny = mock(AccessDecisionVoter.class);
 		given(this.grant.vote(any(Authentication.class), any(Object.class), any(List.class)))
-				.willReturn(AccessDecisionVoter.ACCESS_GRANTED);
+			.willReturn(AccessDecisionVoter.ACCESS_GRANTED);
 		given(this.abstain.vote(any(Authentication.class), any(Object.class), any(List.class)))
-				.willReturn(AccessDecisionVoter.ACCESS_ABSTAIN);
+			.willReturn(AccessDecisionVoter.ACCESS_ABSTAIN);
 		given(this.deny.vote(any(Authentication.class), any(Object.class), any(List.class)))
-				.willReturn(AccessDecisionVoter.ACCESS_DENIED);
+			.willReturn(AccessDecisionVoter.ACCESS_DENIED);
 	}
 
 	@Test
@@ -95,7 +95,7 @@ public class AffirmativeBasedTests {
 		this.mgr = new AffirmativeBased(
 				Arrays.<AccessDecisionVoter<? extends Object>>asList(this.deny, this.abstain, this.abstain));
 		assertThatExceptionOfType(AccessDeniedException.class)
-				.isThrownBy(() -> this.mgr.decide(this.user, new Object(), this.attrs));
+			.isThrownBy(() -> this.mgr.decide(this.user, new Object(), this.attrs));
 	}
 
 	@Test
@@ -104,7 +104,7 @@ public class AffirmativeBasedTests {
 				Arrays.<AccessDecisionVoter<? extends Object>>asList(this.abstain, this.abstain, this.abstain));
 		assertThat(!this.mgr.isAllowIfAllAbstainDecisions()).isTrue(); // check default
 		assertThatExceptionOfType(AccessDeniedException.class)
-				.isThrownBy(() -> this.mgr.decide(this.user, new Object(), this.attrs));
+			.isThrownBy(() -> this.mgr.decide(this.user, new Object(), this.attrs));
 	}
 
 	@Test

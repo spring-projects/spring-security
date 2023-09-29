@@ -73,12 +73,12 @@ public class AclImplementationSecurityCheckTests {
 				new SimpleGrantedAuthority("ROLE_THREE"));
 		Acl acl2 = new AclImpl(identity, 1L, aclAuthorizationStrategy2, new ConsoleAuditLogger());
 		// Check access in case the principal has no authorization rights
-		assertThatExceptionOfType(NotFoundException.class).isThrownBy(
-				() -> aclAuthorizationStrategy2.securityCheck(acl2, AclAuthorizationStrategy.CHANGE_GENERAL));
-		assertThatExceptionOfType(NotFoundException.class).isThrownBy(
-				() -> aclAuthorizationStrategy2.securityCheck(acl2, AclAuthorizationStrategy.CHANGE_AUDITING));
-		assertThatExceptionOfType(NotFoundException.class).isThrownBy(
-				() -> aclAuthorizationStrategy2.securityCheck(acl2, AclAuthorizationStrategy.CHANGE_OWNERSHIP));
+		assertThatExceptionOfType(NotFoundException.class)
+			.isThrownBy(() -> aclAuthorizationStrategy2.securityCheck(acl2, AclAuthorizationStrategy.CHANGE_GENERAL));
+		assertThatExceptionOfType(NotFoundException.class)
+			.isThrownBy(() -> aclAuthorizationStrategy2.securityCheck(acl2, AclAuthorizationStrategy.CHANGE_AUDITING));
+		assertThatExceptionOfType(NotFoundException.class)
+			.isThrownBy(() -> aclAuthorizationStrategy2.securityCheck(acl2, AclAuthorizationStrategy.CHANGE_OWNERSHIP));
 	}
 
 	@Test
@@ -181,11 +181,11 @@ public class AclImplementationSecurityCheckTests {
 				new DefaultPermissionGrantingStrategy(new ConsoleAuditLogger()), null, null, false,
 				new PrincipalSid(auth));
 		assertThatNoException()
-				.isThrownBy(() -> aclAuthorizationStrategy.securityCheck(acl, AclAuthorizationStrategy.CHANGE_GENERAL));
-		assertThatExceptionOfType(NotFoundException.class).isThrownBy(
-				() -> aclAuthorizationStrategy.securityCheck(acl, AclAuthorizationStrategy.CHANGE_AUDITING));
-		assertThatNoException().isThrownBy(
-				() -> aclAuthorizationStrategy.securityCheck(acl, AclAuthorizationStrategy.CHANGE_OWNERSHIP));
+			.isThrownBy(() -> aclAuthorizationStrategy.securityCheck(acl, AclAuthorizationStrategy.CHANGE_GENERAL));
+		assertThatExceptionOfType(NotFoundException.class)
+			.isThrownBy(() -> aclAuthorizationStrategy.securityCheck(acl, AclAuthorizationStrategy.CHANGE_AUDITING));
+		assertThatNoException()
+			.isThrownBy(() -> aclAuthorizationStrategy.securityCheck(acl, AclAuthorizationStrategy.CHANGE_OWNERSHIP));
 	}
 
 }

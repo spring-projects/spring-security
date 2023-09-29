@@ -210,7 +210,7 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 	public SessionManagementConfigurer<H> sessionAuthenticationErrorUrl(String sessionAuthenticationErrorUrl) {
 		this.sessionAuthenticationErrorUrl = sessionAuthenticationErrorUrl;
 		this.propertiesThatRequireImplicitAuthentication
-				.add("sessionAuthenticationErrorUrl = " + sessionAuthenticationErrorUrl);
+			.add("sessionAuthenticationErrorUrl = " + sessionAuthenticationErrorUrl);
 		return this;
 	}
 
@@ -227,7 +227,7 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 			AuthenticationFailureHandler sessionAuthenticationFailureHandler) {
 		this.sessionAuthenticationFailureHandler = sessionAuthenticationFailureHandler;
 		this.propertiesThatRequireImplicitAuthentication
-				.add("sessionAuthenticationFailureHandler = " + sessionAuthenticationFailureHandler);
+			.add("sessionAuthenticationFailureHandler = " + sessionAuthenticationFailureHandler);
 		return this;
 	}
 
@@ -286,7 +286,7 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 			SessionAuthenticationStrategy sessionAuthenticationStrategy) {
 		this.providedSessionAuthenticationStrategy = sessionAuthenticationStrategy;
 		this.propertiesThatRequireImplicitAuthentication
-				.add("sessionAuthenticationStrategy = " + sessionAuthenticationStrategy);
+			.add("sessionAuthenticationStrategy = " + sessionAuthenticationStrategy);
 		return this;
 	}
 
@@ -415,7 +415,7 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 
 	private boolean shouldRequireExplicitAuthenticationStrategy() {
 		boolean defaultRequireExplicitAuthenticationStrategy = this.propertiesThatRequireImplicitAuthentication
-				.isEmpty();
+			.isEmpty();
 		if (this.requireExplicitAuthenticationStrategy == null) {
 			// explicit is not set, use default
 			return defaultRequireExplicitAuthenticationStrategy;

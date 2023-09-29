@@ -30,7 +30,6 @@ import org.springframework.security.core.parameters.AnnotationParameterNameDisco
  * contain the parameter names.
  *
  * @see AnnotationParameterNameDiscoverer
- *
  * @author Rob Winch
  * @since 3.2
  * @deprecated use @{code org.springframework.security.core.parameters.P}

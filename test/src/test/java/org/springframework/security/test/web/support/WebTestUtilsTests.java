@@ -77,21 +77,21 @@ public class WebTestUtilsTests {
 	@Test
 	public void getCsrfTokenRepositorytNoWac() {
 		assertThat(WebTestUtils.getCsrfTokenRepository(this.request))
-				.isInstanceOf(HttpSessionCsrfTokenRepository.class);
+			.isInstanceOf(HttpSessionCsrfTokenRepository.class);
 	}
 
 	@Test
 	public void getCsrfTokenRepositorytNoSecurity() {
 		loadConfig(Config.class);
 		assertThat(WebTestUtils.getCsrfTokenRepository(this.request))
-				.isInstanceOf(HttpSessionCsrfTokenRepository.class);
+			.isInstanceOf(HttpSessionCsrfTokenRepository.class);
 	}
 
 	@Test
 	public void getCsrfTokenRepositorytSecurityNoCsrf() {
 		loadConfig(SecurityNoCsrfConfig.class);
 		assertThat(WebTestUtils.getCsrfTokenRepository(this.request))
-				.isInstanceOf(HttpSessionCsrfTokenRepository.class);
+			.isInstanceOf(HttpSessionCsrfTokenRepository.class);
 	}
 
 	@Test
@@ -106,21 +106,21 @@ public class WebTestUtilsTests {
 	@Test
 	public void getSecurityContextRepositoryNoWac() {
 		assertThat(WebTestUtils.getSecurityContextRepository(this.request))
-				.isInstanceOf(HttpSessionSecurityContextRepository.class);
+			.isInstanceOf(HttpSessionSecurityContextRepository.class);
 	}
 
 	@Test
 	public void getSecurityContextRepositoryNoSecurity() {
 		loadConfig(Config.class);
 		assertThat(WebTestUtils.getSecurityContextRepository(this.request))
-				.isInstanceOf(HttpSessionSecurityContextRepository.class);
+			.isInstanceOf(HttpSessionSecurityContextRepository.class);
 	}
 
 	@Test
 	public void getSecurityContextRepositorySecurityNoCsrf() {
 		loadConfig(SecurityNoCsrfConfig.class);
 		assertThat(WebTestUtils.getSecurityContextRepository(this.request))
-				.isInstanceOf(DelegatingSecurityContextRepository.class);
+			.isInstanceOf(DelegatingSecurityContextRepository.class);
 	}
 
 	@Test
@@ -176,8 +176,8 @@ public class WebTestUtilsTests {
 		context.register(config);
 		context.refresh();
 		this.context = context;
-		this.request.getServletContext().setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE,
-				context);
+		this.request.getServletContext()
+			.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, context);
 	}
 
 	@Configuration

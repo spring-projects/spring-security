@@ -59,13 +59,13 @@ public class PermissionsPolicyHeaderWriterTests {
 	@Test
 	public void createWriterWithNullPolicyShouldThrowException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> new PermissionsPolicyHeaderWriter(null))
-				.withMessage("policy can not be null or empty");
+			.withMessage("policy can not be null or empty");
 	}
 
 	@Test
 	public void createWriterWithEmptyPolicyShouldThrowException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> new PermissionsPolicyHeaderWriter(""))
-				.withMessage("policy can not be null or empty");
+			.withMessage("policy can not be null or empty");
 	}
 
 	@Test

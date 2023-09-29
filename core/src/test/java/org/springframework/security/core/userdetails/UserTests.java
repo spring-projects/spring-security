@@ -65,7 +65,7 @@ public class UserTests {
 	@Test
 	public void testNoArgConstructorDoesntExist() {
 		assertThatExceptionOfType(NoSuchMethodException.class)
-				.isThrownBy(() -> User.class.getDeclaredConstructor((Class[]) null));
+			.isThrownBy(() -> User.class.getDeclaredConstructor((Class[]) null));
 	}
 
 	@Test
@@ -142,15 +142,19 @@ public class UserTests {
 	@Test
 	public void withUserWhenDetailsPasswordEncoderThenEncodes() {
 		UserDetails userDetails = User.withUsername("user").password("password").roles("USER").build();
-		UserDetails withEncodedPassword = User.withUserDetails(userDetails).passwordEncoder((p) -> p + "encoded")
-				.build();
+		UserDetails withEncodedPassword = User.withUserDetails(userDetails)
+			.passwordEncoder((p) -> p + "encoded")
+			.build();
 		assertThat(withEncodedPassword.getPassword()).isEqualTo("passwordencoded");
 	}
 
 	@Test
 	public void withUsernameWhenPasswordEncoderAndPasswordThenEncodes() {
-		UserDetails withEncodedPassword = User.withUsername("user").password("password")
-				.passwordEncoder((p) -> p + "encoded").roles("USER").build();
+		UserDetails withEncodedPassword = User.withUsername("user")
+			.password("password")
+			.passwordEncoder((p) -> p + "encoded")
+			.roles("USER")
+			.build();
 		assertThat(withEncodedPassword.getPassword()).isEqualTo("passwordencoded");
 	}
 

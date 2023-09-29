@@ -91,7 +91,7 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 public final class AuthenticationPrincipalArgumentResolver implements HandlerMethodArgumentResolver {
 
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
-			.getContextHolderStrategy();
+		.getContextHolderStrategy();
 
 	private ExpressionParser parser = new SpelExpressionParser();
 

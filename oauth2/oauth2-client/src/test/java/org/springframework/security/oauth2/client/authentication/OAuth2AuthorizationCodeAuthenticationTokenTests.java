@@ -56,13 +56,13 @@ public class OAuth2AuthorizationCodeAuthenticationTokenTests {
 	@Test
 	public void constructorAuthorizationRequestResponseWhenClientRegistrationIsNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new OAuth2AuthorizationCodeAuthenticationToken(null, this.authorizationExchange));
+			.isThrownBy(() -> new OAuth2AuthorizationCodeAuthenticationToken(null, this.authorizationExchange));
 	}
 
 	@Test
 	public void constructorAuthorizationRequestResponseWhenAuthorizationExchangeIsNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new OAuth2AuthorizationCodeAuthenticationToken(this.clientRegistration, null));
+			.isThrownBy(() -> new OAuth2AuthorizationCodeAuthenticationToken(this.clientRegistration, null));
 	}
 
 	@Test
@@ -71,7 +71,7 @@ public class OAuth2AuthorizationCodeAuthenticationTokenTests {
 				this.clientRegistration, this.authorizationExchange);
 		assertThat(authentication.getPrincipal()).isEqualTo(this.clientRegistration.getClientId());
 		assertThat(authentication.getCredentials())
-				.isEqualTo(this.authorizationExchange.getAuthorizationResponse().getCode());
+			.isEqualTo(this.authorizationExchange.getAuthorizationResponse().getCode());
 		assertThat(authentication.getAuthorities()).isEqualTo(Collections.emptyList());
 		assertThat(authentication.getClientRegistration()).isEqualTo(this.clientRegistration);
 		assertThat(authentication.getAuthorizationExchange()).isEqualTo(this.authorizationExchange);
@@ -94,8 +94,8 @@ public class OAuth2AuthorizationCodeAuthenticationTokenTests {
 	@Test
 	public void constructorTokenRequestResponseWhenAccessTokenIsNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new OAuth2AuthorizationCodeAuthenticationToken(this.clientRegistration,
-						this.authorizationExchange, null));
+			.isThrownBy(() -> new OAuth2AuthorizationCodeAuthenticationToken(this.clientRegistration,
+					this.authorizationExchange, null));
 	}
 
 	@Test

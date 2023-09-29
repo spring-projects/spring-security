@@ -51,8 +51,10 @@ public class InMemoryOAuth2AuthorizedClientServiceTests {
 
 	private ClientRegistration registration2 = TestClientRegistrations.clientRegistration2().build();
 
-	private ClientRegistration registration3 = TestClientRegistrations.clientRegistration().clientId("client-3")
-			.registrationId("registration-3").build();
+	private ClientRegistration registration3 = TestClientRegistrations.clientRegistration()
+		.clientId("client-3")
+		.registrationId("registration-3")
+		.build();
 
 	private ClientRegistrationRepository clientRegistrationRepository = new InMemoryClientRegistrationRepository(
 			this.registration1, this.registration2, this.registration3);
@@ -90,7 +92,7 @@ public class InMemoryOAuth2AuthorizedClientServiceTests {
 	@Test
 	public void loadAuthorizedClientWhenClientRegistrationIdIsNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> this.authorizedClientService.loadAuthorizedClient(null, this.principalName1));
+			.isThrownBy(() -> this.authorizedClientService.loadAuthorizedClient(null, this.principalName1));
 	}
 
 	@Test
@@ -102,14 +104,14 @@ public class InMemoryOAuth2AuthorizedClientServiceTests {
 	@Test
 	public void loadAuthorizedClientWhenClientRegistrationNotFoundThenReturnNull() {
 		OAuth2AuthorizedClient authorizedClient = this.authorizedClientService
-				.loadAuthorizedClient("registration-not-found", this.principalName1);
+			.loadAuthorizedClient("registration-not-found", this.principalName1);
 		assertThat(authorizedClient).isNull();
 	}
 
 	@Test
 	public void loadAuthorizedClientWhenClientRegistrationFoundButNotAssociatedToPrincipalThenReturnNull() {
 		OAuth2AuthorizedClient authorizedClient = this.authorizedClientService
-				.loadAuthorizedClient(this.registration1.getRegistrationId(), "principal-not-found");
+			.loadAuthorizedClient(this.registration1.getRegistrationId(), "principal-not-found");
 		assertThat(authorizedClient).isNull();
 	}
 
@@ -121,14 +123,14 @@ public class InMemoryOAuth2AuthorizedClientServiceTests {
 				mock(OAuth2AccessToken.class));
 		this.authorizedClientService.saveAuthorizedClient(authorizedClient, authentication);
 		OAuth2AuthorizedClient loadedAuthorizedClient = this.authorizedClientService
-				.loadAuthorizedClient(this.registration1.getRegistrationId(), this.principalName1);
+			.loadAuthorizedClient(this.registration1.getRegistrationId(), this.principalName1);
 		assertThat(loadedAuthorizedClient).isEqualTo(authorizedClient);
 	}
 
 	@Test
 	public void saveAuthorizedClientWhenAuthorizedClientIsNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> this.authorizedClientService.saveAuthorizedClient(null, mock(Authentication.class)));
+			.isThrownBy(() -> this.authorizedClientService.saveAuthorizedClient(null, mock(Authentication.class)));
 	}
 
 	@Test
@@ -145,20 +147,20 @@ public class InMemoryOAuth2AuthorizedClientServiceTests {
 				mock(OAuth2AccessToken.class));
 		this.authorizedClientService.saveAuthorizedClient(authorizedClient, authentication);
 		OAuth2AuthorizedClient loadedAuthorizedClient = this.authorizedClientService
-				.loadAuthorizedClient(this.registration3.getRegistrationId(), this.principalName2);
+			.loadAuthorizedClient(this.registration3.getRegistrationId(), this.principalName2);
 		assertThat(loadedAuthorizedClient).isEqualTo(authorizedClient);
 	}
 
 	@Test
 	public void removeAuthorizedClientWhenClientRegistrationIdIsNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> this.authorizedClientService.removeAuthorizedClient(null, this.principalName2));
+			.isThrownBy(() -> this.authorizedClientService.removeAuthorizedClient(null, this.principalName2));
 	}
 
 	@Test
 	public void removeAuthorizedClientWhenPrincipalNameIsNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.authorizedClientService
-				.removeAuthorizedClient(this.registration3.getRegistrationId(), null));
+			.removeAuthorizedClient(this.registration3.getRegistrationId(), null));
 	}
 
 	@Test
@@ -169,12 +171,12 @@ public class InMemoryOAuth2AuthorizedClientServiceTests {
 				mock(OAuth2AccessToken.class));
 		this.authorizedClientService.saveAuthorizedClient(authorizedClient, authentication);
 		OAuth2AuthorizedClient loadedAuthorizedClient = this.authorizedClientService
-				.loadAuthorizedClient(this.registration2.getRegistrationId(), this.principalName2);
+			.loadAuthorizedClient(this.registration2.getRegistrationId(), this.principalName2);
 		assertThat(loadedAuthorizedClient).isNotNull();
 		this.authorizedClientService.removeAuthorizedClient(this.registration2.getRegistrationId(),
 				this.principalName2);
 		loadedAuthorizedClient = this.authorizedClientService
-				.loadAuthorizedClient(this.registration2.getRegistrationId(), this.principalName2);
+			.loadAuthorizedClient(this.registration2.getRegistrationId(), this.principalName2);
 		assertThat(loadedAuthorizedClient).isNull();
 	}
 

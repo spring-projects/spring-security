@@ -97,7 +97,7 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 	private OAuth2TokenValidator<Jwt> jwtValidator = JwtValidators.createDefault();
 
 	private Converter<Map<String, Object>, Map<String, Object>> claimSetConverter = MappedJwtClaimSetConverter
-			.withDefaults(Collections.emptyMap());
+		.withDefaults(Collections.emptyMap());
 
 	/**
 	 * Constructs a {@code NimbusReactiveJwtDecoder} using the provided parameters.
@@ -184,8 +184,10 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 		try {
 			Map<String, Object> headers = new LinkedHashMap<>(parsedJwt.getHeader().toJSONObject());
 			Map<String, Object> claims = this.claimSetConverter.convert(jwtClaimsSet.getClaims());
-			return Jwt.withTokenValue(parsedJwt.getParsedString()).headers((h) -> h.putAll(headers))
-					.claims((c) -> c.putAll(claims)).build();
+			return Jwt.withTokenValue(parsedJwt.getParsedString())
+				.headers((h) -> h.putAll(headers))
+				.claims((c) -> c.putAll(claims))
+				.build();
 		}
 		catch (Exception ex) {
 			throw new BadJwtException("An error occurred while attempting to decode the Jwt: " + ex.getMessage(), ex);
@@ -391,17 +393,17 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 			ReactiveRemoteJWKSource source = new ReactiveRemoteJWKSource(this.jwkSetUri);
 			source.setWebClient(this.webClient);
 			Mono<Tuple2<ConfigurableJWTProcessor<JWKSecurityContext>, Function<JWSAlgorithm, Boolean>>> jwtProcessorMono = this.jwtProcessorCustomizer
-					.apply(source, jwtProcessor)
-					.map((processor) -> Tuples.of(processor, getExpectedJwsAlgorithms(processor.getJWSKeySelector())))
-					.cache((processor) -> FOREVER, (ex) -> Duration.ZERO, () -> Duration.ZERO);
+				.apply(source, jwtProcessor)
+				.map((processor) -> Tuples.of(processor, getExpectedJwsAlgorithms(processor.getJWSKeySelector())))
+				.cache((processor) -> FOREVER, (ex) -> Duration.ZERO, () -> Duration.ZERO);
 			return (jwt) -> {
 				return jwtProcessorMono.flatMap((tuple) -> {
 					JWTProcessor<JWKSecurityContext> processor = tuple.getT1();
 					Function<JWSAlgorithm, Boolean> expectedJwsAlgorithms = tuple.getT2();
 					JWKSelector selector = createSelector(expectedJwsAlgorithms, jwt.getHeader());
 					return source.get(selector)
-							.onErrorMap((ex) -> new IllegalStateException("Could not obtain the keys", ex))
-							.map((jwkList) -> createClaimsSet(processor, jwt, new JWKSecurityContext(jwkList)));
+						.onErrorMap((ex) -> new IllegalStateException("Could not obtain the keys", ex))
+						.map((jwkList) -> createClaimsSet(processor, jwt, new JWKSecurityContext(jwkList)));
 				});
 			};
 		}
@@ -642,8 +644,9 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 			return (jwt) -> {
 				if (jwt instanceof SignedJWT) {
 					return this.jwkSource.apply((SignedJWT) jwt)
-							.onErrorMap((e) -> new IllegalStateException("Could not obtain the keys", e)).collectList()
-							.map((jwks) -> createClaimsSet(jwtProcessor, jwt, new JWKSecurityContext(jwks)));
+						.onErrorMap((e) -> new IllegalStateException("Could not obtain the keys", e))
+						.collectList()
+						.map((jwks) -> createClaimsSet(jwtProcessor, jwt, new JWKSecurityContext(jwks)));
 				}
 				throw new BadJwtException("Unsupported algorithm of " + jwt.getHeader().getAlgorithm());
 			};

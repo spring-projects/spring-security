@@ -85,7 +85,7 @@ public class SecurityContextConfigurerTests {
 	public void securityContextWhenInvokedTwiceThenUsesOriginalSecurityContextRepository() throws Exception {
 		this.spring.register(DuplicateDoesNotOverrideConfig.class).autowire();
 		given(DuplicateDoesNotOverrideConfig.SCR.loadDeferredContext(any(HttpServletRequest.class)))
-				.willReturn(new TestDeferredSecurityContext(mock(SecurityContext.class), false));
+			.willReturn(new TestDeferredSecurityContext(mock(SecurityContext.class), false));
 		this.mvc.perform(get("/"));
 		verify(DuplicateDoesNotOverrideConfig.SCR).loadDeferredContext(any(HttpServletRequest.class));
 	}
@@ -138,7 +138,7 @@ public class SecurityContextConfigurerTests {
 		// @formatter:on
 		MvcResult mvcResult = this.mvc.perform(formLogin()).andReturn();
 		SecurityContext securityContext = repository
-				.loadContext(new HttpRequestResponseHolder(mvcResult.getRequest(), mvcResult.getResponse()));
+			.loadContext(new HttpRequestResponseHolder(mvcResult.getRequest(), mvcResult.getResponse()));
 		assertThat(securityContext.getAuthentication()).isNotNull();
 	}
 

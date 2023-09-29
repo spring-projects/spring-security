@@ -114,7 +114,7 @@ public class DefaultWebInvocationPrivilegeEvaluatorTests {
 		Authentication token = new TestingAuthenticationToken("test", "Password", "MOCK_INDEX");
 		MockServletContext servletContext = new MockServletContext();
 		ArgumentCaptor<FilterInvocation> filterInvocationArgumentCaptor = ArgumentCaptor
-				.forClass(FilterInvocation.class);
+			.forClass(FilterInvocation.class);
 		DefaultWebInvocationPrivilegeEvaluator wipe = new DefaultWebInvocationPrivilegeEvaluator(this.interceptor);
 		wipe.setServletContext(servletContext);
 		wipe.isAllowed("/foo/index.jsp", token);

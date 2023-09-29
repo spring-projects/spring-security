@@ -86,19 +86,19 @@ public class DelegatingPasswordEncoderTests {
 	@Test
 	public void constructorWhenIdForEncodeDoesNotExistThenIllegalArgumentException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new DelegatingPasswordEncoder(this.bcryptId + "INVALID", this.delegates));
+			.isThrownBy(() -> new DelegatingPasswordEncoder(this.bcryptId + "INVALID", this.delegates));
 	}
 
 	@Test
 	public void constructorWhenPrefixIsNull() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new DelegatingPasswordEncoder(this.bcryptId, this.delegates, null, "$"));
+			.isThrownBy(() -> new DelegatingPasswordEncoder(this.bcryptId, this.delegates, null, "$"));
 	}
 
 	@Test
 	public void constructorWhenSuffixIsNull() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new DelegatingPasswordEncoder(this.bcryptId, this.delegates, "$", null));
+			.isThrownBy(() -> new DelegatingPasswordEncoder(this.bcryptId, this.delegates, "$", null));
 	}
 
 	@Test
@@ -109,39 +109,39 @@ public class DelegatingPasswordEncoderTests {
 	@Test
 	public void constructorWhenSuffixIsEmpty() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new DelegatingPasswordEncoder(this.bcryptId, this.delegates, "$", ""));
+			.isThrownBy(() -> new DelegatingPasswordEncoder(this.bcryptId, this.delegates, "$", ""));
 	}
 
 	@Test
 	public void constructorWhenPrefixAndSuffixAreEmpty() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new DelegatingPasswordEncoder(this.bcryptId, this.delegates, "", ""));
+			.isThrownBy(() -> new DelegatingPasswordEncoder(this.bcryptId, this.delegates, "", ""));
 	}
 
 	@Test
 	public void constructorWhenIdContainsPrefixThenIllegalArgumentException() {
 		this.delegates.put('{' + this.bcryptId, this.bcrypt);
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new DelegatingPasswordEncoder(this.bcryptId, this.delegates));
+			.isThrownBy(() -> new DelegatingPasswordEncoder(this.bcryptId, this.delegates));
 	}
 
 	@Test
 	public void constructorWhenIdContainsSuffixThenIllegalArgumentException() {
 		this.delegates.put(this.bcryptId + '$', this.bcrypt);
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new DelegatingPasswordEncoder(this.bcryptId, this.delegates, "", "$"));
+			.isThrownBy(() -> new DelegatingPasswordEncoder(this.bcryptId, this.delegates, "", "$"));
 	}
 
 	@Test
 	public void constructorWhenPrefixContainsSuffixThenIllegalArgumentException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new DelegatingPasswordEncoder(this.bcryptId, this.delegates, "$", "$"));
+			.isThrownBy(() -> new DelegatingPasswordEncoder(this.bcryptId, this.delegates, "$", "$"));
 	}
 
 	@Test
 	public void setDefaultPasswordEncoderForMatchesWhenNullThenIllegalArgumentException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> this.passwordEncoder.setDefaultPasswordEncoderForMatches(null));
+			.isThrownBy(() -> this.passwordEncoder.setDefaultPasswordEncoderForMatches(null));
 	}
 
 	@Test
@@ -192,42 +192,41 @@ public class DelegatingPasswordEncoderTests {
 	@Test
 	public void matchesWhenUnMappedThenIllegalArgumentException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> this.passwordEncoder.matches(this.rawPassword, "{unmapped}" + this.rawPassword))
-				.withMessage("There is no PasswordEncoder mapped for the id \"unmapped\"");
+			.isThrownBy(() -> this.passwordEncoder.matches(this.rawPassword, "{unmapped}" + this.rawPassword))
+			.withMessage("There is no PasswordEncoder mapped for the id \"unmapped\"");
 		verifyNoMoreInteractions(this.bcrypt, this.noop);
 	}
 
 	@Test
 	public void matchesWhenNoClosingPrefixStringThenIllegalArgumentException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> this.passwordEncoder.matches(this.rawPassword, "{bcrypt" + this.rawPassword))
-				.withMessage("There is no PasswordEncoder mapped for the id \"null\"");
+			.isThrownBy(() -> this.passwordEncoder.matches(this.rawPassword, "{bcrypt" + this.rawPassword))
+			.withMessage("There is no PasswordEncoder mapped for the id \"null\"");
 		verifyNoMoreInteractions(this.bcrypt, this.noop);
 	}
 
 	@Test
 	public void matchesWhenNoStartingPrefixStringThenFalse() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> this.passwordEncoder.matches(this.rawPassword, "bcrypt}" + this.rawPassword))
-				.withMessage("There is no PasswordEncoder mapped for the id \"null\"");
+			.isThrownBy(() -> this.passwordEncoder.matches(this.rawPassword, "bcrypt}" + this.rawPassword))
+			.withMessage("There is no PasswordEncoder mapped for the id \"null\"");
 		verifyNoMoreInteractions(this.bcrypt, this.noop);
 	}
 
 	@Test
 	public void matchesWhenNoIdStringThenFalse() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> this.passwordEncoder.matches(this.rawPassword, "{}" + this.rawPassword))
-				.withMessage("There is no PasswordEncoder mapped for the id \"\"");
+			.isThrownBy(() -> this.passwordEncoder.matches(this.rawPassword, "{}" + this.rawPassword))
+			.withMessage("There is no PasswordEncoder mapped for the id \"\"");
 		verifyNoMoreInteractions(this.bcrypt, this.noop);
 	}
 
 	@Test
 	public void matchesWhenPrefixInMiddleThenFalse() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(
-						() -> this.passwordEncoder.matches(this.rawPassword, "invalid" + this.bcryptEncodedPassword))
-				.isInstanceOf(IllegalArgumentException.class)
-				.withMessage("There is no PasswordEncoder mapped for the id \"null\"");
+			.isThrownBy(() -> this.passwordEncoder.matches(this.rawPassword, "invalid" + this.bcryptEncodedPassword))
+			.isInstanceOf(IllegalArgumentException.class)
+			.withMessage("There is no PasswordEncoder mapped for the id \"null\"");
 		verifyNoMoreInteractions(this.bcrypt, this.noop);
 	}
 
@@ -236,8 +235,8 @@ public class DelegatingPasswordEncoderTests {
 		this.delegates = new Hashtable<>(this.delegates);
 		DelegatingPasswordEncoder passwordEncoder = new DelegatingPasswordEncoder(this.bcryptId, this.delegates);
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> passwordEncoder.matches(this.rawPassword, this.rawPassword))
-				.withMessage("There is no PasswordEncoder mapped for the id \"null\"");
+			.isThrownBy(() -> passwordEncoder.matches(this.rawPassword, this.rawPassword))
+			.withMessage("There is no PasswordEncoder mapped for the id \"null\"");
 		verifyNoMoreInteractions(this.bcrypt, this.noop);
 	}
 

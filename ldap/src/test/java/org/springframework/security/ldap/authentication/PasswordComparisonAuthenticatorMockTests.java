@@ -52,7 +52,8 @@ public class PasswordComparisonAuthenticatorMockTests {
 		// Setup a single return value (i.e. success)
 		final NamingEnumeration searchResults = new BasicAttributes("", null).getAll();
 		given(dirCtx.search(eq("cn=Bob,ou=people"), eq("(userPassword={0})"), any(Object[].class),
-				any(SearchControls.class))).willReturn(searchResults);
+				any(SearchControls.class)))
+			.willReturn(searchResults);
 		authenticator.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("Bob", "bobspassword"));
 	}
 

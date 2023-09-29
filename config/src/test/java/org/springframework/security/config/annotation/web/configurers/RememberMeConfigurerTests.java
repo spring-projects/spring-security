@@ -95,21 +95,21 @@ public class RememberMeConfigurerTests {
 	@Test
 	public void postWhenNoUserDetailsServiceThenException() {
 		assertThatExceptionOfType(UnsatisfiedDependencyException.class)
-				.isThrownBy(() -> this.spring.register(NullUserDetailsConfig.class).autowire())
-				.withMessageContaining("userDetailsService cannot be null");
+			.isThrownBy(() -> this.spring.register(NullUserDetailsConfig.class).autowire())
+			.withMessageContaining("userDetailsService cannot be null");
 	}
 
 	@Test
 	public void configureWhenRegisteringObjectPostProcessorThenInvokedOnRememberMeAuthenticationFilter() {
 		this.spring.register(ObjectPostProcessorConfig.class).autowire();
 		verify(this.spring.getContext().getBean(ObjectPostProcessor.class))
-				.postProcess(any(RememberMeAuthenticationFilter.class));
+			.postProcess(any(RememberMeAuthenticationFilter.class));
 	}
 
 	@Test
 	public void rememberMeWhenInvokedTwiceThenUsesOriginalUserDetailsService() throws Exception {
 		given(DuplicateDoesNotOverrideConfig.userDetailsService.loadUserByUsername(anyString()))
-				.willReturn(new User("user", "password", Collections.emptyList()));
+			.willReturn(new User("user", "password", Collections.emptyList()));
 		this.spring.register(DuplicateDoesNotOverrideConfig.class).autowire();
 		// @formatter:off
 		MockHttpServletRequestBuilder request = get("/")
@@ -123,8 +123,12 @@ public class RememberMeConfigurerTests {
 	@Test
 	public void rememberMeWhenUserDetailsServiceNotConfiguredThenUsesBean() throws Exception {
 		this.spring.register(UserDetailsServiceBeanConfig.class).autowire();
-		MvcResult mvcResult = this.mvc.perform(post("/login").with(csrf()).param("username", "user")
-				.param("password", "password").param("remember-me", "true")).andReturn();
+		MvcResult mvcResult = this.mvc
+			.perform(post("/login").with(csrf())
+				.param("username", "user")
+				.param("password", "password")
+				.param("remember-me", "true"))
+			.andReturn();
 		Cookie rememberMeCookie = mvcResult.getResponse().getCookie("remember-me");
 		// @formatter:off
 		MockHttpServletRequestBuilder request = get("/abc").cookie(rememberMeCookie);
@@ -137,8 +141,12 @@ public class RememberMeConfigurerTests {
 	@Test
 	public void rememberMeWhenCustomSecurityContextHolderStrategyThenUses() throws Exception {
 		this.spring.register(UserDetailsServiceBeanConfig.class, SecurityContextChangedListenerConfig.class).autowire();
-		MvcResult mvcResult = this.mvc.perform(post("/login").with(csrf()).param("username", "user")
-				.param("password", "password").param("remember-me", "true")).andReturn();
+		MvcResult mvcResult = this.mvc
+			.perform(post("/login").with(csrf())
+				.param("username", "user")
+				.param("password", "password")
+				.param("remember-me", "true"))
+			.andReturn();
 		Cookie rememberMeCookie = mvcResult.getResponse().getCookie("remember-me");
 		// @formatter:off
 		MockHttpServletRequestBuilder request = get("/abc").cookie(rememberMeCookie);
@@ -165,8 +173,12 @@ public class RememberMeConfigurerTests {
 	@Test
 	public void getWhenRememberMeCookieThenAuthenticationIsRememberMeAuthenticationToken() throws Exception {
 		this.spring.register(RememberMeConfig.class).autowire();
-		MvcResult mvcResult = this.mvc.perform(post("/login").with(csrf()).param("username", "user")
-				.param("password", "password").param("remember-me", "true")).andReturn();
+		MvcResult mvcResult = this.mvc
+			.perform(post("/login").with(csrf())
+				.param("username", "user")
+				.param("password", "password")
+				.param("remember-me", "true"))
+			.andReturn();
 		Cookie rememberMeCookie = mvcResult.getResponse().getCookie("remember-me");
 		// @formatter:off
 		MockHttpServletRequestBuilder request = get("/abc").cookie(rememberMeCookie);
@@ -275,10 +287,9 @@ public class RememberMeConfigurerTests {
 	@Test
 	public void configureWhenRememberMeCookieNameAndRememberMeServicesThenException() {
 		assertThatExceptionOfType(BeanCreationException.class)
-				.isThrownBy(
-						() -> this.spring.register(RememberMeCookieNameAndRememberMeServicesConfig.class).autowire())
-				.withRootCauseInstanceOf(IllegalArgumentException.class)
-				.withMessageContaining("Can not set rememberMeCookieName and custom rememberMeServices.");
+			.isThrownBy(() -> this.spring.register(RememberMeCookieNameAndRememberMeServicesConfig.class).autowire())
+			.withRootCauseInstanceOf(IllegalArgumentException.class)
+			.withMessageContaining("Can not set rememberMeCookieName and custom rememberMeServices.");
 	}
 
 	@Test
@@ -306,8 +317,12 @@ public class RememberMeConfigurerTests {
 	public void getWhenCustomSecurityContextRepositoryThenUses() throws Exception {
 		this.spring.register(SecurityContextRepositoryConfig.class).autowire();
 		SecurityContextRepository repository = this.spring.getContext().getBean(SecurityContextRepository.class);
-		MvcResult mvcResult = this.mvc.perform(post("/login").with(csrf()).param("username", "user")
-				.param("password", "password").param("remember-me", "true")).andReturn();
+		MvcResult mvcResult = this.mvc
+			.perform(post("/login").with(csrf())
+				.param("username", "user")
+				.param("password", "password")
+				.param("remember-me", "true"))
+			.andReturn();
 		Cookie rememberMeCookie = mvcResult.getResponse().getCookie("remember-me");
 		reset(repository);
 		// @formatter:off

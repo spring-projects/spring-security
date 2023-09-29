@@ -55,8 +55,8 @@ public class OAuth2ErrorResponseErrorHandlerTests {
 		// @formatter:on
 		MockClientHttpResponse response = new MockClientHttpResponse(errorResponse.getBytes(), HttpStatus.BAD_REQUEST);
 		assertThatExceptionOfType(OAuth2AuthorizationException.class)
-				.isThrownBy(() -> this.errorHandler.handleError(response))
-				.withMessage("[unauthorized_client] The client is not authorized");
+			.isThrownBy(() -> this.errorHandler.handleError(response))
+			.withMessage("[unauthorized_client] The client is not authorized");
 	}
 
 	@Test
@@ -71,11 +71,11 @@ public class OAuth2ErrorResponseErrorHandlerTests {
 		// @formatter:on
 		MockClientHttpResponse response = new MockClientHttpResponse(errorResponse.getBytes(), HttpStatus.BAD_REQUEST);
 		given(oauth2ErrorConverter.read(any(), any()))
-				.willReturn(new OAuth2Error("unauthorized_client", "The client is not authorized", null));
+			.willReturn(new OAuth2Error("unauthorized_client", "The client is not authorized", null));
 
 		assertThatExceptionOfType(OAuth2AuthorizationException.class)
-				.isThrownBy(() -> this.errorHandler.handleError(response))
-				.withMessage("[unauthorized_client] The client is not authorized");
+			.isThrownBy(() -> this.errorHandler.handleError(response))
+			.withMessage("[unauthorized_client] The client is not authorized");
 		verify(oauth2ErrorConverter).read(eq(OAuth2Error.class), eq(response));
 	}
 
@@ -85,8 +85,8 @@ public class OAuth2ErrorResponseErrorHandlerTests {
 		MockClientHttpResponse response = new MockClientHttpResponse(new byte[0], HttpStatus.BAD_REQUEST);
 		response.getHeaders().add(HttpHeaders.WWW_AUTHENTICATE, wwwAuthenticateHeader);
 		assertThatExceptionOfType(OAuth2AuthorizationException.class)
-				.isThrownBy(() -> this.errorHandler.handleError(response))
-				.withMessage("[insufficient_scope] The access token expired");
+			.isThrownBy(() -> this.errorHandler.handleError(response))
+			.withMessage("[insufficient_scope] The access token expired");
 	}
 
 	@Test
@@ -95,15 +95,16 @@ public class OAuth2ErrorResponseErrorHandlerTests {
 		MockClientHttpResponse response = new MockClientHttpResponse(new byte[0], HttpStatus.BAD_REQUEST);
 		response.getHeaders().add(HttpHeaders.WWW_AUTHENTICATE, invalidWwwAuthenticateHeader);
 		assertThatExceptionOfType(OAuth2AuthorizationException.class)
-				.isThrownBy(() -> this.errorHandler.handleError(response)).withMessage("[server_error] ");
+			.isThrownBy(() -> this.errorHandler.handleError(response))
+			.withMessage("[server_error] ");
 	}
 
 	@Test
 	public void handleErrorWhenErrorResponseWithInvalidStatusCodeThenHandled() {
 		CustomMockClientHttpResponse response = new CustomMockClientHttpResponse(new byte[0], 596);
 		assertThatExceptionOfType(IllegalArgumentException.class)
-				.isThrownBy(() -> this.errorHandler.handleError(response))
-				.withMessage("No matching constant for [596]");
+			.isThrownBy(() -> this.errorHandler.handleError(response))
+			.withMessage("No matching constant for [596]");
 	}
 
 	private static final class CustomMockClientHttpResponse extends MockHttpInputMessage implements ClientHttpResponse {

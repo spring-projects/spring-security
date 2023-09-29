@@ -31,7 +31,7 @@ public class AuthenticationMethodTests {
 	@Test
 	public void constructorWhenValueIsNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> new AuthenticationMethod(null))
-				.withMessage("value cannot be empty");
+			.withMessage("value cannot be empty");
 	}
 
 	@Test

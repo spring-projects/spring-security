@@ -215,7 +215,7 @@ public class PasswordPolicyResponseControl extends PasswordPolicyControl {
 				else if (tag == 1) {
 					BERIntegral error = (BERIntegral) elt.getValue();
 					PasswordPolicyResponseControl.this.errorStatus = PasswordPolicyErrorStatus.values()[error
-							.getValue()];
+						.getValue()];
 				}
 			}
 		}

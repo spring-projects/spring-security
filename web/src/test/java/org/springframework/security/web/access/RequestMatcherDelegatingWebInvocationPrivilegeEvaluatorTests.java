@@ -182,18 +182,20 @@ class RequestMatcherDelegatingWebInvocationPrivilegeEvaluatorTests {
 	void constructorWhenPrivilegeEvaluatorsNullThenException() {
 		RequestMatcherEntry<List<WebInvocationPrivilegeEvaluator>> entry = new RequestMatcherEntry<>(this.alwaysMatch,
 				null);
-		assertThatIllegalArgumentException().isThrownBy(
-				() -> new RequestMatcherDelegatingWebInvocationPrivilegeEvaluator(Collections.singletonList(entry)))
-				.withMessageContaining("webInvocationPrivilegeEvaluators cannot be null");
+		assertThatIllegalArgumentException()
+			.isThrownBy(
+					() -> new RequestMatcherDelegatingWebInvocationPrivilegeEvaluator(Collections.singletonList(entry)))
+			.withMessageContaining("webInvocationPrivilegeEvaluators cannot be null");
 	}
 
 	@Test
 	void constructorWhenRequestMatcherNullThenException() {
 		RequestMatcherEntry<List<WebInvocationPrivilegeEvaluator>> entry = new RequestMatcherEntry<>(null,
 				Collections.singletonList(mock(WebInvocationPrivilegeEvaluator.class)));
-		assertThatIllegalArgumentException().isThrownBy(
-				() -> new RequestMatcherDelegatingWebInvocationPrivilegeEvaluator(Collections.singletonList(entry)))
-				.withMessageContaining("requestMatcher cannot be null");
+		assertThatIllegalArgumentException()
+			.isThrownBy(
+					() -> new RequestMatcherDelegatingWebInvocationPrivilegeEvaluator(Collections.singletonList(entry)))
+			.withMessageContaining("requestMatcher cannot be null");
 	}
 
 }

@@ -56,7 +56,7 @@ public class PostAuthorizeReactiveAuthorizationManagerTests {
 	@Test
 	public void setExpressionHandlerWhenNullThenException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> new PostAuthorizeReactiveAuthorizationManager(null))
-				.withMessage("expressionHandler cannot be null");
+			.withMessage("expressionHandler cannot be null");
 	}
 
 	@Test
@@ -118,7 +118,7 @@ public class PostAuthorizeReactiveAuthorizationManagerTests {
 	@Test
 	public void checkRequiresAdminWhenClassAnnotationsThenMethodAnnotationsTakePrecedence() throws Exception {
 		Mono<Authentication> authentication = Mono
-				.just(new TestingAuthenticationToken("user", "password", "ROLE_USER"));
+			.just(new TestingAuthenticationToken("user", "password", "ROLE_USER"));
 		MockMethodInvocation methodInvocation = new MockMethodInvocation(new ClassLevelAnnotations(),
 				ClassLevelAnnotations.class, "securedAdmin");
 		MethodInvocationResult result = new MethodInvocationResult(methodInvocation, null);
@@ -135,7 +135,7 @@ public class PostAuthorizeReactiveAuthorizationManagerTests {
 	@Test
 	public void checkRequiresUserWhenClassAnnotationsThenApplies() throws Exception {
 		Mono<Authentication> authentication = Mono
-				.just(new TestingAuthenticationToken("user", "password", "ROLE_USER"));
+			.just(new TestingAuthenticationToken("user", "password", "ROLE_USER"));
 		MockMethodInvocation methodInvocation = new MockMethodInvocation(new ClassLevelAnnotations(),
 				ClassLevelAnnotations.class, "securedUser");
 		MethodInvocationResult result = new MethodInvocationResult(methodInvocation, null);
@@ -152,25 +152,25 @@ public class PostAuthorizeReactiveAuthorizationManagerTests {
 	@Test
 	public void checkInheritedAnnotationsWhenDuplicatedThenAnnotationConfigurationException() throws Exception {
 		Mono<Authentication> authentication = Mono
-				.just(new TestingAuthenticationToken("user", "password", "ROLE_USER"));
+			.just(new TestingAuthenticationToken("user", "password", "ROLE_USER"));
 		MockMethodInvocation methodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
 				"inheritedAnnotations");
 		MethodInvocationResult result = new MethodInvocationResult(methodInvocation, null);
 		PostAuthorizeReactiveAuthorizationManager manager = new PostAuthorizeReactiveAuthorizationManager();
 		assertThatExceptionOfType(AnnotationConfigurationException.class)
-				.isThrownBy(() -> manager.check(authentication, result));
+			.isThrownBy(() -> manager.check(authentication, result));
 	}
 
 	@Test
 	public void checkInheritedAnnotationsWhenConflictingThenAnnotationConfigurationException() throws Exception {
 		Mono<Authentication> authentication = Mono
-				.just(new TestingAuthenticationToken("user", "password", "ROLE_USER"));
+			.just(new TestingAuthenticationToken("user", "password", "ROLE_USER"));
 		MockMethodInvocation methodInvocation = new MockMethodInvocation(new ClassLevelAnnotations(),
 				ClassLevelAnnotations.class, "inheritedAnnotations");
 		MethodInvocationResult result = new MethodInvocationResult(methodInvocation, null);
 		PostAuthorizeReactiveAuthorizationManager manager = new PostAuthorizeReactiveAuthorizationManager();
 		assertThatExceptionOfType(AnnotationConfigurationException.class)
-				.isThrownBy(() -> manager.check(authentication, result));
+			.isThrownBy(() -> manager.check(authentication, result));
 	}
 
 	public static class TestClass implements InterfaceAnnotationsOne, InterfaceAnnotationsTwo {

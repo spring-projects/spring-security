@@ -78,7 +78,7 @@ public class OAuth2LoginReactiveAuthenticationManagerTests {
 	private ClientRegistration.Builder registration = TestClientRegistrations.clientRegistration();
 
 	OAuth2AuthorizationResponse.Builder authorizationResponseBldr = OAuth2AuthorizationResponse.success("code")
-			.state("state");
+		.state("state");
 
 	private OAuth2LoginReactiveAuthenticationManager manager;
 
@@ -130,20 +130,21 @@ public class OAuth2LoginReactiveAuthenticationManagerTests {
 				.state("state");
 		// @formatter:on
 		assertThatExceptionOfType(OAuth2AuthenticationException.class)
-				.isThrownBy(() -> this.manager.authenticate(loginToken()).block());
+			.isThrownBy(() -> this.manager.authenticate(loginToken()).block());
 	}
 
 	@Test
 	public void authenticationWhenStateDoesNotMatchThenOAuth2AuthenticationException() {
 		this.authorizationResponseBldr.state("notmatch");
 		assertThatExceptionOfType(OAuth2AuthenticationException.class)
-				.isThrownBy(() -> this.manager.authenticate(loginToken()).block());
+			.isThrownBy(() -> this.manager.authenticate(loginToken()).block());
 	}
 
 	@Test
 	public void authenticationWhenOAuth2UserNotFoundThenEmpty() {
 		OAuth2AccessTokenResponse accessTokenResponse = OAuth2AccessTokenResponse.withToken("foo")
-				.tokenType(OAuth2AccessToken.TokenType.BEARER).build();
+			.tokenType(OAuth2AccessToken.TokenType.BEARER)
+			.build();
 		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(Mono.just(accessTokenResponse));
 		given(this.userService.loadUser(any())).willReturn(Mono.empty());
 		assertThat(this.manager.authenticate(loginToken()).block()).isNull();
@@ -152,13 +153,14 @@ public class OAuth2LoginReactiveAuthenticationManagerTests {
 	@Test
 	public void authenticationWhenOAuth2UserFoundThenSuccess() {
 		OAuth2AccessTokenResponse accessTokenResponse = OAuth2AccessTokenResponse.withToken("foo")
-				.tokenType(OAuth2AccessToken.TokenType.BEARER).build();
+			.tokenType(OAuth2AccessToken.TokenType.BEARER)
+			.build();
 		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(Mono.just(accessTokenResponse));
 		DefaultOAuth2User user = new DefaultOAuth2User(AuthorityUtils.createAuthorityList("ROLE_USER"),
 				Collections.singletonMap("user", "rob"), "user");
 		given(this.userService.loadUser(any())).willReturn(Mono.just(user));
 		OAuth2LoginAuthenticationToken result = (OAuth2LoginAuthenticationToken) this.manager.authenticate(loginToken())
-				.block();
+			.block();
 		assertThat(result.getPrincipal()).isEqualTo(user);
 		assertThat(result.getAuthorities()).containsOnlyElementsOf(user.getAuthorities());
 		assertThat(result.isAuthenticated()).isTrue();
@@ -171,7 +173,9 @@ public class OAuth2LoginReactiveAuthenticationManagerTests {
 		additionalParameters.put("param1", "value1");
 		additionalParameters.put("param2", "value2");
 		OAuth2AccessTokenResponse accessTokenResponse = OAuth2AccessTokenResponse.withToken("foo")
-				.tokenType(OAuth2AccessToken.TokenType.BEARER).additionalParameters(additionalParameters).build();
+			.tokenType(OAuth2AccessToken.TokenType.BEARER)
+			.additionalParameters(additionalParameters)
+			.build();
 		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(Mono.just(accessTokenResponse));
 		DefaultOAuth2User user = new DefaultOAuth2User(AuthorityUtils.createAuthorityList("ROLE_USER"),
 				Collections.singletonMap("user", "rob"), "user");
@@ -179,13 +183,14 @@ public class OAuth2LoginReactiveAuthenticationManagerTests {
 		given(this.userService.loadUser(userRequestArgCaptor.capture())).willReturn(Mono.just(user));
 		this.manager.authenticate(loginToken()).block();
 		assertThat(userRequestArgCaptor.getValue().getAdditionalParameters())
-				.containsAllEntriesOf(accessTokenResponse.getAdditionalParameters());
+			.containsAllEntriesOf(accessTokenResponse.getAdditionalParameters());
 	}
 
 	@Test
 	public void authenticateWhenAuthoritiesMapperSetThenReturnMappedAuthorities() {
 		OAuth2AccessTokenResponse accessTokenResponse = OAuth2AccessTokenResponse.withToken("foo")
-				.tokenType(OAuth2AccessToken.TokenType.BEARER).build();
+			.tokenType(OAuth2AccessToken.TokenType.BEARER)
+			.build();
 		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(Mono.just(accessTokenResponse));
 		DefaultOAuth2User user = new DefaultOAuth2User(AuthorityUtils.createAuthorityList("ROLE_USER"),
 				Collections.singletonMap("user", "rob"), "user");
@@ -193,21 +198,25 @@ public class OAuth2LoginReactiveAuthenticationManagerTests {
 		List<GrantedAuthority> mappedAuthorities = AuthorityUtils.createAuthorityList("ROLE_OAUTH_USER");
 		GrantedAuthoritiesMapper authoritiesMapper = mock(GrantedAuthoritiesMapper.class);
 		given(authoritiesMapper.mapAuthorities(anyCollection()))
-				.willAnswer((Answer<List<GrantedAuthority>>) (invocation) -> mappedAuthorities);
+			.willAnswer((Answer<List<GrantedAuthority>>) (invocation) -> mappedAuthorities);
 		this.manager.setAuthoritiesMapper(authoritiesMapper);
 		OAuth2LoginAuthenticationToken result = (OAuth2LoginAuthenticationToken) this.manager.authenticate(loginToken())
-				.block();
+			.block();
 		assertThat(result.getAuthorities()).isEqualTo(mappedAuthorities);
 	}
 
 	private OAuth2AuthorizationCodeAuthenticationToken loginToken() {
 		ClientRegistration clientRegistration = this.registration.build();
-		OAuth2AuthorizationRequest authorizationRequest = OAuth2AuthorizationRequest.authorizationCode().state("state")
-				.clientId(clientRegistration.getClientId())
-				.authorizationUri(clientRegistration.getProviderDetails().getAuthorizationUri())
-				.redirectUri(clientRegistration.getRedirectUri()).scopes(clientRegistration.getScopes()).build();
+		OAuth2AuthorizationRequest authorizationRequest = OAuth2AuthorizationRequest.authorizationCode()
+			.state("state")
+			.clientId(clientRegistration.getClientId())
+			.authorizationUri(clientRegistration.getProviderDetails().getAuthorizationUri())
+			.redirectUri(clientRegistration.getRedirectUri())
+			.scopes(clientRegistration.getScopes())
+			.build();
 		OAuth2AuthorizationResponse authorizationResponse = this.authorizationResponseBldr
-				.redirectUri(clientRegistration.getRedirectUri()).build();
+			.redirectUri(clientRegistration.getRedirectUri())
+			.build();
 		OAuth2AuthorizationExchange authorizationExchange = new OAuth2AuthorizationExchange(authorizationRequest,
 				authorizationResponse);
 		return new OAuth2AuthorizationCodeAuthenticationToken(clientRegistration, authorizationExchange);

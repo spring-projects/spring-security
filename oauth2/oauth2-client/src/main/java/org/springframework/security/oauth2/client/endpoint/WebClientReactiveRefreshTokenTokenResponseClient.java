@@ -73,7 +73,7 @@ public final class WebClientReactiveRefreshTokenTokenResponseClient
 			return accessTokenResponse;
 		}
 		OAuth2AccessTokenResponse.Builder tokenResponseBuilder = OAuth2AccessTokenResponse
-				.withResponse(accessTokenResponse);
+			.withResponse(accessTokenResponse);
 		if (CollectionUtils.isEmpty(accessTokenResponse.getAccessToken().getScopes())) {
 			tokenResponseBuilder.scopes(defaultScopes(grantRequest));
 		}

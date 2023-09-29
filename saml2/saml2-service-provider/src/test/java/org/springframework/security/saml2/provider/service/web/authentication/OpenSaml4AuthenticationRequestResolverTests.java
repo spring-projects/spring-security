@@ -56,20 +56,21 @@ public class OpenSaml4AuthenticationRequestResolverTests {
 		Saml2RedirectAuthenticationRequest authnRequest = resolver.resolve(this.request);
 		assertThat(authnRequest.getBinding()).isEqualTo(Saml2MessageBinding.REDIRECT);
 		assertThat(authnRequest.getAuthenticationRequestUri())
-				.isEqualTo(this.registration.getAssertingPartyDetails().getSingleSignOnServiceLocation());
+			.isEqualTo(this.registration.getAssertingPartyDetails().getSingleSignOnServiceLocation());
 	}
 
 	@Test
 	void resolveWhenPostThenSaml2PostAuthenticationRequest() {
 		RelyingPartyRegistration registration = TestRelyingPartyRegistrations.full()
-				.assertingPartyDetails((party) -> party.singleSignOnServiceBinding(Saml2MessageBinding.POST)).build();
+			.assertingPartyDetails((party) -> party.singleSignOnServiceBinding(Saml2MessageBinding.POST))
+			.build();
 		RelyingPartyRegistrationResolver relyingParties = mock(RelyingPartyRegistrationResolver.class);
 		given(relyingParties.resolve(any(), any())).willReturn(registration);
 		OpenSaml4AuthenticationRequestResolver resolver = new OpenSaml4AuthenticationRequestResolver(relyingParties);
 		Saml2PostAuthenticationRequest authnRequest = resolver.resolve(this.request);
 		assertThat(authnRequest.getBinding()).isEqualTo(Saml2MessageBinding.POST);
 		assertThat(authnRequest.getAuthenticationRequestUri())
-				.isEqualTo(this.registration.getAssertingPartyDetails().getSingleSignOnServiceLocation());
+			.isEqualTo(this.registration.getAssertingPartyDetails().getSingleSignOnServiceLocation());
 	}
 
 	@Test
@@ -92,11 +93,11 @@ public class OpenSaml4AuthenticationRequestResolverTests {
 		OpenSaml4AuthenticationRequestResolver resolver = new OpenSaml4AuthenticationRequestResolver(relyingParties);
 		resolver.setRequestMatcher(new AntPathRequestMatcher("/custom/authentication/{registrationId}"));
 		Saml2RedirectAuthenticationRequest authnRequest = resolver
-				.resolve(givenRequest("/custom/authentication/registration-id"));
+			.resolve(givenRequest("/custom/authentication/registration-id"));
 
 		assertThat(authnRequest.getBinding()).isEqualTo(Saml2MessageBinding.REDIRECT);
 		assertThat(authnRequest.getAuthenticationRequestUri())
-				.isEqualTo(this.registration.getAssertingPartyDetails().getSingleSignOnServiceLocation());
+			.isEqualTo(this.registration.getAssertingPartyDetails().getSingleSignOnServiceLocation());
 
 	}
 

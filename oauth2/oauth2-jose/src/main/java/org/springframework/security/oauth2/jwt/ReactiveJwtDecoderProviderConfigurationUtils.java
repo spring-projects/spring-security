@@ -45,15 +45,17 @@ final class ReactiveJwtDecoderProviderConfigurationUtils {
 		}
 		JWKSource<C> delegate = ((JWSVerificationKeySelector<C>) selector).getJWKSource();
 		return getJWSAlgorithms(jwkSource).map((algorithms) -> new JWSVerificationKeySelector<>(algorithms, delegate))
-				.map((replacement) -> {
-					jwtProcessor.setJWSKeySelector(replacement);
-					return jwtProcessor;
-				});
+			.map((replacement) -> {
+				jwtProcessor.setJWSKeySelector(replacement);
+				return jwtProcessor;
+			});
 	}
 
 	static Mono<Set<JWSAlgorithm>> getJWSAlgorithms(ReactiveRemoteJWKSource jwkSource) {
-		JWKMatcher jwkMatcher = new JWKMatcher.Builder().publicOnly(true).keyUses(KeyUse.SIGNATURE, null)
-				.keyTypes(KeyType.RSA, KeyType.EC).build();
+		JWKMatcher jwkMatcher = new JWKMatcher.Builder().publicOnly(true)
+			.keyUses(KeyUse.SIGNATURE, null)
+			.keyTypes(KeyType.RSA, KeyType.EC)
+			.build();
 		return jwkSource.get(new JWKSelector(jwkMatcher)).map((jwks) -> {
 			Set<JWSAlgorithm> jwsAlgorithms = new HashSet<>();
 			for (JWK jwk : jwks) {

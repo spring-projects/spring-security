@@ -78,7 +78,7 @@ public class PayloadSocketAcceptorInterceptorTests {
 		given(this.setupPayload.dataMimeType()).willReturn(MediaType.APPLICATION_JSON_VALUE);
 		PayloadExchange exchange = captureExchange();
 		assertThat(exchange.getMetadataMimeType().toString())
-				.isEqualTo(WellKnownMimeType.MESSAGE_RSOCKET_COMPOSITE_METADATA.getString());
+			.isEqualTo(WellKnownMimeType.MESSAGE_RSOCKET_COMPOSITE_METADATA.getString());
 		assertThat(exchange.getDataMimeType()).isEqualTo(MediaType.APPLICATION_JSON);
 	}
 
@@ -96,7 +96,7 @@ public class PayloadSocketAcceptorInterceptorTests {
 		this.acceptorInterceptor.setDefaultDataMimeType(MediaType.APPLICATION_JSON);
 		PayloadExchange exchange = captureExchange();
 		assertThat(exchange.getMetadataMimeType().toString())
-				.isEqualTo(WellKnownMimeType.MESSAGE_RSOCKET_COMPOSITE_METADATA.getString());
+			.isEqualTo(WellKnownMimeType.MESSAGE_RSOCKET_COMPOSITE_METADATA.getString());
 		assertThat(exchange.getDataMimeType()).isEqualTo(MediaType.APPLICATION_JSON);
 	}
 

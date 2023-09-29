@@ -99,7 +99,7 @@ class DefaultSaml2AuthenticatedPrincipalMixinTests {
 
 	private static String principalWithoutIndices() {
 		return TestSaml2JsonPayloads.DEFAULT_AUTHENTICATED_PRINCIPAL_JSON
-				.replace(TestSaml2JsonPayloads.SESSION_INDEXES_JSON, "[\"java.util.Collections$EmptyList\", []]");
+			.replace(TestSaml2JsonPayloads.SESSION_INDEXES_JSON, "[\"java.util.Collections$EmptyList\", []]");
 	}
 
 }

@@ -122,7 +122,7 @@ public class JwtITests {
 	@Test
 	public void routeWhenAuthenticationBearerThenAuthorized() {
 		MimeType authenticationMimeType = MimeTypeUtils
-				.parseMimeType(WellKnownMimeType.MESSAGE_RSOCKET_AUTHENTICATION.getString());
+			.parseMimeType(WellKnownMimeType.MESSAGE_RSOCKET_AUTHENTICATION.getString());
 		BearerTokenMetadata credentials = new BearerTokenMetadata("token");
 		given(this.decoder.decode(any())).willReturn(Mono.just(jwt()));
 		// @formatter:off
@@ -137,8 +137,11 @@ public class JwtITests {
 	}
 
 	private Jwt jwt() {
-		return TestJwts.jwt().claim(IdTokenClaimNames.ISS, "https://issuer.example.com")
-				.claim(IdTokenClaimNames.SUB, "rob").claim(IdTokenClaimNames.AUD, Arrays.asList("client-id")).build();
+		return TestJwts.jwt()
+			.claim(IdTokenClaimNames.ISS, "https://issuer.example.com")
+			.claim(IdTokenClaimNames.SUB, "rob")
+			.claim(IdTokenClaimNames.AUD, Arrays.asList("client-id"))
+			.build();
 	}
 
 	private RSocketRequester.Builder requester() {
@@ -169,7 +172,7 @@ public class JwtITests {
 		@Bean
 		PayloadSocketAcceptorInterceptor rsocketInterceptor(RSocketSecurity rsocket) {
 			rsocket.authorizePayload((authorize) -> authorize.anyRequest().authenticated().anyExchange().permitAll())
-					.jwt(Customizer.withDefaults());
+				.jwt(Customizer.withDefaults());
 			return rsocket.build();
 		}
 

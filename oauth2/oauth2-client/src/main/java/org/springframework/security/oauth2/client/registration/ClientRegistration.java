@@ -698,8 +698,9 @@ public final class ClientRegistration implements Serializable {
 		}
 
 		private static boolean validateScope(String scope) {
-			return scope == null || scope.chars().allMatch((c) -> withinTheRangeOf(c, 0x21, 0x21)
-					|| withinTheRangeOf(c, 0x23, 0x5B) || withinTheRangeOf(c, 0x5D, 0x7E));
+			return scope == null || scope.chars()
+				.allMatch((c) -> withinTheRangeOf(c, 0x21, 0x21) || withinTheRangeOf(c, 0x23, 0x5B)
+						|| withinTheRangeOf(c, 0x5D, 0x7E));
 		}
 
 		private static boolean withinTheRangeOf(int c, int min, int max) {

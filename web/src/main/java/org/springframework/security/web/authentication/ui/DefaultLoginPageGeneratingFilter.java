@@ -194,7 +194,7 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 			HttpSession session = request.getSession(false);
 			if (session != null) {
 				AuthenticationException ex = (AuthenticationException) session
-						.getAttribute(WebAttributes.AUTHENTICATION_EXCEPTION);
+					.getAttribute(WebAttributes.AUTHENTICATION_EXCEPTION);
 				errorMsg = (ex != null) ? ex.getMessage() : "Invalid credentials";
 			}
 		}
@@ -239,7 +239,7 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 			sb.append(createLogoutSuccess(logoutSuccess));
 			sb.append("<table class=\"table table-striped\">\n");
 			for (Map.Entry<String, String> clientAuthenticationUrlToClientName : this.oauth2AuthenticationUrlToClientName
-					.entrySet()) {
+				.entrySet()) {
 				sb.append(" <tr><td>");
 				String url = clientAuthenticationUrlToClientName.getKey();
 				sb.append("<a href=\"").append(contextPath).append(url).append("\">");
@@ -256,7 +256,7 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 			sb.append(createLogoutSuccess(logoutSuccess));
 			sb.append("<table class=\"table table-striped\">\n");
 			for (Map.Entry<String, String> relyingPartyUrlToName : this.saml2AuthenticationUrlToProviderName
-					.entrySet()) {
+				.entrySet()) {
 				sb.append(" <tr><td>");
 				String url = relyingPartyUrlToName.getKey();
 				sb.append("<a href=\"").append(contextPath).append(url).append("\">");

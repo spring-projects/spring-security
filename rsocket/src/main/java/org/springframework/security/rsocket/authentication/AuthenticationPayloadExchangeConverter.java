@@ -51,19 +51,19 @@ import org.springframework.util.MimeTypeUtils;
 public class AuthenticationPayloadExchangeConverter implements PayloadExchangeAuthenticationConverter {
 
 	private static final MimeType COMPOSITE_METADATA_MIME_TYPE = MimeTypeUtils
-			.parseMimeType(WellKnownMimeType.MESSAGE_RSOCKET_COMPOSITE_METADATA.getString());
+		.parseMimeType(WellKnownMimeType.MESSAGE_RSOCKET_COMPOSITE_METADATA.getString());
 
 	private static final MimeType AUTHENTICATION_MIME_TYPE = MimeTypeUtils
-			.parseMimeType(WellKnownMimeType.MESSAGE_RSOCKET_AUTHENTICATION.getString());
+		.parseMimeType(WellKnownMimeType.MESSAGE_RSOCKET_AUTHENTICATION.getString());
 
 	private final MetadataExtractor metadataExtractor = createDefaultExtractor();
 
 	@Override
 	public Mono<Authentication> convert(PayloadExchange exchange) {
 		return Mono
-				.fromCallable(() -> this.metadataExtractor.extract(exchange.getPayload(),
-						AuthenticationPayloadExchangeConverter.COMPOSITE_METADATA_MIME_TYPE))
-				.flatMap((metadata) -> Mono.justOrEmpty(authentication(metadata)));
+			.fromCallable(() -> this.metadataExtractor.extract(exchange.getPayload(),
+					AuthenticationPayloadExchangeConverter.COMPOSITE_METADATA_MIME_TYPE))
+			.flatMap((metadata) -> Mono.justOrEmpty(authentication(metadata)));
 	}
 
 	private Authentication authentication(Map<String, Object> metadata) {

@@ -77,8 +77,8 @@ public class HttpSecurityLogoutTests {
 		loadConfig(ClearAuthenticationFalseConfig.class);
 		SecurityContext currentContext = SecurityContextHolder.createEmptyContext();
 		currentContext.setAuthentication(new TestingAuthenticationToken("user", "password", "ROLE_USER"));
-		this.request.getSession().setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
-				currentContext);
+		this.request.getSession()
+			.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, currentContext);
 		this.request.setMethod("POST");
 		this.request.setServletPath("/logout");
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);

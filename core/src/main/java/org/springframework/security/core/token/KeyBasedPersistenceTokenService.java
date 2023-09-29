@@ -105,7 +105,7 @@ public class KeyBasedPersistenceTokenService implements TokenService, Initializi
 			return null;
 		}
 		String[] tokens = StringUtils
-				.delimitedListToStringArray(Utf8.decode(Base64.getDecoder().decode(Utf8.encode(key))), ":");
+			.delimitedListToStringArray(Utf8.decode(Base64.getDecoder().decode(Utf8.encode(key))), ":");
 		Assert.isTrue(tokens.length >= 4, () -> "Expected 4 or more tokens but found " + tokens.length);
 		long creationTime;
 		try {

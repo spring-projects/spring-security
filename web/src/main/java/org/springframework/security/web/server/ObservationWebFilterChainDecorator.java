@@ -81,7 +81,8 @@ public final class ObservationWebFilterChainDecorator implements WebFilterChainP
 			AroundWebFilterObservation parent = observation(exchange);
 			Observation parentObservation = contextView.getOrDefault(ObservationThreadLocalAccessor.KEY, null);
 			Observation observation = Observation.createNotStarted(SECURED_OBSERVATION_NAME, this.registry)
-					.contextualName("secured request").parentObservation(parentObservation);
+				.contextualName("secured request")
+				.parentObservation(parentObservation);
 			return parent.wrap(WebFilterObservation.create(observation).wrap(original)).filter(exchange);
 		});
 	}
@@ -90,7 +91,8 @@ public final class ObservationWebFilterChainDecorator implements WebFilterChainP
 		return (exchange) -> Mono.deferContextual((contextView) -> {
 			Observation parentObservation = contextView.getOrDefault(ObservationThreadLocalAccessor.KEY, null);
 			Observation observation = Observation.createNotStarted(UNSECURED_OBSERVATION_NAME, this.registry)
-					.contextualName("unsecured request").parentObservation(parentObservation);
+				.contextualName("unsecured request")
+				.parentObservation(parentObservation);
 			return WebFilterObservation.create(observation).wrap(original).filter(exchange);
 		});
 	}
@@ -224,9 +226,9 @@ public final class ObservationWebFilterChainDecorator implements WebFilterChainP
 			WebFilterChainObservationContext beforeContext = WebFilterChainObservationContext.before();
 			WebFilterChainObservationContext afterContext = WebFilterChainObservationContext.after();
 			Observation before = Observation.createNotStarted(this.convention, () -> beforeContext, this.registry)
-					.parentObservation(parentObservation);
+				.parentObservation(parentObservation);
 			Observation after = Observation.createNotStarted(this.convention, () -> afterContext, this.registry)
-					.parentObservation(parentObservation);
+				.parentObservation(parentObservation);
 			AroundWebFilterObservation parent = AroundWebFilterObservation.create(before, after);
 			exchange.getAttributes().put(ATTRIBUTE, parent);
 			return parent;
@@ -582,11 +584,13 @@ public final class ObservationWebFilterChainDecorator implements WebFilterChainP
 				}
 				return (exchange, chain) -> {
 					this.observation.start();
-					return filter.filter(exchange, chain).doOnSuccess((v) -> this.observation.stop())
-							.doOnCancel(this.observation::stop).doOnError((t) -> {
-								this.observation.error(t);
-								this.observation.stop();
-							});
+					return filter.filter(exchange, chain)
+						.doOnSuccess((v) -> this.observation.stop())
+						.doOnCancel(this.observation::stop)
+						.doOnError((t) -> {
+							this.observation.error(t);
+							this.observation.stop();
+						});
 				};
 			}
 
@@ -597,12 +601,14 @@ public final class ObservationWebFilterChainDecorator implements WebFilterChainP
 				}
 				return (exchange) -> {
 					this.observation.start();
-					return chain.filter(exchange).doOnSuccess((v) -> this.observation.stop())
-							.doOnCancel(this.observation::stop).doOnError((t) -> {
-								this.observation.error(t);
-								this.observation.stop();
-							}).contextWrite(
-									(context) -> context.put(ObservationThreadLocalAccessor.KEY, this.observation));
+					return chain.filter(exchange)
+						.doOnSuccess((v) -> this.observation.stop())
+						.doOnCancel(this.observation::stop)
+						.doOnError((t) -> {
+							this.observation.error(t);
+							this.observation.stop();
+						})
+						.contextWrite((context) -> context.put(ObservationThreadLocalAccessor.KEY, this.observation));
 				};
 			}
 
@@ -688,10 +694,10 @@ public final class ObservationWebFilterChainDecorator implements WebFilterChainP
 		@Override
 		public KeyValues getLowCardinalityKeyValues(WebFilterChainObservationContext context) {
 			return KeyValues.of(CHAIN_SIZE_NAME, String.valueOf(context.getChainSize()))
-					.and(CHAIN_POSITION_NAME, String.valueOf(context.getChainPosition()))
-					.and(FILTER_SECTION_NAME, context.getFilterSection())
-					.and(FILTER_NAME, (StringUtils.hasText(context.getFilterName())) ? context.getFilterName()
-							: KeyValue.NONE_VALUE);
+				.and(CHAIN_POSITION_NAME, String.valueOf(context.getChainPosition()))
+				.and(FILTER_SECTION_NAME, context.getFilterSection())
+				.and(FILTER_NAME,
+						(StringUtils.hasText(context.getFilterName())) ? context.getFilterName() : KeyValue.NONE_VALUE);
 		}
 
 		@Override

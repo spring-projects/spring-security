@@ -43,8 +43,10 @@ public class RequestMatcherDelegatingAuthenticationManagerResolverTests {
 	@Test
 	public void resolveWhenMatchesThenReturnsAuthenticationManager() {
 		RequestMatcherDelegatingAuthenticationManagerResolver resolver = RequestMatcherDelegatingAuthenticationManagerResolver
-				.builder().add(new AntPathRequestMatcher("/one/**"), this.one)
-				.add(new AntPathRequestMatcher("/two/**"), this.two).build();
+			.builder()
+			.add(new AntPathRequestMatcher("/one/**"), this.one)
+			.add(new AntPathRequestMatcher("/two/**"), this.two)
+			.build();
 
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/one/location");
 		request.setServletPath("/one/location");
@@ -54,15 +56,17 @@ public class RequestMatcherDelegatingAuthenticationManagerResolverTests {
 	@Test
 	public void resolveWhenDoesNotMatchThenReturnsDefaultAuthenticationManager() {
 		RequestMatcherDelegatingAuthenticationManagerResolver resolver = RequestMatcherDelegatingAuthenticationManagerResolver
-				.builder().add(new AntPathRequestMatcher("/one/**"), this.one)
-				.add(new AntPathRequestMatcher("/two/**"), this.two).build();
+			.builder()
+			.add(new AntPathRequestMatcher("/one/**"), this.one)
+			.add(new AntPathRequestMatcher("/two/**"), this.two)
+			.build();
 
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/wrong/location");
 		AuthenticationManager authenticationManager = resolver.resolve(request);
 
 		Authentication authentication = new TestingAuthenticationToken("principal", "creds");
 		assertThatExceptionOfType(AuthenticationServiceException.class)
-				.isThrownBy(() -> authenticationManager.authenticate(authentication));
+			.isThrownBy(() -> authenticationManager.authenticate(authentication));
 	}
 
 }

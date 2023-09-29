@@ -88,15 +88,17 @@ public class DefaultOAuth2UserService implements OAuth2UserService<OAuth2UserReq
 	public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
 		Assert.notNull(userRequest, "userRequest cannot be null");
 		if (!StringUtils
-				.hasText(userRequest.getClientRegistration().getProviderDetails().getUserInfoEndpoint().getUri())) {
+			.hasText(userRequest.getClientRegistration().getProviderDetails().getUserInfoEndpoint().getUri())) {
 			OAuth2Error oauth2Error = new OAuth2Error(MISSING_USER_INFO_URI_ERROR_CODE,
 					"Missing required UserInfo Uri in UserInfoEndpoint for Client Registration: "
 							+ userRequest.getClientRegistration().getRegistrationId(),
 					null);
 			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
 		}
-		String userNameAttributeName = userRequest.getClientRegistration().getProviderDetails().getUserInfoEndpoint()
-				.getUserNameAttributeName();
+		String userNameAttributeName = userRequest.getClientRegistration()
+			.getProviderDetails()
+			.getUserInfoEndpoint()
+			.getUserNameAttributeName();
 		if (!StringUtils.hasText(userNameAttributeName)) {
 			OAuth2Error oauth2Error = new OAuth2Error(MISSING_USER_NAME_ATTRIBUTE_ERROR_CODE,
 					"Missing required \"user name\" attribute name in UserInfoEndpoint for Client Registration: "
@@ -125,7 +127,7 @@ public class DefaultOAuth2UserService implements OAuth2UserService<OAuth2UserReq
 			StringBuilder errorDetails = new StringBuilder();
 			errorDetails.append("Error details: [");
 			errorDetails.append("UserInfo Uri: ")
-					.append(userRequest.getClientRegistration().getProviderDetails().getUserInfoEndpoint().getUri());
+				.append(userRequest.getClientRegistration().getProviderDetails().getUserInfoEndpoint().getUri());
 			errorDetails.append(", Error Code: ").append(oauth2Error.getErrorCode());
 			if (oauth2Error.getDescription() != null) {
 				errorDetails.append(", Error Description: ").append(oauth2Error.getDescription());

@@ -124,7 +124,7 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 			extends AbstractRequestMatcherRegistry<AuthorizedUrl> {
 
 		private final RequestMatcherDelegatingAuthorizationManager.Builder managerBuilder = RequestMatcherDelegatingAuthorizationManager
-				.builder();
+			.builder();
 
 		private List<RequestMatcher> unmappedMatchers;
 

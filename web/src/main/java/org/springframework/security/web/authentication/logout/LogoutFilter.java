@@ -54,7 +54,7 @@ import org.springframework.web.filter.GenericFilterBean;
 public class LogoutFilter extends GenericFilterBean {
 
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
-			.getContextHolderStrategy();
+		.getContextHolderStrategy();
 
 	private RequestMatcher logoutRequestMatcher;
 

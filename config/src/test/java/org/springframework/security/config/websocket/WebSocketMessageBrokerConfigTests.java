@@ -112,7 +112,7 @@ public class WebSocketMessageBrokerConfigTests {
 		this.spring.configLocations(xml("NoIdConfig")).autowire();
 		this.clientInboundChannel.send(message("/permitAll"));
 		assertThatExceptionOfType(Exception.class).isThrownBy(() -> this.clientInboundChannel.send(message("/denyAll")))
-				.withCauseInstanceOf(AccessDeniedException.class);
+			.withCauseInstanceOf(AccessDeniedException.class);
 	}
 
 	@Test
@@ -184,7 +184,7 @@ public class WebSocketMessageBrokerConfigTests {
 		this.spring.configLocations(xml("NoIdAuthorizationManager")).autowire();
 		this.clientInboundChannel.send(message("/permitAll"));
 		assertThatExceptionOfType(Exception.class).isThrownBy(() -> this.clientInboundChannel.send(message("/denyAll")))
-				.withCauseInstanceOf(AccessDeniedException.class);
+			.withCauseInstanceOf(AccessDeniedException.class);
 	}
 
 	@Test
@@ -265,7 +265,7 @@ public class WebSocketMessageBrokerConfigTests {
 		this.spring.configLocations(xml("SyncConfig")).autowire();
 		Message<?> message = message("/message", SimpMessageType.CONNECT);
 		assertThatExceptionOfType(Exception.class).isThrownBy(send(message))
-				.withCauseInstanceOf(InvalidCsrfTokenException.class);
+			.withCauseInstanceOf(InvalidCsrfTokenException.class);
 	}
 
 	@Test
@@ -282,10 +282,10 @@ public class WebSocketMessageBrokerConfigTests {
 		send(message);
 		message = message("/permitAll", SimpMessageType.UNSUBSCRIBE);
 		assertThatExceptionOfType(Exception.class).isThrownBy(send(message))
-				.withCauseInstanceOf(AccessDeniedException.class);
+			.withCauseInstanceOf(AccessDeniedException.class);
 		message = message("/anyOther", SimpMessageType.MESSAGE);
 		assertThatExceptionOfType(Exception.class).isThrownBy(send(message))
-				.withCauseInstanceOf(AccessDeniedException.class);
+			.withCauseInstanceOf(AccessDeniedException.class);
 	}
 
 	@Test
@@ -295,10 +295,10 @@ public class WebSocketMessageBrokerConfigTests {
 		send(message);
 		message = message("/permitAll", SimpMessageType.UNSUBSCRIBE);
 		assertThatExceptionOfType(Exception.class).isThrownBy(send(message))
-				.withCauseInstanceOf(AccessDeniedException.class);
+			.withCauseInstanceOf(AccessDeniedException.class);
 		message = message("/anyOther", SimpMessageType.MESSAGE);
 		assertThatExceptionOfType(Exception.class).isThrownBy(send(message))
-				.withCauseInstanceOf(AccessDeniedException.class);
+			.withCauseInstanceOf(AccessDeniedException.class);
 	}
 
 	@Test
@@ -308,10 +308,10 @@ public class WebSocketMessageBrokerConfigTests {
 		send(message);
 		message = message("/permitAll", SimpMessageType.UNSUBSCRIBE);
 		assertThatExceptionOfType(Exception.class).isThrownBy(send(message))
-				.withCauseInstanceOf(AccessDeniedException.class);
+			.withCauseInstanceOf(AccessDeniedException.class);
 		message = message("/anyOther", SimpMessageType.SUBSCRIBE);
 		assertThatExceptionOfType(Exception.class).isThrownBy(send(message))
-				.withCauseInstanceOf(AccessDeniedException.class);
+			.withCauseInstanceOf(AccessDeniedException.class);
 	}
 
 	@Test
@@ -321,52 +321,52 @@ public class WebSocketMessageBrokerConfigTests {
 		send(message);
 		message = message("/permitAll", SimpMessageType.UNSUBSCRIBE);
 		assertThatExceptionOfType(Exception.class).isThrownBy(send(message))
-				.withCauseInstanceOf(AccessDeniedException.class);
+			.withCauseInstanceOf(AccessDeniedException.class);
 		message = message("/anyOther", SimpMessageType.SUBSCRIBE);
 		assertThatExceptionOfType(Exception.class).isThrownBy(send(message))
-				.withCauseInstanceOf(AccessDeniedException.class);
+			.withCauseInstanceOf(AccessDeniedException.class);
 	}
 
 	@Test
 	public void configureWhenUsingConnectMessageTypeThenAutowireFails() {
 		assertThatExceptionOfType(BeanDefinitionParsingException.class)
-				.isThrownBy(() -> this.spring.configLocations(xml("ConnectInterceptTypeConfig")).autowire());
+			.isThrownBy(() -> this.spring.configLocations(xml("ConnectInterceptTypeConfig")).autowire());
 	}
 
 	@Test
 	public void configureWhenUsingConnectAckMessageTypeThenAutowireFails() {
 		assertThatExceptionOfType(BeanDefinitionParsingException.class)
-				.isThrownBy(() -> this.spring.configLocations(xml("ConnectAckInterceptTypeConfig")).autowire());
+			.isThrownBy(() -> this.spring.configLocations(xml("ConnectAckInterceptTypeConfig")).autowire());
 	}
 
 	@Test
 	public void configureWhenUsingDisconnectMessageTypeThenAutowireFails() {
 		assertThatExceptionOfType(BeanDefinitionParsingException.class)
-				.isThrownBy(() -> this.spring.configLocations(xml("DisconnectInterceptTypeConfig")).autowire());
+			.isThrownBy(() -> this.spring.configLocations(xml("DisconnectInterceptTypeConfig")).autowire());
 	}
 
 	@Test
 	public void configureWhenUsingDisconnectAckMessageTypeThenAutowireFails() {
 		assertThatExceptionOfType(BeanDefinitionParsingException.class)
-				.isThrownBy(() -> this.spring.configLocations(xml("DisconnectAckInterceptTypeConfig")).autowire());
+			.isThrownBy(() -> this.spring.configLocations(xml("DisconnectAckInterceptTypeConfig")).autowire());
 	}
 
 	@Test
 	public void configureWhenUsingHeartbeatMessageTypeThenAutowireFails() {
 		assertThatExceptionOfType(BeanDefinitionParsingException.class)
-				.isThrownBy(() -> this.spring.configLocations(xml("HeartbeatInterceptTypeConfig")).autowire());
+			.isThrownBy(() -> this.spring.configLocations(xml("HeartbeatInterceptTypeConfig")).autowire());
 	}
 
 	@Test
 	public void configureWhenUsingOtherMessageTypeThenAutowireFails() {
 		assertThatExceptionOfType(BeanDefinitionParsingException.class)
-				.isThrownBy(() -> this.spring.configLocations(xml("OtherInterceptTypeConfig")).autowire());
+			.isThrownBy(() -> this.spring.configLocations(xml("OtherInterceptTypeConfig")).autowire());
 	}
 
 	@Test
 	public void configureWhenUsingUnsubscribeMessageTypeThenAutowireFails() {
 		assertThatExceptionOfType(BeanDefinitionParsingException.class)
-				.isThrownBy(() -> this.spring.configLocations(xml("UnsubscribeInterceptTypeConfig")).autowire());
+			.isThrownBy(() -> this.spring.configLocations(xml("UnsubscribeInterceptTypeConfig")).autowire());
 	}
 
 	@Test
@@ -383,16 +383,16 @@ public class WebSocketMessageBrokerConfigTests {
 		MockMvc mvc = MockMvcBuilders.webAppContextSetup(context).build();
 		String csrfAttributeName = CsrfToken.class.getName();
 		String customAttributeName = this.getClass().getName();
-		MvcResult result = mvc.perform(
-				get("/app").requestAttr(DeferredCsrfToken.class.getName(), new TestDeferredCsrfToken(this.token))
-						.sessionAttr(customAttributeName, "attributeValue"))
-				.andReturn();
+		MvcResult result = mvc
+			.perform(get("/app").requestAttr(DeferredCsrfToken.class.getName(), new TestDeferredCsrfToken(this.token))
+				.sessionAttr(customAttributeName, "attributeValue"))
+			.andReturn();
 		CsrfToken handshakeToken = (CsrfToken) this.testHandshakeHandler.attributes.get(csrfAttributeName);
 		String handshakeValue = (String) this.testHandshakeHandler.attributes.get(customAttributeName);
 		String sessionValue = (String) result.getRequest().getSession().getAttribute(customAttributeName);
 		assertThatCsrfToken(handshakeToken).isEqualTo(this.token).withFailMessage("CsrfToken is populated");
 		assertThat(handshakeValue).isEqualTo(sessionValue)
-				.withFailMessage("Explicitly listed session variables are not overridden");
+			.withFailMessage("Explicitly listed session variables are not overridden");
 	}
 
 	@Test
@@ -402,15 +402,17 @@ public class WebSocketMessageBrokerConfigTests {
 		MockMvc mvc = MockMvcBuilders.webAppContextSetup(context).build();
 		String csrfAttributeName = CsrfToken.class.getName();
 		String customAttributeName = this.getClass().getName();
-		MvcResult result = mvc.perform(get("/app/289/tpyx6mde/websocket")
+		MvcResult result = mvc
+			.perform(get("/app/289/tpyx6mde/websocket")
 				.requestAttr(DeferredCsrfToken.class.getName(), new TestDeferredCsrfToken(this.token))
-				.sessionAttr(customAttributeName, "attributeValue")).andReturn();
+				.sessionAttr(customAttributeName, "attributeValue"))
+			.andReturn();
 		CsrfToken handshakeToken = (CsrfToken) this.testHandshakeHandler.attributes.get(csrfAttributeName);
 		String handshakeValue = (String) this.testHandshakeHandler.attributes.get(customAttributeName);
 		String sessionValue = (String) result.getRequest().getSession().getAttribute(customAttributeName);
 		assertThatCsrfToken(handshakeToken).isEqualTo(this.token).withFailMessage("CsrfToken is populated");
 		assertThat(handshakeValue).isEqualTo(sessionValue)
-				.withFailMessage("Explicitly listed session variables are not overridden");
+			.withFailMessage("Explicitly listed session variables are not overridden");
 	}
 
 	@Test
@@ -425,7 +427,7 @@ public class WebSocketMessageBrokerConfigTests {
 		this.spring.configLocations(xml("CustomPathMatcherConfig")).autowire();
 		Message<?> message = message("/denyAll.a");
 		assertThatExceptionOfType(Exception.class).isThrownBy(send(message))
-				.withCauseInstanceOf(AccessDeniedException.class);
+			.withCauseInstanceOf(AccessDeniedException.class);
 		message = message("/denyAll.a.b");
 		send(message);
 	}
@@ -435,7 +437,7 @@ public class WebSocketMessageBrokerConfigTests {
 		this.spring.configLocations(xml("CustomPathMatcherAuthorizationManager")).autowire();
 		Message<?> message = message("/denyAll.a");
 		assertThatExceptionOfType(Exception.class).isThrownBy(send(message))
-				.withCauseInstanceOf(AccessDeniedException.class);
+			.withCauseInstanceOf(AccessDeniedException.class);
 		message = message("/denyAll.a.b");
 		send(message);
 	}
@@ -453,7 +455,7 @@ public class WebSocketMessageBrokerConfigTests {
 		this.spring.configLocations(xml("IdIntegratedConfig")).autowire();
 		Message<?> message = message("/denyAll");
 		assertThatExceptionOfType(Exception.class).isThrownBy(send(message))
-				.withCauseInstanceOf(AccessDeniedException.class);
+			.withCauseInstanceOf(AccessDeniedException.class);
 	}
 
 	@Test
@@ -461,7 +463,7 @@ public class WebSocketMessageBrokerConfigTests {
 		this.spring.configLocations(xml("CustomInterceptorConfig")).autowire();
 		Message<?> message = message("/throwAll");
 		assertThatExceptionOfType(Exception.class).isThrownBy(send(message))
-				.withCauseInstanceOf(UnsupportedOperationException.class);
+			.withCauseInstanceOf(UnsupportedOperationException.class);
 	}
 
 	@Test
@@ -470,7 +472,7 @@ public class WebSocketMessageBrokerConfigTests {
 		this.spring.configLocations(xml("CustomExpressionHandlerConfig")).autowire();
 		Message<?> message = message("/denyNile");
 		assertThatExceptionOfType(Exception.class).isThrownBy(send(message))
-				.withCauseInstanceOf(AccessDeniedException.class);
+			.withCauseInstanceOf(AccessDeniedException.class);
 	}
 
 	@Test
@@ -479,18 +481,18 @@ public class WebSocketMessageBrokerConfigTests {
 		this.spring.configLocations(xml("CustomExpressionHandlerAuthorizationManager")).autowire();
 		Message<?> message = message("/denyNile");
 		assertThatExceptionOfType(Exception.class).isThrownBy(send(message))
-				.withCauseInstanceOf(AccessDeniedException.class);
+			.withCauseInstanceOf(AccessDeniedException.class);
 	}
 
 	@Test
 	public void sendWhenCustomAuthorizationManagerThenAuthorizesAccordingly() {
 		this.spring.configLocations(xml("CustomAuthorizationManagerConfig")).autowire();
 		AuthorizationManager<Message<?>> authorizationManager = this.spring.getContext()
-				.getBean(AuthorizationManager.class);
+			.getBean(AuthorizationManager.class);
 		given(authorizationManager.check(any(), any())).willReturn(new AuthorizationDecision(false));
 		Message<?> message = message("/any");
 		assertThatExceptionOfType(Exception.class).isThrownBy(send(message))
-				.withCauseInstanceOf(AccessDeniedException.class);
+			.withCauseInstanceOf(AccessDeniedException.class);
 		verify(authorizationManager).check(any(), any());
 	}
 
@@ -615,8 +617,8 @@ public class WebSocketMessageBrokerConfigTests {
 		@Override
 		public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
 			BeanDefinition inbound = registry.getBeanDefinition("clientInboundChannel");
-			inbound.getConstructorArgumentValues().addIndexedArgumentValue(0,
-					new RootBeanDefinition(SyncTaskExecutor.class));
+			inbound.getConstructorArgumentValues()
+				.addIndexedArgumentValue(0, new RootBeanDefinition(SyncTaskExecutor.class));
 		}
 
 		@Override

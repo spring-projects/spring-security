@@ -91,7 +91,7 @@ class ReactiveMethodSecurityConfiguration implements ImportAware {
 	@Override
 	public void setImportMetadata(AnnotationMetadata importMetadata) {
 		this.advisorOrder = (int) importMetadata.getAnnotationAttributes(EnableReactiveMethodSecurity.class.getName())
-				.get("order");
+			.get("order");
 	}
 
 	@Autowired(required = false)

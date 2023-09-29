@@ -91,9 +91,9 @@ public class SpringSecurityLdapTemplateITests {
 	@Test
 	public void namingExceptionIsTranslatedCorrectly() {
 		assertThatExceptionOfType(UncategorizedLdapException.class)
-				.isThrownBy(() -> this.template.executeReadOnly((ContextExecutor) (dirContext) -> {
-					throw new NamingException();
-				}));
+			.isThrownBy(() -> this.template.executeReadOnly((ContextExecutor) (dirContext) -> {
+				throw new NamingException();
+			}));
 	}
 
 	@Test

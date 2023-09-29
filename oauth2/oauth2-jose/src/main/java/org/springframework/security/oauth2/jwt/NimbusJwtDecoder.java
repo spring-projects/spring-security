@@ -90,7 +90,7 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 	private final JWTProcessor<SecurityContext> jwtProcessor;
 
 	private Converter<Map<String, Object>, Map<String, Object>> claimSetConverter = MappedJwtClaimSetConverter
-			.withDefaults(Collections.emptyMap());
+		.withDefaults(Collections.emptyMap());
 
 	private OAuth2TokenValidator<Jwt> jwtValidator = JwtValidators.createDefault();
 

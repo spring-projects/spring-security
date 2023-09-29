@@ -197,13 +197,14 @@ public class LdapUserDetailsManagerTests {
 
 		this.mgr.createUser(p.createUserDetails());
 
-		SecurityContextHolder.getContext().setAuthentication(UsernamePasswordAuthenticationToken
-				.authenticated("johnyossarian", "yossarianspassword", TEST_AUTHORITIES));
+		SecurityContextHolder.getContext()
+			.setAuthentication(UsernamePasswordAuthenticationToken.authenticated("johnyossarian", "yossarianspassword",
+					TEST_AUTHORITIES));
 
 		this.mgr.changePassword("yossarianspassword", "yossariansnewpassword");
 
 		assertThat(this.template.compare("uid=johnyossarian,ou=test people", "userPassword", "yossariansnewpassword"))
-				.isTrue();
+			.isTrue();
 	}
 
 	@Test
@@ -220,13 +221,13 @@ public class LdapUserDetailsManagerTests {
 
 		SecurityContextHolderStrategy strategy = mock(SecurityContextHolderStrategy.class);
 		given(strategy.getContext()).willReturn(new SecurityContextImpl(UsernamePasswordAuthenticationToken
-				.authenticated("johnyossarian", "yossarianspassword", TEST_AUTHORITIES)));
+			.authenticated("johnyossarian", "yossarianspassword", TEST_AUTHORITIES)));
 		this.mgr.setSecurityContextHolderStrategy(strategy);
 
 		this.mgr.changePassword("yossarianspassword", "yossariansnewpassword");
 
 		assertThat(this.template.compare("uid=johnyossarian,ou=test people", "userPassword", "yossariansnewpassword"))
-				.isTrue();
+			.isTrue();
 		verify(strategy).getContext();
 	}
 
@@ -240,10 +241,11 @@ public class LdapUserDetailsManagerTests {
 		p.setPassword("yossarianspassword");
 		p.setAuthorities(TEST_AUTHORITIES);
 		this.mgr.createUser(p.createUserDetails());
-		SecurityContextHolder.getContext().setAuthentication(UsernamePasswordAuthenticationToken
-				.authenticated("johnyossarian", "yossarianspassword", TEST_AUTHORITIES));
+		SecurityContextHolder.getContext()
+			.setAuthentication(UsernamePasswordAuthenticationToken.authenticated("johnyossarian", "yossarianspassword",
+					TEST_AUTHORITIES));
 		assertThatExceptionOfType(BadCredentialsException.class)
-				.isThrownBy(() -> this.mgr.changePassword("wrongpassword", "yossariansnewpassword"));
+			.isThrownBy(() -> this.mgr.changePassword("wrongpassword", "yossariansnewpassword"));
 	}
 
 }

@@ -47,7 +47,7 @@ public class DefaultSecurityParameterNameDiscovererTests {
 	@Test
 	public void constructorDefault() {
 		List<ParameterNameDiscoverer> discoverers = (List<ParameterNameDiscoverer>) ReflectionTestUtils
-				.getField(this.discoverer, "parameterNameDiscoverers");
+			.getField(this.discoverer, "parameterNameDiscoverers");
 		assertThat(discoverers).hasSize(2);
 		ParameterNameDiscoverer annotationDisc = discoverers.get(0);
 		assertThat(annotationDisc).isInstanceOf(AnnotationParameterNameDiscoverer.class);
@@ -62,7 +62,7 @@ public class DefaultSecurityParameterNameDiscovererTests {
 		this.discoverer = new DefaultSecurityParameterNameDiscoverer(
 				Arrays.asList(new LocalVariableTableParameterNameDiscoverer()));
 		List<ParameterNameDiscoverer> discoverers = (List<ParameterNameDiscoverer>) ReflectionTestUtils
-				.getField(this.discoverer, "parameterNameDiscoverers");
+			.getField(this.discoverer, "parameterNameDiscoverers");
 		assertThat(discoverers).hasSize(3);
 		assertThat(discoverers.get(0)).isInstanceOf(LocalVariableTableParameterNameDiscoverer.class);
 		ParameterNameDiscoverer annotationDisc = discoverers.get(1);

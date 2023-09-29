@@ -54,25 +54,25 @@ public class OAuth2PasswordGrantRequestEntityConverterTests {
 	@Test
 	public void setHeadersConverterWhenNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.converter.setHeadersConverter(null))
-				.withMessage("headersConverter cannot be null");
+			.withMessage("headersConverter cannot be null");
 	}
 
 	@Test
 	public void addHeadersConverterWhenNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.converter.addHeadersConverter(null))
-				.withMessage("headersConverter cannot be null");
+			.withMessage("headersConverter cannot be null");
 	}
 
 	@Test
 	public void setParametersConverterWhenNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.converter.setParametersConverter(null))
-				.withMessage("parametersConverter cannot be null");
+			.withMessage("parametersConverter cannot be null");
 	}
 
 	@Test
 	public void addParametersConverterWhenNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.converter.addParametersConverter(null))
-				.withMessage("parametersConverter cannot be null");
+			.withMessage("parametersConverter cannot be null");
 	}
 
 	@Test
@@ -116,15 +116,15 @@ public class OAuth2PasswordGrantRequestEntityConverterTests {
 		RequestEntity<?> requestEntity = this.converter.convert(passwordGrantRequest);
 		assertThat(requestEntity.getMethod()).isEqualTo(HttpMethod.POST);
 		assertThat(requestEntity.getUrl().toASCIIString())
-				.isEqualTo(clientRegistration.getProviderDetails().getTokenUri());
+			.isEqualTo(clientRegistration.getProviderDetails().getTokenUri());
 		HttpHeaders headers = requestEntity.getHeaders();
 		assertThat(headers.getAccept()).contains(MediaType.APPLICATION_JSON_UTF8);
 		assertThat(headers.getContentType())
-				.isEqualTo(MediaType.valueOf(MediaType.APPLICATION_FORM_URLENCODED_VALUE + ";charset=UTF-8"));
+			.isEqualTo(MediaType.valueOf(MediaType.APPLICATION_FORM_URLENCODED_VALUE + ";charset=UTF-8"));
 		assertThat(headers.getFirst(HttpHeaders.AUTHORIZATION)).startsWith("Basic ");
 		MultiValueMap<String, String> formParameters = (MultiValueMap<String, String>) requestEntity.getBody();
 		assertThat(formParameters.getFirst(OAuth2ParameterNames.GRANT_TYPE))
-				.isEqualTo(AuthorizationGrantType.PASSWORD.getValue());
+			.isEqualTo(AuthorizationGrantType.PASSWORD.getValue());
 		assertThat(formParameters.getFirst(OAuth2ParameterNames.USERNAME)).isEqualTo("user1");
 		assertThat(formParameters.getFirst(OAuth2ParameterNames.PASSWORD)).isEqualTo("password");
 		assertThat(formParameters.getFirst(OAuth2ParameterNames.SCOPE)).contains(clientRegistration.getScopes());

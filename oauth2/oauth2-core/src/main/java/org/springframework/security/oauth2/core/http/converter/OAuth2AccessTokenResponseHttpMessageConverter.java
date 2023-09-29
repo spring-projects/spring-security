@@ -73,7 +73,7 @@ public class OAuth2AccessTokenResponseHttpMessageConverter
 			HttpInputMessage inputMessage) throws HttpMessageNotReadableException {
 		try {
 			Map<String, Object> tokenResponseParameters = (Map<String, Object>) this.jsonMessageConverter
-					.read(STRING_OBJECT_MAP.getType(), null, inputMessage);
+				.read(STRING_OBJECT_MAP.getType(), null, inputMessage);
 			return this.accessTokenResponseConverter.convert(tokenResponseParameters);
 		}
 		catch (Exception ex) {
@@ -88,7 +88,7 @@ public class OAuth2AccessTokenResponseHttpMessageConverter
 			throws HttpMessageNotWritableException {
 		try {
 			Map<String, Object> tokenResponseParameters = this.accessTokenResponseParametersConverter
-					.convert(tokenResponse);
+				.convert(tokenResponse);
 			this.jsonMessageConverter.write(tokenResponseParameters, STRING_OBJECT_MAP.getType(),
 					MediaType.APPLICATION_JSON, outputMessage);
 		}

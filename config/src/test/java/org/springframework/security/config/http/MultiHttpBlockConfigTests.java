@@ -70,15 +70,15 @@ public class MultiHttpBlockConfigTests {
 	@Test
 	public void configureWhenUsingDuplicateHttpElementsThenThrowsWiringException() {
 		assertThatExceptionOfType(BeanCreationException.class)
-				.isThrownBy(() -> this.spring.configLocations(this.xml("IdenticalHttpElements")).autowire())
-				.withCauseInstanceOf(IllegalArgumentException.class);
+			.isThrownBy(() -> this.spring.configLocations(this.xml("IdenticalHttpElements")).autowire())
+			.withCauseInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
 	public void configureWhenUsingIndenticallyPatternedHttpElementsThenThrowsWiringException() {
 		assertThatExceptionOfType(BeanCreationException.class)
-				.isThrownBy(() -> this.spring.configLocations(this.xml("IdenticallyPatternedHttpElements")).autowire())
-				.withCauseInstanceOf(IllegalArgumentException.class);
+			.isThrownBy(() -> this.spring.configLocations(this.xml("IdenticallyPatternedHttpElements")).autowire())
+			.withCauseInstanceOf(IllegalArgumentException.class);
 	}
 
 	/**

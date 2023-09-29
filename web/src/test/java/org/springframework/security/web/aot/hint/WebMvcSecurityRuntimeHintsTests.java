@@ -40,15 +40,17 @@ class WebMvcSecurityRuntimeHintsTests {
 
 	@BeforeEach
 	void setup() {
-		SpringFactoriesLoader.forResourceLocation("META-INF/spring/aot.factories").load(RuntimeHintsRegistrar.class)
-				.forEach((registrar) -> registrar.registerHints(this.hints, ClassUtils.getDefaultClassLoader()));
+		SpringFactoriesLoader.forResourceLocation("META-INF/spring/aot.factories")
+			.load(RuntimeHintsRegistrar.class)
+			.forEach((registrar) -> registrar.registerHints(this.hints, ClassUtils.getDefaultClassLoader()));
 	}
 
 	@Test
 	void webSecurityExpressionRootHasHints() {
-		assertThat(RuntimeHintsPredicates.reflection().onType(WebSecurityExpressionRoot.class)
-				.withMemberCategories(MemberCategory.INVOKE_DECLARED_METHODS, MemberCategory.DECLARED_FIELDS))
-						.accepts(this.hints);
+		assertThat(RuntimeHintsPredicates.reflection()
+			.onType(WebSecurityExpressionRoot.class)
+			.withMemberCategories(MemberCategory.INVOKE_DECLARED_METHODS, MemberCategory.DECLARED_FIELDS))
+			.accepts(this.hints);
 	}
 
 }

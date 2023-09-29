@@ -95,11 +95,17 @@ public class DefaultSavedRequestMixinTests extends AbstractMixinTests {
 	@Test
 	public void matchRequestBuildWithConstructorAndBuilder() {
 		DefaultSavedRequest request = new DefaultSavedRequest.Builder()
-				.setCookies(Collections.singletonList(new SavedCookie(new Cookie("SESSION", "123456789"))))
-				.setHeaders(Collections.singletonMap("x-auth-token", Collections.singletonList("12"))).setScheme("http")
-				.setRequestURL("http://localhost").setServerName("localhost").setRequestURI("")
-				.setLocales(Collections.singletonList(new Locale("en"))).setContextPath("").setMethod("")
-				.setServletPath("").build();
+			.setCookies(Collections.singletonList(new SavedCookie(new Cookie("SESSION", "123456789"))))
+			.setHeaders(Collections.singletonMap("x-auth-token", Collections.singletonList("12")))
+			.setScheme("http")
+			.setRequestURL("http://localhost")
+			.setServerName("localhost")
+			.setRequestURI("")
+			.setLocales(Collections.singletonList(new Locale("en")))
+			.setContextPath("")
+			.setMethod("")
+			.setServletPath("")
+			.build();
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest();
 		mockRequest.setCookies(new Cookie("SESSION", "123456789"));
 		mockRequest.addHeader("x-auth-token", "12");
@@ -119,18 +125,24 @@ public class DefaultSavedRequestMixinTests extends AbstractMixinTests {
 			}
 		};
 		String actualString = this.mapper.writerWithDefaultPrettyPrinter()
-				.writeValueAsString(new DefaultSavedRequest(requestToWrite, new PortResolverImpl()));
+			.writeValueAsString(new DefaultSavedRequest(requestToWrite, new PortResolverImpl()));
 		JSONAssert.assertEquals(REQUEST_JSON, actualString, true);
 	}
 
 	@Test
 	public void serializeDefaultRequestBuildWithBuilderTest() throws IOException, JSONException {
 		DefaultSavedRequest request = new DefaultSavedRequest.Builder()
-				.setCookies(Collections.singletonList(new SavedCookie(new Cookie("SESSION", "123456789"))))
-				.setHeaders(Collections.singletonMap("x-auth-token", Collections.singletonList("12"))).setScheme("http")
-				.setRequestURL("http://localhost").setServerName("localhost").setRequestURI("")
-				.setLocales(Collections.singletonList(new Locale("en"))).setContextPath("").setMethod("")
-				.setServletPath("").build();
+			.setCookies(Collections.singletonList(new SavedCookie(new Cookie("SESSION", "123456789"))))
+			.setHeaders(Collections.singletonMap("x-auth-token", Collections.singletonList("12")))
+			.setScheme("http")
+			.setRequestURL("http://localhost")
+			.setServerName("localhost")
+			.setRequestURI("")
+			.setLocales(Collections.singletonList(new Locale("en")))
+			.setContextPath("")
+			.setMethod("")
+			.setServletPath("")
+			.build();
 		String actualString = this.mapper.writerWithDefaultPrettyPrinter().writeValueAsString(request);
 		JSONAssert.assertEquals(REQUEST_JSON, actualString, true);
 	}
@@ -148,7 +160,7 @@ public class DefaultSavedRequestMixinTests extends AbstractMixinTests {
 	@Test
 	public void deserializeWhenMatchingRequestParameterNameThenRedirectUrlContainsParam() throws IOException {
 		DefaultSavedRequest request = (DefaultSavedRequest) this.mapper
-				.readValue(REQUEST_WITH_MATCHING_REQUEST_PARAM_NAME_JSON, Object.class);
+			.readValue(REQUEST_WITH_MATCHING_REQUEST_PARAM_NAME_JSON, Object.class);
 		assertThat(request.getRedirectUrl()).isEqualTo("http://localhost?success");
 	}
 

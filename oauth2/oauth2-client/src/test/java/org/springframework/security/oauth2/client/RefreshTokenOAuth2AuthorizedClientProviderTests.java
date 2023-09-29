@@ -162,7 +162,8 @@ public class RefreshTokenOAuth2AuthorizedClientProviderTests {
 	@Test
 	public void authorizeWhenAuthorizedAndAccessTokenNotExpiredButClockSkewForcesExpiryThenReauthorize() {
 		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses.accessTokenResponse()
-				.refreshToken("new-refresh-token").build();
+			.refreshToken("new-refresh-token")
+			.build();
 		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(accessTokenResponse);
 		Instant now = Instant.now();
 		Instant issuedAt = now.minus(Duration.ofMinutes(60));
@@ -228,10 +229,10 @@ public class RefreshTokenOAuth2AuthorizedClientProviderTests {
 		// @formatter:on
 		this.authorizedClientProvider.authorize(authorizationContext);
 		ArgumentCaptor<OAuth2RefreshTokenGrantRequest> refreshTokenGrantRequestArgCaptor = ArgumentCaptor
-				.forClass(OAuth2RefreshTokenGrantRequest.class);
+			.forClass(OAuth2RefreshTokenGrantRequest.class);
 		verify(this.accessTokenResponseClient).getTokenResponse(refreshTokenGrantRequestArgCaptor.capture());
 		assertThat(refreshTokenGrantRequestArgCaptor.getValue().getScopes())
-				.isEqualTo(new HashSet<>(Arrays.asList(requestScope)));
+			.isEqualTo(new HashSet<>(Arrays.asList(requestScope)));
 	}
 
 	@Test
@@ -245,9 +246,9 @@ public class RefreshTokenOAuth2AuthorizedClientProviderTests {
 				.build();
 		// @formatter:on
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> this.authorizedClientProvider.authorize(authorizationContext))
-				.withMessageStartingWith("The context attribute must be of type String[] '"
-						+ OAuth2AuthorizationContext.REQUEST_SCOPE_ATTRIBUTE_NAME + "'");
+			.isThrownBy(() -> this.authorizedClientProvider.authorize(authorizationContext))
+			.withMessageStartingWith("The context attribute must be of type String[] '"
+					+ OAuth2AuthorizationContext.REQUEST_SCOPE_ATTRIBUTE_NAME + "'");
 	}
 
 }

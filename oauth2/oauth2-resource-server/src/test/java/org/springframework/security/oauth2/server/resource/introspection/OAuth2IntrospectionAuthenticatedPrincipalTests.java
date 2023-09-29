@@ -109,15 +109,15 @@ public class OAuth2IntrospectionAuthenticatedPrincipalTests {
 	@Test
 	public void constructorWhenAttributesIsNullOrEmptyThenIllegalArgumentException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new OAuth2IntrospectionAuthenticatedPrincipal(null, AUTHORITIES));
+			.isThrownBy(() -> new OAuth2IntrospectionAuthenticatedPrincipal(null, AUTHORITIES));
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new OAuth2IntrospectionAuthenticatedPrincipal(Collections.emptyMap(), AUTHORITIES));
+			.isThrownBy(() -> new OAuth2IntrospectionAuthenticatedPrincipal(Collections.emptyMap(), AUTHORITIES));
 	}
 
 	@Test
 	public void constructorWhenAuthoritiesIsNullOrEmptyThenNoAuthorities() {
 		Collection<? extends GrantedAuthority> authorities = new OAuth2IntrospectionAuthenticatedPrincipal(CLAIMS, null)
-				.getAuthorities();
+			.getAuthorities();
 		assertThat(authorities).isEmpty();
 		authorities = new OAuth2IntrospectionAuthenticatedPrincipal(CLAIMS, Collections.emptyList()).getAuthorities();
 		assertThat(authorities).isEmpty();

@@ -78,7 +78,7 @@ public abstract class AbstractUserDetailsReactiveAuthenticationManager
 		if (!user.isAccountNonExpired()) {
 			this.logger.debug("User account is expired");
 			throw new AccountExpiredException(this.messages
-					.getMessage("AbstractUserDetailsAuthenticationProvider.expired", "User account has expired"));
+				.getMessage("AbstractUserDetailsAuthenticationProvider.expired", "User account has expired"));
 		}
 	}
 

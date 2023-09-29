@@ -74,7 +74,7 @@ public class Saml2X509CredentialTests {
 				+ "qK7UFgP1bRl5qksrYX5S0z2iGJh0GvonLUt3e20Ssfl5tTEDDnAEUMLfBkyaxEHD\n"
 				+ "RZ/nbTJ7VTeZOSyRoVn5XHhpuJ0B\n" + "-----END CERTIFICATE-----";
 		this.certificate = (X509Certificate) factory
-				.generateCertificate(new ByteArrayInputStream(certificateData.getBytes(StandardCharsets.UTF_8)));
+			.generateCertificate(new ByteArrayInputStream(certificateData.getBytes(StandardCharsets.UTF_8)));
 	}
 
 	@Test
@@ -114,7 +114,7 @@ public class Saml2X509CredentialTests {
 	@Test
 	public void constructorWhenAssertingPartyWithoutCertificateThenItFails() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new Saml2X509Credential(null, Saml2X509Credential.Saml2X509CredentialType.SIGNING));
+			.isThrownBy(() -> new Saml2X509Credential(null, Saml2X509Credential.Saml2X509CredentialType.SIGNING));
 	}
 
 	@Test

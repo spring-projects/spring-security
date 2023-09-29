@@ -72,7 +72,7 @@ public class JwtBuilderTests {
 		jwt = jwtBuilder.expiresAt(now).build();
 		assertThat(jwt.getExpiresAt()).isSameAs(now);
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> jwtBuilder.claim(JwtClaimNames.EXP, "not an instant").build());
+			.isThrownBy(() -> jwtBuilder.claim(JwtClaimNames.EXP, "not an instant").build());
 	}
 
 	@Test
@@ -87,7 +87,7 @@ public class JwtBuilderTests {
 		jwt = jwtBuilder.issuedAt(now).build();
 		assertThat(jwt.getIssuedAt()).isSameAs(now);
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> jwtBuilder.claim(JwtClaimNames.IAT, "not an instant").build());
+			.isThrownBy(() -> jwtBuilder.claim(JwtClaimNames.IAT, "not an instant").build());
 	}
 
 	@Test

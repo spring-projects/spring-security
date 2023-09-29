@@ -49,7 +49,7 @@ public class WebSessionOAuth2ServerAuthorizationRequestRepositoryTests {
 	// @formatter:on
 
 	private ServerWebExchange exchange = MockServerWebExchange
-			.from(MockServerHttpRequest.get("/").queryParam(OAuth2ParameterNames.STATE, "state"));
+		.from(MockServerHttpRequest.get("/").queryParam(OAuth2ParameterNames.STATE, "state"));
 
 	@Test
 	public void loadAuthorizationRequestWhenNullExchangeThenIllegalArgumentException() {
@@ -106,7 +106,7 @@ public class WebSessionOAuth2ServerAuthorizationRequestRepositoryTests {
 	public void saveAuthorizationRequestWhenAuthorizationRequestNullThenThrowsIllegalArgumentException() {
 		this.authorizationRequest = null;
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> this.repository.saveAuthorizationRequest(this.authorizationRequest, this.exchange));
+			.isThrownBy(() -> this.repository.saveAuthorizationRequest(this.authorizationRequest, this.exchange));
 		assertSessionStartedIs(false);
 	}
 
@@ -114,14 +114,14 @@ public class WebSessionOAuth2ServerAuthorizationRequestRepositoryTests {
 	public void saveAuthorizationRequestWhenExchangeNullThenThrowsIllegalArgumentException() {
 		this.exchange = null;
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> this.repository.saveAuthorizationRequest(this.authorizationRequest, this.exchange));
+			.isThrownBy(() -> this.repository.saveAuthorizationRequest(this.authorizationRequest, this.exchange));
 	}
 
 	@Test
 	public void removeAuthorizationRequestWhenExchangeNullThenThrowsIllegalArgumentException() {
 		this.exchange = null;
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> this.repository.removeAuthorizationRequest(this.exchange));
+			.isThrownBy(() -> this.repository.removeAuthorizationRequest(this.exchange));
 	}
 
 	@Test

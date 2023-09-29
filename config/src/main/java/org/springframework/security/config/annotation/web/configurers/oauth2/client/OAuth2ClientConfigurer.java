@@ -259,7 +259,7 @@ public final class OAuth2ClientConfigurer<B extends HttpSecurityBuilder<B>>
 					resolver);
 			if (this.authorizationRequestRepository != null) {
 				authorizationRequestRedirectFilter
-						.setAuthorizationRequestRepository(this.authorizationRequestRepository);
+					.setAuthorizationRequestRepository(this.authorizationRequestRepository);
 			}
 			if (this.authorizationRedirectStrategy != null) {
 				authorizationRequestRedirectFilter.setAuthorizationRedirectStrategy(this.authorizationRedirectStrategy);
@@ -276,7 +276,7 @@ public final class OAuth2ClientConfigurer<B extends HttpSecurityBuilder<B>>
 				return this.authorizationRequestResolver;
 			}
 			ClientRegistrationRepository clientRegistrationRepository = OAuth2ClientConfigurerUtils
-					.getClientRegistrationRepository(getBuilder());
+				.getClientRegistrationRepository(getBuilder());
 			return new DefaultOAuth2AuthorizationRequestResolver(clientRegistrationRepository,
 					OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI);
 		}

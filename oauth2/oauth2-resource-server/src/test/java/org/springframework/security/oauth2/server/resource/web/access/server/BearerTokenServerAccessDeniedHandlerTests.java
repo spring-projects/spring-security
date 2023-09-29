@@ -66,7 +66,7 @@ public class BearerTokenServerAccessDeniedHandlerTests {
 		this.accessDeniedHandler.handle(exchange, null).block();
 		assertThat(exchange.getResponse().getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
 		assertThat(exchange.getResponse().getHeaders().get("WWW-Authenticate"))
-				.isEqualTo(Arrays.asList("Bearer realm=\"test\""));
+			.isEqualTo(Arrays.asList("Bearer realm=\"test\""));
 	}
 
 	@Test

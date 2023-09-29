@@ -95,7 +95,7 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 		DirContextAdapter dca = new DirContextAdapter();
 		SearchResult sr = new SearchResult("CN=Joe Jannsen,CN=Users", dca, dca.getAttributes());
 		given(ctx.search(any(Name.class), eq(customSearchFilter), any(Object[].class), any(SearchControls.class)))
-				.willReturn(new MockNamingEnumeration(sr));
+			.willReturn(new MockNamingEnumeration(sr));
 		ActiveDirectoryLdapAuthenticationProvider customProvider = new ActiveDirectoryLdapAuthenticationProvider(
 				"mydomain.eu", "ldap://192.168.1.200/");
 		customProvider.contextFactory = createContextFactoryReturning(ctx);
@@ -112,7 +112,7 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 		DirContextAdapter dca = new DirContextAdapter();
 		SearchResult sr = new SearchResult("CN=Joe Jannsen,CN=Users", dca, dca.getAttributes());
 		given(ctx.search(any(Name.class), eq(defaultSearchFilter), any(Object[].class), any(SearchControls.class)))
-				.willReturn(new MockNamingEnumeration(sr));
+			.willReturn(new MockNamingEnumeration(sr));
 		ActiveDirectoryLdapAuthenticationProvider customProvider = new ActiveDirectoryLdapAuthenticationProvider(
 				"mydomain.eu", "ldap://192.168.1.200/");
 		customProvider.contextFactory = createContextFactoryReturning(ctx);
@@ -132,7 +132,7 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 		DirContextAdapter dca = new DirContextAdapter();
 		SearchResult sr = new SearchResult("CN=Joe Jannsen,CN=Users", dca, dca.getAttributes());
 		given(ctx.search(any(Name.class), eq(defaultSearchFilter), captor.capture(), any(SearchControls.class)))
-				.willReturn(new MockNamingEnumeration(sr));
+			.willReturn(new MockNamingEnumeration(sr));
 		ActiveDirectoryLdapAuthenticationProvider customProvider = new ActiveDirectoryLdapAuthenticationProvider(
 				"mydomain.eu", "ldap://192.168.1.200/");
 		customProvider.contextFactory = createContextFactoryReturning(ctx);
@@ -159,7 +159,8 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 		DirContextAdapter dca = new DirContextAdapter();
 		SearchResult sr = new SearchResult("CN=Joe Jannsen,CN=Users", dca, dca.getAttributes());
 		given(ctx.search(eq(new DistinguishedName("DC=mydomain,DC=eu")), any(String.class), any(Object[].class),
-				any(SearchControls.class))).willReturn(new MockNamingEnumeration(sr));
+				any(SearchControls.class)))
+			.willReturn(new MockNamingEnumeration(sr));
 		this.provider.contextFactory = createContextFactoryReturning(ctx);
 		assertThatExceptionOfType(BadCredentialsException.class).isThrownBy(() -> this.provider.authenticate(this.joe));
 		this.provider.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("joe@mydomain.eu", "password"));
@@ -170,7 +171,7 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 		DirContext ctx = mock(DirContext.class);
 		given(ctx.getNameInNamespace()).willReturn("");
 		given(ctx.search(any(Name.class), any(String.class), any(Object[].class), any(SearchControls.class)))
-				.willThrow(new NameNotFoundException());
+			.willThrow(new NameNotFoundException());
 		this.provider.contextFactory = createContextFactoryReturning(ctx);
 		assertThatExceptionOfType(BadCredentialsException.class).isThrownBy(() -> this.provider.authenticate(this.joe));
 	}
@@ -181,7 +182,7 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 		DirContext ctx = mock(DirContext.class);
 		given(ctx.getNameInNamespace()).willReturn("");
 		given(ctx.search(any(Name.class), any(String.class), any(Object[].class), any(SearchControls.class)))
-				.willReturn(new EmptyEnumeration<>());
+			.willReturn(new EmptyEnumeration<>());
 		this.provider.contextFactory = createContextFactoryReturning(ctx);
 		assertThatExceptionOfType(BadCredentialsException.class).isThrownBy(() -> this.provider.authenticate(this.joe));
 	}
@@ -204,10 +205,10 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 		given(searchResult.getObject()).willReturn(new DirContextAdapter("ou=1"), new DirContextAdapter("ou=2"));
 		given(searchResults.next()).willReturn(searchResult);
 		given(ctx.search(any(Name.class), any(String.class), any(Object[].class), any(SearchControls.class)))
-				.willReturn(searchResults);
+			.willReturn(searchResults);
 		this.provider.contextFactory = createContextFactoryReturning(ctx);
 		assertThatExceptionOfType(IncorrectResultSizeDataAccessException.class)
-				.isThrownBy(() -> this.provider.authenticate(this.joe));
+			.isThrownBy(() -> this.provider.authenticate(this.joe));
 	}
 
 	static final String msg = "[LDAP: error code 49 - 80858585: LdapErr: DSID-DECAFF0, comment: AcceptSecurityContext error, data ";
@@ -240,9 +241,9 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 				new AuthenticationException(msg + dataCode + ", xxxx]"));
 		this.provider.setConvertSubErrorCodesToExceptions(true);
 		assertThatExceptionOfType(BadCredentialsException.class).isThrownBy(() -> this.provider.authenticate(this.joe))
-				.withCauseInstanceOf(ActiveDirectoryAuthenticationException.class)
-				.satisfies((ex) -> assertThat(((ActiveDirectoryAuthenticationException) ex.getCause()).getDataCode())
-						.isEqualTo(dataCode));
+			.withCauseInstanceOf(ActiveDirectoryAuthenticationException.class)
+			.satisfies((ex) -> assertThat(((ActiveDirectoryAuthenticationException) ex.getCause()).getDataCode())
+				.isEqualTo(dataCode));
 	}
 
 	@Test
@@ -251,7 +252,7 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 		assertThatExceptionOfType(BadCredentialsException.class).isThrownBy(() -> this.provider.authenticate(this.joe));
 		this.provider.setConvertSubErrorCodesToExceptions(true);
 		assertThatExceptionOfType(CredentialsExpiredException.class)
-				.isThrownBy(() -> this.provider.authenticate(this.joe));
+			.isThrownBy(() -> this.provider.authenticate(this.joe));
 	}
 
 	@Test
@@ -302,10 +303,10 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 		ActiveDirectoryLdapAuthenticationProvider noneReachableProvider = new ActiveDirectoryLdapAuthenticationProvider(
 				"mydomain.eu", NON_EXISTING_LDAP_PROVIDER, "dc=ad,dc=eu,dc=mydomain");
 		noneReachableProvider
-				.setContextEnvironmentProperties(Collections.singletonMap("com.sun.jndi.ldap.connect.timeout", "5"));
+			.setContextEnvironmentProperties(Collections.singletonMap("com.sun.jndi.ldap.connect.timeout", "5"));
 		assertThatExceptionOfType(
 				org.springframework.security.authentication.InternalAuthenticationServiceException.class)
-						.isThrownBy(() -> noneReachableProvider.doAuthentication(this.joe));
+			.isThrownBy(() -> noneReachableProvider.doAuthentication(this.joe));
 	}
 
 	@Test
@@ -323,7 +324,7 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 	@Test
 	public void setContextEnvironmentPropertiesEmpty() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> this.provider.setContextEnvironmentProperties(new Hashtable<>()));
+			.isThrownBy(() -> this.provider.setContextEnvironmentProperties(new Hashtable<>()));
 	}
 
 	@Test
@@ -332,9 +333,9 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 		env.put("java.naming.ldap.factory.socket", "unknown.package.NonExistingSocketFactory");
 		this.provider.setContextEnvironmentProperties(env);
 		assertThatExceptionOfType(InternalAuthenticationServiceException.class)
-				.isThrownBy(() -> this.provider.authenticate(this.joe))
-				.withCauseInstanceOf(org.springframework.ldap.CommunicationException.class)
-				.withRootCauseInstanceOf(ClassNotFoundException.class);
+			.isThrownBy(() -> this.provider.authenticate(this.joe))
+			.withCauseInstanceOf(org.springframework.ldap.CommunicationException.class)
+			.withRootCauseInstanceOf(ClassNotFoundException.class);
 	}
 
 	ContextFactory createContextFactoryThrowing(final NamingException ex) {
@@ -364,7 +365,8 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 		@SuppressWarnings("deprecation")
 		DistinguishedName searchBaseDn = new DistinguishedName(rootDn);
 		given(ctx.search(eq(searchBaseDn), any(String.class), any(Object[].class), any(SearchControls.class)))
-				.willReturn(new MockNamingEnumeration(sr)).willReturn(new MockNamingEnumeration(sr));
+			.willReturn(new MockNamingEnumeration(sr))
+			.willReturn(new MockNamingEnumeration(sr));
 		provider.contextFactory = createContextFactoryReturning(ctx);
 		Authentication result = provider.authenticate(this.joe);
 		assertThat(result.getAuthorities()).isEmpty();

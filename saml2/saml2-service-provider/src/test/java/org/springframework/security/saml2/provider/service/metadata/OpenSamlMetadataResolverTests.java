@@ -33,37 +33,42 @@ public class OpenSamlMetadataResolverTests {
 	@Test
 	public void resolveWhenRelyingPartyThenMetadataMatches() {
 		RelyingPartyRegistration relyingPartyRegistration = TestRelyingPartyRegistrations.full()
-				.assertionConsumerServiceBinding(Saml2MessageBinding.REDIRECT).build();
+			.assertionConsumerServiceBinding(Saml2MessageBinding.REDIRECT)
+			.build();
 		OpenSamlMetadataResolver openSamlMetadataResolver = new OpenSamlMetadataResolver();
 		String metadata = openSamlMetadataResolver.resolve(relyingPartyRegistration);
-		assertThat(metadata).contains("<md:EntityDescriptor").contains("entityID=\"rp-entity-id\"")
-				.contains("<md:KeyDescriptor use=\"signing\">").contains("<md:KeyDescriptor use=\"encryption\">")
-				.contains("<ds:X509Certificate>MIICgTCCAeoCCQCuVzyqFgMSyDANBgkqhkiG9w0BAQsFADCBhDELMAkGA1UEBh")
-				.contains("Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect\"")
-				.contains("Location=\"https://rp.example.org/acs\" index=\"1\"")
-				.contains("ResponseLocation=\"https://rp.example.org/logout/saml2/response\"");
+		assertThat(metadata).contains("<md:EntityDescriptor")
+			.contains("entityID=\"rp-entity-id\"")
+			.contains("<md:KeyDescriptor use=\"signing\">")
+			.contains("<md:KeyDescriptor use=\"encryption\">")
+			.contains("<ds:X509Certificate>MIICgTCCAeoCCQCuVzyqFgMSyDANBgkqhkiG9w0BAQsFADCBhDELMAkGA1UEBh")
+			.contains("Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect\"")
+			.contains("Location=\"https://rp.example.org/acs\" index=\"1\"")
+			.contains("ResponseLocation=\"https://rp.example.org/logout/saml2/response\"");
 	}
 
 	@Test
 	public void resolveWhenRelyingPartyNoCredentialsThenMetadataMatches() {
 		RelyingPartyRegistration relyingPartyRegistration = TestRelyingPartyRegistrations.noCredentials()
-				.assertingPartyDetails((party) -> party.verificationX509Credentials(
-						(c) -> c.add(TestSaml2X509Credentials.relyingPartyVerifyingCredential())))
-				.build();
+			.assertingPartyDetails((party) -> party
+				.verificationX509Credentials((c) -> c.add(TestSaml2X509Credentials.relyingPartyVerifyingCredential())))
+			.build();
 		OpenSamlMetadataResolver openSamlMetadataResolver = new OpenSamlMetadataResolver();
 		String metadata = openSamlMetadataResolver.resolve(relyingPartyRegistration);
-		assertThat(metadata).contains("<md:EntityDescriptor").contains("entityID=\"rp-entity-id\"")
-				.doesNotContain("<md:KeyDescriptor use=\"signing\">")
-				.doesNotContain("<md:KeyDescriptor use=\"encryption\">")
-				.contains("Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST\"")
-				.contains("Location=\"https://rp.example.org/acs\" index=\"1\"")
-				.contains("ResponseLocation=\"https://rp.example.org/logout/saml2/response\"");
+		assertThat(metadata).contains("<md:EntityDescriptor")
+			.contains("entityID=\"rp-entity-id\"")
+			.doesNotContain("<md:KeyDescriptor use=\"signing\">")
+			.doesNotContain("<md:KeyDescriptor use=\"encryption\">")
+			.contains("Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST\"")
+			.contains("Location=\"https://rp.example.org/acs\" index=\"1\"")
+			.contains("ResponseLocation=\"https://rp.example.org/logout/saml2/response\"");
 	}
 
 	@Test
 	public void resolveWhenRelyingPartyNameIDFormatThenMetadataMatches() {
-		RelyingPartyRegistration relyingPartyRegistration = TestRelyingPartyRegistrations.full().nameIdFormat("format")
-				.build();
+		RelyingPartyRegistration relyingPartyRegistration = TestRelyingPartyRegistrations.full()
+			.nameIdFormat("format")
+			.build();
 		OpenSamlMetadataResolver openSamlMetadataResolver = new OpenSamlMetadataResolver();
 		String metadata = openSamlMetadataResolver.resolve(relyingPartyRegistration);
 		assertThat(metadata).contains("<md:NameIDFormat>format</md:NameIDFormat>");
@@ -72,7 +77,9 @@ public class OpenSamlMetadataResolverTests {
 	@Test
 	public void resolveWhenRelyingPartyNoLogoutThenMetadataMatches() {
 		RelyingPartyRegistration relyingPartyRegistration = TestRelyingPartyRegistrations.full()
-				.singleLogoutServiceLocation(null).nameIdFormat("format").build();
+			.singleLogoutServiceLocation(null)
+			.nameIdFormat("format")
+			.build();
 		OpenSamlMetadataResolver openSamlMetadataResolver = new OpenSamlMetadataResolver();
 		String metadata = openSamlMetadataResolver.resolve(relyingPartyRegistration);
 		assertThat(metadata).doesNotContain("ResponseLocation");
@@ -81,7 +88,8 @@ public class OpenSamlMetadataResolverTests {
 	@Test
 	public void resolveWhenEntityDescriptorCustomizerThenUses() {
 		RelyingPartyRegistration relyingPartyRegistration = TestRelyingPartyRegistrations.full()
-				.entityId("originalEntityId").build();
+			.entityId("originalEntityId")
+			.build();
 		OpenSamlMetadataResolver openSamlMetadataResolver = new OpenSamlMetadataResolver();
 		openSamlMetadataResolver.setEntityDescriptorCustomizer(
 				(parameters) -> parameters.getEntityDescriptor().setEntityID("overriddenEntityId"));

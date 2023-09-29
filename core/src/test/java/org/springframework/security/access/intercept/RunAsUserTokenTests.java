@@ -53,7 +53,7 @@ public class RunAsUserTokenTests {
 	@Test
 	public void testNoArgConstructorDoesntExist() {
 		assertThatExceptionOfType(NoSuchMethodException.class)
-				.isThrownBy(() -> RunAsUserToken.class.getDeclaredConstructor((Class[]) null));
+			.isThrownBy(() -> RunAsUserToken.class.getDeclaredConstructor((Class[]) null));
 	}
 
 	@Test
@@ -61,8 +61,8 @@ public class RunAsUserTokenTests {
 		RunAsUserToken token = new RunAsUserToken("my_password", "Test", "Password",
 				AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"), UsernamePasswordAuthenticationToken.class);
 		assertThat(token.toString()
-				.lastIndexOf("Original Class: " + UsernamePasswordAuthenticationToken.class.getName().toString()) != -1)
-						.isTrue();
+			.lastIndexOf("Original Class: " + UsernamePasswordAuthenticationToken.class.getName().toString()) != -1)
+			.isTrue();
 	}
 
 	// SEC-1792

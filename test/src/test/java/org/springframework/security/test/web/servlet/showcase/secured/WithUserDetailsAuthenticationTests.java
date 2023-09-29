@@ -62,20 +62,20 @@ public class WithUserDetailsAuthenticationTests {
 	@WithUserDetails
 	public void requestProtectedUrlWithUser() throws Exception {
 		this.mvc.perform(get("/"))
-				// Ensure we got past Security
-				.andExpect(status().isNotFound())
-				// Ensure it appears we are authenticated with user
-				.andExpect(authenticated().withUsername("user"));
+			// Ensure we got past Security
+			.andExpect(status().isNotFound())
+			// Ensure it appears we are authenticated with user
+			.andExpect(authenticated().withUsername("user"));
 	}
 
 	@Test
 	@WithUserDetails("admin")
 	public void requestProtectedUrlWithAdmin() throws Exception {
 		this.mvc.perform(get("/admin"))
-				// Ensure we got past Security
-				.andExpect(status().isNotFound())
-				// Ensure it appears we are authenticated with user
-				.andExpect(authenticated().withUsername("admin").withRoles("ADMIN", "USER"));
+			// Ensure we got past Security
+			.andExpect(status().isNotFound())
+			// Ensure it appears we are authenticated with user
+			.andExpect(authenticated().withUsername("admin").withRoles("ADMIN", "USER"));
 	}
 
 	@Configuration

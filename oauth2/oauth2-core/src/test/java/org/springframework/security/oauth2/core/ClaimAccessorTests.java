@@ -128,8 +128,8 @@ public class ClaimAccessorTests {
 		Map<Object, Object> claimValue = new HashMap<>();
 		this.claims.put(claimName, claimValue);
 		assertThatIllegalArgumentException().isThrownBy(() -> this.claimAccessor.getClaimAsBoolean(claimName))
-				.withMessage("Unable to convert claim '" + claimName + "' of type '" + claimValue.getClass()
-						+ "' to Boolean.");
+			.withMessage(
+					"Unable to convert claim '" + claimName + "' of type '" + claimValue.getClass() + "' to Boolean.");
 	}
 
 	@Test

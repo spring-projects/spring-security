@@ -95,8 +95,10 @@ public class OAuth2LoginAuthenticationProvider implements AuthenticationProvider
 		// Section 3.1.2.1 Authentication Request -
 		// https://openid.net/specs/openid-connect-core-1_0.html#AuthRequest scope
 		// REQUIRED. OpenID Connect requests MUST contain the "openid" scope value.
-		if (loginAuthenticationToken.getAuthorizationExchange().getAuthorizationRequest().getScopes()
-				.contains("openid")) {
+		if (loginAuthenticationToken.getAuthorizationExchange()
+			.getAuthorizationRequest()
+			.getScopes()
+			.contains("openid")) {
 			// This is an OpenID Connect Authentication Request so return null
 			// and let OidcAuthorizationCodeAuthenticationProvider handle it instead
 			return null;
@@ -104,9 +106,9 @@ public class OAuth2LoginAuthenticationProvider implements AuthenticationProvider
 		OAuth2AuthorizationCodeAuthenticationToken authorizationCodeAuthenticationToken;
 		try {
 			authorizationCodeAuthenticationToken = (OAuth2AuthorizationCodeAuthenticationToken) this.authorizationCodeAuthenticationProvider
-					.authenticate(new OAuth2AuthorizationCodeAuthenticationToken(
-							loginAuthenticationToken.getClientRegistration(),
-							loginAuthenticationToken.getAuthorizationExchange()));
+				.authenticate(
+						new OAuth2AuthorizationCodeAuthenticationToken(loginAuthenticationToken.getClientRegistration(),
+								loginAuthenticationToken.getAuthorizationExchange()));
 		}
 		catch (OAuth2AuthorizationException ex) {
 			OAuth2Error oauth2Error = ex.getError();
@@ -117,7 +119,7 @@ public class OAuth2LoginAuthenticationProvider implements AuthenticationProvider
 		OAuth2User oauth2User = this.userService.loadUser(new OAuth2UserRequest(
 				loginAuthenticationToken.getClientRegistration(), accessToken, additionalParameters));
 		Collection<? extends GrantedAuthority> mappedAuthorities = this.authoritiesMapper
-				.mapAuthorities(oauth2User.getAuthorities());
+			.mapAuthorities(oauth2User.getAuthorities());
 		OAuth2LoginAuthenticationToken authenticationResult = new OAuth2LoginAuthenticationToken(
 				loginAuthenticationToken.getClientRegistration(), loginAuthenticationToken.getAuthorizationExchange(),
 				oauth2User, mappedAuthorities, accessToken, authorizationCodeAuthenticationToken.getRefreshToken());

@@ -1194,7 +1194,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 			throws Exception {
 		ApplicationContext context = getContext();
 		authorizeRequestsCustomizer
-				.customize(getOrApply(new ExpressionUrlAuthorizationConfigurer<>(context)).getRegistry());
+			.customize(getOrApply(new ExpressionUrlAuthorizationConfigurer<>(context)).getRegistry());
 		return HttpSecurity.this;
 	}
 
@@ -1421,7 +1421,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 			throws Exception {
 		ApplicationContext context = getContext();
 		authorizeHttpRequestsCustomizer
-				.customize(getOrApply(new AuthorizeHttpRequestsConfigurer<>(context)).getRegistry());
+			.customize(getOrApply(new AuthorizeHttpRequestsConfigurer<>(context)).getRegistry());
 		return HttpSecurity.this;
 	}
 

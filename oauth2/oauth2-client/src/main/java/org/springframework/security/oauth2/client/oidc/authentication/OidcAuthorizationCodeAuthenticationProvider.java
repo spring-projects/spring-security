@@ -123,16 +123,18 @@ public class OidcAuthorizationCodeAuthenticationProvider implements Authenticati
 		// https://openid.net/specs/openid-connect-core-1_0.html#AuthRequest
 		// scope
 		// REQUIRED. OpenID Connect requests MUST contain the "openid" scope value.
-		if (!authorizationCodeAuthentication.getAuthorizationExchange().getAuthorizationRequest().getScopes()
-				.contains(OidcScopes.OPENID)) {
+		if (!authorizationCodeAuthentication.getAuthorizationExchange()
+			.getAuthorizationRequest()
+			.getScopes()
+			.contains(OidcScopes.OPENID)) {
 			// This is NOT an OpenID Connect Authentication Request so return null
 			// and let OAuth2LoginAuthenticationProvider handle it instead
 			return null;
 		}
 		OAuth2AuthorizationRequest authorizationRequest = authorizationCodeAuthentication.getAuthorizationExchange()
-				.getAuthorizationRequest();
+			.getAuthorizationRequest();
 		OAuth2AuthorizationResponse authorizationResponse = authorizationCodeAuthentication.getAuthorizationExchange()
-				.getAuthorizationResponse();
+			.getAuthorizationResponse();
 		if (authorizationResponse.statusError()) {
 			throw new OAuth2AuthenticationException(authorizationResponse.getError(),
 					authorizationResponse.getError().toString());
@@ -156,7 +158,7 @@ public class OidcAuthorizationCodeAuthenticationProvider implements Authenticati
 		OidcUser oidcUser = this.userService.loadUser(new OidcUserRequest(clientRegistration,
 				accessTokenResponse.getAccessToken(), idToken, additionalParameters));
 		Collection<? extends GrantedAuthority> mappedAuthorities = this.authoritiesMapper
-				.mapAuthorities(oidcUser.getAuthorities());
+			.mapAuthorities(oidcUser.getAuthorities());
 		OAuth2LoginAuthenticationToken authenticationResult = new OAuth2LoginAuthenticationToken(
 				authorizationCodeAuthentication.getClientRegistration(),
 				authorizationCodeAuthentication.getAuthorizationExchange(), oidcUser, mappedAuthorities,

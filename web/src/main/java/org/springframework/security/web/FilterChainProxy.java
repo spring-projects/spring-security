@@ -148,7 +148,7 @@ public class FilterChainProxy extends GenericFilterBean {
 	private static final String FILTER_APPLIED = FilterChainProxy.class.getName().concat(".APPLIED");
 
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
-			.getContextHolderStrategy();
+		.getContextHolderStrategy();
 
 	private List<SecurityFilterChain> filterChains;
 
@@ -193,7 +193,7 @@ public class FilterChainProxy extends GenericFilterBean {
 		catch (Exception ex) {
 			Throwable[] causeChain = this.throwableAnalyzer.determineCauseChain(ex);
 			Throwable requestRejectedException = this.throwableAnalyzer
-					.getFirstThrowableOfType(RequestRejectedException.class, causeChain);
+				.getFirstThrowableOfType(RequestRejectedException.class, causeChain);
 			if (!(requestRejectedException instanceof RequestRejectedException)) {
 				throw ex;
 			}

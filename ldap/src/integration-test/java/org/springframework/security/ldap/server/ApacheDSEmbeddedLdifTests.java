@@ -71,9 +71,9 @@ public class ApacheDSEmbeddedLdifTests {
 	@Test // SEC-2387
 	public void customAttributeTypesShouldBeProperlyCreatedWhenLoadedFromLdif() {
 		assertThat(this.ldapTemplate.compare("uid=objectWithCustomAttribute1", "uid", "objectWithCustomAttribute1"))
-				.isTrue();
+			.isTrue();
 		assertThat(this.ldapTemplate.compare("uid=objectWithCustomAttribute1", "customAttribute", "I am custom"))
-				.isTrue();
+			.isTrue();
 	}
 
 }

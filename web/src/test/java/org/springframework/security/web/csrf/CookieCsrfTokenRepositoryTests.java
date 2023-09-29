@@ -221,7 +221,7 @@ public class CookieCsrfTokenRepositoryTests {
 	public void loadToken() {
 		CsrfToken generateToken = this.repository.generateToken(this.request);
 		this.request
-				.setCookies(new Cookie(CookieCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME, generateToken.getToken()));
+			.setCookies(new Cookie(CookieCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME, generateToken.getToken()));
 		CsrfToken loadToken = this.repository.loadToken(this.request);
 		assertThat(loadToken).isNotNull();
 		assertThat(loadToken.getHeaderName()).isEqualTo(generateToken.getHeaderName());
@@ -266,7 +266,7 @@ public class CookieCsrfTokenRepositoryTests {
 	public void loadDeferredTokenWhenExistsAndNullSavedThenGeneratedAndSaved() {
 		CsrfToken generatedToken = this.repository.generateToken(this.request);
 		this.request
-				.setCookies(new Cookie(CookieCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME, generatedToken.getToken()));
+			.setCookies(new Cookie(CookieCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME, generatedToken.getToken()));
 		this.repository.saveToken(null, this.request, this.response);
 		DeferredCsrfToken deferredCsrfToken = this.repository.loadDeferredToken(this.request, this.response);
 		CsrfToken csrfToken = deferredCsrfToken.get();
@@ -279,7 +279,7 @@ public class CookieCsrfTokenRepositoryTests {
 	public void loadDeferredTokenWhenExistsAndNullSavedAndNonNullSavedThenLoaded() {
 		CsrfToken generatedToken = this.repository.generateToken(this.request);
 		this.request
-				.setCookies(new Cookie(CookieCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME, generatedToken.getToken()));
+			.setCookies(new Cookie(CookieCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME, generatedToken.getToken()));
 		this.repository.saveToken(null, this.request, this.response);
 		this.repository.saveToken(generatedToken, this.request, this.response);
 		DeferredCsrfToken deferredCsrfToken = this.repository.loadDeferredToken(this.request, this.response);
@@ -292,7 +292,7 @@ public class CookieCsrfTokenRepositoryTests {
 	public void loadDeferredTokenWhenExistsThenLoaded() {
 		CsrfToken generatedToken = this.repository.generateToken(this.request);
 		this.request
-				.setCookies(new Cookie(CookieCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME, generatedToken.getToken()));
+			.setCookies(new Cookie(CookieCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME, generatedToken.getToken()));
 		DeferredCsrfToken deferredCsrfToken = this.repository.loadDeferredToken(this.request, this.response);
 		CsrfToken csrfToken = deferredCsrfToken.get();
 		assertThatCsrfToken(csrfToken).isEqualTo(generatedToken);

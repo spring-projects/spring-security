@@ -52,7 +52,7 @@ public class RequestAttributeAuthenticationFilterTests {
 		MockFilterChain chain = new MockFilterChain();
 		RequestAttributeAuthenticationFilter filter = new RequestAttributeAuthenticationFilter();
 		assertThatExceptionOfType(PreAuthenticatedCredentialsNotFoundException.class)
-				.isThrownBy(() -> filter.doFilter(request, response, chain));
+			.isThrownBy(() -> filter.doFilter(request, response, chain));
 	}
 
 	@Test
@@ -129,7 +129,7 @@ public class RequestAttributeAuthenticationFilterTests {
 		RequestAttributeAuthenticationFilter filter = new RequestAttributeAuthenticationFilter();
 		filter.setAuthenticationManager(createAuthenticationManager());
 		assertThatExceptionOfType(PreAuthenticatedCredentialsNotFoundException.class)
-				.isThrownBy(() -> filter.doFilter(request, response, chain));
+			.isThrownBy(() -> filter.doFilter(request, response, chain));
 	}
 
 	@Test
@@ -149,7 +149,7 @@ public class RequestAttributeAuthenticationFilterTests {
 	private AuthenticationManager createAuthenticationManager() {
 		AuthenticationManager am = mock(AuthenticationManager.class);
 		given(am.authenticate(any(Authentication.class)))
-				.willAnswer((Answer<Authentication>) (invocation) -> (Authentication) invocation.getArguments()[0]);
+			.willAnswer((Answer<Authentication>) (invocation) -> (Authentication) invocation.getArguments()[0]);
 		return am;
 	}
 

@@ -61,7 +61,7 @@ public class SimpleGrantedAuthorityMixinTests extends AbstractMixinTests {
 	public void deserializeGrantedAuthorityWithoutRoleTest() throws IOException {
 		String json = "{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\"}";
 		assertThatExceptionOfType(JsonMappingException.class)
-				.isThrownBy(() -> this.mapper.readValue(json, SimpleGrantedAuthority.class));
+			.isThrownBy(() -> this.mapper.readValue(json, SimpleGrantedAuthority.class));
 	}
 
 }

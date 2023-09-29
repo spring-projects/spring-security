@@ -93,7 +93,7 @@ public class WebAsyncManagerIntegrationFilterTests {
 			@Override
 			public <T> void postProcess(NativeWebRequest request, Callable<T> task, Object concurrentResult) {
 				assertThat(SecurityContextHolder.getContext())
-						.isNotSameAs(WebAsyncManagerIntegrationFilterTests.this.securityContext);
+					.isNotSameAs(WebAsyncManagerIntegrationFilterTests.this.securityContext);
 			}
 		});
 		this.filter.doFilterInternal(this.request, this.response, this.filterChain);
@@ -110,7 +110,7 @@ public class WebAsyncManagerIntegrationFilterTests {
 			@Override
 			public <T> void postProcess(NativeWebRequest request, Callable<T> task, Object concurrentResult) {
 				assertThat(SecurityContextHolder.getContext())
-						.isNotSameAs(WebAsyncManagerIntegrationFilterTests.this.securityContext);
+					.isNotSameAs(WebAsyncManagerIntegrationFilterTests.this.securityContext);
 			}
 		});
 		this.filter.doFilterInternal(this.request, this.response, this.filterChain);

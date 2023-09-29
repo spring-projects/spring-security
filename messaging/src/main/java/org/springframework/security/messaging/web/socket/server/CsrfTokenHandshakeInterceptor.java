@@ -45,7 +45,7 @@ public final class CsrfTokenHandshakeInterceptor implements HandshakeInterceptor
 			Map<String, Object> attributes) {
 		HttpServletRequest httpRequest = ((ServletServerHttpRequest) request).getServletRequest();
 		DeferredCsrfToken deferredCsrfToken = (DeferredCsrfToken) httpRequest
-				.getAttribute(DeferredCsrfToken.class.getName());
+			.getAttribute(DeferredCsrfToken.class.getName());
 		if (deferredCsrfToken == null) {
 			return true;
 		}

@@ -164,7 +164,7 @@ public class PrePostAnnotationSecurityMetadataSourceTests {
 	@Test
 	public void customAnnotationAtInterfaceLevelIsDetected() {
 		ConfigAttribute[] attrs = this.mds.getAttributes(this.annotatedAtInterfaceLevel)
-				.toArray(new ConfigAttribute[0]);
+			.toArray(new ConfigAttribute[0]);
 		assertThat(attrs).hasSize(1);
 	}
 

@@ -48,7 +48,7 @@ public class UsernamePasswordAuthenticationTokenMixinTests extends AbstractMixin
 			+ SimpleGrantedAuthorityMixinTests.AUTHORITIES_ARRAYLIST_JSON + "}";
 
 	public static final String AUTHENTICATED_STRINGPRINCIPAL_JSON = AUTHENTICATED_JSON
-			.replace(UserDeserializerTests.USER_JSON, "\"admin\"");
+		.replace(UserDeserializerTests.USER_JSON, "\"admin\"");
 
 	private static final String NON_USER_PRINCIPAL_JSON = "{"
 			+ "\"@class\": \"org.springframework.security.jackson2.UsernamePasswordAuthenticationTokenMixinTests$NonUserPrincipal\", "
@@ -58,15 +58,15 @@ public class UsernamePasswordAuthenticationTokenMixinTests extends AbstractMixin
 			"\"details\": \"details\", ");
 
 	private static final String AUTHENTICATED_NON_USER_PRINCIPAL_JSON = AUTHENTICATED_JSON
-			.replace(UserDeserializerTests.USER_JSON, NON_USER_PRINCIPAL_JSON)
-			.replaceAll(UserDeserializerTests.USER_PASSWORD, "null")
-			.replace(SimpleGrantedAuthorityMixinTests.AUTHORITIES_ARRAYLIST_JSON,
-					SimpleGrantedAuthorityMixinTests.NO_AUTHORITIES_ARRAYLIST_JSON);
+		.replace(UserDeserializerTests.USER_JSON, NON_USER_PRINCIPAL_JSON)
+		.replaceAll(UserDeserializerTests.USER_PASSWORD, "null")
+		.replace(SimpleGrantedAuthorityMixinTests.AUTHORITIES_ARRAYLIST_JSON,
+				SimpleGrantedAuthorityMixinTests.NO_AUTHORITIES_ARRAYLIST_JSON);
 
 	private static final String UNAUTHENTICATED_STRINGPRINCIPAL_JSON = AUTHENTICATED_STRINGPRINCIPAL_JSON
-			.replace("\"authenticated\": true, ", "\"authenticated\": false, ")
-			.replace(SimpleGrantedAuthorityMixinTests.AUTHORITIES_ARRAYLIST_JSON,
-					SimpleGrantedAuthorityMixinTests.EMPTY_AUTHORITIES_ARRAYLIST_JSON);
+		.replace("\"authenticated\": true, ", "\"authenticated\": false, ")
+		.replace(SimpleGrantedAuthorityMixinTests.AUTHORITIES_ARRAYLIST_JSON,
+				SimpleGrantedAuthorityMixinTests.EMPTY_AUTHORITIES_ARRAYLIST_JSON);
 
 	@Test
 	public void serializeUnauthenticatedUsernamePasswordAuthenticationTokenMixinTest()
@@ -82,7 +82,7 @@ public class UsernamePasswordAuthenticationTokenMixinTests extends AbstractMixin
 			throws JsonProcessingException, JSONException {
 		User user = createDefaultUser();
 		UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken
-				.authenticated(user.getUsername(), user.getPassword(), user.getAuthorities());
+			.authenticated(user.getUsername(), user.getPassword(), user.getAuthorities());
 		String serializedJson = this.mapper.writeValueAsString(token);
 		JSONAssert.assertEquals(AUTHENTICATED_STRINGPRINCIPAL_JSON, serializedJson, true);
 	}
@@ -120,8 +120,9 @@ public class UsernamePasswordAuthenticationTokenMixinTests extends AbstractMixin
 				UsernamePasswordAuthenticationToken.class);
 		assertThat(token).isNotNull();
 		assertThat(token.getPrincipal()).isNotNull().isInstanceOf(User.class);
-		assertThat(((User) token.getPrincipal()).getAuthorities()).isNotNull().hasSize(1)
-				.contains(new SimpleGrantedAuthority("ROLE_USER"));
+		assertThat(((User) token.getPrincipal()).getAuthorities()).isNotNull()
+			.hasSize(1)
+			.contains(new SimpleGrantedAuthority("ROLE_USER"));
 		assertThat(token.isAuthenticated()).isEqualTo(true);
 		assertThat(token.getAuthorities()).hasSize(1).contains(new SimpleGrantedAuthority("ROLE_USER"));
 	}
@@ -162,8 +163,9 @@ public class UsernamePasswordAuthenticationTokenMixinTests extends AbstractMixin
 				UsernamePasswordAuthenticationToken.class);
 		assertThat(token).isNotNull();
 		assertThat(token.getPrincipal()).isNotNull().isInstanceOf(User.class);
-		assertThat(((User) token.getPrincipal()).getAuthorities()).isNotNull().hasSize(1)
-				.contains(new SimpleGrantedAuthority("ROLE_USER"));
+		assertThat(((User) token.getPrincipal()).getAuthorities()).isNotNull()
+			.hasSize(1)
+			.contains(new SimpleGrantedAuthority("ROLE_USER"));
 		assertThat(token.isAuthenticated()).isEqualTo(true);
 		assertThat(token.getAuthorities()).hasSize(1).contains(new SimpleGrantedAuthority("ROLE_USER"));
 		assertThat(token.getDetails()).isExactlyInstanceOf(String.class).isEqualTo("details");
@@ -182,7 +184,7 @@ public class UsernamePasswordAuthenticationTokenMixinTests extends AbstractMixin
 	@Test
 	public void serializingThenDeserializingWithConfiguredObjectMapperShouldWork() throws IOException {
 		this.mapper.setDefaultPropertyInclusion(Value.construct(Include.ALWAYS, Include.NON_NULL))
-				.setSerializationInclusion(Include.NON_ABSENT);
+			.setSerializationInclusion(Include.NON_ABSENT);
 		UsernamePasswordAuthenticationToken original = UsernamePasswordAuthenticationToken.unauthenticated("Frodo",
 				null);
 		String serialized = this.mapper.writeValueAsString(original);

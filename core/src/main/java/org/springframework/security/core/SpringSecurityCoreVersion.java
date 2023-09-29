@@ -105,7 +105,7 @@ public final class SpringSecurityCoreVersion {
 	private static String getSpringVersion() {
 		Properties properties = new Properties();
 		try (InputStream is = SpringSecurityCoreVersion.class.getClassLoader()
-				.getResourceAsStream("META-INF/spring-security.versions")) {
+			.getResourceAsStream("META-INF/spring-security.versions")) {
 			properties.load(is);
 		}
 		catch (IOException | NullPointerException ex) {

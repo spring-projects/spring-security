@@ -163,7 +163,7 @@ public final class ClientRegistrations {
 			Map<String, Object> configuration = rest.exchange(request, typeReference).getBody();
 			OIDCProviderMetadata metadata = parse(configuration, OIDCProviderMetadata::parse);
 			ClientRegistration.Builder builder = withProviderConfiguration(metadata, issuer.toASCIIString())
-					.jwkSetUri(metadata.getJWKSetURI().toASCIIString());
+				.jwkSetUri(metadata.getJWKSetURI().toASCIIString());
 			if (metadata.getUserInfoEndpointURI() != null) {
 				builder.userInfoUri(metadata.getUserInfoEndpointURI().toASCIIString());
 			}
@@ -266,7 +266,7 @@ public final class ClientRegistrations {
 	private static ClientAuthenticationMethod getClientAuthenticationMethod(
 			List<com.nimbusds.oauth2.sdk.auth.ClientAuthenticationMethod> metadataAuthMethods) {
 		if (metadataAuthMethods == null || metadataAuthMethods
-				.contains(com.nimbusds.oauth2.sdk.auth.ClientAuthenticationMethod.CLIENT_SECRET_BASIC)) {
+			.contains(com.nimbusds.oauth2.sdk.auth.ClientAuthenticationMethod.CLIENT_SECRET_BASIC)) {
 			// If null, the default includes client_secret_basic
 			return ClientAuthenticationMethod.CLIENT_SECRET_BASIC;
 		}

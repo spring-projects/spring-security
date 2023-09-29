@@ -129,7 +129,7 @@ public class AbstractConfiguredSecurityBuilderTests {
 		builder.apply(configurer1);
 		builder.apply(configurer2);
 		List<DelegateSecurityConfigurer> removedConfigurers = builder
-				.removeConfigurers(DelegateSecurityConfigurer.class);
+			.removeConfigurers(DelegateSecurityConfigurer.class);
 		assertThat(removedConfigurers).hasSize(2);
 		assertThat(removedConfigurers).containsExactly(configurer1, configurer2);
 		assertThat(builder.getConfigurers(DelegateSecurityConfigurer.class)).isEmpty();

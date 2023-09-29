@@ -84,7 +84,7 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 	private final Log logger = LogFactory.getLog(LdapUserDetailsManager.class);
 
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
-			.getContextHolderStrategy();
+		.getContextHolderStrategy();
 
 	/**
 	 * The strategy for mapping usernames to LDAP distinguished names. This will be used

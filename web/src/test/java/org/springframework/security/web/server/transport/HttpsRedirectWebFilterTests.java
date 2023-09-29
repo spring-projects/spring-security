@@ -79,7 +79,7 @@ public class HttpsRedirectWebFilterTests {
 		given(this.chain.filter(any(ServerWebExchange.class))).willReturn(Mono.empty());
 		ServerWebExchangeMatcher matcher = mock(ServerWebExchangeMatcher.class);
 		given(matcher.matches(any(ServerWebExchange.class)))
-				.willReturn(ServerWebExchangeMatcher.MatchResult.notMatch());
+			.willReturn(ServerWebExchangeMatcher.MatchResult.notMatch());
 		this.filter.setRequiresHttpsRedirectMatcher(matcher);
 		ServerWebExchange exchange = get("http://localhost:8080");
 		this.filter.filter(exchange, this.chain).block();

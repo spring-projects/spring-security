@@ -44,9 +44,9 @@ public class CacheControlServerHttpHeadersWriterTests {
 		this.writer.writeHttpHeaders(this.exchange);
 		assertThat(this.headers).hasSize(3);
 		assertThat(this.headers.get(HttpHeaders.CACHE_CONTROL))
-				.containsOnly(CacheControlServerHttpHeadersWriter.CACHE_CONTRTOL_VALUE);
+			.containsOnly(CacheControlServerHttpHeadersWriter.CACHE_CONTRTOL_VALUE);
 		assertThat(this.headers.get(HttpHeaders.EXPIRES))
-				.containsOnly(CacheControlServerHttpHeadersWriter.EXPIRES_VALUE);
+			.containsOnly(CacheControlServerHttpHeadersWriter.EXPIRES_VALUE);
 		assertThat(this.headers.get(HttpHeaders.PRAGMA)).containsOnly(CacheControlServerHttpHeadersWriter.PRAGMA_VALUE);
 	}
 

@@ -46,7 +46,7 @@ public class MapBasedAttributes2GrantedAuthoritiesMapperTests {
 	public void testAfterPropertiesSetEmptyMap() throws Exception {
 		MapBasedAttributes2GrantedAuthoritiesMapper mapper = new MapBasedAttributes2GrantedAuthoritiesMapper();
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> mapper.setAttributes2grantedAuthoritiesMap(new HashMap()));
+			.isThrownBy(() -> mapper.setAttributes2grantedAuthoritiesMap(new HashMap()));
 	}
 
 	@Test
@@ -206,8 +206,8 @@ public class MapBasedAttributes2GrantedAuthoritiesMapperTests {
 		}
 		Collection expectedColl = Arrays.asList(expectedGas);
 		assertThat(resultColl.containsAll(expectedColl))
-				.withFailMessage("Role collections should match; result: " + resultColl + ", expected: " + expectedColl)
-				.isTrue();
+			.withFailMessage("Role collections should match; result: " + resultColl + ", expected: " + expectedColl)
+			.isTrue();
 	}
 
 }

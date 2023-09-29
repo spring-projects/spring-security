@@ -129,7 +129,7 @@ public class ObservationFilterChainDecoratorTests {
 		ArgumentCaptor<Observation.Context> context = ArgumentCaptor.forClass(Observation.Context.class);
 		verify(handler, times(3)).onScopeClosed(context.capture());
 		assertThat(context.getValue().getLowCardinalityKeyValue("spring.security.reached.filter.name").getValue())
-				.isEqualTo(expectedFilterNameTag);
+			.isEqualTo(expectedFilterNameTag);
 	}
 
 	static Stream<Arguments> decorateFiltersWhenCompletesThenHasSpringSecurityReachedFilterNameTag() {

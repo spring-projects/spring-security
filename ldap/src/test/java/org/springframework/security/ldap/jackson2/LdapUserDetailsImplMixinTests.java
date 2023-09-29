@@ -91,14 +91,14 @@ public class LdapUserDetailsImplMixinTests {
 	@Test
 	public void deserializeWhenMixinNotRegisteredThenThrowJsonProcessingException() {
 		assertThatExceptionOfType(JsonProcessingException.class)
-				.isThrownBy(() -> new ObjectMapper().readValue(USER_JSON, LdapUserDetailsImpl.class));
+			.isThrownBy(() -> new ObjectMapper().readValue(USER_JSON, LdapUserDetailsImpl.class));
 	}
 
 	@Test
 	public void deserializeWhenMixinRegisteredThenDeserializes() throws Exception {
 		LdapUserDetailsMapper mapper = new LdapUserDetailsMapper();
 		LdapUserDetailsImpl expectedAuthentication = (LdapUserDetailsImpl) mapper
-				.mapUserFromContext(createUserContext(), "ghengis", AuthorityUtils.NO_AUTHORITIES);
+			.mapUserFromContext(createUserContext(), "ghengis", AuthorityUtils.NO_AUTHORITIES);
 
 		LdapUserDetailsImpl authentication = this.mapper.readValue(USER_JSON, LdapUserDetailsImpl.class);
 		assertThat(authentication.getAuthorities()).containsExactlyElementsOf(expectedAuthentication.getAuthorities());
@@ -106,14 +106,14 @@ public class LdapUserDetailsImplMixinTests {
 		assertThat(authentication.getUsername()).isEqualTo(expectedAuthentication.getUsername());
 		assertThat(authentication.getPassword()).isEqualTo(expectedAuthentication.getPassword());
 		assertThat(authentication.getGraceLoginsRemaining())
-				.isEqualTo(expectedAuthentication.getGraceLoginsRemaining());
+			.isEqualTo(expectedAuthentication.getGraceLoginsRemaining());
 		assertThat(authentication.getTimeBeforeExpiration())
-				.isEqualTo(expectedAuthentication.getTimeBeforeExpiration());
+			.isEqualTo(expectedAuthentication.getTimeBeforeExpiration());
 		assertThat(authentication.isAccountNonExpired()).isEqualTo(expectedAuthentication.isAccountNonExpired());
 		assertThat(authentication.isAccountNonLocked()).isEqualTo(expectedAuthentication.isAccountNonLocked());
 		assertThat(authentication.isEnabled()).isEqualTo(expectedAuthentication.isEnabled());
 		assertThat(authentication.isCredentialsNonExpired())
-				.isEqualTo(expectedAuthentication.isCredentialsNonExpired());
+			.isEqualTo(expectedAuthentication.isCredentialsNonExpired());
 	}
 
 	private DirContextAdapter createUserContext() {

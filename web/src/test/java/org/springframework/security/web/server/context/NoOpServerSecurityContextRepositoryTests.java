@@ -40,7 +40,7 @@ public class NoOpServerSecurityContextRepositoryTests {
 	public void saveAndLoad() {
 		SecurityContext context = new SecurityContextImpl();
 		Mono<SecurityContext> result = this.repository.save(this.exchange, context)
-				.then(this.repository.load(this.exchange));
+			.then(this.repository.load(this.exchange));
 		StepVerifier.create(result).verifyComplete();
 	}
 

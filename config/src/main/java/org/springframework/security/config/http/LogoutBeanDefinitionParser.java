@@ -99,9 +99,9 @@ class LogoutBeanDefinitionParser implements BeanDefinitionParser {
 		builder.addPropertyValue("logoutRequestMatcher", getLogoutRequestMatcher(logoutUrl));
 		if (StringUtils.hasText(successHandlerRef)) {
 			if (StringUtils.hasText(logoutSuccessUrl)) {
-				pc.getReaderContext().error(
-						"Use " + ATT_LOGOUT_SUCCESS_URL + " or " + ATT_LOGOUT_HANDLER + ", but not both",
-						pc.extractSource(element));
+				pc.getReaderContext()
+					.error("Use " + ATT_LOGOUT_SUCCESS_URL + " or " + ATT_LOGOUT_HANDLER + ", but not both",
+							pc.extractSource(element));
 			}
 			builder.addConstructorArgReference(successHandlerRef);
 			this.logoutSuccessHandler = new RuntimeBeanReference(successHandlerRef);
@@ -134,7 +134,7 @@ class LogoutBeanDefinitionParser implements BeanDefinitionParser {
 
 	private BeanDefinition getLogoutRequestMatcher(String logoutUrl) {
 		BeanDefinitionBuilder matcherBuilder = BeanDefinitionBuilder
-				.rootBeanDefinition("org.springframework.security.web.util.matcher.AntPathRequestMatcher");
+			.rootBeanDefinition("org.springframework.security.web.util.matcher.AntPathRequestMatcher");
 		matcherBuilder.addConstructorArgValue(logoutUrl);
 		if (this.csrfEnabled) {
 			matcherBuilder.addConstructorArgValue("POST");

@@ -62,10 +62,10 @@ public class HttpConfigurationTests {
 	@Test
 	public void configureWhenAddFilterUnregisteredThenThrowsBeanCreationException() {
 		assertThatExceptionOfType(BeanCreationException.class)
-				.isThrownBy(() -> this.spring.register(UnregisteredFilterConfig.class).autowire())
-				.withMessageContaining("The Filter class " + UnregisteredFilter.class.getName()
-						+ " does not have a registered order and cannot be added without a specified order."
-						+ " Consider using addFilterBefore or addFilterAfter instead.");
+			.isThrownBy(() -> this.spring.register(UnregisteredFilterConfig.class).autowire())
+			.withMessageContaining("The Filter class " + UnregisteredFilter.class.getName()
+					+ " does not have a registered order and cannot be added without a specified order."
+					+ " Consider using addFilterBefore or addFilterAfter instead.");
 	}
 
 	@Test
