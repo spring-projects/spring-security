@@ -201,7 +201,7 @@ public class User implements UserDetails, CredentialsContainer {
 		sb.append("Password=[PROTECTED], ");
 		sb.append("Enabled=").append(this.enabled).append(", ");
 		sb.append("AccountNonExpired=").append(this.accountNonExpired).append(", ");
-		sb.append("credentialsNonExpired=").append(this.credentialsNonExpired).append(", ");
+		sb.append("CredentialsNonExpired=").append(this.credentialsNonExpired).append(", ");
 		sb.append("AccountNonLocked=").append(this.accountNonLocked).append(", ");
 		sb.append("Granted Authorities=").append(this.authorities).append("]");
 		return sb.toString();
