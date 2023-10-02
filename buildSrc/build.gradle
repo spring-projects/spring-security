@@ -2,7 +2,7 @@ plugins {
 	id "java-gradle-plugin"
 	id "java"
 	id "groovy"
-	id 'com.apollographql.apollo' version '2.4.5'
+	id 'com.apollographql.apollo' version '2.4.6'
 }
 
 sourceCompatibility = 1.8
