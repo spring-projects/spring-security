@@ -223,7 +223,7 @@ public class DefaultServerOAuth2AuthorizationRequestResolver implements ServerOA
 	 * {@code org.springframework.security.config.oauth2.client.CommonOAuth2Provider#DEFAULT_REDIRECT_URL}
 	 * @return expanded URI
 	 */
-	private static String expandRedirectUri(ServerHttpRequest request, ClientRegistration clientRegistration) {
+	protected String expandRedirectUri(ServerHttpRequest request, ClientRegistration clientRegistration) {
 		Map<String, String> uriVariables = new HashMap<>();
 		uriVariables.put("registrationId", clientRegistration.getRegistrationId());
 		// @formatter:off
