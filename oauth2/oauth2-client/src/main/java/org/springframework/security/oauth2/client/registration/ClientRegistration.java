@@ -220,7 +220,7 @@ public final class ClientRegistration implements Serializable {
 
 		private Map<String, Object> configurationMetadata = Collections.emptyMap();
 
-		ProviderDetails() {
+		public ProviderDetails() {
 		}
 
 		/**
