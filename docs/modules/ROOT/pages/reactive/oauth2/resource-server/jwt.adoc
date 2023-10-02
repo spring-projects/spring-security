@@ -165,11 +165,13 @@ Java::
 +
 [source,java,role="primary"]
 ----
+import static org.springframework.security.oauth2.core.authorization.OAuth2ReactiveAuthorizationManagers.hasScope;
+
 @Bean
 SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	http
 		.authorizeExchange(exchanges -> exchanges
-			.pathMatchers("/message/**").hasAuthority("SCOPE_message:read")
+			.pathMatchers("/message/**").access(hasScope("message:read"))
 			.anyExchange().authenticated()
 		)
 		.oauth2ResourceServer(oauth2 -> oauth2
@@ -183,11 +185,13 @@ Kotlin::
 +
 [source,kotlin,role="secondary"]
 ----
+import org.springframework.security.oauth2.core.authorization.OAuth2ReactiveAuthorizationManagers.hasScope
+
 @Bean
 fun springSecurityFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
     return http {
         authorizeExchange {
-            authorize("/message/**", hasAuthority("SCOPE_message:read"))
+            authorize("/message/**", hasScope("message:read"))
             authorize(anyExchange, authenticated)
         }
         oauth2ResourceServer {
@@ -682,12 +686,14 @@ Java::
 +
 [source,java,role="primary"]
 ----
+import static org.springframework.security.oauth2.core.authorization.OAuth2ReactiveAuthorizationManagers.hasScope;
+
 @Bean
 SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	http
 		.authorizeExchange(exchanges -> exchanges
-			.mvcMatchers("/contacts/**").hasAuthority("SCOPE_contacts")
-			.mvcMatchers("/messages/**").hasAuthority("SCOPE_messages")
+			.mvcMatchers("/contacts/**").access(hasScope("contacts"))
+			.mvcMatchers("/messages/**").access(hasScope("messages"))
 			.anyExchange().authenticated()
 		)
 		.oauth2ResourceServer(OAuth2ResourceServerSpec::jwt);
@@ -699,12 +705,14 @@ Kotlin::
 +
 [source,kotlin,role="secondary"]
 ----
+import org.springframework.security.oauth2.core.authorization.OAuth2ReactiveAuthorizationManagers.hasScope
+
 @Bean
 fun springSecurityFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
     return http {
         authorizeExchange {
-            authorize("/contacts/**", hasAuthority("SCOPE_contacts"))
-            authorize("/messages/**", hasAuthority("SCOPE_messages"))
+            authorize("/contacts/**", hasScope("contacts"))
+            authorize("/messages/**", hasScope("messages"))
             authorize(anyExchange, authenticated)
         }
         oauth2ResourceServer {

@@ -211,6 +211,8 @@ Java::
 +
 [source,java,role="primary"]
 ----
+import static org.springframework.security.oauth2.core.authorization.OAuth2AuthorizationManagers.hasScope;
+
 @Configuration
 @EnableWebSecurity
 public class MyCustomSecurityConfiguration {
@@ -218,7 +220,7 @@ public class MyCustomSecurityConfiguration {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(authorize -> authorize
-                .requestMatchers("/messages/**").hasAuthority("SCOPE_message:read")
+                .requestMatchers("/messages/**").access(hasScope("message:read"))
                 .anyRequest().authenticated()
             )
             .oauth2ResourceServer(oauth2 -> oauth2
@@ -235,6 +237,8 @@ Kotlin::
 +
 [source,kotlin,role="secondary"]
 ----
+import org.springframework.security.oauth2.core.authorization.OAuth2AuthorizationManagers.hasScope
+
 @Configuration
 @EnableWebSecurity
 class MyCustomSecurityConfiguration {
@@ -242,7 +246,7 @@ class MyCustomSecurityConfiguration {
     open fun filterChain(http: HttpSecurity): SecurityFilterChain {
         http {
             authorizeRequests {
-                authorize("/messages/**", hasAuthority("SCOPE_message:read"))
+                authorize("/messages/**", hasScope("message:read"))
                 authorize(anyRequest, authenticated)
             }
             oauth2ResourceServer {
@@ -862,6 +866,8 @@ Java::
 +
 [source,java,role="primary"]
 ----
+import static org.springframework.security.oauth2.core.authorization.OAuth2AuthorizationManagers.hasScope;
+
 @Configuration
 @EnableWebSecurity
 public class DirectlyConfiguredJwkSetUri {
@@ -869,8 +875,8 @@ public class DirectlyConfiguredJwkSetUri {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(authorize -> authorize
-                .requestMatchers("/contacts/**").hasAuthority("SCOPE_contacts")
-                .requestMatchers("/messages/**").hasAuthority("SCOPE_messages")
+                .requestMatchers("/contacts/**").access(hasScope("contacts"))
+                .requestMatchers("/messages/**").access(hasScope("messages"))
                 .anyRequest().authenticated()
             )
             .oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt);
@@ -883,6 +889,8 @@ Kotlin::
 +
 [source,kotlin,role="secondary"]
 ----
+import org.springframework.security.oauth2.core.authorization.OAuth2AuthorizationManagers.hasScope;
+
 @Configuration
 @EnableWebSecurity
 class DirectlyConfiguredJwkSetUri {
@@ -890,8 +898,8 @@ class DirectlyConfiguredJwkSetUri {
     open fun filterChain(http: HttpSecurity): SecurityFilterChain {
         http {
             authorizeRequests {
-                authorize("/contacts/**", hasAuthority("SCOPE_contacts"))
-                authorize("/messages/**", hasAuthority("SCOPE_messages"))
+                authorize("/contacts/**", hasScope("contacts"))
+                authorize("/messages/**", hasScope("messages"))
                 authorize(anyRequest, authenticated)
             }
             oauth2ResourceServer {
