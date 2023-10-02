@@ -37,16 +37,16 @@ public class OAuth2AuthorizationManagersTests {
 	void hasScopeWhenInvalidScopeThenThrowIllegalArgument() {
 		String scope = "SCOPE_invalid";
 		assertThatExceptionOfType(IllegalArgumentException.class)
-				.isThrownBy(() -> OAuth2AuthorizationManagers.hasScope(scope))
-				.withMessageContaining("SCOPE_invalid should not start with SCOPE_");
+			.isThrownBy(() -> OAuth2AuthorizationManagers.hasScope(scope))
+			.withMessageContaining("SCOPE_invalid should not start with SCOPE_");
 	}
 
 	@Test
 	void hasAnyScopeWhenInvalidScopeThenThrowIllegalArgument() {
 		String[] scopes = { "read", "write", "SCOPE_invalid" };
 		assertThatExceptionOfType(IllegalArgumentException.class)
-				.isThrownBy(() -> OAuth2AuthorizationManagers.hasAnyScope(scopes))
-				.withMessageContaining("SCOPE_invalid should not start with SCOPE_");
+			.isThrownBy(() -> OAuth2AuthorizationManagers.hasAnyScope(scopes))
+			.withMessageContaining("SCOPE_invalid should not start with SCOPE_");
 	}
 
 	@Test
@@ -55,7 +55,7 @@ public class OAuth2AuthorizationManagersTests {
 		AuthorizationManager<Object> authorizationManager = OAuth2AuthorizationManagers.hasScope(scope);
 		authorizationManager.verify(() -> hasScope(scope), new Object());
 		assertThatExceptionOfType(AccessDeniedException.class)
-				.isThrownBy(() -> authorizationManager.verify(() -> hasScope("wrong"), new Object()));
+			.isThrownBy(() -> authorizationManager.verify(() -> hasScope("wrong"), new Object()));
 	}
 
 	@Test
@@ -66,7 +66,7 @@ public class OAuth2AuthorizationManagersTests {
 			authorizationManager.verify(() -> hasScope(scope), new Object());
 		}
 		assertThatExceptionOfType(AccessDeniedException.class)
-				.isThrownBy(() -> authorizationManager.verify(() -> hasScope("wrong"), new Object()));
+			.isThrownBy(() -> authorizationManager.verify(() -> hasScope("wrong"), new Object()));
 	}
 
 	Authentication hasScope(String scope) {

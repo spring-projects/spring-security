@@ -37,16 +37,16 @@ public class OAuth2ReactiveAuthorizationManagersTests {
 	void hasScopeWhenInvalidScopeThenThrowIllegalArgument() {
 		String scope = "SCOPE_invalid";
 		assertThatExceptionOfType(IllegalArgumentException.class)
-				.isThrownBy(() -> OAuth2ReactiveAuthorizationManagers.hasScope(scope))
-				.withMessageContaining("SCOPE_invalid should not start with SCOPE_");
+			.isThrownBy(() -> OAuth2ReactiveAuthorizationManagers.hasScope(scope))
+			.withMessageContaining("SCOPE_invalid should not start with SCOPE_");
 	}
 
 	@Test
 	void hasAnyScopeWhenInvalidScopeThenThrowIllegalArgument() {
 		String[] scopes = { "read", "write", "SCOPE_invalid" };
 		assertThatExceptionOfType(IllegalArgumentException.class)
-				.isThrownBy(() -> OAuth2ReactiveAuthorizationManagers.hasAnyScope(scopes))
-				.withMessageContaining("SCOPE_invalid should not start with SCOPE_");
+			.isThrownBy(() -> OAuth2ReactiveAuthorizationManagers.hasAnyScope(scopes))
+			.withMessageContaining("SCOPE_invalid should not start with SCOPE_");
 	}
 
 	@Test
@@ -55,19 +55,19 @@ public class OAuth2ReactiveAuthorizationManagersTests {
 		ReactiveAuthorizationManager<Object> authorizationManager = OAuth2ReactiveAuthorizationManagers.hasScope(scope);
 		authorizationManager.verify(hasScope(scope), new Object()).block();
 		assertThatExceptionOfType(AccessDeniedException.class)
-				.isThrownBy(() -> authorizationManager.verify(hasScope("wrong"), new Object()).block());
+			.isThrownBy(() -> authorizationManager.verify(hasScope("wrong"), new Object()).block());
 	}
 
 	@Test
 	void hasAnyScopeWhenValidScopesThenAuthorizationManager() {
 		String[] scopes = { "read", "write" };
 		ReactiveAuthorizationManager<Object> authorizationManager = OAuth2ReactiveAuthorizationManagers
-				.hasAnyScope(scopes);
+			.hasAnyScope(scopes);
 		for (String scope : scopes) {
 			authorizationManager.verify(hasScope(scope), new Object()).block();
 		}
 		assertThatExceptionOfType(AccessDeniedException.class)
-				.isThrownBy(() -> authorizationManager.verify(hasScope("wrong"), new Object()).block());
+			.isThrownBy(() -> authorizationManager.verify(hasScope("wrong"), new Object()).block());
 	}
 
 	Mono<Authentication> hasScope(String scope) {
