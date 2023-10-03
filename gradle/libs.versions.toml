@@ -24,7 +24,7 @@ com-nimbusds-nimbus-jose-jwt = { module = "com.nimbusds:nimbus-jose-jwt", versio
 com-nimbusds-oauth2-oidc-sdk = "com.nimbusds:oauth2-oidc-sdk:9.43.3"
 com-squareup-okhttp3-mockwebserver = { module = "com.squareup.okhttp3:mockwebserver", version.ref = "com-squareup-okhttp3" }
 com-squareup-okhttp3-okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "com-squareup-okhttp3" }
-com-unboundid-unboundid-ldapsdk = "com.unboundid:unboundid-ldapsdk:6.0.9"
+com-unboundid-unboundid-ldapsdk = "com.unboundid:unboundid-ldapsdk:6.0.10"
 commons-collections = "commons-collections:commons-collections:3.2.2"
 io-micrometer-micrometer-observation = "io.micrometer:micrometer-observation:1.12.0-M3"
 io-mockk = "io.mockk:mockk:1.13.8"
