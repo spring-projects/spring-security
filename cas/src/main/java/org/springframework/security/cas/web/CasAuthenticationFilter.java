@@ -23,7 +23,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apereo.cas.client.proxy.ProxyGrantingTicketStorage;
-import org.apereo.cas.client.util.CommonUtils;
+import org.apereo.cas.client.util.WebUtils;
 import org.apereo.cas.client.validation.TicketValidator;
 
 import org.springframework.core.log.LogMessage;
@@ -228,7 +228,7 @@ public class CasAuthenticationFilter extends AbstractAuthenticationProcessingFil
 		// request has been processed
 		if (proxyReceptorRequest(request)) {
 			this.logger.debug("Responding to proxy receptor request");
-			CommonUtils.readAndRespondToProxyReceptorRequest(request, response, this.proxyGrantingTicketStorage);
+			WebUtils.readAndRespondToProxyReceptorRequest(request, response, this.proxyGrantingTicketStorage);
 			return null;
 		}
 		String serviceTicket = obtainArtifact(request);
