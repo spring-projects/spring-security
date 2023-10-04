@@ -21,6 +21,7 @@ import java.io.IOException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apereo.cas.client.util.CommonUtils;
+import org.apereo.cas.client.util.WebUtils;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.cas.ServiceProperties;
@@ -85,7 +86,7 @@ public class CasAuthenticationEntryPoint implements AuthenticationEntryPoint, In
 	 * @return the constructed service url. CANNOT be NULL.
 	 */
 	protected String createServiceUrl(HttpServletRequest request, HttpServletResponse response) {
-		return CommonUtils.constructServiceUrl(null, response, this.serviceProperties.getService(), null,
+		return WebUtils.constructServiceUrl(null, response, this.serviceProperties.getService(), null,
 				this.serviceProperties.getArtifactParameter(), this.encodeServiceUrlWithSessionId);
 	}
 
