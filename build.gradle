@@ -19,7 +19,6 @@ apply plugin: 'locks'
 apply plugin: 's101'
 apply plugin: 'io.spring.convention.root'
 apply plugin: 'org.jetbrains.kotlin.jvm'
-apply plugin: 'org.springframework.security.update-dependencies'
 apply plugin: 'org.springframework.security.update-version'
 apply plugin: 'org.springframework.security.sagan'
 apply plugin: 'org.springframework.github.milestone'
@@ -83,58 +82,6 @@ tasks.named("dispatchGitHubWorkflow") {
 	repository {
 		owner = "spring-projects"
 		name = "spring-security"
-	}
-}
-
-tasks.named("updateDependencies") {
-	// we aren't Gradle 7 compatible yet
-	checkForGradleUpdate = false
-}
-
-updateDependenciesSettings {
-	gitHub {
-		organization = "spring-projects"
-		repository = "spring-security"
-	}
-	addFiles({
-		return [
-				project.file("buildSrc/src/main/groovy/io/spring/gradle/convention/CheckstylePlugin.groovy")
-		]
-	})
-	dependencyExcludes {
-		majorVersionBump()
-		minorVersionBump()
-		releaseCandidatesVersions()
-		alphaBetaVersions()
-		snapshotVersions()
-		addRule { components ->
-			components.withModule("org.python:jython") { selection ->
-				ModuleComponentIdentifier candidate = selection.getCandidate();
-				if (!candidate.getVersion().equals(selection.getCurrentVersion())) {
-					selection.reject("jython updates break integration tests");
-				}
-			}
-			components.withModule("com.nimbusds:nimbus-jose-jwt") { selection ->
-				ModuleComponentIdentifier candidate = selection.getCandidate();
-				if (!candidate.getVersion().equals(selection.getCurrentVersion())) {
-					selection.reject("nimbus-jose-jwt gets updated when oauth2-oidc-sdk is updated to ensure consistency");
-				}
-			}
-			components.withModule("io.mockk:mockk") { selection ->
-				ModuleComponentIdentifier candidate = selection.getCandidate();
-				if (!candidate.getVersion().equals(selection.getCurrentVersion())) {
-					selection.reject("mockk updates break tests");
-				}
-			}
-			components.all { selection ->
-				ModuleComponentIdentifier candidate = selection.getCandidate();
-				// Do not compare version due to multiple versions existing
-				// will cause opensaml 3.x to be updated to 4.x
-				if (candidate.getGroup().equals("org.opensaml")) {
-					selection.reject("org.opensaml maintains two different versions, so it must be updated manually");
-				}
-			}
-		}
 	}
 }
 
