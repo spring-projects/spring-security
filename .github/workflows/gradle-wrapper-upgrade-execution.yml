@@ -1,0 +1,25 @@
+name: Execute Gradle Wrapper Upgrade
+
+on:
+  schedule:
+    - cron:  '0 2 * * *' # 2am UTC
+  workflow_dispatch:
+
+jobs:
+  upgrade_wrapper:
+    name: Execution
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+      - name: Set up Gradle
+        uses: gradle/gradle-build-action@v2
+      - name: Upgrade Wrappers
+        run: ./gradlew clean upgradeGradleWrapperAll --continue -Porg.gradle.java.installations.auto-download=false
+        env:
+          WRAPPER_UPGRADE_GIT_TOKEN: ${{ secrets.GITHUB_TOKEN }}

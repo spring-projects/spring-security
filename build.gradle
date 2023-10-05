@@ -14,6 +14,10 @@ buildscript {
 	}
 }
 
+plugins {
+	alias(libs.plugins.org.gradle.wrapper.upgrade)
+}
+
 apply plugin: 'io.spring.nohttp'
 apply plugin: 'locks'
 apply plugin: 's101'
@@ -194,4 +198,21 @@ tasks.register('cloneSamples', IncludeRepoTask) {
 
 s101 {
 	configurationDirectory = project.file("etc/s101")
+}
+
+wrapperUpgrade {
+	gradle {
+		'spring-security-main' {
+			repo = 'spring-projects/spring-security'
+			baseBranch = 'main'
+		}
+		'spring-security-6.1.x' {
+			repo = 'spring-projects/spring-security'
+			baseBranch = '6.1.x'
+		}
+		'spring-security-6.0.x' {
+			repo = 'spring-projects/spring-security'
+			baseBranch = '6.0.x'
+		}
+	}
 }
