@@ -18,6 +18,7 @@ package org.springframework.security.oauth2.jwt;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Supplier;
 
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKMatcher;
@@ -31,10 +32,15 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
+import reactor.core.publisher.Mono;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 
 /**
  * @author Rob Winch
@@ -51,6 +57,9 @@ public class ReactiveRemoteJWKSourceTests {
 	private JWKSelector selector;
 
 	private MockWebServer server;
+
+	@Mock
+	private Supplier<String> mockStringSupplier;
 
 	// @formatter:off
 	private String keys = "{\n"
@@ -154,6 +163,20 @@ public class ReactiveRemoteJWKSourceTests {
 		given(this.matcher.matches(any())).willReturn(false);
 		given(this.matcher.getKeyIDs()).willReturn(Collections.singleton("7ddf54d3032d1f0d48c3618892ca74c1ac30ad77"));
 		assertThat(this.source.get(this.selector).block()).isEmpty();
+	}
+
+	@Test
+	public void getShouldRecoverAndReturnKeysAfterErrorCase() {
+		given(this.matcher.matches(any())).willReturn(true);
+		this.source = new ReactiveRemoteJWKSource(Mono.fromSupplier(mockStringSupplier));
+		doThrow(WebClientResponseException.ServiceUnavailable.class).when(this.mockStringSupplier).get();
+		// first case: id provider has error state
+		assertThatThrownBy(() -> this.source.get(this.selector).block())
+			.isExactlyInstanceOf(WebClientResponseException.ServiceUnavailable.class);
+		// second case: id provider is healthy again
+		doReturn(this.server.url("/").toString()).when(this.mockStringSupplier).get();
+		var actual = this.source.get(this.selector).block();
+		assertThat(actual).isNotEmpty();
 	}
 
 }
