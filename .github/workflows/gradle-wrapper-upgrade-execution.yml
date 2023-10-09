@@ -15,8 +15,8 @@ jobs:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git config --global url."https://unused-username:${TOKEN}@github.com/".insteadOf "https://github.com/"
-          git config --global user.name "$(git --no-pager log --format=format:'%an' -n 1)"
-          git config --global user.email "$(git --no-pager log --format=format:'%ae' -n 1)"
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
       - name: Checkout
         uses: actions/checkout@v4
       - name: Set up JDK 17
