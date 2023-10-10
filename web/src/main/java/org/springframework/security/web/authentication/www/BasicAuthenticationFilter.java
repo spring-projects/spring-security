@@ -267,7 +267,7 @@ public class BasicAuthenticationFilter extends OncePerRequestFilter {
 	}
 
 	public void setAuthenticationConverter(final BasicAuthenticationConverter authenticationConverter) {
-		Assert.notNull(rememberMeServices, "authenticationConverter cannot be null");
+		Assert.notNull(authenticationConverter, "authenticationConverter cannot be null");
 		this.authenticationConverter = authenticationConverter;
 	}
 
