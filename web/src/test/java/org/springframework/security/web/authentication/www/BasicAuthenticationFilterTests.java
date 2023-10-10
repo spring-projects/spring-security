@@ -21,6 +21,7 @@ import java.nio.charset.StandardCharsets;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -81,6 +82,15 @@ public class BasicAuthenticationFilterTests {
 		given(this.manager.authenticate(rodRequest)).willReturn(rod);
 		given(this.manager.authenticate(not(eq(rodRequest)))).willThrow(new BadCredentialsException(""));
 		this.filter = new BasicAuthenticationFilter(this.manager, new BasicAuthenticationEntryPoint());
+		this.filter.setAuthenticationConverter(new BasicAuthenticationConverter() {
+			@Override
+			public UsernamePasswordAuthenticationToken convert(final HttpServletRequest request) {
+				if (request.getServletPath().equalsIgnoreCase("/ignored-request")) {
+					return null;
+				}
+				return super.convert(request);
+			}
+		});
 	}
 
 	@AfterEach
@@ -104,6 +114,20 @@ public class BasicAuthenticationFilterTests {
 	public void testGettersSetters() {
 		assertThat(this.filter.getAuthenticationManager()).isNotNull();
 		assertThat(this.filter.getAuthenticationEntryPoint()).isNotNull();
+	}
+
+	@Test
+	public void testAuthenticationConverterIgnoresRequest() throws Exception {
+		String token = "NOT_A_VALID_TOKEN_AS_MISSING_COLON";
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.addHeader("Authorization", "Basic " + CodecTestUtils.encodeBase64(token));
+		request.setServletPath("/ignored-request");
+		request.setSession(new MockHttpSession());
+		final MockHttpServletResponse response = new MockHttpServletResponse();
+		FilterChain chain = mock(FilterChain.class);
+		this.filter.doFilter(request, response, chain);
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
+		assertThat(response.getStatus()).isEqualTo(200);
 	}
 
 	@Test
