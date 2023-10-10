@@ -202,17 +202,9 @@ s101 {
 
 wrapperUpgrade {
 	gradle {
-		'spring-security-main' {
+		'spring-security' {
 			repo = 'spring-projects/spring-security'
-			baseBranch = 'main'
-		}
-		'spring-security-6.1.x' {
-			repo = 'spring-projects/spring-security'
-			baseBranch = '6.1.x'
-		}
-		'spring-security-6.0.x' {
-			repo = 'spring-projects/spring-security'
-			baseBranch = '6.0.x'
+			baseBranch = '6.0.x' // runs only on 6.0.x and the update is merged forward to main
 		}
 	}
 }
