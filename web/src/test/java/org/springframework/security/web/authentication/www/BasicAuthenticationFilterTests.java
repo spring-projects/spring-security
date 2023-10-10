@@ -21,6 +21,7 @@ import java.nio.charset.StandardCharsets;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -41,9 +42,12 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.test.web.CodecTestUtils;
+import org.springframework.security.web.authentication.AuthenticationConverter;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.util.WebUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -486,6 +490,59 @@ public class BasicAuthenticationFilterTests {
 		Authentication authenticationRequest = authenticationCaptor.getValue();
 		assertThat(authenticationRequest).isInstanceOf(UsernamePasswordAuthenticationToken.class);
 		assertThat(authenticationRequest.getName()).isEqualTo("rod");
+	}
+
+	@Test
+	public void doFilterWhenCustomAuthenticationConverterThatIgnoresRequestThenIgnores() throws Exception {
+		this.filter.setAuthenticationConverter(new TestAuthenticationConverter());
+		String token = "rod:koala";
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.addHeader("Authorization", "Basic " + CodecTestUtils.encodeBase64(token));
+		request.setServletPath("/ignored");
+		FilterChain filterChain = mock(FilterChain.class);
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		this.filter.doFilter(request, response, filterChain);
+		assertThat(response.getStatus()).isEqualTo(200);
+
+		verify(this.manager, never()).authenticate(any(Authentication.class));
+		verify(filterChain).doFilter(any(ServletRequest.class), any(ServletResponse.class));
+		verifyNoMoreInteractions(this.manager, filterChain);
+	}
+
+	@Test
+	public void doFilterWhenCustomAuthenticationConverterRequestThenAuthenticate() throws Exception {
+		this.filter.setAuthenticationConverter(new TestAuthenticationConverter());
+		String token = "rod:koala";
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.addHeader("Authorization", "Basic " + CodecTestUtils.encodeBase64(token));
+		request.setServletPath("/ok");
+		FilterChain filterChain = mock(FilterChain.class);
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		this.filter.doFilter(request, response, filterChain);
+		assertThat(response.getStatus()).isEqualTo(200);
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
+		assertThat(SecurityContextHolder.getContext().getAuthentication().getName()).isEqualTo("rod");
+	}
+
+	@Test
+	public void setAuthenticationConverterWhenNullThenException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.filter.setAuthenticationConverter(null));
+	}
+
+	static class TestAuthenticationConverter implements AuthenticationConverter {
+
+		private final RequestMatcher matcher = AntPathRequestMatcher.antMatcher("/ignored");
+
+		private final BasicAuthenticationConverter delegate = new BasicAuthenticationConverter();
+
+		@Override
+		public Authentication convert(HttpServletRequest request) {
+			if (this.matcher.matches(request)) {
+				return null;
+			}
+			return this.delegate.convert(request);
+		}
+
 	}
 
 }
