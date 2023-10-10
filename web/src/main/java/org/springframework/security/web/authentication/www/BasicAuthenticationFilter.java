@@ -95,9 +95,9 @@ public class BasicAuthenticationFilter extends OncePerRequestFilter {
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
 		.getContextHolderStrategy();
 
-	private AuthenticationEntryPoint authenticationEntryPoint;
+	protected AuthenticationEntryPoint authenticationEntryPoint;
 
-	private AuthenticationManager authenticationManager;
+	protected final AuthenticationManager authenticationManager;
 
 	private RememberMeServices rememberMeServices = new NullRememberMeServices();
 
@@ -264,6 +264,11 @@ public class BasicAuthenticationFilter extends OncePerRequestFilter {
 		Assert.hasText(credentialsCharset, "credentialsCharset cannot be null or empty");
 		this.credentialsCharset = credentialsCharset;
 		this.authenticationConverter.setCredentialsCharset(Charset.forName(credentialsCharset));
+	}
+
+	public void setAuthenticationConverter(final BasicAuthenticationConverter authenticationConverter) {
+		Assert.notNull(rememberMeServices, "authenticationConverter cannot be null");
+		this.authenticationConverter = authenticationConverter;
 	}
 
 	protected String getCredentialsCharset(HttpServletRequest httpRequest) {
