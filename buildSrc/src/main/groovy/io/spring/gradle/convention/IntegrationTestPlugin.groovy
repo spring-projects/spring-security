@@ -70,11 +70,9 @@ public class IntegrationTestPlugin implements Plugin<Project> {
 			}
 			integrationTestCompileClasspath {
 				extendsFrom integrationTestCompile
-				canBeResolved = true
 			}
 			integrationTestRuntimeClasspath {
 				extendsFrom integrationTestRuntime
-				canBeResolved = true
 			}
 		}
 
