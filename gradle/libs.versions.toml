@@ -31,7 +31,7 @@ io-freefair-gradle-aspectj-plugin = "io.freefair.gradle:aspectj-plugin:6.6.3"
 io-micrometer-micrometer-observation = "io.micrometer:micrometer-observation:1.10.11"
 io-mockk = "io.mockk:mockk:1.13.7"
 io-projectreactor-netty-reactor-netty = "io.projectreactor.netty:reactor-netty:1.1.11"
-io-projectreactor-reactor-bom = "io.projectreactor:reactor-bom:2022.0.10"
+io-projectreactor-reactor-bom = "io.projectreactor:reactor-bom:2022.0.12"
 io-r2dbc-r2dbc-h2 = "io.r2dbc:r2dbc-h2:1.0.0.RELEASE"
 io-r2dbc-r2dbc-spi-test = "io.r2dbc:r2dbc-spi-test:0.9.1.RELEASE"
 io-rsocket-rsocket-bom = { module = "io.rsocket:rsocket-bom", version.ref = "io-rsocket" }
