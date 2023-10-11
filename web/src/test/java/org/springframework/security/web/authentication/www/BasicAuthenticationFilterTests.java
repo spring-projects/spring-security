@@ -82,15 +82,6 @@ public class BasicAuthenticationFilterTests {
 		given(this.manager.authenticate(rodRequest)).willReturn(rod);
 		given(this.manager.authenticate(not(eq(rodRequest)))).willThrow(new BadCredentialsException(""));
 		this.filter = new BasicAuthenticationFilter(this.manager, new BasicAuthenticationEntryPoint());
-		this.filter.setAuthenticationConverter(new BasicAuthenticationConverter() {
-			@Override
-			public UsernamePasswordAuthenticationToken convert(final HttpServletRequest request) {
-				if (request.getServletPath().equalsIgnoreCase("/ignored-request")) {
-					return null;
-				}
-				return super.convert(request);
-			}
-		});
 	}
 
 	@AfterEach
@@ -125,6 +116,15 @@ public class BasicAuthenticationFilterTests {
 		request.setSession(new MockHttpSession());
 		final MockHttpServletResponse response = new MockHttpServletResponse();
 		FilterChain chain = mock(FilterChain.class);
+		this.filter.setAuthenticationConverter(new BasicAuthenticationConverter() {
+			@Override
+			public UsernamePasswordAuthenticationToken convert(final HttpServletRequest request) {
+				if (request.getServletPath().equalsIgnoreCase("/ignored-request")) {
+					return null;
+				}
+				return super.convert(request);
+			}
+		});
 		this.filter.doFilter(request, response, chain);
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
 		assertThat(response.getStatus()).isEqualTo(200);

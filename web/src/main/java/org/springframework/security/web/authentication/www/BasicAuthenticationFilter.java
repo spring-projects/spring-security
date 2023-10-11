@@ -95,9 +95,9 @@ public class BasicAuthenticationFilter extends OncePerRequestFilter {
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
 		.getContextHolderStrategy();
 
-	protected AuthenticationEntryPoint authenticationEntryPoint;
+	private AuthenticationEntryPoint authenticationEntryPoint;
 
-	protected final AuthenticationManager authenticationManager;
+	private AuthenticationManager authenticationManager;
 
 	private RememberMeServices rememberMeServices = new NullRememberMeServices();
 
