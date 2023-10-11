@@ -19,6 +19,7 @@ package org.springframework.security.config.annotation.web.configurers;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.security.config.TestMockHttpServletMappings;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

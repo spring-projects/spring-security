@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import java.util.Map;
 import jakarta.servlet.DispatcherType;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletRegistration;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
@@ -203,11 +204,30 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 		if (!hasDispatcherServlet(registrations)) {
 			return requestMatchers(RequestMatchers.antMatchersAsArray(method, patterns));
 		}
-		if (registrations.size() > 1) {
-			String errorMessage = computeErrorMessage(registrations.values());
-			throw new IllegalArgumentException(errorMessage);
+		ServletRegistration dispatcherServlet = requireOneRootDispatcherServlet(registrations);
+		if (dispatcherServlet != null) {
+			if (registrations.size() == 1) {
+				return requestMatchers(createMvcMatchers(method, patterns).toArray(RequestMatcher[]::new));
+			}
+			List<RequestMatcher> matchers = new ArrayList<>();
+			for (String pattern : patterns) {
+				AntPathRequestMatcher ant = new AntPathRequestMatcher(pattern, (method != null) ? method.name() : null);
+				MvcRequestMatcher mvc = createMvcMatchers(method, pattern).get(0);
+				matchers.add(new DispatcherServletDelegatingRequestMatcher(ant, mvc, servletContext));
+			}
+			return requestMatchers(matchers.toArray(new RequestMatcher[0]));
 		}
-		return requestMatchers(createMvcMatchers(method, patterns).toArray(new RequestMatcher[0]));
+		dispatcherServlet = requireOnlyPathMappedDispatcherServlet(registrations);
+		if (dispatcherServlet != null) {
+			String mapping = dispatcherServlet.getMappings().iterator().next();
+			List<MvcRequestMatcher> matchers = createMvcMatchers(method, patterns);
+			for (MvcRequestMatcher matcher : matchers) {
+				matcher.setServletPath(mapping.substring(0, mapping.length() - 2));
+			}
+			return requestMatchers(matchers.toArray(new RequestMatcher[0]));
+		}
+		String errorMessage = computeErrorMessage(registrations.values());
+		throw new IllegalArgumentException(errorMessage);
 	}
 
 	private Map<String, ? extends ServletRegistration> mappableServletRegistrations(ServletContext servletContext) {
@@ -225,20 +245,64 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 		if (registrations == null) {
 			return false;
 		}
-		Class<?> dispatcherServlet = ClassUtils.resolveClassName("org.springframework.web.servlet.DispatcherServlet",
-				null);
 		for (ServletRegistration registration : registrations.values()) {
-			try {
-				Class<?> clazz = Class.forName(registration.getClassName());
-				if (dispatcherServlet.isAssignableFrom(clazz)) {
-					return true;
-				}
-			}
-			catch (ClassNotFoundException ex) {
-				return false;
+			if (isDispatcherServlet(registration)) {
+				return true;
 			}
 		}
 		return false;
+	}
+
+	private ServletRegistration requireOneRootDispatcherServlet(
+			Map<String, ? extends ServletRegistration> registrations) {
+		ServletRegistration rootDispatcherServlet = null;
+		for (ServletRegistration registration : registrations.values()) {
+			if (!isDispatcherServlet(registration)) {
+				continue;
+			}
+			if (registration.getMappings().size() > 1) {
+				return null;
+			}
+			if (!"/".equals(registration.getMappings().iterator().next())) {
+				return null;
+			}
+			rootDispatcherServlet = registration;
+		}
+		return rootDispatcherServlet;
+	}
+
+	private ServletRegistration requireOnlyPathMappedDispatcherServlet(
+			Map<String, ? extends ServletRegistration> registrations) {
+		ServletRegistration pathDispatcherServlet = null;
+		for (ServletRegistration registration : registrations.values()) {
+			if (!isDispatcherServlet(registration)) {
+				return null;
+			}
+			if (registration.getMappings().size() > 1) {
+				return null;
+			}
+			String mapping = registration.getMappings().iterator().next();
+			if (!mapping.startsWith("/") || !mapping.endsWith("/*")) {
+				return null;
+			}
+			if (pathDispatcherServlet != null) {
+				return null;
+			}
+			pathDispatcherServlet = registration;
+		}
+		return pathDispatcherServlet;
+	}
+
+	private boolean isDispatcherServlet(ServletRegistration registration) {
+		Class<?> dispatcherServlet = ClassUtils.resolveClassName("org.springframework.web.servlet.DispatcherServlet",
+				null);
+		try {
+			Class<?> clazz = Class.forName(registration.getClassName());
+			return dispatcherServlet.isAssignableFrom(clazz);
+		}
+		catch (ClassNotFoundException ex) {
+			return false;
+		}
 	}
 
 	private String computeErrorMessage(Collection<? extends ServletRegistration> registrations) {
@@ -376,6 +440,57 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 		 */
 		static List<RequestMatcher> regexMatchers(String... regexPatterns) {
 			return regexMatchers(null, regexPatterns);
+		}
+
+	}
+
+	static class DispatcherServletDelegatingRequestMatcher implements RequestMatcher {
+
+		private final AntPathRequestMatcher ant;
+
+		private final MvcRequestMatcher mvc;
+
+		private final ServletContext servletContext;
+
+		DispatcherServletDelegatingRequestMatcher(AntPathRequestMatcher ant, MvcRequestMatcher mvc,
+				ServletContext servletContext) {
+			this.ant = ant;
+			this.mvc = mvc;
+			this.servletContext = servletContext;
+		}
+
+		@Override
+		public boolean matches(HttpServletRequest request) {
+			String name = request.getHttpServletMapping().getServletName();
+			ServletRegistration registration = this.servletContext.getServletRegistration(name);
+			Assert.notNull(registration, "Failed to find servlet [" + name + "] in the servlet context");
+			if (isDispatcherServlet(registration)) {
+				return this.mvc.matches(request);
+			}
+			return this.ant.matches(request);
+		}
+
+		@Override
+		public MatchResult matcher(HttpServletRequest request) {
+			String name = request.getHttpServletMapping().getServletName();
+			ServletRegistration registration = this.servletContext.getServletRegistration(name);
+			Assert.notNull(registration, "Failed to find servlet [" + name + "] in the servlet context");
+			if (isDispatcherServlet(registration)) {
+				return this.mvc.matcher(request);
+			}
+			return this.ant.matcher(request);
+		}
+
+		private boolean isDispatcherServlet(ServletRegistration registration) {
+			Class<?> dispatcherServlet = ClassUtils
+				.resolveClassName("org.springframework.web.servlet.DispatcherServlet", null);
+			try {
+				Class<?> clazz = Class.forName(registration.getClassName());
+				return dispatcherServlet.isAssignableFrom(clazz);
+			}
+			catch (ClassNotFoundException ex) {
+				return false;
+			}
 		}
 
 	}
