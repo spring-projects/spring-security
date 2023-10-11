@@ -14,32 +14,32 @@
  * limitations under the License.
  */
 
-package org.springframework.security.config.annotation.web.configurers;
+package org.springframework.security.config;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.MappingMatch;
 
 import org.springframework.mock.web.MockHttpServletMapping;
 
-final class TestMockHttpServletMappings {
+public final class TestMockHttpServletMappings {
 
 	private TestMockHttpServletMappings() {
 
 	}
 
-	static MockHttpServletMapping extension(HttpServletRequest request, String extension) {
+	public static MockHttpServletMapping extension(HttpServletRequest request, String extension) {
 		String uri = request.getRequestURI();
 		String matchValue = uri.substring(0, uri.lastIndexOf(extension));
 		return new MockHttpServletMapping(matchValue, "*" + extension, "extension", MappingMatch.EXTENSION);
 	}
 
-	static MockHttpServletMapping path(HttpServletRequest request, String path) {
+	public static MockHttpServletMapping path(HttpServletRequest request, String path) {
 		String uri = request.getRequestURI();
 		String matchValue = uri.substring(path.length());
 		return new MockHttpServletMapping(matchValue, path + "/*", "path", MappingMatch.PATH);
 	}
 
-	static MockHttpServletMapping defaultMapping() {
+	public static MockHttpServletMapping defaultMapping() {
 		return new MockHttpServletMapping("", "/", "default", MappingMatch.DEFAULT);
 	}
 
