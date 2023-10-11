@@ -1070,7 +1070,7 @@ It also has access to the full Java language.
 [[custom-authorization-managers]]
 === Using a Custom Authorization Manager
 
-The second way to authorize a method programmatically is two create a custom xref:servlet/authorization/architecture.adoc#_the_authorizationmanager[`AuthorizationManager`].
+The second way to authorize a method programmatically is to create a custom xref:servlet/authorization/architecture.adoc#_the_authorizationmanager[`AuthorizationManager`].
 
 First, declare an authorization manager instance, perhaps like this one:
 
@@ -1081,8 +1081,14 @@ Java::
 [source,java,role="primary"]
 ----
 @Component
-public class MyAuthorizationManager implements AuthorizationManager<MethodInvocation> {
+public class MyAuthorizationManager implements AuthorizationManager<MethodInvocation>, AuthorizationManager<MethodInvocationResult> {
+    @Override
     public AuthorizationDecision check(Supplier<Authentication> authentication, MethodInvocation invocation) {
+        // ... authorization logic
+    }
+
+    @Override
+    public AuthorizationDecision check(Supplier<Authentication> authentication, MethodInvocationResult invocation) {
         // ... authorization logic
     }
 }
@@ -1092,9 +1098,13 @@ Kotlin::
 +
 [source,kotlin,role="secondary"]
 ----
-@Component("authz")
-open class MyAuthorizationManager: AuthorizationManager<MethodInvocation> {
-    fun check(val authentication: Supplier<Authentication>, val invocation: MethodInvocation): AuthorizationDecision {
+@Component
+class MyAuthorizationManager : AuthorizationManager<MethodInvocation>, AuthorizationManager<MethodInvocationResult> {
+    override fun check(authentication: Supplier<Authentication>, invocation: MethodInvocation): AuthorizationDecision {
+        // ... authorization logic
+    }
+
+    override fun check(authentication: Supplier<Authentication>, invocation: MethodInvocationResult): AuthorizationDecision {
         // ... authorization logic
     }
 }
@@ -1104,7 +1114,7 @@ open class MyAuthorizationManager: AuthorizationManager<MethodInvocation> {
 Then, publish the method interceptor with a pointcut that corresponds to when you want that `AuthorizationManager` to run.
 For example, you could replace how `@PreAuthorize` and `@PostAuthorize` work like so:
 
-.Only @PostAuthorize Configuration
+.Only @PreAuthorize and @PostAuthorize Configuration
 [tabs]
 ======
 Java::
@@ -1116,7 +1126,7 @@ Java::
 class MethodSecurityConfig {
     @Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-	Advisor postAuthorize(MyAuthorizationManager manager) {
+	Advisor preAuthorize(MyAuthorizationManager manager) {
 		return AuthorizationManagerBeforeMethodInterceptor.preAuthorize(manager);
 	}
 
@@ -1157,7 +1167,7 @@ Xml::
 
 <aop:config/>
 
-<bean id="postAuthorize"
+<bean id="preAuthorize"
 	class="org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor"
 	factory-method="preAuthorize">
     <constructor-arg ref="myAuthorizationManager"/>
