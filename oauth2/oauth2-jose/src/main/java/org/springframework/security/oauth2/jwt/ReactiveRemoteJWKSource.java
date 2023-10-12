@@ -44,22 +44,23 @@ class ReactiveRemoteJWKSource implements ReactiveJWKSource {
 	private final AtomicReference<Mono<JWKSet>> cachedJWKSet = new AtomicReference<>(Mono.empty());
 
 	/**
-	 * cached url for jwk set.
+	 * The cached JWK set URL.
 	 */
 	private final AtomicReference<String> cachedJwkSetUrl = new AtomicReference<>();
 
 	private WebClient webClient = WebClient.create();
 
-	private Mono<String> jwkSetURLProvider;
+	private final Mono<String> jwkSetUrlProvider;
 
 	ReactiveRemoteJWKSource(String jwkSetURL) {
 		Assert.hasText(jwkSetURL, "jwkSetURL cannot be empty");
-		this.cachedJwkSetUrl.set(jwkSetURL);
+		this.jwkSetUrlProvider = Mono.just(jwkSetURL);
 	}
 
-	ReactiveRemoteJWKSource(Mono<String> jwkSetURLProvider) {
-		Assert.notNull(jwkSetURLProvider, "jwkSetURLProvider cannot be null");
-		this.jwkSetURLProvider = jwkSetURLProvider;
+	ReactiveRemoteJWKSource(Mono<String> jwkSetUrlProvider) {
+		Assert.notNull(jwkSetUrlProvider, "jwkSetUrlProvider cannot be null");
+		this.jwkSetUrlProvider = Mono.fromCallable(this.cachedJwkSetUrl::get)
+			.switchIfEmpty(Mono.defer(() -> jwkSetUrlProvider.doOnNext(this.cachedJwkSetUrl::set)));
 	}
 
 	@Override
@@ -105,10 +106,7 @@ class ReactiveRemoteJWKSource implements ReactiveJWKSource {
 	 */
 	private Mono<JWKSet> getJWKSet() {
 		// @formatter:off
-		return Mono.justOrEmpty(this.cachedJwkSetUrl.get())
-				.switchIfEmpty(Mono.defer(() -> this.jwkSetURLProvider
-					.doOnNext(this.cachedJwkSetUrl::set))
-				)
+		return this.jwkSetUrlProvider
 				.flatMap((jwkSetURL) -> this.webClient.get()
 					.uri(jwkSetURL)
 					.retrieve()

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,15 +32,16 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 
+import org.springframework.web.reactive.function.client.WebClientResponseException;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
+import static org.mockito.BDDMockito.willReturn;
+import static org.mockito.BDDMockito.willThrow;
 
 /**
  * @author Rob Winch
@@ -168,14 +169,14 @@ public class ReactiveRemoteJWKSourceTests {
 	@Test
 	public void getShouldRecoverAndReturnKeysAfterErrorCase() {
 		given(this.matcher.matches(any())).willReturn(true);
-		this.source = new ReactiveRemoteJWKSource(Mono.fromSupplier(mockStringSupplier));
-		doThrow(WebClientResponseException.ServiceUnavailable.class).when(this.mockStringSupplier).get();
+		this.source = new ReactiveRemoteJWKSource(Mono.fromSupplier(this.mockStringSupplier));
+		willThrow(WebClientResponseException.ServiceUnavailable.class).given(this.mockStringSupplier).get();
 		// first case: id provider has error state
-		assertThatThrownBy(() -> this.source.get(this.selector).block())
-			.isExactlyInstanceOf(WebClientResponseException.ServiceUnavailable.class);
+		assertThatExceptionOfType(WebClientResponseException.ServiceUnavailable.class)
+			.isThrownBy(() -> this.source.get(this.selector).block());
 		// second case: id provider is healthy again
-		doReturn(this.server.url("/").toString()).when(this.mockStringSupplier).get();
-		var actual = this.source.get(this.selector).block();
+		willReturn(this.server.url("/").toString()).given(this.mockStringSupplier).get();
+		List<JWK> actual = this.source.get(this.selector).block();
 		assertThat(actual).isNotEmpty();
 	}
 
