@@ -200,7 +200,7 @@ public final class OpenSamlLogoutRequestValidatorParametersResolver
 	}
 
 	private String inflateIfRequired(HttpServletRequest request, byte[] b) {
-		if (HttpMethod.GET.equals(request.getMethod())) {
+		if (HttpMethod.GET.matches(request.getMethod())) {
 			return Saml2Utils.samlInflate(b);
 		}
 		return new String(b, StandardCharsets.UTF_8);
