@@ -116,6 +116,21 @@ public final class OpenSamlLogoutRequestValidatorParametersResolverTests {
 	}
 
 	@Test
+	void saml2LogoutResolveWhenUnauthenticatedGetRequestThenInflates() {
+		String registrationId = this.registration.getRegistrationId();
+		MockHttpServletRequest request = get("/logout/saml2/slo");
+		String logoutRequest = serialize(TestOpenSamlObjects.logoutRequest());
+		String encoded = Saml2Utils.samlEncode(Saml2Utils.samlDeflate(logoutRequest));
+		request.setParameter(Saml2ParameterNames.SAML_REQUEST, encoded);
+		given(this.registrations.findUniqueByAssertingPartyEntityId(TestOpenSamlObjects.ASSERTING_PARTY_ENTITY_ID))
+			.willReturn(this.registration);
+		Saml2LogoutRequestValidatorParameters parameters = this.resolver.resolve(request, null);
+		assertThat(parameters.getAuthentication()).isNull();
+		assertThat(parameters.getRelyingPartyRegistration().getRegistrationId()).isEqualTo(registrationId);
+		assertThat(parameters.getLogoutRequest().getSamlRequest()).isEqualTo(encoded);
+	}
+
+	@Test
 	void saml2LogoutRegistrationIdResolveWhenNoMatchingRegistrationIdThenSaml2Exception() {
 		MockHttpServletRequest request = post("/logout/saml2/slo/id");
 		request.setParameter(Saml2ParameterNames.SAML_REQUEST, "request");
@@ -125,6 +140,12 @@ public final class OpenSamlLogoutRequestValidatorParametersResolverTests {
 
 	private MockHttpServletRequest post(String uri) {
 		MockHttpServletRequest request = new MockHttpServletRequest("POST", uri);
+		request.setServletPath(uri);
+		return request;
+	}
+
+	private MockHttpServletRequest get(String uri) {
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", uri);
 		request.setServletPath(uri);
 		return request;
 	}
