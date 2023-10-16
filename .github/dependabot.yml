@@ -1,4 +1,10 @@
 version: 2
+
+registries:
+  spring-milestones:
+    type: maven-repository
+    url: https://repo.spring.io/milestone
+
 updates:
 
   - package-ecosystem: "gradle"
@@ -10,6 +16,8 @@ updates:
       time: "03:00"
       timezone: "Etc/UTC"
     labels: [ "type: dependency-upgrade" ]
+    registries:
+      - "spring-milestones"
     ignore:
       - dependency-name: "com.nimbusds:nimbus-jose-jwt" # nimbus-jose-jwt gets updated when oauth2-oidc-sdk is updated to ensure consistency
       - dependency-name: "org.python:jython" # jython updates break integration tests
