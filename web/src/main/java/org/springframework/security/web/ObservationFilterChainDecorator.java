@@ -144,8 +144,8 @@ public final class ObservationFilterChainDecorator implements FilterChainProxy.F
 		private static final Map<String, String> OBSERVATION_NAMES = new HashMap<>();
 
 		static {
-			OBSERVATION_NAMES.put("DisableEncodeUrlFilter", "session.url-encoding");
-			OBSERVATION_NAMES.put("ForceEagerSessionCreationFilter", "session.eager-create");
+			OBSERVATION_NAMES.put("DisableEncodeUrlFilter", "session.urlencoding");
+			OBSERVATION_NAMES.put("ForceEagerSessionCreationFilter", "session.eagercreate");
 			OBSERVATION_NAMES.put("ChannelProcessingFilter", "access.channel");
 			OBSERVATION_NAMES.put("WebAsyncManagerIntegrationFilter", "context.async");
 			OBSERVATION_NAMES.put("SecurityContextHolderFilter", "context.holder");
