@@ -278,30 +278,9 @@ jobs:
           ./gradlew :updateToSnapshotVersion
           git commit -am "Next development version"
           git push
-  perform_post_release:
-    name: Perform post-release
-    needs: [prerequisites, deploy_artifacts, deploy_docs, deploy_schema]
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      issues: write
-    timeout-minutes: 90
-    if: ${{ endsWith(needs.prerequisites.outputs.project_version, '-SNAPSHOT') }}
-    env:
-      TOKEN: ${{ github.token }}
-      VERSION: ${{ needs.prerequisites.outputs.project_version }}
-    steps:
-      - uses: actions/checkout@v3
-      - name: Set up gradle
-        uses: spring-io/spring-gradle-build-action@v1
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-      - name: Schedule next release (if not already scheduled)
-        run: ./gradlew scheduleNextRelease -PnextVersion=$VERSION -PgitHubAccessToken=$TOKEN
   notify_result:
     name: Check for failures
-    needs: [perform_release, perform_post_release]
+    needs: [perform_release]
     if: failure()
     runs-on: ubuntu-latest
     permissions:
