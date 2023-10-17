@@ -16,8 +16,8 @@
 
 package org.springframework.security.saml2.provider.service.web.authentication;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.opensaml.xmlsec.signature.support.SignatureConstants;
 
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -40,7 +40,7 @@ public class OpenSamlAuthenticationRequestResolverTests {
 
 	private RelyingPartyRegistration.Builder relyingPartyRegistrationBuilder;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		this.relyingPartyRegistrationBuilder = TestRelyingPartyRegistrations.relyingPartyRegistration();
 	}
@@ -102,7 +102,9 @@ public class OpenSamlAuthenticationRequestResolverTests {
 			.assertingPartyDetails((party) -> party.verificationX509Credentials((c) -> c.add(credential)))
 			.build();
 		OpenSamlAuthenticationRequestResolver resolver = authenticationRequestResolver(registration);
-		assertThatExceptionOfType(Saml2Exception.class).isThrownBy(() -> resolver.resolve(request, null));
+		assertThatExceptionOfType(Saml2Exception.class)
+				.isThrownBy(() -> resolver.resolve(request, (r, authnRequest) -> {
+				}));
 	}
 
 	@Test
@@ -161,7 +163,8 @@ public class OpenSamlAuthenticationRequestResolverTests {
 				(party) -> party.signingAlgorithms((algs) -> algs.add(SignatureConstants.ALGO_ID_SIGNATURE_RSA_SHA1)))
 			.build();
 		OpenSamlAuthenticationRequestResolver resolver = authenticationRequestResolver(registration);
-		Saml2RedirectAuthenticationRequest result = resolver.resolve(request, null);
+		Saml2RedirectAuthenticationRequest result = resolver.resolve(request, (r, authnRequest) -> {
+		});
 		assertThat(result.getSamlRequest()).isNotEmpty();
 		assertThat(result.getRelayState()).isNotNull();
 		assertThat(result.getSigAlg()).isEqualTo(SignatureConstants.ALGO_ID_SIGNATURE_RSA_SHA1);
