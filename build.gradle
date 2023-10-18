@@ -90,6 +90,13 @@ tasks.named("dispatchGitHubWorkflow") {
 	}
 }
 
+def toolchainVersion() {
+	if (project.hasProperty('testToolchain')) {
+		return project.property('testToolchain').toString().toInteger()
+	}
+	return 17
+}
+
 subprojects {
 	java {
 		toolchain {
