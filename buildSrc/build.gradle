@@ -2,7 +2,6 @@ plugins {
 	id "java-gradle-plugin"
 	id "java"
 	id "groovy"
-	id 'com.apollographql.apollo' version '2.4.5'
 }
 
 sourceCompatibility = JavaVersion.VERSION_17
@@ -40,10 +39,6 @@ gradlePlugin {
 		managementConfiguration {
 			id = "io.spring.convention.management-configuration"
 			implementationClass = "io.spring.gradle.convention.ManagementConfigurationPlugin"
-		}
-		updateDependencies {
-			id = "org.springframework.security.update-dependencies"
-			implementationClass = "org.springframework.security.convention.versions.UpdateDependenciesPlugin"
 		}
 		updateProjectVersion {
 			id = "org.springframework.security.update-version"
@@ -90,7 +85,6 @@ dependencies {
 	implementation libs.io.github.gradle.nexus.publish.plugin
 	implementation 'io.projectreactor:reactor-core'
 	implementation libs.org.gretty.gretty
-	implementation libs.com.apollographql.apollo.apollo.runtime
 	implementation libs.com.github.ben.manes.gradle.versions.plugin
 	implementation libs.com.github.spullara.mustache.java.compiler
 	implementation libs.io.spring.javaformat.spring.javaformat.gradle.plugin
@@ -99,6 +93,7 @@ dependencies {
 	implementation libs.org.hidetake.gradle.ssh.plugin
 	implementation libs.org.jfrog.buildinfo.build.info.extractor.gradle
 	implementation libs.org.sonarsource.scanner.gradle.sonarqube.gradle.plugin
+	implementation libs.com.squareup.okhttp3.okhttp
 
 	testImplementation platform(libs.org.junit.junit.bom)
 	testImplementation platform(libs.org.mockito.mockito.bom)
