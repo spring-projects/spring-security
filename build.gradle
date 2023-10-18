@@ -23,7 +23,6 @@ apply plugin: 'locks'
 apply plugin: 's101'
 apply plugin: 'io.spring.convention.root'
 apply plugin: 'org.jetbrains.kotlin.jvm'
-apply plugin: 'org.springframework.security.update-dependencies'
 apply plugin: 'org.springframework.security.update-version'
 apply plugin: 'org.springframework.security.sagan'
 apply plugin: 'org.springframework.github.milestone'
@@ -89,49 +88,6 @@ tasks.named("dispatchGitHubWorkflow") {
 		owner = "spring-projects"
 		name = "spring-security"
 	}
-}
-
-tasks.named("updateDependencies") {
-	// we aren't Gradle 7 compatible yet
-	checkForGradleUpdate = false
-}
-
-updateDependenciesSettings {
-	gitHub {
-		organization = "spring-projects"
-		repository = "spring-security"
-	}
-	addFiles({
-		return [
-				project.file("buildSrc/src/main/groovy/io/spring/gradle/convention/CheckstylePlugin.groovy")
-		]
-	})
-	dependencyExcludes {
-		majorVersionBump()
-		alphaBetaVersions()
-		snapshotVersions()
-		addRule { components ->
-			components.withModule("org.python:jython") { selection ->
-				ModuleComponentIdentifier candidate = selection.getCandidate();
-				if (!candidate.getVersion().equals(selection.getCurrentVersion())) {
-					selection.reject("jython updates break integration tests");
-				}
-			}
-			components.withModule("com.nimbusds:nimbus-jose-jwt") { selection ->
-				ModuleComponentIdentifier candidate = selection.getCandidate();
-				if (!candidate.getVersion().equals(selection.getCurrentVersion())) {
-					selection.reject("nimbus-jose-jwt gets updated when oauth2-oidc-sdk is updated to ensure consistency");
-				}
-			}
-		}
-	}
-}
-
-def toolchainVersion() {
-	if (project.hasProperty('testToolchain')) {
-		return project.property('testToolchain').toString().toInteger()
-	}
-	return 17
 }
 
 subprojects {
