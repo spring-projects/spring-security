@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.springframework.security.oauth2.jwt;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Supplier;
 
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKMatcher;
@@ -31,10 +32,16 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import reactor.core.publisher.Mono;
+
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willReturn;
+import static org.mockito.BDDMockito.willThrow;
 
 /**
  * @author Rob Winch
@@ -51,6 +58,9 @@ public class ReactiveRemoteJWKSourceTests {
 	private JWKSelector selector;
 
 	private MockWebServer server;
+
+	@Mock
+	private Supplier<String> mockStringSupplier;
 
 	// @formatter:off
 	private String keys = "{\n"
@@ -154,6 +164,20 @@ public class ReactiveRemoteJWKSourceTests {
 		given(this.matcher.matches(any())).willReturn(false);
 		given(this.matcher.getKeyIDs()).willReturn(Collections.singleton("7ddf54d3032d1f0d48c3618892ca74c1ac30ad77"));
 		assertThat(this.source.get(this.selector).block()).isEmpty();
+	}
+
+	@Test
+	public void getShouldRecoverAndReturnKeysAfterErrorCase() {
+		given(this.matcher.matches(any())).willReturn(true);
+		this.source = new ReactiveRemoteJWKSource(Mono.fromSupplier(this.mockStringSupplier));
+		willThrow(WebClientResponseException.ServiceUnavailable.class).given(this.mockStringSupplier).get();
+		// first case: id provider has error state
+		assertThatExceptionOfType(WebClientResponseException.ServiceUnavailable.class)
+			.isThrownBy(() -> this.source.get(this.selector).block());
+		// second case: id provider is healthy again
+		willReturn(this.server.url("/").toString()).given(this.mockStringSupplier).get();
+		List<JWK> actual = this.source.get(this.selector).block();
+		assertThat(actual).isNotEmpty();
 	}
 
 }
