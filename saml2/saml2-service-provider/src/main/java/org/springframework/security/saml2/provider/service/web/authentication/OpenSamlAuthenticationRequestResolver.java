@@ -168,10 +168,12 @@ class OpenSamlAuthenticationRequestResolver {
 				.relayState(relayState)
 				.id(authnRequest.getID());
 			if (registration.getAssertingPartyDetails().getWantAuthnRequestsSigned()) {
-				Map<String, String> parameters = OpenSamlSigningUtils.sign(registration)
-					.param(Saml2ParameterNames.SAML_REQUEST, deflatedAndEncoded)
-					.param(Saml2ParameterNames.RELAY_STATE, relayState)
-					.parameters();
+				OpenSamlSigningUtils.QueryParametersPartial parametersPartial = OpenSamlSigningUtils.sign(registration)
+					.param(Saml2ParameterNames.SAML_REQUEST, deflatedAndEncoded);
+				if (relayState != null) {
+					parametersPartial = parametersPartial.param(Saml2ParameterNames.RELAY_STATE, relayState);
+				}
+				Map<String, String> parameters = parametersPartial.parameters();
 				builder.sigAlg(parameters.get(Saml2ParameterNames.SIG_ALG))
 					.signature(parameters.get(Saml2ParameterNames.SIGNATURE));
 			}
