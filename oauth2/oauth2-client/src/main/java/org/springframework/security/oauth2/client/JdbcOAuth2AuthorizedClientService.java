@@ -81,25 +81,25 @@ public class JdbcOAuth2AuthorizedClientService implements OAuth2AuthorizedClient
 			+ "refresh_token_issued_at";
 	// @formatter:on
 
-	private static final String TABLE_NAME = "oauth2_authorized_client";
+	private static final String DEFAULT_TABLE_NAME = "oauth2_authorized_client";
 
 	private static final String PK_FILTER = "client_registration_id = ? AND principal_name = ?";
 
 	// @formatter:off
 	private static final String LOAD_AUTHORIZED_CLIENT_SQL = "SELECT " + COLUMN_NAMES
-			+ " FROM " + TABLE_NAME
+			+ " FROM %TABLE_NAME%"
 			+ " WHERE " + PK_FILTER;
 	// @formatter:on
 
 	// @formatter:off
-	private static final String SAVE_AUTHORIZED_CLIENT_SQL = "INSERT INTO " + TABLE_NAME
+	private static final String SAVE_AUTHORIZED_CLIENT_SQL = "INSERT INTO %TABLE_NAME%"
 			+ " (" + COLUMN_NAMES + ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 	// @formatter:on
 
-	private static final String REMOVE_AUTHORIZED_CLIENT_SQL = "DELETE FROM " + TABLE_NAME + " WHERE " + PK_FILTER;
+	private static final String REMOVE_AUTHORIZED_CLIENT_SQL = "DELETE FROM %TABLE_NAME% WHERE " + PK_FILTER;
 
 	// @formatter:off
-	private static final String UPDATE_AUTHORIZED_CLIENT_SQL = "UPDATE " + TABLE_NAME
+	private static final String UPDATE_AUTHORIZED_CLIENT_SQL = "UPDATE %TABLE_NAME%"
 			+ " SET access_token_type = ?, access_token_value = ?, access_token_issued_at = ?,"
 			+ " access_token_expires_at = ?, access_token_scopes = ?,"
 			+ " refresh_token_value = ?, refresh_token_issued_at = ?"
@@ -113,6 +113,19 @@ public class JdbcOAuth2AuthorizedClientService implements OAuth2AuthorizedClient
 	protected Function<OAuth2AuthorizedClientHolder, List<SqlParameterValue>> authorizedClientParametersMapper;
 
 	protected final LobHandler lobHandler;
+
+	/**
+	 * The name of database table used to store OAuth2 authorized clients.
+	 */
+	private String tableName = DEFAULT_TABLE_NAME;
+
+	private String loadAuthorizedClientSql;
+
+	private String saveAuthorizedClientSql;
+
+	private String removeAuthorizedClientSql;
+
+	private String updateAuthorizedClientSql;
 
 	/**
 	 * Constructs a {@code JdbcOAuth2AuthorizedClientService} using the provided
@@ -145,6 +158,7 @@ public class JdbcOAuth2AuthorizedClientService implements OAuth2AuthorizedClient
 		authorizedClientRowMapper.setLobHandler(lobHandler);
 		this.authorizedClientRowMapper = authorizedClientRowMapper;
 		this.authorizedClientParametersMapper = new OAuth2AuthorizedClientParametersMapper();
+		prepareQueries();
 	}
 
 	@Override
@@ -157,7 +171,7 @@ public class JdbcOAuth2AuthorizedClientService implements OAuth2AuthorizedClient
 				new SqlParameterValue(Types.VARCHAR, clientRegistrationId),
 				new SqlParameterValue(Types.VARCHAR, principalName) };
 		PreparedStatementSetter pss = new ArgumentPreparedStatementSetter(parameters);
-		List<OAuth2AuthorizedClient> result = this.jdbcOperations.query(LOAD_AUTHORIZED_CLIENT_SQL, pss,
+		List<OAuth2AuthorizedClient> result = this.jdbcOperations.query(this.loadAuthorizedClientSql, pss,
 				this.authorizedClientRowMapper);
 		return !result.isEmpty() ? (T) result.get(0) : null;
 	}
@@ -191,7 +205,7 @@ public class JdbcOAuth2AuthorizedClientService implements OAuth2AuthorizedClient
 		try (LobCreator lobCreator = this.lobHandler.getLobCreator()) {
 			PreparedStatementSetter pss = new LobCreatorArgumentPreparedStatementSetter(lobCreator,
 					parameters.toArray());
-			this.jdbcOperations.update(UPDATE_AUTHORIZED_CLIENT_SQL, pss);
+			this.jdbcOperations.update(this.updateAuthorizedClientSql, pss);
 		}
 	}
 
@@ -201,7 +215,7 @@ public class JdbcOAuth2AuthorizedClientService implements OAuth2AuthorizedClient
 		try (LobCreator lobCreator = this.lobHandler.getLobCreator()) {
 			PreparedStatementSetter pss = new LobCreatorArgumentPreparedStatementSetter(lobCreator,
 					parameters.toArray());
-			this.jdbcOperations.update(SAVE_AUTHORIZED_CLIENT_SQL, pss);
+			this.jdbcOperations.update(this.saveAuthorizedClientSql, pss);
 		}
 	}
 
@@ -213,7 +227,7 @@ public class JdbcOAuth2AuthorizedClientService implements OAuth2AuthorizedClient
 				new SqlParameterValue(Types.VARCHAR, clientRegistrationId),
 				new SqlParameterValue(Types.VARCHAR, principalName) };
 		PreparedStatementSetter pss = new ArgumentPreparedStatementSetter(parameters);
-		this.jdbcOperations.update(REMOVE_AUTHORIZED_CLIENT_SQL, pss);
+		this.jdbcOperations.update(this.removeAuthorizedClientSql, pss);
 	}
 
 	/**
@@ -239,6 +253,27 @@ public class JdbcOAuth2AuthorizedClientService implements OAuth2AuthorizedClient
 			Function<OAuth2AuthorizedClientHolder, List<SqlParameterValue>> authorizedClientParametersMapper) {
 		Assert.notNull(authorizedClientParametersMapper, "authorizedClientParametersMapper cannot be null");
 		this.authorizedClientParametersMapper = authorizedClientParametersMapper;
+	}
+
+	/**
+	 * Set the name of database table used to store OAuth2 authorized clients.
+	 * @param tableName the database table name
+	 */
+	public final void setTableName(String tableName) {
+		Assert.hasText(tableName, "Table name must not be empty");
+		this.tableName = tableName.trim();
+		prepareQueries();
+	}
+
+	private String getQuery(String base) {
+		return StringUtils.replace(base, "%TABLE_NAME%", this.tableName);
+	}
+
+	private void prepareQueries() {
+		this.loadAuthorizedClientSql = getQuery(LOAD_AUTHORIZED_CLIENT_SQL);
+		this.saveAuthorizedClientSql = getQuery(SAVE_AUTHORIZED_CLIENT_SQL);
+		this.removeAuthorizedClientSql = getQuery(REMOVE_AUTHORIZED_CLIENT_SQL);
+		this.updateAuthorizedClientSql = getQuery(UPDATE_AUTHORIZED_CLIENT_SQL);
 	}
 
 	/**
