@@ -9,5 +9,5 @@ Below are the highlights of the release.
 * https://github.com/spring-projects/spring-security/issues/5011[gh-5011] - xref:servlet/integrations/cors.adoc[(docs)] Automatically enable `.cors()` if `CorsConfigurationSource` bean is present
 * https://github.com/spring-projects/spring-security/issues/13204[gh-13204] - xref:migration-7/configuration.adoc#_use_with_instead_of_apply_for_custom_dsls[(docs)] Add `AbstractConfiguredSecurityBuilder.with(...)` method to apply configurers returning the builder
 * https://github.com/spring-projects/spring-security/pull/13587[gh-13587] - https://spring.io/blog/2023/08/22/tackling-the-oauth2-client-component-model-in-spring-security/[blog post] Simplify configuration of OAuth2 Client component model
-* https://github.com/spring-projects/spring-security/issues/7845[gh-7845] - xref:reactive/oauth2/login/logout.html#configure-provider-initiated-oidc-logout[docs] Add OIDC Back-channel Logout Support
-* https://github.com/spring-projects/spring-security/pull/13857[gh-13857] - xref:servlet/authorization/authorize-http-requests.html#match-by-mvc[docs] Add servlet pattern support to AuthorizeHttpRequests
+* https://github.com/spring-projects/spring-security/issues/7845[gh-7845] - xref:reactive/oauth2/login/logout.adoc#configure-provider-initiated-oidc-logout[docs] Add OIDC Back-channel Logout Support
+* https://github.com/spring-projects/spring-security/pull/13857[gh-13857] - xref:servlet/authorization/authorize-http-requests.adoc#match-by-mvc[docs] Add servlet pattern support to AuthorizeHttpRequests
