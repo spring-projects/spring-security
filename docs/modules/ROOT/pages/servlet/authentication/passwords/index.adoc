@@ -77,11 +77,11 @@ class SecurityConfig {
 	fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
 		http {
 			authorizeHttpRequests {
-                authorize(anyRequest, authenticated)
+				authorize(anyRequest, authenticated)
 			}
 			formLogin { }
 			httpBasic { }
-        }
+		}
 
 		return http.build()
 	}
@@ -105,14 +105,14 @@ The preceding configuration automatically registers an xref:servlet/authenticati
 
 To learn more about username/password authentication, consider the following use cases:
 
-* I want to <<publish-authentication-manager-bean,publish an `AuthenticationManager` bean>> for custom authentication
-* I want to <<customize-global-authentication-manager,customize the global `AuthenticationManager`>>
 * I want to xref:servlet/authentication/passwords/form.adoc[learn how Form Login works]
 * I want to xref:servlet/authentication/passwords/basic.adoc[learn how HTTP Basic authentication works]
-* I want to xref:servlet/authentication/passwords/basic.adoc[learn how `DaoAuthenticationProvider` works]
+* I want to xref:servlet/authentication/passwords/dao-authentication-provider.adoc[learn how `DaoAuthenticationProvider` works]
 * I want to xref:servlet/authentication/passwords/in-memory.adoc[manage users in memory]
 * I want to xref:servlet/authentication/passwords/jdbc.adoc[manage users in a database]
 * I want to xref:servlet/authentication/passwords/ldap.adoc#servlet-authentication-ldap-authentication[manage users in LDAP]
+* I want to <<publish-authentication-manager-bean,publish an `AuthenticationManager` bean>> for custom authentication
+* I want to <<customize-global-authentication-manager,customize the global `AuthenticationManager`>>
 
 [[publish-authentication-manager-bean]]
 == Publish an `AuthenticationManager` bean
@@ -199,7 +199,7 @@ XML::
 	</user-service>
 
 	<bean id="passwordEncoder"
-    	    class="org.springframework.security.crypto.factory.PasswordEncoderFactories" factory-method="createDelegatingPasswordEncoder"/>
+			class="org.springframework.security.crypto.factory.PasswordEncoderFactories" factory-method="createDelegatingPasswordEncoder"/>
 </http>
 ----
 
@@ -207,6 +207,8 @@ Kotlin::
 +
 [source,kotlin,role="secondary"]
 ----
+import org.springframework.security.config.annotation.web.invoke
+
 @Configuration
 @EnableWebSecurity
 class SecurityConfig {
@@ -215,6 +217,7 @@ class SecurityConfig {
 	fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
 		http {
 			authorizeHttpRequests {
+				authorize("/login", permitAll)
 				authorize(anyRequest, authenticated)
 			}
 		}
@@ -410,7 +413,7 @@ XML::
 	</user-service>
 
 	<bean id="passwordEncoder"
-    	    class="org.springframework.security.crypto.factory.PasswordEncoderFactories" factory-method="createDelegatingPasswordEncoder"/>
+			class="org.springframework.security.crypto.factory.PasswordEncoderFactories" factory-method="createDelegatingPasswordEncoder"/>
 </http>
 ----
 
@@ -418,14 +421,17 @@ Kotlin::
 +
 [source,kotlin,role="secondary"]
 ----
+import org.springframework.security.config.annotation.web.invoke
+
 @Configuration
 @EnableWebSecurity
-public class SecurityConfig {
+class SecurityConfig {
 
 	@Bean
 	fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
 		http {
 			authorizeHttpRequests {
+				authorize("/login", permitAll)
 				authorize(anyRequest, authenticated)
 			}
 			formLogin { }
@@ -483,22 +489,22 @@ Java::
 @EnableWebSecurity
 public class SecurityConfig {
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        // ...
-        return http.build();
-    }
+	@Bean
+	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+		// ...
+		return http.build();
+	}
 
-    @Bean
-    public UserDetailsService userDetailsService() {
-        // Return a UserDetailsService that caches users
-        // ...
-    }
+	@Bean
+	public UserDetailsService userDetailsService() {
+		// Return a UserDetailsService that caches users
+		// ...
+	}
 
-    @Autowired
-    public void configure(AuthenticationManagerBuilder builder) {
-        builder.eraseCredentials(false);
-    }
+	@Autowired
+	public void configure(AuthenticationManagerBuilder builder) {
+		builder.eraseCredentials(false);
+	}
 
 }
 ----
@@ -521,8 +527,8 @@ class SecurityConfig {
 
 	@Bean
 	fun userDetailsService(): UserDetailsService {
-        // Return a UserDetailsService that caches users
-        // ...
+		// Return a UserDetailsService that caches users
+		// ...
 	}
 
 	@Autowired
