@@ -24,6 +24,7 @@ apply plugin: 'org.springframework.security.sagan'
 apply plugin: 'org.springframework.github.milestone'
 apply plugin: 'org.springframework.github.changelog'
 apply plugin: 'org.springframework.github.release'
+apply plugin: 'org.springframework.security.versions.verify-dependencies-versions'
 
 group = 'org.springframework.security'
 description = 'Spring Security'
