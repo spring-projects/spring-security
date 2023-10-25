@@ -65,6 +65,10 @@ gradlePlugin {
 			id = "s101"
 			implementationClass = "s101.S101Plugin"
 		}
+		verifyDependenciesVersions {
+			id = "org.springframework.security.versions.verify-dependencies-versions"
+			implementationClass = "org.springframework.security.convention.versions.VerifyDependenciesVersionsPlugin"
+		}
 	}
 }
 
