@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -86,5 +86,15 @@ public @interface EnableMethodSecurity {
 	 * @return the {@link AdviceMode} to use
 	 */
 	AdviceMode mode() default AdviceMode.PROXY;
+
+	/**
+	 * Indicate additional offset in the ordering of the execution of the security
+	 * interceptors when multiple advices are applied at a specific joinpoint. I.e.,
+	 * precedence of each security interceptor enabled by this annotation will be
+	 * calculated as sum of its default precedence and offset. The default is 0.
+	 * @return the offset in the order the security advisor should be applied
+	 * @since 6.3
+	 */
+	int offset() default 0;
 
 }

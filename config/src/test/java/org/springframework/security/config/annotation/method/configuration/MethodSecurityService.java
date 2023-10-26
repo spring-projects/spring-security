@@ -96,6 +96,14 @@ public interface MethodSecurityService {
 	@PostAuthorize("returnObject.size == 2")
 	List<String> manyAnnotations(List<String> array);
 
+	@PreFilter("filterObject != 'DropOnPreFilter'")
+	@PreAuthorize("#list.remove('DropOnPreAuthorize')")
+	@Secured("ROLE_SECURED")
+	@RolesAllowed("JSR250")
+	@PostAuthorize("#list.remove('DropOnPostAuthorize')")
+	@PostFilter("filterObject != 'DropOnPostFilter'")
+	List<String> allAnnotations(List<String> list);
+
 	@RequireUserRole
 	@RequireAdminRole
 	void repeatedAnnotations();

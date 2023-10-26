@@ -24,7 +24,9 @@ import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.ImportAware;
 import org.springframework.context.annotation.Role;
+import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.hierarchicalroles.NullRoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
@@ -45,13 +47,16 @@ import org.springframework.security.core.context.SecurityContextHolderStrategy;
  */
 @Configuration(proxyBeanMethods = false)
 @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-final class SecuredMethodSecurityConfiguration {
+final class SecuredMethodSecurityConfiguration implements ImportAware {
+
+	private int interceptorOrderOffset;
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 	static MethodInterceptor securedAuthorizationMethodInterceptor(
 			ObjectProvider<SecurityContextHolderStrategy> strategyProvider,
-			ObjectProvider<ObservationRegistry> registryProvider, ObjectProvider<RoleHierarchy> roleHierarchyProvider) {
+			ObjectProvider<ObservationRegistry> registryProvider, ObjectProvider<RoleHierarchy> roleHierarchyProvider,
+			SecuredMethodSecurityConfiguration configuration) {
 		SecuredAuthorizationManager secured = new SecuredAuthorizationManager();
 		AuthoritiesAuthorizationManager authoritiesAuthorizationManager = new AuthoritiesAuthorizationManager();
 		RoleHierarchy roleHierarchy = roleHierarchyProvider.getIfAvailable(NullRoleHierarchy::new);
@@ -63,8 +68,15 @@ final class SecuredMethodSecurityConfiguration {
 				registryProvider, secured);
 		AuthorizationManagerBeforeMethodInterceptor interceptor = AuthorizationManagerBeforeMethodInterceptor
 			.secured(manager);
+		interceptor.setOrder(interceptor.getOrder() + configuration.interceptorOrderOffset);
 		interceptor.setSecurityContextHolderStrategy(strategy);
 		return interceptor;
+	}
+
+	@Override
+	public void setImportMetadata(AnnotationMetadata importMetadata) {
+		EnableMethodSecurity annotation = importMetadata.getAnnotations().get(EnableMethodSecurity.class).synthesize();
+		this.interceptorOrderOffset = annotation.offset();
 	}
 
 }

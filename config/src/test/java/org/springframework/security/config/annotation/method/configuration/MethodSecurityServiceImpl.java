@@ -118,6 +118,11 @@ public class MethodSecurityServiceImpl implements MethodSecurityService {
 	}
 
 	@Override
+	public List<String> allAnnotations(List<String> list) {
+		return null;
+	}
+
+	@Override
 	public void repeatedAnnotations() {
 	}
 
