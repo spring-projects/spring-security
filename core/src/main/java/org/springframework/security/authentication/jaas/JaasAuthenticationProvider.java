@@ -67,7 +67,7 @@ import org.springframework.util.Assert;
  * </pre>
  *
  * <p>
- * The loginContextName should coincide with a given index in the loginConfig specifed.
+ * The loginContextName should coincide with a given index in the loginConfig specified.
  * The loginConfig file used in the JUnit tests appears as the following...
  *
  * <pre>
