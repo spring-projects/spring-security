@@ -133,7 +133,7 @@ public class KeyBasedPersistenceTokenService implements TokenService, Initializi
 	}
 
 	/**
-	 * @return a pseduo random number (hex encoded)
+	 * @return a pseudo random number (hex encoded)
 	 */
 	private String generatePseudoRandomNumber() {
 		byte[] randomBytes = new byte[this.pseudoRandomNumberBytes];

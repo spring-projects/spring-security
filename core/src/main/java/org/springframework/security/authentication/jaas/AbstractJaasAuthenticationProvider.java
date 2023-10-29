@@ -165,7 +165,7 @@ public abstract class AbstractJaasAuthenticationProvider implements Authenticati
 		}
 		Set<GrantedAuthority> authorities;
 		try {
-			// Create the LoginContext object, and pass our InternallCallbackHandler
+			// Create the LoginContext object, and pass our InternalCallbackHandler
 			LoginContext loginContext = createLoginContext(new InternalCallbackHandler(auth));
 			// Attempt to login the user, the LoginContext will call our
 			// InternalCallbackHandler at this point.
@@ -284,7 +284,7 @@ public abstract class AbstractJaasAuthenticationProvider implements Authenticati
 	}
 
 	/**
-	 * Returns the AuthorityGrannter array that was passed to the
+	 * Returns the AuthorityGranter array that was passed to the
 	 * {@link #setAuthorityGranters(AuthorityGranter[])} method, or null if it none were
 	 * ever set.
 	 * @return The AuthorityGranter array, or null
@@ -318,7 +318,7 @@ public abstract class AbstractJaasAuthenticationProvider implements Authenticati
 	}
 
 	/**
-	 * Set the JAASAuthentcationCallbackHandler array to handle callback objects generated
+	 * Set the JAASAuthenticationCallbackHandler array to handle callback objects generated
 	 * by the LoginContext.login method.
 	 * @param callbackHandlers Array of JAASAuthenticationCallbackHandlers
 	 */
