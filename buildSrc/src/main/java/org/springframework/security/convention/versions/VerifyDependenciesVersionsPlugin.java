@@ -19,13 +19,13 @@ package org.springframework.security.convention.versions;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.gradle.api.DefaultTask;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
-import org.gradle.api.artifacts.ModuleVersionIdentifier;
 import org.gradle.api.plugins.JavaBasePlugin;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.api.tasks.TaskProvider;
@@ -90,13 +90,18 @@ public class VerifyDependenciesVersionsPlugin implements Plugin<Project> {
 		}
 
 		private Map<String, List<Artifact>> getDependencies(List<Configuration> configurations) {
-			return configurations.stream().flatMap((configuration) -> {
-						return configuration.getResolvedConfiguration().getLenientConfiguration().getArtifacts().stream()
+			return configurations.stream()
+					.flatMap((configuration) -> {
+						return configuration.getIncoming().getResolutionResult().getAllDependencies().stream()
 								.map((dep) -> {
-									ModuleVersionIdentifier id = dep.getModuleVersion().getId();
-									return new Artifact(id.getName(), id.getVersion(), configuration.toString());
+									String[] nameParts = dep.getRequested().getDisplayName().split(":");
+									if (nameParts.length > 2) {
+										return new Artifact(nameParts[1], nameParts[2], configuration.toString());
+									}
+									return null;
 								});
 					})
+					.filter(Objects::nonNull)
 					.distinct()
 					.collect(Collectors.groupingBy(Artifact::name));
 		}
