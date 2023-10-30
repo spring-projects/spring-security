@@ -17,10 +17,8 @@
 package org.springframework.security.convention.versions;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.gradle.api.DefaultTask;
@@ -39,31 +37,22 @@ public class VerifyDependenciesVersionsPlugin implements Plugin<Project> {
 		TaskProvider<VerifyDependenciesVersionsTask> verifyDependenciesVersionsTaskProvider = project.getTasks().register("verifyDependenciesVersions", VerifyDependenciesVersionsTask.class, (task) -> {
 			task.setGroup("Verification");
 			task.setDescription("Verify that specific dependencies are using the same version");
-			List<Configuration> allConfigurations = new ArrayList<>();
-			allConfigurations.addAll(getConfigurations(project));
-			allConfigurations.addAll(getSubprojectsConfigurations(project.getSubprojects()));
+			List<Configuration> allConfigurations = new ArrayList<>(getConfigurations(project));
 			task.setConfigurations(allConfigurations);
 		});
 		project.getTasks().named(JavaBasePlugin.CHECK_TASK_NAME, checkTask -> checkTask.dependsOn(verifyDependenciesVersionsTaskProvider));
 	}
 
-	private List<Configuration> getConfigurations(Project project) {
-		return project.getConfigurations().stream()
-				.filter(Configuration::isCanBeResolved)
-				.filter((config) -> config.getName().equals("runtimeClasspath"))
-				.toList();
-	}
-
-	private List<Configuration> getSubprojectsConfigurations(Set<Project> subprojects) {
-		if (subprojects.isEmpty()) {
-			return Collections.emptyList();
+	private List<Configuration> getConfigurations(Project rootProject) {
+		List<Configuration> configurations = new ArrayList<>();
+		for (Project project : rootProject.getAllprojects()) {
+			List<Configuration> runtimeClasspath = project.getConfigurations().stream()
+					.filter(Configuration::isCanBeResolved)
+					.filter((config) -> config.getName().equals("runtimeClasspath"))
+					.toList();
+			configurations.addAll(runtimeClasspath);
 		}
-		List<Configuration> subprojectConfigurations = new ArrayList<>();
-		for (Project subproject : subprojects) {
-			subprojectConfigurations.addAll(getConfigurations(subproject));
-			subprojectConfigurations.addAll(getSubprojectsConfigurations(subproject.getSubprojects()));
-		}
-		return subprojectConfigurations;
+		return configurations;
 	}
 
 	public static class VerifyDependenciesVersionsTask extends DefaultTask {
@@ -79,6 +68,10 @@ public class VerifyDependenciesVersionsPlugin implements Plugin<Project> {
 			Map<String, List<Artifact>> artifacts = getDependencies(this.configurations);
 			List<Artifact> oauth2OidcSdk = artifacts.get("oauth2-oidc-sdk");
 			List<Artifact> nimbusJoseJwt = artifacts.get("nimbus-jose-jwt");
+			if (oauth2OidcSdk == null) {
+				// Could not resolve oauth2-oidc-sdk
+				return;
+			}
 			if (oauth2OidcSdk.size() > 1) {
 				throw new IllegalStateException("Found multiple versions of oauth2-oidc-sdk: " + oauth2OidcSdk);
 			}
