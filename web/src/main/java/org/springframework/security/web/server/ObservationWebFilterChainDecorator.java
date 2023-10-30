@@ -292,7 +292,13 @@ public final class ObservationWebFilterChainDecorator implements WebFilterChainP
 
 			@Override
 			public void stop() {
-				this.currentObservation.get().stop();
+				this.before.stop();
+				this.after.stop();
+			}
+
+			private void close() {
+				this.before.close();
+				this.after.close();
 			}
 
 			@Override
@@ -357,11 +363,11 @@ public final class ObservationWebFilterChainDecorator implements WebFilterChainP
 					start();
 					// @formatter:off
 					return filter.filter(exchange, chain)
-							.doOnSuccess((v) -> stop())
-							.doOnCancel(this::stop)
+							.doOnSuccess((v) -> close())
+							.doOnCancel(this::close)
 							.doOnError((t) -> {
 								error(t);
-								stop();
+								close();
 							})
 							.contextWrite((context) -> context.put(ObservationThreadLocalAccessor.KEY, this));
 					// @formatter:on
@@ -426,6 +432,21 @@ public final class ObservationWebFilterChainDecorator implements WebFilterChainP
 						this.lock.lock();
 						if (this.state.compareAndSet(1, 2)) {
 							this.observation.stop();
+						}
+					}
+					finally {
+						this.lock.unlock();
+					}
+				}
+
+				private void close() {
+					try {
+						this.lock.lock();
+						if (this.state.compareAndSet(1, 3)) {
+							this.observation.stop();
+						}
+						else {
+							this.state.set(3);
 						}
 					}
 					finally {

@@ -78,6 +78,98 @@ public class ObservationWebFilterChainDecoratorTests {
 		verifyNoInteractions(handler);
 	}
 
+	@Test
+	void decorateWhenTerminatingFilterThenObserves() {
+		AccumulatingObservationHandler handler = new AccumulatingObservationHandler();
+		ObservationRegistry registry = ObservationRegistry.create();
+		registry.observationConfig().observationHandler(handler);
+		ObservationWebFilterChainDecorator decorator = new ObservationWebFilterChainDecorator(registry);
+		WebFilterChain chain = mock(WebFilterChain.class);
+		given(chain.filter(any())).willReturn(Mono.error(() -> new Exception("ack")));
+		WebFilterChain decorated = decorator.decorate(chain,
+				List.of(new BasicAuthenticationFilter(), new TerminatingFilter()));
+		Observation http = Observation.start("http", registry).contextualName("http");
+		try {
+			decorated.filter(MockServerWebExchange.from(MockServerHttpRequest.get("/").build()))
+				.contextWrite((context) -> context.put(ObservationThreadLocalAccessor.KEY, http))
+				.block();
+		}
+		catch (Exception ex) {
+			http.error(ex);
+		}
+		finally {
+			http.stop();
+		}
+		handler.assertSpanStart(0, "http", null);
+		handler.assertSpanStart(1, "spring.security.filterchains", "http");
+		handler.assertSpanStop(2, "security filterchain before");
+		handler.assertSpanStart(3, "spring.security.filterchains", "http");
+		handler.assertSpanStop(4, "security filterchain after");
+		handler.assertSpanStop(5, "http");
+	}
+
+	@Test
+	void decorateWhenFilterErrorThenStopsObservation() {
+		AccumulatingObservationHandler handler = new AccumulatingObservationHandler();
+		ObservationRegistry registry = ObservationRegistry.create();
+		registry.observationConfig().observationHandler(handler);
+		ObservationWebFilterChainDecorator decorator = new ObservationWebFilterChainDecorator(registry);
+		WebFilterChain chain = mock(WebFilterChain.class);
+		WebFilterChain decorated = decorator.decorate(chain, List.of(new ErroringFilter()));
+		Observation http = Observation.start("http", registry).contextualName("http");
+		try {
+			decorated.filter(MockServerWebExchange.from(MockServerHttpRequest.get("/").build()))
+				.contextWrite((context) -> context.put(ObservationThreadLocalAccessor.KEY, http))
+				.block();
+		}
+		catch (Exception ex) {
+			http.error(ex);
+		}
+		finally {
+			http.stop();
+		}
+		handler.assertSpanStart(0, "http", null);
+		handler.assertSpanStart(1, "spring.security.filterchains", "http");
+		handler.assertSpanError(2);
+		handler.assertSpanStop(3, "security filterchain before");
+		handler.assertSpanError(4);
+		handler.assertSpanStop(5, "http");
+	}
+
+	@Test
+	void decorateWhenErrorSignalThenStopsObservation() {
+		AccumulatingObservationHandler handler = new AccumulatingObservationHandler();
+		ObservationRegistry registry = ObservationRegistry.create();
+		registry.observationConfig().observationHandler(handler);
+		ObservationWebFilterChainDecorator decorator = new ObservationWebFilterChainDecorator(registry);
+		WebFilterChain chain = mock(WebFilterChain.class);
+		given(chain.filter(any())).willReturn(Mono.error(() -> new Exception("ack")));
+		WebFilterChain decorated = decorator.decorate(chain, List.of(new BasicAuthenticationFilter()));
+		Observation http = Observation.start("http", registry).contextualName("http");
+		try {
+			decorated.filter(MockServerWebExchange.from(MockServerHttpRequest.get("/").build()))
+				.contextWrite((context) -> context.put(ObservationThreadLocalAccessor.KEY, http))
+				.block();
+		}
+		catch (Exception ex) {
+			http.error(ex);
+		}
+		finally {
+			http.stop();
+		}
+		handler.assertSpanStart(0, "http", null);
+		handler.assertSpanStart(1, "spring.security.filterchains", "http");
+		handler.assertSpanStop(2, "security filterchain before");
+		handler.assertSpanStart(3, "secured request", "security filterchain before");
+		handler.assertSpanError(4);
+		handler.assertSpanStop(5, "secured request");
+		handler.assertSpanStart(6, "spring.security.filterchains", "http");
+		handler.assertSpanError(7);
+		handler.assertSpanStop(8, "security filterchain after");
+		handler.assertSpanError(9);
+		handler.assertSpanStop(10, "http");
+	}
+
 	// gh-12849
 	@Test
 	void decorateWhenCustomAfterFilterThenObserves() {
@@ -171,6 +263,24 @@ public class ObservationWebFilterChainDecoratorTests {
 
 	}
 
+	static class ErroringFilter implements WebFilter {
+
+		@Override
+		public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
+			return Mono.error(() -> new RuntimeException("ack"));
+		}
+
+	}
+
+	static class TerminatingFilter implements WebFilter {
+
+		@Override
+		public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
+			return Mono.empty();
+		}
+
+	}
+
 	static class AccumulatingObservationHandler implements ObservationHandler<Observation.Context> {
 
 		List<Event> contexts = new ArrayList<>();
@@ -244,6 +354,11 @@ public class ObservationWebFilterChainDecoratorTests {
 			else {
 				assertThat(event.contextualName).isEqualTo(name);
 			}
+		}
+
+		private void assertSpanError(int index) {
+			Event event = this.contexts.get(index);
+			assertThat(event.event).isEqualTo("error");
 		}
 
 		static class Event {
