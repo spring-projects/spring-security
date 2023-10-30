@@ -55,7 +55,7 @@ public class CheckClasspathForProhibitedDependencies extends DefaultTask {
 	@TaskAction
 	public void checkForProhibitedDependencies() throws IOException {
 		ResolvedConfiguration resolvedConfiguration = this.classpath.getResolvedConfiguration();
-		TreeSet<String> prohibited = resolvedConfiguration.getLenientConfiguration().getArtifacts().stream()
+		TreeSet<String> prohibited = resolvedConfiguration.getResolvedArtifacts().stream()
 				.map((artifact) -> artifact.getModuleVersion().getId()).filter(this::prohibited)
 				.map((id) -> id.getGroup() + ":" + id.getName()).collect(Collectors.toCollection(TreeSet::new));
 		if (!prohibited.isEmpty()) {
