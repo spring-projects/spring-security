@@ -16,16 +16,12 @@
 
 package org.springframework.security.convention.versions;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
-
 import org.gradle.api.DefaultTask;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
-import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.artifacts.MinimalExternalModuleDependency;
+import org.gradle.api.artifacts.VersionCatalog;
+import org.gradle.api.artifacts.VersionCatalogsExtension;
 import org.gradle.api.plugins.JavaBasePlugin;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.api.tasks.TaskProvider;
@@ -37,78 +33,38 @@ public class VerifyDependenciesVersionsPlugin implements Plugin<Project> {
 		TaskProvider<VerifyDependenciesVersionsTask> verifyDependenciesVersionsTaskProvider = project.getTasks().register("verifyDependenciesVersions", VerifyDependenciesVersionsTask.class, (task) -> {
 			task.setGroup("Verification");
 			task.setDescription("Verify that specific dependencies are using the same version");
-			List<Configuration> allConfigurations = new ArrayList<>(getConfigurations(project));
-			task.setConfigurations(allConfigurations);
+			VersionCatalog versionCatalog = project.getExtensions().getByType(VersionCatalogsExtension.class).named("libs");
+			MinimalExternalModuleDependency oauth2OidcSdk = versionCatalog.findLibrary("com-nimbusds-oauth2-oidc-sdk").get().get();
+			MinimalExternalModuleDependency nimbusJoseJwt = versionCatalog.findLibrary("com-nimbusds-nimbus-jose-jwt").get().get();
+			task.setOauth2OidcSdkVersion(oauth2OidcSdk.getVersion());
+			task.setExpectedNimbusJoseJwtVersion(nimbusJoseJwt.getVersion());
 		});
 		project.getTasks().named(JavaBasePlugin.CHECK_TASK_NAME, checkTask -> checkTask.dependsOn(verifyDependenciesVersionsTaskProvider));
 	}
 
-	private List<Configuration> getConfigurations(Project rootProject) {
-		List<Configuration> configurations = new ArrayList<>();
-		for (Project project : rootProject.getAllprojects()) {
-			List<Configuration> runtimeClasspath = project.getConfigurations().stream()
-					.filter(Configuration::isCanBeResolved)
-					.filter((config) -> config.getName().equals("runtimeClasspath"))
-					.toList();
-			configurations.addAll(runtimeClasspath);
-		}
-		return configurations;
-	}
-
 	public static class VerifyDependenciesVersionsTask extends DefaultTask {
 
-		private List<Configuration> configurations;
+		private String oauth2OidcSdkVersion;
 
-		public void setConfigurations(List<Configuration> configurations) {
-			this.configurations = configurations;
+		private String expectedNimbusJoseJwtVersion;
+
+		public void setOauth2OidcSdkVersion(String oauth2OidcSdkVersion) {
+			this.oauth2OidcSdkVersion = oauth2OidcSdkVersion;
+		}
+
+		public void setExpectedNimbusJoseJwtVersion(String expectedNimbusJoseJwtVersion) {
+			this.expectedNimbusJoseJwtVersion = expectedNimbusJoseJwtVersion;
 		}
 
 		@TaskAction
 		public void verify() {
-			Map<String, List<Artifact>> artifacts = getDependencies(this.configurations);
-			List<Artifact> oauth2OidcSdk = artifacts.get("oauth2-oidc-sdk");
-			List<Artifact> nimbusJoseJwt = artifacts.get("nimbus-jose-jwt");
-			if (oauth2OidcSdk == null) {
-				// Could not resolve oauth2-oidc-sdk
-				return;
-			}
-			if (oauth2OidcSdk.size() > 1) {
-				throw new IllegalStateException("Found multiple versions of oauth2-oidc-sdk: " + oauth2OidcSdk);
-			}
-			Artifact oauth2OidcSdkArtifact = oauth2OidcSdk.get(0);
-			String nimbusJoseJwtVersion = TransitiveDependencyLookupUtils.lookupJwtVersion(oauth2OidcSdkArtifact.version());
-			List<Artifact> differentVersions = nimbusJoseJwt.stream()
-					.filter((artifact) -> !artifact.version().equals(nimbusJoseJwtVersion))
-					.filter((artifact -> !artifact.configurationName().contains("spring-security-cas"))) // CAS uses a different version
-					.toList();
-			if (!differentVersions.isEmpty()) {
-				String message = "Found transitive nimbus-jose-jwt version [" + nimbusJoseJwtVersion + "] in oauth2-oidc-sdk " + oauth2OidcSdkArtifact
-						+ ", but the project contains a different version of nimbus-jose-jwt " + differentVersions
-						+ ". Please align the versions of nimbus-jose-jwt.";
+			String transitiveNimbusJoseJwtVersion = TransitiveDependencyLookupUtils.lookupJwtVersion(this.oauth2OidcSdkVersion);
+			if (!transitiveNimbusJoseJwtVersion.equals(this.expectedNimbusJoseJwtVersion)) {
+				String message = String.format("Found transitive nimbus-jose-jwt:%s in oauth2-oidc-sdk:%s, but the project contains a different version of nimbus-jose-jwt [%s]. Please align the versions.", transitiveNimbusJoseJwtVersion, this.oauth2OidcSdkVersion, this.expectedNimbusJoseJwtVersion);
 				throw new IllegalStateException(message);
 			}
 		}
 
-		private Map<String, List<Artifact>> getDependencies(List<Configuration> configurations) {
-			return configurations.stream()
-					.flatMap((configuration) -> {
-						return configuration.getIncoming().getResolutionResult().getAllDependencies().stream()
-								.map((dep) -> {
-									String[] nameParts = dep.getRequested().getDisplayName().split(":");
-									if (nameParts.length > 2) {
-										return new Artifact(nameParts[1], nameParts[2], configuration.toString());
-									}
-									return null;
-								});
-					})
-					.filter(Objects::nonNull)
-					.distinct()
-					.collect(Collectors.groupingBy(Artifact::name));
-		}
-
-	}
-
-	private record Artifact(String name, String version, String configurationName) {
 	}
 
 }
