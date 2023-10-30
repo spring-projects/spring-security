@@ -91,7 +91,7 @@ public class VerifyDependenciesVersionsPlugin implements Plugin<Project> {
 
 		private Map<String, List<Artifact>> getDependencies(List<Configuration> configurations) {
 			return configurations.stream().flatMap((configuration) -> {
-						return configuration.getResolvedConfiguration().getResolvedArtifacts().stream()
+						return configuration.getResolvedConfiguration().getLenientConfiguration().getArtifacts().stream()
 								.map((dep) -> {
 									ModuleVersionIdentifier id = dep.getModuleVersion().getId();
 									return new Artifact(id.getName(), id.getVersion(), configuration.toString());
