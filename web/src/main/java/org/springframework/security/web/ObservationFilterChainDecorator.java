@@ -141,7 +141,7 @@ public final class ObservationFilterChainDecorator implements FilterChainProxy.F
 
 	static final class ObservationFilter implements Filter {
 
-		private static final Map<String, String> OBSERVATION_NAMES = new HashMap<>();
+		static final Map<String, String> OBSERVATION_NAMES = new HashMap<>();
 
 		static {
 			OBSERVATION_NAMES.put("DisableEncodeUrlFilter", "session.urlencoding");
