@@ -150,6 +150,13 @@ public class ObservationFilterChainDecoratorTests {
 			.isEqualTo(expectedFilterNameTag);
 	}
 
+	// gh-13660
+	@Test
+	void observationNamesDoNotContainDashes() {
+		ObservationFilterChainDecorator.ObservationFilter.OBSERVATION_NAMES.values()
+			.forEach((name) -> assertThat(name).doesNotContain("-"));
+	}
+
 	static Stream<Arguments> decorateFiltersWhenCompletesThenHasSpringSecurityReachedFilterNameTag() {
 		Filter filterWithName = new BasicAuthenticationFilter();
 
