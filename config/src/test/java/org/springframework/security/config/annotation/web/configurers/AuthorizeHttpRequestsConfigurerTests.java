@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package org.springframework.security.config.annotation.web.configurers;
 
 import java.util.function.Supplier;
 
-import jakarta.servlet.Servlet;
 import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,21 +26,15 @@ import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
-import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
-import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.authentication.RememberMeAuthenticationToken;
 import org.springframework.security.authentication.TestAuthentication;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationEventPublisher;
 import org.springframework.security.authorization.AuthorizationManager;
-import org.springframework.security.config.MockServletContext;
-import org.springframework.security.config.TestMockHttpServletMappings;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.web.AbstractRequestMatcherRegistry;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.core.GrantedAuthorityDefaults;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -62,7 +55,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.DispatcherServlet;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
@@ -76,7 +68,6 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.head;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -127,7 +118,7 @@ public class AuthorizeHttpRequestsConfigurerTests {
 	public void configureWhenMvcMatcherAfterAnyRequestThenException() {
 		assertThatExceptionOfType(BeanCreationException.class)
 			.isThrownBy(() -> this.spring.register(AfterAnyRequestConfig.class).autowire())
-			.withMessageContaining("Can't configure requestMatchers after anyRequest");
+			.withMessageContaining("Can't configure mvcMatchers after anyRequest");
 	}
 
 	@Test
@@ -283,17 +274,6 @@ public class AuthorizeHttpRequestsConfigurerTests {
 	}
 
 	@Test
-	public void getWhenHasRoleUserAndRoleHierarchyConfiguredThenGreaterRoleTakesPrecedence() throws Exception {
-		this.spring.register(RoleHierarchyUserConfig.class, BasicController.class).autowire();
-		// @formatter:off
-		MockHttpServletRequestBuilder requestWithAdmin = get("/")
-				.with(user("user")
-				.roles("ADMIN"));
-		// @formatter:on
-		this.mvc.perform(requestWithAdmin).andExpect(status().isOk());
-	}
-
-	@Test
 	public void getWhenRoleUserOrAdminConfiguredAndRoleIsUserThenRespondsWithOk() throws Exception {
 		this.spring.register(RoleUserOrAdminConfig.class, BasicController.class).autowire();
 		// @formatter:off
@@ -368,7 +348,7 @@ public class AuthorizeHttpRequestsConfigurerTests {
 
 	@Test
 	public void getWhenServletPathRoleAdminConfiguredAndRoleIsUserThenRespondsWithForbidden() throws Exception {
-		this.spring.register(MvcServletPathConfig.class, BasicController.class).autowire();
+		this.spring.register(ServletPathConfig.class, BasicController.class).autowire();
 		// @formatter:off
 		MockHttpServletRequestBuilder requestWithUser = get("/spring/")
 				.servletPath("/spring")
@@ -381,7 +361,7 @@ public class AuthorizeHttpRequestsConfigurerTests {
 	@Test
 	public void getWhenServletPathRoleAdminConfiguredAndRoleIsUserAndWithoutServletPathThenRespondsWithForbidden()
 			throws Exception {
-		this.spring.register(MvcServletPathConfig.class, BasicController.class).autowire();
+		this.spring.register(ServletPathConfig.class, BasicController.class).autowire();
 		// @formatter:off
 		MockHttpServletRequestBuilder requestWithUser = get("/")
 				.with(user("user")
@@ -392,7 +372,7 @@ public class AuthorizeHttpRequestsConfigurerTests {
 
 	@Test
 	public void getWhenServletPathRoleAdminConfiguredAndRoleIsAdminThenRespondsWithOk() throws Exception {
-		this.spring.register(MvcServletPathConfig.class, BasicController.class).autowire();
+		this.spring.register(ServletPathConfig.class, BasicController.class).autowire();
 		// @formatter:off
 		MockHttpServletRequestBuilder requestWithAdmin = get("/spring/")
 				.servletPath("/spring")
@@ -484,43 +464,6 @@ public class AuthorizeHttpRequestsConfigurerTests {
 	}
 
 	@Test
-	public void getWhenCustomRolePrefixAndRoleHasDifferentPrefixThenRespondsWithForbidden() throws Exception {
-		this.spring.register(GrantedAuthorityDefaultHasRoleConfig.class, BasicController.class).autowire();
-		// @formatter:off
-		MockHttpServletRequestBuilder requestWithUser = get("/")
-				.with(user("user")
-						.authorities(new SimpleGrantedAuthority("ROLE_USER")));
-		// @formatter:on
-		this.mvc.perform(requestWithUser).andExpect(status().isForbidden());
-	}
-
-	@Test
-	public void getWhenCustomRolePrefixAndHasRoleThenRespondsWithOk() throws Exception {
-		this.spring.register(GrantedAuthorityDefaultHasRoleConfig.class, BasicController.class).autowire();
-		// @formatter:off
-		MockHttpServletRequestBuilder requestWithUser = get("/")
-				.with(user("user")
-						.authorities(new SimpleGrantedAuthority("CUSTOM_PREFIX_USER")));
-		// @formatter:on
-		this.mvc.perform(requestWithUser).andExpect(status().isOk());
-	}
-
-	@Test
-	public void getWhenCustomRolePrefixAndHasAnyRoleThenRespondsWithOk() throws Exception {
-		this.spring.register(GrantedAuthorityDefaultHasAnyRoleConfig.class, BasicController.class).autowire();
-		// @formatter:off
-		MockHttpServletRequestBuilder requestWithUser = get("/")
-				.with(user("user")
-						.authorities(new SimpleGrantedAuthority("CUSTOM_PREFIX_USER")));
-		MockHttpServletRequestBuilder requestWithAdmin = get("/")
-				.with(user("user")
-						.authorities(new SimpleGrantedAuthority("CUSTOM_PREFIX_ADMIN")));
-		// @formatter:on
-		this.mvc.perform(requestWithUser).andExpect(status().isOk());
-		this.mvc.perform(requestWithAdmin).andExpect(status().isOk());
-	}
-
-	@Test
 	public void getWhenExpressionHasIpAddressLocalhostConfiguredIpAddressIsLocalhostThenRespondsWithOk()
 			throws Exception {
 		this.spring.register(ExpressionIpAddressLocalhostConfig.class, BasicController.class).autowire();
@@ -602,232 +545,6 @@ public class AuthorizeHttpRequestsConfigurerTests {
 		this.mvc.perform(requestWithUser).andExpect(status().isForbidden());
 	}
 
-	@Test
-	public void configureWhenNoDispatcherServletThenSucceeds() throws Exception {
-		MockServletContext servletContext = new MockServletContext();
-		servletContext.addServlet("default", Servlet.class).addMapping("/");
-		this.spring.register(AuthorizeHttpRequestsConfig.class)
-			.postProcessor((context) -> context.setServletContext(servletContext))
-			.autowire();
-		this.mvc.perform(get("/path")).andExpect(status().isNotFound());
-	}
-
-	@Test
-	public void configureWhenOnlyDispatcherServletThenSucceeds() throws Exception {
-		MockServletContext servletContext = new MockServletContext();
-		servletContext.addServlet("dispatcherServlet", DispatcherServlet.class).addMapping("/mvc/*");
-		this.spring.register(AuthorizeHttpRequestsConfig.class)
-			.postProcessor((context) -> context.setServletContext(servletContext))
-			.autowire();
-		this.mvc.perform(get("/mvc/path").servletPath("/mvc")).andExpect(status().isNotFound());
-		this.mvc.perform(get("/mvc")).andExpect(status().isUnauthorized());
-	}
-
-	@Test
-	public void configureWhenMultipleServletsThenSucceeds() throws Exception {
-		MockServletContext servletContext = MockServletContext.mvc();
-		servletContext.addServlet("path", Servlet.class).addMapping("/path/*");
-		this.spring.register(AuthorizeHttpRequestsConfig.class)
-			.postProcessor((context) -> context.setServletContext(servletContext))
-			.autowire();
-		this.mvc.perform(get("/path").with(servletPath("/path"))).andExpect(status().isNotFound());
-	}
-
-	@Test
-	public void configureWhenAmbiguousServletsThenWiringException() {
-		MockServletContext servletContext = new MockServletContext();
-		servletContext.addServlet("dispatcherServlet", DispatcherServlet.class).addMapping("/mvc/*");
-		servletContext.addServlet("path", Servlet.class).addMapping("/path/*");
-		assertThatExceptionOfType(BeanCreationException.class)
-			.isThrownBy(() -> this.spring.register(AuthorizeHttpRequestsConfig.class)
-				.postProcessor((context) -> context.setServletContext(servletContext))
-				.autowire());
-	}
-
-	@Test
-	void defaultServletMatchersWhenDefaultServletThenPermits() throws Exception {
-		this.spring.register(DefaultServletConfig.class)
-			.postProcessor((context) -> context.setServletContext(MockServletContext.mvc()))
-			.autowire();
-		this.mvc.perform(get("/path/path").with(defaultServlet())).andExpect(status().isNotFound());
-		this.mvc.perform(get("/path/path").with(servletPath("/path"))).andExpect(status().isUnauthorized());
-	}
-
-	@Test
-	void defaultServletHttpMethodMatchersWhenDefaultServletThenPermits() throws Exception {
-		this.spring.register(DefaultServletConfig.class)
-			.postProcessor((context) -> context.setServletContext(MockServletContext.mvc()))
-			.autowire();
-		this.mvc.perform(get("/path/method").with(defaultServlet())).andExpect(status().isNotFound());
-		this.mvc.perform(head("/path/method").with(defaultServlet())).andExpect(status().isUnauthorized());
-		this.mvc.perform(get("/path/method").with(servletPath("/path"))).andExpect(status().isUnauthorized());
-	}
-
-	@Test
-	void defaultServletWhenNoDefaultServletThenWiringException() {
-		assertThatExceptionOfType(BeanCreationException.class)
-			.isThrownBy(() -> this.spring.register(DefaultServletConfig.class)
-				.postProcessor((context) -> context.setServletContext(new MockServletContext()))
-				.autowire());
-	}
-
-	@Test
-	void servletPathMatchersWhenMatchingServletThenPermits() throws Exception {
-		MockServletContext servletContext = MockServletContext.mvc();
-		servletContext.addServlet("path", Servlet.class).addMapping("/path/*");
-		this.spring.register(ServletPathConfig.class)
-			.postProcessor((context) -> context.setServletContext(servletContext))
-			.autowire();
-		this.mvc.perform(get("/path/path").with(servletPath("/path"))).andExpect(status().isNotFound());
-		this.mvc.perform(get("/path/path").with(defaultServlet())).andExpect(status().isUnauthorized());
-	}
-
-	@Test
-	void servletPathHttpMethodMatchersWhenMatchingServletThenPermits() throws Exception {
-		MockServletContext servletContext = MockServletContext.mvc();
-		servletContext.addServlet("path", Servlet.class).addMapping("/path/*");
-		this.spring.register(ServletPathConfig.class)
-			.postProcessor((context) -> context.setServletContext(servletContext))
-			.autowire();
-		this.mvc.perform(get("/path/method").with(servletPath("/path"))).andExpect(status().isNotFound());
-		this.mvc.perform(head("/path/method").with(servletPath("/path"))).andExpect(status().isUnauthorized());
-		this.mvc.perform(get("/path/method").with(defaultServlet())).andExpect(status().isUnauthorized());
-	}
-
-	@Test
-	void servletPathWhenNoMatchingPathThenWiringException() {
-		MockServletContext servletContext = MockServletContext.mvc();
-		assertThatExceptionOfType(BeanCreationException.class)
-			.isThrownBy(() -> this.spring.register(ServletPathConfig.class)
-				.postProcessor((context) -> context.setServletContext(servletContext))
-				.autowire());
-	}
-
-	@Test
-	void servletMappingMatchersWhenMatchingServletThenPermits() throws Exception {
-		MockServletContext servletContext = MockServletContext.mvc();
-		servletContext.addServlet("jsp", Servlet.class).addMapping("*.jsp");
-		this.spring.register(ServletMappingConfig.class)
-			.postProcessor((context) -> context.setServletContext(servletContext))
-			.autowire();
-		this.mvc.perform(get("/path/file.jsp").with(servletExtension(".jsp"))).andExpect(status().isNotFound());
-		this.mvc.perform(get("/path/file.jsp").with(defaultServlet())).andExpect(status().isUnauthorized());
-	}
-
-	@Test
-	void servletMappingHttpMethodMatchersWhenMatchingServletThenPermits() throws Exception {
-		MockServletContext servletContext = MockServletContext.mvc();
-		servletContext.addServlet("jsp", Servlet.class).addMapping("*.jsp");
-		this.spring.register(ServletMappingConfig.class)
-			.postProcessor((context) -> context.setServletContext(servletContext))
-			.autowire();
-		this.mvc.perform(get("/method/file.jsp").with(servletExtension(".jsp"))).andExpect(status().isNotFound());
-		this.mvc.perform(head("/method/file.jsp").with(servletExtension(".jsp"))).andExpect(status().isUnauthorized());
-		this.mvc.perform(get("/method/file.jsp").with(defaultServlet())).andExpect(status().isUnauthorized());
-	}
-
-	@Test
-	void servletMappingWhenNoMatchingExtensionThenWiringException() {
-		MockServletContext servletContext = MockServletContext.mvc();
-		assertThatExceptionOfType(BeanCreationException.class)
-			.isThrownBy(() -> this.spring.register(ServletMappingConfig.class)
-				.postProcessor((context) -> context.setServletContext(servletContext))
-				.autowire());
-	}
-
-	@Test
-	void anyRequestWhenUsedWithDefaultServletThenDoesNotWire() {
-		assertThatExceptionOfType(BeanCreationException.class)
-			.isThrownBy(() -> this.spring.register(MixedServletEndpointConfig.class).autowire())
-			.withMessageContaining("forServletPattern");
-	}
-
-	@Test
-	void servletWhenNoMatchingPathThenDenies() throws Exception {
-		MockServletContext servletContext = new MockServletContext();
-		servletContext.addServlet("default", Servlet.class).addMapping("/");
-		servletContext.addServlet("jspServlet", Servlet.class).addMapping("*.jsp");
-		servletContext.addServlet("dispatcherServlet", DispatcherServlet.class).addMapping("/mvc/*");
-		this.spring.register(DefaultServletAndServletPathConfig.class)
-			.postProcessor((context) -> context.setServletContext(servletContext))
-			.autowire();
-		this.mvc.perform(get("/js/color.js").with(servletPath("/js"))).andExpect(status().isUnauthorized());
-		this.mvc.perform(get("/mvc/controller").with(defaultServlet())).andExpect(status().isUnauthorized());
-		this.mvc.perform(get("/js/color.js").with(defaultServlet())).andExpect(status().isNotFound());
-		this.mvc.perform(get("/mvc/controller").with(servletPath("/mvc"))).andExpect(status().isUnauthorized());
-		this.mvc.perform(get("/mvc/controller").with(user("user")).with(servletPath("/mvc")))
-			.andExpect(status().isNotFound());
-	}
-
-	@Test
-	void permitAllWhenDefaultServletThenDoesNotWire() {
-		assertThatExceptionOfType(BeanCreationException.class)
-			.isThrownBy(() -> this.spring.register(MixedServletPermitAllConfig.class).autowire())
-			.withMessageContaining("forServletPattern");
-	}
-
-	static RequestPostProcessor defaultServlet() {
-		return (request) -> {
-			String uri = request.getRequestURI();
-			request.setHttpServletMapping(TestMockHttpServletMappings.defaultMapping());
-			request.setServletPath(uri);
-			request.setPathInfo("");
-			return request;
-		};
-	}
-
-	static RequestPostProcessor servletPath(String path) {
-		return (request) -> {
-			String uri = request.getRequestURI();
-			request.setHttpServletMapping(TestMockHttpServletMappings.path(request, path));
-			request.setServletPath(path);
-			request.setPathInfo(uri.substring(path.length()));
-			return request;
-		};
-	}
-
-	static RequestPostProcessor servletExtension(String extension) {
-		return (request) -> {
-			String uri = request.getRequestURI();
-			request.setHttpServletMapping(TestMockHttpServletMappings.extension(request, extension));
-			request.setServletPath(uri);
-			request.setPathInfo("");
-			return request;
-		};
-	}
-
-	@Configuration
-	@EnableWebSecurity
-	static class GrantedAuthorityDefaultHasRoleConfig {
-
-		@Bean
-		GrantedAuthorityDefaults grantedAuthorityDefaults() {
-			return new GrantedAuthorityDefaults("CUSTOM_PREFIX_");
-		}
-
-		@Bean
-		SecurityFilterChain myFilterChain(HttpSecurity http) throws Exception {
-			return http.authorizeHttpRequests((c) -> c.anyRequest().hasRole("USER")).build();
-		}
-
-	}
-
-	@Configuration
-	@EnableWebSecurity
-	static class GrantedAuthorityDefaultHasAnyRoleConfig {
-
-		@Bean
-		GrantedAuthorityDefaults grantedAuthorityDefaults() {
-			return new GrantedAuthorityDefaults("CUSTOM_PREFIX_");
-		}
-
-		@Bean
-		SecurityFilterChain myFilterChain(HttpSecurity http) throws Exception {
-			return http.authorizeHttpRequests((c) -> c.anyRequest().hasAnyRole("USER", "ADMIN")).build();
-		}
-
-	}
-
 	@Configuration
 	@EnableWebSecurity
 	static class NoRequestsConfig {
@@ -893,7 +610,6 @@ public class AuthorizeHttpRequestsConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	@EnableWebMvc
 	static class AfterAnyRequestConfig {
 
 		@Bean
@@ -1057,30 +773,6 @@ public class AuthorizeHttpRequestsConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class RoleHierarchyUserConfig {
-
-		@Bean
-		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-			// @formatter:off
-			return http
-					.authorizeHttpRequests((requests) -> requests
-						.anyRequest().hasRole("USER")
-					)
-					.build();
-			// @formatter:on
-		}
-
-		@Bean
-		RoleHierarchy roleHierarchy() {
-			RoleHierarchyImpl roleHierarchy = new RoleHierarchyImpl();
-			roleHierarchy.setHierarchy("ROLE_ADMIN > ROLE_USER");
-			return roleHierarchy;
-		}
-
-	}
-
-	@Configuration
-	@EnableWebSecurity
 	static class RoleUserOrAdminConfig {
 
 		@Bean
@@ -1155,7 +847,7 @@ public class AuthorizeHttpRequestsConfigurerTests {
 	@Configuration
 	@EnableWebMvc
 	@EnableWebSecurity
-	static class MvcServletPathConfig {
+	static class ServletPathConfig {
 
 		@Bean
 		SecurityFilterChain filterChain(HttpSecurity http, HandlerMappingIntrospector introspector) throws Exception {
@@ -1330,163 +1022,6 @@ public class AuthorizeHttpRequestsConfigurerTests {
 				.httpBasic(withDefaults())
 				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().anonymous()
-				);
-			// @formatter:on
-			return http.build();
-		}
-
-	}
-
-	@Configuration
-	@EnableWebSecurity
-	@EnableWebMvc
-	static class AuthorizeHttpRequestsConfig {
-
-		@Bean
-		SecurityFilterChain chain(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.httpBasic(withDefaults())
-				.authorizeHttpRequests((requests) -> requests
-					.requestMatchers("/path/**").permitAll()
-					.anyRequest().authenticated()
-				);
-			// @formatter:on
-			return http.build();
-		}
-
-	}
-
-	@Configuration
-	@EnableWebSecurity
-	@EnableWebMvc
-	static class DefaultServletConfig {
-
-		@Bean
-		SecurityFilterChain chain(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.httpBasic(withDefaults())
-				.authorizeHttpRequests((requests) -> requests
-					.forServletPattern("/", (root) -> root
-						.requestMatchers(HttpMethod.GET, "/path/method/**").permitAll()
-						.requestMatchers("/path/path/**").permitAll()
-						.anyRequest().authenticated()
-					)
-				);
-			// @formatter:on
-			return http.build();
-		}
-
-	}
-
-	@Configuration
-	@EnableWebSecurity
-	@EnableWebMvc
-	static class ServletPathConfig {
-
-		@Bean
-		SecurityFilterChain chain(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.httpBasic(withDefaults())
-				.authorizeHttpRequests((requests) -> requests
-					.forServletPattern("/path/*", (root) -> root
-						.requestMatchers(HttpMethod.GET, "/method/**").permitAll()
-						.requestMatchers("/path/**").permitAll()
-						.anyRequest().authenticated()
-					)
-				);
-			// @formatter:on
-			return http.build();
-		}
-
-	}
-
-	@Configuration
-	@EnableWebSecurity
-	@EnableWebMvc
-	static class ServletMappingConfig {
-
-		@Bean
-		SecurityFilterChain chain(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.httpBasic(withDefaults())
-				.authorizeHttpRequests((requests) -> requests
-					.forServletPattern("*.jsp", (jsp) -> jsp
-						.requestMatchers(HttpMethod.GET, "/method/**").permitAll()
-						.requestMatchers("/path/**").permitAll()
-						.anyRequest().authenticated()
-					)
-				);
-			// @formatter:on
-			return http.build();
-		}
-
-	}
-
-	@Configuration
-	@EnableWebSecurity
-	@EnableWebMvc
-	static class MixedServletEndpointConfig {
-
-		@Bean
-		SecurityFilterChain chain(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.httpBasic(withDefaults())
-				.authorizeHttpRequests((requests) -> requests
-					.forServletPattern("/", (root) -> root.anyRequest().permitAll())
-					.anyRequest().authenticated()
-				);
-			// @formatter:on
-			return http.build();
-		}
-
-	}
-
-	@Configuration
-	@EnableWebSecurity
-	@EnableWebMvc
-	static class MixedServletPermitAllConfig {
-
-		@Bean
-		SecurityFilterChain chain(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.formLogin((form) -> form.loginPage("/page").permitAll())
-				.authorizeHttpRequests((requests) -> requests
-					.forServletPattern("/", (root) -> root
-						.anyRequest().authenticated()
-					)
-				);
-			// @formatter:on
-			return http.build();
-		}
-
-	}
-
-	@Configuration
-	@EnableWebSecurity
-	@EnableWebMvc
-	static class DefaultServletAndServletPathConfig {
-
-		@Bean
-		SecurityFilterChain chain(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.httpBasic(withDefaults())
-				.authorizeHttpRequests((requests) -> requests
-					.forServletPattern("/", (root) -> root
-						.requestMatchers("/js/**", "/css/**").permitAll()
-					)
-					.forServletPattern("/mvc/*", (mvc) -> mvc
-						.requestMatchers("/controller/**").authenticated()
-					)
-					.forServletPattern("*.jsp", (jsp) -> jsp
-						.anyRequest().authenticated()
-					)
 				);
 			// @formatter:on
 			return http.build();

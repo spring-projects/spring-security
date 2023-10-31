@@ -56,7 +56,7 @@ public class OpenSamlLogoutResponseResolverTests {
 
 	RelyingPartyRegistrationResolver relyingPartyRegistrationResolver = mock(RelyingPartyRegistrationResolver.class);
 
-	OpenSamlLogoutResponseResolver logoutResponseResolver = new OpenSamlLogoutResponseResolver(null,
+	OpenSamlLogoutResponseResolver logoutResponseResolver = new OpenSamlLogoutResponseResolver(
 			this.relyingPartyRegistrationResolver);
 
 	@Test

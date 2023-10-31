@@ -58,13 +58,19 @@ final class Argon2EncodingUtils {
 	 */
 	static String encode(byte[] hash, Argon2Parameters parameters) throws IllegalArgumentException {
 		StringBuilder stringBuilder = new StringBuilder();
-		String type = switch (parameters.getType()) {
-			case Argon2Parameters.ARGON2_d -> "$argon2d";
-			case Argon2Parameters.ARGON2_i -> "$argon2i";
-			case Argon2Parameters.ARGON2_id -> "$argon2id";
-			default -> throw new IllegalArgumentException("Invalid algorithm type: " + parameters.getType());
-		};
-		stringBuilder.append(type);
+		switch (parameters.getType()) {
+			case Argon2Parameters.ARGON2_d:
+				stringBuilder.append("$argon2d");
+				break;
+			case Argon2Parameters.ARGON2_i:
+				stringBuilder.append("$argon2i");
+				break;
+			case Argon2Parameters.ARGON2_id:
+				stringBuilder.append("$argon2id");
+				break;
+			default:
+				throw new IllegalArgumentException("Invalid algorithm type: " + parameters.getType());
+		}
 		stringBuilder.append("$v=")
 			.append(parameters.getVersion())
 			.append("$m=")
@@ -107,12 +113,19 @@ final class Argon2EncodingUtils {
 			throw new IllegalArgumentException("Invalid encoded Argon2-hash");
 		}
 		int currentPart = 1;
-		paramsBuilder = switch (parts[currentPart++]) {
-			case "argon2d" -> new Argon2Parameters.Builder(Argon2Parameters.ARGON2_d);
-			case "argon2i" -> new Argon2Parameters.Builder(Argon2Parameters.ARGON2_i);
-			case "argon2id" -> new Argon2Parameters.Builder(Argon2Parameters.ARGON2_id);
-			default -> throw new IllegalArgumentException("Invalid algorithm type: " + parts[0]);
-		};
+		switch (parts[currentPart++]) {
+			case "argon2d":
+				paramsBuilder = new Argon2Parameters.Builder(Argon2Parameters.ARGON2_d);
+				break;
+			case "argon2i":
+				paramsBuilder = new Argon2Parameters.Builder(Argon2Parameters.ARGON2_i);
+				break;
+			case "argon2id":
+				paramsBuilder = new Argon2Parameters.Builder(Argon2Parameters.ARGON2_id);
+				break;
+			default:
+				throw new IllegalArgumentException("Invalid algorithm type: " + parts[0]);
+		}
 		if (parts[currentPart].startsWith("v=")) {
 			paramsBuilder.withVersion(Integer.parseInt(parts[currentPart].substring(2)));
 			currentPart++;

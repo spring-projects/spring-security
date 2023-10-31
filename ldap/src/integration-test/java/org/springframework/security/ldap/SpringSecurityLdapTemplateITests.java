@@ -104,9 +104,9 @@ public class SpringSecurityLdapTemplateITests {
 				new String[] { param }, "ou");
 
 		assertThat(values).as("Expected 3 results from search").hasSize(3);
-		assertThat(values).contains("developer");
-		assertThat(values).contains("manager");
-		assertThat(values).contains("submanager");
+		assertThat(values.contains("developer")).isTrue();
+		assertThat(values.contains("manager")).isTrue();
+		assertThat(values.contains("submanager")).isTrue();
 	}
 
 	@Test
@@ -149,7 +149,7 @@ public class SpringSecurityLdapTemplateITests {
 	}
 
 	protected void assertAttributeValue(Map<String, List<String>> record, String attributeName, String... values) {
-		assertThat(record).containsKey(attributeName);
+		assertThat(record.containsKey(attributeName)).isTrue();
 		assertThat(record.get(attributeName)).hasSize(values.length);
 		for (int i = 0; i < values.length; i++) {
 			assertThat(record.get(attributeName).get(i)).isEqualTo(values[i]);

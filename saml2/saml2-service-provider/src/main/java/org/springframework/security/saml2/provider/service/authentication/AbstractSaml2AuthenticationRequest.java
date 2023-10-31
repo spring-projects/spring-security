@@ -153,7 +153,7 @@ public abstract class AbstractSaml2AuthenticationRequest implements Serializable
 		/**
 		 * Creates a new Builder with relying party registration
 		 * @param registration the registration of the relying party.
-		 * @since 5.8
+		 * @sine 5.8
 		 */
 		protected Builder(RelyingPartyRegistration registration) {
 			this.relyingPartyRegistrationId = registration.getRegistrationId();

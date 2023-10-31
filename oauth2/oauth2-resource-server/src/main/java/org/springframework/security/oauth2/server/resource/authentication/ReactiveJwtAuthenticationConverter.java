@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@ import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.jwt.JwtClaimNames;
 import org.springframework.util.Assert;
 
 /**
@@ -31,7 +30,6 @@ import org.springframework.util.Assert;
  * a {@link AbstractAuthenticationToken Mono&lt;AbstractAuthenticationToken&gt;}.
  *
  * @author Eric Deandrea
- * @author Marcus Kainth
  * @since 5.2
  */
 public final class ReactiveJwtAuthenticationConverter implements Converter<Jwt, Mono<AbstractAuthenticationToken>> {
@@ -39,17 +37,12 @@ public final class ReactiveJwtAuthenticationConverter implements Converter<Jwt, 
 	private Converter<Jwt, Flux<GrantedAuthority>> jwtGrantedAuthoritiesConverter = new ReactiveJwtGrantedAuthoritiesConverterAdapter(
 			new JwtGrantedAuthoritiesConverter());
 
-	private String principalClaimName = JwtClaimNames.SUB;
-
 	@Override
 	public Mono<AbstractAuthenticationToken> convert(Jwt jwt) {
 		// @formatter:off
 		return this.jwtGrantedAuthoritiesConverter.convert(jwt)
 				.collectList()
-				.map((authorities) -> {
-					String principalName = jwt.getClaimAsString(this.principalClaimName);
-					return new JwtAuthenticationToken(jwt, authorities, principalName);
-				});
+				.map((authorities) -> new JwtAuthenticationToken(jwt, authorities));
 		// @formatter:on
 	}
 
@@ -63,16 +56,6 @@ public final class ReactiveJwtAuthenticationConverter implements Converter<Jwt, 
 			Converter<Jwt, Flux<GrantedAuthority>> jwtGrantedAuthoritiesConverter) {
 		Assert.notNull(jwtGrantedAuthoritiesConverter, "jwtGrantedAuthoritiesConverter cannot be null");
 		this.jwtGrantedAuthoritiesConverter = jwtGrantedAuthoritiesConverter;
-	}
-
-	/**
-	 * Sets the principal claim name. Defaults to {@link JwtClaimNames#SUB}.
-	 * @param principalClaimName The principal claim name
-	 * @since 6.1
-	 */
-	public void setPrincipalClaimName(String principalClaimName) {
-		Assert.hasText(principalClaimName, "principalClaimName cannot be empty");
-		this.principalClaimName = principalClaimName;
 	}
 
 }

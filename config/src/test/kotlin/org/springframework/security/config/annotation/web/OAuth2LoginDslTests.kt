@@ -128,9 +128,7 @@ class OAuth2LoginDslTests {
         @RestController
         class LoginController {
             @GetMapping("/custom-login")
-            fun loginPage():String {
-                return "ok"
-            }
+            fun loginPage() { }
         }
     }
 

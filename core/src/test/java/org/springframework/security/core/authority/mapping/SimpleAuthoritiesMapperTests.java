@@ -45,8 +45,8 @@ public class SimpleAuthoritiesMapperTests {
 		SimpleAuthorityMapper mapper = new SimpleAuthorityMapper();
 		Set<String> mapped = AuthorityUtils
 			.authorityListToSet(mapper.mapAuthorities(AuthorityUtils.createAuthorityList("AaA", "ROLE_bbb")));
-		assertThat(mapped).contains("ROLE_AaA");
-		assertThat(mapped).contains("ROLE_bbb");
+		assertThat(mapped.contains("ROLE_AaA")).isTrue();
+		assertThat(mapped.contains("ROLE_bbb")).isTrue();
 	}
 
 	@Test
@@ -56,19 +56,19 @@ public class SimpleAuthoritiesMapperTests {
 		List<GrantedAuthority> toMap = AuthorityUtils.createAuthorityList("AaA", "Bbb");
 		Set<String> mapped = AuthorityUtils.authorityListToSet(mapper.mapAuthorities(toMap));
 		assertThat(mapped).hasSize(2);
-		assertThat(mapped).contains("AaA");
-		assertThat(mapped).contains("Bbb");
+		assertThat(mapped.contains("AaA")).isTrue();
+		assertThat(mapped.contains("Bbb")).isTrue();
 		mapper.setConvertToLowerCase(true);
 		mapped = AuthorityUtils.authorityListToSet(mapper.mapAuthorities(toMap));
 		assertThat(mapped).hasSize(2);
-		assertThat(mapped).contains("aaa");
-		assertThat(mapped).contains("bbb");
+		assertThat(mapped.contains("aaa")).isTrue();
+		assertThat(mapped.contains("bbb")).isTrue();
 		mapper.setConvertToLowerCase(false);
 		mapper.setConvertToUpperCase(true);
 		mapped = AuthorityUtils.authorityListToSet(mapper.mapAuthorities(toMap));
 		assertThat(mapped).hasSize(2);
-		assertThat(mapped).contains("AAA");
-		assertThat(mapped).contains("BBB");
+		assertThat(mapped.contains("AAA")).isTrue();
+		assertThat(mapped.contains("BBB")).isTrue();
 	}
 
 	@Test
@@ -86,7 +86,7 @@ public class SimpleAuthoritiesMapperTests {
 		mapper.setDefaultAuthority("ROLE_USER");
 		Set<String> mapped = AuthorityUtils.authorityListToSet(mapper.mapAuthorities(AuthorityUtils.NO_AUTHORITIES));
 		assertThat(mapped).hasSize(1);
-		assertThat(mapped).contains("ROLE_USER");
+		assertThat(mapped.contains("ROLE_USER")).isTrue();
 	}
 
 }

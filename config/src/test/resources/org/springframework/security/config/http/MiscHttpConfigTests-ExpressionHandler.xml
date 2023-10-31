@@ -35,7 +35,7 @@
 	</b:bean>
 
 	<b:bean name="permissionEvaluator" class="org.mockito.Mockito" factory-method="mock">
-		<b:constructor-arg value="org.springframework.security.access.PermissionEvaluator" type="java.lang.Class"/>
+		<b:constructor-arg value="org.springframework.security.access.PermissionEvaluator"/>
 	</b:bean>
 
 	<b:import resource="userservice.xml"/>

@@ -176,7 +176,7 @@ public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         .authorizeHttpRequests(authorize -> authorize
             .anyRequest().authenticated()
         )
-        .oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults()));
+        .oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt);
     return http.build();
 }
 ----
@@ -211,8 +211,6 @@ Java::
 +
 [source,java,role="primary"]
 ----
-import static org.springframework.security.oauth2.core.authorization.OAuth2AuthorizationManagers.hasScope;
-
 @Configuration
 @EnableWebSecurity
 public class MyCustomSecurityConfiguration {
@@ -220,7 +218,7 @@ public class MyCustomSecurityConfiguration {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(authorize -> authorize
-                .requestMatchers("/messages/**").access(hasScope("message:read"))
+                .requestMatchers("/messages/**").hasAuthority("SCOPE_message:read")
                 .anyRequest().authenticated()
             )
             .oauth2ResourceServer(oauth2 -> oauth2
@@ -237,8 +235,6 @@ Kotlin::
 +
 [source,kotlin,role="secondary"]
 ----
-import org.springframework.security.oauth2.core.authorization.OAuth2AuthorizationManagers.hasScope
-
 @Configuration
 @EnableWebSecurity
 class MyCustomSecurityConfiguration {
@@ -246,7 +242,7 @@ class MyCustomSecurityConfiguration {
     open fun filterChain(http: HttpSecurity): SecurityFilterChain {
         http {
             authorizeRequests {
-                authorize("/messages/**", hasScope("message:read"))
+                authorize("/messages/**", hasAuthority("SCOPE_message:read"))
                 authorize(anyRequest, authenticated)
             }
             oauth2ResourceServer {
@@ -479,8 +475,7 @@ This is handy when deeper configuration, like <<oauth2resourceserver-jwt-validat
 [[oauth2resourceserver-jwt-decoder-bean]]
 === Exposing a `JwtDecoder` `@Bean`
 
-Or, exposing a <<oauth2resourceserver-jwt-architecture-jwtdecoder,`JwtDecoder`>> `@Bean` has the same effect as `decoder()`.
-You can construct one with a `jwkSetUri` like so:
+Or, exposing a <<oauth2resourceserver-jwt-architecture-jwtdecoder,`JwtDecoder`>> `@Bean` has the same effect as `decoder()`:
 
 [tabs]
 ======
@@ -501,56 +496,6 @@ Kotlin::
 @Bean
 fun jwtDecoder(): JwtDecoder {
     return NimbusJwtDecoder.withJwkSetUri(jwkSetUri).build()
-}
-----
-======
-
-or you can use the issuer and have `NimbusJwtDecoder` look up the `jwkSetUri` when `build()` is invoked, like the following:
-
-[tabs]
-======
-Java::
-+
-[source,java,role="primary"]
-----
-@Bean
-public JwtDecoder jwtDecoder() {
-    return NimbusJwtDecoder.withIssuerLocation(issuer).build();
-}
-----
-
-Kotlin::
-+
-[source,kotlin,role="secondary"]
-----
-@Bean
-fun jwtDecoder(): JwtDecoder {
-    return NimbusJwtDecoder.withIssuerLocation(issuer).build()
-}
-----
-======
-
-Or, if the defaults work for you, you can also use `JwtDecoders`, which does the above in addition to configuring the decoder's validator:
-
-[tabs]
-======
-Java::
-+
-[source,java,role="primary"]
-----
-@Bean
-public JwtDecoders jwtDecoder() {
-    return JwtDecoders.fromIssuerLocation(issuer);
-}
-----
-
-Kotlin::
-+
-[source,kotlin,role="secondary"]
-----
-@Bean
-fun jwtDecoder(): JwtDecoders {
-    return JwtDecoders.fromIssuerLocation(issuer)
 }
 ----
 ======
@@ -591,7 +536,7 @@ Java::
 ----
 @Bean
 JwtDecoder jwtDecoder() {
-    return NimbusJwtDecoder.withIssuerLocation(this.issuer)
+    return NimbusJwtDecoder.withJwkSetUri(this.jwkSetUri)
             .jwsAlgorithm(RS512).build();
 }
 ----
@@ -602,7 +547,7 @@ Kotlin::
 ----
 @Bean
 fun jwtDecoder(): JwtDecoder {
-    return NimbusJwtDecoder.withIssuerLocation(this.issuer)
+    return NimbusJwtDecoder.withJwkSetUri(this.jwkSetUri)
             .jwsAlgorithm(RS512).build()
 }
 ----
@@ -618,7 +563,7 @@ Java::
 ----
 @Bean
 JwtDecoder jwtDecoder() {
-    return NimbusJwtDecoder.withIssuerLocation(this.issuer)
+    return NimbusJwtDecoder.withJwkSetUri(this.jwkSetUri)
             .jwsAlgorithm(RS512).jwsAlgorithm(ES512).build();
 }
 ----
@@ -629,7 +574,7 @@ Kotlin::
 ----
 @Bean
 fun jwtDecoder(): JwtDecoder {
-    return NimbusJwtDecoder.withIssuerLocation(this.issuer)
+    return NimbusJwtDecoder.withJwkSetUri(this.jwkSetUri)
             .jwsAlgorithm(RS512).jwsAlgorithm(ES512).build()
 }
 ----
@@ -645,7 +590,7 @@ Java::
 ----
 @Bean
 JwtDecoder jwtDecoder() {
-    return NimbusJwtDecoder.withIssuerLocation(this.issuer)
+    return NimbusJwtDecoder.withJwkSetUri(this.jwkSetUri)
             .jwsAlgorithms(algorithms -> {
                     algorithms.add(RS512);
                     algorithms.add(ES512);
@@ -659,7 +604,7 @@ Kotlin::
 ----
 @Bean
 fun jwtDecoder(): JwtDecoder {
-    return NimbusJwtDecoder.withIssuerLocation(this.issuer)
+    return NimbusJwtDecoder.withJwkSetUri(this.jwkSetUri)
             .jwsAlgorithms {
                 it.add(RS512)
                 it.add(ES512)
@@ -866,8 +811,6 @@ Java::
 +
 [source,java,role="primary"]
 ----
-import static org.springframework.security.oauth2.core.authorization.OAuth2AuthorizationManagers.hasScope;
-
 @Configuration
 @EnableWebSecurity
 public class DirectlyConfiguredJwkSetUri {
@@ -875,8 +818,8 @@ public class DirectlyConfiguredJwkSetUri {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(authorize -> authorize
-                .requestMatchers("/contacts/**").access(hasScope("contacts"))
-                .requestMatchers("/messages/**").access(hasScope("messages"))
+                .requestMatchers("/contacts/**").hasAuthority("SCOPE_contacts")
+                .requestMatchers("/messages/**").hasAuthority("SCOPE_messages")
                 .anyRequest().authenticated()
             )
             .oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt);
@@ -889,8 +832,6 @@ Kotlin::
 +
 [source,kotlin,role="secondary"]
 ----
-import org.springframework.security.oauth2.core.authorization.OAuth2AuthorizationManagers.hasScope;
-
 @Configuration
 @EnableWebSecurity
 class DirectlyConfiguredJwkSetUri {
@@ -898,8 +839,8 @@ class DirectlyConfiguredJwkSetUri {
     open fun filterChain(http: HttpSecurity): SecurityFilterChain {
         http {
             authorizeRequests {
-                authorize("/contacts/**", hasScope("contacts"))
-                authorize("/messages/**", hasScope("messages"))
+                authorize("/contacts/**", hasAuthority("SCOPE_contacts"))
+                authorize("/messages/**", hasAuthority("SCOPE_messages"))
                 authorize(anyRequest, authenticated)
             }
             oauth2ResourceServer {
@@ -1373,7 +1314,7 @@ Java::
 ----
 @Bean
 JwtDecoder jwtDecoder() {
-    NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withIssuerLocation(issuer).build();
+    NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withJwkSetUri(jwkSetUri).build();
 
     MappedJwtClaimSetConverter converter = MappedJwtClaimSetConverter
             .withDefaults(Collections.singletonMap("sub", this::lookupUserIdBySub));
@@ -1389,7 +1330,7 @@ Kotlin::
 ----
 @Bean
 fun jwtDecoder(): JwtDecoder {
-    val jwtDecoder = NimbusJwtDecoder.withIssuerLocation(issuer).build()
+    val jwtDecoder = NimbusJwtDecoder.withJwkSetUri(jwkSetUri).build()
 
     val converter = MappedJwtClaimSetConverter
             .withDefaults(mapOf("sub" to this::lookupUserIdBySub))
@@ -1497,7 +1438,7 @@ Java::
 ----
 @Bean
 JwtDecoder jwtDecoder() {
-    NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withIssuerLocation(issuer).build();
+    NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withJwkSetUri(jwkSetUri).build();
     jwtDecoder.setClaimSetConverter(new UsernameSubClaimAdapter());
     return jwtDecoder;
 }
@@ -1509,7 +1450,7 @@ Kotlin::
 ----
 @Bean
 fun jwtDecoder(): JwtDecoder {
-    val jwtDecoder: NimbusJwtDecoder = NimbusJwtDecoder.withIssuerLocation(issuer).build()
+    val jwtDecoder: NimbusJwtDecoder = NimbusJwtDecoder.withJwkSetUri(jwkSetUri).build()
     jwtDecoder.setClaimSetConverter(UsernameSubClaimAdapter())
     return jwtDecoder
 }
@@ -1539,7 +1480,7 @@ public JwtDecoder jwtDecoder(RestTemplateBuilder builder) {
             .setReadTimeout(Duration.ofSeconds(60))
             .build();
 
-    NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withIssuerLocation(issuer).restOperations(rest).build();
+    NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withJwkSetUri(jwkSetUri).restOperations(rest).build();
     return jwtDecoder;
 }
 ----
@@ -1554,7 +1495,7 @@ fun jwtDecoder(builder: RestTemplateBuilder): JwtDecoder {
             .setConnectTimeout(Duration.ofSeconds(60))
             .setReadTimeout(Duration.ofSeconds(60))
             .build()
-    return NimbusJwtDecoder.withIssuerLocation(issuer).restOperations(rest).build()
+    return NimbusJwtDecoder.withJwkSetUri(jwkSetUri).restOperations(rest).build()
 }
 ----
 ======
@@ -1572,7 +1513,7 @@ Java::
 ----
 @Bean
 public JwtDecoder jwtDecoder(CacheManager cacheManager) {
-    return NimbusJwtDecoder.withIssuerLocation(issuer)
+    return NimbusJwtDecoder.withJwkSetUri(jwkSetUri)
             .cache(cacheManager.getCache("jwks"))
             .build();
 }
@@ -1584,7 +1525,7 @@ Kotlin::
 ----
 @Bean
 fun jwtDecoder(cacheManager: CacheManager): JwtDecoder {
-    return NimbusJwtDecoder.withIssuerLocation(issuer)
+    return NimbusJwtDecoder.withJwkSetUri(jwkSetUri)
             .cache(cacheManager.getCache("jwks"))
             .build()
 }

@@ -146,7 +146,7 @@ public class FilterInvocation {
 
 	@Override
 	public String toString() {
-		if (!StringUtils.hasLength(this.request.getMethod())) {
+		if (StringUtils.isEmpty(this.request.getMethod())) {
 			return "filter invocation [" + getRequestUrl() + "]";
 		}
 		else {

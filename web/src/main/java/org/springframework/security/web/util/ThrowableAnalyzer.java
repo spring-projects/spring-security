@@ -41,7 +41,7 @@ public class ThrowableAnalyzer {
 	 *
 	 * @see Throwable#getCause()
 	 */
-	public static final ThrowableCauseExtractor DEFAULT_EXTRACTOR = Throwable::getCause;
+	public static final ThrowableCauseExtractor DEFAULT_EXTRACTOR = (throwable) -> throwable.getCause();
 
 	/**
 	 * Default extractor for {@link InvocationTargetException} instances.

@@ -256,7 +256,8 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
 	 * @param dest the destination authentication object
 	 */
 	private void copyDetails(Authentication source, Authentication dest) {
-		if ((dest instanceof AbstractAuthenticationToken token) && (dest.getDetails() == null)) {
+		if ((dest instanceof AbstractAuthenticationToken) && (dest.getDetails() == null)) {
+			AbstractAuthenticationToken token = (AbstractAuthenticationToken) dest;
 			token.setDetails(source.getDetails());
 		}
 	}

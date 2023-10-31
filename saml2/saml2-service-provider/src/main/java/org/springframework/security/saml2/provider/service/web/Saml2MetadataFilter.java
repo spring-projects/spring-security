@@ -27,12 +27,8 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.security.saml2.Saml2Exception;
 import org.springframework.security.saml2.provider.service.metadata.Saml2MetadataResolver;
-import org.springframework.security.saml2.provider.service.metadata.Saml2MetadataResponse;
-import org.springframework.security.saml2.provider.service.metadata.Saml2MetadataResponseResolver;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
-import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
@@ -49,68 +45,52 @@ public final class Saml2MetadataFilter extends OncePerRequestFilter {
 
 	public static final String DEFAULT_METADATA_FILE_NAME = "saml-{registrationId}-metadata.xml";
 
-	private final Saml2MetadataResponseResolver metadataResolver;
+	private final RelyingPartyRegistrationResolver relyingPartyRegistrationResolver;
+
+	private final Saml2MetadataResolver saml2MetadataResolver;
+
+	private String metadataFilename = DEFAULT_METADATA_FILE_NAME;
+
+	private RequestMatcher requestMatcher = new AntPathRequestMatcher(
+			"/saml2/service-provider-metadata/{registrationId}");
 
 	public Saml2MetadataFilter(RelyingPartyRegistrationResolver relyingPartyRegistrationResolver,
 			Saml2MetadataResolver saml2MetadataResolver) {
 		Assert.notNull(relyingPartyRegistrationResolver, "relyingPartyRegistrationResolver cannot be null");
 		Assert.notNull(saml2MetadataResolver, "saml2MetadataResolver cannot be null");
-		this.metadataResolver = new Saml2MetadataResponseResolverAdapter(relyingPartyRegistrationResolver,
-				saml2MetadataResolver);
-	}
-
-	/**
-	 * Constructs an instance of {@link Saml2MetadataFilter} using the provided
-	 * parameters. The {@link #metadataResolver} field will be initialized with a
-	 * {@link DefaultRelyingPartyRegistrationResolver} instance using the provided
-	 * {@link RelyingPartyRegistrationRepository}
-	 * @param relyingPartyRegistrationRepository the
-	 * {@link RelyingPartyRegistrationRepository} to use
-	 * @param saml2MetadataResolver the {@link Saml2MetadataResolver} to use
-	 * @since 6.1
-	 */
-	public Saml2MetadataFilter(RelyingPartyRegistrationRepository relyingPartyRegistrationRepository,
-			Saml2MetadataResolver saml2MetadataResolver) {
-		this(new DefaultRelyingPartyRegistrationResolver(relyingPartyRegistrationRepository), saml2MetadataResolver);
-	}
-
-	/**
-	 * Constructs an instance of {@link Saml2MetadataFilter}
-	 * @param metadataResponseResolver the strategy for producing metadata
-	 * @since 6.1
-	 */
-	public Saml2MetadataFilter(Saml2MetadataResponseResolver metadataResponseResolver) {
-		this.metadataResolver = metadataResponseResolver;
+		this.relyingPartyRegistrationResolver = relyingPartyRegistrationResolver;
+		this.saml2MetadataResolver = saml2MetadataResolver;
 	}
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
 			throws ServletException, IOException {
-		Saml2MetadataResponse metadata;
-		try {
-			metadata = this.metadataResolver.resolve(request);
-		}
-		catch (Saml2Exception ex) {
-			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-			return;
-		}
-		if (metadata == null) {
+		RequestMatcher.MatchResult matcher = this.requestMatcher.matcher(request);
+		if (!matcher.isMatch()) {
 			chain.doFilter(request, response);
 			return;
 		}
-		writeMetadataToResponse(response, metadata);
+		String registrationId = matcher.getVariables().get("registrationId");
+		RelyingPartyRegistration relyingPartyRegistration = this.relyingPartyRegistrationResolver.resolve(request,
+				registrationId);
+		if (relyingPartyRegistration == null) {
+			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+			return;
+		}
+		String metadata = this.saml2MetadataResolver.resolve(relyingPartyRegistration);
+		writeMetadataToResponse(response, relyingPartyRegistration.getRegistrationId(), metadata);
 	}
 
-	private void writeMetadataToResponse(HttpServletResponse response, Saml2MetadataResponse metadata)
+	private void writeMetadataToResponse(HttpServletResponse response, String registrationId, String metadata)
 			throws IOException {
 		response.setContentType(MediaType.APPLICATION_XML_VALUE);
-		String format = "attachment; filename=\"%s\"; filename*=UTF-8''%s";
-		String fileName = metadata.getFileName();
+		String fileName = this.metadataFilename.replace("{registrationId}", registrationId);
 		String encodedFileName = URLEncoder.encode(fileName, StandardCharsets.UTF_8.name());
+		String format = "attachment; filename=\"%s\"; filename*=UTF-8''%s";
 		response.setHeader(HttpHeaders.CONTENT_DISPOSITION, String.format(format, fileName, encodedFileName));
-		response.setContentLength(metadata.getMetadata().getBytes(StandardCharsets.UTF_8).length);
+		response.setContentLength(metadata.getBytes(StandardCharsets.UTF_8).length);
 		response.setCharacterEncoding(StandardCharsets.UTF_8.name());
-		response.getWriter().write(metadata.getMetadata());
+		response.getWriter().write(metadata);
 	}
 
 	/**
@@ -120,9 +100,7 @@ public final class Saml2MetadataFilter extends OncePerRequestFilter {
 	 */
 	public void setRequestMatcher(RequestMatcher requestMatcher) {
 		Assert.notNull(requestMatcher, "requestMatcher cannot be null");
-		Assert.isInstanceOf(Saml2MetadataResponseResolverAdapter.class, this.metadataResolver,
-				"a Saml2MetadataResponseResolver and RequestMatcher cannot be both set on this filter. Please set the request matcher on the Saml2MetadataResponseResolver itself.");
-		((Saml2MetadataResponseResolverAdapter) this.metadataResolver).setRequestMatcher(requestMatcher);
+		this.requestMatcher = requestMatcher;
 	}
 
 	/**
@@ -138,57 +116,7 @@ public final class Saml2MetadataFilter extends OncePerRequestFilter {
 		Assert.hasText(metadataFilename, "metadataFilename cannot be empty");
 		Assert.isTrue(metadataFilename.contains("{registrationId}"),
 				"metadataFilename must contain a {registrationId} match variable");
-		Assert.isInstanceOf(Saml2MetadataResponseResolverAdapter.class, this.metadataResolver,
-				"a Saml2MetadataResponseResolver and file name cannot be both set on this filter. Please set the file name on the Saml2MetadataResponseResolver itself.");
-		((Saml2MetadataResponseResolverAdapter) this.metadataResolver).setMetadataFilename(metadataFilename);
-	}
-
-	private static final class Saml2MetadataResponseResolverAdapter implements Saml2MetadataResponseResolver {
-
-		private final RelyingPartyRegistrationResolver registrations;
-
-		private RequestMatcher requestMatcher = new AntPathRequestMatcher(
-				"/saml2/service-provider-metadata/{registrationId}");
-
-		private final Saml2MetadataResolver metadataResolver;
-
-		private String metadataFilename = DEFAULT_METADATA_FILE_NAME;
-
-		Saml2MetadataResponseResolverAdapter(RelyingPartyRegistrationResolver registrations,
-				Saml2MetadataResolver metadataResolver) {
-			this.registrations = registrations;
-			this.metadataResolver = metadataResolver;
-		}
-
-		@Override
-		public Saml2MetadataResponse resolve(HttpServletRequest request) {
-			RequestMatcher.MatchResult matcher = this.requestMatcher.matcher(request);
-			if (!matcher.isMatch()) {
-				return null;
-			}
-			String registrationId = matcher.getVariables().get("registrationId");
-			RelyingPartyRegistration relyingPartyRegistration = this.registrations.resolve(request, registrationId);
-			if (relyingPartyRegistration == null) {
-				throw new Saml2Exception("registration not found");
-			}
-			registrationId = relyingPartyRegistration.getRegistrationId();
-			String metadata = this.metadataResolver.resolve(relyingPartyRegistration);
-			String fileName = this.metadataFilename.replace("{registrationId}", registrationId);
-			return new Saml2MetadataResponse(metadata, fileName);
-		}
-
-		void setRequestMatcher(RequestMatcher requestMatcher) {
-			Assert.notNull(requestMatcher, "requestMatcher cannot be null");
-			this.requestMatcher = requestMatcher;
-		}
-
-		void setMetadataFilename(String metadataFilename) {
-			Assert.hasText(metadataFilename, "metadataFilename cannot be empty");
-			Assert.isTrue(metadataFilename.contains("{registrationId}"),
-					"metadataFilename must contain a {registrationId} match variable");
-			this.metadataFilename = metadataFilename;
-		}
-
+		this.metadataFilename = metadataFilename;
 	}
 
 }

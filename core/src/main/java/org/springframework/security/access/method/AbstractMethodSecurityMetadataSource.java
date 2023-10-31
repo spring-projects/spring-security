@@ -43,7 +43,8 @@ public abstract class AbstractMethodSecurityMetadataSource implements MethodSecu
 
 	@Override
 	public final Collection<ConfigAttribute> getAttributes(Object object) {
-		if (object instanceof MethodInvocation mi) {
+		if (object instanceof MethodInvocation) {
+			MethodInvocation mi = (MethodInvocation) object;
 			Object target = mi.getThis();
 			Class<?> targetClass = null;
 			if (target != null) {

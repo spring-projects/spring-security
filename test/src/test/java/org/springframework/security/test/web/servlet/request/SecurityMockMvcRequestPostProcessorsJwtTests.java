@@ -102,7 +102,7 @@ public class SecurityMockMvcRequestPostProcessorsJwtTests {
 		assertThat(token.getAuthorities()).isNotEmpty();
 		assertThat(token.getToken()).isNotNull();
 		assertThat(token.getToken().getSubject()).isEqualTo("user");
-		assertThat(token.getToken().getHeaders()).containsEntry("alg", "none");
+		assertThat(token.getToken().getHeaders().get("alg")).isEqualTo("none");
 	}
 
 	@Test
@@ -160,7 +160,7 @@ public class SecurityMockMvcRequestPostProcessorsJwtTests {
 		JwtAuthenticationToken retrievedToken = (JwtAuthenticationToken) context.getAuthentication();
 		assertThat(retrievedToken.getToken().getSubject()).isEqualTo("some_user");
 		assertThat(retrievedToken.getToken().getTokenValue()).isEqualTo("token");
-		assertThat(retrievedToken.getToken().getHeaders()).containsEntry("header1", "value1");
+		assertThat(retrievedToken.getToken().getHeaders().get("header1")).isEqualTo("value1");
 	}
 
 }

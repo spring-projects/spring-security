@@ -181,7 +181,7 @@ public class SpringSecurityXsdParser {
 	 */
 	private Element elmt(XmlNode n) {
 		String name = n.attribute("ref");
-		if (!StringUtils.hasLength(name)) {
+		if (StringUtils.isEmpty(name)) {
 			name = n.attribute("name");
 		}
 		else {
@@ -201,7 +201,7 @@ public class SpringSecurityXsdParser {
 		e.getAttrs().forEach((attr) -> attr.setElmt(e));
 		e.getChildElmts().values().forEach((element) -> element.getParentElmts().put(e.getName(), e));
 		String subGrpName = n.attribute("substitutionGroup");
-		if (StringUtils.hasLength(subGrpName)) {
+		if (!StringUtils.isEmpty(subGrpName)) {
 			Element subGrp = elmt(findNode(n, subGrpName.split(":")[1]));
 			subGrp.getSubGrps().add(e);
 		}

@@ -114,13 +114,11 @@ class AuthorizeRequestsDslTests {
         @RestController
         internal class PathController {
             @RequestMapping("/path")
-            fun path(): String {
-                return "ok"
+            fun path() {
             }
 
             @RequestMapping("/onlyPostPermitted")
-            fun onlyPostPermitted(): String {
-                return "ok"
+            fun onlyPostPermitted() {
             }
         }
     }
@@ -173,8 +171,7 @@ class AuthorizeRequestsDslTests {
         @RestController
         internal class PathController {
             @RequestMapping("/path")
-            fun path(): String {
-                return "ok"
+            fun path() {
             }
         }
     }
@@ -330,8 +327,7 @@ class AuthorizeRequestsDslTests {
         @RestController
         internal class PathController {
             @GetMapping("/")
-            fun index():String {
-                return "ok"
+            fun index() {
             }
         }
 
@@ -402,8 +398,7 @@ class AuthorizeRequestsDslTests {
         @RestController
         internal class PathController {
             @GetMapping("/")
-            fun index():String {
-                return "ok"
+            fun index() {
             }
         }
 
@@ -466,8 +461,7 @@ class AuthorizeRequestsDslTests {
         @RestController
         internal class PathController {
             @RequestMapping("/path")
-            fun path():String {
-                return "ok"
+            fun path() {
             }
         }
     }
@@ -490,8 +484,7 @@ class AuthorizeRequestsDslTests {
         @RestController
         internal class PathController {
             @RequestMapping("/path")
-            fun path(): String {
-                return "ok"
+            fun path() {
             }
         }
     }
@@ -529,8 +522,7 @@ class AuthorizeRequestsDslTests {
         @RestController
         internal class PathController {
             @RequestMapping("/path")
-            fun path(): String {
-                return "ok"
+            fun path() {
             }
         }
     }

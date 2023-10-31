@@ -71,6 +71,7 @@ public class SecurityContextLoginModule implements LoginModule {
 	 * <code>Authentication</code>.
 	 * @return true if this method succeeded, or false if this <code>LoginModule</code>
 	 * should be ignored.
+	 * @exception LoginException if the abort fails
 	 */
 	@Override
 	public boolean abort() {
@@ -86,6 +87,7 @@ public class SecurityContextLoginModule implements LoginModule {
 	 * <code>Authentication</code> to the <code>Subject</code>'s principals.
 	 * @return true if this method succeeded, or false if this <code>LoginModule</code>
 	 * should be ignored.
+	 * @exception LoginException if the commit fails
 	 */
 	@Override
 	public boolean commit() {
@@ -159,6 +161,7 @@ public class SecurityContextLoginModule implements LoginModule {
 	 * Log out the <code>Subject</code>.
 	 * @return true if this method succeeded, or false if this <code>LoginModule</code>
 	 * should be ignored.
+	 * @exception LoginException if the logout fails
 	 */
 	@Override
 	public boolean logout() {

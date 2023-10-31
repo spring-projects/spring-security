@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,25 +17,17 @@
 package org.springframework.security.web.server.context;
 
 import java.util.Collections;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.DisabledOnJre;
-import org.junit.jupiter.api.condition.JRE;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 import reactor.test.StepVerifier;
 
-import org.springframework.core.task.VirtualThreadTaskExecutor;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
-import org.springframework.security.test.web.reactive.server.WebTestHandler;
 import org.springframework.web.server.ServerWebExchange;
-import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.handler.DefaultWebFilterChain;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -86,33 +78,6 @@ public class SecurityContextServerWebExchangeWebFilterTests {
 					.doOnSuccess((contextPrincipal) -> assertThat(contextPrincipal).isEqualTo(defaultAuthentication))
 					.then(), Collections.emptyList()));
 		StepVerifier.create(result).verifyComplete();
-	}
-
-	@Test
-	public void filterWhenThreadFactoryIsPlatformThenContextPopulated() {
-		ThreadFactory threadFactory = Executors.defaultThreadFactory();
-		assertPrincipalPopulated(threadFactory);
-	}
-
-	@Test
-	@DisabledOnJre(JRE.JAVA_17)
-	public void filterWhenThreadFactoryIsVirtualThenContextPopulated() {
-		ThreadFactory threadFactory = new VirtualThreadTaskExecutor().getVirtualThreadFactory();
-		assertPrincipalPopulated(threadFactory);
-	}
-
-	private void assertPrincipalPopulated(ThreadFactory threadFactory) {
-		// @formatter:off
-		WebFilter subscribeOnThreadFactory = (exchange, chain) -> chain.filter(exchange)
-				.contextWrite(ReactiveSecurityContextHolder.withAuthentication(this.principal))
-				.subscribeOn(Schedulers.newSingle(threadFactory));
-		WebFilter assertPrincipal = (exchange, chain) -> exchange.getPrincipal()
-				.doOnSuccess((principal) -> assertThat(principal).isSameAs(this.principal))
-				.then(chain.filter(exchange));
-		// @formatter:on
-		WebTestHandler handler = WebTestHandler.bindToWebFilters(subscribeOnThreadFactory, this.filter,
-				assertPrincipal);
-		handler.exchange(this.exchange);
 	}
 
 }

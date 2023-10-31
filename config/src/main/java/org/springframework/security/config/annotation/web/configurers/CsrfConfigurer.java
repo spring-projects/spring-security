@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,6 +40,7 @@ import org.springframework.security.web.csrf.CsrfLogoutHandler;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfTokenRequestHandler;
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
+import org.springframework.security.web.csrf.LazyCsrfTokenRepository;
 import org.springframework.security.web.csrf.MissingCsrfTokenException;
 import org.springframework.security.web.session.InvalidSessionAccessDeniedHandler;
 import org.springframework.security.web.session.InvalidSessionStrategy;
@@ -82,7 +83,7 @@ import org.springframework.util.Assert;
 public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 		extends AbstractHttpConfigurer<CsrfConfigurer<H>, H> {
 
-	private CsrfTokenRepository csrfTokenRepository = new HttpSessionCsrfTokenRepository();
+	private CsrfTokenRepository csrfTokenRepository = new LazyCsrfTokenRepository(new HttpSessionCsrfTokenRepository());
 
 	private RequestMatcher requireCsrfProtectionMatcher = CsrfFilter.DEFAULT_CSRF_MATCHER;
 
@@ -104,7 +105,7 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 
 	/**
 	 * Specify the {@link CsrfTokenRepository} to use. The default is an
-	 * {@link HttpSessionCsrfTokenRepository}.
+	 * {@link HttpSessionCsrfTokenRepository} wrapped by {@link LazyCsrfTokenRepository}.
 	 * @param csrfTokenRepository the {@link CsrfTokenRepository} to use
 	 * @return the {@link CsrfConfigurer} for further customizations
 	 */

@@ -41,8 +41,7 @@ final class MethodSecuritySelector implements ImportSelector {
 
 	@Override
 	public String[] selectImports(@NonNull AnnotationMetadata importMetadata) {
-		if (!importMetadata.hasAnnotation(EnableMethodSecurity.class.getName())
-				&& !importMetadata.hasMetaAnnotation(EnableMethodSecurity.class.getName())) {
+		if (!importMetadata.hasAnnotation(EnableMethodSecurity.class.getName())) {
 			return new String[0];
 		}
 		EnableMethodSecurity annotation = importMetadata.getAnnotations().get(EnableMethodSecurity.class).synthesize();

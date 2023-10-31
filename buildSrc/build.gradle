@@ -9,7 +9,6 @@ sourceCompatibility = JavaVersion.VERSION_17
 repositories {
 	gradlePluginPortal()
 	mavenCentral()
-	maven { url 'https://repo.spring.io/milestone' }
 }
 
 sourceSets {
@@ -111,7 +110,6 @@ dependencies {
 	testImplementation 'org.mockito:mockito-junit-jupiter'
 	testImplementation libs.com.squareup.okhttp3.mockwebserver
 }
-
 
 tasks.named('test', Test).configure {
 	onlyIf { !project.hasProperty("buildSrc.skipTests") }

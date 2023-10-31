@@ -214,8 +214,6 @@ Java::
 +
 [source,java,role="primary"]
 ----
-import static org.springframework.security.oauth2.core.authorization.OAuth2ReactiveAuthorizationManagers.hasScope;
-
 @Configuration
 @EnableWebFluxSecurity
 public class MyCustomSecurityConfiguration {
@@ -223,7 +221,7 @@ public class MyCustomSecurityConfiguration {
     SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
         http
             .authorizeExchange(exchanges -> exchanges
-                .pathMatchers("/messages/**").access(hasScope("message:read"))
+                .pathMatchers("/messages/**").hasAuthority("SCOPE_message:read")
                 .anyExchange().authenticated()
             )
             .oauth2ResourceServer(oauth2 -> oauth2
@@ -240,13 +238,11 @@ Kotlin::
 +
 [source,kotlin,role="secondary"]
 ----
-import org.springframework.security.oauth2.core.authorization.OAuth2ReactiveAuthorizationManagers.hasScope
-
 @Bean
 fun springSecurityFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
     return http {
         authorizeExchange {
-            authorize("/messages/**", hasScope("message:read"))
+            authorize("/messages/**", hasAuthority("SCOPE_message:read"))
             authorize(anyExchange, authenticated)
         }
         oauth2ResourceServer {
@@ -446,8 +442,6 @@ Java::
 +
 [source,java,role="primary"]
 ----
-import static org.springframework.security.oauth2.core.authorization.OAuth2ReactiveAuthorizationManagers.hasScope;
-
 @Configuration
 @EnableWebFluxSecurity
 public class MappedAuthorities {
@@ -455,8 +449,8 @@ public class MappedAuthorities {
     SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
         http
             .authorizeExchange(exchange -> exchange
-                .pathMatchers("/contacts/**").access(hasScope("contacts"))
-                .pathMatchers("/messages/**").access(hasScope("messages"))
+                .pathMatchers("/contacts/**").hasAuthority("SCOPE_contacts")
+                .pathMatchers("/messages/**").hasAuthority("SCOPE_messages")
                 .anyExchange().authenticated()
             )
             .oauth2ResourceServer(ServerHttpSecurity.OAuth2ResourceServerSpec::opaqueToken);
@@ -469,14 +463,12 @@ Kotlin::
 +
 [source,kotlin,role="secondary"]
 ----
-import org.springframework.security.oauth2.core.authorization.OAuth2ReactiveAuthorizationManagers.hasScope
-
 @Bean
 fun springSecurityFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
     return http {
         authorizeExchange {
-            authorize("/contacts/**", hasScope("contacts"))
-            authorize("/messages/**", hasScope("messages"))
+            authorize("/contacts/**", hasAuthority("SCOPE_contacts"))
+            authorize("/messages/**", hasAuthority("SCOPE_messages"))
             authorize(anyExchange, authenticated)
         }
         oauth2ResourceServer {

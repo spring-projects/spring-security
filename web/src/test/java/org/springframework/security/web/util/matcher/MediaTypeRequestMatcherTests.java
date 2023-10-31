@@ -88,7 +88,7 @@ public class MediaTypeRequestMatcherTests {
 
 	@Test
 	public void constructorWhenEmptyMediaTypeThenIAE() {
-		assertThatIllegalArgumentException().isThrownBy(MediaTypeRequestMatcher::new);
+		assertThatIllegalArgumentException().isThrownBy(() -> new MediaTypeRequestMatcher());
 	}
 
 	@Test

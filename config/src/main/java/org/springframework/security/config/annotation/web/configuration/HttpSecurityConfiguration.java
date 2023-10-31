@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,7 +47,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter;
 import org.springframework.web.accept.ContentNegotiationStrategy;
 import org.springframework.web.accept.HeaderContentNegotiationStrategy;
-import org.springframework.web.cors.CorsConfigurationSource;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
@@ -125,16 +124,8 @@ class HttpSecurityConfiguration {
 			.apply(new DefaultLoginPageConfigurer<>());
 		http.logout(withDefaults());
 		// @formatter:on
-		applyCorsIfAvailable(http);
 		applyDefaultConfigurers(http);
 		return http;
-	}
-
-	private void applyCorsIfAvailable(HttpSecurity http) throws Exception {
-		String[] beanNames = this.context.getBeanNamesForType(CorsConfigurationSource.class);
-		if (beanNames.length == 1) {
-			http.cors(withDefaults());
-		}
 	}
 
 	private AuthenticationManager authenticationManager() throws Exception {

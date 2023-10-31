@@ -66,7 +66,7 @@ public class SecurityConfig {
 
 	@Bean
 	public AuthenticationProvider authenticationProvider() {
-		Assert.notNull(this.myUserRepository, "myUserRepository cannot be null");
+		Assert.notNull(this.myUserRepository);
 		return new AuthenticationProvider() {
 			@Override
 			public boolean supports(Class<?> authentication) {

@@ -133,7 +133,7 @@ public class NimbusReactiveOpaqueTokenIntrospector implements ReactiveOpaqueToke
 					+ contentType + "' is not compatible with JSON");
 		}
 
-		HTTPResponse response = new HTTPResponse(responseEntity.statusCode().value());
+		HTTPResponse response = new HTTPResponse(responseEntity.rawStatusCode());
 		response.setHeader(HttpHeaders.CONTENT_TYPE, contentType.toString());
 		if (response.getStatusCode() != HTTPResponse.SC_OK) {
 			this.logger.trace("Introspection endpoint returned non-OK status code");

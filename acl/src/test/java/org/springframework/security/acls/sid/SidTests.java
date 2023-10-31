@@ -120,9 +120,9 @@ public class SidTests {
 		PrincipalSid principalSid = new PrincipalSid(authentication);
 		GrantedAuthority ga = new SimpleGrantedAuthority("ROLE_TEST");
 		GrantedAuthoritySid gaSid = new GrantedAuthoritySid(ga);
-		assertThat("johndoe").isEqualTo(principalSid.getPrincipal());
+		assertThat("johndoe".equals(principalSid.getPrincipal())).isTrue();
 		assertThat("scott".equals(principalSid.getPrincipal())).isFalse();
-		assertThat("ROLE_TEST").isEqualTo(gaSid.getGrantedAuthority());
+		assertThat("ROLE_TEST".equals(gaSid.getGrantedAuthority())).isTrue();
 		assertThat("ROLE_TEST2".equals(gaSid.getGrantedAuthority())).isFalse();
 	}
 

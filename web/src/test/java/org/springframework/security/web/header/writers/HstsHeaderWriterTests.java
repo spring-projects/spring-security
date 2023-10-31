@@ -112,7 +112,7 @@ public class HstsHeaderWriterTests {
 	public void writeHeadersInsecureRequestDoesNotWriteHeader() {
 		this.request.setSecure(false);
 		this.writer.writeHeaders(this.request, this.response);
-		assertThat(this.response.getHeaderNames()).isEmpty();
+		assertThat(this.response.getHeaderNames().isEmpty()).isTrue();
 	}
 
 	@Test

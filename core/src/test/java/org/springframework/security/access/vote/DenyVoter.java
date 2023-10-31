@@ -17,6 +17,7 @@
 package org.springframework.security.access.vote;
 
 import java.util.Collection;
+import java.util.Iterator;
 
 import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.ConfigAttribute;
@@ -48,7 +49,9 @@ public class DenyVoter implements AccessDecisionVoter<Object> {
 
 	@Override
 	public int vote(Authentication authentication, Object object, Collection<ConfigAttribute> attributes) {
-		for (ConfigAttribute attribute : attributes) {
+		Iterator<ConfigAttribute> iter = attributes.iterator();
+		while (iter.hasNext()) {
+			ConfigAttribute attribute = iter.next();
 			if (this.supports(attribute)) {
 				return ACCESS_DENIED;
 			}

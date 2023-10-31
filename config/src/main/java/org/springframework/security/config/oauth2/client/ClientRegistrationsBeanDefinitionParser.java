@@ -174,7 +174,7 @@ public final class ClientRegistrationsBeanDefinitionParser implements BeanDefini
 		if (providers.containsKey(providerId)) {
 			Map<String, String> provider = providers.get(providerId);
 			String issuer = provider.get(ATT_ISSUER_URI);
-			if (StringUtils.hasLength(issuer)) {
+			if (!StringUtils.isEmpty(issuer)) {
 				ClientRegistration.Builder builder = ClientRegistrations.fromIssuerLocation(issuer)
 					.registrationId(registrationId);
 				return getBuilder(parserContext, builder, provider);

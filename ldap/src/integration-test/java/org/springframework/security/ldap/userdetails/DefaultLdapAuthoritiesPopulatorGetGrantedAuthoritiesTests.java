@@ -72,8 +72,8 @@ public class DefaultLdapAuthoritiesPopulatorGetGrantedAuthoritiesTests {
 
 		assertThat(authorities).as("Should have 1 role").hasSize(2);
 
-		assertThat(authorities).contains("ROLE_DEVELOPER");
-		assertThat(authorities).contains("ROLE_");
+		assertThat(authorities.contains("ROLE_DEVELOPER")).isTrue();
+		assertThat(authorities.contains("ROLE_")).isTrue();
 	}
 
 	@Configuration

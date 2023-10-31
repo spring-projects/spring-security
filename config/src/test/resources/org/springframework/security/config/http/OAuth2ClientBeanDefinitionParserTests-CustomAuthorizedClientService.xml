@@ -45,17 +45,17 @@
 	</client-registrations>
 
 	<b:bean id="authorizedClientService" class="org.mockito.Mockito" factory-method="mock">
-    <b:constructor-arg value="org.springframework.security.oauth2.client.OAuth2AuthorizedClientService" type="java.lang.Class"/>
-</b:bean>
+		<b:constructor-arg value="org.springframework.security.oauth2.client.OAuth2AuthorizedClientService"/>
+	</b:bean>
 	<b:bean id="authorizationRequestRepository" class="org.mockito.Mockito" factory-method="mock">
-    <b:constructor-arg value="org.springframework.security.oauth2.client.web.AuthorizationRequestRepository" type="java.lang.Class"/>
-</b:bean>
+		<b:constructor-arg value="org.springframework.security.oauth2.client.web.AuthorizationRequestRepository"/>
+	</b:bean>
 	<b:bean id="authorizationRequestResolver" class="org.mockito.Mockito" factory-method="mock">
-    <b:constructor-arg value="org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver" type="java.lang.Class"/>
-</b:bean>
+		<b:constructor-arg value="org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver"/>
+	</b:bean>
 	<b:bean id="accessTokenResponseClient" class="org.mockito.Mockito" factory-method="mock">
-    <b:constructor-arg value="org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient" type="java.lang.Class"/>
-</b:bean>
+		<b:constructor-arg value="org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient"/>
+	</b:bean>
 
 	<b:import resource="userservice.xml"/>
 </b:beans>

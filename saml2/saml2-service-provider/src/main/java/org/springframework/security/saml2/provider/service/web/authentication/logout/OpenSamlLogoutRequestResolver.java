@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,6 @@ import org.opensaml.saml.saml2.core.impl.NameIDBuilder;
 import org.opensaml.saml.saml2.core.impl.SessionIndexBuilder;
 import org.w3c.dom.Element;
 
-import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.saml2.Saml2Exception;
 import org.springframework.security.saml2.core.OpenSamlInitializationService;
@@ -47,8 +46,6 @@ import org.springframework.security.saml2.provider.service.authentication.Saml2A
 import org.springframework.security.saml2.provider.service.authentication.logout.Saml2LogoutRequest;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding;
-import org.springframework.security.saml2.provider.service.web.RelyingPartyRegistrationPlaceholderResolvers;
-import org.springframework.security.saml2.provider.service.web.RelyingPartyRegistrationPlaceholderResolvers.UriResolver;
 import org.springframework.security.saml2.provider.service.web.RelyingPartyRegistrationResolver;
 import org.springframework.security.saml2.provider.service.web.authentication.logout.OpenSamlSigningUtils.QueryParametersPartial;
 import org.springframework.util.Assert;
@@ -77,8 +74,6 @@ final class OpenSamlLogoutRequestResolver {
 
 	private final RelyingPartyRegistrationResolver relyingPartyRegistrationResolver;
 
-	private Converter<HttpServletRequest, String> relayStateResolver = (request) -> UUID.randomUUID().toString();
-
 	/**
 	 * Construct a {@link OpenSamlLogoutRequestResolver}
 	 */
@@ -98,10 +93,6 @@ final class OpenSamlLogoutRequestResolver {
 		this.sessionIndexBuilder = (SessionIndexBuilder) registry.getBuilderFactory()
 			.getBuilder(SessionIndex.DEFAULT_ELEMENT_NAME);
 		Assert.notNull(this.sessionIndexBuilder, "sessionIndexBuilder must be configured in OpenSAML");
-	}
-
-	void setRelayStateResolver(Converter<HttpServletRequest, String> relayStateResolver) {
-		this.relayStateResolver = relayStateResolver;
 	}
 
 	/**
@@ -129,12 +120,10 @@ final class OpenSamlLogoutRequestResolver {
 		if (registration.getAssertingPartyDetails().getSingleLogoutServiceLocation() == null) {
 			return null;
 		}
-		UriResolver uriResolver = RelyingPartyRegistrationPlaceholderResolvers.uriResolver(request, registration);
-		String entityId = uriResolver.resolve(registration.getEntityId());
 		LogoutRequest logoutRequest = this.logoutRequestBuilder.buildObject();
 		logoutRequest.setDestination(registration.getAssertingPartyDetails().getSingleLogoutServiceLocation());
 		Issuer issuer = this.issuerBuilder.buildObject();
-		issuer.setValue(entityId);
+		issuer.setValue(registration.getEntityId());
 		logoutRequest.setIssuer(issuer);
 		NameID nameId = this.nameIdBuilder.buildObject();
 		nameId.setValue(authentication.getName());
@@ -143,7 +132,7 @@ final class OpenSamlLogoutRequestResolver {
 			Saml2AuthenticatedPrincipal principal = (Saml2AuthenticatedPrincipal) authentication.getPrincipal();
 			for (String index : principal.getSessionIndexes()) {
 				SessionIndex sessionIndex = this.sessionIndexBuilder.buildObject();
-				sessionIndex.setValue(index);
+				sessionIndex.setSessionIndex(index);
 				logoutRequest.getSessionIndexes().add(sessionIndex);
 			}
 		}
@@ -151,7 +140,7 @@ final class OpenSamlLogoutRequestResolver {
 		if (logoutRequest.getID() == null) {
 			logoutRequest.setID("LR" + UUID.randomUUID());
 		}
-		String relayState = this.relayStateResolver.convert(request);
+		String relayState = UUID.randomUUID().toString();
 		Saml2LogoutRequest.Builder result = Saml2LogoutRequest.withRelyingPartyRegistration(registration)
 			.id(logoutRequest.getID());
 		if (registration.getAssertingPartyDetails().getSingleLogoutServiceBinding() == Saml2MessageBinding.POST) {

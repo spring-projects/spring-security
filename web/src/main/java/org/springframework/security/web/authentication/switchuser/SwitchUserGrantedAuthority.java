@@ -64,8 +64,9 @@ public final class SwitchUserGrantedAuthority implements GrantedAuthority {
 		if (this == obj) {
 			return true;
 		}
-		if (obj instanceof SwitchUserGrantedAuthority swa) {
-			return this.role.equals(swa.getAuthority()) && this.source.equals(swa.getSource());
+		if (obj instanceof SwitchUserGrantedAuthority) {
+			SwitchUserGrantedAuthority swa = (SwitchUserGrantedAuthority) obj;
+			return this.role.equals(swa.role) && this.source.equals(swa.source);
 		}
 		return false;
 	}

@@ -14,10 +14,6 @@ buildscript {
 	}
 }
 
-plugins {
-	alias(libs.plugins.org.gradle.wrapper.upgrade)
-}
-
 apply plugin: 'io.spring.nohttp'
 apply plugin: 'locks'
 apply plugin: 's101'
@@ -39,7 +35,6 @@ ext.milestoneBuild = !(snapshotBuild || releaseBuild)
 
 repositories {
 	mavenCentral()
-	maven { url "https://repo.spring.io/milestone" }
 }
 
 tasks.named("saganCreateRelease") {
@@ -91,30 +86,16 @@ tasks.named("dispatchGitHubWorkflow") {
 	}
 }
 
-def toolchainVersion() {
-	if (project.hasProperty('testToolchain')) {
-		return project.property('testToolchain').toString().toInteger()
-	}
-	return 17
-}
-
 subprojects {
-	java {
-		toolchain {
-			languageVersion = JavaLanguageVersion.of(toolchainVersion())
-		}
+	plugins.withType(JavaPlugin) {
+		project.sourceCompatibility=JavaVersion.VERSION_17
 	}
-	kotlin {
-		jvmToolchain {
-			languageVersion = JavaLanguageVersion.of(17)
-		}
-	}
-	tasks.withType(JavaCompile).configureEach {
+	tasks.withType(JavaCompile) {
 		options.encoding = "UTF-8"
 		options.compilerArgs.add("-parameters")
-		options.release.set(17)
 	}
 }
+
 
 allprojects {
 	if (!['spring-security-bom', 'spring-security-docs'].contains(project.name)) {
@@ -140,6 +121,12 @@ allprojects {
 			}
 		}
 	}
+
+	tasks.withType(JavaCompile).configureEach {
+		javaCompiler = javaToolchains.compilerFor {
+			languageVersion = JavaLanguageVersion.of(17)
+		}
+	}
 }
 
 if (hasProperty('buildScan')) {
@@ -162,13 +149,4 @@ tasks.register('cloneSamples', IncludeRepoTask) {
 
 s101 {
 	configurationDirectory = project.file("etc/s101")
-}
-
-wrapperUpgrade {
-	gradle {
-		'spring-security' {
-			repo = 'spring-projects/spring-security'
-			baseBranch = '6.0.x' // runs only on 6.0.x and the update is merged forward to main
-		}
-	}
 }

@@ -5,14 +5,13 @@ pluginManagement {
 }
 
 plugins {
-	id "com.gradle.enterprise" version "3.12.6"
+	id "com.gradle.enterprise" version "3.11.4"
 	id "io.spring.ge.conventions" version "0.0.14"
 }
 
 dependencyResolutionManagement {
 	repositories {
 		mavenCentral()
-		maven { url "https://repo.spring.io/milestone" }
 	}
 }
 

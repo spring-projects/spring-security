@@ -47,16 +47,16 @@ public class JwtBuilderTests {
 				.build();
 		// @formatter:on
 		assertThat(first.getHeaders()).hasSize(1);
-		assertThat(first.getHeaders()).containsEntry("TEST_HEADER_1", "H1");
+		assertThat(first.getHeaders().get("TEST_HEADER_1")).isEqualTo("H1");
 		assertThat(first.getClaims()).hasSize(1);
-		assertThat(first.getClaims()).containsEntry("TEST_CLAIM_1", "C1");
+		assertThat(first.getClaims().get("TEST_CLAIM_1")).isEqualTo("C1");
 		assertThat(first.getTokenValue()).isEqualTo("V1");
 		assertThat(second.getHeaders()).hasSize(2);
-		assertThat(second.getHeaders()).containsEntry("TEST_HEADER_1", "H2");
-		assertThat(second.getHeaders()).containsEntry("TEST_HEADER_2", "H3");
+		assertThat(second.getHeaders().get("TEST_HEADER_1")).isEqualTo("H2");
+		assertThat(second.getHeaders().get("TEST_HEADER_2")).isEqualTo("H3");
 		assertThat(second.getClaims()).hasSize(2);
-		assertThat(second.getClaims()).containsEntry("TEST_CLAIM_1", "C2");
-		assertThat(second.getClaims()).containsEntry("TEST_CLAIM_2", "C3");
+		assertThat(second.getClaims().get("TEST_CLAIM_1")).isEqualTo("C2");
+		assertThat(second.getClaims().get("TEST_CLAIM_2")).isEqualTo("C3");
 		assertThat(second.getTokenValue()).isEqualTo("V2");
 	}
 

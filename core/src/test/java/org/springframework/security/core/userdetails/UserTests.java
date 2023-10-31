@@ -18,17 +18,12 @@ package org.springframework.security.core.userdetails;
 
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectOutputStream;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.NullSource;
-import org.junit.jupiter.params.provider.ValueSource;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -42,7 +37,6 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  * Tests {@link User}.
  *
  * @author Ben Alex
- * @author Ilya Starchenko
  */
 public class UserTests {
 
@@ -72,70 +66,6 @@ public class UserTests {
 	public void testNoArgConstructorDoesntExist() {
 		assertThatExceptionOfType(NoSuchMethodException.class)
 			.isThrownBy(() -> User.class.getDeclaredConstructor((Class[]) null));
-	}
-
-	@Test
-	public void testBuildUserWithNoAuthorities() {
-		UserDetails user = User.builder().username("user").password("password").build();
-		assertThat(user.getAuthorities()).isEmpty();
-	}
-
-	@Test
-	public void testNullWithinUserAuthoritiesIsRejected() {
-		assertThatIllegalArgumentException().isThrownBy(() -> User.builder()
-			.username("user")
-			.password("password")
-			.authorities((Collection<? extends GrantedAuthority>) null)
-			.build());
-		List<GrantedAuthority> authorities = new ArrayList<>();
-		authorities.add(null);
-		authorities.add(null);
-		assertThatIllegalArgumentException()
-			.isThrownBy(() -> User.builder().username("user").password("password").authorities(authorities).build());
-
-		assertThatIllegalArgumentException().isThrownBy(() -> User.builder()
-			.username("user")
-			.password("password")
-			.authorities((GrantedAuthority[]) null)
-			.build());
-		assertThatIllegalArgumentException().isThrownBy(() -> User.builder()
-			.username("user")
-			.password("password")
-			.authorities(new GrantedAuthority[] { null, null })
-			.build());
-
-		assertThatIllegalArgumentException().isThrownBy(
-				() -> User.builder().username("user").password("password").authorities((String[]) null).build());
-		assertThatIllegalArgumentException().isThrownBy(() -> User.builder()
-			.username("user")
-			.password("password")
-			.authorities(new String[] { null, null })
-			.build());
-	}
-
-	// gh-12533
-	@ParameterizedTest
-	@NullSource
-	@ValueSource(strings = { "ROLE_USER,ROLE_ADMIN,read", "read" })
-	public void withUserDetailsWhenAuthoritiesThenOverridesPreviousAuthorities(String arg) {
-		// @formatter:off
-		UserDetails parent = User.builder()
-				.username("user")
-				.password("password")
-				.authorities("one", "two", "three")
-				.build();
-		// @formatter:on
-		String[] authorities = (arg != null) ? arg.split(",") : new String[0];
-		User.UserBuilder builder = User.withUserDetails(parent);
-		UserDetails user = builder.build();
-		assertThat(AuthorityUtils.authorityListToSet(user.getAuthorities())).containsOnly("one", "two", "three");
-		user = builder.authorities(authorities).build();
-		assertThat(AuthorityUtils.authorityListToSet(user.getAuthorities())).containsOnly(authorities);
-		user = builder.authorities(AuthorityUtils.createAuthorityList(authorities)).build();
-		assertThat(AuthorityUtils.authorityListToSet(user.getAuthorities())).containsOnly(authorities);
-		user = builder.authorities(AuthorityUtils.createAuthorityList(authorities).toArray(GrantedAuthority[]::new))
-			.build();
-		assertThat(AuthorityUtils.authorityListToSet(user.getAuthorities())).containsOnly(authorities);
 	}
 
 	@Test

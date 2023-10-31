@@ -57,9 +57,10 @@ public class SimpMessageTypeMatcher implements MessageMatcher<Object> {
 		if (this == other) {
 			return true;
 		}
-		if (!(other instanceof SimpMessageTypeMatcher otherMatcher)) {
+		if (!(other instanceof SimpMessageTypeMatcher)) {
 			return false;
 		}
+		SimpMessageTypeMatcher otherMatcher = (SimpMessageTypeMatcher) other;
 		return ObjectUtils.nullSafeEquals(this.typeToMatch, otherMatcher.typeToMatch);
 	}
 

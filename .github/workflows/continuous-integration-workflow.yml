@@ -69,13 +69,6 @@ jobs:
   snapshot_tests:
     name: Test against snapshots
     needs: [prerequisites]
-    strategy:
-      matrix:
-        include:
-          - java-version: '21-ea'
-            toolchain: '21'
-          - java-version: '17'
-            toolchain: '17'
     runs-on: ubuntu-latest
     if: needs.prerequisites.outputs.runjobs
     steps:
@@ -83,14 +76,14 @@ jobs:
       - name: Set up gradle
         uses: spring-io/spring-gradle-build-action@v1
         with:
-          java-version: ${{ matrix.java-version }}
+          java-version: '17'
           distribution: 'temurin'
       - name: Snapshot Tests
         run: |
           export GRADLE_ENTERPRISE_CACHE_USERNAME="$GRADLE_ENTERPRISE_CACHE_USER"
           export GRADLE_ENTERPRISE_CACHE_PASSWORD="$GRADLE_ENTERPRISE_CACHE_PASSWORD"
           export GRADLE_ENTERPRISE_ACCESS_KEY="$GRADLE_ENTERPRISE_SECRET_ACCESS_KEY"
-          ./gradlew test --refresh-dependencies -PartifactoryUsername="$ARTIFACTORY_USERNAME" -PartifactoryPassword="$ARTIFACTORY_PASSWORD" -PforceMavenRepositories=snapshot -PisOverrideVersionCatalog -PtestToolchain=${{ matrix.toolchain }} -PspringFrameworkVersion='6.1.+' -PreactorVersion='2023.0.+' -PspringDataVersion='2023.1.+' -PlocksDisabled --stacktrace
+          ./gradlew test --refresh-dependencies -PartifactoryUsername="$ARTIFACTORY_USERNAME" -PartifactoryPassword="$ARTIFACTORY_PASSWORD" -PforceMavenRepositories=snapshot -PisOverrideVersionCatalog -PspringFrameworkVersion='6.0.+' -PreactorVersion='2022.0.+' -PspringDataVersion='2022.0.+' -PlocksDisabled --stacktrace
   check_samples:
     name: Check Samples project
     needs: [prerequisites]

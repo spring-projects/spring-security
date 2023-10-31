@@ -42,7 +42,7 @@ final class OAuth2ClientBeanDefinitionParserUtils {
 
 	static BeanMetadataElement getClientRegistrationRepository(Element element) {
 		String clientRegistrationRepositoryRef = element.getAttribute(ATT_CLIENT_REGISTRATION_REPOSITORY_REF);
-		if (StringUtils.hasLength(clientRegistrationRepositoryRef)) {
+		if (!StringUtils.isEmpty(clientRegistrationRepositoryRef)) {
 			return new RuntimeBeanReference(clientRegistrationRepositoryRef);
 		}
 		return new RuntimeBeanReference(ClientRegistrationRepository.class);
@@ -50,7 +50,7 @@ final class OAuth2ClientBeanDefinitionParserUtils {
 
 	static BeanMetadataElement getAuthorizedClientRepository(Element element) {
 		String authorizedClientRepositoryRef = element.getAttribute(ATT_AUTHORIZED_CLIENT_REPOSITORY_REF);
-		if (StringUtils.hasLength(authorizedClientRepositoryRef)) {
+		if (!StringUtils.isEmpty(authorizedClientRepositoryRef)) {
 			return new RuntimeBeanReference(authorizedClientRepositoryRef);
 		}
 		return null;
@@ -58,7 +58,7 @@ final class OAuth2ClientBeanDefinitionParserUtils {
 
 	static BeanMetadataElement getAuthorizedClientService(Element element) {
 		String authorizedClientServiceRef = element.getAttribute(ATT_AUTHORIZED_CLIENT_SERVICE_REF);
-		if (StringUtils.hasLength(authorizedClientServiceRef)) {
+		if (!StringUtils.isEmpty(authorizedClientServiceRef)) {
 			return new RuntimeBeanReference(authorizedClientServiceRef);
 		}
 		return null;

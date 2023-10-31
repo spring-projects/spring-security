@@ -35,9 +35,6 @@ import org.springframework.security.saml2.provider.service.web.Saml2Authenticati
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.authentication.AuthenticationConverter;
 import org.springframework.security.web.authentication.session.ChangeSessionIdAuthenticationStrategy;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.security.web.util.matcher.OrRequestMatcher;
-import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 
 /**
@@ -46,9 +43,6 @@ import org.springframework.util.Assert;
 public class Saml2WebSsoAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
 
 	public static final String DEFAULT_FILTER_PROCESSES_URI = "/login/saml2/sso/{registrationId}";
-
-	private static final RequestMatcher DEFAULT_REQUEST_MATCHER = new OrRequestMatcher(
-			new AntPathRequestMatcher(DEFAULT_FILTER_PROCESSES_URI), new AntPathRequestMatcher("/login/saml2/sso"));
 
 	private final AuthenticationConverter authenticationConverter;
 
@@ -79,21 +73,6 @@ public class Saml2WebSsoAuthenticationFilter extends AbstractAuthenticationProce
 				filterProcessesUrl);
 		Assert.isTrue(filterProcessesUrl.contains("{registrationId}"),
 				"filterProcessesUrl must contain a {registrationId} match variable");
-	}
-
-	/**
-	 * Creates a {@link Saml2WebSsoAuthenticationFilter} that is configured to use the
-	 * {@link #DEFAULT_FILTER_PROCESSES_URI} processing URL
-	 * @param authenticationConverter the strategy for converting an
-	 * {@link HttpServletRequest} into an {@link Authentication}
-	 * @since 6.2
-	 */
-	public Saml2WebSsoAuthenticationFilter(AuthenticationConverter authenticationConverter) {
-		super(DEFAULT_REQUEST_MATCHER);
-		Assert.notNull(authenticationConverter, "authenticationConverter cannot be null");
-		this.authenticationConverter = authenticationConverter;
-		setAllowSessionCreation(true);
-		setSessionAuthenticationStrategy(new ChangeSessionIdAuthenticationStrategy());
 	}
 
 	/**
@@ -150,7 +129,8 @@ public class Saml2WebSsoAuthenticationFilter extends AbstractAuthenticationProce
 
 	private void setAuthenticationRequestRepositoryIntoAuthenticationConverter(
 			Saml2AuthenticationRequestRepository<AbstractSaml2AuthenticationRequest> authenticationRequestRepository) {
-		if (this.authenticationConverter instanceof Saml2AuthenticationTokenConverter authenticationTokenConverter) {
+		if (this.authenticationConverter instanceof Saml2AuthenticationTokenConverter) {
+			Saml2AuthenticationTokenConverter authenticationTokenConverter = (Saml2AuthenticationTokenConverter) this.authenticationConverter;
 			authenticationTokenConverter.setAuthenticationRequestRepository(authenticationRequestRepository);
 		}
 	}

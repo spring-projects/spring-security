@@ -29,7 +29,7 @@
 	</http>
 
 	<b:bean name="handler" class="org.mockito.Mockito" factory-method="mock">
-		<b:constructor-arg value="io.micrometer.observation.ObservationHandler" type="java.lang.Class"/>
+		<b:constructor-arg value="io.micrometer.observation.ObservationHandler"/>
 	</b:bean>
 
 	<b:bean name="ref" class="org.springframework.security.config.http.HttpConfigTests.MockObservationRegistry">

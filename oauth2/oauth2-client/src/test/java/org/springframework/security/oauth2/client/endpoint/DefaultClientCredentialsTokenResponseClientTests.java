@@ -132,7 +132,7 @@ public class DefaultClientCredentialsTokenResponseClientTests {
 		assertThat(accessTokenResponse.getAccessToken().getExpiresAt()).isBetween(expiresAtBefore, expiresAtAfter);
 		assertThat(accessTokenResponse.getAccessToken().getScopes()).containsExactly("read", "write");
 		assertThat(accessTokenResponse.getRefreshToken()).isNull();
-		assertThat(accessTokenResponse.getAdditionalParameters()).hasSize(2);
+		assertThat(accessTokenResponse.getAdditionalParameters().size()).isEqualTo(2);
 		assertThat(accessTokenResponse.getAdditionalParameters()).containsEntry("custom_parameter_1", "custom-value-1");
 		assertThat(accessTokenResponse.getAdditionalParameters()).containsEntry("custom_parameter_2", "custom-value-2");
 	}

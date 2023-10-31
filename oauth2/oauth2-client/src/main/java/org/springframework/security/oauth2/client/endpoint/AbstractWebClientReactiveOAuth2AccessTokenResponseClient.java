@@ -115,7 +115,8 @@ public abstract class AbstractWebClientReactiveOAuth2AccessTokenResponseClient<T
 		if (!supportedClientAuthenticationMethod) {
 			throw new IllegalArgumentException(String.format(
 					"This class supports `client_secret_basic`, `client_secret_post`, and `none` by default. Client [%s] is using [%s] instead. Please use a supported client authentication method, or use `set/addParametersConverter` or `set/addHeadersConverter` to supply an instance that supports [%s].",
-					clientRegistration.getRegistrationId(), clientAuthenticationMethod, clientAuthenticationMethod));
+					clientRegistration.getRegistrationId(), clientAuthenticationMethod.getValue(),
+					clientAuthenticationMethod.getValue()));
 		}
 	}
 

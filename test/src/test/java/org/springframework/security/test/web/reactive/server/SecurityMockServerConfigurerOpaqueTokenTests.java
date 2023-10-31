@@ -66,7 +66,7 @@ public class SecurityMockServerConfigurerOpaqueTokenTests extends AbstractMockSe
 		BearerTokenAuthentication token = (BearerTokenAuthentication) context.getAuthentication();
 		assertThat(token.getAuthorities()).isNotEmpty();
 		assertThat(token.getToken()).isNotNull();
-		assertThat(token.getTokenAttributes()).containsEntry(OAuth2TokenIntrospectionClaimNames.SUB, "user");
+		assertThat(token.getTokenAttributes().get(OAuth2TokenIntrospectionClaimNames.SUB)).isEqualTo("user");
 	}
 
 	@Test

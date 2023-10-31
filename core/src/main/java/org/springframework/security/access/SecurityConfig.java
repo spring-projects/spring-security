@@ -38,7 +38,8 @@ public class SecurityConfig implements ConfigAttribute {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof ConfigAttribute attr) {
+		if (obj instanceof ConfigAttribute) {
+			ConfigAttribute attr = (ConfigAttribute) obj;
 			return this.attrib.equals(attr.getAttribute());
 		}
 		return false;

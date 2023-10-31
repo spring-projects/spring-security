@@ -33,8 +33,6 @@ import jakarta.servlet.http.HttpServletRequestWrapper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.springframework.http.HttpHeaders;
-
 /**
  * Provides request parameters, headers and cookies from either an original request or a
  * saved request.
@@ -59,7 +57,10 @@ class SavedRequestAwareWrapper extends HttpServletRequestWrapper {
 
 	protected static final TimeZone GMT_ZONE = TimeZone.getTimeZone("GMT");
 
-	protected SavedRequest savedRequest;
+	/** The default Locale if none are specified. */
+	protected static Locale defaultLocale = Locale.getDefault();
+
+	protected SavedRequest savedRequest = null;
 
 	/**
 	 * The set of SimpleDateFormat formats to use in getDateHeader(). Notice that because
@@ -100,12 +101,14 @@ class SavedRequestAwareWrapper extends HttpServletRequestWrapper {
 	}
 
 	@Override
-	public Enumeration<String> getHeaderNames() {
+	@SuppressWarnings("unchecked")
+	public Enumeration getHeaderNames() {
 		return new Enumerator<>(this.savedRequest.getHeaderNames());
 	}
 
 	@Override
-	public Enumeration<String> getHeaders(String name) {
+	@SuppressWarnings("unchecked")
+	public Enumeration getHeaders(String name) {
 		return new Enumerator<>(this.savedRequest.getHeaderValues(name));
 	}
 
@@ -122,7 +125,8 @@ class SavedRequestAwareWrapper extends HttpServletRequestWrapper {
 	}
 
 	@Override
-	public Enumeration<Locale> getLocales() {
+	@SuppressWarnings("unchecked")
+	public Enumeration getLocales() {
 		List<Locale> locales = this.savedRequest.getLocales();
 		if (locales.isEmpty()) {
 			// Fall back to default locale
@@ -135,11 +139,6 @@ class SavedRequestAwareWrapper extends HttpServletRequestWrapper {
 	@Override
 	public String getMethod() {
 		return this.savedRequest.getMethod();
-	}
-
-	@Override
-	public String getContentType() {
-		return getHeader(HttpHeaders.CONTENT_TYPE);
 	}
 
 	/**
@@ -166,7 +165,8 @@ class SavedRequestAwareWrapper extends HttpServletRequestWrapper {
 	}
 
 	@Override
-	public Map<String, String[]> getParameterMap() {
+	@SuppressWarnings("unchecked")
+	public Map getParameterMap() {
 		Set<String> names = getCombinedParameterNames();
 		Map<String, String[]> parameterMap = new HashMap<>(names.size());
 		for (String name : names) {
@@ -175,6 +175,7 @@ class SavedRequestAwareWrapper extends HttpServletRequestWrapper {
 		return parameterMap;
 	}
 
+	@SuppressWarnings("unchecked")
 	private Set<String> getCombinedParameterNames() {
 		Set<String> names = new HashSet<>();
 		names.addAll(super.getParameterMap().keySet());
@@ -183,8 +184,9 @@ class SavedRequestAwareWrapper extends HttpServletRequestWrapper {
 	}
 
 	@Override
-	public Enumeration<String> getParameterNames() {
-		return new Enumerator<>(getCombinedParameterNames());
+	@SuppressWarnings("unchecked")
+	public Enumeration getParameterNames() {
+		return new Enumerator(getCombinedParameterNames());
 	}
 
 	@Override

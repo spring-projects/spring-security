@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -96,8 +96,8 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 		this.formLoginEnabled = true;
 		this.usernameParameter = authFilter.getUsernameParameter();
 		this.passwordParameter = authFilter.getPasswordParameter();
-		if (authFilter.getRememberMeServices() instanceof AbstractRememberMeServices rememberMeServices) {
-			this.rememberMeParameter = rememberMeServices.getParameter();
+		if (authFilter.getRememberMeServices() instanceof AbstractRememberMeServices) {
+			this.rememberMeParameter = ((AbstractRememberMeServices) authFilter.getRememberMeServices()).getParameter();
 		}
 	}
 
@@ -189,7 +189,15 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 	}
 
 	private String generateLoginPageHtml(HttpServletRequest request, boolean loginError, boolean logoutSuccess) {
-		String errorMsg = loginError ? getLoginErrorMessage(request) : "Invalid credentials";
+		String errorMsg = "Invalid credentials";
+		if (loginError) {
+			HttpSession session = request.getSession(false);
+			if (session != null) {
+				AuthenticationException ex = (AuthenticationException) session
+					.getAttribute(WebAttributes.AUTHENTICATION_EXCEPTION);
+				errorMsg = (ex != null) ? ex.getMessage() : "Invalid credentials";
+			}
+		}
 		String contextPath = request.getContextPath();
 		StringBuilder sb = new StringBuilder();
 		sb.append("<!DOCTYPE html>\n");
@@ -203,7 +211,7 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 		sb.append("    <link href=\"https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css\" "
 				+ "rel=\"stylesheet\" integrity=\"sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M\" crossorigin=\"anonymous\">\n");
 		sb.append("    <link href=\"https://getbootstrap.com/docs/4.0/examples/signin/signin.css\" "
-				+ "rel=\"stylesheet\" integrity=\"sha384-oOE/3m0LUMPub4kaC09mrdEhIc+e3exm4xOGxAmuFXhBNF4hcg/6MiAXAf5p0P56\" crossorigin=\"anonymous\"/>\n");
+				+ "rel=\"stylesheet\" crossorigin=\"anonymous\"/>\n");
 		sb.append("  </head>\n");
 		sb.append("  <body>\n");
 		sb.append("     <div class=\"container\">\n");
@@ -264,15 +272,6 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 		return sb.toString();
 	}
 
-	private String getLoginErrorMessage(HttpServletRequest request) {
-		HttpSession session = request.getSession(false);
-		if (session != null && session
-			.getAttribute(WebAttributes.AUTHENTICATION_EXCEPTION) instanceof AuthenticationException exception) {
-			return exception.getMessage();
-		}
-		return "Invalid credentials";
-	}
-
 	private String renderHiddenInputs(HttpServletRequest request) {
 		StringBuilder sb = new StringBuilder();
 		for (Map.Entry<String, String> input : this.resolveHiddenInputs.apply(request).entrySet()) {
@@ -304,14 +303,14 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 		return matches(request, this.failureUrl);
 	}
 
-	private String createError(boolean isError, String message) {
+	private static String createError(boolean isError, String message) {
 		if (!isError) {
 			return "";
 		}
 		return "<div class=\"alert alert-danger\" role=\"alert\">" + HtmlUtils.htmlEscape(message) + "</div>";
 	}
 
-	private String createLogoutSuccess(boolean isLogoutSuccess) {
+	private static String createLogoutSuccess(boolean isLogoutSuccess) {
 		if (!isLogoutSuccess) {
 			return "";
 		}

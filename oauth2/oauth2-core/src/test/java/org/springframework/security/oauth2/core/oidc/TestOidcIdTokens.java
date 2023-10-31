@@ -17,7 +17,6 @@
 package org.springframework.security.oauth2.core.oidc;
 
 import java.time.Instant;
-import java.util.List;
 
 /**
  * Test {@link OidcIdToken}s
@@ -33,7 +32,6 @@ public final class TestOidcIdTokens {
 		// @formatter:off
 		return OidcIdToken.withTokenValue("id-token")
 				.issuer("https://example.com")
-				.audience(List.of("client-id"))
 				.subject("subject")
 				.issuedAt(Instant.now())
 				.expiresAt(Instant.now()

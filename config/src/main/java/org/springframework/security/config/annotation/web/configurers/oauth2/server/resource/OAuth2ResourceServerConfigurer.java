@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -198,13 +198,6 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 		return this;
 	}
 
-	/**
-	 * @deprecated For removal in 7.0. Use {@link #jwt(Customizer)} or
-	 * {@code jwt(Customizer.withDefaults())} to stick with defaults. See the <a href=
-	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
-	 * for more details.
-	 */
-	@Deprecated(since = "6.1", forRemoval = true)
 	public JwtConfigurer jwt() {
 		if (this.jwtConfigurer == null) {
 			this.jwtConfigurer = new JwtConfigurer(this.context);
@@ -226,14 +219,6 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 		return this;
 	}
 
-	/**
-	 * @deprecated For removal in 7.0. Use {@link #opaqueToken(Customizer)} or
-	 * {@code opaqueToken(Customizer.withDefaults())} to stick with defaults. See the
-	 * <a href=
-	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
-	 * for more details.
-	 */
-	@Deprecated(since = "6.1", forRemoval = true)
 	public OpaqueTokenConfigurer opaqueToken() {
 		if (this.opaqueTokenConfigurer == null) {
 			this.opaqueTokenConfigurer = new OpaqueTokenConfigurer(this.context);
@@ -409,13 +394,6 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 			return this;
 		}
 
-		/**
-		 * @deprecated For removal in 7.0. Use {@link #jwt(Customizer)} or
-		 * {@code jwt(Customizer.withDefaults())} to stick with defaults. See the <a href=
-		 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
-		 * for more details.
-		 */
-		@Deprecated(since = "6.1", forRemoval = true)
 		public OAuth2ResourceServerConfigurer<H> and() {
 			return OAuth2ResourceServerConfigurer.this;
 		}

@@ -40,7 +40,7 @@ import org.springframework.cglib.proxy.Callback;
 import org.springframework.cglib.proxy.Enhancer;
 import org.springframework.cglib.proxy.Factory;
 import org.springframework.cglib.proxy.MethodProxy;
-import org.springframework.core.DefaultParameterNameDiscoverer;
+import org.springframework.core.LocalVariableTableParameterNameDiscoverer;
 import org.springframework.core.MethodIntrospector;
 import org.springframework.core.MethodParameter;
 import org.springframework.core.ParameterNameDiscoverer;
@@ -131,7 +131,7 @@ public final class ResolvableMethod {
 
 	private static final SpringObjenesis objenesis = new SpringObjenesis();
 
-	private static final ParameterNameDiscoverer nameDiscoverer = new DefaultParameterNameDiscoverer();
+	private static final ParameterNameDiscoverer nameDiscoverer = new LocalVariableTableParameterNameDiscoverer();
 
 	private final Method method;
 

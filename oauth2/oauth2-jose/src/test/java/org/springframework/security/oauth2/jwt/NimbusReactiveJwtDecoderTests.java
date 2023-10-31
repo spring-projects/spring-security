@@ -41,6 +41,7 @@ import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.JWKSecurityContextJWKSet;
+import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.DefaultJOSEObjectTypeVerifier;
 import com.nimbusds.jose.proc.JWKSecurityContext;
 import com.nimbusds.jose.proc.JWSKeySelector;
@@ -57,7 +58,6 @@ import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
@@ -149,7 +149,7 @@ public class NimbusReactiveJwtDecoderTests {
 	@Test
 	public void decodeWhenMessageReadScopeThenSuccess() {
 		Jwt jwt = this.decoder.decode(this.messageReadToken).block();
-		assertThat(jwt.getClaims()).containsEntry("scope", "message:read");
+		assertThat(jwt.getClaims().get("scope")).isEqualTo("message:read");
 	}
 
 	@Test
@@ -167,7 +167,7 @@ public class NimbusReactiveJwtDecoderTests {
 	public void decodeWhenIssuedAtThenSuccess() {
 		String withIssuedAt = "eyJraWQiOiJrZXktaWQtMSIsImFsZyI6IlJTMjU2In0.eyJzY29wZSI6IiIsImV4cCI6OTIyMzM3MjAwNjA5NjM3NSwiaWF0IjoxNTI5OTQyNDQ4fQ.LBzAJO-FR-uJDHST61oX4kimuQjz6QMJPW_mvEXRB6A-fMQWpfTQ089eboipAqsb33XnwWth9ELju9HMWLk0FjlWVVzwObh9FcoKelmPNR8mZIlFG-pAYGgSwi8HufyLabXHntFavBiFtqwp_z9clSOFK1RxWvt3lywEbGgtCKve0BXOjfKWiH1qe4QKGixH-NFxidvz8Qd5WbJwyb9tChC6ZKoKPv7Jp-N5KpxkY-O2iUtINvn4xOSactUsvKHgF8ZzZjvJGzG57r606OZXaNtoElQzjAPU5xDGg5liuEJzfBhvqiWCLRmSuZ33qwp3aoBnFgEw0B85gsNe3ggABg";
 		Jwt jwt = this.decoder.decode(withIssuedAt).block();
-		assertThat(jwt.getClaims()).containsEntry(JwtClaimNames.IAT, Instant.ofEpochSecond(1529942448L));
+		assertThat(jwt.getClaims().get(JwtClaimNames.IAT)).isEqualTo(Instant.ofEpochSecond(1529942448L));
 	}
 
 	@Test
@@ -268,8 +268,8 @@ public class NimbusReactiveJwtDecoderTests {
 		this.decoder.setClaimSetConverter(claimSetConverter);
 		given(claimSetConverter.convert(any(Map.class))).willReturn(Collections.singletonMap("custom", "value"));
 		Jwt jwt = this.decoder.decode(this.messageReadToken).block();
-		assertThat(jwt.getClaims()).hasSize(1);
-		assertThat(jwt.getClaims()).containsEntry("custom", "value");
+		assertThat(jwt.getClaims().size()).isEqualTo(1);
+		assertThat(jwt.getClaims().get("custom")).isEqualTo("value");
 		verify(claimSetConverter).convert(any(Map.class));
 	}
 
@@ -602,30 +602,10 @@ public class NimbusReactiveJwtDecoderTests {
 	}
 
 	@Test
-	public void decodeWhenIssuerLocationThenOk() {
-		String issuer = "https://example.org/issuer";
-		WebClient real = WebClient.builder().build();
-		WebClient.RequestHeadersUriSpec spec = spy(real.get());
-		WebClient webClient = spy(WebClient.class);
-		given(webClient.get()).willReturn(spec);
-		WebClient.ResponseSpec responseSpec = mock(WebClient.ResponseSpec.class);
-		given(responseSpec.bodyToMono(String.class)).willReturn(Mono.just(this.jwkSet));
-		given(responseSpec.bodyToMono(any(ParameterizedTypeReference.class)))
-			.willReturn(Mono.just(Map.of("issuer", issuer, "jwks_uri", issuer + "/jwks")));
-		given(spec.retrieve()).willReturn(responseSpec);
-		ReactiveJwtDecoder jwtDecoder = NimbusReactiveJwtDecoder.withIssuerLocation(issuer)
-			.webClient(webClient)
-			.build();
-		Jwt jwt = jwtDecoder.decode(this.messageReadToken).block();
-		assertThat(jwt.hasClaim(JwtClaimNames.EXP)).isNotNull();
-	}
-
-	@Test
 	public void jwsKeySelectorWhenNoAlgorithmThenReturnsRS256Selector() {
-		ReactiveRemoteJWKSource jwkSource = mock(ReactiveRemoteJWKSource.class);
+		JWKSource<JWKSecurityContext> jwkSource = mock(JWKSource.class);
 		JWSKeySelector<JWKSecurityContext> jwsKeySelector = NimbusReactiveJwtDecoder.withJwkSetUri(this.jwkSetUri)
-			.jwsKeySelector(jwkSource)
-			.block();
+			.jwsKeySelector(jwkSource);
 		assertThat(jwsKeySelector instanceof JWSVerificationKeySelector);
 		JWSVerificationKeySelector<JWKSecurityContext> jwsVerificationKeySelector = (JWSVerificationKeySelector<JWKSecurityContext>) jwsKeySelector;
 		assertThat(jwsVerificationKeySelector.isAllowed(JWSAlgorithm.RS256)).isTrue();
@@ -633,11 +613,10 @@ public class NimbusReactiveJwtDecoderTests {
 
 	@Test
 	public void jwsKeySelectorWhenOneAlgorithmThenReturnsSingleSelector() {
-		ReactiveRemoteJWKSource jwkSource = mock(ReactiveRemoteJWKSource.class);
+		JWKSource<JWKSecurityContext> jwkSource = mock(JWKSource.class);
 		JWSKeySelector<JWKSecurityContext> jwsKeySelector = NimbusReactiveJwtDecoder.withJwkSetUri(this.jwkSetUri)
 			.jwsAlgorithm(SignatureAlgorithm.RS512)
-			.jwsKeySelector(jwkSource)
-			.block();
+			.jwsKeySelector(jwkSource);
 		assertThat(jwsKeySelector instanceof JWSVerificationKeySelector);
 		JWSVerificationKeySelector<JWKSecurityContext> jwsVerificationKeySelector = (JWSVerificationKeySelector<JWKSecurityContext>) jwsKeySelector;
 		assertThat(jwsVerificationKeySelector.isAllowed(JWSAlgorithm.RS512)).isTrue();
@@ -645,12 +624,12 @@ public class NimbusReactiveJwtDecoderTests {
 
 	@Test
 	public void jwsKeySelectorWhenMultipleAlgorithmThenReturnsCompositeSelector() {
-		ReactiveRemoteJWKSource jwkSource = mock(ReactiveRemoteJWKSource.class);
+		JWKSource<JWKSecurityContext> jwkSource = mock(JWKSource.class);
 		// @formatter:off
 		JWSKeySelector<JWKSecurityContext> jwsKeySelector = NimbusReactiveJwtDecoder.withJwkSetUri(this.jwkSetUri)
 				.jwsAlgorithm(SignatureAlgorithm.RS256)
 				.jwsAlgorithm(SignatureAlgorithm.RS512)
-				.jwsKeySelector(jwkSource).block();
+				.jwsKeySelector(jwkSource);
 		// @formatter:on
 		assertThat(jwsKeySelector instanceof JWSVerificationKeySelector);
 		JWSVerificationKeySelector<?> jwsAlgorithmMapKeySelector = (JWSVerificationKeySelector<?>) jwsKeySelector;

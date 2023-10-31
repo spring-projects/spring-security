@@ -53,7 +53,7 @@ public class MappedJwtClaimSetConverterTests {
 			.withDefaults(Collections.singletonMap(JwtClaimNames.EXP, expiresAtConverter));
 		Map<String, Object> source = new HashMap<>();
 		Map<String, Object> target = converter.convert(source);
-		assertThat(target).containsEntry(JwtClaimNames.IAT, Instant.ofEpochMilli(at.toEpochMilli()).minusSeconds(1));
+		assertThat(target.get(JwtClaimNames.IAT)).isEqualTo(Instant.ofEpochMilli(at.toEpochMilli()).minusSeconds(1));
 	}
 
 	@Test
@@ -61,8 +61,8 @@ public class MappedJwtClaimSetConverterTests {
 		MappedJwtClaimSetConverter converter = MappedJwtClaimSetConverter.withDefaults(Collections.emptyMap());
 		Map<String, Object> source = Collections.singletonMap(JwtClaimNames.EXP, 1000000000L);
 		Map<String, Object> target = converter.convert(source);
-		assertThat(target).containsEntry(JwtClaimNames.EXP, Instant.ofEpochSecond(1000000000L));
-		assertThat(target).containsEntry(JwtClaimNames.IAT, Instant.ofEpochSecond(1000000000L).minusSeconds(1));
+		assertThat(target.get(JwtClaimNames.EXP)).isEqualTo(Instant.ofEpochSecond(1000000000L));
+		assertThat(target.get(JwtClaimNames.IAT)).isEqualTo(Instant.ofEpochSecond(1000000000L).minusSeconds(1));
 	}
 
 	@Test
@@ -71,11 +71,11 @@ public class MappedJwtClaimSetConverterTests {
 		Map<String, Object> source = Collections.singletonMap(JwtClaimNames.AUD, "audience");
 		Map<String, Object> target = converter.convert(source);
 		assertThat(target.get(JwtClaimNames.AUD)).isInstanceOf(Collection.class);
-		assertThat(target).containsEntry(JwtClaimNames.AUD, Arrays.asList("audience"));
+		assertThat(target.get(JwtClaimNames.AUD)).isEqualTo(Arrays.asList("audience"));
 		source = Collections.singletonMap(JwtClaimNames.AUD, Arrays.asList("one", "two"));
 		target = converter.convert(source);
 		assertThat(target.get(JwtClaimNames.AUD)).isInstanceOf(Collection.class);
-		assertThat(target).containsEntry(JwtClaimNames.AUD, Arrays.asList("one", "two"));
+		assertThat(target.get(JwtClaimNames.AUD)).isEqualTo(Arrays.asList("one", "two"));
 	}
 
 	@Test
@@ -90,13 +90,13 @@ public class MappedJwtClaimSetConverterTests {
 		source.put(JwtClaimNames.NBF, 1000000000);
 		source.put(JwtClaimNames.SUB, 1234);
 		Map<String, Object> target = converter.convert(source);
-		assertThat(target).containsEntry(JwtClaimNames.JTI, "1");
-		assertThat(target).containsEntry(JwtClaimNames.AUD, Arrays.asList("audience"));
-		assertThat(target).containsEntry(JwtClaimNames.EXP, Instant.ofEpochSecond(2000000000L));
-		assertThat(target).containsEntry(JwtClaimNames.IAT, Instant.ofEpochSecond(1000000000L));
-		assertThat(target).containsEntry(JwtClaimNames.ISS, "https://any.url");
-		assertThat(target).containsEntry(JwtClaimNames.NBF, Instant.ofEpochSecond(1000000000L));
-		assertThat(target).containsEntry(JwtClaimNames.SUB, "1234");
+		assertThat(target.get(JwtClaimNames.JTI)).isEqualTo("1");
+		assertThat(target.get(JwtClaimNames.AUD)).isEqualTo(Arrays.asList("audience"));
+		assertThat(target.get(JwtClaimNames.EXP)).isEqualTo(Instant.ofEpochSecond(2000000000L));
+		assertThat(target.get(JwtClaimNames.IAT)).isEqualTo(Instant.ofEpochSecond(1000000000L));
+		assertThat(target.get(JwtClaimNames.ISS)).isEqualTo("https://any.url");
+		assertThat(target.get(JwtClaimNames.NBF)).isEqualTo(Instant.ofEpochSecond(1000000000L));
+		assertThat(target.get(JwtClaimNames.SUB)).isEqualTo("1234");
 	}
 
 	@Test
@@ -114,13 +114,13 @@ public class MappedJwtClaimSetConverterTests {
 		source.put(JwtClaimNames.NBF, "1000000000");
 		source.put(JwtClaimNames.SUB, 2345);
 		Map<String, Object> target = converter.convert(source);
-		assertThat(target).containsEntry(JwtClaimNames.JTI, "1");
-		assertThat(target).containsEntry(JwtClaimNames.AUD, Arrays.asList("audience"));
-		assertThat(target).containsEntry(JwtClaimNames.EXP, Instant.ofEpochSecond(2000000000L));
-		assertThat(target).containsEntry(JwtClaimNames.IAT, Instant.ofEpochSecond(1000000000L));
-		assertThat(target).containsEntry(JwtClaimNames.ISS, "https://any.url");
-		assertThat(target).containsEntry(JwtClaimNames.NBF, Instant.ofEpochSecond(1000000000L));
-		assertThat(target).containsEntry(JwtClaimNames.SUB, "1234");
+		assertThat(target.get(JwtClaimNames.JTI)).isEqualTo("1");
+		assertThat(target.get(JwtClaimNames.AUD)).isEqualTo(Arrays.asList("audience"));
+		assertThat(target.get(JwtClaimNames.EXP)).isEqualTo(Instant.ofEpochSecond(2000000000L));
+		assertThat(target.get(JwtClaimNames.IAT)).isEqualTo(Instant.ofEpochSecond(1000000000L));
+		assertThat(target.get(JwtClaimNames.ISS)).isEqualTo("https://any.url");
+		assertThat(target.get(JwtClaimNames.NBF)).isEqualTo(Instant.ofEpochSecond(1000000000L));
+		assertThat(target.get(JwtClaimNames.SUB)).isEqualTo("1234");
 	}
 
 	// gh-10135
@@ -149,7 +149,7 @@ public class MappedJwtClaimSetConverterTests {
 		given(claimConverter.convert(any())).willReturn("custom-value");
 		Map<String, Object> source = new HashMap<>();
 		Map<String, Object> target = converter.convert(source);
-		assertThat(target).containsEntry("custom-claim", "custom-value");
+		assertThat(target.get("custom-claim")).isEqualTo("custom-value");
 	}
 
 	@Test
@@ -167,13 +167,13 @@ public class MappedJwtClaimSetConverterTests {
 		source.put(JwtClaimNames.NBF, new Object());
 		source.put(JwtClaimNames.SUB, new Object());
 		Map<String, Object> target = converter.convert(source);
-		assertThat(target).containsEntry(JwtClaimNames.JTI, source.get(JwtClaimNames.JTI));
-		assertThat(target).containsEntry(JwtClaimNames.AUD, source.get(JwtClaimNames.AUD));
-		assertThat(target).containsEntry(JwtClaimNames.EXP, source.get(JwtClaimNames.EXP));
-		assertThat(target).containsEntry(JwtClaimNames.IAT, source.get(JwtClaimNames.IAT));
-		assertThat(target).containsEntry(JwtClaimNames.ISS, source.get(JwtClaimNames.ISS));
-		assertThat(target).containsEntry(JwtClaimNames.NBF, source.get(JwtClaimNames.NBF));
-		assertThat(target).containsEntry(JwtClaimNames.SUB, "1234");
+		assertThat(target.get(JwtClaimNames.JTI)).isEqualTo(source.get(JwtClaimNames.JTI));
+		assertThat(target.get(JwtClaimNames.AUD)).isEqualTo(source.get(JwtClaimNames.AUD));
+		assertThat(target.get(JwtClaimNames.EXP)).isEqualTo(source.get(JwtClaimNames.EXP));
+		assertThat(target.get(JwtClaimNames.IAT)).isEqualTo(source.get(JwtClaimNames.IAT));
+		assertThat(target.get(JwtClaimNames.ISS)).isEqualTo(source.get(JwtClaimNames.ISS));
+		assertThat(target.get(JwtClaimNames.NBF)).isEqualTo(source.get(JwtClaimNames.NBF));
+		assertThat(target.get(JwtClaimNames.SUB)).isEqualTo("1234");
 	}
 
 	@Test
@@ -195,7 +195,7 @@ public class MappedJwtClaimSetConverterTests {
 		MappedJwtClaimSetConverter converter = MappedJwtClaimSetConverter.withDefaults(Collections.emptyMap());
 		Map<String, Object> nonUriIssuer = Collections.singletonMap(JwtClaimNames.ISS, "issuer");
 		Map<String, Object> target = converter.convert(nonUriIssuer);
-		assertThat(target).containsEntry(JwtClaimNames.ISS, "issuer");
+		assertThat(target.get(JwtClaimNames.ISS)).isEqualTo("issuer");
 	}
 
 	// gh-6073
@@ -204,7 +204,7 @@ public class MappedJwtClaimSetConverterTests {
 		MappedJwtClaimSetConverter converter = MappedJwtClaimSetConverter.withDefaults(Collections.emptyMap());
 		Map<String, Object> issuer = Collections.singletonMap(JwtClaimNames.ISS, new URL("https://issuer"));
 		Map<String, Object> target = converter.convert(issuer);
-		assertThat(target).containsEntry(JwtClaimNames.ISS, "https://issuer");
+		assertThat(target.get(JwtClaimNames.ISS)).isEqualTo("https://issuer");
 	}
 
 	@Test

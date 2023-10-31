@@ -68,14 +68,14 @@ public abstract class AbstractAuthenticationToken implements Authentication, Cre
 
 	@Override
 	public String getName() {
-		if (this.getPrincipal() instanceof UserDetails userDetails) {
-			return userDetails.getUsername();
+		if (this.getPrincipal() instanceof UserDetails) {
+			return ((UserDetails) this.getPrincipal()).getUsername();
 		}
-		if (this.getPrincipal() instanceof AuthenticatedPrincipal authenticatedPrincipal) {
-			return authenticatedPrincipal.getName();
+		if (this.getPrincipal() instanceof AuthenticatedPrincipal) {
+			return ((AuthenticatedPrincipal) this.getPrincipal()).getName();
 		}
-		if (this.getPrincipal() instanceof Principal principal) {
-			return principal.getName();
+		if (this.getPrincipal() instanceof Principal) {
+			return ((Principal) this.getPrincipal()).getName();
 		}
 		return (this.getPrincipal() == null) ? "" : this.getPrincipal().toString();
 	}
@@ -119,9 +119,10 @@ public abstract class AbstractAuthenticationToken implements Authentication, Cre
 
 	@Override
 	public boolean equals(Object obj) {
-		if (!(obj instanceof AbstractAuthenticationToken test)) {
+		if (!(obj instanceof AbstractAuthenticationToken)) {
 			return false;
 		}
+		AbstractAuthenticationToken test = (AbstractAuthenticationToken) obj;
 		if (!this.authorities.equals(test.authorities)) {
 			return false;
 		}

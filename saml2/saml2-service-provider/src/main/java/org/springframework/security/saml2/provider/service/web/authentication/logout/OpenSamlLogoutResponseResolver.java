@@ -51,10 +51,7 @@ import org.springframework.security.saml2.core.Saml2ParameterNames;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticatedPrincipal;
 import org.springframework.security.saml2.provider.service.authentication.logout.Saml2LogoutResponse;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
-import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
 import org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding;
-import org.springframework.security.saml2.provider.service.web.RelyingPartyRegistrationPlaceholderResolvers;
-import org.springframework.security.saml2.provider.service.web.RelyingPartyRegistrationPlaceholderResolvers.UriResolver;
 import org.springframework.security.saml2.provider.service.web.RelyingPartyRegistrationResolver;
 import org.springframework.security.saml2.provider.service.web.authentication.logout.OpenSamlSigningUtils.QueryParametersPartial;
 import org.springframework.util.Assert;
@@ -85,16 +82,12 @@ final class OpenSamlLogoutResponseResolver {
 
 	private final StatusCodeBuilder statusCodeBuilder;
 
-	private final RelyingPartyRegistrationRepository registrations;
-
 	private final RelyingPartyRegistrationResolver relyingPartyRegistrationResolver;
 
 	/**
 	 * Construct a {@link OpenSamlLogoutResponseResolver}
 	 */
-	OpenSamlLogoutResponseResolver(RelyingPartyRegistrationRepository registrations,
-			RelyingPartyRegistrationResolver relyingPartyRegistrationResolver) {
-		this.registrations = registrations;
+	OpenSamlLogoutResponseResolver(RelyingPartyRegistrationResolver relyingPartyRegistrationResolver) {
 		this.relyingPartyRegistrationResolver = relyingPartyRegistrationResolver;
 		XMLObjectProviderRegistry registry = ConfigurationService.get(XMLObjectProviderRegistry.class);
 		this.parserPool = registry.getParserPool();
@@ -133,25 +126,19 @@ final class OpenSamlLogoutResponseResolver {
 
 	Saml2LogoutResponse resolve(HttpServletRequest request, Authentication authentication,
 			BiConsumer<RelyingPartyRegistration, LogoutResponse> logoutResponseConsumer) {
-		LogoutRequest logoutRequest = parse(extractSamlRequest(request));
 		String registrationId = getRegistrationId(authentication);
 		RelyingPartyRegistration registration = this.relyingPartyRegistrationResolver.resolve(request, registrationId);
-		if (registration == null && this.registrations != null) {
-			String issuer = logoutRequest.getIssuer().getValue();
-			registration = this.registrations.findUniqueByAssertingPartyEntityId(issuer);
-		}
 		if (registration == null) {
 			return null;
 		}
 		if (registration.getAssertingPartyDetails().getSingleLogoutServiceResponseLocation() == null) {
 			return null;
 		}
-		UriResolver uriResolver = RelyingPartyRegistrationPlaceholderResolvers.uriResolver(request, registration);
-		String entityId = uriResolver.resolve(registration.getEntityId());
+		LogoutRequest logoutRequest = parse(extractSamlRequest(request));
 		LogoutResponse logoutResponse = this.logoutResponseBuilder.buildObject();
 		logoutResponse.setDestination(registration.getAssertingPartyDetails().getSingleLogoutServiceResponseLocation());
 		Issuer issuer = this.issuerBuilder.buildObject();
-		issuer.setValue(entityId);
+		issuer.setValue(registration.getEntityId());
 		logoutResponse.setIssuer(issuer);
 		StatusCode code = this.statusCodeBuilder.buildObject();
 		code.setValue(StatusCode.SUCCESS);

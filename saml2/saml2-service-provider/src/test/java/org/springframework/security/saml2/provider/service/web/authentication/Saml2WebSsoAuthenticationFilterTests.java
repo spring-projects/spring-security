@@ -17,6 +17,7 @@
 package org.springframework.security.saml2.provider.service.web.authentication;
 
 import jakarta.servlet.http.HttpServletResponse;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -44,7 +45,6 @@ import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatNoException;
@@ -93,7 +93,7 @@ public class Saml2WebSsoAuthenticationFilterTests {
 
 	@Test
 	public void requiresAuthenticationWhenHappyPathThenReturnsTrue() {
-		assertThat(this.filter.requiresAuthentication(this.request, this.response)).isTrue();
+		Assertions.assertTrue(this.filter.requiresAuthentication(this.request, this.response));
 	}
 
 	@Test
@@ -101,7 +101,7 @@ public class Saml2WebSsoAuthenticationFilterTests {
 		this.filter = new Saml2WebSsoAuthenticationFilter(this.repository, "/some/other/path/{registrationId}");
 		this.request.setPathInfo("/some/other/path/idp-registration-id");
 		this.request.setParameter(Saml2ParameterNames.SAML_RESPONSE, "xml-data-goes-here");
-		assertThat(this.filter.requiresAuthentication(this.request, this.response)).isTrue();
+		Assertions.assertTrue(this.filter.requiresAuthentication(this.request, this.response));
 	}
 
 	@Test
@@ -142,7 +142,7 @@ public class Saml2WebSsoAuthenticationFilterTests {
 		this.filter.setAuthenticationDetailsSource(authenticationDetailsSource);
 		this.request.setPathInfo("/some/other/path/idp-registration-id");
 		this.filter.attemptAuthentication(this.request, this.response);
-		assertThat(token.getDetails()).isEqualTo(details);
+		Assertions.assertEquals(details, token.getDetails());
 	}
 
 	@Test

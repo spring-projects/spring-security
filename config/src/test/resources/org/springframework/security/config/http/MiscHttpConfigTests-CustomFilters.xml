@@ -34,7 +34,7 @@
 	<b:bean name="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer"/>
 
 	<b:bean name="userFilter" class="org.mockito.Mockito" factory-method="mock">
-		<b:constructor-arg value="jakarta.servlet.Filter" type="java.lang.Class"/>
+		<b:constructor-arg value="jakarta.servlet.Filter"/>
 	</b:bean>
 
 	<b:import resource="userservice.xml"/>

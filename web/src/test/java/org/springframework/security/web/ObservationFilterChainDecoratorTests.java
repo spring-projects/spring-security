@@ -97,24 +97,6 @@ public class ObservationFilterChainDecoratorTests {
 		assertThat(events.get(1).getName()).isEqualTo(filter.getClass().getSimpleName() + ".after");
 	}
 
-	@Test
-	void decorateFiltersWhenDefaultsThenUsesEventName() throws Exception {
-		ObservationHandler<?> handler = mock(ObservationHandler.class);
-		given(handler.supportsContext(any())).willReturn(true);
-		ObservationRegistry registry = ObservationRegistry.create();
-		registry.observationConfig().observationHandler(handler);
-		ObservationFilterChainDecorator decorator = new ObservationFilterChainDecorator(registry);
-		FilterChain chain = mock(FilterChain.class);
-		Filter filter = new BasicAuthenticationFilter();
-		FilterChain decorated = decorator.decorate(chain, List.of(filter));
-		decorated.doFilter(new MockHttpServletRequest("GET", "/"), new MockHttpServletResponse());
-		ArgumentCaptor<Observation.Event> event = ArgumentCaptor.forClass(Observation.Event.class);
-		verify(handler, times(2)).onEvent(event.capture(), any());
-		List<Observation.Event> events = event.getAllValues();
-		assertThat(events.get(0).getName()).isEqualTo("authentication.basic.before");
-		assertThat(events.get(1).getName()).isEqualTo("authentication.basic.after");
-	}
-
 	// gh-12787
 	@Test
 	void decorateFiltersWhenErrorsThenClosesObservationOnlyOnce() throws Exception {
@@ -148,13 +130,6 @@ public class ObservationFilterChainDecoratorTests {
 		verify(handler, times(3)).onScopeClosed(context.capture());
 		assertThat(context.getValue().getLowCardinalityKeyValue("spring.security.reached.filter.name").getValue())
 			.isEqualTo(expectedFilterNameTag);
-	}
-
-	// gh-13660
-	@Test
-	void observationNamesDoNotContainDashes() {
-		ObservationFilterChainDecorator.ObservationFilter.OBSERVATION_NAMES.values()
-			.forEach((name) -> assertThat(name).doesNotContain("-"));
 	}
 
 	static Stream<Arguments> decorateFiltersWhenCompletesThenHasSpringSecurityReachedFilterNameTag() {

@@ -64,7 +64,9 @@ public class Saml2MetadataFilterTests {
 	public void setup() {
 		this.repository = mock(RelyingPartyRegistrationRepository.class);
 		this.resolver = mock(Saml2MetadataResolver.class);
-		this.filter = new Saml2MetadataFilter(this.repository, this.resolver);
+		RelyingPartyRegistrationResolver relyingPartyRegistrationResolver = new DefaultRelyingPartyRegistrationResolver(
+				this.repository);
+		this.filter = new Saml2MetadataFilter(relyingPartyRegistrationResolver, this.resolver);
 		this.request = new MockHttpServletRequest();
 		this.response = new MockHttpServletResponse();
 		this.chain = mock(FilterChain.class);
@@ -137,27 +139,13 @@ public class Saml2MetadataFilterTests {
 	}
 
 	@Test
-	public void doFilterWhenResolverConstructorAndPathStartsWithRegistrationIdThenServesMetadata() throws Exception {
+	public void doFilterWhenPathStartsWithRegistrationIdThenServesMetadata() throws Exception {
 		RelyingPartyRegistration registration = TestRelyingPartyRegistrations.full().build();
 		given(this.repository.findByRegistrationId("registration-id")).willReturn(registration);
-		given(this.resolver.resolve(any(RelyingPartyRegistration.class))).willReturn("metadata");
+		given(this.resolver.resolve(any())).willReturn("metadata");
 		RelyingPartyRegistrationResolver resolver = new DefaultRelyingPartyRegistrationResolver(
 				(id) -> this.repository.findByRegistrationId("registration-id"));
 		this.filter = new Saml2MetadataFilter(resolver, this.resolver);
-		this.filter.setRequestMatcher(new AntPathRequestMatcher("/metadata"));
-		this.request.setPathInfo("/metadata");
-		this.filter.doFilter(this.request, this.response, new MockFilterChain());
-		verify(this.repository).findByRegistrationId("registration-id");
-	}
-
-	@Test
-	public void doFilterWhenRelyingPartyRegistrationRepositoryConstructorAndPathStartsWithRegistrationIdThenServesMetadata()
-			throws Exception {
-		RelyingPartyRegistration registration = TestRelyingPartyRegistrations.full().build();
-		given(this.repository.findByRegistrationId("registration-id")).willReturn(registration);
-		given(this.resolver.resolve(any(RelyingPartyRegistration.class))).willReturn("metadata");
-		this.filter = new Saml2MetadataFilter((id) -> this.repository.findByRegistrationId("registration-id"),
-				this.resolver);
 		this.filter.setRequestMatcher(new AntPathRequestMatcher("/metadata"));
 		this.request.setPathInfo("/metadata");
 		this.filter.doFilter(this.request, this.response, new MockFilterChain());
@@ -197,15 +185,6 @@ public class Saml2MetadataFilterTests {
 		assertThatExceptionOfType(IllegalArgumentException.class)
 			.isThrownBy(() -> this.filter.setMetadataFilename("metadata-filename.xml"))
 			.withMessage("metadataFilename must contain a {registrationId} match variable");
-	}
-
-	@Test
-	public void constructorWhenRelyingPartyRegistrationRepositoryThenUses() throws Exception {
-		RelyingPartyRegistrationRepository repository = mock(RelyingPartyRegistrationRepository.class);
-		this.filter = new Saml2MetadataFilter(repository, this.resolver);
-		this.request.setPathInfo("/saml2/service-provider-metadata/one");
-		this.filter.doFilter(this.request, this.response, this.chain);
-		verify(repository).findByRegistrationId("one");
 	}
 
 }

@@ -127,9 +127,10 @@ public class JaasApiIntegrationFilter extends GenericFilterBean {
 		if (!authentication.isAuthenticated()) {
 			return null;
 		}
-		if (!(authentication instanceof JaasAuthenticationToken token)) {
+		if (!(authentication instanceof JaasAuthenticationToken)) {
 			return null;
 		}
+		JaasAuthenticationToken token = (JaasAuthenticationToken) authentication;
 		LoginContext loginContext = token.getLoginContext();
 		if (loginContext == null) {
 			return null;

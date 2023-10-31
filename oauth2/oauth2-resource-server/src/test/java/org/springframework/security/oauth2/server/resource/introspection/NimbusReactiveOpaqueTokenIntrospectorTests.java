@@ -270,6 +270,7 @@ public class NimbusReactiveOpaqueTokenIntrospectorTests {
 		WebClient webClient = spy(WebClient.class);
 		given(webClient.post()).willReturn(spec);
 		ClientResponse clientResponse = mock(ClientResponse.class);
+		given(clientResponse.rawStatusCode()).willReturn(200);
 		given(clientResponse.statusCode()).willReturn(HttpStatus.OK);
 		given(clientResponse.bodyToMono(String.class)).willReturn(Mono.just(response));
 		ClientResponse.Headers headers = mock(ClientResponse.Headers.class);

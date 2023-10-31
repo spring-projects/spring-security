@@ -128,7 +128,7 @@ public class CookieRequestCache implements RequestCache {
 
 	private static String getCookiePath(HttpServletRequest request) {
 		String contextPath = request.getContextPath();
-		return (StringUtils.hasLength(contextPath)) ? contextPath : "/";
+		return (!StringUtils.isEmpty(contextPath)) ? contextPath : "/";
 	}
 
 	private boolean matchesSavedRequest(HttpServletRequest request, SavedRequest savedRequest) {

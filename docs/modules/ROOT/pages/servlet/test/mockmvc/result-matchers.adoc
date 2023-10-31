@@ -1,4 +1,4 @@
-= SecurityMockMvcResultMatchers
+== SecurityMockMvcResultMatchers
 
 At times it is desirable to make various security related assertions about a request.
 To accommodate this need, Spring Security Test support implements Spring MVC Test's `ResultMatcher` interface.
@@ -22,7 +22,7 @@ import org.springframework.security.test.web.servlet.response.SecurityMockMvcRes
 ----
 ======
 
-== Unauthenticated Assertion
+=== Unauthenticated Assertion
 
 At times it may be valuable to assert that there is no authenticated user associated with the result of a `MockMvc` invocation.
 For example, you might want to test submitting an invalid username and password and verify that no user is authenticated.
@@ -49,7 +49,7 @@ mvc
 ----
 ======
 
-== Authenticated Assertion
+=== Authenticated Assertion
 
 It is often times that we must assert that an authenticated user exists.
 For example, we may want to verify that we authenticated successfully.

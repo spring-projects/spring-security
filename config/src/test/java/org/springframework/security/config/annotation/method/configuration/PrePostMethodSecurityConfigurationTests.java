@@ -95,21 +95,6 @@ public class PrePostMethodSecurityConfigurationTests {
 	@Autowired(required = false)
 	BusinessService businessService;
 
-	@WithMockUser
-	@Test
-	public void customMethodSecurityPreAuthorizeAdminWhenRoleUserThenAccessDeniedException() {
-		this.spring.register(CustomMethodSecurityServiceConfig.class).autowire();
-		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(this.methodSecurityService::preAuthorizeAdmin)
-			.withMessage("Access Denied");
-	}
-
-	@WithMockUser(roles = "ADMIN")
-	@Test
-	public void customMethodSecurityPreAuthorizeAdminWhenRoleAdminThenPasses() {
-		this.spring.register(CustomMethodSecurityServiceConfig.class).autowire();
-		this.methodSecurityService.preAuthorizeAdmin();
-	}
-
 	@WithMockUser(roles = "ADMIN")
 	@Test
 	public void preAuthorizeWhenRoleAdminThenAccessDeniedException() {
@@ -449,17 +434,6 @@ public class PrePostMethodSecurityConfigurationTests {
 
 	private static Consumer<ConfigurableWebApplicationContext> disallowBeanOverriding() {
 		return (context) -> ((AnnotationConfigWebApplicationContext) context).setAllowBeanDefinitionOverriding(false);
-	}
-
-	@Configuration
-	@EnableCustomMethodSecurity
-	static class CustomMethodSecurityServiceConfig {
-
-		@Bean
-		MethodSecurityService methodSecurityService() {
-			return new MethodSecurityServiceImpl();
-		}
-
 	}
 
 	@Configuration

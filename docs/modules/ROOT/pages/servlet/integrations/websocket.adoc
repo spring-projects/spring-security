@@ -27,7 +27,7 @@ Spring Security 4.0 has introduced authorization support for WebSockets through 
 
 In Spring Security 5.8, this support has been refreshed to use the `AuthorizationManager` API.
 
-To configure authorization using Java Configuration, simply include the `@EnableWebSocketSecurity` annotation and publish an `AuthorizationManager<Message<?>>` bean or in xref:servlet/appendix/namespace/websocket.adoc#nsa-websocket-security[XML] use the `use-authorization-manager` attribute.
+To configure authorization using Java Configuration, simply include the `@EnableWebSocketSecurity` annotation and publish an `AuthorizationManager<Message<?>>` bean or in XML use the `use-authorization-manager` attribute.
 One way to do this is by using the `AuthorizationManagerMessageMatcherRegistry` to specify endpoint patterns like so:
 
 [tabs]
@@ -43,7 +43,7 @@ public class WebSocketSecurityConfig {
     @Bean
     AuthorizationManager<Message<?>> messageAuthorizationManager(MessageMatcherDelegatingAuthorizationManager.Builder messages) {
         messages
-                .simpDestMatchers("/user/**").hasRole("USER") // <3>
+                .simpDestMatchers("/user/**").authenticated() // <3>
 
         return messages.build();
     }
@@ -58,25 +58,33 @@ Kotlin::
 @EnableWebSocketSecurity // <1> <2>
 open class WebSocketSecurityConfig { // <1> <2>
     @Bean
-    fun messageAuthorizationManager(messages: MessageMatcherDelegatingAuthorizationManager.Builder): AuthorizationManager<Message<*>> {
-        messages.simpDestMatchers("/user/**").hasRole("USER") // <3>
+    fun messageAuthorizationManager(messages: MessageMatcherDelegatingAuthorizationManager.Builder): AuthorizationManager<Message<?>> {
+        messages.simpDestMatchers("/user/**").authenticated() // <3>
         return messages.build()
     }
 }
 ----
-
-Xml::
-+
-[source,xml,role="secondary"]
-----
-<websocket-message-broker use-authorization-manager="true"> <1> <2>
-    <intercept-message pattern="/user/**" access="hasRole('USER')"/> <3>
-</websocket-message-broker>
-----
 ======
 <1> Any inbound CONNECT message requires a valid CSRF token to enforce the <<websocket-sameorigin,Same Origin Policy>>.
 <2> The `SecurityContextHolder` is populated with the user within the `simpUser` header attribute for any inbound request.
-<3> Our messages require the proper authorization. Specifically, any inbound message that starts with `/user/` will require `ROLE_USER`. You can find additional details on authorization in <<websocket-authorization>>
+<3> Our messages require the proper authorization. Specifically, any inbound message that starts with `/user/` will requires `ROLE_USER`. You can find additional details on authorization in <<websocket-authorization>>
+
+Spring Security also provides xref:servlet/appendix/namespace/websocket.adoc#nsa-websocket-security[XML Namespace] support for securing WebSockets.
+A comparable XML based configuration looks like the following:
+
+[source,xml]
+----
+<websocket-message-broker use-authorization-manager="true"> <!--1--> <!--2-->
+    <intercept-message pattern="/user/**" access="authenticated"/> <!--3-->
+</websocket-message-broker>
+----
+
+This will ensure that:
+
+<1> Any inbound CONNECT message requires a valid CSRF token to enforce <<websocket-sameorigin,Same Origin Policy>>
+<2> The SecurityContextHolder is populated with the user within the simpUser header attribute for any inbound request.
+<3> Our messages require the proper authorization. Specifically, any inbound message that starts with "/user/" will require ROLE_USER. Additional details on authorization can be found in <<websocket-authorization>>
+
 
 === Custom Authorization
 
@@ -108,7 +116,7 @@ Kotlin::
 @EnableWebSocketSecurity // <1> <2>
 open class WebSocketSecurityConfig {
     @Bean
-    fun messageAuthorizationManager(messages: MessageMatcherDelegatingAuthorizationManager.Builder): AuthorizationManager<Message<*>> {
+    fun messageAuthorizationManager(messages: MessageMatcherDelegatingAuthorizationManager.Builder): AuthorizationManager<Message<?>> {
         return AuthorityAuthorizationManager.hasRole("USER") // <3>
     }
 }
@@ -156,7 +164,7 @@ Kotlin::
 ----
 @Configuration
 open class WebSocketSecurityConfig {
-    fun messageAuthorizationManager(messages: MessageMatcherDelegatingAuthorizationManager.Builder): AuthorizationManager<Message<*>> {
+    fun messageAuthorizationManager(messages: MessageMatcherDelegatingAuthorizationManager.Builder): AuthorizationManager<Message<?> {
         messages
             .nullDestMatcher().authenticated() // <1>
             .simpSubscribeDestMatchers("/user/queue/errors").permitAll() // <2>
@@ -394,7 +402,7 @@ open class WebSocketSecurityConfig : WebSocketMessageBrokerConfigurer {
 
     @Override
     override fun configureClientInboundChannel(registration: ChannelRegistration) {
-        var myAuthorizationRules: AuthorizationManager<Message<*>> = AuthenticatedAuthorizationManager.authenticated()
+        var myAuthorizationRules: AuthorizationManager<Message<?>> = AuthenticatedAuthorizationManager.authenticated()
         var authz: AuthorizationChannelInterceptor = AuthorizationChannelInterceptor(myAuthorizationRules)
         var publisher: AuthorizationEventPublisher = SpringAuthorizationEventPublisher(this.context)
         authz.setAuthorizationEventPublisher(publisher)
