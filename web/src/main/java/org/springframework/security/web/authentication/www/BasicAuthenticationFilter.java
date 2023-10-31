@@ -221,7 +221,8 @@ public class BasicAuthenticationFilter extends OncePerRequestFilter {
 			return true;
 		}
 		// Handle unusual condition where an AnonymousAuthenticationToken is already
-		// present. This shouldn't happen very often, as BasicAuthenticationFilter is meant to
+		// present. This shouldn't happen very often, as BasicAuthenticationFilter is
+		// meant to
 		// be earlier in the filter chain than AnonymousAuthenticationFilter.
 		// Nevertheless, presence of both an AnonymousAuthenticationToken together with a
 		// BASIC authentication request header should indicate reauthentication using the
