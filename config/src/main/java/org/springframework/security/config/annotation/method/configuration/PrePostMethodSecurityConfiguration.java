@@ -33,6 +33,8 @@ import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
+import org.springframework.security.access.hierarchicalroles.NullRoleHierarchy;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.authorization.AuthorizationEventPublisher;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.authorization.method.AuthorizationManagerAfterMethodInterceptor;
@@ -123,6 +125,9 @@ final class PrePostMethodSecurityConfiguration {
 	private static MethodSecurityExpressionHandler defaultExpressionHandler(
 			ObjectProvider<GrantedAuthorityDefaults> defaultsProvider, ApplicationContext context) {
 		DefaultMethodSecurityExpressionHandler handler = new DefaultMethodSecurityExpressionHandler();
+		RoleHierarchy roleHierarchy = (context.getBeanNamesForType(RoleHierarchy.class).length > 0)
+				? context.getBean(RoleHierarchy.class) : new NullRoleHierarchy();
+		handler.setRoleHierarchy(roleHierarchy);
 		defaultsProvider.ifAvailable((d) -> handler.setDefaultRolePrefix(d.getRolePrefix()));
 		handler.setApplicationContext(context);
 		return handler;

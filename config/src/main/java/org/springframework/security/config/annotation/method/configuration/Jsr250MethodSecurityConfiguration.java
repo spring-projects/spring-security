@@ -22,9 +22,13 @@ import org.aopalliance.intercept.MethodInvocation;
 
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Role;
+import org.springframework.security.access.hierarchicalroles.NullRoleHierarchy;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
+import org.springframework.security.authorization.AuthoritiesAuthorizationManager;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor;
 import org.springframework.security.authorization.method.Jsr250AuthorizationManager;
@@ -49,8 +53,13 @@ final class Jsr250MethodSecurityConfiguration {
 	static MethodInterceptor jsr250AuthorizationMethodInterceptor(
 			ObjectProvider<GrantedAuthorityDefaults> defaultsProvider,
 			ObjectProvider<SecurityContextHolderStrategy> strategyProvider,
-			ObjectProvider<ObservationRegistry> registryProvider) {
+			ObjectProvider<ObservationRegistry> registryProvider, ApplicationContext context) {
 		Jsr250AuthorizationManager jsr250 = new Jsr250AuthorizationManager();
+		AuthoritiesAuthorizationManager authoritiesAuthorizationManager = new AuthoritiesAuthorizationManager();
+		RoleHierarchy roleHierarchy = (context.getBeanNamesForType(RoleHierarchy.class).length > 0)
+				? context.getBean(RoleHierarchy.class) : new NullRoleHierarchy();
+		authoritiesAuthorizationManager.setRoleHierarchy(roleHierarchy);
+		jsr250.setAuthoritiesAuthorizationManager(authoritiesAuthorizationManager);
 		defaultsProvider.ifAvailable((d) -> jsr250.setRolePrefix(d.getRolePrefix()));
 		SecurityContextHolderStrategy strategy = strategyProvider
 			.getIfAvailable(SecurityContextHolder::getContextHolderStrategy);

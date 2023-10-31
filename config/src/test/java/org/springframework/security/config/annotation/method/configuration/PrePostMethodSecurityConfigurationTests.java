@@ -46,6 +46,8 @@ import org.springframework.security.access.annotation.ExpressionProtectedBusines
 import org.springframework.security.access.annotation.Jsr250BusinessServiceImpl;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationEventPublisher;
 import org.springframework.security.authorization.AuthorizationManager;
@@ -447,6 +449,24 @@ public class PrePostMethodSecurityConfigurationTests {
 			.autowire();
 	}
 
+	@WithMockUser(roles = "ADMIN")
+	@Test
+	public void methodSecurityAdminWhenRoleHierarchyBeanAvailableThenUses() {
+		this.spring.register(RoleHierarchyConfig.class, MethodSecurityServiceConfig.class).autowire();
+		this.methodSecurityService.preAuthorizeAdmin();
+		this.methodSecurityService.secured();
+		this.methodSecurityService.jsr250RolesAllowed();
+	}
+
+	@WithMockUser
+	@Test
+	public void methodSecurityUserWhenRoleHierarchyBeanAvailableThenUses() {
+		this.spring.register(RoleHierarchyConfig.class, MethodSecurityServiceConfig.class).autowire();
+		this.methodSecurityService.preAuthorizeUser();
+		this.methodSecurityService.securedUser();
+		this.methodSecurityService.jsr250RolesAllowed();
+	}
+
 	private static Consumer<ConfigurableWebApplicationContext> disallowBeanOverriding() {
 		return (context) -> ((AnnotationConfigWebApplicationContext) context).setAllowBeanDefinitionOverriding(false);
 	}
@@ -623,6 +643,19 @@ public class PrePostMethodSecurityConfigurationTests {
 		@Bean
 		Authz authz() {
 			return new Authz();
+		}
+
+	}
+
+	@Configuration
+	@EnableMethodSecurity(jsr250Enabled = true, securedEnabled = true)
+	static class RoleHierarchyConfig {
+
+		@Bean
+		RoleHierarchy roleHierarchy() {
+			RoleHierarchyImpl roleHierarchyImpl = new RoleHierarchyImpl();
+			roleHierarchyImpl.setHierarchy("ADMIN > USER");
+			return roleHierarchyImpl;
 		}
 
 	}
