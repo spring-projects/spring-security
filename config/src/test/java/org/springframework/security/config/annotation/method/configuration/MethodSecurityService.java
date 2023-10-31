@@ -50,7 +50,7 @@ public interface MethodSecurityService {
 	@PermitAll
 	String jsr250PermitAll();
 
-	@RolesAllowed("ADMIN")
+	@RolesAllowed({ "ADMIN", "USER" })
 	String jsr250RolesAllowed();
 
 	@Secured({ "ROLE_USER", "RUN_AS_SUPER" })
@@ -67,6 +67,9 @@ public interface MethodSecurityService {
 
 	@PreAuthorize("hasRole('ADMIN')")
 	void preAuthorizeAdmin();
+
+	@PreAuthorize("hasRole('USER')")
+	void preAuthorizeUser();
 
 	@PreAuthorize("hasPermission(#object,'read')")
 	String hasPermission(String object);
