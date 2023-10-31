@@ -34,6 +34,8 @@ public class CheckProhibitedDependenciesLifecyclePlugin implements Plugin<Projec
 			task.setGroup(JavaBasePlugin.VERIFICATION_GROUP);
 			task.setDescription("Checks both the compile/runtime classpath of every SourceSet for prohibited dependencies");
 		});
-		project.getTasks().named(JavaBasePlugin.CHECK_TASK_NAME, checkTask -> checkTask.dependsOn(checkProhibitedDependencies));
+		project.getTasks().named(JavaBasePlugin.CHECK_TASK_NAME, checkTask -> {
+			checkTask.dependsOn(checkProhibitedDependencies);
+		});
 	}
 }

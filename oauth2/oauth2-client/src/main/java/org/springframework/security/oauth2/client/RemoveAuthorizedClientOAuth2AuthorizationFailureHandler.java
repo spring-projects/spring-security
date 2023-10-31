@@ -110,8 +110,9 @@ public class RemoveAuthorizedClientOAuth2AuthorizationFailureHandler implements 
 	@Override
 	public void onAuthorizationFailure(OAuth2AuthorizationException authorizationException, Authentication principal,
 			Map<String, Object> attributes) {
-		if (authorizationException instanceof ClientAuthorizationException clientAuthorizationException
+		if (authorizationException instanceof ClientAuthorizationException
 				&& hasRemovalErrorCode(authorizationException)) {
+			ClientAuthorizationException clientAuthorizationException = (ClientAuthorizationException) authorizationException;
 			this.delegate.removeAuthorizedClient(clientAuthorizationException.getClientRegistrationId(), principal,
 					attributes);
 		}

@@ -25,12 +25,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.test.support.ClassPathExclusions;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
-import org.springframework.web.context.WebApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
 
 /**
  * Tests for {@link AbstractRequestMatcherRegistry} with no Spring MVC in the classpath
@@ -45,16 +41,13 @@ public class AbstractRequestMatcherRegistryNoMvcTests {
 	@BeforeEach
 	public void setUp() {
 		this.matcherRegistry = new TestRequestMatcherRegistry();
-		WebApplicationContext context = mock(WebApplicationContext.class);
-		given(context.getBeanNamesForType((Class<?>) any())).willReturn(new String[0]);
-		this.matcherRegistry.setApplicationContext(context);
 	}
 
 	@Test
 	public void requestMatchersWhenPatternAndMvcNotPresentThenReturnAntPathRequestMatcherType() {
 		List<RequestMatcher> requestMatchers = this.matcherRegistry.requestMatchers("/path");
 		assertThat(requestMatchers).isNotEmpty();
-		assertThat(requestMatchers).hasSize(1);
+		assertThat(requestMatchers.size()).isEqualTo(1);
 		assertThat(requestMatchers.get(0)).isExactlyInstanceOf(AntPathRequestMatcher.class);
 	}
 
@@ -62,7 +55,7 @@ public class AbstractRequestMatcherRegistryNoMvcTests {
 	public void requestMatchersWhenHttpMethodAndPatternAndMvcNotPresentThenReturnAntPathRequestMatcherType() {
 		List<RequestMatcher> requestMatchers = this.matcherRegistry.requestMatchers(HttpMethod.GET, "/path");
 		assertThat(requestMatchers).isNotEmpty();
-		assertThat(requestMatchers).hasSize(1);
+		assertThat(requestMatchers.size()).isEqualTo(1);
 		assertThat(requestMatchers.get(0)).isExactlyInstanceOf(AntPathRequestMatcher.class);
 	}
 
@@ -70,7 +63,7 @@ public class AbstractRequestMatcherRegistryNoMvcTests {
 	public void requestMatchersWhenHttpMethodAndMvcNotPresentThenReturnAntPathMatcherType() {
 		List<RequestMatcher> requestMatchers = this.matcherRegistry.requestMatchers(HttpMethod.GET);
 		assertThat(requestMatchers).isNotEmpty();
-		assertThat(requestMatchers).hasSize(1);
+		assertThat(requestMatchers.size()).isEqualTo(1);
 		assertThat(requestMatchers.get(0)).isExactlyInstanceOf(AntPathRequestMatcher.class);
 	}
 

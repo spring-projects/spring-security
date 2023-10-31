@@ -114,8 +114,8 @@ Java::
 +
 [source,java,role="primary"]
 ----
-JwtIssuerAuthenticationManagerResolver authenticationManagerResolver = JwtIssuerAuthenticationManagerResolver
-    .fromTrustedIssuers("https://idp.example.org/issuerOne", "https://idp.example.org/issuerTwo");
+JwtIssuerAuthenticationManagerResolver authenticationManagerResolver = new JwtIssuerAuthenticationManagerResolver
+    ("https://idp.example.org/issuerOne", "https://idp.example.org/issuerTwo");
 
 http
     .authorizeHttpRequests(authorize -> authorize
@@ -131,7 +131,7 @@ Kotlin::
 [source,kotlin,role="secondary"]
 ----
 val customAuthenticationManagerResolver = JwtIssuerAuthenticationManagerResolver
-    .fromTrustedIssuers("https://idp.example.org/issuerOne", "https://idp.example.org/issuerTwo")
+    ("https://idp.example.org/issuerOne", "https://idp.example.org/issuerTwo")
 http {
     authorizeRequests {
         authorize(anyRequest, authenticated)

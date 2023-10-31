@@ -92,7 +92,7 @@ class OpenSamlAuthenticationRequestResolver {
 		XMLObjectProviderRegistry registry = ConfigurationService.get(XMLObjectProviderRegistry.class);
 		this.marshaller = (AuthnRequestMarshaller) registry.getMarshallerFactory()
 			.getMarshaller(AuthnRequest.DEFAULT_ELEMENT_NAME);
-		Assert.notNull(this.marshaller, "authnRequestMarshaller must be configured in OpenSAML");
+		Assert.notNull(this.marshaller, "logoutRequestMarshaller must be configured in OpenSAML");
 		this.authnRequestBuilder = (AuthnRequestBuilder) XMLObjectProviderRegistrySupport.getBuilderFactory()
 			.getBuilder(AuthnRequest.DEFAULT_ELEMENT_NAME);
 		Assert.notNull(this.authnRequestBuilder, "authnRequestBuilder must be configured in OpenSAML");

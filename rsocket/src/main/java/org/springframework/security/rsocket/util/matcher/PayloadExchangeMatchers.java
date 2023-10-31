@@ -16,6 +16,9 @@
 
 package org.springframework.security.rsocket.util.matcher;
 
+import reactor.core.publisher.Mono;
+
+import org.springframework.security.rsocket.api.PayloadExchange;
 import org.springframework.security.rsocket.api.PayloadExchangeType;
 
 /**
@@ -27,17 +30,37 @@ public final class PayloadExchangeMatchers {
 	}
 
 	public static PayloadExchangeMatcher setup() {
-		return (exchange) -> PayloadExchangeType.SETUP.equals(exchange.getType())
-				? PayloadExchangeMatcher.MatchResult.match() : PayloadExchangeMatcher.MatchResult.notMatch();
+		return new PayloadExchangeMatcher() {
+
+			@Override
+			public Mono<MatchResult> matches(PayloadExchange exchange) {
+				return PayloadExchangeType.SETUP.equals(exchange.getType()) ? MatchResult.match()
+						: MatchResult.notMatch();
+			}
+
+		};
 	}
 
 	public static PayloadExchangeMatcher anyRequest() {
-		return (exchange) -> exchange.getType().isRequest() ? PayloadExchangeMatcher.MatchResult.match()
-				: PayloadExchangeMatcher.MatchResult.notMatch();
+		return new PayloadExchangeMatcher() {
+
+			@Override
+			public Mono<MatchResult> matches(PayloadExchange exchange) {
+				return exchange.getType().isRequest() ? MatchResult.match() : MatchResult.notMatch();
+			}
+
+		};
 	}
 
 	public static PayloadExchangeMatcher anyExchange() {
-		return (exchange) -> PayloadExchangeMatcher.MatchResult.match();
+		return new PayloadExchangeMatcher() {
+
+			@Override
+			public Mono<MatchResult> matches(PayloadExchange exchange) {
+				return MatchResult.match();
+			}
+
+		};
 	}
 
 }

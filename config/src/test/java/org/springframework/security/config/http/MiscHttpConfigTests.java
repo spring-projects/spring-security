@@ -417,7 +417,7 @@ public class MiscHttpConfigTests {
 		this.spring.configLocations(xml("DeleteCookies")).autowire();
 		MvcResult result = this.mvc.perform(post("/logout").with(csrf())).andReturn();
 		List<String> values = result.getResponse().getHeaders("Set-Cookie");
-		assertThat(values).hasSize(2);
+		assertThat(values.size()).isEqualTo(2);
 		assertThat(values).extracting((value) -> value.split("=")[0]).contains("JSESSIONID", "mycookie");
 	}
 

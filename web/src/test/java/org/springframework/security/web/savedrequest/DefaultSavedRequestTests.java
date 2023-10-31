@@ -45,7 +45,7 @@ public class DefaultSavedRequestTests {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("If-None-Match", "somehashvalue");
 		DefaultSavedRequest saved = new DefaultSavedRequest(request, new MockPortResolver(8080, 8443));
-		assertThat(saved.getHeaderValues("if-none-match")).isEmpty();
+		assertThat(saved.getHeaderValues("if-none-match").isEmpty()).isTrue();
 	}
 
 	// SEC-3082

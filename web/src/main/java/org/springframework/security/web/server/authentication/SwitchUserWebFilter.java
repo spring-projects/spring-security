@@ -280,7 +280,8 @@ public class SwitchUserWebFilter implements WebFilter {
 	private Optional<Authentication> extractSourceAuthentication(Authentication currentAuthentication) {
 		// iterate over granted authorities and find the 'switch user' authority
 		for (GrantedAuthority authority : currentAuthentication.getAuthorities()) {
-			if (authority instanceof SwitchUserGrantedAuthority switchAuthority) {
+			if (authority instanceof SwitchUserGrantedAuthority) {
+				SwitchUserGrantedAuthority switchAuthority = (SwitchUserGrantedAuthority) authority;
 				return Optional.of(switchAuthority.getSource());
 			}
 		}

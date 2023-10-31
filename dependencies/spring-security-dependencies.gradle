@@ -83,4 +83,3 @@ dependencies {
 		api libs.org.apache.maven.maven.resolver.provider
 	}
 }
-

@@ -30,7 +30,8 @@ public class TestCallbackHandler implements JaasAuthenticationCallbackHandler {
 
 	@Override
 	public void handle(Callback callback, Authentication auth) {
-		if (callback instanceof TextInputCallback tic) {
+		if (callback instanceof TextInputCallback) {
+			TextInputCallback tic = (TextInputCallback) callback;
 			tic.setText(auth.getPrincipal().toString());
 		}
 	}

@@ -479,12 +479,12 @@ public class ClientRegistrationsTests {
 		final Dispatcher dispatcher = new Dispatcher() {
 			@Override
 			public MockResponse dispatch(RecordedRequest request) {
-				return switch (request.getPath()) {
-					case "/.well-known/oauth-authorization-server/issuer1",
-							"/.well-known/oauth-authorization-server/" ->
-						buildSuccessMockResponse(responseBody);
-					default -> new MockResponse().setResponseCode(404);
-				};
+				switch (request.getPath()) {
+					case "/.well-known/oauth-authorization-server/issuer1":
+					case "/.well-known/oauth-authorization-server/":
+						return buildSuccessMockResponse(responseBody);
+				}
+				return new MockResponse().setResponseCode(404);
 			}
 		};
 		this.server.setDispatcher(dispatcher);
@@ -515,11 +515,12 @@ public class ClientRegistrationsTests {
 		final Dispatcher dispatcher = new Dispatcher() {
 			@Override
 			public MockResponse dispatch(RecordedRequest request) {
-				return switch (request.getPath()) {
-					case "/issuer1/.well-known/openid-configuration", "/.well-known/openid-configuration/" ->
-						buildSuccessMockResponse(responseBody);
-					default -> new MockResponse().setResponseCode(404);
-				};
+				switch (request.getPath()) {
+					case "/issuer1/.well-known/openid-configuration":
+					case "/.well-known/openid-configuration/":
+						return buildSuccessMockResponse(responseBody);
+				}
+				return new MockResponse().setResponseCode(404);
 			}
 		};
 		this.server.setDispatcher(dispatcher);

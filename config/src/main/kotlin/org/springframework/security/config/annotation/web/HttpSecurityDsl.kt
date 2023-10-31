@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,6 @@
 
 package org.springframework.security.config.annotation.web
 
-import jakarta.servlet.Filter
-import jakarta.servlet.http.HttpServletRequest
-import org.checkerframework.checker.units.qual.C
 import org.springframework.context.ApplicationContext
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.config.annotation.SecurityConfigurerAdapter
@@ -27,6 +24,9 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository
 import org.springframework.security.web.DefaultSecurityFilterChain
 import org.springframework.security.web.util.matcher.RequestMatcher
+import org.springframework.util.ClassUtils
+import jakarta.servlet.Filter
+import jakarta.servlet.http.HttpServletRequest
 
 /**
  * Configures [HttpSecurity] using a [HttpSecurity Kotlin DSL][HttpSecurityDsl].
@@ -105,36 +105,6 @@ class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecu
      */
     fun <C : SecurityConfigurerAdapter<DefaultSecurityFilterChain, HttpSecurity>> apply(configurer: C, configuration: C.() -> Unit = { }): C {
         return this.http.apply(configurer).apply(configuration)
-    }
-
-    /**
-     * Applies a [SecurityConfigurerAdapter] to this [HttpSecurity]
-     *
-     * Example:
-     *
-     * ```
-     * @Configuration
-     * @EnableWebSecurity
-     * class SecurityConfig {
-     *
-     *     @Bean
-     *     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
-     *         http {
-     *             with(CustomSecurityConfigurer<HttpSecurity>()) {
-     *                 customProperty = "..."
-     *             }
-     *         }
-     *         return http.build()
-     *     }
-     * }
-     * ```
-     *
-     * @param configurer
-     * the [HttpSecurity] for further customizations
-     * @since 6.2
-     */
-    fun <C : SecurityConfigurerAdapter<DefaultSecurityFilterChain, HttpSecurity>> with(configurer: C, configuration: C.() -> Unit = { }): HttpSecurity? {
-        return this.http.with(configurer, configuration)
     }
 
     /**
@@ -866,38 +836,6 @@ class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecu
     fun oauth2ResourceServer(oauth2ResourceServerConfiguration: OAuth2ResourceServerDsl.() -> Unit) {
         val oauth2ResourceServerCustomizer = OAuth2ResourceServerDsl().apply(oauth2ResourceServerConfiguration).get()
         this.http.oauth2ResourceServer(oauth2ResourceServerCustomizer)
-    }
-
-    /**
-     * Configures OIDC 1.0 logout support.
-     *
-     * Example:
-     *
-     * ```
-     * @Configuration
-     * @EnableWebSecurity
-     * class SecurityConfig {
-     *
-     *     @Bean
-     *     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
-     *         http {
-     *             oauth2Login { }
-     *             oidcLogout {
-     *                 backChannel { }
-     *             }
-     *         }
-     *         return http.build()
-     *     }
-     * }
-     * ```
-     *
-     * @param oidcLogoutConfiguration custom configuration to configure the
-     * OIDC 1.0 logout support
-     * @see [OidcLogoutDsl]
-     */
-    fun oidcLogout(oidcLogoutConfiguration: OidcLogoutDsl.() -> Unit) {
-        val oidcLogoutCustomizer = OidcLogoutDsl().apply(oidcLogoutConfiguration).get()
-        this.http.oidcLogout(oidcLogoutCustomizer)
     }
 
     /**

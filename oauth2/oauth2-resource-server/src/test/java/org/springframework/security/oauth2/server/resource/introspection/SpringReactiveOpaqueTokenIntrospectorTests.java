@@ -227,6 +227,7 @@ public class SpringReactiveOpaqueTokenIntrospectorTests {
 		WebClient webClient = spy(WebClient.class);
 		given(webClient.post()).willReturn(spec);
 		ClientResponse clientResponse = mock(ClientResponse.class);
+		given(clientResponse.rawStatusCode()).willReturn(200);
 		given(clientResponse.statusCode()).willReturn(HttpStatus.OK);
 		given(clientResponse.bodyToMono(STRING_OBJECT_MAP)).willReturn(Mono.just(response));
 		ClientResponse.Headers headers = mock(ClientResponse.Headers.class);

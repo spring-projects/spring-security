@@ -390,7 +390,7 @@ public class BCryptTests {
 				Arrays.fill(ba, (byte) 0);
 				ba[i] = (byte) b;
 				String s = encode_base64(ba, 3);
-				assertThat(s).hasSize(4);
+				assertThat(s.length()).isEqualTo(4);
 				byte[] decoded = BCrypt.decode_base64(s, 3);
 				assertThat(decoded).isEqualTo(ba);
 			}

@@ -66,9 +66,9 @@ public class RunAsManagerImplTests {
 		assertThat(result.getPrincipal()).isEqualTo(inputToken.getPrincipal());
 		assertThat(result.getCredentials()).isEqualTo(inputToken.getCredentials());
 		Set<String> authorities = AuthorityUtils.authorityListToSet(result.getAuthorities());
-		assertThat(authorities).contains("FOOBAR_RUN_AS_SOMETHING");
-		assertThat(authorities).contains("ONE");
-		assertThat(authorities).contains("TWO");
+		assertThat(authorities.contains("FOOBAR_RUN_AS_SOMETHING")).isTrue();
+		assertThat(authorities.contains("ONE")).isTrue();
+		assertThat(authorities.contains("TWO")).isTrue();
 		RunAsUserToken resultCast = (RunAsUserToken) result;
 		assertThat(resultCast.getKeyHash()).isEqualTo("my_password".hashCode());
 	}
@@ -87,9 +87,9 @@ public class RunAsManagerImplTests {
 		assertThat(result.getPrincipal()).isEqualTo(inputToken.getPrincipal());
 		assertThat(result.getCredentials()).isEqualTo(inputToken.getCredentials());
 		Set<String> authorities = AuthorityUtils.authorityListToSet(result.getAuthorities());
-		assertThat(authorities).contains("ROLE_RUN_AS_SOMETHING");
-		assertThat(authorities).contains("ROLE_ONE");
-		assertThat(authorities).contains("ROLE_TWO");
+		assertThat(authorities.contains("ROLE_RUN_AS_SOMETHING")).isTrue();
+		assertThat(authorities.contains("ROLE_ONE")).isTrue();
+		assertThat(authorities.contains("ROLE_TWO")).isTrue();
 		RunAsUserToken resultCast = (RunAsUserToken) result;
 		assertThat(resultCast.getKeyHash()).isEqualTo("my_password".hashCode());
 	}

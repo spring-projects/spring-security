@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -72,8 +72,6 @@ public final class OpenSamlMetadataResolver implements Saml2MetadataResolver {
 	private Consumer<EntityDescriptorParameters> entityDescriptorCustomizer = (parameters) -> {
 	};
 
-	private boolean usePrettyPrint = true;
-
 	public OpenSamlMetadataResolver() {
 		this.entityDescriptorMarshaller = (EntityDescriptorMarshaller) XMLObjectProviderRegistrySupport
 			.getMarshallerFactory()
@@ -123,15 +121,6 @@ public final class OpenSamlMetadataResolver implements Saml2MetadataResolver {
 	public void setEntityDescriptorCustomizer(Consumer<EntityDescriptorParameters> entityDescriptorCustomizer) {
 		Assert.notNull(entityDescriptorCustomizer, "entityDescriptorCustomizer cannot be null");
 		this.entityDescriptorCustomizer = entityDescriptorCustomizer;
-	}
-
-	/**
-	 * Configure whether to pretty-print the metadata XML. This can be helpful when
-	 * signing the metadata payload.
-	 * @since 6.2
-	 **/
-	public void setUsePrettyPrint(boolean usePrettyPrint) {
-		this.usePrettyPrint = usePrettyPrint;
 	}
 
 	private SPSSODescriptor buildSpSsoDescriptor(RelyingPartyRegistration registration) {
@@ -215,10 +204,7 @@ public final class OpenSamlMetadataResolver implements Saml2MetadataResolver {
 	private String serialize(EntityDescriptor entityDescriptor) {
 		try {
 			Element element = this.entityDescriptorMarshaller.marshall(entityDescriptor);
-			if (this.usePrettyPrint) {
-				return SerializeSupport.prettyPrintXML(element);
-			}
-			return SerializeSupport.nodeToString(element);
+			return SerializeSupport.prettyPrintXML(element);
 		}
 		catch (Exception ex) {
 			throw new Saml2Exception(ex);
@@ -228,10 +214,7 @@ public final class OpenSamlMetadataResolver implements Saml2MetadataResolver {
 	private String serialize(EntitiesDescriptor entities) {
 		try {
 			Element element = this.entitiesDescriptorMarshaller.marshall(entities);
-			if (this.usePrettyPrint) {
-				return SerializeSupport.prettyPrintXML(element);
-			}
-			return SerializeSupport.nodeToString(element);
+			return SerializeSupport.prettyPrintXML(element);
 		}
 		catch (Exception ex) {
 			throw new Saml2Exception(ex);

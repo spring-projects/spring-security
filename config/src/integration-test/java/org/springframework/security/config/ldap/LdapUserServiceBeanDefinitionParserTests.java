@@ -87,7 +87,7 @@ public class LdapUserServiceBeanDefinitionParserTests {
 
 		Set<String> authorities = AuthorityUtils.authorityListToSet(ben.getAuthorities());
 		assertThat(authorities).hasSize(3);
-		assertThat(authorities).contains("ROLE_DEVELOPERS");
+		assertThat(authorities.contains("ROLE_DEVELOPERS")).isTrue();
 	}
 
 	@Test
@@ -128,7 +128,7 @@ public class LdapUserServiceBeanDefinitionParserTests {
 
 		Set<String> authorities = AuthorityUtils.authorityListToSet(ben.getAuthorities());
 		assertThat(authorities).hasSize(3);
-		assertThat(authorities).contains("ROLE_DEVELOPER");
+		assertThat(authorities.contains("ROLE_DEVELOPER")).isTrue();
 
 	}
 

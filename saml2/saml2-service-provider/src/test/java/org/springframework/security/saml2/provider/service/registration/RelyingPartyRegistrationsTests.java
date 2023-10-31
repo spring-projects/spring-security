@@ -264,7 +264,7 @@ public class RelyingPartyRegistrationsTests {
 	public void collectionFromMetadataLocationCanHandleFederationMetadata() {
 		Collection<RelyingPartyRegistration.Builder> federationMetadataWithSkippedSPEntries = RelyingPartyRegistrations
 			.collectionFromMetadataLocation("classpath:test-federated-metadata.xml");
-		assertThat(federationMetadataWithSkippedSPEntries).hasSize(1);
+		assertThat(federationMetadataWithSkippedSPEntries.size()).isEqualTo(1);
 	}
 
 	@Test

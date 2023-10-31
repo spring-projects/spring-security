@@ -144,7 +144,7 @@ public class NimbusJwtEncoderTests {
 
 		Jwt encodedJws = this.jwtEncoder.encode(JwtEncoderParameters.from(jwtClaimsSet));
 
-		assertThat(encodedJws.getHeaders()).containsEntry(JoseHeaderNames.ALG, SignatureAlgorithm.RS256);
+		assertThat(encodedJws.getHeaders().get(JoseHeaderNames.ALG)).isEqualTo(SignatureAlgorithm.RS256);
 	}
 
 	@Test
@@ -165,7 +165,7 @@ public class NimbusJwtEncoderTests {
 
 		Jwt encodedJws = this.jwtEncoder.encode(JwtEncoderParameters.from(jwsHeader, jwtClaimsSet));
 
-		assertThat(encodedJws.getHeaders()).containsEntry(JoseHeaderNames.KID, rsaJwk2.getKeyID());
+		assertThat(encodedJws.getHeaders().get(JoseHeaderNames.KID)).isEqualTo(rsaJwk2.getKeyID());
 	}
 
 	@Test
@@ -190,8 +190,8 @@ public class NimbusJwtEncoderTests {
 
 		Jwt encodedJws = this.jwtEncoder.encode(JwtEncoderParameters.from(jwsHeader, jwtClaimsSet));
 
-		assertThat(encodedJws.getHeaders()).containsEntry(JoseHeaderNames.X5T_S256,
-				rsaJwk1.getX509CertSHA256Thumbprint().toString());
+		assertThat(encodedJws.getHeaders().get(JoseHeaderNames.X5T_S256))
+			.isEqualTo(rsaJwk1.getX509CertSHA256Thumbprint().toString());
 		assertThat(encodedJws.getHeaders().get(JoseHeaderNames.KID)).isNull();
 	}
 
@@ -231,15 +231,15 @@ public class NimbusJwtEncoderTests {
 
 		Jwt encodedJws = this.jwtEncoder.encode(JwtEncoderParameters.from(jwsHeader, jwtClaimsSet));
 
-		assertThat(encodedJws.getHeaders()).containsEntry(JoseHeaderNames.ALG, jwsHeader.getAlgorithm());
+		assertThat(encodedJws.getHeaders().get(JoseHeaderNames.ALG)).isEqualTo(jwsHeader.getAlgorithm());
 		assertThat(encodedJws.getHeaders().get(JoseHeaderNames.JKU)).isNull();
 		assertThat(encodedJws.getHeaders().get(JoseHeaderNames.JWK)).isNull();
-		assertThat(encodedJws.getHeaders()).containsEntry(JoseHeaderNames.KID, rsaJwk.getKeyID());
+		assertThat(encodedJws.getHeaders().get(JoseHeaderNames.KID)).isEqualTo(rsaJwk.getKeyID());
 		assertThat(encodedJws.getHeaders().get(JoseHeaderNames.X5U)).isNull();
 		assertThat(encodedJws.getHeaders().get(JoseHeaderNames.X5C)).isNull();
 		assertThat(encodedJws.getHeaders().get(JoseHeaderNames.X5T)).isNull();
-		assertThat(encodedJws.getHeaders()).containsEntry(JoseHeaderNames.X5T_S256,
-				rsaJwk.getX509CertSHA256Thumbprint().toString());
+		assertThat(encodedJws.getHeaders().get(JoseHeaderNames.X5T_S256))
+			.isEqualTo(rsaJwk.getX509CertSHA256Thumbprint().toString());
 		assertThat(encodedJws.getHeaders().get(JoseHeaderNames.TYP)).isNull();
 		assertThat(encodedJws.getHeaders().get(JoseHeaderNames.CTY)).isNull();
 		assertThat(encodedJws.getHeaders().get(JoseHeaderNames.CRIT)).isNull();

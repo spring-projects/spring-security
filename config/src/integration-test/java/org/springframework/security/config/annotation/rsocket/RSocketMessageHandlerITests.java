@@ -294,7 +294,7 @@ public class RSocketMessageHandlerITests {
 
 		@MessageMapping({ "secure.send", "send" })
 		Mono<Void> send(Mono<String> payload) {
-			return payload.doOnNext(this::add).then(Mono.fromRunnable(this::doNotifyAll));
+			return payload.doOnNext(this::add).then(Mono.fromRunnable(() -> doNotifyAll()));
 		}
 
 		private synchronized void doNotifyAll() {

@@ -17,13 +17,11 @@
 package org.springframework.security.config.annotation.authentication.configurers.provisioning;
 
 import java.util.Arrays;
-import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
@@ -75,7 +73,7 @@ public class UserDetailsManagerConfigurerTests {
 				.authorities(authority)
 				.build();
 		// @formatter:on
-		assertThat((Optional<GrantedAuthority>) userDetails.getAuthorities().stream().findFirst()).contains(authority);
+		assertThat(userDetails.getAuthorities().stream().findFirst().get()).isEqualTo(authority);
 	}
 
 	@Test
@@ -101,7 +99,7 @@ public class UserDetailsManagerConfigurerTests {
 				.authorities(Arrays.asList(authority))
 				.build();
 		// @formatter:on
-		assertThat((Optional<GrantedAuthority>) userDetails.getAuthorities().stream().findFirst()).contains(authority);
+		assertThat(userDetails.getAuthorities().stream().findFirst().get()).isEqualTo(authority);
 	}
 
 	private UserDetailsManagerConfigurer<AuthenticationManagerBuilder, InMemoryUserDetailsManagerConfigurer<AuthenticationManagerBuilder>> configurer() {

@@ -100,11 +100,13 @@ public class SessionRegistryImpl implements SessionRegistry, ApplicationListener
 
 	@Override
 	public void onApplicationEvent(AbstractSessionEvent event) {
-		if (event instanceof SessionDestroyedEvent sessionDestroyedEvent) {
+		if (event instanceof SessionDestroyedEvent) {
+			SessionDestroyedEvent sessionDestroyedEvent = (SessionDestroyedEvent) event;
 			String sessionId = sessionDestroyedEvent.getId();
 			removeSessionInformation(sessionId);
 		}
-		else if (event instanceof SessionIdChangedEvent sessionIdChangedEvent) {
+		else if (event instanceof SessionIdChangedEvent) {
+			SessionIdChangedEvent sessionIdChangedEvent = (SessionIdChangedEvent) event;
 			String oldSessionId = sessionIdChangedEvent.getOldSessionId();
 			if (this.sessionIds.containsKey(oldSessionId)) {
 				Object principal = this.sessionIds.get(oldSessionId).getPrincipal();

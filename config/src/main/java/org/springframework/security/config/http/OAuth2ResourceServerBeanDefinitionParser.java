@@ -166,7 +166,7 @@ final class OAuth2ResourceServerBeanDefinitionParser implements BeanDefinitionPa
 
 	BeanMetadataElement getAuthenticationManagerResolver(Element element) {
 		String authenticationManagerResolverRef = element.getAttribute(AUTHENTICATION_MANAGER_RESOLVER_REF);
-		if (StringUtils.hasLength(authenticationManagerResolverRef)) {
+		if (!StringUtils.isEmpty(authenticationManagerResolverRef)) {
 			return new RuntimeBeanReference(authenticationManagerResolverRef);
 		}
 		BeanDefinitionBuilder authenticationManagerResolver = BeanDefinitionBuilder
@@ -177,7 +177,7 @@ final class OAuth2ResourceServerBeanDefinitionParser implements BeanDefinitionPa
 
 	BeanMetadataElement getBearerTokenResolver(Element element) {
 		String bearerTokenResolverRef = element.getAttribute(BEARER_TOKEN_RESOLVER_REF);
-		if (!StringUtils.hasLength(bearerTokenResolverRef)) {
+		if (StringUtils.isEmpty(bearerTokenResolverRef)) {
 			return new RootBeanDefinition(DefaultBearerTokenResolver.class);
 		}
 		return new RuntimeBeanReference(bearerTokenResolverRef);
@@ -185,7 +185,7 @@ final class OAuth2ResourceServerBeanDefinitionParser implements BeanDefinitionPa
 
 	BeanMetadataElement getEntryPoint(Element element) {
 		String entryPointRef = element.getAttribute(ENTRY_POINT_REF);
-		if (!StringUtils.hasLength(entryPointRef)) {
+		if (StringUtils.isEmpty(entryPointRef)) {
 			return this.authenticationEntryPoint;
 		}
 		return new RuntimeBeanReference(entryPointRef);
@@ -224,7 +224,7 @@ final class OAuth2ResourceServerBeanDefinitionParser implements BeanDefinitionPa
 
 		Object getDecoder(Element element) {
 			String decoderRef = element.getAttribute(DECODER_REF);
-			if (StringUtils.hasLength(decoderRef)) {
+			if (!StringUtils.isEmpty(decoderRef)) {
 				return new RuntimeBeanReference(decoderRef);
 			}
 			BeanDefinitionBuilder builder = BeanDefinitionBuilder
@@ -235,7 +235,7 @@ final class OAuth2ResourceServerBeanDefinitionParser implements BeanDefinitionPa
 
 		Object getJwtAuthenticationConverter(Element element) {
 			String jwtDecoderRef = element.getAttribute(JWT_AUTHENTICATION_CONVERTER_REF);
-			return (StringUtils.hasLength(jwtDecoderRef)) ? new RuntimeBeanReference(jwtDecoderRef)
+			return (!StringUtils.isEmpty(jwtDecoderRef)) ? new RuntimeBeanReference(jwtDecoderRef)
 					: new JwtAuthenticationConverter();
 		}
 
@@ -293,7 +293,7 @@ final class OAuth2ResourceServerBeanDefinitionParser implements BeanDefinitionPa
 
 		BeanMetadataElement getIntrospector(Element element) {
 			String introspectorRef = element.getAttribute(INTROSPECTOR_REF);
-			if (StringUtils.hasLength(introspectorRef)) {
+			if (!StringUtils.isEmpty(introspectorRef)) {
 				return new RuntimeBeanReference(introspectorRef);
 			}
 			String introspectionUri = element.getAttribute(INTROSPECTION_URI);

@@ -80,6 +80,7 @@ dependencies {
 	testImplementation "org.hibernate.orm:hibernate-core"
 	testImplementation 'org.hsqldb:hsqldb'
 	testImplementation 'org.mockito:mockito-core'
+	testImplementation "org.mockito:mockito-inline"
 	testImplementation('org.seleniumhq.selenium:htmlunit-driver') {
 		exclude group: 'commons-logging', module: 'commons-logging'
 		exclude group: 'xml-apis', module: 'xml-apis'

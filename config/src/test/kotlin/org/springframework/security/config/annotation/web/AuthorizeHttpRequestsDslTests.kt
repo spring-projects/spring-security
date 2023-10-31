@@ -124,13 +124,11 @@ class AuthorizeHttpRequestsDslTests {
         @RestController
         internal class PathController {
             @RequestMapping("/path")
-            fun path(): String {
-                return "ok"
+            fun path() {
             }
 
             @RequestMapping("/onlyPostPermitted")
-            fun onlyPostPermitted():String {
-                return "ok"
+            fun onlyPostPermitted() {
             }
         }
     }
@@ -276,8 +274,7 @@ class AuthorizeHttpRequestsDslTests {
         @RestController
         internal class PathController {
             @GetMapping("/")
-            fun index(): String {
-                return "ok"
+            fun index() {
             }
         }
 
@@ -343,8 +340,7 @@ class AuthorizeHttpRequestsDslTests {
         @RestController
         internal class PathController {
             @GetMapping("/")
-            fun index(): String {
-                return "ok"
+            fun index() {
             }
         }
 
@@ -409,8 +405,7 @@ class AuthorizeHttpRequestsDslTests {
         @RestController
         internal class PathController {
             @GetMapping("/")
-            fun index(): String {
-                return "ok"
+            fun index() {
             }
         }
 
@@ -476,8 +471,7 @@ class AuthorizeHttpRequestsDslTests {
         @RestController
         internal class PathController {
             @GetMapping("/")
-            fun index(): String {
-                return  "ok"
+            fun index() {
             }
         }
 

@@ -37,11 +37,11 @@ public class AuthorityUtilsTests {
 		List<GrantedAuthority> authorityArray = AuthorityUtils
 			.commaSeparatedStringToAuthorityList(" ROLE_A, B, C, ROLE_D\n,\n E ");
 		Set<String> authorities = AuthorityUtils.authorityListToSet(authorityArray);
-		assertThat(authorities).contains("B");
-		assertThat(authorities).contains("C");
-		assertThat(authorities).contains("E");
-		assertThat(authorities).contains("ROLE_A");
-		assertThat(authorities).contains("ROLE_D");
+		assertThat(authorities.contains("B")).isTrue();
+		assertThat(authorities.contains("C")).isTrue();
+		assertThat(authorities.contains("E")).isTrue();
+		assertThat(authorities.contains("ROLE_A")).isTrue();
+		assertThat(authorities.contains("ROLE_D")).isTrue();
 	}
 
 	@Test

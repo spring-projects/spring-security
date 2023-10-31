@@ -239,8 +239,6 @@ Java::
 +
 [source,java,role="primary"]
 ----
-import static org.springframework.security.oauth2.core.authorization.OAuth2AuthorizationManagers.hasScope;
-
 @Configuration
 @EnableWebSecurity
 public class MyCustomSecurityConfiguration {
@@ -248,7 +246,7 @@ public class MyCustomSecurityConfiguration {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(authorize -> authorize
-                .requestMatchers("/messages/**").access(hasScope("message:read"))
+                .requestMatchers("/messages/**").hasAuthority("SCOPE_message:read")
                 .anyRequest().authenticated()
             )
             .oauth2ResourceServer(oauth2 -> oauth2
@@ -265,8 +263,6 @@ Kotlin::
 +
 [source,kotlin,role="secondary"]
 ----
-import org.springframework.security.oauth2.core.authorization.OAuth2AuthorizationManagers.hasScope;
-
 @Configuration
 @EnableWebSecurity
 class MyCustomSecurityConfiguration {
@@ -274,7 +270,7 @@ class MyCustomSecurityConfiguration {
     open fun filterChain(http: HttpSecurity): SecurityFilterChain {
         http {
             authorizeRequests {
-                authorize("/messages/**", hasScope("SCOPE_message:read"))
+                authorize("/messages/**", hasAuthority("SCOPE_message:read"))
                 authorize(anyRequest, authenticated)
             }
             oauth2ResourceServer {
@@ -551,8 +547,6 @@ Java::
 +
 [source,java,role="primary"]
 ----
-import static org.springframework.security.oauth2.core.authorization.OAuth2AuthorizationManagers.hasScope;
-
 @Configuration
 @EnableWebSecurity
 public class MappedAuthorities {
@@ -560,8 +554,8 @@ public class MappedAuthorities {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(authorizeRequests -> authorizeRequests
-                .requestMatchers("/contacts/**").access(hasScope("contacts"))
-                .requestMatchers("/messages/**").access(hasScope("messages"))
+                .requestMatchers("/contacts/**").hasAuthority("SCOPE_contacts")
+                .requestMatchers("/messages/**").hasAuthority("SCOPE_messages")
                 .anyRequest().authenticated()
             )
             .oauth2ResourceServer(OAuth2ResourceServerConfigurer::opaqueToken);
@@ -574,8 +568,6 @@ Kotlin::
 +
 [source,kotlin,role="secondary"]
 ----
-import org.springframework.security.oauth2.core.authorization.OAuth2AuthorizationManagers.hasScope
-
 @Configuration
 @EnableWebSecurity
 class MappedAuthorities {
@@ -583,8 +575,8 @@ class MappedAuthorities {
     open fun filterChain(http: HttpSecurity): SecurityFilterChain {
        http {
             authorizeRequests {
-                authorize("/contacts/**", hasScope("contacts"))
-                authorize("/messages/**", hasScope("messages"))
+                authorize("/contacts/**", hasAuthority("SCOPE_contacts"))
+                authorize("/messages/**", hasAuthority("SCOPE_messages"))
                 authorize(anyRequest, authenticated)
             }
            oauth2ResourceServer {

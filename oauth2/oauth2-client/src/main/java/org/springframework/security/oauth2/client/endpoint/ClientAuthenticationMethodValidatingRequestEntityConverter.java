@@ -41,7 +41,7 @@ class ClientAuthenticationMethodValidatingRequestEntityConverter<T extends Abstr
 				|| clientAuthenticationMethod.equals(ClientAuthenticationMethod.CLIENT_SECRET_POST);
 		Assert.isTrue(supportedClientAuthenticationMethod, () -> String.format(
 				"This class supports `client_secret_basic`, `client_secret_post`, and `none` by default. Client [%s] is using [%s] instead. Please use a supported client authentication method, or use `setRequestEntityConverter` to supply an instance that supports [%s].",
-				registrationId, clientAuthenticationMethod, clientAuthenticationMethod));
+				registrationId, clientAuthenticationMethod.getValue(), clientAuthenticationMethod.getValue()));
 		return this.delegate.convert(grantRequest);
 	}
 

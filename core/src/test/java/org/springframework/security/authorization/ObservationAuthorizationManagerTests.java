@@ -16,7 +16,6 @@
 
 package org.springframework.security.authorization;
 
-import java.util.Optional;
 import java.util.function.Supplier;
 
 import io.micrometer.observation.Observation;
@@ -26,7 +25,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
-import org.springframework.context.MessageSource;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -34,7 +32,6 @@ import org.springframework.security.core.Authentication;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -88,20 +85,14 @@ public class ObservationAuthorizationManagerTests {
 
 	@Test
 	void verifyWhenErrorsThenObserves() {
-		MessageSource source = mock(MessageSource.class);
-		this.tested.setMessageSource(source);
 		given(this.handler.supportsContext(any())).willReturn(true);
 		given(this.authorizationManager.check(any(), any())).willReturn(this.deny);
-		given(source.getMessage(eq("AbstractAccessDecisionManager.accessDenied"), any(), any(), any()))
-			.willReturn("accessDenied");
 		assertThatExceptionOfType(AccessDeniedException.class)
 			.isThrownBy(() -> this.tested.verify(this.token, this.object));
 		ArgumentCaptor<Observation.Context> captor = ArgumentCaptor.forClass(Observation.Context.class);
 		verify(this.handler).onStart(captor.capture());
 		assertThat(captor.getValue().getName()).isEqualTo(AuthorizationObservationConvention.OBSERVATION_NAME);
 		assertThat(captor.getValue().getError()).isInstanceOf(AccessDeniedException.class);
-		assertThat(Optional.ofNullable(captor.getValue().getError()).map(Throwable::getMessage).orElse(""))
-			.isEqualTo("accessDenied");
 		assertThat(captor.getValue()).isInstanceOf(AuthorizationObservationContext.class);
 		AuthorizationObservationContext<?> context = (AuthorizationObservationContext<?>) captor.getValue();
 		assertThat(context.getAuthentication()).isNull();

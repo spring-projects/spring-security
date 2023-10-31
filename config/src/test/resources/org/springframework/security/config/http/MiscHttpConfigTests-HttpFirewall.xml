@@ -32,7 +32,7 @@
 	</http>
 
 	<b:bean name="firewall" class="org.mockito.Mockito" factory-method="mock">
-		<b:constructor-arg value="org.springframework.security.web.firewall.HttpFirewall" type="java.lang.Class"/>
+		<b:constructor-arg value="org.springframework.security.web.firewall.HttpFirewall"/>
 	</b:bean>
 
 	<b:import resource="userservice.xml"/>

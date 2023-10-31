@@ -23,8 +23,8 @@ Java::
 +
 [source,java,role="primary"]
 ----
-JwtIssuerReactiveAuthenticationManagerResolver authenticationManagerResolver = JwtIssuerReactiveAuthenticationManagerResolver
-    .fromTrustedIssuers("https://idp.example.org/issuerOne", "https://idp.example.org/issuerTwo");
+JwtIssuerReactiveAuthenticationManagerResolver authenticationManagerResolver = new JwtIssuerReactiveAuthenticationManagerResolver
+    ("https://idp.example.org/issuerOne", "https://idp.example.org/issuerTwo");
 
 http
     .authorizeExchange(exchanges -> exchanges
@@ -39,8 +39,7 @@ Kotlin::
 +
 [source,kotlin,role="secondary"]
 ----
-val customAuthenticationManagerResolver = JwtIssuerReactiveAuthenticationManagerResolver
-    .fromTrustedIssuers("https://idp.example.org/issuerOne", "https://idp.example.org/issuerTwo")
+val customAuthenticationManagerResolver = JwtIssuerReactiveAuthenticationManagerResolver("https://idp.example.org/issuerOne", "https://idp.example.org/issuerTwo")
 
 return http {
     authorizeExchange {

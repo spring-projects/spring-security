@@ -1,13 +1,43 @@
 [[new]]
-= What's New in Spring Security 6.2
+= What's New in Spring Security 6.1
 
-Spring Security 6.2 provides a number of new features.
+Spring Security 6.1 provides a number of new features.
 Below are the highlights of the release.
 
-== Configuration
+== Core
 
-* https://github.com/spring-projects/spring-security/issues/5011[gh-5011] - xref:servlet/integrations/cors.adoc[(docs)] Automatically enable `.cors()` if `CorsConfigurationSource` bean is present
-* https://github.com/spring-projects/spring-security/issues/13204[gh-13204] - xref:migration-7/configuration.adoc#_use_with_instead_of_apply_for_custom_dsls[(docs)] Add `AbstractConfiguredSecurityBuilder.with(...)` method to apply configurers returning the builder
-* https://github.com/spring-projects/spring-security/pull/13587[gh-13587] - https://spring.io/blog/2023/08/22/tackling-the-oauth2-client-component-model-in-spring-security/[blog post] Simplify configuration of OAuth2 Client component model
-* https://github.com/spring-projects/spring-security/issues/7845[gh-7845] - xref:reactive/oauth2/login/logout.adoc#configure-provider-initiated-oidc-logout[docs] Add OIDC Back-channel Logout Support
-* https://github.com/spring-projects/spring-security/pull/13857[gh-13857] - xref:servlet/authorization/authorize-http-requests.adoc#match-by-mvc[docs] Add servlet pattern support to AuthorizeHttpRequests
+* https://github.com/spring-projects/spring-security/issues/12233[gh-12233] - SecuredAuthorizationManager allows customizing underlying AuthorizationManager
+* https://github.com/spring-projects/spring-security/issues/12231[gh-12231] - Add Authority Collection Authorization Manager
+
+== OAuth 2.0
+
+* https://github.com/spring-projects/spring-security/issues/10309[gh-10309] - xref:servlet/oauth2/resource-server/jwt.adoc[(docs)] - Add Nimbus(Reactive)JwtDecoder#withIssuerLocation
+* https://github.com/spring-projects/spring-security/issues/12907[gh-12907] - Configure principal claim name in ReactiveJwtAuthenticationConverter
+
+== SAML 2.0
+
+* https://github.com/spring-projects/spring-security/issues/12604[gh-12604] - Support AuthnRequestSigned metadata attribute
+* https://github.com/spring-projects/spring-security/issues/12846[gh-12846] - Metadata supports multiple entities and EntitiesDescriptor
+* https://github.com/spring-projects/spring-security/issues/11828[gh-11828] - xref:servlet/saml2/metadata.adoc[(docs)] - Add saml2Metadata to DSL
+* https://github.com/spring-projects/spring-security/issues/12843[gh-12843] - xref:servlet/saml2/logout.adoc[(docs)] - Allow Relying Party to be Deduced from LogoutRequest
+* https://github.com/spring-projects/spring-security/issues/10243[gh-10243] - xref:servlet/saml2/login/authentication.adoc[(docs)] - Allow Relying Party to be Deduced from SAML Response
+* https://github.com/spring-projects/spring-security/issues/12842[gh-12842] - Add RelyingPartyRegistration placeholder resolution component
+* https://github.com/spring-projects/spring-security/issues/12845[gh-12845] - Support issuing LogoutResponse after already logged out
+
+== Observability
+
+* https://github.com/spring-projects/spring-security/issues/12534[gh-12534] - Customize Authentication and Authorization observation conventions
+
+== Web
+
+* https://github.com/spring-projects/spring-security/issues/12751[gh-12751] - Add RequestMatchers factory class
+* https://github.com/spring-projects/spring-security/issues/12847[gh-12847] - Propagate variables through And and OrRequestMatcher
+
+== Docs
+
+In our ongoing efforts to update Spring Security's documentation, several additional sections were fully re-written:
+
+* https://github.com/spring-projects/spring-security/issues/13088[gh-13088] - xref:servlet/authorization/index.adoc[(docs)] - Revisit Authorization documentation
+* https://github.com/spring-projects/spring-security/issues/12681[gh-12681] - xref:servlet/authentication/session-management.adoc[(docs)] - Revisit Session Management documentation
+* https://github.com/spring-projects/spring-security/issues/13062[gh-13062] - xref:servlet/authentication/logout.adoc[(docs)] - Revisit Logout documentation
+* https://github.com/spring-projects/spring-security/issues/13089[gh-13089] - Revisit CSRF Documentation

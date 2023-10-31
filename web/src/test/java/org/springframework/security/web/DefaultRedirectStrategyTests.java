@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package org.springframework.security.web;
 
 import org.junit.jupiter.api.Test;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
@@ -27,7 +26,6 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 
 /**
  * @author Luke Taylor
- * @author Mark Chesney
  * @since 3.0
  */
 public class DefaultRedirectStrategyTests {
@@ -64,23 +62,6 @@ public class DefaultRedirectStrategyTests {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		assertThatIllegalArgumentException()
 			.isThrownBy(() -> rds.sendRedirect(request, response, "https://redirectme.somewhere.else"));
-	}
-
-	@Test
-	public void statusCodeIsHandledCorrectly() throws Exception {
-		// given
-		DefaultRedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
-		redirectStrategy.setStatusCode(HttpStatus.TEMPORARY_REDIRECT);
-		MockHttpServletRequest request = new MockHttpServletRequest();
-		MockHttpServletResponse response = new MockHttpServletResponse();
-
-		// when
-		redirectStrategy.sendRedirect(request, response, "/requested");
-
-		// then
-		assertThat(response.isCommitted()).isTrue();
-		assertThat(response.getRedirectedUrl()).isEqualTo("/requested");
-		assertThat(response.getStatus()).isEqualTo(307);
 	}
 
 }

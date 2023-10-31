@@ -34,7 +34,8 @@ import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 
 /**
- * A {@link WithSecurityContextFactory} that works with {@link WithUserDetails} .
+ * A {@link WithUserDetailsSecurityContextFactory} that works with {@link WithUserDetails}
+ * .
  *
  * @author Rob Winch
  * @since 4.0

@@ -55,11 +55,6 @@ public class MockServletContext extends org.springframework.mock.web.MockServlet
 		return this.registrations;
 	}
 
-	@Override
-	public ServletRegistration getServletRegistration(String servletName) {
-		return this.registrations.get(servletName);
-	}
-
 	private static class MockServletRegistration implements ServletRegistration.Dynamic {
 
 		private final String name;

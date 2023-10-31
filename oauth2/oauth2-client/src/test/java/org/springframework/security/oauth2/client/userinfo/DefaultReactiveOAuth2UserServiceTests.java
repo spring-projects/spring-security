@@ -132,14 +132,14 @@ public class DefaultReactiveOAuth2UserServiceTests {
 		enqueueApplicationJsonBody(userInfoResponse);
 		OAuth2User user = this.userService.loadUser(oauth2UserRequest()).block();
 		assertThat(user.getName()).isEqualTo("user1");
-		assertThat(user.getAttributes()).hasSize(6);
+		assertThat(user.getAttributes().size()).isEqualTo(6);
 		assertThat((String) user.getAttribute("id")).isEqualTo("user1");
 		assertThat((String) user.getAttribute("first-name")).isEqualTo("first");
 		assertThat((String) user.getAttribute("last-name")).isEqualTo("last");
 		assertThat((String) user.getAttribute("middle-name")).isEqualTo("middle");
 		assertThat((String) user.getAttribute("address")).isEqualTo("address");
 		assertThat((String) user.getAttribute("email")).isEqualTo("user1@example.com");
-		assertThat(user.getAuthorities()).hasSize(1);
+		assertThat(user.getAuthorities().size()).isEqualTo(1);
 		assertThat(user.getAuthorities().iterator().next()).isInstanceOf(OAuth2UserAuthority.class);
 		OAuth2UserAuthority userAuthority = (OAuth2UserAuthority) user.getAuthorities().iterator().next();
 		assertThat(userAuthority.getAuthority()).isEqualTo("OAUTH2_USER");

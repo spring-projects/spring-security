@@ -1,4 +1,4 @@
-= SecurityMockMvcRequestBuilders
+== SecurityMockMvcRequestBuilders
 
 Spring MVC Test also provides a `RequestBuilder` interface that can be used to create the `MockHttpServletRequest` used in your test.
 Spring Security provides a few `RequestBuilder` implementations that can be used to make testing easier.

@@ -46,7 +46,7 @@ public class BasicAuthenticationDecoderTests {
 		UsernamePasswordMetadata actualCredentials = decoder
 			.decodeToMono(Mono.just(dataBuffer), elementType, mimeType, hints)
 			.block();
-		assertThat(actualCredentials).usingRecursiveComparison().isEqualTo(expectedCredentials);
+		assertThat(actualCredentials).isEqualToComparingFieldByField(expectedCredentials);
 	}
 
 }

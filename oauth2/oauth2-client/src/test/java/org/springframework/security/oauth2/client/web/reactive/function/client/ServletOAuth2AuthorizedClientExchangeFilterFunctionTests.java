@@ -680,7 +680,7 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 			.attributes(ServletOAuth2AuthorizedClientExchangeFilterFunction.httpServletRequest(servletRequest))
 			.attributes(ServletOAuth2AuthorizedClientExchangeFilterFunction.httpServletResponse(servletResponse))
 			.build();
-		given(this.exchange.getResponse().statusCode()).willReturn(httpStatus);
+		given(this.exchange.getResponse().rawStatusCode()).willReturn(httpStatus.value());
 		given(this.exchange.getResponse().headers()).willReturn(mock(ClientResponse.Headers.class));
 		this.function.setAuthorizationFailureHandler(this.authorizationFailureHandler);
 		this.function.filter(request, this.exchange).block();
@@ -825,7 +825,7 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 			.attributes(ServletOAuth2AuthorizedClientExchangeFilterFunction.httpServletRequest(servletRequest))
 			.attributes(ServletOAuth2AuthorizedClientExchangeFilterFunction.httpServletResponse(servletResponse))
 			.build();
-		given(this.exchange.getResponse().statusCode()).willReturn(HttpStatus.BAD_REQUEST);
+		given(this.exchange.getResponse().rawStatusCode()).willReturn(HttpStatus.BAD_REQUEST.value());
 		given(this.exchange.getResponse().headers()).willReturn(mock(ClientResponse.Headers.class));
 		this.function.setAuthorizationFailureHandler(this.authorizationFailureHandler);
 		this.function.filter(request, this.exchange).block();
