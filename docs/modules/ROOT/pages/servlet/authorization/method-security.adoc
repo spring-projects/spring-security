@@ -140,7 +140,7 @@ In other words, for an invocation to be authorized, all annotation inspections n
 === Repeated Annotations Are Not Supported
 
 That said, it is not supported to repeat the same annotation on the same method.
-For example, you cannot please `@PreAuthorize` twice on the same method.
+For example, you cannot place `@PreAuthorize` twice on the same method.
 
 Instead, use SpEL's boolean support or its support for delegating to a separate bean.
 
