@@ -23,3 +23,8 @@ Below are the highlights of the release.
 
 * https://github.com/spring-projects/spring-security/pull/12817[gh-12817] - Make Configurable RedirectStrategy status code
 * https://github.com/spring-projects/spring-security/issues/13988[gh-13988] - Make Configurable HTTP Basic request parsing
+
+== Documentation
+
+* https://github.com/spring-projects/spring-security/issues/13784[gh-13784] - xref:servlet/oauth2/index.adoc[docs] - Update OAuth2 docs landing page with examples
+* https://github.com/spring-projects/spring-security/issues/11926[gh-11926] - xref:servlet/authentication/passwords/index.adoc#publish-authentication-manager-bean[docs] Document how to publish an `AuthenticationManager` `@Bean` without `WebSecurityConfigurerAdapter`
