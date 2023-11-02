@@ -31,7 +31,7 @@ If it contains a value, it is used as the currently authenticated user.
 The simplest way to indicate a user is authenticated is to set the `SecurityContextHolder` directly:
 
 .Setting `SecurityContextHolder`
-====
+
 [tabs]
 ======
 Java::
@@ -66,7 +66,7 @@ Here, we use `TestingAuthenticationToken`, because it is very simple.
 A more common production scenario is `UsernamePasswordAuthenticationToken(userDetails, password, authorities)`.
 <3> Finally, we set the `SecurityContext` on the `SecurityContextHolder`.
 Spring Security uses this information for xref:servlet/authorization/index.adoc#servlet-authorization[authorization].
-====
+
 
 To obtain information about the authenticated principal, access the `SecurityContextHolder`.
 
