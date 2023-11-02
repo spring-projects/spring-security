@@ -69,7 +69,7 @@ public class DefaultLogoutPageGeneratingFilter extends OncePerRequestFilter {
 		sb.append("    <meta name=\"description\" content=\"\">\n");
 		sb.append("    <meta name=\"author\" content=\"\">\n");
 		sb.append("    <title>Confirm Log Out?</title>\n");
-		sb.append("    <link href=\"https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css\" "
+		sb.append("    <link href=\"https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/4.0.0/css/bootstrap.min.css\" "
 				+ "rel=\"stylesheet\" integrity=\"sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M\" "
 				+ "crossorigin=\"anonymous\">\n");
 		sb.append("    <link href=\"https://getbootstrap.com/docs/4.0/examples/signin/signin.css\" "
