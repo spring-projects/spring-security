@@ -133,6 +133,7 @@ public class UnboundIdContainer
 	@Override
 	public void stop() {
 		this.directoryServer.shutDown(true);
+		this.running = false;
 	}
 
 	@Override
