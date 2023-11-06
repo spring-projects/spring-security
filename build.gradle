@@ -88,7 +88,9 @@ tasks.named("dispatchGitHubWorkflow") {
 
 subprojects {
 	plugins.withType(JavaPlugin) {
-		project.sourceCompatibility=JavaVersion.VERSION_17
+		java {
+			sourceCompatibility=JavaVersion.VERSION_17
+		}
 	}
 	tasks.withType(JavaCompile) {
 		options.encoding = "UTF-8"
