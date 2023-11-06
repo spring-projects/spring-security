@@ -66,6 +66,10 @@ import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepo
  */
 final class OAuth2AuthorizedClientManagerRegistrar implements BeanDefinitionRegistryPostProcessor, BeanFactoryAware {
 
+	static final String BEAN_NAME = "authorizedClientManagerRegistrar";
+
+	static final String FACTORY_METHOD_NAME = "getAuthorizedClientManager";
+
 	// @formatter:off
 	private static final Set<Class<?>> KNOWN_AUTHORIZED_CLIENT_PROVIDERS = Set.of(
 			AuthorizationCodeOAuth2AuthorizedClientProvider.class,
@@ -88,8 +92,8 @@ final class OAuth2AuthorizedClientManagerRegistrar implements BeanDefinitionRegi
 			return;
 		}
 
-		BeanDefinition beanDefinition = BeanDefinitionBuilder
-			.genericBeanDefinition(OAuth2AuthorizedClientManager.class, this::getAuthorizedClientManager)
+		BeanDefinition beanDefinition = BeanDefinitionBuilder.rootBeanDefinition(OAuth2AuthorizedClientManager.class)
+			.setFactoryMethodOnBean(FACTORY_METHOD_NAME, BEAN_NAME)
 			.getBeanDefinition();
 
 		registry.registerBeanDefinition(this.beanNameGenerator.generateBeanName(beanDefinition, registry),

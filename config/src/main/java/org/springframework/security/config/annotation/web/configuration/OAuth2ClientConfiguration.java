@@ -106,7 +106,7 @@ final class OAuth2ClientConfiguration {
 	@Configuration(proxyBeanMethods = false)
 	static class OAuth2AuthorizedClientManagerConfiguration {
 
-		@Bean
+		@Bean(name = OAuth2AuthorizedClientManagerRegistrar.BEAN_NAME)
 		OAuth2AuthorizedClientManagerRegistrar authorizedClientManagerRegistrar() {
 			return new OAuth2AuthorizedClientManagerRegistrar();
 		}
@@ -173,6 +173,10 @@ final class OAuth2ClientConfiguration {
 	static final class OAuth2AuthorizedClientManagerRegistrar
 			implements BeanDefinitionRegistryPostProcessor, BeanFactoryAware {
 
+		static final String BEAN_NAME = "authorizedClientManagerRegistrar";
+
+		static final String FACTORY_METHOD_NAME = "getAuthorizedClientManager";
+
 		// @formatter:off
 		private static final Set<Class<?>> KNOWN_AUTHORIZED_CLIENT_PROVIDERS = Set.of(
 				AuthorizationCodeOAuth2AuthorizedClientProvider.class,
@@ -196,7 +200,8 @@ final class OAuth2ClientConfiguration {
 			}
 
 			BeanDefinition beanDefinition = BeanDefinitionBuilder
-				.genericBeanDefinition(OAuth2AuthorizedClientManager.class, this::getAuthorizedClientManager)
+				.rootBeanDefinition(OAuth2AuthorizedClientManager.class)
+				.setFactoryMethodOnBean(FACTORY_METHOD_NAME, BEAN_NAME)
 				.getBeanDefinition();
 
 			registry.registerBeanDefinition(this.beanNameGenerator.generateBeanName(beanDefinition, registry),
@@ -220,7 +225,7 @@ final class OAuth2ClientConfiguration {
 			return getAuthorizedClientManager();
 		}
 
-		private OAuth2AuthorizedClientManager getAuthorizedClientManager() {
+		OAuth2AuthorizedClientManager getAuthorizedClientManager() {
 			ClientRegistrationRepository clientRegistrationRepository = BeanFactoryUtils
 				.beanOfTypeIncludingAncestors(this.beanFactory, ClientRegistrationRepository.class, true, true);
 

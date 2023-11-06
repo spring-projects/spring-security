@@ -422,7 +422,9 @@ final class AuthenticationConfigBuilder {
 				.registerWithGeneratedName(new RootBeanDefinition(OAuth2ClientWebMvcSecurityPostProcessor.class));
 		}
 		this.pc.getReaderContext()
-			.registerWithGeneratedName(new RootBeanDefinition(OAuth2AuthorizedClientManagerRegistrar.class));
+			.getRegistry()
+			.registerBeanDefinition(OAuth2AuthorizedClientManagerRegistrar.BEAN_NAME,
+					new RootBeanDefinition(OAuth2AuthorizedClientManagerRegistrar.class));
 	}
 
 	private void createSaml2LoginFilter(BeanReference authenticationManager,
