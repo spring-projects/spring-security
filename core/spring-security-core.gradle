@@ -37,7 +37,7 @@ dependencies {
 }
 
 task springVersion(type: org.gradle.api.tasks.WriteProperties) {
-	outputFile = file("${buildDir}/versions/spring-security.versions")
+	destinationFile = file("${buildDir}/versions/spring-security.versions")
 	property("org.springframework:spring-core", springVersion())
 }
 
