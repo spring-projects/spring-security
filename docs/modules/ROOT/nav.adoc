@@ -11,6 +11,7 @@
 * xref:features/index.adoc[Features]
 ** xref:features/authentication/index.adoc[Authentication]
 *** xref:features/authentication/password-storage.adoc[Password Storage]
+** xref:features/authorization/index.adoc[Authorization]
 ** xref:features/exploits/index.adoc[Protection Against Exploits]
 *** xref:features/exploits/csrf.adoc[CSRF]
 *** xref:features/exploits/headers.adoc[HTTP Headers]
