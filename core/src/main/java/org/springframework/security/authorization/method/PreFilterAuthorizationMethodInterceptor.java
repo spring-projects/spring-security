@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,8 +47,7 @@ import org.springframework.util.StringUtils;
 public final class PreFilterAuthorizationMethodInterceptor
 		implements Ordered, MethodInterceptor, PointcutAdvisor, AopInfrastructureBean {
 
-	private Supplier<Authentication> authentication = getAuthentication(
-			SecurityContextHolder.getContextHolderStrategy());
+	private Supplier<SecurityContextHolderStrategy> securityContextHolderStrategy = SecurityContextHolder::getContextHolderStrategy;
 
 	private PreFilterExpressionAttributeRegistry registry = new PreFilterExpressionAttributeRegistry();
 
@@ -109,7 +108,7 @@ public final class PreFilterAuthorizationMethodInterceptor
 	 * @since 5.8
 	 */
 	public void setSecurityContextHolderStrategy(SecurityContextHolderStrategy strategy) {
-		this.authentication = getAuthentication(strategy);
+		this.securityContextHolderStrategy = () -> strategy;
 	}
 
 	/**
@@ -124,7 +123,7 @@ public final class PreFilterAuthorizationMethodInterceptor
 			return mi.proceed();
 		}
 		MethodSecurityExpressionHandler expressionHandler = this.registry.getExpressionHandler();
-		EvaluationContext ctx = expressionHandler.createEvaluationContext(this.authentication, mi);
+		EvaluationContext ctx = expressionHandler.createEvaluationContext(this::getAuthentication, mi);
 		Object filterTarget = findFilterTarget(attribute.getFilterTarget(), ctx, mi);
 		expressionHandler.filter(filterTarget, attribute.getExpression(), ctx);
 		return mi.proceed();
@@ -150,15 +149,13 @@ public final class PreFilterAuthorizationMethodInterceptor
 		return filterTarget;
 	}
 
-	private Supplier<Authentication> getAuthentication(SecurityContextHolderStrategy strategy) {
-		return () -> {
-			Authentication authentication = strategy.getContext().getAuthentication();
-			if (authentication == null) {
-				throw new AuthenticationCredentialsNotFoundException(
-						"An Authentication object was not found in the SecurityContext");
-			}
-			return authentication;
-		};
+	private Authentication getAuthentication() {
+		Authentication authentication = this.securityContextHolderStrategy.get().getContext().getAuthentication();
+		if (authentication == null) {
+			throw new AuthenticationCredentialsNotFoundException(
+					"An Authentication object was not found in the SecurityContext");
+		}
+		return authentication;
 	}
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationEventPublisher;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
@@ -89,6 +90,25 @@ public class AuthorizationManagerAfterMethodInterceptorTests {
 		advice.setSecurityContextHolderStrategy(strategy);
 		advice.invoke(invocation);
 		verify(strategy).getContext();
+	}
+
+	// gh-12877
+	@Test
+	public void afterWhenStaticSecurityContextHolderStrategyAfterConstructorThenUses() throws Throwable {
+		SecurityContextHolderStrategy strategy = mock(SecurityContextHolderStrategy.class);
+		Authentication authentication = new TestingAuthenticationToken("john", "password",
+				AuthorityUtils.createAuthorityList("authority"));
+		given(strategy.getContext()).willReturn(new SecurityContextImpl(authentication));
+		MethodInvocation invocation = mock(MethodInvocation.class);
+		AuthorizationManager<MethodInvocationResult> authorizationManager = AuthenticatedAuthorizationManager
+			.authenticated();
+		AuthorizationManagerAfterMethodInterceptor advice = new AuthorizationManagerAfterMethodInterceptor(
+				Pointcut.TRUE, authorizationManager);
+		SecurityContextHolderStrategy saved = SecurityContextHolder.getContextHolderStrategy();
+		SecurityContextHolder.setContextHolderStrategy(strategy);
+		advice.invoke(invocation);
+		verify(strategy).getContext();
+		SecurityContextHolder.setContextHolderStrategy(saved);
 	}
 
 	@Test
