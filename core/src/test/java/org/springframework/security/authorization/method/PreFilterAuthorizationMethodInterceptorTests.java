@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -202,6 +202,26 @@ public class PreFilterAuthorizationMethodInterceptorTests {
 		advice.setSecurityContextHolderStrategy(strategy);
 		advice.invoke(invocation);
 		verify(strategy).getContext();
+	}
+
+	// gh-12877
+	@Test
+	public void preFilterWhenStaticSecurityContextHolderStrategyAfterConstructorThenUses() throws Throwable {
+		SecurityContextHolderStrategy strategy = mock(SecurityContextHolderStrategy.class);
+		Authentication authentication = new TestingAuthenticationToken("john", "password",
+				AuthorityUtils.createAuthorityList("authority"));
+		given(strategy.getContext()).willReturn(new SecurityContextImpl(authentication));
+		List<String> list = new ArrayList<>();
+		list.add("john");
+		list.add("bob");
+		MockMethodInvocation invocation = new MockMethodInvocation(new TestClass(), TestClass.class,
+				"doSomethingArrayFilterAuthentication", new Class[] { List.class }, new Object[] { list });
+		PreFilterAuthorizationMethodInterceptor advice = new PreFilterAuthorizationMethodInterceptor();
+		SecurityContextHolderStrategy saved = SecurityContextHolder.getContextHolderStrategy();
+		SecurityContextHolder.setContextHolderStrategy(strategy);
+		advice.invoke(invocation);
+		verify(strategy).getContext();
+		SecurityContextHolder.setContextHolderStrategy(saved);
 	}
 
 	@PreFilter("filterObject == 'john'")

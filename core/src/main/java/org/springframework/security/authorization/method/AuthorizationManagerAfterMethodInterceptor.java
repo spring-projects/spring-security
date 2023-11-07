@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,8 +51,7 @@ import org.springframework.util.Assert;
 public final class AuthorizationManagerAfterMethodInterceptor
 		implements Ordered, MethodInterceptor, PointcutAdvisor, AopInfrastructureBean {
 
-	private Supplier<Authentication> authentication = getAuthentication(
-			SecurityContextHolder.getContextHolderStrategy());
+	private Supplier<SecurityContextHolderStrategy> securityContextHolderStrategy = SecurityContextHolder::getContextHolderStrategy;
 
 	private final Log logger = LogFactory.getLog(this.getClass());
 
@@ -170,14 +169,14 @@ public final class AuthorizationManagerAfterMethodInterceptor
 	 * @since 5.8
 	 */
 	public void setSecurityContextHolderStrategy(SecurityContextHolderStrategy strategy) {
-		this.authentication = getAuthentication(strategy);
+		this.securityContextHolderStrategy = () -> strategy;
 	}
 
 	private void attemptAuthorization(MethodInvocation mi, Object result) {
 		this.logger.debug(LogMessage.of(() -> "Authorizing method invocation " + mi));
 		MethodInvocationResult object = new MethodInvocationResult(mi, result);
-		AuthorizationDecision decision = this.authorizationManager.check(this.authentication, object);
-		this.eventPublisher.publishAuthorizationEvent(this.authentication, object, decision);
+		AuthorizationDecision decision = this.authorizationManager.check(this::getAuthentication, object);
+		this.eventPublisher.publishAuthorizationEvent(this::getAuthentication, object, decision);
 		if (decision != null && !decision.isGranted()) {
 			this.logger.debug(LogMessage.of(() -> "Failed to authorize " + mi + " with authorization manager "
 					+ this.authorizationManager + " and decision " + decision));
@@ -186,15 +185,13 @@ public final class AuthorizationManagerAfterMethodInterceptor
 		this.logger.debug(LogMessage.of(() -> "Authorized method invocation " + mi));
 	}
 
-	private Supplier<Authentication> getAuthentication(SecurityContextHolderStrategy strategy) {
-		return () -> {
-			Authentication authentication = strategy.getContext().getAuthentication();
-			if (authentication == null) {
-				throw new AuthenticationCredentialsNotFoundException(
-						"An Authentication object was not found in the SecurityContext");
-			}
-			return authentication;
-		};
+	private Authentication getAuthentication() {
+		Authentication authentication = this.securityContextHolderStrategy.get().getContext().getAuthentication();
+		if (authentication == null) {
+			throw new AuthenticationCredentialsNotFoundException(
+					"An Authentication object was not found in the SecurityContext");
+		}
+		return authentication;
 	}
 
 	private static <T> void noPublish(Supplier<Authentication> authentication, T object,
