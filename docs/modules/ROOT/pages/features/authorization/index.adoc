@@ -8,7 +8,9 @@ Spring Security provides https://en.wikipedia.org/wiki/Defense_in_depth_(computi
 [[authorization-request]]
 == Request Based Authorization
 
-Spring Security provides authorization based upon the request for both xref:servlet/authorization/index.adoc[Servlet] and WebFlux environments.
+Spring Security provides authorization based upon the request for both xref:servlet/authorization/authorize-http-requests.adoc[Servlet] and xref:reactive/authorization/authorize-http-requests.adoc[WebFlux] environments.
 
 [[authorization-method]]
 == Method Based Authorization
+
+Spring Security provides authorization based on the method invocation for both xref:servlet/authorization/method-security.adoc[Servlet] and xref:reactive/authorization/method.adoc[WebFlux] environments.
