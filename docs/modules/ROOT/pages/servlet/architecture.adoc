@@ -171,8 +171,10 @@ However, there are times that it is beneficial to know the ordering, if you want
 
 To exemplify the above paragraph, let's consider the following security configuration:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Configuration
@@ -193,7 +195,9 @@ public class SecurityConfig {
 
 }
 ----
-.Kotlin
+
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 import org.springframework.security.config.web.servlet.invoke
@@ -217,7 +221,7 @@ class SecurityConfig {
 
 }
 ----
-====
+======
 
 The above configuration will result in the following `Filter` ordering:
 
@@ -333,8 +337,9 @@ Instead of implementing `Filter`, you can extend from {spring-framework-api-url}
 
 Now, we need to add the filter to the security filter chain.
 
-====
-.Java
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -345,7 +350,9 @@ SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     return http.build();
 }
 ----
-.Kotlin
+
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -356,7 +363,7 @@ fun filterChain(http: HttpSecurity): SecurityFilterChain {
     return http.build()
 }
 ----
-====
+======
 
 <1> Use `HttpSecurity#addFilterBefore` to add the `TenantFilter` before the `AuthorizationFilter`.
 
