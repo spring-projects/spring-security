@@ -171,4 +171,18 @@ public class DefaultLoginPageGeneratingFilterTests {
 			.contains("<a href=\"/saml/sso/google\">Google &lt; &gt; &quot; &#39; &amp;</a>");
 	}
 
+	// gh-13768
+	@Test
+	public void generatesWhenExceptionWithEmptyMessageThenInvalidCredentials() throws Exception {
+		DefaultLoginPageGeneratingFilter filter = new DefaultLoginPageGeneratingFilter(
+				new UsernamePasswordAuthenticationFilter());
+		filter.setLoginPageUrl(DefaultLoginPageGeneratingFilter.DEFAULT_LOGIN_PAGE_URL);
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/login");
+		request.setQueryString("error");
+		request.getSession().setAttribute(WebAttributes.AUTHENTICATION_EXCEPTION, new BadCredentialsException(null));
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		filter.doFilter(request, response, this.chain);
+		assertThat(response.getContentAsString()).contains("Invalid credentials");
+	}
+
 }
