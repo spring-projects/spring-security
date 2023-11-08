@@ -35,6 +35,7 @@ import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.rememberme.AbstractRememberMeServices;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 import org.springframework.web.filter.GenericFilterBean;
 import org.springframework.web.util.HtmlUtils;
 
@@ -266,11 +267,17 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 
 	private String getLoginErrorMessage(HttpServletRequest request) {
 		HttpSession session = request.getSession(false);
-		if (session != null && session
-			.getAttribute(WebAttributes.AUTHENTICATION_EXCEPTION) instanceof AuthenticationException exception) {
-			return exception.getMessage();
+		if (session == null) {
+			return "Invalid credentials";
 		}
-		return "Invalid credentials";
+		if (!(session
+			.getAttribute(WebAttributes.AUTHENTICATION_EXCEPTION) instanceof AuthenticationException exception)) {
+			return "Invalid credentials";
+		}
+		if (!StringUtils.hasText(exception.getMessage())) {
+			return "Invalid credentials";
+		}
+		return exception.getMessage();
 	}
 
 	private String renderHiddenInputs(HttpServletRequest request) {
