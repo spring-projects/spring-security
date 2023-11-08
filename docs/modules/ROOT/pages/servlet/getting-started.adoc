@@ -93,11 +93,10 @@ then Spring Boot will service the request, returning a `404 Not Found` in this c
 
 From here, you can:
 
-* Better understand <<hello-expectations,what Spring Boot enables in Spring Security by default>>
+* Better understand <<servlet-hello-auto-configuration,what Spring Boot enables in Spring Security by default>>
 * Read about <<security-use-cases,common use cases>> that Spring Security helps with
 * Start configuring xref:servlet/authentication/index.adoc[authentication]
 
-[[hello-expectations]]
 [[servlet-hello-auto-configuration]]
 == Runtime Expectations
 
