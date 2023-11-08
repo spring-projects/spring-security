@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,6 +35,7 @@ import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.rememberme.AbstractRememberMeServices;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 import org.springframework.web.filter.GenericFilterBean;
 import org.springframework.web.util.HtmlUtils;
 
@@ -195,7 +196,8 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 			if (session != null) {
 				AuthenticationException ex = (AuthenticationException) session
 					.getAttribute(WebAttributes.AUTHENTICATION_EXCEPTION);
-				errorMsg = (ex != null) ? ex.getMessage() : "Invalid credentials";
+				errorMsg = (ex != null && StringUtils.hasLength(ex.getMessage())) ? ex.getMessage()
+						: "Invalid credentials";
 			}
 		}
 		String contextPath = request.getContextPath();
