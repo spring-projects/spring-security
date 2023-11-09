@@ -365,6 +365,17 @@ public class JdbcUserDetailsManagerTests {
 		assertThat(updatedAuth.getCredentials()).isNull();
 	}
 
+	@Test
+	public void updatePasswordSucceeds() {
+		insertJoe();
+		UserDetails joe = this.manager.loadUserByUsername("joe");
+		UserDetails returnedJoe = this.manager.updatePassword(joe, "newPassword");
+		assertThat(returnedJoe.getPassword()).isEqualTo("newPassword");
+		UserDetails newJoe = this.manager.loadUserByUsername("joe");
+		assertThat(newJoe.getPassword()).isEqualTo("newPassword");
+		assertThat(this.cache.getUserMap().containsKey("joe")).isFalse();
+	}
+
 	private Authentication authenticateJoe() {
 		UsernamePasswordAuthenticationToken auth = UsernamePasswordAuthenticationToken.authenticated("joe", "password",
 				joe.getAuthorities());

@@ -114,6 +114,8 @@ public class NamespaceJdbcUserServiceTests {
 				.usersByUsernameQuery("select principal,credentials,true from users where principal = ?")
 				// jdbc-user-service@authorities-by-username-query
 				.authoritiesByUsernameQuery("select principal,role from roles where principal = ?")
+				// jdbc-user-service@change-password-query
+				.changePasswordQuery("update users set credentials = ? where principal = ?")
 				// jdbc-user-service@group-authorities-by-username-query
 				.groupAuthoritiesByUsername(JdbcDaoImpl.DEF_GROUP_AUTHORITIES_BY_USERNAME_QUERY)
 				// jdbc-user-service@role-prefix

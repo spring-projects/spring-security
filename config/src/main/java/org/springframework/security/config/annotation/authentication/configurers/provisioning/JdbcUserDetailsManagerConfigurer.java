@@ -88,6 +88,21 @@ public class JdbcUserDetailsManagerConfigurer<B extends ProviderManagerBuilder<B
 	}
 
 	/**
+	 * Sets the query to be used for updating a password for a user. For example:
+	 *
+	 * <code>
+	 *     update users set password = ? where username = ?
+	 * </code>
+	 * @param query The query to use for setting the password for a user. Myst contain a parameter for the password, and one for the username.
+	 * @return The {@link JdbcUserDetailsManagerConfigurer} used for additional
+	 * customizations
+	 */
+	public JdbcUserDetailsManagerConfigurer<B> changePasswordQuery(String query) {
+		getUserDetailsService().setChangePasswordSql(query);
+		return this;
+	}
+
+	/**
 	 * Sets the query to be used for finding a user's authorities by their username. For
 	 * example:
 	 *

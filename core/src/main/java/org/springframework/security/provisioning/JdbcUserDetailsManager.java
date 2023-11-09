@@ -44,6 +44,7 @@ import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserCache;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsPasswordService;
 import org.springframework.security.core.userdetails.cache.NullUserCache;
 import org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl;
 import org.springframework.util.Assert;
@@ -63,7 +64,7 @@ import org.springframework.util.Assert;
  * @author Luke Taylor
  * @since 2.0
  */
-public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsManager, GroupManager {
+public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsManager, UserDetailsPasswordService, GroupManager {
 
 	public static final String DEF_CREATE_USER_SQL = "insert into users (username, password, enabled) values (?,?,?)";
 
@@ -549,6 +550,14 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 		this.userCache = userCache;
 	}
 
+	@Override
+	public UserDetails updatePassword(UserDetails user, String newPassword) {
+		this.logger.debug("Updating password for user '" + user.getUsername() + "'");
+		getJdbcTemplate().update(this.changePasswordSql, newPassword, user.getUsername());
+		this.userCache.removeUserFromCache(user.getUsername());
+		return User.withUserDetails(user).password(newPassword).build();
+	}
+
 	private void validateUserDetails(UserDetails user) {
 		Assert.hasText(user.getUsername(), "Username may not be empty or null");
 		validateAuthorities(user.getAuthorities());
@@ -561,5 +570,4 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 			Assert.hasText(authority.getAuthority(), "getAuthority() method must return a non-empty string");
 		}
 	}
-
 }
