@@ -40,6 +40,8 @@ jobs:
           # Extract version from gradle.properties
           version=$(cat gradle.properties | grep "version=" | awk -F'=' '{print $2}')
           echo "project_version=$version" >>$GITHUB_OUTPUT
+          samples_branch=$(cat gradle.properties | grep "samplesBranch=" | awk -F'=' '{print $2}')
+          echo "samples_branch=$samples_branch" >>$GITHUB_OUTPUT
   build_jdk_17:
     name: Build JDK 17
     needs: [prerequisites]
@@ -108,12 +110,13 @@ jobs:
           LOCAL_REPOSITORY_PATH: ${{ github.workspace }}/build/publications/repos
           SAMPLES_DIR: ../spring-security-samples
           VERSION: ${{ needs.prerequisites.outputs.project_version }}
+          SAMPLES_BRANCH: ${{ needs.prerequisites.outputs.samples_branch }}
         run: |
           export GRADLE_ENTERPRISE_CACHE_USERNAME="$GRADLE_ENTERPRISE_CACHE_USER"
           export GRADLE_ENTERPRISE_CACHE_PASSWORD="$GRADLE_ENTERPRISE_CACHE_PASSWORD"
           export GRADLE_ENTERPRISE_ACCESS_KEY="$GRADLE_ENTERPRISE_SECRET_ACCESS_KEY"
           ./gradlew publishMavenJavaPublicationToLocalRepository
-          ./gradlew cloneSamples -PcloneOutputDirectory="$SAMPLES_DIR"
+          ./gradlew cloneRepository -PrepositoryName="spring-projects/spring-security-samples" -Pref="$SAMPLES_BRANCH" -PcloneOutputDirectory="$SAMPLES_DIR"
           ./gradlew --project-dir "$SAMPLES_DIR" --init-script spring-security-ci.gradle -PlocalRepositoryPath="$LOCAL_REPOSITORY_PATH" -PspringSecurityVersion="$VERSION" :runAllTests
   check_tangles:
     name: Check for Package Tangles

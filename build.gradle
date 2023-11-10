@@ -154,10 +154,11 @@ nohttp {
 	source.builtBy(project(':spring-security-config').tasks.withType(RncToXsd))
 }
 
-tasks.register('cloneSamples', IncludeRepoTask) {
-	repository = 'spring-projects/spring-security-samples'
-	ref = samplesBranch
-	outputDirectory = project.hasProperty("cloneOutputDirectory") ? project.file("$cloneOutputDirectory") : project.file("build/samples")
+tasks.register('cloneRepository', IncludeRepoTask) {
+	repository = project.getProperties().get("repositoryName")
+	ref = project.getProperties().get("ref")
+	var defaultDirectory = project.file("build/tmp/clone")
+	outputDirectory = project.hasProperty("cloneOutputDirectory") ? project.file("$cloneOutputDirectory") : defaultDirectory
 }
 
 s101 {
