@@ -30,6 +30,7 @@ jobs:
     outputs:
       runjobs: ${{ steps.continue.outputs.runjobs }}
       project_version: ${{ steps.continue.outputs.project_version }}
+      samples_branch: ${{ steps.continue.outputs.samples_branch }}
     steps:
       - uses: actions/checkout@v3
       - id: continue
