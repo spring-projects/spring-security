@@ -36,7 +36,7 @@ class HelloMessageService : MessageService {
 ======
 
 The result of `getMessage` is a `String` that says "`Hello`" to the current Spring Security `Authentication`.
-The follwoing listing shows example output:
+The following listing shows example output:
 
 [source,text]
 ----
