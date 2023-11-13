@@ -816,4 +816,41 @@ class AuthorizeHttpRequestsDslTests {
         }
 
     }
+
+    @Test
+    fun `request when ip address does not match then responds with forbidden`() {
+        this.spring.register(HasIpAddressConfig::class.java).autowire()
+
+        this.mockMvc.perform(get("/path")
+            .with { request ->
+                request.setAttribute(WebUtils.ERROR_REQUEST_URI_ATTRIBUTE, "/error")
+                request.apply {
+                    dispatcherType = DispatcherType.ERROR
+                }
+            })
+            .andExpect(status().isForbidden)
+    }
+
+    @Configuration
+    @EnableWebSecurity
+    @EnableWebMvc
+    open class HasIpAddressConfig {
+
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+            http {
+                authorizeHttpRequests {
+                    authorize(anyRequest, hasIpAddress("10.0.0.0/24"))
+                }
+            }
+            return http.build()
+        }
+
+        @RestController
+        internal class PathController {
+            @RequestMapping("/path")
+            fun path() {
+            }
+        }
+    }
 }
