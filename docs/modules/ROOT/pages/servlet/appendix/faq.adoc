@@ -24,7 +24,7 @@ This FAQ answers the following general questions:
 
 Spring Security provides you with a flexible framework for your authentication and authorization requirements, but there are many other considerations for building a secure application that are outside its scope.
 Web applications are vulnerable to all kinds of attacks with which you should be familiar, preferably before you start development so that you can design and code with them in mind from the beginning.
-Check out the https://www.owasp.org/[OWASP web site] for information on the major issues that face web application developers and the countermeasures you can use against them.
+Check out the https://www.owasp.org/[OWASP website] for information on the major issues that face web application developers and the countermeasures you can use against them.
 
 
 [[appendix-faq-web-xml]]
@@ -60,7 +60,7 @@ It should be considered that Spring remoting exporters export only service layer
 While the principal may be passed to the services layer to enable it to make the authorization decision, doing so would introduce an additional argument on every services layer method.
 A more elegant approach is to use a `ThreadLocal` to hold the principal, although this would likely increase development time to a point where it would become more economical (on a cost-benefit basis) to use a dedicated security framework.
 
-** _Authorisation code quality:_ It is often said of web frameworks that they "`make it easier to do the right things, and harder to do the wrong things`". Security frameworks are the same, because they are designed in an abstract manner for a wide range of purposes.
+** _Authorization code quality:_ It is often said of web frameworks that they "`make it easier to do the right things, and harder to do the wrong things`". Security frameworks are the same, because they are designed in an abstract manner for a wide range of purposes.
 Writing your own authorization code from scratch does not provide the "`design check`" a framework would offer, and in-house authorization code typically lacks the improvements that emerge from widespread deployment, peer review, and new versions.
 
 For simple applications, servlet specification security may be enough.
@@ -92,7 +92,7 @@ However, if you try to jump straight to a complicated deployment scenario like t
 There is a big jump in the learning curve required to set up systems such as CAS, configure LDAP servers, and install SSL certificates properly.
 So you need to take things one step at a time.
 
-From a Spring Security perspective, the first thing you should do is follow the "`Getting Started`" guide on the web site.
+From a Spring Security perspective, the first thing you should do is follow the "`Getting Started`" guide on the website.
 This will take you through a series of steps to get up and running and get some idea of how the framework operates.
 If you use other technologies with which you are not familiar, you should do some research and try to make sure you can use them in isolation before combining them in a complex system.
 
@@ -130,12 +130,12 @@ It does not say why, as it is good practice to avoid giving details that might h
 This also means that, if you ask this question online, you should not expect an answer unless you provide additional information.
 As with any issue, you should check the output from the debug log and note any exception stacktraces and related messages.
 You should step through the code in a debugger to see where the authentication fails and why.
-You should also write a test case which exercises your authentication configuration outside of the application.
+You should also write a test case which exercises your authentication configuration outside the application.
 If you use hashed passwords, make sure the value stored in your database is _exactly_ the same as the value produced by the `PasswordEncoder` configured in your application.
 
 
 [[appendix-faq-login-loop]]
-=== My application goes into an "`endless loop`" when I try to login. What is going on?
+=== My application goes into an "`endless loop`" when I try to log in. What is going on?
 
 A common user problem with infinite loop and redirecting to the login page is caused by accidentally configuring the login page as a "`secured`" resource.
 Make sure your configuration allows anonymous access to the login page, either by excluding it from the security filter chain or marking it as requiring `ROLE_ANONYMOUS`.
@@ -164,7 +164,7 @@ It is normal and shouldn't be anything to worry about.
 [[appendix-faq-cached-secure-page]]
 === Why can I still see a secured page even after I have logged out of my application?
 
-The most common reason for this is that your browser has cached the page and you are seeing a copy that is being retrieved from the browsers cache.
+The most common reason for this is that your browser has cached the page, and you are seeing a copy that is being retrieved from the browsers cache.
 Verify this by checking whether the browser is actually sending the request (check your server access logs and the debug log or use a suitable browser debugging plugin, such as "`Tamper Data`" for Firefox). This has nothing to do with Spring Security, and you should configure your application or server to set the appropriate `Cache-Control` response headers.
 Note that SSL requests are never cached.
 
@@ -263,14 +263,14 @@ If they are already authenticated with the same session, re-authenticating has n
 === Why does the session ID change when I authenticate through Spring Security?
 
 With the default configuration, Spring Security changes the session ID when the user authenticates.
-If you us a Servlet 3.1 or newer container, the session ID is simply changed.
+If you use a Servlet 3.1 or newer container, the session ID is simply changed.
 If you use an older container, Spring Security invalidates the existing session, creates a new session, and transfers the session data to the new session.
 Changing the session identifier in this manner prevents "`session-fixation`" attacks.
 You can find more about this online and in the reference manual.
 
 
 [[appendix-faq-tomcat-https-session]]
-=== I use Tomcat (or some other servlet container) and have enabled HTTPS for my login page, switching back to HTTP afterwards. It does not work. I end up back at the login page after authenticating.
+=== I use Tomcat (or some other servlet container) and have enabled HTTPS for my login page, switching back to HTTP afterward. It does not work. I end up back at the login page after authenticating.
 It doesn't work - I just end up back at the login page after authenticating.
 
 This happens because sessions created under HTTPS, for which the session cookie is marked as "`secure`", cannot subsequently be used under HTTP. The browser does not send the cookie back to the server, and any session state (including the security context information) is lost. Starting a session in HTTP first should work, as the session cookie is not marked as secure.
@@ -289,7 +289,7 @@ If you need more convincing, check out a tool like https://github.com/moxie0/ssl
 
 ===  I am not switching between HTTP and HTTPS, but my session is still lost. What happened?
 
-Sessions are maintained either by exchanging a session cookie or by adding a `jsessionid` parameter to URLs (this happens automatically if you use JSTL to output URLs or if you call `HttpServletResponse.encodeUrl` on URLs (before a redirect, for example). If clients have cookies disabled and you are not rewriting URLs to include the `jsessionid`, the session is lost.
+Sessions are maintained either by exchanging a session cookie or by adding a `jsessionid` parameter to URLs (this happens automatically if you use JSTL to output URLs or if you call `HttpServletResponse.encodeUrl` on URLs (before a redirect, for example). If clients have cookies disabled, and you are not rewriting URLs to include the `jsessionid`, the session is lost.
 Note that the use of cookies is preferred for security reasons, as it does not expose the session information in the URL.
 
 [[appendix-faq-session-listener-missing]]
@@ -319,7 +319,7 @@ If you have trouble working out where a session is being created, you can add so
 [[appendix-faq-forbidden-csrf]]
 === I get a 403 Forbidden when performing a POST. What is wrong?
 
-If an HTTP 403 Forbidden error is returned for HTTP POST but it works for HTTP GET, the issue is most likely related to https://docs.spring.io/spring-security/site/docs/3.2.x/reference/htmlsingle/#csrf[CSRF]. Either provide the CSRF Token or disable CSRF protection (the latter is not recommended).
+If an HTTP 403 Forbidden error is returned for HTTP POST, but it works for HTTP GET, the issue is most likely related to https://docs.spring.io/spring-security/site/docs/3.2.x/reference/htmlsingle/#csrf[CSRF]. Either provide the CSRF Token or disable CSRF protection (the latter is not recommended).
 
 [[appendix-faq-no-security-on-forward]]
 === I am forwarding a request to another URL by using the RequestDispatcher, but my security constraints are not being applied.
@@ -371,13 +371,13 @@ This section addresses common Spring Security architecture questions:
 === How do I know which package class X is in?
 
 The best way of locating classes is by installing the Spring Security source in your IDE. The distribution includes source jars for each of the modules the project is divided up into.
-Add these to your project source path and you can navigate directly to Spring Security classes (`Ctrl-Shift-T` in Eclipse). This also makes debugging easier and lets you troubleshoot exceptions by looking directly at the code where they occur to see what is going on there.
+Add these to your project source path, and then you can navigate directly to Spring Security classes (`Ctrl-Shift-T` in Eclipse). This also makes debugging easier and lets you troubleshoot exceptions by looking directly at the code where they occur to see what is going on there.
 
 [[appendix-faq-namespace-to-bean-mapping]]
 === How do the namespace elements map to conventional bean configurations?
 
 There is a general overview of what beans are created by the namespace in the namespace appendix of the reference guide.
-There is also a detailed blog article called "Behind the Spring Security Namespace" on https://spring.io/blog/2010/03/06/behind-the-spring-security-namespace/[blog.springsource.com]. If want to know the full details then the code is in the `spring-security-config` module within the Spring Security 3.0 distribution.
+There is also a detailed blog article called "Behind the Spring Security Namespace" on https://spring.io/blog/2010/03/06/behind-the-spring-security-namespace/[blog.springsource.com]. If you want to know the full details, then the code is in the `spring-security-config` module within the Spring Security 3.0 distribution.
 You should probably read the chapters on namespace parsing in the standard Spring Framework reference documentation first.
 
 
@@ -443,16 +443,16 @@ The other required jars should be pulled in transitively.
 `UserDetailsService` is a DAO interface for loading data that is specific to a user account.
 It has no function other than to load that data for use by other components within the framework.
 It is not responsible for authenticating the user.
-Authenticating a user with a username and password combination is most commonly performed by the `DaoAuthenticationProvider`, which is injected with a `UserDetailsService` to let it to load the password (and other data) for a user, to compare it with the submitted value.
+Authenticating a user with a username and password combination is most commonly performed by the `DaoAuthenticationProvider`, which is injected with a `UserDetailsService` to let it load the password (and other data) for a user, to compare it with the submitted value.
 Note that, if you use LDAP, <<appendix-faq-ldap-authentication,this approach may not work>>.
 
 If you want to customize the authentication process, you should implement `AuthenticationProvider` yourself.
 See this https://spring.io/blog/2010/08/02/spring-security-in-google-app-engine/[ blog article] for an example that integrate Spring Security authentication with Google App Engine.
 
 [[appendix-faq-howto]]
-== Common "How to" Questions
+== Common How-to Questions
 
-This section addresses the most common "How to" (or "How do I") questions about Spring Security:
+This section addresses common how-to questions about Spring Security:
 
 . <<appendix-faq-extra-login-fields>>
 . <<appendix-faq-matching-url-fragments>>
@@ -465,7 +465,7 @@ This section addresses the most common "How to" (or "How do I") questions about 
 
 
 [[appendix-faq-extra-login-fields]]
-=== I need to login in with more information than just the username. How do I add support for extra login fields (such as a company name)?
+=== I need to log in with more information than just the username. How do I add support for extra login fields (such as a company name)?
 
 This question comes up repeatedly, so you can find more information by searching online.
 
@@ -475,7 +475,7 @@ You also need to customize the actual authentication process.
 If you use a custom authentication token class, for example, you will have to write an `AuthenticationProvider` (or extend the standard `DaoAuthenticationProvider`) to handle it. If you have concatenated the fields, you can implement your own `UserDetailsService` to split them up and load the appropriate user data for authentication.
 
 [[appendix-faq-matching-url-fragments]]
-=== How do I apply different intercept-url constraints where only the fragment value of the requested URLs differs (such as /thing1#thing2 and /thing1#thing3?
+=== How do I apply different intercept-url constraints where only the fragment value of the requested URLs differs (such as /thing1#thing2 and /thing1#thing3)?
 
 You cannot do this, since the fragment is not transmitted from the browser to the server.
 From the server's perspective, the URLs are identical.
@@ -497,7 +497,7 @@ If you are using the namespace, for example with the `<form-login>` element, the
 You cannot, since the `UserDetailsService` has no awareness of the servlet API. If you want to store custom user data, you should customize the `UserDetails` object that is returned.
 This can then be accessed at any point, through the thread-local `SecurityContextHolder`. A call to `SecurityContextHolder.getContext().getAuthentication().getPrincipal()` returns this custom object.
 
-If you really need to access the session, you must do so by by customizing the web tier.
+If you really need to access the session, you must do so by customizing the web tier.
 
 
 [[appendix-faq-password-in-user-service]]
