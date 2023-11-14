@@ -21,12 +21,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.http.HttpHeaders;
-import org.springframework.mock.web.MockCookie;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import static org.springframework.security.web.csrf.CsrfTokenAssert.assertThatCsrfToken;
 
 /**
@@ -83,6 +85,15 @@ class CookieCsrfTokenRepositoryTests {
 		assertThat(tokenCookie.getSecure()).isEqualTo(this.request.isSecure());
 		assertThat(tokenCookie.getValue()).isEqualTo(token.getToken());
 		assertThat(tokenCookie.isHttpOnly()).isTrue();
+	}
+
+	// gh-14131
+	@Test
+	void saveTokenShouldUseResponseAddCookie() {
+		CsrfToken token = this.repository.generateToken(this.request);
+		MockHttpServletResponse spyResponse = spy(this.response);
+		this.repository.saveToken(token, this.request, spyResponse);
+		verify(spyResponse).addCookie(any(Cookie.class));
 	}
 
 	@Test
@@ -268,7 +279,7 @@ class CookieCsrfTokenRepositoryTests {
 		CsrfToken token = this.repository.generateToken(this.request);
 		this.repository.saveToken(token, this.request, this.response);
 		Cookie tokenCookie = this.response.getCookie(CookieCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME);
-		assertThat(((MockCookie) tokenCookie).getSameSite()).isNull();
+		assertThat(tokenCookie.getAttribute("SameSite")).isNull();
 	}
 
 	@Test
@@ -278,7 +289,7 @@ class CookieCsrfTokenRepositoryTests {
 		CsrfToken token = this.repository.generateToken(this.request);
 		this.repository.saveToken(token, this.request, this.response);
 		Cookie tokenCookie = this.response.getCookie(CookieCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME);
-		assertThat(((MockCookie) tokenCookie).getSameSite()).isEqualTo(sameSitePolicy);
+		assertThat(tokenCookie.getAttribute("SameSite")).isEqualTo(sameSitePolicy);
 	}
 
 	@Test
@@ -288,7 +299,7 @@ class CookieCsrfTokenRepositoryTests {
 		CsrfToken token = this.repository.generateToken(this.request);
 		this.repository.saveToken(token, this.request, this.response);
 		Cookie tokenCookie = this.response.getCookie(CookieCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME);
-		assertThat(((MockCookie) tokenCookie).getSameSite()).isEqualTo(sameSitePolicy);
+		assertThat(tokenCookie.getAttribute("SameSite")).isEqualTo(sameSitePolicy);
 	}
 
 	// gh-13075
@@ -420,7 +431,7 @@ class CookieCsrfTokenRepositoryTests {
 		assertThat(tokenCookie.getDomain()).isEqualTo(domainName);
 		assertThat(tokenCookie.getPath()).isEqualTo(customPath);
 		assertThat(tokenCookie.isHttpOnly()).isEqualTo(Boolean.TRUE);
-		assertThat(((MockCookie) tokenCookie).getSameSite()).isEqualTo(sameSitePolicy);
+		assertThat(tokenCookie.getAttribute("SameSite")).isEqualTo(sameSitePolicy);
 	}
 
 	// gh-13659
