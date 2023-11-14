@@ -23,7 +23,6 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -98,7 +97,8 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 
 		this.cookieCustomizer.accept(cookieBuilder);
 
-		response.addHeader(HttpHeaders.SET_COOKIE, cookieBuilder.build().toString());
+		Cookie cookie = mapToCookie(cookieBuilder.build());
+		response.addCookie(cookie);
 
 		// Set request attribute to signal that response has blank cookie value,
 		// which allows loadToken to return null when token has been removed
@@ -185,6 +185,21 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 
 	private String createNewToken() {
 		return UUID.randomUUID().toString();
+	}
+
+	private Cookie mapToCookie(ResponseCookie responseCookie) {
+		Cookie cookie = new Cookie(responseCookie.getName(), responseCookie.getValue());
+		cookie.setSecure(responseCookie.isSecure());
+		cookie.setPath(responseCookie.getPath());
+		cookie.setMaxAge((int) responseCookie.getMaxAge().getSeconds());
+		cookie.setHttpOnly(responseCookie.isHttpOnly());
+		if (StringUtils.hasLength(responseCookie.getDomain())) {
+			cookie.setDomain(responseCookie.getDomain());
+		}
+		if (StringUtils.hasText(responseCookie.getSameSite())) {
+			cookie.setAttribute("SameSite", responseCookie.getSameSite());
+		}
+		return cookie;
 	}
 
 	/**
