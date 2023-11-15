@@ -35,6 +35,7 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.authentication.configurers.provisioning.InMemoryUserDetailsManagerConfigurer;
 import org.springframework.security.config.annotation.authentication.configurers.provisioning.JdbcUserDetailsManagerConfigurer;
+import org.springframework.security.config.annotation.authentication.configurers.provisioning.JdbcUserPasswordDetailsManagerConfigurer;
 import org.springframework.security.config.annotation.authentication.configurers.userdetails.DaoAuthenticationConfigurer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -184,9 +185,19 @@ class HttpSecurityConfiguration {
 			return super.inMemoryAuthentication().passwordEncoder(this.defaultPasswordEncoder);
 		}
 
+		/**
+		 * @deprecated Use jdbcAuthenticationWithPasswordManagement instead, as this keeps the password up to date.
+		 * Please consult the migration documentation as database changes might be necessary.
+		 */
 		@Override
+		@Deprecated
 		public JdbcUserDetailsManagerConfigurer<AuthenticationManagerBuilder> jdbcAuthentication() throws Exception {
 			return super.jdbcAuthentication().passwordEncoder(this.defaultPasswordEncoder);
+		}
+
+		@Override
+		public JdbcUserPasswordDetailsManagerConfigurer<AuthenticationManagerBuilder> jdbcAuthenticationWithPasswordManagement() throws Exception {
+			return super.jdbcAuthenticationWithPasswordManagement().passwordEncoder(this.defaultPasswordEncoder);
 		}
 
 		@Override

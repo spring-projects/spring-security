@@ -34,6 +34,7 @@ import org.springframework.security.config.annotation.authentication.ProviderMan
 import org.springframework.security.config.annotation.authentication.configurers.ldap.LdapAuthenticationProviderConfigurer;
 import org.springframework.security.config.annotation.authentication.configurers.provisioning.InMemoryUserDetailsManagerConfigurer;
 import org.springframework.security.config.annotation.authentication.configurers.provisioning.JdbcUserDetailsManagerConfigurer;
+import org.springframework.security.config.annotation.authentication.configurers.provisioning.JdbcUserPasswordDetailsManagerConfigurer;
 import org.springframework.security.config.annotation.authentication.configurers.userdetails.DaoAuthenticationConfigurer;
 import org.springframework.security.config.annotation.authentication.configurers.userdetails.UserDetailsAwareConfigurer;
 import org.springframework.security.core.Authentication;
@@ -155,6 +156,8 @@ public class AuthenticationManagerBuilder
 	 * @return a {@link JdbcUserDetailsManagerConfigurer} to allow customization of the
 	 * JDBC authentication
 	 * @throws Exception if an error occurs when adding the JDBC authentication
+	 * @deprecated Use jdbcAuthenticationWithPasswordManagement instead, as this keeps the password encoding up to
+	 * date over time. Please consult the migrationn documentation as database changes might be necessary.
 	 */
 	public JdbcUserDetailsManagerConfigurer<AuthenticationManagerBuilder> jdbcAuthentication() throws Exception {
 		return apply(new JdbcUserDetailsManagerConfigurer<>());
