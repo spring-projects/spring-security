@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.springframework.security.authorization.method;
 
 import java.lang.reflect.Method;
 
+import kotlinx.coroutines.reactive.ReactiveFlowKt;
 import org.aopalliance.aop.Advice;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
@@ -28,6 +29,8 @@ import reactor.core.publisher.Mono;
 import org.springframework.aop.Pointcut;
 import org.springframework.aop.PointcutAdvisor;
 import org.springframework.aop.framework.AopInfrastructureBean;
+import org.springframework.core.KotlinDetector;
+import org.springframework.core.MethodParameter;
 import org.springframework.core.Ordered;
 import org.springframework.core.ReactiveAdapter;
 import org.springframework.core.ReactiveAdapterRegistry;
@@ -47,6 +50,10 @@ import org.springframework.util.Assert;
  */
 public final class AuthorizationManagerBeforeReactiveMethodInterceptor
 		implements Ordered, MethodInterceptor, PointcutAdvisor, AopInfrastructureBean {
+
+	private static final String COROUTINES_FLOW_CLASS_NAME = "kotlinx.coroutines.flow.Flow";
+
+	private static final int RETURN_TYPE_METHOD_PARAMETER_INDEX = -1;
 
 	private final Pointcut pointcut;
 
@@ -99,15 +106,31 @@ public final class AuthorizationManagerBeforeReactiveMethodInterceptor
 	public Object invoke(MethodInvocation mi) throws Throwable {
 		Method method = mi.getMethod();
 		Class<?> type = method.getReturnType();
-		Assert
-			.state(Publisher.class.isAssignableFrom(type),
-					() -> String.format(
-							"The returnType %s on %s must return an instance of org.reactivestreams.Publisher "
-									+ "(for example, a Mono or Flux) in order to support Reactor Context",
-							type, method));
+		boolean isSuspendingFunction = KotlinDetector.isSuspendingFunction(method);
+		boolean hasFlowReturnType = COROUTINES_FLOW_CLASS_NAME
+			.equals(new MethodParameter(method, RETURN_TYPE_METHOD_PARAMETER_INDEX).getParameterType().getName());
+		boolean hasReactiveReturnType = Publisher.class.isAssignableFrom(type) || isSuspendingFunction
+				|| hasFlowReturnType;
+		Assert.state(hasReactiveReturnType,
+				() -> "The returnType " + type + " on " + method
+						+ " must return an instance of org.reactivestreams.Publisher "
+						+ "(for example, a Mono or Flux) or the function must be a Kotlin coroutine "
+						+ "in order to support Reactor Context");
 		Mono<Authentication> authentication = ReactiveAuthenticationUtils.getAuthentication();
 		ReactiveAdapter adapter = ReactiveAdapterRegistry.getSharedInstance().getAdapter(type);
 		Mono<Void> preAuthorize = this.authorizationManager.verify(authentication, mi);
+		if (hasFlowReturnType) {
+			if (isSuspendingFunction) {
+				return preAuthorize.thenMany(Flux.defer(() -> ReactiveMethodInvocationUtils.proceed(mi)));
+			}
+			else {
+				Assert.state(adapter != null, () -> "The returnType " + type + " on " + method
+						+ " must have a org.springframework.core.ReactiveAdapter registered");
+				Flux<?> response = preAuthorize
+					.thenMany(Flux.defer(() -> adapter.toPublisher(ReactiveMethodInvocationUtils.proceed(mi))));
+				return KotlinDelegate.asFlow(response);
+			}
+		}
 		if (isMultiValue(type, adapter)) {
 			Publisher<?> publisher = Flux.defer(() -> ReactiveMethodInvocationUtils.proceed(mi));
 			Flux<?> result = preAuthorize.thenMany(publisher);
@@ -122,7 +145,7 @@ public final class AuthorizationManagerBeforeReactiveMethodInterceptor
 		if (Flux.class.isAssignableFrom(returnType)) {
 			return true;
 		}
-		return adapter == null || adapter.isMultiValue();
+		return adapter != null && adapter.isMultiValue();
 	}
 
 	@Override
@@ -147,6 +170,17 @@ public final class AuthorizationManagerBeforeReactiveMethodInterceptor
 
 	public void setOrder(int order) {
 		this.order = order;
+	}
+
+	/**
+	 * Inner class to avoid a hard dependency on Kotlin at runtime.
+	 */
+	private static class KotlinDelegate {
+
+		private static Object asFlow(Publisher<?> publisher) {
+			return ReactiveFlowKt.asFlow(publisher);
+		}
+
 	}
 
 }

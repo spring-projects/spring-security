@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,15 +30,21 @@ interface KotlinReactiveMessageService {
 
     suspend fun suspendingPreAuthorizeDelegate(): String
 
+    suspend fun suspendingPrePostAuthorizeHasRoleContainsName(): String
+
     suspend fun suspendingFlowPreAuthorize(): Flow<Int>
 
     suspend fun suspendingFlowPostAuthorize(id: Boolean): Flow<Int>
 
     suspend fun suspendingFlowPreAuthorizeDelegate(): Flow<Int>
 
+    suspend fun suspendingFlowPrePostAuthorizeBean(id: Boolean): Flow<Int>
+
     fun flowPreAuthorize(): Flow<Int>
 
     fun flowPostAuthorize(id: Boolean): Flow<Int>
 
     fun flowPreAuthorizeDelegate(): Flow<Int>
+
+    fun flowPrePostAuthorize(id: Boolean): Flow<Int>
 }

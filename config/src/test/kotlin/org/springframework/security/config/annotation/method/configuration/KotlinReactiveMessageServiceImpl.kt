@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,6 +48,12 @@ class KotlinReactiveMessageServiceImpl(val delegate: KotlinReactiveMessageServic
     }
 
     @PreAuthorize("hasRole('ADMIN')")
+    @PostAuthorize("returnObject?.contains(authentication?.name)")
+    override suspend fun suspendingPrePostAuthorizeHasRoleContainsName(): String {
+        return delegate.suspendingPrePostAuthorizeHasRoleContainsName()
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
     override suspend fun suspendingPreAuthorizeDelegate(): String {
         return delegate.suspendingPreAuthorizeHasRole()
     }
@@ -81,6 +87,18 @@ class KotlinReactiveMessageServiceImpl(val delegate: KotlinReactiveMessageServic
     }
 
     @PreAuthorize("hasRole('ADMIN')")
+    @PostAuthorize("@authz.check(#id)")
+    override suspend fun suspendingFlowPrePostAuthorizeBean(id: Boolean): Flow<Int> {
+        delay(1)
+        return flow {
+            for (i in 1..3) {
+                delay(1)
+                emit(i)
+            }
+        }
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
     override fun flowPreAuthorize(): Flow<Int> {
         return flow {
             for (i in 1..3) {
@@ -103,5 +121,16 @@ class KotlinReactiveMessageServiceImpl(val delegate: KotlinReactiveMessageServic
     @PreAuthorize("hasRole('ADMIN')")
     override fun flowPreAuthorizeDelegate(): Flow<Int> {
         return delegate.flowPreAuthorize()
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostAuthorize("@authz.check(#id)")
+    override fun flowPrePostAuthorize(id: Boolean): Flow<Int> {
+        return flow {
+            for (i in 1..3) {
+                delay(1)
+                emit(i)
+            }
+        }
     }
 }

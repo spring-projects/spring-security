@@ -78,7 +78,7 @@ public class EnableReactiveMethodSecurityTests {
 			.withMessage("The returnType class java.lang.String on public abstract java.lang.String "
 					+ "org.springframework.security.config.annotation.method.configuration.ReactiveMessageService"
 					+ ".notPublisherPreAuthorizeFindById(long) must return an instance of org.reactivestreams"
-					+ ".Publisher (for example, a Mono or Flux) in order to support Reactor Context");
+					+ ".Publisher (for example, a Mono or Flux) or the function must be a Kotlin coroutine in order to support Reactor Context");
 	}
 
 	@Test

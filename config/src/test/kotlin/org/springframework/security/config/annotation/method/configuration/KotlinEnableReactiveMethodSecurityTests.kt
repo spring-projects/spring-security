@@ -41,8 +41,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 
 @ExtendWith(SpringExtension::class)
 @ContextConfiguration
-// no authorization manager due to https://github.com/spring-projects/spring-security/issues/12080
-class KotlinEnableReactiveMethodSecurityNoAuthorizationManagerTests {
+class KotlinEnableReactiveMethodSecurityTests {
 
     private lateinit var delegate: KotlinReactiveMessageService
 
@@ -139,6 +138,39 @@ class KotlinEnableReactiveMethodSecurityNoAuthorizationManagerTests {
     }
 
     @Test
+    @WithMockUser
+    fun `suspendingPrePostAuthorizeHasRoleContainsName when not pre authorized then delegate not called`() {
+        assertThatExceptionOfType(AccessDeniedException::class.java).isThrownBy {
+            runBlocking {
+                messageService!!.suspendingPrePostAuthorizeHasRoleContainsName()
+            }
+        }
+        verify { delegate wasNot Called }
+    }
+
+    @Test
+    @WithMockUser(authorities = ["ROLE_ADMIN"])
+    fun `suspendingPrePostAuthorizeHasRoleContainsName when not post authorized then exception`() {
+        coEvery { delegate.suspendingPrePostAuthorizeHasRoleContainsName() } returns "wrong"
+        assertThatExceptionOfType(AccessDeniedException::class.java).isThrownBy {
+            runBlocking {
+                messageService!!.suspendingPrePostAuthorizeHasRoleContainsName()
+            }
+        }
+        coVerify(exactly = 1) { delegate.suspendingPrePostAuthorizeHasRoleContainsName() }
+    }
+
+    @Test
+    @WithMockUser(authorities = ["ROLE_ADMIN"])
+    fun `suspendingPrePostAuthorizeHasRoleContainsName when authorized then success`() {
+        coEvery { delegate.suspendingPrePostAuthorizeHasRoleContainsName() } returns "user"
+        runBlocking {
+            assertThat(messageService!!.suspendingPrePostAuthorizeHasRoleContainsName()).contains("user")
+        }
+        coVerify(exactly = 1) { delegate.suspendingPrePostAuthorizeHasRoleContainsName() }
+    }
+
+    @Test
     @WithMockUser(authorities = ["ROLE_ADMIN"])
     fun `suspendingFlowPreAuthorize when user has role then success`() {
         runBlocking {
@@ -179,6 +211,33 @@ class KotlinEnableReactiveMethodSecurityNoAuthorizationManagerTests {
             }
         }
         verify { delegate wasNot Called }
+    }
+
+    @Test
+    fun `suspendingFlowPrePostAuthorizeBean when not pre authorized then delegate not called`() {
+        assertThatExceptionOfType(AccessDeniedException::class.java).isThrownBy {
+            runBlocking {
+                messageService!!.suspendingFlowPrePostAuthorizeBean(true).collect()
+            }
+        }
+    }
+
+    @Test
+    @WithMockUser(roles = ["ADMIN"])
+    fun `suspendingFlowPrePostAuthorizeBean when not post authorized then denied`() {
+        assertThatExceptionOfType(AccessDeniedException::class.java).isThrownBy {
+            runBlocking {
+                messageService!!.suspendingFlowPrePostAuthorizeBean(false).collect()
+            }
+        }
+    }
+
+    @Test
+    @WithMockUser(roles = ["ADMIN"])
+    fun `suspendingFlowPrePostAuthorizeBean when authorized then success`() {
+        runBlocking {
+            assertThat(messageService!!.suspendingFlowPrePostAuthorizeBean(true).toList()).containsExactly(1, 2, 3)
+        }
     }
 
     @Test
@@ -244,8 +303,35 @@ class KotlinEnableReactiveMethodSecurityNoAuthorizationManagerTests {
         coVerify(exactly = 1) { delegate.flowPreAuthorize() }
     }
 
+    @Test
+    fun `flowPrePostAuthorize when not pre authorized then denied`() {
+        assertThatExceptionOfType(AccessDeniedException::class.java).isThrownBy {
+            runBlocking {
+                messageService!!.flowPrePostAuthorize(true).collect()
+            }
+        }
+    }
+
+    @Test
+    @WithMockUser(roles = ["ADMIN"])
+    fun `flowPrePostAuthorize when not post authorized then denied`() {
+        assertThatExceptionOfType(AccessDeniedException::class.java).isThrownBy {
+            runBlocking {
+                messageService!!.flowPrePostAuthorize(false).collect()
+            }
+        }
+    }
+
+    @Test
+    @WithMockUser(roles = ["ADMIN"])
+    fun `flowPrePostAuthorize when authorized then success`() {
+        runBlocking {
+            assertThat(messageService!!.flowPrePostAuthorize(true).toList()).containsExactly(1, 2, 3)
+        }
+    }
+
     @Configuration
-    @EnableReactiveMethodSecurity(useAuthorizationManager = false)
+    @EnableReactiveMethodSecurity
     open class Config {
         var delegate = mockk<KotlinReactiveMessageService>()
 
