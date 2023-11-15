@@ -258,21 +258,21 @@ public final class ObservationWebFilterChainDecorator implements WebFilterChainP
 
 		class SimpleAroundWebFilterObservation implements AroundWebFilterObservation {
 
-			private final ObservationReference before;
+			private final PhasedObservation before;
 
-			private final ObservationReference after;
+			private final PhasedObservation after;
 
-			private final AtomicReference<ObservationReference> currentObservation = new AtomicReference<>(
-					ObservationReference.NOOP);
+			private final AtomicReference<PhasedObservation> currentObservation = new AtomicReference<>(
+					PhasedObservation.NOOP);
 
 			SimpleAroundWebFilterObservation(Observation before, Observation after) {
-				this.before = new ObservationReference(before);
-				this.after = new ObservationReference(after);
+				this.before = new PhasedObservation(before);
+				this.after = new PhasedObservation(after);
 			}
 
 			@Override
 			public Observation start() {
-				if (this.currentObservation.compareAndSet(ObservationReference.NOOP, this.before)) {
+				if (this.currentObservation.compareAndSet(PhasedObservation.NOOP, this.before)) {
 					this.before.start();
 					return this.before.observation;
 				}
@@ -389,73 +389,6 @@ public final class ObservationWebFilterChainDecorator implements WebFilterChainP
 				return this.currentObservation.get().observation.toString();
 			}
 
-			private static final class ObservationReference {
-
-				private static final ObservationReference NOOP = new ObservationReference(Observation.NOOP);
-
-				private final Lock lock = new ReentrantLock();
-
-				private final AtomicInteger state = new AtomicInteger(0);
-
-				private final Observation observation;
-
-				private ObservationReference(Observation observation) {
-					this.observation = observation;
-				}
-
-				private void start() {
-					try {
-						this.lock.lock();
-						if (this.state.compareAndSet(0, 1)) {
-							this.observation.start();
-						}
-					}
-					finally {
-						this.lock.unlock();
-					}
-				}
-
-				private void error(Throwable ex) {
-					try {
-						this.lock.lock();
-						if (this.state.get() == 1) {
-							this.observation.error(ex);
-						}
-					}
-					finally {
-						this.lock.unlock();
-					}
-				}
-
-				private void stop() {
-					try {
-						this.lock.lock();
-						if (this.state.compareAndSet(1, 2)) {
-							this.observation.stop();
-						}
-					}
-					finally {
-						this.lock.unlock();
-					}
-				}
-
-				private void close() {
-					try {
-						this.lock.lock();
-						if (this.state.compareAndSet(1, 3)) {
-							this.observation.stop();
-						}
-						else {
-							this.state.set(3);
-						}
-					}
-					finally {
-						this.lock.unlock();
-					}
-				}
-
-			}
-
 		}
 
 	}
@@ -537,10 +470,10 @@ public final class ObservationWebFilterChainDecorator implements WebFilterChainP
 
 		class SimpleWebFilterObservation implements WebFilterObservation {
 
-			private final Observation observation;
+			private final PhasedObservation observation;
 
 			SimpleWebFilterObservation(Observation observation) {
-				this.observation = observation;
+				this.observation = new PhasedObservation(observation);
 			}
 
 			@Override
@@ -724,6 +657,118 @@ public final class ObservationWebFilterChainDecorator implements WebFilterChainP
 		@Override
 		public boolean supportsContext(Observation.Context context) {
 			return context instanceof WebFilterChainObservationContext;
+		}
+
+	}
+
+	private static final class PhasedObservation implements Observation {
+
+		private static final PhasedObservation NOOP = new PhasedObservation(Observation.NOOP);
+
+		private final Lock lock = new ReentrantLock();
+
+		private final AtomicInteger phase = new AtomicInteger(0);
+
+		private final Observation observation;
+
+		private PhasedObservation(Observation observation) {
+			this.observation = observation;
+		}
+
+		@Override
+		public Observation contextualName(String contextualName) {
+			return this.observation.contextualName(contextualName);
+		}
+
+		@Override
+		public Observation parentObservation(Observation parentObservation) {
+			return this.observation.parentObservation(parentObservation);
+		}
+
+		@Override
+		public Observation lowCardinalityKeyValue(KeyValue keyValue) {
+			return this.observation.lowCardinalityKeyValue(keyValue);
+		}
+
+		@Override
+		public Observation highCardinalityKeyValue(KeyValue keyValue) {
+			return this.observation.highCardinalityKeyValue(keyValue);
+		}
+
+		@Override
+		public Observation observationConvention(ObservationConvention<?> observationConvention) {
+			return this.observation.observationConvention(observationConvention);
+		}
+
+		@Override
+		public Observation event(Event event) {
+			return this.observation.event(event);
+		}
+
+		@Override
+		public Context getContext() {
+			return this.observation.getContext();
+		}
+
+		@Override
+		public Scope openScope() {
+			return this.observation.openScope();
+		}
+
+		@Override
+		public PhasedObservation start() {
+			try {
+				this.lock.lock();
+				if (this.phase.compareAndSet(0, 1)) {
+					this.observation.start();
+				}
+			}
+			finally {
+				this.lock.unlock();
+			}
+			return this;
+		}
+
+		@Override
+		public PhasedObservation error(Throwable ex) {
+			try {
+				this.lock.lock();
+				if (this.phase.get() == 1) {
+					this.observation.error(ex);
+				}
+			}
+			finally {
+				this.lock.unlock();
+			}
+			return this;
+		}
+
+		@Override
+		public void stop() {
+			try {
+				this.lock.lock();
+				if (this.phase.compareAndSet(1, 2)) {
+					this.observation.stop();
+				}
+			}
+			finally {
+				this.lock.unlock();
+			}
+		}
+
+		void close() {
+			try {
+				this.lock.lock();
+				if (this.phase.compareAndSet(1, 3)) {
+					this.observation.stop();
+				}
+				else {
+					this.phase.set(3);
+				}
+			}
+			finally {
+				this.lock.unlock();
+			}
 		}
 
 	}
