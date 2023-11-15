@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,23 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.security.config.authentication;
-
-import org.w3c.dom.Element;
 
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.security.config.Elements;
 import org.springframework.util.StringUtils;
+import org.w3c.dom.Element;
 
 /**
  * @author Luke Taylor
- * @deprecated Use {@link JdbcUserPasswordDetailsManagerBeanDefinitionParser} instead, as this will update password encodings
- * to more safe variants as users log in
+ * @author Geir Hedemark
  */
-public class JdbcUserServiceBeanDefinitionParser extends AbstractUserDetailsServiceBeanDefinitionParser {
-
+public class JdbcUserPasswordDetailsManagerBeanDefinitionParser extends AbstractUserDetailsServiceBeanDefinitionParser {
 	static final String ATT_DATA_SOURCE = "data-source-ref";
 	static final String ATT_USERS_BY_USERNAME_QUERY = "users-by-username-query";
 	static final String ATT_AUTHORITIES_BY_USERNAME_QUERY = "authorities-by-username-query";
@@ -38,7 +34,7 @@ public class JdbcUserServiceBeanDefinitionParser extends AbstractUserDetailsServ
 
 	@Override
 	protected String getBeanClassName(Element element) {
-		return "org.springframework.security.provisioning.JdbcUserDetailsManager";
+		return "org.springframework.security.provisioning.JdbcUserPasswordDetailsManager";
 	}
 
 	@Override
@@ -49,8 +45,8 @@ public class JdbcUserServiceBeanDefinitionParser extends AbstractUserDetailsServ
 		}
 		else {
 			parserContext.getReaderContext()
-				.error(ATT_DATA_SOURCE + " is required for " + Elements.JDBC_USER_SERVICE,
-						parserContext.extractSource(element));
+					.error(ATT_DATA_SOURCE + " is required for " + Elements.JDBC_USER_SERVICE,
+							parserContext.extractSource(element));
 		}
 		String usersQuery = element.getAttribute(ATT_USERS_BY_USERNAME_QUERY);
 		String authoritiesQuery = element.getAttribute(ATT_AUTHORITIES_BY_USERNAME_QUERY);

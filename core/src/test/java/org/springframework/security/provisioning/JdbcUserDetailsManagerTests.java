@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -68,9 +68,9 @@ public class JdbcUserDetailsManagerTests {
 
 	private static TestDataSource dataSource;
 
-	private JdbcUserDetailsManager manager;
+	JdbcUserDetailsManager manager;
 
-	private MockUserCache cache;
+	MockUserCache cache;
 
 	private JdbcTemplate template;
 
@@ -85,9 +85,13 @@ public class JdbcUserDetailsManagerTests {
 		dataSource = null;
 	}
 
+	public JdbcUserDetailsManager makeInstance() {
+		return new JdbcUserDetailsManager();
+	}
+
 	@BeforeEach
 	public void initializeManagerAndCreateTables() {
-		this.manager = new JdbcUserDetailsManager();
+		this.manager = makeInstance();
 		this.cache = new MockUserCache();
 		this.manager.setUserCache(this.cache);
 		this.manager.setDataSource(dataSource);
@@ -372,7 +376,7 @@ public class JdbcUserDetailsManagerTests {
 		return auth;
 	}
 
-	private void insertJoe() {
+	public void insertJoe() {
 		this.template.execute("insert into users (username, password, enabled) values ('joe','password','true')");
 		this.template.execute("insert into authorities (username, authority) values ('joe','A')");
 		this.template.execute("insert into authorities (username, authority) values ('joe','B')");
@@ -380,7 +384,7 @@ public class JdbcUserDetailsManagerTests {
 		this.cache.putUserInCache(joe);
 	}
 
-	private class MockUserCache implements UserCache {
+	public class MockUserCache implements UserCache {
 
 		private Map<String, UserDetails> cache = new HashMap<>();
 
@@ -399,7 +403,7 @@ public class JdbcUserDetailsManagerTests {
 			this.cache.remove(username);
 		}
 
-		Map<String, UserDetails> getUserMap() {
+		public Map<String, UserDetails> getUserMap() {
 			return this.cache;
 		}
 

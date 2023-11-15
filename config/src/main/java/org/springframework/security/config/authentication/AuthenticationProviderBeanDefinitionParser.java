@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,6 +50,9 @@ public class AuthenticationProviderBeanDefinitionParser implements BeanDefinitio
 			authProvider.getPropertyValues().addPropertyValue("passwordEncoder", passwordEncoder);
 		}
 		Element userServiceElt = DomUtils.getChildElementByTagName(element, Elements.USER_SERVICE);
+		if (userServiceElt == null) {
+			userServiceElt = DomUtils.getChildElementByTagName(element, Elements.JDBC_USER_PASSWORD_SERVICE);
+		}
 		if (userServiceElt == null) {
 			userServiceElt = DomUtils.getChildElementByTagName(element, Elements.JDBC_USER_SERVICE);
 		}

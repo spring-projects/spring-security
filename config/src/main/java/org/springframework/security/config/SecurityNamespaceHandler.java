@@ -1,5 +1,5 @@
 /*
- * Copyright 2009-2022 the original author or authors.
+ * Copyright 2009-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.security.config.authentication.*;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
@@ -30,10 +31,6 @@ import org.springframework.beans.factory.xml.BeanDefinitionDecorator;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.NamespaceHandler;
 import org.springframework.beans.factory.xml.ParserContext;
-import org.springframework.security.config.authentication.AuthenticationManagerBeanDefinitionParser;
-import org.springframework.security.config.authentication.AuthenticationProviderBeanDefinitionParser;
-import org.springframework.security.config.authentication.JdbcUserServiceBeanDefinitionParser;
-import org.springframework.security.config.authentication.UserServiceBeanDefinitionParser;
 import org.springframework.security.config.http.FilterChainBeanDefinitionParser;
 import org.springframework.security.config.http.FilterChainMapBeanDefinitionDecorator;
 import org.springframework.security.config.http.FilterInvocationSecurityMetadataSourceParser;
@@ -173,6 +170,7 @@ public final class SecurityNamespaceHandler implements NamespaceHandler {
 		this.parsers.put(Elements.LDAP_USER_SERVICE, new LdapUserServiceBeanDefinitionParser());
 		this.parsers.put(Elements.USER_SERVICE, new UserServiceBeanDefinitionParser());
 		this.parsers.put(Elements.JDBC_USER_SERVICE, new JdbcUserServiceBeanDefinitionParser());
+		this.parsers.put(Elements.JDBC_USER_PASSWORD_SERVICE, new JdbcUserPasswordDetailsManagerBeanDefinitionParser());
 		this.parsers.put(Elements.AUTHENTICATION_PROVIDER, new AuthenticationProviderBeanDefinitionParser());
 		this.parsers.put(Elements.GLOBAL_METHOD_SECURITY, new GlobalMethodSecurityBeanDefinitionParser());
 		this.parsers.put(Elements.METHOD_SECURITY, new MethodSecurityBeanDefinitionParser());

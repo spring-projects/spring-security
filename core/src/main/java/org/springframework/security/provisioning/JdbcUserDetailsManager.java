@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,7 +62,11 @@ import org.springframework.util.Assert;
  *
  * @author Luke Taylor
  * @since 2.0
+ * @deprecated Use {@link JdbcUserPasswordDetailsManager} instead, as this
+ * ensure password encoding is kept updated. Please note that this migration might require changes to your code
+ * and database.
  */
+@Deprecated
 public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsManager, GroupManager {
 
 	public static final String DEF_CREATE_USER_SQL = "insert into users (username, password, enabled) values (?,?,?)";
@@ -124,7 +128,7 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 
 	private String userExistsSql = DEF_USER_EXISTS_SQL;
 
-	private String changePasswordSql = DEF_CHANGE_PASSWORD_SQL;
+	protected String changePasswordSql = DEF_CHANGE_PASSWORD_SQL;
 
 	private String findAllGroupsSql = DEF_FIND_GROUPS_SQL;
 
@@ -154,7 +158,7 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 
 	private AuthenticationManager authenticationManager;
 
-	private UserCache userCache = new NullUserCache();
+	protected UserCache userCache = new NullUserCache();
 
 	public JdbcUserDetailsManager() {
 	}

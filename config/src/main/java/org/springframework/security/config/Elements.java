@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,10 @@ public abstract class Elements {
 
 	public static final String USER_SERVICE = "user-service";
 
+	@Deprecated
 	public static final String JDBC_USER_SERVICE = "jdbc-user-service";
+
+	public static final String JDBC_USER_PASSWORD_SERVICE = "jdbc-user-password-service";
 
 	public static final String FILTER_CHAIN_MAP = "filter-chain-map";
 
