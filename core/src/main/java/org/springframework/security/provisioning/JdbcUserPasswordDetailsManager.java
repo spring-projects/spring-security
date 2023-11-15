@@ -40,6 +40,7 @@ import org.springframework.security.core.userdetails.UserDetailsPasswordService;
  * @since TBD
  */
 public class JdbcUserPasswordDetailsManager extends JdbcUserDetailsManager implements UserDetailsPasswordService {
+
 	@Override
 	public UserDetails updatePassword(UserDetails user, String newPassword) {
 		this.logger.debug("Updating password for user '" + user.getUsername() + "'");

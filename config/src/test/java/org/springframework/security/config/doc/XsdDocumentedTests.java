@@ -151,7 +151,7 @@ public class XsdDocumentedTests {
 				.list((dir, name) -> name.endsWith(".xsd"));
 		// @formatter:on
 		assertThat(schemas.length)
-			.withFailMessage("the count is equal to 25, if not then schemaDocument needs updating")
+			.withFailMessage(String.format("the count should be equal to 24, not the current %d, if not then schemaDocument needs updating", schemas.length))
 			.isEqualTo(25);
 	}
 

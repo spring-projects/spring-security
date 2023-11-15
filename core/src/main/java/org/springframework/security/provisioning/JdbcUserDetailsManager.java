@@ -128,7 +128,7 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 
 	private String userExistsSql = DEF_USER_EXISTS_SQL;
 
-	protected String changePasswordSql = DEF_CHANGE_PASSWORD_SQL;
+	public String changePasswordSql = DEF_CHANGE_PASSWORD_SQL;
 
 	private String findAllGroupsSql = DEF_FIND_GROUPS_SQL;
 
@@ -472,11 +472,6 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 		this.userExistsSql = userExistsSql;
 	}
 
-	public void setChangePasswordSql(String changePasswordSql) {
-		Assert.hasText(changePasswordSql, "changePasswordSql should have text");
-		this.changePasswordSql = changePasswordSql;
-	}
-
 	public void setFindAllGroupsSql(String findAllGroupsSql) {
 		Assert.hasText(findAllGroupsSql, "findAllGroupsSql should have text");
 		this.findAllGroupsSql = findAllGroupsSql;
@@ -566,4 +561,18 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 		}
 	}
 
+	public void setChangePasswordSql(String changePasswordSql) {
+		this.changePasswordSql = changePasswordSql;
+	}
+
+	public String getChangePasswordSql() {
+		return changePasswordSql;
+	}
+
+	public void setChangePasswordQuery(String changePasswordSql) {
+		this.changePasswordSql = changePasswordSql;
+	}
+	public String setChangePasswordQuery() {
+		return changePasswordSql;
+	}
 }

@@ -3291,6 +3291,13 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
+        <xs:attribute name="change-password-query" type="xs:token">
+            <xs:annotation>
+                <xs:documentation>An SQL statement to change a user's password. The default is
+                    "update users set password = ? where username = ?"
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
         <xs:attribute name="role-prefix" type="xs:token">
             <xs:annotation>
                 <xs:documentation>A non-empty string prefix that will be added to role strings loaded from persistent

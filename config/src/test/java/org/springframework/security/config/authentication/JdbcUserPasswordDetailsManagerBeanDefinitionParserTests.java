@@ -108,6 +108,14 @@ public class JdbcUserPasswordDetailsManagerBeanDefinitionParserTests {
 	}
 
 	@Test
+	public void changePasswordQueryIsParsedCorrectly() throws Exception {
+		setContext("<jdbc-user-password-service id='myUserService' " + "data-source-ref='dataSource' "
+				+ "change-password-query='blah blah'/>" + DATA_SOURCE);
+		JdbcUserPasswordDetailsManager mgr = (JdbcUserPasswordDetailsManager) this.appContext.getBean("myUserService");
+		assertThat(FieldUtils.getFieldValue(mgr, "changePasswordSql")).isEqualTo("blah blah");
+	}
+
+	@Test
 	public void cacheRefIsparsedCorrectly() {
 		setContext("<jdbc-user-password-service id='myUserService' cache-ref='userCache' data-source-ref='dataSource'/>"
 				+ DATA_SOURCE + USER_CACHE_XML);

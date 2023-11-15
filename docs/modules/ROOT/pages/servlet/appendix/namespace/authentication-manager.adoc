@@ -94,11 +94,11 @@ A reference to a bean that implements UserDetailsService that may be created usi
 === Child Elements of <authentication-provider>
 
 
+* <<nsa-jdbc-user-password-service,jdbc-user-password-service>>
 * <<nsa-jdbc-user-service,jdbc-user-service>>
 * xref:servlet/appendix/namespace/ldap.adoc#nsa-ldap-user-service[ldap-user-service]
 * <<nsa-password-encoder,password-encoder>>
 * <<nsa-user-service,user-service>>
-
 
 
 [[nsa-jdbc-user-service]]
@@ -166,6 +166,93 @@ Use the value "none" for no prefix in cases where the default is non-empty.
 
 
 [[nsa-jdbc-user-service-users-by-username-query]]
+* **users-by-username-query**
+An SQL statement to query a username, password, and enabled status given a username.
+The default is
+
++
+
+[source]
+----
+select username, password, enabled from users where username = ?
+----
+
+
+[[nsa-jdbc-user-password-service]]
+== <jdbc-user-password-service>
+Causes creation of a JDBC-based UserDetailsService. This service will automatically update the encoding of
+a password that is stored with an outdated/insecure encoding.
+
+
+[[nsa-jdbc-user-password-service-attributes]]
+=== <jdbc-user-password-service> Attributes
+
+
+[[nsa-jdbc-user-password-service-authorities-by-username-query]]
+* **authorities-by-username-query**
+An SQL statement to query for a user's granted authorities given a username.
+
+The default is
+
+[source]
+----
+select username, authority from authorities where username = ?
+----
+
+
+
+
+[[nsa-jdbc-user-password-service-cache-ref]]
+* **cache-ref**
+Defines a reference to a cache for use with a UserDetailsService.
+
+
+[[nsa-jdbc-user-password-service-data-source-ref]]
+* **data-source-ref**
+The bean ID of the DataSource which provides the required tables.
+
+
+[[nsa-jdbc-user-password-service-group-authorities-by-username-query]]
+* **group-authorities-by-username-query**
+An SQL statement to query user's group authorities given a username.
+The default is
+
++
+
+[source]
+----
+select
+g.id, g.group_name, ga.authority
+from
+groups g, group_members gm, group_authorities ga
+where
+gm.username = ? and g.id = ga.group_id and g.id = gm.group_id
+----
+
+[[nsa-jdbc-user-password-service-change-password-query]]
+* **change-password-query**
+An SQL statement to update the users password.
+The default is
+
++
+
+[source]
+----
+update users set password = ? where username = ?
+----
+
+[[nsa-jdbc-user-password-service-id]]
+* **id**
+A bean identifier, used for referring to the bean elsewhere in the context.
+
+
+[[nsa-jdbc-user-password-service-role-prefix]]
+* **role-prefix**
+A non-empty string prefix that will be added to role strings loaded from persistent storage (default is "ROLE_").
+Use the value "none" for no prefix in cases where the default is non-empty.
+
+
+[[nsa-jdbc-user-password-service-users-by-username-query]]
 * **users-by-username-query**
 An SQL statement to query a username, password, and enabled status given a username.
 The default is

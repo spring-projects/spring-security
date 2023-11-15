@@ -30,6 +30,7 @@ public class JdbcUserPasswordDetailsManagerBeanDefinitionParser extends Abstract
 	static final String ATT_USERS_BY_USERNAME_QUERY = "users-by-username-query";
 	static final String ATT_AUTHORITIES_BY_USERNAME_QUERY = "authorities-by-username-query";
 	static final String ATT_GROUP_AUTHORITIES_QUERY = "group-authorities-by-username-query";
+	static final String ATT_CHANGE_PASSWORD_QUERY = "change-password-query";
 	static final String ATT_ROLE_PREFIX = "role-prefix";
 
 	@Override
@@ -51,6 +52,7 @@ public class JdbcUserPasswordDetailsManagerBeanDefinitionParser extends Abstract
 		String usersQuery = element.getAttribute(ATT_USERS_BY_USERNAME_QUERY);
 		String authoritiesQuery = element.getAttribute(ATT_AUTHORITIES_BY_USERNAME_QUERY);
 		String groupAuthoritiesQuery = element.getAttribute(ATT_GROUP_AUTHORITIES_QUERY);
+		String changePasswordQuery = element.getAttribute(ATT_CHANGE_PASSWORD_QUERY);
 		String rolePrefix = element.getAttribute(ATT_ROLE_PREFIX);
 		if (StringUtils.hasText(rolePrefix)) {
 			builder.addPropertyValue("rolePrefix", rolePrefix);
@@ -64,6 +66,9 @@ public class JdbcUserPasswordDetailsManagerBeanDefinitionParser extends Abstract
 		if (StringUtils.hasText(groupAuthoritiesQuery)) {
 			builder.addPropertyValue("enableGroups", Boolean.TRUE);
 			builder.addPropertyValue("groupAuthoritiesByUsernameQuery", groupAuthoritiesQuery);
+		}
+		if (StringUtils.hasText(changePasswordQuery)) {
+			builder.addPropertyValue("changePasswordQuery", changePasswordQuery);
 		}
 	}
 
