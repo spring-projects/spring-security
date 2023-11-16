@@ -21,6 +21,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.lang.Nullable;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationManagerResolver;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -54,6 +55,9 @@ public class UsernamePasswordAuthenticationFilter extends AbstractAuthentication
 	private static final AntPathRequestMatcher DEFAULT_ANT_PATH_REQUEST_MATCHER = new AntPathRequestMatcher("/login",
 			"POST");
 
+	private AuthenticationManagerResolver<HttpServletRequest> authenticationManagerResolver = (
+			request) -> getAuthenticationManager();
+
 	private String usernameParameter = SPRING_SECURITY_FORM_USERNAME_KEY;
 
 	private String passwordParameter = SPRING_SECURITY_FORM_PASSWORD_KEY;
@@ -62,6 +66,13 @@ public class UsernamePasswordAuthenticationFilter extends AbstractAuthentication
 
 	public UsernamePasswordAuthenticationFilter() {
 		super(DEFAULT_ANT_PATH_REQUEST_MATCHER);
+	}
+
+	public UsernamePasswordAuthenticationFilter(
+			AuthenticationManagerResolver<HttpServletRequest> authenticationManagerResolver) {
+		super(DEFAULT_ANT_PATH_REQUEST_MATCHER);
+		Assert.notNull(authenticationManagerResolver, "authenticationManagerResolver cannot be null");
+		this.authenticationManagerResolver = authenticationManagerResolver;
 	}
 
 	public UsernamePasswordAuthenticationFilter(AuthenticationManager authenticationManager) {
@@ -82,7 +93,7 @@ public class UsernamePasswordAuthenticationFilter extends AbstractAuthentication
 				password);
 		// Allow subclasses to set the "details" property
 		setDetails(request, authRequest);
-		return this.getAuthenticationManager().authenticate(authRequest);
+		return this.authenticationManagerResolver.resolve(request).authenticate(authRequest);
 	}
 
 	/**
