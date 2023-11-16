@@ -571,32 +571,16 @@ http {
 ----
 ====
 
-[[match-by-servlet-path]]
-[[mvc-not-default-servlet]]
 [[match-by-mvc]]
-=== Matching by Servlet Pattern
+=== Using an MvcRequestMatcher
 
-Generally speaking, you can use `requestMatchers(String...)` and `requestMatchers(HttpMethod, String...)` as demonstrated above.
+Generally speaking, you can use `requestMatchers(String)` as demonstrated above.
 
 However, if you map Spring MVC to a different servlet path, then you need to account for that in your security configuration.
 
-For example, if Spring MVC is mapped to `/mvc` instead of `/` (the default), then you may have an endpoint like `/mvc/my/controller` that you want to authorize.
+For example, if Spring MVC is mapped to `/spring-mvc` instead of `/` (the default), then you may have an endpoint like `/spring-mvc/my/controller` that you want to authorize.
 
-If you have multiple servlets, and `DispatcherServlet` is mapped in this way, you'll see an error that's something like this:
-
-[source,bash]
-----
-This method cannot decide whether these patterns are Spring MVC patterns or not
-
-...
-
-For your reference, here is your servlet configuration: {default=[/], dispatcherServlet=[/mvc/*]}
-
-To address this, you need to specify the servlet path or pattern for each endpoint.
-You can use .forServletPattern in conjunction with requestMatchers do to this
-----
-
-You can use `.forServletPattern` (or construct your own `MvcRequestMatcher` instance) to split the servlet path and the controller path in your configuration, like so:
+You need to use `MvcRequestMatcher` to split the servlet path and the controller path in your configuration like so:
 
 .Match by MvcRequestMatcher
 ====
@@ -604,123 +588,53 @@ You can use `.forServletPattern` (or construct your own `MvcRequestMatcher` inst
 [source,java,role="primary"]
 ----
 @Bean
+MvcRequestMatcher.Builder mvc(HandlerMappingIntrospector introspector) {
+	return new MvcRequestMatcher.Builder(introspector).servletPath("/spring-mvc");
+}
+
+@Bean
 SecurityFilterChain appEndpoints(HttpSecurity http, MvcRequestMatcher.Builder mvc) {
 	http
         .authorizeHttpRequests((authorize) -> authorize
-            .forServletPattern("/mvc/*", (mvc) -> mvc
-                .requestMatchers("/my/resource/**").hasAuthority("resource:read")
-                .anyRequest().authenticated()
-            )
+            .requestMatchers(mvc.pattern("/my/controller/**")).hasAuthority("controller")
+            .anyRequest().authenticated()
         );
 
 	return http.build();
 }
 ----
-====
 
-where `/mvc/*` is the matching pattern in your servlet configuration listed in the error message.
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun mvc(introspector: HandlerMappingIntrospector): MvcRequestMatcher.Builder =
+    MvcRequestMatcher.Builder(introspector).servletPath("/spring-mvc");
+
+@Bean
+fun appEndpoints(http: HttpSecurity, mvc: MvcRequestMatcher.Builder): SecurityFilterChain =
+    http {
+        authorizeHttpRequests {
+            authorize(mvc.pattern("/my/controller/**"), hasAuthority("controller"))
+            authorize(anyRequest, authenticated)
+        }
+    }
+----
+
+.Xml
+[source,xml,role="secondary"]
+----
+<http>
+    <intercept-url servlet-path="/spring-mvc" pattern="/my/controller/**" access="hasAuthority('controller')"/>
+    <intercept-url pattern="/**" access="authenticated"/>
+</http>
+----
+====
 
 This need can arise in at least two different ways:
 
 * If you use the `spring.mvc.servlet.path` Boot property to change the default path (`/`) to something else
-* If you register more than one Spring MVC `DispatcherServlet` (thus requiring that one of them not be the default servlet)
-
-Note that when either of these cases come up, all URIs need to be fully-qualified as above.
-
-For example, consider a more sophisticated setup where you have Spring MVC resources mapped to `/mvc/*` and Spring Boot H2 Console mapped to `/h2-console/*`.
-In that case, each URI can be made absolute, listing the servlet path like so:
-
-.Match by Servlet Path
-====
-.Java
-[source,java,role="primary"]
-----
-@Bean
-SecurityFilterChain appSecurity(HttpSecurity http) throws Exception {
-    http
-        .authorizeHttpRequests((authorize) -> authorize
-            .forServletPattern("/mvc/*", (mvc) -> mvc
-                .requestMatchers("/my/resource/**").hasAuthority("resource:read")
-            )
-            .forServletPattern("/h2-console/*", (h2) -> h2
-                .anyRequest().hasAuthority("h2")
-            )
-        )
-    // ...
-}
-----
-====
-
-Alternatively, you can do one of three things to remove the need to disambiguate:
-
-1. Always deploy `DispatcherServlet` to `/` (the default behavior)
-+
-When `DispatcherServlet` is mapped to `/`, it's clear that all the URIs supplied in `requestMatchers(String)` are absolute URIs.
-Because of that, there is no ambiguity when interpreting them.
-+
-2. Remove all other servlets
-+
-When there is only `DispatcherServlet`, it's clear that all the URIs supplied in `requestMatchers(String)` are relative to the Spring MVC configuration.
-Because of that, there is no ambiguity when interpreting them.
-
-At times, servlet containers add other servlets by default that you aren't actually using.
-So, if these aren't needed, remove them, bringing you down to just `DispatcherServlet`.
-+
-3. Create an `HttpRequestHandler` so that `DispatcherServlet` dispatches to your servlets instead of your servlet container.
-+
-If you are deploying Spring MVC to a separate path to allow your container to serve static resources, consider instead {spring-framework-reference-url}web/webmvc/mvc-config/default-servlet-handler.html#page-title[notifying Spring MVC about this].
-Or, if you have a custom servlet, publishing {spring-framework-api-url}org/springframework/web/servlet/mvc/HttpRequestHandlerAdapter.html[a custom `HttpRequestHandler` bean within {spring-framework-api-url}org/springframework/web/servlet/DispatcherServlet.html[the `DispatcherServlet` configuration] instead.
-+
-
-=== Matching by the Default Servlet
-
-You can also match more generally by the matching pattern specified in your servlet configuration.
-
-For example, to match the default servlet (whichever servlet is mapped to `/`), use `forServletPattern` like so:
-
-.Match by the Default Servlet
-====
-.Java
-[source,java,role="primary"]
-----
-@Bean
-SecurityFilterChain appSecurity(HttpSecurity http) throws Exception {
-    http
-        .authorizeHttpRequests((authorize) -> authorize
-            .forServletPattern("/", (root) -> root
-                .requestMatchers("/my/resource/**").hasAuthority("resource:read")
-            )
-        )
-    // ...
-}
-----
-====
-
-Such will match on requests that the servlet container matches to your default servlet that start with the URI `/my/resource`.
-
-=== Matching by an Extension Servlet
-
-Or, to match to an extension servlet (like a servlet mapped to `*.jsp`), use `forServletPattern` as follows:
-
-.Match by an Extension Servlet
-====
-.Java
-[source,java,role="primary"]
-----
-@Bean
-SecurityFilterChain appSecurity(HttpSecurity http) throws Exception {
-    http
-        .authorizeHttpRequests((authorize) -> authorize
-            .forServletPattern("*.jsp", (jsp) -> jsp
-                .requestMatchers("/my/resource/**").hasAuthority("resource:read")
-            )
-        )
-    // ...
-}
-----
-====
-
-Such will match on requests that the servlet container matches to your `*.jsp` servlet that start with the URI `/my/resource` (for example a request like `/my/resource/page.jsp`).
+* If you register more than one Spring MVC `DispatcherServlet` (thus requiring that one of them not be the default path)
 
 [[match-by-custom]]
 === Using a Custom Matcher
