@@ -40,6 +40,8 @@ public final class AuthorizationManagerWebInvocationPrivilegeEvaluator
 
 	private ServletContext servletContext;
 
+	private HttpServletRequestTransformer requestTransformer = HttpServletRequestTransformer.IDENTITY;
+
 	public AuthorizationManagerWebInvocationPrivilegeEvaluator(
 			AuthorizationManager<HttpServletRequest> authorizationManager) {
 		Assert.notNull(authorizationManager, "authorizationManager cannot be null");
@@ -54,14 +56,44 @@ public final class AuthorizationManagerWebInvocationPrivilegeEvaluator
 	@Override
 	public boolean isAllowed(String contextPath, String uri, String method, Authentication authentication) {
 		FilterInvocation filterInvocation = new FilterInvocation(contextPath, uri, method, this.servletContext);
-		AuthorizationDecision decision = this.authorizationManager.check(() -> authentication,
-				filterInvocation.getHttpRequest());
+		HttpServletRequest httpRequest = this.requestTransformer.transform(filterInvocation.getHttpRequest());
+		AuthorizationDecision decision = this.authorizationManager.check(() -> authentication, httpRequest);
 		return decision == null || decision.isGranted();
 	}
 
 	@Override
 	public void setServletContext(ServletContext servletContext) {
 		this.servletContext = servletContext;
+	}
+
+	/**
+	 * Set a {@link HttpServletRequestTransformer} to be used prior to passing to the
+	 * {@link AuthorizationManager}.
+	 * @param requestTransformer the {@link HttpServletRequestTransformer} to use.
+	 */
+	public void setRequestTransformer(HttpServletRequestTransformer requestTransformer) {
+		Assert.notNull(requestTransformer, "requestTransformer cannot be null");
+		this.requestTransformer = requestTransformer;
+	}
+
+	/**
+	 * Used to transform the {@link HttpServletRequest} prior to passing it into the
+	 * {@link AuthorizationManager}.
+	 */
+	public interface HttpServletRequestTransformer {
+
+		HttpServletRequestTransformer IDENTITY = (request) -> request;
+
+		/**
+		 * Return the {@link HttpServletRequest} that is passed into the
+		 * {@link AuthorizationManager}
+		 * @param request the {@link HttpServletRequest} created by the
+		 * {@link WebInvocationPrivilegeEvaluator}
+		 * @return the {@link HttpServletRequest} that is passed into the
+		 * {@link AuthorizationManager}
+		 */
+		HttpServletRequest transform(HttpServletRequest request);
+
 	}
 
 }
