@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
@@ -190,7 +189,7 @@ public class OpenSaml4AuthenticationRequestFactoryTests {
 	@Test
 	public void createAuthenticationRequestWhenDefaultThenReturnsPostBinding() {
 		AuthnRequest authn = getAuthNRequest(Saml2MessageBinding.POST);
-		Assertions.assertEquals(SAMLConstants.SAML2_POST_BINDING_URI, authn.getProtocolBinding());
+		assertThat(SAMLConstants.SAML2_POST_BINDING_URI).isEqualTo(authn.getProtocolBinding());
 	}
 
 	@Test
