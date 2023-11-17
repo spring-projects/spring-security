@@ -20,7 +20,6 @@ import java.security.SecureRandom;
 import java.util.Random;
 import java.util.UUID;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -28,6 +27,8 @@ import org.springframework.security.crypto.codec.Hex;
 import org.springframework.security.crypto.encrypt.AesBytesEncryptor.CipherAlgorithm;
 import org.springframework.security.crypto.keygen.BytesKeyGenerator;
 import org.springframework.security.crypto.keygen.KeyGenerators;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class BouncyCastleAesBytesEncryptorEquivalencyTests {
 
@@ -96,11 +97,11 @@ public class BouncyCastleAesBytesEncryptorEquivalencyTests {
 			// and can decrypt back to the original input
 			byte[] leftEncrypted = left.encrypt(this.testData);
 			byte[] rightEncrypted = right.encrypt(this.testData);
-			Assertions.assertArrayEquals(leftEncrypted, rightEncrypted);
+			assertThat(rightEncrypted).containsExactly(leftEncrypted);
 			byte[] leftDecrypted = left.decrypt(leftEncrypted);
 			byte[] rightDecrypted = right.decrypt(rightEncrypted);
-			Assertions.assertArrayEquals(this.testData, leftDecrypted);
-			Assertions.assertArrayEquals(this.testData, rightDecrypted);
+			assertThat(leftDecrypted).containsExactly(this.testData);
+			assertThat(rightDecrypted).containsExactly(this.testData);
 		}
 	}
 
@@ -114,8 +115,8 @@ public class BouncyCastleAesBytesEncryptorEquivalencyTests {
 			byte[] rightEncrypted = right.encrypt(this.testData);
 			byte[] leftDecrypted = left.decrypt(rightEncrypted);
 			byte[] rightDecrypted = right.decrypt(leftEncrypted);
-			Assertions.assertArrayEquals(this.testData, leftDecrypted);
-			Assertions.assertArrayEquals(this.testData, rightDecrypted);
+			assertThat(leftDecrypted).containsExactly(this.testData);
+			assertThat(rightDecrypted).containsExactly(this.testData);
 		}
 	}
 
