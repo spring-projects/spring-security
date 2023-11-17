@@ -476,7 +476,7 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 				this.description.set(matcher.toString());
 				return matcher;
 			});
-			this.description.set("Deferred " + candidates);
+			this.description.set("Deferred " + Arrays.toString(candidates));
 		}
 
 		@Override
