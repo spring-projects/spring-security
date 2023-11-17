@@ -22,12 +22,13 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests for {@link DefaultOAuth2AccessTokenResponseMapConverter}.
@@ -61,14 +62,14 @@ public class DefaultOAuth2AccessTokenResponseMapConverterTests {
 				.build();
 		// @formatter:on
 		Map<String, Object> result = this.messageConverter.convert(build);
-		Assertions.assertEquals(7, result.size());
-		Assertions.assertEquals("access-token-value-1234", result.get("access_token"));
-		Assertions.assertEquals("refresh-token-value-1234", result.get("refresh_token"));
-		Assertions.assertEquals("read write", result.get("scope"));
-		Assertions.assertEquals("Bearer", result.get("token_type"));
-		Assertions.assertNotNull(result.get("expires_in"));
-		Assertions.assertEquals("custom-value-1", result.get("custom_parameter_1"));
-		Assertions.assertEquals("custom-value-2", result.get("custom_parameter_2"));
+		assertThat(result.size()).isEqualTo(7);
+		assertThat(result.get("access_token")).isEqualTo("access-token-value-1234");
+		assertThat(result.get("refresh_token")).isEqualTo("refresh-token-value-1234");
+		assertThat(result.get("scope")).isEqualTo("read write");
+		assertThat(result.get("token_type")).isEqualTo("Bearer");
+		assertThat(result.get("expires_in")).isNotNull();
+		assertThat(result.get("custom_parameter_1")).isEqualTo("custom-value-1");
+		assertThat(result.get("custom_parameter_2")).isEqualTo("custom-value-2");
 	}
 
 	@Test
@@ -79,10 +80,10 @@ public class DefaultOAuth2AccessTokenResponseMapConverterTests {
 				.build();
 		// @formatter:on
 		Map<String, Object> result = this.messageConverter.convert(build);
-		Assertions.assertEquals(3, result.size());
-		Assertions.assertEquals("access-token-value-1234", result.get("access_token"));
-		Assertions.assertEquals("Bearer", result.get("token_type"));
-		Assertions.assertNotNull(result.get("expires_in"));
+		assertThat(result.size()).isEqualTo(3);
+		assertThat(result.get("access_token")).isEqualTo("access-token-value-1234");
+		assertThat(result.get("token_type")).isEqualTo("Bearer");
+		assertThat(result.get("expires_in")).isNotNull();
 	}
 
 	// gh-9685
@@ -107,14 +108,14 @@ public class DefaultOAuth2AccessTokenResponseMapConverterTests {
 				.build();
 		// @formatter:on
 		Map<String, Object> result = this.messageConverter.convert(build);
-		Assertions.assertEquals(7, result.size());
-		Assertions.assertEquals("access-token-value-1234", result.get("access_token"));
-		Assertions.assertEquals("refresh-token-value-1234", result.get("refresh_token"));
-		Assertions.assertEquals("read write", result.get("scope"));
-		Assertions.assertEquals("Bearer", result.get("token_type"));
-		Assertions.assertNotNull(result.get("expires_in"));
-		Assertions.assertEquals(nestedObject, result.get("custom_parameter_1"));
-		Assertions.assertEquals("custom-value-2", result.get("custom_parameter_2"));
+		assertThat(result.size()).isEqualTo(7);
+		assertThat(result.get("access_token")).isEqualTo("access-token-value-1234");
+		assertThat(result.get("refresh_token")).isEqualTo("refresh-token-value-1234");
+		assertThat(result.get("scope")).isEqualTo("read write");
+		assertThat(result.get("token_type")).isEqualTo("Bearer");
+		assertThat(result.get("expires_in")).isNotNull();
+		assertThat(result.get("custom_parameter_1")).isEqualTo(nestedObject);
+		assertThat(result.get("custom_parameter_2")).isEqualTo("custom-value-2");
 	}
 
 }
