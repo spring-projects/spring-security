@@ -16,6 +16,7 @@
 
 package org.springframework.security.config.annotation.web;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.servlet.DispatcherType;
@@ -164,6 +165,7 @@ public class AbstractRequestMatcherRegistryTests {
 
 	@Test
 	public void requestMatchersWhenNoDispatcherServletThenAntPathRequestMatcherType() {
+		mockMvcIntrospector(true);
 		MockServletContext servletContext = new MockServletContext();
 		given(this.context.getServletContext()).willReturn(servletContext);
 		servletContext.addServlet("servletOne", Servlet.class).addMapping("/one");
@@ -182,6 +184,7 @@ public class AbstractRequestMatcherRegistryTests {
 
 	@Test
 	public void requestMatchersWhenAmbiguousServletsThenException() {
+		mockMvcIntrospector(true);
 		MockServletContext servletContext = new MockServletContext();
 		given(this.context.getServletContext()).willReturn(servletContext);
 		servletContext.addServlet("dispatcherServlet", DispatcherServlet.class).addMapping("/");
@@ -192,6 +195,7 @@ public class AbstractRequestMatcherRegistryTests {
 
 	@Test
 	public void requestMatchersWhenMultipleDispatcherServletMappingsThenException() {
+		mockMvcIntrospector(true);
 		MockServletContext servletContext = new MockServletContext();
 		given(this.context.getServletContext()).willReturn(servletContext);
 		servletContext.addServlet("dispatcherServlet", DispatcherServlet.class).addMapping("/", "/mvc/*");
@@ -201,6 +205,7 @@ public class AbstractRequestMatcherRegistryTests {
 
 	@Test
 	public void requestMatchersWhenPathDispatcherServletAndOtherServletsThenException() {
+		mockMvcIntrospector(true);
 		MockServletContext servletContext = new MockServletContext();
 		given(this.context.getServletContext()).willReturn(servletContext);
 		servletContext.addServlet("dispatcherServlet", DispatcherServlet.class).addMapping("/mvc/*");
@@ -310,7 +315,25 @@ public class AbstractRequestMatcherRegistryTests {
 	private static class TestRequestMatcherRegistry extends AbstractRequestMatcherRegistry<List<RequestMatcher>> {
 
 		@Override
+		public List<RequestMatcher> requestMatchers(RequestMatcher... requestMatchers) {
+			return unwrap(super.requestMatchers(requestMatchers));
+		}
+
+		@Override
 		protected List<RequestMatcher> chainRequestMatchers(List<RequestMatcher> requestMatchers) {
+			return requestMatchers;
+		}
+
+		private static List<RequestMatcher> unwrap(List<RequestMatcher> wrappedMatchers) {
+			List<RequestMatcher> requestMatchers = new ArrayList<>();
+			for (RequestMatcher requestMatcher : wrappedMatchers) {
+				if (requestMatcher instanceof AbstractRequestMatcherRegistry.DeferredRequestMatcher) {
+					requestMatchers.add(((DeferredRequestMatcher) requestMatcher).requestMatcher.get());
+				}
+				else {
+					requestMatchers.add(requestMatcher);
+				}
+			}
 			return requestMatchers;
 		}
 
