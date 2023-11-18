@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -120,6 +120,11 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 	}
 
 	@Test
+	public void setAuthenticationFailureHandlerIsNullThenThrowIllegalArgumentException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.filter.setAuthenticationFailureHandler(null));
+	}
+
+	@Test
 	public void doFilterWhenNotAuthorizationRequestThenNextFilter() throws Exception {
 		String requestUri = "/path";
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", requestUri);
@@ -142,6 +147,31 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 		verifyNoMoreInteractions(filterChain);
 		assertThat(response.getStatus()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR.value());
 		assertThat(response.getErrorMessage()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase());
+	}
+
+	@Test
+	public void doFilterWhenAuthorizationRequestWithInvalidClientAndCustomFailureHandlerThenCustomError()
+			throws Exception {
+		String requestUri = OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI + "/"
+				+ this.registration1.getRegistrationId() + "-invalid";
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", requestUri);
+		request.setServletPath(requestUri);
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		FilterChain filterChain = mock(FilterChain.class);
+		this.filter.setAuthenticationFailureHandler((request1, response1, ex) -> {
+			Throwable cause = ex.getCause();
+			if (InvalidClientRegistrationIdException.class.isAssignableFrom(cause.getClass())) {
+				response1.sendError(HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST.getReasonPhrase());
+			}
+			else {
+				response1.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(),
+						HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase());
+			}
+		});
+		this.filter.doFilter(request, response, filterChain);
+		verifyNoMoreInteractions(filterChain);
+		assertThat(response.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+		assertThat(response.getErrorMessage()).isEqualTo(HttpStatus.BAD_REQUEST.getReasonPhrase());
 	}
 
 	@Test
