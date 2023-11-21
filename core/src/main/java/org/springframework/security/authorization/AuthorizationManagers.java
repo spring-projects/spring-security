@@ -57,6 +57,36 @@ public final class AuthorizationManagers {
 	}
 
 	/**
+	 * Creates an {@link AuthorizationManager} that grants access if at least one
+	 * {@link AuthorizationManager}s granted, if <code>managers</code> are
+	 * empty or all abstained, default decision is returned.
+	 * @param <T> the type of object that is being authorized
+	 * @param defaultDecision default decision to be returned in case no managers are provided.
+	 * @param managers the {@link AuthorizationManager}s to use
+	 * @return the {@link AuthorizationManager} to use
+	 */
+	@SafeVarargs
+	public static <T> AuthorizationManager<T> anyOf(AuthorizationDecision defaultDecision, AuthorizationManager<T>... managers) {
+		return (authentication, object) -> {
+			List<AuthorizationDecision> decisions = new ArrayList<>();
+			for (AuthorizationManager<T> manager : managers) {
+				AuthorizationDecision decision = manager.check(authentication, object);
+				if (decision == null) {
+					continue;
+				}
+				if (decision.isGranted()) {
+					return decision;
+				}
+				decisions.add(decision);
+			}
+			if (decisions.isEmpty()) {
+				return defaultDecision;
+			}
+			return new CompositeAuthorizationDecision(false, decisions);
+		};
+	}
+
+	/**
 	 * Creates an {@link AuthorizationManager} that grants access if all
 	 * {@link AuthorizationManager}s granted or abstained, if <code>managers</code> are
 	 * empty then granted decision is returned.
@@ -80,6 +110,36 @@ public final class AuthorizationManagers {
 			}
 			if (decisions.isEmpty()) {
 				return new AuthorizationDecision(true);
+			}
+			return new CompositeAuthorizationDecision(true, decisions);
+		};
+	}
+
+	/**
+	 * Creates an {@link AuthorizationManager} that grants access if all
+	 * {@link AuthorizationManager}s granted, if <code>managers</code> are
+	 * empty or all abstained, default decision is returned.
+	 * @param <T> the type of object that is being authorized
+	 * @param defaultDecision default decision to be returned in case no managers are provided.
+	 * @param managers the {@link AuthorizationManager}s to use
+	 * @return the {@link AuthorizationManager} to use
+	 */
+	@SafeVarargs
+	public static <T> AuthorizationManager<T> allOf(AuthorizationDecision defaultDecision, AuthorizationManager<T>... managers) {
+		return (authentication, object) -> {
+			List<AuthorizationDecision> decisions = new ArrayList<>();
+			for (AuthorizationManager<T> manager : managers) {
+				AuthorizationDecision decision = manager.check(authentication, object);
+				if (decision == null) {
+					continue;
+				}
+				if (!decision.isGranted()) {
+					return decision;
+				}
+				decisions.add(decision);
+			}
+			if (decisions.isEmpty()) {
+				return defaultDecision;
 			}
 			return new CompositeAuthorizationDecision(true, decisions);
 		};

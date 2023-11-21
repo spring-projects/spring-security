@@ -55,6 +55,26 @@ class AuthorizationManagersTests {
 	}
 
 	@Test
+	void checkAnyOfWhenNoManagersThenDefaultDecision() {
+		AuthorizationDecision defaultDecision =  new AuthorizationDecision(true);
+		AuthorizationManager<?> composed = AuthorizationManagers.anyOf(defaultDecision);
+		AuthorizationDecision decision = composed.check(null, null);
+		assertThat(decision).isNotNull();
+		assertThat(decision.isGranted()).isTrue();
+		assertThat(decision).isSameAs(defaultDecision);
+	}
+
+	@Test
+	void checkAnyOfWhenAllAbstainThenDefaultDecision() {
+		AuthorizationDecision defaultDecision =  new AuthorizationDecision(true);
+		AuthorizationManager<?> composed = AuthorizationManagers.anyOf(defaultDecision, (a, o) -> null, (a, o) -> null);
+		AuthorizationDecision decision = composed.check(null, null);
+		assertThat(decision).isNotNull();
+		assertThat(decision.isGranted()).isTrue();
+		assertThat(decision).isSameAs(defaultDecision);
+	}
+
+	@Test
 	void checkAllOfWhenAllGrantedThenGrantedDecision() {
 		AuthorizationManager<?> composed = AuthorizationManagers.allOf((a, o) -> new AuthorizationDecision(true),
 				(a, o) -> new AuthorizationDecision(true));
@@ -88,6 +108,26 @@ class AuthorizationManagersTests {
 		AuthorizationDecision decision = composed.check(null, null);
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isTrue();
+	}
+
+	@Test
+	void checkAllOfWhenNoManagersThenDefaultDecision() {
+		AuthorizationDecision defaultDecision =  new AuthorizationDecision(true);
+		AuthorizationManager<?> composed = AuthorizationManagers.allOf(defaultDecision);
+		AuthorizationDecision decision = composed.check(null, null);
+		assertThat(decision).isNotNull();
+		assertThat(decision.isGranted()).isTrue();
+		assertThat(decision).isSameAs(defaultDecision);
+	}
+
+	@Test
+	void checkAllOfWhenAllAbstainThenDefaultDecision() {
+		AuthorizationDecision defaultDecision =  new AuthorizationDecision(true);
+		AuthorizationManager<?> composed = AuthorizationManagers.allOf(defaultDecision, (a, o) -> null, (a, o) -> null);
+		AuthorizationDecision decision = composed.check(null, null);
+		assertThat(decision).isNotNull();
+		assertThat(decision.isGranted()).isTrue();
+		assertThat(decision).isSameAs(defaultDecision);
 	}
 
 }
