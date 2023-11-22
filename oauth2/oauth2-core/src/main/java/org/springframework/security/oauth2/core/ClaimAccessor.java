@@ -134,7 +134,7 @@ public interface ClaimAccessor {
 	 * @param claim the name of the claim
 	 * @return the claim value or {@code null} if the claim does not exist
 	 * @throws IllegalArgumentException if the claim value cannot be converted to a
-	 * {@code List}
+	 * {@code Map}
 	 * @throws NullPointerException if the claim value is {@code null}
 	 */
 	@SuppressWarnings("unchecked")
