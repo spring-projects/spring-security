@@ -5,15 +5,15 @@ io-spring-javaformat = "0.0.40"
 io-spring-nohttp = "0.0.11"
 jakarta-websocket = "2.1.1"
 org-apache-directory-server = "1.5.5"
-org-apache-maven-resolver = "1.9.16"
+org-apache-maven-resolver = "1.9.17"
 org-aspectj = "1.9.20.1"
 org-bouncycastle = "1.70"
 org-eclipse-jetty = "11.0.18"
-org-jetbrains-kotlin = "1.9.20"
+org-jetbrains-kotlin = "1.9.21"
 org-jetbrains-kotlinx = "1.7.3"
 org-mockito = "5.5.0"
 org-opensaml = "4.3.0"
-org-springframework = "6.1.0"
+org-springframework = "6.1.1"
 
 [libraries]
 ch-qos-logback-logback-classic = "ch.qos.logback:logback-classic:1.4.11"
@@ -66,10 +66,10 @@ org-bouncycastle-bcprov-jdk15on = { module = "org.bouncycastle:bcprov-jdk15on", 
 org-eclipse-jetty-jetty-server = { module = "org.eclipse.jetty:jetty-server", version.ref = "org-eclipse-jetty" }
 org-eclipse-jetty-jetty-servlet = { module = "org.eclipse.jetty:jetty-servlet", version.ref = "org-eclipse-jetty" }
 org-hamcrest = "org.hamcrest:hamcrest:2.2"
-org-hibernate-orm-hibernate-core = "org.hibernate.orm:hibernate-core:6.3.1.Final"
+org-hibernate-orm-hibernate-core = "org.hibernate.orm:hibernate-core:6.3.2.Final"
 org-hsqldb = "org.hsqldb:hsqldb:2.7.2"
 org-jetbrains-kotlin-kotlin-bom = { module = "org.jetbrains.kotlin:kotlin-bom", version.ref = "org-jetbrains-kotlin" }
-org-jetbrains-kotlin-kotlin-gradle-plugin = "org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.20"
+org-jetbrains-kotlin-kotlin-gradle-plugin = "org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.21"
 org-jetbrains-kotlinx-kotlinx-coroutines-bom = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-bom", version.ref = "org-jetbrains-kotlinx" }
 org-junit-junit-bom = "org.junit:junit-bom:5.10.1"
 org-mockito-mockito-bom = { module = "org.mockito:mockito-bom", version.ref = "org-mockito" }
