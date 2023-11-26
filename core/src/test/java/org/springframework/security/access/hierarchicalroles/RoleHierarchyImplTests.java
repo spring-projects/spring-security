@@ -26,6 +26,7 @@ import org.springframework.security.core.authority.AuthorityUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 
 /**
@@ -203,6 +204,70 @@ public class RoleHierarchyImplTests {
 		roleHierarchyImpl.setHierarchy("ROLE_HIGHEST > ROLE_HIGHER > ROLE_LOW > ROLE_LOWER");
 		assertThat(roleHierarchyImpl.getReachableGrantedAuthorities(flatAuthorities))
 			.containsExactlyInAnyOrderElementsOf(allAuthorities);
+	}
+
+	@Test
+	public void testBuilderWithDefaultRolePrefix() {
+		RoleHierarchyImpl roleHierarchyImpl = RoleHierarchyImpl.withDefaultRolePrefix().role("A").implies("B").build();
+		List<GrantedAuthority> flatAuthorities = AuthorityUtils.createAuthorityList("ROLE_A");
+		List<GrantedAuthority> allAuthorities = AuthorityUtils.createAuthorityList("ROLE_A", "ROLE_B");
+
+		assertThat(roleHierarchyImpl).isNotNull();
+		assertThat(roleHierarchyImpl.getReachableGrantedAuthorities(flatAuthorities))
+			.containsExactlyInAnyOrderElementsOf(allAuthorities);
+	}
+
+	@Test
+	public void testBuilderWithRolePrefix() {
+		RoleHierarchyImpl roleHierarchyImpl = RoleHierarchyImpl.withRolePrefix("CUSTOM_PREFIX_")
+			.role("A")
+			.implies("B")
+			.build();
+		List<GrantedAuthority> flatAuthorities = AuthorityUtils.createAuthorityList("CUSTOM_PREFIX_A");
+		List<GrantedAuthority> allAuthorities = AuthorityUtils.createAuthorityList("CUSTOM_PREFIX_A",
+				"CUSTOM_PREFIX_B");
+
+		assertThat(roleHierarchyImpl).isNotNull();
+		assertThat(roleHierarchyImpl.getReachableGrantedAuthorities(flatAuthorities))
+			.containsExactlyInAnyOrderElementsOf(allAuthorities);
+	}
+
+	@Test
+	public void testBuilderWithNoRolePrefix() {
+		RoleHierarchyImpl roleHierarchyImpl = RoleHierarchyImpl.withNoRolePrefix().role("A").implies("B").build();
+		List<GrantedAuthority> flatAuthorities = AuthorityUtils.createAuthorityList("A");
+		List<GrantedAuthority> allAuthorities = AuthorityUtils.createAuthorityList("A", "B");
+
+		assertThat(roleHierarchyImpl).isNotNull();
+		assertThat(roleHierarchyImpl.getReachableGrantedAuthorities(flatAuthorities))
+			.containsExactlyInAnyOrderElementsOf(allAuthorities);
+	}
+
+	@Test
+	public void testBuilderThrowIllegalArgumentExceptionWhenPrefixRoleNull() {
+		assertThatIllegalArgumentException().isThrownBy(() -> RoleHierarchyImpl.withRolePrefix(null));
+	}
+
+	@Test
+	public void testBuilderThrowIllegalArgumentExceptionWhenRoleEmpty() {
+		assertThatIllegalArgumentException().isThrownBy(() -> RoleHierarchyImpl.withDefaultRolePrefix().role(""));
+	}
+
+	@Test
+	public void testBuilderThrowIllegalArgumentExceptionWhenRoleNull() {
+		assertThatIllegalArgumentException().isThrownBy(() -> RoleHierarchyImpl.withDefaultRolePrefix().role(null));
+	}
+
+	@Test
+	public void testBuilderThrowIllegalArgumentExceptionWhenImpliedRolesNull() {
+		assertThatIllegalArgumentException()
+			.isThrownBy(() -> RoleHierarchyImpl.withDefaultRolePrefix().role("A").implies((String) null));
+	}
+
+	@Test
+	public void testBuilderThrowIllegalArgumentExceptionWhenImpliedRolesEmpty() {
+		assertThatIllegalArgumentException()
+			.isThrownBy(() -> RoleHierarchyImpl.withDefaultRolePrefix().role("A").implies());
 	}
 
 }
