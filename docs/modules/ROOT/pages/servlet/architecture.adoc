@@ -336,7 +336,7 @@ Instead of implementing `Filter`, you can extend from {spring-framework-api-url}
 ====
 
 Now, we need to add the filter to the security filter chain.
-
+[tabs]
 ======
 Java::
 +
