@@ -23,7 +23,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Supplier;
+import java.util.function.Function;
 
 import javax.servlet.DispatcherType;
 import javax.servlet.ServletContext;
@@ -44,7 +44,6 @@ import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
-import org.springframework.util.function.SingletonSupplier;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
@@ -327,7 +326,8 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 				matchers.add(resolve(ant, mvc, servletContext));
 			}
 			else {
-				matchers.add(new DeferredRequestMatcher(() -> resolve(ant, mvc, servletContext), mvc, ant));
+				matchers.add(new DeferredRequestMatcher((request) -> resolve(ant, mvc, request.getServletContext()),
+						mvc, ant));
 			}
 		}
 		return requestMatchers(matchers.toArray(new RequestMatcher[0]));
@@ -584,27 +584,34 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 
 	static class DeferredRequestMatcher implements RequestMatcher {
 
-		final Supplier<RequestMatcher> requestMatcher;
+		final Function<HttpServletRequest, RequestMatcher> requestMatcherFactory;
 
 		final AtomicReference<String> description = new AtomicReference<>();
 
-		DeferredRequestMatcher(Supplier<RequestMatcher> resolver, RequestMatcher... candidates) {
-			this.requestMatcher = SingletonSupplier.of(() -> {
-				RequestMatcher matcher = resolver.get();
-				this.description.set(matcher.toString());
-				return matcher;
-			});
+		volatile RequestMatcher requestMatcher;
+
+		DeferredRequestMatcher(Function<HttpServletRequest, RequestMatcher> resolver, RequestMatcher... candidates) {
+			this.requestMatcherFactory = (request) -> {
+				if (this.requestMatcher == null) {
+					synchronized (this) {
+						if (this.requestMatcher == null) {
+							this.requestMatcher = resolver.apply(request);
+						}
+					}
+				}
+				return this.requestMatcher;
+			};
 			this.description.set("Deferred " + Arrays.toString(candidates));
 		}
 
 		@Override
 		public boolean matches(HttpServletRequest request) {
-			return this.requestMatcher.get().matches(request);
+			return this.requestMatcherFactory.apply(request).matches(request);
 		}
 
 		@Override
 		public MatchResult matcher(HttpServletRequest request) {
-			return this.requestMatcher.get().matcher(request);
+			return this.requestMatcherFactory.apply(request).matcher(request);
 		}
 
 		@Override
