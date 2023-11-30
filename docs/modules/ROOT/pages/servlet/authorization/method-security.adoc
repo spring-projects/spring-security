@@ -1281,7 +1281,7 @@ companion object {
     @Bean
     @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
     fun protectServicePointcut(): Advisor {
-        var pattern = AspectJExpressionPointcut();
+        val pattern = AspectJExpressionPointcut();
         pattern.setExpression("execution(* com.mycompany.*Service.*(..))");
         return new AuthorizationManagerBeforeMethodInterceptor(pattern, hasRole("USER"));
     }
