@@ -1265,8 +1265,8 @@ import static org.springframework.security.authorization.AuthorityAuthorizationM
 @Bean
 @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 static Advisor protectServicePointcut() {
-    JdkRegexpMethodPointcut pattern = new JdkRegexpMethodPointcut();
-    pattern.setPattern("execution(* com.mycompany.*Service.*(..))");
+    AspectJExpressionPointcut pattern = new AspectJExpressionPointcut();
+    pattern.setExpression("execution(* com.mycompany.*Service.*(..))");
     return new AuthorizationManagerBeforeMethodInterceptor(pattern, hasRole("USER"));
 }
 ----
@@ -1281,8 +1281,8 @@ companion object {
     @Bean
     @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
     fun protectServicePointcut(): Advisor {
-        var pattern = JdkRegexpMethodPointcut();
-        pattern.setPattern("execution(* com.mycompany.*Service.*(..))");
+        var pattern = AspectJExpressionPointcut();
+        pattern.setExpression("execution(* com.mycompany.*Service.*(..))");
         return new AuthorizationManagerBeforeMethodInterceptor(pattern, hasRole("USER"));
     }
 }
