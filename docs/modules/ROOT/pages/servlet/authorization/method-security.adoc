@@ -1214,9 +1214,9 @@ Kotlin::
 companion object {
 	@Bean
 	fun methodSecurityExpressionHandler(val roleHierarchy: RoleHierarchy) : MethodSecurityExpressionHandler {
-		val handler = DefaultMethodSecurityExpressionHandler();
-		handler.setRoleHierarchy(roleHierarchy);
-		return handler;
+		val handler = DefaultMethodSecurityExpressionHandler()
+		handler.setRoleHierarchy(roleHierarchy)
+		return handler
 	}
 }
 ----
@@ -1260,14 +1260,14 @@ Java::
 +
 [source,java,role="primary"]
 ----
-import static org.springframework.security.authorization.AuthorityAuthorizationManager.hasRole;
+import static org.springframework.security.authorization.AuthorityAuthorizationManager.hasRole
 
 @Bean
 @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 static Advisor protectServicePointcut() {
-    AspectJExpressionPointcut pattern = new AspectJExpressionPointcut();
-    pattern.setExpression("execution(* com.mycompany.*Service.*(..))");
-    return new AuthorizationManagerBeforeMethodInterceptor(pattern, hasRole("USER"));
+    AspectJExpressionPointcut pattern = new AspectJExpressionPointcut()
+    pattern.setExpression("execution(* com.mycompany.*Service.*(..))")
+    return new AuthorizationManagerBeforeMethodInterceptor(pattern, hasRole("USER"))
 }
 ----
 
@@ -1275,26 +1275,28 @@ Kotlin::
 +
 [source,kotlin,role="secondary"]
 ----
-import static org.springframework.security.authorization.AuthorityAuthorizationManager.hasRole;
+import static org.springframework.security.authorization.AuthorityAuthorizationManager.hasRole
 
 companion object {
     @Bean
     @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
     fun protectServicePointcut(): Advisor {
-        val pattern = AspectJExpressionPointcut();
-        pattern.setExpression("execution(* com.mycompany.*Service.*(..))");
-        return new AuthorizationManagerBeforeMethodInterceptor(pattern, hasRole("USER"));
+        val pattern = AspectJExpressionPointcut()
+        pattern.setExpression("execution(* com.mycompany.*Service.*(..))")
+        return new AuthorizationManagerBeforeMethodInterceptor(pattern, hasRole("USER"))
     }
 }
 ----
-======
 
-[source,xml]
+Xml::
++
+[source,xml,role="secondary"]
 ----
 <sec:method-security>
     <protect-pointcut expression="execution(* com.mycompany.*Service.*(..))" access="hasRole('USER')"/>
 </sec:method-security>
 ----
+======
 
 [[weave-aspectj]]
 === Integrate with AspectJ Byte-weaving
@@ -1445,7 +1447,7 @@ open class MyService {
     fun readResource(...): MyResource
 
     @PreAuthorize("@authz.check(#root)")
-    fun shareResource(...): MyResource;
+    fun shareResource(...): MyResource
 }
 ----
 
@@ -1769,8 +1771,8 @@ class MyExpressionHandler: DefaultMethodSecurityExpressionHandler {
 		val context = super.createEvaluationContext(authentication, mi) as StandardEvaluationContext
         val delegate = context.getRootObject().getValue() as MethodSecurityExpressionOperations
         val root = MySecurityExpressionRoot(delegate)
-        context.setRootObject(root);
-        return context;
+        context.setRootObject(root)
+        return context
     }
 }
 ----
