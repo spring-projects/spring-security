@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,6 +39,7 @@ import org.springframework.http.client.support.BasicAuthenticationInterceptor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
+import org.springframework.security.oauth2.core.OAuth2TokenIntrospectionClaimAccessor;
 import org.springframework.security.oauth2.core.OAuth2TokenIntrospectionClaimNames;
 import org.springframework.util.Assert;
 import org.springframework.util.LinkedMultiValueMap;
@@ -68,6 +69,8 @@ public class SpringOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 
 	private Converter<String, RequestEntity<?>> requestEntityConverter;
 
+	private Converter<OAuth2TokenIntrospectionClaimAccessor, OAuth2AuthenticatedPrincipal> authenticationConverter;
+
 	/**
 	 * Creates a {@code OpaqueTokenAuthenticationProvider} with the provided parameters
 	 * @param introspectionUri The introspection endpoint uri
@@ -82,11 +85,11 @@ public class SpringOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 		RestTemplate restTemplate = new RestTemplate();
 		restTemplate.getInterceptors().add(new BasicAuthenticationInterceptor(clientId, clientSecret));
 		this.restOperations = restTemplate;
+		this.authenticationConverter = this.defaultAuthenticationConverter();
 	}
 
 	/**
 	 * Creates a {@code OpaqueTokenAuthenticationProvider} with the provided parameters
-	 *
 	 * The given {@link RestOperations} should perform its own client authentication
 	 * against the introspection endpoint.
 	 * @param introspectionUri The introspection endpoint uri
@@ -97,6 +100,7 @@ public class SpringOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 		Assert.notNull(restOperations, "restOperations cannot be null");
 		this.requestEntityConverter = this.defaultRequestEntityConverter(URI.create(introspectionUri));
 		this.restOperations = restOperations;
+		this.authenticationConverter = this.defaultAuthenticationConverter();
 	}
 
 	private Converter<String, RequestEntity<?>> defaultRequestEntityConverter(URI introspectionUri) {
@@ -127,7 +131,8 @@ public class SpringOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 		}
 		ResponseEntity<Map<String, Object>> responseEntity = makeRequest(requestEntity);
 		Map<String, Object> claims = adaptToNimbusResponse(responseEntity);
-		return convertClaimsSet(claims);
+		convertClaimsSet(claims);
+		return this.authenticationConverter.convert(() -> claims);
 	}
 
 	/**
@@ -178,7 +183,7 @@ public class SpringOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 		return claims;
 	}
 
-	private OAuth2AuthenticatedPrincipal convertClaimsSet(Map<String, Object> claims) {
+	private Map<String, Object> convertClaimsSet(Map<String, Object> claims) {
 		claims.computeIfPresent(OAuth2TokenIntrospectionClaimNames.AUD, (k, v) -> {
 			if (v instanceof String) {
 				return Collections.singletonList(v);
@@ -211,18 +216,56 @@ public class SpringOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 		claims.computeIfPresent(OAuth2TokenIntrospectionClaimNames.ISS, (k, v) -> v.toString());
 		claims.computeIfPresent(OAuth2TokenIntrospectionClaimNames.NBF,
 				(k, v) -> Instant.ofEpochSecond(((Number) v).longValue()));
-		Collection<GrantedAuthority> authorities = new ArrayList<>();
-		claims.computeIfPresent(OAuth2TokenIntrospectionClaimNames.SCOPE, (k, v) -> {
-			if (v instanceof String) {
-				Collection<String> scopes = Arrays.asList(((String) v).split(" "));
-				for (String scope : scopes) {
-					authorities.add(new SimpleGrantedAuthority(AUTHORITY_PREFIX + scope));
+		return claims;
+	}
+
+	/**
+	 * If {@link SpringOpaqueTokenIntrospector#authenticationConverter} is not explicitly
+	 * set, this default converter will be used. transforms an
+	 * {@link OAuth2TokenIntrospectionClaimAccessor} into an
+	 * {@link OAuth2AuthenticatedPrincipal} by extracting claims, mapping scopes to
+	 * authorities, and creating a principal.
+	 * @return {@link Converter Converter&lt;OAuth2TokenIntrospectionClaimAccessor,
+	 * OAuth2AuthenticatedPrincipal&gt;}
+	 * @since 6.3
+	 */
+	private Converter<OAuth2TokenIntrospectionClaimAccessor, OAuth2AuthenticatedPrincipal> defaultAuthenticationConverter() {
+		return (accessor) -> {
+			Map<String, Object> claims = accessor.getClaims();
+			Collection<GrantedAuthority> authorities = new ArrayList<>();
+
+			claims.computeIfPresent(OAuth2TokenIntrospectionClaimNames.SCOPE, (k, v) -> {
+				if (v instanceof String) {
+					Collection<String> scopes = Arrays.asList(((String) v).split(" "));
+					for (String scope : scopes) {
+						authorities.add(new SimpleGrantedAuthority(AUTHORITY_PREFIX + scope));
+					}
+					return scopes;
 				}
-				return scopes;
-			}
-			return v;
-		});
-		return new OAuth2IntrospectionAuthenticatedPrincipal(claims, authorities);
+				return v;
+			});
+
+			return new OAuth2IntrospectionAuthenticatedPrincipal(claims, authorities);
+		};
+	}
+
+	/**
+	 * <p>
+	 * Sets the {@link Converter Converter&lt;OAuth2TokenIntrospectionClaimAccessor,
+	 * OAuth2AuthenticatedPrincipal&gt;} to use. Defaults to
+	 * {@link SpringOpaqueTokenIntrospector#defaultAuthenticationConverter()}.
+	 * </p>
+	 * <p>
+	 * Use if you need a custom mapping of OAuth 2.0 token claims to the authenticated
+	 * principal.
+	 * </p>
+	 * @param authenticationConverter the converter
+	 * @since 6.3
+	 */
+	public void setAuthenticationConverter(
+			Converter<OAuth2TokenIntrospectionClaimAccessor, OAuth2AuthenticatedPrincipal> authenticationConverter) {
+		Assert.notNull(authenticationConverter, "converter cannot be null");
+		this.authenticationConverter = authenticationConverter;
 	}
 
 }
