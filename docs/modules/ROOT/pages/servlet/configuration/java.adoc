@@ -114,7 +114,7 @@ public class SecurityWebApplicationInitializer
 
 This onlys register the `springSecurityFilterChain` for every URL in your application.
 After that, we need to ensure that `WebSecurityConfig` was loaded in our existing `ApplicationInitializer`.
-For example, if we use Spring MVC it is added in the `getRootConfigClasses()`:
+For example, if we use Spring MVC it is added in the `getServletConfigClasses()`:
 
 [[message-web-application-inititializer-java]]
 [source,java]
@@ -123,13 +123,41 @@ public class MvcWebApplicationInitializer extends
 		AbstractAnnotationConfigDispatcherServletInitializer {
 
 	@Override
-	protected Class<?>[] getRootConfigClasses() {
-		return new Class[] { WebSecurityConfig.class };
+	protected Class<?>[] getServletConfigClasses() {
+		return new Class[] { WebSecurityConfig.class, WebMvcConfig.class };
 	}
 
 	// ... other overrides ...
 }
 ----
+
+The reason for this is that Spring Security needs to be able to inspect some Spring MVC configuration in order to appropriately configure xref:servlet/authorization/authorize-http-requests.adoc#_request_matchers[underlying request matchers], so they need to be in the same application context.
+Placing Spring Security in `getRootConfigClasses` places it into a parent application context that may not be able to find Spring MVC's `HandlerMappingIntrospector`.
+
+==== Configuring for Multiple Spring MVC Dispatchers
+
+If desired, any Spring Security configuration that is unrelated to Spring MVC may be placed in a different configuration class like so:
+
+[source,java]
+----
+public class MvcWebApplicationInitializer extends
+		AbstractAnnotationConfigDispatcherServletInitializer {
+
+	@Override
+    protected Class<?>[] getRootConfigClasses() {
+		return new Class[] { NonWebSecurityConfig.class };
+    }
+
+	@Override
+	protected Class<?>[] getServletConfigClasses() {
+		return new Class[] { WebSecurityConfig.class, WebMvcConfig.class };
+	}
+
+	// ... other overrides ...
+}
+----
+
+This can be helpful if you have multiple instances of `AbstractAnnotationConfigDispatcherServletInitializer` and don't want to duplicate the general security configuration across both of them.
 
 [[jc-httpsecurity]]
 == HttpSecurity
