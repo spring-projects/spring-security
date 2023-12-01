@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,6 +40,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
+import org.springframework.security.oauth2.core.OAuth2TokenIntrospectionClaimAccessor;
 import org.springframework.security.oauth2.core.OAuth2TokenIntrospectionClaimNames;
 import org.springframework.web.client.RestOperations;
 
@@ -291,6 +292,35 @@ public class SpringOpaqueTokenIntrospectorTests {
 		introspectionClient.setRequestEntityConverter(requestEntityConverter);
 		introspectionClient.introspect(tokenToIntrospect);
 		verify(requestEntityConverter).convert(tokenToIntrospect);
+	}
+
+	@Test
+	public void setAuthenticationConverterWhenConverterIsNullThenExceptionIsThrown() {
+		RestOperations restOperations = mock(RestOperations.class);
+		SpringOpaqueTokenIntrospector introspectionClient = new SpringOpaqueTokenIntrospector(INTROSPECTION_URL,
+				restOperations);
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> introspectionClient.setAuthenticationConverter(null));
+	}
+
+	@Test
+	public void setAuthenticationConverterWhenNonNullConverterGivenThenConverterUsed() {
+		RestOperations restOperations = mock(RestOperations.class);
+		Converter<String, RequestEntity<?>> requestEntityConverter = mock(Converter.class);
+		RequestEntity requestEntity = mock(RequestEntity.class);
+		Converter<OAuth2TokenIntrospectionClaimAccessor, OAuth2AuthenticatedPrincipal> authenticationConverter = mock(
+				Converter.class);
+		OAuth2AuthenticatedPrincipal oAuth2AuthenticatedPrincipal = mock(OAuth2AuthenticatedPrincipal.class);
+		String tokenToIntrospect = "some token";
+		given(requestEntityConverter.convert(tokenToIntrospect)).willReturn(requestEntity);
+		given(restOperations.exchange(requestEntity, STRING_OBJECT_MAP)).willReturn(response(ACTIVE_RESPONSE));
+		given(authenticationConverter.convert(any())).willReturn(oAuth2AuthenticatedPrincipal);
+		SpringOpaqueTokenIntrospector introspectionClient = new SpringOpaqueTokenIntrospector(INTROSPECTION_URL,
+				restOperations);
+		introspectionClient.setRequestEntityConverter(requestEntityConverter);
+		introspectionClient.setAuthenticationConverter(authenticationConverter);
+		introspectionClient.introspect(tokenToIntrospect);
+		verify(authenticationConverter).convert(any());
 	}
 
 	private static ResponseEntity<Map<String, Object>> response(String content) {
