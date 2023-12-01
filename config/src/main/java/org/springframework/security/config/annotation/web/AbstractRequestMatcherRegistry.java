@@ -30,6 +30,9 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletRegistration;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpMethod;
@@ -74,6 +77,8 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 		mvcPresent = ClassUtils.isPresent(HANDLER_MAPPING_INTROSPECTOR,
 				AbstractRequestMatcherRegistry.class.getClassLoader());
 	}
+
+	private final Log logger = LogFactory.getLog(getClass());
 
 	protected final void setApplicationContext(ApplicationContext context) {
 		this.context = context;
@@ -326,6 +331,10 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 				matchers.add(resolve(ant, mvc, servletContext));
 			}
 			else {
+				this.logger
+					.warn("The ServletRegistration API was not available at startup time. This may be due to a misconfiguration; "
+							+ "if you are using AbstractSecurityWebApplicationInitializer, please double-check the recommendations outlined in "
+							+ "https://docs.spring.io/spring-security/reference/servlet/configuration/java.html#abstractsecuritywebapplicationinitializer-with-spring-mvc");
 				matchers.add(new DeferredRequestMatcher((request) -> resolve(ant, mvc, request.getServletContext()),
 						mvc, ant));
 			}
