@@ -30,6 +30,7 @@ import org.springframework.security.authorization.AuthorityAuthorizationManager;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationEventPublisher;
 import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.security.authorization.AuthorizationManagers;
 import org.springframework.security.authorization.ObservationAuthorizationManager;
 import org.springframework.security.authorization.SpringAuthorizationEventPublisher;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
@@ -244,10 +245,13 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 	 * {@link RequestMatcher}s.
 	 *
 	 * @author Evgeniy Cheban
+	 * @author Josh Cummings
 	 */
 	public class AuthorizedUrl {
 
 		private final List<? extends RequestMatcher> matchers;
+
+		private boolean not;
 
 		/**
 		 * Creates an instance.
@@ -259,6 +263,16 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 
 		protected List<? extends RequestMatcher> getMatchers() {
 			return this.matchers;
+		}
+
+		/**
+		 * Negates the following authorization rule.
+		 * @return the {@link AuthorizedUrl} for further customization
+		 * @since 6.3
+		 */
+		public AuthorizedUrl not() {
+			this.not = true;
+			return this;
 		}
 
 		/**
@@ -382,7 +396,9 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 		public AuthorizationManagerRequestMatcherRegistry access(
 				AuthorizationManager<RequestAuthorizationContext> manager) {
 			Assert.notNull(manager, "manager cannot be null");
-			return AuthorizeHttpRequestsConfigurer.this.addMapping(this.matchers, manager);
+			return (this.not)
+					? AuthorizeHttpRequestsConfigurer.this.addMapping(this.matchers, AuthorizationManagers.not(manager))
+					: AuthorizeHttpRequestsConfigurer.this.addMapping(this.matchers, manager);
 		}
 
 	}

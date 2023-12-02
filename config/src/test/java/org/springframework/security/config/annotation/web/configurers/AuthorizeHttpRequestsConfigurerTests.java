@@ -596,6 +596,20 @@ public class AuthorizeHttpRequestsConfigurerTests {
 		this.mvc.perform(requestWithUser).andExpect(status().isForbidden());
 	}
 
+	@Test
+	public void getWhenNotConfigAndAuthenticatedThenRespondsWithForbidden() throws Exception {
+		this.spring.register(NotConfig.class, BasicController.class).autowire();
+		MockHttpServletRequestBuilder requestWithUser = get("/").with(user("user"));
+		this.mvc.perform(requestWithUser).andExpect(status().isForbidden());
+	}
+
+	@Test
+	public void getWhenNotConfigAndNotAuthenticatedThenRespondsWithOk() throws Exception {
+		this.spring.register(NotConfig.class, BasicController.class).autowire();
+		MockHttpServletRequestBuilder requestWithUser = get("/");
+		this.mvc.perform(requestWithUser).andExpect(status().isOk());
+	}
+
 	@Configuration
 	@EnableWebSecurity
 	static class GrantedAuthorityDefaultHasRoleConfig {
@@ -1129,6 +1143,24 @@ public class AuthorizeHttpRequestsConfigurerTests {
 				.httpBasic(withDefaults())
 				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().anonymous()
+				);
+			// @formatter:on
+			return http.build();
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	static class NotConfig {
+
+		@Bean
+		SecurityFilterChain chain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.httpBasic(withDefaults())
+				.authorizeHttpRequests((requests) -> requests
+					.anyRequest().not().authenticated()
 				);
 			// @formatter:on
 			return http.build();
