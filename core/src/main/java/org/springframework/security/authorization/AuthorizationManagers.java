@@ -23,6 +23,7 @@ import java.util.List;
  * A factory class to create an {@link AuthorizationManager} instances.
  *
  * @author Evgeniy Cheban
+ * @author Josh Cummings
  * @since 5.8
  */
 public final class AuthorizationManagers {
@@ -119,6 +120,25 @@ public final class AuthorizationManagers {
 		};
 	}
 
+	/**
+	 * Creates an {@link AuthorizationManager} that reverses whatever decision the given
+	 * {@link AuthorizationManager} granted. If the given {@link AuthorizationManager}
+	 * abstains, then the returned manager also abstains.
+	 * @param <T> the type of object that is being authorized
+	 * @param manager the {@link AuthorizationManager} to reverse
+	 * @return the reversing {@link AuthorizationManager}
+	 * @since 6.3
+	 */
+	public static <T> AuthorizationManager<T> not(AuthorizationManager<T> manager) {
+		return (authentication, object) -> {
+			AuthorizationDecision decision = manager.check(authentication, object);
+			if (decision == null) {
+				return null;
+			}
+			return new NotAuthorizationDecision(decision);
+		};
+	}
+
 	private AuthorizationManagers() {
 	}
 
@@ -134,6 +154,22 @@ public final class AuthorizationManagers {
 		@Override
 		public String toString() {
 			return "CompositeAuthorizationDecision [decisions=" + this.decisions + ']';
+		}
+
+	}
+
+	private static final class NotAuthorizationDecision extends AuthorizationDecision {
+
+		private final AuthorizationDecision decision;
+
+		private NotAuthorizationDecision(AuthorizationDecision decision) {
+			super(!decision.isGranted());
+			this.decision = decision;
+		}
+
+		@Override
+		public String toString() {
+			return "NotAuthorizationDecision [decision=" + this.decision + ']';
 		}
 
 	}

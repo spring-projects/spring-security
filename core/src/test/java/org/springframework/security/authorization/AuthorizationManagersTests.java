@@ -224,4 +224,19 @@ class AuthorizationManagersTests {
 		assertThat(decision).isNull();
 	}
 
+	@Test
+	void checkNotWhenEmptyThenAbstainedDecision() {
+		AuthorizationManager<?> negated = AuthorizationManagers.not((a, o) -> null);
+		AuthorizationDecision decision = negated.check(null, null);
+		assertThat(decision).isNull();
+	}
+
+	@Test
+	void checkNotWhenGrantedThenDeniedDecision() {
+		AuthorizationManager<?> negated = AuthorizationManagers.not((a, o) -> new AuthorizationDecision(true));
+		AuthorizationDecision decision = negated.check(null, null);
+		assertThat(decision).isNotNull();
+		assertThat(decision.isGranted()).isFalse();
+	}
+
 }
