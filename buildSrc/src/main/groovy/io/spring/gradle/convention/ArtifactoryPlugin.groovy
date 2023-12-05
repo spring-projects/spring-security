@@ -21,6 +21,10 @@ import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
 
 class ArtifactoryPlugin implements Plugin<Project> {
 
+	private static final String ARTIFACTORY_URL_NAME = "ARTIFACTORY_URL"
+
+	private static final String DEFAULT_ARTIFACTORY_URL = "https://repo.spring.io"
+
 	@Override
 	void apply(Project project) {
 		project.plugins.apply('com.jfrog.artifactory')
@@ -28,7 +32,7 @@ class ArtifactoryPlugin implements Plugin<Project> {
 		boolean isSnapshot = Utils.isSnapshot(project);
 		boolean isMilestone = Utils.isMilestone(project);
 		project.artifactory {
-			contextUrl = 'https://repo.spring.io'
+			contextUrl = System.getenv().getOrDefault(ARTIFACTORY_URL_NAME, DEFAULT_ARTIFACTORY_URL)
 			publish {
 				repository {
 					repoKey = isSnapshot ? 'libs-snapshot-local' : isMilestone ? 'libs-milestone-local' : 'libs-release-local'
