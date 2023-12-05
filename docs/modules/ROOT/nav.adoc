@@ -134,6 +134,7 @@
 ** Authorization
 *** xref:reactive/authorization/authorize-http-requests.adoc[Authorize HTTP Requests]
 *** xref:reactive/authorization/method.adoc[EnableReactiveMethodSecurity]
+*** xref:reactive/authorization/events.adoc[Authorization Events]
 ** xref:reactive/oauth2/index.adoc[OAuth2]
 *** xref:reactive/oauth2/login/index.adoc[OAuth2 Log In]
 **** xref:reactive/oauth2/login/core.adoc[Core Configuration]

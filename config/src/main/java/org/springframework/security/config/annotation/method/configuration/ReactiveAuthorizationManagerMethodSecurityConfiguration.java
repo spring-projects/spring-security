@@ -28,6 +28,7 @@ import org.springframework.context.annotation.Role;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
+import org.springframework.security.authorization.ReactiveAuthorizationEventPublisher;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
 import org.springframework.security.authorization.method.AuthorizationManagerAfterReactiveMethodInterceptor;
 import org.springframework.security.authorization.method.AuthorizationManagerBeforeReactiveMethodInterceptor;
@@ -57,10 +58,14 @@ final class ReactiveAuthorizationManagerMethodSecurityConfiguration {
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 	static AuthorizationManagerBeforeReactiveMethodInterceptor preAuthorizeInterceptor(
-			MethodSecurityExpressionHandler expressionHandler, ObjectProvider<ObservationRegistry> registryProvider) {
+			MethodSecurityExpressionHandler expressionHandler, ObjectProvider<ObservationRegistry> registryProvider,
+			ObjectProvider<ReactiveAuthorizationEventPublisher> eventPublisherProvider) {
 		ReactiveAuthorizationManager<MethodInvocation> authorizationManager = manager(
 				new PreAuthorizeReactiveAuthorizationManager(expressionHandler), registryProvider);
-		return AuthorizationManagerBeforeReactiveMethodInterceptor.preAuthorize(authorizationManager);
+		AuthorizationManagerBeforeReactiveMethodInterceptor interceptor = AuthorizationManagerBeforeReactiveMethodInterceptor
+			.preAuthorize(authorizationManager);
+		eventPublisherProvider.ifAvailable(interceptor::setAuthorizationEventPublisher);
+		return interceptor;
 	}
 
 	@Bean
@@ -73,10 +78,14 @@ final class ReactiveAuthorizationManagerMethodSecurityConfiguration {
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 	static AuthorizationManagerAfterReactiveMethodInterceptor postAuthorizeInterceptor(
-			MethodSecurityExpressionHandler expressionHandler, ObjectProvider<ObservationRegistry> registryProvider) {
+			MethodSecurityExpressionHandler expressionHandler, ObjectProvider<ObservationRegistry> registryProvider,
+			ObjectProvider<ReactiveAuthorizationEventPublisher> eventPublisherProvider) {
 		ReactiveAuthorizationManager<MethodInvocationResult> authorizationManager = manager(
 				new PostAuthorizeReactiveAuthorizationManager(expressionHandler), registryProvider);
-		return AuthorizationManagerAfterReactiveMethodInterceptor.postAuthorize(authorizationManager);
+		AuthorizationManagerAfterReactiveMethodInterceptor interceptor = AuthorizationManagerAfterReactiveMethodInterceptor
+			.postAuthorize(authorizationManager);
+		eventPublisherProvider.ifAvailable(interceptor::setAuthorizationEventPublisher);
+		return interceptor;
 	}
 
 	@Bean

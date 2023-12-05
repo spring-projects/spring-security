@@ -34,7 +34,10 @@ import org.springframework.core.MethodParameter;
 import org.springframework.core.Ordered;
 import org.springframework.core.ReactiveAdapter;
 import org.springframework.core.ReactiveAdapterRegistry;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authorization.AuthorizationDecision;
+import org.springframework.security.authorization.ReactiveAuthorizationEventPublisher;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.util.Assert;
@@ -60,6 +63,8 @@ public final class AuthorizationManagerBeforeReactiveMethodInterceptor
 	private final ReactiveAuthorizationManager<MethodInvocation> authorizationManager;
 
 	private int order = AuthorizationInterceptorsOrder.FIRST.getOrder();
+
+	private ReactiveAuthorizationEventPublisher eventPublisher = AuthorizationManagerBeforeReactiveMethodInterceptor::noPublish;
 
 	/**
 	 * Creates an instance for the {@link PreAuthorize} annotation.
@@ -118,7 +123,11 @@ public final class AuthorizationManagerBeforeReactiveMethodInterceptor
 						+ "in order to support Reactor Context");
 		Mono<Authentication> authentication = ReactiveAuthenticationUtils.getAuthentication();
 		ReactiveAdapter adapter = ReactiveAdapterRegistry.getSharedInstance().getAdapter(type);
-		Mono<Void> preAuthorize = this.authorizationManager.verify(authentication, mi);
+		Mono<Void> preAuthorize = this.authorizationManager.check(authentication, mi)
+			.doOnNext((decision) -> this.eventPublisher.publishAuthorizationEvent(authentication, mi, decision))
+			.filter(AuthorizationDecision::isGranted)
+			.switchIfEmpty(Mono.defer(() -> Mono.error(new AccessDeniedException("Access Denied"))))
+			.flatMap((decision) -> Mono.empty());
 		if (hasFlowReturnType) {
 			if (isSuspendingFunction) {
 				return preAuthorize.thenMany(Flux.defer(() -> ReactiveMethodInvocationUtils.proceed(mi)));
@@ -170,6 +179,21 @@ public final class AuthorizationManagerBeforeReactiveMethodInterceptor
 
 	public void setOrder(int order) {
 		this.order = order;
+	}
+
+	/**
+	 * Use this {@link ReactiveAuthorizationEventPublisher} to publish the
+	 * {@link ReactiveAuthorizationManager} result.
+	 * @param eventPublisher the {@link ReactiveAuthorizationEventPublisher} to use.
+	 * @since 6.3
+	 */
+	public void setAuthorizationEventPublisher(ReactiveAuthorizationEventPublisher eventPublisher) {
+		Assert.notNull(eventPublisher, "eventPublisher cannot be null");
+		this.eventPublisher = eventPublisher;
+	}
+
+	private static <T> void noPublish(Mono<Authentication> authentication, T object, AuthorizationDecision decision) {
+
 	}
 
 	/**

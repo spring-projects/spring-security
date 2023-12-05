@@ -1,0 +1,168 @@
+[[reactive-authorization-events]]
+= Authorization Events
+
+For each authorization that is denied, an `ReactiveAuthorizationDeniedEvent` is fired.
+Also, it's possible to fire an `ReactiveAuthorizationGrantedEvent` for authorizations that are granted.
+
+To listen for these events, you must first publish an `ReactiveAuthorizationEventPublisher`.
+
+Spring Security's `SpringReactiveAuthorizationEventPublisher` will probably do fine.
+It publishes authorization denied events using Spring's `ApplicationEventPublisher`:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Bean
+public ReactiveAuthorizationEventPublisher authorizationEventPublisher
+        (ApplicationEventPublisher applicationEventPublisher) {
+    return new SpringReactiveAuthorizationEventPublisher(applicationEventPublisher);
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun authorizationEventPublisher
+        (applicationEventPublisher: ApplicationEventPublisher?): ReactiveAuthorizationEventPublisher {
+    return SpringReactiveAuthorizationEventPublisher(applicationEventPublisher)
+}
+----
+======
+
+Then, you can use Spring's `@EventListener` support:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Component
+public class AuthenticationEvents {
+
+    @EventListener
+    public Mono<Void> onFailure(ReactiveAuthorizationDeniedEvent failure) {
+		// ...
+    }
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Component
+class AuthenticationEvents {
+
+    @EventListener
+    fun onFailure(failure: ReactiveAuthorizationDeniedEvent?): Mono<Void> {
+        // ...
+    }
+}
+----
+======
+
+[[reactive-authorization-granted-events]]
+== Authorization Granted Events
+
+Because ``ReactiveAuthorizationGrantedEvent``s have the potential to be quite noisy, they are not published by default when using `SpringReactiveAuthorizationEventPublisher`.
+
+In fact, publishing these events will likely require some business logic on your part to ensure that your application is not inundated with noisy authorization events.
+
+You can create your own event publisher that filters success events.
+For example, the following publisher only publishes authorization grants where `ROLE_ADMIN` was required:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Component
+public class MyAuthorizationEventPublisher implements ReactiveAuthorizationEventPublisher {
+    private final ApplicationEventPublisher publisher;
+    private final SpringReactiveAuthorizationEventPublisher delegate;
+
+    public MyAuthorizationEventPublisher(ApplicationEventPublisher publisher) {
+        this.publisher = publisher;
+        this.delegate = new SpringReactiveAuthorizationEventPublisher(publisher);
+    }
+
+    @Override
+    public <T> void publishAuthorizationEvent(Mono<Authentication> authentication,T object, AuthorizationDecision decision) {
+        if (decision == null) {
+            return;
+        }
+        if (!decision.isGranted()) {
+            this.delegate.publishAuthorizationEvent(authentication, object, decision);
+            return;
+        }
+        if (shouldThisEventBePublished(decision)) {
+            ReactiveAuthorizationGrantedEvent granted = new ReactiveAuthorizationGrantedEvent(
+                    authentication, object, decision);
+            this.publisher.publishEvent(granted);
+        }
+    }
+
+    private boolean shouldThisEventBePublished(AuthorizationDecision decision) {
+        if (!(decision instanceof AuthorityAuthorizationDecision)) {
+            return false;
+        }
+        Collection<GrantedAuthority> authorities = ((AuthorityAuthorizationDecision) decision).getAuthorities();
+        for (GrantedAuthority authority : authorities) {
+            if ("ROLE_ADMIN".equals(authority.getAuthority())) {
+                return true;
+            }
+        }
+        return false;
+    }
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Component
+class MyAuthorizationEventPublisher(val publisher: ApplicationEventPublisher,
+    val delegate: SpringReactiveAuthorizationEventPublisher = SpringReactiveAuthorizationEventPublisher(publisher)):
+    ReactiveAuthorizationEventPublisher {
+
+    override fun <T : Any?> publishAuthorizationEvent(
+        authentication: Mono<Authentication>?,
+        `object`: T,
+        decision: AuthorizationDecision?
+    ) {
+        if (decision == null) {
+            return
+        }
+        if (!decision.isGranted) {
+            this.delegate.publishAuthorizationEvent(authentication, `object`, decision)
+            return
+        }
+        if (shouldThisEventBePublished(decision)) {
+            val granted = ReactiveAuthorizationGrantedEvent(authentication, `object`, decision)
+            this.publisher.publishEvent(granted)
+        }
+    }
+
+    private fun shouldThisEventBePublished(decision: AuthorizationDecision): Boolean {
+        if (decision !is AuthorityAuthorizationDecision) {
+            return false
+        }
+        val authorities = decision.authorities
+        for (authority in authorities) {
+            if ("ROLE_ADMIN" == authority.authority) {
+                return true
+            }
+        }
+        return false
+    }
+}
+----
+======

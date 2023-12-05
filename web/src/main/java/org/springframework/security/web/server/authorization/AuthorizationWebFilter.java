@@ -22,9 +22,13 @@ import reactor.core.publisher.Mono;
 
 import org.springframework.core.log.LogMessage;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authorization.AuthorizationDecision;
+import org.springframework.security.authorization.ReactiveAuthorizationEventPublisher;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
+import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
@@ -40,6 +44,8 @@ public class AuthorizationWebFilter implements WebFilter {
 
 	private ReactiveAuthorizationManager<? super ServerWebExchange> authorizationManager;
 
+	private ReactiveAuthorizationEventPublisher eventPublisher = new NoopReactiveAuthorizationEventPublisher();
+
 	public AuthorizationWebFilter(ReactiveAuthorizationManager<? super ServerWebExchange> authorizationManager) {
 		this.authorizationManager = authorizationManager;
 	}
@@ -49,11 +55,40 @@ public class AuthorizationWebFilter implements WebFilter {
 		return ReactiveSecurityContextHolder.getContext()
 			.filter((c) -> c.getAuthentication() != null)
 			.map(SecurityContext::getAuthentication)
-			.as((authentication) -> this.authorizationManager.verify(authentication, exchange))
+			.as((authentication) -> check(exchange, authentication))
 			.doOnSuccess((it) -> logger.debug("Authorization successful"))
 			.doOnError(AccessDeniedException.class,
 					(ex) -> logger.debug(LogMessage.format("Authorization failed: %s", ex.getMessage())))
 			.switchIfEmpty(chain.filter(exchange));
+	}
+
+	private Mono<Void> check(ServerWebExchange exchange, Mono<Authentication> authentication) {
+		return this.authorizationManager.check(authentication, exchange)
+			.doOnNext((decision) -> this.eventPublisher.publishAuthorizationEvent(authentication, exchange, decision))
+			.filter(AuthorizationDecision::isGranted)
+			.switchIfEmpty(Mono.defer(() -> Mono.error(new AccessDeniedException("Access Denied"))))
+			.flatMap((decision) -> Mono.empty());
+	}
+
+	/**
+	 * Sets the {@link ReactiveAuthorizationEventPublisher} to use. The default is to not
+	 * publish any events.
+	 * @param eventPublisher the {@link ReactiveAuthorizationEventPublisher} to use
+	 * @since 6.3
+	 */
+	public void setAuthorizationEventPublisher(ReactiveAuthorizationEventPublisher eventPublisher) {
+		Assert.notNull(eventPublisher, "eventPublisher cannot be null");
+		this.eventPublisher = eventPublisher;
+	}
+
+	private static class NoopReactiveAuthorizationEventPublisher implements ReactiveAuthorizationEventPublisher {
+
+		@Override
+		public <T> void publishAuthorizationEvent(Mono<Authentication> authentication, T object,
+				AuthorizationDecision decision) {
+
+		}
+
 	}
 
 }

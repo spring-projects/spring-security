@@ -35,7 +35,10 @@ import org.springframework.core.MethodParameter;
 import org.springframework.core.Ordered;
 import org.springframework.core.ReactiveAdapter;
 import org.springframework.core.ReactiveAdapterRegistry;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.authorization.AuthorizationDecision;
+import org.springframework.security.authorization.ReactiveAuthorizationEventPublisher;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.util.Assert;
@@ -60,6 +63,8 @@ public final class AuthorizationManagerAfterReactiveMethodInterceptor
 	private final ReactiveAuthorizationManager<MethodInvocationResult> authorizationManager;
 
 	private int order = AuthorizationInterceptorsOrder.LAST.getOrder();
+
+	private ReactiveAuthorizationEventPublisher eventPublisher = AuthorizationManagerAfterReactiveMethodInterceptor::noPublish;
 
 	/**
 	 * Creates an instance for the {@link PostAuthorize} annotation.
@@ -149,7 +154,13 @@ public final class AuthorizationManagerAfterReactiveMethodInterceptor
 	}
 
 	private Mono<?> postAuthorize(Mono<Authentication> authentication, MethodInvocation mi, Object result) {
-		return this.authorizationManager.verify(authentication, new MethodInvocationResult(mi, result))
+		MethodInvocationResult invocationResult = new MethodInvocationResult(mi, result);
+		return this.authorizationManager.check(authentication, invocationResult)
+			.doOnNext((decision) -> this.eventPublisher.publishAuthorizationEvent(authentication, invocationResult,
+					decision))
+			.filter(AuthorizationDecision::isGranted)
+			.switchIfEmpty(Mono.defer(() -> Mono.error(new AccessDeniedException("Access Denied"))))
+			.flatMap((decision) -> Mono.empty())
 			.thenReturn(result);
 	}
 
@@ -175,6 +186,21 @@ public final class AuthorizationManagerAfterReactiveMethodInterceptor
 
 	public void setOrder(int order) {
 		this.order = order;
+	}
+
+	/**
+	 * Use this {@link ReactiveAuthorizationEventPublisher} to publish the
+	 * {@link ReactiveAuthorizationManager} result.
+	 * @param eventPublisher the {@link ReactiveAuthorizationEventPublisher} to use.
+	 * @since 6.3
+	 */
+	public void setAuthorizationEventPublisher(ReactiveAuthorizationEventPublisher eventPublisher) {
+		Assert.notNull(eventPublisher, "eventPublisher cannot be null");
+		this.eventPublisher = eventPublisher;
+	}
+
+	private static <T> void noPublish(Mono<Authentication> authentication, T object, AuthorizationDecision decision) {
+
 	}
 
 	/**

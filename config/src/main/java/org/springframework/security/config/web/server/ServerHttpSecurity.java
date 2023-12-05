@@ -56,7 +56,9 @@ import org.springframework.security.authorization.AuthenticatedReactiveAuthoriza
 import org.springframework.security.authorization.AuthorityReactiveAuthorizationManager;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.ObservationReactiveAuthorizationManager;
+import org.springframework.security.authorization.ReactiveAuthorizationEventPublisher;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
+import org.springframework.security.authorization.SpringReactiveAuthorizationEventPublisher;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -1794,6 +1796,8 @@ public class ServerHttpSecurity {
 
 		private PathPatternParser pathPatternParser;
 
+		private ReactiveAuthorizationEventPublisher authorizationEventPublisher;
+
 		/**
 		 * Allows method chaining to continue configuring the {@link ServerHttpSecurity}
 		 * @return the {@link ServerHttpSecurity} to continue configuring
@@ -1851,7 +1855,21 @@ public class ServerHttpSecurity {
 				manager = new ObservationReactiveAuthorizationManager<>(registry, manager);
 			}
 			AuthorizationWebFilter result = new AuthorizationWebFilter(manager);
+			ReactiveAuthorizationEventPublisher authorizationEventPublisher = getAuthorizationEventPublisher(http);
+			if (authorizationEventPublisher != null) {
+				result.setAuthorizationEventPublisher(authorizationEventPublisher);
+			}
 			http.addFilterAt(result, SecurityWebFiltersOrder.AUTHORIZATION);
+		}
+
+		private ReactiveAuthorizationEventPublisher getAuthorizationEventPublisher(ServerHttpSecurity http) {
+			if (this.authorizationEventPublisher == null) {
+				this.authorizationEventPublisher = getBeanOrNull(ReactiveAuthorizationEventPublisher.class);
+			}
+			if (this.authorizationEventPublisher == null && http.context != null) {
+				this.authorizationEventPublisher = new SpringReactiveAuthorizationEventPublisher(http.context);
+			}
+			return this.authorizationEventPublisher;
 		}
 
 		/**
