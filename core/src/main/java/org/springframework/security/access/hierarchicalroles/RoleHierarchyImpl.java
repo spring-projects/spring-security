@@ -24,7 +24,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Stream;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -34,8 +33,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.util.Assert;
-
-import static org.springframework.security.access.hierarchicalroles.RoleHierarchyUtils.roleHierarchyFromMap;
 
 /**
  * <p>
@@ -109,6 +106,7 @@ public class RoleHierarchyImpl implements RoleHierarchy {
 	 * Factory method that creates a {@link Builder} instance with the default role prefix
 	 * "ROLE_"
 	 * @return a {@link Builder} instance with the default role prefix "ROLE_"
+	 * @since 6.3
 	 */
 	public static Builder withDefaultRolePrefix() {
 		return withRolePrefix("ROLE_");
@@ -120,18 +118,11 @@ public class RoleHierarchyImpl implements RoleHierarchy {
 	 * @param rolePrefix the prefix to be used for the roles in the hierarchy.
 	 * @return a new {@link Builder} instance with the specified role prefix
 	 * @throws IllegalArgumentException if the provided role prefix is null
+	 * @since 6.3
 	 */
 	public static Builder withRolePrefix(String rolePrefix) {
 		Assert.notNull(rolePrefix, "rolePrefix must not be null");
 		return new Builder(rolePrefix);
-	}
-
-	/**
-	 * Factory method that creates a {@link Builder} instance with no role prefix.
-	 * @return a new {@link Builder} instance with no role prefix.
-	 */
-	public static Builder withNoRolePrefix() {
-		return withRolePrefix("");
 	}
 
 	/**
@@ -259,22 +250,22 @@ public class RoleHierarchyImpl implements RoleHierarchy {
 
 		private final String rolePrefix;
 
-		private final Map<String, List<String>> roleBranches;
+		private final Map<String, List<String>> hierarchy;
 
 		private Builder(String rolePrefix) {
 			this.rolePrefix = rolePrefix;
-			this.roleBranches = new LinkedHashMap<>();
+			this.hierarchy = new LinkedHashMap<>();
 		}
 
 		/**
 		 * Creates a new hierarchy branch to define a role and its child roles.
 		 * @param role the highest role in this branch
-		 * @return a {@link RoleBranchBuilder} to define the child roles for the
+		 * @return a {@link ImpliedRoles} to define the child roles for the
 		 * <code>role</code>
 		 */
-		public RoleBranchBuilder role(String role) {
+		public ImpliedRoles role(String role) {
 			Assert.hasText(role, "role must not be empty");
-			return new RoleBranchBuilder(this, rolePrefix.concat(role));
+			return new ImpliedRoles(role);
 		}
 
 		/**
@@ -283,23 +274,29 @@ public class RoleHierarchyImpl implements RoleHierarchy {
 		 * @return a {@link RoleHierarchyImpl}
 		 */
 		public RoleHierarchyImpl build() {
-			String roleHierarchyRepresentation = roleHierarchyFromMap(roleBranches);
+			String roleHierarchyRepresentation = RoleHierarchyUtils.roleHierarchyFromMap(this.hierarchy);
 			RoleHierarchyImpl roleHierarchy = new RoleHierarchyImpl();
 			roleHierarchy.setHierarchy(roleHierarchyRepresentation);
 			return roleHierarchy;
 		}
 
+		private Builder addHierarchy(String role, String... impliedRoles) {
+			List<String> withPrefix = new ArrayList<>();
+			for (String impliedRole : impliedRoles) {
+				withPrefix.add(this.rolePrefix.concat(impliedRole));
+			}
+			this.hierarchy.put(this.rolePrefix.concat(role), withPrefix);
+			return this;
+		}
+
 		/**
 		 * Builder class for constructing child roles within a role hierarchy branch.
 		 */
-		public static final class RoleBranchBuilder {
-
-			private final Builder parentBuilder;
+		public final class ImpliedRoles {
 
 			private final String role;
 
-			private RoleBranchBuilder(Builder parentBuilder, String role) {
-				this.parentBuilder = parentBuilder;
+			private ImpliedRoles(String role) {
 				this.role = role;
 			}
 
@@ -313,9 +310,7 @@ public class RoleHierarchyImpl implements RoleHierarchy {
 			public Builder implies(String... impliedRoles) {
 				Assert.notEmpty(impliedRoles, "at least one implied role must be provided");
 				Assert.noNullElements(impliedRoles, "implied role name(s) cannot be empty");
-				parentBuilder.roleBranches.put(role,
-						Stream.of(impliedRoles).map(parentBuilder.rolePrefix::concat).toList());
-				return parentBuilder;
+				return Builder.this.addHierarchy(this.role, impliedRoles);
 			}
 
 		}

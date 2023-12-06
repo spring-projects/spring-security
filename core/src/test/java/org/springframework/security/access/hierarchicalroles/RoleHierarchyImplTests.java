@@ -208,9 +208,15 @@ public class RoleHierarchyImplTests {
 
 	@Test
 	public void testBuilderWithDefaultRolePrefix() {
-		RoleHierarchyImpl roleHierarchyImpl = RoleHierarchyImpl.withDefaultRolePrefix().role("A").implies("B").build();
+		RoleHierarchyImpl roleHierarchyImpl = RoleHierarchyImpl.withDefaultRolePrefix()
+			.role("A")
+			.implies("B")
+			.role("B")
+			.implies("C", "D")
+			.build();
 		List<GrantedAuthority> flatAuthorities = AuthorityUtils.createAuthorityList("ROLE_A");
-		List<GrantedAuthority> allAuthorities = AuthorityUtils.createAuthorityList("ROLE_A", "ROLE_B");
+		List<GrantedAuthority> allAuthorities = AuthorityUtils.createAuthorityList("ROLE_A", "ROLE_B", "ROLE_C",
+				"ROLE_D");
 
 		assertThat(roleHierarchyImpl).isNotNull();
 		assertThat(roleHierarchyImpl.getReachableGrantedAuthorities(flatAuthorities))
@@ -226,17 +232,6 @@ public class RoleHierarchyImplTests {
 		List<GrantedAuthority> flatAuthorities = AuthorityUtils.createAuthorityList("CUSTOM_PREFIX_A");
 		List<GrantedAuthority> allAuthorities = AuthorityUtils.createAuthorityList("CUSTOM_PREFIX_A",
 				"CUSTOM_PREFIX_B");
-
-		assertThat(roleHierarchyImpl).isNotNull();
-		assertThat(roleHierarchyImpl.getReachableGrantedAuthorities(flatAuthorities))
-			.containsExactlyInAnyOrderElementsOf(allAuthorities);
-	}
-
-	@Test
-	public void testBuilderWithNoRolePrefix() {
-		RoleHierarchyImpl roleHierarchyImpl = RoleHierarchyImpl.withNoRolePrefix().role("A").implies("B").build();
-		List<GrantedAuthority> flatAuthorities = AuthorityUtils.createAuthorityList("A");
-		List<GrantedAuthority> allAuthorities = AuthorityUtils.createAuthorityList("A", "B");
 
 		assertThat(roleHierarchyImpl).isNotNull();
 		assertThat(roleHierarchyImpl.getReachableGrantedAuthorities(flatAuthorities))
