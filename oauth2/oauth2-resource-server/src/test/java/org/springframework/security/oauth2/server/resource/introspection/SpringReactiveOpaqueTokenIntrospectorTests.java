@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,10 +33,12 @@ import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Mono;
 
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
+import org.springframework.security.oauth2.core.OAuth2TokenIntrospectionClaimAccessor;
 import org.springframework.security.oauth2.core.OAuth2TokenIntrospectionClaimNames;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -44,9 +46,11 @@ import org.springframework.web.reactive.function.client.WebClient;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 
 /**
  * Tests for {@link SpringReactiveOpaqueTokenIntrospector}
@@ -191,6 +195,30 @@ public class SpringReactiveOpaqueTokenIntrospectorTests {
 		assertThatExceptionOfType(OAuth2IntrospectionException.class)
 				.isThrownBy(() -> introspectionClient.introspect("token").block());
 		// @formatter:on
+	}
+
+	@Test
+	public void setAuthenticationConverterWhenConverterIsNullThenExceptionIsThrown() {
+		WebClient web = mock(WebClient.class);
+		SpringReactiveOpaqueTokenIntrospector introspectionClient = new SpringReactiveOpaqueTokenIntrospector(
+				INTROSPECTION_URL, web);
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> introspectionClient.setAuthenticationConverter(null));
+	}
+
+	@Test
+	public void setAuthenticationConverterWhenNonNullConverterGivenThenConverterUsed() {
+		WebClient web = mockResponse(ACTIVE_RESPONSE);
+		Converter<OAuth2TokenIntrospectionClaimAccessor, Mono<? extends OAuth2AuthenticatedPrincipal>> authenticationConverter = mock(
+				Converter.class);
+		OAuth2AuthenticatedPrincipal oAuth2AuthenticatedPrincipal = mock(OAuth2AuthenticatedPrincipal.class);
+		String tokenToIntrospect = "some token";
+		given(authenticationConverter.convert(any())).willReturn((Mono) Mono.just(oAuth2AuthenticatedPrincipal));
+		SpringReactiveOpaqueTokenIntrospector introspectionClient = new SpringReactiveOpaqueTokenIntrospector(
+				INTROSPECTION_URL, web);
+		introspectionClient.setAuthenticationConverter(authenticationConverter);
+		introspectionClient.introspect(tokenToIntrospect).block();
+		verify(authenticationConverter).convert(any());
 	}
 
 	@Test
