@@ -281,7 +281,7 @@ To do that, you can configure your application to <<servlet-logging,log the secu
 [[adding-custom-filter]]
 === Adding a Custom Filter to the Filter Chain
 
-Mostly of the times, the default security filters are enough to provide security to your application.
+Most of the time, the default security filters are enough to provide security to your application.
 However, there might be times that you want to add a custom `Filter` to the security filter chain.
 
 For example, let's say that you want to add a `Filter` that gets a tenant id header and check if the current user has access to that tenant.
