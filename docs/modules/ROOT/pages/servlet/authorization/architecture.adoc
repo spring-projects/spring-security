@@ -253,11 +253,10 @@ Java::
 ----
 @Bean
 static RoleHierarchy roleHierarchy() {
-    RoleHierarchyImpl hierarchy = new RoleHierarchyImpl();
-    hierarchy.setHierarchy("ROLE_ADMIN > ROLE_STAFF\n" +
-            "ROLE_STAFF > ROLE_USER\n" +
-            "ROLE_USER > ROLE_GUEST");
-    return hierarchy;
+    return RoleHierarchyImpl.withDefaultRolePrefix()
+        .role("ADMIN").implies("STAFF")
+        .role("STAFF").implies("USER")
+        .role("USER").implies("GUEST");
 }
 
 // and, if using method security also add
