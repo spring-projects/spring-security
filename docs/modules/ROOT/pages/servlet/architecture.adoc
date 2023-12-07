@@ -367,7 +367,7 @@ fun filterChain(http: HttpSecurity): SecurityFilterChain {
 
 <1> Use `HttpSecurity#addFilterBefore` to add the `TenantFilter` before the `AuthorizationFilter`.
 
-By adding the filter before the `AuthorizationFilter` we are making sure that the `TenantFilter` is invoked after the authentication filters.
+By adding the filter before the `AuthorizationFilter` we are making sure that the `TenantFilter` is invoked before the authentication filters.
 You can also use `HttpSecurity#addFilterAfter` to add the filter after a particular filter or `HttpSecurity#addFilterAt` to add the filter at a particular filter position in the filter chain.
 
 And that's it, now the `TenantFilter` will be invoked in the filter chain and will check if the current user has access to the tenant id.
