@@ -1,3 +1,35 @@
+buildscript {
+	repositories {
+		gradlePluginPortal()
+	}
+	dependencies {
+		classpath 'org.kordamp.gradle:enforcer-gradle-plugin:0.13.0'
+	}
+}
+apply plugin: 'org.kordamp.gradle.enforcer'
+
+enforce {
+	rule(enforcer.rules.DependencyConvergence)
+	rule(enforcer.rules.ForceDependencies) { r ->
+		r.dependencies.add("org.eclipse.jetty:jetty-util:11.0.11")
+		r.dependencies.add("org.apache.commons:commons-lang3:3.12.0")
+		r.dependencies.add("commons-logging:commons-logging:1.2")
+		r.dependencies.add("commons-io:commons-io:2.11.0")
+		r.dependencies.add("org.slf4j:slf4j-api:2.0.9")
+		r.dependencies.add("com.jcraft:jsch:0.1.55")
+		r.dependencies.add("com.google.code.findbugs:jsr305:3.0.2")
+		r.dependencies.add("commons-codec:commons-codec:1.15")
+		r.dependencies.add("com.fasterxml.jackson.core:jackson-databind:2.13.4.2")
+		r.dependencies.add("com.fasterxml.jackson.core:jackson-core:2.13.4")
+		r.dependencies.add("com.google.guava:guava:30.0-jre")
+		r.dependencies.add("org.apache.httpcomponents:httpclient:4.5.14")
+		r.dependencies.add("com.thoughtworks.xstream:xstream:1.4.19")
+		r.dependencies.add("org.apache.httpcomponents:httpcore:4.4.16")
+		r.dependencies.add("net.bytebuddy:byte-buddy:1.14.6")
+		r.dependencies.add("org.junit.jupiter:junit-jupiter-api:5.10.1")
+	}
+}
+
 dependencyResolutionManagement {
 	versionCatalogs {
 		libs {

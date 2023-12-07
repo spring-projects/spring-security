@@ -3,30 +3,9 @@ pluginManagement {
 		gradlePluginPortal()
 	}
 }
-buildscript {
-	repositories {
-		gradlePluginPortal()
-	}
-	dependencies {
-		classpath 'org.kordamp.gradle:enforcer-gradle-plugin:0.13.0'
-	}
-}
 plugins {
 	id "com.gradle.enterprise" version "3.12.6"
 	id "io.spring.ge.conventions" version "0.0.14"
-}
-apply plugin: 'org.kordamp.gradle.enforcer'
-enforce {
-	rule(enforcer.rules.DependencyConvergence)
-	rule(enforcer.rules.ExcludeDependencies) { r ->
-		r.exclude("org.slf4j:slf4j-api:1.7.26")
-		r.exclude("org.slf4j:slf4j-api:1.7.25")
-		r.exclude("com.puppycrawl.tools:checkstyle:9.3")
-		r.exclude("com.puppycrawl.tools:checkstyle:8.33")
-		r.exclude("net.bytebuddy:byte-buddy:1.12.21")
-		r.exclude("org.junit.jupiter:junit-jupiter-api:5.10.0")
-//		r.exclude("commons-collections:commons-collections:3.2.1")
-	}
 }
 dependencyResolutionManagement {
 	repositories {
