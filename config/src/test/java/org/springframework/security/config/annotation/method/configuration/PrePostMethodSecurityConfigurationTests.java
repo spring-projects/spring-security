@@ -453,9 +453,9 @@ public class PrePostMethodSecurityConfigurationTests {
 	@Test
 	public void methodSecurityAdminWhenRoleHierarchyBeanAvailableThenUses() {
 		this.spring.register(RoleHierarchyConfig.class, MethodSecurityServiceConfig.class).autowire();
-		this.methodSecurityService.preAuthorizeAdmin();
-		this.methodSecurityService.secured();
-		this.methodSecurityService.jsr250RolesAllowed();
+		this.methodSecurityService.preAuthorizeUser();
+		this.methodSecurityService.securedUser();
+		this.methodSecurityService.jsr250RolesAllowedUser();
 	}
 
 	@WithMockUser
@@ -464,7 +464,7 @@ public class PrePostMethodSecurityConfigurationTests {
 		this.spring.register(RoleHierarchyConfig.class, MethodSecurityServiceConfig.class).autowire();
 		this.methodSecurityService.preAuthorizeUser();
 		this.methodSecurityService.securedUser();
-		this.methodSecurityService.jsr250RolesAllowed();
+		this.methodSecurityService.jsr250RolesAllowedUser();
 	}
 
 	private static Consumer<ConfigurableWebApplicationContext> disallowBeanOverriding() {
@@ -652,9 +652,9 @@ public class PrePostMethodSecurityConfigurationTests {
 	static class RoleHierarchyConfig {
 
 		@Bean
-		RoleHierarchy roleHierarchy() {
+		static RoleHierarchy roleHierarchy() {
 			RoleHierarchyImpl roleHierarchyImpl = new RoleHierarchyImpl();
-			roleHierarchyImpl.setHierarchy("ADMIN > USER");
+			roleHierarchyImpl.setHierarchy("ROLE_ADMIN > ROLE_USER");
 			return roleHierarchyImpl;
 		}
 
