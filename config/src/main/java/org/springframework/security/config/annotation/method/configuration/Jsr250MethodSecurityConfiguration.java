@@ -22,7 +22,6 @@ import org.aopalliance.intercept.MethodInvocation;
 
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Role;
@@ -53,11 +52,10 @@ final class Jsr250MethodSecurityConfiguration {
 	static MethodInterceptor jsr250AuthorizationMethodInterceptor(
 			ObjectProvider<GrantedAuthorityDefaults> defaultsProvider,
 			ObjectProvider<SecurityContextHolderStrategy> strategyProvider,
-			ObjectProvider<ObservationRegistry> registryProvider, ApplicationContext context) {
+			ObjectProvider<ObservationRegistry> registryProvider, ObjectProvider<RoleHierarchy> roleHierarchyProvider) {
 		Jsr250AuthorizationManager jsr250 = new Jsr250AuthorizationManager();
 		AuthoritiesAuthorizationManager authoritiesAuthorizationManager = new AuthoritiesAuthorizationManager();
-		RoleHierarchy roleHierarchy = (context.getBeanNamesForType(RoleHierarchy.class).length > 0)
-				? context.getBean(RoleHierarchy.class) : new NullRoleHierarchy();
+		RoleHierarchy roleHierarchy = roleHierarchyProvider.getIfAvailable(NullRoleHierarchy::new);
 		authoritiesAuthorizationManager.setRoleHierarchy(roleHierarchy);
 		jsr250.setAuthoritiesAuthorizationManager(authoritiesAuthorizationManager);
 		defaultsProvider.ifAvailable((d) -> jsr250.setRolePrefix(d.getRolePrefix()));

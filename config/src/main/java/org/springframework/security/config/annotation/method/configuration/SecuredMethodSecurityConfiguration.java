@@ -22,7 +22,6 @@ import org.aopalliance.intercept.MethodInvocation;
 
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Role;
@@ -52,11 +51,10 @@ final class SecuredMethodSecurityConfiguration {
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 	static MethodInterceptor securedAuthorizationMethodInterceptor(
 			ObjectProvider<SecurityContextHolderStrategy> strategyProvider,
-			ObjectProvider<ObservationRegistry> registryProvider, ApplicationContext context) {
+			ObjectProvider<ObservationRegistry> registryProvider, ObjectProvider<RoleHierarchy> roleHierarchyProvider) {
 		SecuredAuthorizationManager secured = new SecuredAuthorizationManager();
 		AuthoritiesAuthorizationManager authoritiesAuthorizationManager = new AuthoritiesAuthorizationManager();
-		RoleHierarchy roleHierarchy = (context.getBeanNamesForType(RoleHierarchy.class).length > 0)
-				? context.getBean(RoleHierarchy.class) : new NullRoleHierarchy();
+		RoleHierarchy roleHierarchy = roleHierarchyProvider.getIfAvailable(NullRoleHierarchy::new);
 		authoritiesAuthorizationManager.setRoleHierarchy(roleHierarchy);
 		secured.setAuthoritiesAuthorizationManager(authoritiesAuthorizationManager);
 		SecurityContextHolderStrategy strategy = strategyProvider
