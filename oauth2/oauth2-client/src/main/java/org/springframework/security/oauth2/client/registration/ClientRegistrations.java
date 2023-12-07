@@ -243,9 +243,6 @@ public final class ClientRegistrations {
 	private static ClientRegistration.Builder withProviderConfiguration(AuthorizationServerMetadata metadata,
 			String issuer) {
 		String metadataIssuer = metadata.getIssuer().getValue();
-		Assert.state(issuer.equals(metadataIssuer),
-				() -> "The Issuer \"" + metadataIssuer + "\" provided in the configuration metadata did "
-						+ "not match the requested issuer \"" + issuer + "\"");
 		String name = URI.create(issuer).getHost();
 		ClientAuthenticationMethod method = getClientAuthenticationMethod(metadata.getTokenEndpointAuthMethods());
 		Map<String, Object> configurationMetadata = new LinkedHashMap<>(metadata.toJSONObject());
@@ -258,8 +255,8 @@ public final class ClientRegistrations {
 				.authorizationUri((metadata.getAuthorizationEndpointURI() != null) ? metadata.getAuthorizationEndpointURI().toASCIIString() : null)
 				.providerConfigurationMetadata(configurationMetadata)
 				.tokenUri(metadata.getTokenEndpointURI().toASCIIString())
-				.issuerUri(issuer)
-				.clientName(issuer);
+				.issuerUri(metadataIssuer)
+				.clientName(metadataIssuer);
 		// @formatter:on
 	}
 
