@@ -9,6 +9,28 @@ updates:
 
   - package-ecosystem: "gradle"
     target-branch: "main"
+    milestone: 326 # 6.3.x
+    directory: "/"
+    schedule:
+      interval: "daily"
+      time: "03:00"
+      timezone: "Etc/UTC"
+    labels: [ "type: dependency-upgrade" ]
+    registries:
+      - "spring-milestones"
+    ignore:
+      - dependency-name: "com.nimbusds:nimbus-jose-jwt" # nimbus-jose-jwt gets updated when oauth2-oidc-sdk is updated to ensure consistency
+      - dependency-name: "org.python:jython" # jython updates break integration tests
+      - dependency-name: "org.apache.directory.server:*" # ApacheDS version > 1.5.5 contains break changes
+      - dependency-name: "org.junit:junit-bom"
+        update-types: [ "version-update:semver-major" ]
+      - dependency-name: "org.mockito:mockito-bom"
+        update-types: [ "version-update:semver-major" ]
+      - dependency-name: "*"
+        update-types: [ "version-update:semver-major", "version-update:semver-minor" ]
+
+  - package-ecosystem: "gradle"
+    target-branch: "6.2.x"
     milestone: 319 # 6.2.x
     directory: "/"
     schedule:
@@ -22,6 +44,7 @@ updates:
       - dependency-name: "com.nimbusds:nimbus-jose-jwt" # nimbus-jose-jwt gets updated when oauth2-oidc-sdk is updated to ensure consistency
       - dependency-name: "org.python:jython" # jython updates break integration tests
       - dependency-name: "org.apache.directory.server:*" # ApacheDS version > 1.5.5 contains break changes
+      - dependency-name: "org.apache.directory.shared:*" # ApacheDS version > 0.9.15 contains breaking changes
       - dependency-name: "org.junit:junit-bom"
         update-types: [ "version-update:semver-major" ]
       - dependency-name: "org.mockito:mockito-bom"

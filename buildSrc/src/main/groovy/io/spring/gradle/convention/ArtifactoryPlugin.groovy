@@ -21,17 +21,38 @@ import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
 
 class ArtifactoryPlugin implements Plugin<Project> {
 
+	private static final String ARTIFACTORY_URL_NAME = "ARTIFACTORY_URL"
+
+	private static final String ARTIFACTORY_SNAPSHOT_REPOSITORY = "ARTIFACTORY_SNAPSHOT_REPOSITORY"
+
+	private static final String ARTIFACTORY_MILESTONE_REPOSITORY = "ARTIFACTORY_MILESTONE_REPOSITORY"
+
+	private static final String ARTIFACTORY_RELEASE_REPOSITORY = "ARTIFACTORY_RELEASE_REPOSITORY"
+
+	private static final String DEFAULT_ARTIFACTORY_URL = "https://repo.spring.io"
+
+	private static final String DEFAULT_ARTIFACTORY_SNAPSHOT_REPOSITORY = "libs-snapshot-local"
+
+	private static final String DEFAULT_ARTIFACTORY_MILESTONE_REPOSITORY = "libs-milestone-local"
+
+	private static final String DEFAULT_ARTIFACTORY_RELEASE_REPOSITORY = "libs-release-local"
+
 	@Override
 	void apply(Project project) {
 		project.plugins.apply('com.jfrog.artifactory')
 		String name = Utils.getProjectName(project);
 		boolean isSnapshot = Utils.isSnapshot(project);
 		boolean isMilestone = Utils.isMilestone(project);
+		Map<String, String> env = System.getenv()
+		String artifactoryUrl = env.getOrDefault(ARTIFACTORY_URL_NAME, DEFAULT_ARTIFACTORY_URL)
+		String snapshotRepository = env.getOrDefault(ARTIFACTORY_SNAPSHOT_REPOSITORY, DEFAULT_ARTIFACTORY_SNAPSHOT_REPOSITORY)
+		String milestoneRepository = env.getOrDefault(ARTIFACTORY_MILESTONE_REPOSITORY, DEFAULT_ARTIFACTORY_MILESTONE_REPOSITORY)
+		String releaseRepository = env.getOrDefault(ARTIFACTORY_RELEASE_REPOSITORY, DEFAULT_ARTIFACTORY_RELEASE_REPOSITORY)
 		project.artifactory {
-			contextUrl = 'https://repo.spring.io'
+			contextUrl = artifactoryUrl
 			publish {
 				repository {
-					repoKey = isSnapshot ? 'libs-snapshot-local' : isMilestone ? 'libs-milestone-local' : 'libs-release-local'
+					repoKey = isSnapshot ? snapshotRepository : isMilestone ? milestoneRepository : releaseRepository
 					if(project.hasProperty('artifactoryUsername')) {
 						username = artifactoryUsername
 						password = artifactoryPassword

@@ -1,30 +1,5 @@
 [[new]]
-= What's New in Spring Security 6.2
+= What's New in Spring Security 6.3
 
-Spring Security 6.2 provides a number of new features.
+Spring Security 6.3 provides a number of new features.
 Below are the highlights of the release.
-
-== Configuration
-
-* https://github.com/spring-projects/spring-security/issues/5011[gh-5011] - xref:servlet/integrations/cors.adoc[(docs)] Automatically enable `.cors()` if `CorsConfigurationSource` bean is present
-* https://github.com/spring-projects/spring-security/issues/13204[gh-13204] - xref:migration-7/configuration.adoc#_use_with_instead_of_apply_for_custom_dsls[(docs)] Add `AbstractConfiguredSecurityBuilder.with(...)` method to apply configurers returning the builder
-* https://github.com/spring-projects/spring-security/pull/13587[gh-13587] - https://spring.io/blog/2023/08/22/tackling-the-oauth2-client-component-model-in-spring-security/[blog post] Simplify configuration of OAuth2 Client component model
-* https://github.com/spring-projects/spring-security/issues/13666[gh-13666], https://github.com/spring-projects/spring-security/pull/13667[gh-13667], https://github.com/spring-projects/spring-security/issues/13726[gh-13726], https://github.com/spring-projects/spring-security/issues/13850[gh-13850] - xref:servlet/authorization/authorize-http-requests.adoc#match-by-mvc[docs] Improved CVE-2023-34035 detection
-
-== OAuth 2.0/OIDC
-
-* https://github.com/spring-projects/spring-security/issues/7845[gh-7845] - xref:reactive/oauth2/login/logout.adoc#configure-provider-initiated-oidc-logout[docs] Add OIDC Back-channel Logout Support
-
-== Messaging
-
-* https://github.com/spring-projects/spring-security/pull/12532[gh-12532] - Add Security Context Propagation Support
-
-== Web
-
-* https://github.com/spring-projects/spring-security/pull/12817[gh-12817] - Make Configurable RedirectStrategy status code
-* https://github.com/spring-projects/spring-security/issues/13988[gh-13988] - Make Configurable HTTP Basic request parsing
-
-== Documentation
-
-* https://github.com/spring-projects/spring-security/issues/13784[gh-13784] - xref:servlet/oauth2/index.adoc[docs] - Update OAuth2 docs landing page with examples
-* https://github.com/spring-projects/spring-security/issues/11926[gh-11926] - xref:servlet/authentication/passwords/index.adoc#publish-authentication-manager-bean[docs] Document how to publish an `AuthenticationManager` `@Bean` without `WebSecurityConfigurerAdapter`
