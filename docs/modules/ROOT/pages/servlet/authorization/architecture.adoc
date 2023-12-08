@@ -273,14 +273,14 @@ Xml::
 [source,java,role="secondary"]
 ----
 <bean id="roleHierarchy"
-		class="org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl">
-	<property name="hierarchy">
+		class="org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl" factory-method="fromHierarchy">
+	<constructor-arg>
 		<value>
 			ROLE_ADMIN > ROLE_STAFF
 			ROLE_STAFF > ROLE_USER
 			ROLE_USER > ROLE_GUEST
 		</value>
-	</property>
+	</constructor-arg>
 </bean>
 
 <!-- and, if using method security also add -->
