@@ -233,7 +233,7 @@ Java::
 ----
 @Bean
 static RoleHierarchy roleHierarchy() {
-    return new RoleHierarchyImpl("ROLE_ADMIN > permission:read");
+    return RoleHierarchyImpl.fromHierarchy("ROLE_ADMIN > permission:read");
 }
 ----
 
@@ -244,7 +244,7 @@ Kotlin::
 companion object {
     @Bean
     fun roleHierarchy(): RoleHierarchy {
-        return RoleHierarchyImpl("ROLE_ADMIN > permission:read")
+        return RoleHierarchyImpl.fromHierarchy("ROLE_ADMIN > permission:read")
     }
 }
 ----
@@ -253,7 +253,8 @@ Xml::
 +
 [source,xml,role="secondary"]
 ----
-<bean id="roleHierarchy" class="org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl">
+<bean id="roleHierarchy"
+        class="org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl" factory-method="fromHierarchy">
     <constructor-arg value="ROLE_ADMIN > permission:read"/>
 </bean>
 ----
