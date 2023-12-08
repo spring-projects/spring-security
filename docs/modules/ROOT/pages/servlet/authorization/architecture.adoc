@@ -256,7 +256,8 @@ static RoleHierarchy roleHierarchy() {
     return RoleHierarchyImpl.withDefaultRolePrefix()
         .role("ADMIN").implies("STAFF")
         .role("STAFF").implies("USER")
-        .role("USER").implies("GUEST");
+        .role("USER").implies("GUEST")
+        .build();
 }
 
 // and, if using method security also add
