@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,6 +52,8 @@ import org.springframework.security.oauth2.core.oidc.StandardClaimNames;
 import org.springframework.security.oauth2.core.oidc.TestOidcIdTokens;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority;
+import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -490,6 +492,49 @@ public class OidcUserServiceTests {
 				this.idToken);
 		OidcUser user = userService.loadUser(request);
 		assertThat(user.getUserInfo()).isNotNull();
+	}
+
+	@Test
+	public void loadUserWhenNestedUserInfoSuccessThenReturnUser() {
+		// @formatter:off
+		String userInfoResponse = "{\n"
+				+ "   \"user\": {\"user-name\": \"user1\"},\n"
+				+ "   \"sub\" : \"subject1\",\n"
+				+ "   \"first-name\": \"first\",\n"
+				+ "   \"last-name\": \"last\",\n"
+				+ "   \"middle-name\": \"middle\",\n"
+				+ "   \"address\": \"address\",\n"
+				+ "   \"email\": \"user1@example.com\"\n"
+				+ "}\n";
+		// @formatter:on
+		this.server.enqueue(jsonResponse(userInfoResponse));
+		String userInfoUri = this.server.url("/user").toString();
+		ClientRegistration clientRegistration = this.clientRegistrationBuilder.userInfoUri(userInfoUri)
+			.userInfoAuthenticationMethod(AuthenticationMethod.HEADER)
+			.userNameAttributeName("user-name")
+			.build();
+		OidcUserService userService = new OidcUserService();
+		DefaultOAuth2UserService oAuth2UserService = new DefaultOAuth2UserService();
+		oAuth2UserService.setAttributesConverter((request) -> (attributes) -> {
+			Map<String, Object> user = (Map<String, Object>) attributes.get("user");
+			attributes.put("user-name", user.get("user-name"));
+			return attributes;
+		});
+		userService.setOauth2UserService(oAuth2UserService);
+		OAuth2User user = userService.loadUser(new OidcUserRequest(clientRegistration, this.accessToken, this.idToken));
+		assertThat(user.getName()).isEqualTo("user1");
+		assertThat(user.getAttributes()).hasSize(9);
+		assertThat(((Map<?, ?>) user.getAttribute("user")).get("user-name")).isEqualTo("user1");
+		assertThat((String) user.getAttribute("first-name")).isEqualTo("first");
+		assertThat((String) user.getAttribute("last-name")).isEqualTo("last");
+		assertThat((String) user.getAttribute("middle-name")).isEqualTo("middle");
+		assertThat((String) user.getAttribute("address")).isEqualTo("address");
+		assertThat((String) user.getAttribute("email")).isEqualTo("user1@example.com");
+		assertThat(user.getAuthorities()).hasSize(3);
+		assertThat(user.getAuthorities().iterator().next()).isInstanceOf(OAuth2UserAuthority.class);
+		OAuth2UserAuthority userAuthority = (OAuth2UserAuthority) user.getAuthorities().iterator().next();
+		assertThat(userAuthority.getAuthority()).isEqualTo("OIDC_USER");
+		assertThat(userAuthority.getAttributes()).isEqualTo(user.getAttributes());
 	}
 
 	private MockResponse jsonResponse(String json) {
