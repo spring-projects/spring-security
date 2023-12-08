@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.web.server.authorization;
+package org.springframework.security.web.access;
 
 import java.util.function.Supplier;
 
