@@ -26,7 +26,7 @@ import org.springframework.security.config.annotation.web.configurers.AuthorizeH
 import org.springframework.security.core.Authentication
 import org.springframework.security.web.access.intercept.AuthorizationFilter
 import org.springframework.security.web.access.intercept.RequestAuthorizationContext
-import org.springframework.security.web.server.authorization.IpAddressAuthorizationManager
+import org.springframework.security.web.access.IpAddressAuthorizationManager
 import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher
 import org.springframework.security.web.util.matcher.AnyRequestMatcher
 import org.springframework.security.web.util.matcher.RequestMatcher
