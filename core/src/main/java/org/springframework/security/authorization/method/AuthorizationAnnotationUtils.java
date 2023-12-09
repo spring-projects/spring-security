@@ -95,17 +95,28 @@ final class AuthorizationAnnotationUtils {
 
 	private static <A extends Annotation> boolean hasDuplicate(MergedAnnotations mergedAnnotations,
 			Class<A> annotationType) {
-		boolean alreadyFound = false;
+		MergedAnnotation<Annotation> alreadyFound = null;
 		for (MergedAnnotation<Annotation> mergedAnnotation : mergedAnnotations) {
 			if (isSynthetic(mergedAnnotation.getSource())) {
 				continue;
 			}
 
-			if (mergedAnnotation.getType() == annotationType) {
-				if (alreadyFound) {
-					return true;
-				}
-				alreadyFound = true;
+			if (mergedAnnotation.getType() != annotationType) {
+				continue;
+			}
+
+			if (alreadyFound == null) {
+				alreadyFound = mergedAnnotation;
+				continue;
+			}
+
+			// https://github.com/spring-projects/spring-framework/issues/31803
+			if (!mergedAnnotation.getSource().equals(alreadyFound.getSource())) {
+				return true;
+			}
+
+			if (mergedAnnotation.getRoot().getType() != alreadyFound.getRoot().getType()) {
+				return true;
 			}
 		}
 		return false;

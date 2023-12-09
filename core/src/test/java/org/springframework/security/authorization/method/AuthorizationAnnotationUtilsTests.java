@@ -41,6 +41,13 @@ class AuthorizationAnnotationUtilsTests {
 			.isThrownBy(() -> AuthorizationAnnotationUtils.findUniqueAnnotation(method, PreAuthorize.class));
 	}
 
+	@Test // gh-13625
+	void annotationsFromSuperSuperInterfaceShouldNotTriggerAnnotationConfigurationException() throws Exception {
+		Method method = HelloImpl.class.getMethod("sayHello");
+		assertThatNoException()
+			.isThrownBy(() -> AuthorizationAnnotationUtils.findUniqueAnnotation(method, PreAuthorize.class));
+	}
+
 	private interface BaseRepository<T> {
 
 		Iterable<T> findAll();
@@ -52,6 +59,26 @@ class AuthorizationAnnotationUtilsTests {
 		@Override
 		@PreAuthorize("hasRole('someRole')")
 		List<String> findAll();
+
+	}
+
+	private interface Hello {
+
+		@PreAuthorize("hasRole('someRole')")
+		String sayHello();
+
+	}
+
+	private interface SayHello extends Hello {
+
+	}
+
+	private static class HelloImpl implements SayHello {
+
+		@Override
+		public String sayHello() {
+			return "hello";
+		}
 
 	}
 
