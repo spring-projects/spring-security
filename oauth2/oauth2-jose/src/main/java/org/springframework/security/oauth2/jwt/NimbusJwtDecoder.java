@@ -145,6 +145,9 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 		}
 		catch (Exception ex) {
 			this.logger.trace("Failed to parse token", ex);
+			if (ex instanceof ParseException) {
+				throw new BadJwtException(String.format(DECODING_ERROR_MESSAGE_TEMPLATE, "Malformed token"), ex);
+			}
 			throw new BadJwtException(String.format(DECODING_ERROR_MESSAGE_TEMPLATE, ex.getMessage()), ex);
 		}
 	}
