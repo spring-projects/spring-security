@@ -574,7 +574,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          jws-algorithm: RS512
+          jws-algorithms: RS512
           jwk-set-uri: https://idp.example.org/.well-known/jwks.json
 ----
 
