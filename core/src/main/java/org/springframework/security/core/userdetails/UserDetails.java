@@ -67,14 +67,18 @@ public interface UserDetails extends Serializable {
 	 * @return <code>true</code> if the user's account is valid (ie non-expired),
 	 * <code>false</code> if no longer valid (ie expired)
 	 */
-	boolean isAccountNonExpired();
+	default boolean isAccountNonExpired() {
+		return true;
+	}
 
 	/**
 	 * Indicates whether the user is locked or unlocked. A locked user cannot be
 	 * authenticated.
 	 * @return <code>true</code> if the user is not locked, <code>false</code> otherwise
 	 */
-	boolean isAccountNonLocked();
+	default boolean isAccountNonLocked() {
+		return true;
+	}
 
 	/**
 	 * Indicates whether the user's credentials (password) has expired. Expired
@@ -82,13 +86,17 @@ public interface UserDetails extends Serializable {
 	 * @return <code>true</code> if the user's credentials are valid (ie non-expired),
 	 * <code>false</code> if no longer valid (ie expired)
 	 */
-	boolean isCredentialsNonExpired();
+	default boolean isCredentialsNonExpired() {
+		return true;
+	}
 
 	/**
 	 * Indicates whether the user is enabled or disabled. A disabled user cannot be
 	 * authenticated.
 	 * @return <code>true</code> if the user is enabled, <code>false</code> otherwise
 	 */
-	boolean isEnabled();
+	default boolean isEnabled() {
+		return true;
+	}
 
 }
