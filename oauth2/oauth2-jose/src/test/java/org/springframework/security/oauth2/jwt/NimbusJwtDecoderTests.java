@@ -100,6 +100,8 @@ public class NimbusJwtDecoderTests {
 
 	private static final String JWK_SET = "{\"keys\":[{\"kty\":\"RSA\",\"e\":\"AQAB\",\"use\":\"sig\",\"kid\":\"one\",\"n\":\"oXJ8OyOv_eRnce4akdanR4KYRfnC2zLV4uYNQpcFn6oHL0dj7D6kxQmsXoYgJV8ZVDn71KGmuLvolxsDncc2UrhyMBY6DVQVgMSVYaPCTgW76iYEKGgzTEw5IBRQL9w3SRJWd3VJTZZQjkXef48Ocz06PGF3lhbz4t5UEZtdF4rIe7u-977QwHuh7yRPBQ3sII-cVoOUMgaXB9SHcGF2iZCtPzL_IffDUcfhLQteGebhW8A6eUHgpD5A1PQ-JCw_G7UOzZAjjDjtNM2eqm8j-Ms_gqnm4MiCZ4E-9pDN77CAAPVN7kuX6ejs9KBXpk01z48i9fORYk9u7rAkh1HuQw\"}]}";
 
+	private static final String MALFORMED_TOKEN = "eyJhbGciOiJSUzI1NiJ9.eyJuYmYiOnt9LCJleHAiOjQ2ODQyMjUwODd9";
+
 	private static final String NEW_KID_JWK_SET = "{\"keys\":[{\"kty\":\"RSA\",\"e\":\"AQAB\",\"kid\":\"two\",\"n\":\"ra9UJw4I0fCHuOqr1xWJsh-qcVeZWtKEU3uoqq1sAg5fG67dujNCm_Q16yuO0ZdDiU0vlJkbc_MXFAvm4ZxdJ_qR7PAneV-BOGNtLpSaiPclscCy3m7zjRWkaqwt9ZZEsdK5UqXyPlBpcYhNKsmnQGjnX4sYb7d8b2jSCM_qto48-6451rbyEhXXywtFy_JqtTpbsw_IIdQHMr1O-MdSjsQxX9kkvZwPU8LsC-CcqlcsZ7mnpOhmIXaf4tbRwAaluXwYft0yykFsp8e5C4t9mMs9Vu8AB5gT8o-D_ovXd2qh4k3ejzVpYLtzD4nbfvPJA_TXmjhn-9GOPAqkzfON2Q\"}]}";
 
 	private static final String MALFORMED_JWK_SET = "malformed";
@@ -193,6 +195,12 @@ public class NimbusJwtDecoderTests {
 				.isThrownBy(() -> this.jwtDecoder.decode(MALFORMED_JWT))
 				.withMessage("An error occurred while attempting to decode the Jwt: Malformed payload");
 		// @formatter:on
+	}
+
+	@Test
+	public void decodeWhenTokenMalformedThenReturnsMalformedTokenMessage() {
+		assertThatExceptionOfType(BadJwtException.class).isThrownBy(() -> this.jwtDecoder.decode(MALFORMED_TOKEN))
+			.withMessage("An error occurred while attempting to decode the Jwt: Malformed token");
 	}
 
 	@Test
