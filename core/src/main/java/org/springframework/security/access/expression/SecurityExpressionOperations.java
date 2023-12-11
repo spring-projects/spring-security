@@ -125,7 +125,7 @@ public interface SecurityExpressionOperations {
 	 * given the permission
 	 * @param target the target domain object to check permission on
 	 * @param permission the permission to check on the domain object (i.e. "read",
-	 * "write", etc).
+	 * "write", etc.).
 	 * @return true if permission is granted to the {@link #getAuthentication()}, else
 	 * false
 	 */
@@ -136,8 +136,8 @@ public interface SecurityExpressionOperations {
 	 * object with a given id, type, and permission.
 	 * @param targetId the identifier of the domain object to determine access
 	 * @param targetType the type (i.e. com.example.domain.Message)
-	 * @param permission the perission to check on the domain object (i.e. "read",
-	 * "write", etc)
+	 * @param permission the permission to check on the domain object (i.e. "read",
+	 * "write", etc.)
 	 * @return true if permission is granted to the {@link #getAuthentication()}, else
 	 * false
 	 */
