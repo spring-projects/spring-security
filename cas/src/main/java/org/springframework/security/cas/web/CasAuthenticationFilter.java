@@ -22,6 +22,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import org.apereo.cas.client.proxy.ProxyGrantingTicketStorage;
 import org.apereo.cas.client.util.WebUtils;
 import org.apereo.cas.client.validation.TicketValidator;
@@ -39,11 +40,16 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
+import org.springframework.security.web.DefaultRedirectStrategy;
+import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
+import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
+import org.springframework.security.web.savedrequest.RequestCache;
+import org.springframework.security.web.savedrequest.SavedRequest;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
@@ -199,6 +205,10 @@ public class CasAuthenticationFilter extends AbstractAuthenticationProcessingFil
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
 		.getContextHolderStrategy();
 
+	private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
+
+	private RequestCache requestCache = new HttpSessionRequestCache();
+
 	public CasAuthenticationFilter() {
 		super("/login/cas");
 		setAuthenticationFailureHandler(new SimpleUrlAuthenticationFailureHandler());
@@ -238,8 +248,24 @@ public class CasAuthenticationFilter extends AbstractAuthenticationProcessingFil
 		}
 		String serviceTicket = obtainArtifact(request);
 		if (serviceTicket == null) {
-			this.logger.debug("Failed to obtain an artifact (cas ticket)");
-			serviceTicket = "";
+			boolean gateway = false;
+			HttpSession session = request.getSession(false);
+			if (session != null) {
+				gateway = session.getAttribute(TriggerCasGatewayFilter.TRIGGER_CAS_GATEWAY_AUTHENTICATION) != null;
+				session.removeAttribute(TriggerCasGatewayFilter.TRIGGER_CAS_GATEWAY_AUTHENTICATION);
+			}
+			if (gateway) {
+				this.logger.debug("Failed authentication response from CAS gateway request");
+				SavedRequest savedRequest = this.requestCache.getRequest(request, response);
+				if (savedRequest != null) {
+					this.redirectStrategy.sendRedirect(request, response, savedRequest.getRedirectUrl());
+				}
+				return null;
+			}
+			else {
+				this.logger.debug("Failed to obtain an artifact (cas ticket)");
+				serviceTicket = "";
+			}
 		}
 		boolean serviceTicketRequest = serviceTicketRequest(request, response);
 		CasServiceTicketAuthenticationToken authRequest = serviceTicketRequest
@@ -301,6 +327,16 @@ public class CasAuthenticationFilter extends AbstractAuthenticationProcessingFil
 	public final void setServiceProperties(final ServiceProperties serviceProperties) {
 		this.artifactParameter = serviceProperties.getArtifactParameter();
 		this.authenticateAllArtifacts = serviceProperties.isAuthenticateAllArtifacts();
+	}
+
+	public final void setRedirectStrategy(RedirectStrategy redirectStrategy) {
+		Assert.notNull(redirectStrategy, "redirectStrategy cannot be null");
+		this.redirectStrategy = redirectStrategy;
+	}
+
+	public final void setRequestCache(RequestCache requestCache) {
+		Assert.notNull(requestCache, "requestCache cannot be null");
+		this.requestCache = requestCache;
 	}
 
 	/**
