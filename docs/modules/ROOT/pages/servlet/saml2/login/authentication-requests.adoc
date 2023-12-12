@@ -46,6 +46,76 @@ open fun authenticationRequestRepository(): Saml2AuthenticationRequestRepository
 ----
 ======
 
+=== Storing by Relay State
+
+Instead of storing in the `HttpSession`, you may want to use a sessionless implementation.
+
+For example, you may be using the `SameSite` parameter in your session cookie; in such a case, the browser will not send the SP's session cookie from the IdP's POST.
+
+In this case, `InMemorySaml2AuthenticationRequestRepository` may be of value since it will store ``<saml2:AuthnRequest>``s by the relay state parameter instead.
+
+You can use it in the following way:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Bean
+Saml2AuthenticationRequestRepository<AbstractSaml2AuthenticationRequest> authenticationRequestRepository() {
+	return new InMemorySaml2AuthenticationRequestRepository();
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Bean
+open fun authenticationRequestRepository(): Saml2AuthenticationRequestRepository<AbstractSaml2AuthenticationRequest> {
+    return CustomSaml2AuthenticationRequestRepository()
+}
+----
+======
+
+making sure to introduce a bean that will periodically clean up stale ``<saml2:AuthnRequest>`` instances like so:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Component
+public class InMemorySaml2AuthenticationRequestRepositoryEvicter {
+  	private final InMemorySaml2AuthenticationRequestRepository requests;
+
+    public InMemorySaml2AuthenticationRequestRepositoryEvicter(InMemorySaml2AuthenticationRequestRepository requests) {
+		this.requests = requests;
+    }
+
+	@Scheduled
+	public void evict() {
+       	this.requests.removeAuthenticationRequestsOlderThan(Instant.now().minusSeconds(600));
+ 	}
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Component
+class InMemorySaml2AuthenticationRequestRepositoryEvicter(requests: InMemorySaml2AuthenticationRequestRepository) {
+	@Scheduled
+	fun evict() {
+       	this.requests.removeAuthenticationRequestsOlderThan(Instant.now().minusSeconds(600))
+ 	}
+}
+----
+======
+
 [[servlet-saml2login-sp-initiated-factory-signing]]
 == Changing How the `<saml2:AuthnRequest>` Gets Sent
 
