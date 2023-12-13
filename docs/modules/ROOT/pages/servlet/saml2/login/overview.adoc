@@ -63,7 +63,42 @@ image:{icondir}/number_4.png[] If authentication is successful, then _Success_.
 == Minimal Dependencies
 
 SAML 2.0 service provider support resides in `spring-security-saml2-service-provider`.
-It builds off of the OpenSAML library.
+It builds off of the OpenSAML library, and, for that reason, you must also include the Shibboleth Maven repository in your build configuration.
+Check https://shibboleth.atlassian.net/wiki/spaces/DEV/pages/1123844333/Use+of+Maven+Central#Publishing-to-Maven-Central[this link] for more details about why a separate repository is needed.
+
+[tabs]
+======
+Maven::
++
+[source,xml,role="primary"]
+----
+<repositories>
+    <!-- ... -->
+    <repository>
+        <id>shibboleth-releases</id>
+        <url>https://build.shibboleth.net/nexus/content/repositories/releases/</url>
+    </repository>
+</repositories>
+<dependency>
+    <groupId>org.springframework.security</groupId>
+    <artifactId>spring-security-saml2-service-provider</artifactId>
+</dependency>
+----
+
+Gradle::
++
+[source,groovy,role="secondary"]
+----
+repositories {
+    // ...
+    maven { url "https://build.shibboleth.net/nexus/content/repositories/releases/" }
+}
+dependencies {
+    // ...
+    implementation 'org.springframework.security:spring-security-saml2-service-provider'
+}
+----
+======
 
 [[servlet-saml2login-minimalconfiguration]]
 == Minimal Configuration
