@@ -93,3 +93,31 @@ updates:
         update-types: [ "version-update:semver-major" ]
       - dependency-name: "*"
         update-types: [ "version-update:semver-major", "version-update:semver-minor" ]
+
+#    GitHub Actions
+
+  - package-ecosystem: github-actions
+    target-branch: "main"
+    directory: "/"
+    schedule:
+      interval: weekly
+  - package-ecosystem: github-actions
+    target-branch: "6.2.x"
+    directory: "/"
+    schedule:
+      interval: weekly
+  - package-ecosystem: github-actions
+    target-branch: "6.1.x"
+    directory: "/"
+    schedule:
+      interval: weekly
+  - package-ecosystem: github-actions
+    target-branch: "5.8.x"
+    directory: "/"
+    schedule:
+      interval: weekly
+  - package-ecosystem: github-actions
+    target-branch: "docs-build"
+    directory: "/"
+    schedule:
+      interval: weekly
