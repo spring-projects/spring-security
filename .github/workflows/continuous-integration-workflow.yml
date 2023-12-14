@@ -247,7 +247,7 @@ jobs:
           ./gradlew createGitHubRelease -PnextVersion=$VERSION -Pbranch=$BRANCH -PcreateRelease=true -PgitHubAccessToken=$TOKEN
       - name: Announce Release on Slack
         id: spring-security-announcing
-        uses: slackapi/slack-github-action@v1.19.0
+        uses: slackapi/slack-github-action@v1.24.0
         with:
           payload: |
             {
