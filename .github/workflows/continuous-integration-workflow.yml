@@ -74,7 +74,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Set up gradle
-        uses: spring-io/spring-gradle-build-action@v1
+        uses: spring-io/spring-gradle-build-action@v2
         with:
           java-version: '11'
           distribution: 'adopt'
@@ -92,7 +92,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Set up gradle
-        uses: spring-io/spring-gradle-build-action@v1
+        uses: spring-io/spring-gradle-build-action@v2
         with:
           java-version: '11'
           distribution: 'adopt'
@@ -116,7 +116,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Set up gradle
-        uses: spring-io/spring-gradle-build-action@v1
+        uses: spring-io/spring-gradle-build-action@v2
         with:
           java-version: '11'
           distribution: 'adopt'
@@ -133,7 +133,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Set up gradle
-        uses: spring-io/spring-gradle-build-action@v1
+        uses: spring-io/spring-gradle-build-action@v2
         with:
           java-version: '11'
           distribution: 'adopt'
@@ -157,7 +157,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Set up gradle
-        uses: spring-io/spring-gradle-build-action@v1
+        uses: spring-io/spring-gradle-build-action@v2
         with:
           java-version: '11'
           distribution: 'adopt'
@@ -178,7 +178,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Set up gradle
-        uses: spring-io/spring-gradle-build-action@v1
+        uses: spring-io/spring-gradle-build-action@v2
         with:
           java-version: '11'
           distribution: 'adopt'
@@ -210,7 +210,7 @@ jobs:
         with:
           token: ${{ secrets.GH_ACTIONS_REPO_TOKEN }}
       - name: Set up gradle
-        uses: spring-io/spring-gradle-build-action@v1
+        uses: spring-io/spring-gradle-build-action@v2
         with:
           java-version: '11'
           distribution: 'adopt'
@@ -289,7 +289,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Set up gradle
-        uses: spring-io/spring-gradle-build-action@v1
+        uses: spring-io/spring-gradle-build-action@v2
         with:
           java-version: '11'
           distribution: 'adopt'
