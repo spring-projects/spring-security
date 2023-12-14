@@ -102,26 +102,36 @@ updates:
     directory: "/"
     schedule:
       interval: weekly
+    ignore:
+      - dependency-name: "sjohnr/*"
   - package-ecosystem: github-actions
     target-branch: "6.2.x"
     milestone: 319 # 6.2.x
     directory: "/"
     schedule:
       interval: weekly
+    ignore:
+      - dependency-name: "sjohnr/*"
   - package-ecosystem: github-actions
     target-branch: "6.1.x"
     milestone: 318 # 6.1.x
     directory: "/"
     schedule:
       interval: weekly
+    ignore:
+      - dependency-name: "sjohnr/*"
   - package-ecosystem: github-actions
     target-branch: "5.8.x"
     milestone: 246 # 5.8.x
     directory: "/"
     schedule:
       interval: weekly
+    ignore:
+      - dependency-name: "sjohnr/*"
   - package-ecosystem: github-actions
     target-branch: "docs-build"
     directory: "/"
     schedule:
       interval: weekly
+    ignore:
+      - dependency-name: "sjohnr/*"
