@@ -18,7 +18,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Set up gradle
-        uses: spring-io/spring-gradle-build-action@v1
+        uses: spring-io/spring-gradle-build-action@v2
         with:
           java-version: '17'
           distribution: 'temurin'
