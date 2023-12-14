@@ -2,7 +2,7 @@
 = Authorization Events
 
 For each authorization that is denied, an `AuthorizationDeniedEvent` is fired.
-Also, it's possible to fire and `AuthorizationGrantedEvent` for authorizations that are granted.
+Also, it's possible to fire an `AuthorizationGrantedEvent` for authorizations that are granted.
 
 To listen for these events, you must first publish an `AuthorizationEventPublisher`.
 
