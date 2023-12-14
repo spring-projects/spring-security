@@ -72,7 +72,7 @@ jobs:
       - id: send-slack-notification
         name: Send Slack message
         if: failure()
-        uses: Gamesight/slack-workflow-status@v1.0.1
+        uses: Gamesight/slack-workflow-status@v1.2.0
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
