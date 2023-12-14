@@ -49,6 +49,7 @@ import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.ObservationFilterChainDecorator;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AuthorizationManagerWebInvocationPrivilegeEvaluator;
+import org.springframework.security.web.access.AuthorizationManagerWebInvocationPrivilegeEvaluator.HttpServletRequestTransformer;
 import org.springframework.security.web.access.DefaultWebInvocationPrivilegeEvaluator;
 import org.springframework.security.web.access.RequestMatcherDelegatingWebInvocationPrivilegeEvaluator;
 import org.springframework.security.web.access.WebInvocationPrivilegeEvaluator;
@@ -107,6 +108,8 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 	private WebInvocationPrivilegeEvaluator privilegeEvaluator;
 
 	private ObservationRegistry observationRegistry = ObservationRegistry.NOOP;
+
+	private HttpServletRequestTransformer privilegeEvaluatorRequestTransformer;
 
 	private DefaultWebSecurityExpressionHandler defaultWebSecurityExpressionHandler = new DefaultWebSecurityExpressionHandler();
 
@@ -350,6 +353,9 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 				AuthorizationManagerWebInvocationPrivilegeEvaluator evaluator = new AuthorizationManagerWebInvocationPrivilegeEvaluator(
 						authorizationManager);
 				evaluator.setServletContext(this.servletContext);
+				if (this.privilegeEvaluatorRequestTransformer != null) {
+					evaluator.setRequestTransformer(this.privilegeEvaluatorRequestTransformer);
+				}
 				privilegeEvaluators.add(evaluator);
 			}
 		}
@@ -386,6 +392,9 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 		}
 		catch (NoSuchBeanDefinitionException ex) {
 		}
+		Class<HttpServletRequestTransformer> requestTransformerClass = HttpServletRequestTransformer.class;
+		this.privilegeEvaluatorRequestTransformer = applicationContext.getBeanProvider(requestTransformerClass)
+			.getIfUnique();
 	}
 
 	@Override
