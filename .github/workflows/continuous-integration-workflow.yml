@@ -317,7 +317,7 @@ jobs:
       - name: Send Slack message
         # Workaround while waiting for Gamesight/slack-workflow-status#38 to be fixed
         # See https://github.com/Gamesight/slack-workflow-status/issues/38
-        uses: sjohnr/slack-workflow-status@v1.1.0
+        uses: sjohnr/slack-workflow-status@v1-beta
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
