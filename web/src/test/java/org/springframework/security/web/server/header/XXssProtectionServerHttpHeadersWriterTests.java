@@ -82,7 +82,7 @@ public class XXssProtectionServerHttpHeadersWriterTests {
 		this.writer.writeHttpHeaders(this.exchange);
 		assertThat(this.headers).hasSize(1);
 		assertThat(this.headers.get(XXssProtectionServerHttpHeadersWriter.X_XSS_PROTECTION))
-			.containsOnly("1 ; mode=block");
+			.containsOnly("1; mode=block");
 	}
 
 }

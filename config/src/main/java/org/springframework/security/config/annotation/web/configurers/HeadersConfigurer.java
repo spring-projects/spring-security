@@ -823,7 +823,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		 * replaced with "#". For example:
 		 *
 		 * <pre>
-		 * X-XSS-Protection: 1 ; mode=block
+		 * X-XSS-Protection: 1; mode=block
 		 * </pre>
 		 * @param headerValue the new header value
 		 * @since 5.8
