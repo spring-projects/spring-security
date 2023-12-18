@@ -82,7 +82,7 @@ class ReactiveMethodSecurityConfiguration implements ImportAware {
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-	DefaultMethodSecurityExpressionHandler methodSecurityExpressionHandler(
+	static DefaultMethodSecurityExpressionHandler methodSecurityExpressionHandler(
 			ReactiveMethodSecurityConfiguration configuration) {
 		DefaultMethodSecurityExpressionHandler handler = new DefaultMethodSecurityExpressionHandler();
 		if (configuration.grantedAuthorityDefaults != null) {
