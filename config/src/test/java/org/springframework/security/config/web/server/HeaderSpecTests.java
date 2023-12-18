@@ -320,7 +320,7 @@ public class HeaderSpecTests {
 
 	@Test
 	public void headersWhenXssProtectionValueEnabledModeBlockThenXssProtectionWritten() {
-		this.expectedHeaders.set(XXssProtectionServerHttpHeadersWriter.X_XSS_PROTECTION, "1 ; mode=block");
+		this.expectedHeaders.set(XXssProtectionServerHttpHeadersWriter.X_XSS_PROTECTION, "1; mode=block");
 		// @formatter:off
 		this.http.headers()
 				.xssProtection()
