@@ -62,7 +62,10 @@ This configuration enables <<rsocket-authentication-simple,simple authentication
 
 For Spring Security to work, we need to apply `SecuritySocketAcceptorInterceptor` to the `ServerRSocketFactory`.
 Doing so connects our `PayloadSocketAcceptorInterceptor` with the RSocket infrastructure.
-In a Spring Boot application, you can do this automatically by using `RSocketSecurityAutoConfiguration` with the following code:
+
+Spring Boot registers it automatically in `RSocketSecurityAutoConfiguration` when you include {gh-samples-url}/reactive/rsocket/hello-security/build.gradle[the correct dependencies].
+
+Or, if you are not using Boot's auto-configuration, you can register it manually in the following way:
 
 [tabs]
 ======
@@ -90,6 +93,8 @@ fun springSecurityRSocketSecurity(interceptor: SecuritySocketAcceptorInterceptor
 }
 ----
 ======
+
+To customize the interceptor itself, use `RSocketSecurity` to add <<rsocket-authentication,authentication>> and <<rsocket-authorization,authorization>>.
 
 [[rsocket-authentication]]
 == RSocket Authentication
