@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package org.springframework.security.config.http;
 
+import org.opensaml.core.Version;
 import org.w3c.dom.Element;
 
 import org.springframework.beans.BeanMetadataElement;
@@ -27,6 +28,7 @@ import org.springframework.security.saml2.provider.service.registration.RelyingP
 import org.springframework.security.saml2.provider.service.web.DefaultRelyingPartyRegistrationResolver;
 import org.springframework.security.saml2.provider.service.web.HttpSessionSaml2AuthenticationRequestRepository;
 import org.springframework.security.saml2.provider.service.web.Saml2AuthenticationTokenConverter;
+import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 
 /**
@@ -34,6 +36,8 @@ import org.springframework.util.StringUtils;
  * @since 5.7
  */
 final class Saml2LoginBeanDefinitionParserUtils {
+
+	private static final String OPEN_SAML_4_VERSION = "4";
 
 	private static final String ATT_RELYING_PARTY_REGISTRATION_REPOSITORY_REF = "relying-party-registration-repository-ref";
 
@@ -78,15 +82,27 @@ final class Saml2LoginBeanDefinitionParserUtils {
 			.rootBeanDefinition(DefaultRelyingPartyRegistrationResolver.class)
 			.addConstructorArgValue(relyingPartyRegistrationRepository)
 			.getBeanDefinition();
+		if (version().startsWith("4")) {
+			return BeanDefinitionBuilder.rootBeanDefinition(
+					"org.springframework.security.saml2.provider.service.web.authentication.OpenSaml4AuthenticationRequestResolver")
+				.addConstructorArgValue(defaultRelyingPartyRegistrationResolver)
+				.getBeanDefinition();
+		}
 		return BeanDefinitionBuilder.rootBeanDefinition(
-				"org.springframework.security.saml2.provider.service.web.authentication.OpenSaml4AuthenticationRequestResolver")
+				"org.springframework.security.saml2.provider.service.web.authentication.OpenSamlAuthenticationRequestResolver")
 			.addConstructorArgValue(defaultRelyingPartyRegistrationResolver)
 			.getBeanDefinition();
 	}
 
 	static BeanDefinition createAuthenticationProvider() {
-		return BeanDefinitionBuilder.rootBeanDefinition(
-				"org.springframework.security.saml2.provider.service.authentication.OpenSaml4AuthenticationProvider")
+		if (version().startsWith("4")) {
+			return BeanDefinitionBuilder.rootBeanDefinition(
+					"org.springframework.security.saml2.provider.service.authentication.OpenSaml4AuthenticationProvider")
+				.getBeanDefinition();
+		}
+		return BeanDefinitionBuilder
+			.rootBeanDefinition(
+					"org.springframework.security.saml2.provider.service.authentication.OpenSamlAuthenticationProvider")
 			.getBeanDefinition();
 	}
 
@@ -106,6 +122,19 @@ final class Saml2LoginBeanDefinitionParserUtils {
 		return BeanDefinitionBuilder.rootBeanDefinition(Saml2AuthenticationTokenConverter.class)
 			.addConstructorArgValue(resolver)
 			.getBeanDefinition();
+	}
+
+	static String version() {
+		String version = Version.getVersion();
+		if (StringUtils.hasText(version)) {
+			return version;
+		}
+		boolean openSaml4ClassPresent = ClassUtils
+			.isPresent("org.opensaml.core.xml.persist.impl.PassthroughSourceStrategy", null);
+		if (openSaml4ClassPresent) {
+			return OPEN_SAML_4_VERSION;
+		}
+		throw new IllegalStateException("cannot determine OpenSAML version");
 	}
 
 }

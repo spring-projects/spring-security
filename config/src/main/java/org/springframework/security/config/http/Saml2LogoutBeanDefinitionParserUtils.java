@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package org.springframework.security.config.http;
 
+import org.opensaml.core.Version;
 import org.w3c.dom.Element;
 
 import org.springframework.beans.BeanMetadataElement;
@@ -25,6 +26,7 @@ import org.springframework.security.saml2.provider.service.authentication.logout
 import org.springframework.security.saml2.provider.service.authentication.logout.OpenSamlLogoutResponseValidator;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
 import org.springframework.security.saml2.provider.service.web.authentication.logout.HttpSessionLogoutRequestRepository;
+import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 
 /**
@@ -32,6 +34,8 @@ import org.springframework.util.StringUtils;
  * @since 5.7
  */
 final class Saml2LogoutBeanDefinitionParserUtils {
+
+	private static final String OPEN_SAML_4_VERSION = "4";
 
 	private static final String ATT_RELYING_PARTY_REGISTRATION_REPOSITORY_REF = "relying-party-registration-repository-ref";
 
@@ -62,8 +66,14 @@ final class Saml2LogoutBeanDefinitionParserUtils {
 		if (StringUtils.hasText(logoutResponseResolver)) {
 			return new RuntimeBeanReference(logoutResponseResolver);
 		}
+		if (version().startsWith("4")) {
+			return BeanDefinitionBuilder.rootBeanDefinition(
+					"org.springframework.security.saml2.provider.service.web.authentication.logout.OpenSaml4LogoutResponseResolver")
+				.addConstructorArgValue(registrations)
+				.getBeanDefinition();
+		}
 		return BeanDefinitionBuilder.rootBeanDefinition(
-				"org.springframework.security.saml2.provider.service.web.authentication.logout.OpenSaml4LogoutResponseResolver")
+				"org.springframework.security.saml2.provider.service.web.authentication.logout.OpenSamlLogoutResponseResolver")
 			.addConstructorArgValue(registrations)
 			.getBeanDefinition();
 	}
@@ -97,10 +107,29 @@ final class Saml2LogoutBeanDefinitionParserUtils {
 		if (StringUtils.hasText(logoutRequestResolver)) {
 			return new RuntimeBeanReference(logoutRequestResolver);
 		}
+		if (version().startsWith("4")) {
+			return BeanDefinitionBuilder.rootBeanDefinition(
+					"org.springframework.security.saml2.provider.service.web.authentication.logout.OpenSaml4LogoutRequestResolver")
+				.addConstructorArgValue(registrations)
+				.getBeanDefinition();
+		}
 		return BeanDefinitionBuilder.rootBeanDefinition(
-				"org.springframework.security.saml2.provider.service.web.authentication.logout.OpenSaml4LogoutRequestResolver")
+				"org.springframework.security.saml2.provider.service.web.authentication.logout.OpenSamlLogoutRequestResolver")
 			.addConstructorArgValue(registrations)
 			.getBeanDefinition();
+	}
+
+	static String version() {
+		String version = Version.getVersion();
+		if (StringUtils.hasText(version)) {
+			return version;
+		}
+		boolean openSaml4ClassPresent = ClassUtils
+			.isPresent("org.opensaml.core.xml.persist.impl.PassthroughSourceStrategy", null);
+		if (openSaml4ClassPresent) {
+			return OPEN_SAML_4_VERSION;
+		}
+		throw new IllegalStateException("cannot determine OpenSAML version");
 	}
 
 }
