@@ -43,6 +43,7 @@ import org.springframework.security.config.core.GrantedAuthorityDefaults;
  * @since 5.0
  */
 @Configuration(proxyBeanMethods = false)
+@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 class ReactiveMethodSecurityConfiguration implements ImportAware {
 
 	private int advisorOrder;
@@ -51,16 +52,17 @@ class ReactiveMethodSecurityConfiguration implements ImportAware {
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-	MethodSecurityMetadataSourceAdvisor methodSecurityInterceptor(AbstractMethodSecurityMetadataSource source) {
+	static MethodSecurityMetadataSourceAdvisor methodSecurityInterceptor(AbstractMethodSecurityMetadataSource source,
+			ReactiveMethodSecurityConfiguration configuration) {
 		MethodSecurityMetadataSourceAdvisor advisor = new MethodSecurityMetadataSourceAdvisor(
 				"securityMethodInterceptor", source, "methodMetadataSource");
-		advisor.setOrder(this.advisorOrder);
+		advisor.setOrder(configuration.advisorOrder);
 		return advisor;
 	}
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-	DelegatingMethodSecurityMetadataSource methodMetadataSource(
+	static DelegatingMethodSecurityMetadataSource methodMetadataSource(
 			MethodSecurityExpressionHandler methodSecurityExpressionHandler) {
 		ExpressionBasedAnnotationAttributeFactory attributeFactory = new ExpressionBasedAnnotationAttributeFactory(
 				methodSecurityExpressionHandler);
@@ -70,7 +72,7 @@ class ReactiveMethodSecurityConfiguration implements ImportAware {
 	}
 
 	@Bean
-	PrePostAdviceReactiveMethodInterceptor securityMethodInterceptor(AbstractMethodSecurityMetadataSource source,
+	static PrePostAdviceReactiveMethodInterceptor securityMethodInterceptor(AbstractMethodSecurityMetadataSource source,
 			MethodSecurityExpressionHandler handler) {
 		ExpressionBasedPostInvocationAdvice postAdvice = new ExpressionBasedPostInvocationAdvice(handler);
 		ExpressionBasedPreInvocationAdvice preAdvice = new ExpressionBasedPreInvocationAdvice();
@@ -80,10 +82,11 @@ class ReactiveMethodSecurityConfiguration implements ImportAware {
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-	DefaultMethodSecurityExpressionHandler methodSecurityExpressionHandler() {
+	DefaultMethodSecurityExpressionHandler methodSecurityExpressionHandler(
+			ReactiveMethodSecurityConfiguration configuration) {
 		DefaultMethodSecurityExpressionHandler handler = new DefaultMethodSecurityExpressionHandler();
-		if (this.grantedAuthorityDefaults != null) {
-			handler.setDefaultRolePrefix(this.grantedAuthorityDefaults.getRolePrefix());
+		if (configuration.grantedAuthorityDefaults != null) {
+			handler.setDefaultRolePrefix(configuration.grantedAuthorityDefaults.getRolePrefix());
 		}
 		return handler;
 	}
