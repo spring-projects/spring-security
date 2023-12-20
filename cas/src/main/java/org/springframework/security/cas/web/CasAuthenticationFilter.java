@@ -53,6 +53,7 @@ import org.springframework.security.web.savedrequest.SavedRequest;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 /**
  * Processes a CAS service ticket, obtains proxy granting tickets, and processes proxy
@@ -247,25 +248,24 @@ public class CasAuthenticationFilter extends AbstractAuthenticationProcessingFil
 			return null;
 		}
 		String serviceTicket = obtainArtifact(request);
-		if (serviceTicket == null) {
-			boolean gateway = false;
+		if (!StringUtils.hasText(serviceTicket)) {
 			HttpSession session = request.getSession(false);
-			if (session != null) {
-				gateway = session.getAttribute(TriggerCasGatewayFilter.TRIGGER_CAS_GATEWAY_AUTHENTICATION) != null;
-				session.removeAttribute(TriggerCasGatewayFilter.TRIGGER_CAS_GATEWAY_AUTHENTICATION);
-			}
-			if (gateway) {
+			if (session != null && session
+				.getAttribute(CasGatewayAuthenticationRedirectFilter.CAS_GATEWAY_AUTHENTICATION_ATTR) != null) {
 				this.logger.debug("Failed authentication response from CAS gateway request");
+				session.removeAttribute(CasGatewayAuthenticationRedirectFilter.CAS_GATEWAY_AUTHENTICATION_ATTR);
 				SavedRequest savedRequest = this.requestCache.getRequest(request, response);
 				if (savedRequest != null) {
-					this.redirectStrategy.sendRedirect(request, response, savedRequest.getRedirectUrl());
+					String redirectUrl = savedRequest.getRedirectUrl();
+					this.logger.debug(LogMessage.format("Redirecting to: %s", redirectUrl));
+					this.requestCache.removeRequest(request, response);
+					this.redirectStrategy.sendRedirect(request, response, redirectUrl);
+					return null;
 				}
-				return null;
 			}
-			else {
-				this.logger.debug("Failed to obtain an artifact (cas ticket)");
-				serviceTicket = "";
-			}
+
+			this.logger.debug("Failed to obtain an artifact (cas ticket)");
+			serviceTicket = "";
 		}
 		boolean serviceTicketRequest = serviceTicketRequest(request, response);
 		CasServiceTicketAuthenticationToken authRequest = serviceTicketRequest
@@ -329,11 +329,23 @@ public class CasAuthenticationFilter extends AbstractAuthenticationProcessingFil
 		this.authenticateAllArtifacts = serviceProperties.isAuthenticateAllArtifacts();
 	}
 
+	/**
+	 * Set the {@link RedirectStrategy} used to redirect to the saved request if there is
+	 * one saved. Defaults to {@link DefaultRedirectStrategy}.
+	 * @param redirectStrategy the redirect strategy to use
+	 * @since 6.3
+	 */
 	public final void setRedirectStrategy(RedirectStrategy redirectStrategy) {
 		Assert.notNull(redirectStrategy, "redirectStrategy cannot be null");
 		this.redirectStrategy = redirectStrategy;
 	}
 
+	/**
+	 * The {@link RequestCache} used to retrieve the saved request in failed gateway
+	 * authentication scenarios.
+	 * @param requestCache the request cache to use
+	 * @since 6.3
+	 */
 	public final void setRequestCache(RequestCache requestCache) {
 		Assert.notNull(requestCache, "requestCache cannot be null");
 		this.requestCache = requestCache;

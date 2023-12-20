@@ -17,6 +17,7 @@
 package org.springframework.security.cas.web;
 
 import jakarta.servlet.FilterChain;
+import jakarta.servlet.http.HttpSession;
 import org.apereo.cas.client.proxy.ProxyGrantingTicketStorage;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -221,11 +222,13 @@ public class CasAuthenticationFilterTests {
 	}
 
 	@Test
-	public void testNullServiceButGateway() throws Exception {
+	public void attemptAuthenticationWhenNoServiceTicketAndIsGatewayRequestThenRedirectToSavedRequestAndClearAttribute()
+			throws Exception {
 		CasAuthenticationFilter filter = new CasAuthenticationFilter();
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		request.getSession(true).setAttribute(TriggerCasGatewayFilter.TRIGGER_CAS_GATEWAY_AUTHENTICATION, true);
+		HttpSession session = request.getSession(true);
+		session.setAttribute(CasGatewayAuthenticationRedirectFilter.CAS_GATEWAY_AUTHENTICATION_ATTR, true);
 
 		new HttpSessionRequestCache().saveRequest(request, response);
 
@@ -233,6 +236,8 @@ public class CasAuthenticationFilterTests {
 		assertThat(authn).isNull();
 		assertThat(response.getStatus()).isEqualTo(302);
 		assertThat(response.getRedirectedUrl()).isEqualTo("http://localhost?continue");
+		assertThat(session.getAttribute(CasGatewayAuthenticationRedirectFilter.CAS_GATEWAY_AUTHENTICATION_ATTR))
+			.isNull();
 	}
 
 }
