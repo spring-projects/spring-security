@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,6 +49,8 @@ import org.springframework.security.oauth2.jwt.JwtTimestampValidator;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
+import org.springframework.web.client.RestOperations;
+import org.springframework.web.client.RestTemplate;
 
 /**
  * A {@link JwtDecoderFactory factory} that provides a {@link JwtDecoder} used for
@@ -88,6 +90,9 @@ public final class OidcIdTokenDecoderFactory implements JwtDecoderFactory<Client
 
 	private Function<ClientRegistration, Converter<Map<String, Object>, Map<String, Object>>> claimTypeConverterFactory = (
 			clientRegistration) -> DEFAULT_CLAIM_TYPE_CONVERTER;
+
+	private Function<ClientRegistration, RestOperations> restOperationsFactory = (
+			clientRegistration) -> new RestTemplate();
 
 	/**
 	 * Returns the default {@link Converter}'s used for type conversion of claim values
@@ -164,7 +169,10 @@ public final class OidcIdTokenDecoderFactory implements JwtDecoderFactory<Client
 						null);
 				throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
 			}
-			return NimbusJwtDecoder.withJwkSetUri(jwkSetUri).jwsAlgorithm((SignatureAlgorithm) jwsAlgorithm).build();
+			return NimbusJwtDecoder.withJwkSetUri(jwkSetUri)
+				.jwsAlgorithm((SignatureAlgorithm) jwsAlgorithm)
+				.restOperations(restOperationsFactory.apply(clientRegistration))
+				.build();
 		}
 		if (jwsAlgorithm != null && MacAlgorithm.class.isAssignableFrom(jwsAlgorithm.getClass())) {
 			// https://openid.net/specs/openid-connect-core-1_0.html#IDTokenValidation
@@ -235,6 +243,20 @@ public final class OidcIdTokenDecoderFactory implements JwtDecoderFactory<Client
 			Function<ClientRegistration, Converter<Map<String, Object>, Map<String, Object>>> claimTypeConverterFactory) {
 		Assert.notNull(claimTypeConverterFactory, "claimTypeConverterFactory cannot be null");
 		this.claimTypeConverterFactory = claimTypeConverterFactory;
+	}
+
+	/**
+	 * Sets the factory that provides a {@link RestOperations} used by
+	 * {@link NimbusJwtDecoder} to coordinate with the authorization servers indicated in
+	 * the <a href="https://tools.ietf.org/html/rfc7517#section-5">JWK Set</a> uri.
+	 * @param restOperationsFactory the factory that provides a {@link RestOperations}
+	 * used by {@link NimbusJwtDecoder}
+	 *
+	 * @since 6.3
+	 */
+	public void setRestOperationsFactory(Function<ClientRegistration, RestOperations> restOperationsFactory) {
+		Assert.notNull(restOperationsFactory, "restOperationsFactory cannot be null");
+		this.restOperationsFactory = restOperationsFactory;
 	}
 
 }
