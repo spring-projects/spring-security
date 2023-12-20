@@ -374,29 +374,22 @@ Java::
 ----
 @Component
 public class TenantJwtIssuerValidator implements OAuth2TokenValidator<Jwt> {
-	private final TenantRepository tenants;
-	private final Map<String, JwtIssuerValidator> validators = new ConcurrentHashMap<>();
+    private final TenantRepository tenants;
 
-	public TenantJwtIssuerValidator(TenantRepository tenants) {
-		this.tenants = tenants;
-	}
+    private final OAuth2Error error = new OAuth2Error(OAuth2ErrorCodes.INVALID_TOKEN, "The iss claim is not valid",
+            "https://tools.ietf.org/html/rfc6750#section-3.1");
 
-	@Override
-	public OAuth2TokenValidatorResult validate(Jwt token) {
-		return this.validators.computeIfAbsent(toTenant(token), this::fromTenant)
-				.validate(token);
-	}
+    public TenantJwtIssuerValidator(TenantRepository tenants) {
+        this.tenants = tenants;
+    }
 
-	private String toTenant(Jwt jwt) {
-		return jwt.getIssuer();
-	}
-
-	private JwtIssuerValidator fromTenant(String tenant) {
-		return Optional.ofNullable(this.tenants.findById(tenant))
-		        .map(t -> t.getAttribute("issuer"))
-				.map(JwtIssuerValidator::new)
-				.orElseThrow(() -> new IllegalArgumentException("unknown tenant"));
-	}
+    @Override
+    public OAuth2TokenValidatorResult validate(Jwt token) {
+        if(this.tenants.findById(token.getIssuer()) != null) {
+            return OAuth2TokenValidatorResult.success();
+        }
+        return OAuth2TokenValidatorResult.failure(this.error);
+    }
 }
 ----
 
@@ -405,32 +398,17 @@ Kotlin::
 [source,kotlin,role="secondary"]
 ----
 @Component
-class TenantJwtIssuerValidator(tenants: TenantRepository) : OAuth2TokenValidator<Jwt> {
-    private val tenants: TenantRepository
-    private val validators: MutableMap<String, JwtIssuerValidator> = ConcurrentHashMap()
+class TenantJwtIssuerValidator(private val tenants: TenantRepository) : OAuth2TokenValidator<Jwt> {
+    private val error: OAuth2Error = OAuth2Error(OAuth2ErrorCodes.INVALID_TOKEN, "The iss claim is not valid",
+            "https://tools.ietf.org/html/rfc6750#section-3.1")
+
     override fun validate(token: Jwt): OAuth2TokenValidatorResult {
-        return validators.computeIfAbsent(toTenant(token)) { tenant: String -> fromTenant(tenant) }
-                .validate(token)
-    }
-
-    private fun toTenant(jwt: Jwt): String {
-        return jwt.issuer.toString()
-    }
-
-    private fun fromTenant(tenant: String): JwtIssuerValidator {
-        return Optional.ofNullable(tenants.findById(tenant))
-                .map({ t -> t.getAttribute("issuer") })
-                .map({ JwtIssuerValidator() })
-                .orElseThrow({ IllegalArgumentException("unknown tenant") })
-    }
-
-    init {
-        this.tenants = tenants
+        return if (tenants.findById(token.issuer) != null)
+            OAuth2TokenValidatorResult.success() else OAuth2TokenValidatorResult.failure(error)
     }
 }
 ----
 ======
-
 Now that we have a tenant-aware processor and a tenant-aware validator, we can proceed with creating our xref:servlet/oauth2/resource-server/jwt.adoc#oauth2resourceserver-jwt-architecture-jwtdecoder[`JwtDecoder`]:
 
 [tabs]
