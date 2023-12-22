@@ -29,12 +29,14 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.BeanMetadataElement;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.FactoryBean;
+import org.springframework.beans.factory.aot.BeanRegistrationExcludeFilter;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import org.springframework.beans.factory.support.ManagedList;
+import org.springframework.beans.factory.support.RegisteredBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
@@ -110,56 +112,79 @@ class WebMvcSecurityConfiguration implements WebMvcConfigurer, ApplicationContex
 		}
 	}
 
+	@Bean
+	static SpringSecurityHandlerMappingIntrospectorBeanDefinitionRegistryPostProcessor springSecurityHandlerMappingIntrospectorBeanDefinitionRegistryPostProcessor() {
+		return new SpringSecurityHandlerMappingIntrospectorBeanDefinitionRegistryPostProcessor();
+	}
+
 	/**
-	 * Used to ensure Spring MVC request matching is cached.
-	 *
-	 * Creates a {@link BeanDefinitionRegistryPostProcessor} that detects if a bean named
+	 * Used to ensure Spring MVC request matching is cached. Creates a
+	 * {@link BeanDefinitionRegistryPostProcessor} that detects if a bean named
 	 * HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME is defined. If so, it moves the
 	 * AbstractSecurityWebApplicationInitializer.DEFAULT_FILTER_NAME to another bean name
 	 * and then adds a {@link CompositeFilter} that contains
 	 * {@link HandlerMappingIntrospector#createCacheFilter()} and the original
 	 * FilterChainProxy under the original Bean name.
+	 *
 	 * @return
 	 */
-	@Bean
-	static BeanDefinitionRegistryPostProcessor springSecurityHandlerMappingIntrospectorBeanDefinitionRegistryPostProcessor() {
-		return new BeanDefinitionRegistryPostProcessor() {
-			@Override
-			public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
+	static class SpringSecurityHandlerMappingIntrospectorBeanDefinitionRegistryPostProcessor
+			implements BeanDefinitionRegistryPostProcessor {
+
+		@Override
+		public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
+			if (!registry.containsBeanDefinition(HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME)) {
+				return;
 			}
 
-			@Override
-			public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
-				if (!registry.containsBeanDefinition(HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME)) {
-					return;
-				}
+			BeanDefinition hmiRequestTransformer = BeanDefinitionBuilder
+				.rootBeanDefinition(HandlerMappingIntrospectorRequestTransformer.class)
+				.addConstructorArgReference(HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME)
+				.getBeanDefinition();
+			registry.registerBeanDefinition(HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME + "RequestTransformer",
+					hmiRequestTransformer);
 
-				BeanDefinition hmiRequestTransformer = BeanDefinitionBuilder
-					.rootBeanDefinition(HandlerMappingIntrospectorRequestTransformer.class)
-					.addConstructorArgReference(HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME)
-					.getBeanDefinition();
-				registry.registerBeanDefinition(HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME + "RequestTransformer",
-						hmiRequestTransformer);
+			BeanDefinition filterChainProxy = registry
+				.getBeanDefinition(AbstractSecurityWebApplicationInitializer.DEFAULT_FILTER_NAME);
 
-				BeanDefinition filterChainProxy = registry
-					.getBeanDefinition(AbstractSecurityWebApplicationInitializer.DEFAULT_FILTER_NAME);
+			BeanDefinitionBuilder hmiCacheFilterBldr = BeanDefinitionBuilder
+				.rootBeanDefinition(HandlerMappingIntrospectorCachFilterFactoryBean.class)
+				.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
 
-				BeanDefinitionBuilder hmiCacheFilterBldr = BeanDefinitionBuilder
-					.rootBeanDefinition(HandlerMappingIntrospectorCachFilterFactoryBean.class)
-					.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+			ManagedList<BeanMetadataElement> filters = new ManagedList<>();
+			filters.add(hmiCacheFilterBldr.getBeanDefinition());
+			filters.add(filterChainProxy);
+			BeanDefinitionBuilder compositeSpringSecurityFilterChainBldr = BeanDefinitionBuilder
+				.rootBeanDefinition(CompositeFilterChainProxy.class)
+				.addConstructorArgValue(filters);
 
-				ManagedList<BeanMetadataElement> filters = new ManagedList<>();
-				filters.add(hmiCacheFilterBldr.getBeanDefinition());
-				filters.add(filterChainProxy);
-				BeanDefinitionBuilder compositeSpringSecurityFilterChainBldr = BeanDefinitionBuilder
-					.rootBeanDefinition(CompositeFilterChainProxy.class)
-					.addConstructorArgValue(filters);
+			registry.removeBeanDefinition(AbstractSecurityWebApplicationInitializer.DEFAULT_FILTER_NAME);
+			registry.registerBeanDefinition(AbstractSecurityWebApplicationInitializer.DEFAULT_FILTER_NAME,
+					compositeSpringSecurityFilterChainBldr.getBeanDefinition());
+		}
 
-				registry.removeBeanDefinition(AbstractSecurityWebApplicationInitializer.DEFAULT_FILTER_NAME);
-				registry.registerBeanDefinition(AbstractSecurityWebApplicationInitializer.DEFAULT_FILTER_NAME,
-						compositeSpringSecurityFilterChainBldr.getBeanDefinition());
-			}
-		};
+		@Override
+		public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
+
+		}
+
+	}
+
+	/**
+	 * Used to exclude the
+	 * {@link SpringSecurityHandlerMappingIntrospectorBeanDefinitionRegistryPostProcessor}
+	 * from AOT processing. See <a href=
+	 * "https://github.com/spring-projects/spring-security/issues/14362">gh-14362</a>
+	 */
+	static class SpringSecurityHandlerMappingIntrospectorBeanRegistrationExcludeFilter
+			implements BeanRegistrationExcludeFilter {
+
+		@Override
+		public boolean isExcludedFromAotProcessing(RegisteredBean registeredBean) {
+			Class<?> beanClass = registeredBean.getBeanClass();
+			return SpringSecurityHandlerMappingIntrospectorBeanDefinitionRegistryPostProcessor.class == beanClass;
+		}
+
 	}
 
 	/**
