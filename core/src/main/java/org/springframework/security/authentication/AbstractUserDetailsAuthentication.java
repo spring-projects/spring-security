@@ -1,84 +1,62 @@
-/*
- * Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      https://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.springframework.security.authentication;
 
-import java.security.Principal;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-
-import org.springframework.security.core.AuthenticatedPrincipal;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.CredentialsContainer;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.TypedAuthentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.util.Assert;
 
+import java.util.Collection;
+import java.util.List;
+
 /**
- * Base class for <code>Authentication</code> objects.
+ * Base class for {@link TypedAuthentication} objects, where a {@link UserDetails} is the
+ * Principal.
  * <p>
  * Implementations which use this class should be immutable.
+ * <p>
+ * Based on {@link AbstractAuthenticationToken}.
  *
- * @author Ben Alex
- * @author Luke Taylor
+ * @param <C> The type the Credentials are bound to.
+ * @param <D> The type the Details are bound to.
  * @author Peter Eastham
  */
-public abstract class AbstractAuthenticationToken implements Authentication, CredentialsContainer {
+public abstract class AbstractUserDetailsAuthentication<C, D>
+		implements TypedAuthentication<C, D, UserDetails>, CredentialsContainer {
 
-	private final Collection<GrantedAuthority> authorities;
+	private final List<? extends GrantedAuthority> authorities;
 
-	private Object details;
+	private final UserDetails principal;
+
+	private D details;
 
 	private boolean authenticated = false;
 
 	/**
-	 * Creates a token with the supplied array of authorities.
-	 * @param authorities the collection of <tt>GrantedAuthority</tt>s for the principal
-	 * represented by this authentication object.
+	 * Creates a token based on a supplied <tt>UserDetails</tt> Object.
+	 *
+	 * @param principal a nonnull <tt>UserDetails</tt> for the principal.
+	 * @throws IllegalArgumentException if {@code principal.getAuthorities()} is null, or
+	 *                                  any Authorities in it are null.
 	 */
-	public AbstractAuthenticationToken(Collection<? extends GrantedAuthority> authorities) {
-		if (authorities == null) {
-			this.authorities = AuthorityUtils.NO_AUTHORITIES;
-			return;
-		}
-		for (GrantedAuthority a : authorities) {
+	public AbstractUserDetailsAuthentication(UserDetails principal) {
+		Assert.notNull(principal, "Principal Provided cannot be null");
+		Assert.notNull(principal.getAuthorities(), "Principal Authorities cannot be null");
+		for (GrantedAuthority a : principal.getAuthorities()) {
 			Assert.notNull(a, "Authorities collection cannot contain any null elements");
 		}
-		this.authorities = Collections.unmodifiableList(new ArrayList<>(authorities));
+		this.authorities = List.copyOf(principal.getAuthorities());
+		this.principal = principal;
 	}
 
 	@Override
-	public Collection<GrantedAuthority> getAuthorities() {
+	public Collection<? extends GrantedAuthority> getAuthorities() {
 		return this.authorities;
 	}
 
 	@Override
 	public String getName() {
-		if (this.getPrincipal() instanceof UserDetails userDetails) {
-			return userDetails.getUsername();
-		}
-		if (this.getPrincipal() instanceof AuthenticatedPrincipal authenticatedPrincipal) {
-			return authenticatedPrincipal.getName();
-		}
-		if (this.getPrincipal() instanceof Principal principal) {
-			return principal.getName();
-		}
-		return (this.getPrincipal() == null) ? "" : this.getPrincipal().toString();
+		return getPrincipal().getUsername();
 	}
 
 	@Override
@@ -92,12 +70,17 @@ public abstract class AbstractAuthenticationToken implements Authentication, Cre
 	}
 
 	@Override
-	public Object getDetails() {
+	public D getDetails() {
 		return this.details;
 	}
 
-	public void setDetails(Object details) {
+	public void setDetails(D details) {
 		this.details = details;
+	}
+
+	@Override
+	public UserDetails getPrincipal() {
+		return this.principal;
 	}
 
 	/**
@@ -108,22 +91,22 @@ public abstract class AbstractAuthenticationToken implements Authentication, Cre
 	@Override
 	public void eraseCredentials() {
 		eraseSecret(getCredentials());
-		eraseSecret(getPrincipal());
+		eraseSecret(this.principal);
 		eraseSecret(this.details);
 	}
 
 	private void eraseSecret(Object secret) {
-		if (secret instanceof CredentialsContainer container) {
-			container.eraseCredentials();
+		if (secret instanceof CredentialsContainer cc) {
+			cc.eraseCredentials();
 		}
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		if (!(obj instanceof AbstractAuthenticationToken test)) {
+		if (!(obj instanceof AbstractUserDetailsAuthentication<?, ?> test)) {
 			return false;
 		}
-		if (!this.authorities.equals(test.authorities)) {
+		if (!this.authorities.equals(test.getAuthorities())) {
 			return false;
 		}
 		if ((this.details == null) && (test.getDetails() != null)) {
@@ -179,7 +162,7 @@ public abstract class AbstractAuthenticationToken implements Authentication, Cre
 		sb.append("Credentials=[PROTECTED], ");
 		sb.append("Authenticated=").append(isAuthenticated()).append(", ");
 		sb.append("Details=").append(getDetails()).append(", ");
-		sb.append("Granted Authorities=").append(this.authorities);
+		sb.append("Granted Authorities=").append(this.authenticated);
 		sb.append("]");
 		return sb.toString();
 	}
