@@ -18,6 +18,7 @@ package org.springframework.security.test.aot.hint;
 
 import org.springframework.aot.hint.MemberCategory;
 import org.springframework.aot.hint.RuntimeHints;
+import org.springframework.aot.hint.TypeReference;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.context.SecurityContextHolderFilter;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
@@ -46,6 +47,10 @@ class WebTestUtilsTestRuntimeHints implements TestRuntimeHintsRegistrar {
 
 	private void registerFilterChainProxyHints(RuntimeHints hints) {
 		hints.reflection().registerType(FilterChainProxy.class, MemberCategory.INVOKE_DECLARED_METHODS);
+		hints.reflection()
+			.registerType(TypeReference
+				.of("org.springframework.security.config.annotation.web.configuration.WebMvcSecurityConfiguration$CompositeFilterChainProxy"),
+					MemberCategory.INVOKE_DECLARED_METHODS, MemberCategory.INVOKE_DECLARED_CONSTRUCTORS);
 	}
 
 	private void registerCsrfTokenRepositoryHints(RuntimeHints hints) {
