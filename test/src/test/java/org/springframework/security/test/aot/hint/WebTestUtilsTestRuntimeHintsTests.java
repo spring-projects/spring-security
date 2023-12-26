@@ -62,8 +62,7 @@ class WebTestUtilsTestRuntimeHintsTests {
 		assertThat(RuntimeHintsPredicates.reflection()
 			.onType(TypeReference
 				.of("org.springframework.security.config.annotation.web.configuration.WebMvcSecurityConfiguration$CompositeFilterChainProxy"))
-			.withMemberCategories(MemberCategory.INVOKE_DECLARED_METHODS, MemberCategory.INVOKE_DECLARED_CONSTRUCTORS))
-			.accepts(this.hints);
+			.withMemberCategory(MemberCategory.INVOKE_DECLARED_METHODS)).accepts(this.hints);
 	}
 
 	@Test

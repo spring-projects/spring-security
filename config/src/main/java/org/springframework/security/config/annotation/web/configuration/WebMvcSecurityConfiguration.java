@@ -135,30 +135,34 @@ class WebMvcSecurityConfiguration implements WebMvcConfigurer, ApplicationContex
 					return;
 				}
 
-				BeanDefinition hmiRequestTransformer = BeanDefinitionBuilder
-					.rootBeanDefinition(HandlerMappingIntrospectorRequestTransformer.class)
-					.addConstructorArgReference(HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME)
-					.getBeanDefinition();
-				registry.registerBeanDefinition(HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME + "RequestTransformer",
-						hmiRequestTransformer);
+				String hmiRequestTransformerBeanName = HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME + "RequestTransformer";
+				if (!registry.containsBeanDefinition(hmiRequestTransformerBeanName)) {
+					BeanDefinition hmiRequestTransformer = BeanDefinitionBuilder
+						.rootBeanDefinition(HandlerMappingIntrospectorRequestTransformer.class)
+						.addConstructorArgReference(HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME)
+						.getBeanDefinition();
+					registry.registerBeanDefinition(hmiRequestTransformerBeanName, hmiRequestTransformer);
+				}
 
 				BeanDefinition filterChainProxy = registry
 					.getBeanDefinition(AbstractSecurityWebApplicationInitializer.DEFAULT_FILTER_NAME);
 
-				BeanDefinitionBuilder hmiCacheFilterBldr = BeanDefinitionBuilder
-					.rootBeanDefinition(HandlerMappingIntrospectorCachFilterFactoryBean.class)
-					.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+				if (!filterChainProxy.getResolvableType().isInstance(CompositeFilterChainProxy.class)) {
+					BeanDefinitionBuilder hmiCacheFilterBldr = BeanDefinitionBuilder
+						.rootBeanDefinition(HandlerMappingIntrospectorCacheFilterFactoryBean.class)
+						.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
 
-				ManagedList<BeanMetadataElement> filters = new ManagedList<>();
-				filters.add(hmiCacheFilterBldr.getBeanDefinition());
-				filters.add(filterChainProxy);
-				BeanDefinitionBuilder compositeSpringSecurityFilterChainBldr = BeanDefinitionBuilder
-					.rootBeanDefinition(CompositeFilterChainProxy.class)
-					.addConstructorArgValue(filters);
+					ManagedList<BeanMetadataElement> filters = new ManagedList<>();
+					filters.add(hmiCacheFilterBldr.getBeanDefinition());
+					filters.add(filterChainProxy);
+					BeanDefinitionBuilder compositeSpringSecurityFilterChainBldr = BeanDefinitionBuilder
+						.rootBeanDefinition(CompositeFilterChainProxy.class)
+						.addConstructorArgValue(filters);
 
-				registry.removeBeanDefinition(AbstractSecurityWebApplicationInitializer.DEFAULT_FILTER_NAME);
-				registry.registerBeanDefinition(AbstractSecurityWebApplicationInitializer.DEFAULT_FILTER_NAME,
-						compositeSpringSecurityFilterChainBldr.getBeanDefinition());
+					registry.removeBeanDefinition(AbstractSecurityWebApplicationInitializer.DEFAULT_FILTER_NAME);
+					registry.registerBeanDefinition(AbstractSecurityWebApplicationInitializer.DEFAULT_FILTER_NAME,
+							compositeSpringSecurityFilterChainBldr.getBeanDefinition());
+				}
 			}
 		};
 	}
@@ -167,7 +171,7 @@ class WebMvcSecurityConfiguration implements WebMvcConfigurer, ApplicationContex
 	 * {@link FactoryBean} to defer creation of
 	 * {@link HandlerMappingIntrospector#createCacheFilter()}
 	 */
-	static class HandlerMappingIntrospectorCachFilterFactoryBean
+	static class HandlerMappingIntrospectorCacheFilterFactoryBean
 			implements ApplicationContextAware, FactoryBean<Filter> {
 
 		private ApplicationContext applicationContext;
