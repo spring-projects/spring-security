@@ -48,6 +48,7 @@ import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.HandlerMappingIntrospectorRequestTransformer;
 import org.springframework.security.web.context.AbstractSecurityWebApplicationInitializer;
+import org.springframework.security.web.debug.DebugFilter;
 import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.security.web.firewall.RequestRejectedHandler;
 import org.springframework.security.web.method.annotation.AuthenticationPrincipalArgumentResolver;
@@ -323,6 +324,9 @@ class WebMvcSecurityConfiguration implements WebMvcConfigurer, ApplicationContex
 				if (filter instanceof FilterChainProxy fcp) {
 					return fcp;
 				}
+				if (filter instanceof DebugFilter debugFilter ) {
+                    return debugFilter.getFilterChainProxy();
+                }
 			}
 			throw new IllegalStateException("Couldn't find FilterChainProxy in " + filters);
 		}
