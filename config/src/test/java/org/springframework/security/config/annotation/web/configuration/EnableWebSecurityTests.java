@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,6 +35,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -54,6 +55,12 @@ public class EnableWebSecurityTests {
 	public void loadConfigWhenChildConfigExtendsSecurityConfigThenSecurityConfigInherited() {
 		this.spring.register(ChildSecurityConfig.class).autowire();
 		this.spring.getContext().getBean("springSecurityFilterChain", DebugFilter.class);
+	}
+
+	// gh-14370
+	@Test
+	public void loadConfigWhenEnableWebMvcDebugConfigThenContextIsBuilt() {
+		assertThatNoException().isThrownBy(() -> this.spring.register(EnableWebMvcDebugConfig.class).autowire());
 	}
 
 	@Test
@@ -84,6 +91,13 @@ public class EnableWebSecurityTests {
 		Child childBean = this.spring.getContext().getBean(Child.class);
 		Parent parentBean = this.spring.getContext().getBean(Parent.class);
 		assertThat(parentBean.getChild()).isNotSameAs(childBean);
+	}
+
+	@Configuration
+	@EnableWebMvc
+	@EnableWebSecurity(debug = true)
+	static class EnableWebMvcDebugConfig {
+
 	}
 
 	@Configuration

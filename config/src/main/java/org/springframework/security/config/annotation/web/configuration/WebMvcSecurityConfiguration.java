@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,6 +48,7 @@ import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.HandlerMappingIntrospectorRequestTransformer;
 import org.springframework.security.web.context.AbstractSecurityWebApplicationInitializer;
+import org.springframework.security.web.debug.DebugFilter;
 import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.security.web.firewall.RequestRejectedHandler;
 import org.springframework.security.web.method.annotation.AuthenticationPrincipalArgumentResolver;
@@ -322,6 +323,9 @@ class WebMvcSecurityConfiguration implements WebMvcConfigurer, ApplicationContex
 			for (Filter filter : filters) {
 				if (filter instanceof FilterChainProxy fcp) {
 					return fcp;
+				}
+				if (filter instanceof DebugFilter debugFilter) {
+					return debugFilter.getFilterChainProxy();
 				}
 			}
 			throw new IllegalStateException("Couldn't find FilterChainProxy in " + filters);
