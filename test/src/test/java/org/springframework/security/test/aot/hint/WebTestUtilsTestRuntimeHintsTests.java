@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import org.junit.jupiter.api.Test;
 
 import org.springframework.aot.hint.MemberCategory;
 import org.springframework.aot.hint.RuntimeHints;
+import org.springframework.aot.hint.TypeReference;
 import org.springframework.aot.hint.predicate.RuntimeHintsPredicates;
 import org.springframework.core.io.support.SpringFactoriesLoader;
 import org.springframework.security.web.FilterChainProxy;
@@ -54,6 +55,15 @@ class WebTestUtilsTestRuntimeHintsTests {
 		assertThat(RuntimeHintsPredicates.reflection()
 			.onType(FilterChainProxy.class)
 			.withMemberCategories(MemberCategory.INVOKE_DECLARED_METHODS)).accepts(this.hints);
+	}
+
+	@Test
+	void compositeFilterChainProxyHasHints() {
+		assertThat(RuntimeHintsPredicates.reflection()
+			.onType(TypeReference
+				.of("org.springframework.security.config.annotation.web.configuration.WebMvcSecurityConfiguration$CompositeFilterChainProxy"))
+			.withMemberCategories(MemberCategory.INVOKE_DECLARED_METHODS, MemberCategory.INVOKE_DECLARED_CONSTRUCTORS))
+			.accepts(this.hints);
 	}
 
 	@Test
