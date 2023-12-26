@@ -394,11 +394,6 @@ fun readAccountWithWrongRoleThenAccessDenied() {
 
 While `@PreAuthorize` is quite helpful for declaring needed authorities, it can also be used to evaluate more complex <<using_method_parameters,expressions that involve the method parameters>>.
 
-The above two snippets are ensuring that the user can only request orders that belong to them by comparing the username parameter to xref:servlet/authentication/architecture.adoc#servlet-authentication-authentication[`Authentication#getName`].
-
-The result is that the above method will only be invoked if the `username` in the request path matches the logged-in user's `name`.
-If not, Spring Security will throw an `AccessDeniedException` and return a 403 status code.
-
 [[use-postauthorize]]
 === Authorization Method Results with `@PostAuthorize`
 
