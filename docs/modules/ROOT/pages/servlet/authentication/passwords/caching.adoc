@@ -1,0 +1,156 @@
+[[servlet-authentication-caching-user-details]]
+= Caching `UserDetails`
+
+Spring Security provides support for caching `UserDetails` with <<servlet-authentication-caching-user-details-service,`CachingUserDetailsService`>>.
+Alternatively, you can use Spring Framework's <<servlet-authentication-caching-user-details-cacheable,`@Cacheable`>> annotation.
+In either case, you will need to <<servlet-authentication-caching-user-details-credential-erasure,disable credential erasure>> in order to validate passwords retrieved from the cache.
+
+[[servlet-authentication-caching-user-details-service]]
+== `CachingUserDetailsService`
+
+Spring Security's `CachingUserDetailsService` implements xref:servlet/authentication/passwords/user-details-service.adoc#servlet-authentication-userdetailsservice[UserDetailsService] to provide support for caching `UserDetails`.
+`CachingUserDetailsService` provides caching support for `UserDetails` by delegating to the provided `UserDetailsService`.
+The result is then stored in a `UserCache` to reduce computation in subsequent calls.
+
+The following example simply defines a `@Bean` that encapsulates a concrete implementation of `UserDetailsService` and a `UserCache` for caching the `UserDetails`:
+
+.Provide a `CachingUserDetailsService` `@Bean`
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Bean
+public CachingUserDetailsService cachingUserDetailsService(UserCache userCache) {
+	UserDetailsService delegate = ...;
+    CachingUserDetailsService service = new CachingUserDetailsService(delegate);
+    service.setUserCache(userCache);
+    return service;
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun cachingUserDetailsService(userCache: UserCache): CachingUserDetailsService {
+    val delegate: UserDetailsService = ...
+    val service = CachingUserDetailsService(delegate)
+    service.userCache = userCache
+    return service
+}
+----
+======
+
+[[servlet-authentication-caching-user-details-cacheable]]
+== `@Cacheable`
+
+An alternative approach would be to use Spring Framework's {spring-framework-reference-url}integration.html#cache-annotations-cacheable[`@Cacheable`] in your `UserDetailsService` implementation to cache `UserDetails` by `username`.
+The benefit to this approach is simpler configuration, especially if you are already using caching elsewhere in your application.
+
+The following example assumes caching is already configured, and annotates the `loadUserByUsername` with `@Cacheable`:
+
+.`UserDetailsService` annotated with `@Cacheable`
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Service
+public class MyCustomUserDetailsImplementation implements UserDetailsService {
+
+    @Override
+    @Cacheable
+    public UserDetails loadUserByUsername(String username) {
+        // some logic here to get the actual user details
+        return userDetails;
+    }
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Service
+class MyCustomUserDetailsImplementation : UserDetailsService {
+
+    @Cacheable
+    override fun loadUserByUsername(username: String): UserDetails {
+        // some logic here to get the actual user details
+        return userDetails
+    }
+}
+----
+======
+
+[[servlet-authentication-caching-user-details-credential-erasure]]
+== Disable Credential Erasure
+
+Whether you use <<servlet-authentication-caching-user-details-service,`CachingUserDetailsService`>> or <<servlet-authentication-caching-user-details-cacheable,`@Cacheable`>>, you will need to disable xref:servlet/authentication/architecture.adoc#servlet-authentication-providermanager-erasing-credentials[credential erasure] so that the `UserDetails` will contain a `password` to be validated when retrieved from the cache.
+The following example disables credential erasure for the global `AuthenticationManager` by configuring the `AuthenticationManagerBuilder` provided by Spring Security:
+
+.Disable credential erasure for the global `AuthenticationManager`
+[tabs]
+=====
+Java::
++
+[source,java,role="primary"]
+----
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig {
+
+	@Bean
+	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+		// ...
+		return http.build();
+	}
+
+	@Bean
+	public UserDetailsService userDetailsService() {
+		// Return a UserDetailsService that caches users
+		// ...
+	}
+
+	@Autowired
+	public void configure(AuthenticationManagerBuilder builder) {
+		builder.eraseCredentials(false);
+	}
+
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+import org.springframework.security.config.annotation.web.invoke
+
+@Configuration
+@EnableWebSecurity
+class SecurityConfig {
+
+	@Bean
+	fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+		// ...
+		return http.build()
+	}
+
+	@Bean
+	fun userDetailsService(): UserDetailsService {
+		// Return a UserDetailsService that caches users
+		// ...
+	}
+
+	@Autowired
+	fun configure(builder: AuthenticationManagerBuilder) {
+		builder.eraseCredentials(false)
+	}
+
+}
+----
+=====

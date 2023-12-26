@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,51 +26,29 @@ import org.springframework.util.Assert;
  * Implementation of {@link UserDetailsService} that utilizes caching through a
  * {@link UserCache}
  * <p>
- * If a null {@link UserDetails} instance is got from calling
+ * If a null {@link UserDetails} instance is returned from
  * {@link UserCache#getUserFromCache(String)} to the {@link UserCache} got from
  * {@link #getUserCache()}, the user load is deferred to the {@link UserDetailsService}
- * provided during construction. Otherwise, the instance got from cache is returned.
+ * provided during construction. Otherwise, the instance retrieved from the cache is
+ * returned.
  * <p>
  * It is initialized with a {@link NullUserCache} by default, so it's strongly recommended
  * setting your own {@link UserCache} using {@link #setUserCache(UserCache)}, otherwise,
  * the delegate will be called every time.
  * <p>
- * Utilize this class by defining {@link org.springframework.context.annotation.Bean} that
- * encapsulates an actual implementation of {@link UserDetailsService} and set an
- * {@link UserCache}.
+ * Utilize this class by defining a {@link org.springframework.context.annotation.Bean}
+ * that encapsulates an actual implementation of {@link UserDetailsService} and providing
+ * a {@link UserCache} implementation.
  * </p>
- * For example: <pre>{@code
+ * For example: <pre>
  * &#64;Bean
- * public CachingUserDetailsService cachingUserDetailsService(UserDetailsService delegate,
- *                                                            UserCache userCache) {
+ * public CachingUserDetailsService cachingUserDetailsService(UserCache userCache) {
+ *     UserDetailsService delegate = ...;
  *     CachingUserDetailsService service = new CachingUserDetailsService(delegate);
  *     service.setUserCache(userCache);
  *     return service;
  * }
- * }</pre>
- *
- * <p>
- * However, a preferable approach would be to use
- * {@link org.springframework.cache.annotation.Cacheable} in your
- * {@link UserDetailsService#loadUserByUsername(String)} implementation to cache
- * {@link UserDetails} by <code>username</code>, reducing boilerplate and setup, specially
- * if you are already using cache in your application.
- * </p>
- *
- * For example:
- *
- * <pre>{@code
- * &#64;Service
- * public class MyCustomUserDetailsImplementation implements UserDetailsService {
-
- *     &#64;Override
- *     &#64;Cacheable
- *     public UserDetails loadUserByUsername(String username) {
- *         //some logic here to get the actual user details
- *         return userDetails;
- *     }
- * }
- * }</pre>
+ * </pre>
  *
  * @author Luke Taylor
  * @since 2.0
