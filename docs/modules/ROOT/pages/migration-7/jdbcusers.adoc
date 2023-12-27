@@ -1,0 +1,59 @@
+= JDBC-based user storage
+
+The existing JdbcUserDetailsManager has been extended to update the encoding of passwords during login
+if the existing password encoding can be improved. The new behaviour is located in
+JdbcUserPasswordDetailsManager because existing users might get into problems when the password is
+re-encoded if the password field is too short.
+
+There are no configuration changes necessary to the bean itself.
+
+==  Excending the size of the password field
+
+If the example supplied with spring security is used it is suggested that the size of the password
+field is doubled:
+
+....
+alter table users alter column credentials varchar_ignorecase(100);
+....
+
+If a database such as postgres is used, the following will accept any future encodings which require
+even  more space:
+
+....
+alter table users alter column credentials text;
+....
+
+== Configuring the new JdbcUserPasswordDetailsManager
+
+=== Existing DSL configuration
+
+Spring has historically had a DSL to configure spring security. To configure a `+JdbcUserDetailsManager+`
+one invoked the function `+AuthenticationManagerBuilder.jdbcAuthentication+`. If using this kind of
+configuration it is suggested to move to one of the following two configuration options instead. There
+is no DSL-based feature that allows configuration of the new `+JdbcUserPasswordDetailsManager+`.
+
+=== Bean-based configuration
+
+The new user details implementation is a drop-in replacement for the old implementation:
+
+....
+@Bean
+UserDetailsManager users(DataSource dataSource) {
+	return new JdbcUserPasswordDetailsManager(dataSource);
+}
+....
+
+Please refer to
+https://docs.spring.io/spring-security/reference/servlet/authentication/passwords/user-details-service.html[the spring security reference documentation]
+for more details.
+
+=== XML-based configuration
+
+Where the XML configuration format previously referred to a `+jdbc-user-service+` tag, there is now a new tag that will trigger
+creation of the new bean:
+
+....
+  <jdbc-user-password-service .../>
+....
+
+The configuration settings are the same as for the old bean.
