@@ -11,3 +11,7 @@ Below are the highlights of the release.
 == CAS
 
 - https://github.com/spring-projects/spring-security/pull/14193[gh-14193] - Added support for CAS Gateway Authentication
+
+== Crypto
+
+- https://github.com/spring-projects/spring-security/issues/14202[gh-14202] - Migrated spring-security-rsa into spring-security-crypto
