@@ -1123,6 +1123,29 @@ jdbc-user-service.attlist &=
 jdbc-user-service.attlist &=
 	role-prefix?
 
+jdbc-user-password-service =
+	## Causes creation of a JDBC-based UserPasswordDetailsService.
+	element jdbc-user-password-service {id? & jdbc-user-password-service.attlist}
+jdbc-user-password-service.attlist &=
+	## The bean ID of the DataSource which provides the required tables.
+	attribute data-source-ref {xsd:token}
+jdbc-user-password-service.attlist &=
+	cache-ref?
+jdbc-user-password-service.attlist &=
+	## An SQL statement to query a username, password, and enabled status given a username. Default is "select username,password,enabled from users where username = ?"
+	attribute users-by-username-query {xsd:token}?
+jdbc-user-password-service.attlist &=
+	## An SQL statement to query for a user's granted authorities given a username. The default is "select username, authority from authorities where username = ?"
+	attribute authorities-by-username-query {xsd:token}?
+jdbc-user-password-service.attlist &=
+	## An SQL statement to query user's group authorities given a username. The default is "select g.id, g.group_name, ga.authority from groups g, group_members gm, group_authorities ga where gm.username = ? and g.id = ga.group_id and g.id = gm.group_id"
+	attribute group-authorities-by-username-query {xsd:token}?
+jdbc-user-password-service.attlist &=
+	## An SQL statement to query user's group authorities given a username. The default is "select g.id, g.group_name, ga.authority from groups g, group_members gm, group_authorities ga where gm.username = ? and g.id = ga.group_id and g.id = gm.group_id"
+	attribute change-password-query {xsd:token}?
+jdbc-user-password-service.attlist &=
+	role-prefix?
+
 csrf =
 ## Element for configuration of the CsrfFilter for protection against CSRF. It also updates the default RequestCache to only replay "GET" requests.
 	element csrf {csrf-options.attlist}
@@ -1321,7 +1344,7 @@ header.attlist &=
 	## Reference to a custom HeaderWriter implementation.
 	ref?
 
-any-user-service = user-service | jdbc-user-service | ldap-user-service
+any-user-service = user-service | jdbc-user-service | jdbc-user-password-service | ldap-user-service
 
 custom-filter =
 	## Used to indicate that a filter bean declaration should be incorporated into the security filter chain.
