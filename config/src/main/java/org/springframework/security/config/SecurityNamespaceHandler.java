@@ -21,7 +21,6 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.security.config.authentication.*;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
@@ -31,6 +30,11 @@ import org.springframework.beans.factory.xml.BeanDefinitionDecorator;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.NamespaceHandler;
 import org.springframework.beans.factory.xml.ParserContext;
+import org.springframework.security.config.authentication.AuthenticationManagerBeanDefinitionParser;
+import org.springframework.security.config.authentication.AuthenticationProviderBeanDefinitionParser;
+import org.springframework.security.config.authentication.JdbcUserPasswordDetailsManagerBeanDefinitionParser;
+import org.springframework.security.config.authentication.JdbcUserServiceBeanDefinitionParser;
+import org.springframework.security.config.authentication.UserServiceBeanDefinitionParser;
 import org.springframework.security.config.http.FilterChainBeanDefinitionParser;
 import org.springframework.security.config.http.FilterChainMapBeanDefinitionDecorator;
 import org.springframework.security.config.http.FilterInvocationSecurityMetadataSourceParser;

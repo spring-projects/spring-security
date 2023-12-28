@@ -34,7 +34,6 @@ import org.springframework.security.config.annotation.authentication.ProviderMan
 import org.springframework.security.config.annotation.authentication.configurers.ldap.LdapAuthenticationProviderConfigurer;
 import org.springframework.security.config.annotation.authentication.configurers.provisioning.InMemoryUserDetailsManagerConfigurer;
 import org.springframework.security.config.annotation.authentication.configurers.provisioning.JdbcUserDetailsManagerConfigurer;
-import org.springframework.security.config.annotation.authentication.configurers.provisioning.JdbcUserPasswordDetailsManagerConfigurer;
 import org.springframework.security.config.annotation.authentication.configurers.userdetails.DaoAuthenticationConfigurer;
 import org.springframework.security.config.annotation.authentication.configurers.userdetails.UserDetailsAwareConfigurer;
 import org.springframework.security.core.Authentication;
@@ -150,14 +149,14 @@ public class AuthenticationManagerBuilder
 	 * {@link #getDefaultUserDetailsService()} method. Note that additional
 	 * {@link UserDetailsService}'s may override this {@link UserDetailsService} as the
 	 * default. See the <a href=
-	 * "https://docs.spring.io/spring-security/reference/servlet/appendix/database-schema.html"
+	 * "https://docs.spring.io/spring-security/site/docs/current/reference/htmlsingle/#user-schema"
 	 * >User Schema</a> section of the reference for the default schema.
 	 * </p>
 	 * @return a {@link JdbcUserDetailsManagerConfigurer} to allow customization of the
 	 * JDBC authentication
 	 * @throws Exception if an error occurs when adding the JDBC authentication
 	 * @deprecated Use jdbcAuthenticationWithPasswordManagement instead, as this keeps the password encoding up to
-	 * date over time. Please consult the migrationn documentation as database changes might be necessary.
+	 * date over time. Please consult the migration documentation for Spring 7 as database changes might be necessary.
 	 */
 	public JdbcUserDetailsManagerConfigurer<AuthenticationManagerBuilder> jdbcAuthentication() throws Exception {
 		return apply(new JdbcUserDetailsManagerConfigurer<>());

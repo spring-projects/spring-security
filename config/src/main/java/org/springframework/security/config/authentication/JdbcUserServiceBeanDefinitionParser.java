@@ -28,6 +28,7 @@ import org.springframework.util.StringUtils;
  * @deprecated Use {@link JdbcUserPasswordDetailsManagerBeanDefinitionParser} instead, as this will update password encodings
  * to more safe variants as users log in
  */
+@Deprecated(since = "For removal in 7.0. Use JdbcUserPasswordDetailsManagerBeanDefinitionParser instead, as this will update password encodings to more safe variants as users log in")
 public class JdbcUserServiceBeanDefinitionParser extends AbstractUserDetailsServiceBeanDefinitionParser {
 
 	static final String ATT_DATA_SOURCE = "data-source-ref";

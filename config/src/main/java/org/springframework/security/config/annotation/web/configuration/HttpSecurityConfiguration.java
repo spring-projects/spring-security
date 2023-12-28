@@ -196,11 +196,6 @@ class HttpSecurityConfiguration {
 		}
 
 		@Override
-		public JdbcUserPasswordDetailsManagerConfigurer<AuthenticationManagerBuilder> jdbcAuthenticationWithPasswordManagement() throws Exception {
-			return super.jdbcAuthenticationWithPasswordManagement().passwordEncoder(this.defaultPasswordEncoder);
-		}
-
-		@Override
 		public <T extends UserDetailsService> DaoAuthenticationConfigurer<AuthenticationManagerBuilder, T> userDetailsService(
 				T userDetailsService) throws Exception {
 			return super.userDetailsService(userDetailsService).passwordEncoder(this.defaultPasswordEncoder);

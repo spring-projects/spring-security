@@ -18,6 +18,8 @@ package org.springframework.security.config.authentication;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.w3c.dom.Element;
+
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.CachingUserDetailsService;
 import org.springframework.security.authentication.ProviderManager;
@@ -29,7 +31,6 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.provisioning.JdbcUserPasswordDetailsManager;
 import org.springframework.security.util.FieldUtils;
-import org.w3c.dom.Element;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -169,6 +170,7 @@ public class JdbcUserPasswordDetailsManagerBeanDefinitionParserTests {
 	}
 
 	private void setContext(String context) {
+		System.out.println("Context: "+ context);
 		this.appContext = new InMemoryXmlApplicationContext(context);
 	}
 

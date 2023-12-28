@@ -46,7 +46,7 @@ public class JdbcUserPasswordDetailsManagerBeanDefinitionParser extends Abstract
 		}
 		else {
 			parserContext.getReaderContext()
-					.error(ATT_DATA_SOURCE + " is required for " + Elements.JDBC_USER_SERVICE,
+					.error(ATT_DATA_SOURCE + " is required for " + Elements.JDBC_USER_PASSWORD_SERVICE,
 							parserContext.extractSource(element));
 		}
 		String usersQuery = element.getAttribute(ATT_USERS_BY_USERNAME_QUERY);
@@ -68,7 +68,7 @@ public class JdbcUserPasswordDetailsManagerBeanDefinitionParser extends Abstract
 			builder.addPropertyValue("groupAuthoritiesByUsernameQuery", groupAuthoritiesQuery);
 		}
 		if (StringUtils.hasText(changePasswordQuery)) {
-			builder.addPropertyValue("changePasswordQuery", changePasswordQuery);
+			builder.addPropertyValue("changePasswordSql", changePasswordQuery);
 		}
 	}
 

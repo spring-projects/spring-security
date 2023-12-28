@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -128,7 +128,7 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 
 	private String userExistsSql = DEF_USER_EXISTS_SQL;
 
-	public String changePasswordSql = DEF_CHANGE_PASSWORD_SQL;
+	private String changePasswordSql = DEF_CHANGE_PASSWORD_SQL;
 
 	private String findAllGroupsSql = DEF_FIND_GROUPS_SQL;
 
@@ -158,7 +158,7 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 
 	private AuthenticationManager authenticationManager;
 
-	protected UserCache userCache = new NullUserCache();
+	private UserCache userCache = new NullUserCache();
 
 	public JdbcUserDetailsManager() {
 	}
@@ -472,6 +472,11 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 		this.userExistsSql = userExistsSql;
 	}
 
+	public void setChangePasswordSql(String changePasswordSql) {
+		Assert.hasText(changePasswordSql, "changePasswordSql should have text");
+		this.changePasswordSql = changePasswordSql;
+	}
+
 	public void setFindAllGroupsSql(String findAllGroupsSql) {
 		Assert.hasText(findAllGroupsSql, "findAllGroupsSql should have text");
 		this.findAllGroupsSql = findAllGroupsSql;
@@ -561,18 +566,4 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 		}
 	}
 
-	public void setChangePasswordSql(String changePasswordSql) {
-		this.changePasswordSql = changePasswordSql;
-	}
-
-	public String getChangePasswordSql() {
-		return changePasswordSql;
-	}
-
-	public void setChangePasswordQuery(String changePasswordSql) {
-		this.changePasswordSql = changePasswordSql;
-	}
-	public String setChangePasswordQuery() {
-		return changePasswordSql;
-	}
 }
