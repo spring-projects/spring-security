@@ -47,7 +47,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.*;
-import static org.mockito.Mockito.*;
 
 /**
  * Tests for {@link JdbcUserPasswordDetailsManager}
@@ -88,13 +87,13 @@ public class JdbcUserPasswordDetailsManagerTests {
 		this.cache = new JdbcUserPasswordDetailsManagerTests.MockUserCache();
 		this.manager.setUserCache(this.cache);
 		this.manager.setDataSource(dataSource);
-		this.manager.setCreateUserSql(JdbcUserPasswordDetailsManager.DEF_CREATE_USER_SQL);
-		this.manager.setUpdateUserSql(JdbcUserPasswordDetailsManager.DEF_UPDATE_USER_SQL);
-		this.manager.setUserExistsSql(JdbcUserPasswordDetailsManager.DEF_USER_EXISTS_SQL);
-		this.manager.setCreateAuthoritySql(JdbcUserPasswordDetailsManager.DEF_INSERT_AUTHORITY_SQL);
-		this.manager.setDeleteUserAuthoritiesSql(JdbcUserPasswordDetailsManager.DEF_DELETE_USER_AUTHORITIES_SQL);
-		this.manager.setDeleteUserSql(JdbcUserPasswordDetailsManager.DEF_DELETE_USER_SQL);
-		this.manager.setChangePasswordSql(JdbcUserPasswordDetailsManager.DEF_CHANGE_PASSWORD_SQL);
+		this.manager.setCreateUserQuery(JdbcUserPasswordDetailsManager.DEF_CREATE_USER_QUERY);
+		this.manager.setUpdateUserQuery(JdbcUserPasswordDetailsManager.DEF_UPDATE_USER_QUERY);
+		this.manager.setUserExistsQuery(JdbcUserPasswordDetailsManager.DEF_USER_EXISTS_QUERY);
+		this.manager.setCreateAuthorityQuery(JdbcUserPasswordDetailsManager.DEF_INSERT_AUTHORITY_QUERY);
+		this.manager.setDeleteUserAuthoritiesQuery(JdbcUserPasswordDetailsManager.DEF_DELETE_USER_AUTHORITIES_QUERY);
+		this.manager.setDeleteUserQuery(JdbcUserPasswordDetailsManager.DEF_DELETE_USER_QUERY);
+		this.manager.setChangePasswordQuery(JdbcUserPasswordDetailsManager.DEF_CHANGE_PASSWORD_QUERY);
 		this.manager.initDao();
 		this.template = this.manager.getJdbcTemplate();
 		this.template.execute("create table users(username varchar(20) not null primary key,"
@@ -122,9 +121,9 @@ public class JdbcUserPasswordDetailsManagerTests {
 		this.template.execute("alter table users add column creds_expired boolean default false not null");
 		this.manager.setUsersByUsernameQuery(
 				"select username,password,enabled, acc_locked, acc_expired, creds_expired from users where username = ?");
-		this.manager.setCreateUserSql(
+		this.manager.setCreateUserQuery(
 				"insert into users (username, password, enabled, acc_locked, acc_expired, creds_expired) values (?,?,?,?,?,?)");
-		this.manager.setUpdateUserSql(
+		this.manager.setUpdateUserQuery(
 				"update users set password = ?, enabled = ?, acc_locked=?, acc_expired=?, creds_expired=? where username = ?");
 	}
 

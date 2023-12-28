@@ -113,7 +113,7 @@ public class JdbcUserPasswordDetailsManagerBeanDefinitionParserTests {
 		setContext("<jdbc-user-password-service id='myUserService' " + "data-source-ref='dataSource' "
 				+ "change-password-query='blah blah'/>" + DATA_SOURCE);
 		JdbcUserPasswordDetailsManager mgr = (JdbcUserPasswordDetailsManager) this.appContext.getBean("myUserService");
-		assertThat(FieldUtils.getFieldValue(mgr, "changePasswordSql")).isEqualTo("blah blah");
+		assertThat(FieldUtils.getFieldValue(mgr, "changePasswordQuery")).isEqualTo("blah blah");
 	}
 
 	@Test

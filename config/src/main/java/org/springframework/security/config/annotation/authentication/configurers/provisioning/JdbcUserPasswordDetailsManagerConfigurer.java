@@ -100,7 +100,7 @@ public final class JdbcUserPasswordDetailsManagerConfigurer<B extends ProviderMa
 	 * customizations
 	 */
 	public JdbcUserPasswordDetailsManagerConfigurer<B> changePasswordQuery(String query) {
-		getUserDetailsService().setChangePasswordSql(query);
+		getUserDetailsService().setChangePasswordQuery(query);
 		return this;
 	}
 

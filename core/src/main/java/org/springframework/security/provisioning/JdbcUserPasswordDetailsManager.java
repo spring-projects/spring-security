@@ -73,92 +73,92 @@ import org.springframework.util.Assert;
  */
 public class JdbcUserPasswordDetailsManager extends JdbcDaoImpl implements UserDetailsManager, GroupManager, UserDetailsPasswordService {
 
-	public static final String DEF_CREATE_USER_SQL = "insert into users (username, password, enabled) values (?,?,?)";
+	public static final String DEF_CREATE_USER_QUERY = "insert into users (username, password, enabled) values (?,?,?)";
 
-	public static final String DEF_DELETE_USER_SQL = "delete from users where username = ?";
+	public static final String DEF_DELETE_USER_QUERY = "delete from users where username = ?";
 
-	public static final String DEF_UPDATE_USER_SQL = "update users set password = ?, enabled = ? where username = ?";
+	public static final String DEF_UPDATE_USER_QUERY = "update users set password = ?, enabled = ? where username = ?";
 
-	public static final String DEF_INSERT_AUTHORITY_SQL = "insert into authorities (username, authority) values (?,?)";
+	public static final String DEF_INSERT_AUTHORITY_QUERY = "insert into authorities (username, authority) values (?,?)";
 
-	public static final String DEF_DELETE_USER_AUTHORITIES_SQL = "delete from authorities where username = ?";
+	public static final String DEF_DELETE_USER_AUTHORITIES_QUERY = "delete from authorities where username = ?";
 
-	public static final String DEF_USER_EXISTS_SQL = "select username from users where username = ?";
+	public static final String DEF_USER_EXISTS_QUERY = "select username from users where username = ?";
 
-	public static final String DEF_CHANGE_PASSWORD_SQL = "update users set password = ? where username = ?";
+	public static final String DEF_CHANGE_PASSWORD_QUERY = "update users set password = ? where username = ?";
 
-	public static final String DEF_FIND_GROUPS_SQL = "select group_name from groups";
+	public static final String DEF_FIND_GROUPS_QUERY = "select group_name from groups";
 
-	public static final String DEF_FIND_USERS_IN_GROUP_SQL = "select username from group_members gm, groups g "
+	public static final String DEF_FIND_USERS_IN_GROUP_QUERY = "select username from group_members gm, groups g "
 			+ "where gm.group_id = g.id and g.group_name = ?";
 
-	public static final String DEF_INSERT_GROUP_SQL = "insert into groups (group_name) values (?)";
+	public static final String DEF_INSERT_GROUP_QUERY = "insert into groups (group_name) values (?)";
 
-	public static final String DEF_FIND_GROUP_ID_SQL = "select id from groups where group_name = ?";
+	public static final String DEF_FIND_GROUP_ID_QUERY = "select id from groups where group_name = ?";
 
-	public static final String DEF_INSERT_GROUP_AUTHORITY_SQL = "insert into group_authorities (group_id, authority) values (?,?)";
+	public static final String DEF_INSERT_GROUP_AUTHORITY_QUERY = "insert into group_authorities (group_id, authority) values (?,?)";
 
-	public static final String DEF_DELETE_GROUP_SQL = "delete from groups where id = ?";
+	public static final String DEF_DELETE_GROUP_QUERY = "delete from groups where id = ?";
 
-	public static final String DEF_DELETE_GROUP_AUTHORITIES_SQL = "delete from group_authorities where group_id = ?";
+	public static final String DEF_DELETE_GROUP_AUTHORITIES_QUERY = "delete from group_authorities where group_id = ?";
 
-	public static final String DEF_DELETE_GROUP_MEMBERS_SQL = "delete from group_members where group_id = ?";
+	public static final String DEF_DELETE_GROUP_MEMBERS_QUERY = "delete from group_members where group_id = ?";
 
-	public static final String DEF_RENAME_GROUP_SQL = "update groups set group_name = ? where group_name = ?";
+	public static final String DEF_RENAME_GROUP_QUERY = "update groups set group_name = ? where group_name = ?";
 
-	public static final String DEF_INSERT_GROUP_MEMBER_SQL = "insert into group_members (group_id, username) values (?,?)";
+	public static final String DEF_INSERT_GROUP_MEMBER_QUERY = "insert into group_members (group_id, username) values (?,?)";
 
-	public static final String DEF_DELETE_GROUP_MEMBER_SQL = "delete from group_members where group_id = ? and username = ?";
+	public static final String DEF_DELETE_GROUP_MEMBER_QUERY = "delete from group_members where group_id = ? and username = ?";
 
-	public static final String DEF_GROUP_AUTHORITIES_QUERY_SQL = "select g.id, g.group_name, ga.authority "
+	public static final String DEF_GROUP_AUTHORITIES_QUERY_QUERY = "select g.id, g.group_name, ga.authority "
 			+ "from groups g, group_authorities ga " + "where g.group_name = ? " + "and g.id = ga.group_id ";
 
-	public static final String DEF_DELETE_GROUP_AUTHORITY_SQL = "delete from group_authorities where group_id = ? and authority = ?";
+	public static final String DEF_DELETE_GROUP_AUTHORITY_QUERY = "delete from group_authorities where group_id = ? and authority = ?";
 
 	protected final Log logger = LogFactory.getLog(getClass());
 
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
 			.getContextHolderStrategy();
 
-	private String createUserSql = DEF_CREATE_USER_SQL;
+	private String createUserQuery = DEF_CREATE_USER_QUERY;
 
-	private String deleteUserSql = DEF_DELETE_USER_SQL;
+	private String deleteUserQuery = DEF_DELETE_USER_QUERY;
 
-	private String updateUserSql = DEF_UPDATE_USER_SQL;
+	private String updateUserQuery = DEF_UPDATE_USER_QUERY;
 
-	private String createAuthoritySql = DEF_INSERT_AUTHORITY_SQL;
+	private String createAuthorityQuery = DEF_INSERT_AUTHORITY_QUERY;
 
-	private String deleteUserAuthoritiesSql = DEF_DELETE_USER_AUTHORITIES_SQL;
+	private String deleteUserAuthoritiesQuery = DEF_DELETE_USER_AUTHORITIES_QUERY;
 
-	private String userExistsSql = DEF_USER_EXISTS_SQL;
+	private String userExistsQuery = DEF_USER_EXISTS_QUERY;
 
-	private String changePasswordSql = DEF_CHANGE_PASSWORD_SQL;
+	private String changePasswordQuery = DEF_CHANGE_PASSWORD_QUERY;
 
-	private String findAllGroupsSql = DEF_FIND_GROUPS_SQL;
+	private String findAllGroupsQuery = DEF_FIND_GROUPS_QUERY;
 
-	private String findUsersInGroupSql = DEF_FIND_USERS_IN_GROUP_SQL;
+	private String findUsersInGroupQuery = DEF_FIND_USERS_IN_GROUP_QUERY;
 
-	private String insertGroupSql = DEF_INSERT_GROUP_SQL;
+	private String insertGroupQuery = DEF_INSERT_GROUP_QUERY;
 
-	private String findGroupIdSql = DEF_FIND_GROUP_ID_SQL;
+	private String findGroupIdQuery = DEF_FIND_GROUP_ID_QUERY;
 
-	private String insertGroupAuthoritySql = DEF_INSERT_GROUP_AUTHORITY_SQL;
+	private String insertGroupAuthorityQuery = DEF_INSERT_GROUP_AUTHORITY_QUERY;
 
-	private String deleteGroupSql = DEF_DELETE_GROUP_SQL;
+	private String deleteGroupQuery = DEF_DELETE_GROUP_QUERY;
 
-	private String deleteGroupAuthoritiesSql = DEF_DELETE_GROUP_AUTHORITIES_SQL;
+	private String deleteGroupAuthoritiesQuery = DEF_DELETE_GROUP_AUTHORITIES_QUERY;
 
-	private String deleteGroupMembersSql = DEF_DELETE_GROUP_MEMBERS_SQL;
+	private String deleteGroupMembersQuery = DEF_DELETE_GROUP_MEMBERS_QUERY;
 
-	private String renameGroupSql = DEF_RENAME_GROUP_SQL;
+	private String renameGroupQuery = DEF_RENAME_GROUP_QUERY;
 
-	private String insertGroupMemberSql = DEF_INSERT_GROUP_MEMBER_SQL;
+	private String insertGroupMemberQuery = DEF_INSERT_GROUP_MEMBER_QUERY;
 
-	private String deleteGroupMemberSql = DEF_DELETE_GROUP_MEMBER_SQL;
+	private String deleteGroupMemberQuery = DEF_DELETE_GROUP_MEMBER_QUERY;
 
-	private String groupAuthoritiesSql = DEF_GROUP_AUTHORITIES_QUERY_SQL;
+	private String groupAuthoritiesQuery = DEF_GROUP_AUTHORITIES_QUERY_QUERY;
 
-	private String deleteGroupAuthoritySql = DEF_DELETE_GROUP_AUTHORITY_SQL;
+	private String deleteGroupAuthorityQuery = DEF_DELETE_GROUP_AUTHORITY_QUERY;
 
 	private AuthenticationManager authenticationManager;
 
@@ -207,7 +207,7 @@ public class JdbcUserPasswordDetailsManager extends JdbcDaoImpl implements UserD
 
 	public void createUser(final UserDetails user) {
 		validateUserDetails(user);
-		getJdbcTemplate().update(this.createUserSql, (ps) -> {
+		getJdbcTemplate().update(this.createUserQuery, (ps) -> {
 			ps.setString(1, user.getUsername());
 			ps.setString(2, user.getPassword());
 			ps.setBoolean(3, user.isEnabled());
@@ -226,7 +226,7 @@ public class JdbcUserPasswordDetailsManager extends JdbcDaoImpl implements UserD
 
 	public void updateUser(final UserDetails user) {
 		validateUserDetails(user);
-		getJdbcTemplate().update(this.updateUserSql, (ps) -> {
+		getJdbcTemplate().update(this.updateUserQuery, (ps) -> {
 			ps.setString(1, user.getPassword());
 			ps.setBoolean(2, user.isEnabled());
 			int paramCount = ps.getParameterMetaData().getParameterCount();
@@ -250,7 +250,7 @@ public class JdbcUserPasswordDetailsManager extends JdbcDaoImpl implements UserD
 
 	private void insertUserAuthorities(UserDetails user) {
 		for (GrantedAuthority auth : user.getAuthorities()) {
-			getJdbcTemplate().update(this.createAuthoritySql, user.getUsername(), auth.getAuthority());
+			getJdbcTemplate().update(this.createAuthorityQuery, user.getUsername(), auth.getAuthority());
 		}
 	}
 
@@ -258,12 +258,12 @@ public class JdbcUserPasswordDetailsManager extends JdbcDaoImpl implements UserD
 		if (getEnableAuthorities()) {
 			deleteUserAuthorities(username);
 		}
-		getJdbcTemplate().update(this.deleteUserSql, username);
+		getJdbcTemplate().update(this.deleteUserQuery, username);
 		this.userCache.removeUserFromCache(username);
 	}
 
 	private void deleteUserAuthorities(String username) {
-		getJdbcTemplate().update(this.deleteUserAuthoritiesSql, username);
+		getJdbcTemplate().update(this.deleteUserAuthoritiesQuery, username);
 	}
 
 	public void changePassword(String oldPassword, String newPassword) throws AuthenticationException {
@@ -285,7 +285,7 @@ public class JdbcUserPasswordDetailsManager extends JdbcDaoImpl implements UserD
 			this.logger.debug("No authentication manager set. Password won't be re-checked.");
 		}
 		this.logger.debug("Changing password for user '" + username + "'");
-		getJdbcTemplate().update(this.changePasswordSql, newPassword, username);
+		getJdbcTemplate().update(this.changePasswordQuery, newPassword, username);
 		Authentication authentication = createNewAuthentication(currentUser, newPassword);
 		SecurityContext context = this.securityContextHolderStrategy.createEmptyContext();
 		context.setAuthentication(authentication);
@@ -303,7 +303,7 @@ public class JdbcUserPasswordDetailsManager extends JdbcDaoImpl implements UserD
 
 	@Override
 	public boolean userExists(String username) {
-		List<String> users = getJdbcTemplate().queryForList(this.userExistsSql, new String[] { username },
+		List<String> users = getJdbcTemplate().queryForList(this.userExistsQuery, new String[] { username },
 				String.class);
 		if (users.size() > 1) {
 			throw new IncorrectResultSizeDataAccessException("More than one user found with name '" + username + "'",
@@ -314,13 +314,13 @@ public class JdbcUserPasswordDetailsManager extends JdbcDaoImpl implements UserD
 
 	@Override
 	public List<String> findAllGroups() {
-		return getJdbcTemplate().queryForList(this.findAllGroupsSql, String.class);
+		return getJdbcTemplate().queryForList(this.findAllGroupsQuery, String.class);
 	}
 
 	@Override
 	public List<String> findUsersInGroup(String groupName) {
 		Assert.hasText(groupName, "groupName should have text");
-		return getJdbcTemplate().queryForList(this.findUsersInGroupSql, new String[] { groupName }, String.class);
+		return getJdbcTemplate().queryForList(this.findUsersInGroupQuery, new String[] { groupName }, String.class);
 	}
 
 	@Override
@@ -329,11 +329,11 @@ public class JdbcUserPasswordDetailsManager extends JdbcDaoImpl implements UserD
 		Assert.notNull(authorities, "authorities cannot be null");
 		this.logger.debug("Creating new group '" + groupName + "' with authorities "
 				+ AuthorityUtils.authorityListToSet(authorities));
-		getJdbcTemplate().update(this.insertGroupSql, groupName);
+		getJdbcTemplate().update(this.insertGroupQuery, groupName);
 		int groupId = findGroupId(groupName);
 		for (GrantedAuthority a : authorities) {
 			String authority = a.getAuthority();
-			getJdbcTemplate().update(this.insertGroupAuthoritySql, (ps) -> {
+			getJdbcTemplate().update(this.insertGroupAuthorityQuery, (ps) -> {
 				ps.setInt(1, groupId);
 				ps.setString(2, authority);
 			});
@@ -346,9 +346,9 @@ public class JdbcUserPasswordDetailsManager extends JdbcDaoImpl implements UserD
 		Assert.hasText(groupName, "groupName should have text");
 		int id = findGroupId(groupName);
 		PreparedStatementSetter groupIdPSS = (ps) -> ps.setInt(1, id);
-		getJdbcTemplate().update(this.deleteGroupMembersSql, groupIdPSS);
-		getJdbcTemplate().update(this.deleteGroupAuthoritiesSql, groupIdPSS);
-		getJdbcTemplate().update(this.deleteGroupSql, groupIdPSS);
+		getJdbcTemplate().update(this.deleteGroupMembersQuery, groupIdPSS);
+		getJdbcTemplate().update(this.deleteGroupAuthoritiesQuery, groupIdPSS);
+		getJdbcTemplate().update(this.deleteGroupQuery, groupIdPSS);
 	}
 
 	@Override
@@ -356,7 +356,7 @@ public class JdbcUserPasswordDetailsManager extends JdbcDaoImpl implements UserD
 		this.logger.debug("Changing group name from '" + oldName + "' to '" + newName + "'");
 		Assert.hasText(oldName, "oldName should have text");
 		Assert.hasText(newName, "newName should have text");
-		getJdbcTemplate().update(this.renameGroupSql, newName, oldName);
+		getJdbcTemplate().update(this.renameGroupQuery, newName, oldName);
 	}
 
 	@Override
@@ -365,7 +365,7 @@ public class JdbcUserPasswordDetailsManager extends JdbcDaoImpl implements UserD
 		Assert.hasText(username, "username should have text");
 		Assert.hasText(groupName, "groupName should have text");
 		int id = findGroupId(groupName);
-		getJdbcTemplate().update(this.insertGroupMemberSql, (ps) -> {
+		getJdbcTemplate().update(this.insertGroupMemberQuery, (ps) -> {
 			ps.setInt(1, id);
 			ps.setString(2, username);
 		});
@@ -378,7 +378,7 @@ public class JdbcUserPasswordDetailsManager extends JdbcDaoImpl implements UserD
 		Assert.hasText(username, "username should have text");
 		Assert.hasText(groupName, "groupName should have text");
 		int id = findGroupId(groupName);
-		getJdbcTemplate().update(this.deleteGroupMemberSql, (ps) -> {
+		getJdbcTemplate().update(this.deleteGroupMemberQuery, (ps) -> {
 			ps.setInt(1, id);
 			ps.setString(2, username);
 		});
@@ -389,7 +389,7 @@ public class JdbcUserPasswordDetailsManager extends JdbcDaoImpl implements UserD
 	public List<GrantedAuthority> findGroupAuthorities(String groupName) {
 		this.logger.debug("Loading authorities for group '" + groupName + "'");
 		Assert.hasText(groupName, "groupName should have text");
-		return getJdbcTemplate().query(this.groupAuthoritiesSql, new String[] { groupName },
+		return getJdbcTemplate().query(this.groupAuthoritiesQuery, new String[] { groupName },
 				this::mapToGrantedAuthority);
 	}
 
@@ -404,7 +404,7 @@ public class JdbcUserPasswordDetailsManager extends JdbcDaoImpl implements UserD
 		Assert.hasText(groupName, "groupName should have text");
 		Assert.notNull(authority, "authority cannot be null");
 		int id = findGroupId(groupName);
-		getJdbcTemplate().update(this.deleteGroupAuthoritySql, (ps) -> {
+		getJdbcTemplate().update(this.deleteGroupAuthorityQuery, (ps) -> {
 			ps.setInt(1, id);
 			ps.setString(2, authority.getAuthority());
 		});
@@ -416,14 +416,14 @@ public class JdbcUserPasswordDetailsManager extends JdbcDaoImpl implements UserD
 		Assert.hasText(groupName, "groupName should have text");
 		Assert.notNull(authority, "authority cannot be null");
 		int id = findGroupId(groupName);
-		getJdbcTemplate().update(this.insertGroupAuthoritySql, (ps) -> {
+		getJdbcTemplate().update(this.insertGroupAuthorityQuery, (ps) -> {
 			ps.setInt(1, id);
 			ps.setString(2, authority.getAuthority());
 		});
 	}
 
 	private int findGroupId(String group) {
-		return getJdbcTemplate().queryForObject(this.findGroupIdSql, Integer.class, group);
+		return getJdbcTemplate().queryForObject(this.findGroupIdQuery, Integer.class, group);
 	}
 
 	/**
@@ -441,104 +441,104 @@ public class JdbcUserPasswordDetailsManager extends JdbcDaoImpl implements UserD
 		this.authenticationManager = authenticationManager;
 	}
 
-	public void setCreateUserSql(String createUserSql) {
-		Assert.hasText(createUserSql, "createUserSql should have text");
-		this.createUserSql = createUserSql;
+	public void setCreateUserQuery(String createUserQuery) {
+		Assert.hasText(createUserQuery, "createUserQuery should have text");
+		this.createUserQuery = createUserQuery;
 	}
 
-	public void setDeleteUserSql(String deleteUserSql) {
-		Assert.hasText(deleteUserSql, "deleteUserSql should have text");
-		this.deleteUserSql = deleteUserSql;
+	public void setDeleteUserQuery(String deleteUserQuery) {
+		Assert.hasText(deleteUserQuery, "deleteUserQuery should have text");
+		this.deleteUserQuery = deleteUserQuery;
 	}
 
-	public void setUpdateUserSql(String updateUserSql) {
-		Assert.hasText(updateUserSql, "updateUserSql should have text");
-		this.updateUserSql = updateUserSql;
+	public void setUpdateUserQuery(String updateUserQuery) {
+		Assert.hasText(updateUserQuery, "updateUserQuery should have text");
+		this.updateUserQuery = updateUserQuery;
 	}
 
-	public void setCreateAuthoritySql(String createAuthoritySql) {
-		Assert.hasText(createAuthoritySql, "createAuthoritySql should have text");
-		this.createAuthoritySql = createAuthoritySql;
+	public void setCreateAuthorityQuery(String createAuthorityQuery) {
+		Assert.hasText(createAuthorityQuery, "createAuthorityQuery should have text");
+		this.createAuthorityQuery = createAuthorityQuery;
 	}
 
-	public void setDeleteUserAuthoritiesSql(String deleteUserAuthoritiesSql) {
-		Assert.hasText(deleteUserAuthoritiesSql, "deleteUserAuthoritiesSql should have text");
-		this.deleteUserAuthoritiesSql = deleteUserAuthoritiesSql;
+	public void setDeleteUserAuthoritiesQuery(String deleteUserAuthoritiesQuery) {
+		Assert.hasText(deleteUserAuthoritiesQuery, "deleteUserAuthoritiesQuery should have text");
+		this.deleteUserAuthoritiesQuery = deleteUserAuthoritiesQuery;
 	}
 
-	public void setUserExistsSql(String userExistsSql) {
-		Assert.hasText(userExistsSql, "userExistsSql should have text");
-		this.userExistsSql = userExistsSql;
+	public void setUserExistsQuery(String userExistsQuery) {
+		Assert.hasText(userExistsQuery, "userExistsQuery should have text");
+		this.userExistsQuery = userExistsQuery;
 	}
 
-	public void setChangePasswordSql(String changePasswordSql) {
-		Assert.hasText(changePasswordSql, "changePasswordSql should have text");
-		this.changePasswordSql = changePasswordSql;
+	public void setChangePasswordQuery(String changePasswordQuery) {
+		Assert.hasText(changePasswordQuery, "changePasswordQuery should have text");
+		this.changePasswordQuery = changePasswordQuery;
 	}
 
-	public void setFindAllGroupsSql(String findAllGroupsSql) {
-		Assert.hasText(findAllGroupsSql, "findAllGroupsSql should have text");
-		this.findAllGroupsSql = findAllGroupsSql;
+	public void setFindAllGroupsQuery(String findAllGroupsQuery) {
+		Assert.hasText(findAllGroupsQuery, "findAllGroupsQuery should have text");
+		this.findAllGroupsQuery = findAllGroupsQuery;
 	}
 
-	public void setFindUsersInGroupSql(String findUsersInGroupSql) {
-		Assert.hasText(findUsersInGroupSql, "findUsersInGroupSql should have text");
-		this.findUsersInGroupSql = findUsersInGroupSql;
+	public void setFindUsersInGroupQuery(String findUsersInGroupQuery) {
+		Assert.hasText(findUsersInGroupQuery, "findUsersInGroupQuery should have text");
+		this.findUsersInGroupQuery = findUsersInGroupQuery;
 	}
 
-	public void setInsertGroupSql(String insertGroupSql) {
-		Assert.hasText(insertGroupSql, "insertGroupSql should have text");
-		this.insertGroupSql = insertGroupSql;
+	public void setInsertGroupQuery(String insertGroupQuery) {
+		Assert.hasText(insertGroupQuery, "insertGroupQuery should have text");
+		this.insertGroupQuery = insertGroupQuery;
 	}
 
-	public void setFindGroupIdSql(String findGroupIdSql) {
-		Assert.hasText(findGroupIdSql, "findGroupIdSql should have text");
-		this.findGroupIdSql = findGroupIdSql;
+	public void setFindGroupIdQuery(String findGroupIdQuery) {
+		Assert.hasText(findGroupIdQuery, "findGroupIdQuery should have text");
+		this.findGroupIdQuery = findGroupIdQuery;
 	}
 
-	public void setInsertGroupAuthoritySql(String insertGroupAuthoritySql) {
-		Assert.hasText(insertGroupAuthoritySql, "insertGroupAuthoritySql should have text");
-		this.insertGroupAuthoritySql = insertGroupAuthoritySql;
+	public void setInsertGroupAuthorityQuery(String insertGroupAuthorityQuery) {
+		Assert.hasText(insertGroupAuthorityQuery, "insertGroupAuthorityQuery should have text");
+		this.insertGroupAuthorityQuery = insertGroupAuthorityQuery;
 	}
 
-	public void setDeleteGroupSql(String deleteGroupSql) {
-		Assert.hasText(deleteGroupSql, "deleteGroupSql should have text");
-		this.deleteGroupSql = deleteGroupSql;
+	public void setDeleteGroupQuery(String deleteGroupQuery) {
+		Assert.hasText(deleteGroupQuery, "deleteGroupQuery should have text");
+		this.deleteGroupQuery = deleteGroupQuery;
 	}
 
-	public void setDeleteGroupAuthoritiesSql(String deleteGroupAuthoritiesSql) {
-		Assert.hasText(deleteGroupAuthoritiesSql, "deleteGroupAuthoritiesSql should have text");
-		this.deleteGroupAuthoritiesSql = deleteGroupAuthoritiesSql;
+	public void setDeleteGroupAuthoritiesQuery(String deleteGroupAuthoritiesQuery) {
+		Assert.hasText(deleteGroupAuthoritiesQuery, "deleteGroupAuthoritiesQuery should have text");
+		this.deleteGroupAuthoritiesQuery = deleteGroupAuthoritiesQuery;
 	}
 
-	public void setDeleteGroupMembersSql(String deleteGroupMembersSql) {
-		Assert.hasText(deleteGroupMembersSql, "deleteGroupMembersSql should have text");
-		this.deleteGroupMembersSql = deleteGroupMembersSql;
+	public void setDeleteGroupMembersQuery(String deleteGroupMembersQuery) {
+		Assert.hasText(deleteGroupMembersQuery, "deleteGroupMembersQuery should have text");
+		this.deleteGroupMembersQuery = deleteGroupMembersQuery;
 	}
 
-	public void setRenameGroupSql(String renameGroupSql) {
-		Assert.hasText(renameGroupSql, "renameGroupSql should have text");
-		this.renameGroupSql = renameGroupSql;
+	public void setRenameGroupQuery(String renameGroupQuery) {
+		Assert.hasText(renameGroupQuery, "renameGroupQuery should have text");
+		this.renameGroupQuery = renameGroupQuery;
 	}
 
-	public void setInsertGroupMemberSql(String insertGroupMemberSql) {
-		Assert.hasText(insertGroupMemberSql, "insertGroupMemberSql should have text");
-		this.insertGroupMemberSql = insertGroupMemberSql;
+	public void setInsertGroupMemberQuery(String insertGroupMemberQuery) {
+		Assert.hasText(insertGroupMemberQuery, "insertGroupMemberQuery should have text");
+		this.insertGroupMemberQuery = insertGroupMemberQuery;
 	}
 
-	public void setDeleteGroupMemberSql(String deleteGroupMemberSql) {
-		Assert.hasText(deleteGroupMemberSql, "deleteGroupMemberSql should have text");
-		this.deleteGroupMemberSql = deleteGroupMemberSql;
+	public void setDeleteGroupMemberQuery(String deleteGroupMemberQuery) {
+		Assert.hasText(deleteGroupMemberQuery, "deleteGroupMemberQuery should have text");
+		this.deleteGroupMemberQuery = deleteGroupMemberQuery;
 	}
 
-	public void setGroupAuthoritiesSql(String groupAuthoritiesSql) {
-		Assert.hasText(groupAuthoritiesSql, "groupAuthoritiesSql should have text");
-		this.groupAuthoritiesSql = groupAuthoritiesSql;
+	public void setGroupAuthoritiesQuery(String groupAuthoritiesQuery) {
+		Assert.hasText(groupAuthoritiesQuery, "groupAuthoritiesQuery should have text");
+		this.groupAuthoritiesQuery = groupAuthoritiesQuery;
 	}
 
-	public void setDeleteGroupAuthoritySql(String deleteGroupAuthoritySql) {
-		Assert.hasText(deleteGroupAuthoritySql, "deleteGroupAuthoritySql should have text");
-		this.deleteGroupAuthoritySql = deleteGroupAuthoritySql;
+	public void setDeleteGroupAuthorityQuery(String deleteGroupAuthorityQuery) {
+		Assert.hasText(deleteGroupAuthorityQuery, "deleteGroupAuthorityQuery should have text");
+		this.deleteGroupAuthorityQuery = deleteGroupAuthorityQuery;
 	}
 
 	/**
@@ -568,7 +568,7 @@ public class JdbcUserPasswordDetailsManager extends JdbcDaoImpl implements UserD
 	@Override
 	public UserDetails updatePassword(UserDetails user, String newPassword) {
 		this.logger.debug("Updating password for user '" + user.getUsername() + "'");
-		getJdbcTemplate().update(this.changePasswordSql, newPassword, user.getUsername());
+		getJdbcTemplate().update(this.changePasswordQuery, newPassword, user.getUsername());
 		this.userCache.removeUserFromCache(user.getUsername());
 		return User.withUserDetails(user).password(newPassword).build();
 	}

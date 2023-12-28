@@ -68,7 +68,7 @@ public final class JdbcUserPasswordDetailsManagerBeanDefinitionParser extends Ab
 			builder.addPropertyValue("groupAuthoritiesByUsernameQuery", groupAuthoritiesQuery);
 		}
 		if (StringUtils.hasText(changePasswordQuery)) {
-			builder.addPropertyValue("changePasswordSql", changePasswordQuery);
+			builder.addPropertyValue("changePasswordQuery", changePasswordQuery);
 		}
 	}
 

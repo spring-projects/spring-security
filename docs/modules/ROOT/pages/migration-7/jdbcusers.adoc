@@ -34,7 +34,7 @@ is no DSL-based feature that allows configuration of the new `+JdbcUserPasswordD
 
 === Bean-based configuration
 
-The new user details implementation is a drop-in replacement for the old implementation:
+The new user details implementation is mostly a drop-in replacement for the old implementation:
 
 ....
 @Bean
@@ -43,7 +43,10 @@ UserDetailsManager users(DataSource dataSource) {
 }
 ....
 
-There is an additional configuration parameter available for changing the password of a user. This query
+All properties that were previously named `+*Sql+` has been renamed to be `+*Query+` to align with the
+XSD namespace.
+
+There is an additional configuration parameter `+changePasswordQuery+` available for changing the password of a user. This query
 is necessary for the new behaviour of the user details implementation.
 
 Please refer to
