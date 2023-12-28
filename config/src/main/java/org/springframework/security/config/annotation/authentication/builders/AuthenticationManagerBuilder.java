@@ -155,9 +155,10 @@ public class AuthenticationManagerBuilder
 	 * @return a {@link JdbcUserDetailsManagerConfigurer} to allow customization of the
 	 * JDBC authentication
 	 * @throws Exception if an error occurs when adding the JDBC authentication
-	 * @deprecated Use jdbcAuthenticationWithPasswordManagement instead, as this keeps the password encoding up to
-	 * date over time. Please consult the migration documentation for Spring 7 as database changes might be necessary.
+	 * @deprecated JdbcUserDetailsManager has been superseded by JdbcUserPasswordDetailsManager, and does not
+	 * support DSL configuration. Please declare a bean instead.
 	 */
+	@Deprecated(since = "For removal in 7.0.")
 	public JdbcUserDetailsManagerConfigurer<AuthenticationManagerBuilder> jdbcAuthentication() throws Exception {
 		return apply(new JdbcUserDetailsManagerConfigurer<>());
 	}

@@ -44,9 +44,9 @@ import org.springframework.security.provisioning.JdbcUserPasswordDetailsManager;
  * @param <B> the type of the {@link ProviderManagerBuilder} that is being configured
  * @author Rob Winch
  * @author Geir Hedemark
- * @since TBD
+ * @since 6.3
  */
-public class JdbcUserPasswordDetailsManagerConfigurer<B extends ProviderManagerBuilder<B>>
+public final class JdbcUserPasswordDetailsManagerConfigurer<B extends ProviderManagerBuilder<B>>
 		extends UserDetailsManagerConfigurer<B, JdbcUserPasswordDetailsManagerConfigurer<B>> {
 
 	private DataSource dataSource;
@@ -137,7 +137,7 @@ public class JdbcUserPasswordDetailsManagerConfigurer<B extends ProviderManagerB
 	 * @return The {@link JdbcUserPasswordDetailsManagerConfigurer} used for additional
 	 * customizations
 	 */
-	public JdbcUserPasswordDetailsManagerConfigurer<B> groupAuthoritiesByUsername(String query) {
+public JdbcUserPasswordDetailsManagerConfigurer<B> groupAuthoritiesByUsernameQuery(String query) {
 		JdbcUserPasswordDetailsManager userDetailsService = getUserDetailsService();
 		userDetailsService.setEnableGroups(true);
 		userDetailsService.setGroupAuthoritiesByUsernameQuery(query);

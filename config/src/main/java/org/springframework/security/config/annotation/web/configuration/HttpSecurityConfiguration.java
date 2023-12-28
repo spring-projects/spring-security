@@ -190,7 +190,7 @@ class HttpSecurityConfiguration {
 		 * Please consult the migration documentation as database changes might be necessary.
 		 */
 		@Override
-		@Deprecated
+		@Deprecated(since = "For removal in 7.0.")
 		public JdbcUserDetailsManagerConfigurer<AuthenticationManagerBuilder> jdbcAuthentication() throws Exception {
 			return super.jdbcAuthentication().passwordEncoder(this.defaultPasswordEncoder);
 		}

@@ -3211,9 +3211,8 @@
       </xs:attribute>
       <xs:attribute name="change-password-query" type="xs:token">
          <xs:annotation>
-            <xs:documentation>An SQL statement to query user's group authorities given a username. The default is
-                "select g.id, g.group_name, ga.authority from groups g, group_members gm,
-                group_authorities ga where gm.username = ? and g.id = ga.group_id and g.id = gm.group_id"
+            <xs:documentation>An SQL statement to update a users' password given a username. The default is "update
+                users set password = ? where username = ?"
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>

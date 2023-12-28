@@ -65,8 +65,11 @@ import org.springframework.util.Assert;
  * which the individual is a member, it's important that you take this into account when
  * using this implementation for managing your users.
  *
+ * This class is an evolution of the previous JdbcUserDetailsManager, which was part of spring security since version 2.0
+ *
+ * @author Luke Taylor
  * @author Geir Hedemark
- * @since TBD
+ * @since 6.3
  */
 public class JdbcUserPasswordDetailsManager extends JdbcDaoImpl implements UserDetailsManager, GroupManager, UserDetailsPasswordService {
 

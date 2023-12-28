@@ -1141,7 +1141,7 @@ jdbc-user-password-service.attlist &=
 	## An SQL statement to query user's group authorities given a username. The default is "select g.id, g.group_name, ga.authority from groups g, group_members gm, group_authorities ga where gm.username = ? and g.id = ga.group_id and g.id = gm.group_id"
 	attribute group-authorities-by-username-query {xsd:token}?
 jdbc-user-password-service.attlist &=
-	## An SQL statement to query user's group authorities given a username. The default is "select g.id, g.group_name, ga.authority from groups g, group_members gm, group_authorities ga where gm.username = ? and g.id = ga.group_id and g.id = gm.group_id"
+	## An SQL statement to update a users' password given a username. The default is "update users set password = ? where username = ?"
 	attribute change-password-query {xsd:token}?
 jdbc-user-password-service.attlist &=
 	role-prefix?

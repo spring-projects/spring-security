@@ -44,7 +44,7 @@ import org.springframework.security.provisioning.JdbcUserDetailsManager;
  * @author Rob Winch
  * @since 3.2
  */
-public final class JdbcUserDetailsManagerConfigurer<B extends ProviderManagerBuilder<B>>
+public class JdbcUserDetailsManagerConfigurer<B extends ProviderManagerBuilder<B>>
 		extends UserDetailsManagerConfigurer<B, JdbcUserDetailsManagerConfigurer<B>> {
 
 	private DataSource dataSource;
@@ -120,7 +120,7 @@ public final class JdbcUserDetailsManagerConfigurer<B extends ProviderManagerBui
 	 * @return The {@link JdbcUserDetailsManagerConfigurer} used for additional
 	 * customizations
 	 */
-	public JdbcUserDetailsManagerConfigurer<B> groupAuthoritiesByUsernameQuery(String query) {
+	public JdbcUserDetailsManagerConfigurer<B> groupAuthoritiesByUsername(String query) {
 		JdbcUserDetailsManager userDetailsService = getUserDetailsService();
 		userDetailsService.setEnableGroups(true);
 		userDetailsService.setGroupAuthoritiesByUsernameQuery(query);

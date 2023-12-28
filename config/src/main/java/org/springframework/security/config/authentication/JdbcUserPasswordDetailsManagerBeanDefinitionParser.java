@@ -25,7 +25,7 @@ import org.w3c.dom.Element;
  * @author Luke Taylor
  * @author Geir Hedemark
  */
-public class JdbcUserPasswordDetailsManagerBeanDefinitionParser extends AbstractUserDetailsServiceBeanDefinitionParser {
+public final class JdbcUserPasswordDetailsManagerBeanDefinitionParser extends AbstractUserDetailsServiceBeanDefinitionParser {
 	static final String ATT_DATA_SOURCE = "data-source-ref";
 	static final String ATT_USERS_BY_USERNAME_QUERY = "users-by-username-query";
 	static final String ATT_AUTHORITIES_BY_USERNAME_QUERY = "authorities-by-username-query";

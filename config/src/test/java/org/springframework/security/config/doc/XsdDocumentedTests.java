@@ -150,9 +150,10 @@ public class XsdDocumentedTests {
 				.getParentFile()
 				.list((dir, name) -> name.endsWith(".xsd"));
 		// @formatter:on
+		int expectedCount = 25;
 		assertThat(schemas.length)
-			.withFailMessage(String.format("the count should be equal to 24, not the current %d, if not then schemaDocument needs updating", schemas.length))
-			.isEqualTo(25);
+			.withFailMessage(String.format("the count should be equal to %d, not the current %d, if not then schemaDocument needs updating", expectedCount, schemas.length))
+			.isEqualTo(expectedCount);
 	}
 
 	/**

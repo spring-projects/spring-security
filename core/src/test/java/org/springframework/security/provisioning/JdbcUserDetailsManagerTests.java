@@ -56,7 +56,11 @@ import static org.mockito.Mockito.verify;
  * Tests for {@link JdbcUserDetailsManager}
  *
  * @author Luke Taylor
+ *
+ * @deprecated JdbcUserDetailsManager has been superseded by JdbcUserPasswordDetailsManager. If fixing bugs in JdbcUserDetailsManager, please remember to transplant any new tests to JdbcUserPasswordDetailsManagerTests
+ *
  */
+@Deprecated(since = "For removal in 7.0.")
 public class JdbcUserDetailsManagerTests {
 
 	private static final String SELECT_JOE_SQL = "select * from users where username = 'joe'";

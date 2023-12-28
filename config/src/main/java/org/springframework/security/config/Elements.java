@@ -32,7 +32,7 @@ public abstract class Elements {
 
 	public static final String USER_SERVICE = "user-service";
 
-	@Deprecated
+	@Deprecated(since = "For removal in 7.0.")
 	public static final String JDBC_USER_SERVICE = "jdbc-user-service";
 
 	public static final String JDBC_USER_PASSWORD_SERVICE = "jdbc-user-password-service";

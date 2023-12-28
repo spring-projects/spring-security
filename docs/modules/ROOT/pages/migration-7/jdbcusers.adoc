@@ -43,6 +43,9 @@ UserDetailsManager users(DataSource dataSource) {
 }
 ....
 
+There is an additional configuration parameter available for changing the password of a user. This query
+is necessary for the new behaviour of the user details implementation.
+
 Please refer to
 https://docs.spring.io/spring-security/reference/servlet/authentication/passwords/user-details-service.html[the spring security reference documentation]
 for more details.
@@ -56,4 +59,5 @@ creation of the new bean:
   <jdbc-user-password-service .../>
 ....
 
-The configuration settings are the same as for the old bean.
+The configuration settings are the same as for the old bean, but now also allows setting an sql query
+for changing the password of the user through the `+change-password-query+` attribute.

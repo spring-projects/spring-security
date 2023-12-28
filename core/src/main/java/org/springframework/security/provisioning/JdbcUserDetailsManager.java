@@ -66,7 +66,7 @@ import org.springframework.util.Assert;
  * ensure password encoding is kept updated. Please note that this migration might require changes to your code
  * and database.
  */
-@Deprecated
+@Deprecated(since = "For removal in 7.0.")
 public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsManager, GroupManager {
 
 	public static final String DEF_CREATE_USER_SQL = "insert into users (username, password, enabled) values (?,?,?)";

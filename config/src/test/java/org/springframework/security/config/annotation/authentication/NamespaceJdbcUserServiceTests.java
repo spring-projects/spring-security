@@ -115,7 +115,7 @@ public class NamespaceJdbcUserServiceTests {
 				// jdbc-user-service@authorities-by-username-query
 				.authoritiesByUsernameQuery("select principal,role from roles where principal = ?")
 				// jdbc-user-service@group-authorities-by-username-query
-				.groupAuthoritiesByUsernameQuery(JdbcDaoImpl.DEF_GROUP_AUTHORITIES_BY_USERNAME_QUERY)
+				.groupAuthoritiesByUsername(JdbcDaoImpl.DEF_GROUP_AUTHORITIES_BY_USERNAME_QUERY)
 				// jdbc-user-service@role-prefix
 				.rolePrefix("ROLE_");
 			// @formatter:on
