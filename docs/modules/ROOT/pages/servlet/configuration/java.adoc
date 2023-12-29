@@ -173,7 +173,7 @@ It is configured with the following default implementation:
 @Bean
 public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 	http
-		.authorizeRequests(authorize -> authorize
+		.authorizeHttpRequests(authorize -> authorize
 			.anyRequest().authenticated()
 		)
 		.formLogin(withDefaults())
@@ -290,7 +290,7 @@ public class MyCustomDsl extends AbstractHttpConfigurer<MyCustomDsl, HttpSecurit
 
 [NOTE]
 ====
-This is actually how methods like `HttpSecurity.authorizeRequests()` are implemented.
+This is actually how methods like `HttpSecurity.authorizeHttpRequests()` are implemented.
 ====
 
 You can then use the custom DSL:
@@ -360,7 +360,7 @@ For example, to configure the `filterSecurityPublishAuthorizationSuccess` proper
 @Bean
 public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 	http
-		.authorizeRequests(authorize -> authorize
+		.authorizeHttpRequests(authorize -> authorize
 			.anyRequest().authenticated()
 			.withObjectPostProcessor(new ObjectPostProcessor<FilterSecurityInterceptor>() {
 				public <O extends FilterSecurityInterceptor> O postProcess(
