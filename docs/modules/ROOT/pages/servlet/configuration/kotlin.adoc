@@ -1,6 +1,7 @@
 
 [[kotlin-config]]
 = Kotlin Configuration
+
 Spring Security Kotlin configuration has been available since Spring Security 5.3.
 It lets users configure Spring Security by using a native Kotlin DSL.
 
@@ -23,19 +24,19 @@ import org.springframework.security.config.annotation.web.invoke
 
 @Bean
 open fun filterChain(http: HttpSecurity): SecurityFilterChain {
-   http {
+    http {
         authorizeHttpRequests {
             authorize(anyRequest, authenticated)
         }
-       formLogin { }
-       httpBasic { }
+        formLogin { }
+        httpBasic { }
     }
     return http.build()
 }
 ----
 
 [NOTE]
-Make sure that import the `invoke` function in your class, sometimes the IDE will not auto-import it causing compilation issues.
+Make sure to import the `invoke` function in your class, as the IDE will not always auto-import the method, causing compilation issues.
 
 The default configuration (shown in the preceding listing):
 
@@ -43,7 +44,7 @@ The default configuration (shown in the preceding listing):
 * Lets users authenticate with form-based login
 * Lets users authenticate with HTTP Basic authentication
 
-Note that this configuration is parallels the XML namespace configuration:
+Note that this configuration parallels the XML namespace configuration:
 
 [source,xml]
 ----
@@ -58,13 +59,13 @@ Note that this configuration is parallels the XML namespace configuration:
 
 We can configure multiple `HttpSecurity` instances, just as we can have multiple `<http>` blocks.
 The key is to register multiple `SecurityFilterChain` ``@Bean``s.
-The following example has a different configuration for URL's that start with `/api/`:
+The following example has a different configuration for URLs that start with `/api/`:
 
 [source,kotlin]
 ----
-@Configuration
 import org.springframework.security.config.annotation.web.invoke
 
+@Configuration
 @EnableWebSecurity
 class MultiHttpSecurityConfig {
     @Bean                                                            <1>
@@ -104,7 +105,7 @@ class MultiHttpSecurityConfig {
 
 <1> Configure Authentication as usual.
 <2> Create an instance of `SecurityFilterChain` that contains `@Order` to specify which `SecurityFilterChain` should be considered first.
-<3> The `http.antMatcher` states that this `HttpSecurity` is applicable only to URLs that start with `/api/`
+<3> The `http.securityMatcher` states that this `HttpSecurity` is applicable only to URLs that start with `/api/`
 <4> Create another instance of `SecurityFilterChain`.
 If the URL does not start with `/api/`, this configuration is used.
 This configuration is considered after `apiFilterChain`, since it has an `@Order` value after `1` (no `@Order` defaults to last).
