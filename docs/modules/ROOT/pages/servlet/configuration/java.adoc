@@ -112,7 +112,7 @@ public class SecurityWebApplicationInitializer
 }
 ----
 
-This onlys register the `springSecurityFilterChain` for every URL in your application.
+This only registers the `springSecurityFilterChain` for every URL in your application.
 After that, we need to ensure that `WebSecurityConfig` was loaded in our existing `ApplicationInitializer`.
 For example, if we use Spring MVC it is added in the `getServletConfigClasses()`:
 
@@ -131,7 +131,7 @@ public class MvcWebApplicationInitializer extends
 }
 ----
 
-The reason for this is that Spring Security needs to be able to inspect some Spring MVC configuration in order to appropriately configure xref:servlet/authorization/authorize-http-requests.adoc#_request_matchers[underlying request matchers], so they need to be in the same application context.
+The reason for this is that Spring Security needs to be able to inspect some Spring MVC configuration in order to appropriately configure xref:servlet/authorization/authorize-http-requests.adoc#authorizing-endpoints[underlying request matchers], so they need to be in the same application context.
 Placing Spring Security in `getRootConfigClasses` places it into a parent application context that may not be able to find Spring MVC's `HandlerMappingIntrospector`.
 
 ==== Configuring for Multiple Spring MVC Dispatchers
@@ -203,7 +203,7 @@ Note that this configuration is parallels the XML Namespace configuration:
 
 We can configure multiple `HttpSecurity` instances just as we can have multiple `<http>` blocks in XML.
 The key is to register multiple `SecurityFilterChain` ``@Bean``s.
-The following example has a different configuration for URL's that start with `/api/`.
+The following example has a different configuration for URLs that start with `/api/`.
 
 [source,java]
 ----
@@ -224,7 +224,7 @@ public class MultiHttpSecurityConfig {
 	@Order(1)                                                        <2>
 	public SecurityFilterChain apiFilterChain(HttpSecurity http) throws Exception {
 		http
-			.securityMatcher("/api/**")                                   <3>
+			.securityMatcher("/api/**")                              <3>
 			.authorizeHttpRequests(authorize -> authorize
 				.anyRequest().hasRole("ADMIN")
 			)
