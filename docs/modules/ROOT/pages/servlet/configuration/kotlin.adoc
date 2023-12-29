@@ -24,7 +24,7 @@ import org.springframework.security.config.annotation.web.invoke
 @Bean
 open fun filterChain(http: HttpSecurity): SecurityFilterChain {
    http {
-        authorizeRequests {
+        authorizeHttpRequests {
             authorize(anyRequest, authenticated)
         }
        formLogin { }
@@ -81,7 +81,7 @@ class MultiHttpSecurityConfig {
     open fun apiFilterChain(http: HttpSecurity): SecurityFilterChain {
         http {
             securityMatcher("/api/**")                               <3>
-            authorizeRequests {
+            authorizeHttpRequests {
                 authorize(anyRequest, hasRole("ADMIN"))
             }
             httpBasic { }
@@ -92,7 +92,7 @@ class MultiHttpSecurityConfig {
     @Bean                                                            <4>
     open fun formLoginFilterChain(http: HttpSecurity): SecurityFilterChain {
         http {
-            authorizeRequests {
+            authorizeHttpRequests {
                 authorize(anyRequest, authenticated)
             }
             formLogin { }
