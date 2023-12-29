@@ -188,7 +188,7 @@ Java::
 SecurityFilterChain web(HttpSecurity http) throws Exception {
 	http
 		.authorizeHttpRequests((authorize) -> authorize
-			.requestMatchers("/endpoint").hasAuthority('USER')
+			.requestMatchers("/endpoint").hasAuthority("USER")
 			.anyRequest().authenticated()
 		)
         // ...
@@ -205,7 +205,7 @@ Kotlin::
 SecurityFilterChain web(HttpSecurity http) throws Exception {
 	http {
         authorizeHttpRequests {
-            authorize("/endpoint", hasAuthority('USER'))
+            authorize("/endpoint", hasAuthority("USER"))
             authorize(anyRequest, authenticated)
         }
 	}
