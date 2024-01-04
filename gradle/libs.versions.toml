@@ -100,6 +100,7 @@ com-github-spullara-mustache-java-compiler = "com.github.spullara.mustache.java:
 org-hidetake-gradle-ssh-plugin = "org.hidetake:gradle-ssh-plugin:2.10.1"
 org-jfrog-buildinfo-build-info-extractor-gradle = "org.jfrog.buildinfo:build-info-extractor-gradle:4.29.4"
 org-sonarsource-scanner-gradle-sonarqube-gradle-plugin = "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.7.1"
+org-instancio-instancio-junit = "org.instancio:instancio-junit:3.7.1"
 
 [plugins]
 
