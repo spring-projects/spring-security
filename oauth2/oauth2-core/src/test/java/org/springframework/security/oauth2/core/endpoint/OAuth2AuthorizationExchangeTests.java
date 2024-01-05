@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,10 @@
  */
 
 package org.springframework.security.oauth2.core.endpoint;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 
 import org.junit.jupiter.api.Test;
 
@@ -48,6 +52,17 @@ public class OAuth2AuthorizationExchangeTests {
 				authorizationResponse);
 		assertThat(authorizationExchange.getAuthorizationRequest()).isEqualTo(authorizationRequest);
 		assertThat(authorizationExchange.getAuthorizationResponse()).isEqualTo(authorizationResponse);
+	}
+
+	@Test
+	void oauth2AuthorizationExchangeShouldBeSerializable() throws IOException {
+		OAuth2AuthorizationExchange exchange = TestOAuth2AuthorizationExchanges.success();
+		try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
+				ObjectOutputStream objectOutputStream = new ObjectOutputStream(baos)) {
+			objectOutputStream.writeObject(exchange);
+			objectOutputStream.flush();
+			assertThat(baos.size()).isNotZero();
+		}
 	}
 
 }
