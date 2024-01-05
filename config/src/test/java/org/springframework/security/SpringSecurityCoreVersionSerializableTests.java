@@ -227,7 +227,7 @@ class SpringSecurityCoreVersionSerializableTests {
 	@Disabled("This method should only be used to serialize the classes once")
 	void serializeCurrentVersionClasses(Class<?> clazz) throws Exception {
 		Files.createDirectories(currentVersionFolder);
-		Path filePath = Paths.get(currentVersionFolder.toAbsolutePath() + "/" + clazz.getName());
+		Path filePath = Paths.get(currentVersionFolder.toAbsolutePath() + "/" + clazz.getName() + ".serialized");
 		File file = filePath.toFile();
 		if (file.exists()) {
 			return;
@@ -253,7 +253,7 @@ class SpringSecurityCoreVersionSerializableTests {
 		try (FileInputStream fileInputStream = new FileInputStream(filePath.toFile());
 				ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream)) {
 			Object obj = objectInputStream.readObject();
-			Class<?> clazz = Class.forName(filePath.getFileName().toString());
+			Class<?> clazz = Class.forName(filePath.getFileName().toString().replace(".serialized", ""));
 			assertThat(obj).isInstanceOf(clazz);
 		}
 		catch (IOException | ClassNotFoundException ex) {
