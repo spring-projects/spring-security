@@ -112,6 +112,7 @@ dependencies {
 	testImplementation ('org.apache.maven.resolver:maven-resolver-transport-http') {
 		exclude group: "org.slf4j", module: "jcl-over-slf4j"
 	}
+	testImplementation libs.org.instancio.instancio.junit
 
 	testRuntimeOnly 'org.hsqldb:hsqldb'
 }
@@ -151,5 +152,11 @@ tasks.withType(KotlinCompile).configureEach {
 		apiVersion = "1.7"
 		freeCompilerArgs = ["-Xjsr305=strict", "-Xsuppress-version-warnings"]
 		jvmTarget = "17"
+	}
+}
+
+configure(project.tasks.withType(Test)) {
+	doFirst {
+		systemProperties['springSecurityVersion'] = version
 	}
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,11 +39,8 @@ public final class SpringSecurityCoreVersion {
 
 	/**
 	 * Global Serialization value for Spring Security classes.
-	 *
-	 * N.B. Classes are not intended to be serializable between different versions. See
-	 * SEC-1709 for why we still need a serial version.
 	 */
-	public static final long SERIAL_VERSION_UID = 630L;
+	public static final long SERIAL_VERSION_UID = 620L;
 
 	static final String MIN_SPRING_VERSION = getSpringVersion();
 
