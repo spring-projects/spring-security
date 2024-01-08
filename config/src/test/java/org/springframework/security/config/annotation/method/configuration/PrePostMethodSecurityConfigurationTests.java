@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -442,7 +442,6 @@ public class PrePostMethodSecurityConfigurationTests {
 		assertThat(this.spring.getContext().containsBean("annotationSecurityAspect$0")).isFalse();
 	}
 
-	// gh-13572
 	@Test
 	public void configureWhenBeanOverridingDisallowedThenWorks() {
 		this.spring.register(MethodSecurityServiceConfig.class, BusinessServiceConfig.class)
@@ -463,6 +462,30 @@ public class PrePostMethodSecurityConfigurationTests {
 	@Test
 	public void methodSecurityUserWhenRoleHierarchyBeanAvailableThenUses() {
 		this.spring.register(RoleHierarchyConfig.class, MethodSecurityServiceConfig.class).autowire();
+		this.methodSecurityService.preAuthorizeUser();
+		this.methodSecurityService.securedUser();
+		this.methodSecurityService.jsr250RolesAllowedUser();
+	}
+
+	@WithMockUser(roles = "ADMIN")
+	@Test
+	public void methodSecurityAdminWhenAuthorizationEventPublisherBeanAvailableThenUses() {
+		this.spring
+			.register(RoleHierarchyConfig.class, MethodSecurityServiceConfig.class,
+					AuthorizationEventPublisherConfig.class)
+			.autowire();
+		this.methodSecurityService.preAuthorizeUser();
+		this.methodSecurityService.securedUser();
+		this.methodSecurityService.jsr250RolesAllowedUser();
+	}
+
+	@WithMockUser
+	@Test
+	public void methodSecurityUserWhenAuthorizationEventPublisherBeanAvailableThenUses() {
+		this.spring
+			.register(RoleHierarchyConfig.class, MethodSecurityServiceConfig.class,
+					AuthorizationEventPublisherConfig.class)
+			.autowire();
 		this.methodSecurityService.preAuthorizeUser();
 		this.methodSecurityService.securedUser();
 		this.methodSecurityService.jsr250RolesAllowedUser();

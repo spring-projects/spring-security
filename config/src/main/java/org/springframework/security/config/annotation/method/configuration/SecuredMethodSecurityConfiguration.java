@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.hierarchicalroles.NullRoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.authorization.AuthoritiesAuthorizationManager;
+import org.springframework.security.authorization.AuthorizationEventPublisher;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor;
 import org.springframework.security.authorization.method.SecuredAuthorizationManager;
@@ -55,6 +56,7 @@ final class SecuredMethodSecurityConfiguration implements ImportAware {
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 	static MethodInterceptor securedAuthorizationMethodInterceptor(
 			ObjectProvider<SecurityContextHolderStrategy> strategyProvider,
+			ObjectProvider<AuthorizationEventPublisher> eventPublisherProvider,
 			ObjectProvider<ObservationRegistry> registryProvider, ObjectProvider<RoleHierarchy> roleHierarchyProvider,
 			SecuredMethodSecurityConfiguration configuration) {
 		SecuredAuthorizationManager secured = new SecuredAuthorizationManager();
@@ -70,6 +72,7 @@ final class SecuredMethodSecurityConfiguration implements ImportAware {
 			.secured(manager);
 		interceptor.setOrder(interceptor.getOrder() + configuration.interceptorOrderOffset);
 		interceptor.setSecurityContextHolderStrategy(strategy);
+		eventPublisherProvider.ifAvailable(interceptor::setAuthorizationEventPublisher);
 		return interceptor;
 	}
 
