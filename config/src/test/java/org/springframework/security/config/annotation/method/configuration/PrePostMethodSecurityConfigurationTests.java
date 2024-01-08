@@ -453,7 +453,7 @@ public class PrePostMethodSecurityConfigurationTests {
 	@WithMockUser(roles = "ADMIN")
 	@Test
 	public void methodSecurityAdminWhenRoleHierarchyBeanAvailableThenUses() {
-		this.spring.register(RoleHierarchyConfig.class, MethodSecurityServiceConfig.class).autowire();
+		this.spring.register(RoleHierarchyConfig.class, MethodSecurityServiceConfig.class,AuthorizationEventPublisherConfig.class).autowire();
 		this.methodSecurityService.preAuthorizeUser();
 		this.methodSecurityService.securedUser();
 		this.methodSecurityService.jsr250RolesAllowedUser();
@@ -462,7 +462,7 @@ public class PrePostMethodSecurityConfigurationTests {
 	@WithMockUser
 	@Test
 	public void methodSecurityUserWhenRoleHierarchyBeanAvailableThenUses() {
-		this.spring.register(RoleHierarchyConfig.class, MethodSecurityServiceConfig.class).autowire();
+		this.spring.register(RoleHierarchyConfig.class, MethodSecurityServiceConfig.class,AuthorizationEventPublisherConfig.class).autowire();
 		this.methodSecurityService.preAuthorizeUser();
 		this.methodSecurityService.securedUser();
 		this.methodSecurityService.jsr250RolesAllowedUser();
