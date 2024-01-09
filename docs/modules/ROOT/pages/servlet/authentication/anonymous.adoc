@@ -22,7 +22,7 @@ Classes can be authored more robustly if they know the `SecurityContextHolder` a
 
 [[anonymous-config]]
 == Configuration
-Anonymous authentication support is provided automatically when you use the HTTP configuration (introduced inSpring Security 3.0).
+Anonymous authentication support is provided automatically when you use the HTTP configuration (introduced in Spring Security 3.0).
 You can customize (or disable) it by using the `<anonymous>` element.
 You need not configure the beans described here unless you are using traditional bean configuration.
 
