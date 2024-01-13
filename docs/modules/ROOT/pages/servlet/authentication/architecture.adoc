@@ -200,7 +200,7 @@ If the `Authentication` contains a reference to an object in the cache (such as 
 You need to take this into account if you use a cache.
 An obvious solution is to first make a copy of the object, either in the cache implementation or in the `AuthenticationProvider` that creates the returned `Authentication` object.
 Alternatively, you can disable the `eraseCredentialsAfterAuthentication` property on `ProviderManager`.
-See the Javadoc for the {security-api-url}org/springframework/security/authentication/ProviderManager.html[Javadoc] class.
+See the Javadoc for the {security-api-url}org/springframework/security/authentication/ProviderManager.html[ProviderManager] class.
 
 [[servlet-authentication-authenticationprovider]]
 == AuthenticationProvider
