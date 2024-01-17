@@ -1,3 +1,5 @@
 org.springframework.test.context.aot.TestRuntimeHintsRegistrar=\
-org.springframework.security.test.aot.hint.WithSecurityContextTestRuntimeHints,\
-org.springframework.security.test.aot.hint.WebTestUtilsTestRuntimeHints
+org.springframework.security.test.aot.hint.WithSecurityContextTestRuntimeHints
+
+org.springframework.aot.hint.RuntimeHintsRegistrar=\
+org.springframework.security.test.aot.hint.WebTestUtilsRuntimeHints
