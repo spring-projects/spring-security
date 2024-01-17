@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,25 +18,25 @@ package org.springframework.security.test.aot.hint;
 
 import org.springframework.aot.hint.MemberCategory;
 import org.springframework.aot.hint.RuntimeHints;
+import org.springframework.aot.hint.RuntimeHintsRegistrar;
 import org.springframework.aot.hint.TypeReference;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.context.SecurityContextHolderFilter;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 import org.springframework.security.web.csrf.CsrfFilter;
-import org.springframework.test.context.aot.TestRuntimeHintsRegistrar;
 import org.springframework.util.ClassUtils;
 
 /**
- * {@link TestRuntimeHintsRegistrar} implementation that register runtime hints for
+ * {@link RuntimeHintsRegistrar} implementation that register runtime hints for
  * {@link org.springframework.security.test.web.support.WebTestUtils}.
  *
  * @author Marcus da Coregio
  * @since 6.0
  */
-class WebTestUtilsTestRuntimeHints implements TestRuntimeHintsRegistrar {
+class WebTestUtilsRuntimeHints implements RuntimeHintsRegistrar {
 
 	@Override
-	public void registerHints(RuntimeHints hints, Class<?> testClass, ClassLoader classLoader) {
+	public void registerHints(RuntimeHints hints, ClassLoader classLoader) {
 		if (!ClassUtils.isPresent("jakarta.servlet.Filter", classLoader)) {
 			return;
 		}
