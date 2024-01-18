@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -145,20 +145,17 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 	}
 
 	@Override
-	public Mono<Jwt> decode(String token) throws JwtException {
-		JWT jwt = parse(token);
-		if (jwt instanceof PlainJWT) {
-			throw new BadJwtException("Unsupported algorithm of " + jwt.getHeader().getAlgorithm());
-		}
-		return this.decode(jwt);
-	}
-
-	private JWT parse(String token) {
+	public Mono<Jwt> decode(String token) {
 		try {
-			return JWTParser.parse(token);
+			JWT jwt = JWTParser.parse(token);
+			if (jwt instanceof PlainJWT) {
+				return Mono.error(new BadJwtException("Unsupported algorithm of " + jwt.getHeader().getAlgorithm()));
+			}
+			return this.decode(jwt);
 		}
 		catch (Exception ex) {
-			throw new BadJwtException("An error occurred while attempting to decode the Jwt: " + ex.getMessage(), ex);
+			return Mono.error(new BadJwtException(
+					"An error occurred while attempting to decode the Jwt: " + ex.getMessage(), ex));
 		}
 	}
 
