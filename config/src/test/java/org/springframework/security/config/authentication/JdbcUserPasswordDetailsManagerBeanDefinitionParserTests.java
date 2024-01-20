@@ -170,7 +170,7 @@ public class JdbcUserPasswordDetailsManagerBeanDefinitionParserTests {
 	}
 
 	private void setContext(String context) {
-		System.out.println("Context: "+ context);
+		System.out.println("Context: " + context);
 		this.appContext = new InMemoryXmlApplicationContext(context);
 	}
 
