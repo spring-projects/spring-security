@@ -13,13 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.authentication;
+
+import org.w3c.dom.Element;
 
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.security.config.Elements;
 import org.springframework.util.StringUtils;
-import org.w3c.dom.Element;
 
 /**
  * @author Luke Taylor

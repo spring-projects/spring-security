@@ -168,7 +168,7 @@ public final class ReactiveOidcIdTokenDecoderFactory implements ReactiveJwtDecod
 			}
 			return NimbusReactiveJwtDecoder.withJwkSetUri(jwkSetUri)
 				.jwsAlgorithm((SignatureAlgorithm) jwsAlgorithm)
-				.webClient(webClientFactory.apply(clientRegistration))
+				.webClient(this.webClientFactory.apply(clientRegistration))
 				.build();
 		}
 		if (jwsAlgorithm != null && MacAlgorithm.class.isAssignableFrom(jwsAlgorithm.getClass())) {

@@ -137,7 +137,7 @@ public final class JdbcUserPasswordDetailsManagerConfigurer<B extends ProviderMa
 	 * @return The {@link JdbcUserPasswordDetailsManagerConfigurer} used for additional
 	 * customizations
 	 */
-public JdbcUserPasswordDetailsManagerConfigurer<B> groupAuthoritiesByUsernameQuery(String query) {
+	public JdbcUserPasswordDetailsManagerConfigurer<B> groupAuthoritiesByUsernameQuery(String query) {
 		JdbcUserPasswordDetailsManager userDetailsService = getUserDetailsService();
 		userDetailsService.setEnableGroups(true);
 		userDetailsService.setGroupAuthoritiesByUsernameQuery(query);

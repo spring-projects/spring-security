@@ -44,7 +44,6 @@ import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configurers.provisioning.InMemoryUserDetailsManagerConfigurer;
 import org.springframework.security.config.annotation.authentication.configurers.provisioning.JdbcUserDetailsManagerConfigurer;
-import org.springframework.security.config.annotation.authentication.configurers.provisioning.JdbcUserPasswordDetailsManagerConfigurer;
 import org.springframework.security.config.annotation.authentication.configurers.userdetails.DaoAuthenticationConfigurer;
 import org.springframework.security.config.annotation.configuration.ObjectPostProcessorConfiguration;
 import org.springframework.security.core.Authentication;
