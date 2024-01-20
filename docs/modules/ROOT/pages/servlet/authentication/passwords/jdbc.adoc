@@ -2,7 +2,7 @@
 = JDBC Authentication
 
 Spring Security's `JdbcDaoImpl` implements xref:servlet/authentication/passwords/user-details-service.adoc#servlet-authentication-userdetailsservice[`UserDetailsService`] to provide support for username-and-password-based authentication that is retrieved by using JDBC.
-`JdbcUserDetailsManager` extends `JdbcDaoImpl` to provide management of `UserDetails` through the `UserDetailsManager` interface.
+`JdbcUserPasswordDetailsManager` extends `JdbcDaoImpl` to provide management of `UserDetails` through the `UserDetailsManager` interface.
 `UserDetails`-based authentication is used by Spring Security when it is configured to xref:servlet/authentication/passwords/index.adoc#servlet-authentication-unpwd-input[accept a username/password] for authentication.
 
 In the following sections, we discuss:
@@ -95,7 +95,7 @@ create table group_members (
 [[servlet-authentication-jdbc-datasource]]
 == Setting up a DataSource
 
-Before we configure `JdbcUserDetailsManager`, we must create a `DataSource`.
+Before we configure `JdbcUserPasswordDetailsManager`, we must create a `DataSource`.
 In our example, we set up an https://docs.spring.io/spring-framework/docs/current/spring-framework-reference/data-access.html#jdbc-embedded-database-support[embedded DataSource] that is initialized with the <<servlet-authentication-jdbc-schema,default user schema>>.
 
 .Embedded Data Source
@@ -140,12 +140,12 @@ fun dataSource(): DataSource {
 In a production environment, you want to ensure that you set up a connection to an external database.
 
 [[servlet-authentication-jdbc-bean]]
-== JdbcUserDetailsManager Bean
+== JdbcUserPasswordDetailsManager Bean
 
 In this sample, we use xref:features/authentication/password-storage.adoc#authentication-password-storage-boot-cli[Spring Boot CLI] to encode a password value of `password` and get the encoded password of `+{bcrypt}$2a$10$GRLdNijSQMUvl/au9ofL.eDwmoohzzS7.rmNSJZ.0FxO/BTk76klW+`.
 See the xref:features/authentication/password-storage.adoc#authentication-password-storage[PasswordEncoder] section for more details about how to store passwords.
 
-.JdbcUserDetailsManager
+.JdbcUserPasswordDetailsManager
 
 [tabs]
 ======
@@ -165,7 +165,7 @@ UserDetailsManager users(DataSource dataSource) {
 		.password("{bcrypt}$2a$10$GRLdNijSQMUvl/au9ofL.eDwmoohzzS7.rmNSJZ.0FxO/BTk76klW")
 		.roles("USER", "ADMIN")
 		.build();
-	JdbcUserDetailsManager users = new JdbcUserDetailsManager(dataSource);
+	JdbcUserPasswordDetailsManager users = new JdbcUserPasswordDetailsManager(dataSource);
 	users.createUser(user);
 	users.createUser(admin);
 	return users;
@@ -176,14 +176,14 @@ XML::
 +
 [source,xml,role="secondary",attrs="-attributes"]
 ----
-<jdbc-user-service>
+<jdbc-user-password-service>
 	<user name="user"
 		password="{bcrypt}$2a$10$GRLdNijSQMUvl/au9ofL.eDwmoohzzS7.rmNSJZ.0FxO/BTk76klW"
 		authorities="ROLE_USER" />
 	<user name="admin"
 		password="{bcrypt}$2a$10$GRLdNijSQMUvl/au9ofL.eDwmoohzzS7.rmNSJZ.0FxO/BTk76klW"
 		authorities="ROLE_USER,ROLE_ADMIN" />
-</jdbc-user-service>
+</jdbc-user-password-service>
 ----
 
 Kotlin::
@@ -202,7 +202,7 @@ fun users(dataSource: DataSource): UserDetailsManager {
             .password("{bcrypt}$2a$10\$GRLdNijSQMUvl/au9ofL.eDwmoohzzS7.rmNSJZ.0FxO/BTk76klW")
             .roles("USER", "ADMIN")
             .build();
-    val users = JdbcUserDetailsManager(dataSource)
+    val users = JdbcUserPasswordDetailsManager(dataSource)
     users.createUser(user)
     users.createUser(admin)
     return users
