@@ -71,7 +71,7 @@ import org.springframework.util.Assert;
  * @author Geir Hedemark
  * @since 6.3
  */
-public class JdbcUserPasswordDetailsManager extends JdbcDaoImpl implements UserDetailsManager, GroupManager, UserDetailsPasswordService {
+public final class JdbcUserPasswordDetailsManager extends JdbcDaoImpl implements UserDetailsManager, GroupManager, UserDetailsPasswordService {
 
 	public static final String DEF_CREATE_USER_QUERY = "insert into users (username, password, enabled) values (?,?,?)";
 
