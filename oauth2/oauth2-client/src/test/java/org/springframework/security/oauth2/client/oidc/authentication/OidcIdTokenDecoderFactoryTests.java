@@ -100,7 +100,7 @@ public class OidcIdTokenDecoderFactoryTests {
 	@Test
 	public void setRestOperationsFactoryWhenNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> this.idTokenDecoderFactory.setRestOperationsFactory(null));
+			.isThrownBy(() -> this.idTokenDecoderFactory.setRestOperationsFactory(null));
 	}
 
 	@Test
@@ -187,13 +187,12 @@ public class OidcIdTokenDecoderFactoryTests {
 
 	@Test
 	public void createDecoderWhenCustomRestOperationsFactorySetThenApplied() {
-		Function<ClientRegistration, RestOperations> customRestOperationsFactory = mock(
-				Function.class);
+		Function<ClientRegistration, RestOperations> customRestOperationsFactory = mock(Function.class);
 		this.idTokenDecoderFactory.setRestOperationsFactory(customRestOperationsFactory);
 		ClientRegistration clientRegistration = this.registration.build();
-		given(customRestOperationsFactory.apply(same(clientRegistration)))
-				.willReturn(new RestTemplate());
+		given(customRestOperationsFactory.apply(same(clientRegistration))).willReturn(new RestTemplate());
 		this.idTokenDecoderFactory.createDecoder(clientRegistration);
 		verify(customRestOperationsFactory).apply(same(clientRegistration));
 	}
+
 }

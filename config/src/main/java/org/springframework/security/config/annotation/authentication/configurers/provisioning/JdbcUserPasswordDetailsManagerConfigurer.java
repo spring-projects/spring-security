@@ -33,9 +33,9 @@ import org.springframework.security.provisioning.JdbcUserPasswordDetailsManager;
 /**
  * Configures an
  * {@link org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder}
- * to have JDBC authentication, with user management that will automatically update the encoding of a password
- * if necessary. It also allows easily adding users to the database used
- * for authentication and setting up the schema.
+ * to have JDBC authentication, with user management that will automatically update the
+ * encoding of a password if necessary. It also allows easily adding users to the database
+ * used for authentication and setting up the schema.
  *
  * <p>
  * The only required method is the {@link #dataSource(javax.sql.DataSource)} all other
@@ -95,7 +95,8 @@ public final class JdbcUserPasswordDetailsManagerConfigurer<B extends ProviderMa
 	 * <code>
 	 *     update users set password = ? where username = ?
 	 * </code>
-	 * @param query The query to use for setting the password for a user. Must contain a parameter for the password, and one for the username.
+	 * @param query The query to use for setting the password for a user. Must contain a
+	 * parameter for the password, and one for the username.
 	 * @return The {@link JdbcUserPasswordDetailsManagerConfigurer} used for additional
 	 * customizations
 	 */
@@ -159,7 +160,8 @@ public final class JdbcUserPasswordDetailsManagerConfigurer<B extends ProviderMa
 	/**
 	 * Defines the {@link UserCache} to use
 	 * @param userCache the {@link UserCache} to use
-	 * @return the {@link JdbcUserPasswordDetailsManagerConfigurer} for further customizations
+	 * @return the {@link JdbcUserPasswordDetailsManagerConfigurer} for further
+	 * customizations
 	 */
 	public JdbcUserPasswordDetailsManagerConfigurer<B> userCache(UserCache userCache) {
 		getUserDetailsService().setUserCache(userCache);

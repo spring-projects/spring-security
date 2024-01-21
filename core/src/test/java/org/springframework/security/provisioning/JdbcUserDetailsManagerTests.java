@@ -56,8 +56,9 @@ import static org.mockito.Mockito.verify;
  * Tests for {@link JdbcUserDetailsManager}
  *
  * @author Luke Taylor
- *
- * @deprecated JdbcUserDetailsManager has been superseded by JdbcUserPasswordDetailsManager. If fixing bugs in JdbcUserDetailsManager, please remember to transplant any new tests to JdbcUserPasswordDetailsManagerTests
+ * @deprecated JdbcUserDetailsManager has been superseded by
+ * JdbcUserPasswordDetailsManager. If fixing bugs in JdbcUserDetailsManager, please
+ * remember to transplant any new tests to JdbcUserPasswordDetailsManagerTests
  *
  */
 @Deprecated(since = "For removal in 7.0.")

@@ -97,8 +97,7 @@ public class ReactiveOidcIdTokenDecoderFactoryTests {
 
 	@Test
 	public void setWebClientFactoryWhenNullThenThrowIllegalArgumentException() {
-		assertThatIllegalArgumentException()
-				.isThrownBy(() -> this.idTokenDecoderFactory.setWebClientFactory(null));
+		assertThatIllegalArgumentException().isThrownBy(() -> this.idTokenDecoderFactory.setWebClientFactory(null));
 	}
 
 	@Test
@@ -185,13 +184,12 @@ public class ReactiveOidcIdTokenDecoderFactoryTests {
 
 	@Test
 	public void createDecoderWhenCustomWebClientFactorySetThenApplied() {
-		Function<ClientRegistration, WebClient> customWebClientFactory = mock(
-				Function.class);
+		Function<ClientRegistration, WebClient> customWebClientFactory = mock(Function.class);
 		this.idTokenDecoderFactory.setWebClientFactory(customWebClientFactory);
 		ClientRegistration clientRegistration = this.registration.build();
-		given(customWebClientFactory.apply(same(clientRegistration)))
-				.willReturn(WebClient.create());
+		given(customWebClientFactory.apply(same(clientRegistration))).willReturn(WebClient.create());
 		this.idTokenDecoderFactory.createDecoder(clientRegistration);
 		verify(customWebClientFactory).apply(same(clientRegistration));
 	}
+
 }

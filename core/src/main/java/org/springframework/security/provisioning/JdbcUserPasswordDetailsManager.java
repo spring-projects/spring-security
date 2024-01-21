@@ -53,9 +53,8 @@ import org.springframework.util.Assert;
  * Jdbc user management manager, based on the same table structure as the base class,
  * <tt>JdbcDaoImpl</tt>.
  * <p>
- * This manager will automatically keep the password of the
- * user encoded with the current password encoding, making it easier to manage
- * password security over time.
+ * This manager will automatically keep the password of the user encoded with the current
+ * password encoding, making it easier to manage password security over time.
  * <p>
  * Provides CRUD operations for both users and groups. Note that if the
  * {@link #setEnableAuthorities(boolean) enableAuthorities} property is set to false,
@@ -65,13 +64,15 @@ import org.springframework.util.Assert;
  * which the individual is a member, it's important that you take this into account when
  * using this implementation for managing your users.
  *
- * This class is an evolution of the previous JdbcUserDetailsManager, which was part of spring security since version 2.0
+ * This class is an evolution of the previous JdbcUserDetailsManager, which was part of
+ * spring security since version 2.0
  *
  * @author Luke Taylor
  * @author Geir Hedemark
  * @since 6.3
  */
-public final class JdbcUserPasswordDetailsManager extends JdbcDaoImpl implements UserDetailsManager, GroupManager, UserDetailsPasswordService {
+public final class JdbcUserPasswordDetailsManager extends JdbcDaoImpl
+		implements UserDetailsManager, GroupManager, UserDetailsPasswordService {
 
 	public static final String DEF_CREATE_USER_QUERY = "insert into users (username, password, enabled) values (?,?,?)";
 
@@ -118,7 +119,7 @@ public final class JdbcUserPasswordDetailsManager extends JdbcDaoImpl implements
 	protected final Log logger = LogFactory.getLog(getClass());
 
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
-			.getContextHolderStrategy();
+		.getContextHolderStrategy();
 
 	private String createUserQuery = DEF_CREATE_USER_QUERY;
 
@@ -279,7 +280,7 @@ public final class JdbcUserPasswordDetailsManager extends JdbcDaoImpl implements
 		if (this.authenticationManager != null) {
 			this.logger.debug(LogMessage.format("Reauthenticating user '%s' for password change request.", username));
 			this.authenticationManager
-					.authenticate(UsernamePasswordAuthenticationToken.unauthenticated(username, oldPassword));
+				.authenticate(UsernamePasswordAuthenticationToken.unauthenticated(username, oldPassword));
 		}
 		else {
 			this.logger.debug("No authentication manager set. Password won't be re-checked.");
@@ -572,4 +573,5 @@ public final class JdbcUserPasswordDetailsManager extends JdbcDaoImpl implements
 		this.userCache.removeUserFromCache(user.getUsername());
 		return User.withUserDetails(user).password(newPassword).build();
 	}
+
 }

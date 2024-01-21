@@ -62,9 +62,9 @@ import org.springframework.util.Assert;
  *
  * @author Luke Taylor
  * @since 2.0
- * @deprecated Use {@link JdbcUserPasswordDetailsManager} instead, as this
- * ensure password encoding is kept updated. Please note that this migration might require changes to your code
- * and database.
+ * @deprecated Use {@link JdbcUserPasswordDetailsManager} instead, as this ensure password
+ * encoding is kept updated. Please note that this migration might require changes to your
+ * code and database.
  */
 @Deprecated(since = "For removal in 7.0.")
 public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsManager, GroupManager {

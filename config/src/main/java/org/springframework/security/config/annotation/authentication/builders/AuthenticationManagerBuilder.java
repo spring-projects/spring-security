@@ -155,8 +155,9 @@ public class AuthenticationManagerBuilder
 	 * @return a {@link JdbcUserDetailsManagerConfigurer} to allow customization of the
 	 * JDBC authentication
 	 * @throws Exception if an error occurs when adding the JDBC authentication
-	 * @deprecated JdbcUserDetailsManager has been superseded by JdbcUserPasswordDetailsManager, and does not
-	 * support DSL configuration. Please declare a bean instead.
+	 * @deprecated JdbcUserDetailsManager has been superseded by
+	 * JdbcUserPasswordDetailsManager, and does not support DSL configuration. Please
+	 * declare a bean instead.
 	 */
 	@Deprecated(since = "For removal in 7.0.")
 	public JdbcUserDetailsManagerConfigurer<AuthenticationManagerBuilder> jdbcAuthentication() throws Exception {

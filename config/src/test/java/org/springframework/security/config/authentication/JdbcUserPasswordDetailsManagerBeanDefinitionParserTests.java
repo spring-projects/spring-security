@@ -72,7 +72,8 @@ public class JdbcUserPasswordDetailsManagerBeanDefinitionParserTests {
 	@Test
 	public void validUsernameIsFound() {
 		setContext("<jdbc-user-password-service data-source-ref='dataSource'/>" + DATA_SOURCE);
-		JdbcUserPasswordDetailsManager mgr = (JdbcUserPasswordDetailsManager) this.appContext.getBean(BeanIds.USER_DETAILS_SERVICE);
+		JdbcUserPasswordDetailsManager mgr = (JdbcUserPasswordDetailsManager) this.appContext
+			.getBean(BeanIds.USER_DETAILS_SERVICE);
 		assertThat(mgr.loadUserByUsername("rod")).isNotNull();
 	}
 

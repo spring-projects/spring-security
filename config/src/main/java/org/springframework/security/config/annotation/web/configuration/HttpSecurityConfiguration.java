@@ -185,8 +185,9 @@ class HttpSecurityConfiguration {
 		}
 
 		/**
-		 * @deprecated Use jdbcAuthenticationWithPasswordManagement instead, as this keeps the password up to date.
-		 * Please consult the migration documentation as database changes might be necessary.
+		 * @deprecated Use jdbcAuthenticationWithPasswordManagement instead, as this keeps
+		 * the password up to date. Please consult the migration documentation as database
+		 * changes might be necessary.
 		 */
 		@Override
 		@Deprecated(since = "For removal in 7.0.")
