@@ -30,6 +30,7 @@ import org.springframework.security.access.expression.method.DefaultMethodSecuri
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.access.intercept.method.MockMethodInvocation;
 import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.TestAuthentication;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authorization.AuthorizationDecision;
@@ -165,6 +166,21 @@ public class PostAuthorizeAuthorizationManagerTests {
 		PostAuthorizeAuthorizationManager manager = new PostAuthorizeAuthorizationManager();
 		assertThatExceptionOfType(AnnotationConfigurationException.class)
 			.isThrownBy(() -> manager.check(authentication, result));
+	}
+
+	@Test
+	public void checkRequiresUserWhenMethodsFromInheritThenApplies() throws Exception {
+		MockMethodInvocation methodInvocation = new MockMethodInvocation(new PostAuthorizeClass(),
+				PostAuthorizeClass.class, "securedUser");
+		MethodInvocationResult result = new MethodInvocationResult(methodInvocation, null);
+		PostAuthorizeAuthorizationManager manager = new PostAuthorizeAuthorizationManager();
+		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedUser, result);
+		assertThat(decision.isGranted()).isTrue();
+	}
+
+	@PostAuthorize("hasRole('USER')")
+	public static class PostAuthorizeClass extends SecuredAuthorizationManagerTests.ParentClass {
+
 	}
 
 	public static class TestClass implements InterfaceAnnotationsOne, InterfaceAnnotationsTwo {

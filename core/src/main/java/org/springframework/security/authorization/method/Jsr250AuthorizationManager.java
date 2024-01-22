@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,6 +44,7 @@ import org.springframework.util.Assert;
  *
  * @author Evgeniy Cheban
  * @author Josh Cummings
+ * @author DingHao
  * @since 5.6
  */
 public final class Jsr250AuthorizationManager implements AuthorizationManager<MethodInvocation> {
@@ -121,7 +122,8 @@ public final class Jsr250AuthorizationManager implements AuthorizationManager<Me
 		private Annotation findJsr250Annotation(Method method, Class<?> targetClass) {
 			Method specificMethod = AopUtils.getMostSpecificMethod(method, targetClass);
 			Annotation annotation = findAnnotation(specificMethod);
-			return (annotation != null) ? annotation : findAnnotation(specificMethod.getDeclaringClass());
+			return (annotation != null) ? annotation
+					: findAnnotation(targetClass != null ? targetClass : specificMethod.getDeclaringClass());
 		}
 
 		private Annotation findAnnotation(Method method) {

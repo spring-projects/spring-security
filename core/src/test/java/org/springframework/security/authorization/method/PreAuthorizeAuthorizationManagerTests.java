@@ -20,6 +20,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.function.Supplier;
 
+import jakarta.annotation.security.DenyAll;
+import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RolesAllowed;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.aop.TargetClassAware;
@@ -145,6 +148,20 @@ public class PreAuthorizeAuthorizationManagerTests {
 		decision = manager.check(TestAuthentication::authenticatedAdmin, methodInvocation);
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isTrue();
+	}
+
+	@Test
+	public void checkRequiresUserWhenMethodsFromInheritThenApplies() throws Exception {
+		MockMethodInvocation methodInvocation = new MockMethodInvocation(new PreAuthorizeClass(),
+				PreAuthorizeClass.class, "securedUser");
+		PreAuthorizeAuthorizationManager manager = new PreAuthorizeAuthorizationManager();
+		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedUser, methodInvocation);
+		assertThat(decision.isGranted()).isTrue();
+	}
+
+	@PreAuthorize("hasRole('USER')")
+	public static class PreAuthorizeClass extends SecuredAuthorizationManagerTests.ParentClass {
+
 	}
 
 	public static class TestClass implements InterfaceAnnotationsOne, InterfaceAnnotationsTwo {
