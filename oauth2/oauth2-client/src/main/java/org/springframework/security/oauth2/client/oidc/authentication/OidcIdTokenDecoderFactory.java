@@ -171,7 +171,7 @@ public final class OidcIdTokenDecoderFactory implements JwtDecoderFactory<Client
 			}
 			return NimbusJwtDecoder.withJwkSetUri(jwkSetUri)
 				.jwsAlgorithm((SignatureAlgorithm) jwsAlgorithm)
-				.restOperations(restOperationsFactory.apply(clientRegistration))
+				.restOperations(this.restOperationsFactory.apply(clientRegistration))
 				.build();
 		}
 		if (jwsAlgorithm != null && MacAlgorithm.class.isAssignableFrom(jwsAlgorithm.getClass())) {
