@@ -46,7 +46,19 @@ public final class PreAuthorizeAuthorizationManager implements AuthorizationMana
 	 * @param expressionHandler the {@link MethodSecurityExpressionHandler} to use
 	 */
 	public void setExpressionHandler(MethodSecurityExpressionHandler expressionHandler) {
-		this.registry = new PreAuthorizeExpressionAttributeRegistry(expressionHandler);
+		this.registry.setExpressionHandler(expressionHandler);
+	}
+
+	/**
+	 * Configure pre/post-authorization template resolution
+	 * <p>
+	 * By default, this value is <code>null</code>, which indicates that templates should
+	 * not be resolved.
+	 * @param defaults - whether to resolve pre/post-authorization templates parameters
+	 * @since 6.3
+	 */
+	public void setTemplateDefaults(PrePostTemplateDefaults defaults) {
+		this.registry.setTemplateDefaults(defaults);
 	}
 
 	/**

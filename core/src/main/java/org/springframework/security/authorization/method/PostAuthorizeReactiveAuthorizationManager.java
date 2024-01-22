@@ -38,7 +38,7 @@ import org.springframework.util.Assert;
 public final class PostAuthorizeReactiveAuthorizationManager
 		implements ReactiveAuthorizationManager<MethodInvocationResult> {
 
-	private final PostAuthorizeExpressionAttributeRegistry registry;
+	private final PostAuthorizeExpressionAttributeRegistry registry = new PostAuthorizeExpressionAttributeRegistry();
 
 	public PostAuthorizeReactiveAuthorizationManager() {
 		this(new DefaultMethodSecurityExpressionHandler());
@@ -46,7 +46,19 @@ public final class PostAuthorizeReactiveAuthorizationManager
 
 	public PostAuthorizeReactiveAuthorizationManager(MethodSecurityExpressionHandler expressionHandler) {
 		Assert.notNull(expressionHandler, "expressionHandler cannot be null");
-		this.registry = new PostAuthorizeExpressionAttributeRegistry(expressionHandler);
+		this.registry.setExpressionHandler(expressionHandler);
+	}
+
+	/**
+	 * Configure pre/post-authorization template resolution
+	 * <p>
+	 * By default, this value is <code>null</code>, which indicates that templates should
+	 * not be resolved.
+	 * @param defaults - whether to resolve pre/post-authorization templates parameters
+	 * @since 6.3
+	 */
+	public void setTemplateDefaults(PrePostTemplateDefaults defaults) {
+		this.registry.setTemplateDefaults(defaults);
 	}
 
 	/**

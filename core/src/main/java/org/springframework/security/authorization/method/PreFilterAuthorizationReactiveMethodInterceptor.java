@@ -53,7 +53,7 @@ import org.springframework.util.StringUtils;
 public final class PreFilterAuthorizationReactiveMethodInterceptor
 		implements Ordered, MethodInterceptor, PointcutAdvisor, AopInfrastructureBean {
 
-	private final PreFilterExpressionAttributeRegistry registry;
+	private final PreFilterExpressionAttributeRegistry registry = new PreFilterExpressionAttributeRegistry();
 
 	private final Pointcut pointcut = AuthorizationMethodPointcuts.forAnnotations(PreFilter.class);
 
@@ -70,7 +70,19 @@ public final class PreFilterAuthorizationReactiveMethodInterceptor
 	 */
 	public PreFilterAuthorizationReactiveMethodInterceptor(MethodSecurityExpressionHandler expressionHandler) {
 		Assert.notNull(expressionHandler, "expressionHandler cannot be null");
-		this.registry = new PreFilterExpressionAttributeRegistry(expressionHandler);
+		this.registry.setExpressionHandler(expressionHandler);
+	}
+
+	/**
+	 * Configure pre/post-authorization template resolution
+	 * <p>
+	 * By default, this value is <code>null</code>, which indicates that templates should
+	 * not be resolved.
+	 * @param defaults - whether to resolve pre/post-authorization templates parameters
+	 * @since 6.3
+	 */
+	public void setTemplateDefaults(PrePostTemplateDefaults defaults) {
+		this.registry.setTemplateDefaults(defaults);
 	}
 
 	/**
