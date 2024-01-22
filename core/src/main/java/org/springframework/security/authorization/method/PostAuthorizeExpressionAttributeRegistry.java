@@ -16,16 +16,15 @@
 
 package org.springframework.security.authorization.method;
 
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
+import java.util.function.Function;
 
 import reactor.util.annotation.NonNull;
 
 import org.springframework.aop.support.AopUtils;
 import org.springframework.expression.Expression;
-import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
-import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.access.prepost.PostAuthorize;
-import org.springframework.util.Assert;
 
 /**
  * For internal use only, as this contract is likely to change.
@@ -36,21 +35,6 @@ import org.springframework.util.Assert;
  */
 final class PostAuthorizeExpressionAttributeRegistry extends AbstractExpressionAttributeRegistry<ExpressionAttribute> {
 
-	private final MethodSecurityExpressionHandler expressionHandler;
-
-	PostAuthorizeExpressionAttributeRegistry() {
-		this(new DefaultMethodSecurityExpressionHandler());
-	}
-
-	PostAuthorizeExpressionAttributeRegistry(MethodSecurityExpressionHandler expressionHandler) {
-		Assert.notNull(expressionHandler, "expressionHandler cannot be null");
-		this.expressionHandler = expressionHandler;
-	}
-
-	MethodSecurityExpressionHandler getExpressionHandler() {
-		return this.expressionHandler;
-	}
-
 	@NonNull
 	@Override
 	ExpressionAttribute resolveAttribute(Method method, Class<?> targetClass) {
@@ -59,15 +43,14 @@ final class PostAuthorizeExpressionAttributeRegistry extends AbstractExpressionA
 		if (postAuthorize == null) {
 			return ExpressionAttribute.NULL_ATTRIBUTE;
 		}
-		Expression postAuthorizeExpression = this.expressionHandler.getExpressionParser()
-			.parseExpression(postAuthorize.value());
-		return new ExpressionAttribute(postAuthorizeExpression);
+		Expression expression = getExpressionHandler().getExpressionParser().parseExpression(postAuthorize.value());
+		return new ExpressionAttribute(expression);
 	}
 
 	private PostAuthorize findPostAuthorizeAnnotation(Method method, Class<?> targetClass) {
-		PostAuthorize postAuthorize = AuthorizationAnnotationUtils.findUniqueAnnotation(method, PostAuthorize.class);
-		return (postAuthorize != null) ? postAuthorize : AuthorizationAnnotationUtils
-			.findUniqueAnnotation(targetClass(method, targetClass), PostAuthorize.class);
+		Function<AnnotatedElement, PostAuthorize> lookup = findUniqueAnnotation(PostAuthorize.class);
+		PostAuthorize postAuthorize = lookup.apply(method);
+		return (postAuthorize != null) ? postAuthorize : lookup.apply(targetClass(method, targetClass));
 	}
 
 }

@@ -19,13 +19,19 @@ package org.springframework.security.authorization.method;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 
 import org.springframework.core.annotation.AnnotationConfigurationException;
 import org.springframework.core.annotation.MergedAnnotation;
 import org.springframework.core.annotation.MergedAnnotations;
 import org.springframework.core.annotation.MergedAnnotations.SearchStrategy;
 import org.springframework.core.annotation.RepeatableContainers;
+import org.springframework.core.convert.support.DefaultConversionService;
+import org.springframework.util.PropertyPlaceholderHelper;
 
 /**
  * A collection of utility methods that check for, and error on, conflicting annotations.
@@ -50,6 +56,43 @@ import org.springframework.core.annotation.RepeatableContainers;
  */
 final class AuthorizationAnnotationUtils {
 
+	static <A extends Annotation> Function<AnnotatedElement, A> withDefaults(Class<A> type,
+			PrePostTemplateDefaults defaults) {
+		Function<MergedAnnotation<A>, A> map = (mergedAnnotation) -> {
+			if (mergedAnnotation.getMetaSource() == null) {
+				return mergedAnnotation.synthesize();
+			}
+			PropertyPlaceholderHelper helper = new PropertyPlaceholderHelper("{", "}", null,
+					defaults.isIgnoreUnknown());
+			String expression = (String) mergedAnnotation.asMap().get("value");
+			Map<String, Object> annotationProperties = mergedAnnotation.getMetaSource().asMap();
+			Map<String, String> stringProperties = new HashMap<>();
+			for (Map.Entry<String, Object> property : annotationProperties.entrySet()) {
+				String key = property.getKey();
+				Object value = property.getValue();
+				String asString = (value instanceof String) ? (String) value
+						: DefaultConversionService.getSharedInstance().convert(value, String.class);
+				stringProperties.put(key, asString);
+			}
+			AnnotatedElement annotatedElement = (AnnotatedElement) mergedAnnotation.getSource();
+			String value = helper.replacePlaceholders(expression, stringProperties::get);
+			return MergedAnnotation.of(annotatedElement, type, Collections.singletonMap("value", value)).synthesize();
+		};
+		return (annotatedElement) -> findDistinctAnnotation(annotatedElement, type, map);
+	}
+
+	static <A extends Annotation> Function<AnnotatedElement, A> withDefaults(Class<A> type) {
+		return (annotatedElement) -> findDistinctAnnotation(annotatedElement, type, MergedAnnotation::synthesize);
+	}
+
+	static <A extends Annotation> A findUniqueAnnotation(Method method, Class<A> annotationType) {
+		return findDistinctAnnotation(method, annotationType, MergedAnnotation::synthesize);
+	}
+
+	static <A extends Annotation> A findUniqueAnnotation(Class<?> type, Class<A> annotationType) {
+		return findDistinctAnnotation(type, annotationType, MergedAnnotation::synthesize);
+	}
+
 	/**
 	 * Perform an exhaustive search on the type hierarchy of the given {@link Method} for
 	 * the annotation of type {@code annotationType}, including any annotations using
@@ -64,8 +107,9 @@ final class AuthorizationAnnotationUtils {
 	 * @throws AnnotationConfigurationException if more than one unique instance of the
 	 * annotation is found
 	 */
-	static <A extends Annotation> A findUniqueAnnotation(Method method, Class<A> annotationType) {
-		return findDistinctAnnotation(method, annotationType);
+	static <A extends Annotation> A findUniqueAnnotation(Method method, Class<A> annotationType,
+			Function<MergedAnnotation<A>, A> map) {
+		return findDistinctAnnotation(method, annotationType, map);
 	}
 
 	/**
@@ -82,18 +126,18 @@ final class AuthorizationAnnotationUtils {
 	 * @throws AnnotationConfigurationException if more than one unique instance of the
 	 * annotation is found
 	 */
-	static <A extends Annotation> A findUniqueAnnotation(Class<?> type, Class<A> annotationType) {
-		return findDistinctAnnotation(type, annotationType);
+	static <A extends Annotation> A findUniqueAnnotation(Class<?> type, Class<A> annotationType,
+			Function<MergedAnnotation<A>, A> map) {
+		return findDistinctAnnotation(type, annotationType, map);
 	}
 
 	private static <A extends Annotation> A findDistinctAnnotation(AnnotatedElement annotatedElement,
-			Class<A> annotationType) {
+			Class<A> annotationType, Function<MergedAnnotation<A>, A> map) {
 		MergedAnnotations mergedAnnotations = MergedAnnotations.from(annotatedElement, SearchStrategy.TYPE_HIERARCHY,
 				RepeatableContainers.none());
-
 		List<A> annotations = mergedAnnotations.stream(annotationType)
 			.map(MergedAnnotation::withNonMergedAttributes)
-			.map(MergedAnnotation::synthesize)
+			.map(map)
 			.distinct()
 			.toList();
 

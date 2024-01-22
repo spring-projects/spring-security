@@ -900,6 +900,157 @@ open class BankService {
 
 This results in more readable method definitions.
 
+==== Templating Meta-Annotation Expressions
+
+You can also opt into using meta-annotation templates, which allow for much more powerful annotation definitions.
+
+First, publish the following bean:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Bean
+static PrePostTemplateDefaults prePostTemplateDefaults() {
+	return new PrePostTemplateDefaults();
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+companion object {
+    @Bean
+    fun prePostTemplateDefaults(): PrePostTemplateDefaults {
+        return PrePostTemplateDefaults()
+    }
+}
+----
+======
+
+Now instead of `@IsAdmin`, you can create something more powerful like `@HasRole` like so:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Target({ ElementType.METHOD, ElementType.TYPE })
+@Retention(RetentionPolicy.RUNTIME)
+@PreAuthorize("hasRole('{value}')")
+public @interface HasRole {
+	String value();
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Target(ElementType.METHOD, ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+@PreAuthorize("hasRole('{value}')")
+annotation class IsAdmin(val value: String)
+----
+======
+
+And the result is that on your secured methods you can now do the following instead:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Component
+public class BankService {
+	@HasRole("ADMIN")
+	public Account readAccount(Long id) {
+        // ... is only returned if the `Account` belongs to the logged in user
+	}
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Component
+open class BankService {
+	@HasRole("ADMIN")
+	fun readAccount(val id: Long): Account {
+        // ... is only returned if the `Account` belongs to the logged in user
+	}
+}
+----
+======
+
+Note that this works with method variables and all annotation types, too, though you will want to be careful to correctly take care of quotation marks so the resulting SpEL expression is correct.
+
+For example, consider the following `@HasAnyRole` annotation:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Target({ ElementType.METHOD, ElementType.TYPE })
+@Retention(RetentionPolicy.RUNTIME)
+@PreAuthorize("hasAnyRole({roles})")
+public @interface HasAnyRole {
+	String[] roles();
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Target(ElementType.METHOD, ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+@PreAuthorize("hasAnyRole({roles})")
+annotation class HasAnyRole(val roles: Array<String>)
+----
+======
+
+In that case, you'll notice that you should not use the quotation marks in the expression, but instead in the parameter value like so:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Component
+public class BankService {
+	@HasAnyRole(roles = { "'USER'", "'ADMIN'" })
+	public Account readAccount(Long id) {
+        // ... is only returned if the `Account` belongs to the logged in user
+	}
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Component
+open class BankService {
+	@HasAnyRole(roles = arrayOf("'USER'", "'ADMIN'"))
+	fun readAccount(val id: Long): Account {
+        // ... is only returned if the `Account` belongs to the logged in user
+	}
+}
+----
+======
+
+so that, once replaced, the expression becomes `@PreAuthorize("hasAnyRole('USER', 'ADMIN')")`.
+
 [[enable-annotation]]
 === Enabling Certain Annotations
 

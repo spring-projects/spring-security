@@ -17,6 +17,8 @@
 package org.springframework.security.config.annotation.method.configuration;
 
 import java.io.Serializable;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -49,12 +51,17 @@ import org.springframework.security.access.expression.method.DefaultMethodSecuri
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PostFilter;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.access.prepost.PreFilter;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationEventPublisher;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.authorization.method.AuthorizationInterceptorsOrder;
 import org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor;
 import org.springframework.security.authorization.method.MethodInvocationResult;
+import org.springframework.security.authorization.method.PrePostTemplateDefaults;
 import org.springframework.security.config.annotation.SecurityContextChangedListenerConfig;
 import org.springframework.security.config.core.GrantedAuthorityDefaults;
 import org.springframework.security.config.test.SpringTestContext;
@@ -587,6 +594,74 @@ public class PrePostMethodSecurityConfigurationTests {
 		assertThat(filtered).containsExactly("DoNotDrop");
 	}
 
+	@Test
+	@WithMockUser
+	public void methodeWhenParameterizedPreAuthorizeMetaAnnotationThenPasses() {
+		this.spring.register(MetaAnnotationPlaceholderConfig.class).autowire();
+		MetaAnnotationService service = this.spring.getContext().getBean(MetaAnnotationService.class);
+		assertThat(service.hasRole("USER")).isTrue();
+	}
+
+	@Test
+	@WithMockUser
+	public void methodRoleWhenPreAuthorizeMetaAnnotationHardcodedParameterThenPasses() {
+		this.spring.register(MetaAnnotationPlaceholderConfig.class).autowire();
+		MetaAnnotationService service = this.spring.getContext().getBean(MetaAnnotationService.class);
+		assertThat(service.hasUserRole()).isTrue();
+	}
+
+	@Test
+	public void methodWhenParameterizedAnnotationThenFails() {
+		this.spring.register(MetaAnnotationPlaceholderConfig.class).autowire();
+		MetaAnnotationService service = this.spring.getContext().getBean(MetaAnnotationService.class);
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(service::placeholdersOnlyResolvedByMetaAnnotations);
+	}
+
+	@Test
+	@WithMockUser(authorities = "SCOPE_message:read")
+	public void methodWhenMultiplePlaceholdersHasAuthorityThenPasses() {
+		this.spring.register(MetaAnnotationPlaceholderConfig.class).autowire();
+		MetaAnnotationService service = this.spring.getContext().getBean(MetaAnnotationService.class);
+		assertThat(service.readMessage()).isEqualTo("message");
+	}
+
+	@Test
+	@WithMockUser(roles = "ADMIN")
+	public void methodWhenMultiplePlaceholdersHasRoleThenPasses() {
+		this.spring.register(MetaAnnotationPlaceholderConfig.class).autowire();
+		MetaAnnotationService service = this.spring.getContext().getBean(MetaAnnotationService.class);
+		assertThat(service.readMessage()).isEqualTo("message");
+	}
+
+	@Test
+	@WithMockUser
+	public void methodWhenPostAuthorizeMetaAnnotationThenAuthorizes() {
+		this.spring.register(MetaAnnotationPlaceholderConfig.class).autowire();
+		MetaAnnotationService service = this.spring.getContext().getBean(MetaAnnotationService.class);
+		service.startsWithDave("daveMatthews");
+		assertThatExceptionOfType(AccessDeniedException.class)
+			.isThrownBy(() -> service.startsWithDave("jenniferHarper"));
+	}
+
+	@Test
+	@WithMockUser
+	public void methodWhenPreFilterMetaAnnotationThenFilters() {
+		this.spring.register(MetaAnnotationPlaceholderConfig.class).autowire();
+		MetaAnnotationService service = this.spring.getContext().getBean(MetaAnnotationService.class);
+		assertThat(service.parametersContainDave(new ArrayList<>(List.of("dave", "carla", "vanessa", "paul"))))
+			.containsExactly("dave");
+	}
+
+	@Test
+	@WithMockUser
+	public void methodWhenPostFilterMetaAnnotationThenFilters() {
+		this.spring.register(MetaAnnotationPlaceholderConfig.class).autowire();
+		MetaAnnotationService service = this.spring.getContext().getBean(MetaAnnotationService.class);
+		assertThat(service.resultsContainDave(new ArrayList<>(List.of("dave", "carla", "vanessa", "paul"))))
+			.containsExactly("dave");
+	}
+
 	private static Consumer<ConfigurableWebApplicationContext> disallowBeanOverriding() {
 		return (context) -> ((AnnotationConfigWebApplicationContext) context).setAllowBeanDefinitionOverriding(false);
 	}
@@ -887,6 +962,102 @@ public class PrePostMethodSecurityConfigurationTests {
 		Authz authz() {
 			return new Authz();
 		}
+
+	}
+
+	@Configuration
+	@EnableMethodSecurity
+	static class MetaAnnotationPlaceholderConfig {
+
+		@Bean
+		PrePostTemplateDefaults methodSecurityDefaults() {
+			return new PrePostTemplateDefaults();
+		}
+
+		@Bean
+		MetaAnnotationService methodSecurityService() {
+			return new MetaAnnotationService();
+		}
+
+	}
+
+	static class MetaAnnotationService {
+
+		@RequireRole(role = "#role")
+		boolean hasRole(String role) {
+			return true;
+		}
+
+		@RequireRole(role = "'USER'")
+		boolean hasUserRole() {
+			return true;
+		}
+
+		@PreAuthorize("hasRole({role})")
+		void placeholdersOnlyResolvedByMetaAnnotations() {
+		}
+
+		@HasClaim(claim = "message:read", roles = { "'ADMIN'" })
+		String readMessage() {
+			return "message";
+		}
+
+		@ResultStartsWith("dave")
+		String startsWithDave(String value) {
+			return value;
+		}
+
+		@ParameterContains("dave")
+		List<String> parametersContainDave(List<String> list) {
+			return list;
+		}
+
+		@ResultContains("dave")
+		List<String> resultsContainDave(List<String> list) {
+			return list;
+		}
+
+	}
+
+	@Retention(RetentionPolicy.RUNTIME)
+	@PreAuthorize("hasRole({role})")
+	@interface RequireRole {
+
+		String role();
+
+	}
+
+	@Retention(RetentionPolicy.RUNTIME)
+	@PreAuthorize("hasAuthority('SCOPE_{claim}') || hasAnyRole({roles})")
+	@interface HasClaim {
+
+		String claim();
+
+		String[] roles() default {};
+
+	}
+
+	@Retention(RetentionPolicy.RUNTIME)
+	@PostAuthorize("returnObject.startsWith('{value}')")
+	@interface ResultStartsWith {
+
+		String value();
+
+	}
+
+	@Retention(RetentionPolicy.RUNTIME)
+	@PreFilter("filterObject.contains('{value}')")
+	@interface ParameterContains {
+
+		String value();
+
+	}
+
+	@Retention(RetentionPolicy.RUNTIME)
+	@PostFilter("filterObject.contains('{value}')")
+	@interface ResultContains {
+
+		String value();
 
 	}
 

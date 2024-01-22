@@ -16,16 +16,15 @@
 
 package org.springframework.security.authorization.method;
 
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
+import java.util.function.Function;
 
 import reactor.util.annotation.NonNull;
 
 import org.springframework.aop.support.AopUtils;
 import org.springframework.expression.Expression;
-import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
-import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.util.Assert;
 
 /**
  * For internal use only, as this contract is likely to change.
@@ -36,25 +35,6 @@ import org.springframework.util.Assert;
  */
 final class PreAuthorizeExpressionAttributeRegistry extends AbstractExpressionAttributeRegistry<ExpressionAttribute> {
 
-	private final MethodSecurityExpressionHandler expressionHandler;
-
-	PreAuthorizeExpressionAttributeRegistry() {
-		this.expressionHandler = new DefaultMethodSecurityExpressionHandler();
-	}
-
-	PreAuthorizeExpressionAttributeRegistry(MethodSecurityExpressionHandler expressionHandler) {
-		Assert.notNull(expressionHandler, "expressionHandler cannot be null");
-		this.expressionHandler = expressionHandler;
-	}
-
-	/**
-	 * Returns the {@link MethodSecurityExpressionHandler}.
-	 * @return the {@link MethodSecurityExpressionHandler} to use
-	 */
-	MethodSecurityExpressionHandler getExpressionHandler() {
-		return this.expressionHandler;
-	}
-
 	@NonNull
 	@Override
 	ExpressionAttribute resolveAttribute(Method method, Class<?> targetClass) {
@@ -63,15 +43,14 @@ final class PreAuthorizeExpressionAttributeRegistry extends AbstractExpressionAt
 		if (preAuthorize == null) {
 			return ExpressionAttribute.NULL_ATTRIBUTE;
 		}
-		Expression preAuthorizeExpression = this.expressionHandler.getExpressionParser()
-			.parseExpression(preAuthorize.value());
-		return new ExpressionAttribute(preAuthorizeExpression);
+		Expression expression = getExpressionHandler().getExpressionParser().parseExpression(preAuthorize.value());
+		return new ExpressionAttribute(expression);
 	}
 
 	private PreAuthorize findPreAuthorizeAnnotation(Method method, Class<?> targetClass) {
-		PreAuthorize preAuthorize = AuthorizationAnnotationUtils.findUniqueAnnotation(method, PreAuthorize.class);
-		return (preAuthorize != null) ? preAuthorize : AuthorizationAnnotationUtils
-			.findUniqueAnnotation(targetClass(method, targetClass), PreAuthorize.class);
+		Function<AnnotatedElement, PreAuthorize> lookup = findUniqueAnnotation(PreAuthorize.class);
+		PreAuthorize preAuthorize = lookup.apply(method);
+		return (preAuthorize != null) ? preAuthorize : lookup.apply(targetClass(method, targetClass));
 	}
 
 }

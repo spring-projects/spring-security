@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,6 +36,7 @@ import org.springframework.security.authorization.method.PostAuthorizeReactiveAu
 import org.springframework.security.authorization.method.PostFilterAuthorizationReactiveMethodInterceptor;
 import org.springframework.security.authorization.method.PreAuthorizeReactiveAuthorizationManager;
 import org.springframework.security.authorization.method.PreFilterAuthorizationReactiveMethodInterceptor;
+import org.springframework.security.authorization.method.PrePostTemplateDefaults;
 import org.springframework.security.config.core.GrantedAuthorityDefaults;
 
 /**
@@ -50,32 +51,48 @@ final class ReactiveAuthorizationManagerMethodSecurityConfiguration {
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 	static PreFilterAuthorizationReactiveMethodInterceptor preFilterInterceptor(
-			MethodSecurityExpressionHandler expressionHandler) {
-		return new PreFilterAuthorizationReactiveMethodInterceptor(expressionHandler);
+			MethodSecurityExpressionHandler expressionHandler,
+			ObjectProvider<PrePostTemplateDefaults> defaultsObjectProvider) {
+		PreFilterAuthorizationReactiveMethodInterceptor interceptor = new PreFilterAuthorizationReactiveMethodInterceptor(
+				expressionHandler);
+		defaultsObjectProvider.ifAvailable(interceptor::setTemplateDefaults);
+		return interceptor;
 	}
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 	static AuthorizationManagerBeforeReactiveMethodInterceptor preAuthorizeInterceptor(
-			MethodSecurityExpressionHandler expressionHandler, ObjectProvider<ObservationRegistry> registryProvider) {
-		ReactiveAuthorizationManager<MethodInvocation> authorizationManager = manager(
-				new PreAuthorizeReactiveAuthorizationManager(expressionHandler), registryProvider);
+			MethodSecurityExpressionHandler expressionHandler,
+			ObjectProvider<PrePostTemplateDefaults> defaultsObjectProvider,
+			ObjectProvider<ObservationRegistry> registryProvider) {
+		PreAuthorizeReactiveAuthorizationManager manager = new PreAuthorizeReactiveAuthorizationManager(
+				expressionHandler);
+		defaultsObjectProvider.ifAvailable(manager::setTemplateDefaults);
+		ReactiveAuthorizationManager<MethodInvocation> authorizationManager = manager(manager, registryProvider);
 		return AuthorizationManagerBeforeReactiveMethodInterceptor.preAuthorize(authorizationManager);
 	}
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 	static PostFilterAuthorizationReactiveMethodInterceptor postFilterInterceptor(
-			MethodSecurityExpressionHandler expressionHandler) {
-		return new PostFilterAuthorizationReactiveMethodInterceptor(expressionHandler);
+			MethodSecurityExpressionHandler expressionHandler,
+			ObjectProvider<PrePostTemplateDefaults> defaultsObjectProvider) {
+		PostFilterAuthorizationReactiveMethodInterceptor interceptor = new PostFilterAuthorizationReactiveMethodInterceptor(
+				expressionHandler);
+		defaultsObjectProvider.ifAvailable(interceptor::setTemplateDefaults);
+		return interceptor;
 	}
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 	static AuthorizationManagerAfterReactiveMethodInterceptor postAuthorizeInterceptor(
-			MethodSecurityExpressionHandler expressionHandler, ObjectProvider<ObservationRegistry> registryProvider) {
-		ReactiveAuthorizationManager<MethodInvocationResult> authorizationManager = manager(
-				new PostAuthorizeReactiveAuthorizationManager(expressionHandler), registryProvider);
+			MethodSecurityExpressionHandler expressionHandler,
+			ObjectProvider<PrePostTemplateDefaults> defaultsObjectProvider,
+			ObjectProvider<ObservationRegistry> registryProvider) {
+		PostAuthorizeReactiveAuthorizationManager manager = new PostAuthorizeReactiveAuthorizationManager(
+				expressionHandler);
+		ReactiveAuthorizationManager<MethodInvocationResult> authorizationManager = manager(manager, registryProvider);
+		defaultsObjectProvider.ifAvailable(manager::setTemplateDefaults);
 		return AuthorizationManagerAfterReactiveMethodInterceptor.postAuthorize(authorizationManager);
 	}
 

@@ -16,15 +16,14 @@
 
 package org.springframework.security.authorization.method;
 
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
+import java.util.function.Function;
 
 import org.springframework.aop.support.AopUtils;
 import org.springframework.expression.Expression;
 import org.springframework.lang.NonNull;
-import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
-import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.access.prepost.PostFilter;
-import org.springframework.util.Assert;
 
 /**
  * For internal use only, as this contract is likely to change.
@@ -35,21 +34,6 @@ import org.springframework.util.Assert;
  */
 final class PostFilterExpressionAttributeRegistry extends AbstractExpressionAttributeRegistry<ExpressionAttribute> {
 
-	private final MethodSecurityExpressionHandler expressionHandler;
-
-	PostFilterExpressionAttributeRegistry() {
-		this.expressionHandler = new DefaultMethodSecurityExpressionHandler();
-	}
-
-	PostFilterExpressionAttributeRegistry(MethodSecurityExpressionHandler expressionHandler) {
-		Assert.notNull(expressionHandler, "expressionHandler cannot be null");
-		this.expressionHandler = expressionHandler;
-	}
-
-	MethodSecurityExpressionHandler getExpressionHandler() {
-		return this.expressionHandler;
-	}
-
 	@NonNull
 	@Override
 	ExpressionAttribute resolveAttribute(Method method, Class<?> targetClass) {
@@ -58,15 +42,15 @@ final class PostFilterExpressionAttributeRegistry extends AbstractExpressionAttr
 		if (postFilter == null) {
 			return ExpressionAttribute.NULL_ATTRIBUTE;
 		}
-		Expression postFilterExpression = this.expressionHandler.getExpressionParser()
+		Expression postFilterExpression = getExpressionHandler().getExpressionParser()
 			.parseExpression(postFilter.value());
 		return new ExpressionAttribute(postFilterExpression);
 	}
 
 	private PostFilter findPostFilterAnnotation(Method method, Class<?> targetClass) {
-		PostFilter postFilter = AuthorizationAnnotationUtils.findUniqueAnnotation(method, PostFilter.class);
-		return (postFilter != null) ? postFilter
-				: AuthorizationAnnotationUtils.findUniqueAnnotation(targetClass(method, targetClass), PostFilter.class);
+		Function<AnnotatedElement, PostFilter> lookup = findUniqueAnnotation(PostFilter.class);
+		PostFilter postFilter = lookup.apply(method);
+		return (postFilter != null) ? postFilter : lookup.apply(targetClass(method, targetClass));
 	}
 
 }

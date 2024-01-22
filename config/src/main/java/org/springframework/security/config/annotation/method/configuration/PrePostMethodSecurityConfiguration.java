@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,6 +45,7 @@ import org.springframework.security.authorization.method.PostAuthorizeAuthorizat
 import org.springframework.security.authorization.method.PostFilterAuthorizationMethodInterceptor;
 import org.springframework.security.authorization.method.PreAuthorizeAuthorizationManager;
 import org.springframework.security.authorization.method.PreFilterAuthorizationMethodInterceptor;
+import org.springframework.security.authorization.method.PrePostTemplateDefaults;
 import org.springframework.security.config.core.GrantedAuthorityDefaults;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
@@ -68,6 +69,7 @@ final class PrePostMethodSecurityConfiguration implements ImportAware {
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 	static MethodInterceptor preFilterAuthorizationMethodInterceptor(
 			ObjectProvider<GrantedAuthorityDefaults> defaultsProvider,
+			ObjectProvider<PrePostTemplateDefaults> methodSecurityDefaultsProvider,
 			ObjectProvider<MethodSecurityExpressionHandler> expressionHandlerProvider,
 			ObjectProvider<SecurityContextHolderStrategy> strategyProvider,
 			ObjectProvider<RoleHierarchy> roleHierarchyProvider, PrePostMethodSecurityConfiguration configuration,
@@ -75,6 +77,7 @@ final class PrePostMethodSecurityConfiguration implements ImportAware {
 		PreFilterAuthorizationMethodInterceptor preFilter = new PreFilterAuthorizationMethodInterceptor();
 		preFilter.setOrder(preFilter.getOrder() + configuration.interceptorOrderOffset);
 		strategyProvider.ifAvailable(preFilter::setSecurityContextHolderStrategy);
+		methodSecurityDefaultsProvider.ifAvailable(preFilter::setTemplateDefaults);
 		preFilter.setExpressionHandler(new DeferringMethodSecurityExpressionHandler(expressionHandlerProvider,
 				defaultsProvider, roleHierarchyProvider, context));
 		return preFilter;
@@ -84,12 +87,14 @@ final class PrePostMethodSecurityConfiguration implements ImportAware {
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 	static MethodInterceptor preAuthorizeAuthorizationMethodInterceptor(
 			ObjectProvider<GrantedAuthorityDefaults> defaultsProvider,
+			ObjectProvider<PrePostTemplateDefaults> methodSecurityDefaultsProvider,
 			ObjectProvider<MethodSecurityExpressionHandler> expressionHandlerProvider,
 			ObjectProvider<SecurityContextHolderStrategy> strategyProvider,
 			ObjectProvider<AuthorizationEventPublisher> eventPublisherProvider,
 			ObjectProvider<ObservationRegistry> registryProvider, ObjectProvider<RoleHierarchy> roleHierarchyProvider,
 			PrePostMethodSecurityConfiguration configuration, ApplicationContext context) {
 		PreAuthorizeAuthorizationManager manager = new PreAuthorizeAuthorizationManager();
+		methodSecurityDefaultsProvider.ifAvailable(manager::setTemplateDefaults);
 		manager.setExpressionHandler(new DeferringMethodSecurityExpressionHandler(expressionHandlerProvider,
 				defaultsProvider, roleHierarchyProvider, context));
 		AuthorizationManagerBeforeMethodInterceptor preAuthorize = AuthorizationManagerBeforeMethodInterceptor
@@ -104,12 +109,14 @@ final class PrePostMethodSecurityConfiguration implements ImportAware {
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 	static MethodInterceptor postAuthorizeAuthorizationMethodInterceptor(
 			ObjectProvider<GrantedAuthorityDefaults> defaultsProvider,
+			ObjectProvider<PrePostTemplateDefaults> methodSecurityDefaultsProvider,
 			ObjectProvider<MethodSecurityExpressionHandler> expressionHandlerProvider,
 			ObjectProvider<SecurityContextHolderStrategy> strategyProvider,
 			ObjectProvider<AuthorizationEventPublisher> eventPublisherProvider,
 			ObjectProvider<ObservationRegistry> registryProvider, ObjectProvider<RoleHierarchy> roleHierarchyProvider,
 			PrePostMethodSecurityConfiguration configuration, ApplicationContext context) {
 		PostAuthorizeAuthorizationManager manager = new PostAuthorizeAuthorizationManager();
+		methodSecurityDefaultsProvider.ifAvailable(manager::setTemplateDefaults);
 		manager.setExpressionHandler(new DeferringMethodSecurityExpressionHandler(expressionHandlerProvider,
 				defaultsProvider, roleHierarchyProvider, context));
 		AuthorizationManagerAfterMethodInterceptor postAuthorize = AuthorizationManagerAfterMethodInterceptor
@@ -124,6 +131,7 @@ final class PrePostMethodSecurityConfiguration implements ImportAware {
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 	static MethodInterceptor postFilterAuthorizationMethodInterceptor(
 			ObjectProvider<GrantedAuthorityDefaults> defaultsProvider,
+			ObjectProvider<PrePostTemplateDefaults> methodSecurityDefaultsProvider,
 			ObjectProvider<MethodSecurityExpressionHandler> expressionHandlerProvider,
 			ObjectProvider<SecurityContextHolderStrategy> strategyProvider,
 			ObjectProvider<RoleHierarchy> roleHierarchyProvider, PrePostMethodSecurityConfiguration configuration,
@@ -131,6 +139,7 @@ final class PrePostMethodSecurityConfiguration implements ImportAware {
 		PostFilterAuthorizationMethodInterceptor postFilter = new PostFilterAuthorizationMethodInterceptor();
 		postFilter.setOrder(postFilter.getOrder() + configuration.interceptorOrderOffset);
 		strategyProvider.ifAvailable(postFilter::setSecurityContextHolderStrategy);
+		methodSecurityDefaultsProvider.ifAvailable(postFilter::setTemplateDefaults);
 		postFilter.setExpressionHandler(new DeferringMethodSecurityExpressionHandler(expressionHandlerProvider,
 				defaultsProvider, roleHierarchyProvider, context));
 		return postFilter;
