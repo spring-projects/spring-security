@@ -94,6 +94,15 @@ updates:
       - dependency-name: "*"
         update-types: [ "version-update:semver-major", "version-update:semver-minor" ]
 
+  - package-ecosystem: "gradle"
+    target-branch: "docs-build"
+    directory: "/"
+    schedule:
+      interval: "daily"
+      time: "03:00"
+      timezone: "Etc/UTC"
+    labels: [ "type: dependency-upgrade" ]
+
 #    GitHub Actions
 
   - package-ecosystem: github-actions
