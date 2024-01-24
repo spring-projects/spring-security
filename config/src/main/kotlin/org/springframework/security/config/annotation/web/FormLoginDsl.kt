@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,6 +38,8 @@ import jakarta.servlet.http.HttpServletRequest
  * @property loginProcessingUrl the URL to validate the credentials
  * @property permitAll whether to grant access to the urls for [failureUrl] as well as
  * for the [HttpSecurityBuilder], the [loginPage] and [loginProcessingUrl] for every user
+ * @property usernameParameter the HTTP parameter to look for the username when performing authentication
+ * @property passwordParameter the HTTP parameter to look for the password when performing authentication
  */
 @SecurityMarker
 class FormLoginDsl {
@@ -48,6 +50,8 @@ class FormLoginDsl {
     var loginProcessingUrl: String? = null
     var permitAll: Boolean? = null
     var authenticationDetailsSource: AuthenticationDetailsSource<HttpServletRequest, *>? = null
+    var usernameParameter: String? = null
+    var passwordParameter: String? = null
 
     private var defaultSuccessUrlOption: Pair<String, Boolean>? = null
 
@@ -95,6 +99,8 @@ class FormLoginDsl {
             authenticationSuccessHandler?.also { login.successHandler(authenticationSuccessHandler) }
             authenticationFailureHandler?.also { login.failureHandler(authenticationFailureHandler) }
             authenticationDetailsSource?.also { login.authenticationDetailsSource(authenticationDetailsSource) }
+            usernameParameter?.also { login.usernameParameter(usernameParameter) }
+            passwordParameter?.also { login.passwordParameter(passwordParameter) }
             if (disabled) {
                 login.disable()
             }

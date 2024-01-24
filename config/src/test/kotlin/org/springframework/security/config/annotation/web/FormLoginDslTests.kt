@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@ import org.springframework.security.config.test.SpringTestContextExtension
 import org.springframework.security.core.userdetails.User
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf
+import org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler
@@ -365,6 +366,50 @@ class FormLoginDslTests {
             }
 
         verify(exactly = 1) { CustomAuthenticationDetailsSourceConfig.AUTHENTICATION_DETAILS_SOURCE.buildDetails(any()) }
+    }
+
+    @Configuration
+    @EnableWebSecurity
+    open class CustomUsernameParameterConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+            http {
+                formLogin {
+                    usernameParameter = "custom-username"
+                }
+            }
+            return http.build()
+        }
+    }
+
+    @Test
+    fun `form login when custom username parameter then used`() {
+        this.spring.register(CustomUsernameParameterConfig::class.java, UserConfig::class.java).autowire()
+
+        this.mockMvc.perform(formLogin().userParameter("custom-username"))
+                .andExpect(authenticated())
+    }
+
+    @Configuration
+    @EnableWebSecurity
+    open class CustomPasswordParameterConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+            http {
+                formLogin {
+                    passwordParameter = "custom-password"
+                }
+            }
+            return http.build()
+        }
+    }
+
+    @Test
+    fun `form login when custom password parameter then used`() {
+        this.spring.register(CustomPasswordParameterConfig::class.java, UserConfig::class.java).autowire()
+
+        this.mockMvc.perform(formLogin().passwordParam("custom-password"))
+                .andExpect(authenticated())
     }
 
     @Configuration
