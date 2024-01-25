@@ -123,7 +123,7 @@ public final class Jsr250AuthorizationManager implements AuthorizationManager<Me
 			Method specificMethod = AopUtils.getMostSpecificMethod(method, targetClass);
 			Annotation annotation = findAnnotation(specificMethod);
 			return (annotation != null) ? annotation
-					: findAnnotation(targetClass != null ? targetClass : specificMethod.getDeclaringClass());
+					: findAnnotation((targetClass != null) ? targetClass : specificMethod.getDeclaringClass());
 		}
 
 		private Annotation findAnnotation(Method method) {

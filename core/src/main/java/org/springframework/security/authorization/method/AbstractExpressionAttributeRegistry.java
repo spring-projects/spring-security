@@ -69,7 +69,7 @@ abstract class AbstractExpressionAttributeRegistry<T extends ExpressionAttribute
 	abstract T resolveAttribute(Method method, Class<?> targetClass);
 
 	Class<?> targetClass(Method method, Class<?> targetClass) {
-		return targetClass != null ? targetClass : method.getDeclaringClass();
+		return (targetClass != null) ? targetClass : method.getDeclaringClass();
 	}
 
 }

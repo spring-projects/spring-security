@@ -94,7 +94,7 @@ public final class SecuredAuthorizationManager implements AuthorizationManager<M
 	private Secured findSecuredAnnotation(Method method, Class<?> targetClass) {
 		Secured secured = AuthorizationAnnotationUtils.findUniqueAnnotation(method, Secured.class);
 		return (secured != null) ? secured : AuthorizationAnnotationUtils
-			.findUniqueAnnotation(targetClass != null ? targetClass : method.getDeclaringClass(), Secured.class);
+			.findUniqueAnnotation((targetClass != null) ? targetClass : method.getDeclaringClass(), Secured.class);
 	}
 
 }
