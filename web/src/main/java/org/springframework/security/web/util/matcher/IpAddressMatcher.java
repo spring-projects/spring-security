@@ -47,6 +47,7 @@ public final class IpAddressMatcher implements RequestMatcher {
 	 * come.
 	 */
 	public IpAddressMatcher(String ipAddress) {
+		assertStartsWithHexa(ipAddress);
 		if (ipAddress.indexOf('/') > 0) {
 			String[] addressAndMask = StringUtils.split(ipAddress, "/");
 			ipAddress = addressAndMask[0];
@@ -67,6 +68,7 @@ public final class IpAddressMatcher implements RequestMatcher {
 	}
 
 	public boolean matches(String address) {
+		assertStartsWithHexa(address);
 		InetAddress remoteAddress = parseAddress(address);
 		if (!this.requiredAddress.getClass().equals(remoteAddress.getClass())) {
 			return false;
@@ -87,6 +89,13 @@ public final class IpAddressMatcher implements RequestMatcher {
 			return (remAddr[nMaskFullBytes] & finalByte) == (reqAddr[nMaskFullBytes] & finalByte);
 		}
 		return true;
+	}
+
+	private void assertStartsWithHexa(String ipAddress) {
+		Assert.isTrue(
+				ipAddress.charAt(0) == '[' || ipAddress.charAt(0) == ':'
+						|| Character.digit(ipAddress.charAt(0), 16) != -1,
+				"ipAddress must start with a [, :, or a hexadecimal digit");
 	}
 
 	private InetAddress parseAddress(String address) {
