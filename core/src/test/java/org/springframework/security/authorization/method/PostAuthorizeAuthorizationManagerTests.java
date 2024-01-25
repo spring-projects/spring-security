@@ -16,8 +16,10 @@
 
 package org.springframework.security.authorization.method;
 
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -165,6 +167,46 @@ public class PostAuthorizeAuthorizationManagerTests {
 		PostAuthorizeAuthorizationManager manager = new PostAuthorizeAuthorizationManager();
 		assertThatExceptionOfType(AnnotationConfigurationException.class)
 			.isThrownBy(() -> manager.check(authentication, result));
+	}
+
+	@Test
+	public void checkRequiresUserWhenMetaAnnotationClassThenApplies() throws Exception {
+		MockMethodInvocation methodInvocation = new MockMethodInvocation(new MetaAnnotationClass(),
+				MetaAnnotationClass.class, "hasSameNameParameter", new Class[] { String.class },
+				new Object[] { "ROLE_USER" });
+		PostAuthorizeAuthorizationManager manager = new PostAuthorizeAuthorizationManager();
+		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedUser,
+				new MethodInvocationResult(methodInvocation, null));
+		assertThat(decision.isGranted()).isTrue();
+
+		methodInvocation = new MockMethodInvocation(new MetaAnnotationClass(), MetaAnnotationClass.class,
+				"noneSameNameParameter", new Class[] { String.class }, new Object[] { "hello" });
+		decision = manager.check(TestAuthentication::authenticatedUser,
+				new MethodInvocationResult(methodInvocation, null));
+		assertThat(decision.isGranted()).isFalse();
+	}
+
+	public static class MetaAnnotationClass {
+
+		@HasAuthority("message:read")
+		public void hasSameNameParameter(String value) {
+
+		}
+
+		@HasAuthority("message:read")
+		public void noneSameNameParameter(String object) {
+
+		}
+
+	}
+
+	@Target({ ElementType.METHOD, ElementType.TYPE })
+	@Retention(RetentionPolicy.RUNTIME)
+	@PostAuthorize("hasAuthority(#value)")
+	public @interface HasAuthority {
+
+		String value();
+
 	}
 
 	public static class TestClass implements InterfaceAnnotationsOne, InterfaceAnnotationsTwo {

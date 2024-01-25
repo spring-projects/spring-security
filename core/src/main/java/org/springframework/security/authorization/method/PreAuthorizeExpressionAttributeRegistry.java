@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,10 +18,10 @@ package org.springframework.security.authorization.method;
 
 import java.lang.reflect.Method;
 
-import reactor.util.annotation.NonNull;
-
 import org.springframework.aop.support.AopUtils;
+import org.springframework.core.annotation.MergedAnnotation;
 import org.springframework.expression.Expression;
+import org.springframework.lang.NonNull;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -31,6 +31,7 @@ import org.springframework.util.Assert;
  * For internal use only, as this contract is likely to change.
  *
  * @author Evgeniy Cheban
+ * @author DingHao
  * @since 5.8
  */
 final class PreAuthorizeExpressionAttributeRegistry extends AbstractExpressionAttributeRegistry<ExpressionAttribute> {
@@ -58,19 +59,21 @@ final class PreAuthorizeExpressionAttributeRegistry extends AbstractExpressionAt
 	@Override
 	ExpressionAttribute resolveAttribute(Method method, Class<?> targetClass) {
 		Method specificMethod = AopUtils.getMostSpecificMethod(method, targetClass);
-		PreAuthorize preAuthorize = findPreAuthorizeAnnotation(specificMethod);
+		MergedAnnotation<PreAuthorize> preAuthorize = findPreAuthorizeAnnotation(specificMethod);
 		if (preAuthorize == null) {
 			return ExpressionAttribute.NULL_ATTRIBUTE;
 		}
 		Expression preAuthorizeExpression = this.expressionHandler.getExpressionParser()
-			.parseExpression(preAuthorize.value());
+			.parseExpression(preAuthorize.getString(MergedAnnotation.VALUE));
+		this.expressionHandler.setVariables(getMetaAnnotationAttribute(preAuthorize));
 		return new ExpressionAttribute(preAuthorizeExpression);
 	}
 
-	private PreAuthorize findPreAuthorizeAnnotation(Method method) {
-		PreAuthorize preAuthorize = AuthorizationAnnotationUtils.findUniqueAnnotation(method, PreAuthorize.class);
-		return (preAuthorize != null) ? preAuthorize
-				: AuthorizationAnnotationUtils.findUniqueAnnotation(method.getDeclaringClass(), PreAuthorize.class);
+	private MergedAnnotation<PreAuthorize> findPreAuthorizeAnnotation(Method method) {
+		MergedAnnotation<PreAuthorize> preAuthorize = AuthorizationAnnotationUtils.findUniqueMergedAnnotation(method,
+				PreAuthorize.class);
+		return (preAuthorize != null) ? preAuthorize : AuthorizationAnnotationUtils
+			.findUniqueMergedAnnotation(method.getDeclaringClass(), PreAuthorize.class);
 	}
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
 
 package org.springframework.security.access.expression.method;
 
+import java.util.Map;
+
 import org.aopalliance.intercept.MethodInvocation;
 
 import org.springframework.expression.EvaluationContext;
@@ -27,6 +29,7 @@ import org.springframework.security.access.expression.SecurityExpressionHandler;
  * method invocations.
  *
  * @author Luke Taylor
+ * @author DingHao
  * @since 3.0
  */
 public interface MethodSecurityExpressionHandler extends SecurityExpressionHandler<MethodInvocation> {
@@ -52,5 +55,13 @@ public interface MethodSecurityExpressionHandler extends SecurityExpressionHandl
 	 * {@link #createEvaluationContext(org.springframework.security.core.Authentication, Object)}
 	 */
 	void setReturnObject(Object returnObject, EvaluationContext ctx);
+
+	/**
+	 * Set multiple named variables in this evaluation context to given values.
+	 * <p>
+	 * Note: the variables has a lower priority than the method parameter priority
+	 * @param variables the names and values of the variables to set
+	 */
+	void setVariables(Map<String, Object> variables);
 
 }

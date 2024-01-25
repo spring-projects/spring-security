@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package org.springframework.security.authorization.method;
 import java.lang.reflect.Method;
 
 import org.springframework.aop.support.AopUtils;
+import org.springframework.core.annotation.MergedAnnotation;
 import org.springframework.expression.Expression;
 import org.springframework.lang.NonNull;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
@@ -30,6 +31,7 @@ import org.springframework.util.Assert;
  * For internal use only, as this contract is likely to change.
  *
  * @author Evgeniy Cheban
+ * @author DingHao
  * @since 5.8
  */
 final class PreFilterExpressionAttributeRegistry
@@ -54,19 +56,21 @@ final class PreFilterExpressionAttributeRegistry
 	@Override
 	PreFilterExpressionAttribute resolveAttribute(Method method, Class<?> targetClass) {
 		Method specificMethod = AopUtils.getMostSpecificMethod(method, targetClass);
-		PreFilter preFilter = findPreFilterAnnotation(specificMethod);
+		MergedAnnotation<PreFilter> preFilter = findPreFilterAnnotation(specificMethod);
 		if (preFilter == null) {
 			return PreFilterExpressionAttribute.NULL_ATTRIBUTE;
 		}
 		Expression preFilterExpression = this.expressionHandler.getExpressionParser()
-			.parseExpression(preFilter.value());
-		return new PreFilterExpressionAttribute(preFilterExpression, preFilter.filterTarget());
+			.parseExpression(preFilter.getString(MergedAnnotation.VALUE));
+		this.expressionHandler.setVariables(getMetaAnnotationAttribute(preFilter));
+		return new PreFilterExpressionAttribute(preFilterExpression, preFilter.getString("filterTarget"));
 	}
 
-	private PreFilter findPreFilterAnnotation(Method method) {
-		PreFilter preFilter = AuthorizationAnnotationUtils.findUniqueAnnotation(method, PreFilter.class);
+	private MergedAnnotation<PreFilter> findPreFilterAnnotation(Method method) {
+		MergedAnnotation<PreFilter> preFilter = AuthorizationAnnotationUtils.findUniqueMergedAnnotation(method,
+				PreFilter.class);
 		return (preFilter != null) ? preFilter
-				: AuthorizationAnnotationUtils.findUniqueAnnotation(method.getDeclaringClass(), PreFilter.class);
+				: AuthorizationAnnotationUtils.findUniqueMergedAnnotation(method.getDeclaringClass(), PreFilter.class);
 	}
 
 	static final class PreFilterExpressionAttribute extends ExpressionAttribute {

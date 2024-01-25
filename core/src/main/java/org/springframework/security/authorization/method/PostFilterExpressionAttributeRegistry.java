@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package org.springframework.security.authorization.method;
 import java.lang.reflect.Method;
 
 import org.springframework.aop.support.AopUtils;
+import org.springframework.core.annotation.MergedAnnotation;
 import org.springframework.expression.Expression;
 import org.springframework.lang.NonNull;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
@@ -30,6 +31,7 @@ import org.springframework.util.Assert;
  * For internal use only, as this contract is likely to change.
  *
  * @author Evgeniy Cheban
+ * @author DingHao
  * @since 5.8
  */
 final class PostFilterExpressionAttributeRegistry extends AbstractExpressionAttributeRegistry<ExpressionAttribute> {
@@ -53,19 +55,21 @@ final class PostFilterExpressionAttributeRegistry extends AbstractExpressionAttr
 	@Override
 	ExpressionAttribute resolveAttribute(Method method, Class<?> targetClass) {
 		Method specificMethod = AopUtils.getMostSpecificMethod(method, targetClass);
-		PostFilter postFilter = findPostFilterAnnotation(specificMethod);
+		MergedAnnotation<PostFilter> postFilter = findPostFilterAnnotation(specificMethod);
 		if (postFilter == null) {
 			return ExpressionAttribute.NULL_ATTRIBUTE;
 		}
 		Expression postFilterExpression = this.expressionHandler.getExpressionParser()
-			.parseExpression(postFilter.value());
+			.parseExpression(postFilter.getString(MergedAnnotation.VALUE));
+		this.expressionHandler.setVariables(getMetaAnnotationAttribute(postFilter));
 		return new ExpressionAttribute(postFilterExpression);
 	}
 
-	private PostFilter findPostFilterAnnotation(Method method) {
-		PostFilter postFilter = AuthorizationAnnotationUtils.findUniqueAnnotation(method, PostFilter.class);
+	private MergedAnnotation<PostFilter> findPostFilterAnnotation(Method method) {
+		MergedAnnotation<PostFilter> postFilter = AuthorizationAnnotationUtils.findUniqueMergedAnnotation(method,
+				PostFilter.class);
 		return (postFilter != null) ? postFilter
-				: AuthorizationAnnotationUtils.findUniqueAnnotation(method.getDeclaringClass(), PostFilter.class);
+				: AuthorizationAnnotationUtils.findUniqueMergedAnnotation(method.getDeclaringClass(), PostFilter.class);
 	}
 
 }

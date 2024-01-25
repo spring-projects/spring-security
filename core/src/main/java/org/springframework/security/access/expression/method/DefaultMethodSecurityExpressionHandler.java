@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,6 +52,7 @@ import org.springframework.util.Assert;
  *
  * @author Luke Taylor
  * @author Evgeniy Cheban
+ * @author DingHao
  * @since 3.0
  */
 public class DefaultMethodSecurityExpressionHandler extends AbstractSecurityExpressionHandler<MethodInvocation>
@@ -65,6 +66,8 @@ public class DefaultMethodSecurityExpressionHandler extends AbstractSecurityExpr
 
 	private PermissionCacheOptimizer permissionCacheOptimizer = null;
 
+	private Map<String, Object> variables = null;
+
 	private String defaultRolePrefix = "ROLE_";
 
 	public DefaultMethodSecurityExpressionHandler() {
@@ -76,14 +79,14 @@ public class DefaultMethodSecurityExpressionHandler extends AbstractSecurityExpr
 	 */
 	@Override
 	public StandardEvaluationContext createEvaluationContextInternal(Authentication auth, MethodInvocation mi) {
-		return new MethodSecurityEvaluationContext(auth, mi, getParameterNameDiscoverer());
+		return new MethodSecurityEvaluationContext(auth, mi, getParameterNameDiscoverer(), this.variables);
 	}
 
 	@Override
 	public EvaluationContext createEvaluationContext(Supplier<Authentication> authentication, MethodInvocation mi) {
 		MethodSecurityExpressionOperations root = createSecurityExpressionRoot(authentication, mi);
 		MethodSecurityEvaluationContext ctx = new MethodSecurityEvaluationContext(root, mi,
-				getParameterNameDiscoverer());
+				getParameterNameDiscoverer(), this.variables);
 		ctx.setBeanResolver(getBeanResolver());
 		return ctx;
 	}
@@ -243,6 +246,11 @@ public class DefaultMethodSecurityExpressionHandler extends AbstractSecurityExpr
 	@Override
 	public void setReturnObject(Object returnObject, EvaluationContext ctx) {
 		((MethodSecurityExpressionOperations) ctx.getRootObject().getValue()).setReturnObject(returnObject);
+	}
+
+	@Override
+	public void setVariables(Map<String, Object> variables) {
+		this.variables = variables;
 	}
 
 	/**

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,12 +23,14 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.aopalliance.intercept.MethodInvocation;
 
 import org.springframework.core.MethodClassKey;
+import org.springframework.core.annotation.MergedAnnotation;
 import org.springframework.lang.NonNull;
 
 /**
  * For internal use only, as this contract is likely to change
  *
  * @author Evgeniy Cheban
+ * @author DingHao
  */
 abstract class AbstractExpressionAttributeRegistry<T extends ExpressionAttribute> {
 
@@ -66,5 +68,13 @@ abstract class AbstractExpressionAttributeRegistry<T extends ExpressionAttribute
 	 */
 	@NonNull
 	abstract T resolveAttribute(Method method, Class<?> targetClass);
+
+	Map<String, Object> getMetaAnnotationAttribute(MergedAnnotation<?> mergedAnnotation) {
+		MergedAnnotation<?> metaSource = mergedAnnotation.getMetaSource();
+		if (metaSource != null) {
+			return metaSource.asMap();
+		}
+		return null;
+	}
 
 }

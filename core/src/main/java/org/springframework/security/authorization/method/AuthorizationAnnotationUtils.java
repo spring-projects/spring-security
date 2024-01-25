@@ -47,6 +47,7 @@ import org.springframework.core.annotation.RepeatableContainers;
  *
  * @author Josh Cummings
  * @author Sam Brannen
+ * @author DingHao
  */
 final class AuthorizationAnnotationUtils {
 
@@ -94,6 +95,26 @@ final class AuthorizationAnnotationUtils {
 		List<A> annotations = mergedAnnotations.stream(annotationType)
 			.map(MergedAnnotation::withNonMergedAttributes)
 			.map(MergedAnnotation::synthesize)
+			.distinct()
+			.toList();
+
+		return switch (annotations.size()) {
+			case 0 -> null;
+			case 1 -> annotations.get(0);
+			default -> throw new AnnotationConfigurationException("""
+					Please ensure there is one unique annotation of type @%s attributed to %s. \
+					Found %d competing annotations: %s""".formatted(annotationType.getName(), annotatedElement,
+					annotations.size(), annotations));
+		};
+	}
+
+	static <A extends Annotation> MergedAnnotation<A> findUniqueMergedAnnotation(AnnotatedElement annotatedElement,
+			Class<A> annotationType) {
+		MergedAnnotations mergedAnnotations = MergedAnnotations.from(annotatedElement,
+				MergedAnnotations.SearchStrategy.TYPE_HIERARCHY, RepeatableContainers.none());
+
+		List<MergedAnnotation<A>> annotations = mergedAnnotations.stream(annotationType)
+			.map(MergedAnnotation::withNonMergedAttributes)
 			.distinct()
 			.toList();
 

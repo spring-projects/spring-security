@@ -16,8 +16,10 @@
 
 package org.springframework.security.authorization.method;
 
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.function.Supplier;
 
 import org.junit.jupiter.api.Test;
@@ -145,6 +147,44 @@ public class PreAuthorizeAuthorizationManagerTests {
 		decision = manager.check(TestAuthentication::authenticatedAdmin, methodInvocation);
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isTrue();
+	}
+
+	@Test
+	public void checkRequiresUserWhenMetaAnnotationClassThenApplies() throws Exception {
+		MockMethodInvocation methodInvocation = new MockMethodInvocation(new MetaAnnotationClass(),
+				MetaAnnotationClass.class, "hasSameNameParameter", new Class[] { String.class },
+				new Object[] { "ROLE_USER" });
+		PreAuthorizeAuthorizationManager manager = new PreAuthorizeAuthorizationManager();
+		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedUser, methodInvocation);
+		assertThat(decision.isGranted()).isTrue();
+
+		methodInvocation = new MockMethodInvocation(new MetaAnnotationClass(), MetaAnnotationClass.class,
+				"noneSameNameParameter", new Class[] { String.class }, new Object[] { "hello" });
+		decision = manager.check(TestAuthentication::authenticatedUser, methodInvocation);
+		assertThat(decision.isGranted()).isFalse();
+	}
+
+	public static class MetaAnnotationClass {
+
+		@HasAuthority("message:read")
+		public void hasSameNameParameter(String value) {
+
+		}
+
+		@HasAuthority("message:read")
+		public void noneSameNameParameter(String object) {
+
+		}
+
+	}
+
+	@Target({ ElementType.METHOD, ElementType.TYPE })
+	@Retention(RetentionPolicy.RUNTIME)
+	@PreAuthorize("hasAuthority(#value)")
+	public @interface HasAuthority {
+
+		String value();
+
 	}
 
 	public static class TestClass implements InterfaceAnnotationsOne, InterfaceAnnotationsTwo {

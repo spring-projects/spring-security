@@ -16,8 +16,10 @@
 
 package org.springframework.security.authorization.method;
 
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.AfterEach;
@@ -168,6 +170,55 @@ public class PostFilterAuthorizationMethodInterceptorTests {
 		advice.invoke(invocation);
 		verify(strategy).getContext();
 		SecurityContextHolder.setContextHolderStrategy(saved);
+	}
+
+	@Test
+	public void postFilterWhenProvideMetaAnnotation() throws Throwable {
+		String[] array = { "john", "bob" };
+		MockMethodInvocation methodInvocation = new MockMethodInvocation(new MetaAnnotationClass(),
+				MetaAnnotationClass.class, "filterHasSameNameParameter", new Class[] { String[].class, int.class },
+				new Object[] { array, 2 }) {
+			@Override
+			public Object proceed() {
+				return array;
+			}
+		};
+		PostFilterAuthorizationMethodInterceptor advice = new PostFilterAuthorizationMethodInterceptor();
+		Object result = advice.invoke(methodInvocation);
+		assertThat(result).asInstanceOf(InstanceOfAssertFactories.array(String[].class)).containsOnly("bob");
+
+		methodInvocation = new MockMethodInvocation(new MetaAnnotationClass(), MetaAnnotationClass.class,
+				"filterNoneSameNameParameter", new Class[] { String[].class, int.class }, new Object[] { array, 2 }) {
+			@Override
+			public Object proceed() {
+				return array;
+			}
+		};
+		result = advice.invoke(methodInvocation);
+		assertThat(result).asInstanceOf(InstanceOfAssertFactories.array(String[].class)).containsOnly("john");
+	}
+
+	public static class MetaAnnotationClass {
+
+		@MetaPostFilter(1)
+		public String[] filterHasSameNameParameter(String[] array, int value) {
+			return array;
+		}
+
+		@MetaPostFilter(1)
+		public String[] filterNoneSameNameParameter(String[] array, int object) {
+			return array;
+		}
+
+	}
+
+	@Target({ ElementType.METHOD, ElementType.TYPE })
+	@Retention(RetentionPolicy.RUNTIME)
+	@PostFilter("filterObject == (#value == 1 ? 'john' : 'bob')")
+	public @interface MetaPostFilter {
+
+		int value();
+
 	}
 
 	@PostFilter("filterObject == 'john'")

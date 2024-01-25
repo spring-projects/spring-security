@@ -16,8 +16,10 @@
 
 package org.springframework.security.authorization.method;
 
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -222,6 +224,50 @@ public class PreFilterAuthorizationMethodInterceptorTests {
 		advice.invoke(invocation);
 		verify(strategy).getContext();
 		SecurityContextHolder.setContextHolderStrategy(saved);
+	}
+
+	@Test
+	public void preFilterWhenProvideMetaAnnotation() throws Throwable {
+		List<String> list = new ArrayList<>();
+		list.add("john");
+		list.add("bob");
+		MockMethodInvocation methodInvocation = new MockMethodInvocation(new MetaAnnotationClass(),
+				MetaAnnotationClass.class, "filterHasSameNameParameter", new Class[] { List.class, int.class },
+				new Object[] { list, 2 });
+		PreFilterAuthorizationMethodInterceptor advice = new PreFilterAuthorizationMethodInterceptor();
+		advice.invoke(methodInvocation);
+		assertThat(list).hasSize(1);
+		assertThat(list.get(0)).isEqualTo("bob");
+
+		list.add("john");
+		methodInvocation = new MockMethodInvocation(new MetaAnnotationClass(), MetaAnnotationClass.class,
+				"filterNoneSameNameParameter", new Class[] { List.class, int.class }, new Object[] { list, 2 });
+		advice.invoke(methodInvocation);
+		assertThat(list).hasSize(1);
+		assertThat(list.get(0)).isEqualTo("john");
+	}
+
+	public static class MetaAnnotationClass {
+
+		@MetaPreFilter(1)
+		public void filterHasSameNameParameter(List<String> list, int value) {
+
+		}
+
+		@MetaPreFilter(1)
+		public void filterNoneSameNameParameter(List<String> list, int object) {
+
+		}
+
+	}
+
+	@Target({ ElementType.METHOD, ElementType.TYPE })
+	@Retention(RetentionPolicy.RUNTIME)
+	@PreFilter(value = "filterObject == (#value == 1 ? 'john' : 'bob')", filterTarget = "list")
+	public @interface MetaPreFilter {
+
+		int value();
+
 	}
 
 	@PreFilter("filterObject == 'john'")

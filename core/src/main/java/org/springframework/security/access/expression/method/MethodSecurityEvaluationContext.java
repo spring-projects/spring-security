@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package org.springframework.security.access.expression.method;
 
 import java.lang.reflect.Method;
+import java.util.Map;
 
 import org.aopalliance.intercept.MethodInvocation;
 
@@ -35,9 +36,12 @@ import org.springframework.security.core.parameters.DefaultSecurityParameterName
  * @author Luke Taylor
  * @author Daniel Bustamante
  * @author Evgeniy Cheban
+ * @author DingHao
  * @since 3.0
  */
 class MethodSecurityEvaluationContext extends MethodBasedEvaluationContext {
+
+	private final Map<String, Object> variables;
 
 	/**
 	 * Intended for testing. Don't use in practice as it creates a new parameter resolver
@@ -50,16 +54,36 @@ class MethodSecurityEvaluationContext extends MethodBasedEvaluationContext {
 
 	MethodSecurityEvaluationContext(Authentication user, MethodInvocation mi,
 			ParameterNameDiscoverer parameterNameDiscoverer) {
+		this(user, mi, parameterNameDiscoverer, null);
+	}
+
+	MethodSecurityEvaluationContext(Authentication user, MethodInvocation mi,
+			ParameterNameDiscoverer parameterNameDiscoverer, Map<String, Object> variables) {
 		super(mi.getThis(), getSpecificMethod(mi), mi.getArguments(), parameterNameDiscoverer);
+		this.variables = variables;
 	}
 
 	MethodSecurityEvaluationContext(MethodSecurityExpressionOperations root, MethodInvocation mi,
 			ParameterNameDiscoverer parameterNameDiscoverer) {
+		this(root, mi, parameterNameDiscoverer, null);
+	}
+
+	MethodSecurityEvaluationContext(MethodSecurityExpressionOperations root, MethodInvocation mi,
+			ParameterNameDiscoverer parameterNameDiscoverer, Map<String, Object> variables) {
 		super(root, getSpecificMethod(mi), mi.getArguments(), parameterNameDiscoverer);
+		this.variables = variables;
 	}
 
 	private static Method getSpecificMethod(MethodInvocation mi) {
 		return AopUtils.getMostSpecificMethod(mi.getMethod(), AopProxyUtils.ultimateTargetClass(mi.getThis()));
+	}
+
+	@Override
+	protected void lazyLoadArguments() {
+		if (this.variables != null) {
+			setVariables(this.variables);
+		}
+		super.lazyLoadArguments();
 	}
 
 }

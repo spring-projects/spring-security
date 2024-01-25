@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,10 +18,10 @@ package org.springframework.security.authorization.method;
 
 import java.lang.reflect.Method;
 
-import reactor.util.annotation.NonNull;
-
 import org.springframework.aop.support.AopUtils;
+import org.springframework.core.annotation.MergedAnnotation;
 import org.springframework.expression.Expression;
+import org.springframework.lang.NonNull;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.access.prepost.PostAuthorize;
@@ -31,6 +31,7 @@ import org.springframework.util.Assert;
  * For internal use only, as this contract is likely to change.
  *
  * @author Evgeniy Cheban
+ * @author DingHao
  * @since 5.8
  */
 final class PostAuthorizeExpressionAttributeRegistry extends AbstractExpressionAttributeRegistry<ExpressionAttribute> {
@@ -54,19 +55,21 @@ final class PostAuthorizeExpressionAttributeRegistry extends AbstractExpressionA
 	@Override
 	ExpressionAttribute resolveAttribute(Method method, Class<?> targetClass) {
 		Method specificMethod = AopUtils.getMostSpecificMethod(method, targetClass);
-		PostAuthorize postAuthorize = findPostAuthorizeAnnotation(specificMethod);
+		MergedAnnotation<PostAuthorize> postAuthorize = findPostAuthorizeAnnotation(specificMethod);
 		if (postAuthorize == null) {
 			return ExpressionAttribute.NULL_ATTRIBUTE;
 		}
 		Expression postAuthorizeExpression = this.expressionHandler.getExpressionParser()
-			.parseExpression(postAuthorize.value());
+			.parseExpression(postAuthorize.getString(MergedAnnotation.VALUE));
+		this.expressionHandler.setVariables(getMetaAnnotationAttribute(postAuthorize));
 		return new ExpressionAttribute(postAuthorizeExpression);
 	}
 
-	private PostAuthorize findPostAuthorizeAnnotation(Method method) {
-		PostAuthorize postAuthorize = AuthorizationAnnotationUtils.findUniqueAnnotation(method, PostAuthorize.class);
-		return (postAuthorize != null) ? postAuthorize
-				: AuthorizationAnnotationUtils.findUniqueAnnotation(method.getDeclaringClass(), PostAuthorize.class);
+	private MergedAnnotation<PostAuthorize> findPostAuthorizeAnnotation(Method method) {
+		MergedAnnotation<PostAuthorize> postAuthorize = AuthorizationAnnotationUtils.findUniqueMergedAnnotation(method,
+				PostAuthorize.class);
+		return (postAuthorize != null) ? postAuthorize : AuthorizationAnnotationUtils
+			.findUniqueMergedAnnotation(method.getDeclaringClass(), PostAuthorize.class);
 	}
 
 }
