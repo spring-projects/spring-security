@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,8 +56,9 @@ public final class IpAddressMatcher implements RequestMatcher {
 			this.nMaskBits = -1;
 		}
 		this.requiredAddress = parseAddress(ipAddress);
-		Assert.isTrue(this.requiredAddress.getAddress().length * 8 >= this.nMaskBits,
-				String.format("IP address %s is too short for bitmask of length %d", ipAddress, this.nMaskBits));
+		String finalIpAddress = ipAddress;
+		Assert.isTrue(this.requiredAddress.getAddress().length * 8 >= this.nMaskBits, () -> String
+			.format("IP address %s is too short for bitmask of length %d", finalIpAddress, this.nMaskBits));
 	}
 
 	@Override
