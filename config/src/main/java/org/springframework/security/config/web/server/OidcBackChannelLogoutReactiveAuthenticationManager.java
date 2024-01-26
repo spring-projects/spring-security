@@ -85,17 +85,14 @@ final class OidcBackChannelLogoutReactiveAuthenticationManager implements Reacti
 
 	private Mono<Jwt> decode(ClientRegistration registration, String token) {
 		ReactiveJwtDecoder logoutTokenDecoder = this.logoutTokenDecoderFactory.createDecoder(registration);
-		try {
-			return logoutTokenDecoder.decode(token);
-		}
-		catch (BadJwtException failed) {
-			OAuth2Error error = new OAuth2Error(OAuth2ErrorCodes.INVALID_REQUEST, failed.getMessage(),
-					"https://openid.net/specs/openid-connect-backchannel-1_0.html#Validation");
-			return Mono.error(new OAuth2AuthenticationException(error, failed));
-		}
-		catch (Exception failed) {
-			return Mono.error(new AuthenticationServiceException(failed.getMessage(), failed));
-		}
+		return logoutTokenDecoder.decode(token).onErrorResume(Exception.class, (ex) -> {
+			if (ex instanceof BadJwtException) {
+				OAuth2Error error = new OAuth2Error(OAuth2ErrorCodes.INVALID_REQUEST, ex.getMessage(),
+						"https://openid.net/specs/openid-connect-backchannel-1_0.html#Validation");
+				return Mono.error(new OAuth2AuthenticationException(error, ex));
+			}
+			return Mono.error(new AuthenticationServiceException(ex.getMessage(), ex));
+		});
 	}
 
 	/**
