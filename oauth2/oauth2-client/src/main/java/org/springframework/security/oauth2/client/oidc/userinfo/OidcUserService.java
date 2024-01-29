@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.core.convert.converter.Converter;
@@ -78,6 +79,8 @@ public class OidcUserService implements OAuth2UserService<OidcUserRequest, OidcU
 	private Function<ClientRegistration, Converter<Map<String, Object>, Map<String, Object>>> claimTypeConverterFactory = (
 			clientRegistration) -> DEFAULT_CLAIM_TYPE_CONVERTER;
 
+	private Predicate<OidcUserRequest> retrieveUserInfo = this::shouldRetrieveUserInfo;
+
 	/**
 	 * Returns the default {@link Converter}'s used for type conversion of claim values
 	 * for an {@link OidcUserInfo}.
@@ -105,7 +108,7 @@ public class OidcUserService implements OAuth2UserService<OidcUserRequest, OidcU
 	public OidcUser loadUser(OidcUserRequest userRequest) throws OAuth2AuthenticationException {
 		Assert.notNull(userRequest, "userRequest cannot be null");
 		OidcUserInfo userInfo = null;
-		if (this.shouldRetrieveUserInfo(userRequest)) {
+		if (this.retrieveUserInfo.test(userRequest)) {
 			OAuth2User oauth2User = this.oauth2UserService.loadUser(userRequest);
 			Map<String, Object> claims = getClaims(userRequest, oauth2User);
 			userInfo = new OidcUserInfo(claims);
@@ -221,10 +224,35 @@ public class OidcUserService implements OAuth2UserService<OidcUserRequest, OidcU
 	 * resource will be requested, otherwise it will not.
 	 * @param accessibleScopes the scope(s) that allow access to the user info resource
 	 * @since 5.2
+	 * @deprecated Use {@link #setRetrieveUserInfo(Predicate)} instead
 	 */
+	@Deprecated(since = "6.3", forRemoval = true)
 	public final void setAccessibleScopes(Set<String> accessibleScopes) {
 		Assert.notNull(accessibleScopes, "accessibleScopes cannot be null");
 		this.accessibleScopes = accessibleScopes;
+	}
+
+	/**
+	 * Sets the {@code Predicate} used to determine if the UserInfo Endpoint should be
+	 * called to retrieve information about the End-User (Resource Owner).
+	 * <p>
+	 * By default, the UserInfo Endpoint is called if all of the following are true:
+	 * <ul>
+	 * <li>The user info endpoint is defined on the ClientRegistration</li>
+	 * <li>The Client Registration uses the
+	 * {@link AuthorizationGrantType#AUTHORIZATION_CODE}</li>
+	 * <li>The access token contains one or more scopes allowed to access the UserInfo
+	 * Endpoint ({@link OidcScopes#PROFILE profile}, {@link OidcScopes#EMAIL email},
+	 * {@link OidcScopes#ADDRESS address} or {@link OidcScopes#PHONE phone}) or the access
+	 * token scopes are empty</li>
+	 * </ul>
+	 * @param retrieveUserInfo the function used to determine if the UserInfo Endpoint
+	 * should be called
+	 * @since 6.3
+	 */
+	public final void setRetrieveUserInfo(Predicate<OidcUserRequest> retrieveUserInfo) {
+		Assert.notNull(retrieveUserInfo, "retrieveUserInfo cannot be null");
+		this.retrieveUserInfo = retrieveUserInfo;
 	}
 
 }

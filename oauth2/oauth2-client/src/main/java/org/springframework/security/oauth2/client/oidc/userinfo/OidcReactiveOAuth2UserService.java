@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 import reactor.core.publisher.Mono;
 
@@ -33,6 +34,7 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.userinfo.DefaultReactiveOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.ReactiveOAuth2UserService;
+import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
@@ -70,6 +72,8 @@ public class OidcReactiveOAuth2UserService implements ReactiveOAuth2UserService<
 
 	private Function<ClientRegistration, Converter<Map<String, Object>, Map<String, Object>>> claimTypeConverterFactory = (
 			clientRegistration) -> DEFAULT_CLAIM_TYPE_CONVERTER;
+
+	private Predicate<OidcUserRequest> retrieveUserInfo = OidcUserRequestUtils::shouldRetrieveUserInfo;
 
 	/**
 	 * Returns the default {@link Converter}'s used for type conversion of claim values
@@ -123,7 +127,7 @@ public class OidcReactiveOAuth2UserService implements ReactiveOAuth2UserService<
 	}
 
 	private Mono<OidcUserInfo> getUserInfo(OidcUserRequest userRequest) {
-		if (!OidcUserRequestUtils.shouldRetrieveUserInfo(userRequest)) {
+		if (!this.retrieveUserInfo.test(userRequest)) {
 			return Mono.empty();
 		}
 		// @formatter:off
@@ -167,6 +171,26 @@ public class OidcReactiveOAuth2UserService implements ReactiveOAuth2UserService<
 			Function<ClientRegistration, Converter<Map<String, Object>, Map<String, Object>>> claimTypeConverterFactory) {
 		Assert.notNull(claimTypeConverterFactory, "claimTypeConverterFactory cannot be null");
 		this.claimTypeConverterFactory = claimTypeConverterFactory;
+	}
+
+	/**
+	 * Sets the {@code Predicate} used to determine if the UserInfo Endpoint should be
+	 * called to retrieve information about the End-User (Resource Owner).
+	 * <p>
+	 * By default, the UserInfo Endpoint is called if all of the following are true:
+	 * <ul>
+	 * <li>The user info endpoint is defined on the ClientRegistration</li>
+	 * <li>The Client Registration uses the
+	 * {@link AuthorizationGrantType#AUTHORIZATION_CODE} and scopes in the access token
+	 * are defined in the {@link ClientRegistration}</li>
+	 * </ul>
+	 * @param retrieveUserInfo the function used to determine if the UserInfo Endpoint
+	 * should be called
+	 * @since 6.3
+	 */
+	public final void setRetrieveUserInfo(Predicate<OidcUserRequest> retrieveUserInfo) {
+		Assert.notNull(retrieveUserInfo, "retrieveUserInfo cannot be null");
+		this.retrieveUserInfo = retrieveUserInfo;
 	}
 
 }

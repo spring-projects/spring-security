@@ -23,6 +23,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -58,6 +59,7 @@ import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -127,6 +129,15 @@ public class OidcUserServiceTests {
 	@Test
 	public void setAccessibleScopesWhenEmptyThenSet() {
 		this.userService.setAccessibleScopes(Collections.emptySet());
+	}
+
+	@Test
+	public void setRetrieveUserInfoWhenNullThenThrowIllegalArgumentException() {
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.userService.setRetrieveUserInfo(null))
+				.withMessage("retrieveUserInfo cannot be null");
+		// @formatter:on
 	}
 
 	@Test
@@ -213,6 +224,30 @@ public class OidcUserServiceTests {
 		this.server.enqueue(jsonResponse(userInfoResponse));
 		String userInfoUri = this.server.url("/user").toString();
 		ClientRegistration clientRegistration = this.clientRegistrationBuilder.userInfoUri(userInfoUri).build();
+		OidcUser user = this.userService
+			.loadUser(new OidcUserRequest(clientRegistration, this.accessToken, this.idToken));
+		assertThat(user.getUserInfo()).isNotNull();
+	}
+
+	@Test
+	public void loadUserWhenCustomRetrieveUserInfoSetThenUsed() {
+		// @formatter:off
+		String userInfoResponse = "{\n"
+				+ "   \"sub\": \"subject1\",\n"
+				+ "   \"name\": \"first last\",\n"
+				+ "   \"given_name\": \"first\",\n"
+				+ "   \"family_name\": \"last\",\n"
+				+ "   \"preferred_username\": \"user1\",\n"
+				+ "   \"email\": \"user1@example.com\"\n"
+				+ "}\n";
+		// @formatter:on
+		this.server.enqueue(jsonResponse(userInfoResponse));
+		String userInfoUri = this.server.url("/user").toString();
+		ClientRegistration clientRegistration = this.clientRegistrationBuilder.userInfoUri(userInfoUri).build();
+		this.accessToken = TestOAuth2AccessTokens.noScopes();
+		Predicate<OidcUserRequest> customRetrieveUserInfo = mock(Predicate.class);
+		given(customRetrieveUserInfo.test(any(OidcUserRequest.class))).willReturn(true);
+		this.userService.setRetrieveUserInfo(customRetrieveUserInfo);
 		OidcUser user = this.userService
 			.loadUser(new OidcUserRequest(clientRegistration, this.accessToken, this.idToken));
 		assertThat(user.getUserInfo()).isNotNull();

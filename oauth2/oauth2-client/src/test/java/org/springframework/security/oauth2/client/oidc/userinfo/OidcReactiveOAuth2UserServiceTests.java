@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -108,6 +109,15 @@ public class OidcReactiveOAuth2UserServiceTests {
 	}
 
 	@Test
+	public void setRetrieveUserInfoWhenNullThenThrowIllegalArgumentException() {
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.userService.setRetrieveUserInfo(null))
+				.withMessage("retrieveUserInfo cannot be null");
+		// @formatter:on
+	}
+
+	@Test
 	public void loadUserWhenUserInfoUriNullThenUserInfoNotRetrieved() {
 		this.registration.userInfoUri(null);
 		OidcUser user = this.userService.loadUser(userRequest()).block();
@@ -181,6 +191,48 @@ public class OidcReactiveOAuth2UserServiceTests {
 			.willReturn(new ClaimTypeConverter(OidcReactiveOAuth2UserService.createDefaultClaimTypeConverters()));
 		this.userService.loadUser(userRequest).block().getUserInfo();
 		verify(customClaimTypeConverterFactory).apply(same(userRequest.getClientRegistration()));
+	}
+
+	@Test
+	public void loadUserWhenTokenScopesIsEmptyThenUserInfoNotRetrieved() {
+		// @formatter:off
+		OAuth2AccessToken accessToken = new OAuth2AccessToken(
+				this.accessToken.getTokenType(),
+				this.accessToken.getTokenValue(),
+				this.accessToken.getIssuedAt(),
+				this.accessToken.getExpiresAt(),
+				Collections.emptySet());
+		// @formatter:on
+		OidcUserRequest userRequest = new OidcUserRequest(this.registration.build(), accessToken, this.idToken);
+		OidcUser oidcUser = this.userService.loadUser(userRequest).block();
+		assertThat(oidcUser).isNotNull();
+		assertThat(oidcUser.getUserInfo()).isNull();
+	}
+
+	@Test
+	public void loadUserWhenCustomRetrieveUserInfoSetThenUsed() {
+		Map<String, Object> attributes = new HashMap<>();
+		attributes.put(StandardClaimNames.SUB, "subject");
+		attributes.put("user", "steve");
+		OAuth2User oauth2User = new DefaultOAuth2User(AuthorityUtils.createAuthorityList("ROLE_USER"), attributes,
+				"user");
+		given(this.oauth2UserService.loadUser(any())).willReturn(Mono.just(oauth2User));
+		Predicate<OidcUserRequest> customRetrieveUserInfo = mock(Predicate.class);
+		this.userService.setRetrieveUserInfo(customRetrieveUserInfo);
+		given(customRetrieveUserInfo.test(any(OidcUserRequest.class))).willReturn(true);
+		// @formatter:off
+		OAuth2AccessToken accessToken = new OAuth2AccessToken(
+				this.accessToken.getTokenType(),
+				this.accessToken.getTokenValue(),
+				this.accessToken.getIssuedAt(),
+				this.accessToken.getExpiresAt(),
+				Collections.emptySet());
+		// @formatter:on
+		OidcUserRequest userRequest = new OidcUserRequest(this.registration.build(), accessToken, this.idToken);
+		OidcUser oidcUser = this.userService.loadUser(userRequest).block();
+		assertThat(oidcUser).isNotNull();
+		assertThat(oidcUser.getUserInfo()).isNotNull();
+		verify(customRetrieveUserInfo).test(userRequest);
 	}
 
 	@Test
