@@ -15,6 +15,7 @@ jobs:
   edit-dependabot-pr:
     runs-on: ubuntu-latest
     if: github.actor == 'dependabot[bot]'
+    permissions: write-all
     steps:
 
       - uses: actions/checkout@v4
