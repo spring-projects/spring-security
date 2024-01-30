@@ -60,7 +60,7 @@ jobs:
           distribution: 'temurin'
           cache: 'gradle'
       - name: Set up Gradle
-        uses: gradle/gradle-build-action@v2
+        uses: gradle/gradle-build-action@v3
       - name: Set up gradle user name
         run: echo 'systemProp.user.name=spring-builds+github' >> gradle.properties
       - name: Build with Gradle
