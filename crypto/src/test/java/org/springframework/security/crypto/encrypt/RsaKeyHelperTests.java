@@ -20,12 +20,15 @@ import java.nio.charset.StandardCharsets;
 import java.security.KeyPair;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.util.StreamUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@DisabledOnOs(OS.WINDOWS)
 public class RsaKeyHelperTests {
 
 	@Test
