@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -165,6 +165,46 @@ public class DefaultReactiveOAuth2UserServiceTests {
 		assertThatNoException().isThrownBy(() -> this.userService.loadUser(oauth2UserRequest()).block());
 	}
 
+	@Test
+	public void loadUserWhenNestedUserInfoSuccessThenReturnUser() {
+		// @formatter:off
+		String userInfoResponse = "{\n"
+				+ "   \"user\": {\"user-name\": \"user1\"},\n"
+				+ "   \"first-name\": \"first\",\n"
+				+ "   \"last-name\": \"last\",\n"
+				+ "   \"middle-name\": \"middle\",\n"
+				+ "   \"address\": \"address\",\n"
+				+ "   \"email\": \"user1@example.com\"\n"
+				+ "}\n";
+		// @formatter:on
+		enqueueApplicationJsonBody(userInfoResponse);
+		String userInfoUri = this.server.url("/user").toString();
+		ClientRegistration clientRegistration = this.clientRegistration.userInfoUri(userInfoUri)
+			.userInfoAuthenticationMethod(AuthenticationMethod.HEADER)
+			.userNameAttributeName("user-name")
+			.build();
+		DefaultReactiveOAuth2UserService userService = new DefaultReactiveOAuth2UserService();
+		userService.setAttributesConverter((request) -> (attributes) -> {
+			Map<String, Object> user = (Map<String, Object>) attributes.get("user");
+			attributes.put("user-name", user.get("user-name"));
+			return attributes;
+		});
+		OAuth2User user = userService.loadUser(new OAuth2UserRequest(clientRegistration, this.accessToken)).block();
+		assertThat(user.getName()).isEqualTo("user1");
+		assertThat(user.getAttributes()).hasSize(7);
+		assertThat(((Map<?, ?>) user.getAttribute("user")).get("user-name")).isEqualTo("user1");
+		assertThat((String) user.getAttribute("first-name")).isEqualTo("first");
+		assertThat((String) user.getAttribute("last-name")).isEqualTo("last");
+		assertThat((String) user.getAttribute("middle-name")).isEqualTo("middle");
+		assertThat((String) user.getAttribute("address")).isEqualTo("address");
+		assertThat((String) user.getAttribute("email")).isEqualTo("user1@example.com");
+		assertThat(user.getAuthorities()).hasSize(1);
+		assertThat(user.getAuthorities().iterator().next()).isInstanceOf(OAuth2UserAuthority.class);
+		OAuth2UserAuthority userAuthority = (OAuth2UserAuthority) user.getAuthorities().iterator().next();
+		assertThat(userAuthority.getAuthority()).isEqualTo("OAUTH2_USER");
+		assertThat(userAuthority.getAttributes()).isEqualTo(user.getAttributes());
+	}
+
 	// gh-5500
 	@Test
 	public void loadUserWhenAuthenticationMethodHeaderSuccessResponseThenHttpMethodGet() throws Exception {
@@ -288,6 +328,12 @@ public class DefaultReactiveOAuth2UserServiceTests {
 					+ "retrieve the UserInfo Resource from '"
 					+ userRequest.getClientRegistration().getProviderDetails().getUserInfoEndpoint().getUri() + "': "
 					+ "response contains invalid content type 'text/plain'");
+	}
+
+	@Test
+	public void setAttributesConverterWhenNullThenException() {
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> this.userService.setAttributesConverter(null));
 	}
 
 	private DefaultReactiveOAuth2UserService withMockResponse(Map<String, Object> body) {

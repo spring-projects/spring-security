@@ -413,6 +413,12 @@ public class DefaultOAuth2UserServiceTests {
 							+ "from '" + userInfoUri + "': response contains invalid content type 'text/plain'.");
 	}
 
+	@Test
+	public void setAttributesConverterWhenNullThenException() {
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> this.userService.setAttributesConverter(null));
+	}
+
 	private DefaultOAuth2UserService withMockResponse(Map<String, Object> response) {
 		ResponseEntity<Map<String, Object>> responseEntity = new ResponseEntity<>(response, HttpStatus.OK);
 		Converter<OAuth2UserRequest, RequestEntity<?>> requestEntityConverter = mock(Converter.class);

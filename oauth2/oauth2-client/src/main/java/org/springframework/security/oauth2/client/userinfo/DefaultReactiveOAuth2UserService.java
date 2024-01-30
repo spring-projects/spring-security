@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import net.minidev.json.JSONObject;
 import reactor.core.publisher.Mono;
 
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
@@ -78,6 +79,9 @@ public class DefaultReactiveOAuth2UserService implements ReactiveOAuth2UserServi
 	private static final ParameterizedTypeReference<Map<String, String>> STRING_STRING_MAP = new ParameterizedTypeReference<Map<String, String>>() {
 	};
 
+	private Converter<OAuth2UserRequest, Converter<Map<String, Object>, Map<String, Object>>> attributesConverter = (
+			request) -> (attributes) -> attributes;
+
 	private WebClient webClient = WebClient.create();
 
 	@Override
@@ -123,7 +127,8 @@ public class DefaultReactiveOAuth2UserService implements ReactiveOAuth2UserServi
 								throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
 							})
 					)
-					.bodyToMono(DefaultReactiveOAuth2UserService.STRING_OBJECT_MAP);
+					.bodyToMono(DefaultReactiveOAuth2UserService.STRING_OBJECT_MAP)
+					.mapNotNull((attributes) -> this.attributesConverter.convert(userRequest).convert(attributes));
 			return userAttributes.map((attrs) -> {
 				GrantedAuthority authority = new OAuth2UserAuthority(attrs);
 				Set<GrantedAuthority> authorities = new HashSet<>();
@@ -182,6 +187,32 @@ public class DefaultReactiveOAuth2UserService implements ReactiveOAuth2UserServi
 						.setBearerAuth(userRequest.getAccessToken().getTokenValue())
 				);
 		// @formatter:on
+	}
+
+	/**
+	 * Use this strategy to adapt user attributes into a format understood by Spring
+	 * Security; by default, the original attributes are preserved.
+	 *
+	 * <p>
+	 * This can be helpful, for example, if the user attribute is nested. Since Spring
+	 * Security needs the username attribute to be at the top level, you can use this
+	 * method to do:
+	 *
+	 * <pre>
+	 *     DefaultReactiveOAuth2UserService userService = new DefaultReactiveOAuth2UserService();
+	 *     userService.setAttributesConverter((userRequest) -> (attributes) ->
+	 *         Map&lt;String, Object&gt; userObject = (Map&lt;String, Object&gt;) attributes.get("user");
+	 *         attributes.put("user-name", userObject.get("user-name"));
+	 *         return attributes;
+	 *     });
+	 * </pre>
+	 * @param attributesConverter the attribute adaptation strategy to use
+	 * @since 6.3
+	 */
+	public void setAttributesConverter(
+			Converter<OAuth2UserRequest, Converter<Map<String, Object>, Map<String, Object>>> attributesConverter) {
+		Assert.notNull(attributesConverter, "attributesConverter cannot be null");
+		this.attributesConverter = attributesConverter;
 	}
 
 	/**
