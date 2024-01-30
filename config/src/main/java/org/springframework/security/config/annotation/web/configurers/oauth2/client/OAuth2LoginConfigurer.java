@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -582,6 +582,10 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 	}
 
 	private void configureOidcSessionRegistry(B http) {
+		if (http.getConfigurer(OidcLogoutConfigurer.class) == null
+				&& http.getSharedObject(OidcSessionRegistry.class) == null) {
+			return;
+		}
 		OidcSessionRegistry sessionRegistry = OAuth2ClientConfigurerUtils.getOidcSessionRegistry(http);
 		SessionManagementConfigurer<B> sessionConfigurer = http.getConfigurer(SessionManagementConfigurer.class);
 		if (sessionConfigurer != null) {

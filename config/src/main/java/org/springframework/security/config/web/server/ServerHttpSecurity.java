@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -3974,8 +3974,10 @@ public class ServerHttpSecurity {
 
 			ReactiveAuthenticationManager manager = getAuthenticationManager();
 			ReactiveOidcSessionRegistry sessionRegistry = getOidcSessionRegistry();
-			AuthenticationWebFilter authenticationFilter = new OidcSessionRegistryAuthenticationWebFilter(manager,
-					authorizedClientRepository, sessionRegistry);
+			AuthenticationWebFilter authenticationFilter = (sessionRegistry != null)
+					? new OidcSessionRegistryAuthenticationWebFilter(manager, authorizedClientRepository,
+							sessionRegistry)
+					: new OAuth2LoginAuthenticationWebFilter(manager, authorizedClientRepository);
 			authenticationFilter.setRequiresAuthenticationMatcher(getAuthenticationMatcher());
 			authenticationFilter
 				.setServerAuthenticationConverter(getAuthenticationConverter(clientRegistrationRepository));
@@ -3984,8 +3986,10 @@ public class ServerHttpSecurity {
 			authenticationFilter.setSecurityContextRepository(this.securityContextRepository);
 
 			setDefaultEntryPoints(http);
-			http.addFilterAfter(new OidcSessionRegistryWebFilter(sessionRegistry),
-					SecurityWebFiltersOrder.HTTP_HEADERS_WRITER);
+			if (sessionRegistry != null) {
+				http.addFilterAfter(new OidcSessionRegistryWebFilter(sessionRegistry),
+						SecurityWebFiltersOrder.HTTP_HEADERS_WRITER);
+			}
 			http.addFilterAt(oauthRedirectFilter, SecurityWebFiltersOrder.HTTP_BASIC);
 			http.addFilterAt(authenticationFilter, SecurityWebFiltersOrder.AUTHENTICATION);
 		}
@@ -4031,6 +4035,9 @@ public class ServerHttpSecurity {
 		}
 
 		private ReactiveOidcSessionRegistry getOidcSessionRegistry() {
+			if (ServerHttpSecurity.this.oidcLogout == null && this.oidcSessionRegistry == null) {
+				return null;
+			}
 			if (this.oidcSessionRegistry == null) {
 				this.oidcSessionRegistry = getBeanOrNull(ReactiveOidcSessionRegistry.class);
 			}
@@ -4269,8 +4276,7 @@ public class ServerHttpSecurity {
 
 		}
 
-		private static final class OidcSessionRegistryAuthenticationWebFilter
-				extends OAuth2LoginAuthenticationWebFilter {
+		static final class OidcSessionRegistryAuthenticationWebFilter extends OAuth2LoginAuthenticationWebFilter {
 
 			private final Log logger = LogFactory.getLog(getClass());
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,11 +34,13 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authentication.UserDetailsRepositoryReactiveAuthenticationManager;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.oauth2.client.CommonOAuth2Provider;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.config.users.ReactiveAuthenticationTestConfiguration;
+import org.springframework.security.config.web.server.ServerHttpSecurity.OAuth2LoginSpec.OidcSessionRegistryAuthenticationWebFilter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -54,10 +56,12 @@ import org.springframework.security.oauth2.client.authentication.OAuth2LoginAuth
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
 import org.springframework.security.oauth2.client.endpoint.ReactiveOAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.oidc.authentication.OidcAuthorizationCodeReactiveAuthenticationManager;
+import org.springframework.security.oauth2.client.oidc.server.session.ReactiveOidcSessionRegistry;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
 import org.springframework.security.oauth2.client.oidc.web.server.logout.OidcClientInitiatedServerLogoutSuccessHandler;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.InMemoryReactiveClientRegistrationRepository;
+import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.client.userinfo.ReactiveOAuth2UserService;
 import org.springframework.security.oauth2.client.web.server.ServerAuthorizationRequestRepository;
@@ -576,6 +580,27 @@ public class OAuth2LoginTests {
 		// @formatter:on
 	}
 
+	@Test
+	public void oauth2LoginWhenOidcSessionRegistryThenUses() {
+		this.spring.register(OAuth2LoginWithOidcSessionRegistry.class).autowire();
+		SecurityWebFilterChain chain = this.spring.getContext().getBean(SecurityWebFilterChain.class);
+		assertThat(chain.getWebFilters()
+			.filter((filter) -> filter instanceof OidcSessionRegistryAuthenticationWebFilter)
+			.collectList()
+			.block()).isNotEmpty();
+	}
+
+	// gh-14558
+	@Test
+	public void oauth2LoginWhenDefaultsThenNoOidcSessionRegistry() {
+		this.spring.register(OAuth2LoginWithSingleClientRegistrations.class, OAuth2LoginConfig.class).autowire();
+		SecurityWebFilterChain chain = this.spring.getContext().getBean(SecurityWebFilterChain.class);
+		assertThat(chain.getWebFilters()
+			.filter((filter) -> filter instanceof OidcSessionRegistryAuthenticationWebFilter)
+			.collectList()
+			.block()).isEmpty();
+	}
+
 	Mono<SecurityContext> authentication(Authentication authentication) {
 		SecurityContext context = new SecurityContextImpl();
 		context.setAuthentication(authentication);
@@ -620,6 +645,21 @@ public class OAuth2LoginTests {
 		@Bean
 		InMemoryReactiveClientRegistrationRepository clientRegistrationRepository() {
 			return new InMemoryReactiveClientRegistrationRepository(github, clientCredentials);
+		}
+
+	}
+
+	@EnableWebFlux
+	static class OAuth2LoginConfig {
+
+		@Bean
+		SecurityWebFilterChain springSecurity(ServerHttpSecurity http) {
+			// @formatter:off
+			http
+				.authorizeExchange((authorize) -> authorize.anyExchange().authenticated())
+				.oauth2Login(Customizer.withDefaults());
+			// @formatter:on
+			return http.build();
 		}
 
 	}
@@ -888,6 +928,35 @@ public class OAuth2LoginTests {
 		@Bean
 		ClientRegistration clientRegistration() {
 			return this.withLogout;
+		}
+
+	}
+
+	@Configuration
+	@EnableWebFluxSecurity
+	static class OAuth2LoginWithOidcSessionRegistry {
+
+		private final ReactiveOidcSessionRegistry registry = mock(ReactiveOidcSessionRegistry.class);
+
+		private final ReactiveClientRegistrationRepository clients = new InMemoryReactiveClientRegistrationRepository(
+				TestClientRegistrations.clientRegistration().build());
+
+		@Bean
+		SecurityWebFilterChain filterChain(ServerHttpSecurity http) {
+			// @formatter:off
+			http
+					.authorizeExchange((authorize) -> authorize.anyExchange().authenticated())
+					.oauth2Login((oauth2) -> oauth2
+							.clientRegistrationRepository(this.clients)
+							.oidcSessionRegistry(this.registry)
+					);
+			// @formatter:on
+			return http.build();
+		}
+
+		@Bean
+		ReactiveOidcSessionRegistry oidcSessionRegistry() {
+			return this.registry;
 		}
 
 	}
