@@ -614,7 +614,7 @@ You need only supply the domain name and an LDAP URL that supplies the address o
 
 [NOTE]
 ====
-It is also possible to obtain the server's IP address byusing a DNS lookup.
+It is also possible to obtain the server's IP address by using a DNS lookup.
 This is not currently supported, but hopefully will be in a future version.
 ====
 
