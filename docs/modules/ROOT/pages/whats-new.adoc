@@ -4,6 +4,10 @@
 Spring Security 6.3 provides a number of new features.
 Below are the highlights of the release.
 
+== General
+
+- https://spring.io/blog/2024/01/19/spring-security-6-3-adds-passive-jdk-serialization-deserialization-for[blog post] - Added Passive JDK Serialization/Deserialization for Seamless Upgrades
+
 == Configuration
 
 - https://github.com/spring-projects/spring-security/issues/6192[gh-6192] - xref:reactive/authentication/concurrent-sessions-control.adoc[docs] Add Concurrent Sessions Control on WebFlux
