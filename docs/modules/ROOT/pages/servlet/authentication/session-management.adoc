@@ -788,7 +788,7 @@ Java::
 @Bean
 public SecurityFilterChain filterChain(HttpSecurity http) {
     http
-        .sessionManagement((session) - session
+        .sessionManagement((session) -> session
             .sessionFixation((sessionFixation) -> sessionFixation
                 .newSession()
             )
