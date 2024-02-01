@@ -167,6 +167,21 @@ public class PostAuthorizeAuthorizationManagerTests {
 			.isThrownBy(() -> manager.check(authentication, result));
 	}
 
+	@Test
+	public void checkRequiresUserWhenMethodsFromInheritThenApplies() throws Exception {
+		MockMethodInvocation methodInvocation = new MockMethodInvocation(new PostAuthorizeClass(),
+				PostAuthorizeClass.class, "securedUser");
+		MethodInvocationResult result = new MethodInvocationResult(methodInvocation, null);
+		PostAuthorizeAuthorizationManager manager = new PostAuthorizeAuthorizationManager();
+		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedUser, result);
+		assertThat(decision.isGranted()).isTrue();
+	}
+
+	@PostAuthorize("hasRole('USER')")
+	public static class PostAuthorizeClass extends SecuredAuthorizationManagerTests.ParentClass {
+
+	}
+
 	public static class TestClass implements InterfaceAnnotationsOne, InterfaceAnnotationsTwo {
 
 		public void doSomething() {

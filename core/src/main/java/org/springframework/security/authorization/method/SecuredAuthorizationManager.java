@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,6 +41,7 @@ import org.springframework.util.Assert;
  * contains a specified authority from the Spring Security's {@link Secured} annotation.
  *
  * @author Evgeniy Cheban
+ * @author DingHao
  * @since 5.6
  */
 public final class SecuredAuthorizationManager implements AuthorizationManager<MethodInvocation> {
@@ -86,14 +87,14 @@ public final class SecuredAuthorizationManager implements AuthorizationManager<M
 
 	private Set<String> resolveAuthorities(Method method, Class<?> targetClass) {
 		Method specificMethod = AopUtils.getMostSpecificMethod(method, targetClass);
-		Secured secured = findSecuredAnnotation(specificMethod);
+		Secured secured = findSecuredAnnotation(specificMethod, targetClass);
 		return (secured != null) ? Set.of(secured.value()) : Collections.emptySet();
 	}
 
-	private Secured findSecuredAnnotation(Method method) {
+	private Secured findSecuredAnnotation(Method method, Class<?> targetClass) {
 		Secured secured = AuthorizationAnnotationUtils.findUniqueAnnotation(method, Secured.class);
-		return (secured != null) ? secured
-				: AuthorizationAnnotationUtils.findUniqueAnnotation(method.getDeclaringClass(), Secured.class);
+		return (secured != null) ? secured : AuthorizationAnnotationUtils
+			.findUniqueAnnotation((targetClass != null) ? targetClass : method.getDeclaringClass(), Secured.class);
 	}
 
 }
