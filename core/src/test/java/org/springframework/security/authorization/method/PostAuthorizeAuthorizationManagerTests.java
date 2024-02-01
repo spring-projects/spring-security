@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -165,6 +165,29 @@ public class PostAuthorizeAuthorizationManagerTests {
 		PostAuthorizeAuthorizationManager manager = new PostAuthorizeAuthorizationManager();
 		assertThatExceptionOfType(AnnotationConfigurationException.class)
 			.isThrownBy(() -> manager.check(authentication, result));
+	}
+
+	@Test
+	public void checkRequiresUserWhenMethodsFromInheritThenApplies() throws Exception {
+		MockMethodInvocation methodInvocation = new MockMethodInvocation(new PostAuthorizeClass(),
+				PostAuthorizeClass.class, "securedUser");
+		MethodInvocationResult result = new MethodInvocationResult(methodInvocation, null);
+		PostAuthorizeAuthorizationManager manager = new PostAuthorizeAuthorizationManager();
+		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedUser, result);
+		assertThat(decision.isGranted()).isTrue();
+	}
+
+	@PostAuthorize("hasRole('USER')")
+	public static class PostAuthorizeClass extends ParentClass {
+
+	}
+
+	public static class ParentClass {
+
+		public void securedUser() {
+
+		}
+
 	}
 
 	public static class TestClass implements InterfaceAnnotationsOne, InterfaceAnnotationsTwo {

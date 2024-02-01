@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -168,6 +168,34 @@ public class PostFilterAuthorizationMethodInterceptorTests {
 		advice.invoke(invocation);
 		verify(strategy).getContext();
 		SecurityContextHolder.setContextHolderStrategy(saved);
+	}
+
+	@Test
+	public void checkPostFilterWhenMethodsFromInheritThenApplies() throws Throwable {
+		String[] array = { "john", "bob" };
+		MockMethodInvocation methodInvocation = new MockMethodInvocation(new PostFilterClass(), PostFilterClass.class,
+				"inheritMethod", new Class[] { String[].class }, new Object[] { array }) {
+			@Override
+			public Object proceed() {
+				return array;
+			}
+		};
+		PostFilterAuthorizationMethodInterceptor advice = new PostFilterAuthorizationMethodInterceptor();
+		Object result = advice.invoke(methodInvocation);
+		assertThat(result).asInstanceOf(InstanceOfAssertFactories.array(String[].class)).containsOnly("john");
+	}
+
+	@PostFilter("filterObject == 'john'")
+	public static class PostFilterClass extends ParentClass {
+
+	}
+
+	public static class ParentClass {
+
+		public String[] inheritMethod(String[] array) {
+			return array;
+		}
+
 	}
 
 	@PostFilter("filterObject == 'john'")

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ import org.springframework.util.Assert;
  * For internal use only, as this contract is likely to change.
  *
  * @author Evgeniy Cheban
+ * @author DingHao
  * @since 5.8
  */
 final class PreAuthorizeExpressionAttributeRegistry extends AbstractExpressionAttributeRegistry<ExpressionAttribute> {
@@ -58,7 +59,7 @@ final class PreAuthorizeExpressionAttributeRegistry extends AbstractExpressionAt
 	@Override
 	ExpressionAttribute resolveAttribute(Method method, Class<?> targetClass) {
 		Method specificMethod = AopUtils.getMostSpecificMethod(method, targetClass);
-		PreAuthorize preAuthorize = findPreAuthorizeAnnotation(specificMethod);
+		PreAuthorize preAuthorize = findPreAuthorizeAnnotation(specificMethod, targetClass);
 		if (preAuthorize == null) {
 			return ExpressionAttribute.NULL_ATTRIBUTE;
 		}
@@ -67,10 +68,10 @@ final class PreAuthorizeExpressionAttributeRegistry extends AbstractExpressionAt
 		return new ExpressionAttribute(preAuthorizeExpression);
 	}
 
-	private PreAuthorize findPreAuthorizeAnnotation(Method method) {
+	private PreAuthorize findPreAuthorizeAnnotation(Method method, Class<?> targetClass) {
 		PreAuthorize preAuthorize = AuthorizationAnnotationUtils.findUniqueAnnotation(method, PreAuthorize.class);
-		return (preAuthorize != null) ? preAuthorize
-				: AuthorizationAnnotationUtils.findUniqueAnnotation(method.getDeclaringClass(), PreAuthorize.class);
+		return (preAuthorize != null) ? preAuthorize : AuthorizationAnnotationUtils
+			.findUniqueAnnotation(targetClass(method, targetClass), PreAuthorize.class);
 	}
 
 }
