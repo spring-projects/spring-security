@@ -268,12 +268,14 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 		return postProcess(logoutResponseFilter);
 	}
 
-	private LogoutFilter createRelyingPartyLogoutFilter(RelyingPartyRegistrationResolver registrations) {
+	private Saml2RelyingPartyInitiatedLogoutFilter createRelyingPartyLogoutFilter(
+			RelyingPartyRegistrationRepository registrations) {
 		LogoutHandler[] logoutHandlers = this.logoutHandlers.toArray(new LogoutHandler[0]);
 		Saml2RelyingPartyInitiatedLogoutSuccessHandler logoutRequestSuccessHandler = createSaml2LogoutRequestSuccessHandler(
 				registrations);
 		logoutRequestSuccessHandler.setLogoutRequestRepository(this.logoutRequestConfigurer.logoutRequestRepository);
-		LogoutFilter logoutFilter = new LogoutFilter(logoutRequestSuccessHandler, logoutHandlers);
+		Saml2RelyingPartyInitiatedLogoutFilter logoutFilter = new Saml2RelyingPartyInitiatedLogoutFilter(
+				logoutRequestSuccessHandler, logoutHandlers);
 		logoutFilter.setLogoutRequestMatcher(createLogoutMatcher());
 		return postProcess(logoutFilter);
 	}
@@ -564,6 +566,15 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 			catch (ReflectiveOperationException ex) {
 				throw new IllegalStateException("Could not instantiate OpenSaml4LogoutRequestResolver", ex);
 			}
+		}
+
+	}
+
+	private static class Saml2RelyingPartyInitiatedLogoutFilter extends LogoutFilter {
+
+		public Saml2RelyingPartyInitiatedLogoutFilter(LogoutSuccessHandler logoutSuccessHandler,
+				LogoutHandler... handlers) {
+			super(logoutSuccessHandler, handlers);
 		}
 
 	}
