@@ -930,4 +930,4 @@ If more than one `ClientRegistration` is configured for OpenID Connect 1.0 Authe
 ====
 
 [[oauth2login-advanced-oidc-logout]]
-Then, you can proceed to configure xref:reactive/oauth2/login/logout.adoc[logout]
+Then, you can proceed to configure xref:servlet/oauth2/login/logout.adoc[logout]
