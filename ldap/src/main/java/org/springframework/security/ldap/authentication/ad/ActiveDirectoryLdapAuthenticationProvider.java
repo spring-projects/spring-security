@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,12 +17,9 @@
 package org.springframework.security.ldap.authentication.ad;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Hashtable;
-import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -39,7 +36,6 @@ import org.springframework.core.log.LogMessage;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.ldap.CommunicationException;
 import org.springframework.ldap.core.DirContextOperations;
-import org.springframework.ldap.core.DistinguishedName;
 import org.springframework.ldap.core.support.DefaultDirObjectFactory;
 import org.springframework.ldap.support.LdapUtils;
 import org.springframework.security.authentication.AccountExpiredException;
@@ -50,11 +46,10 @@ import org.springframework.security.authentication.InternalAuthenticationService
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.ldap.SpringSecurityLdapTemplate;
 import org.springframework.security.ldap.authentication.AbstractLdapAuthenticationProvider;
+import org.springframework.security.ldap.userdetails.LdapAuthoritiesPopulator;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
@@ -72,9 +67,9 @@ import org.springframework.util.StringUtils;
  * <p>
  * The user authorities are obtained from the data contained in the {@code memberOf}
  * attribute.
- *
+ * <p>
  * <h3>Active Directory Sub-Error Codes</h3>
- *
+ * <p>
  * When an authentication fails, resulting in a standard LDAP 49 error code, Active
  * Directory also supplies its own sub-error codes within the error message. These will be
  * used to provide additional log information on why an authentication has failed. Typical
@@ -90,13 +85,14 @@ import org.springframework.util.StringUtils;
  * <li>773 - user must reset password</li>
  * <li>775 - account locked</li>
  * </ul>
- *
+ * <p>
  * If you set the {@link #setConvertSubErrorCodesToExceptions(boolean)
  * convertSubErrorCodesToExceptions} property to {@code true}, the codes will also be used
  * to control the exception raised.
  *
  * @author Luke Taylor
  * @author Rob Winch
+ * @author Roman Zabaluev
  * @since 3.1
  */
 public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLdapAuthenticationProvider {
@@ -135,20 +131,23 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
 	// Only used to allow tests to substitute a mock LdapContext
 	ContextFactory contextFactory = new ContextFactory();
 
+	private LdapAuthoritiesPopulator authoritiesPopulator = new DefaultActiveDirectoryAuthoritiesPopulator();
+
 	/**
-	 * @param domain the domain name (may be null or empty)
+	 * @param domain the domain name (can be null or empty)
 	 * @param url an LDAP url (or multiple URLs)
-	 * @param rootDn the root DN (may be null or empty)
+	 * @param rootDn the root DN (can be null or empty)
 	 */
 	public ActiveDirectoryLdapAuthenticationProvider(String domain, String url, String rootDn) {
 		Assert.isTrue(StringUtils.hasText(url), "Url cannot be empty");
 		this.domain = StringUtils.hasText(domain) ? domain.toLowerCase() : null;
 		this.url = url;
 		this.rootDn = StringUtils.hasText(rootDn) ? rootDn.toLowerCase() : null;
+		this.setAuthoritiesPopulator(this.authoritiesPopulator);
 	}
 
 	/**
-	 * @param domain the domain name (may be null or empty)
+	 * @param domain the domain name (can be null or empty)
 	 * @param url an LDAP url (or multiple URLs)
 	 */
 	public ActiveDirectoryLdapAuthenticationProvider(String domain, String url) {
@@ -156,6 +155,7 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
 		this.domain = StringUtils.hasText(domain) ? domain.toLowerCase() : null;
 		this.url = url;
 		this.rootDn = (this.domain != null) ? rootDnFromDomain(this.domain) : null;
+		this.setAuthoritiesPopulator(this.authoritiesPopulator);
 	}
 
 	@Override
@@ -179,26 +179,10 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
 		}
 	}
 
-	/**
-	 * Creates the user authority list from the values of the {@code memberOf} attribute
-	 * obtained from the user's Active Directory entry.
-	 */
 	@Override
 	protected Collection<? extends GrantedAuthority> loadUserAuthorities(DirContextOperations userData, String username,
 			String password) {
-		String[] groups = userData.getStringAttributes("memberOf");
-		if (groups == null) {
-			this.logger.debug("No values for 'memberOf' attribute.");
-			return AuthorityUtils.NO_AUTHORITIES;
-		}
-		if (this.logger.isDebugEnabled()) {
-			this.logger.debug("'memberOf' attribute values: " + Arrays.asList(groups));
-		}
-		List<GrantedAuthority> authorities = new ArrayList<>(groups.length);
-		for (String group : groups) {
-			authorities.add(new SimpleGrantedAuthority(new DistinguishedName(group).removeLast().getValue()));
-		}
-		return authorities;
+		return this.authoritiesPopulator.getGrantedAuthorities(userData, username);
 	}
 
 	private DirContext bindAsUser(String username, String password) {
@@ -332,14 +316,14 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
 					+ "' does not contain the domain, and no domain has been configured");
 			throw badCredentials();
 		}
-		return rootDnFromDomain(bindPrincipal.substring(atChar + 1, bindPrincipal.length()));
+		return rootDnFromDomain(bindPrincipal.substring(atChar + 1));
 	}
 
 	private String rootDnFromDomain(String domain) {
 		String[] tokens = StringUtils.tokenizeToStringArray(domain, ".");
 		StringBuilder root = new StringBuilder();
 		for (String token : tokens) {
-			if (root.length() > 0) {
+			if (!root.isEmpty()) {
 				root.append(',');
 			}
 			root.append("dc=").append(token);
@@ -379,7 +363,6 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
 	 * Defaults to: {@code (&(objectClass=user)(userPrincipalName={0}))}
 	 * </p>
 	 * @param searchFilter the filter string
-	 *
 	 * @since 3.2.6
 	 */
 	public void setSearchFilter(String searchFilter) {
@@ -395,6 +378,19 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
 	public void setContextEnvironmentProperties(Map<String, Object> environment) {
 		Assert.notEmpty(environment, "environment must not be empty");
 		this.contextEnvironmentProperties = new Hashtable<>(environment);
+	}
+
+	/**
+	 * Set the strategy for obtaining the authorities for a given user after they've been
+	 * authenticated. Consider adjusting this if you require a custom authorities mapping
+	 * algorithm different from a default one. The default value is
+	 * DefaultActiveDirectoryAuthoritiesPopulator.
+	 * @param authoritiesPopulator authorities population strategy
+	 * @since 6.3
+	 */
+	public void setAuthoritiesPopulator(LdapAuthoritiesPopulator authoritiesPopulator) {
+		Assert.notNull(authoritiesPopulator, "An LdapAuthoritiesPopulator must be supplied");
+		this.authoritiesPopulator = authoritiesPopulator;
 	}
 
 	static class ContextFactory {
