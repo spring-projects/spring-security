@@ -115,7 +115,7 @@ import org.springframework.web.filter.GenericFilterBean;
 public abstract class AbstractAuthenticationProcessingFilter extends GenericFilterBean
 		implements ApplicationEventPublisherAware, MessageSourceAware {
 
-	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
+	protected SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
 		.getContextHolderStrategy();
 
 	protected ApplicationEventPublisher eventPublisher;
@@ -140,7 +140,7 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 
 	private AuthenticationFailureHandler failureHandler = new SimpleUrlAuthenticationFailureHandler();
 
-	private SecurityContextRepository securityContextRepository = new RequestAttributeSecurityContextRepository();
+	protected SecurityContextRepository securityContextRepository = new RequestAttributeSecurityContextRepository();
 
 	/**
 	 * @param defaultFilterProcessesUrl the default value for <tt>filterProcessesUrl</tt>.
