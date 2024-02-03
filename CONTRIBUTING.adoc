@@ -79,7 +79,7 @@ See https://github.com/spring-projects/spring-security/tree/main#building-from-s
 
 The wiki pages https://github.com/spring-projects/spring-framework/wiki/Code-Style[Code Style] and https://github.com/spring-projects/spring-framework/wiki/IntelliJ-IDEA-Editor-Settings[IntelliJ IDEA Editor Settings] define the source file coding standards we use along with some IDEA editor settings we customize.
 
-To format the code as well as check the style, run `./gradle format check`.
+To format the code as well as check the style, run `./gradlew format check`.
 
 [[submit-a-pull-request]]
 === Submit a Pull Request
