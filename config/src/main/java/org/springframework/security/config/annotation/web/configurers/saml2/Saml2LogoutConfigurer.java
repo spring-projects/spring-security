@@ -269,7 +269,7 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 	}
 
 	private Saml2RelyingPartyInitiatedLogoutFilter createRelyingPartyLogoutFilter(
-			RelyingPartyRegistrationRepository registrations) {
+			RelyingPartyRegistrationResolver registrations) {
 		LogoutHandler[] logoutHandlers = this.logoutHandlers.toArray(new LogoutHandler[0]);
 		Saml2RelyingPartyInitiatedLogoutSuccessHandler logoutRequestSuccessHandler = createSaml2LogoutRequestSuccessHandler(
 				registrations);
@@ -572,8 +572,7 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 
 	private static class Saml2RelyingPartyInitiatedLogoutFilter extends LogoutFilter {
 
-		public Saml2RelyingPartyInitiatedLogoutFilter(LogoutSuccessHandler logoutSuccessHandler,
-				LogoutHandler... handlers) {
+		Saml2RelyingPartyInitiatedLogoutFilter(LogoutSuccessHandler logoutSuccessHandler, LogoutHandler... handlers) {
 			super(logoutSuccessHandler, handlers);
 		}
 
