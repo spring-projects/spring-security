@@ -270,12 +270,14 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 		return postProcess(logoutResponseFilter);
 	}
 
-	private LogoutFilter createRelyingPartyLogoutFilter(RelyingPartyRegistrationRepository registrations) {
+	private Saml2RelyingPartyInitiatedLogoutFilter createRelyingPartyLogoutFilter(
+			RelyingPartyRegistrationRepository registrations) {
 		LogoutHandler[] logoutHandlers = this.logoutHandlers.toArray(new LogoutHandler[0]);
 		Saml2RelyingPartyInitiatedLogoutSuccessHandler logoutRequestSuccessHandler = createSaml2LogoutRequestSuccessHandler(
 				registrations);
 		logoutRequestSuccessHandler.setLogoutRequestRepository(this.logoutRequestConfigurer.logoutRequestRepository);
-		LogoutFilter logoutFilter = new LogoutFilter(logoutRequestSuccessHandler, logoutHandlers);
+		Saml2RelyingPartyInitiatedLogoutFilter logoutFilter = new Saml2RelyingPartyInitiatedLogoutFilter(
+				logoutRequestSuccessHandler, logoutHandlers);
 		logoutFilter.setLogoutRequestMatcher(createLogoutMatcher());
 		return postProcess(logoutFilter);
 	}
@@ -519,6 +521,14 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 		@Override
 		public boolean matches(HttpServletRequest request) {
 			return this.test.test(request.getParameter(this.name));
+		}
+
+	}
+
+	private static class Saml2RelyingPartyInitiatedLogoutFilter extends LogoutFilter {
+
+		Saml2RelyingPartyInitiatedLogoutFilter(LogoutSuccessHandler logoutSuccessHandler, LogoutHandler... handlers) {
+			super(logoutSuccessHandler, handlers);
 		}
 
 	}
