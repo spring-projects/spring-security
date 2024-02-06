@@ -1,0 +1,54 @@
+name: Auto Merge Forward Dependabot Commits
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dependabot-auto-merge-forward
+
+jobs:
+  get-supported-branches:
+    uses: spring-io/spring-security-release-tools/.github/workflows/retrieve-spring-supported-versions.yml@d615a5694c761901330655fdd0e3721dc4ccf0fe
+    with:
+      project: spring-security
+      type: oss
+
+  auto-merge-forward-dependabot:
+    name: Auto Merge Forward Dependabot Commits
+    runs-on: ubuntu-latest
+    needs: [get-supported-branches]
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        id: checkout
+        uses: actions/checkout@v4
+      - name: Setup GitHub User
+        id: setup-gh-user
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+      - name: Run Auto Merge Forward
+        id: run-auto-merge-forward
+        uses: marcusdacoregio/auto-merge-forward@c482956226871dfff01598a3e6fd66c6a5ecbca7
+        with:
+          branches: ${{ needs.get-supported-branches.outputs.supported_versions }},main
+          from-author: dependabot[bot]
+  notify_result:
+    name: Check for failures
+    needs: [ auto-merge-forward-dependabot ]
+    if: failure()
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+    steps:
+      - name: Send Slack message
+        uses: Gamesight/slack-workflow-status@v1.2.0
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
+          channel: '#spring-security-ci'
+          name: 'CI Notifier'
