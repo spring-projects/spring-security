@@ -9,7 +9,7 @@ jobs:
   trigger-worflow:
     name: Trigger Workflow
     runs-on: ubuntu-latest
-    if: github.event.commits[0].author.username == 'dependabot[bot]'
+    if: ${{ github.event.commits[0].author.username == 'dependabot[bot]' && github.repository_owner == 'spring-projects' }}
     steps:
       - name: Checkout
         id: checkout
