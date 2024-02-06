@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,8 +46,8 @@ public final class WebSessionStoreReactiveSessionRegistry implements ReactiveSes
 	}
 
 	@Override
-	public Flux<ReactiveSessionInformation> getAllSessions(Object principal, boolean includeExpiredSessions) {
-		return this.sessionRegistry.getAllSessions(principal, includeExpiredSessions).map(WebSessionInformation::new);
+	public Flux<ReactiveSessionInformation> getAllSessions(Object principal) {
+		return this.sessionRegistry.getAllSessions(principal).map(WebSessionInformation::new);
 	}
 
 	@Override

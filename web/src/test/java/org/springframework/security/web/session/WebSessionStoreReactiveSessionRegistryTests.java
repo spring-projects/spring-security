@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,8 +31,6 @@ import org.springframework.web.server.session.WebSessionStore;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -101,12 +99,12 @@ class WebSessionStoreReactiveSessionRegistryTests {
 		given(this.webSessionStore.retrieveSession(session.getSessionId())).willReturn(Mono.just(webSession));
 
 		this.registry.saveSessionInformation(session).block();
-		List<ReactiveSessionInformation> saved = this.registry.getAllSessions(session.getPrincipal(), false)
+		List<ReactiveSessionInformation> saved = this.registry.getAllSessions(session.getPrincipal())
 			.collectList()
 			.block();
 		saved.forEach((info) -> info.invalidate().block());
 		verify(webSession).invalidate();
-		assertThat(this.registry.getAllSessions(session.getPrincipal(), false).collectList().block()).isEmpty();
+		assertThat(this.registry.getAllSessions(session.getPrincipal()).collectList().block()).isEmpty();
 	}
 
 	@Test
@@ -116,7 +114,7 @@ class WebSessionStoreReactiveSessionRegistryTests {
 		given(sessionRegistry.removeSessionInformation(any())).willReturn(Mono.empty());
 		given(sessionRegistry.updateLastAccessTime(any())).willReturn(Mono.empty());
 		given(sessionRegistry.getSessionInformation(any())).willReturn(Mono.empty());
-		given(sessionRegistry.getAllSessions(any(), anyBoolean())).willReturn(Flux.empty());
+		given(sessionRegistry.getAllSessions(any())).willReturn(Flux.empty());
 		this.registry.setSessionRegistry(sessionRegistry);
 		ReactiveSessionInformation session = createSession();
 		this.registry.saveSessionInformation(session).block();
@@ -127,8 +125,8 @@ class WebSessionStoreReactiveSessionRegistryTests {
 		verify(sessionRegistry).updateLastAccessTime(any());
 		this.registry.getSessionInformation(session.getSessionId()).block();
 		verify(sessionRegistry).getSessionInformation(any());
-		this.registry.getAllSessions(session.getPrincipal(), false).blockFirst();
-		verify(sessionRegistry).getAllSessions(any(), eq(false));
+		this.registry.getAllSessions(session.getPrincipal()).blockFirst();
+		verify(sessionRegistry).getAllSessions(any());
 	}
 
 	private static ReactiveSessionInformation createSession() {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,7 +46,7 @@ class InMemoryReactiveSessionRegistryTests {
 				"1234", this.now);
 		this.sessionRegistry.saveSessionInformation(sessionInformation).block();
 		List<ReactiveSessionInformation> principalSessions = this.sessionRegistry
-			.getAllSessions(authentication.getPrincipal(), false)
+			.getAllSessions(authentication.getPrincipal())
 			.collectList()
 			.block();
 		assertThat(principalSessions).hasSize(1);
@@ -65,8 +65,7 @@ class InMemoryReactiveSessionRegistryTests {
 		this.sessionRegistry.saveSessionInformation(sessionInformation1).block();
 		this.sessionRegistry.saveSessionInformation(sessionInformation2).block();
 		this.sessionRegistry.saveSessionInformation(sessionInformation3).block();
-		List<ReactiveSessionInformation> sessions = this.sessionRegistry
-			.getAllSessions(authentication.getPrincipal(), false)
+		List<ReactiveSessionInformation> sessions = this.sessionRegistry.getAllSessions(authentication.getPrincipal())
 			.collectList()
 			.block();
 		assertThat(sessions).hasSize(3);
@@ -82,7 +81,7 @@ class InMemoryReactiveSessionRegistryTests {
 				"1234", this.now);
 		this.sessionRegistry.saveSessionInformation(sessionInformation).block();
 		this.sessionRegistry.removeSessionInformation("1234").block();
-		List<ReactiveSessionInformation> sessions = this.sessionRegistry.getAllSessions(authentication.getName(), false)
+		List<ReactiveSessionInformation> sessions = this.sessionRegistry.getAllSessions(authentication.getName())
 			.collectList()
 			.block();
 		assertThat(this.sessionRegistry.getSessionInformation("1234").block()).isNull();

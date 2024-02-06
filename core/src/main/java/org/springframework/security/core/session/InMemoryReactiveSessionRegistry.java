@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,10 +50,9 @@ public class InMemoryReactiveSessionRegistry implements ReactiveSessionRegistry 
 	}
 
 	@Override
-	public Flux<ReactiveSessionInformation> getAllSessions(Object principal, boolean includeExpiredSessions) {
+	public Flux<ReactiveSessionInformation> getAllSessions(Object principal) {
 		return Flux.fromIterable(this.sessionIdsByPrincipal.getOrDefault(principal, Collections.emptySet()))
-			.map(this.sessionById::get)
-			.filter((sessionInformation) -> includeExpiredSessions || !sessionInformation.isExpired());
+			.map(this.sessionById::get);
 	}
 
 	@Override

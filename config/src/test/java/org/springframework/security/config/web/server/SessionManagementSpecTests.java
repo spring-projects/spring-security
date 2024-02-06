@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -334,7 +334,7 @@ public class SessionManagementSpecTests {
 			.expectStatus()
 			.isOk();
 		ReactiveSessionRegistry sessionRegistry = this.spring.getContext().getBean(ReactiveSessionRegistry.class);
-		sessionRegistry.getAllSessions(PasswordEncodedUser.user(), false)
+		sessionRegistry.getAllSessions(PasswordEncodedUser.user())
 			.flatMap(ReactiveSessionInformation::invalidate)
 			.blockLast();
 		this.client.get()

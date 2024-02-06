@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,7 +62,7 @@ public final class ConcurrentSessionControlServerAuthenticationSuccessHandler
 
 	private Mono<Void> handleConcurrency(WebFilterExchange exchange, Authentication authentication,
 			Integer maximumSessions) {
-		return this.sessionRegistry.getAllSessions(authentication.getPrincipal(), false)
+		return this.sessionRegistry.getAllSessions(authentication.getPrincipal())
 			.collectList()
 			.flatMap((registeredSessions) -> exchange.getExchange()
 				.getSession()
