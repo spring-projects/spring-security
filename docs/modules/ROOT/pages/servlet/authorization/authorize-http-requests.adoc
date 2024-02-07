@@ -258,7 +258,7 @@ void endpointWhenNotUserAuthorityThenForbidden() {
 @Test
 void anyWhenUnauthenticatedThenUnauthorized() {
     this.mvc.perform(get("/any"))
-        .andExpect(status().isUnauthorized())
+        .andExpect(status().isUnauthorized());
 }
 ----
 ======
@@ -387,7 +387,7 @@ void endpointWhenNotUserAuthorityThenForbidden() {
 @Test
 void anyWhenUnauthenticatedThenUnauthorized() {
     this.mvc.perform(get("/any"))
-        .andExpect(status().isUnauthorized())
+        .andExpect(status().isUnauthorized());
 }
 ----
 ======
