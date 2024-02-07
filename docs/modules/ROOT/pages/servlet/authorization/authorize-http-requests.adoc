@@ -521,7 +521,7 @@ void getWhenNoReadAuthorityThenForbidden() {
 @Test
 void postWhenWriteAuthorityThenAuthorized() {
     this.mvc.perform(post("/any").with(csrf()))
-        .andExpect(status().isOk())
+        .andExpect(status().isOk());
 }
 
 @WithMockUser(authorities="read")
