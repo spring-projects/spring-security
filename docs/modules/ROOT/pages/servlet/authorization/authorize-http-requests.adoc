@@ -258,7 +258,7 @@ void endpointWhenNotUserAuthorityThenForbidden() {
 @Test
 void anyWhenUnauthenticatedThenUnauthorized() {
     this.mvc.perform(get("/any"))
-        .andExpect(status().isUnauthorized())
+        .andExpect(status().isUnauthorized());
 }
 ----
 ======
@@ -387,7 +387,7 @@ void endpointWhenNotUserAuthorityThenForbidden() {
 @Test
 void anyWhenUnauthenticatedThenUnauthorized() {
     this.mvc.perform(get("/any"))
-        .andExpect(status().isUnauthorized())
+        .andExpect(status().isUnauthorized());
 }
 ----
 ======
@@ -521,7 +521,7 @@ void getWhenNoReadAuthorityThenForbidden() {
 @Test
 void postWhenWriteAuthorityThenAuthorized() {
     this.mvc.perform(post("/any").with(csrf()))
-        .andExpect(status().isOk())
+        .andExpect(status().isOk());
 }
 
 @WithMockUser(authorities="read")
@@ -737,7 +737,7 @@ SecurityFilterChain web(HttpSecurity http) throws Exception {
             .dispatcherTypeMatchers(FORWARD, ERROR).permitAll() // <2>
 			.requestMatchers("/static/**", "/signup", "/about").permitAll()         // <3>
 			.requestMatchers("/admin/**").hasRole("ADMIN")                             // <4>
-			.requestMatchers("/db/**").access(allOf(hasAuthority('db'), hasRole('ADMIN')))   // <5>
+			.requestMatchers("/db/**").access(allOf(hasAuthority("db"), hasRole("ADMIN")))   // <5>
 			.anyRequest().denyAll()                                                // <6>
 		);
 
@@ -805,7 +805,7 @@ Xml::
 </http>
 ----
 ======
-<1> We specified a URL patters that any user can access.
+<1> We specified a URL pattern that any user can access.
 Specifically, any user can access a request if the URL starts with "/static/".
 <2> Any URL that starts with "/admin/" will be restricted to users who have the role "ROLE_ADMIN".
 You will notice that since we are invoking the `hasRole` method we do not need to specify the "ROLE_" prefix.
