@@ -737,7 +737,7 @@ SecurityFilterChain web(HttpSecurity http) throws Exception {
             .dispatcherTypeMatchers(FORWARD, ERROR).permitAll() // <2>
 			.requestMatchers("/static/**", "/signup", "/about").permitAll()         // <3>
 			.requestMatchers("/admin/**").hasRole("ADMIN")                             // <4>
-			.requestMatchers("/db/**").access(allOf(hasAuthority('db'), hasRole('ADMIN')))   // <5>
+			.requestMatchers("/db/**").access(allOf(hasAuthority("db"), hasRole("ADMIN")))   // <5>
 			.anyRequest().denyAll()                                                // <6>
 		);
 
