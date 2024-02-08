@@ -11,10 +11,11 @@ permissions:
 jobs:
 
   get-supported-branches:
-    uses: spring-io/spring-security-release-tools/.github/workflows/retrieve-spring-supported-versions.yml@d615a5694c761901330655fdd0e3721dc4ccf0fe
+    uses: spring-io/spring-security-release-tools/.github/workflows/retrieve-spring-supported-versions.yml@actions-v1
     with:
       project: spring-security
       type: oss
+      repository_name: spring-projects/spring-security
 
   main:
     runs-on: ubuntu-latest
@@ -26,7 +27,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 1
-      - uses: marcusdacoregio/generate-dependabot-yml@380cfc736e153864e970429ea6a640ce46953a17
+      - uses: spring-io/spring-security-release-tools/.github/actions/generate-dependabot-yml@actions-v1
         name: Update dependabot.yml
         with:
           gradle-branches: ${{ needs.get-supported-branches.outputs.supported_versions }},main
