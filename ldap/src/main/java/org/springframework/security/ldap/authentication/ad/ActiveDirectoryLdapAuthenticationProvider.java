@@ -143,7 +143,6 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
 		this.domain = StringUtils.hasText(domain) ? domain.toLowerCase() : null;
 		this.url = url;
 		this.rootDn = StringUtils.hasText(rootDn) ? rootDn.toLowerCase() : null;
-		this.setAuthoritiesPopulator(this.authoritiesPopulator);
 	}
 
 	/**
@@ -155,7 +154,6 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
 		this.domain = StringUtils.hasText(domain) ? domain.toLowerCase() : null;
 		this.url = url;
 		this.rootDn = (this.domain != null) ? rootDnFromDomain(this.domain) : null;
-		this.setAuthoritiesPopulator(this.authoritiesPopulator);
 	}
 
 	@Override
@@ -179,6 +177,10 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
 		}
 	}
 
+	/**
+	 * Creates the user authority list from the values of the {@code memberOf} attribute
+	 * obtained from the user's Active Directory entry.
+	 */
 	@Override
 	protected Collection<? extends GrantedAuthority> loadUserAuthorities(DirContextOperations userData, String username,
 			String password) {
@@ -389,7 +391,7 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
 	 * @since 6.3
 	 */
 	public void setAuthoritiesPopulator(LdapAuthoritiesPopulator authoritiesPopulator) {
-		Assert.notNull(authoritiesPopulator, "An LdapAuthoritiesPopulator must be supplied");
+		Assert.notNull(authoritiesPopulator, "authoritiesPopulator must not be null");
 		this.authoritiesPopulator = authoritiesPopulator;
 	}
 

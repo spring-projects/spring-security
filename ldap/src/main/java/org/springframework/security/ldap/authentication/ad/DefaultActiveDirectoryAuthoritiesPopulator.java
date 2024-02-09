@@ -38,6 +38,7 @@ import org.springframework.security.ldap.userdetails.LdapAuthoritiesPopulator;
  *
  * @author Luke Taylor
  * @author Roman Zabaluev
+ * @since 6.3
  */
 public final class DefaultActiveDirectoryAuthoritiesPopulator implements LdapAuthoritiesPopulator {
 
