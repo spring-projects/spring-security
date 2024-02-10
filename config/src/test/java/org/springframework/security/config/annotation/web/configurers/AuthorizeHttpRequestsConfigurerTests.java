@@ -40,8 +40,10 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.core.GrantedAuthorityDefaults;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
@@ -543,6 +545,17 @@ public class AuthorizeHttpRequestsConfigurerTests {
 		this.mvc.perform(request).andExpect(status().isOk());
 		request = get("/user/deny");
 		this.mvc.perform(request).andExpect(status().isUnauthorized());
+
+		UserDetails user = TestAuthentication.withUsername("taehong").build();
+		Authentication authentication = TestAuthentication.authenticated(user);
+		request = get("/v2/user/{username}", user.getUsername()).with(authentication(authentication));
+		this.mvc.perform(request).andExpect(status().isOk());
+
+		request = get("/v2/user/{username}", "withNoAuthentication");
+		this.mvc.perform(request).andExpect(status().isUnauthorized());
+
+		request = get("/v2/user/{username}", "another").with(authentication(authentication));
+		this.mvc.perform(request).andExpect(status().isForbidden());
 	}
 
 	private static RequestPostProcessor remoteAddress(String remoteAddress) {
@@ -594,6 +607,20 @@ public class AuthorizeHttpRequestsConfigurerTests {
 		this.spring.register(AnonymousConfig.class, BasicController.class).autowire();
 		MockHttpServletRequestBuilder requestWithUser = get("/").with(user("user"));
 		this.mvc.perform(requestWithUser).andExpect(status().isForbidden());
+	}
+
+	@Test
+	public void getWhenNotConfigAndAuthenticatedThenRespondsWithForbidden() throws Exception {
+		this.spring.register(NotConfig.class, BasicController.class).autowire();
+		MockHttpServletRequestBuilder requestWithUser = get("/").with(user("user"));
+		this.mvc.perform(requestWithUser).andExpect(status().isForbidden());
+	}
+
+	@Test
+	public void getWhenNotConfigAndNotAuthenticatedThenRespondsWithOk() throws Exception {
+		this.spring.register(NotConfig.class, BasicController.class).autowire();
+		MockHttpServletRequestBuilder requestWithUser = get("/");
+		this.mvc.perform(requestWithUser).andExpect(status().isOk());
 	}
 
 	@Configuration
@@ -1053,6 +1080,7 @@ public class AuthorizeHttpRequestsConfigurerTests {
 				.httpBasic(withDefaults())
 				.authorizeHttpRequests((requests) -> requests
 					.requestMatchers("/user/{username}").access(new WebExpressionAuthorizationManager("#username == 'user'"))
+					.requestMatchers("/v2/user/{username}").hasVariable("username").equalTo(Authentication::getName)
 				);
 			// @formatter:on
 			return http.build();
@@ -1063,6 +1091,11 @@ public class AuthorizeHttpRequestsConfigurerTests {
 
 			@RequestMapping("/user/{username}")
 			String path(@PathVariable("username") String username) {
+				return username;
+			}
+
+			@RequestMapping("/v2/user/{username}")
+			String pathV2(@PathVariable("username") String username) {
 				return username;
 			}
 
@@ -1129,6 +1162,24 @@ public class AuthorizeHttpRequestsConfigurerTests {
 				.httpBasic(withDefaults())
 				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().anonymous()
+				);
+			// @formatter:on
+			return http.build();
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	static class NotConfig {
+
+		@Bean
+		SecurityFilterChain chain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.httpBasic(withDefaults())
+				.authorizeHttpRequests((requests) -> requests
+					.anyRequest().not().authenticated()
 				);
 			// @formatter:on
 			return http.build();

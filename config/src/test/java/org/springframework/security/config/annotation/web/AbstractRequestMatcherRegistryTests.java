@@ -307,7 +307,7 @@ public class AbstractRequestMatcherRegistryTests {
 			List<RequestMatcher> requestMatchers = new ArrayList<>();
 			for (RequestMatcher requestMatcher : wrappedMatchers) {
 				if (requestMatcher instanceof AbstractRequestMatcherRegistry.DeferredRequestMatcher) {
-					requestMatchers.add(((DeferredRequestMatcher) requestMatcher).requestMatcher.get());
+					requestMatchers.add(((DeferredRequestMatcher) requestMatcher).requestMatcher);
 				}
 				else {
 					requestMatchers.add(requestMatcher);

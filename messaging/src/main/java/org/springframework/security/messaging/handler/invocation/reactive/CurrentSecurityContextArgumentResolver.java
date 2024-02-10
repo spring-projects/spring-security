@@ -118,7 +118,21 @@ public class CurrentSecurityContextArgumentResolver implements HandlerMethodArgu
 
 	@Override
 	public boolean supportsParameter(MethodParameter parameter) {
-		return findMethodAnnotation(CurrentSecurityContext.class, parameter) != null;
+		return isMonoSecurityContext(parameter)
+				|| findMethodAnnotation(CurrentSecurityContext.class, parameter) != null;
+	}
+
+	private boolean isMonoSecurityContext(MethodParameter parameter) {
+		boolean isParameterPublisher = Publisher.class.isAssignableFrom(parameter.getParameterType());
+		if (isParameterPublisher) {
+			ResolvableType resolvableType = ResolvableType.forMethodParameter(parameter);
+			Class<?> genericType = resolvableType.resolveGeneric(0);
+			if (genericType == null) {
+				return false;
+			}
+			return SecurityContext.class.isAssignableFrom(genericType);
+		}
+		return false;
 	}
 
 	@Override
@@ -136,6 +150,14 @@ public class CurrentSecurityContextArgumentResolver implements HandlerMethodArgu
 
 	private Object resolveSecurityContext(MethodParameter parameter, Object securityContext) {
 		CurrentSecurityContext contextAnno = findMethodAnnotation(CurrentSecurityContext.class, parameter);
+		if (contextAnno != null) {
+			return resolveSecurityContextFromAnnotation(contextAnno, parameter, securityContext);
+		}
+		return securityContext;
+	}
+
+	private Object resolveSecurityContextFromAnnotation(CurrentSecurityContext contextAnno, MethodParameter parameter,
+			Object securityContext) {
 		String expressionToParse = contextAnno.expression();
 		if (StringUtils.hasLength(expressionToParse)) {
 			StandardEvaluationContext context = new StandardEvaluationContext();

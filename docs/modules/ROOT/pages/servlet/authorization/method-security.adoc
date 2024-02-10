@@ -160,12 +160,12 @@ For example, if needed, you can disable the Spring Security defaults and <<_enab
 
 The method interceptors are as follows:
 
-* For <<use-preauthorize,`@PreAuthorize`>>, Spring Security uses {security-api-url}org/springframework/security/authorization/method/AuthorizationManagerBeforeMethodInterceptor.html[`AuthenticationManagerBeforeMethodInterceptor#preAuthorize`], which in turn uses {security-api-url}org/springframework/security/authorization/method/PreAuthorizeAuthorizationManager.html[`PreAuthorizeAuthorizationManager`]
-* For <<use-postauthorize,`@PostAuthorize`>>, Spring Security uses {security-api-url}org/springframework/security/authorization/method/AuthorizationManagerAfterMethodInterceptor.html[`AuthenticationManagerAfterMethodInterceptor#postAuthorize`], which in turn uses {security-api-url}org/springframework/security/authorization/method/PostAuthorizeAuthorizationManager.html[`PostAuthorizeAuthorizationManager`]
+* For <<use-preauthorize,`@PreAuthorize`>>, Spring Security uses {security-api-url}org/springframework/security/authorization/method/AuthorizationManagerBeforeMethodInterceptor.html[`AuthorizationManagerBeforeMethodInterceptor#preAuthorize`], which in turn uses {security-api-url}org/springframework/security/authorization/method/PreAuthorizeAuthorizationManager.html[`PreAuthorizeAuthorizationManager`]
+* For <<use-postauthorize,`@PostAuthorize`>>, Spring Security uses {security-api-url}org/springframework/security/authorization/method/AuthorizationManagerAfterMethodInterceptor.html[`AuthorizationManagerBeforeMethodInterceptor#postAuthorize`], which in turn uses {security-api-url}org/springframework/security/authorization/method/PostAuthorizeAuthorizationManager.html[`PostAuthorizeAuthorizationManager`]
 * For <<use-prefilter,`@PreFilter`>>, Spring Security uses {security-api-url}org/springframework/security/authorization/method/PreFilterAuthorizationMethodInterceptor.html[`PreFilterAuthorizationMethodInterceptor`]
 * For <<use-postfilter,`@PostFilter`>>, Spring Security uses {security-api-url}org/springframework/security/authorization/method/PostFilterAuthorizationMethodInterceptor.html[`PostFilterAuthorizationMethodInterceptor`]
-* For <<use-secured,`@Secured`>>, Spring Security uses {security-api-url}org/springframework/security/authorization/method/AuthorizationManagerBeforeMethodInterceptor.html[`AuthenticationManagerBeforeMethodInterceptor#secured`], which in turn uses {security-api-url}org/springframework/security/authorization/method/SecuredAuthorizationManager.html[`SecuredAuthorizationManager`]
-* For JSR-250 annotations, Spring Security uses {security-api-url}org/springframework/security/authorization/method/AuthorizationManagerBeforeMethodInterceptor.html[`AuthenticationManagerBeforeMethodInterceptor#jsr250`], which in turn uses {security-api-url}org/springframework/security/authorization/method/Jsr250AuthorizationManager.html[`Jsr250AuthorizationManager`]
+* For <<use-secured,`@Secured`>>, Spring Security uses {security-api-url}org/springframework/security/authorization/method/AuthorizationManagerBeforeMethodInterceptor.html[`AuthorizationManagerBeforeMethodInterceptor#secured`], which in turn uses {security-api-url}org/springframework/security/authorization/method/SecuredAuthorizationManager.html[`SecuredAuthorizationManager`]
+* For JSR-250 annotations, Spring Security uses {security-api-url}org/springframework/security/authorization/method/AuthorizationManagerBeforeMethodInterceptor.html[`AuthorizationManagerBeforeMethodInterceptor#jsr250`], which in turn uses {security-api-url}org/springframework/security/authorization/method/Jsr250AuthorizationManager.html[`Jsr250AuthorizationManager`]
 
 Generally speaking, you can consider the following listing as representative of what interceptors Spring Security publishes when you add `@EnableMethodSecurity`:
 
@@ -233,7 +233,7 @@ Java::
 ----
 @Bean
 static RoleHierarchy roleHierarchy() {
-    return new RoleHierarchyImpl("ROLE_ADMIN > permission:read");
+    return RoleHierarchyImpl.fromHierarchy("ROLE_ADMIN > permission:read");
 }
 ----
 
@@ -244,7 +244,7 @@ Kotlin::
 companion object {
     @Bean
     fun roleHierarchy(): RoleHierarchy {
-        return RoleHierarchyImpl("ROLE_ADMIN > permission:read")
+        return RoleHierarchyImpl.fromHierarchy("ROLE_ADMIN > permission:read")
     }
 }
 ----
@@ -253,7 +253,8 @@ Xml::
 +
 [source,xml,role="secondary"]
 ----
-<bean id="roleHierarchy" class="org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl">
+<bean id="roleHierarchy"
+        class="org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl" factory-method="fromHierarchy">
     <constructor-arg value="ROLE_ADMIN > permission:read"/>
 </bean>
 ----
@@ -393,11 +394,6 @@ fun readAccountWithWrongRoleThenAccessDenied() {
 `@PreAuthorize` also can be a <<meta-annotations, meta-annotation>>, be defined <<class-or-interface-annotations,at the class or interface level>>, and use <<authorization-expressions, SpEL Authorization Expressions>>.
 
 While `@PreAuthorize` is quite helpful for declaring needed authorities, it can also be used to evaluate more complex <<using_method_parameters,expressions that involve the method parameters>>.
-
-The above two snippets are ensuring that the user can only request orders that belong to them by comparing the username parameter to xref:servlet/authentication/architecture.adoc#servlet-authentication-authentication[`Authentication#getName`].
-
-The result is that the above method will only be invoked if the `username` in the request path matches the logged-in user's `name`.
-If not, Spring Security will throw an `AccessDeniedException` and return a 403 status code.
 
 [[use-postauthorize]]
 === Authorization Method Results with `@PostAuthorize`
@@ -1214,9 +1210,9 @@ Kotlin::
 companion object {
 	@Bean
 	fun methodSecurityExpressionHandler(val roleHierarchy: RoleHierarchy) : MethodSecurityExpressionHandler {
-		val handler = DefaultMethodSecurityExpressionHandler();
-		handler.setRoleHierarchy(roleHierarchy);
-		return handler;
+		val handler = DefaultMethodSecurityExpressionHandler()
+		handler.setRoleHierarchy(roleHierarchy)
+		return handler
 	}
 }
 ----
@@ -1260,14 +1256,14 @@ Java::
 +
 [source,java,role="primary"]
 ----
-import static org.springframework.security.authorization.AuthorityAuthorizationManager.hasRole;
+import static org.springframework.security.authorization.AuthorityAuthorizationManager.hasRole
 
 @Bean
 @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 static Advisor protectServicePointcut() {
-    JdkRegexpMethodPointcut pattern = new JdkRegexpMethodPointcut();
-    pattern.setPattern("execution(* com.mycompany.*Service.*(..))");
-    return new AuthorizationManagerBeforeMethodInterceptor(pattern, hasRole("USER"));
+    AspectJExpressionPointcut pattern = new AspectJExpressionPointcut()
+    pattern.setExpression("execution(* com.mycompany.*Service.*(..))")
+    return new AuthorizationManagerBeforeMethodInterceptor(pattern, hasRole("USER"))
 }
 ----
 
@@ -1275,26 +1271,28 @@ Kotlin::
 +
 [source,kotlin,role="secondary"]
 ----
-import static org.springframework.security.authorization.AuthorityAuthorizationManager.hasRole;
+import static org.springframework.security.authorization.AuthorityAuthorizationManager.hasRole
 
 companion object {
     @Bean
     @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
     fun protectServicePointcut(): Advisor {
-        var pattern = JdkRegexpMethodPointcut();
-        pattern.setPattern("execution(* com.mycompany.*Service.*(..))");
-        return new AuthorizationManagerBeforeMethodInterceptor(pattern, hasRole("USER"));
+        val pattern = AspectJExpressionPointcut()
+        pattern.setExpression("execution(* com.mycompany.*Service.*(..))")
+        return new AuthorizationManagerBeforeMethodInterceptor(pattern, hasRole("USER"))
     }
 }
 ----
-======
 
-[source,xml]
+Xml::
++
+[source,xml,role="secondary"]
 ----
 <sec:method-security>
     <protect-pointcut expression="execution(* com.mycompany.*Service.*(..))" access="hasRole('USER')"/>
 </sec:method-security>
 ----
+======
 
 [[weave-aspectj]]
 === Integrate with AspectJ Byte-weaving
@@ -1445,7 +1443,7 @@ open class MyService {
     fun readResource(...): MyResource
 
     @PreAuthorize("@authz.check(#root)")
-    fun shareResource(...): MyResource;
+    fun shareResource(...): MyResource
 }
 ----
 
@@ -1769,8 +1767,8 @@ class MyExpressionHandler: DefaultMethodSecurityExpressionHandler {
 		val context = super.createEvaluationContext(authentication, mi) as StandardEvaluationContext
         val delegate = context.getRootObject().getValue() as MethodSecurityExpressionOperations
         val root = MySecurityExpressionRoot(delegate)
-        context.setRootObject(root);
-        return context;
+        context.setRootObject(root)
+        return context
     }
 }
 ----

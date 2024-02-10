@@ -105,4 +105,10 @@ public class IpAddressMatcherTests {
 					"fe80::21f:5bff:fe33:bd68", 129));
 	}
 
+	@Test
+	public void invalidAddressThenIllegalArgumentException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> new IpAddressMatcher("invalid-ip"))
+			.withMessage("ipAddress must start with a [, :, or a hexadecimal digit");
+	}
+
 }

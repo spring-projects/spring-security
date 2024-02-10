@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,6 +53,9 @@ public interface MethodSecurityService {
 	@RolesAllowed("ADMIN")
 	String jsr250RolesAllowed();
 
+	@RolesAllowed("USER")
+	String jsr250RolesAllowedUser();
+
 	@Secured({ "ROLE_USER", "RUN_AS_SUPER" })
 	Authentication runAs();
 
@@ -67,6 +70,9 @@ public interface MethodSecurityService {
 
 	@PreAuthorize("hasRole('ADMIN')")
 	void preAuthorizeAdmin();
+
+	@PreAuthorize("hasRole('USER')")
+	void preAuthorizeUser();
 
 	@PreAuthorize("hasPermission(#object,'read')")
 	String hasPermission(String object);
@@ -89,6 +95,14 @@ public interface MethodSecurityService {
 	@PostFilter("filterObject.length > 5")
 	@PostAuthorize("returnObject.size == 2")
 	List<String> manyAnnotations(List<String> array);
+
+	@PreFilter("filterObject != 'DropOnPreFilter'")
+	@PreAuthorize("#list.remove('DropOnPreAuthorize')")
+	@Secured("ROLE_SECURED")
+	@RolesAllowed("JSR250")
+	@PostAuthorize("#list.remove('DropOnPostAuthorize')")
+	@PostFilter("filterObject != 'DropOnPostFilter'")
+	List<String> allAnnotations(List<String> list);
 
 	@RequireUserRole
 	@RequireAdminRole

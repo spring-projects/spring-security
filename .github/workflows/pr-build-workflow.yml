@@ -2,6 +2,11 @@ name: PR Build
 
 on: pull_request
 
+env:
+  GRADLE_ENTERPRISE_CACHE_USERNAME: ${{ secrets.GRADLE_ENTERPRISE_CACHE_USER }}
+  GRADLE_ENTERPRISE_CACHE_PASSWORD: ${{ secrets.GRADLE_ENTERPRISE_CACHE_PASSWORD }}
+  GRADLE_ENTERPRISE_ACCESS_KEY: ${{ secrets.GRADLE_ENTERPRISE_SECRET_ACCESS_KEY }}
+
 permissions:
   contents: read
 
@@ -11,9 +16,9 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ github.repository == 'spring-projects/spring-security' }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Set up gradle
-        uses: spring-io/spring-gradle-build-action@v1
+        uses: spring-io/spring-gradle-build-action@v2
         with:
           java-version: '17'
           distribution: 'temurin'

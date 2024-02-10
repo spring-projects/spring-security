@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,6 +36,7 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.AdviceMode;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Role;
 import org.springframework.core.annotation.AnnotationConfigurationException;
 import org.springframework.security.access.AccessDeniedException;
@@ -46,6 +47,8 @@ import org.springframework.security.access.annotation.ExpressionProtectedBusines
 import org.springframework.security.access.annotation.Jsr250BusinessServiceImpl;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationEventPublisher;
 import org.springframework.security.authorization.AuthorizationManager;
@@ -439,7 +442,6 @@ public class PrePostMethodSecurityConfigurationTests {
 		assertThat(this.spring.getContext().containsBean("annotationSecurityAspect$0")).isFalse();
 	}
 
-	// gh-13572
 	@Test
 	public void configureWhenBeanOverridingDisallowedThenWorks() {
 		this.spring.register(MethodSecurityServiceConfig.class, BusinessServiceConfig.class)
@@ -447,8 +449,155 @@ public class PrePostMethodSecurityConfigurationTests {
 			.autowire();
 	}
 
+	@WithMockUser(roles = "ADMIN")
+	@Test
+	public void methodSecurityAdminWhenRoleHierarchyBeanAvailableThenUses() {
+		this.spring.register(RoleHierarchyConfig.class, MethodSecurityServiceConfig.class).autowire();
+		this.methodSecurityService.preAuthorizeUser();
+		this.methodSecurityService.securedUser();
+		this.methodSecurityService.jsr250RolesAllowedUser();
+	}
+
+	@WithMockUser
+	@Test
+	public void methodSecurityUserWhenRoleHierarchyBeanAvailableThenUses() {
+		this.spring.register(RoleHierarchyConfig.class, MethodSecurityServiceConfig.class).autowire();
+		this.methodSecurityService.preAuthorizeUser();
+		this.methodSecurityService.securedUser();
+		this.methodSecurityService.jsr250RolesAllowedUser();
+	}
+
+	@WithMockUser(roles = "ADMIN")
+	@Test
+	public void methodSecurityAdminWhenAuthorizationEventPublisherBeanAvailableThenUses() {
+		this.spring
+			.register(RoleHierarchyConfig.class, MethodSecurityServiceConfig.class,
+					AuthorizationEventPublisherConfig.class)
+			.autowire();
+		this.methodSecurityService.preAuthorizeUser();
+		this.methodSecurityService.securedUser();
+		this.methodSecurityService.jsr250RolesAllowedUser();
+	}
+
+	@WithMockUser
+	@Test
+	public void methodSecurityUserWhenAuthorizationEventPublisherBeanAvailableThenUses() {
+		this.spring
+			.register(RoleHierarchyConfig.class, MethodSecurityServiceConfig.class,
+					AuthorizationEventPublisherConfig.class)
+			.autowire();
+		this.methodSecurityService.preAuthorizeUser();
+		this.methodSecurityService.securedUser();
+		this.methodSecurityService.jsr250RolesAllowedUser();
+	}
+
+	@Test
+	public void allAnnotationsWhenAdviceBeforeOffsetPreFilterThenReturnsFilteredList() {
+		this.spring.register(ReturnBeforeOffsetPreFilterConfig.class).autowire();
+		List<String> list = Arrays.asList("DropOnPreFilter", "DropOnPreAuthorize", "DropOnPostAuthorize",
+				"DropOnPostFilter", "DoNotDrop");
+		List<String> filtered = this.methodSecurityService.allAnnotations(new ArrayList<>(list));
+		assertThat(filtered).hasSize(5);
+		assertThat(filtered).containsExactly("DropOnPreFilter", "DropOnPreAuthorize", "DropOnPostAuthorize",
+				"DropOnPostFilter", "DoNotDrop");
+	}
+
+	@Test
+	public void allAnnotationsWhenAdviceBeforeOffsetPreAuthorizeThenReturnsFilteredList() {
+		this.spring.register(ReturnBeforeOffsetPreAuthorizeConfig.class).autowire();
+		List<String> list = Arrays.asList("DropOnPreFilter", "DropOnPreAuthorize", "DropOnPostAuthorize",
+				"DropOnPostFilter", "DoNotDrop");
+		List<String> filtered = this.methodSecurityService.allAnnotations(new ArrayList<>(list));
+		assertThat(filtered).hasSize(4);
+		assertThat(filtered).containsExactly("DropOnPreAuthorize", "DropOnPostAuthorize", "DropOnPostFilter",
+				"DoNotDrop");
+	}
+
+	@Test
+	public void allAnnotationsWhenAdviceBeforeOffsetSecuredThenReturnsFilteredList() {
+		this.spring.register(ReturnBeforeOffsetSecuredConfig.class).autowire();
+		List<String> list = Arrays.asList("DropOnPreFilter", "DropOnPreAuthorize", "DropOnPostAuthorize",
+				"DropOnPostFilter", "DoNotDrop");
+		List<String> filtered = this.methodSecurityService.allAnnotations(new ArrayList<>(list));
+		assertThat(filtered).hasSize(3);
+		assertThat(filtered).containsExactly("DropOnPostAuthorize", "DropOnPostFilter", "DoNotDrop");
+	}
+
+	@Test
+	@WithMockUser
+	public void allAnnotationsWhenAdviceBeforeOffsetJsr250WithInsufficientRolesThenFails() {
+		this.spring.register(ReturnBeforeOffsetJsr250Config.class).autowire();
+		List<String> list = Arrays.asList("DropOnPreFilter", "DropOnPreAuthorize", "DropOnPostAuthorize",
+				"DropOnPostFilter", "DoNotDrop");
+		assertThatExceptionOfType(AccessDeniedException.class)
+			.isThrownBy(() -> this.methodSecurityService.allAnnotations(new ArrayList<>(list)));
+	}
+
+	@Test
+	@WithMockUser(roles = "SECURED")
+	public void allAnnotationsWhenAdviceBeforeOffsetJsr250ThenReturnsFilteredList() {
+		this.spring.register(ReturnBeforeOffsetJsr250Config.class).autowire();
+		List<String> list = Arrays.asList("DropOnPreFilter", "DropOnPreAuthorize", "DropOnPostAuthorize",
+				"DropOnPostFilter", "DoNotDrop");
+		List<String> filtered = this.methodSecurityService.allAnnotations(new ArrayList<>(list));
+		assertThat(filtered).hasSize(3);
+		assertThat(filtered).containsExactly("DropOnPostAuthorize", "DropOnPostFilter", "DoNotDrop");
+	}
+
+	@Test
+	@WithMockUser(roles = { "SECURED" })
+	public void allAnnotationsWhenAdviceBeforeOffsetPostAuthorizeWithInsufficientRolesThenFails() {
+		this.spring.register(ReturnBeforeOffsetPostAuthorizeConfig.class).autowire();
+		List<String> list = Arrays.asList("DropOnPreFilter", "DropOnPreAuthorize", "DropOnPostAuthorize",
+				"DropOnPostFilter", "DoNotDrop");
+		assertThatExceptionOfType(AccessDeniedException.class)
+			.isThrownBy(() -> this.methodSecurityService.allAnnotations(new ArrayList<>(list)));
+	}
+
+	@Test
+	@WithMockUser(roles = { "SECURED", "JSR250" })
+	public void allAnnotationsWhenAdviceBeforeOffsetPostAuthorizeThenReturnsFilteredList() {
+		this.spring.register(ReturnBeforeOffsetPostAuthorizeConfig.class).autowire();
+		List<String> list = Arrays.asList("DropOnPreFilter", "DropOnPreAuthorize", "DropOnPostAuthorize",
+				"DropOnPostFilter", "DoNotDrop");
+		List<String> filtered = this.methodSecurityService.allAnnotations(new ArrayList<>(list));
+		assertThat(filtered).hasSize(3);
+		assertThat(filtered).containsExactly("DropOnPostAuthorize", "DropOnPostFilter", "DoNotDrop");
+	}
+
+	@Test
+	@WithMockUser(roles = { "SECURED", "JSR250" })
+	public void allAnnotationsWhenAdviceBeforeOffsetPostFilterThenReturnsFilteredList() {
+		this.spring.register(ReturnBeforeOffsetPostFilterConfig.class).autowire();
+		List<String> list = Arrays.asList("DropOnPreFilter", "DropOnPreAuthorize", "DropOnPostAuthorize",
+				"DropOnPostFilter", "DoNotDrop");
+		List<String> filtered = this.methodSecurityService.allAnnotations(new ArrayList<>(list));
+		assertThat(filtered).hasSize(2);
+		assertThat(filtered).containsExactly("DropOnPostFilter", "DoNotDrop");
+	}
+
+	@Test
+	@WithMockUser(roles = { "SECURED", "JSR250" })
+	public void allAnnotationsWhenAdviceAfterAllOffsetThenReturnsFilteredList() {
+		this.spring.register(ReturnAfterAllOffsetConfig.class).autowire();
+		List<String> list = Arrays.asList("DropOnPreFilter", "DropOnPreAuthorize", "DropOnPostAuthorize",
+				"DropOnPostFilter", "DoNotDrop");
+		List<String> filtered = this.methodSecurityService.allAnnotations(new ArrayList<>(list));
+		assertThat(filtered).hasSize(1);
+		assertThat(filtered).containsExactly("DoNotDrop");
+	}
+
 	private static Consumer<ConfigurableWebApplicationContext> disallowBeanOverriding() {
 		return (context) -> ((AnnotationConfigWebApplicationContext) context).setAllowBeanDefinitionOverriding(false);
+	}
+
+	private static Advisor returnAdvisor(int order) {
+		JdkRegexpMethodPointcut pointcut = new JdkRegexpMethodPointcut();
+		pointcut.setPattern(".*MethodSecurityServiceImpl.*");
+		MethodInterceptor interceptor = (mi) -> mi.getArguments()[0];
+		DefaultPointcutAdvisor advisor = new DefaultPointcutAdvisor(pointcut, interceptor);
+		advisor.setOrder(order);
+		return advisor;
 	}
 
 	@Configuration
@@ -614,6 +763,120 @@ public class PrePostMethodSecurityConfigurationTests {
 
 	@EnableMethodSecurity(mode = AdviceMode.ASPECTJ, securedEnabled = true)
 	static class AspectJMethodSecurityServiceConfig {
+
+		@Bean
+		MethodSecurityService methodSecurityService() {
+			return new MethodSecurityServiceImpl();
+		}
+
+		@Bean
+		Authz authz() {
+			return new Authz();
+		}
+
+	}
+
+	@Configuration
+	@EnableMethodSecurity(jsr250Enabled = true, securedEnabled = true)
+	static class RoleHierarchyConfig {
+
+		@Bean
+		static RoleHierarchy roleHierarchy() {
+			RoleHierarchyImpl roleHierarchyImpl = new RoleHierarchyImpl();
+			roleHierarchyImpl.setHierarchy("ROLE_ADMIN > ROLE_USER");
+			return roleHierarchyImpl;
+		}
+
+	}
+
+	@Import(OffsetConfig.class)
+	static class ReturnBeforeOffsetPreFilterConfig {
+
+		@Bean
+		@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+		Advisor returnBeforePreFilter() {
+			return returnAdvisor(AuthorizationInterceptorsOrder.PRE_FILTER.getOrder() + OffsetConfig.OFFSET - 1);
+		}
+
+	}
+
+	@Configuration
+	@Import(OffsetConfig.class)
+	static class ReturnBeforeOffsetPreAuthorizeConfig {
+
+		@Bean
+		@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+		Advisor returnBeforePreAuthorize() {
+			return returnAdvisor(AuthorizationInterceptorsOrder.PRE_AUTHORIZE.getOrder() + OffsetConfig.OFFSET - 1);
+		}
+
+	}
+
+	@Configuration
+	@Import(OffsetConfig.class)
+	static class ReturnBeforeOffsetSecuredConfig {
+
+		@Bean
+		@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+		Advisor returnBeforeSecured() {
+			return returnAdvisor(AuthorizationInterceptorsOrder.SECURED.getOrder() + OffsetConfig.OFFSET - 1);
+		}
+
+	}
+
+	@Configuration
+	@Import(OffsetConfig.class)
+	static class ReturnBeforeOffsetJsr250Config {
+
+		@Bean
+		@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+		Advisor returnBeforeJsr250() {
+			return returnAdvisor(AuthorizationInterceptorsOrder.JSR250.getOrder() + OffsetConfig.OFFSET - 1);
+		}
+
+	}
+
+	@Configuration
+	@Import(OffsetConfig.class)
+	static class ReturnBeforeOffsetPostAuthorizeConfig {
+
+		@Bean
+		@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+		Advisor returnBeforePreAuthorize() {
+			return returnAdvisor(AuthorizationInterceptorsOrder.POST_AUTHORIZE.getOrder() + OffsetConfig.OFFSET - 1);
+		}
+
+	}
+
+	@Configuration
+	@Import(OffsetConfig.class)
+	static class ReturnBeforeOffsetPostFilterConfig {
+
+		@Bean
+		@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+		Advisor returnBeforePostFilter() {
+			return returnAdvisor(AuthorizationInterceptorsOrder.POST_FILTER.getOrder() + OffsetConfig.OFFSET - 1);
+		}
+
+	}
+
+	@Configuration
+	@Import(OffsetConfig.class)
+	static class ReturnAfterAllOffsetConfig {
+
+		@Bean
+		@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+		Advisor returnAfterAll() {
+			return returnAdvisor(AuthorizationInterceptorsOrder.POST_FILTER.getOrder() + OffsetConfig.OFFSET + 1);
+		}
+
+	}
+
+	@Configuration
+	@EnableMethodSecurity(offset = OffsetConfig.OFFSET, jsr250Enabled = true, securedEnabled = true)
+	static class OffsetConfig {
+
+		static final int OFFSET = 2;
 
 		@Bean
 		MethodSecurityService methodSecurityService() {

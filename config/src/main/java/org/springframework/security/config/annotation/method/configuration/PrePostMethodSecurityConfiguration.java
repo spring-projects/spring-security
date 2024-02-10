@@ -27,12 +27,16 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.ImportAware;
 import org.springframework.context.annotation.Role;
+import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
+import org.springframework.security.access.hierarchicalroles.NullRoleHierarchy;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.authorization.AuthorizationEventPublisher;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.authorization.method.AuthorizationManagerAfterMethodInterceptor;
@@ -56,18 +60,23 @@ import org.springframework.util.function.SingletonSupplier;
  */
 @Configuration(proxyBeanMethods = false)
 @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-final class PrePostMethodSecurityConfiguration {
+final class PrePostMethodSecurityConfiguration implements ImportAware {
+
+	private int interceptorOrderOffset;
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 	static MethodInterceptor preFilterAuthorizationMethodInterceptor(
 			ObjectProvider<GrantedAuthorityDefaults> defaultsProvider,
 			ObjectProvider<MethodSecurityExpressionHandler> expressionHandlerProvider,
-			ObjectProvider<SecurityContextHolderStrategy> strategyProvider, ApplicationContext context) {
+			ObjectProvider<SecurityContextHolderStrategy> strategyProvider,
+			ObjectProvider<RoleHierarchy> roleHierarchyProvider, PrePostMethodSecurityConfiguration configuration,
+			ApplicationContext context) {
 		PreFilterAuthorizationMethodInterceptor preFilter = new PreFilterAuthorizationMethodInterceptor();
+		preFilter.setOrder(preFilter.getOrder() + configuration.interceptorOrderOffset);
 		strategyProvider.ifAvailable(preFilter::setSecurityContextHolderStrategy);
-		preFilter.setExpressionHandler(
-				new DeferringMethodSecurityExpressionHandler(expressionHandlerProvider, defaultsProvider, context));
+		preFilter.setExpressionHandler(new DeferringMethodSecurityExpressionHandler(expressionHandlerProvider,
+				defaultsProvider, roleHierarchyProvider, context));
 		return preFilter;
 	}
 
@@ -78,12 +87,14 @@ final class PrePostMethodSecurityConfiguration {
 			ObjectProvider<MethodSecurityExpressionHandler> expressionHandlerProvider,
 			ObjectProvider<SecurityContextHolderStrategy> strategyProvider,
 			ObjectProvider<AuthorizationEventPublisher> eventPublisherProvider,
-			ObjectProvider<ObservationRegistry> registryProvider, ApplicationContext context) {
+			ObjectProvider<ObservationRegistry> registryProvider, ObjectProvider<RoleHierarchy> roleHierarchyProvider,
+			PrePostMethodSecurityConfiguration configuration, ApplicationContext context) {
 		PreAuthorizeAuthorizationManager manager = new PreAuthorizeAuthorizationManager();
-		manager.setExpressionHandler(
-				new DeferringMethodSecurityExpressionHandler(expressionHandlerProvider, defaultsProvider, context));
+		manager.setExpressionHandler(new DeferringMethodSecurityExpressionHandler(expressionHandlerProvider,
+				defaultsProvider, roleHierarchyProvider, context));
 		AuthorizationManagerBeforeMethodInterceptor preAuthorize = AuthorizationManagerBeforeMethodInterceptor
 			.preAuthorize(manager(manager, registryProvider));
+		preAuthorize.setOrder(preAuthorize.getOrder() + configuration.interceptorOrderOffset);
 		strategyProvider.ifAvailable(preAuthorize::setSecurityContextHolderStrategy);
 		eventPublisherProvider.ifAvailable(preAuthorize::setAuthorizationEventPublisher);
 		return preAuthorize;
@@ -96,12 +107,14 @@ final class PrePostMethodSecurityConfiguration {
 			ObjectProvider<MethodSecurityExpressionHandler> expressionHandlerProvider,
 			ObjectProvider<SecurityContextHolderStrategy> strategyProvider,
 			ObjectProvider<AuthorizationEventPublisher> eventPublisherProvider,
-			ObjectProvider<ObservationRegistry> registryProvider, ApplicationContext context) {
+			ObjectProvider<ObservationRegistry> registryProvider, ObjectProvider<RoleHierarchy> roleHierarchyProvider,
+			PrePostMethodSecurityConfiguration configuration, ApplicationContext context) {
 		PostAuthorizeAuthorizationManager manager = new PostAuthorizeAuthorizationManager();
-		manager.setExpressionHandler(
-				new DeferringMethodSecurityExpressionHandler(expressionHandlerProvider, defaultsProvider, context));
+		manager.setExpressionHandler(new DeferringMethodSecurityExpressionHandler(expressionHandlerProvider,
+				defaultsProvider, roleHierarchyProvider, context));
 		AuthorizationManagerAfterMethodInterceptor postAuthorize = AuthorizationManagerAfterMethodInterceptor
 			.postAuthorize(manager(manager, registryProvider));
+		postAuthorize.setOrder(postAuthorize.getOrder() + configuration.interceptorOrderOffset);
 		strategyProvider.ifAvailable(postAuthorize::setSecurityContextHolderStrategy);
 		eventPublisherProvider.ifAvailable(postAuthorize::setAuthorizationEventPublisher);
 		return postAuthorize;
@@ -112,17 +125,23 @@ final class PrePostMethodSecurityConfiguration {
 	static MethodInterceptor postFilterAuthorizationMethodInterceptor(
 			ObjectProvider<GrantedAuthorityDefaults> defaultsProvider,
 			ObjectProvider<MethodSecurityExpressionHandler> expressionHandlerProvider,
-			ObjectProvider<SecurityContextHolderStrategy> strategyProvider, ApplicationContext context) {
+			ObjectProvider<SecurityContextHolderStrategy> strategyProvider,
+			ObjectProvider<RoleHierarchy> roleHierarchyProvider, PrePostMethodSecurityConfiguration configuration,
+			ApplicationContext context) {
 		PostFilterAuthorizationMethodInterceptor postFilter = new PostFilterAuthorizationMethodInterceptor();
+		postFilter.setOrder(postFilter.getOrder() + configuration.interceptorOrderOffset);
 		strategyProvider.ifAvailable(postFilter::setSecurityContextHolderStrategy);
-		postFilter.setExpressionHandler(
-				new DeferringMethodSecurityExpressionHandler(expressionHandlerProvider, defaultsProvider, context));
+		postFilter.setExpressionHandler(new DeferringMethodSecurityExpressionHandler(expressionHandlerProvider,
+				defaultsProvider, roleHierarchyProvider, context));
 		return postFilter;
 	}
 
 	private static MethodSecurityExpressionHandler defaultExpressionHandler(
-			ObjectProvider<GrantedAuthorityDefaults> defaultsProvider, ApplicationContext context) {
+			ObjectProvider<GrantedAuthorityDefaults> defaultsProvider,
+			ObjectProvider<RoleHierarchy> roleHierarchyProvider, ApplicationContext context) {
 		DefaultMethodSecurityExpressionHandler handler = new DefaultMethodSecurityExpressionHandler();
+		RoleHierarchy roleHierarchy = roleHierarchyProvider.getIfAvailable(NullRoleHierarchy::new);
+		handler.setRoleHierarchy(roleHierarchy);
 		defaultsProvider.ifAvailable((d) -> handler.setDefaultRolePrefix(d.getRolePrefix()));
 		handler.setApplicationContext(context);
 		return handler;
@@ -133,15 +152,22 @@ final class PrePostMethodSecurityConfiguration {
 		return new DeferringObservationAuthorizationManager<>(registryProvider, delegate);
 	}
 
+	@Override
+	public void setImportMetadata(AnnotationMetadata importMetadata) {
+		EnableMethodSecurity annotation = importMetadata.getAnnotations().get(EnableMethodSecurity.class).synthesize();
+		this.interceptorOrderOffset = annotation.offset();
+	}
+
 	private static final class DeferringMethodSecurityExpressionHandler implements MethodSecurityExpressionHandler {
 
 		private final Supplier<MethodSecurityExpressionHandler> expressionHandler;
 
 		private DeferringMethodSecurityExpressionHandler(
 				ObjectProvider<MethodSecurityExpressionHandler> expressionHandlerProvider,
-				ObjectProvider<GrantedAuthorityDefaults> defaultsProvider, ApplicationContext applicationContext) {
-			this.expressionHandler = SingletonSupplier.of(() -> expressionHandlerProvider
-				.getIfAvailable(() -> defaultExpressionHandler(defaultsProvider, applicationContext)));
+				ObjectProvider<GrantedAuthorityDefaults> defaultsProvider,
+				ObjectProvider<RoleHierarchy> roleHierarchyProvider, ApplicationContext applicationContext) {
+			this.expressionHandler = SingletonSupplier.of(() -> expressionHandlerProvider.getIfAvailable(
+					() -> defaultExpressionHandler(defaultsProvider, roleHierarchyProvider, applicationContext)));
 		}
 
 		@Override

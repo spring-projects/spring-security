@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import org.springframework.security.config.annotation.web.configurers.AuthorizeH
 import org.springframework.security.core.Authentication
 import org.springframework.security.web.access.intercept.AuthorizationFilter
 import org.springframework.security.web.access.intercept.RequestAuthorizationContext
+import org.springframework.security.web.access.IpAddressAuthorizationManager
 import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher
 import org.springframework.security.web.util.matcher.AnyRequestMatcher
 import org.springframework.security.web.util.matcher.RequestMatcher
@@ -221,6 +222,13 @@ class AuthorizeHttpRequestsDsl : AbstractRequestMatcherDsl() {
     fun hasAnyRole(vararg roles: String): AuthorizationManager<RequestAuthorizationContext> {
         return AuthorityAuthorizationManager.hasAnyRole(*roles)
     }
+
+    /**
+     * Require a specific IP or range of IP addresses.
+     * @since 6.3
+     */
+    fun hasIpAddress(ipAddress: String): AuthorizationManager<RequestAuthorizationContext> =
+        IpAddressAuthorizationManager.hasIpAddress(ipAddress)
 
     /**
      * Specify that URLs are allowed by anyone.

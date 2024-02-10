@@ -85,7 +85,8 @@ public final class CurrentSecurityContextArgumentResolver implements HandlerMeth
 
 	@Override
 	public boolean supportsParameter(MethodParameter parameter) {
-		return findMethodAnnotation(CurrentSecurityContext.class, parameter) != null;
+		return SecurityContext.class.isAssignableFrom(parameter.getParameterType())
+				|| findMethodAnnotation(CurrentSecurityContext.class, parameter) != null;
 	}
 
 	@Override
@@ -95,26 +96,12 @@ public final class CurrentSecurityContextArgumentResolver implements HandlerMeth
 		if (securityContext == null) {
 			return null;
 		}
-		Object securityContextResult = securityContext;
 		CurrentSecurityContext annotation = findMethodAnnotation(CurrentSecurityContext.class, parameter);
-		String expressionToParse = annotation.expression();
-		if (StringUtils.hasLength(expressionToParse)) {
-			StandardEvaluationContext context = new StandardEvaluationContext();
-			context.setRootObject(securityContext);
-			context.setVariable("this", securityContext);
-			context.setBeanResolver(this.beanResolver);
-			Expression expression = this.parser.parseExpression(expressionToParse);
-			securityContextResult = expression.getValue(context);
+		if (annotation != null) {
+			return resolveSecurityContextFromAnnotation(parameter, annotation, securityContext);
 		}
-		if (securityContextResult != null
-				&& !parameter.getParameterType().isAssignableFrom(securityContextResult.getClass())) {
-			if (annotation.errorOnInvalidType()) {
-				throw new ClassCastException(
-						securityContextResult + " is not assignable to " + parameter.getParameterType());
-			}
-			return null;
-		}
-		return securityContextResult;
+
+		return securityContext;
 	}
 
 	/**
@@ -135,6 +122,29 @@ public final class CurrentSecurityContextArgumentResolver implements HandlerMeth
 	public void setBeanResolver(BeanResolver beanResolver) {
 		Assert.notNull(beanResolver, "beanResolver cannot be null");
 		this.beanResolver = beanResolver;
+	}
+
+	private Object resolveSecurityContextFromAnnotation(MethodParameter parameter, CurrentSecurityContext annotation,
+			SecurityContext securityContext) {
+		Object securityContextResult = securityContext;
+		String expressionToParse = annotation.expression();
+		if (StringUtils.hasLength(expressionToParse)) {
+			StandardEvaluationContext context = new StandardEvaluationContext();
+			context.setRootObject(securityContext);
+			context.setVariable("this", securityContext);
+			context.setBeanResolver(this.beanResolver);
+			Expression expression = this.parser.parseExpression(expressionToParse);
+			securityContextResult = expression.getValue(context);
+		}
+		if (securityContextResult != null
+				&& !parameter.getParameterType().isAssignableFrom(securityContextResult.getClass())) {
+			if (annotation.errorOnInvalidType()) {
+				throw new ClassCastException(
+						securityContextResult + " is not assignable to " + parameter.getParameterType());
+			}
+			return null;
+		}
+		return securityContextResult;
 	}
 
 	/**

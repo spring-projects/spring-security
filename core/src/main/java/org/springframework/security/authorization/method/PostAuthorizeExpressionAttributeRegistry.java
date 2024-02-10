@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ import org.springframework.util.Assert;
  * For internal use only, as this contract is likely to change.
  *
  * @author Evgeniy Cheban
+ * @author DingHao
  * @since 5.8
  */
 final class PostAuthorizeExpressionAttributeRegistry extends AbstractExpressionAttributeRegistry<ExpressionAttribute> {
@@ -54,7 +55,7 @@ final class PostAuthorizeExpressionAttributeRegistry extends AbstractExpressionA
 	@Override
 	ExpressionAttribute resolveAttribute(Method method, Class<?> targetClass) {
 		Method specificMethod = AopUtils.getMostSpecificMethod(method, targetClass);
-		PostAuthorize postAuthorize = findPostAuthorizeAnnotation(specificMethod);
+		PostAuthorize postAuthorize = findPostAuthorizeAnnotation(specificMethod, targetClass);
 		if (postAuthorize == null) {
 			return ExpressionAttribute.NULL_ATTRIBUTE;
 		}
@@ -63,10 +64,10 @@ final class PostAuthorizeExpressionAttributeRegistry extends AbstractExpressionA
 		return new ExpressionAttribute(postAuthorizeExpression);
 	}
 
-	private PostAuthorize findPostAuthorizeAnnotation(Method method) {
+	private PostAuthorize findPostAuthorizeAnnotation(Method method, Class<?> targetClass) {
 		PostAuthorize postAuthorize = AuthorizationAnnotationUtils.findUniqueAnnotation(method, PostAuthorize.class);
-		return (postAuthorize != null) ? postAuthorize
-				: AuthorizationAnnotationUtils.findUniqueAnnotation(method.getDeclaringClass(), PostAuthorize.class);
+		return (postAuthorize != null) ? postAuthorize : AuthorizationAnnotationUtils
+			.findUniqueAnnotation(targetClass(method, targetClass), PostAuthorize.class);
 	}
 
 }

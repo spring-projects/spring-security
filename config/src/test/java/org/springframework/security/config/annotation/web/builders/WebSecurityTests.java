@@ -20,6 +20,7 @@ import java.io.IOException;
 
 import io.micrometer.observation.ObservationRegistry;
 import io.micrometer.observation.ObservationTextPublisher;
+import jakarta.servlet.Filter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.AfterEach;
@@ -39,7 +40,6 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.userdetails.PasswordEncodedUser;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
-import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.firewall.HttpStatusRequestRejectedHandler;
 import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
@@ -67,7 +67,7 @@ public class WebSecurityTests {
 	MockFilterChain chain;
 
 	@Autowired
-	FilterChainProxy springSecurityFilterChain;
+	Filter springSecurityFilterChain;
 
 	@BeforeEach
 	public void setup() {

@@ -74,7 +74,7 @@ public final class XXssProtectionHeaderWriter implements HeaderWriter {
 	 * specify mode as blocked. The content will be replaced with "#". For example:
 	 *
 	 * <pre>
-	 * X-XSS-Protection: 1 ; mode=block
+	 * X-XSS-Protection: 1; mode=block
 	 * </pre>
 	 * @param headerValue the new header value
 	 * @throws IllegalArgumentException when headerValue is null
@@ -86,7 +86,7 @@ public final class XXssProtectionHeaderWriter implements HeaderWriter {
 	}
 
 	/**
-	 * The value of the x-xss-protection header. One of: "0", "1", "1 ; mode=block"
+	 * The value of the x-xss-protection header. One of: "0", "1", "1; mode=block"
 	 *
 	 * @author Daniel Garnier-Moiroux
 	 * @since 5.8

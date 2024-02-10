@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -30,6 +31,7 @@ import org.springframework.core.log.LogMessage;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.util.Assert;
 
 /**
  * <p>
@@ -74,30 +76,68 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
  * your intentions clearer.
  *
  * @author Michael Mayr
+ * @author Josh Cummings
  */
 public class RoleHierarchyImpl implements RoleHierarchy {
 
 	private static final Log logger = LogFactory.getLog(RoleHierarchyImpl.class);
 
 	/**
-	 * Raw hierarchy configuration where each line represents single or multiple level
-	 * role chain.
-	 */
-	private String roleHierarchyStringRepresentation = null;
-
-	/**
-	 * {@code rolesReachableInOneStepMap} is a Map that under the key of a specific role
-	 * name contains a set of all roles reachable from this role in 1 step (i.e. parsed
-	 * {@link #roleHierarchyStringRepresentation} grouped by the higher role)
-	 */
-	private Map<String, Set<GrantedAuthority>> rolesReachableInOneStepMap = null;
-
-	/**
 	 * {@code rolesReachableInOneOrMoreStepsMap} is a Map that under the key of a specific
 	 * role name contains a set of all roles reachable from this role in 1 or more steps
-	 * (i.e. fully resolved hierarchy from {@link #rolesReachableInOneStepMap})
 	 */
 	private Map<String, Set<GrantedAuthority>> rolesReachableInOneOrMoreStepsMap = null;
+
+	/**
+	 * @deprecated Use {@link RoleHierarchyImpl#fromHierarchy} instead
+	 */
+	@Deprecated
+	public RoleHierarchyImpl() {
+
+	}
+
+	private RoleHierarchyImpl(Map<String, Set<GrantedAuthority>> hierarchy) {
+		this.rolesReachableInOneOrMoreStepsMap = buildRolesReachableInOneOrMoreStepsMap(hierarchy);
+	}
+
+	/**
+	 * Create a role hierarchy instance with the given definition, similar to the
+	 * following:
+	 *
+	 * <pre>
+	 *     ROLE_A &gt; ROLE_B
+	 *     ROLE_B &gt; ROLE_AUTHENTICATED
+	 *     ROLE_AUTHENTICATED &gt; ROLE_UNAUTHENTICATED
+	 * </pre>
+	 * @param hierarchy the role hierarchy to use
+	 * @return a {@link RoleHierarchyImpl} that uses the given {@code hierarchy}
+	 */
+	public static RoleHierarchyImpl fromHierarchy(String hierarchy) {
+		return new RoleHierarchyImpl(buildRolesReachableInOneStepMap(hierarchy));
+	}
+
+	/**
+	 * Factory method that creates a {@link Builder} instance with the default role prefix
+	 * "ROLE_"
+	 * @return a {@link Builder} instance with the default role prefix "ROLE_"
+	 * @since 6.3
+	 */
+	public static Builder withDefaultRolePrefix() {
+		return withRolePrefix("ROLE_");
+	}
+
+	/**
+	 * Factory method that creates a {@link Builder} instance with the specified role
+	 * prefix.
+	 * @param rolePrefix the prefix to be used for the roles in the hierarchy.
+	 * @return a new {@link Builder} instance with the specified role prefix
+	 * @throws IllegalArgumentException if the provided role prefix is null
+	 * @since 6.3
+	 */
+	public static Builder withRolePrefix(String rolePrefix) {
+		Assert.notNull(rolePrefix, "rolePrefix must not be null");
+		return new Builder(rolePrefix);
+	}
 
 	/**
 	 * Set the role hierarchy and pre-calculate for every role the set of all reachable
@@ -106,13 +146,15 @@ public class RoleHierarchyImpl implements RoleHierarchy {
 	 * time). During pre-calculation, cycles in role hierarchy are detected and will cause
 	 * a <tt>CycleInRoleHierarchyException</tt> to be thrown.
 	 * @param roleHierarchyStringRepresentation - String definition of the role hierarchy.
+	 * @deprecated Use {@link RoleHierarchyImpl#fromHierarchy} instead
 	 */
+	@Deprecated
 	public void setHierarchy(String roleHierarchyStringRepresentation) {
-		this.roleHierarchyStringRepresentation = roleHierarchyStringRepresentation;
 		logger.debug(LogMessage.format("setHierarchy() - The following role hierarchy was set: %s",
 				roleHierarchyStringRepresentation));
-		buildRolesReachableInOneStepMap();
-		buildRolesReachableInOneOrMoreStepsMap();
+		Map<String, Set<GrantedAuthority>> hierarchy = buildRolesReachableInOneStepMap(
+				roleHierarchyStringRepresentation);
+		this.rolesReachableInOneOrMoreStepsMap = buildRolesReachableInOneOrMoreStepsMap(hierarchy);
 	}
 
 	@Override
@@ -156,21 +198,21 @@ public class RoleHierarchyImpl implements RoleHierarchy {
 	 * Parse input and build the map for the roles reachable in one step: the higher role
 	 * will become a key that references a set of the reachable lower roles.
 	 */
-	private void buildRolesReachableInOneStepMap() {
-		this.rolesReachableInOneStepMap = new HashMap<>();
-		for (String line : this.roleHierarchyStringRepresentation.split("\n")) {
+	private static Map<String, Set<GrantedAuthority>> buildRolesReachableInOneStepMap(String hierarchy) {
+		Map<String, Set<GrantedAuthority>> rolesReachableInOneStepMap = new HashMap<>();
+		for (String line : hierarchy.split("\n")) {
 			// Split on > and trim excessive whitespace
 			String[] roles = line.trim().split("\\s+>\\s+");
 			for (int i = 1; i < roles.length; i++) {
 				String higherRole = roles[i - 1];
 				GrantedAuthority lowerRole = new SimpleGrantedAuthority(roles[i]);
 				Set<GrantedAuthority> rolesReachableInOneStepSet;
-				if (!this.rolesReachableInOneStepMap.containsKey(higherRole)) {
+				if (!rolesReachableInOneStepMap.containsKey(higherRole)) {
 					rolesReachableInOneStepSet = new HashSet<>();
-					this.rolesReachableInOneStepMap.put(higherRole, rolesReachableInOneStepSet);
+					rolesReachableInOneStepMap.put(higherRole, rolesReachableInOneStepSet);
 				}
 				else {
-					rolesReachableInOneStepSet = this.rolesReachableInOneStepMap.get(higherRole);
+					rolesReachableInOneStepSet = rolesReachableInOneStepMap.get(higherRole);
 				}
 				rolesReachableInOneStepSet.add(lowerRole);
 				logger.debug(LogMessage.format(
@@ -178,6 +220,7 @@ public class RoleHierarchyImpl implements RoleHierarchy {
 						higherRole, lowerRole));
 			}
 		}
+		return rolesReachableInOneStepMap;
 	}
 
 	/**
@@ -186,29 +229,104 @@ public class RoleHierarchyImpl implements RoleHierarchy {
 	 * CycleInRoleHierarchyException if a cycle in the role hierarchy definition is
 	 * detected)
 	 */
-	private void buildRolesReachableInOneOrMoreStepsMap() {
-		this.rolesReachableInOneOrMoreStepsMap = new HashMap<>();
+	private static Map<String, Set<GrantedAuthority>> buildRolesReachableInOneOrMoreStepsMap(
+			Map<String, Set<GrantedAuthority>> hierarchy) {
+		Map<String, Set<GrantedAuthority>> rolesReachableInOneOrMoreStepsMap = new HashMap<>();
 		// iterate over all higher roles from rolesReachableInOneStepMap
-		for (String roleName : this.rolesReachableInOneStepMap.keySet()) {
-			Set<GrantedAuthority> rolesToVisitSet = new HashSet<>(this.rolesReachableInOneStepMap.get(roleName));
+		for (String roleName : hierarchy.keySet()) {
+			Set<GrantedAuthority> rolesToVisitSet = new HashSet<>(hierarchy.get(roleName));
 			Set<GrantedAuthority> visitedRolesSet = new HashSet<>();
 			while (!rolesToVisitSet.isEmpty()) {
 				// take a role from the rolesToVisit set
 				GrantedAuthority lowerRole = rolesToVisitSet.iterator().next();
 				rolesToVisitSet.remove(lowerRole);
-				if (!visitedRolesSet.add(lowerRole)
-						|| !this.rolesReachableInOneStepMap.containsKey(lowerRole.getAuthority())) {
+				if (!visitedRolesSet.add(lowerRole) || !hierarchy.containsKey(lowerRole.getAuthority())) {
 					continue; // Already visited role or role with missing hierarchy
 				}
 				else if (roleName.equals(lowerRole.getAuthority())) {
 					throw new CycleInRoleHierarchyException();
 				}
-				rolesToVisitSet.addAll(this.rolesReachableInOneStepMap.get(lowerRole.getAuthority()));
+				rolesToVisitSet.addAll(hierarchy.get(lowerRole.getAuthority()));
 			}
-			this.rolesReachableInOneOrMoreStepsMap.put(roleName, visitedRolesSet);
+			rolesReachableInOneOrMoreStepsMap.put(roleName, visitedRolesSet);
 			logger.debug(LogMessage.format(
 					"buildRolesReachableInOneOrMoreStepsMap() - From role %s one can reach %s in one or more steps.",
 					roleName, visitedRolesSet));
+		}
+		return rolesReachableInOneOrMoreStepsMap;
+	}
+
+	/**
+	 * Builder class for constructing a {@link RoleHierarchyImpl} based on a hierarchical
+	 * role structure.
+	 *
+	 * @author Federico Herrera
+	 * @since 6.3
+	 */
+	public static final class Builder {
+
+		private final String rolePrefix;
+
+		private final Map<String, Set<GrantedAuthority>> hierarchy;
+
+		private Builder(String rolePrefix) {
+			this.rolePrefix = rolePrefix;
+			this.hierarchy = new LinkedHashMap<>();
+		}
+
+		/**
+		 * Creates a new hierarchy branch to define a role and its child roles.
+		 * @param role the highest role in this branch
+		 * @return a {@link ImpliedRoles} to define the child roles for the
+		 * <code>role</code>
+		 */
+		public ImpliedRoles role(String role) {
+			Assert.hasText(role, "role must not be empty");
+			return new ImpliedRoles(role);
+		}
+
+		/**
+		 * Builds and returns a {@link RoleHierarchyImpl} describing the defined role
+		 * hierarchy.
+		 * @return a {@link RoleHierarchyImpl}
+		 */
+		public RoleHierarchyImpl build() {
+			return new RoleHierarchyImpl(this.hierarchy);
+		}
+
+		private Builder addHierarchy(String role, String... impliedRoles) {
+			Set<GrantedAuthority> withPrefix = new HashSet<>();
+			for (String impliedRole : impliedRoles) {
+				withPrefix.add(new SimpleGrantedAuthority(this.rolePrefix.concat(impliedRole)));
+			}
+			this.hierarchy.put(this.rolePrefix.concat(role), withPrefix);
+			return this;
+		}
+
+		/**
+		 * Builder class for constructing child roles within a role hierarchy branch.
+		 */
+		public final class ImpliedRoles {
+
+			private final String role;
+
+			private ImpliedRoles(String role) {
+				this.role = role;
+			}
+
+			/**
+			 * Specifies implied role(s) for the current role in the hierarchy.
+			 * @param impliedRoles role name(s) implied by the role.
+			 * @return the same {@link Builder} instance
+			 * @throws IllegalArgumentException if <code>impliedRoles</code> is null,
+			 * empty or contains any null element.
+			 */
+			public Builder implies(String... impliedRoles) {
+				Assert.notEmpty(impliedRoles, "at least one implied role must be provided");
+				Assert.noNullElements(impliedRoles, "implied role name(s) cannot be empty");
+				return Builder.this.addHierarchy(this.role, impliedRoles);
+			}
+
 		}
 
 	}

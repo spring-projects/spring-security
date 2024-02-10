@@ -25,14 +25,17 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockServletContext;
 import org.springframework.security.authentication.TestAuthentication;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.security.web.access.AuthorizationManagerWebInvocationPrivilegeEvaluator.HttpServletRequestTransformer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
@@ -44,6 +47,9 @@ class AuthorizationManagerWebInvocationPrivilegeEvaluatorTests {
 
 	@Mock
 	private AuthorizationManager<HttpServletRequest> authorizationManager;
+
+	@Mock
+	private HttpServletRequestTransformer requestTransformer;
 
 	@Test
 	void constructorWhenAuthorizationManagerNullThenIllegalArgument() {
@@ -82,6 +88,22 @@ class AuthorizationManagerWebInvocationPrivilegeEvaluatorTests {
 		ArgumentCaptor<HttpServletRequest> captor = ArgumentCaptor.forClass(HttpServletRequest.class);
 		verify(this.authorizationManager).check(any(), captor.capture());
 		assertThat(captor.getValue().getServletContext()).isSameAs(servletContext);
+	}
+
+	@Test
+	void setRequestTransformerWhenNullThenIllegalArgumentException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.privilegeEvaluator.setRequestTransformer(null));
+	}
+
+	@Test
+	void isAllowedWhenRequestTransformerThenUsesRequestTransformerResult() {
+		HttpServletRequest request = new MockHttpServletRequest();
+		given(this.requestTransformer.transform(any())).willReturn(request);
+		this.privilegeEvaluator.setRequestTransformer(this.requestTransformer);
+
+		this.privilegeEvaluator.isAllowed("/test", TestAuthentication.authenticatedUser());
+
+		verify(this.authorizationManager).check(any(), eq(request));
 	}
 
 }

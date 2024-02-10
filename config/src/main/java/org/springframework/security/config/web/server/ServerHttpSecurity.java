@@ -62,6 +62,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
+import org.springframework.security.core.session.ReactiveSessionRegistry;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
 import org.springframework.security.oauth2.client.InMemoryReactiveOAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientService;
@@ -124,19 +125,26 @@ import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.security.web.server.authentication.AnonymousAuthenticationWebFilter;
 import org.springframework.security.web.server.authentication.AuthenticationConverterServerWebExchangeMatcher;
 import org.springframework.security.web.server.authentication.AuthenticationWebFilter;
+import org.springframework.security.web.server.authentication.ConcurrentSessionControlServerAuthenticationSuccessHandler;
+import org.springframework.security.web.server.authentication.DelegatingServerAuthenticationSuccessHandler;
 import org.springframework.security.web.server.authentication.HttpBasicServerAuthenticationEntryPoint;
 import org.springframework.security.web.server.authentication.HttpStatusServerEntryPoint;
+import org.springframework.security.web.server.authentication.InvalidateLeastUsedServerMaximumSessionsExceededHandler;
 import org.springframework.security.web.server.authentication.ReactivePreAuthenticatedAuthenticationManager;
 import org.springframework.security.web.server.authentication.RedirectServerAuthenticationEntryPoint;
 import org.springframework.security.web.server.authentication.RedirectServerAuthenticationFailureHandler;
 import org.springframework.security.web.server.authentication.RedirectServerAuthenticationSuccessHandler;
+import org.springframework.security.web.server.authentication.RegisterSessionServerAuthenticationSuccessHandler;
 import org.springframework.security.web.server.authentication.ServerAuthenticationConverter;
 import org.springframework.security.web.server.authentication.ServerAuthenticationEntryPointFailureHandler;
 import org.springframework.security.web.server.authentication.ServerAuthenticationFailureHandler;
 import org.springframework.security.web.server.authentication.ServerAuthenticationSuccessHandler;
 import org.springframework.security.web.server.authentication.ServerFormLoginAuthenticationConverter;
 import org.springframework.security.web.server.authentication.ServerHttpBasicAuthenticationConverter;
+import org.springframework.security.web.server.authentication.ServerMaximumSessionsExceededHandler;
 import org.springframework.security.web.server.authentication.ServerX509AuthenticationConverter;
+import org.springframework.security.web.server.authentication.SessionLimit;
+import org.springframework.security.web.server.authentication.WebFilterChainServerAuthenticationSuccessHandler;
 import org.springframework.security.web.server.authentication.logout.DelegatingServerLogoutHandler;
 import org.springframework.security.web.server.authentication.logout.LogoutWebFilter;
 import org.springframework.security.web.server.authentication.logout.SecurityContextServerLogoutHandler;
@@ -312,6 +320,8 @@ public class ServerHttpSecurity {
 
 	private LoginPageSpec loginPage = new LoginPageSpec();
 
+	private SessionManagementSpec sessionManagement;
+
 	private ReactiveAuthenticationManager authenticationManager;
 
 	private ServerSecurityContextRepository securityContextRepository;
@@ -360,6 +370,7 @@ public class ServerHttpSecurity {
 	}
 
 	/**
+	 *
 	 * Adds a {@link WebFilter} before specific position.
 	 * @param webFilter the {@link WebFilter} to add
 	 * @param order the place before which to insert the {@link WebFilter}
@@ -740,6 +751,36 @@ public class ServerHttpSecurity {
 			this.httpBasic = new HttpBasicSpec();
 		}
 		httpBasicCustomizer.customize(this.httpBasic);
+		return this;
+	}
+
+	/**
+	 * Configures Session Management. An example configuration is provided below:
+	 * <pre class="code">
+	 *  &#064;Bean
+	 *  SecurityWebFilterChain filterChain(ServerHttpSecurity http, ReactiveSessionRegistry sessionRegistry) {
+	 *      http
+	 *          // ...
+	 *          .sessionManagement((sessionManagement) -> sessionManagement
+	 *              .concurrentSessions((concurrentSessions) -> concurrentSessions
+	 *                  .maxSessions(1)
+	 *                  .maxSessionsPreventsLogin(true)
+	 *                  .sessionRegistry(sessionRegistry)
+	 *              )
+	 *          );
+	 *      return http.build();
+	 *  }
+	 * </pre>
+	 * @param customizer the {@link Customizer} to provide more options for the
+	 * {@link SessionManagementSpec}
+	 * @return the {@link ServerHttpSecurity} to continue configuring
+	 * @since 6.3
+	 */
+	public ServerHttpSecurity sessionManagement(Customizer<SessionManagementSpec> customizer) {
+		if (this.sessionManagement == null) {
+			this.sessionManagement = new SessionManagementSpec();
+		}
+		customizer.customize(this.sessionManagement);
 		return this;
 	}
 
@@ -1517,6 +1558,9 @@ public class ServerHttpSecurity {
 		}
 		WebFilter securityContextRepositoryWebFilter = securityContextRepositoryWebFilter();
 		this.webFilters.add(securityContextRepositoryWebFilter);
+		if (this.sessionManagement != null) {
+			this.sessionManagement.configure(this);
+		}
 		if (this.httpsRedirectSpec != null) {
 			this.httpsRedirectSpec.configure(this);
 		}
@@ -1908,6 +1952,249 @@ public class ServerHttpSecurity {
 	}
 
 	/**
+	 * Configures how sessions are managed.
+	 */
+	public class SessionManagementSpec {
+
+		private ConcurrentSessionsSpec concurrentSessions;
+
+		private ServerAuthenticationSuccessHandler authenticationSuccessHandler;
+
+		private ReactiveSessionRegistry sessionRegistry;
+
+		private SessionLimit sessionLimit = SessionLimit.UNLIMITED;
+
+		private ServerMaximumSessionsExceededHandler maximumSessionsExceededHandler = new InvalidateLeastUsedServerMaximumSessionsExceededHandler();
+
+		/**
+		 * Configures how many sessions are allowed for a given user.
+		 * @param customizer the customizer to provide more options
+		 * @return the {@link SessionManagementSpec} to customize
+		 */
+		public SessionManagementSpec concurrentSessions(Customizer<ConcurrentSessionsSpec> customizer) {
+			if (this.concurrentSessions == null) {
+				this.concurrentSessions = new ConcurrentSessionsSpec();
+			}
+			customizer.customize(this.concurrentSessions);
+			return this;
+		}
+
+		void configure(ServerHttpSecurity http) {
+			if (this.concurrentSessions != null) {
+				ReactiveSessionRegistry reactiveSessionRegistry = getSessionRegistry();
+				ConcurrentSessionControlServerAuthenticationSuccessHandler concurrentSessionControlStrategy = new ConcurrentSessionControlServerAuthenticationSuccessHandler(
+						reactiveSessionRegistry);
+				concurrentSessionControlStrategy.setSessionLimit(this.sessionLimit);
+				concurrentSessionControlStrategy.setMaximumSessionsExceededHandler(this.maximumSessionsExceededHandler);
+				RegisterSessionServerAuthenticationSuccessHandler registerSessionAuthenticationStrategy = new RegisterSessionServerAuthenticationSuccessHandler(
+						reactiveSessionRegistry);
+				this.authenticationSuccessHandler = new DelegatingServerAuthenticationSuccessHandler(
+						concurrentSessionControlStrategy, registerSessionAuthenticationStrategy);
+				SessionRegistryWebFilter sessionRegistryWebFilter = new SessionRegistryWebFilter(
+						reactiveSessionRegistry);
+				configureSuccessHandlerOnAuthenticationFilters();
+				http.addFilterAfter(sessionRegistryWebFilter, SecurityWebFiltersOrder.HTTP_HEADERS_WRITER);
+			}
+		}
+
+		private void configureSuccessHandlerOnAuthenticationFilters() {
+			if (ServerHttpSecurity.this.formLogin != null) {
+				ServerHttpSecurity.this.formLogin.defaultSuccessHandlers.add(0, this.authenticationSuccessHandler);
+			}
+			if (ServerHttpSecurity.this.oauth2Login != null) {
+				ServerHttpSecurity.this.oauth2Login.defaultSuccessHandlers.add(0, this.authenticationSuccessHandler);
+			}
+			if (ServerHttpSecurity.this.httpBasic != null) {
+				ServerHttpSecurity.this.httpBasic.defaultSuccessHandlers.add(0, this.authenticationSuccessHandler);
+			}
+		}
+
+		private ReactiveSessionRegistry getSessionRegistry() {
+			if (this.sessionRegistry == null) {
+				this.sessionRegistry = getBeanOrNull(ReactiveSessionRegistry.class);
+			}
+			if (this.sessionRegistry == null) {
+				throw new IllegalStateException(
+						"A ReactiveSessionRegistry is needed for concurrent session management");
+			}
+			return this.sessionRegistry;
+		}
+
+		/**
+		 * Configures how many sessions are allowed for a given user.
+		 */
+		public class ConcurrentSessionsSpec {
+
+			/**
+			 * Sets the {@link ReactiveSessionRegistry} to use.
+			 * @param reactiveSessionRegistry the {@link ReactiveSessionRegistry} to use
+			 * @return the {@link ConcurrentSessionsSpec} to continue customizing
+			 */
+			public ConcurrentSessionsSpec sessionRegistry(ReactiveSessionRegistry reactiveSessionRegistry) {
+				SessionManagementSpec.this.sessionRegistry = reactiveSessionRegistry;
+				return this;
+			}
+
+			/**
+			 * Sets the maximum number of sessions allowed for any user. You can use
+			 * {@link SessionLimit#of(int)} to specify a positive integer or
+			 * {@link SessionLimit#UNLIMITED} to allow unlimited sessions. To customize
+			 * the maximum number of sessions on a per-user basis, you can provide a
+			 * custom {@link SessionLimit} implementation, like so: <pre>
+			 *     http
+			 *         .sessionManagement((sessions) -> sessions
+			 *             .concurrentSessions((concurrency) -> concurrency
+			 *                 .maximumSessions((authentication) -> {
+			 *                     if (authentication.getName().equals("admin")) {
+			 *                         return Mono.empty() // unlimited sessions for admin
+			 *                     }
+			 *                     return Mono.just(1); // one session for every other user
+			 *                 })
+			 *             )
+			 *         )
+			 * </pre>
+			 * @param sessionLimit the maximum number of sessions allowed for any user
+			 * @return the {@link ConcurrentSessionsSpec} to continue customizing
+			 */
+			public ConcurrentSessionsSpec maximumSessions(SessionLimit sessionLimit) {
+				Assert.notNull(sessionLimit, "sessionLimit cannot be null");
+				SessionManagementSpec.this.sessionLimit = sessionLimit;
+				return this;
+			}
+
+			/**
+			 * Sets the {@link ServerMaximumSessionsExceededHandler} to use when the
+			 * maximum number of sessions is exceeded.
+			 * @param maximumSessionsExceededHandler the
+			 * {@link ServerMaximumSessionsExceededHandler} to use
+			 * @return the {@link ConcurrentSessionsSpec} to continue customizing
+			 */
+			public ConcurrentSessionsSpec maximumSessionsExceededHandler(
+					ServerMaximumSessionsExceededHandler maximumSessionsExceededHandler) {
+				Assert.notNull(maximumSessionsExceededHandler, "maximumSessionsExceededHandler cannot be null");
+				SessionManagementSpec.this.maximumSessionsExceededHandler = maximumSessionsExceededHandler;
+				return this;
+			}
+
+		}
+
+		private static final class SessionRegistryWebFilter implements WebFilter {
+
+			private final ReactiveSessionRegistry sessionRegistry;
+
+			private SessionRegistryWebFilter(ReactiveSessionRegistry sessionRegistry) {
+				Assert.notNull(sessionRegistry, "sessionRegistry cannot be null");
+				this.sessionRegistry = sessionRegistry;
+			}
+
+			@Override
+			public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
+				return chain.filter(new SessionRegistryWebExchange(exchange));
+			}
+
+			private final class SessionRegistryWebExchange extends ServerWebExchangeDecorator {
+
+				private final Mono<WebSession> sessionMono;
+
+				private SessionRegistryWebExchange(ServerWebExchange delegate) {
+					super(delegate);
+					this.sessionMono = delegate.getSession()
+						.flatMap((session) -> SessionRegistryWebFilter.this.sessionRegistry
+							.updateLastAccessTime(session.getId())
+							.thenReturn(session))
+						.map(SessionRegistryWebSession::new);
+				}
+
+				@Override
+				public Mono<WebSession> getSession() {
+					return this.sessionMono;
+				}
+
+			}
+
+			private final class SessionRegistryWebSession implements WebSession {
+
+				private final WebSession session;
+
+				private SessionRegistryWebSession(WebSession session) {
+					this.session = session;
+				}
+
+				@Override
+				public String getId() {
+					return this.session.getId();
+				}
+
+				@Override
+				public Map<String, Object> getAttributes() {
+					return this.session.getAttributes();
+				}
+
+				@Override
+				public void start() {
+					this.session.start();
+				}
+
+				@Override
+				public boolean isStarted() {
+					return this.session.isStarted();
+				}
+
+				@Override
+				public Mono<Void> changeSessionId() {
+					String currentId = this.session.getId();
+					return SessionRegistryWebFilter.this.sessionRegistry.removeSessionInformation(currentId)
+						.flatMap((information) -> this.session.changeSessionId().thenReturn(information))
+						.flatMap((information) -> {
+							information = information.withSessionId(this.session.getId());
+							return SessionRegistryWebFilter.this.sessionRegistry.saveSessionInformation(information);
+						});
+				}
+
+				@Override
+				public Mono<Void> invalidate() {
+					String currentId = this.session.getId();
+					return SessionRegistryWebFilter.this.sessionRegistry.removeSessionInformation(currentId)
+						.flatMap((information) -> this.session.invalidate());
+				}
+
+				@Override
+				public Mono<Void> save() {
+					return this.session.save();
+				}
+
+				@Override
+				public boolean isExpired() {
+					return this.session.isExpired();
+				}
+
+				@Override
+				public Instant getCreationTime() {
+					return this.session.getCreationTime();
+				}
+
+				@Override
+				public Instant getLastAccessTime() {
+					return this.session.getLastAccessTime();
+				}
+
+				@Override
+				public void setMaxIdleTime(Duration maxIdleTime) {
+					this.session.setMaxIdleTime(maxIdleTime);
+				}
+
+				@Override
+				public Duration getMaxIdleTime() {
+					return this.session.getMaxIdleTime();
+				}
+
+			}
+
+		}
+
+	}
+
+	/**
 	 * Configures HTTPS redirection rules
 	 *
 	 * @author Josh Cummings
@@ -2211,6 +2498,11 @@ public class ServerHttpSecurity {
 
 		private ServerAuthenticationFailureHandler authenticationFailureHandler;
 
+		private final List<ServerAuthenticationSuccessHandler> defaultSuccessHandlers = new ArrayList<>(
+				List.of(new WebFilterChainServerAuthenticationSuccessHandler()));
+
+		private List<ServerAuthenticationSuccessHandler> authenticationSuccessHandlers = new ArrayList<>();
+
 		private HttpBasicSpec() {
 			List<DelegateEntry> entryPoints = new ArrayList<>();
 			entryPoints
@@ -2219,6 +2511,40 @@ public class ServerHttpSecurity {
 					entryPoints);
 			defaultEntryPoint.setDefaultEntryPoint(new HttpBasicServerAuthenticationEntryPoint());
 			this.entryPoint = defaultEntryPoint;
+		}
+
+		/**
+		 * The {@link ServerAuthenticationSuccessHandler} used after authentication
+		 * success. Defaults to {@link WebFilterChainServerAuthenticationSuccessHandler}.
+		 * Note that this method clears previously added success handlers via
+		 * {@link #authenticationSuccessHandler(Consumer)}
+		 * @param authenticationSuccessHandler the success handler to use
+		 * @return the {@link HttpBasicSpec} to continue configuring
+		 * @since 6.3
+		 */
+		public HttpBasicSpec authenticationSuccessHandler(
+				ServerAuthenticationSuccessHandler authenticationSuccessHandler) {
+			Assert.notNull(authenticationSuccessHandler, "authenticationSuccessHandler cannot be null");
+			authenticationSuccessHandler((handlers) -> {
+				handlers.clear();
+				handlers.add(authenticationSuccessHandler);
+			});
+			return this;
+		}
+
+		/**
+		 * Allows customizing the list of {@link ServerAuthenticationSuccessHandler}. The
+		 * default list contains a
+		 * {@link WebFilterChainServerAuthenticationSuccessHandler}.
+		 * @param handlersConsumer the handlers consumer
+		 * @return the {@link HttpBasicSpec} to continue configuring
+		 * @since 6.3
+		 */
+		public HttpBasicSpec authenticationSuccessHandler(
+				Consumer<List<ServerAuthenticationSuccessHandler>> handlersConsumer) {
+			Assert.notNull(handlersConsumer, "handlersConsumer cannot be null");
+			handlersConsumer.accept(this.authenticationSuccessHandlers);
+			return this;
 		}
 
 		/**
@@ -2306,7 +2632,15 @@ public class ServerHttpSecurity {
 			authenticationFilter.setAuthenticationFailureHandler(authenticationFailureHandler());
 			authenticationFilter.setAuthenticationConverter(new ServerHttpBasicAuthenticationConverter());
 			authenticationFilter.setSecurityContextRepository(this.securityContextRepository);
+			authenticationFilter.setAuthenticationSuccessHandler(getAuthenticationSuccessHandler(http));
 			http.addFilterAt(authenticationFilter, SecurityWebFiltersOrder.HTTP_BASIC);
+		}
+
+		private ServerAuthenticationSuccessHandler getAuthenticationSuccessHandler(ServerHttpSecurity http) {
+			if (this.authenticationSuccessHandlers.isEmpty()) {
+				return new DelegatingServerAuthenticationSuccessHandler(this.defaultSuccessHandlers);
+			}
+			return new DelegatingServerAuthenticationSuccessHandler(this.authenticationSuccessHandlers);
 		}
 
 		private ServerAuthenticationFailureHandler authenticationFailureHandler() {
@@ -2380,6 +2714,9 @@ public class ServerHttpSecurity {
 		private final RedirectServerAuthenticationSuccessHandler defaultSuccessHandler = new RedirectServerAuthenticationSuccessHandler(
 				"/");
 
+		private final List<ServerAuthenticationSuccessHandler> defaultSuccessHandlers = new ArrayList<>(
+				List.of(this.defaultSuccessHandler));
+
 		private RedirectServerAuthenticationEntryPoint defaultEntryPoint;
 
 		private ReactiveAuthenticationManager authenticationManager;
@@ -2394,7 +2731,7 @@ public class ServerHttpSecurity {
 
 		private ServerAuthenticationFailureHandler authenticationFailureHandler;
 
-		private ServerAuthenticationSuccessHandler authenticationSuccessHandler = this.defaultSuccessHandler;
+		private List<ServerAuthenticationSuccessHandler> authenticationSuccessHandlers = new ArrayList<>();
 
 		private FormLoginSpec() {
 		}
@@ -2412,14 +2749,34 @@ public class ServerHttpSecurity {
 
 		/**
 		 * The {@link ServerAuthenticationSuccessHandler} used after authentication
-		 * success. Defaults to {@link RedirectServerAuthenticationSuccessHandler}.
+		 * success. Defaults to {@link RedirectServerAuthenticationSuccessHandler}. Note
+		 * that this method clears previously added success handlers via
+		 * {@link #authenticationSuccessHandler(Consumer)}
 		 * @param authenticationSuccessHandler the success handler to use
 		 * @return the {@link FormLoginSpec} to continue configuring
 		 */
 		public FormLoginSpec authenticationSuccessHandler(
 				ServerAuthenticationSuccessHandler authenticationSuccessHandler) {
 			Assert.notNull(authenticationSuccessHandler, "authenticationSuccessHandler cannot be null");
-			this.authenticationSuccessHandler = authenticationSuccessHandler;
+			authenticationSuccessHandler((handlers) -> {
+				handlers.clear();
+				handlers.add(authenticationSuccessHandler);
+			});
+			return this;
+		}
+
+		/**
+		 * Allows customizing the list of {@link ServerAuthenticationSuccessHandler}. The
+		 * default list contains a {@link RedirectServerAuthenticationSuccessHandler} that
+		 * redirects to "/".
+		 * @param handlersConsumer the handlers consumer
+		 * @return the {@link FormLoginSpec} to continue configuring
+		 * @since 6.3
+		 */
+		public FormLoginSpec authenticationSuccessHandler(
+				Consumer<List<ServerAuthenticationSuccessHandler>> handlersConsumer) {
+			Assert.notNull(handlersConsumer, "handlersConsumer cannot be null");
+			handlersConsumer.accept(this.authenticationSuccessHandlers);
 			return this;
 		}
 
@@ -2552,9 +2909,16 @@ public class ServerHttpSecurity {
 			authenticationFilter.setRequiresAuthenticationMatcher(this.requiresAuthenticationMatcher);
 			authenticationFilter.setAuthenticationFailureHandler(this.authenticationFailureHandler);
 			authenticationFilter.setAuthenticationConverter(new ServerFormLoginAuthenticationConverter());
-			authenticationFilter.setAuthenticationSuccessHandler(this.authenticationSuccessHandler);
+			authenticationFilter.setAuthenticationSuccessHandler(getAuthenticationSuccessHandler(http));
 			authenticationFilter.setSecurityContextRepository(this.securityContextRepository);
 			http.addFilterAt(authenticationFilter, SecurityWebFiltersOrder.FORM_LOGIN);
+		}
+
+		private ServerAuthenticationSuccessHandler getAuthenticationSuccessHandler(ServerHttpSecurity http) {
+			if (this.authenticationSuccessHandlers.isEmpty()) {
+				return new DelegatingServerAuthenticationSuccessHandler(this.defaultSuccessHandlers);
+			}
+			return new DelegatingServerAuthenticationSuccessHandler(this.authenticationSuccessHandlers);
 		}
 
 	}
@@ -3735,7 +4099,12 @@ public class ServerHttpSecurity {
 
 		private ReactiveOidcSessionRegistry oidcSessionRegistry;
 
-		private ServerAuthenticationSuccessHandler authenticationSuccessHandler;
+		private final RedirectServerAuthenticationSuccessHandler defaultAuthenticationSuccessHandler = new RedirectServerAuthenticationSuccessHandler();
+
+		private final List<ServerAuthenticationSuccessHandler> defaultSuccessHandlers = new ArrayList<>(
+				List.of(this.defaultAuthenticationSuccessHandler));
+
+		private List<ServerAuthenticationSuccessHandler> authenticationSuccessHandlers = new ArrayList<>();
 
 		private ServerAuthenticationFailureHandler authenticationFailureHandler;
 
@@ -3783,7 +4152,8 @@ public class ServerHttpSecurity {
 		/**
 		 * The {@link ServerAuthenticationSuccessHandler} used after authentication
 		 * success. Defaults to {@link RedirectServerAuthenticationSuccessHandler}
-		 * redirecting to "/".
+		 * redirecting to "/". Note that this method clears previously added success
+		 * handlers via {@link #authenticationSuccessHandler(Consumer)}
 		 * @param authenticationSuccessHandler the success handler to use
 		 * @return the {@link OAuth2LoginSpec} to customize
 		 * @since 5.2
@@ -3791,7 +4161,25 @@ public class ServerHttpSecurity {
 		public OAuth2LoginSpec authenticationSuccessHandler(
 				ServerAuthenticationSuccessHandler authenticationSuccessHandler) {
 			Assert.notNull(authenticationSuccessHandler, "authenticationSuccessHandler cannot be null");
-			this.authenticationSuccessHandler = authenticationSuccessHandler;
+			authenticationSuccessHandler((handlers) -> {
+				handlers.clear();
+				handlers.add(authenticationSuccessHandler);
+			});
+			return this;
+		}
+
+		/**
+		 * Allows customizing the list of {@link ServerAuthenticationSuccessHandler}. The
+		 * default list contains a {@link RedirectServerAuthenticationSuccessHandler} that
+		 * redirects to "/".
+		 * @param handlersConsumer the handlers consumer
+		 * @return the {@link OAuth2LoginSpec} to continue configuring
+		 * @since 6.3
+		 */
+		public OAuth2LoginSpec authenticationSuccessHandler(
+				Consumer<List<ServerAuthenticationSuccessHandler>> handlersConsumer) {
+			Assert.notNull(handlersConsumer, "handlersConsumer cannot be null");
+			handlersConsumer.accept(this.authenticationSuccessHandlers);
 			return this;
 		}
 
@@ -4041,12 +4429,11 @@ public class ServerHttpSecurity {
 		}
 
 		private ServerAuthenticationSuccessHandler getAuthenticationSuccessHandler(ServerHttpSecurity http) {
-			if (this.authenticationSuccessHandler == null) {
-				RedirectServerAuthenticationSuccessHandler handler = new RedirectServerAuthenticationSuccessHandler();
-				handler.setRequestCache(http.requestCache.requestCache);
-				this.authenticationSuccessHandler = handler;
+			this.defaultAuthenticationSuccessHandler.setRequestCache(http.requestCache.requestCache);
+			if (this.authenticationSuccessHandlers.isEmpty()) {
+				return new DelegatingServerAuthenticationSuccessHandler(this.defaultSuccessHandlers);
 			}
-			return this.authenticationSuccessHandler;
+			return new DelegatingServerAuthenticationSuccessHandler(this.authenticationSuccessHandlers);
 		}
 
 		private ServerAuthenticationFailureHandler getAuthenticationFailureHandler() {

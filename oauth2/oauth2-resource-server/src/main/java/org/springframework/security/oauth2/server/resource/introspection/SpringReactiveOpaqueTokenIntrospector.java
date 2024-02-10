@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,11 +22,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import reactor.core.publisher.Mono;
 
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.http.HttpHeaders;
@@ -35,6 +37,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
+import org.springframework.security.oauth2.core.OAuth2TokenIntrospectionClaimAccessor;
 import org.springframework.security.oauth2.core.OAuth2TokenIntrospectionClaimNames;
 import org.springframework.util.Assert;
 import org.springframework.web.reactive.function.BodyInserters;
@@ -60,6 +63,8 @@ public class SpringReactiveOpaqueTokenIntrospector implements ReactiveOpaqueToke
 	private final URI introspectionUri;
 
 	private final WebClient webClient;
+
+	private Converter<OAuth2TokenIntrospectionClaimAccessor, Mono<? extends OAuth2AuthenticatedPrincipal>> authenticationConverter = this::defaultAuthenticationConverter;
 
 	/**
 	 * Creates a {@code OpaqueTokenReactiveAuthenticationManager} with the provided
@@ -96,6 +101,8 @@ public class SpringReactiveOpaqueTokenIntrospector implements ReactiveOpaqueToke
 				.flatMap(this::makeRequest)
 				.flatMap(this::adaptToNimbusResponse)
 				.map(this::convertClaimsSet)
+				.flatMap(this.authenticationConverter::convert)
+				.cast(OAuth2AuthenticatedPrincipal.class)
 				.onErrorMap((e) -> !(e instanceof OAuth2IntrospectionException), this::onError);
 		// @formatter:on
 	}
@@ -135,7 +142,7 @@ public class SpringReactiveOpaqueTokenIntrospector implements ReactiveOpaqueToke
 			.switchIfEmpty(Mono.error(() -> new BadOpaqueTokenException("Provided token isn't active")));
 	}
 
-	private OAuth2AuthenticatedPrincipal convertClaimsSet(Map<String, Object> claims) {
+	private OAuth2TokenIntrospectionClaimAccessor convertClaimsSet(Map<String, Object> claims) {
 		claims.computeIfPresent(OAuth2TokenIntrospectionClaimNames.AUD, (k, v) -> {
 			if (v instanceof String) {
 				return Collections.singletonList(v);
@@ -168,22 +175,58 @@ public class SpringReactiveOpaqueTokenIntrospector implements ReactiveOpaqueToke
 		claims.computeIfPresent(OAuth2TokenIntrospectionClaimNames.ISS, (k, v) -> v.toString());
 		claims.computeIfPresent(OAuth2TokenIntrospectionClaimNames.NBF,
 				(k, v) -> Instant.ofEpochSecond(((Number) v).longValue()));
-		Collection<GrantedAuthority> authorities = new ArrayList<>();
-		claims.computeIfPresent(OAuth2TokenIntrospectionClaimNames.SCOPE, (k, v) -> {
-			if (v instanceof String) {
-				Collection<String> scopes = Arrays.asList(((String) v).split(" "));
-				for (String scope : scopes) {
-					authorities.add(new SimpleGrantedAuthority(AUTHORITY_PREFIX + scope));
-				}
-				return scopes;
-			}
-			return v;
-		});
-		return new OAuth2IntrospectionAuthenticatedPrincipal(claims, authorities);
+		claims.computeIfPresent(OAuth2TokenIntrospectionClaimNames.SCOPE,
+				(k, v) -> (v instanceof String s) ? new ArrayListFromString(s.split(" ")) : v);
+		return () -> claims;
 	}
 
 	private OAuth2IntrospectionException onError(Throwable ex) {
 		return new OAuth2IntrospectionException(ex.getMessage(), ex);
+	}
+
+	/**
+	 * <p>
+	 * Sets the {@link Converter Converter&lt;OAuth2TokenIntrospectionClaimAccessor,
+	 * OAuth2AuthenticatedPrincipal&gt;} to use. Defaults to
+	 * {@link SpringReactiveOpaqueTokenIntrospector#defaultAuthenticationConverter}.
+	 * </p>
+	 * <p>
+	 * Use if you need a custom mapping of OAuth 2.0 token claims to the authenticated
+	 * principal.
+	 * </p>
+	 * @param authenticationConverter the converter
+	 * @since 6.3
+	 */
+	public void setAuthenticationConverter(
+			Converter<OAuth2TokenIntrospectionClaimAccessor, Mono<? extends OAuth2AuthenticatedPrincipal>> authenticationConverter) {
+		Assert.notNull(authenticationConverter, "authenticationConverter cannot be null");
+		this.authenticationConverter = authenticationConverter;
+	}
+
+	private Mono<OAuth2IntrospectionAuthenticatedPrincipal> defaultAuthenticationConverter(
+			OAuth2TokenIntrospectionClaimAccessor accessor) {
+		Collection<GrantedAuthority> authorities = authorities(accessor.getScopes());
+		return Mono.just(new OAuth2IntrospectionAuthenticatedPrincipal(accessor.getClaims(), authorities));
+	}
+
+	private Collection<GrantedAuthority> authorities(List<String> scopes) {
+		if (!(scopes instanceof ArrayListFromString)) {
+			return Collections.emptyList();
+		}
+		Collection<GrantedAuthority> authorities = new ArrayList<>();
+		for (String scope : scopes) {
+			authorities.add(new SimpleGrantedAuthority(AUTHORITY_PREFIX + scope));
+		}
+		return authorities;
+	}
+
+	// gh-7563
+	private static final class ArrayListFromString extends ArrayList<String> {
+
+		ArrayListFromString(String... elements) {
+			super(Arrays.asList(elements));
+		}
+
 	}
 
 }

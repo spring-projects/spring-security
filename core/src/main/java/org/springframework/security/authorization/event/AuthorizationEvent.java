@@ -67,7 +67,7 @@ public class AuthorizationEvent extends ApplicationEvent {
 
 	/**
 	 * Get the response to the principal's request
-	 * @return
+	 * @return the response to the principal's request
 	 */
 	public AuthorizationDecision getAuthorizationDecision() {
 		return this.decision;

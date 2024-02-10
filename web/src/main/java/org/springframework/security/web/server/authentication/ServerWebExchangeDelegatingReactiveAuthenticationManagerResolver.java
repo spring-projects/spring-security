@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,6 @@ import org.springframework.security.authentication.AuthenticationServiceExceptio
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.ReactiveAuthenticationManagerResolver;
 import org.springframework.security.web.access.intercept.RequestMatcherDelegatingAuthorizationManager;
-import org.springframework.security.web.authentication.RequestMatcherDelegatingAuthenticationManagerResolver;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcherEntry;
 import org.springframework.util.Assert;
@@ -112,7 +111,8 @@ public final class ServerWebExchangeDelegatingReactiveAuthenticationManagerResol
 	}
 
 	/**
-	 * A builder for {@link RequestMatcherDelegatingAuthenticationManagerResolver}.
+	 * A builder for
+	 * {@link ServerWebExchangeDelegatingReactiveAuthenticationManagerResolver}.
 	 */
 	public static final class Builder {
 
@@ -128,8 +128,8 @@ public final class ServerWebExchangeDelegatingReactiveAuthenticationManagerResol
 		 * @param matcher the {@link ServerWebExchangeMatcher} to use
 		 * @param manager the {@link ReactiveAuthenticationManager} to use
 		 * @return the
-		 * {@link RequestMatcherDelegatingAuthenticationManagerResolver.Builder} for
-		 * further customizations
+		 * {@link ServerWebExchangeDelegatingReactiveAuthenticationManagerResolver.Builder}
+		 * for further customizations
 		 */
 		public ServerWebExchangeDelegatingReactiveAuthenticationManagerResolver.Builder add(
 				ServerWebExchangeMatcher matcher, ReactiveAuthenticationManager manager) {
@@ -140,9 +140,11 @@ public final class ServerWebExchangeDelegatingReactiveAuthenticationManagerResol
 		}
 
 		/**
-		 * Creates a {@link RequestMatcherDelegatingAuthenticationManagerResolver}
+		 * Creates a
+		 * {@link ServerWebExchangeDelegatingReactiveAuthenticationManagerResolver}
 		 * instance.
-		 * @return the {@link RequestMatcherDelegatingAuthenticationManagerResolver}
+		 * @return the
+		 * {@link ServerWebExchangeDelegatingReactiveAuthenticationManagerResolver}
 		 * instance
 		 */
 		public ServerWebExchangeDelegatingReactiveAuthenticationManagerResolver build() {

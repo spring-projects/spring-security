@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -165,6 +165,28 @@ public class SecuredAuthorizationManagerTests {
 		decision = manager.check(TestAuthentication::authenticatedAdmin, methodInvocation);
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isTrue();
+	}
+
+	@Test
+	public void checkRequiresUserWhenMethodsFromInheritThenApplies() throws Exception {
+		MockMethodInvocation methodInvocation = new MockMethodInvocation(new SecuredSonClass(), SecuredSonClass.class,
+				"securedUser");
+		SecuredAuthorizationManager manager = new SecuredAuthorizationManager();
+		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedUser, methodInvocation);
+		assertThat(decision.isGranted()).isTrue();
+	}
+
+	@Secured("ROLE_USER")
+	public static class SecuredSonClass extends ParentClass {
+
+	}
+
+	public static class ParentClass {
+
+		public void securedUser() {
+
+		}
+
 	}
 
 	public static class TestClass implements InterfaceAnnotationsOne, InterfaceAnnotationsTwo {

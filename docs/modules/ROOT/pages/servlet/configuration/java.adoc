@@ -112,9 +112,9 @@ public class SecurityWebApplicationInitializer
 }
 ----
 
-This onlys register the `springSecurityFilterChain` for every URL in your application.
+This only registers the `springSecurityFilterChain` for every URL in your application.
 After that, we need to ensure that `WebSecurityConfig` was loaded in our existing `ApplicationInitializer`.
-For example, if we use Spring MVC it is added in the `getRootConfigClasses()`:
+For example, if we use Spring MVC it is added in the `getServletConfigClasses()`:
 
 [[message-web-application-inititializer-java]]
 [source,java]
@@ -123,13 +123,41 @@ public class MvcWebApplicationInitializer extends
 		AbstractAnnotationConfigDispatcherServletInitializer {
 
 	@Override
-	protected Class<?>[] getRootConfigClasses() {
-		return new Class[] { WebSecurityConfig.class };
+	protected Class<?>[] getServletConfigClasses() {
+		return new Class[] { WebSecurityConfig.class, WebMvcConfig.class };
 	}
 
 	// ... other overrides ...
 }
 ----
+
+The reason for this is that Spring Security needs to be able to inspect some Spring MVC configuration in order to appropriately configure xref:servlet/authorization/authorize-http-requests.adoc#authorizing-endpoints[underlying request matchers], so they need to be in the same application context.
+Placing Spring Security in `getRootConfigClasses` places it into a parent application context that may not be able to find Spring MVC's `HandlerMappingIntrospector`.
+
+==== Configuring for Multiple Spring MVC Dispatchers
+
+If desired, any Spring Security configuration that is unrelated to Spring MVC may be placed in a different configuration class like so:
+
+[source,java]
+----
+public class MvcWebApplicationInitializer extends
+		AbstractAnnotationConfigDispatcherServletInitializer {
+
+	@Override
+    protected Class<?>[] getRootConfigClasses() {
+		return new Class[] { NonWebSecurityConfig.class };
+    }
+
+	@Override
+	protected Class<?>[] getServletConfigClasses() {
+		return new Class[] { WebSecurityConfig.class, WebMvcConfig.class };
+	}
+
+	// ... other overrides ...
+}
+----
+
+This can be helpful if you have multiple instances of `AbstractAnnotationConfigDispatcherServletInitializer` and don't want to duplicate the general security configuration across both of them.
 
 [[jc-httpsecurity]]
 == HttpSecurity
@@ -145,7 +173,7 @@ It is configured with the following default implementation:
 @Bean
 public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 	http
-		.authorizeRequests(authorize -> authorize
+		.authorizeHttpRequests(authorize -> authorize
 			.anyRequest().authenticated()
 		)
 		.formLogin(withDefaults())
@@ -175,7 +203,7 @@ Note that this configuration is parallels the XML Namespace configuration:
 
 We can configure multiple `HttpSecurity` instances just as we can have multiple `<http>` blocks in XML.
 The key is to register multiple `SecurityFilterChain` ``@Bean``s.
-The following example has a different configuration for URL's that start with `/api/`.
+The following example has a different configuration for URLs that start with `/api/`.
 
 [source,java]
 ----
@@ -196,7 +224,7 @@ public class MultiHttpSecurityConfig {
 	@Order(1)                                                        <2>
 	public SecurityFilterChain apiFilterChain(HttpSecurity http) throws Exception {
 		http
-			.securityMatcher("/api/**")                                   <3>
+			.securityMatcher("/api/**")                              <3>
 			.authorizeHttpRequests(authorize -> authorize
 				.anyRequest().hasRole("ADMIN")
 			)
@@ -298,7 +326,7 @@ class MyCustomDsl : AbstractHttpConfigurer<MyCustomDsl, HttpSecurity>() {
 
 [NOTE]
 ====
-This is actually how methods like `HttpSecurity.authorizeRequests()` are implemented.
+This is actually how methods like `HttpSecurity.authorizeHttpRequests()` are implemented.
 ====
 
 You can then use the custom DSL:
@@ -423,7 +451,7 @@ For example, to configure the `filterSecurityPublishAuthorizationSuccess` proper
 @Bean
 public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 	http
-		.authorizeRequests(authorize -> authorize
+		.authorizeHttpRequests(authorize -> authorize
 			.anyRequest().authenticated()
 			.withObjectPostProcessor(new ObjectPostProcessor<FilterSecurityInterceptor>() {
 				public <O extends FilterSecurityInterceptor> O postProcess(

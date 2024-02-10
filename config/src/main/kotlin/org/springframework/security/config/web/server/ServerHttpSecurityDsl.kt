@@ -683,6 +683,36 @@ class ServerHttpSecurityDsl(private val http: ServerHttpSecurity, private val in
     }
 
     /**
+     * Configures Session Management support.
+     *
+     * Example:
+     *
+     * ```
+     * @Configuration
+     * @EnableWebFluxSecurity
+     * open class SecurityConfig {
+     *
+     *  @Bean
+     *  open fun springWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
+     *      return http {
+     *          sessionManagement {
+     *              sessionConcurrency { }
+     *          }
+     *       }
+     *   }
+     * }
+     * ```
+     *
+     * @param sessionManagementConfig custom configuration to configure the Session Management
+     * @since 6.3
+     * @see [ServerSessionManagementDsl]
+     */
+    fun sessionManagement(sessionManagementConfig: ServerSessionManagementDsl.() -> Unit) {
+        val sessionManagementCustomizer = ServerSessionManagementDsl().apply(sessionManagementConfig).get()
+        this.http.sessionManagement(sessionManagementCustomizer)
+    }
+
+    /**
      * Apply all configurations to the provided [ServerHttpSecurity]
      */
     internal fun build(): SecurityWebFilterChain {

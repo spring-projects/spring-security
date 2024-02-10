@@ -73,7 +73,7 @@ public class XXssProtectionServerHttpHeadersWriter implements ServerHttpHeadersW
 	 * specify mode as blocked. The content will be replaced with "#". For example:
 	 *
 	 * <pre>
-	 * X-XSS-Protection: 1 ; mode=block
+	 * X-XSS-Protection: 1; mode=block
 	 * </pre>
 	 * @param headerValue the new headerValue
 	 * @throws IllegalArgumentException if headerValue is null
@@ -86,14 +86,14 @@ public class XXssProtectionServerHttpHeadersWriter implements ServerHttpHeadersW
 	}
 
 	/**
-	 * The value of the x-xss-protection header. One of: "0", "1", "1 ; mode=block"
+	 * The value of the x-xss-protection header. One of: "0", "1", "1; mode=block"
 	 *
 	 * @author Daniel Garnier-Moiroux
 	 * @since 5.8
 	 */
 	public enum HeaderValue {
 
-		DISABLED("0"), ENABLED("1"), ENABLED_MODE_BLOCK("1 ; mode=block");
+		DISABLED("0"), ENABLED("1"), ENABLED_MODE_BLOCK("1; mode=block");
 
 		private final String value;
 
