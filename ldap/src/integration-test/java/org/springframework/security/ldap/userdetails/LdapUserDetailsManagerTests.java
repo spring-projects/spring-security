@@ -1,5 +1,5 @@
 /*
- * Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
+ * Copyright 2004-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,6 +49,7 @@ import static org.mockito.Mockito.verify;
 /**
  * @author Luke Taylor
  * @author Eddú Meléndez
+ * @author Roman Zabaluev
  */
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = ApacheDsContainerConfig.class)
@@ -59,6 +60,8 @@ public class LdapUserDetailsManagerTests {
 
 	private static final List<GrantedAuthority> TEST_AUTHORITIES = AuthorityUtils.createAuthorityList("ROLE_CLOWNS",
 			"ROLE_ACROBATS");
+
+	private static final String DEFAULT_ROLE_PREFIX = "ROLE_";
 
 	private LdapUserDetailsManager mgr;
 
@@ -246,6 +249,37 @@ public class LdapUserDetailsManagerTests {
 					TEST_AUTHORITIES));
 		assertThatExceptionOfType(BadCredentialsException.class)
 			.isThrownBy(() -> this.mgr.changePassword("wrongpassword", "yossariansnewpassword"));
+	}
+
+	@Test
+	public void testRoleNamesStartWithDefaultRolePrefix() {
+		this.mgr.setUsernameMapper(new DefaultLdapUsernameToDnMapper("ou=people", "uid"));
+		this.mgr.setGroupSearchBase("ou=groups");
+		LdapUserDetails bob = (LdapUserDetails) this.mgr.loadUserByUsername("bob");
+
+		assertThat(bob.getAuthorities()).isNotEmpty();
+
+		bob.getAuthorities()
+			.stream()
+			.map(GrantedAuthority::getAuthority)
+			.forEach((authority) -> assertThat(authority).startsWith(DEFAULT_ROLE_PREFIX));
+	}
+
+	@Test
+	public void testRoleNamesStartWithCustomRolePrefix() {
+		var customPrefix = "GROUP_";
+		this.mgr.setRolePrefix(customPrefix);
+
+		this.mgr.setUsernameMapper(new DefaultLdapUsernameToDnMapper("ou=people", "uid"));
+		this.mgr.setGroupSearchBase("ou=groups");
+		LdapUserDetails bob = (LdapUserDetails) this.mgr.loadUserByUsername("bob");
+
+		assertThat(bob.getAuthorities()).isNotEmpty();
+
+		bob.getAuthorities()
+			.stream()
+			.map(GrantedAuthority::getAuthority)
+			.forEach((authority) -> assertThat(authority).startsWith(customPrefix));
 	}
 
 }
