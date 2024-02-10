@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.core.log.LogMessage;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.client.ClientAuthorizationRequiredException;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
@@ -32,6 +33,7 @@ import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.RedirectStrategy;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.util.ThrowableAnalyzer;
@@ -97,19 +99,7 @@ public class OAuth2AuthorizationRequestRedirectFilter extends OncePerRequestFilt
 
 	private RequestCache requestCache = new HttpSessionRequestCache();
 
-	private AuthorizationFailureHandler failureHandler = (request, response, ex) -> {
-		LogMessage message = LogMessage.format("Authorization Request failed: %s", ex);
-		if (InvalidClientRegistrationIdException.class.isAssignableFrom(ex.getClass())) {
-			// Log an invalid registrationId at WARN level to allow these errors to be
-			// tuned separately from other errors
-			this.logger.warn(message, ex);
-		}
-		else {
-			this.logger.error(message, ex);
-		}
-		response.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(),
-				HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase());
-	};
+	private AuthenticationFailureHandler authenticationFailureHandler = this::unsuccessfulRedirectForAuthorization;
 
 	/**
 	 * Constructs an {@code OAuth2AuthorizationRequestRedirectFilter} using the provided
@@ -177,8 +167,16 @@ public class OAuth2AuthorizationRequestRedirectFilter extends OncePerRequestFilt
 		this.requestCache = requestCache;
 	}
 
-	public final void setFailureHandler(AuthorizationFailureHandler failureHandler) {
-		this.failureHandler = failureHandler;
+	/**
+	 * Sets the {@link AuthenticationFailureHandler} used to handle errors redirecting to
+	 * the Authorization Server's Authorization Endpoint.
+	 * @param authenticationFailureHandler the {@link AuthenticationFailureHandler} used
+	 * to handle errors redirecting to the Authorization Server's Authorization Endpoint
+	 * @since 6.3
+	 */
+	public void setAuthenticationFailureHandler(AuthenticationFailureHandler authenticationFailureHandler) {
+		Assert.notNull(authenticationFailureHandler, "authenticationFailureHandler cannot be null");
+		this.authenticationFailureHandler = authenticationFailureHandler;
 	}
 
 	@Override
@@ -192,7 +190,8 @@ public class OAuth2AuthorizationRequestRedirectFilter extends OncePerRequestFilt
 			}
 		}
 		catch (Exception ex) {
-			this.failureHandler.onAuthorizationFailure(request, response, ex);
+			AuthenticationException wrappedException = new OAuth2AuthorizationRequestException(ex);
+			this.authenticationFailureHandler.onAuthenticationFailure(request, response, wrappedException);
 			return;
 		}
 		try {
@@ -217,7 +216,8 @@ public class OAuth2AuthorizationRequestRedirectFilter extends OncePerRequestFilt
 					this.sendRedirectForAuthorization(request, response, authorizationRequest);
 				}
 				catch (Exception failed) {
-					this.failureHandler.onAuthorizationFailure(request, response, failed);
+					AuthenticationException wrappedException = new OAuth2AuthorizationRequestException(ex);
+					this.authenticationFailureHandler.onAuthenticationFailure(request, response, wrappedException);
 				}
 				return;
 			}
@@ -240,6 +240,22 @@ public class OAuth2AuthorizationRequestRedirectFilter extends OncePerRequestFilt
 				authorizationRequest.getAuthorizationRequestUri());
 	}
 
+	private void unsuccessfulRedirectForAuthorization(HttpServletRequest request, HttpServletResponse response,
+			AuthenticationException ex) throws IOException {
+		Throwable cause = ex.getCause();
+		LogMessage message = LogMessage.format("Authorization Request failed: %s", cause);
+		if (InvalidClientRegistrationIdException.class.isAssignableFrom(cause.getClass())) {
+			// Log an invalid registrationId at WARN level to allow these errors to be
+			// tuned separately from other errors
+			this.logger.warn(message, ex);
+		}
+		else {
+			this.logger.error(message, ex);
+		}
+		response.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(),
+				HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase());
+	}
+
 	private static final class DefaultThrowableAnalyzer extends ThrowableAnalyzer {
 
 		@Override
@@ -253,8 +269,12 @@ public class OAuth2AuthorizationRequestRedirectFilter extends OncePerRequestFilt
 
 	}
 
-	public interface AuthorizationFailureHandler {
-		void onAuthorizationFailure(HttpServletRequest request, HttpServletResponse response,
-				Exception ex) throws IOException;
+	private static final class OAuth2AuthorizationRequestException extends AuthenticationException {
+
+		OAuth2AuthorizationRequestException(Throwable cause) {
+			super(cause.getMessage(), cause);
+		}
+
 	}
+
 }
