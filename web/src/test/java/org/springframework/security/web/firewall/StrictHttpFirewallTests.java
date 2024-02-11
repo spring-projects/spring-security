@@ -782,6 +782,13 @@ public class StrictHttpFirewallTests {
 	}
 
 	@Test
+	public void getFirewalledRequestGetHeaderWhenHorizontalTabInHeaderValueThenNoException() {
+		this.request.addHeader("Something", "tab\tvalue");
+		HttpServletRequest request = this.firewall.getFirewalledRequest(this.request);
+		assertThat(request.getHeader("Something")).isEqualTo("tab\tvalue");
+	}
+
+	@Test
 	public void getFirewalledRequestGetHeaderWhenUndefinedCharacterInHeaderValueThenException() {
 		this.request.addHeader("Something", "bad\uFFFEvalue");
 		HttpServletRequest request = this.firewall.getFirewalledRequest(this.request);
