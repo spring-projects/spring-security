@@ -170,6 +170,33 @@ open fun filterChain(http: HttpSecurity): SecurityFilterChain {
 ----
 ======
 
+Then, you need a way listen to events published by Spring Security to remove old `OidcSessionInformation` entries, like so:
+
+[tabs]
+======
+Java::
++
+[source=java,role="primary"]
+----
+@Bean
+public HttpSessionEventListener sessionEventListener() {
+    return new HttpSessionEventListener();
+}
+----
+
+Kotlin::
++
+[source=kotlin,role="secondary"]
+----
+@Bean
+open fun sessionEventListener(): HttpSessionEventListener {
+    return HttpSessionEventListener()
+}
+----
+======
+
+This will make so that if `HttpSession#invalidate` is called, then the session is also removed from memory.
+
 And that's it!
 
 This will stand up the endpoint `+/logout/connect/back-channel/{registrationId}+` which the OIDC Provider can request to invalidate a given session of an end user in your application.
