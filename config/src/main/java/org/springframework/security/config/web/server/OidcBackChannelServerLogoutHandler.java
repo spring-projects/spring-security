@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -108,12 +108,17 @@ final class OidcBackChannelServerLogoutHandler implements ServerLogoutHandler {
 		for (Map.Entry<String, String> credential : session.getAuthorities().entrySet()) {
 			headers.add(credential.getKey(), credential.getValue());
 		}
+		String logout = computeLogoutEndpoint(exchange);
+		return this.web.post().uri(logout).headers((h) -> h.putAll(headers)).retrieve().toBodilessEntity();
+	}
+
+	String computeLogoutEndpoint(WebFilterExchange exchange) {
 		String url = exchange.getExchange().getRequest().getURI().toString();
-		String logout = UriComponentsBuilder.fromHttpUrl(url)
+		return UriComponentsBuilder.fromHttpUrl(url)
+			.host("localhost")
 			.replacePath(this.logoutEndpointName)
 			.build()
 			.toUriString();
-		return this.web.post().uri(logout).headers((h) -> h.putAll(headers)).retrieve().toBodilessEntity();
 	}
 
 	private OAuth2Error oauth2Error(Collection<?> errors) {
