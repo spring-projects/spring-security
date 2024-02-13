@@ -111,6 +111,8 @@ updates:
       interval: weekly
     ignore:
       - dependency-name: sjohnr/*
+      - dependency-name: spring-io/*
+      - dependency-name: spring-security-release-tools/*
   - package-ecosystem: github-actions
     target-branch: 6.1.x
     directory: /
@@ -118,6 +120,8 @@ updates:
       interval: weekly
     ignore:
       - dependency-name: sjohnr/*
+      - dependency-name: spring-io/*
+      - dependency-name: spring-security-release-tools/*
   - package-ecosystem: github-actions
     target-branch: 6.2.x
     directory: /
@@ -125,6 +129,8 @@ updates:
       interval: weekly
     ignore:
       - dependency-name: sjohnr/*
+      - dependency-name: spring-io/*
+      - dependency-name: spring-security-release-tools/*
   - package-ecosystem: github-actions
     target-branch: main
     directory: /
@@ -132,6 +138,8 @@ updates:
       interval: weekly
     ignore:
       - dependency-name: sjohnr/*
+      - dependency-name: spring-io/*
+      - dependency-name: spring-security-release-tools/*
   - package-ecosystem: github-actions
     target-branch: docs-build
     directory: /
@@ -139,3 +147,5 @@ updates:
       interval: weekly
     ignore:
       - dependency-name: sjohnr/*
+      - dependency-name: spring-io/*
+      - dependency-name: spring-security-release-tools/*
