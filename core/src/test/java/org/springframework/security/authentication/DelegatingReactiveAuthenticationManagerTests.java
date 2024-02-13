@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -75,6 +75,45 @@ public class DelegatingReactiveAuthenticationManagerTests {
 		StepVerifier.create(manager.authenticate(this.authentication))
 			.expectError(BadCredentialsException.class)
 			.verify();
+	}
+
+	@Test
+	public void authenticateWhenContinueOnErrorAndFirstBadCredentialsThenTriesSecond() {
+		given(this.delegate1.authenticate(any())).willReturn(Mono.error(new BadCredentialsException("Test")));
+		given(this.delegate2.authenticate(any())).willReturn(Mono.just(this.authentication));
+
+		DelegatingReactiveAuthenticationManager manager = managerWithContinueOnError();
+
+		assertThat(manager.authenticate(this.authentication).block()).isEqualTo(this.authentication);
+	}
+
+	@Test
+	public void authenticateWhenContinueOnErrorAndBothDelegatesBadCredentialsThenError() {
+		given(this.delegate1.authenticate(any())).willReturn(Mono.error(new BadCredentialsException("Test")));
+		given(this.delegate2.authenticate(any())).willReturn(Mono.error(new BadCredentialsException("Test")));
+
+		DelegatingReactiveAuthenticationManager manager = managerWithContinueOnError();
+
+		StepVerifier.create(manager.authenticate(this.authentication))
+			.expectError(BadCredentialsException.class)
+			.verify();
+	}
+
+	@Test
+	public void authenticateWhenContinueOnErrorAndDelegate1NotEmptyThenReturnsNotEmpty() {
+		given(this.delegate1.authenticate(any())).willReturn(Mono.just(this.authentication));
+
+		DelegatingReactiveAuthenticationManager manager = managerWithContinueOnError();
+
+		assertThat(manager.authenticate(this.authentication).block()).isEqualTo(this.authentication);
+	}
+
+	private DelegatingReactiveAuthenticationManager managerWithContinueOnError() {
+		DelegatingReactiveAuthenticationManager manager = new DelegatingReactiveAuthenticationManager(this.delegate1,
+				this.delegate2);
+		manager.setContinueOnError(true);
+
+		return manager;
 	}
 
 }
