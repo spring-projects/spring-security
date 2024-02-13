@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,10 @@ package org.springframework.security.authentication;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -28,7 +31,7 @@ import org.springframework.util.Assert;
 /**
  * A {@link ReactiveAuthenticationManager} that delegates to other
  * {@link ReactiveAuthenticationManager} instances using the result from the first non
- * empty result.
+ * empty result. Errors from delegates will be ignored if continueOnError is true.
  *
  * @author Rob Winch
  * @since 5.1
@@ -36,6 +39,10 @@ import org.springframework.util.Assert;
 public class DelegatingReactiveAuthenticationManager implements ReactiveAuthenticationManager {
 
 	private final List<ReactiveAuthenticationManager> delegates;
+
+	private boolean continueOnError = false;
+
+	private final Log logger = LogFactory.getLog(getClass());
 
 	public DelegatingReactiveAuthenticationManager(ReactiveAuthenticationManager... entryPoints) {
 		this(Arrays.asList(entryPoints));
@@ -48,11 +55,15 @@ public class DelegatingReactiveAuthenticationManager implements ReactiveAuthenti
 
 	@Override
 	public Mono<Authentication> authenticate(Authentication authentication) {
-		// @formatter:off
-		return Flux.fromIterable(this.delegates)
-				.concatMap((m) -> m.authenticate(authentication))
-				.next();
-		// @formatter:on
+		Flux<ReactiveAuthenticationManager> result = Flux.fromIterable(this.delegates);
+		Function<ReactiveAuthenticationManager, Mono<Authentication>> logging = (m) -> m.authenticate(authentication)
+			.doOnError(this.logger::debug);
+
+		return ((this.continueOnError) ? result.concatMapDelayError(logging) : result.concatMap(logging)).next();
+	}
+
+	public void setContinueOnError(boolean continueOnError) {
+		this.continueOnError = continueOnError;
 	}
 
 }
