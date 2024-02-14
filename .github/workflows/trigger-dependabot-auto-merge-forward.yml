@@ -2,6 +2,8 @@ name: Trigger Dependabot Auto Merge Forward
 
 on:
   push:
+    branches:
+      - [5-9]+.[5-9]+.x
 
 permissions: read-all
 
@@ -9,7 +11,7 @@ jobs:
   trigger-worflow:
     name: Trigger Workflow
     runs-on: ubuntu-latest
-    if: ${{ github.event.commits[0].author.username == 'dependabot[bot]' && github.repository == 'spring-projects/spring-security' && startsWith(github.ref, 'refs/heads/') }}
+    if: ${{ github.event.commits[0].author.username == 'dependabot[bot]' && github.repository == 'spring-projects/spring-security' }}
     steps:
       - name: Checkout
         id: checkout
