@@ -28,8 +28,9 @@ import org.apereo.cas.client.util.WebUtils;
 import org.apereo.cas.client.validation.TicketValidator;
 
 import org.springframework.core.log.LogMessage;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
+import org.springframework.security.authentication.AuthenticationTrustResolver;
+import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
 import org.springframework.security.authentication.event.InteractiveAuthenticationSuccessEvent;
 import org.springframework.security.cas.ServiceProperties;
 import org.springframework.security.cas.authentication.CasServiceTicketAuthenticationToken;
@@ -209,6 +210,8 @@ public class CasAuthenticationFilter extends AbstractAuthenticationProcessingFil
 	private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
 
 	private RequestCache requestCache = new HttpSessionRequestCache();
+
+	private final AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
 
 	public CasAuthenticationFilter() {
 		super("/login/cas");
@@ -396,8 +399,7 @@ public class CasAuthenticationFilter extends AbstractAuthenticationProcessingFil
 	 */
 	private boolean authenticated() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		return authentication != null && authentication.isAuthenticated()
-				&& !(authentication instanceof AnonymousAuthenticationToken);
+		return this.trustResolver.isAuthenticated(authentication);
 	}
 
 	/**

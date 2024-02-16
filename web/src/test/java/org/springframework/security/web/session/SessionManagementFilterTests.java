@@ -22,6 +22,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Answers;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockFilterChain;
@@ -45,6 +46,7 @@ import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.withSettings;
 
 /**
  * @author Luke Taylor
@@ -244,7 +246,8 @@ public class SessionManagementFilterTests {
 
 	@Test
 	public void customAuthenticationTrustResolver() throws Exception {
-		AuthenticationTrustResolver trustResolver = mock(AuthenticationTrustResolver.class);
+		AuthenticationTrustResolver trustResolver = mock(AuthenticationTrustResolver.class,
+				withSettings().defaultAnswer(Answers.CALLS_REAL_METHODS));
 		SecurityContextRepository repo = mock(SecurityContextRepository.class);
 		SessionManagementFilter filter = new SessionManagementFilter(repo);
 		filter.setTrustResolver(trustResolver);
@@ -262,7 +265,8 @@ public class SessionManagementFilterTests {
 	}
 
 	private void authenticateUser() {
-		SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("user", "pass"));
+		SecurityContextHolder.getContext()
+			.setAuthentication(new TestingAuthenticationToken("user", "pass", "ROLE_USER"));
 	}
 
 }

@@ -140,7 +140,7 @@ public class SecurityContextHolderAwareRequestWrapperTests {
 		String username = "authPrincipalUsername";
 		AuthenticatedPrincipal principal = mock(AuthenticatedPrincipal.class);
 		given(principal.getName()).willReturn(username);
-		Authentication auth = new TestingAuthenticationToken(principal, "user");
+		Authentication auth = new TestingAuthenticationToken(principal, "user", "ROLE_USER");
 		SecurityContextHolder.getContext().setAuthentication(auth);
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setRequestURI("/");

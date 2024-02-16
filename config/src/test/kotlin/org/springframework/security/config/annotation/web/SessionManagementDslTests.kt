@@ -28,6 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.mock.web.MockHttpSession
+import org.springframework.security.authentication.TestingAuthenticationToken
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.http.SessionCreationPolicy
@@ -118,7 +119,7 @@ class SessionManagementDslTests {
     @Test
     fun `session management when session authentication error url then redirected to url`() {
         this.spring.register(SessionAuthenticationErrorUrlConfig::class.java).autowire()
-        val authentication: Authentication = mockk()
+        val authentication: Authentication = TestingAuthenticationToken("user", "password", "ROLE_USER")
         val session: MockHttpSession = mockk(relaxed = true)
         every { session.changeSessionId() } throws SessionAuthenticationException("any SessionAuthenticationException")
         every<Any?> { session.getAttribute(any()) } returns null
@@ -150,7 +151,7 @@ class SessionManagementDslTests {
     @Test
     fun `session management when session authentication failure handler then handler used`() {
         this.spring.register(SessionAuthenticationFailureHandlerConfig::class.java).autowire()
-        val authentication: Authentication = mockk()
+        val authentication: Authentication = TestingAuthenticationToken("user", "password", "ROLE_USER")
         val session: MockHttpSession = mockk(relaxed = true)
         every { session.changeSessionId() } throws SessionAuthenticationException("any SessionAuthenticationException")
         every<Any?> { session.getAttribute(any()) } returns null
@@ -210,7 +211,7 @@ class SessionManagementDslTests {
     fun `session management when session authentication strategy then strategy used`() {
         this.spring.register(SessionAuthenticationStrategyConfig::class.java).autowire()
         mockkObject(SessionAuthenticationStrategyConfig.STRATEGY)
-        val authentication: Authentication = mockk(relaxed = true)
+        val authentication: Authentication = TestingAuthenticationToken("user", "password", "ROLE_USER")
         val session: MockHttpSession = mockk(relaxed = true)
         every { session.changeSessionId() } throws SessionAuthenticationException("any SessionAuthenticationException")
         every<Any?> { session.getAttribute(any()) } returns null

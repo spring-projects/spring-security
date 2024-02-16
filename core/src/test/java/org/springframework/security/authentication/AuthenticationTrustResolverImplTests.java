@@ -18,6 +18,7 @@ package org.springframework.security.authentication;
 
 import org.junit.jupiter.api.Test;
 
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -61,6 +62,58 @@ public class AuthenticationTrustResolverImplTests {
 		assertThat(RememberMeAuthenticationToken.class).isEqualTo(trustResolver.getRememberMeClass());
 		trustResolver.setRememberMeClass(TestingAuthenticationToken.class);
 		assertThat(trustResolver.getRememberMeClass()).isEqualTo(TestingAuthenticationToken.class);
+	}
+
+	@Test
+	void isAuthenticatedWhenAuthenticationNullThenFalse() {
+		AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
+		Authentication authentication = null;
+		assertThat(trustResolver.isAuthenticated(authentication)).isFalse();
+	}
+
+	@Test
+	void isAuthenticatedWhenAuthenticationNotAuthenticatedThenFalse() {
+		AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
+		TestingAuthenticationToken authentication = new TestingAuthenticationToken("user", "password");
+		assertThat(trustResolver.isAuthenticated(authentication)).isFalse();
+	}
+
+	@Test
+	void isAuthenticatedWhenAnonymousThenFalse() {
+		AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
+		AnonymousAuthenticationToken authentication = new AnonymousAuthenticationToken("key", "principal",
+				AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
+		assertThat(trustResolver.isAuthenticated(authentication)).isFalse();
+	}
+
+	@Test
+	void isFullyAuthenticatedWhenAuthenticationNullThenFalse() {
+		AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
+		Authentication authentication = null;
+		assertThat(trustResolver.isFullyAuthenticated(authentication)).isFalse();
+	}
+
+	@Test
+	void isFullyAuthenticatedWhenAuthenticationNotAuthenticatedThenFalse() {
+		AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
+		TestingAuthenticationToken authentication = new TestingAuthenticationToken("user", "password");
+		assertThat(trustResolver.isFullyAuthenticated(authentication)).isFalse();
+	}
+
+	@Test
+	void isFullyAuthenticatedWhenAnonymousThenFalse() {
+		AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
+		AnonymousAuthenticationToken authentication = new AnonymousAuthenticationToken("key", "principal",
+				AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
+		assertThat(trustResolver.isFullyAuthenticated(authentication)).isFalse();
+	}
+
+	@Test
+	void isFullyAuthenticatedWhenRememberMeThenFalse() {
+		AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
+		RememberMeAuthenticationToken authentication = new RememberMeAuthenticationToken("key", "user",
+				AuthorityUtils.createAuthorityList("ROLE_USER"));
+		assertThat(trustResolver.isFullyAuthenticated(authentication)).isFalse();
 	}
 
 }
