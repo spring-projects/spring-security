@@ -3,7 +3,7 @@ name: Trigger Dependabot Auto Merge Forward
 on:
   push:
     branches:
-      - '[5-9]+.[0-9]+.x'
+      - '*.x'
 
 permissions: read-all
 
