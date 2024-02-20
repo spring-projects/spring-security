@@ -10,7 +10,7 @@
   <property name="relative-to" value="const(THIS_FILE)/../.." />
   <property name="action-set-mod" value="1" />
   <property name="detail-mode" value="true" />
-  <property name="hide-deprecated" value="false" />
+  <property name="hide-deprecated" value="true" />
   <property name="resolve-name-clashes" value="true" />
   <property name="project-excluded" />
   <property name="show-needs-to-compile" value="false" />
@@ -29,11 +29,8 @@
     <classpathentry kind="lib" path="oauth2/oauth2-core/build/classes/java/main" module="spring-security-oauth2-core" />
     <classpathentry kind="lib" path="oauth2/oauth2-jose/build/classes/java/main" module="spring-security-oauth2-jose" />
     <classpathentry kind="lib" path="oauth2/oauth2-resource-server/build/classes/java/main" module="spring-security-oauth2-resource-server" />
-    <classpathentry kind="lib" path="remoting/build/classes/java/main" module="spring-security-remoting" />
     <classpathentry kind="lib" path="rsocket/build/classes/java/main" module="spring-security-rsocket" />
     <classpathentry kind="lib" path="saml2/saml2-service-provider/build/classes/java/main" module="spring-security-saml2-service-provider" />
-    <classpathentry kind="lib" path="saml2/saml2-service-provider/build/classes/java/opensaml3Main" module="spring-security-saml2-service-provider" />
-    <classpathentry kind="lib" path="saml2/saml2-service-provider/build/classes/java/opensaml4Main" module="spring-security-saml2-service-provider" />
     <classpathentry kind="lib" path="taglibs/build/classes/java/main" module="spring-security-taglibs" />
     <classpathentry kind="lib" path="test/build/classes/java/main" module="spring-security-test" />
     <classpathentry kind="lib" path="web/build/classes/java/main" module="spring-security-web" />
