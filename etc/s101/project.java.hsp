@@ -10,7 +10,7 @@
   <property name="relative-to" value="const(THIS_FILE)/../.." />
   <property name="action-set-mod" value="1" />
   <property name="detail-mode" value="true" />
-  <property name="hide-deprecated" value="false" />
+  <property name="hide-deprecated" value="true" />
   <property name="resolve-name-clashes" value="true" />
   <property name="project-excluded" />
   <property name="show-needs-to-compile" value="false" />
