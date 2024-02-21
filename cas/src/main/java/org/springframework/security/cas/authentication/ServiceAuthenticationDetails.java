@@ -14,26 +14,23 @@
  * limitations under the License.
  */
 
-package org.springframework.security.cas.web.authentication;
+package org.springframework.security.cas.authentication;
+
+import java.io.Serializable;
 
 import org.springframework.security.cas.ServiceProperties;
 import org.springframework.security.core.Authentication;
 
 /**
- * In order for the
- * {@link org.springframework.security.cas.authentication.CasAuthenticationProvider} to
- * provide the correct service url to authenticate the ticket, the returned value of
- * {@link Authentication#getDetails()} should implement this interface when tickets can be
- * sent to any URL rather than only {@link ServiceProperties#getService()}.
+ * In order for the {@link CasAuthenticationProvider} to provide the correct service url
+ * to authenticate the ticket, the returned value of {@link Authentication#getDetails()}
+ * should implement this interface when tickets can be sent to any URL rather than only
+ * {@link ServiceProperties#getService()}.
  *
  * @author Rob Winch
- * @see ServiceAuthenticationDetailsSource
- * @deprecated Please use
- * org.springframework.security.cas.authentication.ServiceAuthenticationDetails
+ * @see org.springframework.security.cas.web.authentication.ServiceAuthenticationDetailsSource
  */
-@Deprecated
-public interface ServiceAuthenticationDetails
-		extends org.springframework.security.cas.authentication.ServiceAuthenticationDetails {
+public interface ServiceAuthenticationDetails extends Serializable {
 
 	/**
 	 * Gets the absolute service url (i.e. https://example.com/service/).
