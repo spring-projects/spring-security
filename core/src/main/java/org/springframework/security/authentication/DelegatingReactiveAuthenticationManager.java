@@ -30,8 +30,9 @@ import org.springframework.util.Assert;
 
 /**
  * A {@link ReactiveAuthenticationManager} that delegates to other
- * {@link ReactiveAuthenticationManager} instances using the result from the first non
- * empty result. Errors from delegates will be ignored if continueOnError is true.
+ * {@link ReactiveAuthenticationManager} instances. When {@code continueOnError} is
+ * {@code true}, will continue until the first non-empty, non-error result; otherwise,
+ * will continue only until the first non-empty result.
  *
  * @author Rob Winch
  * @since 5.1
@@ -62,6 +63,11 @@ public class DelegatingReactiveAuthenticationManager implements ReactiveAuthenti
 		return ((this.continueOnError) ? result.concatMapDelayError(logging) : result.concatMap(logging)).next();
 	}
 
+	/**
+	 * Continue iterating when a delegate errors, defaults to {@code false}
+	 * @param continueOnError whether to continue when a delegate errors
+	 * @since 6.3
+	 */
 	public void setContinueOnError(boolean continueOnError) {
 		this.continueOnError = continueOnError;
 	}
