@@ -77,7 +77,7 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 
 	public static final String DEF_DELETE_USER_AUTHORITIES_SQL = "delete from authorities where username = ?";
 
-	public static final String DEF_USER_EXISTS_SQL = "select username from users where username = ?";
+	public static final String DEF_USER_EXISTS_SQL = "select count(*) from users where username = ?";
 
 	public static final String DEF_CHANGE_PASSWORD_SQL = "update users set password = ? where username = ?";
 
@@ -337,12 +337,13 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 
 	@Override
 	public boolean userExists(String username) {
-		List<String> users = requireJdbcTemplate().queryForList(this.userExistsSql, String.class, username);
-		if (users.size() > 1) {
-			throw new IncorrectResultSizeDataAccessException("More than one user found with name '" + username + "'",
-					1);
+		@SuppressWarnings("ConstantConditions")
+		int usersCount = getJdbcTemplate().queryForObject(this.userExistsSql, Integer.class, username);
+		if (usersCount > 1) {
+			throw new IncorrectResultSizeDataAccessException(
+					"[" + usersCount + "] users found with name '" + username + "', expected 1", 1);
 		}
-		return users.size() == 1;
+		return usersCount == 1;
 	}
 
 	@Override
