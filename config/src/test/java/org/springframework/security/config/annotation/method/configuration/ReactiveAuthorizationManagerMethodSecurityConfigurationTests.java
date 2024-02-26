@@ -19,6 +19,7 @@ package org.springframework.security.config.annotation.method.configuration;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,10 +27,11 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.ApplicationListener;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
+import org.springframework.context.event.EventListener;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
 import org.springframework.security.authorization.AuthorizationDecision;
@@ -44,6 +46,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.test.context.support.ReactorContextTestExecutionListener;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.context.support.WithSecurityContextTestExecutionListener;
+import org.springframework.stereotype.Component;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -62,9 +65,6 @@ public class ReactiveAuthorizationManagerMethodSecurityConfigurationTests {
 	@Autowired
 	ReactiveAuthorizationEventPublisher eventPublisher;
 
-	@Autowired
-	MyEventListener eventListener;
-
 	AuthenticationTrustResolverImpl trustResolver = new AuthenticationTrustResolverImpl();
 
 	@Test
@@ -73,10 +73,11 @@ public class ReactiveAuthorizationManagerMethodSecurityConfigurationTests {
 		StepVerifier.create(this.messageService.monoPreAuthorizeHasRoleFindById(1))
 			.expectError(AccessDeniedException.class)
 			.verify();
-		ReactiveAuthorizationDeniedEvent<?> event = this.eventListener.getEvent();
-		assertThat(event).isNotNull();
-		assertThat(event.getAuthorizationDecision().isGranted()).isFalse();
-		StepVerifier.create(event.getAuthentication()).assertNext(this.trustResolver::isAnonymous).verifyComplete();
+		assertEvents((event) -> {
+			assertThat(event).isNotNull();
+			assertThat(event.getAuthorizationDecision().isGranted()).isFalse();
+			StepVerifier.create(event.getAuthentication()).assertNext(this.trustResolver::isAnonymous).verifyComplete();
+		});
 	}
 
 	@Test
@@ -84,13 +85,14 @@ public class ReactiveAuthorizationManagerMethodSecurityConfigurationTests {
 	void preAuthorizeMonoWhenGrantedThenPublishEvent() {
 		this.spring.register(Config.class, AuthorizationEventPublisherConfig.class).autowire();
 		StepVerifier.create(this.messageService.monoPreAuthorizeHasRoleFindById(1)).verifyComplete();
-		ReactiveAuthorizationGrantedEvent<?> event = this.eventListener.getEvent();
-		assertThat(event).isNotNull();
-		assertThat(event.getAuthorizationDecision().isGranted()).isTrue();
-		StepVerifier.create(event.getAuthentication())
-			.assertNext((auth) -> assertThat(auth.getAuthorities()).extracting(GrantedAuthority::getAuthority)
-				.contains("ROLE_ADMIN"))
-			.verifyComplete();
+		assertEvents((event) -> {
+			assertThat(event).isNotNull();
+			assertThat(event.getAuthorizationDecision().isGranted()).isTrue();
+			StepVerifier.create(event.getAuthentication())
+				.assertNext((auth) -> assertThat(auth.getAuthorities()).extracting(GrantedAuthority::getAuthority)
+					.contains("ROLE_ADMIN"))
+				.verifyComplete();
+		});
 	}
 
 	@Test
@@ -99,10 +101,11 @@ public class ReactiveAuthorizationManagerMethodSecurityConfigurationTests {
 		StepVerifier.create(this.messageService.fluxPreAuthorizeHasRoleFindById(1))
 			.expectError(AccessDeniedException.class)
 			.verify();
-		ReactiveAuthorizationDeniedEvent<?> event = this.eventListener.getEvent();
-		assertThat(event).isNotNull();
-		assertThat(event.getAuthorizationDecision().isGranted()).isFalse();
-		StepVerifier.create(event.getAuthentication()).assertNext(this.trustResolver::isAnonymous).verifyComplete();
+		assertEvents((event) -> {
+			assertThat(event).isNotNull();
+			assertThat(event.getAuthorizationDecision().isGranted()).isFalse();
+			StepVerifier.create(event.getAuthentication()).assertNext(this.trustResolver::isAnonymous).verifyComplete();
+		});
 	}
 
 	@Test
@@ -110,13 +113,14 @@ public class ReactiveAuthorizationManagerMethodSecurityConfigurationTests {
 	void preAuthorizeFluxWhenGrantedThenPublishEvent() {
 		this.spring.register(Config.class, AuthorizationEventPublisherConfig.class).autowire();
 		StepVerifier.create(this.messageService.fluxPreAuthorizeHasRoleFindById(1)).verifyComplete();
-		ReactiveAuthorizationGrantedEvent<?> event = this.eventListener.getEvent();
-		assertThat(event).isNotNull();
-		assertThat(event.getAuthorizationDecision().isGranted()).isTrue();
-		StepVerifier.create(event.getAuthentication())
-			.assertNext((auth) -> assertThat(auth.getAuthorities()).extracting(GrantedAuthority::getAuthority)
-				.contains("ROLE_ADMIN"))
-			.verifyComplete();
+		assertEvents((event) -> {
+			assertThat(event).isNotNull();
+			assertThat(event.getAuthorizationDecision().isGranted()).isTrue();
+			StepVerifier.create(event.getAuthentication())
+				.assertNext((auth) -> assertThat(auth.getAuthorities()).extracting(GrantedAuthority::getAuthority)
+					.contains("ROLE_ADMIN"))
+				.verifyComplete();
+		});
 	}
 
 	@Test
@@ -125,10 +129,11 @@ public class ReactiveAuthorizationManagerMethodSecurityConfigurationTests {
 		StepVerifier.create(this.messageService.monoPostAuthorizeFindById(1))
 			.expectError(AccessDeniedException.class)
 			.verify();
-		ReactiveAuthorizationDeniedEvent<?> event = this.eventListener.getEvent();
-		assertThat(event).isNotNull();
-		assertThat(event.getAuthorizationDecision().isGranted()).isFalse();
-		StepVerifier.create(event.getAuthentication()).assertNext(this.trustResolver::isAnonymous).verifyComplete();
+		assertEvents((event) -> {
+			assertThat(event).isNotNull();
+			assertThat(event.getAuthorizationDecision().isGranted()).isFalse();
+			StepVerifier.create(event.getAuthentication()).assertNext(this.trustResolver::isAnonymous).verifyComplete();
+		});
 	}
 
 	@Test
@@ -136,13 +141,14 @@ public class ReactiveAuthorizationManagerMethodSecurityConfigurationTests {
 	void postAuthorizeMonoWhenGrantedThenPublishEvent() {
 		this.spring.register(Config.class, AuthorizationEventPublisherConfig.class).autowire();
 		StepVerifier.create(this.messageService.monoPostAuthorizeFindById(1)).expectNext("user").verifyComplete();
-		ReactiveAuthorizationGrantedEvent<?> event = this.eventListener.getEvent();
-		assertThat(event).isNotNull();
-		assertThat(event.getAuthorizationDecision().isGranted()).isTrue();
-		StepVerifier.create(event.getAuthentication())
-			.assertNext((auth) -> assertThat(auth.getAuthorities()).extracting(GrantedAuthority::getAuthority)
-				.contains("ROLE_ADMIN"))
-			.verifyComplete();
+		assertEvents((event) -> {
+			assertThat(event).isNotNull();
+			assertThat(event.getAuthorizationDecision().isGranted()).isTrue();
+			StepVerifier.create(event.getAuthentication())
+				.assertNext((auth) -> assertThat(auth.getAuthorities()).extracting(GrantedAuthority::getAuthority)
+					.contains("ROLE_ADMIN"))
+				.verifyComplete();
+		});
 	}
 
 	@Test
@@ -152,10 +158,11 @@ public class ReactiveAuthorizationManagerMethodSecurityConfigurationTests {
 		StepVerifier.create(this.messageService.fluxPostAuthorizeFindById(1))
 			.expectError(AccessDeniedException.class)
 			.verify();
-		ReactiveAuthorizationDeniedEvent<?> event = this.eventListener.getEvent();
-		assertThat(event).isNotNull();
-		assertThat(event.getAuthorizationDecision().isGranted()).isFalse();
-		StepVerifier.create(event.getAuthentication()).assertNext(this.trustResolver::isAnonymous).verifyComplete();
+		assertEvents((event) -> {
+			assertThat(event).isNotNull();
+			assertThat(event.getAuthorizationDecision().isGranted()).isFalse();
+			StepVerifier.create(event.getAuthentication()).assertNext(this.trustResolver::isAnonymous).verifyComplete();
+		});
 	}
 
 	@Test
@@ -163,10 +170,18 @@ public class ReactiveAuthorizationManagerMethodSecurityConfigurationTests {
 	void postAuthorizeFluxWhenGrantedThenPublishEvent() {
 		this.spring.register(Config.class, AuthorizationEventPublisherConfig.class).autowire();
 		StepVerifier.create(this.messageService.fluxPostAuthorizeFindById(1)).expectNext("user").verifyComplete();
-		ReactiveAuthorizationGrantedEvent<?> event = this.eventListener.getEvent();
-		assertThat(event).isNotNull();
-		assertThat(event.getAuthorizationDecision().isGranted()).isTrue();
-		StepVerifier.create(event.getAuthentication()).expectNextCount(1).verifyComplete();
+		assertEvents((event) -> {
+			assertThat(event).isNotNull();
+			assertThat(event.getAuthorizationDecision().isGranted()).isTrue();
+			StepVerifier.create(event.getAuthentication()).expectNextCount(1).verifyComplete();
+		});
+	}
+
+	private void assertEvents(Consumer<ReactiveAuthorizationEvent> assertConsumer) {
+		ReactiveAuthorizationEvent event = ImperativeListener.getEvent();
+		ReactiveAuthorizationEvent reactiveEvent = ReactiveListener.getEvent();
+		assertConsumer.accept(event);
+		assertConsumer.accept(reactiveEvent);
 	}
 
 	@Configuration
@@ -185,11 +200,12 @@ public class ReactiveAuthorizationManagerMethodSecurityConfigurationTests {
 
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
+	@Import({ ImperativeListener.class, ReactiveListener.class })
 	static class AuthorizationEventPublisherConfig {
 
 		@Bean
-		ReactiveAuthorizationEventPublisher authorizationEventPublisher(ApplicationEventPublisher eventPublisher) {
+		ReactiveAuthorizationEventPublisher authorizationEventPublisher(ApplicationContext eventPublisher) {
 			return new ReactiveAuthorizationEventPublisher() {
 				@Override
 				public <T> void publishAuthorizationEvent(Mono<Authentication> authentication, T object,
@@ -206,18 +222,19 @@ public class ReactiveAuthorizationManagerMethodSecurityConfigurationTests {
 			};
 		}
 
-		@Bean
-		MyEventListener myEventListener() {
-			return new MyEventListener();
-		}
-
 	}
 
-	public static class MyEventListener implements ApplicationListener<ReactiveAuthorizationEvent> {
+	@Component
+	public static class ImperativeListener {
 
 		static BlockingQueue<ReactiveAuthorizationEvent> events = new ArrayBlockingQueue<>(10);
 
-		public <T extends ReactiveAuthorizationEvent> T getEvent() {
+		@EventListener
+		public void onEvent(ReactiveAuthorizationEvent event) {
+			events.add(event);
+		}
+
+		public static <T extends ReactiveAuthorizationEvent> T getEvent() {
 			try {
 				return (T) events.poll(1, TimeUnit.SECONDS);
 			}
@@ -226,9 +243,25 @@ public class ReactiveAuthorizationManagerMethodSecurityConfigurationTests {
 			}
 		}
 
-		@Override
-		public void onApplicationEvent(ReactiveAuthorizationEvent event) {
-			events.add(event);
+	}
+
+	@Component
+	public static class ReactiveListener {
+
+		static BlockingQueue<ReactiveAuthorizationEvent> events = new ArrayBlockingQueue<>(10);
+
+		@EventListener
+		public Mono<Void> onEvent(ReactiveAuthorizationEvent event) {
+			return event.getAuthentication().doOnNext((authentication) -> events.add(event)).then();
+		}
+
+		public static <T extends ReactiveAuthorizationEvent> T getEvent() {
+			try {
+				return (T) events.poll(1, TimeUnit.SECONDS);
+			}
+			catch (InterruptedException ex) {
+				return null;
+			}
 		}
 
 	}
