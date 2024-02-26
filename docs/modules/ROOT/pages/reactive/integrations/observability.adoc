@@ -38,7 +38,7 @@ public class MyApplication {
 
 	@Bean
 	ObservationRegistryCustomizer<ObservationRegistry> addTextHandler() {
-		return (registry) -> registry.observationConfig().observationHandler(new ObservationTextHandler());
+		return (registry) -> registry.observationConfig().observationHandler(new ObservationTextPublisher());
 	}
 
 	public static void main(String[] args) {
@@ -67,7 +67,7 @@ class MyApplication {
 	@Bean
 	fun addTextHandler(): ObservationRegistryCustomizer<ObservationRegistry> {
 		return registry: ObservationRegistry -> registry.observationConfig()
-				.observationHandler(ObservationTextHandler());
+				.observationHandler(ObservationTextPublisher());
 	}
 
 	fun main(args: Array<String>) {
@@ -129,7 +129,7 @@ public class MyApplication {
 	@Bean
 	ObservationRegistry<ObservationRegistry> observationRegistry() {
 		ObservationRegistry registry = ObservationRegistry.create();
-		registry.observationConfig().observationHandler(new ObservationTextHandler());
+		registry.observationConfig().observationHandler(new ObservationTextPublisher());
 		return registry;
 	}
 
@@ -159,7 +159,7 @@ class MyApplication {
 	@Bean
 	fun observationRegistry(): ObservationRegistry<ObservationRegistry> {
 		ObservationRegistry registry = ObservationRegistry.create()
-		registry.observationConfig().observationHandler(ObservationTextHandler())
+		registry.observationConfig().observationHandler(ObservationTextPublisher())
 		return registry
 	}
 
