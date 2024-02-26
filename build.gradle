@@ -106,7 +106,6 @@ tasks.register('cloneRepository', IncludeRepoTask) {
 }
 
 s101 {
-	repository = 'https://s101-pickup.s3.amazonaws.com'
-	version = '7.0.24375'
+	repository = 'https://structure101.com/binaries/latest'
 	configurationDirectory = project.file("etc/s101")
 }
