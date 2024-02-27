@@ -202,13 +202,13 @@ Java::
 [source,java,role="primary"]
 ----
 @Bean
-SecurityWebFilterChain filterChain(ServerHttpSecurity http) {
+SecurityWebFilterChain filterChain(ServerHttpSecurity http, DefaultWebSessionManager webSessionManager) {
     http
         // ...
         .sessionManagement((sessions) -> sessions
             .concurrentSessions((concurrency) -> concurrency
                 .maximumSessions(SessionLimit.of(1))
-                .maximumSessionsExceededHandler(new PreventLoginMaximumSessionsExceededHandler())
+                .maximumSessionsExceededHandler(new PreventLoginMaximumSessionsExceededHandler(webSessionManager.getSessionStore()))
             )
         );
     return http.build();
@@ -225,13 +225,13 @@ Kotlin::
 [source,kotlin,role="secondary"]
 ----
 @Bean
-open fun springSecurity(http: ServerHttpSecurity): SecurityWebFilterChain {
+open fun springSecurity(http: ServerHttpSecurity, webSessionManager: DefaultWebSessionManager): SecurityWebFilterChain {
     return http {
         // ...
         sessionManagement {
             sessionConcurrency {
                 maximumSessions = SessionLimit.of(1)
-                maximumSessionsExceededHandler = PreventLoginMaximumSessionsExceededHandler()
+                maximumSessionsExceededHandler = PreventLoginMaximumSessionsExceededHandler(webSessionManager.sessionStore)
             }
         }
     }
@@ -379,6 +379,11 @@ public class SessionControl {
 }
 ----
 ======
+
+[NOTE]
+====
+If you are not using the `WebSessionStoreReactiveSessionRegistry` as the implementation, and you want the `WebSession` to be invalidated as well, you will need to use the `WebSessionStore` to retrieve and invalidate the `WebSession`.
+====
 
 [[disabling-for-authentication-filters]]
 == Disabling It for Some Authentication Filters
