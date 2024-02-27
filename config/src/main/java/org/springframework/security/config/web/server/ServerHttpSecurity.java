@@ -2143,19 +2143,23 @@ public class ServerHttpSecurity {
 				@Override
 				public Mono<Void> changeSessionId() {
 					String currentId = this.session.getId();
-					return SessionRegistryWebFilter.this.sessionRegistry.removeSessionInformation(currentId)
-						.flatMap((information) -> this.session.changeSessionId().thenReturn(information))
-						.flatMap((information) -> {
-							information = information.withSessionId(this.session.getId());
-							return SessionRegistryWebFilter.this.sessionRegistry.saveSessionInformation(information);
-						});
+					return this.session.changeSessionId()
+						.then(Mono.defer(
+								() -> SessionRegistryWebFilter.this.sessionRegistry.removeSessionInformation(currentId)
+									.flatMap((information) -> {
+										information = information.withSessionId(this.session.getId());
+										return SessionRegistryWebFilter.this.sessionRegistry
+											.saveSessionInformation(information);
+									})));
 				}
 
 				@Override
 				public Mono<Void> invalidate() {
 					String currentId = this.session.getId();
-					return SessionRegistryWebFilter.this.sessionRegistry.removeSessionInformation(currentId)
-						.flatMap((information) -> this.session.invalidate());
+					return this.session.invalidate()
+						.then(Mono.defer(() -> SessionRegistryWebFilter.this.sessionRegistry
+							.removeSessionInformation(currentId)))
+						.then();
 				}
 
 				@Override

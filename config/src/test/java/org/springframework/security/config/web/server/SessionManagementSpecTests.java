@@ -67,6 +67,7 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.server.adapter.WebHttpHandlerBuilder;
 import org.springframework.web.server.session.DefaultWebSessionManager;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -95,14 +96,19 @@ public class SessionManagementSpecTests {
 		ResponseCookie firstLoginSessionCookie = loginReturningCookie(data);
 
 		// second login should fail
-		this.client.mutateWith(csrf())
+		ResponseCookie secondLoginSessionCookie = this.client.mutateWith(csrf())
 			.post()
 			.uri("/login")
 			.contentType(MediaType.MULTIPART_FORM_DATA)
 			.body(BodyInserters.fromFormData(data))
 			.exchange()
 			.expectHeader()
-			.location("/login?error");
+			.location("/login?error")
+			.returnResult(Void.class)
+			.getResponseCookies()
+			.getFirst("SESSION");
+
+		assertThat(secondLoginSessionCookie).isNull();
 
 		// first login should still be valid
 		this.client.mutateWith(csrf())

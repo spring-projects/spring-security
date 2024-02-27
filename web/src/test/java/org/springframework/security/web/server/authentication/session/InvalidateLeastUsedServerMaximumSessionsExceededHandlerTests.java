@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,7 +50,7 @@ class InvalidateLeastUsedServerMaximumSessionsExceededHandlerTests {
 		given(session2.getLastAccessTime()).willReturn(Instant.ofEpochMilli(1700827760000L));
 		given(session2.invalidate()).willReturn(Mono.empty());
 		MaximumSessionsContext context = new MaximumSessionsContext(mock(Authentication.class),
-				List.of(session1, session2), 2);
+				List.of(session1, session2), 2, null);
 
 		this.handler.handle(context).block();
 
@@ -72,7 +72,7 @@ class InvalidateLeastUsedServerMaximumSessionsExceededHandlerTests {
 		given(session1.invalidate()).willReturn(Mono.empty());
 		given(session2.invalidate()).willReturn(Mono.empty());
 		MaximumSessionsContext context = new MaximumSessionsContext(mock(Authentication.class),
-				List.of(session1, session2, session3), 2);
+				List.of(session1, session2, session3), 2, null);
 
 		this.handler.handle(context).block();
 

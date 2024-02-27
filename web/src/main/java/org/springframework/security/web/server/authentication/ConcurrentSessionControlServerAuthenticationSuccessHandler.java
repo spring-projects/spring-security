@@ -81,8 +81,8 @@ public final class ConcurrentSessionControlServerAuthenticationSuccessHandler
 						}
 					}
 				}
-				return this.maximumSessionsExceededHandler
-					.handle(new MaximumSessionsContext(authentication, registeredSessions, maximumSessions));
+				return this.maximumSessionsExceededHandler.handle(new MaximumSessionsContext(authentication,
+						registeredSessions, maximumSessions, currentSession));
 			});
 	}
 
