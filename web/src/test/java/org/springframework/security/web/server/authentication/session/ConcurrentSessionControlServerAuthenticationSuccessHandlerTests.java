@@ -74,15 +74,23 @@ class ConcurrentSessionControlServerAuthenticationSuccessHandlerTests {
 		given(this.exchange.getRequest()).willReturn(MockServerHttpRequest.get("/").build());
 		given(this.exchange.getSession()).willReturn(Mono.just(new MockWebSession()));
 		given(this.handler.handle(any())).willReturn(Mono.empty());
-		this.strategy = new ConcurrentSessionControlServerAuthenticationSuccessHandler(this.sessionRegistry);
-		this.strategy.setMaximumSessionsExceededHandler(this.handler);
+		this.strategy = new ConcurrentSessionControlServerAuthenticationSuccessHandler(this.sessionRegistry,
+				this.handler);
 	}
 
 	@Test
 	void constructorWhenNullRegistryThenException() {
 		assertThatIllegalArgumentException()
-			.isThrownBy(() -> new ConcurrentSessionControlServerAuthenticationSuccessHandler(null))
+			.isThrownBy(() -> new ConcurrentSessionControlServerAuthenticationSuccessHandler(null, this.handler))
 			.withMessage("sessionRegistry cannot be null");
+	}
+
+	@Test
+	void constructorWhenNullHandlerThenException() {
+		assertThatIllegalArgumentException()
+			.isThrownBy(
+					() -> new ConcurrentSessionControlServerAuthenticationSuccessHandler(this.sessionRegistry, null))
+			.withMessage("maximumSessionsExceededHandler cannot be null");
 	}
 
 	@Test
@@ -92,16 +100,10 @@ class ConcurrentSessionControlServerAuthenticationSuccessHandlerTests {
 	}
 
 	@Test
-	void setMaximumSessionsExceededHandlerWhenNullThenException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> this.strategy.setMaximumSessionsExceededHandler(null))
-			.withMessage("maximumSessionsExceededHandler cannot be null");
-	}
-
-	@Test
 	void onAuthenticationWhenSessionLimitIsUnlimitedThenDoNothing() {
 		ServerMaximumSessionsExceededHandler handler = mock(ServerMaximumSessionsExceededHandler.class);
+		this.strategy = new ConcurrentSessionControlServerAuthenticationSuccessHandler(this.sessionRegistry, handler);
 		this.strategy.setSessionLimit(SessionLimit.UNLIMITED);
-		this.strategy.setMaximumSessionsExceededHandler(handler);
 		this.strategy.onAuthenticationSuccess(null, TestAuthentication.authenticatedUser()).block();
 		verifyNoInteractions(handler, this.sessionRegistry);
 	}

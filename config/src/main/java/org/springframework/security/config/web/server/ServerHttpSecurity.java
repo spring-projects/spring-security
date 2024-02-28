@@ -214,6 +214,8 @@ import org.springframework.web.server.ServerWebExchangeDecorator;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 import org.springframework.web.server.WebSession;
+import org.springframework.web.server.adapter.WebHttpHandlerBuilder;
+import org.springframework.web.server.session.DefaultWebSessionManager;
 import org.springframework.web.util.pattern.PathPatternParser;
 
 /**
@@ -1964,7 +1966,7 @@ public class ServerHttpSecurity {
 
 		private SessionLimit sessionLimit = SessionLimit.UNLIMITED;
 
-		private ServerMaximumSessionsExceededHandler maximumSessionsExceededHandler = new InvalidateLeastUsedServerMaximumSessionsExceededHandler();
+		private ServerMaximumSessionsExceededHandler maximumSessionsExceededHandler;
 
 		/**
 		 * Configures how many sessions are allowed for a given user.
@@ -1983,9 +1985,8 @@ public class ServerHttpSecurity {
 			if (this.concurrentSessions != null) {
 				ReactiveSessionRegistry reactiveSessionRegistry = getSessionRegistry();
 				ConcurrentSessionControlServerAuthenticationSuccessHandler concurrentSessionControlStrategy = new ConcurrentSessionControlServerAuthenticationSuccessHandler(
-						reactiveSessionRegistry);
+						reactiveSessionRegistry, getMaximumSessionsExceededHandler());
 				concurrentSessionControlStrategy.setSessionLimit(this.sessionLimit);
-				concurrentSessionControlStrategy.setMaximumSessionsExceededHandler(this.maximumSessionsExceededHandler);
 				RegisterSessionServerAuthenticationSuccessHandler registerSessionAuthenticationStrategy = new RegisterSessionServerAuthenticationSuccessHandler(
 						reactiveSessionRegistry);
 				this.authenticationSuccessHandler = new DelegatingServerAuthenticationSuccessHandler(
@@ -1995,6 +1996,24 @@ public class ServerHttpSecurity {
 				configureSuccessHandlerOnAuthenticationFilters();
 				http.addFilterAfter(sessionRegistryWebFilter, SecurityWebFiltersOrder.HTTP_HEADERS_WRITER);
 			}
+		}
+
+		private ServerMaximumSessionsExceededHandler getMaximumSessionsExceededHandler() {
+			if (this.maximumSessionsExceededHandler != null) {
+				return this.maximumSessionsExceededHandler;
+			}
+			DefaultWebSessionManager webSessionManager = getBeanOrNull(
+					WebHttpHandlerBuilder.WEB_SESSION_MANAGER_BEAN_NAME, DefaultWebSessionManager.class);
+			if (webSessionManager != null) {
+				this.maximumSessionsExceededHandler = new InvalidateLeastUsedServerMaximumSessionsExceededHandler(
+						webSessionManager.getSessionStore());
+			}
+			if (this.maximumSessionsExceededHandler == null) {
+				throw new IllegalStateException(
+						"Could not create a default ServerMaximumSessionsExceededHandler. Please provide "
+								+ "a ServerMaximumSessionsExceededHandler via DSL");
+			}
+			return this.maximumSessionsExceededHandler;
 		}
 
 		private void configureSuccessHandlerOnAuthenticationFilters() {

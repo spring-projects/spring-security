@@ -45,13 +45,16 @@ public final class ConcurrentSessionControlServerAuthenticationSuccessHandler
 
 	private final ReactiveSessionRegistry sessionRegistry;
 
+	private final ServerMaximumSessionsExceededHandler maximumSessionsExceededHandler;
+
 	private SessionLimit sessionLimit = SessionLimit.of(1);
 
-	private ServerMaximumSessionsExceededHandler maximumSessionsExceededHandler = new InvalidateLeastUsedServerMaximumSessionsExceededHandler();
-
-	public ConcurrentSessionControlServerAuthenticationSuccessHandler(ReactiveSessionRegistry sessionRegistry) {
+	public ConcurrentSessionControlServerAuthenticationSuccessHandler(ReactiveSessionRegistry sessionRegistry,
+			ServerMaximumSessionsExceededHandler maximumSessionsExceededHandler) {
 		Assert.notNull(sessionRegistry, "sessionRegistry cannot be null");
+		Assert.notNull(maximumSessionsExceededHandler, "maximumSessionsExceededHandler cannot be null");
 		this.sessionRegistry = sessionRegistry;
+		this.maximumSessionsExceededHandler = maximumSessionsExceededHandler;
 	}
 
 	@Override
@@ -95,17 +98,6 @@ public final class ConcurrentSessionControlServerAuthenticationSuccessHandler
 	public void setSessionLimit(SessionLimit sessionLimit) {
 		Assert.notNull(sessionLimit, "sessionLimit cannot be null");
 		this.sessionLimit = sessionLimit;
-	}
-
-	/**
-	 * Sets the {@link ServerMaximumSessionsExceededHandler} to use. The default is
-	 * {@link InvalidateLeastUsedServerMaximumSessionsExceededHandler}.
-	 * @param maximumSessionsExceededHandler the
-	 * {@link ServerMaximumSessionsExceededHandler} to use
-	 */
-	public void setMaximumSessionsExceededHandler(ServerMaximumSessionsExceededHandler maximumSessionsExceededHandler) {
-		Assert.notNull(maximumSessionsExceededHandler, "maximumSessionsExceededHandler cannot be null");
-		this.maximumSessionsExceededHandler = maximumSessionsExceededHandler;
 	}
 
 }
