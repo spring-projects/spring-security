@@ -20,6 +20,7 @@ import io.micrometer.observation.ObservationRegistry;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 
+import org.springframework.aop.framework.AopInfrastructureBean;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Bean;
@@ -48,7 +49,7 @@ import org.springframework.security.core.context.SecurityContextHolderStrategy;
  */
 @Configuration(proxyBeanMethods = false)
 @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-final class SecuredMethodSecurityConfiguration implements ImportAware {
+final class SecuredMethodSecurityConfiguration implements ImportAware, AopInfrastructureBean {
 
 	private int interceptorOrderOffset;
 

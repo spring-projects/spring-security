@@ -56,6 +56,7 @@ final class MethodSecuritySelector implements ImportSelector {
 		if (annotation.jsr250Enabled()) {
 			imports.add(Jsr250MethodSecurityConfiguration.class.getName());
 		}
+		imports.add(AuthorizationProxyConfiguration.class.getName());
 		return imports.toArray(new String[0]);
 	}
 

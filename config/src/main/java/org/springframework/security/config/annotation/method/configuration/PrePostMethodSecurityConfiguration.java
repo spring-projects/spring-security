@@ -27,7 +27,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import org.springframework.aop.Pointcut;
-import org.springframework.aop.PointcutAdvisor;
 import org.springframework.aop.framework.AopInfrastructureBean;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -36,7 +35,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportAware;
 import org.springframework.context.annotation.Role;
-import org.springframework.core.Ordered;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
@@ -44,6 +42,7 @@ import org.springframework.security.access.hierarchicalroles.NullRoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.authorization.AuthorizationEventPublisher;
 import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.security.authorization.method.AuthorizationAdvisor;
 import org.springframework.security.authorization.method.AuthorizationManagerAfterMethodInterceptor;
 import org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor;
 import org.springframework.security.authorization.method.PostAuthorizeAuthorizationManager;
@@ -65,7 +64,7 @@ import org.springframework.util.function.SingletonSupplier;
  */
 @Configuration(proxyBeanMethods = false)
 @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-final class PrePostMethodSecurityConfiguration implements ImportAware {
+final class PrePostMethodSecurityConfiguration implements ImportAware, AopInfrastructureBean {
 
 	private int interceptorOrderOffset;
 
@@ -175,8 +174,8 @@ final class PrePostMethodSecurityConfiguration implements ImportAware {
 		this.interceptorOrderOffset = annotation.offset();
 	}
 
-	private static final class DeferringMethodInterceptor<M extends Ordered & MethodInterceptor & PointcutAdvisor>
-			implements Ordered, MethodInterceptor, PointcutAdvisor, AopInfrastructureBean {
+	private static final class DeferringMethodInterceptor<M extends AuthorizationAdvisor>
+			implements AuthorizationAdvisor {
 
 		private final Pointcut pointcut;
 
