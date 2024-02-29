@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,15 +29,15 @@ import org.springframework.security.web.authentication.switchuser.SwitchUserGran
  * Jackson mixin class to serialize/deserialize {@link SwitchUserGrantedAuthority}.
  *
  * @author Markus Heiden
- * @since 5.8
+ * @since 6.3
  * @see WebServletJackson2Module
  * @see org.springframework.security.jackson2.SecurityJackson2Modules
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)
-@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE,
 		isGetterVisibility = JsonAutoDetect.Visibility.NONE)
-public abstract class SwitchUserGrantedAuthorityMixIn {
+@JsonIgnoreProperties(ignoreUnknown = true)
+abstract class SwitchUserGrantedAuthorityMixIn {
 
 	@JsonCreator
 	SwitchUserGrantedAuthorityMixIn(@JsonProperty("role") String role, @JsonProperty("source") Authentication source) {

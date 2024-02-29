@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,9 +31,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Markus Heiden
- * @since 5.8
+ * @since 6.3
  */
-public class SwitchUserGrantedAuthorityMixInTest extends AbstractMixinTests {
+public class SwitchUserGrantedAuthorityMixInTests extends AbstractMixinTests {
 
 	// language=JSON
 	private static final String SWITCH_JSON = """
@@ -50,25 +50,24 @@ public class SwitchUserGrantedAuthorityMixInTest extends AbstractMixinTests {
 				}
 			}
 			""".formatted(SimpleGrantedAuthorityMixinTests.AUTHORITIES_ARRAYLIST_JSON);
-	SwitchUserGrantedAuthority expected;
 
-	Authentication source;
+	private Authentication source;
 
 	@BeforeEach
-	public void setupExpected() {
+	public void setUp() {
 		this.source = new UsernamePasswordAuthenticationToken("principal", "credentials",
 				AuthorityUtils.createAuthorityList("ROLE_USER"));
-		this.expected = new SwitchUserGrantedAuthority("switched", this.source);
 	}
 
 	@Test
 	public void serializeWhenPrincipalCredentialsAuthoritiesThenSuccess() throws Exception {
-		String serializedJson = this.mapper.writeValueAsString(this.expected);
+		SwitchUserGrantedAuthority expected = new SwitchUserGrantedAuthority("switched", this.source);
+		String serializedJson = this.mapper.writeValueAsString(expected);
 		JSONAssert.assertEquals(SWITCH_JSON, serializedJson, true);
 	}
 
 	@Test
-	public void deserializeAuthenticatedUsernamePasswordAuthenticationTokenMixinTest() throws Exception {
+	public void deserializeWhenSourceIsUsernamePasswordAuthenticationTokenThenSuccess() throws Exception {
 		SwitchUserGrantedAuthority deserialized = this.mapper.readValue(SWITCH_JSON, SwitchUserGrantedAuthority.class);
 		assertThat(deserialized).isNotNull();
 		assertThat(deserialized.getAuthority()).isEqualTo("switched");
