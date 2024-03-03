@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,17 +17,26 @@
 package org.springframework.security.saml2.provider.service.web.authentication.logout;
 
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.opensaml.saml.saml2.core.LogoutRequest;
+import org.opensaml.saml.saml2.core.StatusCode;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.saml2.core.Saml2Error;
+import org.springframework.security.saml2.core.Saml2ErrorCodes;
 import org.springframework.security.saml2.core.Saml2ParameterNames;
+import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationException;
 import org.springframework.security.saml2.provider.service.authentication.TestOpenSamlObjects;
 import org.springframework.security.saml2.provider.service.authentication.logout.Saml2LogoutResponse;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
+import org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding;
 import org.springframework.security.saml2.provider.service.registration.TestRelyingPartyRegistrations;
 import org.springframework.security.saml2.provider.service.web.RelyingPartyRegistrationResolver;
 import org.springframework.security.saml2.provider.service.web.authentication.logout.OpenSaml4LogoutResponseResolver.LogoutResponseParameters;
@@ -69,12 +78,52 @@ public class OpenSaml4LogoutResponseResolverTests {
 		verify(parametersConsumer).accept(any());
 	}
 
+	@ParameterizedTest
+	@MethodSource("provideAuthExceptionAndExpectedSamlStatusCode")
+	public void resolveWithAuthException(Saml2AuthenticationException exception, String expectedStatusCode) {
+		OpenSaml4LogoutResponseResolver logoutResponseResolver = new OpenSaml4LogoutResponseResolver(
+				this.relyingPartyRegistrationResolver);
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		RelyingPartyRegistration registration = TestRelyingPartyRegistrations.relyingPartyRegistration()
+			.assertingPartyMetadata(
+					(party) -> party.singleLogoutServiceResponseLocation("https://ap.example.com/logout")
+						.singleLogoutServiceBinding(Saml2MessageBinding.POST))
+			.build();
+		Authentication authentication = new TestingAuthenticationToken("user", "password");
+		LogoutRequest logoutRequest = TestOpenSamlObjects.assertingPartyLogoutRequest(registration);
+		request.setParameter(Saml2ParameterNames.SAML_REQUEST,
+				Saml2Utils.samlEncode(this.saml.serialize(logoutRequest).serialize().getBytes()));
+		given(this.relyingPartyRegistrationResolver.resolve(any(), any())).willReturn(registration);
+		Saml2LogoutResponse logoutResponse = logoutResponseResolver.resolve(request, authentication, exception);
+		assertThat(logoutResponse).isNotNull();
+		assertThat(new String(Saml2Utils.samlDecode(logoutResponse.getSamlResponse()))).contains(expectedStatusCode);
+	}
+
 	@Test
 	public void setParametersConsumerWhenNullThenIllegalArgument() {
 		OpenSaml4LogoutRequestResolver logoutRequestResolver = new OpenSaml4LogoutRequestResolver(
 				this.relyingPartyRegistrationResolver);
 		assertThatExceptionOfType(IllegalArgumentException.class)
 			.isThrownBy(() -> logoutRequestResolver.setParametersConsumer(null));
+	}
+
+	private static Stream<Arguments> provideAuthExceptionAndExpectedSamlStatusCode() {
+		return Stream.of(
+				Arguments.of(
+						new Saml2AuthenticationException(
+								new Saml2Error(Saml2ErrorCodes.MISSING_LOGOUT_REQUEST_ENDPOINT, "")),
+						StatusCode.REQUEST_DENIED),
+				Arguments.of(new Saml2AuthenticationException(new Saml2Error(Saml2ErrorCodes.INVALID_BINDING, "")),
+						StatusCode.REQUEST_DENIED),
+				Arguments.of(
+						new Saml2AuthenticationException(new Saml2Error(Saml2ErrorCodes.INVALID_LOGOUT_REQUEST, "")),
+						StatusCode.REQUESTER),
+				Arguments.of(
+						new Saml2AuthenticationException(
+								new Saml2Error(Saml2ErrorCodes.FAILED_TO_GENERATE_LOGOUT_RESPONSE, "")),
+						StatusCode.RESPONDER)
+
+		);
 	}
 
 }

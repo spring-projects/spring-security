@@ -43,8 +43,11 @@ import org.opensaml.saml.saml2.core.impl.StatusCodeBuilder;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.saml2.core.OpenSamlInitializationService;
+import org.springframework.security.saml2.core.Saml2Error;
+import org.springframework.security.saml2.core.Saml2ErrorCodes;
 import org.springframework.security.saml2.core.Saml2ParameterNames;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticatedPrincipal;
+import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationException;
 import org.springframework.security.saml2.provider.service.authentication.logout.Saml2LogoutResponse;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
@@ -130,6 +133,16 @@ final class BaseOpenSamlLogoutResponseResolver implements Saml2LogoutResponseRes
 	 */
 	@Override
 	public Saml2LogoutResponse resolve(HttpServletRequest request, Authentication authentication) {
+		return resolve(request, authentication, StatusCode.SUCCESS);
+	}
+
+	@Override
+	public Saml2LogoutResponse resolve(HttpServletRequest request, Authentication authentication,
+			Saml2AuthenticationException authenticationException) {
+		return resolve(request, authentication, getSamlStatus(authenticationException));
+	}
+
+	private Saml2LogoutResponse resolve(HttpServletRequest request, Authentication authentication, String statusCode) {
 		LogoutRequest logoutRequest = this.saml.deserialize(extractSamlRequest(request));
 		String registrationId = getRegistrationId(authentication);
 		RelyingPartyRegistration registration = this.relyingPartyRegistrationResolver.resolve(request, registrationId);
@@ -152,7 +165,7 @@ final class BaseOpenSamlLogoutResponseResolver implements Saml2LogoutResponseRes
 		issuer.setValue(entityId);
 		logoutResponse.setIssuer(issuer);
 		StatusCode code = this.statusCodeBuilder.buildObject();
-		code.setValue(StatusCode.SUCCESS);
+		code.setValue(statusCode);
 		Status status = this.statusBuilder.buildObject();
 		status.setStatusCode(code);
 		logoutResponse.setStatus(status);
@@ -222,6 +235,16 @@ final class BaseOpenSamlLogoutResponseResolver implements Saml2LogoutResponseRes
 
 	private String serialize(LogoutResponse logoutResponse) {
 		return this.saml.serialize(logoutResponse).serialize();
+	}
+
+	private String getSamlStatus(Saml2AuthenticationException exception) {
+		Saml2Error saml2Error = exception.getSaml2Error();
+		return switch (saml2Error.getErrorCode()) {
+			case Saml2ErrorCodes.MISSING_LOGOUT_REQUEST_ENDPOINT, Saml2ErrorCodes.INVALID_BINDING ->
+				StatusCode.REQUEST_DENIED;
+			case Saml2ErrorCodes.INVALID_LOGOUT_REQUEST -> StatusCode.REQUESTER;
+			default -> StatusCode.RESPONDER;
+		};
 	}
 
 	static final class LogoutResponseParameters {
