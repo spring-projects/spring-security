@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -271,7 +271,7 @@ public class Saml2LogoutBeanDefinitionParserTests {
 	}
 
 	@Test
-	public void saml2LogoutRequestWhenNoRegistrationThen400() throws Exception {
+	public void saml2LogoutRequestWhenNoRegistrationThen401() throws Exception {
 		this.spring.configLocations(this.xml("Default")).autowire();
 		DefaultSaml2AuthenticatedPrincipal principal = new DefaultSaml2AuthenticatedPrincipal("user",
 				Collections.emptyMap());
@@ -284,18 +284,18 @@ public class Saml2LogoutBeanDefinitionParserTests {
 				.param("SigAlg", this.apLogoutRequestSigAlg)
 				.param("Signature", this.apLogoutRequestSignature)
 				.with(authentication(user)))
-			.andExpect(status().isBadRequest());
+			.andExpect(status().isUnauthorized());
 	}
 
 	@Test
-	public void saml2LogoutRequestWhenInvalidSamlRequestThen401() throws Exception {
+	public void saml2LogoutRequestWhenInvalidSamlRequestThen302Redirect() throws Exception {
 		this.spring.configLocations(this.xml("Default")).autowire();
 		this.mvc
 			.perform(get("/logout/saml2/slo").param("SAMLRequest", this.apLogoutRequest)
 				.param("RelayState", this.apLogoutRequestRelayState)
 				.param("SigAlg", this.apLogoutRequestSigAlg)
 				.with(authentication(this.saml2User)))
-			.andExpect(status().isUnauthorized());
+			.andExpect(status().isFound());
 	}
 
 	@Test
