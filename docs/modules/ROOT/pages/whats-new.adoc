@@ -8,6 +8,10 @@ Below are the highlights of the release.
 
 - https://spring.io/blog/2024/01/19/spring-security-6-3-adds-passive-jdk-serialization-deserialization-for[blog post] - Added Passive JDK Serialization/Deserialization for Seamless Upgrades
 
+== Authentication
+
+- https://github.com/spring-projects/spring-security/issues/7395[gh-7395] - xref:features/authentication/password-storage.adoc#authentication-compromised-password-check[docs] - Add Compromised Password Checker
+
 == Authorization
 
 - https://github.com/spring-projects/spring-security/issues/14596[gh-14596] - xref:servlet/authorization/method-security.adoc[docs] - Add Programmatic Proxy Support for Method Security

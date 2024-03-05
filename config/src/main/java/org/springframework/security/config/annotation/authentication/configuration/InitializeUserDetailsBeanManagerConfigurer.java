@@ -21,6 +21,7 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.core.password.CompromisedPasswordChecker;
 import org.springframework.security.core.userdetails.UserDetailsPasswordService;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -65,6 +66,7 @@ class InitializeUserDetailsBeanManagerConfigurer extends GlobalAuthenticationCon
 			}
 			PasswordEncoder passwordEncoder = getBeanOrNull(PasswordEncoder.class);
 			UserDetailsPasswordService passwordManager = getBeanOrNull(UserDetailsPasswordService.class);
+			CompromisedPasswordChecker passwordChecker = getBeanOrNull(CompromisedPasswordChecker.class);
 			DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
 			provider.setUserDetailsService(userDetailsService);
 			if (passwordEncoder != null) {
@@ -72,6 +74,9 @@ class InitializeUserDetailsBeanManagerConfigurer extends GlobalAuthenticationCon
 			}
 			if (passwordManager != null) {
 				provider.setUserDetailsPasswordService(passwordManager);
+			}
+			if (passwordChecker != null) {
+				provider.setCompromisedPasswordChecker(passwordChecker);
 			}
 			provider.afterPropertiesSet();
 			auth.authenticationProvider(provider);

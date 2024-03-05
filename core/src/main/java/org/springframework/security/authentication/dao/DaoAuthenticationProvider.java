@@ -22,6 +22,8 @@ import org.springframework.security.authentication.InternalAuthenticationService
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.password.CompromisedPasswordChecker;
+import org.springframework.security.core.password.CompromisedPasswordException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsPasswordService;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -59,6 +61,8 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
 	private UserDetailsService userDetailsService;
 
 	private UserDetailsPasswordService userDetailsPasswordService;
+
+	private CompromisedPasswordChecker compromisedPasswordChecker;
 
 	public DaoAuthenticationProvider() {
 		this(PasswordEncoderFactories.createDelegatingPasswordEncoder());
@@ -122,10 +126,15 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
 	@Override
 	protected Authentication createSuccessAuthentication(Object principal, Authentication authentication,
 			UserDetails user) {
+		String presentedPassword = authentication.getCredentials().toString();
+		boolean isPasswordCompromised = this.compromisedPasswordChecker != null
+				&& this.compromisedPasswordChecker.check(presentedPassword).isCompromised();
+		if (isPasswordCompromised) {
+			throw new CompromisedPasswordException("The provided password is compromised, please change your password");
+		}
 		boolean upgradeEncoding = this.userDetailsPasswordService != null
 				&& this.passwordEncoder.upgradeEncoding(user.getPassword());
 		if (upgradeEncoding) {
-			String presentedPassword = authentication.getCredentials().toString();
 			String newPassword = this.passwordEncoder.encode(presentedPassword);
 			user = this.userDetailsPasswordService.updatePassword(user, newPassword);
 		}
@@ -172,6 +181,16 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
 
 	public void setUserDetailsPasswordService(UserDetailsPasswordService userDetailsPasswordService) {
 		this.userDetailsPasswordService = userDetailsPasswordService;
+	}
+
+	/**
+	 * Sets the {@link CompromisedPasswordChecker} to be used before creating a successful
+	 * authentication. Defaults to {@code null}.
+	 * @param compromisedPasswordChecker the {@link CompromisedPasswordChecker} to use
+	 * @since 6.3
+	 */
+	public void setCompromisedPasswordChecker(CompromisedPasswordChecker compromisedPasswordChecker) {
+		this.compromisedPasswordChecker = compromisedPasswordChecker;
 	}
 
 }
