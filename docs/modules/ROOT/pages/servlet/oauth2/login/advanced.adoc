@@ -700,7 +700,7 @@ class OAuth2LoginSecurityConfig  {
 
         return OAuth2UserService { userRequest ->
             // Delegate to the default implementation for loading a user
-            var oidcUser = delegate.loadUser(userRequest)
+            val oidcUser = delegate.loadUser(userRequest)
 
             val accessToken = userRequest.accessToken
             val mappedAuthorities = HashSet<GrantedAuthority>()
@@ -712,12 +712,10 @@ class OAuth2LoginSecurityConfig  {
             val providerDetails = userRequest.getClientRegistration().getProviderDetails()
             val userNameAttributeName = providerDetails.getUserInfoEndpoint().getUserNameAttributeName()
             if (StringUtils.hasText(userNameAttributeName)) {
-                oidcUser = DefaultOidcUser(mappedAuthorities, oidcUser.idToken, oidcUser.userInfo, userNameAttributeName)
-            else {
-                oidcUser = DefaultOidcUser(mappedAuthorities, oidcUser.idToken, oidcUser.userInfo)
+                DefaultOidcUser(mappedAuthorities, oidcUser.idToken, oidcUser.userInfo, userNameAttributeName)
+            } else {
+                DefaultOidcUser(mappedAuthorities, oidcUser.idToken, oidcUser.userInfo)
             }
-
-            oidcUser
         }
     }
 }

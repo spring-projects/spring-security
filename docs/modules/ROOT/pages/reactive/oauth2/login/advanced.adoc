@@ -521,9 +521,10 @@ class OAuth2LoginSecurityConfig {
                     // 3) Create a copy of oidcUser but use the mappedAuthorities instead
                     val providerDetails = userRequest.getClientRegistration().getProviderDetails()
                     val userNameAttributeName = providerDetails.getUserInfoEndpoint().getUserNameAttributeName()
-                    val mappedOidcUser = when (StringUtils.hasText(userNameAttributeName)) {
-                        true -> DefaultOidcUser(mappedAuthorities, oidcUser.idToken, oidcUser.userInfo, userNameAttributeName)
-                        false -> DefaultOidcUser(mappedAuthorities, oidcUser.idToken, oidcUser.userInfo)
+                    val mappedOidcUser = if (StringUtils.hasText(userNameAttributeName)) {
+                        DefaultOidcUser(mappedAuthorities, oidcUser.idToken, oidcUser.userInfo, userNameAttributeName)
+                    } else {
+                        DefaultOidcUser(mappedAuthorities, oidcUser.idToken, oidcUser.userInfo)
                     }
 
                     Mono.just(mappedOidcUser)
