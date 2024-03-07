@@ -52,6 +52,7 @@ import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.PasswordOAuth2AuthorizedClientProvider;
 import org.springframework.security.oauth2.client.RefreshTokenOAuth2AuthorizedClientProvider;
+import org.springframework.security.oauth2.client.TokenExchangeOAuth2AuthorizedClientProvider;
 import org.springframework.security.oauth2.client.endpoint.AbstractOAuth2AuthorizationGrantRequest;
 import org.springframework.security.oauth2.client.endpoint.JwtBearerGrantRequest;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
@@ -59,6 +60,7 @@ import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCo
 import org.springframework.security.oauth2.client.endpoint.OAuth2ClientCredentialsGrantRequest;
 import org.springframework.security.oauth2.client.endpoint.OAuth2PasswordGrantRequest;
 import org.springframework.security.oauth2.client.endpoint.OAuth2RefreshTokenGrantRequest;
+import org.springframework.security.oauth2.client.endpoint.TokenExchangeGrantRequest;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
@@ -70,6 +72,7 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
+import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
@@ -327,6 +330,47 @@ public class OAuth2AuthorizedClientManagerConfigurationTests {
 		assertThat(grantRequest.getJwt().getSubject()).isEqualTo("user");
 	}
 
+	@Test
+	public void authorizeWhenTokenExchangeAccessTokenResponseClientBeanThenUsed() {
+		this.spring.register(CustomAccessTokenResponseClientsConfig.class).autowire();
+		testTokenExchangeGrant();
+	}
+
+	@Test
+	public void authorizeWhenTokenExchangeAuthorizedClientProviderBeanThenUsed() {
+		this.spring.register(CustomAuthorizedClientProvidersConfig.class).autowire();
+		testTokenExchangeGrant();
+	}
+
+	private void testTokenExchangeGrant() {
+		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses.accessTokenResponse().build();
+		given(MOCK_RESPONSE_CLIENT.getTokenResponse(any(TokenExchangeGrantRequest.class)))
+			.willReturn(accessTokenResponse);
+
+		JwtAuthenticationToken authentication = new JwtAuthenticationToken(getJwt());
+		ClientRegistration clientRegistration = this.clientRegistrationRepository.findByRegistrationId("auth0");
+		// @formatter:off
+		OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest
+				.withClientRegistrationId(clientRegistration.getRegistrationId())
+				.principal(authentication)
+				.attribute(HttpServletRequest.class.getName(), this.request)
+				.attribute(HttpServletResponse.class.getName(), this.response)
+				.build();
+		// @formatter:on
+		OAuth2AuthorizedClient authorizedClient = this.authorizedClientManager.authorize(authorizeRequest);
+		assertThat(authorizedClient).isNotNull();
+
+		ArgumentCaptor<TokenExchangeGrantRequest> grantRequestCaptor = ArgumentCaptor
+			.forClass(TokenExchangeGrantRequest.class);
+		verify(MOCK_RESPONSE_CLIENT).getTokenResponse(grantRequestCaptor.capture());
+
+		TokenExchangeGrantRequest grantRequest = grantRequestCaptor.getValue();
+		assertThat(grantRequest.getClientRegistration().getRegistrationId())
+			.isEqualTo(clientRegistration.getRegistrationId());
+		assertThat(grantRequest.getGrantType()).isEqualTo(AuthorizationGrantType.TOKEN_EXCHANGE);
+		assertThat(grantRequest.getSubjectToken()).isEqualTo(authentication.getToken());
+	}
+
 	private static OAuth2AccessToken getExpiredAccessToken() {
 		Instant expiresAt = Instant.now().minusSeconds(60);
 		Instant issuedAt = expiresAt.minus(Duration.ofDays(1));
@@ -374,6 +418,11 @@ public class OAuth2AuthorizedClientManagerConfigurationTests {
 		@Bean
 		OAuth2AccessTokenResponseClient<JwtBearerGrantRequest> jwtBearerTokenResponseClient() {
 			return new MockJwtBearerClient();
+		}
+
+		@Bean
+		OAuth2AccessTokenResponseClient<TokenExchangeGrantRequest> tokenExchangeTokenResponseClient() {
+			return new MockTokenExchangeClient();
 		}
 
 		@Bean
@@ -425,6 +474,13 @@ public class OAuth2AuthorizedClientManagerConfigurationTests {
 			return authorizedClientProvider;
 		}
 
+		@Bean
+		TokenExchangeOAuth2AuthorizedClientProvider tokenExchangeAuthorizedClientProvider() {
+			TokenExchangeOAuth2AuthorizedClientProvider authorizedClientProvider = new TokenExchangeOAuth2AuthorizedClientProvider();
+			authorizedClientProvider.setAccessTokenResponseClient(new MockTokenExchangeClient());
+			return authorizedClientProvider;
+		}
+
 	}
 
 	abstract static class OAuth2ClientBaseConfig {
@@ -463,6 +519,14 @@ public class OAuth2AuthorizedClientManagerConfigurationTests {
 							.clientId("okta-client-id")
 							.clientSecret("okta-client-secret")
 							.authorizationGrantType(AuthorizationGrantType.JWT_BEARER)
+							.build(),
+					ClientRegistration.withRegistrationId("auth0")
+							.clientName("Auth0")
+							.clientId("auth0-client-id")
+							.clientSecret("auth0-client-secret")
+							.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
+							.authorizationGrantType(AuthorizationGrantType.TOKEN_EXCHANGE)
+							.scope("user.read", "user.write")
 							.build()));
 			// @formatter:on
 		}
@@ -539,6 +603,15 @@ public class OAuth2AuthorizedClientManagerConfigurationTests {
 
 		@Override
 		public OAuth2AccessTokenResponse getTokenResponse(JwtBearerGrantRequest authorizationGrantRequest) {
+			return MOCK_RESPONSE_CLIENT.getTokenResponse(authorizationGrantRequest);
+		}
+
+	}
+
+	private static class MockTokenExchangeClient implements OAuth2AccessTokenResponseClient<TokenExchangeGrantRequest> {
+
+		@Override
+		public OAuth2AccessTokenResponse getTokenResponse(TokenExchangeGrantRequest authorizationGrantRequest) {
 			return MOCK_RESPONSE_CLIENT.getTokenResponse(authorizationGrantRequest);
 		}
 

@@ -56,4 +56,7 @@
 	<b:bean class="org.springframework.security.config.http.OAuth2AuthorizedClientManagerRegistrarTests"
 			factory-method="jwtBearerAuthorizedClientProvider"/>
 
+	<b:bean class="org.springframework.security.config.http.OAuth2AuthorizedClientManagerRegistrarTests"
+			factory-method="tokenExchangeAuthorizedClientProvider"/>
+
 </b:beans>
