@@ -16,8 +16,15 @@
 
 package org.springframework.security.config.annotation.authentication.configuration;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.annotation.Order;
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 
@@ -49,16 +56,33 @@ class InitializeAuthenticationProviderBeanManagerConfigurer extends GlobalAuthen
 
 	class InitializeAuthenticationProviderManagerConfigurer extends GlobalAuthenticationConfigurerAdapter {
 
+		private final Log logger = LogFactory.getLog(getClass());
+
 		@Override
 		public void configure(AuthenticationManagerBuilder auth) {
 			if (auth.isConfigured()) {
 				return;
 			}
-			AuthenticationProvider authenticationProvider = getBeanOrNull(AuthenticationProvider.class);
-			if (authenticationProvider == null) {
+			List<BeanWithName<AuthenticationProvider>> authenticationProviders = getBeansWithName(
+					AuthenticationProvider.class);
+			if (authenticationProviders.isEmpty()) {
 				return;
 			}
+			else if (authenticationProviders.size() > 1) {
+				List<String> beanNames = authenticationProviders.stream().map(BeanWithName::getName).toList();
+				this.logger.info(LogMessage.format("Found %s AuthenticationProvider beans, with names %s. "
+						+ "Global Authentication Manager will not be configured with AuthenticationProviders. "
+						+ "Consider publishing a single AuthenticationProvider bean, or wiring your Providers directly "
+						+ "using the DSL.", authenticationProviders.size(), beanNames));
+				return;
+			}
+			var authenticationProvider = authenticationProviders.get(0).getBean();
+			var authenticationProviderBeanName = authenticationProviders.get(0).getName();
+
 			auth.authenticationProvider(authenticationProvider);
+			this.logger.info(LogMessage.format(
+					"Global AuthenticationManager configured with AuthenticationProvider bean with name %s",
+					authenticationProviderBeanName));
 		}
 
 		/**
@@ -72,6 +96,42 @@ class InitializeAuthenticationProviderBeanManagerConfigurer extends GlobalAuthen
 				return null;
 			}
 			return InitializeAuthenticationProviderBeanManagerConfigurer.this.context.getBean(beanNames[0], type);
+		}
+
+		/**
+		 * @return a list of beans of the requested class, along with their names. If
+		 * there are no registered beans of that type, the list is empty.
+		 */
+		private <T> List<BeanWithName<T>> getBeansWithName(Class<T> type) {
+			List<BeanWithName<T>> beanWithNames = new ArrayList<>();
+			String[] beanNames = InitializeAuthenticationProviderBeanManagerConfigurer.this.context
+				.getBeanNamesForType(type);
+			for (String beanName : beanNames) {
+				T bean = InitializeAuthenticationProviderBeanManagerConfigurer.this.context.getBean(beanNames[0], type);
+				beanWithNames.add(new BeanWithName<T>(bean, beanName));
+			}
+			return beanWithNames;
+		}
+
+		static class BeanWithName<T> {
+
+			private final T bean;
+
+			private final String name;
+
+			BeanWithName(T bean, String name) {
+				this.bean = bean;
+				this.name = name;
+			}
+
+			T getBean() {
+				return this.bean;
+			}
+
+			String getName() {
+				return this.name;
+			}
+
 		}
 
 	}
