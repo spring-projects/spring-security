@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +32,7 @@ import org.springframework.core.MethodParameter;
 import org.springframework.core.ReactiveAdapter;
 import org.springframework.core.ReactiveAdapterRegistry;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.util.Assert;
@@ -56,6 +57,8 @@ public final class AuthorizationManagerBeforeReactiveMethodInterceptor implement
 	private final ReactiveAuthorizationManager<MethodInvocation> authorizationManager;
 
 	private int order = AuthorizationInterceptorsOrder.FIRST.getOrder();
+
+	private final MethodAuthorizationDeniedHandler defaultHandler = new ThrowingMethodAuthorizationDeniedHandler();
 
 	/**
 	 * Creates an instance for the {@link PreAuthorize} annotation.
@@ -112,29 +115,63 @@ public final class AuthorizationManagerBeforeReactiveMethodInterceptor implement
 						+ " must return an instance of org.reactivestreams.Publisher "
 						+ "(for example, a Mono or Flux) or the function must be a Kotlin coroutine "
 						+ "in order to support Reactor Context");
-		Mono<Authentication> authentication = ReactiveAuthenticationUtils.getAuthentication();
 		ReactiveAdapter adapter = ReactiveAdapterRegistry.getSharedInstance().getAdapter(type);
-		Mono<Void> preAuthorize = this.authorizationManager.verify(authentication, mi);
 		if (hasFlowReturnType) {
 			if (isSuspendingFunction) {
-				return preAuthorize.thenMany(Flux.defer(() -> ReactiveMethodInvocationUtils.proceed(mi)));
+				return preAuthorized(mi, Flux.defer(() -> ReactiveMethodInvocationUtils.proceed(mi)));
 			}
 			else {
 				Assert.state(adapter != null, () -> "The returnType " + type + " on " + method
 						+ " must have a org.springframework.core.ReactiveAdapter registered");
-				Flux<?> response = preAuthorize
-					.thenMany(Flux.defer(() -> adapter.toPublisher(ReactiveMethodInvocationUtils.proceed(mi))));
+				Flux<Object> response = preAuthorized(mi,
+						Flux.defer(() -> adapter.toPublisher(ReactiveMethodInvocationUtils.proceed(mi))));
 				return KotlinDelegate.asFlow(response);
 			}
 		}
 		if (isMultiValue(type, adapter)) {
-			Publisher<?> publisher = Flux.defer(() -> ReactiveMethodInvocationUtils.proceed(mi));
-			Flux<?> result = preAuthorize.thenMany(publisher);
+			Flux<?> result = preAuthorized(mi, Flux.defer(() -> ReactiveMethodInvocationUtils.proceed(mi)));
 			return (adapter != null) ? adapter.fromPublisher(result) : result;
 		}
-		Mono<?> publisher = Mono.defer(() -> ReactiveMethodInvocationUtils.proceed(mi));
-		Mono<?> result = preAuthorize.then(publisher);
+		Mono<?> result = preAuthorized(mi, Mono.defer(() -> ReactiveMethodInvocationUtils.proceed(mi)));
 		return (adapter != null) ? adapter.fromPublisher(result) : result;
+	}
+
+	private Flux<Object> preAuthorized(MethodInvocation mi, Flux<Object> mapping) {
+		Mono<Authentication> authentication = ReactiveAuthenticationUtils.getAuthentication();
+		return this.authorizationManager.check(authentication, mi)
+			.switchIfEmpty(Mono.just(new AuthorizationDecision(false)))
+			.flatMapMany((decision) -> {
+				if (decision.isGranted()) {
+					return mapping;
+				}
+				return postProcess(decision, mi);
+			});
+	}
+
+	private Mono<Object> preAuthorized(MethodInvocation mi, Mono<Object> mapping) {
+		Mono<Authentication> authentication = ReactiveAuthenticationUtils.getAuthentication();
+		return this.authorizationManager.check(authentication, mi)
+			.switchIfEmpty(Mono.just(new AuthorizationDecision(false)))
+			.flatMap((decision) -> {
+				if (decision.isGranted()) {
+					return mapping;
+				}
+				return postProcess(decision, mi);
+			});
+	}
+
+	private Mono<Object> postProcess(AuthorizationDecision decision, MethodInvocation mi) {
+		return Mono.fromSupplier(() -> {
+			if (decision instanceof MethodAuthorizationDeniedHandler handler) {
+				return handler.handle(mi, decision);
+			}
+			return this.defaultHandler.handle(mi, decision);
+		}).flatMap((result) -> {
+			if (Mono.class.isAssignableFrom(result.getClass())) {
+				return (Mono<?>) result;
+			}
+			return Mono.justOrEmpty(result);
+		});
 	}
 
 	private boolean isMultiValue(Class<?> returnType, ReactiveAdapter adapter) {

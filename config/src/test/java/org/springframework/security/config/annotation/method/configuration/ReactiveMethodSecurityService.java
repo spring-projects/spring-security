@@ -21,157 +21,69 @@ import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.util.List;
 
-import jakarta.annotation.security.DenyAll;
-import jakarta.annotation.security.PermitAll;
-import jakarta.annotation.security.RolesAllowed;
 import org.aopalliance.intercept.MethodInvocation;
+import reactor.core.publisher.Mono;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.prepost.PostAuthorize;
-import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.access.prepost.PreFilter;
 import org.springframework.security.authorization.AuthorizationResult;
-import org.springframework.security.authorization.method.AuthorizeReturnObject;
 import org.springframework.security.authorization.method.MethodAuthorizationDeniedHandler;
 import org.springframework.security.authorization.method.MethodAuthorizationDeniedPostProcessor;
 import org.springframework.security.authorization.method.MethodInvocationResult;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.parameters.P;
 import org.springframework.util.StringUtils;
 
 /**
  * @author Rob Winch
  */
-@MethodSecurityService.Mask("classmask")
-public interface MethodSecurityService {
-
-	@PreAuthorize("denyAll")
-	String preAuthorize();
-
-	@Secured("ROLE_ADMIN")
-	String secured();
-
-	@Secured("ROLE_USER")
-	String securedUser();
-
-	@DenyAll
-	String jsr250();
-
-	@PermitAll
-	String jsr250PermitAll();
-
-	@RolesAllowed("ADMIN")
-	String jsr250RolesAllowed();
-
-	@RolesAllowed("USER")
-	String jsr250RolesAllowedUser();
-
-	@Secured({ "ROLE_USER", "RUN_AS_SUPER" })
-	Authentication runAs();
-
-	@PreAuthorize("permitAll")
-	String preAuthorizePermitAll();
-
-	@PreAuthorize("!anonymous")
-	void preAuthorizeNotAnonymous();
-
-	@PreAuthorize("@authz.check(#result)")
-	void preAuthorizeBean(@P("result") boolean result);
-
-	@PreAuthorize("hasRole('ADMIN')")
-	void preAuthorizeAdmin();
-
-	@PreAuthorize("hasRole('USER')")
-	void preAuthorizeUser();
-
-	@PreAuthorize("hasPermission(#object,'read')")
-	String hasPermission(String object);
-
-	@PostAuthorize("hasPermission(#object,'read')")
-	String postHasPermission(String object);
-
-	@PostAuthorize("#o?.contains('grant')")
-	String postAnnotation(@P("o") String object);
-
-	@PreFilter("filterObject == authentication.name")
-	List<String> preFilterByUsername(List<String> array);
-
-	@PostFilter("filterObject == authentication.name")
-	List<String> postFilterByUsername(List<String> array);
-
-	@PreFilter("filterObject.length > 3")
-	@PreAuthorize("hasRole('ADMIN')")
-	@Secured("ROLE_USER")
-	@PostFilter("filterObject.length > 5")
-	@PostAuthorize("returnObject.size == 2")
-	List<String> manyAnnotations(List<String> array);
-
-	@PreFilter("filterObject != 'DropOnPreFilter'")
-	@PreAuthorize("#list.remove('DropOnPreAuthorize')")
-	@Secured("ROLE_SECURED")
-	@RolesAllowed("JSR250")
-	@PostAuthorize("#list.remove('DropOnPostAuthorize')")
-	@PostFilter("filterObject != 'DropOnPostFilter'")
-	List<String> allAnnotations(List<String> list);
-
-	@RequireUserRole
-	@RequireAdminRole
-	void repeatedAnnotations();
+@ReactiveMethodSecurityService.Mask("classmask")
+public interface ReactiveMethodSecurityService {
 
 	@PreAuthorize(value = "hasRole('ADMIN')", handlerClass = StarMaskingHandler.class)
-	String preAuthorizeGetCardNumberIfAdmin(String cardNumber);
+	Mono<String> preAuthorizeGetCardNumberIfAdmin(String cardNumber);
 
 	@PreAuthorize(value = "hasRole('ADMIN')", handlerClass = StartMaskingHandlerChild.class)
-	String preAuthorizeWithHandlerChildGetCardNumberIfAdmin(String cardNumber);
+	Mono<String> preAuthorizeWithHandlerChildGetCardNumberIfAdmin(String cardNumber);
 
 	@PreAuthorize(value = "hasRole('ADMIN')", handlerClass = StarMaskingHandler.class)
-	String preAuthorizeThrowAccessDeniedManually();
+	Mono<String> preAuthorizeThrowAccessDeniedManually();
 
 	@PostAuthorize(value = "hasRole('ADMIN')", postProcessorClass = CardNumberMaskingPostProcessor.class)
-	String postAuthorizeGetCardNumberIfAdmin(String cardNumber);
+	Mono<String> postAuthorizeGetCardNumberIfAdmin(String cardNumber);
 
 	@PostAuthorize(value = "hasRole('ADMIN')", postProcessorClass = PostMaskingPostProcessor.class)
-	String postAuthorizeThrowAccessDeniedManually();
+	Mono<String> postAuthorizeThrowAccessDeniedManually();
 
 	@PreAuthorize(value = "denyAll()", handlerClass = MaskAnnotationHandler.class)
 	@Mask("methodmask")
-	String preAuthorizeDeniedMethodWithMaskAnnotation();
+	Mono<String> preAuthorizeDeniedMethodWithMaskAnnotation();
 
 	@PreAuthorize(value = "denyAll()", handlerClass = MaskAnnotationHandler.class)
-	String preAuthorizeDeniedMethodWithNoMaskAnnotation();
+	Mono<String> preAuthorizeDeniedMethodWithNoMaskAnnotation();
 
 	@NullDenied(role = "ADMIN")
-	String postAuthorizeDeniedWithNullDenied();
+	Mono<String> postAuthorizeDeniedWithNullDenied();
 
 	@PostAuthorize(value = "denyAll()", postProcessorClass = MaskAnnotationPostProcessor.class)
 	@Mask("methodmask")
-	String postAuthorizeDeniedMethodWithMaskAnnotation();
+	Mono<String> postAuthorizeDeniedMethodWithMaskAnnotation();
 
 	@PostAuthorize(value = "denyAll()", postProcessorClass = MaskAnnotationPostProcessor.class)
-	String postAuthorizeDeniedMethodWithNoMaskAnnotation();
+	Mono<String> postAuthorizeDeniedMethodWithNoMaskAnnotation();
 
 	@PreAuthorize(value = "hasRole('ADMIN')", handlerClass = MaskAnnotationHandler.class)
 	@Mask(expression = "@myMasker.getMask()")
-	String preAuthorizeWithMaskAnnotationUsingBean();
+	Mono<String> preAuthorizeWithMaskAnnotationUsingBean();
 
 	@PostAuthorize(value = "hasRole('ADMIN')", postProcessorClass = MaskAnnotationPostProcessor.class)
 	@Mask(expression = "@myMasker.getMask(returnObject)")
-	String postAuthorizeWithMaskAnnotationUsingBean();
-
-	@AuthorizeReturnObject
-	UserRecordWithEmailProtected getUserRecordWithEmailProtected();
-
-	@PreAuthorize(value = "hasRole('ADMIN')", handlerClass = UserFallbackDeniedHandler.class)
-	UserRecordWithEmailProtected getUserWithFallbackWhenUnauthorized();
+	Mono<String> postAuthorizeWithMaskAnnotationUsingBean();
 
 	class StarMaskingHandler implements MethodAuthorizationDeniedHandler {
 
@@ -240,9 +152,9 @@ public interface MethodSecurityService {
 			this.expressionHandler.setApplicationContext(context);
 		}
 
-		String resolveValue(Mask mask, MethodInvocation mi, Object returnObject) {
+		Mono<String> resolveValue(Mask mask, MethodInvocation mi, Object returnObject) {
 			if (StringUtils.hasText(mask.value())) {
-				return mask.value();
+				return Mono.just(mask.value());
 			}
 			Expression expression = this.expressionHandler.getExpressionParser().parseExpression(mask.expression());
 			EvaluationContext evaluationContext = this.expressionHandler
@@ -250,7 +162,7 @@ public interface MethodSecurityService {
 			if (returnObject != null) {
 				this.expressionHandler.setReturnObject(returnObject, evaluationContext);
 			}
-			return expression.getValue(evaluationContext, String.class);
+			return Mono.just(expression.getValue(evaluationContext, String.class));
 		}
 
 	}
@@ -304,18 +216,6 @@ public interface MethodSecurityService {
 	@interface NullDenied {
 
 		String role();
-
-	}
-
-	class UserFallbackDeniedHandler implements MethodAuthorizationDeniedHandler {
-
-		private static final UserRecordWithEmailProtected FALLBACK = new UserRecordWithEmailProtected("Protected",
-				"Protected");
-
-		@Override
-		public Object handle(MethodInvocation methodInvocation, AuthorizationResult authorizationResult) {
-			return FALLBACK;
-		}
 
 	}
 

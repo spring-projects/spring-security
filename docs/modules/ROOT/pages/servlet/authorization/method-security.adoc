@@ -44,6 +44,7 @@ Consider learning about the following use cases:
 * Understanding <<method-security-architecture,how method security works>> and reasons to use it
 * Comparing <<request-vs-method,request-level and method-level authorization>>
 * Authorizing methods with <<use-preauthorize,`@PreAuthorize`>> and <<use-postauthorize,`@PostAuthorize`>>
+* Providing <<fallback-values-authorization-denied,fallback values when authorization is denied>>
 * Filtering methods with <<use-prefilter,`@PreFilter`>> and <<use-postfilter,`@PostFilter`>>
 * Authorizing methods with <<use-jsr250,JSR-250 annotations>>
 * Authorizing methods with <<use-aspectj,AspectJ expressions>>
@@ -2207,6 +2208,459 @@ And if they do have that authority, they'll see:
 ====
 You can also add the Spring Boot property `spring.jackson.default-property-inclusion=non_null` to exclude the null value, if you also don't want to reveal the JSON key to an unauthorized user.
 ====
+
+[[fallback-values-authorization-denied]]
+== Providing Fallback Values When Authorization is Denied
+
+There are some scenarios where you may not wish to throw an `AccessDeniedException` when a method is invoked without the required permissions.
+Instead, you might wish to return a post-processed result, like a masked result, or a default value in cases where access denied happened before invoking the method.
+
+Spring Security provides support for handling and post-processing method access denied with the <<authorizing-with-annotations,`@PreAuthorize` and `@PostAuthorize` annotations>> respectively.
+The `@PreAuthorize` annotation works with implementations of `MethodAuthorizationDeniedHandler` while the `@PostAuthorize` annotation works with implementations of `MethodAuthorizationDeniedPostProcessor`.
+
+=== Using with `@PreAuthorize`
+
+Let's consider the example from the <<authorize-object,previous section>>, but instead of creating the `AccessDeniedExceptionInterceptor` to transform an `AccessDeniedException` to a `null` return value, we will use the `handlerClass` attribute from `@PreAuthorize`:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+public class NullMethodAuthorizationDeniedHandler implements MethodAuthorizationDeniedHandler { <1>
+
+    @Override
+    public Object handle(MethodInvocation methodInvocation, AuthorizationResult authorizationResult) {
+        return null;
+    }
+
+}
+
+@Configuration
+@EnableMethodSecurity
+public class SecurityConfig {
+
+    @Bean <2>
+    public NullMethodAuthorizationDeniedHandler nullMethodAuthorizationDeniedHandler() {
+        return new NullMethodAuthorizationDeniedHandler();
+    }
+
+}
+
+public class User {
+    // ...
+
+    @PreAuthorize(value = "hasAuthority('user:read')", handlerClass = NullMethodAuthorizationDeniedHandler.class)
+    public String getEmail() {
+        return this.email;
+    }
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+class NullMethodAuthorizationDeniedHandler : MethodAuthorizationDeniedHandler { <1>
+
+    override fun handle(methodInvocation: MethodInvocation, authorizationResult: AuthorizationResult): Any {
+        return null
+    }
+
+}
+
+@Configuration
+@EnableMethodSecurity
+class SecurityConfig {
+
+    @Bean <2>
+    fun nullMethodAuthorizationDeniedHandler(): NullMethodAuthorizationDeniedHandler {
+        return MaskMethodAuthorizationDeniedHandler()
+    }
+
+}
+
+class User (val name:String, @get:PreAuthorize(value = "hasAuthority('user:read')", handlerClass = NullMethodAuthorizationDeniedHandler::class) val email:String) <3>
+----
+======
+
+<1> Create an implementation of `MethodAuthorizationDeniedHandler` that returns a `null` value
+<2> Register the `NullMethodAuthorizationDeniedHandler` as a bean
+<3> Pass the `NullMethodAuthorizationDeniedHandler` to the `handlerClass` attribute of `@PreAuthorize`
+
+And then you can verify that a `null` value is returned instead of the `AccessDeniedException`:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Autowired
+UserRepository users;
+
+@Test
+void getEmailWhenProxiedThenNullEmail() {
+    Optional<User> securedUser = users.findByName("name");
+    assertThat(securedUser.get().getEmail()).isNull();
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Autowired
+var users:UserRepository? = null
+
+@Test
+fun getEmailWhenProxiedThenNullEmail() {
+    val securedUser: Optional<User> = users.findByName("name")
+    assertThat(securedUser.get().getEmail()).isNull()
+}
+----
+======
+
+=== Using with `@PostAuthorize`
+
+The same can be achieved with `@PostAuthorize`, however, since `@PostAuthorize` checks are performed after the method is invoked, we have access to the resulting value of the invocation, allowing you to provide fallback values based on the unauthorized results.
+Let's continue with the previous example, but instead of returning `null`, we will return a masked value of the email:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+public class EmailMaskingMethodAuthorizationDeniedPostProcessor implements MethodAuthorizationDeniedPostProcessor { <1>
+
+    @Override
+    public Object postProcessResult(MethodInvocationResult methodInvocationResult, AuthorizationResult authorizationResult) {
+        String email = (String) methodInvocationResult.getResult();
+        return email.replaceAll("(^[^@]{3}|(?!^)\\G)[^@]", "$1*");
+    }
+
+}
+
+@Configuration
+@EnableMethodSecurity
+public class SecurityConfig {
+
+    @Bean <2>
+    public EmailMaskingMethodAuthorizationDeniedPostProcessor emailMaskingMethodAuthorizationDeniedPostProcessor() {
+        return new EmailMaskingMethodAuthorizationDeniedPostProcessor();
+    }
+
+}
+
+public class User {
+    // ...
+
+    @PostAuthorize(value = "hasAuthority('user:read')", postProcessorClass = EmailMaskingMethodAuthorizationDeniedPostProcessor.class)
+    public String getEmail() {
+        return this.email;
+    }
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+class EmailMaskingMethodAuthorizationDeniedPostProcessor : MethodAuthorizationDeniedPostProcessor {
+
+    override fun postProcessResult(methodInvocationResult: MethodInvocationResult, authorizationResult: AuthorizationResult): Any {
+        val email = methodInvocationResult.result as String
+        return email.replace("(^[^@]{3}|(?!^)\\G)[^@]".toRegex(), "$1*")
+    }
+
+}
+
+@Configuration
+@EnableMethodSecurity
+class SecurityConfig {
+
+    @Bean
+    fun emailMaskingMethodAuthorizationDeniedPostProcessor(): EmailMaskingMethodAuthorizationDeniedPostProcessor {
+        return EmailMaskingMethodAuthorizationDeniedPostProcessor()
+    }
+
+}
+
+class User (val name:String, @PostAuthorize(value = "hasAuthority('user:read')", postProcessorClass = EmailMaskingMethodAuthorizationDeniedPostProcessor::class) val email:String) <3>
+----
+======
+
+<1> Create an implementation of `MethodAuthorizationDeniedPostProcessor` that returns a masked value of the unauthorized result value
+<2> Register the `EmailMaskingMethodAuthorizationDeniedPostProcessor` as a bean
+<3> Pass the `EmailMaskingMethodAuthorizationDeniedPostProcessor` to the `postProcessorClass` attribute of `@PostAuthorize`
+
+And then you can verify that a masked email is returned instead of an `AccessDeniedException`:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Autowired
+UserRepository users;
+
+@Test
+void getEmailWhenProxiedThenMaskedEmail() {
+    Optional<User> securedUser = users.findByName("name");
+    // email is useremail@example.com
+    assertThat(securedUser.get().getEmail()).isEqualTo("use******@example.com");
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Autowired
+var users:UserRepository? = null
+
+@Test
+fun getEmailWhenProxiedThenMaskedEmail() {
+    val securedUser: Optional<User> = users.findByName("name")
+    // email is useremail@example.com
+    assertThat(securedUser.get().getEmail()).isEqualTo("use******@example.com")
+}
+----
+======
+
+When implementing the `MethodAuthorizationDeniedHandler` or the `MethodAuthorizationDeniedPostProcessor` you have a few options on what you can return:
+
+- A `null` value.
+- A non-null value, respecting the method's return type.
+- Throw an exception, usually an instance of `AccessDeniedException`. This is the default behavior.
+- A `Mono` type for reactive applications.
+
+Note that since the handler and the post-processor must be registered as beans, you can inject dependencies into them if you need a more complex logic.
+In addition to that, you have available the `MethodInvocation` or the `MethodInvocationResult`, as well as the `AuthorizationResult` for more details related to the authorization decision.
+
+=== Deciding What to Return Based on Available Parameters
+
+Consider a scenario where there might multiple mask values for different methods, it would be not so productive if we had to create a handler or post-processor for each of those methods, although it is perfectly fine to do that.
+In such cases, we can use the information passed via parameters to decide what to do.
+For example, we can create a custom `@Mask` annotation and a handler that detects that annotation to decide what mask value to return:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+import org.springframework.core.annotation.AnnotationUtils;
+
+@Target({ ElementType.METHOD, ElementType.TYPE })
+@Retention(RetentionPolicy.RUNTIME)
+public @interface Mask {
+
+    String value();
+
+}
+
+public class MaskAnnotationDeniedHandler implements MethodAuthorizationDeniedHandler {
+
+    @Override
+    public Object handle(MethodInvocation methodInvocation, AuthorizationResult authorizationResult) {
+        Mask mask = AnnotationUtils.getAnnotation(methodInvocation.getMethod(), Mask.class);
+        return mask.value();
+    }
+
+}
+
+@Configuration
+@EnableMethodSecurity
+public class SecurityConfig {
+
+    @Bean
+    public MaskAnnotationDeniedHandler maskAnnotationDeniedHandler() {
+        return new MaskAnnotationDeniedHandler();
+    }
+
+}
+
+@Component
+public class MyService {
+
+    @PreAuthorize(value = "hasAuthority('user:read')", handlerClass = MaskAnnotationDeniedHandler.class)
+    @Mask("***")
+    public String foo() {
+        return "foo";
+    }
+
+    @PreAuthorize(value = "hasAuthority('user:read')", handlerClass = MaskAnnotationDeniedHandler.class)
+    @Mask("???")
+    public String bar() {
+        return "bar";
+    }
+
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+import org.springframework.core.annotation.AnnotationUtils
+
+@Target(AnnotationTarget.FUNCTION, AnnotationTarget.CLASS)
+@Retention(AnnotationRetention.RUNTIME)
+annotation class Mask(val value: String)
+
+class MaskAnnotationDeniedHandler : MethodAuthorizationDeniedHandler {
+
+    override fun handle(methodInvocation: MethodInvocation, authorizationResult: AuthorizationResult): Any {
+        val mask = AnnotationUtils.getAnnotation(methodInvocation.method, Mask::class.java)
+        return mask.value
+    }
+
+}
+
+@Configuration
+@EnableMethodSecurity
+class SecurityConfig {
+
+    @Bean
+    fun maskAnnotationDeniedHandler(): MaskAnnotationDeniedHandler {
+        return MaskAnnotationDeniedHandler()
+    }
+
+}
+
+@Component
+class MyService {
+
+    @PreAuthorize(value = "hasAuthority('user:read')", handlerClass = MaskAnnotationDeniedHandler::class)
+    @Mask("***")
+    fun foo(): String {
+        return "foo"
+    }
+
+    @PreAuthorize(value = "hasAuthority('user:read')", handlerClass = MaskAnnotationDeniedHandler::class)
+    @Mask("???")
+    fun bar(): String {
+        return "bar"
+    }
+
+}
+----
+======
+
+Now the return values when access is denied will be decided based on the `@Mask` annotation:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Autowired
+MyService myService;
+
+@Test
+void fooWhenDeniedThenReturnStars() {
+    String value = this.myService.foo();
+    assertThat(value).isEqualTo("***");
+}
+
+@Test
+void barWhenDeniedThenReturnQuestionMarks() {
+    String value = this.myService.foo();
+    assertThat(value).isEqualTo("???");
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Autowired
+var myService: MyService
+
+@Test
+fun fooWhenDeniedThenReturnStars() {
+    val value: String = myService.foo()
+    assertThat(value).isEqualTo("***")
+}
+
+@Test
+fun barWhenDeniedThenReturnQuestionMarks() {
+    val value: String = myService.foo()
+    assertThat(value).isEqualTo("???")
+}
+----
+======
+
+=== Combining with Meta Annotation Support
+
+Some authorization expressions may be long enough that it can become hard to read or to maintain.
+For example, consider the following `@PreAuthorize` expression:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@PreAuthorize(value = "@myAuthorizationBean.check()", handlerClass = NullAuthorizationDeniedHandler.class)
+public String myMethod() {
+    // ...
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@PreAuthorize(value = "@myAuthorizationBean.check()", handlerClass = NullAuthorizationDeniedHandler::class)
+fun myMethod(): String {
+    // ...
+}
+----
+======
+
+The way it is, it is somewhat hard to read it, but we can do better.
+By using the <<meta-annotations,meta annotation support>>, we can simplify it to:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Target({ ElementType.METHOD, ElementType.TYPE })
+@Retention(RetentionPolicy.RUNTIME)
+@PreAuthorize(value = "@myAuthorizationBean.check()", handlerClass = NullAuthorizationDeniedHandler.class)
+public @interface NullDenied {}
+
+@NullDenied
+public String myMethod() {
+    // ...
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Target(AnnotationTarget.FUNCTION, AnnotationTarget.CLASS)
+@Retention(AnnotationRetention.RUNTIME)
+@PreAuthorize(value = "@myAuthorizationBean.check()", handlerClass = NullAuthorizationDeniedHandler::class)
+annotation class NullDenied
+
+@NullDenied
+fun myMethod(): String {
+    // ...
+}
+----
+======
+
+Make sure to read the <<meta-annotations,Meta Annotations Support>> section for more details on the usage.
 
 [[migration-enableglobalmethodsecurity]]
 == Migrating from `@EnableGlobalMethodSecurity`

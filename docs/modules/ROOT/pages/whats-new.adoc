@@ -16,6 +16,7 @@ Below are the highlights of the release.
 
 - https://github.com/spring-projects/spring-security/issues/14596[gh-14596] - xref:servlet/authorization/method-security.adoc[docs] - Add Programmatic Proxy Support for Method Security
 - https://github.com/spring-projects/spring-security/issues/14597[gh-14597] - xref:servlet/authorization/method-security.adoc[docs] - Add Securing of Return Values
+- https://github.com/spring-projects/spring-security/issues/14601[gh-14601] - xref:servlet/authorization/method-security.adoc#fallback-values-authorization-denied[docs] - Add Authorization Denied Handlers for Method Security
 
 == Configuration
 

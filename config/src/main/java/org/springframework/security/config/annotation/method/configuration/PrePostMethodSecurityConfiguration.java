@@ -98,6 +98,7 @@ final class PrePostMethodSecurityConfiguration implements ImportAware, AopInfras
 			ObjectProvider<ObservationRegistry> registryProvider, ObjectProvider<RoleHierarchy> roleHierarchyProvider,
 			PrePostMethodSecurityConfiguration configuration, ApplicationContext context) {
 		PreAuthorizeAuthorizationManager manager = new PreAuthorizeAuthorizationManager();
+		manager.setApplicationContext(context);
 		AuthorizationManagerBeforeMethodInterceptor preAuthorize = AuthorizationManagerBeforeMethodInterceptor
 			.preAuthorize(manager(manager, registryProvider));
 		preAuthorize.setOrder(preAuthorize.getOrder() + configuration.interceptorOrderOffset);
@@ -121,6 +122,7 @@ final class PrePostMethodSecurityConfiguration implements ImportAware, AopInfras
 			ObjectProvider<ObservationRegistry> registryProvider, ObjectProvider<RoleHierarchy> roleHierarchyProvider,
 			PrePostMethodSecurityConfiguration configuration, ApplicationContext context) {
 		PostAuthorizeAuthorizationManager manager = new PostAuthorizeAuthorizationManager();
+		manager.setApplicationContext(context);
 		AuthorizationManagerAfterMethodInterceptor postAuthorize = AuthorizationManagerAfterMethodInterceptor
 			.postAuthorize(manager(manager, registryProvider));
 		postAuthorize.setOrder(postAuthorize.getOrder() + configuration.interceptorOrderOffset);

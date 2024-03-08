@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.springframework.security.authorization.method.MethodAuthorizationDeniedHandler;
+import org.springframework.security.authorization.method.ThrowingMethodAuthorizationDeniedHandler;
+
 /**
  * Annotation for specifying a method access-control expression which will be evaluated to
  * decide whether a method invocation is allowed or not.
@@ -41,5 +44,11 @@ public @interface PreAuthorize {
 	 * method
 	 */
 	String value();
+
+	/**
+	 * @return the {@link MethodAuthorizationDeniedHandler} class used to handle access
+	 * denied
+	 */
+	Class<? extends MethodAuthorizationDeniedHandler> handlerClass() default ThrowingMethodAuthorizationDeniedHandler.class;
 
 }

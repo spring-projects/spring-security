@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,6 +54,8 @@ public final class AuthorizationManagerAfterMethodInterceptor implements Authori
 	private final Pointcut pointcut;
 
 	private final AuthorizationManager<MethodInvocationResult> authorizationManager;
+
+	private final MethodAuthorizationDeniedPostProcessor defaultPostProcessor = new ThrowingMethodAuthorizationDeniedPostProcessor();
 
 	private int order;
 
@@ -116,8 +118,7 @@ public final class AuthorizationManagerAfterMethodInterceptor implements Authori
 	@Override
 	public Object invoke(MethodInvocation mi) throws Throwable {
 		Object result = mi.proceed();
-		attemptAuthorization(mi, result);
-		return result;
+		return attemptAuthorization(mi, result);
 	}
 
 	@Override
@@ -168,7 +169,7 @@ public final class AuthorizationManagerAfterMethodInterceptor implements Authori
 		this.securityContextHolderStrategy = () -> strategy;
 	}
 
-	private void attemptAuthorization(MethodInvocation mi, Object result) {
+	private Object attemptAuthorization(MethodInvocation mi, Object result) {
 		this.logger.debug(LogMessage.of(() -> "Authorizing method invocation " + mi));
 		MethodInvocationResult object = new MethodInvocationResult(mi, result);
 		AuthorizationDecision decision = this.authorizationManager.check(this::getAuthentication, object);
@@ -176,9 +177,17 @@ public final class AuthorizationManagerAfterMethodInterceptor implements Authori
 		if (decision != null && !decision.isGranted()) {
 			this.logger.debug(LogMessage.of(() -> "Failed to authorize " + mi + " with authorization manager "
 					+ this.authorizationManager + " and decision " + decision));
-			throw new AccessDeniedException("Access Denied");
+			return postProcess(object, decision);
 		}
 		this.logger.debug(LogMessage.of(() -> "Authorized method invocation " + mi));
+		return result;
+	}
+
+	private Object postProcess(MethodInvocationResult mi, AuthorizationDecision decision) {
+		if (decision instanceof MethodAuthorizationDeniedPostProcessor postProcessableDecision) {
+			return postProcessableDecision.postProcessResult(mi, decision);
+		}
+		return this.defaultPostProcessor.postProcessResult(mi, decision);
 	}
 
 	private Authentication getAuthentication() {
