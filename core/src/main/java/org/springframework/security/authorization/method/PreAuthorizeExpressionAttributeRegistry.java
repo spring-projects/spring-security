@@ -18,6 +18,7 @@ package org.springframework.security.authorization.method;
 
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.function.Function;
 
 import reactor.util.annotation.NonNull;
@@ -35,6 +36,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
  */
 final class PreAuthorizeExpressionAttributeRegistry extends AbstractExpressionAttributeRegistry<ExpressionAttribute> {
 
+	private final MethodAuthorizationDeniedHandler defaultHandler = new ThrowingMethodAuthorizationDeniedHandler();
+
 	@NonNull
 	@Override
 	ExpressionAttribute resolveAttribute(Method method, Class<?> targetClass) {
@@ -44,13 +47,33 @@ final class PreAuthorizeExpressionAttributeRegistry extends AbstractExpressionAt
 			return ExpressionAttribute.NULL_ATTRIBUTE;
 		}
 		Expression expression = getExpressionHandler().getExpressionParser().parseExpression(preAuthorize.value());
-		return new ExpressionAttribute(expression);
+		MethodAuthorizationDeniedHandler handler = resolveHandler(preAuthorize.handlerClass());
+		return new PreAuthorizeExpressionAttribute(expression, handler);
 	}
 
 	private PreAuthorize findPreAuthorizeAnnotation(Method method, Class<?> targetClass) {
 		Function<AnnotatedElement, PreAuthorize> lookup = findUniqueAnnotation(PreAuthorize.class);
 		PreAuthorize preAuthorize = lookup.apply(method);
 		return (preAuthorize != null) ? preAuthorize : lookup.apply(targetClass(method, targetClass));
+	}
+
+	private MethodAuthorizationDeniedHandler resolveHandler(
+			Class<? extends MethodAuthorizationDeniedHandler> handlerClass) {
+		if (getApplicationContext() == null) {
+			return this.defaultHandler;
+		}
+		if (handlerClass == this.defaultHandler.getClass()) {
+			return this.defaultHandler;
+		}
+		String[] beanNames = getApplicationContext().getBeanNamesForType(handlerClass);
+		if (beanNames.length == 0) {
+			throw new IllegalStateException("Could not find a bean of type " + handlerClass.getName());
+		}
+		if (beanNames.length > 1) {
+			throw new IllegalStateException("Expected to find a single bean of type " + handlerClass.getName()
+					+ " but found " + Arrays.toString(beanNames));
+		}
+		return getApplicationContext().getBean(beanNames[0], handlerClass);
 	}
 
 }

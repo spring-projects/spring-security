@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package org.springframework.security.authorization.method;
 import org.aopalliance.intercept.MethodInvocation;
 import reactor.core.publisher.Mono;
 
+import org.springframework.context.ApplicationContext;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -60,6 +61,10 @@ public final class PreAuthorizeReactiveAuthorizationManager implements ReactiveA
 		this.registry.setTemplateDefaults(defaults);
 	}
 
+	public void setApplicationContext(ApplicationContext context) {
+		this.registry.setApplicationContext(context);
+	}
+
 	/**
 	 * Determines if an {@link Authentication} has access to the {@link MethodInvocation}
 	 * by evaluating an expression from the {@link PreAuthorize} annotation.
@@ -74,11 +79,12 @@ public final class PreAuthorizeReactiveAuthorizationManager implements ReactiveA
 		if (attribute == ExpressionAttribute.NULL_ATTRIBUTE) {
 			return Mono.empty();
 		}
+		PreAuthorizeExpressionAttribute preAuthorizeAttribute = (PreAuthorizeExpressionAttribute) attribute;
 		// @formatter:off
 		return authentication
 				.map((auth) -> this.registry.getExpressionHandler().createEvaluationContext(auth, mi))
 				.flatMap((ctx) -> ReactiveExpressionUtils.evaluateAsBoolean(attribute.getExpression(), ctx))
-				.map((granted) -> new ExpressionAttributeAuthorizationDecision(granted, attribute));
+				.map((granted) -> new PreAuthorizeAuthorizationDecision(granted, preAuthorizeAttribute.getExpression(), preAuthorizeAttribute.getHandler()));
 		// @formatter:on
 	}
 

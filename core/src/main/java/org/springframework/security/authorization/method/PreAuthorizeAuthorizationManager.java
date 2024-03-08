@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,13 +20,13 @@ import java.util.function.Supplier;
 
 import org.aopalliance.intercept.MethodInvocation;
 
+import org.springframework.context.ApplicationContext;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.security.access.expression.ExpressionUtils;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
-import org.springframework.security.authorization.ExpressionAuthorizationDecision;
 import org.springframework.security.core.Authentication;
 
 /**
@@ -61,6 +61,10 @@ public final class PreAuthorizeAuthorizationManager implements AuthorizationMana
 		this.registry.setTemplateDefaults(defaults);
 	}
 
+	public void setApplicationContext(ApplicationContext context) {
+		this.registry.setApplicationContext(context);
+	}
+
 	/**
 	 * Determine if an {@link Authentication} has access to a method by evaluating an
 	 * expression from the {@link PreAuthorize} annotation that the
@@ -76,9 +80,11 @@ public final class PreAuthorizeAuthorizationManager implements AuthorizationMana
 		if (attribute == ExpressionAttribute.NULL_ATTRIBUTE) {
 			return null;
 		}
+		PreAuthorizeExpressionAttribute preAuthorizeAttribute = (PreAuthorizeExpressionAttribute) attribute;
 		EvaluationContext ctx = this.registry.getExpressionHandler().createEvaluationContext(authentication, mi);
-		boolean granted = ExpressionUtils.evaluateAsBoolean(attribute.getExpression(), ctx);
-		return new ExpressionAuthorizationDecision(granted, attribute.getExpression());
+		boolean granted = ExpressionUtils.evaluateAsBoolean(preAuthorizeAttribute.getExpression(), ctx);
+		return new PreAuthorizeAuthorizationDecision(granted, preAuthorizeAttribute.getExpression(),
+				preAuthorizeAttribute.getHandler());
 	}
 
 }
