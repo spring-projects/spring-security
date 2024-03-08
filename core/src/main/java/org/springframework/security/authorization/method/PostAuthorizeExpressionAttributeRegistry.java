@@ -18,13 +18,16 @@ package org.springframework.security.authorization.method;
 
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.function.Function;
 
 import reactor.util.annotation.NonNull;
 
 import org.springframework.aop.support.AopUtils;
+import org.springframework.context.ApplicationContext;
 import org.springframework.expression.Expression;
 import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.util.Assert;
 
 /**
  * For internal use only, as this contract is likely to change.
@@ -35,6 +38,14 @@ import org.springframework.security.access.prepost.PostAuthorize;
  */
 final class PostAuthorizeExpressionAttributeRegistry extends AbstractExpressionAttributeRegistry<ExpressionAttribute> {
 
+	private final MethodAuthorizationDeniedPostProcessor defaultPostProcessor = new ThrowingMethodAuthorizationDeniedPostProcessor();
+
+	private Function<Class<? extends MethodAuthorizationDeniedPostProcessor>, MethodAuthorizationDeniedPostProcessor> postProcessorResolver;
+
+	PostAuthorizeExpressionAttributeRegistry() {
+		this.postProcessorResolver = (clazz) -> this.defaultPostProcessor;
+	}
+
 	@NonNull
 	@Override
 	ExpressionAttribute resolveAttribute(Method method, Class<?> targetClass) {
@@ -44,13 +55,41 @@ final class PostAuthorizeExpressionAttributeRegistry extends AbstractExpressionA
 			return ExpressionAttribute.NULL_ATTRIBUTE;
 		}
 		Expression expression = getExpressionHandler().getExpressionParser().parseExpression(postAuthorize.value());
-		return new ExpressionAttribute(expression);
+		MethodAuthorizationDeniedPostProcessor postProcessor = this.postProcessorResolver
+			.apply(postAuthorize.postProcessorClass());
+		return new PostAuthorizeExpressionAttribute(expression, postProcessor);
 	}
 
 	private PostAuthorize findPostAuthorizeAnnotation(Method method, Class<?> targetClass) {
 		Function<AnnotatedElement, PostAuthorize> lookup = findUniqueAnnotation(PostAuthorize.class);
 		PostAuthorize postAuthorize = lookup.apply(method);
 		return (postAuthorize != null) ? postAuthorize : lookup.apply(targetClass(method, targetClass));
+	}
+
+	/**
+	 * Uses the provided {@link ApplicationContext} to resolve the
+	 * {@link MethodAuthorizationDeniedPostProcessor} from {@link PostAuthorize}
+	 * @param context the {@link ApplicationContext} to use
+	 */
+	void setApplicationContext(ApplicationContext context) {
+		Assert.notNull(context, "context cannot be null");
+		this.postProcessorResolver = (postProcessorClass) -> resolvePostProcessor(context, postProcessorClass);
+	}
+
+	private MethodAuthorizationDeniedPostProcessor resolvePostProcessor(ApplicationContext context,
+			Class<? extends MethodAuthorizationDeniedPostProcessor> postProcessorClass) {
+		if (postProcessorClass == this.defaultPostProcessor.getClass()) {
+			return this.defaultPostProcessor;
+		}
+		String[] beanNames = context.getBeanNamesForType(postProcessorClass);
+		if (beanNames.length == 0) {
+			throw new IllegalStateException("Could not find a bean of type " + postProcessorClass.getName());
+		}
+		if (beanNames.length > 1) {
+			throw new IllegalStateException("Expected to find a single bean of type " + postProcessorClass.getName()
+					+ " but found " + Arrays.toString(beanNames));
+		}
+		return context.getBean(beanNames[0], postProcessorClass);
 	}
 
 }

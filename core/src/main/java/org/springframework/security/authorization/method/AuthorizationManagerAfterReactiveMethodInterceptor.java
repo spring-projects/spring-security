@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@ import org.springframework.core.MethodParameter;
 import org.springframework.core.ReactiveAdapter;
 import org.springframework.core.ReactiveAdapterRegistry;
 import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.util.Assert;
@@ -56,6 +57,8 @@ public final class AuthorizationManagerAfterReactiveMethodInterceptor implements
 	private final ReactiveAuthorizationManager<MethodInvocationResult> authorizationManager;
 
 	private int order = AuthorizationInterceptorsOrder.LAST.getOrder();
+
+	private final MethodAuthorizationDeniedPostProcessor defaultPostProcessor = new ThrowingMethodAuthorizationDeniedPostProcessor();
 
 	/**
 	 * Creates an instance for the {@link PostAuthorize} annotation.
@@ -144,9 +147,28 @@ public final class AuthorizationManagerAfterReactiveMethodInterceptor implements
 		return adapter != null && adapter.isMultiValue();
 	}
 
-	private Mono<?> postAuthorize(Mono<Authentication> authentication, MethodInvocation mi, Object result) {
-		return this.authorizationManager.verify(authentication, new MethodInvocationResult(mi, result))
-			.thenReturn(result);
+	private Mono<Object> postAuthorize(Mono<Authentication> authentication, MethodInvocation mi, Object result) {
+		MethodInvocationResult invocationResult = new MethodInvocationResult(mi, result);
+		return this.authorizationManager.check(authentication, invocationResult)
+			.switchIfEmpty(Mono.just(new AuthorizationDecision(false)))
+			.flatMap((decision) -> postProcess(decision, invocationResult));
+	}
+
+	private Mono<Object> postProcess(AuthorizationDecision decision, MethodInvocationResult methodInvocationResult) {
+		if (decision.isGranted()) {
+			return Mono.just(methodInvocationResult.getResult());
+		}
+		return Mono.fromSupplier(() -> {
+			if (decision instanceof MethodAuthorizationDeniedPostProcessor postProcessableDecision) {
+				return postProcessableDecision.postProcessResult(methodInvocationResult, decision);
+			}
+			return this.defaultPostProcessor.postProcessResult(methodInvocationResult, decision);
+		}).flatMap((processedResult) -> {
+			if (Mono.class.isAssignableFrom(processedResult.getClass())) {
+				return (Mono<?>) processedResult;
+			}
+			return Mono.justOrEmpty(processedResult);
+		});
 	}
 
 	@Override

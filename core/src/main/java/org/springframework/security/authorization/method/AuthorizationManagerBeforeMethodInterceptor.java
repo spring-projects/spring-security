@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,6 +58,8 @@ public final class AuthorizationManagerBeforeMethodInterceptor implements Author
 	private final Pointcut pointcut;
 
 	private final AuthorizationManager<MethodInvocation> authorizationManager;
+
+	private final MethodAuthorizationDeniedHandler defaultHandler = new ThrowingMethodAuthorizationDeniedHandler();
 
 	private int order = AuthorizationInterceptorsOrder.FIRST.getOrder();
 
@@ -190,8 +192,7 @@ public final class AuthorizationManagerBeforeMethodInterceptor implements Author
 	 */
 	@Override
 	public Object invoke(MethodInvocation mi) throws Throwable {
-		attemptAuthorization(mi);
-		return mi.proceed();
+		return attemptAuthorization(mi);
 	}
 
 	@Override
@@ -242,16 +243,24 @@ public final class AuthorizationManagerBeforeMethodInterceptor implements Author
 		this.securityContextHolderStrategy = () -> securityContextHolderStrategy;
 	}
 
-	private void attemptAuthorization(MethodInvocation mi) {
+	private Object attemptAuthorization(MethodInvocation mi) throws Throwable {
 		this.logger.debug(LogMessage.of(() -> "Authorizing method invocation " + mi));
 		AuthorizationDecision decision = this.authorizationManager.check(this::getAuthentication, mi);
 		this.eventPublisher.publishAuthorizationEvent(this::getAuthentication, mi, decision);
 		if (decision != null && !decision.isGranted()) {
 			this.logger.debug(LogMessage.of(() -> "Failed to authorize " + mi + " with authorization manager "
 					+ this.authorizationManager + " and decision " + decision));
-			throw new AccessDeniedException("Access Denied");
+			return handle(mi, decision);
 		}
 		this.logger.debug(LogMessage.of(() -> "Authorized method invocation " + mi));
+		return mi.proceed();
+	}
+
+	private Object handle(MethodInvocation mi, AuthorizationDecision decision) {
+		if (decision instanceof MethodAuthorizationDeniedHandler handler) {
+			return handler.handle(mi, decision);
+		}
+		return this.defaultHandler.handle(mi, decision);
 	}
 
 	private Authentication getAuthentication() {
