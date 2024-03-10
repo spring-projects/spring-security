@@ -61,6 +61,7 @@ import org.springframework.util.StringUtils;
  * @author colin sampaleanu
  * @author Omri Spector
  * @author Luke Taylor
+ * @author Michal Okosy
  * @since 3.0
  */
 public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoint, InitializingBean {
@@ -143,29 +144,22 @@ public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoin
 	protected String buildRedirectUrlToLoginPage(HttpServletRequest request, HttpServletResponse response,
 			AuthenticationException authException) {
 		String loginForm = determineUrlToUseForThisRequest(request, response, authException);
-		if (UrlUtils.isAbsoluteUrl(loginForm)) {
+		if (UrlUtils.isAbsoluteUrl(loginForm) || !this.forceHttps || "https".equals(request.getScheme())) {
 			return loginForm;
 		}
 		int serverPort = this.portResolver.getServerPort(request);
-		String scheme = request.getScheme();
+		Integer httpsPort = this.portMapper.lookupHttpsPort(serverPort);
+		if (httpsPort == null) {
+			logger.warn(LogMessage.format("Unable to redirect to HTTPS as no port mapping found for HTTP port %s",
+					serverPort));
+			return loginForm;
+		}
 		RedirectUrlBuilder urlBuilder = new RedirectUrlBuilder();
-		urlBuilder.setScheme(scheme);
+		urlBuilder.setScheme("https");
 		urlBuilder.setServerName(request.getServerName());
-		urlBuilder.setPort(serverPort);
+		urlBuilder.setPort(httpsPort);
 		urlBuilder.setContextPath(request.getContextPath());
 		urlBuilder.setPathInfo(loginForm);
-		if (this.forceHttps && "http".equals(scheme)) {
-			Integer httpsPort = this.portMapper.lookupHttpsPort(serverPort);
-			if (httpsPort != null) {
-				// Overwrite scheme and port in the redirect URL
-				urlBuilder.setScheme("https");
-				urlBuilder.setPort(httpsPort);
-			}
-			else {
-				logger.warn(LogMessage.format("Unable to redirect to HTTPS as no port mapping found for HTTP port %s",
-						serverPort));
-			}
-		}
 		return urlBuilder.getUrl();
 	}
 

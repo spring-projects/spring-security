@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -573,7 +573,7 @@ public class MiscHttpConfigTests {
 		proxy.doFilter(request, new EncodeUrlDenyingHttpServletResponseWrapper(response), (req, resp) -> {
 		});
 		assertThat(response.getStatus()).isEqualTo(HttpStatus.SC_MOVED_TEMPORARILY);
-		assertThat(response.getRedirectedUrl()).isEqualTo("http://localhost/login");
+		assertThat(response.getRedirectedUrl()).isEqualTo("/login");
 	}
 
 	@Test
@@ -802,7 +802,7 @@ public class MiscHttpConfigTests {
 		this.spring.configLocations(xml("PortsMappedRequiresHttps")).autowire();
 		// @formatter:off
 		MockHttpSession session = (MockHttpSession) this.mvc.perform(get("https://localhost:9080/protected"))
-				.andExpect(redirectedUrl("https://localhost:9443/login"))
+				.andExpect(redirectedUrl("/login"))
 				.andReturn()
 				.getRequest()
 				.getSession(false);
