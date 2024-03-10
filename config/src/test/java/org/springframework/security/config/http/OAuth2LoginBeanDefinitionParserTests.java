@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -174,7 +174,7 @@ public class OAuth2LoginBeanDefinitionParserTests {
 		// @formatter:off
 		this.mvc.perform(get("/"))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl("http://localhost/oauth2/authorization/google-login"));
+				.andExpect(redirectedUrl("/oauth2/authorization/google-login"));
 		// @formatter:on
 		verify(this.requestCache).saveRequest(any(), any());
 	}
@@ -187,7 +187,7 @@ public class OAuth2LoginBeanDefinitionParserTests {
 		// @formatter:off
 		this.mvc.perform(get("/favicon.ico").accept(new MediaType("image", "*")))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl("http://localhost/login"));
+				.andExpect(redirectedUrl("/login"));
 		// @formatter:on
 	}
 
@@ -199,7 +199,7 @@ public class OAuth2LoginBeanDefinitionParserTests {
 		// @formatter:off
 		this.mvc.perform(get("/").header("X-Requested-With", "XMLHttpRequest"))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl("http://localhost/login"));
+				.andExpect(redirectedUrl("/login"));
 		// @formatter:on
 	}
 
@@ -411,7 +411,7 @@ public class OAuth2LoginBeanDefinitionParserTests {
 		// @formatter:off
 		this.mvc.perform(get("/"))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl("http://localhost/login"));
+				.andExpect(redirectedUrl("/login"));
 		// @formatter:on
 	}
 
@@ -421,7 +421,7 @@ public class OAuth2LoginBeanDefinitionParserTests {
 		// @formatter:off
 		this.mvc.perform(get("/"))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl("http://localhost/custom-login"));
+				.andExpect(redirectedUrl("/custom-login"));
 		// @formatter:on
 	}
 
@@ -433,7 +433,7 @@ public class OAuth2LoginBeanDefinitionParserTests {
 		// @formatter:off
 		this.mvc.perform(get("/"))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl("http://localhost/login"));
+				.andExpect(redirectedUrl("/login"));
 		// @formatter:on
 	}
 
