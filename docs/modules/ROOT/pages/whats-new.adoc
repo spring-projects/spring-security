@@ -10,7 +10,7 @@ Below are the highlights of the release.
 
 == Configuration
 
-- https://github.com/spring-projects/spring-security/issues/6192[gh-6192] - xref:reactive/authentication/concurrent-sessions-control.adoc[docs] Add Concurrent Sessions Control on WebFlux
+- https://github.com/spring-projects/spring-security/issues/6192[gh-6192] - xref:reactive/authentication/concurrent-sessions-control.adoc[(docs)] - Add Concurrent Sessions Control on WebFlux
 
 == CAS
 
