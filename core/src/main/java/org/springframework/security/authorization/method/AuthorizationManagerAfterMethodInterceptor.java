@@ -93,7 +93,7 @@ public final class AuthorizationManagerAfterMethodInterceptor
 			PostAuthorizeAuthorizationManager authorizationManager) {
 		AuthorizationManagerAfterMethodInterceptor interceptor = new AuthorizationManagerAfterMethodInterceptor(
 				AuthorizationMethodPointcuts.forAnnotations(PostAuthorize.class), authorizationManager);
-		interceptor.setOrder(500);
+		interceptor.setOrder(AuthorizationInterceptorsOrder.POST_AUTHORIZE.getOrder());
 		return interceptor;
 	}
 
