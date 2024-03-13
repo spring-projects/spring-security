@@ -103,7 +103,6 @@ updates:
       - dependency-name: '*'
         update-types:
           - version-update:semver-major
-          - version-update:semver-minor
   - package-ecosystem: github-actions
     target-branch: 5.8.x
     directory: /
