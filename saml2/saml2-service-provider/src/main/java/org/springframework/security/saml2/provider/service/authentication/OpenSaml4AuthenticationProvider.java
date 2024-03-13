@@ -26,6 +26,9 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.Arrays;
 import java.util.function.Consumer;
 
 import javax.annotation.Nonnull;
@@ -93,6 +96,8 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
+
+import static org.opensaml.saml.saml2.core.StatusCode.*;
 
 /**
  * Implementation of {@link AuthenticationProvider} for SAML authentications when
@@ -621,7 +626,17 @@ public final class OpenSaml4AuthenticationProvider implements AuthenticationProv
 		if (response.getStatus().getStatusCode() == null) {
 			return StatusCode.SUCCESS;
 		}
-		return response.getStatus().getStatusCode().getValue();
+
+		Set<String> statusCodes = new HashSet<>(Arrays.asList(REQUESTER, RESPONDER, VERSION_MISMATCH));
+		StatusCode parentStatusCode = response.getStatus().getStatusCode();
+		String parentStatusCodeValue = parentStatusCode.getValue();
+		if (statusCodes.contains(parentStatusCodeValue)) {
+			StatusCode childStatusCode = parentStatusCode.getStatusCode();
+			String childStatusCodeValue = childStatusCode.getValue();
+			return parentStatusCodeValue + childStatusCodeValue;
+		}
+
+		return parentStatusCodeValue;
 	}
 
 	private Converter<AssertionToken, Saml2ResponseValidatorResult> createDefaultAssertionSignatureValidator() {
