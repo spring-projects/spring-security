@@ -42,7 +42,7 @@ public class JdbcUserServiceBeanDefinitionParser extends AbstractUserDetailsServ
 	@Override
 	protected void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
 		String dataSource = element.getAttribute(ATT_DATA_SOURCE);
-		if (dataSource != null) {
+		if (StringUtils.hasText(dataSource)) {
 			builder.addPropertyReference("dataSource", dataSource);
 		}
 		else {
