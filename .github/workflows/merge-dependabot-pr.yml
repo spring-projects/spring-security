@@ -42,6 +42,8 @@ jobs:
             gh pr edit ${{ github.event.pull_request.number }} --milestone $MILESTONE
             echo mergeEnabled=true >> $GITHUB_OUTPUT
           fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Merge Dependabot pull request
         if: steps.set-milestone.outputs.mergeEnabled
