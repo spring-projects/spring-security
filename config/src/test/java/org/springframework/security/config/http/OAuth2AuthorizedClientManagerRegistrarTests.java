@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,7 +53,6 @@ import org.springframework.security.oauth2.client.TokenExchangeOAuth2AuthorizedC
 import org.springframework.security.oauth2.client.endpoint.AbstractOAuth2AuthorizationGrantRequest;
 import org.springframework.security.oauth2.client.endpoint.JwtBearerGrantRequest;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
-import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
 import org.springframework.security.oauth2.client.endpoint.OAuth2ClientCredentialsGrantRequest;
 import org.springframework.security.oauth2.client.endpoint.OAuth2PasswordGrantRequest;
 import org.springframework.security.oauth2.client.endpoint.OAuth2RefreshTokenGrantRequest;
@@ -430,114 +429,65 @@ public class OAuth2AuthorizedClientManagerRegistrarTests {
 		});
 	}
 
-	public static AuthorizationCodeOAuth2AuthorizedClientProvider authorizationCodeAuthorizedClientProvider() {
+	public static AuthorizationCodeOAuth2AuthorizedClientProvider authorizationCode() {
 		return spy(new AuthorizationCodeOAuth2AuthorizedClientProvider());
 	}
 
-	public static RefreshTokenOAuth2AuthorizedClientProvider refreshTokenAuthorizedClientProvider() {
+	public static RefreshTokenOAuth2AuthorizedClientProvider refreshToken() {
 		RefreshTokenOAuth2AuthorizedClientProvider authorizedClientProvider = new RefreshTokenOAuth2AuthorizedClientProvider();
 		authorizedClientProvider.setAccessTokenResponseClient(refreshTokenAccessTokenResponseClient());
 		return authorizedClientProvider;
 	}
 
-	public static MockRefreshTokenClient refreshTokenAccessTokenResponseClient() {
-		return new MockRefreshTokenClient();
+	public static OAuth2AccessTokenResponseClient<OAuth2RefreshTokenGrantRequest> refreshTokenAccessTokenResponseClient() {
+		return new MockAccessTokenResponseClient<>();
 	}
 
-	public static ClientCredentialsOAuth2AuthorizedClientProvider clientCredentialsAuthorizedClientProvider() {
+	public static ClientCredentialsOAuth2AuthorizedClientProvider clientCredentials() {
 		ClientCredentialsOAuth2AuthorizedClientProvider authorizedClientProvider = new ClientCredentialsOAuth2AuthorizedClientProvider();
 		authorizedClientProvider.setAccessTokenResponseClient(clientCredentialsAccessTokenResponseClient());
 		return authorizedClientProvider;
 	}
 
 	public static OAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> clientCredentialsAccessTokenResponseClient() {
-		return new MockClientCredentialsClient();
+		return new MockAccessTokenResponseClient<>();
 	}
 
-	public static PasswordOAuth2AuthorizedClientProvider passwordAuthorizedClientProvider() {
+	public static PasswordOAuth2AuthorizedClientProvider password() {
 		PasswordOAuth2AuthorizedClientProvider authorizedClientProvider = new PasswordOAuth2AuthorizedClientProvider();
 		authorizedClientProvider.setAccessTokenResponseClient(passwordAccessTokenResponseClient());
 		return authorizedClientProvider;
 	}
 
 	public static OAuth2AccessTokenResponseClient<OAuth2PasswordGrantRequest> passwordAccessTokenResponseClient() {
-		return new MockPasswordClient();
+		return new MockAccessTokenResponseClient<>();
 	}
 
-	public static JwtBearerOAuth2AuthorizedClientProvider jwtBearerAuthorizedClientProvider() {
+	public static JwtBearerOAuth2AuthorizedClientProvider jwtBearer() {
 		JwtBearerOAuth2AuthorizedClientProvider authorizedClientProvider = new JwtBearerOAuth2AuthorizedClientProvider();
 		authorizedClientProvider.setAccessTokenResponseClient(jwtBearerAccessTokenResponseClient());
 		return authorizedClientProvider;
 	}
 
 	public static OAuth2AccessTokenResponseClient<JwtBearerGrantRequest> jwtBearerAccessTokenResponseClient() {
-		return new MockJwtBearerClient();
+		return new MockAccessTokenResponseClient<>();
 	}
 
-	public static TokenExchangeOAuth2AuthorizedClientProvider tokenExchangeAuthorizedClientProvider() {
+	public static TokenExchangeOAuth2AuthorizedClientProvider tokenExchange() {
 		TokenExchangeOAuth2AuthorizedClientProvider authorizedClientProvider = new TokenExchangeOAuth2AuthorizedClientProvider();
 		authorizedClientProvider.setAccessTokenResponseClient(tokenExchangeAccessTokenResponseClient());
 		return authorizedClientProvider;
 	}
 
 	public static OAuth2AccessTokenResponseClient<TokenExchangeGrantRequest> tokenExchangeAccessTokenResponseClient() {
-		return new MockTokenExchangeClient();
+		return new MockAccessTokenResponseClient<>();
 	}
 
-	private static class MockAuthorizationCodeClient
-			implements OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> {
+	private static class MockAccessTokenResponseClient<T extends AbstractOAuth2AuthorizationGrantRequest>
+			implements OAuth2AccessTokenResponseClient<T> {
 
 		@Override
-		public OAuth2AccessTokenResponse getTokenResponse(
-				OAuth2AuthorizationCodeGrantRequest authorizationGrantRequest) {
-			return MOCK_RESPONSE_CLIENT.getTokenResponse(authorizationGrantRequest);
-		}
-
-	}
-
-	private static class MockRefreshTokenClient
-			implements OAuth2AccessTokenResponseClient<OAuth2RefreshTokenGrantRequest> {
-
-		@Override
-		public OAuth2AccessTokenResponse getTokenResponse(OAuth2RefreshTokenGrantRequest authorizationGrantRequest) {
-			return MOCK_RESPONSE_CLIENT.getTokenResponse(authorizationGrantRequest);
-		}
-
-	}
-
-	private static class MockClientCredentialsClient
-			implements OAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> {
-
-		@Override
-		public OAuth2AccessTokenResponse getTokenResponse(
-				OAuth2ClientCredentialsGrantRequest authorizationGrantRequest) {
-			return MOCK_RESPONSE_CLIENT.getTokenResponse(authorizationGrantRequest);
-		}
-
-	}
-
-	private static class MockPasswordClient implements OAuth2AccessTokenResponseClient<OAuth2PasswordGrantRequest> {
-
-		@Override
-		public OAuth2AccessTokenResponse getTokenResponse(OAuth2PasswordGrantRequest authorizationGrantRequest) {
-			return MOCK_RESPONSE_CLIENT.getTokenResponse(authorizationGrantRequest);
-		}
-
-	}
-
-	private static class MockJwtBearerClient implements OAuth2AccessTokenResponseClient<JwtBearerGrantRequest> {
-
-		@Override
-		public OAuth2AccessTokenResponse getTokenResponse(JwtBearerGrantRequest authorizationGrantRequest) {
-			return MOCK_RESPONSE_CLIENT.getTokenResponse(authorizationGrantRequest);
-		}
-
-	}
-
-	private static class MockTokenExchangeClient implements OAuth2AccessTokenResponseClient<TokenExchangeGrantRequest> {
-
-		@Override
-		public OAuth2AccessTokenResponse getTokenResponse(TokenExchangeGrantRequest authorizationGrantRequest) {
+		public OAuth2AccessTokenResponse getTokenResponse(T authorizationGrantRequest) {
 			return MOCK_RESPONSE_CLIENT.getTokenResponse(authorizationGrantRequest);
 		}
 
