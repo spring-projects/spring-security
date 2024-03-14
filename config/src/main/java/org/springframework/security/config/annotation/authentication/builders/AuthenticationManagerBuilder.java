@@ -149,13 +149,17 @@ public class AuthenticationManagerBuilder
 	 * {@link #getDefaultUserDetailsService()} method. Note that additional
 	 * {@link UserDetailsService}'s may override this {@link UserDetailsService} as the
 	 * default. See the <a href=
-	 * "https://docs.spring.io/spring-security/reference/servlet/appendix/database-schema.html"
+	 * "https://docs.spring.io/spring-security/site/docs/current/reference/htmlsingle/#user-schema"
 	 * >User Schema</a> section of the reference for the default schema.
 	 * </p>
 	 * @return a {@link JdbcUserDetailsManagerConfigurer} to allow customization of the
 	 * JDBC authentication
 	 * @throws Exception if an error occurs when adding the JDBC authentication
+	 * @deprecated JdbcUserDetailsManager has been superseded by
+	 * JdbcUserPasswordDetailsManager, and does not support DSL configuration. Please
+	 * declare a bean instead.
 	 */
+	@Deprecated(since = "For removal in 7.0.")
 	public JdbcUserDetailsManagerConfigurer<AuthenticationManagerBuilder> jdbcAuthentication() throws Exception {
 		return apply(new JdbcUserDetailsManagerConfigurer<>());
 	}

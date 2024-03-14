@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -288,7 +288,13 @@ public class AuthenticationConfiguration {
 			return super.inMemoryAuthentication().passwordEncoder(this.defaultPasswordEncoder);
 		}
 
+		/**
+		 * @deprecated Use JdbcUserPasswordDetailsManager instead, as this keeps the
+		 * password up to date. Please consult the migration documentation as database
+		 * changes might be necessary.
+		 */
 		@Override
+		@Deprecated(since = "For removal in 7.0.")
 		public JdbcUserDetailsManagerConfigurer<AuthenticationManagerBuilder> jdbcAuthentication() throws Exception {
 			return super.jdbcAuthentication().passwordEncoder(this.defaultPasswordEncoder);
 		}

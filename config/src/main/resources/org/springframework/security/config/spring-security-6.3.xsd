@@ -3159,6 +3159,72 @@
          </xs:annotation>
       </xs:attribute>
   </xs:attributeGroup>
+  <xs:element name="jdbc-user-password-service" substitutionGroup="security:any-user-service">
+      <xs:annotation>
+         <xs:documentation>Causes creation of a JDBC-based UserPasswordDetailsService.
+                </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:attribute name="id" type="xs:token">
+            <xs:annotation>
+               <xs:documentation>A bean identifier, used for referring to the bean elsewhere in the context.
+                </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attributeGroup ref="security:jdbc-user-password-service.attlist"/>
+      </xs:complexType>
+   </xs:element>
+  <xs:attributeGroup name="jdbc-user-password-service.attlist">
+      <xs:attribute name="data-source-ref" use="required" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>The bean ID of the DataSource which provides the required tables.
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="cache-ref" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>Defines a reference to a cache for use with a UserDetailsService.
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="users-by-username-query" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>An SQL statement to query a username, password, and enabled status given a username.
+                Default is "select username,password,enabled from users where username = ?"
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="authorities-by-username-query" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>An SQL statement to query for a user's granted authorities given a username. The default
+                is "select username, authority from authorities where username = ?"
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="group-authorities-by-username-query" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>An SQL statement to query user's group authorities given a username. The default is
+                "select g.id, g.group_name, ga.authority from groups g, group_members gm,
+                group_authorities ga where gm.username = ? and g.id = ga.group_id and g.id = gm.group_id"
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="change-password-query" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>An SQL statement to update a users' password given a username. The default is "update
+                users set password = ? where username = ?"
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="role-prefix" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>A non-empty string prefix that will be added to role strings loaded from persistent
+                storage (e.g. "ROLE_"). Use the value "none" for no prefix in cases where the default is
+                non-empty.
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+  </xs:attributeGroup>
   <xs:element name="csrf">
       <xs:annotation>
          <xs:documentation>Element for configuration of the CsrfFilter for protection against CSRF. It also updates

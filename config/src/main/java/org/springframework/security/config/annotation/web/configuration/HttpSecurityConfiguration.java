@@ -184,7 +184,13 @@ class HttpSecurityConfiguration {
 			return super.inMemoryAuthentication().passwordEncoder(this.defaultPasswordEncoder);
 		}
 
+		/**
+		 * @deprecated Use jdbcAuthenticationWithPasswordManagement instead, as this keeps
+		 * the password up to date. Please consult the migration documentation as database
+		 * changes might be necessary.
+		 */
 		@Override
+		@Deprecated(since = "For removal in 7.0.")
 		public JdbcUserDetailsManagerConfigurer<AuthenticationManagerBuilder> jdbcAuthentication() throws Exception {
 			return super.jdbcAuthentication().passwordEncoder(this.defaultPasswordEncoder);
 		}

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,20 +49,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import static org.mockito.BDDMockito.mock;
+import static org.mockito.BDDMockito.verify;
 
 /**
- * Tests for {@link JdbcUserDetailsManager}
+ * Tests for {@link JdbcUserPasswordDetailsManager}
  *
- * @author Luke Taylor
- * @deprecated JdbcUserDetailsManager has been superseded by
- * JdbcUserPasswordDetailsManager. If fixing bugs in JdbcUserDetailsManager, please
- * remember to transplant any new tests to JdbcUserPasswordDetailsManagerTests
- *
+ * @author Geir Hedemark
  */
-@Deprecated(since = "For removal in 7.0.")
-public class JdbcUserDetailsManagerTests {
+public class JdbcUserPasswordDetailsManagerTests {
 
 	private static final String SELECT_JOE_SQL = "select * from users where username = 'joe'";
 
@@ -73,9 +68,9 @@ public class JdbcUserDetailsManagerTests {
 
 	private static TestDataSource dataSource;
 
-	private JdbcUserDetailsManager manager;
+	private JdbcUserPasswordDetailsManager manager;
 
-	private MockUserCache cache;
+	private JdbcUserPasswordDetailsManagerTests.MockUserCache cache;
 
 	private JdbcTemplate template;
 
@@ -92,17 +87,17 @@ public class JdbcUserDetailsManagerTests {
 
 	@BeforeEach
 	public void initializeManagerAndCreateTables() {
-		this.manager = new JdbcUserDetailsManager();
-		this.cache = new MockUserCache();
+		this.manager = new JdbcUserPasswordDetailsManager();
+		this.cache = new JdbcUserPasswordDetailsManagerTests.MockUserCache();
 		this.manager.setUserCache(this.cache);
 		this.manager.setDataSource(dataSource);
-		this.manager.setCreateUserSql(JdbcUserDetailsManager.DEF_CREATE_USER_SQL);
-		this.manager.setUpdateUserSql(JdbcUserDetailsManager.DEF_UPDATE_USER_SQL);
-		this.manager.setUserExistsSql(JdbcUserDetailsManager.DEF_USER_EXISTS_SQL);
-		this.manager.setCreateAuthoritySql(JdbcUserDetailsManager.DEF_INSERT_AUTHORITY_SQL);
-		this.manager.setDeleteUserAuthoritiesSql(JdbcUserDetailsManager.DEF_DELETE_USER_AUTHORITIES_SQL);
-		this.manager.setDeleteUserSql(JdbcUserDetailsManager.DEF_DELETE_USER_SQL);
-		this.manager.setChangePasswordSql(JdbcUserDetailsManager.DEF_CHANGE_PASSWORD_SQL);
+		this.manager.setCreateUserQuery(JdbcUserPasswordDetailsManager.DEF_CREATE_USER_QUERY);
+		this.manager.setUpdateUserQuery(JdbcUserPasswordDetailsManager.DEF_UPDATE_USER_QUERY);
+		this.manager.setUserExistsQuery(JdbcUserPasswordDetailsManager.DEF_USER_EXISTS_QUERY);
+		this.manager.setCreateAuthorityQuery(JdbcUserPasswordDetailsManager.DEF_INSERT_AUTHORITY_QUERY);
+		this.manager.setDeleteUserAuthoritiesQuery(JdbcUserPasswordDetailsManager.DEF_DELETE_USER_AUTHORITIES_QUERY);
+		this.manager.setDeleteUserQuery(JdbcUserPasswordDetailsManager.DEF_DELETE_USER_QUERY);
+		this.manager.setChangePasswordQuery(JdbcUserPasswordDetailsManager.DEF_CHANGE_PASSWORD_QUERY);
 		this.manager.initDao();
 		this.template = this.manager.getJdbcTemplate();
 		this.template.execute("create table users(username varchar(20) not null primary key,"
@@ -130,9 +125,9 @@ public class JdbcUserDetailsManagerTests {
 		this.template.execute("alter table users add column creds_expired boolean default false not null");
 		this.manager.setUsersByUsernameQuery(
 				"select username,password,enabled, acc_locked, acc_expired, creds_expired from users where username = ?");
-		this.manager.setCreateUserSql(
+		this.manager.setCreateUserQuery(
 				"insert into users (username, password, enabled, acc_locked, acc_expired, creds_expired) values (?,?,?,?,?,?)");
-		this.manager.setUpdateUserSql(
+		this.manager.setUpdateUserQuery(
 				"update users set password = ?, enabled = ?, acc_locked=?, acc_expired=?, creds_expired=? where username = ?");
 	}
 
@@ -368,6 +363,17 @@ public class JdbcUserDetailsManagerTests {
 				AuthorityUtils.createAuthorityList("ROLE_USER"));
 		Authentication updatedAuth = this.manager.createNewAuthentication(currentAuth, "new");
 		assertThat(updatedAuth.getCredentials()).isNull();
+	}
+
+	@Test
+	public void updatePasswordSucceeds() {
+		insertJoe();
+		UserDetails joe = this.manager.loadUserByUsername("joe");
+		UserDetails returnedJoe = ((JdbcUserPasswordDetailsManager) this.manager).updatePassword(joe, "newPassword");
+		assertThat(returnedJoe.getPassword()).isEqualTo("newPassword");
+		UserDetails newJoe = this.manager.loadUserByUsername("joe");
+		assertThat(newJoe.getPassword()).isEqualTo("newPassword");
+		assertThat(this.cache.getUserMap().containsKey("joe")).isFalse();
 	}
 
 	private Authentication authenticateJoe() {
