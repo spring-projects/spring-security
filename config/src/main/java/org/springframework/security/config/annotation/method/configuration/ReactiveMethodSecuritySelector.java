@@ -51,13 +51,15 @@ class ReactiveMethodSecuritySelector implements ImportSelector {
 		else {
 			imports.add(ReactiveMethodSecurityConfiguration.class.getName());
 		}
+		imports.add(ReactiveAuthorizationProxyConfiguration.class.getName());
 		return imports.toArray(new String[0]);
 	}
 
 	private static final class AutoProxyRegistrarSelector
 			extends AdviceModeImportSelector<EnableReactiveMethodSecurity> {
 
-		private static final String[] IMPORTS = new String[] { AutoProxyRegistrar.class.getName() };
+		private static final String[] IMPORTS = new String[] { AutoProxyRegistrar.class.getName(),
+				MethodSecurityAdvisorRegistrar.class.getName() };
 
 		@Override
 		protected String[] selectImports(@NonNull AdviceMode adviceMode) {

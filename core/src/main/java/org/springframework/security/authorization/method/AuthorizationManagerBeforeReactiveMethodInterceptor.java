@@ -27,11 +27,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import org.springframework.aop.Pointcut;
-import org.springframework.aop.PointcutAdvisor;
-import org.springframework.aop.framework.AopInfrastructureBean;
 import org.springframework.core.KotlinDetector;
 import org.springframework.core.MethodParameter;
-import org.springframework.core.Ordered;
 import org.springframework.core.ReactiveAdapter;
 import org.springframework.core.ReactiveAdapterRegistry;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -48,8 +45,7 @@ import org.springframework.util.Assert;
  * @author Josh Cummings
  * @since 5.8
  */
-public final class AuthorizationManagerBeforeReactiveMethodInterceptor
-		implements Ordered, MethodInterceptor, PointcutAdvisor, AopInfrastructureBean {
+public final class AuthorizationManagerBeforeReactiveMethodInterceptor implements AuthorizationAdvisor {
 
 	private static final String COROUTINES_FLOW_CLASS_NAME = "kotlinx.coroutines.flow.Flow";
 
