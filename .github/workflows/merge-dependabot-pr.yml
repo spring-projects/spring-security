@@ -1,7 +1,6 @@
 name: Merge Dependabot PR
 
-on:
-  pull_request:
+on: pull_request_target
 
 run-name: Merge Dependabot PR ${{ github.ref_name }}
 
@@ -17,6 +16,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           show-progress: false
+          ref: ${{ github.event.pull_request.head.sha }}
 
       - uses: actions/setup-java@v4
         with:
