@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import org.junit.jupiter.api.Test;
@@ -40,12 +41,14 @@ import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.access.prepost.PreFilter;
-import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.authentication.TestAuthentication;
 import org.springframework.security.authorization.method.AuthorizeReturnObject;
 import org.springframework.security.config.core.GrantedAuthorityDefaults;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -63,8 +66,7 @@ public class ReactiveMethodSecurityConfigurationTests {
 	@Test
 	public void rolePrefixWithGrantedAuthorityDefaults() throws NoSuchMethodException {
 		this.spring.register(WithRolePrefixConfiguration.class).autowire();
-		TestingAuthenticationToken authentication = new TestingAuthenticationToken("principal", "credential",
-				"CUSTOM_ABC");
+		Authentication authentication = TestAuthentication.authenticatedUser(authorities("CUSTOM_ABC"));
 		MockMethodInvocation methodInvocation = new MockMethodInvocation(new Foo(), Foo.class, "bar", String.class);
 		EvaluationContext context = this.methodSecurityExpressionHandler.createEvaluationContext(authentication,
 				methodInvocation);
@@ -78,8 +80,7 @@ public class ReactiveMethodSecurityConfigurationTests {
 	@Test
 	public void rolePrefixWithDefaultConfig() throws NoSuchMethodException {
 		this.spring.register(ReactiveMethodSecurityConfiguration.class).autowire();
-		TestingAuthenticationToken authentication = new TestingAuthenticationToken("principal", "credential",
-				"ROLE_ABC");
+		Authentication authentication = TestAuthentication.authenticatedUser(authorities("ROLE_ABC"));
 		MockMethodInvocation methodInvocation = new MockMethodInvocation(new Foo(), Foo.class, "bar", String.class);
 		EvaluationContext context = this.methodSecurityExpressionHandler.createEvaluationContext(authentication,
 				methodInvocation);
@@ -91,8 +92,7 @@ public class ReactiveMethodSecurityConfigurationTests {
 	@Test
 	public void rolePrefixWithGrantedAuthorityDefaultsAndSubclassWithProxyingEnabled() throws NoSuchMethodException {
 		this.spring.register(SubclassConfig.class).autowire();
-		TestingAuthenticationToken authentication = new TestingAuthenticationToken("principal", "credential",
-				"ROLE_ABC");
+		Authentication authentication = TestAuthentication.authenticatedUser(authorities("ROLE_ABC"));
 		MockMethodInvocation methodInvocation = new MockMethodInvocation(new Foo(), Foo.class, "bar", String.class);
 		EvaluationContext context = this.methodSecurityExpressionHandler.createEvaluationContext(authentication,
 				methodInvocation);
@@ -105,7 +105,7 @@ public class ReactiveMethodSecurityConfigurationTests {
 	public void findByIdWhenAuthorizedResultThenAuthorizes() {
 		this.spring.register(AuthorizeResultConfig.class).autowire();
 		FlightRepository flights = this.spring.getContext().getBean(FlightRepository.class);
-		TestingAuthenticationToken pilot = new TestingAuthenticationToken("user", "pass", "airplane:read");
+		Authentication pilot = TestAuthentication.authenticatedUser(authorities("airplane:read"));
 		StepVerifier
 			.create(flights.findById("1")
 				.flatMap(Flight::getAltitude)
@@ -124,7 +124,7 @@ public class ReactiveMethodSecurityConfigurationTests {
 	public void findByIdWhenUnauthorizedResultThenDenies() {
 		this.spring.register(AuthorizeResultConfig.class).autowire();
 		FlightRepository flights = this.spring.getContext().getBean(FlightRepository.class);
-		TestingAuthenticationToken pilot = new TestingAuthenticationToken("user", "pass", "seating:read");
+		Authentication pilot = TestAuthentication.authenticatedUser(authorities("seating:read"));
 		StepVerifier
 			.create(flights.findById("1")
 				.flatMap(Flight::getSeats)
@@ -142,7 +142,7 @@ public class ReactiveMethodSecurityConfigurationTests {
 	public void findAllWhenUnauthorizedResultThenDenies() {
 		this.spring.register(AuthorizeResultConfig.class).autowire();
 		FlightRepository flights = this.spring.getContext().getBean(FlightRepository.class);
-		TestingAuthenticationToken pilot = new TestingAuthenticationToken("user", "pass", "seating:read");
+		Authentication pilot = TestAuthentication.authenticatedUser(authorities("seating:read"));
 		StepVerifier
 			.create(flights.findAll()
 				.flatMap(Flight::getSeats)
@@ -160,7 +160,7 @@ public class ReactiveMethodSecurityConfigurationTests {
 	public void removeWhenAuthorizedResultThenRemoves() {
 		this.spring.register(AuthorizeResultConfig.class).autowire();
 		FlightRepository flights = this.spring.getContext().getBean(FlightRepository.class);
-		TestingAuthenticationToken pilot = new TestingAuthenticationToken("user", "pass", "seating:read");
+		Authentication pilot = TestAuthentication.authenticatedUser(authorities("seating:read"));
 		StepVerifier.create(flights.remove("1").contextWrite(ReactiveSecurityContextHolder.withAuthentication(pilot)))
 			.verifyComplete();
 	}
@@ -169,7 +169,7 @@ public class ReactiveMethodSecurityConfigurationTests {
 	public void findAllWhenPostFilterThenFilters() {
 		this.spring.register(AuthorizeResultConfig.class).autowire();
 		FlightRepository flights = this.spring.getContext().getBean(FlightRepository.class);
-		TestingAuthenticationToken pilot = new TestingAuthenticationToken("user", "pass", "airplane:read");
+		Authentication pilot = TestAuthentication.authenticatedUser(authorities("airplane:read"));
 		StepVerifier
 			.create(flights.findAll()
 				.flatMap(Flight::getPassengers)
@@ -183,7 +183,7 @@ public class ReactiveMethodSecurityConfigurationTests {
 	public void findAllWhenPreFilterThenFilters() {
 		this.spring.register(AuthorizeResultConfig.class).autowire();
 		FlightRepository flights = this.spring.getContext().getBean(FlightRepository.class);
-		TestingAuthenticationToken pilot = new TestingAuthenticationToken("user", "pass", "airplane:read");
+		Authentication pilot = TestAuthentication.authenticatedUser(authorities("airplane:read"));
 		StepVerifier
 			.create(flights.findAll()
 				.flatMap((flight) -> flight.board(Flux.just("John Doe", "John")).then(Mono.just(flight)))
@@ -198,13 +198,17 @@ public class ReactiveMethodSecurityConfigurationTests {
 	public void findAllWhenNestedPreAuthorizeThenAuthorizes() {
 		this.spring.register(AuthorizeResultConfig.class).autowire();
 		FlightRepository flights = this.spring.getContext().getBean(FlightRepository.class);
-		TestingAuthenticationToken pilot = new TestingAuthenticationToken("user", "pass", "seating:read");
+		Authentication pilot = TestAuthentication.authenticatedUser(authorities("seating:read"));
 		StepVerifier
 			.create(flights.findAll()
 				.flatMap(Flight::getPassengers)
 				.flatMap(Passenger::getName)
 				.contextWrite(ReactiveSecurityContextHolder.withAuthentication(pilot)))
 			.verifyError(AccessDeniedException.class);
+	}
+
+	private static Consumer<User.UserBuilder> authorities(String... authorities) {
+		return (builder) -> builder.authorities(authorities);
 	}
 
 	@Configuration
