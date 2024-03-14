@@ -4,8 +4,7 @@ on: pull_request_target
 
 run-name: Merge Dependabot PR ${{ github.ref_name }}
 
-env:
-  GH_TOKEN: ${{ secrets.GH_ACTIONS_REPO_TOKEN }}
+permissions: write-all
 
 jobs:
   merge-dependabot-pr:
@@ -47,3 +46,5 @@ jobs:
       - name: Merge Dependabot pull request
         if: steps.set-milestone.outputs.mergeEnabled
         run: gh pr merge ${{ github.event.pull_request.number }} --auto --rebase
+        env:
+          GH_TOKEN: ${{ secrets.GH_ACTIONS_REPO_TOKEN }}
