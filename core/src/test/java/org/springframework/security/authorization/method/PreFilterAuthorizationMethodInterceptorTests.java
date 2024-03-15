@@ -189,10 +189,9 @@ public class PreFilterAuthorizationMethodInterceptorTests {
 
 	@Test
 	public void preFilterWhenMockSecurityContextHolderStrategyThenUses() throws Throwable {
-		SecurityContextHolderStrategy strategy = mock(SecurityContextHolderStrategy.class);
 		Authentication authentication = new TestingAuthenticationToken("john", "password",
 				AuthorityUtils.createAuthorityList("authority"));
-		given(strategy.getContext()).willReturn(new SecurityContextImpl(authentication));
+		SecurityContextHolderStrategy strategy = MockSecurityContextHolderStrategy.getmock(new SecurityContextImpl(authentication));
 		List<String> list = new ArrayList<>();
 		list.add("john");
 		list.add("bob");
@@ -207,10 +206,9 @@ public class PreFilterAuthorizationMethodInterceptorTests {
 	// gh-12877
 	@Test
 	public void preFilterWhenStaticSecurityContextHolderStrategyAfterConstructorThenUses() throws Throwable {
-		SecurityContextHolderStrategy strategy = mock(SecurityContextHolderStrategy.class);
 		Authentication authentication = new TestingAuthenticationToken("john", "password",
 				AuthorityUtils.createAuthorityList("authority"));
-		given(strategy.getContext()).willReturn(new SecurityContextImpl(authentication));
+		SecurityContextHolderStrategy strategy = MockSecurityContextHolderStrategy.getmock(new SecurityContextImpl(authentication));
 		List<String> list = new ArrayList<>();
 		list.add("john");
 		list.add("bob");
