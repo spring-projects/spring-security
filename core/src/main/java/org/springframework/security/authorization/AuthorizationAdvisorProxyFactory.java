@@ -40,6 +40,10 @@ import org.springframework.aop.Advisor;
 import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 import org.springframework.security.authorization.method.AuthorizationAdvisor;
+import org.springframework.security.authorization.method.AuthorizationManagerAfterMethodInterceptor;
+import org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor;
+import org.springframework.security.authorization.method.PostFilterAuthorizationMethodInterceptor;
+import org.springframework.security.authorization.method.PreFilterAuthorizationMethodInterceptor;
 import org.springframework.util.ClassUtils;
 
 /**
@@ -71,31 +75,15 @@ import org.springframework.util.ClassUtils;
  */
 public final class AuthorizationAdvisorProxyFactory implements AuthorizationProxyFactory {
 
-	private final Collection<AuthorizationAdvisor> advisors;
+	private List<AuthorizationAdvisor> advisors = new ArrayList<>();
 
-	public AuthorizationAdvisorProxyFactory(AuthorizationAdvisor... advisors) {
-		this.advisors = List.of(advisors);
-	}
-
-	public AuthorizationAdvisorProxyFactory(Collection<AuthorizationAdvisor> advisors) {
-		this.advisors = List.copyOf(advisors);
-	}
-
-	/**
-	 * Create a new {@link AuthorizationAdvisorProxyFactory} that includes the given
-	 * advisors in addition to any advisors {@code this} instance already has.
-	 *
-	 * <p>
-	 * All advisors are re-sorted by their advisor order.
-	 * @param advisors the advisors to add
-	 * @return a new {@link AuthorizationAdvisorProxyFactory} instance
-	 */
-	public AuthorizationAdvisorProxyFactory withAdvisors(AuthorizationAdvisor... advisors) {
-		List<AuthorizationAdvisor> merged = new ArrayList<>(this.advisors.size() + advisors.length);
-		merged.addAll(this.advisors);
-		merged.addAll(List.of(advisors));
-		AnnotationAwareOrderComparator.sort(merged);
-		return new AuthorizationAdvisorProxyFactory(merged);
+	public AuthorizationAdvisorProxyFactory() {
+		List<AuthorizationAdvisor> advisors = new ArrayList<>();
+		advisors.add(AuthorizationManagerBeforeMethodInterceptor.preAuthorize());
+		advisors.add(AuthorizationManagerAfterMethodInterceptor.postAuthorize());
+		advisors.add(new PreFilterAuthorizationMethodInterceptor());
+		advisors.add(new PostFilterAuthorizationMethodInterceptor());
+		setAdvisors(advisors);
 	}
 
 	/**
@@ -163,6 +151,30 @@ public final class AuthorizationAdvisorProxyFactory implements AuthorizationProx
 		}
 		factory.setProxyTargetClass(!Modifier.isFinal(target.getClass().getModifiers()));
 		return factory.getProxy();
+	}
+
+	/**
+	 * Add advisors that should be included to each proxy created.
+	 *
+	 * <p>
+	 * All advisors are re-sorted by their advisor order.
+	 * @param advisors the advisors to add
+	 */
+	public void setAdvisors(AuthorizationAdvisor... advisors) {
+		this.advisors = new ArrayList<>(List.of(advisors));
+		AnnotationAwareOrderComparator.sort(this.advisors);
+	}
+
+	/**
+	 * Add advisors that should be included to each proxy created.
+	 *
+	 * <p>
+	 * All advisors are re-sorted by their advisor order.
+	 * @param advisors the advisors to add
+	 */
+	public void setAdvisors(Collection<AuthorizationAdvisor> advisors) {
+		this.advisors = new ArrayList<>(advisors);
+		AnnotationAwareOrderComparator.sort(this.advisors);
 	}
 
 	@SuppressWarnings("unchecked")

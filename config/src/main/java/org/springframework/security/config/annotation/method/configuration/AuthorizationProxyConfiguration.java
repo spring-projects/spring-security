@@ -25,7 +25,6 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Role;
-import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 import org.springframework.security.authorization.AuthorizationAdvisorProxyFactory;
 import org.springframework.security.authorization.method.AuthorizationAdvisor;
 
@@ -37,8 +36,9 @@ final class AuthorizationProxyConfiguration implements AopInfrastructureBean {
 	static AuthorizationAdvisorProxyFactory authorizationProxyFactory(ObjectProvider<AuthorizationAdvisor> provider) {
 		List<AuthorizationAdvisor> advisors = new ArrayList<>();
 		provider.forEach(advisors::add);
-		AnnotationAwareOrderComparator.sort(advisors);
-		return new AuthorizationAdvisorProxyFactory(advisors);
+		AuthorizationAdvisorProxyFactory factory = new AuthorizationAdvisorProxyFactory();
+		factory.setAdvisors(advisors);
+		return factory;
 	}
 
 }
