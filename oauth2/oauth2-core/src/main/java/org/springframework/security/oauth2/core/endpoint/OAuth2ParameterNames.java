@@ -204,7 +204,7 @@ public final class OAuth2ParameterNames {
 	 * {@code issued_token_type} - used in Token Exchange Access Token Response.
 	 * @since 6.3
 	 */
-	private static final String ISSUED_TOKEN_TYPE = "issued_token_type";
+	public static final String ISSUED_TOKEN_TYPE = "issued_token_type";
 
 	/**
 	 * {@code subject_token} - used in Token Exchange Access Token Request.
