@@ -129,10 +129,10 @@ public class PostFilterAuthorizationMethodInterceptorTests {
 
 	@Test
 	public void postFilterWhenMockSecurityContextHolderStrategyThenUses() throws Throwable {
-		SecurityContextHolderStrategy strategy = mock(SecurityContextHolderStrategy.class);
+
 		Authentication authentication = new TestingAuthenticationToken("john", "password",
 				AuthorityUtils.createAuthorityList("authority"));
-		given(strategy.getContext()).willReturn(new SecurityContextImpl(authentication));
+		SecurityContextHolderStrategy strategy = MockSecurityContextHolderStrategy.getmock(new SecurityContextImpl(authentication));
 		String[] array = { "john", "bob" };
 		MockMethodInvocation invocation = new MockMethodInvocation(new TestClass(), TestClass.class,
 				"doSomethingArrayAuthentication", new Class[] { String[].class }, new Object[] { array }) {
@@ -150,10 +150,10 @@ public class PostFilterAuthorizationMethodInterceptorTests {
 	// gh-12877
 	@Test
 	public void postFilterWhenStaticSecurityContextHolderStrategyAfterConstructorThenUses() throws Throwable {
-		SecurityContextHolderStrategy strategy = mock(SecurityContextHolderStrategy.class);
+
 		Authentication authentication = new TestingAuthenticationToken("john", "password",
 				AuthorityUtils.createAuthorityList("authority"));
-		given(strategy.getContext()).willReturn(new SecurityContextImpl(authentication));
+		SecurityContextHolderStrategy strategy = MockSecurityContextHolderStrategy.getmock(new SecurityContextImpl(authentication));
 		String[] array = { "john", "bob" };
 		MockMethodInvocation invocation = new MockMethodInvocation(new TestClass(), TestClass.class,
 				"doSomethingArrayAuthentication", new Class[] { String[].class }, new Object[] { array }) {
