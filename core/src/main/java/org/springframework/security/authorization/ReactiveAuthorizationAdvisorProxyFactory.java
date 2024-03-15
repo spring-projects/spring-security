@@ -32,6 +32,7 @@ import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.security.authorization.method.AuthorizationAdvisor;
 import org.springframework.security.authorization.method.AuthorizationManagerAfterReactiveMethodInterceptor;
 import org.springframework.security.authorization.method.AuthorizationManagerBeforeReactiveMethodInterceptor;
+import org.springframework.security.authorization.method.AuthorizeReturnObjectMethodInterceptor;
 import org.springframework.security.authorization.method.PostFilterAuthorizationReactiveMethodInterceptor;
 import org.springframework.security.authorization.method.PreFilterAuthorizationReactiveMethodInterceptor;
 
@@ -72,6 +73,7 @@ public final class ReactiveAuthorizationAdvisorProxyFactory implements Authoriza
 		advisors.add(AuthorizationManagerAfterReactiveMethodInterceptor.postAuthorize());
 		advisors.add(new PreFilterAuthorizationReactiveMethodInterceptor());
 		advisors.add(new PostFilterAuthorizationReactiveMethodInterceptor());
+		advisors.add(new AuthorizeReturnObjectMethodInterceptor(this));
 		this.defaults.setAdvisors(advisors);
 	}
 

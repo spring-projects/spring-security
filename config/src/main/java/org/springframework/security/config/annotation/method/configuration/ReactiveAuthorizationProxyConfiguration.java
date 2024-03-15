@@ -19,6 +19,8 @@ package org.springframework.security.config.annotation.method.configuration;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.aopalliance.intercept.MethodInterceptor;
+
 import org.springframework.aop.framework.AopInfrastructureBean;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -27,6 +29,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Role;
 import org.springframework.security.authorization.ReactiveAuthorizationAdvisorProxyFactory;
 import org.springframework.security.authorization.method.AuthorizationAdvisor;
+import org.springframework.security.authorization.method.AuthorizeReturnObjectMethodInterceptor;
 
 @Configuration(proxyBeanMethods = false)
 final class ReactiveAuthorizationProxyConfiguration implements AopInfrastructureBean {
@@ -40,6 +43,19 @@ final class ReactiveAuthorizationProxyConfiguration implements AopInfrastructure
 		ReactiveAuthorizationAdvisorProxyFactory factory = new ReactiveAuthorizationAdvisorProxyFactory();
 		factory.setAdvisors(advisors);
 		return factory;
+	}
+
+	@Bean
+	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+	static MethodInterceptor authorizeReturnObjectMethodInterceptor(ObjectProvider<AuthorizationAdvisor> provider,
+			ReactiveAuthorizationAdvisorProxyFactory authorizationProxyFactory) {
+		AuthorizeReturnObjectMethodInterceptor interceptor = new AuthorizeReturnObjectMethodInterceptor(
+				authorizationProxyFactory);
+		List<AuthorizationAdvisor> advisors = new ArrayList<>();
+		provider.forEach(advisors::add);
+		advisors.add(interceptor);
+		authorizationProxyFactory.setAdvisors(advisors);
+		return interceptor;
 	}
 
 }

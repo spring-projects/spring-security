@@ -284,7 +284,7 @@ public class AuthorizationAdvisorProxyFactoryTests {
 	public void proxyWhenPreAuthorizeForClassThenHonors() {
 		AuthorizationAdvisorProxyFactory factory = new AuthorizationAdvisorProxyFactory();
 		Class<Flight> clazz = proxy(factory, Flight.class);
-		assertThat(clazz.getSimpleName()).contains("SpringCGLIB$$0");
+		assertThat(clazz.getSimpleName()).contains("SpringCGLIB$$");
 		Flight secured = proxy(factory, this.flight);
 		assertThat(secured.getClass()).isSameAs(clazz);
 		SecurityContextHolder.getContext().setAuthentication(this.user);

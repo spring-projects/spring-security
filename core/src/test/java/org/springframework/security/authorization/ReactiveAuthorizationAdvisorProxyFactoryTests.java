@@ -117,7 +117,7 @@ public class ReactiveAuthorizationAdvisorProxyFactoryTests {
 	public void proxyWhenPreAuthorizeForClassThenHonors() {
 		ReactiveAuthorizationAdvisorProxyFactory factory = new ReactiveAuthorizationAdvisorProxyFactory();
 		Class<Flight> clazz = proxy(factory, Flight.class);
-		assertThat(clazz.getSimpleName()).contains("SpringCGLIB$$0");
+		assertThat(clazz.getSimpleName()).contains("SpringCGLIB$$");
 		Flight secured = proxy(factory, this.flight);
 		StepVerifier
 			.create(secured.getAltitude().contextWrite(ReactiveSecurityContextHolder.withAuthentication(this.user)))
