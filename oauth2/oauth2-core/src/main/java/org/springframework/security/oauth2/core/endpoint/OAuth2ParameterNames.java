@@ -183,6 +183,18 @@ public final class OAuth2ParameterNames {
 	public static final String INTERVAL = "interval";
 
 	/**
+	 * {@code audience} - used in Token Exchange Access Token Request.
+	 * @since 6.3
+	 */
+	public static final String AUDIENCE = "audience";
+
+	/**
+	 * {@code resource} - used in Token Exchange Access Token Request.
+	 * @since 6.3
+	 */
+	public static final String RESOURCE = "resource";
+
+	/**
 	 * {@code requested_token_type} - used in Token Exchange Access Token Request.
 	 * @since 6.3
 	 */
