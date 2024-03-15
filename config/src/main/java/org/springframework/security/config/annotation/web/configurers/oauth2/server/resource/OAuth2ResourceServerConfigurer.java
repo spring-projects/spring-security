@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,9 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.convert.converter.Converter;
@@ -37,10 +40,12 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
 import org.springframework.security.config.annotation.web.configurers.ExceptionHandlingConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
+import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationProvider;
 import org.springframework.security.oauth2.server.resource.authentication.OpaqueTokenAuthenticationProvider;
@@ -51,11 +56,14 @@ import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthen
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
 import org.springframework.security.oauth2.server.resource.web.DefaultBearerTokenResolver;
 import org.springframework.security.oauth2.server.resource.web.access.BearerTokenAccessDeniedHandler;
-import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.access.AccessDeniedHandlerImpl;
 import org.springframework.security.web.access.DelegatingAccessDeniedHandler;
+import org.springframework.security.web.authentication.AuthenticationConverter;
+import org.springframework.security.web.authentication.AuthenticationEntryPointFailureHandler;
+import org.springframework.security.web.authentication.AuthenticationFilter;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.csrf.CsrfException;
 import org.springframework.security.web.util.matcher.AndRequestMatcher;
 import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
@@ -64,15 +72,15 @@ import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestHeaderRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 import org.springframework.web.accept.ContentNegotiationStrategy;
 import org.springframework.web.accept.HeaderContentNegotiationStrategy;
 
 /**
- *
  * An {@link AbstractHttpConfigurer} for OAuth 2.0 Resource Server Support.
- *
- * By default, this wires a {@link BearerTokenAuthenticationFilter}, which can be used to
- * parse the request for bearer tokens and make an authentication attempt.
+ * <p>
+ * By default, this wires a {@link AuthenticationFilter}, which can be used to parse the
+ * request for bearer tokens and make an authentication attempt.
  *
  * <p>
  * The following configuration options are available:
@@ -96,7 +104,7 @@ import org.springframework.web.accept.HeaderContentNegotiationStrategy;
  * <li>supply a {@link JwtDecoder} instance via {@link JwtConfigurer#decoder}, or</li>
  * <li>expose a {@link JwtDecoder} bean</li>
  * </ul>
- *
+ * <p>
  * Also with {@link #jwt(Customizer)} consider
  *
  * <ul>
@@ -111,16 +119,16 @@ import org.springframework.web.accept.HeaderContentNegotiationStrategy;
  * </p>
  *
  * <h2>Security Filters</h2>
- *
+ * <p>
  * The following {@code Filter}s are populated when {@link #jwt(Customizer)} is
  * configured:
  *
  * <ul>
- * <li>{@link BearerTokenAuthenticationFilter}</li>
+ * <li>{@link AuthenticationFilter}</li>
  * </ul>
  *
  * <h2>Shared Objects Created</h2>
- *
+ * <p>
  * The following shared objects are populated:
  *
  * <ul>
@@ -128,7 +136,7 @@ import org.springframework.web.accept.HeaderContentNegotiationStrategy;
  * </ul>
  *
  * <h2>Shared Objects Used</h2>
- *
+ * <p>
  * The following shared objects are used:
  *
  * <ul>
@@ -138,8 +146,9 @@ import org.springframework.web.accept.HeaderContentNegotiationStrategy;
  * @author Josh Cummings
  * @author Evgeniy Cheban
  * @author Jerome Wacongne &lt;ch4mp@c4-soft.com&gt;
+ * @author Max Batischev
  * @since 5.1
- * @see BearerTokenAuthenticationFilter
+ * @see AuthenticationFilter
  * @see JwtAuthenticationProvider
  * @see NimbusJwtDecoder
  * @see AbstractHttpConfigurer
@@ -154,7 +163,8 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 
 	private AuthenticationManagerResolver<HttpServletRequest> authenticationManagerResolver;
 
-	private BearerTokenResolver bearerTokenResolver;
+	// toDo: need default BearerTokenAuthenticationConverter (gh-14750)
+	private AuthenticationConverter authenticationConverter;
 
 	private JwtConfigurer jwtConfigurer;
 
@@ -194,7 +204,13 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 
 	public OAuth2ResourceServerConfigurer<H> bearerTokenResolver(BearerTokenResolver bearerTokenResolver) {
 		Assert.notNull(bearerTokenResolver, "bearerTokenResolver cannot be null");
-		this.bearerTokenResolver = bearerTokenResolver;
+		this.authenticationConverter = new BearerTokenResolverConverterAdapter(bearerTokenResolver);
+		return this;
+	}
+
+	public OAuth2ResourceServerConfigurer<H> authenticationConverter(AuthenticationConverter authenticationConverter) {
+		Assert.notNull(authenticationConverter, "authenticationConverter cannot be null");
+		this.authenticationConverter = authenticationConverter;
 		return this;
 	}
 
@@ -269,18 +285,18 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 
 	@Override
 	public void configure(H http) {
-		BearerTokenResolver bearerTokenResolver = getBearerTokenResolver();
-		this.requestMatcher.setBearerTokenResolver(bearerTokenResolver);
+		AuthenticationConverter converter = getAuthenticationConverter();
+		this.requestMatcher.setAuthenticationConverter(converter);
 		AuthenticationManagerResolver resolver = this.authenticationManagerResolver;
 		if (resolver == null) {
 			AuthenticationManager authenticationManager = getAuthenticationManager(http);
 			resolver = (request) -> authenticationManager;
 		}
 
-		BearerTokenAuthenticationFilter filter = new BearerTokenAuthenticationFilter(resolver);
-		filter.setBearerTokenResolver(bearerTokenResolver);
-		filter.setAuthenticationEntryPoint(this.authenticationEntryPoint);
+		AuthenticationFilter filter = new AuthenticationFilter(resolver, converter);
+		filter.setFailureHandler(new AuthenticationEntryPointFailureHandler(this.authenticationEntryPoint));
 		filter.setSecurityContextHolderStrategy(getSecurityContextHolderStrategy());
+		filter.setSuccessHandler(new LoggingAuthenticationSuccessHandler());
 		filter = postProcess(filter);
 		http.addFilter(filter);
 	}
@@ -361,16 +377,25 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 		return http.getSharedObject(AuthenticationManager.class);
 	}
 
-	BearerTokenResolver getBearerTokenResolver() {
-		if (this.bearerTokenResolver == null) {
+	AuthenticationConverter getAuthenticationConverter() {
+		if (this.authenticationConverter == null) {
 			if (this.context.getBeanNamesForType(BearerTokenResolver.class).length > 0) {
-				this.bearerTokenResolver = this.context.getBean(BearerTokenResolver.class);
+				BearerTokenResolver bearerTokenResolver = this.context.getBean(BearerTokenResolver.class);
+				this.authenticationConverter = new BearerTokenResolverConverterAdapter(bearerTokenResolver);
 			}
 			else {
-				this.bearerTokenResolver = new DefaultBearerTokenResolver();
+				this.authenticationConverter = new BearerTokenResolverConverterAdapter(
+						new DefaultBearerTokenResolver());
 			}
 		}
-		return this.bearerTokenResolver;
+		return this.authenticationConverter;
+	}
+
+	BearerTokenResolver getBearerTokenResolver() {
+		if (this.authenticationConverter instanceof BearerTokenResolverConverterAdapter) {
+			return ((BearerTokenResolverConverterAdapter) this.authenticationConverter).getBearerTokenResolver();
+		}
+		return null;
 	}
 
 	public class JwtConfigurer {
@@ -558,21 +583,57 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 
 	private static final class BearerTokenRequestMatcher implements RequestMatcher {
 
-		private BearerTokenResolver bearerTokenResolver;
+		private AuthenticationConverter authenticationConverter;
 
 		@Override
 		public boolean matches(HttpServletRequest request) {
 			try {
-				return this.bearerTokenResolver.resolve(request) != null;
+				return this.authenticationConverter.convert(request) != null;
 			}
 			catch (OAuth2AuthenticationException ex) {
 				return false;
 			}
 		}
 
-		void setBearerTokenResolver(BearerTokenResolver tokenResolver) {
-			Assert.notNull(tokenResolver, "resolver cannot be null");
-			this.bearerTokenResolver = tokenResolver;
+		void setAuthenticationConverter(AuthenticationConverter authenticationConverter) {
+			Assert.notNull(authenticationConverter, "authenticationConverter cannot be null");
+			this.authenticationConverter = authenticationConverter;
+		}
+
+	}
+
+	private static final class BearerTokenResolverConverterAdapter implements AuthenticationConverter {
+
+		private final BearerTokenResolver bearerTokenResolver;
+
+		BearerTokenResolverConverterAdapter(BearerTokenResolver bearerTokenResolver) {
+			Assert.notNull(bearerTokenResolver, "bearerTokenResolver cant be null");
+			this.bearerTokenResolver = bearerTokenResolver;
+		}
+
+		@Override
+		public Authentication convert(HttpServletRequest request) {
+			String token = this.bearerTokenResolver.resolve(request);
+			if (StringUtils.hasText(token)) {
+				return new BearerTokenAuthenticationToken(token);
+			}
+			return null;
+		}
+
+		BearerTokenResolver getBearerTokenResolver() {
+			return this.bearerTokenResolver;
+		}
+
+	}
+
+	private static final class LoggingAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
+
+		private final Log logger = LogFactory.getLog(getClass());
+
+		@Override
+		public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
+				Authentication authentication) {
+			this.logger.debug("User has been successfully authenticated");
 		}
 
 	}

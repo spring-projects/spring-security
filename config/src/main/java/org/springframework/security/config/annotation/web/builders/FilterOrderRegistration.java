@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -104,6 +104,7 @@ final class FilterOrderRegistration {
 		this.filterToOrder.put(
 				"org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter",
 				order.next());
+		this.filterToOrder.put("org.springframework.security.web.authentication.AuthenticationFilter", order.next());
 		put(BasicAuthenticationFilter.class, order.next());
 		put(RequestCacheAwareFilter.class, order.next());
 		put(SecurityContextHolderAwareRequestFilter.class, order.next());
