@@ -1707,8 +1707,7 @@ For interfaces, either annotations or the `-parameters` approach must be used.
 
 Spring Security also supports wrapping any object that is annotated its method security annotations.
 
-To achieve this, you can autowire the provided `AuthorizationProxyFactory` instance, which is based on which method security interceptors you have configured.
-If you are using `@EnableMethodSecurity`, then this means that it will by default have the interceptors for `@PreAuthorize`, `@PostAuthorize`, `@PreFilter`, and `@PostFilter`.
+The simplest way to achieve this is to mark any method that returns the object you wish to authorize with the `@AuthorizeReturnObject` annotation.
 
 For example, consider the following `User` class:
 
@@ -1745,6 +1744,89 @@ Kotlin::
 class User (val name:String, @get:PreAuthorize("hasAuthority('user:read')") val email:String)
 ----
 ======
+
+Given an interface like this one:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+public class UserRepository {
+	@AuthorizeReturnObject
+    Optional<User> findByName(String name) {
+		// ...
+    }
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+class UserRepository {
+    @AuthorizeReturnObject
+    fun findByName(name:String?): Optional<User?>? {
+        // ...
+    }
+}
+----
+======
+
+Then any `User` that is returned from `findById` will be secured like other Spring Security-protected components:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Autowired
+UserRepository users;
+
+@Test
+void getEmailWhenProxiedThenAuthorizes() {
+    Optional<User> securedUser = users.findByName("name");
+    assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(() -> securedUser.get().getEmail());
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+
+import jdk.incubator.vector.VectorOperators.Test
+import java.nio.file.AccessDeniedException
+import java.util.*
+
+@Autowired
+var users:UserRepository? = null
+
+@Test
+fun getEmailWhenProxiedThenAuthorizes() {
+    val securedUser: Optional<User> = users.findByName("name")
+    assertThatExceptionOfType(AccessDeniedException::class.java).isThrownBy{securedUser.get().getEmail()}
+}
+----
+======
+
+[NOTE]
+====
+`@AuthorizeReturnObject` can be placed at the class level. Note, though, that this means Spring Security will proxy any return object, including ``String``, ``Integer`` and other types.
+This is often not what you want to do.
+
+In most cases, you will want to annotate the individual methods.
+====
+
+=== Programmatically Proxying
+
+You can also programmatically proxy a given object.
+
+To achieve this, you can autowire the provided `AuthorizationProxyFactory` instance, which is based on which method security interceptors you have configured.
+If you are using `@EnableMethodSecurity`, then this means that it will by default have the interceptors for `@PreAuthorize`, `@PostAuthorize`, `@PreFilter`, and `@PostFilter`.
+
 
 You can proxy an instance of user in the following way:
 

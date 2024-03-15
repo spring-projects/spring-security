@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,11 +54,29 @@ public class PostFilterAspectTests {
 		assertThat(this.prePostSecured.postFilterMethod(objects)).containsExactly("apple", "aubergine");
 	}
 
+	@Test
+	public void nestedDenyAllPostFilterDeniesAccess() {
+		assertThat(this.prePostSecured.myObject().denyAllMethod()).isEmpty();
+	}
+
 	static class PrePostSecured {
 
 		@PostFilter("filterObject.startsWith('a')")
 		List<String> postFilterMethod(List<String> objects) {
 			return objects;
+		}
+
+		NestedObject myObject() {
+			return new NestedObject();
+		}
+
+	}
+
+	static class NestedObject {
+
+		@PostFilter("filterObject == null")
+		List<String> denyAllMethod() {
+			return new ArrayList<>(List.of("deny"));
 		}
 
 	}

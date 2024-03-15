@@ -42,6 +42,7 @@ import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 import org.springframework.security.authorization.method.AuthorizationAdvisor;
 import org.springframework.security.authorization.method.AuthorizationManagerAfterMethodInterceptor;
 import org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor;
+import org.springframework.security.authorization.method.AuthorizeReturnObjectMethodInterceptor;
 import org.springframework.security.authorization.method.PostFilterAuthorizationMethodInterceptor;
 import org.springframework.security.authorization.method.PreFilterAuthorizationMethodInterceptor;
 import org.springframework.util.ClassUtils;
@@ -83,6 +84,7 @@ public final class AuthorizationAdvisorProxyFactory implements AuthorizationProx
 		advisors.add(AuthorizationManagerAfterMethodInterceptor.postAuthorize());
 		advisors.add(new PreFilterAuthorizationMethodInterceptor());
 		advisors.add(new PostFilterAuthorizationMethodInterceptor());
+		advisors.add(new AuthorizeReturnObjectMethodInterceptor(this));
 		setAdvisors(advisors);
 	}
 
