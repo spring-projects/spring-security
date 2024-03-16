@@ -51,9 +51,11 @@ import org.opensaml.saml.saml2.core.Conditions;
 import org.opensaml.saml.saml2.core.EncryptedAssertion;
 import org.opensaml.saml.saml2.core.EncryptedAttribute;
 import org.opensaml.saml.saml2.core.EncryptedID;
+import org.opensaml.saml.saml2.core.Issuer;
 import org.opensaml.saml.saml2.core.NameID;
 import org.opensaml.saml.saml2.core.OneTimeUse;
 import org.opensaml.saml.saml2.core.Response;
+import org.opensaml.saml.saml2.core.Status;
 import org.opensaml.saml.saml2.core.StatusCode;
 import org.opensaml.saml.saml2.core.SubjectConfirmation;
 import org.opensaml.saml.saml2.core.SubjectConfirmationData;
@@ -61,6 +63,8 @@ import org.opensaml.saml.saml2.core.impl.AttributeBuilder;
 import org.opensaml.saml.saml2.core.impl.EncryptedAssertionBuilder;
 import org.opensaml.saml.saml2.core.impl.EncryptedIDBuilder;
 import org.opensaml.saml.saml2.core.impl.NameIDBuilder;
+import org.opensaml.saml.saml2.core.impl.StatusBuilder;
+import org.opensaml.saml.saml2.core.impl.StatusCodeBuilder;
 import org.opensaml.xmlsec.encryption.impl.EncryptedDataBuilder;
 import org.opensaml.xmlsec.signature.support.SignatureConstants;
 import org.w3c.dom.Element;
@@ -82,6 +86,8 @@ import org.springframework.util.StringUtils;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.atLeastOnce;
@@ -727,6 +733,77 @@ public class OpenSaml4AuthenticationProviderTests {
 			.willReturn(Saml2ResponseValidatorResult.success());
 		provider.authenticate(token);
 		verify(validator).convert(any(OpenSaml4AuthenticationProvider.ResponseToken.class));
+	}
+
+	@Test
+	public void setsOnlyParentStatusCodeOnResultDescription() {
+		ResponseToken mockResponseToken = mock(ResponseToken.class);
+		Saml2AuthenticationToken mockSamlToken = mock(Saml2AuthenticationToken.class);
+		given(mockResponseToken.getToken()).willReturn(mockSamlToken);
+
+		RelyingPartyRegistration mockRelyingPartyRegistration = mock(RelyingPartyRegistration.class);
+		given(mockSamlToken.getRelyingPartyRegistration()).willReturn(mockRelyingPartyRegistration);
+
+		RelyingPartyRegistration.AssertingPartyDetails mockAssertingPartyDetails = mock(RelyingPartyRegistration.AssertingPartyDetails.class);
+		given(mockRelyingPartyRegistration.getAssertingPartyDetails()).willReturn(mockAssertingPartyDetails);
+
+		Status parentStatus = new StatusBuilder().buildObject();
+		StatusCode parentStatusCode = new StatusCodeBuilder().buildObject();
+		parentStatusCode.setValue(StatusCode.AUTHN_FAILED);
+		StatusCode childStatusCode = new StatusCodeBuilder().buildObject();
+		childStatusCode.setValue(StatusCode.NO_PASSIVE);
+		parentStatusCode.setStatusCode(childStatusCode);
+		parentStatus.setStatusCode(parentStatusCode);
+
+		Response mockResponse = mock(Response.class);
+		given(mockResponse.getStatus()).willReturn(parentStatus);
+		Issuer mockIssuer = mock(Issuer.class);
+		given(mockIssuer.getValue()).willReturn("mockedIssuer");
+		given(mockResponse.getIssuer()).willReturn(mockIssuer);
+
+		given(mockResponseToken.getResponse()).willReturn(mockResponse);
+
+		Converter<ResponseToken, Saml2ResponseValidatorResult> validator = OpenSaml4AuthenticationProvider.createDefaultResponseValidator();
+		Saml2ResponseValidatorResult result = validator.convert(mockResponseToken);
+
+		String expectedErrorMessage = String.format("Invalid status [%s] for SAML response", parentStatusCode.getValue());
+		assertTrue(result.getErrors().stream().anyMatch(error -> error.getDescription().contains(expectedErrorMessage)));
+		assertFalse(result.getErrors().stream().anyMatch(error -> error.getDescription().contains(childStatusCode.getValue())));
+	}
+
+	@Test
+	public void setsParentAndChildStatusCodeOnResultDescription() {
+		ResponseToken mockResponseToken = mock(ResponseToken.class);
+		Saml2AuthenticationToken mockSamlToken = mock(Saml2AuthenticationToken.class);
+		given(mockResponseToken.getToken()).willReturn(mockSamlToken);
+
+		RelyingPartyRegistration mockRelyingPartyRegistration = mock(RelyingPartyRegistration.class);
+		given(mockSamlToken.getRelyingPartyRegistration()).willReturn(mockRelyingPartyRegistration);
+
+		RelyingPartyRegistration.AssertingPartyDetails mockAssertingPartyDetails = mock(RelyingPartyRegistration.AssertingPartyDetails.class);
+		given(mockRelyingPartyRegistration.getAssertingPartyDetails()).willReturn(mockAssertingPartyDetails);
+
+		Status parentStatus = new StatusBuilder().buildObject();
+		StatusCode parentStatusCode = new StatusCodeBuilder().buildObject();
+		parentStatusCode.setValue(StatusCode.REQUESTER);
+		StatusCode childStatusCode = new StatusCodeBuilder().buildObject();
+		childStatusCode.setValue(StatusCode.NO_PASSIVE);
+		parentStatusCode.setStatusCode(childStatusCode);
+		parentStatus.setStatusCode(parentStatusCode);
+
+		Response mockResponse = mock(Response.class);
+		given(mockResponse.getStatus()).willReturn(parentStatus);
+		Issuer mockIssuer = mock(Issuer.class);
+		given(mockIssuer.getValue()).willReturn("mockedIssuer");
+		given(mockResponse.getIssuer()).willReturn(mockIssuer);
+
+		given(mockResponseToken.getResponse()).willReturn(mockResponse);
+
+		Converter<ResponseToken, Saml2ResponseValidatorResult> validator = OpenSaml4AuthenticationProvider.createDefaultResponseValidator();
+		Saml2ResponseValidatorResult result = validator.convert(mockResponseToken);
+
+		String expectedErrorMessage = String.format("Invalid status [%s] for SAML response", parentStatusCode.getValue() + childStatusCode.getValue());
+		assertTrue(result.getErrors().stream().anyMatch(error -> error.getDescription().contains(expectedErrorMessage)));
 	}
 
 	@Test
