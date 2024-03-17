@@ -18,15 +18,20 @@ package org.springframework.security.config.annotation.method.configuration;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authentication.TestAuthentication;
 import org.springframework.security.authorization.AuthorizationProxyFactory;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.test.context.annotation.SecurityTestExecutionListeners;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -69,9 +74,39 @@ public class AuthorizationProxyConfigurationTests {
 		assertThat(toaster.extractBread()).isEqualTo("yummy");
 	}
 
+	@Test
+	public void proxyReactiveWhenNotPreAuthorizedThenDenies() {
+		this.spring.register(ReactiveDefaultsConfig.class).autowire();
+		Toaster toaster = (Toaster) this.proxyFactory.proxy(new Toaster());
+		Authentication user = TestAuthentication.authenticatedUser();
+		StepVerifier
+			.create(toaster.reactiveMakeToast().contextWrite(ReactiveSecurityContextHolder.withAuthentication(user)))
+			.verifyError(AccessDeniedException.class);
+		StepVerifier
+			.create(toaster.reactiveExtractBread().contextWrite(ReactiveSecurityContextHolder.withAuthentication(user)))
+			.verifyError(AccessDeniedException.class);
+	}
+
+	@Test
+	public void proxyReactiveWhenPreAuthorizedThenAllows() {
+		this.spring.register(ReactiveDefaultsConfig.class).autowire();
+		Toaster toaster = (Toaster) this.proxyFactory.proxy(new Toaster());
+		Authentication admin = TestAuthentication.authenticatedAdmin();
+		StepVerifier
+			.create(toaster.reactiveMakeToast().contextWrite(ReactiveSecurityContextHolder.withAuthentication(admin)))
+			.expectNext()
+			.verifyComplete();
+	}
+
 	@EnableMethodSecurity
 	@Configuration
 	static class DefaultsConfig {
+
+	}
+
+	@EnableReactiveMethodSecurity
+	@Configuration
+	static class ReactiveDefaultsConfig {
 
 	}
 
@@ -85,6 +120,16 @@ public class AuthorizationProxyConfigurationTests {
 		@PostAuthorize("hasRole('ADMIN')")
 		String extractBread() {
 			return "yummy";
+		}
+
+		@PreAuthorize("hasRole('ADMIN')")
+		Mono<Void> reactiveMakeToast() {
+			return Mono.empty();
+		}
+
+		@PostAuthorize("hasRole('ADMIN')")
+		Mono<String> reactiveExtractBread() {
+			return Mono.just("yummy");
 		}
 
 	}

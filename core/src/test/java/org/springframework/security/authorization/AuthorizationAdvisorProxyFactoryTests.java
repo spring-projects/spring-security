@@ -41,7 +41,6 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.TestAuthentication;
 import org.springframework.security.authorization.method.AuthorizationAdvisor;
-import org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -65,9 +64,7 @@ public class AuthorizationAdvisorProxyFactoryTests {
 	@Test
 	public void proxyWhenPreAuthorizeThenHonors() {
 		SecurityContextHolder.getContext().setAuthentication(this.user);
-		AuthorizationManagerBeforeMethodInterceptor preAuthorize = AuthorizationManagerBeforeMethodInterceptor
-			.preAuthorize();
-		AuthorizationAdvisorProxyFactory factory = new AuthorizationAdvisorProxyFactory(preAuthorize);
+		AuthorizationAdvisorProxyFactory factory = new AuthorizationAdvisorProxyFactory();
 		Flight flight = new Flight();
 		assertThat(flight.getAltitude()).isEqualTo(35000d);
 		Flight secured = proxy(factory, flight);
@@ -78,9 +75,7 @@ public class AuthorizationAdvisorProxyFactoryTests {
 	@Test
 	public void proxyWhenPreAuthorizeOnInterfaceThenHonors() {
 		SecurityContextHolder.getContext().setAuthentication(this.user);
-		AuthorizationManagerBeforeMethodInterceptor preAuthorize = AuthorizationManagerBeforeMethodInterceptor
-			.preAuthorize();
-		AuthorizationAdvisorProxyFactory factory = new AuthorizationAdvisorProxyFactory(preAuthorize);
+		AuthorizationAdvisorProxyFactory factory = new AuthorizationAdvisorProxyFactory();
 		assertThat(this.alan.getFirstName()).isEqualTo("alan");
 		User secured = proxy(factory, this.alan);
 		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(secured::getFirstName);
@@ -94,9 +89,7 @@ public class AuthorizationAdvisorProxyFactoryTests {
 	@Test
 	public void proxyWhenPreAuthorizeOnRecordThenHonors() {
 		SecurityContextHolder.getContext().setAuthentication(this.user);
-		AuthorizationManagerBeforeMethodInterceptor preAuthorize = AuthorizationManagerBeforeMethodInterceptor
-			.preAuthorize();
-		AuthorizationAdvisorProxyFactory factory = new AuthorizationAdvisorProxyFactory(preAuthorize);
+		AuthorizationAdvisorProxyFactory factory = new AuthorizationAdvisorProxyFactory();
 		HasSecret repo = new Repository("secret");
 		assertThat(repo.secret()).isEqualTo("secret");
 		HasSecret secured = proxy(factory, repo);
@@ -109,9 +102,7 @@ public class AuthorizationAdvisorProxyFactoryTests {
 	@Test
 	public void proxyWhenImmutableListThenReturnsSecuredImmutableList() {
 		SecurityContextHolder.getContext().setAuthentication(this.user);
-		AuthorizationManagerBeforeMethodInterceptor preAuthorize = AuthorizationManagerBeforeMethodInterceptor
-			.preAuthorize();
-		AuthorizationAdvisorProxyFactory factory = new AuthorizationAdvisorProxyFactory(preAuthorize);
+		AuthorizationAdvisorProxyFactory factory = new AuthorizationAdvisorProxyFactory();
 		List<Flight> flights = List.of(this.flight);
 		List<Flight> secured = proxy(factory, flights);
 		secured.forEach(
@@ -123,9 +114,7 @@ public class AuthorizationAdvisorProxyFactoryTests {
 	@Test
 	public void proxyWhenImmutableSetThenReturnsSecuredImmutableSet() {
 		SecurityContextHolder.getContext().setAuthentication(this.user);
-		AuthorizationManagerBeforeMethodInterceptor preAuthorize = AuthorizationManagerBeforeMethodInterceptor
-			.preAuthorize();
-		AuthorizationAdvisorProxyFactory factory = new AuthorizationAdvisorProxyFactory(preAuthorize);
+		AuthorizationAdvisorProxyFactory factory = new AuthorizationAdvisorProxyFactory();
 		Set<Flight> flights = Set.of(this.flight);
 		Set<Flight> secured = proxy(factory, flights);
 		secured.forEach(
@@ -137,9 +126,7 @@ public class AuthorizationAdvisorProxyFactoryTests {
 	@Test
 	public void proxyWhenQueueThenReturnsSecuredQueue() {
 		SecurityContextHolder.getContext().setAuthentication(this.user);
-		AuthorizationManagerBeforeMethodInterceptor preAuthorize = AuthorizationManagerBeforeMethodInterceptor
-			.preAuthorize();
-		AuthorizationAdvisorProxyFactory factory = new AuthorizationAdvisorProxyFactory(preAuthorize);
+		AuthorizationAdvisorProxyFactory factory = new AuthorizationAdvisorProxyFactory();
 		Queue<Flight> flights = new LinkedList<>(List.of(this.flight));
 		Queue<Flight> secured = proxy(factory, flights);
 		assertThat(flights.size()).isEqualTo(secured.size());
@@ -151,9 +138,7 @@ public class AuthorizationAdvisorProxyFactoryTests {
 	@Test
 	public void proxyWhenImmutableSortedSetThenReturnsSecuredImmutableSortedSet() {
 		SecurityContextHolder.getContext().setAuthentication(this.user);
-		AuthorizationManagerBeforeMethodInterceptor preAuthorize = AuthorizationManagerBeforeMethodInterceptor
-			.preAuthorize();
-		AuthorizationAdvisorProxyFactory factory = new AuthorizationAdvisorProxyFactory(preAuthorize);
+		AuthorizationAdvisorProxyFactory factory = new AuthorizationAdvisorProxyFactory();
 		SortedSet<User> users = Collections.unmodifiableSortedSet(new TreeSet<>(Set.of(this.alan)));
 		SortedSet<User> secured = proxy(factory, users);
 		secured
@@ -165,9 +150,7 @@ public class AuthorizationAdvisorProxyFactoryTests {
 	@Test
 	public void proxyWhenImmutableSortedMapThenReturnsSecuredImmutableSortedMap() {
 		SecurityContextHolder.getContext().setAuthentication(this.user);
-		AuthorizationManagerBeforeMethodInterceptor preAuthorize = AuthorizationManagerBeforeMethodInterceptor
-			.preAuthorize();
-		AuthorizationAdvisorProxyFactory factory = new AuthorizationAdvisorProxyFactory(preAuthorize);
+		AuthorizationAdvisorProxyFactory factory = new AuthorizationAdvisorProxyFactory();
 		SortedMap<String, User> users = Collections
 			.unmodifiableSortedMap(new TreeMap<>(Map.of(this.alan.getId(), this.alan)));
 		SortedMap<String, User> secured = proxy(factory, users);
@@ -180,9 +163,7 @@ public class AuthorizationAdvisorProxyFactoryTests {
 	@Test
 	public void proxyWhenImmutableMapThenReturnsSecuredImmutableMap() {
 		SecurityContextHolder.getContext().setAuthentication(this.user);
-		AuthorizationManagerBeforeMethodInterceptor preAuthorize = AuthorizationManagerBeforeMethodInterceptor
-			.preAuthorize();
-		AuthorizationAdvisorProxyFactory factory = new AuthorizationAdvisorProxyFactory(preAuthorize);
+		AuthorizationAdvisorProxyFactory factory = new AuthorizationAdvisorProxyFactory();
 		Map<String, User> users = Map.of(this.alan.getId(), this.alan);
 		Map<String, User> secured = proxy(factory, users);
 		secured.forEach(
@@ -194,9 +175,7 @@ public class AuthorizationAdvisorProxyFactoryTests {
 	@Test
 	public void proxyWhenMutableListThenReturnsSecuredMutableList() {
 		SecurityContextHolder.getContext().setAuthentication(this.user);
-		AuthorizationManagerBeforeMethodInterceptor preAuthorize = AuthorizationManagerBeforeMethodInterceptor
-			.preAuthorize();
-		AuthorizationAdvisorProxyFactory factory = new AuthorizationAdvisorProxyFactory(preAuthorize);
+		AuthorizationAdvisorProxyFactory factory = new AuthorizationAdvisorProxyFactory();
 		List<Flight> flights = new ArrayList<>(List.of(this.flight));
 		List<Flight> secured = proxy(factory, flights);
 		secured.forEach(
@@ -208,9 +187,7 @@ public class AuthorizationAdvisorProxyFactoryTests {
 	@Test
 	public void proxyWhenMutableSetThenReturnsSecuredMutableSet() {
 		SecurityContextHolder.getContext().setAuthentication(this.user);
-		AuthorizationManagerBeforeMethodInterceptor preAuthorize = AuthorizationManagerBeforeMethodInterceptor
-			.preAuthorize();
-		AuthorizationAdvisorProxyFactory factory = new AuthorizationAdvisorProxyFactory(preAuthorize);
+		AuthorizationAdvisorProxyFactory factory = new AuthorizationAdvisorProxyFactory();
 		Set<Flight> flights = new HashSet<>(Set.of(this.flight));
 		Set<Flight> secured = proxy(factory, flights);
 		secured.forEach(
@@ -222,9 +199,7 @@ public class AuthorizationAdvisorProxyFactoryTests {
 	@Test
 	public void proxyWhenMutableSortedSetThenReturnsSecuredMutableSortedSet() {
 		SecurityContextHolder.getContext().setAuthentication(this.user);
-		AuthorizationManagerBeforeMethodInterceptor preAuthorize = AuthorizationManagerBeforeMethodInterceptor
-			.preAuthorize();
-		AuthorizationAdvisorProxyFactory factory = new AuthorizationAdvisorProxyFactory(preAuthorize);
+		AuthorizationAdvisorProxyFactory factory = new AuthorizationAdvisorProxyFactory();
 		SortedSet<User> users = new TreeSet<>(Set.of(this.alan));
 		SortedSet<User> secured = proxy(factory, users);
 		secured.forEach((u) -> assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(u::getFirstName));
@@ -235,9 +210,7 @@ public class AuthorizationAdvisorProxyFactoryTests {
 	@Test
 	public void proxyWhenMutableSortedMapThenReturnsSecuredMutableSortedMap() {
 		SecurityContextHolder.getContext().setAuthentication(this.user);
-		AuthorizationManagerBeforeMethodInterceptor preAuthorize = AuthorizationManagerBeforeMethodInterceptor
-			.preAuthorize();
-		AuthorizationAdvisorProxyFactory factory = new AuthorizationAdvisorProxyFactory(preAuthorize);
+		AuthorizationAdvisorProxyFactory factory = new AuthorizationAdvisorProxyFactory();
 		SortedMap<String, User> users = new TreeMap<>(Map.of(this.alan.getId(), this.alan));
 		SortedMap<String, User> secured = proxy(factory, users);
 		secured.forEach((id, u) -> assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(u::getFirstName));
@@ -248,9 +221,7 @@ public class AuthorizationAdvisorProxyFactoryTests {
 	@Test
 	public void proxyWhenMutableMapThenReturnsSecuredMutableMap() {
 		SecurityContextHolder.getContext().setAuthentication(this.user);
-		AuthorizationManagerBeforeMethodInterceptor preAuthorize = AuthorizationManagerBeforeMethodInterceptor
-			.preAuthorize();
-		AuthorizationAdvisorProxyFactory factory = new AuthorizationAdvisorProxyFactory(preAuthorize);
+		AuthorizationAdvisorProxyFactory factory = new AuthorizationAdvisorProxyFactory();
 		Map<String, User> users = new HashMap<>(Map.of(this.alan.getId(), this.alan));
 		Map<String, User> secured = proxy(factory, users);
 		secured.forEach((id, u) -> assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(u::getFirstName));
@@ -261,9 +232,7 @@ public class AuthorizationAdvisorProxyFactoryTests {
 	@Test
 	public void proxyWhenPreAuthorizeForOptionalThenHonors() {
 		SecurityContextHolder.getContext().setAuthentication(this.user);
-		AuthorizationManagerBeforeMethodInterceptor preAuthorize = AuthorizationManagerBeforeMethodInterceptor
-			.preAuthorize();
-		AuthorizationAdvisorProxyFactory factory = new AuthorizationAdvisorProxyFactory(preAuthorize);
+		AuthorizationAdvisorProxyFactory factory = new AuthorizationAdvisorProxyFactory();
 		Optional<Flight> flights = Optional.of(this.flight);
 		assertThat(flights.get().getAltitude()).isEqualTo(35000d);
 		Optional<Flight> secured = proxy(factory, flights);
@@ -274,9 +243,7 @@ public class AuthorizationAdvisorProxyFactoryTests {
 	@Test
 	public void proxyWhenPreAuthorizeForStreamThenHonors() {
 		SecurityContextHolder.getContext().setAuthentication(this.user);
-		AuthorizationManagerBeforeMethodInterceptor preAuthorize = AuthorizationManagerBeforeMethodInterceptor
-			.preAuthorize();
-		AuthorizationAdvisorProxyFactory factory = new AuthorizationAdvisorProxyFactory(preAuthorize);
+		AuthorizationAdvisorProxyFactory factory = new AuthorizationAdvisorProxyFactory();
 		Stream<Flight> flights = Stream.of(this.flight);
 		Stream<Flight> secured = proxy(factory, flights);
 		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(() -> secured.forEach(Flight::getAltitude));
@@ -286,9 +253,7 @@ public class AuthorizationAdvisorProxyFactoryTests {
 	@Test
 	public void proxyWhenPreAuthorizeForArrayThenHonors() {
 		SecurityContextHolder.getContext().setAuthentication(this.user);
-		AuthorizationManagerBeforeMethodInterceptor preAuthorize = AuthorizationManagerBeforeMethodInterceptor
-			.preAuthorize();
-		AuthorizationAdvisorProxyFactory factory = new AuthorizationAdvisorProxyFactory(preAuthorize);
+		AuthorizationAdvisorProxyFactory factory = new AuthorizationAdvisorProxyFactory();
 		Flight[] flights = { this.flight };
 		Flight[] secured = proxy(factory, flights);
 		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(secured[0]::getAltitude);
@@ -298,9 +263,7 @@ public class AuthorizationAdvisorProxyFactoryTests {
 	@Test
 	public void proxyWhenPreAuthorizeForIteratorThenHonors() {
 		SecurityContextHolder.getContext().setAuthentication(this.user);
-		AuthorizationManagerBeforeMethodInterceptor preAuthorize = AuthorizationManagerBeforeMethodInterceptor
-			.preAuthorize();
-		AuthorizationAdvisorProxyFactory factory = new AuthorizationAdvisorProxyFactory(preAuthorize);
+		AuthorizationAdvisorProxyFactory factory = new AuthorizationAdvisorProxyFactory();
 		Iterator<Flight> flights = List.of(this.flight).iterator();
 		Iterator<Flight> secured = proxy(factory, flights);
 		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(() -> secured.next().getAltitude());
@@ -310,9 +273,7 @@ public class AuthorizationAdvisorProxyFactoryTests {
 	@Test
 	public void proxyWhenPreAuthorizeForIterableThenHonors() {
 		SecurityContextHolder.getContext().setAuthentication(this.user);
-		AuthorizationManagerBeforeMethodInterceptor preAuthorize = AuthorizationManagerBeforeMethodInterceptor
-			.preAuthorize();
-		AuthorizationAdvisorProxyFactory factory = new AuthorizationAdvisorProxyFactory(preAuthorize);
+		AuthorizationAdvisorProxyFactory factory = new AuthorizationAdvisorProxyFactory();
 		Iterable<User> users = new UserRepository();
 		Iterable<User> secured = proxy(factory, users);
 		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(() -> secured.forEach(User::getFirstName));
@@ -321,9 +282,7 @@ public class AuthorizationAdvisorProxyFactoryTests {
 
 	@Test
 	public void proxyWhenPreAuthorizeForClassThenHonors() {
-		AuthorizationManagerBeforeMethodInterceptor preAuthorize = AuthorizationManagerBeforeMethodInterceptor
-			.preAuthorize();
-		AuthorizationAdvisorProxyFactory factory = new AuthorizationAdvisorProxyFactory(preAuthorize);
+		AuthorizationAdvisorProxyFactory factory = new AuthorizationAdvisorProxyFactory();
 		Class<Flight> clazz = proxy(factory, Flight.class);
 		assertThat(clazz.getSimpleName()).contains("SpringCGLIB$$0");
 		Flight secured = proxy(factory, this.flight);
@@ -334,12 +293,12 @@ public class AuthorizationAdvisorProxyFactoryTests {
 	}
 
 	@Test
-	public void withAdvisorsWhenProxyThenVisits() {
+	public void setAdvisorsWhenProxyThenVisits() {
 		AuthorizationAdvisor advisor = mock(AuthorizationAdvisor.class);
 		given(advisor.getAdvice()).willReturn(advisor);
 		given(advisor.getPointcut()).willReturn(Pointcut.TRUE);
 		AuthorizationAdvisorProxyFactory factory = new AuthorizationAdvisorProxyFactory();
-		factory = factory.withAdvisors(advisor);
+		factory.setAdvisors(advisor);
 		Flight flight = proxy(factory, this.flight);
 		flight.getAltitude();
 		verify(advisor, atLeastOnce()).getPointcut();

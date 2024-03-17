@@ -25,18 +25,19 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Role;
-import org.springframework.security.authorization.AuthorizationAdvisorProxyFactory;
+import org.springframework.security.authorization.ReactiveAuthorizationAdvisorProxyFactory;
 import org.springframework.security.authorization.method.AuthorizationAdvisor;
 
 @Configuration(proxyBeanMethods = false)
-final class AuthorizationProxyConfiguration implements AopInfrastructureBean {
+final class ReactiveAuthorizationProxyConfiguration implements AopInfrastructureBean {
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-	static AuthorizationAdvisorProxyFactory authorizationProxyFactory(ObjectProvider<AuthorizationAdvisor> provider) {
+	static ReactiveAuthorizationAdvisorProxyFactory authorizationProxyFactory(
+			ObjectProvider<AuthorizationAdvisor> provider) {
 		List<AuthorizationAdvisor> advisors = new ArrayList<>();
 		provider.forEach(advisors::add);
-		AuthorizationAdvisorProxyFactory factory = new AuthorizationAdvisorProxyFactory();
+		ReactiveAuthorizationAdvisorProxyFactory factory = new ReactiveAuthorizationAdvisorProxyFactory();
 		factory.setAdvisors(advisors);
 		return factory;
 	}
