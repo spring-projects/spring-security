@@ -234,6 +234,7 @@ Java::
 [source,java,role="primary"]
 ----
 @Bean
+@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 static GrantedAuthorityDefaults grantedAuthorityDefaults() {
 	return new GrantedAuthorityDefaults("MYPREFIX_");
 }
@@ -245,6 +246,7 @@ Kotlin::
 ----
 companion object {
 	@Bean
+	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 	fun grantedAuthorityDefaults() : GrantedAuthorityDefaults {
 		return GrantedAuthorityDefaults("MYPREFIX_");
 	}
@@ -265,7 +267,8 @@ Xml::
 
 [TIP]
 ====
-We expose `GrantedAuthorityDefaults` using a `static` method to ensure that Spring publishes it before it initializes Spring Security's method security `@Configuration` classes
+We expose `GrantedAuthorityDefaults` using a `static` method to ensure that Spring publishes it before it initializes Spring Security's method security `@Configuration` classes.
+Since the `GrantedAuthorityDefaults` bean is part of internal workings of Spring Security, we should also expose it as an infrastructural bean effectively avoiding some warnings related to bean post-processing (see https://github.com/spring-projects/spring-security/issues/14751[gh-14751]).
 ====
 
 [[jc-method-security-custom-authorization-manager]]
