@@ -51,6 +51,7 @@ Java::
 [source,java,role="primary"]
 ----
 @Bean
+@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 static GrantedAuthorityDefaults grantedAuthorityDefaults() {
 	return new GrantedAuthorityDefaults("MYPREFIX_");
 }
@@ -62,6 +63,7 @@ Kotlin::
 ----
 companion object {
 	@Bean
+	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 	fun grantedAuthorityDefaults() : GrantedAuthorityDefaults {
 		return GrantedAuthorityDefaults("MYPREFIX_");
 	}
@@ -80,7 +82,7 @@ Xml::
 
 [TIP]
 ====
-You expose `GrantedAuthorityDefaults` using a `static` method to ensure that Spring publishes it before it initializes Spring Security's method security `@Configuration` classes
+You expose `GrantedAuthorityDefaults` using a `static` method to ensure that Spring publishes it before it initializes Spring Security's method security `@Configuration` classes. To avoid warnings during post processing declare the bean as infrastructure bean.
 ====
 
 [[authz-pre-invocation]]
