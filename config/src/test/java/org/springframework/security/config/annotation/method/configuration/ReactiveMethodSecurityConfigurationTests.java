@@ -30,8 +30,10 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Role;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.expression.SecurityExpressionRoot;
@@ -42,7 +44,10 @@ import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.access.prepost.PreFilter;
 import org.springframework.security.authentication.TestAuthentication;
+import org.springframework.security.authorization.AuthorizationAdvisorProxyFactory;
+import org.springframework.security.authorization.AuthorizationAdvisorProxyFactory.TargetVisitor;
 import org.springframework.security.authorization.method.AuthorizeReturnObject;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.core.GrantedAuthorityDefaults;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
@@ -239,6 +244,12 @@ public class ReactiveMethodSecurityConfigurationTests {
 	static class AuthorizeResultConfig {
 
 		@Bean
+		@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+		static Customizer<AuthorizationAdvisorProxyFactory> skipValueTypes() {
+			return (factory) -> factory.setTargetVisitor(TargetVisitor.defaultsSkipValueTypes());
+		}
+
+		@Bean
 		FlightRepository flights() {
 			FlightRepository flights = new FlightRepository();
 			Flight one = new Flight("1", 35000d, 35);
@@ -282,6 +293,7 @@ public class ReactiveMethodSecurityConfigurationTests {
 
 	}
 
+	@AuthorizeReturnObject
 	static class Flight {
 
 		private final String id;
@@ -312,7 +324,6 @@ public class ReactiveMethodSecurityConfigurationTests {
 			return Mono.just(this.seats);
 		}
 
-		@AuthorizeReturnObject
 		@PostAuthorize("hasAnyAuthority('seating:read', 'airplane:read')")
 		@PostFilter("@isNotKevin.apply(filterObject)")
 		Flux<Passenger> getPassengers() {

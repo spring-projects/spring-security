@@ -34,17 +34,28 @@ import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
+
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import org.springframework.aop.Advisor;
 import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.core.annotation.AnnotationAwareOrderComparator;
+import org.springframework.lang.NonNull;
 import org.springframework.security.authorization.method.AuthorizationAdvisor;
 import org.springframework.security.authorization.method.AuthorizationManagerAfterMethodInterceptor;
+import org.springframework.security.authorization.method.AuthorizationManagerAfterReactiveMethodInterceptor;
 import org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor;
+import org.springframework.security.authorization.method.AuthorizationManagerBeforeReactiveMethodInterceptor;
+import org.springframework.security.authorization.method.AuthorizeReturnObject;
 import org.springframework.security.authorization.method.AuthorizeReturnObjectMethodInterceptor;
 import org.springframework.security.authorization.method.PostFilterAuthorizationMethodInterceptor;
+import org.springframework.security.authorization.method.PostFilterAuthorizationReactiveMethodInterceptor;
 import org.springframework.security.authorization.method.PreFilterAuthorizationMethodInterceptor;
+import org.springframework.security.authorization.method.PreFilterAuthorizationReactiveMethodInterceptor;
+import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 
 /**
@@ -63,8 +74,7 @@ import org.springframework.util.ClassUtils;
  * like so:
  *
  * <pre>
- *     AuthorizationManagerBeforeMethodInterceptor preAuthorize = AuthorizationManagerBeforeMethodInterceptor.preAuthorize();
- *     AuthorizationProxyFactory proxyFactory = new AuthorizationProxyFactory(preAuthorize);
+ *     AuthorizationProxyFactory proxyFactory = AuthorizationAdvisorProxyFactory.withDefaults();
  *     Foo foo = new Foo();
  *     foo.bar(); // passes
  *     Foo securedFoo = proxyFactory.proxy(foo);
@@ -74,18 +84,56 @@ import org.springframework.util.ClassUtils;
  * @author Josh Cummings
  * @since 6.3
  */
-public final class AuthorizationAdvisorProxyFactory implements AuthorizationProxyFactory {
+public final class AuthorizationAdvisorProxyFactory
+		implements AuthorizationProxyFactory, Iterable<AuthorizationAdvisor> {
 
-	private List<AuthorizationAdvisor> advisors = new ArrayList<>();
+	private static final boolean isReactivePresent = ClassUtils.isPresent("reactor.core.publisher.Mono", null);
 
-	public AuthorizationAdvisorProxyFactory() {
+	private static final TargetVisitor DEFAULT_VISITOR = isReactivePresent
+			? TargetVisitor.of(new ClassVisitor(), new ReactiveTypeVisitor(), new ContainerTypeVisitor())
+			: TargetVisitor.of(new ClassVisitor(), new ContainerTypeVisitor());
+
+	private static final TargetVisitor DEFAULT_VISITOR_SKIP_VALUE_TYPES = TargetVisitor.of(new ClassVisitor(),
+			new IgnoreValueTypeVisitor(), DEFAULT_VISITOR);
+
+	private List<AuthorizationAdvisor> advisors;
+
+	private TargetVisitor visitor = DEFAULT_VISITOR;
+
+	private AuthorizationAdvisorProxyFactory(List<AuthorizationAdvisor> advisors) {
+		this.advisors = new ArrayList<>(advisors);
+		this.advisors.add(new AuthorizeReturnObjectMethodInterceptor(this));
+		setAdvisors(this.advisors);
+	}
+
+	/**
+	 * Construct an {@link AuthorizationAdvisorProxyFactory} with the defaults needed for
+	 * wrapping objects in Spring Security's pre-post method security support.
+	 * @return an {@link AuthorizationAdvisorProxyFactory} for adding pre-post method
+	 * security support
+	 */
+	public static AuthorizationAdvisorProxyFactory withDefaults() {
 		List<AuthorizationAdvisor> advisors = new ArrayList<>();
 		advisors.add(AuthorizationManagerBeforeMethodInterceptor.preAuthorize());
 		advisors.add(AuthorizationManagerAfterMethodInterceptor.postAuthorize());
 		advisors.add(new PreFilterAuthorizationMethodInterceptor());
 		advisors.add(new PostFilterAuthorizationMethodInterceptor());
-		advisors.add(new AuthorizeReturnObjectMethodInterceptor(this));
-		setAdvisors(advisors);
+		return new AuthorizationAdvisorProxyFactory(advisors);
+	}
+
+	/**
+	 * Construct an {@link AuthorizationAdvisorProxyFactory} with the defaults needed for
+	 * wrapping objects in Spring Security's pre-post reactive method security support.
+	 * @return an {@link AuthorizationAdvisorProxyFactory} for adding pre-post reactive
+	 * method security support
+	 */
+	public static AuthorizationAdvisorProxyFactory withReactiveDefaults() {
+		List<AuthorizationAdvisor> advisors = new ArrayList<>();
+		advisors.add(AuthorizationManagerBeforeReactiveMethodInterceptor.preAuthorize());
+		advisors.add(AuthorizationManagerAfterReactiveMethodInterceptor.postAuthorize());
+		advisors.add(new PreFilterAuthorizationReactiveMethodInterceptor());
+		advisors.add(new PostFilterAuthorizationReactiveMethodInterceptor());
+		return new AuthorizationAdvisorProxyFactory(advisors);
 	}
 
 	/**
@@ -111,41 +159,9 @@ public final class AuthorizationAdvisorProxyFactory implements AuthorizationProx
 		if (target == null) {
 			return null;
 		}
-		if (target instanceof Class<?> targetClass) {
-			return proxyClass(targetClass);
-		}
-		if (target instanceof Iterator<?> iterator) {
-			return proxyIterator(iterator);
-		}
-		if (target instanceof Queue<?> queue) {
-			return proxyQueue(queue);
-		}
-		if (target instanceof List<?> list) {
-			return proxyList(list);
-		}
-		if (target instanceof SortedSet<?> set) {
-			return proxySortedSet(set);
-		}
-		if (target instanceof Set<?> set) {
-			return proxySet(set);
-		}
-		if (target.getClass().isArray()) {
-			return proxyArray((Object[]) target);
-		}
-		if (target instanceof SortedMap<?, ?> map) {
-			return proxySortedMap(map);
-		}
-		if (target instanceof Iterable<?> iterable) {
-			return proxyIterable(iterable);
-		}
-		if (target instanceof Map<?, ?> map) {
-			return proxyMap(map);
-		}
-		if (target instanceof Stream<?> stream) {
-			return proxyStream(stream);
-		}
-		if (target instanceof Optional<?> optional) {
-			return proxyOptional(optional);
+		Object proxied = this.visitor.visit(this, target);
+		if (proxied != null) {
+			return proxied;
 		}
 		ProxyFactory factory = new ProxyFactory(target);
 		for (Advisor advisor : this.advisors) {
@@ -179,144 +195,318 @@ public final class AuthorizationAdvisorProxyFactory implements AuthorizationProx
 		AnnotationAwareOrderComparator.sort(this.advisors);
 	}
 
-	@SuppressWarnings("unchecked")
-	private <T> T proxyCast(T target) {
-		return (T) proxy(target);
+	/**
+	 * Use this visitor to navigate the proxy target's hierarchy.
+	 *
+	 * <p>
+	 * This can be helpful when you want a specialized behavior for a type or set of
+	 * types. For example, if you want to have this factory skip primitives and wrappers,
+	 * then you can do:
+	 *
+	 * <pre>
+	 * 	AuthorizationAdvisorProxyFactory proxyFactory = new AuthorizationAdvisorProxyFactory();
+	 * 	proxyFactory.setTargetVisitor(AuthorizationAdvisorProxyFactory.DEFAULT_VISITOR_IGNORE_VALUE_TYPES);
+	 * </pre>
+	 * @param visitor the visitor to use to introduce specialized behavior for a type
+	 */
+	public void setTargetVisitor(TargetVisitor visitor) {
+		Assert.notNull(visitor, "delegate cannot be null");
+		this.visitor = visitor;
 	}
 
-	private Class<?> proxyClass(Class<?> targetClass) {
-		ProxyFactory factory = new ProxyFactory();
-		factory.setTargetClass(targetClass);
-		factory.setInterfaces(ClassUtils.getAllInterfacesForClass(targetClass));
-		factory.setProxyTargetClass(!Modifier.isFinal(targetClass.getModifiers()));
-		for (Advisor advisor : this.advisors) {
-			factory.addAdvisors(advisor);
+	@Override
+	@NonNull
+	public Iterator<AuthorizationAdvisor> iterator() {
+		return this.advisors.iterator();
+	}
+
+	/**
+	 * An interface to handle how the {@link AuthorizationAdvisorProxyFactory} should step
+	 * through the target's object hierarchy.
+	 *
+	 * @author Josh Cummings
+	 * @since 6.3
+	 * @see AuthorizationAdvisorProxyFactory#setTargetVisitor
+	 */
+	public interface TargetVisitor {
+
+		/**
+		 * Visit and possibly proxy this object.
+		 *
+		 * <p>
+		 * Visiting may take the form of walking down this object's hierarchy and proxying
+		 * sub-objects.
+		 *
+		 * <p>
+		 * An example is a visitor that proxies the elements of a {@link List} instead of
+		 * the list itself
+		 *
+		 * <p>
+		 * Returning {@code null} implies that this visitor does not want to proxy this
+		 * object
+		 * @param proxyFactory the proxy factory to delegate proxying to for any
+		 * sub-objects
+		 * @param target the object to proxy
+		 * @return the visited (and possibly proxied) object
+		 */
+		Object visit(AuthorizationAdvisorProxyFactory proxyFactory, Object target);
+
+		/**
+		 * The default {@link TargetVisitor}, which will proxy {@link Class} instances as
+		 * well as instances contained in reactive types (if reactor is present),
+		 * collection types, and other container types like {@link Optional}
+		 */
+		static TargetVisitor defaults() {
+			return AuthorizationAdvisorProxyFactory.DEFAULT_VISITOR;
 		}
-		return factory.getProxyClass(getClass().getClassLoader());
+
+		/**
+		 * The default {@link TargetVisitor} that also skips any value types (for example,
+		 * {@link String}, {@link Integer}). This is handy for annotations like
+		 * {@link AuthorizeReturnObject} when used at the class level
+		 */
+		static TargetVisitor defaultsSkipValueTypes() {
+			return AuthorizationAdvisorProxyFactory.DEFAULT_VISITOR_SKIP_VALUE_TYPES;
+		}
+
+		static TargetVisitor of(TargetVisitor... visitors) {
+			return (proxyFactory, target) -> {
+				for (TargetVisitor visitor : visitors) {
+					Object result = visitor.visit(proxyFactory, target);
+					if (result != null) {
+						return result;
+					}
+				}
+				return null;
+			};
+		}
+
 	}
 
-	private <T> Iterable<T> proxyIterable(Iterable<T> iterable) {
-		return () -> proxyIterator(iterable.iterator());
-	}
+	private static final class IgnoreValueTypeVisitor implements TargetVisitor {
 
-	private <T> Iterator<T> proxyIterator(Iterator<T> iterator) {
-		return new Iterator<>() {
-			@Override
-			public boolean hasNext() {
-				return iterator.hasNext();
+		@Override
+		public Object visit(AuthorizationAdvisorProxyFactory proxyFactory, Object object) {
+			if (ClassUtils.isSimpleValueType(object.getClass())) {
+				return object;
 			}
+			return null;
+		}
 
-			@Override
-			public T next() {
-				return proxyCast(iterator.next());
+	}
+
+	private static final class ClassVisitor implements TargetVisitor {
+
+		@Override
+		public Object visit(AuthorizationAdvisorProxyFactory proxyFactory, Object object) {
+			if (object instanceof Class<?> targetClass) {
+				ProxyFactory factory = new ProxyFactory();
+				factory.setTargetClass(targetClass);
+				factory.setInterfaces(ClassUtils.getAllInterfacesForClass(targetClass));
+				factory.setProxyTargetClass(!Modifier.isFinal(targetClass.getModifiers()));
+				for (Advisor advisor : proxyFactory) {
+					factory.addAdvisors(advisor);
+				}
+				return factory.getProxyClass(getClass().getClassLoader());
 			}
-		};
+			return null;
+		}
+
 	}
 
-	private <T> SortedSet<T> proxySortedSet(SortedSet<T> set) {
-		SortedSet<T> proxies = new TreeSet<>(set.comparator());
-		for (T toProxy : set) {
-			proxies.add(proxyCast(toProxy));
+	private static final class ContainerTypeVisitor implements TargetVisitor {
+
+		@Override
+		public Object visit(AuthorizationAdvisorProxyFactory proxyFactory, Object target) {
+			if (target instanceof Iterator<?> iterator) {
+				return proxyIterator(proxyFactory, iterator);
+			}
+			if (target instanceof Queue<?> queue) {
+				return proxyQueue(proxyFactory, queue);
+			}
+			if (target instanceof List<?> list) {
+				return proxyList(proxyFactory, list);
+			}
+			if (target instanceof SortedSet<?> set) {
+				return proxySortedSet(proxyFactory, set);
+			}
+			if (target instanceof Set<?> set) {
+				return proxySet(proxyFactory, set);
+			}
+			if (target.getClass().isArray()) {
+				return proxyArray(proxyFactory, (Object[]) target);
+			}
+			if (target instanceof SortedMap<?, ?> map) {
+				return proxySortedMap(proxyFactory, map);
+			}
+			if (target instanceof Iterable<?> iterable) {
+				return proxyIterable(proxyFactory, iterable);
+			}
+			if (target instanceof Map<?, ?> map) {
+				return proxyMap(proxyFactory, map);
+			}
+			if (target instanceof Stream<?> stream) {
+				return proxyStream(proxyFactory, stream);
+			}
+			if (target instanceof Optional<?> optional) {
+				return proxyOptional(proxyFactory, optional);
+			}
+			return null;
 		}
-		try {
-			set.clear();
-			set.addAll(proxies);
+
+		@SuppressWarnings("unchecked")
+		private <T> T proxyCast(AuthorizationProxyFactory proxyFactory, T target) {
+			return (T) proxyFactory.proxy(target);
+		}
+
+		private <T> Iterable<T> proxyIterable(AuthorizationProxyFactory proxyFactory, Iterable<T> iterable) {
+			return () -> proxyIterator(proxyFactory, iterable.iterator());
+		}
+
+		private <T> Iterator<T> proxyIterator(AuthorizationProxyFactory proxyFactory, Iterator<T> iterator) {
+			return new Iterator<>() {
+				@Override
+				public boolean hasNext() {
+					return iterator.hasNext();
+				}
+
+				@Override
+				public T next() {
+					return proxyCast(proxyFactory, iterator.next());
+				}
+			};
+		}
+
+		private <T> SortedSet<T> proxySortedSet(AuthorizationProxyFactory proxyFactory, SortedSet<T> set) {
+			SortedSet<T> proxies = new TreeSet<>(set.comparator());
+			for (T toProxy : set) {
+				proxies.add(proxyCast(proxyFactory, toProxy));
+			}
+			try {
+				set.clear();
+				set.addAll(proxies);
+				return proxies;
+			}
+			catch (UnsupportedOperationException ex) {
+				return Collections.unmodifiableSortedSet(proxies);
+			}
+		}
+
+		private <T> Set<T> proxySet(AuthorizationProxyFactory proxyFactory, Set<T> set) {
+			Set<T> proxies = new LinkedHashSet<>(set.size());
+			for (T toProxy : set) {
+				proxies.add(proxyCast(proxyFactory, toProxy));
+			}
+			try {
+				set.clear();
+				set.addAll(proxies);
+				return proxies;
+			}
+			catch (UnsupportedOperationException ex) {
+				return Collections.unmodifiableSet(proxies);
+			}
+		}
+
+		private <T> Queue<T> proxyQueue(AuthorizationProxyFactory proxyFactory, Queue<T> queue) {
+			Queue<T> proxies = new LinkedList<>();
+			for (T toProxy : queue) {
+				proxies.add(proxyCast(proxyFactory, toProxy));
+			}
+			queue.clear();
+			queue.addAll(proxies);
 			return proxies;
 		}
-		catch (UnsupportedOperationException ex) {
-			return Collections.unmodifiableSortedSet(proxies);
-		}
-	}
 
-	private <T> Set<T> proxySet(Set<T> set) {
-		Set<T> proxies = new LinkedHashSet<>(set.size());
-		for (T toProxy : set) {
-			proxies.add(proxyCast(toProxy));
+		private <T> List<T> proxyList(AuthorizationProxyFactory proxyFactory, List<T> list) {
+			List<T> proxies = new ArrayList<>(list.size());
+			for (T toProxy : list) {
+				proxies.add(proxyCast(proxyFactory, toProxy));
+			}
+			try {
+				list.clear();
+				list.addAll(proxies);
+				return proxies;
+			}
+			catch (UnsupportedOperationException ex) {
+				return Collections.unmodifiableList(proxies);
+			}
 		}
-		try {
-			set.clear();
-			set.addAll(proxies);
+
+		private Object[] proxyArray(AuthorizationProxyFactory proxyFactory, Object[] objects) {
+			List<Object> retain = new ArrayList<>(objects.length);
+			for (Object object : objects) {
+				retain.add(proxyFactory.proxy(object));
+			}
+			Object[] proxies = (Object[]) Array.newInstance(objects.getClass().getComponentType(), retain.size());
+			for (int i = 0; i < retain.size(); i++) {
+				proxies[i] = retain.get(i);
+			}
 			return proxies;
 		}
-		catch (UnsupportedOperationException ex) {
-			return Collections.unmodifiableSet(proxies);
+
+		private <K, V> SortedMap<K, V> proxySortedMap(AuthorizationProxyFactory proxyFactory, SortedMap<K, V> entries) {
+			SortedMap<K, V> proxies = new TreeMap<>(entries.comparator());
+			for (Map.Entry<K, V> entry : entries.entrySet()) {
+				proxies.put(entry.getKey(), proxyCast(proxyFactory, entry.getValue()));
+			}
+			try {
+				entries.clear();
+				entries.putAll(proxies);
+				return entries;
+			}
+			catch (UnsupportedOperationException ex) {
+				return Collections.unmodifiableSortedMap(proxies);
+			}
 		}
+
+		private <K, V> Map<K, V> proxyMap(AuthorizationProxyFactory proxyFactory, Map<K, V> entries) {
+			Map<K, V> proxies = new LinkedHashMap<>(entries.size());
+			for (Map.Entry<K, V> entry : entries.entrySet()) {
+				proxies.put(entry.getKey(), proxyCast(proxyFactory, entry.getValue()));
+			}
+			try {
+				entries.clear();
+				entries.putAll(proxies);
+				return entries;
+			}
+			catch (UnsupportedOperationException ex) {
+				return Collections.unmodifiableMap(proxies);
+			}
+		}
+
+		private Stream<?> proxyStream(AuthorizationProxyFactory proxyFactory, Stream<?> stream) {
+			return stream.map(proxyFactory::proxy).onClose(stream::close);
+		}
+
+		@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+		private Optional<?> proxyOptional(AuthorizationProxyFactory proxyFactory, Optional<?> optional) {
+			return optional.map(proxyFactory::proxy);
+		}
+
 	}
 
-	private <T> Queue<T> proxyQueue(Queue<T> queue) {
-		Queue<T> proxies = new LinkedList<>();
-		for (T toProxy : queue) {
-			proxies.add(proxyCast(toProxy));
-		}
-		queue.clear();
-		queue.addAll(proxies);
-		return proxies;
-	}
+	private static class ReactiveTypeVisitor implements TargetVisitor {
 
-	private <T> List<T> proxyList(List<T> list) {
-		List<T> proxies = new ArrayList<>(list.size());
-		for (T toProxy : list) {
-			proxies.add(proxyCast(toProxy));
+		@Override
+		@SuppressWarnings("ReactiveStreamsUnusedPublisher")
+		public Object visit(AuthorizationAdvisorProxyFactory proxyFactory, Object target) {
+			if (target instanceof Mono<?> mono) {
+				return proxyMono(proxyFactory, mono);
+			}
+			if (target instanceof Flux<?> flux) {
+				return proxyFlux(proxyFactory, flux);
+			}
+			return null;
 		}
-		try {
-			list.clear();
-			list.addAll(proxies);
-			return proxies;
-		}
-		catch (UnsupportedOperationException ex) {
-			return Collections.unmodifiableList(proxies);
-		}
-	}
 
-	private Object[] proxyArray(Object[] objects) {
-		List<Object> retain = new ArrayList<>(objects.length);
-		for (Object object : objects) {
-			retain.add(proxy(object));
+		private Mono<?> proxyMono(AuthorizationProxyFactory proxyFactory, Mono<?> mono) {
+			return mono.map(proxyFactory::proxy);
 		}
-		Object[] proxies = (Object[]) Array.newInstance(objects.getClass().getComponentType(), retain.size());
-		for (int i = 0; i < retain.size(); i++) {
-			proxies[i] = retain.get(i);
-		}
-		return proxies;
-	}
 
-	private <K, V> SortedMap<K, V> proxySortedMap(SortedMap<K, V> entries) {
-		SortedMap<K, V> proxies = new TreeMap<>(entries.comparator());
-		for (Map.Entry<K, V> entry : entries.entrySet()) {
-			proxies.put(entry.getKey(), proxyCast(entry.getValue()));
+		private Flux<?> proxyFlux(AuthorizationProxyFactory proxyFactory, Flux<?> flux) {
+			return flux.map(proxyFactory::proxy);
 		}
-		try {
-			entries.clear();
-			entries.putAll(proxies);
-			return entries;
-		}
-		catch (UnsupportedOperationException ex) {
-			return Collections.unmodifiableSortedMap(proxies);
-		}
-	}
 
-	private <K, V> Map<K, V> proxyMap(Map<K, V> entries) {
-		Map<K, V> proxies = new LinkedHashMap<>(entries.size());
-		for (Map.Entry<K, V> entry : entries.entrySet()) {
-			proxies.put(entry.getKey(), proxyCast(entry.getValue()));
-		}
-		try {
-			entries.clear();
-			entries.putAll(proxies);
-			return entries;
-		}
-		catch (UnsupportedOperationException ex) {
-			return Collections.unmodifiableMap(proxies);
-		}
-	}
-
-	private Stream<?> proxyStream(Stream<?> stream) {
-		return stream.map(this::proxy).onClose(stream::close);
-	}
-
-	@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-	private Optional<?> proxyOptional(Optional<?> optional) {
-		return optional.map(this::proxy);
 	}
 
 }
