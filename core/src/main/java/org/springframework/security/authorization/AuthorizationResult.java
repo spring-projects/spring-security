@@ -17,25 +17,16 @@
 package org.springframework.security.authorization;
 
 /**
- * @author Rob Winch
- * @since 5.0
+ * Represents an authorization result
+ *
+ * @author Marcus da Coregio
+ * @since 6.3
  */
-public class AuthorizationDecision implements AuthorizationResult {
+public interface AuthorizationResult {
 
-	private final boolean granted;
-
-	public AuthorizationDecision(boolean granted) {
-		this.granted = granted;
-	}
-
-	@Override
-	public boolean isGranted() {
-		return this.granted;
-	}
-
-	@Override
-	public String toString() {
-		return getClass().getSimpleName() + " [granted=" + this.granted + "]";
-	}
+	/**
+	 * @return whether the access has been granted
+	 */
+	boolean isGranted();
 
 }
