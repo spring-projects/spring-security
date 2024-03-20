@@ -58,6 +58,8 @@ import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.access.prepost.PreFilter;
+import org.springframework.security.authorization.AuthorizationAdvisorProxyFactory;
+import org.springframework.security.authorization.AuthorizationAdvisorProxyFactory.TargetVisitor;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationEventPublisher;
 import org.springframework.security.authorization.AuthorizationManager;
@@ -66,6 +68,7 @@ import org.springframework.security.authorization.method.AuthorizationManagerBef
 import org.springframework.security.authorization.method.AuthorizeReturnObject;
 import org.springframework.security.authorization.method.MethodInvocationResult;
 import org.springframework.security.authorization.method.PrePostTemplateDefaults;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.SecurityContextChangedListenerConfig;
 import org.springframework.security.config.core.GrantedAuthorityDefaults;
 import org.springframework.security.config.test.SpringTestContext;
@@ -1144,6 +1147,12 @@ public class PrePostMethodSecurityConfigurationTests {
 	static class AuthorizeResultConfig {
 
 		@Bean
+		@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+		static Customizer<AuthorizationAdvisorProxyFactory> skipValueTypes() {
+			return (f) -> f.setTargetVisitor(TargetVisitor.defaultsSkipValueTypes());
+		}
+
+		@Bean
 		FlightRepository flights() {
 			FlightRepository flights = new FlightRepository();
 			Flight one = new Flight("1", 35000d, 35);
@@ -1186,6 +1195,7 @@ public class PrePostMethodSecurityConfigurationTests {
 
 	}
 
+	@AuthorizeReturnObject
 	static class Flight {
 
 		private final String id;
@@ -1216,7 +1226,6 @@ public class PrePostMethodSecurityConfigurationTests {
 			return this.seats;
 		}
 
-		@AuthorizeReturnObject
 		@PostAuthorize("hasAuthority('seating:read')")
 		@PostFilter("filterObject.name != 'Kevin Mitnick'")
 		List<Passenger> getPassengers() {

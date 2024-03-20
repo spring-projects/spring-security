@@ -1812,12 +1812,40 @@ fun getEmailWhenProxiedThenAuthorizes() {
 ----
 ======
 
-[NOTE]
-====
-`@AuthorizeReturnObject` can be placed at the class level. Note, though, that this means Spring Security will proxy any return object, including ``String``, ``Integer`` and other types.
+=== Using `@AuthorizeReturnObject` at the class level
+
+`@AuthorizeReturnObject` can be placed at the class level. Note, though, that this means Spring Security will attempt to proxy any return object, including ``String``, ``Integer`` and other types.
 This is often not what you want to do.
 
-In most cases, you will want to annotate the individual methods.
+If you want to use `@AuthorizeReturnObject` on a class or interface whose methods return value types, like `int`, `String`, `Double` or collections of those types, then you should also publish the appropriate `AuthorizationAdvisorProxyFactory.TargetVisitor` as follows:
+
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Bean
+static Customizer<AuthorizationAdvisorProxyFactory> skipValueTypes() {
+    return (factory) -> factory.setTargetVisitor(TargetVisitor.defaultsSkipValueTypes());
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Bean
+open fun skipValueTypes() = Customizer<AuthorizationAdvisorProxyFactory> {
+    it.setTargetVisitor(TargetVisitor.defaultsSkipValueTypes())
+}
+----
+======
+
+[TIP]
+====
+You can set your own `AuthorizationAdvisorProxyFactory.TargetVisitor` to customize the proxying for any set of types
 ====
 
 === Programmatically Proxying
@@ -1877,22 +1905,27 @@ Java::
 +
 [source,java,role="primary"]
 ----
+import org.springframework.security.authorization.AuthorizationAdvisorProxyFactory.TargetVisitor;
 import static org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor.preAuthorize;
-
 // ...
 
-AuthorizationProxyFactory proxyFactory = new AuthorizationProxyFactory(preAuthorize());
+AuthorizationProxyFactory proxyFactory = AuthorizationAdvisorProxyFactory.withDefaults();
+// and if needing to skip value types
+proxyFactory.setTargetVisitor(TargetVisitor.defaultsSkipValueTypes());
 ----
 
 Kotlin::
 +
 [source,kotlin,role="secondary"]
 ----
+import org.springframework.security.authorization.AuthorizationAdvisorProxyFactory.TargetVisitor;
 import org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor.preAuthorize
 
 // ...
 
 val proxyFactory: AuthorizationProxyFactory = AuthorizationProxyFactory(preAuthorize())
+// and if needing to skip value types
+proxyFactory.setTargetVisitor(TargetVisitor.defaultsSkipValueTypes())
 ----
 ======
 
@@ -1906,7 +1939,7 @@ Java::
 ----
 @Test
 void getEmailWhenProxiedThenAuthorizes() {
-	AuthorizationProxyFactory proxyFactory = new AuthorizationProxyFactory(preAuthorize());
+	AuthorizationProxyFactory proxyFactory = AuthorizationAdvisorProxyFactory.withDefaults();
     User user = new User("name", "email");
     assertThat(user.getEmail()).isNotNull();
     User securedUser = proxyFactory.proxy(user);
@@ -1920,7 +1953,7 @@ Kotlin::
 ----
 @Test
 fun getEmailWhenProxiedThenAuthorizes() {
-    val proxyFactory: AuthorizationProxyFactory = AuthorizationProxyFactory(preAuthorize())
+    val proxyFactory: AuthorizationProxyFactory = AuthorizationAdvisorProxyFactory.withDefaults()
     val user: User = User("name", "email")
     assertThat(user.getEmail()).isNotNull()
     val securedUser: User = proxyFactory.proxy(user)
@@ -1948,7 +1981,7 @@ Java::
 ----
 @Test
 void getEmailWhenProxiedThenAuthorizes() {
-	AuthorizationProxyFactory proxyFactory = new AuthorizationProxyFactory(preAuthorize());
+	AuthorizationProxyFactory proxyFactory = AuthorizationAdvisorProxyFactory.withDefaults();
     List<User> users = List.of(ada, albert, marie);
     List<User> securedUsers = proxyFactory.proxy(users);
 	securedUsers.forEach((securedUser) ->
