@@ -107,7 +107,9 @@ For example, OpenID Connect defines additional OAuth 2.0 request parameters for 
 One of those extended parameters is the `prompt` parameter.
 
 [NOTE]
-OPTIONAL. Space delimited, case sensitive list of ASCII string values that specifies whether the Authorization Server prompts the End-User for reauthentication and consent. The defined values are: none, login, consent, select_account
+====
+The `prompt` parameter is optional. Space delimited, case sensitive list of ASCII string values that specifies whether the Authorization Server prompts the End-User for re-authentication and consent. The defined values are: `none`, `login`, `consent`, and `select_account`.
+====
 
 The following example shows how to configure the `DefaultServerOAuth2AuthorizationRequestResolver` with a `Consumer<OAuth2AuthorizationRequest.Builder>` that customizes the Authorization Request for `oauth2Login()`, by including the request parameter `prompt=consent`.
 
