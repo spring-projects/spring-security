@@ -152,6 +152,12 @@ final class PrePostMethodSecurityConfiguration implements ImportAware, AopInfras
 		});
 	}
 
+	@Bean
+	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+	static PrePostAuthorizeBeanFactoryInitializationAotProcessor prePostAuthorizeBeanFactoryInitializationAotProcessor() {
+		return new PrePostAuthorizeBeanFactoryInitializationAotProcessor();
+	}
+
 	private static MethodSecurityExpressionHandler defaultExpressionHandler(
 			ObjectProvider<GrantedAuthorityDefaults> defaultsProvider,
 			ObjectProvider<RoleHierarchy> roleHierarchyProvider, ApplicationContext context) {

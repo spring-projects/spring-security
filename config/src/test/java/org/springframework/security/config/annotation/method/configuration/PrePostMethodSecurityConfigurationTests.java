@@ -740,6 +740,14 @@ public class PrePostMethodSecurityConfigurationTests {
 		});
 	}
 
+	@Test
+	void configureWhenPrePostEnabledThenRegisterPrePostAuthorizeBeanFactoryInitializationAotProcessor() {
+		this.spring.register(MethodSecurityServiceConfig.class).autowire();
+		PrePostAuthorizeBeanFactoryInitializationAotProcessor processor = this.spring.getContext()
+			.getBean(PrePostAuthorizeBeanFactoryInitializationAotProcessor.class);
+		assertThat(processor).isNotNull();
+	}
+
 	private static Consumer<ConfigurableWebApplicationContext> disallowBeanOverriding() {
 		return (context) -> ((AnnotationConfigWebApplicationContext) context).setAllowBeanDefinitionOverriding(false);
 	}
