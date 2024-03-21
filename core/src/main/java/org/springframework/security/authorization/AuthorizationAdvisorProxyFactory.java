@@ -254,7 +254,8 @@ public final class AuthorizationAdvisorProxyFactory
 		/**
 		 * The default {@link TargetVisitor}, which will proxy {@link Class} instances as
 		 * well as instances contained in reactive types (if reactor is present),
-		 * collection types, and other container types like {@link Optional}
+		 * collection types, and other container types like {@link Optional} and
+		 * {@link Supplier}
 		 */
 		static TargetVisitor defaults() {
 			return AuthorizationAdvisorProxyFactory.DEFAULT_VISITOR;
@@ -350,6 +351,9 @@ public final class AuthorizationAdvisorProxyFactory
 			}
 			if (target instanceof Optional<?> optional) {
 				return proxyOptional(proxyFactory, optional);
+			}
+			if (target instanceof Supplier<?> supplier) {
+				return proxySupplier(proxyFactory, supplier);
 			}
 			return null;
 		}
@@ -481,6 +485,10 @@ public final class AuthorizationAdvisorProxyFactory
 		@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 		private Optional<?> proxyOptional(AuthorizationProxyFactory proxyFactory, Optional<?> optional) {
 			return optional.map(proxyFactory::proxy);
+		}
+
+		private Supplier<?> proxySupplier(AuthorizationProxyFactory proxyFactory, Supplier<?> supplier) {
+			return () -> proxyFactory.proxy(supplier.get());
 		}
 
 	}
