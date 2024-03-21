@@ -31,6 +31,7 @@ import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import org.jetbrains.annotations.NotNull;
@@ -239,6 +240,17 @@ public class AuthorizationAdvisorProxyFactoryTests {
 		assertThat(flights.get().getAltitude()).isEqualTo(35000d);
 		Optional<Flight> secured = proxy(factory, flights);
 		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(() -> secured.ifPresent(Flight::getAltitude));
+		SecurityContextHolder.clearContext();
+	}
+
+	@Test
+	public void proxyWhenPreAuthorizeForSupplierThenHonors() {
+		SecurityContextHolder.getContext().setAuthentication(this.user);
+		AuthorizationAdvisorProxyFactory factory = AuthorizationAdvisorProxyFactory.withDefaults();
+		Supplier<Flight> flights = () -> this.flight;
+		assertThat(flights.get().getAltitude()).isEqualTo(35000d);
+		Supplier<Flight> secured = proxy(factory, flights);
+		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(() -> secured.get().getAltitude());
 		SecurityContextHolder.clearContext();
 	}
 
