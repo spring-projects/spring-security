@@ -26,7 +26,9 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import org.springframework.aop.Pointcut;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.TestAuthentication;
 import org.springframework.security.authorization.method.AuthorizationAdvisor;
@@ -142,6 +144,40 @@ public class ReactiveAuthorizationAdvisorProxyFactoryTests {
 
 	private <T> T proxy(AuthorizationProxyFactory factory, Object target) {
 		return (T) factory.proxy(target);
+	}
+
+	@Test
+	public void invokeWhenReturnTypeIsResponseEntity() {
+		SecurityContextHolder.getContext().setAuthentication(TestAuthentication.authenticatedUser());
+		ReactiveAuthorizationAdvisorProxyFactory factory = new ReactiveAuthorizationAdvisorProxyFactory();
+		UserApi userApi = proxy(factory, new UserApi());
+		ResponseEntity<Mono<String>> list = userApi.list();
+		StepVerifier
+			.create(list.getBody()
+				.contextWrite(ReactiveSecurityContextHolder.withAuthentication(TestAuthentication.authenticatedUser())))
+			.expectNext("john")
+			.verifyComplete();
+		ResponseEntity<Mono<String>> get = userApi.get();
+		StepVerifier
+			.create(get.getBody()
+				.contextWrite(ReactiveSecurityContextHolder.withAuthentication(TestAuthentication.authenticatedUser())))
+			.expectNext("bob")
+			.verifyComplete();
+
+	}
+
+	static class UserApi {
+
+		@PreAuthorize("hasRole('USER')")
+		ResponseEntity<Mono<String>> list() {
+			return ResponseEntity.ok(Mono.just("john"));
+		}
+
+		@PostAuthorize("hasRole('USER')")
+		ResponseEntity<Mono<String>> get() {
+			return ResponseEntity.ok(Mono.just("bob"));
+		}
+
 	}
 
 	static class Flight {

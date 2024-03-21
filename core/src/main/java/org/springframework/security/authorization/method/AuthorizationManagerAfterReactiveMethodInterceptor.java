@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,6 +43,7 @@ import org.springframework.util.Assert;
  * {@link ReactiveAuthorizationManager}.
  *
  * @author Evgeniy Cheban
+ * @author DingHao
  * @since 5.8
  */
 public final class AuthorizationManagerAfterReactiveMethodInterceptor implements AuthorizationAdvisor {
@@ -101,7 +102,7 @@ public final class AuthorizationManagerAfterReactiveMethodInterceptor implements
 	@Override
 	public Object invoke(MethodInvocation mi) throws Throwable {
 		Method method = mi.getMethod();
-		Class<?> type = method.getReturnType();
+		Class<?> type = ResponseEntityUtils.getReturnType(method);
 		boolean isSuspendingFunction = KotlinDetector.isSuspendingFunction(method);
 		boolean hasFlowReturnType = COROUTINES_FLOW_CLASS_NAME
 			.equals(new MethodParameter(method, RETURN_TYPE_METHOD_PARAMETER_INDEX).getParameterType().getName());
@@ -128,7 +129,7 @@ public final class AuthorizationManagerAfterReactiveMethodInterceptor implements
 				return KotlinDelegate.asFlow(response);
 			}
 		}
-		Publisher<?> publisher = ReactiveMethodInvocationUtils.proceed(mi);
+		Publisher<?> publisher = ResponseEntityUtils.asPublisher(ReactiveMethodInvocationUtils.proceed(mi));
 		if (isMultiValue(type, adapter)) {
 			Flux<?> flux = Flux.from(publisher).flatMap(postAuthorize);
 			return (adapter != null) ? adapter.fromPublisher(flux) : flux;

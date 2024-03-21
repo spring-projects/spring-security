@@ -18,6 +18,7 @@ dependencies {
 	optional 'org.aspectj:aspectjrt'
 	optional 'org.springframework:spring-jdbc'
 	optional 'org.springframework:spring-tx'
+	optional 'org.springframework:spring-web'
 	optional 'org.jetbrains.kotlinx:kotlinx-coroutines-reactor'
 
 	testImplementation 'commons-collections:commons-collections'
