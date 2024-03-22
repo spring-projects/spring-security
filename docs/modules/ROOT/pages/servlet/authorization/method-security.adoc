@@ -1905,7 +1905,7 @@ Java::
 +
 [source,java,role="primary"]
 ----
-import org.springframework.security.authorization.AuthorizationAdvisorProxyFactory.TargetVisitor;
+import org.springframework.security.authorization.method.AuthorizationAdvisorProxyFactory.TargetVisitor;
 import static org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor.preAuthorize;
 // ...
 
@@ -1918,7 +1918,7 @@ Kotlin::
 +
 [source,kotlin,role="secondary"]
 ----
-import org.springframework.security.authorization.AuthorizationAdvisorProxyFactory.TargetVisitor;
+import org.springframework.security.authorization.method.AuthorizationAdvisorProxyFactory.TargetVisitor;
 import org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor.preAuthorize
 
 // ...

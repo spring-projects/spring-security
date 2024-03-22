@@ -35,7 +35,7 @@ import org.springframework.util.ClassUtils;
  *
  * @author Josh Cummings
  * @since 6.3
- * @see org.springframework.security.authorization.AuthorizationAdvisorProxyFactory
+ * @see AuthorizationAdvisorProxyFactory
  */
 public final class AuthorizeReturnObjectMethodInterceptor implements AuthorizationAdvisor {
 

@@ -21,7 +21,7 @@ package org.springframework.security.authorization;
  *
  * @author Josh Cummings
  * @since 6.3
- * @see AuthorizationAdvisorProxyFactory
+ * @see org.springframework.security.authorization.method.AuthorizationAdvisorProxyFactory
  */
 public interface AuthorizationProxyFactory {
 

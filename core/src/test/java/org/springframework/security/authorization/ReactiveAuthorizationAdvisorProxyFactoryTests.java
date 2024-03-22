@@ -30,6 +30,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.TestAuthentication;
 import org.springframework.security.authorization.method.AuthorizationAdvisor;
+import org.springframework.security.authorization.method.AuthorizationAdvisorProxyFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolder;

@@ -27,8 +27,8 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Role;
-import org.springframework.security.authorization.AuthorizationAdvisorProxyFactory;
 import org.springframework.security.authorization.method.AuthorizationAdvisor;
+import org.springframework.security.authorization.method.AuthorizationAdvisorProxyFactory;
 import org.springframework.security.authorization.method.AuthorizeReturnObjectMethodInterceptor;
 import org.springframework.security.config.Customizer;
 
