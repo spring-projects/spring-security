@@ -414,26 +414,25 @@ public final class OpenSaml4AuthenticationProvider implements AuthenticationProv
 
 	private static List<String> getStatusCodes(Response response) {
 		if (response.getStatus() == null) {
-			return Arrays.asList(StatusCode.SUCCESS);
+			return List.of(StatusCode.SUCCESS);
 		}
 		if (response.getStatus().getStatusCode() == null) {
-			return Arrays.asList(StatusCode.SUCCESS);
+			return List.of(StatusCode.SUCCESS);
 		}
-
 		StatusCode parentStatusCode = response.getStatus().getStatusCode();
 		String parentStatusCodeValue = parentStatusCode.getValue();
-		if (includeChildStatusCodes.contains(parentStatusCodeValue)) {
-			StatusCode statusCode = parentStatusCode.getStatusCode();
-			if (statusCode != null) {
-				String childStatusCodeValue = statusCode.getValue();
-				if (childStatusCodeValue != null) {
-					return Arrays.asList(parentStatusCodeValue, childStatusCodeValue);
-				}
-			}
-			return Arrays.asList(parentStatusCodeValue);
+		if (!includeChildStatusCodes.contains(parentStatusCodeValue)) {
+			return List.of(parentStatusCodeValue);
 		}
-
-		return Arrays.asList(parentStatusCodeValue);
+		StatusCode childStatusCode = parentStatusCode.getStatusCode();
+		if (childStatusCode == null) {
+			return List.of(parentStatusCodeValue);
+		}
+		String childStatusCodeValue = childStatusCode.getValue();
+		if (childStatusCodeValue == null) {
+			return List.of(parentStatusCodeValue);
+		}
+		return List.of(parentStatusCodeValue, childStatusCodeValue);
 	}
 
 	private static boolean isSuccess(List<String> statusCodes) {
