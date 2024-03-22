@@ -35,4 +35,28 @@ public class OidcBackChannelLogoutHandlerTests {
 		assertThat(endpoint).isEqualTo("http://localhost:8090/logout");
 	}
 
+	@Test
+	public void computeLogoutEndpointWhenUsingBaseUrlTemplateThenServerName() {
+		OidcBackChannelLogoutHandler logoutHandler = new OidcBackChannelLogoutHandler();
+		logoutHandler.setLogoutUri("{baseUrl}/logout");
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/back-channel/logout");
+		request.setServerName("host.docker.internal");
+		request.setServerPort(8090);
+		String endpoint = logoutHandler.computeLogoutEndpoint(request);
+		assertThat(endpoint).isEqualTo("http://host.docker.internal:8090/logout");
+	}
+
+	// gh-14609
+	@Test
+	public void computeLogoutEndpointWhenLogoutUriThenUses() {
+		OidcBackChannelLogoutHandler logoutHandler = new OidcBackChannelLogoutHandler();
+		logoutHandler.setLogoutUri("http://localhost:8090/logout");
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/back-channel/logout");
+		request.setScheme("https");
+		request.setServerName("server-one.com");
+		request.setServerPort(80);
+		String endpoint = logoutHandler.computeLogoutEndpoint(request);
+		assertThat(endpoint).isEqualTo("http://localhost:8090/logout");
+	}
+
 }
