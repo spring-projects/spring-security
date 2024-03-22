@@ -29,7 +29,7 @@ public class OidcBackChannelLogoutHandlerTests {
 	public void computeLogoutEndpointWhenDifferentHostnameThenLocalhost() {
 		OidcBackChannelLogoutHandler logoutHandler = new OidcBackChannelLogoutHandler();
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/back-channel/logout");
-		request.setRemoteHost("host.docker.internal");
+		request.setServerName("host.docker.internal");
 		request.setServerPort(8090);
 		String endpoint = logoutHandler.computeLogoutEndpoint(request);
 		assertThat(endpoint).isEqualTo("http://localhost:8090/logout");
