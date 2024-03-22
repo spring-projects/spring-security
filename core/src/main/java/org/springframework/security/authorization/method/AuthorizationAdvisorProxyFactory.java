@@ -195,9 +195,30 @@ public final class AuthorizationAdvisorProxyFactory
 	 *
 	 * <pre>
 	 * 	AuthorizationAdvisorProxyFactory proxyFactory = new AuthorizationAdvisorProxyFactory();
-	 * 	proxyFactory.setTargetVisitor(AuthorizationAdvisorProxyFactory.DEFAULT_VISITOR_IGNORE_VALUE_TYPES);
+	 * 	proxyFactory.setTargetVisitor(TargetVisitor.defaultsSkipValueTypes());
+	 * </pre>
+	 *
+	 * <p>
+	 * The default {@link TargetVisitor} proxies {@link Class} instances as well as
+	 * instances contained in reactive types (if reactor is present), collection types,
+	 * and other container types like {@link Optional} and {@link Supplier}.
+	 *
+	 * <p>
+	 * If you want to add support for another container type, you can do so in the
+	 * following way:
+	 *
+	 * <pre>
+	 * 	TargetVisitor functions = (factory, target) -> {
+	 *		if (target instanceof Function function) {
+	 *			return (input) -> factory.proxy(function.apply(input));
+	 *		}
+	 *		return null;
+	 * 	};
+	 * 	AuthorizationAdvisorProxyFactory proxyFactory = new AuthorizationAdvisorProxyFactory();
+	 * 	proxyFactory.setTargetVisitor(TargetVisitor.of(functions, TargetVisitor.defaultsSkipValueTypes()));
 	 * </pre>
 	 * @param visitor the visitor to use to introduce specialized behavior for a type
+	 * @see TargetVisitor#defaults
 	 */
 	public void setTargetVisitor(TargetVisitor visitor) {
 		Assert.notNull(visitor, "delegate cannot be null");
@@ -260,6 +281,17 @@ public final class AuthorizationAdvisorProxyFactory
 			return AuthorizationAdvisorProxyFactory.DEFAULT_VISITOR_SKIP_VALUE_TYPES;
 		}
 
+		/**
+		 * Compose a set of visitors. This is helpful when you are customizing for a given
+		 * type and still want the defaults applied for the remaining types.
+		 *
+		 * <p>
+		 * The resulting visitor will execute the first visitor that returns a non-null
+		 * value.
+		 * @param visitors the set of visitors
+		 * @return a composite that executes the first visitor that returns a non-null
+		 * value
+		 */
 		static TargetVisitor of(TargetVisitor... visitors) {
 			return (proxyFactory, target) -> {
 				for (TargetVisitor visitor : visitors) {
