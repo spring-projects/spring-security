@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.authorization;
+package org.springframework.security.authorization.method;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Modifier;
@@ -44,17 +44,7 @@ import org.springframework.aop.Advisor;
 import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 import org.springframework.lang.NonNull;
-import org.springframework.security.authorization.method.AuthorizationAdvisor;
-import org.springframework.security.authorization.method.AuthorizationManagerAfterMethodInterceptor;
-import org.springframework.security.authorization.method.AuthorizationManagerAfterReactiveMethodInterceptor;
-import org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor;
-import org.springframework.security.authorization.method.AuthorizationManagerBeforeReactiveMethodInterceptor;
-import org.springframework.security.authorization.method.AuthorizeReturnObject;
-import org.springframework.security.authorization.method.AuthorizeReturnObjectMethodInterceptor;
-import org.springframework.security.authorization.method.PostFilterAuthorizationMethodInterceptor;
-import org.springframework.security.authorization.method.PostFilterAuthorizationReactiveMethodInterceptor;
-import org.springframework.security.authorization.method.PreFilterAuthorizationMethodInterceptor;
-import org.springframework.security.authorization.method.PreFilterAuthorizationReactiveMethodInterceptor;
+import org.springframework.security.authorization.AuthorizationProxyFactory;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 
