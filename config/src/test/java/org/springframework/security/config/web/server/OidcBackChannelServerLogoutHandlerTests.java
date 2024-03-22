@@ -17,12 +17,8 @@
 package org.springframework.security.config.web.server;
 
 import org.junit.jupiter.api.Test;
-import reactor.core.publisher.Mono;
 
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
-import org.springframework.mock.web.server.MockServerWebExchange;
-import org.springframework.security.web.server.WebFilterExchange;
-import org.springframework.web.server.ServerWebExchange;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -38,8 +34,7 @@ public class OidcBackChannelServerLogoutHandlerTests {
 		MockServerHttpRequest request = MockServerHttpRequest
 			.get("https://host.docker.internal:8090/back-channel/logout")
 			.build();
-		ServerWebExchange exchange = new MockServerWebExchange.Builder(request).build();
-		String endpoint = logoutHandler.computeLogoutEndpoint(new WebFilterExchange(exchange, (ex) -> Mono.empty()));
+		String endpoint = logoutHandler.computeLogoutEndpoint(request);
 		assertThat(endpoint).isEqualTo("https://localhost:8090/logout");
 	}
 
