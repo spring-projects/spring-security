@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -198,6 +198,25 @@ public class OidcLogoutConfigurerTests {
 	}
 
 	@Test
+	void logoutWhenRemoteLogoutUriThenUses() throws Exception {
+		this.spring.register(WebServerConfig.class, OidcProviderConfig.class, LogoutUriConfig.class).autowire();
+		String registrationId = this.clientRegistration.getRegistrationId();
+		MockHttpSession one = login();
+		String logoutToken = this.mvc.perform(get("/token/logout/all").session(one))
+			.andExpect(status().isOk())
+			.andReturn()
+			.getResponse()
+			.getContentAsString();
+		this.mvc
+			.perform(post(this.web.url("/logout/connect/back-channel/" + registrationId).toString())
+				.param("logout_token", logoutToken))
+			.andExpect(status().isBadRequest())
+			.andExpect(content().string(containsString("partial_logout")))
+			.andExpect(content().string(containsString("Connection refused")));
+		this.mvc.perform(get("/token/logout").session(one)).andExpect(status().isOk());
+	}
+
+	@Test
 	void logoutWhenRemoteLogoutFailsThenReportsPartialLogout() throws Exception {
 		this.spring.register(WebServerConfig.class, OidcProviderConfig.class, WithBrokenLogoutConfig.class).autowire();
 		LogoutHandler logoutHandler = this.spring.getContext().getBean(LogoutHandler.class);
@@ -305,6 +324,28 @@ public class OidcLogoutConfigurerTests {
 				.authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated())
 				.oauth2Login(Customizer.withDefaults())
 				.oidcLogout((oidc) -> oidc.backChannel(Customizer.withDefaults()));
+			// @formatter:on
+
+			return http.build();
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	@Import(RegistrationConfig.class)
+	static class LogoutUriConfig {
+
+		@Bean
+		@Order(1)
+		SecurityFilterChain filters(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+					.authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated())
+					.oauth2Login(Customizer.withDefaults())
+					.oidcLogout((oidc) -> oidc
+						.backChannel((backchannel) -> backchannel.logoutUri("http://localhost/wrong"))
+					);
 			// @formatter:on
 
 			return http.build();

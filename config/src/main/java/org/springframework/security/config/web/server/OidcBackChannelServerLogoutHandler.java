@@ -18,6 +18,7 @@ package org.springframework.security.config.web.server;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -30,6 +31,7 @@ import reactor.core.publisher.Mono;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.oidc.authentication.logout.OidcLogoutToken;
@@ -42,6 +44,7 @@ import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.security.web.server.authentication.logout.ServerLogoutHandler;
 import org.springframework.util.Assert;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
 /**
@@ -62,7 +65,7 @@ final class OidcBackChannelServerLogoutHandler implements ServerLogoutHandler {
 
 	private WebClient web = WebClient.create();
 
-	private String logoutEndpointName = "/logout";
+	private String logoutUri = "{baseScheme}://localhost{basePort}/logout";
 
 	private String sessionCookieName = "SESSION";
 
@@ -108,17 +111,36 @@ final class OidcBackChannelServerLogoutHandler implements ServerLogoutHandler {
 		for (Map.Entry<String, String> credential : session.getAuthorities().entrySet()) {
 			headers.add(credential.getKey(), credential.getValue());
 		}
-		String logout = computeLogoutEndpoint(exchange);
+		String logout = computeLogoutEndpoint(exchange.getExchange().getRequest());
 		return this.web.post().uri(logout).headers((h) -> h.putAll(headers)).retrieve().toBodilessEntity();
 	}
 
-	String computeLogoutEndpoint(WebFilterExchange exchange) {
-		String url = exchange.getExchange().getRequest().getURI().toString();
-		return UriComponentsBuilder.fromHttpUrl(url)
-			.host("localhost")
-			.replacePath(this.logoutEndpointName)
-			.build()
-			.toUriString();
+	String computeLogoutEndpoint(ServerHttpRequest request) {
+		// @formatter:off
+		UriComponents uriComponents = UriComponentsBuilder.fromUri(request.getURI())
+				.replacePath(request.getPath().contextPath().value())
+				.replaceQuery(null)
+				.fragment(null)
+				.build();
+
+		Map<String, String> uriVariables = new HashMap<>();
+		String scheme = uriComponents.getScheme();
+		uriVariables.put("baseScheme", (scheme != null) ? scheme : "");
+		uriVariables.put("baseUrl", uriComponents.toUriString());
+
+		String host = uriComponents.getHost();
+		uriVariables.put("baseHost", (host != null) ? host : "");
+
+		String path = uriComponents.getPath();
+		uriVariables.put("basePath", (path != null) ? path : "");
+
+		int port = uriComponents.getPort();
+		uriVariables.put("basePort", (port == -1) ? "" : ":" + port);
+
+		return UriComponentsBuilder.fromUriString(this.logoutUri)
+				.buildAndExpand(uriVariables)
+				.toUriString();
+		// @formatter:on
 	}
 
 	private OAuth2Error oauth2Error(Collection<?> errors) {
@@ -168,7 +190,7 @@ final class OidcBackChannelServerLogoutHandler implements ServerLogoutHandler {
 	 */
 	void setLogoutUri(String logoutUri) {
 		Assert.hasText(logoutUri, "logoutUri cannot be empty");
-		this.logoutEndpointName = logoutUri;
+		this.logoutUri = logoutUri;
 	}
 
 	/**
