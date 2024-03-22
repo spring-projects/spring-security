@@ -21,8 +21,6 @@ import io.micrometer.observation.Observation;
 import io.micrometer.observation.ObservationConvention;
 import org.aopalliance.intercept.MethodInvocation;
 
-import org.springframework.security.authorization.method.MethodInvocationResult;
-
 /**
  * An {@link ObservationConvention} for translating authorizations into {@link KeyValues}.
  *
@@ -85,10 +83,10 @@ public final class AuthorizationObservationConvention
 		if (context.getObject() instanceof MethodInvocation) {
 			return "method";
 		}
-		if (context.getObject() instanceof MethodInvocationResult) {
+		String className = context.getObject().getClass().getSimpleName();
+		if (className.contains("Method")) {
 			return "method";
 		}
-		String className = context.getObject().getClass().getSimpleName();
 		if (className.contains("Request")) {
 			return "request";
 		}
