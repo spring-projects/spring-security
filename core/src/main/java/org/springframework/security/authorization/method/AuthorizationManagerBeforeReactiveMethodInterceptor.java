@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,6 +43,7 @@ import org.springframework.util.Assert;
  *
  * @author Evgeniy Cheban
  * @author Josh Cummings
+ * @author DingHao
  * @since 5.8
  */
 public final class AuthorizationManagerBeforeReactiveMethodInterceptor implements AuthorizationAdvisor {
@@ -101,7 +102,7 @@ public final class AuthorizationManagerBeforeReactiveMethodInterceptor implement
 	@Override
 	public Object invoke(MethodInvocation mi) throws Throwable {
 		Method method = mi.getMethod();
-		Class<?> type = method.getReturnType();
+		Class<?> type = ResponseEntityUtils.getReturnType(method);
 		boolean isSuspendingFunction = KotlinDetector.isSuspendingFunction(method);
 		boolean hasFlowReturnType = COROUTINES_FLOW_CLASS_NAME
 			.equals(new MethodParameter(method, RETURN_TYPE_METHOD_PARAMETER_INDEX).getParameterType().getName());
@@ -128,11 +129,13 @@ public final class AuthorizationManagerBeforeReactiveMethodInterceptor implement
 			}
 		}
 		if (isMultiValue(type, adapter)) {
-			Publisher<?> publisher = Flux.defer(() -> ReactiveMethodInvocationUtils.proceed(mi));
+			Publisher<?> publisher = Flux
+				.defer(() -> ResponseEntityUtils.asPublisher(ReactiveMethodInvocationUtils.proceed(mi)));
 			Flux<?> result = preAuthorize.thenMany(publisher);
 			return (adapter != null) ? adapter.fromPublisher(result) : result;
 		}
-		Mono<?> publisher = Mono.defer(() -> ReactiveMethodInvocationUtils.proceed(mi));
+		Mono<?> publisher = Mono
+			.defer(() -> ResponseEntityUtils.asPublisher(ReactiveMethodInvocationUtils.proceed(mi)));
 		Mono<?> result = preAuthorize.then(publisher);
 		return (adapter != null) ? adapter.fromPublisher(result) : result;
 	}
