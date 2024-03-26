@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,19 +20,18 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import org.springframework.core.log.LogMessage;
 import org.springframework.security.core.session.ReactiveSessionInformation;
+import org.springframework.web.server.session.WebSessionStore;
 
 /**
  * Implementation of {@link ServerMaximumSessionsExceededHandler} that invalidates the
- * least recently used session(s). It only invalidates the amount of sessions that exceed
- * the maximum allowed. For example, if the maximum was exceeded by 1, only the least
- * recently used session will be invalidated.
+ * least recently used {@link ReactiveSessionInformation} and removes the related sessions
+ * from the {@link WebSessionStore}. It only invalidates the amount of sessions that
+ * exceed the maximum allowed. For example, if the maximum was exceeded by 1, only the
+ * least recently used session will be invalidated.
  *
  * @author Marcus da Coregio
  * @since 6.3
@@ -40,7 +39,11 @@ import org.springframework.security.core.session.ReactiveSessionInformation;
 public final class InvalidateLeastUsedServerMaximumSessionsExceededHandler
 		implements ServerMaximumSessionsExceededHandler {
 
-	private final Log logger = LogFactory.getLog(getClass());
+	private final WebSessionStore webSessionStore;
+
+	public InvalidateLeastUsedServerMaximumSessionsExceededHandler(WebSessionStore webSessionStore) {
+		this.webSessionStore = webSessionStore;
+	}
 
 	@Override
 	public Mono<Void> handle(MaximumSessionsContext context) {
@@ -51,10 +54,8 @@ public final class InvalidateLeastUsedServerMaximumSessionsExceededHandler
 				maximumSessionsExceededBy);
 
 		return Flux.fromIterable(leastRecentlyUsedSessionsToInvalidate)
-			.doOnComplete(() -> this.logger
-				.debug(LogMessage.format("Invalidated %d least recently used sessions for authentication %s",
-						leastRecentlyUsedSessionsToInvalidate.size(), context.getAuthentication().getName())))
-			.flatMap(ReactiveSessionInformation::invalidate)
+			.flatMap((toInvalidate) -> toInvalidate.invalidate().thenReturn(toInvalidate))
+			.flatMap((toInvalidate) -> this.webSessionStore.removeSession(toInvalidate.getSessionId()))
 			.then();
 	}
 

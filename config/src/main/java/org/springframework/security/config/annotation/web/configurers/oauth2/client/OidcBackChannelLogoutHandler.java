@@ -19,6 +19,7 @@ package org.springframework.security.config.annotation.web.configurers.oauth2.cl
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -37,10 +38,12 @@ import org.springframework.security.oauth2.client.oidc.session.OidcSessionRegist
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.http.converter.OAuth2ErrorHttpMessageConverter;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
+import org.springframework.security.web.util.UrlUtils;
 import org.springframework.util.Assert;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
 /**
@@ -61,7 +64,7 @@ final class OidcBackChannelLogoutHandler implements LogoutHandler {
 
 	private RestOperations restOperations = new RestTemplate();
 
-	private String logoutEndpointName = "/logout";
+	private String logoutUri = "{baseScheme}://localhost{basePort}/logout";
 
 	private String sessionCookieName = "JSESSIONID";
 
@@ -112,12 +115,32 @@ final class OidcBackChannelLogoutHandler implements LogoutHandler {
 	}
 
 	String computeLogoutEndpoint(HttpServletRequest request) {
-		String url = request.getRequestURL().toString();
-		return UriComponentsBuilder.fromHttpUrl(url)
-			.host("localhost")
-			.replacePath(this.logoutEndpointName)
-			.build()
-			.toUriString();
+		// @formatter:off
+		UriComponents uriComponents = UriComponentsBuilder
+				.fromHttpUrl(UrlUtils.buildFullRequestUrl(request))
+				.replacePath(request.getContextPath())
+				.replaceQuery(null)
+				.fragment(null)
+				.build();
+
+		Map<String, String> uriVariables = new HashMap<>();
+		String scheme = uriComponents.getScheme();
+		uriVariables.put("baseScheme", (scheme != null) ? scheme : "");
+		uriVariables.put("baseUrl", uriComponents.toUriString());
+
+		String host = uriComponents.getHost();
+		uriVariables.put("baseHost", (host != null) ? host : "");
+
+		String path = uriComponents.getPath();
+		uriVariables.put("basePath", (path != null) ? path : "");
+
+		int port = uriComponents.getPort();
+		uriVariables.put("basePort", (port == -1) ? "" : ":" + port);
+
+		return UriComponentsBuilder.fromUriString(this.logoutUri)
+				.buildAndExpand(uriVariables)
+				.toUriString();
+		// @formatter:on
 	}
 
 	private OAuth2Error oauth2Error(Collection<String> errors) {
@@ -164,7 +187,7 @@ final class OidcBackChannelLogoutHandler implements LogoutHandler {
 	 */
 	void setLogoutUri(String logoutUri) {
 		Assert.hasText(logoutUri, "logoutUri cannot be empty");
-		this.logoutEndpointName = logoutUri;
+		this.logoutUri = logoutUri;
 	}
 
 	/**

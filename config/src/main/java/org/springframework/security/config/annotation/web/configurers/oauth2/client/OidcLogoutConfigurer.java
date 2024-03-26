@@ -17,6 +17,7 @@
 package org.springframework.security.config.annotation.web.configurers.oauth2.client;
 
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
@@ -123,7 +124,7 @@ public final class OidcLogoutConfigurer<B extends HttpSecurityBuilder<B>>
 		private final AuthenticationManager authenticationManager = new ProviderManager(
 				new OidcBackChannelLogoutAuthenticationProvider());
 
-		private LogoutHandler logoutHandler;
+		private Function<B, LogoutHandler> logoutHandler = this::logoutHandler;
 
 		private AuthenticationConverter authenticationConverter(B http) {
 			if (this.authenticationConverter == null) {
@@ -139,18 +140,54 @@ public final class OidcLogoutConfigurer<B extends HttpSecurityBuilder<B>>
 		}
 
 		private LogoutHandler logoutHandler(B http) {
-			if (this.logoutHandler == null) {
+			OidcBackChannelLogoutHandler logoutHandler = new OidcBackChannelLogoutHandler();
+			logoutHandler.setSessionRegistry(OAuth2ClientConfigurerUtils.getOidcSessionRegistry(http));
+			return logoutHandler;
+		}
+
+		/**
+		 * Use this endpoint when invoking a back-channel logout.
+		 *
+		 * <p>
+		 * The resulting {@link LogoutHandler} will {@code POST} the session cookie and
+		 * CSRF token to this endpoint to invalidate the corresponding end-user session.
+		 *
+		 * <p>
+		 * Supports URI templates like {@code {baseUrl}}, {@code {baseScheme}}, and
+		 * {@code {basePort}}.
+		 *
+		 * <p>
+		 * By default, the URI is set to
+		 * {@code {baseScheme}://localhost{basePort}/logout}, meaning that the scheme and
+		 * port of the original back-channel request is preserved, while the host and
+		 * endpoint are changed.
+		 *
+		 * <p>
+		 * If you are using Spring Security for the logout endpoint, the path part of this
+		 * URI should match the value configured there.
+		 *
+		 * <p>
+		 * Otherwise, this is handy in the event that your server configuration means that
+		 * the scheme, server name, or port in the {@code Host} header are different from
+		 * how you would address the same server internally.
+		 * @param logoutUri the URI to request logout on the back-channel
+		 * @return the {@link BackChannelLogoutConfigurer} for further customizations
+		 * @since 6.2.4
+		 */
+		public BackChannelLogoutConfigurer logoutUri(String logoutUri) {
+			this.logoutHandler = (http) -> {
 				OidcBackChannelLogoutHandler logoutHandler = new OidcBackChannelLogoutHandler();
 				logoutHandler.setSessionRegistry(OAuth2ClientConfigurerUtils.getOidcSessionRegistry(http));
-				this.logoutHandler = logoutHandler;
-			}
-			return this.logoutHandler;
+				logoutHandler.setLogoutUri(logoutUri);
+				return logoutHandler;
+			};
+			return this;
 		}
 
 		void configure(B http) {
 			OidcBackChannelLogoutFilter filter = new OidcBackChannelLogoutFilter(authenticationConverter(http),
 					authenticationManager());
-			filter.setLogoutHandler(logoutHandler(http));
+			filter.setLogoutHandler(this.logoutHandler.apply(http));
 			http.addFilterBefore(filter, CsrfFilter.class);
 		}
 

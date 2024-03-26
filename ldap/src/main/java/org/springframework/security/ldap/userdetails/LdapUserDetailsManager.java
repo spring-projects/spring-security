@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -104,7 +104,7 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 	/** The attribute which contains members of a group */
 	private String groupMemberAttributeName = "uniquemember";
 
-	private final String rolePrefix = "ROLE_";
+	private String rolePrefix = "ROLE_";
 
 	/** The pattern to be used for the user search. {0} is the user's DN */
 	private String groupSearchFilter = "(uniquemember={0})";
@@ -401,6 +401,16 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 	public void setSecurityContextHolderStrategy(SecurityContextHolderStrategy securityContextHolderStrategy) {
 		Assert.notNull(securityContextHolderStrategy, "securityContextHolderStrategy cannot be null");
 		this.securityContextHolderStrategy = securityContextHolderStrategy;
+	}
+
+	/**
+	 * Sets the role prefix used when converting authorities. The default value is "ROLE_"
+	 * @param rolePrefix role prefix
+	 * @since 6.3
+	 */
+	public void setRolePrefix(String rolePrefix) {
+		Assert.notNull(rolePrefix, "A rolePrefix must be supplied");
+		this.rolePrefix = rolePrefix;
 	}
 
 	private void changePasswordUsingAttributeModification(DistinguishedName userDn, String oldPassword,

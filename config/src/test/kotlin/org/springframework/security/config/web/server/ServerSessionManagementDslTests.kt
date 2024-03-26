@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,13 +29,13 @@ import org.springframework.security.config.annotation.web.reactive.EnableWebFlux
 import org.springframework.security.config.test.SpringTestContext
 import org.springframework.security.config.test.SpringTestContextExtension
 import org.springframework.security.config.users.ReactiveAuthenticationTestConfiguration
+import org.springframework.security.core.session.InMemoryReactiveSessionRegistry
 import org.springframework.security.core.session.ReactiveSessionRegistry
 import org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers
 import org.springframework.security.web.server.SecurityWebFilterChain
 import org.springframework.security.web.server.authentication.InvalidateLeastUsedServerMaximumSessionsExceededHandler
 import org.springframework.security.web.server.authentication.PreventLoginServerMaximumSessionsExceededHandler
 import org.springframework.security.web.server.authentication.SessionLimit
-import org.springframework.security.web.session.WebSessionStoreReactiveSessionRegistry
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.util.MultiValueMap
@@ -45,7 +45,6 @@ import org.springframework.web.reactive.config.EnableWebFlux
 import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.server.adapter.WebHttpHandlerBuilder
 import org.springframework.web.server.session.DefaultWebSessionManager
-import reactor.core.publisher.Mono
 
 /**
  * Tests for [ServerSessionManagementDsl]
@@ -208,7 +207,7 @@ class ServerSessionManagementDslTests {
         }
 
         @Bean
-        open fun springSecurity(http: ServerHttpSecurity): SecurityWebFilterChain {
+        open fun springSecurity(http: ServerHttpSecurity, webSessionManager: DefaultWebSessionManager): SecurityWebFilterChain {
             return http {
                 authorizeExchange {
                     authorize(anyExchange, authenticated)
@@ -217,7 +216,7 @@ class ServerSessionManagementDslTests {
                 sessionManagement {
                     sessionConcurrency {
                         maximumSessions = SessionLimit.of(maxSessions)
-                        maximumSessionsExceededHandler = InvalidateLeastUsedServerMaximumSessionsExceededHandler()
+                        maximumSessionsExceededHandler = InvalidateLeastUsedServerMaximumSessionsExceededHandler(webSessionManager.sessionStore)
                     }
                 }
             }
@@ -263,8 +262,8 @@ class ServerSessionManagementDslTests {
         }
 
         @Bean
-        open fun reactiveSessionRegistry(webSessionManager: DefaultWebSessionManager): ReactiveSessionRegistry {
-            return WebSessionStoreReactiveSessionRegistry(webSessionManager.sessionStore)
+        open fun reactiveSessionRegistry(): ReactiveSessionRegistry {
+            return InMemoryReactiveSessionRegistry()
         }
 
     }

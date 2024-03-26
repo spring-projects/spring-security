@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import java.util.List;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.session.ReactiveSessionInformation;
+import org.springframework.web.server.WebSession;
 
 public final class MaximumSessionsContext {
 
@@ -29,11 +30,14 @@ public final class MaximumSessionsContext {
 
 	private final int maximumSessionsAllowed;
 
+	private final WebSession currentSession;
+
 	public MaximumSessionsContext(Authentication authentication, List<ReactiveSessionInformation> sessions,
-			int maximumSessionsAllowed) {
+			int maximumSessionsAllowed, WebSession currentSession) {
 		this.authentication = authentication;
 		this.sessions = sessions;
 		this.maximumSessionsAllowed = maximumSessionsAllowed;
+		this.currentSession = currentSession;
 	}
 
 	public Authentication getAuthentication() {
@@ -46,6 +50,10 @@ public final class MaximumSessionsContext {
 
 	public int getMaximumSessionsAllowed() {
 		return this.maximumSessionsAllowed;
+	}
+
+	public WebSession getCurrentSession() {
+		return this.currentSession;
 	}
 
 }

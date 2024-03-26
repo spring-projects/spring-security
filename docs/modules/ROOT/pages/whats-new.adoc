@@ -8,9 +8,14 @@ Below are the highlights of the release.
 
 - https://spring.io/blog/2024/01/19/spring-security-6-3-adds-passive-jdk-serialization-deserialization-for[blog post] - Added Passive JDK Serialization/Deserialization for Seamless Upgrades
 
+== Authorization
+
+- https://github.com/spring-projects/spring-security/issues/14596[gh-14596] - xref:servlet/authorization/method-security.adoc[docs] - Add Programmatic Proxy Support for Method Security
+- https://github.com/spring-projects/spring-security/issues/14597[gh-14597] - xref:servlet/authorization/method-security.adoc[docs] - Add Securing of Return Values
+
 == Configuration
 
-- https://github.com/spring-projects/spring-security/issues/6192[gh-6192] - xref:reactive/authentication/concurrent-sessions-control.adoc[docs] Add Concurrent Sessions Control on WebFlux
+- https://github.com/spring-projects/spring-security/issues/6192[gh-6192] - xref:reactive/authentication/concurrent-sessions-control.adoc[(docs)] - Add Concurrent Sessions Control on WebFlux
 
 == CAS
 
@@ -19,3 +24,14 @@ Below are the highlights of the release.
 == Crypto
 
 - https://github.com/spring-projects/spring-security/issues/14202[gh-14202] - Migrated spring-security-rsa into spring-security-crypto
+
+== OAuth2
+
+- https://github.com/spring-projects/spring-security/issues/13259[gh-13259] - Customize when UserInfo is called
+- https://github.com/spring-projects/spring-security/pull/14168[gh-14168] - Introduce Customizable AuthorizationFailureHandler in OAuth2AuthorizationRequestRedirectFilter
+- https://github.com/spring-projects/spring-security/issues/5199[gh-5199], https://github.com/spring-projects/spring-security/issues/14701[gh-14701] - Add support for OAuth 2.0 Token Exchange Grant
+- https://github.com/spring-projects/spring-security/issues/14672[gh-14672] - Customize mapping the OidcUser from OidcUserRequest and OidcUserInfo
+
+== Documentation
+
+- https://github.com/spring-projects/spring-security/pull/14263[gh-14263] - xref:servlet/authentication/passwords/caching.adoc[(docs)] - Add documentation for CachingUserDetailsService

@@ -34,13 +34,14 @@ SecurityWebFilterChain filterChain(ServerHttpSecurity http) {
         .sessionManagement((sessions) -> sessions
             .concurrentSessions((concurrency) -> concurrency
                 .maximumSessions(SessionLimit.of(1))
+            )
         );
     return http.build();
 }
 
 @Bean
-ReactiveSessionRegistry reactiveSessionRegistry(WebSessionManager webSessionManager) {
-    return new WebSessionStoreReactiveSessionRegistry(((DefaultWebSessionManager) webSessionManager).getSessionStore());
+ReactiveSessionRegistry reactiveSessionRegistry() {
+    return new InMemoryReactiveSessionRegistry();
 }
 ----
 
@@ -60,8 +61,8 @@ open fun springSecurity(http: ServerHttpSecurity): SecurityWebFilterChain {
     }
 }
 @Bean
-open fun reactiveSessionRegistry(webSessionManager: WebSessionManager): ReactiveSessionRegistry {
-    return WebSessionStoreReactiveSessionRegistry((webSessionManager as DefaultWebSessionManager).sessionStore)
+open fun reactiveSessionRegistry(): ReactiveSessionRegistry {
+    return InMemoryReactiveSessionRegistry()
 }
 ----
 ======
@@ -88,8 +89,8 @@ SecurityWebFilterChain filterChain(ServerHttpSecurity http) {
 }
 
 @Bean
-ReactiveSessionRegistry reactiveSessionRegistry(WebSessionManager webSessionManager) {
-    return new WebSessionStoreReactiveSessionRegistry(((DefaultWebSessionManager) webSessionManager).getSessionStore());
+ReactiveSessionRegistry reactiveSessionRegistry() {
+    return new InMemoryReactiveSessionRegistry();
 }
 ----
 
@@ -110,7 +111,7 @@ open fun springSecurity(http: ServerHttpSecurity): SecurityWebFilterChain {
 }
 @Bean
 open fun reactiveSessionRegistry(webSessionManager: WebSessionManager): ReactiveSessionRegistry {
-    return WebSessionStoreReactiveSessionRegistry((webSessionManager as DefaultWebSessionManager).sessionStore)
+    return InMemoryReactiveSessionRegistry()
 }
 ----
 ======
@@ -148,8 +149,8 @@ private SessionLimit maxSessions() {
 }
 
 @Bean
-ReactiveSessionRegistry reactiveSessionRegistry(WebSessionManager webSessionManager) {
-    return new WebSessionStoreReactiveSessionRegistry(((DefaultWebSessionManager) webSessionManager).getSessionStore());
+ReactiveSessionRegistry reactiveSessionRegistry() {
+    return new InMemoryReactiveSessionRegistry();
 }
 ----
 
@@ -178,8 +179,8 @@ fun maxSessions(): SessionLimit {
 }
 
 @Bean
-open fun reactiveSessionRegistry(webSessionManager: WebSessionManager): ReactiveSessionRegistry {
-    return WebSessionStoreReactiveSessionRegistry((webSessionManager as DefaultWebSessionManager).sessionStore)
+open fun reactiveSessionRegistry(): ReactiveSessionRegistry {
+    return InMemoryReactiveSessionRegistry()
 }
 ----
 ======
@@ -215,8 +216,8 @@ SecurityWebFilterChain filterChain(ServerHttpSecurity http) {
 }
 
 @Bean
-ReactiveSessionRegistry reactiveSessionRegistry(WebSessionManager webSessionManager) {
-    return new WebSessionStoreReactiveSessionRegistry(((DefaultWebSessionManager) webSessionManager).getSessionStore());
+ReactiveSessionRegistry reactiveSessionRegistry() {
+    return new InMemoryReactiveSessionRegistry();
 }
 ----
 
@@ -238,8 +239,8 @@ open fun springSecurity(http: ServerHttpSecurity): SecurityWebFilterChain {
 }
 
 @Bean
-open fun reactiveSessionRegistry(webSessionManager: WebSessionManager): ReactiveSessionRegistry {
-    return WebSessionStoreReactiveSessionRegistry((webSessionManager as DefaultWebSessionManager).sessionStore)
+open fun reactiveSessionRegistry(): ReactiveSessionRegistry {
+    return InMemoryReactiveSessionRegistry()
 }
 ----
 ======
@@ -248,15 +249,8 @@ open fun reactiveSessionRegistry(webSessionManager: WebSessionManager): Reactive
 == Specifying a `ReactiveSessionRegistry`
 
 In order to keep track of the user's sessions, Spring Security uses a {security-api-url}org/springframework/security/core/session/ReactiveSessionRegistry.html[ReactiveSessionRegistry], and, every time a user logs in, their session information is saved.
-Typically, in a Spring WebFlux application, you will use the {security-api-url}/org/springframework/security/web/session/WebSessionStoreReactiveSessionRegistry.html[WebSessionStoreReactiveSessionRegistry] which makes sure that the `WebSession` is invalidated whenever the `ReactiveSessionInformation` is invalidated.
 
-Spring Security ships with {security-api-url}/org/springframework/security/web/session/WebSessionStoreReactiveSessionRegistry.html[WebSessionStoreReactiveSessionRegistry] and {security-api-url}org/springframework/security/core/session/InMemoryReactiveSessionRegistry.html[InMemoryReactiveSessionRegistry] implementations of `ReactiveSessionRegistry`.
-
-[NOTE]
-====
-When creating the `WebSessionStoreReactiveSessionRegistry`, you need to provide the `WebSessionStore` that is being used by your application.
-If you are using Spring WebFlux, you can use the `WebSessionManager` bean (which is usually an instance of `DefaultWebSessionManager`) to get the `WebSessionStore`.
-====
+Spring Security ships with {security-api-url}org/springframework/security/core/session/InMemoryReactiveSessionRegistry.html[InMemoryReactiveSessionRegistry] implementation of `ReactiveSessionRegistry`.
 
 To specify a `ReactiveSessionRegistry` implementation you can either declare it as a bean:
 
@@ -281,7 +275,7 @@ SecurityWebFilterChain filterChain(ServerHttpSecurity http) {
 
 @Bean
 ReactiveSessionRegistry reactiveSessionRegistry() {
-    return new InMemoryReactiveSessionRegistry();
+    return new MyReactiveSessionRegistry();
 }
 ----
 
@@ -303,7 +297,7 @@ open fun springSecurity(http: ServerHttpSecurity): SecurityWebFilterChain {
 
 @Bean
 open fun reactiveSessionRegistry(): ReactiveSessionRegistry {
-    return InMemoryReactiveSessionRegistry()
+    return MyReactiveSessionRegistry()
 }
 ----
 ======
@@ -324,7 +318,7 @@ SecurityWebFilterChain filterChain(ServerHttpSecurity http) {
         .sessionManagement((sessions) -> sessions
             .concurrentSessions((concurrency) -> concurrency
                 .maximumSessions(SessionLimit.of(1))
-                .sessionRegistry(new InMemoryReactiveSessionRegistry())
+                .sessionRegistry(new MyReactiveSessionRegistry())
             )
         );
     return http.build();
@@ -342,7 +336,7 @@ open fun springSecurity(http: ServerHttpSecurity): SecurityWebFilterChain {
         sessionManagement {
             sessionConcurrency {
                 maximumSessions = SessionLimit.of(1)
-                sessionRegistry = InMemoryReactiveSessionRegistry()
+                sessionRegistry = MyReactiveSessionRegistry()
             }
         }
     }
@@ -355,7 +349,7 @@ open fun springSecurity(http: ServerHttpSecurity): SecurityWebFilterChain {
 
 At times, it is handy to be able to invalidate all or some of a user's sessions.
 For example, when a user changes their password, you may want to invalidate all of their sessions so that they are forced to log in again.
-To do that, you can use the `ReactiveSessionRegistry` bean to retrieve all the user's sessions and then invalidate them:
+To do that, you can use the `ReactiveSessionRegistry` bean to retrieve all the user's sessions, invalidate them, and them remove them from the `WebSessionStore`:
 
 .Using ReactiveSessionRegistry to invalidate sessions manually
 [tabs]
@@ -367,13 +361,12 @@ Java::
 public class SessionControl {
     private final ReactiveSessionRegistry reactiveSessionRegistry;
 
-    public SessionControl(ReactiveSessionRegistry reactiveSessionRegistry) {
-        this.reactiveSessionRegistry = reactiveSessionRegistry;
-    }
+    private final WebSessionStore webSessionStore;
 
     public Mono<Void> invalidateSessions(String username) {
         return this.reactiveSessionRegistry.getAllSessions(username)
-            .flatMap(ReactiveSessionInformation::invalidate)
+            .flatMap((session) -> session.invalidate().thenReturn(session))
+            .flatMap((session) -> this.webSessionStore.removeSession(session.getSessionId()))
             .then();
     }
 }

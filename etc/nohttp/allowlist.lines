@@ -12,3 +12,5 @@
 ^http://openoffice.org/.*
 ^http://www.w3.org/2003/g/data-view
 ^http://schemas.openid.net/event/backchannel-logout
+^http://host.docker.internal:8090/back-channel/logout
+^http://host.docker.internal:8090/logout

@@ -1702,6 +1702,512 @@ This works on both classes and interfaces.
 This does not work for interfaces, since they do not have debug information about the parameter names.
 For interfaces, either annotations or the `-parameters` approach must be used.
 
+[[authorize-object]]
+== Authorizing Arbitrary Objects
+
+Spring Security also supports wrapping any object that is annotated its method security annotations.
+
+The simplest way to achieve this is to mark any method that returns the object you wish to authorize with the `@AuthorizeReturnObject` annotation.
+
+For example, consider the following `User` class:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+public class User {
+	private String name;
+	private String email;
+
+	public User(String name, String email) {
+		this.name = name;
+		this.email = email;
+	}
+
+	public String getName() {
+		return this.name;
+	}
+
+    @PreAuthorize("hasAuthority('user:read')")
+    public String getEmail() {
+		return this.email;
+    }
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+class User (val name:String, @get:PreAuthorize("hasAuthority('user:read')") val email:String)
+----
+======
+
+Given an interface like this one:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+public class UserRepository {
+	@AuthorizeReturnObject
+    Optional<User> findByName(String name) {
+		// ...
+    }
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+class UserRepository {
+    @AuthorizeReturnObject
+    fun findByName(name:String?): Optional<User?>? {
+        // ...
+    }
+}
+----
+======
+
+Then any `User` that is returned from `findById` will be secured like other Spring Security-protected components:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Autowired
+UserRepository users;
+
+@Test
+void getEmailWhenProxiedThenAuthorizes() {
+    Optional<User> securedUser = users.findByName("name");
+    assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(() -> securedUser.get().getEmail());
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+
+import jdk.incubator.vector.VectorOperators.Test
+import java.nio.file.AccessDeniedException
+import java.util.*
+
+@Autowired
+var users:UserRepository? = null
+
+@Test
+fun getEmailWhenProxiedThenAuthorizes() {
+    val securedUser: Optional<User> = users.findByName("name")
+    assertThatExceptionOfType(AccessDeniedException::class.java).isThrownBy{securedUser.get().getEmail()}
+}
+----
+======
+
+=== Using `@AuthorizeReturnObject` at the class level
+
+`@AuthorizeReturnObject` can be placed at the class level. Note, though, that this means Spring Security will attempt to proxy any return object, including ``String``, ``Integer`` and other types.
+This is often not what you want to do.
+
+If you want to use `@AuthorizeReturnObject` on a class or interface whose methods return value types, like `int`, `String`, `Double` or collections of those types, then you should also publish the appropriate `AuthorizationAdvisorProxyFactory.TargetVisitor` as follows:
+
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Bean
+static Customizer<AuthorizationAdvisorProxyFactory> skipValueTypes() {
+    return (factory) -> factory.setTargetVisitor(TargetVisitor.defaultsSkipValueTypes());
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Bean
+open fun skipValueTypes() = Customizer<AuthorizationAdvisorProxyFactory> {
+    it.setTargetVisitor(TargetVisitor.defaultsSkipValueTypes())
+}
+----
+======
+
+[TIP]
+====
+You can set your own `AuthorizationAdvisorProxyFactory.TargetVisitor` to customize the proxying for any set of types
+====
+
+=== Programmatically Proxying
+
+You can also programmatically proxy a given object.
+
+To achieve this, you can autowire the provided `AuthorizationProxyFactory` instance, which is based on which method security interceptors you have configured.
+If you are using `@EnableMethodSecurity`, then this means that it will by default have the interceptors for `@PreAuthorize`, `@PostAuthorize`, `@PreFilter`, and `@PostFilter`.
+
+
+You can proxy an instance of user in the following way:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Autowired
+AuthorizationProxyFactory proxyFactory;
+
+@Test
+void getEmailWhenProxiedThenAuthorizes() {
+    User user = new User("name", "email");
+    assertThat(user.getEmail()).isNotNull();
+    User securedUser = proxyFactory.proxy(user);
+    assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(securedUser::getEmail);
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Autowired
+var proxyFactory:AuthorizationProxyFactory? = null
+
+@Test
+fun getEmailWhenProxiedThenAuthorizes() {
+    val user: User = User("name", "email")
+    assertThat(user.getEmail()).isNotNull()
+    val securedUser: User = proxyFactory.proxy(user)
+    assertThatExceptionOfType(AccessDeniedException::class.java).isThrownBy(securedUser::getEmail)
+}
+----
+======
+
+=== Manual Construction
+
+You can also define your own instance if you need something different from the Spring Security default.
+
+For example, if you define an `AuthorizationProxyFactory` instance like so:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+import org.springframework.security.authorization.method.AuthorizationAdvisorProxyFactory.TargetVisitor;
+import static org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor.preAuthorize;
+// ...
+
+AuthorizationProxyFactory proxyFactory = AuthorizationAdvisorProxyFactory.withDefaults();
+// and if needing to skip value types
+proxyFactory.setTargetVisitor(TargetVisitor.defaultsSkipValueTypes());
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+import org.springframework.security.authorization.method.AuthorizationAdvisorProxyFactory.TargetVisitor;
+import org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor.preAuthorize
+
+// ...
+
+val proxyFactory: AuthorizationProxyFactory = AuthorizationProxyFactory(preAuthorize())
+// and if needing to skip value types
+proxyFactory.setTargetVisitor(TargetVisitor.defaultsSkipValueTypes())
+----
+======
+
+Then you can wrap any instance of `User` as follows:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Test
+void getEmailWhenProxiedThenAuthorizes() {
+	AuthorizationProxyFactory proxyFactory = AuthorizationAdvisorProxyFactory.withDefaults();
+    User user = new User("name", "email");
+    assertThat(user.getEmail()).isNotNull();
+    User securedUser = proxyFactory.proxy(user);
+    assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(securedUser::getEmail);
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Test
+fun getEmailWhenProxiedThenAuthorizes() {
+    val proxyFactory: AuthorizationProxyFactory = AuthorizationAdvisorProxyFactory.withDefaults()
+    val user: User = User("name", "email")
+    assertThat(user.getEmail()).isNotNull()
+    val securedUser: User = proxyFactory.proxy(user)
+    assertThatExceptionOfType(AccessDeniedException::class.java).isThrownBy(securedUser::getEmail)
+}
+----
+======
+
+[NOTE]
+====
+This feature does not yet support Spring AOT
+====
+
+=== Proxying Collections
+
+`AuthorizationProxyFactory` supports Java collections, streams, arrays, optionals, and iterators by proxying the element type and maps by proxying the value type.
+
+This means that when proxying a `List` of objects, the following also works:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Test
+void getEmailWhenProxiedThenAuthorizes() {
+	AuthorizationProxyFactory proxyFactory = AuthorizationAdvisorProxyFactory.withDefaults();
+    List<User> users = List.of(ada, albert, marie);
+    List<User> securedUsers = proxyFactory.proxy(users);
+	securedUsers.forEach((securedUser) ->
+        assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(securedUser::getEmail));
+}
+----
+======
+
+=== Proxying Classes
+
+In limited circumstances, it may be valuable to proxy a `Class` itself, and `AuthorizationProxyFactory` also supports this.
+This is roughly the equivalent of calling `ProxyFactory#getProxyClass` in Spring Framework's support for creating proxies.
+
+One place where this is handy is when you need to construct the proxy class ahead-of-time, like with Spring AOT.
+
+=== Support for All Method Security Annotations
+
+`AuthorizationProxyFactory` supports whichever method security annotations are enabled in your application.
+It is based off of whatever `AuthorizationAdvisor` classes are published as a bean.
+
+Since `@EnableMethodSecurity` publishes `@PreAuthorize`, `@PostAuthorize`, `@PreFilter`, and `@PostFilter`  advisors by default, you will typically need to do nothing to activate the ability.
+
+[NOTE]
+====
+SpEL expressions that use `returnObject` or `filterObject` sit behind the proxy and so have full access to the object.
+====
+
+[#custom_advice]
+=== Custom Advice
+
+If you have security advice that you also want applied, you can publish your own `AuthorizationAdvisor` like so:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@EnableMethodSecurity
+class SecurityConfig {
+    @Bean
+    static AuthorizationAdvisor myAuthorizationAdvisor() {
+        return new AuthorizationAdvisor();
+    }
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@EnableMethodSecurity
+internal class SecurityConfig {
+    @Bean
+    fun myAuthorizationAdvisor(): AuthorizationAdvisor {
+        return AuthorizationAdvisor()
+    }
+]
+----
+======
+
+And Spring Security will add that advisor into the set of advice that `AuthorizationProxyFactory` adds when proxying an object.
+
+=== Working with Jackson
+
+One powerful use of this feature is to return a secured value from a controller like so:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@RestController
+public class UserController {
+	@Autowired
+    AuthorizationProxyFactory proxyFactory;
+
+	@GetMapping
+    User currentUser(@AuthenticationPrincipal User user) {
+        return this.proxyFactory.proxy(user);
+    }
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@RestController
+class UserController  {
+    @Autowired
+    var proxyFactory: AuthorizationProxyFactory? = null
+
+    @GetMapping
+    fun currentUser(@AuthenticationPrincipal user:User?): User {
+        return proxyFactory.proxy(user)
+    }
+}
+----
+======
+
+If you are using Jackson, though, this may result in a serialization error like the following:
+
+[source,bash]
+====
+com.fasterxml.jackson.databind.exc.InvalidDefinitionException: Direct self-reference leading to cycle
+====
+
+This is due to how Jackson works with CGLIB proxies.
+To address this, add the following annotation to the top of the `User` class:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@JsonSerialize(as = User.class)
+public class User {
+
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@JsonSerialize(`as` = User::class)
+class User
+----
+======
+
+Finally, you will need to publish a <<custom_advice, custom interceptor>> to catch the `AccessDeniedException` thrown for each field, which you can do like so:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Component
+public class AccessDeniedExceptionInterceptor implements AuthorizationAdvisor {
+    private final AuthorizationAdvisor advisor = AuthorizationManagerBeforeMethodInterceptor.preAuthorize();
+
+	@Override
+	public Object invoke(MethodInvocation invocation) throws Throwable {
+		try {
+			return invocation.proceed();
+		} catch (AccessDeniedException ex) {
+			return null;
+		}
+	}
+
+	@Override
+	public Pointcut getPointcut() {
+		return this.advisor.getPointcut();
+	}
+
+	@Override
+	public Advice getAdvice() {
+		return this;
+	}
+
+	@Override
+	public int getOrder() {
+		return this.advisor.getOrder() - 1;
+	}
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Component
+class AccessDeniedExceptionInterceptor: AuthorizationAdvisor {
+    var advisor: AuthorizationAdvisor = AuthorizationManagerBeforeMethodInterceptor.preAuthorize()
+
+    @Throws(Throwable::class)
+    fun invoke(invocation: MethodInvocation): Any? {
+        return try  {
+            invocation.proceed()
+        } catch (ex:AccessDeniedException) {
+            null
+        }
+    }
+
+     val pointcut: Pointcut
+     get() = advisor.getPointcut()
+
+     val advice: Advice
+     get() = this
+
+     val order: Int
+     get() = advisor.getOrder() - 1
+}
+----
+======
+
+Then, you'll see a different JSON serialization based on the authorization level of the user.
+If they don't have the `user:read` authority, then they'll see:
+
+[source,json]
+----
+{
+    "name" : "name",
+    "email" : null
+}
+----
+
+And if they do have that authority, they'll see:
+
+[source,json]
+----
+{
+    "name" : "name",
+    "email" : "email"
+}
+----
+
+[TIP]
+====
+You can also add the Spring Boot property `spring.jackson.default-property-inclusion=non_null` to exclude the null value, if you also don't want to reveal the JSON key to an unauthorized user.
+====
+
 [[migration-enableglobalmethodsecurity]]
 == Migrating from `@EnableGlobalMethodSecurity`
 

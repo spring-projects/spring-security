@@ -28,9 +28,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.aop.Pointcut;
-import org.springframework.aop.PointcutAdvisor;
-import org.springframework.aop.framework.AopInfrastructureBean;
-import org.springframework.core.Ordered;
 import org.springframework.core.log.LogMessage;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.annotation.Secured;
@@ -52,8 +49,7 @@ import org.springframework.util.Assert;
  * @author Josh Cummings
  * @since 5.6
  */
-public final class AuthorizationManagerBeforeMethodInterceptor
-		implements Ordered, MethodInterceptor, PointcutAdvisor, AopInfrastructureBean {
+public final class AuthorizationManagerBeforeMethodInterceptor implements AuthorizationAdvisor {
 
 	private Supplier<SecurityContextHolderStrategy> securityContextHolderStrategy = SecurityContextHolder::getContextHolderStrategy;
 

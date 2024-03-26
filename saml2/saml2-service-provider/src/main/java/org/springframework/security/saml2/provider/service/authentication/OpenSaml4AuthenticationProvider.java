@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,12 +20,15 @@ import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
 
 import javax.annotation.Nonnull;
@@ -167,6 +170,9 @@ public final class OpenSaml4AuthenticationProvider implements AuthenticationProv
 	private Converter<AssertionToken, Saml2ResponseValidatorResult> assertionValidator = createDefaultAssertionValidator();
 
 	private Converter<ResponseToken, ? extends AbstractAuthenticationToken> responseAuthenticationConverter = createDefaultResponseAuthenticationConverter();
+
+	private static final Set<String> includeChildStatusCodes = new HashSet<>(
+			Arrays.asList(StatusCode.REQUESTER, StatusCode.RESPONDER, StatusCode.VERSION_MISMATCH));
 
 	/**
 	 * Creates an {@link OpenSaml4AuthenticationProvider}
@@ -371,11 +377,13 @@ public final class OpenSaml4AuthenticationProvider implements AuthenticationProv
 			Response response = responseToken.getResponse();
 			Saml2AuthenticationToken token = responseToken.getToken();
 			Saml2ResponseValidatorResult result = Saml2ResponseValidatorResult.success();
-			String statusCode = getStatusCode(response);
-			if (!StatusCode.SUCCESS.equals(statusCode)) {
-				String message = String.format("Invalid status [%s] for SAML response [%s]", statusCode,
-						response.getID());
-				result = result.concat(new Saml2Error(Saml2ErrorCodes.INVALID_RESPONSE, message));
+			List<String> statusCodes = getStatusCodes(response);
+			if (!isSuccess(statusCodes)) {
+				for (String statusCode : statusCodes) {
+					String message = String.format("Invalid status [%s] for SAML response [%s]", statusCode,
+							response.getID());
+					result = result.concat(new Saml2Error(Saml2ErrorCodes.INVALID_RESPONSE, message));
+				}
 			}
 
 			String inResponseTo = response.getInResponseTo();
@@ -402,6 +410,38 @@ public final class OpenSaml4AuthenticationProvider implements AuthenticationProv
 			}
 			return result;
 		};
+	}
+
+	private static List<String> getStatusCodes(Response response) {
+		if (response.getStatus() == null) {
+			return List.of(StatusCode.SUCCESS);
+		}
+		if (response.getStatus().getStatusCode() == null) {
+			return List.of(StatusCode.SUCCESS);
+		}
+		StatusCode parentStatusCode = response.getStatus().getStatusCode();
+		String parentStatusCodeValue = parentStatusCode.getValue();
+		if (!includeChildStatusCodes.contains(parentStatusCodeValue)) {
+			return List.of(parentStatusCodeValue);
+		}
+		StatusCode childStatusCode = parentStatusCode.getStatusCode();
+		if (childStatusCode == null) {
+			return List.of(parentStatusCodeValue);
+		}
+		String childStatusCodeValue = childStatusCode.getValue();
+		if (childStatusCodeValue == null) {
+			return List.of(parentStatusCodeValue);
+		}
+		return List.of(parentStatusCodeValue, childStatusCodeValue);
+	}
+
+	private static boolean isSuccess(List<String> statusCodes) {
+		if (statusCodes.size() != 1) {
+			return false;
+		}
+
+		String statusCode = statusCodes.get(0);
+		return StatusCode.SUCCESS.equals(statusCode);
 	}
 
 	private static Saml2ResponseValidatorResult validateInResponseTo(AbstractSaml2AuthenticationRequest storedRequest,
@@ -612,16 +652,6 @@ public final class OpenSaml4AuthenticationProvider implements AuthenticationProv
 				throw createAuthenticationException(Saml2ErrorCodes.DECRYPTION_ERROR, ex.getMessage(), ex);
 			}
 		};
-	}
-
-	private static String getStatusCode(Response response) {
-		if (response.getStatus() == null) {
-			return StatusCode.SUCCESS;
-		}
-		if (response.getStatus().getStatusCode() == null) {
-			return StatusCode.SUCCESS;
-		}
-		return response.getStatus().getStatusCode().getValue();
 	}
 
 	private Converter<AssertionToken, Saml2ResponseValidatorResult> createDefaultAssertionSignatureValidator() {

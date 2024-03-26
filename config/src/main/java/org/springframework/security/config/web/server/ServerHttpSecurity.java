@@ -58,6 +58,7 @@ import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.ObservationReactiveAuthorizationManager;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.web.configurers.oauth2.client.OidcLogoutConfigurer;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -111,6 +112,7 @@ import org.springframework.security.oauth2.server.resource.web.access.server.Bea
 import org.springframework.security.oauth2.server.resource.web.server.BearerTokenServerAuthenticationEntryPoint;
 import org.springframework.security.oauth2.server.resource.web.server.authentication.ServerBearerTokenAuthenticationConverter;
 import org.springframework.security.web.PortMapper;
+import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.authentication.preauth.x509.SubjectDnX509PrincipalExtractor;
 import org.springframework.security.web.authentication.preauth.x509.X509PrincipalExtractor;
 import org.springframework.security.web.server.DefaultServerRedirectStrategy;
@@ -214,6 +216,8 @@ import org.springframework.web.server.ServerWebExchangeDecorator;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 import org.springframework.web.server.WebSession;
+import org.springframework.web.server.adapter.WebHttpHandlerBuilder;
+import org.springframework.web.server.session.DefaultWebSessionManager;
 import org.springframework.web.util.pattern.PathPatternParser;
 
 /**
@@ -1964,7 +1968,7 @@ public class ServerHttpSecurity {
 
 		private SessionLimit sessionLimit = SessionLimit.UNLIMITED;
 
-		private ServerMaximumSessionsExceededHandler maximumSessionsExceededHandler = new InvalidateLeastUsedServerMaximumSessionsExceededHandler();
+		private ServerMaximumSessionsExceededHandler maximumSessionsExceededHandler;
 
 		/**
 		 * Configures how many sessions are allowed for a given user.
@@ -1983,9 +1987,8 @@ public class ServerHttpSecurity {
 			if (this.concurrentSessions != null) {
 				ReactiveSessionRegistry reactiveSessionRegistry = getSessionRegistry();
 				ConcurrentSessionControlServerAuthenticationSuccessHandler concurrentSessionControlStrategy = new ConcurrentSessionControlServerAuthenticationSuccessHandler(
-						reactiveSessionRegistry);
+						reactiveSessionRegistry, getMaximumSessionsExceededHandler());
 				concurrentSessionControlStrategy.setSessionLimit(this.sessionLimit);
-				concurrentSessionControlStrategy.setMaximumSessionsExceededHandler(this.maximumSessionsExceededHandler);
 				RegisterSessionServerAuthenticationSuccessHandler registerSessionAuthenticationStrategy = new RegisterSessionServerAuthenticationSuccessHandler(
 						reactiveSessionRegistry);
 				this.authenticationSuccessHandler = new DelegatingServerAuthenticationSuccessHandler(
@@ -1995,6 +1998,24 @@ public class ServerHttpSecurity {
 				configureSuccessHandlerOnAuthenticationFilters();
 				http.addFilterAfter(sessionRegistryWebFilter, SecurityWebFiltersOrder.HTTP_HEADERS_WRITER);
 			}
+		}
+
+		private ServerMaximumSessionsExceededHandler getMaximumSessionsExceededHandler() {
+			if (this.maximumSessionsExceededHandler != null) {
+				return this.maximumSessionsExceededHandler;
+			}
+			DefaultWebSessionManager webSessionManager = getBeanOrNull(
+					WebHttpHandlerBuilder.WEB_SESSION_MANAGER_BEAN_NAME, DefaultWebSessionManager.class);
+			if (webSessionManager != null) {
+				this.maximumSessionsExceededHandler = new InvalidateLeastUsedServerMaximumSessionsExceededHandler(
+						webSessionManager.getSessionStore());
+			}
+			if (this.maximumSessionsExceededHandler == null) {
+				throw new IllegalStateException(
+						"Could not create a default ServerMaximumSessionsExceededHandler. Please provide "
+								+ "a ServerMaximumSessionsExceededHandler via DSL");
+			}
+			return this.maximumSessionsExceededHandler;
 		}
 
 		private void configureSuccessHandlerOnAuthenticationFilters() {
@@ -2143,19 +2164,23 @@ public class ServerHttpSecurity {
 				@Override
 				public Mono<Void> changeSessionId() {
 					String currentId = this.session.getId();
-					return SessionRegistryWebFilter.this.sessionRegistry.removeSessionInformation(currentId)
-						.flatMap((information) -> this.session.changeSessionId().thenReturn(information))
-						.flatMap((information) -> {
-							information = information.withSessionId(this.session.getId());
-							return SessionRegistryWebFilter.this.sessionRegistry.saveSessionInformation(information);
-						});
+					return this.session.changeSessionId()
+						.then(Mono.defer(
+								() -> SessionRegistryWebFilter.this.sessionRegistry.removeSessionInformation(currentId)
+									.flatMap((information) -> {
+										information = information.withSessionId(this.session.getId());
+										return SessionRegistryWebFilter.this.sessionRegistry
+											.saveSessionInformation(information);
+									})));
 				}
 
 				@Override
 				public Mono<Void> invalidate() {
 					String currentId = this.session.getId();
-					return SessionRegistryWebFilter.this.sessionRegistry.removeSessionInformation(currentId)
-						.flatMap((information) -> this.session.invalidate());
+					return this.session.invalidate()
+						.then(Mono.defer(() -> SessionRegistryWebFilter.this.sessionRegistry
+							.removeSessionInformation(currentId)))
+						.then();
 				}
 
 				@Override
@@ -5461,7 +5486,7 @@ public class ServerHttpSecurity {
 
 			private final ReactiveAuthenticationManager authenticationManager = new OidcBackChannelLogoutReactiveAuthenticationManager();
 
-			private ServerLogoutHandler logoutHandler;
+			private Supplier<ServerLogoutHandler> logoutHandler = this::logoutHandler;
 
 			private ServerAuthenticationConverter authenticationConverter() {
 				if (this.authenticationConverter == null) {
@@ -5476,18 +5501,56 @@ public class ServerHttpSecurity {
 			}
 
 			private ServerLogoutHandler logoutHandler() {
-				if (this.logoutHandler == null) {
+				OidcBackChannelServerLogoutHandler logoutHandler = new OidcBackChannelServerLogoutHandler();
+				logoutHandler.setSessionRegistry(OidcLogoutSpec.this.getSessionRegistry());
+				return logoutHandler;
+			}
+
+			/**
+			 * Use this endpoint when invoking a back-channel logout.
+			 *
+			 * <p>
+			 * The resulting {@link LogoutHandler} will {@code POST} the session cookie
+			 * and CSRF token to this endpoint to invalidate the corresponding end-user
+			 * session.
+			 *
+			 * <p>
+			 * Supports URI templates like {@code {baseUrl}}, {@code {baseScheme}}, and
+			 * {@code {basePort}}.
+			 *
+			 * <p>
+			 * By default, the URI is set to
+			 * {@code {baseScheme}://localhost{basePort}/logout}, meaning that the scheme
+			 * and port of the original back-channel request is preserved, while the host
+			 * and endpoint are changed.
+			 *
+			 * <p>
+			 * If you are using Spring Security for the logout endpoint, the path part of
+			 * this URI should match the value configured there.
+			 *
+			 * <p>
+			 * Otherwise, this is handy in the event that your server configuration means
+			 * that the scheme, server name, or port in the {@code Host} header are
+			 * different from how you would address the same server internally.
+			 * @param logoutUri the URI to request logout on the back-channel
+			 * @return the {@link OidcLogoutConfigurer.BackChannelLogoutConfigurer} for
+			 * further customizations
+			 * @since 6.2.4
+			 */
+			public BackChannelLogoutConfigurer logoutUri(String logoutUri) {
+				this.logoutHandler = () -> {
 					OidcBackChannelServerLogoutHandler logoutHandler = new OidcBackChannelServerLogoutHandler();
 					logoutHandler.setSessionRegistry(OidcLogoutSpec.this.getSessionRegistry());
-					this.logoutHandler = logoutHandler;
-				}
-				return this.logoutHandler;
+					logoutHandler.setLogoutUri(logoutUri);
+					return logoutHandler;
+				};
+				return this;
 			}
 
 			void configure(ServerHttpSecurity http) {
 				OidcBackChannelLogoutWebFilter filter = new OidcBackChannelLogoutWebFilter(authenticationConverter(),
 						authenticationManager());
-				filter.setLogoutHandler(logoutHandler());
+				filter.setLogoutHandler(this.logoutHandler.get());
 				http.addFilterBefore(filter, SecurityWebFiltersOrder.CSRF);
 			}
 
