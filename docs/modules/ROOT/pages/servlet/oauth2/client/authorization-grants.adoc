@@ -27,7 +27,7 @@ The `OAuth2AuthorizationRequestRedirectFilter` uses an `OAuth2AuthorizationReque
 The primary role of the `OAuth2AuthorizationRequestResolver` is to resolve an `OAuth2AuthorizationRequest` from the provided web request.
 The default implementation `DefaultOAuth2AuthorizationRequestResolver` matches on the (default) path `+/oauth2/authorization/{registrationId}+`, extracting the `registrationId`, and using it to build the `OAuth2AuthorizationRequest` for the associated `ClientRegistration`.
 
-Consider the following Spring Boot 2.x properties for an OAuth 2.0 Client registration:
+Consider the following Spring Boot properties for an OAuth 2.0 Client registration:
 
 [source,yaml,attrs="-attributes"]
 ----
@@ -740,7 +740,7 @@ which is an implementation of an `OAuth2AuthorizedClientProvider` for the Client
 
 === Using the Access Token
 
-Consider the following Spring Boot 2.x properties for an OAuth 2.0 Client registration:
+Consider the following Spring Boot properties for an OAuth 2.0 Client registration:
 
 [source,yaml]
 ----
@@ -1005,7 +1005,7 @@ which is an implementation of an `OAuth2AuthorizedClientProvider` for the Resour
 
 === Using the Access Token
 
-Consider the following Spring Boot 2.x properties for an OAuth 2.0 Client registration:
+Consider the following Spring Boot properties for an OAuth 2.0 Client registration:
 
 [source,yaml]
 ----
@@ -1309,7 +1309,7 @@ authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider)
 
 === Using the Access Token
 
-Given the following Spring Boot 2.x properties for an OAuth 2.0 Client registration:
+Given the following Spring Boot properties for an OAuth 2.0 Client registration:
 
 [source,yaml]
 ----

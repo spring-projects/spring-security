@@ -22,7 +22,7 @@ The `OAuth2AuthorizationRequestRedirectWebFilter` uses a `ServerOAuth2Authorizat
 The primary role of the `ServerOAuth2AuthorizationRequestResolver` is to resolve an `OAuth2AuthorizationRequest` from the provided web request.
 The default implementation `DefaultServerOAuth2AuthorizationRequestResolver` matches on the (default) path `+/oauth2/authorization/{registrationId}+` extracting the `registrationId` and using it to build the `OAuth2AuthorizationRequest` for the associated `ClientRegistration`.
 
-Given the following Spring Boot 2.x properties for an OAuth 2.0 Client registration:
+Given the following Spring Boot properties for an OAuth 2.0 Client registration:
 
 [source,yaml,attrs="-attributes"]
 ----
@@ -573,7 +573,7 @@ which is an implementation of a `ReactiveOAuth2AuthorizedClientProvider` for the
 
 === Using the Access Token
 
-Given the following Spring Boot 2.x properties for an OAuth 2.0 Client registration:
+Given the following Spring Boot properties for an OAuth 2.0 Client registration:
 
 [source,yaml]
 ----
@@ -780,7 +780,7 @@ which is an implementation of a `ReactiveOAuth2AuthorizedClientProvider` for the
 
 === Using the Access Token
 
-Given the following Spring Boot 2.x properties for an OAuth 2.0 Client registration:
+Given the following Spring Boot properties for an OAuth 2.0 Client registration:
 
 [source,yaml]
 ----
@@ -1033,7 +1033,7 @@ authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider)
 
 === Using the Access Token
 
-Given the following Spring Boot 2.x properties for an OAuth 2.0 Client registration:
+Given the following Spring Boot properties for an OAuth 2.0 Client registration:
 
 [source,yaml]
 ----
@@ -1241,7 +1241,7 @@ authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider)
 
 === Using the Access Token
 
-Given the following Spring Boot 2.x properties for an OAuth 2.0 Client registration:
+Given the following Spring Boot properties for an OAuth 2.0 Client registration:
 
 [source,yaml]
 ----

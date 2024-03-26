@@ -18,7 +18,7 @@ At a high-level, the core features available are:
 * https://datatracker.ietf.org/doc/html/rfc7523#section-2.2[JWT Bearer]
 
 .HTTP Client support
-* <<oauth2Client-webclient-webflux, `WebClient` integration for Reactive Environments>> (for requesting protected resources)
+* xref:reactive/oauth2/client/authorized-clients.adoc#oauth2Client-webclient-webflux[`WebClient` integration for Reactive Environments] (for requesting protected resources)
 
 The `ServerHttpSecurity.oauth2Client()` DSL provides a number of configuration options for customizing the core components used by OAuth 2.0 Client.
 
