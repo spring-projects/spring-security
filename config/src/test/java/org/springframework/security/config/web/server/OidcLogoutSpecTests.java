@@ -264,7 +264,7 @@ public class OidcLogoutSpecTests {
 			.isBadRequest()
 			.expectBody(String.class)
 			.value(containsString("partial_logout"))
-			.value(containsString("Connection refused"));
+			.value(containsString("not all sessions were terminated"));
 		this.test.get().uri("/token/logout").cookie("SESSION", one).exchange().expectStatus().isOk();
 	}
 
