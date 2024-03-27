@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,7 +51,7 @@ public class OidcClientInitiatedServerLogoutSuccessHandler implements ServerLogo
 
 	private final ServerRedirectStrategy redirectStrategy = new DefaultServerRedirectStrategy();
 
-	private final RedirectServerLogoutSuccessHandler serverLogoutSuccessHandler = new RedirectServerLogoutSuccessHandler();
+	private RedirectServerLogoutSuccessHandler serverLogoutSuccessHandler = new RedirectServerLogoutSuccessHandler();
 
 	private final ReactiveClientRegistrationRepository clientRegistrationRepository;
 
@@ -187,6 +187,16 @@ public class OidcClientInitiatedServerLogoutSuccessHandler implements ServerLogo
 	public void setLogoutSuccessUrl(URI logoutSuccessUrl) {
 		Assert.notNull(logoutSuccessUrl, "logoutSuccessUrl cannot be null");
 		this.serverLogoutSuccessHandler.setLogoutSuccessUrl(logoutSuccessUrl);
+	}
+
+	/**
+	 * Set the serverLogoutSuccessHandler.
+	 * @param serverLogoutSuccessHandler {@link RedirectServerLogoutSuccessHandler}
+	 * @since 6.3
+	 */
+	public void setServerLogoutSuccessHandler(RedirectServerLogoutSuccessHandler serverLogoutSuccessHandler) {
+		Assert.notNull(serverLogoutSuccessHandler, "serverLogoutSuccessHandler cannot be null");
+		this.serverLogoutSuccessHandler = serverLogoutSuccessHandler;
 	}
 
 }
