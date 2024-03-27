@@ -104,6 +104,7 @@ final class FilterOrderRegistration {
 		this.filterToOrder.put(
 				"org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter",
 				order.next());
+		this.filterToOrder.put("org.springframework.security.web.authentication.AuthenticationFilter", order.next());
 		put(BasicAuthenticationFilter.class, order.next());
 		put(RequestCacheAwareFilter.class, order.next());
 		put(SecurityContextHolderAwareRequestFilter.class, order.next());
