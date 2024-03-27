@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,8 +22,12 @@ import java.util.function.Consumer;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.opensaml.saml.saml2.core.LogoutResponse;
+import org.opensaml.saml.saml2.core.StatusCode;
 
 import org.springframework.security.core.Authentication;
+import org.springframework.security.saml2.core.Saml2Error;
+import org.springframework.security.saml2.core.Saml2ErrorCodes;
+import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationException;
 import org.springframework.security.saml2.provider.service.authentication.logout.Saml2LogoutResponse;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
@@ -67,11 +71,26 @@ public final class OpenSaml4LogoutResponseResolver implements Saml2LogoutRespons
 	 */
 	@Override
 	public Saml2LogoutResponse resolve(HttpServletRequest request, Authentication authentication) {
-		return this.logoutResponseResolver.resolve(request, authentication, (registration, logoutResponse) -> {
-			logoutResponse.setIssueInstant(Instant.now(this.clock));
-			this.parametersConsumer
-				.accept(new LogoutResponseParameters(request, registration, authentication, logoutResponse));
-		});
+		return this.logoutResponseResolver.resolve(request, authentication, StatusCode.SUCCESS,
+				(registration, logoutResponse) -> {
+					logoutResponse.setIssueInstant(Instant.now(this.clock));
+					this.parametersConsumer
+						.accept(new LogoutResponseParameters(request, registration, authentication, logoutResponse));
+				});
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Saml2LogoutResponse resolve(HttpServletRequest request, Authentication authentication,
+			Saml2AuthenticationException exception) {
+		return this.logoutResponseResolver.resolve(request, authentication, getSamlStatus(exception),
+				(registration, logoutResponse) -> {
+					logoutResponse.setIssueInstant(Instant.now(this.clock));
+					this.parametersConsumer
+						.accept(new LogoutResponseParameters(request, registration, authentication, logoutResponse));
+				});
 	}
 
 	/**
@@ -87,6 +106,16 @@ public final class OpenSaml4LogoutResponseResolver implements Saml2LogoutRespons
 	public void setClock(Clock clock) {
 		Assert.notNull(clock, "clock must not be null");
 		this.clock = clock;
+	}
+
+	private String getSamlStatus(Saml2AuthenticationException exception) {
+		Saml2Error saml2Error = exception.getSaml2Error();
+		return switch (saml2Error.getErrorCode()) {
+			case Saml2ErrorCodes.MISSING_LOGOUT_REQUEST_ENDPOINT, Saml2ErrorCodes.INVALID_BINDING ->
+				StatusCode.REQUEST_DENIED;
+			case Saml2ErrorCodes.INVALID_LOGOUT_REQUEST -> StatusCode.REQUESTER;
+			default -> StatusCode.RESPONDER;
+		};
 	}
 
 	public static final class LogoutResponseParameters {
