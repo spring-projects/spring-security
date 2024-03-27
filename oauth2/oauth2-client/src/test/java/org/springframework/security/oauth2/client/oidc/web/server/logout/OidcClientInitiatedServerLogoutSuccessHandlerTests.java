@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,6 +37,7 @@ import org.springframework.security.oauth2.client.registration.TestClientRegistr
 import org.springframework.security.oauth2.core.oidc.user.TestOidcUsers;
 import org.springframework.security.oauth2.core.user.TestOAuth2Users;
 import org.springframework.security.web.server.WebFilterExchange;
+import org.springframework.security.web.server.authentication.logout.RedirectServerLogoutSuccessHandler;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilterChain;
 
@@ -199,8 +200,25 @@ public class OidcClientInitiatedServerLogoutSuccessHandlerTests {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.handler.setPostLogoutRedirectUri((String) null));
 	}
 
+	@Test
+	public void logoutWhenCustomRedirectServerLogoutSuccessHandlerSetThenRedirects() {
+		OAuth2AuthenticationToken token = new OAuth2AuthenticationToken(TestOidcUsers.create(),
+				AuthorityUtils.NO_AUTHORITIES, this.registration.getRegistrationId());
+		given(this.exchange.getPrincipal()).willReturn(Mono.just(token));
+		WebFilterExchange filterExchange = new WebFilterExchange(this.exchange, this.chain);
+		this.handler.setServerLogoutSuccessHandler(new TestRedirectServerLogoutSuccessHandler());
+
+		this.handler.onLogoutSuccess(filterExchange, token).block();
+
+		assertThat(redirectedUrl(this.exchange)).isEqualTo("https://endpoint?id_token_hint=id-token");
+	}
+
 	private String redirectedUrl(ServerWebExchange exchange) {
 		return exchange.getResponse().getHeaders().getFirst("Location");
+	}
+
+	private static class TestRedirectServerLogoutSuccessHandler extends RedirectServerLogoutSuccessHandler {
+
 	}
 
 }
