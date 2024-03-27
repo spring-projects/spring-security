@@ -212,7 +212,7 @@ public class OidcLogoutConfigurerTests {
 				.param("logout_token", logoutToken))
 			.andExpect(status().isBadRequest())
 			.andExpect(content().string(containsString("partial_logout")))
-			.andExpect(content().string(containsString("Connection refused")));
+			.andExpect(content().string(containsString("not all sessions were terminated")));
 		this.mvc.perform(get("/token/logout").session(one)).andExpect(status().isOk());
 	}
 

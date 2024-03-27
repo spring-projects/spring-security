@@ -27,7 +27,7 @@ The `OAuth2AuthorizationRequestRedirectFilter` uses an `OAuth2AuthorizationReque
 The primary role of the `OAuth2AuthorizationRequestResolver` is to resolve an `OAuth2AuthorizationRequest` from the provided web request.
 The default implementation `DefaultOAuth2AuthorizationRequestResolver` matches on the (default) path `+/oauth2/authorization/{registrationId}+`, extracting the `registrationId`, and using it to build the `OAuth2AuthorizationRequest` for the associated `ClientRegistration`.
 
-Consider the following Spring Boot 2.x properties for an OAuth 2.0 Client registration:
+Consider the following Spring Boot properties for an OAuth 2.0 Client registration:
 
 [source,yaml,attrs="-attributes"]
 ----
@@ -740,7 +740,7 @@ which is an implementation of an `OAuth2AuthorizedClientProvider` for the Client
 
 === Using the Access Token
 
-Consider the following Spring Boot 2.x properties for an OAuth 2.0 Client registration:
+Consider the following Spring Boot properties for an OAuth 2.0 Client registration:
 
 [source,yaml]
 ----
@@ -1005,7 +1005,7 @@ which is an implementation of an `OAuth2AuthorizedClientProvider` for the Resour
 
 === Using the Access Token
 
-Consider the following Spring Boot 2.x properties for an OAuth 2.0 Client registration:
+Consider the following Spring Boot properties for an OAuth 2.0 Client registration:
 
 [source,yaml]
 ----
@@ -1309,7 +1309,7 @@ authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider)
 
 === Using the Access Token
 
-Given the following Spring Boot 2.x properties for an OAuth 2.0 Client registration:
+Given the following Spring Boot properties for an OAuth 2.0 Client registration:
 
 [source,yaml]
 ----
@@ -1435,3 +1435,254 @@ class OAuth2ResourceServerController {
 
 [TIP]
 If you need to resolve the `Jwt` assertion from a different source, you can provide `JwtBearerOAuth2AuthorizedClientProvider.setJwtAssertionResolver()` with a custom `Function<OAuth2AuthorizationContext, Jwt>`.
+
+[[oauth2Client-token-exchange-grant]]
+== Token Exchange
+
+[NOTE]
+====
+Please refer to OAuth 2.0 Token Exchange for further details on the https://datatracker.ietf.org/doc/html/rfc8693[Token Exchange] grant.
+====
+
+
+=== Requesting an Access Token
+
+[NOTE]
+====
+Please refer to the https://datatracker.ietf.org/doc/html/rfc8693#section-2[Token Exchange Request and Response] protocol flow for the Token Exchange grant.
+====
+
+The default implementation of `OAuth2AccessTokenResponseClient` for the Token Exchange grant is `DefaultTokenExchangeTokenResponseClient`, which uses a `RestOperations` when requesting an access token at the Authorization Server’s Token Endpoint.
+
+The `DefaultTokenExchangeTokenResponseClient` is quite flexible as it allows you to customize the pre-processing of the Token Request and/or post-handling of the Token Response.
+
+
+=== Customizing the Access Token Request
+
+If you need to customize the pre-processing of the Token Request, you can provide `DefaultTokenExchangeTokenResponseClient.setRequestEntityConverter()` with a custom `Converter<TokenExchangeGrantRequest, RequestEntity<?>>`.
+The default implementation `TokenExchangeGrantRequestEntityConverter` builds a `RequestEntity` representation of a https://datatracker.ietf.org/doc/html/rfc8693#section-2.1[OAuth 2.0 Access Token Request].
+However, providing a custom `Converter`, would allow you to extend the Token Request and add custom parameter(s).
+
+To customize only the parameters of the request, you can provide `TokenExchangeGrantRequestEntityConverter.setParametersConverter()` with a custom `Converter<TokenExchangeGrantRequest, MultiValueMap<String, String>>` to completely override the parameters sent with the request. This is often simpler than constructing a `RequestEntity` directly.
+
+[TIP]
+If you prefer to only add additional parameters, you can provide `TokenExchangeGrantRequestEntityConverter.addParametersConverter()` with a custom `Converter<TokenExchangeGrantRequest, MultiValueMap<String, String>>` which constructs an aggregate `Converter`.
+
+
+=== Customizing the Access Token Response
+
+On the other end, if you need to customize the post-handling of the Token Response, you will need to provide `DefaultTokenExchangeTokenResponseClient.setRestOperations()` with a custom configured `RestOperations`.
+The default `RestOperations` is configured as follows:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+RestTemplate restTemplate = new RestTemplate(Arrays.asList(
+		new FormHttpMessageConverter(),
+		new OAuth2AccessTokenResponseHttpMessageConverter()));
+
+restTemplate.setErrorHandler(new OAuth2ErrorResponseErrorHandler());
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+val restTemplate = RestTemplate(listOf(
+        FormHttpMessageConverter(),
+        OAuth2AccessTokenResponseHttpMessageConverter()))
+
+restTemplate.errorHandler = OAuth2ErrorResponseErrorHandler()
+----
+======
+
+[TIP]
+====
+Spring MVC `FormHttpMessageConverter` is required as it's used when sending the OAuth 2.0 Access Token Request.
+====
+
+`OAuth2AccessTokenResponseHttpMessageConverter` is a `HttpMessageConverter` for an OAuth 2.0 Access Token Response.
+You can provide `OAuth2AccessTokenResponseHttpMessageConverter.setAccessTokenResponseConverter()` with a custom `Converter<Map<String, Object>, OAuth2AccessTokenResponse>` that is used for converting the OAuth 2.0 Access Token Response parameters to an `OAuth2AccessTokenResponse`.
+
+`OAuth2ErrorResponseErrorHandler` is a `ResponseErrorHandler` that can handle an OAuth 2.0 Error, eg. 400 Bad Request.
+It uses an `OAuth2ErrorHttpMessageConverter` for converting the OAuth 2.0 Error parameters to an `OAuth2Error`.
+
+Whether you customize `DefaultTokenExchangeTokenResponseClient` or provide your own implementation of `OAuth2AccessTokenResponseClient`, you'll need to configure it as shown in the following example:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+// Customize
+OAuth2AccessTokenResponseClient<TokenExchangeGrantRequest> tokenExchangeTokenResponseClient = ...
+
+TokenExchangeOAuth2AuthorizedClientProvider tokenExchangeAuthorizedClientProvider = new TokenExchangeOAuth2AuthorizedClientProvider();
+tokenExchangeAuthorizedClientProvider.setAccessTokenResponseClient(tokenExchangeTokenResponseClient);
+
+OAuth2AuthorizedClientProvider authorizedClientProvider =
+		OAuth2AuthorizedClientProviderBuilder.builder()
+				.provider(tokenExchangeAuthorizedClientProvider)
+				.build();
+
+...
+
+authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+// Customize
+val tokenExchangeTokenResponseClient: OAuth2AccessTokenResponseClient<TokenExchangeGrantRequest> = ...
+
+val tokenExchangeAuthorizedClientProvider = TokenExchangeOAuth2AuthorizedClientProvider()
+tokenExchangeAuthorizedClientProvider.setAccessTokenResponseClient(tokenExchangeTokenResponseClient)
+
+val authorizedClientProvider = OAuth2AuthorizedClientProviderBuilder.builder()
+        .provider(tokenExchangeAuthorizedClientProvider)
+        .build()
+
+...
+
+authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider)
+----
+======
+
+=== Using the Access Token
+
+Given the following Spring Boot properties for an OAuth 2.0 Client registration:
+
+[source,yaml]
+----
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          okta:
+            client-id: okta-client-id
+            client-secret: okta-client-secret
+            authorization-grant-type: urn:ietf:params:oauth:grant-type:token-exchange
+            scope: read
+        provider:
+          okta:
+            token-uri: https://dev-1234.oktapreview.com/oauth2/v1/token
+----
+
+...and the `OAuth2AuthorizedClientManager` `@Bean`:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Bean
+public OAuth2AuthorizedClientManager authorizedClientManager(
+		ClientRegistrationRepository clientRegistrationRepository,
+		OAuth2AuthorizedClientRepository authorizedClientRepository) {
+
+	TokenExchangeOAuth2AuthorizedClientProvider tokenExchangeAuthorizedClientProvider =
+			new TokenExchangeOAuth2AuthorizedClientProvider();
+
+	OAuth2AuthorizedClientProvider authorizedClientProvider =
+			OAuth2AuthorizedClientProviderBuilder.builder()
+					.provider(tokenExchangeAuthorizedClientProvider)
+					.build();
+
+	DefaultOAuth2AuthorizedClientManager authorizedClientManager =
+			new DefaultOAuth2AuthorizedClientManager(
+					clientRegistrationRepository, authorizedClientRepository);
+	authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
+
+	return authorizedClientManager;
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun authorizedClientManager(
+        clientRegistrationRepository: ClientRegistrationRepository,
+        authorizedClientRepository: OAuth2AuthorizedClientRepository): OAuth2AuthorizedClientManager {
+    val tokenExchangeAuthorizedClientProvider = TokenExchangeOAuth2AuthorizedClientProvider()
+    val authorizedClientProvider = OAuth2AuthorizedClientProviderBuilder.builder()
+            .provider(tokenExchangeAuthorizedClientProvider)
+            .build()
+    val authorizedClientManager = DefaultOAuth2AuthorizedClientManager(
+            clientRegistrationRepository, authorizedClientRepository)
+    authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider)
+    return authorizedClientManager
+}
+----
+======
+
+You may obtain the `OAuth2AccessToken` as follows:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@RestController
+public class OAuth2ResourceServerController {
+
+	@Autowired
+	private OAuth2AuthorizedClientManager authorizedClientManager;
+
+	@GetMapping("/resource")
+	public String resource(JwtAuthenticationToken jwtAuthentication) {
+		OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest.withClientRegistrationId("okta")
+				.principal(jwtAuthentication)
+				.build();
+		OAuth2AuthorizedClient authorizedClient = this.authorizedClientManager.authorize(authorizeRequest);
+		OAuth2AccessToken accessToken = authorizedClient.getAccessToken();
+
+		...
+
+	}
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+class OAuth2ResourceServerController {
+
+    @Autowired
+    private lateinit var authorizedClientManager: OAuth2AuthorizedClientManager
+
+    @GetMapping("/resource")
+    fun resource(jwtAuthentication: JwtAuthenticationToken?): String {
+        val authorizeRequest: OAuth2AuthorizeRequest = OAuth2AuthorizeRequest.withClientRegistrationId("okta")
+                .principal(jwtAuthentication)
+                .build()
+        val authorizedClient = authorizedClientManager.authorize(authorizeRequest)
+        val accessToken: OAuth2AccessToken = authorizedClient.accessToken
+
+        ...
+
+    }
+}
+----
+======
+
+[NOTE]
+`TokenExchangeOAuth2AuthorizedClientProvider` resolves the subject token (as an `OAuth2Token`) via `OAuth2AuthorizationContext.getPrincipal().getPrincipal()` by default, hence the use of `JwtAuthenticationToken` in the preceding example.
+An actor token is not resolved by default.
+
+[TIP]
+If you need to resolve the subject token from a different source, you can provide `TokenExchangeOAuth2AuthorizedClientProvider.setSubjectTokenResolver()` with a custom `Function<OAuth2AuthorizationContext, OAuth2Token>`.
+
+[TIP]
+If you need to resolve an actor token, you can provide `TokenExchangeOAuth2AuthorizedClientProvider.setActorTokenResolver()` with a custom `Function<OAuth2AuthorizationContext, OAuth2Token>`.
