@@ -93,6 +93,8 @@ public final class ReactiveOidcIdTokenDecoderFactory implements ReactiveJwtDecod
 
 	private Function<ClientRegistration, WebClient> webClientFactory = (clientRegistration) -> WebClient.create();
 
+	private Function<ClientRegistration, ReactiveJwtDecoder> reactiveJwtDecoderFactory = new DefaultReactiveJwtDecoderFactory();
+
 	/**
 	 * Returns the default {@link Converter}'s used for type conversion of claim values
 	 * for an {@link OidcIdToken}.
@@ -130,7 +132,8 @@ public final class ReactiveOidcIdTokenDecoderFactory implements ReactiveJwtDecod
 	public ReactiveJwtDecoder createDecoder(ClientRegistration clientRegistration) {
 		Assert.notNull(clientRegistration, "clientRegistration cannot be null");
 		return this.jwtDecoders.computeIfAbsent(clientRegistration.getRegistrationId(), (key) -> {
-			NimbusReactiveJwtDecoder jwtDecoder = buildDecoder(clientRegistration);
+			NimbusReactiveJwtDecoder jwtDecoder = (NimbusReactiveJwtDecoder) this.reactiveJwtDecoderFactory
+				.apply(clientRegistration);
 			jwtDecoder.setJwtValidator(this.jwtValidatorFactory.apply(clientRegistration));
 			Converter<Map<String, Object>, Map<String, Object>> claimTypeConverter = this.claimTypeConverterFactory
 				.apply(clientRegistration);
@@ -139,72 +142,6 @@ public final class ReactiveOidcIdTokenDecoderFactory implements ReactiveJwtDecod
 			}
 			return jwtDecoder;
 		});
-	}
-
-	private NimbusReactiveJwtDecoder buildDecoder(ClientRegistration clientRegistration) {
-		JwsAlgorithm jwsAlgorithm = this.jwsAlgorithmResolver.apply(clientRegistration);
-		if (jwsAlgorithm != null && SignatureAlgorithm.class.isAssignableFrom(jwsAlgorithm.getClass())) {
-			// https://openid.net/specs/openid-connect-core-1_0.html#IDTokenValidation
-			//
-			// 6. If the ID Token is received via direct communication between the Client
-			// and the Token Endpoint (which it is in this flow),
-			// the TLS server validation MAY be used to validate the issuer in place of
-			// checking the token signature.
-			// The Client MUST validate the signature of all other ID Tokens according to
-			// JWS [JWS]
-			// using the algorithm specified in the JWT alg Header Parameter.
-			// The Client MUST use the keys provided by the Issuer.
-			//
-			// 7. The alg value SHOULD be the default of RS256 or the algorithm sent by
-			// the Client
-			// in the id_token_signed_response_alg parameter during Registration.
-			String jwkSetUri = clientRegistration.getProviderDetails().getJwkSetUri();
-			if (!StringUtils.hasText(jwkSetUri)) {
-				OAuth2Error oauth2Error = new OAuth2Error(MISSING_SIGNATURE_VERIFIER_ERROR_CODE,
-						"Failed to find a Signature Verifier for Client Registration: '"
-								+ clientRegistration.getRegistrationId()
-								+ "'. Check to ensure you have configured the JwkSet URI.",
-						null);
-				throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
-			}
-			return NimbusReactiveJwtDecoder.withJwkSetUri(jwkSetUri)
-				.jwsAlgorithm((SignatureAlgorithm) jwsAlgorithm)
-				.webClient(this.webClientFactory.apply(clientRegistration))
-				.build();
-		}
-		if (jwsAlgorithm != null && MacAlgorithm.class.isAssignableFrom(jwsAlgorithm.getClass())) {
-			// https://openid.net/specs/openid-connect-core-1_0.html#IDTokenValidation
-			//
-			// 8. If the JWT alg Header Parameter uses a MAC based algorithm such as
-			// HS256, HS384, or HS512,
-			// the octets of the UTF-8 representation of the client_secret
-			// corresponding to the client_id contained in the aud (audience) Claim
-			// are used as the key to validate the signature.
-			// For MAC based algorithms, the behavior is unspecified if the aud is
-			// multi-valued or
-			// if an azp value is present that is different than the aud value.
-
-			String clientSecret = clientRegistration.getClientSecret();
-			if (!StringUtils.hasText(clientSecret)) {
-				OAuth2Error oauth2Error = new OAuth2Error(MISSING_SIGNATURE_VERIFIER_ERROR_CODE,
-						"Failed to find a Signature Verifier for Client Registration: '"
-								+ clientRegistration.getRegistrationId()
-								+ "'. Check to ensure you have configured the client secret.",
-						null);
-				throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
-			}
-			SecretKeySpec secretKeySpec = new SecretKeySpec(clientSecret.getBytes(StandardCharsets.UTF_8),
-					JCA_ALGORITHM_MAPPINGS.get(jwsAlgorithm));
-			return NimbusReactiveJwtDecoder.withSecretKey(secretKeySpec)
-				.macAlgorithm((MacAlgorithm) jwsAlgorithm)
-				.build();
-		}
-		OAuth2Error oauth2Error = new OAuth2Error(MISSING_SIGNATURE_VERIFIER_ERROR_CODE,
-				"Failed to find a Signature Verifier for Client Registration: '"
-						+ clientRegistration.getRegistrationId()
-						+ "'. Check to ensure you have configured a valid JWS Algorithm: '" + jwsAlgorithm + "'",
-				null);
-		throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
 	}
 
 	/**
@@ -259,6 +196,100 @@ public final class ReactiveOidcIdTokenDecoderFactory implements ReactiveJwtDecod
 	public void setWebClientFactory(Function<ClientRegistration, WebClient> webClientFactory) {
 		Assert.notNull(webClientFactory, "webClientFactory cannot be null");
 		this.webClientFactory = webClientFactory;
+	}
+
+	/**
+	 * Sets the factory that provides a {@link ReactiveJwtDecoder} used for building
+	 * {@link NimbusReactiveJwtDecoder}
+	 * @param reactiveJwtDecoderFactory the factory that provides a
+	 * {@link ReactiveJwtDecoder}
+	 *
+	 * @since 6.3
+	 */
+	public void setReactiveJwtDecoderFactory(
+			Function<ClientRegistration, ReactiveJwtDecoder> reactiveJwtDecoderFactory) {
+		Assert.notNull(reactiveJwtDecoderFactory, "reactiveJwtDecoderFactory cannot be null");
+		this.reactiveJwtDecoderFactory = reactiveJwtDecoderFactory;
+	}
+
+	/**
+	 * @author Max Batischev
+	 * @since 6.3
+	 */
+	private class DefaultReactiveJwtDecoderFactory implements Function<ClientRegistration, ReactiveJwtDecoder> {
+
+		@Override
+		public ReactiveJwtDecoder apply(ClientRegistration clientRegistration) {
+			JwsAlgorithm jwsAlgorithm = ReactiveOidcIdTokenDecoderFactory.this.jwsAlgorithmResolver
+				.apply(clientRegistration);
+			if (jwsAlgorithm != null && SignatureAlgorithm.class.isAssignableFrom(jwsAlgorithm.getClass())) {
+				// https://openid.net/specs/openid-connect-core-1_0.html#IDTokenValidation
+				//
+				// 6. If the ID Token is received via direct communication between the
+				// Client
+				// and the Token Endpoint (which it is in this flow),
+				// the TLS server validation MAY be used to validate the issuer in place
+				// of
+				// checking the token signature.
+				// The Client MUST validate the signature of all other ID Tokens according
+				// to
+				// JWS [JWS]
+				// using the algorithm specified in the JWT alg Header Parameter.
+				// The Client MUST use the keys provided by the Issuer.
+				//
+				// 7. The alg value SHOULD be the default of RS256 or the algorithm sent
+				// by
+				// the Client
+				// in the id_token_signed_response_alg parameter during Registration.
+				String jwkSetUri = clientRegistration.getProviderDetails().getJwkSetUri();
+				if (!StringUtils.hasText(jwkSetUri)) {
+					OAuth2Error oauth2Error = new OAuth2Error(MISSING_SIGNATURE_VERIFIER_ERROR_CODE,
+							"Failed to find a Signature Verifier for Client Registration: '"
+									+ clientRegistration.getRegistrationId()
+									+ "'. Check to ensure you have configured the JwkSet URI.",
+							null);
+					throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
+				}
+				return NimbusReactiveJwtDecoder.withJwkSetUri(jwkSetUri)
+					.jwsAlgorithm((SignatureAlgorithm) jwsAlgorithm)
+					.webClient(ReactiveOidcIdTokenDecoderFactory.this.webClientFactory.apply(clientRegistration))
+					.build();
+			}
+			if (jwsAlgorithm != null && MacAlgorithm.class.isAssignableFrom(jwsAlgorithm.getClass())) {
+				// https://openid.net/specs/openid-connect-core-1_0.html#IDTokenValidation
+				//
+				// 8. If the JWT alg Header Parameter uses a MAC based algorithm such as
+				// HS256, HS384, or HS512,
+				// the octets of the UTF-8 representation of the client_secret
+				// corresponding to the client_id contained in the aud (audience) Claim
+				// are used as the key to validate the signature.
+				// For MAC based algorithms, the behavior is unspecified if the aud is
+				// multi-valued or
+				// if an azp value is present that is different than the aud value.
+
+				String clientSecret = clientRegistration.getClientSecret();
+				if (!StringUtils.hasText(clientSecret)) {
+					OAuth2Error oauth2Error = new OAuth2Error(MISSING_SIGNATURE_VERIFIER_ERROR_CODE,
+							"Failed to find a Signature Verifier for Client Registration: '"
+									+ clientRegistration.getRegistrationId()
+									+ "'. Check to ensure you have configured the client secret.",
+							null);
+					throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
+				}
+				SecretKeySpec secretKeySpec = new SecretKeySpec(clientSecret.getBytes(StandardCharsets.UTF_8),
+						JCA_ALGORITHM_MAPPINGS.get(jwsAlgorithm));
+				return NimbusReactiveJwtDecoder.withSecretKey(secretKeySpec)
+					.macAlgorithm((MacAlgorithm) jwsAlgorithm)
+					.build();
+			}
+			OAuth2Error oauth2Error = new OAuth2Error(MISSING_SIGNATURE_VERIFIER_ERROR_CODE,
+					"Failed to find a Signature Verifier for Client Registration: '"
+							+ clientRegistration.getRegistrationId()
+							+ "'. Check to ensure you have configured a valid JWS Algorithm: '" + jwsAlgorithm + "'",
+					null);
+			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
+		}
+
 	}
 
 }
