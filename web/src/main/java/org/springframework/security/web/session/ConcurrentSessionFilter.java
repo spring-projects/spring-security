@@ -141,7 +141,7 @@ public class ConcurrentSessionFilter extends GenericFilterBean {
 						.of(() -> "Requested session ID " + request.getRequestedSessionId() + " has expired."));
 					doLogout(request, response);
 					this.sessionInformationExpiredStrategy
-						.onExpiredSessionDetected(new SessionInformationExpiredEvent(info, request, response));
+						.onExpiredSessionDetected(new SessionInformationExpiredEvent(info, request, response, chain));
 					return;
 				}
 				// Non-expired - update last request date/time

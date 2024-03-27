@@ -16,6 +16,7 @@
 
 package org.springframework.security.web.session;
 
+import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -35,6 +36,8 @@ public final class SessionInformationExpiredEvent extends ApplicationEvent {
 
 	private final HttpServletResponse response;
 
+	private final FilterChain filterChain;
+
 	/**
 	 * Creates a new instance
 	 * @param sessionInformation the SessionInformation that is expired
@@ -42,12 +45,13 @@ public final class SessionInformationExpiredEvent extends ApplicationEvent {
 	 * @param response the HttpServletResponse
 	 */
 	public SessionInformationExpiredEvent(SessionInformation sessionInformation, HttpServletRequest request,
-			HttpServletResponse response) {
+			HttpServletResponse response, FilterChain filterChain) {
 		super(sessionInformation);
 		Assert.notNull(request, "request cannot be null");
 		Assert.notNull(response, "response cannot be null");
 		this.request = request;
 		this.response = response;
+		this.filterChain = filterChain;
 	}
 
 	/**
@@ -68,4 +72,7 @@ public final class SessionInformationExpiredEvent extends ApplicationEvent {
 		return (SessionInformation) getSource();
 	}
 
+	public FilterChain getFilterChain() {
+		return this.filterChain;
+	}
 }
