@@ -34,6 +34,8 @@ import org.springframework.security.oauth2.jose.jws.JwsAlgorithm;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
 
@@ -193,6 +195,20 @@ public class OidcIdTokenDecoderFactoryTests {
 		given(customRestOperationsFactory.apply(same(clientRegistration))).willReturn(new RestTemplate());
 		this.idTokenDecoderFactory.createDecoder(clientRegistration);
 		verify(customRestOperationsFactory).apply(same(clientRegistration));
+	}
+
+	@Test
+	public void createDecoderWhenCustomJwtDecoderFactorySetThenApplied() {
+		Function<ClientRegistration, JwtDecoder> customJwtDecoderFactory = mock(Function.class);
+		this.idTokenDecoderFactory.setJwtDecoderFactory(customJwtDecoderFactory);
+		ClientRegistration clientRegistration = this.registration.build();
+		// @formatter:off
+		given(customJwtDecoderFactory.apply(same(clientRegistration))).willReturn(NimbusJwtDecoder
+				.withJwkSetUri("https://issuer/.well-known/jwks.json")
+				.build());
+		// @formatter:on
+		this.idTokenDecoderFactory.createDecoder(clientRegistration);
+		verify(customJwtDecoderFactory).apply(same(clientRegistration));
 	}
 
 }

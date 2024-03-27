@@ -34,6 +34,8 @@ import org.springframework.security.oauth2.jose.jws.JwsAlgorithm;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.NimbusReactiveJwtDecoder;
+import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -191,6 +193,20 @@ public class ReactiveOidcIdTokenDecoderFactoryTests {
 		given(customWebClientFactory.apply(same(clientRegistration))).willReturn(WebClient.create());
 		this.idTokenDecoderFactory.createDecoder(clientRegistration);
 		verify(customWebClientFactory).apply(same(clientRegistration));
+	}
+
+	@Test
+	public void createDecoderWhenCustomReactiveJwtDecoderFactorySetThenApplied() {
+		Function<ClientRegistration, ReactiveJwtDecoder> customReactiveJwtDecoderFactory = mock(Function.class);
+		this.idTokenDecoderFactory.setReactiveJwtDecoderFactory(customReactiveJwtDecoderFactory);
+		ClientRegistration clientRegistration = this.registration.build();
+		// @formatter:off
+		given(customReactiveJwtDecoderFactory.apply(same(clientRegistration))).willReturn(NimbusReactiveJwtDecoder
+				.withJwkSetUri("https://issuer/.well-known/jwks.json")
+				.build());
+		// @formatter:on
+		this.idTokenDecoderFactory.createDecoder(clientRegistration);
+		verify(customReactiveJwtDecoderFactory).apply(same(clientRegistration));
 	}
 
 }
