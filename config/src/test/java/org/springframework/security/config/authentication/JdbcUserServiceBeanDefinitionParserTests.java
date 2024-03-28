@@ -16,10 +16,12 @@
 
 package org.springframework.security.config.authentication;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.Element;
 
+import org.springframework.beans.factory.BeanDefinitionStoreException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.CachingUserDetailsService;
 import org.springframework.security.authentication.ProviderManager;
@@ -158,6 +160,44 @@ public class JdbcUserServiceBeanDefinitionParserTests {
 		JdbcUserDetailsManager mgr = (JdbcUserDetailsManager) this.appContext.getBean("myUserService");
 		UserDetails rod = mgr.loadUserByUsername("rod");
 		assertThat(AuthorityUtils.authorityListToSet(rod.getAuthorities())).contains("PREFIX_ROLE_SUPERVISOR");
+	}
+
+	@Test
+	public void testEmptyDataSourceRef() {
+		// @formatter:off
+		String xml = "<authentication-manager>"
+					+ "  <authentication-provider>"
+					+ "    <jdbc-user-service data-source-ref=''/>"
+					+ "  </authentication-provider>"
+					+ "</authentication-manager>";
+		// @formatter:on
+
+		try {
+			setContext(xml);
+			Assertions.fail("Expected exception due to empty data-source-ref");
+		}
+		catch (BeanDefinitionStoreException ex) {
+			assertThat(ex.getMessage()).contains("data-source-ref is required");
+		}
+	}
+
+	@Test
+	public void testMissingDataSourceRef() {
+		// @formatter:off
+		String xml = "<authentication-manager>"
+					+ "  <authentication-provider>"
+					+ "    <jdbc-user-service/>"
+					+ "  </authentication-provider>"
+					+ "</authentication-manager>";
+		// @formatter:on
+
+		try {
+			setContext(xml);
+			Assertions.fail("Expected exception due to missing data-source-ref");
+		}
+		catch (BeanDefinitionStoreException ex) {
+			assertThat(ex.getMessage()).contains("XML document from").contains("is invalid");
+		}
 	}
 
 	private void setContext(String context) {
