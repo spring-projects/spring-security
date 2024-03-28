@@ -73,6 +73,15 @@ public final class TestClientRegistrations {
 		// @formatter:on
 	}
 
+	public static ClientRegistration.Builder deviceCode() {
+		// @formatter:off
+		return clientRegistration()
+				.registrationId("client-credentials")
+				.clientId("client-id")
+				.authorizationGrantType(AuthorizationGrantType.DEVICE_CODE);
+		// @formatter:on
+	}
+
 	public static ClientRegistration.Builder password() {
 		// @formatter:off
 		return ClientRegistration.withRegistrationId("password")
