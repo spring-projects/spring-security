@@ -31,6 +31,7 @@ import org.springframework.aop.framework.AopInfrastructureBean;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Role;
@@ -74,9 +75,10 @@ final class ReactiveAuthorizationManagerMethodSecurityConfiguration implements A
 	static MethodInterceptor preAuthorizeAuthorizationMethodInterceptor(
 			MethodSecurityExpressionHandler expressionHandler,
 			ObjectProvider<PrePostTemplateDefaults> defaultsObjectProvider,
-			ObjectProvider<ObservationRegistry> registryProvider) {
+			ObjectProvider<ObservationRegistry> registryProvider, ApplicationContext context) {
 		PreAuthorizeReactiveAuthorizationManager manager = new PreAuthorizeReactiveAuthorizationManager(
 				expressionHandler);
+		manager.setApplicationContext(context);
 		ReactiveAuthorizationManager<MethodInvocation> authorizationManager = manager(manager, registryProvider);
 		AuthorizationAdvisor interceptor = AuthorizationManagerBeforeReactiveMethodInterceptor
 			.preAuthorize(authorizationManager);
@@ -99,9 +101,10 @@ final class ReactiveAuthorizationManagerMethodSecurityConfiguration implements A
 	static MethodInterceptor postAuthorizeAuthorizationMethodInterceptor(
 			MethodSecurityExpressionHandler expressionHandler,
 			ObjectProvider<PrePostTemplateDefaults> defaultsObjectProvider,
-			ObjectProvider<ObservationRegistry> registryProvider) {
+			ObjectProvider<ObservationRegistry> registryProvider, ApplicationContext context) {
 		PostAuthorizeReactiveAuthorizationManager manager = new PostAuthorizeReactiveAuthorizationManager(
 				expressionHandler);
+		manager.setApplicationContext(context);
 		ReactiveAuthorizationManager<MethodInvocationResult> authorizationManager = manager(manager, registryProvider);
 		AuthorizationAdvisor interceptor = AuthorizationManagerAfterReactiveMethodInterceptor
 			.postAuthorize(authorizationManager);

@@ -743,6 +743,188 @@ public class PrePostMethodSecurityConfigurationTests {
 		});
 	}
 
+	@Test
+	@WithMockUser
+	void getCardNumberWhenPostAuthorizeAndNotAdminThenReturnMasked() {
+		this.spring
+			.register(MethodSecurityServiceEnabledConfig.class,
+					MethodSecurityService.CardNumberMaskingPostProcessor.class)
+			.autowire();
+		MethodSecurityService service = this.spring.getContext().getBean(MethodSecurityService.class);
+		String cardNumber = service.postAuthorizeGetCardNumberIfAdmin("4444-3333-2222-1111");
+		assertThat(cardNumber).isEqualTo("****-****-****-1111");
+	}
+
+	@Test
+	@WithMockUser
+	void getCardNumberWhenPreAuthorizeAndNotAdminThenReturnMasked() {
+		this.spring.register(MethodSecurityServiceEnabledConfig.class, MethodSecurityService.StarMaskingHandler.class)
+			.autowire();
+		MethodSecurityService service = this.spring.getContext().getBean(MethodSecurityService.class);
+		String cardNumber = service.preAuthorizeGetCardNumberIfAdmin("4444-3333-2222-1111");
+		assertThat(cardNumber).isEqualTo("***");
+	}
+
+	@Test
+	@WithMockUser
+	void getCardNumberWhenPreAuthorizeAndNotAdminAndChildHandlerThenResolveCorrectHandlerAndReturnMasked() {
+		this.spring
+			.register(MethodSecurityServiceEnabledConfig.class, MethodSecurityService.StarMaskingHandler.class,
+					MethodSecurityService.StartMaskingHandlerChild.class)
+			.autowire();
+		MethodSecurityService service = this.spring.getContext().getBean(MethodSecurityService.class);
+		String cardNumber = service.preAuthorizeWithHandlerChildGetCardNumberIfAdmin("4444-3333-2222-1111");
+		assertThat(cardNumber).isEqualTo("***-child");
+	}
+
+	@Test
+	@WithMockUser(roles = "ADMIN")
+	void preAuthorizeWhenHandlerAndAccessDeniedNotThrownFromPreAuthorizeThenNotHandled() {
+		this.spring.register(MethodSecurityServiceEnabledConfig.class, MethodSecurityService.StarMaskingHandler.class)
+			.autowire();
+		MethodSecurityService service = this.spring.getContext().getBean(MethodSecurityService.class);
+		assertThatExceptionOfType(AccessDeniedException.class)
+			.isThrownBy(service::preAuthorizeThrowAccessDeniedManually);
+	}
+
+	@Test
+	@WithMockUser
+	void preAuthorizeWhenDeniedAndHandlerWithCustomAnnotationThenHandlerCanUseMaskFromOtherAnnotation() {
+		this.spring
+			.register(MethodSecurityServiceEnabledConfig.class, MethodSecurityService.MaskAnnotationHandler.class)
+			.autowire();
+		MethodSecurityService service = this.spring.getContext().getBean(MethodSecurityService.class);
+		String result = service.preAuthorizeDeniedMethodWithMaskAnnotation();
+		assertThat(result).isEqualTo("methodmask");
+	}
+
+	@Test
+	@WithMockUser
+	void preAuthorizeWhenDeniedAndHandlerWithCustomAnnotationInClassThenHandlerCanUseMaskFromOtherAnnotation() {
+		this.spring
+			.register(MethodSecurityServiceEnabledConfig.class, MethodSecurityService.MaskAnnotationHandler.class)
+			.autowire();
+		MethodSecurityService service = this.spring.getContext().getBean(MethodSecurityService.class);
+		String result = service.preAuthorizeDeniedMethodWithNoMaskAnnotation();
+		assertThat(result).isEqualTo("classmask");
+	}
+
+	@Test
+	@WithMockUser(roles = "ADMIN")
+	void postAuthorizeWhenHandlerAndAccessDeniedNotThrownFromPostAuthorizeThenNotHandled() {
+		this.spring
+			.register(MethodSecurityServiceEnabledConfig.class, MethodSecurityService.PostMaskingPostProcessor.class)
+			.autowire();
+		MethodSecurityService service = this.spring.getContext().getBean(MethodSecurityService.class);
+		assertThatExceptionOfType(AccessDeniedException.class)
+			.isThrownBy(service::postAuthorizeThrowAccessDeniedManually);
+	}
+
+	@Test
+	@WithMockUser
+	void postAuthorizeWhenNullDeniedMetaAnnotationThanWorks() {
+		this.spring.register(MethodSecurityServiceEnabledConfig.class, MethodSecurityService.NullPostProcessor.class)
+			.autowire();
+		MethodSecurityService service = this.spring.getContext().getBean(MethodSecurityService.class);
+		String result = service.postAuthorizeDeniedWithNullDenied();
+		assertThat(result).isNull();
+	}
+
+	@Test
+	@WithMockUser
+	void postAuthorizeWhenDeniedAndHandlerWithCustomAnnotationThenHandlerCanUseMaskFromOtherAnnotation() {
+		this.spring
+			.register(MethodSecurityServiceEnabledConfig.class, MethodSecurityService.MaskAnnotationPostProcessor.class)
+			.autowire();
+		MethodSecurityService service = this.spring.getContext().getBean(MethodSecurityService.class);
+		String result = service.postAuthorizeDeniedMethodWithMaskAnnotation();
+		assertThat(result).isEqualTo("methodmask");
+	}
+
+	@Test
+	@WithMockUser
+	void postAuthorizeWhenDeniedAndHandlerWithCustomAnnotationInClassThenHandlerCanUseMaskFromOtherAnnotation() {
+		this.spring
+			.register(MethodSecurityServiceEnabledConfig.class, MethodSecurityService.MaskAnnotationPostProcessor.class)
+			.autowire();
+		MethodSecurityService service = this.spring.getContext().getBean(MethodSecurityService.class);
+		String result = service.postAuthorizeDeniedMethodWithNoMaskAnnotation();
+		assertThat(result).isEqualTo("classmask");
+	}
+
+	@Test
+	@WithMockUser
+	void postAuthorizeWhenDeniedAndHandlerWithCustomAnnotationUsingBeanThenHandlerCanUseMaskFromOtherAnnotation() {
+		this.spring
+			.register(MethodSecurityServiceEnabledConfig.class, MethodSecurityService.MaskAnnotationPostProcessor.class,
+					MyMasker.class)
+			.autowire();
+		MethodSecurityService service = this.spring.getContext().getBean(MethodSecurityService.class);
+		String result = service.postAuthorizeWithMaskAnnotationUsingBean();
+		assertThat(result).isEqualTo("ok-masked");
+	}
+
+	@Test
+	@WithMockUser(roles = "ADMIN")
+	void postAuthorizeWhenAllowedAndHandlerWithCustomAnnotationUsingBeanThenInvokeMethodNormally() {
+		this.spring
+			.register(MethodSecurityServiceEnabledConfig.class, MethodSecurityService.MaskAnnotationPostProcessor.class,
+					MyMasker.class)
+			.autowire();
+		MethodSecurityService service = this.spring.getContext().getBean(MethodSecurityService.class);
+		String result = service.postAuthorizeWithMaskAnnotationUsingBean();
+		assertThat(result).isEqualTo("ok");
+	}
+
+	@Test
+	@WithMockUser
+	void preAuthorizeWhenDeniedAndHandlerWithCustomAnnotationUsingBeanThenHandlerCanUseMaskFromOtherAnnotation() {
+		this.spring
+			.register(MethodSecurityServiceEnabledConfig.class, MethodSecurityService.MaskAnnotationHandler.class,
+					MyMasker.class)
+			.autowire();
+		MethodSecurityService service = this.spring.getContext().getBean(MethodSecurityService.class);
+		String result = service.preAuthorizeWithMaskAnnotationUsingBean();
+		assertThat(result).isEqualTo("mask");
+	}
+
+	@Test
+	@WithMockUser(roles = "ADMIN")
+	void preAuthorizeWhenAllowedAndHandlerWithCustomAnnotationUsingBeanThenInvokeMethodNormally() {
+		this.spring
+			.register(MethodSecurityServiceEnabledConfig.class, MethodSecurityService.MaskAnnotationHandler.class,
+					MyMasker.class)
+			.autowire();
+		MethodSecurityService service = this.spring.getContext().getBean(MethodSecurityService.class);
+		String result = service.preAuthorizeWithMaskAnnotationUsingBean();
+		assertThat(result).isEqualTo("ok");
+	}
+
+	@Test
+	@WithMockUser
+	void getUserWhenAuthorizedAndUserEmailIsProtectedAndNotAuthorizedThenReturnEmailMasked() {
+		this.spring
+			.register(MethodSecurityServiceEnabledConfig.class,
+					UserRecordWithEmailProtected.EmailMaskingPostProcessor.class)
+			.autowire();
+		MethodSecurityService service = this.spring.getContext().getBean(MethodSecurityService.class);
+		UserRecordWithEmailProtected user = service.getUserRecordWithEmailProtected();
+		assertThat(user.email()).isEqualTo("use******@example.com");
+		assertThat(user.name()).isEqualTo("username");
+	}
+
+	@Test
+	@WithMockUser
+	void getUserWhenNotAuthorizedAndHandlerFallbackValueThenReturnFallbackValue() {
+		this.spring
+			.register(MethodSecurityServiceEnabledConfig.class, MethodSecurityService.UserFallbackDeniedHandler.class)
+			.autowire();
+		MethodSecurityService service = this.spring.getContext().getBean(MethodSecurityService.class);
+		UserRecordWithEmailProtected user = service.getUserWithFallbackWhenUnauthorized();
+		assertThat(user.email()).isEqualTo("Protected");
+		assertThat(user.name()).isEqualTo("Protected");
+	}
+
 	private static Consumer<ConfigurableWebApplicationContext> disallowBeanOverriding() {
 		return (context) -> ((AnnotationConfigWebApplicationContext) context).setAllowBeanDefinitionOverriding(false);
 	}
@@ -754,6 +936,16 @@ public class PrePostMethodSecurityConfigurationTests {
 		DefaultPointcutAdvisor advisor = new DefaultPointcutAdvisor(pointcut, interceptor);
 		advisor.setOrder(order);
 		return advisor;
+	}
+
+	@Configuration
+	static class AuthzConfig {
+
+		@Bean
+		Authz authz() {
+			return new Authz();
+		}
+
 	}
 
 	@Configuration

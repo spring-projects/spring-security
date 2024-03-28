@@ -25,6 +25,7 @@ import java.util.function.Function;
 
 import org.aopalliance.intercept.MethodInvocation;
 
+import org.springframework.context.ApplicationContext;
 import org.springframework.core.MethodClassKey;
 import org.springframework.lang.NonNull;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
@@ -44,6 +45,8 @@ abstract class AbstractExpressionAttributeRegistry<T extends ExpressionAttribute
 	private MethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler();
 
 	private PrePostTemplateDefaults defaults;
+
+	private ApplicationContext applicationContext;
 
 	/**
 	 * Returns an {@link ExpressionAttribute} for the {@link MethodInvocation}.
@@ -88,6 +91,14 @@ abstract class AbstractExpressionAttributeRegistry<T extends ExpressionAttribute
 
 	void setTemplateDefaults(PrePostTemplateDefaults defaults) {
 		this.defaults = defaults;
+	}
+
+	void setApplicationContext(ApplicationContext applicationContext) {
+		this.applicationContext = applicationContext;
+	}
+
+	ApplicationContext getApplicationContext() {
+		return this.applicationContext;
 	}
 
 	/**

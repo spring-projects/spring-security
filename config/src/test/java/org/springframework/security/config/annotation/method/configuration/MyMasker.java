@@ -14,28 +14,16 @@
  * limitations under the License.
  */
 
-package org.springframework.security.authorization;
+package org.springframework.security.config.annotation.method.configuration;
 
-/**
- * @author Rob Winch
- * @since 5.0
- */
-public class AuthorizationDecision implements AuthorizationResult {
+public class MyMasker {
 
-	private final boolean granted;
-
-	public AuthorizationDecision(boolean granted) {
-		this.granted = granted;
+	public String getMask(String value) {
+		return value + "-masked";
 	}
 
-	@Override
-	public boolean isGranted() {
-		return this.granted;
-	}
-
-	@Override
-	public String toString() {
-		return getClass().getSimpleName() + " [granted=" + this.granted + "]";
+	public String getMask() {
+		return "mask";
 	}
 
 }
