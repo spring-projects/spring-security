@@ -66,9 +66,9 @@ import java.util.Properties;
  */
 class ComparableVersion implements Comparable<ComparableVersion> {
 
-	private static final int MAX_INTITEM_LENGTH = 9;
+	private static final int MAX_INT_ITEM_LENGTH = 9;
 
-	private static final int MAX_LONGITEM_LENGTH = 18;
+	private static final int MAX_LONG_ITEM_LENGTH = 18;
 
 	private String value;
 
@@ -559,11 +559,11 @@ class ComparableVersion implements Comparable<ComparableVersion> {
 	private static Item parseItem(boolean isDigit, String buf) {
 		if (isDigit) {
 			buf = stripLeadingZeroes(buf);
-			if (buf.length() <= MAX_INTITEM_LENGTH) {
+			if (buf.length() <= MAX_INT_ITEM_LENGTH) {
 				// lower than 2^31
 				return new IntItem(buf);
 			}
-			else if (buf.length() <= MAX_LONGITEM_LENGTH) {
+			else if (buf.length() <= MAX_LONG_ITEM_LENGTH) {
 				// lower than 2^63
 				return new LongItem(buf);
 			}
