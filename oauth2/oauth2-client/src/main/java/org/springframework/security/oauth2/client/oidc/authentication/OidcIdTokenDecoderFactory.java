@@ -78,8 +78,7 @@ public final class OidcIdTokenDecoderFactory implements JwtDecoderFactory<Client
 		JCA_ALGORITHM_MAPPINGS = Collections.unmodifiableMap(mappings);
 	};
 
-	private static final ClaimTypeConverter DEFAULT_CLAIM_TYPE_CONVERTER = new ClaimTypeConverter(
-			createDefaultClaimTypeConverters());
+	private static final ClaimTypeConverter DEFAULT_CLAIM_TYPE_CONVERTER = createDefaultClaimTypeConverter();
 
 	private final Map<String, JwtDecoder> jwtDecoders = new ConcurrentHashMap<>();
 
@@ -93,6 +92,17 @@ public final class OidcIdTokenDecoderFactory implements JwtDecoderFactory<Client
 
 	private Function<ClientRegistration, RestOperations> restOperationsFactory = (
 			clientRegistration) -> new RestTemplate();
+
+	/**
+	 * Returns the default {@link Converter}'s used for type conversion of claim values
+	 * for an {@link OidcIdToken}.
+	 * @return a {@link Map} of {@link Converter}'s keyed by {@link IdTokenClaimNames
+	 * claim name}
+	 * @since 6.3
+	 */
+	public static ClaimTypeConverter createDefaultClaimTypeConverter() {
+		return new ClaimTypeConverter(createDefaultClaimTypeConverters());
+	}
 
 	/**
 	 * Returns the default {@link Converter}'s used for type conversion of claim values
