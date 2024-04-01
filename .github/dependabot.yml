@@ -148,3 +148,9 @@ updates:
       - dependency-name: sjohnr/*
       - dependency-name: spring-io/*
       - dependency-name: spring-security-release-tools/*
+
+  - package-ecosystem: npm
+    target-branch: docs-build
+    directory: /
+    schedule:
+      interval: weekly
