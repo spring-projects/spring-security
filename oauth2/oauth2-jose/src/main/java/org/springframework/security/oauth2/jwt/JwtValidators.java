@@ -52,10 +52,7 @@ public final class JwtValidators {
 	 * supplied
 	 */
 	public static OAuth2TokenValidator<Jwt> createDefaultWithIssuer(String issuer) {
-		List<OAuth2TokenValidator<Jwt>> validators = new ArrayList<>();
-		validators.add(new JwtTimestampValidator());
-		validators.add(new JwtIssuerValidator(issuer));
-		return new DelegatingOAuth2TokenValidator<>(validators);
+		return createDefaultWithValidators(new JwtIssuerValidator(issuer));
 	}
 
 	/**
@@ -90,7 +87,7 @@ public final class JwtValidators {
 		JwtTimestampValidator jwtTimestampValidator = CollectionUtils.findValueOfType(tokenValidators,
 				JwtTimestampValidator.class);
 		if (jwtTimestampValidator == null) {
-			tokenValidators.add(new JwtTimestampValidator());
+			tokenValidators.add(0, new JwtTimestampValidator());
 		}
 		return new DelegatingOAuth2TokenValidator<>(tokenValidators);
 	}
