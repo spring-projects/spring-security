@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,10 +19,9 @@ package org.springframework.security.oauth2.client.oidc.authentication;
 import java.util.function.Function;
 
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
-import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.jwt.JwtTimestampValidator;
+import org.springframework.security.oauth2.jwt.JwtValidators;
 
 /**
  * @author Joe Grandja
@@ -32,8 +31,7 @@ class DefaultOidcIdTokenValidatorFactory implements Function<ClientRegistration,
 
 	@Override
 	public OAuth2TokenValidator<Jwt> apply(ClientRegistration clientRegistration) {
-		return new DelegatingOAuth2TokenValidator<>(new JwtTimestampValidator(),
-				new OidcIdTokenValidator(clientRegistration));
+		return JwtValidators.createDefaultWithValidators(new OidcIdTokenValidator(clientRegistration));
 	}
 
 }
