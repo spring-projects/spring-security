@@ -18,6 +18,8 @@ package org.springframework.security.config.annotation.method.configuration;
 
 import reactor.core.publisher.Mono;
 
+import org.springframework.security.authorization.AuthorizationDecision;
+import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
@@ -43,6 +45,22 @@ public class Authz {
 
 	public boolean check(Authentication authentication, String message) {
 		return message != null && message.contains(authentication.getName());
+	}
+
+	public AuthorizationResult checkResult(boolean result) {
+		return new AuthzResult(result);
+	}
+
+	public Mono<AuthorizationResult> checkReactiveResult(boolean result) {
+		return Mono.just(checkResult(result));
+	}
+
+	public static class AuthzResult extends AuthorizationDecision {
+
+		public AuthzResult(boolean granted) {
+			super(granted);
+		}
+
 	}
 
 }

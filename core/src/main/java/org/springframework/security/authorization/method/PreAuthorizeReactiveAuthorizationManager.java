@@ -24,6 +24,7 @@ import org.springframework.security.access.expression.method.DefaultMethodSecuri
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authorization.AuthorizationDecision;
+import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.util.Assert;
@@ -36,7 +37,8 @@ import org.springframework.util.Assert;
  * @author Evgeniy Cheban
  * @since 5.8
  */
-public final class PreAuthorizeReactiveAuthorizationManager implements ReactiveAuthorizationManager<MethodInvocation> {
+public final class PreAuthorizeReactiveAuthorizationManager
+		implements ReactiveAuthorizationManager<MethodInvocation>, MethodAuthorizationDeniedHandler {
 
 	private final PreAuthorizeExpressionAttributeRegistry registry = new PreAuthorizeExpressionAttributeRegistry();
 
@@ -79,13 +81,19 @@ public final class PreAuthorizeReactiveAuthorizationManager implements ReactiveA
 		if (attribute == ExpressionAttribute.NULL_ATTRIBUTE) {
 			return Mono.empty();
 		}
-		PreAuthorizeExpressionAttribute preAuthorizeAttribute = (PreAuthorizeExpressionAttribute) attribute;
 		// @formatter:off
 		return authentication
 				.map((auth) -> this.registry.getExpressionHandler().createEvaluationContext(auth, mi))
-				.flatMap((ctx) -> ReactiveExpressionUtils.evaluateAsBoolean(attribute.getExpression(), ctx))
-				.map((granted) -> new PreAuthorizeAuthorizationDecision(granted, preAuthorizeAttribute.getExpression(), preAuthorizeAttribute.getHandler()));
+				.flatMap((ctx) -> ReactiveExpressionUtils.evaluate(attribute.getExpression(), ctx))
+				.cast(AuthorizationDecision.class);
 		// @formatter:on
+	}
+
+	@Override
+	public Object handle(MethodInvocation methodInvocation, AuthorizationResult authorizationResult) {
+		ExpressionAttribute attribute = this.registry.getAttribute(methodInvocation);
+		PreAuthorizeExpressionAttribute preAuthorizeAttribute = (PreAuthorizeExpressionAttribute) attribute;
+		return preAuthorizeAttribute.getHandler().handle(methodInvocation, authorizationResult);
 	}
 
 }

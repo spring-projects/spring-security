@@ -19,16 +19,15 @@ package org.springframework.security.authorization.method;
 import org.aopalliance.intercept.MethodInvocation;
 import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.Test;
+import org.mockito.invocation.InvocationOnMock;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import org.springframework.aop.Pointcut;
-import org.springframework.expression.common.LiteralExpression;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.intercept.method.MockMethodInvocation;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationDeniedException;
-import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -125,10 +124,10 @@ public class AuthorizationManagerAfterReactiveMethodInterceptorTests {
 		MethodInvocation mockMethodInvocation = spy(
 				new MockMethodInvocation(new Sample(), Sample.class.getDeclaredMethod("flux")));
 		given(mockMethodInvocation.proceed()).willReturn(Flux.just("john", "bob"));
-		ReactiveAuthorizationManager<MethodInvocationResult> mockReactiveAuthorizationManager = mock(
-				ReactiveAuthorizationManager.class);
-		given(mockReactiveAuthorizationManager.check(any(), any()))
-			.will((invocation) -> Mono.just(createDecision(new MaskingPostProcessor())));
+		HandlingReactiveAuthorizationManager mockReactiveAuthorizationManager = mock(
+				HandlingReactiveAuthorizationManager.class);
+		given(mockReactiveAuthorizationManager.postProcessResult(any(), any())).willAnswer(this::masking);
+		given(mockReactiveAuthorizationManager.check(any(), any())).willReturn(Mono.empty());
 		AuthorizationManagerAfterReactiveMethodInterceptor interceptor = new AuthorizationManagerAfterReactiveMethodInterceptor(
 				Pointcut.TRUE, mockReactiveAuthorizationManager);
 		Object result = interceptor.invoke(mockMethodInvocation);
@@ -144,15 +143,16 @@ public class AuthorizationManagerAfterReactiveMethodInterceptorTests {
 		MethodInvocation mockMethodInvocation = spy(
 				new MockMethodInvocation(new Sample(), Sample.class.getDeclaredMethod("flux")));
 		given(mockMethodInvocation.proceed()).willReturn(Flux.just("john", "bob"));
-		ReactiveAuthorizationManager<MethodInvocationResult> mockReactiveAuthorizationManager = mock(
-				ReactiveAuthorizationManager.class);
-		given(mockReactiveAuthorizationManager.check(any(), any())).willAnswer((invocation) -> {
-			MethodInvocationResult argument = invocation.getArgument(1);
-			if ("john".equals(argument.getResult())) {
-				return Mono.just(new AuthorizationDecision(true));
+		HandlingReactiveAuthorizationManager mockReactiveAuthorizationManager = mock(
+				HandlingReactiveAuthorizationManager.class);
+		given(mockReactiveAuthorizationManager.postProcessResult(any(), any())).willAnswer((invocation) -> {
+			MethodInvocationResult argument = invocation.getArgument(0);
+			if (!"john".equals(argument.getResult())) {
+				return monoMasking(invocation);
 			}
-			return Mono.just(createDecision(new MaskingPostProcessor()));
+			return Mono.just(argument.getResult());
 		});
+		given(mockReactiveAuthorizationManager.check(any(), any())).willReturn(Mono.empty());
 		AuthorizationManagerAfterReactiveMethodInterceptor interceptor = new AuthorizationManagerAfterReactiveMethodInterceptor(
 				Pointcut.TRUE, mockReactiveAuthorizationManager);
 		Object result = interceptor.invoke(mockMethodInvocation);
@@ -168,11 +168,10 @@ public class AuthorizationManagerAfterReactiveMethodInterceptorTests {
 		MethodInvocation mockMethodInvocation = spy(
 				new MockMethodInvocation(new Sample(), Sample.class.getDeclaredMethod("mono")));
 		given(mockMethodInvocation.proceed()).willReturn(Mono.just("john"));
-		ReactiveAuthorizationManager<MethodInvocationResult> mockReactiveAuthorizationManager = mock(
-				ReactiveAuthorizationManager.class);
-		PostAuthorizeAuthorizationDecision decision = new PostAuthorizeAuthorizationDecision(false,
-				new LiteralExpression("1234"), new MaskingPostProcessor());
-		given(mockReactiveAuthorizationManager.check(any(), any())).willReturn(Mono.just(decision));
+		HandlingReactiveAuthorizationManager mockReactiveAuthorizationManager = mock(
+				HandlingReactiveAuthorizationManager.class);
+		given(mockReactiveAuthorizationManager.postProcessResult(any(), any())).willAnswer(this::masking);
+		given(mockReactiveAuthorizationManager.check(any(), any())).willReturn(Mono.empty());
 		AuthorizationManagerAfterReactiveMethodInterceptor interceptor = new AuthorizationManagerAfterReactiveMethodInterceptor(
 				Pointcut.TRUE, mockReactiveAuthorizationManager);
 		Object result = interceptor.invoke(mockMethodInvocation);
@@ -187,11 +186,10 @@ public class AuthorizationManagerAfterReactiveMethodInterceptorTests {
 		MethodInvocation mockMethodInvocation = spy(
 				new MockMethodInvocation(new Sample(), Sample.class.getDeclaredMethod("mono")));
 		given(mockMethodInvocation.proceed()).willReturn(Mono.just("john"));
-		ReactiveAuthorizationManager<MethodInvocationResult> mockReactiveAuthorizationManager = mock(
-				ReactiveAuthorizationManager.class);
-		PostAuthorizeAuthorizationDecision decision = new PostAuthorizeAuthorizationDecision(false,
-				new LiteralExpression("1234"), new MonoMaskingPostProcessor());
-		given(mockReactiveAuthorizationManager.check(any(), any())).willReturn(Mono.just(decision));
+		HandlingReactiveAuthorizationManager mockReactiveAuthorizationManager = mock(
+				HandlingReactiveAuthorizationManager.class);
+		given(mockReactiveAuthorizationManager.postProcessResult(any(), any())).willAnswer(this::monoMasking);
+		given(mockReactiveAuthorizationManager.check(any(), any())).willReturn(Mono.empty());
 		AuthorizationManagerAfterReactiveMethodInterceptor interceptor = new AuthorizationManagerAfterReactiveMethodInterceptor(
 				Pointcut.TRUE, mockReactiveAuthorizationManager);
 		Object result = interceptor.invoke(mockMethodInvocation);
@@ -206,11 +204,10 @@ public class AuthorizationManagerAfterReactiveMethodInterceptorTests {
 		MethodInvocation mockMethodInvocation = spy(
 				new MockMethodInvocation(new Sample(), Sample.class.getDeclaredMethod("mono")));
 		given(mockMethodInvocation.proceed()).willReturn(Mono.just("john"));
-		ReactiveAuthorizationManager<MethodInvocationResult> mockReactiveAuthorizationManager = mock(
-				ReactiveAuthorizationManager.class);
-		PostAuthorizeAuthorizationDecision decision = new PostAuthorizeAuthorizationDecision(false,
-				new LiteralExpression("1234"), new NullPostProcessor());
-		given(mockReactiveAuthorizationManager.check(any(), any())).willReturn(Mono.just(decision));
+		HandlingReactiveAuthorizationManager mockReactiveAuthorizationManager = mock(
+				HandlingReactiveAuthorizationManager.class);
+		given(mockReactiveAuthorizationManager.postProcessResult(any(), any())).willReturn(null);
+		given(mockReactiveAuthorizationManager.check(any(), any())).willReturn(Mono.empty());
 		AuthorizationManagerAfterReactiveMethodInterceptor interceptor = new AuthorizationManagerAfterReactiveMethodInterceptor(
 				Pointcut.TRUE, mockReactiveAuthorizationManager);
 		Object result = interceptor.invoke(mockMethodInvocation);
@@ -238,34 +235,18 @@ public class AuthorizationManagerAfterReactiveMethodInterceptorTests {
 		verify(mockReactiveAuthorizationManager).check(any(), any());
 	}
 
-	private PostAuthorizeAuthorizationDecision createDecision(MethodAuthorizationDeniedPostProcessor postProcessor) {
-		return new PostAuthorizeAuthorizationDecision(false, new LiteralExpression("1234"), postProcessor);
+	private Object masking(InvocationOnMock invocation) {
+		MethodInvocationResult result = invocation.getArgument(0);
+		return result.getResult() + "-masked";
 	}
 
-	static class MaskingPostProcessor implements MethodAuthorizationDeniedPostProcessor {
-
-		@Override
-		public Object postProcessResult(MethodInvocationResult contextObject, AuthorizationResult result) {
-			return contextObject.getResult() + "-masked";
-		}
-
+	private Object monoMasking(InvocationOnMock invocation) {
+		MethodInvocationResult result = invocation.getArgument(0);
+		return Mono.just(result.getResult() + "-masked");
 	}
 
-	static class MonoMaskingPostProcessor implements MethodAuthorizationDeniedPostProcessor {
-
-		@Override
-		public Object postProcessResult(MethodInvocationResult contextObject, AuthorizationResult result) {
-			return Mono.just(contextObject.getResult() + "-masked");
-		}
-
-	}
-
-	static class NullPostProcessor implements MethodAuthorizationDeniedPostProcessor {
-
-		@Override
-		public Object postProcessResult(MethodInvocationResult contextObject, AuthorizationResult result) {
-			return null;
-		}
+	interface HandlingReactiveAuthorizationManager
+			extends ReactiveAuthorizationManager<MethodInvocationResult>, MethodAuthorizationDeniedPostProcessor {
 
 	}
 

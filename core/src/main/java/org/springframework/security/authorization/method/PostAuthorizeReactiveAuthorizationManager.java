@@ -24,6 +24,7 @@ import org.springframework.security.access.expression.method.DefaultMethodSecuri
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.authorization.AuthorizationDecision;
+import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.util.Assert;
@@ -37,7 +38,7 @@ import org.springframework.util.Assert;
  * @since 5.8
  */
 public final class PostAuthorizeReactiveAuthorizationManager
-		implements ReactiveAuthorizationManager<MethodInvocationResult> {
+		implements ReactiveAuthorizationManager<MethodInvocationResult>, MethodAuthorizationDeniedPostProcessor {
 
 	private final PostAuthorizeExpressionAttributeRegistry registry = new PostAuthorizeExpressionAttributeRegistry();
 
@@ -82,15 +83,23 @@ public final class PostAuthorizeReactiveAuthorizationManager
 		if (attribute == ExpressionAttribute.NULL_ATTRIBUTE) {
 			return Mono.empty();
 		}
-		PostAuthorizeExpressionAttribute postAuthorizeAttribute = (PostAuthorizeExpressionAttribute) attribute;
+
 		MethodSecurityExpressionHandler expressionHandler = this.registry.getExpressionHandler();
 		// @formatter:off
 		return authentication
 				.map((auth) -> expressionHandler.createEvaluationContext(auth, mi))
 				.doOnNext((ctx) -> expressionHandler.setReturnObject(result.getResult(), ctx))
-				.flatMap((ctx) -> ReactiveExpressionUtils.evaluateAsBoolean(attribute.getExpression(), ctx))
-				.map((granted) -> new PostAuthorizeAuthorizationDecision(granted, postAuthorizeAttribute.getExpression(), postAuthorizeAttribute.getPostProcessor()));
+				.flatMap((ctx) -> ReactiveExpressionUtils.evaluate(attribute.getExpression(), ctx))
+				.cast(AuthorizationDecision.class);
 		// @formatter:on
+	}
+
+	@Override
+	public Object postProcessResult(MethodInvocationResult methodInvocationResult,
+			AuthorizationResult authorizationResult) {
+		ExpressionAttribute attribute = this.registry.getAttribute(methodInvocationResult.getMethodInvocation());
+		PostAuthorizeExpressionAttribute postAuthorizeAttribute = (PostAuthorizeExpressionAttribute) attribute;
+		return postAuthorizeAttribute.getPostProcessor().postProcessResult(methodInvocationResult, authorizationResult);
 	}
 
 }

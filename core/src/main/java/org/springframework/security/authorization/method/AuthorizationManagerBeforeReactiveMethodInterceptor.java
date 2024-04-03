@@ -162,7 +162,7 @@ public final class AuthorizationManagerBeforeReactiveMethodInterceptor implement
 
 	private Mono<Object> postProcess(AuthorizationDecision decision, MethodInvocation mi) {
 		return Mono.fromSupplier(() -> {
-			if (decision instanceof MethodAuthorizationDeniedHandler handler) {
+			if (this.authorizationManager instanceof MethodAuthorizationDeniedHandler handler) {
 				return handler.handle(mi, decision);
 			}
 			return this.defaultHandler.handle(mi, decision);
