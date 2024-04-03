@@ -27,6 +27,7 @@ import org.springframework.security.access.expression.method.MethodSecurityExpre
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.core.Authentication;
 
 /**
@@ -37,7 +38,8 @@ import org.springframework.security.core.Authentication;
  * @author Evgeniy Cheban
  * @since 5.6
  */
-public final class PreAuthorizeAuthorizationManager implements AuthorizationManager<MethodInvocation> {
+public final class PreAuthorizeAuthorizationManager
+		implements AuthorizationManager<MethodInvocation>, MethodAuthorizationDeniedHandler {
 
 	private PreAuthorizeExpressionAttributeRegistry registry = new PreAuthorizeExpressionAttributeRegistry();
 
@@ -80,11 +82,15 @@ public final class PreAuthorizeAuthorizationManager implements AuthorizationMana
 		if (attribute == ExpressionAttribute.NULL_ATTRIBUTE) {
 			return null;
 		}
-		PreAuthorizeExpressionAttribute preAuthorizeAttribute = (PreAuthorizeExpressionAttribute) attribute;
 		EvaluationContext ctx = this.registry.getExpressionHandler().createEvaluationContext(authentication, mi);
-		boolean granted = ExpressionUtils.evaluateAsBoolean(preAuthorizeAttribute.getExpression(), ctx);
-		return new PreAuthorizeAuthorizationDecision(granted, preAuthorizeAttribute.getExpression(),
-				preAuthorizeAttribute.getHandler());
+		return (AuthorizationDecision) ExpressionUtils.evaluate(attribute.getExpression(), ctx);
+	}
+
+	@Override
+	public Object handle(MethodInvocation methodInvocation, AuthorizationResult authorizationResult) {
+		ExpressionAttribute attribute = this.registry.getAttribute(methodInvocation);
+		PreAuthorizeExpressionAttribute postAuthorizeAttribute = (PreAuthorizeExpressionAttribute) attribute;
+		return postAuthorizeAttribute.getHandler().handle(methodInvocation, authorizationResult);
 	}
 
 }

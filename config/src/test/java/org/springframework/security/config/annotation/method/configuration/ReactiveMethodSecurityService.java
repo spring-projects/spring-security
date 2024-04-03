@@ -85,6 +85,11 @@ public interface ReactiveMethodSecurityService {
 	@Mask(expression = "@myMasker.getMask(returnObject)")
 	Mono<String> postAuthorizeWithMaskAnnotationUsingBean();
 
+	@PreAuthorize(value = "@authz.checkReactiveResult(#result)", handlerClass = MethodAuthorizationDeniedHandler.class)
+	@PostAuthorize(value = "@authz.checkReactiveResult(!#result)",
+			postProcessorClass = MethodAuthorizationDeniedPostProcessor.class)
+	Mono<String> checkCustomResult(boolean result);
+
 	class StarMaskingHandler implements MethodAuthorizationDeniedHandler {
 
 		@Override

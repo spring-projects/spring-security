@@ -159,7 +159,7 @@ public final class AuthorizationManagerAfterReactiveMethodInterceptor implements
 			return Mono.just(methodInvocationResult.getResult());
 		}
 		return Mono.fromSupplier(() -> {
-			if (decision instanceof MethodAuthorizationDeniedPostProcessor postProcessableDecision) {
+			if (this.authorizationManager instanceof MethodAuthorizationDeniedPostProcessor postProcessableDecision) {
 				return postProcessableDecision.postProcessResult(methodInvocationResult, decision);
 			}
 			return this.defaultPostProcessor.postProcessResult(methodInvocationResult, decision);
