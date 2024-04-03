@@ -1215,6 +1215,42 @@ Spring Security will invoke the given method on that bean for each method invoca
 What's nice about this is all your authorization logic is in a separate class that can be independently unit tested and verified for correctness.
 It also has access to the full Java language.
 
+[TIP]
+In addition to returning a `Boolean`, you can also return `null` to indicate that the code abstains from making a decision.
+
+If you want to include more information about the nature of the decision, you can instead return a custom `AuthorizationDecision` like this:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Component("authz")
+public class AuthorizationLogic {
+    public AuthorizationDecision decide(MethodSecurityExpressionOperations operations) {
+        // ... authorization logic
+        return new MyAuthorizationDecision(false, details);
+    }
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Component("authz")
+open class AuthorizationLogic {
+    fun decide(val operations: MethodSecurityExpressionOperations): AuthorizationDecision {
+        // ... authorization logic
+        return MyAuthorizationDecision(false, details)
+    }
+}
+----
+======
+
+Then, you can access the custom details when you <<fallback-values-authorization-denied, customize how the authorization result is handled>>.
+
 [[custom-authorization-managers]]
 === Using a Custom Authorization Manager
 

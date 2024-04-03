@@ -47,6 +47,8 @@ import org.springframework.security.authentication.TestAuthentication;
 import org.springframework.security.authorization.method.AuthorizationAdvisorProxyFactory;
 import org.springframework.security.authorization.method.AuthorizationAdvisorProxyFactory.TargetVisitor;
 import org.springframework.security.authorization.method.AuthorizeReturnObject;
+import org.springframework.security.authorization.method.MethodAuthorizationDeniedHandler;
+import org.springframework.security.authorization.method.MethodAuthorizationDeniedPostProcessor;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.core.GrantedAuthorityDefaults;
 import org.springframework.security.config.test.SpringTestContext;
@@ -54,8 +56,14 @@ import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.security.test.context.support.WithMockUser;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 /**
  * @author Tadaya Tsuyukubo
@@ -65,7 +73,7 @@ public class ReactiveMethodSecurityConfigurationTests {
 
 	public final SpringTestContext spring = new SpringTestContext(this);
 
-	@Autowired
+	@Autowired(required = false)
 	DefaultMethodSecurityExpressionHandler methodSecurityExpressionHandler;
 
 	@Test
@@ -212,6 +220,23 @@ public class ReactiveMethodSecurityConfigurationTests {
 			.verifyError(AccessDeniedException.class);
 	}
 
+	@Test
+	@WithMockUser
+	void getUserWhenNotAuthorizedThenHandlerUsesCustomAuthorizationDecision() {
+		this.spring.register(MethodSecurityServiceConfig.class, CustomResultConfig.class).autowire();
+		ReactiveMethodSecurityService service = this.spring.getContext().getBean(ReactiveMethodSecurityService.class);
+		MethodAuthorizationDeniedHandler handler = this.spring.getContext()
+			.getBean(MethodAuthorizationDeniedHandler.class);
+		MethodAuthorizationDeniedPostProcessor postProcessor = this.spring.getContext()
+			.getBean(MethodAuthorizationDeniedPostProcessor.class);
+		assertThat(service.checkCustomResult(false).block()).isNull();
+		verify(handler).handle(any(), any(Authz.AuthzResult.class));
+		verifyNoInteractions(postProcessor);
+		assertThat(service.checkCustomResult(true).block()).isNull();
+		verify(postProcessor).postProcessResult(any(), any(Authz.AuthzResult.class));
+		verifyNoMoreInteractions(handler);
+	}
+
 	private static Consumer<User.UserBuilder> authorities(String... authorities) {
 		return (builder) -> builder.authorities(authorities);
 	}
@@ -349,6 +374,25 @@ public class ReactiveMethodSecurityConfigurationTests {
 		@PreAuthorize("hasAuthority('airplane:read')")
 		public Mono<String> getName() {
 			return Mono.just(this.name);
+		}
+
+	}
+
+	@EnableReactiveMethodSecurity
+	static class CustomResultConfig {
+
+		MethodAuthorizationDeniedHandler handler = mock(MethodAuthorizationDeniedHandler.class);
+
+		MethodAuthorizationDeniedPostProcessor postProcessor = mock(MethodAuthorizationDeniedPostProcessor.class);
+
+		@Bean
+		MethodAuthorizationDeniedHandler methodAuthorizationDeniedHandler() {
+			return this.handler;
+		}
+
+		@Bean
+		MethodAuthorizationDeniedPostProcessor methodAuthorizationDeniedPostProcessor() {
+			return this.postProcessor;
 		}
 
 	}

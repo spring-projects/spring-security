@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,10 +19,41 @@ package org.springframework.security.access.expression;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.EvaluationException;
 import org.springframework.expression.Expression;
+import org.springframework.security.authorization.AuthorizationDecision;
+import org.springframework.security.authorization.AuthorizationResult;
+import org.springframework.security.authorization.ExpressionAuthorizationDecision;
 
 public final class ExpressionUtils {
 
 	private ExpressionUtils() {
+	}
+
+	/**
+	 * Evaluate a SpEL expression and coerce into an {@link AuthorizationDecision}
+	 * @param expr a SpEL expression
+	 * @param ctx an {@link EvaluationContext}
+	 * @return the resulting {@link AuthorizationDecision}
+	 * @since 6.3
+	 */
+	public static AuthorizationResult evaluate(Expression expr, EvaluationContext ctx) {
+		try {
+			Object result = expr.getValue(ctx);
+			if (result instanceof AuthorizationResult decision) {
+				return decision;
+			}
+			if (result instanceof Boolean granted) {
+				return new ExpressionAuthorizationDecision(granted, expr);
+			}
+			if (result == null) {
+				return null;
+			}
+			throw new IllegalArgumentException(
+					"SpEL expression must return either a Boolean or an AuthorizationDecision");
+		}
+		catch (EvaluationException ex) {
+			throw new IllegalArgumentException("Failed to evaluate expression '" + expr.getExpressionString() + "'",
+					ex);
+		}
 	}
 
 	public static boolean evaluateAsBoolean(Expression expr, EvaluationContext ctx) {

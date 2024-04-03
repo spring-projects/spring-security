@@ -173,6 +173,11 @@ public interface MethodSecurityService {
 	@PreAuthorize(value = "hasRole('ADMIN')", handlerClass = UserFallbackDeniedHandler.class)
 	UserRecordWithEmailProtected getUserWithFallbackWhenUnauthorized();
 
+	@PreAuthorize(value = "@authz.checkResult(#result)", handlerClass = MethodAuthorizationDeniedHandler.class)
+	@PostAuthorize(value = "@authz.checkResult(!#result)",
+			postProcessorClass = MethodAuthorizationDeniedPostProcessor.class)
+	String checkCustomResult(boolean result);
+
 	class StarMaskingHandler implements MethodAuthorizationDeniedHandler {
 
 		@Override
