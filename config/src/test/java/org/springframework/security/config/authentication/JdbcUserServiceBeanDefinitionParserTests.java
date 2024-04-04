@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,13 @@
 
 package org.springframework.security.config.authentication;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.Element;
+import org.xml.sax.SAXParseException;
 
-import org.springframework.beans.factory.BeanDefinitionStoreException;
+import org.springframework.beans.factory.parsing.BeanDefinitionParsingException;
+import org.springframework.beans.factory.xml.XmlBeanDefinitionStoreException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.CachingUserDetailsService;
 import org.springframework.security.authentication.ProviderManager;
@@ -35,6 +36,7 @@ import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.util.FieldUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -170,15 +172,11 @@ public class JdbcUserServiceBeanDefinitionParserTests {
 					+ "    <jdbc-user-service data-source-ref=''/>"
 					+ "  </authentication-provider>"
 					+ "</authentication-manager>";
+		assertThatExceptionOfType(BeanDefinitionParsingException.class)
+				.isThrownBy(() -> setContext(xml))
+				.withFailMessage("Expected exception due to empty data-source-ref")
+				.withMessageContaining("data-source-ref is required for jdbc-user-service");
 		// @formatter:on
-
-		try {
-			setContext(xml);
-			Assertions.fail("Expected exception due to empty data-source-ref");
-		}
-		catch (BeanDefinitionStoreException ex) {
-			assertThat(ex.getMessage()).contains("data-source-ref is required");
-		}
 	}
 
 	@Test
@@ -189,15 +187,13 @@ public class JdbcUserServiceBeanDefinitionParserTests {
 					+ "    <jdbc-user-service/>"
 					+ "  </authentication-provider>"
 					+ "</authentication-manager>";
+		assertThatExceptionOfType(XmlBeanDefinitionStoreException.class)
+				.isThrownBy(() -> setContext(xml))
+				.withFailMessage("Expected exception due to missing data-source-ref")
+				.havingRootCause()
+				.isInstanceOf(SAXParseException.class)
+				.withMessageContaining("Attribute 'data-source-ref' must appear on element 'jdbc-user-service'");
 		// @formatter:on
-
-		try {
-			setContext(xml);
-			Assertions.fail("Expected exception due to missing data-source-ref");
-		}
-		catch (BeanDefinitionStoreException ex) {
-			assertThat(ex.getMessage()).contains("XML document from").contains("is invalid");
-		}
 	}
 
 	private void setContext(String context) {
