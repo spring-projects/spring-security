@@ -257,7 +257,7 @@ public final class AuthorizationManagerBeforeMethodInterceptor implements Author
 	}
 
 	private Object handle(MethodInvocation mi, AuthorizationDecision decision) {
-		if (this.authorizationManager instanceof MethodAuthorizationDeniedHandler handler) {
+		if (decision instanceof MethodAuthorizationDeniedHandler handler) {
 			return handler.handle(mi, decision);
 		}
 		return this.defaultHandler.handle(mi, decision);

@@ -184,7 +184,7 @@ public final class AuthorizationManagerAfterMethodInterceptor implements Authori
 	}
 
 	private Object postProcess(MethodInvocationResult mi, AuthorizationDecision decision) {
-		if (this.authorizationManager instanceof MethodAuthorizationDeniedPostProcessor postProcessableDecision) {
+		if (decision instanceof MethodAuthorizationDeniedPostProcessor postProcessableDecision) {
 			return postProcessableDecision.postProcessResult(mi, decision);
 		}
 		return this.defaultPostProcessor.postProcessResult(mi, decision);

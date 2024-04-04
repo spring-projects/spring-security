@@ -82,9 +82,4 @@ public class ReactiveMethodSecurityServiceImpl implements ReactiveMethodSecurity
 		return Mono.just("ok");
 	}
 
-	@Override
-	public Mono<String> checkCustomResult(boolean result) {
-		return Mono.just("ok");
-	}
-
 }

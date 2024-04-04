@@ -23,10 +23,12 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import org.springframework.aop.Pointcut;
+import org.springframework.expression.common.LiteralExpression;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.intercept.method.MockMethodInvocation;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -123,10 +125,11 @@ public class AuthorizationManagerBeforeReactiveMethodInterceptorTests {
 		MethodInvocation mockMethodInvocation = spy(
 				new MockMethodInvocation(new Sample(), Sample.class.getDeclaredMethod("mono")));
 		given(mockMethodInvocation.proceed()).willReturn(Mono.just("john"));
-		HandlingReactiveAuthorizationManager mockReactiveAuthorizationManager = mock(
-				HandlingReactiveAuthorizationManager.class);
-		given(mockReactiveAuthorizationManager.check(any(), eq(mockMethodInvocation))).willReturn(Mono.empty());
-		given(mockReactiveAuthorizationManager.handle(any(), any())).willReturn("***");
+		ReactiveAuthorizationManager<MethodInvocation> mockReactiveAuthorizationManager = mock(
+				ReactiveAuthorizationManager.class);
+		PreAuthorizeAuthorizationDecision decision = new PreAuthorizeAuthorizationDecision(false,
+				new LiteralExpression("1234"), new MaskingPostProcessor());
+		given(mockReactiveAuthorizationManager.check(any(), eq(mockMethodInvocation))).willReturn(Mono.just(decision));
 		AuthorizationManagerBeforeReactiveMethodInterceptor interceptor = new AuthorizationManagerBeforeReactiveMethodInterceptor(
 				Pointcut.TRUE, mockReactiveAuthorizationManager);
 		Object result = interceptor.invoke(mockMethodInvocation);
@@ -141,10 +144,11 @@ public class AuthorizationManagerBeforeReactiveMethodInterceptorTests {
 		MethodInvocation mockMethodInvocation = spy(
 				new MockMethodInvocation(new Sample(), Sample.class.getDeclaredMethod("mono")));
 		given(mockMethodInvocation.proceed()).willReturn(Mono.just("john"));
-		HandlingReactiveAuthorizationManager mockReactiveAuthorizationManager = mock(
-				HandlingReactiveAuthorizationManager.class);
-		given(mockReactiveAuthorizationManager.check(any(), eq(mockMethodInvocation))).willReturn(Mono.empty());
-		given(mockReactiveAuthorizationManager.handle(any(), any())).willReturn(Mono.just("***"));
+		ReactiveAuthorizationManager<MethodInvocation> mockReactiveAuthorizationManager = mock(
+				ReactiveAuthorizationManager.class);
+		PreAuthorizeAuthorizationDecision decision = new PreAuthorizeAuthorizationDecision(false,
+				new LiteralExpression("1234"), new MonoMaskingPostProcessor());
+		given(mockReactiveAuthorizationManager.check(any(), eq(mockMethodInvocation))).willReturn(Mono.just(decision));
 		AuthorizationManagerBeforeReactiveMethodInterceptor interceptor = new AuthorizationManagerBeforeReactiveMethodInterceptor(
 				Pointcut.TRUE, mockReactiveAuthorizationManager);
 		Object result = interceptor.invoke(mockMethodInvocation);
@@ -159,10 +163,11 @@ public class AuthorizationManagerBeforeReactiveMethodInterceptorTests {
 		MethodInvocation mockMethodInvocation = spy(
 				new MockMethodInvocation(new Sample(), Sample.class.getDeclaredMethod("flux")));
 		given(mockMethodInvocation.proceed()).willReturn(Flux.just("john", "bob"));
-		HandlingReactiveAuthorizationManager mockReactiveAuthorizationManager = mock(
-				HandlingReactiveAuthorizationManager.class);
-		given(mockReactiveAuthorizationManager.check(any(), eq(mockMethodInvocation))).willReturn(Mono.empty());
-		given(mockReactiveAuthorizationManager.handle(any(), any())).willReturn(Mono.just("***"));
+		ReactiveAuthorizationManager<MethodInvocation> mockReactiveAuthorizationManager = mock(
+				ReactiveAuthorizationManager.class);
+		PreAuthorizeAuthorizationDecision decision = new PreAuthorizeAuthorizationDecision(false,
+				new LiteralExpression("1234"), new MonoMaskingPostProcessor());
+		given(mockReactiveAuthorizationManager.check(any(), eq(mockMethodInvocation))).willReturn(Mono.just(decision));
 		AuthorizationManagerBeforeReactiveMethodInterceptor interceptor = new AuthorizationManagerBeforeReactiveMethodInterceptor(
 				Pointcut.TRUE, mockReactiveAuthorizationManager);
 		Object result = interceptor.invoke(mockMethodInvocation);
@@ -209,8 +214,21 @@ public class AuthorizationManagerBeforeReactiveMethodInterceptorTests {
 		verify(mockReactiveAuthorizationManager).check(any(), eq(mockMethodInvocation));
 	}
 
-	interface HandlingReactiveAuthorizationManager
-			extends ReactiveAuthorizationManager<MethodInvocation>, MethodAuthorizationDeniedHandler {
+	static class MaskingPostProcessor implements MethodAuthorizationDeniedHandler {
+
+		@Override
+		public Object handle(MethodInvocation methodInvocation, AuthorizationResult result) {
+			return "***";
+		}
+
+	}
+
+	static class MonoMaskingPostProcessor implements MethodAuthorizationDeniedHandler {
+
+		@Override
+		public Object handle(MethodInvocation methodInvocation, AuthorizationResult result) {
+			return Mono.just("***");
+		}
 
 	}
 

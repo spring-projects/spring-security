@@ -28,14 +28,4 @@ public class MethodSecurityServiceConfig {
 		return new MethodSecurityServiceImpl();
 	}
 
-	@Bean
-	ReactiveMethodSecurityService reactiveService() {
-		return new ReactiveMethodSecurityServiceImpl();
-	}
-
-	@Bean
-	Authz authz() {
-		return new Authz();
-	}
-
 }

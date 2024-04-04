@@ -197,9 +197,4 @@ public class MethodSecurityServiceImpl implements MethodSecurityService {
 		return new UserRecordWithEmailProtected("username", "useremail@example.com");
 	}
 
-	@Override
-	public String checkCustomResult(boolean result) {
-		return "ok";
-	}
-
 }

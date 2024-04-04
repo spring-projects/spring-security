@@ -20,15 +20,9 @@ import io.micrometer.observation.Observation;
 import io.micrometer.observation.ObservationConvention;
 import io.micrometer.observation.ObservationRegistry;
 import io.micrometer.observation.contextpropagation.ObservationThreadLocalAccessor;
-import org.aopalliance.intercept.MethodInvocation;
 import reactor.core.publisher.Mono;
 
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.authorization.method.MethodAuthorizationDeniedHandler;
-import org.springframework.security.authorization.method.MethodAuthorizationDeniedPostProcessor;
-import org.springframework.security.authorization.method.MethodInvocationResult;
-import org.springframework.security.authorization.method.ThrowingMethodAuthorizationDeniedHandler;
-import org.springframework.security.authorization.method.ThrowingMethodAuthorizationDeniedPostProcessor;
 import org.springframework.security.core.Authentication;
 import org.springframework.util.Assert;
 
@@ -38,8 +32,7 @@ import org.springframework.util.Assert;
  * @author Josh Cummings
  * @since 6.0
  */
-public final class ObservationReactiveAuthorizationManager<T> implements ReactiveAuthorizationManager<T>,
-		MethodAuthorizationDeniedHandler, MethodAuthorizationDeniedPostProcessor {
+public final class ObservationReactiveAuthorizationManager<T> implements ReactiveAuthorizationManager<T> {
 
 	private final ObservationRegistry registry;
 
@@ -47,20 +40,10 @@ public final class ObservationReactiveAuthorizationManager<T> implements Reactiv
 
 	private ObservationConvention<AuthorizationObservationContext<?>> convention = new AuthorizationObservationConvention();
 
-	private MethodAuthorizationDeniedHandler handler = new ThrowingMethodAuthorizationDeniedHandler();
-
-	private MethodAuthorizationDeniedPostProcessor postProcessor = new ThrowingMethodAuthorizationDeniedPostProcessor();
-
 	public ObservationReactiveAuthorizationManager(ObservationRegistry registry,
 			ReactiveAuthorizationManager<T> delegate) {
 		this.registry = registry;
 		this.delegate = delegate;
-		if (delegate instanceof MethodAuthorizationDeniedHandler h) {
-			this.handler = h;
-		}
-		if (delegate instanceof MethodAuthorizationDeniedPostProcessor p) {
-			this.postProcessor = p;
-		}
 	}
 
 	@Override
@@ -96,17 +79,6 @@ public final class ObservationReactiveAuthorizationManager<T> implements Reactiv
 	public void setObservationConvention(ObservationConvention<AuthorizationObservationContext<?>> convention) {
 		Assert.notNull(convention, "The observation convention cannot be null");
 		this.convention = convention;
-	}
-
-	@Override
-	public Object handle(MethodInvocation methodInvocation, AuthorizationResult authorizationResult) {
-		return this.handler.handle(methodInvocation, authorizationResult);
-	}
-
-	@Override
-	public Object postProcessResult(MethodInvocationResult methodInvocationResult,
-			AuthorizationResult authorizationResult) {
-		return this.postProcessor.postProcessResult(methodInvocationResult, authorizationResult);
 	}
 
 }
