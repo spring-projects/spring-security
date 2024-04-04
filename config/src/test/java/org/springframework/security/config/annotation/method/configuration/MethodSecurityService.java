@@ -305,7 +305,7 @@ public interface MethodSecurityService {
 	@Target({ ElementType.METHOD, ElementType.TYPE })
 	@Retention(RetentionPolicy.RUNTIME)
 	@Inherited
-	@PostAuthorize(value = "hasRole('{value}')", postProcessorClass = NullPostProcessor.class)
+	@PostAuthorize(value = "hasRole('{role}')", postProcessorClass = NullPostProcessor.class)
 	@interface NullDenied {
 
 		String role();

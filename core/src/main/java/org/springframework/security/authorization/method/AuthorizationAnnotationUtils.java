@@ -19,7 +19,6 @@ package org.springframework.security.authorization.method;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -76,7 +75,9 @@ final class AuthorizationAnnotationUtils {
 			}
 			AnnotatedElement annotatedElement = (AnnotatedElement) mergedAnnotation.getSource();
 			String value = helper.replacePlaceholders(expression, stringProperties::get);
-			return MergedAnnotation.of(annotatedElement, type, Collections.singletonMap("value", value)).synthesize();
+			Map<String, Object> properties = new HashMap<>(mergedAnnotation.asMap());
+			properties.put("value", value);
+			return MergedAnnotation.of(annotatedElement, type, properties).synthesize();
 		};
 		return (annotatedElement) -> findDistinctAnnotation(annotatedElement, type, map);
 	}

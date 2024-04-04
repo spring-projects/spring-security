@@ -827,7 +827,9 @@ public class PrePostMethodSecurityConfigurationTests {
 	@Test
 	@WithMockUser
 	void postAuthorizeWhenNullDeniedMetaAnnotationThanWorks() {
-		this.spring.register(MethodSecurityServiceEnabledConfig.class, MethodSecurityService.NullPostProcessor.class)
+		this.spring
+			.register(MethodSecurityServiceEnabledConfig.class, MetaAnnotationPlaceholderConfig.class,
+					MethodSecurityService.NullPostProcessor.class)
 			.autowire();
 		MethodSecurityService service = this.spring.getContext().getBean(MethodSecurityService.class);
 		String result = service.postAuthorizeDeniedWithNullDenied();
