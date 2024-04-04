@@ -35,4 +35,9 @@ public final class ThrowingMethodAuthorizationDeniedHandler implements MethodAut
 		throw new AuthorizationDeniedException("Access Denied", result);
 	}
 
+	@Override
+	public Object handle(MethodInvocation methodInvocation, AuthorizationDeniedException authorizationDenied) {
+		throw authorizationDenied;
+	}
+
 }

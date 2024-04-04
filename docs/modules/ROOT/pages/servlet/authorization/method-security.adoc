@@ -1249,6 +1249,9 @@ open class AuthorizationLogic {
 ----
 ======
 
+Or throw a custom `AuthorizationDeniedException` instance.
+Note, though, that returning an object is preferred as this doesn't incur the expense of generating a stacktrace.
+
 Then, you can access the custom details when you <<fallback-values-authorization-denied, customize how the authorization result is handled>>.
 
 [[custom-authorization-managers]]
@@ -1653,6 +1656,13 @@ Xml::
 <3> This method may only be invoked by ``Authentication``s granted the `db` and `ROLE_ADMIN` authorities
 <4> This method may only be invoked by ``Princpal``s with an `aud` claim equal to "my-audience"
 <5> This method may only be invoked if the bean ``authz``'s `check` method returns `true`
+
+[NOTE]
+====
+You can use a bean like `authz` above to add programmatic authorization.
+It can return a `boolean`, and `AuthorizationResult`, or throw an `AuthorizationDeniedException`.
+For exceptions, you can <<fallback-values-authorization-denied, handle them at the method level>>.
+====
 
 [[using_method_parameters]]
 === Using Method Parameters

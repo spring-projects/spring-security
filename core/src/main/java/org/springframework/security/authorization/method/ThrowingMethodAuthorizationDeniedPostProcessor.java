@@ -33,4 +33,10 @@ public final class ThrowingMethodAuthorizationDeniedPostProcessor implements Met
 		throw new AuthorizationDeniedException("Access Denied", result);
 	}
 
+	@Override
+	public Object postProcessResult(MethodInvocationResult methodInvocationResult,
+			AuthorizationDeniedException authorizationDenied) {
+		throw authorizationDenied;
+	}
+
 }

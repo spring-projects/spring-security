@@ -27,6 +27,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.intercept.method.MockMethodInvocation;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -126,7 +127,7 @@ public class AuthorizationManagerBeforeReactiveMethodInterceptorTests {
 		HandlingReactiveAuthorizationManager mockReactiveAuthorizationManager = mock(
 				HandlingReactiveAuthorizationManager.class);
 		given(mockReactiveAuthorizationManager.check(any(), eq(mockMethodInvocation))).willReturn(Mono.empty());
-		given(mockReactiveAuthorizationManager.handle(any(), any())).willReturn("***");
+		given(mockReactiveAuthorizationManager.handle(any(), any(AuthorizationResult.class))).willReturn("***");
 		AuthorizationManagerBeforeReactiveMethodInterceptor interceptor = new AuthorizationManagerBeforeReactiveMethodInterceptor(
 				Pointcut.TRUE, mockReactiveAuthorizationManager);
 		Object result = interceptor.invoke(mockMethodInvocation);
@@ -144,7 +145,8 @@ public class AuthorizationManagerBeforeReactiveMethodInterceptorTests {
 		HandlingReactiveAuthorizationManager mockReactiveAuthorizationManager = mock(
 				HandlingReactiveAuthorizationManager.class);
 		given(mockReactiveAuthorizationManager.check(any(), eq(mockMethodInvocation))).willReturn(Mono.empty());
-		given(mockReactiveAuthorizationManager.handle(any(), any())).willReturn(Mono.just("***"));
+		given(mockReactiveAuthorizationManager.handle(any(), any(AuthorizationResult.class)))
+			.willReturn(Mono.just("***"));
 		AuthorizationManagerBeforeReactiveMethodInterceptor interceptor = new AuthorizationManagerBeforeReactiveMethodInterceptor(
 				Pointcut.TRUE, mockReactiveAuthorizationManager);
 		Object result = interceptor.invoke(mockMethodInvocation);
@@ -162,7 +164,8 @@ public class AuthorizationManagerBeforeReactiveMethodInterceptorTests {
 		HandlingReactiveAuthorizationManager mockReactiveAuthorizationManager = mock(
 				HandlingReactiveAuthorizationManager.class);
 		given(mockReactiveAuthorizationManager.check(any(), eq(mockMethodInvocation))).willReturn(Mono.empty());
-		given(mockReactiveAuthorizationManager.handle(any(), any())).willReturn(Mono.just("***"));
+		given(mockReactiveAuthorizationManager.handle(any(), any(AuthorizationResult.class)))
+			.willReturn(Mono.just("***"));
 		AuthorizationManagerBeforeReactiveMethodInterceptor interceptor = new AuthorizationManagerBeforeReactiveMethodInterceptor(
 				Pointcut.TRUE, mockReactiveAuthorizationManager);
 		Object result = interceptor.invoke(mockMethodInvocation);
@@ -209,6 +212,19 @@ public class AuthorizationManagerBeforeReactiveMethodInterceptorTests {
 		verify(mockReactiveAuthorizationManager).check(any(), eq(mockMethodInvocation));
 	}
 
+	@Test
+	public void invokeWhenCustomAuthorizationDeniedExceptionThenThrows() throws Throwable {
+		MethodInvocation mockMethodInvocation = spy(
+				new MockMethodInvocation(new Sample(), Sample.class.getDeclaredMethod("flux")));
+		ReactiveAuthorizationManager<MethodInvocation> manager = mock(ReactiveAuthorizationManager.class);
+		given(manager.check(any(), any()))
+			.willThrow(new MyAuthzDeniedException("denied", new AuthorizationDecision(false)));
+		AuthorizationManagerBeforeReactiveMethodInterceptor advice = new AuthorizationManagerBeforeReactiveMethodInterceptor(
+				Pointcut.TRUE, manager);
+		assertThatExceptionOfType(MyAuthzDeniedException.class)
+			.isThrownBy(() -> ((Mono<?>) advice.invoke(mockMethodInvocation)).block());
+	}
+
 	interface HandlingReactiveAuthorizationManager
 			extends ReactiveAuthorizationManager<MethodInvocation>, MethodAuthorizationDeniedHandler {
 
@@ -222,6 +238,14 @@ public class AuthorizationManagerBeforeReactiveMethodInterceptorTests {
 
 		Flux<String> flux() {
 			return Flux.just("john", "bob");
+		}
+
+	}
+
+	static class MyAuthzDeniedException extends AuthorizationDeniedException {
+
+		MyAuthzDeniedException(String msg, AuthorizationResult authorizationResult) {
+			super(msg, authorizationResult);
 		}
 
 	}

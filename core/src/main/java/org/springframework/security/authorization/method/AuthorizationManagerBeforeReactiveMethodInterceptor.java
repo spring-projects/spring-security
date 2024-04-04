@@ -33,6 +33,7 @@ import org.springframework.core.ReactiveAdapter;
 import org.springframework.core.ReactiveAdapterRegistry;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authorization.AuthorizationDecision;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.util.Assert;
@@ -140,11 +141,19 @@ public final class AuthorizationManagerBeforeReactiveMethodInterceptor implement
 		Mono<Authentication> authentication = ReactiveAuthenticationUtils.getAuthentication();
 		return this.authorizationManager.check(authentication, mi)
 			.switchIfEmpty(Mono.just(new AuthorizationDecision(false)))
-			.flatMapMany((decision) -> {
-				if (decision.isGranted()) {
-					return mapping;
+			.materialize()
+			.flatMapMany((signal) -> {
+				if (!signal.hasError()) {
+					AuthorizationDecision decision = signal.get();
+					if (decision.isGranted()) {
+						return mapping;
+					}
+					return postProcess(decision, mi);
 				}
-				return postProcess(decision, mi);
+				if (signal.getThrowable() instanceof AuthorizationDeniedException denied) {
+					return postProcess(denied, mi);
+				}
+				return Mono.error(signal.getThrowable());
 			});
 	}
 
@@ -152,12 +161,34 @@ public final class AuthorizationManagerBeforeReactiveMethodInterceptor implement
 		Mono<Authentication> authentication = ReactiveAuthenticationUtils.getAuthentication();
 		return this.authorizationManager.check(authentication, mi)
 			.switchIfEmpty(Mono.just(new AuthorizationDecision(false)))
-			.flatMap((decision) -> {
-				if (decision.isGranted()) {
-					return mapping;
+			.materialize()
+			.flatMap((signal) -> {
+				if (!signal.hasError()) {
+					AuthorizationDecision decision = signal.get();
+					if (decision.isGranted()) {
+						return mapping;
+					}
+					return postProcess(decision, mi);
 				}
-				return postProcess(decision, mi);
+				if (signal.getThrowable() instanceof AuthorizationDeniedException denied) {
+					return postProcess(denied, mi);
+				}
+				return Mono.error(signal.getThrowable());
 			});
+	}
+
+	private Mono<Object> postProcess(AuthorizationDeniedException denied, MethodInvocation mi) {
+		return Mono.fromSupplier(() -> {
+			if (this.authorizationManager instanceof MethodAuthorizationDeniedHandler handler) {
+				return handler.handle(mi, denied);
+			}
+			return this.defaultHandler.handle(mi, denied);
+		}).flatMap((processedResult) -> {
+			if (Mono.class.isAssignableFrom(processedResult.getClass())) {
+				return (Mono<?>) processedResult;
+			}
+			return Mono.justOrEmpty(processedResult);
+		});
 	}
 
 	private Mono<Object> postProcess(AuthorizationDecision decision, MethodInvocation mi) {

@@ -25,8 +25,10 @@ import org.springframework.aop.Pointcut;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authorization.AuthenticatedAuthorizationManager;
 import org.springframework.security.authorization.AuthorizationDecision;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.authorization.AuthorizationEventPublisher;
 import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContext;
@@ -34,6 +36,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.core.context.SecurityContextImpl;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -131,6 +134,24 @@ public class AuthorizationManagerBeforeMethodInterceptorTests {
 		advice.invoke(mockMethodInvocation);
 		verify(eventPublisher).publishAuthorizationEvent(any(Supplier.class), any(MethodInvocation.class),
 				any(AuthorizationDecision.class));
+	}
+
+	@Test
+	public void invokeWhenCustomAuthorizationDeniedExceptionThenThrows() {
+		AuthorizationManager<MethodInvocation> manager = mock(AuthorizationManager.class);
+		given(manager.check(any(), any()))
+			.willThrow(new MyAuthzDeniedException("denied", new AuthorizationDecision(false)));
+		AuthorizationManagerBeforeMethodInterceptor advice = new AuthorizationManagerBeforeMethodInterceptor(
+				Pointcut.TRUE, manager);
+		assertThatExceptionOfType(MyAuthzDeniedException.class).isThrownBy(() -> advice.invoke(null));
+	}
+
+	static class MyAuthzDeniedException extends AuthorizationDeniedException {
+
+		MyAuthzDeniedException(String msg, AuthorizationResult authorizationResult) {
+			super(msg, authorizationResult);
+		}
+
 	}
 
 }

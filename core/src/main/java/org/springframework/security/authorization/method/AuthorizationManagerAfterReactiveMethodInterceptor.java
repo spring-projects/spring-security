@@ -34,6 +34,7 @@ import org.springframework.core.ReactiveAdapter;
 import org.springframework.core.ReactiveAdapterRegistry;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.authorization.AuthorizationDecision;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.util.Assert;
@@ -151,7 +152,32 @@ public final class AuthorizationManagerAfterReactiveMethodInterceptor implements
 		MethodInvocationResult invocationResult = new MethodInvocationResult(mi, result);
 		return this.authorizationManager.check(authentication, invocationResult)
 			.switchIfEmpty(Mono.just(new AuthorizationDecision(false)))
-			.flatMap((decision) -> postProcess(decision, invocationResult));
+			.materialize()
+			.flatMap((signal) -> {
+				if (!signal.hasError()) {
+					AuthorizationDecision decision = signal.get();
+					return postProcess(decision, invocationResult);
+				}
+				if (signal.getThrowable() instanceof AuthorizationDeniedException denied) {
+					return postProcess(denied, invocationResult);
+				}
+				return Mono.error(signal.getThrowable());
+			});
+	}
+
+	private Mono<Object> postProcess(AuthorizationDeniedException denied,
+			MethodInvocationResult methodInvocationResult) {
+		return Mono.fromSupplier(() -> {
+			if (this.authorizationManager instanceof MethodAuthorizationDeniedPostProcessor postProcessableDecision) {
+				return postProcessableDecision.postProcessResult(methodInvocationResult, denied);
+			}
+			return this.defaultPostProcessor.postProcessResult(methodInvocationResult, denied);
+		}).flatMap((processedResult) -> {
+			if (Mono.class.isAssignableFrom(processedResult.getClass())) {
+				return (Mono<?>) processedResult;
+			}
+			return Mono.justOrEmpty(processedResult);
+		});
 	}
 
 	private Mono<Object> postProcess(AuthorizationDecision decision, MethodInvocationResult methodInvocationResult) {
