@@ -30,6 +30,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authorization.AuthorizationDecision;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.authorization.AuthorizationEventPublisher;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.core.Authentication;
@@ -172,7 +173,13 @@ public final class AuthorizationManagerAfterMethodInterceptor implements Authori
 	private Object attemptAuthorization(MethodInvocation mi, Object result) {
 		this.logger.debug(LogMessage.of(() -> "Authorizing method invocation " + mi));
 		MethodInvocationResult object = new MethodInvocationResult(mi, result);
-		AuthorizationDecision decision = this.authorizationManager.check(this::getAuthentication, object);
+		AuthorizationDecision decision;
+		try {
+			decision = this.authorizationManager.check(this::getAuthentication, object);
+		}
+		catch (AuthorizationDeniedException denied) {
+			return postProcess(object, denied);
+		}
 		this.eventPublisher.publishAuthorizationEvent(this::getAuthentication, object, decision);
 		if (decision != null && !decision.isGranted()) {
 			this.logger.debug(LogMessage.of(() -> "Failed to authorize " + mi + " with authorization manager "
@@ -181,6 +188,13 @@ public final class AuthorizationManagerAfterMethodInterceptor implements Authori
 		}
 		this.logger.debug(LogMessage.of(() -> "Authorized method invocation " + mi));
 		return result;
+	}
+
+	private Object postProcess(MethodInvocationResult mi, AuthorizationDeniedException denied) {
+		if (this.authorizationManager instanceof MethodAuthorizationDeniedPostProcessor postProcessableDecision) {
+			return postProcessableDecision.postProcessResult(mi, denied);
+		}
+		return this.defaultPostProcessor.postProcessResult(mi, denied);
 	}
 
 	private Object postProcess(MethodInvocationResult mi, AuthorizationDecision decision) {

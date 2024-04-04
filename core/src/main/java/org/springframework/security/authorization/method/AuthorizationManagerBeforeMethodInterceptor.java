@@ -34,8 +34,10 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authorization.AuthorizationDecision;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.authorization.AuthorizationEventPublisher;
 import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
@@ -245,7 +247,13 @@ public final class AuthorizationManagerBeforeMethodInterceptor implements Author
 
 	private Object attemptAuthorization(MethodInvocation mi) throws Throwable {
 		this.logger.debug(LogMessage.of(() -> "Authorizing method invocation " + mi));
-		AuthorizationDecision decision = this.authorizationManager.check(this::getAuthentication, mi);
+		AuthorizationDecision decision;
+		try {
+			decision = this.authorizationManager.check(this::getAuthentication, mi);
+		}
+		catch (AuthorizationDeniedException denied) {
+			return handle(mi, denied);
+		}
 		this.eventPublisher.publishAuthorizationEvent(this::getAuthentication, mi, decision);
 		if (decision != null && !decision.isGranted()) {
 			this.logger.debug(LogMessage.of(() -> "Failed to authorize " + mi + " with authorization manager "
@@ -256,7 +264,14 @@ public final class AuthorizationManagerBeforeMethodInterceptor implements Author
 		return mi.proceed();
 	}
 
-	private Object handle(MethodInvocation mi, AuthorizationDecision decision) {
+	private Object handle(MethodInvocation mi, AuthorizationDeniedException denied) {
+		if (this.authorizationManager instanceof MethodAuthorizationDeniedHandler handler) {
+			return handler.handle(mi, denied);
+		}
+		return this.defaultHandler.handle(mi, denied);
+	}
+
+	private Object handle(MethodInvocation mi, AuthorizationResult decision) {
 		if (this.authorizationManager instanceof MethodAuthorizationDeniedHandler handler) {
 			return handler.handle(mi, decision);
 		}
