@@ -1271,7 +1271,7 @@ public class PrePostMethodSecurityConfigurationTests {
 		}
 
 		@Bean
-		MetaAnnotationService methodSecurityService() {
+		MetaAnnotationService metaAnnotationService() {
 			return new MetaAnnotationService();
 		}
 
