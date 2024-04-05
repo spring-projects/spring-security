@@ -55,8 +55,22 @@ final class PreAuthorizeExpressionAttributeRegistry extends AbstractExpressionAt
 			return ExpressionAttribute.NULL_ATTRIBUTE;
 		}
 		Expression expression = getExpressionHandler().getExpressionParser().parseExpression(preAuthorize.value());
-		MethodAuthorizationDeniedHandler handler = this.handlerResolver.apply(preAuthorize.handlerClass());
+		MethodAuthorizationDeniedHandler handler = resolveHandler(method, targetClass);
 		return new PreAuthorizeExpressionAttribute(expression, handler);
+	}
+
+	private MethodAuthorizationDeniedHandler resolveHandler(Method method, Class<?> targetClass) {
+		Function<AnnotatedElement, AuthorizationDeniedHandler> lookup = AuthorizationAnnotationUtils
+			.withDefaults(AuthorizationDeniedHandler.class);
+		AuthorizationDeniedHandler deniedHandler = lookup.apply(method);
+		if (deniedHandler != null) {
+			return this.handlerResolver.apply(deniedHandler.handlerClass());
+		}
+		deniedHandler = lookup.apply(targetClass(method, targetClass));
+		if (deniedHandler != null) {
+			return this.handlerResolver.apply(deniedHandler.handlerClass());
+		}
+		return this.defaultHandler;
 	}
 
 	private PreAuthorize findPreAuthorizeAnnotation(Method method, Class<?> targetClass) {

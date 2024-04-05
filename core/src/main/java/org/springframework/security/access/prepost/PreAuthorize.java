@@ -23,9 +23,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.springframework.security.authorization.method.MethodAuthorizationDeniedHandler;
-import org.springframework.security.authorization.method.ThrowingMethodAuthorizationDeniedHandler;
-
 /**
  * Annotation for specifying a method access-control expression which will be evaluated to
  * decide whether a method invocation is allowed or not.
@@ -44,11 +41,5 @@ public @interface PreAuthorize {
 	 * method
 	 */
 	String value();
-
-	/**
-	 * @return the {@link MethodAuthorizationDeniedHandler} class used to handle access
-	 * denied
-	 */
-	Class<? extends MethodAuthorizationDeniedHandler> handlerClass() default ThrowingMethodAuthorizationDeniedHandler.class;
 
 }

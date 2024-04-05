@@ -55,9 +55,22 @@ final class PostAuthorizeExpressionAttributeRegistry extends AbstractExpressionA
 			return ExpressionAttribute.NULL_ATTRIBUTE;
 		}
 		Expression expression = getExpressionHandler().getExpressionParser().parseExpression(postAuthorize.value());
-		MethodAuthorizationDeniedPostProcessor postProcessor = this.postProcessorResolver
-			.apply(postAuthorize.postProcessorClass());
+		MethodAuthorizationDeniedPostProcessor postProcessor = resolvePostProcessor(method, targetClass);
 		return new PostAuthorizeExpressionAttribute(expression, postProcessor);
+	}
+
+	private MethodAuthorizationDeniedPostProcessor resolvePostProcessor(Method method, Class<?> targetClass) {
+		Function<AnnotatedElement, AuthorizationDeniedHandler> lookup = AuthorizationAnnotationUtils
+			.withDefaults(AuthorizationDeniedHandler.class);
+		AuthorizationDeniedHandler deniedHandler = lookup.apply(method);
+		if (deniedHandler != null) {
+			return this.postProcessorResolver.apply(deniedHandler.postProcessorClass());
+		}
+		deniedHandler = lookup.apply(targetClass(method, targetClass));
+		if (deniedHandler != null) {
+			return this.postProcessorResolver.apply(deniedHandler.postProcessorClass());
+		}
+		return this.defaultPostProcessor;
 	}
 
 	private PostAuthorize findPostAuthorizeAnnotation(Method method, Class<?> targetClass) {

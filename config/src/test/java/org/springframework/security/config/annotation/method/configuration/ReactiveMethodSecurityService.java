@@ -33,6 +33,7 @@ import org.springframework.security.access.expression.method.DefaultMethodSecuri
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authorization.AuthorizationResult;
+import org.springframework.security.authorization.method.AuthorizationDeniedHandler;
 import org.springframework.security.authorization.method.MethodAuthorizationDeniedHandler;
 import org.springframework.security.authorization.method.MethodAuthorizationDeniedPostProcessor;
 import org.springframework.security.authorization.method.MethodInvocationResult;
@@ -45,48 +46,60 @@ import org.springframework.util.StringUtils;
 @ReactiveMethodSecurityService.Mask("classmask")
 public interface ReactiveMethodSecurityService {
 
-	@PreAuthorize(value = "hasRole('ADMIN')", handlerClass = StarMaskingHandler.class)
+	@PreAuthorize("hasRole('ADMIN')")
+	@AuthorizationDeniedHandler(handlerClass = StarMaskingHandler.class)
 	Mono<String> preAuthorizeGetCardNumberIfAdmin(String cardNumber);
 
-	@PreAuthorize(value = "hasRole('ADMIN')", handlerClass = StartMaskingHandlerChild.class)
+	@PreAuthorize("hasRole('ADMIN')")
+	@AuthorizationDeniedHandler(handlerClass = StartMaskingHandlerChild.class)
 	Mono<String> preAuthorizeWithHandlerChildGetCardNumberIfAdmin(String cardNumber);
 
-	@PreAuthorize(value = "hasRole('ADMIN')", handlerClass = StarMaskingHandler.class)
+	@PreAuthorize("hasRole('ADMIN')")
+	@AuthorizationDeniedHandler(handlerClass = StarMaskingHandler.class)
 	Mono<String> preAuthorizeThrowAccessDeniedManually();
 
-	@PostAuthorize(value = "hasRole('ADMIN')", postProcessorClass = CardNumberMaskingPostProcessor.class)
+	@PostAuthorize("hasRole('ADMIN')")
+	@AuthorizationDeniedHandler(postProcessorClass = CardNumberMaskingPostProcessor.class)
 	Mono<String> postAuthorizeGetCardNumberIfAdmin(String cardNumber);
 
-	@PostAuthorize(value = "hasRole('ADMIN')", postProcessorClass = PostMaskingPostProcessor.class)
+	@PostAuthorize("hasRole('ADMIN')")
+	@AuthorizationDeniedHandler(postProcessorClass = PostMaskingPostProcessor.class)
 	Mono<String> postAuthorizeThrowAccessDeniedManually();
 
-	@PreAuthorize(value = "denyAll()", handlerClass = MaskAnnotationHandler.class)
+	@PreAuthorize("denyAll()")
 	@Mask("methodmask")
+	@AuthorizationDeniedHandler(handlerClass = MaskAnnotationHandler.class)
 	Mono<String> preAuthorizeDeniedMethodWithMaskAnnotation();
 
-	@PreAuthorize(value = "denyAll()", handlerClass = MaskAnnotationHandler.class)
+	@PreAuthorize("denyAll()")
+	@AuthorizationDeniedHandler(handlerClass = MaskAnnotationHandler.class)
 	Mono<String> preAuthorizeDeniedMethodWithNoMaskAnnotation();
 
 	@NullDenied(role = "ADMIN")
 	Mono<String> postAuthorizeDeniedWithNullDenied();
 
-	@PostAuthorize(value = "denyAll()", postProcessorClass = MaskAnnotationPostProcessor.class)
+	@PostAuthorize("denyAll()")
 	@Mask("methodmask")
+	@AuthorizationDeniedHandler(postProcessorClass = MaskAnnotationPostProcessor.class)
 	Mono<String> postAuthorizeDeniedMethodWithMaskAnnotation();
 
-	@PostAuthorize(value = "denyAll()", postProcessorClass = MaskAnnotationPostProcessor.class)
+	@PostAuthorize("denyAll()")
+	@AuthorizationDeniedHandler(postProcessorClass = MaskAnnotationPostProcessor.class)
 	Mono<String> postAuthorizeDeniedMethodWithNoMaskAnnotation();
 
-	@PreAuthorize(value = "hasRole('ADMIN')", handlerClass = MaskAnnotationHandler.class)
+	@PreAuthorize("hasRole('ADMIN')")
 	@Mask(expression = "@myMasker.getMask()")
+	@AuthorizationDeniedHandler(handlerClass = MaskAnnotationHandler.class)
 	Mono<String> preAuthorizeWithMaskAnnotationUsingBean();
 
-	@PostAuthorize(value = "hasRole('ADMIN')", postProcessorClass = MaskAnnotationPostProcessor.class)
+	@PostAuthorize("hasRole('ADMIN')")
 	@Mask(expression = "@myMasker.getMask(returnObject)")
+	@AuthorizationDeniedHandler(postProcessorClass = MaskAnnotationPostProcessor.class)
 	Mono<String> postAuthorizeWithMaskAnnotationUsingBean();
 
-	@PreAuthorize(value = "@authz.checkReactiveResult(#result)", handlerClass = MethodAuthorizationDeniedHandler.class)
-	@PostAuthorize(value = "@authz.checkReactiveResult(!#result)",
+	@PreAuthorize("@authz.checkReactiveResult(#result)")
+	@PostAuthorize("@authz.checkReactiveResult(!#result)")
+	@AuthorizationDeniedHandler(handlerClass = MethodAuthorizationDeniedHandler.class,
 			postProcessorClass = MethodAuthorizationDeniedPostProcessor.class)
 	Mono<String> checkCustomResult(boolean result);
 
@@ -217,7 +230,8 @@ public interface ReactiveMethodSecurityService {
 	@Target({ ElementType.METHOD, ElementType.TYPE })
 	@Retention(RetentionPolicy.RUNTIME)
 	@Inherited
-	@PostAuthorize(value = "hasRole('{value}')", postProcessorClass = NullPostProcessor.class)
+	@PostAuthorize("hasRole('{value}')")
+	@AuthorizationDeniedHandler(postProcessorClass = NullPostProcessor.class)
 	@interface NullDenied {
 
 		String role();

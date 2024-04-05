@@ -18,6 +18,7 @@ package org.springframework.security.config.annotation.method.configuration;
 
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.authorization.AuthorizationResult;
+import org.springframework.security.authorization.method.AuthorizationDeniedHandler;
 import org.springframework.security.authorization.method.MethodAuthorizationDeniedPostProcessor;
 import org.springframework.security.authorization.method.MethodInvocationResult;
 
@@ -36,7 +37,8 @@ public class UserRecordWithEmailProtected {
 		return this.name;
 	}
 
-	@PostAuthorize(value = "hasRole('ADMIN')", postProcessorClass = EmailMaskingPostProcessor.class)
+	@PostAuthorize("hasRole('ADMIN')")
+	@AuthorizationDeniedHandler(postProcessorClass = EmailMaskingPostProcessor.class)
 	public String email() {
 		return this.email;
 	}

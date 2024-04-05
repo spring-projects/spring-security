@@ -39,6 +39,7 @@ import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.access.prepost.PreFilter;
 import org.springframework.security.authorization.AuthorizationResult;
+import org.springframework.security.authorization.method.AuthorizationDeniedHandler;
 import org.springframework.security.authorization.method.AuthorizeReturnObject;
 import org.springframework.security.authorization.method.MethodAuthorizationDeniedHandler;
 import org.springframework.security.authorization.method.MethodAuthorizationDeniedPostProcessor;
@@ -127,54 +128,67 @@ public interface MethodSecurityService {
 	@RequireAdminRole
 	void repeatedAnnotations();
 
-	@PreAuthorize(value = "hasRole('ADMIN')", handlerClass = StarMaskingHandler.class)
+	@PreAuthorize("hasRole('ADMIN')")
+	@AuthorizationDeniedHandler(handlerClass = StarMaskingHandler.class)
 	String preAuthorizeGetCardNumberIfAdmin(String cardNumber);
 
-	@PreAuthorize(value = "hasRole('ADMIN')", handlerClass = StartMaskingHandlerChild.class)
+	@PreAuthorize("hasRole('ADMIN')")
+	@AuthorizationDeniedHandler(handlerClass = StartMaskingHandlerChild.class)
 	String preAuthorizeWithHandlerChildGetCardNumberIfAdmin(String cardNumber);
 
-	@PreAuthorize(value = "hasRole('ADMIN')", handlerClass = StarMaskingHandler.class)
+	@PreAuthorize("hasRole('ADMIN')")
+	@AuthorizationDeniedHandler(handlerClass = StarMaskingHandler.class)
 	String preAuthorizeThrowAccessDeniedManually();
 
-	@PostAuthorize(value = "hasRole('ADMIN')", postProcessorClass = CardNumberMaskingPostProcessor.class)
+	@PostAuthorize("hasRole('ADMIN')")
+	@AuthorizationDeniedHandler(postProcessorClass = CardNumberMaskingPostProcessor.class)
 	String postAuthorizeGetCardNumberIfAdmin(String cardNumber);
 
-	@PostAuthorize(value = "hasRole('ADMIN')", postProcessorClass = PostMaskingPostProcessor.class)
+	@PostAuthorize("hasRole('ADMIN')")
+	@AuthorizationDeniedHandler(postProcessorClass = PostMaskingPostProcessor.class)
 	String postAuthorizeThrowAccessDeniedManually();
 
-	@PreAuthorize(value = "denyAll()", handlerClass = MaskAnnotationHandler.class)
+	@PreAuthorize("denyAll()")
 	@Mask("methodmask")
+	@AuthorizationDeniedHandler(handlerClass = MaskAnnotationHandler.class)
 	String preAuthorizeDeniedMethodWithMaskAnnotation();
 
-	@PreAuthorize(value = "denyAll()", handlerClass = MaskAnnotationHandler.class)
+	@PreAuthorize("denyAll()")
+	@AuthorizationDeniedHandler(handlerClass = MaskAnnotationHandler.class)
 	String preAuthorizeDeniedMethodWithNoMaskAnnotation();
 
 	@NullDenied(role = "ADMIN")
 	String postAuthorizeDeniedWithNullDenied();
 
-	@PostAuthorize(value = "denyAll()", postProcessorClass = MaskAnnotationPostProcessor.class)
+	@PostAuthorize("denyAll()")
 	@Mask("methodmask")
+	@AuthorizationDeniedHandler(postProcessorClass = MaskAnnotationPostProcessor.class)
 	String postAuthorizeDeniedMethodWithMaskAnnotation();
 
-	@PostAuthorize(value = "denyAll()", postProcessorClass = MaskAnnotationPostProcessor.class)
+	@PostAuthorize("denyAll()")
+	@AuthorizationDeniedHandler(postProcessorClass = MaskAnnotationPostProcessor.class)
 	String postAuthorizeDeniedMethodWithNoMaskAnnotation();
 
-	@PreAuthorize(value = "hasRole('ADMIN')", handlerClass = MaskAnnotationHandler.class)
+	@PreAuthorize("hasRole('ADMIN')")
 	@Mask(expression = "@myMasker.getMask()")
+	@AuthorizationDeniedHandler(handlerClass = MaskAnnotationHandler.class)
 	String preAuthorizeWithMaskAnnotationUsingBean();
 
-	@PostAuthorize(value = "hasRole('ADMIN')", postProcessorClass = MaskAnnotationPostProcessor.class)
+	@PostAuthorize("hasRole('ADMIN')")
 	@Mask(expression = "@myMasker.getMask(returnObject)")
+	@AuthorizationDeniedHandler(postProcessorClass = MaskAnnotationPostProcessor.class)
 	String postAuthorizeWithMaskAnnotationUsingBean();
 
 	@AuthorizeReturnObject
 	UserRecordWithEmailProtected getUserRecordWithEmailProtected();
 
-	@PreAuthorize(value = "hasRole('ADMIN')", handlerClass = UserFallbackDeniedHandler.class)
+	@PreAuthorize("hasRole('ADMIN')")
+	@AuthorizationDeniedHandler(handlerClass = UserFallbackDeniedHandler.class)
 	UserRecordWithEmailProtected getUserWithFallbackWhenUnauthorized();
 
-	@PreAuthorize(value = "@authz.checkResult(#result)", handlerClass = MethodAuthorizationDeniedHandler.class)
-	@PostAuthorize(value = "@authz.checkResult(!#result)",
+	@PreAuthorize("@authz.checkResult(#result)")
+	@PostAuthorize("@authz.checkResult(!#result)")
+	@AuthorizationDeniedHandler(handlerClass = MethodAuthorizationDeniedHandler.class,
 			postProcessorClass = MethodAuthorizationDeniedPostProcessor.class)
 	String checkCustomResult(boolean result);
 
@@ -305,7 +319,8 @@ public interface MethodSecurityService {
 	@Target({ ElementType.METHOD, ElementType.TYPE })
 	@Retention(RetentionPolicy.RUNTIME)
 	@Inherited
-	@PostAuthorize(value = "hasRole('{role}')", postProcessorClass = NullPostProcessor.class)
+	@PostAuthorize("hasRole('{role}')")
+	@AuthorizationDeniedHandler(postProcessorClass = NullPostProcessor.class)
 	@interface NullDenied {
 
 		String role();
