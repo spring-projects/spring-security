@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.access.expression;
+package org.springframework.security.authorization.method;
 
 import org.junit.jupiter.api.Test;
 

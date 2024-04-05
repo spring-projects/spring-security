@@ -22,7 +22,6 @@ import org.aopalliance.intercept.MethodInvocation;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.expression.EvaluationContext;
-import org.springframework.security.access.expression.ExpressionUtils;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authorization.AuthorizationDecision;
