@@ -19,7 +19,7 @@ This improves upon `@EnableReactiveMethodSecurity` in a number of ways. `@Enable
 
 1. Uses the simplified `AuthorizationManager` API instead of metadata sources, config attributes, decision managers, and voters.
 This simplifies reuse and customization.
-2. Supports reactive return types. Note that we are waiting on https://github.com/spring-projects/spring-framework/issues/22462[additional coroutine support from the Spring Framework] before adding coroutine support.
+2. Supports reactive return types including Kotlin coroutines.
 3. Is built using native Spring AOP, removing abstractions and allowing you to use Spring AOP building blocks to customize
 4. Checks for conflicting annotations to ensure an unambiguous security configuration
 5. Complies with JSR-250
@@ -303,9 +303,6 @@ class MethodSecurityConfig {
 and it will be invoked after the `@PostAuthorize` interceptor.
 
 == EnableReactiveMethodSecurity
-
-As of the latest release, Spring Security now fully supports Kotlin coroutines.
-All functionality related to coroutine support is now available and integrated seamlessly within Spring Security.
 
 [tabs]
 ======
