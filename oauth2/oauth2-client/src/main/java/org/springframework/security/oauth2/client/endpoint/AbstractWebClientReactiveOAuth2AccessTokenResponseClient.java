@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,6 @@
 
 package org.springframework.security.oauth2.client.endpoint;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Set;
 
@@ -26,7 +23,6 @@ import reactor.core.publisher.Mono;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.http.ReactiveHttpInputMessage;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
@@ -65,6 +61,7 @@ import org.springframework.web.reactive.function.client.WebClient.RequestHeaders
  * @see WebClientReactiveClientCredentialsTokenResponseClient
  * @see WebClientReactivePasswordTokenResponseClient
  * @see WebClientReactiveRefreshTokenTokenResponseClient
+ * @see DefaultOAuth2TokenRequestHeadersConverter
  */
 public abstract class AbstractWebClientReactiveOAuth2AccessTokenResponseClient<T extends AbstractOAuth2AuthorizationGrantRequest>
 		implements ReactiveOAuth2AccessTokenResponseClient<T> {
@@ -73,7 +70,7 @@ public abstract class AbstractWebClientReactiveOAuth2AccessTokenResponseClient<T
 
 	private Converter<T, RequestHeadersSpec<?>> requestEntityConverter = this::validatingPopulateRequest;
 
-	private Converter<T, HttpHeaders> headersConverter = this::populateTokenRequestHeaders;
+	private Converter<T, HttpHeaders> headersConverter = new DefaultOAuth2TokenRequestHeadersConverter<>();
 
 	private Converter<T, MultiValueMap<String, String>> parametersConverter = this::populateTokenRequestParameters;
 
@@ -129,34 +126,6 @@ public abstract class AbstractWebClientReactiveOAuth2AccessTokenResponseClient<T
 				}
 			})
 			.body(createTokenRequestBody(grantRequest));
-	}
-
-	/**
-	 * Populates the headers for the token request.
-	 * @param grantRequest the grant request
-	 * @return the headers populated for the token request
-	 */
-	private HttpHeaders populateTokenRequestHeaders(T grantRequest) {
-		HttpHeaders headers = new HttpHeaders();
-		ClientRegistration clientRegistration = clientRegistration(grantRequest);
-		headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-		if (ClientAuthenticationMethod.CLIENT_SECRET_BASIC.equals(clientRegistration.getClientAuthenticationMethod())) {
-			String clientId = encodeClientCredential(clientRegistration.getClientId());
-			String clientSecret = encodeClientCredential(clientRegistration.getClientSecret());
-			headers.setBasicAuth(clientId, clientSecret);
-		}
-		return headers;
-	}
-
-	private static String encodeClientCredential(String clientCredential) {
-		try {
-			return URLEncoder.encode(clientCredential, StandardCharsets.UTF_8.toString());
-		}
-		catch (UnsupportedEncodingException ex) {
-			// Will not happen since UTF-8 is a standard charset
-			throw new IllegalArgumentException(ex);
-		}
 	}
 
 	/**
