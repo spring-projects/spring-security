@@ -304,11 +304,8 @@ and it will be invoked after the `@PostAuthorize` interceptor.
 
 == EnableReactiveMethodSecurity
 
-[INFO]
-====
 As of the latest release, Spring Security now fully supports Kotlin coroutines.
 All functionality related to coroutine support is now available and integrated seamlessly within Spring Security.
-====
 
 [tabs]
 ======
