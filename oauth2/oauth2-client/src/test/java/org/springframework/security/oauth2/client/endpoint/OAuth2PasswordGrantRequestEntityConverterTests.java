@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -110,7 +110,10 @@ public class OAuth2PasswordGrantRequestEntityConverterTests {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void convertWhenGrantRequestValidThenConverts() {
-		ClientRegistration clientRegistration = TestClientRegistrations.password().build();
+		ClientRegistration clientRegistration = TestClientRegistrations.password()
+			.clientId("clientId")
+			.clientSecret("clientSecret=")
+			.build();
 		OAuth2PasswordGrantRequest passwordGrantRequest = new OAuth2PasswordGrantRequest(clientRegistration, "user1",
 				"password");
 		RequestEntity<?> requestEntity = this.converter.convert(passwordGrantRequest);
@@ -121,12 +124,42 @@ public class OAuth2PasswordGrantRequestEntityConverterTests {
 		assertThat(headers.getAccept()).contains(MediaType.APPLICATION_JSON_UTF8);
 		assertThat(headers.getContentType())
 			.isEqualTo(MediaType.valueOf(MediaType.APPLICATION_FORM_URLENCODED_VALUE + ";charset=UTF-8"));
-		assertThat(headers.getFirst(HttpHeaders.AUTHORIZATION)).startsWith("Basic ");
+		assertThat(headers.getFirst(HttpHeaders.AUTHORIZATION)).isEqualTo("Basic Y2xpZW50SWQ6Y2xpZW50U2VjcmV0JTNE");
 		MultiValueMap<String, String> formParameters = (MultiValueMap<String, String>) requestEntity.getBody();
 		assertThat(formParameters.getFirst(OAuth2ParameterNames.GRANT_TYPE))
 			.isEqualTo(AuthorizationGrantType.PASSWORD.getValue());
 		assertThat(formParameters.getFirst(OAuth2ParameterNames.USERNAME)).isEqualTo("user1");
 		assertThat(formParameters.getFirst(OAuth2ParameterNames.PASSWORD)).isEqualTo("password");
+		assertThat(formParameters.getFirst(OAuth2ParameterNames.SCOPE)).contains(clientRegistration.getScopes());
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	public void convertWhenGrantRequestValidThenConvertsWithoutUrlEncoding() {
+		ClientRegistration clientRegistration = TestClientRegistrations.password()
+			.clientId("clientId")
+			.clientSecret("clientSecret=")
+			.build();
+		OAuth2PasswordGrantRequest passwordGrantRequest = new OAuth2PasswordGrantRequest(clientRegistration, "user1",
+				"password=");
+		DefaultOAuth2TokenRequestHeadersConverter<OAuth2PasswordGrantRequest> headersConverter = DefaultOAuth2TokenRequestHeadersConverter
+				.historicalConverter();
+		headersConverter.setEncodeClientCredentials(false);
+		this.converter.setHeadersConverter(headersConverter);
+		RequestEntity<?> requestEntity = this.converter.convert(passwordGrantRequest);
+		assertThat(requestEntity.getMethod()).isEqualTo(HttpMethod.POST);
+		assertThat(requestEntity.getUrl().toASCIIString())
+			.isEqualTo(clientRegistration.getProviderDetails().getTokenUri());
+		HttpHeaders headers = requestEntity.getHeaders();
+		assertThat(headers.getAccept()).contains(MediaType.APPLICATION_JSON_UTF8);
+		assertThat(headers.getContentType())
+			.isEqualTo(MediaType.valueOf(MediaType.APPLICATION_FORM_URLENCODED_VALUE + ";charset=UTF-8"));
+		assertThat(headers.getFirst(HttpHeaders.AUTHORIZATION)).isEqualTo("Basic Y2xpZW50SWQ6Y2xpZW50U2VjcmV0PQ==");
+		MultiValueMap<String, String> formParameters = (MultiValueMap<String, String>) requestEntity.getBody();
+		assertThat(formParameters.getFirst(OAuth2ParameterNames.GRANT_TYPE))
+			.isEqualTo(AuthorizationGrantType.PASSWORD.getValue());
+		assertThat(formParameters.getFirst(OAuth2ParameterNames.USERNAME)).isEqualTo("user1");
+		assertThat(formParameters.getFirst(OAuth2ParameterNames.PASSWORD)).isEqualTo("password=");
 		assertThat(formParameters.getFirst(OAuth2ParameterNames.SCOPE)).contains(clientRegistration.getScopes());
 	}
 
