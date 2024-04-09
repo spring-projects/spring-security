@@ -1,0 +1,28 @@
+name: Merge Dependabot PR
+
+on: pull_request_target
+
+run-name: Merge Dependabot PR ${{ github.ref_name }}
+
+permissions: write-all
+
+jobs:
+  merge-dependabot-pr:
+    runs-on: ubuntu-latest
+    if: github.actor == 'dependabot[bot]'
+    steps:
+
+      - uses: actions/checkout@v4
+        with:
+          show-progress: false
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Merge Dependabot pull request
+        run: gh pr merge ${{ github.event.pull_request.number }} --auto --rebase
+        env:
+          GH_TOKEN: ${{ secrets.GH_ACTIONS_REPO_TOKEN }}
