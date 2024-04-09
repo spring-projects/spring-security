@@ -27,16 +27,16 @@ import org.springframework.util.Assert;
  */
 class PostAuthorizeExpressionAttribute extends ExpressionAttribute {
 
-	private final MethodAuthorizationDeniedPostProcessor postProcessor;
+	private final MethodAuthorizationDeniedHandler handler;
 
-	PostAuthorizeExpressionAttribute(Expression expression, MethodAuthorizationDeniedPostProcessor postProcessor) {
+	PostAuthorizeExpressionAttribute(Expression expression, MethodAuthorizationDeniedHandler handler) {
 		super(expression);
-		Assert.notNull(postProcessor, "postProcessor cannot be null");
-		this.postProcessor = postProcessor;
+		Assert.notNull(handler, "handler cannot be null");
+		this.handler = handler;
 	}
 
-	MethodAuthorizationDeniedPostProcessor getPostProcessor() {
-		return this.postProcessor;
+	MethodAuthorizationDeniedHandler getHandler() {
+		return this.handler;
 	}
 
 }

@@ -38,7 +38,7 @@ import org.springframework.security.core.Authentication;
  * @since 5.6
  */
 public final class PostAuthorizeAuthorizationManager
-		implements AuthorizationManager<MethodInvocationResult>, MethodAuthorizationDeniedPostProcessor {
+		implements AuthorizationManager<MethodInvocationResult>, MethodAuthorizationDeniedHandler {
 
 	private PostAuthorizeExpressionAttributeRegistry registry = new PostAuthorizeExpressionAttributeRegistry();
 
@@ -96,11 +96,19 @@ public final class PostAuthorizeAuthorizationManager
 	}
 
 	@Override
-	public Object postProcessResult(MethodInvocationResult methodInvocationResult,
+	public Object handleDeniedInvocation(MethodInvocation methodInvocation, AuthorizationResult authorizationResult) {
+		ExpressionAttribute attribute = this.registry.getAttribute(methodInvocation);
+		PostAuthorizeExpressionAttribute postAuthorizeAttribute = (PostAuthorizeExpressionAttribute) attribute;
+		return postAuthorizeAttribute.getHandler().handleDeniedInvocation(methodInvocation, authorizationResult);
+	}
+
+	@Override
+	public Object handleDeniedInvocationResult(MethodInvocationResult methodInvocationResult,
 			AuthorizationResult authorizationResult) {
 		ExpressionAttribute attribute = this.registry.getAttribute(methodInvocationResult.getMethodInvocation());
 		PostAuthorizeExpressionAttribute postAuthorizeAttribute = (PostAuthorizeExpressionAttribute) attribute;
-		return postAuthorizeAttribute.getPostProcessor().postProcessResult(methodInvocationResult, authorizationResult);
+		return postAuthorizeAttribute.getHandler()
+			.handleDeniedInvocationResult(methodInvocationResult, authorizationResult);
 	}
 
 }

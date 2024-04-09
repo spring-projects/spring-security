@@ -31,11 +31,20 @@ import org.springframework.security.authorization.AuthorizationResult;
 public final class ThrowingMethodAuthorizationDeniedHandler implements MethodAuthorizationDeniedHandler {
 
 	@Override
-	public Object handle(MethodInvocation methodInvocation, AuthorizationResult result) {
-		if (result instanceof AuthorizationDeniedException denied) {
+	public Object handleDeniedInvocation(MethodInvocation methodInvocation, AuthorizationResult authorizationResult) {
+		if (authorizationResult instanceof AuthorizationDeniedException denied) {
 			throw denied;
 		}
-		throw new AuthorizationDeniedException("Access Denied", result);
+		throw new AuthorizationDeniedException("Access Denied", authorizationResult);
+	}
+
+	@Override
+	public Object handleDeniedInvocationResult(MethodInvocationResult methodInvocationResult,
+			AuthorizationResult authorizationResult) {
+		if (authorizationResult instanceof AuthorizationDeniedException denied) {
+			throw denied;
+		}
+		throw new AuthorizationDeniedException("Access Denied", authorizationResult);
 	}
 
 }

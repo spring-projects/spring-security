@@ -25,32 +25,26 @@ import java.lang.annotation.Target;
 
 /**
  * Annotation for specifying handling behavior when an authorization denied happens in
- * method security
+ * method security or an
+ * {@link org.springframework.security.authorization.AuthorizationDeniedException} is
+ * thrown during method invocation
  *
  * @author Marcus da Coregio
  * @since 6.3
- * @see org.springframework.security.access.prepost.PreAuthorize
- * @see org.springframework.security.access.prepost.PostAuthorize
+ * @see AuthorizationManagerAfterMethodInterceptor
+ * @see AuthorizationManagerBeforeMethodInterceptor
  */
 @Target({ ElementType.METHOD, ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
 @Documented
-public @interface AuthorizationDeniedHandler {
+public @interface HandleAuthorizationDenied {
 
 	/**
-	 * The {@link MethodAuthorizationDeniedHandler} used to handle denied authorizations
-	 * from {@link org.springframework.security.access.prepost.PreAuthorize}
+	 * The {@link MethodAuthorizationDeniedHandler} used to handle denied authorization
+	 * results
 	 * @return
 	 */
 	Class<? extends MethodAuthorizationDeniedHandler> handlerClass() default ThrowingMethodAuthorizationDeniedHandler.class;
-
-	/**
-	 * The {@link MethodAuthorizationDeniedPostProcessor} used to post process denied
-	 * authorizations from
-	 * {@link org.springframework.security.access.prepost.PostAuthorize}
-	 * @return
-	 */
-	Class<? extends MethodAuthorizationDeniedPostProcessor> postProcessorClass() default ThrowingMethodAuthorizationDeniedPostProcessor.class;
 
 }

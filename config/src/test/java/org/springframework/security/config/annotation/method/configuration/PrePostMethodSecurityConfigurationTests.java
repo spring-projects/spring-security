@@ -67,7 +67,6 @@ import org.springframework.security.authorization.method.AuthorizationIntercepto
 import org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor;
 import org.springframework.security.authorization.method.AuthorizeReturnObject;
 import org.springframework.security.authorization.method.MethodAuthorizationDeniedHandler;
-import org.springframework.security.authorization.method.MethodAuthorizationDeniedPostProcessor;
 import org.springframework.security.authorization.method.MethodInvocationResult;
 import org.springframework.security.authorization.method.PrePostTemplateDefaults;
 import org.springframework.security.config.Customizer;
@@ -92,10 +91,10 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 /**
  * Tests for {@link PrePostMethodSecurityConfiguration}.
@@ -783,12 +782,21 @@ public class PrePostMethodSecurityConfigurationTests {
 
 	@Test
 	@WithMockUser(roles = "ADMIN")
-	void preAuthorizeWhenHandlerAndAccessDeniedNotThrownFromPreAuthorizeThenNotHandled() {
+	void preAuthorizeWhenHandlerAndAccessDeniedNotThrownFromPreAuthorizeThenHandled() {
 		this.spring.register(MethodSecurityServiceEnabledConfig.class, MethodSecurityService.StarMaskingHandler.class)
 			.autowire();
 		MethodSecurityService service = this.spring.getContext().getBean(MethodSecurityService.class);
-		assertThatExceptionOfType(AccessDeniedException.class)
-			.isThrownBy(service::preAuthorizeThrowAccessDeniedManually);
+		assertThat(service.preAuthorizeThrowAccessDeniedManually()).isEqualTo("***");
+	}
+
+	@Test
+	@WithMockUser(roles = "ADMIN")
+	void postAuthorizeWhenHandlerAndAccessDeniedNotThrownFromPostAuthorizeThenHandled() {
+		this.spring
+			.register(MethodSecurityServiceEnabledConfig.class, MethodSecurityService.PostMaskingPostProcessor.class)
+			.autowire();
+		MethodSecurityService service = this.spring.getContext().getBean(MethodSecurityService.class);
+		assertThat(service.postAuthorizeThrowAccessDeniedManually()).isEqualTo("***");
 	}
 
 	@Test
@@ -811,17 +819,6 @@ public class PrePostMethodSecurityConfigurationTests {
 		MethodSecurityService service = this.spring.getContext().getBean(MethodSecurityService.class);
 		String result = service.preAuthorizeDeniedMethodWithNoMaskAnnotation();
 		assertThat(result).isEqualTo("classmask");
-	}
-
-	@Test
-	@WithMockUser(roles = "ADMIN")
-	void postAuthorizeWhenHandlerAndAccessDeniedNotThrownFromPostAuthorizeThenNotHandled() {
-		this.spring
-			.register(MethodSecurityServiceEnabledConfig.class, MethodSecurityService.PostMaskingPostProcessor.class)
-			.autowire();
-		MethodSecurityService service = this.spring.getContext().getBean(MethodSecurityService.class);
-		assertThatExceptionOfType(AccessDeniedException.class)
-			.isThrownBy(service::postAuthorizeThrowAccessDeniedManually);
 	}
 
 	@Test
@@ -938,14 +935,13 @@ public class PrePostMethodSecurityConfigurationTests {
 		MethodSecurityService service = this.spring.getContext().getBean(MethodSecurityService.class);
 		MethodAuthorizationDeniedHandler handler = this.spring.getContext()
 			.getBean(MethodAuthorizationDeniedHandler.class);
-		MethodAuthorizationDeniedPostProcessor postProcessor = this.spring.getContext()
-			.getBean(MethodAuthorizationDeniedPostProcessor.class);
 		assertThat(service.checkCustomResult(false)).isNull();
-		verify(handler).handle(any(), any(Authz.AuthzResult.class));
-		verifyNoInteractions(postProcessor);
+		verify(handler).handleDeniedInvocation(any(), any(Authz.AuthzResult.class));
+		verify(handler, never()).handleDeniedInvocationResult(any(), any(Authz.AuthzResult.class));
+		clearInvocations(handler);
 		assertThat(service.checkCustomResult(true)).isNull();
-		verify(postProcessor).postProcessResult(any(), any(Authz.AuthzResult.class));
-		verifyNoMoreInteractions(handler);
+		verify(handler).handleDeniedInvocationResult(any(), any(Authz.AuthzResult.class));
+		verify(handler, never()).handleDeniedInvocation(any(), any(Authz.AuthzResult.class));
 	}
 
 	private static Consumer<ConfigurableWebApplicationContext> disallowBeanOverriding() {
@@ -1477,16 +1473,9 @@ public class PrePostMethodSecurityConfigurationTests {
 
 		MethodAuthorizationDeniedHandler handler = mock(MethodAuthorizationDeniedHandler.class);
 
-		MethodAuthorizationDeniedPostProcessor postProcessor = mock(MethodAuthorizationDeniedPostProcessor.class);
-
 		@Bean
 		MethodAuthorizationDeniedHandler methodAuthorizationDeniedHandler() {
 			return this.handler;
-		}
-
-		@Bean
-		MethodAuthorizationDeniedPostProcessor methodAuthorizationDeniedPostProcessor() {
-			return this.postProcessor;
 		}
 
 	}

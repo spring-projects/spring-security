@@ -127,7 +127,7 @@ public class AuthorizationManagerAfterReactiveMethodInterceptorTests {
 		given(mockMethodInvocation.proceed()).willReturn(Flux.just("john", "bob"));
 		HandlingReactiveAuthorizationManager mockReactiveAuthorizationManager = mock(
 				HandlingReactiveAuthorizationManager.class);
-		given(mockReactiveAuthorizationManager.postProcessResult(any(), any(AuthorizationResult.class)))
+		given(mockReactiveAuthorizationManager.handleDeniedInvocationResult(any(), any(AuthorizationResult.class)))
 			.willAnswer(this::masking);
 		given(mockReactiveAuthorizationManager.check(any(), any())).willReturn(Mono.empty());
 		AuthorizationManagerAfterReactiveMethodInterceptor interceptor = new AuthorizationManagerAfterReactiveMethodInterceptor(
@@ -147,7 +147,7 @@ public class AuthorizationManagerAfterReactiveMethodInterceptorTests {
 		given(mockMethodInvocation.proceed()).willReturn(Flux.just("john", "bob"));
 		HandlingReactiveAuthorizationManager mockReactiveAuthorizationManager = mock(
 				HandlingReactiveAuthorizationManager.class);
-		given(mockReactiveAuthorizationManager.postProcessResult(any(), any(AuthorizationResult.class)))
+		given(mockReactiveAuthorizationManager.handleDeniedInvocationResult(any(), any(AuthorizationResult.class)))
 			.willAnswer((invocation) -> {
 				MethodInvocationResult argument = invocation.getArgument(0);
 				if (!"john".equals(argument.getResult())) {
@@ -173,7 +173,7 @@ public class AuthorizationManagerAfterReactiveMethodInterceptorTests {
 		given(mockMethodInvocation.proceed()).willReturn(Mono.just("john"));
 		HandlingReactiveAuthorizationManager mockReactiveAuthorizationManager = mock(
 				HandlingReactiveAuthorizationManager.class);
-		given(mockReactiveAuthorizationManager.postProcessResult(any(), any(AuthorizationResult.class)))
+		given(mockReactiveAuthorizationManager.handleDeniedInvocationResult(any(), any(AuthorizationResult.class)))
 			.willAnswer(this::masking);
 		given(mockReactiveAuthorizationManager.check(any(), any())).willReturn(Mono.empty());
 		AuthorizationManagerAfterReactiveMethodInterceptor interceptor = new AuthorizationManagerAfterReactiveMethodInterceptor(
@@ -192,7 +192,7 @@ public class AuthorizationManagerAfterReactiveMethodInterceptorTests {
 		given(mockMethodInvocation.proceed()).willReturn(Mono.just("john"));
 		HandlingReactiveAuthorizationManager mockReactiveAuthorizationManager = mock(
 				HandlingReactiveAuthorizationManager.class);
-		given(mockReactiveAuthorizationManager.postProcessResult(any(), any(AuthorizationResult.class)))
+		given(mockReactiveAuthorizationManager.handleDeniedInvocationResult(any(), any(AuthorizationResult.class)))
 			.willAnswer(this::monoMasking);
 		given(mockReactiveAuthorizationManager.check(any(), any())).willReturn(Mono.empty());
 		AuthorizationManagerAfterReactiveMethodInterceptor interceptor = new AuthorizationManagerAfterReactiveMethodInterceptor(
@@ -211,7 +211,7 @@ public class AuthorizationManagerAfterReactiveMethodInterceptorTests {
 		given(mockMethodInvocation.proceed()).willReturn(Mono.just("john"));
 		HandlingReactiveAuthorizationManager mockReactiveAuthorizationManager = mock(
 				HandlingReactiveAuthorizationManager.class);
-		given(mockReactiveAuthorizationManager.postProcessResult(any(), any(AuthorizationResult.class)))
+		given(mockReactiveAuthorizationManager.handleDeniedInvocationResult(any(), any(AuthorizationResult.class)))
 			.willReturn(null);
 		given(mockReactiveAuthorizationManager.check(any(), any())).willReturn(Mono.empty());
 		AuthorizationManagerAfterReactiveMethodInterceptor interceptor = new AuthorizationManagerAfterReactiveMethodInterceptor(
@@ -266,7 +266,7 @@ public class AuthorizationManagerAfterReactiveMethodInterceptorTests {
 	}
 
 	interface HandlingReactiveAuthorizationManager
-			extends ReactiveAuthorizationManager<MethodInvocationResult>, MethodAuthorizationDeniedPostProcessor {
+			extends ReactiveAuthorizationManager<MethodInvocationResult>, MethodAuthorizationDeniedHandler {
 
 	}
 

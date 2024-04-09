@@ -60,9 +60,9 @@ final class PreAuthorizeExpressionAttributeRegistry extends AbstractExpressionAt
 	}
 
 	private MethodAuthorizationDeniedHandler resolveHandler(Method method, Class<?> targetClass) {
-		Function<AnnotatedElement, AuthorizationDeniedHandler> lookup = AuthorizationAnnotationUtils
-			.withDefaults(AuthorizationDeniedHandler.class);
-		AuthorizationDeniedHandler deniedHandler = lookup.apply(method);
+		Function<AnnotatedElement, HandleAuthorizationDenied> lookup = AuthorizationAnnotationUtils
+			.withDefaults(HandleAuthorizationDenied.class);
+		HandleAuthorizationDenied deniedHandler = lookup.apply(method);
 		if (deniedHandler != null) {
 			return this.handlerResolver.apply(deniedHandler.handlerClass());
 		}

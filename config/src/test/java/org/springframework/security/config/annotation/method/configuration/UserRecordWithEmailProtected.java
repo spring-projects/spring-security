@@ -16,10 +16,12 @@
 
 package org.springframework.security.config.annotation.method.configuration;
 
+import org.aopalliance.intercept.MethodInvocation;
+
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.authorization.AuthorizationResult;
-import org.springframework.security.authorization.method.AuthorizationDeniedHandler;
-import org.springframework.security.authorization.method.MethodAuthorizationDeniedPostProcessor;
+import org.springframework.security.authorization.method.HandleAuthorizationDenied;
+import org.springframework.security.authorization.method.MethodAuthorizationDeniedHandler;
 import org.springframework.security.authorization.method.MethodInvocationResult;
 
 public class UserRecordWithEmailProtected {
@@ -38,15 +40,21 @@ public class UserRecordWithEmailProtected {
 	}
 
 	@PostAuthorize("hasRole('ADMIN')")
-	@AuthorizationDeniedHandler(postProcessorClass = EmailMaskingPostProcessor.class)
+	@HandleAuthorizationDenied(handlerClass = EmailMaskingPostProcessor.class)
 	public String email() {
 		return this.email;
 	}
 
-	public static class EmailMaskingPostProcessor implements MethodAuthorizationDeniedPostProcessor {
+	public static class EmailMaskingPostProcessor implements MethodAuthorizationDeniedHandler {
 
 		@Override
-		public Object postProcessResult(MethodInvocationResult methodInvocationResult,
+		public Object handleDeniedInvocation(MethodInvocation methodInvocation,
+				AuthorizationResult authorizationResult) {
+			return "***";
+		}
+
+		@Override
+		public Object handleDeniedInvocationResult(MethodInvocationResult methodInvocationResult,
 				AuthorizationResult authorizationResult) {
 			String email = (String) methodInvocationResult.getResult();
 			return email.replaceAll("(^[^@]{3}|(?!^)\\G)[^@]", "$1*");

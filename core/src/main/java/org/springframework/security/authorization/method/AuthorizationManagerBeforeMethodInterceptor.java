@@ -261,14 +261,33 @@ public final class AuthorizationManagerBeforeMethodInterceptor implements Author
 			return handle(mi, decision);
 		}
 		this.logger.debug(LogMessage.of(() -> "Authorized method invocation " + mi));
-		return mi.proceed();
+		return proceed(mi);
+	}
+
+	private Object proceed(MethodInvocation mi) throws Throwable {
+		try {
+			return mi.proceed();
+		}
+		catch (AuthorizationDeniedException ex) {
+			if (this.authorizationManager instanceof MethodAuthorizationDeniedHandler handler) {
+				return handler.handleDeniedInvocation(mi, ex);
+			}
+			return this.defaultHandler.handleDeniedInvocation(mi, ex);
+		}
+	}
+
+	private Object handle(MethodInvocation mi, AuthorizationDeniedException denied) {
+		if (this.authorizationManager instanceof MethodAuthorizationDeniedHandler handler) {
+			return handler.handleDeniedInvocation(mi, denied);
+		}
+		return this.defaultHandler.handleDeniedInvocation(mi, denied);
 	}
 
 	private Object handle(MethodInvocation mi, AuthorizationResult decision) {
 		if (this.authorizationManager instanceof MethodAuthorizationDeniedHandler handler) {
-			return handler.handle(mi, decision);
+			return handler.handleDeniedInvocation(mi, decision);
 		}
-		return this.defaultHandler.handle(mi, decision);
+		return this.defaultHandler.handleDeniedInvocation(mi, decision);
 	}
 
 	private Authentication getAuthentication() {

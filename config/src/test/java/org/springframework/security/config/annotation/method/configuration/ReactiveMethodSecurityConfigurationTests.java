@@ -48,7 +48,6 @@ import org.springframework.security.authorization.method.AuthorizationAdvisorPro
 import org.springframework.security.authorization.method.AuthorizationAdvisorProxyFactory.TargetVisitor;
 import org.springframework.security.authorization.method.AuthorizeReturnObject;
 import org.springframework.security.authorization.method.MethodAuthorizationDeniedHandler;
-import org.springframework.security.authorization.method.MethodAuthorizationDeniedPostProcessor;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.core.GrantedAuthorityDefaults;
 import org.springframework.security.config.test.SpringTestContext;
@@ -60,10 +59,10 @@ import org.springframework.security.test.context.support.WithMockUser;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 /**
  * @author Tadaya Tsuyukubo
@@ -227,14 +226,13 @@ public class ReactiveMethodSecurityConfigurationTests {
 		ReactiveMethodSecurityService service = this.spring.getContext().getBean(ReactiveMethodSecurityService.class);
 		MethodAuthorizationDeniedHandler handler = this.spring.getContext()
 			.getBean(MethodAuthorizationDeniedHandler.class);
-		MethodAuthorizationDeniedPostProcessor postProcessor = this.spring.getContext()
-			.getBean(MethodAuthorizationDeniedPostProcessor.class);
 		assertThat(service.checkCustomResult(false).block()).isNull();
-		verify(handler).handle(any(), any(Authz.AuthzResult.class));
-		verifyNoInteractions(postProcessor);
+		verify(handler).handleDeniedInvocation(any(), any(Authz.AuthzResult.class));
+		verify(handler, never()).handleDeniedInvocationResult(any(), any(Authz.AuthzResult.class));
+		clearInvocations(handler);
 		assertThat(service.checkCustomResult(true).block()).isNull();
-		verify(postProcessor).postProcessResult(any(), any(Authz.AuthzResult.class));
-		verifyNoMoreInteractions(handler);
+		verify(handler).handleDeniedInvocationResult(any(), any(Authz.AuthzResult.class));
+		verify(handler, never()).handleDeniedInvocation(any(), any(Authz.AuthzResult.class));
 	}
 
 	private static Consumer<User.UserBuilder> authorities(String... authorities) {
@@ -383,16 +381,9 @@ public class ReactiveMethodSecurityConfigurationTests {
 
 		MethodAuthorizationDeniedHandler handler = mock(MethodAuthorizationDeniedHandler.class);
 
-		MethodAuthorizationDeniedPostProcessor postProcessor = mock(MethodAuthorizationDeniedPostProcessor.class);
-
 		@Bean
 		MethodAuthorizationDeniedHandler methodAuthorizationDeniedHandler() {
 			return this.handler;
-		}
-
-		@Bean
-		MethodAuthorizationDeniedPostProcessor methodAuthorizationDeniedPostProcessor() {
-			return this.postProcessor;
 		}
 
 	}

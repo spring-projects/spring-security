@@ -22,7 +22,6 @@ import reactor.test.StepVerifier;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.test.context.annotation.SecurityTestExecutionListeners;
@@ -74,18 +73,6 @@ public class PrePostReactiveMethodSecurityConfigurationTests {
 	}
 
 	@Test
-	@WithMockUser(roles = "ADMIN")
-	void preAuthorizeWhenHandlerAndAccessDeniedNotThrownFromPreAuthorizeThenNotHandled() {
-		this.spring
-			.register(MethodSecurityServiceEnabledConfig.class, ReactiveMethodSecurityService.StarMaskingHandler.class)
-			.autowire();
-		ReactiveMethodSecurityService service = this.spring.getContext().getBean(ReactiveMethodSecurityService.class);
-		StepVerifier.create(service.preAuthorizeThrowAccessDeniedManually())
-			.expectError(AccessDeniedException.class)
-			.verify();
-	}
-
-	@Test
 	@WithMockUser
 	void preAuthorizeWhenDeniedAndHandlerWithCustomAnnotationThenHandlerCanUseMaskFromOtherAnnotation() {
 		this.spring
@@ -119,9 +106,17 @@ public class PrePostReactiveMethodSecurityConfigurationTests {
 					ReactiveMethodSecurityService.PostMaskingPostProcessor.class)
 			.autowire();
 		ReactiveMethodSecurityService service = this.spring.getContext().getBean(ReactiveMethodSecurityService.class);
-		StepVerifier.create(service.postAuthorizeThrowAccessDeniedManually())
-			.expectError(AccessDeniedException.class)
-			.verify();
+		StepVerifier.create(service.postAuthorizeThrowAccessDeniedManually()).expectNext("***").verifyComplete();
+	}
+
+	@Test
+	@WithMockUser(roles = "ADMIN")
+	void preAuthorizeWhenHandlerAndAccessDeniedNotThrownFromPreAuthorizeThenHandled() {
+		this.spring
+			.register(MethodSecurityServiceEnabledConfig.class, ReactiveMethodSecurityService.StarMaskingHandler.class)
+			.autowire();
+		ReactiveMethodSecurityService service = this.spring.getContext().getBean(ReactiveMethodSecurityService.class);
+		StepVerifier.create(service.preAuthorizeThrowAccessDeniedManually()).expectNext("***").verifyComplete();
 	}
 
 	@Test

@@ -26,6 +26,7 @@ import org.aopalliance.intercept.MethodInvocation;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.publisher.Signal;
 
 import org.springframework.aop.Pointcut;
 import org.springframework.core.KotlinDetector;
@@ -60,7 +61,7 @@ public final class AuthorizationManagerAfterReactiveMethodInterceptor implements
 
 	private int order = AuthorizationInterceptorsOrder.LAST.getOrder();
 
-	private final MethodAuthorizationDeniedPostProcessor defaultPostProcessor = new ThrowingMethodAuthorizationDeniedPostProcessor();
+	private final MethodAuthorizationDeniedHandler defaultHandler = new ThrowingMethodAuthorizationDeniedHandler();
 
 	/**
 	 * Creates an instance for the {@link PostAuthorize} annotation.
@@ -118,27 +119,39 @@ public final class AuthorizationManagerAfterReactiveMethodInterceptor implements
 						+ "(for example, a Mono or Flux) or the function must be a Kotlin coroutine "
 						+ "in order to support Reactor Context");
 		Mono<Authentication> authentication = ReactiveAuthenticationUtils.getAuthentication();
-		Function<Object, Mono<?>> postAuthorize = (result) -> postAuthorize(authentication, mi, result);
+		Function<Signal<?>, Mono<?>> postAuthorize = (signal) -> {
+			if (signal.isOnComplete()) {
+				return Mono.empty();
+			}
+			if (!signal.hasError()) {
+				return postAuthorize(authentication, mi, signal.get());
+			}
+			if (signal.getThrowable() instanceof AuthorizationDeniedException denied) {
+				return postProcess(denied, mi);
+			}
+			return Mono.error(signal.getThrowable());
+		};
 		ReactiveAdapter adapter = ReactiveAdapterRegistry.getSharedInstance().getAdapter(type);
 		if (hasFlowReturnType) {
 			if (isSuspendingFunction) {
 				Publisher<?> publisher = ReactiveMethodInvocationUtils.proceed(mi);
-				return Flux.from(publisher).flatMap(postAuthorize);
+				return Flux.from(publisher).materialize().flatMap(postAuthorize);
 			}
 			else {
 				Assert.state(adapter != null, () -> "The returnType " + type + " on " + method
 						+ " must have a org.springframework.core.ReactiveAdapter registered");
 				Flux<?> response = Flux.defer(() -> adapter.toPublisher(ReactiveMethodInvocationUtils.proceed(mi)))
+					.materialize()
 					.flatMap(postAuthorize);
 				return KotlinDelegate.asFlow(response);
 			}
 		}
 		Publisher<?> publisher = ReactiveMethodInvocationUtils.proceed(mi);
 		if (isMultiValue(type, adapter)) {
-			Flux<?> flux = Flux.from(publisher).flatMap(postAuthorize);
+			Flux<?> flux = Flux.from(publisher).materialize().flatMap(postAuthorize);
 			return (adapter != null) ? adapter.fromPublisher(flux) : flux;
 		}
-		Mono<?> mono = Mono.from(publisher).flatMap(postAuthorize);
+		Mono<?> mono = Mono.from(publisher).materialize().flatMap(postAuthorize);
 		return (adapter != null) ? adapter.fromPublisher(mono) : mono;
 	}
 
@@ -153,17 +166,7 @@ public final class AuthorizationManagerAfterReactiveMethodInterceptor implements
 		MethodInvocationResult invocationResult = new MethodInvocationResult(mi, result);
 		return this.authorizationManager.check(authentication, invocationResult)
 			.switchIfEmpty(Mono.just(new AuthorizationDecision(false)))
-			.materialize()
-			.flatMap((signal) -> {
-				if (!signal.hasError()) {
-					AuthorizationDecision decision = signal.get();
-					return postProcess(decision, invocationResult);
-				}
-				if (signal.getThrowable() instanceof AuthorizationDeniedException denied) {
-					return postProcess(denied, invocationResult);
-				}
-				return Mono.error(signal.getThrowable());
-			});
+			.flatMap((decision) -> postProcess(decision, invocationResult));
 	}
 
 	private Mono<Object> postProcess(AuthorizationResult decision, MethodInvocationResult methodInvocationResult) {
@@ -171,10 +174,24 @@ public final class AuthorizationManagerAfterReactiveMethodInterceptor implements
 			return Mono.just(methodInvocationResult.getResult());
 		}
 		return Mono.fromSupplier(() -> {
-			if (this.authorizationManager instanceof MethodAuthorizationDeniedPostProcessor postProcessableDecision) {
-				return postProcessableDecision.postProcessResult(methodInvocationResult, decision);
+			if (this.authorizationManager instanceof MethodAuthorizationDeniedHandler handler) {
+				return handler.handleDeniedInvocationResult(methodInvocationResult, decision);
 			}
-			return this.defaultPostProcessor.postProcessResult(methodInvocationResult, decision);
+			return this.defaultHandler.handleDeniedInvocationResult(methodInvocationResult, decision);
+		}).flatMap((processedResult) -> {
+			if (Mono.class.isAssignableFrom(processedResult.getClass())) {
+				return (Mono<?>) processedResult;
+			}
+			return Mono.justOrEmpty(processedResult);
+		});
+	}
+
+	private Mono<Object> postProcess(AuthorizationResult decision, MethodInvocation methodInvocation) {
+		return Mono.fromSupplier(() -> {
+			if (this.authorizationManager instanceof MethodAuthorizationDeniedHandler handler) {
+				return handler.handleDeniedInvocation(methodInvocation, decision);
+			}
+			return this.defaultHandler.handleDeniedInvocation(methodInvocation, decision);
 		}).flatMap((processedResult) -> {
 			if (Mono.class.isAssignableFrom(processedResult.getClass())) {
 				return (Mono<?>) processedResult;

@@ -27,13 +27,14 @@ import org.springframework.security.authorization.AuthorizationResult;
  * @author Marcus da Coregio
  * @since 6.3
  * @see org.springframework.security.access.prepost.PreAuthorize
+ * @see org.springframework.security.access.prepost.PostAuthorize
  */
 public interface MethodAuthorizationDeniedHandler {
 
 	/**
 	 * Handle denied method invocations, implementations might either throw an
-	 * {@link org.springframework.security.access.AccessDeniedException} or a replacement
-	 * result instead of invoking the method, e.g. a masked value.
+	 * {@link org.springframework.security.authorization.AuthorizationDeniedException} or
+	 * a replacement result instead of invoking the method, e.g. a masked value.
 	 * @param methodInvocation the {@link MethodInvocation} related to the authorization
 	 * denied
 	 * @param authorizationResult the authorization denied result
@@ -41,6 +42,24 @@ public interface MethodAuthorizationDeniedHandler {
 	 * {@link reactor.core.publisher.Mono} for reactive applications
 	 */
 	@Nullable
-	Object handle(MethodInvocation methodInvocation, AuthorizationResult authorizationResult);
+	Object handleDeniedInvocation(MethodInvocation methodInvocation, AuthorizationResult authorizationResult);
+
+	/**
+	 * Handle denied method invocations, implementations might either throw an
+	 * {@link org.springframework.security.authorization.AuthorizationDeniedException} or
+	 * a replacement result instead of invoking the method, e.g. a masked value. By
+	 * default, this method invokes
+	 * {@link #handleDeniedInvocation(MethodInvocation, AuthorizationResult)}.
+	 * @param methodInvocationResult the object containing the {@link MethodInvocation}
+	 * and the result produced
+	 * @param authorizationResult the authorization denied result
+	 * @return a replacement result for the denied method invocation, or null, or a
+	 * {@link reactor.core.publisher.Mono} for reactive applications
+	 */
+	@Nullable
+	default Object handleDeniedInvocationResult(MethodInvocationResult methodInvocationResult,
+			AuthorizationResult authorizationResult) {
+		return handleDeniedInvocation(methodInvocationResult.getMethodInvocation(), authorizationResult);
+	}
 
 }

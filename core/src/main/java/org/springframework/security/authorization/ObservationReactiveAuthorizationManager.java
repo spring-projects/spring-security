@@ -25,10 +25,8 @@ import reactor.core.publisher.Mono;
 
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authorization.method.MethodAuthorizationDeniedHandler;
-import org.springframework.security.authorization.method.MethodAuthorizationDeniedPostProcessor;
 import org.springframework.security.authorization.method.MethodInvocationResult;
 import org.springframework.security.authorization.method.ThrowingMethodAuthorizationDeniedHandler;
-import org.springframework.security.authorization.method.ThrowingMethodAuthorizationDeniedPostProcessor;
 import org.springframework.security.core.Authentication;
 import org.springframework.util.Assert;
 
@@ -38,8 +36,8 @@ import org.springframework.util.Assert;
  * @author Josh Cummings
  * @since 6.0
  */
-public final class ObservationReactiveAuthorizationManager<T> implements ReactiveAuthorizationManager<T>,
-		MethodAuthorizationDeniedHandler, MethodAuthorizationDeniedPostProcessor {
+public final class ObservationReactiveAuthorizationManager<T>
+		implements ReactiveAuthorizationManager<T>, MethodAuthorizationDeniedHandler {
 
 	private final ObservationRegistry registry;
 
@@ -49,17 +47,12 @@ public final class ObservationReactiveAuthorizationManager<T> implements Reactiv
 
 	private MethodAuthorizationDeniedHandler handler = new ThrowingMethodAuthorizationDeniedHandler();
 
-	private MethodAuthorizationDeniedPostProcessor postProcessor = new ThrowingMethodAuthorizationDeniedPostProcessor();
-
 	public ObservationReactiveAuthorizationManager(ObservationRegistry registry,
 			ReactiveAuthorizationManager<T> delegate) {
 		this.registry = registry;
 		this.delegate = delegate;
 		if (delegate instanceof MethodAuthorizationDeniedHandler h) {
 			this.handler = h;
-		}
-		if (delegate instanceof MethodAuthorizationDeniedPostProcessor p) {
-			this.postProcessor = p;
 		}
 	}
 
@@ -99,14 +92,14 @@ public final class ObservationReactiveAuthorizationManager<T> implements Reactiv
 	}
 
 	@Override
-	public Object handle(MethodInvocation methodInvocation, AuthorizationResult authorizationResult) {
-		return this.handler.handle(methodInvocation, authorizationResult);
+	public Object handleDeniedInvocation(MethodInvocation methodInvocation, AuthorizationResult authorizationResult) {
+		return this.handler.handleDeniedInvocation(methodInvocation, authorizationResult);
 	}
 
 	@Override
-	public Object postProcessResult(MethodInvocationResult methodInvocationResult,
+	public Object handleDeniedInvocationResult(MethodInvocationResult methodInvocationResult,
 			AuthorizationResult authorizationResult) {
-		return this.postProcessor.postProcessResult(methodInvocationResult, authorizationResult);
+		return this.handler.handleDeniedInvocationResult(methodInvocationResult, authorizationResult);
 	}
 
 }

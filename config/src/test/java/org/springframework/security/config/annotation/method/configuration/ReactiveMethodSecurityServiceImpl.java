@@ -18,7 +18,8 @@ package org.springframework.security.config.annotation.method.configuration;
 
 import reactor.core.publisher.Mono;
 
-import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authorization.AuthorizationDecision;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 
 public class ReactiveMethodSecurityServiceImpl implements ReactiveMethodSecurityService {
 
@@ -34,7 +35,7 @@ public class ReactiveMethodSecurityServiceImpl implements ReactiveMethodSecurity
 
 	@Override
 	public Mono<String> preAuthorizeThrowAccessDeniedManually() {
-		return Mono.error(new AccessDeniedException("Access Denied"));
+		return Mono.error(new AuthorizationDeniedException("Access Denied", new AuthorizationDecision(false)));
 	}
 
 	@Override
@@ -44,7 +45,7 @@ public class ReactiveMethodSecurityServiceImpl implements ReactiveMethodSecurity
 
 	@Override
 	public Mono<String> postAuthorizeThrowAccessDeniedManually() {
-		return Mono.error(new AccessDeniedException("Access Denied"));
+		return Mono.error(new AuthorizationDeniedException("Access Denied", new AuthorizationDecision(false)));
 	}
 
 	@Override

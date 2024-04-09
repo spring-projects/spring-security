@@ -33,7 +33,6 @@ import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.authorization.AuthorizationEventPublisher;
 import org.springframework.security.authorization.AuthorizationManager;
-import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
@@ -57,7 +56,7 @@ public final class AuthorizationManagerAfterMethodInterceptor implements Authori
 
 	private final AuthorizationManager<MethodInvocationResult> authorizationManager;
 
-	private final MethodAuthorizationDeniedPostProcessor defaultPostProcessor = new ThrowingMethodAuthorizationDeniedPostProcessor();
+	private final MethodAuthorizationDeniedHandler defaultHandler = new ThrowingMethodAuthorizationDeniedHandler();
 
 	private int order;
 
@@ -119,7 +118,16 @@ public final class AuthorizationManagerAfterMethodInterceptor implements Authori
 	 */
 	@Override
 	public Object invoke(MethodInvocation mi) throws Throwable {
-		Object result = mi.proceed();
+		Object result;
+		try {
+			result = mi.proceed();
+		}
+		catch (AuthorizationDeniedException ex) {
+			if (this.authorizationManager instanceof MethodAuthorizationDeniedHandler handler) {
+				return handler.handleDeniedInvocation(mi, ex);
+			}
+			return this.defaultHandler.handleDeniedInvocation(mi, ex);
+		}
 		return attemptAuthorization(mi, result);
 	}
 
@@ -174,28 +182,22 @@ public final class AuthorizationManagerAfterMethodInterceptor implements Authori
 	private Object attemptAuthorization(MethodInvocation mi, Object result) {
 		this.logger.debug(LogMessage.of(() -> "Authorizing method invocation " + mi));
 		MethodInvocationResult object = new MethodInvocationResult(mi, result);
-		AuthorizationDecision decision;
-		try {
-			decision = this.authorizationManager.check(this::getAuthentication, object);
-		}
-		catch (AuthorizationDeniedException denied) {
-			return postProcess(object, denied);
-		}
+		AuthorizationDecision decision = this.authorizationManager.check(this::getAuthentication, object);
 		this.eventPublisher.publishAuthorizationEvent(this::getAuthentication, object, decision);
 		if (decision != null && !decision.isGranted()) {
 			this.logger.debug(LogMessage.of(() -> "Failed to authorize " + mi + " with authorization manager "
 					+ this.authorizationManager + " and decision " + decision));
-			return postProcess(object, decision);
+			return handlePostInvocationDenied(object, decision);
 		}
 		this.logger.debug(LogMessage.of(() -> "Authorized method invocation " + mi));
 		return result;
 	}
 
-	private Object postProcess(MethodInvocationResult mi, AuthorizationResult decision) {
-		if (this.authorizationManager instanceof MethodAuthorizationDeniedPostProcessor postProcessableDecision) {
-			return postProcessableDecision.postProcessResult(mi, decision);
+	private Object handlePostInvocationDenied(MethodInvocationResult mi, AuthorizationDecision decision) {
+		if (this.authorizationManager instanceof MethodAuthorizationDeniedHandler deniedHandler) {
+			return deniedHandler.handleDeniedInvocationResult(mi, decision);
 		}
-		return this.defaultPostProcessor.postProcessResult(mi, decision);
+		return this.defaultHandler.handleDeniedInvocationResult(mi, decision);
 	}
 
 	private Authentication getAuthentication() {

@@ -142,19 +142,12 @@ public final class AuthorizationManagerBeforeReactiveMethodInterceptor implement
 		Mono<Authentication> authentication = ReactiveAuthenticationUtils.getAuthentication();
 		return this.authorizationManager.check(authentication, mi)
 			.switchIfEmpty(Mono.just(new AuthorizationDecision(false)))
-			.materialize()
-			.flatMapMany((signal) -> {
-				if (!signal.hasError()) {
-					AuthorizationDecision decision = signal.get();
-					if (decision.isGranted()) {
-						return mapping;
-					}
-					return postProcess(decision, mi);
+			.flatMapMany((decision) -> {
+				if (decision.isGranted()) {
+					return mapping.onErrorResume(AuthorizationDeniedException.class,
+							(deniedEx) -> postProcess(deniedEx, mi));
 				}
-				if (signal.getThrowable() instanceof AuthorizationDeniedException denied) {
-					return postProcess(denied, mi);
-				}
-				return Mono.error(signal.getThrowable());
+				return postProcess(decision, mi);
 			});
 	}
 
@@ -162,28 +155,21 @@ public final class AuthorizationManagerBeforeReactiveMethodInterceptor implement
 		Mono<Authentication> authentication = ReactiveAuthenticationUtils.getAuthentication();
 		return this.authorizationManager.check(authentication, mi)
 			.switchIfEmpty(Mono.just(new AuthorizationDecision(false)))
-			.materialize()
-			.flatMap((signal) -> {
-				if (!signal.hasError()) {
-					AuthorizationDecision decision = signal.get();
-					if (decision.isGranted()) {
-						return mapping;
-					}
-					return postProcess(decision, mi);
+			.flatMap((decision) -> {
+				if (decision.isGranted()) {
+					return mapping.onErrorResume(AuthorizationDeniedException.class,
+							(deniedEx) -> postProcess(deniedEx, mi));
 				}
-				if (signal.getThrowable() instanceof AuthorizationDeniedException denied) {
-					return postProcess(denied, mi);
-				}
-				return Mono.error(signal.getThrowable());
+				return postProcess(decision, mi);
 			});
 	}
 
 	private Mono<Object> postProcess(AuthorizationResult decision, MethodInvocation mi) {
 		return Mono.fromSupplier(() -> {
 			if (this.authorizationManager instanceof MethodAuthorizationDeniedHandler handler) {
-				return handler.handle(mi, decision);
+				return handler.handleDeniedInvocation(mi, decision);
 			}
-			return this.defaultHandler.handle(mi, decision);
+			return this.defaultHandler.handleDeniedInvocation(mi, decision);
 		}).flatMap((result) -> {
 			if (Mono.class.isAssignableFrom(result.getClass())) {
 				return (Mono<?>) result;

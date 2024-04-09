@@ -38,7 +38,7 @@ import org.springframework.util.Assert;
  * @since 5.8
  */
 public final class PostAuthorizeReactiveAuthorizationManager
-		implements ReactiveAuthorizationManager<MethodInvocationResult>, MethodAuthorizationDeniedPostProcessor {
+		implements ReactiveAuthorizationManager<MethodInvocationResult>, MethodAuthorizationDeniedHandler {
 
 	private final PostAuthorizeExpressionAttributeRegistry registry = new PostAuthorizeExpressionAttributeRegistry();
 
@@ -95,11 +95,19 @@ public final class PostAuthorizeReactiveAuthorizationManager
 	}
 
 	@Override
-	public Object postProcessResult(MethodInvocationResult methodInvocationResult,
+	public Object handleDeniedInvocation(MethodInvocation methodInvocation, AuthorizationResult authorizationResult) {
+		ExpressionAttribute attribute = this.registry.getAttribute(methodInvocation);
+		PostAuthorizeExpressionAttribute postAuthorizeAttribute = (PostAuthorizeExpressionAttribute) attribute;
+		return postAuthorizeAttribute.getHandler().handleDeniedInvocation(methodInvocation, authorizationResult);
+	}
+
+	@Override
+	public Object handleDeniedInvocationResult(MethodInvocationResult methodInvocationResult,
 			AuthorizationResult authorizationResult) {
 		ExpressionAttribute attribute = this.registry.getAttribute(methodInvocationResult.getMethodInvocation());
 		PostAuthorizeExpressionAttribute postAuthorizeAttribute = (PostAuthorizeExpressionAttribute) attribute;
-		return postAuthorizeAttribute.getPostProcessor().postProcessResult(methodInvocationResult, authorizationResult);
+		return postAuthorizeAttribute.getHandler()
+			.handleDeniedInvocationResult(methodInvocationResult, authorizationResult);
 	}
 
 }

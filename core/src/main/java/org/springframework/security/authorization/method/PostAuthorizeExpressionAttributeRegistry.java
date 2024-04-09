@@ -38,12 +38,12 @@ import org.springframework.util.Assert;
  */
 final class PostAuthorizeExpressionAttributeRegistry extends AbstractExpressionAttributeRegistry<ExpressionAttribute> {
 
-	private final MethodAuthorizationDeniedPostProcessor defaultPostProcessor = new ThrowingMethodAuthorizationDeniedPostProcessor();
+	private final MethodAuthorizationDeniedHandler defaultHandler = new ThrowingMethodAuthorizationDeniedHandler();
 
-	private Function<Class<? extends MethodAuthorizationDeniedPostProcessor>, MethodAuthorizationDeniedPostProcessor> postProcessorResolver;
+	private Function<Class<? extends MethodAuthorizationDeniedHandler>, MethodAuthorizationDeniedHandler> handlerResolver;
 
 	PostAuthorizeExpressionAttributeRegistry() {
-		this.postProcessorResolver = (clazz) -> this.defaultPostProcessor;
+		this.handlerResolver = (clazz) -> this.defaultHandler;
 	}
 
 	@NonNull
@@ -55,22 +55,22 @@ final class PostAuthorizeExpressionAttributeRegistry extends AbstractExpressionA
 			return ExpressionAttribute.NULL_ATTRIBUTE;
 		}
 		Expression expression = getExpressionHandler().getExpressionParser().parseExpression(postAuthorize.value());
-		MethodAuthorizationDeniedPostProcessor postProcessor = resolvePostProcessor(method, targetClass);
-		return new PostAuthorizeExpressionAttribute(expression, postProcessor);
+		MethodAuthorizationDeniedHandler deniedHandler = resolveHandler(method, targetClass);
+		return new PostAuthorizeExpressionAttribute(expression, deniedHandler);
 	}
 
-	private MethodAuthorizationDeniedPostProcessor resolvePostProcessor(Method method, Class<?> targetClass) {
-		Function<AnnotatedElement, AuthorizationDeniedHandler> lookup = AuthorizationAnnotationUtils
-			.withDefaults(AuthorizationDeniedHandler.class);
-		AuthorizationDeniedHandler deniedHandler = lookup.apply(method);
+	private MethodAuthorizationDeniedHandler resolveHandler(Method method, Class<?> targetClass) {
+		Function<AnnotatedElement, HandleAuthorizationDenied> lookup = AuthorizationAnnotationUtils
+			.withDefaults(HandleAuthorizationDenied.class);
+		HandleAuthorizationDenied deniedHandler = lookup.apply(method);
 		if (deniedHandler != null) {
-			return this.postProcessorResolver.apply(deniedHandler.postProcessorClass());
+			return this.handlerResolver.apply(deniedHandler.handlerClass());
 		}
 		deniedHandler = lookup.apply(targetClass(method, targetClass));
 		if (deniedHandler != null) {
-			return this.postProcessorResolver.apply(deniedHandler.postProcessorClass());
+			return this.handlerResolver.apply(deniedHandler.handlerClass());
 		}
-		return this.defaultPostProcessor;
+		return this.defaultHandler;
 	}
 
 	private PostAuthorize findPostAuthorizeAnnotation(Method method, Class<?> targetClass) {
@@ -86,23 +86,23 @@ final class PostAuthorizeExpressionAttributeRegistry extends AbstractExpressionA
 	 */
 	void setApplicationContext(ApplicationContext context) {
 		Assert.notNull(context, "context cannot be null");
-		this.postProcessorResolver = (postProcessorClass) -> resolvePostProcessor(context, postProcessorClass);
+		this.handlerResolver = (clazz) -> resolveHandler(context, clazz);
 	}
 
-	private MethodAuthorizationDeniedPostProcessor resolvePostProcessor(ApplicationContext context,
-			Class<? extends MethodAuthorizationDeniedPostProcessor> postProcessorClass) {
-		if (postProcessorClass == this.defaultPostProcessor.getClass()) {
-			return this.defaultPostProcessor;
+	private MethodAuthorizationDeniedHandler resolveHandler(ApplicationContext context,
+			Class<? extends MethodAuthorizationDeniedHandler> handlerClass) {
+		if (handlerClass == this.defaultHandler.getClass()) {
+			return this.defaultHandler;
 		}
-		String[] beanNames = context.getBeanNamesForType(postProcessorClass);
+		String[] beanNames = context.getBeanNamesForType(handlerClass);
 		if (beanNames.length == 0) {
-			throw new IllegalStateException("Could not find a bean of type " + postProcessorClass.getName());
+			throw new IllegalStateException("Could not find a bean of type " + handlerClass.getName());
 		}
 		if (beanNames.length > 1) {
-			throw new IllegalStateException("Expected to find a single bean of type " + postProcessorClass.getName()
+			throw new IllegalStateException("Expected to find a single bean of type " + handlerClass.getName()
 					+ " but found " + Arrays.toString(beanNames));
 		}
-		return context.getBean(beanNames[0], postProcessorClass);
+		return context.getBean(beanNames[0], handlerClass);
 	}
 
 }

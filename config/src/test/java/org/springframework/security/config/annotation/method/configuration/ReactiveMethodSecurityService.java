@@ -33,9 +33,8 @@ import org.springframework.security.access.expression.method.DefaultMethodSecuri
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authorization.AuthorizationResult;
-import org.springframework.security.authorization.method.AuthorizationDeniedHandler;
+import org.springframework.security.authorization.method.HandleAuthorizationDenied;
 import org.springframework.security.authorization.method.MethodAuthorizationDeniedHandler;
-import org.springframework.security.authorization.method.MethodAuthorizationDeniedPostProcessor;
 import org.springframework.security.authorization.method.MethodInvocationResult;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
@@ -47,32 +46,32 @@ import org.springframework.util.StringUtils;
 public interface ReactiveMethodSecurityService {
 
 	@PreAuthorize("hasRole('ADMIN')")
-	@AuthorizationDeniedHandler(handlerClass = StarMaskingHandler.class)
+	@HandleAuthorizationDenied(handlerClass = StarMaskingHandler.class)
 	Mono<String> preAuthorizeGetCardNumberIfAdmin(String cardNumber);
 
 	@PreAuthorize("hasRole('ADMIN')")
-	@AuthorizationDeniedHandler(handlerClass = StartMaskingHandlerChild.class)
+	@HandleAuthorizationDenied(handlerClass = StartMaskingHandlerChild.class)
 	Mono<String> preAuthorizeWithHandlerChildGetCardNumberIfAdmin(String cardNumber);
 
 	@PreAuthorize("hasRole('ADMIN')")
-	@AuthorizationDeniedHandler(handlerClass = StarMaskingHandler.class)
+	@HandleAuthorizationDenied(handlerClass = StarMaskingHandler.class)
 	Mono<String> preAuthorizeThrowAccessDeniedManually();
 
 	@PostAuthorize("hasRole('ADMIN')")
-	@AuthorizationDeniedHandler(postProcessorClass = CardNumberMaskingPostProcessor.class)
+	@HandleAuthorizationDenied(handlerClass = CardNumberMaskingPostProcessor.class)
 	Mono<String> postAuthorizeGetCardNumberIfAdmin(String cardNumber);
 
 	@PostAuthorize("hasRole('ADMIN')")
-	@AuthorizationDeniedHandler(postProcessorClass = PostMaskingPostProcessor.class)
+	@HandleAuthorizationDenied(handlerClass = PostMaskingPostProcessor.class)
 	Mono<String> postAuthorizeThrowAccessDeniedManually();
 
 	@PreAuthorize("denyAll()")
 	@Mask("methodmask")
-	@AuthorizationDeniedHandler(handlerClass = MaskAnnotationHandler.class)
+	@HandleAuthorizationDenied(handlerClass = MaskAnnotationHandler.class)
 	Mono<String> preAuthorizeDeniedMethodWithMaskAnnotation();
 
 	@PreAuthorize("denyAll()")
-	@AuthorizationDeniedHandler(handlerClass = MaskAnnotationHandler.class)
+	@HandleAuthorizationDenied(handlerClass = MaskAnnotationHandler.class)
 	Mono<String> preAuthorizeDeniedMethodWithNoMaskAnnotation();
 
 	@NullDenied(role = "ADMIN")
@@ -80,33 +79,32 @@ public interface ReactiveMethodSecurityService {
 
 	@PostAuthorize("denyAll()")
 	@Mask("methodmask")
-	@AuthorizationDeniedHandler(postProcessorClass = MaskAnnotationPostProcessor.class)
+	@HandleAuthorizationDenied(handlerClass = MaskAnnotationPostProcessor.class)
 	Mono<String> postAuthorizeDeniedMethodWithMaskAnnotation();
 
 	@PostAuthorize("denyAll()")
-	@AuthorizationDeniedHandler(postProcessorClass = MaskAnnotationPostProcessor.class)
+	@HandleAuthorizationDenied(handlerClass = MaskAnnotationPostProcessor.class)
 	Mono<String> postAuthorizeDeniedMethodWithNoMaskAnnotation();
 
 	@PreAuthorize("hasRole('ADMIN')")
 	@Mask(expression = "@myMasker.getMask()")
-	@AuthorizationDeniedHandler(handlerClass = MaskAnnotationHandler.class)
+	@HandleAuthorizationDenied(handlerClass = MaskAnnotationHandler.class)
 	Mono<String> preAuthorizeWithMaskAnnotationUsingBean();
 
 	@PostAuthorize("hasRole('ADMIN')")
 	@Mask(expression = "@myMasker.getMask(returnObject)")
-	@AuthorizationDeniedHandler(postProcessorClass = MaskAnnotationPostProcessor.class)
+	@HandleAuthorizationDenied(handlerClass = MaskAnnotationPostProcessor.class)
 	Mono<String> postAuthorizeWithMaskAnnotationUsingBean();
 
 	@PreAuthorize("@authz.checkReactiveResult(#result)")
 	@PostAuthorize("@authz.checkReactiveResult(!#result)")
-	@AuthorizationDeniedHandler(handlerClass = MethodAuthorizationDeniedHandler.class,
-			postProcessorClass = MethodAuthorizationDeniedPostProcessor.class)
+	@HandleAuthorizationDenied(handlerClass = MethodAuthorizationDeniedHandler.class)
 	Mono<String> checkCustomResult(boolean result);
 
 	class StarMaskingHandler implements MethodAuthorizationDeniedHandler {
 
 		@Override
-		public Object handle(MethodInvocation methodInvocation, AuthorizationResult result) {
+		public Object handleDeniedInvocation(MethodInvocation methodInvocation, AuthorizationResult result) {
 			return "***";
 		}
 
@@ -115,8 +113,8 @@ public interface ReactiveMethodSecurityService {
 	class StartMaskingHandlerChild extends StarMaskingHandler {
 
 		@Override
-		public Object handle(MethodInvocation methodInvocation, AuthorizationResult result) {
-			return super.handle(methodInvocation, result) + "-child";
+		public Object handleDeniedInvocation(MethodInvocation methodInvocation, AuthorizationResult result) {
+			return super.handleDeniedInvocation(methodInvocation, result) + "-child";
 		}
 
 	}
@@ -130,7 +128,7 @@ public interface ReactiveMethodSecurityService {
 		}
 
 		@Override
-		public Object handle(MethodInvocation methodInvocation, AuthorizationResult result) {
+		public Object handleDeniedInvocation(MethodInvocation methodInvocation, AuthorizationResult result) {
 			Mask mask = AnnotationUtils.getAnnotation(methodInvocation.getMethod(), Mask.class);
 			if (mask == null) {
 				mask = AnnotationUtils.getAnnotation(methodInvocation.getMethod().getDeclaringClass(), Mask.class);
@@ -140,7 +138,7 @@ public interface ReactiveMethodSecurityService {
 
 	}
 
-	class MaskAnnotationPostProcessor implements MethodAuthorizationDeniedPostProcessor {
+	class MaskAnnotationPostProcessor implements MethodAuthorizationDeniedHandler {
 
 		MaskValueResolver maskValueResolver;
 
@@ -149,7 +147,16 @@ public interface ReactiveMethodSecurityService {
 		}
 
 		@Override
-		public Object postProcessResult(MethodInvocationResult methodInvocationResult,
+		public Object handleDeniedInvocation(MethodInvocation mi, AuthorizationResult authorizationResult) {
+			Mask mask = AnnotationUtils.getAnnotation(mi.getMethod(), Mask.class);
+			if (mask == null) {
+				mask = AnnotationUtils.getAnnotation(mi.getMethod().getDeclaringClass(), Mask.class);
+			}
+			return this.maskValueResolver.resolveValue(mask, mi, null);
+		}
+
+		@Override
+		public Object handleDeniedInvocationResult(MethodInvocationResult methodInvocationResult,
 				AuthorizationResult authorizationResult) {
 			MethodInvocation mi = methodInvocationResult.getMethodInvocation();
 			Mask mask = AnnotationUtils.getAnnotation(mi.getMethod(), Mask.class);
@@ -185,31 +192,38 @@ public interface ReactiveMethodSecurityService {
 
 	}
 
-	class PostMaskingPostProcessor implements MethodAuthorizationDeniedPostProcessor {
+	class PostMaskingPostProcessor implements MethodAuthorizationDeniedHandler {
 
 		@Override
-		public Object postProcessResult(MethodInvocationResult contextObject, AuthorizationResult result) {
+		public Object handleDeniedInvocation(MethodInvocation methodInvocation,
+				AuthorizationResult authorizationResult) {
 			return "***";
 		}
 
 	}
 
-	class CardNumberMaskingPostProcessor implements MethodAuthorizationDeniedPostProcessor {
+	class CardNumberMaskingPostProcessor implements MethodAuthorizationDeniedHandler {
 
 		static String MASK = "****-****-****-";
 
 		@Override
-		public Object postProcessResult(MethodInvocationResult contextObject, AuthorizationResult result) {
+		public Object handleDeniedInvocation(MethodInvocation methodInvocation,
+				AuthorizationResult authorizationResult) {
+			return "***";
+		}
+
+		@Override
+		public Object handleDeniedInvocationResult(MethodInvocationResult contextObject, AuthorizationResult result) {
 			String cardNumber = (String) contextObject.getResult();
 			return MASK + cardNumber.substring(cardNumber.length() - 4);
 		}
 
 	}
 
-	class NullPostProcessor implements MethodAuthorizationDeniedPostProcessor {
+	class NullPostProcessor implements MethodAuthorizationDeniedHandler {
 
 		@Override
-		public Object postProcessResult(MethodInvocationResult methodInvocationResult,
+		public Object handleDeniedInvocation(MethodInvocation methodInvocation,
 				AuthorizationResult authorizationResult) {
 			return null;
 		}
@@ -231,7 +245,7 @@ public interface ReactiveMethodSecurityService {
 	@Retention(RetentionPolicy.RUNTIME)
 	@Inherited
 	@PostAuthorize("hasRole('{value}')")
-	@AuthorizationDeniedHandler(postProcessorClass = NullPostProcessor.class)
+	@HandleAuthorizationDenied(handlerClass = NullPostProcessor.class)
 	@interface NullDenied {
 
 		String role();

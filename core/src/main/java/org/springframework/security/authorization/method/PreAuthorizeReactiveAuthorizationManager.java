@@ -90,10 +90,10 @@ public final class PreAuthorizeReactiveAuthorizationManager
 	}
 
 	@Override
-	public Object handle(MethodInvocation methodInvocation, AuthorizationResult authorizationResult) {
+	public Object handleDeniedInvocation(MethodInvocation methodInvocation, AuthorizationResult authorizationResult) {
 		ExpressionAttribute attribute = this.registry.getAttribute(methodInvocation);
 		PreAuthorizeExpressionAttribute preAuthorizeAttribute = (PreAuthorizeExpressionAttribute) attribute;
-		return preAuthorizeAttribute.getHandler().handle(methodInvocation, authorizationResult);
+		return preAuthorizeAttribute.getHandler().handleDeniedInvocation(methodInvocation, authorizationResult);
 	}
 
 }

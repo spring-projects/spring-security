@@ -18,7 +18,8 @@ package org.springframework.security.config.annotation.method.configuration;
 
 import java.util.List;
 
-import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authorization.AuthorizationDecision;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -144,12 +145,12 @@ public class MethodSecurityServiceImpl implements MethodSecurityService {
 
 	@Override
 	public String preAuthorizeThrowAccessDeniedManually() {
-		throw new AccessDeniedException("Access Denied");
+		throw new AuthorizationDeniedException("Access Denied", new AuthorizationDecision(false));
 	}
 
 	@Override
 	public String postAuthorizeThrowAccessDeniedManually() {
-		throw new AccessDeniedException("Access Denied");
+		throw new AuthorizationDeniedException("Access Denied", new AuthorizationDecision(false));
 	}
 
 	@Override
