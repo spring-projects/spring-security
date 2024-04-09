@@ -61,7 +61,7 @@ public final class DelegatingServerAuthenticationConverter implements ServerAuth
 	}
 
 	/**
-	 * Continue iterating when a delegate errors, defaults to {@code true}
+	 * Continue iterating when a delegate errors, defaults to {@code false}
 	 * @param continueOnError whether to continue when a delegate errors
 	 * @since 6.3
 	 */
