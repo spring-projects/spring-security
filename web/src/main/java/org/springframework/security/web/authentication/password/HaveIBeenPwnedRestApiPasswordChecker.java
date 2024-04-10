@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.core.password;
+package org.springframework.security.web.authentication.password;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -24,8 +24,10 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.jetbrains.annotations.NotNull;
 
+import org.springframework.lang.NonNull;
+import org.springframework.security.authentication.password.CompromisedPasswordCheckResult;
+import org.springframework.security.authentication.password.CompromisedPasswordChecker;
 import org.springframework.security.crypto.codec.Hex;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -58,7 +60,7 @@ public final class HaveIBeenPwnedRestApiPasswordChecker implements CompromisedPa
 	}
 
 	@Override
-	@NotNull
+	@NonNull
 	public CompromisedPasswordCheckResult check(String password) {
 		byte[] hash = this.sha1Digest.digest(password.getBytes(StandardCharsets.UTF_8));
 		String encoded = new String(Hex.encode(hash)).toUpperCase();

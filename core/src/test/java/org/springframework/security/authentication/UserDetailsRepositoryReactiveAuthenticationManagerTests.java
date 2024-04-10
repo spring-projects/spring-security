@@ -27,10 +27,10 @@ import reactor.core.scheduler.Schedulers;
 import reactor.test.StepVerifier;
 
 import org.springframework.context.MessageSource;
+import org.springframework.security.authentication.password.CompromisedPasswordCheckResult;
+import org.springframework.security.authentication.password.CompromisedPasswordException;
+import org.springframework.security.authentication.password.ReactiveCompromisedPasswordChecker;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.password.CompromisedPasswordCheckResult;
-import org.springframework.security.core.password.CompromisedPasswordException;
-import org.springframework.security.core.password.ReactiveCompromisedPasswordChecker;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsPasswordService;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.User;

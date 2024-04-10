@@ -18,8 +18,6 @@ dependencies {
 	optional 'org.aspectj:aspectjrt'
 	optional 'org.springframework:spring-jdbc'
 	optional 'org.springframework:spring-tx'
-	optional 'org.springframework:spring-web'
-	optional 'org.springframework:spring-webflux'
 	optional 'org.jetbrains.kotlinx:kotlinx-coroutines-reactor'
 
 	testImplementation 'commons-collections:commons-collections'
@@ -33,7 +31,6 @@ dependencies {
 	testImplementation "org.springframework:spring-test"
 	testImplementation 'org.skyscreamer:jsonassert'
 	testImplementation 'org.springframework:spring-test'
-	testImplementation 'com.squareup.okhttp3:mockwebserver'
 
 	testRuntimeOnly 'org.hsqldb:hsqldb'
 }

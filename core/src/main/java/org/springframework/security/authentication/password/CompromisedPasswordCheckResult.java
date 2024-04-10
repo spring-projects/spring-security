@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.core.password;
+package org.springframework.security.authentication.password;
 
 public class CompromisedPasswordCheckResult {
 

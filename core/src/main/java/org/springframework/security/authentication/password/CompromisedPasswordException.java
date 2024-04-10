@@ -14,23 +14,24 @@
  * limitations under the License.
  */
 
-package org.springframework.security.core.password;
+package org.springframework.security.authentication.password;
 
-import reactor.core.publisher.Mono;
+import org.springframework.security.core.AuthenticationException;
 
 /**
- * A Reactive API for checking if a password has been compromised.
+ * Indicates that the provided password is compromised
  *
  * @author Marcus da Coregio
  * @since 6.3
  */
-public interface ReactiveCompromisedPasswordChecker {
+public class CompromisedPasswordException extends AuthenticationException {
 
-	/**
-	 * Check whether the password is compromised
-	 * @param password the password to check
-	 * @return a {@link Mono} containing the {@link CompromisedPasswordCheckResult}
-	 */
-	Mono<CompromisedPasswordCheckResult> check(String password);
+	public CompromisedPasswordException(String message) {
+		super(message);
+	}
+
+	public CompromisedPasswordException(String message, Throwable cause) {
+		super(message, cause);
+	}
 
 }

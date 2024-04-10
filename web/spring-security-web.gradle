@@ -36,6 +36,7 @@ dependencies {
 	testImplementation "org.mockito:mockito-core"
 	testImplementation "org.mockito:mockito-junit-jupiter"
 	testImplementation "org.springframework:spring-test"
+	testImplementation 'com.squareup.okhttp3:mockwebserver'
 
 	testRuntimeOnly 'org.hsqldb:hsqldb'
 }
