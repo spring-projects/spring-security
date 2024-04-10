@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,7 +49,6 @@ import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoderFactory;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
-import org.springframework.web.reactive.function.client.WebClient;
 
 /**
  * A {@link ReactiveJwtDecoderFactory factory} that provides a {@link ReactiveJwtDecoder}
@@ -90,8 +89,6 @@ public final class ReactiveOidcIdTokenDecoderFactory implements ReactiveJwtDecod
 
 	private Function<ClientRegistration, Converter<Map<String, Object>, Map<String, Object>>> claimTypeConverterFactory = (
 			clientRegistration) -> DEFAULT_CLAIM_TYPE_CONVERTER;
-
-	private Function<ClientRegistration, WebClient> webClientFactory = (clientRegistration) -> WebClient.create();
 
 	/**
 	 * Returns the default {@link Converter}'s used for type conversion of claim values
@@ -169,7 +166,6 @@ public final class ReactiveOidcIdTokenDecoderFactory implements ReactiveJwtDecod
 			}
 			return NimbusReactiveJwtDecoder.withJwkSetUri(jwkSetUri)
 				.jwsAlgorithm((SignatureAlgorithm) jwsAlgorithm)
-				.webClient(this.webClientFactory.apply(clientRegistration))
 				.build();
 		}
 		if (jwsAlgorithm != null && MacAlgorithm.class.isAssignableFrom(jwsAlgorithm.getClass())) {
@@ -244,21 +240,6 @@ public final class ReactiveOidcIdTokenDecoderFactory implements ReactiveJwtDecod
 			Function<ClientRegistration, Converter<Map<String, Object>, Map<String, Object>>> claimTypeConverterFactory) {
 		Assert.notNull(claimTypeConverterFactory, "claimTypeConverterFactory cannot be null");
 		this.claimTypeConverterFactory = claimTypeConverterFactory;
-	}
-
-	/**
-	 * Sets the factory that provides a {@link WebClient} used by
-	 * {@link NimbusReactiveJwtDecoder} to coordinate with the authorization servers
-	 * indicated in the <a href="https://tools.ietf.org/html/rfc7517#section-5">JWK
-	 * Set</a> uri.
-	 * @param webClientFactory the factory that provides a {@link WebClient} used by
-	 * {@link NimbusReactiveJwtDecoder}
-	 *
-	 * @since 6.3
-	 */
-	public void setWebClientFactory(Function<ClientRegistration, WebClient> webClientFactory) {
-		Assert.notNull(webClientFactory, "webClientFactory cannot be null");
-		this.webClientFactory = webClientFactory;
 	}
 
 }
