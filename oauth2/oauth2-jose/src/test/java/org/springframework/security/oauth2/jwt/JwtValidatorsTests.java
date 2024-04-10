@@ -46,6 +46,7 @@ public class JwtValidatorsTests {
 
 		assertThat(containsByType(validator, JwtIssuerValidator.class)).isTrue();
 		assertThat(containsByType(validator, JwtTimestampValidator.class)).isTrue();
+		assertThat(containsByType(validator, X509CertificateThumbprintValidator.class)).isTrue();
 	}
 
 	@Test
@@ -58,7 +59,8 @@ public class JwtValidatorsTests {
 			.getField(delegatingOAuth2TokenValidator, "tokenValidators");
 
 		assertThat(containsByType(validator, JwtTimestampValidator.class)).isTrue();
-		assertThat(Objects.requireNonNull(tokenValidators).size()).isEqualTo(1);
+		assertThat(containsByType(validator, X509CertificateThumbprintValidator.class)).isTrue();
+		assertThat(Objects.requireNonNull(tokenValidators).size()).isEqualTo(2);
 	}
 
 	@Test

@@ -10,6 +10,9 @@ dependencies {
 	optional 'io.projectreactor:reactor-core'
 	optional 'org.springframework:spring-webflux'
 
+	testImplementation "org.bouncycastle:bcpkix-jdk15on"
+	testImplementation "org.bouncycastle:bcprov-jdk15on"
+	testImplementation "jakarta.servlet:jakarta.servlet-api"
 	testImplementation 'com.squareup.okhttp3:mockwebserver'
 	testImplementation 'io.projectreactor.netty:reactor-netty'
 	testImplementation 'com.fasterxml.jackson.core:jackson-databind'
