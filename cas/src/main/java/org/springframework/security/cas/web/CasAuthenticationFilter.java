@@ -62,14 +62,14 @@ import org.springframework.util.StringUtils;
  * <h2>Service Tickets</h2>
  * <p>
  * A service ticket consists of an opaque ticket string. It arrives at this filter by the
- * user's browser successfully authenticating using CAS, and then receiving a HTTP
+ * user's browser successfully authenticating using CAS, and then receiving an HTTP
  * redirect to a <code>service</code>. The opaque ticket string is presented in the
  * <code>ticket</code> request parameter.
  * <p>
- * This filter monitors the <code>service</code> URL so it can receive the service ticket
- * and process it. By default this filter processes the URL <tt>/login/cas</tt>. When
- * processing this URL, the value of {@link ServiceProperties#getService()} is used as the
- * <tt>service</tt> when validating the <code>ticket</code>. This means that it is
+ * This filter monitors the <code>service</code> URL so that it can receive the service
+ * ticket and process it. By default, this filter processes the URL <tt>/login/cas</tt>.
+ * When processing this URL, the value of {@link ServiceProperties#getService()} is used
+ * as the <tt>service</tt> when validating the <code>ticket</code>. This means that it is
  * important that {@link ServiceProperties#getService()} specifies the same value as the
  * <tt>filterProcessesUrl</tt>.
  * <p>
@@ -80,22 +80,22 @@ import org.springframework.util.StringUtils;
  * <h2>Obtaining Proxy Granting Tickets</h2>
  * <p>
  * If specified, the filter can also monitor the <code>proxyReceptorUrl</code>. The filter
- * will respond to requests matching this url so that the CAS Server can provide a PGT to
- * the filter. Note that in addition to the <code>proxyReceptorUrl</code> a non-null
+ * will respond to the requests matching this url so that the CAS Server can provide a PGT
+ * to the filter. Note that in addition to the <code>proxyReceptorUrl</code> a non-null
  * <code>proxyGrantingTicketStorage</code> must be provided in order for the filter to
  * respond to proxy receptor requests. By configuring a shared
  * {@link ProxyGrantingTicketStorage} between the {@link TicketValidator} and the
- * CasAuthenticationFilter one can have the CasAuthenticationFilter handle the proxying
- * requirements for CAS.
+ * <code>CasAuthenticationFilter</code>, one can have the
+ * <code>CasAuthenticationFilter</code> handling the proxying requirements for CAS.
  * <h2>Proxy Tickets</h2>
  * <p>
- * The filter can process tickets present on any url. This is useful when wanting to
- * process proxy tickets. In order for proxy tickets to get processed
+ * The filter can process tickets present on any url. This is useful when one wants to
+ * process proxy tickets. In order for proxy tickets to get processed,
  * {@link ServiceProperties#isAuthenticateAllArtifacts()} must return <code>true</code>.
  * Additionally, if the request is already authenticated, authentication will <b>not</b>
  * occur. Last, {@link AuthenticationDetailsSource#buildDetails(Object)} must return a
  * {@link ServiceAuthenticationDetails}. This can be accomplished using the
- * {@link ServiceAuthenticationDetailsSource}. In this case
+ * {@link ServiceAuthenticationDetailsSource}. In this case,
  * {@link ServiceAuthenticationDetails#getServiceUrl()} will be used for the service url.
  * <p>
  * Processing the proxy ticket involves creating a
