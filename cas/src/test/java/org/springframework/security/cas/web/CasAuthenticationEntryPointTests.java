@@ -16,16 +16,22 @@
 
 package org.springframework.security.cas.web;
 
+import java.io.IOException;
 import java.net.URLEncoder;
 
 import org.junit.jupiter.api.Test;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.cas.ServiceProperties;
+import org.springframework.security.web.RedirectStrategy;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 /**
  * Tests {@link CasAuthenticationEntryPoint}.
@@ -93,6 +99,27 @@ public class CasAuthenticationEntryPointTests {
 		assertThat("https://cas/login?service="
 				+ URLEncoder.encode("https://mycompany.com/bigWebApp/login/cas", "UTF-8") + "&renew=true")
 			.isEqualTo(response.getRedirectedUrl());
+	}
+
+	@Test
+	void setRedirectStrategyThenUses() throws IOException {
+		CasAuthenticationEntryPoint ep = new CasAuthenticationEntryPoint();
+		ServiceProperties sp = new ServiceProperties();
+
+		sp.setService("https://mycompany.com/login/cas");
+		ep.setServiceProperties(sp);
+		ep.setLoginUrl("https://cas/login");
+
+		RedirectStrategy redirectStrategy = mock();
+
+		ep.setRedirectStrategy(redirectStrategy);
+		MockHttpServletRequest req = new MockHttpServletRequest();
+		MockHttpServletResponse res = new MockHttpServletResponse();
+
+		ep.commence(req, res, new BadCredentialsException("bad credentials"));
+
+		verify(redirectStrategy).sendRedirect(eq(req), eq(res),
+				eq("https://cas/login?service=https%3A%2F%2Fmycompany.com%2Flogin%2Fcas"));
 	}
 
 }
