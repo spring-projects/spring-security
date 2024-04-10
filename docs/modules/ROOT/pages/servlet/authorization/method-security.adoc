@@ -1657,11 +1657,9 @@ Xml::
 <4> This method may only be invoked by ``Princpal``s with an `aud` claim equal to "my-audience"
 <5> This method may only be invoked if the bean ``authz``'s `check` method returns `true`
 
-[NOTE]
+[TIP]
 ====
-You can use a bean like `authz` above to add programmatic authorization.
-It can return a `boolean`, and `AuthorizationResult`, or throw an `AuthorizationDeniedException`.
-For exceptions, you can <<fallback-values-authorization-denied, handle them at the method level>>.
+You can use a bean like `authz` above to <<_using_a_custom_bean_in_spel, add programmatic authorization>>.
 ====
 
 [[using_method_parameters]]
