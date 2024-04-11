@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,6 +61,17 @@ public final class ClientAuthenticationMethod implements Serializable {
 	 * @since 5.2
 	 */
 	public static final ClientAuthenticationMethod NONE = new ClientAuthenticationMethod("none");
+
+	/**
+	 * @since 6.3
+	 */
+	public static final ClientAuthenticationMethod TLS_CLIENT_AUTH = new ClientAuthenticationMethod("tls_client_auth");
+
+	/**
+	 * @since 6.3
+	 */
+	public static final ClientAuthenticationMethod SELF_SIGNED_TLS_CLIENT_AUTH = new ClientAuthenticationMethod(
+			"self_signed_tls_client_auth");
 
 	private final String value;
 

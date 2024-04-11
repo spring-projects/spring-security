@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,6 +56,17 @@ public class ClientAuthenticationMethodTests {
 	@Test
 	public void getValueWhenAuthenticationMethodNoneThenReturnNone() {
 		assertThat(ClientAuthenticationMethod.NONE.getValue()).isEqualTo("none");
+	}
+
+	@Test
+	public void getValueWhenAuthenticationMethodTlsClientAuthThenReturnTlsClientAuth() {
+		assertThat(ClientAuthenticationMethod.TLS_CLIENT_AUTH.getValue()).isEqualTo("tls_client_auth");
+	}
+
+	@Test
+	public void getValueWhenAuthenticationMethodSelfSignedTlsClientAuthThenReturnSelfSignedTlsClientAuth() {
+		assertThat(ClientAuthenticationMethod.SELF_SIGNED_TLS_CLIENT_AUTH.getValue())
+			.isEqualTo("self_signed_tls_client_auth");
 	}
 
 }
