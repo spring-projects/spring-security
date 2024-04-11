@@ -17,7 +17,6 @@
 package org.springframework.security.authorization.method;
 
 import org.springframework.lang.Nullable;
-import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.authorization.AuthorizationResult;
 
 /**
@@ -43,22 +42,5 @@ public interface MethodAuthorizationDeniedPostProcessor {
 	 */
 	@Nullable
 	Object postProcessResult(MethodInvocationResult methodInvocationResult, AuthorizationResult authorizationResult);
-
-	/**
-	 * Post-process the denied result produced by a method invocation, implementations
-	 * might either throw an
-	 * {@link org.springframework.security.access.AccessDeniedException} or return a
-	 * replacement result instead of the denied result, e.g. a masked value.
-	 * @param methodInvocationResult the object containing the method invocation and the
-	 * result produced
-	 * @param authorizationDenied the {@link AuthorizationDeniedException} containing the
-	 * authorization denied details
-	 * @return a replacement result for the denied result, or null, or a
-	 * {@link reactor.core.publisher.Mono} for reactive applications
-	 */
-	default Object postProcessResult(MethodInvocationResult methodInvocationResult,
-			AuthorizationDeniedException authorizationDenied) {
-		return postProcessResult(methodInvocationResult, authorizationDenied.getAuthorizationResult());
-	}
 
 }

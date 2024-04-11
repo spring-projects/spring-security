@@ -19,7 +19,6 @@ package org.springframework.security.authorization.method;
 import org.aopalliance.intercept.MethodInvocation;
 
 import org.springframework.lang.Nullable;
-import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.authorization.AuthorizationResult;
 
 /**
@@ -43,19 +42,5 @@ public interface MethodAuthorizationDeniedHandler {
 	 */
 	@Nullable
 	Object handle(MethodInvocation methodInvocation, AuthorizationResult authorizationResult);
-
-	/**
-	 * Handle denied method invocations, implementations might either throw an
-	 * {@link org.springframework.security.access.AccessDeniedException} or a replacement
-	 * result instead of invoking the method, e.g. a masked value.
-	 * @param methodInvocation the {@link MethodInvocation} related to the authorization
-	 * denied
-	 * @param authorizationDenied the authorization denied exception
-	 * @return a replacement result for the denied method invocation, or null, or a
-	 * {@link reactor.core.publisher.Mono} for reactive applications
-	 */
-	default Object handle(MethodInvocation methodInvocation, AuthorizationDeniedException authorizationDenied) {
-		return handle(methodInvocation, authorizationDenied.getAuthorizationResult());
-	}
 
 }

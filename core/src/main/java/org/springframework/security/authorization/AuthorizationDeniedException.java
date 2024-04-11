@@ -25,7 +25,7 @@ import org.springframework.util.Assert;
  * @author Marcus da Coregio
  * @since 6.3
  */
-public class AuthorizationDeniedException extends AccessDeniedException {
+public class AuthorizationDeniedException extends AccessDeniedException implements AuthorizationResult {
 
 	private final AuthorizationResult result;
 
@@ -38,6 +38,11 @@ public class AuthorizationDeniedException extends AccessDeniedException {
 
 	public AuthorizationResult getAuthorizationResult() {
 		return this.result;
+	}
+
+	@Override
+	public boolean isGranted() {
+		return false;
 	}
 
 }

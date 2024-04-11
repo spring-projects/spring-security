@@ -33,6 +33,7 @@ import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.authorization.AuthorizationEventPublisher;
 import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
@@ -190,14 +191,7 @@ public final class AuthorizationManagerAfterMethodInterceptor implements Authori
 		return result;
 	}
 
-	private Object postProcess(MethodInvocationResult mi, AuthorizationDeniedException denied) {
-		if (this.authorizationManager instanceof MethodAuthorizationDeniedPostProcessor postProcessableDecision) {
-			return postProcessableDecision.postProcessResult(mi, denied);
-		}
-		return this.defaultPostProcessor.postProcessResult(mi, denied);
-	}
-
-	private Object postProcess(MethodInvocationResult mi, AuthorizationDecision decision) {
+	private Object postProcess(MethodInvocationResult mi, AuthorizationResult decision) {
 		if (this.authorizationManager instanceof MethodAuthorizationDeniedPostProcessor postProcessableDecision) {
 			return postProcessableDecision.postProcessResult(mi, decision);
 		}

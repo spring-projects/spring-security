@@ -264,13 +264,6 @@ public final class AuthorizationManagerBeforeMethodInterceptor implements Author
 		return mi.proceed();
 	}
 
-	private Object handle(MethodInvocation mi, AuthorizationDeniedException denied) {
-		if (this.authorizationManager instanceof MethodAuthorizationDeniedHandler handler) {
-			return handler.handle(mi, denied);
-		}
-		return this.defaultHandler.handle(mi, denied);
-	}
-
 	private Object handle(MethodInvocation mi, AuthorizationResult decision) {
 		if (this.authorizationManager instanceof MethodAuthorizationDeniedHandler handler) {
 			return handler.handle(mi, decision);

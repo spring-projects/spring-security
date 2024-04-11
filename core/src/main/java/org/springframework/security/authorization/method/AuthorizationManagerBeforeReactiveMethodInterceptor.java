@@ -34,6 +34,7 @@ import org.springframework.core.ReactiveAdapterRegistry;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.util.Assert;
@@ -177,21 +178,7 @@ public final class AuthorizationManagerBeforeReactiveMethodInterceptor implement
 			});
 	}
 
-	private Mono<Object> postProcess(AuthorizationDeniedException denied, MethodInvocation mi) {
-		return Mono.fromSupplier(() -> {
-			if (this.authorizationManager instanceof MethodAuthorizationDeniedHandler handler) {
-				return handler.handle(mi, denied);
-			}
-			return this.defaultHandler.handle(mi, denied);
-		}).flatMap((processedResult) -> {
-			if (Mono.class.isAssignableFrom(processedResult.getClass())) {
-				return (Mono<?>) processedResult;
-			}
-			return Mono.justOrEmpty(processedResult);
-		});
-	}
-
-	private Mono<Object> postProcess(AuthorizationDecision decision, MethodInvocation mi) {
+	private Mono<Object> postProcess(AuthorizationResult decision, MethodInvocation mi) {
 		return Mono.fromSupplier(() -> {
 			if (this.authorizationManager instanceof MethodAuthorizationDeniedHandler handler) {
 				return handler.handle(mi, decision);
