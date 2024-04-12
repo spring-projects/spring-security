@@ -80,7 +80,7 @@ import org.springframework.web.reactive.result.method.annotation.ArgumentResolve
 		ReactiveOAuth2ClientConfiguration.OAuth2ClientWebFluxSecurityConfiguration.class })
 final class ReactiveOAuth2ClientConfiguration {
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	static class ReactiveOAuth2AuthorizedClientManagerConfiguration {
 
 		@Bean(name = ReactiveOAuth2AuthorizedClientManagerRegistrar.BEAN_NAME)
