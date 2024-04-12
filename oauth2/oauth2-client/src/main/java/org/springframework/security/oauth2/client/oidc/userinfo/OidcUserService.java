@@ -67,22 +67,22 @@ import org.springframework.util.StringUtils;
  */
 public class OidcUserService implements OAuth2UserService<OidcUserRequest, OidcUser> {
 
-	private static final String INVALID_USER_INFO_RESPONSE_ERROR_CODE = "invalid_user_info_response";
+	protected static final String INVALID_USER_INFO_RESPONSE_ERROR_CODE = "invalid_user_info_response";
 
-	private static final Converter<Map<String, Object>, Map<String, Object>> DEFAULT_CLAIM_TYPE_CONVERTER = new ClaimTypeConverter(
+	protected static final Converter<Map<String, Object>, Map<String, Object>> DEFAULT_CLAIM_TYPE_CONVERTER = new ClaimTypeConverter(
 			createDefaultClaimTypeConverters());
 
-	private Set<String> accessibleScopes = new HashSet<>(
+	protected Set<String> accessibleScopes = new HashSet<>(
 			Arrays.asList(OidcScopes.PROFILE, OidcScopes.EMAIL, OidcScopes.ADDRESS, OidcScopes.PHONE));
 
-	private OAuth2UserService<OAuth2UserRequest, OAuth2User> oauth2UserService = new DefaultOAuth2UserService();
+	protected OAuth2UserService<OAuth2UserRequest, OAuth2User> oauth2UserService = new DefaultOAuth2UserService();
 
-	private Function<ClientRegistration, Converter<Map<String, Object>, Map<String, Object>>> claimTypeConverterFactory = (
+	protected Function<ClientRegistration, Converter<Map<String, Object>, Map<String, Object>>> claimTypeConverterFactory = (
 			clientRegistration) -> DEFAULT_CLAIM_TYPE_CONVERTER;
 
-	private Predicate<OidcUserRequest> retrieveUserInfo = this::shouldRetrieveUserInfo;
+	protected Predicate<OidcUserRequest> retrieveUserInfo = this::shouldRetrieveUserInfo;
 
-	private BiFunction<OidcUserRequest, OidcUserInfo, OidcUser> oidcUserMapper = OidcUserRequestUtils::getUser;
+	protected BiFunction<OidcUserRequest, OidcUserInfo, OidcUser> oidcUserMapper = OidcUserRequestUtils::getUser;
 
 	/**
 	 * Returns the default {@link Converter}'s used for type conversion of claim values
@@ -101,7 +101,7 @@ public class OidcUserService implements OAuth2UserService<OidcUserRequest, OidcU
 		return claimTypeConverters;
 	}
 
-	private static Converter<Object, ?> getConverter(TypeDescriptor targetDescriptor) {
+	protected static Converter<Object, ?> getConverter(TypeDescriptor targetDescriptor) {
 		TypeDescriptor sourceDescriptor = TypeDescriptor.valueOf(Object.class);
 		return (source) -> ClaimConversionService.getSharedInstance()
 			.convert(source, sourceDescriptor, targetDescriptor);
@@ -136,7 +136,7 @@ public class OidcUserService implements OAuth2UserService<OidcUserRequest, OidcU
 		return this.oidcUserMapper.apply(userRequest, userInfo);
 	}
 
-	private Map<String, Object> getClaims(OidcUserRequest userRequest, OAuth2User oauth2User) {
+	protected Map<String, Object> getClaims(OidcUserRequest userRequest, OAuth2User oauth2User) {
 		Converter<Map<String, Object>, Map<String, Object>> converter = this.claimTypeConverterFactory
 			.apply(userRequest.getClientRegistration());
 		if (converter != null) {
@@ -145,7 +145,7 @@ public class OidcUserService implements OAuth2UserService<OidcUserRequest, OidcU
 		return DEFAULT_CLAIM_TYPE_CONVERTER.convert(oauth2User.getAttributes());
 	}
 
-	private boolean shouldRetrieveUserInfo(OidcUserRequest userRequest) {
+	protected boolean shouldRetrieveUserInfo(OidcUserRequest userRequest) {
 		// Auto-disabled if UserInfo Endpoint URI is not provided
 		ProviderDetails providerDetails = userRequest.getClientRegistration().getProviderDetails();
 		if (!StringUtils.hasLength(providerDetails.getUserInfoEndpoint().getUri())) {
@@ -182,7 +182,7 @@ public class OidcUserService implements OAuth2UserService<OidcUserRequest, OidcU
 	 * user info resource.
 	 * @since 5.1
 	 */
-	public final void setOauth2UserService(OAuth2UserService<OAuth2UserRequest, OAuth2User> oauth2UserService) {
+	public void setOauth2UserService(OAuth2UserService<OAuth2UserRequest, OAuth2User> oauth2UserService) {
 		Assert.notNull(oauth2UserService, "oauth2UserService cannot be null");
 		this.oauth2UserService = oauth2UserService;
 	}
@@ -196,7 +196,7 @@ public class OidcUserService implements OAuth2UserService<OidcUserRequest, OidcU
 	 * client}
 	 * @since 5.2
 	 */
-	public final void setClaimTypeConverterFactory(
+	public void setClaimTypeConverterFactory(
 			Function<ClientRegistration, Converter<Map<String, Object>, Map<String, Object>>> claimTypeConverterFactory) {
 		Assert.notNull(claimTypeConverterFactory, "claimTypeConverterFactory cannot be null");
 		this.claimTypeConverterFactory = claimTypeConverterFactory;
@@ -215,7 +215,7 @@ public class OidcUserService implements OAuth2UserService<OidcUserRequest, OidcU
 	 * @deprecated Use {@link #setRetrieveUserInfo(Predicate)} instead
 	 */
 	@Deprecated(since = "6.3", forRemoval = true)
-	public final void setAccessibleScopes(Set<String> accessibleScopes) {
+	public void setAccessibleScopes(Set<String> accessibleScopes) {
 		Assert.notNull(accessibleScopes, "accessibleScopes cannot be null");
 		this.accessibleScopes = accessibleScopes;
 	}
@@ -238,7 +238,7 @@ public class OidcUserService implements OAuth2UserService<OidcUserRequest, OidcU
 	 * should be called
 	 * @since 6.3
 	 */
-	public final void setRetrieveUserInfo(Predicate<OidcUserRequest> retrieveUserInfo) {
+	public void setRetrieveUserInfo(Predicate<OidcUserRequest> retrieveUserInfo) {
 		Assert.notNull(retrieveUserInfo, "retrieveUserInfo cannot be null");
 		this.retrieveUserInfo = retrieveUserInfo;
 	}
@@ -257,7 +257,7 @@ public class OidcUserService implements OAuth2UserService<OidcUserRequest, OidcU
 	 * 		return userService;
 	 * 	}
 	 *
-	 * 	private static BiFunction&lt;OidcUserRequest, OidcUserInfo, OidcUser&gt; oidcUserMapper() {
+	 * 	protected static BiFunction&lt;OidcUserRequest, OidcUserInfo, OidcUser&gt; oidcUserMapper() {
 	 * 		return (userRequest, userInfo) -> {
 	 * 			var accessToken = userRequest.getAccessToken();
 	 * 			var grantedAuthorities = new HashSet&lt;GrantedAuthority&gt;();
@@ -294,7 +294,7 @@ public class OidcUserService implements OAuth2UserService<OidcUserRequest, OidcU
 	 * {@link OidcUserRequest} and {@link OidcUserInfo}
 	 * @since 6.3
 	 */
-	public final void setOidcUserMapper(BiFunction<OidcUserRequest, OidcUserInfo, OidcUser> oidcUserMapper) {
+	public void setOidcUserMapper(BiFunction<OidcUserRequest, OidcUserInfo, OidcUser> oidcUserMapper) {
 		Assert.notNull(oidcUserMapper, "oidcUserMapper cannot be null");
 		this.oidcUserMapper = oidcUserMapper;
 	}
