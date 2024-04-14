@@ -39,6 +39,8 @@ import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.security.web.session.ConcurrentSessionFilter;
+import org.springframework.security.web.session.ContinueRequestSessionInformationExpiredStrategy;
+import org.springframework.security.web.session.SessionInformationExpiredEvent;
 import org.springframework.security.web.session.SessionInformationExpiredStrategy;
 import org.springframework.security.web.session.SimpleRedirectSessionInformationExpiredStrategy;
 
@@ -59,6 +61,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
  * @author Ben Alex
  * @author Luke Taylor
  * @author Onur Kagan Ozcan
+ * @author Rosie Yang
  */
 public class ConcurrentSessionFilterTests {
 
@@ -299,6 +302,20 @@ public class ConcurrentSessionFilterTests {
 	public void setLogoutHandlersWhenEmptyThenThrowsException() {
 		ConcurrentSessionFilter filter = new ConcurrentSessionFilter(new SessionRegistryImpl());
 		assertThatIllegalArgumentException().isThrownBy(() -> filter.setLogoutHandlers(new LogoutHandler[0]));
+	}
+
+	@Test
+	public void doFilterWhenRequestSessionInformationExpiredThenChainIsContinued() throws Exception {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setSession(new MockHttpSession());
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		RedirectStrategy redirect = mock(RedirectStrategy.class);
+		SessionRegistry registry = mock(SessionRegistry.class);
+		ContinueRequestSessionInformationExpiredStrategy expiredStrategy = new ContinueRequestSessionInformationExpiredStrategy();
+		ConcurrentSessionFilter filter = new ConcurrentSessionFilter(registry, expiredStrategy);
+		MockFilterChain chain = new MockFilterChain();
+		filter.doFilter(request, response, chain);
+		assertThat(chain.getRequest()).isNotNull();
 	}
 
 }

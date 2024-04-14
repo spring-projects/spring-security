@@ -35,19 +35,19 @@ public class SessionInformationExpiredEventTests {
 	@Test
 	public void constructorWhenSessionInformationNullThenThrowsException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> new SessionInformationExpiredEvent(null,
-				new MockHttpServletRequest(), new MockHttpServletResponse()));
+				new MockHttpServletRequest(), new MockHttpServletResponse(), null));
 	}
 
 	@Test
 	public void constructorWhenRequestNullThenThrowsException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> new SessionInformationExpiredEvent(
-				new SessionInformation("fake", "sessionId", new Date()), null, new MockHttpServletResponse()));
+				new SessionInformation("fake", "sessionId", new Date()), null, new MockHttpServletResponse(), null));
 	}
 
 	@Test
 	public void constructorWhenResponseNullThenThrowsException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> new SessionInformationExpiredEvent(
-				new SessionInformation("fake", "sessionId", new Date()), new MockHttpServletRequest(), null));
+				new SessionInformation("fake", "sessionId", new Date()), new MockHttpServletRequest(), null, null));
 	}
 
 }
