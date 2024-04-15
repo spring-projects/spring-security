@@ -21,6 +21,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.function.Supplier;
 
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import org.springframework.aop.TargetClassAware;
 import org.springframework.core.annotation.AnnotationConfigurationException;
@@ -31,6 +32,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.TestAuthentication;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authorization.AuthorizationDecision;
+import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.core.Authentication;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -156,6 +158,16 @@ public class PreAuthorizeAuthorizationManagerTests {
 		assertThat(decision.isGranted()).isTrue();
 	}
 
+	@Test
+	public void handleDeniedInvocationWhenHandlerExpressionIsPresentThenReturnEvaluatedValue() throws Exception {
+		MockMethodInvocation methodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
+				"doSomethingString", new Class[] { String.class }, new Object[] { "deny" });
+		AuthorizationResult authorizationResult = Mockito.mock(AuthorizationResult.class);
+		PreAuthorizeAuthorizationManager manager = new PreAuthorizeAuthorizationManager();
+		Object decision = manager.handleDeniedInvocation(methodInvocation, authorizationResult);
+		assertThat(decision).isEqualTo("deny");
+	}
+
 	@PreAuthorize("hasRole('USER')")
 	public static class PreAuthorizeClass extends ParentClass {
 
@@ -176,6 +188,7 @@ public class PreAuthorizeAuthorizationManagerTests {
 		}
 
 		@PreAuthorize("#s == 'grant'")
+		@HandleAuthorizationDenied(handlerExpression = "'deny'")
 		public String doSomethingString(String s) {
 			return s;
 		}
