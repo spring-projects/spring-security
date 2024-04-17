@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -74,6 +74,8 @@ public final class OpenSamlMetadataResolver implements Saml2MetadataResolver {
 
 	private boolean usePrettyPrint = true;
 
+	private boolean signMetadata = false;
+
 	public OpenSamlMetadataResolver() {
 		this.entityDescriptorMarshaller = (EntityDescriptorMarshaller) XMLObjectProviderRegistrySupport
 			.getMarshallerFactory()
@@ -111,6 +113,9 @@ public final class OpenSamlMetadataResolver implements Saml2MetadataResolver {
 		SPSSODescriptor spSsoDescriptor = buildSpSsoDescriptor(registration);
 		entityDescriptor.getRoleDescriptors(SPSSODescriptor.DEFAULT_ELEMENT_NAME).add(spSsoDescriptor);
 		this.entityDescriptorCustomizer.accept(new EntityDescriptorParameters(entityDescriptor, registration));
+		if (this.signMetadata) {
+			return OpenSamlSigningUtils.sign(entityDescriptor, registration);
+		}
 		return entityDescriptor;
 	}
 
@@ -128,6 +133,7 @@ public final class OpenSamlMetadataResolver implements Saml2MetadataResolver {
 	/**
 	 * Configure whether to pretty-print the metadata XML. This can be helpful when
 	 * signing the metadata payload.
+	 *
 	 * @since 6.2
 	 **/
 	public void setUsePrettyPrint(boolean usePrettyPrint) {
@@ -236,6 +242,15 @@ public final class OpenSamlMetadataResolver implements Saml2MetadataResolver {
 		catch (Exception ex) {
 			throw new Saml2Exception(ex);
 		}
+	}
+
+	/**
+	 * Configure whether to sign the metadata, defaults to {@code false}.
+	 *
+	 * @since 6.4
+	 */
+	public void setSignMetadata(boolean signMetadata) {
+		this.signMetadata = signMetadata;
 	}
 
 	/**
