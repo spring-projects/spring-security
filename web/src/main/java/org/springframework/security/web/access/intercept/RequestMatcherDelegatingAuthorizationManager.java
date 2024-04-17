@@ -30,6 +30,7 @@ import org.springframework.core.log.LogMessage;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.web.util.UrlUtils;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher.MatchResult;
 import org.springframework.security.web.util.matcher.RequestMatcherEntry;
@@ -76,7 +77,8 @@ public final class RequestMatcherDelegatingAuthorizationManager implements Autho
 			if (matchResult.isMatch()) {
 				AuthorizationManager<RequestAuthorizationContext> manager = mapping.getEntry();
 				if (this.logger.isTraceEnabled()) {
-					this.logger.trace(LogMessage.format("Checking authorization on %s using %s", requestLine(request), manager));
+					this.logger.trace(
+							LogMessage.format("Checking authorization on %s using %s", requestLine(request), manager));
 				}
 				return manager.check(authentication,
 						new RequestAuthorizationContext(request, matchResult.getVariables()));
