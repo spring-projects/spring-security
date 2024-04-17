@@ -18,7 +18,7 @@ is supplied by the `com.nimbusds.jose.jwk.JWK` resolver associated with `NimbusJ
 
 === Authenticate using `private_key_jwt`
 
-Given the following Spring Boot 2.x properties for an OAuth 2.0 Client registration:
+Given the following Spring Boot properties for an OAuth 2.0 Client registration:
 
 [source,yaml]
 ----
@@ -89,7 +89,7 @@ tokenResponseClient.addParametersConverter(
 
 === Authenticate using `client_secret_jwt`
 
-Given the following Spring Boot 2.x properties for an OAuth 2.0 Client registration:
+Given the following Spring Boot properties for an OAuth 2.0 Client registration:
 
 [source,yaml]
 ----
