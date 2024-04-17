@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,6 +47,33 @@ public class OpenSamlMetadataResolverTests {
 			.contains("Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect\"")
 			.contains("Location=\"https://rp.example.org/acs\" index=\"1\"")
 			.contains("ResponseLocation=\"https://rp.example.org/logout/saml2/response\"");
+	}
+
+	@Test
+	public void resolveWhenRelyingPartyAndSignMetadataSetThenMetadataMatches() {
+		RelyingPartyRegistration relyingPartyRegistration = TestRelyingPartyRegistrations.full()
+			.assertionConsumerServiceBinding(Saml2MessageBinding.REDIRECT)
+			.build();
+		OpenSamlMetadataResolver openSamlMetadataResolver = new OpenSamlMetadataResolver();
+		openSamlMetadataResolver.setSignMetadata(true);
+		String metadata = openSamlMetadataResolver.resolve(relyingPartyRegistration);
+		assertThat(metadata).contains("<md:EntityDescriptor")
+			.contains("entityID=\"rp-entity-id\"")
+			.contains("<md:KeyDescriptor use=\"signing\">")
+			.contains("<md:KeyDescriptor use=\"encryption\">")
+			.contains("<ds:X509Certificate>MIICgTCCAeoCCQCuVzyqFgMSyDANBgkqhkiG9w0BAQsFADCBhDELMAkGA1UEBh")
+			.contains("Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect\"")
+			.contains("Location=\"https://rp.example.org/acs\" index=\"1\"")
+			.contains("ResponseLocation=\"https://rp.example.org/logout/saml2/response\"")
+			.contains("Signature xmlns:ds=\"http://www.w3.org/2000/09/xmldsig#\"")
+			.contains("CanonicalizationMethod Algorithm=\"http://www.w3.org/2001/10/xml-exc-c14n#")
+			.contains("SignatureMethod Algorithm=\"http://www.w3.org/2001/04/xmldsig-more#rsa-sha256")
+			.contains("Reference URI=\"\"")
+			.contains("Transform Algorithm=\"http://www.w3.org/2000/09/xmldsig#enveloped-signature")
+			.contains("Transform Algorithm=\"http://www.w3.org/2001/10/xml-exc-c14n#\"")
+			.contains("DigestMethod Algorithm=\"http://www.w3.org/2001/04/xmlenc#sha256\"")
+			.contains("DigestValue")
+			.contains("SignatureValue");
 	}
 
 	@Test
@@ -120,6 +147,39 @@ public class OpenSamlMetadataResolverTests {
 			.contains("Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect\"")
 			.contains("Location=\"https://rp.example.org/acs\" index=\"1\"")
 			.contains("ResponseLocation=\"https://rp.example.org/logout/saml2/response\"");
+	}
+
+	@Test
+	public void resolveIterableWhenRelyingPartiesAndSignMetadataSetThenMetadataMatches() {
+		RelyingPartyRegistration one = TestRelyingPartyRegistrations.full()
+			.assertionConsumerServiceBinding(Saml2MessageBinding.REDIRECT)
+			.build();
+		RelyingPartyRegistration two = TestRelyingPartyRegistrations.full()
+			.entityId("two")
+			.assertionConsumerServiceBinding(Saml2MessageBinding.REDIRECT)
+			.build();
+		OpenSamlMetadataResolver openSamlMetadataResolver = new OpenSamlMetadataResolver();
+		openSamlMetadataResolver.setSignMetadata(true);
+		String metadata = openSamlMetadataResolver.resolve(List.of(one, two));
+		assertThat(metadata).contains("<md:EntitiesDescriptor")
+			.contains("<md:EntityDescriptor")
+			.contains("entityID=\"rp-entity-id\"")
+			.contains("entityID=\"two\"")
+			.contains("<md:KeyDescriptor use=\"signing\">")
+			.contains("<md:KeyDescriptor use=\"encryption\">")
+			.contains("<ds:X509Certificate>MIICgTCCAeoCCQCuVzyqFgMSyDANBgkqhkiG9w0BAQsFADCBhDELMAkGA1UEBh")
+			.contains("Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect\"")
+			.contains("Location=\"https://rp.example.org/acs\" index=\"1\"")
+			.contains("ResponseLocation=\"https://rp.example.org/logout/saml2/response\"")
+			.contains("Signature xmlns:ds=\"http://www.w3.org/2000/09/xmldsig#\"")
+			.contains("CanonicalizationMethod Algorithm=\"http://www.w3.org/2001/10/xml-exc-c14n#")
+			.contains("SignatureMethod Algorithm=\"http://www.w3.org/2001/04/xmldsig-more#rsa-sha256")
+			.contains("Reference URI=\"\"")
+			.contains("Transform Algorithm=\"http://www.w3.org/2000/09/xmldsig#enveloped-signature")
+			.contains("Transform Algorithm=\"http://www.w3.org/2001/10/xml-exc-c14n#\"")
+			.contains("DigestMethod Algorithm=\"http://www.w3.org/2001/04/xmlenc#sha256\"")
+			.contains("DigestValue")
+			.contains("SignatureValue");
 	}
 
 }
