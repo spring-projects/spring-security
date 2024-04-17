@@ -1554,6 +1554,7 @@ authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider)
 ----
 ======
 
+[[token-exchange-grant-access-token]]
 === Using the Access Token
 
 Given the following Spring Boot properties for an OAuth 2.0 Client registration:
