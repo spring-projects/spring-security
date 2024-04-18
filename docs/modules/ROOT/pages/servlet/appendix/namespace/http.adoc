@@ -1331,6 +1331,12 @@ Reference to an `OpaqueTokenAuthenticationConverter`. Responsible for converting
 == <relying-party-registrations>
 The container element for relying party(ies) registered (xref:servlet/saml2/login/overview.adoc#servlet-saml2login-relyingpartyregistration[ClientRegistration]) with a SAML 2.0 Identity Provider.
 
+[[nsa-relying-party-registrations-attributes]]
+=== <relying-party-registrations> Attributes
+
+[[nsa-relying-party-registrations-id]]
+* **id**
+The ID that uniquely identifies the `RelyingPartyRegistrationRepository`.
 
 [[nsa-relying-party-registrations-children]]
 === Child Elements of <relying-party-registrations>

@@ -16,6 +16,7 @@
 
 package org.springframework.security.config.saml2;
 
+import jakarta.servlet.http.HttpServletRequest;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.junit.jupiter.api.AfterEach;
@@ -23,16 +24,21 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.saml2.provider.service.registration.InMemoryRelyingPartyRegistrationRepository;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
 import org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding;
+import org.springframework.security.saml2.provider.service.web.authentication.OpenSaml4AuthenticationRequestResolver;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.verify;
 
 /**
  * Tests for {@link RelyingPartyRegistrationsBeanDefinitionParser}.
@@ -118,6 +124,7 @@ public class RelyingPartyRegistrationsBeanDefinitionParserTests {
 	// @formatter:on
 
 	@Autowired
+	@Qualifier("registrations")
 	private RelyingPartyRegistrationRepository relyingPartyRegistrationRepository;
 
 	public final SpringTestContext spring = new SpringTestContext(this);
@@ -266,6 +273,19 @@ public class RelyingPartyRegistrationsBeanDefinitionParserTests {
 				"http://www.w3.org/2001/04/xmldsig-more#rsa-sha224",
 				"http://www.w3.org/2001/04/xmldsig-more#rsa-sha256",
 				"http://www.w3.org/2001/04/xmldsig-more#rsa-sha384");
+	}
+
+	@Test
+	public void parseWhenRelayStateResolverThenUses() {
+		this.spring.configLocations(xml("RelayStateResolver")).autowire();
+		Converter<HttpServletRequest, String> relayStateResolver = this.spring.getContext().getBean(Converter.class);
+		OpenSaml4AuthenticationRequestResolver authenticationRequestResolver = this.spring.getContext()
+			.getBean(OpenSaml4AuthenticationRequestResolver.class);
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setRequestURI("/saml2/authenticate/one");
+		request.setServletPath("/saml2/authenticate/one");
+		authenticationRequestResolver.resolve(request);
+		verify(relayStateResolver).convert(request);
 	}
 
 	private static MockResponse xmlResponse(String xml) {

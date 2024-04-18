@@ -744,7 +744,10 @@ saml2-logout.attlist &=
 
 relying-party-registrations =
 	## Container element for relying party(ies) registered with a SAML 2.0 identity provider
-	element relying-party-registrations {relying-party-registration+, asserting-party*}
+	element relying-party-registrations {relying-party-registrations.attlist, relying-party-registration+, asserting-party*}
+relying-party-registrations.attlist &=
+    ## The identifier by which to refer to the repository in other beans
+    attribute id {xsd:token}?
 
 relying-party-registration =
 	## Represents a relying party registered with a SAML 2.0 identity provider

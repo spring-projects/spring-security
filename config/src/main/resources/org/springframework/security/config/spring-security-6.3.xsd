@@ -2188,8 +2188,17 @@
             <xs:element maxOccurs="unbounded" ref="security:relying-party-registration"/>
             <xs:element minOccurs="0" maxOccurs="unbounded" ref="security:asserting-party"/>
          </xs:sequence>
+         <xs:attributeGroup ref="security:relying-party-registrations.attlist"/>
       </xs:complexType>
    </xs:element>
+  <xs:attributeGroup name="relying-party-registrations.attlist">
+      <xs:attribute name="id" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>The identifier by which to refer to the repository in other beans
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+  </xs:attributeGroup>
   <xs:element name="relying-party-registration">
       <xs:annotation>
          <xs:documentation>Represents a relying party registered with a SAML 2.0 identity provider

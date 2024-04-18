@@ -23,14 +23,14 @@
 			https://www.springframework.org/schema/security/spring-security.xsd
 			http://www.springframework.org/schema/beans
 			https://www.springframework.org/schema/beans/spring-beans.xsd">
-  
-  <relying-party-registrations>
+
+  <relying-party-registrations id="registrations">
     <relying-party-registration registration-id="one"
                                 entity-id="{baseUrl}/saml2/service-provider-metadata/{registrationId}"
                                 assertion-consumer-service-location="{baseUrl}/login/saml2/sso/{registrationId}"
                                 assertion-consumer-service-binding="REDIRECT"
                                 asserting-party-id="google"/>
-    
+
     <asserting-party asserting-party-id="google" entity-id="https://accounts.google.com/o/saml2/idp/entity-id"
                      want-authn-requests-signed="true"
                      single-sign-on-service-location="https://accounts.google.com/o/saml2/idp/sso-url"

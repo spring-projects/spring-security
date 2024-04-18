@@ -64,6 +64,8 @@ public final class RelyingPartyRegistrationsBeanDefinitionParser implements Bean
 
 	private static final String ELT_ENCRYPTION_CREDENTIAL = "encryption-credential";
 
+	private static final String ATT_ID = "id";
+
 	private static final String ATT_REGISTRATION_ID = "registration-id";
 
 	private static final String ATT_ASSERTING_PARTY_ID = "asserting-party-id";
@@ -108,8 +110,11 @@ public final class RelyingPartyRegistrationsBeanDefinitionParser implements Bean
 			.rootBeanDefinition(InMemoryRelyingPartyRegistrationRepository.class)
 			.addConstructorArgValue(relyingPartyRegistrations)
 			.getBeanDefinition();
-		String relyingPartyRegistrationRepositoryId = parserContext.getReaderContext()
-			.generateBeanName(relyingPartyRegistrationRepositoryBean);
+		String relyingPartyRegistrationRepositoryId = element.getAttribute(ATT_ID);
+		if (!StringUtils.hasText(relyingPartyRegistrationRepositoryId)) {
+			relyingPartyRegistrationRepositoryId = parserContext.getReaderContext()
+				.generateBeanName(relyingPartyRegistrationRepositoryBean);
+		}
 		parserContext.registerBeanComponent(new BeanComponentDefinition(relyingPartyRegistrationRepositoryBean,
 				relyingPartyRegistrationRepositoryId));
 		parserContext.popAndRegisterContainingComponent();
