@@ -291,8 +291,8 @@ and then xref:servlet/oauth2/client/authorized-clients.adoc#oauth2Client-registe
 
 == Additional Highlights
 
-- https://github.com/spring-projects/spring-security/pull/14655[gh-14655] - Add `DelegatingAuthenticationConverter
-- Add Concurrent Sessions Control on WebFlux - https://github.com/spring-projects/spring-security/issues/6192[gh-6192] - xref:reactive/authentication/concurrent-sessions-control.adoc[(docs)]
+- https://github.com/spring-projects/spring-security/pull/14655[gh-14655] - Add `DelegatingAuthenticationConverter`
+- https://github.com/spring-projects/spring-security/issues/6192[gh-6192] - Add Concurrent Sessions Control on WebFlux (xref:reactive/authentication/concurrent-sessions-control.adoc[docs])
 - https://github.com/spring-projects/spring-security/pull/14193[gh-14193] - Added support for CAS Gateway Authentication
 - https://github.com/spring-projects/spring-security/issues/13259[gh-13259] - Customize when UserInfo is called
 - https://github.com/spring-projects/spring-security/pull/14168[gh-14168] - Introduce Customizable AuthorizationFailureHandler in OAuth2AuthorizationRequestRedirectFilter
@@ -300,8 +300,7 @@ and then xref:servlet/oauth2/client/authorized-clients.adoc#oauth2Client-registe
 - https://github.com/spring-projects/spring-security/issues/13763[gh-13763] - Simplify configuration of reactive OAuth2 Client component model
 - https://github.com/spring-projects/spring-security/issues/14758[gh-14758] - Update reactive OAuth2 docs landing page with examples (xref:reactive/oauth2/index.adoc[docs])
 - https://github.com/spring-projects/spring-security/issues/10538[gh-10538] - Support Certificate-Bound JWT Access Token Validation
-- https://github.com/spring-projects/spring-security/pull/14265[gh-14265] - Support Nexted username in UserInfo response
+- https://github.com/spring-projects/spring-security/pull/14265[gh-14265] - Support Nested username in UserInfo response
 - https://github.com/spring-projects/spring-security/pull/14265[gh-14449] - Add `SecurityContext` argument resolver
 
 And for an exhaustive list, please see the release notes for https://github.com/spring-projects/spring-security/releases/tag/6.3.0-RC1[6.3.0-RC1], https://github.com/spring-projects/spring-security/releases/tag/6.3.0-M3[6.3.0-M3], https://github.com/spring-projects/spring-security/releases/tag/6.3.0-M2[6.3.0-M2], and https://github.com/spring-projects/spring-security/releases/tag/6.3.0-M1[6.3.0-M1].
-`
