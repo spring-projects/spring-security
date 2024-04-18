@@ -20,6 +20,7 @@ import java.io.Serializable;
 import java.util.Objects;
 
 import org.springframework.security.core.SpringSecurityCoreVersion;
+import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.util.Assert;
 
 /**
@@ -51,16 +52,18 @@ public final class OAuth2AuthorizedClientId implements Serializable {
 	}
 
 	/**
-	 * @return the registration-id part of this authorized client ID
-	 * @since 6.2.3
+	 * Returns the identifier for the {@link ClientRegistration client registration}.
+	 * @return the identifier for the client registration
+	 * @since 6.3
 	 */
 	public String getClientRegistrationId() {
 		return this.clientRegistrationId;
 	}
 
 	/**
-	 * @return the principalName part of this authorized client ID
-	 * @since 6.2.3
+	 * Returns the name of the End-User {@code Principal} (Resource Owner).
+	 * @return the name of the End-User
+	 * @since 6.3
 	 */
 	public String getPrincipalName() {
 		return this.principalName;
