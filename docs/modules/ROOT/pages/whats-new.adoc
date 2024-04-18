@@ -297,6 +297,8 @@ and then xref:servlet/oauth2/client/authorized-clients.adoc#oauth2Client-registe
 - https://github.com/spring-projects/spring-security/issues/13259[gh-13259] - Customize when UserInfo is called
 - https://github.com/spring-projects/spring-security/pull/14168[gh-14168] - Introduce Customizable AuthorizationFailureHandler in OAuth2AuthorizationRequestRedirectFilter
 - https://github.com/spring-projects/spring-security/issues/14672[gh-14672] - Customize mapping the OidcUser from OidcUserRequest and OidcUserInfo
+- https://github.com/spring-projects/spring-security/issues/13763[gh-13763] - Simplify configuration of reactive OAuth2 Client component model
+- https://github.com/spring-projects/spring-security/issues/14758[gh-14758] - Update reactive OAuth2 docs landing page with examples (xref:reactive/oauth2/index.adoc[docs])
 - https://github.com/spring-projects/spring-security/issues/10538[gh-10538] - Support Certificate-Bound JWT Access Token Validation
 - https://github.com/spring-projects/spring-security/pull/14265[gh-14265] - Support Nexted username in UserInfo response
 - https://github.com/spring-projects/spring-security/pull/14265[gh-14449] - Add `SecurityContext` argument resolver
