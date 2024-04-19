@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -705,6 +705,69 @@ class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecu
     fun saml2Login(saml2LoginConfiguration: Saml2Dsl.() -> Unit) {
         val saml2LoginCustomizer = Saml2Dsl().apply(saml2LoginConfiguration).get()
         this.http.saml2Login(saml2LoginCustomizer)
+    }
+
+    /**
+     * Configures logout support for a SAML 2.0 Service Provider. <br>
+     * <br>
+     *
+     * Implements the <b>Single Logout Profile, using POST and REDIRECT bindings</b>, as
+     * documented in the
+     * <a target="_blank" href="https://docs.oasis-open.org/security/saml/">SAML V2.0
+     * Core, Profiles and Bindings</a> specifications. <br>
+     * <br>
+     *
+     * As a prerequisite to using this feature, is that you have a SAML v2.0 Asserting
+     * Party to send a logout request to. The representation of the relying party and the
+     * asserting party is contained within [RelyingPartyRegistration]. <br>
+     * <br>
+     *
+     * [RelyingPartyRegistration] (s) are composed within a
+     * [RelyingPartyRegistrationRepository], which is <b>required</b> and must be
+     * registered with the [ApplicationContext] or configured via
+     * [HttpSecurityDsl.saml2Login].<br>
+     * <br>
+     *
+     * The default configuration provides an auto-generated logout endpoint at
+     * `/logout` and redirects to `/login?logout` when
+     * logout completes. <br>
+     * <br>
+     *
+     * <p>
+     * <h2>Example Configuration</h2>
+     *
+     * The following example shows the minimal configuration required, using a
+     * hypothetical asserting party.
+     *
+     * Example:
+     *
+     * ```
+     * @Configuration
+     * @EnableWebSecurity
+     * class SecurityConfig {
+     *
+     *     @Bean
+     *     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+     *         http {
+     *             saml2Login {
+     *                 relyingPartyRegistration = getSaml2RelyingPartyRegistration()
+     *             }
+     *             saml2Logout { }
+     *         }
+     *         return http.build()
+     *     }
+     * }
+     * ```
+     *
+     * <p>
+     * @param saml2LogoutConfiguration custom configuration to configure the
+     * SAML 2.0 service provider
+     * @since 6.3
+     * @see [Saml2LogoutDsl]
+     */
+    fun saml2Logout(saml2LogoutConfiguration: Saml2LogoutDsl.() -> Unit) {
+        val saml2LogoutCustomizer = Saml2LogoutDsl().apply(saml2LogoutConfiguration).get()
+        this.http.saml2Logout(saml2LogoutCustomizer)
     }
 
 	/**
