@@ -707,6 +707,11 @@ class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecu
         this.http.saml2Login(saml2LoginCustomizer)
     }
 
+    fun saml2Logout(saml2LogoutConfiguration: Saml2LogoutDsl.() -> Unit) {
+        val saml2LogoutCustomizer = Saml2LogoutDsl().apply(saml2LogoutConfiguration).get()
+        this.http.saml2Logout(saml2LogoutCustomizer)
+    }
+
 	/**
 	 * Configures a SAML 2.0 relying party metadata endpoint.
 	 *
