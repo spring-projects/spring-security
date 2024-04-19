@@ -28,3 +28,5 @@ s101plugin.state
 
 !.idea/checkstyle-idea.xml
 !.idea/externalDependencies.xml
+
+node_modules

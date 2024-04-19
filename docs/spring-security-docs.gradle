@@ -8,14 +8,11 @@ apply plugin: 'io.spring.convention.docs'
 apply plugin: 'java'
 
 antora {
-	playbook = 'cached-antora-playbook.yml'
-	playbookProvider {
-		repository = 'spring-projects/spring-security'
-		branch = 'docs-build'
-		path = 'lib/antora/templates/per-branch-antora-playbook.yml'
-		checkLocalBranch = true
-	}
 	options = [clean: true, fetch: !project.gradle.startParameter.offline, stacktrace: true]
+	environment = [
+		'BUILD_REFNAME': 'HEAD',
+		'BUILD_VERSION': project.version,
+	]
 }
 
 tasks.named("generateAntoraYml") {
