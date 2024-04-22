@@ -16,15 +16,15 @@
 
 package org.springframework.security.oauth2.client.endpoint;
 
-import java.util.Set;
-
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2Token;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.MultiValueMap;
+import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.client.WebClient;
 
 /**
@@ -51,29 +51,23 @@ public final class WebClientReactiveTokenExchangeTokenResponseClient
 	private static final String JWT_TOKEN_TYPE_VALUE = "urn:ietf:params:oauth:token-type:jwt";
 
 	@Override
-	ClientRegistration clientRegistration(TokenExchangeGrantRequest grantRequest) {
-		return grantRequest.getClientRegistration();
-	}
-
-	@Override
-	Set<String> scopes(TokenExchangeGrantRequest grantRequest) {
-		return grantRequest.getClientRegistration().getScopes();
-	}
-
-	@Override
-	BodyInserters.FormInserter<String> populateTokenRequestBody(TokenExchangeGrantRequest grantRequest,
-			BodyInserters.FormInserter<String> body) {
-		super.populateTokenRequestBody(grantRequest, body);
-		body.with(OAuth2ParameterNames.REQUESTED_TOKEN_TYPE, ACCESS_TOKEN_TYPE_VALUE);
+	MultiValueMap<String, String> createParameters(TokenExchangeGrantRequest grantRequest) {
+		ClientRegistration clientRegistration = grantRequest.getClientRegistration();
+		MultiValueMap<String, String> parameters = super.createParameters(grantRequest);
+		if (!CollectionUtils.isEmpty(clientRegistration.getScopes())) {
+			parameters.set(OAuth2ParameterNames.SCOPE,
+					StringUtils.collectionToDelimitedString(clientRegistration.getScopes(), " "));
+		}
+		parameters.set(OAuth2ParameterNames.REQUESTED_TOKEN_TYPE, ACCESS_TOKEN_TYPE_VALUE);
 		OAuth2Token subjectToken = grantRequest.getSubjectToken();
-		body.with(OAuth2ParameterNames.SUBJECT_TOKEN, subjectToken.getTokenValue());
-		body.with(OAuth2ParameterNames.SUBJECT_TOKEN_TYPE, tokenType(subjectToken));
+		parameters.set(OAuth2ParameterNames.SUBJECT_TOKEN, subjectToken.getTokenValue());
+		parameters.set(OAuth2ParameterNames.SUBJECT_TOKEN_TYPE, tokenType(subjectToken));
 		OAuth2Token actorToken = grantRequest.getActorToken();
 		if (actorToken != null) {
-			body.with(OAuth2ParameterNames.ACTOR_TOKEN, actorToken.getTokenValue());
-			body.with(OAuth2ParameterNames.ACTOR_TOKEN_TYPE, tokenType(actorToken));
+			parameters.set(OAuth2ParameterNames.ACTOR_TOKEN, actorToken.getTokenValue());
+			parameters.set(OAuth2ParameterNames.ACTOR_TOKEN_TYPE, tokenType(actorToken));
 		}
-		return body;
+		return parameters;
 	}
 
 	private static String tokenType(OAuth2Token token) {

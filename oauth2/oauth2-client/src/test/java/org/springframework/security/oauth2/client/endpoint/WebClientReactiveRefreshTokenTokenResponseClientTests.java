@@ -46,6 +46,7 @@ import org.springframework.security.oauth2.core.OAuth2RefreshToken;
 import org.springframework.security.oauth2.core.TestOAuth2AccessTokens;
 import org.springframework.security.oauth2.core.TestOAuth2RefreshTokens;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
+import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.core.endpoint.TestOAuth2AccessTokenResponses;
 import org.springframework.security.oauth2.jose.TestJwks;
 import org.springframework.security.oauth2.jose.TestKeys;
@@ -440,6 +441,31 @@ public class WebClientReactiveRefreshTokenTokenResponseClientTests {
 		verify(parametersConverter).convert(request);
 		RecordedRequest actualRequest = this.server.takeRequest();
 		assertThat(actualRequest.getBody().readUtf8()).contains("custom-parameter-name=custom-parameter-value");
+	}
+
+	@Test
+	public void getTokenResponseWhenParametersConverterSetThenAbleToOverrideDefaultParameters() throws Exception {
+		this.clientRegistrationBuilder.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST);
+		OAuth2RefreshTokenGrantRequest request = new OAuth2RefreshTokenGrantRequest(
+				this.clientRegistrationBuilder.build(), this.accessToken, this.refreshToken);
+		MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
+		parameters.set(OAuth2ParameterNames.GRANT_TYPE, "custom");
+		parameters.set(OAuth2ParameterNames.REFRESH_TOKEN, "custom-token");
+		parameters.set(OAuth2ParameterNames.SCOPE, "one two");
+		// The client_id parameter is omitted for testing purposes
+		this.tokenResponseClient.setParametersConverter((grantRequest) -> parameters);
+		// @formatter:off
+		String accessTokenSuccessResponse = "{\n"
+				+ "  \"access_token\":\"MTQ0NjJkZmQ5OTM2NDE1ZTZjNGZmZjI3\",\n"
+				+ "  \"token_type\":\"bearer\",\n"
+				+ "  \"expires_in\":3600,\n"
+				+ "  \"refresh_token\":\"IwOGYzYTlmM2YxOTQ5MGE3YmNmMDFkNTVk\"\n"
+				+ "}";
+		// @formatter:on
+		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+		this.tokenResponseClient.getTokenResponse(request).block();
+		String body = this.server.takeRequest().getBody().readUtf8();
+		assertThat(body).isEqualTo("grant_type=custom&refresh_token=custom-token&scope=one+two");
 	}
 
 	// gh-10260

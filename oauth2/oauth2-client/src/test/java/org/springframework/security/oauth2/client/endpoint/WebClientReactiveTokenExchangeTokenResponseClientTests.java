@@ -568,6 +568,30 @@ public class WebClientReactiveTokenExchangeTokenResponseClientTests {
 	}
 
 	@Test
+	public void getTokenResponseWhenParametersConverterSetThenAbleToOverrideDefaultParameters() throws Exception {
+		this.clientRegistration.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST);
+		MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
+		parameters.set(OAuth2ParameterNames.GRANT_TYPE, "custom");
+		parameters.set(OAuth2ParameterNames.SCOPE, "one two");
+		parameters.set(OAuth2ParameterNames.SUBJECT_TOKEN, "custom-token");
+		// The client_id parameter is omitted for testing purposes
+		this.tokenResponseClient.setParametersConverter((request) -> parameters);
+		// @formatter:off
+		String accessTokenSuccessResponse = "{\n"
+				+ "   \"access_token\": \"access-token-1234\",\n"
+				+ "   \"token_type\": \"bearer\",\n"
+				+ "   \"expires_in\": \"3600\"\n"
+				+ "}\n";
+		// @formatter:on
+		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+		TokenExchangeGrantRequest grantRequest = new TokenExchangeGrantRequest(this.clientRegistration.build(),
+				this.subjectToken, this.actorToken);
+		this.tokenResponseClient.getTokenResponse(grantRequest).block();
+		String body = this.server.takeRequest().getBody().readUtf8();
+		assertThat(body).isEqualTo("grant_type=custom&scope=one+two&subject_token=custom-token");
+	}
+
+	@Test
 	public void getTokenResponseWhenParametersConverterAddedThenCalled() throws Exception {
 		// @formatter:off
 		String accessTokenSuccessResponse = "{\n"
