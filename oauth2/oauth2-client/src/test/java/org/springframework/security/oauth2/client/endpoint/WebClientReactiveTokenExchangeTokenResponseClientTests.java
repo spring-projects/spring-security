@@ -35,6 +35,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ReactiveHttpInputMessage;
+import org.springframework.security.oauth2.client.MockResponses;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
@@ -89,14 +90,12 @@ public class WebClientReactiveTokenExchangeTokenResponseClientTests {
 		this.server = new MockWebServer();
 		this.server.start();
 		String tokenUri = this.server.url("/oauth2/token").toString();
-		// @formatter:off
 		this.clientRegistration = TestClientRegistrations.clientCredentials()
-				.clientId("client-1")
-				.clientSecret("secret")
-				.authorizationGrantType(AuthorizationGrantType.TOKEN_EXCHANGE)
-				.tokenUri(tokenUri)
-				.scope("read", "write");
-		// @formatter:on
+			.clientId("client-1")
+			.clientSecret("secret")
+			.authorizationGrantType(AuthorizationGrantType.TOKEN_EXCHANGE)
+			.tokenUri(tokenUri)
+			.scope("read", "write");
 		this.subjectToken = TestOAuth2AccessTokens.scopes("read", "write");
 		this.actorToken = null;
 	}
@@ -171,15 +170,7 @@ public class WebClientReactiveTokenExchangeTokenResponseClientTests {
 
 	@Test
 	public void getTokenResponseWhenSuccessResponseThenReturnAccessTokenResponse() throws Exception {
-		// @formatter:off
-		String accessTokenSuccessResponse = "{\n"
-				+ "   \"access_token\": \"access-token-1234\",\n"
-				+ "   \"token_type\": \"bearer\",\n"
-				+ "   \"expires_in\": \"3600\",\n"
-				+ "   \"scope\": \"read write\"\n"
-				+ "}\n";
-		// @formatter:on
-		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+		this.server.enqueue(MockResponses.json("access-token-response-read-write.json"));
 		Instant expiresAtBefore = Instant.now().plusSeconds(3600);
 		TokenExchangeGrantRequest grantRequest = new TokenExchangeGrantRequest(this.clientRegistration.build(),
 				this.subjectToken, this.actorToken);
@@ -210,15 +201,7 @@ public class WebClientReactiveTokenExchangeTokenResponseClientTests {
 
 	@Test
 	public void getTokenResponseWhenSubjectTokenIsJwtThenSubjectTokenTypeIsJwt() throws Exception {
-		// @formatter:off
-		String accessTokenSuccessResponse = "{\n"
-				+ "   \"access_token\": \"access-token-1234\",\n"
-				+ "   \"token_type\": \"bearer\",\n"
-				+ "   \"expires_in\": \"3600\",\n"
-				+ "   \"scope\": \"read write\"\n"
-				+ "}\n";
-		// @formatter:on
-		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+		this.server.enqueue(MockResponses.json("access-token-response-read-write.json"));
 		Instant expiresAtBefore = Instant.now().plusSeconds(3600);
 		this.subjectToken = TestJwts.jwt().build();
 		TokenExchangeGrantRequest grantRequest = new TokenExchangeGrantRequest(this.clientRegistration.build(),
@@ -250,15 +233,7 @@ public class WebClientReactiveTokenExchangeTokenResponseClientTests {
 
 	@Test
 	public void getTokenResponseWhenActorTokenIsNotNullThenActorParametersAreSent() throws Exception {
-		// @formatter:off
-		String accessTokenSuccessResponse = "{\n"
-				+ "   \"access_token\": \"access-token-1234\",\n"
-				+ "   \"token_type\": \"bearer\",\n"
-				+ "   \"expires_in\": \"3600\",\n"
-				+ "   \"scope\": \"read write\"\n"
-				+ "}\n";
-		// @formatter:on
-		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+		this.server.enqueue(MockResponses.json("access-token-response-read-write.json"));
 		Instant expiresAtBefore = Instant.now().plusSeconds(3600);
 		this.actorToken = TestOAuth2AccessTokens.noScopes();
 		TokenExchangeGrantRequest grantRequest = new TokenExchangeGrantRequest(this.clientRegistration.build(),
@@ -292,15 +267,7 @@ public class WebClientReactiveTokenExchangeTokenResponseClientTests {
 
 	@Test
 	public void getTokenResponseWhenActorTokenIsJwtThenActorTokenTypeIsJwt() throws Exception {
-		// @formatter:off
-		String accessTokenSuccessResponse = "{\n"
-				+ "   \"access_token\": \"access-token-1234\",\n"
-				+ "   \"token_type\": \"bearer\",\n"
-				+ "   \"expires_in\": \"3600\",\n"
-				+ "   \"scope\": \"read write\"\n"
-				+ "}\n";
-		// @formatter:on
-		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+		this.server.enqueue(MockResponses.json("access-token-response-read-write.json"));
 		Instant expiresAtBefore = Instant.now().plusSeconds(3600);
 		this.actorToken = TestJwts.jwt().build();
 		TokenExchangeGrantRequest grantRequest = new TokenExchangeGrantRequest(this.clientRegistration.build(),
@@ -334,14 +301,7 @@ public class WebClientReactiveTokenExchangeTokenResponseClientTests {
 
 	@Test
 	public void getTokenResponseWhenAuthenticationClientSecretBasicThenAuthorizationHeaderIsSent() throws Exception {
-		// @formatter:off
-		String accessTokenSuccessResponse = "{\n"
-				+ "   \"access_token\": \"access-token-1234\",\n"
-				+ "   \"token_type\": \"bearer\",\n"
-				+ "   \"expires_in\": \"3600\"\n"
-				+ "}\n";
-		// @formatter:on
-		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+		this.server.enqueue(MockResponses.json("access-token-response.json"));
 		TokenExchangeGrantRequest grantRequest = new TokenExchangeGrantRequest(this.clientRegistration.build(),
 				this.subjectToken, this.actorToken);
 		this.tokenResponseClient.getTokenResponse(grantRequest).block();
@@ -351,14 +311,7 @@ public class WebClientReactiveTokenExchangeTokenResponseClientTests {
 
 	@Test
 	public void getTokenResponseWhenAuthenticationClientSecretPostThenFormParametersAreSent() throws Exception {
-		// @formatter:off
-		String accessTokenSuccessResponse = "{\n"
-				+ "   \"access_token\": \"access-token-1234\",\n"
-				+ "   \"token_type\": \"bearer\",\n"
-				+ "   \"expires_in\": \"3600\"\n"
-				+ "}\n";
-		// @formatter:on
-		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+		this.server.enqueue(MockResponses.json("access-token-response.json"));
 		ClientRegistration clientRegistration = this.clientRegistration
 			.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST)
 			.build();
@@ -367,19 +320,17 @@ public class WebClientReactiveTokenExchangeTokenResponseClientTests {
 		this.tokenResponseClient.getTokenResponse(grantRequest).block();
 		RecordedRequest recordedRequest = this.server.takeRequest();
 		String formParameters = recordedRequest.getBody().readUtf8();
-		assertThat(formParameters).contains("client_id=client-1", "client_secret=secret");
+		// @formatter:off
+		assertThat(formParameters).contains(
+				param(OAuth2ParameterNames.CLIENT_ID, "client-1"),
+				param(OAuth2ParameterNames.CLIENT_SECRET, "secret")
+		);
+		// @formatter:on
 	}
 
 	@Test
 	public void getTokenResponseWhenSuccessResponseAndNotBearerTokenTypeThenThrowOAuth2AuthorizationException() {
-		// @formatter:off
-		String accessTokenSuccessResponse = "{\n"
-				+ "   \"access_token\": \"access-token-1234\",\n"
-				+ "   \"token_type\": \"not-bearer\",\n"
-				+ "   \"expires_in\": \"3600\"\n"
-				+ "}\n";
-		// @formatter:on
-		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+		this.server.enqueue(MockResponses.json("invalid-token-type-response.json"));
 		TokenExchangeGrantRequest grantRequest = new TokenExchangeGrantRequest(this.clientRegistration.build(),
 				this.subjectToken, this.actorToken);
 		// @formatter:off
@@ -393,15 +344,7 @@ public class WebClientReactiveTokenExchangeTokenResponseClientTests {
 
 	@Test
 	public void getTokenResponseWhenSuccessResponseIncludesScopeThenAccessTokenHasResponseScope() {
-		// @formatter:off
-		String accessTokenSuccessResponse = "{\n"
-				+ "   \"access_token\": \"access-token-1234\",\n"
-				+ "   \"token_type\": \"bearer\",\n"
-				+ "   \"expires_in\": \"3600\",\n"
-				+ "   \"scope\": \"read\"\n"
-				+ "}\n";
-		// @formatter:on
-		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+		this.server.enqueue(MockResponses.json("access-token-response-read.json"));
 		TokenExchangeGrantRequest grantRequest = new TokenExchangeGrantRequest(this.clientRegistration.build(),
 				this.subjectToken, this.actorToken);
 		OAuth2AccessTokenResponse accessTokenResponse = this.tokenResponseClient.getTokenResponse(grantRequest).block();
@@ -411,14 +354,7 @@ public class WebClientReactiveTokenExchangeTokenResponseClientTests {
 
 	@Test
 	public void getTokenResponseWhenSuccessResponseDoesNotIncludeScopeThenAccessTokenHasNoScope() {
-		// @formatter:off
-		String accessTokenSuccessResponse = "{\n"
-				+ "   \"access_token\": \"access-token-1234\",\n"
-				+ "   \"token_type\": \"bearer\",\n"
-				+ "   \"expires_in\": \"3600\"\n"
-				+ "}\n";
-		// @formatter:on
-		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+		this.server.enqueue(MockResponses.json("access-token-response.json"));
 		TokenExchangeGrantRequest grantRequest = new TokenExchangeGrantRequest(this.clientRegistration.build(),
 				this.subjectToken, this.actorToken);
 		OAuth2AccessTokenResponse accessTokenResponse = this.tokenResponseClient.getTokenResponse(grantRequest).block();
@@ -441,8 +377,7 @@ public class WebClientReactiveTokenExchangeTokenResponseClientTests {
 
 	@Test
 	public void getTokenResponseWhenServerErrorResponseThenThrowOAuth2AuthorizationException() {
-		String accessTokenErrorResponse = "{\"error\": \"server_error\", \"error_description\": \"A server error occurred\"}";
-		this.server.enqueue(jsonResponse(accessTokenErrorResponse).setResponseCode(500));
+		this.server.enqueue(MockResponses.json("server-error-response.json").setResponseCode(500));
 		TokenExchangeGrantRequest request = new TokenExchangeGrantRequest(this.clientRegistration.build(),
 				this.subjectToken, this.actorToken);
 		// @formatter:off
@@ -455,8 +390,7 @@ public class WebClientReactiveTokenExchangeTokenResponseClientTests {
 
 	@Test
 	public void getTokenResponseWhenErrorResponseThenThrowOAuth2AuthorizationException() {
-		String accessTokenErrorResponse = "{\"error\": \"invalid_grant\", \"error_description\": \"Invalid grant\"}";
-		this.server.enqueue(jsonResponse(accessTokenErrorResponse).setResponseCode(400));
+		this.server.enqueue(MockResponses.json("invalid-grant-response.json").setResponseCode(400));
 		TokenExchangeGrantRequest request = new TokenExchangeGrantRequest(this.clientRegistration.build(),
 				this.subjectToken, this.actorToken);
 		// @formatter:off
@@ -497,17 +431,10 @@ public class WebClientReactiveTokenExchangeTokenResponseClientTests {
 
 	@Test
 	public void getTokenResponseWhenHeadersConverterAddedThenCalled() throws Exception {
-		// @formatter:off
-		String accessTokenSuccessResponse = "{\n"
-				+ "   \"access_token\": \"access-token-1234\",\n"
-				+ "   \"token_type\": \"bearer\",\n"
-				+ "   \"expires_in\": \"3600\"\n"
-				+ "}\n";
-		// @formatter:on
-		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+		this.server.enqueue(MockResponses.json("access-token-response.json"));
 		TokenExchangeGrantRequest grantRequest = new TokenExchangeGrantRequest(this.clientRegistration.build(),
 				this.subjectToken, this.actorToken);
-		Converter<TokenExchangeGrantRequest, HttpHeaders> headersConverter = mock(Converter.class);
+		Converter<TokenExchangeGrantRequest, HttpHeaders> headersConverter = mock();
 		HttpHeaders headers = new HttpHeaders();
 		headers.put("custom-header-name", Collections.singletonList("custom-header-value"));
 		given(headersConverter.convert(grantRequest)).willReturn(headers);
@@ -521,17 +448,10 @@ public class WebClientReactiveTokenExchangeTokenResponseClientTests {
 
 	@Test
 	public void getTokenResponseWhenHeadersConverterSetThenCalled() throws Exception {
-		// @formatter:off
-		String accessTokenSuccessResponse = "{\n"
-				+ "   \"access_token\": \"access-token-1234\",\n"
-				+ "   \"token_type\": \"bearer\",\n"
-				+ "   \"expires_in\": \"3600\"\n"
-				+ "}\n";
-		// @formatter:on
-		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+		this.server.enqueue(MockResponses.json("access-token-response.json"));
 		TokenExchangeGrantRequest grantRequest = new TokenExchangeGrantRequest(this.clientRegistration.build(),
 				this.subjectToken, this.actorToken);
-		Converter<TokenExchangeGrantRequest, HttpHeaders> headersConverter = mock(Converter.class);
+		Converter<TokenExchangeGrantRequest, HttpHeaders> headersConverter = mock();
 		HttpHeaders headers = new HttpHeaders();
 		headers.put("custom-header-name", Collections.singletonList("custom-header-value"));
 		given(headersConverter.convert(grantRequest)).willReturn(headers);
@@ -545,17 +465,10 @@ public class WebClientReactiveTokenExchangeTokenResponseClientTests {
 
 	@Test
 	public void getTokenResponseWhenParametersConverterSetThenCalled() throws Exception {
-		// @formatter:off
-		String accessTokenSuccessResponse = "{\n"
-				+ "   \"access_token\": \"access-token-1234\",\n"
-				+ "   \"token_type\": \"bearer\",\n"
-				+ "   \"expires_in\": \"3600\"\n"
-				+ "}\n";
-		// @formatter:on
-		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+		this.server.enqueue(MockResponses.json("access-token-response.json"));
 		TokenExchangeGrantRequest grantRequest = new TokenExchangeGrantRequest(this.clientRegistration.build(),
 				this.subjectToken, this.actorToken);
-		Converter<TokenExchangeGrantRequest, MultiValueMap<String, String>> parametersConverter = mock(Converter.class);
+		Converter<TokenExchangeGrantRequest, MultiValueMap<String, String>> parametersConverter = mock();
 		MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
 		parameters.add("custom-parameter-name", "custom-parameter-value");
 		given(parametersConverter.convert(grantRequest)).willReturn(parameters);
@@ -568,18 +481,34 @@ public class WebClientReactiveTokenExchangeTokenResponseClientTests {
 	}
 
 	@Test
-	public void getTokenResponseWhenParametersConverterAddedThenCalled() throws Exception {
-		// @formatter:off
-		String accessTokenSuccessResponse = "{\n"
-				+ "   \"access_token\": \"access-token-1234\",\n"
-				+ "   \"token_type\": \"bearer\",\n"
-				+ "   \"expires_in\": \"3600\"\n"
-				+ "}\n";
-		// @formatter:on
-		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+	public void getTokenResponseWhenParametersConverterSetThenAbleToOverrideDefaultParameters() throws Exception {
+		this.clientRegistration.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST);
+		MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
+		parameters.set(OAuth2ParameterNames.GRANT_TYPE, "custom");
+		parameters.set(OAuth2ParameterNames.SCOPE, "one two");
+		parameters.set(OAuth2ParameterNames.SUBJECT_TOKEN, "custom-token");
+		this.tokenResponseClient.setParametersConverter((request) -> parameters);
+		this.server.enqueue(MockResponses.json("access-token-response.json"));
 		TokenExchangeGrantRequest grantRequest = new TokenExchangeGrantRequest(this.clientRegistration.build(),
 				this.subjectToken, this.actorToken);
-		Converter<TokenExchangeGrantRequest, MultiValueMap<String, String>> parametersConverter = mock(Converter.class);
+		this.tokenResponseClient.getTokenResponse(grantRequest).block();
+		String formParameters = this.server.takeRequest().getBody().readUtf8();
+		// @formatter:off
+		assertThat(formParameters).contains(
+				param(OAuth2ParameterNames.GRANT_TYPE, "custom"),
+				param(OAuth2ParameterNames.CLIENT_ID, "client-1"),
+				param(OAuth2ParameterNames.SCOPE, "one two"),
+				param(OAuth2ParameterNames.SUBJECT_TOKEN, "custom-token")
+		);
+		// @formatter:on
+	}
+
+	@Test
+	public void getTokenResponseWhenParametersConverterAddedThenCalled() throws Exception {
+		this.server.enqueue(MockResponses.json("access-token-response.json"));
+		TokenExchangeGrantRequest grantRequest = new TokenExchangeGrantRequest(this.clientRegistration.build(),
+				this.subjectToken, this.actorToken);
+		Converter<TokenExchangeGrantRequest, MultiValueMap<String, String>> parametersConverter = mock();
 		MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
 		parameters.add("custom-parameter-name", "custom-parameter-value");
 		given(parametersConverter.convert(grantRequest)).willReturn(parameters);
@@ -602,16 +531,8 @@ public class WebClientReactiveTokenExchangeTokenResponseClientTests {
 
 	@Test
 	public void getTokenResponseWhenBodyExtractorSetThenCalled() {
-		// @formatter:off
-		String accessTokenSuccessResponse = "{\n"
-				+ "   \"access_token\": \"access-token-1234\",\n"
-				+ "   \"token_type\": \"bearer\",\n"
-				+ "   \"expires_in\": \"3600\"\n"
-				+ "}\n";
-		// @formatter:on
-		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
-		BodyExtractor<Mono<OAuth2AccessTokenResponse>, ReactiveHttpInputMessage> bodyExtractor = mock(
-				BodyExtractor.class);
+		this.server.enqueue(MockResponses.json("access-token-response.json"));
+		BodyExtractor<Mono<OAuth2AccessTokenResponse>, ReactiveHttpInputMessage> bodyExtractor = mock();
 		OAuth2AccessTokenResponse response = TestOAuth2AccessTokenResponses.accessTokenResponse().build();
 		given(bodyExtractor.extract(any(ReactiveHttpInputMessage.class), any(BodyExtractor.Context.class)))
 			.willReturn(Mono.just(response));
@@ -625,15 +546,8 @@ public class WebClientReactiveTokenExchangeTokenResponseClientTests {
 
 	@Test
 	public void getTokenResponseWhenWebClientSetThenCalled() {
-		// @formatter:off
-		String accessTokenSuccessResponse = "{\n"
-				+ "   \"access_token\": \"access-token-1234\",\n"
-				+ "   \"token_type\": \"bearer\",\n"
-				+ "   \"expires_in\": \"3600\"\n"
-				+ "}\n";
-		// @formatter:on
-		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
-		WebClient customClient = mock(WebClient.class);
+		this.server.enqueue(MockResponses.json("access-token-response.json"));
+		WebClient customClient = mock();
 		given(customClient.post()).willReturn(WebClient.builder().build().post());
 		this.tokenResponseClient.setWebClient(customClient);
 		ClientRegistration clientRegistration = this.clientRegistration.build();
@@ -641,10 +555,6 @@ public class WebClientReactiveTokenExchangeTokenResponseClientTests {
 				this.actorToken);
 		this.tokenResponseClient.getTokenResponse(grantRequest).block();
 		verify(customClient).post();
-	}
-
-	private MockResponse jsonResponse(String json) {
-		return new MockResponse().setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE).setBody(json);
 	}
 
 	private static String param(String parameterName, String parameterValue) {
