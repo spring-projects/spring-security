@@ -17,10 +17,6 @@
 package org.springframework.security.oauth2.client.endpoint;
 
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
-import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationExchange;
-import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
-import org.springframework.security.oauth2.core.endpoint.PkceParameterNames;
-import org.springframework.util.MultiValueMap;
 
 /**
  * An implementation of {@link OAuth2AccessTokenResponseClient} that &quot;exchanges&quot;
@@ -42,22 +38,5 @@ import org.springframework.util.MultiValueMap;
  */
 public final class RestClientAuthorizationCodeTokenResponseClient
 		extends AbstractRestClientOAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> {
-
-	@Override
-	MultiValueMap<String, String> createParameters(OAuth2AuthorizationCodeGrantRequest grantRequest) {
-		OAuth2AuthorizationExchange authorizationExchange = grantRequest.getAuthorizationExchange();
-		MultiValueMap<String, String> parameters = super.createParameters(grantRequest);
-		parameters.set(OAuth2ParameterNames.CODE, authorizationExchange.getAuthorizationResponse().getCode());
-		String redirectUri = authorizationExchange.getAuthorizationRequest().getRedirectUri();
-		if (redirectUri != null) {
-			parameters.set(OAuth2ParameterNames.REDIRECT_URI, redirectUri);
-		}
-		String codeVerifier = authorizationExchange.getAuthorizationRequest()
-			.getAttribute(PkceParameterNames.CODE_VERIFIER);
-		if (codeVerifier != null) {
-			parameters.set(PkceParameterNames.CODE_VERIFIER, codeVerifier);
-		}
-		return parameters;
-	}
 
 }

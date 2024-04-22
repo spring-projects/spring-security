@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,11 @@
 
 package org.springframework.security.oauth2.client.endpoint;
 
-import java.util.Set;
+import reactor.core.publisher.Mono;
 
-import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
-import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.util.CollectionUtils;
-import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 
 /**
@@ -44,29 +41,12 @@ public final class WebClientReactiveRefreshTokenTokenResponseClient
 		extends AbstractWebClientReactiveOAuth2AccessTokenResponseClient<OAuth2RefreshTokenGrantRequest> {
 
 	@Override
-	ClientRegistration clientRegistration(OAuth2RefreshTokenGrantRequest grantRequest) {
-		return grantRequest.getClientRegistration();
+	public Mono<OAuth2AccessTokenResponse> getTokenResponse(OAuth2RefreshTokenGrantRequest grantRequest) {
+		return super.getTokenResponse(grantRequest)
+			.map((accessTokenResponse) -> populateTokenResponse(grantRequest, accessTokenResponse));
 	}
 
-	@Override
-	Set<String> scopes(OAuth2RefreshTokenGrantRequest grantRequest) {
-		return grantRequest.getScopes();
-	}
-
-	@Override
-	Set<String> defaultScopes(OAuth2RefreshTokenGrantRequest grantRequest) {
-		return grantRequest.getAccessToken().getScopes();
-	}
-
-	@Override
-	BodyInserters.FormInserter<String> populateTokenRequestBody(OAuth2RefreshTokenGrantRequest grantRequest,
-			BodyInserters.FormInserter<String> body) {
-		return super.populateTokenRequestBody(grantRequest, body).with(OAuth2ParameterNames.REFRESH_TOKEN,
-				grantRequest.getRefreshToken().getTokenValue());
-	}
-
-	@Override
-	OAuth2AccessTokenResponse populateTokenResponse(OAuth2RefreshTokenGrantRequest grantRequest,
+	private OAuth2AccessTokenResponse populateTokenResponse(OAuth2RefreshTokenGrantRequest grantRequest,
 			OAuth2AccessTokenResponse accessTokenResponse) {
 		if (!CollectionUtils.isEmpty(accessTokenResponse.getAccessToken().getScopes())
 				&& accessTokenResponse.getRefreshToken() != null) {
@@ -75,7 +55,7 @@ public final class WebClientReactiveRefreshTokenTokenResponseClient
 		OAuth2AccessTokenResponse.Builder tokenResponseBuilder = OAuth2AccessTokenResponse
 			.withResponse(accessTokenResponse);
 		if (CollectionUtils.isEmpty(accessTokenResponse.getAccessToken().getScopes())) {
-			tokenResponseBuilder.scopes(defaultScopes(grantRequest));
+			tokenResponseBuilder.scopes(grantRequest.getAccessToken().getScopes());
 		}
 		if (accessTokenResponse.getRefreshToken() == null) {
 			// Reuse existing refresh token

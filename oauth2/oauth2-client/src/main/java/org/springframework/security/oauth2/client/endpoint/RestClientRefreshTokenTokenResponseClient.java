@@ -17,10 +17,7 @@
 package org.springframework.security.oauth2.client.endpoint;
 
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
-import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.MultiValueMap;
-import org.springframework.util.StringUtils;
 
 /**
  * An implementation of {@link OAuth2AccessTokenResponseClient} that &quot;exchanges&quot;
@@ -41,17 +38,6 @@ public final class RestClientRefreshTokenTokenResponseClient
 	public OAuth2AccessTokenResponse getTokenResponse(OAuth2RefreshTokenGrantRequest grantRequest) {
 		OAuth2AccessTokenResponse accessTokenResponse = super.getTokenResponse(grantRequest);
 		return populateTokenResponse(grantRequest, accessTokenResponse);
-	}
-
-	@Override
-	MultiValueMap<String, String> createParameters(OAuth2RefreshTokenGrantRequest grantRequest) {
-		MultiValueMap<String, String> parameters = super.createParameters(grantRequest);
-		if (!CollectionUtils.isEmpty(grantRequest.getScopes())) {
-			parameters.set(OAuth2ParameterNames.SCOPE,
-					StringUtils.collectionToDelimitedString(grantRequest.getScopes(), " "));
-		}
-		parameters.set(OAuth2ParameterNames.REFRESH_TOKEN, grantRequest.getRefreshToken().getTokenValue());
-		return parameters;
 	}
 
 	private OAuth2AccessTokenResponse populateTokenResponse(OAuth2RefreshTokenGrantRequest grantRequest,

@@ -1,0 +1,9 @@
+{
+  "access_token": "access-token-1234",
+  "token_type": "Bearer",
+  "expires_in": 3600,
+  "scope": "openid profile",
+  "refresh_token": "refresh-token-1234",
+  "custom_parameter_1":  "custom-value-1",
+  "custom_parameter_2": "custom-value-2"
+}
