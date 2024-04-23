@@ -184,7 +184,7 @@ You do this by setting the `RelyingPartyRegistration.Builder#singleLogoutService
 [[architecture]]
 == How Saml 2.0 Logout Works
 
-Next, let's see the architectural components that Spring Security uses to support http://docs.oasis-open.org/security/saml/v2.0/saml-profiles-2.0-os.pdf#page=37[SAML 2.0 Logout] in servlet-based applications, like the one we just saw.
+Next, let's see the architectural components that Spring Security uses to support https://docs.oasis-open.org/security/saml/v2.0/saml-profiles-2.0-os.pdf#page=37[SAML 2.0 Logout] in servlet-based applications, like the one we just saw.
 
 For RP-initiated logout:
 
