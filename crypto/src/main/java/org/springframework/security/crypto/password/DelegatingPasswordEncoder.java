@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,8 @@ package org.springframework.security.crypto.password;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import org.springframework.util.StringUtils;
 
 /**
  * A password encoder that delegates to another PasswordEncoder based upon a prefixed
@@ -128,6 +130,10 @@ public class DelegatingPasswordEncoder implements PasswordEncoder {
 	private static final String DEFAULT_ID_PREFIX = "{";
 
 	private static final String DEFAULT_ID_SUFFIX = "}";
+
+	public static final String NO_PASSWORD_ENCODER_MAPPED = "There is no PasswordEncoder mapped for the id \"%s\"";
+
+	public static final String NO_PASSWORD_ENCODER_PREFIX = "You have entered a password with no PasswordEncoder. If that is your intent, it should be prefixed with `{noop}`.";
 
 	private final String idPrefix;
 
@@ -286,7 +292,10 @@ public class DelegatingPasswordEncoder implements PasswordEncoder {
 		@Override
 		public boolean matches(CharSequence rawPassword, String prefixEncodedPassword) {
 			String id = extractId(prefixEncodedPassword);
-			throw new IllegalArgumentException("There is no PasswordEncoder mapped for the id \"" + id + "\"");
+			if (StringUtils.hasText(id)) {
+				throw new IllegalArgumentException(String.format(NO_PASSWORD_ENCODER_MAPPED, id));
+			}
+			throw new IllegalArgumentException(NO_PASSWORD_ENCODER_PREFIX);
 		}
 
 	}
