@@ -12,7 +12,7 @@ org-eclipse-jetty = "11.0.20"
 org-jetbrains-kotlin = "1.9.23"
 org-jetbrains-kotlinx = "1.8.0"
 org-mockito = "5.11.0"
-org-opensaml = "4.3.1"
+org-opensaml = "4.3.2"
 org-springframework = "6.1.6"
 
 [libraries]
