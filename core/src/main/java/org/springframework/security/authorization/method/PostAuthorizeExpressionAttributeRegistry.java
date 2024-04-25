@@ -81,7 +81,7 @@ final class PostAuthorizeExpressionAttributeRegistry extends AbstractExpressionA
 
 	/**
 	 * Uses the provided {@link ApplicationContext} to resolve the
-	 * {@link MethodAuthorizationDeniedPostProcessor} from {@link PostAuthorize}
+	 * {@link MethodAuthorizationDeniedHandler} from {@link PostAuthorize}
 	 * @param context the {@link ApplicationContext} to use
 	 */
 	void setApplicationContext(ApplicationContext context) {
