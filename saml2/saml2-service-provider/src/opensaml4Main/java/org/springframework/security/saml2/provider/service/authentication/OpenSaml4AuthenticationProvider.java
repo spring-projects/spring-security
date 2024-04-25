@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,6 +55,7 @@ import org.opensaml.saml.saml2.assertion.SubjectConfirmationValidator;
 import org.opensaml.saml.saml2.assertion.impl.AudienceRestrictionConditionValidator;
 import org.opensaml.saml.saml2.assertion.impl.BearerSubjectConfirmationValidator;
 import org.opensaml.saml.saml2.assertion.impl.DelegationRestrictionConditionValidator;
+import org.opensaml.saml.saml2.assertion.impl.ProxyRestrictionConditionValidator;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.Attribute;
 import org.opensaml.saml.saml2.core.AttributeStatement;
@@ -837,6 +838,7 @@ public final class OpenSaml4AuthenticationProvider implements AuthenticationProv
 					return ValidationResult.VALID;
 				}
 			});
+			conditions.add(new ProxyRestrictionConditionValidator());
 			subjects.add(new BearerSubjectConfirmationValidator() {
 				@Override
 				protected ValidationResult validateAddress(SubjectConfirmation confirmation, Assertion assertion,
