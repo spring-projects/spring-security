@@ -57,6 +57,7 @@ import org.opensaml.saml.saml2.assertion.SubjectConfirmationValidator;
 import org.opensaml.saml.saml2.assertion.impl.AudienceRestrictionConditionValidator;
 import org.opensaml.saml.saml2.assertion.impl.BearerSubjectConfirmationValidator;
 import org.opensaml.saml.saml2.assertion.impl.DelegationRestrictionConditionValidator;
+import org.opensaml.saml.saml2.assertion.impl.ProxyRestrictionConditionValidator;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.Attribute;
 import org.opensaml.saml.saml2.core.AttributeStatement;
@@ -834,6 +835,7 @@ public final class OpenSaml4AuthenticationProvider implements AuthenticationProv
 					return ValidationResult.VALID;
 				}
 			});
+			conditions.add(new ProxyRestrictionConditionValidator());
 			subjects.add(new BearerSubjectConfirmationValidator() {
 				@Override
 				protected ValidationResult validateAddress(SubjectConfirmation confirmation, Assertion assertion,
