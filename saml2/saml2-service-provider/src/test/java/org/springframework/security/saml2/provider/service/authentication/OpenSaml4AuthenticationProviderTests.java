@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,6 +53,7 @@ import org.opensaml.saml.saml2.core.EncryptedAttribute;
 import org.opensaml.saml.saml2.core.EncryptedID;
 import org.opensaml.saml.saml2.core.NameID;
 import org.opensaml.saml.saml2.core.OneTimeUse;
+import org.opensaml.saml.saml2.core.ProxyRestriction;
 import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.core.StatusCode;
 import org.opensaml.saml.saml2.core.SubjectConfirmation;
@@ -61,6 +62,7 @@ import org.opensaml.saml.saml2.core.impl.AttributeBuilder;
 import org.opensaml.saml.saml2.core.impl.EncryptedAssertionBuilder;
 import org.opensaml.saml.saml2.core.impl.EncryptedIDBuilder;
 import org.opensaml.saml.saml2.core.impl.NameIDBuilder;
+import org.opensaml.saml.saml2.core.impl.ProxyRestrictionBuilder;
 import org.opensaml.xmlsec.encryption.impl.EncryptedDataBuilder;
 import org.opensaml.xmlsec.signature.support.SignatureConstants;
 import org.w3c.dom.Element;
@@ -739,6 +741,19 @@ public class OpenSaml4AuthenticationProviderTests {
 		Saml2AuthenticationToken token = token(signed(response), verifying(registration()));
 		assertThatExceptionOfType(Saml2AuthenticationException.class).isThrownBy(() -> provider.authenticate(token))
 			.withMessageContaining("did not match any valid issuers");
+	}
+
+	// gh-14931
+	@Test
+	public void authenticateWhenAssertionHasProxyRestrictionThenParses() {
+		OpenSaml4AuthenticationProvider provider = new OpenSaml4AuthenticationProvider();
+		Response response = response();
+		Assertion assertion = assertion();
+		ProxyRestriction condition = new ProxyRestrictionBuilder().buildObject();
+		assertion.getConditions().getConditions().add(condition);
+		response.getAssertions().add(assertion);
+		Saml2AuthenticationToken token = token(signed(response), verifying(registration()));
+		provider.authenticate(token);
 	}
 
 	private <T extends XMLObject> T build(QName qName) {
