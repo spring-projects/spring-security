@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -94,6 +94,13 @@ public class AnonymousConfigurerTests {
 		this.mockMvc.perform(get("/")).andExpect(status().isOk());
 	}
 
+	// gh-14941
+	@Test
+	public void shouldReturnMyCustomAnonymousConfig() throws Exception {
+		this.spring.register(AnonymousInCustomConfigurer.class, PrincipalController.class).autowire();
+		this.mockMvc.perform(get("/")).andExpect(status().isOk()).andExpect(content().string("myAnonymousUser"));
+	}
+
 	@Configuration
 	@EnableWebSecurity
 	@EnableWebMvc
@@ -177,6 +184,32 @@ public class AnonymousConfigurerTests {
 		@Bean
 		UserDetailsService userDetailsService() {
 			return new InMemoryUserDetailsManager(PasswordEncodedUser.user());
+		}
+
+	}
+
+	@Configuration
+	@EnableWebMvc
+	@EnableWebSecurity
+	static class AnonymousInCustomConfigurer {
+
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeHttpRequests((authorize) -> authorize.anyRequest().permitAll())
+				.with(new CustomDsl(), withDefaults());
+			// @formatter:on
+			return http.build();
+		}
+
+		static class CustomDsl extends AbstractHttpConfigurer<CustomDsl, HttpSecurity> {
+
+			@Override
+			public void init(HttpSecurity http) throws Exception {
+				http.anonymous((anonymous) -> anonymous.principal("myAnonymousUser"));
+			}
+
 		}
 
 	}
