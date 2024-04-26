@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,6 +42,8 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
  */
 @ExtendWith(MockitoExtension.class)
 public class DelegatingPasswordEncoderTests {
+
+	public static final String NO_PASSWORD_ENCODER = "You have entered a password with no PasswordEncoder. If that is your intent, it should be prefixed with `{noop}`.";
 
 	@Mock
 	private PasswordEncoder bcrypt;
@@ -201,7 +203,7 @@ public class DelegatingPasswordEncoderTests {
 	public void matchesWhenNoClosingPrefixStringThenIllegalArgumentException() {
 		assertThatIllegalArgumentException()
 			.isThrownBy(() -> this.passwordEncoder.matches(this.rawPassword, "{bcrypt" + this.rawPassword))
-			.withMessage("There is no PasswordEncoder mapped for the id \"null\"");
+			.withMessage(NO_PASSWORD_ENCODER);
 		verifyNoMoreInteractions(this.bcrypt, this.noop);
 	}
 
@@ -209,7 +211,7 @@ public class DelegatingPasswordEncoderTests {
 	public void matchesWhenNoStartingPrefixStringThenFalse() {
 		assertThatIllegalArgumentException()
 			.isThrownBy(() -> this.passwordEncoder.matches(this.rawPassword, "bcrypt}" + this.rawPassword))
-			.withMessage("There is no PasswordEncoder mapped for the id \"null\"");
+			.withMessage(NO_PASSWORD_ENCODER);
 		verifyNoMoreInteractions(this.bcrypt, this.noop);
 	}
 
@@ -217,7 +219,7 @@ public class DelegatingPasswordEncoderTests {
 	public void matchesWhenNoIdStringThenFalse() {
 		assertThatIllegalArgumentException()
 			.isThrownBy(() -> this.passwordEncoder.matches(this.rawPassword, "{}" + this.rawPassword))
-			.withMessage("There is no PasswordEncoder mapped for the id \"\"");
+			.withMessage(NO_PASSWORD_ENCODER);
 		verifyNoMoreInteractions(this.bcrypt, this.noop);
 	}
 
@@ -226,7 +228,7 @@ public class DelegatingPasswordEncoderTests {
 		assertThatIllegalArgumentException()
 			.isThrownBy(() -> this.passwordEncoder.matches(this.rawPassword, "invalid" + this.bcryptEncodedPassword))
 			.isInstanceOf(IllegalArgumentException.class)
-			.withMessage("There is no PasswordEncoder mapped for the id \"null\"");
+			.withMessage(NO_PASSWORD_ENCODER);
 		verifyNoMoreInteractions(this.bcrypt, this.noop);
 	}
 
@@ -236,7 +238,7 @@ public class DelegatingPasswordEncoderTests {
 		DelegatingPasswordEncoder passwordEncoder = new DelegatingPasswordEncoder(this.bcryptId, this.delegates);
 		assertThatIllegalArgumentException()
 			.isThrownBy(() -> passwordEncoder.matches(this.rawPassword, this.rawPassword))
-			.withMessage("There is no PasswordEncoder mapped for the id \"null\"");
+			.withMessage(NO_PASSWORD_ENCODER);
 		verifyNoMoreInteractions(this.bcrypt, this.noop);
 	}
 
@@ -287,6 +289,16 @@ public class DelegatingPasswordEncoderTests {
 	public void upgradeEncodingWhenDifferentIdThenTrue() {
 		assertThat(this.passwordEncoder.upgradeEncoding(this.noopEncodedPassword)).isTrue();
 		verifyNoMoreInteractions(this.bcrypt);
+	}
+
+	@Test
+	void matchesShouldThrowIllegalArgumentExceptionWhenNoPasswordEncoderIsMappedForTheId() {
+		assertThatIllegalArgumentException()
+			.isThrownBy(() -> this.passwordEncoder.matches("rawPassword", "prefixEncodedPassword"))
+			.isInstanceOf(IllegalArgumentException.class)
+			.withMessage(NO_PASSWORD_ENCODER);
+		verifyNoMoreInteractions(this.bcrypt, this.noop);
+
 	}
 
 }
