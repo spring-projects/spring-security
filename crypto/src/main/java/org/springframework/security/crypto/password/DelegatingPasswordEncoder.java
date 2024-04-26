@@ -19,6 +19,8 @@ package org.springframework.security.crypto.password;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.util.StringUtils;
+
 /**
  * A password encoder that delegates to another PasswordEncoder based upon a prefixed
  * identifier.
@@ -129,9 +131,14 @@ public class DelegatingPasswordEncoder implements PasswordEncoder {
 
 	private static final String DEFAULT_ID_SUFFIX = "}";
 
-	public static final String NO_PASSWORD_ENCODER_MAPPED = "There is no PasswordEncoder mapped for the id \"%s\"";
+	private static final String NO_PASSWORD_ENCODER_MAPPED = "There is no password encoder mapped for the id '%s'. "
+			+ "Check your configuration to ensure it matches one of the registered encoders.";
 
-	public static final String NO_PASSWORD_ENCODER_PREFIX = "You have entered a password with no PasswordEncoder. If that is your intent, it should be prefixed with `{noop}`.";
+	private static final String NO_PASSWORD_ENCODER_PREFIX = "Given that there is no default password encoder configured, each password must have a password encoding prefix. "
+			+ "Please either prefix this password with '{noop}' or set a default password encoder in `DelegatingPasswordEncoder`.";
+
+	private static final String MALFORMED_PASSWORD_ENCODER_PREFIX = "The name of the password encoder is improperly "
+			+ "formatted or incomplete. The format should be '%sENCODER%spassword'.";
 
 	private final String idPrefix;
 
@@ -290,10 +297,18 @@ public class DelegatingPasswordEncoder implements PasswordEncoder {
 		@Override
 		public boolean matches(CharSequence rawPassword, String prefixEncodedPassword) {
 			String id = extractId(prefixEncodedPassword);
-			if (id != null && !id.isEmpty()) {
+			if (StringUtils.hasText(id)) {
 				throw new IllegalArgumentException(String.format(NO_PASSWORD_ENCODER_MAPPED, id));
 			}
-			throw new IllegalArgumentException(NO_PASSWORD_ENCODER_PREFIX);
+			if (StringUtils.hasText(prefixEncodedPassword)) {
+				int start = prefixEncodedPassword.indexOf(DelegatingPasswordEncoder.this.idPrefix);
+				int end = prefixEncodedPassword.indexOf(DelegatingPasswordEncoder.this.idSuffix, start);
+				if (start < 0 && end < 0) {
+					throw new IllegalArgumentException(NO_PASSWORD_ENCODER_PREFIX);
+				}
+			}
+			throw new IllegalArgumentException(String.format(MALFORMED_PASSWORD_ENCODER_PREFIX,
+					DelegatingPasswordEncoder.this.idPrefix, DelegatingPasswordEncoder.this.idSuffix));
 		}
 
 	}

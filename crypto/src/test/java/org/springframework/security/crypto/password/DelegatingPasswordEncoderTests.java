@@ -43,8 +43,6 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 @ExtendWith(MockitoExtension.class)
 public class DelegatingPasswordEncoderTests {
 
-	public static final String NO_PASSWORD_ENCODER = "You have entered a password with no PasswordEncoder. If that is your intent, it should be prefixed with `{noop}`.";
-
 	@Mock
 	private PasswordEncoder bcrypt;
 
@@ -69,6 +67,14 @@ public class DelegatingPasswordEncoderTests {
 	private DelegatingPasswordEncoder passwordEncoder;
 
 	private DelegatingPasswordEncoder onlySuffixPasswordEncoder;
+
+	private static final String NO_PASSWORD_ENCODER_MAPPED = "There is no password encoder mapped for the id 'unmapped'. "
+			+ "Check your configuration to ensure it matches one of the registered encoders.";
+
+	private static final String NO_PASSWORD_ENCODER_PREFIX = "Given that there is no default password encoder configured, "
+			+ "each password must have a password encoding prefix. Please either prefix this password with '{noop}' or set a default password encoder in `DelegatingPasswordEncoder`.";
+
+	private static final String MALFORMED_PASSWORD_ENCODER_PREFIX = "The name of the password encoder is improperly formatted or incomplete. The format should be '{ENCODER}password'.";
 
 	@BeforeEach
 	public void setup() {
@@ -195,7 +201,7 @@ public class DelegatingPasswordEncoderTests {
 	public void matchesWhenUnMappedThenIllegalArgumentException() {
 		assertThatIllegalArgumentException()
 			.isThrownBy(() -> this.passwordEncoder.matches(this.rawPassword, "{unmapped}" + this.rawPassword))
-			.withMessage("There is no PasswordEncoder mapped for the id \"unmapped\"");
+			.withMessage(NO_PASSWORD_ENCODER_MAPPED);
 		verifyNoMoreInteractions(this.bcrypt, this.noop);
 	}
 
@@ -203,7 +209,7 @@ public class DelegatingPasswordEncoderTests {
 	public void matchesWhenNoClosingPrefixStringThenIllegalArgumentException() {
 		assertThatIllegalArgumentException()
 			.isThrownBy(() -> this.passwordEncoder.matches(this.rawPassword, "{bcrypt" + this.rawPassword))
-			.withMessage(NO_PASSWORD_ENCODER);
+			.withMessage(MALFORMED_PASSWORD_ENCODER_PREFIX);
 		verifyNoMoreInteractions(this.bcrypt, this.noop);
 	}
 
@@ -211,7 +217,7 @@ public class DelegatingPasswordEncoderTests {
 	public void matchesWhenNoStartingPrefixStringThenFalse() {
 		assertThatIllegalArgumentException()
 			.isThrownBy(() -> this.passwordEncoder.matches(this.rawPassword, "bcrypt}" + this.rawPassword))
-			.withMessage(NO_PASSWORD_ENCODER);
+			.withMessage(MALFORMED_PASSWORD_ENCODER_PREFIX);
 		verifyNoMoreInteractions(this.bcrypt, this.noop);
 	}
 
@@ -219,7 +225,7 @@ public class DelegatingPasswordEncoderTests {
 	public void matchesWhenNoIdStringThenFalse() {
 		assertThatIllegalArgumentException()
 			.isThrownBy(() -> this.passwordEncoder.matches(this.rawPassword, "{}" + this.rawPassword))
-			.withMessage(NO_PASSWORD_ENCODER);
+			.withMessage(MALFORMED_PASSWORD_ENCODER_PREFIX);
 		verifyNoMoreInteractions(this.bcrypt, this.noop);
 	}
 
@@ -228,7 +234,7 @@ public class DelegatingPasswordEncoderTests {
 		assertThatIllegalArgumentException()
 			.isThrownBy(() -> this.passwordEncoder.matches(this.rawPassword, "invalid" + this.bcryptEncodedPassword))
 			.isInstanceOf(IllegalArgumentException.class)
-			.withMessage(NO_PASSWORD_ENCODER);
+			.withMessage(MALFORMED_PASSWORD_ENCODER_PREFIX);
 		verifyNoMoreInteractions(this.bcrypt, this.noop);
 	}
 
@@ -238,7 +244,7 @@ public class DelegatingPasswordEncoderTests {
 		DelegatingPasswordEncoder passwordEncoder = new DelegatingPasswordEncoder(this.bcryptId, this.delegates);
 		assertThatIllegalArgumentException()
 			.isThrownBy(() -> passwordEncoder.matches(this.rawPassword, this.rawPassword))
-			.withMessage(NO_PASSWORD_ENCODER);
+			.withMessage(NO_PASSWORD_ENCODER_PREFIX);
 		verifyNoMoreInteractions(this.bcrypt, this.noop);
 	}
 
@@ -296,9 +302,8 @@ public class DelegatingPasswordEncoderTests {
 		assertThatIllegalArgumentException()
 			.isThrownBy(() -> this.passwordEncoder.matches("rawPassword", "prefixEncodedPassword"))
 			.isInstanceOf(IllegalArgumentException.class)
-			.withMessage(NO_PASSWORD_ENCODER);
+			.withMessage(NO_PASSWORD_ENCODER_PREFIX);
 		verifyNoMoreInteractions(this.bcrypt, this.noop);
-
 	}
 
 }

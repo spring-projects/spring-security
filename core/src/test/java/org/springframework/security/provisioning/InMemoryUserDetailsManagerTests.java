@@ -18,10 +18,18 @@ package org.springframework.security.provisioning;
 
 import java.util.Collection;
 import java.util.Properties;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.TestAuthentication;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.CredentialsContainer;
 import org.springframework.security.core.GrantedAuthority;
@@ -31,6 +39,7 @@ import org.springframework.security.core.userdetails.PasswordEncodedUser;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -149,6 +158,36 @@ public class InMemoryUserDetailsManagerTests {
 		CustomUser user = new CustomUser(User.withUserDetails(PasswordEncodedUser.user()).build());
 		InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager(user);
 		assertThat(manager.loadUserByUsername(user.getUsername())).isSameAs(user);
+	}
+
+	@ParameterizedTest
+	@MethodSource("authenticationErrorCases")
+	void authenticateWhenInvalidMissingOrMalformedIdThenException(String username, String password,
+			String expectedMessage) {
+		UserDetails user = User.builder().username(username).password(password).roles("USER").build();
+		InMemoryUserDetailsManager userManager = new InMemoryUserDetailsManager(user);
+
+		DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
+		authenticationProvider.setUserDetailsService(userManager);
+		authenticationProvider.setPasswordEncoder(PasswordEncoderFactories.createDelegatingPasswordEncoder());
+
+		AuthenticationManager authManager = new ProviderManager(authenticationProvider);
+
+		assertThatIllegalArgumentException()
+			.isThrownBy(() -> authManager.authenticate(new UsernamePasswordAuthenticationToken(username, "password")))
+			.withMessage(expectedMessage);
+	}
+
+	private static Stream<Arguments> authenticationErrorCases() {
+		return Stream.of(Arguments
+			.of("user", "password", "Given that there is no default password encoder configured, each "
+					+ "password must have a password encoding prefix. Please either prefix this password with '{noop}' or set a default password encoder in `DelegatingPasswordEncoder`."),
+				Arguments.of("user", "bycrpt}password",
+						"The name of the password encoder is improperly formatted or incomplete. The format should be '{ENCODER}password'."),
+				Arguments.of("user", "{bycrptpassword",
+						"The name of the password encoder is improperly formatted or incomplete. The format should be '{ENCODER}password'."),
+				Arguments.of("user", "{ren&stimpy}password",
+						"There is no password encoder mapped for the id 'ren&stimpy'. Check your configuration to ensure it matches one of the registered encoders."));
 	}
 
 	static class CustomUser implements MutableUserDetails, CredentialsContainer {
