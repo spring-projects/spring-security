@@ -131,7 +131,7 @@ public class DefaultSecurityConfig {
     InMemoryUserDetailsManager inMemoryUserDetailsManager() { <2>
         String generatedPassword = // ...;
         return new InMemoryUserDetailsManager(User.withUsername("user")
-                .password(generatedPassword).roles("ROLE_USER").build());
+                .password(generatedPassword).roles("USER").build());
     }
 
     @Bean
