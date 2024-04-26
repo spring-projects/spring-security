@@ -19,8 +19,6 @@ package org.springframework.security.crypto.password;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.springframework.util.StringUtils;
-
 /**
  * A password encoder that delegates to another PasswordEncoder based upon a prefixed
  * identifier.
@@ -292,7 +290,7 @@ public class DelegatingPasswordEncoder implements PasswordEncoder {
 		@Override
 		public boolean matches(CharSequence rawPassword, String prefixEncodedPassword) {
 			String id = extractId(prefixEncodedPassword);
-			if (StringUtils.hasText(id)) {
+			if (id != null && !id.isEmpty()) {
 				throw new IllegalArgumentException(String.format(NO_PASSWORD_ENCODER_MAPPED, id));
 			}
 			throw new IllegalArgumentException(NO_PASSWORD_ENCODER_PREFIX);
