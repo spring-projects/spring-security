@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,10 +25,12 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.web.server.WebSession;
+import reactor.core.publisher.Mono;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Rob Winch
@@ -200,6 +202,26 @@ public class WebSessionServerOAuth2AuthorizedClientRepositoryTests {
 			.block();
 		assertThat(loadedAuthorizedClient2).isNotNull();
 		assertThat(loadedAuthorizedClient2).isSameAs(authorizedClient2);
+	}
+	
+	@Test
+	public void saveAuthorizedClientWhenSessionIsNullThenThrowIllegalArgumentException() {
+		MockServerWebExchange mockedExchange = mock(MockServerWebExchange.class);
+		when(mockedExchange.getSession()).thenReturn(Mono.empty());
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration1, this.principalName1,
+				mock(OAuth2AccessToken.class));
+		assertThatIllegalArgumentException().isThrownBy(
+				() -> authorizedClientRepository.saveAuthorizedClient(authorizedClient, null, mockedExchange).block())
+				.withMessage("session cannot be null");
+	}
+	
+	@Test
+	public void removeAuthorizedClientWhenSessionIsNullThenThrowIllegalArgumentException() {
+		MockServerWebExchange mockedExchange = mock(MockServerWebExchange.class);
+		when(mockedExchange.getSession()).thenReturn(Mono.empty());
+		assertThatIllegalArgumentException().isThrownBy(
+				() -> authorizedClientRepository.removeAuthorizedClient(this.registrationId1, null, mockedExchange).block())
+				.withMessage("session cannot be null");
 	}
 
 }
