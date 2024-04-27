@@ -30,6 +30,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.willAnswer;
 import static org.mockito.Mockito.mock;
@@ -214,6 +215,13 @@ public class XorCsrfTokenRequestAttributeHandlerTests {
 		CsrfToken csrfToken = new DefaultCsrfToken("headerName", "paramName", "a");
 		String tokenValue = this.handler.resolveCsrfTokenValue(this.request, csrfToken);
 		assertThat(tokenValue).isNull();
+	}
+
+	@Test
+	public void resolveCsrfTokenValueWhenCsrfBytesIsLongerThanRandomBytesThenArrayIndexOutOfBoundsExceptionWillNotBeThrown() {
+		this.request.setParameter(this.token.getParameterName(), XOR_CSRF_TOKEN_VALUE);
+		CsrfToken csrfToken = new DefaultCsrfToken("headerName", "paramName", "ABCDE");
+		assertThatNoException().isThrownBy(() -> { this.handler.resolveCsrfTokenValue(this.request, csrfToken); });
 	}
 
 	private static Answer<Void> fillByteArray() {

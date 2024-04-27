@@ -119,7 +119,7 @@ public final class XorCsrfTokenRequestAttributeHandler extends CsrfTokenRequestA
 		}
 		int len = Math.min(randomBytes.length, csrfBytes.length);
 		byte[] xoredCsrf = new byte[len];
-		System.arraycopy(csrfBytes, 0, xoredCsrf, 0, csrfBytes.length);
+		System.arraycopy(csrfBytes, 0, xoredCsrf, 0, len);
 		for (int i = 0; i < len; i++) {
 			xoredCsrf[i] ^= randomBytes[i];
 		}

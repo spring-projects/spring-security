@@ -56,13 +56,16 @@ final class XorCsrfTokenUtils {
 		System.arraycopy(actualBytes, randomBytesSize, xoredCsrf, 0, tokenSize);
 
 		byte[] csrfBytes = xorCsrf(randomBytes, xoredCsrf);
-		return Utf8.decode(csrfBytes);
+		return (csrfBytes != null) ? Utf8.decode(csrfBytes) : null;
 	}
 
-	private static byte[] xorCsrf(byte[] randomBytes, byte[] csrfBytes) {
+	static byte[] xorCsrf(byte[] randomBytes, byte[] csrfBytes) {
+		if (csrfBytes.length < randomBytes.length) {
+			return null;
+		}
 		int len = Math.min(randomBytes.length, csrfBytes.length);
 		byte[] xoredCsrf = new byte[len];
-		System.arraycopy(csrfBytes, 0, xoredCsrf, 0, csrfBytes.length);
+		System.arraycopy(csrfBytes, 0, xoredCsrf, 0, len);
 		for (int i = 0; i < len; i++) {
 			xoredCsrf[i] ^= randomBytes[i];
 		}

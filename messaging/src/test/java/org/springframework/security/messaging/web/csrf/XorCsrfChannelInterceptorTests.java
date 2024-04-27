@@ -32,6 +32,7 @@ import org.springframework.security.web.csrf.InvalidCsrfTokenException;
 import org.springframework.security.web.csrf.MissingCsrfTokenException;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -139,6 +140,14 @@ public class XorCsrfChannelInterceptorTests {
 	public void preSendWhenUnsubscribeThenIgnores() {
 		this.messageHeaders = SimpMessageHeaderAccessor.create(SimpMessageType.UNSUBSCRIBE);
 		this.interceptor.preSend(message(), this.channel);
+	}
+
+	@Test
+	public void preSendWhenCsrfBytesIsLongerThanRandomBytesThenArrayIndexOutOfBoundsExceptionWillNotBeThrown() {
+		this.messageHeaders.setNativeHeader(this.token.getHeaderName(), XOR_CSRF_TOKEN_VALUE);
+		DefaultCsrfToken token = new DefaultCsrfToken("header", "param", "tokenl");
+		this.messageHeaders.getSessionAttributes().put(CsrfToken.class.getName(), token);
+		assertThatNoException().isThrownBy(() -> this.interceptor.preSend(message(), this.channel));
 	}
 
 	private Message<String> message() {
