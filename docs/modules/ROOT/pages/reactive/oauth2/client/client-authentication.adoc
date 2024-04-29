@@ -1,6 +1,80 @@
 [[oauth2Client-client-auth-support]]
 = Client Authentication Support
 
+[[oauth2Client-client-credentials-auth]]
+== Client Credentials
+
+=== Authenticate using `client_secret_basic`
+
+Client Authentication with HTTP Basic is supported out of the box and no customization is necessary to enable it.
+The default implementation is provided by `DefaultOAuth2TokenRequestHeadersConverter`.
+
+Given the following Spring Boot properties for an OAuth 2.0 client registration:
+
+[source,yaml]
+----
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          okta:
+            client-id: client-id
+            client-secret: client-secret
+            client-authentication-method: client_secret_basic
+            authorization-grant-type: authorization_code
+            ...
+----
+
+The following example shows how to configure `WebClientReactiveAuthorizationCodeTokenResponseClient` to disable URL encoding of the client credentials:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+DefaultOAuth2TokenRequestHeadersConverter<OAuth2AuthorizationCodeGrantRequest> headersConverter =
+		new DefaultOAuth2TokenRequestHeadersConverter<>();
+headersConverter.setEncodeClientCredentials(false);
+
+WebClientReactiveAuthorizationCodeTokenResponseClient tokenResponseClient =
+		new WebClientReactiveAuthorizationCodeTokenResponseClient();
+tokenResponseClient.setHeadersConverter(headersConverter);
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+val headersConverter = DefaultOAuth2TokenRequestHeadersConverter<OAuth2AuthorizationCodeGrantRequest>()
+headersConverter.setEncodeClientCredentials(false)
+
+val tokenResponseClient = WebClientReactiveAuthorizationCodeTokenResponseClient()
+tokenResponseClient.setHeadersConverter(headersConverter)
+----
+======
+
+=== Authenticate using `client_secret_post`
+
+Client Authentication with client credentials included in the request-body is supported out of the box and no customization is necessary to enable it.
+
+The following Spring Boot properties for an OAuth 2.0 client registration demonstrate the configuration:
+
+[source,yaml]
+----
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          okta:
+            client-id: client-id
+            client-secret: client-secret
+            client-authentication-method: client_secret_post
+            authorization-grant-type: authorization_code
+            ...
+----
 
 [[oauth2Client-jwt-bearer-auth]]
 == JWT Bearer
@@ -190,3 +264,28 @@ converter.setJwtClientAssertionCustomizer { context ->
 }
 ----
 ======
+
+[[oauth2Client-public-auth]]
+== Public Authentication
+
+Public Client Authentication is supported out of the box and no customization is necessary to enable it.
+
+The following Spring Boot properties for an OAuth 2.0 client registration demonstrate the configuration:
+
+[source,yaml]
+----
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          okta:
+            client-id: client-id
+            client-authentication-method: none
+            authorization-grant-type: authorization_code
+            ...
+----
+
+[NOTE]
+Public Clients are supported using https://tools.ietf.org/html/rfc7636[Proof Key for Code Exchange] (PKCE).
+PKCE will automatically be used when `client-authentication-method` is set to "none" (`ClientAuthenticationMethod.NONE`).
