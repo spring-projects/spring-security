@@ -92,9 +92,6 @@ val tokenResponseClient = DefaultAuthorizationCodeTokenResponseClient()
 tokenResponseClient.setRequestEntityConverter(requestEntityConverter)
 ----
 ======
-[NOTE]
-If you're using the `client-authentication-method: client_secret_basic` and you need to skip URL encoding,
-create a new `DefaultOAuth2TokenRequestHeadersConverter` and set it in the Request Entity Converter above.
 
 === Authenticate using `client_secret_jwt`
 

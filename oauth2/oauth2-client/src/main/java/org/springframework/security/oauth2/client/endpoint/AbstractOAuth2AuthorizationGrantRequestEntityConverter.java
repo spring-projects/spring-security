@@ -42,8 +42,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 abstract class AbstractOAuth2AuthorizationGrantRequestEntityConverter<T extends AbstractOAuth2AuthorizationGrantRequest>
 		implements Converter<T, RequestEntity<?>> {
 
-	private Converter<T, HttpHeaders> headersConverter = DefaultOAuth2TokenRequestHeadersConverter
-			.historicalConverter();
+	private Converter<T, HttpHeaders> headersConverter = DefaultOAuth2TokenRequestHeadersConverter.withCharsetUtf8();
 
 	private Converter<T, MultiValueMap<String, String>> parametersConverter = this::createParameters;
 
