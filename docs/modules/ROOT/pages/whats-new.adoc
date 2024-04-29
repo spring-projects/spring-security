@@ -302,5 +302,6 @@ and then xref:servlet/oauth2/client/authorized-clients.adoc#oauth2Client-registe
 - https://github.com/spring-projects/spring-security/issues/10538[gh-10538] - Support Certificate-Bound JWT Access Token Validation
 - https://github.com/spring-projects/spring-security/pull/14265[gh-14265] - Support Nested username in UserInfo response
 - https://github.com/spring-projects/spring-security/pull/14265[gh-14449] - Add `SecurityContext` argument resolver
+- https://github.com/spring-projects/spring-security/issues/11440[gh-11440] - Simplify Disabling `application/x-www-form-urlencoded` Encoding Client ID and Secret (xref:servlet/oauth2/client/client-authentication.adoc#_authenticate_using_client_secret_basic[servlet docs], xref:reactive/oauth2/client/client-authentication.adoc#_authenticate_using_client_secret_basic[reactive docs])
 
 And for an exhaustive list, please see the release notes for https://github.com/spring-projects/spring-security/releases/tag/6.3.0-RC1[6.3.0-RC1], https://github.com/spring-projects/spring-security/releases/tag/6.3.0-M3[6.3.0-M3], https://github.com/spring-projects/spring-security/releases/tag/6.3.0-M2[6.3.0-M2], and https://github.com/spring-projects/spring-security/releases/tag/6.3.0-M1[6.3.0-M1].
