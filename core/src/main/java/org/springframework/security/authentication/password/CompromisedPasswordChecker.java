@@ -29,9 +29,9 @@ public interface CompromisedPasswordChecker {
 	/**
 	 * Check whether the password is compromised
 	 * @param password the password to check
-	 * @return a non-null {@link CompromisedPasswordCheckResult}
+	 * @return a non-null {@link CompromisedPasswordDecision}
 	 */
 	@NonNull
-	CompromisedPasswordCheckResult check(String password);
+	CompromisedPasswordDecision check(String password);
 
 }

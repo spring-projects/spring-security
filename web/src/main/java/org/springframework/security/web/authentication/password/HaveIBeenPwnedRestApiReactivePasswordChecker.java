@@ -26,7 +26,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
-import org.springframework.security.authentication.password.CompromisedPasswordCheckResult;
+import org.springframework.security.authentication.password.CompromisedPasswordDecision;
 import org.springframework.security.authentication.password.ReactiveCompromisedPasswordChecker;
 import org.springframework.security.crypto.codec.Hex;
 import org.springframework.util.Assert;
@@ -60,10 +60,10 @@ public class HaveIBeenPwnedRestApiReactivePasswordChecker implements ReactiveCom
 	}
 
 	@Override
-	public Mono<CompromisedPasswordCheckResult> check(String password) {
+	public Mono<CompromisedPasswordDecision> check(String password) {
 		return getHash(password).map((hash) -> new String(Hex.encode(hash)))
 			.flatMap(this::findLeakedPassword)
-			.map(CompromisedPasswordCheckResult::new);
+			.map(CompromisedPasswordDecision::new);
 	}
 
 	private Mono<Boolean> findLeakedPassword(String encodedPassword) {

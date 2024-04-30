@@ -27,7 +27,7 @@ import reactor.core.scheduler.Schedulers;
 import reactor.test.StepVerifier;
 
 import org.springframework.context.MessageSource;
-import org.springframework.security.authentication.password.CompromisedPasswordCheckResult;
+import org.springframework.security.authentication.password.CompromisedPasswordDecision;
 import org.springframework.security.authentication.password.CompromisedPasswordException;
 import org.springframework.security.authentication.password.ReactiveCompromisedPasswordChecker;
 import org.springframework.security.core.Authentication;
@@ -276,11 +276,11 @@ public class UserDetailsRepositoryReactiveAuthenticationManagerTests {
 	static class TestReactivePasswordChecker implements ReactiveCompromisedPasswordChecker {
 
 		@Override
-		public Mono<CompromisedPasswordCheckResult> check(String password) {
+		public Mono<CompromisedPasswordDecision> check(String password) {
 			if ("password".equals(password)) {
-				return Mono.just(new CompromisedPasswordCheckResult(true));
+				return Mono.just(new CompromisedPasswordDecision(true));
 			}
-			return Mono.just(new CompromisedPasswordCheckResult(false));
+			return Mono.just(new CompromisedPasswordDecision(false));
 		}
 
 	}

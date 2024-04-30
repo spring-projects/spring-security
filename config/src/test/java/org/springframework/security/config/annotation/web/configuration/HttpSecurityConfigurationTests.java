@@ -47,8 +47,8 @@ import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authentication.event.AbstractAuthenticationEvent;
 import org.springframework.security.authentication.event.AbstractAuthenticationFailureEvent;
 import org.springframework.security.authentication.event.AuthenticationSuccessEvent;
-import org.springframework.security.authentication.password.CompromisedPasswordCheckResult;
 import org.springframework.security.authentication.password.CompromisedPasswordChecker;
+import org.springframework.security.authentication.password.CompromisedPasswordDecision;
 import org.springframework.security.authentication.password.CompromisedPasswordException;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.SecurityContextChangedListenerConfig;
@@ -809,11 +809,11 @@ public class HttpSecurityConfigurationTests {
 	private static class TestCompromisedPasswordChecker implements CompromisedPasswordChecker {
 
 		@Override
-		public CompromisedPasswordCheckResult check(String password) {
+		public CompromisedPasswordDecision check(String password) {
 			if ("password".equals(password)) {
-				return new CompromisedPasswordCheckResult(true);
+				return new CompromisedPasswordDecision(true);
 			}
-			return new CompromisedPasswordCheckResult(false);
+			return new CompromisedPasswordDecision(false);
 		}
 
 	}

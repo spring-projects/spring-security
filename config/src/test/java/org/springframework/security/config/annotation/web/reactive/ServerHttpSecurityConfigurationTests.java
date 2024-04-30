@@ -26,7 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.password.CompromisedPasswordCheckResult;
+import org.springframework.security.authentication.password.CompromisedPasswordDecision;
 import org.springframework.security.authentication.password.CompromisedPasswordException;
 import org.springframework.security.authentication.password.ReactiveCompromisedPasswordChecker;
 import org.springframework.security.config.Customizer;
@@ -228,11 +228,11 @@ public class ServerHttpSecurityConfigurationTests {
 	static class TestReactivePasswordChecker implements ReactiveCompromisedPasswordChecker {
 
 		@Override
-		public Mono<CompromisedPasswordCheckResult> check(String password) {
+		public Mono<CompromisedPasswordDecision> check(String password) {
 			if ("password".equals(password)) {
-				return Mono.just(new CompromisedPasswordCheckResult(true));
+				return Mono.just(new CompromisedPasswordDecision(true));
 			}
-			return Mono.just(new CompromisedPasswordCheckResult(false));
+			return Mono.just(new CompromisedPasswordDecision(false));
 		}
 
 	}

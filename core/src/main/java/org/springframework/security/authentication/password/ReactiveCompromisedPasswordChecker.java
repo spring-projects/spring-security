@@ -29,8 +29,8 @@ public interface ReactiveCompromisedPasswordChecker {
 	/**
 	 * Check whether the password is compromised
 	 * @param password the password to check
-	 * @return a {@link Mono} containing the {@link CompromisedPasswordCheckResult}
+	 * @return a {@link Mono} containing the {@link CompromisedPasswordDecision}
 	 */
-	Mono<CompromisedPasswordCheckResult> check(String password);
+	Mono<CompromisedPasswordDecision> check(String password);
 
 }

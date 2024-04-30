@@ -16,11 +16,11 @@
 
 package org.springframework.security.authentication.password;
 
-public class CompromisedPasswordCheckResult {
+public class CompromisedPasswordDecision {
 
 	private final boolean compromised;
 
-	public CompromisedPasswordCheckResult(boolean compromised) {
+	public CompromisedPasswordDecision(boolean compromised) {
 		this.compromised = compromised;
 	}
 

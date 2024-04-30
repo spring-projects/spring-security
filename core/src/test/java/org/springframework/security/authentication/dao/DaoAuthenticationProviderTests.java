@@ -33,8 +33,8 @@ import org.springframework.security.authentication.InternalAuthenticationService
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.authentication.password.CompromisedPasswordCheckResult;
 import org.springframework.security.authentication.password.CompromisedPasswordChecker;
+import org.springframework.security.authentication.password.CompromisedPasswordDecision;
 import org.springframework.security.authentication.password.CompromisedPasswordException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -637,11 +637,11 @@ public class DaoAuthenticationProviderTests {
 	private static class TestCompromisedPasswordChecker implements CompromisedPasswordChecker {
 
 		@Override
-		public CompromisedPasswordCheckResult check(String password) {
+		public CompromisedPasswordDecision check(String password) {
 			if ("password".equals(password)) {
-				return new CompromisedPasswordCheckResult(true);
+				return new CompromisedPasswordDecision(true);
 			}
-			return new CompromisedPasswordCheckResult(false);
+			return new CompromisedPasswordDecision(false);
 		}
 
 	}

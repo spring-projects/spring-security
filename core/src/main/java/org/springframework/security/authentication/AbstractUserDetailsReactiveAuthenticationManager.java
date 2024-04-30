@@ -25,8 +25,8 @@ import reactor.core.scheduler.Schedulers;
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
-import org.springframework.security.authentication.password.CompromisedPasswordCheckResult;
 import org.springframework.security.authentication.password.CompromisedPasswordChecker;
+import org.springframework.security.authentication.password.CompromisedPasswordDecision;
 import org.springframework.security.authentication.password.CompromisedPasswordException;
 import org.springframework.security.authentication.password.ReactiveCompromisedPasswordChecker;
 import org.springframework.security.core.Authentication;
@@ -118,7 +118,7 @@ public abstract class AbstractUserDetailsReactiveAuthenticationManager
 			return Mono.empty();
 		}
 		return this.compromisedPasswordChecker.check(password)
-			.filter(CompromisedPasswordCheckResult::isCompromised)
+			.filter(CompromisedPasswordDecision::isCompromised)
 			.flatMap((compromised) -> Mono.error(new CompromisedPasswordException(
 					"The provided password is compromised, please change your password")));
 	}

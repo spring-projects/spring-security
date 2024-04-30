@@ -26,8 +26,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.lang.NonNull;
-import org.springframework.security.authentication.password.CompromisedPasswordCheckResult;
 import org.springframework.security.authentication.password.CompromisedPasswordChecker;
+import org.springframework.security.authentication.password.CompromisedPasswordDecision;
 import org.springframework.security.crypto.codec.Hex;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -61,7 +61,7 @@ public final class HaveIBeenPwnedRestApiPasswordChecker implements CompromisedPa
 
 	@Override
 	@NonNull
-	public CompromisedPasswordCheckResult check(String password) {
+	public CompromisedPasswordDecision check(String password) {
 		byte[] hash = this.sha1Digest.digest(password.getBytes(StandardCharsets.UTF_8));
 		String encoded = new String(Hex.encode(hash)).toUpperCase();
 		String prefix = encoded.substring(0, PREFIX_LENGTH);
@@ -69,7 +69,7 @@ public final class HaveIBeenPwnedRestApiPasswordChecker implements CompromisedPa
 
 		List<String> passwords = getLeakedPasswordsForPrefix(prefix);
 		boolean isLeaked = findLeakedPassword(passwords, suffix);
-		return new CompromisedPasswordCheckResult(isLeaked);
+		return new CompromisedPasswordDecision(isLeaked);
 	}
 
 	/**

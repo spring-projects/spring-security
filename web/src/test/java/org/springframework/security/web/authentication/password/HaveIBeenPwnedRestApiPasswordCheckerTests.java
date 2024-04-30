@@ -25,7 +25,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import org.springframework.security.authentication.password.CompromisedPasswordCheckResult;
+import org.springframework.security.authentication.password.CompromisedPasswordDecision;
 import org.springframework.web.client.RestClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -69,7 +69,7 @@ class HaveIBeenPwnedRestApiPasswordCheckerTests {
 	@Test
 	void checkWhenPasswordIsLeakedThenIsCompromised() throws InterruptedException {
 		this.server.enqueue(new MockResponse().setBody(this.pwnedPasswords).setResponseCode(200));
-		CompromisedPasswordCheckResult check = this.passwordChecker.check("P@ssw0rd");
+		CompromisedPasswordDecision check = this.passwordChecker.check("P@ssw0rd");
 		assertThat(check.isCompromised()).isTrue();
 		assertThat(this.server.takeRequest().getPath()).isEqualTo("/range/21BD1");
 	}
@@ -77,14 +77,14 @@ class HaveIBeenPwnedRestApiPasswordCheckerTests {
 	@Test
 	void checkWhenPasswordNotLeakedThenNotCompromised() {
 		this.server.enqueue(new MockResponse().setBody(this.pwnedPasswords).setResponseCode(200));
-		CompromisedPasswordCheckResult check = this.passwordChecker.check("My1nCr3d!bL3P@SS0W0RD");
+		CompromisedPasswordDecision check = this.passwordChecker.check("My1nCr3d!bL3P@SS0W0RD");
 		assertThat(check.isCompromised()).isFalse();
 	}
 
 	@Test
 	void checkWhenNoPasswordsReturnedFromApiCallThenNotCompromised() {
 		this.server.enqueue(new MockResponse().setResponseCode(200));
-		CompromisedPasswordCheckResult check = this.passwordChecker.check("123456");
+		CompromisedPasswordDecision check = this.passwordChecker.check("123456");
 		assertThat(check.isCompromised()).isFalse();
 	}
 
