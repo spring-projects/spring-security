@@ -449,7 +449,7 @@ In Spring Security this is done by saving the `HttpServletRequest` using a <<req
 
 The `HttpServletRequest` is saved in the {security-api-url}org/springframework/security/web/savedrequest/RequestCache.html[`RequestCache`].
 When the user successfully authenticates, the `RequestCache` is used to replay the original request.
-The <<requestcacheawarefilter,`RequestCacheAwareFilter`>> is what uses the `RequestCache` to save the `HttpServletRequest`.
+The <<requestcacheawarefilter,`RequestCacheAwareFilter`>> uses the `RequestCache` to get the saved `HttpServletRequest` after the user authenticates, while the `ExceptionTranslationFilter` uses the `RequestCache` to save the `HttpServletRequest` after it detects `AuthenticationException`, before redirecting the user to the login endpoint.
 
 By default, an `HttpSessionRequestCache` is used.
 The code below demonstrates how to customize the `RequestCache` implementation that is used to check the `HttpSession` for a saved request if the parameter named `continue` is present.
@@ -517,7 +517,7 @@ XML::
 [[requestcacheawarefilter]]
 === RequestCacheAwareFilter
 
-The {security-api-url}org/springframework/security/web/savedrequest/RequestCacheAwareFilter.html[`RequestCacheAwareFilter`] uses the <<requestcache,`RequestCache`>> to save the `HttpServletRequest`.
+The {security-api-url}org/springframework/security/web/savedrequest/RequestCacheAwareFilter.html[`RequestCacheAwareFilter`] uses the <<requestcache,`RequestCache`>> to replay the original request.
 
 [[servlet-logging]]
 == Logging
