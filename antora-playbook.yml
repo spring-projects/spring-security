@@ -1,13 +1,13 @@
 antora:
   extensions:
-  - '@springio/antora-extensions/partial-build-extension'
-  - '@antora/atlas-extension'
-  - require: '@springio/antora-extensions/latest-version-extension'
-  - require: '@springio/antora-extensions/inject-collector-cache-config-extension'
-  - '@antora/collector-extension'
-  - require: '@springio/antora-extensions/root-component-extension'
-    root_component_name: 'security'
-  - '@springio/antora-extensions/static-page-extension'
+    - '@springio/antora-extensions/partial-build-extension'
+    - '@antora/atlas-extension'
+    - require: '@springio/antora-extensions/latest-version-extension'
+    - require: '@springio/antora-extensions/inject-collector-cache-config-extension'
+    - '@antora/collector-extension'
+    - require: '@springio/antora-extensions/root-component-extension'
+      root_component_name: 'security'
+    - '@springio/antora-extensions/static-page-extension'
 site:
   title: Spring Security
   url: https://docs.spring.io/spring-security/reference
@@ -16,10 +16,10 @@ git:
   ensure_git_suffix: false
 content:
   sources:
-  - url: https://github.com/spring-projects/spring-security
-    branches: [main, '5.{{6..9},{1..9}+({0..9})}.x', '6.+({0..9}).x']
-    tags: ['5.{{6..9},{1..9}+({0..9})}.{0..99}?(-RC+({0..9}))', '6.+({0..9}).+({0..9})?(-{RC,M}*)','!(5.6.{0..10}*)', '!(5.7.{0..8}*)', '!(5.8.{0..3}?({-RC,-M}+({0..9})))','!(6.0.{0..3}*)','!(6.1.0*)']
-    start_path: docs
+    - url: https://github.com/spring-projects/spring-security
+      branches: [main, '5.{{6..9},{1..9}+({0..9})}.x', '6.+({0..9}).x']
+      tags: ['5.{{6..9},{1..9}+({0..9})}.{0..99}?(-RC+({0..9}))', '6.+({0..9}).+({0..9})?(-{RC,M}*)', '!(5.6.{0..10}*)', '!(5.7.{0..8}*)', '!(5.8.{0..3}?({-RC,-M}+({0..9})))', '!(6.0.{0..3}*)', '!(6.1.0*)']
+      start_path: docs
 asciidoc:
   attributes:
     page-stackoverflow-url: https://stackoverflow.com/tags/spring-security
@@ -28,15 +28,15 @@ asciidoc:
     hide-uri-scheme: '@'
     tabs-sync-option: '@'
   extensions:
-  - '@asciidoctor/tabs'
-  - '@springio/asciidoctor-extensions'
+    - '@asciidoctor/tabs'
+    - '@springio/asciidoctor-extensions'
 urls:
   latest_version_segment_strategy: redirect:to
   latest_version_segment: ''
   redirect_facility: httpd
 ui:
   bundle:
-    url: https://github.com/spring-io/antora-ui-spring/releases/download/v0.4.11/ui-bundle.zip
+    url: https://github.com/spring-io/antora-ui-spring/releases/download/v0.4.12/ui-bundle.zip
     snapshot: true
 runtime:
   log:
