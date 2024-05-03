@@ -1,0 +1,11 @@
+name: Update Antora UI Spring
+
+on:
+  workflow_dispatch:
+
+jobs:
+  update:
+    name: Build
+    uses: spring-io/spring-security-release-tools/.github/workflows/update-antora-ui-spring.yml@b5124cffc5cd8d04b3fb8efa71d71baadd7a8538
+    secrets:
+      token: ${{ secrets.GH_ACTIONS_REPO_TOKEN }}
