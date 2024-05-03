@@ -6,6 +6,6 @@ on:
 jobs:
   update:
     name: Build
-    uses: spring-io/spring-security-release-tools/.github/workflows/update-antora-ui-spring.yml@2a3989fb2468f87509c45dff68261bb20bd08ed2
+    uses: spring-io/spring-security-release-tools/.github/workflows/update-antora-ui-spring.yml@cbdd2d9cdbefc61d4c940cc142894da8c935d674
     secrets:
       token: ${{ secrets.GH_ACTIONS_REPO_TOKEN }}
