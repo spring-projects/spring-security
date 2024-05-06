@@ -78,13 +78,18 @@ final class OidcUserRequestUtils {
 
 	static OidcUser getUser(OidcUserRequest userRequest, OidcUserInfo userInfo) {
 		Set<GrantedAuthority> authorities = new LinkedHashSet<>();
-		authorities.add(new OidcUserAuthority(userRequest.getIdToken(), userInfo));
+		ClientRegistration.ProviderDetails providerDetails = userRequest.getClientRegistration().getProviderDetails();
+		String userNameAttributeName = providerDetails.getUserInfoEndpoint().getUserNameAttributeName();
+		if (StringUtils.hasLength(userNameAttributeName)) {
+			authorities.add(new OidcUserAuthority(userRequest.getIdToken(), userInfo, userNameAttributeName));
+		}
+		else {
+			authorities.add(new OidcUserAuthority(userRequest.getIdToken(), userInfo));
+		}
 		OAuth2AccessToken token = userRequest.getAccessToken();
 		for (String scope : token.getScopes()) {
 			authorities.add(new SimpleGrantedAuthority("SCOPE_" + scope));
 		}
-		ClientRegistration.ProviderDetails providerDetails = userRequest.getClientRegistration().getProviderDetails();
-		String userNameAttributeName = providerDetails.getUserInfoEndpoint().getUserNameAttributeName();
 		if (StringUtils.hasText(userNameAttributeName)) {
 			return new DefaultOidcUser(authorities, userRequest.getIdToken(), userInfo, userNameAttributeName);
 		}

@@ -247,6 +247,7 @@ public class OAuth2AuthenticationTokenMixinTests {
 		return "{\n" +
 				"          \"@class\": \"org.springframework.security.oauth2.core.user.OAuth2UserAuthority\",\n" +
 				"          \"authority\": \"" + oauth2UserAuthority.getAuthority() + "\",\n" +
+				"          \"userNameAttributeName\": \"username\",\n" +
 				"          \"attributes\": {\n" +
 				"            \"@class\": \"java.util.Collections$UnmodifiableMap\",\n" +
 				"            \"username\": \"user\"\n" +
@@ -260,6 +261,7 @@ public class OAuth2AuthenticationTokenMixinTests {
 		return "{\n" +
 				"          \"@class\": \"org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority\",\n" +
 				"          \"authority\": \"" + oidcUserAuthority.getAuthority() + "\",\n" +
+				"          \"userNameAttributeName\": \"" + oidcUserAuthority.getUserNameAttributeName() + "\",\n" +
 				"          \"idToken\": " + asJson(oidcUserAuthority.getIdToken()) + ",\n" +
 				"          \"userInfo\": " + asJson(oidcUserAuthority.getUserInfo()) + "\n" +
 				"        }";
