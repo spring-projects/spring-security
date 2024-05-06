@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
@@ -58,6 +59,19 @@ public class OidcUserAuthority extends OAuth2UserAuthority {
 	}
 
 	/**
+	 * Constructs a {@code OidcUserAuthority} using the provided parameters and defaults
+	 * {@link #getAuthority()} to {@code OIDC_USER}.
+	 * @param idToken the {@link OidcIdToken ID Token} containing claims about the user
+	 * @param userInfo the {@link OidcUserInfo UserInfo} containing claims about the user,
+	 * may be {@code null}
+	 * @param userNameAttributeName the attribute name used to access the user's name from
+	 * the attributes
+	 */
+	public OidcUserAuthority(OidcIdToken idToken, OidcUserInfo userInfo, String userNameAttributeName) {
+		this("OIDC_USER", idToken, userInfo, userNameAttributeName);
+	}
+
+	/**
 	 * Constructs a {@code OidcUserAuthority} using the provided parameters.
 	 * @param authority the authority granted to the user
 	 * @param idToken the {@link OidcIdToken ID Token} containing claims about the user
@@ -65,7 +79,21 @@ public class OidcUserAuthority extends OAuth2UserAuthority {
 	 * may be {@code null}
 	 */
 	public OidcUserAuthority(String authority, OidcIdToken idToken, OidcUserInfo userInfo) {
-		super(authority, collectClaims(idToken, userInfo));
+		this(authority, idToken, userInfo, IdTokenClaimNames.SUB);
+	}
+
+	/**
+	 * Constructs a {@code OidcUserAuthority} using the provided parameters.
+	 * @param authority the authority granted to the user
+	 * @param idToken the {@link OidcIdToken ID Token} containing claims about the user
+	 * @param userInfo the {@link OidcUserInfo UserInfo} containing claims about the user,
+	 * may be {@code null}
+	 * @param userNameAttributeName the attribute name used to access the user's name from
+	 * the attributes
+	 */
+	public OidcUserAuthority(String authority, OidcIdToken idToken, OidcUserInfo userInfo,
+			String userNameAttributeName) {
+		super(authority, collectClaims(idToken, userInfo), userNameAttributeName);
 		this.idToken = idToken;
 		this.userInfo = userInfo;
 	}

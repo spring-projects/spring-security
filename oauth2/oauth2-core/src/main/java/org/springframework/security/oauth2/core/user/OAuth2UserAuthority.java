@@ -22,6 +22,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import org.springframework.lang.Nullable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.util.Assert;
@@ -41,6 +42,8 @@ public class OAuth2UserAuthority implements GrantedAuthority {
 
 	private final Map<String, Object> attributes;
 
+	private final String userNameAttributeName;
+
 	/**
 	 * Constructs a {@code OAuth2UserAuthority} using the provided parameters and defaults
 	 * {@link #getAuthority()} to {@code OAUTH2_USER}.
@@ -51,15 +54,38 @@ public class OAuth2UserAuthority implements GrantedAuthority {
 	}
 
 	/**
+	 * Constructs a {@code OAuth2UserAuthority} using the provided parameters and defaults
+	 * {@link #getAuthority()} to {@code OAUTH2_USER}.
+	 * @param attributes the attributes about the user
+	 * @param userNameAttributeName the attribute name used to access the user's name from
+	 * the attributes
+	 */
+	public OAuth2UserAuthority(Map<String, Object> attributes, @Nullable String userNameAttributeName) {
+		this("OAUTH2_USER", attributes, userNameAttributeName);
+	}
+
+	/**
 	 * Constructs a {@code OAuth2UserAuthority} using the provided parameters.
 	 * @param authority the authority granted to the user
 	 * @param attributes the attributes about the user
 	 */
 	public OAuth2UserAuthority(String authority, Map<String, Object> attributes) {
+		this(authority, attributes, null);
+	}
+
+	/**
+	 * Constructs a {@code OAuth2UserAuthority} using the provided parameters.
+	 * @param authority the authority granted to the user
+	 * @param attributes the attributes about the user
+	 * @param userNameAttributeName the attribute name used to access the user's name from
+	 * the attributes
+	 */
+	public OAuth2UserAuthority(String authority, Map<String, Object> attributes, String userNameAttributeName) {
 		Assert.hasText(authority, "authority cannot be empty");
 		Assert.notEmpty(attributes, "attributes cannot be empty");
 		this.authority = authority;
 		this.attributes = Collections.unmodifiableMap(new LinkedHashMap<>(attributes));
+		this.userNameAttributeName = userNameAttributeName;
 	}
 
 	@Override
@@ -73,6 +99,15 @@ public class OAuth2UserAuthority implements GrantedAuthority {
 	 */
 	public Map<String, Object> getAttributes() {
 		return this.attributes;
+	}
+
+	/**
+	 * Returns the attribute name used to access the user's name from the attributes.
+	 * @return the attribute name used to access the user's name from the attributes
+	 */
+	@Nullable
+	public String getUserNameAttributeName() {
+		return this.userNameAttributeName;
 	}
 
 	@Override

@@ -1376,7 +1376,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 
 		private Collection<GrantedAuthority> defaultAuthorities() {
 			Set<GrantedAuthority> authorities = new LinkedHashSet<>();
-			authorities.add(new OAuth2UserAuthority(this.attributes.get()));
+			authorities.add(new OAuth2UserAuthority(this.attributes.get(), this.nameAttributeKey));
 			for (String authority : this.accessToken.getScopes()) {
 				authorities.add(new SimpleGrantedAuthority("SCOPE_" + authority));
 			}

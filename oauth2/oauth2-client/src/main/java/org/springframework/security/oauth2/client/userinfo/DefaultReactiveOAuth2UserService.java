@@ -130,7 +130,7 @@ public class DefaultReactiveOAuth2UserService implements ReactiveOAuth2UserServi
 					.bodyToMono(DefaultReactiveOAuth2UserService.STRING_OBJECT_MAP)
 					.mapNotNull((attributes) -> this.attributesConverter.convert(userRequest).convert(attributes));
 			return userAttributes.map((attrs) -> {
-				GrantedAuthority authority = new OAuth2UserAuthority(attrs);
+				GrantedAuthority authority = new OAuth2UserAuthority(attrs, userNameAttributeName);
 				Set<GrantedAuthority> authorities = new HashSet<>();
 				authorities.add(authority);
 				OAuth2AccessToken token = userRequest.getAccessToken();
