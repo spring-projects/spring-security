@@ -5,7 +5,8 @@ The following table outlines the steps that are taken by the automation.
 
 WARNING: The `5.8.x` branch does not have all of the improvements from the `6.x.x` branches. See "Status (5.8.x)" for which steps are still manual.
 
-In case of a failure, you can follow the links below to read about each step. See <<frequently-asked-questions,FAQ>> for troubleshooting tips.
+In case of a failure, you can follow the links below to read about each step, which includes instructions for performing the step manually if applicable.
+See <<frequently-asked-questions,FAQ>> for troubleshooting tips.
 
 [cols="1,1,1"]
 |===
@@ -35,11 +36,7 @@ In case of a failure, you can follow the links below to read about each step. Se
 | :white_check_mark: automated
 | :white_check_mark: automated
 
-| <<announce-release-on-slack>>
-| :white_check_mark: automated
-| :white_check_mark: automated
-
-| <<update-to-next-development-version>>
+| <<update-release-notes-on-github>>
 | :white_check_mark: automated
 | :white_check_mark: automated
 
@@ -47,12 +44,16 @@ In case of a failure, you can follow the links below to read about each step. Se
 | :x: manual
 | :white_check_mark: automated
 
-| <<update-release-notes-on-github>>
+| <<close-create-milestone,Close milestone>>
+| :x: manual
+| :white_check_mark: automated
+
+| <<announce-release-on-slack>>
 | :white_check_mark: automated
 | :white_check_mark: automated
 
-| <<close-create-milestone,Close milestone>>
-| :x: manual
+| <<update-to-next-development-version>>
+| :white_check_mark: automated
 | :white_check_mark: automated
 
 | <<close-create-milestone,Create milestone>>
@@ -79,7 +80,7 @@ NOTE: A scheduled release will not proceed if there are any open issues.
 TIP: If you need to prevent a release from occurring automatically, the easiest way to block a release is to add an unresolved issue to the milestone.
 
 The https://github.com/spring-io/spring-security-release-tools/blob/main/release-plugin/README.adoc#checkMilestoneHasNoOpenIssues[`checkMilestoneHasOpenIssues`] command will check if there are any open issues for the release.
-Before running the command, replace the following values:
+Before running the command manually, replace the following values:
 
 * `<next-version>` - Replace with the title of the milestone you are releasing now (i.e. 5.5.0-RC1)
 * `<github-personal-access-token>` - Replace with a https://github.com/settings/tokens[GitHub personal access token] that has a scope of `public_repo`. This is optional since you are unlikely to reach the rate limit for such a simple check.
