@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,14 +61,14 @@ public final class SecuredAuthorizationManager implements AuthorizationManager<M
 		@Override
 		AuthorizationManager<MethodInvocation> resolveManager(Method method, Class<?> targetClass) {
 			Method specificMethod = AopUtils.getMostSpecificMethod(method, targetClass);
-			Secured secured = findSecuredAnnotation(specificMethod);
+			Secured secured = findSecuredAnnotation(specificMethod, targetClass);
 			return (secured != null) ? AuthorityAuthorizationManager.hasAnyAuthority(secured.value()) : NULL_MANAGER;
 		}
 
-		private Secured findSecuredAnnotation(Method method) {
+		private Secured findSecuredAnnotation(Method method, Class<?> targetClass) {
 			Secured secured = AuthorizationAnnotationUtils.findUniqueAnnotation(method, Secured.class);
-			return (secured != null) ? secured
-					: AuthorizationAnnotationUtils.findUniqueAnnotation(method.getDeclaringClass(), Secured.class);
+			return (secured != null) ? secured : AuthorizationAnnotationUtils
+				.findUniqueAnnotation((targetClass != null) ? targetClass : method.getDeclaringClass(), Secured.class);
 		}
 
 	}

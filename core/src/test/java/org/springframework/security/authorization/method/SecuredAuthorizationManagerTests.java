@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -141,6 +141,14 @@ public class SecuredAuthorizationManagerTests {
 		assertThat(decision.isGranted()).isTrue();
 	}
 
+	@Test
+	public void checkSecuredAnnotationOnSubclassWhenMethodInSuperclassWasCalledThenApplies() throws Exception {
+		MockMethodInvocation methodInvocation = new MockMethodInvocation(new Service(), Service.class, "doSmth");
+		SecuredAuthorizationManager manager = new SecuredAuthorizationManager();
+		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedUser, methodInvocation);
+		assertThat(decision).isNotNull();
+	}
+
 	public static class TestClass implements InterfaceAnnotationsOne, InterfaceAnnotationsTwo {
 
 		public void doSomething() {
@@ -232,6 +240,18 @@ public class SecuredAuthorizationManagerTests {
 		public void inheritedAnnotations() {
 			super.inheritedAnnotations();
 		}
+
+	}
+
+	public abstract class AbstractService {
+
+		public void doSmth() {
+		}
+
+	}
+
+	@Secured("SECURE")
+	public class Service extends AbstractService {
 
 	}
 
