@@ -250,6 +250,65 @@ public class MultiHttpSecurityConfig {
 If the URL does not start with `/api/`, this configuration is used.
 This configuration is considered after `apiFilterChain`, since it has an `@Order` value after `1` (no `@Order` defaults to last).
 
+To effectively manage security in an application where certain areas and the entire app need protection, we can employ multiple filter chains alongside the securityMatcher. This approach allows us to define distinct security configurations tailored to specific parts while also ensuring overall application security. The provided example showcases distinct configurations for URLs starting with "/api/" and "/images/". This approach allows tailored security settings for specific endpoints, enhancing overall application security and control.
+
+[source,java]
+----
+@Configuration
+@EnableWebSecurity
+public class CustomSecurityFilterChainConfig {
+
+    @Bean                                                                   <1>
+    public UserDetailsService userDetailsService() {
+        InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
+        manager.createUser(User.withDefaultPasswordEncoder().username("user").password("password").roles("ADMIN").build());
+        manager.createUser(User.withDefaultPasswordEncoder().username("admin").password("password").roles("ADMIN").build());
+        return manager;
+    }
+
+    @Bean
+    @Order(1)                                                               <2>
+    public SecurityFilterChain apiFilterChain(HttpSecurity http) throws Exception {
+        http
+                .securityMatcher(RequestMatcher.regexMatchers("/api/**"))   <3>
+                .authorizeHttpRequests(authorize -> authorize
+                        .anyRequest().hasRole("ADMIN")
+                )
+                .httpBasic(withDefaults());
+        return http.build();
+    }
+
+    @Bean
+    @Order(2)                                                                <4>
+    public SecurityFilterChain imagesFilterChain(HttpSecurity http) throws Exception {
+        http
+                .securityMatcher(RequestMatcher.regexMatchers("/images/**")) <5>
+                .authorizeHttpRequests(authorize -> authorize
+                        .anyRequest().hasRole("ADMIN")
+                )
+                .httpBasic(withDefaults());
+        return http.build();
+    }
+
+    @Bean                                                                    <6>
+    public SecurityFilterChain defaultFilterChain(HttpSecurity http) throws Exception {
+        http
+                .authorizeHttpRequests(authorize -> authorize
+                        .anyRequest().authenticated()
+                )
+                .formLogin(withDefaults());
+        return http.build();
+    }
+}
+----
+<1> Begin by configuring authentication settings.
+<2> Define a SecurityFilterChain instance with @Order(1) to handle requests with URLs starting with "/api/". This chain will have the highest priority.
+<3> Specify that the http.securityMatcher applies only to "/api/**" URLs.
+<4> Next, create another SecurityFilterChain instance with @Order(2) to handle requests with URLs starting with "/images/". This chain will be considered second.
+<5> Indicate that the http.securityMatcher applies only to "/images/**" URLs.
+<6> Lastly, create an additional SecurityFilterChain instance without an @Order annotation. This configuration will handle requests not covered by "/api/" or "/images/" URLs and will be processed last (no @Order defaults to last).
+
+
 [[jc-custom-dsls]]
 == Custom DSLs
 
