@@ -250,6 +250,100 @@ public class MultiHttpSecurityConfig {
 If the URL does not start with `/api/`, this configuration is used.
 This configuration is considered after `apiFilterChain`, since it has an `@Order` value after `1` (no `@Order` defaults to last).
 
+To effectively manage security in an application where certain areas and the entire app need protection, we can employ multiple filter chains alongside the securityMatcher. This approach allows us to define distinct security configurations tailored to specific parts while also ensuring overall application security. The provided example showcases distinct configurations for URLs starting with "/account/", "/balance", "/loans-approval/", "/credit-cards-approval/", "/loans", "/cards", "/notices", "/contact", "/login", "/logout" and "/register". This approach allows tailored security settings for specific endpoints, enhancing overall application security and control.
+
+[source,java]
+----
+@Configuration
+@EnableWebSecurity
+public class CustomSecurityFilterChainConfig {
+
+    @Bean                                                                   <1>
+    public UserDetailsService userDetailsService() {
+        // ensure the passwords are encoded properly
+        InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
+        manager.createUser(User.withDefaultPasswordEncoder().username("user").password("password").roles("USER").build());
+        manager.createUser(User.withDefaultPasswordEncoder().username("admin").password("password").roles("USER", "ADMIN").build());
+        return manager;
+    }
+
+    @Bean
+    @Order(1)                                                               <2>
+    public SecurityFilterChain dashBoardFilterChain(HttpSecurity http) throws Exception {
+        http
+                .securityMatcher("/account/**", "/loans/**", "/cards/**")   <3>
+                .authorizeHttpRequests(authorizeRequests -> authorizeRequests
+                    .anyRequest().hasRole("USER")                           <4>
+            )
+            .httpBasic(Customizer.withDefaults());
+        return http.build();
+    }
+
+    @Bean
+    @Order(2)                                                                <5>
+    public SecurityFilterChain balanceFilterChain(HttpSecurity http) throws Exception {
+        http
+                .securityMatcher("/balance/**")                              <6>
+            .authorizeHttpRequests(authorizeRequests -> authorizeRequests
+                    .anyRequest().hasAnyRole("USER", "ADMIN")                <7>
+            )
+            .httpBasic(Customizer.withDefaults());
+        return http.build();
+    }
+
+    @Bean
+    @Order(3)                                                               <8>
+    public SecurityFilterChain approvalsFilterChain(HttpSecurity http) throws Exception {
+        http
+            .securityMatcher("/loans-approval/**", "/credit-cards-approval/**")<9>
+            .authorizeHttpRequests(authorizeRequests -> authorizeRequests
+                    .anyRequest().hasRole("ADMIN")                           <10>
+            )
+            .httpBasic(Customizer.withDefaults());
+        return http.build();
+    }
+
+    @Bean
+    @Order(4)                                                               <11>
+    public SecurityFilterChain allowedFilterChain(HttpSecurity http) throws Exception {
+        http
+            .authorizeHttpRequests(authorizeRequests -> authorizeRequests
+                    .requestMatchers("/login","/logout","/notices", "/contact", "/register")   <12>
+                    .permitAll()                                            <13>
+            )
+            .formLogin(Customizer.withDefaults())
+            .httpBasic(Customizer.withDefaults());
+        return http.build();
+    }
+
+    @Bean                                                                    <14>
+    public SecurityFilterChain defaultFilterChain(HttpSecurity http) throws Exception {
+        http
+                .authorizeHttpRequests(authorizeRequests -> authorizeRequests
+                        .anyRequest().authenticated()                       <15>
+                )
+                .formLogin(Customizer.withDefaults());
+        return http.build();
+    }
+}
+----
+<1> Begin by configuring authentication settings.
+<2> Define a SecurityFilterChain instance with @Order(1), which means that this chain will have the highest priority.
+<3> Specify that the http.securityMatcher applies only to "/account", "/loans", and "/cards" URLs.
+<4> Requires the user to have the role "USER" to access the URLs "/account", "/loans", and "/cards".
+<5> Next, create another SecurityFilterChain instance with @Order(2), this chain will be considered second.
+<6> Indicate that the http.securityMatcher applies only to "/balance" URL.
+<7> Requires the user to have the role "USER" or the role "ADMIN" to access the URL "/balance"
+<8> Next, create another SecurityFilterChain instance with @Order(3), this particular security filter chain will be the third in the order of execution.
+<9> The http.securityMatcher applies only to "/loans-approval" and "/credit-cards-approval" URLs.
+<10> The user must have the role "ADMIN" to access the URLs "/loans-approval" and "/credit-cards-approval"
+<11> Define a SecurityFilterChain instance with @Order(4) this chain will be considered fourth.
+<12> The http.securityMatcher applies only to "/login", "/logout", "/notices", "/contact", "/register" URLs. 
+<13> Allows access to these specific URLs without authentication.
+<14> Lastly, create an additional SecurityFilterChain instance without an @Order annotation. This configuration will handle requests not covered by the other filter chains and will be processed last (no @Order defaults to last).
+<15> Requires the user to be authenticated to access any URL not explicitly allowed or protected by other filter chains.
+
+
 [[jc-custom-dsls]]
 == Custom DSLs
 
