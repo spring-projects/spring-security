@@ -5,8 +5,8 @@ pluginManagement {
 }
 
 plugins {
-	id "com.gradle.enterprise" version "3.16.2"
-	id "io.spring.ge.conventions" version "0.0.16"
+	id "com.gradle.develocity" version "3.17.2"
+	id "io.spring.ge.conventions" version "0.0.17"
 }
 
 dependencyResolutionManagement {
