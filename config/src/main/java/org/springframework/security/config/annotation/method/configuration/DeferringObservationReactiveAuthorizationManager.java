@@ -19,26 +19,18 @@ package org.springframework.security.config.annotation.method.configuration;
 import java.util.function.Supplier;
 
 import io.micrometer.observation.ObservationRegistry;
-import org.aopalliance.intercept.MethodInvocation;
 import reactor.core.publisher.Mono;
 
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.security.authorization.AuthorizationDecision;
-import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.authorization.ObservationReactiveAuthorizationManager;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
-import org.springframework.security.authorization.method.MethodAuthorizationDeniedHandler;
-import org.springframework.security.authorization.method.MethodInvocationResult;
-import org.springframework.security.authorization.method.ThrowingMethodAuthorizationDeniedHandler;
 import org.springframework.security.core.Authentication;
 import org.springframework.util.function.SingletonSupplier;
 
-final class DeferringObservationReactiveAuthorizationManager<T>
-		implements ReactiveAuthorizationManager<T>, MethodAuthorizationDeniedHandler {
+final class DeferringObservationReactiveAuthorizationManager<T> implements ReactiveAuthorizationManager<T> {
 
 	private final Supplier<ReactiveAuthorizationManager<T>> delegate;
-
-	private MethodAuthorizationDeniedHandler handler = new ThrowingMethodAuthorizationDeniedHandler();
 
 	DeferringObservationReactiveAuthorizationManager(ObjectProvider<ObservationRegistry> provider,
 			ReactiveAuthorizationManager<T> delegate) {
@@ -49,25 +41,11 @@ final class DeferringObservationReactiveAuthorizationManager<T>
 			}
 			return new ObservationReactiveAuthorizationManager<>(registry, delegate);
 		});
-		if (delegate instanceof MethodAuthorizationDeniedHandler h) {
-			this.handler = h;
-		}
 	}
 
 	@Override
 	public Mono<AuthorizationDecision> check(Mono<Authentication> authentication, T object) {
 		return this.delegate.get().check(authentication, object);
-	}
-
-	@Override
-	public Object handleDeniedInvocation(MethodInvocation methodInvocation, AuthorizationResult authorizationResult) {
-		return this.handler.handleDeniedInvocation(methodInvocation, authorizationResult);
-	}
-
-	@Override
-	public Object handleDeniedInvocationResult(MethodInvocationResult methodInvocationResult,
-			AuthorizationResult authorizationResult) {
-		return this.handler.handleDeniedInvocationResult(methodInvocationResult, authorizationResult);
 	}
 
 }

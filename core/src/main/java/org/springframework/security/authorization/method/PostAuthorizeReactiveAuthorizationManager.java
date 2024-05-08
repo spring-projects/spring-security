@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,12 +19,10 @@ package org.springframework.security.authorization.method;
 import org.aopalliance.intercept.MethodInvocation;
 import reactor.core.publisher.Mono;
 
-import org.springframework.context.ApplicationContext;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.authorization.AuthorizationDecision;
-import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.util.Assert;
@@ -38,9 +36,9 @@ import org.springframework.util.Assert;
  * @since 5.8
  */
 public final class PostAuthorizeReactiveAuthorizationManager
-		implements ReactiveAuthorizationManager<MethodInvocationResult>, MethodAuthorizationDeniedHandler {
+		implements ReactiveAuthorizationManager<MethodInvocationResult> {
 
-	private final PostAuthorizeExpressionAttributeRegistry registry = new PostAuthorizeExpressionAttributeRegistry();
+	private final PostAuthorizeExpressionAttributeRegistry registry;
 
 	public PostAuthorizeReactiveAuthorizationManager() {
 		this(new DefaultMethodSecurityExpressionHandler());
@@ -48,23 +46,7 @@ public final class PostAuthorizeReactiveAuthorizationManager
 
 	public PostAuthorizeReactiveAuthorizationManager(MethodSecurityExpressionHandler expressionHandler) {
 		Assert.notNull(expressionHandler, "expressionHandler cannot be null");
-		this.registry.setExpressionHandler(expressionHandler);
-	}
-
-	/**
-	 * Configure pre/post-authorization template resolution
-	 * <p>
-	 * By default, this value is <code>null</code>, which indicates that templates should
-	 * not be resolved.
-	 * @param defaults - whether to resolve pre/post-authorization templates parameters
-	 * @since 6.3
-	 */
-	public void setTemplateDefaults(PrePostTemplateDefaults defaults) {
-		this.registry.setTemplateDefaults(defaults);
-	}
-
-	public void setApplicationContext(ApplicationContext context) {
-		this.registry.setApplicationContext(context);
+		this.registry = new PostAuthorizeExpressionAttributeRegistry(expressionHandler);
 	}
 
 	/**
@@ -83,31 +65,14 @@ public final class PostAuthorizeReactiveAuthorizationManager
 		if (attribute == ExpressionAttribute.NULL_ATTRIBUTE) {
 			return Mono.empty();
 		}
-
 		MethodSecurityExpressionHandler expressionHandler = this.registry.getExpressionHandler();
 		// @formatter:off
 		return authentication
 				.map((auth) -> expressionHandler.createEvaluationContext(auth, mi))
 				.doOnNext((ctx) -> expressionHandler.setReturnObject(result.getResult(), ctx))
-				.flatMap((ctx) -> ReactiveExpressionUtils.evaluate(attribute.getExpression(), ctx))
-				.cast(AuthorizationDecision.class);
+				.flatMap((ctx) -> ReactiveExpressionUtils.evaluateAsBoolean(attribute.getExpression(), ctx))
+				.map((granted) -> new ExpressionAttributeAuthorizationDecision(granted, attribute));
 		// @formatter:on
-	}
-
-	@Override
-	public Object handleDeniedInvocation(MethodInvocation methodInvocation, AuthorizationResult authorizationResult) {
-		ExpressionAttribute attribute = this.registry.getAttribute(methodInvocation);
-		PostAuthorizeExpressionAttribute postAuthorizeAttribute = (PostAuthorizeExpressionAttribute) attribute;
-		return postAuthorizeAttribute.getHandler().handleDeniedInvocation(methodInvocation, authorizationResult);
-	}
-
-	@Override
-	public Object handleDeniedInvocationResult(MethodInvocationResult methodInvocationResult,
-			AuthorizationResult authorizationResult) {
-		ExpressionAttribute attribute = this.registry.getAttribute(methodInvocationResult.getMethodInvocation());
-		PostAuthorizeExpressionAttribute postAuthorizeAttribute = (PostAuthorizeExpressionAttribute) attribute;
-		return postAuthorizeAttribute.getHandler()
-			.handleDeniedInvocationResult(methodInvocationResult, authorizationResult);
 	}
 
 }

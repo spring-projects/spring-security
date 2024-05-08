@@ -42,21 +42,18 @@
 			factory-method="authorizedClientManagerConsumer"/>
 
 	<b:bean class="org.springframework.security.config.http.OAuth2AuthorizedClientManagerRegistrarTests"
-			factory-method="authorizationCode"/>
+			factory-method="authorizationCodeAuthorizedClientProvider"/>
 
 	<b:bean class="org.springframework.security.config.http.OAuth2AuthorizedClientManagerRegistrarTests"
-			factory-method="refreshToken"/>
+			factory-method="refreshTokenAuthorizedClientProvider"/>
 
 	<b:bean class="org.springframework.security.config.http.OAuth2AuthorizedClientManagerRegistrarTests"
-			factory-method="clientCredentials"/>
+			factory-method="clientCredentialsAuthorizedClientProvider"/>
 
 	<b:bean class="org.springframework.security.config.http.OAuth2AuthorizedClientManagerRegistrarTests"
-			factory-method="password"/>
+			factory-method="passwordAuthorizedClientProvider"/>
 
 	<b:bean class="org.springframework.security.config.http.OAuth2AuthorizedClientManagerRegistrarTests"
-			factory-method="jwtBearer"/>
-
-	<b:bean class="org.springframework.security.config.http.OAuth2AuthorizedClientManagerRegistrarTests"
-			factory-method="tokenExchange"/>
+			factory-method="jwtBearerAuthorizedClientProvider"/>
 
 </b:beans>

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,42 +16,57 @@
 
 package org.springframework.security.authorization.method;
 
-import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
-import java.util.function.Function;
 
 import org.springframework.aop.support.AopUtils;
 import org.springframework.expression.Expression;
 import org.springframework.lang.NonNull;
+import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
+import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.access.prepost.PreFilter;
+import org.springframework.util.Assert;
 
 /**
  * For internal use only, as this contract is likely to change.
  *
  * @author Evgeniy Cheban
- * @author DingHao
  * @since 5.8
  */
 final class PreFilterExpressionAttributeRegistry
 		extends AbstractExpressionAttributeRegistry<PreFilterExpressionAttributeRegistry.PreFilterExpressionAttribute> {
 
+	private final MethodSecurityExpressionHandler expressionHandler;
+
+	PreFilterExpressionAttributeRegistry() {
+		this.expressionHandler = new DefaultMethodSecurityExpressionHandler();
+	}
+
+	PreFilterExpressionAttributeRegistry(MethodSecurityExpressionHandler expressionHandler) {
+		Assert.notNull(expressionHandler, "expressionHandler cannot be null");
+		this.expressionHandler = expressionHandler;
+	}
+
+	MethodSecurityExpressionHandler getExpressionHandler() {
+		return this.expressionHandler;
+	}
+
 	@NonNull
 	@Override
 	PreFilterExpressionAttribute resolveAttribute(Method method, Class<?> targetClass) {
 		Method specificMethod = AopUtils.getMostSpecificMethod(method, targetClass);
-		PreFilter preFilter = findPreFilterAnnotation(specificMethod, targetClass);
+		PreFilter preFilter = findPreFilterAnnotation(specificMethod);
 		if (preFilter == null) {
 			return PreFilterExpressionAttribute.NULL_ATTRIBUTE;
 		}
-		Expression preFilterExpression = getExpressionHandler().getExpressionParser()
+		Expression preFilterExpression = this.expressionHandler.getExpressionParser()
 			.parseExpression(preFilter.value());
 		return new PreFilterExpressionAttribute(preFilterExpression, preFilter.filterTarget());
 	}
 
-	private PreFilter findPreFilterAnnotation(Method method, Class<?> targetClass) {
-		Function<AnnotatedElement, PreFilter> lookup = findUniqueAnnotation(PreFilter.class);
-		PreFilter preFilter = lookup.apply(method);
-		return (preFilter != null) ? preFilter : lookup.apply(targetClass(method, targetClass));
+	private PreFilter findPreFilterAnnotation(Method method) {
+		PreFilter preFilter = AuthorizationAnnotationUtils.findUniqueAnnotation(method, PreFilter.class);
+		return (preFilter != null) ? preFilter
+				: AuthorizationAnnotationUtils.findUniqueAnnotation(method.getDeclaringClass(), PreFilter.class);
 	}
 
 	static final class PreFilterExpressionAttribute extends ExpressionAttribute {

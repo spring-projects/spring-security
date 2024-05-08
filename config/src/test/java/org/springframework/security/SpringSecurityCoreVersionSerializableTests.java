@@ -248,6 +248,7 @@ class SpringSecurityCoreVersionSerializableTests {
 
 	@ParameterizedTest
 	@MethodSource("getFilesToDeserialize")
+	@Disabled("The feature is only supported for versions >= 6.3")
 	void shouldBeAbleToDeserializeClassFromPreviousVersion(Path filePath) {
 		try (FileInputStream fileInputStream = new FileInputStream(filePath.toFile());
 				ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream)) {

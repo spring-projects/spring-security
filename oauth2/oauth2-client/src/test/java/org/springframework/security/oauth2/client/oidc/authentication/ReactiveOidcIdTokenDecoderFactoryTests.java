@@ -46,7 +46,6 @@ import static org.mockito.Mockito.verify;
 /**
  * @author Joe Grandja
  * @author Rafael Dominguez
- * @author Ubaid ur Rehman
  * @since 5.2
  */
 public class ReactiveOidcIdTokenDecoderFactoryTests {

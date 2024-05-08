@@ -660,13 +660,7 @@ public class OAuth2LoginSecurityConfig {
 			// 2) Map the authority information to one or more GrantedAuthority's and add it to mappedAuthorities
 
 			// 3) Create a copy of oidcUser but use the mappedAuthorities instead
-			ProviderDetails providerDetails = userRequest.getClientRegistration().getProviderDetails();
-			String userNameAttributeName = providerDetails.getUserInfoEndpoint().getUserNameAttributeName();
-			if (StringUtils.hasText(userNameAttributeName)) {
-				oidcUser = new DefaultOidcUser(mappedAuthorities, oidcUser.getIdToken(), oidcUser.getUserInfo(), userNameAttributeName);
-			} else {
-				oidcUser = new DefaultOidcUser(mappedAuthorities, oidcUser.getIdToken(), oidcUser.getUserInfo());
-			}
+			oidcUser = new DefaultOidcUser(mappedAuthorities, oidcUser.getIdToken(), oidcUser.getUserInfo());
 
 			return oidcUser;
 		};
@@ -700,7 +694,7 @@ class OAuth2LoginSecurityConfig  {
 
         return OAuth2UserService { userRequest ->
             // Delegate to the default implementation for loading a user
-            val oidcUser = delegate.loadUser(userRequest)
+            var oidcUser = delegate.loadUser(userRequest)
 
             val accessToken = userRequest.accessToken
             val mappedAuthorities = HashSet<GrantedAuthority>()
@@ -709,13 +703,9 @@ class OAuth2LoginSecurityConfig  {
             // 1) Fetch the authority information from the protected resource using accessToken
             // 2) Map the authority information to one or more GrantedAuthority's and add it to mappedAuthorities
             // 3) Create a copy of oidcUser but use the mappedAuthorities instead
-            val providerDetails = userRequest.getClientRegistration().getProviderDetails()
-            val userNameAttributeName = providerDetails.getUserInfoEndpoint().getUserNameAttributeName()
-            if (StringUtils.hasText(userNameAttributeName)) {
-                DefaultOidcUser(mappedAuthorities, oidcUser.idToken, oidcUser.userInfo, userNameAttributeName)
-            } else {
-                DefaultOidcUser(mappedAuthorities, oidcUser.idToken, oidcUser.userInfo)
-            }
+            oidcUser = DefaultOidcUser(mappedAuthorities, oidcUser.idToken, oidcUser.userInfo)
+
+            oidcUser
         }
     }
 }
@@ -940,4 +930,4 @@ If more than one `ClientRegistration` is configured for OpenID Connect 1.0 Authe
 ====
 
 [[oauth2login-advanced-oidc-logout]]
-Then, you can proceed to configure xref:servlet/oauth2/login/logout.adoc[logout]
+Then, you can proceed to configure xref:reactive/oauth2/login/logout.adoc[logout]

@@ -70,25 +70,8 @@ public class CurrentSecurityContextArgumentResolverTests {
 	}
 
 	@Test
-	public void supportsParameterNoAnnotationWrongType() {
-		assertThat(this.resolver.supportsParameter(showSecurityContextNoAnnotationTypeMismatch())).isFalse();
-	}
-
-	@Test
 	public void supportsParameterNoAnnotation() {
-		assertThat(this.resolver.supportsParameter(showSecurityContextNoAnnotation())).isTrue();
-	}
-
-	@Test
-	public void supportsParameterCustomSecurityContextNoAnnotation() {
-		assertThat(this.resolver.supportsParameter(showSecurityContextWithCustomSecurityContextNoAnnotation()))
-			.isTrue();
-	}
-
-	@Test
-	public void supportsParameterNoAnnotationCustomType() {
-		assertThat(this.resolver.supportsParameter(showSecurityContextWithCustomSecurityContextNoAnnotation()))
-			.isTrue();
+		assertThat(this.resolver.supportsParameter(showSecurityContextNoAnnotation())).isFalse();
 	}
 
 	@Test
@@ -103,24 +86,6 @@ public class CurrentSecurityContextArgumentResolverTests {
 		CustomSecurityContext customSecurityContext = (CustomSecurityContext) this.resolver
 			.resolveArgument(showAnnotationWithCustomSecurityContext(), null, null, null);
 		assertThat(customSecurityContext.getAuthentication().getPrincipal()).isEqualTo(principal);
-	}
-
-	@Test
-	public void resolveArgumentWithCustomSecurityContextNoAnnotation() {
-		String principal = "custom_security_context";
-		setAuthenticationPrincipalWithCustomSecurityContext(principal);
-		CustomSecurityContext customSecurityContext = (CustomSecurityContext) this.resolver
-			.resolveArgument(showSecurityContextWithCustomSecurityContextNoAnnotation(), null, null, null);
-		assertThat(customSecurityContext.getAuthentication().getPrincipal()).isEqualTo(principal);
-	}
-
-	@Test
-	public void resolveArgumentWithNoAnnotation() {
-		String principal = "custom_security_context";
-		setAuthenticationPrincipal(principal);
-		SecurityContext securityContext = (SecurityContext) this.resolver
-			.resolveArgument(showSecurityContextNoAnnotation(), null, null, null);
-		assertThat(securityContext.getAuthentication().getPrincipal()).isEqualTo(principal);
 	}
 
 	@Test
@@ -247,12 +212,8 @@ public class CurrentSecurityContextArgumentResolverTests {
 			.resolveArgument(showCurrentSecurityWithErrorOnInvalidTypeMisMatch(), null, null, null));
 	}
 
-	private MethodParameter showSecurityContextNoAnnotationTypeMismatch() {
-		return getMethodParameter("showSecurityContextNoAnnotation", String.class);
-	}
-
 	private MethodParameter showSecurityContextNoAnnotation() {
-		return getMethodParameter("showSecurityContextNoAnnotation", SecurityContext.class);
+		return getMethodParameter("showSecurityContextNoAnnotation", String.class);
 	}
 
 	private MethodParameter showSecurityContextAnnotation() {
@@ -313,11 +274,6 @@ public class CurrentSecurityContextArgumentResolverTests {
 
 	public MethodParameter showCurrentSecurityWithErrorOnInvalidTypeMisMatch() {
 		return getMethodParameter("showCurrentSecurityWithErrorOnInvalidTypeMisMatch", String.class);
-	}
-
-	public MethodParameter showSecurityContextWithCustomSecurityContextNoAnnotation() {
-		return getMethodParameter("showSecurityContextWithCustomSecurityContextNoAnnotation",
-				CustomSecurityContext.class);
 	}
 
 	private MethodParameter getMethodParameter(String methodName, Class<?>... paramTypes) {
@@ -400,12 +356,6 @@ public class CurrentSecurityContextArgumentResolverTests {
 
 		public void showCurrentSecurityWithErrorOnInvalidTypeMisMatch(
 				@CurrentSecurityWithErrorOnInvalidType String typeMisMatch) {
-		}
-
-		public void showSecurityContextNoAnnotation(SecurityContext context) {
-		}
-
-		public void showSecurityContextWithCustomSecurityContextNoAnnotation(CustomSecurityContext context) {
 		}
 
 	}

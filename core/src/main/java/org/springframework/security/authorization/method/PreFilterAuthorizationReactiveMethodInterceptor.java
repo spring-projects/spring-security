@@ -26,7 +26,10 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import org.springframework.aop.Pointcut;
+import org.springframework.aop.PointcutAdvisor;
+import org.springframework.aop.framework.AopInfrastructureBean;
 import org.springframework.aop.support.AopUtils;
+import org.springframework.core.Ordered;
 import org.springframework.core.ParameterNameDiscoverer;
 import org.springframework.core.ReactiveAdapter;
 import org.springframework.core.ReactiveAdapterRegistry;
@@ -47,9 +50,10 @@ import org.springframework.util.StringUtils;
  * @author Evgeniy Cheban
  * @since 5.8
  */
-public final class PreFilterAuthorizationReactiveMethodInterceptor implements AuthorizationAdvisor {
+public final class PreFilterAuthorizationReactiveMethodInterceptor
+		implements Ordered, MethodInterceptor, PointcutAdvisor, AopInfrastructureBean {
 
-	private final PreFilterExpressionAttributeRegistry registry = new PreFilterExpressionAttributeRegistry();
+	private final PreFilterExpressionAttributeRegistry registry;
 
 	private final Pointcut pointcut = AuthorizationMethodPointcuts.forAnnotations(PreFilter.class);
 
@@ -66,19 +70,7 @@ public final class PreFilterAuthorizationReactiveMethodInterceptor implements Au
 	 */
 	public PreFilterAuthorizationReactiveMethodInterceptor(MethodSecurityExpressionHandler expressionHandler) {
 		Assert.notNull(expressionHandler, "expressionHandler cannot be null");
-		this.registry.setExpressionHandler(expressionHandler);
-	}
-
-	/**
-	 * Configure pre/post-authorization template resolution
-	 * <p>
-	 * By default, this value is <code>null</code>, which indicates that templates should
-	 * not be resolved.
-	 * @param defaults - whether to resolve pre/post-authorization templates parameters
-	 * @since 6.3
-	 */
-	public void setTemplateDefaults(PrePostTemplateDefaults defaults) {
-		this.registry.setTemplateDefaults(defaults);
+		this.registry = new PreFilterExpressionAttributeRegistry(expressionHandler);
 	}
 
 	/**

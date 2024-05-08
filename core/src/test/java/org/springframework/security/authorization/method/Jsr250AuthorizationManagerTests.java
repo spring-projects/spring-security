@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -223,56 +223,6 @@ public class Jsr250AuthorizationManagerTests {
 		Jsr250AuthorizationManager manager = new Jsr250AuthorizationManager();
 		assertThatExceptionOfType(AnnotationConfigurationException.class)
 			.isThrownBy(() -> manager.check(authentication, methodInvocation));
-	}
-
-	@Test
-	public void checkRequiresUserWhenMethodsFromInheritThenApplies() throws Exception {
-		MockMethodInvocation methodInvocation = new MockMethodInvocation(new RolesAllowedClass(),
-				RolesAllowedClass.class, "securedUser");
-		Jsr250AuthorizationManager manager = new Jsr250AuthorizationManager();
-		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedUser, methodInvocation);
-		assertThat(decision.isGranted()).isTrue();
-	}
-
-	@Test
-	public void checkPermitAllWhenMethodsFromInheritThenApplies() throws Exception {
-		MockMethodInvocation methodInvocation = new MockMethodInvocation(new PermitAllClass(), PermitAllClass.class,
-				"securedUser");
-		Jsr250AuthorizationManager manager = new Jsr250AuthorizationManager();
-		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedUser, methodInvocation);
-		assertThat(decision.isGranted()).isTrue();
-	}
-
-	@Test
-	public void checkDenyAllWhenMethodsFromInheritThenApplies() throws Exception {
-		MockMethodInvocation methodInvocation = new MockMethodInvocation(new DenyAllClass(), DenyAllClass.class,
-				"securedUser");
-		Jsr250AuthorizationManager manager = new Jsr250AuthorizationManager();
-		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedUser, methodInvocation);
-		assertThat(decision.isGranted()).isFalse();
-	}
-
-	@RolesAllowed("USER")
-	public static class RolesAllowedClass extends ParentClass {
-
-	}
-
-	@PermitAll
-	public static class PermitAllClass extends ParentClass {
-
-	}
-
-	@DenyAll
-	public static class DenyAllClass extends ParentClass {
-
-	}
-
-	public static class ParentClass {
-
-		public void securedUser() {
-
-		}
-
 	}
 
 	public static class TestClass implements InterfaceAnnotationsOne, InterfaceAnnotationsTwo {

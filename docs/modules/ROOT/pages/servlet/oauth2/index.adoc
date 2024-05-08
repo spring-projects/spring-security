@@ -491,7 +491,7 @@ With the above configuration, the application now supports two additional endpoi
 ====
 The presence of the `openid` scope in the above configuration indicates that OpenID Connect 1.0 should be used.
 This instructs Spring Security to use OIDC-specific components (such as `OidcUserService`) during request processing.
-Without this scope, Spring Security will use OAuth2-specific components (such as `DefaultOAuth2UserService`) instead.
+Without this scope, Spring Security will use OAuth2-specific components (such as `OAuth2UserService`) instead.
 ====
 
 [[oauth2-client-access-protected-resources]]
@@ -708,7 +708,7 @@ class MessagesController(private val webClient: WebClient) {
 			.uri("http://localhost:8090/messages")
 			.attributes(clientRegistrationId("my-oauth2-client"))
 			.retrieve()
-			.toEntityList<Message>()
+			.toEntityList(Message::class.java)
 			.block()!!
 	}
 
@@ -933,7 +933,7 @@ class MessagesController(private val webClient: WebClient) {
 		return webClient.get()
 			.uri("http://localhost:8090/messages")
 			.retrieve()
-			.toEntityList<Message>()
+			.toEntityList(Message::class.java)
 			.block()!!
 	}
 
@@ -953,7 +953,7 @@ This is because it can be derived from the currently logged in user.
 === Enable an Extension Grant Type
 
 A common use case involves enabling and/or configuring an extension grant type.
-For example, Spring Security provides support for the `jwt-bearer` and `token-exchange` grant types, but does not enable them by default because they are not part of the core OAuth 2.0 specification.
+For example, Spring Security provides support for the `jwt-bearer` grant type, but does not enable it by default because it is not part of the core OAuth 2.0 specification.
 
 With Spring Security 6.2 and later, we can simply publish a bean for one or more `OAuth2AuthorizedClientProvider` and they will be picked up automatically.
 The following example simply enables the `jwt-bearer` grant type:
@@ -1356,16 +1356,10 @@ Spring Security automatically resolves the following generic types of `OAuth2Acc
 * `OAuth2ClientCredentialsGrantRequest` (see `DefaultClientCredentialsTokenResponseClient`)
 * `OAuth2PasswordGrantRequest` (see `DefaultPasswordTokenResponseClient`)
 * `JwtBearerGrantRequest` (see `DefaultJwtBearerTokenResponseClient`)
-* `TokenExchangeGrantRequest` (see `DefaultTokenExchangeTokenResponseClient`)
 
 [TIP]
 ====
 Publishing a bean of type `OAuth2AccessTokenResponseClient<JwtBearerGrantRequest>` will automatically enable the `jwt-bearer` grant type without the need to <<oauth2-client-enable-extension-grant-type,configure it separately>>.
-====
-
-[TIP]
-====
-Publishing a bean of type `OAuth2AccessTokenResponseClient<TokenExchangeGrantRequest>` will automatically enable the `token-exchange` grant type without the need to <<oauth2-client-enable-extension-grant-type,configure it separately>>.
 ====
 
 [[oauth2-client-customize-rest-operations]]
@@ -1434,15 +1428,6 @@ public class SecurityConfig {
 	}
 
 	@Bean
-	public OAuth2AccessTokenResponseClient<TokenExchangeGrantRequest> tokenExchangeAccessTokenResponseClient() {
-		DefaultTokenExchangeTokenResponseClient accessTokenResponseClient =
-			new DefaultTokenExchangeTokenResponseClient();
-		accessTokenResponseClient.setRestOperations(restTemplate());
-
-		return accessTokenResponseClient;
-	}
-
-	@Bean
 	public RestTemplate restTemplate() {
 		// ...
 	}
@@ -1492,14 +1477,6 @@ class SecurityConfig {
 	@Bean
 	fun jwtBearerAccessTokenResponseClient(): OAuth2AccessTokenResponseClient<JwtBearerGrantRequest> {
 		val accessTokenResponseClient = DefaultJwtBearerTokenResponseClient()
-		accessTokenResponseClient.setRestOperations(restTemplate())
-
-		return accessTokenResponseClient
-	}
-
-	@Bean
-	fun tokenExchangeAccessTokenResponseClient(): OAuth2AccessTokenResponseClient<TokenExchangeGrantRequest> {
-		val accessTokenResponseClient = DefaultTokenExchangeTokenResponseClient()
 		accessTokenResponseClient.setRestOperations(restTemplate())
 
 		return accessTokenResponseClient
@@ -1584,14 +1561,6 @@ public class SecurityConfig {
 			new JwtBearerOAuth2AuthorizedClientProvider();
 		jwtBearerAuthorizedClientProvider.setAccessTokenResponseClient(jwtBearerAccessTokenResponseClient);
 
-		DefaultTokenExchangeTokenResponseClient tokenExchangeAccessTokenResponseClient =
-			new DefaultTokenExchangeTokenResponseClient();
-		tokenExchangeAccessTokenResponseClient.setRestOperations(restTemplate());
-
-		TokenExchangeOAuth2AuthorizedClientProvider tokenExchangeAuthorizedClientProvider =
-			new TokenExchangeOAuth2AuthorizedClientProvider();
-		tokenExchangeAuthorizedClientProvider.setAccessTokenResponseClient(tokenExchangeAccessTokenResponseClient);
-
 		OAuth2AuthorizedClientProvider authorizedClientProvider =
 			OAuth2AuthorizedClientProviderBuilder.builder()
 				.authorizationCode()
@@ -1605,7 +1574,6 @@ public class SecurityConfig {
 					.accessTokenResponseClient(passwordAccessTokenResponseClient)
 				)
 				.provider(jwtBearerAuthorizedClientProvider)
-				.provider(tokenExchangeAuthorizedClientProvider)
 				.build();
 
 		DefaultOAuth2AuthorizedClientManager authorizedClientManager =
@@ -1676,12 +1644,6 @@ class SecurityConfig {
 		val jwtBearerAuthorizedClientProvider = JwtBearerOAuth2AuthorizedClientProvider()
 		jwtBearerAuthorizedClientProvider.setAccessTokenResponseClient(jwtBearerAccessTokenResponseClient)
 
-		val tokenExchangeAccessTokenResponseClient = DefaultTokenExchangeTokenResponseClient()
-		tokenExchangeAccessTokenResponseClient.setRestOperations(restTemplate())
-
-		val tokenExchangeAuthorizedClientProvider = TokenExchangeOAuth2AuthorizedClientProvider()
-		tokenExchangeAuthorizedClientProvider.setAccessTokenResponseClient(tokenExchangeAccessTokenResponseClient)
-
 		val authorizedClientProvider = OAuth2AuthorizedClientProviderBuilder.builder()
 			.authorizationCode()
 			.refreshToken { refreshToken ->
@@ -1694,7 +1656,6 @@ class SecurityConfig {
 				password.accessTokenResponseClient(passwordAccessTokenResponseClient)
 			}
 			.provider(jwtBearerAuthorizedClientProvider)
-			.provider(tokenExchangeAuthorizedClientProvider)
 			.build()
 
 		val authorizedClientManager = DefaultOAuth2AuthorizedClientManager(

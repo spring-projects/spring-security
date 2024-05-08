@@ -69,14 +69,6 @@ public class CurrentSecurityContextArgumentResolverTests {
 
 	ResolvableMethod securityContextMethod = ResolvableMethod.on(getClass()).named("securityContext").build();
 
-	ResolvableMethod securityContextNoAnnotationMethod = ResolvableMethod.on(getClass())
-		.named("securityContextNoAnnotation")
-		.build();
-
-	ResolvableMethod customSecurityContextNoAnnotationMethod = ResolvableMethod.on(getClass())
-		.named("customSecurityContextNoAnnotation")
-		.build();
-
 	ResolvableMethod securityContextWithAuthentication = ResolvableMethod.on(getClass())
 		.named("securityContextWithAuthentication")
 		.build();
@@ -92,19 +84,6 @@ public class CurrentSecurityContextArgumentResolverTests {
 	@Test
 	public void supportsParameterCurrentSecurityContext() {
 		assertThat(this.resolver.supportsParameter(this.securityContextMethod.arg(Mono.class, SecurityContext.class)))
-			.isTrue();
-	}
-
-	@Test
-	public void supportsParameterCurrentSecurityContextNoAnnotation() {
-		assertThat(this.resolver
-			.supportsParameter(this.securityContextNoAnnotationMethod.arg(Mono.class, SecurityContext.class))).isTrue();
-	}
-
-	@Test
-	public void supportsParameterCurrentCustomSecurityContextNoAnnotation() {
-		assertThat(this.resolver.supportsParameter(
-				this.customSecurityContextNoAnnotationMethod.arg(Mono.class, CustomSecurityContext.class)))
 			.isTrue();
 	}
 
@@ -137,40 +116,6 @@ public class CurrentSecurityContextArgumentResolverTests {
 		Context context = ReactiveSecurityContextHolder.withAuthentication(auth);
 		Mono<Object> argument = this.resolver.resolveArgument(parameter, this.bindingContext, this.exchange);
 		SecurityContext securityContext = (SecurityContext) argument.contextWrite(context)
-			.cast(Mono.class)
-			.block()
-			.block();
-		assertThat(securityContext.getAuthentication()).isSameAs(auth);
-		ReactiveSecurityContextHolder.clearContext();
-	}
-
-	@Test
-	public void resolveArgumentWithSecurityContextNoAnnotation() {
-		MethodParameter parameter = ResolvableMethod.on(getClass())
-			.named("securityContextNoAnnotation")
-			.build()
-			.arg(Mono.class, SecurityContext.class);
-		Authentication auth = buildAuthenticationWithPrincipal("hello");
-		Context context = ReactiveSecurityContextHolder.withAuthentication(auth);
-		Mono<Object> argument = this.resolver.resolveArgument(parameter, this.bindingContext, this.exchange);
-		SecurityContext securityContext = (SecurityContext) argument.contextWrite(context)
-			.cast(Mono.class)
-			.block()
-			.block();
-		assertThat(securityContext.getAuthentication()).isSameAs(auth);
-		ReactiveSecurityContextHolder.clearContext();
-	}
-
-	@Test
-	public void resolveArgumentWithCustomSecurityContextNoAnnotation() {
-		MethodParameter parameter = ResolvableMethod.on(getClass())
-			.named("customSecurityContextNoAnnotation")
-			.build()
-			.arg(Mono.class, CustomSecurityContext.class);
-		Authentication auth = buildAuthenticationWithPrincipal("hello");
-		Context context = ReactiveSecurityContextHolder.withSecurityContext(Mono.just(new CustomSecurityContext(auth)));
-		Mono<Object> argument = this.resolver.resolveArgument(parameter, this.bindingContext, this.exchange);
-		CustomSecurityContext securityContext = (CustomSecurityContext) argument.contextWrite(context)
 			.cast(Mono.class)
 			.block()
 			.block();
@@ -403,12 +348,6 @@ public class CurrentSecurityContextArgumentResolverTests {
 	}
 
 	void securityContext(@CurrentSecurityContext Mono<SecurityContext> monoSecurityContext) {
-	}
-
-	void securityContextNoAnnotation(Mono<SecurityContext> securityContextMono) {
-	}
-
-	void customSecurityContextNoAnnotation(Mono<CustomSecurityContext> securityContextMono) {
 	}
 
 	void customSecurityContext(@CurrentSecurityContext Mono<SecurityContext> monoSecurityContext) {

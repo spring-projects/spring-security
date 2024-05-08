@@ -32,7 +32,6 @@ import org.springframework.core.ReactiveAdapterRegistry;
 import org.springframework.security.authentication.ObservationReactiveAuthenticationManager;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.UserDetailsRepositoryReactiveAuthenticationManager;
-import org.springframework.security.authentication.password.ReactiveCompromisedPasswordChecker;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsPasswordService;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
@@ -63,8 +62,6 @@ class ServerHttpSecurityConfiguration {
 	private PasswordEncoder passwordEncoder;
 
 	private ReactiveUserDetailsPasswordService userDetailsPasswordService;
-
-	private ReactiveCompromisedPasswordChecker compromisedPasswordChecker;
 
 	private ObservationRegistry observationRegistry = ObservationRegistry.NOOP;
 
@@ -99,11 +96,6 @@ class ServerHttpSecurityConfiguration {
 	@Autowired(required = false)
 	void setObservationRegistry(ObservationRegistry observationRegistry) {
 		this.observationRegistry = observationRegistry;
-	}
-
-	@Autowired(required = false)
-	void setCompromisedPasswordChecker(ReactiveCompromisedPasswordChecker compromisedPasswordChecker) {
-		this.compromisedPasswordChecker = compromisedPasswordChecker;
 	}
 
 	@Bean
@@ -161,7 +153,6 @@ class ServerHttpSecurityConfiguration {
 				manager.setPasswordEncoder(this.passwordEncoder);
 			}
 			manager.setUserDetailsPasswordService(this.userDetailsPasswordService);
-			manager.setCompromisedPasswordChecker(this.compromisedPasswordChecker);
 			if (!this.observationRegistry.isNoop()) {
 				return new ObservationReactiveAuthenticationManager(this.observationRegistry, manager);
 			}

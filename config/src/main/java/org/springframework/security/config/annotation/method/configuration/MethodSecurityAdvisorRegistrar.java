@@ -33,7 +33,6 @@ class MethodSecurityAdvisorRegistrar implements ImportBeanDefinitionRegistrar {
 		registerAsAdvisor("postAuthorizeAuthorization", registry);
 		registerAsAdvisor("securedAuthorization", registry);
 		registerAsAdvisor("jsr250Authorization", registry);
-		registerAsAdvisor("authorizeReturnObject", registry);
 	}
 
 	private void registerAsAdvisor(String prefix, BeanDefinitionRegistry registry) {

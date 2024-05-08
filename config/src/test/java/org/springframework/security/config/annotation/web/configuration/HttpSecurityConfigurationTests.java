@@ -47,9 +47,6 @@ import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authentication.event.AbstractAuthenticationEvent;
 import org.springframework.security.authentication.event.AbstractAuthenticationFailureEvent;
 import org.springframework.security.authentication.event.AuthenticationSuccessEvent;
-import org.springframework.security.authentication.password.CompromisedPasswordCheckResult;
-import org.springframework.security.authentication.password.CompromisedPasswordChecker;
-import org.springframework.security.authentication.password.CompromisedPasswordException;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.SecurityContextChangedListenerConfig;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -63,8 +60,8 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
-import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.security.test.web.servlet.RequestCacheResultMatcher;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -398,41 +395,6 @@ public class HttpSecurityConfigurationTests {
 		this.mockMvc.perform(formLogin()).andExpectAll(status().isNotFound(), unauthenticated());
 	}
 
-	@Test
-	void loginWhenCompromisePasswordCheckerConfiguredAndPasswordCompromisedThenUnauthorized() throws Exception {
-		this.spring
-			.register(SecurityEnabledConfig.class, UserDetailsConfig.class, CompromisedPasswordCheckerConfig.class)
-			.autowire();
-		this.mockMvc.perform(formLogin().password("password"))
-			.andExpectAll(status().isFound(), redirectedUrl("/login?error"), unauthenticated());
-	}
-
-	@Test
-	void loginWhenCompromisedPasswordAndRedirectIfPasswordExceptionThenRedirectedToResetPassword() throws Exception {
-		this.spring
-			.register(SecurityEnabledRedirectIfPasswordExceptionConfig.class, UserDetailsConfig.class,
-					CompromisedPasswordCheckerConfig.class)
-			.autowire();
-		this.mockMvc.perform(formLogin().password("password"))
-			.andExpectAll(status().isFound(), redirectedUrl("/reset-password"), unauthenticated());
-	}
-
-	@Test
-	void loginWhenCompromisePasswordCheckerConfiguredAndPasswordNotCompromisedThenSuccess() throws Exception {
-		this.spring
-			.register(SecurityEnabledConfig.class, UserDetailsConfig.class, CompromisedPasswordCheckerConfig.class)
-			.autowire();
-		UserDetailsManager userDetailsManager = this.spring.getContext().getBean(UserDetailsManager.class);
-		UserDetails notCompromisedPwUser = User.withDefaultPasswordEncoder()
-			.username("user2")
-			.password("password2")
-			.roles("USER")
-			.build();
-		userDetailsManager.createUser(notCompromisedPwUser);
-		this.mockMvc.perform(formLogin().user("user2").password("password2"))
-			.andExpectAll(status().isFound(), redirectedUrl("/"), authenticated());
-	}
-
 	@RestController
 	static class NameController {
 
@@ -493,7 +455,7 @@ public class HttpSecurityConfigurationTests {
 	static class UserDetailsConfig {
 
 		@Bean
-		InMemoryUserDetailsManager userDetailsService() {
+		UserDetailsService userDetailsService() {
 			// @formatter:off
 			UserDetails user = User.withDefaultPasswordEncoder()
 					.username("user")
@@ -766,54 +728,6 @@ public class HttpSecurityConfigurationTests {
 		@Override
 		public void init(HttpSecurity builder) throws Exception {
 			builder.formLogin(Customizer.withDefaults());
-		}
-
-	}
-
-	@Configuration(proxyBeanMethods = false)
-	static class CompromisedPasswordCheckerConfig {
-
-		@Bean
-		TestCompromisedPasswordChecker compromisedPasswordChecker() {
-			return new TestCompromisedPasswordChecker();
-		}
-
-	}
-
-	@Configuration(proxyBeanMethods = false)
-	@EnableWebSecurity
-	static class SecurityEnabledRedirectIfPasswordExceptionConfig {
-
-		@Bean
-		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-			// @formatter:off
-			return http
-					.authorizeHttpRequests((authorize) -> authorize
-							.anyRequest().authenticated()
-					)
-					.formLogin((form) -> form
-							.failureHandler((request, response, exception) -> {
-								if (exception instanceof CompromisedPasswordException) {
-									response.sendRedirect("/reset-password");
-									return;
-								}
-								response.sendRedirect("/login?error");
-							})
-					)
-					.build();
-			// @formatter:on
-		}
-
-	}
-
-	private static class TestCompromisedPasswordChecker implements CompromisedPasswordChecker {
-
-		@Override
-		public CompromisedPasswordCheckResult check(String password) {
-			if ("password".equals(password)) {
-				return new CompromisedPasswordCheckResult(true);
-			}
-			return new CompromisedPasswordCheckResult(false);
 		}
 
 	}

@@ -98,7 +98,7 @@ public class WebFilterChainProxy implements WebFilter {
 
 		/**
 		 * Provide a new {@link FilterChain} that accounts for the provided filters as
-		 * well as the original filter chain.
+		 * well as teh original filter chain.
 		 * @param original the original {@link FilterChain}
 		 * @param filters the security filters
 		 * @return a security-enabled {@link FilterChain} that includes the provided

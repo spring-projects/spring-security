@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,34 +16,23 @@
 
 package org.springframework.security.authorization.method;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
 
 import org.aopalliance.intercept.MethodInvocation;
 
 import org.springframework.core.MethodClassKey;
 import org.springframework.lang.NonNull;
-import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
-import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
-import org.springframework.util.Assert;
 
 /**
  * For internal use only, as this contract is likely to change
  *
  * @author Evgeniy Cheban
- * @author DingHao
  */
 abstract class AbstractExpressionAttributeRegistry<T extends ExpressionAttribute> {
 
 	private final Map<MethodClassKey, T> cachedAttributes = new ConcurrentHashMap<>();
-
-	private MethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler();
-
-	private PrePostTemplateDefaults defaults;
 
 	/**
 	 * Returns an {@link ExpressionAttribute} for the {@link MethodInvocation}.
@@ -68,28 +57,6 @@ abstract class AbstractExpressionAttributeRegistry<T extends ExpressionAttribute
 		return this.cachedAttributes.computeIfAbsent(cacheKey, (k) -> resolveAttribute(method, targetClass));
 	}
 
-	final <A extends Annotation> Function<AnnotatedElement, A> findUniqueAnnotation(Class<A> type) {
-		return (this.defaults != null) ? AuthorizationAnnotationUtils.withDefaults(type, this.defaults)
-				: AuthorizationAnnotationUtils.withDefaults(type);
-	}
-
-	/**
-	 * Returns the {@link MethodSecurityExpressionHandler}.
-	 * @return the {@link MethodSecurityExpressionHandler} to use
-	 */
-	MethodSecurityExpressionHandler getExpressionHandler() {
-		return this.expressionHandler;
-	}
-
-	void setExpressionHandler(MethodSecurityExpressionHandler expressionHandler) {
-		Assert.notNull(expressionHandler, "expressionHandler cannot be null");
-		this.expressionHandler = expressionHandler;
-	}
-
-	void setTemplateDefaults(PrePostTemplateDefaults defaults) {
-		this.defaults = defaults;
-	}
-
 	/**
 	 * Subclasses should implement this method to provide the non-null
 	 * {@link ExpressionAttribute} for the method and the target class.
@@ -99,9 +66,5 @@ abstract class AbstractExpressionAttributeRegistry<T extends ExpressionAttribute
 	 */
 	@NonNull
 	abstract T resolveAttribute(Method method, Class<?> targetClass);
-
-	Class<?> targetClass(Method method, Class<?> targetClass) {
-		return (targetClass != null) ? targetClass : method.getDeclaringClass();
-	}
 
 }

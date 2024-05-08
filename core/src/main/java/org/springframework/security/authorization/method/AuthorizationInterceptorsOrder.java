@@ -43,14 +43,12 @@ public enum AuthorizationInterceptorsOrder {
 
 	JSR250,
 
-	SECURE_RESULT(450),
-
-	POST_AUTHORIZE(500),
+	POST_AUTHORIZE,
 
 	/**
 	 * {@link PostFilterAuthorizationMethodInterceptor}
 	 */
-	POST_FILTER(600),
+	POST_FILTER,
 
 	LAST(Integer.MAX_VALUE);
 

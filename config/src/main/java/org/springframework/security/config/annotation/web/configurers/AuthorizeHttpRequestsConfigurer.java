@@ -17,7 +17,6 @@
 package org.springframework.security.config.annotation.web.configurers;
 
 import java.util.List;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 import io.micrometer.observation.ObservationRegistry;
@@ -31,14 +30,12 @@ import org.springframework.security.authorization.AuthorityAuthorizationManager;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationEventPublisher;
 import org.springframework.security.authorization.AuthorizationManager;
-import org.springframework.security.authorization.AuthorizationManagers;
 import org.springframework.security.authorization.ObservationAuthorizationManager;
 import org.springframework.security.authorization.SpringAuthorizationEventPublisher;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.web.AbstractRequestMatcherRegistry;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.core.GrantedAuthorityDefaults;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
 import org.springframework.security.web.access.intercept.RequestMatcherDelegatingAuthorizationManager;
@@ -247,13 +244,10 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 	 * {@link RequestMatcher}s.
 	 *
 	 * @author Evgeniy Cheban
-	 * @author Josh Cummings
 	 */
 	public class AuthorizedUrl {
 
 		private final List<? extends RequestMatcher> matchers;
-
-		private boolean not;
 
 		/**
 		 * Creates an instance.
@@ -265,16 +259,6 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 
 		protected List<? extends RequestMatcher> getMatchers() {
 			return this.matchers;
-		}
-
-		/**
-		 * Negates the following authorization rule.
-		 * @return the {@link AuthorizedUrl} for further customization
-		 * @since 6.3
-		 */
-		public AuthorizedUrl not() {
-			this.not = true;
-			return this;
 		}
 
 		/**
@@ -390,21 +374,6 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 		}
 
 		/**
-		 * Specify that a path variable in URL to be compared.
-		 *
-		 * <p>
-		 * For example, <pre>
-		 * requestMatchers("/user/{username}").hasVariable("username").equalTo(Authentication::getName)
-		 * </pre>
-		 * @param variable the variable in URL template to compare.
-		 * @return {@link AuthorizedUrlVariable} for further customization.
-		 * @since 6.3
-		 */
-		public AuthorizedUrlVariable hasVariable(String variable) {
-			return new AuthorizedUrlVariable(variable);
-		}
-
-		/**
 		 * Allows specifying a custom {@link AuthorizationManager}.
 		 * @param manager the {@link AuthorizationManager} to use
 		 * @return the {@link AuthorizationManagerRequestMatcherRegistry} for further
@@ -413,44 +382,7 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 		public AuthorizationManagerRequestMatcherRegistry access(
 				AuthorizationManager<RequestAuthorizationContext> manager) {
 			Assert.notNull(manager, "manager cannot be null");
-			return (this.not)
-					? AuthorizeHttpRequestsConfigurer.this.addMapping(this.matchers, AuthorizationManagers.not(manager))
-					: AuthorizeHttpRequestsConfigurer.this.addMapping(this.matchers, manager);
-		}
-
-		/**
-		 * An object that allows configuring {@link RequestMatcher}s with URI path
-		 * variables
-		 *
-		 * @author Taehong Kim
-		 * @since 6.3
-		 */
-		public final class AuthorizedUrlVariable {
-
-			private final String variable;
-
-			private AuthorizedUrlVariable(String variable) {
-				this.variable = variable;
-			}
-
-			/**
-			 * Compares the value of a path variable in the URI with an `Authentication`
-			 * attribute
-			 * <p>
-			 * For example, <pre>
-			 * requestMatchers("/user/{username}").hasVariable("username").equalTo(Authentication::getName));
-			 * </pre>
-			 * @param function a function to get value from {@link Authentication}.
-			 * @return the {@link AuthorizationManagerRequestMatcherRegistry} for further
-			 * customization.
-			 */
-			public AuthorizationManagerRequestMatcherRegistry equalTo(Function<Authentication, String> function) {
-				return access((auth, requestContext) -> {
-					String value = requestContext.getVariables().get(this.variable);
-					return new AuthorizationDecision(function.apply(auth.get()).equals(value));
-				});
-			}
-
+			return AuthorizeHttpRequestsConfigurer.this.addMapping(this.matchers, manager);
 		}
 
 	}

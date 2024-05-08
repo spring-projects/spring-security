@@ -26,10 +26,8 @@ import org.springframework.security.authentication.TestAuthentication;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authorization.AuthenticatedAuthorizationManager;
 import org.springframework.security.authorization.AuthorizationDecision;
-import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.authorization.AuthorizationEventPublisher;
 import org.springframework.security.authorization.AuthorizationManager;
-import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContext;
@@ -38,7 +36,6 @@ import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.core.context.SecurityContextImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -140,26 +137,6 @@ public class AuthorizationManagerAfterMethodInterceptorTests {
 		advice.invoke(mockMethodInvocation);
 		verify(eventPublisher).publishAuthorizationEvent(any(Supplier.class), any(MethodInvocationResult.class),
 				any(AuthorizationDecision.class));
-	}
-
-	@Test
-	public void invokeWhenCustomAuthorizationDeniedExceptionThenThrows() throws Throwable {
-		MethodInvocation mi = mock(MethodInvocation.class);
-		given(mi.proceed()).willReturn("ok");
-		AuthorizationManager<MethodInvocationResult> manager = mock(AuthorizationManager.class);
-		given(manager.check(any(), any()))
-			.willThrow(new MyAuthzDeniedException("denied", new AuthorizationDecision(false)));
-		AuthorizationManagerAfterMethodInterceptor advice = new AuthorizationManagerAfterMethodInterceptor(
-				Pointcut.TRUE, manager);
-		assertThatExceptionOfType(MyAuthzDeniedException.class).isThrownBy(() -> advice.invoke(mi));
-	}
-
-	static class MyAuthzDeniedException extends AuthorizationDeniedException {
-
-		MyAuthzDeniedException(String msg, AuthorizationResult authorizationResult) {
-			super(msg, authorizationResult);
-		}
-
 	}
 
 }

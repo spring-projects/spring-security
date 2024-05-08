@@ -56,11 +56,9 @@ import org.springframework.security.web.server.ServerAuthenticationEntryPoint;
 import org.springframework.security.web.server.ServerRedirectStrategy;
 import org.springframework.security.web.server.WebFilterChainProxy;
 import org.springframework.security.web.server.authentication.AnonymousAuthenticationWebFilterTests;
-import org.springframework.security.web.server.authentication.DelegatingServerAuthenticationSuccessHandler;
 import org.springframework.security.web.server.authentication.HttpBasicServerAuthenticationEntryPoint;
 import org.springframework.security.web.server.authentication.HttpStatusServerEntryPoint;
 import org.springframework.security.web.server.authentication.ServerAuthenticationFailureHandler;
-import org.springframework.security.web.server.authentication.ServerAuthenticationSuccessHandler;
 import org.springframework.security.web.server.authentication.ServerX509AuthenticationConverter;
 import org.springframework.security.web.server.authentication.logout.DelegatingServerLogoutHandler;
 import org.springframework.security.web.server.authentication.logout.LogoutWebFilter;
@@ -594,7 +592,6 @@ public class ServerHttpSecurityTests {
 	}
 
 	@Test
-	@SuppressWarnings("unchecked")
 	public void shouldConfigureRequestCacheForOAuth2LoginAuthenticationEntryPointAndSuccessHandler() {
 		ServerRequestCache requestCache = spy(new WebSessionServerRequestCache());
 		ReactiveClientRegistrationRepository clientRegistrationRepository = mock(
@@ -616,11 +613,8 @@ public class ServerHttpSecurityTests {
 		OAuth2LoginAuthenticationWebFilter authenticationWebFilter = getWebFilter(securityFilterChain,
 				OAuth2LoginAuthenticationWebFilter.class)
 			.get();
-		DelegatingServerAuthenticationSuccessHandler handler = (DelegatingServerAuthenticationSuccessHandler) ReflectionTestUtils
-			.getField(authenticationWebFilter, "authenticationSuccessHandler");
-		List<ServerAuthenticationSuccessHandler> delegates = (List<ServerAuthenticationSuccessHandler>) ReflectionTestUtils
-			.getField(handler, "delegates");
-		assertThat(ReflectionTestUtils.getField(delegates.get(0), "requestCache")).isSameAs(requestCache);
+		Object handler = ReflectionTestUtils.getField(authenticationWebFilter, "authenticationSuccessHandler");
+		assertThat(ReflectionTestUtils.getField(handler, "requestCache")).isSameAs(requestCache);
 	}
 
 	@Test

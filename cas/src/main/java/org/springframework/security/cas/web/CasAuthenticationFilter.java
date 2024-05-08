@@ -22,7 +22,6 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 import org.apereo.cas.client.proxy.ProxyGrantingTicketStorage;
 import org.apereo.cas.client.util.WebUtils;
 import org.apereo.cas.client.validation.TicketValidator;
@@ -41,20 +40,14 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
-import org.springframework.security.web.DefaultRedirectStrategy;
-import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
-import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
-import org.springframework.security.web.savedrequest.RequestCache;
-import org.springframework.security.web.savedrequest.SavedRequest;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
 
 /**
  * Processes a CAS service ticket, obtains proxy granting tickets, and processes proxy
@@ -207,10 +200,6 @@ public class CasAuthenticationFilter extends AbstractAuthenticationProcessingFil
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
 		.getContextHolderStrategy();
 
-	private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
-
-	private RequestCache requestCache = new HttpSessionRequestCache();
-
 	private final AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
 
 	public CasAuthenticationFilter() {
@@ -251,22 +240,7 @@ public class CasAuthenticationFilter extends AbstractAuthenticationProcessingFil
 			return null;
 		}
 		String serviceTicket = obtainArtifact(request);
-		if (!StringUtils.hasText(serviceTicket)) {
-			HttpSession session = request.getSession(false);
-			if (session != null && session
-				.getAttribute(CasGatewayAuthenticationRedirectFilter.CAS_GATEWAY_AUTHENTICATION_ATTR) != null) {
-				this.logger.debug("Failed authentication response from CAS gateway request");
-				session.removeAttribute(CasGatewayAuthenticationRedirectFilter.CAS_GATEWAY_AUTHENTICATION_ATTR);
-				SavedRequest savedRequest = this.requestCache.getRequest(request, response);
-				if (savedRequest != null) {
-					String redirectUrl = savedRequest.getRedirectUrl();
-					this.logger.debug(LogMessage.format("Redirecting to: %s", redirectUrl));
-					this.requestCache.removeRequest(request, response);
-					this.redirectStrategy.sendRedirect(request, response, redirectUrl);
-					return null;
-				}
-			}
-
+		if (serviceTicket == null) {
 			this.logger.debug("Failed to obtain an artifact (cas ticket)");
 			serviceTicket = "";
 		}
@@ -342,28 +316,6 @@ public class CasAuthenticationFilter extends AbstractAuthenticationProcessingFil
 	public void setSecurityContextHolderStrategy(SecurityContextHolderStrategy securityContextHolderStrategy) {
 		super.setSecurityContextHolderStrategy(securityContextHolderStrategy);
 		this.securityContextHolderStrategy = securityContextHolderStrategy;
-	}
-
-	/**
-	 * Set the {@link RedirectStrategy} used to redirect to the saved request if there is
-	 * one saved. Defaults to {@link DefaultRedirectStrategy}.
-	 * @param redirectStrategy the redirect strategy to use
-	 * @since 6.3
-	 */
-	public final void setRedirectStrategy(RedirectStrategy redirectStrategy) {
-		Assert.notNull(redirectStrategy, "redirectStrategy cannot be null");
-		this.redirectStrategy = redirectStrategy;
-	}
-
-	/**
-	 * The {@link RequestCache} used to retrieve the saved request in failed gateway
-	 * authentication scenarios.
-	 * @param requestCache the request cache to use
-	 * @since 6.3
-	 */
-	public final void setRequestCache(RequestCache requestCache) {
-		Assert.notNull(requestCache, "requestCache cannot be null");
-		this.requestCache = requestCache;
 	}
 
 	/**

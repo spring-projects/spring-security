@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,9 @@
 
 package org.springframework.security.authentication;
 
-import java.util.function.Consumer;
-
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.PasswordEncodedUser;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 
 /**
@@ -38,20 +35,14 @@ public class TestAuthentication extends PasswordEncodedUser {
 			AuthorityUtils.createAuthorityList("ROLE_USER"));
 
 	public static Authentication authenticatedAdmin() {
-		return authenticated(admin());
+		return autheticated(admin());
 	}
 
 	public static Authentication authenticatedUser() {
-		return authenticated(user());
+		return autheticated(user());
 	}
 
-	public static Authentication authenticatedUser(Consumer<User.UserBuilder> consumer) {
-		User.UserBuilder builder = withUsername("user");
-		consumer.accept(builder);
-		return authenticated(builder.build());
-	}
-
-	public static Authentication authenticated(UserDetails user) {
+	public static Authentication autheticated(UserDetails user) {
 		return UsernamePasswordAuthenticationToken.authenticated(user, null, user.getAuthorities());
 	}
 

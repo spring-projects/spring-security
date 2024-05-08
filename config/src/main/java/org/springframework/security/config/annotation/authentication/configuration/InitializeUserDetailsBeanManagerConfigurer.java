@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.authentication.password.CompromisedPasswordChecker;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.userdetails.UserDetailsPasswordService;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -66,20 +65,13 @@ class InitializeUserDetailsBeanManagerConfigurer extends GlobalAuthenticationCon
 			}
 			PasswordEncoder passwordEncoder = getBeanOrNull(PasswordEncoder.class);
 			UserDetailsPasswordService passwordManager = getBeanOrNull(UserDetailsPasswordService.class);
-			CompromisedPasswordChecker passwordChecker = getBeanOrNull(CompromisedPasswordChecker.class);
-			DaoAuthenticationProvider provider;
-			if (passwordEncoder != null) {
-				provider = new DaoAuthenticationProvider(passwordEncoder);
-			}
-			else {
-				provider = new DaoAuthenticationProvider();
-			}
+			DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
 			provider.setUserDetailsService(userDetailsService);
+			if (passwordEncoder != null) {
+				provider.setPasswordEncoder(passwordEncoder);
+			}
 			if (passwordManager != null) {
 				provider.setUserDetailsPasswordService(passwordManager);
-			}
-			if (passwordChecker != null) {
-				provider.setCompromisedPasswordChecker(passwordChecker);
 			}
 			provider.afterPropertiesSet();
 			auth.authenticationProvider(provider);

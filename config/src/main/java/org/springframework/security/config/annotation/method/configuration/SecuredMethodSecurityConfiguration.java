@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,19 +20,12 @@ import io.micrometer.observation.ObservationRegistry;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 
-import org.springframework.aop.framework.AopInfrastructureBean;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.ImportAware;
 import org.springframework.context.annotation.Role;
-import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.security.access.annotation.Secured;
-import org.springframework.security.access.hierarchicalroles.NullRoleHierarchy;
-import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
-import org.springframework.security.authorization.AuthoritiesAuthorizationManager;
-import org.springframework.security.authorization.AuthorizationEventPublisher;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor;
 import org.springframework.security.authorization.method.SecuredAuthorizationManager;
@@ -49,38 +42,22 @@ import org.springframework.security.core.context.SecurityContextHolderStrategy;
  */
 @Configuration(proxyBeanMethods = false)
 @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-final class SecuredMethodSecurityConfiguration implements ImportAware, AopInfrastructureBean {
-
-	private int interceptorOrderOffset;
+final class SecuredMethodSecurityConfiguration {
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 	static MethodInterceptor securedAuthorizationMethodInterceptor(
 			ObjectProvider<SecurityContextHolderStrategy> strategyProvider,
-			ObjectProvider<AuthorizationEventPublisher> eventPublisherProvider,
-			ObjectProvider<ObservationRegistry> registryProvider, ObjectProvider<RoleHierarchy> roleHierarchyProvider,
-			SecuredMethodSecurityConfiguration configuration) {
+			ObjectProvider<ObservationRegistry> registryProvider) {
 		SecuredAuthorizationManager secured = new SecuredAuthorizationManager();
-		AuthoritiesAuthorizationManager authoritiesAuthorizationManager = new AuthoritiesAuthorizationManager();
-		RoleHierarchy roleHierarchy = roleHierarchyProvider.getIfAvailable(NullRoleHierarchy::new);
-		authoritiesAuthorizationManager.setRoleHierarchy(roleHierarchy);
-		secured.setAuthoritiesAuthorizationManager(authoritiesAuthorizationManager);
 		SecurityContextHolderStrategy strategy = strategyProvider
 			.getIfAvailable(SecurityContextHolder::getContextHolderStrategy);
 		AuthorizationManager<MethodInvocation> manager = new DeferringObservationAuthorizationManager<>(
 				registryProvider, secured);
 		AuthorizationManagerBeforeMethodInterceptor interceptor = AuthorizationManagerBeforeMethodInterceptor
 			.secured(manager);
-		interceptor.setOrder(interceptor.getOrder() + configuration.interceptorOrderOffset);
 		interceptor.setSecurityContextHolderStrategy(strategy);
-		eventPublisherProvider.ifAvailable(interceptor::setAuthorizationEventPublisher);
 		return interceptor;
-	}
-
-	@Override
-	public void setImportMetadata(AnnotationMetadata importMetadata) {
-		EnableMethodSecurity annotation = importMetadata.getAnnotations().get(EnableMethodSecurity.class).synthesize();
-		this.interceptorOrderOffset = annotation.offset();
 	}
 
 }

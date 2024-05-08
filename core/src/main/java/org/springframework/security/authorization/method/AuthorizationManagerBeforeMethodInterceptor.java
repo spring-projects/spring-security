@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,16 +28,17 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.aop.Pointcut;
+import org.springframework.aop.PointcutAdvisor;
+import org.springframework.aop.framework.AopInfrastructureBean;
+import org.springframework.core.Ordered;
 import org.springframework.core.log.LogMessage;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authorization.AuthorizationDecision;
-import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.authorization.AuthorizationEventPublisher;
 import org.springframework.security.authorization.AuthorizationManager;
-import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
@@ -51,7 +52,8 @@ import org.springframework.util.Assert;
  * @author Josh Cummings
  * @since 5.6
  */
-public final class AuthorizationManagerBeforeMethodInterceptor implements AuthorizationAdvisor {
+public final class AuthorizationManagerBeforeMethodInterceptor
+		implements Ordered, MethodInterceptor, PointcutAdvisor, AopInfrastructureBean {
 
 	private Supplier<SecurityContextHolderStrategy> securityContextHolderStrategy = SecurityContextHolder::getContextHolderStrategy;
 
@@ -60,8 +62,6 @@ public final class AuthorizationManagerBeforeMethodInterceptor implements Author
 	private final Pointcut pointcut;
 
 	private final AuthorizationManager<MethodInvocation> authorizationManager;
-
-	private final MethodAuthorizationDeniedHandler defaultHandler = new ThrowingMethodAuthorizationDeniedHandler();
 
 	private int order = AuthorizationInterceptorsOrder.FIRST.getOrder();
 
@@ -194,7 +194,8 @@ public final class AuthorizationManagerBeforeMethodInterceptor implements Author
 	 */
 	@Override
 	public Object invoke(MethodInvocation mi) throws Throwable {
-		return attemptAuthorization(mi);
+		attemptAuthorization(mi);
+		return mi.proceed();
 	}
 
 	@Override
@@ -245,49 +246,16 @@ public final class AuthorizationManagerBeforeMethodInterceptor implements Author
 		this.securityContextHolderStrategy = () -> securityContextHolderStrategy;
 	}
 
-	private Object attemptAuthorization(MethodInvocation mi) throws Throwable {
+	private void attemptAuthorization(MethodInvocation mi) {
 		this.logger.debug(LogMessage.of(() -> "Authorizing method invocation " + mi));
-		AuthorizationDecision decision;
-		try {
-			decision = this.authorizationManager.check(this::getAuthentication, mi);
-		}
-		catch (AuthorizationDeniedException denied) {
-			return handle(mi, denied);
-		}
+		AuthorizationDecision decision = this.authorizationManager.check(this::getAuthentication, mi);
 		this.eventPublisher.publishAuthorizationEvent(this::getAuthentication, mi, decision);
 		if (decision != null && !decision.isGranted()) {
 			this.logger.debug(LogMessage.of(() -> "Failed to authorize " + mi + " with authorization manager "
 					+ this.authorizationManager + " and decision " + decision));
-			return handle(mi, decision);
+			throw new AccessDeniedException("Access Denied");
 		}
 		this.logger.debug(LogMessage.of(() -> "Authorized method invocation " + mi));
-		return proceed(mi);
-	}
-
-	private Object proceed(MethodInvocation mi) throws Throwable {
-		try {
-			return mi.proceed();
-		}
-		catch (AuthorizationDeniedException ex) {
-			if (this.authorizationManager instanceof MethodAuthorizationDeniedHandler handler) {
-				return handler.handleDeniedInvocation(mi, ex);
-			}
-			return this.defaultHandler.handleDeniedInvocation(mi, ex);
-		}
-	}
-
-	private Object handle(MethodInvocation mi, AuthorizationDeniedException denied) {
-		if (this.authorizationManager instanceof MethodAuthorizationDeniedHandler handler) {
-			return handler.handleDeniedInvocation(mi, denied);
-		}
-		return this.defaultHandler.handleDeniedInvocation(mi, denied);
-	}
-
-	private Object handle(MethodInvocation mi, AuthorizationResult decision) {
-		if (this.authorizationManager instanceof MethodAuthorizationDeniedHandler handler) {
-			return handler.handleDeniedInvocation(mi, decision);
-		}
-		return this.defaultHandler.handleDeniedInvocation(mi, decision);
 	}
 
 	private Authentication getAuthentication() {

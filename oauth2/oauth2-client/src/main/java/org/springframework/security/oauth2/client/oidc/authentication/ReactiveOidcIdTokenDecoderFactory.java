@@ -58,7 +58,6 @@ import org.springframework.util.StringUtils;
  * @author Joe Grandja
  * @author Rafael Dominguez
  * @author Mark Heckler
- * @author Ubaid ur Rehman
  * @since 5.2
  * @see ReactiveJwtDecoderFactory
  * @see ClientRegistration

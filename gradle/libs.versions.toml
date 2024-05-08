@@ -5,19 +5,19 @@ io-spring-javaformat = "0.0.41"
 io-spring-nohttp = "0.0.11"
 jakarta-websocket = "2.1.1"
 org-apache-directory-server = "1.5.5"
-org-apache-maven-resolver = "1.9.20"
+org-apache-maven-resolver = "1.9.19"
 org-aspectj = "1.9.22"
-org-bouncycastle = "1.78.1"
+org-bouncycastle = "1.70"
 org-eclipse-jetty = "11.0.20"
 org-jetbrains-kotlin = "1.9.24"
-org-jetbrains-kotlinx = "1.8.0"
-org-mockito = "5.11.0"
+org-jetbrains-kotlinx = "1.7.3"
+org-mockito = "5.5.0"
 org-opensaml = "4.3.2"
 org-springframework = "6.1.6"
 
 [libraries]
-ch-qos-logback-logback-classic = "ch.qos.logback:logback-classic:1.5.6"
-com-fasterxml-jackson-jackson-bom = "com.fasterxml.jackson:jackson-bom:2.17.1"
+ch-qos-logback-logback-classic = "ch.qos.logback:logback-classic:1.4.14"
+com-fasterxml-jackson-jackson-bom = "com.fasterxml.jackson:jackson-bom:2.15.4"
 com-google-inject-guice = "com.google.inject:guice:3.0"
 com-netflix-nebula-nebula-project-plugin = "com.netflix.nebula:nebula-project-plugin:8.2.0"
 com-nimbusds-nimbus-jose-jwt = "com.nimbusds:nimbus-jose-jwt:9.37.3"
@@ -58,16 +58,16 @@ org-apache-maven-resolver-maven-resolver-connector-basic = { module = "org.apach
 org-apache-maven-resolver-maven-resolver-impl = { module = "org.apache.maven.resolver:maven-resolver-impl", version.ref = "org-apache-maven-resolver" }
 org-apache-maven-resolver-maven-resolver-transport-http = { module = "org.apache.maven.resolver:maven-resolver-transport-http", version.ref = "org-apache-maven-resolver" }
 org-apereo-cas-client-cas-client-core = "org.apereo.cas.client:cas-client-core:4.0.4"
-io-freefair-gradle-aspectj-plugin = "io.freefair.gradle:aspectj-plugin:8.6"
+io-freefair-gradle-aspectj-plugin = "io.freefair.gradle:aspectj-plugin:8.4"
 org-aspectj-aspectjrt = { module = "org.aspectj:aspectjrt", version.ref = "org-aspectj" }
 org-aspectj-aspectjweaver = { module = "org.aspectj:aspectjweaver", version.ref = "org-aspectj" }
-org-assertj-assertj-core = "org.assertj:assertj-core:3.25.3"
-org-bouncycastle-bcpkix-jdk15on = { module = "org.bouncycastle:bcpkix-jdk18on", version.ref = "org-bouncycastle" }
-org-bouncycastle-bcprov-jdk15on = { module = "org.bouncycastle:bcprov-jdk18on", version.ref = "org-bouncycastle" }
+org-assertj-assertj-core = "org.assertj:assertj-core:3.24.2"
+org-bouncycastle-bcpkix-jdk15on = { module = "org.bouncycastle:bcpkix-jdk15on", version.ref = "org-bouncycastle" }
+org-bouncycastle-bcprov-jdk15on = { module = "org.bouncycastle:bcprov-jdk15on", version.ref = "org-bouncycastle" }
 org-eclipse-jetty-jetty-server = { module = "org.eclipse.jetty:jetty-server", version.ref = "org-eclipse-jetty" }
 org-eclipse-jetty-jetty-servlet = { module = "org.eclipse.jetty:jetty-servlet", version.ref = "org-eclipse-jetty" }
 org-hamcrest = "org.hamcrest:hamcrest:2.2"
-org-hibernate-orm-hibernate-core = "org.hibernate.orm:hibernate-core:6.4.8.Final"
+org-hibernate-orm-hibernate-core = "org.hibernate.orm:hibernate-core:6.3.2.Final"
 org-hsqldb = "org.hsqldb:hsqldb:2.7.2"
 org-jetbrains-kotlin-kotlin-bom = { module = "org.jetbrains.kotlin:kotlin-bom", version.ref = "org-jetbrains-kotlin" }
 org-jetbrains-kotlin-kotlin-gradle-plugin = "org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.24"
@@ -84,23 +84,23 @@ org-seleniumhq-selenium-selenium-support = "org.seleniumhq.selenium:selenium-sup
 org-skyscreamer-jsonassert = "org.skyscreamer:jsonassert:1.5.1"
 org-slf4j-log4j-over-slf4j = "org.slf4j:log4j-over-slf4j:1.7.36"
 org-slf4j-slf4j-api = "org.slf4j:slf4j-api:2.0.13"
-org-springframework-data-spring-data-bom = "org.springframework.data:spring-data-bom:2024.0.0-RC1"
+org-springframework-data-spring-data-bom = "org.springframework.data:spring-data-bom:2023.1.5"
 org-springframework-ldap-spring-ldap-core = "org.springframework.ldap:spring-ldap-core:3.2.3"
 org-springframework-spring-framework-bom = { module = "org.springframework:spring-framework-bom", version.ref = "org-springframework" }
 org-synchronoss-cloud-nio-multipart-parser = "org.synchronoss.cloud:nio-multipart-parser:1.1.0"
 
-com-google-code-gson-gson = "com.google.code.gson:gson:2.10.1"
+com-google-code-gson-gson = "com.google.code.gson:gson:2.8.9"
 com-thaiopensource-trag = "com.thaiopensource:trang:20091111"
 net-sourceforge-saxon-saxon = "net.sourceforge.saxon:saxon:9.1.0.8"
-org-yaml-snakeyaml = "org.yaml:snakeyaml:1.33"
+org-yaml-snakeyaml = "org.yaml:snakeyaml:1.30"
 org-apache-commons-commons-io = "org.apache.commons:commons-io:1.3.2"
-io-github-gradle-nexus-publish-plugin = "io.github.gradle-nexus:publish-plugin:1.3.0"
-org-gretty-gretty = "org.gretty:gretty:4.1.3"
-com-github-ben-manes-gradle-versions-plugin = "com.github.ben-manes:gradle-versions-plugin:0.51.0"
-com-github-spullara-mustache-java-compiler = "com.github.spullara.mustache.java:compiler:0.9.13"
+io-github-gradle-nexus-publish-plugin = "io.github.gradle-nexus:publish-plugin:1.1.0"
+org-gretty-gretty = "org.gretty:gretty:4.0.3"
+com-github-ben-manes-gradle-versions-plugin = "com.github.ben-manes:gradle-versions-plugin:0.38.0"
+com-github-spullara-mustache-java-compiler = "com.github.spullara.mustache.java:compiler:0.9.11"
 org-hidetake-gradle-ssh-plugin = "org.hidetake:gradle-ssh-plugin:2.10.1"
-org-jfrog-buildinfo-build-info-extractor-gradle = "org.jfrog.buildinfo:build-info-extractor-gradle:4.33.15"
-org-sonarsource-scanner-gradle-sonarqube-gradle-plugin = "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.8.0.1969"
+org-jfrog-buildinfo-build-info-extractor-gradle = "org.jfrog.buildinfo:build-info-extractor-gradle:4.29.4"
+org-sonarsource-scanner-gradle-sonarqube-gradle-plugin = "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.7.1"
 org-instancio-instancio-junit = "org.instancio:instancio-junit:3.7.1"
 
 [plugins]

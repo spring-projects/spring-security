@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -145,28 +145,6 @@ public class PreAuthorizeAuthorizationManagerTests {
 		decision = manager.check(TestAuthentication::authenticatedAdmin, methodInvocation);
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isTrue();
-	}
-
-	@Test
-	public void checkRequiresUserWhenMethodsFromInheritThenApplies() throws Exception {
-		MockMethodInvocation methodInvocation = new MockMethodInvocation(new PreAuthorizeClass(),
-				PreAuthorizeClass.class, "securedUser");
-		PreAuthorizeAuthorizationManager manager = new PreAuthorizeAuthorizationManager();
-		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedUser, methodInvocation);
-		assertThat(decision.isGranted()).isTrue();
-	}
-
-	@PreAuthorize("hasRole('USER')")
-	public static class PreAuthorizeClass extends ParentClass {
-
-	}
-
-	public static class ParentClass {
-
-		public void securedUser() {
-
-		}
-
 	}
 
 	public static class TestClass implements InterfaceAnnotationsOne, InterfaceAnnotationsTwo {

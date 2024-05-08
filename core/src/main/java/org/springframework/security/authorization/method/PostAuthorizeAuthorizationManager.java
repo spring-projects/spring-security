@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,13 +20,13 @@ import java.util.function.Supplier;
 
 import org.aopalliance.intercept.MethodInvocation;
 
-import org.springframework.context.ApplicationContext;
 import org.springframework.expression.EvaluationContext;
+import org.springframework.security.access.expression.ExpressionUtils;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
-import org.springframework.security.authorization.AuthorizationResult;
+import org.springframework.security.authorization.ExpressionAuthorizationDecision;
 import org.springframework.security.core.Authentication;
 
 /**
@@ -37,8 +37,7 @@ import org.springframework.security.core.Authentication;
  * @author Evgeniy Cheban
  * @since 5.6
  */
-public final class PostAuthorizeAuthorizationManager
-		implements AuthorizationManager<MethodInvocationResult>, MethodAuthorizationDeniedHandler {
+public final class PostAuthorizeAuthorizationManager implements AuthorizationManager<MethodInvocationResult> {
 
 	private PostAuthorizeExpressionAttributeRegistry registry = new PostAuthorizeExpressionAttributeRegistry();
 
@@ -47,31 +46,7 @@ public final class PostAuthorizeAuthorizationManager
 	 * @param expressionHandler the {@link MethodSecurityExpressionHandler} to use
 	 */
 	public void setExpressionHandler(MethodSecurityExpressionHandler expressionHandler) {
-		this.registry.setExpressionHandler(expressionHandler);
-	}
-
-	/**
-	 * Configure pre/post-authorization template resolution
-	 * <p>
-	 * By default, this value is <code>null</code>, which indicates that templates should
-	 * not be resolved.
-	 * @param defaults - whether to resolve pre/post-authorization templates parameters
-	 * @since 6.3
-	 */
-	public void setTemplateDefaults(PrePostTemplateDefaults defaults) {
-		this.registry.setTemplateDefaults(defaults);
-	}
-
-	/**
-	 * Invokes
-	 * {@link PostAuthorizeExpressionAttributeRegistry#setApplicationContext(ApplicationContext)}
-	 * with the provided {@link ApplicationContext}.
-	 * @param context the {@link ApplicationContext}
-	 * @since 6.3
-	 * @see PreAuthorizeExpressionAttributeRegistry#setApplicationContext(ApplicationContext)
-	 */
-	public void setApplicationContext(ApplicationContext context) {
-		this.registry.setApplicationContext(context);
+		this.registry = new PostAuthorizeExpressionAttributeRegistry(expressionHandler);
 	}
 
 	/**
@@ -92,23 +67,8 @@ public final class PostAuthorizeAuthorizationManager
 		MethodSecurityExpressionHandler expressionHandler = this.registry.getExpressionHandler();
 		EvaluationContext ctx = expressionHandler.createEvaluationContext(authentication, mi.getMethodInvocation());
 		expressionHandler.setReturnObject(mi.getResult(), ctx);
-		return (AuthorizationDecision) ExpressionUtils.evaluate(attribute.getExpression(), ctx);
-	}
-
-	@Override
-	public Object handleDeniedInvocation(MethodInvocation methodInvocation, AuthorizationResult authorizationResult) {
-		ExpressionAttribute attribute = this.registry.getAttribute(methodInvocation);
-		PostAuthorizeExpressionAttribute postAuthorizeAttribute = (PostAuthorizeExpressionAttribute) attribute;
-		return postAuthorizeAttribute.getHandler().handleDeniedInvocation(methodInvocation, authorizationResult);
-	}
-
-	@Override
-	public Object handleDeniedInvocationResult(MethodInvocationResult methodInvocationResult,
-			AuthorizationResult authorizationResult) {
-		ExpressionAttribute attribute = this.registry.getAttribute(methodInvocationResult.getMethodInvocation());
-		PostAuthorizeExpressionAttribute postAuthorizeAttribute = (PostAuthorizeExpressionAttribute) attribute;
-		return postAuthorizeAttribute.getHandler()
-			.handleDeniedInvocationResult(methodInvocationResult, authorizationResult);
+		boolean granted = ExpressionUtils.evaluateAsBoolean(attribute.getExpression(), ctx);
+		return new ExpressionAuthorizationDecision(granted, attribute.getExpression());
 	}
 
 }

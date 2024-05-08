@@ -69,12 +69,6 @@ public final class AuthorizationGrantType implements Serializable {
 	public static final AuthorizationGrantType DEVICE_CODE = new AuthorizationGrantType(
 			"urn:ietf:params:oauth:grant-type:device_code");
 
-	/**
-	 * @since 6.3
-	 */
-	public static final AuthorizationGrantType TOKEN_EXCHANGE = new AuthorizationGrantType(
-			"urn:ietf:params:oauth:grant-type:token-exchange");
-
 	private final String value;
 
 	/**

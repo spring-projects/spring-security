@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,18 +20,11 @@ import io.micrometer.observation.ObservationRegistry;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 
-import org.springframework.aop.framework.AopInfrastructureBean;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.ImportAware;
 import org.springframework.context.annotation.Role;
-import org.springframework.core.type.AnnotationMetadata;
-import org.springframework.security.access.hierarchicalroles.NullRoleHierarchy;
-import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
-import org.springframework.security.authorization.AuthoritiesAuthorizationManager;
-import org.springframework.security.authorization.AuthorizationEventPublisher;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor;
 import org.springframework.security.authorization.method.Jsr250AuthorizationManager;
@@ -49,23 +42,15 @@ import org.springframework.security.core.context.SecurityContextHolderStrategy;
  */
 @Configuration(proxyBeanMethods = false)
 @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-final class Jsr250MethodSecurityConfiguration implements ImportAware, AopInfrastructureBean {
-
-	private int interceptorOrderOffset;
+final class Jsr250MethodSecurityConfiguration {
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 	static MethodInterceptor jsr250AuthorizationMethodInterceptor(
 			ObjectProvider<GrantedAuthorityDefaults> defaultsProvider,
 			ObjectProvider<SecurityContextHolderStrategy> strategyProvider,
-			ObjectProvider<AuthorizationEventPublisher> eventPublisherProvider,
-			ObjectProvider<ObservationRegistry> registryProvider, ObjectProvider<RoleHierarchy> roleHierarchyProvider,
-			Jsr250MethodSecurityConfiguration configuration) {
+			ObjectProvider<ObservationRegistry> registryProvider) {
 		Jsr250AuthorizationManager jsr250 = new Jsr250AuthorizationManager();
-		AuthoritiesAuthorizationManager authoritiesAuthorizationManager = new AuthoritiesAuthorizationManager();
-		RoleHierarchy roleHierarchy = roleHierarchyProvider.getIfAvailable(NullRoleHierarchy::new);
-		authoritiesAuthorizationManager.setRoleHierarchy(roleHierarchy);
-		jsr250.setAuthoritiesAuthorizationManager(authoritiesAuthorizationManager);
 		defaultsProvider.ifAvailable((d) -> jsr250.setRolePrefix(d.getRolePrefix()));
 		SecurityContextHolderStrategy strategy = strategyProvider
 			.getIfAvailable(SecurityContextHolder::getContextHolderStrategy);
@@ -73,16 +58,8 @@ final class Jsr250MethodSecurityConfiguration implements ImportAware, AopInfrast
 				registryProvider, jsr250);
 		AuthorizationManagerBeforeMethodInterceptor interceptor = AuthorizationManagerBeforeMethodInterceptor
 			.jsr250(manager);
-		interceptor.setOrder(interceptor.getOrder() + configuration.interceptorOrderOffset);
 		interceptor.setSecurityContextHolderStrategy(strategy);
-		eventPublisherProvider.ifAvailable(interceptor::setAuthorizationEventPublisher);
 		return interceptor;
-	}
-
-	@Override
-	public void setImportMetadata(AnnotationMetadata importMetadata) {
-		EnableMethodSecurity annotation = importMetadata.getAnnotations().get(EnableMethodSecurity.class).synthesize();
-		this.interceptorOrderOffset = annotation.offset();
 	}
 
 }
