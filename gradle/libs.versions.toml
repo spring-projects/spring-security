@@ -70,7 +70,7 @@ org-hamcrest = "org.hamcrest:hamcrest:2.2"
 org-hibernate-orm-hibernate-core = "org.hibernate.orm:hibernate-core:6.4.8.Final"
 org-hsqldb = "org.hsqldb:hsqldb:2.7.2"
 org-jetbrains-kotlin-kotlin-bom = { module = "org.jetbrains.kotlin:kotlin-bom", version.ref = "org-jetbrains-kotlin" }
-org-jetbrains-kotlin-kotlin-gradle-plugin = "org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.23"
+org-jetbrains-kotlin-kotlin-gradle-plugin = "org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.24"
 org-jetbrains-kotlinx-kotlinx-coroutines-bom = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-bom", version.ref = "org-jetbrains-kotlinx" }
 org-junit-junit-bom = "org.junit:junit-bom:5.10.2"
 org-mockito-mockito-bom = { module = "org.mockito:mockito-bom", version.ref = "org-mockito" }
