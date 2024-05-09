@@ -113,6 +113,9 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    labels:
+      - 'type: task'
+      - 'in: build'
     ignore:
       - dependency-name: sjohnr/*
       - dependency-name: spring-io/*
@@ -122,6 +125,9 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    labels:
+      - 'type: task'
+      - 'in: build'
     ignore:
       - dependency-name: sjohnr/*
       - dependency-name: spring-io/*
@@ -131,6 +137,9 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    labels:
+      - 'type: task'
+      - 'in: build'
     ignore:
       - dependency-name: sjohnr/*
       - dependency-name: spring-io/*
@@ -140,6 +149,9 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    labels:
+      - 'type: task'
+      - 'in: build'
     ignore:
       - dependency-name: sjohnr/*
       - dependency-name: spring-io/*
@@ -149,6 +161,9 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    labels:
+      - 'type: task'
+      - 'in: build'
     ignore:
       - dependency-name: sjohnr/*
       - dependency-name: spring-io/*
