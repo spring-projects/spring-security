@@ -11,8 +11,10 @@ changelog:
       labels: ["type: bug"]
       sort: "title"
     - title: ":hammer: Dependency Upgrades"
-      emoji: ":hammer:"
       labels: ["type: dependency-upgrade"]
+      sort: "title"
+    - title: ":nut_and_bolt: Build Updates"
+      labels: ["type: task", "in: build"]
       sort: "title"
   issues:
     exclude:
