@@ -16,15 +16,17 @@
 
 package org.springframework.security.web.server.authentication;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-
+import org.springframework.security.core.session.ReactiveSessionInformation;
+import org.springframework.security.web.server.authentication.MaximumSessionsContext;
+import org.springframework.security.web.server.authentication.ServerMaximumSessionsExceededHandler;
+import org.springframework.web.server.session.WebSessionStore;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import org.springframework.security.core.session.ReactiveSessionInformation;
-import org.springframework.web.server.session.WebSessionStore;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Implementation of {@link ServerMaximumSessionsExceededHandler} that invalidates the
@@ -47,17 +49,20 @@ public final class InvalidateLeastUsedServerMaximumSessionsExceededHandler
 
 	@Override
 	public Mono<Void> handle(MaximumSessionsContext context) {
-		List<ReactiveSessionInformation> sessions = new ArrayList<>(context.getSessions());
-		sessions.sort(Comparator.comparing(ReactiveSessionInformation::getLastAccessTime));
-		int maximumSessionsExceededBy = sessions.size() - context.getMaximumSessionsAllowed() + 1;
-		List<ReactiveSessionInformation> leastRecentlyUsedSessionsToInvalidate = sessions.subList(0,
-				maximumSessionsExceededBy);
+		List<ReactiveSessionInformation> sessions = context.getSessions().stream()
+                .filter(toFilter -> !toFilter.getSessionId().equals(context.getCurrentSession().getId()))
+                .sorted(Comparator.comparing(ReactiveSessionInformation::getLastAccessTime))
+                .collect(Collectors.toCollection(ArrayList::new));
 
-		return Flux.fromIterable(leastRecentlyUsedSessionsToInvalidate)
-			.filter(toInvalidate -> !toInvalidate.getSessionId().equals(context.getCurrentSession().getId()))
-			.flatMap((toInvalidate) -> toInvalidate.invalidate().thenReturn(toInvalidate))
-			.flatMap((toInvalidate) -> this.webSessionStore.removeSession(toInvalidate.getSessionId()))
-			.then();
+        int maximumSessionsExceededBy = sessions.size() - context.getMaximumSessionsAllowed() + 1;
+
+        List<ReactiveSessionInformation> leastRecentlyUsedSessionsToInvalidate = sessions.subList(0,
+                maximumSessionsExceededBy);
+
+        return Flux.fromIterable(leastRecentlyUsedSessionsToInvalidate)
+                .flatMap(toInvalidate -> toInvalidate.invalidate().thenReturn(toInvalidate))
+                .flatMap(toInvalidate -> this.webSessionStore.removeSession(toInvalidate.getSessionId()))
+                .then();
 	}
 
 }
