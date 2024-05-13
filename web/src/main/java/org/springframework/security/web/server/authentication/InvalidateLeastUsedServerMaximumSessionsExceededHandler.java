@@ -24,6 +24,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import org.springframework.security.core.session.ReactiveSessionInformation;
+import org.springframework.util.Assert;
 import org.springframework.web.server.session.WebSessionStore;
 
 /**
@@ -42,12 +43,14 @@ public final class InvalidateLeastUsedServerMaximumSessionsExceededHandler
 	private final WebSessionStore webSessionStore;
 
 	public InvalidateLeastUsedServerMaximumSessionsExceededHandler(WebSessionStore webSessionStore) {
+		Assert.notNull(webSessionStore, "webSessionStore cannot be null");
 		this.webSessionStore = webSessionStore;
 	}
 
 	@Override
 	public Mono<Void> handle(MaximumSessionsContext context) {
 		List<ReactiveSessionInformation> sessions = new ArrayList<>(context.getSessions());
+		sessions.removeIf((session) -> session.getSessionId().equals(context.getCurrentSession().getId()));
 		sessions.sort(Comparator.comparing(ReactiveSessionInformation::getLastAccessTime));
 		int maximumSessionsExceededBy = sessions.size() - context.getMaximumSessionsAllowed() + 1;
 		List<ReactiveSessionInformation> leastRecentlyUsedSessionsToInvalidate = sessions.subList(0,
