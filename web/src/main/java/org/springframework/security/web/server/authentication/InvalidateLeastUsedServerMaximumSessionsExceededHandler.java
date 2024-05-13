@@ -54,6 +54,7 @@ public final class InvalidateLeastUsedServerMaximumSessionsExceededHandler
 				maximumSessionsExceededBy);
 
 		return Flux.fromIterable(leastRecentlyUsedSessionsToInvalidate)
+			.filter(toInvalidate -> !toInvalidate.getSessionId().equals(context.getCurrentSession().getId()))
 			.flatMap((toInvalidate) -> toInvalidate.invalidate().thenReturn(toInvalidate))
 			.flatMap((toInvalidate) -> this.webSessionStore.removeSession(toInvalidate.getSessionId()))
 			.then();
