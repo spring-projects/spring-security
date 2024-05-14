@@ -112,8 +112,8 @@ public abstract class AbstractAuthenticationToken implements Authentication, Cre
 	}
 
 	private void eraseSecret(Object secret) {
-		if (secret instanceof CredentialsContainer) {
-			((CredentialsContainer) secret).eraseCredentials();
+		if (secret instanceof CredentialsContainer container) {
+			container.eraseCredentials();
 		}
 	}
 
