@@ -546,9 +546,6 @@ If not, Spring Security will throw an `AccessDeniedException` and return a 403 s
 [[use-prefilter]]
 === Filtering Method Parameters with `@PreFilter`
 
-[NOTE]
-`@PreFilter` is not yet supported for Kotlin-specific data types; for that reason, only Java snippets are shown
-
 When Method Security is active, you can annotate a method with the {security-api-url}org/springframework/security/access/prepost/PreFilter.html[`@PreFilter`] annotation like so:
 
 [tabs]
@@ -563,6 +560,20 @@ public class BankService {
 	public Collection<Account> updateAccounts(Account... accounts) {
         // ... `accounts` will only contain the accounts owned by the logged-in user
         return updated;
+	}
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Component
+open class BankService {
+	@PreFilter("filterObject.owner == authentication.name")
+	fun updateAccounts(vararg accounts: Account): Collection<Account> {
+        // ... `accounts` will only contain the accounts owned by the logged-in user
+        return updated
 	}
 }
 ----
@@ -589,6 +600,23 @@ void updateAccountsWhenOwnedThenReturns() {
     Account notOwnedBy = ...
     Collection<Account> updated = this.bankService.updateAccounts(ownedBy, notOwnedBy);
     assertThat(updated).containsOnly(ownedBy);
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Autowired
+lateinit var bankService: BankService
+
+@WithMockUser(username="owner")
+@Test
+fun updateAccountsWhenOwnedThenReturns() {
+    val ownedBy: Account = ...
+    val notOwnedBy: Account = ...
+    val updated: Collection<Account> = bankService.updateAccounts(ownedBy, notOwnedBy)
+    assertThat(updated).containsOnly(ownedBy)
 }
 ----
 ======
@@ -618,15 +646,29 @@ public Collection<Account> updateAccounts(Map<String, Account> accounts)
 @PreFilter("filterObject.owner == authentication.name")
 public Collection<Account> updateAccounts(Stream<Account> accounts)
 ----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@PreFilter("filterObject.owner == authentication.name")
+fun updateAccounts(accounts: Array<Account>): Collection<Account>
+
+@PreFilter("filterObject.owner == authentication.name")
+fun updateAccounts(accounts: Collection<Account>): Collection<Account>
+
+@PreFilter("filterObject.value.owner == authentication.name")
+fun updateAccounts(accounts: Map<String, Account>): Collection<Account>
+
+@PreFilter("filterObject.owner == authentication.name")
+fun updateAccounts(accounts: Stream<Account>): Collection<Account>
+----
 ======
 
 The result is that the above method will only have the `Account` instances where their `owner` attribute matches the logged-in user's `name`.
 
 [[use-postfilter]]
 === Filtering Method Results with `@PostFilter`
-
-[NOTE]
-`@PostFilter` is not yet supported for Kotlin-specific data types; for that reason, only Java snippets are shown
 
 When Method Security is active, you can annotate a method with the {security-api-url}org/springframework/security/access/prepost/PostFilter.html[`@PostFilter`] annotation like so:
 
@@ -642,6 +684,20 @@ public class BankService {
 	public Collection<Account> readAccounts(String... ids) {
         // ... the return value will be filtered to only contain the accounts owned by the logged-in user
         return accounts;
+	}
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Component
+open class BankService {
+	@PreFilter("filterObject.owner == authentication.name")
+	fun readAccounts(vararg ids: String): Collection<Account> {
+        // ... the return value will be filtered to only contain the accounts owned by the logged-in user
+        return accounts
 	}
 }
 ----
@@ -669,6 +725,22 @@ void readAccountsWhenOwnedThenReturns() {
     assertThat(accounts.get(0).getOwner()).isEqualTo("owner");
 }
 ----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Autowired
+lateinit var bankService: BankService
+
+@WithMockUser(username="owner")
+@Test
+fun readAccountsWhenOwnedThenReturns() {
+    val accounts: Collection<Account> = bankService.updateAccounts("owner", "not-owner")
+    assertThat(accounts).hasSize(1)
+    assertThat(accounts[0].owner).isEqualTo("owner")
+}
+----
 ======
 
 [TIP]
@@ -678,7 +750,15 @@ void readAccountsWhenOwnedThenReturns() {
 
 For example, the above `readAccounts` declaration will function the same way as the following other three:
 
-```java
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@PostFilter("filterObject.owner == authentication.name")
+public Collection<Account> readAccounts(String... ids)
+
 @PostFilter("filterObject.owner == authentication.name")
 public Account[] readAccounts(String... ids)
 
@@ -687,7 +767,25 @@ public Map<String, Account> readAccounts(String... ids)
 
 @PostFilter("filterObject.owner == authentication.name")
 public Stream<Account> readAccounts(String... ids)
-```
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@PostFilter("filterObject.owner == authentication.name")
+fun readAccounts(vararg ids: String): Collection<Account>
+
+@PostFilter("filterObject.owner == authentication.name")
+fun readAccounts(vararg ids: String): Array<Account>
+
+@PostFilter("filterObject.owner == authentication.name")
+fun readAccounts(vararg ids: String): Map<String, Account>
+
+@PostFilter("filterObject.owner == authentication.name")
+fun readAccounts(vararg ids: String): Stream<Account>
+----
+======
 
 The result is that the above method will return the `Account` instances where their `owner` attribute matches the logged-in user's `name`.
 
