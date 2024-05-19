@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +32,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
  * Standard implementation of {@code SecurityFilterChain}.
  *
  * @author Luke Taylor
+ * @author Jinwoo Bae
  * @since 3.1
  */
 public final class DefaultSecurityFilterChain implements SecurityFilterChain {
@@ -48,10 +49,21 @@ public final class DefaultSecurityFilterChain implements SecurityFilterChain {
 
 	public DefaultSecurityFilterChain(RequestMatcher requestMatcher, List<Filter> filters) {
 		if (filters.isEmpty()) {
-			logger.info(LogMessage.format("Will not secure %s", requestMatcher));
+			logger.debug(LogMessage.format("Will not secure %s", requestMatcher));
 		}
 		else {
-			logger.info(LogMessage.format("Will secure %s with %s", requestMatcher, filters));
+			StringBuilder filterClassNames = new StringBuilder();
+			String separator = ", ";
+
+			for (Filter f : filters) {
+				if (!filterClassNames.isEmpty()) {
+					filterClassNames.append(separator);
+				}
+				filterClassNames.append(f.getClass().getSimpleName());
+			}
+
+			logger.debug(
+					LogMessage.format("Will secure %s with filters: %s", requestMatcher, filterClassNames.toString()));
 		}
 		this.requestMatcher = requestMatcher;
 		this.filters = new ArrayList<>(filters);
