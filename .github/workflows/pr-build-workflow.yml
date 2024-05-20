@@ -21,7 +21,7 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
       - name: Build with Gradle
-        run: ./gradlew clean build --continue --scan
+        run: ./gradlew clean build --continue
   generate-docs:
     name: Generate Docs
     runs-on: ubuntu-latest
