@@ -31,7 +31,7 @@ commons-collections = "commons-collections:commons-collections:3.2.2"
 io-freefair-gradle-aspectj-plugin = "io.freefair.gradle:aspectj-plugin:6.5.1"
 io-mockk = "io.mockk:mockk:1.13.3"
 io-projectreactor-netty-reactor-netty = "io.projectreactor.netty:reactor-netty:1.0.44"
-io-projectreactor-reactor-bom = "io.projectreactor:reactor-bom:2020.0.43"
+io-projectreactor-reactor-bom = "io.projectreactor:reactor-bom:2020.0.44"
 io-projectreactor-tools-blockhound = "io.projectreactor.tools:blockhound:1.0.9.RELEASE"
 io-r2dbc-r2dbc-h2 = { module = "io.r2dbc:r2dbc-h2", version.ref = "io-r2dbc" }
 io-r2dbc-r2dbc-spi-test = { module = "io.r2dbc:r2dbc-spi-test", version.ref = "io-r2dbc" }
