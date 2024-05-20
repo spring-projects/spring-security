@@ -8,10 +8,28 @@ on:
 permissions:
   pull-requests: write
   issues: write
+  contents: write
 
 jobs:
-  update:
-    name: Build
-    uses: spring-io/spring-security-release-tools/.github/workflows/update-antora-ui-spring.yml@7f9c379a5fa976c48285c83220b0a86ddc3a952c
-    secrets:
-      token: ${{ secrets.GITHUB_TOKEN }}
+  update-antora-ui-spring:
+    runs-on: ubuntu-latest
+    name: Update Supported Branches
+    strategy:
+      matrix:
+        branch: [ '5.8.x', '6.1.x', '6.2.x', 'main' ]
+    steps:
+      - uses: spring-io/spring-docs-actions/update-antora-spring-ui@9ab6029a59f5a8e3b40dc8757ff5d9f3569647db
+        name: Update antora-playbook.yml
+        with:
+          docs-branch: ${{ matrix.branch }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          antora-file-path: 'docs/antora-playbook.yml'
+  update-antora-ui-spring-docs-build:
+    runs-on: ubuntu-latest
+    name: Update Docs Build
+    steps:
+      - uses: spring-io/spring-docs-actions/update-antora-spring-ui@9ab6029a59f5a8e3b40dc8757ff5d9f3569647db
+        name: Update antora-playbook.yml
+        with:
+          docs-branch: 'docs-build'
+          token: ${{ secrets.GITHUB_TOKEN }}
