@@ -96,6 +96,7 @@ project.tasks.matching { t -> t.name == "sourcesJar"}.configureEach {
 
 
 javadoc {
+	classpath += sourceSets.opensaml3Main.runtimeClasspath + sourceSets.opensaml4Main.runtimeClasspath
 	source += sourceSets.opensaml3Main.allJava + sourceSets.opensaml4Main.allJava
 }
 
