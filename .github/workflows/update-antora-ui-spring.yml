@@ -16,13 +16,13 @@ jobs:
       matrix:
         branch: [ '5.8.x', '6.1.x', '6.2.x', 'main' ]
     steps:
-      - uses: spring-io/spring-doc-actions/update-antora-spring-ui@9ab6029a59f5a8e3b40dc8757ff5d9f3569647db
+      - uses: spring-io/spring-doc-actions/update-antora-spring-ui@17ed79ea5fbd65813c69ef1062a024d4a37ff0ca
         name: Update on Supported Branches
         with:
           docs-branch: ${{ matrix.branch }}
           token: ${{ secrets.GITHUB_TOKEN }}
           antora-file-path: 'docs/antora-playbook.yml'
-      - uses: spring-io/spring-doc-actions/update-antora-spring-ui@9ab6029a59f5a8e3b40dc8757ff5d9f3569647db
+      - uses: spring-io/spring-doc-actions/update-antora-spring-ui@17ed79ea5fbd65813c69ef1062a024d4a37ff0ca
         name: Update on docs-build
         with:
           docs-branch: 'docs-build'
