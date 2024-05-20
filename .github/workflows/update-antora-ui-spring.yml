@@ -18,7 +18,7 @@ jobs:
       matrix:
         branch: [ '5.8.x', '6.1.x', '6.2.x', 'main' ]
     steps:
-      - uses: spring-io/spring-docs-actions/update-antora-spring-ui@9ab6029a59f5a8e3b40dc8757ff5d9f3569647db
+      - uses: spring-io/spring-doc-actions/update-antora-spring-ui@9ab6029a59f5a8e3b40dc8757ff5d9f3569647db
         name: Update antora-playbook.yml
         with:
           docs-branch: ${{ matrix.branch }}
@@ -28,7 +28,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Update Docs Build
     steps:
-      - uses: spring-io/spring-docs-actions/update-antora-spring-ui@9ab6029a59f5a8e3b40dc8757ff5d9f3569647db
+      - uses: spring-io/spring-doc-actions/update-antora-spring-ui@9ab6029a59f5a8e3b40dc8757ff5d9f3569647db
         name: Update antora-playbook.yml
         with:
           docs-branch: 'docs-build'
