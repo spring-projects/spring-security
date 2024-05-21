@@ -118,8 +118,6 @@ updates:
       - 'in: build'
     ignore:
       - dependency-name: sjohnr/*
-      - dependency-name: spring-io/*
-      - dependency-name: spring-security-release-tools/*
   - package-ecosystem: github-actions
     target-branch: 6.1.x
     directory: /
@@ -130,8 +128,6 @@ updates:
       - 'in: build'
     ignore:
       - dependency-name: sjohnr/*
-      - dependency-name: spring-io/*
-      - dependency-name: spring-security-release-tools/*
   - package-ecosystem: github-actions
     target-branch: 6.2.x
     directory: /
@@ -142,8 +138,6 @@ updates:
       - 'in: build'
     ignore:
       - dependency-name: sjohnr/*
-      - dependency-name: spring-io/*
-      - dependency-name: spring-security-release-tools/*
   - package-ecosystem: github-actions
     target-branch: main
     directory: /
@@ -154,8 +148,6 @@ updates:
       - 'in: build'
     ignore:
       - dependency-name: sjohnr/*
-      - dependency-name: spring-io/*
-      - dependency-name: spring-security-release-tools/*
   - package-ecosystem: github-actions
     target-branch: docs-build
     directory: /
@@ -166,8 +158,6 @@ updates:
       - 'in: build'
     ignore:
       - dependency-name: sjohnr/*
-      - dependency-name: spring-io/*
-      - dependency-name: spring-security-release-tools/*
 
   - package-ecosystem: npm
     target-branch: docs-build
