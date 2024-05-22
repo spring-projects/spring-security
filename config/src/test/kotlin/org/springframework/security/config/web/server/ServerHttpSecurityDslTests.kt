@@ -35,7 +35,9 @@ import org.springframework.security.config.test.SpringTestContextExtension
 import org.springframework.security.core.Authentication
 import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter
 import org.springframework.security.web.server.SecurityWebFilterChain
+import org.springframework.security.web.server.context.NoOpServerSecurityContextRepository
 import org.springframework.security.web.server.context.SecurityContextServerWebExchangeWebFilter
+import org.springframework.security.web.server.context.ServerSecurityContextRepository
 import org.springframework.security.web.server.header.ContentTypeOptionsServerHttpHeadersWriter
 import org.springframework.security.web.server.header.StrictTransportSecurityServerHttpHeadersWriter
 import org.springframework.security.web.server.header.XFrameOptionsServerHttpHeadersWriter
@@ -249,6 +251,33 @@ class ServerHttpSecurityDslTests {
     class NoopReactiveAuthenticationManager: ReactiveAuthenticationManager {
         override fun authenticate(authentication: Authentication?): Mono<Authentication> {
             return Mono.empty()
+        }
+    }
+
+    @Test
+    fun `security context repository when configured in DSL then used`() {
+        this.spring.register(SecurityContextRepositoryConfig::class.java).autowire()
+        mockkObject(SecurityContextRepositoryConfig.SECURITY_CONTEXT_REPOSITORY)
+        every {
+            SecurityContextRepositoryConfig.SECURITY_CONTEXT_REPOSITORY.load(any())
+        } returns Mono.empty()
+        this.client.get().uri("/").exchange()
+        verify(exactly = 1) { SecurityContextRepositoryConfig.SECURITY_CONTEXT_REPOSITORY.load(any()) }
+    }
+
+    @Configuration
+    @EnableWebFlux
+    @EnableWebFluxSecurity
+    open class SecurityContextRepositoryConfig {
+        companion object {
+            val SECURITY_CONTEXT_REPOSITORY: ServerSecurityContextRepository = NoOpServerSecurityContextRepository.getInstance()
+        }
+
+        @Bean
+        open fun springWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
+            return http {
+                securityContextRepository = SECURITY_CONTEXT_REPOSITORY
+            }
         }
     }
 }
