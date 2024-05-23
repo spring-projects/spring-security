@@ -27,6 +27,7 @@ import org.apache.commons.logging.LogFactory;
 
 import org.springframework.core.log.LogMessage;
 import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.util.StringUtils;
 
 /**
  * Standard implementation of {@code SecurityFilterChain}.
@@ -52,18 +53,12 @@ public final class DefaultSecurityFilterChain implements SecurityFilterChain {
 			logger.debug(LogMessage.format("Will not secure %s", requestMatcher));
 		}
 		else {
-			StringBuilder filterClassNames = new StringBuilder();
-			String separator = ", ";
-
-			for (Filter f : filters) {
-				if (!filterClassNames.isEmpty()) {
-					filterClassNames.append(separator);
-				}
-				filterClassNames.append(f.getClass().getSimpleName());
+			List<String> filterNames = new ArrayList<>();
+			for (Filter filter : filters) {
+				filterNames.add(filter.getClass().getSimpleName());
 			}
-
-			logger.debug(
-					LogMessage.format("Will secure %s with filters: %s", requestMatcher, filterClassNames.toString()));
+			String names = StringUtils.collectionToDelimitedString(filterNames, ", ");
+			logger.debug(LogMessage.format("Will secure %s with filters: %s", requestMatcher, names));
 		}
 		this.requestMatcher = requestMatcher;
 		this.filters = new ArrayList<>(filters);
