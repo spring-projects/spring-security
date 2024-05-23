@@ -30,31 +30,6 @@ updates:
           - version-update:semver-major
           - version-update:semver-minor
   - package-ecosystem: gradle
-    target-branch: 6.1.x
-    directory: /
-    schedule:
-      interval: daily
-      time: '03:00'
-      timezone: Etc/UTC
-    labels:
-      - 'type: dependency-upgrade'
-    registries:
-      - spring-milestones
-    ignore:
-      - dependency-name: com.nimbusds:nimbus-jose-jwt
-      - dependency-name: org.python:jython
-      - dependency-name: org.apache.directory.server:*
-      - dependency-name: org.junit:junit-bom
-        update-types:
-          - version-update:semver-major
-      - dependency-name: org.mockito:mockito-bom
-        update-types:
-          - version-update:semver-major
-      - dependency-name: '*'
-        update-types:
-          - version-update:semver-major
-          - version-update:semver-minor
-  - package-ecosystem: gradle
     target-branch: 6.2.x
     directory: /
     schedule:
@@ -110,26 +85,6 @@ updates:
           - version-update:semver-minor
   - package-ecosystem: github-actions
     target-branch: 5.8.x
-    directory: /
-    schedule:
-      interval: weekly
-    labels:
-      - 'type: task'
-      - 'in: build'
-    ignore:
-      - dependency-name: sjohnr/*
-  - package-ecosystem: github-actions
-    target-branch: 6.1.x
-    directory: /
-    schedule:
-      interval: weekly
-    labels:
-      - 'type: task'
-      - 'in: build'
-    ignore:
-      - dependency-name: sjohnr/*
-  - package-ecosystem: github-actions
-    target-branch: 6.2.x
     directory: /
     schedule:
       interval: weekly
