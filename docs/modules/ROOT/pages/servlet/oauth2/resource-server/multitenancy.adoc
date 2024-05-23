@@ -339,7 +339,7 @@ Java::
 [source,java,role="primary"]
 ----
 @Bean
-JWTProcessor jwtProcessor(JWTClaimSetJWSKeySelector keySelector) {
+JWTProcessor jwtProcessor(JWTClaimsSetAwareJWSKeySelector keySelector) {
 	ConfigurableJWTProcessor<SecurityContext> jwtProcessor =
             new DefaultJWTProcessor();
 	jwtProcessor.setJWTClaimsSetAwareJWSKeySelector(keySelector);
