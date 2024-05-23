@@ -1074,7 +1074,7 @@ class MethodSecurityConfig {
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 	Advisor postAuthorize() {
-		return AuthorizationManagerBeforeMethodInterceptor.postAuthorize();
+		return AuthorizationManagerAfterMethodInterceptor.postAuthorize();
 	}
 }
 ----
@@ -1089,7 +1089,7 @@ class MethodSecurityConfig {
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 	fun postAuthorize() : Advisor {
-		return AuthorizationManagerBeforeMethodInterceptor.postAuthorize()
+		return AuthorizationManagerAfterMethodInterceptor.postAuthorize()
 	}
 }
 ----
