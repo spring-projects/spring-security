@@ -185,10 +185,10 @@ public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 The default configuration (shown in the preceding example):
 
 * Ensures that any request to our application requires the user to be authenticated
-* Lets users authenticate with form based login
+* Lets users authenticate with form-based login
 * Lets users authenticate with HTTP Basic authentication
 
-Note that this configuration is parallels the XML Namespace configuration:
+Note that this configuration parallels the XML namespace configuration:
 
 [source,xml]
 ----
@@ -206,7 +206,7 @@ This approach allows us to define distinct security configurations tailored to s
 
 We can configure multiple `HttpSecurity` instances just as we can have multiple `<http>` blocks in XML.
 The key is to register multiple `SecurityFilterChain` ``@Bean``s.
-The following example has a different configuration for URLs that begin with `/api/`.
+The following example has a different configuration for URLs that begin with `/api/`:
 
 [[multiple-httpsecurity-instances-java]]
 [source,java]
@@ -216,7 +216,6 @@ The following example has a different configuration for URLs that begin with `/a
 public class MultiHttpSecurityConfig {
 	@Bean                                                             <1>
 	public UserDetailsService userDetailsService() throws Exception {
-		// ensure the passwords are encoded properly
 		UserBuilder users = User.withDefaultPasswordEncoder();
 		InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
 		manager.createUser(users.username("user").password("password").roles("USER").build());
@@ -411,7 +410,6 @@ public class BankingSecurityConfig {
 
     @Bean                                                              <1>
     public UserDetailsService userDetailsService() {
-        // ensure the passwords are encoded properly
 		UserBuilder users = User.withDefaultPasswordEncoder();
         InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
         manager.createUser(users.username("user1").password("password").roles("USER", "VIEW_BALANCE").build());
@@ -449,7 +447,7 @@ public class BankingSecurityConfig {
 
     @Bean                                                              <4>
     public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
-		String[] allowedPaths = { "/user-login", "/user-logout", "/notices", "/contact", "/register" };
+		String[] allowedPaths = { "/", "/user-login", "/user-logout", "/notices", "/contact", "/register" };
         http
             .authorizeHttpRequests(authorize -> authorize
 				.requestMatchers(allowedPaths).permitAll()
@@ -478,7 +476,7 @@ public class BankingSecurityConfig {
 	This filter chain does not define any authentication because the next (default) filter chain contains that configuration.
 <4> Lastly, create an additional `SecurityFilterChain` instance without an `@Order` annotation.
 	This configuration will handle requests not covered by the other filter chains and will be processed last (no `@Order` defaults to last).
-	Requests that match `/user-login`, `/user-logout`, `/notices`, `/contact` and `/register` allow access without authentication.
+	Requests that match `/`, `/user-login`, `/user-logout`, `/notices`, `/contact` and `/register` allow access without authentication.
 	Any other requests require the user to be authenticated to access any URL not explicitly allowed or protected by other filter chains.
 
 [[jc-custom-dsls]]
