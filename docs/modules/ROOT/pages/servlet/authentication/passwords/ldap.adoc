@@ -81,14 +81,14 @@ dn: cn=user,ou=groups,dc=springframework,dc=org
 objectclass: top
 objectclass: groupOfNames
 cn: user
-uniqueMember: uid=admin,ou=people,dc=springframework,dc=org
-uniqueMember: uid=user,ou=people,dc=springframework,dc=org
+member: uid=admin,ou=people,dc=springframework,dc=org
+member: uid=user,ou=people,dc=springframework,dc=org
 
 dn: cn=admin,ou=groups,dc=springframework,dc=org
 objectclass: top
 objectclass: groupOfNames
 cn: admin
-uniqueMember: uid=admin,ou=people,dc=springframework,dc=org
+member: uid=admin,ou=people,dc=springframework,dc=org
 ----
 
 [[servlet-authentication-ldap-unboundid]]
