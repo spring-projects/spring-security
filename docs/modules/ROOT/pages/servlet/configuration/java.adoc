@@ -394,7 +394,7 @@ public class SecuredSecurityConfig {
 [NOTE]
 ====
 This example customizes the login and logout pages, which disables Spring Security's generated pages.
-You must xref:servlet/authentication/passwords/form.html#servlet-authentication-form-custom[provide your own] custom endpoints for `GET /secured/login` and `GET /secured/logout`.
+You must xref:servlet/authentication/passwords/form.adoc#servlet-authentication-form-custom[provide your own] custom endpoints for `GET /secured/login` and `GET /secured/logout`.
 Note that Spring Security still provides `POST /secured/login` and `POST /secured/logout` endpoints for you.
 ====
 
