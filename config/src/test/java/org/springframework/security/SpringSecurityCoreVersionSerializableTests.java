@@ -29,6 +29,7 @@ import java.lang.reflect.Modifier;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -59,6 +60,7 @@ import org.springframework.security.cas.authentication.CasAssertionAuthenticatio
 import org.springframework.security.cas.authentication.CasAuthenticationToken;
 import org.springframework.security.cas.authentication.CasServiceTicketAuthenticationToken;
 import org.springframework.security.core.SpringSecurityCoreVersion;
+import org.springframework.security.core.session.ReactiveSessionInformation;
 import org.springframework.security.core.session.SessionInformation;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
@@ -138,6 +140,8 @@ class SpringSecurityCoreVersionSerializableTests {
 		generatorByClassName.put(OidcUserInfo.class, (r) -> OidcUserInfo.builder().email("email@example.com").build());
 		generatorByClassName.put(SessionInformation.class,
 				(r) -> new SessionInformation(user, r.alphanumeric(4), new Date(1704378933936L)));
+		generatorByClassName.put(ReactiveSessionInformation.class,
+				(r) -> new ReactiveSessionInformation(user, r.alphanumeric(4), Instant.ofEpochMilli(1704378933936L)));
 		generatorByClassName.put(OAuth2LoginAuthenticationToken.class, (r) -> {
 			var token = new OAuth2LoginAuthenticationToken(clientRegistration,
 					TestOAuth2AuthorizationExchanges.success());
