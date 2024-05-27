@@ -263,6 +263,7 @@ class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecu
      * access for requests
      * @see [AuthorizeRequestsDsl]
      */
+    @Deprecated(message = "Since 6.4. Use authorizeHttpRequests instead")
     fun authorizeRequests(authorizeRequestsConfiguration: AuthorizeRequestsDsl.() -> Unit) {
         val authorizeRequestsCustomizer = AuthorizeRequestsDsl().apply(authorizeRequestsConfiguration).get()
         this.http.authorizeRequests(authorizeRequestsCustomizer)
