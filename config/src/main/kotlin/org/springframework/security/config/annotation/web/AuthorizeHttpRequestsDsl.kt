@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,6 +42,23 @@ import java.util.function.Supplier
  * @property shouldFilterAllDispatcherTypes whether the [AuthorizationFilter] should filter all dispatcher types
  */
 class AuthorizeHttpRequestsDsl : AbstractRequestMatcherDsl() {
+    @Deprecated("""
+        Add authorization rules to DispatcherType directly.
+
+        @Configuration
+        @EnableWebSecurity
+        public class SecurityConfig {
+            @Bean
+            public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+                http
+                    .authorizeHttpRequests((authorize) -> authorize
+                        .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
+                        // ...
+                    );
+                return http.build();
+            }
+          }
+    """)
     var shouldFilterAllDispatcherTypes: Boolean? = null
 
     private val authorizationRules = mutableListOf<AuthorizationManagerRule>()
