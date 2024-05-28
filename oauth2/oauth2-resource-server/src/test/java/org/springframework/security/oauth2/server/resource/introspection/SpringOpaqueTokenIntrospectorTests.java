@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,6 +39,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
 import org.springframework.security.oauth2.core.OAuth2TokenIntrospectionClaimAccessor;
 import org.springframework.security.oauth2.core.OAuth2TokenIntrospectionClaimNames;
@@ -243,6 +244,21 @@ public class SpringOpaqueTokenIntrospectorTests {
 		assertThat(principal.getAuthorities()).isEmpty();
 		Collection<String> scope = principal.getAttribute("scope");
 		assertThat(scope).containsExactly("read", "write", "dolphin");
+	}
+
+	// gh-15165
+	@Test
+	public void introspectWhenActiveThenMapsAuthorities() {
+		RestOperations restOperations = mock(RestOperations.class);
+		OpaqueTokenIntrospector introspectionClient = new SpringOpaqueTokenIntrospector(INTROSPECTION_URL,
+				restOperations);
+		given(restOperations.exchange(any(RequestEntity.class), eq(STRING_OBJECT_MAP))).willReturn(ACTIVE);
+		OAuth2AuthenticatedPrincipal principal = introspectionClient.introspect("token");
+		assertThat(principal.getAuthorities()).isNotEmpty();
+		Collection<String> scope = principal.getAttribute("scope");
+		assertThat(scope).containsExactly("read", "write", "dolphin");
+		Collection<String> authorities = AuthorityUtils.authorityListToSet(principal.getAuthorities());
+		assertThat(authorities).containsExactly("SCOPE_read", "SCOPE_write", "SCOPE_dolphin");
 	}
 
 	@Test
