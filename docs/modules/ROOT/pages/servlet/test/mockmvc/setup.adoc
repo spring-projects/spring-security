@@ -52,7 +52,7 @@ class CsrfShowcaseTests {
     @Autowired
     private lateinit var context: WebApplicationContext
 
-    private var mvc: MockMvc? = null
+    private lateinit var mvc: MockMvc
 
     @BeforeEach
     fun setup() {
