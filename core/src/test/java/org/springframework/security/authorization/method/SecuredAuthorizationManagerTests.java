@@ -147,8 +147,8 @@ public class SecuredAuthorizationManagerTests {
 	@Test
 	public void checkInheritedAnnotationsWhenConflictingThenAnnotationConfigurationException() throws Exception {
 		Supplier<Authentication> authentication = () -> new TestingAuthenticationToken("user", "password", "ROLE_USER");
-		MockMethodInvocation methodInvocation = new MockMethodInvocation(new ClassLevelAnnotations(),
-				ClassLevelAnnotations.class, "inheritedAnnotations");
+		MockMethodInvocation methodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
+				"inheritedAnnotations");
 		SecuredAuthorizationManager manager = new SecuredAuthorizationManager();
 		assertThatExceptionOfType(AnnotationConfigurationException.class)
 			.isThrownBy(() -> manager.check(authentication, methodInvocation));

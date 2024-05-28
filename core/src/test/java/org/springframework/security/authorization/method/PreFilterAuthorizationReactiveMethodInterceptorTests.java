@@ -151,8 +151,8 @@ public class PreFilterAuthorizationReactiveMethodInterceptorTests {
 
 	@Test
 	public void checkInheritedAnnotationsWhenConflictingThenAnnotationConfigurationException() throws Exception {
-		MockMethodInvocation methodInvocation = new MockMethodInvocation(new ConflictingAnnotations(),
-				ConflictingAnnotations.class, "inheritedAnnotations");
+		MockMethodInvocation methodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
+				"inheritedAnnotations");
 		PreFilterAuthorizationReactiveMethodInterceptor interceptor = new PreFilterAuthorizationReactiveMethodInterceptor();
 		assertThatExceptionOfType(AnnotationConfigurationException.class)
 			.isThrownBy(() -> interceptor.invoke(methodInvocation));
@@ -195,16 +195,6 @@ public class PreFilterAuthorizationReactiveMethodInterceptorTests {
 	public static class NoPreFilterClass {
 
 		public void doSomething() {
-
-		}
-
-	}
-
-	public static class ConflictingAnnotations implements InterfaceAnnotationsThree {
-
-		@Override
-		@PreFilter("filterObject == 'jack'")
-		public void inheritedAnnotations() {
 
 		}
 

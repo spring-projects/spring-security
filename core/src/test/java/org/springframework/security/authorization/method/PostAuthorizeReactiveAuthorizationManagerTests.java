@@ -165,8 +165,8 @@ public class PostAuthorizeReactiveAuthorizationManagerTests {
 	public void checkInheritedAnnotationsWhenConflictingThenAnnotationConfigurationException() throws Exception {
 		Mono<Authentication> authentication = Mono
 			.just(new TestingAuthenticationToken("user", "password", "ROLE_USER"));
-		MockMethodInvocation methodInvocation = new MockMethodInvocation(new ClassLevelAnnotations(),
-				ClassLevelAnnotations.class, "inheritedAnnotations");
+		MockMethodInvocation methodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
+				"inheritedAnnotations");
 		MethodInvocationResult result = new MethodInvocationResult(methodInvocation, null);
 		PostAuthorizeReactiveAuthorizationManager manager = new PostAuthorizeReactiveAuthorizationManager();
 		assertThatExceptionOfType(AnnotationConfigurationException.class)

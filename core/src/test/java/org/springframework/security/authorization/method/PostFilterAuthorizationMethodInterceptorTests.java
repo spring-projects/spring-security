@@ -120,8 +120,8 @@ public class PostFilterAuthorizationMethodInterceptorTests {
 
 	@Test
 	public void checkInheritedAnnotationsWhenConflictingThenAnnotationConfigurationException() throws Exception {
-		MockMethodInvocation methodInvocation = new MockMethodInvocation(new ConflictingAnnotations(),
-				ConflictingAnnotations.class, "inheritedAnnotations");
+		MockMethodInvocation methodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
+				"inheritedAnnotations");
 		PostFilterAuthorizationMethodInterceptor advice = new PostFilterAuthorizationMethodInterceptor();
 		assertThatExceptionOfType(AnnotationConfigurationException.class)
 			.isThrownBy(() -> advice.invoke(methodInvocation));
@@ -225,16 +225,6 @@ public class PostFilterAuthorizationMethodInterceptorTests {
 	public static class NoPostFilterClass {
 
 		public void doSomething() {
-
-		}
-
-	}
-
-	public static class ConflictingAnnotations implements InterfaceAnnotationsThree {
-
-		@Override
-		@PostFilter("filterObject == 'jack'")
-		public void inheritedAnnotations() {
 
 		}
 
