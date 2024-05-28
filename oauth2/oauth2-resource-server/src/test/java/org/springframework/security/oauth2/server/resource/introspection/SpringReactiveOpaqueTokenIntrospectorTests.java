@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -37,6 +38,7 @@ import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
 import org.springframework.security.oauth2.core.OAuth2TokenIntrospectionClaimAccessor;
 import org.springframework.security.oauth2.core.OAuth2TokenIntrospectionClaimNames;
@@ -195,6 +197,20 @@ public class SpringReactiveOpaqueTokenIntrospectorTests {
 		assertThatExceptionOfType(OAuth2IntrospectionException.class)
 				.isThrownBy(() -> introspectionClient.introspect("token").block());
 		// @formatter:on
+	}
+
+	// gh-15165
+	@Test
+	public void introspectWhenActiveThenMapsAuthorities() {
+		WebClient webClient = mockResponse(ACTIVE_RESPONSE);
+		SpringReactiveOpaqueTokenIntrospector introspectionClient = new SpringReactiveOpaqueTokenIntrospector(
+				INTROSPECTION_URL, webClient);
+		OAuth2AuthenticatedPrincipal principal = introspectionClient.introspect("token").block();
+		assertThat(principal.getAuthorities()).isNotEmpty();
+		Collection<String> scope = principal.getAttribute("scope");
+		assertThat(scope).containsExactly("read", "write", "dolphin");
+		Collection<String> authorities = AuthorityUtils.authorityListToSet(principal.getAuthorities());
+		assertThat(authorities).containsExactly("SCOPE_read", "SCOPE_write", "SCOPE_dolphin");
 	}
 
 	@Test
