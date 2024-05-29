@@ -94,7 +94,6 @@ public final class WebSessionServerOAuth2AuthorizedClientRepository implements S
 		// @formatter:on
 	}
 
-	@SuppressWarnings("unchecked")
 	private Map<String, OAuth2AuthorizedClient> getAuthorizedClients(WebSession session) {
 		Assert.notNull(session, "session cannot be null");
 		Map<String, OAuth2AuthorizedClient> authorizedClients = session.getAttribute(this.sessionAttributeName);

@@ -17,6 +17,7 @@
 package org.springframework.security.oauth2.client.web.server;
 
 import org.junit.jupiter.api.Test;
+import reactor.core.publisher.Mono;
 
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
@@ -24,13 +25,13 @@ import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
+import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebSession;
-import reactor.core.publisher.Mono;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Rob Winch
@@ -203,25 +204,29 @@ public class WebSessionServerOAuth2AuthorizedClientRepositoryTests {
 		assertThat(loadedAuthorizedClient2).isNotNull();
 		assertThat(loadedAuthorizedClient2).isSameAs(authorizedClient2);
 	}
-	
+
 	@Test
 	public void saveAuthorizedClientWhenSessionIsNullThenThrowIllegalArgumentException() {
-		MockServerWebExchange mockedExchange = mock(MockServerWebExchange.class);
-		when(mockedExchange.getSession()).thenReturn(Mono.empty());
+		ServerWebExchange exchange = mock(ServerWebExchange.class);
+		given(exchange.getSession()).willReturn(Mono.empty());
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration1, this.principalName1,
 				mock(OAuth2AccessToken.class));
-		assertThatIllegalArgumentException().isThrownBy(
-				() -> authorizedClientRepository.saveAuthorizedClient(authorizedClient, null, mockedExchange).block())
-				.withMessage("session cannot be null");
+		// @formatter:off
+		assertThatIllegalArgumentException()
+			.isThrownBy(() -> this.authorizedClientRepository.saveAuthorizedClient(authorizedClient, null, exchange).block())
+			.withMessage("session cannot be null");
+		// @formatter:on
 	}
-	
+
 	@Test
 	public void removeAuthorizedClientWhenSessionIsNullThenThrowIllegalArgumentException() {
-		MockServerWebExchange mockedExchange = mock(MockServerWebExchange.class);
-		when(mockedExchange.getSession()).thenReturn(Mono.empty());
-		assertThatIllegalArgumentException().isThrownBy(
-				() -> authorizedClientRepository.removeAuthorizedClient(this.registrationId1, null, mockedExchange).block())
-				.withMessage("session cannot be null");
+		ServerWebExchange exchange = mock(ServerWebExchange.class);
+		given(exchange.getSession()).willReturn(Mono.empty());
+		// @formatter:off
+		assertThatIllegalArgumentException()
+			.isThrownBy(() -> this.authorizedClientRepository.removeAuthorizedClient(this.registrationId1, null, exchange).block())
+			.withMessage("session cannot be null");
+		// @formatter:on
 	}
 
 }
