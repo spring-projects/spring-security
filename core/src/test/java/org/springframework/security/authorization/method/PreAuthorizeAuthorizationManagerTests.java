@@ -115,20 +115,10 @@ public class PreAuthorizeAuthorizationManagerTests {
 	}
 
 	@Test
-	public void checkInheritedAnnotationsWhenDuplicatedThenAnnotationConfigurationException() throws Exception {
-		Supplier<Authentication> authentication = () -> new TestingAuthenticationToken("user", "password", "ROLE_USER");
-		MockMethodInvocation methodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
-				"inheritedAnnotations");
-		PreAuthorizeAuthorizationManager manager = new PreAuthorizeAuthorizationManager();
-		assertThatExceptionOfType(AnnotationConfigurationException.class)
-			.isThrownBy(() -> manager.check(authentication, methodInvocation));
-	}
-
-	@Test
 	public void checkInheritedAnnotationsWhenConflictingThenAnnotationConfigurationException() throws Exception {
 		Supplier<Authentication> authentication = () -> new TestingAuthenticationToken("user", "password", "ROLE_USER");
-		MockMethodInvocation methodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
-				"inheritedAnnotations");
+		MockMethodInvocation methodInvocation = new MockMethodInvocation(new ConflictingAnnotations(),
+				ConflictingAnnotations.class, "inheritedAnnotations");
 		PreAuthorizeAuthorizationManager manager = new PreAuthorizeAuthorizationManager();
 		assertThatExceptionOfType(AnnotationConfigurationException.class)
 			.isThrownBy(() -> manager.check(authentication, methodInvocation));
@@ -203,6 +193,14 @@ public class PreAuthorizeAuthorizationManagerTests {
 		@PreAuthorize("hasRole('ADMIN')")
 		public void inheritedAnnotations() {
 
+		}
+
+	}
+
+	public static class ConflictingAnnotations implements InterfaceAnnotationsOne, InterfaceAnnotationsTwo {
+
+		@Override
+		public void inheritedAnnotations() {
 		}
 
 	}
