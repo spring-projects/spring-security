@@ -18,6 +18,7 @@ package org.springframework.security.web.util.matcher;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Scanner;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -47,7 +48,7 @@ public final class IpAddressMatcher implements RequestMatcher {
 	 * come.
 	 */
 	public IpAddressMatcher(String ipAddress) {
-		assertStartsWithHexa(ipAddress);
+		assertNotHostName(ipAddress);
 		if (ipAddress.indexOf('/') > 0) {
 			String[] addressAndMask = StringUtils.split(ipAddress, "/");
 			ipAddress = addressAndMask[0];
@@ -68,7 +69,7 @@ public final class IpAddressMatcher implements RequestMatcher {
 	}
 
 	public boolean matches(String address) {
-		assertStartsWithHexa(address);
+		assertNotHostName(address);
 		InetAddress remoteAddress = parseAddress(address);
 		if (!this.requiredAddress.getClass().equals(remoteAddress.getClass())) {
 			return false;
@@ -91,11 +92,17 @@ public final class IpAddressMatcher implements RequestMatcher {
 		return true;
 	}
 
-	private void assertStartsWithHexa(String ipAddress) {
-		Assert.isTrue(
-				ipAddress.charAt(0) == '[' || ipAddress.charAt(0) == ':'
-						|| Character.digit(ipAddress.charAt(0), 16) != -1,
-				"ipAddress must start with a [, :, or a hexadecimal digit");
+	private void assertNotHostName(String ipAddress) {
+		String error = "ipAddress " + ipAddress + " doesn't look like an IP Address. Is it a host name?";
+		Assert.isTrue(ipAddress.charAt(0) == '[' || ipAddress.charAt(0) == ':'
+				|| Character.digit(ipAddress.charAt(0), 16) != -1, error);
+		if (!ipAddress.contains(":")) {
+			Scanner parts = new Scanner(ipAddress);
+			parts.useDelimiter("[./]");
+			while (parts.hasNext()) {
+				Assert.isTrue(parts.hasNextInt() && parts.nextInt() >> 8 == 0, error);
+			}
+		}
 	}
 
 	private InetAddress parseAddress(String address) {

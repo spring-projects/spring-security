@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatException;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
@@ -108,7 +109,21 @@ public class IpAddressMatcherTests {
 	@Test
 	public void invalidAddressThenIllegalArgumentException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> new IpAddressMatcher("invalid-ip"))
-			.withMessage("ipAddress must start with a [, :, or a hexadecimal digit");
+			.withMessage("ipAddress invalid-ip doesn't look like an IP Address. Is it a host name?");
+	}
+
+	// gh-15172
+	@Test
+	public void hexadecimalDomainNameThenIllegalArgumentException() {
+		assertThatException().isThrownBy(() -> new IpAddressMatcher("deadbeef.abc"))
+			.withMessage("ipAddress deadbeef.abc doesn't look like an IP Address. Is it a host name?");
+	}
+
+	// gh-15172
+	@Test
+	public void numericDomainNameThenIllegalArgumentException() {
+		assertThatException().isThrownBy(() -> new IpAddressMatcher("123.156.7.18.org"))
+			.withMessage("ipAddress 123.156.7.18.org doesn't look like an IP Address. Is it a host name?");
 	}
 
 }
