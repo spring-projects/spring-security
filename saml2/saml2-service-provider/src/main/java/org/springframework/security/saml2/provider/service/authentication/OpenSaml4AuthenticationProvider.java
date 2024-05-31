@@ -47,6 +47,7 @@ import org.opensaml.core.xml.schema.XSDateTime;
 import org.opensaml.core.xml.schema.XSInteger;
 import org.opensaml.core.xml.schema.XSString;
 import org.opensaml.core.xml.schema.XSURI;
+import org.opensaml.saml.common.assertion.AssertionValidationException;
 import org.opensaml.saml.common.assertion.ValidationContext;
 import org.opensaml.saml.common.assertion.ValidationResult;
 import org.opensaml.saml.saml2.assertion.ConditionValidator;
@@ -858,6 +859,12 @@ public final class OpenSaml4AuthenticationProvider implements AuthenticationProv
 		static SAML20AssertionValidator createSignatureValidator(SignatureTrustEngine engine) {
 			return new SAML20AssertionValidator(new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), null, engine,
 					validator) {
+				@Nonnull
+				@Override
+				protected ValidationResult validateBasicData(@Nonnull Assertion assertion, @Nonnull ValidationContext context) throws AssertionValidationException {
+					return ValidationResult.VALID;
+				}
+
 				@Nonnull
 				@Override
 				protected ValidationResult validateConditions(Assertion assertion, ValidationContext context) {
