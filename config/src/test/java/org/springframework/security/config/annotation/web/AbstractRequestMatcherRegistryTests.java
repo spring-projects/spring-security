@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -381,11 +381,13 @@ public class AbstractRequestMatcherRegistryTests {
 			return requestMatchers;
 		}
 
-		private static List<RequestMatcher> unwrap(List<RequestMatcher> wrappedMatchers) {
+		private List<RequestMatcher> unwrap(List<RequestMatcher> wrappedMatchers) {
 			List<RequestMatcher> requestMatchers = new ArrayList<>();
 			for (RequestMatcher requestMatcher : wrappedMatchers) {
-				if (requestMatcher instanceof AbstractRequestMatcherRegistry.DeferredRequestMatcher) {
-					requestMatchers.add(((DeferredRequestMatcher) requestMatcher).requestMatcher);
+				if (requestMatcher instanceof DeferredRequestMatcher) {
+					DeferredRequestMatcher deferred = (DeferredRequestMatcher) requestMatcher;
+					WebApplicationContext web = (WebApplicationContext) getApplicationContext();
+					requestMatchers.add(deferred.requestMatcher(web.getServletContext()));
 				}
 				else {
 					requestMatchers.add(requestMatcher);
