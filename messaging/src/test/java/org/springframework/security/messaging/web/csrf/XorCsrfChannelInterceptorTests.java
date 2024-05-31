@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package org.springframework.security.messaging.web.csrf;
 
+import java.util.Base64;
 import java.util.HashMap;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -139,6 +140,73 @@ public class XorCsrfChannelInterceptorTests {
 	public void preSendWhenUnsubscribeThenIgnores() {
 		this.messageHeaders = SimpMessageHeaderAccessor.create(SimpMessageType.UNSUBSCRIBE);
 		this.interceptor.preSend(message(), this.channel);
+	}
+
+	// gh-13310, gh-15184
+	@Test
+	public void preSendWhenCsrfBytesIsShorterThanRandomBytesThenThrowsInvalidCsrfTokenException() {
+		/*
+		 * Token format: 3 random pad bytes + 2 padded bytes.
+		 */
+		byte[] actualBytes = { 1, 1, 1, 96, 99 };
+		String actualToken = Base64.getEncoder().encodeToString(actualBytes);
+		this.messageHeaders.setNativeHeader(this.token.getHeaderName(), actualToken);
+		this.messageHeaders.getSessionAttributes().put(CsrfToken.class.getName(), this.token);
+		// @formatter:off
+		assertThatExceptionOfType(InvalidCsrfTokenException.class)
+				.isThrownBy(() -> this.interceptor.preSend(message(), mock(MessageChannel.class)));
+		// @formatter:on
+	}
+
+	// gh-13310, gh-15184
+	@Test
+	public void preSendWhenCsrfBytesIsLongerThanRandomBytesThenThrowsInvalidCsrfTokenException() {
+		/*
+		 * Token format: 3 random pad bytes + 4 padded bytes.
+		 */
+		byte[] actualBytes = { 1, 1, 1, 96, 99, 98, 97 };
+		String actualToken = Base64.getEncoder().encodeToString(actualBytes);
+		this.messageHeaders.setNativeHeader(this.token.getHeaderName(), actualToken);
+		this.messageHeaders.getSessionAttributes().put(CsrfToken.class.getName(), this.token);
+		// @formatter:off
+		assertThatExceptionOfType(InvalidCsrfTokenException.class)
+				.isThrownBy(() -> this.interceptor.preSend(message(), mock(MessageChannel.class)));
+		// @formatter:on
+	}
+
+	// gh-13310, gh-15184
+	@Test
+	public void preSendWhenTokenBytesIsShorterThanActualBytesThenThrowsInvalidCsrfTokenException() {
+		this.messageHeaders.setNativeHeader(this.token.getHeaderName(), XOR_CSRF_TOKEN_VALUE);
+		CsrfToken csrfToken = new DefaultCsrfToken("header", "param", "a");
+		this.messageHeaders.getSessionAttributes().put(CsrfToken.class.getName(), csrfToken);
+		// @formatter:off
+		assertThatExceptionOfType(InvalidCsrfTokenException.class)
+				.isThrownBy(() -> this.interceptor.preSend(message(), mock(MessageChannel.class)));
+		// @formatter:on
+	}
+
+	// gh-13310, gh-15184
+	@Test
+	public void preSendWhenTokenBytesIsLongerThanActualBytesThenThrowsInvalidCsrfTokenException() {
+		this.messageHeaders.setNativeHeader(this.token.getHeaderName(), XOR_CSRF_TOKEN_VALUE);
+		CsrfToken csrfToken = new DefaultCsrfToken("header", "param", "abcde");
+		this.messageHeaders.getSessionAttributes().put(CsrfToken.class.getName(), csrfToken);
+		// @formatter:off
+		assertThatExceptionOfType(InvalidCsrfTokenException.class)
+				.isThrownBy(() -> this.interceptor.preSend(message(), mock(MessageChannel.class)));
+		// @formatter:on
+	}
+
+	// gh-13310, gh-15184
+	@Test
+	public void preSendWhenActualBytesIsEmptyThenThrowsInvalidCsrfTokenException() {
+		this.messageHeaders.setNativeHeader(this.token.getHeaderName(), "");
+		this.messageHeaders.getSessionAttributes().put(CsrfToken.class.getName(), this.token);
+		// @formatter:off
+		assertThatExceptionOfType(InvalidCsrfTokenException.class)
+				.isThrownBy(() -> this.interceptor.preSend(message(), mock(MessageChannel.class)));
+		// @formatter:on
 	}
 
 	private Message<String> message() {
