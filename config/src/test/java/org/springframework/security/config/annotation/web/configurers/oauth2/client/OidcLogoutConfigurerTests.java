@@ -73,6 +73,8 @@ import org.springframework.security.oauth2.client.registration.TestClientRegistr
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.TestOidcIdTokens;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
+import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
+import org.springframework.security.oauth2.jwt.JwsHeader;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
@@ -513,8 +515,9 @@ public class OidcLogoutConfigurerTests {
 		String logoutToken(@AuthenticationPrincipal OidcUser user) {
 			OidcLogoutToken token = TestOidcLogoutTokens.withUser(user)
 					.audience(List.of(this.registration.getClientId())).build();
-			JwtEncoderParameters parameters = JwtEncoderParameters
-					.from(JwtClaimsSet.builder().claims((claims) -> claims.putAll(token.getClaims())).build());
+			JwsHeader header = JwsHeader.with(SignatureAlgorithm.RS256).type("logout+jwt").build();
+			JwtClaimsSet claims = JwtClaimsSet.builder().claims((c) -> c.putAll(token.getClaims())).build();
+			JwtEncoderParameters parameters = JwtEncoderParameters.from(header, claims);
 			return this.encoder.encode(parameters).getTokenValue();
 		}
 
@@ -523,8 +526,9 @@ public class OidcLogoutConfigurerTests {
 			OidcLogoutToken token = TestOidcLogoutTokens.withUser(user)
 					.audience(List.of(this.registration.getClientId()))
 					.claims((claims) -> claims.remove(LogoutTokenClaimNames.SID)).build();
-			JwtEncoderParameters parameters = JwtEncoderParameters
-					.from(JwtClaimsSet.builder().claims((claims) -> claims.putAll(token.getClaims())).build());
+			JwsHeader header = JwsHeader.with(SignatureAlgorithm.RS256).type("JWT").build();
+			JwtClaimsSet claims = JwtClaimsSet.builder().claims((c) -> c.putAll(token.getClaims())).build();
+			JwtEncoderParameters parameters = JwtEncoderParameters.from(header, claims);
 			return this.encoder.encode(parameters).getTokenValue();
 		}
 	}
