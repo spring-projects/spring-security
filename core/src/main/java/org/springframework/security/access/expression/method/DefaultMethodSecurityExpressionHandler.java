@@ -158,10 +158,10 @@ public class DefaultMethodSecurityExpressionHandler extends AbstractSecurityExpr
 			filterTarget.addAll(retain);
 			return filterTarget;
 		}
-		catch (UnsupportedOperationException unsupportedOperationException) {
-			this.logger.debug(LogMessage.format(
+		catch (UnsupportedOperationException readonly) {
+			this.logger.trace(LogMessage.format(
 					"Collection threw exception: %s. Will return a new instance instead of mutating its state.",
-					unsupportedOperationException.getMessage()));
+					readonly.getMessage()));
 			return retain;
 		}
 	}
@@ -204,10 +204,10 @@ public class DefaultMethodSecurityExpressionHandler extends AbstractSecurityExpr
 			filterTarget.putAll(retain);
 			return filterTarget;
 		}
-		catch (UnsupportedOperationException unsupportedOperationException) {
-			this.logger.debug(LogMessage.format(
+		catch (UnsupportedOperationException readonly) {
+			this.logger.trace(LogMessage.format(
 					"Map threw exception: %s. Will return a new instance instead of mutating its state.",
-					unsupportedOperationException.getMessage()));
+					readonly.getMessage()));
 			return retain;
 		}
 	}
