@@ -847,6 +847,20 @@ public class OpenSaml4AuthenticationProviderTests {
 		provider.authenticate(token);
 	}
 
+	// gh-15022
+	@Test
+	public void authenticateWhenClockSkewThenVerifiesSignature() {
+		OpenSaml4AuthenticationProvider provider = new OpenSaml4AuthenticationProvider();
+		provider.setAssertionValidator(OpenSaml4AuthenticationProvider.createDefaultAssertionValidatorWithParameters(
+				(params) -> params.put(SAML2AssertionValidationParameters.CLOCK_SKEW, Duration.ofMinutes(10))));
+		Response response = response();
+		Assertion assertion = assertion();
+		assertion.setIssueInstant(Instant.now().plus(Duration.ofMinutes(9)));
+		response.getAssertions().add(assertion);
+		Saml2AuthenticationToken token = token(signed(response), verifying(registration()));
+		provider.authenticate(token);
+	}
+
 	private <T extends XMLObject> T build(QName qName) {
 		return (T) XMLObjectProviderRegistrySupport.getBuilderFactory().getBuilder(qName).buildObject(qName);
 	}
