@@ -861,7 +861,8 @@ public final class OpenSaml4AuthenticationProvider implements AuthenticationProv
 					validator) {
 				@Nonnull
 				@Override
-				protected ValidationResult validateBasicData(@Nonnull Assertion assertion, @Nonnull ValidationContext context) throws AssertionValidationException {
+				protected ValidationResult validateBasicData(@Nonnull Assertion assertion,
+						@Nonnull ValidationContext context) throws AssertionValidationException {
 					return ValidationResult.VALID;
 				}
 
