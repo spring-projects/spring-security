@@ -26,6 +26,8 @@ import java.util.function.Consumer;
 import javax.xml.namespace.QName;
 
 import net.shibboleth.utilities.java.support.xml.SerializeSupport;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.opensaml.core.xml.XMLObjectBuilder;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
 import org.opensaml.saml.common.xml.SAMLConstants;
@@ -64,6 +66,8 @@ public final class OpenSamlMetadataResolver implements Saml2MetadataResolver {
 	static {
 		OpenSamlInitializationService.initialize();
 	}
+
+	private final Log logger = LogFactory.getLog(this.getClass());
 
 	private final EntityDescriptorMarshaller entityDescriptorMarshaller;
 
@@ -115,6 +119,9 @@ public final class OpenSamlMetadataResolver implements Saml2MetadataResolver {
 		this.entityDescriptorCustomizer.accept(new EntityDescriptorParameters(entityDescriptor, registration));
 		if (this.signMetadata) {
 			return OpenSamlSigningUtils.sign(entityDescriptor, registration);
+		}
+		else {
+			this.logger.trace("Did not sign metadata since `signMetadata` is `false`");
 		}
 		return entityDescriptor;
 	}
