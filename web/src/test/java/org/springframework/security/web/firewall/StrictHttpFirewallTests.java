@@ -18,8 +18,10 @@ package org.springframework.security.web.firewall;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.http.HttpMethod;
@@ -31,6 +33,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 /**
  * @author Rob Winch
  * @author Eddú Meléndez
+ * @author Jinwoo Bae
  */
 public class StrictHttpFirewallTests {
 
@@ -40,6 +43,19 @@ public class StrictHttpFirewallTests {
 	private StrictHttpFirewall firewall = new StrictHttpFirewall();
 
 	private MockHttpServletRequest request = new MockHttpServletRequest("GET", "");
+
+	private static final Pattern ASSIGNED_AND_NOT_ISO_CONTROL_PATTERN = Pattern
+		.compile("[\\p{IsAssigned}&&[^\\p{IsControl}]]*");
+
+	private static final Pattern HEADER_VALUE_PATTERN = Pattern.compile("[\\p{IsAssigned}&&[[^\\p{IsControl}]||\\t]]*");
+
+	@BeforeEach
+	public void initializeFirewall() {
+		StrictHttpFirewall.ALLOWED_HEADER_NAMES = (s) -> ASSIGNED_AND_NOT_ISO_CONTROL_PATTERN.matcher(s).matches();
+		StrictHttpFirewall.ALLOWED_HEADER_VALUES = (s) -> HEADER_VALUE_PATTERN.matcher(s).matches();
+		StrictHttpFirewall.ALLOWED_PARAMETER_NAMES = (s) -> ASSIGNED_AND_NOT_ISO_CONTROL_PATTERN.matcher(s).matches();
+		StrictHttpFirewall.ALLOWED_PARAMETER_VALUES = (value) -> true;
+	}
 
 	@Test
 	public void getFirewalledRequestWhenInvalidMethodThenThrowsRequestRejectedException() {
@@ -724,11 +740,38 @@ public class StrictHttpFirewallTests {
 	}
 
 	@Test
+	public void getFirewalledRequestGetHeaderWhenSetNotAllowedHeaderNamesThenException() {
+		this.firewall.setAllowedHeaderNames((name) -> !name.equals("bad name"));
+		this.firewall
+			.setAllowedHeaderNames(this.firewall.ALLOWED_HEADER_NAMES.and((name) -> !name.equals("worst name")));
+
+		HttpServletRequest request = this.firewall.getFirewalledRequest(this.request);
+
+		assertThatExceptionOfType(RequestRejectedException.class).isThrownBy(() -> request.getHeader("bad name"));
+		assertThatExceptionOfType(RequestRejectedException.class).isThrownBy(() -> request.getHeader("worst name"));
+	}
+
+	@Test
 	public void getFirewalledRequestGetHeaderWhenNotAllowedHeaderValueThenException() {
 		this.request.addHeader("good name", "bad value");
 		this.firewall.setAllowedHeaderValues((value) -> !value.equals("bad value"));
 		HttpServletRequest request = this.firewall.getFirewalledRequest(this.request);
 		assertThatExceptionOfType(RequestRejectedException.class).isThrownBy(() -> request.getHeader("good name"));
+	}
+
+	@Test
+	public void getFirewalledRequestGetHeaderWhenSetNotAllowedHeaderValuesThenException() {
+		this.request.addHeader("good name", "bad value");
+		this.request.addHeader("best name", "worst value");
+
+		this.firewall.setAllowedHeaderValues((value) -> !value.equals("bad value"));
+		this.firewall
+			.setAllowedHeaderValues(this.firewall.ALLOWED_HEADER_VALUES.and((value) -> !value.equals("worst value")));
+
+		HttpServletRequest request = this.firewall.getFirewalledRequest(this.request);
+
+		assertThatExceptionOfType(RequestRejectedException.class).isThrownBy(() -> request.getHeader("good name"));
+		assertThatExceptionOfType(RequestRejectedException.class).isThrownBy(() -> request.getHeader("best name"));
 	}
 
 	@Test
@@ -841,12 +884,45 @@ public class StrictHttpFirewallTests {
 	}
 
 	@Test
+	public void getFirewalledRequestGetParameterValuesWhenSetNotAllowedInParameterValueThenException() {
+		this.request.addParameter("Something", "bad value");
+		this.request.addParameter("Item", "worst value");
+
+		this.firewall.setAllowedParameterValues((value) -> !value.equals("bad value"));
+		this.firewall.setAllowedParameterValues(
+				this.firewall.ALLOWED_PARAMETER_VALUES.and((value) -> !value.equals("worst value")));
+
+		HttpServletRequest request = this.firewall.getFirewalledRequest(this.request);
+
+		assertThatExceptionOfType(RequestRejectedException.class)
+			.isThrownBy(() -> request.getParameterValues("Something"));
+		assertThatExceptionOfType(RequestRejectedException.class).isThrownBy(() -> request.getParameterValues("Item"));
+	}
+
+	@Test
 	public void getFirewalledRequestGetParameterValuesWhenNotAllowedInParameterNameThenException() {
 		this.firewall.setAllowedParameterNames((value) -> !value.equals("bad name"));
 		this.request.addParameter("bad name", "good value");
 		HttpServletRequest request = this.firewall.getFirewalledRequest(this.request);
 		assertThatExceptionOfType(RequestRejectedException.class)
 			.isThrownBy(() -> request.getParameterValues("bad name"));
+	}
+
+	@Test
+	public void getFirewalledRequestGetParameterValuesWhenSetNotAllowedInParameterNameThenException() {
+		this.request.addParameter("bad name", "good value");
+		this.request.addParameter("worst name", "best value");
+
+		this.firewall.setAllowedParameterNames((value) -> !value.equals("bad name"));
+		this.firewall.setAllowedParameterNames(
+				this.firewall.ALLOWED_PARAMETER_NAMES.and((value) -> !value.equals("worst name")));
+
+		HttpServletRequest request = this.firewall.getFirewalledRequest(this.request);
+
+		assertThatExceptionOfType(RequestRejectedException.class)
+			.isThrownBy(() -> request.getParameterValues("bad name"));
+		assertThatExceptionOfType(RequestRejectedException.class)
+			.isThrownBy(() -> request.getParameterValues("worst name"));
 	}
 
 	// gh-9598

@@ -75,6 +75,7 @@ import org.springframework.util.Assert;
  *
  * @author Rob Winch
  * @author Eddú Meléndez
+ * @author Jinwoo Bae
  * @since 4.2.4
  * @see DefaultHttpFirewall
  */
@@ -134,13 +135,13 @@ public class StrictHttpFirewall implements HttpFirewall {
 
 	private static final Predicate<String> HEADER_VALUE_PREDICATE = (s) -> HEADER_VALUE_PATTERN.matcher(s).matches();
 
-	private Predicate<String> allowedHeaderNames = ASSIGNED_AND_NOT_ISO_CONTROL_PREDICATE;
+	public static Predicate<String> ALLOWED_HEADER_NAMES = ASSIGNED_AND_NOT_ISO_CONTROL_PREDICATE;
 
-	private Predicate<String> allowedHeaderValues = HEADER_VALUE_PREDICATE;
+	public static Predicate<String> ALLOWED_HEADER_VALUES = HEADER_VALUE_PREDICATE;
 
-	private Predicate<String> allowedParameterNames = ASSIGNED_AND_NOT_ISO_CONTROL_PREDICATE;
+	public static Predicate<String> ALLOWED_PARAMETER_NAMES = ASSIGNED_AND_NOT_ISO_CONTROL_PREDICATE;
 
-	private Predicate<String> allowedParameterValues = (value) -> true;
+	public static Predicate<String> ALLOWED_PARAMETER_VALUES = (value) -> true;
 
 	public StrictHttpFirewall() {
 		urlBlocklistsAddAll(FORBIDDEN_SEMICOLON);
@@ -435,9 +436,9 @@ public class StrictHttpFirewall implements HttpFirewall {
 	 * @see Character#isISOControl(int)
 	 * @see Character#isDefined(int)
 	 */
-	public void setAllowedHeaderNames(Predicate<String> allowedHeaderNames) {
+	public static void setAllowedHeaderNames(Predicate<String> allowedHeaderNames) {
 		Assert.notNull(allowedHeaderNames, "allowedHeaderNames cannot be null");
-		this.allowedHeaderNames = allowedHeaderNames;
+		ALLOWED_HEADER_NAMES = allowedHeaderNames;
 	}
 
 	/**
@@ -450,9 +451,9 @@ public class StrictHttpFirewall implements HttpFirewall {
 	 * @see Character#isISOControl(int)
 	 * @see Character#isDefined(int)
 	 */
-	public void setAllowedHeaderValues(Predicate<String> allowedHeaderValues) {
+	public static void setAllowedHeaderValues(Predicate<String> allowedHeaderValues) {
 		Assert.notNull(allowedHeaderValues, "allowedHeaderValues cannot be null");
-		this.allowedHeaderValues = allowedHeaderValues;
+		ALLOWED_HEADER_VALUES = allowedHeaderValues;
 	}
 
 	/**
@@ -463,9 +464,9 @@ public class StrictHttpFirewall implements HttpFirewall {
 	 * @see Character#isISOControl(int)
 	 * @see Character#isDefined(int)
 	 */
-	public void setAllowedParameterNames(Predicate<String> allowedParameterNames) {
+	public static void setAllowedParameterNames(Predicate<String> allowedParameterNames) {
 		Assert.notNull(allowedParameterNames, "allowedParameterNames cannot be null");
-		this.allowedParameterNames = allowedParameterNames;
+		ALLOWED_PARAMETER_NAMES = allowedParameterNames;
 	}
 
 	/**
@@ -476,9 +477,9 @@ public class StrictHttpFirewall implements HttpFirewall {
 	 * @param allowedParameterValues the predicate for testing parameter values
 	 * @since 5.4
 	 */
-	public void setAllowedParameterValues(Predicate<String> allowedParameterValues) {
+	public static void setAllowedParameterValues(Predicate<String> allowedParameterValues) {
 		Assert.notNull(allowedParameterValues, "allowedParameterValues cannot be null");
-		this.allowedParameterValues = allowedParameterValues;
+		ALLOWED_PARAMETER_VALUES = allowedParameterValues;
 	}
 
 	/**
@@ -826,28 +827,28 @@ public class StrictHttpFirewall implements HttpFirewall {
 		}
 
 		private void validateAllowedHeaderName(String headerNames) {
-			if (!StrictHttpFirewall.this.allowedHeaderNames.test(headerNames)) {
+			if (!StrictHttpFirewall.this.ALLOWED_HEADER_NAMES.test(headerNames)) {
 				throw new RequestRejectedException(
 						"The request was rejected because the header name \"" + headerNames + "\" is not allowed.");
 			}
 		}
 
 		private void validateAllowedHeaderValue(String name, String value) {
-			if (!StrictHttpFirewall.this.allowedHeaderValues.test(value)) {
+			if (!StrictHttpFirewall.this.ALLOWED_HEADER_VALUES.test(value)) {
 				throw new RequestRejectedException("The request was rejected because the header: \"" + name
 						+ " \" has a value \"" + value + "\" that is not allowed.");
 			}
 		}
 
 		private void validateAllowedParameterName(String name) {
-			if (!StrictHttpFirewall.this.allowedParameterNames.test(name)) {
+			if (!StrictHttpFirewall.this.ALLOWED_PARAMETER_NAMES.test(name)) {
 				throw new RequestRejectedException(
 						"The request was rejected because the parameter name \"" + name + "\" is not allowed.");
 			}
 		}
 
 		private void validateAllowedParameterValue(String name, String value) {
-			if (!StrictHttpFirewall.this.allowedParameterValues.test(value)) {
+			if (!StrictHttpFirewall.this.ALLOWED_PARAMETER_VALUES.test(value)) {
 				throw new RequestRejectedException("The request was rejected because the parameter: \"" + name
 						+ " \" has a value \"" + value + "\" that is not allowed.");
 			}
