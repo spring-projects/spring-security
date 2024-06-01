@@ -31,6 +31,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 /**
  * @author Rob Winch
  * @author Eddú Meléndez
+ * @author Jinwoo Bae
  */
 public class StrictHttpFirewallTests {
 
@@ -724,9 +725,26 @@ public class StrictHttpFirewallTests {
 	}
 
 	@Test
+	public void getFirewalledRequestWhenHeaderNameNotAllowedWithAugmentedHeaderNamesThenException() {
+		this.firewall
+			.setAllowedHeaderNames(StrictHttpFirewall.ALLOWED_HEADER_NAMES.and((name) -> !name.equals("bad name")));
+		HttpServletRequest request = this.firewall.getFirewalledRequest(this.request);
+		assertThatExceptionOfType(RequestRejectedException.class).isThrownBy(() -> request.getHeader("bad name"));
+	}
+
+	@Test
 	public void getFirewalledRequestGetHeaderWhenNotAllowedHeaderValueThenException() {
 		this.request.addHeader("good name", "bad value");
 		this.firewall.setAllowedHeaderValues((value) -> !value.equals("bad value"));
+		HttpServletRequest request = this.firewall.getFirewalledRequest(this.request);
+		assertThatExceptionOfType(RequestRejectedException.class).isThrownBy(() -> request.getHeader("good name"));
+	}
+
+	@Test
+	public void getFirewalledRequestWhenHeaderValueNotAllowedWithAugmentedHeaderValuesThenException() {
+		this.request.addHeader("good name", "bad value");
+		this.firewall.setAllowedHeaderValues(
+				StrictHttpFirewall.ALLOWED_HEADER_VALUES.and((value) -> !value.equals("bad value")));
 		HttpServletRequest request = this.firewall.getFirewalledRequest(this.request);
 		assertThatExceptionOfType(RequestRejectedException.class).isThrownBy(() -> request.getHeader("good name"));
 	}
@@ -841,9 +859,29 @@ public class StrictHttpFirewallTests {
 	}
 
 	@Test
+	public void getFirewalledRequestWhenParameterValueNotAllowedWithAugmentedParameterValuesThenException() {
+		this.request.addParameter("Something", "bad value");
+		this.firewall.setAllowedParameterValues(
+				StrictHttpFirewall.ALLOWED_PARAMETER_VALUES.and((value) -> !value.equals("bad value")));
+		HttpServletRequest request = this.firewall.getFirewalledRequest(this.request);
+		assertThatExceptionOfType(RequestRejectedException.class)
+			.isThrownBy(() -> request.getParameterValues("Something"));
+	}
+
+	@Test
 	public void getFirewalledRequestGetParameterValuesWhenNotAllowedInParameterNameThenException() {
 		this.firewall.setAllowedParameterNames((value) -> !value.equals("bad name"));
 		this.request.addParameter("bad name", "good value");
+		HttpServletRequest request = this.firewall.getFirewalledRequest(this.request);
+		assertThatExceptionOfType(RequestRejectedException.class)
+			.isThrownBy(() -> request.getParameterValues("bad name"));
+	}
+
+	@Test
+	public void getFirewalledRequestWhenParameterNameNotAllowedWithAugmentedParameterNamesThenException() {
+		this.request.addParameter("bad name", "good value");
+		this.firewall.setAllowedParameterNames(
+				StrictHttpFirewall.ALLOWED_PARAMETER_NAMES.and((value) -> !value.equals("bad name")));
 		HttpServletRequest request = this.firewall.getFirewalledRequest(this.request);
 		assertThatExceptionOfType(RequestRejectedException.class)
 			.isThrownBy(() -> request.getParameterValues("bad name"));
