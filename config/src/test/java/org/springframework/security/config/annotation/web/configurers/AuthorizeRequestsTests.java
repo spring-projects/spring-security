@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -78,7 +78,7 @@ public class AuthorizeRequestsTests {
 	@BeforeEach
 	public void setup() {
 		this.servletContext = spy(MockServletContext.mvc());
-		this.request = new MockHttpServletRequest("GET", "");
+		this.request = new MockHttpServletRequest(this.servletContext, "GET", "");
 		this.request.setMethod("GET");
 		this.response = new MockHttpServletResponse();
 		this.chain = new MockFilterChain();
