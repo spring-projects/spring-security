@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 
@@ -203,34 +204,13 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 		if (servletContext == null) {
 			return requestMatchers(RequestMatchers.antMatchersAsArray(method, patterns));
 		}
-		boolean isProgrammaticApiAvailable = isProgrammaticApiAvailable(servletContext);
 		List<RequestMatcher> matchers = new ArrayList<>();
 		for (String pattern : patterns) {
 			AntPathRequestMatcher ant = new AntPathRequestMatcher(pattern, (method != null) ? method.name() : null);
 			MvcRequestMatcher mvc = createMvcMatchers(method, pattern).get(0);
-			if (isProgrammaticApiAvailable) {
-				matchers.add(resolve(ant, mvc, servletContext));
-			}
-			else {
-				this.logger
-					.warn("The ServletRegistration API was not available at startup time. This may be due to a misconfiguration; "
-							+ "if you are using AbstractSecurityWebApplicationInitializer, please double-check the recommendations outlined in "
-							+ "https://docs.spring.io/spring-security/reference/servlet/configuration/java.html#abstractsecuritywebapplicationinitializer-with-spring-mvc");
-				matchers.add(new DeferredRequestMatcher((request) -> resolve(ant, mvc, request.getServletContext()),
-						mvc, ant));
-			}
+			matchers.add(new DeferredRequestMatcher((c) -> resolve(ant, mvc, c), mvc, ant));
 		}
 		return requestMatchers(matchers.toArray(new RequestMatcher[0]));
-	}
-
-	private static boolean isProgrammaticApiAvailable(ServletContext servletContext) {
-		try {
-			servletContext.getServletRegistrations();
-			return true;
-		}
-		catch (UnsupportedOperationException ex) {
-			return false;
-		}
 	}
 
 	private RequestMatcher resolve(AntPathRequestMatcher ant, MvcRequestMatcher mvc, ServletContext servletContext) {
@@ -474,34 +454,29 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 
 	static class DeferredRequestMatcher implements RequestMatcher {
 
-		final Function<HttpServletRequest, RequestMatcher> requestMatcherFactory;
+		final Function<ServletContext, RequestMatcher> requestMatcherFactory;
 
 		final AtomicReference<String> description = new AtomicReference<>();
 
-		volatile RequestMatcher requestMatcher;
+		final Map<ServletContext, RequestMatcher> requestMatchers = new ConcurrentHashMap<>();
 
-		DeferredRequestMatcher(Function<HttpServletRequest, RequestMatcher> resolver, RequestMatcher... candidates) {
-			this.requestMatcherFactory = (request) -> {
-				if (this.requestMatcher == null) {
-					synchronized (this) {
-						if (this.requestMatcher == null) {
-							this.requestMatcher = resolver.apply(request);
-						}
-					}
-				}
-				return this.requestMatcher;
-			};
+		DeferredRequestMatcher(Function<ServletContext, RequestMatcher> resolver, RequestMatcher... candidates) {
+			this.requestMatcherFactory = (sc) -> this.requestMatchers.computeIfAbsent(sc, resolver);
 			this.description.set("Deferred " + Arrays.toString(candidates));
+		}
+
+		RequestMatcher requestMatcher(ServletContext servletContext) {
+			return this.requestMatcherFactory.apply(servletContext);
 		}
 
 		@Override
 		public boolean matches(HttpServletRequest request) {
-			return this.requestMatcherFactory.apply(request).matches(request);
+			return this.requestMatcherFactory.apply(request.getServletContext()).matches(request);
 		}
 
 		@Override
 		public MatchResult matcher(HttpServletRequest request) {
-			return this.requestMatcherFactory.apply(request).matcher(request);
+			return this.requestMatcherFactory.apply(request.getServletContext()).matcher(request);
 		}
 
 		@Override
