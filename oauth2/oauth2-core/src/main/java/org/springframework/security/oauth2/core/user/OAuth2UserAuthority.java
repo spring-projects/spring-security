@@ -59,6 +59,7 @@ public class OAuth2UserAuthority implements GrantedAuthority {
 	 * @param attributes the attributes about the user
 	 * @param userNameAttributeName the attribute name used to access the user's name from
 	 * the attributes
+	 * @since 6.4
 	 */
 	public OAuth2UserAuthority(Map<String, Object> attributes, @Nullable String userNameAttributeName) {
 		this("OAUTH2_USER", attributes, userNameAttributeName);
@@ -79,6 +80,7 @@ public class OAuth2UserAuthority implements GrantedAuthority {
 	 * @param attributes the attributes about the user
 	 * @param userNameAttributeName the attribute name used to access the user's name from
 	 * the attributes
+	 * @since 6.4
 	 */
 	public OAuth2UserAuthority(String authority, Map<String, Object> attributes, String userNameAttributeName) {
 		Assert.hasText(authority, "authority cannot be empty");
@@ -104,6 +106,7 @@ public class OAuth2UserAuthority implements GrantedAuthority {
 	/**
 	 * Returns the attribute name used to access the user's name from the attributes.
 	 * @return the attribute name used to access the user's name from the attributes
+	 * @since 6.4
 	 */
 	@Nullable
 	public String getUserNameAttributeName() {

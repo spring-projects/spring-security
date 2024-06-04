@@ -67,6 +67,7 @@ public class OidcUserAuthority extends OAuth2UserAuthority {
 	 * may be {@code null}
 	 * @param userNameAttributeName the attribute name used to access the user's name from
 	 * the attributes
+	 * @since 6.4
 	 */
 	public OidcUserAuthority(OidcIdToken idToken, OidcUserInfo userInfo, @Nullable String userNameAttributeName) {
 		this("OIDC_USER", idToken, userInfo, userNameAttributeName);
@@ -91,6 +92,7 @@ public class OidcUserAuthority extends OAuth2UserAuthority {
 	 * may be {@code null}
 	 * @param userNameAttributeName the attribute name used to access the user's name from
 	 * the attributes
+	 * @since 6.4
 	 */
 	public OidcUserAuthority(String authority, OidcIdToken idToken, OidcUserInfo userInfo,
 			@Nullable String userNameAttributeName) {
