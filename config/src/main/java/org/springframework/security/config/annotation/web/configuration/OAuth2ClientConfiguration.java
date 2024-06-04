@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,6 @@ import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.ObjectProvider;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
@@ -118,11 +117,19 @@ final class OAuth2ClientConfiguration {
 	@Configuration(proxyBeanMethods = false)
 	static class OAuth2ClientWebMvcSecurityConfiguration implements WebMvcConfigurer {
 
-		private OAuth2AuthorizedClientManager authorizedClientManager;
+		private final OAuth2AuthorizedClientManager authorizedClientManager;
 
-		private SecurityContextHolderStrategy securityContextHolderStrategy;
+		private final ObjectProvider<SecurityContextHolderStrategy> securityContextHolderStrategy;
 
-		private OAuth2AuthorizedClientManagerRegistrar authorizedClientManagerRegistrar;
+		private final OAuth2AuthorizedClientManagerRegistrar authorizedClientManagerRegistrar;
+
+		OAuth2ClientWebMvcSecurityConfiguration(ObjectProvider<OAuth2AuthorizedClientManager> authorizedClientManager,
+				ObjectProvider<SecurityContextHolderStrategy> securityContextHolderStrategy,
+				OAuth2AuthorizedClientManagerRegistrar authorizedClientManagerRegistrar) {
+			this.authorizedClientManager = authorizedClientManager.getIfUnique();
+			this.securityContextHolderStrategy = securityContextHolderStrategy;
+			this.authorizedClientManagerRegistrar = authorizedClientManagerRegistrar;
+		}
 
 		@Override
 		public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
@@ -130,29 +137,9 @@ final class OAuth2ClientConfiguration {
 			if (authorizedClientManager != null) {
 				OAuth2AuthorizedClientArgumentResolver resolver = new OAuth2AuthorizedClientArgumentResolver(
 						authorizedClientManager);
-				if (this.securityContextHolderStrategy != null) {
-					resolver.setSecurityContextHolderStrategy(this.securityContextHolderStrategy);
-				}
+				this.securityContextHolderStrategy.ifAvailable(resolver::setSecurityContextHolderStrategy);
 				argumentResolvers.add(resolver);
 			}
-		}
-
-		@Autowired(required = false)
-		void setAuthorizedClientManager(List<OAuth2AuthorizedClientManager> authorizedClientManagers) {
-			if (authorizedClientManagers.size() == 1) {
-				this.authorizedClientManager = authorizedClientManagers.get(0);
-			}
-		}
-
-		@Autowired(required = false)
-		void setSecurityContextHolderStrategy(SecurityContextHolderStrategy strategy) {
-			this.securityContextHolderStrategy = strategy;
-		}
-
-		@Autowired
-		void setAuthorizedClientManagerRegistrar(
-				OAuth2AuthorizedClientManagerRegistrar authorizedClientManagerRegistrar) {
-			this.authorizedClientManagerRegistrar = authorizedClientManagerRegistrar;
 		}
 
 		private OAuth2AuthorizedClientManager getAuthorizedClientManager() {
