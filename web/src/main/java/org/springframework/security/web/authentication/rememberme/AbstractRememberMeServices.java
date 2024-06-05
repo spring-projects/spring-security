@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.function.Consumer;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -96,6 +97,9 @@ public abstract class AbstractRememberMeServices
 	private Boolean useSecureCookie = null;
 
 	private GrantedAuthoritiesMapper authoritiesMapper = new NullAuthoritiesMapper();
+
+	private Consumer<Cookie> cookieCustomizer = (cookie) -> {
+	};
 
 	protected AbstractRememberMeServices(String key, UserDetailsService userDetailsService) {
 		Assert.hasLength(key, "key cannot be empty or null");
@@ -373,6 +377,9 @@ public abstract class AbstractRememberMeServices
 		}
 		cookie.setSecure((this.useSecureCookie != null) ? this.useSecureCookie : request.isSecure());
 		cookie.setHttpOnly(true);
+
+		this.cookieCustomizer.accept(cookie);
+
 		response.addCookie(cookie);
 	}
 
@@ -490,6 +497,16 @@ public abstract class AbstractRememberMeServices
 	public void setMessageSource(MessageSource messageSource) {
 		Assert.notNull(messageSource, "messageSource cannot be null");
 		this.messages = new MessageSourceAccessor(messageSource);
+	}
+
+	/**
+	 * Sets the {@link Consumer}, allowing customization of cookie.
+	 * @param cookieCustomizer customize for cookie
+	 * @since 6.4
+	 */
+	public void setCookieCustomizer(Consumer<Cookie> cookieCustomizer) {
+		Assert.notNull(cookieCustomizer, "cookieCustomizer cannot be null");
+		this.cookieCustomizer = cookieCustomizer;
 	}
 
 }
