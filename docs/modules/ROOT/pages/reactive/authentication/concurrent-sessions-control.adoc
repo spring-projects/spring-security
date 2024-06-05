@@ -188,6 +188,12 @@ open fun reactiveSessionRegistry(): ReactiveSessionRegistry {
 When the maximum number of sessions is exceeded, by default, the least recently used session(s) will be expired.
 If you want to change that behavior, you can <<concurrent-sessions-control-custom-strategy,customize the strategy used when the maximum number of sessions is exceeded>>.
 
+[IMPORTANT]
+====
+The Concurrent Session Management is not aware if there is another session in some Identity Provider that you might use via xref:reactive/oauth2/login/index.adoc[OAuth 2 Login] for example.
+If you also need to invalidate the session against the Identity Provider you must <<concurrent-sessions-control-custom-strategy,include your own implementation of `ServerMaximumSessionsExceededHandler`>>.
+====
+
 [[concurrent-sessions-control-custom-strategy]]
 == Handling Maximum Number of Sessions Exceeded
 
