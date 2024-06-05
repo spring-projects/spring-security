@@ -18,7 +18,7 @@ package org.springframework.security.oauth2.jwt;
 
 /**
  * Implementations of this interface are responsible for &quot;decoding&quot; a JSON Web
- * Token (JWT) from it's compact claims representation format to a {@link Jwt}.
+ * Token (JWT) from its compact claims representation format to a {@link Jwt}.
  *
  * <p>
  * JWTs may be represented using the JWS Compact Serialization format for a JSON Web
