@@ -21,6 +21,7 @@
 		<property name="avoidStaticImportExcludes" value="org.springframework.security.web.util.matcher.AntPathRequestMatcher.*" />
 		<property name="avoidStaticImportExcludes" value="org.springframework.security.web.util.matcher.RegexRequestMatcher.*" />
 		<property name="avoidStaticImportExcludes" value="org.springframework.core.annotation.MergedAnnotations.SearchStrategy.*" />
+		<property name="avoidStaticImportExcludes" value="org.assertj.core.api.InstanceOfAssertFactories.*"/>
 	</module>
 	<module name="com.puppycrawl.tools.checkstyle.TreeWalker">
  		<module name="com.puppycrawl.tools.checkstyle.checks.regexp.RegexpSinglelineJavaCheck">

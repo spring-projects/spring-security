@@ -26,27 +26,35 @@ import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.config.MockServletContext;
 import org.springframework.security.config.TestMockHttpServletMappings;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.web.AbstractRequestMatcherRegistry.DispatcherServletDelegatingRequestMatcher;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.DispatcherTypeRequestMatcher;
 import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.DispatcherServlet;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.InstanceOfAssertFactories.type;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 /**
  * Tests for {@link AbstractRequestMatcherRegistry}.
@@ -167,18 +175,65 @@ public class AbstractRequestMatcherRegistryTests {
 		mockMvcIntrospector(true);
 		MockServletContext servletContext = new MockServletContext();
 		given(this.context.getServletContext()).willReturn(servletContext);
-		servletContext.addServlet("servletOne", Servlet.class).addMapping("/one");
-		servletContext.addServlet("servletTwo", Servlet.class).addMapping("/two");
+		MockHttpServletRequest request = new MockHttpServletRequest();
 		List<RequestMatcher> requestMatchers = this.matcherRegistry.requestMatchers("/**");
 		assertThat(requestMatchers).isNotEmpty();
 		assertThat(requestMatchers).hasSize(1);
-		assertThat(requestMatchers.get(0)).isExactlyInstanceOf(AntPathRequestMatcher.class);
+		assertThat(requestMatchers.get(0)).asInstanceOf(type(DispatcherServletDelegatingRequestMatcher.class))
+			.extracting((matcher) -> matcher.requestMatcher(request))
+			.isInstanceOf(AntPathRequestMatcher.class);
+		servletContext.addServlet("servletOne", Servlet.class).addMapping("/one");
+		servletContext.addServlet("servletTwo", Servlet.class).addMapping("/two");
+		requestMatchers = this.matcherRegistry.requestMatchers("/**");
+		assertThat(requestMatchers).isNotEmpty();
+		assertThat(requestMatchers).hasSize(1);
+		assertThat(requestMatchers.get(0)).asInstanceOf(type(DispatcherServletDelegatingRequestMatcher.class))
+			.extracting((matcher) -> matcher.requestMatcher(request))
+			.isInstanceOf(AntPathRequestMatcher.class);
 		servletContext.addServlet("servletOne", Servlet.class);
 		servletContext.addServlet("servletTwo", Servlet.class);
 		requestMatchers = this.matcherRegistry.requestMatchers("/**");
 		assertThat(requestMatchers).isNotEmpty();
 		assertThat(requestMatchers).hasSize(1);
-		assertThat(requestMatchers.get(0)).isExactlyInstanceOf(AntPathRequestMatcher.class);
+		assertThat(requestMatchers.get(0)).asInstanceOf(type(DispatcherServletDelegatingRequestMatcher.class))
+			.extracting((matcher) -> matcher.requestMatcher(request))
+			.isInstanceOf(AntPathRequestMatcher.class);
+	}
+
+	// gh-14418
+	@Test
+	public void requestMatchersWhenNoDispatcherServletMockMvcThenMvcRequestMatcherType() throws Exception {
+		MockServletContext servletContext = new MockServletContext();
+		try (SpringTestContext spring = new SpringTestContext(this)) {
+			spring.register(MockMvcConfiguration.class)
+				.postProcessor((context) -> context.setServletContext(servletContext))
+				.autowire();
+			this.matcherRegistry.setApplicationContext(spring.getContext());
+			MockMvc mvc = MockMvcBuilders.webAppContextSetup(spring.getContext()).build();
+			MockHttpServletRequest request = mvc.perform(get("/")).andReturn().getRequest();
+			List<RequestMatcher> requestMatchers = this.matcherRegistry.requestMatchers("/**");
+			assertThat(requestMatchers).isNotEmpty();
+			assertThat(requestMatchers).hasSize(1);
+			assertThat(requestMatchers.get(0)).asInstanceOf(type(DispatcherServletDelegatingRequestMatcher.class))
+				.extracting((matcher) -> matcher.requestMatcher(request))
+				.isInstanceOf(MvcRequestMatcher.class);
+			servletContext.addServlet("servletOne", Servlet.class).addMapping("/one");
+			servletContext.addServlet("servletTwo", Servlet.class).addMapping("/two");
+			requestMatchers = this.matcherRegistry.requestMatchers("/**");
+			assertThat(requestMatchers).isNotEmpty();
+			assertThat(requestMatchers).hasSize(1);
+			assertThat(requestMatchers.get(0)).asInstanceOf(type(DispatcherServletDelegatingRequestMatcher.class))
+				.extracting((matcher) -> matcher.requestMatcher(request))
+				.isInstanceOf(MvcRequestMatcher.class);
+			servletContext.addServlet("servletOne", Servlet.class);
+			servletContext.addServlet("servletTwo", Servlet.class);
+			requestMatchers = this.matcherRegistry.requestMatchers("/**");
+			assertThat(requestMatchers).isNotEmpty();
+			assertThat(requestMatchers).hasSize(1);
+			assertThat(requestMatchers.get(0)).asInstanceOf(type(DispatcherServletDelegatingRequestMatcher.class))
+				.extracting((matcher) -> matcher.requestMatcher(request))
+				.isInstanceOf(MvcRequestMatcher.class);
+		}
 	}
 
 	@Test
@@ -317,6 +372,13 @@ public class AbstractRequestMatcherRegistryTests {
 			}
 			return requestMatchers;
 		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	@EnableWebMvc
+	static class MockMvcConfiguration {
 
 	}
 
