@@ -77,6 +77,7 @@ class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecu
     private val HANDLER_MAPPING_INTROSPECTOR = "org.springframework.web.servlet.handler.HandlerMappingIntrospector"
 
     var authenticationManager: AuthenticationManager? = null
+    val context: ApplicationContext = http.getSharedObject(ApplicationContext::class.java)
 
     /**
      * Applies a [SecurityConfigurerAdapter] to this [HttpSecurity]
@@ -298,7 +299,7 @@ class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecu
      * @since 5.7
      */
     fun authorizeHttpRequests(authorizeHttpRequestsConfiguration: AuthorizeHttpRequestsDsl.() -> Unit) {
-        val authorizeHttpRequestsCustomizer = AuthorizeHttpRequestsDsl().apply(authorizeHttpRequestsConfiguration).get()
+        val authorizeHttpRequestsCustomizer = AuthorizeHttpRequestsDsl(this.context).apply(authorizeHttpRequestsConfiguration).get()
         this.http.authorizeHttpRequests(authorizeHttpRequestsCustomizer)
     }
 

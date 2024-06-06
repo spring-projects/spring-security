@@ -16,7 +16,8 @@
 
 package org.springframework.security.config.annotation.web
 
-import org.assertj.core.api.Assertions.*
+import jakarta.servlet.DispatcherType
+import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.UnsatisfiedDependencyException
@@ -28,6 +29,7 @@ import org.springframework.security.authorization.AuthorizationDecision
 import org.springframework.security.authorization.AuthorizationManager
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
+import org.springframework.security.config.core.GrantedAuthorityDefaults
 import org.springframework.security.config.test.SpringTestContext
 import org.springframework.security.config.test.SpringTestContextExtension
 import org.springframework.security.core.Authentication
@@ -55,7 +57,6 @@ import org.springframework.web.servlet.config.annotation.PathMatchConfigurer
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 import org.springframework.web.util.WebUtils
 import java.util.function.Supplier
-import jakarta.servlet.DispatcherType
 
 /**
  * Tests for [AuthorizeHttpRequestsDsl]
@@ -835,7 +836,6 @@ class AuthorizeHttpRequestsDslTests {
     @EnableWebSecurity
     @EnableWebMvc
     open class HasIpAddressConfig {
-
         @Bean
         open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
@@ -851,6 +851,45 @@ class AuthorizeHttpRequestsDslTests {
             @RequestMapping("/path")
             fun path() {
             }
+        }
+    }
+
+    fun `hasRole when prefixed by configured role prefix should fail to configure`() {
+        assertThatThrownBy { this.spring.register(RoleValidationConfig::class.java).autowire() }
+            .isInstanceOf(UnsatisfiedDependencyException::class.java)
+            .hasRootCauseInstanceOf(IllegalArgumentException::class.java)
+            .hasMessageContaining(
+                "ROLE_JUNIPER should not start with ROLE_ since ROLE_ is automatically prepended when using hasAnyRole. Consider using hasAnyAuthority instead."
+            )
+        assertThatThrownBy { this.spring.register(RoleValidationConfig::class.java, GrantedAuthorityDefaultsConfig::class.java).autowire() }
+            .isInstanceOf(UnsatisfiedDependencyException::class.java)
+            .hasRootCauseInstanceOf(IllegalArgumentException::class.java)
+            .hasMessageContaining(
+                "CUSTOM_JUNIPER should not start with CUSTOM_ since CUSTOM_ is automatically prepended when using hasAnyRole. Consider using hasAnyAuthority instead."
+            )
+    }
+
+    @Configuration
+    @EnableWebSecurity
+    @EnableWebMvc
+    open class RoleValidationConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+            http {
+                authorizeHttpRequests {
+                    authorize("/role", hasAnyRole("ROLE_JUNIPER"))
+                    authorize("/custom", hasRole("CUSTOM_JUNIPER"))
+                }
+            }
+            return http.build()
+        }
+    }
+
+    @Configuration
+    open class GrantedAuthorityDefaultsConfig {
+        @Bean
+        open fun grantedAuthorityDefaults(): GrantedAuthorityDefaults {
+            return GrantedAuthorityDefaults("CUSTOM_")
         }
     }
 }

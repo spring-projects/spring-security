@@ -16,6 +16,7 @@
 
 package org.springframework.security.config.annotation.web
 
+import org.springframework.context.ApplicationContext
 import org.springframework.http.HttpMethod
 import org.springframework.security.authorization.AuthenticatedAuthorizationManager
 import org.springframework.security.authorization.AuthorityAuthorizationManager
@@ -23,10 +24,11 @@ import org.springframework.security.authorization.AuthorizationDecision
 import org.springframework.security.authorization.AuthorizationManager
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer
+import org.springframework.security.config.core.GrantedAuthorityDefaults
 import org.springframework.security.core.Authentication
+import org.springframework.security.web.access.IpAddressAuthorizationManager
 import org.springframework.security.web.access.intercept.AuthorizationFilter
 import org.springframework.security.web.access.intercept.RequestAuthorizationContext
-import org.springframework.security.web.access.IpAddressAuthorizationManager
 import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher
 import org.springframework.security.web.util.matcher.AnyRequestMatcher
 import org.springframework.security.web.util.matcher.RequestMatcher
@@ -41,7 +43,7 @@ import java.util.function.Supplier
  * @since 5.7
  * @property shouldFilterAllDispatcherTypes whether the [AuthorizationFilter] should filter all dispatcher types
  */
-class AuthorizeHttpRequestsDsl : AbstractRequestMatcherDsl() {
+class AuthorizeHttpRequestsDsl : AbstractRequestMatcherDsl {
     @Deprecated("""
         Add authorization rules to DispatcherType directly.
 
@@ -62,6 +64,7 @@ class AuthorizeHttpRequestsDsl : AbstractRequestMatcherDsl() {
     var shouldFilterAllDispatcherTypes: Boolean? = null
 
     private val authorizationRules = mutableListOf<AuthorizationManagerRule>()
+    private val rolePrefix: String
 
     private val HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME = "mvcHandlerMappingIntrospector"
     private val HANDLER_MAPPING_INTROSPECTOR = "org.springframework.web.servlet.handler.HandlerMappingIntrospector"
@@ -227,7 +230,7 @@ class AuthorizeHttpRequestsDsl : AbstractRequestMatcherDsl() {
      * @return the [AuthorizationManager] with the provided role
      */
     fun hasRole(role: String): AuthorizationManager<RequestAuthorizationContext> {
-        return AuthorityAuthorizationManager.hasRole(role)
+        return AuthorityAuthorizationManager.hasAnyRole(this.rolePrefix, arrayOf(role))
     }
 
     /**
@@ -237,7 +240,7 @@ class AuthorizeHttpRequestsDsl : AbstractRequestMatcherDsl() {
      * @return the [AuthorizationManager] with the provided roles
      */
     fun hasAnyRole(vararg roles: String): AuthorizationManager<RequestAuthorizationContext> {
-        return AuthorityAuthorizationManager.hasAnyRole(*roles)
+        return AuthorityAuthorizationManager.hasAnyRole(this.rolePrefix, arrayOf(*roles))
     }
 
     /**
@@ -288,6 +291,20 @@ class AuthorizeHttpRequestsDsl : AbstractRequestMatcherDsl() {
             shouldFilterAllDispatcherTypes?.also { shouldFilter ->
                 requests.shouldFilterAllDispatcherTypes(shouldFilter)
             }
+        }
+    }
+
+    constructor() {
+        this.rolePrefix = "ROLE_"
+    }
+
+    constructor(context: ApplicationContext) {
+        val beanNames = context.getBeanNamesForType(GrantedAuthorityDefaults::class.java)
+        if (beanNames.size > 0) {
+            val grantedAuthorityDefaults = context.getBean(GrantedAuthorityDefaults::class.java);
+            this.rolePrefix = grantedAuthorityDefaults.rolePrefix
+        } else {
+            this.rolePrefix = "ROLE_"
         }
     }
 }
