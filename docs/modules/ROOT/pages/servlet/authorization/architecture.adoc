@@ -241,8 +241,8 @@ Alternatively, you can modify every access constraint which requires the "user" 
 This can get quite complicated if you have a lot of different roles in your application.
 
 The use of a role-hierarchy allows you to configure which roles (or authorities) should include others.
-An extended version of Spring Security's `RoleVoter`, `RoleHierarchyVoter`, is configured with a `RoleHierarchy`, from which it obtains all the "reachable authorities" which the user is assigned.
-A typical configuration might look like this:
+This is supported for filter-based authorization in `HttpSecurity#authorizeHttpRequests` and for method-based authorization through `DefaultMethodSecurityExpressionHandler` for pre-post annotations, `SecuredAuthorizationManager` for `@Secured`, and `Jsr250AuthorizationManager` for JSR-250 annotations.
+You can configure the behavior for all of them at once in the following way:
 
 .Hierarchical Roles Configuration
 [tabs]
@@ -260,7 +260,7 @@ static RoleHierarchy roleHierarchy() {
         .build();
 }
 
-// and, if using method security also add
+// and, if using pre-post method security also add
 @Bean
 static MethodSecurityExpressionHandler methodSecurityExpressionHandler(RoleHierarchy roleHierarchy) {
 	DefaultMethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler();
@@ -292,13 +292,10 @@ Xml::
 ----
 ======
 
-[NOTE]
-`RoleHierarchy` bean configuration is not yet ported over to `@EnableMethodSecurity`.
-As such this example is using `AccessDecisionVoter`.
-If you need `RoleHierarchy` support for method security, please continue using `@EnableGlobalMethodSecurity` until https://github.com/spring-projects/spring-security/issues/12783 is complete.
-
 Here we have four roles in a hierarchy `ROLE_ADMIN => ROLE_STAFF => ROLE_USER => ROLE_GUEST`.
-A user who is authenticated with `ROLE_ADMIN`, will behave as if they have all four roles when security constraints are evaluated against an `AuthorizationManager` adapted to call the above `RoleHierarchyVoter`.
+A user who is authenticated with `ROLE_ADMIN`, will behave as if they have all four roles when security constraints are evaluated against any filter- or method-based rules.
+
+[TIP]
 The `>` symbol can be thought of as meaning "includes".
 
 Role hierarchies offer a convenient means of simplifying the access-control configuration data for your application and/or reducing the number of authorities which you need to assign to a user.
