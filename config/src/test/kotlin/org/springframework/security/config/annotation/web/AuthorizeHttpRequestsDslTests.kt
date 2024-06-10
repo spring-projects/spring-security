@@ -856,6 +856,7 @@ class AuthorizeHttpRequestsDslTests {
         }
     }
 
+    @Test
     fun `hasRole when prefixed by configured role prefix should fail to configure`() {
         assertThatThrownBy { this.spring.register(RoleValidationConfig::class.java).autowire() }
             .isInstanceOf(UnsatisfiedDependencyException::class.java)
