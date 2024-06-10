@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,8 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpMethod
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy
+import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl
 import org.springframework.security.authorization.AuthorizationDecision
 import org.springframework.security.authorization.AuthorizationManager
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
@@ -891,5 +893,71 @@ class AuthorizeHttpRequestsDslTests {
         open fun grantedAuthorityDefaults(): GrantedAuthorityDefaults {
             return GrantedAuthorityDefaults("CUSTOM_")
         }
+    }
+
+    @Test
+    fun `hasRole when role hierarchy configured then honor hierarchy`() {
+        this.spring.register(RoleHierarchyConfig::class.java).autowire()
+        this.mockMvc.get("/protected") {
+            with(httpBasic("admin", "password"))
+        }.andExpect {
+            status {
+                isOk()
+            }
+        }
+        this.mockMvc.get("/protected") {
+            with(httpBasic("user", "password"))
+        }.andExpect {
+            status {
+                isOk()
+            }
+        }
+    }
+
+    @Configuration
+    @EnableWebSecurity
+    @EnableWebMvc
+    open class RoleHierarchyConfig {
+
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+            http {
+                authorizeHttpRequests {
+                    authorize("/protected", hasRole("USER"))
+                }
+                httpBasic { }
+            }
+            return http.build()
+        }
+
+        @Bean
+        open fun roleHierarchy(): RoleHierarchy {
+            return RoleHierarchyImpl.fromHierarchy("ROLE_ADMIN > ROLE_USER")
+        }
+
+        @Bean
+        open fun userDetailsService(): UserDetailsService {
+            val user = User.withDefaultPasswordEncoder()
+                .username("user")
+                .password("password")
+                .roles("USER")
+                .build()
+            val admin = User.withDefaultPasswordEncoder()
+                .username("admin")
+                .password("password")
+                .roles("ADMIN")
+                .build()
+            return InMemoryUserDetailsManager(user, admin)
+        }
+
+        @RestController
+        internal class PathController {
+
+            @RequestMapping("/protected")
+            fun path() {
+            }
+
+        }
+
     }
 }
