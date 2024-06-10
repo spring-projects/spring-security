@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,6 +63,7 @@ import org.springframework.security.web.firewall.HttpStatusRequestRejectedHandle
 import org.springframework.security.web.firewall.ObservationMarkingRequestRejectedHandler;
 import org.springframework.security.web.firewall.RequestRejectedHandler;
 import org.springframework.security.web.firewall.StrictHttpFirewall;
+import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcherEntry;
 import org.springframework.util.Assert;
@@ -296,8 +297,20 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 			requestMatcherPrivilegeEvaluatorsEntries
 				.add(getRequestMatcherPrivilegeEvaluatorsEntry(securityFilterChain));
 		}
+		boolean anyRequestConfigured = false;
+		RequestMatcher matcher = null;
 		for (SecurityBuilder<? extends SecurityFilterChain> securityFilterChainBuilder : this.securityFilterChainBuilders) {
 			SecurityFilterChain securityFilterChain = securityFilterChainBuilder.build();
+			Assert.isTrue(!anyRequestConfigured,
+					"A filter chain that matches any request has already been configured, which means that this filter chain for ["
+							+ matcher
+							+ "] will never get invoked. Please use `HttpSecurity#securityMatcher` to ensure that there is only one filter chain configured for 'any request' and that the 'any request' filter chain is published last.");
+			if (securityFilterChain instanceof DefaultSecurityFilterChain defaultSecurityFilterChain) {
+				matcher = defaultSecurityFilterChain.getRequestMatcher();
+				if (matcher instanceof AnyRequestMatcher) {
+					anyRequestConfigured = true;
+				}
+			}
 			securityFilterChains.add(securityFilterChain);
 			requestMatcherPrivilegeEvaluatorsEntries
 				.add(getRequestMatcherPrivilegeEvaluatorsEntry(securityFilterChain));
