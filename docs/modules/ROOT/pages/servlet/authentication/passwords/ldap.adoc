@@ -10,6 +10,41 @@ However, despite leveraging a username/password for authentication it does not i
 There are many different scenarios for how an LDAP server may be configured so Spring Security's LDAP provider is fully configurable.
 It uses separate strategy interfaces for authentication and role retrieval and provides default implementations which can be configured to handle a wide range of situations.
 
+[[servlet-authentication-ldap-required-dependencies]]
+== Required Dependencies
+
+To enable LDAP with Spring Security you have to add following dependencies:
+
+[tabs]
+======
+Maven::
++
+[source,xml,role="primary",subs="verbatim,attributes"]
+----
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-data-ldap</artifactId>
+    <version>{spring-boot-starter-data-ldap-version}</version>
+</dependency>
+
+<dependency>
+    <groupId>org.springframework.security</groupId>
+    <artifactId>spring-security-ldap</artifactId>
+    <version>{spring-security-ldap-version}</version>
+</dependency>
+----
+
+Gradle::
++
+[source,groovy,role="secondary",subs="verbatim,attributes"]
+----
+depenendencies {
+    implementation "org.springframework.boot:spring-boot-starter-data-ldap:{spring-boot-starter-data-ldap-version}"
+    implementation "org.springframework.security:spring-security-ldap:{spring-security-ldap-version}"
+}
+----
+======
+
 [[servlet-authentication-ldap-prerequisites]]
 == Prerequisites
 
