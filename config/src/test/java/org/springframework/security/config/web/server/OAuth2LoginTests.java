@@ -64,6 +64,7 @@ import org.springframework.security.oauth2.client.registration.InMemoryReactiveC
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.client.userinfo.ReactiveOAuth2UserService;
+import org.springframework.security.oauth2.client.web.server.DefaultServerOAuth2AuthorizationRequestResolver;
 import org.springframework.security.oauth2.client.web.server.ServerAuthorizationRequestRepository;
 import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizationRequestResolver;
 import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizedClientRepository;
@@ -457,6 +458,7 @@ public class OAuth2LoginTests {
 		OidcUser user = TestOidcUsers.create();
 		ReactiveOAuth2UserService<OidcUserRequest, OidcUser> userService = config.userService;
 		given(userService.loadUser(any())).willReturn(Mono.just(user));
+		ServerOAuth2AuthorizationRequestResolver resolver = config.resolver;
 		// @formatter:off
 		webTestClient.get()
 				.uri("/login/oauth2/code/google")
@@ -466,6 +468,7 @@ public class OAuth2LoginTests {
 		verify(config.jwtDecoderFactory).createDecoder(any());
 		verify(tokenResponseClient).getTokenResponse(any());
 		verify(securityContextRepository).save(any(), any());
+		verify(resolver).resolve(any());
 	}
 
 	// gh-5562
@@ -837,6 +840,10 @@ public class OAuth2LoginTests {
 
 		ServerSecurityContextRepository securityContextRepository = mock(ServerSecurityContextRepository.class);
 
+		ServerOAuth2AuthorizationRequestResolver resolver = spy(
+				new DefaultServerOAuth2AuthorizationRequestResolver(new InMemoryReactiveClientRegistrationRepository(
+						TestClientRegistrations.clientRegistration().build())));
+
 		@Bean
 		SecurityWebFilterChain springSecurityFilter(ServerHttpSecurity http) {
 			// @formatter:off
@@ -862,6 +869,11 @@ public class OAuth2LoginTests {
 		@Bean
 		ReactiveJwtDecoderFactory<ClientRegistration> jwtDecoderFactory() {
 			return this.jwtDecoderFactory;
+		}
+
+		@Bean
+		ServerOAuth2AuthorizationRequestResolver resolver() {
+			return this.resolver;
 		}
 
 		@Bean
