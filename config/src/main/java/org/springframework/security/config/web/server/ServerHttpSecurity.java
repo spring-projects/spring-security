@@ -4532,9 +4532,12 @@ public class ServerHttpSecurity {
 		}
 
 		private OAuth2AuthorizationRequestRedirectWebFilter getRedirectWebFilter() {
-			OAuth2AuthorizationRequestRedirectWebFilter oauthRedirectFilter;
-			if (this.authorizationRequestResolver != null) {
-				return new OAuth2AuthorizationRequestRedirectWebFilter(this.authorizationRequestResolver);
+			ServerOAuth2AuthorizationRequestResolver result = this.authorizationRequestResolver;
+			if (result == null) {
+				result = getBeanOrNull(ServerOAuth2AuthorizationRequestResolver.class);
+			}
+			if (result != null) {
+				return new OAuth2AuthorizationRequestRedirectWebFilter(result);
 			}
 			return new OAuth2AuthorizationRequestRedirectWebFilter(getClientRegistrationRepository());
 		}
