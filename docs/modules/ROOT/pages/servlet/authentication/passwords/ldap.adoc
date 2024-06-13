@@ -13,34 +13,34 @@ It uses separate strategy interfaces for authentication and role retrieval and p
 [[servlet-authentication-ldap-required-dependencies]]
 == Required Dependencies
 
-To enable LDAP with Spring Security you have to add following dependencies:
+To get started, add the `spring-security-ldap` dependency to your project.
+When using Spring Boot, add the following dependencies:
 
+.Spring Security LDAP Dependencies
 [tabs]
 ======
 Maven::
 +
-[source,xml,role="primary",subs="verbatim,attributes"]
+[source,xml,role="primary"]
 ----
 <dependency>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-data-ldap</artifactId>
-    <version>{spring-boot-starter-data-ldap-version}</version>
 </dependency>
 
 <dependency>
     <groupId>org.springframework.security</groupId>
     <artifactId>spring-security-ldap</artifactId>
-    <version>{spring-security-ldap-version}</version>
 </dependency>
 ----
 
 Gradle::
 +
-[source,groovy,role="secondary",subs="verbatim,attributes"]
+[source,groovy,role="secondary"]
 ----
 depenendencies {
-    implementation "org.springframework.boot:spring-boot-starter-data-ldap:{spring-boot-starter-data-ldap-version}"
-    implementation "org.springframework.security:spring-security-ldap:{spring-security-ldap-version}"
+    implementation "org.springframework.boot:spring-boot-starter-data-ldap"
+    implementation "org.springframework.security:spring-security-ldap"
 }
 ----
 ======
