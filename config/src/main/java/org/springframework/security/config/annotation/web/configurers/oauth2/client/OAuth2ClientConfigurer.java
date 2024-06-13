@@ -58,7 +58,7 @@ import org.springframework.util.Assert;
  * {@link ClientRegistrationRepository} {@code @Bean} may be registered instead.
  *
  * <h2>Security Filters</h2>
- * <p>
+ *
  * The following {@code Filter}'s are populated for {@link #authorizationCodeGrant()}:
  *
  * <ul>
@@ -67,7 +67,7 @@ import org.springframework.util.Assert;
  * </ul>
  *
  * <h2>Shared Objects Created</h2>
- * <p>
+ *
  * The following shared objects are populated:
  *
  * <ul>
@@ -76,7 +76,7 @@ import org.springframework.util.Assert;
  * </ul>
  *
  * <h2>Shared Objects Used</h2>
- * <p>
+ *
  * The following shared objects are used:
  *
  * <ul>
@@ -283,12 +283,12 @@ public final class OAuth2ClientConfigurer<B extends HttpSecurityBuilder<B>>
 			if (this.authorizationRequestResolver != null) {
 				return this.authorizationRequestResolver;
 			}
+			ClientRegistrationRepository clientRegistrationRepository = OAuth2ClientConfigurerUtils
+				.getClientRegistrationRepository(getBuilder());
 			ResolvableType resolvableType = ResolvableType.forClass(OAuth2AuthorizationRequestResolver.class);
 			OAuth2AuthorizationRequestResolver bean = getBeanOrNull(resolvableType);
-			return (bean != null) ? bean
-					: new DefaultOAuth2AuthorizationRequestResolver(
-							OAuth2ClientConfigurerUtils.getClientRegistrationRepository(getBuilder()),
-							OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI);
+			return (bean != null) ? bean : new DefaultOAuth2AuthorizationRequestResolver(clientRegistrationRepository,
+					OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI);
 		}
 
 		private OAuth2AuthorizationCodeGrantFilter createAuthorizationCodeGrantFilter(B builder) {

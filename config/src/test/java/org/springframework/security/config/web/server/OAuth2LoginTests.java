@@ -458,7 +458,7 @@ public class OAuth2LoginTests {
 		OidcUser user = TestOidcUsers.create();
 		ReactiveOAuth2UserService<OidcUserRequest, OidcUser> userService = config.userService;
 		given(userService.loadUser(any())).willReturn(Mono.just(user));
-		ServerOAuth2AuthorizationRequestResolver resolver = config.resolver;
+		ServerOAuth2AuthorizationRequestResolver authorizationRequestResolver = config.authorizationRequestResolver;
 		// @formatter:off
 		webTestClient.get()
 				.uri("/login/oauth2/code/google")
@@ -468,7 +468,7 @@ public class OAuth2LoginTests {
 		verify(config.jwtDecoderFactory).createDecoder(any());
 		verify(tokenResponseClient).getTokenResponse(any());
 		verify(securityContextRepository).save(any(), any());
-		verify(resolver).resolve(any());
+		verify(authorizationRequestResolver).resolve(any());
 	}
 
 	// gh-5562
@@ -840,7 +840,7 @@ public class OAuth2LoginTests {
 
 		ServerSecurityContextRepository securityContextRepository = mock(ServerSecurityContextRepository.class);
 
-		ServerOAuth2AuthorizationRequestResolver resolver = spy(
+		ServerOAuth2AuthorizationRequestResolver authorizationRequestResolver = spy(
 				new DefaultServerOAuth2AuthorizationRequestResolver(new InMemoryReactiveClientRegistrationRepository(
 						TestClientRegistrations.clientRegistration().build())));
 
@@ -872,8 +872,8 @@ public class OAuth2LoginTests {
 		}
 
 		@Bean
-		ServerOAuth2AuthorizationRequestResolver resolver() {
-			return this.resolver;
+		ServerOAuth2AuthorizationRequestResolver authorizationRequestResolver() {
+			return this.authorizationRequestResolver;
 		}
 
 		@Bean

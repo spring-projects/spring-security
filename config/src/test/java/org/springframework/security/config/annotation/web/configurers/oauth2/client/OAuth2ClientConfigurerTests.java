@@ -286,9 +286,13 @@ public class OAuth2ClientConfigurerTests {
 	}
 
 	@Test
-	public void configureWhenCustomAuthorizationRequestResolverBeanPresentThenAuthorizationRequestIncludesCustomParameters()
+	public void configureWhenCustomAuthorizationRequestResolverBeanPresentThenAuthorizationRequestResolverUsed()
 			throws Exception {
-		this.spring.register(OAuth2ClientBeanConfig.class).autowire();
+		OAuth2AuthorizationRequestResolver defaultAuthorizationRequestResolver = authorizationRequestResolver;
+		authorizationRequestResolver = mock(OAuth2AuthorizationRequestResolver.class);
+		given(authorizationRequestResolver.resolve(any()))
+			.willAnswer((invocation) -> defaultAuthorizationRequestResolver.resolve(invocation.getArgument(0)));
+		this.spring.register(OAuth2ClientInLambdaConfig.class, AuthorizationRequestResolverConfig.class).autowire();
 		// @formatter:off
 		this.mockMvc.perform(get("/oauth2/authorization/registration-1"))
 				.andExpect(status().is3xxRedirection())
@@ -374,57 +378,12 @@ public class OAuth2ClientConfigurerTests {
 
 	}
 
-	@EnableWebSecurity
 	@Configuration
-	@EnableWebMvc
-	static class OAuth2ClientBeanConfig {
-
-		@Bean
-		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-					.authorizeRequests()
-					.anyRequest().authenticated()
-					.and()
-					.requestCache()
-					.requestCache(requestCache)
-					.and()
-					.oauth2Client()
-					.authorizationCodeGrant()
-					.authorizationRedirectStrategy(authorizationRedirectStrategy)
-					.accessTokenResponseClient(accessTokenResponseClient);
-			return http.build();
-			// @formatter:on
-		}
-
-		@Bean
-		ClientRegistrationRepository clientRegistrationRepository() {
-			return clientRegistrationRepository;
-		}
-
-		@Bean
-		OAuth2AuthorizedClientRepository authorizedClientRepository() {
-			return authorizedClientRepository;
-		}
+	static class AuthorizationRequestResolverConfig {
 
 		@Bean
 		OAuth2AuthorizationRequestResolver authorizationRequestResolver() {
-			OAuth2AuthorizationRequestResolver defaultAuthorizationRequestResolver = authorizationRequestResolver;
-			authorizationRequestResolver = mock(OAuth2AuthorizationRequestResolver.class);
-			given(authorizationRequestResolver.resolve(any()))
-				.willAnswer((invocation) -> defaultAuthorizationRequestResolver.resolve(invocation.getArgument(0)));
 			return authorizationRequestResolver;
-		}
-
-		@RestController
-		class ResourceController {
-
-			@GetMapping("/resource1")
-			String resource1(
-					@RegisteredOAuth2AuthorizedClient("registration-1") OAuth2AuthorizedClient authorizedClient) {
-				return "resource1";
-			}
-
 		}
 
 	}
