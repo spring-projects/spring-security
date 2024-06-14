@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -102,6 +102,14 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 	public NimbusJwtDecoder(JWTProcessor<SecurityContext> jwtProcessor) {
 		Assert.notNull(jwtProcessor, "jwtProcessor cannot be null");
 		this.jwtProcessor = jwtProcessor;
+	}
+
+	/**
+	 * Returns the JWT Validator used
+	 * @return the JWT Validator used
+	 */
+	public OAuth2TokenValidator<Jwt> getJwtValidator() {
+		return this.jwtValidator;
 	}
 
 	/**

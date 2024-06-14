@@ -126,6 +126,14 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 	}
 
 	/**
+	 * Returns the JWT Validator used
+	 * @return the JWT Validator used
+	 */
+	public OAuth2TokenValidator<Jwt> getJwtValidator() {
+		return this.jwtValidator;
+	}
+
+	/**
 	 * Use the provided {@link OAuth2TokenValidator} to validate incoming {@link Jwt}s.
 	 * @param jwtValidator the {@link OAuth2TokenValidator} to use
 	 */
