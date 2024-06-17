@@ -298,16 +298,14 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 				.add(getRequestMatcherPrivilegeEvaluatorsEntry(securityFilterChain));
 		}
 		boolean anyRequestConfigured = false;
-		RequestMatcher matcher = null;
 		for (SecurityBuilder<? extends SecurityFilterChain> securityFilterChainBuilder : this.securityFilterChainBuilders) {
 			SecurityFilterChain securityFilterChain = securityFilterChainBuilder.build();
 			Assert.isTrue(!anyRequestConfigured,
-					"A filter chain that matches any request has already been configured, which means that this filter chain for ["
-							+ matcher
+					"A filter chain that matches any request has already been configured, which means that this filter chain ["
+							+ securityFilterChain
 							+ "] will never get invoked. Please use `HttpSecurity#securityMatcher` to ensure that there is only one filter chain configured for 'any request' and that the 'any request' filter chain is published last.");
 			if (securityFilterChain instanceof DefaultSecurityFilterChain defaultSecurityFilterChain) {
-				matcher = defaultSecurityFilterChain.getRequestMatcher();
-				if (matcher instanceof AnyRequestMatcher) {
+				if (defaultSecurityFilterChain.getRequestMatcher() instanceof AnyRequestMatcher) {
 					anyRequestConfigured = true;
 				}
 			}
