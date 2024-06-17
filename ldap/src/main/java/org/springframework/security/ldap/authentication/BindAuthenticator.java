@@ -47,6 +47,8 @@ public class BindAuthenticator extends AbstractLdapAuthenticator {
 
 	private static final Log logger = LogFactory.getLog(BindAuthenticator.class);
 
+	private boolean alsoHandleJavaxNamingBindExceptions = false;
+
 	/**
 	 * Create an initialized instance using the {@link BaseLdapPathContextSource}
 	 * provided.
@@ -125,21 +127,28 @@ public class BindAuthenticator extends AbstractLdapAuthenticator {
 			// This will be thrown if an invalid user name is used and the method may
 			// be called multiple times to try different names, so we trap the exception
 			// unless a subclass wishes to implement more specialized behaviour.
-			if ((ex instanceof org.springframework.ldap.AuthenticationException)
-					|| (ex instanceof org.springframework.ldap.OperationNotSupportedException)) {
-				handleBindException(userDnStr, username, ex);
-			}
-			else {
-				throw ex;
-			}
+			handleIfBindException(userDnStr, username, ex);
 		}
 		catch (javax.naming.NamingException ex) {
-			throw LdapUtils.convertLdapException(ex);
+			if (!this.alsoHandleJavaxNamingBindExceptions) {
+				throw LdapUtils.convertLdapException(ex);
+			}
+			handleIfBindException(userDnStr, username, LdapUtils.convertLdapException(ex));
 		}
 		finally {
 			LdapUtils.closeContext(ctx);
 		}
 		return null;
+	}
+
+	private void handleIfBindException(String dn, String username, org.springframework.ldap.NamingException naming) {
+		if ((naming instanceof org.springframework.ldap.AuthenticationException)
+				|| (naming instanceof org.springframework.ldap.OperationNotSupportedException)) {
+			handleBindException(dn, username, naming);
+		}
+		else {
+			throw naming;
+		}
 	}
 
 	/**
@@ -151,4 +160,18 @@ public class BindAuthenticator extends AbstractLdapAuthenticator {
 		logger.trace(LogMessage.format("Failed to bind as %s", userDn), cause);
 	}
 
+	/**
+	 * Set whether javax-based bind exceptions should also be delegated to {@code #handleBindException}
+	 * (only Spring-based bind exceptions are handled by default)
+	 *
+	 * <p>For passivity reasons, defaults to {@code false}, though may change to {@code true}
+	 * in future releases.
+	 *
+	 * @param alsoHandleJavaxNamingBindExceptions - whether to delegate javax-based bind exceptions to
+	 * #handleBindException
+	 * @since 6.4
+	 */
+	public void setAlsoHandleJavaxNamingBindExceptions(boolean alsoHandleJavaxNamingBindExceptions) {
+		this.alsoHandleJavaxNamingBindExceptions = alsoHandleJavaxNamingBindExceptions;
+	}
 }
