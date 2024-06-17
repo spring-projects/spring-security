@@ -18,13 +18,13 @@ package org.springframework.security.config.http;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.eclipse.jetty.http.HttpStatus;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.parsing.BeanDefinitionParsingException;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
@@ -71,7 +71,7 @@ public class AccessDeniedConfigTests {
 	@WithMockUser
 	public void configureWhenAccessDeniedHandlerRefThenAutowire() throws Exception {
 		this.spring.configLocations(this.xml("AccessDeniedHandler")).autowire();
-		this.mvc.perform(get("/")).andExpect(status().is(HttpStatus.GONE_410));
+		this.mvc.perform(get("/")).andExpect(status().is(HttpStatus.GONE.value()));
 	}
 
 	@Test
@@ -90,7 +90,7 @@ public class AccessDeniedConfigTests {
 		@Override
 		public void handle(HttpServletRequest request, HttpServletResponse response,
 				AccessDeniedException accessDeniedException) {
-			response.setStatus(HttpStatus.GONE_410);
+			response.setStatus(HttpStatus.GONE.value());
 		}
 
 	}

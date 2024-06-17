@@ -118,17 +118,12 @@ public class OAuth2ErrorResponseErrorHandlerTests {
 
 		@Override
 		public HttpStatus getStatusCode() throws IOException {
-			return HttpStatus.valueOf(getRawStatusCode());
-		}
-
-		@Override
-		public int getRawStatusCode() {
-			return this.statusCode;
+			return HttpStatus.valueOf(this.statusCode);
 		}
 
 		@Override
 		public String getStatusText() throws IOException {
-			HttpStatus httpStatus = HttpStatus.resolve(this.statusCode);
+			HttpStatus httpStatus = HttpStatus.valueOf(this.statusCode);
 			return (httpStatus != null) ? httpStatus.getReasonPhrase() : "";
 		}
 

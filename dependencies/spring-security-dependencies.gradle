@@ -47,6 +47,7 @@ dependencies {
 		api libs.jakarta.websocket.jakarta.websocket.client.api
 		api libs.ldapsdk
 		api libs.net.sourceforge.htmlunit
+		api libs.org.htmlunit.htmlunit
 		api libs.org.apache.directory.server.apacheds.entry
 		api libs.org.apache.directory.server.apacheds.core
 		api libs.org.apache.directory.server.apacheds.protocol.ldap

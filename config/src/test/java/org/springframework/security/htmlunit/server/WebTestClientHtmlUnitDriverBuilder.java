@@ -16,8 +16,8 @@
 
 package org.springframework.security.htmlunit.server;
 
-import com.gargoylesoftware.htmlunit.WebClient;
-import com.gargoylesoftware.htmlunit.WebConnection;
+import org.htmlunit.WebClient;
+import org.htmlunit.WebConnection;
 import org.openqa.selenium.WebDriver;
 
 import org.springframework.test.web.reactive.server.WebTestClient;

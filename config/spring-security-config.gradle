@@ -65,7 +65,7 @@ dependencies {
 	testImplementation 'jakarta.websocket:jakarta.websocket-api'
 	testImplementation 'jakarta.websocket:jakarta.websocket-client-api'
 	testImplementation 'ldapsdk:ldapsdk:4.1'
-	testImplementation('net.sourceforge.htmlunit:htmlunit') {
+	testImplementation('org.htmlunit:htmlunit') {
 		exclude group: 'commons-logging', module: 'commons-logging'
 		exclude group: 'xml-apis', module: 'xml-apis'
 	}
@@ -80,7 +80,7 @@ dependencies {
 	testImplementation "org.hibernate.orm:hibernate-core"
 	testImplementation 'org.hsqldb:hsqldb'
 	testImplementation 'org.mockito:mockito-core'
-	testImplementation('org.seleniumhq.selenium:htmlunit-driver') {
+	testImplementation('org.seleniumhq.selenium:htmlunit3-driver') {
 		exclude group: 'commons-logging', module: 'commons-logging'
 		exclude group: 'xml-apis', module: 'xml-apis'
 	}
