@@ -28,6 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatNoException;
+import static org.springframework.security.access.hierarchicalroles.HierarchicalRolesTestHelper.assertHierarchy;
 
 /**
  * Tests for {@link RoleHierarchyImpl}.
@@ -252,20 +253,12 @@ public class RoleHierarchyImplTests {
 			.authority("C")
 			.implies("E", "F", "B")
 			.build();
-		List<GrantedAuthority> flatAuthorities1 = AuthorityUtils.createAuthorityList("ROLE_A");
-		List<GrantedAuthority> allAuthorities1 = AuthorityUtils.createAuthorityList("ROLE_A", "ROLE_B", "ROLE_C",
-				"ROLE_D");
 
-		assertThat(roleHierarchyImpl).isNotNull();
-		assertThat(roleHierarchyImpl.getReachableGrantedAuthorities(flatAuthorities1))
-			.containsExactlyInAnyOrderElementsOf(allAuthorities1);
+		assertHierarchy(roleHierarchyImpl).givesToAuthorities("ROLE_A")
+			.theseAuthorities("ROLE_A", "ROLE_B", "ROLE_C", "ROLE_D");
 
-		List<GrantedAuthority> flatAuthorities2 = AuthorityUtils.createAuthorityList("C");
-		List<GrantedAuthority> allAuthorities2 = AuthorityUtils.createAuthorityList("C", "ROLE_B", "ROLE_C", "ROLE_D",
-				"ROLE_E", "ROLE_F");
-		assertThat(roleHierarchyImpl.getReachableGrantedAuthorities(flatAuthorities2))
-			.containsExactlyInAnyOrderElementsOf(allAuthorities2);
-
+		assertHierarchy(roleHierarchyImpl).givesToAuthorities("C")
+			.theseAuthorities("C", "ROLE_B", "ROLE_C", "ROLE_D", "ROLE_E", "ROLE_F");
 	}
 
 	@Test
@@ -278,19 +271,13 @@ public class RoleHierarchyImplTests {
 			.authority("C")
 			.implies("E", "F", "B")
 			.build();
-		List<GrantedAuthority> flatAuthorities1 = AuthorityUtils.createAuthorityList("CUSTOM_PREFIX_A");
-		List<GrantedAuthority> allAuthorities1 = AuthorityUtils.createAuthorityList("CUSTOM_PREFIX_A",
-				"CUSTOM_PREFIX_B", "CUSTOM_PREFIX_C", "CUSTOM_PREFIX_D");
 
-		assertThat(roleHierarchyImpl).isNotNull();
-		assertThat(roleHierarchyImpl.getReachableGrantedAuthorities(flatAuthorities1))
-			.containsExactlyInAnyOrderElementsOf(allAuthorities1);
+		assertHierarchy(roleHierarchyImpl).givesToAuthorities("CUSTOM_PREFIX_A")
+			.theseAuthorities("CUSTOM_PREFIX_A", "CUSTOM_PREFIX_B", "CUSTOM_PREFIX_C", "CUSTOM_PREFIX_D");
 
-		List<GrantedAuthority> flatAuthorities2 = AuthorityUtils.createAuthorityList("C");
-		List<GrantedAuthority> allAuthorities2 = AuthorityUtils.createAuthorityList("C", "CUSTOM_PREFIX_B",
-				"CUSTOM_PREFIX_C", "CUSTOM_PREFIX_D", "CUSTOM_PREFIX_E", "CUSTOM_PREFIX_F");
-		assertThat(roleHierarchyImpl.getReachableGrantedAuthorities(flatAuthorities2))
-			.containsExactlyInAnyOrderElementsOf(allAuthorities2);
+		assertHierarchy(roleHierarchyImpl).givesToAuthorities("C")
+			.theseAuthorities("C", "CUSTOM_PREFIX_B", "CUSTOM_PREFIX_C", "CUSTOM_PREFIX_D", "CUSTOM_PREFIX_E",
+					"CUSTOM_PREFIX_F");
 	}
 
 	@Test
