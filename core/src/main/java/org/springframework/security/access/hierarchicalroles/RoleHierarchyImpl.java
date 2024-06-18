@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -282,7 +282,18 @@ public class RoleHierarchyImpl implements RoleHierarchy {
 		 */
 		public ImpliedRoles role(String role) {
 			Assert.hasText(role, "role must not be empty");
-			return new ImpliedRoles(role);
+			return new ImpliedRoles(this.rolePrefix.concat(role));
+		}
+
+		/**
+		 * Creates a new hierarchy branch to define an authority and its child roles.
+		 * @param authority the highest authority in this branch
+		 * @return a {@link ImpliedRoles} to define the child roles for the
+		 * <code>authority</code>
+		 */
+		public ImpliedRoles authority(String authority) {
+			Assert.hasText(authority, "authority must not be empty");
+			return new ImpliedRoles(authority);
 		}
 
 		/**
@@ -299,7 +310,7 @@ public class RoleHierarchyImpl implements RoleHierarchy {
 			for (String impliedRole : impliedRoles) {
 				withPrefix.add(new SimpleGrantedAuthority(this.rolePrefix.concat(impliedRole)));
 			}
-			this.hierarchy.put(this.rolePrefix.concat(role), withPrefix);
+			this.hierarchy.put(role, withPrefix);
 			return this;
 		}
 
