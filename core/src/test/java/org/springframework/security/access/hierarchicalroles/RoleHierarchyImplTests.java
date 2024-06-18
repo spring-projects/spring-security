@@ -281,6 +281,25 @@ public class RoleHierarchyImplTests {
 	}
 
 	@Test
+	public void testBuilderWithRepeatedRoleBuilder() {
+		RoleHierarchyImpl roleHierarchyImpl = RoleHierarchyImpl.withDefaultRolePrefix()
+			.role("A")
+			.implies("B")
+			.role("A")
+			.implies("C", "D")
+			.authority("A")
+			.implies("E")
+			.authority("A")
+			.implies("F", "G")
+			.build();
+
+		assertHierarchy(roleHierarchyImpl).givesToAuthorities("ROLE_A")
+			.theseAuthorities("ROLE_A", "ROLE_B", "ROLE_C", "ROLE_D");
+
+		assertHierarchy(roleHierarchyImpl).givesToAuthorities("A").theseAuthorities("A", "ROLE_E", "ROLE_F", "ROLE_G");
+	}
+
+	@Test
 	public void testBuilderThrowIllegalArgumentExceptionWhenPrefixRoleNull() {
 		assertThatIllegalArgumentException().isThrownBy(() -> RoleHierarchyImpl.withRolePrefix(null));
 	}

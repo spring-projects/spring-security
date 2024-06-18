@@ -307,11 +307,10 @@ public class RoleHierarchyImpl implements RoleHierarchy {
 		}
 
 		private Builder addHierarchy(String role, String... impliedRoles) {
-			Set<GrantedAuthority> withPrefix = new HashSet<>();
+			Set<GrantedAuthority> withPrefix = this.hierarchy.computeIfAbsent(role, r -> new HashSet<>());
 			for (String impliedRole : impliedRoles) {
 				withPrefix.add(new SimpleGrantedAuthority(this.rolePrefix.concat(impliedRole)));
 			}
-			this.hierarchy.put(role, withPrefix);
 			return this;
 		}
 
