@@ -16,6 +16,7 @@
 
 package org.springframework.security.ldap.authentication;
 
+import javax.naming.Name;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 
@@ -26,7 +27,6 @@ import org.springframework.core.log.LogMessage;
 import org.springframework.ldap.NamingException;
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DirContextOperations;
-import org.springframework.ldap.core.DistinguishedName;
 import org.springframework.ldap.core.support.BaseLdapPathContextSource;
 import org.springframework.ldap.support.LdapUtils;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -104,9 +104,8 @@ public class BindAuthenticator extends AbstractLdapAuthenticator {
 
 	private DirContextOperations bindWithDn(String userDnStr, String username, String password, Attributes attrs) {
 		BaseLdapPathContextSource ctxSource = (BaseLdapPathContextSource) getContextSource();
-		DistinguishedName userDn = new DistinguishedName(userDnStr);
-		DistinguishedName fullDn = new DistinguishedName(userDn);
-		fullDn.prepend(ctxSource.getBaseLdapPath());
+		Name userDn = LdapUtils.newLdapName(userDnStr);
+		Name fullDn = LdapUtils.prepend(userDn, ctxSource.getBaseLdapName());
 		logger.trace(LogMessage.format("Attempting to bind as %s", fullDn));
 		DirContext ctx = null;
 		try {
@@ -116,7 +115,7 @@ public class BindAuthenticator extends AbstractLdapAuthenticator {
 			if (attrs == null || attrs.size() == 0) {
 				attrs = ctx.getAttributes(userDn, getUserAttributes());
 			}
-			DirContextAdapter result = new DirContextAdapter(attrs, userDn, ctxSource.getBaseLdapPath());
+			DirContextAdapter result = new DirContextAdapter(attrs, userDn, ctxSource.getBaseLdapName());
 			if (ppolicy != null) {
 				result.setAttributeValue(ppolicy.getID(), ppolicy);
 			}
@@ -161,17 +160,19 @@ public class BindAuthenticator extends AbstractLdapAuthenticator {
 	}
 
 	/**
-	 * Set whether javax-based bind exceptions should also be delegated to {@code #handleBindException}
-	 * (only Spring-based bind exceptions are handled by default)
+	 * Set whether javax-based bind exceptions should also be delegated to
+	 * {@code #handleBindException} (only Spring-based bind exceptions are handled by
+	 * default)
 	 *
-	 * <p>For passivity reasons, defaults to {@code false}, though may change to {@code true}
+	 * <p>
+	 * For passivity reasons, defaults to {@code false}, though may change to {@code true}
 	 * in future releases.
-	 *
-	 * @param alsoHandleJavaxNamingBindExceptions - whether to delegate javax-based bind exceptions to
-	 * #handleBindException
+	 * @param alsoHandleJavaxNamingBindExceptions - whether to delegate javax-based bind
+	 * exceptions to #handleBindException
 	 * @since 6.4
 	 */
 	public void setAlsoHandleJavaxNamingBindExceptions(boolean alsoHandleJavaxNamingBindExceptions) {
 		this.alsoHandleJavaxNamingBindExceptions = alsoHandleJavaxNamingBindExceptions;
 	}
+
 }

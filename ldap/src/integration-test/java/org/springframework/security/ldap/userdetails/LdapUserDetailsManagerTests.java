@@ -185,7 +185,7 @@ public class LdapUserDetailsManagerTests {
 		assertThatExceptionOfType(UsernameNotFoundException.class).isThrownBy(() -> this.mgr.loadUserByUsername("don"));
 
 		// Check that no authorities are left
-		assertThat(this.mgr.getUserAuthorities(this.mgr.usernameMapper.buildDn("don"), "don")).hasSize(0);
+		assertThat(this.mgr.getUserAuthorities(this.mgr.usernameMapper.buildLdapName("don"), "don")).hasSize(0);
 	}
 
 	@Test

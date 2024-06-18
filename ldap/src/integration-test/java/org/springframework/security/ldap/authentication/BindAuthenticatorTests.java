@@ -159,17 +159,19 @@ public class BindAuthenticatorTests {
 		BindAuthenticator authenticator = new BindAuthenticator(contextSource);
 		authenticator.setUserDnPatterns(new String[] { "uid={0},ou=people" });
 		LdapContext dirContext = mock(LdapContext.class);
-		given(dirContext.getAttributes(any(Name.class), any())).willThrow(new javax.naming.AuthenticationException("exception"));
-		Name fullDn = LdapUtils.newLdapName("uid=bob,ou=people").addAll(0, contextSource.getBaseLdapPath());
+		given(dirContext.getAttributes(any(Name.class), any()))
+			.willThrow(new javax.naming.AuthenticationException("exception"));
+		Name fullDn = LdapUtils.prepend(LdapUtils.newLdapName("uid=bob,ou=people"), contextSource.getBaseLdapName());
 		given(contextSource.getContext(fullDn.toString(), (String) this.bob.getCredentials())).willReturn(dirContext);
 		authenticator.setAlsoHandleJavaxNamingBindExceptions(true);
 		assertThatExceptionOfType(BadCredentialsException.class).isThrownBy(authenticateBob(authenticator));
 		authenticator.setAlsoHandleJavaxNamingBindExceptions(false);
 		assertThatExceptionOfType(AuthenticationException.class).isThrownBy(authenticateBob(authenticator))
-				.withCauseInstanceOf(javax.naming.AuthenticationException.class);
+			.withCauseInstanceOf(javax.naming.AuthenticationException.class);
 	}
 
 	private ThrowingCallable authenticateBob(BindAuthenticator authenticator) {
 		return () -> authenticator.authenticate(this.bob);
 	}
+
 }

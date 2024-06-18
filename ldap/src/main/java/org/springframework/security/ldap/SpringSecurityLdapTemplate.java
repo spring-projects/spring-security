@@ -33,6 +33,7 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
+import javax.naming.ldap.LdapName;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -44,8 +45,8 @@ import org.springframework.ldap.core.ContextMapper;
 import org.springframework.ldap.core.ContextSource;
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DirContextOperations;
-import org.springframework.ldap.core.DistinguishedName;
 import org.springframework.ldap.core.LdapTemplate;
+import org.springframework.ldap.support.LdapNameBuilder;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
@@ -113,8 +114,8 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
 	public DirContextOperations retrieveEntry(final String dn, final String[] attributesToRetrieve) {
 		return (DirContextOperations) executeReadOnly((ContextExecutor) (ctx) -> {
 			Attributes attrs = ctx.getAttributes(dn, attributesToRetrieve);
-			return new DirContextAdapter(attrs, new DistinguishedName(dn),
-					new DistinguishedName(ctx.getNameInNamespace()));
+			return new DirContextAdapter(attrs, LdapNameBuilder.newInstance(dn).build(),
+					LdapNameBuilder.newInstance(ctx.getNameInNamespace()).build());
 		});
 	}
 
@@ -266,8 +267,8 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
 	 */
 	public static DirContextOperations searchForSingleEntryInternal(DirContext ctx, SearchControls searchControls,
 			String base, String filter, Object[] params) throws NamingException {
-		final DistinguishedName ctxBaseDn = new DistinguishedName(ctx.getNameInNamespace());
-		final DistinguishedName searchBaseDn = new DistinguishedName(base);
+		final LdapName ctxBaseDn = LdapNameBuilder.newInstance(ctx.getNameInNamespace()).build();
+		final LdapName searchBaseDn = LdapNameBuilder.newInstance(base).build();
 		final NamingEnumeration<SearchResult> resultsEnum = ctx.search(searchBaseDn, filter, params,
 				buildControls(searchControls));
 		logger.trace(LogMessage.format("Searching for entry under DN '%s', base = '%s', filter = '%s'", ctxBaseDn,

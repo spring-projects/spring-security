@@ -22,12 +22,14 @@ import java.net.URISyntaxException;
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
+import javax.naming.ldap.LdapName;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DistinguishedName;
+import org.springframework.ldap.support.LdapNameBuilder;
 import org.springframework.security.crypto.codec.Utf8;
 import org.springframework.util.Assert;
 
@@ -84,13 +86,15 @@ public final class LdapUtils {
 		if (baseDn.length() == 0) {
 			return fullDn;
 		}
-		DistinguishedName base = new DistinguishedName(baseDn);
-		DistinguishedName full = new DistinguishedName(fullDn);
+		LdapName base = LdapNameBuilder.newInstance(baseDn).build();
+		LdapName full = LdapNameBuilder.newInstance(fullDn).build();
 		if (base.equals(full)) {
 			return "";
 		}
 		Assert.isTrue(full.startsWith(base), "Full DN does not start with base DN");
-		full.removeFirst(base);
+		for (int i = 0; i < base.size(); i++) {
+			full.remove(0);
+		}
 		return full.toString();
 	}
 
@@ -98,12 +102,22 @@ public final class LdapUtils {
 	 * Gets the full dn of a name by prepending the name of the context it is relative to.
 	 * If the name already contains the base name, it is returned unaltered.
 	 */
+	@Deprecated
 	public static DistinguishedName getFullDn(DistinguishedName dn, Context baseCtx) throws NamingException {
 		DistinguishedName baseDn = new DistinguishedName(baseCtx.getNameInNamespace());
 		if (dn.contains(baseDn)) {
 			return dn;
 		}
 		baseDn.append(dn);
+		return baseDn;
+	}
+
+	public static LdapName getFullDn(LdapName dn, Context baseCtx) throws NamingException {
+		LdapName baseDn = LdapNameBuilder.newInstance(baseCtx.getNameInNamespace()).build();
+		if (dn.startsWith(baseDn)) {
+			return dn;
+		}
+		baseDn.addAll(dn);
 		return baseDn;
 	}
 

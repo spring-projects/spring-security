@@ -36,7 +36,7 @@ import org.mockito.ArgumentCaptor;
 
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.ldap.core.DirContextAdapter;
-import org.springframework.ldap.core.DistinguishedName;
+import org.springframework.ldap.support.LdapNameBuilder;
 import org.springframework.security.authentication.AccountExpiredException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.CredentialsExpiredException;
@@ -118,8 +118,7 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 		customProvider.contextFactory = createContextFactoryReturning(ctx);
 		Authentication result = customProvider.authenticate(this.joe);
 		assertThat(result.isAuthenticated()).isTrue();
-		verify(ctx).search(any(DistinguishedName.class), eq(defaultSearchFilter), any(Object[].class),
-				any(SearchControls.class));
+		verify(ctx).search(any(Name.class), eq(defaultSearchFilter), any(Object[].class), any(SearchControls.class));
 	}
 
 	// SEC-2897,SEC-2224
@@ -158,8 +157,8 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 		given(ctx.getNameInNamespace()).willReturn("");
 		DirContextAdapter dca = new DirContextAdapter();
 		SearchResult sr = new SearchResult("CN=Joe Jannsen,CN=Users", dca, dca.getAttributes());
-		given(ctx.search(eq(new DistinguishedName("DC=mydomain,DC=eu")), any(String.class), any(Object[].class),
-				any(SearchControls.class)))
+		given(ctx.search(eq(LdapNameBuilder.newInstance("DC=mydomain,DC=eu").build()), any(String.class),
+				any(Object[].class), any(SearchControls.class)))
 			.willReturn(new MockNamingEnumeration(sr));
 		this.provider.contextFactory = createContextFactoryReturning(ctx);
 		assertThatExceptionOfType(BadCredentialsException.class).isThrownBy(() -> this.provider.authenticate(this.joe));
@@ -363,7 +362,7 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 		DirContextAdapter dca = new DirContextAdapter();
 		SearchResult sr = new SearchResult("CN=Joe Jannsen,CN=Users", dca, dca.getAttributes());
 		@SuppressWarnings("deprecation")
-		DistinguishedName searchBaseDn = new DistinguishedName(rootDn);
+		Name searchBaseDn = LdapNameBuilder.newInstance(rootDn).build();
 		given(ctx.search(eq(searchBaseDn), any(String.class), any(Object[].class), any(SearchControls.class)))
 			.willReturn(new MockNamingEnumeration(sr))
 			.willReturn(new MockNamingEnumeration(sr));

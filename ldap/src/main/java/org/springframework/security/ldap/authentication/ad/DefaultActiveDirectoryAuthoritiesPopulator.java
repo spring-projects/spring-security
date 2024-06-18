@@ -21,11 +21,13 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+import javax.naming.ldap.LdapName;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.ldap.core.DirContextOperations;
-import org.springframework.ldap.core.DistinguishedName;
+import org.springframework.ldap.support.LdapNameBuilder;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -59,7 +61,9 @@ public final class DefaultActiveDirectoryAuthoritiesPopulator implements LdapAut
 		List<GrantedAuthority> authorities = new ArrayList<>(groups.length);
 
 		for (String group : groups) {
-			authorities.add(new SimpleGrantedAuthority(new DistinguishedName(group).removeLast().getValue()));
+			LdapName name = LdapNameBuilder.newInstance(group).build();
+			String authority = name.getRdn(name.size() - 1).getValue().toString();
+			authorities.add(new SimpleGrantedAuthority(authority));
 		}
 
 		return authorities;

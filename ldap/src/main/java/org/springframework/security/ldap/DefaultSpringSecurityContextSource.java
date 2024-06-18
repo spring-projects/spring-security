@@ -88,7 +88,7 @@ public class DefaultSpringSecurityContextSource extends LdapContextSource {
 			public void setupEnvironment(Hashtable env, String dn, String password) {
 				super.setupEnvironment(env, dn, password);
 				// Remove the pooling flag unless authenticating as the 'manager' user.
-				if (!DefaultSpringSecurityContextSource.this.userDn.equals(dn)
+				if (!DefaultSpringSecurityContextSource.this.getUserDn().equals(dn)
 						&& env.containsKey(SUN_LDAP_POOLING_FLAG)) {
 					DefaultSpringSecurityContextSource.this.logger.trace("Removing pooling flag for user " + dn);
 					env.remove(SUN_LDAP_POOLING_FLAG);

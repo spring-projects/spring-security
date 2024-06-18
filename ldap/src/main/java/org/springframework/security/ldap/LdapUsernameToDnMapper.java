@@ -16,6 +16,8 @@
 
 package org.springframework.security.ldap;
 
+import javax.naming.ldap.LdapName;
+
 import org.springframework.ldap.core.DistinguishedName;
 
 /**
@@ -25,6 +27,14 @@ import org.springframework.ldap.core.DistinguishedName;
  */
 public interface LdapUsernameToDnMapper {
 
+	/**
+	 * @deprecated Use {@link #buildLdapName(String)} instead
+	 */
+	@Deprecated
 	DistinguishedName buildDn(String username);
+
+	default LdapName buildLdapName(String username) {
+		return org.springframework.ldap.support.LdapUtils.newLdapName(buildDn(username));
+	}
 
 }
