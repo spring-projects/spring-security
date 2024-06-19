@@ -615,7 +615,7 @@ public final class OpenSaml4AuthenticationProvider implements AuthenticationProv
 		if (result.hasErrors()) {
 			Collection<Saml2Error> errors = result.getErrors();
 			if (this.logger.isTraceEnabled()) {
-				this.logger.debug("Found " + errors.size() + " validation errors in SAML response [" + response.getID()
+				this.logger.trace("Found " + errors.size() + " validation errors in SAML response [" + response.getID()
 						+ "]: " + errors);
 			}
 			else if (this.logger.isDebugEnabled()) {
