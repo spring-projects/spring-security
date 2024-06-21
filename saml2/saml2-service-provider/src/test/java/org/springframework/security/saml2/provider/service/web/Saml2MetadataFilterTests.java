@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,8 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.saml2.core.TestSaml2X509Credentials;
 import org.springframework.security.saml2.provider.service.metadata.Saml2MetadataResolver;
+import org.springframework.security.saml2.provider.service.metadata.Saml2MetadataResponse;
+import org.springframework.security.saml2.provider.service.metadata.Saml2MetadataResponseResolver;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
 import org.springframework.security.saml2.provider.service.registration.TestRelyingPartyRegistrations;
@@ -109,6 +111,19 @@ public class Saml2MetadataFilterTests {
 		assertThat(this.response.getStatus()).isEqualTo(200);
 		assertThat(this.response.getContentAsString()).isEqualTo(generatedMetadata);
 		verify(this.resolver).resolve(validRegistration);
+	}
+
+	@Test
+	public void doFilterWhenMatchesThenRespondsWithMetadata() throws Exception {
+		Saml2MetadataResponse metadata = new Saml2MetadataResponse("<xml/>", "metadata.xml");
+		Saml2MetadataResponseResolver resolver = mock(Saml2MetadataResponseResolver.class);
+		given(resolver.resolve(this.request)).willReturn(metadata);
+		Saml2MetadataFilter filter = new Saml2MetadataFilter(resolver);
+		filter.doFilter(this.request, this.response, this.chain);
+		assertThat(this.response.getContentType()).isEqualTo("application/samlmetadata+xml;charset=UTF-8");
+		assertThat(this.response.getContentAsString()).isEqualTo("<xml/>");
+		assertThat(this.response.getHeaderValue(HttpHeaders.CONTENT_DISPOSITION)).asString()
+			.isEqualTo("attachment; filename=\"metadata.xml\"; filename*=UTF-8''metadata.xml");
 	}
 
 	@Test
