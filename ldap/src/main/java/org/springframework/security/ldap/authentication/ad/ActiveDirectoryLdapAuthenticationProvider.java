@@ -189,12 +189,11 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
 
 	private DirContext bindAsUser(String username, String password) {
 		// TODO. add DNS lookup based on domain
-		final String bindUrl = this.url;
 		Hashtable<String, Object> env = new Hashtable<>();
 		env.put(Context.SECURITY_AUTHENTICATION, "simple");
 		String bindPrincipal = createBindPrincipal(username);
 		env.put(Context.SECURITY_PRINCIPAL, bindPrincipal);
-		env.put(Context.PROVIDER_URL, bindUrl);
+		env.put(Context.PROVIDER_URL, this.url);
 		env.put(Context.SECURITY_CREDENTIALS, password);
 		env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
 		env.put(Context.OBJECT_FACTORIES, DefaultDirObjectFactory.class.getName());

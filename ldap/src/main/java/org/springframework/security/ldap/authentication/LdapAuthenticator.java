@@ -33,7 +33,7 @@ public interface LdapAuthenticator {
 
 	/**
 	 * Authenticates as a user and obtains additional user information from the directory.
-	 * @param authentication
+	 * @param authentication the authentication request
 	 * @return the details of the successfully authenticated user.
 	 */
 	DirContextOperations authenticate(Authentication authentication);

@@ -39,7 +39,7 @@ public interface UserDetailsContextMapper {
 	 * Creates a fully populated UserDetails object for use by the security framework.
 	 * @param ctx the context object which contains the user information.
 	 * @param username the user's supplied login name.
-	 * @param authorities
+	 * @param authorities the authorities to add to the {@code UserDetails} instance
 	 * @return the user object.
 	 */
 	UserDetails mapUserFromContext(DirContextOperations ctx, String username,

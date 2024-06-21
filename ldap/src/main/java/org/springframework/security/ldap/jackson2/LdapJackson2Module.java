@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2021 the original author or authors.
+ * Copyright 2015-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ import org.springframework.security.ldap.userdetails.Person;
  * {@link LdapAuthorityMixin}, {@link LdapUserDetailsImplMixin}, {@link PersonMixin},
  * {@link InetOrgPersonMixin}.
  *
+ * <p>
  * If not already enabled, default typing will be automatically enabled as type info is
  * required to properly serialize/deserialize objects. In order to use this module just
  * add it to your {@code ObjectMapper} configuration.

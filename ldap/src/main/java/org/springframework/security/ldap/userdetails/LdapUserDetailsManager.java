@@ -44,7 +44,6 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.core.log.LogMessage;
 import org.springframework.ldap.core.AttributesMapper;
 import org.springframework.ldap.core.AttributesMapperCallbackHandler;
-import org.springframework.ldap.core.ContextExecutor;
 import org.springframework.ldap.core.ContextSource;
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DistinguishedName;
@@ -121,7 +120,7 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 	private final LdapTemplate template;
 
 	/** Default context mapper used to create a set of roles from a list of attributes */
-	private AttributesMapper roleMapper = (attributes) -> {
+	private AttributesMapper<GrantedAuthority> roleMapper = (attributes) -> {
 		Attribute roleAttr = attributes.get(this.groupRoleAttributeName);
 		NamingEnumeration<?> ne = roleAttr.getAll();
 		Object group = ne.next();
@@ -147,7 +146,7 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 	}
 
 	private DirContextAdapter loadUserAsContext(final LdapName dn, final String username) {
-		return (DirContextAdapter) this.template.executeReadOnly((ContextExecutor) (ctx) -> {
+		return this.template.executeReadOnly((ctx) -> {
 			try {
 				Attributes attrs = ctx.getAttributes(dn, this.attributesToRetrieve);
 				return new DirContextAdapter(attrs, LdapUtils.getFullDn(dn, ctx));
@@ -162,6 +161,7 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 	 * Changes the password for the current user. The username is obtained from the
 	 * security context.
 	 *
+	 * <p>
 	 * There are two supported strategies for modifying the user's password depending on
 	 * the capabilities of the corresponding LDAP server.
 	 *
@@ -170,6 +170,7 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 	 * <a target="_blank" href="https://tools.ietf.org/html/rfc3062"> LDAP Password Modify
 	 * Extended Operation </a>.
 	 *
+	 * <p>
 	 * See {@link LdapUserDetailsManager#setUsePasswordModifyExtensionOperation(boolean)}
 	 * for details.
 	 * </p>
@@ -205,7 +206,6 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 	 * @param username the user whose roles are required.
 	 * @return the granted authorities returned by the group search
 	 */
-	@SuppressWarnings("unchecked")
 	List<GrantedAuthority> getUserAuthorities(final LdapName dn, final String username) {
 		SearchExecutor se = (ctx) -> {
 			LdapName fullDn = LdapUtils.getFullDn(dn, ctx);
@@ -214,7 +214,8 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 			return ctx.search(this.groupSearchBase, this.groupSearchFilter,
 					new String[] { fullDn.toString(), username }, ctrls);
 		};
-		AttributesMapperCallbackHandler roleCollector = new AttributesMapperCallbackHandler(this.roleMapper);
+		AttributesMapperCallbackHandler<GrantedAuthority> roleCollector = new AttributesMapperCallbackHandler<>(
+				this.roleMapper);
 		this.template.search(se, roleCollector);
 		return roleCollector.getList();
 	}
@@ -229,7 +230,7 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 		// Check for any existing authorities which might be set for this
 		// DN and remove them
 		List<GrantedAuthority> authorities = getUserAuthorities(dn, user.getUsername());
-		if (authorities.size() > 0) {
+		if (!authorities.isEmpty()) {
 			removeAuthorities(dn, authorities);
 		}
 		addAuthorities(dn, user.getAuthorities());
@@ -322,7 +323,7 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 
 	private void modifyAuthorities(final LdapName userDn, final Collection<? extends GrantedAuthority> authorities,
 			final int modType) {
-		this.template.executeReadWrite((ContextExecutor) (ctx) -> {
+		this.template.executeReadWrite((ctx) -> {
 			for (GrantedAuthority authority : authorities) {
 				String group = convertAuthorityToGroup(authority);
 				LdapName fullDn = LdapUtils.getFullDn(userDn, ctx);
@@ -389,20 +390,26 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 	/**
 	 * Sets the method by which a user's password gets modified.
 	 *
+	 * <p>
 	 * If set to {@code true}, then {@link LdapUserDetailsManager#changePassword} will
 	 * modify the user's password by way of the
 	 * <a target="_blank" href="https://tools.ietf.org/html/rfc3062">Password Modify
 	 * Extension Operation</a>.
 	 *
+	 * <p>
 	 * If set to {@code false}, then {@link LdapUserDetailsManager#changePassword} will
 	 * modify the user's password by directly modifying attributes on the corresponding
 	 * entry.
 	 *
+	 * <p>
 	 * Before using this setting, ensure that the corresponding LDAP server supports this
 	 * extended operation.
 	 *
+	 * <p>
 	 * By default, {@code usePasswordModifyExtensionOperation} is false.
-	 * @param usePasswordModifyExtensionOperation
+	 * @param usePasswordModifyExtensionOperation whether to use the
+	 * <a target="_blank" href="https://tools.ietf.org/html/rfc3062">Password Modify
+	 * Extension Operation</a> to modify the password
 	 * @since 4.2.9
 	 */
 	public void setUsePasswordModifyExtensionOperation(boolean usePasswordModifyExtensionOperation) {
@@ -473,6 +480,7 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 	 * <a target="_blank" href="https://tools.ietf.org/html/rfc3062"> LDAP Password Modify
 	 * Extended Operation </a> client request.
 	 *
+	 * <p>
 	 * Can be directed at any LDAP server that supports the Password Modify Extended
 	 * Operation.
 	 *

@@ -129,7 +129,7 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 	/**
 	 * The base DN from which the search for group membership should be performed
 	 */
-	private String groupSearchBase;
+	private final String groupSearchBase;
 
 	/**
 	 * The pattern to be used for the user search. {0} is the user's DN
@@ -166,7 +166,7 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 		if (groupSearchBase == null) {
 			logger.info("Will not perform group search since groupSearchBase is null.");
 		}
-		else if (groupSearchBase.length() == 0) {
+		else if (groupSearchBase.isEmpty()) {
 			logger.info("Will perform group search from the context source base since groupSearchBase is empty.");
 		}
 		this.authorityMapper = (record) -> {
@@ -363,16 +363,6 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 	 */
 	protected final boolean isConvertToUpperCase() {
 		return this.convertToUpperCase;
-	}
-
-	/**
-	 * Returns the default role Method available so that classes extending this can
-	 * override
-	 * @return the default role used
-	 * @see #setDefaultRole(String)
-	 */
-	private GrantedAuthority getDefaultRole() {
-		return this.defaultRole;
 	}
 
 	/**

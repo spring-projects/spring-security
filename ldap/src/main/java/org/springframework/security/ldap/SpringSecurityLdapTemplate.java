@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package org.springframework.security.ldap;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -40,7 +40,6 @@ import org.apache.commons.logging.LogFactory;
 
 import org.springframework.core.log.LogMessage;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
-import org.springframework.ldap.core.ContextExecutor;
 import org.springframework.ldap.core.ContextMapper;
 import org.springframework.ldap.core.ContextSource;
 import org.springframework.ldap.core.DirContextAdapter;
@@ -98,7 +97,7 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
 			searchControls.setSearchScope(SearchControls.OBJECT_SCOPE);
 			Object[] params = new Object[] { value };
 			NamingEnumeration<SearchResult> results = ctx.search(dn, comparisonFilter, params, searchControls);
-			Boolean match = results.hasMore();
+			boolean match = results.hasMore();
 			LdapUtils.closeEnumeration(results);
 			return match;
 		});
@@ -112,7 +111,7 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
 	 * @return the object created by the mapper
 	 */
 	public DirContextOperations retrieveEntry(final String dn, final String[] attributesToRetrieve) {
-		return (DirContextOperations) executeReadOnly((ContextExecutor) (ctx) -> {
+		return executeReadOnly((ctx) -> {
 			Attributes attrs = ctx.getAttributes(dn, attributesToRetrieve);
 			return new DirContextAdapter(attrs, LdapNameBuilder.newInstance(dn).build(),
 					LdapNameBuilder.newInstance(ctx.getNameInNamespace()).build());
@@ -169,18 +168,19 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
 		String formattedFilter = MessageFormat.format(filter, encodedParams);
 		logger.trace(LogMessage.format("Using filter: %s", formattedFilter));
 		HashSet<Map<String, List<String>>> result = new HashSet<>();
-		ContextMapper roleMapper = (ctx) -> {
+		ContextMapper<?> roleMapper = (ctx) -> {
 			DirContextAdapter adapter = (DirContextAdapter) ctx;
 			Map<String, List<String>> record = new HashMap<>();
 			if (ObjectUtils.isEmpty(attributeNames)) {
 				try {
-					for (NamingEnumeration enumeration = adapter.getAttributes().getAll(); enumeration.hasMore();) {
-						Attribute attr = (Attribute) enumeration.next();
+					for (NamingEnumeration<? extends Attribute> enumeration = adapter.getAttributes()
+						.getAll(); enumeration.hasMore();) {
+						Attribute attr = enumeration.next();
 						extractStringAttributeValues(adapter, record, attr.getID());
 					}
 				}
 				catch (NamingException ex) {
-					org.springframework.ldap.support.LdapUtils.convertLdapException(ex);
+					throw org.springframework.ldap.support.LdapUtils.convertLdapException(ex);
 				}
 			}
 			else {
@@ -188,7 +188,7 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
 					extractStringAttributeValues(adapter, record, attributeName);
 				}
 			}
-			record.put(DN_KEY, Arrays.asList(getAdapterDN(adapter)));
+			record.put(DN_KEY, Collections.singletonList(getAdapterDN(adapter)));
 			result.add(record);
 			return null;
 		};
@@ -258,8 +258,7 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
 	 * search returns more than one result.
 	 */
 	public DirContextOperations searchForSingleEntry(String base, String filter, Object[] params) {
-		return (DirContextOperations) executeReadOnly((ContextExecutor) (ctx) -> searchForSingleEntryInternal(ctx,
-				this.searchControls, base, filter, params));
+		return executeReadOnly((ctx) -> searchForSingleEntryInternal(ctx, this.searchControls, base, filter, params));
 	}
 
 	/**
@@ -296,8 +295,9 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
 	/**
 	 * We need to make sure the search controls has the return object flag set to true, in
 	 * order for the search to return DirContextAdapter instances.
-	 * @param originalControls
-	 * @return
+	 * @param originalControls the {@link SearchControls} that might have the return
+	 * object flag set to true
+	 * @return a {@link SearchControls} that does have the return object flag set to true
 	 */
 	private static SearchControls buildControls(SearchControls originalControls) {
 		return new SearchControls(originalControls.getSearchScope(), originalControls.getCountLimit(),

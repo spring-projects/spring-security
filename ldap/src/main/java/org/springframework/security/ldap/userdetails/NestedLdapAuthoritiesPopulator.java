@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2014 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -176,7 +176,7 @@ public class NestedLdapAuthoritiesPopulator extends DefaultLdapAuthoritiesPopula
 		if (getAttributeNames() == null) {
 			setAttributeNames(new HashSet<>());
 		}
-		if (StringUtils.hasText(getGroupRoleAttribute()) && !getAttributeNames().contains(getGroupRoleAttribute())) {
+		if (StringUtils.hasText(getGroupRoleAttribute())) {
 			getAttributeNames().add(getGroupRoleAttribute());
 		}
 		Set<Map<String, List<String>>> userRoles = getLdapTemplate().searchForMultipleAttributeValues(
@@ -200,7 +200,7 @@ public class NestedLdapAuthoritiesPopulator extends DefaultLdapAuthoritiesPopula
 				// this prevents a forever loop for a misconfigured ldap directory
 				circular = circular | (!authorities.add(new LdapAuthority(role, dn, record)));
 			}
-			String roleName = (roles.size() > 0) ? roles.iterator().next() : dn;
+			String roleName = (!roles.isEmpty()) ? roles.iterator().next() : dn;
 			if (!circular) {
 				performNestedSearch(dn, roleName, authorities, (depth - 1));
 			}
