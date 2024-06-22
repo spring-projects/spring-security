@@ -48,6 +48,7 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 class Saml2Dsl {
     var relyingPartyRegistrationRepository: RelyingPartyRegistrationRepository? = null
     var loginPage: String? = null
+    var authenticationRequestUriQuery: String? = null
     var authenticationSuccessHandler: AuthenticationSuccessHandler? = null
     var authenticationFailureHandler: AuthenticationFailureHandler? = null
     var failureUrl: String? = null
@@ -87,6 +88,9 @@ class Saml2Dsl {
             permitAll?.also { saml2Login.permitAll(permitAll!!) }
             defaultSuccessUrlOption?.also {
                 saml2Login.defaultSuccessUrl(defaultSuccessUrlOption!!.first, defaultSuccessUrlOption!!.second)
+            }
+            authenticationRequestUriQuery?.also {
+                saml2Login.authenticationRequestUriQuery(authenticationRequestUriQuery)
             }
             authenticationSuccessHandler?.also { saml2Login.successHandler(authenticationSuccessHandler) }
             authenticationFailureHandler?.also { saml2Login.failureHandler(authenticationFailureHandler) }

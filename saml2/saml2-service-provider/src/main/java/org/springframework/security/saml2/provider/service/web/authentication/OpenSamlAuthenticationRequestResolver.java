@@ -17,6 +17,8 @@
 package org.springframework.security.saml2.provider.service.web.authentication;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.BiConsumer;
@@ -50,8 +52,11 @@ import org.springframework.security.saml2.provider.service.registration.Saml2Mes
 import org.springframework.security.saml2.provider.service.web.RelyingPartyRegistrationPlaceholderResolvers;
 import org.springframework.security.saml2.provider.service.web.RelyingPartyRegistrationPlaceholderResolvers.UriResolver;
 import org.springframework.security.saml2.provider.service.web.RelyingPartyRegistrationResolver;
+import org.springframework.security.web.util.matcher.AndRequestMatcher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.ParameterRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatchers;
 import org.springframework.util.Assert;
 
 /**
@@ -75,8 +80,9 @@ class OpenSamlAuthenticationRequestResolver {
 
 	private final NameIDPolicyBuilder nameIdPolicyBuilder;
 
-	private RequestMatcher requestMatcher = new AntPathRequestMatcher(
-			Saml2AuthenticationRequestResolver.DEFAULT_AUTHENTICATION_REQUEST_URI);
+	private RequestMatcher requestMatcher = RequestMatchers.anyOf(
+			new AntPathRequestMatcher(Saml2AuthenticationRequestResolver.DEFAULT_AUTHENTICATION_REQUEST_URI),
+			new AntPathQueryRequestMatcher("/saml2/authenticate", "registrationId={registrationId}"));
 
 	private Converter<HttpServletRequest, String> relayStateResolver = (request) -> UUID.randomUUID().toString();
 
@@ -197,6 +203,37 @@ class OpenSamlAuthenticationRequestResolver {
 		catch (MarshallingException ex) {
 			throw new Saml2Exception(ex);
 		}
+	}
+
+	private static final class AntPathQueryRequestMatcher implements RequestMatcher {
+
+		private final RequestMatcher matcher;
+
+		AntPathQueryRequestMatcher(String path, String... params) {
+			List<RequestMatcher> matchers = new ArrayList<>();
+			matchers.add(new AntPathRequestMatcher(path));
+			for (String param : params) {
+				String[] parts = param.split("=");
+				if (parts.length == 1) {
+					matchers.add(new ParameterRequestMatcher(parts[0]));
+				}
+				else {
+					matchers.add(new ParameterRequestMatcher(parts[0], parts[1]));
+				}
+			}
+			this.matcher = new AndRequestMatcher(matchers);
+		}
+
+		@Override
+		public boolean matches(HttpServletRequest request) {
+			return matcher(request).isMatch();
+		}
+
+		@Override
+		public MatchResult matcher(HttpServletRequest request) {
+			return this.matcher.matcher(request);
+		}
+
 	}
 
 }
