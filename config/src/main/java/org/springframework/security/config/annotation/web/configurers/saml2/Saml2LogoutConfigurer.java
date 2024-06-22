@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,6 @@ package org.springframework.security.config.annotation.web.configurers.saml2;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import java.util.function.Predicate;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -60,6 +58,7 @@ import org.springframework.security.web.csrf.CsrfLogoutHandler;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.security.web.util.matcher.AndRequestMatcher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.ParameterRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
 /**
@@ -504,23 +503,6 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 				return false;
 			}
 			return authentication.getPrincipal() instanceof Saml2AuthenticatedPrincipal;
-		}
-
-	}
-
-	private static class ParameterRequestMatcher implements RequestMatcher {
-
-		Predicate<String> test = Objects::nonNull;
-
-		String name;
-
-		ParameterRequestMatcher(String name) {
-			this.name = name;
-		}
-
-		@Override
-		public boolean matches(HttpServletRequest request) {
-			return this.test.test(request.getParameter(this.name));
 		}
 
 	}
