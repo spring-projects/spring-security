@@ -81,7 +81,7 @@ org-python-jython = { module = "org.python:jython", version = "2.5.3" }
 org-seleniumhq-selenium-htmlunit-driver = "org.seleniumhq.selenium:htmlunit-driver:2.70.0"
 org-seleniumhq-selenium-selenium-java = "org.seleniumhq.selenium:selenium-java:3.141.59"
 org-seleniumhq-selenium-selenium-support = "org.seleniumhq.selenium:selenium-support:3.141.59"
-org-skyscreamer-jsonassert = "org.skyscreamer:jsonassert:1.5.1"
+org-skyscreamer-jsonassert = "org.skyscreamer:jsonassert:1.5.2"
 org-slf4j-log4j-over-slf4j = "org.slf4j:log4j-over-slf4j:1.7.36"
 org-slf4j-slf4j-api = "org.slf4j:slf4j-api:2.0.13"
 org-springframework-data-spring-data-bom = "org.springframework.data:spring-data-bom:2024.0.1"
