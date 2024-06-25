@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.security.web.server.csrf.CsrfToken;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
+import org.springframework.security.web.util.CssUtils;
 import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.server.ServerWebExchange;
@@ -97,14 +98,10 @@ public class LoginPageGeneratingWebFilter implements WebFilter {
 		page.append("    <meta name=\"description\" content=\"\">\n");
 		page.append("    <meta name=\"author\" content=\"\">\n");
 		page.append("    <title>Please sign in</title>\n");
-		page.append("    <link href=\"https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css\" "
-				+ "rel=\"stylesheet\" integrity=\"sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M\" "
-				+ "crossorigin=\"anonymous\">\n");
-		page.append("    <link href=\"https://getbootstrap.com/docs/4.0/examples/signin/signin.css\" "
-				+ "rel=\"stylesheet\" integrity=\"sha384-oOE/3m0LUMPub4kaC09mrdEhIc+e3exm4xOGxAmuFXhBNF4hcg/6MiAXAf5p0P56\" crossorigin=\"anonymous\"/>\n");
+		page.append(CssUtils.getCssStyleBlock().indent(4));
 		page.append("  </head>\n");
 		page.append("  <body>\n");
-		page.append("     <div class=\"container\">\n");
+		page.append("     <div class=\"content\">\n");
 		page.append(formLogin(queryParams, contextPath, csrfTokenHtmlInput));
 		page.append(oauth2LoginLinks(queryParams, contextPath, this.oauth2AuthenticationUrlToClientName));
 		page.append("    </div>\n");
@@ -120,21 +117,21 @@ public class LoginPageGeneratingWebFilter implements WebFilter {
 		boolean isError = queryParams.containsKey("error");
 		boolean isLogoutSuccess = queryParams.containsKey("logout");
 		StringBuilder page = new StringBuilder();
-		page.append("      <form class=\"form-signin\" method=\"post\" action=\"" + contextPath + "/login\">\n");
-		page.append("        <h2 class=\"form-signin-heading\">Please sign in</h2>\n");
+		page.append("      <form class=\"login-form\" method=\"post\" action=\"" + contextPath + "/login\">\n");
+		page.append("        <h2>Please sign in</h2>\n");
 		page.append(createError(isError));
 		page.append(createLogoutSuccess(isLogoutSuccess));
 		page.append("        <p>\n");
-		page.append("          <label for=\"username\" class=\"sr-only\">Username</label>\n");
+		page.append("          <label for=\"username\" class=\"screenreader\">Username</label>\n");
 		page.append("          <input type=\"text\" id=\"username\" name=\"username\" "
-				+ "class=\"form-control\" placeholder=\"Username\" required autofocus>\n");
+				+ "placeholder=\"Username\" required autofocus>\n");
 		page.append("        </p>\n" + "        <p>\n");
-		page.append("          <label for=\"password\" class=\"sr-only\">Password</label>\n");
+		page.append("          <label for=\"password\" class=\"screenreader\">Password</label>\n");
 		page.append("          <input type=\"password\" id=\"password\" name=\"password\" "
-				+ "class=\"form-control\" placeholder=\"Password\" required>\n");
+				+ "placeholder=\"Password\" required>\n");
 		page.append("        </p>\n");
 		page.append(csrfTokenHtmlInput);
-		page.append("        <button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\">Sign in</button>\n");
+		page.append("        <button class=\"primary\" type=\"submit\">Sign in</button>\n");
 		page.append("      </form>\n");
 		return page.toString();
 	}
@@ -146,7 +143,7 @@ public class LoginPageGeneratingWebFilter implements WebFilter {
 		}
 		boolean isError = queryParams.containsKey("error");
 		StringBuilder sb = new StringBuilder();
-		sb.append("<div class=\"container\"><h2 class=\"form-signin-heading\">Login with OAuth 2.0</h2>");
+		sb.append("<div class=\"content\"><h2>Login with OAuth 2.0</h2>");
 		sb.append(createError(isError));
 		sb.append("<table class=\"table table-striped\">\n");
 		for (Map.Entry<String, String> clientAuthenticationUrlToClientName : oauth2AuthenticationUrlToClientName

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.rememberme.AbstractRememberMeServices;
+import org.springframework.security.web.util.CssUtils;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.GenericFilterBean;
@@ -201,33 +202,30 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 		sb.append("    <meta name=\"description\" content=\"\">\n");
 		sb.append("    <meta name=\"author\" content=\"\">\n");
 		sb.append("    <title>Please sign in</title>\n");
-		sb.append("    <link href=\"https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css\" "
-				+ "rel=\"stylesheet\" integrity=\"sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M\" crossorigin=\"anonymous\">\n");
-		sb.append("    <link href=\"https://getbootstrap.com/docs/4.0/examples/signin/signin.css\" "
-				+ "rel=\"stylesheet\" integrity=\"sha384-oOE/3m0LUMPub4kaC09mrdEhIc+e3exm4xOGxAmuFXhBNF4hcg/6MiAXAf5p0P56\" crossorigin=\"anonymous\"/>\n");
+		sb.append(CssUtils.getCssStyleBlock().indent(4));
 		sb.append("  </head>\n");
 		sb.append("  <body>\n");
-		sb.append("     <div class=\"container\">\n");
+		sb.append("     <div class=\"content\">\n");
 		if (this.formLoginEnabled) {
-			sb.append("      <form class=\"form-signin\" method=\"post\" action=\"" + contextPath
+			sb.append("      <form class=\"login-form\" method=\"post\" action=\"" + contextPath
 					+ this.authenticationUrl + "\">\n");
-			sb.append("        <h2 class=\"form-signin-heading\">Please sign in</h2>\n");
+			sb.append("        <h2>Please sign in</h2>\n");
 			sb.append(createError(loginError, errorMsg) + createLogoutSuccess(logoutSuccess) + "        <p>\n");
-			sb.append("          <label for=\"username\" class=\"sr-only\">Username</label>\n");
+			sb.append("          <label for=\"username\" class=\"screenreader\">Username</label>\n");
 			sb.append("          <input type=\"text\" id=\"username\" name=\"" + this.usernameParameter
-					+ "\" class=\"form-control\" placeholder=\"Username\" required autofocus>\n");
+					+ "\" placeholder=\"Username\" required autofocus>\n");
 			sb.append("        </p>\n");
 			sb.append("        <p>\n");
-			sb.append("          <label for=\"password\" class=\"sr-only\">Password</label>\n");
+			sb.append("          <label for=\"password\" class=\"screenreader\">Password</label>\n");
 			sb.append("          <input type=\"password\" id=\"password\" name=\"" + this.passwordParameter
-					+ "\" class=\"form-control\" placeholder=\"Password\" required>\n");
+					+ "\" placeholder=\"Password\" required>\n");
 			sb.append("        </p>\n");
 			sb.append(createRememberMe(this.rememberMeParameter) + renderHiddenInputs(request));
-			sb.append("        <button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\">Sign in</button>\n");
+			sb.append("        <button type=\"submit\" class=\"primary\">Sign in</button>\n");
 			sb.append("      </form>\n");
 		}
 		if (this.oauth2LoginEnabled) {
-			sb.append("<h2 class=\"form-signin-heading\">Login with OAuth 2.0</h2>");
+			sb.append("<h2>Login with OAuth 2.0</h2>");
 			sb.append(createError(loginError, errorMsg));
 			sb.append(createLogoutSuccess(logoutSuccess));
 			sb.append("<table class=\"table table-striped\">\n");
@@ -244,7 +242,7 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 			sb.append("</table>\n");
 		}
 		if (this.saml2LoginEnabled) {
-			sb.append("<h2 class=\"form-signin-heading\">Login with SAML 2.0</h2>");
+			sb.append("<h2>Login with SAML 2.0</h2>");
 			sb.append(createError(loginError, errorMsg));
 			sb.append(createLogoutSuccess(logoutSuccess));
 			sb.append("<table class=\"table table-striped\">\n");
