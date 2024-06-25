@@ -19,9 +19,12 @@ package org.springframework.security.oauth2.server.resource.authentication;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
+import org.springframework.expression.Expression;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -227,6 +230,33 @@ public class JwtGrantedAuthoritiesConverterTests {
 		Collection<GrantedAuthority> authorities = jwtGrantedAuthoritiesConverter.convert(jwt);
 		assertThat(authorities).containsExactly(new SimpleGrantedAuthority("SCOPE_message:read"),
 				new SimpleGrantedAuthority("SCOPE_message:write"));
+	}
+
+	@Test
+	public void convertWhenTokenHasCustomClaimNameExpressionThenCustomClaimNameAttributeIsTranslatedToAuthorities() {
+		// @formatter:off
+		Jwt jwt = TestJwts.jwt()
+				.claim("nested", Map.of("roles", Arrays.asList("role1", "role2")))
+				.build();
+		// @formatter:on
+		JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
+		jwtGrantedAuthoritiesConverter.setAuthoritiesClaimExpression(new SpelExpressionParser().parseRaw("[nested][roles]"));
+		Collection<GrantedAuthority> authorities = jwtGrantedAuthoritiesConverter.convert(jwt);
+		assertThat(authorities).containsExactly(new SimpleGrantedAuthority("SCOPE_role1"),
+				new SimpleGrantedAuthority("SCOPE_role2"));
+	}
+
+	@Test
+	public void convertWhenTokenHasCustomInvalidClaimNameExpressionThenCustomClaimNameAttributeIsTranslatedToEmptyAuthorities() {
+		// @formatter:off
+		Jwt jwt = TestJwts.jwt()
+				.claim("other", Map.of("roles", Arrays.asList("role1", "role2")))
+				.build();
+		// @formatter:on
+		JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
+		jwtGrantedAuthoritiesConverter.setAuthoritiesClaimExpression(new SpelExpressionParser().parseRaw("[nested][roles]"));
+		Collection<GrantedAuthority> authorities = jwtGrantedAuthoritiesConverter.convert(jwt);
+		assertThat(authorities).isEmpty();
 	}
 
 	@Test
