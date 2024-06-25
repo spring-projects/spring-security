@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -161,7 +161,7 @@ public class Saml2LoginBeanDefinitionParserTests {
 		// @formatter:off
 		this.mvc.perform(get("/"))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl("http://localhost/saml2/authenticate/one"));
+				.andExpect(redirectedUrl("/saml2/authenticate/one"));
 		// @formatter:on
 		verify(this.requestCache).saveRequest(any(), any());
 	}
@@ -172,7 +172,7 @@ public class Saml2LoginBeanDefinitionParserTests {
 		// @formatter:off
 		this.mvc.perform(get("/"))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl("http://localhost/login"));
+				.andExpect(redirectedUrl("/login"));
 		// @formatter:on
 	}
 

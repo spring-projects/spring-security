@@ -129,12 +129,18 @@ public class LoginUrlAuthenticationEntryPointTests {
 		ep.setPortResolver(new MockPortResolver(80, 443));
 		ep.afterPropertiesSet();
 		ep.commence(request, response, null);
-		assertThat(response.getRedirectedUrl()).isEqualTo("https://www.example.com/bigWebApp/hello");
+		assertThat(response.getRedirectedUrl()).isEqualTo("/bigWebApp/hello");
 		request.setServerPort(8443);
 		response = new MockHttpServletResponse();
 		ep.setPortResolver(new MockPortResolver(8080, 8443));
 		ep.commence(request, response, null);
-		assertThat(response.getRedirectedUrl()).isEqualTo("https://www.example.com:8443/bigWebApp/hello");
+		assertThat(response.getRedirectedUrl()).isEqualTo("/bigWebApp/hello");
+		// access to https via http port
+		request.setServerPort(8080);
+		response = new MockHttpServletResponse();
+		ep.setPortResolver(new MockPortResolver(8080, 8443));
+		ep.commence(request, response, null);
+		assertThat(response.getRedirectedUrl()).isEqualTo("/bigWebApp/hello");
 	}
 
 	@Test
@@ -152,7 +158,7 @@ public class LoginUrlAuthenticationEntryPointTests {
 		request.setServerPort(80);
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		ep.commence(request, response, null);
-		assertThat(response.getRedirectedUrl()).isEqualTo("http://localhost/bigWebApp/hello");
+		assertThat(response.getRedirectedUrl()).isEqualTo("/bigWebApp/hello");
 	}
 
 	@Test
@@ -172,7 +178,7 @@ public class LoginUrlAuthenticationEntryPointTests {
 		ep.commence(request, response, null);
 		// Response doesn't switch to HTTPS, as we didn't know HTTP port 8888 to HTTP port
 		// mapping
-		assertThat(response.getRedirectedUrl()).isEqualTo("http://localhost:8888/bigWebApp/hello");
+		assertThat(response.getRedirectedUrl()).isEqualTo("/bigWebApp/hello");
 	}
 
 	@Test
