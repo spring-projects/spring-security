@@ -31,6 +31,7 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
+import org.springframework.security.oauth2.core.converter.ClaimTypeConverter;
 import org.springframework.security.oauth2.jwt.BadJwtException;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
@@ -80,7 +81,8 @@ final class OidcBackChannelLogoutAuthenticationProvider implements Authenticatio
 				.jwtProcessorCustomizer((processor) -> processor.setJWSTypeVerifier(typeVerifier))
 				.build();
 			decoder.setJwtValidator(jwtValidator.apply(clientRegistration));
-			decoder.setClaimSetConverter(OidcIdTokenDecoderFactory.createDefaultClaimTypeConverter());
+			decoder.setClaimSetConverter(
+					new ClaimTypeConverter(OidcIdTokenDecoderFactory.createDefaultClaimTypeConverters()));
 			return decoder;
 		};
 	}
