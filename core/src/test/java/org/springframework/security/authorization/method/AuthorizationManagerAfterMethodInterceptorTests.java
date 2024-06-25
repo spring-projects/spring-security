@@ -82,9 +82,8 @@ public class AuthorizationManagerAfterMethodInterceptorTests {
 
 	@Test
 	public void afterWhenMockSecurityContextHolderStrategyThenUses() throws Throwable {
-		SecurityContextHolderStrategy strategy = mock(SecurityContextHolderStrategy.class);
 		Authentication authentication = TestAuthentication.authenticatedUser();
-		given(strategy.getContext()).willReturn(new SecurityContextImpl(authentication));
+		SecurityContextHolderStrategy strategy = MockSecurityContextHolderStrategy.getmock(new SecurityContextImpl(authentication));
 		MethodInvocation invocation = mock(MethodInvocation.class);
 		AuthorizationManager<MethodInvocationResult> authorizationManager = AuthenticatedAuthorizationManager
 			.authenticated();
@@ -98,10 +97,9 @@ public class AuthorizationManagerAfterMethodInterceptorTests {
 	// gh-12877
 	@Test
 	public void afterWhenStaticSecurityContextHolderStrategyAfterConstructorThenUses() throws Throwable {
-		SecurityContextHolderStrategy strategy = mock(SecurityContextHolderStrategy.class);
 		Authentication authentication = new TestingAuthenticationToken("john", "password",
 				AuthorityUtils.createAuthorityList("authority"));
-		given(strategy.getContext()).willReturn(new SecurityContextImpl(authentication));
+		SecurityContextHolderStrategy strategy = MockSecurityContextHolderStrategy.getmock(new SecurityContextImpl(authentication));
 		MethodInvocation invocation = mock(MethodInvocation.class);
 		AuthorizationManager<MethodInvocationResult> authorizationManager = AuthenticatedAuthorizationManager
 			.authenticated();
