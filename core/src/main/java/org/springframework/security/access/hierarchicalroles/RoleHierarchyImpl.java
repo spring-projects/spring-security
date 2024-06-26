@@ -290,6 +290,7 @@ public class RoleHierarchyImpl implements RoleHierarchy {
 		 * @param authority the highest authority in this branch
 		 * @return a {@link ImpliedRoles} to define the child roles for the
 		 * <code>authority</code>
+		 * @since 6.4
 		 */
 		public ImpliedRoles authority(String authority) {
 			Assert.hasText(authority, "authority must not be empty");
