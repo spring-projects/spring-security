@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package org.springframework.security.oauth2.client.oidc.web.server.logout;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Collections;
+import java.util.Objects;
 
 import jakarta.servlet.ServletException;
 import org.junit.jupiter.api.BeforeEach;
@@ -197,6 +198,25 @@ public class OidcClientInitiatedServerLogoutSuccessHandlerTests {
 	@Test
 	public void setPostLogoutRedirectUriTemplateWhenGivenNullThenThrowsException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.handler.setPostLogoutRedirectUri((String) null));
+	}
+
+	@Test
+	public void logoutWhenCustomRedirectUriResolverSetThenRedirects() {
+		OAuth2AuthenticationToken token = new OAuth2AuthenticationToken(TestOidcUsers.create(),
+				AuthorityUtils.NO_AUTHORITIES, this.registration.getRegistrationId());
+		WebFilterExchange filterExchange = new WebFilterExchange(this.exchange, this.chain);
+		given(this.exchange.getRequest())
+			.willReturn(MockServerHttpRequest.get("/").queryParam("location", "https://test.com").build());
+		// @formatter:off
+		this.handler.setRedirectUriResolver((params) -> Mono.just(
+						Objects.requireNonNull(params.getServerWebExchange()
+								.getRequest()
+								.getQueryParams()
+								.getFirst("location"))));
+		// @formatter:on
+		this.handler.onLogoutSuccess(filterExchange, token).block();
+
+		assertThat(redirectedUrl(this.exchange)).isEqualTo("https://test.com");
 	}
 
 	private String redirectedUrl(ServerWebExchange exchange) {
