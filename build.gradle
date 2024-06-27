@@ -24,6 +24,7 @@ apply plugin: 's101'
 apply plugin: 'io.spring.convention.root'
 apply plugin: 'org.jetbrains.kotlin.jvm'
 apply plugin: 'org.springframework.security.versions.verify-dependencies-versions'
+apply plugin: 'org.springframework.security.check-expected-branch-version'
 apply plugin: 'io.spring.security.release'
 
 group = 'org.springframework.security'
