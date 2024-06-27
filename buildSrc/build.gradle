@@ -47,6 +47,10 @@ gradlePlugin {
 			id = "org.springframework.security.versions.verify-dependencies-versions"
 			implementationClass = "org.springframework.security.convention.versions.VerifyDependenciesVersionsPlugin"
 		}
+		checkExpectedBranchVersion {
+			id = "org.springframework.security.check-expected-branch-version"
+			implementationClass = "org.springframework.security.CheckExpectedBranchVersionPlugin"
+		}
 	}
 }
 
