@@ -45,6 +45,9 @@ public class CheckExpectedBranchVersionPlugin implements Plugin<Project> {
 		@TaskAction
 		public void run() throws IOException {
 			Project project = getProject();
+			if (project.hasProperty("skipCheckExpectedBranchVersion")) {
+				return;
+			}
 			String version = (String) project.getVersion();
 			String branchVersion = getBranchVersion(project);
 			if (!branchVersion.matches("^[0-9]+\\.[0-9]+\\.x$")) {
