@@ -250,11 +250,11 @@ If you want to see the list of filters invoked for a particular request, you can
 Often times, it is useful to see the list of security ``Filter``s that are invoked for a particular request.
 For example, you want to make sure that the <<adding-custom-filter,filter you have added>> is in the list of the security filters.
 
-The list of filters is printed at INFO level on the application startup, so you can see something like the following on the console output for example:
+The list of filters is printed at DEBUG level on the application startup, so you can see something like the following on the console output for example:
 
 [source,text,role="terminal"]
 ----
-2023-06-14T08:55:22.321-03:00  INFO 76975 --- [           main] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [
+2023-06-14T08:55:22.321-03:00  DEBUG 76975 --- [           main] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [
 org.springframework.security.web.session.DisableEncodeUrlFilter@404db674,
 org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@50f097b5,
 org.springframework.security.web.context.SecurityContextHolderFilter@6fc6deb7,
