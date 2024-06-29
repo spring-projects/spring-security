@@ -151,6 +151,7 @@ public class WebSecurityConfig {
 		CorsConfiguration configuration = new CorsConfiguration();
 		configuration.setAllowedOrigins(Arrays.asList("https://api.example.com"));
 		configuration.setAllowedMethods(Arrays.asList("GET","POST"));
+		config.setAllowedHeaders(Arrays.asList("Authorization")); // remember to add necessary headers, as headers like "Authorization" is not allowed be default
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 		source.registerCorsConfiguration("/**", configuration);
 		return source;
