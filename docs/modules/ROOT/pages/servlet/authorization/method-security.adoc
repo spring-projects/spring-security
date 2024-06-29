@@ -1804,7 +1804,7 @@ The intention of this expression is to require that the current `Authentication`
 +
 Behind the scenes, this is implemented by using `AnnotationParameterNameDiscoverer`, which you can customize to support the value attribute of any specified annotation.
 
-* If xref:servlet/integrations/data.adoc[Spring Data's] `@Param` annotation is present on at least one parameter for the method, the value is used.
+2. If xref:servlet/integrations/data.adoc[Spring Data's] `@Param` annotation is present on at least one parameter for the method, the value is used.
 The following example uses the `@Param` annotation:
 +
 [tabs]
@@ -1838,10 +1838,10 @@ The intention of this expression is to require that `name` be equal to `Authenti
 +
 Behind the scenes, this is implemented by using `AnnotationParameterNameDiscoverer`, which you can customize to support the value attribute of any specified annotation.
 
-* If you compile your code with the `-parameters` argument, the standard JDK reflection API is used to discover the parameter names.
+3. If you compile your code with the `-parameters` argument, the standard JDK reflection API is used to discover the parameter names.
 This works on both classes and interfaces.
 
-* Finally, if you compile your code with debug symbols, the parameter names are discovered by using the debug symbols.
+4. Finally, if you compile your code with debug symbols, the parameter names are discovered by using the debug symbols.
 This does not work for interfaces, since they do not have debug information about the parameter names.
 For interfaces, either annotations or the `-parameters` approach must be used.
 
