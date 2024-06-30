@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -127,11 +127,11 @@ final class OpenSamlLogoutResponseResolver {
 	 * @return a signed and serialized SAML 2.0 Logout Response
 	 */
 	Saml2LogoutResponse resolve(HttpServletRequest request, Authentication authentication) {
-		return resolve(request, authentication, (registration, logoutResponse) -> {
+		return resolve(request, authentication, StatusCode.SUCCESS, (registration, logoutResponse) -> {
 		});
 	}
 
-	Saml2LogoutResponse resolve(HttpServletRequest request, Authentication authentication,
+	Saml2LogoutResponse resolve(HttpServletRequest request, Authentication authentication, String statusCode,
 			BiConsumer<RelyingPartyRegistration, LogoutResponse> logoutResponseConsumer) {
 		LogoutRequest logoutRequest = parse(extractSamlRequest(request));
 		String registrationId = getRegistrationId(authentication);
@@ -154,7 +154,7 @@ final class OpenSamlLogoutResponseResolver {
 		issuer.setValue(entityId);
 		logoutResponse.setIssuer(issuer);
 		StatusCode code = this.statusCodeBuilder.buildObject();
-		code.setValue(StatusCode.SUCCESS);
+		code.setValue(statusCode);
 		Status status = this.statusBuilder.buildObject();
 		status.setStatusCode(code);
 		logoutResponse.setStatus(status);

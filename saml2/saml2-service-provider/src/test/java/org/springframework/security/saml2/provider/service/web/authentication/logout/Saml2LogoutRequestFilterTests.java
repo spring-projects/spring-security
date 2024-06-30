@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.saml2.core.Saml2Error;
+import org.springframework.security.saml2.core.Saml2ErrorCodes;
 import org.springframework.security.saml2.core.Saml2ParameterNames;
 import org.springframework.security.saml2.provider.service.authentication.logout.Saml2LogoutRequestValidator;
 import org.springframework.security.saml2.provider.service.authentication.logout.Saml2LogoutResponse;
@@ -40,6 +41,7 @@ import org.springframework.security.web.authentication.logout.LogoutHandler;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.mock;
 import static org.mockito.Mockito.verify;
@@ -117,12 +119,7 @@ public class Saml2LogoutRequestFilterTests {
 		verify(this.logoutRequestValidator).validate(any());
 		verify(this.logoutHandler).logout(any(), any(), any());
 		verify(this.logoutResponseResolver).resolve(any(), any());
-		String content = response.getContentAsString();
-		assertThat(content).contains(Saml2ParameterNames.SAML_RESPONSE);
-		assertThat(content).contains(registration.getAssertingPartyDetails().getSingleLogoutServiceResponseLocation());
-		assertThat(content).contains(
-				"<meta http-equiv=\"Content-Security-Policy\" content=\"script-src 'sha256-oZhLbc2kO8b8oaYLrUc7uye1MgVKMyLtPqWR4WtKF+c='\">");
-		assertThat(content).contains("<script>window.onload = function() { document.forms[0].submit(); }</script>");
+		checkResponse(response.getContentAsString(), registration);
 		verify(this.securityContextHolderStrategy).getContext();
 	}
 
@@ -150,24 +147,38 @@ public class Saml2LogoutRequestFilterTests {
 	}
 
 	@Test
-	public void doFilterWhenValidationFailsThen401() throws Exception {
-		RelyingPartyRegistration registration = TestRelyingPartyRegistrations.full().build();
+	public void doFilterWhenValidationFailsErrorLogoutResponseIsPosted() throws Exception {
+		RelyingPartyRegistration registration = TestRelyingPartyRegistrations.full()
+			.assertingPartyDetails((party) -> party.singleLogoutServiceBinding(Saml2MessageBinding.POST))
+			.build();
 		Authentication authentication = new TestingAuthenticationToken("user", "password");
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/logout/saml2/slo");
 		request.setServletPath("/logout/saml2/slo");
 		request.setParameter(Saml2ParameterNames.SAML_REQUEST, "request");
 		MockHttpServletResponse response = new MockHttpServletResponse();
+		Saml2LogoutResponse logoutResponse = Saml2LogoutResponse.withRelyingPartyRegistration(registration)
+			.samlResponse("response")
+			.build();
+
 		given(this.relyingPartyRegistrationResolver.resolve(request, null)).willReturn(registration);
 		given(this.logoutRequestValidator.validate(any()))
 			.willReturn(Saml2LogoutValidatorResult.withErrors(new Saml2Error("error", "description")).build());
+		given(this.logoutResponseResolver.resolve(any(), any(),
+				argThat((ex) -> ex.getSaml2Error().getErrorCode().equals(Saml2ErrorCodes.INVALID_LOGOUT_REQUEST))))
+			.willReturn(logoutResponse);
+
 		this.logoutRequestProcessingFilter.doFilter(request, response, new MockFilterChain());
-		assertThat(response.getStatus()).isEqualTo(401);
+
+		checkResponse(response.getContentAsString(), registration);
+		verify(this.logoutRequestValidator).validate(any());
+		verify(this.logoutResponseResolver).resolve(any(), any(),
+				argThat((ex) -> ex.getSaml2Error().getErrorCode().equals(Saml2ErrorCodes.INVALID_LOGOUT_REQUEST)));
 		verifyNoInteractions(this.logoutHandler);
 	}
 
 	@Test
-	public void doFilterWhenNoRelyingPartyLogoutThen401() throws Exception {
+	public void doFilterWhenNoRelyingErrorLogoutResponseIsPosted() throws Exception {
 		Authentication authentication = new TestingAuthenticationToken("user", "password");
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/logout/saml2/slo");
@@ -175,12 +186,96 @@ public class Saml2LogoutRequestFilterTests {
 		request.setParameter(Saml2ParameterNames.SAML_REQUEST, "request");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		RelyingPartyRegistration registration = TestRelyingPartyRegistrations.full()
+			.assertingPartyDetails((party) -> party.singleLogoutServiceBinding(Saml2MessageBinding.POST))
 			.singleLogoutServiceLocation(null)
 			.build();
+		Saml2LogoutResponse logoutResponse = Saml2LogoutResponse.withRelyingPartyRegistration(registration)
+			.samlResponse("response")
+			.build();
+
 		given(this.relyingPartyRegistrationResolver.resolve(any(), any())).willReturn(registration);
+		given(this.logoutResponseResolver.resolve(any(), any(), argThat(
+				(ex) -> ex.getSaml2Error().getErrorCode().equals(Saml2ErrorCodes.MISSING_LOGOUT_REQUEST_ENDPOINT))))
+			.willReturn(logoutResponse);
+
 		this.logoutRequestProcessingFilter.doFilterInternal(request, response, new MockFilterChain());
-		assertThat(response.getStatus()).isEqualTo(401);
+
+		checkResponse(response.getContentAsString(), registration);
+		verify(this.logoutResponseResolver).resolve(any(), any(), argThat(
+				(ex) -> ex.getSaml2Error().getErrorCode().equals(Saml2ErrorCodes.MISSING_LOGOUT_REQUEST_ENDPOINT)));
 		verifyNoInteractions(this.logoutHandler);
+	}
+
+	@Test
+	public void doFilterWhenInvalidBindingErrorLogoutResponseIsPosted() throws Exception {
+		Authentication authentication = new TestingAuthenticationToken("user", "password");
+		SecurityContextHolder.getContext().setAuthentication(authentication);
+		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/logout/saml2/slo");
+		request.setServletPath("/logout/saml2/slo");
+		request.setParameter(Saml2ParameterNames.SAML_REQUEST, "request");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		RelyingPartyRegistration registration = TestRelyingPartyRegistrations.full()
+			.assertingPartyDetails((party) -> party.singleLogoutServiceBinding(Saml2MessageBinding.POST))
+			.singleLogoutServiceBindings((bindings) -> {
+				bindings.clear();
+				bindings.add(Saml2MessageBinding.REDIRECT);
+			})
+			.build();
+		Saml2LogoutResponse logoutResponse = Saml2LogoutResponse.withRelyingPartyRegistration(registration)
+			.samlResponse("response")
+			.build();
+
+		given(this.relyingPartyRegistrationResolver.resolve(any(), any())).willReturn(registration);
+		given(this.logoutResponseResolver.resolve(any(), any(),
+				argThat((ex) -> ex.getSaml2Error().getErrorCode().equals(Saml2ErrorCodes.INVALID_BINDING))))
+			.willReturn(logoutResponse);
+
+		this.logoutRequestProcessingFilter.doFilterInternal(request, response, new MockFilterChain());
+
+		checkResponse(response.getContentAsString(), registration);
+		verify(this.logoutResponseResolver).resolve(any(), any(),
+				argThat((ex) -> ex.getSaml2Error().getErrorCode().equals(Saml2ErrorCodes.INVALID_BINDING)));
+		verifyNoInteractions(this.logoutHandler);
+	}
+
+	@Test
+	public void doFilterWhenNoErrorResponseCanBeGeneratedThen401() throws Exception {
+		Authentication authentication = new TestingAuthenticationToken("user", "password");
+		SecurityContextHolder.getContext().setAuthentication(authentication);
+		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/logout/saml2/slo");
+		request.setServletPath("/logout/saml2/slo");
+		request.setParameter(Saml2ParameterNames.SAML_REQUEST, "request");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		RelyingPartyRegistration registration = TestRelyingPartyRegistrations.full()
+			.assertingPartyDetails((party) -> party.singleLogoutServiceBinding(Saml2MessageBinding.POST))
+			.singleLogoutServiceBindings((bindings) -> {
+				bindings.clear();
+				bindings.add(Saml2MessageBinding.REDIRECT);
+			})
+			.build();
+
+		given(this.relyingPartyRegistrationResolver.resolve(any(), any())).willReturn(registration);
+		given(this.logoutResponseResolver.resolve(any(), any(),
+				argThat((ex) -> ex.getSaml2Error().getErrorCode().equals(Saml2ErrorCodes.INVALID_BINDING))))
+			.willReturn(null);
+
+		this.logoutRequestProcessingFilter.doFilterInternal(request, response, new MockFilterChain());
+
+		assertThat(response.getStatus()).isEqualTo(401);
+		verify(this.logoutResponseResolver).resolve(any(), any(),
+				argThat((ex) -> ex.getSaml2Error().getErrorCode().equals(Saml2ErrorCodes.INVALID_BINDING)));
+		verifyNoInteractions(this.logoutHandler);
+	}
+
+	private void checkResponse(String responseContent, RelyingPartyRegistration registration) {
+		assertThat(responseContent).contains(Saml2ParameterNames.SAML_RESPONSE);
+		assertThat(responseContent)
+			.contains(registration.getAssertingPartyDetails().getSingleLogoutServiceResponseLocation());
+		assertThat(responseContent).contains(
+				"<meta http-equiv=\"Content-Security-Policy\" content=\"script-src 'sha256-oZhLbc2kO8b8oaYLrUc7uye1MgVKMyLtPqWR4WtKF+c='\">");
+		assertThat(responseContent)
+			.contains("<script>window.onload = function() { document.forms[0].submit(); }</script>");
+
 	}
 
 }
