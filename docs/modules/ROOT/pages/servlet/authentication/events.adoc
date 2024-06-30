@@ -146,7 +146,7 @@ public AuthenticationEventPublisher authenticationEventPublisher
     DefaultAuthenticationEventPublisher authenticationEventPublisher =
         new DefaultAuthenticationEventPublisher(applicationEventPublisher);
     authenticationEventPublisher.setDefaultAuthenticationFailureEvent
-        (GenericAuthenticationFailureEvent.class);
+        (AbstractAuthenticationFailureEvent.class);
     return authenticationEventPublisher;
 }
 ----
@@ -159,7 +159,7 @@ Kotlin::
 fun authenticationEventPublisher
         (applicationEventPublisher: ApplicationEventPublisher?): AuthenticationEventPublisher {
     val authenticationEventPublisher = DefaultAuthenticationEventPublisher(applicationEventPublisher)
-    authenticationEventPublisher.setDefaultAuthenticationFailureEvent(GenericAuthenticationFailureEvent::class.java)
+    authenticationEventPublisher.setDefaultAuthenticationFailureEvent(AbstractAuthenticationFailureEvent::class.java)
     return authenticationEventPublisher
 }
 ----
