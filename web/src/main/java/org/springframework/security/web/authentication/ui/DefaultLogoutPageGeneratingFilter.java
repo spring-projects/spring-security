@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.core.log.LogMessage;
+import org.springframework.security.web.util.CssUtils;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
@@ -69,19 +70,15 @@ public class DefaultLogoutPageGeneratingFilter extends OncePerRequestFilter {
 		sb.append("    <meta name=\"description\" content=\"\">\n");
 		sb.append("    <meta name=\"author\" content=\"\">\n");
 		sb.append("    <title>Confirm Log Out?</title>\n");
-		sb.append("    <link href=\"https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css\" "
-				+ "rel=\"stylesheet\" integrity=\"sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M\" "
-				+ "crossorigin=\"anonymous\">\n");
-		sb.append("    <link href=\"https://getbootstrap.com/docs/4.0/examples/signin/signin.css\" "
-				+ "rel=\"stylesheet\" integrity=\"sha384-oOE/3m0LUMPub4kaC09mrdEhIc+e3exm4xOGxAmuFXhBNF4hcg/6MiAXAf5p0P56\" crossorigin=\"anonymous\"/>\n");
+		sb.append(CssUtils.getCssStyleBlock().indent(4));
 		sb.append("  </head>\n");
 		sb.append("  <body>\n");
-		sb.append("     <div class=\"container\">\n");
-		sb.append("      <form class=\"form-signin\" method=\"post\" action=\"" + request.getContextPath()
+		sb.append("     <div class=\"content\">\n");
+		sb.append("      <form class=\"logout-form\" method=\"post\" action=\"" + request.getContextPath()
 				+ "/logout\">\n");
-		sb.append("        <h2 class=\"form-signin-heading\">Are you sure you want to log out?</h2>\n");
-		sb.append(renderHiddenInputs(request)
-				+ "        <button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\">Log Out</button>\n");
+		sb.append("        <h2>Are you sure you want to log out?</h2>\n");
+		sb.append(renderHiddenInputs(request));
+		sb.append("        <button class=\"primary\" type=\"submit\">Log Out</button>\n");
 		sb.append("      </form>\n");
 		sb.append("    </div>\n");
 		sb.append("  </body>\n");

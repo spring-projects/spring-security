@@ -40,4 +40,7 @@
 
 	<!-- Lambdas that we can't replace with a method reference because a closure is required -->
 	<suppress files="BearerTokenAuthenticationFilter\.java" checks="SpringLambda"/>
+
+	<!-- CSS content -->
+	<suppress files="CssUtils\.java" checks="SpringLeadingWhitespace"/>
 </suppressions>

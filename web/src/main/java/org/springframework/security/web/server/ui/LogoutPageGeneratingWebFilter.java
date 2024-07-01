@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.security.web.server.csrf.CsrfToken;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
+import org.springframework.security.web.util.CssUtils;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
@@ -78,17 +79,14 @@ public class LogoutPageGeneratingWebFilter implements WebFilter {
 		page.append("    <meta name=\"description\" content=\"\">\n");
 		page.append("    <meta name=\"author\" content=\"\">\n");
 		page.append("    <title>Confirm Log Out?</title>\n");
-		page.append("    <link href=\"https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css\" "
-				+ "rel=\"stylesheet\" integrity=\"sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M\" crossorigin=\"anonymous\">\n");
-		page.append("    <link href=\"https://getbootstrap.com/docs/4.0/examples/signin/signin.css\" "
-				+ "rel=\"stylesheet\" integrity=\"sha384-oOE/3m0LUMPub4kaC09mrdEhIc+e3exm4xOGxAmuFXhBNF4hcg/6MiAXAf5p0P56\" crossorigin=\"anonymous\"/>\n");
+		page.append(CssUtils.getCssStyleBlock().indent(4));
 		page.append("  </head>\n");
 		page.append("  <body>\n");
-		page.append("     <div class=\"container\">\n");
-		page.append("      <form class=\"form-signin\" method=\"post\" action=\"" + contextPath + "/logout\">\n");
-		page.append("        <h2 class=\"form-signin-heading\">Are you sure you want to log out?</h2>\n");
+		page.append("     <div class=\"content\">\n");
+		page.append("      <form class=\"logout-form\" method=\"post\" action=\"" + contextPath + "/logout\">\n");
+		page.append("        <h2>Are you sure you want to log out?</h2>\n");
 		page.append(csrfTokenHtmlInput);
-		page.append("        <button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\">Log Out</button>\n");
+		page.append("        <button class=\"primary\" type=\"submit\">Log Out</button>\n");
 		page.append("      </form>\n");
 		page.append("    </div>\n");
 		page.append("  </body>\n");
