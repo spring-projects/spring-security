@@ -18,7 +18,7 @@ package org.springframework.security.web.util.matcher;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Scanner;
+import java.util.regex.Pattern;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -36,6 +36,8 @@ import org.springframework.util.StringUtils;
  * @since 3.0.2
  */
 public final class IpAddressMatcher implements RequestMatcher {
+
+	private static Pattern IPV4 = Pattern.compile("\\d{0,3}.\\d{0,3}.\\d{0,3}.\\d{0,3}(/\\d{0,3})?");
 
 	private final int nMaskBits;
 
@@ -93,16 +95,13 @@ public final class IpAddressMatcher implements RequestMatcher {
 	}
 
 	private void assertNotHostName(String ipAddress) {
+		boolean isIpv4 = IPV4.matcher(ipAddress).matches();
+		if (isIpv4) {
+			return;
+		}
 		String error = "ipAddress " + ipAddress + " doesn't look like an IP Address. Is it a host name?";
 		Assert.isTrue(ipAddress.charAt(0) == '[' || ipAddress.charAt(0) == ':'
-				|| Character.digit(ipAddress.charAt(0), 16) != -1, error);
-		if (!ipAddress.contains(":")) {
-			Scanner parts = new Scanner(ipAddress);
-			parts.useDelimiter("[./]");
-			while (parts.hasNext()) {
-				Assert.isTrue(parts.hasNextInt() && parts.nextInt() >> 8 == 0, error);
-			}
-		}
+				|| (Character.digit(ipAddress.charAt(0), 16) != -1 && ipAddress.contains(":")), error);
 	}
 
 	private InetAddress parseAddress(String address) {
