@@ -23,10 +23,12 @@ import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Mono;
 
 import org.springframework.core.MethodParameter;
+import org.springframework.core.annotation.AliasFor;
 import org.springframework.core.annotation.SynthesizingMethodParameter;
 import org.springframework.security.authentication.TestAuthentication;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AnnotationTemplateExpressionDefaults;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -141,9 +143,55 @@ public class AuthenticationPrincipalArgumentResolverTests {
 
 	}
 
+	@Test
+	public void resolveArgumentCustomMetaAnnotation() {
+		CustomUserPrincipal principal = new CustomUserPrincipal();
+		Mono<Object> result = this.resolver.resolveArgument(arg0("showUserCustomMetaAnnotation"), null)
+			.contextWrite(ReactiveSecurityContextHolder
+				.withAuthentication(new TestingAuthenticationToken(principal, "password", "ROLE_USER")));
+		assertThat(result.block()).isEqualTo(principal.id);
+	}
+
+	@Test
+	public void resolveArgumentCustomMetaAnnotationTpl() {
+		CustomUserPrincipal principal = new CustomUserPrincipal();
+		this.resolver.setTemplateDefaults(new AnnotationTemplateExpressionDefaults());
+		Mono<Object> result = this.resolver.resolveArgument(arg0("showUserCustomMetaAnnotationTpl"), null)
+			.contextWrite(ReactiveSecurityContextHolder
+				.withAuthentication(new TestingAuthenticationToken(principal, "password", "ROLE_USER")));
+		assertThat(result.block()).isEqualTo(principal.id);
+	}
+
+	public void showUserCustomMetaAnnotation(@CurrentUser2(expression = "principal.id") int userId) {
+	}
+
+	public void showUserCustomMetaAnnotationTpl(@CurrentUser3(property = "id") int userId) {
+	}
+
 	static class CustomUserPrincipal {
 
 		public final int id = 1;
+
+		public Object getPrincipal() {
+			return this;
+		}
+
+	}
+
+	@Retention(RetentionPolicy.RUNTIME)
+	@AuthenticationPrincipal
+	public @interface CurrentUser2 {
+
+		@AliasFor(annotation = AuthenticationPrincipal.class)
+		String expression() default "";
+
+	}
+
+	@Retention(RetentionPolicy.RUNTIME)
+	@AuthenticationPrincipal(expression = "principal.{property}")
+	public @interface CurrentUser3 {
+
+		String property() default "";
 
 	}
 

@@ -27,8 +27,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.core.MethodParameter;
+import org.springframework.core.annotation.AliasFor;
 import org.springframework.expression.BeanResolver;
 import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.core.annotation.AnnotationTemplateExpressionDefaults;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -193,6 +195,25 @@ public class AuthenticationPrincipalArgumentResolverTests {
 			.isEqualTo(this.expectedPrincipal);
 	}
 
+	@Test
+	public void resolveArgumentCustomMetaAnnotation() throws Exception {
+		CustomUserPrincipal principal = new CustomUserPrincipal();
+		setAuthenticationPrincipal(principal);
+		this.expectedPrincipal = principal.id;
+		assertThat(this.resolver.resolveArgument(showUserCustomMetaAnnotation(), null, null, null))
+			.isEqualTo(this.expectedPrincipal);
+	}
+
+	@Test
+	public void resolveArgumentCustomMetaAnnotationTpl() throws Exception {
+		CustomUserPrincipal principal = new CustomUserPrincipal();
+		setAuthenticationPrincipal(principal);
+		this.resolver.setTemplateDefaults(new AnnotationTemplateExpressionDefaults());
+		this.expectedPrincipal = principal.id;
+		assertThat(this.resolver.resolveArgument(showUserCustomMetaAnnotationTpl(), null, null, null))
+			.isEqualTo(this.expectedPrincipal);
+	}
+
 	private MethodParameter showUserNoAnnotation() {
 		return getMethodParameter("showUserNoAnnotation", String.class);
 	}
@@ -241,6 +262,14 @@ public class AuthenticationPrincipalArgumentResolverTests {
 		return getMethodParameter("showUserAnnotation", Object.class);
 	}
 
+	private MethodParameter showUserCustomMetaAnnotation() {
+		return getMethodParameter("showUserCustomMetaAnnotation", int.class);
+	}
+
+	private MethodParameter showUserCustomMetaAnnotationTpl() {
+		return getMethodParameter("showUserCustomMetaAnnotationTpl", int.class);
+	}
+
 	private MethodParameter getMethodParameter(String methodName, Class<?>... paramTypes) {
 		Method method = ReflectionUtils.findMethod(TestController.class, methodName, paramTypes);
 		return new MethodParameter(method, 0);
@@ -263,6 +292,23 @@ public class AuthenticationPrincipalArgumentResolverTests {
 	@Retention(RetentionPolicy.RUNTIME)
 	@AuthenticationPrincipal(errorOnInvalidType = true)
 	static @interface CurrentUserErrorOnInvalidType {
+
+	}
+
+	@Retention(RetentionPolicy.RUNTIME)
+	@AuthenticationPrincipal
+	public @interface CurrentUser2 {
+
+		@AliasFor(annotation = AuthenticationPrincipal.class)
+		String expression() default "";
+
+	}
+
+	@Retention(RetentionPolicy.RUNTIME)
+	@AuthenticationPrincipal(expression = "principal.{property}")
+	public @interface CurrentUser3 {
+
+		String property() default "";
 
 	}
 
@@ -290,6 +336,12 @@ public class AuthenticationPrincipalArgumentResolverTests {
 		public void showUserCustomAnnotation(@CurrentUser CustomUserPrincipal user) {
 		}
 
+		public void showUserCustomMetaAnnotation(@CurrentUser2(expression = "principal.id") int userId) {
+		}
+
+		public void showUserCustomMetaAnnotationTpl(@CurrentUser3(property = "id") int userId) {
+		}
+
 		public void showUserAnnotation(@AuthenticationPrincipal Object user) {
 		}
 
@@ -313,6 +365,10 @@ public class AuthenticationPrincipalArgumentResolverTests {
 		public final String property = "property";
 
 		public final int id = 1;
+
+		public Object getPrincipal() {
+			return this;
+		}
 
 	}
 

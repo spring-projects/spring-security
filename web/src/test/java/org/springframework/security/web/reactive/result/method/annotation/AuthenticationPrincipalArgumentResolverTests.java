@@ -31,8 +31,11 @@ import reactor.core.publisher.Mono;
 
 import org.springframework.core.MethodParameter;
 import org.springframework.core.ReactiveAdapterRegistry;
+import org.springframework.core.annotation.AliasFor;
+import org.springframework.core.annotation.SynthesizingMethodParameter;
 import org.springframework.expression.BeanResolver;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AnnotationTemplateExpressionDefaults;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.web.method.ResolvableMethod;
@@ -206,6 +209,38 @@ public class AuthenticationPrincipalArgumentResolverTests {
 		assertThatExceptionOfType(ClassCastException.class).isThrownBy(() -> argument.block());
 	}
 
+	@Test
+	public void resolveArgumentCustomMetaAnnotation() {
+		CustomUserPrincipal principal = new CustomUserPrincipal();
+		given(this.authentication.getPrincipal()).willReturn(principal);
+		Mono<Object> result = this.resolver
+			.resolveArgument(arg0("showUserCustomMetaAnnotation"), this.bindingContext, this.exchange)
+			.contextWrite(ReactiveSecurityContextHolder.withAuthentication(this.authentication));
+		assertThat(result.block()).isEqualTo(principal.id);
+	}
+
+	@Test
+	public void resolveArgumentCustomMetaAnnotationTpl() {
+		CustomUserPrincipal principal = new CustomUserPrincipal();
+		given(this.authentication.getPrincipal()).willReturn(principal);
+		this.resolver.setTemplateDefaults(new AnnotationTemplateExpressionDefaults());
+		Mono<Object> result = this.resolver
+			.resolveArgument(arg0("showUserCustomMetaAnnotationTpl"), this.bindingContext, this.exchange)
+			.contextWrite(ReactiveSecurityContextHolder.withAuthentication(this.authentication));
+		assertThat(result.block()).isEqualTo(principal.id);
+	}
+
+	private MethodParameter arg0(String methodName) {
+		ResolvableMethod method = ResolvableMethod.on(getClass()).named(methodName).build();
+		return new SynthesizingMethodParameter(method.method(), 0);
+	}
+
+	public void showUserCustomMetaAnnotation(@CurrentUser2(expression = "principal.id") int userId) {
+	}
+
+	public void showUserCustomMetaAnnotationTpl(@CurrentUser3(property = "id") int userId) {
+	}
+
 	void authenticationPrincipal(@AuthenticationPrincipal String principal,
 			@AuthenticationPrincipal Mono<String> monoPrincipal) {
 	}
@@ -275,6 +310,33 @@ public class AuthenticationPrincipalArgumentResolverTests {
 	@Documented
 	@AuthenticationPrincipal
 	public @interface CurrentUser {
+
+	}
+
+	static class CustomUserPrincipal {
+
+		public final int id = 1;
+
+		public Object getPrincipal() {
+			return this;
+		}
+
+	}
+
+	@Retention(RetentionPolicy.RUNTIME)
+	@AuthenticationPrincipal
+	public @interface CurrentUser2 {
+
+		@AliasFor(annotation = AuthenticationPrincipal.class)
+		String expression() default "";
+
+	}
+
+	@Retention(RetentionPolicy.RUNTIME)
+	@AuthenticationPrincipal(expression = "principal.{property}")
+	public @interface CurrentUser3 {
+
+		String property() default "";
 
 	}
 
