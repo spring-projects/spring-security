@@ -588,6 +588,57 @@ class MyCustomSecurityConfiguration {
 A relying party can be multi-tenant by registering more than one relying party in the `RelyingPartyRegistrationRepository`.
 ====
 
+[[servlet-saml2login-relyingpartyregistrationrepository-caching]]
+If you want your metadata to be refreshable on a periodic basis, you can wrap your repository in `CachingRelyingPartyRegistrationRepository` like so:
+
+.Caching Relying Party Registration Repository
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Configuration
+@EnableWebSecurity
+public class MyCustomSecurityConfiguration {
+    @Bean
+    public RelyingPartyRegistrationRepository registrations(CacheManager cacheManager) {
+		Supplier<IterableRelyingPartyRegistrationRepository> delegate = () ->
+            new InMemoryRelyingPartyRegistrationRepository(RelyingPartyRegistrations
+                .fromMetadataLocation("https://idp.example.org/ap/metadata")
+                .registrationId("ap").build());
+		CachingRelyingPartyRegistrationRepository registrations =
+            new CachingRelyingPartyRegistrationRepository(delegate);
+		registrations.setCache(cacheManager.getCache("my-cache-name"));
+        return registrations;
+    }
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Configuration
+@EnableWebSecurity
+class MyCustomSecurityConfiguration  {
+    @Bean
+    fun registrations(cacheManager: CacheManager): RelyingPartyRegistrationRepository {
+        val delegate = Supplier<IterableRelyingPartyRegistrationRepository> {
+             InMemoryRelyingPartyRegistrationRepository(RelyingPartyRegistrations
+                .fromMetadataLocation("https://idp.example.org/ap/metadata")
+                .registrationId("ap").build())
+        }
+        val registrations = CachingRelyingPartyRegistrationRepository(delegate)
+        registrations.setCache(cacheManager.getCache("my-cache-name"))
+        return registrations
+    }
+}
+----
+======
+
+In this way, the set of `RelyingPartyRegistration`s will refresh based on {spring-framework-reference-url}integration/cache/store-configuration.html[the cache's eviction schedule].
+
 [[servlet-saml2login-relyingpartyregistration]]
 == RelyingPartyRegistration
 A {security-api-url}org/springframework/security/saml2/provider/service/registration/RelyingPartyRegistration.html[`RelyingPartyRegistration`]
