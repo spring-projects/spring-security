@@ -44,7 +44,7 @@ def generateAttributes() {
 	def securityApiUrl = "$securityDocsUrl/api/"
 	def securityReferenceUrl = "$securityDocsUrl/reference/html5/"
 	def springFrameworkApiUrl = "https://docs.spring.io/spring-framework/docs/$springFrameworkVersion/javadoc-api/"
-	def springFrameworkReferenceUrl = "https://docs.spring.io/spring-framework/docs/$springFrameworkVersion/reference/html/"
+	def springFrameworkReferenceUrl = "https://docs.spring.io/spring-framework/reference/$springFrameworkVersion/"
 	def springBootReferenceUrl = "https://docs.spring.io/spring-boot/docs/$springBootVersion/reference/html/"
 	def springBootApiUrl = "https://docs.spring.io/spring-boot/docs/$springBootVersion/api/"
 
