@@ -139,8 +139,7 @@ public class RelyingPartyRegistration {
 	 * @since 6.1
 	 */
 	public Builder mutate() {
-		AssertingPartyDetails party = this.assertingPartyDetails;
-		return withRegistrationId(this.registrationId).entityId(this.entityId)
+		return new Builder(this.registrationId, this.assertingPartyDetails.mutate()).entityId(this.entityId)
 			.signingX509Credentials((c) -> c.addAll(this.signingX509Credentials))
 			.decryptionX509Credentials((c) -> c.addAll(this.decryptionX509Credentials))
 			.assertionConsumerServiceLocation(this.assertionConsumerServiceLocation)
@@ -149,17 +148,7 @@ public class RelyingPartyRegistration {
 			.singleLogoutServiceResponseLocation(this.singleLogoutServiceResponseLocation)
 			.singleLogoutServiceBindings((c) -> c.addAll(this.singleLogoutServiceBindings))
 			.nameIdFormat(this.nameIdFormat)
-			.authnRequestsSigned(this.authnRequestsSigned)
-			.assertingPartyDetails((assertingParty) -> assertingParty.entityId(party.getEntityId())
-				.wantAuthnRequestsSigned(party.getWantAuthnRequestsSigned())
-				.signingAlgorithms((algorithms) -> algorithms.addAll(party.getSigningAlgorithms()))
-				.verificationX509Credentials((c) -> c.addAll(party.getVerificationX509Credentials()))
-				.encryptionX509Credentials((c) -> c.addAll(party.getEncryptionX509Credentials()))
-				.singleSignOnServiceLocation(party.getSingleSignOnServiceLocation())
-				.singleSignOnServiceBinding(party.getSingleSignOnServiceBinding())
-				.singleLogoutServiceLocation(party.getSingleLogoutServiceLocation())
-				.singleLogoutServiceResponseLocation(party.getSingleLogoutServiceResponseLocation())
-				.singleLogoutServiceBinding(party.getSingleLogoutServiceBinding()));
+			.authnRequestsSigned(this.authnRequestsSigned);
 	}
 
 	/**
@@ -346,17 +335,7 @@ public class RelyingPartyRegistration {
 
 	public static Builder withAssertingPartyDetails(AssertingPartyDetails assertingPartyDetails) {
 		Assert.notNull(assertingPartyDetails, "assertingPartyDetails cannot be null");
-		return withRegistrationId(assertingPartyDetails.getEntityId())
-			.assertingPartyDetails((party) -> party.entityId(assertingPartyDetails.getEntityId())
-				.wantAuthnRequestsSigned(assertingPartyDetails.getWantAuthnRequestsSigned())
-				.signingAlgorithms((algorithms) -> algorithms.addAll(assertingPartyDetails.getSigningAlgorithms()))
-				.verificationX509Credentials((c) -> c.addAll(assertingPartyDetails.getVerificationX509Credentials()))
-				.encryptionX509Credentials((c) -> c.addAll(assertingPartyDetails.getEncryptionX509Credentials()))
-				.singleSignOnServiceLocation(assertingPartyDetails.getSingleSignOnServiceLocation())
-				.singleSignOnServiceBinding(assertingPartyDetails.getSingleSignOnServiceBinding())
-				.singleLogoutServiceLocation(assertingPartyDetails.getSingleLogoutServiceLocation())
-				.singleLogoutServiceResponseLocation(assertingPartyDetails.getSingleLogoutServiceResponseLocation())
-				.singleLogoutServiceBinding(assertingPartyDetails.getSingleLogoutServiceBinding()));
+		return new Builder(assertingPartyDetails.getEntityId(), assertingPartyDetails.mutate());
 	}
 
 	/**
@@ -590,6 +569,19 @@ public class RelyingPartyRegistration {
 		 */
 		public Saml2MessageBinding getSingleLogoutServiceBinding() {
 			return this.singleLogoutServiceBinding;
+		}
+
+		public AssertingPartyDetails.Builder mutate() {
+			return new AssertingPartyDetails.Builder().entityId(this.entityId)
+				.wantAuthnRequestsSigned(this.wantAuthnRequestsSigned)
+				.signingAlgorithms((algorithms) -> algorithms.addAll(this.signingAlgorithms))
+				.verificationX509Credentials((c) -> c.addAll(this.verificationX509Credentials))
+				.encryptionX509Credentials((c) -> c.addAll(this.encryptionX509Credentials))
+				.singleSignOnServiceLocation(this.singleSignOnServiceLocation)
+				.singleSignOnServiceBinding(this.singleSignOnServiceBinding)
+				.singleLogoutServiceLocation(this.singleLogoutServiceLocation)
+				.singleLogoutServiceResponseLocation(this.singleLogoutServiceResponseLocation)
+				.singleLogoutServiceBinding(this.singleLogoutServiceBinding);
 		}
 
 		public static class Builder {

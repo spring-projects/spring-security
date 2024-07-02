@@ -65,6 +65,20 @@ public final class OpenSamlAssertingPartyDetails extends RelyingPartyRegistratio
 		return new OpenSamlAssertingPartyDetails.Builder(entity);
 	}
 
+	@Override
+	public OpenSamlAssertingPartyDetails.Builder mutate() {
+		return new OpenSamlAssertingPartyDetails.Builder(this.descriptor).entityId(getEntityId())
+			.wantAuthnRequestsSigned(getWantAuthnRequestsSigned())
+			.signingAlgorithms((algorithms) -> algorithms.addAll(getSigningAlgorithms()))
+			.verificationX509Credentials((c) -> c.addAll(getVerificationX509Credentials()))
+			.encryptionX509Credentials((c) -> c.addAll(getEncryptionX509Credentials()))
+			.singleSignOnServiceLocation(getSingleSignOnServiceLocation())
+			.singleSignOnServiceBinding(getSingleSignOnServiceBinding())
+			.singleLogoutServiceLocation(getSingleLogoutServiceLocation())
+			.singleLogoutServiceResponseLocation(getSingleLogoutServiceResponseLocation())
+			.singleLogoutServiceBinding(getSingleLogoutServiceBinding());
+	}
+
 	/**
 	 * An OpenSAML version of
 	 * {@link org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration.AssertingPartyDetails.Builder}
