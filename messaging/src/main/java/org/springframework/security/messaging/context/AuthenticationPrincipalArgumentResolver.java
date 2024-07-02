@@ -17,9 +17,10 @@
 package org.springframework.security.messaging.context;
 
 import java.lang.annotation.Annotation;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.core.MethodParameter;
-import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
@@ -27,6 +28,9 @@ import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.handler.invocation.HandlerMethodArgumentResolver;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AnnotationSynthesizer;
+import org.springframework.security.core.annotation.AnnotationSynthesizers;
+import org.springframework.security.core.annotation.AnnotationTemplateExpressionDefaults;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
@@ -83,6 +87,7 @@ import org.springframework.util.StringUtils;
  * </pre>
  *
  * @author Rob Winch
+ * @author DingHao
  * @since 4.0
  */
 public final class AuthenticationPrincipalArgumentResolver implements HandlerMethodArgumentResolver {
@@ -90,11 +95,16 @@ public final class AuthenticationPrincipalArgumentResolver implements HandlerMet
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
 		.getContextHolderStrategy();
 
+	private final Map<MethodParameter, Annotation> cachedAttributes = new ConcurrentHashMap<>();
+
 	private ExpressionParser parser = new SpelExpressionParser();
+
+	private AnnotationSynthesizer<AuthenticationPrincipal> synthesizer = AnnotationSynthesizers
+		.requireUnique(AuthenticationPrincipal.class);
 
 	@Override
 	public boolean supportsParameter(MethodParameter parameter) {
-		return findMethodAnnotation(AuthenticationPrincipal.class, parameter) != null;
+		return findMethodAnnotation(parameter) != null;
 	}
 
 	@Override
@@ -104,7 +114,7 @@ public final class AuthenticationPrincipalArgumentResolver implements HandlerMet
 			return null;
 		}
 		Object principal = authentication.getPrincipal();
-		AuthenticationPrincipal authPrincipal = findMethodAnnotation(AuthenticationPrincipal.class, parameter);
+		AuthenticationPrincipal authPrincipal = findMethodAnnotation(parameter);
 		String expressionToParse = authPrincipal.expression();
 		if (StringUtils.hasLength(expressionToParse)) {
 			StandardEvaluationContext context = new StandardEvaluationContext();
@@ -134,25 +144,28 @@ public final class AuthenticationPrincipalArgumentResolver implements HandlerMet
 	}
 
 	/**
+	 * Configure AuthenticationPrincipal template resolution
+	 * <p>
+	 * By default, this value is <code>null</code>, which indicates that templates should
+	 * not be resolved.
+	 * @param templateDefaults - whether to resolve AuthenticationPrincipal templates
+	 * parameters
+	 * @since 6.4
+	 */
+	public void setTemplateDefaults(AnnotationTemplateExpressionDefaults templateDefaults) {
+		this.synthesizer = AnnotationSynthesizers.requireUnique(AuthenticationPrincipal.class, templateDefaults);
+	}
+
+	/**
 	 * Obtains the specified {@link Annotation} on the specified {@link MethodParameter}.
-	 * @param annotationClass the class of the {@link Annotation} to find on the
 	 * {@link MethodParameter}
 	 * @param parameter the {@link MethodParameter} to search for an {@link Annotation}
 	 * @return the {@link Annotation} that was found or null.
 	 */
-	private <T extends Annotation> T findMethodAnnotation(Class<T> annotationClass, MethodParameter parameter) {
-		T annotation = parameter.getParameterAnnotation(annotationClass);
-		if (annotation != null) {
-			return annotation;
-		}
-		Annotation[] annotationsToSearch = parameter.getParameterAnnotations();
-		for (Annotation toSearch : annotationsToSearch) {
-			annotation = AnnotationUtils.findAnnotation(toSearch.annotationType(), annotationClass);
-			if (annotation != null) {
-				return annotation;
-			}
-		}
-		return null;
+	@SuppressWarnings("unchecked")
+	private <T extends Annotation> T findMethodAnnotation(MethodParameter parameter) {
+		return (T) this.cachedAttributes.computeIfAbsent(parameter,
+				(methodParameter) -> this.synthesizer.synthesize(methodParameter.getParameter()));
 	}
 
 }
