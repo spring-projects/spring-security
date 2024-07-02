@@ -18,7 +18,7 @@ Please see our https://github.com/spring-projects/.github/blob/main/CODE_OF_COND
 See https://docs.spring.io/spring-security/reference/getting-spring-security.html[Getting Spring Security] for how to obtain Spring Security.
 
 == Documentation
-Be sure to read the https://docs.spring.io/spring-security/site/docs/current/reference/htmlsingle/[Spring Security Reference].
+Be sure to read the https://docs.spring.io/spring-security/reference/[Spring Security Reference].
 Extensive JavaDoc for the Spring Security code is also available in the https://docs.spring.io/spring-security/site/docs/current/api/[Spring Security API Documentation].
 
 == Quick Start
