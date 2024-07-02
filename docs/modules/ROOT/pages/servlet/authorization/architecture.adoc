@@ -257,6 +257,7 @@ static RoleHierarchy roleHierarchy() {
         .role("ADMIN").implies("STAFF")
         .role("STAFF").implies("USER")
         .role("USER").implies("GUEST")
+        .authority("TEAM_ABC").implies("STAFF")
         .build();
 }
 
@@ -280,6 +281,7 @@ Xml::
 			ROLE_ADMIN > ROLE_STAFF
 			ROLE_STAFF > ROLE_USER
 			ROLE_USER > ROLE_GUEST
+			TEAM_ABC > ROLE_STAFF
 		</value>
 	</constructor-arg>
 </bean>
