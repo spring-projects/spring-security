@@ -28,6 +28,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.expression.Expression;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 /**
  * For internal use only, as this contract is likely to change.
@@ -64,6 +65,10 @@ final class PreAuthorizeExpressionAttributeRegistry extends AbstractExpressionAt
 			.withDefaults(HandleAuthorizationDenied.class);
 		HandleAuthorizationDenied deniedHandler = lookup.apply(method);
 		if (deniedHandler != null) {
+			if (StringUtils.hasText(deniedHandler.handlerExpression())) {
+				return new ExpressionMethodAuthorizationDeniedHandler(deniedHandler.handlerExpression(),
+						getExpressionHandler().getExpressionParser());
+			}
 			return this.handlerResolver.apply(deniedHandler.handlerClass());
 		}
 		deniedHandler = lookup.apply(targetClass(method, targetClass));

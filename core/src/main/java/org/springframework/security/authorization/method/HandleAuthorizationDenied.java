@@ -47,4 +47,9 @@ public @interface HandleAuthorizationDenied {
 	 */
 	Class<? extends MethodAuthorizationDeniedHandler> handlerClass() default ThrowingMethodAuthorizationDeniedHandler.class;
 
+	/**
+	 * @return SpEL expression to be evaluated when handling denied authorization
+	 */
+	String handlerExpression() default "";
+
 }
