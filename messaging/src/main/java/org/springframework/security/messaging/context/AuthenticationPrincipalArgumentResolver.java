@@ -17,15 +17,25 @@
 package org.springframework.security.messaging.context;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 
 import org.springframework.core.MethodParameter;
-import org.springframework.core.annotation.AnnotationUtils;
+import org.springframework.core.annotation.MergedAnnotation;
+import org.springframework.core.annotation.MergedAnnotations;
+import org.springframework.core.annotation.RepeatableContainers;
+import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
+import org.springframework.lang.Nullable;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.handler.invocation.HandlerMethodArgumentResolver;
+import org.springframework.security.authorization.method.PrePostTemplateDefaults;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -33,6 +43,7 @@ import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
+import org.springframework.util.PropertyPlaceholderHelper;
 import org.springframework.util.StringUtils;
 
 /**
@@ -83,6 +94,7 @@ import org.springframework.util.StringUtils;
  * </pre>
  *
  * @author Rob Winch
+ * @author DingHao
  * @since 4.0
  */
 public final class AuthenticationPrincipalArgumentResolver implements HandlerMethodArgumentResolver {
@@ -90,7 +102,11 @@ public final class AuthenticationPrincipalArgumentResolver implements HandlerMet
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
 		.getContextHolderStrategy();
 
+	private final Map<MethodParameter, Annotation> cachedAttributes = new ConcurrentHashMap<>();
+
 	private ExpressionParser parser = new SpelExpressionParser();
+
+	private PrePostTemplateDefaults defaults = new PrePostTemplateDefaults();
 
 	@Override
 	public boolean supportsParameter(MethodParameter parameter) {
@@ -134,25 +150,62 @@ public final class AuthenticationPrincipalArgumentResolver implements HandlerMet
 	}
 
 	/**
+	 * Configure AuthenticationPrincipal template resolution
+	 * <p>
+	 * By default, this value is <code>null</code>, which indicates that templates should
+	 * not be resolved.
+	 * @param defaults - whether to resolve AuthenticationPrincipal templates parameters
+	 * @since 6.4
+	 */
+	public void setTemplateDefaults(@Nullable PrePostTemplateDefaults defaults) {
+		if (defaults != null) {
+			this.defaults = defaults;
+		}
+	}
+
+	/**
 	 * Obtains the specified {@link Annotation} on the specified {@link MethodParameter}.
 	 * @param annotationClass the class of the {@link Annotation} to find on the
 	 * {@link MethodParameter}
 	 * @param parameter the {@link MethodParameter} to search for an {@link Annotation}
 	 * @return the {@link Annotation} that was found or null.
 	 */
+	@SuppressWarnings("unchecked")
 	private <T extends Annotation> T findMethodAnnotation(Class<T> annotationClass, MethodParameter parameter) {
 		T annotation = parameter.getParameterAnnotation(annotationClass);
 		if (annotation != null) {
 			return annotation;
 		}
-		Annotation[] annotationsToSearch = parameter.getParameterAnnotations();
-		for (Annotation toSearch : annotationsToSearch) {
-			annotation = AnnotationUtils.findAnnotation(toSearch.annotationType(), annotationClass);
-			if (annotation != null) {
-				return annotation;
-			}
-		}
-		return null;
+		return (T) this.cachedAttributes.computeIfAbsent(parameter, (k) -> {
+			Function<MergedAnnotation<T>, T> map = (mergedAnnotation) -> {
+				if (mergedAnnotation.getMetaSource() == null) {
+					return mergedAnnotation.synthesize();
+				}
+				PropertyPlaceholderHelper helper = new PropertyPlaceholderHelper("{", "}", null, null,
+						this.defaults.isIgnoreUnknown());
+				Map<String, String> stringProperties = new HashMap<>();
+				for (Map.Entry<String, Object> property : mergedAnnotation.getMetaSource().asMap().entrySet()) {
+					String key = property.getKey();
+					Object value = property.getValue();
+					String asString = (value instanceof String) ? (String) value
+							: DefaultConversionService.getSharedInstance().convert(value, String.class);
+					stringProperties.put(key, asString);
+				}
+				String value = helper.replacePlaceholders((String) mergedAnnotation.asMap().get("expression"),
+						stringProperties::get);
+				Map<String, Object> properties = new HashMap<>(mergedAnnotation.asMap());
+				properties.put("expression", value);
+				return MergedAnnotation.of((AnnotatedElement) mergedAnnotation.getSource(), annotationClass, properties)
+					.synthesize();
+			};
+			return MergedAnnotations
+				.from(parameter.getParameter(), MergedAnnotations.SearchStrategy.TYPE_HIERARCHY,
+						RepeatableContainers.none())
+				.stream(annotationClass)
+				.map(map)
+				.findFirst()
+				.orElse(null);
+		});
 	}
 
 }
