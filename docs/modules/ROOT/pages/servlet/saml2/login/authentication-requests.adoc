@@ -87,7 +87,7 @@ RelyingPartyRegistration relyingPartyRegistration = RelyingPartyRegistration.wit
 
 Kotlin::
 +
-[source,java,role="secondary"]
+[source,kotlin,role="secondary"]
 ----
 var relyingPartyRegistration: RelyingPartyRegistration =
     RelyingPartyRegistration.withRegistrationId("okta")
@@ -96,7 +96,7 @@ var relyingPartyRegistration: RelyingPartyRegistration =
                 // ...
                 .wantAuthnRequestsSigned(false)
         }
-        .build();
+        .build()
 ----
 ======
 
@@ -141,7 +141,7 @@ var relyingPartyRegistration: RelyingPartyRegistration =
                     )
                 }
         }
-        .build();
+        .build()
 ----
 ======
 
