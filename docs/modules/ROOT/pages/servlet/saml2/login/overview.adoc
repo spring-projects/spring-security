@@ -1000,12 +1000,12 @@ Collection<RelyingPartyRegistration> registrations = RelyingPartyRegistrations
             .entityId("https://example.org/saml2/sp")
             .build()
         )
-        .collect(Collectors.toList()));
+        .collect(Collectors.toList());
 ----
 
 Kotlin::
 +
-[source,java,role="secondary"]
+[source,kotlin,role="secondary"]
 ----
 var registrations: Collection<RelyingPartyRegistration> = RelyingPartyRegistrations
         .collectionFromMetadataLocation("https://example.org/saml2/idp/metadata.xml")
@@ -1015,7 +1015,7 @@ var registrations: Collection<RelyingPartyRegistration> = RelyingPartyRegistrati
             .assertionConsumerServiceLocation("{baseUrl}/login/saml2/sso")
             .build()
         }
-        .collect(Collectors.toList()));
+        .collect(Collectors.toList())
 ----
 ======
 
