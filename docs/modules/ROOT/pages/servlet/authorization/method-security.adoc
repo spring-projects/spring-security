@@ -239,7 +239,7 @@ static RoleHierarchy roleHierarchy() {
 
 Kotlin::
 +
-[source,java,role="secondary"]
+[source,kotlin,role="secondary"]
 ----
 companion object {
     @Bean
