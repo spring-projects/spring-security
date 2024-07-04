@@ -51,7 +51,7 @@ import org.springframework.web.util.UriUtils;
  * "https://tools.ietf.org/html/rfc6749#section-4.1.1">Section 4.1.1 Authorization Code
  * Grant Request</a>
  */
-public final class OAuth2AuthorizationRequest implements Serializable {
+public class OAuth2AuthorizationRequest implements Serializable {
 
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 
