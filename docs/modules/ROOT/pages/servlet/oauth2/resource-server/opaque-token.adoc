@@ -204,7 +204,9 @@ public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         .authorizeHttpRequests(authorize -> authorize
             .anyRequest().authenticated()
         )
-        .oauth2ResourceServer(OAuth2ResourceServerConfigurer::opaqueToken);
+        .oauth2ResourceServer(oauth2 -> oauth2
+            .opaqueToken(Customizer.withDefaults())
+        );
     return http.build();
 }
 ----
@@ -564,7 +566,9 @@ public class MappedAuthorities {
                 .requestMatchers("/messages/**").access(hasScope("messages"))
                 .anyRequest().authenticated()
             )
-            .oauth2ResourceServer(OAuth2ResourceServerConfigurer::opaqueToken);
+            .oauth2ResourceServer(oauth2 -> oauth2
+                .opaqueToken(Customizer.withDefaults())
+            );
         return http.build();
     }
 }
