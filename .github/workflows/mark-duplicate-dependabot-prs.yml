@@ -5,6 +5,14 @@ on:
     types: [closed]
 
 jobs:
+  debug:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Debug Event Payload
+        run: |
+          echo "Merged: ${{ github.event.pull_request.merged }}"
+          echo "User Login: ${{ github.event.pull_request.user.login }}"
+
   check_duplicate_prs:
     runs-on: ubuntu-latest
     if: github.event.pull_request.merged == 'true' && github.event.pull_request.user.login == 'dependabot[bot]'
