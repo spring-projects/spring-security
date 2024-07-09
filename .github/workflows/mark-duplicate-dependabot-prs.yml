@@ -15,7 +15,7 @@ jobs:
 
   check_duplicate_prs:
     runs-on: ubuntu-latest
-    if: github.event.pull_request.merged == 'true' && github.event.pull_request.user.login == 'dependabot[bot]'
+    if: github.event.pull_request.merged == true && github.event.pull_request.user.login == 'dependabot[bot]'
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
