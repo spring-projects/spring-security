@@ -117,15 +117,15 @@ A given invocation to `MyCustomerService#readCustomer` may look something like t
 
 image::{figures}/methodsecurity.png[]
 
-1. Spring AOP invokes its proxy method for `readCustomer`. Among the proxy's other advisors, it invokes an {security-api-url}org/springframework/security/authorization/method/AuthorizationManagerBeforeMethodInterceptor.html[`AuthorizationManagerBeforeMethodInterceptor`] that matches <<annotation-method-pointcuts,the `@PreAuthorize` pointcut>>
-2. The interceptor invokes {security-api-url}org/springframework/security/authorization/method/PreAuthorizeAuthorizationManager.html[`PreAuthorizeAuthorizationManager#check`]
+1. Spring AOP invokes its proxy method for `readCustomer`. Among the proxy's other advisors, it invokes an javadoc:org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor[] that matches <<annotation-method-pointcuts,the `@PreAuthorize` pointcut>>
+2. The interceptor invokes javadoc:org.springframework.security.authorization.method.PreAuthorizeAuthorizationManager[`PreAuthorizeAuthorizationManager#check`]
 3. The authorization manager uses a `MethodSecurityExpressionHandler` to parse the annotation's <<authorization-expressions,SpEL expression>> and constructs a corresponding `EvaluationContext` from a `MethodSecurityExpressionRoot` containing xref:servlet/authentication/architecture.adoc#servlet-authentication-authentication[a `Supplier<Authentication>`] and `MethodInvocation`.
 4. The interceptor uses this context to evaluate the expression; specifically, it reads xref:servlet/authentication/architecture.adoc#servlet-authentication-authentication[the `Authentication`] from the `Supplier` and checks whether it has `permission:read` in its collection of xref:servlet/authorization/architecture.adoc#authz-authorities[authorities]
 5. If the evaluation passes, then Spring AOP proceeds to invoke the method.
-6. If not, the interceptor publishes an `AuthorizationDeniedEvent` and throws an {security-api-url}org/springframework/security/access/AccessDeniedException.html[`AccessDeniedException`] which xref:servlet/architecture.adoc#servlet-exceptiontranslationfilter[the `ExceptionTranslationFilter`] catches and returns a 403 status code to the response
-7. After the method returns, Spring AOP invokes an {security-api-url}org/springframework/security/authorization/method/AuthorizationManagerAfterMethodInterceptor.html[`AuthorizationManagerAfterMethodInterceptor`] that matches <<annotation-method-pointcuts,the `@PostAuthorize` pointcut>>, operating the same as above, but with {security-api-url}org/springframework/security/authorization/method/PostAuthorizeAuthorizationManager.html[`PostAuthorizeAuthorizationManager`]
+6. If not, the interceptor publishes an `AuthorizationDeniedEvent` and throws an javadoc:org.springframework.security.access.AccessDeniedException[] which xref:servlet/architecture.adoc#servlet-exceptiontranslationfilter[the `ExceptionTranslationFilter`] catches and returns a 403 status code to the response
+7. After the method returns, Spring AOP invokes an javadoc:org.springframework.security.authorization.method.AuthorizationManagerAfterMethodInterceptor[] that matches <<annotation-method-pointcuts,the `@PostAuthorize` pointcut>>, operating the same as above, but with javadoc:org.springframework.security.authorization.method.PostAuthorizeAuthorizationManager[]
 8. If the evaluation passes (in this case, the return value belongs to the logged-in user), processing continues normally
-9. If not, the interceptor publishes an `AuthorizationDeniedEvent` and throws an {security-api-url}org/springframework/security/access/AccessDeniedException.html[`AccessDeniedException`], which xref:servlet/architecture.adoc#servlet-exceptiontranslationfilter[the `ExceptionTranslationFilter`] catches and returns a 403 status code to the response
+9. If not, the interceptor publishes an `AuthorizationDeniedEvent` and throws an javadoc:org.springframework.security.access.AccessDeniedException[], which xref:servlet/architecture.adoc#servlet-exceptiontranslationfilter[the `ExceptionTranslationFilter`] catches and returns a 403 status code to the response
 
 [NOTE]
 If the method is not being called in the context of an HTTP request, you will likely need to handle the `AccessDeniedException` yourself
@@ -150,7 +150,7 @@ Instead, use SpEL's boolean support or its support for delegating to a separate 
 
 Each annotation has its own pointcut instance that looks for that annotation or its <<meta-annotations,meta-annotation>> counterparts across the entire object hierarchy, starting at <<class-or-interface-annotations,the method and its enclosing class>>.
 
-You can see the specifics of this in {security-api-url}org/springframework/security/authorization/method/AuthorizationMethodPointcuts.html[`AuthorizationMethodPointcuts`].
+// FIXME: AuthorizationMethodPointcuts is package private and Javadoc is not published You can see the specifics of this in javadoc:org.springframework.security.authorization.method.AuthorizationMethodPointcuts[].
 
 [[annotation-method-interceptors]]
 === Each Annotation Has Its Own Method Interceptor
@@ -161,12 +161,12 @@ For example, if needed, you can disable the Spring Security defaults and <<_enab
 
 The method interceptors are as follows:
 
-* For <<use-preauthorize,`@PreAuthorize`>>, Spring Security uses {security-api-url}org/springframework/security/authorization/method/AuthorizationManagerBeforeMethodInterceptor.html[`AuthorizationManagerBeforeMethodInterceptor#preAuthorize`], which in turn uses {security-api-url}org/springframework/security/authorization/method/PreAuthorizeAuthorizationManager.html[`PreAuthorizeAuthorizationManager`]
-* For <<use-postauthorize,`@PostAuthorize`>>, Spring Security uses {security-api-url}org/springframework/security/authorization/method/AuthorizationManagerAfterMethodInterceptor.html[`AuthorizationManagerAfterMethodInterceptor#postAuthorize`], which in turn uses {security-api-url}org/springframework/security/authorization/method/PostAuthorizeAuthorizationManager.html[`PostAuthorizeAuthorizationManager`]
-* For <<use-prefilter,`@PreFilter`>>, Spring Security uses {security-api-url}org/springframework/security/authorization/method/PreFilterAuthorizationMethodInterceptor.html[`PreFilterAuthorizationMethodInterceptor`]
-* For <<use-postfilter,`@PostFilter`>>, Spring Security uses {security-api-url}org/springframework/security/authorization/method/PostFilterAuthorizationMethodInterceptor.html[`PostFilterAuthorizationMethodInterceptor`]
-* For <<use-secured,`@Secured`>>, Spring Security uses {security-api-url}org/springframework/security/authorization/method/AuthorizationManagerBeforeMethodInterceptor.html[`AuthorizationManagerBeforeMethodInterceptor#secured`], which in turn uses {security-api-url}org/springframework/security/authorization/method/SecuredAuthorizationManager.html[`SecuredAuthorizationManager`]
-* For JSR-250 annotations, Spring Security uses {security-api-url}org/springframework/security/authorization/method/AuthorizationManagerBeforeMethodInterceptor.html[`AuthorizationManagerBeforeMethodInterceptor#jsr250`], which in turn uses {security-api-url}org/springframework/security/authorization/method/Jsr250AuthorizationManager.html[`Jsr250AuthorizationManager`]
+* For <<use-preauthorize,`@PreAuthorize`>>, Spring Security uses javadoc:org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor[`AuthorizationManagerBeforeMethodInterceptor#preAuthorize`], which in turn uses javadoc:org.springframework.security.authorization.method.PreAuthorizeAuthorizationManager[]
+* For <<use-postauthorize,`@PostAuthorize`>>, Spring Security uses javadoc:org.springframework.security.authorization.method.AuthorizationManagerAfterMethodInterceptor[`AuthorizationManagerAfterMethodInterceptor#postAuthorize`], which in turn uses javadoc:org.springframework.security.authorization.method.PostAuthorizeAuthorizationManager[]
+* For <<use-prefilter,`@PreFilter`>>, Spring Security uses javadoc:org.springframework.security.authorization.method.PreFilterAuthorizationMethodInterceptor[]
+* For <<use-postfilter,`@PostFilter`>>, Spring Security uses javadoc:org.springframework.security.authorization.method.PostFilterAuthorizationMethodInterceptor[]
+* For <<use-secured,`@Secured`>>, Spring Security uses javadoc:org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor[`AuthorizationManagerBeforeMethodInterceptor#secured`], which in turn uses javadoc:org.springframework.security.authorization.method.SecuredAuthorizationManager[]
+* For JSR-250 annotations, Spring Security uses javadoc:org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor[`AuthorizationManagerBeforeMethodInterceptor#jsr250`], which in turn uses javadoc:org.springframework.security.authorization.method.Jsr250AuthorizationManager[]
 
 Generally speaking, you can consider the following listing as representative of what interceptors Spring Security publishes when you add `@EnableMethodSecurity`:
 
@@ -311,7 +311,7 @@ The primary way Spring Security enables method-level authorization support is th
 [[use-preauthorize]]
 === Authorizing Method Invocation with `@PreAuthorize`
 
-When <<activate-method-security,Method Security is active>>, you can annotate a method with the {security-api-url}org/springframework/security/access/prepost/PreAuthorize.html[`@PreAuthorize`] annotation like so:
+When <<activate-method-security,Method Security is active>>, you can annotate a method with the javadoc:org.springframework.security.access.prepost.PreAuthorize[format=annotation] annotation like so:
 
 [tabs]
 ======
@@ -399,7 +399,7 @@ While `@PreAuthorize` is quite helpful for declaring needed authorities, it can 
 [[use-postauthorize]]
 === Authorization Method Results with `@PostAuthorize`
 
-When Method Security is active, you can annotate a method with the {security-api-url}org/springframework/security/access/prepost/PostAuthorize.html[`@PostAuthorize`] annotation like so:
+When Method Security is active, you can annotate a method with the javadoc:org.springframework.security.access.prepost.PostAuthorize[format=annotation] annotation like so:
 
 [tabs]
 ======
@@ -546,7 +546,7 @@ If not, Spring Security will throw an `AccessDeniedException` and return a 403 s
 [[use-prefilter]]
 === Filtering Method Parameters with `@PreFilter`
 
-When Method Security is active, you can annotate a method with the {security-api-url}org/springframework/security/access/prepost/PreFilter.html[`@PreFilter`] annotation like so:
+When Method Security is active, you can annotate a method with the javadoc:org.springframework.security.access.prepost.PreFilter[format=annotation] annotation like so:
 
 [tabs]
 ======
@@ -670,7 +670,7 @@ The result is that the above method will only have the `Account` instances where
 [[use-postfilter]]
 === Filtering Method Results with `@PostFilter`
 
-When Method Security is active, you can annotate a method with the {security-api-url}org/springframework/security/access/prepost/PostFilter.html[`@PostFilter`] annotation like so:
+When Method Security is active, you can annotate a method with the javadoc:org.springframework.security.access.prepost.PostFilter[format=annotation] annotation like so:
 
 [tabs]
 ======
@@ -795,7 +795,7 @@ In-memory filtering can obviously be expensive, and so be considerate of whether
 [[use-secured]]
 === Authorizing Method Invocation with `@Secured`
 
-{security-api-url}org/springframework/security/access/annotation/Secured.html[`@Secured`] is a legacy option for authorizing invocations.
+javadoc:org.springframework.security.access.annotation.Secured[format=annotation] is a legacy option for authorizing invocations.
 <<use-preauthorize,`@PreAuthorize`>> supercedes it and is recommended instead.
 
 To use the `@Secured` annotation, you should first change your Method Security declaration to enable it like so:
@@ -1475,7 +1475,7 @@ You can place your interceptor in between Spring Security method interceptors us
 === Customizing Expression Handling
 
 Or, third, you can customize how each SpEL expression is handled.
-To do that, you can expose a custom {security-api-url}org.springframework.security.access.expression.method.MethodSecurityExpressionHandler.html[`MethodSecurityExpressionHandler`], like so:
+To do that, you can expose a custom javadoc:org.springframework.security.access.expression.method.MethodSecurityExpressionHandler[], like so:
 
 .Custom MethodSecurityExpressionHandler
 [tabs]
@@ -2357,8 +2357,8 @@ You can also add the Spring Boot property `spring.jackson.default-property-inclu
 There are some scenarios where you may not wish to throw an `AuthorizationDeniedException` when a method is invoked without the required permissions.
 Instead, you might wish to return a post-processed result, like a masked result, or a default value in cases where authorization denied happened before invoking the method.
 
-Spring Security provides support for handling authorization denied on method invocation by using the {security-api-url}org/springframework/security/authorization/method/HandleAuthorizationDenied.html[`@HandleAuthorizationDenied`].
-The handler works for denied authorizations that happened in the <<authorizing-with-annotations,`@PreAuthorize` and `@PostAuthorize` annotations>> as well as {security-api-url}org/springframework/security/authorization/AuthorizationDeniedException.html[`AuthorizationDeniedException`] thrown from the method invocation itself.
+Spring Security provides support for handling authorization denied on method invocation by using the javadoc:org.springframework.security.authorization.method.HandleAuthorizationDenied[format=annotation].
+The handler works for denied authorizations that happened in the <<authorizing-with-annotations,`@PreAuthorize` and `@PostAuthorize` annotations>> as well as javadoc:org.springframework.security.authorization.AuthorizationDeniedException[] thrown from the method invocation itself.
 
 Let's consider the example from the <<authorize-object,previous section>>, but instead of creating the `AccessDeniedExceptionInterceptor` to transform an `AccessDeniedException` to a `null` return value, we will use the `handlerClass` attribute from `@HandleAuthorizationDenied`:
 
@@ -2473,7 +2473,7 @@ fun getEmailWhenProxiedThenNullEmail() {
 There are some scenarios where you might want to return a secure result derived from the denied result.
 For example, if a user is not authorized to see email addresses, you might want to apply some masking on the original email address, i.e. _useremail@example.com_ would become _use\\******@example.com_.
 
-For those scenarios, you can override the `handleDeniedInvocationResult` from the `MethodAuthorizationDeniedHandler`, which has the {security-api-url}org/springframework/security/authorization/method/MethodInvocationResult.html[`MethodInvocationResult`] as an argument.
+For those scenarios, you can override the `handleDeniedInvocationResult` from the `MethodAuthorizationDeniedHandler`, which has the javadoc:org.springframework.security.authorization.method.MethodInvocationResult[] as an argument.
 Let's continue with the previous example, but instead of returning `null`, we will return a masked value of the email:
 
 [tabs]
@@ -2818,7 +2818,7 @@ If you are using `@EnableGlobalMethodSecurity`, you should migrate to `@EnableMe
 [[servlet-replace-globalmethodsecurity-with-methodsecurity]]
 === Replace xref:servlet/authorization/method-security.adoc#jc-enable-global-method-security[global method security] with xref:servlet/authorization/method-security.adoc#jc-enable-method-security[method security]
 
-{security-api-url}org/springframework/security/config/annotation/method/configuration/EnableGlobalMethodSecurity.html[`@EnableGlobalMethodSecurity`] and xref:servlet/appendix/namespace/method-security.adoc#nsa-global-method-security[`<global-method-security>`] are deprecated in favor of {security-api-url}org/springframework/security/config/annotation/method/configuration/EnableMethodSecurity.html[`@EnableMethodSecurity`] and xref:servlet/appendix/namespace/method-security.adoc#nsa-method-security[`<method-security>`], respectively.
+javadoc:org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity[format=annotation] and xref:servlet/appendix/namespace/method-security.adoc#nsa-global-method-security[`<global-method-security>`] are deprecated in favor of javadoc:org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity[`@EnableMethodSecurity`] and xref:servlet/appendix/namespace/method-security.adoc#nsa-method-security[`<method-security>`], respectively.
 The new annotation and XML element activate Spring's xref:servlet/authorization/method-security.adoc#jc-enable-method-security[pre-post annotations] by default and use `AuthorizationManager` internally.
 
 This means that the following two listings are functionally equivalent:

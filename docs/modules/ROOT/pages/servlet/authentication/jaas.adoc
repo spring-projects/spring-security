@@ -58,7 +58,7 @@ This means that `DefaultJaasAuthenticationProvider` is not bound to any particul
 To make it easy to inject a `Configuration` into `DefaultJaasAuthenticationProvider`, a default in-memory implementation named `InMemoryConfiguration` is provided.
 The implementation constructor accepts a `Map` where each key represents a login configuration name, and the value represents an `Array` of `AppConfigurationEntry` instances.
 `InMemoryConfiguration` also supports a default `Array` of `AppConfigurationEntry` objects that is used if no mapping is found within the provided `Map`.
-For details, see the {security-api-url}org/springframework/security/authentication/jaas/memory/InMemoryConfiguration.html[Javadoc of `InMemoryConfiguration`].
+For details, see the Javadoc of javadoc:org.springframework.security.authentication.jaas.memory.InMemoryConfiguration[].
 
 
 [[jaas-djap-config]]

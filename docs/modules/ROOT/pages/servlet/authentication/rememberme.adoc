@@ -89,7 +89,7 @@ void loginSuccess(HttpServletRequest request, HttpServletResponse response,
 	Authentication successfulAuthentication);
 ----
 
-See the Javadoc for {security-api-url}org/springframework/security/web/authentication/RememberMeServices.html[`RememberMeServices`] for a fuller discussion on what the methods do, although note that, at this stage, `AbstractAuthenticationProcessingFilter` calls only the `loginFail()` and `loginSuccess()` methods.
+See the Javadoc for javadoc:org.springframework.security.web.authentication.RememberMeServices[] for a fuller discussion on what the methods do, although note that, at this stage, `AbstractAuthenticationProcessingFilter` calls only the `loginFail()` and `loginSuccess()` methods.
 The `autoLogin()` method is called by `RememberMeAuthenticationFilter` whenever the `SecurityContextHolder` does not contain an `Authentication`.
 This interface, therefore, provides the underlying remember-me implementation with sufficient notification of authentication-related events and delegates to the implementation whenever a candidate web request might contain a cookie and wish to be remembered.
 This design allows any number of remember-me implementation strategies.

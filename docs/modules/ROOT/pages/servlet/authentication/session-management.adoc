@@ -49,7 +49,7 @@ The latter is also used when configuring an invalid session URL through the name
 [[moving-away-from-sessionmanagementfilter]]
 ==== Moving Away From `SessionManagementFilter`
 
-In Spring Security 5, the default configuration relies on `SessionManagementFilter` to detect if a user just authenticated and invoke {security-api-url}org/springframework/security/web/authentication/session/SessionAuthenticationStrategy.html[the `SessionAuthenticationStrategy`].
+In Spring Security 5, the default configuration relies on `SessionManagementFilter` to detect if a user just authenticated and invoke the javadoc:org.springframework.security.web.authentication.session.SessionAuthenticationStrategy[SessionAuthenticationStrategy].
 The problem with this is that it means that in a typical setup, the `HttpSession` must be read for every request.
 
 In Spring Security 6, the default is that authentication mechanisms themselves must invoke the `SessionAuthenticationStrategy`.
@@ -63,10 +63,10 @@ In Spring Security 6, the `SessionManagementFilter` is not used by default, ther
 |Method |Replacement
 
 |`sessionAuthenticationErrorUrl`
-|Configure an {security-api-url}/org/springframework/security/web/authentication/AuthenticationFailureHandler.html[`AuthenticationFailureHandler`] in your authentication mechanism
+|Configure an javadoc:org.springframework.security.web.authentication.AuthenticationFailureHandler[] in your authentication mechanism
 
 |`sessionAuthenticationFailureHandler`
-|Configure an {security-api-url}/org/springframework/security/web/authentication/AuthenticationFailureHandler.html[`AuthenticationFailureHandler`] in your authentication mechanism
+|Configure an javadoc:org.springframework.security.web.authentication.AuthenticationFailureHandler[] in your authentication mechanism
 
 |`sessionAuthenticationStrategy`
 |Configure an `SessionAuthenticationStrategy` in your authentication mechanism as <<moving-away-from-sessionmanagementfilter,discussed above>>
@@ -589,8 +589,8 @@ If that is your case, you might want to <<clearing-session-cookie-on-logout,conf
 
 === Customizing the Invalid Session Strategy
 
-The `invalidSessionUrl` is a convenience method for setting the `InvalidSessionStrategy` using the {security-api-url}/org/springframework/security/web/session/SimpleRedirectInvalidSessionStrategy.html[`SimpleRedirectInvalidSessionStrategy` implementation].
-If you want to customize the behavior, you can implement the {security-api-url}/org/springframework/security/web/session/InvalidSessionStrategy.html[`InvalidSessionStrategy`] interface and configure it using the `invalidSessionStrategy` method:
+The `invalidSessionUrl` is a convenience method for setting the `InvalidSessionStrategy` using the javadoc:org.springframework.security.web.session.SimpleRedirectInvalidSessionStrategy[`SimpleRedirectInvalidSessionStrategy` implementation].
+If you want to customize the behavior, you can implement the javadoc:org.springframework.security.web.session.InvalidSessionStrategy[] interface and configure it using the `invalidSessionStrategy` method:
 
 [tabs]
 ======
@@ -898,7 +898,7 @@ public class SomeClass {
 == Forcing Eager Session Creation
 
 At times, it can be valuable to eagerly create sessions.
-This can be done by using the {security-api-url}org/springframework/security/web/session/ForceEagerSessionCreationFilter.html[`ForceEagerSessionCreationFilter`] which can be configured using:
+This can be done by using the javadoc:org.springframework.security.web.session.ForceEagerSessionCreationFilter[] which can be configured using:
 
 [tabs]
 ======

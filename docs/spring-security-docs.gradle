@@ -15,9 +15,20 @@ antora {
 	]
 }
 
+tasks.register("syncAntoraAttachments", Sync) {
+	group = 'Documentation'
+	description = 'Syncs the Antora attachments'
+	from project.provider( { project.tasks.api.outputs } )
+	into project.layout.buildDirectory.dir('generated-antora-resources/modules/ROOT/assets/attachments/api/java')
+}
+
 tasks.named("generateAntoraYml") {
 	asciidocAttributes = project.provider( { generateAttributes() } )
 	asciidocAttributes.putAll(providers.provider( { resolvedVersions(project.configurations.testRuntimeClasspath) }))
+}
+
+tasks.register("generateAntoraResources") {
+	dependsOn 'generateAntoraYml', 'syncAntoraAttachments'
 }
 
 dependencies {

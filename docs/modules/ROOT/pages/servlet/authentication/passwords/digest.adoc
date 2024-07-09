@@ -33,7 +33,7 @@ key:              A private key to prevent modification of the nonce token
 ----
 
 You need to ensure that you xref:features/authentication/password-storage.adoc#authentication-password-storage-configuration[configure] insecure plain text xref:features/authentication/password-storage.adoc#authentication-password-storage[Password Storage] using `NoOpPasswordEncoder`.
-(See the {security-api-url}org/springframework/security/crypto/password/NoOpPasswordEncoder.html[`NoOpPasswordEncoder`] class in the Javadoc.)
+(See the javadoc:org.springframework.security.crypto.password.NoOpPasswordEncoder[] class in the Javadoc.)
 The following provides an example of configuring Digest Authentication with Java Configuration:
 
 .Digest Authentication

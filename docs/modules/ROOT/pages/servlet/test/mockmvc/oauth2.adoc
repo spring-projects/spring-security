@@ -964,7 +964,7 @@ mvc.get("/endpoint") {
 ----
 ======
 
-You can also specify a complete `Jwt`, for which `{security-api-url}org/springframework/security/oauth2/jwt/Jwt.Builder.html[Jwt.Builder]` comes quite handy:
+You can also specify a complete `Jwt`, for which javadoc:org.springframework.security.oauth2.jwt.Jwt$Builder[] comes quite handy:
 
 [tabs]
 ======

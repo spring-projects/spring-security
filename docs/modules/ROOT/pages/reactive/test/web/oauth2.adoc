@@ -956,7 +956,7 @@ client
 ----
 ======
 
-You can also specify a complete `Jwt`, for which `{security-api-url}org/springframework/security/oauth2/jwt/Jwt.Builder.html[Jwt.Builder]` is quite handy:
+You can also specify a complete `Jwt`, for which javadoc:org.springframework.security.oauth2.jwt.Jwt$Builder[] is quite handy:
 
 [tabs]
 ======

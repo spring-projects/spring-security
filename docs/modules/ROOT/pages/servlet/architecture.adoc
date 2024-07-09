@@ -118,7 +118,7 @@ image::{figures}/filterchainproxy.png[]
 [[servlet-securityfilterchain]]
 == SecurityFilterChain
 
-{security-api-url}org/springframework/security/web/SecurityFilterChain.html[`SecurityFilterChain`]  is used by <<servlet-filterchainproxy>> to determine which Spring Security `Filter` instances should be invoked for the current request.
+javadoc:org.springframework.security.web.SecurityFilterChain[]  is used by <<servlet-filterchainproxy>> to determine which Spring Security `Filter` instances should be invoked for the current request.
 
 The following image shows the role of `SecurityFilterChain`.
 
@@ -392,7 +392,7 @@ public FilterRegistrationBean<TenantFilter> tenantFilterRegistration(TenantFilte
 == Handling Security Exceptions
 
 
-The {security-api-url}org/springframework/security/web/access/ExceptionTranslationFilter.html[`ExceptionTranslationFilter`] allows translation of {security-api-url}org/springframework/security/access/AccessDeniedException.html[`AccessDeniedException`] and {security-api-url}/org/springframework/security/core/AuthenticationException.html[`AuthenticationException`] into HTTP responses.
+The javadoc:org.springframework.security.web.access.ExceptionTranslationFilter[] allows translation of javadoc:org.springframework.security.access.AccessDeniedException[] and javadoc:org.springframework.security.core.AuthenticationException[] into HTTP responses.
 
 `ExceptionTranslationFilter` is inserted into the <<servlet-filterchainproxy>> as one of the <<servlet-security-filters>>.
 
@@ -447,7 +447,7 @@ In Spring Security this is done by saving the `HttpServletRequest` using a <<req
 [[requestcache]]
 === RequestCache
 
-The `HttpServletRequest` is saved in the {security-api-url}org/springframework/security/web/savedrequest/RequestCache.html[`RequestCache`].
+The `HttpServletRequest` is saved in the javadoc:org.springframework.security.web.savedrequest.RequestCache[].
 When the user successfully authenticates, the `RequestCache` is used to replay the original request.
 The <<requestcacheawarefilter,`RequestCacheAwareFilter`>> uses the `RequestCache` to get the saved `HttpServletRequest` after the user authenticates, while the `ExceptionTranslationFilter` uses the `RequestCache` to save the `HttpServletRequest` after it detects `AuthenticationException`, before redirecting the user to the login endpoint.
 
@@ -463,7 +463,7 @@ There are a number of reasons you may want to not store the user's unauthenticat
 You may want to offload that storage onto the user's browser or store it in a database.
 Or you may want to shut off this feature since you always want to redirect the user to the home page instead of the page they tried to visit before login.
 
-To do that, you can use {security-api-url}org/springframework/security/web/savedrequest/NullRequestCache.html[the `NullRequestCache` implementation].
+To do that, you can use the javadoc:org.springframework.security.web.savedrequest.NullRequestCache[NullRequestCache] implementation.
 
 .Prevent the Request From Being Saved
 [tabs]
@@ -517,7 +517,7 @@ XML::
 [[requestcacheawarefilter]]
 === RequestCacheAwareFilter
 
-The {security-api-url}org/springframework/security/web/savedrequest/RequestCacheAwareFilter.html[`RequestCacheAwareFilter`] uses the <<requestcache,`RequestCache`>> to replay the original request.
+The javadoc:org.springframework.security.web.savedrequest.RequestCacheAwareFilter[] uses the <<requestcache,`RequestCache`>> to replay the original request.
 
 [[servlet-logging]]
 == Logging

@@ -86,7 +86,7 @@ From here, consider jumping to:
 
 Next, let's see the architectural components that Spring Security uses to support https://tools.ietf.org/html/rfc7519[JWT] Authentication in servlet-based applications, like the one we just saw.
 
-{security-api-url}org/springframework/security/oauth2/server/resource/authentication/JwtAuthenticationProvider.html[`JwtAuthenticationProvider`] is an xref:servlet/authentication/architecture.adoc#servlet-authentication-authenticationprovider[`AuthenticationProvider`] implementation that leverages a <<oauth2resourceserver-jwt-decoder,`JwtDecoder`>> and <<oauth2resourceserver-jwt-authorization-extraction,`JwtAuthenticationConverter`>> to authenticate a JWT.
+javadoc:org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationProvider[] is an xref:servlet/authentication/architecture.adoc#servlet-authentication-authenticationprovider[`AuthenticationProvider`] implementation that leverages a <<oauth2resourceserver-jwt-decoder,`JwtDecoder`>> and <<oauth2resourceserver-jwt-authorization-extraction,`JwtAuthenticationConverter`>> to authenticate a JWT.
 
 Let's take a look at how `JwtAuthenticationProvider` works within Spring Security.
 The figure explains details of how the xref:servlet/authentication/architecture.adoc#servlet-authentication-authenticationmanager[`AuthenticationManager`] in figures from <<oauth2resourceserver-authentication-bearertokenauthenticationfilter,Reading the Bearer Token>> works.
@@ -293,7 +293,7 @@ fun jwtDecoder(): JwtDecoder {
 ======
 
 [NOTE]
-Calling `{security-api-url}org/springframework/security/oauth2/jwt/JwtDecoders.html#fromIssuerLocation-java.lang.String-[JwtDecoders#fromIssuerLocation]` is what invokes the Provider Configuration or Authorization Server Metadata endpoint in order to derive the JWK Set Uri.
+Calling javadoc:org.springframework.security.oauth2.jwt.JwtDecoders#fromIssuerLocation-java.lang.String-[JwtDecoders#fromIssuerLocation] is what invokes the Provider Configuration or Authorization Server Metadata endpoint in order to derive the JWK Set Uri.
 
 If the application doesn't expose a `JwtDecoder` bean, then Spring Boot will expose the above default one.
 

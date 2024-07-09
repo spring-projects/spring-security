@@ -19,7 +19,7 @@ image:{icondir}/number_1.png[] First, a user makes an unauthenticated request to
 image:{icondir}/number_2.png[] Spring Security's xref:servlet/authorization/authorize-http-requests.adoc[`AuthorizationFilter`] indicates that the unauthenticated request is _Denied_ by throwing an `AccessDeniedException`.
 
 image:{icondir}/number_3.png[] Since the user lacks authorization, the xref:servlet/architecture.adoc#servlet-exceptiontranslationfilter[`ExceptionTranslationFilter`] initiates _Start Authentication_.
-The configured xref:servlet/authentication/architecture.adoc#servlet-authentication-authenticationentrypoint[`AuthenticationEntryPoint`] is an instance of {security-api-url}org/springframework/security/web/authentication/LoginUrlAuthenticationEntryPoint.html[`LoginUrlAuthenticationEntryPoint`], which redirects to <<servlet-saml2login-sp-initiated-factory,the `<saml2:AuthnRequest>` generating endpoint>>, `Saml2WebSsoAuthenticationRequestFilter`.
+The configured xref:servlet/authentication/architecture.adoc#servlet-authentication-authenticationentrypoint[`AuthenticationEntryPoint`] is an instance of javadoc:org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint[], which redirects to <<servlet-saml2login-sp-initiated-factory,the `<saml2:AuthnRequest>` generating endpoint>>, `Saml2WebSsoAuthenticationRequestFilter`.
 Alternatively, if you have <<servlet-saml2login-relyingpartyregistrationrepository,configured more than one asserting party>>, it first redirects to a picker page.
 
 image:{icondir}/number_4.png[] Next, the `Saml2WebSsoAuthenticationRequestFilter` creates, signs, serializes, and encodes a `<saml2:AuthnRequest>` using its configured <<servlet-saml2login-sp-initiated-factory,`Saml2AuthenticationRequestFactory`>>.
@@ -418,7 +418,7 @@ class MyCustomSecurityConfiguration {
 The preceding example requires the role of `USER` for any URL that starts with `/messages/`.
 
 [[servlet-saml2login-relyingpartyregistrationrepository]]
-The second `@Bean` Spring Boot creates is a {security-api-url}org/springframework/security/saml2/provider/service/registration/RelyingPartyRegistrationRepository.html[`RelyingPartyRegistrationRepository`], which represents the asserting party and relying party metadata.
+The second `@Bean` Spring Boot creates is a javadoc:org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository[], which represents the asserting party and relying party metadata.
 This includes such things as the location of the SSO endpoint the relying party should use when requesting authentication from the asserting party.
 
 You can override the default by publishing your own `RelyingPartyRegistrationRepository` bean.
@@ -641,7 +641,7 @@ In this way, the set of `RelyingPartyRegistration`s will refresh based on {sprin
 
 [[servlet-saml2login-relyingpartyregistration]]
 == RelyingPartyRegistration
-A {security-api-url}org/springframework/security/saml2/provider/service/registration/RelyingPartyRegistration.html[`RelyingPartyRegistration`]
+A javadoc:org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration[]
 instance represents a link between an relying party and an asserting party's metadata.
 
 In a `RelyingPartyRegistration`, you can provide relying party metadata like its `Issuer` value, where it expects SAML Responses to be sent to, and any credentials that it owns for the purposes of signing or decrypting payloads.

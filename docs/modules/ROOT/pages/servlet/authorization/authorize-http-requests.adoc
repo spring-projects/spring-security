@@ -192,7 +192,7 @@ public SecurityFilterChain web(HttpSecurity http) throws Exception {
             .anyRequest().authenticated()
         )
         // ...
-        
+
     return http.build();
 }
 ----
@@ -209,7 +209,7 @@ fun web(http: HttpSecurity): SecurityFilterChain {
             authorize(anyRequest, authenticated)
         }
     }
-    
+
     return http.build()
 }
 ----
@@ -403,7 +403,7 @@ Spring Security supports matching requests against a regular expression.
 This can come in handy if you want to apply more strict matching criteria than `**` on a subdirectory.
 
 For example, consider a path that contains the username and the rule that all usernames must be alphanumeric.
-You can use {security-api-url}org/springframework/security/web/util/matcher/RegexRequestMatcher.html[`RegexRequestMatcher`] to respect this rule, like so:
+You can use javadoc:org.springframework.security.web.util.matcher.RegexRequestMatcher[] to respect this rule, like so:
 
 .Match with Regex
 [tabs]
@@ -643,7 +643,7 @@ This need can arise in at least two different ways:
 [NOTE]
 This feature is not currently supported in XML
 
-In Java configuration, you can create your own {security-api-url}org/springframework/security/web/util/matcher/RequestMatcher.html[`RequestMatcher`] and supply it to the DSL like so:
+In Java configuration, you can create your own javadoc:org.springframework.security.web.util.matcher.RequestMatcher[] and supply it to the DSL like so:
 
 .Authorize by Dispatcher Type
 ====
@@ -672,7 +672,7 @@ http {
 ====
 
 [TIP]
-Because {security-api-url}org/springframework/security/web/util/matcher/RequestMatcher.html[`RequestMatcher`] is a functional interface, you can supply it as a lambda in the DSL.
+Because javadoc:org.springframework.security.web.util.matcher.RequestMatcher[] is a functional interface, you can supply it as a lambda in the DSL.
 However, if you want to extract values from the request, you will need to have a concrete class since that requires overriding a `default` method.
 
 Once authorized, you can test it using xref:servlet/test/method.adoc#test-method-withmockuser[Security's test support] in the following way:
@@ -922,15 +922,15 @@ Because the performance impact is now addressed, Spring Security recommends usin
 == Migrating from `authorizeRequests`
 
 [NOTE]
-`AuthorizationFilter` supersedes {security-api-url}org/springframework/security/web/access/intercept/FilterSecurityInterceptor.html[`FilterSecurityInterceptor`].
+`AuthorizationFilter` supersedes javadoc:org.springframework.security.web.access.intercept.FilterSecurityInterceptor[].
 To remain backward compatible, `FilterSecurityInterceptor` remains the default.
 This section discusses how `AuthorizationFilter` works and how to override the default configuration.
 
-The {security-api-url}org/springframework/security/web/access/intercept/AuthorizationFilter.html[`AuthorizationFilter`] provides xref:servlet/authorization/index.adoc#servlet-authorization[authorization] for ``HttpServletRequest``s.
+The javadoc:org.springframework.security.web.access.intercept.AuthorizationFilter[] provides xref:servlet/authorization/index.adoc#servlet-authorization[authorization] for ``HttpServletRequest``s.
 It is inserted into the xref:servlet/architecture.adoc#servlet-filterchainproxy[FilterChainProxy] as one of the xref:servlet/architecture.adoc#servlet-security-filters[Security Filters].
 
 You can override the default when you declare a `SecurityFilterChain`.
-Instead of using {security-api-url}org/springframework/security/config/annotation/web/builders/HttpSecurity.html#authorizeRequests()[`authorizeRequests`], use `authorizeHttpRequests`, like so:
+Instead of using javadoc:org.springframework.security.config.annotation.web.builders.HttpSecurity#authorizeRequests()[authorizeRequests], use `authorizeHttpRequests`, like so:
 
 .Use authorizeHttpRequests
 [tabs]
@@ -960,12 +960,12 @@ This simplifies reuse and customization.
 Instead of the authentication needing to be looked up for every request, it will only look it up in requests where an authorization decision requires authentication.
 3. Bean-based configuration support.
 
-When `authorizeHttpRequests` is used instead of `authorizeRequests`, then {security-api-url}org/springframework/security/web/access/intercept/AuthorizationFilter.html[`AuthorizationFilter`] is used instead of {security-api-url}org/springframework/security/web/access/intercept/FilterSecurityInterceptor.html[`FilterSecurityInterceptor`].
+When `authorizeHttpRequests` is used instead of `authorizeRequests`, then javadoc:org.springframework.security.web.access.intercept.AuthorizationFilter[] is used instead of javadoc:org.springframework.security.web.access.intercept.FilterSecurityInterceptor[].
 
 === Migrating Expressions
 
 Where possible, it is recommended that you use type-safe authorization managers instead of SpEL.
-For Java configuration, {security-api-url}org/springframework/security/web/access/expression/WebExpressionAuthorizationManager.html[`WebExpressionAuthorizationManager`] is available to help migrate legacy SpEL.
+For Java configuration, javadoc:org.springframework.security.web.access.expression.WebExpressionAuthorizationManager[] is available to help migrate legacy SpEL.
 
 To use `WebExpressionAuthorizationManager`, you can construct one with the expression you are trying to migrate, like so:
 
@@ -1009,12 +1009,12 @@ Kotlin::
 
 For complex instructions that include bean references as well as other expressions, it is recommended that you change those to implement `AuthorizationManager` and refer to them by calling `.access(AuthorizationManager)`.
 
-If you are not able to do that, you can configure a {security-api-url}org/springframework/security/web/access/expression/DefaultHttpSecurityExpressionHandler.html[`DefaultHttpSecurityExpressionHandler`] with a bean resolver and supply that to `WebExpressionAuthorizationManager#setExpressionhandler`.
+If you are not able to do that, you can configure a javadoc:org.springframework.security.web.access.expression.DefaultHttpSecurityExpressionHandler[] with a bean resolver and supply that to `WebExpressionAuthorizationManager#setExpressionhandler`.
 
 [[security-matchers]]
 == Security Matchers
 
-The {security-api-url}org/springframework/security/web/util/matcher/RequestMatcher.html[`RequestMatcher`] interface is used to determine if a request matches a given rule.
+The javadoc:org.springframework.security.web.util.matcher.RequestMatcher[] interface is used to determine if a request matches a given rule.
 We use `securityMatchers` to determine if xref:servlet/configuration/java.adoc#jc-httpsecurity[a given `HttpSecurity`] should be applied to a given request.
 The same way, we can use `requestMatchers` to determine the authorization rules that we should apply to a given request.
 Look at the following example:
@@ -1074,7 +1074,7 @@ open class SecurityConfig {
 <3> Allow access to URLs that start with `/admin/` to users with the `ADMIN` role
 <4> Any other request that doesn't match the rules above, will require authentication
 
-The `securityMatcher(s)` and `requestMatcher(s)` methods will decide which `RequestMatcher` implementation fits best for your application: If {spring-framework-reference-url}web.html#spring-web[Spring MVC] is in the classpath, then {security-api-url}org/springframework/security/web/servlet/util/matcher/MvcRequestMatcher.html[`MvcRequestMatcher`] will be used, otherwise, {security-api-url}org/springframework/security/web/servlet/util/matcher/AntPathRequestMatcher.html[`AntPathRequestMatcher`] will be used.
+The `securityMatcher(s)` and `requestMatcher(s)` methods will decide which `RequestMatcher` implementation fits best for your application: If {spring-framework-reference-url}web.html#spring-web[Spring MVC] is in the classpath, then javadoc:org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher[] will be used, otherwise, javadoc:org.springframework.security.web.util.matcher.AntPathRequestMatcher[] will be used.
 You can read more about the Spring MVC integration xref:servlet/integrations/mvc.adoc[here].
 
 If you want to use a specific `RequestMatcher`, just pass an implementation to the `securityMatcher` and/or `requestMatcher` methods:
