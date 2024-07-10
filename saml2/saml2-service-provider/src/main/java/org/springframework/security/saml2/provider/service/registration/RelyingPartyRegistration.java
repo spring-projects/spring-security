@@ -339,6 +339,25 @@ public class RelyingPartyRegistration {
 	}
 
 	/**
+	 * Creates a {@code RelyingPartyRegistration} {@link Builder} with a
+	 * {@code registrationId} equivalent to the asserting party entity id. Also
+	 * initializes to the contents of the given {@link AssertingPartyMetadata}.
+	 *
+	 * <p>
+	 * Presented as a convenience method when working with
+	 * {@link AssertingPartyMetadataRepository} return values. As such, only supports
+	 * {@link AssertingPartyMetadata} instances of type {@link AssertingPartyDetails}.
+	 * @param metadata the metadata used to initialize the
+	 * {@link RelyingPartyRegistration} {@link Builder}
+	 * @return {@link Builder} to create a {@link RelyingPartyRegistration} object
+	 * @since 6.4
+	 */
+	public static Builder withAssertingPartyMetadata(AssertingPartyMetadata metadata) {
+		Assert.isInstanceOf(AssertingPartyDetails.class, metadata, "metadata must be of type AssertingPartyDetails");
+		return withAssertingPartyDetails((AssertingPartyDetails) metadata);
+	}
+
+	/**
 	 * Creates a {@code RelyingPartyRegistration} {@link Builder} based on an existing
 	 * object
 	 * @param registration the {@code RelyingPartyRegistration}
@@ -380,7 +399,7 @@ public class RelyingPartyRegistration {
 	 *
 	 * @since 5.4
 	 */
-	public static class AssertingPartyDetails {
+	public static class AssertingPartyDetails implements AssertingPartyMetadata {
 
 		private final String entityId;
 
@@ -584,7 +603,7 @@ public class RelyingPartyRegistration {
 				.singleLogoutServiceBinding(this.singleLogoutServiceBinding);
 		}
 
-		public static class Builder {
+		public static class Builder implements AssertingPartyMetadata.Builder<Builder> {
 
 			private String entityId;
 

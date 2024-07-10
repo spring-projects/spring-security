@@ -166,4 +166,30 @@ public class RelyingPartyRegistrationTests {
 			.containsExactly(encryptingCredential, altApCredential);
 	}
 
+	@Test
+	void withAssertingPartyMetadataWhenDetailsThenBuilderCopies() {
+		RelyingPartyRegistration registration = TestRelyingPartyRegistrations.relyingPartyRegistration()
+			.nameIdFormat("format")
+			.assertingPartyDetails((a) -> a.singleSignOnServiceBinding(Saml2MessageBinding.POST))
+			.assertingPartyDetails((a) -> a.wantAuthnRequestsSigned(false))
+			.assertingPartyDetails((a) -> a.signingAlgorithms((algs) -> algs.add("alg")))
+			.assertionConsumerServiceBinding(Saml2MessageBinding.REDIRECT)
+			.build();
+		RelyingPartyRegistration copied = RelyingPartyRegistration
+			.withAssertingPartyMetadata(registration.getAssertingPartyDetails())
+			.registrationId(registration.getRegistrationId())
+			.entityId(registration.getEntityId())
+			.signingX509Credentials((c) -> c.addAll(registration.getSigningX509Credentials()))
+			.decryptionX509Credentials((c) -> c.addAll(registration.getDecryptionX509Credentials()))
+			.assertionConsumerServiceLocation(registration.getAssertionConsumerServiceLocation())
+			.assertionConsumerServiceBinding(registration.getAssertionConsumerServiceBinding())
+			.singleLogoutServiceLocation(registration.getSingleLogoutServiceLocation())
+			.singleLogoutServiceResponseLocation(registration.getSingleLogoutServiceResponseLocation())
+			.singleLogoutServiceBindings((c) -> c.addAll(registration.getSingleLogoutServiceBindings()))
+			.nameIdFormat(registration.getNameIdFormat())
+			.authnRequestsSigned(registration.isAuthnRequestsSigned())
+			.build();
+		compareRegistrations(registration, copied);
+	}
+
 }
