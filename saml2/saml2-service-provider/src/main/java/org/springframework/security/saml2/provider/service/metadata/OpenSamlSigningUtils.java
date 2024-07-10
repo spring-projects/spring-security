@@ -80,7 +80,13 @@ final class OpenSamlSigningUtils {
 	}
 
 	static <O extends SignableXMLObject> O sign(O object, RelyingPartyRegistration relyingPartyRegistration) {
-		SignatureSigningParameters parameters = resolveSigningParameters(relyingPartyRegistration);
+		List<String> algorithms = relyingPartyRegistration.getAssertingPartyDetails().getSigningAlgorithms();
+		List<Credential> credentials = resolveSigningCredentials(relyingPartyRegistration);
+		return sign(object, algorithms, credentials);
+	}
+
+	static <O extends SignableXMLObject> O sign(O object, List<String> algorithms, List<Credential> credentials) {
+		SignatureSigningParameters parameters = resolveSigningParameters(algorithms, credentials);
 		try {
 			SignatureSupport.signObject(object, parameters);
 			return object;
@@ -98,6 +104,11 @@ final class OpenSamlSigningUtils {
 			RelyingPartyRegistration relyingPartyRegistration) {
 		List<Credential> credentials = resolveSigningCredentials(relyingPartyRegistration);
 		List<String> algorithms = relyingPartyRegistration.getAssertingPartyDetails().getSigningAlgorithms();
+		return resolveSigningParameters(algorithms, credentials);
+	}
+
+	private static SignatureSigningParameters resolveSigningParameters(List<String> algorithms,
+			List<Credential> credentials) {
 		List<String> digests = Collections.singletonList(SignatureConstants.ALGO_ID_DIGEST_SHA256);
 		String canonicalization = SignatureConstants.ALGO_ID_C14N_EXCL_OMIT_COMMENTS;
 		SignatureSigningParametersResolver resolver = new SAMLMetadataSignatureSigningParametersResolver();
