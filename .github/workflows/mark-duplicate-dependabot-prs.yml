@@ -1,18 +1,10 @@
-name: Mark Duplicate PRs
+name: Mark Duplicate Dependabot PRs
 
 on:
   pull_request:
     types: [closed]
 
 jobs:
-  debug:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Debug Event Payload
-        run: |
-          echo "Merged: ${{ github.event.pull_request.merged }}"
-          echo "User Login: ${{ github.event.pull_request.user.login }}"
-
   check_duplicate_prs:
     runs-on: ubuntu-latest
     if: github.event.pull_request.merged == true && github.event.pull_request.user.login == 'dependabot[bot]'
@@ -33,7 +25,7 @@ jobs:
           DEPENDENCY_NAME: ${{ steps.extract.outputs.dependency_name }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          PRS=$(gh pr list --search "milestone:${{ github.event.pull_request.milestone.title }} is:merged $DEPENDENCY_NAME" --json number --jq 'map(.number) | join(",")')
+          PRS=$(gh pr list --search 'milestone:${{ github.event.pull_request.milestone.title }} is:merged in:title "$DEPENDENCY_NAME"' --json number --jq 'map(.number) | join(",")')
           echo "prs=$PRS" >> $GITHUB_OUTPUT
 
       - name: Label Duplicate PRs
