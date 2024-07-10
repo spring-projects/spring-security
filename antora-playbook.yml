@@ -24,6 +24,7 @@ asciidoc:
   extensions:
   - '@asciidoctor/tabs'
   - '@springio/asciidoctor-extensions'
+  - '@springio/asciidoctor-extensions/javadoc-extension'
 urls:
   latest_version_segment_strategy: redirect:to
   latest_version_segment: ''
