@@ -61,6 +61,10 @@ public class TokenExchangeGrantRequestEntityConverter
 			parameters.add(OAuth2ParameterNames.ACTOR_TOKEN, actorToken.getTokenValue());
 			parameters.add(OAuth2ParameterNames.ACTOR_TOKEN_TYPE, tokenType(actorToken));
 		}
+		String audience = grantRequest.getAudience();
+		if (audience != null) {
+			parameters.add(OAuth2ParameterNames.AUDIENCE, audience);
+		}
 		if (!CollectionUtils.isEmpty(clientRegistration.getScopes())) {
 			parameters.add(OAuth2ParameterNames.SCOPE,
 					StringUtils.collectionToDelimitedString(clientRegistration.getScopes(), " "));

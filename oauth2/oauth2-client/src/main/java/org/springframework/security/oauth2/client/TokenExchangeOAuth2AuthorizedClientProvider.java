@@ -49,6 +49,8 @@ public final class TokenExchangeOAuth2AuthorizedClientProvider implements OAuth2
 
 	private Function<OAuth2AuthorizationContext, OAuth2Token> actorTokenResolver = (context) -> null;
 
+	private Function<OAuth2AuthorizationContext, String> audienceResolver = (context) -> null;
+
 	private Duration clockSkew = Duration.ofSeconds(60);
 
 	private Clock clock = Clock.systemUTC();
@@ -85,8 +87,10 @@ public final class TokenExchangeOAuth2AuthorizedClientProvider implements OAuth2
 		}
 
 		OAuth2Token actorToken = this.actorTokenResolver.apply(context);
+		String audience = this.audienceResolver.apply(context);
+
 		TokenExchangeGrantRequest grantRequest = new TokenExchangeGrantRequest(clientRegistration, subjectToken,
-				actorToken);
+				actorToken, audience);
 		OAuth2AccessTokenResponse tokenResponse = getTokenResponse(clientRegistration, grantRequest);
 
 		return new OAuth2AuthorizedClient(clientRegistration, context.getPrincipal().getName(),
@@ -144,6 +148,15 @@ public final class TokenExchangeOAuth2AuthorizedClientProvider implements OAuth2
 	public void setActorTokenResolver(Function<OAuth2AuthorizationContext, OAuth2Token> actorTokenResolver) {
 		Assert.notNull(actorTokenResolver, "actorTokenResolver cannot be null");
 		this.actorTokenResolver = actorTokenResolver;
+	}
+
+	/**
+	 * Sets the resolver used for resolving the audience.
+	 * @param audienceResolver the resolver used for resolving the audience
+	 */
+	public void setAudienceResolver(Function<OAuth2AuthorizationContext, String> audienceResolver) {
+		Assert.notNull(audienceResolver, "audienceResolver cannot be null");
+		this.audienceResolver = audienceResolver;
 	}
 
 	/**

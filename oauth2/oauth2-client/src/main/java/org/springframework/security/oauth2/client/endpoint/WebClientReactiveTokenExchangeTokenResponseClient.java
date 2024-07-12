@@ -73,6 +73,10 @@ public final class WebClientReactiveTokenExchangeTokenResponseClient
 			body.with(OAuth2ParameterNames.ACTOR_TOKEN, actorToken.getTokenValue());
 			body.with(OAuth2ParameterNames.ACTOR_TOKEN_TYPE, tokenType(actorToken));
 		}
+		String audience = grantRequest.getAudience();
+		if (audience != null) {
+			body.with(OAuth2ParameterNames.AUDIENCE, audience);
+		}
 		return body;
 	}
 

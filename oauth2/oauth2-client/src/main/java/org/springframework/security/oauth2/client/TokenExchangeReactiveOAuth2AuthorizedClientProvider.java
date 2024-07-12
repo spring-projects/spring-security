@@ -21,6 +21,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.function.Function;
 
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import org.springframework.security.oauth2.client.endpoint.ReactiveOAuth2AccessTokenResponseClient;
@@ -49,6 +50,8 @@ public final class TokenExchangeReactiveOAuth2AuthorizedClientProvider
 	private Function<OAuth2AuthorizationContext, Mono<OAuth2Token>> subjectTokenResolver = this::resolveSubjectToken;
 
 	private Function<OAuth2AuthorizationContext, Mono<OAuth2Token>> actorTokenResolver = (context) -> Mono.empty();
+
+	private Function<OAuth2AuthorizationContext, Mono<String>> audienceResolver = (context) -> null;
 
 	private Duration clockSkew = Duration.ofSeconds(60);
 
@@ -80,15 +83,14 @@ public final class TokenExchangeReactiveOAuth2AuthorizedClientProvider
 			return Mono.empty();
 		}
 
-		return this.subjectTokenResolver.apply(context)
-			.flatMap((subjectToken) -> this.actorTokenResolver.apply(context)
-				.map((actorToken) -> new TokenExchangeGrantRequest(clientRegistration, subjectToken, actorToken))
-				.defaultIfEmpty(new TokenExchangeGrantRequest(clientRegistration, subjectToken, null)))
-			.flatMap(this.accessTokenResponseClient::getTokenResponse)
-			.onErrorMap(OAuth2AuthorizationException.class,
-					(ex) -> new ClientAuthorizationException(ex.getError(), clientRegistration.getRegistrationId(), ex))
-			.map((tokenResponse) -> new OAuth2AuthorizedClient(clientRegistration, context.getPrincipal().getName(),
-					tokenResponse.getAccessToken()));
+		return Mono.zip(this.subjectTokenResolver.apply(context), this.actorTokenResolver.apply(context), this.audienceResolver.apply(context))
+				.map((tuple) -> new TokenExchangeGrantRequest(clientRegistration,
+						tuple.getT1(), tuple.getT2(), tuple.getT3()))
+				.flatMap(this.accessTokenResponseClient::getTokenResponse)
+				.onErrorMap(OAuth2AuthorizationException.class,
+						(ex) -> new ClientAuthorizationException(ex.getError(), clientRegistration.getRegistrationId(), ex))
+				.map((tokenResponse) -> new OAuth2AuthorizedClient(clientRegistration, context.getPrincipal().getName(),
+						tokenResponse.getAccessToken()));
 	}
 
 	private Mono<OAuth2Token> resolveSubjectToken(OAuth2AuthorizationContext context) {
@@ -134,6 +136,15 @@ public final class TokenExchangeReactiveOAuth2AuthorizedClientProvider
 	public void setActorTokenResolver(Function<OAuth2AuthorizationContext, Mono<OAuth2Token>> actorTokenResolver) {
 		Assert.notNull(actorTokenResolver, "actorTokenResolver cannot be null");
 		this.actorTokenResolver = actorTokenResolver;
+	}
+
+	/**
+	 * Sets the resolver used for resolving the audience.
+	 * @param audienceResolver the resolver used for resolving the audience
+	 */
+	public void setAudienceResolver(Function<OAuth2AuthorizationContext, Mono<String>> audienceResolver) {
+		Assert.notNull(audienceResolver, "audienceResolver cannot be null");
+		this.audienceResolver = audienceResolver;
 	}
 
 	/**

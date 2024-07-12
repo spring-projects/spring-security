@@ -23,7 +23,7 @@ import org.springframework.util.Assert;
 
 /**
  * A Token Exchange Grant request that holds the {@link OAuth2Token subject token} and
- * optional {@link OAuth2Token actor token}.
+ * optional {@link OAuth2Token actor token} and audience.
  *
  * @author Steve Riesenberg
  * @since 6.3
@@ -43,20 +43,34 @@ public class TokenExchangeGrantRequest extends AbstractOAuth2AuthorizationGrantR
 
 	private final OAuth2Token actorToken;
 
+	private final String audience;
+
+	/**
+	 * Constructs a {@code TokenExchangeGrantRequest} using the provided parameters.
+	 * @param clientRegistration the client registration
+	 * @param subjectToken the subject token
+	 */
+	public TokenExchangeGrantRequest(ClientRegistration clientRegistration, OAuth2Token subjectToken,
+			OAuth2Token actorToken) {
+		this(clientRegistration, subjectToken,actorToken, null);
+	}
+
 	/**
 	 * Constructs a {@code TokenExchangeGrantRequest} using the provided parameters.
 	 * @param clientRegistration the client registration
 	 * @param subjectToken the subject token
 	 * @param actorToken the actor token
+	 * @param audience the audience
 	 */
 	public TokenExchangeGrantRequest(ClientRegistration clientRegistration, OAuth2Token subjectToken,
-			OAuth2Token actorToken) {
+			OAuth2Token actorToken, String audience) {
 		super(AuthorizationGrantType.TOKEN_EXCHANGE, clientRegistration);
 		Assert.isTrue(AuthorizationGrantType.TOKEN_EXCHANGE.equals(clientRegistration.getAuthorizationGrantType()),
 				"clientRegistration.authorizationGrantType must be AuthorizationGrantType.TOKEN_EXCHANGE");
 		Assert.notNull(subjectToken, "subjectToken cannot be null");
 		this.subjectToken = subjectToken;
 		this.actorToken = actorToken;
+		this.audience = audience;
 	}
 
 	/**
@@ -73,6 +87,14 @@ public class TokenExchangeGrantRequest extends AbstractOAuth2AuthorizationGrantR
 	 */
 	public OAuth2Token getActorToken() {
 		return this.actorToken;
+	}
+
+	/**
+	 * Returns the audience.
+	 * @return the audience
+	 */
+	public String getAudience() {
+		return this.audience;
 	}
 
 }
