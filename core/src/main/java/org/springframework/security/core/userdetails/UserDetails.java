@@ -16,11 +16,7 @@
 
 package org.springframework.security.core.userdetails;
 
-import java.io.Serializable;
-import java.util.Collection;
-
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 
 /**
  * Provides core user information.
@@ -40,26 +36,13 @@ import org.springframework.security.core.GrantedAuthority;
  * @see UserDetailsService
  * @see UserCache
  */
-public interface UserDetails extends Serializable {
-
-	/**
-	 * Returns the authorities granted to the user. Cannot return <code>null</code>.
-	 * @return the authorities, sorted by natural key (never <code>null</code>)
-	 */
-	Collection<? extends GrantedAuthority> getAuthorities();
+public interface UserDetails extends UserAuthorities {
 
 	/**
 	 * Returns the password used to authenticate the user.
 	 * @return the password
 	 */
 	String getPassword();
-
-	/**
-	 * Returns the username used to authenticate the user. Cannot return
-	 * <code>null</code>.
-	 * @return the username (never <code>null</code>)
-	 */
-	String getUsername();
 
 	/**
 	 * Indicates whether the user's account has expired. An expired account cannot be
