@@ -20,6 +20,7 @@ import org.aopalliance.intercept.MethodInvocation;
 
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.authorization.AuthorizationResult;
+import org.springframework.security.authorization.ExpressionAuthorizationDecision;
 
 /**
  * An implementation of {@link MethodAuthorizationDeniedHandler} that throws
@@ -34,6 +35,11 @@ public final class ThrowingMethodAuthorizationDeniedHandler implements MethodAut
 	public Object handleDeniedInvocation(MethodInvocation methodInvocation, AuthorizationResult authorizationResult) {
 		if (authorizationResult instanceof AuthorizationDeniedException denied) {
 			throw denied;
+		}else if (authorizationResult instanceof ExpressionAuthorizationDecision decision) {
+			String expressionString = decision.getExpression().getExpressionString();
+			if ("isAuthenticated()".equals(expressionString) || "isFullyAuthenticated()".equals(expressionString)) {
+				throw new AuthorizationDeniedException("Insufficient Credentials", authorizationResult);
+			}
 		}
 		throw new AuthorizationDeniedException("Access Denied", authorizationResult);
 	}
