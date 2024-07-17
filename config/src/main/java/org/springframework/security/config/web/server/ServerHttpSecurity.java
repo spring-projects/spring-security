@@ -4108,7 +4108,7 @@ public class ServerHttpSecurity {
 
 		private ServerOAuth2AuthorizedClientRepository authorizedClientRepository;
 
-		private ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository;
+		private ServerAuthorizationRequestRepository authorizationRequestRepository;
 
 		private ReactiveAuthenticationManager authenticationManager;
 
@@ -4314,7 +4314,7 @@ public class ServerHttpSecurity {
 		 * @since 5.2
 		 */
 		public OAuth2LoginSpec authorizationRequestRepository(
-				ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository) {
+				ServerAuthorizationRequestRepository authorizationRequestRepository) {
 			this.authorizationRequestRepository = authorizationRequestRepository;
 			return this;
 		}
@@ -4380,7 +4380,7 @@ public class ServerHttpSecurity {
 			ReactiveClientRegistrationRepository clientRegistrationRepository = getClientRegistrationRepository();
 			ServerOAuth2AuthorizedClientRepository authorizedClientRepository = getAuthorizedClientRepository();
 			OAuth2AuthorizationRequestRedirectWebFilter oauthRedirectFilter = getRedirectWebFilter();
-			ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository = getAuthorizationRequestRepository();
+			ServerAuthorizationRequestRepository authorizationRequestRepository = getAuthorizationRequestRepository();
 			oauthRedirectFilter.setAuthorizationRequestRepository(authorizationRequestRepository);
 			oauthRedirectFilter.setAuthorizationRedirectStrategy(getAuthorizationRedirectStrategy());
 			oauthRedirectFilter.setRequestCache(http.requestCache.requestCache);
@@ -4553,7 +4553,7 @@ public class ServerHttpSecurity {
 			return result;
 		}
 
-		private ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> getAuthorizationRequestRepository() {
+		private ServerAuthorizationRequestRepository getAuthorizationRequestRepository() {
 			if (this.authorizationRequestRepository == null) {
 				this.authorizationRequestRepository = new WebSessionOAuth2ServerAuthorizationRequestRepository();
 			}
@@ -4737,7 +4737,7 @@ public class ServerHttpSecurity {
 
 		private ReactiveAuthenticationManager authenticationManager;
 
-		private ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository;
+		private ServerAuthorizationRequestRepository authorizationRequestRepository;
 
 		private ServerOAuth2AuthorizationRequestResolver authorizationRequestResolver;
 
@@ -4823,12 +4823,12 @@ public class ServerHttpSecurity {
 		 * @since 5.2
 		 */
 		public OAuth2ClientSpec authorizationRequestRepository(
-				ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository) {
+				ServerAuthorizationRequestRepository authorizationRequestRepository) {
 			this.authorizationRequestRepository = authorizationRequestRepository;
 			return this;
 		}
 
-		private ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> getAuthorizationRequestRepository() {
+		private ServerAuthorizationRequestRepository getAuthorizationRequestRepository() {
 			if (this.authorizationRequestRepository == null) {
 				this.authorizationRequestRepository = new WebSessionOAuth2ServerAuthorizationRequestRepository();
 			}

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,12 +34,13 @@ import org.springframework.web.server.WebSession;
  *
  * @author Rob Winch
  * @author Steve Riesenberg
+ * @author Jinwoo Bae
  * @since 5.1
  * @see AuthorizationRequestRepository
  * @see OAuth2AuthorizationRequest
  */
 public final class WebSessionOAuth2ServerAuthorizationRequestRepository
-		implements ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> {
+		implements ServerAuthorizationRequestRepository {
 
 	private static final String DEFAULT_AUTHORIZATION_REQUEST_ATTR_NAME = WebSessionOAuth2ServerAuthorizationRequestRepository.class
 		.getName() + ".AUTHORIZATION_REQUEST";

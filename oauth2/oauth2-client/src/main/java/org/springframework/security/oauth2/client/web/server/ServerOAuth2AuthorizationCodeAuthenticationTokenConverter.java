@@ -47,7 +47,7 @@ public class ServerOAuth2AuthorizationCodeAuthenticationTokenConverter implement
 
 	static final String CLIENT_REGISTRATION_NOT_FOUND_ERROR_CODE = "client_registration_not_found";
 
-	private ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository = new WebSessionOAuth2ServerAuthorizationRequestRepository();
+	private ServerAuthorizationRequestRepository authorizationRequestRepository = new WebSessionOAuth2ServerAuthorizationRequestRepository();
 
 	private final ReactiveClientRegistrationRepository clientRegistrationRepository;
 
@@ -62,8 +62,7 @@ public class ServerOAuth2AuthorizationCodeAuthenticationTokenConverter implement
 	 * {@link WebSessionOAuth2ServerAuthorizationRequestRepository}.
 	 * @param authorizationRequestRepository the repository to use.
 	 */
-	public void setAuthorizationRequestRepository(
-			ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository) {
+	public void setAuthorizationRequestRepository(ServerAuthorizationRequestRepository authorizationRequestRepository) {
 		Assert.notNull(authorizationRequestRepository, "authorizationRequestRepository cannot be null");
 		this.authorizationRequestRepository = authorizationRequestRepository;
 	}

@@ -625,7 +625,7 @@ public class ServerHttpSecurityTests {
 
 	@Test
 	public void shouldConfigureAuthorizationRequestRepositoryForOAuth2Login() {
-		ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository = mock(
+		ServerAuthorizationRequestRepository authorizationRequestRepository = mock(
 				ServerAuthorizationRequestRepository.class);
 		ReactiveClientRegistrationRepository clientRegistrationRepository = mock(
 				ReactiveClientRegistrationRepository.class);

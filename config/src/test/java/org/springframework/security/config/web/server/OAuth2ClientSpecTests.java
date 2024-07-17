@@ -134,7 +134,7 @@ public class OAuth2ClientSpecTests {
 		OAuth2ClientCustomConfig config = this.spring.getContext().getBean(OAuth2ClientCustomConfig.class);
 		ServerAuthenticationConverter converter = config.authenticationConverter;
 		ReactiveAuthenticationManager manager = config.manager;
-		ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository = config.authorizationRequestRepository;
+		ServerAuthorizationRequestRepository authorizationRequestRepository = config.authorizationRequestRepository;
 		ServerOAuth2AuthorizationRequestResolver resolver = config.resolver;
 		ServerRequestCache requestCache = config.requestCache;
 		OAuth2AuthorizationRequest authorizationRequest = TestOAuth2AuthorizationRequests.request()
@@ -181,7 +181,7 @@ public class OAuth2ClientSpecTests {
 			.getBean(OAuth2ClientInLambdaCustomConfig.class);
 		ServerAuthenticationConverter converter = config.authenticationConverter;
 		ReactiveAuthenticationManager manager = config.manager;
-		ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository = config.authorizationRequestRepository;
+		ServerAuthorizationRequestRepository authorizationRequestRepository = config.authorizationRequestRepository;
 		ServerRequestCache requestCache = config.requestCache;
 		OAuth2AuthorizationRequest authorizationRequest = TestOAuth2AuthorizationRequests.request()
 			.redirectUri("/authorize/oauth2/code/registration-id")
@@ -272,7 +272,7 @@ public class OAuth2ClientSpecTests {
 
 		ServerAuthenticationConverter authenticationConverter = mock(ServerAuthenticationConverter.class);
 
-		ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository = mock(
+		ServerAuthorizationRequestRepository authorizationRequestRepository = mock(
 				ServerAuthorizationRequestRepository.class);
 
 		ServerOAuth2AuthorizationRequestResolver resolver = mock(ServerOAuth2AuthorizationRequestResolver.class);
@@ -303,7 +303,7 @@ public class OAuth2ClientSpecTests {
 
 		ServerAuthenticationConverter authenticationConverter = mock(ServerAuthenticationConverter.class);
 
-		ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository = mock(
+		ServerAuthorizationRequestRepository authorizationRequestRepository = mock(
 				ServerAuthorizationRequestRepository.class);
 
 		ServerRequestCache requestCache = mock(ServerRequestCache.class);

@@ -73,7 +73,7 @@ public class OAuth2AuthorizationRequestRedirectWebFilter implements WebFilter {
 
 	private final ServerOAuth2AuthorizationRequestResolver authorizationRequestResolver;
 
-	private ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository = new WebSessionOAuth2ServerAuthorizationRequestRepository();
+	private ServerAuthorizationRequestRepository authorizationRequestRepository = new WebSessionOAuth2ServerAuthorizationRequestRepository();
 
 	private ServerRequestCache requestCache = new WebSessionServerRequestCache();
 
@@ -114,7 +114,7 @@ public class OAuth2AuthorizationRequestRedirectWebFilter implements WebFilter {
 	 * {@link OAuth2AuthorizationRequest}'s
 	 */
 	public final void setAuthorizationRequestRepository(
-			ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository) {
+			ServerAuthorizationRequestRepository authorizationRequestRepository) {
 		Assert.notNull(authorizationRequestRepository, "authorizationRequestRepository cannot be null");
 		this.authorizationRequestRepository = authorizationRequestRepository;
 	}

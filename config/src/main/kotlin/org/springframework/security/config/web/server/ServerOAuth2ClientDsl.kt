@@ -46,7 +46,7 @@ class ServerOAuth2ClientDsl {
     var authenticationConverter: ServerAuthenticationConverter? = null
     var clientRegistrationRepository: ReactiveClientRegistrationRepository? = null
     var authorizedClientRepository: ServerOAuth2AuthorizedClientRepository? = null
-    var authorizationRequestRepository: ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest>? = null
+    var authorizationRequestRepository: ServerAuthorizationRequestRepository? = null
     var authorizationRedirectStrategy: ServerRedirectStrategy? = null
 
     internal fun get(): (ServerHttpSecurity.OAuth2ClientSpec) -> Unit {

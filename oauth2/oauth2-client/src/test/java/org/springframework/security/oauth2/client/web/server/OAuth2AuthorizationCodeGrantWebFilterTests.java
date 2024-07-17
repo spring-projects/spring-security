@@ -78,7 +78,7 @@ public class OAuth2AuthorizationCodeGrantWebFilterTests {
 	private ServerOAuth2AuthorizedClientRepository authorizedClientRepository;
 
 	@Mock
-	private ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository;
+	private ServerAuthorizationRequestRepository authorizationRequestRepository;
 
 	@BeforeEach
 	public void setup() {

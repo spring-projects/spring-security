@@ -133,7 +133,7 @@ class ServerOAuth2LoginDslTests {
     open class AuthorizationRequestRepositoryConfig {
 
         companion object {
-            val AUTHORIZATION_REQUEST_REPOSITORY: ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> = WebSessionOAuth2ServerAuthorizationRequestRepository()
+            val AUTHORIZATION_REQUEST_REPOSITORY: ServerAuthorizationRequestRepository = WebSessionOAuth2ServerAuthorizationRequestRepository()
         }
 
         @Bean

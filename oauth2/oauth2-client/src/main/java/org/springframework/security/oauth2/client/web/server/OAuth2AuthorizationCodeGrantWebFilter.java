@@ -107,7 +107,7 @@ public class OAuth2AuthorizationCodeGrantWebFilter implements WebFilter {
 
 	private final ServerOAuth2AuthorizedClientRepository authorizedClientRepository;
 
-	private ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository = new WebSessionOAuth2ServerAuthorizationRequestRepository();
+	private ServerAuthorizationRequestRepository authorizationRequestRepository = new WebSessionOAuth2ServerAuthorizationRequestRepository();
 
 	private ServerAuthenticationSuccessHandler authenticationSuccessHandler;
 
@@ -168,7 +168,7 @@ public class OAuth2AuthorizationCodeGrantWebFilter implements WebFilter {
 	 * @since 5.2
 	 */
 	public final void setAuthorizationRequestRepository(
-			ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository) {
+			ServerAuthorizationRequestRepository authorizationRequestRepository) {
 		Assert.notNull(authorizationRequestRepository, "authorizationRequestRepository cannot be null");
 		this.authorizationRequestRepository = authorizationRequestRepository;
 		updateDefaultAuthenticationConverter();

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,13 +34,13 @@ import org.springframework.web.server.ServerWebExchange;
  * used by the {@link OAuth2LoginAuthenticationFilter} for resolving the associated
  * Authorization Request when handling the callback of the Authorization Response.
  *
- * @param <T> The type of OAuth 2.0 Authorization Request
  * @author Rob Winch
+ * @author Jinwoo Bae
  * @since 5.1
  * @see OAuth2AuthorizationRequest
  * @see HttpSessionOAuth2AuthorizationRequestRepository
  */
-public interface ServerAuthorizationRequestRepository<T extends OAuth2AuthorizationRequest> {
+public interface ServerAuthorizationRequestRepository {
 
 	/**
 	 * Returns the {@link OAuth2AuthorizationRequest} associated to the provided
@@ -48,7 +48,7 @@ public interface ServerAuthorizationRequestRepository<T extends OAuth2Authorizat
 	 * @param exchange the {@code ServerWebExchange}
 	 * @return the {@link OAuth2AuthorizationRequest} or {@code null} if not available
 	 */
-	Mono<T> loadAuthorizationRequest(ServerWebExchange exchange);
+	Mono<OAuth2AuthorizationRequest> loadAuthorizationRequest(ServerWebExchange exchange);
 
 	/**
 	 * Persists the {@link OAuth2AuthorizationRequest} associating it to the provided
@@ -56,7 +56,7 @@ public interface ServerAuthorizationRequestRepository<T extends OAuth2Authorizat
 	 * @param authorizationRequest the {@link OAuth2AuthorizationRequest}
 	 * @param exchange the {@code ServerWebExchange}
 	 */
-	Mono<Void> saveAuthorizationRequest(T authorizationRequest, ServerWebExchange exchange);
+	Mono<Void> saveAuthorizationRequest(OAuth2AuthorizationRequest authorizationRequest, ServerWebExchange exchange);
 
 	/**
 	 * Removes and returns the {@link OAuth2AuthorizationRequest} associated to the
@@ -65,6 +65,6 @@ public interface ServerAuthorizationRequestRepository<T extends OAuth2Authorizat
 	 * @return the removed {@link OAuth2AuthorizationRequest} or {@code null} if not
 	 * available
 	 */
-	Mono<T> removeAuthorizationRequest(ServerWebExchange exchange);
+	Mono<OAuth2AuthorizationRequest> removeAuthorizationRequest(ServerWebExchange exchange);
 
 }

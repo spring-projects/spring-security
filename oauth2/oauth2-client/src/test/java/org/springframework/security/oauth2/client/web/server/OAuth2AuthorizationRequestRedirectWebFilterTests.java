@@ -37,7 +37,6 @@ import org.springframework.security.oauth2.client.ClientAuthorizationRequiredExc
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
-import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.web.server.ServerRedirectStrategy;
 import org.springframework.security.web.server.savedrequest.ServerRequestCache;
 import org.springframework.test.web.reactive.server.FluxExchangeResult;
@@ -62,7 +61,7 @@ public class OAuth2AuthorizationRequestRedirectWebFilterTests {
 	private ReactiveClientRegistrationRepository clientRepository;
 
 	@Mock
-	private ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> authzRequestRepository;
+	private ServerAuthorizationRequestRepository authzRequestRepository;
 
 	@Mock
 	private ServerRequestCache requestCache;

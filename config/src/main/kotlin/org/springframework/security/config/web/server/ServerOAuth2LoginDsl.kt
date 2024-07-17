@@ -64,7 +64,7 @@ class ServerOAuth2LoginDsl {
     var clientRegistrationRepository: ReactiveClientRegistrationRepository? = null
     var authorizedClientService: ReactiveOAuth2AuthorizedClientService? = null
     var authorizedClientRepository: ServerOAuth2AuthorizedClientRepository? = null
-    var authorizationRequestRepository: ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest>? = null
+    var authorizationRequestRepository: ServerAuthorizationRequestRepository? = null
     var authorizationRequestResolver: ServerOAuth2AuthorizationRequestResolver? = null
     var authorizationRedirectStrategy: ServerRedirectStrategy? = null
     var authenticationMatcher: ServerWebExchangeMatcher? = null

@@ -121,7 +121,7 @@ class ServerOAuth2ClientDslTests {
     open class AuthorizationRequestRepositoryConfig {
 
         companion object {
-            val AUTHORIZATION_REQUEST_REPOSITORY : ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> = WebSessionOAuth2ServerAuthorizationRequestRepository()
+            val AUTHORIZATION_REQUEST_REPOSITORY : ServerAuthorizationRequestRepository = WebSessionOAuth2ServerAuthorizationRequestRepository()
         }
 
         @Bean
@@ -203,7 +203,7 @@ class ServerOAuth2ClientDslTests {
     open class AuthenticationConverterConfig {
 
         companion object {
-            val AUTHORIZATION_REQUEST_REPOSITORY: ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> = WebSessionOAuth2ServerAuthorizationRequestRepository()
+            val AUTHORIZATION_REQUEST_REPOSITORY: ServerAuthorizationRequestRepository = WebSessionOAuth2ServerAuthorizationRequestRepository()
             val AUTHENTICATION_CONVERTER: ServerAuthenticationConverter =
 				ServerBearerTokenAuthenticationConverter()
         }
@@ -257,7 +257,7 @@ class ServerOAuth2ClientDslTests {
     open class AuthenticationManagerConfig {
 
         companion object {
-            val AUTHORIZATION_REQUEST_REPOSITORY: ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> = WebSessionOAuth2ServerAuthorizationRequestRepository()
+            val AUTHORIZATION_REQUEST_REPOSITORY: ServerAuthorizationRequestRepository = WebSessionOAuth2ServerAuthorizationRequestRepository()
             val AUTHENTICATION_CONVERTER: ServerAuthenticationConverter =
 				ServerBearerTokenAuthenticationConverter()
             val AUTHENTICATION_MANAGER: ReactiveAuthenticationManager = NoopReactiveAuthenticationManager()

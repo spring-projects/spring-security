@@ -265,7 +265,7 @@ public class OAuth2LoginTests {
 		OAuth2AuthorizeWithMockObjectsConfig config = this.spring.getContext()
 			.getBean(OAuth2AuthorizeWithMockObjectsConfig.class);
 		ServerOAuth2AuthorizedClientRepository authorizedClientRepository = config.authorizedClientRepository;
-		ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository = config.authorizationRequestRepository;
+		ServerAuthorizationRequestRepository authorizationRequestRepository = config.authorizationRequestRepository;
 		ServerRequestCache requestCache = config.requestCache;
 		given(authorizedClientRepository.loadAuthorizedClient(any(), any(), any())).willReturn(Mono.empty());
 		given(authorizationRequestRepository.saveAuthorizationRequest(any(), any())).willReturn(Mono.empty());
@@ -670,7 +670,7 @@ public class OAuth2LoginTests {
 		ServerOAuth2AuthorizedClientRepository authorizedClientRepository = mock(
 				ServerOAuth2AuthorizedClientRepository.class);
 
-		ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository = mock(
+		ServerAuthorizationRequestRepository authorizationRequestRepository = mock(
 				ServerAuthorizationRequestRepository.class);
 
 		ServerRequestCache requestCache = mock(ServerRequestCache.class);
