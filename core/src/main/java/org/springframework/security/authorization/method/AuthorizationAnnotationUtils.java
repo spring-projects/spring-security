@@ -136,11 +136,7 @@ final class AuthorizationAnnotationUtils {
 			Class<A> annotationType, Function<MergedAnnotation<A>, A> map) {
 		MergedAnnotations mergedAnnotations = MergedAnnotations.from(annotatedElement, SearchStrategy.TYPE_HIERARCHY,
 				RepeatableContainers.none());
-		List<A> annotations = mergedAnnotations.stream(annotationType)
-			.map(MergedAnnotation::withNonMergedAttributes)
-			.map(map)
-			.distinct()
-			.toList();
+		List<A> annotations = mergedAnnotations.stream(annotationType).map(map).distinct().toList();
 
 		return switch (annotations.size()) {
 			case 0 -> null;

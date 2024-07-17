@@ -90,11 +90,7 @@ class AuthorizationAnnotationUtilsTests {
 	void composedMergedAnnotationsAreNotSupported() {
 		Class<?> clazz = ComposedPreAuthAnnotationOnClass.class;
 		PreAuthorize preAuthorize = AuthorizationAnnotationUtils.findUniqueAnnotation(clazz, PreAuthorize.class);
-
-		// If you comment out .map(MergedAnnotation::withNonMergedAttributes) in
-		// AuthorizationAnnotationUtils.findDistinctAnnotation(), the value of
-		// the merged annotation would be "hasRole('composedRole')".
-		assertThat(preAuthorize.value()).isEqualTo("hasRole('metaRole')");
+		assertThat(preAuthorize.value()).isEqualTo("hasRole('composedRole')");
 	}
 
 	private interface BaseRepository<T> {
