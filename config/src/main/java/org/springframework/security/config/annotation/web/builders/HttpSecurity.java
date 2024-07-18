@@ -72,6 +72,7 @@ import org.springframework.security.config.annotation.web.configurers.oauth2.cli
 import org.springframework.security.config.annotation.web.configurers.oauth2.client.OAuth2LoginConfigurer;
 import org.springframework.security.config.annotation.web.configurers.oauth2.client.OidcLogoutConfigurer;
 import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer;
+import org.springframework.security.config.annotation.web.configurers.passwordless.PasswordlessLoginConfigurer;
 import org.springframework.security.config.annotation.web.configurers.saml2.Saml2LoginConfigurer;
 import org.springframework.security.config.annotation.web.configurers.saml2.Saml2LogoutConfigurer;
 import org.springframework.security.config.annotation.web.configurers.saml2.Saml2MetadataConfigurer;
@@ -2975,6 +2976,13 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 				new OAuth2ResourceServerConfigurer<>(getContext()));
 		this.postProcess(configurer);
 		oauth2ResourceServerCustomizer.customize(configurer);
+		return HttpSecurity.this;
+	}
+
+	public HttpSecurity passwordlessLogin(
+			Customizer<PasswordlessLoginConfigurer<HttpSecurity>> passwordlessLoginConfigurerCustomizer)
+			throws Exception {
+		passwordlessLoginConfigurerCustomizer.customize(getOrApply(new PasswordlessLoginConfigurer<>(getContext())));
 		return HttpSecurity.this;
 	}
 
