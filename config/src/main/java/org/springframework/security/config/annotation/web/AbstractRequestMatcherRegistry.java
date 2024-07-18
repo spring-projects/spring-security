@@ -315,7 +315,7 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 		}
 	}
 
-	private String computeErrorMessage(Collection<? extends ServletRegistration> registrations) {
+	private static String computeErrorMessage(Collection<? extends ServletRegistration> registrations) {
 		String template = "This method cannot decide whether these patterns are Spring MVC patterns or not. "
 				+ "If this endpoint is a Spring MVC endpoint, please use requestMatchers(MvcRequestMatcher); "
 				+ "otherwise, please use requestMatchers(AntPathRequestMatcher).\n\n"
@@ -509,7 +509,7 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 		public boolean matches(HttpServletRequest request) {
 			String name = request.getHttpServletMapping().getServletName();
 			ServletRegistration registration = this.servletContext.getServletRegistration(name);
-			Assert.notNull(name, "Failed to find servlet [" + name + "] in the servlet context");
+			Assert.notNull(registration, computeErrorMessage(this.servletContext.getServletRegistrations().values()));
 			try {
 				Class<?> clazz = Class.forName(registration.getClassName());
 				return DispatcherServlet.class.isAssignableFrom(clazz);
@@ -551,18 +551,12 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 
 		@Override
 		public boolean matches(HttpServletRequest request) {
-			if (this.dispatcherServlet.matches(request)) {
-				return this.mvc.matches(request);
-			}
-			return this.ant.matches(request);
+			return requestMatcher(request).matches(request);
 		}
 
 		@Override
 		public MatchResult matcher(HttpServletRequest request) {
-			if (this.dispatcherServlet.matches(request)) {
-				return this.mvc.matcher(request);
-			}
-			return this.ant.matcher(request);
+			return requestMatcher(request).matcher(request);
 		}
 
 		@Override
