@@ -68,7 +68,11 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 
 	private boolean saml2LoginEnabled;
 
+	private boolean oneTimeTokenEnabled;
+
 	private String authenticationUrl;
+
+	private String generateOneTimeTokenUrl;
 
 	private String usernameParameter;
 
@@ -142,12 +146,20 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 		this.oauth2LoginEnabled = oauth2LoginEnabled;
 	}
 
+	public void setOneTimeTokenEnabled(boolean oneTimeTokenEnabled) {
+		this.oneTimeTokenEnabled = oneTimeTokenEnabled;
+	}
+
 	public void setSaml2LoginEnabled(boolean saml2LoginEnabled) {
 		this.saml2LoginEnabled = saml2LoginEnabled;
 	}
 
 	public void setAuthenticationUrl(String authenticationUrl) {
 		this.authenticationUrl = authenticationUrl;
+	}
+
+	public void setGenerateOneTimeTokenUrl(String generateOneTimeTokenUrl) {
+		this.generateOneTimeTokenUrl = generateOneTimeTokenUrl;
 	}
 
 	public void setUsernameParameter(String usernameParameter) {
@@ -222,6 +234,19 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 			sb.append("        </p>\n");
 			sb.append(createRememberMe(this.rememberMeParameter) + renderHiddenInputs(request));
 			sb.append("        <button type=\"submit\" class=\"primary\">Sign in</button>\n");
+			sb.append("      </form>\n");
+		}
+		if (this.oneTimeTokenEnabled) {
+			sb.append("      <form id=\"ott-form\" class=\"login-form\" method=\"post\" action=\"" + contextPath
+					+ this.generateOneTimeTokenUrl + "\">\n");
+			sb.append("        <h2>Request a One-Time Token</h2>\n");
+			sb.append(createError(loginError, errorMsg) + createLogoutSuccess(logoutSuccess) + "<p>\n");
+			sb.append("          <label for=\"ott-username\" class=\"screenreader\">Username</label>\n");
+			sb.append("          <input type=\"text\" id=\"ott-username\" name=\"" + this.usernameParameter
+					+ "\" placeholder=\"Username\" required>\n");
+			sb.append("        </p>\n");
+			sb.append(renderHiddenInputs(request));
+			sb.append("          <button class=\"primary\" type=\"submit\" form=\"ott-form\">Send Token</button>\n");
 			sb.append("      </form>\n");
 		}
 		if (this.oauth2LoginEnabled) {

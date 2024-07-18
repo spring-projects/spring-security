@@ -187,6 +187,10 @@ fun app(val http: HttpSecurity): SecurityFilterChain {
 ======
 You can read more https://github.com/spring-projects/spring-security/issues/15220[in the related ticket].
 
+== One-Time Token Login
+
+Spring Security now xref:servlet/authentication/onetimetoken.adoc[supports One-Time Token Login] via the `oneTimeTokenLogin()` DSL.
+
 == Kotlin
 
 * The Kotlin DSL now supports https://github.com/spring-projects/spring-security/issues/14935[SAML 2.0] and https://github.com/spring-projects/spring-security/issues/15171[`GrantedAuthorityDefaults`] and https://github.com/spring-projects/spring-security/issues/15136[`RoleHierarchy`] ``@Bean``s
