@@ -69,7 +69,8 @@ public class DefaultOAuth2User implements OAuth2User, Serializable {
 			String nameAttributeKey) {
 		Assert.notEmpty(attributes, "attributes cannot be empty");
 		Assert.hasText(nameAttributeKey, "nameAttributeKey cannot be empty");
-		Assert.notNull(attributes.get(nameAttributeKey), "Attribute value for '" + nameAttributeKey + "' cannot be null");
+		Assert.notNull(attributes.get(nameAttributeKey),
+				"Attribute value for '" + nameAttributeKey + "' cannot be null");
 
 		this.authorities = (authorities != null)
 				? Collections.unmodifiableSet(new LinkedHashSet<>(this.sortAuthorities(authorities)))
