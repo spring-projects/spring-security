@@ -341,6 +341,19 @@ public class AbstractRequestMatcherRegistryTests {
 		verifyNoMoreInteractions(mvc);
 	}
 
+	@Test
+	public void matchesWhenNoMappingThenException() {
+		MockServletContext servletContext = new MockServletContext();
+		servletContext.addServlet("default", DispatcherServlet.class).addMapping("/");
+		servletContext.addServlet("path", Servlet.class).addMapping("/services/*");
+		MvcRequestMatcher mvc = mock(MvcRequestMatcher.class);
+		AntPathRequestMatcher ant = mock(AntPathRequestMatcher.class);
+		DispatcherServletDelegatingRequestMatcher requestMatcher = new DispatcherServletDelegatingRequestMatcher(ant,
+				mvc, servletContext);
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/services/endpoint");
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> requestMatcher.matcher(request));
+	}
+
 	private void mockMvcIntrospector(boolean isPresent) {
 		ApplicationContext context = this.matcherRegistry.getApplicationContext();
 		given(context.containsBean("mvcHandlerMappingIntrospector")).willReturn(isPresent);
