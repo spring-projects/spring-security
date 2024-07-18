@@ -16,7 +16,6 @@
 
 package org.springframework.security.authorization.method;
 
-import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.function.Function;
@@ -27,6 +26,8 @@ import org.springframework.aop.support.AopUtils;
 import org.springframework.context.ApplicationContext;
 import org.springframework.expression.Expression;
 import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.core.annotation.AnnotationSynthesizer;
+import org.springframework.security.core.annotation.AnnotationSynthesizers;
 import org.springframework.util.Assert;
 
 /**
@@ -40,7 +41,13 @@ final class PostAuthorizeExpressionAttributeRegistry extends AbstractExpressionA
 
 	private final MethodAuthorizationDeniedHandler defaultHandler = new ThrowingMethodAuthorizationDeniedHandler();
 
+	private final AnnotationSynthesizer<HandleAuthorizationDenied> handleAuthorizationDeniedSynthesizer = AnnotationSynthesizers
+		.requireUnique(HandleAuthorizationDenied.class);
+
 	private Function<Class<? extends MethodAuthorizationDeniedHandler>, MethodAuthorizationDeniedHandler> handlerResolver;
+
+	private AnnotationSynthesizer<PostAuthorize> postAuthorizeSynthesizer = AnnotationSynthesizers
+		.requireUnique(PostAuthorize.class);
 
 	PostAuthorizeExpressionAttributeRegistry() {
 		this.handlerResolver = (clazz) -> this.defaultHandler;
@@ -60,13 +67,9 @@ final class PostAuthorizeExpressionAttributeRegistry extends AbstractExpressionA
 	}
 
 	private MethodAuthorizationDeniedHandler resolveHandler(Method method, Class<?> targetClass) {
-		Function<AnnotatedElement, HandleAuthorizationDenied> lookup = AuthorizationAnnotationUtils
-			.withDefaults(HandleAuthorizationDenied.class);
-		HandleAuthorizationDenied deniedHandler = lookup.apply(method);
-		if (deniedHandler != null) {
-			return this.handlerResolver.apply(deniedHandler.handlerClass());
-		}
-		deniedHandler = lookup.apply(targetClass(method, targetClass));
+		Class<?> targetClassToUse = targetClass(method, targetClass);
+		HandleAuthorizationDenied deniedHandler = this.handleAuthorizationDeniedSynthesizer.synthesize(method,
+				targetClassToUse);
 		if (deniedHandler != null) {
 			return this.handlerResolver.apply(deniedHandler.handlerClass());
 		}
@@ -74,9 +77,8 @@ final class PostAuthorizeExpressionAttributeRegistry extends AbstractExpressionA
 	}
 
 	private PostAuthorize findPostAuthorizeAnnotation(Method method, Class<?> targetClass) {
-		Function<AnnotatedElement, PostAuthorize> lookup = findUniqueAnnotation(PostAuthorize.class);
-		PostAuthorize postAuthorize = lookup.apply(method);
-		return (postAuthorize != null) ? postAuthorize : lookup.apply(targetClass(method, targetClass));
+		Class<?> targetClassToUse = targetClass(method, targetClass);
+		return this.postAuthorizeSynthesizer.synthesize(method, targetClass);
 	}
 
 	/**
@@ -87,6 +89,10 @@ final class PostAuthorizeExpressionAttributeRegistry extends AbstractExpressionA
 	void setApplicationContext(ApplicationContext context) {
 		Assert.notNull(context, "context cannot be null");
 		this.handlerResolver = (clazz) -> resolveHandler(context, clazz);
+	}
+
+	void setTemplateDefaults(PrePostTemplateDefaults templateDefaults) {
+		this.postAuthorizeSynthesizer = AnnotationSynthesizers.requireUnique(PostAuthorize.class, templateDefaults);
 	}
 
 	private MethodAuthorizationDeniedHandler resolveHandler(ApplicationContext context,

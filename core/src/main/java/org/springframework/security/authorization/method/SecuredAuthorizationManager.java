@@ -33,6 +33,8 @@ import org.springframework.security.authorization.AuthoritiesAuthorizationManage
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AnnotationSynthesizer;
+import org.springframework.security.core.annotation.AnnotationSynthesizers;
 import org.springframework.util.Assert;
 
 /**
@@ -49,6 +51,8 @@ public final class SecuredAuthorizationManager implements AuthorizationManager<M
 	private AuthorizationManager<Collection<String>> authoritiesAuthorizationManager = new AuthoritiesAuthorizationManager();
 
 	private final Map<MethodClassKey, Set<String>> cachedAuthorities = new ConcurrentHashMap<>();
+
+	private final AnnotationSynthesizer<Secured> synthesizer = AnnotationSynthesizers.requireUnique(Secured.class);
 
 	/**
 	 * Sets an {@link AuthorizationManager} that accepts a collection of authority
@@ -92,9 +96,8 @@ public final class SecuredAuthorizationManager implements AuthorizationManager<M
 	}
 
 	private Secured findSecuredAnnotation(Method method, Class<?> targetClass) {
-		Secured secured = AuthorizationAnnotationUtils.findUniqueAnnotation(method, Secured.class);
-		return (secured != null) ? secured : AuthorizationAnnotationUtils
-			.findUniqueAnnotation((targetClass != null) ? targetClass : method.getDeclaringClass(), Secured.class);
+		Class<?> targetClassToUse = (targetClass != null) ? targetClass : method.getDeclaringClass();
+		return this.synthesizer.synthesize(method, targetClassToUse);
 	}
 
 }

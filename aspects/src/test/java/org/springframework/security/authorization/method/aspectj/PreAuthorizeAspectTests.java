@@ -47,6 +47,8 @@ public class PreAuthorizeAspectTests {
 
 	private PrePostSecured prePostSecured = new PrePostSecured();
 
+	private MultipleInterfaces multiple = new MultipleInterfaces();
+
 	@BeforeEach
 	public final void setUp() {
 		MockitoAnnotations.initMocks(this);
@@ -108,6 +110,12 @@ public class PreAuthorizeAspectTests {
 		SecurityContextHolder.getContext().setAuthentication(this.anne);
 		assertThatExceptionOfType(AccessDeniedException.class)
 			.isThrownBy(() -> this.secured.myObject().denyAllMethod());
+	}
+
+	@Test
+	public void multipleInterfacesPreAuthorizeAllows() {
+		// aspectj doesn't inherit annotations
+		this.multiple.securedMethod();
 	}
 
 	interface SecuredInterface {
@@ -173,6 +181,21 @@ public class PreAuthorizeAspectTests {
 		@PreAuthorize("denyAll")
 		void denyAllMethod() {
 
+		}
+
+	}
+
+	interface AnotherSecuredInterface {
+
+		@PreAuthorize("hasRole('Y')")
+		void securedMethod();
+
+	}
+
+	static class MultipleInterfaces implements SecuredInterface, AnotherSecuredInterface {
+
+		@Override
+		public void securedMethod() {
 		}
 
 	}

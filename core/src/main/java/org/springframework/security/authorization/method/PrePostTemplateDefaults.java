@@ -16,6 +16,8 @@
 
 package org.springframework.security.authorization.method;
 
+import org.springframework.security.core.annotation.AnnotationTemplateExpressionDefaults;
+
 /**
  * A component for configuring various cross-cutting aspects of pre/post method security
  *
@@ -26,31 +28,6 @@ package org.springframework.security.authorization.method;
  * @see org.springframework.security.access.prepost.PreFilter
  * @see org.springframework.security.access.prepost.PostFilter
  */
-public final class PrePostTemplateDefaults {
-
-	private boolean ignoreUnknown = true;
-
-	/**
-	 * Whether template resolution should ignore placeholders it doesn't recognize.
-	 * <p>
-	 * By default, this value is <code>true</code>.
-	 * @since 6.3
-	 */
-	public boolean isIgnoreUnknown() {
-		return this.ignoreUnknown;
-	}
-
-	/**
-	 * Configure template resolution to ignore unknown placeholders. When set to
-	 * <code>false</code>, template resolution will throw an exception for unknown
-	 * placeholders.
-	 * <p>
-	 * By default, this value is <code>true</code>.
-	 * @param ignoreUnknown - whether to ignore unknown placeholders parameters
-	 * @since 6.3
-	 */
-	public void setIgnoreUnknown(boolean ignoreUnknown) {
-		this.ignoreUnknown = ignoreUnknown;
-	}
+public final class PrePostTemplateDefaults extends AnnotationTemplateExpressionDefaults {
 
 }

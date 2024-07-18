@@ -16,12 +16,9 @@
 
 package org.springframework.security.authorization.method;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
 
 import org.aopalliance.intercept.MethodInvocation;
 
@@ -42,8 +39,6 @@ abstract class AbstractExpressionAttributeRegistry<T extends ExpressionAttribute
 	private final Map<MethodClassKey, T> cachedAttributes = new ConcurrentHashMap<>();
 
 	private MethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler();
-
-	private PrePostTemplateDefaults defaults;
 
 	/**
 	 * Returns an {@link ExpressionAttribute} for the {@link MethodInvocation}.
@@ -68,11 +63,6 @@ abstract class AbstractExpressionAttributeRegistry<T extends ExpressionAttribute
 		return this.cachedAttributes.computeIfAbsent(cacheKey, (k) -> resolveAttribute(method, targetClass));
 	}
 
-	final <A extends Annotation> Function<AnnotatedElement, A> findUniqueAnnotation(Class<A> type) {
-		return (this.defaults != null) ? AuthorizationAnnotationUtils.withDefaults(type, this.defaults)
-				: AuthorizationAnnotationUtils.withDefaults(type);
-	}
-
 	/**
 	 * Returns the {@link MethodSecurityExpressionHandler}.
 	 * @return the {@link MethodSecurityExpressionHandler} to use
@@ -84,10 +74,6 @@ abstract class AbstractExpressionAttributeRegistry<T extends ExpressionAttribute
 	void setExpressionHandler(MethodSecurityExpressionHandler expressionHandler) {
 		Assert.notNull(expressionHandler, "expressionHandler cannot be null");
 		this.expressionHandler = expressionHandler;
-	}
-
-	void setTemplateDefaults(PrePostTemplateDefaults defaults) {
-		this.defaults = defaults;
 	}
 
 	/**

@@ -16,14 +16,14 @@
 
 package org.springframework.security.authorization.method;
 
-import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
-import java.util.function.Function;
 
 import org.springframework.aop.support.AopUtils;
 import org.springframework.expression.Expression;
 import org.springframework.lang.NonNull;
 import org.springframework.security.access.prepost.PreFilter;
+import org.springframework.security.core.annotation.AnnotationSynthesizer;
+import org.springframework.security.core.annotation.AnnotationSynthesizers;
 
 /**
  * For internal use only, as this contract is likely to change.
@@ -34,6 +34,8 @@ import org.springframework.security.access.prepost.PreFilter;
  */
 final class PreFilterExpressionAttributeRegistry
 		extends AbstractExpressionAttributeRegistry<PreFilterExpressionAttributeRegistry.PreFilterExpressionAttribute> {
+
+	private AnnotationSynthesizer<PreFilter> synthesizer = AnnotationSynthesizers.requireUnique(PreFilter.class);
 
 	@NonNull
 	@Override
@@ -48,10 +50,13 @@ final class PreFilterExpressionAttributeRegistry
 		return new PreFilterExpressionAttribute(preFilterExpression, preFilter.filterTarget());
 	}
 
+	void setTemplateDefaults(PrePostTemplateDefaults defaults) {
+		this.synthesizer = AnnotationSynthesizers.requireUnique(PreFilter.class, defaults);
+	}
+
 	private PreFilter findPreFilterAnnotation(Method method, Class<?> targetClass) {
-		Function<AnnotatedElement, PreFilter> lookup = findUniqueAnnotation(PreFilter.class);
-		PreFilter preFilter = lookup.apply(method);
-		return (preFilter != null) ? preFilter : lookup.apply(targetClass(method, targetClass));
+		Class<?> targetClassToUse = targetClass(method, targetClass);
+		return this.synthesizer.synthesize(method, targetClassToUse);
 	}
 
 	static final class PreFilterExpressionAttribute extends ExpressionAttribute {

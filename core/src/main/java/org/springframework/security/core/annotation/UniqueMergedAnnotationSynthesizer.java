@@ -1,0 +1,183 @@
+/*
+ * Copyright 2002-2024 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.springframework.security.core.annotation;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import org.springframework.core.annotation.AnnotationConfigurationException;
+import org.springframework.core.annotation.MergedAnnotation;
+import org.springframework.core.annotation.MergedAnnotations;
+import org.springframework.core.annotation.RepeatableContainers;
+import org.springframework.util.Assert;
+
+/**
+ * A strategy for synthesizing an annotation from an {@link AnnotatedElement} that
+ * supports meta-annotations, like the following:
+ *
+ * <pre>
+ *	&#64;PreAuthorize("hasRole('ROLE_ADMIN')")
+ *	public @annotation HasRole {
+ *	}
+ * </pre>
+ *
+ * <p>
+ * In that case, you can use an {@link UniqueMergedAnnotationSynthesizer} of type
+ * {@link org.springframework.security.access.prepost.PreAuthorize} to synthesize any
+ * {@code @HasRole} annotation found on a given {@link AnnotatedElement}.
+ *
+ * <p>
+ * Note that in all cases, Spring Security does not allow for repeatable annotations. As
+ * such, this class errors if a repeat is discovered.
+ *
+ * <p>
+ * If the given annotation can be applied to types, this class will search for annotations
+ * across the entire {@link MergedAnnotations.SearchStrategy type hierarchy}; otherwise,
+ * it will only look for annotations {@link MergedAnnotations.SearchStrategy directly}
+ * attributed to the element.
+ *
+ * <p>
+ * When traversing the type hierarchy, this class will first look for annotations on the
+ * given method, then on any methods that method overrides. If no annotations are found,
+ * it will then search for annotations on the given class, then on any classes that class
+ * extends and on any interfaces that class implements.
+ *
+ * <p>
+ * Since the process of synthesis is expensive, it is recommended to cache the synthesized
+ * result to prevent multiple computations.
+ *
+ * @param <A> the annotation type
+ * @author Josh Cummings
+ * @since 6.4
+ */
+final class UniqueMergedAnnotationSynthesizer<A extends Annotation> implements AnnotationSynthesizer<A> {
+
+	private final List<Class<A>> types;
+
+	UniqueMergedAnnotationSynthesizer(Class<A> type) {
+		Assert.notNull(type, "type cannot be null");
+		this.types = List.of(type);
+	}
+
+	UniqueMergedAnnotationSynthesizer(List<Class<A>> types) {
+		Assert.notNull(types, "types cannot be null");
+		this.types = types;
+	}
+
+	@Override
+	public MergedAnnotation<A> merge(AnnotatedElement element, Class<?> targetClass) {
+		if (element instanceof Parameter parameter) {
+			return handleParameterElement(parameter);
+		}
+		if (element instanceof Method method) {
+			return handleMethodElement(method, targetClass);
+		}
+		throw new AnnotationConfigurationException("Unsupported element of type " + element.getClass());
+	}
+
+	private MergedAnnotation<A> handleParameterElement(Parameter parameter) {
+		List<MergedAnnotation<A>> annotations = findDirectAnnotations(parameter);
+		return requireUnique(parameter, annotations);
+	}
+
+	private MergedAnnotation<A> handleMethodElement(Method method, Class<?> targetClass) {
+		List<MergedAnnotation<A>> annotations = findMethodAnnotations(method, targetClass);
+		return requireUnique(method, annotations);
+	}
+
+	private MergedAnnotation<A> requireUnique(AnnotatedElement element, List<MergedAnnotation<A>> annotations) {
+		return switch (annotations.size()) {
+			case 0 -> null;
+			case 1 -> annotations.get(0);
+			default -> {
+				List<Annotation> synthesized = new ArrayList<>();
+				for (MergedAnnotation<A> annotation : annotations) {
+					synthesized.add(annotation.synthesize());
+				}
+				throw new AnnotationConfigurationException("""
+						Please ensure there is one unique annotation of type %s attributed to %s. \
+						Found %d competing annotations: %s""".formatted(this.types, element, annotations.size(),
+						synthesized));
+			}
+		};
+	}
+
+	private List<MergedAnnotation<A>> findMethodAnnotations(Method method, Class<?> targetClass) {
+		List<MergedAnnotation<A>> annotations = findClosestMethodAnnotations(method, targetClass, new HashSet<>());
+		if (!annotations.isEmpty()) {
+			return annotations;
+		}
+		return findClosestClassAnnotations(targetClass, new HashSet<>());
+	}
+
+	private List<MergedAnnotation<A>> findClosestMethodAnnotations(Method method, Class<?> targetClass,
+			Set<Class<?>> classesToSkip) {
+		if (targetClass == null || classesToSkip.contains(targetClass) || targetClass == Object.class) {
+			return Collections.emptyList();
+		}
+		classesToSkip.add(targetClass);
+		try {
+			Method methodToUse = targetClass.getDeclaredMethod(method.getName(), method.getParameterTypes());
+			List<MergedAnnotation<A>> annotations = findDirectAnnotations(methodToUse);
+			if (!annotations.isEmpty()) {
+				return annotations;
+			}
+		}
+		catch (NoSuchMethodException ex) {
+			// move on
+		}
+		List<MergedAnnotation<A>> annotations = new ArrayList<>();
+		annotations.addAll(findClosestMethodAnnotations(method, targetClass.getSuperclass(), classesToSkip));
+		for (Class<?> inter : targetClass.getInterfaces()) {
+			annotations.addAll(findClosestMethodAnnotations(method, inter, classesToSkip));
+		}
+		return annotations;
+	}
+
+	private List<MergedAnnotation<A>> findClosestClassAnnotations(Class<?> targetClass, Set<Class<?>> classesToSkip) {
+		if (targetClass == null || classesToSkip.contains(targetClass) || targetClass == Object.class) {
+			return Collections.emptyList();
+		}
+		classesToSkip.add(targetClass);
+		List<MergedAnnotation<A>> annotations = new ArrayList<>(findDirectAnnotations(targetClass));
+		if (!annotations.isEmpty()) {
+			return annotations;
+		}
+		annotations.addAll(findClosestClassAnnotations(targetClass.getSuperclass(), classesToSkip));
+		for (Class<?> inter : targetClass.getInterfaces()) {
+			annotations.addAll(findClosestClassAnnotations(inter, classesToSkip));
+		}
+		return annotations;
+	}
+
+	private List<MergedAnnotation<A>> findDirectAnnotations(AnnotatedElement element) {
+		MergedAnnotations mergedAnnotations = MergedAnnotations.from(element, MergedAnnotations.SearchStrategy.DIRECT,
+				RepeatableContainers.none());
+		return mergedAnnotations.stream()
+			.filter((annotation) -> this.types.contains(annotation.getType()))
+			.map((annotation) -> (MergedAnnotation<A>) annotation)
+			.toList();
+	}
+
+}
