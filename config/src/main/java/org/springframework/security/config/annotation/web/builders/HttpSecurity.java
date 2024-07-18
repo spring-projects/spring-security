@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -72,6 +72,7 @@ import org.springframework.security.config.annotation.web.configurers.oauth2.cli
 import org.springframework.security.config.annotation.web.configurers.oauth2.client.OAuth2LoginConfigurer;
 import org.springframework.security.config.annotation.web.configurers.oauth2.client.OidcLogoutConfigurer;
 import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer;
+import org.springframework.security.config.annotation.web.configurers.ott.OneTimeTokenLoginConfigurer;
 import org.springframework.security.config.annotation.web.configurers.saml2.Saml2LoginConfigurer;
 import org.springframework.security.config.annotation.web.configurers.saml2.Saml2LogoutConfigurer;
 import org.springframework.security.config.annotation.web.configurers.saml2.Saml2MetadataConfigurer;
@@ -2975,6 +2976,45 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 				new OAuth2ResourceServerConfigurer<>(getContext()));
 		this.postProcess(configurer);
 		oauth2ResourceServerCustomizer.customize(configurer);
+		return HttpSecurity.this;
+	}
+
+	/**
+	 * Configures One-Time Token Login Support.
+	 *
+	 * <h2>Example Configuration</h2>
+	 *
+	 * <pre>
+	 * &#064;Configuration
+	 * &#064;EnableWebSecurity
+	 * public class SecurityConfig {
+	 *
+	 * 	&#064;Bean
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	 * 		http
+	 * 			.authorizeHttpRequests((authorize) -&gt; authorize
+	 * 					.anyRequest().authenticated()
+	 * 			)
+	 * 			.oneTimeTokenLogin(Customizer.withDefaults());
+	 * 		return http.build();
+	 * 	}
+	 *
+	 * 	&#064;Bean
+	 * 	public GeneratedOneTimeTokenHandler generatedOneTimeTokenHandler() {
+	 * 		return new MyMagicLinkGeneratedOneTimeTokenHandler();
+	 * 	}
+	 *
+	 * }
+	 * </pre>
+	 * @param oneTimeTokenLoginConfigurerCustomizer the {@link Customizer} to provide more
+	 * options for the {@link OneTimeTokenLoginConfigurer}
+	 * @return the {@link HttpSecurity} for further customizations
+	 * @throws Exception
+	 */
+	public HttpSecurity oneTimeTokenLogin(
+			Customizer<OneTimeTokenLoginConfigurer<HttpSecurity>> oneTimeTokenLoginConfigurerCustomizer)
+			throws Exception {
+		oneTimeTokenLoginConfigurerCustomizer.customize(getOrApply(new OneTimeTokenLoginConfigurer<>(getContext())));
 		return HttpSecurity.this;
 	}
 

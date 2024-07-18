@@ -157,6 +157,7 @@ public interface HttpSecurityBuilder<H extends HttpSecurityBuilder<H>>
 	 * <li>{@link DigestAuthenticationFilter}</li>
 	 * <li>{@link BearerTokenAuthenticationFilter}</li>
 	 * <li>{@link BasicAuthenticationFilter}</li>
+	 * <li>{@link org.springframework.security.web.authentication.AuthenticationFilter}</li>
 	 * <li>{@link RequestCacheAwareFilter}</li>
 	 * <li>{@link SecurityContextHolderAwareRequestFilter}</li>
 	 * <li>{@link JaasApiIntegrationFilter}</li>
