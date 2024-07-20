@@ -134,7 +134,7 @@ public final class OpenSamlLogoutRequestValidator implements Saml2LogoutRequestV
 				return;
 			}
 			String issuer = request.getIssuer().getValue();
-			if (!issuer.equals(registration.getAssertingPartyDetails().getEntityId())) {
+			if (!issuer.equals(registration.getAssertingPartyMetadata().getEntityId())) {
 				errors
 					.add(new Saml2Error(Saml2ErrorCodes.INVALID_ISSUER, "Failed to match issuer to configured issuer"));
 			}

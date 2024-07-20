@@ -114,7 +114,7 @@ Java::
 ----
 RelyingPartyRegistration relyingPartyRegistration = RelyingPartyRegistration.withRegistrationId("okta")
         // ...
-        .assertingPartyDetails(party -> party
+        .assertingPartyMetadata(party -> party
             // ...
             .wantAuthnRequestsSigned(false)
         )
@@ -128,7 +128,7 @@ Kotlin::
 var relyingPartyRegistration: RelyingPartyRegistration =
     RelyingPartyRegistration.withRegistrationId("okta")
         // ...
-        .assertingPartyDetails { party: AssertingPartyDetails.Builder -> party
+        .assertingPartyMetadata { party: AssertingPartyMetadata.Builder -> party
                 // ...
                 .wantAuthnRequestsSigned(false)
         }
@@ -154,7 +154,7 @@ Java::
 String metadataLocation = "classpath:asserting-party-metadata.xml";
 RelyingPartyRegistration relyingPartyRegistration = RelyingPartyRegistrations.fromMetadataLocation(metadataLocation)
         // ...
-        .assertingPartyDetails((party) -> party
+        .assertingPartyMetadata((party) -> party
             // ...
             .signingAlgorithms((sign) -> sign.add(SignatureConstants.ALGO_ID_SIGNATURE_RSA_SHA512))
         )
@@ -169,7 +169,7 @@ var metadataLocation = "classpath:asserting-party-metadata.xml"
 var relyingPartyRegistration: RelyingPartyRegistration =
     RelyingPartyRegistrations.fromMetadataLocation(metadataLocation)
         // ...
-        .assertingPartyDetails { party: AssertingPartyDetails.Builder -> party
+        .assertingPartyMetadata { party: AssertingPartyMetadata.Builder -> party
                 // ...
                 .signingAlgorithms { sign: MutableList<String?> ->
                     sign.add(
@@ -197,7 +197,7 @@ Java::
 ----
 RelyingPartyRegistration relyingPartyRegistration = RelyingPartyRegistration.withRegistrationId("okta")
         // ...
-        .assertingPartyDetails(party -> party
+        .assertingPartyMetadata(party -> party
             // ...
             .singleSignOnServiceBinding(Saml2MessageBinding.POST)
         )
@@ -211,7 +211,7 @@ Kotlin::
 var relyingPartyRegistration: RelyingPartyRegistration? =
     RelyingPartyRegistration.withRegistrationId("okta")
         // ...
-        .assertingPartyDetails { party: AssertingPartyDetails.Builder -> party
+        .assertingPartyMetadata { party: AssertingPartyMetadata.Builder -> party
             // ...
             .singleSignOnServiceBinding(Saml2MessageBinding.POST)
         }

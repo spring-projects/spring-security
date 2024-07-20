@@ -1,14 +1,14 @@
 [[servlet-saml2login-metadata]]
 = Saml 2.0 Metadata
 
-Spring Security can <<parsing-asserting-party-metadata,parse asserting party metadata>> to produce an `AssertingPartyDetails` instance as well as <<publishing-relying-party-metadata,publish relying party metadata>> from a `RelyingPartyRegistration` instance.
+Spring Security can <<parsing-asserting-party-metadata,parse asserting party metadata>> to produce an `AssertingPartyMetadata` instance as well as <<publishing-relying-party-metadata,publish relying party metadata>> from a `RelyingPartyRegistration` instance.
 
 [[parsing-asserting-party-metadata]]
 == Parsing `<saml2:IDPSSODescriptor>` metadata
 
 You can parse an asserting party's metadata xref:servlet/saml2/login/overview.adoc#servlet-saml2login-relyingpartyregistrationrepository[using `RelyingPartyRegistrations`].
 
-When using the OpenSAML vendor support, the resulting `AssertingPartyDetails` will be of type `OpenSamlAssertingPartyDetails`.
+When using the OpenSAML vendor support, the resulting `AssertingPartyMetadata` will be of type `OpenSamlAssertingPartyDetails`.
 This means you'll be able to do get the underlying OpenSAML XMLObject by doing the following:
 
 [tabs]
@@ -18,7 +18,7 @@ Java::
 [source,java,role="primary"]
 ----
 OpenSamlAssertingPartyDetails details = (OpenSamlAssertingPartyDetails)
-        registration.getAssertingPartyDetails();
+        registration.getAssertingPartyMetadata();
 EntityDescriptor openSamlEntityDescriptor = details.getEntityDescriptor();
 ----
 
@@ -27,7 +27,7 @@ Kotlin::
 [source,kotlin,role="secondary"]
 ----
 val details: OpenSamlAssertingPartyDetails =
-        registration.getAssertingPartyDetails() as OpenSamlAssertingPartyDetails
+        registration.getAssertingPartyMetadata() as OpenSamlAssertingPartyDetails
 val openSamlEntityDescriptor: EntityDescriptor = details.getEntityDescriptor()
 ----
 ======
@@ -76,8 +76,7 @@ public class RefreshableRelyingPartyRegistrationRepository
     }
 
 	private RelyingPartyRegistration applyRelyingParty(AssertingPartyMetadata metadata) {
-		AssertingPartyDetails details = (AssertingPartyDetails) metadata;
-		return RelyingPartyRegistration.withAssertingPartyDetails(details)
+		return RelyingPartyRegistration.withAssertingPartyMetadata(metadata)
             // apply any relying party configuration
             .build();
 	}
@@ -110,8 +109,8 @@ class RefreshableRelyingPartyRegistrationRepository : IterableRelyingPartyRegist
     }
 
     private fun applyRelyingParty(metadata: AssertingPartyMetadata): RelyingPartyRegistration {
-        val details: AssertingPartyDetails = metadata as AssertingPartyDetails
-        return RelyingPartyRegistration.withAssertingPartyDetails(details)
+        val details: AssertingPartyMetadata = metadata as AssertingPartyMetadata
+        return RelyingPartyRegistration.withAssertingPartyMetadata(details)
             // apply any relying party configuration
             .build()
     }

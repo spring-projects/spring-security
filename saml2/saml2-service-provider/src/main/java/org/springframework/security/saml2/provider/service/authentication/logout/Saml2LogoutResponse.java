@@ -156,8 +156,8 @@ public final class Saml2LogoutResponse {
 		private Function<Map<String, String>, String> encoder = DEFAULT_ENCODER;
 
 		private Builder(RelyingPartyRegistration registration) {
-			this.location = registration.getAssertingPartyDetails().getSingleLogoutServiceResponseLocation();
-			this.binding = registration.getAssertingPartyDetails().getSingleLogoutServiceBinding();
+			this.location = registration.getAssertingPartyMetadata().getSingleLogoutServiceResponseLocation();
+			this.binding = registration.getAssertingPartyMetadata().getSingleLogoutServiceBinding();
 		}
 
 		/**
