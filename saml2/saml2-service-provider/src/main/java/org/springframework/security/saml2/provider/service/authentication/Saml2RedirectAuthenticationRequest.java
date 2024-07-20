@@ -73,7 +73,7 @@ public final class Saml2RedirectAuthenticationRequest extends AbstractSaml2Authe
 	 * @since 5.7
 	 */
 	public static Builder withRelyingPartyRegistration(RelyingPartyRegistration registration) {
-		String location = registration.getAssertingPartyDetails().getSingleSignOnServiceLocation();
+		String location = registration.getAssertingPartyMetadata().getSingleSignOnServiceLocation();
 		return new Builder(registration).authenticationRequestUri(location);
 	}
 

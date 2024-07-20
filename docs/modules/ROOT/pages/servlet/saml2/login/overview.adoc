@@ -484,7 +484,7 @@ public RelyingPartyRegistrationRepository relyingPartyRegistrations() throws Exc
     Saml2X509Credential credential = Saml2X509Credential.verification(certificate);
     RelyingPartyRegistration registration = RelyingPartyRegistration
             .withRegistrationId("example")
-            .assertingPartyDetails(party -> party
+            .assertingPartyMetadata(party -> party
                 .entityId("https://idp.example.com/issuer")
                 .singleSignOnServiceLocation("https://idp.example.com/SSO.saml2")
                 .wantAuthnRequestsSigned(false)
@@ -508,7 +508,7 @@ open fun relyingPartyRegistrations(): RelyingPartyRegistrationRepository {
     val credential: Saml2X509Credential = Saml2X509Credential.verification(certificate)
     val registration = RelyingPartyRegistration
         .withRegistrationId("example")
-        .assertingPartyDetails { party: AssertingPartyDetails.Builder ->
+        .assertingPartyMetadata { party: AssertingPartyMetadata.Builder ->
             party
                 .entityId("https://idp.example.com/issuer")
                 .singleSignOnServiceLocation("https://idp.example.com/SSO.saml2")
@@ -699,7 +699,7 @@ RelyingPartyRegistration relyingPartyRegistration = RelyingPartyRegistration.wit
         .entityId("{baseUrl}/{registrationId}")
         .decryptionX509Credentials(c -> c.add(relyingPartyDecryptingCredential()))
         .assertionConsumerServiceLocation("/my-login-endpoint/{registrationId}")
-        .assertingPartyDetails(party -> party
+        .assertingPartyMetadata(party -> party
                 .entityId("https://ap.example.org")
                 .verificationX509Credentials(c -> c.add(assertingPartyVerifyingCredential()))
                 .singleSignOnServiceLocation("https://ap.example.org/SSO.saml2")
@@ -718,7 +718,7 @@ val relyingPartyRegistration =
             c.add(relyingPartyDecryptingCredential())
         }
         .assertionConsumerServiceLocation("/my-login-endpoint/{registrationId}")
-        .assertingPartyDetails { party -> party
+        .assertingPartyMetadata { party -> party
                 .entityId("https://ap.example.org")
                 .verificationX509Credentials { c -> c.add(assertingPartyVerifyingCredential()) }
                 .singleSignOnServiceLocation("https://ap.example.org/SSO.saml2")
@@ -730,7 +730,7 @@ val relyingPartyRegistration =
 [TIP]
 ====
 The top-level metadata methods are details about the relying party.
-The methods inside `assertingPartyDetails` are details about the asserting party.
+The methods inside `AssertingPartyMetadata` are details about the asserting party.
 ====
 
 [NOTE]

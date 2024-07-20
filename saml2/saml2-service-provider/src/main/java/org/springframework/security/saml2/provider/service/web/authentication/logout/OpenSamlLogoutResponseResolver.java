@@ -143,13 +143,14 @@ final class OpenSamlLogoutResponseResolver {
 		if (registration == null) {
 			return null;
 		}
-		if (registration.getAssertingPartyDetails().getSingleLogoutServiceResponseLocation() == null) {
+		if (registration.getAssertingPartyMetadata().getSingleLogoutServiceResponseLocation() == null) {
 			return null;
 		}
 		UriResolver uriResolver = RelyingPartyRegistrationPlaceholderResolvers.uriResolver(request, registration);
 		String entityId = uriResolver.resolve(registration.getEntityId());
 		LogoutResponse logoutResponse = this.logoutResponseBuilder.buildObject();
-		logoutResponse.setDestination(registration.getAssertingPartyDetails().getSingleLogoutServiceResponseLocation());
+		logoutResponse
+			.setDestination(registration.getAssertingPartyMetadata().getSingleLogoutServiceResponseLocation());
 		Issuer issuer = this.issuerBuilder.buildObject();
 		issuer.setValue(entityId);
 		logoutResponse.setIssuer(issuer);
@@ -164,7 +165,7 @@ final class OpenSamlLogoutResponseResolver {
 		}
 		logoutResponseConsumer.accept(registration, logoutResponse);
 		Saml2LogoutResponse.Builder result = Saml2LogoutResponse.withRelyingPartyRegistration(registration);
-		if (registration.getAssertingPartyDetails().getSingleLogoutServiceBinding() == Saml2MessageBinding.POST) {
+		if (registration.getAssertingPartyMetadata().getSingleLogoutServiceBinding() == Saml2MessageBinding.POST) {
 			String xml = serialize(OpenSamlSigningUtils.sign(logoutResponse, registration));
 			String samlResponse = Saml2Utils.samlEncode(xml.getBytes(StandardCharsets.UTF_8));
 			result.samlResponse(samlResponse);

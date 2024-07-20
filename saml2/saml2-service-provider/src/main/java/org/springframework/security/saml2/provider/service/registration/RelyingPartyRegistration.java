@@ -88,7 +88,7 @@ public class RelyingPartyRegistration {
 
 	private final boolean authnRequestsSigned;
 
-	private final AssertingPartyDetails assertingPartyDetails;
+	private final AssertingPartyMetadata assertingPartyMetadata;
 
 	private final Collection<Saml2X509Credential> decryptionX509Credentials;
 
@@ -127,7 +127,45 @@ public class RelyingPartyRegistration {
 		this.singleLogoutServiceBindings = Collections.unmodifiableList(new LinkedList<>(singleLogoutServiceBindings));
 		this.nameIdFormat = nameIdFormat;
 		this.authnRequestsSigned = authnRequestsSigned;
-		this.assertingPartyDetails = assertingPartyDetails;
+		this.assertingPartyMetadata = assertingPartyDetails;
+		this.decryptionX509Credentials = Collections.unmodifiableList(new LinkedList<>(decryptionX509Credentials));
+		this.signingX509Credentials = Collections.unmodifiableList(new LinkedList<>(signingX509Credentials));
+	}
+
+	private RelyingPartyRegistration(String registrationId, String entityId, String assertionConsumerServiceLocation,
+			Saml2MessageBinding assertionConsumerServiceBinding, String singleLogoutServiceLocation,
+			String singleLogoutServiceResponseLocation, Collection<Saml2MessageBinding> singleLogoutServiceBindings,
+			AssertingPartyMetadata assertingPartyMetadata, String nameIdFormat, boolean authnRequestsSigned,
+			Collection<Saml2X509Credential> decryptionX509Credentials,
+			Collection<Saml2X509Credential> signingX509Credentials) {
+		Assert.hasText(registrationId, "registrationId cannot be empty");
+		Assert.hasText(entityId, "entityId cannot be empty");
+		Assert.hasText(assertionConsumerServiceLocation, "assertionConsumerServiceLocation cannot be empty");
+		Assert.notNull(assertionConsumerServiceBinding, "assertionConsumerServiceBinding cannot be null");
+		Assert.isTrue(singleLogoutServiceLocation == null || !CollectionUtils.isEmpty(singleLogoutServiceBindings),
+				"singleLogoutServiceBindings cannot be null or empty when singleLogoutServiceLocation is set");
+		Assert.notNull(assertingPartyMetadata, "assertingPartyDetails cannot be null");
+		Assert.notNull(decryptionX509Credentials, "decryptionX509Credentials cannot be null");
+		for (Saml2X509Credential c : decryptionX509Credentials) {
+			Assert.notNull(c, "decryptionX509Credentials cannot contain null elements");
+			Assert.isTrue(c.isDecryptionCredential(),
+					"All decryptionX509Credentials must have a usage of DECRYPTION set");
+		}
+		Assert.notNull(signingX509Credentials, "signingX509Credentials cannot be null");
+		for (Saml2X509Credential c : signingX509Credentials) {
+			Assert.notNull(c, "signingX509Credentials cannot contain null elements");
+			Assert.isTrue(c.isSigningCredential(), "All signingX509Credentials must have a usage of SIGNING set");
+		}
+		this.registrationId = registrationId;
+		this.entityId = entityId;
+		this.assertionConsumerServiceLocation = assertionConsumerServiceLocation;
+		this.assertionConsumerServiceBinding = assertionConsumerServiceBinding;
+		this.singleLogoutServiceLocation = singleLogoutServiceLocation;
+		this.singleLogoutServiceResponseLocation = singleLogoutServiceResponseLocation;
+		this.singleLogoutServiceBindings = Collections.unmodifiableList(new LinkedList<>(singleLogoutServiceBindings));
+		this.nameIdFormat = nameIdFormat;
+		this.authnRequestsSigned = authnRequestsSigned;
+		this.assertingPartyMetadata = assertingPartyMetadata;
 		this.decryptionX509Credentials = Collections.unmodifiableList(new LinkedList<>(decryptionX509Credentials));
 		this.signingX509Credentials = Collections.unmodifiableList(new LinkedList<>(signingX509Credentials));
 	}
@@ -139,7 +177,7 @@ public class RelyingPartyRegistration {
 	 * @since 6.1
 	 */
 	public Builder mutate() {
-		return new Builder(this.registrationId, this.assertingPartyDetails.mutate()).entityId(this.entityId)
+		return new Builder(this.registrationId, this.assertingPartyMetadata.mutate()).entityId(this.entityId)
 			.signingX509Credentials((c) -> c.addAll(this.signingX509Credentials))
 			.decryptionX509Credentials((c) -> c.addAll(this.decryptionX509Credentials))
 			.assertionConsumerServiceLocation(this.assertionConsumerServiceLocation)
@@ -317,9 +355,22 @@ public class RelyingPartyRegistration {
 	 * Get the configuration details for the Asserting Party
 	 * @return the {@link AssertingPartyDetails}
 	 * @since 5.4
+	 * @deprecated Use {@link #getAssertingPartyMetadata()} instead
 	 */
+	@Deprecated
 	public AssertingPartyDetails getAssertingPartyDetails() {
-		return this.assertingPartyDetails;
+		Assert.isInstanceOf(AssertingPartyDetails.class, this.assertingPartyMetadata,
+				"This class was initialized with an AssertingPartyMetadata, please call #getAssertingPartyMetadata instead");
+		return (AssertingPartyDetails) this.assertingPartyMetadata;
+	}
+
+	/**
+	 * Get the metadata for the Asserting Party
+	 * @return the {@link AssertingPartyDetails}
+	 * @since 6.4
+	 */
+	public AssertingPartyMetadata getAssertingPartyMetadata() {
+		return this.assertingPartyMetadata;
 	}
 
 	/**
@@ -333,6 +384,12 @@ public class RelyingPartyRegistration {
 		return new Builder(registrationId, new AssertingPartyDetails.Builder());
 	}
 
+	/**
+	 * @param assertingPartyDetails the asserting party metadata
+	 * @return {@code Builder} to create a {@code RelyingPartyRegistration} object
+	 * @deprecated Use {@link #withAssertingPartyMetadata} instead
+	 */
+	@Deprecated(forRemoval = true, since = "6.4")
 	public static Builder withAssertingPartyDetails(AssertingPartyDetails assertingPartyDetails) {
 		Assert.notNull(assertingPartyDetails, "assertingPartyDetails cannot be null");
 		return new Builder(assertingPartyDetails.getEntityId(), assertingPartyDetails.mutate());
@@ -353,8 +410,8 @@ public class RelyingPartyRegistration {
 	 * @since 6.4
 	 */
 	public static Builder withAssertingPartyMetadata(AssertingPartyMetadata metadata) {
-		Assert.isInstanceOf(AssertingPartyDetails.class, metadata, "metadata must be of type AssertingPartyDetails");
-		return withAssertingPartyDetails((AssertingPartyDetails) metadata);
+		Assert.notNull(metadata, "assertingPartyMetadata cannot be null");
+		return new Builder(metadata.getEntityId(), metadata.mutate());
 	}
 
 	/**
@@ -819,11 +876,11 @@ public class RelyingPartyRegistration {
 
 		private boolean authnRequestsSigned = false;
 
-		private AssertingPartyDetails.Builder assertingPartyDetailsBuilder;
+		private AssertingPartyMetadata.Builder<?> assertingPartyMetadataBuilder;
 
-		protected Builder(String registrationId, AssertingPartyDetails.Builder assertingPartyDetailsBuilder) {
+		protected Builder(String registrationId, AssertingPartyMetadata.Builder<?> assertingPartyMetadataBuilder) {
 			this.registrationId = registrationId;
-			this.assertingPartyDetailsBuilder = assertingPartyDetailsBuilder;
+			this.assertingPartyMetadataBuilder = assertingPartyMetadataBuilder;
 		}
 
 		/**
@@ -1028,9 +1085,24 @@ public class RelyingPartyRegistration {
 		 * @param assertingPartyDetails The {@link Consumer} to apply
 		 * @return the {@link Builder} for further configuration
 		 * @since 5.4
+		 * @deprecated Use {@link #assertingPartyMetadata} instead
 		 */
+		@Deprecated(forRemoval = true, since = "6.4")
 		public Builder assertingPartyDetails(Consumer<AssertingPartyDetails.Builder> assertingPartyDetails) {
-			assertingPartyDetails.accept(this.assertingPartyDetailsBuilder);
+			Assert.isInstanceOf(AssertingPartyDetails.Builder.class, this.assertingPartyMetadataBuilder,
+					"This class was constructed with an AssertingPartyMetadata instance, as such, please use #assertingPartyMetadata");
+			assertingPartyDetails.accept((AssertingPartyDetails.Builder) this.assertingPartyMetadataBuilder);
+			return this;
+		}
+
+		/**
+		 * Apply this {@link Consumer} to further configure the Asserting Party metadata
+		 * @param assertingPartyMetadata The {@link Consumer} to apply
+		 * @return the {@link Builder} for further configuration
+		 * @since 6.4
+		 */
+		public Builder assertingPartyMetadata(Consumer<AssertingPartyMetadata.Builder<?>> assertingPartyMetadata) {
+			assertingPartyMetadata.accept(this.assertingPartyMetadataBuilder);
 			return this;
 		}
 
@@ -1048,7 +1120,7 @@ public class RelyingPartyRegistration {
 				this.singleLogoutServiceBindings.add(Saml2MessageBinding.POST);
 			}
 
-			AssertingPartyDetails party = this.assertingPartyDetailsBuilder.build();
+			AssertingPartyMetadata party = this.assertingPartyMetadataBuilder.build();
 			return new RelyingPartyRegistration(this.registrationId, this.entityId,
 					this.assertionConsumerServiceLocation, this.assertionConsumerServiceBinding,
 					this.singleLogoutServiceLocation, this.singleLogoutServiceResponseLocation,

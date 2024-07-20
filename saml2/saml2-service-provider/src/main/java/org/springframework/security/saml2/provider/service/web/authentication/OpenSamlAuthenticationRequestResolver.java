@@ -146,7 +146,7 @@ class OpenSamlAuthenticationRequestResolver {
 		Issuer iss = this.issuerBuilder.buildObject();
 		iss.setValue(entityId);
 		authnRequest.setIssuer(iss);
-		authnRequest.setDestination(registration.getAssertingPartyDetails().getSingleSignOnServiceLocation());
+		authnRequest.setDestination(registration.getAssertingPartyMetadata().getSingleSignOnServiceLocation());
 		authnRequest.setAssertionConsumerServiceURL(assertionConsumerServiceLocation);
 		if (registration.getNameIdFormat() != null) {
 			NameIDPolicy nameIdPolicy = this.nameIdPolicyBuilder.buildObject();
@@ -158,9 +158,9 @@ class OpenSamlAuthenticationRequestResolver {
 			authnRequest.setID("ARQ" + UUID.randomUUID().toString().substring(1));
 		}
 		String relayState = this.relayStateResolver.convert(request);
-		Saml2MessageBinding binding = registration.getAssertingPartyDetails().getSingleSignOnServiceBinding();
+		Saml2MessageBinding binding = registration.getAssertingPartyMetadata().getSingleSignOnServiceBinding();
 		if (binding == Saml2MessageBinding.POST) {
-			if (registration.getAssertingPartyDetails().getWantAuthnRequestsSigned()
+			if (registration.getAssertingPartyMetadata().getWantAuthnRequestsSigned()
 					|| registration.isAuthnRequestsSigned()) {
 				OpenSamlSigningUtils.sign(authnRequest, registration);
 			}
@@ -180,7 +180,7 @@ class OpenSamlAuthenticationRequestResolver {
 				.samlRequest(deflatedAndEncoded)
 				.relayState(relayState)
 				.id(authnRequest.getID());
-			if (registration.getAssertingPartyDetails().getWantAuthnRequestsSigned()
+			if (registration.getAssertingPartyMetadata().getWantAuthnRequestsSigned()
 					|| registration.isAuthnRequestsSigned()) {
 				OpenSamlSigningUtils.QueryParametersPartial parametersPartial = OpenSamlSigningUtils.sign(registration)
 					.param(Saml2ParameterNames.SAML_REQUEST, deflatedAndEncoded);

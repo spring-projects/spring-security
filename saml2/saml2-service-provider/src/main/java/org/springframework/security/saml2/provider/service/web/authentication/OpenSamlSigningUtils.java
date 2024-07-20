@@ -95,7 +95,7 @@ final class OpenSamlSigningUtils {
 	private static SignatureSigningParameters resolveSigningParameters(
 			RelyingPartyRegistration relyingPartyRegistration) {
 		List<Credential> credentials = resolveSigningCredentials(relyingPartyRegistration);
-		List<String> algorithms = relyingPartyRegistration.getAssertingPartyDetails().getSigningAlgorithms();
+		List<String> algorithms = relyingPartyRegistration.getAssertingPartyMetadata().getSigningAlgorithms();
 		List<String> digests = Collections.singletonList(SignatureConstants.ALGO_ID_DIGEST_SHA256);
 		String canonicalization = SignatureConstants.ALGO_ID_C14N_EXCL_OMIT_COMMENTS;
 		SignatureSigningParametersResolver resolver = new SAMLMetadataSignatureSigningParametersResolver();

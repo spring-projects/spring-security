@@ -36,7 +36,7 @@ import org.springframework.security.saml2.core.Saml2X509Credential;
  * 	    EntityDescriptor descriptor = openSamlRegistration.getAssertingPartyDetails.getEntityDescriptor();
  * 	}
  * </pre> do instead: <pre>
- * 	if (registration.getAssertingPartyDetails() instanceof openSamlAssertingPartyDetails) {
+ * 	if (registration.getAssertingPartyMetadata() instanceof openSamlAssertingPartyDetails) {
  * 	    EntityDescriptor descriptor = openSamlAssertingPartyDetails.getEntityDescriptor();
  * 	}
  * </pre>
@@ -168,6 +168,11 @@ public final class OpenSamlRelyingPartyRegistration extends RelyingPartyRegistra
 		@Override
 		public Builder assertingPartyDetails(Consumer<AssertingPartyDetails.Builder> assertingPartyDetails) {
 			return (Builder) super.assertingPartyDetails(assertingPartyDetails);
+		}
+
+		@Override
+		public Builder assertingPartyMetadata(Consumer<AssertingPartyMetadata.Builder<?>> assertingPartyMetadata) {
+			return (Builder) super.assertingPartyMetadata(assertingPartyMetadata);
 		}
 
 		/**

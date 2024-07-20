@@ -69,7 +69,7 @@ public class InMemoryRelyingPartyRegistrationRepository implements IterableRelyi
 			Collection<RelyingPartyRegistration> rps) {
 		MultiValueMap<String, RelyingPartyRegistration> result = new LinkedMultiValueMap<>();
 		for (RelyingPartyRegistration rp : rps) {
-			result.add(rp.getAssertingPartyDetails().getEntityId(), rp);
+			result.add(rp.getAssertingPartyMetadata().getEntityId(), rp);
 		}
 		return Collections.unmodifiableMap(result);
 	}

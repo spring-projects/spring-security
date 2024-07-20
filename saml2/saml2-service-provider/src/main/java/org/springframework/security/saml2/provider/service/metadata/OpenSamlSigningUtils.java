@@ -80,7 +80,7 @@ final class OpenSamlSigningUtils {
 	}
 
 	static <O extends SignableXMLObject> O sign(O object, RelyingPartyRegistration relyingPartyRegistration) {
-		List<String> algorithms = relyingPartyRegistration.getAssertingPartyDetails().getSigningAlgorithms();
+		List<String> algorithms = relyingPartyRegistration.getAssertingPartyMetadata().getSigningAlgorithms();
 		List<Credential> credentials = resolveSigningCredentials(relyingPartyRegistration);
 		return sign(object, algorithms, credentials);
 	}
@@ -103,7 +103,7 @@ final class OpenSamlSigningUtils {
 	private static SignatureSigningParameters resolveSigningParameters(
 			RelyingPartyRegistration relyingPartyRegistration) {
 		List<Credential> credentials = resolveSigningCredentials(relyingPartyRegistration);
-		List<String> algorithms = relyingPartyRegistration.getAssertingPartyDetails().getSigningAlgorithms();
+		List<String> algorithms = relyingPartyRegistration.getAssertingPartyMetadata().getSigningAlgorithms();
 		return resolveSigningParameters(algorithms, credentials);
 	}
 

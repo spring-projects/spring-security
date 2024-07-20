@@ -50,7 +50,7 @@ public class Saml2PostAuthenticationRequest extends AbstractSaml2AuthenticationR
 	 * @since 5.7
 	 */
 	public static Builder withRelyingPartyRegistration(RelyingPartyRegistration registration) {
-		String location = registration.getAssertingPartyDetails().getSingleSignOnServiceLocation();
+		String location = registration.getAssertingPartyMetadata().getSingleSignOnServiceLocation();
 		return new Builder(registration).authenticationRequestUri(location);
 	}
 

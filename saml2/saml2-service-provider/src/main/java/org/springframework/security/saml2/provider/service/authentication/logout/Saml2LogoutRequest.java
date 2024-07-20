@@ -190,8 +190,8 @@ public final class Saml2LogoutRequest implements Serializable {
 
 		private Builder(RelyingPartyRegistration registration) {
 			this.registration = registration;
-			this.location = registration.getAssertingPartyDetails().getSingleLogoutServiceLocation();
-			this.binding = registration.getAssertingPartyDetails().getSingleLogoutServiceBinding();
+			this.location = registration.getAssertingPartyMetadata().getSingleLogoutServiceLocation();
+			this.binding = registration.getAssertingPartyMetadata().getSingleLogoutServiceBinding();
 		}
 
 		/**
