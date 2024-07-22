@@ -34,7 +34,6 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.web.authentication.AuthenticationConverter;
-import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.security.web.server.authentication.ServerAuthenticationConverter;
 import org.springframework.security.web.server.authentication.logout.ServerLogoutHandler;
@@ -60,7 +59,7 @@ class OidcBackChannelLogoutWebFilter implements WebFilter {
 
 	private final ReactiveAuthenticationManager authenticationManager;
 
-	private ServerLogoutHandler logoutHandler = new OidcBackChannelServerLogoutHandler();
+	private final ServerLogoutHandler logoutHandler;
 
 	/**
 	 * Construct an {@link OidcBackChannelLogoutWebFilter}
@@ -70,11 +69,13 @@ class OidcBackChannelLogoutWebFilter implements WebFilter {
 	 * Logout Tokens
 	 */
 	OidcBackChannelLogoutWebFilter(ServerAuthenticationConverter authenticationConverter,
-			ReactiveAuthenticationManager authenticationManager) {
+			ReactiveAuthenticationManager authenticationManager, ServerLogoutHandler logoutHandler) {
 		Assert.notNull(authenticationConverter, "authenticationConverter cannot be null");
 		Assert.notNull(authenticationManager, "authenticationManager cannot be null");
+		Assert.notNull(logoutHandler, "logoutHandler cannot be null");
 		this.authenticationConverter = authenticationConverter;
 		this.authenticationManager = authenticationManager;
+		this.logoutHandler = logoutHandler;
 	}
 
 	@Override
@@ -122,16 +123,6 @@ class OidcBackChannelLogoutWebFilter implements WebFilter {
 		}
 		return new OAuth2Error(OAuth2ErrorCodes.INVALID_REQUEST, ex.getMessage(),
 				"https://openid.net/specs/openid-connect-backchannel-1_0.html#Validation");
-	}
-
-	/**
-	 * The strategy for expiring all Client sessions indicated by the logout request.
-	 * Defaults to {@link OidcBackChannelServerLogoutHandler}.
-	 * @param logoutHandler the {@link LogoutHandler} to use
-	 */
-	void setLogoutHandler(ServerLogoutHandler logoutHandler) {
-		Assert.notNull(logoutHandler, "logoutHandler cannot be null");
-		this.logoutHandler = logoutHandler;
 	}
 
 }

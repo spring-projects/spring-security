@@ -47,7 +47,9 @@ class ServerOidcLogoutDsl {
      *      return http {
      *          oauth2Login { }
      *          oidcLogout {
-     *              backChannel { }
+     *              backChannel { 
+     *                  sessionLogout { }
+     *              }
      *          }
      *       }
      *   }

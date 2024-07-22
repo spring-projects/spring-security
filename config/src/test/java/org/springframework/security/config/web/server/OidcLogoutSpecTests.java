@@ -25,6 +25,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
@@ -96,6 +97,7 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.server.WebSession;
 import org.springframework.web.server.adapter.WebHttpHandlerBuilder;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -266,6 +268,52 @@ public class OidcLogoutSpecTests {
 			.value(containsString("partial_logout"))
 			.value(containsString("not all sessions were terminated"));
 		this.test.get().uri("/token/logout").cookie("SESSION", one).exchange().expectStatus().isOk();
+	}
+
+	@Test
+	void logoutWhenSelfRemoteLogoutUriThenUses() {
+		this.spring.register(WebServerConfig.class, OidcProviderConfig.class, SelfLogoutUriConfig.class).autowire();
+		String registrationId = this.clientRegistration.getRegistrationId();
+		String sessionId = login();
+		String logoutToken = this.test.get()
+			.uri("/token/logout")
+			.cookie("SESSION", sessionId)
+			.exchange()
+			.expectStatus()
+			.isOk()
+			.returnResult(String.class)
+			.getResponseBody()
+			.blockFirst();
+		this.test.post()
+			.uri(this.web.url("/logout/connect/back-channel/" + registrationId).toString())
+			.body(BodyInserters.fromFormData("logout_token", logoutToken))
+			.exchange()
+			.expectStatus()
+			.isOk();
+		this.test.get().uri("/token/logout").cookie("SESSION", sessionId).exchange().expectStatus().isUnauthorized();
+	}
+
+	@Test
+	void logoutWhenDifferentCookieNameThenUses() {
+		this.spring.register(OidcProviderConfig.class, CookieConfig.class).autowire();
+		String registrationId = this.clientRegistration.getRegistrationId();
+		String sessionId = login();
+		String logoutToken = this.test.get()
+			.uri("/token/logout")
+			.cookie("SESSION", sessionId)
+			.exchange()
+			.expectStatus()
+			.isOk()
+			.returnResult(String.class)
+			.getResponseBody()
+			.blockFirst();
+		this.test.post()
+			.uri(this.web.url("/logout/connect/back-channel/" + registrationId).toString())
+			.body(BodyInserters.fromFormData("logout_token", logoutToken))
+			.exchange()
+			.expectStatus()
+			.isOk();
+		this.test.get().uri("/token/logout").cookie("SESSION", sessionId).exchange().expectStatus().isUnauthorized();
 	}
 
 	@Test
@@ -440,6 +488,81 @@ public class OidcLogoutSpecTests {
 			// @formatter:on
 
 			return http.build();
+		}
+
+	}
+
+	@Configuration
+	@EnableWebFluxSecurity
+	@Import(RegistrationConfig.class)
+	static class SelfLogoutUriConfig {
+
+		@Bean
+		@Order(1)
+		SecurityWebFilterChain filters(ServerHttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeExchange((authorize) -> authorize.anyExchange().authenticated())
+				.oauth2Login(Customizer.withDefaults())
+				.oidcLogout((oidc) -> oidc
+					.backChannel(Customizer.withDefaults())
+				);
+			// @formatter:on
+
+			return http.build();
+		}
+
+	}
+
+	@Configuration
+	@EnableWebFluxSecurity
+	@Import(RegistrationConfig.class)
+	static class CookieConfig {
+
+		private final ReactiveOidcSessionRegistry sessionRegistry = new InMemoryReactiveOidcSessionRegistry();
+
+		private final MockWebServer server = new MockWebServer();
+
+		@Bean
+		@Order(1)
+		SecurityWebFilterChain filters(ServerHttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeExchange((authorize) -> authorize.anyExchange().authenticated())
+				.oauth2Login((oauth2) -> oauth2.oidcSessionRegistry(this.sessionRegistry))
+				.oidcLogout((oidc) -> oidc
+					.backChannel(Customizer.withDefaults())
+				);
+			// @formatter:on
+
+			return http.build();
+		}
+
+		@Bean
+		OidcBackChannelServerLogoutHandler oidcLogoutHandler() {
+			OidcBackChannelServerLogoutHandler logoutHandler = new OidcBackChannelServerLogoutHandler(
+					this.sessionRegistry);
+			logoutHandler.setSessionCookieName("JSESSIONID");
+			return logoutHandler;
+		}
+
+		@Bean
+		MockWebServer web(ObjectProvider<WebTestClient> web) {
+			WebTestClientDispatcher dispatcher = new WebTestClientDispatcher(web);
+			dispatcher.setAssertion((rr) -> {
+				String cookie = rr.getHeaders().get("Cookie");
+				if (cookie == null) {
+					return;
+				}
+				assertThat(cookie).contains("JSESSIONID");
+			});
+			this.server.setDispatcher(dispatcher);
+			return this.server;
+		}
+
+		@PreDestroy
+		void shutdown() throws IOException {
+			this.server.shutdown();
 		}
 
 	}
@@ -652,12 +775,15 @@ public class OidcLogoutSpecTests {
 
 		private WebTestClient web;
 
+		private Consumer<RecordedRequest> assertion = (rr) -> { };
+
 		WebTestClientDispatcher(ObjectProvider<WebTestClient> web) {
 			this.webProvider = web;
 		}
 
 		@Override
 		public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
+			this.assertion.accept(request);
 			this.web = this.webProvider.getObject();
 			String method = request.getMethod();
 			String path = request.getPath();
@@ -700,6 +826,10 @@ public class OidcLogoutSpecTests {
 			}
 		}
 
+		void setAssertion(Consumer<RecordedRequest> assertion) {
+			this.assertion = assertion;
+		}
+
 		private String session(RecordedRequest request) {
 			String cookieHeaderValue = request.getHeader("Cookie");
 			if (cookieHeaderValue == null) {
@@ -709,6 +839,9 @@ public class OidcLogoutSpecTests {
 			for (String cookie : cookies) {
 				String[] parts = cookie.split("=");
 				if (SESSION_COOKIE_NAME.equals(parts[0])) {
+					return parts[1];
+				}
+				if ("JSESSIONID".equals(parts[0])) {
 					return parts[1];
 				}
 			}

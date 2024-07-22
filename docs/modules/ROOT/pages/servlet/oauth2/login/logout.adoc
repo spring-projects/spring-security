@@ -137,6 +137,11 @@ Java::
 [source,java,role="primary"]
 ----
 @Bean
+OidcBackChannelLogoutHandler oidcLogoutHandler() {
+	return new OidcBackChannelLogoutHandler();
+}
+
+@Bean
 public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http
         .authorizeHttpRequests((authorize) -> authorize
@@ -154,6 +159,11 @@ Kotlin::
 +
 [source,kotlin,role="secondary"]
 ----
+@Bean
+fun oidcLogoutHandler(): OidcBackChannelLogoutHandler {
+    return OidcBackChannelLogoutHandler()
+}
+
 @Bean
 open fun filterChain(http: HttpSecurity): SecurityFilterChain {
     http {
@@ -223,6 +233,87 @@ The overall flow for a Back-Channel logout is like this:
 Remember that Spring Security's OIDC support is multi-tenant.
 This means that it will only terminate sessions whose Client matches the `aud` claim in the Logout Token.
 
+One notable part of this architecture's implementation is that it propagates the incoming back-channel request internally for each corresponding session.
+Initially, this may seem unnecessary.
+However, recall that the Servlet API does not give direct access to the `HttpSession` store.
+By making an internal logout call, the corresponding session can now be validated.
+
+Additionally, forging a logout call internally allows for each set of ``LogoutHandler``s to be run against that session and corresponding `SecurityContext`.
+
+=== Customizing the Session Logout Endpoint
+
+With `OidcBackChannelLogoutHandler` published, the session logout endpoint is `+{baseUrl}+/logout/connect/back-channel/+{registrationId}+`.
+
+If `OidcBackChannelLogoutHandler` is not wired, then the URL is `+{baseUrl}+/logout/connect/back-channel/+{registrationId}+`, which is not recommended since it requires passing a CSRF token, which can be challenging depending on the kind of repository your application uses.
+
+In the event that you need to customize the endpoint, you can provide the URL as follows:
+
+
+[tabs]
+======
+Java::
++
+[source=java,role="primary"]
+----
+http
+    // ...
+    .oidcLogout((oidc) -> oidc
+        .backChannel((backChannel) -> backChannel
+            .logoutUri("http://localhost:9000/logout/connect/back-channel/+{registrationId}+")
+        )
+    );
+----
+
+Kotlin::
++
+[source=kotlin,role="secondary"]
+----
+http {
+    oidcLogout {
+        backChannel {
+            logoutUri = "http://localhost:9000/logout/connect/back-channel/+{registrationId}+"
+        }
+    }
+}
+----
+======
+
+=== Customizing the Session Logout Cookie Name
+
+By default, the session logout endpoint uses the `JSESSIONID` cookie to correlate the session to the corresponding `OidcSessionInformation`.
+
+However, the default cookie name in Spring Session is `SESSION`.
+
+You can configure Spring Session's cookie name in the DSL like so:
+
+[tabs]
+======
+Java::
++
+[source=java,role="primary"]
+----
+@Bean
+OidcBackChannelLogoutHandler oidcLogoutHandler(OidcSessionRegistry sessionRegistry) {
+    OidcBackChannelLogoutHandler logoutHandler = new OidcBackChannelLogoutHandler(oidcSessionRegistry);
+    logoutHandler.setSessionCookieName("SESSION");
+    return logoutHandler;
+}
+----
+
+Kotlin::
++
+[source=kotlin,role="secondary"]
+----
+@Bean
+open fun oidcLogoutHandler(val sessionRegistry: OidcSessionRegistry): OidcBackChannelLogoutHandler {
+    val logoutHandler = OidcBackChannelLogoutHandler(sessionRegistry)
+    logoutHandler.setSessionCookieName("SESSION")
+    return logoutHandler
+}
+----
+======
+
+[[oidc-backchannel-logout-session-registry]]
 === Customizing the OIDC Provider Session Registry
 
 By default, Spring Security stores in-memory all links between the OIDC Provider session and the Client session.
