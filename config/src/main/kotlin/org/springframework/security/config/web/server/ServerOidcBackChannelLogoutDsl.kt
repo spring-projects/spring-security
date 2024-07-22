@@ -16,6 +16,8 @@
 
 package org.springframework.security.config.web.server
 
+import org.springframework.security.web.server.authentication.logout.ServerLogoutHandler
+
 /**
  * A Kotlin DSL to configure [ServerHttpSecurity] OIDC 1.0 Back-Channel Logout support using idiomatic Kotlin code.
  *
@@ -24,7 +26,26 @@ package org.springframework.security.config.web.server
  */
 @ServerSecurityMarker
 class ServerOidcBackChannelLogoutDsl {
+    private var _logoutUri: String? = null
+    private var _logoutHandler: ServerLogoutHandler? = null
+
+    var logoutHandler: ServerLogoutHandler?
+        get() = _logoutHandler
+        set(value) {
+            _logoutHandler = value
+            _logoutUri = null
+        }
+    var logoutUri: String?
+        get() = _logoutUri
+        set(value) {
+            _logoutUri = value
+            _logoutHandler = null
+        }
+
     internal fun get(): (ServerHttpSecurity.OidcLogoutSpec.BackChannelLogoutConfigurer) -> Unit {
-        return { backChannel -> }
+        return { backChannel ->
+            logoutHandler?.also { backChannel.logoutHandler(logoutHandler) }
+            logoutUri?.also { backChannel.logoutUri(logoutUri) }
+        }
     }
 }

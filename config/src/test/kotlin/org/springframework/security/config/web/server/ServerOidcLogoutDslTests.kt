@@ -25,14 +25,18 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
 import org.springframework.security.config.test.SpringTestContext
 import org.springframework.security.config.test.SpringTestContextExtension
+import org.springframework.security.oauth2.client.oidc.server.session.InMemoryReactiveOidcSessionRegistry
 import org.springframework.security.oauth2.client.registration.ClientRegistration
 import org.springframework.security.oauth2.client.registration.InMemoryReactiveClientRegistrationRepository
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations
+import org.springframework.security.web.authentication.logout.LogoutHandler
 import org.springframework.security.web.server.SecurityWebFilterChain
+import org.springframework.test.util.ReflectionTestUtils
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.web.reactive.config.EnableWebFlux
 import org.springframework.web.reactive.function.BodyInserters
+import org.springframework.web.server.WebFilter
 
 /**
  * Tests for [ServerOidcLogoutDsl]
@@ -63,12 +67,23 @@ class ServerOidcLogoutDslTests {
                 .body(BodyInserters.fromFormData("logout_token", "token"))
                 .exchange()
                 .expectStatus().isBadRequest
+        val chain: SecurityWebFilterChain = this.spring.context.getBean(SecurityWebFilterChain::class.java)
+        chain.webFilters.doOnNext({ filter: WebFilter ->
+            if (filter.javaClass.simpleName.equals("OidcBackChannelLogoutWebFilter")) {
+                val logoutHandler = ReflectionTestUtils.getField(filter, "logoutHandler") as LogoutHandler
+                val backChannelLogoutHandler = ReflectionTestUtils.getField(logoutHandler, "left") as LogoutHandler
+                var cookieName = ReflectionTestUtils.getField(backChannelLogoutHandler, "sessionCookieName") as String
+                assert(cookieName.equals("SESSION"))
+            }
+        })
     }
 
     @Configuration
     @EnableWebFlux
     @EnableWebFluxSecurity
     open class ClientRepositoryConfig {
+
+        private val sessionRegistry = InMemoryReactiveOidcSessionRegistry()
 
         @Bean
         open fun securityFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
@@ -81,6 +96,13 @@ class ServerOidcLogoutDslTests {
                     authorize(anyExchange, authenticated)
                 }
             }
+        }
+
+        @Bean
+        open fun oidcLogoutHandler(): OidcBackChannelServerLogoutHandler {
+            val logoutHandler = OidcBackChannelServerLogoutHandler(this.sessionRegistry)
+            logoutHandler.setSessionCookieName("SESSION");
+            return logoutHandler;
         }
 
         @Bean
