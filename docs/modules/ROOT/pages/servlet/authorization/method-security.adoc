@@ -955,7 +955,7 @@ Kotlin::
 @Target(ElementType.METHOD, ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @PreAuthorize("hasRole('{value}')")
-annotation class IsAdmin(val value: String)
+annotation class HasRole(val value: String)
 ----
 ======
 
