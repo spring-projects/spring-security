@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -84,6 +84,18 @@ public final class OAuth2ErrorCodes {
 	 * HTTP redirect.)
 	 */
 	public static final String SERVER_ERROR = "server_error";
+
+	/**
+	 * {@code insufficient_user_authentication} - The authentication event associated with
+	 * the access token presented with the request does not meet the authentication
+	 * requirements of the protected resource.
+	 *
+	 * @since 6.4
+	 * @see <a href=
+	 * "https://datatracker.ietf.org/doc/html/rfc9470#name-authentication-requirements">RFC-9470
+	 * - Section 3 - Authentication Requirements Challenge</a>
+	 */
+	public static final String INSUFFICIENT_USER_AUTHENTICATION = "insufficient_user_authentication";
 
 	/**
 	 * {@code temporarily_unavailable} - The authorization server is currently unable to

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -66,6 +66,18 @@ public final class JwtClaimNames {
 	 * {@code jti} - The JWT ID claim provides a unique identifier for the JWT
 	 */
 	public static final String JTI = "jti";
+
+	/**
+	 * {@code acr} - The authentication context class reference claim that identifies the
+	 * authentication context class that was satisfied by the user-authentication event
+	 * performed
+	 */
+	public static final String ACR = "acr";
+
+	/**
+	 * {@code auth_time} - Time when the user authentication occurred
+	 */
+	public static final String AUTH_TIME = "auth_time";
 
 	private JwtClaimNames() {
 	}
