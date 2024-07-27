@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -607,15 +607,15 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 	 * <p>
 	 * Configuration is provided to the {@link PermissionsPolicyHeaderWriter} which is
 	 * responsible for writing the header.
-	 * @return the {@link PermissionsPolicyConfig} for additional configuration
+	 * @return the {@link HeadersConfigurer} for additional customizations
 	 * @throws IllegalArgumentException if policyDirectives is {@code null} or empty
 	 * @since 5.5
 	 * @see PermissionsPolicyHeaderWriter
 	 */
-	public PermissionsPolicyConfig permissionsPolicy(Customizer<PermissionsPolicyConfig> permissionsPolicyCustomizer) {
+	public HeadersConfigurer<H> permissionsPolicy(Customizer<PermissionsPolicyConfig> permissionsPolicyCustomizer) {
 		this.permissionsPolicy.writer = new PermissionsPolicyHeaderWriter();
 		permissionsPolicyCustomizer.customize(this.permissionsPolicy);
-		return this.permissionsPolicy;
+		return HeadersConfigurer.this;
 	}
 
 	/**
