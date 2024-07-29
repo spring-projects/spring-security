@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import net.shibboleth.utilities.java.support.xml.SerializeSupport;
@@ -89,14 +90,14 @@ public class OpenSamlAssertingPartyMetadataRepositoryTests {
 	@Test
 	public void withMetadataUrlLocationWhenResolvableThenFindByEntityIdReturns() throws Exception {
 		try (MockWebServer server = new MockWebServer()) {
-			server.setDispatcher(new AlwaysDispatch(new MockResponse().setBody(this.metadata).setResponseCode(200)));
+			server.setDispatcher(new AlwaysDispatch(this.metadata));
 			AssertingPartyMetadataRepository parties = OpenSamlAssertingPartyMetadataRepository
-				.withTrustedMetadataLocation(server.url("/").toString())
-				.build();
+					.withTrustedMetadataLocation(server.url("/").toString())
+					.build();
 			AssertingPartyMetadata party = parties.findByEntityId("https://idp.example.com/idp/shibboleth");
 			assertThat(party.getEntityId()).isEqualTo("https://idp.example.com/idp/shibboleth");
 			assertThat(party.getSingleSignOnServiceLocation())
-				.isEqualTo("https://idp.example.com/idp/profile/SAML2/POST/SSO");
+					.isEqualTo("https://idp.example.com/idp/profile/SAML2/POST/SSO");
 			assertThat(party.getSingleSignOnServiceBinding()).isEqualTo(Saml2MessageBinding.POST);
 			assertThat(party.getVerificationX509Credentials()).hasSize(1);
 			assertThat(party.getEncryptionX509Credentials()).hasSize(1);
@@ -106,8 +107,7 @@ public class OpenSamlAssertingPartyMetadataRepositoryTests {
 	@Test
 	public void withMetadataUrlLocationnWhenResolvableThenIteratorReturns() throws Exception {
 		try (MockWebServer server = new MockWebServer()) {
-			server.setDispatcher(
-					new AlwaysDispatch(new MockResponse().setBody(this.entitiesDescriptor).setResponseCode(200)));
+			server.setDispatcher(new AlwaysDispatch(this.entitiesDescriptor));
 			List<AssertingPartyMetadata> parties = new ArrayList<>();
 			OpenSamlAssertingPartyMetadataRepository.withTrustedMetadataLocation(server.url("/").toString())
 				.build()
@@ -360,7 +360,7 @@ public class OpenSamlAssertingPartyMetadataRepositoryTests {
 		private final MockResponse response;
 
 		private AlwaysDispatch(String body) {
-			this.response = new MockResponse().setBody(body).setResponseCode(200);
+			this.response = new MockResponse().setBody(body).setResponseCode(200).setBodyDelay(1, TimeUnit.MILLISECONDS);
 		}
 
 		private AlwaysDispatch(MockResponse response) {
