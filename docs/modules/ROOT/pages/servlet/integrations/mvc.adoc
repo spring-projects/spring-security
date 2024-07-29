@@ -503,6 +503,126 @@ open fun findMessagesForUser(@CurrentUser customUser: CustomUser?): ModelAndView
 ----
 ======
 
+Once it is a meta-annotation, parameterization is also available to you.
+
+For example, consider when you have a JWT as your principal and you want to say which claim to retrieve.
+As a meta-annotation, you might do:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Target({ElementType.PARAMETER, ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+@AuthenticationPrincipal(expression = "claims['sub']")
+public @interface CurrentUser {}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Target(AnnotationTarget.VALUE_PARAMETER, AnnotationTarget.TYPE)
+@Retention(AnnotationRetention.RUNTIME)
+@MustBeDocumented
+@AuthenticationPrincipal(expression = "claims['sub']")
+annotation class CurrentUser
+----
+======
+
+which is already quite powerful.
+But, it is also limited to retrieving the `sub` claim.
+
+To make this more flexible, first publish the `AnnotationTemplateExpressionDefaults` bean like so:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Bean
+public AnnotationTemplateExpressionDefaults templateDefaults() {
+	return new AnnotationTemplateExpressionDeafults();
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun templateDefaults(): AnnotationTemplateExpressionDefaults {
+	return AnnotationTemplateExpressionDeafults()
+}
+----
+
+Xml::
++
+[source,xml,role="secondary"]
+----
+<b:bean name="annotationExpressionTemplateDefaults" class="org.springframework.security.core.annotation.AnnotationTemplateExpressionDefaults"/>
+----
+======
+
+and then you can supply a parameter to `@CurrentUser` like so:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Target({ElementType.PARAMETER, ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+@AuthenticationPrincipal(expression = "claims['{claim}']")
+public @interface CurrentUser {
+	String claim() default 'sub';
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Target(AnnotationTarget.VALUE_PARAMETER, AnnotationTarget.TYPE)
+@Retention(AnnotationRetention.RUNTIME)
+@MustBeDocumented
+@AuthenticationPrincipal(expression = "claims['{claim}']")
+annotation class CurrentUser(val claim: String = "sub")
+----
+======
+
+This will allow you more flexibility across your set of applications in the following way:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@RequestMapping("/messages/inbox")
+public ModelAndView findMessagesForUser(@CurrentUser("user_id") String userId) {
+
+	// .. find messages for this user and return them ...
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@RequestMapping("/messages/inbox")
+open fun findMessagesForUser(@CurrentUser("user_id") userId: String?): ModelAndView {
+
+    // .. find messages for this user and return them ...
+}
+----
+======
 
 [[mvc-async]]
 == Spring MVC Async Integration
