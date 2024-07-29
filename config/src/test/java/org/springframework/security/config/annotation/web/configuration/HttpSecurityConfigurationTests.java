@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -365,7 +365,7 @@ public class HttpSecurityConfigurationTests {
 	}
 
 	@Test
-	public void configureWhenCorsConfigurationSourceThenApplyCors() {
+	public void configureWhenCorsConfigurationSourceThenApplyCors() throws Exception {
 		this.spring.register(CorsConfigurationSourceConfig.class, DefaultWithFilterChainConfig.class).autowire();
 		SecurityFilterChain filterChain = this.spring.getContext().getBean(SecurityFilterChain.class);
 		CorsFilter corsFilter = (CorsFilter) filterChain.getFilters()
@@ -375,6 +375,16 @@ public class HttpSecurityConfigurationTests {
 			.get();
 		Object configSource = ReflectionTestUtils.getField(corsFilter, "configSource");
 		assertThat(configSource).isInstanceOf(UrlBasedCorsConfigurationSource.class);
+	}
+
+	// gh-15378
+	@Test
+	public void configureWhenNoUrlBasedCorsConfigThenNoCorsAppliedAndVaryHeaderNotPresent() throws Exception {
+		this.spring.register(NonUrlBasedCorsConfig.class, DefaultWithFilterChainConfig.class).autowire();
+		SecurityFilterChain filterChain = this.spring.getContext().getBean(SecurityFilterChain.class);
+		assertThat(filterChain.getFilters()).noneMatch((filter) -> filter instanceof CorsFilter);
+
+		this.mockMvc.perform(get("/")).andExpect(header().doesNotExist("Vary"));
 	}
 
 	@Test
@@ -707,6 +717,33 @@ public class HttpSecurityConfigurationTests {
 			corsConfiguration.setAllowedOrigins(List.of("http://localhost:8080"));
 			source.registerCorsConfiguration("/**", corsConfiguration);
 			return source;
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	static class NonUrlBasedCorsConfig {
+
+		@Bean
+		CorsConfigurationSource corsConfigurationSource() {
+			return new CustomCorsConfigurationSource();
+		}
+
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			return http.build();
+		}
+
+	}
+
+	static class CustomCorsConfigurationSource implements CorsConfigurationSource {
+
+		@Override
+		public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
+			CorsConfiguration configuration = new CorsConfiguration();
+			configuration.setAllowedOrigins(List.of("http://localhost:8080"));
+			return configuration;
 		}
 
 	}

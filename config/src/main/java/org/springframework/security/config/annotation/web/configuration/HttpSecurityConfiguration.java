@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,7 +47,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter;
 import org.springframework.web.accept.ContentNegotiationStrategy;
 import org.springframework.web.accept.HeaderContentNegotiationStrategy;
-import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
@@ -55,6 +55,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
  * {@link Configuration} that exposes the {@link HttpSecurity} bean.
  *
  * @author Eleftheria Stein
+ * @author Jinwoo Bae
  * @since 5.4
  */
 @Configuration(proxyBeanMethods = false)
@@ -131,8 +132,7 @@ class HttpSecurityConfiguration {
 	}
 
 	private void applyCorsIfAvailable(HttpSecurity http) throws Exception {
-		String[] beanNames = this.context.getBeanNamesForType(CorsConfigurationSource.class);
-		if (beanNames.length == 1) {
+		if (this.context.getBeanNamesForType(UrlBasedCorsConfigurationSource.class).length > 0) {
 			http.cors(withDefaults());
 		}
 	}
