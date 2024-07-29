@@ -610,9 +610,9 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 	 * @return the {@link PermissionsPolicyConfig} for additional configuration
 	 * @throws IllegalArgumentException if policyDirectives is {@code null} or empty
 	 * @since 5.5
-	 * @see PermissionsPolicyHeaderWriter
 	 * @deprecated For removal in 7.0. Use {@link #permissionsPolicyHeader(Customizer)}
 	 * instead
+	 * @see PermissionsPolicyHeaderWriter
 	 */
 	@Deprecated(since = "6.4", forRemoval = true)
 	public PermissionsPolicyConfig permissionsPolicy(Customizer<PermissionsPolicyConfig> permissionsPolicyCustomizer) {
