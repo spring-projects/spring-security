@@ -135,8 +135,10 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
 
 	/**
 	 * @param domain the domain name (can be null or empty)
-	 * @param url an LDAP url (or multiple URLs)
+	 * @param url an LDAP url (or multiple space-delimited URLs).
 	 * @param rootDn the root DN (can be null or empty)
+	 * @see <a href="https://docs.oracle.com/javase/jndi/tutorial/ldap/misc/url.html">JNDI
+	 * URL format documentation</a>
 	 */
 	public ActiveDirectoryLdapAuthenticationProvider(String domain, String url, String rootDn) {
 		Assert.isTrue(StringUtils.hasText(url), "Url cannot be empty");
