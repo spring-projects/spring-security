@@ -36,8 +36,7 @@ import org.springframework.web.util.HtmlUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 
 /**
- * A success handler for issuing a SAML 2.0 Logout Request to the SAML 2.0 Asserting
- * Party
+ * A success handler for issuing a SAML 2.0 Logout Request to the SAML 2.0 Asserting Party
  *
  * @author Josh Cummings
  * @since 5.6
