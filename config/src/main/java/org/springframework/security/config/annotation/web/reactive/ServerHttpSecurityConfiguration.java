@@ -34,6 +34,7 @@ import org.springframework.security.authentication.ReactiveAuthenticationManager
 import org.springframework.security.authentication.UserDetailsRepositoryReactiveAuthenticationManager;
 import org.springframework.security.authentication.password.ReactiveCompromisedPasswordChecker;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
+import org.springframework.security.core.annotation.AnnotationTemplateExpressionDefaults;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsPasswordService;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -120,12 +121,14 @@ class ServerHttpSecurityConfiguration {
 	}
 
 	@Bean
-	AuthenticationPrincipalArgumentResolver authenticationPrincipalArgumentResolver() {
+	AuthenticationPrincipalArgumentResolver authenticationPrincipalArgumentResolver(
+			ObjectProvider<AnnotationTemplateExpressionDefaults> templateDefaults) {
 		AuthenticationPrincipalArgumentResolver resolver = new AuthenticationPrincipalArgumentResolver(
 				this.adapterRegistry);
 		if (this.beanFactory != null) {
 			resolver.setBeanResolver(new BeanFactoryResolver(this.beanFactory));
 		}
+		templateDefaults.ifAvailable(resolver::setTemplateDefaults);
 		return resolver;
 	}
 
