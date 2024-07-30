@@ -305,6 +305,8 @@ public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements
 
 		private static final String CUSTOM_ARG_RESOLVERS_PROP = "customArgumentResolvers";
 
+		private static final String TEMPLATE_EXPRESSION_BEAN_ID = "templateDefaults";
+
 		private final String inboundSecurityInterceptorId;
 
 		private final boolean sameOriginDisabled;
@@ -327,7 +329,13 @@ public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements
 					if (current != null) {
 						argResolvers.addAll((ManagedList<?>) current.getValue());
 					}
-					argResolvers.add(new RootBeanDefinition(AuthenticationPrincipalArgumentResolver.class));
+					RootBeanDefinition beanDefinition = new RootBeanDefinition(
+							AuthenticationPrincipalArgumentResolver.class);
+					if (registry.containsBeanDefinition(TEMPLATE_EXPRESSION_BEAN_ID)) {
+						beanDefinition.getPropertyValues()
+							.add(TEMPLATE_EXPRESSION_BEAN_ID, new RuntimeBeanReference(TEMPLATE_EXPRESSION_BEAN_ID));
+					}
+					argResolvers.add(beanDefinition);
 					bd.getPropertyValues().add(CUSTOM_ARG_RESOLVERS_PROP, argResolvers);
 					if (!registry.containsBeanDefinition(PATH_MATCHER_BEAN_NAME)) {
 						PropertyValue pathMatcherProp = bd.getPropertyValues().getPropertyValue("pathMatcher");
