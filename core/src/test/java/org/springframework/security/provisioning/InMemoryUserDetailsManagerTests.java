@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,8 +27,10 @@ import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.core.userdetails.PasswordEncodedUser;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -95,6 +97,26 @@ public class InMemoryUserDetailsManagerTests {
 		manager.setSecurityContextHolderStrategy(strategy);
 		manager.changePassword("password", "newpassword");
 		verify(strategy).getContext();
+	}
+
+	@Test
+	public void createUserWhenUserAlreadyExistsThenException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.manager.createUser(this.user))
+			.withMessage("user should not exist");
+	}
+
+	@Test
+	public void updateUserWhenUserDoesNotExistThenException() {
+		InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
+		assertThatIllegalArgumentException().isThrownBy(() -> manager.updateUser(this.user))
+			.withMessage("user should exist");
+	}
+
+	@Test
+	public void loadUserByUsernameWhenUserNullThenException() {
+		InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
+		assertThatExceptionOfType(UsernameNotFoundException.class)
+			.isThrownBy(() -> manager.loadUserByUsername(this.user.getUsername()));
 	}
 
 }
