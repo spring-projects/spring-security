@@ -28,6 +28,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import jakarta.annotation.security.DenyAll;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.junit.jupiter.api.Test;
@@ -50,6 +51,7 @@ import org.springframework.security.access.annotation.BusinessService;
 import org.springframework.security.access.annotation.BusinessServiceImpl;
 import org.springframework.security.access.annotation.ExpressionProtectedBusinessServiceImpl;
 import org.springframework.security.access.annotation.Jsr250BusinessServiceImpl;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
@@ -944,6 +946,13 @@ public class PrePostMethodSecurityConfigurationTests {
 		verify(handler, never()).handleDeniedInvocation(any(), any(Authz.AuthzResult.class));
 	}
 
+	// gh-15352
+	@Test
+	void annotationsInChildClassesDoNotAffectSuperclasses() {
+		this.spring.register(AbstractClassConfig.class).autowire();
+		this.spring.getContext().getBean(ClassInheritingAbstractClassWithNoAnnotations.class).method();
+	}
+
 	private static Consumer<ConfigurableWebApplicationContext> disallowBeanOverriding() {
 		return (context) -> ((AnnotationConfigWebApplicationContext) context).setAllowBeanDefinitionOverriding(false);
 	}
@@ -1476,6 +1485,31 @@ public class PrePostMethodSecurityConfigurationTests {
 		@Bean
 		MethodAuthorizationDeniedHandler methodAuthorizationDeniedHandler() {
 			return this.handler;
+		}
+
+	}
+
+	abstract static class AbstractClassWithNoAnnotations {
+
+		String method() {
+			return "ok";
+		}
+
+	}
+
+	@PreAuthorize("denyAll()")
+	@Secured("DENIED")
+	@DenyAll
+	static class ClassInheritingAbstractClassWithNoAnnotations extends AbstractClassWithNoAnnotations {
+
+	}
+
+	@EnableMethodSecurity(securedEnabled = true, jsr250Enabled = true)
+	static class AbstractClassConfig {
+
+		@Bean
+		ClassInheritingAbstractClassWithNoAnnotations inheriting() {
+			return new ClassInheritingAbstractClassWithNoAnnotations();
 		}
 
 	}

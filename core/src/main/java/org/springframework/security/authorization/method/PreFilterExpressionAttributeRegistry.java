@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,6 @@ import org.springframework.security.access.prepost.PreFilter;
  * For internal use only, as this contract is likely to change.
  *
  * @author Evgeniy Cheban
- * @author DingHao
  * @since 5.8
  */
 final class PreFilterExpressionAttributeRegistry
@@ -39,7 +38,7 @@ final class PreFilterExpressionAttributeRegistry
 	@Override
 	PreFilterExpressionAttribute resolveAttribute(Method method, Class<?> targetClass) {
 		Method specificMethod = AopUtils.getMostSpecificMethod(method, targetClass);
-		PreFilter preFilter = findPreFilterAnnotation(specificMethod, targetClass);
+		PreFilter preFilter = findPreFilterAnnotation(specificMethod);
 		if (preFilter == null) {
 			return PreFilterExpressionAttribute.NULL_ATTRIBUTE;
 		}
@@ -48,10 +47,10 @@ final class PreFilterExpressionAttributeRegistry
 		return new PreFilterExpressionAttribute(preFilterExpression, preFilter.filterTarget());
 	}
 
-	private PreFilter findPreFilterAnnotation(Method method, Class<?> targetClass) {
+	private PreFilter findPreFilterAnnotation(Method method) {
 		Function<AnnotatedElement, PreFilter> lookup = findUniqueAnnotation(PreFilter.class);
 		PreFilter preFilter = lookup.apply(method);
-		return (preFilter != null) ? preFilter : lookup.apply(targetClass(method, targetClass));
+		return (preFilter != null) ? preFilter : lookup.apply(method.getDeclaringClass());
 	}
 
 	static final class PreFilterExpressionAttribute extends ExpressionAttribute {

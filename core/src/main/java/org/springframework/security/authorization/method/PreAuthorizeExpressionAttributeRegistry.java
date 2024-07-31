@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,6 @@ import org.springframework.util.Assert;
  * For internal use only, as this contract is likely to change.
  *
  * @author Evgeniy Cheban
- * @author DingHao
  * @since 5.8
  */
 final class PreAuthorizeExpressionAttributeRegistry extends AbstractExpressionAttributeRegistry<ExpressionAttribute> {
@@ -50,33 +49,33 @@ final class PreAuthorizeExpressionAttributeRegistry extends AbstractExpressionAt
 	@Override
 	ExpressionAttribute resolveAttribute(Method method, Class<?> targetClass) {
 		Method specificMethod = AopUtils.getMostSpecificMethod(method, targetClass);
-		PreAuthorize preAuthorize = findPreAuthorizeAnnotation(specificMethod, targetClass);
+		PreAuthorize preAuthorize = findPreAuthorizeAnnotation(specificMethod);
 		if (preAuthorize == null) {
 			return ExpressionAttribute.NULL_ATTRIBUTE;
 		}
 		Expression expression = getExpressionHandler().getExpressionParser().parseExpression(preAuthorize.value());
-		MethodAuthorizationDeniedHandler handler = resolveHandler(method, targetClass);
+		MethodAuthorizationDeniedHandler handler = resolveHandler(method);
 		return new PreAuthorizeExpressionAttribute(expression, handler);
 	}
 
-	private MethodAuthorizationDeniedHandler resolveHandler(Method method, Class<?> targetClass) {
+	private MethodAuthorizationDeniedHandler resolveHandler(Method method) {
 		Function<AnnotatedElement, HandleAuthorizationDenied> lookup = AuthorizationAnnotationUtils
 			.withDefaults(HandleAuthorizationDenied.class);
 		HandleAuthorizationDenied deniedHandler = lookup.apply(method);
 		if (deniedHandler != null) {
 			return this.handlerResolver.apply(deniedHandler.handlerClass());
 		}
-		deniedHandler = lookup.apply(targetClass(method, targetClass));
+		deniedHandler = lookup.apply(method.getDeclaringClass());
 		if (deniedHandler != null) {
 			return this.handlerResolver.apply(deniedHandler.handlerClass());
 		}
 		return this.defaultHandler;
 	}
 
-	private PreAuthorize findPreAuthorizeAnnotation(Method method, Class<?> targetClass) {
+	private PreAuthorize findPreAuthorizeAnnotation(Method method) {
 		Function<AnnotatedElement, PreAuthorize> lookup = findUniqueAnnotation(PreAuthorize.class);
 		PreAuthorize preAuthorize = lookup.apply(method);
-		return (preAuthorize != null) ? preAuthorize : lookup.apply(targetClass(method, targetClass));
+		return (preAuthorize != null) ? preAuthorize : lookup.apply(method.getDeclaringClass());
 	}
 
 	/**
