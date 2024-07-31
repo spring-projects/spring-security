@@ -18,7 +18,6 @@ package org.springframework.security.authorization.method;
 
 import java.lang.reflect.Method;
 
-import org.springframework.aop.support.AopUtils;
 import org.springframework.expression.Expression;
 import org.springframework.lang.NonNull;
 import org.springframework.security.access.prepost.PostFilter;
@@ -39,8 +38,7 @@ final class PostFilterExpressionAttributeRegistry extends AbstractExpressionAttr
 	@NonNull
 	@Override
 	ExpressionAttribute resolveAttribute(Method method, Class<?> targetClass) {
-		Method specificMethod = AopUtils.getMostSpecificMethod(method, targetClass);
-		PostFilter postFilter = findPostFilterAnnotation(specificMethod, targetClass);
+		PostFilter postFilter = findPostFilterAnnotation(method, targetClass);
 		if (postFilter == null) {
 			return ExpressionAttribute.NULL_ATTRIBUTE;
 		}

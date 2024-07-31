@@ -22,7 +22,6 @@ import java.util.function.Function;
 
 import reactor.util.annotation.NonNull;
 
-import org.springframework.aop.support.AopUtils;
 import org.springframework.context.ApplicationContext;
 import org.springframework.expression.Expression;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -56,8 +55,7 @@ final class PreAuthorizeExpressionAttributeRegistry extends AbstractExpressionAt
 	@NonNull
 	@Override
 	ExpressionAttribute resolveAttribute(Method method, Class<?> targetClass) {
-		Method specificMethod = AopUtils.getMostSpecificMethod(method, targetClass);
-		PreAuthorize preAuthorize = findPreAuthorizeAnnotation(specificMethod, targetClass);
+		PreAuthorize preAuthorize = findPreAuthorizeAnnotation(method, targetClass);
 		if (preAuthorize == null) {
 			return ExpressionAttribute.NULL_ATTRIBUTE;
 		}

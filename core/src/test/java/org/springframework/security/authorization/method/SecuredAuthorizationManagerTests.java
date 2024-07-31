@@ -167,28 +167,6 @@ public class SecuredAuthorizationManagerTests {
 		assertThat(decision.isGranted()).isTrue();
 	}
 
-	@Test
-	public void checkRequiresUserWhenMethodsFromInheritThenApplies() throws Exception {
-		MockMethodInvocation methodInvocation = new MockMethodInvocation(new SecuredSonClass(), SecuredSonClass.class,
-				"securedUser");
-		SecuredAuthorizationManager manager = new SecuredAuthorizationManager();
-		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedUser, methodInvocation);
-		assertThat(decision.isGranted()).isTrue();
-	}
-
-	@Secured("ROLE_USER")
-	public static class SecuredSonClass extends ParentClass {
-
-	}
-
-	public static class ParentClass {
-
-		public void securedUser() {
-
-		}
-
-	}
-
 	public static class TestClass implements InterfaceAnnotationsOne, InterfaceAnnotationsTwo {
 
 		public void doSomething() {

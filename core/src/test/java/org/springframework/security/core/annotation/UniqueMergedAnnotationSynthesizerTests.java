@@ -242,6 +242,15 @@ public class UniqueMergedAnnotationSynthesizerTests {
 		assertThat(preAuthorize.value()).isEqualTo("three");
 	}
 
+	// gh-15352
+	@Test
+	void synthesizeWhenClassInheritingAbstractClassNoAnnotationsThenNoAnnotation() throws Exception {
+		Method method = ClassInheritingAbstractClassNoAnnotations.class.getMethod("otherMethod");
+		Class<?> targetClass = ClassInheritingAbstractClassNoAnnotations.class;
+		PreAuthorize preAuthorize = this.synthesizer.synthesize(method, targetClass);
+		assertThat(preAuthorize).isNull();
+	}
+
 	@PreAuthorize("one")
 	private interface AnnotationOnInterface {
 
@@ -552,6 +561,19 @@ public class UniqueMergedAnnotationSynthesizerTests {
 		public String method() {
 			return "ok";
 		}
+
+	}
+
+	public abstract static class AbstractClassNoAnnotations {
+
+		public String otherMethod() {
+			return "ok";
+		}
+
+	}
+
+	@PreAuthorize("twentynine")
+	private static class ClassInheritingAbstractClassNoAnnotations extends AbstractClassNoAnnotations {
 
 	}
 

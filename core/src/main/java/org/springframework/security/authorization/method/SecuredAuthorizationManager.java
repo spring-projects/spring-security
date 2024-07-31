@@ -26,7 +26,6 @@ import java.util.function.Supplier;
 
 import org.aopalliance.intercept.MethodInvocation;
 
-import org.springframework.aop.support.AopUtils;
 import org.springframework.core.MethodClassKey;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.authorization.AuthoritiesAuthorizationManager;
@@ -90,8 +89,7 @@ public final class SecuredAuthorizationManager implements AuthorizationManager<M
 	}
 
 	private Set<String> resolveAuthorities(Method method, Class<?> targetClass) {
-		Method specificMethod = AopUtils.getMostSpecificMethod(method, targetClass);
-		Secured secured = findSecuredAnnotation(specificMethod, targetClass);
+		Secured secured = findSecuredAnnotation(method, targetClass);
 		return (secured != null) ? Set.of(secured.value()) : Collections.emptySet();
 	}
 

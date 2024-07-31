@@ -22,7 +22,6 @@ import java.util.function.Function;
 
 import reactor.util.annotation.NonNull;
 
-import org.springframework.aop.support.AopUtils;
 import org.springframework.context.ApplicationContext;
 import org.springframework.expression.Expression;
 import org.springframework.security.access.prepost.PostAuthorize;
@@ -56,8 +55,7 @@ final class PostAuthorizeExpressionAttributeRegistry extends AbstractExpressionA
 	@NonNull
 	@Override
 	ExpressionAttribute resolveAttribute(Method method, Class<?> targetClass) {
-		Method specificMethod = AopUtils.getMostSpecificMethod(method, targetClass);
-		PostAuthorize postAuthorize = findPostAuthorizeAnnotation(specificMethod, targetClass);
+		PostAuthorize postAuthorize = findPostAuthorizeAnnotation(method, targetClass);
 		if (postAuthorize == null) {
 			return ExpressionAttribute.NULL_ATTRIBUTE;
 		}

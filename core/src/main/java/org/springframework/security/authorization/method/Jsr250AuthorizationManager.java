@@ -29,7 +29,6 @@ import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
 import org.aopalliance.intercept.MethodInvocation;
 
-import org.springframework.aop.support.AopUtils;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authorization.AuthoritiesAuthorizationManager;
 import org.springframework.security.authorization.AuthorizationDecision;
@@ -117,9 +116,8 @@ public final class Jsr250AuthorizationManager implements AuthorizationManager<Me
 		}
 
 		private Annotation findJsr250Annotation(Method method, Class<?> targetClass) {
-			Method specificMethod = AopUtils.getMostSpecificMethod(method, targetClass);
-			Class<?> targetClassToUse = (targetClass != null) ? targetClass : specificMethod.getDeclaringClass();
-			return this.synthesizer.synthesize(specificMethod, targetClassToUse);
+			Class<?> targetClassToUse = (targetClass != null) ? targetClass : method.getDeclaringClass();
+			return this.synthesizer.synthesize(method, targetClassToUse);
 		}
 
 		private Set<String> getAllowedRolesWithPrefix(RolesAllowed rolesAllowed) {

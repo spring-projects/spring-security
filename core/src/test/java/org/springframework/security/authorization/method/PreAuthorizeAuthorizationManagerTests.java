@@ -137,28 +137,6 @@ public class PreAuthorizeAuthorizationManagerTests {
 		assertThat(decision.isGranted()).isTrue();
 	}
 
-	@Test
-	public void checkRequiresUserWhenMethodsFromInheritThenApplies() throws Exception {
-		MockMethodInvocation methodInvocation = new MockMethodInvocation(new PreAuthorizeClass(),
-				PreAuthorizeClass.class, "securedUser");
-		PreAuthorizeAuthorizationManager manager = new PreAuthorizeAuthorizationManager();
-		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedUser, methodInvocation);
-		assertThat(decision.isGranted()).isTrue();
-	}
-
-	@PreAuthorize("hasRole('USER')")
-	public static class PreAuthorizeClass extends ParentClass {
-
-	}
-
-	public static class ParentClass {
-
-		public void securedUser() {
-
-		}
-
-	}
-
 	public static class TestClass implements InterfaceAnnotationsOne, InterfaceAnnotationsTwo {
 
 		public void doSomething() {

@@ -31,6 +31,7 @@ import org.springframework.core.annotation.MergedAnnotation;
 import org.springframework.core.annotation.MergedAnnotations;
 import org.springframework.core.annotation.RepeatableContainers;
 import org.springframework.util.Assert;
+import org.springframework.util.ClassUtils;
 
 /**
  * A strategy for synthesizing an annotation from an {@link AnnotatedElement} that
@@ -124,11 +125,29 @@ final class UniqueMergedAnnotationSynthesizer<A extends Annotation> implements A
 	}
 
 	private List<MergedAnnotation<A>> findMethodAnnotations(Method method, Class<?> targetClass) {
-		List<MergedAnnotation<A>> annotations = findClosestMethodAnnotations(method, targetClass, new HashSet<>());
+		// The method may be on an interface, but we need attributes from the target
+		// class.
+		// If the target class is null, the method will be unchanged.
+		Method specificMethod = ClassUtils.getMostSpecificMethod(method, targetClass);
+		List<MergedAnnotation<A>> annotations = findClosestMethodAnnotations(specificMethod,
+				specificMethod.getDeclaringClass(), new HashSet<>());
 		if (!annotations.isEmpty()) {
 			return annotations;
 		}
-		return findClosestClassAnnotations(targetClass, new HashSet<>());
+		// Check the original (e.g. interface) method
+		if (specificMethod != method) {
+			annotations = findClosestMethodAnnotations(method, method.getDeclaringClass(), new HashSet<>());
+			if (!annotations.isEmpty()) {
+				return annotations;
+			}
+		}
+		// Check the class-level (note declaringClass, not targetClass, which may not
+		// actually implement the method)
+		annotations = findClosestClassAnnotations(specificMethod.getDeclaringClass(), new HashSet<>());
+		if (!annotations.isEmpty()) {
+			return annotations;
+		}
+		return Collections.emptyList();
 	}
 
 	private List<MergedAnnotation<A>> findClosestMethodAnnotations(Method method, Class<?> targetClass,

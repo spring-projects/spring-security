@@ -18,7 +18,6 @@ package org.springframework.security.authorization.method;
 
 import java.lang.reflect.Method;
 
-import org.springframework.aop.support.AopUtils;
 import org.springframework.expression.Expression;
 import org.springframework.lang.NonNull;
 import org.springframework.security.access.prepost.PreFilter;
@@ -40,8 +39,7 @@ final class PreFilterExpressionAttributeRegistry
 	@NonNull
 	@Override
 	PreFilterExpressionAttribute resolveAttribute(Method method, Class<?> targetClass) {
-		Method specificMethod = AopUtils.getMostSpecificMethod(method, targetClass);
-		PreFilter preFilter = findPreFilterAnnotation(specificMethod, targetClass);
+		PreFilter preFilter = findPreFilterAnnotation(method, targetClass);
 		if (preFilter == null) {
 			return PreFilterExpressionAttribute.NULL_ATTRIBUTE;
 		}
