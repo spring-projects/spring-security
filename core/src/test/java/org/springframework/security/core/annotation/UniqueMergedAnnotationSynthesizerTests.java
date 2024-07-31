@@ -71,9 +71,8 @@ public class UniqueMergedAnnotationSynthesizerTests {
 
 	@Test
 	void synthesizeWhenInterfaceOverridingMultipleInterfaceInheritanceThenResolves() throws Exception {
-		Method method = InterfaceOverridingMultipleInterfaceInheritance.class.getMethod("method");
-		PreAuthorize preAuthorize = this.synthesizer.synthesize(method,
-				InterfaceOverridingMultipleInterfaceInheritance.class);
+		Method method = ClassInheritingInterfaceOverridingMultipleInterfaceInheritance.class.getDeclaredMethod("method");
+		PreAuthorize preAuthorize = this.synthesizer.synthesize(method);
 		assertThat(preAuthorize.value()).isEqualTo("ten");
 	}
 
@@ -309,6 +308,14 @@ public class UniqueMergedAnnotationSynthesizerTests {
 	private interface InterfaceOverridingMultipleInterfaceInheritance
 			extends AnnotationOnInterface, AlsoAnnotationOnInterface {
 
+	}
+
+	private static class ClassInheritingInterfaceOverridingMultipleInterfaceInheritance
+			implements InterfaceOverridingMultipleInterfaceInheritance {
+		@Override
+		public String method() {
+			return "ok";
+		}
 	}
 
 	private interface InterfaceMethodOverridingMultipleInterfaceInheritance
