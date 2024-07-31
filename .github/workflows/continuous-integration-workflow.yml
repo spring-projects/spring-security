@@ -115,7 +115,7 @@ jobs:
     secrets: inherit
   send-notification:
     name: Send Notification
-    needs: [ perform-release ]
+    needs: [ perform_release, perform_post_release ]
     if: failure()
     runs-on: ubuntu-latest
     steps:
