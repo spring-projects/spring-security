@@ -16,12 +16,15 @@
 
 package org.springframework.security.provisioning;
 
+import java.util.Collection;
 import java.util.Properties;
 
 import org.junit.jupiter.api.Test;
 
 import org.springframework.security.authentication.TestAuthentication;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.CredentialsContainer;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.core.userdetails.PasswordEncodedUser;
@@ -106,6 +109,20 @@ public class InMemoryUserDetailsManagerTests {
 	}
 
 	@Test
+	public void createUserWhenInstanceOfMutableUserDetailsThenChangePasswordWorks() {
+		InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
+		CustomUser user = new CustomUser(User.withUserDetails(PasswordEncodedUser.user()).build());
+		Authentication authentication = TestAuthentication.authenticated(user);
+		SecurityContextHolderStrategy strategy = mock(SecurityContextHolderStrategy.class);
+		given(strategy.getContext()).willReturn(new SecurityContextImpl(authentication));
+		manager.setSecurityContextHolderStrategy(strategy);
+		manager.createUser(user);
+		String newPassword = "newPassword";
+		manager.changePassword(user.getPassword(), newPassword);
+		assertThat(manager.loadUserByUsername(user.getUsername()).getPassword()).isEqualTo(newPassword);
+	}
+
+	@Test
 	public void updateUserWhenUserDoesNotExistThenException() {
 		InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
 		assertThatIllegalArgumentException().isThrownBy(() -> manager.updateUser(this.user))
@@ -117,6 +134,59 @@ public class InMemoryUserDetailsManagerTests {
 		InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
 		assertThatExceptionOfType(UsernameNotFoundException.class)
 			.isThrownBy(() -> manager.loadUserByUsername(this.user.getUsername()));
+	}
+
+	@Test
+	public void loadUserByUsernameWhenNotInstanceOfCredentialsContainerThenReturnInstanceOfCredentialsContainer() {
+		MutableUser user = new MutableUser(User.withUserDetails(PasswordEncodedUser.user()).build());
+		InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager(user);
+		assertThat(user).isNotInstanceOf(CredentialsContainer.class);
+		assertThat(manager.loadUserByUsername(user.getUsername())).isInstanceOf(CredentialsContainer.class);
+	}
+
+	@Test
+	public void loadUserByUsernameWhenInstanceOfCredentialsContainerThenReturnInstance() {
+		CustomUser user = new CustomUser(User.withUserDetails(PasswordEncodedUser.user()).build());
+		InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager(user);
+		assertThat(manager.loadUserByUsername(user.getUsername())).isSameAs(user);
+	}
+
+	static class CustomUser implements MutableUserDetails, CredentialsContainer {
+
+		private final UserDetails delegate;
+
+		private String password;
+
+		CustomUser(UserDetails user) {
+			this.delegate = user;
+			this.password = user.getPassword();
+		}
+
+		@Override
+		public Collection<? extends GrantedAuthority> getAuthorities() {
+			return this.delegate.getAuthorities();
+		}
+
+		@Override
+		public String getPassword() {
+			return this.password;
+		}
+
+		@Override
+		public void setPassword(final String password) {
+			this.password = password;
+		}
+
+		@Override
+		public String getUsername() {
+			return this.delegate.getUsername();
+		}
+
+		@Override
+		public void eraseCredentials() {
+			this.password = null;
+		}
+
 	}
 
 }
