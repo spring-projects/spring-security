@@ -24,8 +24,11 @@ import java.util.Collections;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.log.LogMessage;
+import org.springframework.expression.Expression;
+import org.springframework.expression.ExpressionException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -54,6 +57,8 @@ public final class JwtGrantedAuthoritiesConverter implements Converter<Jwt, Coll
 	private String authoritiesClaimDelimiter = DEFAULT_AUTHORITIES_CLAIM_DELIMITER;
 
 	private String authoritiesClaimName;
+
+	private Expression authoritiesClaimExpression;
 
 	/**
 	 * Extract {@link GrantedAuthority}s from the given {@link Jwt}.
@@ -117,16 +122,38 @@ public final class JwtGrantedAuthoritiesConverter implements Converter<Jwt, Coll
 		return null;
 	}
 
+	/**
+	 * Sets the expression for extracting the token claim to use for mapping {@link GrantedAuthority
+	 * authorities} by this converter.
+	 * Note that this takes precedence over {@link #setAuthoritiesClaimName(String)}.
+	 * @param authoritiesClaimExpression The token claim SpEL Expression to map authorities
+	 * @since 6.5
+	 */
+	public void setAuthoritiesClaimExpression(Expression authoritiesClaimExpression) {
+		Assert.notNull(authoritiesClaimExpression, "authoritiesClaimExpression must not be null");
+		this.authoritiesClaimExpression = authoritiesClaimExpression;
+	}
+
 	private Collection<String> getAuthorities(Jwt jwt) {
-		String claimName = getAuthoritiesClaimName(jwt);
-		if (claimName == null) {
-			this.logger.trace("Returning no authorities since could not find any claims that might contain scopes");
-			return Collections.emptyList();
+
+		Object authorities;
+		if (authoritiesClaimExpression != null) {
+			try {
+				authorities = authoritiesClaimExpression.getValue(jwt.getClaims(), Collection.class);
+			} catch (ExpressionException ee) {
+				authorities = Collections.emptyList();
+			}
+		} else {
+			String claimName = getAuthoritiesClaimName(jwt);
+			if (claimName == null) {
+				this.logger.trace("Returning no authorities since could not find any claims that might contain scopes");
+				return Collections.emptyList();
+			}
+			if (this.logger.isTraceEnabled()) {
+				this.logger.trace(LogMessage.format("Looking for scopes in claim %s", claimName));
+			}
+			authorities = jwt.getClaim(claimName);
 		}
-		if (this.logger.isTraceEnabled()) {
-			this.logger.trace(LogMessage.format("Looking for scopes in claim %s", claimName));
-		}
-		Object authorities = jwt.getClaim(claimName);
 		if (authorities instanceof String) {
 			if (StringUtils.hasText((String) authorities)) {
 				return Arrays.asList(((String) authorities).split(this.authoritiesClaimDelimiter));
