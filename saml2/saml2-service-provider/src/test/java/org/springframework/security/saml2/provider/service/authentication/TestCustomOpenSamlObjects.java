@@ -198,7 +198,6 @@ public final class TestCustomOpenSamlObjects {
 		protected void processChildElement(@Nonnull XMLObject parentXMLObject, @Nonnull XMLObject childXMLObject)
 				throws UnmarshallingException {
 			final CustomOpenSamlObject customSamlObject = (CustomOpenSamlObject) parentXMLObject;
-			super.processChildElement(customSamlObject, childXMLObject);
 			customSamlObject.getUnknownXMLObjects().add(childXMLObject);
 		}
 

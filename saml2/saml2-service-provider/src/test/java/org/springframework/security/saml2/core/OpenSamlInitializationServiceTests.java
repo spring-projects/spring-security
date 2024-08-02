@@ -19,6 +19,7 @@ package org.springframework.security.saml2.core;
 import org.junit.jupiter.api.Test;
 import org.opensaml.core.config.ConfigurationService;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistry;
+import org.opensaml.saml.saml2.core.AuthnRequest;
 
 import org.springframework.security.saml2.Saml2Exception;
 
@@ -36,7 +37,7 @@ public class OpenSamlInitializationServiceTests {
 	public void initializeWhenInvokedMultipleTimesThenInitializesOnce() {
 		OpenSamlInitializationService.initialize();
 		XMLObjectProviderRegistry registry = ConfigurationService.get(XMLObjectProviderRegistry.class);
-		assertThat(registry.getParserPool()).isNotNull();
+		assertThat(registry.getBuilderFactory().getBuilder(AuthnRequest.DEFAULT_ELEMENT_NAME)).isNotNull();
 		assertThatExceptionOfType(Saml2Exception.class)
 			.isThrownBy(() -> OpenSamlInitializationService.requireInitialize((r) -> {
 			}))
