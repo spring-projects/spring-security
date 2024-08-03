@@ -79,7 +79,7 @@ interface OpenSamlOperations {
 
 		Collection<Saml2Error> verify(SignableXMLObject signable);
 
-		Collection<Saml2Error> verify(RedirectParameters parameters);
+		Collection<Saml2Error> verify(VerificationConfigurer.RedirectParameters parameters);
 
 		final class RedirectParameters {
 
@@ -98,7 +98,7 @@ interface OpenSamlOperations {
 				this.issuer = request.getIssuer();
 				this.algorithm = parameters.get(Saml2ParameterNames.SIG_ALG);
 				if (parameters.get(Saml2ParameterNames.SIGNATURE) != null) {
-					this.signature = org.springframework.security.saml2.internal.Saml2Utils.samlDecode(parameters.get(Saml2ParameterNames.SIGNATURE));
+					this.signature = Saml2Utils.samlDecode(parameters.get(Saml2ParameterNames.SIGNATURE));
 				}
 				else {
 					this.signature = null;
@@ -117,7 +117,7 @@ interface OpenSamlOperations {
 				this.issuer = response.getIssuer();
 				this.algorithm = parameters.get(Saml2ParameterNames.SIG_ALG);
 				if (parameters.get(Saml2ParameterNames.SIGNATURE) != null) {
-					this.signature = org.springframework.security.saml2.internal.Saml2Utils.samlDecode(parameters.get(Saml2ParameterNames.SIGNATURE));
+					this.signature = Saml2Utils.samlDecode(parameters.get(Saml2ParameterNames.SIGNATURE));
 				}
 				else {
 					this.signature = null;

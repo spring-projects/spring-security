@@ -31,8 +31,8 @@ import org.springframework.security.config.annotation.web.configurers.LogoutConf
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticatedPrincipal;
-import org.springframework.security.saml2.provider.service.authentication.logout.OpenSamlLogoutRequestValidator;
-import org.springframework.security.saml2.provider.service.authentication.logout.OpenSamlLogoutResponseValidator;
+import org.springframework.security.saml2.provider.service.authentication.logout.OpenSaml4LogoutRequestValidator;
+import org.springframework.security.saml2.provider.service.authentication.logout.OpenSaml4LogoutResponseValidator;
 import org.springframework.security.saml2.provider.service.authentication.logout.Saml2LogoutRequestValidator;
 import org.springframework.security.saml2.provider.service.authentication.logout.Saml2LogoutResponseValidator;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
@@ -398,7 +398,7 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 
 		private Saml2LogoutRequestValidator logoutRequestValidator() {
 			if (this.logoutRequestValidator == null) {
-				return new OpenSamlLogoutRequestValidator();
+				return new OpenSaml4LogoutRequestValidator();
 			}
 			return this.logoutRequestValidator;
 		}
@@ -474,7 +474,7 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 
 		private Saml2LogoutResponseValidator logoutResponseValidator() {
 			if (this.logoutResponseValidator == null) {
-				return new OpenSamlLogoutResponseValidator();
+				return new OpenSaml4LogoutResponseValidator();
 			}
 			return this.logoutResponseValidator;
 		}

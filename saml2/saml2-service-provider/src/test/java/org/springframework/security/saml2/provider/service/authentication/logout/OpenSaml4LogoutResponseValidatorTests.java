@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,15 +36,15 @@ import org.springframework.security.saml2.provider.service.registration.TestRely
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Tests for {@link OpenSamlLogoutResponseValidator}
+ * Tests for {@link OpenSaml4LogoutResponseValidator}
  *
  * @author Josh Cummings
  */
-public class OpenSamlLogoutResponseValidatorTests {
+public class OpenSaml4LogoutResponseValidatorTests {
 
 	private final OpenSamlOperations saml = new OpenSaml4Template();
 
-	private final OpenSamlLogoutResponseValidator manager = new OpenSamlLogoutResponseValidator();
+	private final OpenSaml4LogoutResponseValidator manager = new OpenSaml4LogoutResponseValidator();
 
 	@Test
 	public void handleWhenAuthenticatedThenHandles() {
@@ -169,7 +169,7 @@ public class OpenSamlLogoutResponseValidatorTests {
 	}
 
 	private Saml2LogoutResponse redirect(LogoutResponse logoutResponse, RelyingPartyRegistration registration,
-			SignatureConfigurer configurer) {
+			SignatureConfigurer<?> configurer) {
 		String serialized = Saml2Utils.samlEncode(Saml2Utils.samlDeflate(serialize(logoutResponse)));
 		Map<String, String> parameters = configurer.sign(Map.of(Saml2ParameterNames.SAML_RESPONSE, serialized));
 		return Saml2LogoutResponse.withRelyingPartyRegistration(registration)

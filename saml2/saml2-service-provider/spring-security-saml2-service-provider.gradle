@@ -1,5 +1,20 @@
 apply plugin: 'io.spring.convention.spring-module'
 
+sourceSets.configureEach { set ->
+	if (!set.name.containsIgnoreCase("main")) {
+		return
+	}
+	def from = copySpec {
+		from("$projectDir/src/$set.name/java/org/springframework/security/saml2/internal")
+	}
+
+	copy {
+		into "$projectDir/src/$set.name/java/org/springframework/security/saml2/provider/service/authentication/logout"
+		filter { line -> line.replaceAll(".saml2.internal", ".saml2.provider.service.authentication.logout") }
+		with from
+	}
+}
+
 dependencies {
 	management platform(project(":spring-security-dependencies"))
 	api project(':spring-security-web')

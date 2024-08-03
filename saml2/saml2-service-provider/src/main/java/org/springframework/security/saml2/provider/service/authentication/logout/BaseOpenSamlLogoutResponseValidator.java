@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,12 +19,8 @@ package org.springframework.security.saml2.provider.service.authentication.logou
 import java.util.Collection;
 import java.util.function.Consumer;
 
-import org.opensaml.core.config.ConfigurationService;
-import org.opensaml.core.xml.config.XMLObjectProviderRegistry;
-import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
 import org.opensaml.saml.saml2.core.LogoutResponse;
 import org.opensaml.saml.saml2.core.StatusCode;
-import org.opensaml.saml.saml2.core.impl.LogoutResponseUnmarshaller;
 
 import org.springframework.security.saml2.core.OpenSamlInitializationService;
 import org.springframework.security.saml2.core.Saml2Error;
@@ -36,40 +32,18 @@ import org.springframework.security.saml2.provider.service.registration.Assertin
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding;
 
-/**
- * A {@link Saml2LogoutResponseValidator} that authenticates a SAML 2.0 Logout Responses
- * received from a SAML 2.0 Asserting Party using OpenSAML.
- *
- * @author Josh Cummings
- * @since 5.6
- * @deprecated Please use the version-specific {@link Saml2LogoutResponseValidator}
- * instead such as {@code OpenSaml4LogoutResponseValidator}
- */
-@Deprecated
-public class OpenSamlLogoutResponseValidator implements Saml2LogoutResponseValidator {
+class BaseOpenSamlLogoutResponseValidator implements Saml2LogoutResponseValidator {
 
 	static {
 		OpenSamlInitializationService.initialize();
 	}
 
-	private final XMLObjectProviderRegistry registry;
+	private final OpenSamlOperations saml;
 
-	private final LogoutResponseUnmarshaller unmarshaller;
-
-	private final OpenSamlOperations saml = new OpenSaml4Template();
-
-	/**
-	 * Constructs a {@link OpenSamlLogoutRequestValidator}
-	 */
-	public OpenSamlLogoutResponseValidator() {
-		this.registry = ConfigurationService.get(XMLObjectProviderRegistry.class);
-		this.unmarshaller = (LogoutResponseUnmarshaller) XMLObjectProviderRegistrySupport.getUnmarshallerFactory()
-			.getUnmarshaller(LogoutResponse.DEFAULT_ELEMENT_NAME);
+	BaseOpenSamlLogoutResponseValidator(OpenSamlOperations saml) {
+		this.saml = saml;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public Saml2LogoutValidatorResult validate(Saml2LogoutResponseValidatorParameters parameters) {
 		Saml2LogoutResponse response = parameters.getLogoutResponse();
@@ -90,7 +64,9 @@ public class OpenSamlLogoutResponseValidator implements Saml2LogoutResponseValid
 		return (errors) -> {
 			AssertingPartyMetadata details = registration.getAssertingPartyMetadata();
 			Collection<Saml2X509Credential> credentials = details.getVerificationX509Credentials();
-			VerificationConfigurer verify = this.saml.withVerificationKeys(credentials).entityId(details.getEntityId());
+			VerificationConfigurer verify = this.saml.withVerificationKeys(credentials)
+				.entityId(details.getEntityId())
+				.entityId(details.getEntityId());
 			if (logoutResponse.isSigned()) {
 				errors.addAll(verify.verify(logoutResponse));
 			}

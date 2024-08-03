@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,15 +40,15 @@ import org.springframework.security.saml2.provider.service.registration.TestRely
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Tests for {@link OpenSamlLogoutRequestValidator}
+ * Tests for {@link OpenSaml4LogoutRequestValidator}
  *
  * @author Josh Cummings
  */
-public class OpenSamlLogoutRequestValidatorTests {
+public class OpenSaml4LogoutRequestValidatorTests {
 
 	private final OpenSamlOperations saml = new OpenSaml4Template();
 
-	private final OpenSamlLogoutRequestValidator manager = new OpenSamlLogoutRequestValidator();
+	private final OpenSaml4LogoutRequestValidator validator = new OpenSaml4LogoutRequestValidator();
 
 	@Test
 	public void handleWhenPostBindingThenValidates() {
@@ -58,7 +58,7 @@ public class OpenSamlLogoutRequestValidatorTests {
 		Saml2LogoutRequest request = post(logoutRequest, registration);
 		Saml2LogoutRequestValidatorParameters parameters = new Saml2LogoutRequestValidatorParameters(request,
 				registration, authentication(registration));
-		Saml2LogoutValidatorResult result = this.manager.validate(parameters);
+		Saml2LogoutValidatorResult result = this.validator.validate(parameters);
 		assertThat(result.hasErrors()).isFalse();
 	}
 
@@ -71,7 +71,7 @@ public class OpenSamlLogoutRequestValidatorTests {
 		Saml2LogoutRequest request = post(logoutRequest, registration);
 		Saml2LogoutRequestValidatorParameters parameters = new Saml2LogoutRequestValidatorParameters(request,
 				registration, authentication(registration));
-		Saml2LogoutValidatorResult result = this.manager.validate(parameters);
+		Saml2LogoutValidatorResult result = this.validator.validate(parameters);
 		assertThat(result.hasErrors()).withFailMessage(() -> result.getErrors().toString()).isFalse();
 
 	}
@@ -86,7 +86,7 @@ public class OpenSamlLogoutRequestValidatorTests {
 				this.saml.withSigningKeys(registration.getSigningX509Credentials()));
 		Saml2LogoutRequestValidatorParameters parameters = new Saml2LogoutRequestValidatorParameters(request,
 				registration, authentication(registration));
-		Saml2LogoutValidatorResult result = this.manager.validate(parameters);
+		Saml2LogoutValidatorResult result = this.validator.validate(parameters);
 		assertThat(result.hasErrors()).isFalse();
 	}
 
@@ -99,7 +99,7 @@ public class OpenSamlLogoutRequestValidatorTests {
 		Saml2LogoutRequest request = post(logoutRequest, registration);
 		Saml2LogoutRequestValidatorParameters parameters = new Saml2LogoutRequestValidatorParameters(request,
 				registration, authentication(registration));
-		Saml2LogoutValidatorResult result = this.manager.validate(parameters);
+		Saml2LogoutValidatorResult result = this.validator.validate(parameters);
 		assertThat(result.hasErrors()).isTrue();
 		assertThat(result.getErrors().iterator().next().getErrorCode()).isEqualTo(Saml2ErrorCodes.INVALID_SIGNATURE);
 	}
@@ -113,7 +113,7 @@ public class OpenSamlLogoutRequestValidatorTests {
 		Saml2LogoutRequest request = post(logoutRequest, registration);
 		Saml2LogoutRequestValidatorParameters parameters = new Saml2LogoutRequestValidatorParameters(request,
 				registration, authentication(registration));
-		Saml2LogoutValidatorResult result = this.manager.validate(parameters);
+		Saml2LogoutValidatorResult result = this.validator.validate(parameters);
 		assertThat(result.hasErrors()).isTrue();
 		assertThat(result.getErrors().iterator().next().getErrorCode()).isEqualTo(Saml2ErrorCodes.INVALID_REQUEST);
 	}
@@ -127,7 +127,7 @@ public class OpenSamlLogoutRequestValidatorTests {
 		Saml2LogoutRequest request = post(logoutRequest, registration);
 		Saml2LogoutRequestValidatorParameters parameters = new Saml2LogoutRequestValidatorParameters(request,
 				registration, authentication(registration));
-		Saml2LogoutValidatorResult result = this.manager.validate(parameters);
+		Saml2LogoutValidatorResult result = this.validator.validate(parameters);
 		assertThat(result.hasErrors()).isTrue();
 		assertThat(result.getErrors().iterator().next().getErrorCode()).isEqualTo(Saml2ErrorCodes.SUBJECT_NOT_FOUND);
 	}
@@ -141,7 +141,7 @@ public class OpenSamlLogoutRequestValidatorTests {
 		Saml2LogoutRequest request = post(logoutRequest, registration);
 		Saml2LogoutRequestValidatorParameters parameters = new Saml2LogoutRequestValidatorParameters(request,
 				registration, authentication(registration));
-		Saml2LogoutValidatorResult result = this.manager.validate(parameters);
+		Saml2LogoutValidatorResult result = this.validator.validate(parameters);
 		assertThat(result.hasErrors()).isTrue();
 		assertThat(result.getErrors().iterator().next().getErrorCode()).isEqualTo(Saml2ErrorCodes.INVALID_DESTINATION);
 	}
@@ -161,7 +161,7 @@ public class OpenSamlLogoutRequestValidatorTests {
 			.build();
 		Saml2LogoutRequestValidatorParameters parameters = new Saml2LogoutRequestValidatorParameters(request,
 				registration, authentication(registration));
-		Saml2LogoutValidatorResult result = this.manager.validate(parameters);
+		Saml2LogoutValidatorResult result = this.validator.validate(parameters);
 		assertThat(result.hasErrors()).isFalse();
 	}
 

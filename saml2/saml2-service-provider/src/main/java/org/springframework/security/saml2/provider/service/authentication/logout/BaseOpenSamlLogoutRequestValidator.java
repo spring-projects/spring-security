@@ -33,28 +33,16 @@ import org.springframework.security.saml2.provider.service.registration.Assertin
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding;
 
-/**
- * A {@link Saml2LogoutRequestValidator} that authenticates a SAML 2.0 Logout Requests
- * received from a SAML 2.0 Asserting Party using OpenSAML.
- *
- * @author Josh Cummings
- * @since 5.6
- * @deprecated Please use the version-specific {@link Saml2LogoutRequestValidator} such as
- * {@code OpenSaml4LogoutRequestValidator}
- */
-@Deprecated
-public final class OpenSamlLogoutRequestValidator implements Saml2LogoutRequestValidator {
+class BaseOpenSamlLogoutRequestValidator implements Saml2LogoutRequestValidator {
 
 	static {
 		OpenSamlInitializationService.initialize();
 	}
 
-	private final OpenSamlOperations saml = new OpenSaml4Template();
+	private final OpenSamlOperations saml;
 
-	/**
-	 * Constructs a {@link OpenSamlLogoutRequestValidator}
-	 */
-	public OpenSamlLogoutRequestValidator() {
+	BaseOpenSamlLogoutRequestValidator(OpenSamlOperations saml) {
+		this.saml = saml;
 	}
 
 	/**
