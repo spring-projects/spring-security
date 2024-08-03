@@ -32,12 +32,9 @@ import java.util.function.Consumer;
 import javax.xml.namespace.QName;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import net.shibboleth.utilities.java.support.xml.SerializeSupport;
 import org.junit.jupiter.api.Test;
 import org.opensaml.core.xml.XMLObject;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
-import org.opensaml.core.xml.io.Marshaller;
-import org.opensaml.core.xml.io.MarshallingException;
 import org.opensaml.core.xml.schema.XSDateTime;
 import org.opensaml.core.xml.schema.impl.XSDateTimeBuilder;
 import org.opensaml.saml.common.SignableSAMLObject;
@@ -68,12 +65,10 @@ import org.opensaml.saml.saml2.core.impl.StatusBuilder;
 import org.opensaml.saml.saml2.core.impl.StatusCodeBuilder;
 import org.opensaml.xmlsec.encryption.impl.EncryptedDataBuilder;
 import org.opensaml.xmlsec.signature.support.SignatureConstants;
-import org.w3c.dom.Element;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.jackson2.SecurityJackson2Modules;
-import org.springframework.security.saml2.Saml2Exception;
 import org.springframework.security.saml2.core.Saml2Error;
 import org.springframework.security.saml2.core.Saml2ErrorCodes;
 import org.springframework.security.saml2.core.Saml2ResponseValidatorResult;
@@ -106,6 +101,8 @@ public class OpenSaml4AuthenticationProviderTests {
 	private static String RELYING_PARTY_ENTITY_ID = "https://localhost/saml2/service-provider-metadata/idp-alias";
 
 	private static String ASSERTING_PARTY_ENTITY_ID = "https://some.idp.test/saml2/idp";
+
+	private final OpenSamlOperations saml = new OpenSaml4Template();
 
 	private OpenSaml4AuthenticationProvider provider = new OpenSaml4AuthenticationProvider();
 
@@ -839,14 +836,7 @@ public class OpenSaml4AuthenticationProviderTests {
 	}
 
 	private String serialize(XMLObject object) {
-		try {
-			Marshaller marshaller = XMLObjectProviderRegistrySupport.getMarshallerFactory().getMarshaller(object);
-			Element element = marshaller.marshall(object);
-			return SerializeSupport.nodeToString(element);
-		}
-		catch (MarshallingException ex) {
-			throw new Saml2Exception(ex);
-		}
+		return this.saml.serialize(object).serialize();
 	}
 
 	private Consumer<Saml2AuthenticationException> errorOf(String errorCode) {

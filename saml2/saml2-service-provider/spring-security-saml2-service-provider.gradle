@@ -13,6 +13,12 @@ sourceSets.configureEach { set ->
 		filter { line -> line.replaceAll(".saml2.internal", ".saml2.provider.service.authentication.logout") }
 		with from
 	}
+
+	copy {
+		into "$projectDir/src/$set.name/java/org/springframework/security/saml2/provider/service/authentication"
+		filter { line -> line.replaceAll(".saml2.internal", ".saml2.provider.service.authentication") }
+		with from
+	}
 }
 
 dependencies {
