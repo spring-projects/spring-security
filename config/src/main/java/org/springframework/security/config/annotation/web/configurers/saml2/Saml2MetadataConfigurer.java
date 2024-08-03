@@ -22,7 +22,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.saml2.provider.service.metadata.OpenSamlMetadataResolver;
+import org.springframework.security.saml2.provider.service.metadata.OpenSaml4MetadataResolver;
 import org.springframework.security.saml2.provider.service.metadata.Saml2MetadataResponseResolver;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
@@ -104,7 +104,7 @@ public class Saml2MetadataConfigurer<H extends HttpSecurityBuilder<H>>
 		Assert.hasText(metadataUrl, "metadataUrl cannot be empty");
 		this.metadataResponseResolver = (registrations) -> {
 			RequestMatcherMetadataResponseResolver metadata = new RequestMatcherMetadataResponseResolver(registrations,
-					new OpenSamlMetadataResolver());
+					new OpenSaml4MetadataResolver());
 			metadata.setRequestMatcher(new AntPathRequestMatcher(metadataUrl));
 			return metadata;
 		};
@@ -143,7 +143,7 @@ public class Saml2MetadataConfigurer<H extends HttpSecurityBuilder<H>>
 			return metadataResponseResolver;
 		}
 		RelyingPartyRegistrationRepository registrations = getRelyingPartyRegistrationRepository(http);
-		return new RequestMatcherMetadataResponseResolver(registrations, new OpenSamlMetadataResolver());
+		return new RequestMatcherMetadataResponseResolver(registrations, new OpenSaml4MetadataResolver());
 	}
 
 	private RelyingPartyRegistrationRepository getRelyingPartyRegistrationRepository(H http) {

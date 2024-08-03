@@ -52,11 +52,8 @@ import org.springframework.util.Assert;
  * @author Jakub Kubrynski
  * @author Josh Cummings
  * @since 5.4
- * @deprecated Please use version-specific {@link Saml2MetadataResolver} instead, for
- * example {@code OpenSaml4MetadataResolver}
  */
-@Deprecated
-public final class OpenSamlMetadataResolver implements Saml2MetadataResolver {
+final class BaseOpenSamlMetadataResolver implements Saml2MetadataResolver {
 
 	static {
 		OpenSamlInitializationService.initialize();
@@ -64,7 +61,7 @@ public final class OpenSamlMetadataResolver implements Saml2MetadataResolver {
 
 	private final Log logger = LogFactory.getLog(this.getClass());
 
-	private OpenSamlOperations saml = new OpenSaml4Template();
+	private OpenSamlOperations saml;
 
 	private Consumer<EntityDescriptorParameters> entityDescriptorCustomizer = (parameters) -> {
 	};
@@ -73,10 +70,7 @@ public final class OpenSamlMetadataResolver implements Saml2MetadataResolver {
 
 	private boolean signMetadata = false;
 
-	public OpenSamlMetadataResolver() {
-	}
-
-	OpenSamlMetadataResolver(OpenSamlOperations saml) {
+	BaseOpenSamlMetadataResolver(OpenSamlOperations saml) {
 		this.saml = saml;
 	}
 
@@ -86,6 +80,7 @@ public final class OpenSamlMetadataResolver implements Saml2MetadataResolver {
 		return serialize(entityDescriptor);
 	}
 
+	@Override
 	public String resolve(Iterable<RelyingPartyRegistration> relyingPartyRegistrations) {
 		Collection<EntityDescriptor> entityDescriptors = new ArrayList<>();
 		for (RelyingPartyRegistration registration : relyingPartyRegistrations) {
@@ -123,7 +118,7 @@ public final class OpenSamlMetadataResolver implements Saml2MetadataResolver {
 	 * {@link EntityDescriptorParameters}
 	 * @since 5.7
 	 */
-	public void setEntityDescriptorCustomizer(Consumer<EntityDescriptorParameters> entityDescriptorCustomizer) {
+	void setEntityDescriptorCustomizer(Consumer<EntityDescriptorParameters> entityDescriptorCustomizer) {
 		Assert.notNull(entityDescriptorCustomizer, "entityDescriptorCustomizer cannot be null");
 		this.entityDescriptorCustomizer = entityDescriptorCustomizer;
 	}
@@ -134,7 +129,7 @@ public final class OpenSamlMetadataResolver implements Saml2MetadataResolver {
 	 *
 	 * @since 6.2
 	 **/
-	public void setUsePrettyPrint(boolean usePrettyPrint) {
+	void setUsePrettyPrint(boolean usePrettyPrint) {
 		this.usePrettyPrint = usePrettyPrint;
 	}
 
@@ -221,7 +216,7 @@ public final class OpenSamlMetadataResolver implements Saml2MetadataResolver {
 	 *
 	 * @since 6.4
 	 */
-	public void setSignMetadata(boolean signMetadata) {
+	void setSignMetadata(boolean signMetadata) {
 		this.signMetadata = signMetadata;
 	}
 
@@ -231,22 +226,22 @@ public final class OpenSamlMetadataResolver implements Saml2MetadataResolver {
 	 *
 	 * @since 5.7
 	 */
-	public static final class EntityDescriptorParameters {
+	static final class EntityDescriptorParameters {
 
 		private final EntityDescriptor entityDescriptor;
 
 		private final RelyingPartyRegistration registration;
 
-		public EntityDescriptorParameters(EntityDescriptor entityDescriptor, RelyingPartyRegistration registration) {
+		EntityDescriptorParameters(EntityDescriptor entityDescriptor, RelyingPartyRegistration registration) {
 			this.entityDescriptor = entityDescriptor;
 			this.registration = registration;
 		}
 
-		public EntityDescriptor getEntityDescriptor() {
+		EntityDescriptor getEntityDescriptor() {
 			return this.entityDescriptor;
 		}
 
-		public RelyingPartyRegistration getRelyingPartyRegistration() {
+		RelyingPartyRegistration getRelyingPartyRegistration() {
 			return this.registration;
 		}
 
