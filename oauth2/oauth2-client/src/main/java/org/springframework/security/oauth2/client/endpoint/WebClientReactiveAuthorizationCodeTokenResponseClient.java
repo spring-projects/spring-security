@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,16 +16,11 @@
 
 package org.springframework.security.oauth2.client.endpoint;
 
-import java.util.Collections;
-import java.util.Set;
-
-import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationExchange;
-import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResponse;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.core.endpoint.PkceParameterNames;
-import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.util.MultiValueMap;
 
 /**
  * An implementation of a {@link ReactiveOAuth2AccessTokenResponseClient} that
@@ -56,32 +51,20 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClient
 		extends AbstractWebClientReactiveOAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> {
 
 	@Override
-	ClientRegistration clientRegistration(OAuth2AuthorizationCodeGrantRequest grantRequest) {
-		return grantRequest.getClientRegistration();
-	}
-
-	@Override
-	Set<String> scopes(OAuth2AuthorizationCodeGrantRequest grantRequest) {
-		return Collections.emptySet();
-	}
-
-	@Override
-	BodyInserters.FormInserter<String> populateTokenRequestBody(OAuth2AuthorizationCodeGrantRequest grantRequest,
-			BodyInserters.FormInserter<String> body) {
-		super.populateTokenRequestBody(grantRequest, body);
+	MultiValueMap<String, String> createParameters(OAuth2AuthorizationCodeGrantRequest grantRequest) {
 		OAuth2AuthorizationExchange authorizationExchange = grantRequest.getAuthorizationExchange();
-		OAuth2AuthorizationResponse authorizationResponse = authorizationExchange.getAuthorizationResponse();
-		body.with(OAuth2ParameterNames.CODE, authorizationResponse.getCode());
+		MultiValueMap<String, String> parameters = super.createParameters(grantRequest);
+		parameters.set(OAuth2ParameterNames.CODE, authorizationExchange.getAuthorizationResponse().getCode());
 		String redirectUri = authorizationExchange.getAuthorizationRequest().getRedirectUri();
 		if (redirectUri != null) {
-			body.with(OAuth2ParameterNames.REDIRECT_URI, redirectUri);
+			parameters.set(OAuth2ParameterNames.REDIRECT_URI, redirectUri);
 		}
 		String codeVerifier = authorizationExchange.getAuthorizationRequest()
 			.getAttribute(PkceParameterNames.CODE_VERIFIER);
 		if (codeVerifier != null) {
-			body.with(PkceParameterNames.CODE_VERIFIER, codeVerifier);
+			parameters.set(PkceParameterNames.CODE_VERIFIER, codeVerifier);
 		}
-		return body;
+		return parameters;
 	}
 
 }

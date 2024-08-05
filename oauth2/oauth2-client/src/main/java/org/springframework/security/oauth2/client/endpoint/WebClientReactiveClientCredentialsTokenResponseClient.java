@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,12 @@
 
 package org.springframework.security.oauth2.client.endpoint;
 
-import java.util.Set;
-
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
+import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.MultiValueMap;
+import org.springframework.util.StringUtils;
 
 /**
  * An implementation of a {@link ReactiveOAuth2AccessTokenResponseClient} that
@@ -45,13 +47,14 @@ public class WebClientReactiveClientCredentialsTokenResponseClient
 		extends AbstractWebClientReactiveOAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> {
 
 	@Override
-	ClientRegistration clientRegistration(OAuth2ClientCredentialsGrantRequest grantRequest) {
-		return grantRequest.getClientRegistration();
-	}
-
-	@Override
-	Set<String> scopes(OAuth2ClientCredentialsGrantRequest grantRequest) {
-		return grantRequest.getClientRegistration().getScopes();
+	MultiValueMap<String, String> createParameters(OAuth2ClientCredentialsGrantRequest grantRequest) {
+		ClientRegistration clientRegistration = grantRequest.getClientRegistration();
+		MultiValueMap<String, String> parameters = super.createParameters(grantRequest);
+		if (!CollectionUtils.isEmpty(clientRegistration.getScopes())) {
+			parameters.set(OAuth2ParameterNames.SCOPE,
+					StringUtils.collectionToDelimitedString(clientRegistration.getScopes(), " "));
+		}
+		return parameters;
 	}
 
 }
