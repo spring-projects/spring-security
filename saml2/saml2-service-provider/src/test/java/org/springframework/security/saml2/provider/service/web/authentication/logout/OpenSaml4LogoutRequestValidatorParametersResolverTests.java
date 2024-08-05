@@ -42,7 +42,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.BDDMockito.given;
 
 @ExtendWith(MockitoExtension.class)
-public final class OpenSamlLogoutRequestValidatorParametersResolverTests {
+public final class OpenSaml4LogoutRequestValidatorParametersResolverTests {
 
 	@Mock
 	RelyingPartyRegistrationRepository registrations;
@@ -51,11 +51,11 @@ public final class OpenSamlLogoutRequestValidatorParametersResolverTests {
 
 	private RelyingPartyRegistration registration = TestRelyingPartyRegistrations.relyingPartyRegistration().build();
 
-	private OpenSamlLogoutRequestValidatorParametersResolver resolver;
+	private OpenSaml4LogoutRequestValidatorParametersResolver resolver;
 
 	@BeforeEach
 	void setup() {
-		this.resolver = new OpenSamlLogoutRequestValidatorParametersResolver(this.registrations);
+		this.resolver = new OpenSaml4LogoutRequestValidatorParametersResolver(this.registrations);
 	}
 
 	@Test

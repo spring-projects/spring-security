@@ -44,6 +44,8 @@ import static org.mockito.Mockito.verify;
  */
 public class OpenSaml4LogoutResponseResolverTests {
 
+	private final OpenSamlOperations saml = new OpenSaml4Template();
+
 	RelyingPartyRegistrationResolver relyingPartyRegistrationResolver = mock(RelyingPartyRegistrationResolver.class);
 
 	@Test
@@ -60,7 +62,7 @@ public class OpenSaml4LogoutResponseResolverTests {
 		Authentication authentication = new TestingAuthenticationToken("user", "password");
 		LogoutRequest logoutRequest = TestOpenSamlObjects.assertingPartyLogoutRequest(registration);
 		request.setParameter(Saml2ParameterNames.SAML_REQUEST,
-				Saml2Utils.samlEncode(OpenSamlSigningUtils.serialize(logoutRequest).getBytes()));
+				Saml2Utils.samlEncode(this.saml.serialize(logoutRequest).serialize().getBytes()));
 		given(this.relyingPartyRegistrationResolver.resolve(any(), any())).willReturn(registration);
 		Saml2LogoutResponse logoutResponse = logoutResponseResolver.resolve(request, authentication);
 		assertThat(logoutResponse).isNotNull();

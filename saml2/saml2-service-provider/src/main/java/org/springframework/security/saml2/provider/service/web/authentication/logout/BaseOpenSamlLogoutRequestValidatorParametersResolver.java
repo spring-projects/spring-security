@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,11 +17,7 @@
 package org.springframework.security.saml2.provider.service.web.authentication.logout;
 
 import jakarta.servlet.http.HttpServletRequest;
-import org.opensaml.core.config.ConfigurationService;
-import org.opensaml.core.xml.config.XMLObjectProviderRegistry;
-import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
 import org.opensaml.saml.saml2.core.LogoutRequest;
-import org.opensaml.saml.saml2.core.impl.LogoutRequestUnmarshaller;
 
 import org.springframework.http.HttpMethod;
 import org.springframework.security.core.Authentication;
@@ -45,39 +41,29 @@ import org.springframework.util.Assert;
 /**
  * An OpenSAML-based implementation of
  * {@link Saml2LogoutRequestValidatorParametersResolver}
- *
- * @deprecated Please use a version-specific
- * {@link Saml2LogoutRequestValidatorParametersResolver} such as
- * {@code OpenSaml4LogoutRequestValidatorParametersResolver}
  */
-@Deprecated
-public final class OpenSamlLogoutRequestValidatorParametersResolver
+final class BaseOpenSamlLogoutRequestValidatorParametersResolver
 		implements Saml2LogoutRequestValidatorParametersResolver {
 
 	static {
 		OpenSamlInitializationService.initialize();
 	}
 
+	private final OpenSamlOperations saml;
+
+	private final RelyingPartyRegistrationRepository registrations;
+
 	private RequestMatcher requestMatcher = new OrRequestMatcher(
 			new AntPathRequestMatcher("/logout/saml2/slo/{registrationId}"),
 			new AntPathRequestMatcher("/logout/saml2/slo"));
 
-	private final OpenSamlOperations saml = new OpenSaml4Template();
-
-	private final RelyingPartyRegistrationRepository registrations;
-
-	private final XMLObjectProviderRegistry registry;
-
-	private final LogoutRequestUnmarshaller unmarshaller;
-
 	/**
-	 * Constructs a {@link OpenSamlLogoutRequestValidatorParametersResolver}
+	 * Constructs a {@link BaseOpenSamlLogoutRequestValidatorParametersResolver}
 	 */
-	public OpenSamlLogoutRequestValidatorParametersResolver(RelyingPartyRegistrationRepository registrations) {
+	BaseOpenSamlLogoutRequestValidatorParametersResolver(OpenSamlOperations saml,
+			RelyingPartyRegistrationRepository registrations) {
 		Assert.notNull(registrations, "relyingPartyRegistrationRepository cannot be null");
-		this.registry = ConfigurationService.get(XMLObjectProviderRegistry.class);
-		this.unmarshaller = (LogoutRequestUnmarshaller) XMLObjectProviderRegistrySupport.getUnmarshallerFactory()
-			.getUnmarshaller(LogoutRequest.DEFAULT_ELEMENT_NAME);
+		this.saml = saml;
 		this.registrations = registrations;
 	}
 
@@ -135,7 +121,7 @@ public final class OpenSamlLogoutRequestValidatorParametersResolver
 	 * derived through the {@code Issuer} in the {@code <saml2:LogoutRequest>}.
 	 * @param requestMatcher the {@link RequestMatcher} to use
 	 */
-	public void setRequestMatcher(RequestMatcher requestMatcher) {
+	void setRequestMatcher(RequestMatcher requestMatcher) {
 		Assert.notNull(requestMatcher, "requestMatcher cannot be null");
 		this.requestMatcher = requestMatcher;
 	}
@@ -168,11 +154,8 @@ public final class OpenSamlLogoutRequestValidatorParametersResolver
 	private Saml2LogoutRequestValidatorParameters logoutRequestByEntityId(HttpServletRequest request,
 			Authentication authentication) {
 		String serialized = request.getParameter(Saml2ParameterNames.SAML_REQUEST);
-		LogoutRequest logoutRequest = this.saml
-			.deserialize(org.springframework.security.saml2.provider.service.web.authentication.logout.Saml2Utils
-				.withEncoded(serialized)
-				.inflate(HttpMethod.GET.matches(request.getMethod()))
-				.decode());
+		LogoutRequest logoutRequest = this.saml.deserialize(
+				Saml2Utils.withEncoded(serialized).inflate(HttpMethod.GET.matches(request.getMethod())).decode());
 		String issuer = logoutRequest.getIssuer().getValue();
 		RelyingPartyRegistration registration = this.registrations.findUniqueByAssertingPartyEntityId(issuer);
 		return logoutRequestByRegistration(request, registration, authentication);

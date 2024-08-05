@@ -41,12 +41,7 @@ import org.springframework.util.Assert;
  */
 public final class OpenSaml4LogoutRequestResolver implements Saml2LogoutRequestResolver {
 
-	private final OpenSamlLogoutRequestResolver logoutRequestResolver;
-
-	private Consumer<LogoutRequestParameters> parametersConsumer = (parameters) -> {
-	};
-
-	private Clock clock = Clock.systemUTC();
+	private final BaseOpenSamlLogoutRequestResolver delegate;
 
 	public OpenSaml4LogoutRequestResolver(RelyingPartyRegistrationRepository registrations) {
 		this((request, id) -> {
@@ -61,7 +56,8 @@ public final class OpenSaml4LogoutRequestResolver implements Saml2LogoutRequestR
 	 * Construct a {@link OpenSaml4LogoutRequestResolver}
 	 */
 	public OpenSaml4LogoutRequestResolver(RelyingPartyRegistrationResolver relyingPartyRegistrationResolver) {
-		this.logoutRequestResolver = new OpenSamlLogoutRequestResolver(relyingPartyRegistrationResolver);
+		this.delegate = new BaseOpenSamlLogoutRequestResolver(relyingPartyRegistrationResolver,
+				new OpenSaml4Template());
 	}
 
 	/**
@@ -69,11 +65,7 @@ public final class OpenSaml4LogoutRequestResolver implements Saml2LogoutRequestR
 	 */
 	@Override
 	public Saml2LogoutRequest resolve(HttpServletRequest request, Authentication authentication) {
-		return this.logoutRequestResolver.resolve(request, authentication, (registration, logoutRequest) -> {
-			logoutRequest.setIssueInstant(Instant.now(this.clock));
-			this.parametersConsumer
-				.accept(new LogoutRequestParameters(request, registration, authentication, logoutRequest));
-		});
+		return this.delegate.resolve(request, authentication);
 	}
 
 	/**
@@ -83,7 +75,8 @@ public final class OpenSaml4LogoutRequestResolver implements Saml2LogoutRequestR
 	 */
 	public void setParametersConsumer(Consumer<LogoutRequestParameters> parametersConsumer) {
 		Assert.notNull(parametersConsumer, "parametersConsumer cannot be null");
-		this.parametersConsumer = parametersConsumer;
+		this.delegate
+			.setParametersConsumer((parameters) -> parametersConsumer.accept(new LogoutRequestParameters(parameters)));
 	}
 
 	/**
@@ -92,7 +85,7 @@ public final class OpenSaml4LogoutRequestResolver implements Saml2LogoutRequestR
 	 */
 	public void setClock(Clock clock) {
 		Assert.notNull(clock, "clock must not be null");
-		this.clock = clock;
+		this.delegate.setClock(clock);
 	}
 
 	/**
@@ -102,7 +95,7 @@ public final class OpenSaml4LogoutRequestResolver implements Saml2LogoutRequestR
 	 */
 	public void setRelayStateResolver(Converter<HttpServletRequest, String> relayStateResolver) {
 		Assert.notNull(relayStateResolver, "relayStateResolver cannot be null");
-		this.logoutRequestResolver.setRelayStateResolver(relayStateResolver);
+		this.delegate.setRelayStateResolver(relayStateResolver);
 	}
 
 	public static final class LogoutRequestParameters {
@@ -121,6 +114,11 @@ public final class OpenSaml4LogoutRequestResolver implements Saml2LogoutRequestR
 			this.registration = registration;
 			this.authentication = authentication;
 			this.logoutRequest = logoutRequest;
+		}
+
+		LogoutRequestParameters(BaseOpenSamlLogoutRequestResolver.LogoutRequestParameters parameters) {
+			this(parameters.getRequest(), parameters.getRelyingPartyRegistration(), parameters.getAuthentication(),
+					parameters.getLogoutRequest());
 		}
 
 		public HttpServletRequest getRequest() {

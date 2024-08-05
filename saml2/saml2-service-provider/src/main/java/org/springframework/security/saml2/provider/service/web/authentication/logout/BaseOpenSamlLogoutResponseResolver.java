@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,20 +16,19 @@
 
 package org.springframework.security.saml2.provider.service.web.authentication.logout;
 
-import java.io.ByteArrayInputStream;
-import java.nio.charset.StandardCharsets;
+import java.time.Clock;
+import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
-import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 import jakarta.servlet.http.HttpServletRequest;
-import net.shibboleth.utilities.java.support.xml.ParserPool;
-import net.shibboleth.utilities.java.support.xml.SerializeSupport;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opensaml.core.config.ConfigurationService;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistry;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
-import org.opensaml.core.xml.io.MarshallingException;
 import org.opensaml.saml.saml2.core.Issuer;
 import org.opensaml.saml.saml2.core.LogoutRequest;
 import org.opensaml.saml.saml2.core.LogoutResponse;
@@ -41,11 +40,8 @@ import org.opensaml.saml.saml2.core.impl.LogoutResponseBuilder;
 import org.opensaml.saml.saml2.core.impl.LogoutResponseMarshaller;
 import org.opensaml.saml.saml2.core.impl.StatusBuilder;
 import org.opensaml.saml.saml2.core.impl.StatusCodeBuilder;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
 import org.springframework.security.core.Authentication;
-import org.springframework.security.saml2.Saml2Exception;
 import org.springframework.security.saml2.core.OpenSamlInitializationService;
 import org.springframework.security.saml2.core.Saml2ParameterNames;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticatedPrincipal;
@@ -56,14 +52,13 @@ import org.springframework.security.saml2.provider.service.registration.Saml2Mes
 import org.springframework.security.saml2.provider.service.web.RelyingPartyRegistrationPlaceholderResolvers;
 import org.springframework.security.saml2.provider.service.web.RelyingPartyRegistrationPlaceholderResolvers.UriResolver;
 import org.springframework.security.saml2.provider.service.web.RelyingPartyRegistrationResolver;
-import org.springframework.security.saml2.provider.service.web.authentication.logout.OpenSamlSigningUtils.QueryParametersPartial;
 import org.springframework.util.Assert;
 
 /**
  * For internal use only. Intended for consolidating common behavior related to minting a
  * SAML 2.0 Logout Response.
  */
-final class OpenSamlLogoutResponseResolver {
+final class BaseOpenSamlLogoutResponseResolver implements Saml2LogoutResponseResolver {
 
 	static {
 		OpenSamlInitializationService.initialize();
@@ -71,7 +66,7 @@ final class OpenSamlLogoutResponseResolver {
 
 	private final Log logger = LogFactory.getLog(getClass());
 
-	private final ParserPool parserPool;
+	private XMLObjectProviderRegistry registry;
 
 	private final LogoutRequestUnmarshaller unmarshaller;
 
@@ -85,32 +80,39 @@ final class OpenSamlLogoutResponseResolver {
 
 	private final StatusCodeBuilder statusCodeBuilder;
 
+	private final OpenSamlOperations saml;
+
 	private final RelyingPartyRegistrationRepository registrations;
 
 	private final RelyingPartyRegistrationResolver relyingPartyRegistrationResolver;
 
+	private Clock clock = Clock.systemUTC();
+
+	private Consumer<LogoutResponseParameters> parametersConsumer = (parameters) -> {
+	};
+
 	/**
-	 * Construct a {@link OpenSamlLogoutResponseResolver}
+	 * Construct a {@link BaseOpenSamlLogoutResponseResolver}
 	 */
-	OpenSamlLogoutResponseResolver(RelyingPartyRegistrationRepository registrations,
-			RelyingPartyRegistrationResolver relyingPartyRegistrationResolver) {
+	BaseOpenSamlLogoutResponseResolver(RelyingPartyRegistrationRepository registrations,
+			RelyingPartyRegistrationResolver relyingPartyRegistrationResolver, OpenSamlOperations saml) {
+		this.saml = saml;
 		this.registrations = registrations;
 		this.relyingPartyRegistrationResolver = relyingPartyRegistrationResolver;
-		XMLObjectProviderRegistry registry = ConfigurationService.get(XMLObjectProviderRegistry.class);
-		this.parserPool = registry.getParserPool();
+		this.registry = ConfigurationService.get(XMLObjectProviderRegistry.class);
 		this.unmarshaller = (LogoutRequestUnmarshaller) XMLObjectProviderRegistrySupport.getUnmarshallerFactory()
 			.getUnmarshaller(LogoutRequest.DEFAULT_ELEMENT_NAME);
-		this.marshaller = (LogoutResponseMarshaller) registry.getMarshallerFactory()
+		this.marshaller = (LogoutResponseMarshaller) this.registry.getMarshallerFactory()
 			.getMarshaller(LogoutResponse.DEFAULT_ELEMENT_NAME);
 		Assert.notNull(this.marshaller, "logoutResponseMarshaller must be configured in OpenSAML");
-		this.logoutResponseBuilder = (LogoutResponseBuilder) registry.getBuilderFactory()
+		this.logoutResponseBuilder = (LogoutResponseBuilder) this.registry.getBuilderFactory()
 			.getBuilder(LogoutResponse.DEFAULT_ELEMENT_NAME);
 		Assert.notNull(this.logoutResponseBuilder, "logoutResponseBuilder must be configured in OpenSAML");
-		this.issuerBuilder = (IssuerBuilder) registry.getBuilderFactory().getBuilder(Issuer.DEFAULT_ELEMENT_NAME);
+		this.issuerBuilder = (IssuerBuilder) this.registry.getBuilderFactory().getBuilder(Issuer.DEFAULT_ELEMENT_NAME);
 		Assert.notNull(this.issuerBuilder, "issuerBuilder must be configured in OpenSAML");
-		this.statusBuilder = (StatusBuilder) registry.getBuilderFactory().getBuilder(Status.DEFAULT_ELEMENT_NAME);
+		this.statusBuilder = (StatusBuilder) this.registry.getBuilderFactory().getBuilder(Status.DEFAULT_ELEMENT_NAME);
 		Assert.notNull(this.statusBuilder, "statusBuilder must be configured in OpenSAML");
-		this.statusCodeBuilder = (StatusCodeBuilder) registry.getBuilderFactory()
+		this.statusCodeBuilder = (StatusCodeBuilder) this.registry.getBuilderFactory()
 			.getBuilder(StatusCode.DEFAULT_ELEMENT_NAME);
 		Assert.notNull(this.statusCodeBuilder, "statusCodeBuilder must be configured in OpenSAML");
 	}
@@ -126,14 +128,9 @@ final class OpenSamlLogoutResponseResolver {
 	 * @param authentication the current user
 	 * @return a signed and serialized SAML 2.0 Logout Response
 	 */
-	Saml2LogoutResponse resolve(HttpServletRequest request, Authentication authentication) {
-		return resolve(request, authentication, (registration, logoutResponse) -> {
-		});
-	}
-
-	Saml2LogoutResponse resolve(HttpServletRequest request, Authentication authentication,
-			BiConsumer<RelyingPartyRegistration, LogoutResponse> logoutResponseConsumer) {
-		LogoutRequest logoutRequest = parse(extractSamlRequest(request));
+	@Override
+	public Saml2LogoutResponse resolve(HttpServletRequest request, Authentication authentication) {
+		LogoutRequest logoutRequest = this.saml.deserialize(extractSamlRequest(request));
 		String registrationId = getRegistrationId(authentication);
 		RelyingPartyRegistration registration = this.relyingPartyRegistrationResolver.resolve(request, registrationId);
 		if (registration == null && this.registrations != null) {
@@ -163,28 +160,44 @@ final class OpenSamlLogoutResponseResolver {
 		if (logoutResponse.getID() == null) {
 			logoutResponse.setID("LR" + UUID.randomUUID());
 		}
-		logoutResponseConsumer.accept(registration, logoutResponse);
+		logoutResponse.setIssueInstant(Instant.now(this.clock));
+		this.parametersConsumer
+			.accept(new LogoutResponseParameters(request, registration, authentication, logoutRequest));
+		String relayState = request.getParameter(Saml2ParameterNames.RELAY_STATE);
 		Saml2LogoutResponse.Builder result = Saml2LogoutResponse.withRelyingPartyRegistration(registration);
 		if (registration.getAssertingPartyMetadata().getSingleLogoutServiceBinding() == Saml2MessageBinding.POST) {
-			String xml = serialize(OpenSamlSigningUtils.sign(logoutResponse, registration));
-			String samlResponse = Saml2Utils.samlEncode(xml.getBytes(StandardCharsets.UTF_8));
+			String xml = serialize(this.saml.withSigningKeys(registration.getSigningX509Credentials())
+				.algorithms(registration.getAssertingPartyMetadata().getSigningAlgorithms())
+				.sign(logoutResponse));
+			String samlResponse = Saml2Utils.withDecoded(xml).encode();
 			result.samlResponse(samlResponse);
-			if (request.getParameter(Saml2ParameterNames.RELAY_STATE) != null) {
-				result.relayState(request.getParameter(Saml2ParameterNames.RELAY_STATE));
+			if (relayState != null) {
+				result.relayState(relayState);
 			}
 			return result.build();
 		}
 		else {
 			String xml = serialize(logoutResponse);
-			String deflatedAndEncoded = Saml2Utils.samlEncode(Saml2Utils.samlDeflate(xml));
+			String deflatedAndEncoded = Saml2Utils.withDecoded(xml).deflate(true).encode();
 			result.samlResponse(deflatedAndEncoded);
-			QueryParametersPartial partial = OpenSamlSigningUtils.sign(registration)
-				.param(Saml2ParameterNames.SAML_RESPONSE, deflatedAndEncoded);
-			if (request.getParameter(Saml2ParameterNames.RELAY_STATE) != null) {
-				partial.param(Saml2ParameterNames.RELAY_STATE, request.getParameter(Saml2ParameterNames.RELAY_STATE));
+			Map<String, String> signingParameters = new HashMap<>();
+			signingParameters.put(Saml2ParameterNames.SAML_RESPONSE, deflatedAndEncoded);
+			if (relayState != null) {
+				signingParameters.put(Saml2ParameterNames.RELAY_STATE, relayState);
 			}
-			return result.parameters((params) -> params.putAll(partial.parameters())).build();
+			Map<String, String> parameters = this.saml.withSigningKeys(registration.getSigningX509Credentials())
+				.algorithms(registration.getAssertingPartyMetadata().getSigningAlgorithms())
+				.sign(signingParameters);
+			return result.parameters((params) -> params.putAll(parameters)).build();
 		}
+	}
+
+	void setClock(Clock clock) {
+		this.clock = clock;
+	}
+
+	void setParametersConsumer(Consumer<LogoutResponseParameters> parametersConsumer) {
+		this.parametersConsumer = parametersConsumer;
 	}
 
 	private String getRegistrationId(Authentication authentication) {
@@ -202,34 +215,49 @@ final class OpenSamlLogoutResponseResolver {
 	}
 
 	private String extractSamlRequest(HttpServletRequest request) {
-		String serialized = request.getParameter(Saml2ParameterNames.SAML_REQUEST);
-		byte[] b = Saml2Utils.samlDecode(serialized);
-		if (Saml2MessageBindingUtils.isHttpRedirectBinding(request)) {
-			return Saml2Utils.samlInflate(b);
-		}
-		return new String(b, StandardCharsets.UTF_8);
-	}
-
-	private LogoutRequest parse(String request) throws Saml2Exception {
-		try {
-			Document document = this.parserPool
-				.parse(new ByteArrayInputStream(request.getBytes(StandardCharsets.UTF_8)));
-			Element element = document.getDocumentElement();
-			return (LogoutRequest) this.unmarshaller.unmarshall(element);
-		}
-		catch (Exception ex) {
-			throw new Saml2Exception("Failed to deserialize LogoutRequest", ex);
-		}
+		return Saml2Utils.withEncoded(request.getParameter(Saml2ParameterNames.SAML_REQUEST))
+			.inflate(Saml2MessageBindingUtils.isHttpRedirectBinding(request))
+			.decode();
 	}
 
 	private String serialize(LogoutResponse logoutResponse) {
-		try {
-			Element element = this.marshaller.marshall(logoutResponse);
-			return SerializeSupport.nodeToString(element);
+		return this.saml.serialize(logoutResponse).serialize();
+	}
+
+	static final class LogoutResponseParameters {
+
+		private final HttpServletRequest request;
+
+		private final RelyingPartyRegistration registration;
+
+		private final Authentication authentication;
+
+		private final LogoutRequest logoutRequest;
+
+		LogoutResponseParameters(HttpServletRequest request, RelyingPartyRegistration registration,
+				Authentication authentication, LogoutRequest logoutRequest) {
+			this.request = request;
+			this.registration = registration;
+			this.authentication = authentication;
+			this.logoutRequest = logoutRequest;
 		}
-		catch (MarshallingException ex) {
-			throw new Saml2Exception(ex);
+
+		HttpServletRequest getRequest() {
+			return this.request;
 		}
+
+		RelyingPartyRegistration getRelyingPartyRegistration() {
+			return this.registration;
+		}
+
+		Authentication getAuthentication() {
+			return this.authentication;
+		}
+
+		LogoutRequest getLogoutRequest() {
+			return this.logoutRequest;
+		}
+
 	}
 
 }

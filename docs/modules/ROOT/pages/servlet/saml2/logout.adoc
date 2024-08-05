@@ -605,7 +605,7 @@ Kotlin::
 ----
 @Component
 open class MyOpenSamlLogoutResponseValidator: Saml2LogoutResponseValidator {
-	private val delegate = OpenSamlLogoutResponseValidator()
+	private val delegate = OpenSaml4LogoutResponseValidator()
 
 	@Override
     fun logout(parameters: Saml2LogoutResponseValidatorParameters): Saml2LogoutResponseValidator {
