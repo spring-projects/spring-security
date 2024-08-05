@@ -28,7 +28,7 @@ import java.util.function.Consumer;
 
 import javax.annotation.Nonnull;
 
-import net.shibboleth.utilities.java.support.resolver.CriteriaSet;
+import net.shibboleth.shared.resolver.CriteriaSet;
 import org.opensaml.core.criterion.EntityIdCriterion;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
 import org.opensaml.saml.criterion.EntityRoleCriterion;
@@ -66,12 +66,12 @@ import org.springframework.util.Assert;
  * @see AssertingPartyMetadataRepository
  * @see RelyingPartyRegistrations
  */
-public final class OpenSaml4AssertingPartyMetadataRepository implements AssertingPartyMetadataRepository {
+public final class OpenSaml5AssertingPartyMetadataRepository implements AssertingPartyMetadataRepository {
 
 	private final BaseOpenSamlAssertingPartyMetadataRepository delegate;
 
 	/**
-	 * Construct an {@link OpenSaml4AssertingPartyMetadataRepository} using the provided
+	 * Construct an {@link OpenSaml5AssertingPartyMetadataRepository} using the provided
 	 * {@link MetadataResolver}.
 	 *
 	 * <p>
@@ -80,7 +80,7 @@ public final class OpenSaml4AssertingPartyMetadataRepository implements Assertin
 	 * configured.
 	 * @param metadataResolver the {@link MetadataResolver} to use
 	 */
-	public OpenSaml4AssertingPartyMetadataRepository(MetadataResolver metadataResolver) {
+	public OpenSaml5AssertingPartyMetadataRepository(MetadataResolver metadataResolver) {
 		Assert.notNull(metadataResolver, "metadataResolver cannot be null");
 		this.delegate = new BaseOpenSamlAssertingPartyMetadataRepository(
 				new CriteriaSetResolverWrapper(metadataResolver));
@@ -155,7 +155,7 @@ public final class OpenSaml4AssertingPartyMetadataRepository implements Assertin
 	}
 
 	/**
-	 * A builder class for configuring {@link OpenSaml4AssertingPartyMetadataRepository}
+	 * A builder class for configuring {@link OpenSaml5AssertingPartyMetadataRepository}
 	 * for a specific metadata location.
 	 *
 	 * @author Josh Cummings
@@ -185,8 +185,8 @@ public final class OpenSaml4AssertingPartyMetadataRepository implements Assertin
 			return this;
 		}
 
-		public OpenSaml4AssertingPartyMetadataRepository build() {
-			return new OpenSaml4AssertingPartyMetadataRepository(metadataResolver());
+		public OpenSaml5AssertingPartyMetadataRepository build() {
+			return new OpenSaml5AssertingPartyMetadataRepository(metadataResolver());
 		}
 
 		private MetadataResolver metadataResolver() {
@@ -210,6 +210,7 @@ public final class OpenSaml4AssertingPartyMetadataRepository implements Assertin
 				SignatureValidationFilter filter = new SignatureValidationFilter(engine);
 				filter.setRequireSignedRoot(true);
 				metadataResolver.setMetadataFilter(filter);
+				filter.initialize();
 				return metadataResolver;
 			}
 			catch (Exception ex) {
@@ -222,7 +223,7 @@ public final class OpenSaml4AssertingPartyMetadataRepository implements Assertin
 			return BaseOpenSamlAssertingPartyMetadataRepository.initialize(metadataResolver);
 		}
 
-		private static final class SpringResource implements net.shibboleth.utilities.java.support.resource.Resource {
+		private static final class SpringResource implements net.shibboleth.shared.resource.Resource {
 
 			private final Resource resource;
 
@@ -277,7 +278,7 @@ public final class OpenSaml4AssertingPartyMetadataRepository implements Assertin
 			}
 
 			@Override
-			public net.shibboleth.utilities.java.support.resource.Resource createRelativeResource(String relativePath)
+			public net.shibboleth.shared.resource.Resource createRelativeResource(String relativePath)
 					throws IOException {
 				return new SpringResource(this.resource.createRelative(relativePath));
 			}

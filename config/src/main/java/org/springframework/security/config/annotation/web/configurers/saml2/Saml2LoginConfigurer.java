@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.opensaml.core.Version;
 
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
@@ -35,15 +36,19 @@ import org.springframework.security.config.annotation.web.configurers.CsrfConfig
 import org.springframework.security.core.Authentication;
 import org.springframework.security.saml2.provider.service.authentication.AbstractSaml2AuthenticationRequest;
 import org.springframework.security.saml2.provider.service.authentication.OpenSaml4AuthenticationProvider;
+import org.springframework.security.saml2.provider.service.authentication.OpenSaml5AuthenticationProvider;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrations;
 import org.springframework.security.saml2.provider.service.web.HttpSessionSaml2AuthenticationRequestRepository;
 import org.springframework.security.saml2.provider.service.web.OpenSaml4AuthenticationTokenConverter;
+import org.springframework.security.saml2.provider.service.web.OpenSaml5AuthenticationTokenConverter;
+import org.springframework.security.saml2.provider.service.web.OpenSamlAuthenticationTokenConverter;
 import org.springframework.security.saml2.provider.service.web.Saml2AuthenticationRequestRepository;
 import org.springframework.security.saml2.provider.service.web.Saml2AuthenticationTokenConverter;
 import org.springframework.security.saml2.provider.service.web.Saml2WebSsoAuthenticationRequestFilter;
 import org.springframework.security.saml2.provider.service.web.authentication.OpenSaml4AuthenticationRequestResolver;
+import org.springframework.security.saml2.provider.service.web.authentication.OpenSaml5AuthenticationRequestResolver;
 import org.springframework.security.saml2.provider.service.web.authentication.Saml2AuthenticationRequestResolver;
 import org.springframework.security.saml2.provider.service.web.authentication.Saml2WebSsoAuthenticationFilter;
 import org.springframework.security.web.AuthenticationEntryPoint;
@@ -114,6 +119,8 @@ import org.springframework.util.StringUtils;
  */
 public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		extends AbstractAuthenticationFilterConfigurer<B, Saml2LoginConfigurer<B>, Saml2WebSsoAuthenticationFilter> {
+
+	private static final boolean USE_OPENSAML_5 = Version.getVersion().startsWith("5");
 
 	private String loginPage;
 
@@ -366,10 +373,18 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		if (bean != null) {
 			return bean;
 		}
-		OpenSaml4AuthenticationRequestResolver openSaml4AuthenticationRequestResolver = new OpenSaml4AuthenticationRequestResolver(
-				relyingPartyRegistrationRepository(http));
-		openSaml4AuthenticationRequestResolver.setRequestMatcher(this.authenticationRequestMatcher);
-		return openSaml4AuthenticationRequestResolver;
+		if (USE_OPENSAML_5) {
+			OpenSaml5AuthenticationRequestResolver openSamlAuthenticationRequestResolver = new OpenSaml5AuthenticationRequestResolver(
+					relyingPartyRegistrationRepository(http));
+			openSamlAuthenticationRequestResolver.setRequestMatcher(this.authenticationRequestMatcher);
+			return openSamlAuthenticationRequestResolver;
+		}
+		else {
+			OpenSaml4AuthenticationRequestResolver openSamlAuthenticationRequestResolver = new OpenSaml4AuthenticationRequestResolver(
+					relyingPartyRegistrationRepository(http));
+			openSamlAuthenticationRequestResolver.setRequestMatcher(this.authenticationRequestMatcher);
+			return openSamlAuthenticationRequestResolver;
+		}
 	}
 
 	private AuthenticationConverter getAuthenticationConverter(B http) {
@@ -379,22 +394,45 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		AuthenticationConverter authenticationConverterBean = getBeanOrNull(http,
 				Saml2AuthenticationTokenConverter.class);
 		if (authenticationConverterBean == null) {
-			authenticationConverterBean = getBeanOrNull(http, OpenSaml4AuthenticationTokenConverter.class);
+			authenticationConverterBean = getBeanOrNull(http, OpenSamlAuthenticationTokenConverter.class);
 		}
-		if (authenticationConverterBean == null) {
-			OpenSaml4AuthenticationTokenConverter converter = new OpenSaml4AuthenticationTokenConverter(
+		if (authenticationConverterBean != null) {
+			return authenticationConverterBean;
+		}
+		if (USE_OPENSAML_5) {
+			authenticationConverterBean = getBeanOrNull(http, OpenSaml5AuthenticationTokenConverter.class);
+			if (authenticationConverterBean != null) {
+				return authenticationConverterBean;
+			}
+			OpenSaml5AuthenticationTokenConverter converter = new OpenSaml5AuthenticationTokenConverter(
 					this.relyingPartyRegistrationRepository);
 			converter.setAuthenticationRequestRepository(getAuthenticationRequestRepository(http));
 			converter.setRequestMatcher(this.loginProcessingUrl);
 			return converter;
 		}
-		return authenticationConverterBean;
+		authenticationConverterBean = getBeanOrNull(http, OpenSaml4AuthenticationTokenConverter.class);
+		if (authenticationConverterBean != null) {
+			return authenticationConverterBean;
+		}
+		OpenSaml4AuthenticationTokenConverter converter = new OpenSaml4AuthenticationTokenConverter(
+				this.relyingPartyRegistrationRepository);
+		converter.setAuthenticationRequestRepository(getAuthenticationRequestRepository(http));
+		converter.setRequestMatcher(this.loginProcessingUrl);
+		return converter;
 	}
 
 	private void registerDefaultAuthenticationProvider(B http) {
-		OpenSaml4AuthenticationProvider provider = getBeanOrNull(http, OpenSaml4AuthenticationProvider.class);
-		if (provider == null) {
-			http.authenticationProvider(postProcess(new OpenSaml4AuthenticationProvider()));
+		if (USE_OPENSAML_5) {
+			OpenSaml5AuthenticationProvider provider = getBeanOrNull(http, OpenSaml5AuthenticationProvider.class);
+			if (provider == null) {
+				http.authenticationProvider(postProcess(new OpenSaml5AuthenticationProvider()));
+			}
+		}
+		else {
+			OpenSaml4AuthenticationProvider provider = getBeanOrNull(http, OpenSaml4AuthenticationProvider.class);
+			if (provider == null) {
+				http.authenticationProvider(postProcess(new OpenSaml4AuthenticationProvider()));
+			}
 		}
 	}
 

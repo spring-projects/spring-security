@@ -20,9 +20,11 @@ import java.io.InputStream;
 import java.util.Collection;
 import java.util.Collections;
 
+import org.opensaml.core.Version;
 import org.opensaml.core.xml.XMLObject;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
 import org.opensaml.core.xml.io.Unmarshaller;
+import org.opensaml.core.xml.io.UnmarshallerFactory;
 import org.opensaml.saml.saml2.metadata.EntitiesDescriptor;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 import org.w3c.dom.Document;
@@ -33,8 +35,27 @@ import org.springframework.security.saml2.core.OpenSamlInitializationService;
 
 final class OpenSamlMetadataUtils {
 
+	private static final OpenSamlDeserializer saml;
+
 	static {
 		OpenSamlInitializationService.initialize();
+		saml = resolveDeserializer();
+	}
+
+	static OpenSamlDeserializer resolveDeserializer() {
+		if (Version.getVersion().startsWith("4")) {
+			return new OpenSaml4Deserializer();
+		}
+		String opensaml5 = "org.springframework.security.saml2.provider.service.registration.OpenSaml5Template";
+		try {
+			Class<?> template = Class.forName(opensaml5);
+			OpenSamlOperations operations = (OpenSamlOperations) template.getDeclaredConstructor().newInstance();
+			return operations::deserialize;
+		}
+		catch (Exception ex) {
+			throw new IllegalStateException(
+					"Application appears to be using OpenSAML 5, but Spring's OpenSAML 5 support is not on the classpath");
+		}
 	}
 
 	private OpenSamlMetadataUtils() {
@@ -42,7 +63,7 @@ final class OpenSamlMetadataUtils {
 	}
 
 	static Collection<EntityDescriptor> descriptors(InputStream metadata) {
-		XMLObject object = xmlObject(metadata);
+		XMLObject object = saml.deserialize(metadata);
 		if (object instanceof EntityDescriptor descriptor) {
 			return Collections.singleton(descriptor);
 		}
@@ -52,28 +73,34 @@ final class OpenSamlMetadataUtils {
 		throw new Saml2Exception("Unsupported element type: " + object.getClass().getName());
 	}
 
-	static XMLObject xmlObject(InputStream inputStream) {
-		Document document = document(inputStream);
-		Element element = document.getDocumentElement();
-		Unmarshaller unmarshaller = XMLObjectProviderRegistrySupport.getUnmarshallerFactory().getUnmarshaller(element);
-		if (unmarshaller == null) {
-			throw new Saml2Exception("Unsupported element of type " + element.getTagName());
-		}
-		try {
-			return unmarshaller.unmarshall(element);
-		}
-		catch (Exception ex) {
-			throw new Saml2Exception(ex);
-		}
+	private interface OpenSamlDeserializer {
+
+		XMLObject deserialize(InputStream serialized);
+
 	}
 
-	static Document document(InputStream inputStream) {
-		try {
-			return XMLObjectProviderRegistrySupport.getParserPool().parse(inputStream);
+	private static class OpenSaml4Deserializer implements OpenSamlDeserializer {
+
+		@Override
+		public XMLObject deserialize(InputStream serialized) {
+			try {
+				Document document = XMLObjectProviderRegistrySupport.getParserPool().parse(serialized);
+				Element element = document.getDocumentElement();
+				UnmarshallerFactory factory = XMLObjectProviderRegistrySupport.getUnmarshallerFactory();
+				Unmarshaller unmarshaller = factory.getUnmarshaller(element);
+				if (unmarshaller == null) {
+					throw new Saml2Exception("Unsupported element of type " + element.getTagName());
+				}
+				return unmarshaller.unmarshall(element);
+			}
+			catch (Saml2Exception ex) {
+				throw ex;
+			}
+			catch (Exception ex) {
+				throw new Saml2Exception("Failed to deserialize payload", ex);
+			}
 		}
-		catch (Exception ex) {
-			throw new Saml2Exception(ex);
-		}
+
 	}
 
 }

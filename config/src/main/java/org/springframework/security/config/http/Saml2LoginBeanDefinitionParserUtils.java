@@ -16,6 +16,7 @@
 
 package org.springframework.security.config.http;
 
+import org.opensaml.core.Version;
 import org.w3c.dom.Element;
 
 import org.springframework.beans.BeanMetadataElement;
@@ -23,10 +24,14 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
+import org.springframework.security.saml2.provider.service.authentication.OpenSaml4AuthenticationProvider;
+import org.springframework.security.saml2.provider.service.authentication.OpenSaml5AuthenticationProvider;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
 import org.springframework.security.saml2.provider.service.web.DefaultRelyingPartyRegistrationResolver;
 import org.springframework.security.saml2.provider.service.web.HttpSessionSaml2AuthenticationRequestRepository;
 import org.springframework.security.saml2.provider.service.web.Saml2AuthenticationTokenConverter;
+import org.springframework.security.saml2.provider.service.web.authentication.OpenSaml4AuthenticationRequestResolver;
+import org.springframework.security.saml2.provider.service.web.authentication.OpenSaml5AuthenticationRequestResolver;
 import org.springframework.util.StringUtils;
 
 /**
@@ -34,6 +39,8 @@ import org.springframework.util.StringUtils;
  * @since 5.7
  */
 final class Saml2LoginBeanDefinitionParserUtils {
+
+	private static final boolean USE_OPENSAML_5 = Version.getVersion().startsWith("5");
 
 	private static final String ATT_RELYING_PARTY_REGISTRATION_REPOSITORY_REF = "relying-party-registration-repository-ref";
 
@@ -78,16 +85,21 @@ final class Saml2LoginBeanDefinitionParserUtils {
 			.rootBeanDefinition(DefaultRelyingPartyRegistrationResolver.class)
 			.addConstructorArgValue(relyingPartyRegistrationRepository)
 			.getBeanDefinition();
-		return BeanDefinitionBuilder.rootBeanDefinition(
-				"org.springframework.security.saml2.provider.service.web.authentication.OpenSaml4AuthenticationRequestResolver")
+		if (USE_OPENSAML_5) {
+			return BeanDefinitionBuilder.rootBeanDefinition(OpenSaml5AuthenticationRequestResolver.class)
+				.addConstructorArgValue(defaultRelyingPartyRegistrationResolver)
+				.getBeanDefinition();
+		}
+		return BeanDefinitionBuilder.rootBeanDefinition(OpenSaml4AuthenticationRequestResolver.class)
 			.addConstructorArgValue(defaultRelyingPartyRegistrationResolver)
 			.getBeanDefinition();
 	}
 
 	static BeanDefinition createAuthenticationProvider() {
-		return BeanDefinitionBuilder.rootBeanDefinition(
-				"org.springframework.security.saml2.provider.service.authentication.OpenSaml4AuthenticationProvider")
-			.getBeanDefinition();
+		if (USE_OPENSAML_5) {
+			return BeanDefinitionBuilder.rootBeanDefinition(OpenSaml5AuthenticationProvider.class).getBeanDefinition();
+		}
+		return BeanDefinitionBuilder.rootBeanDefinition(OpenSaml4AuthenticationProvider.class).getBeanDefinition();
 	}
 
 	static BeanMetadataElement getAuthenticationConverter(Element element) {

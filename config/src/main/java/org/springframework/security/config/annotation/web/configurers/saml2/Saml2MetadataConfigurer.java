@@ -18,11 +18,14 @@ package org.springframework.security.config.annotation.web.configurers.saml2;
 
 import java.util.function.Function;
 
+import org.opensaml.core.Version;
+
 import org.springframework.context.ApplicationContext;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.saml2.provider.service.metadata.OpenSaml4MetadataResolver;
+import org.springframework.security.saml2.provider.service.metadata.OpenSaml5MetadataResolver;
 import org.springframework.security.saml2.provider.service.metadata.Saml2MetadataResponseResolver;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
@@ -73,6 +76,8 @@ import org.springframework.util.Assert;
 public class Saml2MetadataConfigurer<H extends HttpSecurityBuilder<H>>
 		extends AbstractHttpConfigurer<Saml2LogoutConfigurer<H>, H> {
 
+	private static final boolean USE_OPENSAML_5 = Version.getVersion().startsWith("5");
+
 	private final ApplicationContext context;
 
 	private Function<RelyingPartyRegistrationRepository, Saml2MetadataResponseResolver> metadataResponseResolver;
@@ -103,6 +108,12 @@ public class Saml2MetadataConfigurer<H extends HttpSecurityBuilder<H>>
 	public Saml2MetadataConfigurer<H> metadataUrl(String metadataUrl) {
 		Assert.hasText(metadataUrl, "metadataUrl cannot be empty");
 		this.metadataResponseResolver = (registrations) -> {
+			if (USE_OPENSAML_5) {
+				RequestMatcherMetadataResponseResolver metadata = new RequestMatcherMetadataResponseResolver(
+						registrations, new OpenSaml5MetadataResolver());
+				metadata.setRequestMatcher(new AntPathRequestMatcher(metadataUrl));
+				return metadata;
+			}
 			RequestMatcherMetadataResponseResolver metadata = new RequestMatcherMetadataResponseResolver(registrations,
 					new OpenSaml4MetadataResolver());
 			metadata.setRequestMatcher(new AntPathRequestMatcher(metadataUrl));
@@ -143,6 +154,9 @@ public class Saml2MetadataConfigurer<H extends HttpSecurityBuilder<H>>
 			return metadataResponseResolver;
 		}
 		RelyingPartyRegistrationRepository registrations = getRelyingPartyRegistrationRepository(http);
+		if (USE_OPENSAML_5) {
+			return new RequestMatcherMetadataResponseResolver(registrations, new OpenSaml5MetadataResolver());
+		}
 		return new RequestMatcherMetadataResponseResolver(registrations, new OpenSaml4MetadataResolver());
 	}
 

@@ -2,7 +2,9 @@ apply plugin: 'io.spring.convention.spring-module'
 
 configurations {
 	opensaml4Main { extendsFrom(optional, provided) }
+	opensaml5Main { extendsFrom(optional, provided) }
 	opensaml4Test { extendsFrom(opensaml4Main, tests) }
+	opensaml5Test { extendsFrom(opensaml5Main, tests) }
 }
 
 sourceSets {
@@ -12,10 +14,22 @@ sourceSets {
 			srcDir 'src/opensaml4Main/java'
 		}
 	}
+	opensaml5Main {
+		java {
+			compileClasspath += main.output + configurations.opensaml5Main
+			srcDir 'src/opensaml5Main/java'
+		}
+	}
 	opensaml4Test {
 		java {
 			compileClasspath += main.output + test.output + opensaml4Main.output + configurations.opensaml4Test
 			srcDir 'src/opensaml4Test/java'
+		}
+	}
+	opensaml5Test {
+		java {
+			compileClasspath += main.output + test.output + opensaml5Main.output + configurations.opensaml5Test
+			srcDir 'src/opensaml5Test/java'
 		}
 	}
 }
@@ -74,11 +88,20 @@ sourceSets.configureEach { set ->
 dependencies {
 	management platform(project(":spring-security-dependencies"))
 	api project(':spring-security-web')
-	api "org.opensaml:opensaml-core"
-	api ("org.opensaml:opensaml-saml-api")  {
+	api 'org.opensaml:opensaml-core'
+	api ('org.opensaml:opensaml-saml-api')  {
 		exclude group: 'commons-logging', module: 'commons-logging'
 	}
-	api ("org.opensaml:opensaml-saml-impl")  {
+	api ('org.opensaml:opensaml-saml-impl')  {
+		exclude group: 'commons-logging', module: 'commons-logging'
+	}
+
+	opensaml5MainImplementation libs.org.opensaml.opensaml5.core.api
+	opensaml5MainImplementation libs.org.opensaml.opensaml5.core.impl
+	opensaml5MainImplementation (libs.org.opensaml.opensaml5.saml.api)  {
+		exclude group: 'commons-logging', module: 'commons-logging'
+	}
+	opensaml5MainImplementation (libs.org.opensaml.opensaml5.saml.impl)  {
 		exclude group: 'commons-logging', module: 'commons-logging'
 	}
 
@@ -100,21 +123,24 @@ dependencies {
 jar {
 	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 	from sourceSets.opensaml4Main.output
+	from sourceSets.opensaml5Main.output
 }
 
 sourcesJar {
 	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 	from sourceSets.opensaml4Main.allJava
+	from sourceSets.opensaml5Main.allJava
 }
 
 testJar {
 	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 	from sourceSets.opensaml4Test.output
+	from sourceSets.opensaml5Test.output
 }
 
 javadoc {
-	classpath += sourceSets.opensaml4Main.runtimeClasspath
-	source += sourceSets.opensaml4Main.allJava
+	classpath += sourceSets.opensaml4Main.runtimeClasspath + sourceSets.opensaml5Main.runtimeClasspath
+	source += sourceSets.opensaml4Main.allJava + sourceSets.opensaml5Main.allJava
 }
 
 tasks.register("opensaml4Test", Test) {
@@ -122,8 +148,13 @@ tasks.register("opensaml4Test", Test) {
 	classpath += sourceSets.opensaml4Test.output
 }
 
+tasks.register("opensaml5Test", Test) {
+	useJUnitPlatform()
+	classpath += sourceSets.opensaml5Test.output
+}
 
 tasks.named("test") {
 	dependsOn opensaml4Test
+	dependsOn opensaml5Test
 }
 

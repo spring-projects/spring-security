@@ -16,7 +16,6 @@
 
 package org.springframework.security.saml2.provider.service.authentication;
 
-import java.lang.reflect.Field;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -85,7 +84,6 @@ import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
 
 class BaseOpenSamlAuthenticationProvider implements AuthenticationProvider {
@@ -510,20 +508,9 @@ class BaseOpenSamlAuthenticationProvider implements AuthenticationProvider {
 				return Saml2ResponseValidatorResult.failure(new Saml2Error(errorCode, message));
 			}
 			String message = String.format("Invalid assertion [%s] for SAML response [%s]: %s", assertion.getID(),
-					((Response) assertion.getParent()).getID(), contextToString(context));
+					((Response) assertion.getParent()).getID(), context.getValidationFailureMessage());
 			return Saml2ResponseValidatorResult.failure(new Saml2Error(errorCode, message));
 		};
-	}
-
-	private static String contextToString(ValidationContext context) {
-		StringBuilder sb = new StringBuilder();
-		for (Field field : context.getClass().getDeclaredFields()) {
-			ReflectionUtils.makeAccessible(field);
-			Object value = ReflectionUtils.getField(field, context);
-			sb.append(field.getName() + " = " + value + ",");
-		}
-		sb.deleteCharAt(sb.length() - 1);
-		return sb.toString();
 	}
 
 	private static ValidationContext createValidationContext(AssertionToken assertionToken,
@@ -566,7 +553,7 @@ class BaseOpenSamlAuthenticationProvider implements AuthenticationProvider {
 		return (serialized != null) ? serialized.getId() : null;
 	}
 
-	private static class SAML20AssertionValidators {
+	static class SAML20AssertionValidators {
 
 		private static final Collection<ConditionValidator> conditions = new ArrayList<>();
 
@@ -610,8 +597,8 @@ class BaseOpenSamlAuthenticationProvider implements AuthenticationProvider {
 			});
 		}
 
-		private static final SAML20AssertionValidator attributeValidator = new SAML20AssertionValidator(conditions,
-				subjects, statements, null, null, null) {
+		static final SAML20AssertionValidator attributeValidator = new SAML20AssertionValidator(conditions, subjects,
+				statements, null, null, null) {
 			@Nonnull
 			@Override
 			protected ValidationResult validateSignature(Assertion token, ValidationContext context) {

@@ -13,6 +13,7 @@ org-jetbrains-kotlin = "1.9.25"
 org-jetbrains-kotlinx = "1.8.1"
 org-mockito = "5.11.0"
 org-opensaml = "4.3.2"
+org-opensaml5 = "5.1.2"
 org-springframework = "6.2.0-M6"
 
 [libraries]
@@ -79,6 +80,10 @@ org-mockito-mockito-bom = { module = "org.mockito:mockito-bom", version.ref = "o
 org-opensaml-opensaml-core = { module = "org.opensaml:opensaml-core", version.ref = "org-opensaml" }
 org-opensaml-opensaml-saml-api = { module = "org.opensaml:opensaml-saml-api", version.ref = "org-opensaml" }
 org-opensaml-opensaml-saml-impl = { module = "org.opensaml:opensaml-saml-impl", version.ref = "org-opensaml" }
+org-opensaml-opensaml5-core-api = { module = "org.opensaml:opensaml-core-api", version.ref = "org-opensaml5" }
+org-opensaml-opensaml5-core-impl = { module = "org.opensaml:opensaml-core-impl", version.ref = "org-opensaml5" }
+org-opensaml-opensaml5-saml-api = { module = "org.opensaml:opensaml-saml-api", version.ref = "org-opensaml5" }
+org-opensaml-opensaml5-saml-impl = { module = "org.opensaml:opensaml-saml-impl", version.ref = "org-opensaml5" }
 org-python-jython = { module = "org.python:jython", version = "2.5.3" }
 org-seleniumhq-selenium-htmlunit-driver = "org.seleniumhq.selenium:htmlunit3-driver:4.20.0"
 org-seleniumhq-selenium-selenium-java = "org.seleniumhq.selenium:selenium-java:4.20.0"

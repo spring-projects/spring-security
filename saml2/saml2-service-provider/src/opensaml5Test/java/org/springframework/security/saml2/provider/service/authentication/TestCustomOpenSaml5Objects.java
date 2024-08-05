@@ -23,7 +23,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.xml.namespace.QName;
 
-import net.shibboleth.utilities.java.support.xml.ElementSupport;
+import net.shibboleth.shared.xml.ElementSupport;
 import org.opensaml.core.xml.AbstractXMLObject;
 import org.opensaml.core.xml.AbstractXMLObjectBuilder;
 import org.opensaml.core.xml.ElementExtensibleXMLObject;
@@ -42,20 +42,20 @@ import org.w3c.dom.Element;
 
 import org.springframework.security.saml2.core.OpenSamlInitializationService;
 
-public final class TestCustomOpenSamlObjects {
+public final class TestCustomOpenSaml5Objects {
 
 	static {
 		OpenSamlInitializationService.initialize();
 		XMLObjectProviderRegistrySupport.getMarshallerFactory()
 			.registerMarshaller(CustomOpenSamlObject.TYPE_NAME,
-					new TestCustomOpenSamlObjects.CustomSamlObjectMarshaller());
+					new TestCustomOpenSaml5Objects.CustomSamlObjectMarshaller());
 		XMLObjectProviderRegistrySupport.getUnmarshallerFactory()
 			.registerUnmarshaller(CustomOpenSamlObject.TYPE_NAME,
-					new TestCustomOpenSamlObjects.CustomSamlObjectUnmarshaller());
+					new TestCustomOpenSaml5Objects.CustomSamlObjectUnmarshaller());
 	}
 
 	public static CustomOpenSamlObject instance() {
-		CustomOpenSamlObject samlObject = new TestCustomOpenSamlObjects.CustomSamlObjectBuilder()
+		CustomOpenSamlObject samlObject = new TestCustomOpenSaml5Objects.CustomSamlObjectBuilder()
 			.buildObject(AttributeValue.DEFAULT_ELEMENT_NAME, CustomOpenSamlObject.TYPE_NAME);
 		XSAny street = new XSAnyBuilder().buildObject(CustomOpenSamlObject.CUSTOM_NS, "Street",
 				CustomOpenSamlObject.TYPE_CUSTOM_PREFIX);
@@ -76,7 +76,7 @@ public final class TestCustomOpenSamlObjects {
 		return samlObject;
 	}
 
-	private TestCustomOpenSamlObjects() {
+	private TestCustomOpenSaml5Objects() {
 
 	}
 

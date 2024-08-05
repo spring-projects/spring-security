@@ -73,8 +73,8 @@ import org.springframework.security.saml2.core.Saml2Error;
 import org.springframework.security.saml2.core.Saml2ErrorCodes;
 import org.springframework.security.saml2.core.Saml2ResponseValidatorResult;
 import org.springframework.security.saml2.core.TestSaml2X509Credentials;
-import org.springframework.security.saml2.provider.service.authentication.OpenSaml4AuthenticationProvider.ResponseToken;
-import org.springframework.security.saml2.provider.service.authentication.TestCustomOpenSaml4Objects.CustomOpenSamlObject;
+import org.springframework.security.saml2.provider.service.authentication.OpenSaml5AuthenticationProvider.ResponseToken;
+import org.springframework.security.saml2.provider.service.authentication.TestCustomOpenSaml5Objects.CustomOpenSamlObject;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.TestRelyingPartyRegistrations;
 import org.springframework.util.StringUtils;
@@ -89,12 +89,12 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 /**
- * Tests for {@link OpenSaml4AuthenticationProvider}
+ * Tests for {@link OpenSaml5AuthenticationProvider}
  *
  * @author Filip Hanik
  * @author Josh Cummings
  */
-public class OpenSaml4AuthenticationProviderTests {
+public class OpenSaml5AuthenticationProviderTests {
 
 	private static String DESTINATION = "https://localhost/login/saml2/sso/idp-alias";
 
@@ -102,9 +102,9 @@ public class OpenSaml4AuthenticationProviderTests {
 
 	private static String ASSERTING_PARTY_ENTITY_ID = "https://some.idp.test/saml2/idp";
 
-	private final OpenSamlOperations saml = new OpenSaml4Template();
+	private final OpenSamlOperations saml = new OpenSaml5Template();
 
-	private OpenSaml4AuthenticationProvider provider = new OpenSaml4AuthenticationProvider();
+	private OpenSaml5AuthenticationProvider provider = new OpenSaml5AuthenticationProvider();
 
 	private Saml2AuthenticatedPrincipal principal = new DefaultSaml2AuthenticatedPrincipal("name",
 			Collections.emptyMap());
@@ -115,14 +115,14 @@ public class OpenSaml4AuthenticationProviderTests {
 	@Test
 	public void supportsWhenSaml2AuthenticationTokenThenReturnTrue() {
 		assertThat(this.provider.supports(Saml2AuthenticationToken.class))
-			.withFailMessage(OpenSaml4AuthenticationProvider.class + "should support " + Saml2AuthenticationToken.class)
+			.withFailMessage(OpenSaml5AuthenticationProvider.class + "should support " + Saml2AuthenticationToken.class)
 			.isTrue();
 	}
 
 	@Test
 	public void supportsWhenNotSaml2AuthenticationTokenThenReturnFalse() {
 		assertThat(!this.provider.supports(Authentication.class))
-			.withFailMessage(OpenSaml4AuthenticationProvider.class + "should not support " + Authentication.class)
+			.withFailMessage(OpenSaml5AuthenticationProvider.class + "should not support " + Authentication.class)
 			.isTrue();
 	}
 
@@ -349,7 +349,7 @@ public class OpenSaml4AuthenticationProviderTests {
 		Response response = response();
 		Assertion assertion = assertion();
 		AttributeStatement attribute = TestOpenSamlObjects.customAttributeStatement("Address",
-				TestCustomOpenSaml4Objects.instance());
+				TestCustomOpenSaml5Objects.instance());
 		assertion.getAttributeStatements().add(attribute);
 		response.getAssertions().add(signed(assertion));
 		Saml2AuthenticationToken token = token(response, verifying(registration()));
@@ -486,18 +486,18 @@ public class OpenSaml4AuthenticationProviderTests {
 	public void createDefaultAssertionValidatorWhenAssertionThenValidates() {
 		Response response = TestOpenSamlObjects.signedResponseWithOneAssertion();
 		Assertion assertion = response.getAssertions().get(0);
-		OpenSaml4AuthenticationProvider.AssertionToken assertionToken = new OpenSaml4AuthenticationProvider.AssertionToken(
+		OpenSaml5AuthenticationProvider.AssertionToken assertionToken = new OpenSaml5AuthenticationProvider.AssertionToken(
 				assertion, token());
 		assertThat(
-				OpenSaml4AuthenticationProvider.createDefaultAssertionValidator().convert(assertionToken).hasErrors())
+				OpenSaml5AuthenticationProvider.createDefaultAssertionValidator().convert(assertionToken).hasErrors())
 			.isFalse();
 	}
 
 	@Test
 	public void authenticateWhenDelegatingToDefaultAssertionValidatorThenUses() {
-		OpenSaml4AuthenticationProvider provider = new OpenSaml4AuthenticationProvider();
+		OpenSaml5AuthenticationProvider provider = new OpenSaml5AuthenticationProvider();
 		// @formatter:off
-		provider.setAssertionValidator((assertionToken) -> OpenSaml4AuthenticationProvider
+		provider.setAssertionValidator((assertionToken) -> OpenSaml5AuthenticationProvider
 				.createDefaultAssertionValidator((token) -> new ValidationContext())
 				.convert(assertionToken)
 				.concat(new Saml2Error("wrong error", "wrong error"))
@@ -519,10 +519,10 @@ public class OpenSaml4AuthenticationProviderTests {
 	// gh-11675
 	@Test
 	public void authenticateWhenUsingCustomAssertionValidatorThenUses() {
-		OpenSaml4AuthenticationProvider provider = new OpenSaml4AuthenticationProvider();
+		OpenSaml5AuthenticationProvider provider = new OpenSaml5AuthenticationProvider();
 		Consumer<Map<String, Object>> validationParameters = mock(Consumer.class);
 		// @formatter:off
-		provider.setAssertionValidator(OpenSaml4AuthenticationProvider
+		provider.setAssertionValidator(OpenSaml5AuthenticationProvider
 				.createDefaultAssertionValidatorWithParameters(validationParameters));
 		// @formatter:on
 		Response response = response();
@@ -537,11 +537,11 @@ public class OpenSaml4AuthenticationProviderTests {
 
 	@Test
 	public void authenticateWhenCustomAssertionValidatorThenUses() {
-		Converter<OpenSaml4AuthenticationProvider.AssertionToken, Saml2ResponseValidatorResult> validator = mock(
+		Converter<OpenSaml5AuthenticationProvider.AssertionToken, Saml2ResponseValidatorResult> validator = mock(
 				Converter.class);
-		OpenSaml4AuthenticationProvider provider = new OpenSaml4AuthenticationProvider();
+		OpenSaml5AuthenticationProvider provider = new OpenSaml5AuthenticationProvider();
 		// @formatter:off
-		provider.setAssertionValidator((assertionToken) -> OpenSaml4AuthenticationProvider.createDefaultAssertionValidator()
+		provider.setAssertionValidator((assertionToken) -> OpenSaml5AuthenticationProvider.createDefaultAssertionValidator()
 				.convert(assertionToken)
 				.concat(validator.convert(assertionToken))
 		);
@@ -550,15 +550,15 @@ public class OpenSaml4AuthenticationProviderTests {
 		Assertion assertion = assertion();
 		response.getAssertions().add(assertion);
 		Saml2AuthenticationToken token = token(signed(response), verifying(registration()));
-		given(validator.convert(any(OpenSaml4AuthenticationProvider.AssertionToken.class)))
+		given(validator.convert(any(OpenSaml5AuthenticationProvider.AssertionToken.class)))
 			.willReturn(Saml2ResponseValidatorResult.success());
 		provider.authenticate(token);
-		verify(validator).convert(any(OpenSaml4AuthenticationProvider.AssertionToken.class));
+		verify(validator).convert(any(OpenSaml5AuthenticationProvider.AssertionToken.class));
 	}
 
 	@Test
 	public void authenticateWhenDefaultConditionValidatorNotUsedThenSignatureStillChecked() {
-		OpenSaml4AuthenticationProvider provider = new OpenSaml4AuthenticationProvider();
+		OpenSaml5AuthenticationProvider provider = new OpenSaml5AuthenticationProvider();
 		provider.setAssertionValidator((assertionToken) -> Saml2ResponseValidatorResult.success());
 		Response response = response();
 		Assertion assertion = assertion();
@@ -580,9 +580,9 @@ public class OpenSaml4AuthenticationProviderTests {
 		parameters.put(SAML2AssertionValidationParameters.SC_VALID_RECIPIENTS, Collections.singleton("blah"));
 		ValidationContext context = mock(ValidationContext.class);
 		given(context.getStaticParameters()).willReturn(parameters);
-		OpenSaml4AuthenticationProvider provider = new OpenSaml4AuthenticationProvider();
+		OpenSaml5AuthenticationProvider provider = new OpenSaml5AuthenticationProvider();
 		provider.setAssertionValidator(
-				OpenSaml4AuthenticationProvider.createDefaultAssertionValidator((assertionToken) -> context));
+				OpenSaml5AuthenticationProvider.createDefaultAssertionValidator((assertionToken) -> context));
 		Response response = response();
 		Assertion assertion = assertion();
 		response.getAssertions().add(signed(assertion));
@@ -619,7 +619,7 @@ public class OpenSaml4AuthenticationProviderTests {
 		Response response = TestOpenSamlObjects.signedResponseWithOneAssertion();
 		Saml2AuthenticationToken token = token(response, verifying(registration()));
 		ResponseToken responseToken = new ResponseToken(response, token);
-		Saml2Authentication authentication = OpenSaml4AuthenticationProvider
+		Saml2Authentication authentication = OpenSaml5AuthenticationProvider
 			.createDefaultResponseAuthenticationConverter()
 			.convert(responseToken);
 		assertThat(authentication.getName()).isEqualTo("test@saml.user");
@@ -628,7 +628,7 @@ public class OpenSaml4AuthenticationProviderTests {
 	@Test
 	public void authenticateWhenResponseAuthenticationConverterConfiguredThenUses() {
 		Converter<ResponseToken, Saml2Authentication> authenticationConverter = mock(Converter.class);
-		OpenSaml4AuthenticationProvider provider = new OpenSaml4AuthenticationProvider();
+		OpenSaml5AuthenticationProvider provider = new OpenSaml5AuthenticationProvider();
 		provider.setResponseAuthenticationConverter(authenticationConverter);
 		Response response = TestOpenSamlObjects.signedResponseWithOneAssertion();
 		Saml2AuthenticationToken token = token(response, verifying(registration()));
@@ -712,11 +712,11 @@ public class OpenSaml4AuthenticationProviderTests {
 
 	@Test
 	public void authenticateWhenCustomResponseValidatorThenUses() {
-		Converter<OpenSaml4AuthenticationProvider.ResponseToken, Saml2ResponseValidatorResult> validator = mock(
+		Converter<OpenSaml5AuthenticationProvider.ResponseToken, Saml2ResponseValidatorResult> validator = mock(
 				Converter.class);
-		OpenSaml4AuthenticationProvider provider = new OpenSaml4AuthenticationProvider();
+		OpenSaml5AuthenticationProvider provider = new OpenSaml5AuthenticationProvider();
 		// @formatter:off
-		provider.setResponseValidator((responseToken) -> OpenSaml4AuthenticationProvider.createDefaultResponseValidator()
+		provider.setResponseValidator((responseToken) -> OpenSaml5AuthenticationProvider.createDefaultResponseValidator()
 				.convert(responseToken)
 				.concat(validator.convert(responseToken))
 		);
@@ -725,10 +725,10 @@ public class OpenSaml4AuthenticationProviderTests {
 		Assertion assertion = assertion();
 		response.getAssertions().add(assertion);
 		Saml2AuthenticationToken token = token(signed(response), verifying(registration()));
-		given(validator.convert(any(OpenSaml4AuthenticationProvider.ResponseToken.class)))
+		given(validator.convert(any(OpenSaml5AuthenticationProvider.ResponseToken.class)))
 			.willReturn(Saml2ResponseValidatorResult.success());
 		provider.authenticate(token);
-		verify(validator).convert(any(OpenSaml4AuthenticationProvider.ResponseToken.class));
+		verify(validator).convert(any(OpenSaml5AuthenticationProvider.ResponseToken.class));
 	}
 
 	@Test
@@ -747,7 +747,7 @@ public class OpenSaml4AuthenticationProviderTests {
 		response.setStatus(parentStatus);
 		response.setIssuer(TestOpenSamlObjects.issuer("mockedIssuer"));
 
-		Converter<ResponseToken, Saml2ResponseValidatorResult> validator = OpenSaml4AuthenticationProvider
+		Converter<ResponseToken, Saml2ResponseValidatorResult> validator = OpenSaml5AuthenticationProvider
 			.createDefaultResponseValidator();
 		Saml2ResponseValidatorResult result = validator.convert(new ResponseToken(response, token));
 
@@ -776,7 +776,7 @@ public class OpenSaml4AuthenticationProviderTests {
 		response.setStatus(parentStatus);
 		response.setIssuer(TestOpenSamlObjects.issuer("mockedIssuer"));
 
-		Converter<ResponseToken, Saml2ResponseValidatorResult> validator = OpenSaml4AuthenticationProvider
+		Converter<ResponseToken, Saml2ResponseValidatorResult> validator = OpenSaml5AuthenticationProvider
 			.createDefaultResponseValidator();
 		Saml2ResponseValidatorResult result = validator.convert(new ResponseToken(response, token));
 
@@ -794,7 +794,7 @@ public class OpenSaml4AuthenticationProviderTests {
 
 	@Test
 	public void authenticateWhenAssertionIssuerNotValidThenFailsWithInvalidIssuer() {
-		OpenSaml4AuthenticationProvider provider = new OpenSaml4AuthenticationProvider();
+		OpenSaml5AuthenticationProvider provider = new OpenSaml5AuthenticationProvider();
 		Response response = response();
 		Assertion assertion = assertion();
 		assertion.setIssuer(TestOpenSamlObjects.issuer("https://invalid.idp.test/saml2/idp"));
@@ -807,7 +807,7 @@ public class OpenSaml4AuthenticationProviderTests {
 	// gh-14931
 	@Test
 	public void authenticateWhenAssertionHasProxyRestrictionThenParses() {
-		OpenSaml4AuthenticationProvider provider = new OpenSaml4AuthenticationProvider();
+		OpenSaml5AuthenticationProvider provider = new OpenSaml5AuthenticationProvider();
 		Response response = response();
 		Assertion assertion = assertion();
 		ProxyRestriction condition = new ProxyRestrictionBuilder().buildObject();
@@ -820,8 +820,8 @@ public class OpenSaml4AuthenticationProviderTests {
 	// gh-15022
 	@Test
 	public void authenticateWhenClockSkewThenVerifiesSignature() {
-		OpenSaml4AuthenticationProvider provider = new OpenSaml4AuthenticationProvider();
-		provider.setAssertionValidator(OpenSaml4AuthenticationProvider.createDefaultAssertionValidatorWithParameters(
+		OpenSaml5AuthenticationProvider provider = new OpenSaml5AuthenticationProvider();
+		provider.setAssertionValidator(OpenSaml5AuthenticationProvider.createDefaultAssertionValidatorWithParameters(
 				(params) -> params.put(SAML2AssertionValidationParameters.CLOCK_SKEW, Duration.ofMinutes(10))));
 		Response response = response();
 		Assertion assertion = assertion();
