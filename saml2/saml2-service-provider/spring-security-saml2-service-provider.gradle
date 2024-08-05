@@ -1,5 +1,25 @@
 apply plugin: 'io.spring.convention.spring-module'
 
+configurations {
+	opensaml4Main { extendsFrom(optional, provided) }
+	opensaml4Test { extendsFrom(opensaml4Main, tests) }
+}
+
+sourceSets {
+	opensaml4Main {
+		java {
+			compileClasspath += main.output + configurations.opensaml4Main
+			srcDir 'src/opensaml4Main/java'
+		}
+	}
+	opensaml4Test {
+		java {
+			compileClasspath += main.output + test.output + opensaml4Main.output + configurations.opensaml4Test
+			srcDir 'src/opensaml4Test/java'
+		}
+	}
+}
+
 sourceSets.configureEach { set ->
 	if (!set.name.containsIgnoreCase("main")) {
 		return
@@ -76,3 +96,34 @@ dependencies {
 	testImplementation "org.mockito:mockito-junit-jupiter"
 	testImplementation "org.springframework:spring-test"
 }
+
+jar {
+	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+	from sourceSets.opensaml4Main.output
+}
+
+sourcesJar {
+	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+	from sourceSets.opensaml4Main.allJava
+}
+
+testJar {
+	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+	from sourceSets.opensaml4Test.output
+}
+
+javadoc {
+	classpath += sourceSets.opensaml4Main.runtimeClasspath
+	source += sourceSets.opensaml4Main.allJava
+}
+
+tasks.register("opensaml4Test", Test) {
+	useJUnitPlatform()
+	classpath += sourceSets.opensaml4Test.output
+}
+
+
+tasks.named("test") {
+	dependsOn opensaml4Test
+}
+
