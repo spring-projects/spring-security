@@ -1,34 +1,34 @@
 apply plugin: 'io.spring.convention.spring-module'
 
 configurations {
-	opensaml4Main { extendsFrom(optional, provided) }
-	opensaml5Main { extendsFrom(optional, provided) }
-	opensaml4Test { extendsFrom(opensaml4Main, tests) }
-	opensaml5Test { extendsFrom(opensaml5Main, tests) }
+	opensamlFiveMain { extendsFrom(optional, provided) }
+	opensamlFiveTest { extendsFrom(opensamlFiveMain, testImplementation) }
 }
 
 sourceSets {
 	opensaml4Main {
 		java {
-			compileClasspath += main.output + configurations.opensaml4Main
+			compileClasspath += main.output
 			srcDir 'src/opensaml4Main/java'
 		}
 	}
 	opensaml5Main {
 		java {
-			compileClasspath += main.output + configurations.opensaml5Main
+			compileClasspath = main.output + configurations.opensamlFiveMain
 			srcDir 'src/opensaml5Main/java'
 		}
 	}
 	opensaml4Test {
 		java {
-			compileClasspath += main.output + test.output + opensaml4Main.output + configurations.opensaml4Test
+			compileClasspath += main.output + test.output + opensaml4Main.output + test.compileClasspath
+			runtimeClasspath += main.output + test.output + opensaml4Main.output + test.runtimeClasspath
 			srcDir 'src/opensaml4Test/java'
 		}
 	}
 	opensaml5Test {
 		java {
-			compileClasspath += main.output + test.output + opensaml5Main.output + configurations.opensaml5Test
+			compileClasspath = main.output + test.output + opensaml5Main.output + configurations.opensamlFiveTest
+			runtimeClasspath = main.output + test.output + opensaml5Main.output + configurations.opensamlFiveTest
 			srcDir 'src/opensaml5Test/java'
 		}
 	}
@@ -88,7 +88,7 @@ sourceSets.configureEach { set ->
 dependencies {
 	management platform(project(":spring-security-dependencies"))
 	api project(':spring-security-web')
-	api 'org.opensaml:opensaml-core'
+
 	api ('org.opensaml:opensaml-saml-api')  {
 		exclude group: 'commons-logging', module: 'commons-logging'
 	}
@@ -96,12 +96,10 @@ dependencies {
 		exclude group: 'commons-logging', module: 'commons-logging'
 	}
 
-	opensaml5MainImplementation libs.org.opensaml.opensaml5.core.api
-	opensaml5MainImplementation libs.org.opensaml.opensaml5.core.impl
-	opensaml5MainImplementation (libs.org.opensaml.opensaml5.saml.api)  {
+	opensamlFiveMain (libs.org.opensaml.opensaml5.saml.api)  {
 		exclude group: 'commons-logging', module: 'commons-logging'
 	}
-	opensaml5MainImplementation (libs.org.opensaml.opensaml5.saml.impl)  {
+	opensamlFiveMain (libs.org.opensaml.opensaml5.saml.impl)  {
 		exclude group: 'commons-logging', module: 'commons-logging'
 	}
 
@@ -139,22 +137,23 @@ testJar {
 }
 
 javadoc {
-	classpath += sourceSets.opensaml4Main.runtimeClasspath + sourceSets.opensaml5Main.runtimeClasspath
-	source += sourceSets.opensaml4Main.allJava + sourceSets.opensaml5Main.allJava
+	classpath += configurations.opensamlFiveMain
+	source = sourceSets.main.allJava + sourceSets.opensaml4Main.allJava + sourceSets.opensaml5Main.allJava
 }
 
 tasks.register("opensaml4Test", Test) {
 	useJUnitPlatform()
-	classpath += sourceSets.opensaml4Test.output
+	testClassesDirs = sourceSets.opensaml4Test.output.classesDirs
+	classpath = sourceSets.opensaml4Test.runtimeClasspath
 }
 
 tasks.register("opensaml5Test", Test) {
 	useJUnitPlatform()
-	classpath += sourceSets.opensaml5Test.output
+	testClassesDirs = sourceSets.opensaml5Test.output.classesDirs
+	classpath = sourceSets.opensaml5Test.output + sourceSets.opensaml5Test.runtimeClasspath
 }
 
 tasks.named("test") {
 	dependsOn opensaml4Test
 	dependsOn opensaml5Test
 }
-
