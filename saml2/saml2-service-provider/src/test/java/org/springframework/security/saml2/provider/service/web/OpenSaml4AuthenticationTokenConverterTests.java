@@ -53,10 +53,10 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 /**
- * Tests for {@link OpenSamlAuthenticationTokenConverter}
+ * Tests for {@link OpenSaml4AuthenticationTokenConverter}
  */
 @ExtendWith(MockitoExtension.class)
-public final class OpenSamlAuthenticationTokenConverterTests {
+public final class OpenSaml4AuthenticationTokenConverterTests {
 
 	@Mock
 	RelyingPartyRegistrationRepository registrations;
@@ -67,7 +67,7 @@ public final class OpenSamlAuthenticationTokenConverterTests {
 
 	@Test
 	public void convertWhenSamlResponseThenToken() {
-		OpenSamlAuthenticationTokenConverter converter = new OpenSamlAuthenticationTokenConverter(this.registrations);
+		OpenSaml4AuthenticationTokenConverter converter = new OpenSaml4AuthenticationTokenConverter(this.registrations);
 		given(this.registrations.findByRegistrationId(any())).willReturn(this.registration);
 		MockHttpServletRequest request = post("/login/saml2/sso/" + this.registration.getRegistrationId());
 		request.setParameter(Saml2ParameterNames.SAML_RESPONSE,
@@ -80,7 +80,7 @@ public final class OpenSamlAuthenticationTokenConverterTests {
 
 	@Test
 	public void convertWhenSamlResponseInvalidBase64ThenSaml2AuthenticationException() {
-		OpenSamlAuthenticationTokenConverter converter = new OpenSamlAuthenticationTokenConverter(this.registrations);
+		OpenSaml4AuthenticationTokenConverter converter = new OpenSaml4AuthenticationTokenConverter(this.registrations);
 		given(this.registrations.findByRegistrationId(any())).willReturn(this.registration);
 		MockHttpServletRequest request = post("/login/saml2/sso/" + this.registration.getRegistrationId());
 		request.setParameter(Saml2ParameterNames.SAML_RESPONSE, "invalid");
@@ -94,14 +94,14 @@ public final class OpenSamlAuthenticationTokenConverterTests {
 
 	@Test
 	public void convertWhenNoSamlResponseThenNull() {
-		OpenSamlAuthenticationTokenConverter converter = new OpenSamlAuthenticationTokenConverter(this.registrations);
+		OpenSaml4AuthenticationTokenConverter converter = new OpenSaml4AuthenticationTokenConverter(this.registrations);
 		MockHttpServletRequest request = post("/login/saml2/sso/" + this.registration.getRegistrationId());
 		assertThat(converter.convert(request)).isNull();
 	}
 
 	@Test
 	public void convertWhenNoMatchingRequestThenNull() {
-		OpenSamlAuthenticationTokenConverter converter = new OpenSamlAuthenticationTokenConverter(this.registrations);
+		OpenSaml4AuthenticationTokenConverter converter = new OpenSaml4AuthenticationTokenConverter(this.registrations);
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setParameter(Saml2ParameterNames.SAML_RESPONSE, "ignored");
 		assertThat(converter.convert(request)).isNull();
@@ -109,7 +109,7 @@ public final class OpenSamlAuthenticationTokenConverterTests {
 
 	@Test
 	public void convertWhenNoRelyingPartyRegistrationThenNull() {
-		OpenSamlAuthenticationTokenConverter converter = new OpenSamlAuthenticationTokenConverter(this.registrations);
+		OpenSaml4AuthenticationTokenConverter converter = new OpenSaml4AuthenticationTokenConverter(this.registrations);
 		MockHttpServletRequest request = post("/login/saml2/sso/" + this.registration.getRegistrationId());
 		String response = Saml2Utils.samlEncode(serialize(signed(response())).getBytes(StandardCharsets.UTF_8));
 		request.setParameter(Saml2ParameterNames.SAML_RESPONSE, response);
@@ -118,7 +118,7 @@ public final class OpenSamlAuthenticationTokenConverterTests {
 
 	@Test
 	public void convertWhenGetRequestThenInflates() {
-		OpenSamlAuthenticationTokenConverter converter = new OpenSamlAuthenticationTokenConverter(this.registrations);
+		OpenSaml4AuthenticationTokenConverter converter = new OpenSaml4AuthenticationTokenConverter(this.registrations);
 		given(this.registrations.findByRegistrationId(any())).willReturn(this.registration);
 		MockHttpServletRequest request = get("/login/saml2/sso/" + this.registration.getRegistrationId());
 		byte[] deflated = Saml2Utils.samlDeflate("response");
@@ -132,7 +132,7 @@ public final class OpenSamlAuthenticationTokenConverterTests {
 
 	@Test
 	public void convertWhenGetRequestInvalidDeflatedThenSaml2AuthenticationException() {
-		OpenSamlAuthenticationTokenConverter converter = new OpenSamlAuthenticationTokenConverter(this.registrations);
+		OpenSaml4AuthenticationTokenConverter converter = new OpenSaml4AuthenticationTokenConverter(this.registrations);
 		given(this.registrations.findByRegistrationId(any())).willReturn(this.registration);
 		MockHttpServletRequest request = get("/login/saml2/sso/" + this.registration.getRegistrationId());
 		byte[] invalidDeflated = "invalid".getBytes();
@@ -147,7 +147,7 @@ public final class OpenSamlAuthenticationTokenConverterTests {
 
 	@Test
 	public void convertWhenUsingSamlUtilsBase64ThenXmlIsValid() throws Exception {
-		OpenSamlAuthenticationTokenConverter converter = new OpenSamlAuthenticationTokenConverter(this.registrations);
+		OpenSaml4AuthenticationTokenConverter converter = new OpenSaml4AuthenticationTokenConverter(this.registrations);
 		given(this.registrations.findByRegistrationId(any())).willReturn(this.registration);
 		MockHttpServletRequest request = post("/login/saml2/sso/" + this.registration.getRegistrationId());
 		request.setParameter(Saml2ParameterNames.SAML_RESPONSE, getSsoCircleEncodedXml());
@@ -161,7 +161,7 @@ public final class OpenSamlAuthenticationTokenConverterTests {
 				Saml2AuthenticationRequestRepository.class);
 		AbstractSaml2AuthenticationRequest authenticationRequest = mock(AbstractSaml2AuthenticationRequest.class);
 		given(authenticationRequest.getRelyingPartyRegistrationId()).willReturn(this.registration.getRegistrationId());
-		OpenSamlAuthenticationTokenConverter converter = new OpenSamlAuthenticationTokenConverter(this.registrations);
+		OpenSaml4AuthenticationTokenConverter converter = new OpenSaml4AuthenticationTokenConverter(this.registrations);
 		converter.setAuthenticationRequestRepository(authenticationRequestRepository);
 		given(this.registrations.findByRegistrationId(any())).willReturn(this.registration);
 		given(authenticationRequestRepository.loadAuthenticationRequest(any(HttpServletRequest.class)))
@@ -178,7 +178,7 @@ public final class OpenSamlAuthenticationTokenConverterTests {
 
 	@Test
 	public void convertWhenMatchingNoRegistrationIdThenLooksUpByAssertingEntityId() {
-		OpenSamlAuthenticationTokenConverter converter = new OpenSamlAuthenticationTokenConverter(this.registrations);
+		OpenSaml4AuthenticationTokenConverter converter = new OpenSaml4AuthenticationTokenConverter(this.registrations);
 		String response = serialize(signed(response()));
 		String encoded = Saml2Utils.samlEncode(response.getBytes(StandardCharsets.UTF_8));
 		given(this.registrations.findUniqueByAssertingPartyEntityId(TestOpenSamlObjects.ASSERTING_PARTY_ENTITY_ID))
@@ -198,7 +198,7 @@ public final class OpenSamlAuthenticationTokenConverterTests {
 
 	@Test
 	public void setAuthenticationRequestRepositoryWhenNullThenIllegalArgument() {
-		OpenSamlAuthenticationTokenConverter converter = new OpenSamlAuthenticationTokenConverter(this.registrations);
+		OpenSaml4AuthenticationTokenConverter converter = new OpenSaml4AuthenticationTokenConverter(this.registrations);
 		assertThatExceptionOfType(IllegalArgumentException.class)
 			.isThrownBy(() -> converter.setAuthenticationRequestRepository(null));
 	}

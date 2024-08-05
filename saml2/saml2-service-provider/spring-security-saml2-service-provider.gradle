@@ -38,6 +38,11 @@ sourceSets.configureEach { set ->
 		with from
 	}
 
+	copy {
+		into "$projectDir/src/$set.name/java/org/springframework/security/saml2/provider/service/web"
+		filter { line -> line.replaceAll(".saml2.internal", ".saml2.provider.service.web") }
+		with from
+	}
 }
 
 dependencies {

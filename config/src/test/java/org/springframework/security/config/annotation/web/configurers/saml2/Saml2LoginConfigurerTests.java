@@ -308,7 +308,7 @@ public class Saml2LoginConfigurerTests {
 		Saml2AuthenticationException exception = captor.getValue();
 		assertThat(exception.getSaml2Error().getErrorCode()).isEqualTo(Saml2ErrorCodes.INVALID_RESPONSE);
 		assertThat(exception.getSaml2Error().getDescription()).isEqualTo("Unable to inflate string");
-		assertThat(exception.getCause()).isInstanceOf(IOException.class);
+		assertThat(exception).hasRootCauseInstanceOf(IOException.class);
 	}
 
 	@Test

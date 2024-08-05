@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,6 @@
  */
 
 package org.springframework.security.saml2.provider.service.web;
-
-import java.util.function.Function;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.opensaml.saml.saml2.core.Response;
@@ -38,24 +36,13 @@ import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 
-/**
- * An {@link AuthenticationConverter} that generates a {@link Saml2AuthenticationToken}
- * appropriate for authenticated a SAML 2.0 Assertion against an
- * {@link org.springframework.security.authentication.AuthenticationManager}.
- *
- * @author Josh Cummings
- * @since 6.1
- * @deprecated Please use a version-specific SAML 2.0 {@link AuthenticationConverter}
- * instead such as {@code OpenSaml4AuthenticationTokenConverter}
- */
-@Deprecated
-public final class OpenSamlAuthenticationTokenConverter implements AuthenticationConverter {
+final class BaseOpenSamlAuthenticationTokenConverter implements AuthenticationConverter {
 
 	static {
 		OpenSamlInitializationService.initialize();
 	}
 
-	private final OpenSamlOperations saml = new OpenSaml4Template();
+	private final OpenSamlOperations saml;
 
 	private final RelyingPartyRegistrationRepository registrations;
 
@@ -63,18 +50,19 @@ public final class OpenSamlAuthenticationTokenConverter implements Authenticatio
 			new AntPathRequestMatcher("/login/saml2/sso/{registrationId}"),
 			new AntPathRequestMatcher("/login/saml2/sso"));
 
-	private Function<HttpServletRequest, AbstractSaml2AuthenticationRequest> loader;
+	private Saml2AuthenticationRequestRepository<?> authenticationRequests = new HttpSessionSaml2AuthenticationRequestRepository();
 
 	/**
-	 * Constructs a {@link OpenSamlAuthenticationTokenConverter} given a repository for
-	 * {@link RelyingPartyRegistration}s
+	 * Constructs a {@link BaseOpenSamlAuthenticationTokenConverter} given a repository
+	 * for {@link RelyingPartyRegistration}s
 	 * @param registrations the repository for {@link RelyingPartyRegistration}s
 	 * {@link RelyingPartyRegistration}s
 	 */
-	public OpenSamlAuthenticationTokenConverter(RelyingPartyRegistrationRepository registrations) {
+	BaseOpenSamlAuthenticationTokenConverter(RelyingPartyRegistrationRepository registrations,
+			OpenSamlOperations saml) {
 		Assert.notNull(registrations, "relyingPartyRegistrationRepository cannot be null");
 		this.registrations = registrations;
-		this.loader = new HttpSessionSaml2AuthenticationRequestRepository()::loadAuthenticationRequest;
+		this.saml = saml;
 	}
 
 	/**
@@ -123,7 +111,8 @@ public final class OpenSamlAuthenticationTokenConverter implements Authenticatio
 	}
 
 	private Saml2AuthenticationToken tokenByAuthenticationRequest(HttpServletRequest request) {
-		AbstractSaml2AuthenticationRequest authenticationRequest = loadAuthenticationRequest(request);
+		AbstractSaml2AuthenticationRequest authenticationRequest = this.authenticationRequests
+			.loadAuthenticationRequest(request);
 		if (authenticationRequest == null) {
 			return null;
 		}
@@ -169,23 +158,19 @@ public final class OpenSamlAuthenticationTokenConverter implements Authenticatio
 	 * @param authenticationRequestRepository the
 	 * {@link Saml2AuthenticationRequestRepository} to use
 	 */
-	public void setAuthenticationRequestRepository(
+	void setAuthenticationRequestRepository(
 			Saml2AuthenticationRequestRepository<AbstractSaml2AuthenticationRequest> authenticationRequestRepository) {
 		Assert.notNull(authenticationRequestRepository, "authenticationRequestRepository cannot be null");
-		this.loader = authenticationRequestRepository::loadAuthenticationRequest;
+		this.authenticationRequests = authenticationRequestRepository;
 	}
 
 	/**
 	 * Use the given {@link RequestMatcher} to match the request.
 	 * @param requestMatcher the {@link RequestMatcher} to use
 	 */
-	public void setRequestMatcher(RequestMatcher requestMatcher) {
+	void setRequestMatcher(RequestMatcher requestMatcher) {
 		Assert.notNull(requestMatcher, "requestMatcher cannot be null");
 		this.requestMatcher = requestMatcher;
-	}
-
-	private AbstractSaml2AuthenticationRequest loadAuthenticationRequest(HttpServletRequest request) {
-		return this.loader.apply(request);
 	}
 
 	private String decode(HttpServletRequest request) {

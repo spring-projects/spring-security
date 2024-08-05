@@ -39,7 +39,7 @@ import org.springframework.security.saml2.provider.service.registration.RelyingP
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrations;
 import org.springframework.security.saml2.provider.service.web.HttpSessionSaml2AuthenticationRequestRepository;
-import org.springframework.security.saml2.provider.service.web.OpenSamlAuthenticationTokenConverter;
+import org.springframework.security.saml2.provider.service.web.OpenSaml4AuthenticationTokenConverter;
 import org.springframework.security.saml2.provider.service.web.Saml2AuthenticationRequestRepository;
 import org.springframework.security.saml2.provider.service.web.Saml2AuthenticationTokenConverter;
 import org.springframework.security.saml2.provider.service.web.Saml2WebSsoAuthenticationRequestFilter;
@@ -379,10 +379,10 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		AuthenticationConverter authenticationConverterBean = getBeanOrNull(http,
 				Saml2AuthenticationTokenConverter.class);
 		if (authenticationConverterBean == null) {
-			authenticationConverterBean = getBeanOrNull(http, OpenSamlAuthenticationTokenConverter.class);
+			authenticationConverterBean = getBeanOrNull(http, OpenSaml4AuthenticationTokenConverter.class);
 		}
 		if (authenticationConverterBean == null) {
-			OpenSamlAuthenticationTokenConverter converter = new OpenSamlAuthenticationTokenConverter(
+			OpenSaml4AuthenticationTokenConverter converter = new OpenSaml4AuthenticationTokenConverter(
 					this.relyingPartyRegistrationRepository);
 			converter.setAuthenticationRequestRepository(getAuthenticationRequestRepository(http));
 			converter.setRequestMatcher(this.loginProcessingUrl);
