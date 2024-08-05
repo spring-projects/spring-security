@@ -38,11 +38,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Test open SAML signatures
  */
-public class OpenSamlSigningUtilsTests {
+public class OpenSaml4SigningUtilsTests {
 
 	static {
 		OpenSamlInitializationService.initialize();
 	}
+
+	private final OpenSamlOperations saml = new OpenSaml4Template();
 
 	private RelyingPartyRegistration registration;
 
@@ -62,7 +64,7 @@ public class OpenSamlSigningUtilsTests {
 	@Test
 	public void whenSigningAnObjectThenKeyInfoIsPartOfTheSignature() {
 		Response response = response("destination", "issuer");
-		OpenSamlSigningUtils.sign(response, this.registration);
+		this.saml.withSigningKeys(this.registration.getSigningX509Credentials()).sign(response);
 		Signature signature = response.getSignature();
 		assertThat(signature).isNotNull();
 		assertThat(signature.getKeyInfo()).isNotNull();

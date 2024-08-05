@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,19 +16,19 @@
 
 package org.springframework.security.saml2.provider.service.web.authentication;
 
-import java.nio.charset.StandardCharsets;
+import java.time.Clock;
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 import jakarta.servlet.http.HttpServletRequest;
-import net.shibboleth.utilities.java.support.xml.SerializeSupport;
 import org.opensaml.core.config.ConfigurationService;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistry;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
-import org.opensaml.core.xml.io.MarshallingException;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.core.Issuer;
 import org.opensaml.saml.saml2.core.NameID;
@@ -38,10 +38,8 @@ import org.opensaml.saml.saml2.core.impl.AuthnRequestMarshaller;
 import org.opensaml.saml.saml2.core.impl.IssuerBuilder;
 import org.opensaml.saml.saml2.core.impl.NameIDBuilder;
 import org.opensaml.saml.saml2.core.impl.NameIDPolicyBuilder;
-import org.w3c.dom.Element;
 
 import org.springframework.core.convert.converter.Converter;
-import org.springframework.security.saml2.Saml2Exception;
 import org.springframework.security.saml2.core.OpenSamlInitializationService;
 import org.springframework.security.saml2.core.Saml2ParameterNames;
 import org.springframework.security.saml2.provider.service.authentication.AbstractSaml2AuthenticationRequest;
@@ -63,11 +61,14 @@ import org.springframework.util.Assert;
  * For internal use only. Intended for consolidating common behavior related to minting a
  * SAML 2.0 Authn Request.
  */
-class OpenSamlAuthenticationRequestResolver {
+class BaseOpenSamlAuthenticationRequestResolver implements Saml2AuthenticationRequestResolver {
 
 	static {
 		OpenSamlInitializationService.initialize();
 	}
+
+	private final OpenSamlOperations saml;
+
 	private final RelyingPartyRegistrationResolver relyingPartyRegistrationResolver;
 
 	private final AuthnRequestBuilder authnRequestBuilder;
@@ -84,15 +85,22 @@ class OpenSamlAuthenticationRequestResolver {
 			new AntPathRequestMatcher(Saml2AuthenticationRequestResolver.DEFAULT_AUTHENTICATION_REQUEST_URI),
 			new AntPathQueryRequestMatcher("/saml2/authenticate", "registrationId={registrationId}"));
 
+	private Clock clock = Clock.systemUTC();
+
 	private Converter<HttpServletRequest, String> relayStateResolver = (request) -> UUID.randomUUID().toString();
 
+	private Consumer<AuthnRequestParameters> parametersConsumer = (parameters) -> {
+	};
+
 	/**
-	 * Construct a {@link OpenSamlAuthenticationRequestResolver} using the provided
+	 * Construct a {@link BaseOpenSamlAuthenticationRequestResolver} using the provided
 	 * parameters
 	 * @param relyingPartyRegistrationResolver a strategy for resolving the
 	 * {@link RelyingPartyRegistration} from the {@link HttpServletRequest}
 	 */
-	OpenSamlAuthenticationRequestResolver(RelyingPartyRegistrationResolver relyingPartyRegistrationResolver) {
+	BaseOpenSamlAuthenticationRequestResolver(RelyingPartyRegistrationResolver relyingPartyRegistrationResolver,
+			OpenSamlOperations saml) {
+		this.saml = saml;
 		Assert.notNull(relyingPartyRegistrationResolver, "relyingPartyRegistrationResolver cannot be null");
 		this.relyingPartyRegistrationResolver = relyingPartyRegistrationResolver;
 		XMLObjectProviderRegistry registry = ConfigurationService.get(XMLObjectProviderRegistry.class);
@@ -111,6 +119,10 @@ class OpenSamlAuthenticationRequestResolver {
 		Assert.notNull(this.nameIdPolicyBuilder, "nameIdPolicyBuilder must be configured in OpenSAML");
 	}
 
+	void setClock(Clock clock) {
+		this.clock = clock;
+	}
+
 	void setRelayStateResolver(Converter<HttpServletRequest, String> relayStateResolver) {
 		this.relayStateResolver = relayStateResolver;
 	}
@@ -119,13 +131,12 @@ class OpenSamlAuthenticationRequestResolver {
 		this.requestMatcher = requestMatcher;
 	}
 
-	<T extends AbstractSaml2AuthenticationRequest> T resolve(HttpServletRequest request) {
-		return resolve(request, (registration, logoutRequest) -> {
-		});
+	void setParametersConsumer(Consumer<AuthnRequestParameters> parametersConsumer) {
+		this.parametersConsumer = parametersConsumer;
 	}
 
-	<T extends AbstractSaml2AuthenticationRequest> T resolve(HttpServletRequest request,
-			BiConsumer<RelyingPartyRegistration, AuthnRequest> authnRequestConsumer) {
+	@Override
+	public <T extends AbstractSaml2AuthenticationRequest> T resolve(HttpServletRequest request) {
 		RequestMatcher.MatchResult result = this.requestMatcher.matcher(request);
 		if (!result.isMatch()) {
 			return null;
@@ -153,7 +164,8 @@ class OpenSamlAuthenticationRequestResolver {
 			nameIdPolicy.setFormat(registration.getNameIdFormat());
 			authnRequest.setNameIDPolicy(nameIdPolicy);
 		}
-		authnRequestConsumer.accept(registration, authnRequest);
+		authnRequest.setIssueInstant(Instant.now(this.clock));
+		this.parametersConsumer.accept(new AuthnRequestParameters(request, registration, authnRequest));
 		if (authnRequest.getID() == null) {
 			authnRequest.setID("ARQ" + UUID.randomUUID().toString().substring(1));
 		}
@@ -162,10 +174,12 @@ class OpenSamlAuthenticationRequestResolver {
 		if (binding == Saml2MessageBinding.POST) {
 			if (registration.getAssertingPartyMetadata().getWantAuthnRequestsSigned()
 					|| registration.isAuthnRequestsSigned()) {
-				OpenSamlSigningUtils.sign(authnRequest, registration);
+				this.saml.withSigningKeys(registration.getSigningX509Credentials())
+					.algorithms(registration.getAssertingPartyMetadata().getSigningAlgorithms())
+					.sign(authnRequest);
 			}
 			String xml = serialize(authnRequest);
-			String encoded = Saml2Utils.samlEncode(xml.getBytes(StandardCharsets.UTF_8));
+			String encoded = Saml2Utils.withDecoded(xml).encode();
 			return (T) Saml2PostAuthenticationRequest.withRelyingPartyRegistration(registration)
 				.samlRequest(encoded)
 				.relayState(relayState)
@@ -174,7 +188,7 @@ class OpenSamlAuthenticationRequestResolver {
 		}
 		else {
 			String xml = serialize(authnRequest);
-			String deflatedAndEncoded = Saml2Utils.samlEncode(Saml2Utils.samlDeflate(xml));
+			String deflatedAndEncoded = Saml2Utils.withDecoded(xml).deflate(true).encode();
 			Saml2RedirectAuthenticationRequest.Builder builder = Saml2RedirectAuthenticationRequest
 				.withRelyingPartyRegistration(registration)
 				.samlRequest(deflatedAndEncoded)
@@ -182,27 +196,23 @@ class OpenSamlAuthenticationRequestResolver {
 				.id(authnRequest.getID());
 			if (registration.getAssertingPartyMetadata().getWantAuthnRequestsSigned()
 					|| registration.isAuthnRequestsSigned()) {
-				OpenSamlSigningUtils.QueryParametersPartial parametersPartial = OpenSamlSigningUtils.sign(registration)
-					.param(Saml2ParameterNames.SAML_REQUEST, deflatedAndEncoded);
+				Map<String, String> signingParameters = new HashMap<>();
+				signingParameters.put(Saml2ParameterNames.SAML_REQUEST, deflatedAndEncoded);
 				if (relayState != null) {
-					parametersPartial = parametersPartial.param(Saml2ParameterNames.RELAY_STATE, relayState);
+					signingParameters.put(Saml2ParameterNames.RELAY_STATE, relayState);
 				}
-				Map<String, String> parameters = parametersPartial.parameters();
-				builder.sigAlg(parameters.get(Saml2ParameterNames.SIG_ALG))
-					.signature(parameters.get(Saml2ParameterNames.SIGNATURE));
+				Map<String, String> query = this.saml.withSigningKeys(registration.getSigningX509Credentials())
+					.algorithms(registration.getAssertingPartyMetadata().getSigningAlgorithms())
+					.sign(signingParameters);
+				builder.sigAlg(query.get(Saml2ParameterNames.SIG_ALG))
+					.signature(query.get(Saml2ParameterNames.SIGNATURE));
 			}
 			return (T) builder.build();
 		}
 	}
 
 	private String serialize(AuthnRequest authnRequest) {
-		try {
-			Element element = this.marshaller.marshall(authnRequest);
-			return SerializeSupport.nodeToString(element);
-		}
-		catch (MarshallingException ex) {
-			throw new Saml2Exception(ex);
-		}
+		return this.saml.serialize(authnRequest).serialize();
 	}
 
 	private static final class AntPathQueryRequestMatcher implements RequestMatcher {
@@ -232,6 +242,35 @@ class OpenSamlAuthenticationRequestResolver {
 		@Override
 		public MatchResult matcher(HttpServletRequest request) {
 			return this.matcher.matcher(request);
+		}
+
+	}
+
+	static final class AuthnRequestParameters {
+
+		private final HttpServletRequest request;
+
+		private final RelyingPartyRegistration registration;
+
+		private final AuthnRequest authnRequest;
+
+		AuthnRequestParameters(HttpServletRequest request, RelyingPartyRegistration registration,
+				AuthnRequest authnRequest) {
+			this.request = request;
+			this.registration = registration;
+			this.authnRequest = authnRequest;
+		}
+
+		HttpServletRequest getRequest() {
+			return this.request;
+		}
+
+		RelyingPartyRegistration getRelyingPartyRegistration() {
+			return this.registration;
+		}
+
+		AuthnRequest getAuthnRequest() {
+			return this.authnRequest;
 		}
 
 	}
