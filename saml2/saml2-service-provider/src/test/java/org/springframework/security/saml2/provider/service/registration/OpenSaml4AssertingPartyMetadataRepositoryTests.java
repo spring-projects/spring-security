@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import net.shibboleth.utilities.java.support.xml.SerializeSupport;
@@ -63,9 +62,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.withSettings;
 
 /**
- * Tests for {@link OpenSamlAssertingPartyMetadataRepository}
+ * Tests for {@link BaseOpenSamlAssertingPartyMetadataRepository}
  */
-public class OpenSamlAssertingPartyMetadataRepositoryTests {
+public class OpenSaml4AssertingPartyMetadataRepositoryTests {
 
 	static {
 		OpenSamlInitializationService.initialize();
@@ -90,8 +89,8 @@ public class OpenSamlAssertingPartyMetadataRepositoryTests {
 	@Test
 	public void withMetadataUrlLocationWhenResolvableThenFindByEntityIdReturns() throws Exception {
 		try (MockWebServer server = new MockWebServer()) {
-			server.setDispatcher(new AlwaysDispatch(this.metadata));
-			AssertingPartyMetadataRepository parties = OpenSamlAssertingPartyMetadataRepository
+			server.setDispatcher(new AlwaysDispatch(new MockResponse().setBody(this.metadata).setResponseCode(200)));
+			AssertingPartyMetadataRepository parties = OpenSaml4AssertingPartyMetadataRepository
 				.withTrustedMetadataLocation(server.url("/").toString())
 				.build();
 			AssertingPartyMetadata party = parties.findByEntityId("https://idp.example.com/idp/shibboleth");
@@ -107,9 +106,10 @@ public class OpenSamlAssertingPartyMetadataRepositoryTests {
 	@Test
 	public void withMetadataUrlLocationnWhenResolvableThenIteratorReturns() throws Exception {
 		try (MockWebServer server = new MockWebServer()) {
-			server.setDispatcher(new AlwaysDispatch(this.entitiesDescriptor));
+			server.setDispatcher(
+					new AlwaysDispatch(new MockResponse().setBody(this.entitiesDescriptor).setResponseCode(200)));
 			List<AssertingPartyMetadata> parties = new ArrayList<>();
-			OpenSamlAssertingPartyMetadataRepository.withTrustedMetadataLocation(server.url("/").toString())
+			OpenSaml4AssertingPartyMetadataRepository.withTrustedMetadataLocation(server.url("/").toString())
 				.build()
 				.iterator()
 				.forEachRemaining(parties::add);
@@ -126,7 +126,7 @@ public class OpenSamlAssertingPartyMetadataRepositoryTests {
 			String url = server.url("/").toString();
 			server.shutdown();
 			assertThatExceptionOfType(Saml2Exception.class)
-				.isThrownBy(() -> OpenSamlAssertingPartyMetadataRepository.withTrustedMetadataLocation(url).build());
+				.isThrownBy(() -> OpenSaml4AssertingPartyMetadataRepository.withTrustedMetadataLocation(url).build());
 		}
 	}
 
@@ -136,14 +136,14 @@ public class OpenSamlAssertingPartyMetadataRepositoryTests {
 			server.setDispatcher(new AlwaysDispatch("malformed"));
 			String url = server.url("/").toString();
 			assertThatExceptionOfType(Saml2Exception.class)
-				.isThrownBy(() -> OpenSamlAssertingPartyMetadataRepository.withTrustedMetadataLocation(url).build());
+				.isThrownBy(() -> OpenSaml4AssertingPartyMetadataRepository.withTrustedMetadataLocation(url).build());
 		}
 	}
 
 	@Test
 	public void fromMetadataFileLocationWhenResolvableThenFindByEntityIdReturns() {
 		File file = new File("src/test/resources/test-metadata.xml");
-		AssertingPartyMetadata party = OpenSamlAssertingPartyMetadataRepository
+		AssertingPartyMetadata party = OpenSaml4AssertingPartyMetadataRepository
 			.withTrustedMetadataLocation("file:" + file.getAbsolutePath())
 			.build()
 			.findByEntityId("https://idp.example.com/idp/shibboleth");
@@ -159,7 +159,7 @@ public class OpenSamlAssertingPartyMetadataRepositoryTests {
 	public void fromMetadataFileLocationWhenResolvableThenIteratorReturns() {
 		File file = new File("src/test/resources/test-entitiesdescriptor.xml");
 		Collection<AssertingPartyMetadata> parties = new ArrayList<>();
-		OpenSamlAssertingPartyMetadataRepository.withTrustedMetadataLocation("file:" + file.getAbsolutePath())
+		OpenSaml4AssertingPartyMetadataRepository.withTrustedMetadataLocation("file:" + file.getAbsolutePath())
 			.build()
 			.iterator()
 			.forEachRemaining(parties::add);
@@ -171,12 +171,12 @@ public class OpenSamlAssertingPartyMetadataRepositoryTests {
 	@Test
 	public void withMetadataFileLocationWhenNotFoundThenSaml2Exception() {
 		assertThatExceptionOfType(Saml2Exception.class).isThrownBy(
-				() -> OpenSamlAssertingPartyMetadataRepository.withTrustedMetadataLocation("file:path").build());
+				() -> OpenSaml4AssertingPartyMetadataRepository.withTrustedMetadataLocation("file:path").build());
 	}
 
 	@Test
 	public void fromMetadataClasspathLocationWhenResolvableThenFindByEntityIdReturns() {
-		AssertingPartyMetadata party = OpenSamlAssertingPartyMetadataRepository
+		AssertingPartyMetadata party = OpenSaml4AssertingPartyMetadataRepository
 			.withTrustedMetadataLocation("classpath:test-entitiesdescriptor.xml")
 			.build()
 			.findByEntityId("https://ap.example.org/idp/shibboleth");
@@ -191,7 +191,7 @@ public class OpenSamlAssertingPartyMetadataRepositoryTests {
 	@Test
 	public void fromMetadataClasspathLocationWhenResolvableThenIteratorReturns() {
 		Collection<AssertingPartyMetadata> parties = new ArrayList<>();
-		OpenSamlAssertingPartyMetadataRepository.withTrustedMetadataLocation("classpath:test-entitiesdescriptor.xml")
+		OpenSaml4AssertingPartyMetadataRepository.withTrustedMetadataLocation("classpath:test-entitiesdescriptor.xml")
 			.build()
 			.iterator()
 			.forEachRemaining(parties::add);
@@ -203,7 +203,7 @@ public class OpenSamlAssertingPartyMetadataRepositoryTests {
 	@Test
 	public void withMetadataClasspathLocationWhenNotFoundThenSaml2Exception() {
 		assertThatExceptionOfType(Saml2Exception.class).isThrownBy(
-				() -> OpenSamlAssertingPartyMetadataRepository.withTrustedMetadataLocation("classpath:path").build());
+				() -> OpenSaml4AssertingPartyMetadataRepository.withTrustedMetadataLocation("classpath:path").build());
 	}
 
 	@Test
@@ -218,7 +218,7 @@ public class OpenSamlAssertingPartyMetadataRepositoryTests {
 		try (MockWebServer server = new MockWebServer()) {
 			server.start();
 			server.setDispatcher(new AlwaysDispatch(serialized));
-			AssertingPartyMetadataRepository parties = OpenSamlAssertingPartyMetadataRepository
+			AssertingPartyMetadataRepository parties = OpenSaml4AssertingPartyMetadataRepository
 				.withTrustedMetadataLocation(server.url("/").toString())
 				.verificationCredentials((c) -> c.add(credential))
 				.build();
@@ -238,7 +238,7 @@ public class OpenSamlAssertingPartyMetadataRepositoryTests {
 		try (MockWebServer server = new MockWebServer()) {
 			server.start();
 			server.setDispatcher(new AlwaysDispatch(serialized));
-			assertThatExceptionOfType(Saml2Exception.class).isThrownBy(() -> OpenSamlAssertingPartyMetadataRepository
+			assertThatExceptionOfType(Saml2Exception.class).isThrownBy(() -> OpenSaml4AssertingPartyMetadataRepository
 				.withTrustedMetadataLocation(server.url("/").toString())
 				.verificationCredentials((c) -> c.add(credential))
 				.build());
@@ -255,7 +255,7 @@ public class OpenSamlAssertingPartyMetadataRepositoryTests {
 		try (MockWebServer server = new MockWebServer()) {
 			server.start();
 			server.setDispatcher(new AlwaysDispatch(serialized));
-			AssertingPartyMetadataRepository parties = OpenSamlAssertingPartyMetadataRepository
+			AssertingPartyMetadataRepository parties = OpenSaml4AssertingPartyMetadataRepository
 				.withTrustedMetadataLocation(server.url("/").toString())
 				.build();
 			assertThat(parties.findByEntityId(registration.getAssertingPartyDetails().getEntityId())).isNotNull();
@@ -266,7 +266,7 @@ public class OpenSamlAssertingPartyMetadataRepositoryTests {
 	public void withTrustedMetadataLocationWhenCustomResourceLoaderThenUses() {
 		ResourceLoader resourceLoader = mock(ResourceLoader.class);
 		given(resourceLoader.getResource(any())).willReturn(new ClassPathResource("test-metadata.xml"));
-		AssertingPartyMetadata party = OpenSamlAssertingPartyMetadataRepository
+		AssertingPartyMetadata party = OpenSaml4AssertingPartyMetadataRepository
 			.withTrustedMetadataLocation("classpath:wrong")
 			.resourceLoader(resourceLoader)
 			.build()
@@ -285,7 +285,7 @@ public class OpenSamlAssertingPartyMetadataRepositoryTests {
 	public void constructorWhenNoIndexAndNoIteratorThenException() {
 		MetadataResolver resolver = mock(MetadataResolver.class);
 		assertThatExceptionOfType(IllegalArgumentException.class)
-			.isThrownBy(() -> new OpenSamlAssertingPartyMetadataRepository(resolver));
+			.isThrownBy(() -> new OpenSaml4AssertingPartyMetadataRepository(resolver));
 	}
 
 	@Test
@@ -295,7 +295,7 @@ public class OpenSamlAssertingPartyMetadataRepositoryTests {
 		MetadataResolver resolver = mock(MetadataResolver.class,
 				withSettings().extraInterfaces(IterableMetadataSource.class));
 		given(((IterableMetadataSource) resolver).iterator()).willReturn(List.of(descriptor).iterator());
-		AssertingPartyMetadataRepository parties = new OpenSamlAssertingPartyMetadataRepository(resolver);
+		AssertingPartyMetadataRepository parties = new OpenSaml4AssertingPartyMetadataRepository(resolver);
 		parties.iterator()
 			.forEachRemaining((p) -> assertThat(p.getEntityId())
 				.isEqualTo(registration.getAssertingPartyDetails().getEntityId()));
@@ -311,7 +311,7 @@ public class OpenSamlAssertingPartyMetadataRepositoryTests {
 		resolver.setParserPool(XMLObjectProviderRegistrySupport.getParserPool());
 		resolver.initialize();
 		MetadataResolver spied = spy(resolver);
-		AssertingPartyMetadataRepository parties = new OpenSamlAssertingPartyMetadataRepository(spied);
+		AssertingPartyMetadataRepository parties = new OpenSaml4AssertingPartyMetadataRepository(spied);
 		parties.iterator()
 			.forEachRemaining((p) -> assertThat(p.getEntityId()).isEqualTo("https://idp.example.com/idp/shibboleth"));
 		verify(spied).resolve(any());
@@ -320,7 +320,7 @@ public class OpenSamlAssertingPartyMetadataRepositoryTests {
 	@Test
 	public void withMetadataLocationWhenNoCredentialsThenException() {
 		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(
-				() -> OpenSamlAssertingPartyMetadataRepository.withMetadataLocation("classpath:test-metadata.xml")
+				() -> OpenSaml4AssertingPartyMetadataRepository.withMetadataLocation("classpath:test-metadata.xml")
 					.build());
 	}
 
@@ -336,7 +336,7 @@ public class OpenSamlAssertingPartyMetadataRepositoryTests {
 		try (MockWebServer server = new MockWebServer()) {
 			server.start();
 			server.setDispatcher(new AlwaysDispatch(serialized));
-			AssertingPartyMetadataRepository parties = OpenSamlAssertingPartyMetadataRepository
+			AssertingPartyMetadataRepository parties = OpenSaml4AssertingPartyMetadataRepository
 				.withMetadataLocation(server.url("/").toString())
 				.verificationCredentials((c) -> c.add(credential))
 				.build();
@@ -360,9 +360,7 @@ public class OpenSamlAssertingPartyMetadataRepositoryTests {
 		private final MockResponse response;
 
 		private AlwaysDispatch(String body) {
-			this.response = new MockResponse().setBody(body)
-				.setResponseCode(200)
-				.setBodyDelay(1, TimeUnit.MILLISECONDS);
+			this.response = new MockResponse().setBody(body).setResponseCode(200);
 		}
 
 		private AlwaysDispatch(MockResponse response) {

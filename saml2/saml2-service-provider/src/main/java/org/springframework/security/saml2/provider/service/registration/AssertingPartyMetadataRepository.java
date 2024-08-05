@@ -23,7 +23,7 @@ import org.springframework.lang.Nullable;
  *
  * @author Josh Cummings
  * @since 6.4
- * @see OpenSamlAssertingPartyMetadataRepository
+ * @see BaseOpenSamlAssertingPartyMetadataRepository
  * @see org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrations
  */
 public interface AssertingPartyMetadataRepository extends Iterable<AssertingPartyMetadata> {

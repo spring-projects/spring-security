@@ -30,9 +30,6 @@ import java.util.function.Supplier;
 
 import javax.annotation.Nonnull;
 
-import net.shibboleth.utilities.java.support.component.ComponentInitializationException;
-import net.shibboleth.utilities.java.support.resolver.CriteriaSet;
-import net.shibboleth.utilities.java.support.resolver.ResolverException;
 import org.opensaml.core.criterion.EntityIdCriterion;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
 import org.opensaml.saml.criterion.EntityRoleCriterion;
@@ -58,35 +55,21 @@ import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.security.saml2.Saml2Exception;
 import org.springframework.security.saml2.core.OpenSamlInitializationService;
-import org.springframework.security.saml2.core.Saml2X509Credential;
 import org.springframework.util.Assert;
 
-/**
- * An implementation of {@link AssertingPartyMetadataRepository} that uses a
- * {@link MetadataResolver} to retrieve {@link AssertingPartyMetadata} instances.
- *
- * <p>
- * The {@link MetadataResolver} constructed in {@link #withTrustedMetadataLocation}
- * provides expiry-aware refreshing.
- *
- * @author Josh Cummings
- * @since 6.4
- * @see AssertingPartyMetadataRepository
- * @see RelyingPartyRegistrations
- */
-public final class OpenSamlAssertingPartyMetadataRepository implements AssertingPartyMetadataRepository {
+class BaseOpenSamlAssertingPartyMetadataRepository implements AssertingPartyMetadataRepository {
 
 	static {
 		OpenSamlInitializationService.initialize();
 	}
 
-	private final MetadataResolver metadataResolver;
+	private final MetadataResolverAdapter metadataResolver;
 
 	private final Supplier<Iterator<EntityDescriptor>> descriptors;
 
 	/**
-	 * Construct an {@link OpenSamlAssertingPartyMetadataRepository} using the provided
-	 * {@link MetadataResolver}.
+	 * Construct an {@link BaseOpenSamlAssertingPartyMetadataRepository} using the
+	 * provided {@link MetadataResolver}.
 	 *
 	 * <p>
 	 * The {@link MetadataResolver} should either be of type
@@ -94,12 +77,12 @@ public final class OpenSamlAssertingPartyMetadataRepository implements Asserting
 	 * configured.
 	 * @param metadataResolver the {@link MetadataResolver} to use
 	 */
-	public OpenSamlAssertingPartyMetadataRepository(MetadataResolver metadataResolver) {
+	BaseOpenSamlAssertingPartyMetadataRepository(MetadataResolverAdapter metadataResolver) {
 		Assert.notNull(metadataResolver, "metadataResolver cannot be null");
-		if (isRoleIndexed(metadataResolver)) {
+		if (isRoleIndexed(metadataResolver.metadataResolver)) {
 			this.descriptors = this::allIndexedEntities;
 		}
-		else if (metadataResolver instanceof IterableMetadataSource source) {
+		else if (metadataResolver.metadataResolver instanceof IterableMetadataSource source) {
 			this.descriptors = source::iterator;
 		}
 		else {
@@ -122,11 +105,11 @@ public final class OpenSamlAssertingPartyMetadataRepository implements Asserting
 	}
 
 	private Iterator<EntityDescriptor> allIndexedEntities() {
-		CriteriaSet all = new CriteriaSet(new EntityRoleCriterion(IDPSSODescriptor.DEFAULT_ELEMENT_NAME));
+		EntityRoleCriterion idps = new EntityRoleCriterion(IDPSSODescriptor.DEFAULT_ELEMENT_NAME);
 		try {
-			return this.metadataResolver.resolve(all).iterator();
+			return this.metadataResolver.resolve(idps).iterator();
 		}
-		catch (ResolverException ex) {
+		catch (Exception ex) {
 			throw new Saml2Exception(ex);
 		}
 	}
@@ -151,80 +134,30 @@ public final class OpenSamlAssertingPartyMetadataRepository implements Asserting
 	@Nullable
 	@Override
 	public AssertingPartyMetadata findByEntityId(String entityId) {
-		CriteriaSet byEntityId = new CriteriaSet(new EntityIdCriterion(entityId));
-		EntityDescriptor descriptor = resolveSingle(byEntityId);
+		EntityDescriptor descriptor = resolveSingle(new EntityIdCriterion(entityId));
 		if (descriptor == null) {
 			return null;
 		}
 		return OpenSamlAssertingPartyDetails.withEntityDescriptor(descriptor).build();
 	}
 
-	private EntityDescriptor resolveSingle(CriteriaSet criteria) {
+	private EntityDescriptor resolveSingle(EntityIdCriterion criterion) {
 		try {
-			return this.metadataResolver.resolveSingle(criteria);
+			return this.metadataResolver.resolveSingle(criterion);
 		}
-		catch (ResolverException ex) {
+		catch (Exception ex) {
 			throw new Saml2Exception(ex);
 		}
 	}
 
 	/**
-	 * Use this trusted {@code metadataLocation} to retrieve refreshable, expiry-aware
-	 * SAML 2.0 Asserting Party (IDP) metadata.
-	 *
-	 * <p>
-	 * Valid locations can be classpath- or file-based or they can be HTTPS endpoints.
-	 * Some valid endpoints might include:
-	 *
-	 * <pre>
-	 *   metadataLocation = "classpath:asserting-party-metadata.xml";
-	 *   metadataLocation = "file:asserting-party-metadata.xml";
-	 *   metadataLocation = "https://ap.example.org/metadata";
-	 * </pre>
-	 *
-	 * <p>
-	 * Resolution of location is attempted immediately. To defer, wrap in
-	 * {@link CachingRelyingPartyRegistrationRepository}.
-	 * @param metadataLocation the classpath- or file-based locations or HTTPS endpoints
-	 * of the asserting party metadata file
-	 * @return the {@link MetadataLocationRepositoryBuilder} for further configuration
-	 */
-	public static MetadataLocationRepositoryBuilder withTrustedMetadataLocation(String metadataLocation) {
-		return new MetadataLocationRepositoryBuilder(metadataLocation, true);
-	}
-
-	/**
-	 * Use this {@code metadataLocation} to retrieve refreshable, expiry-aware SAML 2.0
-	 * Asserting Party (IDP) metadata. Verification credentials are required.
-	 *
-	 * <p>
-	 * Valid locations can be classpath- or file-based or they can be remote endpoints.
-	 * Some valid endpoints might include:
-	 *
-	 * <pre>
-	 *   metadataLocation = "classpath:asserting-party-metadata.xml";
-	 *   metadataLocation = "file:asserting-party-metadata.xml";
-	 *   metadataLocation = "https://ap.example.org/metadata";
-	 * </pre>
-	 *
-	 * <p>
-	 * Resolution of location is attempted immediately. To defer, wrap in
-	 * {@link CachingRelyingPartyRegistrationRepository}.
-	 * @param metadataLocation the classpath- or file-based locations or remote endpoints
-	 * of the asserting party metadata file
-	 * @return the {@link MetadataLocationRepositoryBuilder} for further configuration
-	 */
-	public static MetadataLocationRepositoryBuilder withMetadataLocation(String metadataLocation) {
-		return new MetadataLocationRepositoryBuilder(metadataLocation, false);
-	}
-
-	/**
-	 * A builder class for configuring {@link OpenSamlAssertingPartyMetadataRepository}
-	 * for a specific metadata location.
+	 * A builder class for configuring
+	 * {@link BaseOpenSamlAssertingPartyMetadataRepository} for a specific metadata
+	 * location.
 	 *
 	 * @author Josh Cummings
 	 */
-	public static final class MetadataLocationRepositoryBuilder {
+	static final class MetadataLocationRepositoryBuilder {
 
 		private final String metadataLocation;
 
@@ -234,42 +167,23 @@ public final class OpenSamlAssertingPartyMetadataRepository implements Asserting
 
 		private ResourceLoader resourceLoader = new DefaultResourceLoader();
 
-		private MetadataLocationRepositoryBuilder(String metadataLocation, boolean trusted) {
+		MetadataLocationRepositoryBuilder(String metadataLocation, boolean trusted) {
 			this.metadataLocation = metadataLocation;
 			this.requireVerificationCredentials = !trusted;
 		}
 
-		/**
-		 * Apply this {@link Consumer} to the list of {@link Saml2X509Credential}s to use
-		 * for verifying metadata signatures.
-		 *
-		 * <p>
-		 * If no credentials are supplied, no signature verification is performed.
-		 * @param credentials a {@link Consumer} of the {@link Collection} of
-		 * {@link Saml2X509Credential}s
-		 * @return the {@link MetadataLocationRepositoryBuilder} for further configuration
-		 */
-		public MetadataLocationRepositoryBuilder verificationCredentials(Consumer<Collection<Credential>> credentials) {
+		MetadataLocationRepositoryBuilder verificationCredentials(Consumer<Collection<Credential>> credentials) {
 			credentials.accept(this.verificationCredentials);
 			return this;
 		}
 
-		/**
-		 * Use this {@link ResourceLoader} for resolving the {@code metadataLocation}
-		 * @param resourceLoader the {@link ResourceLoader} to use
-		 * @return the {@link MetadataLocationRepositoryBuilder} for further configuration
-		 */
-		public MetadataLocationRepositoryBuilder resourceLoader(ResourceLoader resourceLoader) {
+		MetadataLocationRepositoryBuilder resourceLoader(ResourceLoader resourceLoader) {
 			this.resourceLoader = resourceLoader;
 			return this;
 		}
 
-		/**
-		 * Build the {@link OpenSamlAssertingPartyMetadataRepository}
-		 * @return the {@link OpenSamlAssertingPartyMetadataRepository}
-		 */
-		public OpenSamlAssertingPartyMetadataRepository build() {
-			ResourceBackedMetadataResolver metadataResolver = metadataResolver();
+		MetadataResolver metadataResolver() {
+			ResourceBackedMetadataResolver metadataResolver = resourceBackedMetadataResolver();
 			if (!this.verificationCredentials.isEmpty()) {
 				SignatureTrustEngine engine = new ExplicitKeySignatureTrustEngine(
 						new CollectionCredentialResolver(this.verificationCredentials),
@@ -277,13 +191,13 @@ public final class OpenSamlAssertingPartyMetadataRepository implements Asserting
 				SignatureValidationFilter filter = new SignatureValidationFilter(engine);
 				filter.setRequireSignedRoot(true);
 				metadataResolver.setMetadataFilter(filter);
-				return new OpenSamlAssertingPartyMetadataRepository(initialize(metadataResolver));
+				return initialize(metadataResolver);
 			}
 			Assert.isTrue(!this.requireVerificationCredentials, "Verification credentials are required");
-			return new OpenSamlAssertingPartyMetadataRepository(initialize(metadataResolver));
+			return initialize(metadataResolver);
 		}
 
-		private ResourceBackedMetadataResolver metadataResolver() {
+		private ResourceBackedMetadataResolver resourceBackedMetadataResolver() {
 			Resource resource = this.resourceLoader.getResource(this.metadataLocation);
 			try {
 				return new ResourceBackedMetadataResolver(new SpringResource(resource));
@@ -301,7 +215,7 @@ public final class OpenSamlAssertingPartyMetadataRepository implements Asserting
 				metadataResolver.initialize();
 				return metadataResolver;
 			}
-			catch (ComponentInitializationException ex) {
+			catch (Exception ex) {
 				throw new Saml2Exception(ex);
 			}
 		}
@@ -377,6 +291,20 @@ public final class OpenSamlAssertingPartyMetadataRepository implements Asserting
 			}
 
 		}
+
+	}
+
+	abstract static class MetadataResolverAdapter {
+
+		final MetadataResolver metadataResolver;
+
+		MetadataResolverAdapter(MetadataResolver metadataResolver) {
+			this.metadataResolver = metadataResolver;
+		}
+
+		abstract EntityDescriptor resolveSingle(EntityIdCriterion entityId) throws Exception;
+
+		abstract Iterable<EntityDescriptor> resolve(EntityRoleCriterion role) throws Exception;
 
 	}
 
