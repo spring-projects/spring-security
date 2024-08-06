@@ -42,11 +42,6 @@ public final class OpenSaml4AuthenticationRequestResolver implements Saml2Authen
 
 	private final BaseOpenSamlAuthenticationRequestResolver delegate;
 
-	private Consumer<AuthnRequestContext> contextConsumer = (parameters) -> {
-	};
-
-	private Clock clock = Clock.systemUTC();
-
 	/**
 	 * Construct an {@link OpenSaml4AuthenticationRequestResolver}
 	 * @param registrations a repository for relying and asserting party configuration
@@ -104,7 +99,7 @@ public final class OpenSaml4AuthenticationRequestResolver implements Saml2Authen
 	 */
 	public void setClock(Clock clock) {
 		Assert.notNull(clock, "clock must not be null");
-		this.clock = clock;
+		this.delegate.setClock(clock);
 	}
 
 	/**
