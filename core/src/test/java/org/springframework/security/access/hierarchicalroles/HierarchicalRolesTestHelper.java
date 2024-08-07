@@ -24,6 +24,8 @@ import org.apache.commons.collections.CollectionUtils;
 
 import org.springframework.security.core.GrantedAuthority;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 /**
  * Test helper class for the hierarchical roles tests.
  *
@@ -72,6 +74,39 @@ public abstract class HierarchicalRolesTestHelper {
 			authorities.add((GrantedAuthority) () -> role);
 		}
 		return authorities;
+	}
+
+	// Usage example:
+	// assertHierarchy(roleHierarchyImpl)
+	// .givesToAuthorities("C")
+	// .theseAuthorities("C", "ROLE_B", "ROLE_C", "ROLE_D", "ROLE_E", "ROLE_F");
+
+	public static AssertingHierarchy assertHierarchy(RoleHierarchyImpl hierarchy) {
+		return new AssertingHierarchy(hierarchy);
+	}
+
+	public static class AssertingHierarchy {
+		RoleHierarchyImpl hierarchy;
+		public AssertingHierarchy(RoleHierarchyImpl hierarchy) {
+			assertThat(hierarchy).isNotNull();
+			this.hierarchy = hierarchy;
+		}
+		public GivenAuthorities givesToAuthorities(String... authorities) {
+			return new GivenAuthorities(hierarchy.getReachableGrantedAuthorities(createAuthorityList(authorities)));
+		}
+	}
+
+	public static class GivenAuthorities {
+		Collection<GrantedAuthority> authorities;
+		public GivenAuthorities(Collection<GrantedAuthority> authorities) {
+			this.authorities = authorities;
+		}
+		public void theseAuthorities(String... expectedAuthorities) {
+			List<GrantedAuthority> expectedGrantedAuthorities = createAuthorityList(expectedAuthorities);
+			assertThat(
+					containTheSameGrantedAuthoritiesCompareByAuthorityString(authorities, expectedGrantedAuthorities))
+				.isTrue();
+		}
 	}
 
 }

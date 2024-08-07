@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatNoException;
+import static org.springframework.security.access.hierarchicalroles.HierarchicalRolesTestHelper.assertHierarchy;
 
 /**
  * Tests for {@link RoleHierarchyImpl}.
@@ -249,14 +250,15 @@ public class RoleHierarchyImplTests {
 			.implies("B")
 			.role("B")
 			.implies("C", "D")
+			.authority("C")
+			.implies("E", "F", "B")
 			.build();
-		List<GrantedAuthority> flatAuthorities = AuthorityUtils.createAuthorityList("ROLE_A");
-		List<GrantedAuthority> allAuthorities = AuthorityUtils.createAuthorityList("ROLE_A", "ROLE_B", "ROLE_C",
-				"ROLE_D");
 
-		assertThat(roleHierarchyImpl).isNotNull();
-		assertThat(roleHierarchyImpl.getReachableGrantedAuthorities(flatAuthorities))
-			.containsExactlyInAnyOrderElementsOf(allAuthorities);
+		assertHierarchy(roleHierarchyImpl).givesToAuthorities("ROLE_A")
+			.theseAuthorities("ROLE_A", "ROLE_B", "ROLE_C", "ROLE_D");
+
+		assertHierarchy(roleHierarchyImpl).givesToAuthorities("C")
+			.theseAuthorities("C", "ROLE_B", "ROLE_C", "ROLE_D", "ROLE_E", "ROLE_F");
 	}
 
 	@Test
@@ -264,14 +266,18 @@ public class RoleHierarchyImplTests {
 		RoleHierarchyImpl roleHierarchyImpl = RoleHierarchyImpl.withRolePrefix("CUSTOM_PREFIX_")
 			.role("A")
 			.implies("B")
+			.role("B")
+			.implies("C", "D")
+			.authority("C")
+			.implies("E", "F", "B")
 			.build();
-		List<GrantedAuthority> flatAuthorities = AuthorityUtils.createAuthorityList("CUSTOM_PREFIX_A");
-		List<GrantedAuthority> allAuthorities = AuthorityUtils.createAuthorityList("CUSTOM_PREFIX_A",
-				"CUSTOM_PREFIX_B");
 
-		assertThat(roleHierarchyImpl).isNotNull();
-		assertThat(roleHierarchyImpl.getReachableGrantedAuthorities(flatAuthorities))
-			.containsExactlyInAnyOrderElementsOf(allAuthorities);
+		assertHierarchy(roleHierarchyImpl).givesToAuthorities("CUSTOM_PREFIX_A")
+			.theseAuthorities("CUSTOM_PREFIX_A", "CUSTOM_PREFIX_B", "CUSTOM_PREFIX_C", "CUSTOM_PREFIX_D");
+
+		assertHierarchy(roleHierarchyImpl).givesToAuthorities("C")
+			.theseAuthorities("C", "CUSTOM_PREFIX_B", "CUSTOM_PREFIX_C", "CUSTOM_PREFIX_D", "CUSTOM_PREFIX_E",
+					"CUSTOM_PREFIX_F");
 	}
 
 	@Test
