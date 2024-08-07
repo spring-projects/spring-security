@@ -41,22 +41,18 @@ final class AuthorizationProxyConfiguration implements AopInfrastructureBean {
 			ObjectProvider<Customizer<AuthorizationAdvisorProxyFactory>> customizers) {
 		List<AuthorizationAdvisor> advisors = new ArrayList<>();
 		provider.forEach(advisors::add);
-		AuthorizationAdvisorProxyFactory factory = AuthorizationAdvisorProxyFactory.withDefaults();
+		AuthorizationAdvisorProxyFactory factory = new AuthorizationAdvisorProxyFactory(advisors);
 		customizers.forEach((c) -> c.customize(factory));
-		factory.setAdvisors(advisors);
 		return factory;
 	}
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-	static MethodInterceptor authorizeReturnObjectMethodInterceptor(ObjectProvider<AuthorizationAdvisor> provider,
+	static MethodInterceptor authorizeReturnObjectMethodInterceptor(
 			AuthorizationAdvisorProxyFactory authorizationProxyFactory) {
 		AuthorizeReturnObjectMethodInterceptor interceptor = new AuthorizeReturnObjectMethodInterceptor(
 				authorizationProxyFactory);
-		List<AuthorizationAdvisor> advisors = new ArrayList<>();
-		provider.forEach(advisors::add);
-		advisors.add(interceptor);
-		authorizationProxyFactory.setAdvisors(advisors);
+		authorizationProxyFactory.addAdvisors(interceptor);
 		return interceptor;
 	}
 

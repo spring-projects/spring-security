@@ -320,6 +320,29 @@ public class AuthorizationAdvisorProxyFactoryTests {
 	}
 
 	@Test
+	public void addAdvisorsWhenProxyThenVisits() {
+		AuthorizationAdvisor advisor = mock(AuthorizationAdvisor.class);
+		given(advisor.getAdvice()).willReturn(advisor);
+		given(advisor.getPointcut()).willReturn(Pointcut.TRUE);
+		AuthorizationAdvisorProxyFactory factory = AuthorizationAdvisorProxyFactory.withDefaults();
+		factory.addAdvisors(advisor);
+		Flight flight = proxy(factory, this.flight);
+		flight.getAltitude();
+		verify(advisor, atLeastOnce()).getPointcut();
+	}
+
+	@Test
+	public void constructWhenProxyThenVisitsAdvisors() {
+		AuthorizationAdvisor advisor = mock(AuthorizationAdvisor.class);
+		given(advisor.getAdvice()).willReturn(advisor);
+		given(advisor.getPointcut()).willReturn(Pointcut.TRUE);
+		AuthorizationAdvisorProxyFactory factory = new AuthorizationAdvisorProxyFactory(advisor);
+		Flight flight = proxy(factory, this.flight);
+		flight.getAltitude();
+		verify(advisor, atLeastOnce()).getPointcut();
+	}
+
+	@Test
 	public void setTargetVisitorThenUses() {
 		TargetVisitor visitor = mock(TargetVisitor.class);
 		AuthorizationAdvisorProxyFactory factory = AuthorizationAdvisorProxyFactory.withDefaults();
