@@ -23,11 +23,13 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
-
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.util.Assert;
@@ -463,7 +465,13 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 			Map<String, Object> parameters = getParameters(); // Not encoded
 			this.parametersConsumer.accept(parameters);
 			MultiValueMap<String, String> queryParams = new LinkedMultiValueMap<>();
-			parameters.forEach((k, v) -> queryParams.set(encodeQueryParam(k), encodeQueryParam(String.valueOf(v)))); // Encoded
+			parameters.forEach((key1, value) -> {
+				String key = encodeQueryParam(key1);
+				List<String> values = queryValues(value)
+						.map(o -> encodeQueryParam(String.valueOf(o)))
+						.toList();
+				queryParams.put(key, values);
+			});
 			UriBuilder uriBuilder = this.uriBuilderFactory.uriString(this.authorizationUri).queryParams(queryParams);
 			return this.authorizationRequestUriFunction.apply(uriBuilder).toString();
 		}
@@ -488,6 +496,20 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 		// Encode query parameter value according to RFC 3986
 		private static String encodeQueryParam(String value) {
 			return UriUtils.encodeQueryParam(value, StandardCharsets.UTF_8);
+		}
+
+		// Query value as a stream
+		// If the value is an Iterable or an array it will be converted to a stream
+		private static Stream<?> queryValues(Object value) {
+			if (value instanceof Iterable) {
+				return StreamSupport.stream(((Iterable<?>) value).spliterator(), false);
+
+			} else if (value.getClass().isArray()) {
+				return Arrays.stream((Object[]) value);
+
+			} else {
+				return Stream.of(value);
+			}
 		}
 
 	}
