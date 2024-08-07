@@ -69,10 +69,11 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 	ActiveDirectoryLdapAuthenticationProvider provider;
 
 	UsernamePasswordAuthenticationToken joe = UsernamePasswordAuthenticationToken.unauthenticated("joe", "password");
-
+	DirContext ctx;
 	@BeforeEach
 	public void setUp() {
 		this.provider = new ActiveDirectoryLdapAuthenticationProvider("mydomain.eu", "ldap://192.168.1.200/");
+		ctx = mock(DirContext.class);
 	}
 
 	@Test
@@ -90,8 +91,6 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 	@Test
 	public void customSearchFilterIsUsedForSuccessfulAuthentication() throws Exception {
 		String customSearchFilter = "(&(objectClass=user)(sAMAccountName={0}))";
-		DirContext ctx = mock(DirContext.class);
-		given(ctx.getNameInNamespace()).willReturn("");
 		DirContextAdapter dca = new DirContextAdapter();
 		SearchResult sr = new SearchResult("CN=Joe Jannsen,CN=Users", dca, dca.getAttributes());
 		given(ctx.search(any(Name.class), eq(customSearchFilter), any(Object[].class), any(SearchControls.class)))
@@ -107,8 +106,6 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 	@Test
 	public void defaultSearchFilter() throws Exception {
 		final String defaultSearchFilter = "(&(objectClass=user)(userPrincipalName={0}))";
-		DirContext ctx = mock(DirContext.class);
-		given(ctx.getNameInNamespace()).willReturn("");
 		DirContextAdapter dca = new DirContextAdapter();
 		SearchResult sr = new SearchResult("CN=Joe Jannsen,CN=Users", dca, dca.getAttributes());
 		given(ctx.search(any(Name.class), eq(defaultSearchFilter), any(Object[].class), any(SearchControls.class)))
@@ -126,8 +123,6 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 	public void bindPrincipalAndUsernameUsed() throws Exception {
 		final String defaultSearchFilter = "(&(objectClass=user)(userPrincipalName={0}))";
 		ArgumentCaptor<Object[]> captor = ArgumentCaptor.forClass(Object[].class);
-		DirContext ctx = mock(DirContext.class);
-		given(ctx.getNameInNamespace()).willReturn("");
 		DirContextAdapter dca = new DirContextAdapter();
 		SearchResult sr = new SearchResult("CN=Joe Jannsen,CN=Users", dca, dca.getAttributes());
 		given(ctx.search(any(Name.class), eq(defaultSearchFilter), captor.capture(), any(SearchControls.class)))
@@ -153,8 +148,6 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 	@Test
 	public void nullDomainIsSupportedIfAuthenticatingWithFullUserPrincipal() throws Exception {
 		this.provider = new ActiveDirectoryLdapAuthenticationProvider(null, "ldap://192.168.1.200/");
-		DirContext ctx = mock(DirContext.class);
-		given(ctx.getNameInNamespace()).willReturn("");
 		DirContextAdapter dca = new DirContextAdapter();
 		SearchResult sr = new SearchResult("CN=Joe Jannsen,CN=Users", dca, dca.getAttributes());
 		given(ctx.search(eq(LdapNameBuilder.newInstance("DC=mydomain,DC=eu").build()), any(String.class),
@@ -167,8 +160,6 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 
 	@Test
 	public void failedUserSearchCausesBadCredentials() throws Exception {
-		DirContext ctx = mock(DirContext.class);
-		given(ctx.getNameInNamespace()).willReturn("");
 		given(ctx.search(any(Name.class), any(String.class), any(Object[].class), any(SearchControls.class)))
 			.willThrow(new NameNotFoundException());
 		this.provider.contextFactory = createContextFactoryReturning(ctx);
@@ -178,8 +169,6 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 	// SEC-2017
 	@Test
 	public void noUserSearchCausesUsernameNotFound() throws Exception {
-		DirContext ctx = mock(DirContext.class);
-		given(ctx.getNameInNamespace()).willReturn("");
 		given(ctx.search(any(Name.class), any(String.class), any(Object[].class), any(SearchControls.class)))
 			.willReturn(new EmptyEnumeration<>());
 		this.provider.contextFactory = createContextFactoryReturning(ctx);
@@ -196,8 +185,6 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 	@Test
 	@SuppressWarnings("unchecked")
 	public void duplicateUserSearchCausesError() throws Exception {
-		DirContext ctx = mock(DirContext.class);
-		given(ctx.getNameInNamespace()).willReturn("");
 		NamingEnumeration<SearchResult> searchResults = mock(NamingEnumeration.class);
 		given(searchResults.hasMore()).willReturn(true, true, false);
 		SearchResult searchResult = mock(SearchResult.class);
@@ -209,7 +196,6 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 		assertThatExceptionOfType(IncorrectResultSizeDataAccessException.class)
 			.isThrownBy(() -> this.provider.authenticate(this.joe));
 	}
-
 	static final String msg = "[LDAP: error code 49 - 80858585: LdapErr: DSID-DECAFF0, comment: AcceptSecurityContext error, data ";
 
 	@Test
@@ -357,8 +343,6 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 
 	private void checkAuthentication(String rootDn, ActiveDirectoryLdapAuthenticationProvider provider)
 			throws NamingException {
-		DirContext ctx = mock(DirContext.class);
-		given(ctx.getNameInNamespace()).willReturn("");
 		DirContextAdapter dca = new DirContextAdapter();
 		SearchResult sr = new SearchResult("CN=Joe Jannsen,CN=Users", dca, dca.getAttributes());
 		@SuppressWarnings("deprecation")
