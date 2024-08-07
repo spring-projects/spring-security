@@ -20,9 +20,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.function.Supplier;
 
+import org.aopalliance.intercept.MethodInvocation;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.aop.TargetClassAware;
+import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.core.annotation.AnnotationConfigurationException;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
@@ -31,6 +33,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.TestAuthentication;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authorization.AuthorizationDecision;
+import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.core.Authentication;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -137,6 +140,33 @@ public class PreAuthorizeAuthorizationManagerTests {
 		assertThat(decision.isGranted()).isTrue();
 	}
 
+	@Test
+	public void checkWhenHandlerDeniedNoApplicationContextThenReflectivelyConstructs() throws Exception {
+		PreAuthorizeAuthorizationManager manager = new PreAuthorizeAuthorizationManager();
+		assertThat(handleDeniedInvocationResult("methodOne", manager)).isNull();
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> handleDeniedInvocationResult("methodTwo", manager));
+	}
+
+	@Test
+	public void checkWhenHandlerDeniedApplicationContextThenLooksForBean() throws Exception {
+		GenericApplicationContext context = new GenericApplicationContext();
+		context.registerBean(NoDefaultConstructorHandler.class, () -> new NoDefaultConstructorHandler(new Object()));
+		context.refresh();
+		PreAuthorizeAuthorizationManager manager = new PreAuthorizeAuthorizationManager();
+		manager.setApplicationContext(context);
+		assertThat(handleDeniedInvocationResult("methodTwo", manager)).isNull();
+		assertThatExceptionOfType(IllegalStateException.class)
+			.isThrownBy(() -> handleDeniedInvocationResult("methodOne", manager));
+	}
+
+	private Object handleDeniedInvocationResult(String methodName, PreAuthorizeAuthorizationManager manager)
+			throws Exception {
+		MethodInvocation invocation = new MockMethodInvocation(new UsingHandleDeniedAuthorization(),
+				UsingHandleDeniedAuthorization.class, methodName);
+		return manager.handleDeniedInvocation(invocation, null);
+	}
+
 	public static class TestClass implements InterfaceAnnotationsOne, InterfaceAnnotationsTwo {
 
 		public void doSomething() {
@@ -235,6 +265,46 @@ public class PreAuthorizeAuthorizationManagerTests {
 		@Override
 		public void inheritedAnnotations() {
 			super.inheritedAnnotations();
+		}
+
+	}
+
+	public static final class UsingHandleDeniedAuthorization {
+
+		@HandleAuthorizationDenied(handlerClass = NullHandler.class)
+		@PreAuthorize("denyAll()")
+		public String methodOne() {
+			return "ok";
+		}
+
+		@HandleAuthorizationDenied(handlerClass = NoDefaultConstructorHandler.class)
+		@PreAuthorize("denyAll()")
+		public String methodTwo() {
+			return "ok";
+		}
+
+	}
+
+	public static final class NullHandler implements MethodAuthorizationDeniedHandler {
+
+		@Override
+		public Object handleDeniedInvocation(MethodInvocation methodInvocation,
+				AuthorizationResult authorizationResult) {
+			return null;
+		}
+
+	}
+
+	public static final class NoDefaultConstructorHandler implements MethodAuthorizationDeniedHandler {
+
+		private NoDefaultConstructorHandler(Object parameter) {
+
+		}
+
+		@Override
+		public Object handleDeniedInvocation(MethodInvocation methodInvocation,
+				AuthorizationResult authorizationResult) {
+			return null;
 		}
 
 	}

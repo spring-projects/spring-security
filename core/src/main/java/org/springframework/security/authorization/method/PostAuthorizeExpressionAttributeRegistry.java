@@ -49,7 +49,8 @@ final class PostAuthorizeExpressionAttributeRegistry extends AbstractExpressionA
 		.requireUnique(PostAuthorize.class);
 
 	PostAuthorizeExpressionAttributeRegistry() {
-		this.handlerResolver = (clazz) -> this.defaultHandler;
+		this.handlerResolver = (clazz) -> new ReflectiveMethodAuthorizationDeniedHandler(clazz,
+				PostAuthorizeAuthorizationManager.class);
 	}
 
 	@NonNull
