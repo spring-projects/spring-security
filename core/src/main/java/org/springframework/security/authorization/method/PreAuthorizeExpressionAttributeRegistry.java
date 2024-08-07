@@ -42,7 +42,8 @@ final class PreAuthorizeExpressionAttributeRegistry extends AbstractExpressionAt
 	private Function<Class<? extends MethodAuthorizationDeniedHandler>, MethodAuthorizationDeniedHandler> handlerResolver;
 
 	PreAuthorizeExpressionAttributeRegistry() {
-		this.handlerResolver = (clazz) -> this.defaultHandler;
+		this.handlerResolver = (clazz) -> new ReflectiveMethodAuthorizationDeniedHandler(clazz,
+				PreAuthorizeAuthorizationManager.class);
 	}
 
 	@NonNull
