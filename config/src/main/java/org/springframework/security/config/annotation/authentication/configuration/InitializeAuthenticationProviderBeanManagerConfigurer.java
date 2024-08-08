@@ -76,26 +76,13 @@ class InitializeAuthenticationProviderBeanManagerConfigurer extends GlobalAuthen
 						+ "using the DSL.", authenticationProviders.size(), beanNames));
 				return;
 			}
-			var authenticationProvider = authenticationProviders.get(0).getBean();
-			var authenticationProviderBeanName = authenticationProviders.get(0).getName();
+			AuthenticationProvider authenticationProvider = authenticationProviders.get(0).getBean();
+			String authenticationProviderBeanName = authenticationProviders.get(0).getName();
 
 			auth.authenticationProvider(authenticationProvider);
 			this.logger.info(LogMessage.format(
 					"Global AuthenticationManager configured with AuthenticationProvider bean with name %s",
 					authenticationProviderBeanName));
-		}
-
-		/**
-		 * @return a bean of the requested class if there's just a single registered
-		 * component, null otherwise.
-		 */
-		private <T> T getBeanOrNull(Class<T> type) {
-			String[] beanNames = InitializeAuthenticationProviderBeanManagerConfigurer.this.context
-				.getBeanNamesForType(type);
-			if (beanNames.length != 1) {
-				return null;
-			}
-			return InitializeAuthenticationProviderBeanManagerConfigurer.this.context.getBean(beanNames[0], type);
 		}
 
 		/**
