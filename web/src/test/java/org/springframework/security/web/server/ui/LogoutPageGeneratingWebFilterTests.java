@@ -43,4 +43,12 @@ public class LogoutPageGeneratingWebFilterTests {
 		assertThat(exchange.getResponse().getBodyAsString().block()).contains("action=\"/logout\"");
 	}
 
+	@Test
+	void filterThenRendersPage() {
+		LogoutPageGeneratingWebFilter filter = new LogoutPageGeneratingWebFilter();
+		MockServerWebExchange exchange = MockServerWebExchange
+			.from(MockServerHttpRequest.get("/test/logout").contextPath("/test"));
+		filter.filter(exchange, (e) -> Mono.empty()).block();
+	}
+
 }
