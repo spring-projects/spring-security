@@ -267,7 +267,7 @@ public class LdapUserDetailsManagerTests {
 
 	@Test
 	public void testRoleNamesStartWithCustomRolePrefix() {
-		var customPrefix = "GROUP_";
+		String customPrefix = "GROUP_";
 		this.mgr.setRolePrefix(customPrefix);
 
 		this.mgr.setUsernameMapper(new DefaultLdapUsernameToDnMapper("ou=people", "uid"));

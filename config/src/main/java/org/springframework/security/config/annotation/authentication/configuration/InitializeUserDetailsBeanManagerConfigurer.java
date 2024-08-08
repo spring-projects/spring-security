@@ -89,8 +89,8 @@ class InitializeUserDetailsBeanManagerConfigurer extends GlobalAuthenticationCon
 						beanNames));
 				return;
 			}
-			var userDetailsService = userDetailsServices.get(0).getBean();
-			var userDetailsServiceBeanName = userDetailsServices.get(0).getName();
+			UserDetailsService userDetailsService = userDetailsServices.get(0).getBean();
+			String userDetailsServiceBeanName = userDetailsServices.get(0).getName();
 			PasswordEncoder passwordEncoder = getBeanOrNull(PasswordEncoder.class);
 			UserDetailsPasswordService passwordManager = getBeanOrNull(UserDetailsPasswordService.class);
 			CompromisedPasswordChecker passwordChecker = getBeanOrNull(CompromisedPasswordChecker.class);
