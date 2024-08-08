@@ -86,19 +86,6 @@ class InitializeAuthenticationProviderBeanManagerConfigurer extends GlobalAuthen
 		}
 
 		/**
-		 * @return a bean of the requested class if there's just a single registered
-		 * component, null otherwise.
-		 */
-		private <T> T getBeanOrNull(Class<T> type) {
-			String[] beanNames = InitializeAuthenticationProviderBeanManagerConfigurer.this.context
-				.getBeanNamesForType(type);
-			if (beanNames.length != 1) {
-				return null;
-			}
-			return InitializeAuthenticationProviderBeanManagerConfigurer.this.context.getBean(beanNames[0], type);
-		}
-
-		/**
 		 * @return a list of beans of the requested class, along with their names. If
 		 * there are no registered beans of that type, the list is empty.
 		 */
