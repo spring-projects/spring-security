@@ -27,7 +27,32 @@ import org.springframework.security.core.annotation.AnnotationTemplateExpression
  * @see org.springframework.security.access.prepost.PostAuthorize
  * @see org.springframework.security.access.prepost.PreFilter
  * @see org.springframework.security.access.prepost.PostFilter
+ * @deprecated Please use {@link AnnotationTemplateExpressionDefaults} instead
  */
-public final class PrePostTemplateDefaults extends AnnotationTemplateExpressionDefaults {
+@Deprecated
+public final class PrePostTemplateDefaults {
+
+	private boolean ignoreUnknown = true;
+
+	/**
+	 * Whether template resolution should ignore placeholders it doesn't recognize.
+	 * <p>
+	 * By default, this value is <code>true</code>.
+	 */
+	public boolean isIgnoreUnknown() {
+		return this.ignoreUnknown;
+	}
+
+	/**
+	 * Configure template resolution to ignore unknown placeholders. When set to
+	 * <code>false</code>, template resolution will throw an exception for unknown
+	 * placeholders.
+	 * <p>
+	 * By default, this value is <code>true</code>.
+	 * @param ignoreUnknown - whether to ignore unknown placeholders parameters
+	 */
+	public void setIgnoreUnknown(boolean ignoreUnknown) {
+		this.ignoreUnknown = ignoreUnknown;
+	}
 
 }

@@ -33,6 +33,8 @@ import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import org.springframework.aop.Advisor;
 import org.springframework.aop.support.DefaultPointcutAdvisor;
@@ -78,6 +80,7 @@ import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.config.test.SpringTestParentApplicationContextExecutionListener;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AnnotationTemplateExpressionDefaults;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -607,69 +610,77 @@ public class PrePostMethodSecurityConfigurationTests {
 		assertThat(filtered).containsExactly("DoNotDrop");
 	}
 
-	@Test
+	@ParameterizedTest
+	@ValueSource(classes = { LegacyMetaAnnotationPlaceholderConfig.class, MetaAnnotationPlaceholderConfig.class })
 	@WithMockUser
-	public void methodeWhenParameterizedPreAuthorizeMetaAnnotationThenPasses() {
-		this.spring.register(MetaAnnotationPlaceholderConfig.class).autowire();
+	public void methodeWhenParameterizedPreAuthorizeMetaAnnotationThenPasses(Class<?> config) {
+		this.spring.register(config).autowire();
 		MetaAnnotationService service = this.spring.getContext().getBean(MetaAnnotationService.class);
 		assertThat(service.hasRole("USER")).isTrue();
 	}
 
-	@Test
+	@ParameterizedTest
+	@ValueSource(classes = { LegacyMetaAnnotationPlaceholderConfig.class, MetaAnnotationPlaceholderConfig.class })
 	@WithMockUser
-	public void methodRoleWhenPreAuthorizeMetaAnnotationHardcodedParameterThenPasses() {
-		this.spring.register(MetaAnnotationPlaceholderConfig.class).autowire();
+	public void methodRoleWhenPreAuthorizeMetaAnnotationHardcodedParameterThenPasses(Class<?> config) {
+		this.spring.register(config).autowire();
 		MetaAnnotationService service = this.spring.getContext().getBean(MetaAnnotationService.class);
 		assertThat(service.hasUserRole()).isTrue();
 	}
 
-	@Test
-	public void methodWhenParameterizedAnnotationThenFails() {
-		this.spring.register(MetaAnnotationPlaceholderConfig.class).autowire();
+	@ParameterizedTest
+	@ValueSource(classes = { LegacyMetaAnnotationPlaceholderConfig.class, MetaAnnotationPlaceholderConfig.class })
+	public void methodWhenParameterizedAnnotationThenFails(Class<?> config) {
+		this.spring.register(config).autowire();
 		MetaAnnotationService service = this.spring.getContext().getBean(MetaAnnotationService.class);
 		assertThatExceptionOfType(IllegalArgumentException.class)
 			.isThrownBy(service::placeholdersOnlyResolvedByMetaAnnotations);
 	}
 
-	@Test
+	@ParameterizedTest
+	@ValueSource(classes = { LegacyMetaAnnotationPlaceholderConfig.class, MetaAnnotationPlaceholderConfig.class })
 	@WithMockUser(authorities = "SCOPE_message:read")
-	public void methodWhenMultiplePlaceholdersHasAuthorityThenPasses() {
-		this.spring.register(MetaAnnotationPlaceholderConfig.class).autowire();
+	public void methodWhenMultiplePlaceholdersHasAuthorityThenPasses(Class<?> config) {
+		this.spring.register(config).autowire();
 		MetaAnnotationService service = this.spring.getContext().getBean(MetaAnnotationService.class);
 		assertThat(service.readMessage()).isEqualTo("message");
 	}
 
-	@Test
+	@ParameterizedTest
+	@ValueSource(classes = { LegacyMetaAnnotationPlaceholderConfig.class, MetaAnnotationPlaceholderConfig.class })
 	@WithMockUser(roles = "ADMIN")
-	public void methodWhenMultiplePlaceholdersHasRoleThenPasses() {
-		this.spring.register(MetaAnnotationPlaceholderConfig.class).autowire();
+	public void methodWhenMultiplePlaceholdersHasRoleThenPasses(Class<?> config) {
+		this.spring.register(config).autowire();
 		MetaAnnotationService service = this.spring.getContext().getBean(MetaAnnotationService.class);
 		assertThat(service.readMessage()).isEqualTo("message");
 	}
 
-	@Test
+	@ParameterizedTest
+	@ValueSource(classes = { LegacyMetaAnnotationPlaceholderConfig.class, MetaAnnotationPlaceholderConfig.class })
 	@WithMockUser
-	public void methodWhenPostAuthorizeMetaAnnotationThenAuthorizes() {
-		this.spring.register(MetaAnnotationPlaceholderConfig.class).autowire();
+	public void methodWhenPostAuthorizeMetaAnnotationThenAuthorizes(Class<?> config) {
+		this.spring.register(config).autowire();
 		MetaAnnotationService service = this.spring.getContext().getBean(MetaAnnotationService.class);
 		service.startsWithDave("daveMatthews");
 		assertThatExceptionOfType(AccessDeniedException.class)
 			.isThrownBy(() -> service.startsWithDave("jenniferHarper"));
 	}
 
-	@Test
+	@ParameterizedTest
+	@ValueSource(classes = { LegacyMetaAnnotationPlaceholderConfig.class, MetaAnnotationPlaceholderConfig.class })
 	@WithMockUser
-	public void methodWhenPreFilterMetaAnnotationThenFilters() {
-		this.spring.register(MetaAnnotationPlaceholderConfig.class).autowire();
+	public void methodWhenPreFilterMetaAnnotationThenFilters(Class<?> config) {
+		this.spring.register(config).autowire();
 		MetaAnnotationService service = this.spring.getContext().getBean(MetaAnnotationService.class);
 		assertThat(service.parametersContainDave(new ArrayList<>(List.of("dave", "carla", "vanessa", "paul"))))
 			.containsExactly("dave");
 	}
 
-	@Test
+	@ParameterizedTest
+	@ValueSource(classes = { LegacyMetaAnnotationPlaceholderConfig.class, MetaAnnotationPlaceholderConfig.class })
 	@WithMockUser
-	public void methodWhenPostFilterMetaAnnotationThenFilters() {
-		this.spring.register(MetaAnnotationPlaceholderConfig.class).autowire();
+	public void methodWhenPostFilterMetaAnnotationThenFilters(Class<?> config) {
+		this.spring.register(config).autowire();
 		MetaAnnotationService service = this.spring.getContext().getBean(MetaAnnotationService.class);
 		assertThat(service.resultsContainDave(new ArrayList<>(List.of("dave", "carla", "vanessa", "paul"))))
 			.containsExactly("dave");
@@ -827,7 +838,7 @@ public class PrePostMethodSecurityConfigurationTests {
 	@WithMockUser
 	void postAuthorizeWhenNullDeniedMetaAnnotationThanWorks() {
 		this.spring
-			.register(MethodSecurityServiceEnabledConfig.class, MetaAnnotationPlaceholderConfig.class,
+			.register(MethodSecurityServiceEnabledConfig.class, LegacyMetaAnnotationPlaceholderConfig.class,
 					MethodSecurityService.NullPostProcessor.class)
 			.autowire();
 		MethodSecurityService service = this.spring.getContext().getBean(MethodSecurityService.class);
@@ -1268,11 +1279,27 @@ public class PrePostMethodSecurityConfigurationTests {
 
 	@Configuration
 	@EnableMethodSecurity
-	static class MetaAnnotationPlaceholderConfig {
+	static class LegacyMetaAnnotationPlaceholderConfig {
 
 		@Bean
 		PrePostTemplateDefaults methodSecurityDefaults() {
 			return new PrePostTemplateDefaults();
+		}
+
+		@Bean
+		MetaAnnotationService metaAnnotationService() {
+			return new MetaAnnotationService();
+		}
+
+	}
+
+	@Configuration
+	@EnableMethodSecurity
+	static class MetaAnnotationPlaceholderConfig {
+
+		@Bean
+		AnnotationTemplateExpressionDefaults methodSecurityDefaults() {
+			return new AnnotationTemplateExpressionDefaults();
 		}
 
 		@Bean

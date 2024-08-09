@@ -26,6 +26,7 @@ import org.springframework.core.MethodClassKey;
 import org.springframework.lang.NonNull;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
+import org.springframework.security.core.annotation.AnnotationTemplateExpressionDefaults;
 import org.springframework.util.Assert;
 
 /**
@@ -75,6 +76,15 @@ abstract class AbstractExpressionAttributeRegistry<T extends ExpressionAttribute
 		Assert.notNull(expressionHandler, "expressionHandler cannot be null");
 		this.expressionHandler = expressionHandler;
 	}
+
+	@Deprecated
+	void setTemplateDefaults(PrePostTemplateDefaults defaults) {
+		AnnotationTemplateExpressionDefaults adapter = new AnnotationTemplateExpressionDefaults();
+		adapter.setIgnoreUnknown(defaults.isIgnoreUnknown());
+		setTemplateDefaults(adapter);
+	}
+
+	abstract void setTemplateDefaults(AnnotationTemplateExpressionDefaults adapter);
 
 	/**
 	 * Subclasses should implement this method to provide the non-null

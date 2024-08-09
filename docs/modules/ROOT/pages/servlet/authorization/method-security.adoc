@@ -1012,8 +1012,8 @@ Java::
 [source,java,role="primary"]
 ----
 @Bean
-static PrePostTemplateDefaults prePostTemplateDefaults() {
-	return new PrePostTemplateDefaults();
+static AnnotationTemplateExpressionDefaults templateExpressionDefaults() {
+	return new AnnotationTemplateExpressionDefaults();
 }
 ----
 
@@ -1023,8 +1023,8 @@ Kotlin::
 ----
 companion object {
     @Bean
-    fun prePostTemplateDefaults(): PrePostTemplateDefaults {
-        return PrePostTemplateDefaults()
+    fun templateExpressionDefaults(): AnnotationTemplateExpressionDefaults {
+        return AnnotationTemplateExpressionDefaults()
     }
 }
 ----
