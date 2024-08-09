@@ -16,19 +16,17 @@
 
 package org.springframework.security.oauth2.core.endpoint;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+
 import java.net.URI;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
-
 import org.junit.jupiter.api.Test;
-
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests for {@link OAuth2AuthorizationRequest}.
@@ -317,6 +315,21 @@ public class OAuth2AuthorizationRequestTests {
 				"https://example.com/login/oauth/authorize?" + "response_type=code&client_id=client-id&state=state&"
 						+ "redirect_uri=https://example.com/authorize/oauth2/code/registration-id&"
 						+ "item%20amount=19.95%E2%82%AC&%C3%A2ge=4%C2%BD&item%20name=H%C3%85M%C3%96");
+	}
+
+	@Test
+	public void additionalParametersArrayValueOrIterableEncoded() {
+		Map<String, Object> additionalParameters = new HashMap<>();
+		additionalParameters.put("item", new String[] { "1", "2" });
+		additionalParameters.put("item2", Arrays.asList("H" + '\u00c5' + "M" + '\u00d6', "H" + '\u00c5' + "M" + '\u00d6'));
+		OAuth2AuthorizationRequest authorizationRequest = TestOAuth2AuthorizationRequests.request()
+				.additionalParameters(additionalParameters)
+				.build();
+		assertThat(authorizationRequest.getAuthorizationRequestUri()).isNotNull();
+		assertThat(authorizationRequest.getAuthorizationRequestUri()).isEqualTo(
+				"https://example.com/login/oauth/authorize?" + "response_type=code&client_id=client-id&state=state&"
+						+ "redirect_uri=https://example.com/authorize/oauth2/code/registration-id&"
+						+ "item=1&item=2&item2=H%C3%85M%C3%96&item2=H%C3%85M%C3%96");
 	}
 
 }
