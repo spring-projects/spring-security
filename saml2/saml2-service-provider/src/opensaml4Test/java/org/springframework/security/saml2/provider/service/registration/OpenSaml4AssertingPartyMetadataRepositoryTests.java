@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import net.shibboleth.utilities.java.support.xml.SerializeSupport;
@@ -89,7 +90,7 @@ public class OpenSaml4AssertingPartyMetadataRepositoryTests {
 	@Test
 	public void withMetadataUrlLocationWhenResolvableThenFindByEntityIdReturns() throws Exception {
 		try (MockWebServer server = new MockWebServer()) {
-			server.setDispatcher(new AlwaysDispatch(new MockResponse().setBody(this.metadata).setResponseCode(200)));
+			server.setDispatcher(new AlwaysDispatch(this.metadata));
 			AssertingPartyMetadataRepository parties = OpenSaml4AssertingPartyMetadataRepository
 				.withTrustedMetadataLocation(server.url("/").toString())
 				.build();
@@ -106,8 +107,7 @@ public class OpenSaml4AssertingPartyMetadataRepositoryTests {
 	@Test
 	public void withMetadataUrlLocationnWhenResolvableThenIteratorReturns() throws Exception {
 		try (MockWebServer server = new MockWebServer()) {
-			server.setDispatcher(
-					new AlwaysDispatch(new MockResponse().setBody(this.entitiesDescriptor).setResponseCode(200)));
+			server.setDispatcher(new AlwaysDispatch(this.entitiesDescriptor));
 			List<AssertingPartyMetadata> parties = new ArrayList<>();
 			OpenSaml4AssertingPartyMetadataRepository.withTrustedMetadataLocation(server.url("/").toString())
 				.build()
@@ -122,7 +122,9 @@ public class OpenSaml4AssertingPartyMetadataRepositoryTests {
 	@Test
 	public void withMetadataUrlLocationWhenUnresolvableThenThrowsSaml2Exception() throws Exception {
 		try (MockWebServer server = new MockWebServer()) {
-			server.enqueue(new MockResponse().setBody(this.metadata).setResponseCode(200));
+			server.enqueue(new MockResponse().setBody(this.metadata)
+				.setResponseCode(200)
+				.setBodyDelay(1, TimeUnit.MILLISECONDS));
 			String url = server.url("/").toString();
 			server.shutdown();
 			assertThatExceptionOfType(Saml2Exception.class)
@@ -360,7 +362,9 @@ public class OpenSaml4AssertingPartyMetadataRepositoryTests {
 		private final MockResponse response;
 
 		private AlwaysDispatch(String body) {
-			this.response = new MockResponse().setBody(body).setResponseCode(200);
+			this.response = new MockResponse().setBody(body)
+				.setResponseCode(200)
+				.setBodyDelay(1, TimeUnit.MILLISECONDS);
 		}
 
 		private AlwaysDispatch(MockResponse response) {
