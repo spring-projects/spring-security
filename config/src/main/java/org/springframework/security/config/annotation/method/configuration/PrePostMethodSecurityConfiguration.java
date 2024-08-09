@@ -51,6 +51,7 @@ import org.springframework.security.authorization.method.PreAuthorizeAuthorizati
 import org.springframework.security.authorization.method.PreFilterAuthorizationMethodInterceptor;
 import org.springframework.security.authorization.method.PrePostTemplateDefaults;
 import org.springframework.security.config.core.GrantedAuthorityDefaults;
+import org.springframework.security.core.annotation.AnnotationTemplateExpressionDefaults;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.util.function.SingletonSupplier;
 
@@ -72,6 +73,7 @@ final class PrePostMethodSecurityConfiguration implements ImportAware, AopInfras
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 	static MethodInterceptor preFilterAuthorizationMethodInterceptor(
 			ObjectProvider<GrantedAuthorityDefaults> defaultsProvider,
+			ObjectProvider<AnnotationTemplateExpressionDefaults> templateExpressionDefaultsProvider,
 			ObjectProvider<PrePostTemplateDefaults> methodSecurityDefaultsProvider,
 			ObjectProvider<MethodSecurityExpressionHandler> expressionHandlerProvider,
 			ObjectProvider<SecurityContextHolderStrategy> strategyProvider,
@@ -80,6 +82,7 @@ final class PrePostMethodSecurityConfiguration implements ImportAware, AopInfras
 		PreFilterAuthorizationMethodInterceptor preFilter = new PreFilterAuthorizationMethodInterceptor();
 		preFilter.setOrder(preFilter.getOrder() + configuration.interceptorOrderOffset);
 		return new DeferringMethodInterceptor<>(preFilter, (f) -> {
+			templateExpressionDefaultsProvider.ifAvailable(f::setTemplateDefaults);
 			methodSecurityDefaultsProvider.ifAvailable(f::setTemplateDefaults);
 			f.setExpressionHandler(expressionHandlerProvider
 				.getIfAvailable(() -> defaultExpressionHandler(defaultsProvider, roleHierarchyProvider, context)));
@@ -91,6 +94,7 @@ final class PrePostMethodSecurityConfiguration implements ImportAware, AopInfras
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 	static MethodInterceptor preAuthorizeAuthorizationMethodInterceptor(
 			ObjectProvider<GrantedAuthorityDefaults> defaultsProvider,
+			ObjectProvider<AnnotationTemplateExpressionDefaults> templateExpressionDefaultsProvider,
 			ObjectProvider<PrePostTemplateDefaults> methodSecurityDefaultsProvider,
 			ObjectProvider<MethodSecurityExpressionHandler> expressionHandlerProvider,
 			ObjectProvider<SecurityContextHolderStrategy> strategyProvider,
@@ -103,6 +107,7 @@ final class PrePostMethodSecurityConfiguration implements ImportAware, AopInfras
 			.preAuthorize(manager(manager, registryProvider));
 		preAuthorize.setOrder(preAuthorize.getOrder() + configuration.interceptorOrderOffset);
 		return new DeferringMethodInterceptor<>(preAuthorize, (f) -> {
+			templateExpressionDefaultsProvider.ifAvailable(manager::setTemplateDefaults);
 			methodSecurityDefaultsProvider.ifAvailable(manager::setTemplateDefaults);
 			manager.setExpressionHandler(expressionHandlerProvider
 				.getIfAvailable(() -> defaultExpressionHandler(defaultsProvider, roleHierarchyProvider, context)));
@@ -115,6 +120,7 @@ final class PrePostMethodSecurityConfiguration implements ImportAware, AopInfras
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 	static MethodInterceptor postAuthorizeAuthorizationMethodInterceptor(
 			ObjectProvider<GrantedAuthorityDefaults> defaultsProvider,
+			ObjectProvider<AnnotationTemplateExpressionDefaults> templateExpressionDefaultsProvider,
 			ObjectProvider<PrePostTemplateDefaults> methodSecurityDefaultsProvider,
 			ObjectProvider<MethodSecurityExpressionHandler> expressionHandlerProvider,
 			ObjectProvider<SecurityContextHolderStrategy> strategyProvider,
@@ -127,6 +133,7 @@ final class PrePostMethodSecurityConfiguration implements ImportAware, AopInfras
 			.postAuthorize(manager(manager, registryProvider));
 		postAuthorize.setOrder(postAuthorize.getOrder() + configuration.interceptorOrderOffset);
 		return new DeferringMethodInterceptor<>(postAuthorize, (f) -> {
+			templateExpressionDefaultsProvider.ifAvailable(manager::setTemplateDefaults);
 			methodSecurityDefaultsProvider.ifAvailable(manager::setTemplateDefaults);
 			manager.setExpressionHandler(expressionHandlerProvider
 				.getIfAvailable(() -> defaultExpressionHandler(defaultsProvider, roleHierarchyProvider, context)));
@@ -139,6 +146,7 @@ final class PrePostMethodSecurityConfiguration implements ImportAware, AopInfras
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 	static MethodInterceptor postFilterAuthorizationMethodInterceptor(
 			ObjectProvider<GrantedAuthorityDefaults> defaultsProvider,
+			ObjectProvider<AnnotationTemplateExpressionDefaults> templateExpressionDefaultsProvider,
 			ObjectProvider<PrePostTemplateDefaults> methodSecurityDefaultsProvider,
 			ObjectProvider<MethodSecurityExpressionHandler> expressionHandlerProvider,
 			ObjectProvider<SecurityContextHolderStrategy> strategyProvider,
@@ -147,6 +155,7 @@ final class PrePostMethodSecurityConfiguration implements ImportAware, AopInfras
 		PostFilterAuthorizationMethodInterceptor postFilter = new PostFilterAuthorizationMethodInterceptor();
 		postFilter.setOrder(postFilter.getOrder() + configuration.interceptorOrderOffset);
 		return new DeferringMethodInterceptor<>(postFilter, (f) -> {
+			templateExpressionDefaultsProvider.ifAvailable(f::setTemplateDefaults);
 			methodSecurityDefaultsProvider.ifAvailable(f::setTemplateDefaults);
 			f.setExpressionHandler(expressionHandlerProvider
 				.getIfAvailable(() -> defaultExpressionHandler(defaultsProvider, roleHierarchyProvider, context)));

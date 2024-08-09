@@ -23,6 +23,7 @@ import org.springframework.lang.NonNull;
 import org.springframework.security.access.prepost.PreFilter;
 import org.springframework.security.core.annotation.AnnotationSynthesizer;
 import org.springframework.security.core.annotation.AnnotationSynthesizers;
+import org.springframework.security.core.annotation.AnnotationTemplateExpressionDefaults;
 
 /**
  * For internal use only, as this contract is likely to change.
@@ -48,7 +49,7 @@ final class PreFilterExpressionAttributeRegistry
 		return new PreFilterExpressionAttribute(preFilterExpression, preFilter.filterTarget());
 	}
 
-	void setTemplateDefaults(PrePostTemplateDefaults defaults) {
+	void setTemplateDefaults(AnnotationTemplateExpressionDefaults defaults) {
 		this.synthesizer = AnnotationSynthesizers.requireUnique(PreFilter.class, defaults);
 	}
 

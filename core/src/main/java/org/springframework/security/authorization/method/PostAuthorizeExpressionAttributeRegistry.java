@@ -27,6 +27,7 @@ import org.springframework.expression.Expression;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.core.annotation.AnnotationSynthesizer;
 import org.springframework.security.core.annotation.AnnotationSynthesizers;
+import org.springframework.security.core.annotation.AnnotationTemplateExpressionDefaults;
 import org.springframework.util.Assert;
 
 /**
@@ -90,7 +91,7 @@ final class PostAuthorizeExpressionAttributeRegistry extends AbstractExpressionA
 		this.handlerResolver = (clazz) -> resolveHandler(context, clazz);
 	}
 
-	void setTemplateDefaults(PrePostTemplateDefaults templateDefaults) {
+	void setTemplateDefaults(AnnotationTemplateExpressionDefaults templateDefaults) {
 		this.postAuthorizeSynthesizer = AnnotationSynthesizers.requireUnique(PostAuthorize.class, templateDefaults);
 	}
 
