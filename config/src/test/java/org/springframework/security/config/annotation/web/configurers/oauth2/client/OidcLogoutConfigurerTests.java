@@ -24,6 +24,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
@@ -91,6 +92,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.willThrow;
@@ -216,6 +218,40 @@ public class OidcLogoutConfigurerTests {
 			.andExpect(content().string(containsString("partial_logout")))
 			.andExpect(content().string(containsString("not all sessions were terminated")));
 		this.mvc.perform(get("/token/logout").session(one)).andExpect(status().isOk());
+	}
+
+	@Test
+	void logoutWhenSelfRemoteLogoutUriThenUses() throws Exception {
+		this.spring.register(WebServerConfig.class, OidcProviderConfig.class, SelfLogoutUriConfig.class).autowire();
+		String registrationId = this.clientRegistration.getRegistrationId();
+		MockHttpSession session = login();
+		String logoutToken = this.mvc.perform(get("/token/logout").session(session))
+			.andExpect(status().isOk())
+			.andReturn()
+			.getResponse()
+			.getContentAsString();
+		this.mvc
+			.perform(post(this.web.url("/logout/connect/back-channel/" + registrationId).toString())
+				.param("logout_token", logoutToken))
+			.andExpect(status().isOk());
+		this.mvc.perform(get("/token/logout").session(session)).andExpect(status().isUnauthorized());
+	}
+
+	@Test
+	void logoutWhenDifferentCookieNameThenUses() throws Exception {
+		this.spring.register(OidcProviderConfig.class, CookieConfig.class).autowire();
+		String registrationId = this.clientRegistration.getRegistrationId();
+		MockHttpSession session = login();
+		String logoutToken = this.mvc.perform(get("/token/logout").session(session))
+			.andExpect(status().isOk())
+			.andReturn()
+			.getResponse()
+			.getContentAsString();
+		this.mvc
+			.perform(post(this.web.url("/logout/connect/back-channel/" + registrationId).toString())
+				.param("logout_token", logoutToken))
+			.andExpect(status().isOk());
+		this.mvc.perform(get("/token/logout").session(session)).andExpect(status().isUnauthorized());
 	}
 
 	@Test
@@ -351,6 +387,75 @@ public class OidcLogoutConfigurerTests {
 			// @formatter:on
 
 			return http.build();
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	@Import(RegistrationConfig.class)
+	static class SelfLogoutUriConfig {
+
+		@Bean
+		@Order(1)
+		SecurityFilterChain filters(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated())
+				.oauth2Login(Customizer.withDefaults())
+				.oidcLogout((oidc) -> oidc
+					.backChannel((backchannel) -> backchannel
+						.sessionLogout(Customizer.withDefaults())
+					)
+				);
+			// @formatter:on
+
+			return http.build();
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	@Import(RegistrationConfig.class)
+	static class CookieConfig {
+
+		private final MockWebServer server = new MockWebServer();
+
+		@Bean
+		@Order(1)
+		SecurityFilterChain filters(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated())
+				.oauth2Login(Customizer.withDefaults())
+				.oidcLogout((oidc) -> oidc
+					.backChannel((backchannel) -> backchannel
+						.sessionLogout((logout) -> logout.cookieName("SESSION"))
+					)
+				);
+			// @formatter:on
+
+			return http.build();
+		}
+
+		@Bean
+		MockWebServer web(ObjectProvider<MockMvc> mvc) {
+			MockMvcDispatcher dispatcher = new MockMvcDispatcher(mvc);
+			dispatcher.setAssertion((rr) -> {
+				String cookie = rr.getHeaders().get("Cookie");
+				if (cookie == null) {
+					return;
+				}
+				assertThat(cookie).contains("SESSION").doesNotContain("JSESSIONID");
+			});
+			this.server.setDispatcher(dispatcher);
+			return this.server;
+		}
+
+		@PreDestroy
+		void shutdown() throws IOException {
+			this.server.shutdown();
 		}
 
 	}
@@ -559,12 +664,15 @@ public class OidcLogoutConfigurerTests {
 
 		private MockMvc mvc;
 
+		private Consumer<RecordedRequest> assertion = (rr) -> { };
+
 		MockMvcDispatcher(ObjectProvider<MockMvc> mvc) {
 			this.mvcProvider = mvc;
 		}
 
 		@Override
 		public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
+			this.assertion.accept(request);
 			this.mvc = this.mvcProvider.getObject();
 			String method = request.getMethod();
 			String path = request.getPath();
@@ -601,6 +709,10 @@ public class OidcLogoutConfigurerTests {
 			this.session.put(session.getId(), session);
 		}
 
+		void setAssertion(Consumer<RecordedRequest> assertion) {
+			this.assertion = assertion;
+		}
+
 		private MockHttpSession session(RecordedRequest request) {
 			String cookieHeaderValue = request.getHeader("Cookie");
 			if (cookieHeaderValue == null) {
@@ -610,6 +722,10 @@ public class OidcLogoutConfigurerTests {
 			for (String cookie : cookies) {
 				String[] parts = cookie.split("=");
 				if ("JSESSIONID".equals(parts[0])) {
+					return this.session.computeIfAbsent(parts[1],
+							(k) -> new MockHttpSession(new MockServletContext(), parts[1]));
+				}
+				if ("SESSION".equals(parts[0])) {
 					return this.session.computeIfAbsent(parts[1],
 							(k) -> new MockHttpSession(new MockServletContext(), parts[1]));
 				}

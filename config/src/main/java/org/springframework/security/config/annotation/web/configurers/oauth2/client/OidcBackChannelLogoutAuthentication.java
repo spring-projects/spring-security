@@ -20,6 +20,7 @@ import java.util.Collections;
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.oauth2.client.oidc.authentication.logout.OidcLogoutToken;
+import org.springframework.security.oauth2.client.registration.ClientRegistration;
 
 /**
  * An {@link org.springframework.security.core.Authentication} implementation that
@@ -37,13 +38,16 @@ class OidcBackChannelLogoutAuthentication extends AbstractAuthenticationToken {
 
 	private final OidcLogoutToken logoutToken;
 
+	private final ClientRegistration clientRegistration;
+
 	/**
 	 * Construct an {@link OidcBackChannelLogoutAuthentication}
 	 * @param logoutToken a deserialized, verified OIDC Logout Token
 	 */
-	OidcBackChannelLogoutAuthentication(OidcLogoutToken logoutToken) {
+	OidcBackChannelLogoutAuthentication(OidcLogoutToken logoutToken, ClientRegistration clientRegistration) {
 		super(Collections.emptyList());
 		this.logoutToken = logoutToken;
+		this.clientRegistration = clientRegistration;
 		setAuthenticated(true);
 	}
 
@@ -61,6 +65,10 @@ class OidcBackChannelLogoutAuthentication extends AbstractAuthenticationToken {
 	@Override
 	public OidcLogoutToken getCredentials() {
 		return this.logoutToken;
+	}
+
+	ClientRegistration getClientRegistration() {
+		return this.clientRegistration;
 	}
 
 }

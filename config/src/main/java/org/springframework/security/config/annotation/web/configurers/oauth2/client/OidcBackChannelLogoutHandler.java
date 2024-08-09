@@ -29,6 +29,7 @@ import org.apache.commons.logging.LogFactory;
 
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.server.ServletServerHttpResponse;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.oidc.authentication.logout.OidcLogoutToken;
@@ -40,6 +41,8 @@ import org.springframework.security.oauth2.core.http.converter.OAuth2ErrorHttpMe
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.util.UrlUtils;
 import org.springframework.util.Assert;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
@@ -86,7 +89,7 @@ final class OidcBackChannelLogoutHandler implements LogoutHandler {
 		for (OidcSessionInformation session : sessions) {
 			totalCount++;
 			try {
-				eachLogout(request, session);
+				eachLogout(request, token, session);
 				invalidatedCount++;
 			}
 			catch (RestClientException ex) {
@@ -103,18 +106,23 @@ final class OidcBackChannelLogoutHandler implements LogoutHandler {
 		}
 	}
 
-	private void eachLogout(HttpServletRequest request, OidcSessionInformation session) {
+	private void eachLogout(HttpServletRequest request, OidcBackChannelLogoutAuthentication token,
+			OidcSessionInformation session) {
 		HttpHeaders headers = new HttpHeaders();
 		headers.add(HttpHeaders.COOKIE, this.sessionCookieName + "=" + session.getSessionId());
 		for (Map.Entry<String, String> credential : session.getAuthorities().entrySet()) {
 			headers.add(credential.getKey(), credential.getValue());
 		}
-		String logout = computeLogoutEndpoint(request);
-		HttpEntity<?> entity = new HttpEntity<>(null, headers);
+		headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+		String logout = computeLogoutEndpoint(request, token);
+		MultiValueMap<String, String> body = new LinkedMultiValueMap();
+		body.add("logout_token", token.getPrincipal().getTokenValue());
+		body.add("_spring_security_internal_logout", "true");
+		HttpEntity<?> entity = new HttpEntity<>(body, headers);
 		this.restOperations.postForEntity(logout, entity, Object.class);
 	}
 
-	String computeLogoutEndpoint(HttpServletRequest request) {
+	String computeLogoutEndpoint(HttpServletRequest request, OidcBackChannelLogoutAuthentication token) {
 		// @formatter:off
 		UriComponents uriComponents = UriComponentsBuilder
 				.fromHttpUrl(UrlUtils.buildFullRequestUrl(request))
@@ -136,6 +144,9 @@ final class OidcBackChannelLogoutHandler implements LogoutHandler {
 
 		int port = uriComponents.getPort();
 		uriVariables.put("basePort", (port == -1) ? "" : ":" + port);
+
+		String registrationId = token.getClientRegistration().getRegistrationId();
+		uriVariables.put("registrationId", registrationId);
 
 		return UriComponentsBuilder.fromUriString(this.logoutUri)
 				.buildAndExpand(uriVariables)

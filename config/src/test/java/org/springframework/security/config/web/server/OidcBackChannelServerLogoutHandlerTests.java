@@ -19,6 +19,8 @@ package org.springframework.security.config.web.server;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
+import org.springframework.security.oauth2.client.oidc.authentication.logout.TestOidcLogoutTokens;
+import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -27,6 +29,10 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class OidcBackChannelServerLogoutHandlerTests {
 
+	private final OidcBackChannelLogoutAuthentication token = new OidcBackChannelLogoutAuthentication(
+			TestOidcLogoutTokens.withSubject("issuer", "subject").build(),
+			TestClientRegistrations.clientRegistration().build());
+
 	// gh-14553
 	@Test
 	public void computeLogoutEndpointWhenDifferentHostnameThenLocalhost() {
@@ -34,8 +40,8 @@ public class OidcBackChannelServerLogoutHandlerTests {
 		MockServerHttpRequest request = MockServerHttpRequest
 			.get("https://host.docker.internal:8090/back-channel/logout")
 			.build();
-		String endpoint = logoutHandler.computeLogoutEndpoint(request);
-		assertThat(endpoint).isEqualTo("https://localhost:8090/logout");
+		String endpoint = logoutHandler.computeLogoutEndpoint(request, this.token);
+		assertThat(endpoint).startsWith("https://localhost:8090/logout");
 	}
 
 	@Test
@@ -45,8 +51,8 @@ public class OidcBackChannelServerLogoutHandlerTests {
 		MockServerHttpRequest request = MockServerHttpRequest
 			.get("http://host.docker.internal:8090/back-channel/logout")
 			.build();
-		String endpoint = logoutHandler.computeLogoutEndpoint(request);
-		assertThat(endpoint).isEqualTo("http://host.docker.internal:8090/logout");
+		String endpoint = logoutHandler.computeLogoutEndpoint(request, this.token);
+		assertThat(endpoint).startsWith("http://host.docker.internal:8090/logout");
 	}
 
 	// gh-14609
@@ -55,8 +61,8 @@ public class OidcBackChannelServerLogoutHandlerTests {
 		OidcBackChannelServerLogoutHandler logoutHandler = new OidcBackChannelServerLogoutHandler();
 		logoutHandler.setLogoutUri("http://localhost:8090/logout");
 		MockServerHttpRequest request = MockServerHttpRequest.get("https://server-one.com/back-channel/logout").build();
-		String endpoint = logoutHandler.computeLogoutEndpoint(request);
-		assertThat(endpoint).isEqualTo("http://localhost:8090/logout");
+		String endpoint = logoutHandler.computeLogoutEndpoint(request, this.token);
+		assertThat(endpoint).startsWith("http://localhost:8090/logout");
 	}
 
 }

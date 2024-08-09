@@ -80,7 +80,7 @@ final class OidcBackChannelLogoutReactiveAuthenticationManager implements Reacti
 			.map((jwt) -> OidcLogoutToken.withTokenValue(logoutToken)
 				.claims((claims) -> claims.putAll(jwt.getClaims()))
 				.build())
-			.map(OidcBackChannelLogoutAuthentication::new);
+			.map((oidcLogoutToken) -> new OidcBackChannelLogoutAuthentication(oidcLogoutToken, registration));
 	}
 
 	private Mono<Jwt> decode(ClientRegistration registration, String token) {

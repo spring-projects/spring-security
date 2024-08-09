@@ -19,10 +19,16 @@ package org.springframework.security.config.annotation.web.configurers.oauth2.cl
 import org.junit.jupiter.api.Test;
 
 import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.security.oauth2.client.oidc.authentication.logout.TestOidcLogoutTokens;
+import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class OidcBackChannelLogoutHandlerTests {
+
+	private final OidcBackChannelLogoutAuthentication token = new OidcBackChannelLogoutAuthentication(
+			TestOidcLogoutTokens.withSubject("issuer", "subject").build(),
+			TestClientRegistrations.clientRegistration().build());
 
 	// gh-14553
 	@Test
@@ -31,8 +37,8 @@ public class OidcBackChannelLogoutHandlerTests {
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/back-channel/logout");
 		request.setServerName("host.docker.internal");
 		request.setServerPort(8090);
-		String endpoint = logoutHandler.computeLogoutEndpoint(request);
-		assertThat(endpoint).isEqualTo("http://localhost:8090/logout");
+		String endpoint = logoutHandler.computeLogoutEndpoint(request, this.token);
+		assertThat(endpoint).startsWith("http://localhost:8090/logout");
 	}
 
 	@Test
@@ -42,8 +48,8 @@ public class OidcBackChannelLogoutHandlerTests {
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/back-channel/logout");
 		request.setServerName("host.docker.internal");
 		request.setServerPort(8090);
-		String endpoint = logoutHandler.computeLogoutEndpoint(request);
-		assertThat(endpoint).isEqualTo("http://host.docker.internal:8090/logout");
+		String endpoint = logoutHandler.computeLogoutEndpoint(request, this.token);
+		assertThat(endpoint).startsWith("http://host.docker.internal:8090/logout");
 	}
 
 	// gh-14609
@@ -55,8 +61,8 @@ public class OidcBackChannelLogoutHandlerTests {
 		request.setScheme("https");
 		request.setServerName("server-one.com");
 		request.setServerPort(80);
-		String endpoint = logoutHandler.computeLogoutEndpoint(request);
-		assertThat(endpoint).isEqualTo("http://localhost:8090/logout");
+		String endpoint = logoutHandler.computeLogoutEndpoint(request, this.token);
+		assertThat(endpoint).startsWith("http://localhost:8090/logout");
 	}
 
 }

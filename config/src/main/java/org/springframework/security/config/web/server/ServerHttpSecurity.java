@@ -58,7 +58,6 @@ import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.ObservationReactiveAuthorizationManager;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
 import org.springframework.security.config.Customizer;
-import org.springframework.security.config.annotation.web.configurers.oauth2.client.OidcLogoutConfigurer;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -5536,10 +5535,11 @@ public class ServerHttpSecurity {
 			 * that the scheme, server name, or port in the {@code Host} header are
 			 * different from how you would address the same server internally.
 			 * @param logoutUri the URI to request logout on the back-channel
-			 * @return the {@link OidcLogoutConfigurer.BackChannelLogoutConfigurer} for
-			 * further customizations
+			 * @return the {@link BackChannelLogoutConfigurer} for further customizations
 			 * @since 6.2.4
+			 * @deprecated Please use {@link #sessionLogout} instead
 			 */
+			@Deprecated
 			public BackChannelLogoutConfigurer logoutUri(String logoutUri) {
 				this.logoutHandler = () -> {
 					OidcBackChannelServerLogoutHandler logoutHandler = new OidcBackChannelServerLogoutHandler();
@@ -5550,11 +5550,181 @@ public class ServerHttpSecurity {
 				return this;
 			}
 
+			/**
+			 * Configure what and how per-session logout will be performed.
+			 *
+			 * <p>
+			 * This overrides any value given to {@link #logoutUri(String)}
+			 *
+			 * <p>
+			 * By default, the resulting {@link LogoutHandler} will {@code POST} the
+			 * session cookie and OIDC logout token back to the original back-channel
+			 * logout endpoint.
+			 *
+			 * <p>
+			 * Using this method changes the underlying default that {@code POST}s the
+			 * session cookie and CSRF token to your application's {@code /logout}
+			 * endpoint. As such, it is recommended to call this instead of accepting the
+			 * {@code /logout} default as this does not require any special CSRF
+			 * configuration, even if you don't require other changes.
+			 *
+			 * <p>
+			 * For example, configuring Back-Channel Logout in the following way:
+			 *
+			 * <pre>
+			 * 	http
+			 *     	.oidcLogout((oidc) -> oidc
+			 *     		.backChannel((backChannel) -> backChannel
+			 *     			.sessionLogout(Customizer.withDefaults())
+			 *     		)
+			 *     	);
+			 * </pre>
+			 *
+			 * will make so that the per-session logout invocation no longer requires
+			 * special CSRF configurations.
+			 *
+			 * <p>
+			 * By default, the URI is set to
+			 * {@code {baseScheme}://localhost{basePort}/logout/connect/back-channel/{registrationId}},
+			 * which is simply an internal version of the same endpoint exposed to your
+			 * Back-Channel services. You can use {@link SessionLogoutConfigurer#uri} to
+			 * alter the scheme, server name, or port in the {@code Host} header to
+			 * accommodate how your application would address itself internally.
+			 *
+			 * <p>
+			 * For example, if the way your application would internally call itself is on
+			 * a different scheme and port than incoming traffic, you can configure the
+			 * endpoint in the following way:
+			 *
+			 * <pre>
+			 * 	http
+			 * 		.oidcLogout((oidc) -&gt; oidc
+			 * 			.backChannel((backChannel) -&gt; backChannel
+			 * 				.sessionLogout((logout) -&gt; logout
+			 * 					.uri("http://localhost:9000/logout/connect/back-channel/{registrationId}")
+			 * 				)
+			 * 			)
+			 * 		);
+			 * </pre>
+			 * @param sessionLogout a {@link Customizer} for configuring how to log out of
+			 * each individual session
+			 * @return {@link BackChannelLogoutConfigurer} for further customizations
+			 * @since 6.4
+			 */
+			public BackChannelLogoutConfigurer sessionLogout(Customizer<SessionLogoutConfigurer> sessionLogout) {
+				this.logoutHandler = () -> {
+					SessionLogoutConfigurer logoutHandler = new SessionLogoutConfigurer();
+					sessionLogout.customize(logoutHandler);
+					return logoutHandler.configure();
+				};
+				return this;
+			}
+
 			void configure(ServerHttpSecurity http) {
 				OidcBackChannelLogoutWebFilter filter = new OidcBackChannelLogoutWebFilter(authenticationConverter(),
 						authenticationManager());
-				filter.setLogoutHandler(this.logoutHandler.get());
+				ServerLogoutHandler oidcLogout = this.logoutHandler.get();
+				ServerLogoutHandler sessionLogout = new SecurityContextServerLogoutHandler();
+				LogoutSpec logout = ServerHttpSecurity.this.logout;
+				if (logout != null) {
+					sessionLogout = new DelegatingServerLogoutHandler(logout.logoutHandlers);
+				}
+				filter.setLogoutHandler(new EitherLogoutHandler(oidcLogout, sessionLogout));
 				http.addFilterBefore(filter, SecurityWebFiltersOrder.CSRF);
+			}
+
+			private static final class EitherLogoutHandler implements ServerLogoutHandler {
+
+				private final ServerLogoutHandler left;
+
+				private final ServerLogoutHandler right;
+
+				EitherLogoutHandler(ServerLogoutHandler left, ServerLogoutHandler right) {
+					this.left = left;
+					this.right = right;
+				}
+
+				@Override
+				public Mono<Void> logout(WebFilterExchange exchange, Authentication authentication) {
+					return exchange.getExchange().getFormData().flatMap((data) -> {
+						if (data.getFirst("_spring_security_internal_logout") == null) {
+							return this.left.logout(exchange, authentication);
+						}
+						else {
+							return this.right.logout(exchange, authentication);
+						}
+					});
+				}
+
+			}
+
+			/**
+			 * A configurer for logging out each internal session as identified by the
+			 * external session listed in the OIDC Logout Token.
+			 *
+			 * @author Josh Cummings
+			 * @since 6.4
+			 */
+			public final class SessionLogoutConfigurer {
+
+				private String logoutUri = "{baseScheme}://localhost{basePort}/logout/connect/back-channel/{registrationId}";
+
+				private String cookieName = "SESSION";
+
+				private SessionLogoutConfigurer() {
+
+				}
+
+				/**
+				 * Use this URI to log out a specific session indicated by the OIDC Logout
+				 * Token.
+				 *
+				 * <p>
+				 * Defaults to pointing back to the original Back-Channel OIDC endpoint,
+				 * now including the session cookie value that corresponds to the
+				 * {@code sid} referenced in the OIDC Logout Token.
+				 *
+				 * <p>
+				 * This default value is
+				 * {@code {baseScheme}://localhost{basePort}/logout/connect/back-channel/{registrationId}}
+				 *
+				 * <p>
+				 * If needed for backward compatibility, you can also set this to a
+				 * different logout endpoint, like the Spring Security logout endpoint:
+				 * {@code {baseScheme}://localhost{basePort}/logout}.
+				 * @param uri the URI to invoke to log out specific sessions
+				 * @return the {@link SessionLogoutConfigurer} for further customizations
+				 */
+				public SessionLogoutConfigurer uri(String uri) {
+					this.logoutUri = uri;
+					return this;
+				}
+
+				/**
+				 * Use this cookie name to propagate the internal session identifier in
+				 * the internal logout invocation.
+				 *
+				 * <p>
+				 * This defaults to {@code JSESSIONID}.
+				 *
+				 * <p>
+				 * When using Spring Session, you may need to set this to {@code SESSION}
+				 * @param cookieName the cookie name to use
+				 * @return the {@link SessionLogoutConfigurer} for further customizations
+				 */
+				public SessionLogoutConfigurer cookieName(String cookieName) {
+					this.cookieName = cookieName;
+					return this;
+				}
+
+				private ServerLogoutHandler configure() {
+					OidcBackChannelServerLogoutHandler logoutHandler = new OidcBackChannelServerLogoutHandler();
+					logoutHandler.setSessionRegistry(OidcLogoutSpec.this.getSessionRegistry());
+					logoutHandler.setLogoutUri(this.logoutUri);
+					logoutHandler.setSessionCookieName(this.cookieName);
+					return logoutHandler;
+				}
+
 			}
 
 		}
