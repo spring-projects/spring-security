@@ -365,6 +365,15 @@ Java::
 @Configuration
 public class WebSocketSecurityConfig implements WebSocketMessageBrokerConfigurer {
 
+    private final ApplicationContext applicationContext;
+
+    private final AuthorizationManager<Message<?>> authorizationManager;
+    
+    public WebSocketSecurityConfig(ApplicationContext applicationContext, AuthorizationManager<Message<?>> authorizationManager) {
+        this.applicationContext = applicationContext;
+        this.authorizationManager = authorizationManager;
+    }
+
     @Override
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
         argumentResolvers.add(new AuthenticationPrincipalArgumentResolver());
@@ -372,9 +381,8 @@ public class WebSocketSecurityConfig implements WebSocketMessageBrokerConfigurer
 
     @Override
     public void configureClientInboundChannel(ChannelRegistration registration) {
-        AuthorizationManager<Message<?>> myAuthorizationRules = AuthenticatedAuthorizationManager.authenticated();
-        AuthorizationChannelInterceptor authz = new AuthorizationChannelInterceptor(myAuthorizationRules);
-        AuthorizationEventPublisher publisher = new SpringAuthorizationEventPublisher(this.context);
+        AuthorizationChannelInterceptor authz = new AuthorizationChannelInterceptor(authorizationManager);
+        AuthorizationEventPublisher publisher = new SpringAuthorizationEventPublisher(applicationContext);
         authz.setAuthorizationEventPublisher(publisher);
         registration.interceptors(new SecurityContextChannelInterceptor(), authz);
     }
@@ -386,7 +394,7 @@ Kotlin::
 [source,kotlin,role="secondary"]
 ----
 @Configuration
-open class WebSocketSecurityConfig : WebSocketMessageBrokerConfigurer {
+open class WebSocketSecurityConfig(val applicationContext: ApplicationContext, val authorizationManager: AuthorizationManager<Message<*>>) : WebSocketMessageBrokerConfigurer {
     @Override
     override fun addArgumentResolvers(argumentResolvers: List<HandlerMethodArgumentResolver>) {
         argumentResolvers.add(AuthenticationPrincipalArgumentResolver())
@@ -394,9 +402,8 @@ open class WebSocketSecurityConfig : WebSocketMessageBrokerConfigurer {
 
     @Override
     override fun configureClientInboundChannel(registration: ChannelRegistration) {
-        var myAuthorizationRules: AuthorizationManager<Message<*>> = AuthenticatedAuthorizationManager.authenticated()
-        var authz: AuthorizationChannelInterceptor = AuthorizationChannelInterceptor(myAuthorizationRules)
-        var publisher: AuthorizationEventPublisher = SpringAuthorizationEventPublisher(this.context)
+        var authz: AuthorizationChannelInterceptor = AuthorizationChannelInterceptor(authorizationManager)
+        var publisher: AuthorizationEventPublisher = SpringAuthorizationEventPublisher(applicationContext)
         authz.setAuthorizationEventPublisher(publisher)
         registration.interceptors(SecurityContextChannelInterceptor(), authz)
     }
