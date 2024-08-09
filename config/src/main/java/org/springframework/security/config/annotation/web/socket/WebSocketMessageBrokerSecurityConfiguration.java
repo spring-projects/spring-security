@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,6 +35,7 @@ import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.authorization.ObservationAuthorizationManager;
 import org.springframework.security.authorization.SpringAuthorizationEventPublisher;
+import org.springframework.security.core.annotation.AnnotationTemplateExpressionDefaults;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.messaging.access.intercept.AuthorizationChannelInterceptor;
@@ -82,6 +83,8 @@ final class WebSocketMessageBrokerSecurityConfiguration
 
 	private ApplicationContext context;
 
+	private AnnotationTemplateExpressionDefaults templateDefaults;
+
 	WebSocketMessageBrokerSecurityConfiguration(ApplicationContext context) {
 		this.context = context;
 	}
@@ -90,6 +93,7 @@ final class WebSocketMessageBrokerSecurityConfiguration
 	public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
 		AuthenticationPrincipalArgumentResolver resolver = new AuthenticationPrincipalArgumentResolver();
 		resolver.setSecurityContextHolderStrategy(this.securityContextHolderStrategy);
+		resolver.setTemplateDefaults(this.templateDefaults);
 		argumentResolvers.add(resolver);
 	}
 
@@ -126,6 +130,11 @@ final class WebSocketMessageBrokerSecurityConfiguration
 	@Autowired(required = false)
 	void setObservationRegistry(ObservationRegistry observationRegistry) {
 		this.observationRegistry = observationRegistry;
+	}
+
+	@Autowired(required = false)
+	void setTemplateDefaults(AnnotationTemplateExpressionDefaults templateDefaults) {
+		this.templateDefaults = templateDefaults;
 	}
 
 	@Override
