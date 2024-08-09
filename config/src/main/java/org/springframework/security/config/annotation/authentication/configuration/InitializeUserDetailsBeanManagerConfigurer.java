@@ -26,6 +26,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.log.LogMessage;
+import org.springframework.security.authentication.dao.AbstractUserDetailsAuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.authentication.password.CompromisedPasswordChecker;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -69,11 +70,18 @@ class InitializeUserDetailsBeanManagerConfigurer extends GlobalAuthenticationCon
 			List<BeanWithName<UserDetailsService>> userDetailsServices = getBeansWithName(UserDetailsService.class);
 			if (auth.isConfigured()) {
 				if (!userDetailsServices.isEmpty()) {
-					this.logger.warn("Global AuthenticationManager configured with an AuthenticationProvider bean. "
-							+ "UserDetailsService beans will not be used for username/password login. "
-							+ "Consider removing the AuthenticationProvider bean. "
-							+ "Alternatively, consider using the UserDetailsService in a manually instantiated "
-							+ "DaoAuthenticationProvider.");
+					List<BeanWithName<AbstractUserDetailsAuthenticationProvider>> userDetailsAuthenticationProviders = getBeansWithName(
+							AbstractUserDetailsAuthenticationProvider.class);
+					boolean wired = (userDetailsAuthenticationProviders.size() == userDetailsServices.size());
+					// we should check every UserDetailsService is actually wired
+					// but getUserDetailsService() is not exposed
+					if (!wired) {
+						this.logger.warn("Global AuthenticationManager configured with an AuthenticationProvider bean. "
+								+ "UserDetailsService beans will not be used for username/password login. "
+								+ "Consider removing the AuthenticationProvider bean. "
+								+ "Alternatively, consider using the UserDetailsService in a manually instantiated "
+								+ "DaoAuthenticationProvider.");
+					}
 				}
 				return;
 			}
