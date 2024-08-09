@@ -68,6 +68,8 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 
 	private boolean saml2LoginEnabled;
 
+	private boolean oneTimeTokenEnabled;
+
 	private String authenticationUrl;
 
 	private String usernameParameter;
@@ -140,6 +142,10 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 
 	public void setOauth2LoginEnabled(boolean oauth2LoginEnabled) {
 		this.oauth2LoginEnabled = oauth2LoginEnabled;
+	}
+
+	public void setOneTimeTokenEnabled(boolean oneTimeTokenEnabled) {
+		this.oneTimeTokenEnabled = oneTimeTokenEnabled;
 	}
 
 	public void setSaml2LoginEnabled(boolean saml2LoginEnabled) {
@@ -222,6 +228,20 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 			sb.append("        </p>\n");
 			sb.append(createRememberMe(this.rememberMeParameter) + renderHiddenInputs(request));
 			sb.append("        <button type=\"submit\" class=\"primary\">Sign in</button>\n");
+			sb.append("      </form>\n");
+		}
+		if (this.oneTimeTokenEnabled) {
+			sb.append("      <form id=\"ott-form\" class=\"form-signin\" method=\"post\" action=\"" + contextPath
+					+ "/ott/authenticate" + "\">\n");
+			sb.append("        <h2 class=\"form-signin-heading\">Sign in without password</h2>\n");
+			sb.append(createError(loginError, errorMsg) + createLogoutSuccess(logoutSuccess) + "        <p>\n");
+			sb.append("          <label for=\"username\" class=\"sr-only\">Username</label>\n");
+			sb.append("          <input type=\"text\" id=\"username\" name=\"" + this.usernameParameter
+					+ "\" class=\"form-control\" placeholder=\"Username\" required>\n");
+			sb.append("        </p>\n");
+			sb.append(renderHiddenInputs(request));
+			sb.append(
+					"        <button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\" form=\"ott-form\">Send Token</button>\n");
 			sb.append("      </form>\n");
 		}
 		if (this.oauth2LoginEnabled) {
