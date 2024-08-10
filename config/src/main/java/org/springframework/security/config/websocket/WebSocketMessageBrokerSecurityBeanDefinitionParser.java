@@ -305,7 +305,7 @@ public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements
 
 		private static final String CUSTOM_ARG_RESOLVERS_PROP = "customArgumentResolvers";
 
-		private static final String TEMPLATE_EXPRESSION_BEAN_ID = "templateDefaults";
+		private static final String TEMPLATE_EXPRESSION_BEAN_ID = "annotationExpressionTemplateDefaults";
 
 		private final String inboundSecurityInterceptorId;
 
@@ -333,7 +333,7 @@ public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements
 							AuthenticationPrincipalArgumentResolver.class);
 					if (registry.containsBeanDefinition(TEMPLATE_EXPRESSION_BEAN_ID)) {
 						beanDefinition.getPropertyValues()
-							.add(TEMPLATE_EXPRESSION_BEAN_ID, new RuntimeBeanReference(TEMPLATE_EXPRESSION_BEAN_ID));
+							.add("templateDefaults", new RuntimeBeanReference(TEMPLATE_EXPRESSION_BEAN_ID));
 					}
 					argResolvers.add(beanDefinition);
 					bd.getPropertyValues().add(CUSTOM_ARG_RESOLVERS_PROP, argResolvers);

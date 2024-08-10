@@ -16,6 +16,11 @@
 
 package org.springframework.security.config.annotation.web.configuration;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,6 +31,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AnnotationTemplateExpressionDefaults;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -39,12 +45,15 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
@@ -97,8 +106,26 @@ public class WebMvcSecurityConfigurationTests {
 		this.mockMvc.perform(request).andExpect(assertResult(csrfToken));
 	}
 
+	@Test
+	public void metaAnnotationWhenTemplateDefaultsBeanThenResolvesExpression() throws Exception {
+		this.mockMvc.perform(get("/hi")).andExpect(content().string("Hi, Stranger!"));
+		Authentication harold = new TestingAuthenticationToken("harold", "password",
+				AuthorityUtils.createAuthorityList("ROLE_USER"));
+		SecurityContextHolder.getContext().setAuthentication(harold);
+		this.mockMvc.perform(get("/hi")).andExpect(content().string("Hi, Harold!"));
+	}
+
 	private ResultMatcher assertResult(Object expected) {
 		return model().attribute("result", expected);
+	}
+
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target(ElementType.PARAMETER)
+	@AuthenticationPrincipal(expression = "#this.equals('{value}')")
+	@interface IsUser {
+
+		String value() default "user";
+
 	}
 
 	@Controller
@@ -120,6 +147,17 @@ public class WebMvcSecurityConfigurationTests {
 			return new ModelAndView("view", "result", token);
 		}
 
+		@GetMapping("/hi")
+		@ResponseBody
+		String ifUser(@IsUser("harold") boolean isHarold) {
+			if (isHarold) {
+				return "Hi, Harold!";
+			}
+			else {
+				return "Hi, Stranger!";
+			}
+		}
+
 	}
 
 	@Configuration
@@ -130,6 +168,11 @@ public class WebMvcSecurityConfigurationTests {
 		@Bean
 		TestController testController() {
 			return new TestController();
+		}
+
+		@Bean
+		AnnotationTemplateExpressionDefaults templateExpressionDefaults() {
+			return new AnnotationTemplateExpressionDefaults();
 		}
 
 	}
