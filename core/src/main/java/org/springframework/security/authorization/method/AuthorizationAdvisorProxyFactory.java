@@ -86,28 +86,14 @@ public final class AuthorizationAdvisorProxyFactory
 	private static final TargetVisitor DEFAULT_VISITOR_SKIP_VALUE_TYPES = TargetVisitor.of(new ClassVisitor(),
 			new IgnoreValueTypeVisitor(), DEFAULT_VISITOR);
 
-	private List<AuthorizationAdvisor> advisors = new ArrayList<>();
+	private List<AuthorizationAdvisor> advisors;
 
 	private TargetVisitor visitor = DEFAULT_VISITOR;
 
-	/**
-	 * Construct an {@link AuthorizationAdvisorProxyFactory} with the following advisors
-	 * @param advisors the list of advisors to wrap around proxied objects
-	 * @since 6.4
-	 */
-	public AuthorizationAdvisorProxyFactory(List<AuthorizationAdvisor> advisors) {
-		this.advisors.addAll(advisors);
-		AnnotationAwareOrderComparator.sort(this.advisors);
-	}
-
-	/**
-	 * Construct an {@link AuthorizationAdvisorProxyFactory} with the following advisors
-	 * @param advisors the list of advisors to wrap around proxied objects
-	 * @since 6.4
-	 */
-	public AuthorizationAdvisorProxyFactory(AuthorizationAdvisor... advisors) {
-		this.advisors.addAll(List.of(advisors));
-		AnnotationAwareOrderComparator.sort(this.advisors);
+	private AuthorizationAdvisorProxyFactory(List<AuthorizationAdvisor> advisors) {
+		this.advisors = new ArrayList<>(advisors);
+		this.advisors.add(new AuthorizeReturnObjectMethodInterceptor(this));
+		setAdvisors(this.advisors);
 	}
 
 	/**
@@ -122,9 +108,7 @@ public final class AuthorizationAdvisorProxyFactory
 		advisors.add(AuthorizationManagerAfterMethodInterceptor.postAuthorize());
 		advisors.add(new PreFilterAuthorizationMethodInterceptor());
 		advisors.add(new PostFilterAuthorizationMethodInterceptor());
-		AuthorizationAdvisorProxyFactory proxyFactory = new AuthorizationAdvisorProxyFactory(advisors);
-		proxyFactory.addAdvisors(new AuthorizeReturnObjectMethodInterceptor(proxyFactory));
-		return proxyFactory;
+		return new AuthorizationAdvisorProxyFactory(advisors);
 	}
 
 	/**
@@ -139,9 +123,7 @@ public final class AuthorizationAdvisorProxyFactory
 		advisors.add(AuthorizationManagerAfterReactiveMethodInterceptor.postAuthorize());
 		advisors.add(new PreFilterAuthorizationReactiveMethodInterceptor());
 		advisors.add(new PostFilterAuthorizationReactiveMethodInterceptor());
-		AuthorizationAdvisorProxyFactory proxyFactory = new AuthorizationAdvisorProxyFactory(advisors);
-		proxyFactory.addAdvisors(new AuthorizeReturnObjectMethodInterceptor(proxyFactory));
-		return proxyFactory;
+		return new AuthorizationAdvisorProxyFactory(advisors);
 	}
 
 	/**
@@ -179,21 +161,13 @@ public final class AuthorizationAdvisorProxyFactory
 		return factory.getProxy();
 	}
 
-	public void addAdvisors(AuthorizationAdvisor... advisors) {
-		this.advisors.addAll(List.of(advisors));
-		AnnotationAwareOrderComparator.sort(this.advisors);
-	}
-
 	/**
 	 * Add advisors that should be included to each proxy created.
 	 *
 	 * <p>
 	 * All advisors are re-sorted by their advisor order.
 	 * @param advisors the advisors to add
-	 * @deprecated Either use the constructor to provide a complete set of advisors or use
-	 * {@link #addAdvisors(AuthorizationAdvisor...)} to add to the existing list
 	 */
-	@Deprecated
 	public void setAdvisors(AuthorizationAdvisor... advisors) {
 		this.advisors = new ArrayList<>(List.of(advisors));
 		AnnotationAwareOrderComparator.sort(this.advisors);
@@ -205,10 +179,7 @@ public final class AuthorizationAdvisorProxyFactory
 	 * <p>
 	 * All advisors are re-sorted by their advisor order.
 	 * @param advisors the advisors to add
-	 * @deprecated Either use the constructor to provide a complete set of advisors or use
-	 * {@link #addAdvisors(AuthorizationAdvisor...)} to add to the existing list
 	 */
-	@Deprecated
 	public void setAdvisors(Collection<AuthorizationAdvisor> advisors) {
 		this.advisors = new ArrayList<>(advisors);
 		AnnotationAwareOrderComparator.sort(this.advisors);
