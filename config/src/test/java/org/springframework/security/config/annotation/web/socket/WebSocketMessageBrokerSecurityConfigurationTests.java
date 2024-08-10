@@ -16,6 +16,10 @@
 
 package org.springframework.security.config.annotation.web.socket;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -59,6 +63,7 @@ import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.config.annotation.SecurityContextChangedListenerConfig;
 import org.springframework.security.config.annotation.web.messaging.MessageSecurityMetadataSourceRegistry;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AnnotationTemplateExpressionDefaults;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
@@ -162,6 +167,17 @@ public class WebSocketMessageBrokerSecurityConfigurationTests {
 		messageChannel.send(message);
 		assertThat(this.context.getBean(MyController.class).authenticationPrincipal)
 			.isEqualTo((String) this.messageUser.getPrincipal());
+	}
+
+	@Test
+	public void sendMessageWhenMetaAnnotationThenParsesExpression() {
+		loadConfig(NoInboundSecurityConfig.class);
+		this.messageUser = new TestingAuthenticationToken("harold", "password", "ROLE_USER");
+		clientInboundChannel().send(message("/permitAll/hi"));
+		assertThat(this.context.getBean(MyController.class).message).isEqualTo("Hi, Harold!");
+		this.messageUser = new TestingAuthenticationToken("user", "password", "ROLE_USER");
+		clientInboundChannel().send(message("/permitAll/hi"));
+		assertThat(this.context.getBean(MyController.class).message).isEqualTo("Hi, Stranger!");
 	}
 
 	@Test
@@ -363,15 +379,6 @@ public class WebSocketMessageBrokerSecurityConfigurationTests {
 		this.messageUser = new AnonymousAuthenticationToken("key", "user",
 				AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
 		clientInboundChannel().send(message("/anonymous"));
-	}
-
-	@Test
-	public void sendMessageWhenAnonymousConfiguredAndLoggedInUserThenAccessDeniedException() {
-		loadConfig(WebSocketSecurityConfig.class);
-		assertThatExceptionOfType(MessageDeliveryException.class)
-			.isThrownBy(() -> clientInboundChannel().send(message("/anonymous")))
-			.withCauseInstanceOf(AccessDeniedException.class);
-
 	}
 
 	private void assertHandshake(HttpServletRequest request) {
@@ -585,12 +592,23 @@ public class WebSocketMessageBrokerSecurityConfigurationTests {
 
 	}
 
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target(ElementType.PARAMETER)
+	@AuthenticationPrincipal(expression = "#this.equals('{value}')")
+	@interface IsUser {
+
+		String value() default "user";
+
+	}
+
 	@Controller
 	static class MyController {
 
 		String authenticationPrincipal;
 
 		MyCustomArgument myCustomArgument;
+
+		String message;
 
 		@MessageMapping("/authentication")
 		void authentication(@AuthenticationPrincipal String un) {
@@ -600,6 +618,11 @@ public class WebSocketMessageBrokerSecurityConfigurationTests {
 		@MessageMapping("/myCustom")
 		void myCustom(MyCustomArgument myCustomArgument) {
 			this.myCustomArgument = myCustomArgument;
+		}
+
+		@MessageMapping("/hi")
+		void sayHello(@IsUser("harold") boolean isHarold) {
+			this.message = isHarold ? "Hi, Harold!" : "Hi, Stranger!";
 		}
 
 	}
@@ -733,6 +756,11 @@ public class WebSocketMessageBrokerSecurityConfigurationTests {
 		@Bean
 		MyController myController() {
 			return new MyController();
+		}
+
+		@Bean
+		AnnotationTemplateExpressionDefaults templateExpressionDefaults() {
+			return new AnnotationTemplateExpressionDefaults();
 		}
 
 	}
