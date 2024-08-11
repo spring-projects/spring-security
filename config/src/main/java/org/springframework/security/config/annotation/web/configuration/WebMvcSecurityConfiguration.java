@@ -98,6 +98,7 @@ class WebMvcSecurityConfiguration implements WebMvcConfigurer, ApplicationContex
 		CurrentSecurityContextArgumentResolver currentSecurityContextArgumentResolver = new CurrentSecurityContextArgumentResolver();
 		currentSecurityContextArgumentResolver.setBeanResolver(this.beanResolver);
 		currentSecurityContextArgumentResolver.setSecurityContextHolderStrategy(this.securityContextHolderStrategy);
+		currentSecurityContextArgumentResolver.setTemplateDefaults(this.templateDefaults);
 		argumentResolvers.add(currentSecurityContextArgumentResolver);
 		argumentResolvers.add(new CsrfTokenArgumentResolver());
 	}

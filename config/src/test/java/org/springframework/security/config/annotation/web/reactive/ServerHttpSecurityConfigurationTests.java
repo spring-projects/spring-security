@@ -42,6 +42,7 @@ import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AnnotationTemplateExpressionDefaults;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.annotation.CurrentSecurityContext;
 import org.springframework.security.core.userdetails.MapReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.PasswordEncodedUser;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
@@ -183,6 +184,27 @@ public class ServerHttpSecurityConfigurationTests {
 			.isEqualTo("Hi, Harold!");
 	}
 
+	@Test
+	public void resoleMetaAnnotationWhenTemplateDefaultsBeanThenResolvesExpression() throws Exception {
+		this.spring.register(MetaAnnotationPlaceholderConfig.class).autowire();
+		Authentication user = new TestingAuthenticationToken("user", "password", "ROLE_USER");
+		this.webClient.mutateWith(mockAuthentication(user))
+			.get()
+			.uri("/hello")
+			.exchange()
+			.expectStatus()
+			.isOk()
+			.expectBody(String.class)
+			.isEqualTo("user");
+		Authentication harold = new TestingAuthenticationToken("harold", "password", "ROLE_USER");
+		this.webClient.mutateWith(mockAuthentication(harold))
+			.get()
+			.uri("/hello")
+			.exchange()
+			.expectBody(String.class)
+			.isEqualTo("harold");
+	}
+
 	@Configuration
 	static class SubclassConfig extends ServerHttpSecurityConfiguration {
 
@@ -283,6 +305,15 @@ public class ServerHttpSecurityConfigurationTests {
 
 	}
 
+	@Target({ ElementType.PARAMETER })
+	@Retention(RetentionPolicy.RUNTIME)
+	@CurrentSecurityContext(expression = "authentication.{property}")
+	@interface CurrentAuthenticationProperty {
+
+		String property();
+
+	}
+
 	@RestController
 	static class TestController {
 
@@ -294,6 +325,12 @@ public class ServerHttpSecurityConfigurationTests {
 			else {
 				return "Hi, Stranger!";
 			}
+		}
+
+		@GetMapping("/hello")
+		String getCurrentAuthenticationProperty(
+				@CurrentAuthenticationProperty(property = "principal") String principal) {
+			return principal;
 		}
 
 	}

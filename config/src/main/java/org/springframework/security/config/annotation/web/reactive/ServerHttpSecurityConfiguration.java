@@ -109,12 +109,14 @@ class ServerHttpSecurityConfiguration {
 
 	@Bean
 	static WebFluxConfigurer authenticationPrincipalArgumentResolverConfigurer(
-			ObjectProvider<AuthenticationPrincipalArgumentResolver> authenticationPrincipalArgumentResolver) {
+			ObjectProvider<AuthenticationPrincipalArgumentResolver> authenticationPrincipalArgumentResolver,
+			ObjectProvider<CurrentSecurityContextArgumentResolver> currentSecurityContextArgumentResolvers) {
 		return new WebFluxConfigurer() {
 
 			@Override
 			public void configureArgumentResolvers(ArgumentResolverConfigurer configurer) {
-				configurer.addCustomResolver(authenticationPrincipalArgumentResolver.getObject());
+				configurer.addCustomResolver(authenticationPrincipalArgumentResolver.getObject(),
+						currentSecurityContextArgumentResolvers.getObject());
 			}
 
 		};
@@ -133,12 +135,14 @@ class ServerHttpSecurityConfiguration {
 	}
 
 	@Bean
-	CurrentSecurityContextArgumentResolver reactiveCurrentSecurityContextArgumentResolver() {
+	CurrentSecurityContextArgumentResolver reactiveCurrentSecurityContextArgumentResolver(
+			ObjectProvider<AnnotationTemplateExpressionDefaults> templateDefaults) {
 		CurrentSecurityContextArgumentResolver resolver = new CurrentSecurityContextArgumentResolver(
 				this.adapterRegistry);
 		if (this.beanFactory != null) {
 			resolver.setBeanResolver(new BeanFactoryResolver(this.beanFactory));
 		}
+		templateDefaults.ifAvailable(resolver::setTemplateDefaults);
 		return resolver;
 	}
 

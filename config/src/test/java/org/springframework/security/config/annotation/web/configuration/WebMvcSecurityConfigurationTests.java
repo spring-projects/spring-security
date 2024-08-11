@@ -33,6 +33,7 @@ import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AnnotationTemplateExpressionDefaults;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.annotation.CurrentSecurityContext;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.csrf.CsrfToken;
@@ -115,6 +116,15 @@ public class WebMvcSecurityConfigurationTests {
 		this.mockMvc.perform(get("/hi")).andExpect(content().string("Hi, Harold!"));
 	}
 
+	@Test
+	public void resolveMetaAnnotationWhenTemplateDefaultsBeanThenResolvesExpression() throws Exception {
+		this.mockMvc.perform(get("/hello")).andExpect(content().string("user"));
+		Authentication harold = new TestingAuthenticationToken("harold", "password",
+				AuthorityUtils.createAuthorityList("ROLE_USER"));
+		SecurityContextHolder.getContext().setAuthentication(harold);
+		this.mockMvc.perform(get("/hello")).andExpect(content().string("harold"));
+	}
+
 	private ResultMatcher assertResult(Object expected) {
 		return model().attribute("result", expected);
 	}
@@ -125,6 +135,15 @@ public class WebMvcSecurityConfigurationTests {
 	@interface IsUser {
 
 		String value() default "user";
+
+	}
+
+	@Target({ ElementType.PARAMETER })
+	@Retention(RetentionPolicy.RUNTIME)
+	@CurrentSecurityContext(expression = "authentication.{property}")
+	@interface CurrentAuthenticationProperty {
+
+		String property();
 
 	}
 
@@ -156,6 +175,13 @@ public class WebMvcSecurityConfigurationTests {
 			else {
 				return "Hi, Stranger!";
 			}
+		}
+
+		@GetMapping("/hello")
+		@ResponseBody
+		String getCurrentAuthenticationProperty(
+				@CurrentAuthenticationProperty(property = "principal") String principal) {
+			return principal;
 		}
 
 	}
