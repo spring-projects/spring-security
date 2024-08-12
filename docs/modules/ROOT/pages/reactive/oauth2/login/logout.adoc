@@ -135,7 +135,7 @@ To enable this, you can stand up the Back-Channel Logout endpoint in the DSL lik
 ======
 Java::
 +
-[source=java,role="primary"]
+[source,java,role="primary"]
 ----
 @Bean
 public SecurityWebFilterChain filterChain(ServerHttpSecurity http) throws Exception {
@@ -153,7 +153,7 @@ public SecurityWebFilterChain filterChain(ServerHttpSecurity http) throws Except
 
 Kotlin::
 +
-[source=kotlin,role="secondary"]
+[source,kotlin,role="secondary"]
 ----
 @Bean
 open fun filterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
@@ -209,7 +209,7 @@ You can achieve this by configuring a custom `ReactiveOidcSessionStrategy`, like
 ======
 Java::
 +
-[source=java,role="primary"]
+[source,java,role="primary"]
 ----
 @Component
 public final class MySpringDataOidcSessionStrategy implements OidcSessionStrategy {
@@ -238,7 +238,7 @@ public final class MySpringDataOidcSessionStrategy implements OidcSessionStrateg
 
 Kotlin::
 +
-[source=kotlin,role="secondary"]
+[source,kotlin,role="secondary"]
 ----
 @Component
 class MySpringDataOidcSessionStrategy: ReactiveOidcSessionStrategy {

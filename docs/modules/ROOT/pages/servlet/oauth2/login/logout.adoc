@@ -134,7 +134,7 @@ To enable this, you can stand up the Back-Channel Logout endpoint in the DSL lik
 ======
 Java::
 +
-[source=java,role="primary"]
+[source,java,role="primary"]
 ----
 @Bean
 public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -152,7 +152,7 @@ public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
 Kotlin::
 +
-[source=kotlin,role="secondary"]
+[source,kotlin,role="secondary"]
 ----
 @Bean
 open fun filterChain(http: HttpSecurity): SecurityFilterChain {
@@ -176,7 +176,7 @@ Then, you need a way listen to events published by Spring Security to remove old
 ======
 Java::
 +
-[source=java,role="primary"]
+[source,java,role="primary"]
 ----
 @Bean
 public HttpSessionEventPublisher sessionEventPublisher() {
@@ -186,7 +186,7 @@ public HttpSessionEventPublisher sessionEventPublisher() {
 
 Kotlin::
 +
-[source=kotlin,role="secondary"]
+[source,kotlin,role="secondary"]
 ----
 @Bean
 open fun sessionEventPublisher(): HttpSessionEventPublisher {
@@ -235,7 +235,7 @@ You can achieve this by configuring a custom `OidcSessionStrategy`, like so:
 ======
 Java::
 +
-[source=java,role="primary"]
+[source,java,role="primary"]
 ----
 @Component
 public final class MySpringDataOidcSessionStrategy implements OidcSessionStrategy {
@@ -264,7 +264,7 @@ public final class MySpringDataOidcSessionStrategy implements OidcSessionStrateg
 
 Kotlin::
 +
-[source=kotlin,role="secondary"]
+[source,kotlin,role="secondary"]
 ----
 @Component
 class MySpringDataOidcSessionStrategy: OidcSessionStrategy {
