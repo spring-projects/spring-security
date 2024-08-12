@@ -78,7 +78,7 @@ final class PostAuthorizeExpressionAttributeRegistry extends AbstractExpressionA
 
 	private PostAuthorize findPostAuthorizeAnnotation(Method method, Class<?> targetClass) {
 		Class<?> targetClassToUse = targetClass(method, targetClass);
-		return this.postAuthorizeSynthesizer.synthesize(method, targetClass);
+		return this.postAuthorizeSynthesizer.synthesize(method, targetClassToUse);
 	}
 
 	/**
