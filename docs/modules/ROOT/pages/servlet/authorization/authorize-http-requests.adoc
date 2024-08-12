@@ -546,8 +546,10 @@ And even though xref:servlet/authentication/architecture.adoc#servlet-authentica
 To address that, you can configure Spring Security Java configuration to allow dispatcher types like `FORWARD` and `ERROR`, like so:
 
 .Match by Dispatcher Type
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="secondary"]
 ----
 http
@@ -558,7 +560,8 @@ http
     )
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 http {
@@ -570,7 +573,7 @@ http {
     }
 }
 ----
-====
+======
 
 [[match-by-mvc]]
 === Using an MvcRequestMatcher
@@ -584,8 +587,10 @@ For example, if Spring MVC is mapped to `/spring-mvc` instead of `/` (the defaul
 You need to use `MvcRequestMatcher` to split the servlet path and the controller path in your configuration like so:
 
 .Match by MvcRequestMatcher
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -605,7 +610,8 @@ SecurityFilterChain appEndpoints(HttpSecurity http, MvcRequestMatcher.Builder mv
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -622,7 +628,8 @@ fun appEndpoints(http: HttpSecurity, mvc: MvcRequestMatcher.Builder): SecurityFi
     }
 ----
 
-.Xml
+Xml::
++
 [source,xml,role="secondary"]
 ----
 <http>
@@ -630,7 +637,7 @@ fun appEndpoints(http: HttpSecurity, mvc: MvcRequestMatcher.Builder): SecurityFi
     <intercept-url pattern="/**" access="authenticated"/>
 </http>
 ----
-====
+======
 
 This need can arise in at least two different ways:
 
@@ -646,8 +653,10 @@ This feature is not currently supported in XML
 In Java configuration, you can create your own javadoc:org.springframework.security.web.util.matcher.RequestMatcher[] and supply it to the DSL like so:
 
 .Authorize by Dispatcher Type
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="secondary"]
 ----
 RequestMatcher printview = (request) -> request.getParameter("print") != null;
@@ -658,7 +667,8 @@ http
     )
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 val printview: RequestMatcher = { (request) -> request.getParameter("print") != null }
@@ -669,7 +679,7 @@ http {
     }
 }
 ----
-====
+======
 
 [TIP]
 Because javadoc:org.springframework.security.web.util.matcher.RequestMatcher[] is a functional interface, you can supply it as a lambda in the DSL.
@@ -889,8 +899,10 @@ When you have static resources it can be tempting to configure the filter chain 
 A more secure approach is to permit them using `permitAll` like so:
 
 .Permit Static Resources
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="secondary"]
 ----
 http
@@ -900,7 +912,8 @@ http
     )
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 http {
@@ -910,7 +923,7 @@ http {
     }
 }
 ----
-====
+======
 
 It's more secure because even with static resources it's important to write secure headers, which Spring Security cannot do if the request is ignored.
 
