@@ -101,6 +101,7 @@ public final class LdapUtils {
 	/**
 	 * Gets the full dn of a name by prepending the name of the context it is relative to.
 	 * If the name already contains the base name, it is returned unaltered.
+	 * @deprecated Use {@link #getFullDn(LdapName, Context)}
 	 */
 	@Deprecated
 	public static DistinguishedName getFullDn(DistinguishedName dn, Context baseCtx) throws NamingException {
