@@ -287,6 +287,7 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 	 * Creates a DN from a group name.
 	 * @param group the name of the group
 	 * @return the DN of the corresponding group, including the groupSearchBase
+	 * @deprecated
 	 */
 	@Deprecated
 	protected DistinguishedName buildGroupDn(String group) {

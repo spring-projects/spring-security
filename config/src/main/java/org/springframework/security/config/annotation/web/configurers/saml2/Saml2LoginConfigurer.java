@@ -217,6 +217,7 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 	 * @since 6.0
 	 * @deprecated Use {@link #authenticationRequestUriQuery} instead
 	 */
+	@Deprecated
 	public Saml2LoginConfigurer<B> authenticationRequestUri(String authenticationRequestUri) {
 		return authenticationRequestUriQuery(authenticationRequestUri);
 	}
