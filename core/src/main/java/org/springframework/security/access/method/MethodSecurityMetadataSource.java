@@ -34,6 +34,7 @@ import org.springframework.security.authorization.AuthorizationManager;
  * {@code <method-security>} and {@code <intercept-methods>} instead or use
  * annotation-based or {@link AuthorizationManager}-based authorization
  */
+@Deprecated
 public interface MethodSecurityMetadataSource extends SecurityMetadataSource {
 
 	Collection<ConfigAttribute> getAttributes(Method method, Class<?> targetClass);
