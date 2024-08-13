@@ -286,6 +286,7 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 	 * @return the DN of the corresponding group, including the groupSearchBase
 	 * @deprecated
 	 */
+	@Deprecated
 	protected DistinguishedName buildGroupDn(String group) {
 		DistinguishedName dn = new DistinguishedName(this.groupSearchBase);
 		dn.add(this.groupRoleAttributeName, group.toLowerCase());
