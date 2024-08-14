@@ -36,6 +36,10 @@ public class AuthorizationDeniedException extends AccessDeniedException implemen
 		this.result = authorizationResult;
 	}
 
+	public AuthorizationDeniedException(String msg) {
+		this(msg, new AuthorizationDecision(false));
+	}
+
 	public AuthorizationResult getAuthorizationResult() {
 		return this.result;
 	}
