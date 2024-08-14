@@ -41,6 +41,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import org.springframework.aop.Advisor;
+import org.springframework.aop.framework.AopInfrastructureBean;
 import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 import org.springframework.lang.NonNull;
@@ -75,7 +76,7 @@ import org.springframework.util.ClassUtils;
  * @since 6.3
  */
 public final class AuthorizationAdvisorProxyFactory
-		implements AuthorizationProxyFactory, Iterable<AuthorizationAdvisor> {
+		implements AuthorizationProxyFactory, Iterable<AuthorizationAdvisor>, AopInfrastructureBean {
 
 	private static final boolean isReactivePresent = ClassUtils.isPresent("reactor.core.publisher.Mono", null);
 
@@ -90,10 +91,18 @@ public final class AuthorizationAdvisorProxyFactory
 
 	private TargetVisitor visitor = DEFAULT_VISITOR;
 
-	private AuthorizationAdvisorProxyFactory(List<AuthorizationAdvisor> advisors) {
+	/**
+	 * Construct an {@link AuthorizationAdvisorProxyFactory} with the provided advisors.
+	 *
+	 * <p>
+	 * The list may be empty, in the case where advisors are added later using
+	 * {@link #addAdvisor}.
+	 * @param advisors the advisors to use
+	 * @since 6.4
+	 */
+	public AuthorizationAdvisorProxyFactory(List<AuthorizationAdvisor> advisors) {
 		this.advisors = new ArrayList<>(advisors);
-		this.advisors.add(new AuthorizeReturnObjectMethodInterceptor(this));
-		setAdvisors(this.advisors);
+		AnnotationAwareOrderComparator.sort(this.advisors);
 	}
 
 	/**
@@ -108,7 +117,9 @@ public final class AuthorizationAdvisorProxyFactory
 		advisors.add(AuthorizationManagerAfterMethodInterceptor.postAuthorize());
 		advisors.add(new PreFilterAuthorizationMethodInterceptor());
 		advisors.add(new PostFilterAuthorizationMethodInterceptor());
-		return new AuthorizationAdvisorProxyFactory(advisors);
+		AuthorizationAdvisorProxyFactory proxyFactory = new AuthorizationAdvisorProxyFactory(advisors);
+		proxyFactory.addAdvisor(new AuthorizeReturnObjectMethodInterceptor(proxyFactory));
+		return proxyFactory;
 	}
 
 	/**
@@ -123,7 +134,9 @@ public final class AuthorizationAdvisorProxyFactory
 		advisors.add(AuthorizationManagerAfterReactiveMethodInterceptor.postAuthorize());
 		advisors.add(new PreFilterAuthorizationReactiveMethodInterceptor());
 		advisors.add(new PostFilterAuthorizationReactiveMethodInterceptor());
-		return new AuthorizationAdvisorProxyFactory(advisors);
+		AuthorizationAdvisorProxyFactory proxyFactory = new AuthorizationAdvisorProxyFactory(advisors);
+		proxyFactory.addAdvisor(new AuthorizeReturnObjectMethodInterceptor(proxyFactory));
+		return proxyFactory;
 	}
 
 	/**
@@ -167,7 +180,9 @@ public final class AuthorizationAdvisorProxyFactory
 	 * <p>
 	 * All advisors are re-sorted by their advisor order.
 	 * @param advisors the advisors to add
+	 * @deprecated Please use {@link #addAdvisor} instead
 	 */
+	@Deprecated
 	public void setAdvisors(AuthorizationAdvisor... advisors) {
 		this.advisors = new ArrayList<>(List.of(advisors));
 		AnnotationAwareOrderComparator.sort(this.advisors);
@@ -179,9 +194,27 @@ public final class AuthorizationAdvisorProxyFactory
 	 * <p>
 	 * All advisors are re-sorted by their advisor order.
 	 * @param advisors the advisors to add
+	 * @deprecated Please use {@link #addAdvisor} instead
 	 */
+	@Deprecated
 	public void setAdvisors(Collection<AuthorizationAdvisor> advisors) {
 		this.advisors = new ArrayList<>(advisors);
+		AnnotationAwareOrderComparator.sort(this.advisors);
+	}
+
+	/**
+	 * Add an advisor that should be included to each proxy created.
+	 *
+	 * <p>
+	 * This method sorts the advisors based on the order in
+	 * {@link AuthorizationAdvisor#getOrder}. You can use the values in
+	 * {@link AuthorizationInterceptorsOrder}to ensure advisors are located where you need
+	 * them.
+	 * @param advisor
+	 * @since 6.4
+	 */
+	public void addAdvisor(AuthorizationAdvisor advisor) {
+		this.advisors.add(advisor);
 		AnnotationAwareOrderComparator.sort(this.advisors);
 	}
 
