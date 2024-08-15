@@ -14,7 +14,7 @@ org-jetbrains-kotlinx = "1.8.1"
 org-mockito = "5.12.0"
 org-opensaml = "4.3.2"
 org-opensaml5 = "5.1.2"
-org-springframework = "6.2.0-M6"
+org-springframework = "6.2.0-M7"
 
 [libraries]
 ch-qos-logback-logback-classic = "ch.qos.logback:logback-classic:1.5.6"
