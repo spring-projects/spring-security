@@ -197,7 +197,6 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 	 * @return the {@link Saml2LoginConfigurer} for further configuration
 	 * @since 6.0
 	 */
-	@Deprecated
 	public Saml2LoginConfigurer<B> authenticationRequestUri(String authenticationRequestUri) {
 		Assert.state(authenticationRequestUri.contains("{registrationId}"),
 				"authenticationRequestUri must contain {registrationId} path variable");
