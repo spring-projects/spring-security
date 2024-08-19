@@ -37,10 +37,13 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import org.springframework.aop.Advisor;
+import org.springframework.aop.config.AopConfigUtils;
 import org.springframework.aop.support.DefaultPointcutAdvisor;
 import org.springframework.aop.support.JdkRegexpMethodPointcut;
+import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import org.springframework.context.annotation.AdviceMode;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -65,6 +68,7 @@ import org.springframework.security.access.prepost.PreFilter;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationEventPublisher;
 import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.security.authorization.method.AuthorizationAdvisor;
 import org.springframework.security.authorization.method.AuthorizationAdvisorProxyFactory;
 import org.springframework.security.authorization.method.AuthorizationAdvisorProxyFactory.TargetVisitor;
 import org.springframework.security.authorization.method.AuthorizationInterceptorsOrder;
@@ -85,6 +89,7 @@ import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.context.support.WithSecurityContextTestExecutionListener;
+import org.springframework.stereotype.Component;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -964,6 +969,32 @@ public class PrePostMethodSecurityConfigurationTests {
 		this.spring.getContext().getBean(ClassInheritingAbstractClassWithNoAnnotations.class).method();
 	}
 
+	// gh-15592
+	@Test
+	void autowireWhenDefaultsThenCreatesExactlyOneAdvisorPerAnnotation() {
+		this.spring.register(MethodSecurityServiceConfig.class).autowire();
+		AuthorizationAdvisorProxyFactory proxyFactory = this.spring.getContext()
+			.getBean(AuthorizationAdvisorProxyFactory.class);
+		assertThat(proxyFactory).hasSize(5);
+		assertThat(this.spring.getContext().getBeanNamesForType(AuthorizationAdvisor.class)).hasSize(5)
+			.containsExactlyInAnyOrder("preFilterAuthorizationMethodInterceptor",
+					"preAuthorizeAuthorizationMethodInterceptor", "postAuthorizeAuthorizationMethodInterceptor",
+					"postFilterAuthorizationMethodInterceptor", "authorizeReturnObjectMethodInterceptor");
+	}
+
+	// gh-15592
+	@Test
+	void autowireWhenAspectJAutoProxyAndFactoryBeanThenExactlyOneAdvisorPerAnnotation() {
+		this.spring.register(AspectJAwareAutoProxyAndFactoryBeansConfig.class).autowire();
+		AuthorizationAdvisorProxyFactory proxyFactory = this.spring.getContext()
+			.getBean(AuthorizationAdvisorProxyFactory.class);
+		assertThat(proxyFactory).hasSize(5);
+		assertThat(this.spring.getContext().getBeanNamesForType(AuthorizationAdvisor.class)).hasSize(5)
+			.containsExactlyInAnyOrder("preFilterAuthorizationMethodInterceptor",
+					"preAuthorizeAuthorizationMethodInterceptor", "postAuthorizeAuthorizationMethodInterceptor",
+					"postFilterAuthorizationMethodInterceptor", "authorizeReturnObjectMethodInterceptor");
+	}
+
 	private static Consumer<ConfigurableWebApplicationContext> disallowBeanOverriding() {
 		return (context) -> ((AnnotationConfigWebApplicationContext) context).setAllowBeanDefinitionOverriding(false);
 	}
@@ -1537,6 +1568,32 @@ public class PrePostMethodSecurityConfigurationTests {
 		@Bean
 		ClassInheritingAbstractClassWithNoAnnotations inheriting() {
 			return new ClassInheritingAbstractClassWithNoAnnotations();
+		}
+
+	}
+
+	@Configuration
+	@EnableMethodSecurity
+	static class AspectJAwareAutoProxyAndFactoryBeansConfig {
+
+		@Bean
+		static BeanDefinitionRegistryPostProcessor beanDefinitionRegistryPostProcessor() {
+			return AopConfigUtils::registerAspectJAnnotationAutoProxyCreatorIfNecessary;
+		}
+
+		@Component
+		static class MyFactoryBean implements FactoryBean<Object> {
+
+			@Override
+			public Object getObject() throws Exception {
+				return new Object();
+			}
+
+			@Override
+			public Class<?> getObjectType() {
+				return Object.class;
+			}
+
 		}
 
 	}
