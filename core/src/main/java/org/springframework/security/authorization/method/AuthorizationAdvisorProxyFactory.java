@@ -159,6 +159,7 @@ public final class AuthorizationAdvisorProxyFactory
 	 */
 	@Override
 	public Object proxy(Object target) {
+		AnnotationAwareOrderComparator.sort(this.advisors);
 		if (target == null) {
 			return null;
 		}
@@ -185,7 +186,6 @@ public final class AuthorizationAdvisorProxyFactory
 	@Deprecated
 	public void setAdvisors(AuthorizationAdvisor... advisors) {
 		this.advisors = new ArrayList<>(List.of(advisors));
-		AnnotationAwareOrderComparator.sort(this.advisors);
 	}
 
 	/**
@@ -199,7 +199,6 @@ public final class AuthorizationAdvisorProxyFactory
 	@Deprecated
 	public void setAdvisors(Collection<AuthorizationAdvisor> advisors) {
 		this.advisors = new ArrayList<>(advisors);
-		AnnotationAwareOrderComparator.sort(this.advisors);
 	}
 
 	/**
