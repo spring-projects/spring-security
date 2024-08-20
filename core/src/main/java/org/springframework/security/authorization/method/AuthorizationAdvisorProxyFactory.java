@@ -214,7 +214,6 @@ public final class AuthorizationAdvisorProxyFactory
 	 */
 	public void addAdvisor(AuthorizationAdvisor advisor) {
 		this.advisors.add(advisor);
-		AnnotationAwareOrderComparator.sort(this.advisors);
 	}
 
 	/**
