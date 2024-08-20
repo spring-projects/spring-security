@@ -9,7 +9,6 @@ on:
   workflow_dispatch: # Manual trigger
 
 env:
-  SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
   DEVELOCITY_ACCESS_KEY: ${{ secrets.GRADLE_ENTERPRISE_SECRET_ACCESS_KEY }}
   COMMIT_OWNER: ${{ github.event.pusher.name }}
   COMMIT_SHA: ${{ github.sha }}
@@ -209,26 +208,11 @@ jobs:
         run: |
           echo "Tagging and publishing $REPO@$VERSION release on GitHub."
           ./gradlew createGitHubRelease -PnextVersion=$VERSION -Pbranch=$BRANCH -PcreateRelease=true -PgitHubAccessToken=$TOKEN
-      - name: Announce Release on Slack
-        id: spring-security-announcing
-        uses: slackapi/slack-github-action@v1.26.0
-        with:
-          payload: |
-            {
-              "text": "spring-security-announcing `${{ env.VERSION }}` is available now",
-              "blocks": [
-                {
-                  "type": "section",
-                  "text": {
-                    "type": "mrkdwn",
-                    "text": "spring-security-announcing `${{ env.VERSION }}` is available now"
-                  }
-                }
-              ]
-            }
+      - name: Announce Release on GChat
         env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SPRING_RELEASE_SLACK_WEBHOOK_URL }}
-          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+          WEBHOOK_URL: ${{ secrets.SPRING_RELEASE_GCHAT_WEBHOOK_URL }}
+        run: |
+          curl -X POST '${{ env.WEBHOOK_URL }}' -H 'Content-Type: application/json' -d '{ "text": "spring-security-announcing `${{ env.VERSION }}` is available now" }' || true
       - name: Setup git config
         run: |
           git config user.name 'github-actions[bot]'
@@ -260,20 +244,13 @@ jobs:
           distribution: 'adopt'
       - name: Schedule next release (if not already scheduled)
         run: ./gradlew scheduleNextRelease -PnextVersion=$VERSION -PgitHubAccessToken=$TOKEN
-  notify_result:
-    name: Check for failures
-    needs: [perform_release, perform_post_release]
-    if: failure()
+  send-notification:
+    name: Send Notification
+    needs: [ perform_release, perform_post_release ]
+    if: ${{ failure() || cancelled() }}
     runs-on: ubuntu-latest
-    permissions:
-      actions: read
     steps:
-      - name: Send Slack message
-        # Workaround while waiting for Gamesight/slack-workflow-status#38 to be fixed
-        # See https://github.com/Gamesight/slack-workflow-status/issues/38
-        uses: sjohnr/slack-workflow-status@v1-beta
+      - name: Send Notification
+        uses: spring-io/spring-security-release-tools/.github/actions/send-notification@v1
         with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
-          channel: '#spring-security-ci'
-          name: 'CI Notifier'
+          webhook-url: ${{ secrets.SPRING_SECURITY_CI_GCHAT_WEBHOOK_URL }}

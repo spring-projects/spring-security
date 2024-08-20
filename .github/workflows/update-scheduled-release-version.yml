@@ -4,7 +4,6 @@ on:
   workflow_dispatch: # Manual trigger only. Triggered by release-scheduler.yml on main.
 
 env:
-  SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
   DEVELOCITY_ACCESS_KEY: ${{ secrets.GRADLE_ENTERPRISE_SECRET_ACCESS_KEY }}
 
 permissions:
@@ -58,12 +57,13 @@ jobs:
           git tag $updatedVersion
           git push
           git push origin $updatedVersion
-      - id: send-slack-notification
-        name: Send Slack message
-        if: failure()
-        uses: Gamesight/slack-workflow-status@v1.3.0
+  send-notification:
+    name: Send Notification
+    needs: [ update_scheduled_release_version ]
+    if: ${{ failure() || cancelled() }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Notification
+        uses: spring-io/spring-security-release-tools/.github/actions/send-notification@v1
         with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
-          channel: '#spring-security-ci'
-          name: 'CI Notifier'
+          webhook-url: ${{ secrets.SPRING_SECURITY_CI_GCHAT_WEBHOOK_URL }}
