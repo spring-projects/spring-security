@@ -90,7 +90,7 @@ public class OpenSaml4AssertingPartyMetadataRepositoryTests {
 	@Test
 	public void withMetadataUrlLocationWhenResolvableThenFindByEntityIdReturns() throws Exception {
 		try (MockWebServer server = new MockWebServer()) {
-			server.setDispatcher(new AlwaysDispatch(this.metadata));
+			enqueue(server, this.metadata, 3);
 			AssertingPartyMetadataRepository parties = OpenSaml4AssertingPartyMetadataRepository
 				.withTrustedMetadataLocation(server.url("/").toString())
 				.build();
@@ -107,7 +107,7 @@ public class OpenSaml4AssertingPartyMetadataRepositoryTests {
 	@Test
 	public void withMetadataUrlLocationnWhenResolvableThenIteratorReturns() throws Exception {
 		try (MockWebServer server = new MockWebServer()) {
-			server.setDispatcher(new AlwaysDispatch(this.entitiesDescriptor));
+			enqueue(server, this.entitiesDescriptor, 3);
 			List<AssertingPartyMetadata> parties = new ArrayList<>();
 			OpenSaml4AssertingPartyMetadataRepository.withTrustedMetadataLocation(server.url("/").toString())
 				.build()
@@ -122,9 +122,6 @@ public class OpenSaml4AssertingPartyMetadataRepositoryTests {
 	@Test
 	public void withMetadataUrlLocationWhenUnresolvableThenThrowsSaml2Exception() throws Exception {
 		try (MockWebServer server = new MockWebServer()) {
-			server.enqueue(new MockResponse().setBody(this.metadata)
-				.setResponseCode(200)
-				.setBodyDelay(1, TimeUnit.MILLISECONDS));
 			String url = server.url("/").toString();
 			server.shutdown();
 			assertThatExceptionOfType(Saml2Exception.class)
@@ -135,7 +132,7 @@ public class OpenSaml4AssertingPartyMetadataRepositoryTests {
 	@Test
 	public void withMetadataUrlLocationWhenMalformedResponseThenSaml2Exception() throws Exception {
 		try (MockWebServer server = new MockWebServer()) {
-			server.setDispatcher(new AlwaysDispatch("malformed"));
+			enqueue(server, "malformed", 3);
 			String url = server.url("/").toString();
 			assertThatExceptionOfType(Saml2Exception.class)
 				.isThrownBy(() -> OpenSaml4AssertingPartyMetadataRepository.withTrustedMetadataLocation(url).build());
@@ -218,8 +215,7 @@ public class OpenSaml4AssertingPartyMetadataRepositoryTests {
 		Credential credential = TestOpenSamlObjects
 			.getSigningCredential(TestSaml2X509Credentials.relyingPartyVerifyingCredential(), descriptor.getEntityID());
 		try (MockWebServer server = new MockWebServer()) {
-			server.start();
-			server.setDispatcher(new AlwaysDispatch(serialized));
+			enqueue(server, serialized, 3);
 			AssertingPartyMetadataRepository parties = OpenSaml4AssertingPartyMetadataRepository
 				.withTrustedMetadataLocation(server.url("/").toString())
 				.verificationCredentials((c) -> c.add(credential))
@@ -238,8 +234,7 @@ public class OpenSaml4AssertingPartyMetadataRepositoryTests {
 		Credential credential = TestOpenSamlObjects
 			.getSigningCredential(TestSaml2X509Credentials.relyingPartyVerifyingCredential(), descriptor.getEntityID());
 		try (MockWebServer server = new MockWebServer()) {
-			server.start();
-			server.setDispatcher(new AlwaysDispatch(serialized));
+			enqueue(server, serialized, 3);
 			assertThatExceptionOfType(Saml2Exception.class).isThrownBy(() -> OpenSaml4AssertingPartyMetadataRepository
 				.withTrustedMetadataLocation(server.url("/").toString())
 				.verificationCredentials((c) -> c.add(credential))
@@ -255,8 +250,7 @@ public class OpenSaml4AssertingPartyMetadataRepositoryTests {
 				descriptor.getEntityID());
 		String serialized = serialize(descriptor);
 		try (MockWebServer server = new MockWebServer()) {
-			server.start();
-			server.setDispatcher(new AlwaysDispatch(serialized));
+			enqueue(server, serialized, 3);
 			AssertingPartyMetadataRepository parties = OpenSaml4AssertingPartyMetadataRepository
 				.withTrustedMetadataLocation(server.url("/").toString())
 				.build();
@@ -336,8 +330,7 @@ public class OpenSaml4AssertingPartyMetadataRepositoryTests {
 		Credential credential = TestOpenSamlObjects
 			.getSigningCredential(TestSaml2X509Credentials.relyingPartyVerifyingCredential(), descriptor.getEntityID());
 		try (MockWebServer server = new MockWebServer()) {
-			server.start();
-			server.setDispatcher(new AlwaysDispatch(serialized));
+			enqueue(server, serialized, 3);
 			AssertingPartyMetadataRepository parties = OpenSaml4AssertingPartyMetadataRepository
 				.withMetadataLocation(server.url("/").toString())
 				.verificationCredentials((c) -> c.add(credential))
@@ -357,25 +350,10 @@ public class OpenSaml4AssertingPartyMetadataRepositoryTests {
 		}
 	}
 
-	private static final class AlwaysDispatch extends Dispatcher {
-
-		private final MockResponse response;
-
-		private AlwaysDispatch(String body) {
-			this.response = new MockResponse().setBody(body)
-				.setResponseCode(200)
-				.setBodyDelay(1, TimeUnit.MILLISECONDS);
+	private static void enqueue(MockWebServer web, String body, int times) {
+		for (int i = 0; i < times; i++) {
+			web.enqueue(new MockResponse().setBody(body).setResponseCode(200));
 		}
-
-		private AlwaysDispatch(MockResponse response) {
-			this.response = response;
-		}
-
-		@Override
-		public MockResponse dispatch(RecordedRequest recordedRequest) throws InterruptedException {
-			return this.response;
-		}
-
 	}
 
 }
