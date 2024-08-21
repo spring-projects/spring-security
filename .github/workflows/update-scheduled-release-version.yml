@@ -11,3 +11,13 @@ jobs:
     name: Update Scheduled Release Version
     uses: spring-io/spring-security-release-tools/.github/workflows/update-scheduled-release-version.yml@v1
     secrets: inherit
+  send-notification:
+    name: Send Notification
+    needs: [ update-scheduled-release-version ]
+    if: ${{ failure() || cancelled() }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Notification
+        uses: spring-io/spring-security-release-tools/.github/actions/send-notification@v1
+        with:
+          webhook-url: ${{ secrets.SPRING_SECURITY_CI_GCHAT_WEBHOOK_URL }}
