@@ -12,6 +12,7 @@ For example, if you were deployed to `https://rp.example.com` and you gave your 
 
 and the result would be a redirect that included a `SAMLRequest` parameter containing the signed, deflated, and encoded `<saml2:AuthnRequest>`.
 
+[configuring-authentication-request-uri]
 == Configuring the `<saml2:AuthnRequest>` Endpoint
 
 To configure the endpoint differently from the default, you can set the value in `saml2Login`:
