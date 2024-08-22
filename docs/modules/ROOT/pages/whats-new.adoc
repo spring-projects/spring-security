@@ -53,6 +53,7 @@ This aids in migration from earlier versions of Spring Security.
 
 * `oauth2Login()` now accepts https://github.com/spring-projects/spring-security/pull/15237[`OAuth2AuthorizationRequestResolver` as a `@Bean`]
 * OIDC Back-Channel support now accepts https://github.com/spring-projects/spring-security/issues/15003[logout tokens of type `logout+jwt`]
+* `RestClient` can now be xref:servlet/oauth2/index.adoc#oauth2-client-access-protected-resources[configured] with `OAuth2ClientHttpRequestInterceptor` to xref:servlet/oauth2/index.adoc#oauth2-client-accessing-protected-resources-example[make protected resources requests]
 
 == SAML 2.0
 
