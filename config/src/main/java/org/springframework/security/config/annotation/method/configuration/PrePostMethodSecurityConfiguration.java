@@ -18,7 +18,6 @@ package org.springframework.security.config.annotation.method.configuration;
 
 import org.aopalliance.intercept.MethodInterceptor;
 
-import org.springframework.aop.Advisor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.ApplicationContext;
@@ -100,7 +99,7 @@ final class PrePostMethodSecurityConfiguration {
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-	Advisor postFilterAuthorizationMethodInterceptor() {
+	MethodInterceptor postFilterAuthorizationMethodInterceptor() {
 		return this.postFilterAuthorizationMethodInterceptor;
 	}
 
