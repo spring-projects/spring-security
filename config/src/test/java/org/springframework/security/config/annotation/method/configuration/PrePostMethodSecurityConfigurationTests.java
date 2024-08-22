@@ -73,6 +73,8 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 /**
@@ -447,6 +449,18 @@ public class PrePostMethodSecurityConfigurationTests {
 			.autowire();
 	}
 
+	// gh-15651
+	@Test
+	@WithMockUser(roles = "ADMIN")
+	public void adviseWhenPrePostEnabledThenEachInterceptorRunsExactlyOnce() {
+		this.spring.register(MethodSecurityServiceConfig.class, CustomMethodSecurityExpressionHandlerConfig.class)
+			.autowire();
+		MethodSecurityExpressionHandler expressionHandler = this.spring.getContext()
+			.getBean(MethodSecurityExpressionHandler.class);
+		this.methodSecurityService.manyAnnotations(new ArrayList<>(Arrays.asList("harold", "jonathan", "tim", "bo")));
+		verify(expressionHandler, times(4)).createEvaluationContext(any(Supplier.class), any());
+	}
+
 	private static Consumer<ConfigurableWebApplicationContext> disallowBeanOverriding() {
 		return (context) -> ((AnnotationConfigWebApplicationContext) context).setAllowBeanDefinitionOverriding(false);
 	}
@@ -523,6 +537,19 @@ public class PrePostMethodSecurityConfigurationTests {
 	}
 
 	@Configuration
+	@EnableMethodSecurity
+	static class CustomMethodSecurityExpressionHandlerConfig {
+
+		private final MethodSecurityExpressionHandler expressionHandler = spy(
+				new DefaultMethodSecurityExpressionHandler());
+
+		@Bean
+		MethodSecurityExpressionHandler methodSecurityExpressionHandler() {
+			return this.expressionHandler;
+		}
+
+	}
+
 	@EnableMethodSecurity
 	static class CustomPermissionEvaluatorConfig {
 
