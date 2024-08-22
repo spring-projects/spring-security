@@ -25,7 +25,6 @@ jobs:
           DEPENDENCY_NAME: ${{ steps.extract.outputs.dependency_name }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "Running command: gh pr list --search 'milestone:${{ github.event.pull_request.milestone.title }} is:merged in:title "$DEPENDENCY_NAME"' --json number --jq 'map(.number) | join(",")'"
           PRS=$(gh pr list --search 'milestone:${{ github.event.pull_request.milestone.title }} is:merged in:title "$DEPENDENCY_NAME"' --json number --jq 'map(.number) | join(",")')
           echo "prs=$PRS" >> $GITHUB_OUTPUT
 
