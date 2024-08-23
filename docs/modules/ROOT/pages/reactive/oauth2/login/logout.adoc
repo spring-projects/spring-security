@@ -187,7 +187,7 @@ Consider a `ClientRegistration` whose identifier is `registrationId`.
 
 The overall flow for a Back-Channel logout is like this:
 
-1. At login time, Spring Security correlates the ID Token, CSRF Token, and Provider Session ID (if any) to your application's session id in its `ReactiveOidcSessionStrategy` implementation.
+1. At login time, Spring Security correlates the ID Token, CSRF Token, and Provider Session ID (if any) to your application's session id in its `ReactiveOidcSessionRegistry` implementation.
 2. Then at logout time, your OIDC Provider makes an API call to `/logout/connect/back-channel/registrationId` including a Logout Token that indicates either the `sub` (the End User) or the `sid` (the Provider Session ID) to logout.
 3. Spring Security validates the token's signature and claims.
 4. If the token contains a `sid` claim, then only the Client's session that correlates to that provider session is terminated.
@@ -197,13 +197,13 @@ The overall flow for a Back-Channel logout is like this:
 Remember that Spring Security's OIDC support is multi-tenant.
 This means that it will only terminate sessions whose Client matches the `aud` claim in the Logout Token.
 
-=== Customizing the OIDC Provider Session Strategy
+=== Customizing the OIDC Provider Session Registry
 
 By default, Spring Security stores in-memory all links between the OIDC Provider session and the Client session.
 
 There are a number of circumstances, like a clustered application, where it would be nice to store this instead in a separate location, like a database.
 
-You can achieve this by configuring a custom `ReactiveOidcSessionStrategy`, like so:
+You can achieve this by configuring a custom `ReactiveOidcSessionRegistry`, like so:
 
 [tabs]
 ======
@@ -212,7 +212,7 @@ Java::
 [source,java,role="primary"]
 ----
 @Component
-public final class MySpringDataOidcSessionStrategy implements OidcSessionStrategy {
+public final class MySpringDataOidcSessionRegistry implements ReactiveOidcSessionRegistry {
     private final OidcProviderSessionRepository sessions;
 
     // ...
@@ -241,7 +241,7 @@ Kotlin::
 [source,kotlin,role="secondary"]
 ----
 @Component
-class MySpringDataOidcSessionStrategy: ReactiveOidcSessionStrategy {
+class MySpringDataOidcSessionRegistry: ReactiveOidcSessionRegistry {
     val sessions: OidcProviderSessionRepository
 
     // ...
