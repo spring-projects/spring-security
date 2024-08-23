@@ -138,4 +138,20 @@ public class CookieServerRequestCacheTests {
 				"REDIRECT_URI=; Path=/; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; SameSite=Lax");
 	}
 
+	@Test
+	public void saveRequestWithCookieCustomizerThenSameSiteStrict() {
+		MockServerWebExchange exchange = MockServerWebExchange
+			.from(MockServerHttpRequest.get("/secured/").accept(MediaType.TEXT_HTML));
+		CookieServerRequestCache cacheWithCustomizer = new CookieServerRequestCache();
+		cacheWithCustomizer.setCookieCustomizer(((cookieBuilder) -> cookieBuilder.sameSite("Strict")));
+		cacheWithCustomizer.saveRequest(exchange).block();
+		MultiValueMap<String, ResponseCookie> cookies = exchange.getResponse().getCookies();
+		assertThat(cookies).hasSize(1);
+		ResponseCookie cookie = cookies.getFirst("REDIRECT_URI");
+		assertThat(cookie).isNotNull();
+		String encodedRedirectUrl = Base64.getEncoder().encodeToString("/secured/".getBytes());
+		assertThat(cookie.toString())
+			.isEqualTo("REDIRECT_URI=" + encodedRedirectUrl + "; Path=/; HttpOnly; SameSite=Strict");
+	}
+
 }

@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.Locale;
+import java.util.function.Consumer;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -202,6 +203,22 @@ public class CookieRequestCacheTests {
 		HttpServletRequest matchingRequest = cookieRequestCache.getMatchingRequest(request, response);
 		assertThat(matchingRequest).isNotNull();
 		assertThat(Collections.list(matchingRequest.getLocales())).contains(Locale.FRENCH, Locale.GERMANY);
+	}
+
+	@Test
+	public void setCookieCustomizer() {
+		Consumer<Cookie> cookieCustomizer = (cookie) -> {
+			cookie.setAttribute("SameSite", "Strict");
+			cookie.setAttribute("CustomAttribute", "CustomValue");
+		};
+		CookieRequestCache cookieRequestCache = new CookieRequestCache();
+		cookieRequestCache.setCookieCustomizer(cookieCustomizer);
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		cookieRequestCache.saveRequest(new MockHttpServletRequest(), response);
+		Cookie savedCookie = response.getCookie(DEFAULT_COOKIE_NAME);
+		assertThat(savedCookie).isNotNull();
+		assertThat(savedCookie.getAttribute("SameSite")).isEqualTo("Strict");
+		assertThat(savedCookie.getAttribute("CustomAttribute")).isEqualTo("CustomValue");
 	}
 
 	private static String encodeCookie(String cookieValue) {
