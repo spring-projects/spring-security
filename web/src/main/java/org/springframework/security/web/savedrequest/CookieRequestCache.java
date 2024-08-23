@@ -18,6 +18,7 @@ package org.springframework.security.web.savedrequest;
 
 import java.util.Base64;
 import java.util.Collections;
+import java.util.function.Consumer;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -51,6 +52,9 @@ public class CookieRequestCache implements RequestCache {
 
 	private static final int COOKIE_MAX_AGE = -1;
 
+	private Consumer<Cookie> cookieCustomizer = (cookie) -> {
+	};
+
 	@Override
 	public void saveRequest(HttpServletRequest request, HttpServletResponse response) {
 		if (!this.requestMatcher.matches(request)) {
@@ -63,6 +67,7 @@ public class CookieRequestCache implements RequestCache {
 		savedCookie.setSecure(request.isSecure());
 		savedCookie.setPath(getCookiePath(request));
 		savedCookie.setHttpOnly(true);
+		this.cookieCustomizer.accept(savedCookie);
 		response.addCookie(savedCookie);
 	}
 
@@ -150,6 +155,16 @@ public class CookieRequestCache implements RequestCache {
 	public void setRequestMatcher(RequestMatcher requestMatcher) {
 		Assert.notNull(requestMatcher, "requestMatcher should not be null");
 		this.requestMatcher = requestMatcher;
+	}
+
+	/**
+	 * Sets the {@link Consumer}, allowing customization of cookie.
+	 * @param cookieCustomizer customize for cookie
+	 * @since 6.4
+	 */
+	public void setCookieCustomizer(Consumer<Cookie> cookieCustomizer) {
+		Assert.notNull(cookieCustomizer, "cookieCustomizer cannot be null");
+		this.cookieCustomizer = cookieCustomizer;
 	}
 
 }
