@@ -218,17 +218,17 @@ public final class MySpringDataOidcSessionRegistry implements ReactiveOidcSessio
     // ...
 
     @Override
-    public void saveSessionInformation(OidcSessionInformation info) {
-        this.sessions.save(info);
+    public Mono<void> saveSessionInformation(OidcSessionInformation info) {
+        return this.sessions.save(info);
     }
 
     @Override
-    public OidcSessionInformation(String clientSessionId) {
+    public Mono<OidcSessionInformation> removeSessionInformation(String clientSessionId) {
        return this.sessions.removeByClientSessionId(clientSessionId);
     }
 
     @Override
-    public Iterable<OidcSessionInformation> removeSessionInformation(OidcLogoutToken token) {
+    public Flux<OidcSessionInformation> removeSessionInformation(OidcLogoutToken token) {
         return token.getSessionId() != null ?
             this.sessions.removeBySessionIdAndIssuerAndAudience(...) :
             this.sessions.removeBySubjectAndIssuerAndAudience(...);

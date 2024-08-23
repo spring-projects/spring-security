@@ -249,7 +249,7 @@ public final class MySpringDataOidcSessionRegistry implements OidcSessionRegistr
     }
 
     @Override
-    public OidcSessionInformation(String clientSessionId) {
+    public OidcSessionInformation removeSessionInformation(String clientSessionId) {
        return this.sessions.removeByClientSessionId(clientSessionId);
     }
 
