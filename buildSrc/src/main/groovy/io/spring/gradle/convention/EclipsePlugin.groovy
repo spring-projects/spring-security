@@ -63,6 +63,7 @@ class EclipsePlugin implements Plugin<Project> {
 						// test sources. Relax those from error to warning
 						properties['org.eclipse.jdt.core.circularClasspath'] = 'warning'
 						properties['org.eclipse.jdt.core.incompleteClasspath'] = 'warning'
+						properties['org.eclipse.jdt.core.compiler.codegen.methodParameters'] = 'generate'
 					}
 				}
 			}
