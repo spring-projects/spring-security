@@ -2227,37 +2227,6 @@ class UserController  {
 ----
 ======
 
-If you are using Jackson, though, this may result in a serialization error like the following:
-
-[source,bash]
-====
-com.fasterxml.jackson.databind.exc.InvalidDefinitionException: Direct self-reference leading to cycle
-====
-
-This is due to how Jackson works with CGLIB proxies.
-To address this, add the following annotation to the top of the `User` class:
-
-[tabs]
-======
-Java::
-+
-[source,java,role="primary"]
-----
-@JsonSerialize(as = User.class)
-public class User {
-
-}
-----
-
-Kotlin::
-+
-[source,kotlin,role="secondary"]
-----
-@JsonSerialize(`as` = User::class)
-class User
-----
-======
-
 Finally, you will need to publish a <<custom_advice, custom interceptor>> to catch the `AccessDeniedException` thrown for each field, which you can do like so:
 
 [tabs]

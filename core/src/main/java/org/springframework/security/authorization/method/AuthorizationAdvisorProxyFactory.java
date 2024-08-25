@@ -171,6 +171,7 @@ public final class AuthorizationAdvisorProxyFactory
 		for (Advisor advisor : this.advisors) {
 			factory.addAdvisors(advisor);
 		}
+		factory.setOpaque(true);
 		factory.setProxyTargetClass(!Modifier.isFinal(target.getClass().getModifiers()));
 		return factory.getProxy();
 	}
@@ -357,6 +358,7 @@ public final class AuthorizationAdvisorProxyFactory
 				ProxyFactory factory = new ProxyFactory();
 				factory.setTargetClass(targetClass);
 				factory.setInterfaces(ClassUtils.getAllInterfacesForClass(targetClass));
+				factory.setOpaque(true);
 				factory.setProxyTargetClass(!Modifier.isFinal(targetClass.getModifiers()));
 				for (Advisor advisor : proxyFactory) {
 					factory.addAdvisors(advisor);
