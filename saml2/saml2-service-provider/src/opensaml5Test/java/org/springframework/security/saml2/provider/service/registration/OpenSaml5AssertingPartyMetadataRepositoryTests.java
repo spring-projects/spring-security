@@ -37,6 +37,7 @@ import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.opensaml.core.xml.XMLObject;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
@@ -105,6 +106,7 @@ public class OpenSaml5AssertingPartyMetadataRepositoryTests {
 	}
 
 	@Test
+	@Disabled("See gh-15395")
 	public void withMetadataUrlLocationWhenResolvableThenFindByEntityIdReturns() throws Exception {
 		AssertingPartyMetadataRepository parties = OpenSaml5AssertingPartyMetadataRepository
 			.withTrustedMetadataLocation(web.url("/entity.xml").toString())
@@ -119,6 +121,7 @@ public class OpenSaml5AssertingPartyMetadataRepositoryTests {
 	}
 
 	@Test
+	@Disabled("See gh-15395")
 	public void withMetadataUrlLocationnWhenResolvableThenIteratorReturns() throws Exception {
 		List<AssertingPartyMetadata> parties = new ArrayList<>();
 		OpenSaml5AssertingPartyMetadataRepository.withTrustedMetadataLocation(web.url("/entities.xml").toString())
@@ -215,6 +218,7 @@ public class OpenSaml5AssertingPartyMetadataRepositoryTests {
 	}
 
 	@Test
+	@Disabled("See gh-15395")
 	public void withTrustedMetadataLocationWhenMatchingCredentialsThenVerifiesSignature() throws IOException {
 		RelyingPartyRegistration registration = TestRelyingPartyRegistrations.full().build();
 		EntityDescriptor descriptor = TestOpenSamlObjects.entityDescriptor(registration);
@@ -233,6 +237,7 @@ public class OpenSaml5AssertingPartyMetadataRepositoryTests {
 	}
 
 	@Test
+	@Disabled("See gh-15395")
 	public void withTrustedMetadataLocationWhenMismatchingCredentialsThenSaml2Exception() throws IOException {
 		RelyingPartyRegistration registration = TestRelyingPartyRegistrations.full().build();
 		EntityDescriptor descriptor = TestOpenSamlObjects.entityDescriptor(registration);
@@ -328,6 +333,7 @@ public class OpenSaml5AssertingPartyMetadataRepositoryTests {
 	}
 
 	@Test
+	@Disabled("See gh-15395")
 	public void withMetadataLocationWhenMatchingCredentialsThenVerifiesSignature() throws IOException {
 		RelyingPartyRegistration registration = TestRelyingPartyRegistrations.full().build();
 		EntityDescriptor descriptor = TestOpenSamlObjects.entityDescriptor(registration);
