@@ -127,7 +127,7 @@ public class MyApplication {
 	}
 
 	@Bean
-	ObservationRegistry<ObservationRegistry> observationRegistry() {
+	ObservationRegistry observationRegistry() {
 		ObservationRegistry registry = ObservationRegistry.create();
 		registry.observationConfig().observationHandler(new ObservationTextPublisher());
 		return registry;
@@ -157,7 +157,7 @@ class MyApplication {
 	}
 
 	@Bean
-	fun observationRegistry(): ObservationRegistry<ObservationRegistry> {
+	fun observationRegistry(): ObservationRegistry {
 		ObservationRegistry registry = ObservationRegistry.create()
 		registry.observationConfig().observationHandler(ObservationTextPublisher())
 		return registry
