@@ -38,6 +38,7 @@ import org.springframework.security.web.authentication.LoginUrlAuthenticationEnt
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
+import org.springframework.security.web.authentication.ui.DefaultResourcesFilter;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.DefaultCsrfToken;
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
@@ -46,6 +47,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -55,6 +57,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -349,7 +352,15 @@ public class DefaultLoginPageConfigurerTests {
 						  </body>
 						</html>""".formatted(token.getToken()));
 				});
-		// @formatter:on
+	}
+
+	@Test
+	public void cssWhenFormLoginConfiguredThenServesCss() throws Exception {
+		this.spring.register(DefaultLoginPageConfig.class).autowire();
+		this.mvc.perform(get("/spring-security/spring-security.css"))
+				.andExpect(status().isOk())
+				.andExpect(header().string("content-type", "text/css;charset=utf-8"))
+				.andExpect(content().string(containsString("body {")));
 	}
 
 	@Test
@@ -442,6 +453,22 @@ public class DefaultLoginPageConfigurerTests {
 			.stream()
 			.filter((filter) -> filter.getClass().isAssignableFrom(DefaultLoginPageGeneratingFilter.class))
 			.count()).isZero();
+	}
+
+	@Test
+	public void configureWhenAuthenticationEntryPointThenDoesNotServeCss() throws Exception {
+		this.spring.register(DefaultLoginWithCustomAuthenticationEntryPointConfig.class).autowire();
+		FilterChainProxy filterChain = this.spring.getContext().getBean(FilterChainProxy.class);
+		assertThat(filterChain.getFilterChains()
+			.get(0)
+			.getFilters()
+			.stream()
+			.filter((filter) -> filter.getClass().isAssignableFrom(DefaultResourcesFilter.class))
+			.count()).isZero();
+		//@formatter:off
+		this.mvc.perform(get("/spring-security/spring-security.css"))
+				.andExpect(status().is3xxRedirection());
+		//@formatter:on
 	}
 
 	@Test
