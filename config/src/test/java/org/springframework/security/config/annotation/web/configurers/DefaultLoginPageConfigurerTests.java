@@ -70,143 +70,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ExtendWith(SpringTestContextExtension.class)
 public class DefaultLoginPageConfigurerTests {
 
-	public static final String EXPECTED_HTML_HEAD = """
-			<!DOCTYPE html>
-			<html lang="en">
-			  <head>
-			    <meta charset="utf-8">
-			    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-			    <meta name="description" content="">
-			    <meta name="author" content="">
-			    <title>Please sign in</title>
-			    <style>
-			    /* General layout */
-			    body {
-			      font-family: system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-			      background-color: #eee;
-			      padding: 40px 0;
-			      margin: 0;
-			      line-height: 1.5;
-			    }
-			\s\s\s\s
-			    h2 {
-			      margin-top: 0;
-			      margin-bottom: 0.5rem;
-			      font-size: 2rem;
-			      font-weight: 500;
-			      line-height: 2rem;
-			    }
-			\s\s\s\s
-			    .content {
-			      margin-right: auto;
-			      margin-left: auto;
-			      padding-right: 15px;
-			      padding-left: 15px;
-			      width: 100%;
-			      box-sizing: border-box;
-			    }
-			\s\s\s\s
-			    @media (min-width: 800px) {
-			      .content {
-			        max-width: 760px;
-			      }
-			    }
-			\s\s\s\s
-			    /* Components */
-			    a,
-			    a:visited {
-			      text-decoration: none;
-			      color: #06f;
-			    }
-			\s\s\s\s
-			    a:hover {
-			      text-decoration: underline;
-			      color: #003c97;
-			    }
-			\s\s\s\s
-			    input[type="text"],
-			    input[type="password"] {
-			      height: auto;
-			      width: 100%;
-			      font-size: 1rem;
-			      padding: 0.5rem;
-			      box-sizing: border-box;
-			    }
-			\s\s\s\s
-			    button {
-			      padding: 0.5rem 1rem;
-			      font-size: 1.25rem;
-			      line-height: 1.5;
-			      border: none;
-			      border-radius: 0.1rem;
-			      width: 100%;
-			    }
-			\s\s\s\s
-			    button.primary {
-			      color: #fff;
-			      background-color: #06f;
-			    }
-			\s\s\s\s
-			    .alert {
-			      padding: 0.75rem 1rem;
-			      margin-bottom: 1rem;
-			      line-height: 1.5;
-			      border-radius: 0.1rem;
-			      width: 100%;
-			      box-sizing: border-box;
-			      border-width: 1px;
-			      border-style: solid;
-			    }
-			\s\s\s\s
-			    .alert.alert-danger {
-			      color: #6b1922;
-			      background-color: #f7d5d7;
-			      border-color: #eab6bb;
-			    }
-			\s\s\s\s
-			    .alert.alert-success {
-			      color: #145222;
-			      background-color: #d1f0d9;
-			      border-color: #c2ebcb;
-			    }
-			\s\s\s\s
-			    .screenreader {
-			      position: absolute;
-			      clip: rect(0 0 0 0);
-			      height: 1px;
-			      width: 1px;
-			      padding: 0;
-			      border: 0;
-			      overflow: hidden;
-			    }
-			\s\s\s\s
-			    table {
-			      width: 100%;
-			      max-width: 100%;
-			      margin-bottom: 2rem;
-			    }
-			\s\s\s\s
-			    .table-striped tr:nth-of-type(2n + 1) {
-			      background-color: #e1e1e1;
-			    }
-			\s\s\s\s
-			    td {
-			      padding: 0.75rem;
-			      vertical-align: top;
-			    }
-			\s\s\s\s
-			    /* Login / logout layouts */
-			    .login-form,
-			    .logout-form {
-			      max-width: 340px;
-			      padding: 0 15px 15px 15px;
-			      margin: 0 auto 2rem auto;
-			      box-sizing: border-box;
-			    }
-			    </style>
-			  </head>
-			""";
-
 	public final SpringTestContext spring = new SpringTestContext(this);
 
 	@Autowired
@@ -227,9 +90,17 @@ public class DefaultLoginPageConfigurerTests {
 		this.mvc.perform(get("/login").sessionAttr(csrfAttributeName, csrfToken))
 				.andExpect((result) -> {
 					CsrfToken token = (CsrfToken) result.getRequest().getAttribute(CsrfToken.class.getName());
-					assertThat(result.getResponse().getContentAsString()).isEqualTo(
-						EXPECTED_HTML_HEAD +
-						"""
+					assertThat(result.getResponse().getContentAsString()).isEqualTo("""
+						<!DOCTYPE html>
+						<html lang="en">
+						  <head>
+						    <meta charset="utf-8">
+						    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+						    <meta name="description" content="">
+						    <meta name="author" content="">
+						    <title>Please sign in</title>
+						    <link href="/default-ui.css" rel="stylesheet" />
+						  </head>
 						  <body>
 						    <div class="content">
 						      <form class="login-form" method="post" action="/login">
@@ -274,9 +145,17 @@ public class DefaultLoginPageConfigurerTests {
 				.sessionAttr(csrfAttributeName, csrfToken))
 				.andExpect((result) -> {
 					CsrfToken token = (CsrfToken) result.getRequest().getAttribute(CsrfToken.class.getName());
-					assertThat(result.getResponse().getContentAsString()).isEqualTo(
-						EXPECTED_HTML_HEAD +
-						"""
+					assertThat(result.getResponse().getContentAsString()).isEqualTo("""
+						<!DOCTYPE html>
+						<html lang="en">
+						  <head>
+						    <meta charset="utf-8">
+						    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+						    <meta name="description" content="">
+						    <meta name="author" content="">
+						    <title>Please sign in</title>
+						    <link href="/default-ui.css" rel="stylesheet" />
+						  </head>
 						  <body>
 						    <div class="content">
 						      <form class="login-form" method="post" action="/login">
@@ -325,9 +204,17 @@ public class DefaultLoginPageConfigurerTests {
 		this.mvc.perform(get("/login?logout").sessionAttr(csrfAttributeName, csrfToken))
 				.andExpect((result) -> {
 					CsrfToken token = (CsrfToken) result.getRequest().getAttribute(CsrfToken.class.getName());
-					assertThat(result.getResponse().getContentAsString()).isEqualTo(
-						EXPECTED_HTML_HEAD +
-						"""
+					assertThat(result.getResponse().getContentAsString()).isEqualTo("""
+						<!DOCTYPE html>
+						<html lang="en">
+						  <head>
+						    <meta charset="utf-8">
+						    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+						    <meta name="description" content="">
+						    <meta name="author" content="">
+						    <title>Please sign in</title>
+						    <link href="/default-ui.css" rel="stylesheet" />
+						  </head>
 						  <body>
 						    <div class="content">
 						      <form class="login-form" method="post" action="/login">
@@ -357,9 +244,9 @@ public class DefaultLoginPageConfigurerTests {
 	@Test
 	public void cssWhenFormLoginConfiguredThenServesCss() throws Exception {
 		this.spring.register(DefaultLoginPageConfig.class).autowire();
-		this.mvc.perform(get("/spring-security/spring-security.css"))
+		this.mvc.perform(get("/default-ui.css"))
 				.andExpect(status().isOk())
-				.andExpect(header().string("content-type", "text/css;charset=utf-8"))
+				.andExpect(header().string("content-type", "text/css;charset=UTF-8"))
 				.andExpect(content().string(containsString("body {")));
 	}
 
@@ -384,9 +271,17 @@ public class DefaultLoginPageConfigurerTests {
 		this.mvc.perform(get("/login").sessionAttr(csrfAttributeName, csrfToken))
 				.andExpect((result) -> {
 					CsrfToken token = (CsrfToken) result.getRequest().getAttribute(CsrfToken.class.getName());
-					assertThat(result.getResponse().getContentAsString()).isEqualTo(
-						EXPECTED_HTML_HEAD +
-						"""
+					assertThat(result.getResponse().getContentAsString()).isEqualTo("""
+						<!DOCTYPE html>
+						<html lang="en">
+						  <head>
+						    <meta charset="utf-8">
+						    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+						    <meta name="description" content="">
+						    <meta name="author" content="">
+						    <title>Please sign in</title>
+						    <link href="/default-ui.css" rel="stylesheet" />
+						  </head>
 						  <body>
 						    <div class="content">
 						      <form class="login-form" method="post" action="/login">
@@ -466,7 +361,7 @@ public class DefaultLoginPageConfigurerTests {
 			.filter((filter) -> filter.getClass().isAssignableFrom(DefaultResourcesFilter.class))
 			.count()).isZero();
 		//@formatter:off
-		this.mvc.perform(get("/spring-security/spring-security.css"))
+		this.mvc.perform(get("/default-ui.css"))
 				.andExpect(status().is3xxRedirection());
 		//@formatter:on
 	}

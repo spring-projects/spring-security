@@ -27,7 +27,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.core.log.LogMessage;
-import org.springframework.security.web.util.CssUtils;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
@@ -62,7 +61,6 @@ public class DefaultLogoutPageGeneratingFilter extends OncePerRequestFilter {
 
 	private void renderLogout(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String renderedPage = HtmlTemplates.fromTemplate(LOGOUT_PAGE_TEMPLATE)
-			.withRawHtml("cssStyle", CssUtils.getCssStyleBlock().indent(4))
 			.withValue("contextPath", request.getContextPath())
 			.withRawHtml("hiddenInputs", renderHiddenInputs(request).indent(8))
 			.render();
@@ -102,7 +100,7 @@ public class DefaultLogoutPageGeneratingFilter extends OncePerRequestFilter {
 			    <meta name="description" content="">
 			    <meta name="author" content="">
 			    <title>Confirm Log Out?</title>
-			{{cssStyle}}
+			    <link href="{{contextPath}}/default-ui.css" rel="stylesheet" />
 			  </head>
 			  <body>
 			    <div class="content">

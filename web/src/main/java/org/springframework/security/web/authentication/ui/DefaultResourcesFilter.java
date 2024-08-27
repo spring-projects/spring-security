@@ -83,14 +83,13 @@ public final class DefaultResourcesFilter extends GenericFilterBean {
 	 * default CSS stylesheet.
 	 * <p>
 	 * The created {@link DefaultResourcesFilter} matches requests
-	 * {@code HTTP GET /default-ui.css}, and returns the default
-	 * stylesheet at {@code org/springframework/security/default-ui.css} with
-	 * content-type {@code text/css;charset=UTF-8}.
+	 * {@code HTTP GET /default-ui.css}, and returns the default stylesheet at
+	 * {@code org/springframework/security/default-ui.css} with content-type
+	 * {@code text/css;charset=UTF-8}.
 	 * @return -
 	 */
-	public static DefaultResourcesFilter defaultCss() {
-		return new DefaultResourcesFilter(
-				AntPathRequestMatcher.antMatcher(HttpMethod.GET, "/default-ui.css"),
+	public static DefaultResourcesFilter css() {
+		return new DefaultResourcesFilter(AntPathRequestMatcher.antMatcher(HttpMethod.GET, "/default-ui.css"),
 				new ClassPathResource("org/springframework/security/default-ui.css"),
 				new MediaType("text", "css", StandardCharsets.UTF_8));
 	}

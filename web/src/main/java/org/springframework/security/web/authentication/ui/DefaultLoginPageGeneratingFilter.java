@@ -35,7 +35,6 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.rememberme.AbstractRememberMeServices;
-import org.springframework.security.web.util.CssUtils;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.GenericFilterBean;
@@ -207,7 +206,7 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 		String contextPath = request.getContextPath();
 
 		return HtmlTemplates.fromTemplate(LOGIN_PAGE_TEMPLATE)
-			.withRawHtml("cssStyle", CssUtils.getCssStyleBlock().indent(4))
+			.withRawHtml("contextPath", contextPath)
 			.withRawHtml("formLogin", renderFormLogin(request, loginError, logoutSuccess, contextPath, errorMsg))
 			.withRawHtml("oneTimeTokenLogin",
 					renderOneTimeTokenLogin(request, loginError, logoutSuccess, contextPath, errorMsg))
@@ -393,7 +392,7 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 			    <meta name="description" content="">
 			    <meta name="author" content="">
 			    <title>Please sign in</title>
-			{{cssStyle}}
+			    <link href="{{contextPath}}/default-ui.css" rel="stylesheet" />
 			  </head>
 			  <body>
 			    <div class="content">

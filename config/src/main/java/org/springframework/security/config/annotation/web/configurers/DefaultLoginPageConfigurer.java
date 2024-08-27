@@ -75,14 +75,11 @@ public final class DefaultLoginPageConfigurer<H extends HttpSecurityBuilder<H>>
 
 	private DefaultLogoutPageGeneratingFilter logoutPageGeneratingFilter = new DefaultLogoutPageGeneratingFilter();
 
-	private DefaultResourcesFilter defaultResourcesFilter = new DefaultResourcesFilter();
-
 	@Override
 	public void init(H http) {
 		this.loginPageGeneratingFilter.setResolveHiddenInputs(DefaultLoginPageConfigurer.this::hiddenInputs);
 		this.logoutPageGeneratingFilter.setResolveHiddenInputs(DefaultLoginPageConfigurer.this::hiddenInputs);
 		http.setSharedObject(DefaultLoginPageGeneratingFilter.class, this.loginPageGeneratingFilter);
-		http.setSharedObject(DefaultResourcesFilter.class, this.defaultResourcesFilter);
 	}
 
 	private Map<String, String> hiddenInputs(HttpServletRequest request) {
@@ -102,7 +99,7 @@ public final class DefaultLoginPageConfigurer<H extends HttpSecurityBuilder<H>>
 		if (this.loginPageGeneratingFilter.isEnabled() && authenticationEntryPoint == null) {
 			this.loginPageGeneratingFilter = postProcess(this.loginPageGeneratingFilter);
 			http.addFilter(this.loginPageGeneratingFilter);
-			http.addFilter(this.defaultResourcesFilter);
+			http.addFilter(DefaultResourcesFilter.css());
 			LogoutConfigurer<H> logoutConfigurer = http.getConfigurer(LogoutConfigurer.class);
 			if (logoutConfigurer != null) {
 				http.addFilter(this.logoutPageGeneratingFilter);
