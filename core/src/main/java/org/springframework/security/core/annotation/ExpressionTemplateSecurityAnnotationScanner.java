@@ -35,8 +35,8 @@ import org.springframework.util.PropertyPlaceholderHelper;
  *
  * <p>
  * Note that in all cases, Spring Security does not allow for repeatable annotations. So
- * this class delegates to {@link UniqueMergedAnnotationSynthesizer} in order to error if
- * a repeat is discovered.
+ * this class delegates to {@link UniqueSecurityAnnotationScanner} in order to error if a
+ * repeat is discovered.
  *
  * <p>
  * It supports meta-annotations with placeholders, like the following:
@@ -49,8 +49,8 @@ import org.springframework.util.PropertyPlaceholderHelper;
  * </pre>
  *
  * <p>
- * In that case, you could use an {@link ExpressionTemplateAnnotationSynthesizer} of type
- * {@link org.springframework.security.access.prepost.PreAuthorize} to synthesize any
+ * In that case, you could use an {@link ExpressionTemplateSecurityAnnotationScanner} of
+ * type {@link org.springframework.security.access.prepost.PreAuthorize} to synthesize any
  * {@code @HasRole} annotation found on a given {@link AnnotatedElement}.
  *
  * <p>
@@ -61,11 +61,12 @@ import org.springframework.util.PropertyPlaceholderHelper;
  * @author Josh Cummings
  * @since 6.4
  */
-final class ExpressionTemplateAnnotationSynthesizer<A extends Annotation> extends AbstractAnnotationSynthesizer<A> {
+final class ExpressionTemplateSecurityAnnotationScanner<A extends Annotation>
+		extends AbstractSecurityAnnotationScanner<A> {
 
 	private final Class<A> type;
 
-	private final UniqueMergedAnnotationSynthesizer<A> unique;
+	private final UniqueSecurityAnnotationScanner<A> unique;
 
 	private final AnnotationTemplateExpressionDefaults templateDefaults;
 
@@ -73,11 +74,11 @@ final class ExpressionTemplateAnnotationSynthesizer<A extends Annotation> extend
 
 	private final Map<MethodClassKey, MergedAnnotation<A>> uniqueMethodAnnotationCache = new HashMap<>();
 
-	ExpressionTemplateAnnotationSynthesizer(Class<A> type, AnnotationTemplateExpressionDefaults templateDefaults) {
+	ExpressionTemplateSecurityAnnotationScanner(Class<A> type, AnnotationTemplateExpressionDefaults templateDefaults) {
 		Assert.notNull(type, "type cannot be null");
 		Assert.notNull(templateDefaults, "templateDefaults cannot be null");
 		this.type = type;
-		this.unique = new UniqueMergedAnnotationSynthesizer<>(type);
+		this.unique = new UniqueSecurityAnnotationScanner<>(type);
 		this.templateDefaults = templateDefaults;
 	}
 

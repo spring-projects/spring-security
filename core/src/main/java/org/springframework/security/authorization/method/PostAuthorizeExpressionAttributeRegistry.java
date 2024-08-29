@@ -25,9 +25,9 @@ import reactor.util.annotation.NonNull;
 import org.springframework.context.ApplicationContext;
 import org.springframework.expression.Expression;
 import org.springframework.security.access.prepost.PostAuthorize;
-import org.springframework.security.core.annotation.AnnotationSynthesizer;
-import org.springframework.security.core.annotation.AnnotationSynthesizers;
 import org.springframework.security.core.annotation.AnnotationTemplateExpressionDefaults;
+import org.springframework.security.core.annotation.SecurityAnnotationScanner;
+import org.springframework.security.core.annotation.SecurityAnnotationScanners;
 import org.springframework.util.Assert;
 
 /**
@@ -41,12 +41,12 @@ final class PostAuthorizeExpressionAttributeRegistry extends AbstractExpressionA
 
 	private final MethodAuthorizationDeniedHandler defaultHandler = new ThrowingMethodAuthorizationDeniedHandler();
 
-	private final AnnotationSynthesizer<HandleAuthorizationDenied> handleAuthorizationDeniedSynthesizer = AnnotationSynthesizers
+	private final SecurityAnnotationScanner<HandleAuthorizationDenied> handleAuthorizationDeniedScanner = SecurityAnnotationScanners
 		.requireUnique(HandleAuthorizationDenied.class);
 
 	private Function<Class<? extends MethodAuthorizationDeniedHandler>, MethodAuthorizationDeniedHandler> handlerResolver;
 
-	private AnnotationSynthesizer<PostAuthorize> postAuthorizeSynthesizer = AnnotationSynthesizers
+	private SecurityAnnotationScanner<PostAuthorize> postAuthorizeScanner = SecurityAnnotationScanners
 		.requireUnique(PostAuthorize.class);
 
 	PostAuthorizeExpressionAttributeRegistry() {
@@ -68,8 +68,7 @@ final class PostAuthorizeExpressionAttributeRegistry extends AbstractExpressionA
 
 	private MethodAuthorizationDeniedHandler resolveHandler(Method method, Class<?> targetClass) {
 		Class<?> targetClassToUse = targetClass(method, targetClass);
-		HandleAuthorizationDenied deniedHandler = this.handleAuthorizationDeniedSynthesizer.synthesize(method,
-				targetClassToUse);
+		HandleAuthorizationDenied deniedHandler = this.handleAuthorizationDeniedScanner.scan(method, targetClassToUse);
 		if (deniedHandler != null) {
 			return this.handlerResolver.apply(deniedHandler.handlerClass());
 		}
@@ -78,7 +77,7 @@ final class PostAuthorizeExpressionAttributeRegistry extends AbstractExpressionA
 
 	private PostAuthorize findPostAuthorizeAnnotation(Method method, Class<?> targetClass) {
 		Class<?> targetClassToUse = targetClass(method, targetClass);
-		return this.postAuthorizeSynthesizer.synthesize(method, targetClassToUse);
+		return this.postAuthorizeScanner.scan(method, targetClassToUse);
 	}
 
 	/**
@@ -92,7 +91,7 @@ final class PostAuthorizeExpressionAttributeRegistry extends AbstractExpressionA
 	}
 
 	void setTemplateDefaults(AnnotationTemplateExpressionDefaults templateDefaults) {
-		this.postAuthorizeSynthesizer = AnnotationSynthesizers.requireUnique(PostAuthorize.class, templateDefaults);
+		this.postAuthorizeScanner = SecurityAnnotationScanners.requireUnique(PostAuthorize.class, templateDefaults);
 	}
 
 	private MethodAuthorizationDeniedHandler resolveHandler(ApplicationContext context,

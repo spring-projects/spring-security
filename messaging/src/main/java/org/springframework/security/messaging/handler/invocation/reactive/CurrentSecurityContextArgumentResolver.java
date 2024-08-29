@@ -35,10 +35,10 @@ import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.handler.invocation.reactive.HandlerMethodArgumentResolver;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AnnotationSynthesizer;
-import org.springframework.security.core.annotation.AnnotationSynthesizers;
 import org.springframework.security.core.annotation.AnnotationTemplateExpressionDefaults;
 import org.springframework.security.core.annotation.CurrentSecurityContext;
+import org.springframework.security.core.annotation.SecurityAnnotationScanner;
+import org.springframework.security.core.annotation.SecurityAnnotationScanners;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.stereotype.Controller;
@@ -101,7 +101,7 @@ public class CurrentSecurityContextArgumentResolver implements HandlerMethodArgu
 
 	private ExpressionParser parser = new SpelExpressionParser();
 
-	private AnnotationSynthesizer<CurrentSecurityContext> synthesizer = AnnotationSynthesizers
+	private SecurityAnnotationScanner<CurrentSecurityContext> scanner = SecurityAnnotationScanners
 		.requireUnique(CurrentSecurityContext.class);
 
 	private BeanResolver beanResolver;
@@ -212,7 +212,7 @@ public class CurrentSecurityContextArgumentResolver implements HandlerMethodArgu
 	 * @since 6.4
 	 */
 	public void setTemplateDefaults(AnnotationTemplateExpressionDefaults templateDefaults) {
-		this.synthesizer = AnnotationSynthesizers.requireUnique(CurrentSecurityContext.class, templateDefaults);
+		this.scanner = SecurityAnnotationScanners.requireUnique(CurrentSecurityContext.class, templateDefaults);
 	}
 
 	/**
@@ -223,7 +223,7 @@ public class CurrentSecurityContextArgumentResolver implements HandlerMethodArgu
 	@SuppressWarnings("unchecked")
 	private <T extends Annotation> T findMethodAnnotation(MethodParameter parameter) {
 		return (T) this.cachedAttributes.computeIfAbsent(parameter,
-				(methodParameter) -> this.synthesizer.synthesize(methodParameter.getParameter()));
+				(methodParameter) -> this.scanner.scan(methodParameter.getParameter()));
 	}
 
 }

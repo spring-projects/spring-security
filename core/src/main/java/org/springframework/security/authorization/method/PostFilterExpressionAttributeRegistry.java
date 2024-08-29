@@ -21,9 +21,9 @@ import java.lang.reflect.Method;
 import org.springframework.expression.Expression;
 import org.springframework.lang.NonNull;
 import org.springframework.security.access.prepost.PostFilter;
-import org.springframework.security.core.annotation.AnnotationSynthesizer;
-import org.springframework.security.core.annotation.AnnotationSynthesizers;
 import org.springframework.security.core.annotation.AnnotationTemplateExpressionDefaults;
+import org.springframework.security.core.annotation.SecurityAnnotationScanner;
+import org.springframework.security.core.annotation.SecurityAnnotationScanners;
 
 /**
  * For internal use only, as this contract is likely to change.
@@ -34,7 +34,7 @@ import org.springframework.security.core.annotation.AnnotationTemplateExpression
  */
 final class PostFilterExpressionAttributeRegistry extends AbstractExpressionAttributeRegistry<ExpressionAttribute> {
 
-	private AnnotationSynthesizer<PostFilter> synthesizer = AnnotationSynthesizers.requireUnique(PostFilter.class);
+	private SecurityAnnotationScanner<PostFilter> scanner = SecurityAnnotationScanners.requireUnique(PostFilter.class);
 
 	@NonNull
 	@Override
@@ -49,12 +49,12 @@ final class PostFilterExpressionAttributeRegistry extends AbstractExpressionAttr
 	}
 
 	void setTemplateDefaults(AnnotationTemplateExpressionDefaults defaults) {
-		this.synthesizer = AnnotationSynthesizers.requireUnique(PostFilter.class, defaults);
+		this.scanner = SecurityAnnotationScanners.requireUnique(PostFilter.class, defaults);
 	}
 
 	private PostFilter findPostFilterAnnotation(Method method, Class<?> targetClass) {
 		Class<?> targetClassToUse = targetClass(method, targetClass);
-		return this.synthesizer.synthesize(method, targetClassToUse);
+		return this.scanner.scan(method, targetClassToUse);
 	}
 
 }

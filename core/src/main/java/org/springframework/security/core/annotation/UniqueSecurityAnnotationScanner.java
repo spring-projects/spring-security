@@ -69,7 +69,7 @@ import org.springframework.util.ClassUtils;
  * </pre>
  *
  * <p>
- * In that case, you can use an {@link UniqueMergedAnnotationSynthesizer} of type
+ * In that case, you can use an {@link UniqueSecurityAnnotationScanner} of type
  * {@link org.springframework.security.access.prepost.PreAuthorize} to synthesize any
  * {@code @HasRole} annotation found on a given method or class into its
  * {@link org.springframework.security.access.prepost.PreAuthorize} meta-annotation.
@@ -82,16 +82,16 @@ import org.springframework.util.ClassUtils;
  * @author Josh Cummings
  * @since 6.4
  */
-final class UniqueMergedAnnotationSynthesizer<A extends Annotation> extends AbstractAnnotationSynthesizer<A> {
+final class UniqueSecurityAnnotationScanner<A extends Annotation> extends AbstractSecurityAnnotationScanner<A> {
 
 	private final List<Class<A>> types;
 
-	UniqueMergedAnnotationSynthesizer(Class<A> type) {
+	UniqueSecurityAnnotationScanner(Class<A> type) {
 		Assert.notNull(type, "type cannot be null");
 		this.types = List.of(type);
 	}
 
-	UniqueMergedAnnotationSynthesizer(List<Class<A>> types) {
+	UniqueSecurityAnnotationScanner(List<Class<A>> types) {
 		Assert.notNull(types, "types cannot be null");
 		this.types = types;
 	}

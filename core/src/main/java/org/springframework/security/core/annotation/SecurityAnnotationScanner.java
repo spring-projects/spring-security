@@ -23,7 +23,7 @@ import java.lang.reflect.Parameter;
 import org.springframework.lang.Nullable;
 
 /**
- * An interface to search for and synthesize an annotation on a type, method, or method
+ * An interface to scan for and synthesize an annotation on a type, method, or method
  * parameter into an annotation of type {@code <A>}.
  *
  * <p>
@@ -43,13 +43,13 @@ import org.springframework.lang.Nullable;
  * @param <A> the annotation to search for and synthesize
  * @author Josh Cummings
  * @since 6.4
- * @see UniqueMergedAnnotationSynthesizer
- * @see ExpressionTemplateAnnotationSynthesizer
+ * @see UniqueSecurityAnnotationScanner
+ * @see ExpressionTemplateSecurityAnnotationScanner
  */
-public interface AnnotationSynthesizer<A extends Annotation> {
+public interface SecurityAnnotationScanner<A extends Annotation> {
 
 	/**
-	 * Synthesize an annotation of type {@code A} from the given method.
+	 * Scan for an annotation of type {@code A}, starting from the given method.
 	 *
 	 * <p>
 	 * Implementations should fail if they encounter more than one annotation of that type
@@ -63,10 +63,10 @@ public interface AnnotationSynthesizer<A extends Annotation> {
 	 * @return the synthesized annotation or {@code null} if not found
 	 */
 	@Nullable
-	A synthesize(Method method, Class<?> targetClass);
+	A scan(Method method, Class<?> targetClass);
 
 	/**
-	 * Synthesize an annotation of type {@code A} from the given method parameter.
+	 * Scan for an annotation of type {@code A}, starting from the given method parameter.
 	 *
 	 * <p>
 	 * Implementations should fail if they encounter more than one annotation of that type
@@ -79,6 +79,6 @@ public interface AnnotationSynthesizer<A extends Annotation> {
 	 * @return the synthesized annotation or {@code null} if not found
 	 */
 	@Nullable
-	A synthesize(Parameter parameter);
+	A scan(Parameter parameter);
 
 }

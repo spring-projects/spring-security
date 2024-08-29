@@ -34,8 +34,8 @@ import org.springframework.security.authorization.AuthoritiesAuthorizationManage
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AnnotationSynthesizer;
-import org.springframework.security.core.annotation.AnnotationSynthesizers;
+import org.springframework.security.core.annotation.SecurityAnnotationScanner;
+import org.springframework.security.core.annotation.SecurityAnnotationScanners;
 import org.springframework.util.Assert;
 
 /**
@@ -95,7 +95,7 @@ public final class Jsr250AuthorizationManager implements AuthorizationManager<Me
 
 	private final class Jsr250AuthorizationManagerRegistry extends AbstractAuthorizationManagerRegistry {
 
-		private final AnnotationSynthesizer<?> synthesizer = AnnotationSynthesizers
+		private final SecurityAnnotationScanner<?> scanner = SecurityAnnotationScanners
 			.requireUnique(List.of(DenyAll.class, PermitAll.class, RolesAllowed.class));
 
 		@NonNull
@@ -117,7 +117,7 @@ public final class Jsr250AuthorizationManager implements AuthorizationManager<Me
 
 		private Annotation findJsr250Annotation(Method method, Class<?> targetClass) {
 			Class<?> targetClassToUse = (targetClass != null) ? targetClass : method.getDeclaringClass();
-			return this.synthesizer.synthesize(method, targetClassToUse);
+			return this.scanner.scan(method, targetClassToUse);
 		}
 
 		private Set<String> getAllowedRolesWithPrefix(RolesAllowed rolesAllowed) {

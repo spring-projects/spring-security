@@ -32,10 +32,10 @@ import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
-import org.springframework.security.core.annotation.AnnotationSynthesizer;
-import org.springframework.security.core.annotation.AnnotationSynthesizers;
 import org.springframework.security.core.annotation.AnnotationTemplateExpressionDefaults;
 import org.springframework.security.core.annotation.CurrentSecurityContext;
+import org.springframework.security.core.annotation.SecurityAnnotationScanner;
+import org.springframework.security.core.annotation.SecurityAnnotationScanners;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.util.Assert;
@@ -57,7 +57,7 @@ public class CurrentSecurityContextArgumentResolver extends HandlerMethodArgumen
 
 	private ExpressionParser parser = new SpelExpressionParser();
 
-	private AnnotationSynthesizer<CurrentSecurityContext> synthesizer = AnnotationSynthesizers
+	private SecurityAnnotationScanner<CurrentSecurityContext> scanner = SecurityAnnotationScanners
 		.requireUnique(CurrentSecurityContext.class);
 
 	private BeanResolver beanResolver;
@@ -85,7 +85,7 @@ public class CurrentSecurityContextArgumentResolver extends HandlerMethodArgumen
 	 * @since 6.4
 	 */
 	public void setTemplateDefaults(AnnotationTemplateExpressionDefaults templateDefaults) {
-		this.synthesizer = AnnotationSynthesizers.requireUnique(CurrentSecurityContext.class, templateDefaults);
+		this.scanner = SecurityAnnotationScanners.requireUnique(CurrentSecurityContext.class, templateDefaults);
 	}
 
 	@Override
@@ -190,7 +190,7 @@ public class CurrentSecurityContextArgumentResolver extends HandlerMethodArgumen
 	@SuppressWarnings("unchecked")
 	private <T extends Annotation> T findMethodAnnotation(MethodParameter parameter) {
 		return (T) this.cachedAttributes.computeIfAbsent(parameter,
-				(methodParameter) -> this.synthesizer.synthesize(methodParameter.getParameter()));
+				(methodParameter) -> this.scanner.scan(methodParameter.getParameter()));
 	}
 
 }

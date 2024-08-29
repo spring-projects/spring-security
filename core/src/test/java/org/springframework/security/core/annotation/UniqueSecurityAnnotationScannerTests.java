@@ -27,227 +27,227 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
- * Tests for {@link UniqueMergedAnnotationSynthesizer}
+ * Tests for {@link UniqueSecurityAnnotationScanner}
  */
-public class UniqueMergedAnnotationSynthesizerTests {
+public class UniqueSecurityAnnotationScannerTests {
 
-	private UniqueMergedAnnotationSynthesizer<PreAuthorize> synthesizer = new UniqueMergedAnnotationSynthesizer<>(
+	private UniqueSecurityAnnotationScanner<PreAuthorize> scanner = new UniqueSecurityAnnotationScanner<>(
 			PreAuthorize.class);
 
 	@Test
-	void synthesizeWhenAnnotationOnInterfaceThenResolves() throws Exception {
+	void scanWhenAnnotationOnInterfaceThenResolves() throws Exception {
 		Method method = AnnotationOnInterface.class.getDeclaredMethod("method");
-		PreAuthorize preAuthorize = this.synthesizer.synthesize(method, method.getDeclaringClass());
+		PreAuthorize preAuthorize = this.scanner.scan(method, method.getDeclaringClass());
 		assertThat(preAuthorize.value()).isEqualTo("one");
 	}
 
 	@Test
-	void synthesizeWhenAnnotationOnMethodThenResolves() throws Exception {
+	void scanWhenAnnotationOnMethodThenResolves() throws Exception {
 		Method method = AnnotationOnInterfaceMethod.class.getDeclaredMethod("method");
-		PreAuthorize preAuthorize = this.synthesizer.synthesize(method, method.getDeclaringClass());
+		PreAuthorize preAuthorize = this.scanner.scan(method, method.getDeclaringClass());
 		assertThat(preAuthorize.value()).isEqualTo("three");
 	}
 
 	@Test
-	void synthesizeWhenAnnotationOnClassThenResolves() throws Exception {
+	void scanWhenAnnotationOnClassThenResolves() throws Exception {
 		Method method = AnnotationOnClass.class.getDeclaredMethod("method");
-		PreAuthorize preAuthorize = this.synthesizer.synthesize(method, method.getDeclaringClass());
+		PreAuthorize preAuthorize = this.scanner.scan(method, method.getDeclaringClass());
 		assertThat(preAuthorize.value()).isEqualTo("five");
 	}
 
 	@Test
-	void synthesizeWhenAnnotationOnClassMethodThenResolves() throws Exception {
+	void scanWhenAnnotationOnClassMethodThenResolves() throws Exception {
 		Method method = AnnotationOnClassMethod.class.getDeclaredMethod("method");
-		PreAuthorize preAuthorize = this.synthesizer.synthesize(method, method.getDeclaringClass());
+		PreAuthorize preAuthorize = this.scanner.scan(method, method.getDeclaringClass());
 		assertThat(preAuthorize.value()).isEqualTo("six");
 	}
 
 	@Test
-	void synthesizeWhenInterfaceOverridingAnnotationOnInterfaceThenResolves() throws Exception {
+	void scanWhenInterfaceOverridingAnnotationOnInterfaceThenResolves() throws Exception {
 		Method method = InterfaceMethodOverridingAnnotationOnInterface.class.getDeclaredMethod("method");
-		PreAuthorize preAuthorize = this.synthesizer.synthesize(method, method.getDeclaringClass());
+		PreAuthorize preAuthorize = this.scanner.scan(method, method.getDeclaringClass());
 		assertThat(preAuthorize.value()).isEqualTo("eight");
 	}
 
 	@Test
-	void synthesizeWhenInterfaceOverridingMultipleInterfaceInheritanceThenResolves() throws Exception {
+	void scanWhenInterfaceOverridingMultipleInterfaceInheritanceThenResolves() throws Exception {
 		Method method = ClassInheritingInterfaceOverridingMultipleInterfaceInheritance.class
 			.getDeclaredMethod("method");
-		PreAuthorize preAuthorize = this.synthesizer.synthesize(method, method.getDeclaringClass());
+		PreAuthorize preAuthorize = this.scanner.scan(method, method.getDeclaringClass());
 		assertThat(preAuthorize.value()).isEqualTo("ten");
 	}
 
 	@Test
-	void synthesizeWhenInterfaceMethodOverridingAnnotationOnInterfaceThenResolves() throws Exception {
+	void scanWhenInterfaceMethodOverridingAnnotationOnInterfaceThenResolves() throws Exception {
 		Method method = InterfaceMethodOverridingMultipleInterfaceInheritance.class.getDeclaredMethod("method");
-		PreAuthorize preAuthorize = this.synthesizer.synthesize(method, method.getDeclaringClass());
+		PreAuthorize preAuthorize = this.scanner.scan(method, method.getDeclaringClass());
 		assertThat(preAuthorize.value()).isEqualTo("eleven");
 	}
 
 	@Test
-	void synthesizeWhenClassMultipleInheritanceThenException() throws Exception {
+	void scanWhenClassMultipleInheritanceThenException() throws Exception {
 		Method method = ClassAttemptingMultipleInterfaceInheritance.class.getDeclaredMethod("method");
 		assertThatExceptionOfType(AnnotationConfigurationException.class)
-			.isThrownBy(() -> this.synthesizer.synthesize(method, method.getDeclaringClass()));
+			.isThrownBy(() -> this.scanner.scan(method, method.getDeclaringClass()));
 	}
 
 	// gh-15097
 	@Test
-	void synthesizeWhenClassOverridingMultipleInterfaceInheritanceThenResolves() throws Exception {
+	void scanWhenClassOverridingMultipleInterfaceInheritanceThenResolves() throws Exception {
 		Method method = ClassOverridingMultipleInterfaceInheritance.class.getDeclaredMethod("method");
-		PreAuthorize preAuthorize = this.synthesizer.synthesize(method, method.getDeclaringClass());
+		PreAuthorize preAuthorize = this.scanner.scan(method, method.getDeclaringClass());
 		assertThat(preAuthorize.value()).isEqualTo("thirteen");
 	}
 
 	@Test
-	void synthesizeWhenClassMethodOverridingMultipleInterfaceInheritanceThenResolves() throws Exception {
+	void scanWhenClassMethodOverridingMultipleInterfaceInheritanceThenResolves() throws Exception {
 		Method method = ClassMethodOverridingMultipleInterfaceInheritance.class.getDeclaredMethod("method");
-		PreAuthorize preAuthorize = this.synthesizer.synthesize(method, method.getDeclaringClass());
+		PreAuthorize preAuthorize = this.scanner.scan(method, method.getDeclaringClass());
 		assertThat(preAuthorize.value()).isEqualTo("fourteen");
 	}
 
 	@Test
-	void synthesizeWhenClassInheritingInterfaceOverridingInterfaceAnnotationThenResolves() throws Exception {
+	void scanWhenClassInheritingInterfaceOverridingInterfaceAnnotationThenResolves() throws Exception {
 		Method method = ClassInheritingInterfaceOverridingInterfaceAnnotation.class.getDeclaredMethod("method");
-		PreAuthorize preAuthorize = this.synthesizer.synthesize(method, method.getDeclaringClass());
+		PreAuthorize preAuthorize = this.scanner.scan(method, method.getDeclaringClass());
 		assertThat(preAuthorize.value()).isEqualTo("seven");
 	}
 
 	@Test
-	void synthesizeWhenClassOverridingGrandparentInterfaceAnnotationThenResolves() throws Exception {
+	void scanWhenClassOverridingGrandparentInterfaceAnnotationThenResolves() throws Exception {
 		Method method = ClassOverridingGrandparentInterfaceAnnotation.class.getDeclaredMethod("method");
-		PreAuthorize preAuthorize = this.synthesizer.synthesize(method, method.getDeclaringClass());
+		PreAuthorize preAuthorize = this.scanner.scan(method, method.getDeclaringClass());
 		assertThat(preAuthorize.value()).isEqualTo("sixteen");
 	}
 
 	@Test
-	void synthesizeWhenMethodOverridingGrandparentInterfaceAnnotationThenResolves() throws Exception {
+	void scanWhenMethodOverridingGrandparentInterfaceAnnotationThenResolves() throws Exception {
 		Method method = MethodOverridingGrandparentInterfaceAnnotation.class.getDeclaredMethod("method");
-		PreAuthorize preAuthorize = this.synthesizer.synthesize(method, method.getDeclaringClass());
+		PreAuthorize preAuthorize = this.scanner.scan(method, method.getDeclaringClass());
 		assertThat(preAuthorize.value()).isEqualTo("seventeen");
 	}
 
 	@Test
-	void synthesizeWhenClassInheritingMethodOverriddenAnnotationThenResolves() throws Exception {
+	void scanWhenClassInheritingMethodOverriddenAnnotationThenResolves() throws Exception {
 		Method method = ClassInheritingMethodOverriddenAnnotation.class.getDeclaredMethod("method");
-		PreAuthorize preAuthorize = this.synthesizer.synthesize(method, method.getDeclaringClass());
+		PreAuthorize preAuthorize = this.scanner.scan(method, method.getDeclaringClass());
 		assertThat(preAuthorize.value()).isEqualTo("eight");
 	}
 
 	@Test
-	void synthesizeWhenClassOverridingMethodOverriddenAnnotationThenResolves() throws Exception {
+	void scanWhenClassOverridingMethodOverriddenAnnotationThenResolves() throws Exception {
 		Method method = ClassOverridingMethodOverriddenAnnotation.class.getDeclaredMethod("method");
-		PreAuthorize preAuthorize = this.synthesizer.synthesize(method, method.getDeclaringClass());
+		PreAuthorize preAuthorize = this.scanner.scan(method, method.getDeclaringClass());
 		assertThat(preAuthorize.value()).isEqualTo("eight");
 	}
 
 	@Test
-	void synthesizeWhenMethodOverridingMethodOverriddenAnnotationThenResolves() throws Exception {
+	void scanWhenMethodOverridingMethodOverriddenAnnotationThenResolves() throws Exception {
 		Method method = MethodOverridingMethodOverriddenAnnotation.class.getDeclaredMethod("method");
-		PreAuthorize preAuthorize = this.synthesizer.synthesize(method, method.getDeclaringClass());
+		PreAuthorize preAuthorize = this.scanner.scan(method, method.getDeclaringClass());
 		assertThat(preAuthorize.value()).isEqualTo("twenty");
 	}
 
 	@Test
-	void synthesizeWhenClassInheritingMultipleInheritanceThenException() throws Exception {
+	void scanWhenClassInheritingMultipleInheritanceThenException() throws Exception {
 		Method method = ClassInheritingMultipleInheritance.class.getDeclaredMethod("method");
 		assertThatExceptionOfType(AnnotationConfigurationException.class)
-			.isThrownBy(() -> this.synthesizer.synthesize(method, method.getDeclaringClass()));
+			.isThrownBy(() -> this.scanner.scan(method, method.getDeclaringClass()));
 	}
 
 	@Test
-	void synthesizeWhenClassOverridingMultipleInheritanceThenResolves() throws Exception {
+	void scanWhenClassOverridingMultipleInheritanceThenResolves() throws Exception {
 		Method method = ClassOverridingMultipleInheritance.class.getDeclaredMethod("method");
-		PreAuthorize preAuthorize = this.synthesizer.synthesize(method, method.getDeclaringClass());
+		PreAuthorize preAuthorize = this.scanner.scan(method, method.getDeclaringClass());
 		assertThat(preAuthorize.value()).isEqualTo("twentytwo");
 	}
 
 	@Test
-	void synthesizeWhenMethodOverridingMultipleInheritanceThenResolves() throws Exception {
+	void scanWhenMethodOverridingMultipleInheritanceThenResolves() throws Exception {
 		Method method = MethodOverridingMultipleInheritance.class.getDeclaredMethod("method");
-		PreAuthorize preAuthorize = this.synthesizer.synthesize(method, method.getDeclaringClass());
+		PreAuthorize preAuthorize = this.scanner.scan(method, method.getDeclaringClass());
 		assertThat(preAuthorize.value()).isEqualTo("twentythree");
 	}
 
 	@Test
-	void synthesizeWhenInheritingInterfaceAndMethodAnnotationsThenResolves() throws Exception {
+	void scanWhenInheritingInterfaceAndMethodAnnotationsThenResolves() throws Exception {
 		Method method = InheritingInterfaceAndMethodAnnotations.class.getDeclaredMethod("method");
-		PreAuthorize preAuthorize = this.synthesizer.synthesize(method, method.getDeclaringClass());
+		PreAuthorize preAuthorize = this.scanner.scan(method, method.getDeclaringClass());
 		assertThat(preAuthorize.value()).isEqualTo("three");
 	}
 
 	@Test
-	void synthesizeWhenClassOverridingInterfaceAndMethodInheritanceThenResolves() throws Exception {
+	void scanWhenClassOverridingInterfaceAndMethodInheritanceThenResolves() throws Exception {
 		Method method = ClassOverridingInterfaceAndMethodInheritance.class.getDeclaredMethod("method");
-		PreAuthorize preAuthorize = this.synthesizer.synthesize(method, method.getDeclaringClass());
+		PreAuthorize preAuthorize = this.scanner.scan(method, method.getDeclaringClass());
 		assertThat(preAuthorize.value()).isEqualTo("three");
 	}
 
 	@Test
-	void synthesizeWhenMethodOverridingInterfaceAndMethodInheritanceThenResolves() throws Exception {
+	void scanWhenMethodOverridingInterfaceAndMethodInheritanceThenResolves() throws Exception {
 		Method method = MethodOverridingInterfaceAndMethodInheritance.class.getDeclaredMethod("method");
-		PreAuthorize preAuthorize = this.synthesizer.synthesize(method, method.getDeclaringClass());
+		PreAuthorize preAuthorize = this.scanner.scan(method, method.getDeclaringClass());
 		assertThat(preAuthorize.value()).isEqualTo("twentysix");
 	}
 
 	@Test
-	void synthesizeWhenMultipleMethodInheritanceThenException() throws Exception {
+	void scanWhenMultipleMethodInheritanceThenException() throws Exception {
 		Method method = MultipleMethodInheritance.class.getDeclaredMethod("method");
 		assertThatExceptionOfType(AnnotationConfigurationException.class)
-			.isThrownBy(() -> this.synthesizer.synthesize(method, method.getDeclaringClass()));
+			.isThrownBy(() -> this.scanner.scan(method, method.getDeclaringClass()));
 	}
 
 	// gh-13234
 	@Test
-	void synthesizeWhenClassInheritingInterfaceAnnotationThenResolves() throws Exception {
+	void scanWhenClassInheritingInterfaceAnnotationThenResolves() throws Exception {
 		Method method = ClassInheritingInterfaceMethodAnnotation.class.getDeclaredMethod("method");
-		PreAuthorize preAuthorize = this.synthesizer.synthesize(method, method.getDeclaringClass());
+		PreAuthorize preAuthorize = this.scanner.scan(method, method.getDeclaringClass());
 		assertThat(preAuthorize.value()).isEqualTo("three");
 	}
 
 	@Test
-	void synthesizeWhenMethodInheritingMethodOverridingInterfaceAndMethodInheritanceThenResolves() throws Exception {
+	void scanWhenMethodInheritingMethodOverridingInterfaceAndMethodInheritanceThenResolves() throws Exception {
 		Method method = MethodInheritingMethodOverridingInterfaceAndMethodInheritance.class.getMethod("method");
-		PreAuthorize preAuthorize = this.synthesizer.synthesize(method, method.getDeclaringClass());
+		PreAuthorize preAuthorize = this.scanner.scan(method, method.getDeclaringClass());
 		assertThat(preAuthorize.value()).isEqualTo("twentysix");
 	}
 
 	@Test
-	void synthesizeWhenClassOverridingMethodOverridingInterfaceAndMethodInheritanceThenResolves() throws Exception {
+	void scanWhenClassOverridingMethodOverridingInterfaceAndMethodInheritanceThenResolves() throws Exception {
 		Method method = ClassOverridingMethodOverridingInterfaceAndMethodInheritance.class.getMethod("method");
-		PreAuthorize preAuthorize = this.synthesizer.synthesize(method,
+		PreAuthorize preAuthorize = this.scanner.scan(method,
 				ClassOverridingMethodOverridingInterfaceAndMethodInheritance.class);
 		assertThat(preAuthorize.value()).isEqualTo("twentysix");
 	}
 
 	@Test
-	void synthesizeWhenInterfaceInheritingAnnotationsAtDifferentLevelsThenException() throws Exception {
+	void scanWhenInterfaceInheritingAnnotationsAtDifferentLevelsThenException() throws Exception {
 		Method method = InterfaceInheritingAnnotationsAtDifferentLevels.class.getMethod("method");
 		assertThatExceptionOfType(AnnotationConfigurationException.class)
-			.isThrownBy(() -> this.synthesizer.synthesize(method, method.getDeclaringClass()));
+			.isThrownBy(() -> this.scanner.scan(method, method.getDeclaringClass()));
 	}
 
 	@Test
-	void synthesizeWhenClassMethodOverridingAnnotationOnMethodThenResolves() throws Exception {
+	void scanWhenClassMethodOverridingAnnotationOnMethodThenResolves() throws Exception {
 		Method method = ClassMethodOverridingAnnotationOnMethod.class.getDeclaredMethod("method");
-		PreAuthorize preAuthorize = this.synthesizer.synthesize(method, method.getDeclaringClass());
+		PreAuthorize preAuthorize = this.scanner.scan(method, method.getDeclaringClass());
 		assertThat(preAuthorize.value()).isEqualTo("twentyeight");
 	}
 
 	// gh-13490
 	@Test
-	void synthesizeWhenClassInheritingInterfaceInheritingInterfaceMethodAnnotationThenResolves() throws Exception {
+	void scanWhenClassInheritingInterfaceInheritingInterfaceMethodAnnotationThenResolves() throws Exception {
 		Method method = ClassInheritingInterfaceInheritingInterfaceMethodAnnotation.class.getDeclaredMethod("method");
-		PreAuthorize preAuthorize = this.synthesizer.synthesize(method, method.getDeclaringClass());
+		PreAuthorize preAuthorize = this.scanner.scan(method, method.getDeclaringClass());
 		assertThat(preAuthorize.value()).isEqualTo("three");
 	}
 
 	// gh-15352
 	@Test
-	void synthesizeWhenClassInheritingAbstractClassNoAnnotationsThenNoAnnotation() throws Exception {
+	void scanWhenClassInheritingAbstractClassNoAnnotationsThenNoAnnotation() throws Exception {
 		Method method = ClassInheritingAbstractClassNoAnnotations.class.getMethod("otherMethod");
 		Class<?> targetClass = ClassInheritingAbstractClassNoAnnotations.class;
-		PreAuthorize preAuthorize = this.synthesizer.synthesize(method, targetClass);
+		PreAuthorize preAuthorize = this.scanner.scan(method, targetClass);
 		assertThat(preAuthorize).isNull();
 	}
 
