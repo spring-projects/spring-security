@@ -34,8 +34,33 @@ import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 
 /**
- * A strategy for synthesizing an annotation from an {@link AnnotatedElement} that
- * supports meta-annotations, like the following:
+ * Searches for and synthesizes annotations found on types, methods, or method parameters
+ * into an annotation of type {@code <A>}, ensuring that there is a unique match.
+ *
+ * <p>
+ * Note that in all cases, Spring Security does not allow for repeatable annotations. As
+ * such, this class errors if a repeat is discovered.
+ *
+ * <p>
+ * For example, if a class extends two interfaces, and each interface is annotated with
+ * `@PreAuthorize("hasRole('ADMIN')")` and `@PreAuthorize("hasRole('USER')")`
+ * respectively, it's not clear which of these should apply, and so this class will throw
+ * an exception.
+ *
+ * <p>
+ * If the given annotation can be applied to types or methods, this class will traverse
+ * the type hierarchy, starting from the target class and method; in case of a method
+ * parameter, it will only consider annotations on the parameter. In all cases, it will
+ * consider meta-annotations in its traversal.
+ *
+ * <p>
+ * When traversing the type hierarchy, this class will first look for annotations on the
+ * given method, then on any methods that method overrides. If no annotations are found,
+ * it will then search for annotations on the given class, then on any classes that class
+ * extends and on any interfaces that class implements.
+ *
+ * <p>
+ * It supports meta-annotations, like the following:
  *
  * <pre>
  *	&#64;PreAuthorize("hasRole('ROLE_ADMIN')")
@@ -46,33 +71,18 @@ import org.springframework.util.ClassUtils;
  * <p>
  * In that case, you can use an {@link UniqueMergedAnnotationSynthesizer} of type
  * {@link org.springframework.security.access.prepost.PreAuthorize} to synthesize any
- * {@code @HasRole} annotation found on a given {@link AnnotatedElement}.
+ * {@code @HasRole} annotation found on a given method or class into its
+ * {@link org.springframework.security.access.prepost.PreAuthorize} meta-annotation.
  *
  * <p>
- * Note that in all cases, Spring Security does not allow for repeatable annotations. As
- * such, this class errors if a repeat is discovered.
- *
- * <p>
- * If the given annotation can be applied to types, this class will search for annotations
- * across the entire {@link MergedAnnotations.SearchStrategy type hierarchy}; otherwise,
- * it will only look for annotations {@link MergedAnnotations.SearchStrategy directly}
- * attributed to the element.
- *
- * <p>
- * When traversing the type hierarchy, this class will first look for annotations on the
- * given method, then on any methods that method overrides. If no annotations are found,
- * it will then search for annotations on the given class, then on any classes that class
- * extends and on any interfaces that class implements.
- *
- * <p>
- * Since the process of synthesis is expensive, it is recommended to cache the synthesized
+ * Since the process of synthesis is expensive, it's recommended to cache the synthesized
  * result to prevent multiple computations.
  *
- * @param <A> the annotation type
+ * @param <A> the annotation to search for and synthesize
  * @author Josh Cummings
  * @since 6.4
  */
-final class UniqueMergedAnnotationSynthesizer<A extends Annotation> implements AnnotationSynthesizer<A> {
+final class UniqueMergedAnnotationSynthesizer<A extends Annotation> extends AbstractAnnotationSynthesizer<A> {
 
 	private final List<Class<A>> types;
 
@@ -87,24 +97,16 @@ final class UniqueMergedAnnotationSynthesizer<A extends Annotation> implements A
 	}
 
 	@Override
-	public MergedAnnotation<A> merge(AnnotatedElement element, Class<?> targetClass) {
+	MergedAnnotation<A> merge(AnnotatedElement element, Class<?> targetClass) {
 		if (element instanceof Parameter parameter) {
-			return handleParameterElement(parameter);
+			List<MergedAnnotation<A>> annotations = findDirectAnnotations(parameter);
+			return requireUnique(parameter, annotations);
 		}
 		if (element instanceof Method method) {
-			return handleMethodElement(method, targetClass);
+			List<MergedAnnotation<A>> annotations = findMethodAnnotations(method, targetClass);
+			return requireUnique(method, annotations);
 		}
 		throw new AnnotationConfigurationException("Unsupported element of type " + element.getClass());
-	}
-
-	private MergedAnnotation<A> handleParameterElement(Parameter parameter) {
-		List<MergedAnnotation<A>> annotations = findDirectAnnotations(parameter);
-		return requireUnique(parameter, annotations);
-	}
-
-	private MergedAnnotation<A> handleMethodElement(Method method, Class<?> targetClass) {
-		List<MergedAnnotation<A>> annotations = findMethodAnnotations(method, targetClass);
-		return requireUnique(method, annotations);
 	}
 
 	private MergedAnnotation<A> requireUnique(AnnotatedElement element, List<MergedAnnotation<A>> annotations) {

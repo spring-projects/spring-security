@@ -30,8 +30,16 @@ import org.springframework.util.Assert;
 import org.springframework.util.PropertyPlaceholderHelper;
 
 /**
- * A strategy for synthesizing an annotation from an {@link AnnotatedElement} that
- * supports meta-annotations with placeholders, like the following:
+ * Searches for and synthesizes an annotation on a type, method, or method parameter into
+ * an annotation of type {@code <A>}, resolving any placeholders in the annotation value.
+ *
+ * <p>
+ * Note that in all cases, Spring Security does not allow for repeatable annotations. So
+ * this class delegates to {@link UniqueMergedAnnotationSynthesizer} in order to error if
+ * a repeat is discovered.
+ *
+ * <p>
+ * It supports meta-annotations with placeholders, like the following:
  *
  * <pre>
  *	&#64;PreAuthorize("hasRole({role})")
@@ -46,19 +54,14 @@ import org.springframework.util.PropertyPlaceholderHelper;
  * {@code @HasRole} annotation found on a given {@link AnnotatedElement}.
  *
  * <p>
- * Note that in all cases, Spring Security does not allow for repeatable annotations. So
- * this class delegates to {@link UniqueMergedAnnotationSynthesizer} in order to error if
- * a repeat is discovered.
- *
- * <p>
  * Since the process of synthesis is expensive, it is recommended to cache the synthesized
  * result to prevent multiple computations.
  *
- * @param <A> the annotation type
+ * @param <A> the annotation to search for and synthesize
  * @author Josh Cummings
  * @since 6.4
  */
-final class ExpressionTemplateAnnotationSynthesizer<A extends Annotation> implements AnnotationSynthesizer<A> {
+final class ExpressionTemplateAnnotationSynthesizer<A extends Annotation> extends AbstractAnnotationSynthesizer<A> {
 
 	private final Class<A> type;
 
@@ -79,7 +82,7 @@ final class ExpressionTemplateAnnotationSynthesizer<A extends Annotation> implem
 	}
 
 	@Override
-	public MergedAnnotation<A> merge(AnnotatedElement element, Class<?> targetClass) {
+	MergedAnnotation<A> merge(AnnotatedElement element, Class<?> targetClass) {
 		if (element instanceof Parameter parameter) {
 			MergedAnnotation<A> annotation = this.uniqueParameterAnnotationCache.computeIfAbsent(parameter,
 					(p) -> this.unique.merge(p, targetClass));
