@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2016 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package org.springframework.security.web.session;
 
+import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -35,6 +36,8 @@ public final class SessionInformationExpiredEvent extends ApplicationEvent {
 
 	private final HttpServletResponse response;
 
+	private final FilterChain filterChain;
+
 	/**
 	 * Creates a new instance
 	 * @param sessionInformation the SessionInformation that is expired
@@ -43,11 +46,25 @@ public final class SessionInformationExpiredEvent extends ApplicationEvent {
 	 */
 	public SessionInformationExpiredEvent(SessionInformation sessionInformation, HttpServletRequest request,
 			HttpServletResponse response) {
+		this(sessionInformation, request, response, null);
+	}
+
+	/**
+	 * Creates a new instance
+	 * @param sessionInformation the SessionInformation that is expired
+	 * @param request the HttpServletRequest
+	 * @param response the HttpServletResponse
+	 * @param filterChain the FilterChain
+	 * @since 6.4
+	 */
+	public SessionInformationExpiredEvent(SessionInformation sessionInformation, HttpServletRequest request,
+			HttpServletResponse response, FilterChain filterChain) {
 		super(sessionInformation);
 		Assert.notNull(request, "request cannot be null");
 		Assert.notNull(response, "response cannot be null");
 		this.request = request;
 		this.response = response;
+		this.filterChain = filterChain;
 	}
 
 	/**
@@ -66,6 +83,14 @@ public final class SessionInformationExpiredEvent extends ApplicationEvent {
 
 	public SessionInformation getSessionInformation() {
 		return (SessionInformation) getSource();
+	}
+
+	/**
+	 * @return the filter chain. Can be {@code null}.
+	 * @since 6.4
+	 */
+	public FilterChain getFilterChain() {
+		return this.filterChain;
 	}
 
 }
