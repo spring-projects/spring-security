@@ -261,13 +261,12 @@ public class OpenSaml4AssertingPartyMetadataRepositoryTests {
 		TestOpenSamlObjects.signed(descriptor, TestSaml2X509Credentials.assertingPartySigningCredential(),
 				descriptor.getEntityID());
 		String serialized = serialize(descriptor);
-		try (MockWebServer server = new MockWebServer()) {
-			enqueue(server, serialized, 3);
-			AssertingPartyMetadataRepository parties = OpenSaml4AssertingPartyMetadataRepository
-				.withTrustedMetadataLocation(server.url("/").toString())
-				.build();
-			assertThat(parties.findByEntityId(registration.getAssertingPartyDetails().getEntityId())).isNotNull();
-		}
+		String endpoint = "/" + UUID.randomUUID().toString();
+		dispatcher.addResponse(endpoint, serialized);
+		AssertingPartyMetadataRepository parties = OpenSaml4AssertingPartyMetadataRepository
+			.withTrustedMetadataLocation(web.url(endpoint).toString())
+			.build();
+		assertThat(parties.findByEntityId(registration.getAssertingPartyDetails().getEntityId())).isNotNull();
 	}
 
 	@Test
@@ -359,12 +358,6 @@ public class OpenSaml4AssertingPartyMetadataRepositoryTests {
 		}
 		catch (MarshallingException ex) {
 			throw new Saml2Exception(ex);
-		}
-	}
-
-	private static void enqueue(MockWebServer web, String body, int times) {
-		for (int i = 0; i < times; i++) {
-			web.enqueue(new MockResponse().setBody(body).setResponseCode(200));
 		}
 	}
 
