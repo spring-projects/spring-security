@@ -2200,10 +2200,10 @@ Java::
 ----
 @RestController
 public class UserController {
-	@Autowired
+    @Autowired
     AuthorizationProxyFactory proxyFactory;
 
-	@GetMapping
+    @GetMapping
     User currentUser(@AuthenticationPrincipal User user) {
         return this.proxyFactory.proxy(user);
     }
@@ -2227,7 +2227,7 @@ class UserController  {
 ----
 ======
 
-Finally, you will need to publish a <<custom_advice, custom interceptor>> to catch the `AccessDeniedException` thrown for each field, which you can do like so:
+You will need to <<fallback-values-authorization-denied,add a `MethodAuthorizationDeniedHandler`>> like this one:
 
 [tabs]
 ======
@@ -2236,32 +2236,18 @@ Java::
 [source,java,role="primary"]
 ----
 @Component
-public class AccessDeniedExceptionInterceptor implements AuthorizationAdvisor {
-    private final AuthorizationAdvisor advisor = AuthorizationManagerBeforeMethodInterceptor.preAuthorize();
+public class Null implements MethodAuthorizationDeniedHandler {
+    @Override
+    public Object handleDeniedInvocation(MethodInvocation methodInvocation, AuthorizationResult authorizationResult) {
+        return null;
+    }
+}
 
-	@Override
-	public Object invoke(MethodInvocation invocation) throws Throwable {
-		try {
-			return invocation.proceed();
-		} catch (AccessDeniedException ex) {
-			return null;
-		}
-	}
+// ...
 
-	@Override
-	public Pointcut getPointcut() {
-		return this.advisor.getPointcut();
-	}
-
-	@Override
-	public Advice getAdvice() {
-		return this;
-	}
-
-	@Override
-	public int getOrder() {
-		return this.advisor.getOrder() - 1;
-	}
+@HandleAuthorizationDenied(handlerClass = Null.class)
+public class User {
+	...
 }
 ----
 
@@ -2270,26 +2256,17 @@ Kotlin::
 [source,kotlin,role="secondary"]
 ----
 @Component
-class AccessDeniedExceptionInterceptor: AuthorizationAdvisor {
-    var advisor: AuthorizationAdvisor = AuthorizationManagerBeforeMethodInterceptor.preAuthorize()
-
-    @Throws(Throwable::class)
-    fun invoke(invocation: MethodInvocation): Any? {
-        return try  {
-            invocation.proceed()
-        } catch (ex:AccessDeniedException) {
-            null
-        }
+class Null : MethodAuthorizationDeniedHandler {
+    override fun handleDeniedInvocation(methodInvocation: MethodInvocation?, authorizationResult: AuthorizationResult?): Any? {
+        return null
     }
+}
 
-     val pointcut: Pointcut
-     get() = advisor.getPointcut()
+// ...
 
-     val advice: Advice
-     get() = this
-
-     val order: Int
-     get() = advisor.getOrder() - 1
+@HandleAuthorizationDenied(handlerClass = Null.class)
+open class User {
+	...
 }
 ----
 ======
@@ -2317,7 +2294,7 @@ And if they do have that authority, they'll see:
 
 [TIP]
 ====
-You can also add the Spring Boot property `spring.jackson.default-property-inclusion=non_null` to exclude the null value, if you also don't want to reveal the JSON key to an unauthorized user.
+You can also add the Spring Boot property `spring.jackson.default-property-inclusion=non_null` to exclude the null value from serialization, if you also don't want to reveal the JSON key to an unauthorized user.
 ====
 
 [[fallback-values-authorization-denied]]
