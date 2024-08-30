@@ -70,10 +70,11 @@ class InitializeUserDetailsBeanManagerConfigurer extends GlobalAuthenticationCon
 			if (auth.isConfigured()) {
 				if (!userDetailsServices.isEmpty()) {
 					this.logger.warn("Global AuthenticationManager configured with an AuthenticationProvider bean. "
-							+ "UserDetailsService beans will not be used for username/password login. "
+							+ "UserDetailsService beans will not be used by Spring Security for automatically configuring username/password login. "
 							+ "Consider removing the AuthenticationProvider bean. "
-							+ "Alternatively, consider using the UserDetailsService in a manually instantiated "
-							+ "DaoAuthenticationProvider.");
+							+ "Alternatively, consider using the UserDetailsService in a manually instantiated DaoAuthenticationProvider. "
+							+ "If the current configuration is intentional, to turn off this warning, "
+							+ "increase the logging level of 'org.springframework.security.config.annotation.authentication.configuration.InitializeUserDetailsBeanManagerConfigurer' to ERROR");
 				}
 				return;
 			}
