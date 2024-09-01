@@ -16,14 +16,22 @@
 
 package org.springframework.security.config.annotation.method.configuration;
 
+import java.io.Serializable;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import reactor.test.StepVerifier;
 
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Role;
+import org.springframework.security.access.PermissionEvaluator;
+import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.test.context.annotation.SecurityTestExecutionListeners;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -201,6 +209,17 @@ public class PrePostReactiveMethodSecurityConfigurationTests {
 		StepVerifier.create(service.preAuthorizeWithMaskAnnotationUsingBean()).expectNext("ok").verifyComplete();
 	}
 
+	@Test
+	@WithMockUser(roles = "ADMIN")
+	public void customMethodSecurityExpressionHandler() {
+		this.spring.register(MethodSecurityServiceEnabledConfig.class, PermissionEvaluatorConfig.class).autowire();
+		ReactiveMethodSecurityService service = this.spring.getContext().getBean(ReactiveMethodSecurityService.class);
+		StepVerifier.create(service.preAuthorizeHasPermission("grant")).expectNext("ok").verifyComplete();
+		StepVerifier.create(service.preAuthorizeHasPermission("deny"))
+			.expectError(AuthorizationDeniedException.class)
+			.verify();
+	}
+
 	@Configuration
 	@EnableReactiveMethodSecurity
 	static class MethodSecurityServiceEnabledConfig {
@@ -208,6 +227,31 @@ public class PrePostReactiveMethodSecurityConfigurationTests {
 		@Bean
 		ReactiveMethodSecurityService methodSecurityService() {
 			return new ReactiveMethodSecurityServiceImpl();
+		}
+
+	}
+
+	@Configuration
+	static class PermissionEvaluatorConfig {
+
+		@Bean
+		@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+		static DefaultMethodSecurityExpressionHandler methodSecurityExpressionHandler() {
+			DefaultMethodSecurityExpressionHandler handler = new DefaultMethodSecurityExpressionHandler();
+			handler.setPermissionEvaluator(new PermissionEvaluator() {
+				@Override
+				public boolean hasPermission(Authentication authentication, Object targetDomainObject,
+						Object permission) {
+					return "grant".equals(targetDomainObject);
+				}
+
+				@Override
+				public boolean hasPermission(Authentication authentication, Serializable targetId, String targetType,
+						Object permission) {
+					throw new UnsupportedOperationException();
+				}
+			});
+			return handler;
 		}
 
 	}
