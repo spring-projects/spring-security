@@ -124,7 +124,7 @@ In this case, authorization happens twice; once for authorizing `/endpoint` and 
 
 For that reason, you may want to <<match-by-dispatcher-type, permit all `FORWARD` dispatches>>.
 
-Another example of this principle is {spring-boot-reference-url}web.html#web.servlet.spring-mvc.error-handling[how Spring Boot handles errors].
+Another example of this principle is {spring-boot-reference-url}reference/web/servlet.html#web.servlet.spring-mvc.error-handling[how Spring Boot handles errors].
 If the container catches an exception, say like the following:
 
 .Sample Erroring Spring MVC Controller

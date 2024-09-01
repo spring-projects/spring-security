@@ -372,7 +372,7 @@ You can also use `HttpSecurity#addFilterAfter` to add the filter after a particu
 
 And that's it, now the `TenantFilter` will be invoked in the filter chain and will check if the current user has access to the tenant id.
 
-Be careful when you declare your filter as a Spring bean, either by annotating it with `@Component` or by declaring it as a bean in your configuration, because Spring Boot will automatically {spring-boot-reference-url}web.html#web.servlet.embedded-container.servlets-filters-listeners.beans[register it with the embedded container].
+Be careful when you declare your filter as a Spring bean, either by annotating it with `@Component` or by declaring it as a bean in your configuration, because Spring Boot will automatically {spring-boot-reference-url}reference/web/servlet.html#web.servlet.embedded-container.servlets-filters-listeners.beans[register it with the embedded container].
 That may cause the filter to be invoked twice, once by the container and once by Spring Security and in a different order.
 
 If you still want to declare your filter as a Spring bean to take advantage of dependency injection for example, and avoid the duplicate invocation, you can tell Spring Boot to not register it with the container by declaring a `FilterRegistrationBean` bean and setting its `enabled` property to `false`:
