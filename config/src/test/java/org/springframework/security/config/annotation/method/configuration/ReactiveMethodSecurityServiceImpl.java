@@ -88,4 +88,9 @@ public class ReactiveMethodSecurityServiceImpl implements ReactiveMethodSecurity
 		return Mono.just("ok");
 	}
 
+	@Override
+	public Mono<String> preAuthorizeHasPermission(String kgName) {
+		return Mono.just("ok");
+	}
+
 }

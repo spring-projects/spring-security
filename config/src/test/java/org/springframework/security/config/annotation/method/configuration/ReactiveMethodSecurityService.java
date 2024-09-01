@@ -101,6 +101,9 @@ public interface ReactiveMethodSecurityService {
 	@HandleAuthorizationDenied(handlerClass = MethodAuthorizationDeniedHandler.class)
 	Mono<String> checkCustomResult(boolean result);
 
+	@PreAuthorize("hasPermission(#kgName, 'read')")
+	Mono<String> preAuthorizeHasPermission(String kgName);
+
 	class StarMaskingHandler implements MethodAuthorizationDeniedHandler {
 
 		@Override

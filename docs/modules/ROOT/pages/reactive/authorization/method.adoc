@@ -97,7 +97,7 @@ Spring Security's `@PreAuthorize`, `@PostAuthorize`, `@PreFilter`, and `@PostFil
 Also, for role-based authorization, Spring Security adds a default `ROLE_` prefix, which is uses when evaluating expressions like `hasRole`.
 You can configure the authorization rules to use a different prefix by exposing a `GrantedAuthorityDefaults` bean, like so:
 
-.Custom MethodSecurityExpressionHandler
+.Custom GrantedAuthorityDefaults
 [tabs]
 ======
 Java::
@@ -117,6 +117,63 @@ static GrantedAuthorityDefaults grantedAuthorityDefaults() {
 We expose `GrantedAuthorityDefaults` using a `static` method to ensure that Spring publishes it before it initializes Spring Security's method security `@Configuration` classes.
 Since the `GrantedAuthorityDefaults` bean is part of internal workings of Spring Security, we should also expose it as an infrastructural bean effectively avoiding some warnings related to bean post-processing (see https://github.com/spring-projects/spring-security/issues/14751[gh-14751]).
 ====
+
+[[customizing-expression-handling]]
+=== Customizing Expression Handling
+
+Or, third, you can customize how each SpEL expression is handled.
+To do that, you can expose a custom `MethodSecurityExpressionHandler`, like so:
+
+.Custom MethodSecurityExpressionHandler
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Bean
+static MethodSecurityExpressionHandler methodSecurityExpressionHandler(RoleHierarchy roleHierarchy) {
+	DefaultMethodSecurityExpressionHandler handler = new DefaultMethodSecurityExpressionHandler();
+	handler.setRoleHierarchy(roleHierarchy);
+	return handler;
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+companion object {
+	@Bean
+	fun methodSecurityExpressionHandler(val roleHierarchy: RoleHierarchy) : MethodSecurityExpressionHandler {
+		val handler = DefaultMethodSecurityExpressionHandler()
+		handler.setRoleHierarchy(roleHierarchy)
+		return handler
+	}
+}
+----
+
+Xml::
++
+[source,xml,role="secondary"]
+----
+<sec:method-security>
+	<sec:expression-handler ref="myExpressionHandler"/>
+</sec:method-security>
+
+<bean id="myExpressionHandler"
+		class="org.springframework.security.messaging.access.expression.DefaultMessageSecurityExpressionHandler">
+	<property name="roleHierarchy" ref="roleHierarchy"/>
+</bean>
+----
+======
+
+[TIP]
+====
+We expose `MethodSecurityExpressionHandler` using a `static` method to ensure that Spring publishes it before it initializes Spring Security's method security `@Configuration` classes
+====
+
+You can also subclass xref:servlet/authorization/method-security.adoc#subclass-defaultmethodsecurityexpressionhandler[`DefaultMessageSecurityExpressionHandler`] to add your own custom authorization expressions beyond the defaults.
 
 [[jc-reactive-method-security-custom-authorization-manager]]
 === Custom Authorization Managers
