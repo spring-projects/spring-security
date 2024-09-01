@@ -35,7 +35,7 @@ Xml::
 Then, you are immediately able to annotate any Spring-managed class or method with <<use-preauthorize, `@PreAuthorize`>>, <<use-postauthorize,`@PostAuthorize`>>, <<use-prefilter,`@PreFilter`>>, and <<use-postfilter,`@PostFilter`>> to authorize method invocations, including the input parameters and return values.
 
 [NOTE]
-{spring-boot-reference-url}using.html#using.build-systems.starters[Spring Boot Starter Security] does not activate method-level authorization by default.
+{spring-boot-reference-url}reference/using/build-systems.html#using.build-systems.starters[Spring Boot Starter Security] does not activate method-level authorization by default.
 
 Method Security supports many other use cases as well including <<use-aspectj, AspectJ support>>, <<use-programmatic-authorization,custom annotations>>, and several configuration points.
 Consider learning about the following use cases:
