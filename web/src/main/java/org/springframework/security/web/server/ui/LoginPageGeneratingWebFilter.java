@@ -32,7 +32,6 @@ import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.security.web.server.csrf.CsrfToken;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
-import org.springframework.security.web.util.CssUtils;
 import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.server.ServerWebExchange;
@@ -91,7 +90,7 @@ public class LoginPageGeneratingWebFilter implements WebFilter {
 		String contextPath = exchange.getRequest().getPath().contextPath().value();
 
 		return HtmlTemplates.fromTemplate(LOGIN_PAGE_TEMPLATE)
-			.withRawHtml("cssStyle", CssUtils.getCssStyleBlock().indent(4))
+			.withRawHtml("contextPath", contextPath)
 			.withRawHtml("formLogin", formLogin(queryParams, contextPath, csrfTokenHtmlInput))
 			.withRawHtml("oauth2Login", oauth2Login(queryParams, contextPath, this.oauth2AuthenticationUrlToClientName))
 			.render()
@@ -164,7 +163,7 @@ public class LoginPageGeneratingWebFilter implements WebFilter {
 			    <meta name="description" content="">
 			    <meta name="author" content="">
 			    <title>Please sign in</title>
-			{{cssStyle}}
+			    <link href="{{contextPath}}/default-ui.css" rel="stylesheet" />
 			  </head>
 			  <body>
 			    <div class="content">
