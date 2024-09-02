@@ -29,7 +29,6 @@ import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.security.web.server.csrf.CsrfToken;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
-import org.springframework.security.web.util.CssUtils;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
@@ -71,7 +70,6 @@ public class LogoutPageGeneratingWebFilter implements WebFilter {
 
 	private static byte[] createPage(String csrfTokenHtmlInput, String contextPath) {
 		return HtmlTemplates.fromTemplate(LOGOUT_PAGE_TEMPLATE)
-			.withRawHtml("cssStyle", CssUtils.getCssStyleBlock().indent(4))
 			.withValue("contextPath", contextPath)
 			.withRawHtml("csrf", csrfTokenHtmlInput.indent(8))
 			.render()
@@ -94,7 +92,7 @@ public class LogoutPageGeneratingWebFilter implements WebFilter {
 			    <meta name="description" content="">
 			    <meta name="author" content="">
 			    <title>Confirm Log Out?</title>
-			{{cssStyle}}
+			    <link href="{{contextPath}}/default-ui.css" rel="stylesheet" />
 			  </head>
 			  <body>
 			    <div class="content">
