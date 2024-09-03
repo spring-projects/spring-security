@@ -62,4 +62,10 @@ class WebMvcSecurityRuntimeHintsTests {
 			.withMemberCategories(MemberCategory.INVOKE_DECLARED_METHODS)).accepts(this.hints);
 	}
 
+	@Test
+	void cssHasHints() {
+		assertThat(RuntimeHintsPredicates.resource().forResource("org/springframework/security/default-ui.css"))
+			.accepts(this.hints);
+	}
+
 }
