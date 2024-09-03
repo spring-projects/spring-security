@@ -20,6 +20,7 @@ import org.springframework.aot.hint.MemberCategory;
 import org.springframework.aot.hint.RuntimeHints;
 import org.springframework.aot.hint.RuntimeHintsRegistrar;
 import org.springframework.aot.hint.TypeReference;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.security.web.access.expression.WebSecurityExpressionRoot;
 
 /**
@@ -40,6 +41,12 @@ class WebMvcSecurityRuntimeHints implements RuntimeHintsRegistrar {
 					TypeReference
 						.of("org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler$SupplierCsrfToken"),
 					MemberCategory.INVOKE_DECLARED_METHODS);
+
+		ClassPathResource css = new ClassPathResource("org/springframework/security/default-ui.css");
+		if (css.exists()) {
+			hints.resources().registerResource(css);
+		}
+
 	}
 
 }
