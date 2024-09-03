@@ -628,7 +628,8 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 		public boolean matches(HttpServletRequest request) {
 			String name = request.getHttpServletMapping().getServletName();
 			ServletRegistration registration = this.servletContext.getServletRegistration(name);
-			Assert.notNull(registration, () -> computeErrorMessage(this.servletContext.getServletRegistrations().values()));
+			Assert.notNull(registration,
+					() -> computeErrorMessage(this.servletContext.getServletRegistrations().values()));
 			try {
 				Class<?> clazz = Class.forName(registration.getClassName());
 				return DispatcherServlet.class.isAssignableFrom(clazz);
