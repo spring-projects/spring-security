@@ -16,11 +16,8 @@
 
 package org.springframework.security.jackson2;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -35,10 +32,8 @@ import java.util.List;
 class UnmodifiableListDeserializer extends AbstractUnmodifiableCollectionDeserializer<List> {
 
 	@Override
-	protected List createUnmodifiableCollection(JsonNode node, ObjectMapper mapper) throws IOException {
-		List<Object> result = new ArrayList<>();
-		addElements(node, mapper, result);
-		return Collections.unmodifiableList(result);
+	List createUnmodifiableCollection(Collection<Object> values) {
+		return Collections.unmodifiableList(new ArrayList<>(values));
 	}
 
 }

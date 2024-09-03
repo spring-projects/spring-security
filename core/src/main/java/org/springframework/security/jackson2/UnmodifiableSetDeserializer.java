@@ -16,10 +16,7 @@
 
 package org.springframework.security.jackson2;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import java.io.IOException;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -35,10 +32,8 @@ import java.util.Set;
 class UnmodifiableSetDeserializer extends AbstractUnmodifiableCollectionDeserializer<Set> {
 
 	@Override
-	protected Set createUnmodifiableCollection(JsonNode node, ObjectMapper mapper) throws IOException {
-		Set<Object> resultSet = new HashSet<>();
-		addElements(node, mapper, resultSet);
-		return Collections.unmodifiableSet(resultSet);
+	Set createUnmodifiableCollection(Collection<Object> values) {
+		return Collections.unmodifiableSet(new HashSet<>(values));
 	}
 
 }
