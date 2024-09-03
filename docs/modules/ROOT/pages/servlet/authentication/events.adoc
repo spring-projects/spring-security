@@ -107,7 +107,7 @@ public AuthenticationEventPublisher authenticationEventPublisher
     Map<Class<? extends AuthenticationException>,
         Class<? extends AbstractAuthenticationFailureEvent>> mapping =
             Collections.singletonMap(FooException.class, FooEvent.class);
-    AuthenticationEventPublisher authenticationEventPublisher =
+    DefaultAuthenticationEventPublisher authenticationEventPublisher =
         new DefaultAuthenticationEventPublisher(applicationEventPublisher);
     authenticationEventPublisher.setAdditionalExceptionMappings(mapping);
     return authenticationEventPublisher;
