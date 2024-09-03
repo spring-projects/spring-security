@@ -81,10 +81,10 @@ public class CookieServerRequestCache implements ServerRequestCache {
 			.map((m) -> exchange.getResponse())
 			.map(ServerHttpResponse::getCookies)
 			.doOnNext((cookies) -> {
-				ResponseCookie.ResponseCookieBuilder redirectUriCookie = createRedirectUriCookieBuilder(
-						exchange.getRequest());
-				this.cookieCustomizer.accept(redirectUriCookie);
-				cookies.add(REDIRECT_URI_COOKIE_NAME, redirectUriCookie.build());
+				ResponseCookie.ResponseCookieBuilder builder = createRedirectUriCookieBuilder(exchange.getRequest());
+				this.cookieCustomizer.accept(builder);
+				ResponseCookie redirectUriCookie = builder.build();
+				cookies.add(REDIRECT_URI_COOKIE_NAME, redirectUriCookie);
 				logger.debug(LogMessage.format("Request added to Cookie: %s", redirectUriCookie));
 			})
 			.then();
