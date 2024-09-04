@@ -19,9 +19,11 @@ package org.springframework.security.authorization.method;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 
 import org.springframework.core.annotation.AnnotationConfigurationException;
@@ -29,6 +31,8 @@ import org.springframework.core.annotation.MergedAnnotation;
 import org.springframework.core.annotation.MergedAnnotations;
 import org.springframework.core.annotation.MergedAnnotations.SearchStrategy;
 import org.springframework.core.annotation.RepeatableContainers;
+import org.springframework.core.convert.TypeDescriptor;
+import org.springframework.core.convert.converter.GenericConverter;
 import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.util.PropertyPlaceholderHelper;
 
@@ -55,6 +59,12 @@ import org.springframework.util.PropertyPlaceholderHelper;
  */
 final class AuthorizationAnnotationUtils {
 
+	private static final DefaultConversionService conversionService = new DefaultConversionService();
+
+	static {
+		conversionService.addConverter(new ClassToStringConverter());
+	}
+
 	static <A extends Annotation> Function<AnnotatedElement, A> withDefaults(Class<A> type,
 			PrePostTemplateDefaults defaults) {
 		Function<MergedAnnotation<A>, A> map = (mergedAnnotation) -> {
@@ -70,7 +80,7 @@ final class AuthorizationAnnotationUtils {
 				String key = property.getKey();
 				Object value = property.getValue();
 				String asString = (value instanceof String) ? (String) value
-						: DefaultConversionService.getSharedInstance().convert(value, String.class);
+						: conversionService.convert(value, String.class);
 				stringProperties.put(key, asString);
 			}
 			AnnotatedElement annotatedElement = (AnnotatedElement) mergedAnnotation.getSource();
@@ -153,6 +163,20 @@ final class AuthorizationAnnotationUtils {
 	}
 
 	private AuthorizationAnnotationUtils() {
+
+	}
+
+	static class ClassToStringConverter implements GenericConverter {
+
+		@Override
+		public Set<ConvertiblePair> getConvertibleTypes() {
+			return Collections.singleton(new ConvertiblePair(Class.class, String.class));
+		}
+
+		@Override
+		public Object convert(Object source, TypeDescriptor sourceType, TypeDescriptor targetType) {
+			return (source != null) ? source.toString() : null;
+		}
 
 	}
 

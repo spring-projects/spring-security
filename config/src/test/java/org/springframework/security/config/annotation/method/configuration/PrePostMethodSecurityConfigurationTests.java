@@ -998,6 +998,15 @@ public class PrePostMethodSecurityConfigurationTests {
 		verify(expressionHandler, times(4)).createEvaluationContext(any(Supplier.class), any());
 	}
 
+	// gh-15721
+	@Test
+	@WithMockUser(roles = "uid")
+	public void methodWhenMetaAnnotationPropertiesHasClassProperties() {
+		this.spring.register(MetaAnnotationPlaceholderConfig.class).autowire();
+		MetaAnnotationService service = this.spring.getContext().getBean(MetaAnnotationService.class);
+		assertThat(service.getIdPath("uid")).isEqualTo("uid");
+	}
+
 	private static Consumer<ConfigurableWebApplicationContext> disallowBeanOverriding() {
 		return (context) -> ((AnnotationConfigWebApplicationContext) context).setAllowBeanDefinitionOverriding(false);
 	}
@@ -1375,6 +1384,27 @@ public class PrePostMethodSecurityConfigurationTests {
 		List<String> resultsContainDave(List<String> list) {
 			return list;
 		}
+
+		@RestrictedAccess(entityClass = EntityClass.class)
+		String getIdPath(String id) {
+			return id;
+		}
+
+	}
+
+	@Retention(RetentionPolicy.RUNTIME)
+	@PreAuthorize("hasRole({idPath})")
+	@interface RestrictedAccess {
+
+		String idPath() default "#id";
+
+		Class<?> entityClass();
+
+		String[] recipes() default {};
+
+	}
+
+	static class EntityClass {
 
 	}
 
