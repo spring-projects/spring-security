@@ -20,11 +20,15 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.core.MethodClassKey;
 import org.springframework.core.annotation.MergedAnnotation;
+import org.springframework.core.convert.TypeDescriptor;
+import org.springframework.core.convert.converter.GenericConverter;
 import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.util.Assert;
 import org.springframework.util.PropertyPlaceholderHelper;
@@ -63,6 +67,12 @@ import org.springframework.util.PropertyPlaceholderHelper;
  */
 final class ExpressionTemplateSecurityAnnotationScanner<A extends Annotation>
 		extends AbstractSecurityAnnotationScanner<A> {
+
+	private static final DefaultConversionService conversionService = new DefaultConversionService();
+
+	static {
+		conversionService.addConverter(new ClassToStringConverter());
+	}
 
 	private final Class<A> type;
 
@@ -120,7 +130,7 @@ final class ExpressionTemplateSecurityAnnotationScanner<A extends Annotation>
 			String key = property.getKey();
 			Object value = property.getValue();
 			String asString = (value instanceof String) ? (String) value
-					: DefaultConversionService.getSharedInstance().convert(value, String.class);
+					: conversionService.convert(value, String.class);
 			stringProperties.put(key, asString);
 		}
 		Map<String, Object> annotationProperties = mergedAnnotation.asMap();
@@ -134,6 +144,20 @@ final class ExpressionTemplateSecurityAnnotationScanner<A extends Annotation>
 		}
 		AnnotatedElement annotatedElement = (AnnotatedElement) mergedAnnotation.getSource();
 		return MergedAnnotation.of(annotatedElement, this.type, properties);
+	}
+
+	static class ClassToStringConverter implements GenericConverter {
+
+		@Override
+		public Set<ConvertiblePair> getConvertibleTypes() {
+			return Collections.singleton(new ConvertiblePair(Class.class, String.class));
+		}
+
+		@Override
+		public Object convert(Object source, TypeDescriptor sourceType, TypeDescriptor targetType) {
+			return (source != null) ? source.toString() : null;
+		}
+
 	}
 
 }
