@@ -46,6 +46,7 @@ import org.springframework.security.authentication.TestAuthentication;
 import org.springframework.security.authorization.method.AuthorizationAdvisor;
 import org.springframework.security.authorization.method.AuthorizationAdvisorProxyFactory;
 import org.springframework.security.authorization.method.AuthorizationAdvisorProxyFactory.TargetVisitor;
+import org.springframework.security.authorization.method.AuthorizationProxy;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -348,6 +349,15 @@ public class AuthorizationAdvisorProxyFactoryTests {
 		String serialized = mapper.writeValueAsString(user);
 		Map<String, Object> properties = mapper.readValue(serialized, Map.class);
 		assertThat(properties).hasSize(3).containsKeys("id", "firstName", "lastName");
+	}
+
+	@Test
+	public void proxyWhenDefaultsThenInstanceOfAuthorizationProxy() {
+		AuthorizationAdvisorProxyFactory factory = AuthorizationAdvisorProxyFactory.withDefaults();
+		Flight flight = proxy(factory, this.flight);
+		assertThat(flight).isInstanceOf(AuthorizationProxy.class);
+		Flight target = (Flight) ((AuthorizationProxy) flight).toAuthorizedTarget();
+		assertThat(target).isSameAs(this.flight);
 	}
 
 	private Authentication authenticated(String user, String... authorities) {
