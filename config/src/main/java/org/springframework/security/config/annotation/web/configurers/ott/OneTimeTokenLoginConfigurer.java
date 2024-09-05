@@ -313,7 +313,6 @@ public final class OneTimeTokenLoginConfigurer<H extends HttpSecurityBuilder<H>>
 			this.oneTimeTokenService = bean;
 		}
 		else {
-			this.logger.debug("Configuring InMemoryOneTimeTokenService for oneTimeTokenLogin()");
 			this.oneTimeTokenService = new InMemoryOneTimeTokenService();
 		}
 		return this.oneTimeTokenService;
