@@ -46,6 +46,7 @@ import org.springframework.security.web.authentication.ott.GeneratedOneTimeToken
 import org.springframework.security.web.authentication.ott.OneTimeTokenAuthenticationConverter;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
 import org.springframework.security.web.authentication.ui.DefaultOneTimeTokenSubmitPageGeneratingFilter;
+import org.springframework.security.web.authentication.ui.DefaultResourcesFilter;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.csrf.CsrfToken;
@@ -136,6 +137,7 @@ public final class OneTimeTokenLoginConfigurer<H extends HttpSecurityBuilder<H>>
 		generateFilter.setGeneratedOneTimeTokenHandler(getGeneratedOneTimeTokenHandler(http));
 		generateFilter.setRequestMatcher(antMatcher(HttpMethod.POST, this.generateTokenUrl));
 		http.addFilter(postProcess(generateFilter));
+		http.addFilter(DefaultResourcesFilter.css());
 	}
 
 	private GeneratedOneTimeTokenHandler getGeneratedOneTimeTokenHandler(H http) {
