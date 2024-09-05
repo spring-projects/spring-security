@@ -28,7 +28,6 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-import org.springframework.security.web.util.CssUtils;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
@@ -64,9 +63,10 @@ public final class DefaultOneTimeTokenSubmitPageGeneratingFilter extends OncePer
 	}
 
 	private String generateHtml(HttpServletRequest request) {
+		String contextPath = request.getContextPath();
+
 		String token = request.getParameter("token");
 		String tokenValue = StringUtils.hasText(token) ? token : "";
-		String contextPath = request.getContextPath();
 
 		String hiddenInputs = this.resolveHiddenInputs.apply(request)
 			.entrySet()
@@ -75,7 +75,7 @@ public final class DefaultOneTimeTokenSubmitPageGeneratingFilter extends OncePer
 			.collect(Collectors.joining("\n"));
 
 		return HtmlTemplates.fromTemplate(ONE_TIME_TOKEN_SUBMIT_PAGE_TEMPLATE)
-			.withRawHtml("cssStyle", CssUtils.getCssStyleBlock().indent(4))
+			.withValue("contextPath", contextPath)
 			.withValue("tokenValue", tokenValue)
 			.withValue("loginProcessingUrl", contextPath + this.loginProcessingUrl)
 			.withRawHtml("hiddenInputs", hiddenInputs)
@@ -116,7 +116,7 @@ public final class DefaultOneTimeTokenSubmitPageGeneratingFilter extends OncePer
 			    <title>One-Time Token Login</title>
 			    <meta charset="utf-8"/>
 			    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
-			{{cssStyle}}
+			    <link href="{{contextPath}}/default-ui.css" rel="stylesheet" />
 			  </head>
 			  <body>
 			    <div class="container">
