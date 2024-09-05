@@ -21,6 +21,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -33,7 +34,6 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
-import org.springframework.web.util.HtmlUtils;
 
 /**
  * Creates a default one-time token submit page. If the request contains a {@code token}
@@ -65,54 +65,27 @@ public final class DefaultOneTimeTokenSubmitPageGeneratingFilter extends OncePer
 
 	private String generateHtml(HttpServletRequest request) {
 		String token = request.getParameter("token");
-		String inputValue = StringUtils.hasText(token) ? HtmlUtils.htmlEscape(token) : "";
-		String input = "<input type=\"text\" id=\"token\" name=\"token\" value=\"" + inputValue + "\""
-				+ " placeholder=\"Token\" required=\"true\" autofocus=\"autofocus\"/>";
-		return """
-				<!DOCTYPE html>
-				<html lang="en">
-				<head>
-					<title>One-Time Token Login</title>
-					<meta charset="utf-8"/>
-					<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
-					<meta http-equiv="Content-Security-Policy" content="script-src 'sha256-oZhLbc2kO8b8oaYLrUc7uye1MgVKMyLtPqWR4WtKF+c='"/>
-				"""
-				+ CssUtils.getCssStyleBlock().indent(4)
-				+ """
-						</head>
-						<body>
-							<noscript>
-								<p>
-									<strong>Note:</strong> Since your browser does not support JavaScript, you must press the Sign In button once to proceed.
-								</p>
-							</noscript>
-							<div class="container">
-						"""
-				+ "<form class=\"login-form\" action=\"" + this.loginProcessingUrl + "\" method=\"post\">" + """
-							<h2>Please input the token</h2>
-							<p>
-								<label for="token" class="screenreader">Token</label>
-						""" + input + """
-								</p>
-								<button class="primary" type="submit">Sign in</button>
-						""" + renderHiddenInputs(request) + """
-							</form>
-						</div>
-						</body>
-						</html>
-						""";
+		String tokenValue = StringUtils.hasText(token) ? token : "";
+
+		String hiddenInputs = this.resolveHiddenInputs.apply(request)
+			.entrySet()
+			.stream()
+			.map((inputKeyValue) -> renderHiddenInput(inputKeyValue.getKey(), inputKeyValue.getValue()))
+			.collect(Collectors.joining("\n"));
+
+		return HtmlTemplates.fromTemplate(ONE_TIME_TOKEN_SUBMIT_PAGE_TEMPLATE)
+			.withRawHtml("cssStyle", CssUtils.getCssStyleBlock().indent(4))
+			.withValue("tokenValue", tokenValue)
+			.withValue("loginProcessingUrl", this.loginProcessingUrl)
+			.withRawHtml("hiddenInputs", hiddenInputs)
+			.render();
 	}
 
-	private String renderHiddenInputs(HttpServletRequest request) {
-		StringBuilder sb = new StringBuilder();
-		for (Map.Entry<String, String> input : this.resolveHiddenInputs.apply(request).entrySet()) {
-			sb.append("<input name=\"");
-			sb.append(input.getKey());
-			sb.append("\" type=\"hidden\" value=\"");
-			sb.append(input.getValue());
-			sb.append("\" />\n");
-		}
-		return sb.toString();
+	private String renderHiddenInput(String name, String value) {
+		return HtmlTemplates.fromTemplate(HIDDEN_HTML_INPUT_TEMPLATE)
+			.withValue("name", name)
+			.withValue("value", value)
+			.render();
 	}
 
 	public void setResolveHiddenInputs(Function<HttpServletRequest, Map<String, String>> resolveHiddenInputs) {
@@ -134,5 +107,40 @@ public final class DefaultOneTimeTokenSubmitPageGeneratingFilter extends OncePer
 		Assert.hasText(loginProcessingUrl, "loginProcessingUrl cannot be null or empty");
 		this.loginProcessingUrl = loginProcessingUrl;
 	}
+
+	private static final String ONE_TIME_TOKEN_SUBMIT_PAGE_TEMPLATE = """
+			<!DOCTYPE html>
+			<html lang="en">
+			  <head>
+			    <title>One-Time Token Login</title>
+			    <meta charset="utf-8"/>
+			    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+			    <meta http-equiv="Content-Security-Policy" content="script-src 'sha256-oZhLbc2kO8b8oaYLrUc7uye1MgVKMyLtPqWR4WtKF+c='"/>
+			{{cssStyle}}
+			  </head>
+			  <body>
+			    <noscript>
+			      <p>
+			        <strong>Note:</strong> Since your browser does not support JavaScript, you must press the Sign In button once to proceed.
+			      </p>
+			    </noscript>
+			    <div class="container">
+			      <form class="login-form" action="{{loginProcessingUrl}}" method="post">
+			        <h2>Please input the token</h2>
+			        <p>
+			          <label for="token" class="screenreader">Token</label>
+			          <input type="text" id="token" name="token" value="{{tokenValue}}" placeholder="Token" required="true" autofocus="autofocus"/>
+			        </p>
+			        <button class="primary" type="submit">Sign in</button>
+			{{hiddenInputs}}
+			      </form>
+			    </div>
+			  </body>
+			</html>
+			""";
+
+	private static final String HIDDEN_HTML_INPUT_TEMPLATE = """
+			<input name="{{name}}" type="hidden" value="{{value}}" />
+			""";
 
 }
