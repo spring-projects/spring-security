@@ -242,8 +242,8 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 			sb.append("        <h2>Request a One-Time Token</h2>\n");
 			sb.append(createError(loginError, errorMsg) + createLogoutSuccess(logoutSuccess) + "<p>\n");
 			sb.append("          <label for=\"ott-username\" class=\"screenreader\">Username</label>\n");
-			sb.append("          <input type=\"text\" id=\"ott-username\" name=\"" + this.usernameParameter
-					+ "\" placeholder=\"Username\" required>\n");
+			sb.append(
+					"          <input type=\"text\" id=\"ott-username\" name=\"username\" placeholder=\"Username\" required>\n");
 			sb.append("        </p>\n");
 			sb.append(renderHiddenInputs(request));
 			sb.append("          <button class=\"primary\" type=\"submit\" form=\"ott-form\">Send Token</button>\n");
