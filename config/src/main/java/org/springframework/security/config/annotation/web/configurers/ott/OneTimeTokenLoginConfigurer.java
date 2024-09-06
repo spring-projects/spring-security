@@ -20,8 +20,6 @@ import java.util.Collections;
 import java.util.Map;
 
 import jakarta.servlet.http.HttpServletRequest;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
@@ -58,8 +56,6 @@ import static org.springframework.security.web.util.matcher.AntPathRequestMatche
 
 public final class OneTimeTokenLoginConfigurer<H extends HttpSecurityBuilder<H>>
 		extends AbstractHttpConfigurer<OneTimeTokenLoginConfigurer<H>, H> {
-
-	private final Log logger = LogFactory.getLog(getClass());
 
 	private final ApplicationContext context;
 
