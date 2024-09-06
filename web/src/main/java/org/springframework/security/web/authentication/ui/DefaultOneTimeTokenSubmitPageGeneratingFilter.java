@@ -66,6 +66,7 @@ public final class DefaultOneTimeTokenSubmitPageGeneratingFilter extends OncePer
 	private String generateHtml(HttpServletRequest request) {
 		String token = request.getParameter("token");
 		String tokenValue = StringUtils.hasText(token) ? token : "";
+		String contextPath = request.getContextPath();
 
 		String hiddenInputs = this.resolveHiddenInputs.apply(request)
 			.entrySet()
@@ -76,7 +77,7 @@ public final class DefaultOneTimeTokenSubmitPageGeneratingFilter extends OncePer
 		return HtmlTemplates.fromTemplate(ONE_TIME_TOKEN_SUBMIT_PAGE_TEMPLATE)
 			.withRawHtml("cssStyle", CssUtils.getCssStyleBlock().indent(4))
 			.withValue("tokenValue", tokenValue)
-			.withValue("loginProcessingUrl", this.loginProcessingUrl)
+			.withValue("loginProcessingUrl", contextPath + this.loginProcessingUrl)
 			.withRawHtml("hiddenInputs", hiddenInputs)
 			.render();
 	}
