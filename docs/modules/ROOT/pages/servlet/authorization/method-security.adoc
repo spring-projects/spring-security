@@ -2105,11 +2105,6 @@ fun getEmailWhenProxiedThenAuthorizes() {
 ----
 ======
 
-[NOTE]
-====
-This feature does not yet support Spring AOT
-====
-
 === Proxying Collections
 
 `AuthorizationProxyFactory` supports Java collections, streams, arrays, optionals, and iterators by proxying the element type and maps by proxying the value type.
@@ -2296,6 +2291,164 @@ And if they do have that authority, they'll see:
 ====
 You can also add the Spring Boot property `spring.jackson.default-property-inclusion=non_null` to exclude the null value from serialization, if you also don't want to reveal the JSON key to an unauthorized user.
 ====
+
+=== Working with AOT
+
+Spring Security will scan all beans in the application context for methods that use `@AuthorizeReturnObject`.
+When it finds one, it will create and register the appropriate proxy class ahead of time.
+It will also recursively search for other nested objects that also use `@AuthorizeReturnObject` and register them accordingly.
+
+For example, consider the following Spring Boot application:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@SpringBootApplication
+public class MyApplication {
+	@RestController
+    public static class MyController { <1>
+		@GetMapping
+        @AuthorizeReturnObject
+        Message getMessage() { <2>
+			return new Message(someUser, "hello!");
+        }
+    }
+
+	public static class Message { <3>
+		User to;
+		String text;
+
+		// ...
+
+        @AuthorizeReturnObject
+        public User getTo() { <4>
+			return this.to;
+        }
+
+		// ...
+	}
+
+	public static class User { <5>
+		// ...
+	}
+
+	public static void main(String[] args) {
+		SpringApplication.run(MyApplication.class);
+	}
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@SpringBootApplication
+open class MyApplication {
+	@RestController
+    open class MyController { <1>
+		@GetMapping
+        @AuthorizeReturnObject
+        fun getMessage():Message { <2>
+			return Message(someUser, "hello!")
+        }
+    }
+
+	open class Message { <3>
+		val to: User
+		val test: String
+
+		// ...
+
+        @AuthorizeReturnObject
+        fun getTo(): User { <4>
+			return this.to
+        }
+
+		// ...
+	}
+
+	open class User { <5>
+		// ...
+	}
+
+	fun main(args: Array<String>) {
+		SpringApplication.run(MyApplication.class)
+	}
+}
+----
+======
+<1> - First, Spring Security finds the `MyController` bean
+<2> - Finding a method that uses `@AuthorizeReturnObject`, it proxies `Message`, the return value, and registers that proxy class to `RuntimeHints`
+<3> - Then, it traverses `Message` to see if it uses `@AuthorizeReturnObject`
+<4> - Finding a method that uses `@AuthorizeReturnObject`, it proxies `User`, the return value, and registers that proxy class to `RuntimeHints`
+<5> - Finally, it traverses `User` to see if it uses `@AuthorizeReturnObject`; finding nothing, the algorithm completes
+
+There will be many times when Spring Security cannot determine the proxy class ahead of time since it may be hidden in an erased generic type.
+
+Consider the following change to `MyController`:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@RestController
+public static class MyController {
+    @GetMapping
+    @AuthorizeReturnObject
+    List<Message> getMessages() {
+        return List.of(new Message(someUser, "hello!"));
+    }
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@RestController
+static class MyController {
+    @AuthorizeReturnObject
+    @GetMapping
+    fun getMessages(): Array<Message> = arrayOf(Message(someUser, "hello!"))
+}
+----
+======
+
+In this case, the generic type is erased and so it isn't apparent to Spring Security ahead-of-time that `Message` will need to be proxied at runtime.
+
+To address this, you can publish `AuthorizeProxyFactoryHintsRegistrar` like so:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Bean
+@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+static SecurityHintsRegsitrar registerTheseToo(AuthorizationProxyFactory proxyFactory) {
+	return new AuthorizeReturnObjectHintsRegistrar(proxyFactory, Message.class);
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Bean
+@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+fun registerTheseToo(proxyFactory: AuthorizationProxyFactory?): SecurityHintsRegistrar {
+    return AuthorizeReturnObjectHintsRegistrar(proxyFactory, Message::class.java)
+}
+----
+======
+
+Spring Security will register that class and then traverse its type as before.
 
 [[fallback-values-authorization-denied]]
 == Providing Fallback Values When Authorization is Denied
