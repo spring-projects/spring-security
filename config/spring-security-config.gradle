@@ -21,6 +21,7 @@ dependencies {
 	api 'org.springframework:spring-context'
 	api 'org.springframework:spring-core'
 
+	optional project(':spring-security-data')
 	optional project(':spring-security-ldap')
 	optional project(':spring-security-messaging')
 	optional project(path: ':spring-security-saml2-service-provider')
