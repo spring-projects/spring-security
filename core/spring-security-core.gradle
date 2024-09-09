@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 import java.util.concurrent.Callable
 
 apply plugin: 'io.spring.convention.spring-module'
@@ -30,6 +31,7 @@ dependencies {
 	testImplementation "org.junit.jupiter:junit-jupiter-engine"
 	testImplementation "org.mockito:mockito-core"
 	testImplementation "org.mockito:mockito-junit-jupiter"
+	testImplementation "org.springframework:spring-core-test"
 	testImplementation "org.springframework:spring-test"
 	testImplementation 'org.skyscreamer:jsonassert'
 	testImplementation 'org.springframework:spring-test'
