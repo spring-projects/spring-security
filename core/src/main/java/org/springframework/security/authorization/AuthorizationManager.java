@@ -41,7 +41,7 @@ public interface AuthorizationManager<T> {
 	default void verify(Supplier<Authentication> authentication, T object) {
 		AuthorizationDecision decision = check(authentication, object);
 		if (decision != null && !decision.isGranted()) {
-			throw new AccessDeniedException("Access Denied");
+			throw new AuthorizationDeniedException("Access Denied", decision);
 		}
 	}
 
