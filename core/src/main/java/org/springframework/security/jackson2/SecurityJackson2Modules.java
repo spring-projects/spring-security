@@ -75,7 +75,6 @@ public final class SecurityJackson2Modules {
 
 	private static final List<String> securityJackson2ModuleClasses = Arrays.asList(
 			"org.springframework.security.jackson2.CoreJackson2Module",
-			"org.springframework.security.cas.jackson2.CasJackson2Module",
 			"org.springframework.security.web.jackson2.WebJackson2Module",
 			"org.springframework.security.web.server.jackson2.WebServerJackson2Module");
 
@@ -88,6 +87,15 @@ public final class SecurityJackson2Modules {
 	private static final String ldapJackson2ModuleClass = "org.springframework.security.ldap.jackson2.LdapJackson2Module";
 
 	private static final String saml2Jackson2ModuleClass = "org.springframework.security.saml2.jackson2.Saml2Jackson2Module";
+
+	private static final String casJackson2ModuleClass = "org.springframework.security.cas.jackson2.CasJackson2Module";
+
+	private static final boolean casJacksonPresent;
+
+	static {
+		ClassLoader classLoader = SecurityJackson2Modules.class.getClassLoader();
+		casJacksonPresent = ClassUtils.isPresent(casJackson2ModuleClass, classLoader);
+	}
 
 	private SecurityJackson2Modules() {
 	}
@@ -139,6 +147,9 @@ public final class SecurityJackson2Modules {
 		}
 		if (ClassUtils.isPresent(saml2Jackson2ModuleClass, loader)) {
 			addToModulesList(loader, modules, saml2Jackson2ModuleClass);
+		}
+		if (casJacksonPresent) {
+			addToModulesList(loader, modules, casJackson2ModuleClass);
 		}
 		return modules;
 	}
