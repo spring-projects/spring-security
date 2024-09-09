@@ -26,6 +26,9 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Role;
+import org.springframework.security.aot.hint.AuthorizeReturnObjectCoreHintsRegistrar;
+import org.springframework.security.aot.hint.SecurityHintsRegistrar;
+import org.springframework.security.authorization.AuthorizationProxyFactory;
 import org.springframework.security.authorization.method.AuthorizationAdvisor;
 import org.springframework.security.authorization.method.AuthorizationAdvisorProxyFactory;
 import org.springframework.security.authorization.method.AuthorizeReturnObjectMethodInterceptor;
@@ -52,6 +55,12 @@ final class AuthorizationProxyConfiguration implements AopInfrastructureBean {
 				authorizationProxyFactory);
 		authorizationProxyFactory.addAdvisor(interceptor);
 		return interceptor;
+	}
+
+	@Bean
+	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+	static SecurityHintsRegistrar authorizeReturnObjectHintsRegistrar(AuthorizationProxyFactory proxyFactory) {
+		return new AuthorizeReturnObjectCoreHintsRegistrar(proxyFactory);
 	}
 
 }
