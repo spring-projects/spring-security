@@ -91,6 +91,8 @@ public final class AuthorizationAdvisorProxyFactory
 	private static final TargetVisitor DEFAULT_VISITOR_SKIP_VALUE_TYPES = TargetVisitor.of(new ClassVisitor(),
 			new IgnoreValueTypeVisitor(), DEFAULT_VISITOR);
 
+	private final AuthorizationProxyMethodInterceptor authorizationProxy = new AuthorizationProxyMethodInterceptor();
+
 	private List<AuthorizationAdvisor> advisors;
 
 	private TargetVisitor visitor = DEFAULT_VISITOR;
@@ -172,8 +174,7 @@ public final class AuthorizationAdvisorProxyFactory
 			return proxied;
 		}
 		ProxyFactory factory = new ProxyFactory(target);
-		AuthorizationProxyMethodInterceptor unwrapper = new AuthorizationProxyMethodInterceptor();
-		factory.addAdvisors(unwrapper);
+		factory.addAdvisors(this.authorizationProxy);
 		for (Advisor advisor : this.advisors) {
 			factory.addAdvisors(advisor);
 		}
@@ -359,6 +360,8 @@ public final class AuthorizationAdvisorProxyFactory
 
 	private static final class ClassVisitor implements TargetVisitor {
 
+		private final AuthorizationProxyMethodInterceptor authorizationProxy = new AuthorizationProxyMethodInterceptor();
+
 		@Override
 		public Object visit(AuthorizationAdvisorProxyFactory proxyFactory, Object object) {
 			if (object instanceof Class<?> targetClass) {
@@ -367,9 +370,11 @@ public final class AuthorizationAdvisorProxyFactory
 				factory.setInterfaces(ClassUtils.getAllInterfacesForClass(targetClass));
 				factory.setOpaque(true);
 				factory.setProxyTargetClass(!Modifier.isFinal(targetClass.getModifiers()));
+				factory.addAdvisor(this.authorizationProxy);
 				for (Advisor advisor : proxyFactory) {
 					factory.addAdvisors(advisor);
 				}
+				factory.addInterface(AuthorizationProxy.class);
 				return factory.getProxyClass(getClass().getClassLoader());
 			}
 			return null;
