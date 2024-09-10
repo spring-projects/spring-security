@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,7 +50,9 @@ import org.springframework.web.client.RestTemplate;
  * 2.1 Using JWTs as Authorization Grants</a>
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7521#section-4.1">Section
  * 4.1 Using Assertions as Authorization Grants</a>
+ * @deprecated Use {@link RestClientJwtBearerTokenResponseClient} instead
  */
+@Deprecated(since = "6.4")
 public final class DefaultJwtBearerTokenResponseClient
 		implements OAuth2AccessTokenResponseClient<JwtBearerGrantRequest> {
 
