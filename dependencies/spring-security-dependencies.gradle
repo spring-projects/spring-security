@@ -57,8 +57,8 @@ dependencies {
 		api libs.org.aspectj.aspectjrt
 		api libs.org.aspectj.aspectjweaver
 		api libs.org.assertj.assertj.core
-		api libs.org.bouncycastle.bcpkix.jdk15on
-		api libs.org.bouncycastle.bcprov.jdk15on
+		api libs.org.bouncycastle.bcpkix.jdk18on
+		api libs.org.bouncycastle.bcprov.jdk18on
 		api libs.org.eclipse.jetty.jetty.server
 		api libs.org.eclipse.jetty.jetty.servlet
 		api libs.org.hamcrest

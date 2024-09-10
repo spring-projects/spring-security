@@ -3,8 +3,8 @@ apply plugin: 'io.spring.convention.spring-module'
 dependencies {
 	management platform(project(":spring-security-dependencies"))
 	optional 'org.springframework:spring-jcl'
-	optional 'org.bouncycastle:bcpkix-jdk15on'
-	
+	optional 'org.bouncycastle:bcpkix-jdk18on'
+
 	testImplementation "org.assertj:assertj-core"
 	testImplementation "org.junit.jupiter:junit-jupiter-api"
 	testImplementation "org.junit.jupiter:junit-jupiter-params"

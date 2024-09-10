@@ -7,7 +7,7 @@ jakarta-websocket = "2.1.1"
 org-apache-directory-server = "1.5.5"
 org-apache-maven-resolver = "1.8.2"
 org-aspectj = "1.9.22.1"
-org-bouncycastle = "1.70"
+org-bouncycastle = "1.78.1"
 org-eclipse-jetty = "11.0.21"
 org-jetbrains-kotlin = "1.8.22"
 org-jetbrains-kotlinx = "1.6.4"
@@ -62,8 +62,8 @@ org-apereo-cas-client-cas-client-core = "org.apereo.cas.client:cas-client-core:4
 org-aspectj-aspectjrt = { module = "org.aspectj:aspectjrt", version.ref = "org-aspectj" }
 org-aspectj-aspectjweaver = { module = "org.aspectj:aspectjweaver", version.ref = "org-aspectj" }
 org-assertj-assertj-core = "org.assertj:assertj-core:3.24.2"
-org-bouncycastle-bcpkix-jdk15on = { module = "org.bouncycastle:bcpkix-jdk15on", version.ref = "org-bouncycastle" }
-org-bouncycastle-bcprov-jdk15on = { module = "org.bouncycastle:bcprov-jdk15on", version.ref = "org-bouncycastle" }
+org-bouncycastle-bcpkix-jdk18on = { module = "org.bouncycastle:bcpkix-jdk18on", version.ref = "org-bouncycastle" }
+org-bouncycastle-bcprov-jdk18on = { module = "org.bouncycastle:bcprov-jdk18on", version.ref = "org-bouncycastle" }
 org-eclipse-jetty-jetty-server = { module = "org.eclipse.jetty:jetty-server", version.ref = "org-eclipse-jetty" }
 org-eclipse-jetty-jetty-servlet = { module = "org.eclipse.jetty:jetty-servlet", version.ref = "org-eclipse-jetty" }
 org-hamcrest = "org.hamcrest:hamcrest:2.2"
