@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,14 +25,14 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
+import org.springframework.security.config.annotation.web.invoke
 import org.springframework.security.config.oauth2.client.CommonOAuth2Provider
 import org.springframework.security.config.test.SpringTestContext
 import org.springframework.security.config.test.SpringTestContextExtension
-import org.springframework.security.config.annotation.web.invoke
 import org.springframework.security.core.authority.SimpleGrantedAuthority
-import org.springframework.security.oauth2.client.endpoint.DefaultAuthorizationCodeTokenResponseClient
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest
+import org.springframework.security.oauth2.client.endpoint.RestClientAuthorizationCodeTokenResponseClient
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService
@@ -110,7 +110,7 @@ class RedirectionEndpointDslTests {
             val REPOSITORY: AuthorizationRequestRepository<OAuth2AuthorizationRequest> =
                 HttpSessionOAuth2AuthorizationRequestRepository()
             val CLIENT: OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> =
-                DefaultAuthorizationCodeTokenResponseClient()
+                RestClientAuthorizationCodeTokenResponseClient()
             val USER_SERVICE: OAuth2UserService<OAuth2UserRequest, OAuth2User> = DefaultOAuth2UserService()
         }
 
