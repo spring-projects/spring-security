@@ -35,6 +35,7 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.GenericApplicationListenerAdapter;
 import org.springframework.context.event.SmartApplicationListener;
 import org.springframework.core.ResolvableType;
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
@@ -50,6 +51,7 @@ import org.springframework.security.core.session.AbstractSessionEvent;
 import org.springframework.security.core.session.SessionDestroyedEvent;
 import org.springframework.security.core.session.SessionIdChangedEvent;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.client.authentication.OAuth2LoginAuthenticationProvider;
 import org.springframework.security.oauth2.client.authentication.OAuth2LoginAuthenticationToken;
 import org.springframework.security.oauth2.client.endpoint.DefaultAuthorizationCodeTokenResponseClient;
@@ -430,6 +432,10 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 			authenticationFilter
 				.setAuthorizationRequestRepository(this.authorizationEndpointConfig.authorizationRequestRepository);
 		}
+		if (this.authorizationEndpointConfig.authenticationResultConverter != null) {
+			authenticationFilter
+				.setAuthenticationResultConverter(this.authorizationEndpointConfig.authenticationResultConverter);
+		}
 		configureOidcSessionRegistry(http);
 		super.configure(http);
 	}
@@ -619,6 +625,8 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 
 		private AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository;
 
+		private Converter<OAuth2LoginAuthenticationToken, OAuth2AuthenticationToken> authenticationResultConverter;
+
 		private RedirectStrategy authorizationRedirectStrategy;
 
 		private AuthorizationEndpointConfig() {
@@ -660,6 +668,20 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 				AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository) {
 			Assert.notNull(authorizationRequestRepository, "authorizationRequestRepository cannot be null");
 			this.authorizationRequestRepository = authorizationRequestRepository;
+			return this;
+		}
+
+		/**
+		 * Sets the converter responsible for converting from
+		 * {@link OAuth2LoginAuthenticationToken} to {@link OAuth2AuthenticationToken}
+		 * authentication result.
+		 * @param authenticationResultConverter the converter for
+		 * {@link OAuth2AuthenticationToken}'s
+		 */
+		public AuthorizationEndpointConfig authenticationResultConverter(
+				Converter<OAuth2LoginAuthenticationToken, OAuth2AuthenticationToken> authenticationResultConverter) {
+			Assert.notNull(authenticationResultConverter, "authenticationResultConverter cannot be null");
+			this.authenticationResultConverter = authenticationResultConverter;
 			return this;
 		}
 

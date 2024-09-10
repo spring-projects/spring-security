@@ -18,6 +18,7 @@ package org.springframework.security.config.annotation.web.configurers.oauth2.cl
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -209,6 +210,20 @@ public class OAuth2LoginConfigurerTests {
 		assertThat(authentication.getAuthorities()).first()
 			.isInstanceOf(OAuth2UserAuthority.class)
 			.hasToString("OAUTH2_USER");
+	}
+
+	@Test
+	public void oauth2LoginWhenSetAuthenticationResultConverter() throws Exception {
+		loadConfig(OAuth2LoginConfiguration.class);
+		OAuth2AuthorizationRequest authorizationRequest = createOAuth2AuthorizationRequest();
+		this.authorizationRequestRepository.saveAuthorizationRequest(authorizationRequest, this.request, this.response);
+		this.request.setParameter("code", "code123");
+		this.request.setParameter("state", authorizationRequest.getState());
+		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
+		Authentication authentication = this.securityContextRepository
+			.loadContext(new HttpRequestResponseHolder(this.request, this.response))
+			.getAuthentication();
+		assertThat(authentication).isInstanceOf(CustomOAuth2AuthenticationToken.class);
 	}
 
 	@Test
@@ -750,6 +765,31 @@ public class OAuth2LoginConfigurerTests {
 		@Override
 		public void onApplicationEvent(AuthenticationSuccessEvent event) {
 			EVENTS.add(event);
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	static class OAuth2LoginConfiguration extends CommonSecurityFilterChainConfig {
+
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			http.oauth2Login((c) -> c
+				.authorizationEndpoint((d) -> d
+					.authenticationResultConverter((r) -> new CustomOAuth2AuthenticationToken(r.getPrincipal(),
+							r.getAuthorities(), r.getClientRegistration().getRegistrationId())))
+				.clientRegistrationRepository(new InMemoryClientRegistrationRepository(GOOGLE_CLIENT_REGISTRATION)));
+			return super.configureFilterChain(http);
+		}
+
+	}
+
+	private static class CustomOAuth2AuthenticationToken extends OAuth2AuthenticationToken {
+
+		CustomOAuth2AuthenticationToken(OAuth2User principal, Collection<? extends GrantedAuthority> authorities,
+				String authorizedClientRegistrationId) {
+			super(principal, authorities, authorizedClientRegistrationId);
 		}
 
 	}
