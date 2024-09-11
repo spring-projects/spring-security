@@ -105,7 +105,7 @@ public class DefaultLoginPageConfigurerTests {
 						    <div class="content">
 						      <form class="login-form" method="post" action="/login">
 						        <h2>Please sign in</h2>
-						       \s
+
 						        <p>
 						          <label for="username" class="screenreader">Username</label>
 						          <input type="text" id="username" name="username" placeholder="Username" required autofocus>
@@ -160,7 +160,7 @@ public class DefaultLoginPageConfigurerTests {
 						    <div class="content">
 						      <form class="login-form" method="post" action="/login">
 						        <h2>Please sign in</h2>
-						        <div class="alert alert-danger" role="alert">Bad credentials</div>
+						<div class="alert alert-danger" role="alert">Bad credentials</div>
 						        <p>
 						          <label for="username" class="screenreader">Username</label>
 						          <input type="text" id="username" name="username" placeholder="Username" required autofocus>
@@ -219,7 +219,7 @@ public class DefaultLoginPageConfigurerTests {
 						    <div class="content">
 						      <form class="login-form" method="post" action="/login">
 						        <h2>Please sign in</h2>
-						        <div class="alert alert-success" role="alert">You have been signed out</div>
+						<div class="alert alert-success" role="alert">You have been signed out</div>
 						        <p>
 						          <label for="username" class="screenreader">Username</label>
 						          <input type="text" id="username" name="username" placeholder="Username" required autofocus>
@@ -286,7 +286,7 @@ public class DefaultLoginPageConfigurerTests {
 						    <div class="content">
 						      <form class="login-form" method="post" action="/login">
 						        <h2>Please sign in</h2>
-						       \s
+
 						        <p>
 						          <label for="username" class="screenreader">Username</label>
 						          <input type="text" id="username" name="username" placeholder="Username" required autofocus>

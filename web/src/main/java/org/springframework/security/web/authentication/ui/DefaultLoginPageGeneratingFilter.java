@@ -407,7 +407,7 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 	private static final String LOGIN_FORM_TEMPLATE = """
 			      <form class="login-form" method="post" action="{{loginUrl}}">
 			        <h2>Please sign in</h2>
-			        {{errorMessage}}{{logoutMessage}}
+			{{errorMessage}}{{logoutMessage}}
 			        <p>
 			          <label for="username" class="screenreader">Username</label>
 			          <input type="text" id="username" name="{{usernameParameter}}" placeholder="Username" required autofocus>
@@ -450,12 +450,12 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 	private static final String ONE_TIME_TEMPLATE = """
 			      <form id="ott-form" class="login-form" method="post" action="{{generateOneTimeTokenUrl}}">
 			        <h2>Request a One-Time Token</h2>
-			      {{errorMessage}}{{logoutMessage}}
+			{{errorMessage}}{{logoutMessage}}
 			        <p>
 			          <label for="ott-username" class="screenreader">Username</label>
 			          <input type="text" id="ott-username" name="username" placeholder="Username" required>
 			        </p>
-			      {{hiddenInputs}}
+			{{hiddenInputs}}
 			        <button class="primary" type="submit" form="ott-form">Send Token</button>
 			      </form>
 			""";
