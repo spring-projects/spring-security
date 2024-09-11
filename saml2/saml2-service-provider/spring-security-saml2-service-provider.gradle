@@ -15,6 +15,15 @@ dependencies {
 
 	optional 'com.fasterxml.jackson.core:jackson-databind'
 
+	dependencies {
+		implementation 'org.opensaml:opensaml-core'
+		constraints {
+			implementation('com.google.guava:guava:32.0.1-jre') {
+				because 'CVE-2023-2976'
+			}
+		}
+	}
+
 	testImplementation 'com.squareup.okhttp3:mockwebserver'
 	testImplementation "org.assertj:assertj-core"
 	testImplementation "org.skyscreamer:jsonassert"
