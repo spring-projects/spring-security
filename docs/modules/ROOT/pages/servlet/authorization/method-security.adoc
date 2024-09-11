@@ -1528,6 +1528,176 @@ We expose `MethodSecurityExpressionHandler` using a `static` method to ensure th
 
 You can also <<subclass-defaultmethodsecurityexpressionhandler,subclass `DefaultMessageSecurityExpressionHandler`>> to add your own custom authorization expressions beyond the defaults.
 
+=== Working with AOT
+
+Spring Security will scan all beans in the application context for methods that use `@PreAuthorize` or `@PostAuthorize`.
+When it finds one, it will resolve any beans used inside the security expression and register the appropriate runtime hints for that bean.
+If it finds a method that uses `@AuthorizeReturnObject`, it will recursively search inside the method's return type for `@PreAuthorize` and `@PostAuthorize` annotations and register them accordingly.
+
+For example, consider the following Spring Boot application:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Service
+public class AccountService { <1>
+
+    @PreAuthorize("@authz.decide()") <2>
+    @AuthorizeReturnObject <3>
+    public Account getAccountById(String accountId) {
+        // ...
+    }
+
+}
+
+public class Account {
+
+    private final String accountNumber;
+
+    // ...
+
+    @PreAuthorize("@accountAuthz.canViewAccountNumber()") <4>
+    public String getAccountNumber() {
+        return this.accountNumber;
+    }
+
+    @AuthorizeReturnObject <5>
+    public User getUser() {
+        return new User("John Doe");
+    }
+
+}
+
+public class User {
+
+    private final String fullName;
+
+    // ...
+
+    @PostAuthorize("@myOtherAuthz.decide()") <6>
+    public String getFullName() {
+        return this.fullName;
+    }
+
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Service
+class AccountService { <1>
+
+    @PreAuthorize("@authz.decide()") <2>
+    @AuthorizeReturnObject <3>
+    fun getAccountById(accountId: String): Account {
+        // ...
+    }
+
+}
+
+class Account(private val accountNumber: String) {
+
+    @PreAuthorize("@accountAuthz.canViewAccountNumber()") <4>
+    fun getAccountNumber(): String {
+        return this.accountNumber
+    }
+
+    @AuthorizeReturnObject <5>
+    fun getUser(): User {
+        return User("John Doe")
+    }
+
+}
+
+class User(private val fullName: String) {
+
+    @PostAuthorize("@myOtherAuthz.decide()") <6>
+    fun getFullName(): String {
+        return this.fullName
+    }
+
+}
+----
+======
+
+<1> Spring Security finds the `AccountService` bean
+<2> Finding a method that uses `@PreAuthorize`, it will resolve any bean names used inside the expression, `authz` in that case, and register runtime hints for the bean class
+<3> Finding a method that uses `@AuthorizeReturnObject`, it will look into the method's return type for any `@PreAuthorize` or `@PostAuthorize`
+<4> Then, it finds a `@PreAuthorize` with another bean name: `accountAuthz`; the runtime hints are registered for the bean class as well
+<5> Finding another `@AuthorizeReturnObject` it will look again into the method's return type
+<6> Now, a `@PostAuthorize` is found with yet another bean name used: `myOtherAuthz`; the runtime hints are registered for the bean class as well
+
+There will be many times when Spring Security cannot determine the actual return type of the method ahead of time since it may be hidden in an erased generic type.
+
+Consider the following service:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Service
+public class AccountService {
+
+    @AuthorizeReturnObject
+    public List<Account> getAllAccounts() {
+        // ...
+    }
+
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Service
+class AccountService {
+
+    @AuthorizeReturnObject
+    fun getAllAccounts(): List<Account> {
+        // ...
+    }
+
+}
+----
+======
+
+In this case, the generic type is erased and so it isn’t apparent to Spring Security ahead-of-time that `Account` needs to be visited in order to check for `@PreAuthorize` and `@PostAuthorize`.
+
+To address this, you can publish a javadoc:org.springframework.security.aot.hint.PrePostAuthorizeExpressionBeanHintsRegistrar[`PrePostAuthorizeExpressionBeanHintsRegistrar`] like so:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Bean
+@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+static SecurityHintsRegistrar registerTheseToo() {
+    return new PrePostAuthorizeExpressionBeanHintsRegistrar(Account.class);
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Bean
+@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+fun registerTheseToo(): SecurityHintsRegistrar {
+    return PrePostAuthorizeExpressionBeanHintsRegistrar(Account::class.java)
+}
+----
+======
+
 [[use-aspectj]]
 == Authorizing with AspectJ
 
