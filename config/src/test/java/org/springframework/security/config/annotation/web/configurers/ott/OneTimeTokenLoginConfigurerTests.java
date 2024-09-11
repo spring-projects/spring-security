@@ -150,7 +150,7 @@ public class OneTimeTokenLoginConfigurerTests {
 						    <div class="content">
 						      <form class="login-form" method="post" action="/login">
 						        <h2>Please sign in</h2>
-						       \s
+
 						        <p>
 						          <label for="username" class="screenreader">Username</label>
 						          <input type="text" id="username" name="username" placeholder="Username" required autofocus>
@@ -165,12 +165,12 @@ public class OneTimeTokenLoginConfigurerTests {
 						      </form>
 						      <form id="ott-form" class="login-form" method="post" action="/ott/generate">
 						        <h2>Request a One-Time Token</h2>
-						     \s
+
 						        <p>
 						          <label for="ott-username" class="screenreader">Username</label>
 						          <input type="text" id="ott-username" name="username" placeholder="Username" required>
 						        </p>
-						      <input name="_csrf" type="hidden" value="%s" />
+						<input name="_csrf" type="hidden" value="%s" />
 						        <button class="primary" type="submit" form="ott-form">Send Token</button>
 						      </form>
 

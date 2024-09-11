@@ -199,12 +199,12 @@ public class DefaultLoginPageGeneratingFilterTests {
 		assertThat(response.getContentAsString()).contains("""
 				      <form id="ott-form" class="login-form" method="post" action="/ott/authenticate">
 				        <h2>Request a One-Time Token</h2>
-				     \s
+
 				        <p>
 				          <label for="ott-username" class="screenreader">Username</label>
 				          <input type="text" id="ott-username" name="username" placeholder="Username" required>
 				        </p>
-				     \s
+
 				        <button class="primary" type="submit" form="ott-form">Send Token</button>
 				      </form>
 				""");
@@ -244,7 +244,7 @@ public class DefaultLoginPageGeneratingFilterTests {
 				    <div class="content">
 				      <form class="login-form" method="post" action="null">
 				        <h2>Please sign in</h2>
-				        <div class="alert alert-danger" role="alert">Bad credentials</div>
+				<div class="alert alert-danger" role="alert">Bad credentials</div>
 				        <p>
 				          <label for="username" class="screenreader">Username</label>
 				          <input type="text" id="username" name="username" placeholder="Username" required autofocus>

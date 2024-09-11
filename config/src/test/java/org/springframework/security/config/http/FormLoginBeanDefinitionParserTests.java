@@ -68,7 +68,7 @@ public class FormLoginBeanDefinitionParserTests {
 				    <div class="content">
 				      <form class="login-form" method="post" action="/login">
 				        <h2>Please sign in</h2>
-				       \s
+
 				        <p>
 				          <label for="username" class="screenreader">Username</label>
 				          <input type="text" id="username" name="username" placeholder="Username" required autofocus>
@@ -115,7 +115,7 @@ public class FormLoginBeanDefinitionParserTests {
 				    <div class="content">
 				      <form class="login-form" method="post" action="/signin">
 				        <h2>Please sign in</h2>
-				       \s
+
 				        <p>
 				          <label for="username" class="screenreader">Username</label>
 				          <input type="text" id="username" name="custom_user" placeholder="Username" required autofocus>
