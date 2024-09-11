@@ -35,6 +35,8 @@ import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
+import org.springframework.security.aot.hint.PrePostAuthorizeHintsRegistrar;
+import org.springframework.security.aot.hint.SecurityHintsRegistrar;
 import org.springframework.security.authorization.AuthorizationEventPublisher;
 import org.springframework.security.authorization.ObservationAuthorizationManager;
 import org.springframework.security.authorization.method.AuthorizationManagerAfterMethodInterceptor;
@@ -189,6 +191,12 @@ final class PrePostMethodSecurityConfiguration implements ImportAware, Applicati
 			ObjectProvider<PrePostMethodSecurityConfiguration> _prePostMethodSecurityConfiguration) {
 		return new DeferringMethodInterceptor<>(postFilterPointcut,
 				() -> _prePostMethodSecurityConfiguration.getObject().postFilterMethodInterceptor);
+	}
+
+	@Bean
+	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+	static SecurityHintsRegistrar prePostAuthorizeExpressionHintsRegistrar() {
+		return new PrePostAuthorizeHintsRegistrar();
 	}
 
 	@Override
