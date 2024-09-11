@@ -94,7 +94,7 @@ class InitializeAuthenticationProviderBeanManagerConfigurer extends GlobalAuthen
 			String[] beanNames = InitializeAuthenticationProviderBeanManagerConfigurer.this.context
 				.getBeanNamesForType(type);
 			for (String beanName : beanNames) {
-				T bean = InitializeAuthenticationProviderBeanManagerConfigurer.this.context.getBean(beanNames[0], type);
+				T bean = InitializeAuthenticationProviderBeanManagerConfigurer.this.context.getBean(beanName, type);
 				beanWithNames.add(new BeanWithName<T>(bean, beanName));
 			}
 			return beanWithNames;
