@@ -114,6 +114,30 @@ class ServerOAuth2LoginDslTests {
     }
 
     @Test
+    fun `login page when OAuth2 login configured with login page then default login page does not exist`() {
+        this.spring.register(OAuth2LoginConfigWithLoginPage::class.java, ClientConfig::class.java).autowire()
+
+        this.client.get()
+                .uri("/login")
+                .exchange()
+                .expectStatus().isNotFound
+    }
+
+    @Configuration
+    @EnableWebFluxSecurity
+    @EnableWebFlux
+    open class OAuth2LoginConfigWithLoginPage {
+        @Bean
+        open fun springWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
+            return http {
+                oauth2Login {
+                    loginPage = "/login"
+                }
+            }
+        }
+    }
+
+    @Test
     fun `OAuth2 login when authorization request repository configured then custom repository used`() {
         this.spring.register(AuthorizationRequestRepositoryConfig::class.java, ClientConfig::class.java).autowire()
         mockkObject(AuthorizationRequestRepositoryConfig.AUTHORIZATION_REQUEST_REPOSITORY)

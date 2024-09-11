@@ -31,6 +31,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authentication.UserDetailsRepositoryReactiveAuthenticationManager;
@@ -254,6 +255,65 @@ public class OAuth2LoginTests {
 				.header("X-Requested-With", "XMLHttpRequest")
 				.exchange()
 				.expectStatus().isUnauthorized();
+		// @formatter:on
+	}
+
+	@Test
+	public void defaultLoginPageWhenCustomLoginPageThenGeneratedLoginPageDoesNotExist() {
+		this.spring
+			.register(OAuth2LoginWithSingleClientRegistrations.class, OAuth2LoginWithCustomLoginPage.class,
+					WebFluxConfig.class)
+			.autowire();
+		// @formatter:off
+		this.client.get()
+			.uri("/login")
+			.exchange()
+			.expectStatus().isNotFound();
+		// @formatter:on
+	}
+
+	@Test
+	public void oauth2LoginWhenCustomLoginPageAndSingleClientRegistrationThenRedirectsToLoginPage() {
+		this.spring
+			.register(OAuth2LoginWithSingleClientRegistrations.class, OAuth2LoginWithCustomLoginPage.class,
+					WebFluxConfig.class)
+			.autowire();
+		// @formatter:off
+		this.client.get()
+			.uri("/")
+			.exchange()
+			.expectStatus().is3xxRedirection()
+			.expectHeader().valueEquals(HttpHeaders.LOCATION, "/login");
+		// @formatter:on
+	}
+
+	@Test
+	public void oauth2LoginWhenCustomLoginPageAndMultipleClientRegistrationsThenRedirectsToLoginPage() {
+		this.spring
+			.register(OAuth2LoginWithMultipleClientRegistrations.class, OAuth2LoginWithCustomLoginPage.class,
+					WebFluxConfig.class)
+			.autowire();
+		// @formatter:off
+		this.client.get()
+			.uri("/")
+			.exchange()
+			.expectStatus().is3xxRedirection()
+			.expectHeader().valueEquals(HttpHeaders.LOCATION, "/login");
+		// @formatter:on
+	}
+
+	@Test
+	public void oauth2LoginWhenProviderLoginPageAndMultipleClientRegistrationsThenRedirectsToProvider() {
+		this.spring
+			.register(OAuth2LoginWithMultipleClientRegistrations.class, OAuth2LoginWithProviderLoginPage.class,
+					WebFluxConfig.class)
+			.autowire();
+		// @formatter:off
+		this.client.get()
+			.uri("/")
+			.exchange()
+			.expectStatus().is3xxRedirection()
+			.expectHeader().valueEquals(HttpHeaders.LOCATION, "/oauth2/authorization/github");
 		// @formatter:on
 	}
 
@@ -750,6 +810,46 @@ public class OAuth2LoginTests {
 				.oauth2Login()
 					.and()
 				.httpBasic();
+			// @formatter:on
+			return http.build();
+		}
+
+	}
+
+	@Configuration
+	@EnableWebFluxSecurity
+	static class OAuth2LoginWithCustomLoginPage {
+
+		@Bean
+		SecurityWebFilterChain filterChain(ServerHttpSecurity http) {
+			// @formatter:off
+			http
+				.authorizeExchange((authorize) -> authorize
+					.pathMatchers(HttpMethod.GET, "/login").permitAll()
+					.anyExchange().authenticated()
+				)
+				.oauth2Login((oauth2) -> oauth2
+					.loginPage("/login")
+				);
+			// @formatter:on
+			return http.build();
+		}
+
+	}
+
+	@Configuration
+	@EnableWebFluxSecurity
+	static class OAuth2LoginWithProviderLoginPage {
+
+		@Bean
+		SecurityWebFilterChain filterChain(ServerHttpSecurity http) {
+			// @formatter:off
+			http.authorizeExchange((authorize) -> authorize
+					.anyExchange().authenticated()
+				)
+				.oauth2Login((oauth2) -> oauth2
+					.loginPage("/oauth2/authorization/github")
+				);
 			// @formatter:on
 			return http.build();
 		}

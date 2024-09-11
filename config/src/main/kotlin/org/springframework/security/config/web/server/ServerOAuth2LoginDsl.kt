@@ -53,6 +53,7 @@ import org.springframework.web.server.ServerWebExchange
  * @property authorizationRedirectStrategy the redirect strategy for Authorization Endpoint redirect URI.
  * @property authenticationMatcher the [ServerWebExchangeMatcher] used for determining if the request is an
  * authentication request.
+ * @property loginPage the URL to send users to if login is required.
  */
 @ServerSecurityMarker
 class ServerOAuth2LoginDsl {
@@ -68,6 +69,7 @@ class ServerOAuth2LoginDsl {
     var authorizationRequestResolver: ServerOAuth2AuthorizationRequestResolver? = null
     var authorizationRedirectStrategy: ServerRedirectStrategy? = null
     var authenticationMatcher: ServerWebExchangeMatcher? = null
+    var loginPage: String? = null
 
     internal fun get(): (ServerHttpSecurity.OAuth2LoginSpec) -> Unit {
         return { oauth2Login ->
@@ -83,6 +85,7 @@ class ServerOAuth2LoginDsl {
             authorizationRequestResolver?.also { oauth2Login.authorizationRequestResolver(authorizationRequestResolver) }
             authorizationRedirectStrategy?.also { oauth2Login.authorizationRedirectStrategy(authorizationRedirectStrategy) }
             authenticationMatcher?.also { oauth2Login.authenticationMatcher(authenticationMatcher) }
+            loginPage?.also { oauth2Login.loginPage(loginPage) }
         }
     }
 }
