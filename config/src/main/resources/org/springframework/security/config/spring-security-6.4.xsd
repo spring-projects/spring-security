@@ -3799,6 +3799,7 @@
          <xs:enumeration value="OAUTH2_LOGIN_FILTER"/>
          <xs:enumeration value="SAML2_AUTHENTICATION_FILTER"/>
          <xs:enumeration value="FORM_LOGIN_FILTER"/>
+         <xs:enumeration value="DEFAULT_RESOURCES_FILTER"/>
          <xs:enumeration value="LOGIN_PAGE_FILTER"/>
          <xs:enumeration value="LOGOUT_PAGE_FILTER"/>
          <xs:enumeration value="DIGEST_AUTH_FILTER"/>
