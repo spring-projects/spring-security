@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,6 +41,7 @@ import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.authentication.ForwardAuthenticationFailureHandler;
 import org.springframework.security.web.authentication.ForwardAuthenticationSuccessHandler;
 import org.springframework.security.web.context.SecurityContextRepository;
+import org.springframework.security.web.util.matcher.AndRequestMatcher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -387,6 +388,41 @@ public class AbstractPreAuthenticatedProcessingFilterTests {
 		filter.afterPropertiesSet();
 		filter.doFilter(request, response, chain);
 		verify(am).authenticate(any(PreAuthenticatedAuthenticationToken.class));
+	}
+
+	@Test
+	public void customMatchesRequestMatcherWhenMatchPath() throws Exception {
+		assertThat(customRequiresAuthenticationRequestMatcher("/test")).isNotNull();
+	}
+
+	@Test
+	public void customMatchesRequestMatcherWhenNoMatchPath() throws Exception {
+		assertThat(customRequiresAuthenticationRequestMatcher("/hello")).isNull();
+	}
+
+	private Authentication customRequiresAuthenticationRequestMatcher(String servletPath) throws Exception {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setServletPath(servletPath);
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		MockFilterChain chain = new MockFilterChain();
+		ConcretePreAuthenticatedProcessingFilter filter = new ConcretePreAuthenticatedProcessingFilter() {
+			@Override
+			protected void initFilterBean() throws ServletException {
+				setRequiresAuthenticationRequestMatcher(new AndRequestMatcher(getRequiresAuthenticationRequestMatcher(),
+						new AntPathRequestMatcher("/test/**")));
+				super.initFilterBean();
+			}
+		};
+		filter.setAuthenticationManager((authentication) -> {
+			if (authentication instanceof PreAuthenticatedAuthenticationToken token) {
+				return new PreAuthenticatedAuthenticationToken(token.getPrincipal(), token.getCredentials(),
+						AuthorityUtils.createAuthorityList("ROLE_USER"));
+			}
+			return null;
+		});
+		filter.afterPropertiesSet();
+		filter.doFilter(request, response, chain);
+		return SecurityContextHolder.getContext().getAuthentication();
 	}
 
 	private void testDoFilter(boolean grantAccess) throws Exception {
