@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import jakarta.annotation.security.DenyAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -37,6 +38,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Role;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.PermissionEvaluator;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
@@ -409,6 +411,13 @@ public class PrePostReactiveMethodSecurityConfigurationTests {
 		});
 	}
 
+	// gh-15352
+	@Test
+	void annotationsInChildClassesDoNotAffectSuperclasses() {
+		this.spring.register(AbstractClassConfig.class).autowire();
+		this.spring.getContext().getBean(ClassInheritingAbstractClassWithNoAnnotations.class).method();
+	}
+
 	@Configuration
 	@EnableReactiveMethodSecurity
 	static class MethodSecurityServiceEnabledConfig {
@@ -702,6 +711,31 @@ public class PrePostReactiveMethodSecurityConfigurationTests {
 		@PreAuthorize("hasAuthority('airplane:read')")
 		public Mono<String> getName() {
 			return Mono.just(this.name);
+		}
+
+	}
+
+	abstract static class AbstractClassWithNoAnnotations {
+
+		Mono<String> method() {
+			return Mono.just("ok");
+		}
+
+	}
+
+	@PreAuthorize("denyAll()")
+	@Secured("DENIED")
+	@DenyAll
+	static class ClassInheritingAbstractClassWithNoAnnotations extends AbstractClassWithNoAnnotations {
+
+	}
+
+	@EnableReactiveMethodSecurity
+	static class AbstractClassConfig {
+
+		@Bean
+		ClassInheritingAbstractClassWithNoAnnotations inheriting() {
+			return new ClassInheritingAbstractClassWithNoAnnotations();
 		}
 
 	}
