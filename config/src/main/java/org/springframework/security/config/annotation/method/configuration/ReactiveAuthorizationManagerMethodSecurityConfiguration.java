@@ -43,6 +43,7 @@ import org.springframework.security.authorization.method.PreAuthorizeReactiveAut
 import org.springframework.security.authorization.method.PreFilterAuthorizationReactiveMethodInterceptor;
 import org.springframework.security.authorization.method.PrePostTemplateDefaults;
 import org.springframework.security.config.core.GrantedAuthorityDefaults;
+import org.springframework.security.core.annotation.AnnotationTemplateExpressionDefaults;
 
 /**
  * Configuration for a {@link ReactiveAuthenticationManager} based Method Security.
@@ -102,6 +103,14 @@ final class ReactiveAuthorizationManagerMethodSecurityConfiguration
 
 	@Autowired(required = false)
 	void setTemplateDefaults(PrePostTemplateDefaults templateDefaults) {
+		this.preFilterMethodInterceptor.setTemplateDefaults(templateDefaults);
+		this.preAuthorizeAuthorizationManager.setTemplateDefaults(templateDefaults);
+		this.postAuthorizeAuthorizationManager.setTemplateDefaults(templateDefaults);
+		this.postFilterMethodInterceptor.setTemplateDefaults(templateDefaults);
+	}
+
+	@Autowired(required = false)
+	void setTemplateDefaults(AnnotationTemplateExpressionDefaults templateDefaults) {
 		this.preFilterMethodInterceptor.setTemplateDefaults(templateDefaults);
 		this.preAuthorizeAuthorizationManager.setTemplateDefaults(templateDefaults);
 		this.postAuthorizeAuthorizationManager.setTemplateDefaults(templateDefaults);
