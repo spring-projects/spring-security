@@ -19,7 +19,9 @@ package org.springframework.security.core.annotation;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Factory for creating {@link SecurityAnnotationScanner} instances.
@@ -28,6 +30,12 @@ import java.util.List;
  * @since 6.4
  */
 public final class SecurityAnnotationScanners {
+
+	private static final Map<Class<? extends Annotation>, SecurityAnnotationScanner<? extends Annotation>> uniqueScanners = new HashMap<>();
+
+	private static final Map<Class<? extends Annotation>, SecurityAnnotationScanner<? extends Annotation>> uniqueTemplateScanners = new HashMap<>();
+
+	private static final Map<List<Class<? extends Annotation>>, SecurityAnnotationScanner<? extends Annotation>> uniqueTypesScanners = new HashMap<>();
 
 	private SecurityAnnotationScanners() {
 	}
@@ -40,7 +48,8 @@ public final class SecurityAnnotationScanners {
 	 * @return the default {@link SecurityAnnotationScanner}
 	 */
 	public static <A extends Annotation> SecurityAnnotationScanner<A> requireUnique(Class<A> type) {
-		return new UniqueSecurityAnnotationScanner<>(type);
+		return (SecurityAnnotationScanner<A>) uniqueScanners.computeIfAbsent(type,
+				(t) -> new UniqueSecurityAnnotationScanner<>(type));
 	}
 
 	/**
@@ -60,9 +69,10 @@ public final class SecurityAnnotationScanners {
 	public static <A extends Annotation> SecurityAnnotationScanner<A> requireUnique(Class<A> type,
 			AnnotationTemplateExpressionDefaults templateDefaults) {
 		if (templateDefaults == null) {
-			return new UniqueSecurityAnnotationScanner<>(type);
+			return requireUnique(type);
 		}
-		return new ExpressionTemplateSecurityAnnotationScanner<>(type, templateDefaults);
+		return (SecurityAnnotationScanner<A>) uniqueTemplateScanners.computeIfAbsent(type,
+				(t) -> new ExpressionTemplateSecurityAnnotationScanner<>(t, templateDefaults));
 	}
 
 	/**
@@ -75,7 +85,8 @@ public final class SecurityAnnotationScanners {
 	public static SecurityAnnotationScanner<Annotation> requireUnique(List<Class<? extends Annotation>> types) {
 		List<Class<Annotation>> casted = new ArrayList<>();
 		types.forEach((type) -> casted.add((Class<Annotation>) type));
-		return new UniqueSecurityAnnotationScanner<>(casted);
+		return (SecurityAnnotationScanner<Annotation>) uniqueTypesScanners.computeIfAbsent(types,
+				(t) -> new UniqueSecurityAnnotationScanner<>(casted));
 	}
 
 }
