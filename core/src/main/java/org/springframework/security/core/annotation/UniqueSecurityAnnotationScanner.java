@@ -22,10 +22,13 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
+import org.springframework.core.MethodClassKey;
 import org.springframework.core.annotation.AnnotationConfigurationException;
 import org.springframework.core.annotation.MergedAnnotation;
 import org.springframework.core.annotation.MergedAnnotations;
@@ -86,6 +89,10 @@ final class UniqueSecurityAnnotationScanner<A extends Annotation> extends Abstra
 
 	private final List<Class<A>> types;
 
+	private final Map<Parameter, MergedAnnotation<A>> uniqueParameterAnnotationCache = new HashMap<>();
+
+	private final Map<MethodClassKey, MergedAnnotation<A>> uniqueMethodAnnotationCache = new HashMap<>();
+
 	UniqueSecurityAnnotationScanner(Class<A> type) {
 		Assert.notNull(type, "type cannot be null");
 		this.types = List.of(type);
@@ -99,12 +106,16 @@ final class UniqueSecurityAnnotationScanner<A extends Annotation> extends Abstra
 	@Override
 	MergedAnnotation<A> merge(AnnotatedElement element, Class<?> targetClass) {
 		if (element instanceof Parameter parameter) {
-			List<MergedAnnotation<A>> annotations = findDirectAnnotations(parameter);
-			return requireUnique(parameter, annotations);
+			return this.uniqueParameterAnnotationCache.computeIfAbsent(parameter, (p) -> {
+				List<MergedAnnotation<A>> annotations = findDirectAnnotations(p);
+				return requireUnique(p, annotations);
+			});
 		}
 		if (element instanceof Method method) {
-			List<MergedAnnotation<A>> annotations = findMethodAnnotations(method, targetClass);
-			return requireUnique(method, annotations);
+			return this.uniqueMethodAnnotationCache.computeIfAbsent(new MethodClassKey(method, targetClass), (k) -> {
+				List<MergedAnnotation<A>> annotations = findMethodAnnotations(method, targetClass);
+				return requireUnique(method, annotations);
+			});
 		}
 		throw new AnnotationConfigurationException("Unsupported element of type " + element.getClass());
 	}
