@@ -466,6 +466,15 @@ public class PrePostReactiveMethodSecurityConfigurationTests {
 		verify(expressionHandler, times(4)).createEvaluationContext(any(Authentication.class), any());
 	}
 
+	// gh-15721
+	@Test
+	@WithMockUser(roles = "uid")
+	public void methodWhenMetaAnnotationPropertiesHasClassProperties() {
+		this.spring.register(MetaAnnotationPlaceholderConfig.class).autowire();
+		MetaAnnotationService service = this.spring.getContext().getBean(MetaAnnotationService.class);
+		assertThat(service.getIdPath("uid").block()).isEqualTo("uid");
+	}
+
 	@Configuration
 	@EnableReactiveMethodSecurity
 	static class MethodSecurityServiceEnabledConfig {
