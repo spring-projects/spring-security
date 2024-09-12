@@ -32,7 +32,10 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import org.springframework.aop.config.AopConfigUtils;
+import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Role;
@@ -48,6 +51,7 @@ import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.access.prepost.PreFilter;
 import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.security.authorization.method.AuthorizationAdvisor;
 import org.springframework.security.authorization.method.AuthorizationAdvisorProxyFactory;
 import org.springframework.security.authorization.method.AuthorizeReturnObject;
 import org.springframework.security.authorization.method.PrePostTemplateDefaults;
@@ -57,6 +61,7 @@ import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.core.annotation.AnnotationTemplateExpressionDefaults;
 import org.springframework.security.test.context.annotation.SecurityTestExecutionListeners;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.stereotype.Component;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -418,6 +423,32 @@ public class PrePostReactiveMethodSecurityConfigurationTests {
 		this.spring.getContext().getBean(ClassInheritingAbstractClassWithNoAnnotations.class).method();
 	}
 
+	// gh-15592
+	@Test
+	void autowireWhenDefaultsThenCreatesExactlyOneAdvisorPerAnnotation() {
+		this.spring.register(MethodSecurityServiceEnabledConfig.class).autowire();
+		AuthorizationAdvisorProxyFactory proxyFactory = this.spring.getContext()
+			.getBean(AuthorizationAdvisorProxyFactory.class);
+		assertThat(proxyFactory).hasSize(5);
+		assertThat(this.spring.getContext().getBeanNamesForType(AuthorizationAdvisor.class)).hasSize(5)
+			.containsExactlyInAnyOrder("preFilterAuthorizationMethodInterceptor",
+					"preAuthorizeAuthorizationMethodInterceptor", "postAuthorizeAuthorizationMethodInterceptor",
+					"postFilterAuthorizationMethodInterceptor", "authorizeReturnObjectMethodInterceptor");
+	}
+
+	// gh-15592
+	@Test
+	void autowireWhenAspectJAutoProxyAndFactoryBeanThenExactlyOneAdvisorPerAnnotation() {
+		this.spring.register(AspectJAwareAutoProxyAndFactoryBeansConfig.class).autowire();
+		AuthorizationAdvisorProxyFactory proxyFactory = this.spring.getContext()
+			.getBean(AuthorizationAdvisorProxyFactory.class);
+		assertThat(proxyFactory).hasSize(5);
+		assertThat(this.spring.getContext().getBeanNamesForType(AuthorizationAdvisor.class)).hasSize(5)
+			.containsExactlyInAnyOrder("preFilterAuthorizationMethodInterceptor",
+					"preAuthorizeAuthorizationMethodInterceptor", "postAuthorizeAuthorizationMethodInterceptor",
+					"postFilterAuthorizationMethodInterceptor", "authorizeReturnObjectMethodInterceptor");
+	}
+
 	@Configuration
 	@EnableReactiveMethodSecurity
 	static class MethodSecurityServiceEnabledConfig {
@@ -736,6 +767,32 @@ public class PrePostReactiveMethodSecurityConfigurationTests {
 		@Bean
 		ClassInheritingAbstractClassWithNoAnnotations inheriting() {
 			return new ClassInheritingAbstractClassWithNoAnnotations();
+		}
+
+	}
+
+	@Configuration
+	@EnableReactiveMethodSecurity
+	static class AspectJAwareAutoProxyAndFactoryBeansConfig {
+
+		@Bean
+		static BeanDefinitionRegistryPostProcessor beanDefinitionRegistryPostProcessor() {
+			return AopConfigUtils::registerAspectJAnnotationAutoProxyCreatorIfNecessary;
+		}
+
+		@Component
+		static class MyFactoryBean implements FactoryBean<Object> {
+
+			@Override
+			public Object getObject() throws Exception {
+				return new Object();
+			}
+
+			@Override
+			public Class<?> getObjectType() {
+				return Object.class;
+			}
+
 		}
 
 	}
