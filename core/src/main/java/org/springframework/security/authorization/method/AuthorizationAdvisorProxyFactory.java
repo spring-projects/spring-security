@@ -169,6 +169,9 @@ public final class AuthorizationAdvisorProxyFactory
 		if (target == null) {
 			return null;
 		}
+		if (target instanceof AuthorizationProxy proxied) {
+			return proxied;
+		}
 		Object proxied = this.visitor.visit(this, target);
 		if (proxied != null) {
 			return proxied;
@@ -365,6 +368,9 @@ public final class AuthorizationAdvisorProxyFactory
 		@Override
 		public Object visit(AuthorizationAdvisorProxyFactory proxyFactory, Object object) {
 			if (object instanceof Class<?> targetClass) {
+				if (AuthorizationProxy.class.isAssignableFrom(targetClass)) {
+					return targetClass;
+				}
 				ProxyFactory factory = new ProxyFactory();
 				factory.setTargetClass(targetClass);
 				factory.setInterfaces(ClassUtils.getAllInterfacesForClass(targetClass));
