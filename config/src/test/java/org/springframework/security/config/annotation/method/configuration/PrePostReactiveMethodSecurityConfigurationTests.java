@@ -19,6 +19,7 @@ package org.springframework.security.config.annotation.method.configuration;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -58,6 +59,7 @@ import org.springframework.security.authorization.method.PrePostTemplateDefaults
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AnnotationTemplateExpressionDefaults;
 import org.springframework.security.test.context.annotation.SecurityTestExecutionListeners;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -71,6 +73,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -449,6 +452,20 @@ public class PrePostReactiveMethodSecurityConfigurationTests {
 					"postFilterAuthorizationMethodInterceptor", "authorizeReturnObjectMethodInterceptor");
 	}
 
+	// gh-15651
+	@Test
+	@WithMockUser(roles = "ADMIN")
+	public void adviseWhenPrePostEnabledThenEachInterceptorRunsExactlyOnce() {
+		this.spring
+			.register(MethodSecurityServiceEnabledConfig.class, CustomMethodSecurityExpressionHandlerConfig.class)
+			.autowire();
+		MethodSecurityExpressionHandler expressionHandler = this.spring.getContext()
+			.getBean(MethodSecurityExpressionHandler.class);
+		ReactiveMethodSecurityService service = this.spring.getContext().getBean(ReactiveMethodSecurityService.class);
+		service.manyAnnotations(Mono.just(new ArrayList<>(Arrays.asList("harold", "jonathan", "tim", "bo")))).block();
+		verify(expressionHandler, times(4)).createEvaluationContext(any(Authentication.class), any());
+	}
+
 	@Configuration
 	@EnableReactiveMethodSecurity
 	static class MethodSecurityServiceEnabledConfig {
@@ -456,6 +473,20 @@ public class PrePostReactiveMethodSecurityConfigurationTests {
 		@Bean
 		ReactiveMethodSecurityService methodSecurityService() {
 			return new ReactiveMethodSecurityServiceImpl();
+		}
+
+	}
+
+	@Configuration
+	@EnableReactiveMethodSecurity
+	static class CustomMethodSecurityExpressionHandlerConfig {
+
+		private final MethodSecurityExpressionHandler expressionHandler = spy(
+				new DefaultMethodSecurityExpressionHandler());
+
+		@Bean
+		MethodSecurityExpressionHandler methodSecurityExpressionHandler() {
+			return this.expressionHandler;
 		}
 
 	}
