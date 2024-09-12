@@ -5,7 +5,6 @@ pluginManagement {
 }
 
 plugins {
-	id "com.gradle.develocity" version "3.18"
 	id "io.spring.develocity.conventions" version "0.0.21"
 }
 
