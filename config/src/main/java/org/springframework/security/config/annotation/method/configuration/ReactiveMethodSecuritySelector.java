@@ -51,7 +51,7 @@ class ReactiveMethodSecuritySelector implements ImportSelector {
 		else {
 			imports.add(ReactiveMethodSecurityConfiguration.class.getName());
 		}
-		imports.add(ReactiveAuthorizationProxyConfiguration.class.getName());
+		imports.add(AuthorizationProxyConfiguration.class.getName());
 		return imports.toArray(new String[0]);
 	}
 
