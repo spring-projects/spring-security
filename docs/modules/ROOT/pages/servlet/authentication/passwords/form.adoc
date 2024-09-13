@@ -26,7 +26,7 @@ image:{icondir}/number_4.png[] The browser requests the login page to which it w
 image:{icondir}/number_5.png[] Something within the application, must <<servlet-authentication-form-custom,render the login page>>.
 
 [[servlet-authentication-usernamepasswordauthenticationfilter]]
-When the username and password are submitted, the `UsernamePasswordAuthenticationFilter` authenticates the username and password.
+When the username and password are submitted, the `UsernamePasswordAuthenticationFilter` creates a `UsernamePasswordAuthenticationToken` which is a type of https://docs.spring.io/spring-security/reference/servlet/authentication/architecture.html#servlet-authentication-authentication[Authentication], by extracting the username and password from the `HttpServletRequest` instance.
 The `UsernamePasswordAuthenticationFilter` extends xref:servlet/authentication/architecture.adoc#servlet-authentication-abstractprocessingfilter[AbstractAuthenticationProcessingFilter], so the following diagram should look pretty similar:
 
 .Authenticating Username and Password
