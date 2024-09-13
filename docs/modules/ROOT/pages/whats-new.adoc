@@ -52,8 +52,86 @@ This aids in migration from earlier versions of Spring Security.
 == OAuth 2.0
 
 * `oauth2Login()` now accepts https://github.com/spring-projects/spring-security/pull/15237[`OAuth2AuthorizationRequestResolver` as a `@Bean`]
+* Added `loginPage()` to DSL in reactive `oauth2Login()`
 * OIDC Back-Channel support now accepts https://github.com/spring-projects/spring-security/issues/15003[logout tokens of type `logout+jwt`]
 * `RestClient` can now be xref:servlet/oauth2/index.adoc#oauth2-client-access-protected-resources[configured] with `OAuth2ClientHttpRequestInterceptor` to xref:servlet/oauth2/index.adoc#oauth2-client-accessing-protected-resources-example[make protected resources requests]
+* Added `RestClient`-based implementations of `OAuth2AccessTokenResponseClient` for more consistent configuration of access token requests.
++
+To opt-in to using `RestClient` support, simply publish a bean for each grant type as in the following example:
++
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Configuration
+public class SecurityConfig {
+
+	@Bean
+	public OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> authorizationCodeAccessTokenResponseClient() {
+		return new RestClientAuthorizationCodeTokenResponseClient();
+	}
+
+	@Bean
+	public OAuth2AccessTokenResponseClient<OAuth2RefreshTokenGrantRequest> refreshTokenAccessTokenResponseClient() {
+		return new RestClientRefreshTokenTokenResponseClient();
+	}
+
+	@Bean
+	public OAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> clientCredentialsAccessTokenResponseClient() {
+		return new RestClientClientCredentialsTokenResponseClient();
+	}
+
+	@Bean
+	public OAuth2AccessTokenResponseClient<JwtBearerGrantRequest> jwtBearerAccessTokenResponseClient() {
+		return new RestClientJwtBearerTokenResponseClient();
+	}
+
+	@Bean
+	public OAuth2AccessTokenResponseClient<TokenExchangeGrantRequest> tokenExchangeAccessTokenResponseClient() {
+		return new RestClientTokenExchangeTokenResponseClient();
+	}
+
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Configuration
+class SecurityConfig {
+
+	@Bean
+	fun authorizationCodeAccessTokenResponseClient(): OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> {
+		return RestClientAuthorizationCodeTokenResponseClient()
+	}
+
+	@Bean
+	fun refreshTokenAccessTokenResponseClient(): OAuth2AccessTokenResponseClient<OAuth2RefreshTokenGrantRequest> {
+		return RestClientRefreshTokenTokenResponseClient()
+	}
+
+	@Bean
+	fun clientCredentialsAccessTokenResponseClient(): OAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> {
+		return RestClientClientCredentialsTokenResponseClient()
+	}
+
+	@Bean
+	fun jwtBearerAccessTokenResponseClient(): OAuth2AccessTokenResponseClient<JwtBearerGrantRequest> {
+		return RestClientJwtBearerTokenResponseClient()
+	}
+
+	@Bean
+	fun tokenExchangeAccessTokenResponseClient(): OAuth2AccessTokenResponseClient<TokenExchangeGrantRequest> {
+		return RestClientTokenExchangeTokenResponseClient()
+	}
+
+}
+----
+======
+* Deprecated `Default*` implementations of `OAuth2AccessTokenResponseClient`
 
 == SAML 2.0
 
