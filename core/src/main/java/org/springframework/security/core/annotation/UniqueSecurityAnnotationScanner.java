@@ -30,7 +30,6 @@ import org.springframework.core.annotation.AnnotationConfigurationException;
 import org.springframework.core.annotation.MergedAnnotation;
 import org.springframework.core.annotation.MergedAnnotations;
 import org.springframework.core.annotation.RepeatableContainers;
-import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 
 /**
@@ -84,16 +83,12 @@ import org.springframework.util.ClassUtils;
  */
 final class UniqueSecurityAnnotationScanner<A extends Annotation> extends AbstractSecurityAnnotationScanner<A> {
 
-	private final List<Class<A>> types;
-
 	UniqueSecurityAnnotationScanner(Class<A> type) {
-		Assert.notNull(type, "type cannot be null");
-		this.types = List.of(type);
+		this(List.of(type));
 	}
 
 	UniqueSecurityAnnotationScanner(List<Class<A>> types) {
-		Assert.notNull(types, "types cannot be null");
-		this.types = types;
+		super(types);
 	}
 
 	@Override

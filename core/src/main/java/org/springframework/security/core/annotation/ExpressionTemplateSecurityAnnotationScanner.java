@@ -22,6 +22,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -85,7 +86,7 @@ final class ExpressionTemplateSecurityAnnotationScanner<A extends Annotation>
 	private final Map<MethodClassKey, MergedAnnotation<A>> uniqueMethodAnnotationCache = new HashMap<>();
 
 	ExpressionTemplateSecurityAnnotationScanner(Class<A> type, AnnotationTemplateExpressionDefaults templateDefaults) {
-		Assert.notNull(type, "type cannot be null");
+		super(List.of(type));
 		Assert.notNull(templateDefaults, "templateDefaults cannot be null");
 		this.type = type;
 		this.unique = new UniqueSecurityAnnotationScanner<>(type);

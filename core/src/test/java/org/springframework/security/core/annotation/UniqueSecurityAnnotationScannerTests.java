@@ -16,6 +16,10 @@
 
 package org.springframework.security.core.annotation;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 
 import org.junit.jupiter.api.Test;
@@ -249,6 +253,30 @@ public class UniqueSecurityAnnotationScannerTests {
 		Class<?> targetClass = ClassInheritingAbstractClassNoAnnotations.class;
 		PreAuthorize preAuthorize = this.scanner.scan(method, targetClass);
 		assertThat(preAuthorize).isNull();
+	}
+
+	@Test
+	void cachedMergedAnnotation() throws Exception {
+		Method method = CacheAnnotationOnInterface.class.getMethod("method");
+		PreAuthorize preAuthorize = this.scanner.scan(method, method.getDeclaringClass());
+		PreAuthorize preAuthorize2 = this.scanner.scan(method, method.getDeclaringClass());
+		assertThat(preAuthorize).isEqualTo(preAuthorize2);
+	}
+
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target(ElementType.TYPE)
+	@PreAuthorize("hasRole('admin')")
+	public @interface MyPreAuthorize {
+
+		String value();
+
+	}
+
+	@MyPreAuthorize("one")
+	private interface CacheAnnotationOnInterface {
+
+		String method();
+
 	}
 
 	@PreAuthorize("one")
