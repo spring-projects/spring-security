@@ -6,7 +6,7 @@ Below are the highlights of the release, or you can view https://github.com/spri
 
 == Method Security
 
-* All xref:servlet/authorization/method-security.adoc#using_metannotation-method-interceptors[method security annotations] now support {spring-framework-api-url}org/springframework/core/annotation/AliasFor.html[Framework's `@AliasFor`]
+* All xref:servlet/authorization/method-security.adoc#meta-annotations[method security annotations] now support {spring-framework-api-url}org/springframework/core/annotation/AliasFor.html[Framework's `@AliasFor`]
 * `@AuthenticationPrincipal` and `@CurrentSecurityContext` now support xref:servlet/authorization/method-security.adoc#_templating_meta_annotation_expressions[annotation templates].
 +
 This means that you can now use Spring's meta-annotation support like so:
@@ -169,7 +169,7 @@ fun api(val http: HttpSecurity): SecurityFilterChain {
 			// ...
 		}
 	}
-    return http.build();
+    return http.build()
 }
 
 @Bean 
@@ -181,7 +181,7 @@ fun app(val http: HttpSecurity): SecurityFilterChain {
 			// ...
 		}
 	}
-    return http.build();
+    return http.build()
 }
 ----
 ======

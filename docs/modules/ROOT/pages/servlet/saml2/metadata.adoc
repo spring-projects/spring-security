@@ -32,7 +32,7 @@ val openSamlEntityDescriptor: EntityDescriptor = details.getEntityDescriptor()
 ----
 ======
 
-[using-assertingpartymetadatarepository]
+[[using-assertingpartymetadatarepository]]
 === Using `AssertingPartyMetadataRepository`
 
 You can also be more targeted than `RelyingPartyRegistrations` by using `AssertingPartyMetadataRepository`, an interface that allows for only retrieving the asserting party metadata.
