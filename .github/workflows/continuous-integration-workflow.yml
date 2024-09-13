@@ -63,7 +63,7 @@ jobs:
           samples_branch=$(cat gradle.properties | grep "samplesBranch=" | awk -F'=' '{print $2}')
           ./gradlew publishMavenJavaPublicationToLocalRepository
           ./gradlew cloneRepository -PrepositoryName="spring-projects/spring-security-samples" -Pref="$samples_branch" -PcloneOutputDirectory="$SAMPLES_DIR"
-          ./gradlew --refresh-dependencies --project-dir "$SAMPLES_DIR" --init-script spring-security-ci.gradle -PlocalRepositoryPath="$LOCAL_REPOSITORY_PATH" -PspringSecurityVersion="$version" check
+          ./gradlew --refresh-dependencies --project-dir "$SAMPLES_DIR" --init-script spring-security-ci.gradle -PlocalRepositoryPath="$LOCAL_REPOSITORY_PATH" -PspringSecurityVersion="$version" test integrationTest
   check-tangles:
     name: Check for Package Tangles
     runs-on: ubuntu-latest
