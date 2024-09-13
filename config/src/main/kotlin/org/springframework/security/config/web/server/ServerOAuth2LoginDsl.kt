@@ -19,6 +19,7 @@ package org.springframework.security.config.web.server
 import org.springframework.security.authentication.ReactiveAuthenticationManager
 import org.springframework.security.core.Authentication
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientService
+import org.springframework.security.oauth2.client.oidc.server.session.ReactiveOidcSessionRegistry
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository
 import org.springframework.security.oauth2.client.web.server.ServerAuthorizationRequestRepository
 import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizationRequestResolver
@@ -70,6 +71,7 @@ class ServerOAuth2LoginDsl {
     var authorizationRedirectStrategy: ServerRedirectStrategy? = null
     var authenticationMatcher: ServerWebExchangeMatcher? = null
     var loginPage: String? = null
+    var oidcSessionRegistry: ReactiveOidcSessionRegistry? = null
 
     internal fun get(): (ServerHttpSecurity.OAuth2LoginSpec) -> Unit {
         return { oauth2Login ->
@@ -86,6 +88,7 @@ class ServerOAuth2LoginDsl {
             authorizationRedirectStrategy?.also { oauth2Login.authorizationRedirectStrategy(authorizationRedirectStrategy) }
             authenticationMatcher?.also { oauth2Login.authenticationMatcher(authenticationMatcher) }
             loginPage?.also { oauth2Login.loginPage(loginPage) }
+            oidcSessionRegistry?.also { oauth2Login.oidcSessionRegistry(oidcSessionRegistry) }
         }
     }
 }
