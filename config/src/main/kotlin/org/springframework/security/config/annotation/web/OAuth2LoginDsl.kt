@@ -16,19 +16,20 @@
 
 package org.springframework.security.config.annotation.web
 
+import jakarta.servlet.http.HttpServletRequest
 import org.springframework.security.authentication.AuthenticationDetailsSource
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
+import org.springframework.security.config.annotation.web.configurers.oauth2.client.OAuth2LoginConfigurer
 import org.springframework.security.config.annotation.web.oauth2.login.AuthorizationEndpointDsl
 import org.springframework.security.config.annotation.web.oauth2.login.RedirectionEndpointDsl
 import org.springframework.security.config.annotation.web.oauth2.login.TokenEndpointDsl
 import org.springframework.security.config.annotation.web.oauth2.login.UserInfoEndpointDsl
-import org.springframework.security.config.annotation.web.configurers.oauth2.client.OAuth2LoginConfigurer
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService
+import org.springframework.security.oauth2.client.oidc.session.OidcSessionRegistry
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository
 import org.springframework.security.web.authentication.AuthenticationFailureHandler
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler
-import jakarta.servlet.http.HttpServletRequest
 
 /**
  * A Kotlin DSL to configure [HttpSecurity] OAuth 2.0 login using idiomatic Kotlin code.
@@ -61,6 +62,7 @@ class OAuth2LoginDsl {
     var loginProcessingUrl: String? = null
     var permitAll: Boolean? = null
     var authenticationDetailsSource: AuthenticationDetailsSource<HttpServletRequest, *>? = null
+    var oidcSessionRegistry: OidcSessionRegistry? = null
 
     private var defaultSuccessUrlOption: Pair<String, Boolean>? = null
     private var authorizationEndpoint: ((OAuth2LoginConfigurer<HttpSecurity>.AuthorizationEndpointConfig) -> Unit)? = null
@@ -236,6 +238,7 @@ class OAuth2LoginDsl {
             redirectionEndpoint?.also { oauth2Login.redirectionEndpoint(redirectionEndpoint) }
             userInfoEndpoint?.also { oauth2Login.userInfoEndpoint(userInfoEndpoint) }
             authenticationDetailsSource?.also { oauth2Login.authenticationDetailsSource(authenticationDetailsSource) }
+            oidcSessionRegistry?.also { oauth2Login.oidcSessionRegistry(oidcSessionRegistry) }
         }
     }
 }
