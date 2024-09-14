@@ -446,6 +446,38 @@ public class RestClientAuthorizationCodeTokenResponseClientTests {
 	}
 
 	@Test
+	public void getTokenResponseWhenParametersConverterSetThenAbleToOverrideDefaultParameters() throws Exception {
+		this.clientRegistration.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST);
+		// @formatter:off
+		String accessTokenSuccessResponse = "{\n"
+				+ "   \"access_token\": \"access-token-1234\",\n"
+				+ "   \"token_type\": \"bearer\",\n"
+				+ "   \"expires_in\": \"3600\"\n"
+				+ "}\n";
+		// @formatter:on
+		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+		ClientRegistration clientRegistration = this.clientRegistration.build();
+		OAuth2AuthorizationCodeGrantRequest grantRequest = new OAuth2AuthorizationCodeGrantRequest(clientRegistration,
+				this.authorizationExchange);
+		MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
+		parameters.set(OAuth2ParameterNames.GRANT_TYPE, "custom");
+		parameters.set(OAuth2ParameterNames.CODE, "custom-code");
+		parameters.set(OAuth2ParameterNames.REDIRECT_URI, "custom-uri");
+		// The client_id parameter is omitted for testing purposes
+		this.tokenResponseClient.setParametersConverter((authorizationGrantRequest) -> parameters);
+		this.tokenResponseClient.getTokenResponse(grantRequest);
+		RecordedRequest recordedRequest = this.server.takeRequest();
+		String formParameters = recordedRequest.getBody().readUtf8();
+		// @formatter:off
+		assertThat(formParameters).contains(
+				param(OAuth2ParameterNames.GRANT_TYPE, "custom"),
+				param(OAuth2ParameterNames.CODE, "custom-code"),
+				param(OAuth2ParameterNames.REDIRECT_URI, "custom-uri"));
+		// @formatter:on
+		assertThat(formParameters).doesNotContain(OAuth2ParameterNames.CLIENT_ID);
+	}
+
+	@Test
 	public void getTokenResponseWhenParametersConverterAddedThenCalled() throws Exception {
 		// @formatter:off
 		String accessTokenSuccessResponse = "{\n"
