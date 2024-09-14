@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.oauth2.client.web.function.client;
+package org.springframework.security.oauth2.client.web.client;
 
 import java.util.List;
 import java.util.Map;
@@ -55,8 +55,6 @@ import org.springframework.security.oauth2.client.authentication.OAuth2Authentic
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
-import org.springframework.security.oauth2.client.web.client.OAuth2ClientHttpRequestInterceptor;
-import org.springframework.security.oauth2.client.web.client.RequestAttributeClientRegistrationIdResolver;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
@@ -606,7 +604,7 @@ public class OAuth2ClientHttpRequestInterceptorTests {
 	}
 
 	@Test
-	public void interceptWhenClientRegistrationIdResolverSetThenUsed() {
+	public void interceptWhenCustomClientRegistrationIdResolverSetThenUsed() {
 		this.requestInterceptor = new OAuth2ClientHttpRequestInterceptor(this.authorizedClientManager,
 				this.clientRegistrationIdResolver);
 		this.requestInterceptor.setAuthorizationFailureHandler(this.authorizationFailureHandler);
@@ -651,7 +649,7 @@ public class OAuth2ClientHttpRequestInterceptorTests {
 		this.server.verify();
 		verify(this.authorizedClientManager).authorize(this.authorizeRequestCaptor.capture());
 		verify(this.securityContextHolderStrategy).getContext();
-		verifyNoMoreInteractions(this.authorizedClientManager);
+		verifyNoMoreInteractions(this.authorizedClientManager, this.securityContextHolderStrategy);
 		OAuth2AuthorizeRequest authorizeRequest = this.authorizeRequestCaptor.getValue();
 		assertThat(authorizeRequest.getClientRegistrationId()).isEqualTo(this.clientRegistration.getRegistrationId());
 		assertThat(authorizeRequest.getPrincipal()).isEqualTo(this.principal);
