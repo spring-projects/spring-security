@@ -5496,7 +5496,7 @@ public class ServerHttpSecurity {
 
 		private ReactiveOidcSessionRegistry getSessionRegistry() {
 			if (this.sessionRegistry == null && ServerHttpSecurity.this.oauth2Login == null) {
-				return new InMemoryReactiveOidcSessionRegistry();
+				return getBeanOrDefault(ReactiveOidcSessionRegistry.class, new InMemoryReactiveOidcSessionRegistry());
 			}
 			if (this.sessionRegistry == null) {
 				return ServerHttpSecurity.this.oauth2Login.oidcSessionRegistry;

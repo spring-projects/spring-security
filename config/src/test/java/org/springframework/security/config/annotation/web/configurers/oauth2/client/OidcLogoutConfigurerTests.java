@@ -396,26 +396,19 @@ public class OidcLogoutConfigurerTests {
 	@Import(RegistrationConfig.class)
 	static class SelfLogoutUriConfig {
 
-		private final OidcSessionRegistry sessionRegistry = new InMemoryOidcSessionRegistry();
-
 		@Bean
 		@Order(1)
 		SecurityFilterChain filters(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated())
-				.oauth2Login((oauth2) -> oauth2.oidcSessionRegistry(this.sessionRegistry))
+				.oauth2Login(Customizer.withDefaults())
 				.oidcLogout((oidc) -> oidc
 					.backChannel(Customizer.withDefaults())
 				);
 			// @formatter:on
 
 			return http.build();
-		}
-
-		@Bean
-		OidcBackChannelLogoutHandler oidcLogoutHandler() {
-			return new OidcBackChannelLogoutHandler(this.sessionRegistry);
 		}
 
 	}
@@ -427,15 +420,13 @@ public class OidcLogoutConfigurerTests {
 
 		private final MockWebServer server = new MockWebServer();
 
-		private final OidcSessionRegistry sessionRegistry = new InMemoryOidcSessionRegistry();
-
 		@Bean
 		@Order(1)
 		SecurityFilterChain filters(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated())
-				.oauth2Login((oauth2) -> oauth2.oidcSessionRegistry(this.sessionRegistry))
+				.oauth2Login(Customizer.withDefaults())
 				.oidcLogout((oidc) -> oidc
 					.backChannel(Customizer.withDefaults())
 				);
@@ -445,8 +436,13 @@ public class OidcLogoutConfigurerTests {
 		}
 
 		@Bean
-		OidcBackChannelLogoutHandler oidcLogoutHandler() {
-			OidcBackChannelLogoutHandler logoutHandler = new OidcBackChannelLogoutHandler(this.sessionRegistry);
+		OidcSessionRegistry sessionRegistry() {
+			return new InMemoryOidcSessionRegistry();
+		}
+
+		@Bean
+		OidcBackChannelLogoutHandler oidcLogoutHandler(OidcSessionRegistry sessionRegistry) {
+			OidcBackChannelLogoutHandler logoutHandler = new OidcBackChannelLogoutHandler(sessionRegistry);
 			logoutHandler.setSessionCookieName("SESSION");
 			return logoutHandler;
 		}
@@ -485,7 +481,7 @@ public class OidcLogoutConfigurerTests {
 			// @formatter:off
 			http
 				.authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated())
-				.oauth2Login((oauth2) -> oauth2.oidcSessionRegistry(this.sessionRegistry))
+				.oauth2Login(Customizer.withDefaults())
 				.oidcLogout((oidc) -> oidc.backChannel(Customizer.withDefaults()));
 			// @formatter:on
 
