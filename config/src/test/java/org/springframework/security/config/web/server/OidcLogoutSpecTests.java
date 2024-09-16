@@ -519,8 +519,6 @@ public class OidcLogoutSpecTests {
 	@Import(RegistrationConfig.class)
 	static class CookieConfig {
 
-		private final ReactiveOidcSessionRegistry sessionRegistry = new InMemoryReactiveOidcSessionRegistry();
-
 		private final MockWebServer server = new MockWebServer();
 
 		@Bean
@@ -529,7 +527,7 @@ public class OidcLogoutSpecTests {
 			// @formatter:off
 			http
 				.authorizeExchange((authorize) -> authorize.anyExchange().authenticated())
-				.oauth2Login((oauth2) -> oauth2.oidcSessionRegistry(this.sessionRegistry))
+				.oauth2Login(Customizer.withDefaults())
 				.oidcLogout((oidc) -> oidc
 					.backChannel(Customizer.withDefaults())
 				);
@@ -539,9 +537,13 @@ public class OidcLogoutSpecTests {
 		}
 
 		@Bean
-		OidcBackChannelServerLogoutHandler oidcLogoutHandler() {
-			OidcBackChannelServerLogoutHandler logoutHandler = new OidcBackChannelServerLogoutHandler(
-					this.sessionRegistry);
+		ReactiveOidcSessionRegistry oidcSessionRegistry() {
+			return new InMemoryReactiveOidcSessionRegistry();
+		}
+
+		@Bean
+		OidcBackChannelServerLogoutHandler oidcLogoutHandler(ReactiveOidcSessionRegistry sessionRegistry) {
+			OidcBackChannelServerLogoutHandler logoutHandler = new OidcBackChannelServerLogoutHandler(sessionRegistry);
 			logoutHandler.setSessionCookieName("JSESSIONID");
 			return logoutHandler;
 		}
@@ -580,7 +582,7 @@ public class OidcLogoutSpecTests {
 		// @formatter:off
 			http
 					.authorizeExchange((authorize) -> authorize.anyExchange().authenticated())
-					.oauth2Login((oauth2) -> oauth2.oidcSessionRegistry(this.sessionRegistry))
+					.oauth2Login(Customizer.withDefaults())
 					.oidcLogout((oidc) -> oidc.backChannel(Customizer.withDefaults()));
 			// @formatter:on
 
