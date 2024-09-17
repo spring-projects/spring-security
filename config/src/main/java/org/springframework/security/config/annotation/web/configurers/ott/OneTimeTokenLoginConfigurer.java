@@ -133,8 +133,8 @@ public final class OneTimeTokenLoginConfigurer<H extends HttpSecurityBuilder<H>>
 	}
 
 	private void configureOttGenerateFilter(H http) {
-		GenerateOneTimeTokenFilter generateFilter = new GenerateOneTimeTokenFilter(getOneTimeTokenService(http));
-		generateFilter.setGeneratedOneTimeTokenHandler(getGeneratedOneTimeTokenHandler(http));
+		GenerateOneTimeTokenFilter generateFilter = new GenerateOneTimeTokenFilter(getOneTimeTokenService(http),
+				getGeneratedOneTimeTokenHandler(http));
 		generateFilter.setRequestMatcher(antMatcher(HttpMethod.POST, this.generateTokenUrl));
 		http.addFilter(postProcess(generateFilter));
 		http.addFilter(DefaultResourcesFilter.css());
