@@ -32,6 +32,9 @@ import org.springframework.security.oauth2.server.resource.authentication.Bearer
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED;
+import static org.springframework.mock.http.server.reactive.MockServerHttpRequest.post;
 
 /**
  * @author Rob Winch
@@ -217,6 +220,107 @@ public class ServerBearerTokenAuthenticationConverterTests {
 				assertThat(error.getHttpStatus()).isEqualTo(HttpStatus.BAD_REQUEST);
 			});
 
+	}
+
+	@Test
+	void resolveWhenBodyParameterIsPresentThenTokenIsResolved() {
+		this.converter.setAllowFormEncodedBodyParameter(true);
+		MockServerHttpRequest request = post("/").contentType(APPLICATION_FORM_URLENCODED)
+												 .body("access_token=" + TEST_TOKEN);
+
+		assertThat(convertToToken(request).getToken()).isEqualTo(TEST_TOKEN);
+	}
+
+
+	@Test
+	void resolveWhenBodyParameterIsPresentButNotAllowedThenTokenIsNotResolved() {
+		this.converter.setAllowFormEncodedBodyParameter(false);
+		MockServerHttpRequest request = post("/").contentType(APPLICATION_FORM_URLENCODED)
+												 .body("access_token=" + TEST_TOKEN);
+
+		assertThat(convertToToken(request)).isNull();
+	}
+
+	@Test
+	void resolveWhenBodyParameterHasMultipleAccessTokensThenOAuth2AuthenticationException() {
+		this.converter.setAllowFormEncodedBodyParameter(true);
+		MockServerHttpRequest request = post("/").contentType(APPLICATION_FORM_URLENCODED)
+												 .body("access_token=" + TEST_TOKEN + "&access_token=" + TEST_TOKEN);
+
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+				.isThrownBy(() -> convertToToken(request))
+				.satisfies(ex -> {
+					BearerTokenError error = (BearerTokenError) ex.getError();
+					assertThat(error.getDescription()).isEqualTo("Found multiple bearer tokens in the request");
+					assertThat(error.getErrorCode()).isEqualTo(BearerTokenErrorCodes.INVALID_REQUEST);
+					assertThat(error.getUri()).isEqualTo("https://tools.ietf.org/html/rfc6750#section-3.1");
+					assertThat(error.getHttpStatus()).isEqualTo(HttpStatus.BAD_REQUEST);
+				});
+	}
+
+	@Test
+	void resolveBodyContainsOtherParameterAsWellThenTokenIsResolved() {
+		this.converter.setAllowFormEncodedBodyParameter(true);
+		MockServerHttpRequest request = post("/").contentType(APPLICATION_FORM_URLENCODED)
+												 .body("access_token=" + TEST_TOKEN + "&other_param=value");
+
+		assertThat(convertToToken(request).getToken()).isEqualTo(TEST_TOKEN);
+	}
+
+	@Test
+	void resolveWhenNoBodyParameterThenTokenIsNotResolved() {
+		this.converter.setAllowFormEncodedBodyParameter(true);
+		MockServerHttpRequest.BaseBuilder<?> request = post("/").contentType(APPLICATION_FORM_URLENCODED);
+
+		assertThat(convertToToken(request)).isNull();
+	}
+
+	@Test
+	void resolveWhenWrongBodyParameterThenTokenIsNotResolved() {
+		this.converter.setAllowFormEncodedBodyParameter(true);
+		MockServerHttpRequest request = post("/").contentType(APPLICATION_FORM_URLENCODED)
+												 .body("other_param=value");
+
+		assertThat(convertToToken(request)).isNull();
+	}
+
+	@Test
+	void resolveWhenValidHeaderIsPresentTogetherWithBodyParameterThenAuthenticationExceptionIsThrown() {
+		this.converter.setAllowFormEncodedBodyParameter(true);
+		MockServerHttpRequest request = post("/").header(AUTHORIZATION, "Bearer " + TEST_TOKEN)
+												 .contentType(APPLICATION_FORM_URLENCODED)
+												 .body("access_token=" + TEST_TOKEN);
+
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+				.isThrownBy(() -> convertToToken(request))
+				.withMessageContaining("Found multiple bearer tokens in the request");
+	}
+
+	@Test
+	void resolveWhenValidQueryParameterIsPresentTogetherWithBodyParameterThenAuthenticationExceptionIsThrown() {
+		this.converter.setAllowUriQueryParameter(true);
+		this.converter.setAllowFormEncodedBodyParameter(true);
+		MockServerHttpRequest request = post("/").queryParam("access_token", TEST_TOKEN)
+												 .contentType(APPLICATION_FORM_URLENCODED)
+												 .body("access_token=" + TEST_TOKEN);
+
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+				.isThrownBy(() -> convertToToken(request))
+				.withMessageContaining("Found multiple bearer tokens in the request");
+	}
+
+	@Test
+	void resolveWhenValidQueryParameterIsPresentTogetherWithBodyParameterAndValidHeaderThenAuthenticationExceptionIsThrown() {
+		this.converter.setAllowUriQueryParameter(true);
+		this.converter.setAllowFormEncodedBodyParameter(true);
+		MockServerHttpRequest request = post("/").header(AUTHORIZATION, "Bearer " + TEST_TOKEN)
+												 .queryParam("access_token", TEST_TOKEN)
+												 .contentType(APPLICATION_FORM_URLENCODED)
+												 .body("access_token=" + TEST_TOKEN);
+
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+				.isThrownBy(() -> convertToToken(request))
+				.withMessageContaining("Found multiple bearer tokens in the request");
 	}
 
 	// gh-16038
