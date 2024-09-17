@@ -180,10 +180,6 @@ public class ServerBearerTokenAuthenticationConverter implements ServerAuthentic
 				if (formData.isEmpty()) {
 					return null;
 				}
-				if (formData.size() > 1) {
-					var error = invalidRequest("The HTTP request entity-body is not single-part");
-					throw new OAuth2AuthenticationException(error);
-				}
 				final var tokens = formData.get(ACCESS_TOKEN_NAME);
 				if (tokens == null) {
 					return null;

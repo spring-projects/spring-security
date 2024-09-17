@@ -256,20 +256,12 @@ public class ServerBearerTokenAuthenticationConverterTests {
 	}
 
 	@Test
-	void resolveWhenBodyParameterIsNotSinglePartThenOAuth2AuthenticationException() {
+	void resolveBodyContainsOtherParameterAsWellThenTokenIsResolved() {
 		this.converter.setAllowFormEncodedBodyParameter(true);
 		var request = post("/").contentType(APPLICATION_FORM_URLENCODED)
 							   .body("access_token=" + TEST_TOKEN + "&other_param=value");
 
-		assertThatExceptionOfType(OAuth2AuthenticationException.class)
-				.isThrownBy(() -> convertToToken(request))
-				.satisfies(ex -> {
-					BearerTokenError error = (BearerTokenError) ex.getError();
-					assertThat(error.getDescription()).isEqualTo("The HTTP request entity-body is not single-part");
-					assertThat(error.getErrorCode()).isEqualTo(BearerTokenErrorCodes.INVALID_REQUEST);
-					assertThat(error.getUri()).isEqualTo("https://tools.ietf.org/html/rfc6750#section-3.1");
-					assertThat(error.getHttpStatus()).isEqualTo(HttpStatus.BAD_REQUEST);
-				});
+		assertThat(convertToToken(request).getToken()).isEqualTo(TEST_TOKEN);
 	}
 
 	@Test
