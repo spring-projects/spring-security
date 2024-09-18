@@ -85,12 +85,14 @@ import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.willThrow;
@@ -448,6 +450,9 @@ public class OidcLogoutConfigurerTests {
 		@Autowired
 		ClientRegistration registration;
 
+		@Autowired(required = false)
+		MockWebServer web;
+
 		@Bean
 		@Order(0)
 		SecurityFilterChain authorizationServer(HttpSecurity http, ClientRegistration registration) throws Exception {
@@ -484,7 +489,7 @@ public class OidcLogoutConfigurerTests {
 			HttpSession session = request.getSession();
 			JwtEncoderParameters parameters = JwtEncoderParameters
 					.from(JwtClaimsSet.builder().id("id").subject(this.username)
-							.issuer(this.registration.getProviderDetails().getIssuerUri()).issuedAt(Instant.now())
+							.issuer(getIssuerUri()).issuedAt(Instant.now())
 							.expiresAt(Instant.now().plusSeconds(86400)).claim("scope", "openid").build());
 			String token = this.encoder.encode(parameters).getTokenValue();
 			return new OIDCTokens(idToken(session.getId()), new BearerAccessToken(token, 86400, new Scope("openid")), null)
@@ -492,13 +497,20 @@ public class OidcLogoutConfigurerTests {
 		}
 
 		String idToken(String sessionId) {
-			OidcIdToken token = TestOidcIdTokens.idToken().issuer(this.registration.getProviderDetails().getIssuerUri())
+			OidcIdToken token = TestOidcIdTokens.idToken().issuer(getIssuerUri())
 					.subject(this.username).expiresAt(Instant.now().plusSeconds(86400))
 					.audience(List.of(this.registration.getClientId())).nonce(this.nonce)
 					.claim(LogoutTokenClaimNames.SID, sessionId).build();
 			JwtEncoderParameters parameters = JwtEncoderParameters
 					.from(JwtClaimsSet.builder().claims((claims) -> claims.putAll(token.getClaims())).build());
 			return this.encoder.encode(parameters).getTokenValue();
+		}
+
+		private String getIssuerUri() {
+			if (this.web == null) {
+				return TestClientRegistrations.clientRegistration().build().getProviderDetails().getIssuerUri();
+			}
+			return this.web.url("/").toString();
 		}
 
 		@GetMapping("/user")
@@ -634,6 +646,71 @@ public class OidcLogoutConfigurerTests {
 			catch (Exception ex) {
 				throw new RuntimeException(ex);
 			}
+		}
+
+	}
+
+	@Test
+	void logoutWhenProviderIssuerMissingThenThrowIllegalArgumentException() throws Exception {
+		this.spring.register(WebServerConfig.class, OidcProviderConfig.class, ProviderIssuerMissingConfig.class).autowire();
+		String registrationId = this.clientRegistration.getRegistrationId();
+		MockHttpSession session = login();
+		String logoutToken = this.mvc.perform(get("/token/logout").session(session))
+				.andExpect(status().isOk())
+				.andReturn()
+				.getResponse()
+				.getContentAsString();
+		assertThatIllegalArgumentException().isThrownBy(() -> {
+			this.mvc
+					.perform(post(this.web.url("/logout/connect/back-channel/" + registrationId).toString())
+							.param("logout_token", logoutToken));
+		});
+	}
+
+	@Configuration
+	static class ProviderIssuerMissingRegistrationConfig {
+
+		@Autowired(required = false)
+		MockWebServer web;
+
+		@Bean
+		ClientRegistration clientRegistration() {
+			if (this.web == null) {
+				return TestClientRegistrations.clientRegistration().issuerUri(null).build();
+			}
+			String issuer = this.web.url("/").toString();
+			return TestClientRegistrations.clientRegistration()
+					.issuerUri(null)
+					.jwkSetUri(issuer + "jwks")
+					.tokenUri(issuer + "token")
+					.userInfoUri(issuer + "user")
+					.scope("openid")
+					.build();
+		}
+
+		@Bean
+		ClientRegistrationRepository clientRegistrationRepository(ClientRegistration clientRegistration) {
+			return new InMemoryClientRegistrationRepository(clientRegistration);
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	@Import(ProviderIssuerMissingRegistrationConfig.class)
+	static class ProviderIssuerMissingConfig {
+
+		@Bean
+		@Order(1)
+		SecurityFilterChain filters(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+					.authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated())
+					.oauth2Login(Customizer.withDefaults())
+					.oidcLogout((oidc) -> oidc.backChannel(Customizer.withDefaults()));
+			// @formatter:on
+
+			return http.build();
 		}
 
 	}
