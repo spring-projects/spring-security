@@ -101,7 +101,7 @@ The `AuthorizationManager` interface contains two methods:
 ----
 AuthorizationDecision check(Supplier<Authentication> authentication, Object secureObject);
 
-default AuthorizationDecision verify(Supplier<Authentication> authentication, Object secureObject)
+default void verify(Supplier<Authentication> authentication, Object secureObject)
         throws AccessDeniedException {
     // ...
 }
