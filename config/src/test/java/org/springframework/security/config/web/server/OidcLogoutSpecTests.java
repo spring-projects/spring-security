@@ -86,6 +86,7 @@ import org.springframework.security.web.server.util.matcher.ServerWebExchangeMat
 import org.springframework.test.web.reactive.server.FluxExchangeResult;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.test.web.reactive.server.WebTestClientConfigurer;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -537,6 +538,9 @@ public class OidcLogoutSpecTests {
 		@Autowired
 		ClientRegistration registration;
 
+		@Autowired(required = false)
+		MockWebServer web;
+
 		static ServerWebExchangeMatcher or(String... patterns) {
 			List<ServerWebExchangeMatcher> matchers = new ArrayList<>();
 			for (String pattern : patterns) {
@@ -581,7 +585,7 @@ public class OidcLogoutSpecTests {
 		Map<String, Object> accessToken(WebSession session) {
 			JwtEncoderParameters parameters = JwtEncoderParameters
 					.from(JwtClaimsSet.builder().id("id").subject(this.username)
-							.issuer(this.registration.getProviderDetails().getIssuerUri()).issuedAt(Instant.now())
+							.issuer(getIssuerUri()).issuedAt(Instant.now())
 							.expiresAt(Instant.now().plusSeconds(86400)).claim("scope", "openid").build());
 			String token = this.encoder.encode(parameters).getTokenValue();
 			return new OIDCTokens(idToken(session.getId()), new BearerAccessToken(token, 86400, new Scope("openid")), null)
@@ -589,13 +593,20 @@ public class OidcLogoutSpecTests {
 		}
 
 		String idToken(String sessionId) {
-			OidcIdToken token = TestOidcIdTokens.idToken().issuer(this.registration.getProviderDetails().getIssuerUri())
+			OidcIdToken token = TestOidcIdTokens.idToken().issuer(getIssuerUri())
 					.subject(this.username).expiresAt(Instant.now().plusSeconds(86400))
 					.audience(List.of(this.registration.getClientId())).nonce(this.nonce)
 					.claim(LogoutTokenClaimNames.SID, sessionId).build();
 			JwtEncoderParameters parameters = JwtEncoderParameters
 					.from(JwtClaimsSet.builder().claims((claims) -> claims.putAll(token.getClaims())).build());
 			return this.encoder.encode(parameters).getTokenValue();
+		}
+
+		private String getIssuerUri() {
+			if (this.web == null) {
+				return TestClientRegistrations.clientRegistration().build().getProviderDetails().getIssuerUri();
+			}
+			return this.web.url("/").toString();
 		}
 
 		@GetMapping("/user")
@@ -726,6 +737,77 @@ public class OidcLogoutSpecTests {
 				response.setBody(body);
 			}
 			return response;
+		}
+
+	}
+
+	@Test
+	void logoutWhenProviderIssuerMissingThen5xxServerError() {
+		this.spring.register(WebServerConfig.class, OidcProviderConfig.class, ProviderIssuerMissingConfig.class).autowire();
+		String registrationId = this.clientRegistration.getRegistrationId();
+		String session = login();
+		String logoutToken = this.test.mutateWith(session(session))
+				.get()
+				.uri("/token/logout")
+				.exchange()
+				.expectStatus()
+				.isOk()
+				.returnResult(String.class)
+				.getResponseBody()
+				.blockFirst();
+		this.test.post()
+				.uri(this.web.url("/logout/connect/back-channel/" + registrationId).toString())
+				.body(BodyInserters.fromFormData("logout_token", logoutToken))
+				.exchange()
+				.expectStatus()
+				.is5xxServerError();
+		this.test.mutateWith(session(session)).get().uri("/token/logout").exchange().expectStatus().isOk();
+	}
+
+	@Configuration
+	static class ProviderIssuerMissingRegistrationConfig {
+
+		@Autowired(required = false)
+		MockWebServer web;
+
+		@Bean
+		ClientRegistration clientRegistration() {
+			if (this.web == null) {
+				return TestClientRegistrations.clientRegistration().issuerUri(null).build();
+			}
+			String issuer = this.web.url("/").toString();
+			return TestClientRegistrations.clientRegistration()
+					.issuerUri(null)
+					.jwkSetUri(issuer + "jwks")
+					.tokenUri(issuer + "token")
+					.userInfoUri(issuer + "user")
+					.scope("openid")
+					.build();
+		}
+
+		@Bean
+		ReactiveClientRegistrationRepository clientRegistrationRepository(ClientRegistration clientRegistration) {
+			return new InMemoryReactiveClientRegistrationRepository(clientRegistration);
+		}
+
+	}
+
+	@Configuration
+	@EnableWebFluxSecurity
+	@Import(ProviderIssuerMissingRegistrationConfig.class)
+	static class ProviderIssuerMissingConfig {
+
+		@Bean
+		@Order(1)
+		SecurityWebFilterChain filters(ServerHttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+					.authorizeExchange((authorize) -> authorize.anyExchange().authenticated())
+					.oauth2Login(Customizer.withDefaults())
+					.oidcLogout((oidc) -> oidc.backChannel(Customizer.withDefaults()));
+			// @formatter:on
+
+			return http.build();
 		}
 
 	}
