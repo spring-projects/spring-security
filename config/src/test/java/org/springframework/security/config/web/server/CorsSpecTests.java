@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.context.ApplicationContext;
-import org.springframework.core.ResolvableType;
+import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.test.web.reactive.server.WebTestClientBuilder;
 import org.springframework.test.web.reactive.server.FluxExchangeResult;
@@ -51,7 +51,6 @@ public class CorsSpecTests {
 	@Mock
 	private CorsConfigurationSource source;
 
-	@Mock
 	private ApplicationContext context;
 
 	ServerHttpSecurity http;
@@ -62,6 +61,8 @@ public class CorsSpecTests {
 
 	@BeforeEach
 	public void setup() {
+		this.context = new GenericApplicationContext();
+		((GenericApplicationContext) this.context).refresh();
 		this.http = new TestingServerHttpSecurity().applicationContext(this.context);
 	}
 
@@ -92,9 +93,7 @@ public class CorsSpecTests {
 	@Test
 	public void corsWhenCorsConfigurationSourceBeanThenAccessControlAllowOriginAndSecurityHeaders() {
 		givenGetCorsConfigurationWillReturnWildcard();
-		given(this.context.getBeanNamesForType(any(ResolvableType.class))).willReturn(new String[] { "source" },
-				new String[0]);
-		given(this.context.getBean("source")).willReturn(this.source);
+		((GenericApplicationContext) this.context).registerBean(CorsConfigurationSource.class, () -> this.source);
 		this.expectedHeaders.set("Access-Control-Allow-Origin", "*");
 		this.expectedHeaders.set("X-Frame-Options", "DENY");
 		assertHeaders();
@@ -102,7 +101,6 @@ public class CorsSpecTests {
 
 	@Test
 	public void corsWhenNoConfigurationSourceThenNoCorsHeaders() {
-		given(this.context.getBeanNamesForType(any(ResolvableType.class))).willReturn(new String[0]);
 		this.headerNamesNotPresent.add("Access-Control-Allow-Origin");
 		assertHeaders();
 	}
