@@ -34,8 +34,6 @@ import org.springframework.lang.Nullable;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.oauth2.client.ClientAuthorizationException;
 import org.springframework.security.oauth2.client.OAuth2AuthorizationFailureHandler;
 import org.springframework.security.oauth2.client.OAuth2AuthorizeRequest;
@@ -121,15 +119,14 @@ public final class OAuth2ClientHttpRequestInterceptor implements ClientHttpReque
 
 	private final OAuth2AuthorizedClientManager authorizedClientManager;
 
-	private final ClientRegistrationIdResolver clientRegistrationIdResolver;
+	private ClientRegistrationIdResolver clientRegistrationIdResolver = new RequestAttributeClientRegistrationIdResolver();
+
+	private PrincipalResolver principalResolver = new SecurityContextHolderPrincipalResolver();
 
 	// @formatter:off
 	private OAuth2AuthorizationFailureHandler authorizationFailureHandler =
 			(clientRegistrationId, principal, attributes) -> { };
 	// @formatter:on
-
-	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
-		.getContextHolderStrategy();
 
 	/**
 	 * Constructs a {@code OAuth2ClientHttpRequestInterceptor} using the provided
@@ -138,23 +135,8 @@ public final class OAuth2ClientHttpRequestInterceptor implements ClientHttpReque
 	 * manages the authorized client(s)
 	 */
 	public OAuth2ClientHttpRequestInterceptor(OAuth2AuthorizedClientManager authorizedClientManager) {
-		this(authorizedClientManager, new RequestAttributeClientRegistrationIdResolver());
-	}
-
-	/**
-	 * Constructs a {@code OAuth2ClientHttpRequestInterceptor} using the provided
-	 * parameters.
-	 * @param authorizedClientManager the {@link OAuth2AuthorizedClientManager} which
-	 * manages the authorized client(s)
-	 * @param clientRegistrationIdResolver the strategy for resolving a
-	 * {@code clientRegistrationId} from the intercepted request
-	 */
-	public OAuth2ClientHttpRequestInterceptor(OAuth2AuthorizedClientManager authorizedClientManager,
-			ClientRegistrationIdResolver clientRegistrationIdResolver) {
 		Assert.notNull(authorizedClientManager, "authorizedClientManager cannot be null");
-		Assert.notNull(clientRegistrationIdResolver, "clientRegistrationIdResolver cannot be null");
 		this.authorizedClientManager = authorizedClientManager;
-		this.clientRegistrationIdResolver = clientRegistrationIdResolver;
 	}
 
 	/**
@@ -238,20 +220,31 @@ public final class OAuth2ClientHttpRequestInterceptor implements ClientHttpReque
 	}
 
 	/**
-	 * Sets the {@link SecurityContextHolderStrategy} to use. The default action is to use
-	 * the {@link SecurityContextHolderStrategy} stored in {@link SecurityContextHolder}.
-	 * @param securityContextHolderStrategy the {@link SecurityContextHolderStrategy} to
-	 * use
+	 * Sets the strategy for resolving a {@code clientRegistrationId} from an intercepted
+	 * request.
+	 * @param clientRegistrationIdResolver the strategy for resolving a
+	 * {@code clientRegistrationId} from an intercepted request
 	 */
-	public void setSecurityContextHolderStrategy(SecurityContextHolderStrategy securityContextHolderStrategy) {
-		Assert.notNull(securityContextHolderStrategy, "securityContextHolderStrategy cannot be null");
-		this.securityContextHolderStrategy = securityContextHolderStrategy;
+	public void setClientRegistrationIdResolver(ClientRegistrationIdResolver clientRegistrationIdResolver) {
+		Assert.notNull(clientRegistrationIdResolver, "clientRegistrationIdResolver cannot be null");
+		this.clientRegistrationIdResolver = clientRegistrationIdResolver;
+	}
+
+	/**
+	 * Sets the strategy for resolving a {@link Authentication principal} from an
+	 * intercepted request.
+	 * @param principalResolver the strategy for resolving a {@link Authentication
+	 * principal}
+	 */
+	public void setPrincipalResolver(PrincipalResolver principalResolver) {
+		Assert.notNull(principalResolver, "principalResolver cannot be null");
+		this.principalResolver = principalResolver;
 	}
 
 	@Override
 	public ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution)
 			throws IOException {
-		Authentication principal = this.securityContextHolderStrategy.getContext().getAuthentication();
+		Authentication principal = this.principalResolver.resolve(request);
 		if (principal == null) {
 			principal = ANONYMOUS_AUTHENTICATION;
 		}
@@ -375,6 +368,26 @@ public final class OAuth2ClientHttpRequestInterceptor implements ClientHttpReque
 		 */
 		@Nullable
 		String resolve(HttpRequest request);
+
+	}
+
+	/**
+	 * A strategy for resolving a {@link Authentication principal} from an intercepted
+	 * request.
+	 */
+	@FunctionalInterface
+	public interface PrincipalResolver {
+
+		/**
+		 * Resolve the {@link Authentication principal} from the current request, which is
+		 * used to obtain an {@link OAuth2AuthorizedClient}.
+		 * @param request the intercepted request, containing HTTP method, URI, headers,
+		 * and request attributes
+		 * @return the {@link Authentication principal} to be used for resolving an
+		 * {@link OAuth2AuthorizedClient}.
+		 */
+		@Nullable
+		Authentication resolve(HttpRequest request);
 
 	}
 
