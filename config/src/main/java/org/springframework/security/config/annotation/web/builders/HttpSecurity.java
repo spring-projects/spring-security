@@ -1112,9 +1112,9 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * </pre>
 	 * @return the {@link ExpressionUrlAuthorizationConfigurer} for further customizations
 	 * @throws Exception
-	 * @deprecated For removal in 7.0. Use {@link #authorizeHttpRequests()} instead
+	 * @deprecated For removal in 7.0. Use {@link #authorizeHttpRequests(Customizer)} instead
 	 */
-	@Deprecated
+	@Deprecated(since = "6.1", forRemoval = true)
 	public ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry authorizeRequests()
 			throws Exception {
 		ApplicationContext context = getContext();
@@ -1227,9 +1227,9 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * for the {@link ExpressionUrlAuthorizationConfigurer.ExpressionInterceptUrlRegistry}
 	 * @return the {@link HttpSecurity} for further customizations
 	 * @throws Exception
-	 * @deprecated For removal in 7.0. Use {@link #authorizeHttpRequests} instead
+	 * @deprecated For removal in 7.0. Use {@link #authorizeHttpRequests(Customizer)} instead
 	 */
-	@Deprecated
+	@Deprecated(since = "6.1", forRemoval = true)
 	public HttpSecurity authorizeRequests(
 			Customizer<ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry> authorizeRequestsCustomizer)
 			throws Exception {
