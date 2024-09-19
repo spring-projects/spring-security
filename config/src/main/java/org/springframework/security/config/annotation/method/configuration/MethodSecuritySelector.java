@@ -41,6 +41,9 @@ final class MethodSecuritySelector implements ImportSelector {
 	private static final boolean isDataPresent = ClassUtils
 		.isPresent("org.springframework.security.data.aot.hint.AuthorizeReturnObjectDataHintsRegistrar", null);
 
+	private static final boolean isObservabilityPresent = ClassUtils
+		.isPresent("io.micrometer.observation.ObservationRegistry", null);
+
 	private final ImportSelector autoProxy = new AutoProxyRegistrarSelector();
 
 	@Override
@@ -63,6 +66,10 @@ final class MethodSecuritySelector implements ImportSelector {
 		imports.add(AuthorizationProxyConfiguration.class.getName());
 		if (isDataPresent) {
 			imports.add(AuthorizationProxyDataConfiguration.class.getName());
+		}
+		if (isObservabilityPresent) {
+			imports.add(
+					"org.springframework.security.config.annotation.observation.configuration.ObservationConfiguration");
 		}
 		return imports.toArray(new String[0]);
 	}

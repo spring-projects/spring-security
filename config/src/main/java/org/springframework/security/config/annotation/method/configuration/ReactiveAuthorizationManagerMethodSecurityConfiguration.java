@@ -16,8 +16,8 @@
 
 package org.springframework.security.config.annotation.method.configuration;
 
-import io.micrometer.observation.ObservationRegistry;
 import org.aopalliance.intercept.MethodInterceptor;
+import org.aopalliance.intercept.MethodInvocation;
 
 import org.springframework.aop.Pointcut;
 import org.springframework.aop.framework.AopInfrastructureBean;
@@ -34,14 +34,16 @@ import org.springframework.context.annotation.Role;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
-import org.springframework.security.authorization.ObservationReactiveAuthorizationManager;
+import org.springframework.security.authorization.ReactiveAuthorizationManager;
 import org.springframework.security.authorization.method.AuthorizationManagerAfterReactiveMethodInterceptor;
 import org.springframework.security.authorization.method.AuthorizationManagerBeforeReactiveMethodInterceptor;
+import org.springframework.security.authorization.method.MethodInvocationResult;
 import org.springframework.security.authorization.method.PostAuthorizeReactiveAuthorizationManager;
 import org.springframework.security.authorization.method.PostFilterAuthorizationReactiveMethodInterceptor;
 import org.springframework.security.authorization.method.PreAuthorizeReactiveAuthorizationManager;
 import org.springframework.security.authorization.method.PreFilterAuthorizationReactiveMethodInterceptor;
 import org.springframework.security.authorization.method.PrePostTemplateDefaults;
+import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.core.GrantedAuthorityDefaults;
 import org.springframework.security.core.annotation.AnnotationTemplateExpressionDefaults;
 
@@ -77,22 +79,30 @@ final class ReactiveAuthorizationManagerMethodSecurityConfiguration
 
 	private PostFilterAuthorizationReactiveMethodInterceptor postFilterMethodInterceptor = new PostFilterAuthorizationReactiveMethodInterceptor();
 
-	private AuthorizationManagerBeforeReactiveMethodInterceptor preAuthorizeMethodInterceptor;
+	private final AuthorizationManagerBeforeReactiveMethodInterceptor preAuthorizeMethodInterceptor;
 
-	private AuthorizationManagerAfterReactiveMethodInterceptor postAuthorizeMethodInterceptor;
+	private final AuthorizationManagerAfterReactiveMethodInterceptor postAuthorizeMethodInterceptor;
 
 	@Autowired(required = false)
-	ReactiveAuthorizationManagerMethodSecurityConfiguration(MethodSecurityExpressionHandler expressionHandler) {
+	ReactiveAuthorizationManagerMethodSecurityConfiguration(MethodSecurityExpressionHandler expressionHandler,
+			ObjectProvider<ObjectPostProcessor<ReactiveAuthorizationManager<MethodInvocation>>> preAuthorizePostProcessor,
+			ObjectProvider<ObjectPostProcessor<ReactiveAuthorizationManager<MethodInvocationResult>>> postAuthorizePostProcessor) {
 		if (expressionHandler != null) {
 			this.preFilterMethodInterceptor = new PreFilterAuthorizationReactiveMethodInterceptor(expressionHandler);
 			this.preAuthorizeAuthorizationManager = new PreAuthorizeReactiveAuthorizationManager(expressionHandler);
 			this.postFilterMethodInterceptor = new PostFilterAuthorizationReactiveMethodInterceptor(expressionHandler);
 			this.postAuthorizeAuthorizationManager = new PostAuthorizeReactiveAuthorizationManager(expressionHandler);
 		}
+		ReactiveAuthorizationManager<MethodInvocation> preAuthorize = preAuthorizePostProcessor
+			.getIfUnique(ObjectPostProcessor::identity)
+			.postProcess(this.preAuthorizeAuthorizationManager);
 		this.preAuthorizeMethodInterceptor = AuthorizationManagerBeforeReactiveMethodInterceptor
-			.preAuthorize(this.preAuthorizeAuthorizationManager);
+			.preAuthorize(preAuthorize);
+		ReactiveAuthorizationManager<MethodInvocationResult> postAuthorize = postAuthorizePostProcessor
+			.getIfAvailable(ObjectPostProcessor::identity)
+			.postProcess(this.postAuthorizeAuthorizationManager);
 		this.postAuthorizeMethodInterceptor = AuthorizationManagerAfterReactiveMethodInterceptor
-			.postAuthorize(this.postAuthorizeAuthorizationManager);
+			.postAuthorize(postAuthorize);
 	}
 
 	@Override
@@ -115,17 +125,6 @@ final class ReactiveAuthorizationManagerMethodSecurityConfiguration
 		this.preAuthorizeAuthorizationManager.setTemplateDefaults(templateDefaults);
 		this.postAuthorizeAuthorizationManager.setTemplateDefaults(templateDefaults);
 		this.postFilterMethodInterceptor.setTemplateDefaults(templateDefaults);
-	}
-
-	@Autowired(required = false)
-	void setObservationRegistry(ObservationRegistry registry) {
-		if (registry.isNoop()) {
-			return;
-		}
-		this.preAuthorizeMethodInterceptor = AuthorizationManagerBeforeReactiveMethodInterceptor.preAuthorize(
-				new ObservationReactiveAuthorizationManager<>(registry, this.preAuthorizeAuthorizationManager));
-		this.postAuthorizeMethodInterceptor = AuthorizationManagerAfterReactiveMethodInterceptor.postAuthorize(
-				new ObservationReactiveAuthorizationManager<>(registry, this.postAuthorizeAuthorizationManager));
 	}
 
 	@Bean

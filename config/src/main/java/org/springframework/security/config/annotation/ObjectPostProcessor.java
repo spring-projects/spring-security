@@ -31,6 +31,15 @@ import org.springframework.beans.factory.InitializingBean;
  */
 public interface ObjectPostProcessor<T> {
 
+	static <S> ObjectPostProcessor<S> identity() {
+		return new ObjectPostProcessor<>() {
+			@Override
+			public <O extends S> O postProcess(O object) {
+				return object;
+			}
+		};
+	}
+
 	/**
 	 * Initialize the object possibly returning a modified instance that should be used
 	 * instead.

@@ -28,8 +28,10 @@ import org.apache.commons.logging.LogFactory;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.core.ResolvableType;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.access.expression.SecurityExpressionHandler;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
@@ -45,8 +47,8 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.FilterChainProxy;
+import org.springframework.security.web.FilterChainProxy.FilterChainDecorator;
 import org.springframework.security.web.FilterInvocation;
-import org.springframework.security.web.ObservationFilterChainDecorator;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AuthorizationManagerWebInvocationPrivilegeEvaluator;
 import org.springframework.security.web.access.AuthorizationManagerWebInvocationPrivilegeEvaluator.HttpServletRequestTransformer;
@@ -109,6 +111,9 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 	private WebInvocationPrivilegeEvaluator privilegeEvaluator;
 
 	private ObservationRegistry observationRegistry = ObservationRegistry.NOOP;
+
+	private ObjectPostProcessor<FilterChainDecorator> filterChainDecoratorPostProcessor = ObjectPostProcessor
+		.identity();
 
 	private HttpServletRequestTransformer privilegeEvaluatorRequestTransformer;
 
@@ -403,6 +408,11 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 		}
 		catch (NoSuchBeanDefinitionException ex) {
 		}
+		ResolvableType type = ResolvableType.forClassWithGenerics(ObjectPostProcessor.class,
+				FilterChainDecorator.class);
+		ObjectProvider<ObjectPostProcessor<FilterChainDecorator>> postProcessor = applicationContext
+			.getBeanProvider(type);
+		this.filterChainDecoratorPostProcessor = postProcessor.getIfUnique(ObjectPostProcessor::identity);
 		Class<HttpServletRequestTransformer> requestTransformerClass = HttpServletRequestTransformer.class;
 		this.privilegeEvaluatorRequestTransformer = applicationContext.getBeanProvider(requestTransformerClass)
 			.getIfUnique();
@@ -413,11 +423,8 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 		this.servletContext = servletContext;
 	}
 
-	FilterChainProxy.FilterChainDecorator getFilterChainDecorator() {
-		if (this.observationRegistry.isNoop()) {
-			return new FilterChainProxy.VirtualFilterChainDecorator();
-		}
-		return new ObservationFilterChainDecorator(this.observationRegistry);
+	FilterChainDecorator getFilterChainDecorator() {
+		return this.filterChainDecoratorPostProcessor.postProcess(new FilterChainProxy.VirtualFilterChainDecorator());
 	}
 
 	/**
