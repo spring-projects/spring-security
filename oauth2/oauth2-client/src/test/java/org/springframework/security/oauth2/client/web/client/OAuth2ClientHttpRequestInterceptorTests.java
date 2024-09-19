@@ -43,7 +43,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.oauth2.client.ClientAuthorizationException;
 import org.springframework.security.oauth2.client.OAuth2AuthorizationFailureHandler;
@@ -111,13 +110,13 @@ public class OAuth2ClientHttpRequestInterceptorTests {
 	private OAuth2AuthorizedClientRepository authorizedClientRepository;
 
 	@Mock
-	private SecurityContextHolderStrategy securityContextHolderStrategy;
-
-	@Mock
 	private OAuth2AuthorizedClientService authorizedClientService;
 
 	@Mock
 	private OAuth2ClientHttpRequestInterceptor.ClientRegistrationIdResolver clientRegistrationIdResolver;
+
+	@Mock
+	private OAuth2ClientHttpRequestInterceptor.PrincipalResolver principalResolver;
 
 	@Captor
 	private ArgumentCaptor<OAuth2AuthorizeRequest> authorizeRequestCaptor;
@@ -168,13 +167,6 @@ public class OAuth2ClientHttpRequestInterceptorTests {
 	}
 
 	@Test
-	public void constructorWhenClientRegistrationIdResolverIsNullThenThrowsIllegalArgumentException() {
-		assertThatIllegalArgumentException()
-			.isThrownBy(() -> new OAuth2ClientHttpRequestInterceptor(this.authorizedClientManager, null))
-			.withMessage("clientRegistrationIdResolver cannot be null");
-	}
-
-	@Test
 	public void setAuthorizationFailureHandlerWhenNullThenThrowsIllegalArgumentException() {
 		assertThatIllegalArgumentException()
 			.isThrownBy(() -> this.requestInterceptor.setAuthorizationFailureHandler(null))
@@ -198,10 +190,16 @@ public class OAuth2ClientHttpRequestInterceptorTests {
 	}
 
 	@Test
-	public void setSecurityContextHolderStrategyWhenNullThenThrowsIllegalArgumentException() {
+	public void setClientRegistrationIdResolverWhenNullThenThrowsIllegalArgumentException() {
 		assertThatIllegalArgumentException()
-			.isThrownBy(() -> this.requestInterceptor.setSecurityContextHolderStrategy(null))
-			.withMessage("securityContextHolderStrategy cannot be null");
+			.isThrownBy(() -> this.requestInterceptor.setClientRegistrationIdResolver(null))
+			.withMessage("clientRegistrationIdResolver cannot be null");
+	}
+
+	@Test
+	public void setPrincipalResolverWhenNullThenThrowsIllegalArgumentException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.requestInterceptor.setPrincipalResolver(null))
+			.withMessage("principalResolver cannot be null");
 	}
 
 	@Test
@@ -605,8 +603,7 @@ public class OAuth2ClientHttpRequestInterceptorTests {
 
 	@Test
 	public void interceptWhenCustomClientRegistrationIdResolverSetThenUsed() {
-		this.requestInterceptor = new OAuth2ClientHttpRequestInterceptor(this.authorizedClientManager,
-				this.clientRegistrationIdResolver);
+		this.requestInterceptor.setClientRegistrationIdResolver(this.clientRegistrationIdResolver);
 		this.requestInterceptor.setAuthorizationFailureHandler(this.authorizationFailureHandler);
 		given(this.authorizedClientManager.authorize(any(OAuth2AuthorizeRequest.class)))
 			.willReturn(this.authorizedClient);
@@ -625,7 +622,7 @@ public class OAuth2ClientHttpRequestInterceptorTests {
 		this.server.verify();
 		verify(this.authorizedClientManager).authorize(this.authorizeRequestCaptor.capture());
 		verify(this.clientRegistrationIdResolver).resolve(any(HttpRequest.class));
-		verifyNoMoreInteractions(this.clientRegistrationIdResolver, this.authorizedClientManager);
+		verifyNoMoreInteractions(this.authorizedClientManager, this.clientRegistrationIdResolver);
 		verifyNoInteractions(this.authorizationFailureHandler);
 		OAuth2AuthorizeRequest authorizeRequest = this.authorizeRequestCaptor.getValue();
 		assertThat(authorizeRequest.getClientRegistrationId()).isEqualTo(clientRegistrationId);
@@ -633,8 +630,8 @@ public class OAuth2ClientHttpRequestInterceptorTests {
 	}
 
 	@Test
-	public void interceptWhenCustomSecurityContextHolderStrategySetThenUsed() {
-		this.requestInterceptor.setSecurityContextHolderStrategy(this.securityContextHolderStrategy);
+	public void interceptWhenCustomPrincipalResolverSetThenUsed() {
+		this.requestInterceptor.setPrincipalResolver(this.principalResolver);
 		given(this.authorizedClientManager.authorize(any(OAuth2AuthorizeRequest.class)))
 			.willReturn(this.authorizedClient);
 
@@ -642,14 +639,12 @@ public class OAuth2ClientHttpRequestInterceptorTests {
 		this.server.expect(requestTo(REQUEST_URI))
 			.andExpect(hasAuthorizationHeader(this.authorizedClient.getAccessToken()))
 			.andRespond(withApplicationJson());
-		SecurityContext securityContext = new SecurityContextImpl();
-		securityContext.setAuthentication(this.principal);
-		given(this.securityContextHolderStrategy.getContext()).willReturn(securityContext);
+		given(this.principalResolver.resolve(any(HttpRequest.class))).willReturn(this.principal);
 		performRequest(withClientRegistrationId());
 		this.server.verify();
 		verify(this.authorizedClientManager).authorize(this.authorizeRequestCaptor.capture());
-		verify(this.securityContextHolderStrategy).getContext();
-		verifyNoMoreInteractions(this.authorizedClientManager, this.securityContextHolderStrategy);
+		verify(this.principalResolver).resolve(any(HttpRequest.class));
+		verifyNoMoreInteractions(this.authorizedClientManager, this.principalResolver);
 		OAuth2AuthorizeRequest authorizeRequest = this.authorizeRequestCaptor.getValue();
 		assertThat(authorizeRequest.getClientRegistrationId()).isEqualTo(this.clientRegistration.getRegistrationId());
 		assertThat(authorizeRequest.getPrincipal()).isEqualTo(this.principal);
