@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,17 +16,20 @@
 
 package org.springframework.security.oauth2.core.endpoint;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-
 import java.net.URI;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+
 import org.junit.jupiter.api.Test;
+
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests for {@link OAuth2AuthorizationRequest}.
@@ -318,18 +321,48 @@ public class OAuth2AuthorizationRequestTests {
 	}
 
 	@Test
-	public void additionalParametersArrayValueOrIterableEncoded() {
-		Map<String, Object> additionalParameters = new HashMap<>();
-		additionalParameters.put("item", new String[] { "1", "2" });
-		additionalParameters.put("item2", Arrays.asList("H" + '\u00c5' + "M" + '\u00d6', "H" + '\u00c5' + "M" + '\u00d6'));
+	public void buildWhenAdditionalParametersContainsArrayThenProperlyEncoded() {
+		Map<String, Object> additionalParameters = new LinkedHashMap<>();
+		additionalParameters.put("item1", new String[] { "1", "2" });
+		additionalParameters.put("item2", "value2");
 		OAuth2AuthorizationRequest authorizationRequest = TestOAuth2AuthorizationRequests.request()
-				.additionalParameters(additionalParameters)
-				.build();
+			.additionalParameters(additionalParameters)
+			.build();
 		assertThat(authorizationRequest.getAuthorizationRequestUri()).isNotNull();
-		assertThat(authorizationRequest.getAuthorizationRequestUri()).isEqualTo(
-				"https://example.com/login/oauth/authorize?" + "response_type=code&client_id=client-id&state=state&"
-						+ "redirect_uri=https://example.com/authorize/oauth2/code/registration-id&"
-						+ "item=1&item=2&item2=H%C3%85M%C3%96&item2=H%C3%85M%C3%96");
+		assertThat(authorizationRequest.getAuthorizationRequestUri())
+			.isEqualTo("https://example.com/login/oauth/authorize?response_type=code&client_id=client-id&state=state&"
+					+ "redirect_uri=https://example.com/authorize/oauth2/code/registration-id&"
+					+ "item1=1&item1=2&item2=value2");
+	}
+
+	@Test
+	public void buildWhenAdditionalParametersContainsIterableThenProperlyEncoded() {
+		Map<String, Object> additionalParameters = new LinkedHashMap<>();
+		additionalParameters.put("item1", Arrays.asList("1", "2"));
+		additionalParameters.put("item2", "value2");
+		OAuth2AuthorizationRequest authorizationRequest = TestOAuth2AuthorizationRequests.request()
+			.additionalParameters(additionalParameters)
+			.build();
+		assertThat(authorizationRequest.getAuthorizationRequestUri()).isNotNull();
+		assertThat(authorizationRequest.getAuthorizationRequestUri())
+			.isEqualTo("https://example.com/login/oauth/authorize?response_type=code&client_id=client-id&state=state&"
+					+ "redirect_uri=https://example.com/authorize/oauth2/code/registration-id&"
+					+ "item1=1&item1=2&item2=value2");
+	}
+
+	@Test
+	public void buildWhenAdditionalParametersContainsNullThenAuthorizationRequestUriContainsNull() {
+		Map<String, Object> additionalParameters = new LinkedHashMap<>();
+		additionalParameters.put("item1", null);
+		additionalParameters.put("item2", "value2");
+		OAuth2AuthorizationRequest authorizationRequest = TestOAuth2AuthorizationRequests.request()
+			.additionalParameters(additionalParameters)
+			.build();
+		assertThat(authorizationRequest.getAuthorizationRequestUri()).isNotNull();
+		assertThat(authorizationRequest.getAuthorizationRequestUri())
+			.isEqualTo("https://example.com/login/oauth/authorize?response_type=code&client_id=client-id&state=state&"
+					+ "redirect_uri=https://example.com/authorize/oauth2/code/registration-id&"
+					+ "item1=null&item2=value2");
 	}
 
 }
