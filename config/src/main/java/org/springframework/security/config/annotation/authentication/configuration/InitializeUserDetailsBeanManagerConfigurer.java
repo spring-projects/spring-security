@@ -39,6 +39,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
  * {@link PasswordEncoder} is defined will wire this up too.
  *
  * @author Rob Winch
+ * @author Ngoc Nhan
  * @since 4.1
  */
 @Order(InitializeUserDetailsBeanManagerConfigurer.DEFAULT_ORDER)
@@ -121,11 +122,7 @@ class InitializeUserDetailsBeanManagerConfigurer extends GlobalAuthenticationCon
 		 * component, null otherwise.
 		 */
 		private <T> T getBeanOrNull(Class<T> type) {
-			String[] beanNames = InitializeUserDetailsBeanManagerConfigurer.this.context.getBeanNamesForType(type);
-			if (beanNames.length != 1) {
-				return null;
-			}
-			return InitializeUserDetailsBeanManagerConfigurer.this.context.getBean(beanNames[0], type);
+			return InitializeUserDetailsBeanManagerConfigurer.this.context.getBeanProvider(type).getIfUnique();
 		}
 
 		/**

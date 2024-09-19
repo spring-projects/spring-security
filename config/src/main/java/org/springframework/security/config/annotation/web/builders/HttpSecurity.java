@@ -139,6 +139,7 @@ import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
  *
  * @author Rob Winch
  * @author Joe Grandja
+ * @author Ngoc Nhan
  * @since 3.2
  * @see EnableWebSecurity
  */
@@ -3721,12 +3722,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	}
 
 	private ObservationRegistry getObservationRegistry() {
-		ApplicationContext context = getContext();
-		String[] names = context.getBeanNamesForType(ObservationRegistry.class);
-		if (names.length == 1) {
-			return (ObservationRegistry) context.getBean(names[0]);
-		}
-		return ObservationRegistry.NOOP;
+		return getContext().getBeanProvider(ObservationRegistry.class).getIfUnique(() -> ObservationRegistry.NOOP);
 	}
 
 	/**
