@@ -21,7 +21,6 @@ import java.util.Map;
 
 import jakarta.servlet.http.HttpServletRequest;
 
-import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -321,12 +320,8 @@ public final class OneTimeTokenLoginConfigurer<H extends HttpSecurityBuilder<H>>
 		if (context == null) {
 			return null;
 		}
-		try {
-			return context.getBean(clazz);
-		}
-		catch (NoSuchBeanDefinitionException ex) {
-			return null;
-		}
+
+		return context.getBeanProvider(clazz).getIfUnique();
 	}
 
 	private Map<String, String> hiddenInputs(HttpServletRequest request) {

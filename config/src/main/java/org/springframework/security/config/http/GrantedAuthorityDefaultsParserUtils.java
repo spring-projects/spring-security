@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2018 the original author or authors.
+ * Copyright 2012-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import org.springframework.security.config.core.GrantedAuthorityDefaults;
 
 /**
  * @author Rob Winch
+ * @author Ngoc Nhan
  * @since 4.2
  */
 final class GrantedAuthorityDefaultsParserUtils {
@@ -49,13 +50,8 @@ final class GrantedAuthorityDefaultsParserUtils {
 
 		@Override
 		public final void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-			String[] grantedAuthorityDefaultsBeanNames = applicationContext
-				.getBeanNamesForType(GrantedAuthorityDefaults.class);
-			if (grantedAuthorityDefaultsBeanNames.length == 1) {
-				GrantedAuthorityDefaults grantedAuthorityDefaults = applicationContext
-					.getBean(grantedAuthorityDefaultsBeanNames[0], GrantedAuthorityDefaults.class);
-				this.rolePrefix = grantedAuthorityDefaults.getRolePrefix();
-			}
+			applicationContext.getBeanProvider(GrantedAuthorityDefaults.class)
+				.ifUnique((grantedAuthorityDefaults) -> this.rolePrefix = grantedAuthorityDefaults.getRolePrefix());
 		}
 
 		abstract Object getBean();

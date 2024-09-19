@@ -86,6 +86,7 @@ import org.springframework.util.Assert;
  *
  * @author Joe Grandja
  * @author Parikshit Dutta
+ * @author Ngoc Nhan
  * @since 5.1
  * @see OAuth2AuthorizationRequestRedirectFilter
  * @see OAuth2AuthorizationCodeGrantFilter
@@ -320,13 +321,10 @@ public final class OAuth2ClientConfigurer<B extends HttpSecurityBuilder<B>>
 		@SuppressWarnings("unchecked")
 		private <T> T getBeanOrNull(ResolvableType type) {
 			ApplicationContext context = getBuilder().getSharedObject(ApplicationContext.class);
-			if (context != null) {
-				String[] names = context.getBeanNamesForType(type);
-				if (names.length == 1) {
-					return (T) context.getBean(names[0]);
-				}
+			if (context == null) {
+				return null;
 			}
-			return null;
+			return (T) context.getBeanProvider(type).getIfUnique();
 		}
 
 	}
