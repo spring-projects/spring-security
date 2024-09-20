@@ -48,6 +48,12 @@ import org.springframework.util.StringUtils;
 @ReactiveMethodSecurityService.Mask("classmask")
 public interface ReactiveMethodSecurityService {
 
+	@PreAuthorize("hasRole('USER')")
+	Mono<String> preAuthorizeUser();
+
+	@PreAuthorize("hasRole('ADMIN')")
+	Mono<String> preAuthorizeAdmin();
+
 	@PreAuthorize("hasRole('ADMIN')")
 	@HandleAuthorizationDenied(handlerClass = StarMaskingHandler.class)
 	Mono<String> preAuthorizeGetCardNumberIfAdmin(String cardNumber);

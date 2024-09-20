@@ -18,12 +18,20 @@ package org.springframework.security.config.annotation.web.configurers;
 
 import java.util.function.Supplier;
 
+import io.micrometer.observation.Observation;
+import io.micrometer.observation.ObservationHandler;
+import io.micrometer.observation.ObservationRegistry;
+import io.micrometer.observation.ObservationTextPublisher;
 import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanCreationException;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
@@ -33,6 +41,7 @@ import org.springframework.security.authentication.TestAuthentication;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationEventPublisher;
 import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.security.authorization.AuthorizationObservationContext;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.web.AbstractRequestMatcherRegistry;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -43,6 +52,7 @@ import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
@@ -63,8 +73,10 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -153,7 +165,8 @@ public class AuthorizeHttpRequestsConfigurerTests {
 	@Test
 	public void configureWhenObjectPostProcessorRegisteredThenInvokedOnAuthorizationManagerAndAuthorizationFilter() {
 		this.spring.register(ObjectPostProcessorConfig.class).autowire();
-		ObjectPostProcessor objectPostProcessor = this.spring.getContext().getBean(ObjectPostProcessor.class);
+		ObjectPostProcessor<Object> objectPostProcessor = this.spring.getContext()
+			.getBean(ObjectPostProcessorConfig.class).objectPostProcessor;
 		verify(objectPostProcessor).postProcess(any(RequestMatcherDelegatingAuthorizationManager.class));
 		verify(objectPostProcessor).postProcess(any(AuthorizationFilter.class));
 	}
@@ -623,6 +636,20 @@ public class AuthorizeHttpRequestsConfigurerTests {
 		this.mvc.perform(requestWithUser).andExpect(status().isOk());
 	}
 
+	@Test
+	public void getWhenObservationRegistryThenObserves() throws Exception {
+		this.spring.register(RoleUserConfig.class, BasicController.class, ObservationRegistryConfig.class).autowire();
+		ObservationHandler<Observation.Context> handler = this.spring.getContext().getBean(ObservationHandler.class);
+		this.mvc.perform(get("/").with(user("user").roles("USER"))).andExpect(status().isOk());
+		ArgumentCaptor<Observation.Context> context = ArgumentCaptor.forClass(Observation.Context.class);
+		verify(handler, atLeastOnce()).onStart(context.capture());
+		assertThat(context.getAllValues()).anyMatch((c) -> c instanceof AuthorizationObservationContext);
+		verify(handler, atLeastOnce()).onStop(context.capture());
+		assertThat(context.getAllValues()).anyMatch((c) -> c instanceof AuthorizationObservationContext);
+		this.mvc.perform(get("/").with(user("user").roles("WRONG"))).andExpect(status().isForbidden());
+		verify(handler).onError(any());
+	}
+
 	@Configuration
 	@EnableWebSecurity
 	static class GrantedAuthorityDefaultHasRoleConfig {
@@ -1015,6 +1042,12 @@ public class AuthorizeHttpRequestsConfigurerTests {
 			// @formatter:on
 		}
 
+		@Bean
+		UserDetailsService users() {
+			return new InMemoryUserDetailsManager(
+					User.withUsername("user").password("{noop}password").roles("USER").build());
+		}
+
 	}
 
 	@Configuration
@@ -1208,6 +1241,49 @@ public class AuthorizeHttpRequestsConfigurerTests {
 
 		@PostMapping("/")
 		void rootPost() {
+		}
+
+	}
+
+	@Configuration
+	static class ObservationRegistryConfig {
+
+		private final ObservationRegistry registry = ObservationRegistry.create();
+
+		private final ObservationHandler<Observation.Context> handler = spy(new ObservationTextPublisher());
+
+		@Bean
+		ObservationRegistry observationRegistry() {
+			return this.registry;
+		}
+
+		@Bean
+		ObservationHandler<Observation.Context> observationHandler() {
+			return this.handler;
+		}
+
+		@Bean
+		ObservationRegistryPostProcessor observationRegistryPostProcessor(
+				ObjectProvider<ObservationHandler<Observation.Context>> handler) {
+			return new ObservationRegistryPostProcessor(handler);
+		}
+
+	}
+
+	static class ObservationRegistryPostProcessor implements BeanPostProcessor {
+
+		private final ObjectProvider<ObservationHandler<Observation.Context>> handler;
+
+		ObservationRegistryPostProcessor(ObjectProvider<ObservationHandler<Observation.Context>> handler) {
+			this.handler = handler;
+		}
+
+		@Override
+		public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+			if (bean instanceof ObservationRegistry registry) {
+				registry.observationConfig().observationHandler(this.handler.getObject());
+			}
+			return bean;
 		}
 
 	}

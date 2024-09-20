@@ -28,6 +28,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import io.micrometer.observation.Observation;
+import io.micrometer.observation.ObservationHandler;
+import io.micrometer.observation.ObservationRegistry;
+import io.micrometer.observation.ObservationTextPublisher;
 import jakarta.annotation.security.DenyAll;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
@@ -40,9 +44,12 @@ import org.springframework.aop.Advisor;
 import org.springframework.aop.config.AopConfigUtils;
 import org.springframework.aop.support.DefaultPointcutAdvisor;
 import org.springframework.aop.support.JdkRegexpMethodPointcut;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.FactoryBean;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import org.springframework.context.annotation.AdviceMode;
 import org.springframework.context.annotation.Bean;
@@ -1018,6 +1025,43 @@ public class PrePostMethodSecurityConfigurationTests {
 		assertThat(service.getIdPath("uid")).isEqualTo("uid");
 	}
 
+	@Test
+	@WithMockUser
+	public void prePostMethodWhenObservationRegistryThenObserved() {
+		this.spring.register(MethodSecurityServiceEnabledConfig.class, ObservationRegistryConfig.class).autowire();
+		this.methodSecurityService.preAuthorizePermitAll();
+		ObservationHandler<?> handler = this.spring.getContext().getBean(ObservationHandler.class);
+		verify(handler).onStart(any());
+		verify(handler).onStop(any());
+		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(this.methodSecurityService::preAuthorize);
+		verify(handler).onError(any());
+	}
+
+	@Test
+	@WithMockUser
+	public void securedMethodWhenObservationRegistryThenObserved() {
+		this.spring.register(MethodSecurityServiceEnabledConfig.class, ObservationRegistryConfig.class).autowire();
+		this.methodSecurityService.securedUser();
+		ObservationHandler<?> handler = this.spring.getContext().getBean(ObservationHandler.class);
+		verify(handler).onStart(any());
+		verify(handler).onStop(any());
+		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(this.methodSecurityService::secured);
+		verify(handler).onError(any());
+	}
+
+	@Test
+	@WithMockUser
+	public void jsr250MethodWhenObservationRegistryThenObserved() {
+		this.spring.register(MethodSecurityServiceEnabledConfig.class, ObservationRegistryConfig.class).autowire();
+		this.methodSecurityService.jsr250RolesAllowedUser();
+		ObservationHandler<?> handler = this.spring.getContext().getBean(ObservationHandler.class);
+		verify(handler).onStart(any());
+		verify(handler).onStop(any());
+		assertThatExceptionOfType(AccessDeniedException.class)
+			.isThrownBy(this.methodSecurityService::jsr250RolesAllowed);
+		verify(handler).onError(any());
+	}
+
 	private static Consumer<ConfigurableWebApplicationContext> disallowBeanOverriding() {
 		return (context) -> ((AnnotationConfigWebApplicationContext) context).setAllowBeanDefinitionOverriding(false);
 	}
@@ -1651,6 +1695,49 @@ public class PrePostMethodSecurityConfigurationTests {
 				return Object.class;
 			}
 
+		}
+
+	}
+
+	@Configuration
+	static class ObservationRegistryConfig {
+
+		private final ObservationRegistry registry = ObservationRegistry.create();
+
+		private final ObservationHandler<Observation.Context> handler = spy(new ObservationTextPublisher());
+
+		@Bean
+		ObservationRegistry observationRegistry() {
+			return this.registry;
+		}
+
+		@Bean
+		ObservationHandler<Observation.Context> observationHandler() {
+			return this.handler;
+		}
+
+		@Bean
+		ObservationRegistryPostProcessor observationRegistryPostProcessor(
+				ObjectProvider<ObservationHandler<Observation.Context>> handler) {
+			return new ObservationRegistryPostProcessor(handler);
+		}
+
+	}
+
+	static class ObservationRegistryPostProcessor implements BeanPostProcessor {
+
+		private final ObjectProvider<ObservationHandler<Observation.Context>> handler;
+
+		ObservationRegistryPostProcessor(ObjectProvider<ObservationHandler<Observation.Context>> handler) {
+			this.handler = handler;
+		}
+
+		@Override
+		public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+			if (bean instanceof ObservationRegistry registry) {
+				registry.observationConfig().observationHandler(this.handler.getObject());
+			}
+			return bean;
 		}
 
 	}

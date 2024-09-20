@@ -26,6 +26,16 @@ import org.springframework.security.authorization.AuthorizationDeniedException;
 public class ReactiveMethodSecurityServiceImpl implements ReactiveMethodSecurityService {
 
 	@Override
+	public Mono<String> preAuthorizeUser() {
+		return Mono.just("user");
+	}
+
+	@Override
+	public Mono<String> preAuthorizeAdmin() {
+		return Mono.just("admin");
+	}
+
+	@Override
 	public Mono<String> preAuthorizeGetCardNumberIfAdmin(String cardNumber) {
 		return Mono.just(cardNumber);
 	}
