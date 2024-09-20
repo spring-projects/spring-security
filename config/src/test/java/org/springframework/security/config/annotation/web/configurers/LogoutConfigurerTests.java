@@ -110,8 +110,8 @@ public class LogoutConfigurerTests {
 	@Test
 	public void configureWhenRegisteringObjectPostProcessorThenInvokedOnLogoutFilter() {
 		this.spring.register(ObjectPostProcessorConfig.class).autowire();
-		ObjectPostProcessor<LogoutFilter> objectPostProcessor = this.spring.getContext()
-			.getBean(ObjectPostProcessor.class);
+		ObjectPostProcessor<Object> objectPostProcessor = this.spring.getContext()
+			.getBean(ObjectPostProcessorConfig.class).objectPostProcessor;
 		verify(objectPostProcessor).postProcess(any(LogoutFilter.class));
 	}
 

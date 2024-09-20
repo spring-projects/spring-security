@@ -34,7 +34,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.ApplicationContext;
+import org.springframework.core.ResolvableType;
 import org.springframework.http.HttpMethod;
 import org.springframework.lang.Nullable;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
@@ -113,7 +115,9 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 	 */
 	protected final List<MvcRequestMatcher> createMvcMatchers(HttpMethod method, String... mvcPatterns) {
 		Assert.state(!this.anyRequestConfigured, "Can't configure mvcMatchers after anyRequest");
-		ObjectPostProcessor<Object> opp = this.context.getBean(ObjectPostProcessor.class);
+		ResolvableType type = ResolvableType.forClassWithGenerics(ObjectPostProcessor.class, Object.class);
+		ObjectProvider<ObjectPostProcessor<Object>> postProcessors = this.context.getBeanProvider(type);
+		ObjectPostProcessor<Object> opp = postProcessors.getObject();
 		if (!this.context.containsBean(HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME)) {
 			throw new NoSuchBeanDefinitionException("A Bean named " + HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME
 					+ " of type " + HandlerMappingIntrospector.class.getName()

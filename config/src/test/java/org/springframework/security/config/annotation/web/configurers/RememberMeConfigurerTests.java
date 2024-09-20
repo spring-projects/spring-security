@@ -102,7 +102,7 @@ public class RememberMeConfigurerTests {
 	@Test
 	public void configureWhenRegisteringObjectPostProcessorThenInvokedOnRememberMeAuthenticationFilter() {
 		this.spring.register(ObjectPostProcessorConfig.class).autowire();
-		verify(this.spring.getContext().getBean(ObjectPostProcessor.class))
+		verify(this.spring.getContext().getBean(ObjectPostProcessorConfig.class).objectPostProcessor)
 			.postProcess(any(RememberMeAuthenticationFilter.class));
 	}
 

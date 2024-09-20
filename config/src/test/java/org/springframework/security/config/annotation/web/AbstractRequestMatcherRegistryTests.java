@@ -25,8 +25,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.ResolvableType;
 import org.springframework.http.HttpMethod;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.config.MockServletContext;
@@ -79,7 +81,11 @@ public class AbstractRequestMatcherRegistryTests {
 	public void setUp() {
 		this.matcherRegistry = new TestRequestMatcherRegistry();
 		this.context = mock(WebApplicationContext.class);
-		given(this.context.getBean(ObjectPostProcessor.class)).willReturn(NO_OP_OBJECT_POST_PROCESSOR);
+		ObjectProvider<ObjectPostProcessor<Object>> postProcessors = mock(ObjectProvider.class);
+		ResolvableType type = ResolvableType.forClassWithGenerics(ObjectPostProcessor.class, Object.class);
+		ObjectProvider<ObjectPostProcessor<Object>> given = this.context.getBeanProvider(type);
+		given(given).willReturn(postProcessors);
+		given(postProcessors.getObject()).willReturn(NO_OP_OBJECT_POST_PROCESSOR);
 		given(this.context.getServletContext()).willReturn(MockServletContext.mvc());
 		this.matcherRegistry.setApplicationContext(this.context);
 		mockMvcIntrospector(true);

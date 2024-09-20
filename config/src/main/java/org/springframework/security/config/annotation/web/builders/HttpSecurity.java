@@ -3686,7 +3686,9 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	}
 
 	private List<RequestMatcher> createMvcMatchers(String... mvcPatterns) {
-		ObjectPostProcessor<Object> opp = getContext().getBean(ObjectPostProcessor.class);
+		ResolvableType type = ResolvableType.forClassWithGenerics(ObjectPostProcessor.class, Object.class);
+		ObjectProvider<ObjectPostProcessor<Object>> postProcessors = getContext().getBeanProvider(type);
+		ObjectPostProcessor<Object> opp = postProcessors.getObject();
 		if (!getContext().containsBean(HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME)) {
 			throw new NoSuchBeanDefinitionException("A Bean named " + HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME
 					+ " of type " + HandlerMappingIntrospector.class.getName()
