@@ -213,8 +213,12 @@ Kotlin::
 ----
 @Bean
 fun noSpringSecurityObservations(): ObservationRegistryCustomizer<ObservationRegistry> {
-	ObservationPredicate predicate = (name: String, context: Observation.Context) -> !name.startsWith("spring.security.")
-	(registry: ObservationRegistry) -> registry.observationConfig().observationPredicate(predicate)
+    val predicate = ObservationPredicate { name: String, _: Observation.Context? ->
+        !name.startsWith("spring.security.")
+    }
+    return ObservationRegistryCustomizer { registry: ObservationRegistry ->
+        registry.observationConfig().observationPredicate(predicate)
+    }
 }
 ----
 ======
