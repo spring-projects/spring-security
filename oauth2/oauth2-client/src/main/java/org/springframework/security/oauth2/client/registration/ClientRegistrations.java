@@ -73,6 +73,46 @@ public final class ClientRegistrations {
 	}
 
 	/**
+	 * Creates a {@link ClientRegistration.Builder} using the provided map representation
+	 * of an <a href=
+	 * "https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationResponse">OpenID
+	 * Provider Configuration Response</a> to initialize the
+	 * {@link ClientRegistration.Builder}.
+	 *
+	 * <p>
+	 * This is useful when the OpenID Provider Configuration is not available at a
+	 * well-known location, or if custom validation is needed for the issuer location
+	 * (e.g. if the issuer is only accessible from a back-channel URI that is different
+	 * from the issuer value in the configuration).
+	 * </p>
+	 *
+	 * <p>
+	 * Example usage:
+	 * </p>
+	 * <pre>
+	 * RequestEntity&lt;Void&gt; request = RequestEntity.get(metadataEndpoint).build();
+	 * ParameterizedTypeReference&lt;Map&lt;String, Object&gt;&gt; typeReference = new ParameterizedTypeReference&lt;&gt;() {};
+	 * Map&lt;String, Object&gt; configuration = rest.exchange(request, typeReference).getBody();
+	 * // Validate configuration.get("issuer") as per in the OIDC specification
+	 * ClientRegistration registration = ClientRegistrations.fromOidcConfiguration(configuration)
+	 *     .clientId("client-id")
+	 *     .clientSecret("client-secret")
+	 *     .build();
+	 * </pre>
+	 * @param the OpenID Provider configuration map
+	 * @return the {@link ClientRegistration} built from the configuration
+	 */
+	public static ClientRegistration.Builder fromOidcConfiguration(Map<String, Object> configuration) {
+		OIDCProviderMetadata metadata = parse(configuration, OIDCProviderMetadata::parse);
+		ClientRegistration.Builder builder = withProviderConfiguration(metadata, metadata.getIssuer().getValue());
+		builder.jwkSetUri(metadata.getJWKSetURI().toASCIIString());
+		if (metadata.getUserInfoEndpointURI() != null) {
+			builder.userInfoUri(metadata.getUserInfoEndpointURI().toASCIIString());
+		}
+		return builder;
+	}
+
+	/**
 	 * Creates a {@link ClientRegistration.Builder} using the provided <a href=
 	 * "https://openid.net/specs/openid-connect-core-1_0.html#IssuerIdentifier">Issuer</a>
 	 * by making an <a href=
