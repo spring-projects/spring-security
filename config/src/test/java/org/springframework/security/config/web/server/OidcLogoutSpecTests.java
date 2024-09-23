@@ -86,7 +86,6 @@ import org.springframework.security.web.server.util.matcher.ServerWebExchangeMat
 import org.springframework.test.web.reactive.server.FluxExchangeResult;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.test.web.reactive.server.WebTestClientConfigurer;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -324,6 +323,30 @@ public class OidcLogoutSpecTests {
 		verify(sessionRegistry, atLeastOnce()).removeSessionInformation(any(OidcLogoutToken.class));
 	}
 
+	@Test
+	void logoutWhenProviderIssuerMissingThen5xxServerError() {
+		this.spring.register(WebServerConfig.class, OidcProviderConfig.class, ProviderIssuerMissingConfig.class)
+			.autowire();
+		String registrationId = this.clientRegistration.getRegistrationId();
+		String session = login();
+		String logoutToken = this.test.mutateWith(session(session))
+			.get()
+			.uri("/token/logout")
+			.exchange()
+			.expectStatus()
+			.isOk()
+			.returnResult(String.class)
+			.getResponseBody()
+			.blockFirst();
+		this.test.post()
+			.uri(this.web.url("/logout/connect/back-channel/" + registrationId).toString())
+			.body(BodyInserters.fromFormData("logout_token", logoutToken))
+			.exchange()
+			.expectStatus()
+			.is5xxServerError();
+		this.test.mutateWith(session(session)).get().uri("/token/logout").exchange().expectStatus().isOk();
+	}
+
 	private String login() {
 		this.test.get().uri("/token/logout").exchange().expectStatus().isUnauthorized();
 		String registrationId = this.clientRegistration.getRegistrationId();
@@ -496,6 +519,54 @@ public class OidcLogoutSpecTests {
 		@Bean
 		ServerLogoutHandler logoutHandler() {
 			return this.logoutHandler;
+		}
+
+	}
+
+	@Configuration
+	static class ProviderIssuerMissingRegistrationConfig {
+
+		@Autowired(required = false)
+		MockWebServer web;
+
+		@Bean
+		ClientRegistration clientRegistration() {
+			if (this.web == null) {
+				return TestClientRegistrations.clientRegistration().issuerUri(null).build();
+			}
+			String issuer = this.web.url("/").toString();
+			return TestClientRegistrations.clientRegistration()
+				.issuerUri(null)
+				.jwkSetUri(issuer + "jwks")
+				.tokenUri(issuer + "token")
+				.userInfoUri(issuer + "user")
+				.scope("openid")
+				.build();
+		}
+
+		@Bean
+		ReactiveClientRegistrationRepository clientRegistrationRepository(ClientRegistration clientRegistration) {
+			return new InMemoryReactiveClientRegistrationRepository(clientRegistration);
+		}
+
+	}
+
+	@Configuration
+	@EnableWebFluxSecurity
+	@Import(ProviderIssuerMissingRegistrationConfig.class)
+	static class ProviderIssuerMissingConfig {
+
+		@Bean
+		@Order(1)
+		SecurityWebFilterChain filters(ServerHttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+					.authorizeExchange((authorize) -> authorize.anyExchange().authenticated())
+					.oauth2Login(Customizer.withDefaults())
+					.oidcLogout((oidc) -> oidc.backChannel(Customizer.withDefaults()));
+			// @formatter:on
+
+			return http.build();
 		}
 
 	}
@@ -737,77 +808,6 @@ public class OidcLogoutSpecTests {
 				response.setBody(body);
 			}
 			return response;
-		}
-
-	}
-
-	@Test
-	void logoutWhenProviderIssuerMissingThen5xxServerError() {
-		this.spring.register(WebServerConfig.class, OidcProviderConfig.class, ProviderIssuerMissingConfig.class).autowire();
-		String registrationId = this.clientRegistration.getRegistrationId();
-		String session = login();
-		String logoutToken = this.test.mutateWith(session(session))
-				.get()
-				.uri("/token/logout")
-				.exchange()
-				.expectStatus()
-				.isOk()
-				.returnResult(String.class)
-				.getResponseBody()
-				.blockFirst();
-		this.test.post()
-				.uri(this.web.url("/logout/connect/back-channel/" + registrationId).toString())
-				.body(BodyInserters.fromFormData("logout_token", logoutToken))
-				.exchange()
-				.expectStatus()
-				.is5xxServerError();
-		this.test.mutateWith(session(session)).get().uri("/token/logout").exchange().expectStatus().isOk();
-	}
-
-	@Configuration
-	static class ProviderIssuerMissingRegistrationConfig {
-
-		@Autowired(required = false)
-		MockWebServer web;
-
-		@Bean
-		ClientRegistration clientRegistration() {
-			if (this.web == null) {
-				return TestClientRegistrations.clientRegistration().issuerUri(null).build();
-			}
-			String issuer = this.web.url("/").toString();
-			return TestClientRegistrations.clientRegistration()
-					.issuerUri(null)
-					.jwkSetUri(issuer + "jwks")
-					.tokenUri(issuer + "token")
-					.userInfoUri(issuer + "user")
-					.scope("openid")
-					.build();
-		}
-
-		@Bean
-		ReactiveClientRegistrationRepository clientRegistrationRepository(ClientRegistration clientRegistration) {
-			return new InMemoryReactiveClientRegistrationRepository(clientRegistration);
-		}
-
-	}
-
-	@Configuration
-	@EnableWebFluxSecurity
-	@Import(ProviderIssuerMissingRegistrationConfig.class)
-	static class ProviderIssuerMissingConfig {
-
-		@Bean
-		@Order(1)
-		SecurityWebFilterChain filters(ServerHttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-					.authorizeExchange((authorize) -> authorize.anyExchange().authenticated())
-					.oauth2Login(Customizer.withDefaults())
-					.oidcLogout((oidc) -> oidc.backChannel(Customizer.withDefaults()));
-			// @formatter:on
-
-			return http.build();
 		}
 
 	}

@@ -85,7 +85,6 @@ import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -261,6 +260,22 @@ public class OidcLogoutConfigurerTests {
 		verify(sessionRegistry).removeSessionInformation(any(OidcLogoutToken.class));
 	}
 
+	@Test
+	void logoutWhenProviderIssuerMissingThenThrowIllegalArgumentException() throws Exception {
+		this.spring.register(WebServerConfig.class, OidcProviderConfig.class, ProviderIssuerMissingConfig.class)
+			.autowire();
+		String registrationId = this.clientRegistration.getRegistrationId();
+		MockHttpSession session = login();
+		String logoutToken = this.mvc.perform(get("/token/logout").session(session))
+			.andExpect(status().isOk())
+			.andReturn()
+			.getResponse()
+			.getContentAsString();
+		assertThatIllegalArgumentException().isThrownBy(
+				() -> this.mvc.perform(post(this.web.url("/logout/connect/back-channel/" + registrationId).toString())
+					.param("logout_token", logoutToken)));
+	}
+
 	private MockHttpSession login() throws Exception {
 		MockMvcDispatcher dispatcher = (MockMvcDispatcher) this.web.getDispatcher();
 		this.mvc.perform(get("/token/logout")).andExpect(status().isUnauthorized());
@@ -408,6 +423,54 @@ public class OidcLogoutConfigurerTests {
 		@Bean
 		LogoutHandler logoutHandler() {
 			return this.logoutHandler;
+		}
+
+	}
+
+	@Configuration
+	static class ProviderIssuerMissingRegistrationConfig {
+
+		@Autowired(required = false)
+		MockWebServer web;
+
+		@Bean
+		ClientRegistration clientRegistration() {
+			if (this.web == null) {
+				return TestClientRegistrations.clientRegistration().issuerUri(null).build();
+			}
+			String issuer = this.web.url("/").toString();
+			return TestClientRegistrations.clientRegistration()
+				.issuerUri(null)
+				.jwkSetUri(issuer + "jwks")
+				.tokenUri(issuer + "token")
+				.userInfoUri(issuer + "user")
+				.scope("openid")
+				.build();
+		}
+
+		@Bean
+		ClientRegistrationRepository clientRegistrationRepository(ClientRegistration clientRegistration) {
+			return new InMemoryClientRegistrationRepository(clientRegistration);
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	@Import(ProviderIssuerMissingRegistrationConfig.class)
+	static class ProviderIssuerMissingConfig {
+
+		@Bean
+		@Order(1)
+		SecurityFilterChain filters(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+					.authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated())
+					.oauth2Login(Customizer.withDefaults())
+					.oidcLogout((oidc) -> oidc.backChannel(Customizer.withDefaults()));
+			// @formatter:on
+
+			return http.build();
 		}
 
 	}
@@ -646,71 +709,6 @@ public class OidcLogoutConfigurerTests {
 			catch (Exception ex) {
 				throw new RuntimeException(ex);
 			}
-		}
-
-	}
-
-	@Test
-	void logoutWhenProviderIssuerMissingThenThrowIllegalArgumentException() throws Exception {
-		this.spring.register(WebServerConfig.class, OidcProviderConfig.class, ProviderIssuerMissingConfig.class).autowire();
-		String registrationId = this.clientRegistration.getRegistrationId();
-		MockHttpSession session = login();
-		String logoutToken = this.mvc.perform(get("/token/logout").session(session))
-				.andExpect(status().isOk())
-				.andReturn()
-				.getResponse()
-				.getContentAsString();
-		assertThatIllegalArgumentException().isThrownBy(() -> {
-			this.mvc
-					.perform(post(this.web.url("/logout/connect/back-channel/" + registrationId).toString())
-							.param("logout_token", logoutToken));
-		});
-	}
-
-	@Configuration
-	static class ProviderIssuerMissingRegistrationConfig {
-
-		@Autowired(required = false)
-		MockWebServer web;
-
-		@Bean
-		ClientRegistration clientRegistration() {
-			if (this.web == null) {
-				return TestClientRegistrations.clientRegistration().issuerUri(null).build();
-			}
-			String issuer = this.web.url("/").toString();
-			return TestClientRegistrations.clientRegistration()
-					.issuerUri(null)
-					.jwkSetUri(issuer + "jwks")
-					.tokenUri(issuer + "token")
-					.userInfoUri(issuer + "user")
-					.scope("openid")
-					.build();
-		}
-
-		@Bean
-		ClientRegistrationRepository clientRegistrationRepository(ClientRegistration clientRegistration) {
-			return new InMemoryClientRegistrationRepository(clientRegistration);
-		}
-
-	}
-
-	@Configuration
-	@EnableWebSecurity
-	@Import(ProviderIssuerMissingRegistrationConfig.class)
-	static class ProviderIssuerMissingConfig {
-
-		@Bean
-		@Order(1)
-		SecurityFilterChain filters(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-					.authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated())
-					.oauth2Login(Customizer.withDefaults())
-					.oidcLogout((oidc) -> oidc.backChannel(Customizer.withDefaults()));
-			// @formatter:on
-
-			return http.build();
 		}
 
 	}
