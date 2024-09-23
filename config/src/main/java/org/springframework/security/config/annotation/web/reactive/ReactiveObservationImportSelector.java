@@ -43,8 +43,7 @@ class ReactiveObservationImportSelector implements ImportSelector {
 		if (!observabilityPresent) {
 			return new String[0];
 		}
-		return new String[] {
-				"org.springframework.security.config.annotation.observation.configuration.ReactiveObservationConfiguration" };
+		return new String[] { ReactiveObservationConfiguration.class.getName() };
 	}
 
 }

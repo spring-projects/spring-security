@@ -47,6 +47,7 @@ import org.springframework.security.config.annotation.web.AbstractRequestMatcher
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.core.GrantedAuthorityDefaults;
+import org.springframework.security.config.observation.SecurityObservationSettings;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.core.Authentication;
@@ -80,6 +81,7 @@ import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -648,6 +650,18 @@ public class AuthorizeHttpRequestsConfigurerTests {
 		assertThat(context.getAllValues()).anyMatch((c) -> c instanceof AuthorizationObservationContext);
 		this.mvc.perform(get("/").with(user("user").roles("WRONG"))).andExpect(status().isForbidden());
 		verify(handler).onError(any());
+	}
+
+	@Test
+	public void getWhenExcludeAuthorizationObservationsThenUnobserved() throws Exception {
+		this.spring
+			.register(RoleUserConfig.class, BasicController.class, ObservationRegistryConfig.class,
+					SelectableObservationsConfig.class)
+			.autowire();
+		ObservationHandler<Observation.Context> handler = this.spring.getContext().getBean(ObservationHandler.class);
+		this.mvc.perform(get("/").with(user("user").roles("USER"))).andExpect(status().isOk());
+		this.mvc.perform(get("/").with(user("user").roles("WRONG"))).andExpect(status().isForbidden());
+		verifyNoInteractions(handler);
 	}
 
 	@Configuration
@@ -1284,6 +1298,16 @@ public class AuthorizeHttpRequestsConfigurerTests {
 				registry.observationConfig().observationHandler(this.handler.getObject());
 			}
 			return bean;
+		}
+
+	}
+
+	@Configuration
+	static class SelectableObservationsConfig {
+
+		@Bean
+		SecurityObservationSettings observabilityDefaults() {
+			return SecurityObservationSettings.withDefaults().shouldObserveAuthorizations(false).build();
 		}
 
 	}

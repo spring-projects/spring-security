@@ -69,6 +69,7 @@ import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.config.annotation.SecurityContextChangedListenerConfig;
 import org.springframework.security.config.annotation.web.messaging.MessageSecurityMetadataSourceRegistry;
+import org.springframework.security.config.observation.SecurityObservationSettings;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AnnotationTemplateExpressionDefaults;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -106,6 +107,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.springframework.security.web.csrf.CsrfTokenAssert.assertThatCsrfToken;
 
 public class WebSocketMessageBrokerSecurityConfigurationTests {
@@ -412,6 +414,28 @@ public class WebSocketMessageBrokerSecurityConfigurationTests {
 			// okay
 		}
 		verify(observationHandler).onError(any());
+	}
+
+	@Test
+	public void sendMessageWhenExcludeAuthorizationObservationsThenUnobserved() {
+		loadConfig(WebSocketSecurityConfig.class, ObservationRegistryConfig.class, SelectableObservationsConfig.class);
+		SimpMessageHeaderAccessor headers = SimpMessageHeaderAccessor.create(SimpMessageType.CONNECT);
+		headers.setNativeHeader(this.token.getHeaderName(), XOR_CSRF_TOKEN_VALUE);
+		Message<?> message = message(headers, "/authenticated");
+		headers.getSessionAttributes().put(CsrfToken.class.getName(), this.token);
+		clientInboundChannel().send(message);
+		ObservationHandler<Observation.Context> observationHandler = this.context.getBean(ObservationHandler.class);
+		headers = SimpMessageHeaderAccessor.create(SimpMessageType.CONNECT);
+		headers.setNativeHeader(this.token.getHeaderName(), XOR_CSRF_TOKEN_VALUE);
+		message = message(headers, "/denyAll");
+		headers.getSessionAttributes().put(CsrfToken.class.getName(), this.token);
+		try {
+			clientInboundChannel().send(message);
+		}
+		catch (MessageDeliveryException ex) {
+			// okay
+		}
+		verifyNoInteractions(observationHandler);
 	}
 
 	private void assertHandshake(HttpServletRequest request) {
@@ -964,6 +988,16 @@ public class WebSocketMessageBrokerSecurityConfigurationTests {
 				registry.observationConfig().observationHandler(this.handler.getObject());
 			}
 			return bean;
+		}
+
+	}
+
+	@Configuration
+	static class SelectableObservationsConfig {
+
+		@Bean
+		SecurityObservationSettings observabilityDefaults() {
+			return SecurityObservationSettings.withDefaults().shouldObserveAuthorizations(false).build();
 		}
 
 	}

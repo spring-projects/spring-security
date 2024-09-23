@@ -39,6 +39,7 @@ import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.SecurityContextChangedListenerConfig;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.observation.SecurityObservationSettings;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.core.AuthenticationException;
@@ -63,6 +64,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.springframework.security.config.Customizer.withDefaults;
@@ -187,6 +189,26 @@ public class HttpBasicConfigurerTests {
 		this.mvc.perform(get("/").with(httpBasic("user", "wrong"))).andExpect(status().isUnauthorized());
 		verify(handler).onError(context.capture());
 		assertThat(context.getValue()).isInstanceOf(AuthenticationObservationContext.class);
+	}
+
+	@Test
+	public void httpBasicWhenExcludeAuthenticationObservationsThenUnobserved() throws Exception {
+		this.spring
+			.register(HttpBasic.class, Users.class, Home.class, ObservationRegistryConfig.class,
+					SelectableObservationsConfig.class)
+			.autowire();
+		ObservationHandler<Observation.Context> handler = this.spring.getContext().getBean(ObservationHandler.class);
+		this.mvc.perform(get("/").with(httpBasic("user", "password")))
+			.andExpect(status().isOk())
+			.andExpect(content().string("user"));
+		ArgumentCaptor<Observation.Context> context = ArgumentCaptor.forClass(Observation.Context.class);
+		verify(handler, atLeastOnce()).onStart(context.capture());
+		assertThat(context.getAllValues()).noneMatch((c) -> c instanceof AuthenticationObservationContext);
+		context = ArgumentCaptor.forClass(Observation.Context.class);
+		verify(handler, atLeastOnce()).onStop(context.capture());
+		assertThat(context.getAllValues()).noneMatch((c) -> c instanceof AuthenticationObservationContext);
+		this.mvc.perform(get("/").with(httpBasic("user", "wrong"))).andExpect(status().isUnauthorized());
+		verify(handler, never()).onError(any());
 	}
 
 	@Configuration
@@ -451,6 +473,16 @@ public class HttpBasicConfigurerTests {
 				registry.observationConfig().observationHandler(this.handler.getObject());
 			}
 			return bean;
+		}
+
+	}
+
+	@Configuration
+	static class SelectableObservationsConfig {
+
+		@Bean
+		SecurityObservationSettings observabilityDefaults() {
+			return SecurityObservationSettings.withDefaults().shouldObserveAuthentications(false).build();
 		}
 
 	}

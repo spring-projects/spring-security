@@ -68,8 +68,7 @@ final class MethodSecuritySelector implements ImportSelector {
 			imports.add(AuthorizationProxyDataConfiguration.class.getName());
 		}
 		if (isObservabilityPresent) {
-			imports.add(
-					"org.springframework.security.config.annotation.observation.configuration.ObservationConfiguration");
+			imports.add(MethodObservationConfiguration.class.getName());
 		}
 		return imports.toArray(new String[0]);
 	}

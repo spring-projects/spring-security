@@ -43,8 +43,7 @@ class ObservationImportSelector implements ImportSelector {
 		if (!observabilityPresent) {
 			return new String[0];
 		}
-		return new String[] {
-				"org.springframework.security.config.annotation.observation.configuration.ObservationConfiguration" };
+		return new String[] { ObservationConfiguration.class.getName() };
 	}
 
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.config.annotation.observation.configuration;
+package org.springframework.security.config.annotation.web.socket;
 
 import io.micrometer.observation.ObservationRegistry;
 
@@ -27,22 +27,29 @@ import org.springframework.messaging.Message;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.authorization.ObservationAuthorizationManager;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
+import org.springframework.security.config.observation.SecurityObservationSettings;
 
 @Configuration(proxyBeanMethods = false)
 @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 class WebSocketObservationConfiguration {
 
-	private final ObjectProvider<ObservationRegistry> observationRegistry;
-
-	WebSocketObservationConfiguration(ObjectProvider<ObservationRegistry> observationRegistry) {
-		this.observationRegistry = observationRegistry;
-	}
+	private static final SecurityObservationSettings all = SecurityObservationSettings.withDefaults()
+		.shouldObserveRequests(true)
+		.shouldObserveAuthentications(true)
+		.shouldObserveAuthorizations(true)
+		.build();
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-	ObjectPostProcessor<AuthorizationManager<Message<?>>> messageAuthorizationManagerPostProcessor() {
-		return new AbstractObservationObjectPostProcessor<>(this.observationRegistry,
-				ObservationAuthorizationManager::new) {
+	static ObjectPostProcessor<AuthorizationManager<Message<?>>> webAuthorizationManagerPostProcessor(
+			ObjectProvider<ObservationRegistry> registry, ObjectProvider<SecurityObservationSettings> predicate) {
+		return new ObjectPostProcessor<>() {
+			@Override
+			public AuthorizationManager postProcess(AuthorizationManager object) {
+				ObservationRegistry r = registry.getIfUnique(() -> ObservationRegistry.NOOP);
+				boolean active = !r.isNoop() && predicate.getIfUnique(() -> all).shouldObserveAuthorizations();
+				return active ? new ObservationAuthorizationManager<>(r, object) : object;
+			}
 		};
 	}
 
