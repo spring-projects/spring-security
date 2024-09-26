@@ -27,7 +27,7 @@ import org.springframework.context.annotation.Role;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.authorization.ObservationAuthorizationManager;
 import org.springframework.security.authorization.method.MethodInvocationResult;
-import org.springframework.security.config.annotation.ObjectPostProcessor;
+import org.springframework.security.config.ObjectPostProcessor;
 import org.springframework.security.config.observation.SecurityObservationSettings;
 
 @Configuration(proxyBeanMethods = false)

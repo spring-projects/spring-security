@@ -17,7 +17,7 @@
 package org.springframework.security.config.annotation.authentication.configurers.userdetails;
 
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.annotation.ObjectPostProcessor;
+import org.springframework.security.config.ObjectPostProcessor;
 import org.springframework.security.config.annotation.SecurityBuilder;
 import org.springframework.security.config.annotation.authentication.ProviderManagerBuilder;
 import org.springframework.security.core.userdetails.UserDetailsPasswordService;

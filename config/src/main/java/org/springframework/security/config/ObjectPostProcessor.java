@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.config.annotation;
+package org.springframework.security.config;
 
 import org.springframework.beans.factory.Aware;
 import org.springframework.beans.factory.DisposableBean;
@@ -28,11 +28,17 @@ import org.springframework.beans.factory.InitializingBean;
  * @param <T> the bound of the types of Objects this {@link ObjectPostProcessor} supports.
  * @author Rob Winch
  * @since 3.2
- * @deprecated please use {@link org.springframework.security.config.ObjectPostProcessor}
- * instead
  */
-@Deprecated
-public interface ObjectPostProcessor<T> extends org.springframework.security.config.ObjectPostProcessor<T> {
+public interface ObjectPostProcessor<T> {
+
+	static <S> ObjectPostProcessor<S> identity() {
+		return new ObjectPostProcessor<>() {
+			@Override
+			public <O extends S> O postProcess(O object) {
+				return object;
+			}
+		};
+	}
 
 	/**
 	 * Initialize the object possibly returning a modified instance that should be used

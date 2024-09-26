@@ -28,7 +28,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ObservationAuthenticationManager;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.authorization.ObservationAuthorizationManager;
-import org.springframework.security.config.annotation.ObjectPostProcessor;
+import org.springframework.security.config.ObjectPostProcessor;
 import org.springframework.security.config.observation.SecurityObservationSettings;
 import org.springframework.security.web.FilterChainProxy.FilterChainDecorator;
 import org.springframework.security.web.ObservationFilterChainDecorator;

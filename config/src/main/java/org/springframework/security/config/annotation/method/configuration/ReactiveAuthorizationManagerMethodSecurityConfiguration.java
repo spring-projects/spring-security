@@ -43,7 +43,7 @@ import org.springframework.security.authorization.method.PostFilterAuthorization
 import org.springframework.security.authorization.method.PreAuthorizeReactiveAuthorizationManager;
 import org.springframework.security.authorization.method.PreFilterAuthorizationReactiveMethodInterceptor;
 import org.springframework.security.authorization.method.PrePostTemplateDefaults;
-import org.springframework.security.config.annotation.ObjectPostProcessor;
+import org.springframework.security.config.ObjectPostProcessor;
 import org.springframework.security.config.core.GrantedAuthorityDefaults;
 import org.springframework.security.core.annotation.AnnotationTemplateExpressionDefaults;
 

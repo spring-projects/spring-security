@@ -27,7 +27,7 @@ import org.springframework.security.authentication.ObservationReactiveAuthentica
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authorization.ObservationReactiveAuthorizationManager;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
-import org.springframework.security.config.annotation.ObjectPostProcessor;
+import org.springframework.security.config.ObjectPostProcessor;
 import org.springframework.security.config.observation.SecurityObservationSettings;
 import org.springframework.security.web.server.ObservationWebFilterChainDecorator;
 import org.springframework.security.web.server.WebFilterChainProxy.WebFilterChainDecorator;
