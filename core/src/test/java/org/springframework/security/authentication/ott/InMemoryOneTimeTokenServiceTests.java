@@ -28,6 +28,7 @@ import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 
 /**
@@ -97,6 +98,15 @@ class InMemoryOneTimeTokenServiceTests {
 			.extracting(
 					(token) -> this.oneTimeTokenService.consume(new OneTimeTokenAuthenticationToken(token.getTokenValue())))
 			.noneMatch(Objects::isNull);
+		// @formatter:on
+	}
+
+	@Test
+	void setClockWhenNullThenThrowIllegalArgumentException() {
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.oneTimeTokenService.setClock(null))
+				.withMessage("clock cannot be null");
 		// @formatter:on
 	}
 

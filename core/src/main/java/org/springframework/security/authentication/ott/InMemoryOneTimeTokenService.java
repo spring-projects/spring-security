@@ -75,7 +75,12 @@ public final class InMemoryOneTimeTokenService implements OneTimeTokenService {
 		return this.clock.instant().isAfter(ott.getExpiresAt());
 	}
 
-	void setClock(Clock clock) {
+	/**
+	 * Sets the {@link Clock} used when generating one-time token and checking token
+	 * expiry.
+	 * @param clock the clock
+	 */
+	public void setClock(Clock clock) {
 		Assert.notNull(clock, "clock cannot be null");
 		this.clock = clock;
 	}
