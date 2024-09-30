@@ -57,7 +57,7 @@ public class WebSessionServerRequestCache implements ServerRequestCache {
 
 	private String sessionAttrName = DEFAULT_SAVED_REQUEST_ATTR;
 
-	private ServerWebExchangeMatcher saveRequestMatcher = createDefaultRequestMacher();
+	private ServerWebExchangeMatcher saveRequestMatcher = createDefaultRequestMatcher();
 
 	private String matchingRequestParameterName;
 
@@ -156,7 +156,7 @@ public class WebSessionServerRequestCache implements ServerRequestCache {
 		// @formatter:on
 	}
 
-	private static ServerWebExchangeMatcher createDefaultRequestMacher() {
+	private static ServerWebExchangeMatcher createDefaultRequestMatcher() {
 		ServerWebExchangeMatcher get = ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, "/**");
 		ServerWebExchangeMatcher notFavicon = new NegatedServerWebExchangeMatcher(
 				ServerWebExchangeMatchers.pathMatchers("/favicon.*"));
