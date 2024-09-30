@@ -84,6 +84,7 @@ public class LoginPageGeneratingWebFilterTests {
 
 				        <button type="submit" class="primary">Sign in</button>
 				      </form>
+
 				<h2>Login with OAuth 2.0</h2>
 
 				<table class="table table-striped">
@@ -92,6 +93,22 @@ public class LoginPageGeneratingWebFilterTests {
 				    </div>
 				  </body>
 				</html>""");
+	}
+
+	@Test
+	public void filterWhenOneTimeTokenLoginThenOttForm() {
+		LoginPageGeneratingWebFilter filter = new LoginPageGeneratingWebFilter();
+		filter.setOneTimeTokenEnabled(true);
+		filter.setGenerateOneTimeTokenUrl("/ott/authenticate");
+		filter.setFormLoginEnabled(true);
+		MockServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/login"));
+
+		filter.filter(exchange, (e) -> Mono.empty()).block();
+
+		assertThat(exchange.getResponse().getBodyAsString().block()).contains("Request a One-Time Token");
+		assertThat(exchange.getResponse().getBodyAsString().block()).contains("""
+				 <form id="ott-form" class="login-form" method="post" action="/ott/authenticate">
+				""");
 	}
 
 }
