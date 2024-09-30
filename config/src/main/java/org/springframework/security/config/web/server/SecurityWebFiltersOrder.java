@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -66,6 +66,16 @@ public enum SecurityWebFiltersOrder {
 	LOGIN_PAGE_GENERATING,
 
 	LOGOUT_PAGE_GENERATING,
+
+	/**
+	 * {@link org.springframework.security.web.server.authentication.ott.GenerateOneTimeTokenWebFilter}
+	 */
+	ONE_TIME_TOKEN,
+
+	/**
+	 * {@link org.springframework.security.web.server.ui.OneTimeTokenSubmitPageGeneratingWebFilter}
+	 */
+	ONE_TIME_TOKEN_SUBMIT_PAGE_GENERATING,
 
 	/**
 	 * {@link org.springframework.security.web.server.context.SecurityContextServerWebExchangeWebFilter}
