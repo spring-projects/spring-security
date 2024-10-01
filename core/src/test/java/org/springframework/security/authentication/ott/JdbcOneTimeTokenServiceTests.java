@@ -68,8 +68,9 @@ public class JdbcOneTimeTokenServiceTests {
 	}
 
 	@AfterEach
-	public void tearDown() {
+	public void tearDown() throws Exception {
 		this.db.shutdown();
+		this.oneTimeTokenService.destroy();
 	}
 
 	private static EmbeddedDatabase createDb() {

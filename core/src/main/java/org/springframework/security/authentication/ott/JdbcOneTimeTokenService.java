@@ -30,6 +30,7 @@ import java.util.function.Function;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.jdbc.core.ArgumentPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.PreparedStatementSetter;
@@ -55,7 +56,7 @@ import org.springframework.util.StringUtils;
  * @author Max Batischev
  * @since 6.4
  */
-public final class JdbcOneTimeTokenService implements OneTimeTokenService {
+public final class JdbcOneTimeTokenService implements OneTimeTokenService, DisposableBean {
 
 	private final Log logger = LogFactory.getLog(getClass());
 
@@ -185,6 +186,13 @@ public final class JdbcOneTimeTokenService implements OneTimeTokenService {
 		PreparedStatementSetter pss = new ArgumentPreparedStatementSetter(parameters.toArray());
 		int deletedCount = this.jdbcOperations.update(DELETE_SESSIONS_BY_EXPIRY_TIME_QUERY, pss);
 		this.logger.debug("Cleaned up " + deletedCount + " expired tokens");
+	}
+
+	@Override
+	public void destroy() throws Exception {
+		if (this.taskScheduler != null) {
+			this.taskScheduler.shutdown();
+		}
 	}
 
 	/**
