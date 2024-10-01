@@ -224,7 +224,7 @@ public final class JdbcOneTimeTokenService implements OneTimeTokenService, Dispo
 	 * @author Max Batischev
 	 * @since 6.4
 	 */
-	public static class OneTimeTokenParametersMapper implements Function<OneTimeToken, List<SqlParameterValue>> {
+	private static class OneTimeTokenParametersMapper implements Function<OneTimeToken, List<SqlParameterValue>> {
 
 		@Override
 		public List<SqlParameterValue> apply(OneTimeToken oneTimeToken) {
@@ -244,7 +244,7 @@ public final class JdbcOneTimeTokenService implements OneTimeTokenService, Dispo
 	 * @author Max Batischev
 	 * @since 6.4
 	 */
-	public static class OneTimeTokenRowMapper implements RowMapper<OneTimeToken> {
+	private static class OneTimeTokenRowMapper implements RowMapper<OneTimeToken> {
 
 		@Override
 		public OneTimeToken mapRow(ResultSet rs, int rowNum) throws SQLException {

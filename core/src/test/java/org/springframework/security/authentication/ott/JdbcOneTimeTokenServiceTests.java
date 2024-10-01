@@ -17,27 +17,25 @@
 package org.springframework.security.authentication.ott;
 
 import java.time.Clock;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
-import java.util.List;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import org.springframework.jdbc.core.ArgumentPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.PreparedStatementSetter;
-import org.springframework.jdbc.core.SqlParameterValue;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabase;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
-import org.springframework.util.CollectionUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 
 /**
  * Tests for {@link JdbcOneTimeTokenService}.
@@ -57,8 +55,6 @@ public class JdbcOneTimeTokenServiceTests {
 	private JdbcOperations jdbcOperations;
 
 	private JdbcOneTimeTokenService oneTimeTokenService;
-
-	private final JdbcOneTimeTokenService.OneTimeTokenParametersMapper oneTimeTokenParametersMapper = new JdbcOneTimeTokenService.OneTimeTokenParametersMapper();
 
 	@BeforeEach
 	void setUp() {
@@ -115,7 +111,8 @@ public class JdbcOneTimeTokenServiceTests {
 	void generateThenTokenValueShouldBeValidUuidAndProvidedUsernameIsUsed() {
 		OneTimeToken oneTimeToken = this.oneTimeTokenService.generate(new GenerateOneTimeTokenRequest(USERNAME));
 
-		OneTimeToken persistedOneTimeToken = selectOneTimeToken(oneTimeToken.getTokenValue());
+		OneTimeToken persistedOneTimeToken = this.oneTimeTokenService
+			.consume(new OneTimeTokenAuthenticationToken(oneTimeToken.getTokenValue()));
 		assertThat(persistedOneTimeToken).isNotNull();
 		assertThat(persistedOneTimeToken.getUsername()).isNotNull();
 		assertThat(persistedOneTimeToken.getTokenValue()).isNotNull();
@@ -134,7 +131,8 @@ public class JdbcOneTimeTokenServiceTests {
 		assertThat(consumedOneTimeToken.getUsername()).isNotNull();
 		assertThat(consumedOneTimeToken.getTokenValue()).isNotNull();
 		assertThat(consumedOneTimeToken.getExpiresAt()).isNotNull();
-		OneTimeToken persistedOneTimeToken = selectOneTimeToken(consumedOneTimeToken.getTokenValue());
+		OneTimeToken persistedOneTimeToken = this.oneTimeTokenService
+			.consume(new OneTimeTokenAuthenticationToken(consumedOneTimeToken.getTokenValue()));
 		assertThat(persistedOneTimeToken).isNull();
 	}
 
@@ -162,15 +160,19 @@ public class JdbcOneTimeTokenServiceTests {
 
 	@Test
 	void cleanupExpiredTokens() {
-		OneTimeToken token1 = new DefaultOneTimeToken("123", USERNAME, Instant.now().minusSeconds(300));
-		OneTimeToken token2 = new DefaultOneTimeToken("456", USERNAME, Instant.now().minusSeconds(300));
-		saveToken(token1);
-		saveToken(token2);
+		Clock clock = mock(Clock.class);
+		Instant fiveMinutesAgo = Instant.now().minus(Duration.ofMinutes(5));
+		given(clock.instant()).willReturn(fiveMinutesAgo);
+		this.oneTimeTokenService.setClock(clock);
+		OneTimeToken token1 = this.oneTimeTokenService.generate(new GenerateOneTimeTokenRequest(USERNAME));
+		OneTimeToken token2 = this.oneTimeTokenService.generate(new GenerateOneTimeTokenRequest(USERNAME));
 
 		this.oneTimeTokenService.cleanupExpiredTokens();
 
-		OneTimeToken deletedOneTimeToken1 = selectOneTimeToken("123");
-		OneTimeToken deletedOneTimeToken2 = selectOneTimeToken("456");
+		OneTimeToken deletedOneTimeToken1 = this.oneTimeTokenService
+			.consume(new OneTimeTokenAuthenticationToken(token1.getTokenValue()));
+		OneTimeToken deletedOneTimeToken2 = this.oneTimeTokenService
+			.consume(new OneTimeTokenAuthenticationToken(token2.getTokenValue()));
 		assertThat(deletedOneTimeToken1).isNull();
 		assertThat(deletedOneTimeToken2).isNull();
 	}
@@ -184,25 +186,6 @@ public class JdbcOneTimeTokenServiceTests {
 	void setCleanupChronWhenAlreadyNullThenNoException() {
 		this.oneTimeTokenService.setCleanupCron(null);
 		this.oneTimeTokenService.setCleanupCron(null);
-	}
-
-	private void saveToken(OneTimeToken oneTimeToken) {
-		List<SqlParameterValue> parameters = this.oneTimeTokenParametersMapper.apply(oneTimeToken);
-		PreparedStatementSetter pss = new ArgumentPreparedStatementSetter(parameters.toArray());
-		this.jdbcOperations.update("INSERT INTO one_time_tokens (token_value, username, expires_at) VALUES (?, ?, ?)",
-				pss);
-	}
-
-	private OneTimeToken selectOneTimeToken(String tokenValue) {
-		// @formatter:off
-		List<OneTimeToken> result = this.jdbcOperations.query(
-				"select token_value, username, expires_at from one_time_tokens where token_value = ?",
-				new JdbcOneTimeTokenService.OneTimeTokenRowMapper(), tokenValue);
-		if (CollectionUtils.isEmpty(result)) {
-			return null;
-		}
-		return result.get(0);
-		// @formatter:on
 	}
 
 }
