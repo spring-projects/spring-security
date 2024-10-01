@@ -167,7 +167,7 @@ public class JdbcOneTimeTokenServiceTests {
 		saveToken(token1);
 		saveToken(token2);
 
-		this.oneTimeTokenService.cleanUpExpiredTokens();
+		this.oneTimeTokenService.cleanupExpiredTokens();
 
 		OneTimeToken deletedOneTimeToken1 = selectOneTimeToken("123");
 		OneTimeToken deletedOneTimeToken2 = selectOneTimeToken("456");

@@ -177,11 +177,11 @@ public final class JdbcOneTimeTokenService implements OneTimeTokenService, Dispo
 		ThreadPoolTaskScheduler taskScheduler = new ThreadPoolTaskScheduler();
 		taskScheduler.setThreadNamePrefix("spring-one-time-tokens-");
 		taskScheduler.initialize();
-		taskScheduler.schedule(this::cleanUpExpiredTokens, new CronTrigger(cleanupCron));
+		taskScheduler.schedule(this::cleanupExpiredTokens, new CronTrigger(cleanupCron));
 		return taskScheduler;
 	}
 
-	public void cleanUpExpiredTokens() {
+	public void cleanupExpiredTokens() {
 		List<SqlParameterValue> parameters = List.of(new SqlParameterValue(Types.TIMESTAMP, Instant.now()));
 		PreparedStatementSetter pss = new ArgumentPreparedStatementSetter(parameters.toArray());
 		int deletedCount = this.jdbcOperations.update(DELETE_SESSIONS_BY_EXPIRY_TIME_QUERY, pss);
