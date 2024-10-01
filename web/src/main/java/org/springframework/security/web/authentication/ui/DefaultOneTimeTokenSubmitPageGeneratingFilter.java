@@ -89,11 +89,21 @@ public final class DefaultOneTimeTokenSubmitPageGeneratingFilter extends OncePer
 			.render();
 	}
 
+	/**
+	 * Sets a Function used to resolve a Map of the hidden inputs where the key is the
+	 * name of the input and the value is the value of the input.
+	 * @param resolveHiddenInputs the function to resolve the inputs
+	 */
 	public void setResolveHiddenInputs(Function<HttpServletRequest, Map<String, String>> resolveHiddenInputs) {
 		Assert.notNull(resolveHiddenInputs, "resolveHiddenInputs cannot be null");
 		this.resolveHiddenInputs = resolveHiddenInputs;
 	}
 
+	/**
+	 * Use this {@link RequestMatcher} to choose whether this filter will handle the
+	 * request. By default, it handles {@code /login/ott}.
+	 * @param requestMatcher the {@link RequestMatcher} to use
+	 */
 	public void setRequestMatcher(RequestMatcher requestMatcher) {
 		Assert.notNull(requestMatcher, "requestMatcher cannot be null");
 		this.requestMatcher = requestMatcher;
