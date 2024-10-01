@@ -175,6 +175,17 @@ public class JdbcOneTimeTokenServiceTests {
 		assertThat(deletedOneTimeToken2).isNull();
 	}
 
+	@Test
+	void setCleanupChronWhenNullThenNoException() {
+		this.oneTimeTokenService.setCleanupCron(null);
+	}
+
+	@Test
+	void setCleanupChronWhenAlreadyNullThenNoException() {
+		this.oneTimeTokenService.setCleanupCron(null);
+		this.oneTimeTokenService.setCleanupCron(null);
+	}
+
 	private void saveToken(OneTimeToken oneTimeToken) {
 		List<SqlParameterValue> parameters = this.oneTimeTokenParametersMapper.apply(oneTimeToken);
 		PreparedStatementSetter pss = new ArgumentPreparedStatementSetter(parameters.toArray());

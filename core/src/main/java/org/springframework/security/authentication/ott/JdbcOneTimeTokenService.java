@@ -31,6 +31,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.beans.factory.DisposableBean;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.jdbc.core.ArgumentPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.PreparedStatementSetter;
@@ -40,7 +41,6 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 
 /**
  *
@@ -56,7 +56,7 @@ import org.springframework.util.StringUtils;
  * @author Max Batischev
  * @since 6.4
  */
-public final class JdbcOneTimeTokenService implements OneTimeTokenService, DisposableBean {
+public final class JdbcOneTimeTokenService implements OneTimeTokenService, DisposableBean, InitializingBean {
 
 	private final Log logger = LogFactory.getLog(getClass());
 
@@ -70,7 +70,7 @@ public final class JdbcOneTimeTokenService implements OneTimeTokenService, Dispo
 
 	private ThreadPoolTaskScheduler taskScheduler;
 
-	private static final String DEFAULT_CLEANUP_CRON = "0 * * * * *";
+	private static final String DEFAULT_CLEANUP_CRON = "@hourly";
 
 	private static final String TABLE_NAME = "one_time_tokens";
 
@@ -104,23 +104,27 @@ public final class JdbcOneTimeTokenService implements OneTimeTokenService, Dispo
 	/**
 	 * Constructs a {@code JdbcOneTimeTokenService} using the provide parameters.
 	 * @param jdbcOperations the JDBC operations
-	 * @param cleanupCron cleanup cron expression
-	 */
-	public JdbcOneTimeTokenService(JdbcOperations jdbcOperations, String cleanupCron) {
-		Assert.isTrue(StringUtils.hasText(cleanupCron), "cleanupCron cannot be null orr empty");
-		Assert.notNull(jdbcOperations, "jdbcOperations cannot be null");
-		this.jdbcOperations = jdbcOperations;
-		this.taskScheduler = createTaskScheduler(cleanupCron);
-	}
-
-	/**
-	 * Constructs a {@code JdbcOneTimeTokenService} using the provide parameters.
-	 * @param jdbcOperations the JDBC operations
 	 */
 	public JdbcOneTimeTokenService(JdbcOperations jdbcOperations) {
 		Assert.notNull(jdbcOperations, "jdbcOperations cannot be null");
 		this.jdbcOperations = jdbcOperations;
 		this.taskScheduler = createTaskScheduler(DEFAULT_CLEANUP_CRON);
+	}
+
+	/**
+	 * Sets the chron expression used for cleaning up expired sessions. The default is to
+	 * run hourly.
+	 *
+	 * For more advanced use cases the cleanupCron may be set to null which will disable
+	 * the built-in cleanup. Users can then invoke {@link #cleanupExpiredTokens()} using
+	 * custom logic.
+	 * @param cleanupCron the chron expression passed to {@link CronTrigger} used for
+	 * determining how frequent to perform cleanup. The default is "@hourly".
+	 * @see CronTrigger
+	 * @see #cleanupExpiredTokens()
+	 */
+	public void setCleanupCron(String cleanupCron) {
+		this.taskScheduler = createTaskScheduler(cleanupCron);
 	}
 
 	@Override
@@ -174,6 +178,9 @@ public final class JdbcOneTimeTokenService implements OneTimeTokenService, Dispo
 	}
 
 	private ThreadPoolTaskScheduler createTaskScheduler(String cleanupCron) {
+		if (cleanupCron == null) {
+			return null;
+		}
 		ThreadPoolTaskScheduler taskScheduler = new ThreadPoolTaskScheduler();
 		taskScheduler.setThreadNamePrefix("spring-one-time-tokens-");
 		taskScheduler.initialize();
@@ -186,6 +193,11 @@ public final class JdbcOneTimeTokenService implements OneTimeTokenService, Dispo
 		PreparedStatementSetter pss = new ArgumentPreparedStatementSetter(parameters.toArray());
 		int deletedCount = this.jdbcOperations.update(DELETE_SESSIONS_BY_EXPIRY_TIME_QUERY, pss);
 		this.logger.debug("Cleaned up " + deletedCount + " expired tokens");
+	}
+
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		this.taskScheduler.afterPropertiesSet();
 	}
 
 	@Override
