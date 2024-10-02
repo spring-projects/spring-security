@@ -193,7 +193,9 @@ public final class JdbcOneTimeTokenService implements OneTimeTokenService, Dispo
 		List<SqlParameterValue> parameters = List.of(new SqlParameterValue(Types.TIMESTAMP, Instant.now()));
 		PreparedStatementSetter pss = new ArgumentPreparedStatementSetter(parameters.toArray());
 		int deletedCount = this.jdbcOperations.update(DELETE_SESSIONS_BY_EXPIRY_TIME_QUERY, pss);
-		this.logger.debug("Cleaned up " + deletedCount + " expired tokens");
+		if (logger.isDebugEnabled()) {
+			this.logger.debug("Cleaned up " + deletedCount + " expired tokens");
+		}
 	}
 
 	@Override
