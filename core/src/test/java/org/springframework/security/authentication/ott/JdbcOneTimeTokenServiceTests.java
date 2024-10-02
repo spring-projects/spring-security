@@ -42,7 +42,7 @@ import static org.mockito.Mockito.mock;
  *
  * @author Max Batischev
  */
-public class JdbcOneTimeTokenServiceTests {
+class JdbcOneTimeTokenServiceTests {
 
 	private static final String USERNAME = "user";
 
@@ -64,7 +64,7 @@ public class JdbcOneTimeTokenServiceTests {
 	}
 
 	@AfterEach
-	public void tearDown() throws Exception {
+	void tearDown() throws Exception {
 		this.db.shutdown();
 		this.oneTimeTokenService.destroy();
 	}
