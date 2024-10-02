@@ -21,6 +21,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.time.Clock;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -131,7 +132,7 @@ public final class JdbcOneTimeTokenService implements OneTimeTokenService, Dispo
 	public OneTimeToken generate(GenerateOneTimeTokenRequest request) {
 		Assert.notNull(request, "generateOneTimeTokenRequest cannot be null");
 		String token = UUID.randomUUID().toString();
-		Instant fiveMinutesFromNow = this.clock.instant().plusSeconds(300);
+		Instant fiveMinutesFromNow = this.clock.instant().plus(Duration.ofMinutes(5));
 		OneTimeToken oneTimeToken = new DefaultOneTimeToken(token, request.getUsername(), fiveMinutesFromNow);
 		insertOneTimeToken(oneTimeToken);
 		return oneTimeToken;
