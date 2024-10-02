@@ -76,7 +76,7 @@ public class ServerBearerTokenAuthenticationConverter implements ServerAuthentic
 	}
 
 	private Mono<String> token(ServerWebExchange exchange) {
-		final var request = exchange.getRequest();
+		final ServerHttpRequest request = exchange.getRequest();
 
 		return Flux.merge(resolveFromAuthorizationHeader(request.getHeaders()).map(s -> Tuples.of(s, TokenSource.HEADER)),
 						  resolveAccessTokenFromRequest(request).map(s -> Tuples.of(s, TokenSource.QUERY_PARAMETER)),
@@ -179,7 +179,7 @@ public class ServerBearerTokenAuthenticationConverter implements ServerAuthentic
 			return Mono.empty();
 		}
 
-		final var request = exchange.getRequest();
+		final ServerHttpRequest request = exchange.getRequest();
 
 		if (request.getMethod() == HttpMethod.POST &&
 				MediaType.APPLICATION_FORM_URLENCODED.equalsTypeAndSubtype(request.getHeaders().getContentType())) {
@@ -188,7 +188,7 @@ public class ServerBearerTokenAuthenticationConverter implements ServerAuthentic
 				if (formData.isEmpty()) {
 					return null;
 				}
-				final var tokens = formData.get(ACCESS_TOKEN_NAME);
+				final List<String> tokens = formData.get(ACCESS_TOKEN_NAME);
 				if (tokens == null) {
 					return null;
 				}
