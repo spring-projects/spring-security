@@ -412,6 +412,7 @@ class MagicLinkGeneratedOneTimeTokenSuccessHandler : GeneratedOneTimeTokenHandle
 
 The interface that define the common operations for generating and consuming one-time tokens is the javadoc:org.springframework.security.authentication.ott.OneTimeTokenService[].
 Spring Security uses the javadoc:org.springframework.security.authentication.ott.InMemoryOneTimeTokenService[] as the default implementation of that interface, if none is provided.
+For production environments consider using javadoc:org.springframework.security.authentication.ott.JdbcOneTimeTokenService[].
 
 Some of the most common reasons to customize the `OneTimeTokenService` are, but not limited to:
 
