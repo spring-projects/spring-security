@@ -222,8 +222,8 @@ public class ServerBearerTokenAuthenticationConverterTests {
 	@Test
 	void resolveWhenBodyParameterIsPresentThenTokenIsResolved() {
 		this.converter.setAllowFormEncodedBodyParameter(true);
-		var request = post("/").contentType(APPLICATION_FORM_URLENCODED)
-							   .body("access_token=" + TEST_TOKEN);
+		MockServerHttpRequest request = post("/").contentType(APPLICATION_FORM_URLENCODED)
+												 .body("access_token=" + TEST_TOKEN);
 
 		assertThat(convertToToken(request).getToken()).isEqualTo(TEST_TOKEN);
 	}
@@ -232,8 +232,8 @@ public class ServerBearerTokenAuthenticationConverterTests {
 	@Test
 	void resolveWhenBodyParameterIsPresentButNotAllowedThenTokenIsNotResolved() {
 		this.converter.setAllowFormEncodedBodyParameter(false);
-		var request = post("/").contentType(APPLICATION_FORM_URLENCODED)
-							   .body("access_token=" + TEST_TOKEN);
+		MockServerHttpRequest request = post("/").contentType(APPLICATION_FORM_URLENCODED)
+												 .body("access_token=" + TEST_TOKEN);
 
 		assertThat(convertToToken(request)).isNull();
 	}
@@ -241,8 +241,8 @@ public class ServerBearerTokenAuthenticationConverterTests {
 	@Test
 	void resolveWhenBodyParameterHasMultipleAccessTokensThenOAuth2AuthenticationException() {
 		this.converter.setAllowFormEncodedBodyParameter(true);
-		var request = post("/").contentType(APPLICATION_FORM_URLENCODED)
-							   .body("access_token=" + TEST_TOKEN + "&access_token=" + TEST_TOKEN);
+		MockServerHttpRequest request = post("/").contentType(APPLICATION_FORM_URLENCODED)
+												 .body("access_token=" + TEST_TOKEN + "&access_token=" + TEST_TOKEN);
 
 		assertThatExceptionOfType(OAuth2AuthenticationException.class)
 				.isThrownBy(() -> convertToToken(request))
@@ -258,8 +258,8 @@ public class ServerBearerTokenAuthenticationConverterTests {
 	@Test
 	void resolveBodyContainsOtherParameterAsWellThenTokenIsResolved() {
 		this.converter.setAllowFormEncodedBodyParameter(true);
-		var request = post("/").contentType(APPLICATION_FORM_URLENCODED)
-							   .body("access_token=" + TEST_TOKEN + "&other_param=value");
+		MockServerHttpRequest request = post("/").contentType(APPLICATION_FORM_URLENCODED)
+												 .body("access_token=" + TEST_TOKEN + "&other_param=value");
 
 		assertThat(convertToToken(request).getToken()).isEqualTo(TEST_TOKEN);
 	}
@@ -267,7 +267,7 @@ public class ServerBearerTokenAuthenticationConverterTests {
 	@Test
 	void resolveWhenNoBodyParameterThenTokenIsNotResolved() {
 		this.converter.setAllowFormEncodedBodyParameter(true);
-		var request = post("/").contentType(APPLICATION_FORM_URLENCODED);
+		MockServerHttpRequest.BaseBuilder<?> request = post("/").contentType(APPLICATION_FORM_URLENCODED);
 
 		assertThat(convertToToken(request)).isNull();
 	}
@@ -275,8 +275,8 @@ public class ServerBearerTokenAuthenticationConverterTests {
 	@Test
 	void resolveWhenWrongBodyParameterThenTokenIsNotResolved() {
 		this.converter.setAllowFormEncodedBodyParameter(true);
-		var request = post("/").contentType(APPLICATION_FORM_URLENCODED)
-							   .body("other_param=value");
+		MockServerHttpRequest request = post("/").contentType(APPLICATION_FORM_URLENCODED)
+												 .body("other_param=value");
 
 		assertThat(convertToToken(request)).isNull();
 	}
@@ -284,9 +284,9 @@ public class ServerBearerTokenAuthenticationConverterTests {
 	@Test
 	void resolveWhenValidHeaderIsPresentTogetherWithBodyParameterThenAuthenticationExceptionIsThrown() {
 		this.converter.setAllowFormEncodedBodyParameter(true);
-		var request = post("/").header(AUTHORIZATION, "Bearer " + TEST_TOKEN)
-							   .contentType(APPLICATION_FORM_URLENCODED)
-							   .body("access_token=" + TEST_TOKEN);
+		MockServerHttpRequest request = post("/").header(AUTHORIZATION, "Bearer " + TEST_TOKEN)
+												 .contentType(APPLICATION_FORM_URLENCODED)
+												 .body("access_token=" + TEST_TOKEN);
 
 		assertThatExceptionOfType(OAuth2AuthenticationException.class)
 				.isThrownBy(() -> convertToToken(request))
@@ -297,9 +297,9 @@ public class ServerBearerTokenAuthenticationConverterTests {
 	void resolveWhenValidQueryParameterIsPresentTogetherWithBodyParameterThenAuthenticationExceptionIsThrown() {
 		this.converter.setAllowUriQueryParameter(true);
 		this.converter.setAllowFormEncodedBodyParameter(true);
-		var request = post("/").queryParam("access_token", TEST_TOKEN)
-							   .contentType(APPLICATION_FORM_URLENCODED)
-							   .body("access_token=" + TEST_TOKEN);
+		MockServerHttpRequest request = post("/").queryParam("access_token", TEST_TOKEN)
+												 .contentType(APPLICATION_FORM_URLENCODED)
+												 .body("access_token=" + TEST_TOKEN);
 
 		assertThatExceptionOfType(OAuth2AuthenticationException.class)
 				.isThrownBy(() -> convertToToken(request))
@@ -310,10 +310,10 @@ public class ServerBearerTokenAuthenticationConverterTests {
 	void resolveWhenValidQueryParameterIsPresentTogetherWithBodyParameterAndValidHeaderThenAuthenticationExceptionIsThrown() {
 		this.converter.setAllowUriQueryParameter(true);
 		this.converter.setAllowFormEncodedBodyParameter(true);
-		var request = post("/").header(AUTHORIZATION, "Bearer " + TEST_TOKEN)
-							   .queryParam("access_token", TEST_TOKEN)
-							   .contentType(APPLICATION_FORM_URLENCODED)
-							   .body("access_token=" + TEST_TOKEN);
+		MockServerHttpRequest request = post("/").header(AUTHORIZATION, "Bearer " + TEST_TOKEN)
+												 .queryParam("access_token", TEST_TOKEN)
+												 .contentType(APPLICATION_FORM_URLENCODED)
+												 .body("access_token=" + TEST_TOKEN);
 
 		assertThatExceptionOfType(OAuth2AuthenticationException.class)
 				.isThrownBy(() -> convertToToken(request))

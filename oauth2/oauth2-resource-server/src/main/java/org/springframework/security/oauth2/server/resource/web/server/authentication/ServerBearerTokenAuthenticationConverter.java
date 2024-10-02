@@ -82,12 +82,15 @@ public class ServerBearerTokenAuthenticationConverter implements ServerAuthentic
 						  resolveAccessTokenFromRequest(request).map(s -> Tuples.of(s, TokenSource.QUERY_PARAMETER)),
 						  resolveAccessTokenFromBody(exchange).map(s -> Tuples.of(s, TokenSource.BODY_PARAMETER)))
 				   .collectList()
-				   .mapNotNull(tokenTuples -> switch (tokenTuples.size()) {
-					   case 0 -> null;
-					   case 1 -> getTokenIfSupported(tokenTuples.get(0), request);
-					   default -> {
-						   BearerTokenError error = invalidRequest(MULTIPLE_BEARER_TOKENS_ERROR_MSG);
-						   throw new OAuth2AuthenticationException(error);
+				   .mapNotNull(tokenTuples -> {
+					   switch (tokenTuples.size()) {
+						   case 0:
+							   return null;
+						   case 1:
+							   return getTokenIfSupported(tokenTuples.get(0), request);
+						   default:
+							   BearerTokenError error = invalidRequest(MULTIPLE_BEARER_TOKENS_ERROR_MSG);
+							   throw new OAuth2AuthenticationException(error);
 					   }
 				   });
 	}
@@ -107,11 +110,16 @@ public class ServerBearerTokenAuthenticationConverter implements ServerAuthentic
 	}
 
 	private String getTokenIfSupported(Tuple2<String, TokenSource> tokenTuple, ServerHttpRequest request) {
-		return switch (tokenTuple.getT2()) {
-			case HEADER -> tokenTuple.getT1();
-			case QUERY_PARAMETER -> isParameterTokenSupportedForRequest(request) ? tokenTuple.getT1() : null;
-			case BODY_PARAMETER -> isBodyParameterTokenSupportedForRequest(request) ? tokenTuple.getT1() : null;
-		};
+		switch (tokenTuple.getT2()) {
+			case HEADER:
+				return tokenTuple.getT1();
+			case QUERY_PARAMETER:
+				return isParameterTokenSupportedForRequest(request) ? tokenTuple.getT1() : null;
+			case BODY_PARAMETER:
+				return isBodyParameterTokenSupportedForRequest(request) ? tokenTuple.getT1() : null;
+			default:
+				throw new IllegalArgumentException();
+		}
 	}
 
 	/**
@@ -185,7 +193,7 @@ public class ServerBearerTokenAuthenticationConverter implements ServerAuthentic
 					return null;
 				}
 				if (tokens.size() > 1) {
-					var error = invalidRequest(MULTIPLE_BEARER_TOKENS_ERROR_MSG);
+					BearerTokenError error = invalidRequest(MULTIPLE_BEARER_TOKENS_ERROR_MSG);
 					throw new OAuth2AuthenticationException(error);
 				}
 				return formData.getFirst(ACCESS_TOKEN_NAME);
