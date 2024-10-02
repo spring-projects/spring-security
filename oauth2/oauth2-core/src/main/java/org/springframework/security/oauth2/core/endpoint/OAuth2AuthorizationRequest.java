@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -440,7 +440,21 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 			Map<String, Object> parameters = getParameters(); // Not encoded
 			this.parametersConsumer.accept(parameters);
 			MultiValueMap<String, String> queryParams = new LinkedMultiValueMap<>();
-			parameters.forEach((k, v) -> queryParams.set(encodeQueryParam(k), encodeQueryParam(String.valueOf(v)))); // Encoded
+			parameters.forEach((k, v) -> {
+				String key = encodeQueryParam(k);
+				if (v instanceof Iterable) {
+					((Iterable<?>) v).forEach((value) -> queryParams.add(key, encodeQueryParam(String.valueOf(value))));
+				}
+				else if (v != null && v.getClass().isArray()) {
+					Object[] values = (Object[]) v;
+					for (Object value : values) {
+						queryParams.add(key, encodeQueryParam(String.valueOf(value)));
+					}
+				}
+				else {
+					queryParams.set(key, encodeQueryParam(String.valueOf(v)));
+				}
+			});
 			UriBuilder uriBuilder = this.uriBuilderFactory.uriString(this.authorizationUri).queryParams(queryParams);
 			return this.authorizationRequestUriFunction.apply(uriBuilder).toString();
 		}

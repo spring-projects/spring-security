@@ -45,14 +45,16 @@ public final class GenerateOneTimeTokenFilter extends OncePerRequestFilter {
 
 	private final OneTimeTokenService oneTimeTokenService;
 
+	private final GeneratedOneTimeTokenHandler generatedOneTimeTokenHandler;
+
 	private RequestMatcher requestMatcher = antMatcher(HttpMethod.POST, "/ott/generate");
 
-	private GeneratedOneTimeTokenHandler generatedOneTimeTokenHandler = new RedirectGeneratedOneTimeTokenHandler(
-			"/login/ott");
-
-	public GenerateOneTimeTokenFilter(OneTimeTokenService oneTimeTokenService) {
+	public GenerateOneTimeTokenFilter(OneTimeTokenService oneTimeTokenService,
+			GeneratedOneTimeTokenHandler generatedOneTimeTokenHandler) {
 		Assert.notNull(oneTimeTokenService, "oneTimeTokenService cannot be null");
+		Assert.notNull(generatedOneTimeTokenHandler, "generatedOneTimeTokenHandler cannot be null");
 		this.oneTimeTokenService = oneTimeTokenService;
+		this.generatedOneTimeTokenHandler = generatedOneTimeTokenHandler;
 	}
 
 	@Override
@@ -79,16 +81,6 @@ public final class GenerateOneTimeTokenFilter extends OncePerRequestFilter {
 	public void setRequestMatcher(RequestMatcher requestMatcher) {
 		Assert.notNull(requestMatcher, "requestMatcher cannot be null");
 		this.requestMatcher = requestMatcher;
-	}
-
-	/**
-	 * Specifies {@link GeneratedOneTimeTokenHandler} to be used to handle generated
-	 * one-time tokens
-	 * @param generatedOneTimeTokenHandler
-	 */
-	public void setGeneratedOneTimeTokenHandler(GeneratedOneTimeTokenHandler generatedOneTimeTokenHandler) {
-		Assert.notNull(generatedOneTimeTokenHandler, "generatedOneTimeTokenHandler cannot be null");
-		this.generatedOneTimeTokenHandler = generatedOneTimeTokenHandler;
 	}
 
 }

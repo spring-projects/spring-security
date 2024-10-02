@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,6 @@ import java.util.Map;
 import jakarta.servlet.http.HttpServletRequest;
 import org.opensaml.core.Version;
 
-import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -501,12 +500,7 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		if (context == null) {
 			return null;
 		}
-		try {
-			return context.getBean(clazz);
-		}
-		catch (NoSuchBeanDefinitionException ex) {
-			return null;
-		}
+		return context.getBeanProvider(clazz).getIfUnique();
 	}
 
 	private <C> void setSharedObject(B http, Class<C> clazz, C object) {

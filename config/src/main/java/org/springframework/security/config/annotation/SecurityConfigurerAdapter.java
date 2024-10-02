@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.core.annotation.AnnotationAwareOrderComparator;
+import org.springframework.security.config.ObjectPostProcessor;
 import org.springframework.util.Assert;
 
 /**

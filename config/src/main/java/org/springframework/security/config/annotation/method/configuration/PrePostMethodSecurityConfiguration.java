@@ -16,8 +16,8 @@
 
 package org.springframework.security.config.annotation.method.configuration;
 
-import io.micrometer.observation.ObservationRegistry;
 import org.aopalliance.intercept.MethodInterceptor;
+import org.aopalliance.intercept.MethodInvocation;
 
 import org.springframework.aop.Pointcut;
 import org.springframework.aop.framework.AopInfrastructureBean;
@@ -38,14 +38,16 @@ import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.aot.hint.PrePostAuthorizeHintsRegistrar;
 import org.springframework.security.aot.hint.SecurityHintsRegistrar;
 import org.springframework.security.authorization.AuthorizationEventPublisher;
-import org.springframework.security.authorization.ObservationAuthorizationManager;
+import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.authorization.method.AuthorizationManagerAfterMethodInterceptor;
 import org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor;
+import org.springframework.security.authorization.method.MethodInvocationResult;
 import org.springframework.security.authorization.method.PostAuthorizeAuthorizationManager;
 import org.springframework.security.authorization.method.PostFilterAuthorizationMethodInterceptor;
 import org.springframework.security.authorization.method.PreAuthorizeAuthorizationManager;
 import org.springframework.security.authorization.method.PreFilterAuthorizationMethodInterceptor;
 import org.springframework.security.authorization.method.PrePostTemplateDefaults;
+import org.springframework.security.config.ObjectPostProcessor;
 import org.springframework.security.config.core.GrantedAuthorityDefaults;
 import org.springframework.security.core.annotation.AnnotationTemplateExpressionDefaults;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
@@ -78,21 +80,29 @@ final class PrePostMethodSecurityConfiguration implements ImportAware, Applicati
 
 	private final PreFilterAuthorizationMethodInterceptor preFilterMethodInterceptor = new PreFilterAuthorizationMethodInterceptor();
 
-	private AuthorizationManagerBeforeMethodInterceptor preAuthorizeMethodInterceptor = AuthorizationManagerBeforeMethodInterceptor
-		.preAuthorize(this.preAuthorizeAuthorizationManager);
+	private final AuthorizationManagerBeforeMethodInterceptor preAuthorizeMethodInterceptor;
 
-	private AuthorizationManagerAfterMethodInterceptor postAuthorizeMethodInterceptor = AuthorizationManagerAfterMethodInterceptor
-		.postAuthorize(this.postAuthorizeAuthorizationManager);
+	private final AuthorizationManagerAfterMethodInterceptor postAuthorizeMethodInterceptor;
 
 	private final PostFilterAuthorizationMethodInterceptor postFilterMethodInterceptor = new PostFilterAuthorizationMethodInterceptor();
 
 	private final DefaultMethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler();
 
-	{
+	PrePostMethodSecurityConfiguration(
+			ObjectProvider<ObjectPostProcessor<AuthorizationManager<MethodInvocation>>> preAuthorizeProcessor,
+			ObjectProvider<ObjectPostProcessor<AuthorizationManager<MethodInvocationResult>>> postAuthorizeProcessor) {
 		this.preFilterMethodInterceptor.setExpressionHandler(this.expressionHandler);
 		this.preAuthorizeAuthorizationManager.setExpressionHandler(this.expressionHandler);
 		this.postAuthorizeAuthorizationManager.setExpressionHandler(this.expressionHandler);
 		this.postFilterMethodInterceptor.setExpressionHandler(this.expressionHandler);
+		AuthorizationManager<MethodInvocation> preAuthorize = preAuthorizeProcessor
+			.getIfUnique(ObjectPostProcessor::identity)
+			.postProcess(this.preAuthorizeAuthorizationManager);
+		this.preAuthorizeMethodInterceptor = AuthorizationManagerBeforeMethodInterceptor.preAuthorize(preAuthorize);
+		AuthorizationManager<MethodInvocationResult> postAuthorize = postAuthorizeProcessor
+			.getIfUnique(ObjectPostProcessor::identity)
+			.postProcess(this.postAuthorizeAuthorizationManager);
+		this.postAuthorizeMethodInterceptor = AuthorizationManagerAfterMethodInterceptor.postAuthorize(postAuthorize);
 	}
 
 	@Override
@@ -142,17 +152,6 @@ final class PrePostMethodSecurityConfiguration implements ImportAware, Applicati
 		this.preAuthorizeMethodInterceptor.setSecurityContextHolderStrategy(securityContextHolderStrategy);
 		this.postAuthorizeMethodInterceptor.setSecurityContextHolderStrategy(securityContextHolderStrategy);
 		this.postFilterMethodInterceptor.setSecurityContextHolderStrategy(securityContextHolderStrategy);
-	}
-
-	@Autowired(required = false)
-	void setObservationRegistry(ObservationRegistry registry) {
-		if (registry.isNoop()) {
-			return;
-		}
-		this.preAuthorizeMethodInterceptor = AuthorizationManagerBeforeMethodInterceptor
-			.preAuthorize(new ObservationAuthorizationManager<>(registry, this.preAuthorizeAuthorizationManager));
-		this.postAuthorizeMethodInterceptor = AuthorizationManagerAfterMethodInterceptor
-			.postAuthorize(new ObservationAuthorizationManager<>(registry, this.postAuthorizeAuthorizationManager));
 	}
 
 	@Autowired(required = false)

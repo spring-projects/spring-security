@@ -20,7 +20,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -30,7 +29,7 @@ import org.springframework.core.io.support.SpringFactoriesLoader;
 import org.springframework.security.authentication.AuthenticationEventPublisher;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
-import org.springframework.security.config.annotation.ObjectPostProcessor;
+import org.springframework.security.config.ObjectPostProcessor;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.authentication.configurers.provisioning.InMemoryUserDetailsManagerConfigurer;
@@ -56,6 +55,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
  *
  * @author Eleftheria Stein
  * @author Jinwoo Bae
+ * @author Ngoc Nhan
  * @since 5.4
  */
 @Configuration(proxyBeanMethods = false)
@@ -226,21 +226,9 @@ class HttpSecurityConfiguration {
 			if (this.passwordEncoder != null) {
 				return this.passwordEncoder;
 			}
-			PasswordEncoder passwordEncoder = getBeanOrNull(PasswordEncoder.class);
-			if (passwordEncoder == null) {
-				passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
-			}
-			this.passwordEncoder = passwordEncoder;
-			return passwordEncoder;
-		}
-
-		private <T> T getBeanOrNull(Class<T> type) {
-			try {
-				return this.applicationContext.getBean(type);
-			}
-			catch (NoSuchBeanDefinitionException ex) {
-				return null;
-			}
+			this.passwordEncoder = this.applicationContext.getBeanProvider(PasswordEncoder.class)
+				.getIfUnique(PasswordEncoderFactories::createDelegatingPasswordEncoder);
+			return this.passwordEncoder;
 		}
 
 		@Override

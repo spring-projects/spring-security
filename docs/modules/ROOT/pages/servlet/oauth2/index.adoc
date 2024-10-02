@@ -816,7 +816,7 @@ public class RestClientConfig {
 
 	private static ClientRegistrationIdResolver clientRegistrationIdResolver() {
 		return (request) -> {
-			Authentication authentication = SecurityContextHolder.getAuthentication();
+			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 			return (authentication instanceof OAuth2AuthenticationToken principal)
 				? principal.getAuthorizedClientRegistrationId()
 				: null;

@@ -26,13 +26,20 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
+import io.micrometer.observation.Observation;
+import io.micrometer.observation.ObservationHandler;
+import io.micrometer.observation.ObservationRegistry;
+import io.micrometer.observation.ObservationTextPublisher;
 import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -62,6 +69,7 @@ import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.config.annotation.SecurityContextChangedListenerConfig;
 import org.springframework.security.config.annotation.web.messaging.MessageSecurityMetadataSourceRegistry;
+import org.springframework.security.config.observation.SecurityObservationSettings;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AnnotationTemplateExpressionDefaults;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -95,8 +103,11 @@ import org.springframework.web.socket.sockjs.transport.session.WebSocketServerSo
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.springframework.security.web.csrf.CsrfTokenAssert.assertThatCsrfToken;
 
 public class WebSocketMessageBrokerSecurityConfigurationTests {
@@ -379,6 +390,52 @@ public class WebSocketMessageBrokerSecurityConfigurationTests {
 		this.messageUser = new AnonymousAuthenticationToken("key", "user",
 				AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
 		clientInboundChannel().send(message("/anonymous"));
+	}
+
+	@Test
+	public void sendMessageWhenObservationRegistryThenObserves() {
+		loadConfig(WebSocketSecurityConfig.class, ObservationRegistryConfig.class);
+		SimpMessageHeaderAccessor headers = SimpMessageHeaderAccessor.create(SimpMessageType.CONNECT);
+		headers.setNativeHeader(this.token.getHeaderName(), XOR_CSRF_TOKEN_VALUE);
+		Message<?> message = message(headers, "/authenticated");
+		headers.getSessionAttributes().put(CsrfToken.class.getName(), this.token);
+		clientInboundChannel().send(message);
+		ObservationHandler<Observation.Context> observationHandler = this.context.getBean(ObservationHandler.class);
+		verify(observationHandler).onStart(any());
+		verify(observationHandler).onStop(any());
+		headers = SimpMessageHeaderAccessor.create(SimpMessageType.CONNECT);
+		headers.setNativeHeader(this.token.getHeaderName(), XOR_CSRF_TOKEN_VALUE);
+		message = message(headers, "/denyAll");
+		headers.getSessionAttributes().put(CsrfToken.class.getName(), this.token);
+		try {
+			clientInboundChannel().send(message);
+		}
+		catch (MessageDeliveryException ex) {
+			// okay
+		}
+		verify(observationHandler).onError(any());
+	}
+
+	@Test
+	public void sendMessageWhenExcludeAuthorizationObservationsThenUnobserved() {
+		loadConfig(WebSocketSecurityConfig.class, ObservationRegistryConfig.class, SelectableObservationsConfig.class);
+		SimpMessageHeaderAccessor headers = SimpMessageHeaderAccessor.create(SimpMessageType.CONNECT);
+		headers.setNativeHeader(this.token.getHeaderName(), XOR_CSRF_TOKEN_VALUE);
+		Message<?> message = message(headers, "/authenticated");
+		headers.getSessionAttributes().put(CsrfToken.class.getName(), this.token);
+		clientInboundChannel().send(message);
+		ObservationHandler<Observation.Context> observationHandler = this.context.getBean(ObservationHandler.class);
+		headers = SimpMessageHeaderAccessor.create(SimpMessageType.CONNECT);
+		headers.setNativeHeader(this.token.getHeaderName(), XOR_CSRF_TOKEN_VALUE);
+		message = message(headers, "/denyAll");
+		headers.getSessionAttributes().put(CsrfToken.class.getName(), this.token);
+		try {
+			clientInboundChannel().send(message);
+		}
+		catch (MessageDeliveryException ex) {
+			// okay
+		}
+		verifyNoInteractions(observationHandler);
 	}
 
 	private void assertHandshake(HttpServletRequest request) {
@@ -888,6 +945,59 @@ public class WebSocketMessageBrokerSecurityConfigurationTests {
 		@Bean
 		static SyncExecutorSubscribableChannelPostProcessor postProcessor() {
 			return new SyncExecutorSubscribableChannelPostProcessor();
+		}
+
+	}
+
+	@Configuration
+	static class ObservationRegistryConfig {
+
+		private final ObservationRegistry registry = ObservationRegistry.create();
+
+		private final ObservationHandler<Observation.Context> handler = spy(new ObservationTextPublisher());
+
+		@Bean
+		ObservationRegistry observationRegistry() {
+			return this.registry;
+		}
+
+		@Bean
+		ObservationHandler<Observation.Context> observationHandler() {
+			return this.handler;
+		}
+
+		@Bean
+		ObservationRegistryPostProcessor observationRegistryPostProcessor(
+				ObjectProvider<ObservationHandler<Observation.Context>> handler) {
+			return new ObservationRegistryPostProcessor(handler);
+		}
+
+	}
+
+	static class ObservationRegistryPostProcessor implements BeanPostProcessor {
+
+		private final ObjectProvider<ObservationHandler<Observation.Context>> handler;
+
+		ObservationRegistryPostProcessor(ObjectProvider<ObservationHandler<Observation.Context>> handler) {
+			this.handler = handler;
+		}
+
+		@Override
+		public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+			if (bean instanceof ObservationRegistry registry) {
+				registry.observationConfig().observationHandler(this.handler.getObject());
+			}
+			return bean;
+		}
+
+	}
+
+	@Configuration
+	static class SelectableObservationsConfig {
+
+		@Bean
+		SecurityObservationSettings observabilityDefaults() {
+			return SecurityObservationSettings.withDefaults().shouldObserveAuthorizations(false).build();
 		}
 
 	}

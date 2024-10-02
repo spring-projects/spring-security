@@ -85,12 +85,12 @@ Next, let's see the architectural components that Spring Security uses to suppor
 javadoc:org.springframework.security.oauth2.server.resource.authentication.OpaqueTokenAuthenticationProvider[] is an xref:servlet/authentication/architecture.adoc#servlet-authentication-authenticationprovider[`AuthenticationProvider`] implementation that leverages a <<oauth2resourceserver-opaque-introspector,`OpaqueTokenIntrospector`>> to authenticate an opaque token.
 
 Let's take a look at how `OpaqueTokenAuthenticationProvider` works within Spring Security.
-The figure explains details of how the xref:servlet/authentication/architecture.adoc#servlet-authentication-authenticationmanager[`AuthenticationManager`] in figures from <<oauth2resourceserver-authentication-bearertokenauthenticationfilter,Reading the Bearer Token>> works.
+The figure explains details of how the xref:servlet/authentication/architecture.adoc#servlet-authentication-authenticationmanager[`AuthenticationManager`] in figures from xref:servlet/oauth2/resource-server/index.adoc#oauth2resourceserver-authentication-bearertokenauthenticationfilter[Reading the Bearer Token] works.
 
 .`OpaqueTokenAuthenticationProvider` Usage
 image::{figures}/opaquetokenauthenticationprovider.png[]
 
-image:{icondir}/number_1.png[] The authentication `Filter` from <<oauth2resourceserver-authentication-bearertokenauthenticationfilter,Reading the Bearer Token>> passes a `BearerTokenAuthenticationToken` to the `AuthenticationManager` which is implemented by xref:servlet/authentication/architecture.adoc#servlet-authentication-providermanager[`ProviderManager`].
+image:{icondir}/number_1.png[] The authentication `Filter` from xref:servlet/oauth2/resource-server/index.adoc#oauth2resourceserver-authentication-bearertokenauthenticationfilter[Reading the Bearer Token] passes a `BearerTokenAuthenticationToken` to the `AuthenticationManager` which is implemented by xref:servlet/authentication/architecture.adoc#servlet-authentication-providermanager[`ProviderManager`].
 
 image:{icondir}/number_2.png[] The `ProviderManager` is configured to use an xref:servlet/authentication/architecture.adoc#servlet-authentication-authenticationprovider[AuthenticationProvider] of type `OpaqueTokenAuthenticationProvider`.
 

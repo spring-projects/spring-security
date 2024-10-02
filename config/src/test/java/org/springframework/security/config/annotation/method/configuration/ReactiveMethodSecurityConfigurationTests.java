@@ -23,14 +23,21 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import io.micrometer.observation.Observation;
+import io.micrometer.observation.ObservationHandler;
+import io.micrometer.observation.ObservationRegistry;
+import io.micrometer.observation.ObservationTextPublisher;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Role;
@@ -50,6 +57,7 @@ import org.springframework.security.authorization.method.AuthorizeReturnObject;
 import org.springframework.security.authorization.method.MethodAuthorizationDeniedHandler;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.core.GrantedAuthorityDefaults;
+import org.springframework.security.config.observation.SecurityObservationSettings;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.core.Authentication;
@@ -62,7 +70,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 /**
  * @author Tadaya Tsuyukubo
@@ -235,6 +245,46 @@ public class ReactiveMethodSecurityConfigurationTests {
 		verify(handler, never()).handleDeniedInvocation(any(), any(Authz.AuthzResult.class));
 	}
 
+	@Test
+	public void prePostMethodWhenObservationRegistryThenObserved() {
+		this.spring.register(MethodSecurityServiceConfig.class, ObservationRegistryConfig.class).autowire();
+		ReactiveMethodSecurityService service = this.spring.getContext().getBean(ReactiveMethodSecurityService.class);
+		Authentication user = TestAuthentication.authenticatedUser();
+		StepVerifier
+			.create(service.preAuthorizeUser().contextWrite(ReactiveSecurityContextHolder.withAuthentication(user)))
+			.expectNextCount(1)
+			.verifyComplete();
+		ObservationHandler<?> handler = this.spring.getContext().getBean(ObservationHandler.class);
+		verify(handler).onStart(any());
+		verify(handler).onStop(any());
+		StepVerifier
+			.create(service.preAuthorizeAdmin().contextWrite(ReactiveSecurityContextHolder.withAuthentication(user)))
+			.expectError()
+			.verify();
+		verify(handler).onError(any());
+	}
+
+	@Test
+	@WithMockUser
+	public void prePostMethodWhenExcludeAuthorizationObservationsThenUnobserved() {
+		this.spring
+			.register(MethodSecurityServiceConfig.class, ObservationRegistryConfig.class,
+					SelectableObservationsConfig.class)
+			.autowire();
+		ReactiveMethodSecurityService service = this.spring.getContext().getBean(ReactiveMethodSecurityService.class);
+		Authentication user = TestAuthentication.authenticatedUser();
+		StepVerifier
+			.create(service.preAuthorizeUser().contextWrite(ReactiveSecurityContextHolder.withAuthentication(user)))
+			.expectNextCount(1)
+			.verifyComplete();
+		ObservationHandler<?> handler = this.spring.getContext().getBean(ObservationHandler.class);
+		StepVerifier
+			.create(service.preAuthorizeAdmin().contextWrite(ReactiveSecurityContextHolder.withAuthentication(user)))
+			.expectError()
+			.verify();
+		verifyNoInteractions(handler);
+	}
+
 	private static Consumer<User.UserBuilder> authorities(String... authorities) {
 		return (builder) -> builder.authorities(authorities);
 	}
@@ -384,6 +434,60 @@ public class ReactiveMethodSecurityConfigurationTests {
 		@Bean
 		MethodAuthorizationDeniedHandler methodAuthorizationDeniedHandler() {
 			return this.handler;
+		}
+
+	}
+
+	@Configuration
+	@EnableReactiveMethodSecurity
+	static class ObservationRegistryConfig {
+
+		private final ObservationRegistry registry = ObservationRegistry.create();
+
+		private final ObservationHandler<Observation.Context> handler = spy(new ObservationTextPublisher());
+
+		@Bean
+		ObservationRegistry observationRegistry() {
+			return this.registry;
+		}
+
+		@Bean
+		ObservationHandler<Observation.Context> observationHandler() {
+			return this.handler;
+		}
+
+		@Bean
+		ObservationRegistryPostProcessor observationRegistryPostProcessor(
+				ObjectProvider<ObservationHandler<Observation.Context>> handler) {
+			return new ObservationRegistryPostProcessor(handler);
+		}
+
+	}
+
+	static class ObservationRegistryPostProcessor implements BeanPostProcessor {
+
+		private final ObjectProvider<ObservationHandler<Observation.Context>> handler;
+
+		ObservationRegistryPostProcessor(ObjectProvider<ObservationHandler<Observation.Context>> handler) {
+			this.handler = handler;
+		}
+
+		@Override
+		public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+			if (bean instanceof ObservationRegistry registry) {
+				registry.observationConfig().observationHandler(this.handler.getObject());
+			}
+			return bean;
+		}
+
+	}
+
+	@Configuration
+	static class SelectableObservationsConfig {
+
+		@Bean
+		SecurityObservationSettings observabilityDefaults() {
+			return SecurityObservationSettings.withDefaults().shouldObserveAuthorizations(false).build();
 		}
 
 	}

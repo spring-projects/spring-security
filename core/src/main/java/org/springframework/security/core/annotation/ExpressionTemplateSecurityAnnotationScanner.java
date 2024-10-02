@@ -25,7 +25,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.springframework.core.MethodClassKey;
 import org.springframework.core.annotation.MergedAnnotation;
 import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.core.convert.converter.GenericConverter;
@@ -80,10 +79,6 @@ final class ExpressionTemplateSecurityAnnotationScanner<A extends Annotation>
 
 	private final AnnotationTemplateExpressionDefaults templateDefaults;
 
-	private final Map<Parameter, MergedAnnotation<A>> uniqueParameterAnnotationCache = new HashMap<>();
-
-	private final Map<MethodClassKey, MergedAnnotation<A>> uniqueMethodAnnotationCache = new HashMap<>();
-
 	ExpressionTemplateSecurityAnnotationScanner(Class<A> type, AnnotationTemplateExpressionDefaults templateDefaults) {
 		Assert.notNull(type, "type cannot be null");
 		Assert.notNull(templateDefaults, "templateDefaults cannot be null");
@@ -95,17 +90,14 @@ final class ExpressionTemplateSecurityAnnotationScanner<A extends Annotation>
 	@Override
 	MergedAnnotation<A> merge(AnnotatedElement element, Class<?> targetClass) {
 		if (element instanceof Parameter parameter) {
-			MergedAnnotation<A> annotation = this.uniqueParameterAnnotationCache.computeIfAbsent(parameter,
-					(p) -> this.unique.merge(p, targetClass));
+			MergedAnnotation<A> annotation = this.unique.merge(parameter, targetClass);
 			if (annotation == null) {
 				return null;
 			}
 			return resolvePlaceholders(annotation);
 		}
 		if (element instanceof Method method) {
-			MethodClassKey key = new MethodClassKey(method, targetClass);
-			MergedAnnotation<A> annotation = this.uniqueMethodAnnotationCache.computeIfAbsent(key,
-					(k) -> this.unique.merge(method, targetClass));
+			MergedAnnotation<A> annotation = this.unique.merge(method, targetClass);
 			if (annotation == null) {
 				return null;
 			}
@@ -135,10 +127,9 @@ final class ExpressionTemplateSecurityAnnotationScanner<A extends Annotation>
 		}
 		Map<String, Object> annotationProperties = mergedAnnotation.asMap();
 		for (Map.Entry<String, Object> annotationProperty : annotationProperties.entrySet()) {
-			if (!(annotationProperty.getValue() instanceof String)) {
+			if (!(annotationProperty.getValue() instanceof String expression)) {
 				continue;
 			}
-			String expression = (String) annotationProperty.getValue();
 			String value = helper.replacePlaceholders(expression, stringProperties::get);
 			properties.put(annotationProperty.getKey(), value);
 		}

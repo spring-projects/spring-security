@@ -18,7 +18,6 @@ package org.springframework.security.config.annotation.method.configuration;
 
 import java.util.function.Supplier;
 
-import io.micrometer.observation.ObservationRegistry;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 
@@ -37,9 +36,9 @@ import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.authorization.AuthoritiesAuthorizationManager;
 import org.springframework.security.authorization.AuthorizationEventPublisher;
 import org.springframework.security.authorization.AuthorizationManager;
-import org.springframework.security.authorization.ObservationAuthorizationManager;
 import org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor;
 import org.springframework.security.authorization.method.SecuredAuthorizationManager;
+import org.springframework.security.config.ObjectPostProcessor;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 
 /**
@@ -58,8 +57,15 @@ final class SecuredMethodSecurityConfiguration implements ImportAware, AopInfras
 
 	private final SecuredAuthorizationManager authorizationManager = new SecuredAuthorizationManager();
 
-	private AuthorizationManagerBeforeMethodInterceptor methodInterceptor = AuthorizationManagerBeforeMethodInterceptor
-		.secured(this.authorizationManager);
+	private final AuthorizationManagerBeforeMethodInterceptor methodInterceptor;
+
+	SecuredMethodSecurityConfiguration(
+			ObjectProvider<ObjectPostProcessor<AuthorizationManager<MethodInvocation>>> postProcessors) {
+		ObjectPostProcessor<AuthorizationManager<MethodInvocation>> postProcessor = postProcessors
+			.getIfUnique(ObjectPostProcessor::identity);
+		AuthorizationManager<MethodInvocation> manager = postProcessor.postProcess(this.authorizationManager);
+		this.methodInterceptor = AuthorizationManagerBeforeMethodInterceptor.secured(manager);
+	}
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
@@ -88,16 +94,6 @@ final class SecuredMethodSecurityConfiguration implements ImportAware, AopInfras
 	@Autowired(required = false)
 	void setSecurityContextHolderStrategy(SecurityContextHolderStrategy securityContextHolderStrategy) {
 		this.methodInterceptor.setSecurityContextHolderStrategy(securityContextHolderStrategy);
-	}
-
-	@Autowired(required = false)
-	void setObservationRegistry(ObservationRegistry registry) {
-		if (registry.isNoop()) {
-			return;
-		}
-		AuthorizationManager<MethodInvocation> observed = new ObservationAuthorizationManager<>(registry,
-				this.authorizationManager);
-		this.methodInterceptor = AuthorizationManagerBeforeMethodInterceptor.secured(observed);
 	}
 
 	@Autowired(required = false)

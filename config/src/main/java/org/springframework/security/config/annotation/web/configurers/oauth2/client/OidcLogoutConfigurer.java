@@ -65,6 +65,7 @@ import org.springframework.util.Assert;
  * </ul>
  *
  * @author Josh Cummings
+ * @author Ngoc Nhan
  * @since 6.2
  * @see HttpSecurity#oidcLogout()
  * @see OidcBackChannelLogoutFilter
@@ -283,15 +284,13 @@ public final class OidcLogoutConfigurer<B extends HttpSecurityBuilder<B>>
 			http.addFilterBefore(filter, CsrfFilter.class);
 		}
 
+		@SuppressWarnings("unchecked")
 		private <T> T getBeanOrNull(Class<?> clazz) {
 			ApplicationContext context = getBuilder().getSharedObject(ApplicationContext.class);
-			if (context != null) {
-				String[] names = context.getBeanNamesForType(clazz);
-				if (names.length == 1) {
-					return (T) context.getBean(names[0]);
-				}
+			if (context == null) {
+				return null;
 			}
-			return null;
+			return (T) context.getBeanProvider(clazz).getIfUnique();
 		}
 
 		private static final class EitherLogoutHandler implements LogoutHandler {

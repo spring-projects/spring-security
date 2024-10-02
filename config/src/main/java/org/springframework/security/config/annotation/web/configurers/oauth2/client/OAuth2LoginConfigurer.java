@@ -149,6 +149,7 @@ import org.springframework.util.ReflectionUtils;
  *
  * @author Joe Grandja
  * @author Kazuki Shimizu
+ * @author Ngoc Nhan
  * @since 5.0
  * @see HttpSecurity#oauth2Login()
  * @see OAuth2AuthorizationRequestRedirectFilter
@@ -446,12 +447,10 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		if (names.length > 1) {
 			throw new NoUniqueBeanDefinitionException(type, names);
 		}
-		if (names.length == 1) {
-			return (JwtDecoderFactory<ClientRegistration>) this.getBuilder()
-				.getSharedObject(ApplicationContext.class)
-				.getBean(names[0]);
-		}
-		return null;
+		return (JwtDecoderFactory<ClientRegistration>) this.getBuilder()
+			.getSharedObject(ApplicationContext.class)
+			.getBeanProvider(type)
+			.getIfUnique();
 	}
 
 	private GrantedAuthoritiesMapper getGrantedAuthoritiesMapper() {
@@ -503,15 +502,13 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		return (bean != null) ? bean : new DefaultOAuth2UserService();
 	}
 
+	@SuppressWarnings("unchecked")
 	private <T> T getBeanOrNull(ResolvableType type) {
 		ApplicationContext context = getBuilder().getSharedObject(ApplicationContext.class);
-		if (context != null) {
-			String[] names = context.getBeanNamesForType(type);
-			if (names.length == 1) {
-				return (T) context.getBean(names[0]);
-			}
+		if (context == null) {
+			return null;
 		}
-		return null;
+		return (T) context.getBeanProvider(type).getIfUnique();
 	}
 
 	private void initDefaultLoginFilter(B http) {

@@ -30,6 +30,7 @@ import org.springframework.util.Assert;
  * using {@link ClientHttpRequest#getAttributes() attributes}.
  *
  * @author Steve Riesenberg
+ * @since 6.4
  * @see OAuth2ClientHttpRequestInterceptor
  */
 public final class RequestAttributeClientRegistrationIdResolver

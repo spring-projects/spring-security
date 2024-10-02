@@ -33,7 +33,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.authentication.RememberMeAuthenticationToken;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.annotation.ObjectPostProcessor;
+import org.springframework.security.config.ObjectPostProcessor;
 import org.springframework.security.config.annotation.SecurityContextChangedListenerConfig;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -102,7 +102,7 @@ public class RememberMeConfigurerTests {
 	@Test
 	public void configureWhenRegisteringObjectPostProcessorThenInvokedOnRememberMeAuthenticationFilter() {
 		this.spring.register(ObjectPostProcessorConfig.class).autowire();
-		verify(this.spring.getContext().getBean(ObjectPostProcessor.class))
+		verify(this.spring.getContext().getBean(ObjectPostProcessorConfig.class).objectPostProcessor)
 			.postProcess(any(RememberMeAuthenticationFilter.class));
 	}
 

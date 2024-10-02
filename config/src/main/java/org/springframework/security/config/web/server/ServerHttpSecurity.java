@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -33,13 +34,13 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import io.micrometer.observation.ObservationRegistry;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import reactor.core.publisher.Mono;
 import reactor.util.context.Context;
 
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.Ordered;
 import org.springframework.core.ResolvableType;
@@ -55,9 +56,9 @@ import org.springframework.security.authentication.ReactiveAuthenticationManager
 import org.springframework.security.authorization.AuthenticatedReactiveAuthorizationManager;
 import org.springframework.security.authorization.AuthorityReactiveAuthorizationManager;
 import org.springframework.security.authorization.AuthorizationDecision;
-import org.springframework.security.authorization.ObservationReactiveAuthorizationManager;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.ObjectPostProcessor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -1734,26 +1735,34 @@ public class ServerHttpSecurity {
 	}
 
 	private <T> T getBeanOrDefault(Class<T> beanClass, T defaultInstance) {
-		T bean = getBeanOrNull(beanClass);
-		if (bean == null) {
+		if (this.context == null) {
 			return defaultInstance;
 		}
-		return bean;
+		return this.context.getBeanProvider(beanClass).getIfUnique(() -> defaultInstance);
+	}
+
+	private <T> ObjectProvider<T> getBeanProvider(ResolvableType type) {
+		if (this.context == null) {
+			return new ObjectProvider<>() {
+				@Override
+				public Iterator<T> iterator() {
+					return Collections.emptyIterator();
+				}
+			};
+		}
+		return this.context.getBeanProvider(type);
 	}
 
 	private <T> T getBeanOrNull(Class<T> beanClass) {
 		return getBeanOrNull(ResolvableType.forClass(beanClass));
 	}
 
+	@SuppressWarnings("unchecked")
 	private <T> T getBeanOrNull(ResolvableType type) {
 		if (this.context == null) {
 			return null;
 		}
-		String[] names = this.context.getBeanNamesForType(type);
-		if (names.length == 1) {
-			return (T) this.context.getBean(names[0]);
-		}
-		return null;
+		return (T) this.context.getBeanProvider(type).getIfUnique();
 	}
 
 	private <T> T getBeanOrNull(String beanName, Class<T> requiredClass) {
@@ -1798,6 +1807,17 @@ public class ServerHttpSecurity {
 		private boolean anyExchangeRegistered;
 
 		private PathPatternParser pathPatternParser;
+
+		private ObjectPostProcessor<ReactiveAuthorizationManager<ServerWebExchange>> postProcessor = ObjectPostProcessor
+			.identity();
+
+		public AuthorizeExchangeSpec() {
+			ResolvableType type = ResolvableType.forClassWithGenerics(ObjectPostProcessor.class,
+					ResolvableType.forClassWithGenerics(ReactiveAuthorizationManager.class, ServerWebExchange.class));
+			ObjectProvider<ObjectPostProcessor<ReactiveAuthorizationManager<ServerWebExchange>>> postProcessor = getBeanProvider(
+					type);
+			postProcessor.ifUnique((p) -> this.postProcessor = p);
+		}
 
 		/**
 		 * Allows method chaining to continue configuring the {@link ServerHttpSecurity}
@@ -1851,10 +1871,7 @@ public class ServerHttpSecurity {
 			Assert.state(this.matcher == null,
 					() -> "The matcher " + this.matcher + " does not have an access rule defined");
 			ReactiveAuthorizationManager<ServerWebExchange> manager = this.managerBldr.build();
-			ObservationRegistry registry = getBeanOrDefault(ObservationRegistry.class, ObservationRegistry.NOOP);
-			if (!registry.isNoop()) {
-				manager = new ObservationReactiveAuthorizationManager<>(registry, manager);
-			}
+			manager = this.postProcessor.postProcess(manager);
 			AuthorizationWebFilter result = new AuthorizationWebFilter(manager);
 			http.addFilterAt(result, SecurityWebFiltersOrder.AUTHORIZATION);
 		}
@@ -4813,9 +4830,20 @@ public class ServerHttpSecurity {
 		private ReactiveAuthenticationManager getAuthenticationManager() {
 			if (this.authenticationManager == null) {
 				this.authenticationManager = new OAuth2AuthorizationCodeReactiveAuthenticationManager(
-						new WebClientReactiveAuthorizationCodeTokenResponseClient());
+						getAuthorizationCodeTokenResponseClient());
 			}
 			return this.authenticationManager;
+		}
+
+		private ReactiveOAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> getAuthorizationCodeTokenResponseClient() {
+			ResolvableType resolvableType = ResolvableType.forClassWithGenerics(
+					ReactiveOAuth2AccessTokenResponseClient.class, OAuth2AuthorizationCodeGrantRequest.class);
+			ReactiveOAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient = getBeanOrNull(
+					resolvableType);
+			if (accessTokenResponseClient == null) {
+				accessTokenResponseClient = new WebClientReactiveAuthorizationCodeTokenResponseClient();
+			}
+			return accessTokenResponseClient;
 		}
 
 		/**

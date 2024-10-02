@@ -11,14 +11,14 @@ org-bouncycastle = "1.78.1"
 org-eclipse-jetty = "11.0.24"
 org-jetbrains-kotlin = "1.9.25"
 org-jetbrains-kotlinx = "1.9.0"
-org-mockito = "5.13.0"
+org-mockito = "5.14.1"
 org-opensaml = "4.3.2"
 org-opensaml5 = "5.1.2"
 org-springframework = "6.2.0-RC1"
 
 [libraries]
 ch-qos-logback-logback-classic = "ch.qos.logback:logback-classic:1.5.8"
-com-fasterxml-jackson-jackson-bom = "com.fasterxml.jackson:jackson-bom:2.17.2"
+com-fasterxml-jackson-jackson-bom = "com.fasterxml.jackson:jackson-bom:2.18.0"
 com-google-inject-guice = "com.google.inject:guice:3.0"
 com-netflix-nebula-nebula-project-plugin = "com.netflix.nebula:nebula-project-plugin:8.2.0"
 com-nimbusds-nimbus-jose-jwt = "com.nimbusds:nimbus-jose-jwt:9.37.3"
@@ -28,7 +28,7 @@ com-squareup-okhttp3-okhttp = { module = "com.squareup.okhttp3:okhttp", version.
 com-unboundid-unboundid-ldapsdk = "com.unboundid:unboundid-ldapsdk:6.0.11"
 com-unboundid-unboundid-ldapsdk7 = "com.unboundid:unboundid-ldapsdk:7.0.1"
 commons-collections = "commons-collections:commons-collections:3.2.2"
-io-micrometer-micrometer-observation = "io.micrometer:micrometer-observation:1.13.4"
+io-micrometer-micrometer-observation = "io.micrometer:micrometer-observation:1.13.5"
 io-mockk = "io.mockk:mockk:1.13.12"
 io-projectreactor-reactor-bom = "io.projectreactor:reactor-bom:2023.0.10"
 io-rsocket-rsocket-bom = { module = "io.rsocket:rsocket-bom", version.ref = "io-rsocket" }
@@ -70,12 +70,12 @@ org-bouncycastle-bcprov-jdk15on = { module = "org.bouncycastle:bcprov-jdk18on", 
 org-eclipse-jetty-jetty-server = { module = "org.eclipse.jetty:jetty-server", version.ref = "org-eclipse-jetty" }
 org-eclipse-jetty-jetty-servlet = { module = "org.eclipse.jetty:jetty-servlet", version.ref = "org-eclipse-jetty" }
 org-hamcrest = "org.hamcrest:hamcrest:2.2"
-org-hibernate-orm-hibernate-core = "org.hibernate.orm:hibernate-core:6.6.0.Final"
+org-hibernate-orm-hibernate-core = "org.hibernate.orm:hibernate-core:6.6.1.Final"
 org-hsqldb = "org.hsqldb:hsqldb:2.7.3"
 org-jetbrains-kotlin-kotlin-bom = { module = "org.jetbrains.kotlin:kotlin-bom", version.ref = "org-jetbrains-kotlin" }
 org-jetbrains-kotlin-kotlin-gradle-plugin = "org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.25"
 org-jetbrains-kotlinx-kotlinx-coroutines-bom = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-bom", version.ref = "org-jetbrains-kotlinx" }
-org-junit-junit-bom = "org.junit:junit-bom:5.11.0"
+org-junit-junit-bom = "org.junit:junit-bom:5.11.1"
 org-mockito-mockito-bom = { module = "org.mockito:mockito-bom", version.ref = "org-mockito" }
 org-opensaml-opensaml-saml-api = { module = "org.opensaml:opensaml-saml-api", version.ref = "org-opensaml" }
 org-opensaml-opensaml-saml-impl = { module = "org.opensaml:opensaml-saml-impl", version.ref = "org-opensaml" }
@@ -83,7 +83,7 @@ org-opensaml-opensaml5-saml-api = { module = "org.opensaml:opensaml-saml-api", v
 org-opensaml-opensaml5-saml-impl = { module = "org.opensaml:opensaml-saml-impl", version.ref = "org-opensaml5" }
 org-python-jython = { module = "org.python:jython", version = "2.5.3" }
 org-seleniumhq-selenium-htmlunit-driver = "org.seleniumhq.selenium:htmlunit3-driver:4.23.0"
-org-seleniumhq-selenium-selenium-java = "org.seleniumhq.selenium:selenium-java:4.24.0"
+org-seleniumhq-selenium-selenium-java = "org.seleniumhq.selenium:selenium-java:4.25.0"
 org-seleniumhq-selenium-selenium-support = "org.seleniumhq.selenium:selenium-support:3.141.59"
 org-skyscreamer-jsonassert = "org.skyscreamer:jsonassert:1.5.3"
 org-slf4j-log4j-over-slf4j = "org.slf4j:log4j-over-slf4j:1.7.36"

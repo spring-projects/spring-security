@@ -16,16 +16,14 @@
 
 package org.springframework.security.config.annotation.rsocket;
 
-import io.micrometer.observation.ObservationRegistry;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
-import org.springframework.security.authentication.ObservationReactiveAuthenticationManager;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.UserDetailsRepositoryReactiveAuthenticationManager;
+import org.springframework.security.config.ObjectPostProcessor;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -46,7 +44,7 @@ class RSocketSecurityConfiguration {
 
 	private PasswordEncoder passwordEncoder;
 
-	private ObservationRegistry observationRegistry = ObservationRegistry.NOOP;
+	private ObjectPostProcessor<ReactiveAuthenticationManager> postProcessor = ObjectPostProcessor.identity();
 
 	@Autowired(required = false)
 	void setAuthenticationManager(ReactiveAuthenticationManager authenticationManager) {
@@ -64,8 +62,8 @@ class RSocketSecurityConfiguration {
 	}
 
 	@Autowired(required = false)
-	void setObservationRegistry(ObservationRegistry observationRegistry) {
-		this.observationRegistry = observationRegistry;
+	void setAuthenticationManagerPostProcessor(ObjectPostProcessor<ReactiveAuthenticationManager> postProcessor) {
+		this.postProcessor = postProcessor;
 	}
 
 	@Bean(name = RSOCKET_SECURITY_BEAN_NAME)
@@ -86,10 +84,7 @@ class RSocketSecurityConfiguration {
 			if (this.passwordEncoder != null) {
 				manager.setPasswordEncoder(this.passwordEncoder);
 			}
-			if (!this.observationRegistry.isNoop()) {
-				return new ObservationReactiveAuthenticationManager(this.observationRegistry, manager);
-			}
-			return manager;
+			return this.postProcessor.postProcess(manager);
 		}
 		return null;
 	}

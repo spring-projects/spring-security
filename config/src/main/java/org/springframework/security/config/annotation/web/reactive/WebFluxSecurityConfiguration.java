@@ -19,20 +19,20 @@ package org.springframework.security.config.annotation.web.reactive;
 import java.util.Arrays;
 import java.util.List;
 
-import io.micrometer.observation.ObservationRegistry;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.security.config.ObjectPostProcessor;
 import org.springframework.security.config.crypto.RsaKeyConversionServicePostProcessor;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.web.reactive.result.view.CsrfRequestDataValueProcessor;
-import org.springframework.security.web.server.ObservationWebFilterChainDecorator;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.WebFilterChainProxy;
+import org.springframework.security.web.server.WebFilterChainProxy.DefaultWebFilterChainDecorator;
+import org.springframework.security.web.server.WebFilterChainProxy.WebFilterChainDecorator;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.reactive.result.view.AbstractView;
@@ -57,7 +57,7 @@ class WebFluxSecurityConfiguration {
 
 	private List<SecurityWebFilterChain> securityWebFilterChains;
 
-	private ObservationRegistry observationRegistry = ObservationRegistry.NOOP;
+	private ObjectPostProcessor<WebFilterChainDecorator> postProcessor = ObjectPostProcessor.identity();
 
 	static {
 		isOAuth2Present = ClassUtils.isPresent(REACTIVE_CLIENT_REGISTRATION_REPOSITORY_CLASSNAME,
@@ -73,17 +73,16 @@ class WebFluxSecurityConfiguration {
 	}
 
 	@Autowired(required = false)
-	void setObservationRegistry(ObservationRegistry observationRegistry) {
-		this.observationRegistry = observationRegistry;
+	void setFilterChainPostProcessor(ObjectPostProcessor<WebFilterChainDecorator> postProcessor) {
+		this.postProcessor = postProcessor;
 	}
 
 	@Bean(SPRING_SECURITY_WEBFILTERCHAINFILTER_BEAN_NAME)
 	@Order(WEB_FILTER_CHAIN_FILTER_ORDER)
 	WebFilterChainProxy springSecurityWebFilterChainFilter() {
 		WebFilterChainProxy proxy = new WebFilterChainProxy(getSecurityWebFilterChains());
-		if (!this.observationRegistry.isNoop()) {
-			proxy.setFilterChainDecorator(new ObservationWebFilterChainDecorator(this.observationRegistry));
-		}
+		WebFilterChainDecorator decorator = this.postProcessor.postProcess(new DefaultWebFilterChainDecorator());
+		proxy.setFilterChainDecorator(decorator);
 		return proxy;
 	}
 

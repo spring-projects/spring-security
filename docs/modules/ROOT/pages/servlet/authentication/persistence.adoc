@@ -197,13 +197,14 @@ image:{icondir}/number_1.png[] Before running the rest of the application, `Secu
 
 image:{icondir}/number_2.png[] Next, the application is ran.
 
-image:{icondir}/number_3.png[] Finally, if the `SecurityContext` has changed, we save the `SecurityContext` using the `SecurityContextPersistenceRepository`.
+image:{icondir}/number_3.png[] Finally, if the `SecurityContext` has changed, we save the `SecurityContext` using the `SecurityContextRepository`.
 This means that when using `SecurityContextPersistenceFilter`, just setting the `SecurityContextHolder` will ensure that the `SecurityContext` is persisted using `SecurityContextRepository`.
 
 In some cases a response is committed and written to the client before the `SecurityContextPersistenceFilter` method completes.
 For example, if a redirect is sent to the client the response is immediately written back to the client.
 This means that establishing an `HttpSession` would not be possible in step 3 because the session id could not be included in the already written response.
-Another situation that can happen is that if a client authenticates successfully, the response is committed before `SecurityContextPersistenceFilter` completes, and the client makes a second request before the `SecurityContextPersistenceFilter` completes the wrong authentication could be present in the second request.
+Another situation that can happen is that if a client authenticates successfully, the response is committed before `SecurityContextPersistenceFilter` completes, and the client makes a second request before the `SecurityContextPersistenceFilter` completes. the wrong authentication could be present in the second request.
+
 
 To avoid these problems, the `SecurityContextPersistenceFilter` wraps both the `HttpServletRequest` and the `HttpServletResponse` to detect if the `SecurityContext` has changed and if so save the `SecurityContext` just before the response is committed.
 

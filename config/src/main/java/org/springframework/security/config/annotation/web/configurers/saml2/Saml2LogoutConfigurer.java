@@ -107,6 +107,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
  * Uses {@link CsrfTokenRepository} to add the {@link CsrfLogoutHandler}.
  *
  * @author Josh Cummings
+ * @author Ngoc Nhan
  * @since 5.6
  * @see Saml2LogoutConfigurer
  */
@@ -336,10 +337,7 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 		if (this.context == null) {
 			return null;
 		}
-		if (this.context.getBeanNamesForType(clazz).length == 0) {
-			return null;
-		}
-		return this.context.getBean(clazz);
+		return this.context.getBeanProvider(clazz).getIfAvailable();
 	}
 
 	/**

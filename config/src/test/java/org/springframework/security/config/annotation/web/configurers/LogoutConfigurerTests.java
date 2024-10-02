@@ -29,7 +29,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.config.Customizer;
-import org.springframework.security.config.annotation.ObjectPostProcessor;
+import org.springframework.security.config.ObjectPostProcessor;
 import org.springframework.security.config.annotation.SecurityContextChangedListenerConfig;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -110,8 +110,8 @@ public class LogoutConfigurerTests {
 	@Test
 	public void configureWhenRegisteringObjectPostProcessorThenInvokedOnLogoutFilter() {
 		this.spring.register(ObjectPostProcessorConfig.class).autowire();
-		ObjectPostProcessor<LogoutFilter> objectPostProcessor = this.spring.getContext()
-			.getBean(ObjectPostProcessor.class);
+		ObjectPostProcessor<Object> objectPostProcessor = this.spring.getContext()
+			.getBean(ObjectPostProcessorConfig.class).objectPostProcessor;
 		verify(objectPostProcessor).postProcess(any(LogoutFilter.class));
 	}
 
