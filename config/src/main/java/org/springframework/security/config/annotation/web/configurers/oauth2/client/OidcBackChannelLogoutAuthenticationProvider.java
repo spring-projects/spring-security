@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
 
 package org.springframework.security.config.annotation.web.configurers.oauth2.client;
 
+import java.util.function.Function;
+
 import com.nimbusds.jose.JOSEObjectType;
 import com.nimbusds.jose.proc.DefaultJOSEObjectTypeVerifier;
 import com.nimbusds.jose.proc.JOSEObjectTypeVerifier;
@@ -31,10 +33,12 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
+import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.jwt.BadJwtException;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtDecoderFactory;
+import org.springframework.security.oauth2.jwt.JwtValidators;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -63,7 +67,8 @@ final class OidcBackChannelLogoutAuthenticationProvider implements Authenticatio
 	 * Construct an {@link OidcBackChannelLogoutAuthenticationProvider}
 	 */
 	OidcBackChannelLogoutAuthenticationProvider() {
-		DefaultOidcLogoutTokenValidatorFactory jwtValidator = new DefaultOidcLogoutTokenValidatorFactory();
+		Function<ClientRegistration, OAuth2TokenValidator<Jwt>> jwtValidator = (clientRegistration) -> JwtValidators
+			.createDefaultWithValidators(new OidcBackChannelLogoutTokenValidator(clientRegistration));
 		this.logoutTokenDecoderFactory = (clientRegistration) -> {
 			String jwkSetUri = clientRegistration.getProviderDetails().getJwkSetUri();
 			if (!StringUtils.hasText(jwkSetUri)) {
