@@ -58,8 +58,9 @@ public final class GenerateOneTimeTokenWebFilter implements WebFilter {
 		// @formatter:off
 		return this.matcher.matches(exchange)
 				.filter(ServerWebExchangeMatcher.MatchResult::isMatch)
-				.flatMap((mathResult) -> exchange.getFormData())
-				.flatMap((data) -> Mono.justOrEmpty(data.getFirst(USERNAME)))
+				.switchIfEmpty(chain.filter(exchange).then(Mono.empty()))
+				.then(exchange.getFormData())
+				.mapNotNull((data) -> data.getFirst(USERNAME))
 				.switchIfEmpty(chain.filter(exchange).then(Mono.empty()))
 				.flatMap((username) -> this.oneTimeTokenService.generate(new GenerateOneTimeTokenRequest(username)))
 				.flatMap((token) -> this.generatedOneTimeTokenHandler.handle(exchange, token));

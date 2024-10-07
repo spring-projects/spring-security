@@ -54,7 +54,7 @@ public final class OneTimeTokenReactiveAuthenticationManager implements Reactive
 			return Mono.empty();
 		}
 		return this.oneTimeTokenService.consume(otpAuthenticationToken)
-			.switchIfEmpty(Mono.error(new InvalidOneTimeTokenException("Invalid token")))
+			.switchIfEmpty(Mono.defer(() -> Mono.error(new InvalidOneTimeTokenException("Invalid token"))))
 			.flatMap((consumed) -> this.userDetailsService.findByUsername(consumed.getUsername()))
 			.map(onSuccess(otpAuthenticationToken));
 	}

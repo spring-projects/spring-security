@@ -292,7 +292,8 @@ public class OneTimeTokenLoginSpecTests {
 			http
 					.authorizeExchange((authorize) -> authorize
 							.anyExchange()
-							.authenticated())
+							.authenticated()
+					)
 					.oneTimeTokenLogin((ott) -> ott
 							.generatedOneTimeTokenHandler(new TestServerGeneratedOneTimeTokenHandler())
 					);
@@ -314,7 +315,8 @@ public class OneTimeTokenLoginSpecTests {
 			http
 					.authorizeExchange((authorize) -> authorize
 							.anyExchange()
-							.authenticated())
+							.authenticated()
+					)
 					.oneTimeTokenLogin((ott) -> ott
 							.generateTokenUrl("/generateurl")
 							.generatedOneTimeTokenHandler(new TestServerGeneratedOneTimeTokenHandler("/redirected"))
@@ -339,7 +341,8 @@ public class OneTimeTokenLoginSpecTests {
 			http
 					.authorizeExchange((authorize) -> authorize
 							.anyExchange()
-							.authenticated())
+							.authenticated()
+					)
 					.formLogin(Customizer.withDefaults())
 					.oneTimeTokenLogin((ott) -> ott
 							.generatedOneTimeTokenHandler(new TestServerGeneratedOneTimeTokenHandler())
@@ -362,7 +365,8 @@ public class OneTimeTokenLoginSpecTests {
 			http
 					.authorizeExchange((authorize) -> authorize
 							.anyExchange()
-							.authenticated())
+							.authenticated()
+					)
 					.oneTimeTokenLogin(Customizer.withDefaults());
 			// @formatter:on
 			return http.build();
