@@ -18,7 +18,6 @@ package org.springframework.security.core.token;
 
 import java.security.SecureRandom;
 import java.util.Base64;
-import java.util.Date;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.crypto.codec.Hex;
@@ -85,7 +84,7 @@ public class KeyBasedPersistenceTokenService implements TokenService, Initializi
 	@Override
 	public Token allocateToken(String extendedInformation) {
 		Assert.notNull(extendedInformation, "Must provided non-null extendedInformation (but it can be empty)");
-		long creationTime = new Date().getTime();
+		long creationTime = System.currentTimeMillis();
 		String serverSecret = computeServerSecretApplicableAt(creationTime);
 		String pseudoRandomNumber = generatePseudoRandomNumber();
 		String content = creationTime + ":" + pseudoRandomNumber + ":" + extendedInformation;
