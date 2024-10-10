@@ -73,7 +73,7 @@ public class ArrayMarshaller<E> implements Marshaller<ArrayTree<E>> {
 	 * @param tree the tree to be marshalled
 	 */
 	public byte[] serialize(ArrayTree<E> tree) {
-		if ((tree == null) || (tree.size() == 0)) {
+		if ((tree == null) || tree.isEmpty()) {
 			return EMPTY_TREE;
 		}
 
