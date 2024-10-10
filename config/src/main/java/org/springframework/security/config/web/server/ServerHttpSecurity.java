@@ -4586,7 +4586,9 @@ public class ServerHttpSecurity {
 			if (bean != null) {
 				return bean;
 			}
-			return new OidcReactiveOAuth2UserService();
+			OidcReactiveOAuth2UserService reactiveOAuth2UserService = new OidcReactiveOAuth2UserService();
+			reactiveOAuth2UserService.setOauth2UserService(getOauth2UserService());
+			return reactiveOAuth2UserService;
 		}
 
 		private ReactiveOAuth2UserService<OAuth2UserRequest, OAuth2User> getOauth2UserService() {
