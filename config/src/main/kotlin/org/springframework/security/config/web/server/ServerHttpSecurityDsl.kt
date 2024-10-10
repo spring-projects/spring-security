@@ -715,6 +715,36 @@ class ServerHttpSecurityDsl(private val http: ServerHttpSecurity, private val in
     }
 
     /**
+     * Configures One-Time Token Login support.
+     *
+     * Example:
+     *
+     * ```
+     * @Configuration
+     * @EnableWebFluxSecurity
+     * open class SecurityConfig {
+     *
+     *  @Bean
+     *  open fun springWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
+     *      return http {
+     *          oneTimeTokenLogin {
+     *              generatedOneTimeTokenHandler = MyMagicLinkServerGeneratedOneTimeTokenHandler()
+     *          }
+     *       }
+     *   }
+     * }
+     * ```
+     *
+     * @param oneTimeTokenLoginConfiguration custom configuration to configure the One-Time Token Login
+     * @since 6.4
+     * @see [ServerOneTimeTokenLoginDsl]
+     */
+    fun oneTimeTokenLogin(oneTimeTokenLoginConfiguration: ServerOneTimeTokenLoginDsl.()-> Unit){
+        val oneTimeTokenLoginCustomizer = ServerOneTimeTokenLoginDsl().apply(oneTimeTokenLoginConfiguration).get()
+        this.http.oneTimeTokenLogin(oneTimeTokenLoginCustomizer)
+    }
+
+    /**
      * Apply all configurations to the provided [ServerHttpSecurity]
      */
     internal fun build(): SecurityWebFilterChain {
