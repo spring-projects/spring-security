@@ -33,11 +33,11 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
-import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.authorization.AuthorizationEventPublisher;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.authorization.AuthorizationResult;
+import org.springframework.security.authorization.NoopAuthorizationEventPublisher;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
@@ -65,7 +65,7 @@ public final class AuthorizationManagerBeforeMethodInterceptor implements Author
 
 	private int order = AuthorizationInterceptorsOrder.FIRST.getOrder();
 
-	private AuthorizationEventPublisher eventPublisher = AuthorizationManagerBeforeMethodInterceptor::noPublish;
+	private AuthorizationEventPublisher eventPublisher = new NoopAuthorizationEventPublisher();
 
 	/**
 	 * Creates an instance.
@@ -247,9 +247,9 @@ public final class AuthorizationManagerBeforeMethodInterceptor implements Author
 
 	private Object attemptAuthorization(MethodInvocation mi) throws Throwable {
 		this.logger.debug(LogMessage.of(() -> "Authorizing method invocation " + mi));
-		AuthorizationDecision decision;
+		AuthorizationResult decision;
 		try {
-			decision = this.authorizationManager.check(this::getAuthentication, mi);
+			decision = this.authorizationManager.authorize(this::getAuthentication, mi);
 		}
 		catch (AuthorizationDeniedException denied) {
 			return handle(mi, denied);
@@ -298,10 +298,4 @@ public final class AuthorizationManagerBeforeMethodInterceptor implements Author
 		}
 		return authentication;
 	}
-
-	private static <T> void noPublish(Supplier<Authentication> authentication, T object,
-			AuthorizationDecision decision) {
-
-	}
-
 }

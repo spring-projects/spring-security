@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ public class AuthorizationObservationContext<T> extends Observation.Context {
 
 	private final T object;
 
-	private AuthorizationDecision decision;
+	private  AuthorizationResult authorizationResult;
 
 	public AuthorizationObservationContext(T object) {
 		Assert.notNull(object, "object cannot be null");
@@ -73,7 +73,7 @@ public class AuthorizationObservationContext<T> extends Observation.Context {
 	 * @return the observed {@link AuthorizationDecision}
 	 */
 	public AuthorizationDecision getDecision() {
-		return this.decision;
+		return (AuthorizationDecision) this.authorizationResult;
 	}
 
 	/**
@@ -81,7 +81,24 @@ public class AuthorizationObservationContext<T> extends Observation.Context {
 	 * @param decision the observed {@link AuthorizationDecision}
 	 */
 	public void setDecision(AuthorizationDecision decision) {
-		this.decision = decision;
+		this.authorizationResult = decision;
 	}
 
+	/**
+	 * Get the observed {@link AuthorizationResult}
+	 * @return the observed {@link AuthorizationResult}
+	 * @since 6.4
+	 */
+	public AuthorizationResult getAuthorizationResult() {
+		return this.authorizationResult;
+	}
+
+	/**
+	 * Set the observed {@link AuthorizationResult}
+	 * @param authorizationResult the observed {@link AuthorizationResult}
+	 * @since 6.4
+	 */
+	public void setAuthorizationResult(AuthorizationResult authorizationResult) {
+		this.authorizationResult = authorizationResult;
+	}
 }
