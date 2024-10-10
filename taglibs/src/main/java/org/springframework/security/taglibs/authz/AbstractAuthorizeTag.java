@@ -207,7 +207,7 @@ public abstract class AbstractAuthorizeTag {
 		ApplicationContext ctx = SecurityWebApplicationContextUtils
 			.findRequiredWebApplicationContext(getServletContext());
 		Map<String, WebInvocationPrivilegeEvaluator> wipes = ctx.getBeansOfType(WebInvocationPrivilegeEvaluator.class);
-		if (wipes.size() == 0) {
+		if (wipes.isEmpty()) {
 			throw new IOException(
 					"No visible WebInvocationPrivilegeEvaluator instance could be found in the application "
 							+ "context. There must be at least one in order to support the use of URL access checks in 'authorize' tags.");

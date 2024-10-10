@@ -101,10 +101,10 @@ public class UserDetailsServiceFactoryBean implements ApplicationContextAware {
 	 */
 	private UserDetailsService getUserDetailsService() {
 		Map<String, ?> beans = getBeansOfType(CachingUserDetailsService.class);
-		if (beans.size() == 0) {
+		if (beans.isEmpty()) {
 			beans = getBeansOfType(UserDetailsService.class);
 		}
-		if (beans.size() == 0) {
+		if (beans.isEmpty()) {
 			throw new ApplicationContextException("No UserDetailsService registered.");
 		}
 		if (beans.size() > 1) {
@@ -124,7 +124,7 @@ public class UserDetailsServiceFactoryBean implements ApplicationContextAware {
 		// Check ancestor bean factories if they exist and the current one has none of the
 		// required type
 		BeanFactory parent = this.beanFactory.getParentBeanFactory();
-		while (parent != null && beans.size() == 0) {
+		while (parent != null && beans.isEmpty()) {
 			if (parent instanceof ListableBeanFactory) {
 				beans = ((ListableBeanFactory) parent).getBeansOfType(type);
 			}

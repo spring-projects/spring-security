@@ -140,7 +140,7 @@ public class DefaultPermissionFactory implements PermissionFactory {
 
 	@Override
 	public List<Permission> buildFromNames(List<String> names) {
-		if ((names == null) || (names.size() == 0)) {
+		if ((names == null) || names.isEmpty()) {
 			return Collections.emptyList();
 		}
 		List<Permission> permissions = new ArrayList<>(names.size());
