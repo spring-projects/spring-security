@@ -60,6 +60,7 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.hamcrest.Matchers.startsWith;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
@@ -76,6 +77,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.cookie;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 
 /**
  * Tests for {@link RememberMeConfigurer}
@@ -332,6 +334,30 @@ public class RememberMeConfigurerTests {
 		// @formatter:on
 		this.mvc.perform(request).andExpect(remembermeAuthentication);
 		verify(repository).saveContext(any(), any(), any());
+	}
+
+	@Test
+	public void rememberMeExpiresSessionWhenSessionManagementMaximumSessionsExceeds() throws Exception {
+		this.spring.register(RememberMeMaximumSessionsConfig.class).autowire();
+
+		MockHttpServletRequestBuilder loginRequest = post("/login")
+				.with(csrf())
+				.param("username", "user")
+				.param("password", "password")
+				.param("remember-me", "true");
+		MvcResult mvcResult = this.mvc.perform(loginRequest).andReturn();
+		Cookie rememberMeCookie = mvcResult.getResponse().getCookie("remember-me");
+		HttpSession session = mvcResult.getRequest().getSession();
+
+		MockHttpServletRequestBuilder exceedsMaximumSessionsRequest = get("/abc")
+				.cookie(rememberMeCookie);
+		this.mvc.perform(exceedsMaximumSessionsRequest);
+
+		MockHttpServletRequestBuilder sessionExpiredRequest = get("/abc")
+				.cookie(rememberMeCookie)
+				.session((MockHttpSession) session);
+		this.mvc.perform(sessionExpiredRequest)
+				.andExpect(content().string(startsWith("This session has been expired")));
 	}
 
 	@Configuration
@@ -613,6 +639,35 @@ public class RememberMeConfigurerTests {
 					.rememberMeServices(new TokenBasedRememberMeServices("key", userDetailsService()));
 			return http.build();
 			// @formatter:on
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	static class RememberMeMaximumSessionsConfig {
+
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+					.authorizeRequests((authorizeRequests) ->
+							authorizeRequests
+									.anyRequest().hasRole("USER")
+					)
+					.sessionManagement((sessionManagement) ->
+							sessionManagement
+									.maximumSessions(1)
+					)
+					.formLogin(withDefaults())
+					.rememberMe(withDefaults());
+			return http.build();
+			// @formatter:on
+		}
+
+		@Bean
+		UserDetailsService userDetailsService() {
+			return new InMemoryUserDetailsManager(PasswordEncodedUser.user());
 		}
 
 	}
