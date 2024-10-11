@@ -737,7 +737,7 @@ public class StrictHttpFirewall implements HttpFirewall {
 				validateAllowedHeaderName(name);
 			}
 			Enumeration<String> headers = super.getHeaders(name);
-			return new Enumeration<String>() {
+			return new Enumeration<>() {
 
 				@Override
 				public boolean hasMoreElements() {
@@ -757,7 +757,7 @@ public class StrictHttpFirewall implements HttpFirewall {
 		@Override
 		public Enumeration<String> getHeaderNames() {
 			Enumeration<String> names = super.getHeaderNames();
-			return new Enumeration<String>() {
+			return new Enumeration<>() {
 
 				@Override
 				public boolean hasMoreElements() {
@@ -803,7 +803,7 @@ public class StrictHttpFirewall implements HttpFirewall {
 		@Override
 		public Enumeration<String> getParameterNames() {
 			Enumeration<String> paramaterNames = super.getParameterNames();
-			return new Enumeration<String>() {
+			return new Enumeration<>() {
 
 				@Override
 				public boolean hasMoreElements() {
