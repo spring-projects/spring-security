@@ -70,6 +70,7 @@ public class AuthorizationManagerBeforeMethodInterceptorTests {
 	public void beforeWhenMockAuthorizationManagerThenCheck() throws Throwable {
 		MethodInvocation mockMethodInvocation = mock(MethodInvocation.class);
 		AuthorizationManager<MethodInvocation> mockAuthorizationManager = mock(AuthorizationManager.class);
+		given(mockAuthorizationManager.authorize(any(), any())).willCallRealMethod();
 		AuthorizationManagerBeforeMethodInterceptor advice = new AuthorizationManagerBeforeMethodInterceptor(
 				Pointcut.TRUE, mockAuthorizationManager);
 		advice.invoke(mockMethodInvocation);
@@ -143,6 +144,7 @@ public class AuthorizationManagerBeforeMethodInterceptorTests {
 		AuthorizationManager<MethodInvocation> manager = mock(AuthorizationManager.class);
 		given(manager.check(any(), any()))
 			.willThrow(new MyAuthzDeniedException("denied", new AuthorizationDecision(false)));
+		given(manager.authorize(any(), any())).willCallRealMethod();
 		AuthorizationManagerBeforeMethodInterceptor advice = new AuthorizationManagerBeforeMethodInterceptor(
 				Pointcut.TRUE, manager);
 		assertThatExceptionOfType(MyAuthzDeniedException.class).isThrownBy(() -> advice.invoke(null));

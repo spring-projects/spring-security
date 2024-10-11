@@ -67,7 +67,7 @@ public final class AuthorizationChannelInterceptor implements ChannelInterceptor
 	@Override
 	public Message<?> preSend(Message<?> message, MessageChannel channel) {
 		this.logger.debug(LogMessage.of(() -> "Authorizing message send"));
-		AuthorizationDecision decision = this.preSendAuthorizationManager.check(this.authentication, message);
+		AuthorizationResult decision = this.preSendAuthorizationManager.authorize(this.authentication, message);
 		this.eventPublisher.publishAuthorizationEvent(this.authentication, message, decision);
 		if (decision == null || !decision.isGranted()) { // default deny
 			this.logger.debug(LogMessage.of(() -> "Failed to authorize message with authorization manager "

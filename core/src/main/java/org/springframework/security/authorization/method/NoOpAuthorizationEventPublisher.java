@@ -39,6 +39,7 @@ final class NoOpAuthorizationEventPublisher implements AuthorizationEventPublish
 	@Override
 	public <T> void publishAuthorizationEvent(Supplier<Authentication> authentication, T object,
 			AuthorizationResult result) {
+
 	}
 
 }
