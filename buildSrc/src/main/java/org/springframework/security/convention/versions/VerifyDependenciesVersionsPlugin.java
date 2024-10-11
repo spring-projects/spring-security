@@ -23,7 +23,6 @@ import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.artifacts.MinimalExternalModuleDependency;
 import org.gradle.api.artifacts.VersionCatalog;
 import org.gradle.api.artifacts.VersionCatalogsExtension;
-import org.gradle.api.file.RegularFile;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.plugins.JavaBasePlugin;
 import org.gradle.api.provider.Property;
@@ -36,7 +35,6 @@ import org.gradle.api.tasks.TaskExecutionException;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.api.tasks.VerificationException;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Optional;
