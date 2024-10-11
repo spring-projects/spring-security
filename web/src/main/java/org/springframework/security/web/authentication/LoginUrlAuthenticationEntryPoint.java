@@ -1,5 +1,5 @@
 /*
- * Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
+ * Copyright 2004-2024 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -138,7 +138,6 @@ public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoin
 		logger.debug(LogMessage.format("Server side forward to: %s", loginForm));
 		RequestDispatcher dispatcher = request.getRequestDispatcher(loginForm);
 		dispatcher.forward(request, response);
-		return;
 	}
 
 	protected String buildRedirectUrlToLoginPage(HttpServletRequest request, HttpServletResponse response,

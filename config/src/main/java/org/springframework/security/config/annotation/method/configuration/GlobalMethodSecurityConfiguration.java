@@ -97,7 +97,7 @@ public class GlobalMethodSecurityConfiguration implements ImportAware, SmartInit
 
 	private static final Log logger = LogFactory.getLog(GlobalMethodSecurityConfiguration.class);
 
-	private ObjectPostProcessor<Object> objectPostProcessor = new ObjectPostProcessor<Object>() {
+	private ObjectPostProcessor<Object> objectPostProcessor = new ObjectPostProcessor<>() {
 
 		@Override
 		public <T> T postProcess(T object) {
