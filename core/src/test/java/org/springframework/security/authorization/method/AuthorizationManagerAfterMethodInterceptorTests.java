@@ -74,6 +74,7 @@ public class AuthorizationManagerAfterMethodInterceptorTests {
 		MethodInvocationResult result = new MethodInvocationResult(mockMethodInvocation, new Object());
 		given(mockMethodInvocation.proceed()).willReturn(result.getResult());
 		AuthorizationManager<MethodInvocationResult> mockAuthorizationManager = mock(AuthorizationManager.class);
+		given(mockAuthorizationManager.authorize(any(), any())).willCallRealMethod();
 		AuthorizationManagerAfterMethodInterceptor advice = new AuthorizationManagerAfterMethodInterceptor(
 				Pointcut.TRUE, mockAuthorizationManager);
 		Object returnedObject = advice.invoke(mockMethodInvocation);
@@ -152,6 +153,7 @@ public class AuthorizationManagerAfterMethodInterceptorTests {
 		AuthorizationManager<MethodInvocationResult> manager = mock(AuthorizationManager.class);
 		given(manager.check(any(), any()))
 			.willThrow(new MyAuthzDeniedException("denied", new AuthorizationDecision(false)));
+		given(manager.authorize(any(), any())).willCallRealMethod();
 		AuthorizationManagerAfterMethodInterceptor advice = new AuthorizationManagerAfterMethodInterceptor(
 				Pointcut.TRUE, manager);
 		assertThatExceptionOfType(MyAuthzDeniedException.class).isThrownBy(() -> advice.invoke(mi));

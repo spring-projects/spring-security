@@ -84,12 +84,14 @@ public class AuthorizationChannelInterceptorTests {
 	@Test
 	public void preSendWhenAllowThenSameMessage() {
 		given(this.authorizationManager.check(any(), any())).willReturn(new AuthorizationDecision(true));
+		given(this.authorizationManager.authorize(any(), any())).willCallRealMethod();
 		assertThat(this.interceptor.preSend(this.message, this.channel)).isSameAs(this.message);
 	}
 
 	@Test
 	public void preSendWhenDenyThenException() {
 		given(this.authorizationManager.check(any(), any())).willReturn(new AuthorizationDecision(false));
+		given(this.authorizationManager.authorize(any(), any())).willCallRealMethod();
 		assertThatExceptionOfType(AccessDeniedException.class)
 			.isThrownBy(() -> this.interceptor.preSend(this.message, this.channel));
 	}
@@ -104,6 +106,7 @@ public class AuthorizationChannelInterceptorTests {
 	public void preSendWhenAuthorizationEventPublisherThenPublishes() {
 		this.interceptor.setAuthorizationEventPublisher(this.eventPublisher);
 		given(this.authorizationManager.check(any(), any())).willReturn(new AuthorizationDecision(true));
+		given(this.authorizationManager.authorize(any(), any())).willCallRealMethod();
 		lenient().doCallRealMethod()
 			.when(this.eventPublisher)
 			.publishAuthorizationEvent(any(), any(), any(AuthorizationResult.class));

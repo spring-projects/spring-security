@@ -164,7 +164,7 @@ public final class AuthorizationManagerAfterReactiveMethodInterceptor implements
 
 	private Mono<Object> postAuthorize(Mono<Authentication> authentication, MethodInvocation mi, Object result) {
 		MethodInvocationResult invocationResult = new MethodInvocationResult(mi, result);
-		return this.authorizationManager.check(authentication, invocationResult)
+		return this.authorizationManager.authorize(authentication, invocationResult)
 			.switchIfEmpty(Mono.just(new AuthorizationDecision(false)))
 			.flatMap((decision) -> postProcess(decision, invocationResult));
 	}

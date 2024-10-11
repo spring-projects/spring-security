@@ -93,7 +93,7 @@ public class AuthorizationFilter extends GenericFilterBean {
 		String alreadyFilteredAttributeName = getAlreadyFilteredAttributeName();
 		request.setAttribute(alreadyFilteredAttributeName, Boolean.TRUE);
 		try {
-			AuthorizationDecision decision = this.authorizationManager.check(this::getAuthentication, request);
+			AuthorizationResult decision = this.authorizationManager.authorize(this::getAuthentication, request);
 			this.eventPublisher.publishAuthorizationEvent(this::getAuthentication, request, decision);
 			if (decision != null && !decision.isGranted()) {
 				throw new AuthorizationDeniedException("Access Denied", decision);

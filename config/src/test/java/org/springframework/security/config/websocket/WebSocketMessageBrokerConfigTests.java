@@ -514,6 +514,7 @@ public class WebSocketMessageBrokerConfigTests {
 		AuthorizationManager<Message<?>> authorizationManager = this.spring.getContext()
 			.getBean(AuthorizationManager.class);
 		given(authorizationManager.check(any(), any())).willReturn(new AuthorizationDecision(false));
+		given(authorizationManager.authorize(any(), any())).willCallRealMethod();
 		Message<?> message = message("/any");
 		assertThatExceptionOfType(Exception.class).isThrownBy(send(message))
 			.withCauseInstanceOf(AccessDeniedException.class);

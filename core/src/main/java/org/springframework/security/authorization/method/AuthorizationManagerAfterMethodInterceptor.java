@@ -29,10 +29,10 @@ import org.springframework.core.log.LogMessage;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
-import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.authorization.AuthorizationEventPublisher;
 import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
@@ -182,7 +182,7 @@ public final class AuthorizationManagerAfterMethodInterceptor implements Authori
 	private Object attemptAuthorization(MethodInvocation mi, Object result) {
 		this.logger.debug(LogMessage.of(() -> "Authorizing method invocation " + mi));
 		MethodInvocationResult object = new MethodInvocationResult(mi, result);
-		AuthorizationDecision decision = this.authorizationManager.check(this::getAuthentication, object);
+		AuthorizationResult decision = this.authorizationManager.authorize(this::getAuthentication, object);
 		this.eventPublisher.publishAuthorizationEvent(this::getAuthentication, object, decision);
 		if (decision != null && !decision.isGranted()) {
 			this.logger.debug(LogMessage.of(() -> "Failed to authorize " + mi + " with authorization manager "
@@ -193,7 +193,7 @@ public final class AuthorizationManagerAfterMethodInterceptor implements Authori
 		return result;
 	}
 
-	private Object handlePostInvocationDenied(MethodInvocationResult mi, AuthorizationDecision decision) {
+	private Object handlePostInvocationDenied(MethodInvocationResult mi, AuthorizationResult decision) {
 		if (this.authorizationManager instanceof MethodAuthorizationDeniedHandler deniedHandler) {
 			return deniedHandler.handleDeniedInvocationResult(mi, decision);
 		}
