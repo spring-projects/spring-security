@@ -161,8 +161,8 @@ class JdbcOneTimeTokenServiceTests {
 	@Test
 	void cleanupExpiredTokens() {
 		Clock clock = mock(Clock.class);
-		Instant fiveMinutesAgo = Instant.now().minus(Duration.ofMinutes(5));
-		given(clock.instant()).willReturn(fiveMinutesAgo);
+		Instant tenMinutesAgo = Instant.now().minus(Duration.ofMinutes(10));
+		given(clock.instant()).willReturn(tenMinutesAgo);
 		this.oneTimeTokenService.setClock(clock);
 		OneTimeToken token1 = this.oneTimeTokenService.generate(new GenerateOneTimeTokenRequest(USERNAME));
 		OneTimeToken token2 = this.oneTimeTokenService.generate(new GenerateOneTimeTokenRequest(USERNAME));
