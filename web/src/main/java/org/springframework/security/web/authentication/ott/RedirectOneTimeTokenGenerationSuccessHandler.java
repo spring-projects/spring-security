@@ -27,12 +27,13 @@ import org.springframework.security.web.RedirectStrategy;
 import org.springframework.util.Assert;
 
 /**
- * A {@link GeneratedOneTimeTokenHandler} that performs a redirect to a specific location
+ * A {@link OneTimeTokenGenerationSuccessHandler} that performs a redirect to a specific
+ * location
  *
  * @author Marcus da Coregio
  * @since 6.4
  */
-public final class RedirectGeneratedOneTimeTokenHandler implements GeneratedOneTimeTokenHandler {
+public final class RedirectOneTimeTokenGenerationSuccessHandler implements OneTimeTokenGenerationSuccessHandler {
 
 	private final RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
 
@@ -42,7 +43,7 @@ public final class RedirectGeneratedOneTimeTokenHandler implements GeneratedOneT
 	 * Constructs an instance of this class that redirects to the specified URL.
 	 * @param redirectUrl
 	 */
-	public RedirectGeneratedOneTimeTokenHandler(String redirectUrl) {
+	public RedirectOneTimeTokenGenerationSuccessHandler(String redirectUrl) {
 		Assert.hasText(redirectUrl, "redirectUrl cannot be empty or null");
 		this.redirectUrl = redirectUrl;
 	}

@@ -45,7 +45,7 @@ public class GenerateOneTimeTokenWebFilterTests {
 
 	private final ReactiveOneTimeTokenService oneTimeTokenService = mock(ReactiveOneTimeTokenService.class);
 
-	private final ServerRedirectGeneratedOneTimeTokenHandler generatedOneTimeTokenHandler = new ServerRedirectGeneratedOneTimeTokenHandler(
+	private final ServerRedirectOneTimeTokenGenerationSuccessHandler generatedOneTimeTokenHandler = new ServerRedirectOneTimeTokenGenerationSuccessHandler(
 			"/login/ott");
 
 	private static final String TOKEN = "token";

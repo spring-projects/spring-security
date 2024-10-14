@@ -29,15 +29,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
- * Tests for {@link RedirectGeneratedOneTimeTokenHandler}
+ * Tests for {@link RedirectOneTimeTokenGenerationSuccessHandler}
  *
  * @author Marcus da Coregio
  */
-class RedirectGeneratedOneTimeTokenHandlerTests {
+class RedirectOneTimeTokenGenerationSuccessHandlerTests {
 
 	@Test
 	void handleThenRedirectToDefaultLocation() throws IOException {
-		RedirectGeneratedOneTimeTokenHandler handler = new RedirectGeneratedOneTimeTokenHandler("/login/ott");
+		RedirectOneTimeTokenGenerationSuccessHandler handler = new RedirectOneTimeTokenGenerationSuccessHandler(
+				"/login/ott");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		handler.handle(new MockHttpServletRequest(), response, new DefaultOneTimeToken("token", "user", Instant.now()));
 		assertThat(response.getRedirectedUrl()).isEqualTo("/login/ott");
@@ -46,16 +47,17 @@ class RedirectGeneratedOneTimeTokenHandlerTests {
 	@Test
 	void handleWhenUrlChangedThenRedirectToUrl() throws IOException {
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		RedirectGeneratedOneTimeTokenHandler handler = new RedirectGeneratedOneTimeTokenHandler("/redirected");
+		RedirectOneTimeTokenGenerationSuccessHandler handler = new RedirectOneTimeTokenGenerationSuccessHandler(
+				"/redirected");
 		handler.handle(new MockHttpServletRequest(), response, new DefaultOneTimeToken("token", "user", Instant.now()));
 		assertThat(response.getRedirectedUrl()).isEqualTo("/redirected");
 	}
 
 	@Test
 	void setRedirectUrlWhenNullOrEmptyThenException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> new RedirectGeneratedOneTimeTokenHandler(null))
+		assertThatIllegalArgumentException().isThrownBy(() -> new RedirectOneTimeTokenGenerationSuccessHandler(null))
 			.withMessage("redirectUrl cannot be empty or null");
-		assertThatIllegalArgumentException().isThrownBy(() -> new RedirectGeneratedOneTimeTokenHandler(""))
+		assertThatIllegalArgumentException().isThrownBy(() -> new RedirectOneTimeTokenGenerationSuccessHandler(""))
 			.withMessage("redirectUrl cannot be empty or null");
 	}
 

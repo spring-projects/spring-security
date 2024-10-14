@@ -157,7 +157,7 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 		this.authenticationUrl = authenticationUrl;
 	}
 
-	public void setGenerateOneTimeTokenUrl(String generateOneTimeTokenUrl) {
+	public void setOneTimeTokenGenerationUrl(String generateOneTimeTokenUrl) {
 		this.generateOneTimeTokenUrl = generateOneTimeTokenUrl;
 	}
 

@@ -31,7 +31,7 @@ import org.springframework.security.authentication.ott.OneTimeToken;
  * @since 6.4
  */
 @FunctionalInterface
-public interface GeneratedOneTimeTokenHandler {
+public interface OneTimeTokenGenerationSuccessHandler {
 
 	/**
 	 * Handles generated one-time tokens

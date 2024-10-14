@@ -40,8 +40,8 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.authentication.RedirectServerAuthenticationSuccessHandler;
-import org.springframework.security.web.server.authentication.ott.ServerGeneratedOneTimeTokenHandler;
-import org.springframework.security.web.server.authentication.ott.ServerRedirectGeneratedOneTimeTokenHandler;
+import org.springframework.security.web.server.authentication.ott.ServerOneTimeTokenGenerationSuccessHandler;
+import org.springframework.security.web.server.authentication.ott.ServerRedirectOneTimeTokenGenerationSuccessHandler;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.config.EnableWebFlux;
 import org.springframework.web.reactive.function.BodyInserters;
@@ -107,7 +107,7 @@ public class OneTimeTokenLoginSpecTests {
 				.expectHeader().valueEquals("Location", "/login/ott");
 		// @formatter:on
 
-		String token = TestServerGeneratedOneTimeTokenHandler.lastToken.getTokenValue();
+		String token = TestServerOneTimeTokenGenerationSuccessHandler.lastToken.getTokenValue();
 
 		// @formatter:off
 		this.client.mutateWith(SecurityMockServerConfigurers.csrf())
@@ -143,7 +143,7 @@ public class OneTimeTokenLoginSpecTests {
 				.expectHeader().valueEquals("Location", "/redirected");
 		// @formatter:on
 
-		String token = TestServerGeneratedOneTimeTokenHandler.lastToken.getTokenValue();
+		String token = TestServerOneTimeTokenGenerationSuccessHandler.lastToken.getTokenValue();
 
 		// @formatter:off
 		this.client.mutateWith(SecurityMockServerConfigurers.csrf())
@@ -179,7 +179,7 @@ public class OneTimeTokenLoginSpecTests {
 				.expectHeader().valueEquals("Location", "/login/ott");
 		// @formatter:on
 
-		String token = TestServerGeneratedOneTimeTokenHandler.lastToken.getTokenValue();
+		String token = TestServerOneTimeTokenGenerationSuccessHandler.lastToken.getTokenValue();
 
 		// @formatter:off
 		this.client.mutateWith(SecurityMockServerConfigurers.csrf())
@@ -295,7 +295,7 @@ public class OneTimeTokenLoginSpecTests {
 							.authenticated()
 					)
 					.oneTimeTokenLogin((ott) -> ott
-							.generatedOneTimeTokenHandler(new TestServerGeneratedOneTimeTokenHandler())
+							.tokenGenerationSuccessHandler(new TestServerOneTimeTokenGenerationSuccessHandler())
 					);
 			// @formatter:on
 			return http.build();
@@ -318,8 +318,8 @@ public class OneTimeTokenLoginSpecTests {
 							.authenticated()
 					)
 					.oneTimeTokenLogin((ott) -> ott
-							.generateTokenUrl("/generateurl")
-							.generatedOneTimeTokenHandler(new TestServerGeneratedOneTimeTokenHandler("/redirected"))
+							.tokenGeneratingUrl("/generateurl")
+							.tokenGenerationSuccessHandler(new TestServerOneTimeTokenGenerationSuccessHandler("/redirected"))
 							.loginProcessingUrl("/loginprocessingurl")
 							.authenticationSuccessHandler(new RedirectServerAuthenticationSuccessHandler("/authenticated"))
 					);
@@ -345,7 +345,7 @@ public class OneTimeTokenLoginSpecTests {
 					)
 					.formLogin(Customizer.withDefaults())
 					.oneTimeTokenLogin((ott) -> ott
-							.generatedOneTimeTokenHandler(new TestServerGeneratedOneTimeTokenHandler())
+							.tokenGenerationSuccessHandler(new TestServerOneTimeTokenGenerationSuccessHandler())
 					);
 			// @formatter:on
 			return http.build();
@@ -385,18 +385,19 @@ public class OneTimeTokenLoginSpecTests {
 
 	}
 
-	private static class TestServerGeneratedOneTimeTokenHandler implements ServerGeneratedOneTimeTokenHandler {
+	private static class TestServerOneTimeTokenGenerationSuccessHandler
+			implements ServerOneTimeTokenGenerationSuccessHandler {
 
 		private static OneTimeToken lastToken;
 
-		private final ServerGeneratedOneTimeTokenHandler delegate;
+		private final ServerOneTimeTokenGenerationSuccessHandler delegate;
 
-		TestServerGeneratedOneTimeTokenHandler() {
-			this.delegate = new ServerRedirectGeneratedOneTimeTokenHandler("/login/ott");
+		TestServerOneTimeTokenGenerationSuccessHandler() {
+			this.delegate = new ServerRedirectOneTimeTokenGenerationSuccessHandler("/login/ott");
 		}
 
-		TestServerGeneratedOneTimeTokenHandler(String redirectUrl) {
-			this.delegate = new ServerRedirectGeneratedOneTimeTokenHandler(redirectUrl);
+		TestServerOneTimeTokenGenerationSuccessHandler(String redirectUrl) {
+			this.delegate = new ServerRedirectOneTimeTokenGenerationSuccessHandler(redirectUrl);
 		}
 
 		@Override

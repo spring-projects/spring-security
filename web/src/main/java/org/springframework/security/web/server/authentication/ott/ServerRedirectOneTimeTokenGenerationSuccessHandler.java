@@ -27,19 +27,20 @@ import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
 
 /**
- * A {@link ServerGeneratedOneTimeTokenHandler} that performs a redirect to a specific
- * location
+ * A {@link ServerOneTimeTokenGenerationSuccessHandler} that performs a redirect to a
+ * specific location
  *
  * @author Max Batischev
  * @since 6.4
  */
-public final class ServerRedirectGeneratedOneTimeTokenHandler implements ServerGeneratedOneTimeTokenHandler {
+public final class ServerRedirectOneTimeTokenGenerationSuccessHandler
+		implements ServerOneTimeTokenGenerationSuccessHandler {
 
 	private final ServerRedirectStrategy redirectStrategy = new DefaultServerRedirectStrategy();
 
 	private final URI redirectUri;
 
-	public ServerRedirectGeneratedOneTimeTokenHandler(String redirectUri) {
+	public ServerRedirectOneTimeTokenGenerationSuccessHandler(String redirectUri) {
 		Assert.hasText(redirectUri, "redirectUri cannot be empty or null");
 		this.redirectUri = URI.create(redirectUri);
 	}

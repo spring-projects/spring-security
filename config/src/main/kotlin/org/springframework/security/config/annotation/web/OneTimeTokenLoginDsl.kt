@@ -23,40 +23,40 @@ import org.springframework.security.config.annotation.web.configurers.ott.OneTim
 import org.springframework.security.web.authentication.AuthenticationConverter
 import org.springframework.security.web.authentication.AuthenticationFailureHandler
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler
-import org.springframework.security.web.authentication.ott.GeneratedOneTimeTokenHandler
+import org.springframework.security.web.authentication.ott.OneTimeTokenGenerationSuccessHandler
 
 /**
  * A Kotlin DSL to configure [HttpSecurity] OAuth 2.0 login using idiomatic Kotlin code.
  *
  * @author Max Batischev
  * @since 6.4
- * @property oneTimeTokenService configures the [OneTimeTokenService] used to generate and consume
+ * @property tokenService configures the [OneTimeTokenService] used to generate and consume
  * @property authenticationConverter Use this [AuthenticationConverter] when converting incoming requests to an authentication
  * @property authenticationFailureHandler the [AuthenticationFailureHandler] to use when authentication
  * @property authenticationSuccessHandler the [AuthenticationSuccessHandler] to be used
  * @property defaultSubmitPageUrl sets the URL that the default submit page will be generated
  * @property showDefaultSubmitPage configures whether the default one-time token submit page should be shown
  * @property loginProcessingUrl the URL to process the login request
- * @property generateTokenUrl the URL that a One-Time Token generate request will be processed
- * @property generatedOneTimeTokenHandler the strategy to be used to handle generated one-time tokens
+ * @property tokenGeneratingUrl the URL that a One-Time Token generate request will be processed
+ * @property oneTimeTokenGenerationSuccessHandler the strategy to be used to handle generated one-time tokens
  * @property authenticationProvider the [AuthenticationProvider] to use when authenticating the user
  */
 @SecurityMarker
 class OneTimeTokenLoginDsl {
-    var oneTimeTokenService: OneTimeTokenService? = null
+    var tokenService: OneTimeTokenService? = null
     var authenticationConverter: AuthenticationConverter? = null
     var authenticationFailureHandler: AuthenticationFailureHandler? = null
     var authenticationSuccessHandler: AuthenticationSuccessHandler? = null
     var defaultSubmitPageUrl: String? = null
     var loginProcessingUrl: String? = null
-    var generateTokenUrl: String? = null
+    var tokenGeneratingUrl: String? = null
     var showDefaultSubmitPage: Boolean? = true
-    var generatedOneTimeTokenHandler: GeneratedOneTimeTokenHandler? = null
+    var oneTimeTokenGenerationSuccessHandler: OneTimeTokenGenerationSuccessHandler? = null
     var authenticationProvider: AuthenticationProvider? = null
 
     internal fun get(): (OneTimeTokenLoginConfigurer<HttpSecurity>) -> Unit {
         return { oneTimeTokenLoginConfigurer ->
-            oneTimeTokenService?.also { oneTimeTokenLoginConfigurer.oneTimeTokenService(oneTimeTokenService) }
+            tokenService?.also { oneTimeTokenLoginConfigurer.tokenService(tokenService) }
             authenticationConverter?.also { oneTimeTokenLoginConfigurer.authenticationConverter(authenticationConverter) }
             authenticationFailureHandler?.also {
                 oneTimeTokenLoginConfigurer.authenticationFailureHandler(
@@ -71,10 +71,10 @@ class OneTimeTokenLoginDsl {
             defaultSubmitPageUrl?.also { oneTimeTokenLoginConfigurer.defaultSubmitPageUrl(defaultSubmitPageUrl) }
             showDefaultSubmitPage?.also { oneTimeTokenLoginConfigurer.showDefaultSubmitPage(showDefaultSubmitPage!!) }
             loginProcessingUrl?.also { oneTimeTokenLoginConfigurer.loginProcessingUrl(loginProcessingUrl) }
-            generateTokenUrl?.also { oneTimeTokenLoginConfigurer.generateTokenUrl(generateTokenUrl) }
-            generatedOneTimeTokenHandler?.also {
-                oneTimeTokenLoginConfigurer.generatedOneTimeTokenHandler(
-                    generatedOneTimeTokenHandler
+            tokenGeneratingUrl?.also { oneTimeTokenLoginConfigurer.tokenGeneratingUrl(tokenGeneratingUrl) }
+            oneTimeTokenGenerationSuccessHandler?.also {
+                oneTimeTokenLoginConfigurer.tokenGenerationSuccessHandler(
+                    oneTimeTokenGenerationSuccessHandler
                 )
             }
             authenticationProvider?.also { oneTimeTokenLoginConfigurer.authenticationProvider(authenticationProvider) }

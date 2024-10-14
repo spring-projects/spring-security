@@ -28,7 +28,7 @@ import org.springframework.web.server.ServerWebExchange;
  * @since 6.4
  */
 @FunctionalInterface
-public interface ServerGeneratedOneTimeTokenHandler {
+public interface ServerOneTimeTokenGenerationSuccessHandler {
 
 	/**
 	 * Handles generated one-time tokens

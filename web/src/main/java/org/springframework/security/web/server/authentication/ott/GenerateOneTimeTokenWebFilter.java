@@ -43,10 +43,10 @@ public final class GenerateOneTimeTokenWebFilter implements WebFilter {
 
 	private ServerWebExchangeMatcher matcher = ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, "/ott/generate");
 
-	private final ServerGeneratedOneTimeTokenHandler generatedOneTimeTokenHandler;
+	private final ServerOneTimeTokenGenerationSuccessHandler generatedOneTimeTokenHandler;
 
 	public GenerateOneTimeTokenWebFilter(ReactiveOneTimeTokenService oneTimeTokenService,
-			ServerGeneratedOneTimeTokenHandler generatedOneTimeTokenHandler) {
+			ServerOneTimeTokenGenerationSuccessHandler generatedOneTimeTokenHandler) {
 		Assert.notNull(generatedOneTimeTokenHandler, "generatedOneTimeTokenHandler cannot be null");
 		Assert.notNull(oneTimeTokenService, "oneTimeTokenService cannot be null");
 		this.generatedOneTimeTokenHandler = generatedOneTimeTokenHandler;

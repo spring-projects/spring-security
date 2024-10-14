@@ -192,7 +192,7 @@ public class DefaultLoginPageGeneratingFilterTests {
 		DefaultLoginPageGeneratingFilter filter = new DefaultLoginPageGeneratingFilter();
 		filter.setLoginPageUrl(DefaultLoginPageGeneratingFilter.DEFAULT_LOGIN_PAGE_URL);
 		filter.setOneTimeTokenEnabled(true);
-		filter.setGenerateOneTimeTokenUrl("/ott/authenticate");
+		filter.setOneTimeTokenGenerationUrl("/ott/authenticate");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		filter.doFilter(new MockHttpServletRequest("GET", "/login"), response, this.chain);
 		assertThat(response.getContentAsString()).contains("Request a One-Time Token");
