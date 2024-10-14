@@ -60,7 +60,7 @@ public final class AuthorizationManagerAfterMethodInterceptor implements Authori
 
 	private int order;
 
-	private AuthorizationEventPublisher eventPublisher = AuthorizationManagerAfterMethodInterceptor::noPublish;
+	private AuthorizationEventPublisher eventPublisher = new NoOpAuthorizationEventPublisher();
 
 	/**
 	 * Creates an instance.
@@ -207,11 +207,6 @@ public final class AuthorizationManagerAfterMethodInterceptor implements Authori
 					"An Authentication object was not found in the SecurityContext");
 		}
 		return authentication;
-	}
-
-	private static <T> void noPublish(Supplier<Authentication> authentication, T object,
-			AuthorizationDecision decision) {
-
 	}
 
 }

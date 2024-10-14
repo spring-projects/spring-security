@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,6 +38,7 @@ import org.springframework.security.authorization.AuthenticatedAuthorizationMana
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationEventPublisher;
 import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -53,6 +54,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willThrow;
+import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -186,6 +188,7 @@ public class AuthorizationFilterTests {
 		SecurityContextHolder.setContext(securityContext);
 
 		AuthorizationEventPublisher eventPublisher = mock(AuthorizationEventPublisher.class);
+		doCallRealMethod().when(eventPublisher).publishAuthorizationEvent(any(), any(), any(AuthorizationResult.class));
 		authorizationFilter.setAuthorizationEventPublisher(eventPublisher);
 		authorizationFilter.doFilter(mockRequest, mockResponse, mockFilterChain);
 		verify(eventPublisher).publishAuthorizationEvent(any(Supplier.class), any(HttpServletRequest.class),
