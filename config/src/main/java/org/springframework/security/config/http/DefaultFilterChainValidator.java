@@ -221,9 +221,8 @@ public class DefaultFilterChainValidator implements FilterChainProxy.FilterChain
 			AuthorizationManager<HttpServletRequest> authorizationManager = authorizationFilter
 				.getAuthorizationManager();
 			try {
-				AuthorizationResult decision = authorizationManager.authorize(() -> TEST,
-						loginRequest.getHttpRequest());
-				return decision != null && decision.isGranted();
+				AuthorizationResult result = authorizationManager.authorize(() -> TEST, loginRequest.getHttpRequest());
+				return result != null && result.isGranted();
 			}
 			catch (Exception ex) {
 				return false;
@@ -253,9 +252,8 @@ public class DefaultFilterChainValidator implements FilterChainProxy.FilterChain
 			return () -> {
 				AuthorizationManager<HttpServletRequest> authorizationManager = authorizationFilter
 					.getAuthorizationManager();
-				AuthorizationResult decision = authorizationManager.authorize(() -> token,
-						loginRequest.getHttpRequest());
-				return decision != null && decision.isGranted();
+				AuthorizationResult result = authorizationManager.authorize(() -> token, loginRequest.getHttpRequest());
+				return result != null && result.isGranted();
 			};
 		}
 		return () -> true;

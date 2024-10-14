@@ -60,7 +60,9 @@ public final class MessageMatcherDelegatingAuthorizationManager implements Autho
 	 * @return an {@link AuthorizationDecision}. If there is no {@link MessageMatcher}
 	 * matching the message, or the {@link AuthorizationManager} could not decide, then
 	 * null is returned
+	 * @deprecated please use {@link #authorize(Supplier, Object)} instead
 	 */
+	@Deprecated
 	@Override
 	public AuthorizationDecision check(Supplier<Authentication> authentication, Message<?> message) {
 		if (this.logger.isTraceEnabled()) {

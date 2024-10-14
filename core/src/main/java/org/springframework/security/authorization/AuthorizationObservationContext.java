@@ -33,8 +33,6 @@ public class AuthorizationObservationContext<T> extends Observation.Context {
 
 	private final T object;
 
-	private AuthorizationDecision decision;
-
 	private AuthorizationResult authorizationResult;
 
 	public AuthorizationObservationContext(T object) {
@@ -77,9 +75,14 @@ public class AuthorizationObservationContext<T> extends Observation.Context {
 	 */
 	@Deprecated
 	public AuthorizationDecision getDecision() {
-		Assert.isInstanceOf(AuthorizationDecision.class, this.authorizationResult,
+		if (this.authorizationResult == null) {
+			return null;
+		}
+		if (this.authorizationResult instanceof AuthorizationDecision decision) {
+			return decision;
+		}
+		throw new IllegalArgumentException(
 				"Please call getAuthorizationResult instead. If you must call getDecision, please ensure that the result you provide is of type AuthorizationDecision");
-		return (AuthorizationDecision) this.authorizationResult;
 	}
 
 	/**
@@ -89,9 +92,7 @@ public class AuthorizationObservationContext<T> extends Observation.Context {
 	 */
 	@Deprecated
 	public void setDecision(AuthorizationDecision decision) {
-		Assert.isInstanceOf(AuthorizationDecision.class, decision,
-				"Please call setAuthorizationResult instead. If you must call getDecision, please ensure that the result you provide is of type AuthorizationDecision");
-		this.decision = decision;
+		this.authorizationResult = decision;
 	}
 
 	/**

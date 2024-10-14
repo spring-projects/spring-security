@@ -68,7 +68,9 @@ public final class RequestMatcherDelegatingAuthorizationManager implements Autho
 	 * @return an {@link AuthorizationDecision}. If there is no {@link RequestMatcher}
 	 * matching the request, or the {@link AuthorizationManager} could not decide, then
 	 * null is returned
+	 * @deprecated please use {@link #authorize(Supplier, Object)} instead
 	 */
+	@Deprecated
 	@Override
 	public AuthorizationDecision check(Supplier<Authentication> authentication, HttpServletRequest request) {
 		if (this.logger.isTraceEnabled()) {

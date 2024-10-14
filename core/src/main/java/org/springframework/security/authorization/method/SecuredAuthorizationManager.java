@@ -73,7 +73,9 @@ public final class SecuredAuthorizationManager implements AuthorizationManager<M
 	 * @param mi the {@link MethodInvocation} to check
 	 * @return an {@link AuthorizationDecision} or null if the {@link Secured} annotation
 	 * is not present
+	 * @deprecated please use {@link #authorize(Supplier, Object)} instead
 	 */
+	@Deprecated
 	@Override
 	public AuthorizationDecision check(Supplier<Authentication> authentication, MethodInvocation mi) {
 		Set<String> authorities = getAuthorities(mi);
