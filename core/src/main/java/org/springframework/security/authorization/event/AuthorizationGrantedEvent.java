@@ -20,6 +20,7 @@ import java.util.function.Supplier;
 
 import org.springframework.context.ApplicationEvent;
 import org.springframework.security.authorization.AuthorizationDecision;
+import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.core.Authentication;
 
 /**
@@ -31,9 +32,21 @@ import org.springframework.security.core.Authentication;
  */
 public class AuthorizationGrantedEvent<T> extends AuthorizationEvent {
 
+	/**
+	 * @deprecated please use a constructor that takes an
+	 * {@link org.springframework.security.authorization.AuthorizationResult}
+	 */
+	@Deprecated
 	public AuthorizationGrantedEvent(Supplier<Authentication> authentication, T object,
 			AuthorizationDecision decision) {
 		super(authentication, object, decision);
+	}
+
+	/**
+	 * @since 6.4
+	 */
+	public AuthorizationGrantedEvent(Supplier<Authentication> authentication, T object, AuthorizationResult result) {
+		super(authentication, object, result);
 	}
 
 	/**

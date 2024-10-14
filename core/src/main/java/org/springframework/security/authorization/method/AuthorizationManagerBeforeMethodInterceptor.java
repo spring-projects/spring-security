@@ -65,7 +65,7 @@ public final class AuthorizationManagerBeforeMethodInterceptor implements Author
 
 	private int order = AuthorizationInterceptorsOrder.FIRST.getOrder();
 
-	private AuthorizationEventPublisher eventPublisher = AuthorizationManagerBeforeMethodInterceptor::noPublish;
+	private AuthorizationEventPublisher eventPublisher = new NoOpAuthorizationEventPublisher();
 
 	/**
 	 * Creates an instance.
@@ -297,11 +297,6 @@ public final class AuthorizationManagerBeforeMethodInterceptor implements Author
 					"An Authentication object was not found in the SecurityContext");
 		}
 		return authentication;
-	}
-
-	private static <T> void noPublish(Supplier<Authentication> authentication, T object,
-			AuthorizationDecision decision) {
-
 	}
 
 }
