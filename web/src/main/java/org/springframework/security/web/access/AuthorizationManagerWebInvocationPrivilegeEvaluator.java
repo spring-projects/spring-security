@@ -57,8 +57,8 @@ public final class AuthorizationManagerWebInvocationPrivilegeEvaluator
 	public boolean isAllowed(String contextPath, String uri, String method, Authentication authentication) {
 		FilterInvocation filterInvocation = new FilterInvocation(contextPath, uri, method, this.servletContext);
 		HttpServletRequest httpRequest = this.requestTransformer.transform(filterInvocation.getHttpRequest());
-		AuthorizationResult decision = this.authorizationManager.authorize(() -> authentication, httpRequest);
-		return decision == null || decision.isGranted();
+		AuthorizationResult result = this.authorizationManager.authorize(() -> authentication, httpRequest);
+		return result == null || result.isGranted();
 	}
 
 	@Override

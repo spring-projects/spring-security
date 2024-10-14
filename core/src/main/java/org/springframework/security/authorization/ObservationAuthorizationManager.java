@@ -61,6 +61,10 @@ public final class ObservationAuthorizationManager<T>
 		}
 	}
 
+	/**
+	 * @deprecated please use {@link #authorize(Supplier, Object)} instead
+	 */
+	@Deprecated
 	@Override
 	public AuthorizationDecision check(Supplier<Authentication> authentication, T object) {
 		AuthorizationObservationContext<T> context = new AuthorizationObservationContext<>(object);

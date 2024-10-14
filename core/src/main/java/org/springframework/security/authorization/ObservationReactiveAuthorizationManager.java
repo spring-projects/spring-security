@@ -56,6 +56,10 @@ public final class ObservationReactiveAuthorizationManager<T>
 		}
 	}
 
+	/**
+	 * @deprecated please use {@link #authorize(Mono, Object)} instead
+	 */
+	@Deprecated
 	@Override
 	public Mono<AuthorizationDecision> check(Mono<Authentication> authentication, T object) {
 		AuthorizationObservationContext<T> context = new AuthorizationObservationContext<>(object);

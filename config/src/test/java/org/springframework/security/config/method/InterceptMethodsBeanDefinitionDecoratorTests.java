@@ -168,6 +168,7 @@ public class InterceptMethodsBeanDefinitionDecoratorTests implements Application
 
 	@Test
 	public void targetCustomAuthorizationManagerUsed() {
+		given(this.mockAuthorizationManager.authorize(any(), any())).willCallRealMethod();
 		given(this.mockAuthorizationManager.check(any(), any())).willReturn(new AuthorizationDecision(true));
 		this.targetCustomAuthorizationManager.doSomething();
 		verify(this.mockAuthorizationManager).check(any(), any());

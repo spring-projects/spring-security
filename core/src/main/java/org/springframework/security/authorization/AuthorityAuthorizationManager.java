@@ -139,7 +139,9 @@ public final class AuthorityAuthorizationManager<T> implements AuthorizationMana
 	 * @param authentication the {@link Supplier} of the {@link Authentication} to check
 	 * @param object the {@link T} object to check
 	 * @return an {@link AuthorizationDecision}
+	 * @deprecated please use {@link #authorize(Supplier, Object)} instead
 	 */
+	@Deprecated
 	@Override
 	public AuthorizationDecision check(Supplier<Authentication> authentication, T object) {
 		return this.delegate.check(authentication, this.authorities);

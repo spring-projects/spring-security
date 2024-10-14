@@ -48,6 +48,10 @@ public final class DelegatingReactiveAuthorizationManager implements ReactiveAut
 		this.mappings = mappings;
 	}
 
+	/**
+	 * @deprecated please use {@link #authorize(Mono, Object)} instead
+	 */
+	@Deprecated
 	@Override
 	public Mono<AuthorizationDecision> check(Mono<Authentication> authentication, ServerWebExchange exchange) {
 		return Flux.fromIterable(this.mappings)

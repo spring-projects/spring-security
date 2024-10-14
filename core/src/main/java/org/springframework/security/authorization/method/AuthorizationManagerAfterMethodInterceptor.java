@@ -182,22 +182,22 @@ public final class AuthorizationManagerAfterMethodInterceptor implements Authori
 	private Object attemptAuthorization(MethodInvocation mi, Object result) {
 		this.logger.debug(LogMessage.of(() -> "Authorizing method invocation " + mi));
 		MethodInvocationResult object = new MethodInvocationResult(mi, result);
-		AuthorizationResult decision = this.authorizationManager.authorize(this::getAuthentication, object);
-		this.eventPublisher.publishAuthorizationEvent(this::getAuthentication, object, decision);
-		if (decision != null && !decision.isGranted()) {
+		AuthorizationResult authorizationResult = this.authorizationManager.authorize(this::getAuthentication, object);
+		this.eventPublisher.publishAuthorizationEvent(this::getAuthentication, object, authorizationResult);
+		if (authorizationResult != null && !authorizationResult.isGranted()) {
 			this.logger.debug(LogMessage.of(() -> "Failed to authorize " + mi + " with authorization manager "
-					+ this.authorizationManager + " and decision " + decision));
-			return handlePostInvocationDenied(object, decision);
+					+ this.authorizationManager + " and authorizationResult " + authorizationResult));
+			return handlePostInvocationDenied(object, authorizationResult);
 		}
 		this.logger.debug(LogMessage.of(() -> "Authorized method invocation " + mi));
 		return result;
 	}
 
-	private Object handlePostInvocationDenied(MethodInvocationResult mi, AuthorizationResult decision) {
+	private Object handlePostInvocationDenied(MethodInvocationResult mi, AuthorizationResult result) {
 		if (this.authorizationManager instanceof MethodAuthorizationDeniedHandler deniedHandler) {
-			return deniedHandler.handleDeniedInvocationResult(mi, decision);
+			return deniedHandler.handleDeniedInvocationResult(mi, result);
 		}
-		return this.defaultHandler.handleDeniedInvocationResult(mi, decision);
+		return this.defaultHandler.handleDeniedInvocationResult(mi, result);
 	}
 
 	private Authentication getAuthentication() {
