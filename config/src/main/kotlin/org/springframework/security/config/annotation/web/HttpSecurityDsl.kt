@@ -985,7 +985,7 @@ class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecu
      *    fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
      *        http {
      *               oneTimeTokenLogin {
-     *                     generatedOneTimeTokenHandler = MyMagicLinkGeneratedOneTimeTokenHandler()
+     *                     oneTimeTokenGenerationSuccessHandler = MyMagicLinkOneTimeTokenGenerationSuccessHandler()
      *                }
      *             }
      *        return http.build()

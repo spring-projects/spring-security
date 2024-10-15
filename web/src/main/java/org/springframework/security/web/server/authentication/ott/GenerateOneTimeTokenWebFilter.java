@@ -43,13 +43,13 @@ public final class GenerateOneTimeTokenWebFilter implements WebFilter {
 
 	private ServerWebExchangeMatcher matcher = ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, "/ott/generate");
 
-	private final ServerOneTimeTokenGenerationSuccessHandler generatedOneTimeTokenHandler;
+	private final ServerOneTimeTokenGenerationSuccessHandler oneTimeTokenGenerationSuccessHandler;
 
 	public GenerateOneTimeTokenWebFilter(ReactiveOneTimeTokenService oneTimeTokenService,
-			ServerOneTimeTokenGenerationSuccessHandler generatedOneTimeTokenHandler) {
-		Assert.notNull(generatedOneTimeTokenHandler, "generatedOneTimeTokenHandler cannot be null");
+			ServerOneTimeTokenGenerationSuccessHandler oneTimeTokenGenerationSuccessHandler) {
+		Assert.notNull(oneTimeTokenGenerationSuccessHandler, "oneTimeTokenGenerationSuccessHandler cannot be null");
 		Assert.notNull(oneTimeTokenService, "oneTimeTokenService cannot be null");
-		this.generatedOneTimeTokenHandler = generatedOneTimeTokenHandler;
+		this.oneTimeTokenGenerationSuccessHandler = oneTimeTokenGenerationSuccessHandler;
 		this.oneTimeTokenService = oneTimeTokenService;
 	}
 
@@ -63,7 +63,7 @@ public final class GenerateOneTimeTokenWebFilter implements WebFilter {
 				.mapNotNull((data) -> data.getFirst(USERNAME))
 				.switchIfEmpty(chain.filter(exchange).then(Mono.empty()))
 				.flatMap((username) -> this.oneTimeTokenService.generate(new GenerateOneTimeTokenRequest(username)))
-				.flatMap((token) -> this.generatedOneTimeTokenHandler.handle(exchange, token));
+				.flatMap((token) -> this.oneTimeTokenGenerationSuccessHandler.handle(exchange, token));
 		// @formatter:on
 	}
 

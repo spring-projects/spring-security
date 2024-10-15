@@ -189,7 +189,7 @@ public class OneTimeTokenLoginConfigurerTests {
 			.havingRootCause()
 			.isInstanceOf(IllegalStateException.class)
 			.withMessage("""
-					A GeneratedOneTimeTokenHandler is required to enable oneTimeTokenLogin().
+					A OneTimeTokenGenerationSuccessHandler is required to enable oneTimeTokenLogin().
 					Please provide it as a bean or pass it to the oneTimeTokenLogin() DSL.
 					""");
 	}

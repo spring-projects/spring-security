@@ -65,7 +65,7 @@ Java::
 public class SecurityConfig {
 
     @Bean
-    public SecurityWebFilterChain filterChain(ServerHttpSecurity http, MagicLinkGeneratedOneTimeTokenHandler magicLinkSender) {
+    public SecurityWebFilterChain filterChain(ServerHttpSecurity http) {
         http
             // ...
             .formLogin(Customizer.withDefaults())
@@ -79,11 +79,11 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 
 @Component <1>
-public class MagicLinkGeneratedOneTimeTokenHandler implements ServerGeneratedOneTimeTokenHandler {
+public class MagicLinkOneTimeTokenGenerationSuccessHandler implements ServerOneTimeTokenGenerationSuccessHandler {
 
     private final MailSender mailSender;
 
-    private final ServerGeneratedOneTimeTokenHandler redirectHandler = new ServerRedirectGeneratedOneTimeTokenHandler("/ott/sent");
+    private final ServerOneTimeTokenGenerationSuccessHandler redirectHandler = new ServerRedirectOneTimeTokenGenerationSuccessHandler("/ott/sent");
 
     // constructor omitted
 
@@ -120,13 +120,71 @@ class PageController {
 
 }
 ----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Configuration
+@EnableWebFluxSecurity
+class SecurityConfig {
+
+         open fun springWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
+             return http {
+                authorizeExchange {
+                    authorize(anyExchange, authenticated)
+                 }
+                 oneTimeTokenLogin { }
+             }
+         }
+
+}
+
+@Component (1)
+class MagicLinkOneTimeTokenGenerationSuccessHandler(val mailSender: MailSender): ServerOneTimeTokenGenerationSuccessHandler {
+
+    private val redirectStrategy: ServerRedirectStrategy = DefaultServerRedirectStrategy()
+
+    override fun handle(exchange: ServerWebExchange, oneTimeToken: OneTimeToken): Mono<Void> {
+        val builder = UriComponentsBuilder.fromUri(exchange.request.uri)
+            .replacePath(null)
+            .replaceQuery(null)
+            .fragment(null)
+            .path("/login/ott")
+            .queryParam("token", oneTimeToken.getTokenValue()) (2)
+        val magicLink = builder.toUriString()
+        builder.replacePath(null)
+            .replaceQuery(null)
+            .path("/ott/sent")
+        val redirectLink = builder.toUriString()
+        return this.mailSender.send(
+            getUserEmail(oneTimeToken.getUsername()), (3)
+            "Use the following link to sign in into the application: $magicLink") (4)
+        .then(this.redirectStrategy.sendRedirect(exchange, URI.create(redirectLink))) (5)
+    }
+
+        private String getUserEmail() {
+            // ...
+        }
+}
+
+@Controller
+class PageController {
+
+    @GetMapping("/ott/sent")
+    fun ottSent(): String {
+        return "my-template"
+    }
+}
+
+----
 ======
 
-<1> Make the `MagicLinkGeneratedOneTimeTokenHandler` a Spring bean
+<1> Make the `MagicLinkOneTimeTokenGenerationSuccessHandler` a Spring bean
 <2> Create a login processing URL with the `token` as a query param
 <3> Retrieve the user's email based on the username
-<4> Use the `JavaMailSender` API to send the email to the user with the magic link
-<5> Use the `ServerRedirectOneTimeTokenGenerationSuccessHandler` to perform a redirect to your desired URL
+<4> Use the `MailSender` API to send the email to the user with the magic link
+<5> Use the `ServerRedirectStrategy` to perform a redirect to your desired URL
 
 The email content will look similar to:
 
@@ -165,9 +223,36 @@ public class SecurityConfig {
 }
 
 @Component
-public class MagicLinkGeneratedOneTimeTokenHandler implements ServerGeneratedOneTimeTokenHandler {
+public class MagicLinkOneTimeTokenGenerationSuccessHandler implements ServerOneTimeTokenGenerationSuccessHandler {
     // ...
 }
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Configuration
+@EnableWebFluxSecurity
+class SecurityConfig {
+
+         open fun springWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
+             return http {
+                 // ...
+                 formLogin { }
+                 oneTimeTokenLogin {
+                    generateTokenUrl = "/ott/my-generate-url"
+                 }
+             }
+         }
+
+}
+
+@Component
+class MagicLinkOneTimeTokenGenerationSuccessHandler(val mailSender: MailSender): ServerOneTimeTokenGenerationSuccessHandler {
+    // ...
+}
+
 ----
 ======
 
@@ -202,9 +287,36 @@ public class SecurityConfig {
 }
 
 @Component
-public class MagicLinkGeneratedOneTimeTokenHandler implements ServerGeneratedOneTimeTokenHandler {
+public class MagicLinkOneTimeTokenGenerationSuccessHandler implements ServerOneTimeTokenGenerationSuccessHandler {
     // ...
 }
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Configuration
+@EnableWebFluxSecurity
+class SecurityConfig {
+
+         open fun springWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
+             return http {
+                 // ...
+                 formLogin { }
+                 oneTimeTokenLogin {
+                    submitPageUrl = "/ott/submit"
+                 }
+             }
+         }
+
+}
+
+@Component
+class MagicLinkOneTimeTokenGenerationSuccessHandler(val mailSender: MailSender): ServerOneTimeTokenGenerationSuccessHandler {
+    // ...
+}
+
 ----
 ======
 
@@ -251,9 +363,48 @@ public class MyController {
 }
 
 @Component
-public class MagicLinkGeneratedOneTimeTokenHandler implements ServerGeneratedOneTimeTokenHandler {
+public class MagicLinkOneTimeTokenGenerationSuccessHandler implements ServerOneTimeTokenGenerationSuccessHandler {
     // ...
 }
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Configuration
+@EnableWebFluxSecurity
+class SecurityConfig {
+
+         open fun springWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
+             return http {
+                authorizeExchange {
+                    authorize(pathMatchers("/my-ott-submit"), permitAll)
+                    authorize(anyExchange, authenticated)
+                 }
+                 .formLogin { }
+                 oneTimeTokenLogin {
+                    showDefaultSubmitPage = false
+                 }
+             }
+         }
+
+}
+
+@Controller
+class MyController {
+
+    @GetMapping("/my-ott-submit")
+    fun ottSubmitPage(): String {
+        return "my-ott-submit"
+    }
+}
+
+@Component
+class MagicLinkOneTimeTokenGenerationSuccessHandler(val mailSender: MailSender): ServerOneTimeTokenGenerationSuccessHandler {
+    // ...
+}
+
 ----
 ======
 
@@ -301,9 +452,39 @@ public class SecurityConfig {
 }
 
 @Component
-public class MagicLinkGeneratedOneTimeTokenHandler implements ServerGeneratedOneTimeTokenHandler {
+public class MagicLinkOneTimeTokenGenerationSuccessHandler implements ServerOneTimeTokenGenerationSuccessHandler {
     // ...
 }
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Configuration
+@EnableWebFluxSecurity
+class SecurityConfig {
+
+         open fun springWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
+             return http {
+                 //..
+                 .formLogin { }
+                 oneTimeTokenLogin { }
+             }
+         }
+
+         @Bean
+         open fun oneTimeTokenService():ReactiveOneTimeTokenService {
+             return MyCustomReactiveOneTimeTokenService();
+         }
+
+}
+
+@Component
+class MagicLinkOneTimeTokenGenerationSuccessHandler(val mailSender: MailSender): ServerOneTimeTokenGenerationSuccessHandler {
+    // ...
+}
+
 ----
 ======
 
@@ -334,8 +515,34 @@ public class SecurityConfig {
 }
 
 @Component
-public class MagicLinkGeneratedOneTimeTokenHandler implements ServerGeneratedOneTimeTokenHandler {
+public class MagicLinkOneTimeTokenGenerationSuccessHandler implements ServerOneTimeTokenGenerationSuccessHandler {
     // ...
 }
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Configuration
+@EnableWebFluxSecurity
+class SecurityConfig {
+
+         open fun springWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
+             return http {
+                 //..
+                 .formLogin { }
+                 oneTimeTokenLogin {
+                    oneTimeTokenService = MyCustomReactiveOneTimeTokenService()
+                 }
+             }
+         }
+}
+
+@Component
+class MagicLinkOneTimeTokenGenerationSuccessHandler(val mailSender: MailSender): ServerOneTimeTokenGenerationSuccessHandler {
+    // ...
+}
+
 ----
 ======

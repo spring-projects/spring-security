@@ -3003,8 +3003,8 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * 	}
 	 *
 	 * 	&#064;Bean
-	 * 	public GeneratedOneTimeTokenHandler generatedOneTimeTokenHandler() {
-	 * 		return new MyMagicLinkGeneratedOneTimeTokenHandler();
+	 * 	public OneTimeTokenGenerationSuccessHandler oneTimeTokenGenerationSuccessHandler() {
+	 * 		return new MyMagicLinkOneTimeTokenGenerationSuccessHandler();
 	 * 	}
 	 *
 	 * }
