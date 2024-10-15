@@ -64,6 +64,11 @@ public final class DefaultBearerTokenResolver implements BearerTokenResolver {
 			return authorizationHeaderToken;
 		}
 		if (parameterToken != null && isParameterTokenEnabledForRequest(request)) {
+			if (!StringUtils.hasText(parameterToken)) {
+				final BearerTokenError error = BearerTokenErrors
+					.invalidRequest("The requested token parameter is an empty string");
+				throw new OAuth2AuthenticationException(error);
+			}
 			return parameterToken;
 		}
 		return null;
