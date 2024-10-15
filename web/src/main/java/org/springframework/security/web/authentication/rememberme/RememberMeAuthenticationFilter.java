@@ -223,6 +223,7 @@ public class RememberMeAuthenticationFilter extends GenericFilterBean implements
 	 * session identifier to prevent session fixation attacks.
 	 * @param sessionStrategy the implementation to use. If not set a null implementation
 	 * is used.
+	 * @since 6.4
 	 */
 	public void setSessionAuthenticationStrategy(SessionAuthenticationStrategy sessionStrategy) {
 		Assert.notNull(sessionStrategy, "sessionStrategy cannot be null");
