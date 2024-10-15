@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,6 @@
  */
 
 package org.springframework.security.config.annotation.web.configurers.oauth2.client;
-
-import java.util.Collections;
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.oauth2.client.oidc.authentication.logout.OidcLogoutToken;
@@ -45,7 +43,6 @@ class OidcBackChannelLogoutAuthentication extends AbstractAuthenticationToken {
 	 * @param logoutToken a deserialized, verified OIDC Logout Token
 	 */
 	OidcBackChannelLogoutAuthentication(OidcLogoutToken logoutToken, ClientRegistration clientRegistration) {
-		super(Collections.emptyList());
 		this.logoutToken = logoutToken;
 		this.clientRegistration = clientRegistration;
 		setAuthenticated(true);

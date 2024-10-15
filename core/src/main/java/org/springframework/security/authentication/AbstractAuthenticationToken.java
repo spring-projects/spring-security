@@ -45,6 +45,10 @@ public abstract class AbstractAuthenticationToken implements Authentication, Cre
 
 	private boolean authenticated = false;
 
+	public AbstractAuthenticationToken() {
+		this(null);
+	}
+
 	/**
 	 * Creates a token with the supplied array of authorities.
 	 * @param authorities the collection of <tt>GrantedAuthority</tt>s for the principal

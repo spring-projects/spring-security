@@ -16,8 +16,6 @@
 
 package org.springframework.security.cas.authentication;
 
-import java.util.ArrayList;
-
 import org.apereo.cas.client.validation.Assertion;
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
@@ -38,7 +36,6 @@ public final class CasAssertionAuthenticationToken extends AbstractAuthenticatio
 	private final String ticket;
 
 	public CasAssertionAuthenticationToken(final Assertion assertion, final String ticket) {
-		super(new ArrayList<>());
 		this.assertion = assertion;
 		this.ticket = ticket;
 	}

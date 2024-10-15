@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -809,10 +809,6 @@ public class HttpSessionSecurityContextRepositoryTests {
 	@Transient
 	private static class SomeTransientAuthentication extends AbstractAuthenticationToken {
 
-		SomeTransientAuthentication() {
-			super(null);
-		}
-
 		@Override
 		public Object getCredentials() {
 			return null;
@@ -838,10 +834,6 @@ public class HttpSessionSecurityContextRepositoryTests {
 
 	@TestTransientAuthentication
 	private static class SomeOtherTransientAuthentication extends AbstractAuthenticationToken {
-
-		SomeOtherTransientAuthentication() {
-			super(null);
-		}
 
 		@Override
 		public Object getCredentials() {

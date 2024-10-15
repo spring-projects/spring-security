@@ -17,7 +17,6 @@
 package org.springframework.security.authentication.ott;
 
 import java.util.Collection;
-import java.util.Collections;
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
@@ -35,7 +34,6 @@ public class OneTimeTokenAuthenticationToken extends AbstractAuthenticationToken
 	private String tokenValue;
 
 	public OneTimeTokenAuthenticationToken(Object principal, String tokenValue) {
-		super(Collections.emptyList());
 		this.tokenValue = tokenValue;
 		this.principal = principal;
 	}

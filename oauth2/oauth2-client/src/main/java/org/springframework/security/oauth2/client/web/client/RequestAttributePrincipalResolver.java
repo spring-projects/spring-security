@@ -16,7 +16,6 @@
 
 package org.springframework.security.oauth2.client.web.client;
 
-import java.util.Collections;
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -72,7 +71,7 @@ public class RequestAttributePrincipalResolver implements OAuth2ClientHttpReques
 	}
 
 	private static Authentication createAuthentication(String principalName) {
-		return new AbstractAuthenticationToken(Collections.emptySet()) {
+		return new AbstractAuthenticationToken() {
 			@Override
 			public Object getPrincipal() {
 				return principalName;

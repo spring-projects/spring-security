@@ -48,7 +48,7 @@ public class ProviderManagerTests {
 
 	@Test
 	public void authenticationFailsWithUnsupportedToken() {
-		Authentication token = new AbstractAuthenticationToken(null) {
+		Authentication token = new AbstractAuthenticationToken() {
 			@Override
 			public Object getCredentials() {
 				return "";

@@ -39,7 +39,6 @@ public class TestingAuthenticationToken extends AbstractAuthenticationToken {
 	private final Object principal;
 
 	public TestingAuthenticationToken(Object principal, Object credentials) {
-		super(null);
 		this.principal = principal;
 		this.credentials = credentials;
 	}
