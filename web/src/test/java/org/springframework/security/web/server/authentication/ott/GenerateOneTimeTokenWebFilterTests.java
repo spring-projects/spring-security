@@ -45,7 +45,7 @@ public class GenerateOneTimeTokenWebFilterTests {
 
 	private final ReactiveOneTimeTokenService oneTimeTokenService = mock(ReactiveOneTimeTokenService.class);
 
-	private final ServerRedirectOneTimeTokenGenerationSuccessHandler generatedOneTimeTokenHandler = new ServerRedirectOneTimeTokenGenerationSuccessHandler(
+	private final ServerRedirectOneTimeTokenGenerationSuccessHandler oneTimeTokenGenerationSuccessHandler = new ServerRedirectOneTimeTokenGenerationSuccessHandler(
 			"/login/ott");
 
 	private static final String TOKEN = "token";
@@ -60,7 +60,7 @@ public class GenerateOneTimeTokenWebFilterTests {
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
 			.body("username=user"));
 		GenerateOneTimeTokenWebFilter filter = new GenerateOneTimeTokenWebFilter(this.oneTimeTokenService,
-				this.generatedOneTimeTokenHandler);
+				this.oneTimeTokenGenerationSuccessHandler);
 
 		filter.filter(exchange, (e) -> Mono.empty()).block();
 
@@ -75,7 +75,7 @@ public class GenerateOneTimeTokenWebFilterTests {
 		MockServerHttpRequest.BaseBuilder<?> request = MockServerHttpRequest.post("/ott/generate");
 		MockServerWebExchange exchange = MockServerWebExchange.from(request);
 		GenerateOneTimeTokenWebFilter filter = new GenerateOneTimeTokenWebFilter(this.oneTimeTokenService,
-				this.generatedOneTimeTokenHandler);
+				this.oneTimeTokenGenerationSuccessHandler);
 
 		filter.filter(exchange, (e) -> Mono.empty()).block();
 
@@ -86,14 +86,14 @@ public class GenerateOneTimeTokenWebFilterTests {
 	public void constructorWhenOneTimeTokenServiceNullThenIllegalArgumentException() {
 		// @formatter:off
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new GenerateOneTimeTokenWebFilter(null, this.generatedOneTimeTokenHandler));
+				.isThrownBy(() -> new GenerateOneTimeTokenWebFilter(null, this.oneTimeTokenGenerationSuccessHandler));
 		// @formatter:on
 	}
 
 	@Test
 	public void setWhenRequestMatcherNullThenIllegalArgumentException() {
 		GenerateOneTimeTokenWebFilter filter = new GenerateOneTimeTokenWebFilter(this.oneTimeTokenService,
-				this.generatedOneTimeTokenHandler);
+				this.oneTimeTokenGenerationSuccessHandler);
 		// @formatter:off
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> filter.setRequestMatcher(null));

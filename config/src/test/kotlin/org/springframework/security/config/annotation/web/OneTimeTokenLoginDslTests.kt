@@ -69,7 +69,7 @@ class OneTimeTokenLoginDslTests {
                 .redirectedUrl("/login/ott")
         )
 
-        val token = TestGeneratedOneTimeTokenHandler.lastToken?.tokenValue
+        val token = TestOneTimeTokenGenerationSuccessHandler.lastToken?.tokenValue
 
         this.mockMvc.perform(
             MockMvcRequestBuilders.post("/login/ott").param("token", token)
@@ -91,7 +91,7 @@ class OneTimeTokenLoginDslTests {
         )
             .andExpectAll(MockMvcResultMatchers.status().isFound(), MockMvcResultMatchers.redirectedUrl("/redirected"))
 
-        val token = TestGeneratedOneTimeTokenHandler.lastToken?.tokenValue
+        val token = TestOneTimeTokenGenerationSuccessHandler.lastToken?.tokenValue
 
         this.mockMvc.perform(
             MockMvcRequestBuilders.post("/loginprocessingurl").param("token", token)
@@ -117,7 +117,7 @@ class OneTimeTokenLoginDslTests {
                     authorize(anyRequest, authenticated)
                 }
                 oneTimeTokenLogin {
-                    oneTimeTokenGenerationSuccessHandler = TestGeneratedOneTimeTokenHandler()
+                    oneTimeTokenGenerationSuccessHandler = TestOneTimeTokenGenerationSuccessHandler()
                 }
             }
             // @formatter:on
@@ -138,7 +138,7 @@ class OneTimeTokenLoginDslTests {
                 }
                 oneTimeTokenLogin {
                     tokenGeneratingUrl = "/generateurl"
-                    oneTimeTokenGenerationSuccessHandler = TestGeneratedOneTimeTokenHandler("/redirected")
+                    oneTimeTokenGenerationSuccessHandler = TestOneTimeTokenGenerationSuccessHandler("/redirected")
                     loginProcessingUrl = "/loginprocessingurl"
                     authenticationSuccessHandler = SimpleUrlAuthenticationSuccessHandler("/authenticated")
                 }
@@ -156,7 +156,7 @@ class OneTimeTokenLoginDslTests {
             InMemoryUserDetailsManager(PasswordEncodedUser.user(), PasswordEncodedUser.admin())
     }
 
-    private class TestGeneratedOneTimeTokenHandler :
+    private class TestOneTimeTokenGenerationSuccessHandler :
         OneTimeTokenGenerationSuccessHandler {
         private val delegate: OneTimeTokenGenerationSuccessHandler
 

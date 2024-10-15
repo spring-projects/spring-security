@@ -133,19 +133,19 @@ public final class OneTimeTokenLoginConfigurer<H extends HttpSecurityBuilder<H>>
 
 	private void configureOttGenerateFilter(H http) {
 		GenerateOneTimeTokenFilter generateFilter = new GenerateOneTimeTokenFilter(getOneTimeTokenService(http),
-				getGeneratedOneTimeTokenHandler(http));
+				getOneTimeTokenGenerationSuccessHandler(http));
 		generateFilter.setRequestMatcher(antMatcher(HttpMethod.POST, this.tokenGeneratingUrl));
 		http.addFilter(postProcess(generateFilter));
 		http.addFilter(DefaultResourcesFilter.css());
 	}
 
-	private OneTimeTokenGenerationSuccessHandler getGeneratedOneTimeTokenHandler(H http) {
+	private OneTimeTokenGenerationSuccessHandler getOneTimeTokenGenerationSuccessHandler(H http) {
 		if (this.oneTimeTokenGenerationSuccessHandler == null) {
 			this.oneTimeTokenGenerationSuccessHandler = getBeanOrNull(http, OneTimeTokenGenerationSuccessHandler.class);
 		}
 		if (this.oneTimeTokenGenerationSuccessHandler == null) {
 			throw new IllegalStateException("""
-					A GeneratedOneTimeTokenHandler is required to enable oneTimeTokenLogin().
+					A OneTimeTokenGenerationSuccessHandler is required to enable oneTimeTokenLogin().
 					Please provide it as a bean or pass it to the oneTimeTokenLogin() DSL.
 					""");
 		}
@@ -200,7 +200,7 @@ public final class OneTimeTokenLoginConfigurer<H extends HttpSecurityBuilder<H>>
 	 */
 	public OneTimeTokenLoginConfigurer<H> tokenGenerationSuccessHandler(
 			OneTimeTokenGenerationSuccessHandler oneTimeTokenGenerationSuccessHandler) {
-		Assert.notNull(oneTimeTokenGenerationSuccessHandler, "generatedOneTimeTokenHandler cannot be null");
+		Assert.notNull(oneTimeTokenGenerationSuccessHandler, "oneTimeTokenGenerationSuccessHandler cannot be null");
 		this.oneTimeTokenGenerationSuccessHandler = oneTimeTokenGenerationSuccessHandler;
 		return this;
 	}

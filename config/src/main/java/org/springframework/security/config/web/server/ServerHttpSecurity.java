@@ -1578,8 +1578,8 @@ public class ServerHttpSecurity {
 	 * 	}
 	 *
 	 * 	&#064;Bean
-	 * 	public ServerGeneratedOneTimeTokenHandler generatedOneTimeTokenHandler() {
-	 * 		return new MyMagicLinkServerGeneratedOneTimeTokenHandler();
+	 * 	public ServerOneTimeTokenGenerationSuccessHandler oneTimeTokenGenerationSuccessHandler() {
+	 * 		return new MyMagicLinkServerOneTimeTokenGenerationSuccessHandler();
 	 * 	}
 	 *
 	 * }
@@ -6151,12 +6151,12 @@ public class ServerHttpSecurity {
 
 		/**
 		 * Specifies strategy to be used to handle generated one-time tokens.
-		 * @param generatedOneTimeTokenHandler
+		 * @param oneTimeTokenGenerationSuccessHandler
 		 */
 		public OneTimeTokenLoginSpec tokenGenerationSuccessHandler(
-				ServerOneTimeTokenGenerationSuccessHandler generatedOneTimeTokenHandler) {
-			Assert.notNull(generatedOneTimeTokenHandler, "generatedOneTimeTokenHandler cannot be null");
-			this.tokenGenerationSuccessHandler = generatedOneTimeTokenHandler;
+				ServerOneTimeTokenGenerationSuccessHandler oneTimeTokenGenerationSuccessHandler) {
+			Assert.notNull(oneTimeTokenGenerationSuccessHandler, "oneTimeTokenGenerationSuccessHandler cannot be null");
+			this.tokenGenerationSuccessHandler = oneTimeTokenGenerationSuccessHandler;
 			return this;
 		}
 
@@ -6193,7 +6193,7 @@ public class ServerHttpSecurity {
 			}
 			if (this.tokenGenerationSuccessHandler == null) {
 				throw new IllegalStateException("""
-						A ServerGeneratedOneTimeTokenHandler is required to enable oneTimeTokenLogin().
+						A ServerOneTimeTokenGenerationSuccessHandler is required to enable oneTimeTokenLogin().
 						Please provide it as a bean or pass it to the oneTimeTokenLogin() DSL.
 						""");
 			}
