@@ -144,6 +144,7 @@
 *** xref:reactive/exploits/csrf.adoc[CSRF]
 *** xref:reactive/exploits/headers.adoc[Headers]
 *** xref:reactive/exploits/http.adoc[HTTP Requests]
+*** xref:reactive/exploits/firewall.adoc[]
 ** Integrations
 *** xref:reactive/integrations/cors.adoc[CORS]
 *** xref:reactive/integrations/rsocket.adoc[RSocket]
