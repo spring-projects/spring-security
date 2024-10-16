@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,6 @@
  */
 
 package org.springframework.security.saml2.provider.service.authentication;
-
-import java.util.Collections;
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
@@ -54,7 +52,6 @@ public class Saml2AuthenticationToken extends AbstractAuthenticationToken {
 	 */
 	public Saml2AuthenticationToken(RelyingPartyRegistration relyingPartyRegistration, String saml2Response,
 			AbstractSaml2AuthenticationRequest authenticationRequest) {
-		super(Collections.emptyList());
 		Assert.notNull(relyingPartyRegistration, "relyingPartyRegistration cannot be null");
 		Assert.notNull(saml2Response, "saml2Response cannot be null");
 		this.relyingPartyRegistration = relyingPartyRegistration;

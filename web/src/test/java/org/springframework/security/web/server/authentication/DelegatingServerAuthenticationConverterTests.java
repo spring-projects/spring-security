@@ -29,7 +29,6 @@ import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.web.server.ServerWebExchange;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -106,7 +105,6 @@ public class DelegatingServerAuthenticationConverterTests {
 		private final String apk;
 
 		public ApkTokenAuthenticationToken(String apk) {
-			super(AuthorityUtils.NO_AUTHORITIES);
 			this.apk = apk;
 		}
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 package org.springframework.security.config.annotation.web.configurers.oauth2.client;
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
-import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 
 /**
@@ -40,7 +39,6 @@ class OidcLogoutAuthenticationToken extends AbstractAuthenticationToken {
 	 * this token; this is usually derived from material in the logout HTTP request
 	 */
 	OidcLogoutAuthenticationToken(String logoutToken, ClientRegistration clientRegistration) {
-		super(AuthorityUtils.NO_AUTHORITIES);
 		this.logoutToken = logoutToken;
 		this.clientRegistration = clientRegistration;
 	}
