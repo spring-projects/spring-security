@@ -1,8 +1,8 @@
-[[oauth2Client-client-auth-support]]
-= Client Authentication Support
+[[oauth2-client-authentication]]
+= [[oauth2Client-client-auth-support]]Client Authentication Support
 
-[[oauth2Client-client-credentials-auth]]
-== Client Credentials
+[[oauth2-client-client-credentials-authentication]]
+== [[oauth2Client-client-credentials-auth]]Client Credentials
 
 === Authenticate using `client_secret_basic`
 
@@ -83,8 +83,8 @@ spring:
             ...
 ----
 
-[[oauth2Client-jwt-bearer-auth]]
-== JWT Bearer
+[[oauth2-client-jwt-bearer-authentication]]
+== [[oauth2Client-jwt-bearer-auth]]JWT Bearer
 
 [NOTE]
 Please refer to JSON Web Token (JWT) Profile for OAuth 2.0 Client Authentication and Authorization Grants for further details on https://datatracker.ietf.org/doc/html/rfc7523#section-2.2[JWT Bearer] Client Authentication.
@@ -285,8 +285,8 @@ converter.setJwtClientAssertionCustomizer { context ->
 ----
 ======
 
-[[oauth2Client-public-auth]]
-== Public Authentication
+[[oauth2-client-public-authentication]]
+== [[oauth2Client-public-auth]]Public Authentication
 
 Public Client Authentication is supported out of the box and no customization is necessary to enable it.
 

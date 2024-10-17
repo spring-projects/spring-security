@@ -1,11 +1,10 @@
-[[oauth2Client-additional-features]]
-= Authorized Client Features
+[[oauth2-client-additional-features]]
+= [[oauth2Client-additional-features]]Authorized Client Features
 
 This section covers additional features provided by Spring Security for the OAuth2 client.
 
-
-[[oauth2Client-registered-authorized-client]]
-== Resolving an Authorized Client
+[[oauth2-client-registered-authorized-client]]
+== [[oauth2Client-registered-authorized-client]]Resolving an Authorized Client
 
 The `@RegisteredOAuth2AuthorizedClient` annotation provides the ability to resolve a method parameter to an argument value of type `OAuth2AuthorizedClient`.
 This is a convenient alternative compared to accessing the `OAuth2AuthorizedClient` by using the `OAuth2AuthorizedClientManager` or `OAuth2AuthorizedClientService`.
@@ -496,8 +495,8 @@ class RestClientConfig {
 ----
 =====
 
-[[oauth2Client-webclient-servlet]]
-== WebClient Integration for Servlet Environments
+[[oauth2-client-web-client]]
+== [[oauth2Client-webclient-servlet]]WebClient Integration for Servlet Environments
 
 The OAuth 2.0 Client support integrates with `WebClient` by using an `ExchangeFilterFunction`.
 
@@ -542,6 +541,7 @@ fun webClient(authorizedClientManager: OAuth2AuthorizedClientManager?): WebClien
 ----
 ======
 
+[[oauth2-client-web-client-authorized-client]]
 === Providing the Authorized Client
 
 The `ServletOAuth2AuthorizedClientExchangeFilterFunction` determines the client to use (for a request) by resolving the `OAuth2AuthorizedClient` from the `ClientRequest.attributes()` (request attributes).
@@ -702,7 +702,7 @@ fun index(): String {
 [WARNING]
 It is recommended to be cautious with this feature since all HTTP requests will receive an access token bound to the provided principal.
 
-
+[[oauth2-client-web-client-default-authorized-client]]
 === Defaulting the Authorized Client
 
 If neither `OAuth2AuthorizedClient` or `ClientRegistration.getRegistrationId()` is provided as a request attribute, the `ServletOAuth2AuthorizedClientExchangeFilterFunction` can determine the _default_ client to use, depending on its configuration.
