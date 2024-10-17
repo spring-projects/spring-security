@@ -148,6 +148,15 @@ public class RestClientRefreshTokenTokenResponseClientTests {
 	}
 
 	@Test
+	public void setParametersCustomizerWhenNullThenThrowIllegalArgumentException() {
+		// @formatter:off
+		assertThatIllegalArgumentException()
+			.isThrownBy(() -> this.tokenResponseClient.setParametersCustomizer(null))
+			.withMessage("parametersCustomizer cannot be null");
+		// @formatter:on
+	}
+
+	@Test
 	public void getTokenResponseWhenGrantRequestIsNullThenThrowIllegalArgumentException() {
 		// @formatter:off
 		assertThatIllegalArgumentException()
@@ -461,12 +470,7 @@ public class RestClientRefreshTokenTokenResponseClientTests {
 		OAuth2RefreshTokenGrantRequest grantRequest = new OAuth2RefreshTokenGrantRequest(clientRegistration,
 				this.accessToken, this.refreshToken);
 		Consumer<MultiValueMap<String, String>> parametersCustomizer = mock();
-		// @formatter:off
-		DefaultOAuth2TokenRequestParametersConverter<OAuth2RefreshTokenGrantRequest> parametersConverter =
-			new DefaultOAuth2TokenRequestParametersConverter<>();
-		// @formatter:on
-		parametersConverter.setParametersCustomizer(parametersCustomizer);
-		this.tokenResponseClient.setParametersConverter(parametersConverter);
+		this.tokenResponseClient.setParametersCustomizer(parametersCustomizer);
 		this.tokenResponseClient.getTokenResponse(grantRequest);
 		verify(parametersCustomizer).accept(any());
 	}

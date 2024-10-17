@@ -16,13 +16,10 @@
 
 package org.springframework.security.oauth2.client.endpoint;
 
-import java.util.function.Consumer;
-
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
-import org.springframework.util.Assert;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
@@ -64,19 +61,6 @@ public final class DefaultOAuth2TokenRequestParametersConverter<T extends Abstra
 
 	private final Converter<T, MultiValueMap<String, String>> defaultParametersConverter = createDefaultParametersConverter();
 
-	private Consumer<MultiValueMap<String, String>> parametersCustomizer = (parameters) -> {
-	};
-
-	/**
-	 * Sets the {@link Consumer} used for customizing the OAuth 2.0 Access Token
-	 * parameters, which allows for parameters to be added, overwritten or removed.
-	 * @param parametersCustomizer the {@link Consumer} to customize the parameters
-	 */
-	public void setParametersCustomizer(Consumer<MultiValueMap<String, String>> parametersCustomizer) {
-		Assert.notNull(parametersCustomizer, "parametersCustomizer cannot be null");
-		this.parametersCustomizer = parametersCustomizer;
-	}
-
 	@Override
 	public MultiValueMap<String, String> convert(T grantRequest) {
 		ClientRegistration clientRegistration = grantRequest.getClientRegistration();
@@ -95,7 +79,6 @@ public final class DefaultOAuth2TokenRequestParametersConverter<T extends Abstra
 			parameters.addAll(defaultParameters);
 		}
 
-		this.parametersCustomizer.accept(parameters);
 		return parameters;
 	}
 

@@ -22,6 +22,7 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import javax.crypto.spec.SecretKeySpec;
@@ -404,6 +405,16 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClientTests {
 				param(OAuth2ParameterNames.REDIRECT_URI, "custom-uri")
 		);
 		// @formatter:on
+	}
+
+	@Test
+	public void getTokenResponseWhenParametersCustomizerSetThenCalled() throws Exception {
+		this.server.enqueue(MockResponses.json("access-token-response.json"));
+		OAuth2AuthorizationCodeGrantRequest request = authorizationCodeGrantRequest();
+		Consumer<MultiValueMap<String, String>> parametersCustomizer = mock();
+		this.tokenResponseClient.setParametersCustomizer(parametersCustomizer);
+		this.tokenResponseClient.getTokenResponse(request).block();
+		verify(parametersCustomizer).accept(any());
 	}
 
 	// gh-10260

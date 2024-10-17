@@ -141,6 +141,15 @@ public class RestClientJwtBearerTokenResponseClientTests {
 	}
 
 	@Test
+	public void setParametersCustomizerWhenNullThenThrowIllegalArgumentException() {
+		// @formatter:off
+		assertThatIllegalArgumentException()
+			.isThrownBy(() -> this.tokenResponseClient.setParametersCustomizer(null))
+			.withMessage("parametersCustomizer cannot be null");
+		// @formatter:on
+	}
+
+	@Test
 	public void getTokenResponseWhenGrantRequestIsNullThenThrowIllegalArgumentException() {
 		// @formatter:off
 		assertThatIllegalArgumentException()
@@ -414,12 +423,7 @@ public class RestClientJwtBearerTokenResponseClientTests {
 		ClientRegistration clientRegistration = this.clientRegistration.build();
 		JwtBearerGrantRequest grantRequest = new JwtBearerGrantRequest(clientRegistration, this.jwtAssertion);
 		Consumer<MultiValueMap<String, String>> parametersCustomizer = mock();
-		// @formatter:off
-		DefaultOAuth2TokenRequestParametersConverter<JwtBearerGrantRequest> parametersConverter =
-			new DefaultOAuth2TokenRequestParametersConverter<>();
-		// @formatter:on
-		parametersConverter.setParametersCustomizer(parametersCustomizer);
-		this.tokenResponseClient.setParametersConverter(parametersConverter);
+		this.tokenResponseClient.setParametersCustomizer(parametersCustomizer);
 		this.tokenResponseClient.getTokenResponse(grantRequest);
 		verify(parametersCustomizer).accept(any());
 	}

@@ -16,6 +16,8 @@
 
 package org.springframework.security.oauth2.client.endpoint;
 
+import java.util.function.Consumer;
+
 import reactor.core.publisher.Mono;
 
 import org.springframework.core.convert.converter.Converter;
@@ -68,6 +70,9 @@ public abstract class AbstractWebClientReactiveOAuth2AccessTokenResponseClient<T
 
 	private Converter<T, MultiValueMap<String, String>> parametersConverter = new DefaultOAuth2TokenRequestParametersConverter<>();
 
+	private Consumer<MultiValueMap<String, String>> parametersCustomizer = (parameters) -> {
+	};
+
 	private BodyExtractor<Mono<OAuth2AccessTokenResponse>, ReactiveHttpInputMessage> bodyExtractor = OAuth2BodyExtractors
 		.oauth2AccessTokenResponse();
 
@@ -108,6 +113,7 @@ public abstract class AbstractWebClientReactiveOAuth2AccessTokenResponseClient<T
 		if (parameters == null) {
 			parameters = new LinkedMultiValueMap<>();
 		}
+		this.parametersCustomizer.accept(parameters);
 
 		return this.webClient.post()
 			.uri(grantRequest.getClientRegistration().getProviderDetails().getTokenUri())
@@ -226,6 +232,16 @@ public abstract class AbstractWebClientReactiveOAuth2AccessTokenResponseClient<T
 			return parameters;
 		};
 		this.requestEntityConverter = this::populateRequest;
+	}
+
+	/**
+	 * Sets the {@link Consumer} used for customizing the OAuth 2.0 Access Token
+	 * parameters, which allows for parameters to be added, overwritten or removed.
+	 * @param parametersCustomizer the {@link Consumer} to customize the parameters
+	 */
+	public void setParametersCustomizer(Consumer<MultiValueMap<String, String>> parametersCustomizer) {
+		Assert.notNull(parametersCustomizer, "parametersCustomizer cannot be null");
+		this.parametersCustomizer = parametersCustomizer;
 	}
 
 	/**

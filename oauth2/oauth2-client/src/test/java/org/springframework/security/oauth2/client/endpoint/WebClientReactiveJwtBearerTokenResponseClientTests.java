@@ -19,6 +19,7 @@ package org.springframework.security.oauth2.client.endpoint;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
+import java.util.function.Consumer;
 
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -287,6 +288,17 @@ public class WebClientReactiveJwtBearerTokenResponseClientTests {
 				param(OAuth2ParameterNames.ASSERTION, "custom-assertion")
 		);
 		// @formatter:on
+	}
+
+	@Test
+	public void getTokenResponseWhenParametersCustomizerSetThenCalled() throws Exception {
+		this.server.enqueue(MockResponses.json("access-token-response.json"));
+		ClientRegistration clientRegistration = this.clientRegistration.build();
+		JwtBearerGrantRequest request = new JwtBearerGrantRequest(clientRegistration, this.jwtAssertion);
+		Consumer<MultiValueMap<String, String>> parametersCustomizer = mock();
+		this.client.setParametersCustomizer(parametersCustomizer);
+		this.client.getTokenResponse(request).block();
+		verify(parametersCustomizer).accept(any());
 	}
 
 	@Test
