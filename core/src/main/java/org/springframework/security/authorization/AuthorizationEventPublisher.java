@@ -30,6 +30,7 @@ import org.springframework.security.core.Authentication;
  * @since 5.7
  * @see AuthorizationManager
  */
+@FunctionalInterface
 public interface AuthorizationEventPublisher {
 
 	/**
