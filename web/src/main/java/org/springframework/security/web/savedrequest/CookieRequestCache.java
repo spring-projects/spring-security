@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -73,7 +73,14 @@ public class CookieRequestCache implements RequestCache {
 		if (savedRequestCookie == null) {
 			return null;
 		}
-		String originalURI = decodeCookie(savedRequestCookie.getValue());
+		String originalURI;
+		try {
+			originalURI = decodeCookie(savedRequestCookie.getValue());
+		}
+		catch (IllegalArgumentException ex) {
+			this.logger.debug("Failed decode cookie value " + savedRequestCookie.getValue());
+			return null;
+		}
 		UriComponents uriComponents = UriComponentsBuilder.fromUriString(originalURI).build();
 		DefaultSavedRequest.Builder builder = new DefaultSavedRequest.Builder();
 		int port = getPort(uriComponents);

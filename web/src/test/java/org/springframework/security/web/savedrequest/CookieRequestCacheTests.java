@@ -213,4 +213,14 @@ public class CookieRequestCacheTests {
 		return new String(Base64.getDecoder().decode(encodedCookieValue.getBytes()));
 	}
 
+	// gh-15905
+	@Test
+	public void illegalCookieValueReturnNull() {
+		CookieRequestCache cookieRequestCache = new CookieRequestCache();
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setCookies(new Cookie(DEFAULT_COOKIE_NAME, "123^456"));
+		SavedRequest savedRequest = cookieRequestCache.getRequest(request, new MockHttpServletResponse());
+		assertThat(savedRequest).isNull();
+	}
+
 }
