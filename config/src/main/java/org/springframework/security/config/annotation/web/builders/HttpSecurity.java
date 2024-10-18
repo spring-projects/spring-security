@@ -67,6 +67,7 @@ import org.springframework.security.config.annotation.web.configurers.RequestCac
 import org.springframework.security.config.annotation.web.configurers.SecurityContextConfigurer;
 import org.springframework.security.config.annotation.web.configurers.ServletApiConfigurer;
 import org.springframework.security.config.annotation.web.configurers.SessionManagementConfigurer;
+import org.springframework.security.config.annotation.web.configurers.WebAuthnConfigurer;
 import org.springframework.security.config.annotation.web.configurers.X509Configurer;
 import org.springframework.security.config.annotation.web.configurers.oauth2.client.OAuth2ClientConfigurer;
 import org.springframework.security.config.annotation.web.configurers.oauth2.client.OAuth2LoginConfigurer;
@@ -3672,6 +3673,31 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 		}
 		this.requestMatcher = new OrRequestMatcher(createAntMatchers(patterns));
 		return this;
+	}
+
+	/**
+	 * Specifies webAuthn/passkeys based authentication.
+	 *
+	 * <pre>
+	 * 	&#064;Bean
+	 * 	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	 * 		http
+	 * 			// ...
+	 * 			.webAuthn((webAuthn) -&gt; webAuthn
+	 * 				.rpName("Spring Security Relying Party")
+	 * 				.rpId("example.com")
+	 * 				.allowedOrigins("https://example.com")
+	 * 			);
+	 * 		return http.build();
+	 * 	}
+	 * </pre>
+	 * @param webAuthn the customizer to apply
+	 * @return the {@link HttpSecurity} for further customizations
+	 * @throws Exception
+	 */
+	public HttpSecurity webAuthn(Customizer<WebAuthnConfigurer<HttpSecurity>> webAuthn) throws Exception {
+		webAuthn.customize(getOrApply(new WebAuthnConfigurer<HttpSecurity>()));
+		return HttpSecurity.this;
 	}
 
 	private List<RequestMatcher> createAntMatchers(String... patterns) {

@@ -46,6 +46,18 @@ h2 {
     }
 }
 
+.v-middle {
+    vertical-align: middle;
+}
+
+.center {
+    text-align: center;
+}
+
+.no-margin {
+    margin: 0;
+}
+
 /* Components */
 a,
 a:visited {
@@ -74,11 +86,18 @@ button {
     border: none;
     border-radius: 0.1rem;
     width: 100%;
+    cursor: pointer;
 }
 
 button.primary {
     color: #fff;
     background-color: #06f;
+}
+
+button.small {
+    padding: .25rem .5rem;
+    font-size: .875rem;
+    line-height: 1.5;
 }
 
 .alert {
@@ -118,10 +137,19 @@ table {
     width: 100%;
     max-width: 100%;
     margin-bottom: 2rem;
+    border-collapse: collapse;
+}
+
+.table-striped th {
+    padding: .75rem;
 }
 
 .table-striped tr:nth-of-type(2n + 1) {
     background-color: #e1e1e1;
+}
+
+.table-striped > thead > tr:first-child {
+    background-color: inherit;
 }
 
 td {
@@ -129,9 +157,14 @@ td {
     vertical-align: top;
 }
 
+tr.v-middle > td {
+    vertical-align: middle;
+}
+
 /* Login / logout layouts */
 .login-form,
-.logout-form {
+.logout-form,
+.default-form {
     max-width: 340px;
     padding: 0 15px 15px 15px;
     margin: 0 auto 2rem auto;

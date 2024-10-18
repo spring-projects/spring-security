@@ -43,6 +43,7 @@ dependencies {
 	optional 'org.jetbrains.kotlin:kotlin-reflect'
 	optional 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
 	optional 'jakarta.annotation:jakarta.annotation-api'
+	optional libs.webauthn4j.core
 
 	provided 'jakarta.servlet:jakarta.servlet-api'
 
