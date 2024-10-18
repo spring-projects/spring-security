@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -363,12 +363,8 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 
 	BearerTokenResolver getBearerTokenResolver() {
 		if (this.bearerTokenResolver == null) {
-			if (this.context.getBeanNamesForType(BearerTokenResolver.class).length > 0) {
-				this.bearerTokenResolver = this.context.getBean(BearerTokenResolver.class);
-			}
-			else {
-				this.bearerTokenResolver = new DefaultBearerTokenResolver();
-			}
+			this.bearerTokenResolver = this.context.getBeanProvider(BearerTokenResolver.class)
+				.getIfUnique(DefaultBearerTokenResolver::new);
 		}
 		return this.bearerTokenResolver;
 	}
@@ -422,12 +418,8 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 
 		Converter<Jwt, ? extends AbstractAuthenticationToken> getJwtAuthenticationConverter() {
 			if (this.jwtAuthenticationConverter == null) {
-				if (this.context.getBeanNamesForType(JwtAuthenticationConverter.class).length > 0) {
-					this.jwtAuthenticationConverter = this.context.getBean(JwtAuthenticationConverter.class);
-				}
-				else {
-					this.jwtAuthenticationConverter = new JwtAuthenticationConverter();
-				}
+				this.jwtAuthenticationConverter = this.context.getBeanProvider(JwtAuthenticationConverter.class)
+					.getIfUnique(JwtAuthenticationConverter::new);
 			}
 			return this.jwtAuthenticationConverter;
 		}
@@ -527,10 +519,7 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 			if (this.authenticationConverter != null) {
 				return this.authenticationConverter;
 			}
-			if (this.context.getBeanNamesForType(OpaqueTokenAuthenticationConverter.class).length > 0) {
-				return this.context.getBean(OpaqueTokenAuthenticationConverter.class);
-			}
-			return null;
+			return this.context.getBeanProvider(OpaqueTokenAuthenticationConverter.class).getIfUnique(() -> null);
 		}
 
 		AuthenticationProvider getAuthenticationProvider() {

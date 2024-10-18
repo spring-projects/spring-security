@@ -142,10 +142,8 @@ class HttpSecurityConfiguration {
 	}
 
 	private AuthenticationEventPublisher getAuthenticationEventPublisher() {
-		if (this.context.getBeanNamesForType(AuthenticationEventPublisher.class).length > 0) {
-			return this.context.getBean(AuthenticationEventPublisher.class);
-		}
-		return this.objectPostProcessor.postProcess(new DefaultAuthenticationEventPublisher());
+		return this.context.getBeanProvider(AuthenticationEventPublisher.class)
+			.getIfUnique(() -> this.objectPostProcessor.postProcess(new DefaultAuthenticationEventPublisher()));
 	}
 
 	private void applyDefaultConfigurers(HttpSecurity http) throws Exception {

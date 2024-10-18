@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -1834,13 +1835,6 @@ public class ServerHttpSecurity {
 		catch (Exception ex) {
 			return null;
 		}
-	}
-
-	private <T> String[] getBeanNamesForTypeOrEmpty(Class<T> beanClass) {
-		if (this.context == null) {
-			return new String[0];
-		}
-		return this.context.getBeanNamesForType(beanClass);
 	}
 
 	protected void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
@@ -5376,16 +5370,9 @@ public class ServerHttpSecurity {
 			}
 
 			protected Converter<Jwt, ? extends Mono<? extends AbstractAuthenticationToken>> getJwtAuthenticationConverter() {
-				if (this.jwtAuthenticationConverter != null) {
-					return this.jwtAuthenticationConverter;
-				}
-
-				if (getBeanNamesForTypeOrEmpty(ReactiveJwtAuthenticationConverter.class).length > 0) {
-					return getBean(ReactiveJwtAuthenticationConverter.class);
-				}
-				else {
-					return new ReactiveJwtAuthenticationConverter();
-				}
+				return Objects.requireNonNullElseGet(this.jwtAuthenticationConverter,
+						() -> ServerHttpSecurity.this.context.getBeanProvider(ReactiveJwtAuthenticationConverter.class)
+							.getIfUnique(ReactiveJwtAuthenticationConverter::new));
 			}
 
 			private ReactiveAuthenticationManager getAuthenticationManager() {

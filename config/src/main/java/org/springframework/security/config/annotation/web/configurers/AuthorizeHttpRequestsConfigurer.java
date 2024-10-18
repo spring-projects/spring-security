@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -77,19 +77,12 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 	 */
 	public AuthorizeHttpRequestsConfigurer(ApplicationContext context) {
 		this.registry = new AuthorizationManagerRequestMatcherRegistry(context);
-		if (context.getBeanNamesForType(AuthorizationEventPublisher.class).length > 0) {
-			this.publisher = context.getBean(AuthorizationEventPublisher.class);
-		}
-		else {
-			this.publisher = new SpringAuthorizationEventPublisher(context);
-		}
-		this.roleHierarchy = SingletonSupplier.of(() -> (context.getBeanNamesForType(RoleHierarchy.class).length > 0)
-				? context.getBean(RoleHierarchy.class) : new NullRoleHierarchy());
-		String[] grantedAuthorityDefaultsBeanNames = context.getBeanNamesForType(GrantedAuthorityDefaults.class);
-		if (grantedAuthorityDefaultsBeanNames.length > 0) {
-			GrantedAuthorityDefaults grantedAuthorityDefaults = context.getBean(GrantedAuthorityDefaults.class);
-			this.rolePrefix = grantedAuthorityDefaults.getRolePrefix();
-		}
+		this.publisher = context.getBeanProvider(AuthorizationEventPublisher.class)
+			.getIfUnique(() -> new SpringAuthorizationEventPublisher(context));
+		this.roleHierarchy = SingletonSupplier
+			.of(() -> context.getBeanProvider(RoleHierarchy.class).getIfUnique(NullRoleHierarchy::new));
+		context.getBeanProvider(GrantedAuthorityDefaults.class)
+			.ifUnique((grantedAuthorityDefaults) -> this.rolePrefix = grantedAuthorityDefaults.getRolePrefix());
 		ResolvableType type = ResolvableType.forClassWithGenerics(ObjectPostProcessor.class,
 				ResolvableType.forClassWithGenerics(AuthorizationManager.class, HttpServletRequest.class));
 		ObjectProvider<ObjectPostProcessor<AuthorizationManager<HttpServletRequest>>> provider = context

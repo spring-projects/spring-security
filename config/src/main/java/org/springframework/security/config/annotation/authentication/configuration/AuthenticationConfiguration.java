@@ -143,10 +143,8 @@ public class AuthenticationConfiguration {
 	}
 
 	private AuthenticationEventPublisher getAuthenticationEventPublisher(ApplicationContext context) {
-		if (context.getBeanNamesForType(AuthenticationEventPublisher.class).length > 0) {
-			return context.getBean(AuthenticationEventPublisher.class);
-		}
-		return this.objectPostProcessor.postProcess(new DefaultAuthenticationEventPublisher());
+		return context.getBeanProvider(AuthenticationEventPublisher.class)
+			.getIfUnique(() -> this.objectPostProcessor.postProcess(new DefaultAuthenticationEventPublisher()));
 	}
 
 	@SuppressWarnings("unchecked")

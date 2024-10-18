@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,11 +29,15 @@ final class MessageMatcherAuthorizationManagerConfiguration {
 	@Scope("prototype")
 	MessageMatcherDelegatingAuthorizationManager.Builder messageAuthorizationManagerBuilder(
 			ApplicationContext context) {
-		return MessageMatcherDelegatingAuthorizationManager.builder()
-			.simpDestPathMatcher(
-					() -> (context.getBeanNamesForType(SimpAnnotationMethodMessageHandler.class).length > 0)
-							? context.getBean(SimpAnnotationMethodMessageHandler.class).getPathMatcher()
-							: new AntPathMatcher());
+		return MessageMatcherDelegatingAuthorizationManager.builder().simpDestPathMatcher(() -> {
+			SimpAnnotationMethodMessageHandler messageHandler = context
+				.getBeanProvider(SimpAnnotationMethodMessageHandler.class)
+				.getIfUnique();
+			if (messageHandler == null) {
+				return new AntPathMatcher();
+			}
+			return messageHandler.getPathMatcher();
+		});
 	}
 
 }
