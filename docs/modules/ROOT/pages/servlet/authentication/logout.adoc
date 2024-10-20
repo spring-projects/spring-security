@@ -315,7 +315,7 @@ While using `logoutSuccessUrl` will suffice for most cases, you may need to do s
 For example, instead of redirecting, you may want to only return a status code.
 In this case, you can provide a success handler instance, like so:
 
-.Using Clear-Site-Data to Clear Cookies
+.Using HttpStatusReturningLogoutSuccessHandler to return a status code
 [tabs]
 ======
 Java::
