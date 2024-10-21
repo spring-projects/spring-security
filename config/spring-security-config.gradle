@@ -122,6 +122,8 @@ dependencies {
 		exclude group: "org.slf4j", module: "jcl-over-slf4j"
 	}
 	testImplementation libs.org.instancio.instancio.junit
+	testImplementation libs.org.eclipse.jetty.jetty.server
+	testImplementation libs.org.eclipse.jetty.jetty.servlet
 
 	testRuntimeOnly 'org.hsqldb:hsqldb'
 }
