@@ -71,8 +71,7 @@ public final class ImmutablePublicKeyCredentialUserEntity implements PublicKeyCr
 	private final Bytes id;
 
 	/**
-	 * A human-palatable name for the user account, intended only for display. For
-	 * example, "Alex Müller" or "田中倫". The Relying Party SHOULD let the user choose this,
+	 * A human-palatable name for the user account, intended only for display. The Relying Party SHOULD let the user choose this,
 	 * and SHOULD NOT restrict the choice more than necessary.
 	 *
 	 * Relying Parties SHOULD perform enforcement, as prescribed in Section 2.3 of
