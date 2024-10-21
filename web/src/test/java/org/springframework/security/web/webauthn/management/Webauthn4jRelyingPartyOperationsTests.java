@@ -294,7 +294,7 @@ class Webauthn4jRelyingPartyOperationsTests {
 	 * https://www.w3.org/TR/webauthn-3/#sctn-registering-a-new-credential
 	 *
 	 * 9. Verify that the value of C.origin is an origin expected by the Relying Party.
-	 * See § 13.4.9 Validating the origin of a credential for guidance.
+	 * See 13.4.9 Validating the origin of a credential for guidance.
 	 */
 	@Test
 	void registerCredentialWhenCOriginNotExpected() {

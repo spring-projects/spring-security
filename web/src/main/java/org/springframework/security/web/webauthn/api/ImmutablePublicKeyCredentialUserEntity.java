@@ -40,7 +40,7 @@ public final class ImmutablePublicKeyCredentialUserEntity implements PublicKeyCr
 	 * name's value, or displaying the value to the user.
 	 *
 	 * This string MAY contain language and direction metadata. Relying Parties SHOULD
-	 * consider providing this information. See § 6.4.2 Language and Direction Encoding
+	 * consider providing this information. See 6.4.2 Language and Direction Encoding
 	 * about how this metadata is encoded.
 	 *
 	 * Clients SHOULD perform enforcement, as prescribed in Section 3.4.3 of [RFC8265] for
@@ -60,7 +60,7 @@ public final class ImmutablePublicKeyCredentialUserEntity implements PublicKeyCr
 	 * 6.1 of [RFC8266].
 	 *
 	 * The user handle MUST NOT contain personally identifying information about the user,
-	 * such as a username or e-mail address; see § 14.6.1 User Handle Contents for
+	 * such as a username or e-mail address; see 14.6.1 User Handle Contents for
 	 * details. The user handle MUST NOT be empty, though it MAY be null.
 	 *
 	 * Note: the user handle ought not be a constant value across different accounts, even
@@ -80,7 +80,7 @@ public final class ImmutablePublicKeyCredentialUserEntity implements PublicKeyCr
 	 * setting displayName's value, or displaying the value to the user.
 	 *
 	 * This string MAY contain language and direction metadata. Relying Parties SHOULD
-	 * consider providing this information. See § 6.4.2 Language and Direction Encoding
+	 * consider providing this information. See 6.4.2 Language and Direction Encoding
 	 * about how this metadata is encoded.
 	 *
 	 * Clients SHOULD perform enforcement, as prescribed in Section 2.3 of [RFC8266] for
@@ -94,7 +94,7 @@ public final class ImmutablePublicKeyCredentialUserEntity implements PublicKeyCr
 	 *
 	 * Authenticators MUST accept and store a 64-byte minimum length for a displayName
 	 * member’s value. Authenticators MAY truncate a displayName member’s value so that it
-	 * fits within 64 bytes. See § 6.4.1 String Truncation about truncation and other
+	 * fits within 64 bytes. See 6.4.1 String Truncation about truncation and other
 	 * considerations.
 	 */
 	private final String displayName;
