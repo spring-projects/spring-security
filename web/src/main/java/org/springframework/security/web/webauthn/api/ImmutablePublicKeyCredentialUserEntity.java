@@ -60,8 +60,8 @@ public final class ImmutablePublicKeyCredentialUserEntity implements PublicKeyCr
 	 * 6.1 of [RFC8266].
 	 *
 	 * The user handle MUST NOT contain personally identifying information about the user,
-	 * such as a username or e-mail address; see 14.6.1 User Handle Contents for
-	 * details. The user handle MUST NOT be empty, though it MAY be null.
+	 * such as a username or e-mail address; see 14.6.1 User Handle Contents for details.
+	 * The user handle MUST NOT be empty, though it MAY be null.
 	 *
 	 * Note: the user handle ought not be a constant value across different accounts, even
 	 * for non-discoverable credentials, because some authenticators always create
