@@ -18,7 +18,6 @@ package org.springframework.security.web.authentication;
 
 import java.io.IOException;
 
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
