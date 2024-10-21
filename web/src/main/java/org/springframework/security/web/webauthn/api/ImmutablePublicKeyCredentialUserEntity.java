@@ -93,7 +93,7 @@ public final class ImmutablePublicKeyCredentialUserEntity implements PublicKeyCr
 	 * value, and not allow overflow into other elements [css-overflow-3].
 	 *
 	 * Authenticators MUST accept and store a 64-byte minimum length for a displayName
-	 * member’s value. Authenticators MAY truncate a displayName member’s value so that it
+	 * member's value. Authenticators MAY truncate a displayName member's value so that it
 	 * fits within 64 bytes. See 6.4.1 String Truncation about truncation and other
 	 * considerations.
 	 */

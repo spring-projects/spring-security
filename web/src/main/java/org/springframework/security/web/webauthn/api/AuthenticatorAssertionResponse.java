@@ -21,7 +21,7 @@ package org.springframework.security.web.webauthn.api;
  * "https://www.w3.org/TR/webauthn-3/#authenticatorassertionresponse">AuthenticatorAssertionResponse</a>
  * interface represents an
  * <a href="https://www.w3.org/TR/webauthn-3/#authenticator">authenticator</a>'s response
- * to a client’s request for generation of a new
+ * to a client's request for generation of a new
  * <a href="https://www.w3.org/TR/webauthn-3/#authentication-assertion">authentication
  * assertion</a> given the
  * <a href="https://www.w3.org/TR/webauthn-3/#webauthn-relying-party">WebAuthn Relying

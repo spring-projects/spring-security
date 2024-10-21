@@ -54,7 +54,7 @@ public final class PublicKeyCredential<R extends AuthenticatorResponse> {
 	 * <a href="https://www.w3.org/TR/credential-management-1/#dom-credential-id">id</a>
 	 * attribute is inherited from Credential, though PublicKeyCredential overrides
 	 * Credential's getter, instead returning the base64url encoding of the data contained
-	 * in the object’s [[identifier]] internal slot.
+	 * in the object's [[identifier]] internal slot.
 	 */
 	public String getId() {
 		return this.id;
@@ -63,7 +63,7 @@ public final class PublicKeyCredential<R extends AuthenticatorResponse> {
 	/**
 	 * The <a href=
 	 * "https://www.w3.org/TR/credential-management-1/#dom-credential-type">type</a>
-	 * attribute returns the value of the object’s interface object's [[type]] slot, which
+	 * attribute returns the value of the object's interface object's [[type]] slot, which
 	 * specifies the credential type represented by this object.
 	 * @return the credential type
 	 */

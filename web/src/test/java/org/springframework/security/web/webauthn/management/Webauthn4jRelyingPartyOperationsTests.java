@@ -163,7 +163,7 @@ class Webauthn4jRelyingPartyOperationsTests {
 			.isEqualTo(expectedCreationOptions);
 		// https://www.w3.org/TR/webauthn-3/#dom-publickeycredentialcreationoptions-rp
 		assertThat(creationOptions.getRp()).isNotNull();
-		assertThat(creationOptions.getRp().getName()).describedAs("Its value’s name member is REQUIRED").isNotNull();
+		assertThat(creationOptions.getRp().getName()).describedAs("Its value's name member is REQUIRED").isNotNull();
 		// https://www.w3.org/TR/webauthn-3/#dom-publickeycredentialcreationoptions-user
 		PublicKeyCredentialUserEntity userEntity = creationOptions.getUser();
 		assertThat(userEntity).isNotNull();
@@ -401,7 +401,7 @@ class Webauthn4jRelyingPartyOperationsTests {
 	/**
 	 * https://www.w3.org/TR/webauthn-3/#sctn-registering-a-new-credential
 	 *
-	 * 17. If the Relying Party uses the credential’s backup eligibility to inform its
+	 * 17. If the Relying Party uses the credential's backup eligibility to inform its
 	 * user experience flows and/or policies, evaluate the BE bit of the flags in
 	 * authData.
 	 */
@@ -413,7 +413,7 @@ class Webauthn4jRelyingPartyOperationsTests {
 	/**
 	 * https://www.w3.org/TR/webauthn-3/#sctn-registering-a-new-credential
 	 *
-	 * 18. If the Relying Party uses the credential’s backup state to inform its user
+	 * 18. If the Relying Party uses the credential's backup state to inform its user
 	 * experience flows and/or policies, evaluate the BS bit of the flags in authData.
 	 */
 	@Test
@@ -463,7 +463,7 @@ class Webauthn4jRelyingPartyOperationsTests {
 	 * https://www.w3.org/TR/webauthn-3/#reg-ceremony-verify-attestation
 	 *
 	 * 22. Verify that attStmt is a correct attestation statement, conveying a valid
-	 * attestation signature, by using the attestation statement format fmt’s verification
+	 * attestation signature, by using the attestation statement format fmt's verification
 	 * procedure given attStmt, authData and hash.
 	 */
 	@Test
