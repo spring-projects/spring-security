@@ -16,9 +16,6 @@
 
 package org.springframework.security.web.webauthn.api;
 
-import org.springframework.security.web.webauthn.management.RelyingPartyAuthenticationRequest;
-import org.springframework.security.web.webauthn.management.WebAuthnRelyingPartyOperations;
-
 /**
  * <a href=
  * "https://www.w3.org/TR/webauthn-3/#dictdef-publickeycredentialuserentity">PublicKeyCredentialUserEntity</a>
@@ -28,7 +25,7 @@ import org.springframework.security.web.webauthn.management.WebAuthnRelyingParty
  *
  * @author Rob Winch
  * @since 6.4
- * @see WebAuthnRelyingPartyOperations#authenticate(RelyingPartyAuthenticationRequest)
+ * @see org.springframework.security.web.webauthn.management.WebAuthnRelyingPartyOperations#authenticate(org.springframework.security.web.webauthn.management.RelyingPartyAuthenticationRequest)
  */
 public interface PublicKeyCredentialUserEntity {
 
