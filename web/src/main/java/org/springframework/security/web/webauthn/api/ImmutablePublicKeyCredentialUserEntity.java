@@ -71,8 +71,9 @@ public final class ImmutablePublicKeyCredentialUserEntity implements PublicKeyCr
 	private final Bytes id;
 
 	/**
-	 * A human-palatable name for the user account, intended only for display. The Relying Party SHOULD let the user choose this,
-	 * and SHOULD NOT restrict the choice more than necessary.
+	 * A human-palatable name for the user account, intended only for display. The Relying
+	 * Party SHOULD let the user choose this, and SHOULD NOT restrict the choice more than
+	 * necessary.
 	 *
 	 * Relying Parties SHOULD perform enforcement, as prescribed in Section 2.3 of
 	 * [RFC8266] for the Nickname Profile of the PRECIS FreeformClass [RFC8264], when
