@@ -24,8 +24,11 @@ import org.springframework.security.web.PortResolver;
  * Always returns the constructor-specified HTTP and HTTPS ports.
  *
  * @author Ben Alex
+ * @author nomoreFt
  */
 public class MockPortResolver implements PortResolver {
+
+	private static final String HTTPS_SCHEME = "https";
 
 	private int http = 80;
 
@@ -38,7 +41,7 @@ public class MockPortResolver implements PortResolver {
 
 	@Override
 	public int getServerPort(ServletRequest request) {
-		if ((request.getScheme() != null) && request.getScheme().equals("https")) {
+		if (request.getScheme() != null && HTTPS_SCHEME.equals(request.getScheme())) {
 			return this.https;
 		}
 		else {
