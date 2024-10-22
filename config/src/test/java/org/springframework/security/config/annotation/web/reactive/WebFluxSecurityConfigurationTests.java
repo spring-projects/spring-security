@@ -32,6 +32,8 @@ import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.config.users.ReactiveAuthenticationTestConfiguration;
 import org.springframework.security.web.server.WebFilterChainProxy;
+import org.springframework.security.web.server.firewall.HttpStatusExchangeRejectedHandler;
+import org.springframework.security.web.server.firewall.ServerExchangeRejectedHandler;
 import org.springframework.security.web.server.firewall.ServerWebExchangeFirewall;
 import org.springframework.web.server.handler.DefaultWebFilterChain;
 
@@ -67,6 +69,18 @@ public class WebFluxSecurityConfigurationTests {
 	}
 
 	@Test
+	void loadConfigWhenCustomRejectedHandler() throws Exception {
+		this.spring.register(ServerHttpSecurityConfiguration.class, ReactiveAuthenticationTestConfiguration.class,
+				WebFluxSecurityConfiguration.class, CustomServerExchangeRejectedHandlerConfig.class).autowire();
+		WebFilterChainProxy webFilterChainProxy = this.spring.getContext().getBean(WebFilterChainProxy.class);
+		MockServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/;/").build());
+		DefaultWebFilterChain chain = emptyChain();
+		webFilterChainProxy.filter(exchange, chain).block();
+		assertThat(exchange.getResponse().getStatusCode())
+				.isEqualTo(CustomServerExchangeRejectedHandlerConfig.EXPECTED_STATUS);
+	}
+
+	@Test
 	void loadConfigWhenFirewallBeanThenCustomized() throws Exception {
 		this.spring.register(ServerHttpSecurityConfiguration.class, ReactiveAuthenticationTestConfiguration.class,
 				WebFluxSecurityConfiguration.class, NoOpFirewallConfig.class).autowire();
@@ -95,6 +109,18 @@ public class WebFluxSecurityConfigurationTests {
 		@Bean
 		ServerWebExchangeFirewall noOpFirewall() {
 			return ServerWebExchangeFirewall.INSECURE_NOOP;
+		}
+
+	}
+
+	@Configuration
+	static class CustomServerExchangeRejectedHandlerConfig {
+
+		static HttpStatus EXPECTED_STATUS = HttpStatus.I_AM_A_TEAPOT;
+
+		@Bean
+		ServerExchangeRejectedHandler rejectedHandler() {
+			return new HttpStatusExchangeRejectedHandler(EXPECTED_STATUS);
 		}
 
 	}
