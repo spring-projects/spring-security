@@ -50,6 +50,7 @@ import static org.mockito.Mockito.verify;
  * Tests for {@link AuthorizationManagerAfterMethodInterceptor}.
  *
  * @author Evgeniy Cheban
+ * @author Gengwu Zhao
  */
 public class AuthorizationManagerAfterMethodInterceptorTests {
 
@@ -84,9 +85,9 @@ public class AuthorizationManagerAfterMethodInterceptorTests {
 
 	@Test
 	public void afterWhenMockSecurityContextHolderStrategyThenUses() throws Throwable {
-		SecurityContextHolderStrategy strategy = mock(SecurityContextHolderStrategy.class);
 		Authentication authentication = TestAuthentication.authenticatedUser();
-		given(strategy.getContext()).willReturn(new SecurityContextImpl(authentication));
+		SecurityContextHolderStrategy strategy = mockSecurityContextHolderStrategy(
+				new SecurityContextImpl(authentication));
 		MethodInvocation invocation = mock(MethodInvocation.class);
 		AuthorizationManager<MethodInvocationResult> authorizationManager = AuthenticatedAuthorizationManager
 			.authenticated();
@@ -100,10 +101,10 @@ public class AuthorizationManagerAfterMethodInterceptorTests {
 	// gh-12877
 	@Test
 	public void afterWhenStaticSecurityContextHolderStrategyAfterConstructorThenUses() throws Throwable {
-		SecurityContextHolderStrategy strategy = mock(SecurityContextHolderStrategy.class);
 		Authentication authentication = new TestingAuthenticationToken("john", "password",
 				AuthorityUtils.createAuthorityList("authority"));
-		given(strategy.getContext()).willReturn(new SecurityContextImpl(authentication));
+		SecurityContextHolderStrategy strategy = mockSecurityContextHolderStrategy(
+				new SecurityContextImpl(authentication));
 		MethodInvocation invocation = mock(MethodInvocation.class);
 		AuthorizationManager<MethodInvocationResult> authorizationManager = AuthenticatedAuthorizationManager
 			.authenticated();
@@ -157,6 +158,12 @@ public class AuthorizationManagerAfterMethodInterceptorTests {
 		AuthorizationManagerAfterMethodInterceptor advice = new AuthorizationManagerAfterMethodInterceptor(
 				Pointcut.TRUE, manager);
 		assertThatExceptionOfType(MyAuthzDeniedException.class).isThrownBy(() -> advice.invoke(mi));
+	}
+
+	private SecurityContextHolderStrategy mockSecurityContextHolderStrategy(SecurityContextImpl securityContextImpl) {
+		SecurityContextHolderStrategy strategy = mock(SecurityContextHolderStrategy.class);
+		given(strategy.getContext()).willReturn(securityContextImpl);
+		return strategy;
 	}
 
 	static class MyAuthzDeniedException extends AuthorizationDeniedException {
