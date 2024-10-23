@@ -51,6 +51,7 @@ import static org.mockito.Mockito.verify;
  * Tests for {@link PreFilterAuthorizationMethodInterceptor}.
  *
  * @author Evgeniy Cheban
+ * @author Gengwu Zhao
  */
 public class PreFilterAuthorizationMethodInterceptorTests {
 
@@ -180,10 +181,10 @@ public class PreFilterAuthorizationMethodInterceptorTests {
 
 	@Test
 	public void preFilterWhenMockSecurityContextHolderStrategyThenUses() throws Throwable {
-		SecurityContextHolderStrategy strategy = mock(SecurityContextHolderStrategy.class);
 		Authentication authentication = new TestingAuthenticationToken("john", "password",
 				AuthorityUtils.createAuthorityList("authority"));
-		given(strategy.getContext()).willReturn(new SecurityContextImpl(authentication));
+		SecurityContextHolderStrategy strategy = mockSecurityContextHolderStrategy(
+				new SecurityContextImpl(authentication));
 		List<String> list = new ArrayList<>();
 		list.add("john");
 		list.add("bob");
@@ -198,10 +199,10 @@ public class PreFilterAuthorizationMethodInterceptorTests {
 	// gh-12877
 	@Test
 	public void preFilterWhenStaticSecurityContextHolderStrategyAfterConstructorThenUses() throws Throwable {
-		SecurityContextHolderStrategy strategy = mock(SecurityContextHolderStrategy.class);
 		Authentication authentication = new TestingAuthenticationToken("john", "password",
 				AuthorityUtils.createAuthorityList("authority"));
-		given(strategy.getContext()).willReturn(new SecurityContextImpl(authentication));
+		SecurityContextHolderStrategy strategy = mockSecurityContextHolderStrategy(
+				new SecurityContextImpl(authentication));
 		List<String> list = new ArrayList<>();
 		list.add("john");
 		list.add("bob");
@@ -213,6 +214,13 @@ public class PreFilterAuthorizationMethodInterceptorTests {
 		advice.invoke(invocation);
 		verify(strategy).getContext();
 		SecurityContextHolder.setContextHolderStrategy(saved);
+	}
+
+	private SecurityContextHolderStrategy mockSecurityContextHolderStrategy(SecurityContextImpl securityContextImpl) {
+
+		SecurityContextHolderStrategy strategy = mock(SecurityContextHolderStrategy.class);
+		given(strategy.getContext()).willReturn(securityContextImpl);
+		return strategy;
 	}
 
 	@PreFilter("filterObject == 'john'")
