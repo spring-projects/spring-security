@@ -153,6 +153,7 @@ public class AuthorizeHttpRequestsConfigurerTests {
 		this.spring.register(ObjectPostProcessorConfig.class).autowire();
 		ObjectPostProcessor objectPostProcessor = this.spring.getContext().getBean(ObjectPostProcessor.class);
 		verify(objectPostProcessor).postProcess(any(RequestMatcherDelegatingAuthorizationManager.class));
+		verify(objectPostProcessor).postProcess(any(AuthorizationManager.class));
 		verify(objectPostProcessor).postProcess(any(AuthorizationFilter.class));
 	}
 
