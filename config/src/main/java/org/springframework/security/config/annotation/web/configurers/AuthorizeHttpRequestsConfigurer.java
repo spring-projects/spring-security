@@ -171,7 +171,8 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 			Assert.state(this.mappingCount > 0,
 					"At least one mapping is required (for example, authorizeHttpRequests().anyRequest().authenticated())");
 			ObservationRegistry registry = getObservationRegistry();
-			RequestMatcherDelegatingAuthorizationManager manager = postProcess(this.managerBuilder.build());
+			AuthorizationManager<HttpServletRequest> manager = postProcess(
+					(AuthorizationManager<HttpServletRequest>) this.managerBuilder.build());
 			if (registry.isNoop()) {
 				return manager;
 			}
