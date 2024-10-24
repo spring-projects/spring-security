@@ -106,6 +106,7 @@ org-hidetake-gradle-ssh-plugin = "org.hidetake:gradle-ssh-plugin:2.10.1"
 org-jfrog-buildinfo-build-info-extractor-gradle = "org.jfrog.buildinfo:build-info-extractor-gradle:4.33.22"
 org-sonarsource-scanner-gradle-sonarqube-gradle-plugin = "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.8.0.1969"
 org-instancio-instancio-junit = "org.instancio:instancio-junit:3.7.1"
+org-awaitility-awaitility = "org.awaitility:awaitility:4.2.2"
 
 webauthn4j-core = 'com.webauthn4j:webauthn4j-core:0.27.0.RELEASE'
 
