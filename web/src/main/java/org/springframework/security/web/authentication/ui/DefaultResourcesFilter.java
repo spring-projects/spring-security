@@ -94,4 +94,21 @@ public final class DefaultResourcesFilter extends GenericFilterBean {
 				new MediaType("text", "css", StandardCharsets.UTF_8));
 	}
 
+	/**
+	 * Create an instance of {@link DefaultResourcesFilter} serving Spring Security's
+	 * default webauthn javascript.
+	 * <p>
+	 * The created {@link DefaultResourcesFilter} matches requests
+	 * {@code HTTP GET /login/webauthn.js}, and returns the default webauthn javascript at
+	 * {@code org/springframework/security/spring-security-webauthn.js} with content-type
+	 * {@code text/javascript;charset=UTF-8}. This file is generated in the
+	 * {@code spring-security-javascript} project.
+	 * @return -
+	 */
+	public static DefaultResourcesFilter webauthn() {
+		return new DefaultResourcesFilter(AntPathRequestMatcher.antMatcher(HttpMethod.GET, "/login/webauthn.js"),
+				new ClassPathResource("org/springframework/security/spring-security-webauthn.js"),
+				new MediaType("text", "javascript", StandardCharsets.UTF_8));
+	}
+
 }

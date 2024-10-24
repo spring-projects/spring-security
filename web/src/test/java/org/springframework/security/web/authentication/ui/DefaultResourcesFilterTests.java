@@ -16,6 +16,7 @@
 
 package org.springframework.security.web.authentication.ui;
 
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.test.web.servlet.MockMvc;
@@ -33,27 +34,64 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 public class DefaultResourcesFilterTests {
 
-	private final DefaultResourcesFilter filter = DefaultResourcesFilter.css();
+	@Nested
+	class CssFilter {
 
-	private final MockMvc mockMvc = MockMvcBuilders.standaloneSetup(new Object()).addFilters(this.filter).build();
+		private final DefaultResourcesFilter cssFilter = DefaultResourcesFilter.css();
 
-	@Test
-	public void doFilterThenRender() throws Exception {
-		this.mockMvc.perform(get("/default-ui.css"))
-			.andExpect(status().isOk())
-			.andExpect(content().contentType("text/css;charset=UTF-8"))
-			.andExpect(content().string(containsString("body {")));
+		private final MockMvc mockMvc = MockMvcBuilders.standaloneSetup(new Object())
+			.addFilters(this.cssFilter)
+			.build();
+
+		@Test
+		void doFilterThenRender() throws Exception {
+			this.mockMvc.perform(get("/default-ui.css"))
+				.andExpect(status().isOk())
+				.andExpect(content().contentType("text/css;charset=UTF-8"))
+				.andExpect(content().string(containsString("body {")));
+		}
+
+		@Test
+		void doFilterWhenPathDoesNotMatchThenCallsThrough() throws Exception {
+			this.mockMvc.perform(get("/does-not-match")).andExpect(status().isNotFound());
+		}
+
+		@Test
+		void toStringPrintsPathAndResource() {
+			assertThat(this.cssFilter.toString()).isEqualTo(
+					"DefaultResourcesFilter [matcher=Ant [pattern='/default-ui.css', GET], resource=org/springframework/security/default-ui.css]");
+		}
+
 	}
 
-	@Test
-	public void doFilterWhenPathDoesNotMatchThenCallsThrough() throws Exception {
-		this.mockMvc.perform(get("/does-not-match")).andExpect(status().isNotFound());
-	}
+	@Nested
+	class WebAuthnFilter {
 
-	@Test
-	void toStringPrintsPathAndResource() {
-		assertThat(this.filter.toString()).isEqualTo(
-				"DefaultResourcesFilter [matcher=Ant [pattern='/default-ui.css', GET], resource=org/springframework/security/default-ui.css]");
+		private final DefaultResourcesFilter webauthnFilter = DefaultResourcesFilter.webauthn();
+
+		private final MockMvc mockMvc = MockMvcBuilders.standaloneSetup(new Object())
+			.addFilters(this.webauthnFilter)
+			.build();
+
+		@Test
+		void doFilterThenRender() throws Exception {
+			this.mockMvc.perform(get("/login/webauthn.js"))
+				.andExpect(status().isOk())
+				.andExpect(content().contentType("text/javascript;charset=UTF-8"))
+				.andExpect(content().string(containsString("async function authenticate(")));
+		}
+
+		@Test
+		void doFilterWhenPathDoesNotMatchThenCallsThrough() throws Exception {
+			this.mockMvc.perform(get("/does-not-match")).andExpect(status().isNotFound());
+		}
+
+		@Test
+		void toStringPrintsPathAndResource() {
+			assertThat(this.webauthnFilter.toString()).isEqualTo(
+					"DefaultResourcesFilter [matcher=Ant [pattern='/login/webauthn.js', GET], resource=org/springframework/security/spring-security-webauthn.js]");
+		}
+
 	}
 
 }
