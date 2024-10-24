@@ -148,8 +148,7 @@ public class SecurityConfig {
 	public AuthenticationManager authenticationManager(
 			UserDetailsService userDetailsService,
 			PasswordEncoder passwordEncoder) {
-		DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
-		authenticationProvider.setUserDetailsService(userDetailsService);
+		DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider(userDetailsService);
 		authenticationProvider.setPasswordEncoder(passwordEncoder);
 
 		return new ProviderManager(authenticationProvider);
@@ -229,8 +228,7 @@ class SecurityConfig {
 	fun authenticationManager(
 			userDetailsService: UserDetailsService,
 			passwordEncoder: PasswordEncoder): AuthenticationManager {
-		val authenticationProvider = DaoAuthenticationProvider()
-		authenticationProvider.setUserDetailsService(userDetailsService)
+		val authenticationProvider = DaoAuthenticationProvider(userDetailsService)
 		authenticationProvider.setPasswordEncoder(passwordEncoder)
 
 		return ProviderManager(authenticationProvider)
@@ -501,8 +499,7 @@ class SecurityConfig {
 
 	@Bean
 	fun authenticationManager(): AuthenticationManager {
-		val authenticationProvider = DaoAuthenticationProvider()
-		authenticationProvider.setUserDetailsService(userDetailsService())
+		val authenticationProvider = DaoAuthenticationProvider(userDetailsService())
 		authenticationProvider.setPasswordEncoder(passwordEncoder())
 
 		val providerManager = ProviderManager(authenticationProvider)
