@@ -187,9 +187,9 @@ public class ServerBearerTokenAuthenticationConverterTests {
 				.isThrownBy(() -> convertToToken(request))
 				.satisfies((ex) -> {
 					BearerTokenError error = (BearerTokenError) ex.getError();
-					assertThat(error.getErrorCode()).isEqualTo(BearerTokenErrorCodes.INVALID_TOKEN);
+					assertThat(error.getErrorCode()).isEqualTo(BearerTokenErrorCodes.INVALID_REQUEST);
 					assertThat(error.getUri()).isEqualTo("https://tools.ietf.org/html/rfc6750#section-3.1");
-					assertThat(error.getHttpStatus()).isEqualTo(HttpStatus.UNAUTHORIZED);
+					assertThat(error.getHttpStatus()).isEqualTo(HttpStatus.BAD_REQUEST);
 				});
 		// @formatter:on
 	}
@@ -215,6 +215,19 @@ public class ServerBearerTokenAuthenticationConverterTests {
 				assertThat(error.getHttpStatus()).isEqualTo(HttpStatus.BAD_REQUEST);
 			});
 
+	}
+
+	@Test
+	public void resolveWhenQueryParameterIsPresentAndEmptyStringThenTokenIsNotResolved() {
+		this.converter.setAllowUriQueryParameter(true);
+		MockServerHttpRequest.BaseBuilder<?> request = MockServerHttpRequest.get("/").queryParam("access_token", "");
+		assertThatExceptionOfType(OAuth2AuthenticationException.class).isThrownBy(() -> convertToToken(request))
+			.withMessageContaining("The requested token parameter is an empty string")
+			.satisfies((e) -> {
+				BearerTokenError error = (BearerTokenError) e.getError();
+				assertThat(error.getErrorCode()).isEqualTo(BearerTokenErrorCodes.INVALID_REQUEST);
+				assertThat(error.getHttpStatus()).isEqualTo(HttpStatus.BAD_REQUEST);
+			});
 	}
 
 	private BearerTokenAuthenticationToken convertToToken(MockServerHttpRequest.BaseBuilder<?> request) {
