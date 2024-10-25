@@ -19,6 +19,7 @@ package org.springframework.security.config.annotation.web.reactive;
 import java.util.Arrays;
 import java.util.List;
 
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.context.ApplicationContext;
@@ -33,6 +34,7 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.WebFilterChainProxy;
 import org.springframework.security.web.server.WebFilterChainProxy.DefaultWebFilterChainDecorator;
 import org.springframework.security.web.server.WebFilterChainProxy.WebFilterChainDecorator;
+import org.springframework.security.web.server.firewall.ServerWebExchangeFirewall;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.reactive.result.view.AbstractView;
@@ -79,10 +81,11 @@ class WebFluxSecurityConfiguration {
 
 	@Bean(SPRING_SECURITY_WEBFILTERCHAINFILTER_BEAN_NAME)
 	@Order(WEB_FILTER_CHAIN_FILTER_ORDER)
-	WebFilterChainProxy springSecurityWebFilterChainFilter() {
+	WebFilterChainProxy springSecurityWebFilterChainFilter(ObjectProvider<ServerWebExchangeFirewall> firewall) {
 		WebFilterChainProxy proxy = new WebFilterChainProxy(getSecurityWebFilterChains());
 		WebFilterChainDecorator decorator = this.postProcessor.postProcess(new DefaultWebFilterChainDecorator());
 		proxy.setFilterChainDecorator(decorator);
+		firewall.ifUnique(proxy::setFirewall);
 		return proxy;
 	}
 
