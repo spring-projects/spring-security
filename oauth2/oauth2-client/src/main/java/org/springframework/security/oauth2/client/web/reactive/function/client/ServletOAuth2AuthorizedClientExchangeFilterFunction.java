@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -395,9 +395,9 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 	}
 
 	private Mono<ClientRequest> mergeRequestAttributesIfNecessary(ClientRequest request) {
-		if (!request.attribute(HTTP_SERVLET_REQUEST_ATTR_NAME).isPresent()
-				|| !request.attribute(HTTP_SERVLET_RESPONSE_ATTR_NAME).isPresent()
-				|| !request.attribute(AUTHENTICATION_ATTR_NAME).isPresent()) {
+		if (request.attribute(HTTP_SERVLET_REQUEST_ATTR_NAME).isEmpty()
+				|| request.attribute(HTTP_SERVLET_RESPONSE_ATTR_NAME).isEmpty()
+				|| request.attribute(AUTHENTICATION_ATTR_NAME).isEmpty()) {
 			return mergeRequestAttributesFromContext(request);
 		}
 		return Mono.just(request);
