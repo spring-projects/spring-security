@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.springframework.util.Assert;
 
@@ -76,6 +77,22 @@ public class DefaultSaml2AuthenticatedPrincipal implements Saml2AuthenticatedPri
 	public void setRelyingPartyRegistrationId(String registrationId) {
 		Assert.notNull(registrationId, "relyingPartyRegistrationId cannot be null");
 		this.registrationId = registrationId;
+	}
+
+	@Override
+	public boolean equals(Object object) {
+		if (this == object) {
+			return true;
+		}
+		if (!(object instanceof DefaultSaml2AuthenticatedPrincipal that)) {
+			return false;
+		}
+		return Objects.equals(this.name, that.name) && Objects.equals(this.registrationId, that.registrationId);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(this.name, this.registrationId);
 	}
 
 }
