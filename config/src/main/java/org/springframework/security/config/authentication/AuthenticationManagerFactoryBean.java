@@ -73,7 +73,7 @@ public class AuthenticationManagerFactoryBean implements FactoryBean<Authenticat
 				provider.setPasswordEncoder(passwordEncoder);
 			}
 			provider.afterPropertiesSet();
-			ProviderManager manager = new ProviderManager(Arrays.<AuthenticationProvider>asList(provider));
+			ProviderManager manager = new ProviderManager(Arrays.asList(provider));
 			if (this.observationRegistry.isNoop()) {
 				return manager;
 			}

@@ -34,7 +34,7 @@ abstract class JsonNodeUtils {
 	static final TypeReference<Set<String>> STRING_SET = new TypeReference<>() {
 	};
 
-	static final TypeReference<Map<String, Object>> STRING_OBJECT_MAP = new TypeReference<Map<String, Object>>() {
+	static final TypeReference<Map<String, Object>> STRING_OBJECT_MAP = new TypeReference<>() {
 	};
 
 	static String findStringValue(JsonNode jsonNode, String fieldName) {
