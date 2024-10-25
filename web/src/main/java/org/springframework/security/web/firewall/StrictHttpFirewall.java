@@ -611,10 +611,7 @@ public class StrictHttpFirewall implements HttpFirewall {
 		if (valueContains(request.getServletPath(), value)) {
 			return true;
 		}
-		if (valueContains(request.getPathInfo(), value)) {
-			return true;
-		}
-		return false;
+		return valueContains(request.getPathInfo(), value);
 	}
 
 	private static boolean containsOnlyPrintableAsciiCharacters(String uri) {
