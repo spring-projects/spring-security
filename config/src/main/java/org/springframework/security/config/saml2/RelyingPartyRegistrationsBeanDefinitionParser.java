@@ -213,8 +213,10 @@ public final class RelyingPartyRegistrationsBeanDefinitionParser implements Bean
 	private static RelyingPartyRegistration.Builder getBuilderFromMetadataLocationIfPossible(
 			Element relyingPartyRegistrationElt, Map<String, Map<String, Object>> assertingParties,
 			ParserContext parserContext) {
-		String registrationId = relyingPartyRegistrationElt.getAttribute(ATT_REGISTRATION_ID);
-		String metadataLocation = relyingPartyRegistrationElt.getAttribute(ATT_METADATA_LOCATION);
+		String registrationId = resolveAttribute(parserContext,
+				relyingPartyRegistrationElt.getAttribute(ATT_REGISTRATION_ID));
+		String metadataLocation = resolveAttribute(parserContext,
+				relyingPartyRegistrationElt.getAttribute(ATT_METADATA_LOCATION));
 		RelyingPartyRegistration.Builder builder;
 		if (StringUtils.hasText(metadataLocation)) {
 			builder = RelyingPartyRegistrations.fromMetadataLocation(metadataLocation).registrationId(registrationId);
@@ -224,20 +226,20 @@ public final class RelyingPartyRegistrationsBeanDefinitionParser implements Bean
 				.assertingPartyMetadata((apBuilder) -> buildAssertingParty(relyingPartyRegistrationElt,
 						assertingParties, apBuilder, parserContext));
 		}
-		addRemainingProperties(relyingPartyRegistrationElt, builder);
+		addRemainingProperties(parserContext, relyingPartyRegistrationElt, builder);
 		return builder;
 	}
 
-	private static void addRemainingProperties(Element relyingPartyRegistrationElt,
+	private static void addRemainingProperties(ParserContext pc, Element relyingPartyRegistrationElt,
 			RelyingPartyRegistration.Builder builder) {
-		String entityId = relyingPartyRegistrationElt.getAttribute(ATT_ENTITY_ID);
-		String singleLogoutServiceLocation = relyingPartyRegistrationElt
-			.getAttribute(ATT_SINGLE_LOGOUT_SERVICE_LOCATION);
-		String singleLogoutServiceResponseLocation = relyingPartyRegistrationElt
-			.getAttribute(ATT_SINGLE_LOGOUT_SERVICE_RESPONSE_LOCATION);
+		String entityId = resolveAttribute(pc, relyingPartyRegistrationElt.getAttribute(ATT_ENTITY_ID));
+		String singleLogoutServiceLocation = resolveAttribute(pc,
+				relyingPartyRegistrationElt.getAttribute(ATT_SINGLE_LOGOUT_SERVICE_LOCATION));
+		String singleLogoutServiceResponseLocation = resolveAttribute(pc,
+				relyingPartyRegistrationElt.getAttribute(ATT_SINGLE_LOGOUT_SERVICE_RESPONSE_LOCATION));
 		Saml2MessageBinding singleLogoutServiceBinding = getSingleLogoutServiceBinding(relyingPartyRegistrationElt);
-		String assertionConsumerServiceLocation = relyingPartyRegistrationElt
-			.getAttribute(ATT_ASSERTION_CONSUMER_SERVICE_LOCATION);
+		String assertionConsumerServiceLocation = resolveAttribute(pc,
+				relyingPartyRegistrationElt.getAttribute(ATT_ASSERTION_CONSUMER_SERVICE_LOCATION));
 		Saml2MessageBinding assertionConsumerServiceBinding = getAssertionConsumerServiceBinding(
 				relyingPartyRegistrationElt);
 		if (StringUtils.hasText(entityId)) {
@@ -398,6 +400,10 @@ public final class RelyingPartyRegistrationsBeanDefinitionParser implements Bean
 		catch (Exception ex) {
 			throw new IllegalArgumentException(ex);
 		}
+	}
+
+	private static String resolveAttribute(ParserContext pc, String value) {
+		return pc.getReaderContext().getEnvironment().resolvePlaceholders(value);
 	}
 
 }
