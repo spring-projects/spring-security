@@ -59,8 +59,10 @@ public class WebFluxSecurityConfigurationTests {
 
 	@Test
 	void loadConfigWhenDefaultThenFirewalled() throws Exception {
-		this.spring.register(ServerHttpSecurityConfiguration.class, ReactiveAuthenticationTestConfiguration.class,
-				WebFluxSecurityConfiguration.class).autowire();
+		this.spring
+			.register(ServerHttpSecurityConfiguration.class, ReactiveAuthenticationTestConfiguration.class,
+					WebFluxSecurityConfiguration.class)
+			.autowire();
 		WebFilterChainProxy webFilterChainProxy = this.spring.getContext().getBean(WebFilterChainProxy.class);
 		MockServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/;/").build());
 		DefaultWebFilterChain chain = emptyChain();
@@ -70,8 +72,10 @@ public class WebFluxSecurityConfigurationTests {
 
 	@Test
 	void loadConfigWhenFirewallBeanThenCustomized() throws Exception {
-		this.spring.register(ServerHttpSecurityConfiguration.class, ReactiveAuthenticationTestConfiguration.class,
-				WebFluxSecurityConfiguration.class, NoOpFirewallConfig.class).autowire();
+		this.spring
+			.register(ServerHttpSecurityConfiguration.class, ReactiveAuthenticationTestConfiguration.class,
+					WebFluxSecurityConfiguration.class, NoOpFirewallConfig.class)
+			.autowire();
 		WebFilterChainProxy webFilterChainProxy = this.spring.getContext().getBean(WebFilterChainProxy.class);
 		MockServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/;/").build());
 		DefaultWebFilterChain chain = emptyChain();
