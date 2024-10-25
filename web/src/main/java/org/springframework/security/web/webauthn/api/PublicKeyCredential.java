@@ -121,7 +121,7 @@ public final class PublicKeyCredential<R extends AuthenticatorResponse> {
 	 * @return the {@link PublicKeyCredentialBuilder}
 	 */
 	public static <T extends AuthenticatorResponse> PublicKeyCredentialBuilder<T> builder() {
-		return new PublicKeyCredentialBuilder<T>();
+		return new PublicKeyCredentialBuilder<>();
 	}
 
 	/**

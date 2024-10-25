@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 the original author or authors.
+ * Copyright 2015-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,11 +60,11 @@ public class CoreJackson2Module extends SimpleModule {
 		context.setMixInAnnotations(AnonymousAuthenticationToken.class, AnonymousAuthenticationTokenMixin.class);
 		context.setMixInAnnotations(RememberMeAuthenticationToken.class, RememberMeAuthenticationTokenMixin.class);
 		context.setMixInAnnotations(SimpleGrantedAuthority.class, SimpleGrantedAuthorityMixin.class);
-		context.setMixInAnnotations(Collections.<Object>unmodifiableSet(Collections.emptySet()).getClass(),
+		context.setMixInAnnotations(Collections.unmodifiableSet(Collections.emptySet()).getClass(),
 				UnmodifiableSetMixin.class);
-		context.setMixInAnnotations(Collections.<Object>unmodifiableList(Collections.emptyList()).getClass(),
+		context.setMixInAnnotations(Collections.unmodifiableList(Collections.emptyList()).getClass(),
 				UnmodifiableListMixin.class);
-		context.setMixInAnnotations(Collections.<Object, Object>unmodifiableMap(Collections.emptyMap()).getClass(),
+		context.setMixInAnnotations(Collections.unmodifiableMap(Collections.emptyMap()).getClass(),
 				UnmodifiableMapMixin.class);
 		context.setMixInAnnotations(User.class, UserMixin.class);
 		context.setMixInAnnotations(UsernamePasswordAuthenticationToken.class,

@@ -3696,7 +3696,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * @throws Exception
 	 */
 	public HttpSecurity webAuthn(Customizer<WebAuthnConfigurer<HttpSecurity>> webAuthn) throws Exception {
-		webAuthn.customize(getOrApply(new WebAuthnConfigurer<HttpSecurity>()));
+		webAuthn.customize(getOrApply(new WebAuthnConfigurer<>()));
 		return HttpSecurity.this;
 	}
 
