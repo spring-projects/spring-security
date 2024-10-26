@@ -1390,7 +1390,11 @@ public final class SecurityMockMvcRequestPostProcessors {
 		}
 
 		private OAuth2User defaultPrincipal() {
-			return new DefaultOAuth2User(this.authorities.get(), this.attributes.get(), this.nameAttributeKey);
+			return new DefaultOAuth2User.Builder()
+				.nameAttributeKey(this.nameAttributeKey)
+				.attributes(this.attributes.get())
+				.authorities(this.authorities.get())
+				.build();
 		}
 
 	}
@@ -1533,7 +1537,11 @@ public final class SecurityMockMvcRequestPostProcessors {
 		}
 
 		private OidcUser defaultPrincipal() {
-			return new DefaultOidcUser(getAuthorities(), getOidcIdToken(), this.userInfo);
+			return new DefaultOidcUser.Builder()
+				.idToken(getOidcIdToken())
+				.userInfo(this.userInfo)
+				.authorities(getAuthorities())
+				.build();
 		}
 
 	}

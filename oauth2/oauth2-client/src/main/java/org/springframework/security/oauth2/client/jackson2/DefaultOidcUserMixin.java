@@ -43,10 +43,17 @@ import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 @JsonIgnoreProperties(value = { "attributes" }, ignoreUnknown = true)
 abstract class DefaultOidcUserMixin {
 
+	@Deprecated
 	@JsonCreator
 	DefaultOidcUserMixin(@JsonProperty("authorities") Collection<? extends GrantedAuthority> authorities,
 			@JsonProperty("idToken") OidcIdToken idToken, @JsonProperty("userInfo") OidcUserInfo userInfo,
 			@JsonProperty("nameAttributeKey") String nameAttributeKey) {
+	}
+
+	@JsonCreator
+	DefaultOidcUserMixin(@JsonProperty("name") String name,
+			@JsonProperty("idToken") OidcIdToken idToken, @JsonProperty("userInfo") OidcUserInfo userInfo,
+			@JsonProperty("authorities") Collection<? extends GrantedAuthority> authorities) {
 	}
 
 }
