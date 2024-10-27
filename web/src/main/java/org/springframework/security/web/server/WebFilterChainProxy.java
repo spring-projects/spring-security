@@ -99,7 +99,7 @@ public class WebFilterChainProxy implements WebFilter {
 	}
 
 	/**
-	 * Used to decorate the original {@link FilterChain} for each request
+	 * Used to decorate the original {@link WebFilterChain} for each request
 	 *
 	 * <p>
 	 * By default, this decorates the filter chain with a {@link DefaultWebFilterChain}
@@ -122,21 +122,21 @@ public class WebFilterChainProxy implements WebFilter {
 	public interface WebFilterChainDecorator {
 
 		/**
-		 * Provide a new {@link FilterChain} that accounts for needed security
+		 * Provide a new {@link WebFilterChain} that accounts for needed security
 		 * considerations when there are no security filters.
-		 * @param original the original {@link FilterChain}
-		 * @return a security-enabled {@link FilterChain}
+		 * @param original the original {@link WebFilterChain}
+		 * @return a security-enabled {@link WebFilterChain}
 		 */
 		default WebFilterChain decorate(WebFilterChain original) {
 			return decorate(original, Collections.emptyList());
 		}
 
 		/**
-		 * Provide a new {@link FilterChain} that accounts for the provided filters as
+		 * Provide a new {@link WebFilterChain} that accounts for the provided filters as
 		 * well as the original filter chain.
-		 * @param original the original {@link FilterChain}
+		 * @param original the original {@link WebFilterChain}
 		 * @param filters the security filters
-		 * @return a security-enabled {@link FilterChain} that includes the provided
+		 * @return a security-enabled {@link WebFilterChain} that includes the provided
 		 * filters
 		 */
 		WebFilterChain decorate(WebFilterChain original, List<WebFilter> filters);
