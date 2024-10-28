@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -142,9 +143,9 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
 	 */
 	public ActiveDirectoryLdapAuthenticationProvider(String domain, String url, String rootDn) {
 		Assert.isTrue(StringUtils.hasText(url), "Url cannot be empty");
-		this.domain = StringUtils.hasText(domain) ? domain.toLowerCase() : null;
+		this.domain = StringUtils.hasText(domain) ? domain.toLowerCase(Locale.ROOT) : null;
 		this.url = url;
-		this.rootDn = StringUtils.hasText(rootDn) ? rootDn.toLowerCase() : null;
+		this.rootDn = StringUtils.hasText(rootDn) ? rootDn.toLowerCase(Locale.ROOT) : null;
 	}
 
 	/**
@@ -153,7 +154,7 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
 	 */
 	public ActiveDirectoryLdapAuthenticationProvider(String domain, String url) {
 		Assert.isTrue(StringUtils.hasText(url), "Url cannot be empty");
-		this.domain = StringUtils.hasText(domain) ? domain.toLowerCase() : null;
+		this.domain = StringUtils.hasText(domain) ? domain.toLowerCase(Locale.ROOT) : null;
 		this.url = url;
 		this.rootDn = (this.domain != null) ? rootDnFromDomain(this.domain) : null;
 	}
@@ -361,7 +362,7 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
 	}
 
 	String createBindPrincipal(String username) {
-		if (this.domain == null || username.toLowerCase().endsWith(this.domain)) {
+		if (this.domain == null || username.toLowerCase(Locale.ROOT).endsWith(this.domain)) {
 			return username;
 		}
 		return username + "@" + this.domain;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package org.springframework.security.web.util.matcher;
 
 import java.util.Collections;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -267,7 +268,7 @@ public final class AntPathRequestMatcher implements RequestMatcher, RequestVaria
 
 		private SubpathMatcher(String subpath, boolean caseSensitive) {
 			Assert.isTrue(!subpath.contains("*"), "subpath cannot contain \"*\"");
-			this.subpath = caseSensitive ? subpath : subpath.toLowerCase();
+			this.subpath = caseSensitive ? subpath : subpath.toLowerCase(Locale.ROOT);
 			this.length = subpath.length();
 			this.caseSensitive = caseSensitive;
 		}
@@ -275,7 +276,7 @@ public final class AntPathRequestMatcher implements RequestMatcher, RequestVaria
 		@Override
 		public boolean matches(String path) {
 			if (!this.caseSensitive) {
-				path = path.toLowerCase();
+				path = path.toLowerCase(Locale.ROOT);
 			}
 			return path.startsWith(this.subpath) && (path.length() == this.length || path.charAt(this.length) == '/');
 		}

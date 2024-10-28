@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -79,10 +79,10 @@ public class SimpleAttributes2GrantedAuthoritiesMapper
 	 */
 	private GrantedAuthority getGrantedAuthority(String attribute) {
 		if (isConvertAttributeToLowerCase()) {
-			attribute = attribute.toLowerCase(Locale.getDefault());
+			attribute = attribute.toLowerCase(Locale.ROOT);
 		}
 		else if (isConvertAttributeToUpperCase()) {
-			attribute = attribute.toUpperCase(Locale.getDefault());
+			attribute = attribute.toUpperCase(Locale.ROOT);
 		}
 		if (isAddPrefixIfAlreadyExisting() || !attribute.startsWith(getAttributePrefix())) {
 			return new SimpleGrantedAuthority(getAttributePrefix() + attribute);
