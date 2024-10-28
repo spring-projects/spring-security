@@ -1,20 +1,21 @@
-[[oauth2Client-auth-grant-support]]
-= Authorization Grant Support
+[[oauth2-client-authorization-grants]]
+= [[oauth2Client-auth-grant-support]]Authorization Grant Support
 
+This section describes Spring Security's support for authorization grants.
 
-[[oauth2Client-auth-code-grant]]
-== Authorization Code
+[[oauth2-client-authorization-code]]
+== [[oauth2Client-auth-code-grant]]Authorization Code
 
 [NOTE]
 Please refer to the OAuth 2.0 Authorization Framework for further details on the https://tools.ietf.org/html/rfc6749#section-1.3.1[Authorization Code] grant.
 
-
+[[oauth2-client-authorization-code-authorization]]
 === Obtaining Authorization
 
 [NOTE]
 Please refer to the https://tools.ietf.org/html/rfc6749#section-4.1.1[Authorization Request/Response] protocol flow for the Authorization Code grant.
 
-
+[[oauth2-client-authorization-code-authorization-request]]
 === Initiating the Authorization Request
 
 The `OAuth2AuthorizationRequestRedirectWebFilter` uses a `ServerOAuth2AuthorizationRequestResolver` to resolve an `OAuth2AuthorizationRequest` and initiate the Authorization Code grant flow by redirecting the end-user's user-agent to the Authorization Server's Authorization Endpoint.
@@ -63,7 +64,7 @@ spring:
             client-authentication-method: none
             authorization-grant-type: authorization_code
             redirect-uri: "{baseUrl}/authorized/okta"
-            ...
+            # ...
 ----
 
 Public Clients are supported using https://tools.ietf.org/html/rfc7636[Proof Key for Code Exchange] (PKCE).
@@ -75,8 +76,8 @@ If the client is running in an untrusted environment (eg. native application or 
 [TIP]
 If the OAuth 2.0 Provider supports PKCE for https://tools.ietf.org/html/rfc6749#section-2.1[Confidential Clients], you may (optionally) configure it using `DefaultServerOAuth2AuthorizationRequestResolver.setAuthorizationRequestCustomizer(OAuth2AuthorizationRequestCustomizers.withPkce())`.
 
-[[oauth2Client-auth-code-redirect-uri]]
-The `DefaultServerOAuth2AuthorizationRequestResolver` also supports `URI` template variables for the `redirect-uri` using `UriComponentsBuilder`.
+[[oauth2-client-authorization-code-redirect-uri]]
+[[oauth2Client-auth-code-redirect-uri]]The `DefaultServerOAuth2AuthorizationRequestResolver` also supports `URI` template variables for the `redirect-uri` using `UriComponentsBuilder`.
 
 The following configuration uses all the supported `URI` template variables:
 
@@ -88,9 +89,9 @@ spring:
       client:
         registration:
           okta:
-            ...
+            # ...
             redirect-uri: "{baseScheme}://{baseHost}{basePort}{basePath}/authorized/{registrationId}"
-            ...
+            # ...
 ----
 
 [NOTE]
@@ -99,6 +100,7 @@ spring:
 Configuring the `redirect-uri` with `URI` template variables is especially useful when the OAuth 2.0 Client is running behind a xref:features/exploits/http.adoc#http-proxy-server[Proxy Server].
 This ensures that the `X-Forwarded-*` headers are used when expanding the `redirect-uri`.
 
+[[oauth2-client-authorization-code-authorization-request-resolver]]
 === Customizing the Authorization Request
 
 One of the primary use cases a `ServerOAuth2AuthorizationRequestResolver` can realize is the ability to customize the Authorization Request with additional parameters above the standard parameters defined in the OAuth 2.0 Authorization Framework.
@@ -255,7 +257,7 @@ private fun authorizationRequestCustomizer(): Consumer<OAuth2AuthorizationReques
 ----
 ======
 
-
+[[oauth2-client-authorization-code-authorization-request-repository]]
 === Storing the Authorization Request
 
 The `ServerAuthorizationRequestRepository` is responsible for the persistence of the `OAuth2AuthorizationRequest` from the time the Authorization Request is initiated to the time the Authorization Response is received (the callback).
@@ -283,7 +285,7 @@ public class OAuth2ClientSecurityConfig {
 		http
 			.oauth2Client(oauth2 -> oauth2
 				.authorizationRequestRepository(this.authorizationRequestRepository())
-				...
+				// ...
 			);
 		return http.build();
 	}
@@ -312,6 +314,7 @@ class OAuth2ClientSecurityConfig {
 ----
 ======
 
+[[oauth2-client-authorization-code-access-token]]
 === Requesting an Access Token
 
 [NOTE]
@@ -319,33 +322,21 @@ Please refer to the https://tools.ietf.org/html/rfc6749#section-4.1.3[Access Tok
 
 The default implementation of `ReactiveOAuth2AccessTokenResponseClient` for the Authorization Code grant is `WebClientReactiveAuthorizationCodeTokenResponseClient`, which uses a `WebClient` for exchanging an authorization code for an access token at the Authorization Server’s Token Endpoint.
 
-The `WebClientReactiveAuthorizationCodeTokenResponseClient` is quite flexible as it allows you to customize the pre-processing of the Token Request and/or post-handling of the Token Response.
+:section-id: authorization-code
+:grant-type: Authorization Code
+:class-name: WebClientReactiveAuthorizationCodeTokenResponseClient
+:grant-request: OAuth2AuthorizationCodeGrantRequest
+:leveloffset: +1
+include::partial$reactive/oauth2/client/web-client-access-token-response-client.adoc[]
 
+:leveloffset: -1
 
-=== Customizing the Access Token Request
+[[oauth2-client-authorization-code-access-token-response-client-dsl]]
+=== Customize using the DSL
 
-If you need to customize the pre-processing of the Token Request, you can provide `WebClientReactiveAuthorizationCodeTokenResponseClient.setParametersConverter()` with a custom `Converter<OAuth2AuthorizationCodeGrantRequest, MultiValueMap<String, String>>`.
-The default implementation builds a `MultiValueMap<String, String>` containing only the `grant_type` parameter of a standard https://tools.ietf.org/html/rfc6749#section-4.1.3[OAuth 2.0 Access Token Request] which is used to construct the request. Other parameters required by the Authorization Code grant are added directly to the body of the request by the `WebClientReactiveAuthorizationCodeTokenResponseClient`.
-However, providing a custom `Converter`, would allow you to extend the standard Token Request and add custom parameter(s).
+Whether you customize `{class-name}` or provide your own implementation of `ReactiveOAuth2AccessTokenResponseClient`, you can configure it using the DSL (as an alternative to <<oauth2-client-authorization-code-access-token-response-client-bean,publishing a bean>>) as shown in the following example:
 
-[TIP]
-If you prefer to only add additional parameters, you can instead provide `WebClientReactiveAuthorizationCodeTokenResponseClient.addParametersConverter()` with a custom `Converter<OAuth2AuthorizationCodeGrantRequest, MultiValueMap<String, String>>` which constructs an aggregate `Converter`.
-
-IMPORTANT: The custom `Converter` must return valid parameters of an OAuth 2.0 Access Token Request that is understood by the intended OAuth 2.0 Provider.
-
-
-=== Customizing the Access Token Response
-
-On the other end, if you need to customize the post-handling of the Token Response, you will need to provide `WebClientReactiveAuthorizationCodeTokenResponseClient.setBodyExtractor()` with a custom configured `BodyExtractor<Mono<OAuth2AccessTokenResponse>, ReactiveHttpInputMessage>` that is used for converting the OAuth 2.0 Access Token Response to an `OAuth2AccessTokenResponse`.
-The default implementation provided by `OAuth2BodyExtractors.oauth2AccessTokenResponse()` parses the response and handles errors accordingly.
-
-=== Customizing the `WebClient`
-
-Alternatively, if your requirements are more advanced, you can take full control of the request/response by simply providing `WebClientReactiveAuthorizationCodeTokenResponseClient.setWebClient()` with a custom configured `WebClient`.
-
-Whether you customize `WebClientReactiveAuthorizationCodeTokenResponseClient` or provide your own implementation of `ReactiveOAuth2AccessTokenResponseClient`, you’ll need to configure it as shown in the following example:
-
-.Access Token Response Configuration
+.Access Token Response Configuration via DSL
 [tabs]
 ======
 Java::
@@ -361,7 +352,7 @@ public class OAuth2ClientSecurityConfig {
 		http
 			.oauth2Client(oauth2 -> oauth2
 				.authenticationManager(this.authorizationCodeAuthenticationManager())
-				...
+				// ...
 			);
 		return http.build();
 	}
@@ -369,7 +360,7 @@ public class OAuth2ClientSecurityConfig {
 	private ReactiveAuthenticationManager authorizationCodeAuthenticationManager() {
 		WebClientReactiveAuthorizationCodeTokenResponseClient accessTokenResponseClient =
 				new WebClientReactiveAuthorizationCodeTokenResponseClient();
-		...
+		// ...
 
 		return new OAuth2AuthorizationCodeReactiveAuthenticationManager(accessTokenResponseClient);
 	}
@@ -397,7 +388,7 @@ class OAuth2ClientSecurityConfig {
 
     private fun authorizationCodeAuthenticationManager(): ReactiveAuthenticationManager {
         val accessTokenResponseClient = WebClientReactiveAuthorizationCodeTokenResponseClient()
-        ...
+        // ...
 
         return OAuth2AuthorizationCodeReactiveAuthenticationManager(accessTokenResponseClient)
     }
@@ -405,14 +396,13 @@ class OAuth2ClientSecurityConfig {
 ----
 ======
 
-
-[[oauth2Client-refresh-token-grant]]
-== Refresh Token
+[[oauth2-client-refresh-token]]
+== [[oauth2Client-refresh-token-grant]]Refresh Token
 
 [NOTE]
 Please refer to the OAuth 2.0 Authorization Framework for further details on the https://tools.ietf.org/html/rfc6749#section-1.5[Refresh Token].
 
-
+[[oauth2-client-refresh-token-access-token]]
 === Refreshing an Access Token
 
 [NOTE]
@@ -420,33 +410,21 @@ Please refer to the https://tools.ietf.org/html/rfc6749#section-6[Access Token R
 
 The default implementation of `ReactiveOAuth2AccessTokenResponseClient` for the Refresh Token grant is `WebClientReactiveRefreshTokenTokenResponseClient`, which uses a `WebClient` when refreshing an access token at the Authorization Server’s Token Endpoint.
 
-The `WebClientReactiveRefreshTokenTokenResponseClient` is quite flexible as it allows you to customize the pre-processing of the Token Request and/or post-handling of the Token Response.
+:section-id: refresh-token
+:grant-type: Refresh Token
+:class-name: WebClientReactiveRefreshTokenTokenResponseClient
+:grant-request: OAuth2RefreshTokenGrantRequest
+:leveloffset: +1
+include::partial$reactive/oauth2/client/web-client-access-token-response-client.adoc[]
 
+:leveloffset: -1
 
-=== Customizing the Access Token Request
+[[oauth2-client-refresh-token-authorized-client-provider-builder]]
+=== Customize using the Builder
 
-If you need to customize the pre-processing of the Token Request, you can provide `WebClientReactiveRefreshTokenTokenResponseClient.setParametersConverter()` with a custom `Converter<OAuth2RefreshTokenGrantRequest, MultiValueMap<String, String>>`.
-The default implementation builds a `MultiValueMap<String, String>` containing only the `grant_type` parameter of a standard https://tools.ietf.org/html/rfc6749#section-6[OAuth 2.0 Access Token Request] which is used to construct the request. Other parameters required by the Refresh Token grant are added directly to the body of the request by the `WebClientReactiveRefreshTokenTokenResponseClient`.
-However, providing a custom `Converter`, would allow you to extend the standard Token Request and add custom parameter(s).
+Whether you customize `WebClientReactiveRefreshTokenTokenResponseClient` or provide your own implementation of `ReactiveOAuth2AccessTokenResponseClient`, you can configure it using the `ReactiveOAuth2AuthorizedClientProviderBuilder` (as an alternative to <<oauth2-client-refresh-token-access-token-response-client-bean,publishing a bean>>) as follows:
 
-[TIP]
-If you prefer to only add additional parameters, you can instead provide `WebClientReactiveRefreshTokenTokenResponseClient.addParametersConverter()` with a custom `Converter<OAuth2RefreshTokenGrantRequest, MultiValueMap<String, String>>` which constructs an aggregate `Converter`.
-
-IMPORTANT: The custom `Converter` must return valid parameters of an OAuth 2.0 Access Token Request that is understood by the intended OAuth 2.0 Provider.
-
-
-=== Customizing the Access Token Response
-
-On the other end, if you need to customize the post-handling of the Token Response, you will need to provide `WebClientReactiveRefreshTokenTokenResponseClient.setBodyExtractor()` with a custom configured `BodyExtractor<Mono<OAuth2AccessTokenResponse>, ReactiveHttpInputMessage>` that is used for converting the OAuth 2.0 Access Token Response to an `OAuth2AccessTokenResponse`.
-The default implementation provided by `OAuth2BodyExtractors.oauth2AccessTokenResponse()` parses the response and handles errors accordingly.
-
-=== Customizing the `WebClient`
-
-Alternatively, if your requirements are more advanced, you can take full control of the request/response by simply providing `WebClientReactiveRefreshTokenTokenResponseClient.setWebClient()` with a custom configured `WebClient`.
-
-Whether you customize `WebClientReactiveRefreshTokenTokenResponseClient` or provide your own implementation of `ReactiveOAuth2AccessTokenResponseClient`, you’ll need to configure it as shown in the following example:
-
-.Access Token Response Configuration
+.Access Token Response Configuration via Builder
 [tabs]
 ======
 Java::
@@ -462,7 +440,7 @@ ReactiveOAuth2AuthorizedClientProvider authorizedClientProvider =
 				.refreshToken(configurer -> configurer.accessTokenResponseClient(refreshTokenTokenResponseClient))
 				.build();
 
-...
+// ...
 
 authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
 ----
@@ -479,7 +457,7 @@ val authorizedClientProvider: ReactiveOAuth2AuthorizedClientProvider = ReactiveO
         .refreshToken { it.accessTokenResponseClient(refreshTokenTokenResponseClient) }
         .build()
 
-...
+// ...
 
 authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider)
 ----
@@ -492,14 +470,13 @@ which is an implementation of a `ReactiveOAuth2AuthorizedClientProvider` for the
 The `OAuth2RefreshToken` may optionally be returned in the Access Token Response for the `authorization_code` and `password` grant types.
 If the `OAuth2AuthorizedClient.getRefreshToken()` is available and the `OAuth2AuthorizedClient.getAccessToken()` is expired, it will automatically be refreshed by the `RefreshTokenReactiveOAuth2AuthorizedClientProvider`.
 
-
-[[oauth2Client-client-creds-grant]]
-== Client Credentials
+[[oauth2-client-client-credentials]]
+== [[oauth2Client-client-creds-grant]]Client Credentials
 
 [NOTE]
 Please refer to the OAuth 2.0 Authorization Framework for further details on the https://tools.ietf.org/html/rfc6749#section-1.3.4[Client Credentials] grant.
 
-
+[[oauth2-client-client-credentials-access-token]]
 === Requesting an Access Token
 
 [NOTE]
@@ -507,32 +484,21 @@ Please refer to the https://tools.ietf.org/html/rfc6749#section-4.4.2[Access Tok
 
 The default implementation of `ReactiveOAuth2AccessTokenResponseClient` for the Client Credentials grant is `WebClientReactiveClientCredentialsTokenResponseClient`, which uses a `WebClient` when requesting an access token at the Authorization Server’s Token Endpoint.
 
-The `WebClientReactiveClientCredentialsTokenResponseClient` is quite flexible as it allows you to customize the pre-processing of the Token Request and/or post-handling of the Token Response.
+:section-id: client-credentials
+:grant-type: Client Credentials
+:class-name: WebClientReactiveClientCredentialsTokenResponseClient
+:grant-request: OAuth2ClientCredentialsGrantRequest
+:leveloffset: +1
+include::partial$reactive/oauth2/client/web-client-access-token-response-client.adoc[]
 
+:leveloffset: -1
 
-=== Customizing the Access Token Request
+[[oauth2-client-client-credentials-authorized-client-provider-builder]]
+=== Customize using the Builder
 
-If you need to customize the pre-processing of the Token Request, you can provide `WebClientReactiveClientCredentialsTokenResponseClient.setParametersConverter()` with a custom `Converter<OAuth2ClientCredentialsGrantRequest, MultiValueMap<String, String>>`.
-The default implementation builds a `MultiValueMap<String, String>` containing only the `grant_type` parameter of a standard https://tools.ietf.org/html/rfc6749#section-4.4.2[OAuth 2.0 Access Token Request] which is used to construct the request. Other parameters required by the Client Credentials grant are added directly to the body of the request by the `WebClientReactiveClientCredentialsTokenResponseClient`.
-However, providing a custom `Converter`, would allow you to extend the standard Token Request and add custom parameter(s).
+Whether you customize `WebClientReactiveClientCredentialsTokenResponseClient` or provide your own implementation of `ReactiveOAuth2AccessTokenResponseClient`, you can configure it using the `ReactiveOAuth2AuthorizedClientProviderBuilder` (as an alternative to <<oauth2-client-client-credentials-access-token-response-client-bean,publishing a bean>>) as follows:
 
-[TIP]
-If you prefer to only add additional parameters, you can instead provide `WebClientReactiveClientCredentialsTokenResponseClient.addParametersConverter()` with a custom `Converter<OAuth2ClientCredentialsGrantRequest, MultiValueMap<String, String>>` which constructs an aggregate `Converter`.
-
-IMPORTANT: The custom `Converter` must return valid parameters of an OAuth 2.0 Access Token Request that is understood by the intended OAuth 2.0 Provider.
-
-
-=== Customizing the Access Token Response
-
-On the other end, if you need to customize the post-handling of the Token Response, you will need to provide `WebClientReactiveClientCredentialsTokenResponseClient.setBodyExtractor()` with a custom configured `BodyExtractor<Mono<OAuth2AccessTokenResponse>, ReactiveHttpInputMessage>` that is used for converting the OAuth 2.0 Access Token Response to an `OAuth2AccessTokenResponse`.
-The default implementation provided by `OAuth2BodyExtractors.oauth2AccessTokenResponse()` parses the response and handles errors accordingly.
-
-=== Customizing the `WebClient`
-
-Alternatively, if your requirements are more advanced, you can take full control of the request/response by simply providing `WebClientReactiveClientCredentialsTokenResponseClient.setWebClient()` with a custom configured `WebClient`.
-
-Whether you customize `WebClientReactiveClientCredentialsTokenResponseClient` or provide your own implementation of `ReactiveOAuth2AccessTokenResponseClient`, you'll need to configure it as shown in the following example:
-
+.Access Token Response Configuration via Builder
 [tabs]
 ======
 Java::
@@ -547,7 +513,7 @@ ReactiveOAuth2AuthorizedClientProvider authorizedClientProvider =
 				.clientCredentials(configurer -> configurer.accessTokenResponseClient(clientCredentialsTokenResponseClient))
 				.build();
 
-...
+// ...
 
 authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
 ----
@@ -563,7 +529,7 @@ val authorizedClientProvider: ReactiveOAuth2AuthorizedClientProvider = ReactiveO
         .clientCredentials { it.accessTokenResponseClient(clientCredentialsTokenResponseClient) }
         .build()
 
-...
+// ...
 
 authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider)
 ----
@@ -573,6 +539,7 @@ authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider)
 `ReactiveOAuth2AuthorizedClientProviderBuilder.builder().clientCredentials()` configures a `ClientCredentialsReactiveOAuth2AuthorizedClientProvider`,
 which is an implementation of a `ReactiveOAuth2AuthorizedClientProvider` for the Client Credentials grant.
 
+[[oauth2-client-client-credentials-authorized-client-manager]]
 === Using the Access Token
 
 Given the following Spring Boot properties for an OAuth 2.0 Client registration:
@@ -663,7 +630,7 @@ public class OAuth2ClientController {
 
 		return this.authorizedClientManager.authorize(authorizeRequest)
 				.map(OAuth2AuthorizedClient::getAccessToken)
-				...
+				// ...
 				.thenReturn("index");
 	}
 }
@@ -687,7 +654,7 @@ class OAuth2ClientController {
 
         return authorizedClientManager.authorize(authorizeRequest)
                 .map { it.accessToken }
-                ...
+                // ...
                 .thenReturn("index")
     }
 }
@@ -698,14 +665,13 @@ class OAuth2ClientController {
 `ServerWebExchange` is an OPTIONAL attribute.
 If not provided, it will be obtained from the https://projectreactor.io/docs/core/release/reference/#context[Reactor's Context] via the key `ServerWebExchange.class`.
 
-
-[[oauth2Client-password-grant]]
-== Resource Owner Password Credentials
+[[oauth2-client-password]]
+== [[oauth2Client-password-grant]]Resource Owner Password Credentials
 
 [NOTE]
 Please refer to the OAuth 2.0 Authorization Framework for further details on the https://tools.ietf.org/html/rfc6749#section-1.3.3[Resource Owner Password Credentials] grant.
 
-
+[[oauth2-client-password-access-token]]
 === Requesting an Access Token
 
 [NOTE]
@@ -713,32 +679,27 @@ Please refer to the https://tools.ietf.org/html/rfc6749#section-4.3.2[Access Tok
 
 The default implementation of `ReactiveOAuth2AccessTokenResponseClient` for the Resource Owner Password Credentials grant is `WebClientReactivePasswordTokenResponseClient`, which uses a `WebClient` when requesting an access token at the Authorization Server’s Token Endpoint.
 
-The `WebClientReactivePasswordTokenResponseClient` is quite flexible as it allows you to customize the pre-processing of the Token Request and/or post-handling of the Token Response.
+[CAUTION]
+====
+The `WebClientReactivePasswordTokenResponseClient` class and support for the Resource Owner Password Credentials grant are deprecated.
+This section will be removed in Spring Security 7.
+====
 
+:section-id: password
+:grant-type: Password
+:class-name: WebClientReactivePasswordTokenResponseClient
+:grant-request: OAuth2PasswordGrantRequest
+:leveloffset: +1
+include::partial$reactive/oauth2/client/web-client-access-token-response-client.adoc[]
 
-=== Customizing the Access Token Request
+:leveloffset: -1
 
-If you need to customize the pre-processing of the Token Request, you can provide `WebClientReactivePasswordTokenResponseClient.setParametersConverter()` with a custom `Converter<OAuth2PasswordGrantRequest, MultiValueMap<String, String>>`.
-The default implementation builds a `MultiValueMap<String, String>` containing only the `grant_type` parameter of a standard https://tools.ietf.org/html/rfc6749#section-4.4.2[OAuth 2.0 Access Token Request] which is used to construct the request. Other parameters required by the Resource Owner Password Credentials grant are added directly to the body of the request by the `WebClientReactivePasswordTokenResponseClient`.
-However, providing a custom `Converter`, would allow you to extend the standard Token Request and add custom parameter(s).
+[[oauth2-client-password-authorized-client-provider-builder]]
+=== Customize using the Builder
 
-[TIP]
-If you prefer to only add additional parameters, you can instead provide `WebClientReactivePasswordTokenResponseClient.addParametersConverter()` with a custom `Converter<OAuth2PasswordGrantRequest, MultiValueMap<String, String>>` which constructs an aggregate `Converter`.
+Whether you customize `WebClientReactivePasswordTokenResponseClient` or provide your own implementation of `ReactiveOAuth2AccessTokenResponseClient`, you can configure it using the `ReactiveOAuth2AuthorizedClientProviderBuilder` (as an alternative to <<oauth2-client-password-access-token-response-client-bean,publishing a bean>>) as follows:
 
-IMPORTANT: The custom `Converter` must return valid parameters of an OAuth 2.0 Access Token Request that is understood by the intended OAuth 2.0 Provider.
-
-
-=== Customizing the Access Token Response
-
-On the other end, if you need to customize the post-handling of the Token Response, you will need to provide `WebClientReactivePasswordTokenResponseClient.setBodyExtractor()` with a custom configured `BodyExtractor<Mono<OAuth2AccessTokenResponse>, ReactiveHttpInputMessage>` that is used for converting the OAuth 2.0 Access Token Response to an `OAuth2AccessTokenResponse`.
-The default implementation provided by `OAuth2BodyExtractors.oauth2AccessTokenResponse()` parses the response and handles errors accordingly.
-
-=== Customizing the `WebClient`
-
-Alternatively, if your requirements are more advanced, you can take full control of the request/response by simply providing `WebClientReactivePasswordTokenResponseClient.setWebClient()` with a custom configured `WebClient`.
-
-Whether you customize `WebClientReactivePasswordTokenResponseClient` or provide your own implementation of `ReactiveOAuth2AccessTokenResponseClient`, you'll need to configure it as shown in the following example:
-
+.Access Token Response Configuration via Builder
 [tabs]
 ======
 Java::
@@ -754,7 +715,7 @@ ReactiveOAuth2AuthorizedClientProvider authorizedClientProvider =
 				.refreshToken()
 				.build();
 
-...
+// ...
 
 authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
 ----
@@ -770,7 +731,7 @@ val authorizedClientProvider = ReactiveOAuth2AuthorizedClientProviderBuilder.bui
         .refreshToken()
         .build()
 
-...
+// ...
 
 authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider)
 ----
@@ -780,6 +741,7 @@ authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider)
 `ReactiveOAuth2AuthorizedClientProviderBuilder.builder().password()` configures a `PasswordReactiveOAuth2AuthorizedClientProvider`,
 which is an implementation of a `ReactiveOAuth2AuthorizedClientProvider` for the Resource Owner Password Credentials grant.
 
+[[oauth2-client-password-authorized-client-manager]]
 === Using the Access Token
 
 Given the following Spring Boot properties for an OAuth 2.0 Client registration:
@@ -916,7 +878,7 @@ public class OAuth2ClientController {
 
 		return this.authorizedClientManager.authorize(authorizeRequest)
 				.map(OAuth2AuthorizedClient::getAccessToken)
-				...
+				// ...
 				.thenReturn("index");
 	}
 }
@@ -940,7 +902,7 @@ class OAuth2ClientController {
 
         return authorizedClientManager.authorize(authorizeRequest)
                 .map { it.accessToken }
-                ...
+                // ...
                 .thenReturn("index")
     }
 }
@@ -951,14 +913,13 @@ class OAuth2ClientController {
 `ServerWebExchange` is an OPTIONAL attribute.
 If not provided, it will be obtained from the https://projectreactor.io/docs/core/release/reference/#context[Reactor's Context] via the key `ServerWebExchange.class`.
 
-
-[[oauth2Client-jwt-bearer-grant]]
-== JWT Bearer
+[[oauth2-client-jwt-bearer]]
+== [[oauth2Client-jwt-bearer-grant]]JWT Bearer
 
 [NOTE]
 Please refer to JSON Web Token (JWT) Profile for OAuth 2.0 Client Authentication and Authorization Grants for further details on the https://datatracker.ietf.org/doc/html/rfc7523[JWT Bearer] grant.
 
-
+[[oauth2-client-jwt-bearer-access-token]]
 === Requesting an Access Token
 
 [NOTE]
@@ -966,31 +927,21 @@ Please refer to the https://datatracker.ietf.org/doc/html/rfc7523#section-2.1[Ac
 
 The default implementation of `ReactiveOAuth2AccessTokenResponseClient` for the JWT Bearer grant is `WebClientReactiveJwtBearerTokenResponseClient`, which uses a `WebClient` when requesting an access token at the Authorization Server’s Token Endpoint.
 
-The `WebClientReactiveJwtBearerTokenResponseClient` is quite flexible as it allows you to customize the pre-processing of the Token Request and/or post-handling of the Token Response.
+:section-id: jwt-bearer
+:grant-type: JWT Bearer
+:class-name: WebClientReactiveJwtBearerTokenResponseClient
+:grant-request: JwtBearerGrantRequest
+:leveloffset: +1
+include::partial$reactive/oauth2/client/web-client-access-token-response-client.adoc[]
 
+:leveloffset: -1
 
-=== Customizing the Access Token Request
+[[oauth2-client-jwt-bearer-authorized-client-provider-builder]]
+=== Customize using the Builder
 
-If you need to customize the pre-processing of the Token Request, you can provide `WebClientReactiveJwtBearerTokenResponseClient.setParametersConverter()` with a custom `Converter<JwtBearerGrantRequest, MultiValueMap<String, String>>`.
-The default implementation builds a `MultiValueMap<String, String>` containing only the `grant_type` parameter of a standard https://tools.ietf.org/html/rfc6749#section-4.4.2[OAuth 2.0 Access Token Request] which is used to construct the request. Other parameters required by the JWT Bearer grant are added directly to the body of the request by the `WebClientReactiveJwtBearerTokenResponseClient`.
-However, providing a custom `Converter`, would allow you to extend the standard Token Request and add custom parameter(s).
+Whether you customize `WebClientReactiveJwtBearerTokenResponseClient` or provide your own implementation of `ReactiveOAuth2AccessTokenResponseClient`, you can configure it using the `ReactiveOAuth2AuthorizedClientProviderBuilder` (as an alternative to <<oauth2-client-jwt-bearer-access-token-response-client-bean,publishing a bean>>) as follows:
 
-[TIP]
-If you prefer to only add additional parameters, you can instead provide `WebClientReactiveJwtBearerTokenResponseClient.addParametersConverter()` with a custom `Converter<JwtBearerGrantRequest, MultiValueMap<String, String>>` which constructs an aggregate `Converter`.
-
-IMPORTANT: The custom `Converter` must return valid parameters of an OAuth 2.0 Access Token Request that is understood by the intended OAuth 2.0 Provider.
-
-=== Customizing the Access Token Response
-
-On the other end, if you need to customize the post-handling of the Token Response, you will need to provide `WebClientReactiveJwtBearerTokenResponseClient.setBodyExtractor()` with a custom configured `BodyExtractor<Mono<OAuth2AccessTokenResponse>, ReactiveHttpInputMessage>` that is used for converting the OAuth 2.0 Access Token Response to an `OAuth2AccessTokenResponse`.
-The default implementation provided by `OAuth2BodyExtractors.oauth2AccessTokenResponse()` parses the response and handles errors accordingly.
-
-=== Customizing the `WebClient`
-
-Alternatively, if your requirements are more advanced, you can take full control of the request/response by simply providing `WebClientReactiveJwtBearerTokenResponseClient.setWebClient()` with a custom configured `WebClient`.
-
-Whether you customize `WebClientReactiveJwtBearerTokenResponseClient` or provide your own implementation of `ReactiveOAuth2AccessTokenResponseClient`, you'll need to configure it as shown in the following example:
-
+.Access Token Response Configuration via Builder
 [tabs]
 ======
 Java::
@@ -1008,7 +959,7 @@ ReactiveOAuth2AuthorizedClientProvider authorizedClientProvider =
 				.provider(jwtBearerAuthorizedClientProvider)
 				.build();
 
-...
+// ...
 
 authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
 ----
@@ -1027,12 +978,13 @@ val authorizedClientProvider = ReactiveOAuth2AuthorizedClientProviderBuilder.bui
         .provider(jwtBearerAuthorizedClientProvider)
         .build()
 
-...
+// ...
 
 authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider)
 ----
 ======
 
+[[oauth2-client-jwt-bearer-authorized-client-manager]]
 === Using the Access Token
 
 Given the following Spring Boot properties for an OAuth 2.0 Client registration:
@@ -1126,7 +1078,8 @@ public class OAuth2ResourceServerController {
 
 		return this.authorizedClientManager.authorize(authorizeRequest)
 				.map(OAuth2AuthorizedClient::getAccessToken)
-				...
+				// ...
+				.thenReturn("index");
 	}
 }
 ----
@@ -1147,7 +1100,8 @@ class OAuth2ResourceServerController {
                 .build()
         return authorizedClientManager.authorize(authorizeRequest)
                 .map { it.accessToken }
-                ...
+                // ...
+                .thenReturn("index")
     }
 }
 ----
@@ -1159,13 +1113,13 @@ class OAuth2ResourceServerController {
 [TIP]
 If you need to resolve the `Jwt` assertion from a different source, you can provide `JwtBearerReactiveOAuth2AuthorizedClientProvider.setJwtAssertionResolver()` with a custom `Function<OAuth2AuthorizationContext, Mono<Jwt>>`.
 
-[[oauth2Client-token-exchange-grant]]
-== Token Exchange
+[[oauth2-client-token-exchange]]
+== [[oauth2Client-token-exchange-grant]]Token Exchange
 
 [NOTE]
 Please refer to OAuth 2.0 Token Exchange for further details on the https://datatracker.ietf.org/doc/html/rfc8693[Token Exchange] grant.
 
-
+[[oauth2-client-token-exchange-access-token]]
 === Requesting an Access Token
 
 [NOTE]
@@ -1173,32 +1127,21 @@ Please refer to the https://datatracker.ietf.org/doc/html/rfc8693#section-2[Toke
 
 The default implementation of `ReactiveOAuth2AccessTokenResponseClient` for the Token Exchange grant is `WebClientReactiveTokenExchangeTokenResponseClient`, which uses a `WebClient` when requesting an access token at the Authorization Server’s Token Endpoint.
 
-The `WebClientReactiveTokenExchangeTokenResponseClient` is quite flexible as it allows you to customize the pre-processing of the Token Request and/or post-handling of the Token Response.
+:section-id: token-exchange
+:grant-type: Token Exchange
+:class-name: WebClientReactiveTokenExchangeTokenResponseClient
+:grant-request: TokenExchangeGrantRequest
+:leveloffset: +1
+include::partial$reactive/oauth2/client/web-client-access-token-response-client.adoc[]
 
+:leveloffset: -1
 
-=== Customizing the Access Token Request
+[[oauth2-client-token-exchange-authorized-client-provider-builder]]
+=== Customize using the Builder
 
-If you need to customize the pre-processing of the Token Request, you can provide `WebClientReactiveTokenExchangeTokenResponseClient.setParametersConverter()` with a custom `Converter<TokenExchangeGrantRequest, MultiValueMap<String, String>>`.
-The default implementation builds a `MultiValueMap<String, String>` containing only the `grant_type` parameter of a standard https://tools.ietf.org/html/rfc6749#section-4.4.2[OAuth 2.0 Access Token Request] which is used to construct the request.
-Other parameters required by the Token Exchange grant are added directly to the body of the request by the `WebClientReactiveTokenExchangeTokenResponseClient`.
-However, providing a custom `Converter`, would allow you to extend the standard Token Request and add custom parameter(s).
+Whether you customize `WebClientReactiveTokenExchangeTokenResponseClient` or provide your own implementation of `ReactiveOAuth2AccessTokenResponseClient`, you can configure it using the `ReactiveOAuth2AuthorizedClientProviderBuilder` (as an alternative to <<oauth2-client-token-exchange-access-token-response-client-bean,publishing a bean>>) as follows:
 
-[TIP]
-If you prefer to only add additional parameters, you can instead provide `WebClientReactiveTokenExchangeTokenResponseClient.addParametersConverter()` with a custom `Converter<TokenExchangeGrantRequest, MultiValueMap<String, String>>` which constructs an aggregate `Converter`.
-
-IMPORTANT: The custom `Converter` must return valid parameters of an OAuth 2.0 Access Token Request that is understood by the intended OAuth 2.0 Provider.
-
-=== Customizing the Access Token Response
-
-On the other end, if you need to customize the post-handling of the Token Response, you will need to provide `WebClientReactiveTokenExchangeTokenResponseClient.setBodyExtractor()` with a custom configured `BodyExtractor<Mono<OAuth2AccessTokenResponse>, ReactiveHttpInputMessage>` that is used for converting the OAuth 2.0 Access Token Response to an `OAuth2AccessTokenResponse`.
-The default implementation provided by `OAuth2BodyExtractors.oauth2AccessTokenResponse()` parses the response and handles errors accordingly.
-
-=== Customizing the `WebClient`
-
-Alternatively, if your requirements are more advanced, you can take full control of the request/response by simply providing `WebClientReactiveTokenExchangeTokenResponseClient.setWebClient()` with a custom configured `WebClient`.
-
-Whether you customize `WebClientReactiveTokenExchangeTokenResponseClient` or provide your own implementation of `ReactiveOAuth2AccessTokenResponseClient`, you'll need to configure it as shown in the following example:
-
+.Access Token Response Configuration via Builder
 [tabs]
 ======
 Java::
@@ -1216,7 +1159,7 @@ ReactiveOAuth2AuthorizedClientProvider authorizedClientProvider =
 				.provider(tokenExchangeAuthorizedClientProvider)
 				.build();
 
-...
+// ...
 
 authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
 ----
@@ -1235,12 +1178,13 @@ val authorizedClientProvider = ReactiveOAuth2AuthorizedClientProviderBuilder.bui
         .provider(tokenExchangeAuthorizedClientProvider)
         .build()
 
-...
+// ...
 
 authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider)
 ----
 ======
 
+[[oauth2-client-token-exchange-authorized-client-manager]]
 === Using the Access Token
 
 Given the following Spring Boot properties for an OAuth 2.0 Client registration:
@@ -1334,7 +1278,8 @@ public class OAuth2ResourceServerController {
 
 		return this.authorizedClientManager.authorize(authorizeRequest)
 				.map(OAuth2AuthorizedClient::getAccessToken)
-				...
+				// ...
+				.thenReturn("index");
 	}
 }
 ----
@@ -1355,7 +1300,8 @@ class OAuth2ResourceServerController {
                 .build()
         return authorizedClientManager.authorize(authorizeRequest)
                 .map { it.accessToken }
-                ...
+                // ...
+                .thenReturn("index")
     }
 }
 ----
