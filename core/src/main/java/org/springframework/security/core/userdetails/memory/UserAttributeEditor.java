@@ -19,6 +19,7 @@ package org.springframework.security.core.userdetails.memory;
 import java.beans.PropertyEditorSupport;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import org.springframework.util.StringUtils;
 
@@ -45,10 +46,10 @@ public class UserAttributeEditor extends PropertyEditorSupport {
 				userAttrib.setPassword(currentToken);
 			}
 			else {
-				if (currentToken.toLowerCase().equals("enabled")) {
+				if (currentToken.toLowerCase(Locale.ENGLISH).equals("enabled")) {
 					userAttrib.setEnabled(true);
 				}
-				else if (currentToken.toLowerCase().equals("disabled")) {
+				else if (currentToken.toLowerCase(Locale.ENGLISH).equals("disabled")) {
 					userAttrib.setEnabled(false);
 				}
 				else {
