@@ -7,13 +7,17 @@ This section describes Spring Security's support for authorization grants.
 == [[oauth2Client-auth-code-grant]]Authorization Code
 
 [NOTE]
+====
 Please refer to the OAuth 2.0 Authorization Framework for further details on the https://tools.ietf.org/html/rfc6749#section-1.3.1[Authorization Code] grant.
+====
 
 [[oauth2-client-authorization-code-authorization]]
 === Obtaining Authorization
 
 [NOTE]
+====
 Please refer to the https://tools.ietf.org/html/rfc6749#section-4.1.1[Authorization Request/Response] protocol flow for the Authorization Code grant.
+====
 
 [[oauth2-client-authorization-code-authorization-request]]
 === Initiating the Authorization Request
@@ -47,8 +51,10 @@ spring:
 A request with the base path `/oauth2/authorization/okta` will initiate the Authorization Request redirect by the `OAuth2AuthorizationRequestRedirectWebFilter` and ultimately start the Authorization Code grant flow.
 
 [NOTE]
+====
 The `AuthorizationCodeReactiveOAuth2AuthorizedClientProvider` is an implementation of `ReactiveOAuth2AuthorizedClientProvider` for the Authorization Code grant,
 which also initiates the Authorization Request redirect by the `OAuth2AuthorizationRequestRedirectWebFilter`.
+====
 
 If the OAuth 2.0 Client is a https://tools.ietf.org/html/rfc6749#section-2.1[Public Client], then configure the OAuth 2.0 Client registration as follows:
 
@@ -74,7 +80,9 @@ If the client is running in an untrusted environment (eg. native application or 
 . `client-authentication-method` is set to "none" (`ClientAuthenticationMethod.NONE`)
 
 [TIP]
+====
 If the OAuth 2.0 Provider supports PKCE for https://tools.ietf.org/html/rfc6749#section-2.1[Confidential Clients], you may (optionally) configure it using `DefaultServerOAuth2AuthorizationRequestResolver.setAuthorizationRequestCustomizer(OAuth2AuthorizationRequestCustomizers.withPkce())`.
+====
 
 [[oauth2-client-authorization-code-redirect-uri]]
 [[oauth2Client-auth-code-redirect-uri]]The `DefaultServerOAuth2AuthorizationRequestResolver` also supports `URI` template variables for the `redirect-uri` using `UriComponentsBuilder`.
@@ -95,7 +103,9 @@ spring:
 ----
 
 [NOTE]
+====
 `+{baseUrl}+` resolves to `+{baseScheme}://{baseHost}{basePort}{basePath}+`
+====
 
 Configuring the `redirect-uri` with `URI` template variables is especially useful when the OAuth 2.0 Client is running behind a xref:features/exploits/http.adoc#http-proxy-server[Proxy Server].
 This ensures that the `X-Forwarded-*` headers are used when expanding the `redirect-uri`.
@@ -224,7 +234,9 @@ The preceding example shows the common use case of adding a custom parameter on 
 Alternatively, if your requirements are more advanced, you can take full control in building the Authorization Request URI by simply overriding the `OAuth2AuthorizationRequest.authorizationRequestUri` property.
 
 [TIP]
+====
 `OAuth2AuthorizationRequest.Builder.build()` constructs the `OAuth2AuthorizationRequest.authorizationRequestUri`, which represents the Authorization Request URI including all query parameters using the `application/x-www-form-urlencoded` format.
+====
 
 The following example shows a variation of `authorizationRequestCustomizer()` from the preceding example, and instead overrides the `OAuth2AuthorizationRequest.authorizationRequestUri` property.
 
@@ -263,7 +275,9 @@ private fun authorizationRequestCustomizer(): Consumer<OAuth2AuthorizationReques
 The `ServerAuthorizationRequestRepository` is responsible for the persistence of the `OAuth2AuthorizationRequest` from the time the Authorization Request is initiated to the time the Authorization Response is received (the callback).
 
 [TIP]
+====
 The `OAuth2AuthorizationRequest` is used to correlate and validate the Authorization Response.
+====
 
 The default implementation of `ServerAuthorizationRequestRepository` is `WebSessionOAuth2ServerAuthorizationRequestRepository`, which stores the `OAuth2AuthorizationRequest` in the `WebSession`.
 
@@ -318,7 +332,9 @@ class OAuth2ClientSecurityConfig {
 === Requesting an Access Token
 
 [NOTE]
+====
 Please refer to the https://tools.ietf.org/html/rfc6749#section-4.1.3[Access Token Request/Response] protocol flow for the Authorization Code grant.
+====
 
 The default implementation of `ReactiveOAuth2AccessTokenResponseClient` for the Authorization Code grant is `WebClientReactiveAuthorizationCodeTokenResponseClient`, which uses a `WebClient` for exchanging an authorization code for an access token at the Authorization Server’s Token Endpoint.
 
@@ -400,13 +416,17 @@ class OAuth2ClientSecurityConfig {
 == [[oauth2Client-refresh-token-grant]]Refresh Token
 
 [NOTE]
+====
 Please refer to the OAuth 2.0 Authorization Framework for further details on the https://tools.ietf.org/html/rfc6749#section-1.5[Refresh Token].
+====
 
 [[oauth2-client-refresh-token-access-token]]
 === Refreshing an Access Token
 
 [NOTE]
+====
 Please refer to the https://tools.ietf.org/html/rfc6749#section-6[Access Token Request/Response] protocol flow for the Refresh Token grant.
+====
 
 The default implementation of `ReactiveOAuth2AccessTokenResponseClient` for the Refresh Token grant is `WebClientReactiveRefreshTokenTokenResponseClient`, which uses a `WebClient` when refreshing an access token at the Authorization Server’s Token Endpoint.
 
@@ -464,8 +484,10 @@ authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider)
 ======
 
 [NOTE]
+====
 `ReactiveOAuth2AuthorizedClientProviderBuilder.builder().refreshToken()` configures a `RefreshTokenReactiveOAuth2AuthorizedClientProvider`,
 which is an implementation of a `ReactiveOAuth2AuthorizedClientProvider` for the Refresh Token grant.
+====
 
 The `OAuth2RefreshToken` may optionally be returned in the Access Token Response for the `authorization_code` and `password` grant types.
 If the `OAuth2AuthorizedClient.getRefreshToken()` is available and the `OAuth2AuthorizedClient.getAccessToken()` is expired, it will automatically be refreshed by the `RefreshTokenReactiveOAuth2AuthorizedClientProvider`.
@@ -474,13 +496,17 @@ If the `OAuth2AuthorizedClient.getRefreshToken()` is available and the `OAuth2Au
 == [[oauth2Client-client-creds-grant]]Client Credentials
 
 [NOTE]
+====
 Please refer to the OAuth 2.0 Authorization Framework for further details on the https://tools.ietf.org/html/rfc6749#section-1.3.4[Client Credentials] grant.
+====
 
 [[oauth2-client-client-credentials-access-token]]
 === Requesting an Access Token
 
 [NOTE]
+====
 Please refer to the https://tools.ietf.org/html/rfc6749#section-4.4.2[Access Token Request/Response] protocol flow for the Client Credentials grant.
+====
 
 The default implementation of `ReactiveOAuth2AccessTokenResponseClient` for the Client Credentials grant is `WebClientReactiveClientCredentialsTokenResponseClient`, which uses a `WebClient` when requesting an access token at the Authorization Server’s Token Endpoint.
 
@@ -536,8 +562,9 @@ authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider)
 ======
 
 [NOTE]
-`ReactiveOAuth2AuthorizedClientProviderBuilder.builder().clientCredentials()` configures a `ClientCredentialsReactiveOAuth2AuthorizedClientProvider`,
-which is an implementation of a `ReactiveOAuth2AuthorizedClientProvider` for the Client Credentials grant.
+====
+`ReactiveOAuth2AuthorizedClientProviderBuilder.builder().clientCredentials()` configures a `ClientCredentialsReactiveOAuth2AuthorizedClientProvider`, which is an implementation of a `ReactiveOAuth2AuthorizedClientProvider` for the Client Credentials grant.
+====
 
 [[oauth2-client-client-credentials-authorized-client-manager]]
 === Using the Access Token
@@ -662,20 +689,26 @@ class OAuth2ClientController {
 ======
 
 [NOTE]
+====
 `ServerWebExchange` is an OPTIONAL attribute.
 If not provided, it will be obtained from the https://projectreactor.io/docs/core/release/reference/#context[Reactor's Context] via the key `ServerWebExchange.class`.
+====
 
 [[oauth2-client-password]]
 == [[oauth2Client-password-grant]]Resource Owner Password Credentials
 
 [NOTE]
+====
 Please refer to the OAuth 2.0 Authorization Framework for further details on the https://tools.ietf.org/html/rfc6749#section-1.3.3[Resource Owner Password Credentials] grant.
+====
 
 [[oauth2-client-password-access-token]]
 === Requesting an Access Token
 
 [NOTE]
+====
 Please refer to the https://tools.ietf.org/html/rfc6749#section-4.3.2[Access Token Request/Response] protocol flow for the Resource Owner Password Credentials grant.
+====
 
 The default implementation of `ReactiveOAuth2AccessTokenResponseClient` for the Resource Owner Password Credentials grant is `WebClientReactivePasswordTokenResponseClient`, which uses a `WebClient` when requesting an access token at the Authorization Server’s Token Endpoint.
 
@@ -738,8 +771,10 @@ authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider)
 ======
 
 [NOTE]
+====
 `ReactiveOAuth2AuthorizedClientProviderBuilder.builder().password()` configures a `PasswordReactiveOAuth2AuthorizedClientProvider`,
 which is an implementation of a `ReactiveOAuth2AuthorizedClientProvider` for the Resource Owner Password Credentials grant.
+====
 
 [[oauth2-client-password-authorized-client-manager]]
 === Using the Access Token
@@ -910,20 +945,26 @@ class OAuth2ClientController {
 ======
 
 [NOTE]
+====
 `ServerWebExchange` is an OPTIONAL attribute.
 If not provided, it will be obtained from the https://projectreactor.io/docs/core/release/reference/#context[Reactor's Context] via the key `ServerWebExchange.class`.
+====
 
 [[oauth2-client-jwt-bearer]]
 == [[oauth2Client-jwt-bearer-grant]]JWT Bearer
 
 [NOTE]
+====
 Please refer to JSON Web Token (JWT) Profile for OAuth 2.0 Client Authentication and Authorization Grants for further details on the https://datatracker.ietf.org/doc/html/rfc7523[JWT Bearer] grant.
+====
 
 [[oauth2-client-jwt-bearer-access-token]]
 === Requesting an Access Token
 
 [NOTE]
+====
 Please refer to the https://datatracker.ietf.org/doc/html/rfc7523#section-2.1[Access Token Request/Response] protocol flow for the JWT Bearer grant.
+====
 
 The default implementation of `ReactiveOAuth2AccessTokenResponseClient` for the JWT Bearer grant is `WebClientReactiveJwtBearerTokenResponseClient`, which uses a `WebClient` when requesting an access token at the Authorization Server’s Token Endpoint.
 
@@ -1108,22 +1149,30 @@ class OAuth2ResourceServerController {
 ======
 
 [NOTE]
+====
 `JwtBearerReactiveOAuth2AuthorizedClientProvider` resolves the `Jwt` assertion via `OAuth2AuthorizationContext.getPrincipal().getPrincipal()` by default, hence the use of `JwtAuthenticationToken` in the preceding example.
+====
 
 [TIP]
+====
 If you need to resolve the `Jwt` assertion from a different source, you can provide `JwtBearerReactiveOAuth2AuthorizedClientProvider.setJwtAssertionResolver()` with a custom `Function<OAuth2AuthorizationContext, Mono<Jwt>>`.
+====
 
 [[oauth2-client-token-exchange]]
 == [[oauth2Client-token-exchange-grant]]Token Exchange
 
 [NOTE]
+====
 Please refer to OAuth 2.0 Token Exchange for further details on the https://datatracker.ietf.org/doc/html/rfc8693[Token Exchange] grant.
+====
 
 [[oauth2-client-token-exchange-access-token]]
 === Requesting an Access Token
 
 [NOTE]
+====
 Please refer to the https://datatracker.ietf.org/doc/html/rfc8693#section-2[Token Exchange Request and Response] protocol flow for the Token Exchange grant.
+====
 
 The default implementation of `ReactiveOAuth2AccessTokenResponseClient` for the Token Exchange grant is `WebClientReactiveTokenExchangeTokenResponseClient`, which uses a `WebClient` when requesting an access token at the Authorization Server’s Token Endpoint.
 
@@ -1308,11 +1357,17 @@ class OAuth2ResourceServerController {
 ======
 
 [NOTE]
+====
 `TokenExchangeReactiveOAuth2AuthorizedClientProvider` resolves the subject token (as an `OAuth2Token`) via `OAuth2AuthorizationContext.getPrincipal().getPrincipal()` by default, hence the use of `JwtAuthenticationToken` in the preceding example.
 An actor token is not resolved by default.
+====
 
 [TIP]
+====
 If you need to resolve the subject token from a different source, you can provide `TokenExchangeReactiveOAuth2AuthorizedClientProvider.setSubjectTokenResolver()` with a custom `Function<OAuth2AuthorizationContext, Mono<OAuth2Token>>`.
+====
 
 [TIP]
+====
 If you need to resolve an actor token, you can provide `TokenExchangeReactiveOAuth2AuthorizedClientProvider.setActorTokenResolver()` with a custom `Function<OAuth2AuthorizationContext, Mono<OAuth2Token>>`.
+====

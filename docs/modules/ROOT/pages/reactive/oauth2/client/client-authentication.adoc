@@ -82,7 +82,9 @@ spring:
 == [[oauth2Client-jwt-bearer-auth]]JWT Bearer
 
 [NOTE]
+====
 Please refer to JSON Web Token (JWT) Profile for OAuth 2.0 Client Authentication and Authorization Grants for further details on https://datatracker.ietf.org/doc/html/rfc7523#section-2.2[JWT Bearer] Client Authentication.
+====
 
 The default implementation for JWT Bearer Client Authentication is `NimbusJwtClientAuthenticationParametersConverter`,
 which is a `Converter` that customizes the Token Request parameters by adding
@@ -290,5 +292,7 @@ spring:
 ----
 
 [NOTE]
+====
 Public Clients are supported using https://tools.ietf.org/html/rfc7636[Proof Key for Code Exchange] (PKCE).
 PKCE will automatically be used when `client-authentication-method` is set to "none" (`ClientAuthenticationMethod.NONE`).
+====

@@ -1,7 +1,7 @@
 [[oauth2-client-additional-features]]
 = [[oauth2Client-additional-features]]Authorized Client Features
 
-This section covers additional features provided by Spring Security for the OAuth2 client.
+This section covers additional features provided by Spring Security for OAuth2 client.
 
 [[oauth2-client-registered-authorized-client]]
 == [[oauth2Client-registered-authorized-client]]Resolving an Authorized Client
@@ -700,7 +700,9 @@ fun index(): String {
 <1> `authentication()` is a `static` method in `ServletOAuth2AuthorizedClientExchangeFilterFunction`.
 
 [WARNING]
+====
 It is recommended to be cautious with this feature since all HTTP requests will receive an access token bound to the provided principal.
+====
 
 [[oauth2-client-web-client-default-authorized-client]]
 === Defaulting the Authorized Client

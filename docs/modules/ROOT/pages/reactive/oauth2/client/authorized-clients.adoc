@@ -227,7 +227,9 @@ fun webClient(authorizedClientManager: ReactiveOAuth2AuthorizedClientManager): W
 ======
 
 [WARNING]
+====
 It is recommended to be cautious with this feature since all HTTP requests will receive the access token.
+====
 
 Alternatively, if `setDefaultClientRegistrationId("okta")` is configured with a valid `ClientRegistration`, the `OAuth2AccessToken` associated with the `OAuth2AuthorizedClient` is used.
 
@@ -266,4 +268,6 @@ fun webClient(authorizedClientManager: ReactiveOAuth2AuthorizedClientManager): W
 ======
 
 [WARNING]
+====
 It is recommended to be cautious with this feature since all HTTP requests will receive the access token.
+====

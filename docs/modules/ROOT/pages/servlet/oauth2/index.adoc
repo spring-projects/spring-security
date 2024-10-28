@@ -2059,7 +2059,7 @@ class SecurityConfig {
 [[further-reading]]
 == Further Reading
 
-This preceding sections introduced Spring Security's support for OAuth2 with examples for common scenarios.
+The preceding sections introduced Spring Security's support for OAuth2 with examples for common scenarios.
 You can read more about OAuth2 Client and Resource Server in the following sections of the reference documentation:
 
 * xref:servlet/oauth2/login/index.adoc[]

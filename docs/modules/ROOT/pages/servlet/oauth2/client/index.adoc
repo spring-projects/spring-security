@@ -15,7 +15,7 @@ At a high-level, the core features available are:
 * xref:servlet/oauth2/client/authorization-grants.adoc#oauth2-client-token-exchange[Token Exchange]
 
 .Client Authentication support
-* xref:servlet/oauth2/client/client-authentication.adoc#oauth2-client-jwt-bearer-authentication[JWT Bearer]
+* xref:servlet/oauth2/client/client-authentication.adoc#oauth2-client-authentication-jwt-bearer[JWT Bearer]
 
 .HTTP Client support (for requesting protected resources)
 * xref:servlet/oauth2/client/authorized-clients.adoc#oauth2-client-rest-client[`RestClient` integration]
