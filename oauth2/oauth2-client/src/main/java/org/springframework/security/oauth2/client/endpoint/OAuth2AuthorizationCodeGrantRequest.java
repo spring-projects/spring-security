@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,11 @@ package org.springframework.security.oauth2.client.endpoint;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationExchange;
+import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
+import org.springframework.security.oauth2.core.endpoint.PkceParameterNames;
 import org.springframework.util.Assert;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 
 /**
  * An OAuth 2.0 Authorization Code Grant request that holds an Authorization Code
@@ -58,6 +62,28 @@ public class OAuth2AuthorizationCodeGrantRequest extends AbstractOAuth2Authoriza
 	 */
 	public OAuth2AuthorizationExchange getAuthorizationExchange() {
 		return this.authorizationExchange;
+	}
+
+	/**
+	 * Populate default parameters for the Authorization Code Grant.
+	 * @param grantRequest the authorization grant request
+	 * @return a {@link MultiValueMap} of the parameters used in the OAuth 2.0 Access
+	 * Token Request body
+	 */
+	static MultiValueMap<String, String> defaultParameters(OAuth2AuthorizationCodeGrantRequest grantRequest) {
+		OAuth2AuthorizationExchange authorizationExchange = grantRequest.getAuthorizationExchange();
+		MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
+		parameters.set(OAuth2ParameterNames.CODE, authorizationExchange.getAuthorizationResponse().getCode());
+		String redirectUri = authorizationExchange.getAuthorizationRequest().getRedirectUri();
+		if (redirectUri != null) {
+			parameters.set(OAuth2ParameterNames.REDIRECT_URI, redirectUri);
+		}
+		String codeVerifier = authorizationExchange.getAuthorizationRequest()
+			.getAttribute(PkceParameterNames.CODE_VERIFIER);
+		if (codeVerifier != null) {
+			parameters.set(PkceParameterNames.CODE_VERIFIER, codeVerifier);
+		}
+		return parameters;
 	}
 
 }

@@ -38,6 +38,8 @@ import org.springframework.security.core.Authentication;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -78,6 +80,7 @@ public class Jsr250AuthorizationManagerTests {
 	@Test
 	public void setAuthoritiesAuthorizationManagerWhenNotNullThenVerifyUsage() throws Exception {
 		AuthorizationManager<Collection<String>> authoritiesAuthorizationManager = mock(AuthorizationManager.class);
+		given(authoritiesAuthorizationManager.authorize(any(), any())).willCallRealMethod();
 		Jsr250AuthorizationManager manager = new Jsr250AuthorizationManager();
 		manager.setAuthoritiesAuthorizationManager(authoritiesAuthorizationManager);
 		MockMethodInvocation methodInvocation = new MockMethodInvocation(new ClassLevelAnnotations(),

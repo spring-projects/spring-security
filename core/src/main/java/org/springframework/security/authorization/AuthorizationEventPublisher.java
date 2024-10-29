@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ import org.springframework.security.core.Authentication;
  * @since 5.7
  * @see AuthorizationManager
  */
+@FunctionalInterface
 public interface AuthorizationEventPublisher {
 
 	/**
@@ -42,8 +43,37 @@ public interface AuthorizationEventPublisher {
 	 * @param object the secured object
 	 * @param decision the decision about whether the user may access the secured object
 	 * @param <T> the secured object's type
+	 * @deprecated use
+	 * {@link #publishAuthorizationEvent(Supplier, Object, AuthorizationResult)} instead
 	 */
+	@Deprecated
 	<T> void publishAuthorizationEvent(Supplier<Authentication> authentication, T object,
 			AuthorizationDecision decision);
+
+	/**
+	 * Publish the given details in the form of an event, typically
+	 * {@link AuthorizationGrantedEvent} or {@link AuthorizationDeniedEvent}.
+	 *
+	 * Note that success events can be very noisy if enabled by default. Because of this
+	 * implementations may choose to drop success events by default.
+	 * @param authentication a {@link Supplier} for the current user
+	 * @param object the secured object
+	 * @param result {@link AuthorizationResult} the result about whether the user may
+	 * access the secured object
+	 * @param <T> the secured object's type
+	 * @since 6.4
+	 */
+	default <T> void publishAuthorizationEvent(Supplier<Authentication> authentication, T object,
+			AuthorizationResult result) {
+		if (result == null) {
+			publishAuthorizationEvent(authentication, object, null);
+			return;
+		}
+		if (result instanceof AuthorizationDecision decision) {
+			publishAuthorizationEvent(authentication, object, decision);
+			return;
+		}
+		throw new UnsupportedOperationException("result must be of type AuthorizationDecision");
+	}
 
 }

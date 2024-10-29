@@ -45,6 +45,7 @@
 ***** xref:servlet/authentication/passwords/dao-authentication-provider.adoc[DaoAuthenticationProvider]
 ***** xref:servlet/authentication/passwords/ldap.adoc[LDAP]
 *** xref:servlet/authentication/persistence.adoc[Persistence]
+*** xref:servlet/authentication/passkeys.adoc[Passkeys]
 *** xref:servlet/authentication/onetimetoken.adoc[One-Time Token]
 *** xref:servlet/authentication/session-management.adoc[Session Management]
 *** xref:servlet/authentication/rememberme.adoc[Remember Me]
@@ -157,6 +158,7 @@
 *** xref:reactive/exploits/csrf.adoc[CSRF]
 *** xref:reactive/exploits/headers.adoc[Headers]
 *** xref:reactive/exploits/http.adoc[HTTP Requests]
+*** xref:reactive/exploits/firewall.adoc[]
 ** Integrations
 *** xref:reactive/integrations/cors.adoc[CORS]
 *** xref:reactive/integrations/rsocket.adoc[RSocket]

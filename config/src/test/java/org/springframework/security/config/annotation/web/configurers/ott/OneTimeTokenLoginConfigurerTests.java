@@ -40,8 +40,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
-import org.springframework.security.web.authentication.ott.GeneratedOneTimeTokenHandler;
-import org.springframework.security.web.authentication.ott.RedirectGeneratedOneTimeTokenHandler;
+import org.springframework.security.web.authentication.ott.OneTimeTokenGenerationSuccessHandler;
+import org.springframework.security.web.authentication.ott.RedirectOneTimeTokenGenerationSuccessHandler;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.DefaultCsrfToken;
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
@@ -72,7 +72,7 @@ public class OneTimeTokenLoginConfigurerTests {
 		this.mvc.perform(post("/ott/generate").param("username", "user").with(csrf()))
 			.andExpectAll(status().isFound(), redirectedUrl("/login/ott"));
 
-		String token = TestGeneratedOneTimeTokenHandler.lastToken.getTokenValue();
+		String token = TestOneTimeTokenGenerationSuccessHandler.lastToken.getTokenValue();
 
 		this.mvc.perform(post("/login/ott").param("token", token).with(csrf()))
 			.andExpectAll(status().isFound(), redirectedUrl("/"), authenticated());
@@ -84,7 +84,7 @@ public class OneTimeTokenLoginConfigurerTests {
 		this.mvc.perform(post("/generateurl").param("username", "user").with(csrf()))
 			.andExpectAll(status().isFound(), redirectedUrl("/redirected"));
 
-		String token = TestGeneratedOneTimeTokenHandler.lastToken.getTokenValue();
+		String token = TestOneTimeTokenGenerationSuccessHandler.lastToken.getTokenValue();
 
 		this.mvc.perform(post("/loginprocessingurl").param("token", token).with(csrf()))
 			.andExpectAll(status().isFound(), redirectedUrl("/authenticated"), authenticated());
@@ -96,7 +96,7 @@ public class OneTimeTokenLoginConfigurerTests {
 		this.mvc.perform(post("/ott/generate").param("username", "user").with(csrf()))
 			.andExpectAll(status().isFound(), redirectedUrl("/login/ott"));
 
-		String token = TestGeneratedOneTimeTokenHandler.lastToken.getTokenValue();
+		String token = TestOneTimeTokenGenerationSuccessHandler.lastToken.getTokenValue();
 
 		this.mvc.perform(post("/login/ott").param("token", token).with(csrf()))
 			.andExpectAll(status().isFound(), redirectedUrl("/"), authenticated());
@@ -183,13 +183,13 @@ public class OneTimeTokenLoginConfigurerTests {
 	}
 
 	@Test
-	void oneTimeTokenWhenNoGeneratedOneTimeTokenHandlerThenException() {
+	void oneTimeTokenWhenNoTokenGenerationSuccessHandlerThenException() {
 		assertThatException()
 			.isThrownBy(() -> this.spring.register(OneTimeTokenNoGeneratedOttHandlerConfig.class).autowire())
 			.havingRootCause()
 			.isInstanceOf(IllegalStateException.class)
 			.withMessage("""
-					A GeneratedOneTimeTokenHandler is required to enable oneTimeTokenLogin().
+					A OneTimeTokenGenerationSuccessHandler is required to enable oneTimeTokenLogin().
 					Please provide it as a bean or pass it to the oneTimeTokenLogin() DSL.
 					""");
 	}
@@ -207,7 +207,7 @@ public class OneTimeTokenLoginConfigurerTests {
 							.anyRequest().authenticated()
 					)
 					.oneTimeTokenLogin((ott) -> ott
-							.generatedOneTimeTokenHandler(new TestGeneratedOneTimeTokenHandler())
+							.tokenGenerationSuccessHandler(new TestOneTimeTokenGenerationSuccessHandler())
 					);
 			// @formatter:on
 			return http.build();
@@ -228,8 +228,8 @@ public class OneTimeTokenLoginConfigurerTests {
 							.anyRequest().authenticated()
 					)
 					.oneTimeTokenLogin((ott) -> ott
-							.generateTokenUrl("/generateurl")
-							.generatedOneTimeTokenHandler(new TestGeneratedOneTimeTokenHandler("/redirected"))
+							.tokenGeneratingUrl("/generateurl")
+							.tokenGenerationSuccessHandler(new TestOneTimeTokenGenerationSuccessHandler("/redirected"))
 							.loginProcessingUrl("/loginprocessingurl")
 							.authenticationSuccessHandler(new SimpleUrlAuthenticationSuccessHandler("/authenticated"))
 					);
@@ -253,7 +253,7 @@ public class OneTimeTokenLoginConfigurerTests {
 					)
 					.formLogin(Customizer.withDefaults())
 					.oneTimeTokenLogin((ott) -> ott
-							.generatedOneTimeTokenHandler(new TestGeneratedOneTimeTokenHandler())
+							.tokenGenerationSuccessHandler(new TestOneTimeTokenGenerationSuccessHandler())
 					);
 			// @formatter:on
 			return http.build();
@@ -280,18 +280,18 @@ public class OneTimeTokenLoginConfigurerTests {
 
 	}
 
-	static class TestGeneratedOneTimeTokenHandler implements GeneratedOneTimeTokenHandler {
+	static class TestOneTimeTokenGenerationSuccessHandler implements OneTimeTokenGenerationSuccessHandler {
 
 		private static OneTimeToken lastToken;
 
-		private final GeneratedOneTimeTokenHandler delegate;
+		private final OneTimeTokenGenerationSuccessHandler delegate;
 
-		TestGeneratedOneTimeTokenHandler() {
-			this.delegate = new RedirectGeneratedOneTimeTokenHandler("/login/ott");
+		TestOneTimeTokenGenerationSuccessHandler() {
+			this.delegate = new RedirectOneTimeTokenGenerationSuccessHandler("/login/ott");
 		}
 
-		TestGeneratedOneTimeTokenHandler(String redirectUrl) {
-			this.delegate = new RedirectGeneratedOneTimeTokenHandler(redirectUrl);
+		TestOneTimeTokenGenerationSuccessHandler(String redirectUrl) {
+			this.delegate = new RedirectOneTimeTokenGenerationSuccessHandler(redirectUrl);
 		}
 
 		@Override

@@ -33,6 +33,7 @@ import org.springframework.security.web.authentication.rememberme.PersistentToke
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 import org.springframework.security.web.authentication.rememberme.RememberMeAuthenticationFilter;
 import org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices;
+import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.util.Assert;
@@ -296,6 +297,13 @@ public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>>
 			rememberMeFilter.setSecurityContextRepository(securityContextRepository);
 		}
 		rememberMeFilter.setSecurityContextHolderStrategy(getSecurityContextHolderStrategy());
+
+		SessionAuthenticationStrategy sessionAuthenticationStrategy = http
+			.getSharedObject(SessionAuthenticationStrategy.class);
+		if (sessionAuthenticationStrategy != null) {
+			rememberMeFilter.setSessionAuthenticationStrategy(sessionAuthenticationStrategy);
+		}
+
 		rememberMeFilter = postProcess(rememberMeFilter);
 		http.addFilter(rememberMeFilter);
 	}

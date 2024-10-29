@@ -43,18 +43,18 @@ import static org.springframework.security.web.util.matcher.AntPathRequestMatche
  */
 public final class GenerateOneTimeTokenFilter extends OncePerRequestFilter {
 
-	private final OneTimeTokenService oneTimeTokenService;
+	private final OneTimeTokenService tokenService;
 
-	private final GeneratedOneTimeTokenHandler generatedOneTimeTokenHandler;
+	private final OneTimeTokenGenerationSuccessHandler tokenGenerationSuccessHandler;
 
 	private RequestMatcher requestMatcher = antMatcher(HttpMethod.POST, "/ott/generate");
 
-	public GenerateOneTimeTokenFilter(OneTimeTokenService oneTimeTokenService,
-			GeneratedOneTimeTokenHandler generatedOneTimeTokenHandler) {
-		Assert.notNull(oneTimeTokenService, "oneTimeTokenService cannot be null");
-		Assert.notNull(generatedOneTimeTokenHandler, "generatedOneTimeTokenHandler cannot be null");
-		this.oneTimeTokenService = oneTimeTokenService;
-		this.generatedOneTimeTokenHandler = generatedOneTimeTokenHandler;
+	public GenerateOneTimeTokenFilter(OneTimeTokenService tokenService,
+			OneTimeTokenGenerationSuccessHandler tokenGenerationSuccessHandler) {
+		Assert.notNull(tokenService, "tokenService cannot be null");
+		Assert.notNull(tokenGenerationSuccessHandler, "tokenGenerationSuccessHandler cannot be null");
+		this.tokenService = tokenService;
+		this.tokenGenerationSuccessHandler = tokenGenerationSuccessHandler;
 	}
 
 	@Override
@@ -70,8 +70,8 @@ public final class GenerateOneTimeTokenFilter extends OncePerRequestFilter {
 			return;
 		}
 		GenerateOneTimeTokenRequest generateRequest = new GenerateOneTimeTokenRequest(username);
-		OneTimeToken ott = this.oneTimeTokenService.generate(generateRequest);
-		this.generatedOneTimeTokenHandler.handle(request, response, ott);
+		OneTimeToken ott = this.tokenService.generate(generateRequest);
+		this.tokenGenerationSuccessHandler.handle(request, response, ott);
 	}
 
 	/**

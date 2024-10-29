@@ -72,6 +72,7 @@ public class AuthorizationManagerBeforeReactiveMethodInterceptorTests {
 				ReactiveAuthorizationManager.class);
 		given(mockReactiveAuthorizationManager.check(any(), eq(mockMethodInvocation)))
 			.willReturn(Mono.just(new AuthorizationDecision(true)));
+		given(mockReactiveAuthorizationManager.authorize(any(), any())).willCallRealMethod();
 		AuthorizationManagerBeforeReactiveMethodInterceptor interceptor = new AuthorizationManagerBeforeReactiveMethodInterceptor(
 				Pointcut.TRUE, mockReactiveAuthorizationManager);
 		Object result = interceptor.invoke(mockMethodInvocation);
@@ -90,6 +91,7 @@ public class AuthorizationManagerBeforeReactiveMethodInterceptorTests {
 				ReactiveAuthorizationManager.class);
 		given(mockReactiveAuthorizationManager.check(any(), eq(mockMethodInvocation)))
 			.willReturn(Mono.just(new AuthorizationDecision((true))));
+		given(mockReactiveAuthorizationManager.authorize(any(), any())).willCallRealMethod();
 		AuthorizationManagerBeforeReactiveMethodInterceptor interceptor = new AuthorizationManagerBeforeReactiveMethodInterceptor(
 				Pointcut.TRUE, mockReactiveAuthorizationManager);
 		Object result = interceptor.invoke(mockMethodInvocation);
@@ -109,6 +111,7 @@ public class AuthorizationManagerBeforeReactiveMethodInterceptorTests {
 				ReactiveAuthorizationManager.class);
 		given(mockReactiveAuthorizationManager.check(any(), eq(mockMethodInvocation)))
 			.willReturn(Mono.just(new AuthorizationDecision(false)));
+		given(mockReactiveAuthorizationManager.authorize(any(), any())).willCallRealMethod();
 		AuthorizationManagerBeforeReactiveMethodInterceptor interceptor = new AuthorizationManagerBeforeReactiveMethodInterceptor(
 				Pointcut.TRUE, mockReactiveAuthorizationManager);
 		Object result = interceptor.invoke(mockMethodInvocation);
@@ -127,6 +130,7 @@ public class AuthorizationManagerBeforeReactiveMethodInterceptorTests {
 		HandlingReactiveAuthorizationManager mockReactiveAuthorizationManager = mock(
 				HandlingReactiveAuthorizationManager.class);
 		given(mockReactiveAuthorizationManager.check(any(), eq(mockMethodInvocation))).willReturn(Mono.empty());
+		given(mockReactiveAuthorizationManager.authorize(any(), any())).willCallRealMethod();
 		given(mockReactiveAuthorizationManager.handleDeniedInvocation(any(), any(AuthorizationResult.class)))
 			.willReturn("***");
 		AuthorizationManagerBeforeReactiveMethodInterceptor interceptor = new AuthorizationManagerBeforeReactiveMethodInterceptor(
@@ -146,6 +150,7 @@ public class AuthorizationManagerBeforeReactiveMethodInterceptorTests {
 		HandlingReactiveAuthorizationManager mockReactiveAuthorizationManager = mock(
 				HandlingReactiveAuthorizationManager.class);
 		given(mockReactiveAuthorizationManager.check(any(), eq(mockMethodInvocation))).willReturn(Mono.empty());
+		given(mockReactiveAuthorizationManager.authorize(any(), any())).willCallRealMethod();
 		given(mockReactiveAuthorizationManager.handleDeniedInvocation(any(), any(AuthorizationResult.class)))
 			.willReturn(Mono.just("***"));
 		AuthorizationManagerBeforeReactiveMethodInterceptor interceptor = new AuthorizationManagerBeforeReactiveMethodInterceptor(
@@ -165,6 +170,7 @@ public class AuthorizationManagerBeforeReactiveMethodInterceptorTests {
 		HandlingReactiveAuthorizationManager mockReactiveAuthorizationManager = mock(
 				HandlingReactiveAuthorizationManager.class);
 		given(mockReactiveAuthorizationManager.check(any(), eq(mockMethodInvocation))).willReturn(Mono.empty());
+		given(mockReactiveAuthorizationManager.authorize(any(), any())).willCallRealMethod();
 		given(mockReactiveAuthorizationManager.handleDeniedInvocation(any(), any(AuthorizationResult.class)))
 			.willReturn(Mono.just("***"));
 		AuthorizationManagerBeforeReactiveMethodInterceptor interceptor = new AuthorizationManagerBeforeReactiveMethodInterceptor(
@@ -185,6 +191,7 @@ public class AuthorizationManagerBeforeReactiveMethodInterceptorTests {
 		ReactiveAuthorizationManager<MethodInvocation> mockReactiveAuthorizationManager = mock(
 				ReactiveAuthorizationManager.class);
 		given(mockReactiveAuthorizationManager.check(any(), eq(mockMethodInvocation))).willReturn(Mono.empty());
+		given(mockReactiveAuthorizationManager.authorize(any(), any())).willCallRealMethod();
 		AuthorizationManagerBeforeReactiveMethodInterceptor interceptor = new AuthorizationManagerBeforeReactiveMethodInterceptor(
 				Pointcut.TRUE, mockReactiveAuthorizationManager);
 		Object result = interceptor.invoke(mockMethodInvocation);
@@ -203,6 +210,7 @@ public class AuthorizationManagerBeforeReactiveMethodInterceptorTests {
 		ReactiveAuthorizationManager<MethodInvocation> mockReactiveAuthorizationManager = mock(
 				ReactiveAuthorizationManager.class);
 		given(mockReactiveAuthorizationManager.check(any(), eq(mockMethodInvocation))).willReturn(Mono.empty());
+		given(mockReactiveAuthorizationManager.authorize(any(), any())).willCallRealMethod();
 		AuthorizationManagerBeforeReactiveMethodInterceptor interceptor = new AuthorizationManagerBeforeReactiveMethodInterceptor(
 				Pointcut.TRUE, mockReactiveAuthorizationManager);
 		Object result = interceptor.invoke(mockMethodInvocation);
@@ -220,6 +228,7 @@ public class AuthorizationManagerBeforeReactiveMethodInterceptorTests {
 		ReactiveAuthorizationManager<MethodInvocation> manager = mock(ReactiveAuthorizationManager.class);
 		given(manager.check(any(), any()))
 			.willThrow(new MyAuthzDeniedException("denied", new AuthorizationDecision(false)));
+		given(manager.authorize(any(), any())).willCallRealMethod();
 		AuthorizationManagerBeforeReactiveMethodInterceptor advice = new AuthorizationManagerBeforeReactiveMethodInterceptor(
 				Pointcut.TRUE, manager);
 		assertThatExceptionOfType(MyAuthzDeniedException.class)

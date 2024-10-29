@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,6 +61,10 @@ public final class ObservationAuthorizationManager<T>
 		}
 	}
 
+	/**
+	 * @deprecated please use {@link #authorize(Supplier, Object)} instead
+	 */
+	@Deprecated
 	@Override
 	public AuthorizationDecision check(Supplier<Authentication> authentication, T object) {
 		AuthorizationObservationContext<T> context = new AuthorizationObservationContext<>(object);
@@ -71,7 +75,7 @@ public final class ObservationAuthorizationManager<T>
 		Observation observation = Observation.createNotStarted(this.convention, () -> context, this.registry).start();
 		try (Observation.Scope scope = observation.openScope()) {
 			AuthorizationDecision decision = this.delegate.check(wrapped, object);
-			context.setDecision(decision);
+			context.setAuthorizationResult(decision);
 			if (decision != null && !decision.isGranted()) {
 				observation.error(new AccessDeniedException(
 						this.messages.getMessage("AbstractAccessDecisionManager.accessDenied", "Access Denied")));

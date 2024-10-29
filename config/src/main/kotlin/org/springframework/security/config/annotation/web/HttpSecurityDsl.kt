@@ -985,7 +985,7 @@ class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecu
      *    fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
      *        http {
      *               oneTimeTokenLogin {
-     *                     generatedOneTimeTokenHandler = MyMagicLinkGeneratedOneTimeTokenHandler()
+     *                     oneTimeTokenGenerationSuccessHandler = MyMagicLinkOneTimeTokenGenerationSuccessHandler()
      *                }
      *             }
      *        return http.build()
@@ -1029,6 +1029,37 @@ class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecu
     fun rememberMe(rememberMeConfiguration: RememberMeDsl.() -> Unit) {
         val rememberMeCustomizer = RememberMeDsl().apply(rememberMeConfiguration).get()
         this.http.rememberMe(rememberMeCustomizer)
+    }
+
+    /**
+     * Enable WebAuthn configuration.
+     *
+     * Example:
+     *
+     * ```
+     * @Configuration
+     * @EnableWebSecurity
+     * class SecurityConfig {
+     *
+     *     @Bean
+     *     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+     *         http {
+     *             webAuthn {
+     *                 loginPage = "/log-in"
+     *             }
+     *         }
+     *         return http.build()
+     *     }
+     * }
+     * ```
+     *
+     * @param webAuthnConfiguration custom configurations to be applied
+     * to the WebAuthn authentication
+     * @see [WebAuthnDsl]
+     */
+    fun webAuthn(webAuthnConfiguration: WebAuthnDsl.() -> Unit) {
+        val webAuthnCustomizer = WebAuthnDsl().apply(webAuthnConfiguration).get()
+        this.http.webAuthn(webAuthnCustomizer)
     }
 
     /**

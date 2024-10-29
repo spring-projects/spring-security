@@ -22,11 +22,11 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.core.MethodClassKey;
 import org.springframework.core.annotation.AnnotationConfigurationException;
@@ -89,9 +89,9 @@ final class UniqueSecurityAnnotationScanner<A extends Annotation> extends Abstra
 
 	private final List<Class<A>> types;
 
-	private final Map<Parameter, MergedAnnotation<A>> uniqueParameterAnnotationCache = new HashMap<>();
+	private final Map<Parameter, MergedAnnotation<A>> uniqueParameterAnnotationCache = new ConcurrentHashMap<>();
 
-	private final Map<MethodClassKey, MergedAnnotation<A>> uniqueMethodAnnotationCache = new HashMap<>();
+	private final Map<MethodClassKey, MergedAnnotation<A>> uniqueMethodAnnotationCache = new ConcurrentHashMap<>();
 
 	UniqueSecurityAnnotationScanner(Class<A> type) {
 		Assert.notNull(type, "type cannot be null");

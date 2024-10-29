@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,11 +20,15 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import jakarta.servlet.FilterChain;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.server.firewall.HttpStatusExchangeRejectedHandler;
+import org.springframework.security.web.server.firewall.ServerExchangeRejectedException;
+import org.springframework.security.web.server.firewall.ServerExchangeRejectedHandler;
+import org.springframework.security.web.server.firewall.ServerWebExchangeFirewall;
+import org.springframework.security.web.server.firewall.StrictServerWebExchangeFirewall;
 import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
@@ -43,6 +47,10 @@ public class WebFilterChainProxy implements WebFilter {
 
 	private WebFilterChainDecorator filterChainDecorator = new DefaultWebFilterChainDecorator();
 
+	private ServerWebExchangeFirewall firewall = new StrictServerWebExchangeFirewall();
+
+	private ServerExchangeRejectedHandler exchangeRejectedHandler = new HttpStatusExchangeRejectedHandler();
+
 	public WebFilterChainProxy(List<SecurityWebFilterChain> filters) {
 		this.filters = filters;
 	}
@@ -53,14 +61,41 @@ public class WebFilterChainProxy implements WebFilter {
 
 	@Override
 	public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
+		return this.firewall.getFirewalledExchange(exchange)
+			.flatMap((firewalledExchange) -> filterFirewalledExchange(firewalledExchange, chain))
+			.onErrorResume(ServerExchangeRejectedException.class,
+					(rejected) -> this.exchangeRejectedHandler.handle(exchange, rejected).then(Mono.empty()));
+	}
+
+	private Mono<Void> filterFirewalledExchange(ServerWebExchange firewalledExchange, WebFilterChain chain) {
 		return Flux.fromIterable(this.filters)
-			.filterWhen((securityWebFilterChain) -> securityWebFilterChain.matches(exchange))
+			.filterWhen((securityWebFilterChain) -> securityWebFilterChain.matches(firewalledExchange))
 			.next()
-			.switchIfEmpty(
-					Mono.defer(() -> this.filterChainDecorator.decorate(chain).filter(exchange).then(Mono.empty())))
+			.switchIfEmpty(Mono
+				.defer(() -> this.filterChainDecorator.decorate(chain).filter(firewalledExchange).then(Mono.empty())))
 			.flatMap((securityWebFilterChain) -> securityWebFilterChain.getWebFilters().collectList())
 			.map((filters) -> this.filterChainDecorator.decorate(chain, filters))
-			.flatMap((securedChain) -> securedChain.filter(exchange));
+			.flatMap((securedChain) -> securedChain.filter(firewalledExchange));
+	}
+
+	/**
+	 * Protects the application using the provided
+	 * {@link StrictServerWebExchangeFirewall}.
+	 * @param firewall the {@link StrictServerWebExchangeFirewall} to use. Cannot be null.
+	 * @since 6.4
+	 */
+	public void setFirewall(ServerWebExchangeFirewall firewall) {
+		Assert.notNull(firewall, "firewall cannot be null");
+		this.firewall = firewall;
+	}
+
+	/**
+	 * Handles {@link ServerExchangeRejectedException} when the
+	 * {@link ServerWebExchangeFirewall} rejects the provided {@link ServerWebExchange}.
+	 * @param exchangeRejectedHandler the {@link ServerExchangeRejectedHandler} to use.
+	 */
+	public void setExchangeRejectedHandler(ServerExchangeRejectedHandler exchangeRejectedHandler) {
+		this.exchangeRejectedHandler = exchangeRejectedHandler;
 	}
 
 	/**

@@ -16,6 +16,8 @@
 
 package org.springframework.security.config.web.server;
 
+import java.util.function.Function;
+
 import com.nimbusds.jose.JOSEObjectType;
 import com.nimbusds.jose.proc.DefaultJOSEObjectTypeVerifier;
 import com.nimbusds.jose.proc.JOSEObjectTypeVerifier;
@@ -33,11 +35,13 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
+import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.core.converter.ClaimTypeConverter;
 import org.springframework.security.oauth2.jwt.BadJwtException;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtDecoderFactory;
+import org.springframework.security.oauth2.jwt.JwtValidators;
 import org.springframework.security.oauth2.jwt.NimbusReactiveJwtDecoder;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoderFactory;
@@ -68,7 +72,8 @@ final class OidcBackChannelLogoutReactiveAuthenticationManager implements Reacti
 	 * Construct an {@link OidcBackChannelLogoutReactiveAuthenticationManager}
 	 */
 	OidcBackChannelLogoutReactiveAuthenticationManager() {
-		DefaultOidcLogoutTokenValidatorFactory jwtValidator = new DefaultOidcLogoutTokenValidatorFactory();
+		Function<ClientRegistration, OAuth2TokenValidator<Jwt>> jwtValidator = (clientRegistration) -> JwtValidators
+			.createDefaultWithValidators(new OidcBackChannelLogoutTokenValidator(clientRegistration));
 		this.logoutTokenDecoderFactory = (clientRegistration) -> {
 			String jwkSetUri = clientRegistration.getProviderDetails().getJwkSetUri();
 			if (!StringUtils.hasText(jwkSetUri)) {

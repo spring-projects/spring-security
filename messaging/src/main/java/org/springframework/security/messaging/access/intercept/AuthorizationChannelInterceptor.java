@@ -30,6 +30,7 @@ import org.springframework.security.authentication.AuthenticationCredentialsNotF
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationEventPublisher;
 import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
@@ -66,11 +67,11 @@ public final class AuthorizationChannelInterceptor implements ChannelInterceptor
 	@Override
 	public Message<?> preSend(Message<?> message, MessageChannel channel) {
 		this.logger.debug(LogMessage.of(() -> "Authorizing message send"));
-		AuthorizationDecision decision = this.preSendAuthorizationManager.check(this.authentication, message);
-		this.eventPublisher.publishAuthorizationEvent(this.authentication, message, decision);
-		if (decision == null || !decision.isGranted()) { // default deny
+		AuthorizationResult result = this.preSendAuthorizationManager.authorize(this.authentication, message);
+		this.eventPublisher.publishAuthorizationEvent(this.authentication, message, result);
+		if (result == null || !result.isGranted()) { // default deny
 			this.logger.debug(LogMessage.of(() -> "Failed to authorize message with authorization manager "
-					+ this.preSendAuthorizationManager + " and decision " + decision));
+					+ this.preSendAuthorizationManager + " and result " + result));
 			throw new AccessDeniedException("Access Denied");
 		}
 		this.logger.debug(LogMessage.of(() -> "Authorized message send"));
@@ -111,6 +112,12 @@ public final class AuthorizationChannelInterceptor implements ChannelInterceptor
 		@Override
 		public <T> void publishAuthorizationEvent(Supplier<Authentication> authentication, T object,
 				AuthorizationDecision decision) {
+
+		}
+
+		@Override
+		public <T> void publishAuthorizationEvent(Supplier<Authentication> authentication, T object,
+				AuthorizationResult result) {
 
 		}
 

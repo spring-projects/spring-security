@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,6 +56,10 @@ public final class ObservationReactiveAuthorizationManager<T>
 		}
 	}
 
+	/**
+	 * @deprecated please use {@link #authorize(Mono, Object)} instead
+	 */
+	@Deprecated
 	@Override
 	public Mono<AuthorizationDecision> check(Mono<Authentication> authentication, T object) {
 		AuthorizationObservationContext<T> context = new AuthorizationObservationContext<>(object);
@@ -68,7 +72,7 @@ public final class ObservationReactiveAuthorizationManager<T>
 				.parentObservation(contextView.getOrDefault(ObservationThreadLocalAccessor.KEY, null))
 				.start();
 			return this.delegate.check(wrapped, object).doOnSuccess((decision) -> {
-				context.setDecision(decision);
+				context.setAuthorizationResult(decision);
 				if (decision == null || !decision.isGranted()) {
 					observation.error(new AccessDeniedException("Access Denied"));
 				}

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,9 @@ public interface ReactiveAuthorizationManager<T> {
 	 * @param authentication the Authentication to check
 	 * @param object the object to check
 	 * @return an decision or empty Mono if no decision could be made.
+	 * @deprecated please use {@link #authorize(Mono, Object)} instead
 	 */
+	@Deprecated
 	Mono<AuthorizationDecision> check(Mono<Authentication> authentication, T object);
 
 	/**
@@ -53,6 +55,17 @@ public interface ReactiveAuthorizationManager<T> {
 				.switchIfEmpty(Mono.defer(() -> Mono.error(new AccessDeniedException("Access Denied"))))
 				.flatMap((decision) -> Mono.empty());
 		// @formatter:on
+	}
+
+	/**
+	 * Determines if access is granted for a specific authentication and object.
+	 * @param authentication the Authentication to authorize
+	 * @param object the object to check
+	 * @return an decision or empty Mono if no decision could be made.
+	 * @since 6.4
+	 */
+	default Mono<AuthorizationResult> authorize(Mono<Authentication> authentication, T object) {
+		return check(authentication, object).cast(AuthorizationResult.class);
 	}
 
 }

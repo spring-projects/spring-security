@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,10 @@
 
 package org.springframework.security.oauth2.client.endpoint;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
+import java.util.function.Consumer;
 
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -30,6 +33,7 @@ import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ReactiveHttpInputMessage;
+import org.springframework.security.oauth2.client.MockResponses;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
@@ -37,6 +41,7 @@ import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
+import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.core.endpoint.TestOAuth2AccessTokenResponses;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.TestJwts;
@@ -82,12 +87,10 @@ public class WebClientReactiveJwtBearerTokenResponseClientTests {
 		this.server = new MockWebServer();
 		this.server.start();
 		String tokenUri = this.server.url("/oauth2/token").toString();
-		// @formatter:off
 		this.clientRegistration = TestClientRegistrations.clientCredentials()
-				.authorizationGrantType(AuthorizationGrantType.JWT_BEARER)
-				.tokenUri(tokenUri)
-				.scope("read", "write");
-		// @formatter:on
+			.authorizationGrantType(AuthorizationGrantType.JWT_BEARER)
+			.tokenUri(tokenUri)
+			.scope("read", "write");
 		this.jwtAssertion = TestJwts.jwt().build();
 	}
 
@@ -150,13 +153,8 @@ public class WebClientReactiveJwtBearerTokenResponseClientTests {
 
 	@Test
 	public void getTokenResponseWhenErrorResponseThenThrowOAuth2AuthorizationException() {
-		// @formatter:off
-		String accessTokenResponse = "{\n"
-				+ "  \"error\": \"invalid_grant\"\n"
-				+ "}\n";
-		// @formatter:on
 		ClientRegistration registration = this.clientRegistration.build();
-		enqueueJson(accessTokenResponse);
+		this.server.enqueue(MockResponses.json("invalid-grant-response.json").setResponseCode(400));
 		JwtBearerGrantRequest request = new JwtBearerGrantRequest(registration, this.jwtAssertion);
 		assertThatExceptionOfType(OAuth2AuthorizationException.class)
 			.isThrownBy(() -> this.client.getTokenResponse(request).block())
@@ -166,15 +164,8 @@ public class WebClientReactiveJwtBearerTokenResponseClientTests {
 
 	@Test
 	public void getTokenResponseWhenResponseIsNotBearerTokenTypeThenThrowOAuth2AuthorizationException() {
-		// @formatter:off
-		String accessTokenResponse = "{\n"
-				+ "  \"access_token\": \"access-token-1234\",\n"
-				+ "  \"token_type\": \"not-bearer\",\n"
-				+ "  \"expires_in\": 3600\n"
-				+ "}\n";
-		// @formatter:on
 		ClientRegistration registration = this.clientRegistration.build();
-		enqueueJson(accessTokenResponse);
+		this.server.enqueue(MockResponses.json("invalid-token-type-response.json"));
 		JwtBearerGrantRequest request = new JwtBearerGrantRequest(registration, this.jwtAssertion);
 		assertThatExceptionOfType(OAuth2AuthorizationException.class)
 			.isThrownBy(() -> this.client.getTokenResponse(request).block())
@@ -185,10 +176,10 @@ public class WebClientReactiveJwtBearerTokenResponseClientTests {
 
 	@Test
 	public void getTokenResponseWhenWebClientSetThenCalled() {
-		WebClient customClient = mock(WebClient.class);
+		WebClient customClient = mock();
 		given(customClient.post()).willReturn(WebClient.builder().build().post());
 		this.client.setWebClient(customClient);
-		enqueueJson(DEFAULT_ACCESS_TOKEN_RESPONSE);
+		this.server.enqueue(MockResponses.json("access-token-response.json"));
 		ClientRegistration registration = this.clientRegistration.build();
 		JwtBearerGrantRequest request = new JwtBearerGrantRequest(registration, this.jwtAssertion);
 		this.client.getTokenResponse(request).block();
@@ -199,12 +190,12 @@ public class WebClientReactiveJwtBearerTokenResponseClientTests {
 	public void getTokenResponseWhenHeadersConverterSetThenCalled() throws Exception {
 		ClientRegistration clientRegistration = this.clientRegistration.build();
 		JwtBearerGrantRequest request = new JwtBearerGrantRequest(clientRegistration, this.jwtAssertion);
-		Converter<JwtBearerGrantRequest, HttpHeaders> headersConverter = mock(Converter.class);
+		Converter<JwtBearerGrantRequest, HttpHeaders> headersConverter = mock();
 		HttpHeaders headers = new HttpHeaders();
 		headers.setBasicAuth(clientRegistration.getClientId(), clientRegistration.getClientSecret());
 		given(headersConverter.convert(request)).willReturn(headers);
 		this.client.setHeadersConverter(headersConverter);
-		enqueueJson(DEFAULT_ACCESS_TOKEN_RESPONSE);
+		this.server.enqueue(MockResponses.json("access-token-response.json"));
 		this.client.getTokenResponse(request).block();
 		verify(headersConverter).convert(request);
 		RecordedRequest actualRequest = this.server.takeRequest();
@@ -216,12 +207,12 @@ public class WebClientReactiveJwtBearerTokenResponseClientTests {
 	public void getTokenResponseWhenHeadersConverterAddedThenCalled() throws Exception {
 		ClientRegistration clientRegistration = this.clientRegistration.build();
 		JwtBearerGrantRequest request = new JwtBearerGrantRequest(clientRegistration, this.jwtAssertion);
-		Converter<JwtBearerGrantRequest, HttpHeaders> addedHeadersConverter = mock(Converter.class);
+		Converter<JwtBearerGrantRequest, HttpHeaders> addedHeadersConverter = mock();
 		HttpHeaders headers = new HttpHeaders();
 		headers.put("custom-header-name", Collections.singletonList("custom-header-value"));
 		given(addedHeadersConverter.convert(request)).willReturn(headers);
 		this.client.addHeadersConverter(addedHeadersConverter);
-		enqueueJson(DEFAULT_ACCESS_TOKEN_RESPONSE);
+		this.server.enqueue(MockResponses.json("access-token-response.json"));
 		this.client.getTokenResponse(request).block();
 		verify(addedHeadersConverter).convert(request);
 		RecordedRequest actualRequest = this.server.takeRequest();
@@ -243,16 +234,15 @@ public class WebClientReactiveJwtBearerTokenResponseClientTests {
 	}
 
 	@Test
-	public void convertWhenParametersConverterAddedThenCalled() throws Exception {
+	public void getTokenResponseWhenParametersConverterAddedThenCalled() throws Exception {
 		ClientRegistration clientRegistration = this.clientRegistration.build();
 		JwtBearerGrantRequest request = new JwtBearerGrantRequest(clientRegistration, this.jwtAssertion);
-		Converter<JwtBearerGrantRequest, MultiValueMap<String, String>> addedParametersConverter = mock(
-				Converter.class);
+		Converter<JwtBearerGrantRequest, MultiValueMap<String, String>> addedParametersConverter = mock();
 		MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
 		parameters.add("custom-parameter-name", "custom-parameter-value");
 		given(addedParametersConverter.convert(request)).willReturn(parameters);
 		this.client.addParametersConverter(addedParametersConverter);
-		enqueueJson(DEFAULT_ACCESS_TOKEN_RESPONSE);
+		this.server.enqueue(MockResponses.json("access-token-response.json"));
 		this.client.getTokenResponse(request).block();
 		verify(addedParametersConverter).convert(request);
 		RecordedRequest actualRequest = this.server.takeRequest();
@@ -262,15 +252,15 @@ public class WebClientReactiveJwtBearerTokenResponseClientTests {
 	}
 
 	@Test
-	public void convertWhenParametersConverterSetThenCalled() throws Exception {
+	public void getTokenResponseWhenParametersConverterSetThenCalled() throws Exception {
 		ClientRegistration clientRegistration = this.clientRegistration.build();
 		JwtBearerGrantRequest request = new JwtBearerGrantRequest(clientRegistration, this.jwtAssertion);
-		Converter<JwtBearerGrantRequest, MultiValueMap<String, String>> parametersConverter = mock(Converter.class);
+		Converter<JwtBearerGrantRequest, MultiValueMap<String, String>> parametersConverter = mock();
 		MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
 		parameters.add("custom-parameter-name", "custom-parameter-value");
 		given(parametersConverter.convert(request)).willReturn(parameters);
 		this.client.setParametersConverter(parametersConverter);
-		enqueueJson(DEFAULT_ACCESS_TOKEN_RESPONSE);
+		this.server.enqueue(MockResponses.json("access-token-response.json"));
 		this.client.getTokenResponse(request).block();
 		verify(parametersConverter).convert(request);
 		RecordedRequest actualRequest = this.server.takeRequest();
@@ -278,32 +268,57 @@ public class WebClientReactiveJwtBearerTokenResponseClientTests {
 	}
 
 	@Test
+	public void getTokenResponseWhenParametersConverterSetThenAbleToOverrideDefaultParameters() throws Exception {
+		this.clientRegistration.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST);
+		ClientRegistration clientRegistration = this.clientRegistration.build();
+		JwtBearerGrantRequest request = new JwtBearerGrantRequest(clientRegistration, this.jwtAssertion);
+		MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
+		parameters.set(OAuth2ParameterNames.GRANT_TYPE, "custom");
+		parameters.set(OAuth2ParameterNames.ASSERTION, "custom-assertion");
+		parameters.set(OAuth2ParameterNames.SCOPE, "one two");
+		this.client.setParametersConverter((grantRequest) -> parameters);
+		this.server.enqueue(MockResponses.json("access-token-response.json"));
+		this.client.getTokenResponse(request).block();
+		String formParameters = this.server.takeRequest().getBody().readUtf8();
+		// @formatter:off
+		assertThat(formParameters).contains(
+				param(OAuth2ParameterNames.GRANT_TYPE, "custom"),
+				param(OAuth2ParameterNames.CLIENT_ID, "client-id"),
+				param(OAuth2ParameterNames.SCOPE, "one two"),
+				param(OAuth2ParameterNames.ASSERTION, "custom-assertion")
+		);
+		// @formatter:on
+	}
+
+	@Test
+	public void getTokenResponseWhenParametersCustomizerSetThenCalled() throws Exception {
+		this.server.enqueue(MockResponses.json("access-token-response.json"));
+		ClientRegistration clientRegistration = this.clientRegistration.build();
+		JwtBearerGrantRequest request = new JwtBearerGrantRequest(clientRegistration, this.jwtAssertion);
+		Consumer<MultiValueMap<String, String>> parametersCustomizer = mock();
+		this.client.setParametersCustomizer(parametersCustomizer);
+		this.client.getTokenResponse(request).block();
+		verify(parametersCustomizer).accept(any());
+	}
+
+	@Test
 	public void getTokenResponseWhenBodyExtractorSetThenCalled() {
-		BodyExtractor<Mono<OAuth2AccessTokenResponse>, ReactiveHttpInputMessage> bodyExtractor = mock(
-				BodyExtractor.class);
+		BodyExtractor<Mono<OAuth2AccessTokenResponse>, ReactiveHttpInputMessage> bodyExtractor = mock();
 		OAuth2AccessTokenResponse response = TestOAuth2AccessTokenResponses.accessTokenResponse().build();
 		given(bodyExtractor.extract(any(), any())).willReturn(Mono.just(response));
 		ClientRegistration clientRegistration = this.clientRegistration.build();
 		JwtBearerGrantRequest request = new JwtBearerGrantRequest(clientRegistration, this.jwtAssertion);
 		this.client.setBodyExtractor(bodyExtractor);
-		enqueueJson(DEFAULT_ACCESS_TOKEN_RESPONSE);
+		this.server.enqueue(MockResponses.json("access-token-response.json"));
 		this.client.getTokenResponse(request).block();
 		verify(bodyExtractor).extract(any(), any());
 	}
 
 	@Test
 	public void getTokenResponseWhenClientSecretBasicThenSuccess() throws Exception {
-		// @formatter:off
-		String accessTokenResponse = "{\n"
-				+ "  \"access_token\": \"access-token-1234\",\n"
-				+ "  \"token_type\": \"bearer\",\n"
-				+ "  \"expires_in\": 3600,\n"
-				+ "  \"scope\": \"read write\""
-				+ "}\n";
-		// @formatter:on
 		ClientRegistration clientRegistration = this.clientRegistration.build();
 		JwtBearerGrantRequest request = new JwtBearerGrantRequest(clientRegistration, this.jwtAssertion);
-		enqueueJson(accessTokenResponse);
+		this.server.enqueue(MockResponses.json("access-token-response-read-write.json"));
 		OAuth2AccessTokenResponse response = this.client.getTokenResponse(request).block();
 		assertThat(response).isNotNull();
 		assertThat(response.getAccessToken().getScopes()).containsExactly("read", "write");
@@ -317,18 +332,12 @@ public class WebClientReactiveJwtBearerTokenResponseClientTests {
 	@Test
 	public void getTokenResponseWhenClientSecretPostThenSuccess() throws Exception {
 		// @formatter:off
-		String accessTokenResponse = "{\n"
-				+ "  \"access_token\": \"access-token-1234\",\n"
-				+ "  \"token_type\": \"bearer\",\n"
-				+ "  \"expires_in\": 3600,\n"
-				+ "  \"scope\": \"read write\""
-				+ "}\n";
 		ClientRegistration clientRegistration = this.clientRegistration
 				.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST)
 				.build();
 		// @formatter:on
 		JwtBearerGrantRequest request = new JwtBearerGrantRequest(clientRegistration, this.jwtAssertion);
-		enqueueJson(accessTokenResponse);
+		this.server.enqueue(MockResponses.json("access-token-response-read-write.json"));
 		OAuth2AccessTokenResponse response = this.client.getTokenResponse(request).block();
 		assertThat(response).isNotNull();
 		assertThat(response.getAccessToken().getScopes()).containsExactly("read", "write");
@@ -340,17 +349,9 @@ public class WebClientReactiveJwtBearerTokenResponseClientTests {
 
 	@Test
 	public void getTokenResponseWhenResponseIncludesScopeThenAccessTokenHasResponseScope() throws Exception {
-		// @formatter:off
-		String accessTokenResponse = "{\n"
-				+ "  \"access_token\": \"access-token-1234\",\n"
-				+ "  \"token_type\": \"bearer\",\n"
-				+ "  \"expires_in\": 3600,\n"
-				+ "  \"scope\": \"read\"\n"
-				+ "}\n";
-		// @formatter:on
 		ClientRegistration clientRegistration = this.clientRegistration.build();
 		JwtBearerGrantRequest request = new JwtBearerGrantRequest(clientRegistration, this.jwtAssertion);
-		enqueueJson(accessTokenResponse);
+		this.server.enqueue(MockResponses.json("access-token-response-read.json"));
 		OAuth2AccessTokenResponse response = this.client.getTokenResponse(request).block();
 		assertThat(response).isNotNull();
 		assertThat(response.getAccessToken().getScopes()).containsExactly("read");
@@ -361,7 +362,7 @@ public class WebClientReactiveJwtBearerTokenResponseClientTests {
 			throws Exception {
 		ClientRegistration clientRegistration = this.clientRegistration.build();
 		JwtBearerGrantRequest request = new JwtBearerGrantRequest(clientRegistration, this.jwtAssertion);
-		enqueueJson(DEFAULT_ACCESS_TOKEN_RESPONSE);
+		this.server.enqueue(MockResponses.json("access-token-response.json"));
 		OAuth2AccessTokenResponse response = this.client.getTokenResponse(request).block();
 		assertThat(response).isNotNull();
 		assertThat(response.getAccessToken().getScopes()).isEmpty();
@@ -389,12 +390,6 @@ public class WebClientReactiveJwtBearerTokenResponseClientTests {
 			.isThrownBy(() -> this.client.getTokenResponse(jwtBearerGrantRequest).block());
 	}
 
-	private void enqueueJson(String body) {
-		MockResponse response = new MockResponse().setBody(body)
-			.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
-		this.server.enqueue(response);
-	}
-
 	private void enqueueUnexpectedResponse() {
 		// @formatter:off
 		MockResponse response = new MockResponse()
@@ -412,6 +407,10 @@ public class WebClientReactiveJwtBearerTokenResponseClientTests {
 				.setBody("{}");
 		// @formatter:on
 		this.server.enqueue(response);
+	}
+
+	private static String param(String parameterName, String parameterValue) {
+		return "%s=%s".formatted(parameterName, URLEncoder.encode(parameterValue, StandardCharsets.UTF_8));
 	}
 
 }

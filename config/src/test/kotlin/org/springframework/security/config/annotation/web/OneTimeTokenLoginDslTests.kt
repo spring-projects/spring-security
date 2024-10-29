@@ -36,8 +36,8 @@ import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequ
 import org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler
-import org.springframework.security.web.authentication.ott.GeneratedOneTimeTokenHandler
-import org.springframework.security.web.authentication.ott.RedirectGeneratedOneTimeTokenHandler
+import org.springframework.security.web.authentication.ott.OneTimeTokenGenerationSuccessHandler
+import org.springframework.security.web.authentication.ott.RedirectOneTimeTokenGenerationSuccessHandler
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
@@ -69,7 +69,7 @@ class OneTimeTokenLoginDslTests {
                 .redirectedUrl("/login/ott")
         )
 
-        val token = TestGeneratedOneTimeTokenHandler.lastToken?.tokenValue
+        val token = TestOneTimeTokenGenerationSuccessHandler.lastToken?.tokenValue
 
         this.mockMvc.perform(
             MockMvcRequestBuilders.post("/login/ott").param("token", token)
@@ -91,7 +91,7 @@ class OneTimeTokenLoginDslTests {
         )
             .andExpectAll(MockMvcResultMatchers.status().isFound(), MockMvcResultMatchers.redirectedUrl("/redirected"))
 
-        val token = TestGeneratedOneTimeTokenHandler.lastToken?.tokenValue
+        val token = TestOneTimeTokenGenerationSuccessHandler.lastToken?.tokenValue
 
         this.mockMvc.perform(
             MockMvcRequestBuilders.post("/loginprocessingurl").param("token", token)
@@ -117,7 +117,7 @@ class OneTimeTokenLoginDslTests {
                     authorize(anyRequest, authenticated)
                 }
                 oneTimeTokenLogin {
-                    generatedOneTimeTokenHandler = TestGeneratedOneTimeTokenHandler()
+                    oneTimeTokenGenerationSuccessHandler = TestOneTimeTokenGenerationSuccessHandler()
                 }
             }
             // @formatter:on
@@ -137,8 +137,8 @@ class OneTimeTokenLoginDslTests {
                     authorize(anyRequest, authenticated)
                 }
                 oneTimeTokenLogin {
-                    generateTokenUrl = "/generateurl"
-                    generatedOneTimeTokenHandler = TestGeneratedOneTimeTokenHandler("/redirected")
+                    tokenGeneratingUrl = "/generateurl"
+                    oneTimeTokenGenerationSuccessHandler = TestOneTimeTokenGenerationSuccessHandler("/redirected")
                     loginProcessingUrl = "/loginprocessingurl"
                     authenticationSuccessHandler = SimpleUrlAuthenticationSuccessHandler("/authenticated")
                 }
@@ -156,15 +156,22 @@ class OneTimeTokenLoginDslTests {
             InMemoryUserDetailsManager(PasswordEncodedUser.user(), PasswordEncodedUser.admin())
     }
 
-    private class TestGeneratedOneTimeTokenHandler : GeneratedOneTimeTokenHandler {
-        private val delegate: GeneratedOneTimeTokenHandler
+    private class TestOneTimeTokenGenerationSuccessHandler :
+        OneTimeTokenGenerationSuccessHandler {
+        private val delegate: OneTimeTokenGenerationSuccessHandler
 
         constructor() {
-            this.delegate = RedirectGeneratedOneTimeTokenHandler("/login/ott")
+            this.delegate =
+                RedirectOneTimeTokenGenerationSuccessHandler(
+                    "/login/ott"
+                )
         }
 
         constructor(redirectUrl: String?) {
-            this.delegate = RedirectGeneratedOneTimeTokenHandler(redirectUrl)
+            this.delegate =
+                RedirectOneTimeTokenGenerationSuccessHandler(
+                    redirectUrl
+                )
         }
 
         override fun handle(request: HttpServletRequest, response: HttpServletResponse, oneTimeToken: OneTimeToken) {

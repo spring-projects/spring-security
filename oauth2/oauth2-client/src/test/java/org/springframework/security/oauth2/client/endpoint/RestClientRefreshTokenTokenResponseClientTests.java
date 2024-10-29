@@ -22,6 +22,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -35,6 +36,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.FormHttpMessageConverter;
+import org.springframework.security.oauth2.client.MockResponses;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
@@ -56,6 +58,7 @@ import org.springframework.web.client.RestClient;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -84,14 +87,12 @@ public class RestClientRefreshTokenTokenResponseClientTests {
 		this.server = new MockWebServer();
 		this.server.start();
 		String tokenUri = this.server.url("/oauth2/token").toString();
-		// @formatter:off
 		this.clientRegistration = TestClientRegistrations.clientCredentials()
-				.clientId("client-1")
-				.clientSecret("secret")
-				.authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
-				.tokenUri(tokenUri)
-				.scope("read", "write");
-		// @formatter:on
+			.clientId("client-1")
+			.clientSecret("secret")
+			.authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
+			.tokenUri(tokenUri)
+			.scope("read", "write");
 		this.accessToken = TestOAuth2AccessTokens.scopes("read", "write");
 		this.refreshToken = TestOAuth2RefreshTokens.refreshToken();
 	}
@@ -147,6 +148,15 @@ public class RestClientRefreshTokenTokenResponseClientTests {
 	}
 
 	@Test
+	public void setParametersCustomizerWhenNullThenThrowIllegalArgumentException() {
+		// @formatter:off
+		assertThatIllegalArgumentException()
+			.isThrownBy(() -> this.tokenResponseClient.setParametersCustomizer(null))
+			.withMessage("parametersCustomizer cannot be null");
+		// @formatter:on
+	}
+
+	@Test
 	public void getTokenResponseWhenGrantRequestIsNullThenThrowIllegalArgumentException() {
 		// @formatter:off
 		assertThatIllegalArgumentException()
@@ -157,15 +167,7 @@ public class RestClientRefreshTokenTokenResponseClientTests {
 
 	@Test
 	public void getTokenResponseWhenSuccessResponseThenReturnAccessTokenResponse() throws Exception {
-		// @formatter:off
-		String accessTokenSuccessResponse = "{\n"
-				+ "   \"access_token\": \"access-token-1234\",\n"
-				+ "   \"token_type\": \"bearer\",\n"
-				+ "   \"expires_in\": \"3600\",\n"
-				+ "   \"scope\": \"read write\"\n"
-				+ "}\n";
-		// @formatter:on
-		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+		this.server.enqueue(MockResponses.json("access-token-response-read-write.json"));
 		Instant expiresAtBefore = Instant.now().plusSeconds(3600);
 		ClientRegistration clientRegistration = this.clientRegistration.build();
 		Set<String> scopes = clientRegistration.getScopes();
@@ -196,14 +198,7 @@ public class RestClientRefreshTokenTokenResponseClientTests {
 
 	@Test
 	public void getTokenResponseWhenAuthenticationClientSecretBasicThenAuthorizationHeaderIsSent() throws Exception {
-		// @formatter:off
-		String accessTokenSuccessResponse = "{\n"
-				+ "   \"access_token\": \"access-token-1234\",\n"
-				+ "   \"token_type\": \"bearer\",\n"
-				+ "   \"expires_in\": \"3600\"\n"
-				+ "}\n";
-		// @formatter:on
-		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+		this.server.enqueue(MockResponses.json("access-token-response.json"));
 		ClientRegistration clientRegistration = this.clientRegistration.build();
 		OAuth2RefreshTokenGrantRequest grantRequest = new OAuth2RefreshTokenGrantRequest(clientRegistration,
 				this.accessToken, this.refreshToken);
@@ -214,14 +209,7 @@ public class RestClientRefreshTokenTokenResponseClientTests {
 
 	@Test
 	public void getTokenResponseWhenAuthenticationClientSecretPostThenFormParametersAreSent() throws Exception {
-		// @formatter:off
-		String accessTokenSuccessResponse = "{\n"
-				+ "   \"access_token\": \"access-token-1234\",\n"
-				+ "   \"token_type\": \"bearer\",\n"
-				+ "   \"expires_in\": \"3600\"\n"
-				+ "}\n";
-		// @formatter:on
-		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+		this.server.enqueue(MockResponses.json("access-token-response.json"));
 		ClientRegistration clientRegistration = this.clientRegistration
 			.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST)
 			.build();
@@ -230,19 +218,17 @@ public class RestClientRefreshTokenTokenResponseClientTests {
 		this.tokenResponseClient.getTokenResponse(grantRequest);
 		RecordedRequest recordedRequest = this.server.takeRequest();
 		String formParameters = recordedRequest.getBody().readUtf8();
-		assertThat(formParameters).contains("client_id=client-1", "client_secret=secret");
+		// @formatter:off
+		assertThat(formParameters).contains(
+				param(OAuth2ParameterNames.CLIENT_ID, "client-1"),
+				param(OAuth2ParameterNames.CLIENT_SECRET, "secret")
+		);
+		// @formatter:on
 	}
 
 	@Test
 	public void getTokenResponseWhenSuccessResponseAndNotBearerTokenTypeThenThrowOAuth2AuthorizationException() {
-		// @formatter:off
-		String accessTokenSuccessResponse = "{\n"
-				+ "   \"access_token\": \"access-token-1234\",\n"
-				+ "   \"token_type\": \"not-bearer\",\n"
-				+ "   \"expires_in\": \"3600\"\n"
-				+ "}\n";
-		// @formatter:on
-		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+		this.server.enqueue(MockResponses.json("invalid-token-type-response.json"));
 		ClientRegistration clientRegistration = this.clientRegistration.build();
 		OAuth2RefreshTokenGrantRequest grantRequest = new OAuth2RefreshTokenGrantRequest(clientRegistration,
 				this.accessToken, this.refreshToken);
@@ -257,15 +243,7 @@ public class RestClientRefreshTokenTokenResponseClientTests {
 
 	@Test
 	public void getTokenResponseWhenSuccessResponseIncludesScopeThenAccessTokenHasResponseScope() {
-		// @formatter:off
-		String accessTokenSuccessResponse = "{\n"
-				+ "   \"access_token\": \"access-token-1234\",\n"
-				+ "   \"token_type\": \"bearer\",\n"
-				+ "   \"expires_in\": \"3600\",\n"
-				+ "   \"scope\": \"read\"\n"
-				+ "}\n";
-		// @formatter:on
-		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+		this.server.enqueue(MockResponses.json("access-token-response-read.json"));
 		ClientRegistration clientRegistration = this.clientRegistration.build();
 		OAuth2RefreshTokenGrantRequest grantRequest = new OAuth2RefreshTokenGrantRequest(clientRegistration,
 				this.accessToken, this.refreshToken);
@@ -276,14 +254,7 @@ public class RestClientRefreshTokenTokenResponseClientTests {
 
 	@Test
 	public void getTokenResponseWhenSuccessResponseDoesNotIncludeScopeThenAccessTokenHasRequestedScope() {
-		// @formatter:off
-		String accessTokenSuccessResponse = "{\n"
-				+ "   \"access_token\": \"access-token-1234\",\n"
-				+ "   \"token_type\": \"bearer\",\n"
-				+ "   \"expires_in\": \"3600\"\n"
-				+ "}\n";
-		// @formatter:on
-		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+		this.server.enqueue(MockResponses.json("access-token-response.json"));
 		ClientRegistration clientRegistration = this.clientRegistration.build();
 		Set<String> scopes = clientRegistration.getScopes();
 		OAuth2RefreshTokenGrantRequest grantRequest = new OAuth2RefreshTokenGrantRequest(clientRegistration,
@@ -295,15 +266,7 @@ public class RestClientRefreshTokenTokenResponseClientTests {
 
 	@Test
 	public void getTokenResponseWhenRequestDoesNotIncludeScopeThenAccessTokenHasResponseScope() throws Exception {
-		// @formatter:off
-		String accessTokenSuccessResponse = "{\n"
-				+ "   \"access_token\": \"access-token-1234\",\n"
-				+ "   \"token_type\": \"bearer\",\n"
-				+ "   \"expires_in\": \"3600\",\n"
-				+ "   \"scope\": \"read\"\n"
-				+ "}\n";
-		// @formatter:on
-		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+		this.server.enqueue(MockResponses.json("access-token-response-read.json"));
 		ClientRegistration clientRegistration = this.clientRegistration.build();
 		OAuth2RefreshTokenGrantRequest grantRequest = new OAuth2RefreshTokenGrantRequest(clientRegistration,
 				this.accessToken, this.refreshToken);
@@ -341,8 +304,7 @@ public class RestClientRefreshTokenTokenResponseClientTests {
 
 	@Test
 	public void getTokenResponseWhenServerErrorResponseThenThrowOAuth2AuthorizationException() {
-		String accessTokenErrorResponse = "{\"error\": \"server_error\", \"error_description\": \"A server error occurred\"}";
-		this.server.enqueue(jsonResponse(accessTokenErrorResponse).setResponseCode(500));
+		this.server.enqueue(MockResponses.json("server-error-response.json").setResponseCode(500));
 		ClientRegistration clientRegistration = this.clientRegistration.build();
 		OAuth2RefreshTokenGrantRequest request = new OAuth2RefreshTokenGrantRequest(clientRegistration,
 				this.accessToken, this.refreshToken);
@@ -356,8 +318,7 @@ public class RestClientRefreshTokenTokenResponseClientTests {
 
 	@Test
 	public void getTokenResponseWhenErrorResponseThenThrowOAuth2AuthorizationException() {
-		String accessTokenErrorResponse = "{\"error\": \"invalid_grant\", \"error_description\": \"Invalid grant\"}";
-		this.server.enqueue(jsonResponse(accessTokenErrorResponse).setResponseCode(400));
+		this.server.enqueue(MockResponses.json("invalid-grant-response.json").setResponseCode(400));
 		ClientRegistration clientRegistration = this.clientRegistration.build();
 		OAuth2RefreshTokenGrantRequest request = new OAuth2RefreshTokenGrantRequest(clientRegistration,
 				this.accessToken, this.refreshToken);
@@ -399,18 +360,11 @@ public class RestClientRefreshTokenTokenResponseClientTests {
 
 	@Test
 	public void getTokenResponseWhenHeadersConverterAddedThenCalled() throws Exception {
-		// @formatter:off
-		String accessTokenSuccessResponse = "{\n"
-				+ "   \"access_token\": \"access-token-1234\",\n"
-				+ "   \"token_type\": \"bearer\",\n"
-				+ "   \"expires_in\": \"3600\"\n"
-				+ "}\n";
-		// @formatter:on
-		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+		this.server.enqueue(MockResponses.json("access-token-response.json"));
 		ClientRegistration clientRegistration = this.clientRegistration.build();
 		OAuth2RefreshTokenGrantRequest grantRequest = new OAuth2RefreshTokenGrantRequest(clientRegistration,
 				this.accessToken, this.refreshToken);
-		Converter<OAuth2RefreshTokenGrantRequest, HttpHeaders> headersConverter = mock(Converter.class);
+		Converter<OAuth2RefreshTokenGrantRequest, HttpHeaders> headersConverter = mock();
 		HttpHeaders headers = new HttpHeaders();
 		headers.put("custom-header-name", Collections.singletonList("custom-header-value"));
 		given(headersConverter.convert(grantRequest)).willReturn(headers);
@@ -424,18 +378,11 @@ public class RestClientRefreshTokenTokenResponseClientTests {
 
 	@Test
 	public void getTokenResponseWhenHeadersConverterSetThenCalled() throws Exception {
-		// @formatter:off
-		String accessTokenSuccessResponse = "{\n"
-				+ "   \"access_token\": \"access-token-1234\",\n"
-				+ "   \"token_type\": \"bearer\",\n"
-				+ "   \"expires_in\": \"3600\"\n"
-				+ "}\n";
-		// @formatter:on
-		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+		this.server.enqueue(MockResponses.json("access-token-response.json"));
 		ClientRegistration clientRegistration = this.clientRegistration.build();
 		OAuth2RefreshTokenGrantRequest grantRequest = new OAuth2RefreshTokenGrantRequest(clientRegistration,
 				this.accessToken, this.refreshToken);
-		Converter<OAuth2RefreshTokenGrantRequest, HttpHeaders> headersConverter = mock(Converter.class);
+		Converter<OAuth2RefreshTokenGrantRequest, HttpHeaders> headersConverter = mock();
 		HttpHeaders headers = new HttpHeaders();
 		headers.put("custom-header-name", Collections.singletonList("custom-header-value"));
 		given(headersConverter.convert(grantRequest)).willReturn(headers);
@@ -449,19 +396,11 @@ public class RestClientRefreshTokenTokenResponseClientTests {
 
 	@Test
 	public void getTokenResponseWhenParametersConverterSetThenCalled() throws Exception {
-		// @formatter:off
-		String accessTokenSuccessResponse = "{\n"
-				+ "   \"access_token\": \"access-token-1234\",\n"
-				+ "   \"token_type\": \"bearer\",\n"
-				+ "   \"expires_in\": \"3600\"\n"
-				+ "}\n";
-		// @formatter:on
-		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+		this.server.enqueue(MockResponses.json("access-token-response.json"));
 		ClientRegistration clientRegistration = this.clientRegistration.build();
 		OAuth2RefreshTokenGrantRequest grantRequest = new OAuth2RefreshTokenGrantRequest(clientRegistration,
 				this.accessToken, this.refreshToken);
-		Converter<OAuth2RefreshTokenGrantRequest, MultiValueMap<String, String>> parametersConverter = mock(
-				Converter.class);
+		Converter<OAuth2RefreshTokenGrantRequest, MultiValueMap<String, String>> parametersConverter = mock();
 		MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
 		parameters.add("custom-parameter-name", "custom-parameter-value");
 		given(parametersConverter.convert(grantRequest)).willReturn(parameters);
@@ -470,20 +409,13 @@ public class RestClientRefreshTokenTokenResponseClientTests {
 		verify(parametersConverter).convert(grantRequest);
 		RecordedRequest recordedRequest = this.server.takeRequest();
 		String formParameters = recordedRequest.getBody().readUtf8();
-		assertThat(formParameters).contains("custom-parameter-name=custom-parameter-value");
+		assertThat(formParameters).contains(param("custom-parameter-name", "custom-parameter-value"));
 	}
 
 	@Test
 	public void getTokenResponseWhenParametersConverterSetThenAbleToOverrideDefaultParameters() throws Exception {
 		this.clientRegistration.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST);
-		// @formatter:off
-		String accessTokenSuccessResponse = "{\n"
-				+ "   \"access_token\": \"access-token-1234\",\n"
-				+ "   \"token_type\": \"bearer\",\n"
-				+ "   \"expires_in\": \"3600\"\n"
-				+ "}\n";
-		// @formatter:on
-		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+		this.server.enqueue(MockResponses.json("access-token-response.json"));
 		ClientRegistration clientRegistration = this.clientRegistration.build();
 		OAuth2RefreshTokenGrantRequest grantRequest = new OAuth2RefreshTokenGrantRequest(clientRegistration,
 				this.accessToken, this.refreshToken);
@@ -491,7 +423,6 @@ public class RestClientRefreshTokenTokenResponseClientTests {
 		parameters.set(OAuth2ParameterNames.GRANT_TYPE, "custom");
 		parameters.set(OAuth2ParameterNames.REFRESH_TOKEN, "custom-token");
 		parameters.set(OAuth2ParameterNames.SCOPE, "one two");
-		// The client_id parameter is omitted for testing purposes
 		this.tokenResponseClient.setParametersConverter((authorizationGrantRequest) -> parameters);
 		this.tokenResponseClient.getTokenResponse(grantRequest);
 		RecordedRequest recordedRequest = this.server.takeRequest();
@@ -499,28 +430,21 @@ public class RestClientRefreshTokenTokenResponseClientTests {
 		// @formatter:off
 		assertThat(formParameters).contains(
 				param(OAuth2ParameterNames.GRANT_TYPE, "custom"),
+				param(OAuth2ParameterNames.CLIENT_ID, "client-1"),
 				param(OAuth2ParameterNames.REFRESH_TOKEN, "custom-token"),
-				param(OAuth2ParameterNames.SCOPE, "one two"));
+				param(OAuth2ParameterNames.SCOPE, "one two")
+		);
 		// @formatter:on
-		assertThat(formParameters).doesNotContain(OAuth2ParameterNames.CLIENT_ID);
 	}
 
 	@Test
 	public void getTokenResponseWhenParametersConverterAddedThenCalled() throws Exception {
-		// @formatter:off
-		String accessTokenSuccessResponse = "{\n"
-				+ "   \"access_token\": \"access-token-1234\",\n"
-				+ "   \"token_type\": \"bearer\",\n"
-				+ "   \"expires_in\": \"3600\"\n"
-				+ "}\n";
-		// @formatter:on
-		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+		this.server.enqueue(MockResponses.json("access-token-response.json"));
 		ClientRegistration clientRegistration = this.clientRegistration.build();
 		Set<String> scopes = clientRegistration.getScopes();
 		OAuth2RefreshTokenGrantRequest grantRequest = new OAuth2RefreshTokenGrantRequest(clientRegistration,
 				this.accessToken, this.refreshToken, scopes);
-		Converter<OAuth2RefreshTokenGrantRequest, MultiValueMap<String, String>> parametersConverter = mock(
-				Converter.class);
+		Converter<OAuth2RefreshTokenGrantRequest, MultiValueMap<String, String>> parametersConverter = mock();
 		MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
 		parameters.add("custom-parameter-name", "custom-parameter-value");
 		given(parametersConverter.convert(grantRequest)).willReturn(parameters);
@@ -540,15 +464,20 @@ public class RestClientRefreshTokenTokenResponseClientTests {
 	}
 
 	@Test
+	public void getTokenResponseWhenParametersCustomizerSetThenCalled() throws Exception {
+		this.server.enqueue(MockResponses.json("access-token-response.json"));
+		ClientRegistration clientRegistration = this.clientRegistration.build();
+		OAuth2RefreshTokenGrantRequest grantRequest = new OAuth2RefreshTokenGrantRequest(clientRegistration,
+				this.accessToken, this.refreshToken);
+		Consumer<MultiValueMap<String, String>> parametersCustomizer = mock();
+		this.tokenResponseClient.setParametersCustomizer(parametersCustomizer);
+		this.tokenResponseClient.getTokenResponse(grantRequest);
+		verify(parametersCustomizer).accept(any());
+	}
+
+	@Test
 	public void getTokenResponseWhenRestClientSetThenCalled() {
-		// @formatter:off
-		String accessTokenSuccessResponse = "{\n"
-				+ "   \"access_token\": \"access-token-1234\",\n"
-				+ "   \"token_type\": \"bearer\",\n"
-				+ "   \"expires_in\": \"3600\"\n"
-				+ "}\n";
-		// @formatter:on
-		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+		this.server.enqueue(MockResponses.json("access-token-response.json"));
 		RestClient restClient = RestClient.builder().messageConverters((messageConverters) -> {
 			messageConverters.add(0, new FormHttpMessageConverter());
 			messageConverters.add(1, new OAuth2AccessTokenResponseHttpMessageConverter());
@@ -560,10 +489,6 @@ public class RestClientRefreshTokenTokenResponseClientTests {
 				this.accessToken, this.refreshToken);
 		this.tokenResponseClient.getTokenResponse(grantRequest);
 		verify(customClient).post();
-	}
-
-	private static MockResponse jsonResponse(String json) {
-		return new MockResponse().setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE).setBody(json);
 	}
 
 	private static String param(String parameterName, String parameterValue) {

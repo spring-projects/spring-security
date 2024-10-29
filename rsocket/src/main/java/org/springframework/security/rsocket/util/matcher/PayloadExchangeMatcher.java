@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 the original author or authors.
+ * Copyright 2019-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -81,8 +81,7 @@ public interface PayloadExchangeMatcher {
 		 * @return
 		 */
 		public static Mono<MatchResult> match(Map<String, ? extends Object> variables) {
-			MatchResult result = new MatchResult(true,
-					(variables != null) ? new HashMap<String, Object>(variables) : null);
+			MatchResult result = new MatchResult(true, (variables != null) ? new HashMap<>(variables) : null);
 			return Mono.just(result);
 		}
 

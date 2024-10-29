@@ -34,6 +34,7 @@ import org.springframework.security.web.server.util.matcher.ServerWebExchangeMat
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
 import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
+import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
@@ -52,8 +53,30 @@ public class LoginPageGeneratingWebFilter implements WebFilter {
 
 	private boolean formLoginEnabled;
 
+	private boolean oneTimeTokenEnabled = false;
+
+	private String generateOneTimeTokenUrl;
+
+	/**
+	 * Specifies the URL that a One-Time Token generate request will be processed.
+	 * @param generateOneTimeTokenUrl
+	 * @since 6.4
+	 */
+	public void setGenerateOneTimeTokenUrl(String generateOneTimeTokenUrl) {
+		Assert.isTrue(StringUtils.hasText(generateOneTimeTokenUrl), "generateOneTimeTokenUrl cannot be null or empty");
+		this.generateOneTimeTokenUrl = generateOneTimeTokenUrl;
+	}
+
 	public void setFormLoginEnabled(boolean enabled) {
 		this.formLoginEnabled = enabled;
+	}
+
+	/**
+	 * Set if one-time token login is supported. Defaults to {@code false}.
+	 * @param oneTimeTokenEnabled
+	 */
+	public void setOneTimeTokenEnabled(boolean oneTimeTokenEnabled) {
+		this.oneTimeTokenEnabled = oneTimeTokenEnabled;
 	}
 
 	public void setOauth2AuthenticationUrlToClientName(Map<String, String> oauth2AuthenticationUrlToClientName) {
@@ -92,6 +115,7 @@ public class LoginPageGeneratingWebFilter implements WebFilter {
 		return HtmlTemplates.fromTemplate(LOGIN_PAGE_TEMPLATE)
 			.withRawHtml("contextPath", contextPath)
 			.withRawHtml("formLogin", formLogin(queryParams, contextPath, csrfTokenHtmlInput))
+			.withRawHtml("oneTimeTokenLogin", renderOneTimeTokenLogin(queryParams, contextPath, csrfTokenHtmlInput))
 			.withRawHtml("oauth2Login", oauth2Login(queryParams, contextPath, this.oauth2AuthenticationUrlToClientName))
 			.render()
 			.getBytes(Charset.defaultCharset());
@@ -107,6 +131,23 @@ public class LoginPageGeneratingWebFilter implements WebFilter {
 
 		return HtmlTemplates.fromTemplate(LOGIN_FORM_TEMPLATE)
 			.withValue("loginUrl", contextPath + "/login")
+			.withRawHtml("errorMessage", createError(isError))
+			.withRawHtml("logoutMessage", createLogoutSuccess(isLogoutSuccess))
+			.withRawHtml("csrf", csrfTokenHtmlInput)
+			.render();
+	}
+
+	private String renderOneTimeTokenLogin(MultiValueMap<String, String> queryParams, String contextPath,
+			String csrfTokenHtmlInput) {
+		if (!this.oneTimeTokenEnabled) {
+			return "";
+		}
+
+		boolean isError = queryParams.containsKey("error");
+		boolean isLogoutSuccess = queryParams.containsKey("logout");
+
+		return HtmlTemplates.fromTemplate(ONE_TIME_TEMPLATE)
+			.withValue("generateOneTimeTokenUrl", contextPath + this.generateOneTimeTokenUrl)
 			.withRawHtml("errorMessage", createError(isError))
 			.withRawHtml("logoutMessage", createLogoutSuccess(isLogoutSuccess))
 			.withRawHtml("csrf", csrfTokenHtmlInput)
@@ -168,6 +209,7 @@ public class LoginPageGeneratingWebFilter implements WebFilter {
 			  <body>
 			    <div class="content">
 			{{formLogin}}
+			{{oneTimeTokenLogin}}
 			{{oauth2Login}}
 			    </div>
 			  </body>
@@ -202,5 +244,18 @@ public class LoginPageGeneratingWebFilter implements WebFilter {
 
 	private static final String OAUTH2_ROW_TEMPLATE = """
 			<tr><td><a href="{{url}}">{{clientName}}</a></td></tr>""";
+
+	private static final String ONE_TIME_TEMPLATE = """
+			      <form id="ott-form" class="login-form" method="post" action="{{generateOneTimeTokenUrl}}">
+			        <h2>Request a One-Time Token</h2>
+			      {{errorMessage}}{{logoutMessage}}
+			        <p>
+			          <label for="ott-username" class="screenreader">Username</label>
+			          <input type="text" id="ott-username" name="username" placeholder="Username" required>
+			        </p>
+			        {{csrf}}
+			        <button class="primary" type="submit" form="ott-form">Send Token</button>
+			      </form>
+			""";
 
 }

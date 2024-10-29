@@ -291,5 +291,5 @@ Spring Security tracks the following spans on each request:
 7. `spring.security.authorizations` - a span that wraps authorization attempts
 
 [TIP]
-`spring.security.http.chains.before` + `spring.security.http.secured.requests` + `spring.security.http.chains.after` = `spring.security.http.requests`
+`spring.security.http.chains.before` + `spring.security.http.secured.requests` + `spring.security.http.chains.after` = `spring.security.http.requests` +
 `spring.security.http.chains.before` + `spring.security.http.chains.after` = Spring Security's part of the request

@@ -25,6 +25,7 @@ import org.springframework.aop.Pointcut;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.core.Authentication;
 
 class PointcutDelegatingAuthorizationManager implements AuthorizationManager<MethodInvocation> {
@@ -37,11 +38,24 @@ class PointcutDelegatingAuthorizationManager implements AuthorizationManager<Met
 
 	@Override
 	public AuthorizationDecision check(Supplier<Authentication> authentication, MethodInvocation object) {
+		AuthorizationResult result = authorize(authentication, object);
+		if (result == null) {
+			return null;
+		}
+		if (result instanceof AuthorizationDecision decision) {
+			return decision;
+		}
+		throw new IllegalArgumentException(
+				"Please either call authorize or ensure that the returned result is of type AuthorizationDecision");
+	}
+
+	@Override
+	public AuthorizationResult authorize(Supplier<Authentication> authentication, MethodInvocation object) {
 		for (Map.Entry<Pointcut, AuthorizationManager<MethodInvocation>> entry : this.managers.entrySet()) {
 			Class<?> targetClass = (object.getThis() != null) ? AopUtils.getTargetClass(object.getThis()) : null;
 			if (entry.getKey().getClassFilter().matches(targetClass)
 					&& entry.getKey().getMethodMatcher().matches(object.getMethod(), targetClass)) {
-				return entry.getValue().check(authentication, object);
+				return entry.getValue().authorize(authentication, object);
 			}
 		}
 		return new AuthorizationDecision(false);

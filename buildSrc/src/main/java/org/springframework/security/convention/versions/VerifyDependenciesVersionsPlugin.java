@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@ import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.artifacts.MinimalExternalModuleDependency;
 import org.gradle.api.artifacts.VersionCatalog;
 import org.gradle.api.artifacts.VersionCatalogsExtension;
-import org.gradle.api.file.RegularFile;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.plugins.JavaBasePlugin;
 import org.gradle.api.provider.Property;
@@ -36,7 +35,6 @@ import org.gradle.api.tasks.TaskExecutionException;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.api.tasks.VerificationException;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Optional;

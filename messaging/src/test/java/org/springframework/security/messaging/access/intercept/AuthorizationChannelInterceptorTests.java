@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationEventPublisher;
 import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -38,6 +39,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 
 /**
@@ -82,12 +84,14 @@ public class AuthorizationChannelInterceptorTests {
 	@Test
 	public void preSendWhenAllowThenSameMessage() {
 		given(this.authorizationManager.check(any(), any())).willReturn(new AuthorizationDecision(true));
+		given(this.authorizationManager.authorize(any(), any())).willCallRealMethod();
 		assertThat(this.interceptor.preSend(this.message, this.channel)).isSameAs(this.message);
 	}
 
 	@Test
 	public void preSendWhenDenyThenException() {
 		given(this.authorizationManager.check(any(), any())).willReturn(new AuthorizationDecision(false));
+		given(this.authorizationManager.authorize(any(), any())).willCallRealMethod();
 		assertThatExceptionOfType(AccessDeniedException.class)
 			.isThrownBy(() -> this.interceptor.preSend(this.message, this.channel));
 	}
@@ -102,6 +106,10 @@ public class AuthorizationChannelInterceptorTests {
 	public void preSendWhenAuthorizationEventPublisherThenPublishes() {
 		this.interceptor.setAuthorizationEventPublisher(this.eventPublisher);
 		given(this.authorizationManager.check(any(), any())).willReturn(new AuthorizationDecision(true));
+		given(this.authorizationManager.authorize(any(), any())).willCallRealMethod();
+		lenient().doCallRealMethod()
+			.when(this.eventPublisher)
+			.publishAuthorizationEvent(any(), any(), any(AuthorizationResult.class));
 		this.interceptor.preSend(this.message, this.channel);
 		verify(this.eventPublisher).publishAuthorizationEvent(any(), any(), any());
 	}

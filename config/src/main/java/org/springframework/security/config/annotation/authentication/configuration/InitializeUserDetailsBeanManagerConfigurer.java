@@ -134,7 +134,7 @@ class InitializeUserDetailsBeanManagerConfigurer extends GlobalAuthenticationCon
 			String[] beanNames = InitializeUserDetailsBeanManagerConfigurer.this.context.getBeanNamesForType(type);
 			for (String beanName : beanNames) {
 				T bean = InitializeUserDetailsBeanManagerConfigurer.this.context.getBean(beanName, type);
-				beanWithNames.add(new BeanWithName<T>(bean, beanName));
+				beanWithNames.add(new BeanWithName<>(bean, beanName));
 			}
 			return beanWithNames;
 		}

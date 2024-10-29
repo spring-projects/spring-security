@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -95,7 +95,7 @@ class InitializeAuthenticationProviderBeanManagerConfigurer extends GlobalAuthen
 				.getBeanNamesForType(type);
 			for (String beanName : beanNames) {
 				T bean = InitializeAuthenticationProviderBeanManagerConfigurer.this.context.getBean(beanName, type);
-				beanWithNames.add(new BeanWithName<T>(bean, beanName));
+				beanWithNames.add(new BeanWithName<>(bean, beanName));
 			}
 			return beanWithNames;
 		}

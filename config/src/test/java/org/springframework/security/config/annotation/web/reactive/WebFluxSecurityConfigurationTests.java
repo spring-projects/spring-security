@@ -16,14 +16,24 @@
 
 package org.springframework.security.config.annotation.web.reactive;
 
+import java.util.Collections;
+
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import reactor.core.publisher.Mono;
 
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
+import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
+import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.config.users.ReactiveAuthenticationTestConfiguration;
 import org.springframework.security.web.server.WebFilterChainProxy;
+import org.springframework.security.web.server.firewall.ServerWebExchangeFirewall;
+import org.springframework.web.server.handler.DefaultWebFilterChain;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -48,6 +58,32 @@ public class WebFluxSecurityConfigurationTests {
 	}
 
 	@Test
+	void loadConfigWhenDefaultThenFirewalled() throws Exception {
+		this.spring
+			.register(ServerHttpSecurityConfiguration.class, ReactiveAuthenticationTestConfiguration.class,
+					WebFluxSecurityConfiguration.class)
+			.autowire();
+		WebFilterChainProxy webFilterChainProxy = this.spring.getContext().getBean(WebFilterChainProxy.class);
+		MockServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/;/").build());
+		DefaultWebFilterChain chain = emptyChain();
+		webFilterChainProxy.filter(exchange, chain).block();
+		assertThat(exchange.getResponse().getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+	}
+
+	@Test
+	void loadConfigWhenFirewallBeanThenCustomized() throws Exception {
+		this.spring
+			.register(ServerHttpSecurityConfiguration.class, ReactiveAuthenticationTestConfiguration.class,
+					WebFluxSecurityConfiguration.class, NoOpFirewallConfig.class)
+			.autowire();
+		WebFilterChainProxy webFilterChainProxy = this.spring.getContext().getBean(WebFilterChainProxy.class);
+		MockServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/;/").build());
+		DefaultWebFilterChain chain = emptyChain();
+		webFilterChainProxy.filter(exchange, chain).block();
+		assertThat(exchange.getResponse().getStatusCode()).isNotEqualTo(HttpStatus.BAD_REQUEST);
+	}
+
+	@Test
 	public void loadConfigWhenBeanProxyingEnabledAndSubclassThenWebFilterChainProxyExists() {
 		this.spring
 			.register(ServerHttpSecurityConfiguration.class, ReactiveAuthenticationTestConfiguration.class,
@@ -55,6 +91,20 @@ public class WebFluxSecurityConfigurationTests {
 			.autowire();
 		WebFilterChainProxy webFilterChainProxy = this.spring.getContext().getBean(WebFilterChainProxy.class);
 		assertThat(webFilterChainProxy).isNotNull();
+	}
+
+	private static @NotNull DefaultWebFilterChain emptyChain() {
+		return new DefaultWebFilterChain((webExchange) -> Mono.empty(), Collections.emptyList());
+	}
+
+	@Configuration
+	static class NoOpFirewallConfig {
+
+		@Bean
+		ServerWebExchangeFirewall noOpFirewall() {
+			return ServerWebExchangeFirewall.INSECURE_NOOP;
+		}
+
 	}
 
 	@Configuration

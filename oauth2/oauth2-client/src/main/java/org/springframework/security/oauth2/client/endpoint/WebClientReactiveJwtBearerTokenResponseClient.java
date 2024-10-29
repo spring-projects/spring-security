@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,8 @@
 
 package org.springframework.security.oauth2.client.endpoint;
 
-import java.util.Set;
-
-import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
-import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
-import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 
 /**
@@ -43,22 +38,5 @@ import org.springframework.web.reactive.function.client.WebClient;
  */
 public final class WebClientReactiveJwtBearerTokenResponseClient
 		extends AbstractWebClientReactiveOAuth2AccessTokenResponseClient<JwtBearerGrantRequest> {
-
-	@Override
-	ClientRegistration clientRegistration(JwtBearerGrantRequest grantRequest) {
-		return grantRequest.getClientRegistration();
-	}
-
-	@Override
-	Set<String> scopes(JwtBearerGrantRequest grantRequest) {
-		return grantRequest.getClientRegistration().getScopes();
-	}
-
-	@Override
-	BodyInserters.FormInserter<String> populateTokenRequestBody(JwtBearerGrantRequest grantRequest,
-			BodyInserters.FormInserter<String> body) {
-		return super.populateTokenRequestBody(grantRequest, body).with(OAuth2ParameterNames.ASSERTION,
-				grantRequest.getJwt().getTokenValue());
-	}
 
 }

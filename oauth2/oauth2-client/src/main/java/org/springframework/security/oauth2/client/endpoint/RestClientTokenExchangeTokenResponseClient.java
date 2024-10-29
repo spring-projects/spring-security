@@ -16,14 +16,7 @@
 
 package org.springframework.security.oauth2.client.endpoint;
 
-import org.springframework.security.oauth2.client.registration.ClientRegistration;
-import org.springframework.security.oauth2.core.OAuth2Token;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
-import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
-import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.MultiValueMap;
-import org.springframework.util.StringUtils;
 
 /**
  * An implementation of {@link OAuth2AccessTokenResponseClient} that &quot;exchanges&quot;
@@ -42,33 +35,5 @@ import org.springframework.util.StringUtils;
  */
 public final class RestClientTokenExchangeTokenResponseClient
 		extends AbstractRestClientOAuth2AccessTokenResponseClient<TokenExchangeGrantRequest> {
-
-	private static final String ACCESS_TOKEN_TYPE_VALUE = "urn:ietf:params:oauth:token-type:access_token";
-
-	private static final String JWT_TOKEN_TYPE_VALUE = "urn:ietf:params:oauth:token-type:jwt";
-
-	@Override
-	MultiValueMap<String, String> createParameters(TokenExchangeGrantRequest grantRequest) {
-		ClientRegistration clientRegistration = grantRequest.getClientRegistration();
-		MultiValueMap<String, String> parameters = super.createParameters(grantRequest);
-		if (!CollectionUtils.isEmpty(clientRegistration.getScopes())) {
-			parameters.set(OAuth2ParameterNames.SCOPE,
-					StringUtils.collectionToDelimitedString(clientRegistration.getScopes(), " "));
-		}
-		parameters.set(OAuth2ParameterNames.REQUESTED_TOKEN_TYPE, ACCESS_TOKEN_TYPE_VALUE);
-		OAuth2Token subjectToken = grantRequest.getSubjectToken();
-		parameters.set(OAuth2ParameterNames.SUBJECT_TOKEN, subjectToken.getTokenValue());
-		parameters.set(OAuth2ParameterNames.SUBJECT_TOKEN_TYPE, tokenType(subjectToken));
-		OAuth2Token actorToken = grantRequest.getActorToken();
-		if (actorToken != null) {
-			parameters.set(OAuth2ParameterNames.ACTOR_TOKEN, actorToken.getTokenValue());
-			parameters.set(OAuth2ParameterNames.ACTOR_TOKEN_TYPE, tokenType(actorToken));
-		}
-		return parameters;
-	}
-
-	private static String tokenType(OAuth2Token token) {
-		return (token instanceof Jwt) ? JWT_TOKEN_TYPE_VALUE : ACCESS_TOKEN_TYPE_VALUE;
-	}
 
 }

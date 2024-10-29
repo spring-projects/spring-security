@@ -41,8 +41,8 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.security.web.authentication.ott.GenerateOneTimeTokenFilter;
-import org.springframework.security.web.authentication.ott.GeneratedOneTimeTokenHandler;
 import org.springframework.security.web.authentication.ott.OneTimeTokenAuthenticationConverter;
+import org.springframework.security.web.authentication.ott.OneTimeTokenGenerationSuccessHandler;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
 import org.springframework.security.web.authentication.ui.DefaultOneTimeTokenSubmitPageGeneratingFilter;
 import org.springframework.security.web.authentication.ui.DefaultResourcesFilter;
@@ -73,9 +73,9 @@ public final class OneTimeTokenLoginConfigurer<H extends HttpSecurityBuilder<H>>
 
 	private String loginProcessingUrl = "/login/ott";
 
-	private String generateTokenUrl = "/ott/generate";
+	private String tokenGeneratingUrl = "/ott/generate";
 
-	private GeneratedOneTimeTokenHandler generatedOneTimeTokenHandler;
+	private OneTimeTokenGenerationSuccessHandler oneTimeTokenGenerationSuccessHandler;
 
 	private AuthenticationProvider authenticationProvider;
 
@@ -97,7 +97,7 @@ public final class OneTimeTokenLoginConfigurer<H extends HttpSecurityBuilder<H>>
 			return;
 		}
 		loginPageGeneratingFilter.setOneTimeTokenEnabled(true);
-		loginPageGeneratingFilter.setGenerateOneTimeTokenUrl(this.generateTokenUrl);
+		loginPageGeneratingFilter.setOneTimeTokenGenerationUrl(this.tokenGeneratingUrl);
 		if (this.authenticationFailureHandler == null
 				&& StringUtils.hasText(loginPageGeneratingFilter.getLoginPageUrl())) {
 			this.authenticationFailureHandler = new SimpleUrlAuthenticationFailureHandler(
@@ -133,23 +133,23 @@ public final class OneTimeTokenLoginConfigurer<H extends HttpSecurityBuilder<H>>
 
 	private void configureOttGenerateFilter(H http) {
 		GenerateOneTimeTokenFilter generateFilter = new GenerateOneTimeTokenFilter(getOneTimeTokenService(http),
-				getGeneratedOneTimeTokenHandler(http));
-		generateFilter.setRequestMatcher(antMatcher(HttpMethod.POST, this.generateTokenUrl));
+				getOneTimeTokenGenerationSuccessHandler(http));
+		generateFilter.setRequestMatcher(antMatcher(HttpMethod.POST, this.tokenGeneratingUrl));
 		http.addFilter(postProcess(generateFilter));
 		http.addFilter(DefaultResourcesFilter.css());
 	}
 
-	private GeneratedOneTimeTokenHandler getGeneratedOneTimeTokenHandler(H http) {
-		if (this.generatedOneTimeTokenHandler == null) {
-			this.generatedOneTimeTokenHandler = getBeanOrNull(http, GeneratedOneTimeTokenHandler.class);
+	private OneTimeTokenGenerationSuccessHandler getOneTimeTokenGenerationSuccessHandler(H http) {
+		if (this.oneTimeTokenGenerationSuccessHandler == null) {
+			this.oneTimeTokenGenerationSuccessHandler = getBeanOrNull(http, OneTimeTokenGenerationSuccessHandler.class);
 		}
-		if (this.generatedOneTimeTokenHandler == null) {
+		if (this.oneTimeTokenGenerationSuccessHandler == null) {
 			throw new IllegalStateException("""
-					A GeneratedOneTimeTokenHandler is required to enable oneTimeTokenLogin().
+					A OneTimeTokenGenerationSuccessHandler is required to enable oneTimeTokenLogin().
 					Please provide it as a bean or pass it to the oneTimeTokenLogin() DSL.
 					""");
 		}
-		return this.generatedOneTimeTokenHandler;
+		return this.oneTimeTokenGenerationSuccessHandler;
 	}
 
 	private void configureSubmitPage(H http) {
@@ -186,22 +186,22 @@ public final class OneTimeTokenLoginConfigurer<H extends HttpSecurityBuilder<H>>
 	/**
 	 * Specifies the URL that a One-Time Token generate request will be processed.
 	 * Defaults to {@code /ott/generate}.
-	 * @param generateTokenUrl
+	 * @param tokenGeneratingUrl
 	 */
-	public OneTimeTokenLoginConfigurer<H> generateTokenUrl(String generateTokenUrl) {
-		Assert.hasText(generateTokenUrl, "generateTokenUrl cannot be null or empty");
-		this.generateTokenUrl = generateTokenUrl;
+	public OneTimeTokenLoginConfigurer<H> tokenGeneratingUrl(String tokenGeneratingUrl) {
+		Assert.hasText(tokenGeneratingUrl, "tokenGeneratingUrl cannot be null or empty");
+		this.tokenGeneratingUrl = tokenGeneratingUrl;
 		return this;
 	}
 
 	/**
 	 * Specifies strategy to be used to handle generated one-time tokens.
-	 * @param generatedOneTimeTokenHandler
+	 * @param oneTimeTokenGenerationSuccessHandler
 	 */
-	public OneTimeTokenLoginConfigurer<H> generatedOneTimeTokenHandler(
-			GeneratedOneTimeTokenHandler generatedOneTimeTokenHandler) {
-		Assert.notNull(generatedOneTimeTokenHandler, "generatedOneTimeTokenHandler cannot be null");
-		this.generatedOneTimeTokenHandler = generatedOneTimeTokenHandler;
+	public OneTimeTokenLoginConfigurer<H> tokenGenerationSuccessHandler(
+			OneTimeTokenGenerationSuccessHandler oneTimeTokenGenerationSuccessHandler) {
+		Assert.notNull(oneTimeTokenGenerationSuccessHandler, "oneTimeTokenGenerationSuccessHandler cannot be null");
+		this.oneTimeTokenGenerationSuccessHandler = oneTimeTokenGenerationSuccessHandler;
 		return this;
 	}
 
@@ -248,7 +248,7 @@ public final class OneTimeTokenLoginConfigurer<H extends HttpSecurityBuilder<H>>
 	 * {@link OneTimeToken}
 	 * @param oneTimeTokenService
 	 */
-	public OneTimeTokenLoginConfigurer<H> oneTimeTokenService(OneTimeTokenService oneTimeTokenService) {
+	public OneTimeTokenLoginConfigurer<H> tokenService(OneTimeTokenService oneTimeTokenService) {
 		Assert.notNull(oneTimeTokenService, "oneTimeTokenService cannot be null");
 		this.oneTimeTokenService = oneTimeTokenService;
 		return this;

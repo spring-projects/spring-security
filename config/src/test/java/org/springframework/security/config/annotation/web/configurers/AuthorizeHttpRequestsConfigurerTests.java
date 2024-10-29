@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,6 +42,7 @@ import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationEventPublisher;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.authorization.AuthorizationObservationContext;
+import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.config.ObjectPostProcessor;
 import org.springframework.security.config.annotation.web.AbstractRequestMatcherRegistry;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -78,6 +79,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -170,6 +172,7 @@ public class AuthorizeHttpRequestsConfigurerTests {
 		ObjectPostProcessor<Object> objectPostProcessor = this.spring.getContext()
 			.getBean(ObjectPostProcessorConfig.class).objectPostProcessor;
 		verify(objectPostProcessor).postProcess(any(RequestMatcherDelegatingAuthorizationManager.class));
+		verify(objectPostProcessor).postProcess(any(AuthorizationManager.class));
 		verify(objectPostProcessor).postProcess(any(AuthorizationFilter.class));
 	}
 
@@ -1241,6 +1244,8 @@ public class AuthorizeHttpRequestsConfigurerTests {
 
 		@Bean
 		AuthorizationEventPublisher authorizationEventPublisher() {
+			doCallRealMethod().when(this.publisher)
+				.publishAuthorizationEvent(any(), any(), any(AuthorizationResult.class));
 			return this.publisher;
 		}
 

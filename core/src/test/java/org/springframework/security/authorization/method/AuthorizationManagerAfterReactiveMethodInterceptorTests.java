@@ -72,6 +72,7 @@ public class AuthorizationManagerAfterReactiveMethodInterceptorTests {
 				ReactiveAuthorizationManager.class);
 		given(mockReactiveAuthorizationManager.check(any(), any()))
 			.willReturn(Mono.just(new AuthorizationDecision(true)));
+		given(mockReactiveAuthorizationManager.authorize(any(), any())).willCallRealMethod();
 		AuthorizationManagerAfterReactiveMethodInterceptor interceptor = new AuthorizationManagerAfterReactiveMethodInterceptor(
 				Pointcut.TRUE, mockReactiveAuthorizationManager);
 		Object result = interceptor.invoke(mockMethodInvocation);
@@ -90,6 +91,7 @@ public class AuthorizationManagerAfterReactiveMethodInterceptorTests {
 				ReactiveAuthorizationManager.class);
 		given(mockReactiveAuthorizationManager.check(any(), any()))
 			.willReturn(Mono.just(new AuthorizationDecision(true)));
+		given(mockReactiveAuthorizationManager.authorize(any(), any())).willCallRealMethod();
 		AuthorizationManagerAfterReactiveMethodInterceptor interceptor = new AuthorizationManagerAfterReactiveMethodInterceptor(
 				Pointcut.TRUE, mockReactiveAuthorizationManager);
 		Object result = interceptor.invoke(mockMethodInvocation);
@@ -109,6 +111,7 @@ public class AuthorizationManagerAfterReactiveMethodInterceptorTests {
 				ReactiveAuthorizationManager.class);
 		given(mockReactiveAuthorizationManager.check(any(), any()))
 			.willReturn(Mono.just(new AuthorizationDecision(false)));
+		given(mockReactiveAuthorizationManager.authorize(any(), any())).willCallRealMethod();
 		AuthorizationManagerAfterReactiveMethodInterceptor interceptor = new AuthorizationManagerAfterReactiveMethodInterceptor(
 				Pointcut.TRUE, mockReactiveAuthorizationManager);
 		Object result = interceptor.invoke(mockMethodInvocation);
@@ -130,6 +133,7 @@ public class AuthorizationManagerAfterReactiveMethodInterceptorTests {
 		given(mockReactiveAuthorizationManager.handleDeniedInvocationResult(any(), any(AuthorizationResult.class)))
 			.willAnswer(this::masking);
 		given(mockReactiveAuthorizationManager.check(any(), any())).willReturn(Mono.empty());
+		given(mockReactiveAuthorizationManager.authorize(any(), any())).willCallRealMethod();
 		AuthorizationManagerAfterReactiveMethodInterceptor interceptor = new AuthorizationManagerAfterReactiveMethodInterceptor(
 				Pointcut.TRUE, mockReactiveAuthorizationManager);
 		Object result = interceptor.invoke(mockMethodInvocation);
@@ -156,6 +160,7 @@ public class AuthorizationManagerAfterReactiveMethodInterceptorTests {
 				return Mono.just(argument.getResult());
 			});
 		given(mockReactiveAuthorizationManager.check(any(), any())).willReturn(Mono.empty());
+		given(mockReactiveAuthorizationManager.authorize(any(), any())).willCallRealMethod();
 		AuthorizationManagerAfterReactiveMethodInterceptor interceptor = new AuthorizationManagerAfterReactiveMethodInterceptor(
 				Pointcut.TRUE, mockReactiveAuthorizationManager);
 		Object result = interceptor.invoke(mockMethodInvocation);
@@ -176,6 +181,7 @@ public class AuthorizationManagerAfterReactiveMethodInterceptorTests {
 		given(mockReactiveAuthorizationManager.handleDeniedInvocationResult(any(), any(AuthorizationResult.class)))
 			.willAnswer(this::masking);
 		given(mockReactiveAuthorizationManager.check(any(), any())).willReturn(Mono.empty());
+		given(mockReactiveAuthorizationManager.authorize(any(), any())).willCallRealMethod();
 		AuthorizationManagerAfterReactiveMethodInterceptor interceptor = new AuthorizationManagerAfterReactiveMethodInterceptor(
 				Pointcut.TRUE, mockReactiveAuthorizationManager);
 		Object result = interceptor.invoke(mockMethodInvocation);
@@ -195,6 +201,7 @@ public class AuthorizationManagerAfterReactiveMethodInterceptorTests {
 		given(mockReactiveAuthorizationManager.handleDeniedInvocationResult(any(), any(AuthorizationResult.class)))
 			.willAnswer(this::monoMasking);
 		given(mockReactiveAuthorizationManager.check(any(), any())).willReturn(Mono.empty());
+		given(mockReactiveAuthorizationManager.authorize(any(), any())).willCallRealMethod();
 		AuthorizationManagerAfterReactiveMethodInterceptor interceptor = new AuthorizationManagerAfterReactiveMethodInterceptor(
 				Pointcut.TRUE, mockReactiveAuthorizationManager);
 		Object result = interceptor.invoke(mockMethodInvocation);
@@ -214,6 +221,7 @@ public class AuthorizationManagerAfterReactiveMethodInterceptorTests {
 		given(mockReactiveAuthorizationManager.handleDeniedInvocationResult(any(), any(AuthorizationResult.class)))
 			.willReturn(null);
 		given(mockReactiveAuthorizationManager.check(any(), any())).willReturn(Mono.empty());
+		given(mockReactiveAuthorizationManager.authorize(any(), any())).willCallRealMethod();
 		AuthorizationManagerAfterReactiveMethodInterceptor interceptor = new AuthorizationManagerAfterReactiveMethodInterceptor(
 				Pointcut.TRUE, mockReactiveAuthorizationManager);
 		Object result = interceptor.invoke(mockMethodInvocation);
@@ -231,6 +239,7 @@ public class AuthorizationManagerAfterReactiveMethodInterceptorTests {
 		ReactiveAuthorizationManager<MethodInvocationResult> mockReactiveAuthorizationManager = mock(
 				ReactiveAuthorizationManager.class);
 		given(mockReactiveAuthorizationManager.check(any(), any())).willReturn(Mono.empty());
+		given(mockReactiveAuthorizationManager.authorize(any(), any())).willCallRealMethod();
 		AuthorizationManagerAfterReactiveMethodInterceptor interceptor = new AuthorizationManagerAfterReactiveMethodInterceptor(
 				Pointcut.TRUE, mockReactiveAuthorizationManager);
 		Object result = interceptor.invoke(mockMethodInvocation);
@@ -249,6 +258,7 @@ public class AuthorizationManagerAfterReactiveMethodInterceptorTests {
 		ReactiveAuthorizationManager<MethodInvocationResult> manager = mock(ReactiveAuthorizationManager.class);
 		given(manager.check(any(), any()))
 			.willReturn(Mono.error(new MyAuthzDeniedException("denied", new AuthorizationDecision(false))));
+		given(manager.authorize(any(), any())).willCallRealMethod();
 		AuthorizationManagerAfterReactiveMethodInterceptor advice = new AuthorizationManagerAfterReactiveMethodInterceptor(
 				Pointcut.TRUE, manager);
 		assertThatExceptionOfType(MyAuthzDeniedException.class)

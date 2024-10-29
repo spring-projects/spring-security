@@ -37,6 +37,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.RememberMeServices;
+import org.springframework.security.web.authentication.session.NullAuthenticatedSessionStrategy;
+import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.util.Assert;
@@ -81,6 +83,8 @@ public class RememberMeAuthenticationFilter extends GenericFilterBean implements
 
 	private SecurityContextRepository securityContextRepository = new HttpSessionSecurityContextRepository();
 
+	private SessionAuthenticationStrategy sessionStrategy = new NullAuthenticatedSessionStrategy();
+
 	public RememberMeAuthenticationFilter(AuthenticationManager authenticationManager,
 			RememberMeServices rememberMeServices) {
 		Assert.notNull(authenticationManager, "authenticationManager cannot be null");
@@ -115,6 +119,7 @@ public class RememberMeAuthenticationFilter extends GenericFilterBean implements
 			// Attempt authentication via AuthenticationManager
 			try {
 				rememberMeAuth = this.authenticationManager.authenticate(rememberMeAuth);
+				this.sessionStrategy.onAuthentication(rememberMeAuth, request, response);
 				// Store to SecurityContextHolder
 				SecurityContext context = this.securityContextHolderStrategy.createEmptyContext();
 				context.setAuthentication(rememberMeAuth);
@@ -209,6 +214,20 @@ public class RememberMeAuthenticationFilter extends GenericFilterBean implements
 	public void setSecurityContextHolderStrategy(SecurityContextHolderStrategy securityContextHolderStrategy) {
 		Assert.notNull(securityContextHolderStrategy, "securityContextHolderStrategy cannot be null");
 		this.securityContextHolderStrategy = securityContextHolderStrategy;
+	}
+
+	/**
+	 * The session handling strategy which will be invoked immediately after an
+	 * authentication request is successfully processed by the
+	 * <tt>AuthenticationManager</tt>. Used, for example, to handle changing of the
+	 * session identifier to prevent session fixation attacks.
+	 * @param sessionStrategy the implementation to use. If not set a null implementation
+	 * is used.
+	 * @since 6.4
+	 */
+	public void setSessionAuthenticationStrategy(SessionAuthenticationStrategy sessionStrategy) {
+		Assert.notNull(sessionStrategy, "sessionStrategy cannot be null");
+		this.sessionStrategy = sessionStrategy;
 	}
 
 }

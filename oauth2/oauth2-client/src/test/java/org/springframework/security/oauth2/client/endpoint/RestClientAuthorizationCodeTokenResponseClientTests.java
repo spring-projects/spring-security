@@ -21,6 +21,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Collections;
+import java.util.function.Consumer;
 
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -34,6 +35,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.FormHttpMessageConverter;
+import org.springframework.security.oauth2.client.MockResponses;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
@@ -54,6 +56,7 @@ import org.springframework.web.client.RestClient;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -80,13 +83,12 @@ public class RestClientAuthorizationCodeTokenResponseClientTests {
 		this.server = new MockWebServer();
 		this.server.start();
 		String tokenUri = this.server.url("/oauth2/token").toString();
-		// @formatter:off
 		this.clientRegistration = TestClientRegistrations.clientRegistration()
-				.clientId("client-1")
-				.clientSecret("secret")
-				.authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
-				.tokenUri(tokenUri)
-				.scope("read", "write");
+			.clientId("client-1")
+			.clientSecret("secret")
+			.authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
+			.tokenUri(tokenUri)
+			.scope("read", "write");
 		ClientRegistration clientRegistration = this.clientRegistration.build();
 		OAuth2AuthorizationRequest authorizationRequest = OAuth2AuthorizationRequest.authorizationCode()
 			.clientId("client-1")
@@ -99,7 +101,6 @@ public class RestClientAuthorizationCodeTokenResponseClientTests {
 			.state("state")
 			.redirectUri(clientRegistration.getRedirectUri())
 			.build();
-		// @formatter:on
 		this.authorizationExchange = new OAuth2AuthorizationExchange(authorizationRequest, authorizationResponse);
 	}
 
@@ -154,6 +155,15 @@ public class RestClientAuthorizationCodeTokenResponseClientTests {
 	}
 
 	@Test
+	public void setParametersCustomizerWhenNullThenThrowIllegalArgumentException() {
+		// @formatter:off
+		assertThatIllegalArgumentException()
+			.isThrownBy(() -> this.tokenResponseClient.setParametersCustomizer(null))
+			.withMessage("parametersCustomizer cannot be null");
+		// @formatter:on
+	}
+
+	@Test
 	public void getTokenResponseWhenGrantRequestIsNullThenThrowIllegalArgumentException() {
 		// @formatter:off
 		assertThatIllegalArgumentException()
@@ -164,15 +174,7 @@ public class RestClientAuthorizationCodeTokenResponseClientTests {
 
 	@Test
 	public void getTokenResponseWhenSuccessResponseThenReturnAccessTokenResponse() throws Exception {
-		// @formatter:off
-		String accessTokenSuccessResponse = "{\n"
-				+ "   \"access_token\": \"access-token-1234\",\n"
-				+ "   \"token_type\": \"bearer\",\n"
-				+ "   \"expires_in\": \"3600\",\n"
-				+ "   \"scope\": \"read write\"\n"
-				+ "}\n";
-		// @formatter:on
-		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+		this.server.enqueue(MockResponses.json("access-token-response-read-write.json"));
 		Instant expiresAtBefore = Instant.now().plusSeconds(3600);
 		ClientRegistration clientRegistration = this.clientRegistration.build();
 		OAuth2AuthorizationCodeGrantRequest grantRequest = new OAuth2AuthorizationCodeGrantRequest(clientRegistration,
@@ -201,14 +203,7 @@ public class RestClientAuthorizationCodeTokenResponseClientTests {
 
 	@Test
 	public void getTokenResponseWhenAuthenticationClientSecretBasicThenAuthorizationHeaderIsSent() throws Exception {
-		// @formatter:off
-		String accessTokenSuccessResponse = "{\n"
-				+ "   \"access_token\": \"access-token-1234\",\n"
-				+ "   \"token_type\": \"bearer\",\n"
-				+ "   \"expires_in\": \"3600\"\n"
-				+ "}\n";
-		// @formatter:on
-		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+		this.server.enqueue(MockResponses.json("access-token-response.json"));
 		ClientRegistration clientRegistration = this.clientRegistration.build();
 		OAuth2AuthorizationCodeGrantRequest grantRequest = new OAuth2AuthorizationCodeGrantRequest(clientRegistration,
 				this.authorizationExchange);
@@ -219,14 +214,7 @@ public class RestClientAuthorizationCodeTokenResponseClientTests {
 
 	@Test
 	public void getTokenResponseWhenAuthenticationClientSecretPostThenFormParametersAreSent() throws Exception {
-		// @formatter:off
-		String accessTokenSuccessResponse = "{\n"
-				+ "   \"access_token\": \"access-token-1234\",\n"
-				+ "   \"token_type\": \"bearer\",\n"
-				+ "   \"expires_in\": \"3600\"\n"
-				+ "}\n";
-		// @formatter:on
-		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+		this.server.enqueue(MockResponses.json("access-token-response.json"));
 		ClientRegistration clientRegistration = this.clientRegistration
 			.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST)
 			.build();
@@ -235,19 +223,17 @@ public class RestClientAuthorizationCodeTokenResponseClientTests {
 		this.tokenResponseClient.getTokenResponse(grantRequest);
 		RecordedRequest recordedRequest = this.server.takeRequest();
 		String formParameters = recordedRequest.getBody().readUtf8();
-		assertThat(formParameters).contains("client_id=client-1", "client_secret=secret");
+		// @formatter:off
+		assertThat(formParameters).contains(
+				param(OAuth2ParameterNames.CLIENT_ID, "client-1"),
+				param(OAuth2ParameterNames.CLIENT_SECRET, "secret")
+		);
+		// @formatter:on
 	}
 
 	@Test
 	public void getTokenResponseWhenSuccessResponseAndNotBearerTokenTypeThenThrowOAuth2AuthorizationException() {
-		// @formatter:off
-		String accessTokenSuccessResponse = "{\n"
-				+ "   \"access_token\": \"access-token-1234\",\n"
-				+ "   \"token_type\": \"not-bearer\",\n"
-				+ "   \"expires_in\": \"3600\"\n"
-				+ "}\n";
-		// @formatter:on
-		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+		this.server.enqueue(MockResponses.json("invalid-token-type-response.json"));
 		ClientRegistration clientRegistration = this.clientRegistration.build();
 		OAuth2AuthorizationCodeGrantRequest grantRequest = new OAuth2AuthorizationCodeGrantRequest(clientRegistration,
 				this.authorizationExchange);
@@ -262,15 +248,7 @@ public class RestClientAuthorizationCodeTokenResponseClientTests {
 
 	@Test
 	public void getTokenResponseWhenSuccessResponseIncludesScopeThenAccessTokenHasResponseScope() {
-		// @formatter:off
-		String accessTokenSuccessResponse = "{\n"
-				+ "   \"access_token\": \"access-token-1234\",\n"
-				+ "   \"token_type\": \"bearer\",\n"
-				+ "   \"expires_in\": \"3600\",\n"
-				+ "   \"scope\": \"read\"\n"
-				+ "}\n";
-		// @formatter:on
-		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+		this.server.enqueue(MockResponses.json("access-token-response-read.json"));
 		ClientRegistration clientRegistration = this.clientRegistration.build();
 		OAuth2AuthorizationCodeGrantRequest grantRequest = new OAuth2AuthorizationCodeGrantRequest(clientRegistration,
 				this.authorizationExchange);
@@ -281,14 +259,7 @@ public class RestClientAuthorizationCodeTokenResponseClientTests {
 
 	@Test
 	public void getTokenResponseWhenSuccessResponseDoesNotIncludeScopeThenAccessTokenHasNoScope() {
-		// @formatter:off
-		String accessTokenSuccessResponse = "{\n"
-				+ "   \"access_token\": \"access-token-1234\",\n"
-				+ "   \"token_type\": \"bearer\",\n"
-				+ "   \"expires_in\": \"3600\"\n"
-				+ "}\n";
-		// @formatter:on
-		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+		this.server.enqueue(MockResponses.json("access-token-response.json"));
 		ClientRegistration clientRegistration = this.clientRegistration.build();
 		OAuth2AuthorizationCodeGrantRequest grantRequest = new OAuth2AuthorizationCodeGrantRequest(clientRegistration,
 				this.authorizationExchange);
@@ -313,8 +284,7 @@ public class RestClientAuthorizationCodeTokenResponseClientTests {
 
 	@Test
 	public void getTokenResponseWhenServerErrorResponseThenThrowOAuth2AuthorizationException() {
-		String accessTokenErrorResponse = "{\"error\": \"server_error\", \"error_description\": \"A server error occurred\"}";
-		this.server.enqueue(jsonResponse(accessTokenErrorResponse).setResponseCode(500));
+		this.server.enqueue(MockResponses.json("server-error-response.json").setResponseCode(500));
 		ClientRegistration clientRegistration = this.clientRegistration.build();
 		OAuth2AuthorizationCodeGrantRequest request = new OAuth2AuthorizationCodeGrantRequest(clientRegistration,
 				this.authorizationExchange);
@@ -328,8 +298,7 @@ public class RestClientAuthorizationCodeTokenResponseClientTests {
 
 	@Test
 	public void getTokenResponseWhenErrorResponseThenThrowOAuth2AuthorizationException() {
-		String accessTokenErrorResponse = "{\"error\": \"invalid_grant\", \"error_description\": \"Invalid grant\"}";
-		this.server.enqueue(jsonResponse(accessTokenErrorResponse).setResponseCode(400));
+		this.server.enqueue(MockResponses.json("invalid-grant-response.json").setResponseCode(400));
 		ClientRegistration clientRegistration = this.clientRegistration.build();
 		OAuth2AuthorizationCodeGrantRequest request = new OAuth2AuthorizationCodeGrantRequest(clientRegistration,
 				this.authorizationExchange);
@@ -371,18 +340,11 @@ public class RestClientAuthorizationCodeTokenResponseClientTests {
 
 	@Test
 	public void getTokenResponseWhenHeadersConverterAddedThenCalled() throws Exception {
-		// @formatter:off
-		String accessTokenSuccessResponse = "{\n"
-				+ "   \"access_token\": \"access-token-1234\",\n"
-				+ "   \"token_type\": \"bearer\",\n"
-				+ "   \"expires_in\": \"3600\"\n"
-				+ "}\n";
-		// @formatter:on
-		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+		this.server.enqueue(MockResponses.json("access-token-response.json"));
 		ClientRegistration clientRegistration = this.clientRegistration.build();
 		OAuth2AuthorizationCodeGrantRequest grantRequest = new OAuth2AuthorizationCodeGrantRequest(clientRegistration,
 				this.authorizationExchange);
-		Converter<OAuth2AuthorizationCodeGrantRequest, HttpHeaders> headersConverter = mock(Converter.class);
+		Converter<OAuth2AuthorizationCodeGrantRequest, HttpHeaders> headersConverter = mock();
 		HttpHeaders headers = new HttpHeaders();
 		headers.put("custom-header-name", Collections.singletonList("custom-header-value"));
 		given(headersConverter.convert(grantRequest)).willReturn(headers);
@@ -396,18 +358,11 @@ public class RestClientAuthorizationCodeTokenResponseClientTests {
 
 	@Test
 	public void getTokenResponseWhenHeadersConverterSetThenCalled() throws Exception {
-		// @formatter:off
-		String accessTokenSuccessResponse = "{\n"
-				+ "   \"access_token\": \"access-token-1234\",\n"
-				+ "   \"token_type\": \"bearer\",\n"
-				+ "   \"expires_in\": \"3600\"\n"
-				+ "}\n";
-		// @formatter:on
-		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+		this.server.enqueue(MockResponses.json("access-token-response.json"));
 		ClientRegistration clientRegistration = this.clientRegistration.build();
 		OAuth2AuthorizationCodeGrantRequest grantRequest = new OAuth2AuthorizationCodeGrantRequest(clientRegistration,
 				this.authorizationExchange);
-		Converter<OAuth2AuthorizationCodeGrantRequest, HttpHeaders> headersConverter = mock(Converter.class);
+		Converter<OAuth2AuthorizationCodeGrantRequest, HttpHeaders> headersConverter = mock();
 		HttpHeaders headers = new HttpHeaders();
 		headers.put("custom-header-name", Collections.singletonList("custom-header-value"));
 		given(headersConverter.convert(grantRequest)).willReturn(headers);
@@ -421,19 +376,11 @@ public class RestClientAuthorizationCodeTokenResponseClientTests {
 
 	@Test
 	public void getTokenResponseWhenParametersConverterSetThenCalled() throws Exception {
-		// @formatter:off
-		String accessTokenSuccessResponse = "{\n"
-				+ "   \"access_token\": \"access-token-1234\",\n"
-				+ "   \"token_type\": \"bearer\",\n"
-				+ "   \"expires_in\": \"3600\"\n"
-				+ "}\n";
-		// @formatter:on
-		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+		this.server.enqueue(MockResponses.json("access-token-response.json"));
 		ClientRegistration clientRegistration = this.clientRegistration.build();
 		OAuth2AuthorizationCodeGrantRequest grantRequest = new OAuth2AuthorizationCodeGrantRequest(clientRegistration,
 				this.authorizationExchange);
-		Converter<OAuth2AuthorizationCodeGrantRequest, MultiValueMap<String, String>> parametersConverter = mock(
-				Converter.class);
+		Converter<OAuth2AuthorizationCodeGrantRequest, MultiValueMap<String, String>> parametersConverter = mock();
 		MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
 		parameters.add("custom-parameter-name", "custom-parameter-value");
 		given(parametersConverter.convert(grantRequest)).willReturn(parameters);
@@ -442,20 +389,13 @@ public class RestClientAuthorizationCodeTokenResponseClientTests {
 		verify(parametersConverter).convert(grantRequest);
 		RecordedRequest recordedRequest = this.server.takeRequest();
 		String formParameters = recordedRequest.getBody().readUtf8();
-		assertThat(formParameters).contains("custom-parameter-name=custom-parameter-value");
+		assertThat(formParameters).contains(param("custom-parameter-name", "custom-parameter-value"));
 	}
 
 	@Test
 	public void getTokenResponseWhenParametersConverterSetThenAbleToOverrideDefaultParameters() throws Exception {
 		this.clientRegistration.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST);
-		// @formatter:off
-		String accessTokenSuccessResponse = "{\n"
-				+ "   \"access_token\": \"access-token-1234\",\n"
-				+ "   \"token_type\": \"bearer\",\n"
-				+ "   \"expires_in\": \"3600\"\n"
-				+ "}\n";
-		// @formatter:on
-		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+		this.server.enqueue(MockResponses.json("access-token-response.json"));
 		ClientRegistration clientRegistration = this.clientRegistration.build();
 		OAuth2AuthorizationCodeGrantRequest grantRequest = new OAuth2AuthorizationCodeGrantRequest(clientRegistration,
 				this.authorizationExchange);
@@ -463,7 +403,6 @@ public class RestClientAuthorizationCodeTokenResponseClientTests {
 		parameters.set(OAuth2ParameterNames.GRANT_TYPE, "custom");
 		parameters.set(OAuth2ParameterNames.CODE, "custom-code");
 		parameters.set(OAuth2ParameterNames.REDIRECT_URI, "custom-uri");
-		// The client_id parameter is omitted for testing purposes
 		this.tokenResponseClient.setParametersConverter((authorizationGrantRequest) -> parameters);
 		this.tokenResponseClient.getTokenResponse(grantRequest);
 		RecordedRequest recordedRequest = this.server.takeRequest();
@@ -471,27 +410,20 @@ public class RestClientAuthorizationCodeTokenResponseClientTests {
 		// @formatter:off
 		assertThat(formParameters).contains(
 				param(OAuth2ParameterNames.GRANT_TYPE, "custom"),
+				param(OAuth2ParameterNames.CLIENT_ID, "client-1"),
 				param(OAuth2ParameterNames.CODE, "custom-code"),
-				param(OAuth2ParameterNames.REDIRECT_URI, "custom-uri"));
+				param(OAuth2ParameterNames.REDIRECT_URI, "custom-uri")
+		);
 		// @formatter:on
-		assertThat(formParameters).doesNotContain(OAuth2ParameterNames.CLIENT_ID);
 	}
 
 	@Test
 	public void getTokenResponseWhenParametersConverterAddedThenCalled() throws Exception {
-		// @formatter:off
-		String accessTokenSuccessResponse = "{\n"
-				+ "   \"access_token\": \"access-token-1234\",\n"
-				+ "   \"token_type\": \"bearer\",\n"
-				+ "   \"expires_in\": \"3600\"\n"
-				+ "}\n";
-		// @formatter:on
-		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+		this.server.enqueue(MockResponses.json("access-token-response.json"));
 		ClientRegistration clientRegistration = this.clientRegistration.build();
 		OAuth2AuthorizationCodeGrantRequest grantRequest = new OAuth2AuthorizationCodeGrantRequest(clientRegistration,
 				this.authorizationExchange);
-		Converter<OAuth2AuthorizationCodeGrantRequest, MultiValueMap<String, String>> parametersConverter = mock(
-				Converter.class);
+		Converter<OAuth2AuthorizationCodeGrantRequest, MultiValueMap<String, String>> parametersConverter = mock();
 		MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
 		parameters.add("custom-parameter-name", "custom-parameter-value");
 		given(parametersConverter.convert(grantRequest)).willReturn(parameters);
@@ -510,15 +442,20 @@ public class RestClientAuthorizationCodeTokenResponseClientTests {
 	}
 
 	@Test
+	public void getTokenResponseWhenParametersCustomizerSetThenCalled() throws Exception {
+		this.server.enqueue(MockResponses.json("access-token-response.json"));
+		ClientRegistration clientRegistration = this.clientRegistration.build();
+		OAuth2AuthorizationCodeGrantRequest grantRequest = new OAuth2AuthorizationCodeGrantRequest(clientRegistration,
+				this.authorizationExchange);
+		Consumer<MultiValueMap<String, String>> parametersCustomizer = mock();
+		this.tokenResponseClient.setParametersCustomizer(parametersCustomizer);
+		this.tokenResponseClient.getTokenResponse(grantRequest);
+		verify(parametersCustomizer).accept(any());
+	}
+
+	@Test
 	public void getTokenResponseWhenRestClientSetThenCalled() {
-		// @formatter:off
-		String accessTokenSuccessResponse = "{\n"
-				+ "   \"access_token\": \"access-token-1234\",\n"
-				+ "   \"token_type\": \"bearer\",\n"
-				+ "   \"expires_in\": \"3600\"\n"
-				+ "}\n";
-		// @formatter:on
-		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+		this.server.enqueue(MockResponses.json("access-token-response.json"));
 		RestClient restClient = RestClient.builder().messageConverters((messageConverters) -> {
 			messageConverters.add(0, new FormHttpMessageConverter());
 			messageConverters.add(1, new OAuth2AccessTokenResponseHttpMessageConverter());
@@ -530,10 +467,6 @@ public class RestClientAuthorizationCodeTokenResponseClientTests {
 				this.authorizationExchange);
 		this.tokenResponseClient.getTokenResponse(grantRequest);
 		verify(customClient).post();
-	}
-
-	private static MockResponse jsonResponse(String json) {
-		return new MockResponse().setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE).setBody(json);
 	}
 
 	private static String param(String parameterName, String parameterValue) {

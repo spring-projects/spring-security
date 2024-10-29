@@ -213,7 +213,7 @@ Java::
 +
 [source,java,role="primary"]
 ----
-@Bean 
+@Bean
 @Order(0)
 SecurityFilterChain api(HttpSecurity http) throws Exception {
     http
@@ -223,7 +223,7 @@ SecurityFilterChain api(HttpSecurity http) throws Exception {
     return http.build();
 }
 
-@Bean 
+@Bean
 @Order(1)
 SecurityFilterChain app(HttpSecurity http) throws Exception {
     http
@@ -239,7 +239,7 @@ Kotlin::
 +
 [source,kotlin,role="secondary"]
 ----
-@Bean 
+@Bean
 @Order(0)
 fun api(val http: HttpSecurity): SecurityFilterChain {
     http {
@@ -250,7 +250,7 @@ fun api(val http: HttpSecurity): SecurityFilterChain {
     return http.build()
 }
 
-@Bean 
+@Bean
 @Order(1)
 fun app(val http: HttpSecurity): SecurityFilterChain {
     http {
@@ -268,6 +268,10 @@ You can read more https://github.com/spring-projects/spring-security/issues/1522
 == One-Time Token Login
 
 Spring Security now xref:servlet/authentication/onetimetoken.adoc[supports One-Time Token Login] via the `oneTimeTokenLogin()` DSL.
+
+== Passkeys
+
+Spring Security now has xref:servlet/authentication/passkeys.adoc[Passkeys] support.
 
 == Kotlin
 

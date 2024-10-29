@@ -16,12 +16,7 @@
 
 package org.springframework.security.oauth2.client.endpoint;
 
-import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
-import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.MultiValueMap;
-import org.springframework.util.StringUtils;
 
 /**
  * An implementation of {@link OAuth2AccessTokenResponseClient} that &quot;exchanges&quot;
@@ -41,16 +36,5 @@ import org.springframework.util.StringUtils;
  */
 public final class RestClientClientCredentialsTokenResponseClient
 		extends AbstractRestClientOAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> {
-
-	@Override
-	MultiValueMap<String, String> createParameters(OAuth2ClientCredentialsGrantRequest grantRequest) {
-		ClientRegistration clientRegistration = grantRequest.getClientRegistration();
-		MultiValueMap<String, String> parameters = super.createParameters(grantRequest);
-		if (!CollectionUtils.isEmpty(clientRegistration.getScopes())) {
-			parameters.set(OAuth2ParameterNames.SCOPE,
-					StringUtils.collectionToDelimitedString(clientRegistration.getScopes(), " "));
-		}
-		return parameters;
-	}
 
 }

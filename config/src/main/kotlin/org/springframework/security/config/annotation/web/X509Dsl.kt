@@ -53,6 +53,7 @@ class X509Dsl {
     var authenticationUserDetailsService: AuthenticationUserDetailsService<PreAuthenticatedAuthenticationToken>? = null
     var subjectPrincipalRegex: String? = null
 
+
     internal fun get(): (X509Configurer<HttpSecurity>) -> Unit {
         return { x509 ->
             x509AuthenticationFilter?.also { x509.x509AuthenticationFilter(x509AuthenticationFilter) }

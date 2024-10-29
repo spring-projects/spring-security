@@ -35,6 +35,7 @@ import org.springframework.security.saml2.provider.service.registration.InMemory
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
 import org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding;
+import org.springframework.security.saml2.provider.service.registration.TestRelyingPartyRegistrations;
 import org.springframework.security.saml2.provider.service.web.authentication.OpenSaml4AuthenticationRequestResolver;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -286,6 +287,32 @@ public class RelyingPartyRegistrationsBeanDefinitionParserTests {
 		request.setServletPath("/saml2/authenticate/one");
 		authenticationRequestResolver.resolve(request);
 		verify(relayStateResolver).convert(request);
+	}
+
+	@Test
+	public void parseWhenPlaceholdersThenResolves() throws Exception {
+		RelyingPartyRegistration sample = TestRelyingPartyRegistrations.relyingPartyRegistration().build();
+		System.setProperty("registration-id", sample.getRegistrationId());
+		System.setProperty("entity-id", sample.getEntityId());
+		System.setProperty("acs-location", sample.getAssertionConsumerServiceLocation());
+		System.setProperty("slo-location", sample.getSingleLogoutServiceLocation());
+		System.setProperty("slo-response-location", sample.getSingleLogoutServiceResponseLocation());
+		try (MockWebServer web = new MockWebServer()) {
+			web.start();
+			String serverUrl = web.url("/metadata").toString();
+			web.enqueue(xmlResponse(METADATA_RESPONSE));
+			System.setProperty("metadata-location", serverUrl);
+			this.spring.configLocations(xml("PlaceholderRegistration")).autowire();
+		}
+		RelyingPartyRegistration registration = this.relyingPartyRegistrationRepository
+			.findByRegistrationId(sample.getRegistrationId());
+		assertThat(registration.getRegistrationId()).isEqualTo(sample.getRegistrationId());
+		assertThat(registration.getEntityId()).isEqualTo(sample.getEntityId());
+		assertThat(registration.getAssertionConsumerServiceLocation())
+			.isEqualTo(sample.getAssertionConsumerServiceLocation());
+		assertThat(registration.getSingleLogoutServiceLocation()).isEqualTo(sample.getSingleLogoutServiceLocation());
+		assertThat(registration.getSingleLogoutServiceResponseLocation())
+			.isEqualTo(sample.getSingleLogoutServiceResponseLocation());
 	}
 
 	private static MockResponse xmlResponse(String xml) {

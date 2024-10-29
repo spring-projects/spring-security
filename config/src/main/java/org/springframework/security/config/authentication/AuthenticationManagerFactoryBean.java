@@ -26,7 +26,6 @@ import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.ObservationAuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -73,7 +72,7 @@ public class AuthenticationManagerFactoryBean implements FactoryBean<Authenticat
 				provider.setPasswordEncoder(passwordEncoder);
 			}
 			provider.afterPropertiesSet();
-			ProviderManager manager = new ProviderManager(Arrays.<AuthenticationProvider>asList(provider));
+			ProviderManager manager = new ProviderManager(Arrays.asList(provider));
 			if (this.observationRegistry.isNoop()) {
 				return manager;
 			}
