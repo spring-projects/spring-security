@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,8 @@
 package org.springframework.security.oauth2.server.resource.introspection;
 
 import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -79,7 +81,11 @@ public class NimbusReactiveOpaqueTokenIntrospector implements ReactiveOpaqueToke
 		Assert.hasText(clientId, "clientId cannot be empty");
 		Assert.notNull(clientSecret, "clientSecret cannot be null");
 		this.introspectionUri = URI.create(introspectionUri);
-		this.webClient = WebClient.builder().defaultHeaders((h) -> h.setBasicAuth(clientId, clientSecret)).build();
+		String encodeClientId = URLEncoder.encode(clientId, StandardCharsets.UTF_8);
+		String encodeClientSecret = URLEncoder.encode(clientSecret, StandardCharsets.UTF_8);
+		this.webClient = WebClient.builder()
+			.defaultHeaders((h) -> h.setBasicAuth(encodeClientId, encodeClientSecret))
+			.build();
 	}
 
 	/**

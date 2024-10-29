@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -341,6 +341,29 @@ public class NimbusOpaqueTokenIntrospectorTests {
 
 		assertThatExceptionOfType(OAuth2IntrospectionException.class)
 			.isThrownBy(() -> introspectionClient.introspect("sometokenhere"));
+	}
+
+	@Test
+	public void encodeClientIdAndClientSecret() throws Exception {
+		try (MockWebServer server = new MockWebServer()) {
+			String response = """
+					{
+						"active": true,
+						"username": "client%&1"
+					}
+					""";
+			server.setDispatcher(requiresAuth("client%25%261", "secret%40%242", response));
+			String introspectUri = server.url("/introspect").toString();
+			OpaqueTokenIntrospector introspectionClient = new NimbusOpaqueTokenIntrospector(introspectUri, "client%&1",
+					"secret@$2");
+			OAuth2AuthenticatedPrincipal authority = introspectionClient.introspect("token");
+			// @formatter:off
+			assertThat(authority.getAttributes())
+					.isNotNull()
+					.containsEntry(OAuth2TokenIntrospectionClaimNames.ACTIVE, true)
+					.containsEntry(OAuth2TokenIntrospectionClaimNames.USERNAME, "client%&1");
+			// @formatter:on
+		}
 	}
 
 	private static ResponseEntity<String> response(String content) {
