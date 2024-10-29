@@ -152,6 +152,7 @@ public class ServerBearerTokenAuthenticationConverter implements ServerAuthentic
 	 * Defaults to {@code false}.
 	 * @param allowFormEncodedBodyParameter if the form-encoded body parameter is
 	 * supported
+	 * @since 6.5
 	 */
 	public void setAllowFormEncodedBodyParameter(boolean allowFormEncodedBodyParameter) {
 		this.allowFormEncodedBodyParameter = allowFormEncodedBodyParameter;
