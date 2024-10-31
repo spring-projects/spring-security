@@ -199,6 +199,12 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 	 * @since 5.8
 	 */
 	public C requestMatchers(HttpMethod method, String... patterns) {
+		if (anyPathsDontStartWithLeadingSlash(patterns)) {
+			this.logger.warn("One of the patterns in " + Arrays.toString(patterns)
+					+ " is missing a leading slash. This is discouraged; please include the "
+					+ "leading slash in all your request matcher patterns. In future versions of "
+					+ "Spring Security, leaving out the leading slash will result in an exception.");
+		}
 		if (!mvcPresent) {
 			return requestMatchers(RequestMatchers.antMatchersAsArray(method, patterns));
 		}
@@ -217,6 +223,15 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 			matchers.add(new DeferredRequestMatcher((c) -> resolve(ant, mvc, c), mvc, ant));
 		}
 		return requestMatchers(matchers.toArray(new RequestMatcher[0]));
+	}
+
+	private boolean anyPathsDontStartWithLeadingSlash(String... patterns) {
+		for (String pattern : patterns) {
+			if (!pattern.startsWith("/")) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private RequestMatcher resolve(AntPathRequestMatcher ant, MvcRequestMatcher mvc, ServletContext servletContext) {
