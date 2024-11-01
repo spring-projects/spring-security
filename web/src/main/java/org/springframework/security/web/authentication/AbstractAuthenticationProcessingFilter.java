@@ -338,7 +338,7 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 	 * <ol>
 	 * <li>Clears the {@link SecurityContextHolder}</li>
 	 * <li>Stores the exception in the session (if it exists or
-	 * <tt>allowSesssionCreation</tt> is set to <tt>true</tt>)</li>
+	 * <tt>allowSessionCreation</tt> is set to <tt>true</tt>)</li>
 	 * <li>Informs the configured <tt>RememberMeServices</tt> of the failed login</li>
 	 * <li>Delegates additional behaviour to the
 	 * {@link AuthenticationFailureHandler}.</li>

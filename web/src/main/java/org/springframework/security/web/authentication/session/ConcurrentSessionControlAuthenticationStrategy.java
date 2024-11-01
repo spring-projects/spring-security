@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -174,7 +174,7 @@ public class ConcurrentSessionControlAuthenticationStrategy
 	/**
 	 * Sets the <tt>maxSessions</tt> property. The default value is 1. Use -1 for
 	 * unlimited sessions.
-	 * @param maximumSessions the maximimum number of permitted sessions a user can have
+	 * @param maximumSessions the maximum number of permitted sessions a user can have
 	 * open simultaneously.
 	 */
 	public void setMaximumSessions(int maximumSessions) {
