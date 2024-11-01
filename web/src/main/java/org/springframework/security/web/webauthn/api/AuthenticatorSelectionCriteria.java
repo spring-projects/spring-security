@@ -25,7 +25,7 @@ package org.springframework.security.web.webauthn.api;
  *
  * There is no <a href=
  * "https://www.w3.org/TR/webauthn-3/#dom-authenticatorselectioncriteria-requireresidentkey">requireResidentKey</a>
- * property because it is only for backwards compatability with WebAuthn Level 1.
+ * property because it is only for backwards compatibility with WebAuthn Level 1.
  *
  * @author Rob Winch
  * @since 6.4
@@ -40,7 +40,7 @@ public final class AuthenticatorSelectionCriteria {
 	private final UserVerificationRequirement userVerification;
 
 	// NOTE: There is no requireResidentKey property because it is only for backward
-	// compatability with WebAuthn Level 1
+	// compatibility with WebAuthn Level 1
 
 	/**
 	 * Creates a new instance
@@ -79,7 +79,7 @@ public final class AuthenticatorSelectionCriteria {
 	 * to create a <a href=
 	 * "https://www.w3.org/TR/webauthn-3/#client-side-discoverable-credential">client-side
 	 * discoverable credential</a>.
-	 * @return the residenty key requirement
+	 * @return the resident key requirement
 	 */
 	public ResidentKeyRequirement getResidentKey() {
 		return this.residentKey;
