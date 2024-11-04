@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -79,7 +79,7 @@ public class ServerBearerTokenAuthenticationConverter implements ServerAuthentic
 		}
 		if (parameterToken != null && isParameterTokenSupportedForRequest(request)) {
 			if (!StringUtils.hasText(parameterToken)) {
-				final BearerTokenError error = BearerTokenErrors
+				BearerTokenError error = BearerTokenErrors
 					.invalidRequest("The requested token parameter is an empty string");
 				throw new OAuth2AuthenticationException(error);
 			}
