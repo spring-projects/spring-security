@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,13 +57,18 @@ public final class DefaultBearerTokenResolver implements BearerTokenResolver {
 				? resolveFromRequestParameters(request) : null;
 		if (authorizationHeaderToken != null) {
 			if (parameterToken != null) {
-				final BearerTokenError error = BearerTokenErrors
+				BearerTokenError error = BearerTokenErrors
 					.invalidRequest("Found multiple bearer tokens in the request");
 				throw new OAuth2AuthenticationException(error);
 			}
 			return authorizationHeaderToken;
 		}
 		if (parameterToken != null && isParameterTokenEnabledForRequest(request)) {
+			if (!StringUtils.hasText(parameterToken)) {
+				BearerTokenError error = BearerTokenErrors
+					.invalidRequest("The requested token parameter is an empty string");
+				throw new OAuth2AuthenticationException(error);
+			}
 			return parameterToken;
 		}
 		return null;
