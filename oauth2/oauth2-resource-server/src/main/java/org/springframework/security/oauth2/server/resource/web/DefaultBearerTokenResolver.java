@@ -53,8 +53,8 @@ public final class DefaultBearerTokenResolver implements BearerTokenResolver {
 	@Override
 	public String resolve(final HttpServletRequest request) {
 		final String authorizationHeaderToken = resolveFromAuthorizationHeader(request);
-		final String parameterToken = isParameterTokenEnabledForRequest(request)
-				? resolveFromRequestParameters(request) : null;
+		final String parameterToken = resolveFromRequestParameters(request);
+
 		if (authorizationHeaderToken != null) {
 			if (parameterToken != null) {
 				BearerTokenError error = BearerTokenErrors
@@ -65,7 +65,7 @@ public final class DefaultBearerTokenResolver implements BearerTokenResolver {
 		}
 		if (parameterToken != null && !StringUtils.hasText(parameterToken)) {
 			BearerTokenError error = BearerTokenErrors
-											 .invalidRequest("The requested token parameter is an empty string");
+				.invalidRequest("The requested token parameter is an empty string");
 			throw new OAuth2AuthenticationException(error);
 		}
 		return parameterToken;
@@ -119,7 +119,10 @@ public final class DefaultBearerTokenResolver implements BearerTokenResolver {
 		return matcher.group("token");
 	}
 
-	private static String resolveFromRequestParameters(HttpServletRequest request) {
+	private String resolveFromRequestParameters(HttpServletRequest request) {
+		if (!isParameterTokenEnabledForRequest(request)) {
+			return null;
+		}
 		String[] values = request.getParameterValues(ACCESS_TOKEN_PARAMETER_NAME);
 		if (values == null || values.length == 0) {
 			return null;
