@@ -7,7 +7,7 @@ jakarta-websocket = "2.2.0"
 org-apache-directory-server = "1.5.5"
 org-apache-maven-resolver = "1.9.22"
 org-aspectj = "1.9.22.1"
-org-bouncycastle = "1.78.1"
+org-bouncycastle = "1.79"
 org-eclipse-jetty = "11.0.24"
 org-jetbrains-kotlin = "1.9.25"
 org-jetbrains-kotlinx = "1.9.0"
@@ -71,7 +71,7 @@ org-eclipse-jetty-jetty-server = { module = "org.eclipse.jetty:jetty-server", ve
 org-eclipse-jetty-jetty-servlet = { module = "org.eclipse.jetty:jetty-servlet", version.ref = "org-eclipse-jetty" }
 org-hamcrest = "org.hamcrest:hamcrest:2.2"
 org-hibernate-orm-hibernate-core = "org.hibernate.orm:hibernate-core:6.6.1.Final"
-org-hsqldb = "org.hsqldb:hsqldb:2.7.3"
+org-hsqldb = "org.hsqldb:hsqldb:2.7.4"
 org-jetbrains-kotlin-kotlin-bom = { module = "org.jetbrains.kotlin:kotlin-bom", version.ref = "org-jetbrains-kotlin" }
 org-jetbrains-kotlin-kotlin-gradle-plugin = "org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.25"
 org-jetbrains-kotlinx-kotlinx-coroutines-bom = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-bom", version.ref = "org-jetbrains-kotlinx" }
@@ -83,7 +83,7 @@ org-opensaml-opensaml5-saml-api = { module = "org.opensaml:opensaml-saml-api", v
 org-opensaml-opensaml5-saml-impl = { module = "org.opensaml:opensaml-saml-impl", version.ref = "org-opensaml5" }
 org-python-jython = { module = "org.python:jython", version = "2.5.3" }
 org-seleniumhq-selenium-htmlunit-driver = "org.seleniumhq.selenium:htmlunit3-driver:4.25.0"
-org-seleniumhq-selenium-selenium-java = "org.seleniumhq.selenium:selenium-java:4.25.0"
+org-seleniumhq-selenium-selenium-java = "org.seleniumhq.selenium:selenium-java:4.26.0"
 org-seleniumhq-selenium-selenium-support = "org.seleniumhq.selenium:selenium-support:3.141.59"
 org-skyscreamer-jsonassert = "org.skyscreamer:jsonassert:1.5.3"
 org-slf4j-log4j-over-slf4j = "org.slf4j:log4j-over-slf4j:1.7.36"
@@ -107,7 +107,7 @@ org-jfrog-buildinfo-build-info-extractor-gradle = "org.jfrog.buildinfo:build-inf
 org-sonarsource-scanner-gradle-sonarqube-gradle-plugin = "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.8.0.1969"
 org-instancio-instancio-junit = "org.instancio:instancio-junit:3.7.1"
 
-webauthn4j-core = 'com.webauthn4j:webauthn4j-core:0.27.0.RELEASE'
+webauthn4j-core = 'com.webauthn4j:webauthn4j-core:0.28.0.RELEASE'
 
 [plugins]
 

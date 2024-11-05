@@ -77,6 +77,11 @@ public class ServerBearerTokenAuthenticationConverter implements ServerAuthentic
 			}
 			return authorizationHeaderToken;
 		}
+		if (parameterToken != null && !StringUtils.hasText(parameterToken)) {
+			BearerTokenError error = BearerTokenErrors
+											 .invalidRequest("The requested token parameter is an empty string");
+			throw new OAuth2AuthenticationException(error);
+		}
 		return parameterToken;
 	}
 
