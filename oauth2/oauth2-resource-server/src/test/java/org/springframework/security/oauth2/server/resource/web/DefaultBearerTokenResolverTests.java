@@ -110,6 +110,7 @@ public class DefaultBearerTokenResolverTests {
 
 	@Test
 	public void resolveWhenValidHeaderIsPresentTogetherWithFormParameterThenAuthenticationExceptionIsThrown() {
+		this.resolver.setAllowFormEncodedBodyParameter(true);
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("Authorization", "Bearer " + TEST_TOKEN);
 		request.setMethod("POST");
@@ -121,6 +122,7 @@ public class DefaultBearerTokenResolverTests {
 
 	@Test
 	public void resolveWhenValidHeaderIsPresentTogetherWithQueryParameterThenAuthenticationExceptionIsThrown() {
+		this.resolver.setAllowUriQueryParameter(true);
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("Authorization", "Bearer " + TEST_TOKEN);
 		request.setMethod("GET");
@@ -133,6 +135,7 @@ public class DefaultBearerTokenResolverTests {
 	// gh-10326
 	@Test
 	public void resolveWhenRequestContainsTwoAccessTokenQueryParametersThenAuthenticationExceptionIsThrown() {
+		this.resolver.setAllowUriQueryParameter(true);
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setMethod("GET");
 		request.addParameter("access_token", "token1", "token2");
@@ -143,6 +146,7 @@ public class DefaultBearerTokenResolverTests {
 	// gh-10326
 	@Test
 	public void resolveWhenRequestContainsTwoAccessTokenFormParametersThenAuthenticationExceptionIsThrown() {
+		this.resolver.setAllowFormEncodedBodyParameter(true);
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setMethod("POST");
 		request.setContentType("application/x-www-form-urlencoded");
@@ -258,6 +262,25 @@ public class DefaultBearerTokenResolverTests {
 		request.setMethod("GET");
 		request.setQueryString("access_token=" + TEST_TOKEN);
 		request.addParameter("access_token", TEST_TOKEN);
+		assertThat(this.resolver.resolve(request)).isNull();
+	}
+
+	// gh-16038
+	@Test
+	void resolveWhenRequestContainsTwoAccessTokenFormParametersAndSupportIsDisabledThenTokenIsNotResolved() {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setMethod("POST");
+		request.setContentType("application/x-www-form-urlencoded");
+		request.addParameter("access_token", "token1", "token2");
+		assertThat(this.resolver.resolve(request)).isNull();
+	}
+
+	// gh-16038
+	@Test
+	void resolveWhenRequestContainsTwoAccessTokenQueryParametersAndSupportIsDisabledThenTokenIsNotResolved() {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setMethod("GET");
+		request.addParameter("access_token", "token1", "token2");
 		assertThat(this.resolver.resolve(request)).isNull();
 	}
 

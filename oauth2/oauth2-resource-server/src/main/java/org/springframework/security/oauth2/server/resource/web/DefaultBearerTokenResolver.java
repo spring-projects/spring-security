@@ -53,8 +53,8 @@ public final class DefaultBearerTokenResolver implements BearerTokenResolver {
 	@Override
 	public String resolve(final HttpServletRequest request) {
 		final String authorizationHeaderToken = resolveFromAuthorizationHeader(request);
-		final String parameterToken = isParameterTokenSupportedForRequest(request)
-				? resolveFromRequestParameters(request) : null;
+		final String parameterToken = resolveFromRequestParameters(request);
+
 		if (authorizationHeaderToken != null) {
 			if (parameterToken != null) {
 				BearerTokenError error = BearerTokenErrors
@@ -63,15 +63,12 @@ public final class DefaultBearerTokenResolver implements BearerTokenResolver {
 			}
 			return authorizationHeaderToken;
 		}
-		if (parameterToken != null && isParameterTokenEnabledForRequest(request)) {
-			if (!StringUtils.hasText(parameterToken)) {
-				BearerTokenError error = BearerTokenErrors
-					.invalidRequest("The requested token parameter is an empty string");
-				throw new OAuth2AuthenticationException(error);
-			}
-			return parameterToken;
+		if (parameterToken != null && parameterToken.isBlank()) {
+			BearerTokenError error = BearerTokenErrors
+				.invalidRequest("The requested token parameter is an empty string");
+			throw new OAuth2AuthenticationException(error);
 		}
-		return null;
+		return parameterToken;
 	}
 
 	/**
@@ -122,7 +119,10 @@ public final class DefaultBearerTokenResolver implements BearerTokenResolver {
 		return matcher.group("token");
 	}
 
-	private static String resolveFromRequestParameters(HttpServletRequest request) {
+	private String resolveFromRequestParameters(HttpServletRequest request) {
+		if (!isParameterTokenEnabledForRequest(request)) {
+			return null;
+		}
 		String[] values = request.getParameterValues(ACCESS_TOKEN_PARAMETER_NAME);
 		if (values == null || values.length == 0) {
 			return null;
@@ -132,10 +132,6 @@ public final class DefaultBearerTokenResolver implements BearerTokenResolver {
 		}
 		BearerTokenError error = BearerTokenErrors.invalidRequest("Found multiple bearer tokens in the request");
 		throw new OAuth2AuthenticationException(error);
-	}
-
-	private boolean isParameterTokenSupportedForRequest(final HttpServletRequest request) {
-		return isFormEncodedRequest(request) || isGetRequest(request);
 	}
 
 	private static boolean isGetRequest(HttpServletRequest request) {
