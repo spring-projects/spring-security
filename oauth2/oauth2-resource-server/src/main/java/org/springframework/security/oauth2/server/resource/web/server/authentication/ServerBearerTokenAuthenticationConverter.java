@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -77,13 +77,13 @@ public class ServerBearerTokenAuthenticationConverter implements ServerAuthentic
 			}
 			return authorizationHeaderToken;
 		}
-		if (parameterToken != null && isParameterTokenSupportedForRequest(request)) {
-			return parameterToken;
-		}
-		return null;
+		return parameterToken;
 	}
 
-	private static String resolveAccessTokenFromRequest(ServerHttpRequest request) {
+	private String resolveAccessTokenFromRequest(ServerHttpRequest request) {
+		if (!isParameterTokenSupportedForRequest(request)) {
+			return null;
+		}
 		List<String> parameterTokens = request.getQueryParams().get("access_token");
 		if (CollectionUtils.isEmpty(parameterTokens)) {
 			return null;
