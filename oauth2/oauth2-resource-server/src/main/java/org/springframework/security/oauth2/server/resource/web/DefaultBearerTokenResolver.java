@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,7 +53,7 @@ public final class DefaultBearerTokenResolver implements BearerTokenResolver {
 	@Override
 	public String resolve(final HttpServletRequest request) {
 		final String authorizationHeaderToken = resolveFromAuthorizationHeader(request);
-		final String parameterToken = isParameterTokenSupportedForRequest(request)
+		final String parameterToken = isParameterTokenEnabledForRequest(request)
 				? resolveFromRequestParameters(request) : null;
 		if (authorizationHeaderToken != null) {
 			if (parameterToken != null) {
@@ -63,10 +63,7 @@ public final class DefaultBearerTokenResolver implements BearerTokenResolver {
 			}
 			return authorizationHeaderToken;
 		}
-		if (parameterToken != null && isParameterTokenEnabledForRequest(request)) {
-			return parameterToken;
-		}
-		return null;
+		return parameterToken;
 	}
 
 	/**
@@ -127,10 +124,6 @@ public final class DefaultBearerTokenResolver implements BearerTokenResolver {
 		}
 		BearerTokenError error = BearerTokenErrors.invalidRequest("Found multiple bearer tokens in the request");
 		throw new OAuth2AuthenticationException(error);
-	}
-
-	private boolean isParameterTokenSupportedForRequest(final HttpServletRequest request) {
-		return isFormEncodedRequest(request) || isGetRequest(request);
 	}
 
 	private static boolean isGetRequest(HttpServletRequest request) {
