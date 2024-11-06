@@ -13,48 +13,44 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.google.springframework.security.web.ssrf;
 
-
-import java.util.Collections;
+import java.net.InetAddress;
 import java.util.List;
 
 
 public class SsrfProtectionConfig {
 
-	private List<String> bannedIps = Collections.emptyList();
-	private boolean allowInternalIp = false;  // New config
-	private boolean allowExternalIp = false;  // New config
+	private SsrfProtectionFilter filter;
 
-	public SsrfProtectionConfig() {
+	public SsrfProtectionConfig(SsrfProtectionFilter filter) {
+		this.filter = filter;
 	}
 
-	public SsrfProtectionConfig(List<String> bannedIps) {
-		this.bannedIps = bannedIps;
+	public static SsrfProtectionConfig makeBasicFilter(BasicSSRFProtectionFilter.FilterMode mode) {
+		return new SsrfProtectionConfig(new BasicSSRFProtectionFilter(mode));
 	}
 
-	public List<String> getBannedIps() {
-		return this.bannedIps;
+	public static SsrfProtectionConfig makeListedFilter(List<String> addresses,
+			ListedSsrfProtectionFilter.FilterMode mode) {
+		return new SsrfProtectionConfig(
+				new ListedSsrfProtectionFilter(addresses.stream().map(IpOrRange::new).toList(), mode));
 	}
 
-	public boolean isAllowInternalIp() {
-		return allowInternalIp;
+	public static SsrfProtectionConfig defaultFilter(List<String> addresses,
+			ListedSsrfProtectionFilter.FilterMode mode) {
+
+		// TODO(vaspori): use/parse system properties
+		return new SsrfProtectionConfig(new SsrfProtectionFilter() {
+			@Override
+			public InetAddress[] filter(InetAddress[] addresses) throws HostBlockedException {
+				return addresses;
+			}
+		});
 	}
 
-	public void setAllowInternalIp(boolean allowInternalIp) {
-		this.allowInternalIp = allowInternalIp;
-	}
 
-	public boolean isAllowExternalIp() {
-		return allowExternalIp;
-	}
-
-	public void setAllowExternalIp(boolean allowExternalIp) {
-		this.allowExternalIp = allowExternalIp;
-	}
-
-	public void setBannedIps(List<String> bannedIps) {
-		this.bannedIps = bannedIps;
+	public SsrfProtectionFilter getFilter() {
+		return filter;
 	}
 }

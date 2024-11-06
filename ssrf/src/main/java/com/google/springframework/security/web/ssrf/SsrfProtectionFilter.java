@@ -13,16 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.http.client;
+package com.google.springframework.security.web.ssrf;
 
-import org.springframework.http.client.reactive.JdkClientHttpConnector;
+import java.net.InetAddress;
 
-public class SecureJdkClientHttpConnector extends JdkClientHttpConnector {
 
-	public SecureJdkClientHttpConnector() {
+public interface SsrfProtectionFilter {
 
-		throw new RuntimeException(
-				"This feature could not be implemented. The client lacks support for overriding address resolution.");
-	}
+	InetAddress[] filter(final InetAddress[] addresses) throws HostBlockedException;
 
 }

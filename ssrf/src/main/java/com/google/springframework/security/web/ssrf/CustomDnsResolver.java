@@ -17,7 +17,8 @@ package com.google.springframework.security.web.ssrf;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hc.client5.http.DnsResolver;
 
 class CustomDnsResolver implements DnsResolver {
@@ -30,31 +31,30 @@ class CustomDnsResolver implements DnsResolver {
 
 	@Override
 	public InetAddress[] resolve(final String host) throws UnknownHostException {
-		if (this.ssrfProtectionConfig.getBannedIps().contains(host)) {
-			throw new UnknownHostException("Blocked access to IP: " + host);
-		}
 
-		if (!this.ssrfProtectionConfig.isAllowInternalIp() && isInternalIp(host)) {
-			throw new UnknownHostException("Blocked access to internal IP: " + host);
-		}
+		// Internally these results are cached for 30 seconds (by default) to prevent naive DNS rebinding
+		// It's important to fetch it from the cache before running checks and to not run resolution again.
+		// ( Otherwise this would make us vulnerable to high-frequency switching between valid-invalid addresses )
+		InetAddress[] cachedResult = resolveAll(host);
 
-		if (!this.ssrfProtectionConfig.isAllowExternalIp() && !isInternalIp(host)) {
-			throw new UnknownHostException("Blocked access to external IP: " + host);
+		List<InetAddress> result = new ArrayList<>(cachedResult.length);
+		try {
+			return ssrfProtectionConfig.getFilter().filter(cachedResult);
+		} catch (HostBlockedException e) {
+			// TODO(vaspori): log error as well, exception can't be chained
+			throw new UnknownHostException(
+					"Access to " + host + " was blocked because it violates the SSRF protection config");
 		}
-
-		// Default behavior: allow if not banned and no allow rules are set
-		return InetAddress.getAllByName(host);
 	}
 
-	private boolean isInternalIp(String host) {
-		// Implement your logic to determine if an IP is internal
-		// This is a simplified example, you might need more robust checks
-		return host.startsWith("10.") || host.startsWith("192.168.") || host.startsWith(
-				"172.16.") || host.startsWith("fd00:");
+	// Address resolution moved to a helper function for testing purposes
+	protected InetAddress[] resolveAll(String host) throws UnknownHostException {
+		return InetAddress.getAllByName(host);
 	}
 
 	@Override
 	public String resolveCanonicalHostname(String host) throws UnknownHostException {
+		//TODO(vaspori): implement properly
 		return host;
 	}
 }

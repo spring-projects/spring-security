@@ -13,14 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.http.client;
+package com.google.springframework.security.web.ssrf;
 
+import java.io.IOException;
 
-// TODO(vaspori): Document this properly
-// Sadly all the needed classes are package private in org.springframework.http.client
-// currently this is is the only way to override them.
-public class SecureHttpComponentsClientHttpRequestFactory extends HttpComponentsClientHttpRequestFactory{
+public class HostBlockedException extends IOException {
 
+	private static final long serialVersionUID = 1;
 
+	public HostBlockedException(String message) {
+		super(message);
+	}
+
+	public HostBlockedException() {
+	}
 
 }

@@ -18,6 +18,8 @@ repositories {
 dependencies {
     // Use JUnit Jupiter for testing.
     testImplementation 'org.junit.jupiter:junit-jupiter:5.8.2'
+	testImplementation 'org.mockito:mockito-core:5.14.2'
+	testImplementation "org.mockito:mockito-junit-jupiter:5.14.2"
 
     api 'org.springframework:spring-web:' + springVersion
 
