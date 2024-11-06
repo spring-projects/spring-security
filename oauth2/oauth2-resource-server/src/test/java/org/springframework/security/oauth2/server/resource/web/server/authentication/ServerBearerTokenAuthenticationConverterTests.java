@@ -222,7 +222,6 @@ public class ServerBearerTokenAuthenticationConverterTests {
 	// gh-16038
 	@Test
 	void resoleWhenAllowUriQueryParameterIsFalseThenQueryParameterIsIgnored() {
-		this.converter.setAllowUriQueryParameter(false);
 		MockServerHttpRequest.BaseBuilder<?> request = MockServerHttpRequest.get("/")
 			.queryParam("access_token", TEST_TOKEN);
 		assertThat(convertToToken(request)).isNull();

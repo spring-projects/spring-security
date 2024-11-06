@@ -239,7 +239,6 @@ public class DefaultBearerTokenResolverTests {
 
 	@Test
 	public void resolveWhenFormParameterIsPresentAndNotSupportedThenTokenIsNotResolved() {
-		this.resolver.setAllowFormEncodedBodyParameter(false);
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setMethod("POST");
 		request.setContentType("application/x-www-form-urlencoded");
@@ -269,7 +268,6 @@ public class DefaultBearerTokenResolverTests {
 	// gh-16038
 	@Test
 	void resolveWhenRequestContainsTwoAccessTokenFormParametersAndSupportIsDisabledThenTokenIsNotResolved() {
-		this.resolver.setAllowFormEncodedBodyParameter(false);
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setMethod("POST");
 		request.setContentType("application/x-www-form-urlencoded");
@@ -279,11 +277,9 @@ public class DefaultBearerTokenResolverTests {
 
 	// gh-16038
 	@Test
-	void resolveWhenRequestContainsTwoAccessTokenQueryParameterAndSupportIsDisabledThenTokenIsNotResolved() {
-		this.resolver.setAllowUriQueryParameter(false);
+	void resolveWhenRequestContainsTwoAccessTokenQueryParametersAndSupportIsDisabledThenTokenIsNotResolved() {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setMethod("GET");
-		request.setQueryString("access_token=" + TEST_TOKEN);
 		request.addParameter("access_token", "token1", "token2");
 		assertThat(this.resolver.resolve(request)).isNull();
 	}
