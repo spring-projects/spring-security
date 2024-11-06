@@ -30,6 +30,7 @@ import reactor.core.publisher.Mono;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.ReadOnlyHttpHeaders;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpRequestDecorator;
 import org.springframework.http.server.reactive.ServerHttpResponse;
@@ -743,7 +744,7 @@ public class StrictServerWebExchangeFirewall implements ServerWebExchangeFirewal
 				return queryParams;
 			}
 
-			private final class StrictFirewallHttpHeaders extends HttpHeaders {
+			private final class StrictFirewallHttpHeaders extends ReadOnlyHttpHeaders {
 
 				private StrictFirewallHttpHeaders(HttpHeaders delegate) {
 					super(delegate);
