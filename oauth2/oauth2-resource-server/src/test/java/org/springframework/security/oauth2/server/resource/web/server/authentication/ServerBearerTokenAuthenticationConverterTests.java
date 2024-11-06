@@ -227,6 +227,14 @@ public class ServerBearerTokenAuthenticationConverterTests {
 		assertThat(convertToToken(request)).isNull();
 	}
 
+	// gh-16038
+	@Test
+	void resolveWhenRequestContainsTwoAccessTokenQueryParametersAndSupportIsDisabledThenTokenIsNotResolved() {
+		MockServerHttpRequest.BaseBuilder<?> request = MockServerHttpRequest.get("/")
+			 .queryParam("access_token", TEST_TOKEN, TEST_TOKEN);
+		assertThat(convertToToken(request)).isNull();
+	}
+
 	private BearerTokenAuthenticationToken convertToToken(MockServerHttpRequest.BaseBuilder<?> request) {
 		return convertToToken(request.build());
 	}
