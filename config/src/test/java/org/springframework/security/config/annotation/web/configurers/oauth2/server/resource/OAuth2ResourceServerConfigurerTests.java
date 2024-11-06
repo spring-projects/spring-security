@@ -1560,12 +1560,15 @@ public class OAuth2ResourceServerConfigurerTests {
 		@Bean
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
+			DefaultBearerTokenResolver defaultBearerTokenResolver = new DefaultBearerTokenResolver();
+			defaultBearerTokenResolver.setAllowUriQueryParameter(true);
 			http
 				.authorizeRequests()
 					.requestMatchers("/requires-read-scope").access("hasAuthority('SCOPE_message:read')")
 					.anyRequest().authenticated()
 					.and()
 				.oauth2ResourceServer()
+					.bearerTokenResolver(defaultBearerTokenResolver)
 					.jwt()
 						.jwkSetUri(this.jwkSetUri);
 			return http.build();
