@@ -223,7 +223,7 @@ public class ServerBearerTokenAuthenticationConverterTests {
 	@Test
 	void resolveWhenRequestContainsTwoAccessTokenQueryParametersAndSupportIsDisabledThenTokenIsNotResolved() {
 		MockServerHttpRequest.BaseBuilder<?> request = MockServerHttpRequest.get("/")
-			 .queryParam("access_token", TEST_TOKEN, TEST_TOKEN);
+			.queryParam("access_token", TEST_TOKEN, TEST_TOKEN);
 		assertThat(convertToToken(request)).isNull();
 	}
 
