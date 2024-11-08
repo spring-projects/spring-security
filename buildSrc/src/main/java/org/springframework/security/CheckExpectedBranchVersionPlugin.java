@@ -51,7 +51,7 @@ public class CheckExpectedBranchVersionPlugin implements Plugin<Project> {
 			String version = (String) project.getVersion();
 			String branchVersion = getBranchVersion(project);
 			if (!branchVersion.matches("^[0-9]+\\.[0-9]+\\.x$")) {
-				System.out.println("Branch version does not match *.x, ignoring");
+				System.out.println("Branch version '" + branchVersion + "' does not match *.x, ignoring");
 				return;
 			}
 			if (!versionsMatch(version, branchVersion)) {
@@ -67,7 +67,7 @@ public class CheckExpectedBranchVersionPlugin implements Plugin<Project> {
 					exec.setErrorOutput(System.err);
 					exec.setStandardOutput(baos);
 				});
-				return baos.toString();
+				return baos.toString().trim();
 			}
 		}
 
