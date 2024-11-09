@@ -796,7 +796,7 @@ In-memory filtering can obviously be expensive, and so be considerate of whether
 === Authorizing Method Invocation with `@Secured`
 
 javadoc:org.springframework.security.access.annotation.Secured[format=annotation] is a legacy option for authorizing invocations.
-<<use-preauthorize,`@PreAuthorize`>> supercedes it and is recommended instead.
+<<use-preauthorize,`@PreAuthorize`>> supersedes it and is recommended instead.
 
 To use the `@Secured` annotation, you should first change your Method Security declaration to enable it like so:
 

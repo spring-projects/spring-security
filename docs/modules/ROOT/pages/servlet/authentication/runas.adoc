@@ -12,7 +12,7 @@ Because Spring Security provides a number of helper classes that automatically c
 
 [[runas-config]]
 == Configuration
-Spring Security provices a `RunAsManager` interface:
+Spring Security provides a `RunAsManager` interface:
 
 [source,java]
 ----
