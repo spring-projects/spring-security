@@ -120,7 +120,7 @@ class RefreshableRelyingPartyRegistrationRepository : IterableRelyingPartyRegist
 ======
 
 [TIP]
-`OpenSaml4AssertingPartyMetadataRepository` also ships with a constructor so you can provide a custom `MetadataResolver`. Since the underlying `MetadataResolver` is doing the expirying and refreshing, if you use the constructor directly, you will only get these features by providing an implementation that does so.
+`OpenSaml4AssertingPartyMetadataRepository` also ships with a constructor so you can provide a custom `MetadataResolver`. Since the underlying `MetadataResolver` is doing the expiring and refreshing, if you use the constructor directly, you will only get these features by providing an implementation that does so.
 
 === Verifying Metadata Signatures
 

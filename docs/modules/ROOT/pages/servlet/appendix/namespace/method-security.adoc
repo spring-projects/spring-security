@@ -287,7 +287,7 @@ Use AuthorizationManager API instead of AccessDecisionManager (defaults to true)
 
 [[nsa-intercept-methods-authorization-manager-ref]]
 * **authorization-manager-ref**
-Optional AuthorizationManager bean ID to be used instead of the default (supercedes use-authorization-manager)
+Optional AuthorizationManager bean ID to be used instead of the default (supersedes use-authorization-manager)
 
 [[nsa-intercept-methods-access-decision-manager-ref]]
 * **access-decision-manager-ref**
