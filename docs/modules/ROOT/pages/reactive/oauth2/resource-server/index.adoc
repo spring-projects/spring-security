@@ -7,7 +7,7 @@ Spring Security supports protecting endpoints by offering two forms of OAuth 2.0
 * Opaque Tokens
 
 This is handy in circumstances where an application has delegated its authority management to an https://tools.ietf.org/html/rfc6749[authorization server] (for example, Okta or Ping Identity).
-Resource serves can consult this authorization server to authorize requests.
+Resource servers can consult this authorization server to authorize requests.
 
 [NOTE]
 ====
