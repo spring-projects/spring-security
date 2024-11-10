@@ -50,6 +50,7 @@ import org.springframework.core.io.ResourceLoader;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.security.saml2.Saml2Exception;
+import org.springframework.security.saml2.core.OpenSamlInitializationService;
 import org.springframework.security.saml2.provider.service.registration.BaseOpenSamlAssertingPartyMetadataRepository.MetadataResolverAdapter;
 import org.springframework.util.Assert;
 
@@ -67,6 +68,10 @@ import org.springframework.util.Assert;
  * @see RelyingPartyRegistrations
  */
 public final class OpenSaml5AssertingPartyMetadataRepository implements AssertingPartyMetadataRepository {
+
+	static {
+		OpenSamlInitializationService.initialize();
+	}
 
 	private final BaseOpenSamlAssertingPartyMetadataRepository delegate;
 

@@ -53,7 +53,6 @@ import org.w3c.dom.Element;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.security.saml2.Saml2Exception;
-import org.springframework.security.saml2.core.OpenSamlInitializationService;
 import org.springframework.security.saml2.core.TestSaml2X509Credentials;
 import org.springframework.security.saml2.provider.service.authentication.TestOpenSamlObjects;
 
@@ -70,10 +69,6 @@ import static org.mockito.Mockito.withSettings;
  * Tests for {@link BaseOpenSamlAssertingPartyMetadataRepository}
  */
 public class OpenSaml5AssertingPartyMetadataRepositoryTests {
-
-	static {
-		OpenSamlInitializationService.initialize();
-	}
 
 	private static MetadataDispatcher dispatcher = new MetadataDispatcher()
 		.addResponse("/entity.xml", readFile("test-metadata.xml"))
