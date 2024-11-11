@@ -34,6 +34,7 @@ import org.springframework.security.web.reactive.result.view.CsrfRequestDataValu
 import org.springframework.security.web.server.ObservationWebFilterChainDecorator;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.WebFilterChainProxy;
+import org.springframework.security.web.server.firewall.ServerExchangeRejectedHandler;
 import org.springframework.security.web.server.firewall.ServerWebExchangeFirewall;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ObjectUtils;
@@ -81,12 +82,14 @@ class WebFluxSecurityConfiguration {
 
 	@Bean(SPRING_SECURITY_WEBFILTERCHAINFILTER_BEAN_NAME)
 	@Order(WEB_FILTER_CHAIN_FILTER_ORDER)
-	WebFilterChainProxy springSecurityWebFilterChainFilter(ObjectProvider<ServerWebExchangeFirewall> firewall) {
+	WebFilterChainProxy springSecurityWebFilterChainFilter(ObjectProvider<ServerWebExchangeFirewall> firewall,
+			ObjectProvider<ServerExchangeRejectedHandler> rejectedHandler) {
 		WebFilterChainProxy proxy = new WebFilterChainProxy(getSecurityWebFilterChains());
 		if (!this.observationRegistry.isNoop()) {
 			proxy.setFilterChainDecorator(new ObservationWebFilterChainDecorator(this.observationRegistry));
 		}
 		firewall.ifUnique(proxy::setFirewall);
+		rejectedHandler.ifUnique(proxy::setExchangeRejectedHandler);
 		return proxy;
 	}
 
