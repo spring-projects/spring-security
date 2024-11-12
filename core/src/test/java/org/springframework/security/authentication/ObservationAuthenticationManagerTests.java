@@ -99,4 +99,9 @@ public class ObservationAuthenticationManagerTests {
 			.isThrownBy(() -> this.tested.setObservationConvention(null));
 	}
 
+	@Test
+	void getDelegate() {
+		assertThat(this.tested.getDelegate()).isSameAs(this.authenticationManager);
+	}
+
 }
