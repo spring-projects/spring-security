@@ -61,6 +61,8 @@ public class WebAuthnConfigurer<H extends HttpSecurityBuilder<H>>
 
 	private Set<String> allowedOrigins = new HashSet<>();
 
+	private boolean disableDefaultRegistrationPage = false;
+
 	/**
 	 * The Relying Party id.
 	 * @param rpId the relying party id
@@ -102,6 +104,18 @@ public class WebAuthnConfigurer<H extends HttpSecurityBuilder<H>>
 		return this;
 	}
 
+	/**
+	 * Configures whether the default webauthn registration should be disabled. Setting it
+	 * to {@code true} will prevent the configurer from registering the
+	 * {@link DefaultWebAuthnRegistrationPageGeneratingFilter}.
+	 * @param disable disable the default registration page if true, enable it otherwise
+	 * @return the {@link WebAuthnConfigurer} for further customization
+	 */
+	public WebAuthnConfigurer<H> disableDefaultRegistrationPage(boolean disable) {
+		this.disableDefaultRegistrationPage = disable;
+		return this;
+	}
+
 	@Override
 	public void configure(H http) throws Exception {
 		UserDetailsService userDetailsService = getSharedOrBean(http, UserDetailsService.class).orElseGet(() -> {
@@ -119,17 +133,28 @@ public class WebAuthnConfigurer<H extends HttpSecurityBuilder<H>>
 		http.addFilterBefore(webAuthnAuthnFilter, BasicAuthenticationFilter.class);
 		http.addFilterAfter(new WebAuthnRegistrationFilter(userCredentials, rpOperations), AuthorizationFilter.class);
 		http.addFilterBefore(new PublicKeyCredentialCreationOptionsFilter(rpOperations), AuthorizationFilter.class);
-		http.addFilterAfter(new DefaultWebAuthnRegistrationPageGeneratingFilter(userEntities, userCredentials),
-				AuthorizationFilter.class);
 		http.addFilterBefore(new PublicKeyCredentialRequestOptionsFilter(rpOperations), AuthorizationFilter.class);
+
 		DefaultLoginPageGeneratingFilter loginPageGeneratingFilter = http
 			.getSharedObject(DefaultLoginPageGeneratingFilter.class);
-		if (loginPageGeneratingFilter != null) {
+		boolean isLoginPageEnabled = loginPageGeneratingFilter != null && loginPageGeneratingFilter.isEnabled();
+		if (isLoginPageEnabled) {
 			loginPageGeneratingFilter.setPasskeysEnabled(true);
 			loginPageGeneratingFilter.setResolveHeaders((request) -> {
 				CsrfToken csrfToken = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
 				return Map.of(csrfToken.getHeaderName(), csrfToken.getToken());
 			});
+		}
+
+		if (!this.disableDefaultRegistrationPage) {
+			http.addFilterAfter(new DefaultWebAuthnRegistrationPageGeneratingFilter(userEntities, userCredentials),
+					AuthorizationFilter.class);
+			if (!isLoginPageEnabled) {
+				http.addFilter(DefaultResourcesFilter.css());
+			}
+		}
+
+		if (isLoginPageEnabled || !this.disableDefaultRegistrationPage) {
 			http.addFilter(DefaultResourcesFilter.webauthn());
 		}
 	}
