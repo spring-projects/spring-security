@@ -626,7 +626,7 @@ public class NimbusReactiveJwtDecoderTests {
 		JWSKeySelector<JWKSecurityContext> jwsKeySelector = NimbusReactiveJwtDecoder.withJwkSetUri(this.jwkSetUri)
 			.jwsKeySelector(jwkSource)
 			.block();
-		assertThat(jwsKeySelector instanceof JWSVerificationKeySelector).isTrue();
+		assertThat(jwsKeySelector).isInstanceOf(JWSVerificationKeySelector.class);
 		JWSVerificationKeySelector<JWKSecurityContext> jwsVerificationKeySelector = (JWSVerificationKeySelector<JWKSecurityContext>) jwsKeySelector;
 		assertThat(jwsVerificationKeySelector.isAllowed(JWSAlgorithm.RS256)).isTrue();
 	}
@@ -638,7 +638,7 @@ public class NimbusReactiveJwtDecoderTests {
 			.jwsAlgorithm(SignatureAlgorithm.RS512)
 			.jwsKeySelector(jwkSource)
 			.block();
-		assertThat(jwsKeySelector instanceof JWSVerificationKeySelector).isTrue();
+		assertThat(jwsKeySelector).isInstanceOf(JWSVerificationKeySelector.class);
 		JWSVerificationKeySelector<JWKSecurityContext> jwsVerificationKeySelector = (JWSVerificationKeySelector<JWKSecurityContext>) jwsKeySelector;
 		assertThat(jwsVerificationKeySelector.isAllowed(JWSAlgorithm.RS512)).isTrue();
 	}
@@ -652,7 +652,7 @@ public class NimbusReactiveJwtDecoderTests {
 				.jwsAlgorithm(SignatureAlgorithm.RS512)
 				.jwsKeySelector(jwkSource).block();
 		// @formatter:on
-		assertThat(jwsKeySelector instanceof JWSVerificationKeySelector).isTrue();
+		assertThat(jwsKeySelector).isInstanceOf(JWSVerificationKeySelector.class);
 		JWSVerificationKeySelector<?> jwsAlgorithmMapKeySelector = (JWSVerificationKeySelector<?>) jwsKeySelector;
 		assertThat(jwsAlgorithmMapKeySelector.isAllowed(JWSAlgorithm.RS256)).isTrue();
 		assertThat(jwsAlgorithmMapKeySelector.isAllowed(JWSAlgorithm.RS512)).isTrue();
