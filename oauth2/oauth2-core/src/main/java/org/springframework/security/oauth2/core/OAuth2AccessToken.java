@@ -102,6 +102,7 @@ public class OAuth2AccessToken extends AbstractOAuth2Token {
 		private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 
 		public static final TokenType BEARER = new TokenType("Bearer");
+		public static final TokenType DPOP = new TokenType("DPoP");
 
 		private final String value;
 
