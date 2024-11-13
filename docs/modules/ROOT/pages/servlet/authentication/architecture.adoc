@@ -195,7 +195,11 @@ image::{figures}/providermanagers-parent.png[]
 By default, `ProviderManager` tries to clear any sensitive credentials information from the `Authentication` object that is returned by a successful authentication request.
 This prevents information, such as passwords, being retained longer than necessary in the `HttpSession`.
 
-> **Note:** The `CredentialsContainer` interface plays a critical role in the authentication process. It allows for the erasure of credential information once it is no longer needed, thereby enhancing security by ensuring sensitive data is not retained longer than necessary.
+[NOTE]
+====
+The `CredentialsContainer` interface plays a critical role in the authentication process.
+It allows for the erasure of credential information once it is no longer needed, thereby enhancing security by ensuring sensitive data is not retained longer than necessary.
+====
 
 This may cause issues when you use a cache of user objects, for example, to improve performance in a stateless application.
 If the `Authentication` contains a reference to an object in the cache (such as a `UserDetails` instance) and this has its credentials removed, it is no longer possible to authenticate against the cached value.
@@ -249,21 +253,21 @@ image:{icondir}/number_3.png[] If authentication fails, then __Failure__.
 * The <<servlet-authentication-securitycontextholder>> is cleared out.
 * `RememberMeServices.loginFail` is invoked.
 If remember me is not configured, this is a no-op.
-See the javadoc:org.springframework.security.web.authentication.rememberme.package-summary[] package.
+See the javadoc:org.springframework.security.web.authentication.rememberme.package-summary[rememberme] package.
 * `AuthenticationFailureHandler` is invoked.
 See the javadoc:org.springframework.security.web.authentication.AuthenticationFailureHandler[] interface.
 
 image:{icondir}/number_4.png[] If authentication is successful, then __Success__.
 
 * `SessionAuthenticationStrategy` is notified of a new login.
-See the {security-api-url}org/springframework/security/web/authentication/session/SessionAuthenticationStrategy.html[`SessionAuthenticationStrategy`] interface.
+See the javadoc:org.springframework.security.web.authentication.session.SessionAuthenticationStrategy[] interface.
 * The <<servlet-authentication-authentication>> is set on the <<servlet-authentication-securitycontextholder>>.
 Later, if you need to save the `SecurityContext` so that it can be automatically set on future requests, `SecurityContextRepository#saveContext` must be explicitly invoked.
 See the javadoc:org.springframework.security.web.context.SecurityContextHolderFilter[] class.
 
 * `RememberMeServices.loginSuccess` is invoked.
 If remember me is not configured, this is a no-op.
-See the javadoc:org.springframework.security.web.authentication.rememberme.package-summary[] package.
+See the javadoc:org.springframework.security.web.authentication.rememberme.package-summary[rememberme] package.
 * `ApplicationEventPublisher` publishes an `InteractiveAuthenticationSuccessEvent`.
 * `AuthenticationSuccessHandler` is invoked.
 See the javadoc:org.springframework.security.web.authentication.AuthenticationSuccessHandler[] interface.
