@@ -71,6 +71,11 @@ public final class IpAddressMatcher implements RequestMatcher {
 	}
 
 	public boolean matches(String address) {
+		// Do not match null or blank address
+		if (!StringUtils.hasText(address)) {
+			return false;
+		}
+
 		assertNotHostName(address);
 		InetAddress remoteAddress = parseAddress(address);
 		if (!this.requiredAddress.getClass().equals(remoteAddress.getClass())) {
