@@ -7,6 +7,45 @@ Passkeys are a more secure method of authenticating than passwords and are built
 In order to use a passkey to authenticate, a user must first xref:servlet/authentication/passkeys.adoc#passkeys-register[Register a New Credential].
 After the credential is registered, it can be used to authenticate by xref:servlet/authentication/passkeys.adoc#passkeys-verify[verifying an authentication assertion].
 
+[[passkeys-dependencies]]
+== Required Dependencies
+
+To get started, add the `webauthn4j-core` dependency to your project.
+
+[NOTE]
+====
+This assumes that you are managing Spring Security's versions with Spring Boot or Spring Security's BOM as described in xref:getting-spring-security.adoc[].
+====
+
+.Passkeys Dependencies
+[tabs]
+======
+Maven::
++
+[source,xml,role="primary",subs="verbatim,attributes"]
+----
+<dependency>
+    <groupId>org.springframework.security</groupId>
+    <artifactId>spring-security-web</artifactId>
+</dependency>
+<dependency>
+    <groupId>com.webauthn4j</groupId>
+    <artifactId>webauthn4j-core</artifactId>
+    <version>{webauthn4j-core-version}</version>
+</dependency>
+----
+
+Gradle::
++
+[source,groovy,role="secondary",subs="verbatim,attributes"]
+----
+depenendencies {
+    implementation "org.springframework.security:spring-security-web"
+    implementation "com.webauthn4j:webauthn4j-core:{webauthn4j-core-version}"
+}
+----
+======
+
 [[passkeys-configuration]]
 == Configuration
 
