@@ -46,8 +46,9 @@ public class AuthorizeReturnObjectCoreHintsRegistrarTests {
 		context.refresh();
 		RuntimeHints hints = new RuntimeHints();
 		this.registrar.registerHints(hints, context.getBeanFactory());
-		assertThat(hints.reflection().typeHints().map((hint) -> hint.getType().getName()))
-			.containsOnly(cglibClassName(MyObject.class), cglibClassName(MySubObject.class));
+		assertThat(hints.reflection().typeHints().map((hint) -> hint.getType().getName())).containsOnly(
+				cglibClassName(MyObject.class), cglibClassName(MySubObject.class), MyObject.class.getName(),
+				MySubObject.class.getName());
 		assertThat(hints.proxies()
 			.jdkProxyHints()
 			.flatMap((hint) -> hint.getProxiedInterfaces().stream())
