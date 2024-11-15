@@ -139,4 +139,18 @@ public class IpAddressMatcherTests {
 		assertThat(this.v4matcher.matches((String) null)).isFalse();
 	}
 
+	// gh-15527
+	@Test
+	public void constructorWhenRequiredAddressIsNullThenThrowsIllegalArgumentException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> new IpAddressMatcher(null))
+			.withMessage("ipAddress cannot be empty");
+	}
+
+	// gh-15527
+	@Test
+	public void constructorWhenRequiredAddressIsEmptyThenThrowsIllegalArgumentException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> new IpAddressMatcher(""))
+			.withMessage("ipAddress cannot be empty");
+	}
+
 }

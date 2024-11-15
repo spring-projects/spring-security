@@ -50,6 +50,7 @@ public final class IpAddressMatcher implements RequestMatcher {
 	 * come.
 	 */
 	public IpAddressMatcher(String ipAddress) {
+		Assert.hasText(ipAddress, "ipAddress cannot be empty");
 		assertNotHostName(ipAddress);
 		if (ipAddress.indexOf('/') > 0) {
 			String[] addressAndMask = StringUtils.split(ipAddress, "/");
