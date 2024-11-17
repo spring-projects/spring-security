@@ -45,7 +45,7 @@ class ReactiveObservationConfiguration {
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-	static ObjectPostProcessor<ReactiveAuthorizationManager<ServerWebExchange>> webAuthorizationManagerPostProcessor(
+	static ObjectPostProcessor<ReactiveAuthorizationManager<ServerWebExchange>> rSocketAuthorizationManagerPostProcessor(
 			ObjectProvider<ObservationRegistry> registry, ObjectProvider<SecurityObservationSettings> predicate) {
 		return new ObjectPostProcessor<>() {
 			@Override
@@ -59,7 +59,7 @@ class ReactiveObservationConfiguration {
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-	static ObjectPostProcessor<ReactiveAuthenticationManager> authenticationManagerPostProcessor(
+	static ObjectPostProcessor<ReactiveAuthenticationManager> rSocketAuthenticationManagerPostProcessor(
 			ObjectProvider<ObservationRegistry> registry, ObjectProvider<SecurityObservationSettings> predicate) {
 		return new ObjectPostProcessor<>() {
 			@Override
@@ -73,7 +73,7 @@ class ReactiveObservationConfiguration {
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-	static ObjectPostProcessor<WebFilterChainDecorator> filterChainDecoratorPostProcessor(
+	static ObjectPostProcessor<WebFilterChainDecorator> rSocketFilterChainDecoratorPostProcessor(
 			ObjectProvider<ObservationRegistry> registry, ObjectProvider<SecurityObservationSettings> predicate) {
 		return new ObjectPostProcessor<>() {
 			@Override
