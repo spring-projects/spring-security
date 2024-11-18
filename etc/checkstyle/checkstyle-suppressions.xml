@@ -44,4 +44,8 @@
 
 	<!-- CSS content -->
 	<suppress files="CssUtils\.java" checks="SpringLeadingWhitespace"/>
+
+	<!-- Ignore String.toUpperCase() and String.toLowerCase() checks in tests -->
+	<suppress files="[\\/]src[\\/]test[\\/]" checks="RegexpSinglelineJava" id="toLowerCaseWithoutLocale"/>
+	<suppress files="[\\/]src[\\/]test[\\/]" checks="RegexpSinglelineJava" id="toUpperCaseWithoutLocale"/>
 </suppressions>

@@ -18,6 +18,7 @@ package org.springframework.security.cas.userdetails;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import org.apereo.cas.client.validation.Assertion;
 
@@ -73,7 +74,8 @@ public final class GrantedAuthorityFromAssertionAttributesUserDetailsService
 	}
 
 	private SimpleGrantedAuthority createSimpleGrantedAuthority(Object o) {
-		return new SimpleGrantedAuthority(this.convertToUpperCase ? o.toString().toUpperCase() : o.toString());
+		return new SimpleGrantedAuthority(
+				this.convertToUpperCase ? o.toString().toUpperCase(Locale.ROOT) : o.toString());
 	}
 
 	/**

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.springframework.security.core.authority.mapping;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Set;
 
 import org.springframework.beans.factory.InitializingBean;
@@ -71,10 +72,10 @@ public final class SimpleAuthorityMapper implements GrantedAuthoritiesMapper, In
 
 	private GrantedAuthority mapAuthority(String name) {
 		if (this.convertToUpperCase) {
-			name = name.toUpperCase();
+			name = name.toUpperCase(Locale.ROOT);
 		}
 		else if (this.convertToLowerCase) {
-			name = name.toLowerCase();
+			name = name.toLowerCase(Locale.ROOT);
 		}
 		if (this.prefix.length() > 0 && !name.startsWith(this.prefix)) {
 			name = this.prefix + name;

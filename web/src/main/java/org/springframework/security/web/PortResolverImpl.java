@@ -16,6 +16,8 @@
 
 package org.springframework.security.web;
 
+import java.util.Locale;
+
 import jakarta.servlet.ServletRequest;
 
 import org.springframework.util.Assert;
@@ -45,7 +47,7 @@ public class PortResolverImpl implements PortResolver {
 	@Override
 	public int getServerPort(ServletRequest request) {
 		int serverPort = request.getServerPort();
-		String scheme = request.getScheme().toLowerCase();
+		String scheme = request.getScheme().toLowerCase(Locale.ENGLISH);
 		Integer mappedPort = getMappedPort(serverPort, scheme);
 		return (mappedPort != null) ? mappedPort : serverPort;
 	}

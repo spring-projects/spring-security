@@ -18,6 +18,7 @@ package org.springframework.security.ldap.userdetails;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -193,7 +194,7 @@ public class NestedLdapAuthoritiesPopulator extends DefaultLdapAuthoritiesPopula
 			}
 			for (String role : roles) {
 				if (isConvertToUpperCase()) {
-					role = role.toUpperCase();
+					role = role.toUpperCase(Locale.ROOT);
 				}
 				role = getRolePrefix() + role;
 				// if the group already exist, we will not search for it's parents again.

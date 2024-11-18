@@ -18,6 +18,7 @@ package org.springframework.security.oauth2.client.web.reactive.function.client;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -654,7 +655,7 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 		private Map<String, String> parseAuthParameters(String wwwAuthenticateHeader) {
 			// @formatter:off
 			return Stream.of(wwwAuthenticateHeader).filter((header) -> StringUtils.hasLength(header))
-					.filter((header) -> header.toLowerCase().startsWith("bearer"))
+					.filter((header) -> header.toLowerCase(Locale.ENGLISH).startsWith("bearer"))
 					.map((header) -> header.substring("bearer".length()))
 					.map((header) -> header.split(","))
 					.flatMap(Stream::of)
