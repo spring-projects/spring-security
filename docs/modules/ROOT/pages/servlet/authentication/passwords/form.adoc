@@ -10,6 +10,7 @@ Let's take a look at how form based log in works within Spring Security.
 First, we see how the user is redirected to the log in form.
 
 .Redirecting to the Log In Page
+[.invert-dark]
 image::{figures}/loginurlauthenticationentrypoint.png[]
 
 The figure builds off our xref:servlet/architecture.adoc#servlet-securityfilterchain[`SecurityFilterChain`] diagram.
@@ -30,6 +31,7 @@ When the username and password are submitted, the `UsernamePasswordAuthenticatio
 The `UsernamePasswordAuthenticationFilter` extends xref:servlet/authentication/architecture.adoc#servlet-authentication-abstractprocessingfilter[AbstractAuthenticationProcessingFilter], so this diagram should look pretty similar.
 
 .Authenticating Username and Password
+[.invert-dark]
 image::{figures}/usernamepasswordauthenticationfilter.png[]
 
 The figure builds off our xref:servlet/architecture.adoc#servlet-securityfilterchain[`SecurityFilterChain`] diagram.

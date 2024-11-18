@@ -22,6 +22,7 @@ This also gives a good idea of the high level flow of authentication and how pie
 At the heart of Spring Security's authentication model is the `SecurityContextHolder`.
 It contains the <<servlet-authentication-securitycontext>>.
 
+[.invert-dark]
 image::{figures}/securitycontextholder.png[]
 
 The `SecurityContextHolder` is where Spring Security stores the details of who is xref:features/authentication/index.adoc#authentication[authenticated].
@@ -171,6 +172,7 @@ While the implementation of `AuthenticationManager` could be anything, the most 
 Each `AuthenticationProvider` has an opportunity to indicate that authentication should be successful, fail, or indicate it cannot make a decision and allow a downstream `AuthenticationProvider` to decide.
 If none of the configured ``AuthenticationProvider``s can authenticate, then authentication will fail with a `ProviderNotFoundException` which is a special `AuthenticationException` that indicates the `ProviderManager` was not configured to support the type of `Authentication` that was passed into it.
 
+[.invert-dark]
 image::{figures}/providermanager.png[]
 
 In practice each `AuthenticationProvider` knows how to perform a specific type of authentication.
@@ -180,11 +182,13 @@ This allows each `AuthenticationProvider` to do a very specific type of authenti
 `ProviderManager` also allows configuring an optional parent `AuthenticationManager` which is consulted in the event that no `AuthenticationProvider` can perform authentication.
 The parent can be any type of `AuthenticationManager`, but it is often an instance of `ProviderManager`.
 
+[.invert-dark]
 image::{figures}/providermanager-parent.png[]
 
 In fact, multiple `ProviderManager` instances might share the same parent `AuthenticationManager`.
 This is somewhat common in scenarios where there are multiple xref:servlet/architecture.adoc#servlet-securityfilterchain[`SecurityFilterChain`] instances that have some authentication in common (the shared parent `AuthenticationManager`), but also different authentication mechanisms (the different `ProviderManager` instances).
 
+[.invert-dark]
 image::{figures}/providermanagers-parent.png[]
 
 [[servlet-authentication-providermanager-erasing-credentials]]
@@ -230,6 +234,7 @@ Before the credentials can be authenticated, Spring Security typically requests 
 
 Next, the `AbstractAuthenticationProcessingFilter` can authenticate any authentication requests that are submitted to it.
 
+[.invert-dark]
 image::{figures}/abstractauthenticationprocessingfilter.png[]
 
 image:{icondir}/number_1.png[] When the user submits their credentials, the `AbstractAuthenticationProcessingFilter` creates an <<servlet-authentication-authentication,`Authentication`>> from the `HttpServletRequest` to be authenticated.

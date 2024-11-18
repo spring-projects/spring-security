@@ -12,6 +12,7 @@ The {security-api-url}org/springframework/security/web/access/intercept/FilterSe
 It is inserted into the xref:servlet/architecture.adoc#servlet-filterchainproxy[FilterChainProxy] as one of the xref:servlet/architecture.adoc#servlet-security-filters[Security Filters].
 
 .Authorize HttpServletRequest
+[.invert-dark]
 image::{figures}/filtersecurityinterceptor.png[]
 
 * image:{icondir}/number_1.png[] First, the `FilterSecurityInterceptor` obtains an  xref:servlet/authentication/architecture.adoc#servlet-authentication-authentication[Authentication] from the xref:servlet/authentication/architecture.adoc#servlet-authentication-securitycontextholder[SecurityContextHolder].

@@ -46,6 +46,7 @@ Instead of the authentication needing to be looked up for every request, it will
 When `authorizeHttpRequests` is used instead of `authorizeRequests`, then {security-api-url}org/springframework/security/web/access/intercept/AuthorizationFilter.html[`AuthorizationFilter`] is used instead of xref:servlet/authorization/authorize-requests.adoc#servlet-authorization-filtersecurityinterceptor[`FilterSecurityInterceptor`].
 
 .Authorize HttpServletRequest
+[.invert-dark]
 image::{figures}/authorizationfilter.png[]
 
 * image:{icondir}/number_1.png[] First, the `AuthorizationFilter` obtains an  xref:servlet/authentication/architecture.adoc#servlet-authentication-authentication[Authentication] from the xref:servlet/authentication/architecture.adoc#servlet-authentication-securitycontextholder[SecurityContextHolder].

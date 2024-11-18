@@ -14,6 +14,7 @@ The picture below shows the typical layering of the handlers for a single HTTP r
 
 .FilterChain
 [[servlet-filterchain-figure]]
+[.invert-dark]
 image::{figures}/filterchain.png[]
 
 The client sends a request to the application, and the container creates a `FilterChain` which contains the ``Filter``s and `Servlet` that should process the `HttpServletRequest` based on the path of the request URI.
@@ -67,6 +68,7 @@ Here is a picture of how `DelegatingFilterProxy` fits into the <<servlet-filters
 
 .DelegatingFilterProxy
 [[servlet-delegatingfilterproxy-figure]]
+[.invert-dark]
 image::{figures}/delegatingfilterproxy.png[]
 
 `DelegatingFilterProxy` looks up __Bean Filter~0~__ from the `ApplicationContext` and then invokes __Bean Filter~0~__.
@@ -115,6 +117,7 @@ Since `FilterChainProxy` is a Bean, it is typically wrapped in a <<servlet-deleg
 
 .FilterChainProxy
 [[servlet-filterchainproxy-figure]]
+[.invert-dark]
 image::{figures}/filterchainproxy.png[]
 
 [[servlet-securityfilterchain]]
@@ -124,6 +127,7 @@ image::{figures}/filterchainproxy.png[]
 
 .SecurityFilterChain
 [[servlet-securityfilterchain-figure]]
+[.invert-dark]
 image::{figures}/securityfilterchain.png[]
 
 The <<servlet-security-filters,Security Filters>> in `SecurityFilterChain` are typically Beans, but they are registered with `FilterChainProxy` instead of <<servlet-delegatingfilterproxy>>.
@@ -146,6 +150,7 @@ This allows providing a totally separate configuration for different _slices_ of
 
 .Multiple SecurityFilterChain
 [[servlet-multi-securityfilterchain-figure]]
+[.invert-dark]
 image::{figures}/multi-securityfilterchain.png[]
 
 In the <<servlet-multi-securityfilterchain-figure>> Figure `FilterChainProxy` decides which `SecurityFilterChain` should be used.
@@ -391,6 +396,7 @@ The {security-api-url}org/springframework/security/web/access/ExceptionTranslati
 
 `ExceptionTranslationFilter` is inserted into the <<servlet-filterchainproxy>> as one of the <<servlet-security-filters>>.
 
+[.invert-dark]
 image::{figures}/exceptiontranslationfilter.png[]
 
 

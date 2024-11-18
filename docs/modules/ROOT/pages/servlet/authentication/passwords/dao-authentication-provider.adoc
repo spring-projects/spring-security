@@ -8,6 +8,7 @@ Let's take a look at how `DaoAuthenticationProvider` works within Spring Securit
 The figure explains details of how the xref:servlet/authentication/architecture.adoc#servlet-authentication-authenticationmanager[`AuthenticationManager`] in figures from xref:servlet/authentication/passwords/index.adoc#servlet-authentication-unpwd-input[Reading the Username & Password] works.
 
 .`DaoAuthenticationProvider` Usage
+[.invert-dark]
 image::{figures}/daoauthenticationprovider.png[]
 
 image:{icondir}/number_1.png[] The authentication `Filter` from xref:servlet/authentication/passwords/index.adoc#servlet-authentication-unpwd-input[Reading the Username & Password] passes a `UsernamePasswordAuthenticationToken` to the `AuthenticationManager` which is implemented by xref:servlet/authentication/architecture.adoc#servlet-authentication-providermanager[`ProviderManager`].

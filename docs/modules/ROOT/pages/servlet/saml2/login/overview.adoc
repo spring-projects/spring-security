@@ -7,6 +7,7 @@ First, we see that, like xref:servlet/oauth2/login/index.adoc[OAuth 2.0 Login], 
 It does this through a series of redirects.
 
 .Redirecting to Asserting Party Authentication
+[.invert-dark]
 image::{figures}/saml2webssoauthenticationrequestfilter.png[]
 
 The figure above builds off our xref:servlet/architecture.adoc#servlet-securityfilterchain[`SecurityFilterChain`] and xref:servlet/authentication/architecture.adoc#servlet-authentication-abstractprocessingfilter[`AbstractAuthenticationProcessingFilter`] diagrams:
@@ -29,6 +30,7 @@ image:{icondir}/number_6.png[] The browser then POSTs the `<saml2:Response>` to 
 
 [[servlet-saml2login-authentication-saml2webssoauthenticationfilter]]
 .Authenticating a `<saml2:Response>`
+[.invert-dark]
 image::{figures}/saml2webssoauthenticationfilter.png[]
 
 The figure builds off our xref:servlet/architecture.adoc#servlet-securityfilterchain[`SecurityFilterChain`] diagram.
