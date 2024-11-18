@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.springframework.security.crypto.password;
 
 import java.security.MessageDigest;
 import java.util.Base64;
+import java.util.Locale;
 
 import org.springframework.security.crypto.codec.Utf8;
 import org.springframework.security.crypto.keygen.BytesKeyGenerator;
@@ -50,11 +51,11 @@ public class LdapShaPasswordEncoder implements PasswordEncoder {
 
 	private static final String SSHA_PREFIX = "{SSHA}";
 
-	private static final String SSHA_PREFIX_LC = SSHA_PREFIX.toLowerCase();
+	private static final String SSHA_PREFIX_LC = SSHA_PREFIX.toLowerCase(Locale.ENGLISH);
 
 	private static final String SHA_PREFIX = "{SHA}";
 
-	private static final String SHA_PREFIX_LC = SHA_PREFIX.toLowerCase();
+	private static final String SHA_PREFIX_LC = SHA_PREFIX.toLowerCase(Locale.ENGLISH);
 
 	private BytesKeyGenerator saltGenerator;
 

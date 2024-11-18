@@ -16,6 +16,7 @@
 
 package org.springframework.security.web.util;
 
+import java.util.Locale;
 import java.util.regex.Pattern;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -49,7 +50,7 @@ public final class UrlUtils {
 	 */
 	public static String buildFullRequestUrl(String scheme, String serverName, int serverPort, String requestURI,
 			String queryString) {
-		scheme = scheme.toLowerCase();
+		scheme = scheme.toLowerCase(Locale.ENGLISH);
 		StringBuilder url = new StringBuilder();
 		url.append(scheme).append("://").append(serverName);
 		// Only add port if not default
