@@ -19,6 +19,7 @@ package org.springframework.security.web.authentication.password;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Locale;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -67,8 +68,8 @@ public class HaveIBeenPwnedRestApiReactivePasswordChecker implements ReactiveCom
 	}
 
 	private Mono<Boolean> findLeakedPassword(String encodedPassword) {
-		String prefix = encodedPassword.substring(0, PREFIX_LENGTH).toUpperCase();
-		String suffix = encodedPassword.substring(PREFIX_LENGTH).toUpperCase();
+		String prefix = encodedPassword.substring(0, PREFIX_LENGTH).toUpperCase(Locale.ROOT);
+		String suffix = encodedPassword.substring(PREFIX_LENGTH).toUpperCase(Locale.ROOT);
 		return getLeakedPasswordsForPrefix(prefix).any((leakedPw) -> leakedPw.startsWith(suffix));
 	}
 
