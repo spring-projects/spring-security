@@ -21,6 +21,8 @@ See https://docs.spring.io/spring-security/reference/getting-spring-security.htm
 Be sure to read the https://docs.spring.io/spring-security/reference/[Spring Security Reference].
 Extensive JavaDoc for the Spring Security code is also available in the https://docs.spring.io/spring-security/site/docs/current/api/[Spring Security API Documentation].
 
+You may also want to check out https://docs.spring.io/spring-security/reference/whats-new.html[what's new in the latest release].
+
 == Quick Start
 See https://docs.spring.io/spring-security/reference/servlet/getting-started.html[Hello Spring Security] to get started with a "Hello, World" application.
 
