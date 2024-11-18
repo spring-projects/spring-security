@@ -1528,6 +1528,7 @@ We expose `MethodSecurityExpressionHandler` using a `static` method to ensure th
 
 You can also <<subclass-defaultmethodsecurityexpressionhandler,subclass `DefaultMessageSecurityExpressionHandler`>> to add your own custom authorization expressions beyond the defaults.
 
+[[pre-post-authorize-aot]]
 === Working with AOT
 
 Spring Security will scan all beans in the application context for methods that use `@PreAuthorize` or `@PostAuthorize`.
@@ -2462,6 +2463,7 @@ And if they do have that authority, they'll see:
 You can also add the Spring Boot property `spring.jackson.default-property-inclusion=non_null` to exclude the null value from serialization, if you also don't want to reveal the JSON key to an unauthorized user.
 ====
 
+[[authorize-return-object-aot]]
 === Working with AOT
 
 Spring Security will scan all beans in the application context for methods that use `@AuthorizeReturnObject`.
