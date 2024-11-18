@@ -56,50 +56,42 @@ public class ExpressionBasedPreInvocationAdvice implements PreInvocationAuthoriz
 	}
 
 	private Object findFilterTarget(String filterTargetName, EvaluationContext ctx, MethodInvocation invocation) {
-		Object filterTarget = null;
-
-		Object[] arguments = invocation.getArguments();
-
-		StringBuilder assertionMessageBuilder = new StringBuilder();
+		Object filterTarget;
 
 		if (filterTargetName.length() > 0) {
 			filterTarget = ctx.lookupVariable(filterTargetName);
-			assertionMessageBuilder.append("Filter target was null, or no argument with name ").append(filterTargetName).append(" found in method");
+			Assert.notNull(filterTarget,
+					() -> new StringBuilder("Filter target was null, or no argument with name ").append(filterTargetName).append(" found in method").toString());
+			assertIsNotOfTypeArray(filterTarget);
+
+			return filterTarget;
 		}
 
-		if (filterTargetName.length() == 0 && arguments.length > 1) {
+		Object[] args = invocation.getArguments();
+
+		if (args.length > 1) {
 			throw new IllegalArgumentException(
 					"Unable to determine the method argument for filtering. Specify the filter target.");
 		}
 
-		if (filterTargetName.length() == 0 &&
-				arguments.length == 1 &&
-				argumentsIsArrayOrCollection(arguments[0])
-		) {
-			filterTarget = arguments[0];
-			assertionMessageBuilder.append("A PreFilter expression was set but the method argument type")
-					.append(
-							filterTarget.getClass()).append(" is not filterable");
+		if (args.length == 1 && firstArgIsArrayOrCollection(args[0])) {
+			filterTarget = args[0];
+			Assert.notNull(filterTarget, () -> new StringBuilder("A PreFilter expression was set but the method argument type")
+					.append(args[0].getClass()).append(" is not filterable").toString());
+			assertIsNotOfTypeArray(filterTarget);
+			return filterTarget;
 		}
 
-		Assert.notNull(filterTarget, assertionMessageBuilder.toString());
-
-		assertionMessageBuilder.setLength(0);
-		assertionMessageBuilder.append("Pre-filtering on array types is not supported. Using a Collection will solve this problem");
-
-		Assert.isTrue(!filterTarget.getClass().isArray(), assertionMessageBuilder.toString());
-
-
-		return filterTarget;
+		throw new IllegalStateException("Unexpected either filterTargetName or invocation arguments provided. Provide either the target name or invocation argument with one argument");
 	}
 
-	private boolean argumentsIsArrayOrCollection(Object argument) {
-		if (argument.getClass().isArray()) {
-			return true;
-		}
+	private boolean firstArgIsArrayOrCollection(Object arg) {
+		return arg.getClass().isArray() || arg instanceof Collection<?>;
+	}
 
-		return argument instanceof Collection<?>;
-
+	private void assertIsNotOfTypeArray(Object filterTarget) {
+		Assert.isTrue(!filterTarget.getClass().isArray(),
+				"Pre-filtering on array types is not supported. Using a Collection will solve this problem");
 	}
 
 	public void setExpressionHandler(MethodSecurityExpressionHandler expressionHandler) {
