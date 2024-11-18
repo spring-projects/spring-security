@@ -57,26 +57,49 @@ public class ExpressionBasedPreInvocationAdvice implements PreInvocationAuthoriz
 
 	private Object findFilterTarget(String filterTargetName, EvaluationContext ctx, MethodInvocation invocation) {
 		Object filterTarget = null;
+
+		Object[] arguments = invocation.getArguments();
+
+		StringBuilder assertionMessageBuilder = new StringBuilder();
+
 		if (filterTargetName.length() > 0) {
 			filterTarget = ctx.lookupVariable(filterTargetName);
-			Assert.notNull(filterTarget,
-					() -> "Filter target was null, or no argument with name " + filterTargetName + " found in method");
+			assertionMessageBuilder.append("Filter target was null, or no argument with name ").append(filterTargetName).append(" found in method");
 		}
-		else if (invocation.getArguments().length == 1) {
-			Object arg = invocation.getArguments()[0];
-			if (arg.getClass().isArray() || arg instanceof Collection<?>) {
-				filterTarget = arg;
-			}
-			Assert.notNull(filterTarget, () -> "A PreFilter expression was set but the method argument type"
-					+ arg.getClass() + " is not filterable");
-		}
-		else if (invocation.getArguments().length > 1) {
+
+		if (filterTargetName.length() == 0 && arguments.length > 1) {
 			throw new IllegalArgumentException(
 					"Unable to determine the method argument for filtering. Specify the filter target.");
 		}
-		Assert.isTrue(!filterTarget.getClass().isArray(),
-				"Pre-filtering on array types is not supported. Using a Collection will solve this problem");
+
+		if (filterTargetName.length() == 0 &&
+				arguments.length == 1 &&
+				argumentsIsArrayOrCollection(arguments[0])
+		) {
+			filterTarget = arguments[0];
+			assertionMessageBuilder.append("A PreFilter expression was set but the method argument type")
+					.append(
+							filterTarget.getClass()).append(" is not filterable");
+		}
+
+		Assert.notNull(filterTarget, assertionMessageBuilder.toString());
+
+		assertionMessageBuilder.setLength(0);
+		assertionMessageBuilder.append("Pre-filtering on array types is not supported. Using a Collection will solve this problem");
+
+		Assert.isTrue(!filterTarget.getClass().isArray(), assertionMessageBuilder.toString());
+
+
 		return filterTarget;
+	}
+
+	private boolean argumentsIsArrayOrCollection(Object argument) {
+		if (argument.getClass().isArray()) {
+			return true;
+		}
+
+		return argument instanceof Collection<?>;
+
 	}
 
 	public void setExpressionHandler(MethodSecurityExpressionHandler expressionHandler) {
