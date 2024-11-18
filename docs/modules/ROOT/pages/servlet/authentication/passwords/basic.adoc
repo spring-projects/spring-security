@@ -9,6 +9,7 @@ This section describes how HTTP Basic Authentication works within Spring Securit
 First, we see the https://tools.ietf.org/html/rfc7235#section-4.1[WWW-Authenticate] header is sent back to an unauthenticated client:
 
 .Sending WWW-Authenticate Header
+[.invert-dark]
 image::{figures}/basicauthenticationentrypoint.png[]
 
 The preceding figure builds off our xref:servlet/architecture.adoc#servlet-securityfilterchain[`SecurityFilterChain`] diagram.
@@ -26,6 +27,7 @@ The following image shows the flow for the username and password being processed
 
 [[servlet-authentication-basicauthenticationfilter]]
 .Authenticating Username and Password
+[.invert-dark]
 image::{figures}/basicauthenticationfilter.png[]
 
 The preceding figure builds off our xref:servlet/architecture.adoc#servlet-securityfilterchain[`SecurityFilterChain`] diagram.

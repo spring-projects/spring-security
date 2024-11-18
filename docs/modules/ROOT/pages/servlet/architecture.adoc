@@ -14,6 +14,7 @@ The following image shows the typical layering of the handlers for a single HTTP
 
 .FilterChain
 [[servlet-filterchain-figure]]
+[.invert-dark]
 image::{figures}/filterchain.png[]
 
 The client sends a request to the application, and the container creates a `FilterChain`, which contains the `Filter` instances and `Servlet` that should process the `HttpServletRequest`, based on the path of the request URI.
@@ -66,6 +67,7 @@ Here is a picture of how `DelegatingFilterProxy` fits into the <<servlet-filters
 
 .DelegatingFilterProxy
 [[servlet-delegatingfilterproxy-figure]]
+[.invert-dark]
 image::{figures}/delegatingfilterproxy.png[]
 
 `DelegatingFilterProxy` looks up __Bean Filter~0~__ from the `ApplicationContext` and then invokes __Bean Filter~0~__.
@@ -113,6 +115,7 @@ The following image shows the role of `FilterChainProxy`.
 
 .FilterChainProxy
 [[servlet-filterchainproxy-figure]]
+[.invert-dark]
 image::{figures}/filterchainproxy.png[]
 
 [[servlet-securityfilterchain]]
@@ -124,6 +127,7 @@ The following image shows the role of `SecurityFilterChain`.
 
 .SecurityFilterChain
 [[servlet-securityfilterchain-figure]]
+[.invert-dark]
 image::{figures}/securityfilterchain.png[]
 
 The <<servlet-security-filters,Security Filters>> in `SecurityFilterChain` are typically Beans, but they are registered with `FilterChainProxy` instead of <<servlet-delegatingfilterproxy>>.
@@ -145,6 +149,7 @@ The following image shows multiple `SecurityFilterChain` instances:
 
 .Multiple SecurityFilterChain
 [[servlet-multi-securityfilterchain-figure]]
+[.invert-dark]
 image::{figures}/multi-securityfilterchain.png[]
 
 In the <<servlet-multi-securityfilterchain-figure>> figure, `FilterChainProxy` decides which `SecurityFilterChain` should be used.
@@ -567,6 +572,7 @@ The javadoc:org.springframework.security.web.access.ExceptionTranslationFilter[]
 
 The following image shows the relationship of `ExceptionTranslationFilter` to other components:
 
+[.invert-dark]
 image::{figures}/exceptiontranslationfilter.png[]
 
 

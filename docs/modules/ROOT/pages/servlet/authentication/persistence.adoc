@@ -191,6 +191,7 @@ In Spring Security 6, the example shown above is the default configuration.
 
 The javadoc:org.springframework.security.web.context.SecurityContextPersistenceFilter[] is responsible for persisting the `SecurityContext` between requests using the xref::servlet/authentication/persistence.adoc#securitycontextrepository[`SecurityContextRepository`].
 
+[.invert-dark]
 image::{figures}/securitycontextpersistencefilter.png[]
 
 image:{icondir}/number_1.png[] Before running the rest of the application, `SecurityContextPersistenceFilter` loads the `SecurityContext` from the `SecurityContextRepository` and sets it on the `SecurityContextHolder`.
@@ -213,6 +214,7 @@ To avoid these problems, the `SecurityContextPersistenceFilter` wraps both the `
 
 The javadoc:org.springframework.security.web.context.SecurityContextHolderFilter[] is responsible for loading the `SecurityContext` between requests using the xref::servlet/authentication/persistence.adoc#securitycontextrepository[`SecurityContextRepository`].
 
+[.invert-dark]
 image::{figures}/securitycontextholderfilter.png[]
 
 image:{icondir}/number_1.png[] Before running the rest of the application, `SecurityContextHolderFilter` loads the `SecurityContext` from the `SecurityContextRepository` and sets it on the `SecurityContextHolder`.

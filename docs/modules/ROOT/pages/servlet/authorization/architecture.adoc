@@ -126,6 +126,7 @@ For method security, you can use `AuthorizationManagerBeforeMethodInterceptor` a
 
 [[authz-authorization-manager-implementations]]
 .Authorization Manager Implementations
+[.invert-dark]
 image::{figures}/authorizationhierarchy.png[]
 
 Using this approach, a composition of `AuthorizationManager` implementations can be polled on an authorization decision.
@@ -342,6 +343,7 @@ The following image shows the `AccessDecisionManager` interface:
 
 [[authz-access-voting]]
 .Voting Decision Manager
+[.invert-dark]
 image::{figures}/access-decision-voting.png[]
 
 By using this approach, a series of `AccessDecisionVoter` implementations are polled on an authorization decision.
@@ -402,6 +404,7 @@ For example, on the Spring web site, you can find a https://spring.io/blog/2009/
 
 [[authz-after-invocation]]
 .After Invocation Implementation
+[.invert-dark]
 image::{figures}/after-invocation.png[]
 
 Like many other parts of Spring Security, `AfterInvocationManager` has a single concrete implementation, `AfterInvocationProviderManager`, which polls a list of ``AfterInvocationProvider``s.
