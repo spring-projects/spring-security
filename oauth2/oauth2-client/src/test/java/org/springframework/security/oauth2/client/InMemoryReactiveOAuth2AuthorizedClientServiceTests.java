@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,12 +18,14 @@ package org.springframework.security.oauth2.client;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.function.Consumer;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -35,6 +37,7 @@ import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.BDDMockito.given;
 
@@ -153,9 +156,35 @@ public class InMemoryReactiveOAuth2AuthorizedClientServiceTests {
 				.saveAuthorizedClient(authorizedClient, this.principal)
 				.then(this.authorizedClientService.loadAuthorizedClient(this.clientRegistrationId, this.principalName));
 		StepVerifier.create(saveAndLoad)
-				.expectNext(authorizedClient)
+				.assertNext(isEqualTo(authorizedClient))
 				.verifyComplete();
 		// @formatter:on
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	public void loadAuthorizedClientWhenClientRegistrationChangedThenCurrentVersionFound() {
+		ClientRegistration changedClientRegistration = ClientRegistration
+			.withClientRegistration(this.clientRegistration)
+			.clientSecret("updated secret")
+			.build();
+
+		given(this.clientRegistrationRepository.findByRegistrationId(this.clientRegistrationId))
+			.willReturn(Mono.just(this.clientRegistration), Mono.just(changedClientRegistration));
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.clientRegistration,
+				this.principalName, this.accessToken);
+		OAuth2AuthorizedClient authorizedClientWithChangedRegistration = new OAuth2AuthorizedClient(
+				changedClientRegistration, this.principalName, this.accessToken);
+
+		Flux<OAuth2AuthorizedClient> saveAndLoadTwice = this.authorizedClientService
+			.saveAuthorizedClient(authorizedClient, this.principal)
+			.then(this.authorizedClientService.loadAuthorizedClient(this.clientRegistrationId, this.principalName))
+			.concatWith(
+					this.authorizedClientService.loadAuthorizedClient(this.clientRegistrationId, this.principalName));
+		StepVerifier.create(saveAndLoadTwice)
+			.assertNext(isEqualTo(authorizedClient))
+			.assertNext(isEqualTo(authorizedClientWithChangedRegistration))
+			.verifyComplete();
 	}
 
 	@Test
@@ -244,6 +273,33 @@ public class InMemoryReactiveOAuth2AuthorizedClientServiceTests {
 		StepVerifier.create(saveAndDeleteAndLoad)
 				.verifyComplete();
 		// @formatter:on
+	}
+
+	private static Consumer<OAuth2AuthorizedClient> isEqualTo(OAuth2AuthorizedClient expected) {
+		return (actual) -> {
+			assertThat(actual).isNotNull();
+			assertThat(actual.getClientRegistration().getRegistrationId())
+				.isEqualTo(expected.getClientRegistration().getRegistrationId());
+			assertThat(actual.getClientRegistration().getClientName())
+				.isEqualTo(expected.getClientRegistration().getClientName());
+			assertThat(actual.getClientRegistration().getRedirectUri())
+				.isEqualTo(expected.getClientRegistration().getRedirectUri());
+			assertThat(actual.getClientRegistration().getAuthorizationGrantType())
+				.isEqualTo(expected.getClientRegistration().getAuthorizationGrantType());
+			assertThat(actual.getClientRegistration().getClientAuthenticationMethod())
+				.isEqualTo(expected.getClientRegistration().getClientAuthenticationMethod());
+			assertThat(actual.getClientRegistration().getClientId())
+				.isEqualTo(expected.getClientRegistration().getClientId());
+			assertThat(actual.getClientRegistration().getClientSecret())
+				.isEqualTo(expected.getClientRegistration().getClientSecret());
+			assertThat(actual.getPrincipalName()).isEqualTo(expected.getPrincipalName());
+			assertThat(actual.getAccessToken().getTokenType()).isEqualTo(expected.getAccessToken().getTokenType());
+			assertThat(actual.getAccessToken().getTokenValue()).isEqualTo(expected.getAccessToken().getTokenValue());
+			assertThat(actual.getAccessToken().getIssuedAt()).isEqualTo(expected.getAccessToken().getIssuedAt());
+			assertThat(actual.getAccessToken().getExpiresAt()).isEqualTo(expected.getAccessToken().getExpiresAt());
+			assertThat(actual.getAccessToken().getScopes()).isEqualTo(expected.getAccessToken().getScopes());
+			assertThat(actual.getRefreshToken()).isEqualTo(expected.getRefreshToken());
+		};
 	}
 
 }

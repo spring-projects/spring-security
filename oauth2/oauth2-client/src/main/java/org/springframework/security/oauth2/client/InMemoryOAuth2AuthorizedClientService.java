@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -80,7 +80,13 @@ public final class InMemoryOAuth2AuthorizedClientService implements OAuth2Author
 		if (registration == null) {
 			return null;
 		}
-		return (T) this.authorizedClients.get(new OAuth2AuthorizedClientId(clientRegistrationId, principalName));
+		OAuth2AuthorizedClient cachedAuthorizedClient = this.authorizedClients
+			.get(new OAuth2AuthorizedClientId(clientRegistrationId, principalName));
+		if (cachedAuthorizedClient == null) {
+			return null;
+		}
+		return (T) new OAuth2AuthorizedClient(registration, cachedAuthorizedClient.getPrincipalName(),
+				cachedAuthorizedClient.getAccessToken(), cachedAuthorizedClient.getRefreshToken());
 	}
 
 	@Override
