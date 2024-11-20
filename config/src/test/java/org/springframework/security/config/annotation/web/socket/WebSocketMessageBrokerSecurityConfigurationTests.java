@@ -68,6 +68,7 @@ import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.config.annotation.SecurityContextChangedListenerConfig;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.messaging.MessageSecurityMetadataSourceRegistry;
 import org.springframework.security.config.observation.SecurityObservationSettings;
 import org.springframework.security.core.Authentication;
@@ -438,6 +439,12 @@ public class WebSocketMessageBrokerSecurityConfigurationTests {
 		verifyNoInteractions(observationHandler);
 	}
 
+	// gh-16011
+	@Test
+	public void enableWebSocketSecurityWhenWebSocketSecurityUsedThenAutowires() {
+		loadConfig(WithWebSecurity.class);
+	}
+
 	private void assertHandshake(HttpServletRequest request) {
 		TestHandshakeHandler handshakeHandler = this.context.getBean(TestHandshakeHandler.class);
 		assertThatCsrfToken(handshakeHandler.attributes.get(CsrfToken.class.getName())).isEqualTo(this.token);
@@ -489,6 +496,7 @@ public class WebSocketMessageBrokerSecurityConfigurationTests {
 
 	private void loadConfig(Class<?>... configs) {
 		this.context = new AnnotationConfigWebApplicationContext();
+		this.context.setAllowBeanDefinitionOverriding(false);
 		this.context.register(configs);
 		this.context.setServletConfig(new MockServletConfig());
 		this.context.refresh();
@@ -936,6 +944,13 @@ public class WebSocketMessageBrokerSecurityConfigurationTests {
 		TestHandshakeHandler testHandshakeHandler() {
 			return new TestHandshakeHandler();
 		}
+
+	}
+
+	@Configuration(proxyBeanMethods = false)
+	@EnableWebSecurity
+	@Import(WebSocketSecurityConfig.class)
+	static class WithWebSecurity {
 
 	}
 
