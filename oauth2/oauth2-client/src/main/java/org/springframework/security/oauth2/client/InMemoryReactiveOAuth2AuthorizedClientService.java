@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,8 +62,15 @@ public final class InMemoryReactiveOAuth2AuthorizedClientService implements Reac
 		Assert.hasText(clientRegistrationId, "clientRegistrationId cannot be empty");
 		Assert.hasText(principalName, "principalName cannot be empty");
 		return (Mono<T>) this.clientRegistrationRepository.findByRegistrationId(clientRegistrationId)
-			.map((clientRegistration) -> new OAuth2AuthorizedClientId(clientRegistrationId, principalName))
-			.flatMap((identifier) -> Mono.justOrEmpty(this.authorizedClients.get(identifier)));
+			.mapNotNull((clientRegistration) -> {
+				OAuth2AuthorizedClientId id = new OAuth2AuthorizedClientId(clientRegistrationId, principalName);
+				OAuth2AuthorizedClient cachedAuthorizedClient = this.authorizedClients.get(id);
+				if (cachedAuthorizedClient == null) {
+					return null;
+				}
+				return new OAuth2AuthorizedClient(clientRegistration, cachedAuthorizedClient.getPrincipalName(),
+						cachedAuthorizedClient.getAccessToken(), cachedAuthorizedClient.getRefreshToken());
+			});
 	}
 
 	@Override
