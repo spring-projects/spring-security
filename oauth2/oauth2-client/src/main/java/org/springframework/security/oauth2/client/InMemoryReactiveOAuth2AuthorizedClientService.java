@@ -68,12 +68,8 @@ public final class InMemoryReactiveOAuth2AuthorizedClientService implements Reac
 				if (cachedAuthorizedClient == null) {
 					return null;
 				}
-			// @formatter:off
-				return new OAuth2AuthorizedClient(clientRegistration,
-					cachedAuthorizedClient.getPrincipalName(),
-					cachedAuthorizedClient.getAccessToken(),
-					cachedAuthorizedClient.getRefreshToken());
-			// @formatter:on
+				return new OAuth2AuthorizedClient(clientRegistration, cachedAuthorizedClient.getPrincipalName(),
+						cachedAuthorizedClient.getAccessToken(), cachedAuthorizedClient.getRefreshToken());
 			});
 	}
 

@@ -36,6 +36,7 @@ import org.springframework.security.oauth2.client.registration.ReactiveClientReg
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
+import org.springframework.security.oauth2.core.OAuth2RefreshToken;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -59,8 +60,9 @@ public class InMemoryReactiveOAuth2AuthorizedClientServiceTests {
 
 	private Authentication principal = new TestingAuthenticationToken(this.principalName, "notused");
 
-	OAuth2AccessToken accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER, "token", Instant.now(),
-			Instant.now().plus(Duration.ofDays(1)));
+	private OAuth2AccessToken accessToken;
+
+	private OAuth2RefreshToken refreshToken;
 
 	// @formatter:off
 	private ClientRegistration clientRegistration = ClientRegistration.withRegistrationId(this.clientRegistrationId)
@@ -82,6 +84,11 @@ public class InMemoryReactiveOAuth2AuthorizedClientServiceTests {
 	public void setup() {
 		this.authorizedClientService = new InMemoryReactiveOAuth2AuthorizedClientService(
 				this.clientRegistrationRepository);
+
+		Instant issuedAt = Instant.now();
+		Instant expiresAt = issuedAt.plus(Duration.ofDays(1));
+		this.accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER, "token", issuedAt, expiresAt);
+		this.refreshToken = new OAuth2RefreshToken("refresh", issuedAt, expiresAt);
 	}
 
 	@Test
@@ -163,26 +170,26 @@ public class InMemoryReactiveOAuth2AuthorizedClientServiceTests {
 
 	@Test
 	@SuppressWarnings("unchecked")
-	public void loadAuthorizedClientWhenClientRegistrationChangedThenCurrentVersionFound() {
-		ClientRegistration changedClientRegistration = ClientRegistration
-			.withClientRegistration(this.clientRegistration)
+	public void loadAuthorizedClientWhenClientRegistrationIsUpdatedThenReturnsAuthorizedClientWithUpdatedClientRegistration() {
+		ClientRegistration updatedRegistration = ClientRegistration.withClientRegistration(this.clientRegistration)
 			.clientSecret("updated secret")
 			.build();
 
 		given(this.clientRegistrationRepository.findByRegistrationId(this.clientRegistrationId))
-			.willReturn(Mono.just(this.clientRegistration), Mono.just(changedClientRegistration));
-		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.clientRegistration,
-				this.principalName, this.accessToken);
-		OAuth2AuthorizedClient authorizedClientWithChangedRegistration = new OAuth2AuthorizedClient(
-				changedClientRegistration, this.principalName, this.accessToken);
+			.willReturn(Mono.just(this.clientRegistration), Mono.just(updatedRegistration));
+
+		OAuth2AuthorizedClient cachedAuthorizedClient = new OAuth2AuthorizedClient(this.clientRegistration,
+				this.principalName, this.accessToken, this.refreshToken);
+		OAuth2AuthorizedClient authorizedClientWithChangedRegistration = new OAuth2AuthorizedClient(updatedRegistration,
+				this.principalName, this.accessToken, this.refreshToken);
 
 		Flux<OAuth2AuthorizedClient> saveAndLoadTwice = this.authorizedClientService
-			.saveAuthorizedClient(authorizedClient, this.principal)
+			.saveAuthorizedClient(cachedAuthorizedClient, this.principal)
 			.then(this.authorizedClientService.loadAuthorizedClient(this.clientRegistrationId, this.principalName))
 			.concatWith(
 					this.authorizedClientService.loadAuthorizedClient(this.clientRegistrationId, this.principalName));
 		StepVerifier.create(saveAndLoadTwice)
-			.assertNext(isEqualTo(authorizedClient))
+			.assertNext(isEqualTo(cachedAuthorizedClient))
 			.assertNext(isEqualTo(authorizedClientWithChangedRegistration))
 			.verifyComplete();
 	}
@@ -298,7 +305,14 @@ public class InMemoryReactiveOAuth2AuthorizedClientServiceTests {
 			assertThat(actual.getAccessToken().getIssuedAt()).isEqualTo(expected.getAccessToken().getIssuedAt());
 			assertThat(actual.getAccessToken().getExpiresAt()).isEqualTo(expected.getAccessToken().getExpiresAt());
 			assertThat(actual.getAccessToken().getScopes()).isEqualTo(expected.getAccessToken().getScopes());
-			assertThat(actual.getRefreshToken()).isEqualTo(expected.getRefreshToken());
+			if (expected.getRefreshToken() != null) {
+				assertThat(actual.getRefreshToken()).isNotNull();
+				assertThat(actual.getRefreshToken().getTokenValue())
+					.isEqualTo(expected.getRefreshToken().getTokenValue());
+				assertThat(actual.getRefreshToken().getIssuedAt()).isEqualTo(expected.getRefreshToken().getIssuedAt());
+				assertThat(actual.getRefreshToken().getExpiresAt())
+					.isEqualTo(expected.getRefreshToken().getExpiresAt());
+			}
 		};
 	}
 
