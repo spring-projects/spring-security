@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.springframework.security.web.ssrf;
+package com.google.springframework.security.web.client;
 
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
@@ -30,7 +30,7 @@ public class SecureRestTemplateUtil {
 
 	public static RestTemplate makeSecureHC5Template(SsrfProtectionConfig config) {
 
-		CustomDnsResolver dnsResolver = new CustomDnsResolver(config);
+		SsrfDnsResolver dnsResolver = new SsrfDnsResolver(config);
 		Registry<ConnectionSocketFactory> registry = RegistryBuilder.<ConnectionSocketFactory>create()
 				.register("http", PlainConnectionSocketFactory.getSocketFactory())
 				.register("https", SSLConnectionSocketFactory.getSocketFactory())

@@ -1,6 +1,6 @@
-package com.google.springframework.security.web.ssrf;
+package com.google.springframework.security.web.client;
 
-import com.google.springframework.security.web.ssrf.BasicSSRFProtectionFilter.FilterMode;
+import com.google.springframework.security.web.client.BasicSSRFProtectionFilter.FilterMode;
 import org.springframework.web.client.RestTemplate;
 
 public class UsageExample {

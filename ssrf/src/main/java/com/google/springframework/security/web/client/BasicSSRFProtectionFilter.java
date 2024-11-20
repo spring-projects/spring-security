@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.springframework.security.web.ssrf;
+package com.google.springframework.security.web.client;
 
 import java.net.InetAddress;
 import java.util.ArrayList;
@@ -21,46 +21,36 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class ListedSsrfProtectionFilter implements SsrfProtectionFilter {
+public class BasicSSRFProtectionFilter implements SsrfProtectionFilter {
 
-	/**
-	 * FilterMode enum to make usage more intuitive ( practically this is just a bool )
-	 */
 	public enum FilterMode {
-		BLOCK_LIST,
-		ALLOW_LIST,
-	}
+		ALLOW_INTERNAL_BLOCK_EXTERNAL,
+		BLOCK_INTERNAL_ALLOW_EXTERNAL
 
-	private List<IpOrRange> matchingRules;
+	}
 
 	private FilterMode mode;
 
-	public ListedSsrfProtectionFilter(List<IpOrRange> addressList, FilterMode mode) {
-		this.matchingRules = addressList;
+
+	public BasicSSRFProtectionFilter(FilterMode mode) {
 		this.mode = mode;
 	}
 
 	@Override
 	public InetAddress[] filter(InetAddress[] addresses) throws HostBlockedException {
+
 		List<InetAddress> result = new ArrayList<>(addresses.length);
 
-		outerLoop:
 		for (InetAddress addr : addresses) {
-			if (mode == FilterMode.BLOCK_LIST) {
-				for (IpOrRange ipOrRange : matchingRules) {
-					if (ipOrRange.matches(addr)) {
-						continue outerLoop;
-					}
-				}
+			boolean isInternal = FilterUtils.isInternalIp(addr);
+			boolean shouldAllow = switch (mode) {
+				case ALLOW_INTERNAL_BLOCK_EXTERNAL -> isInternal;
+				case BLOCK_INTERNAL_ALLOW_EXTERNAL -> !isInternal;
+			};
+			if (shouldAllow) {
 				result.add(addr);
-			} else if (mode == FilterMode.ALLOW_LIST) {
-				for (IpOrRange ipOrRange : matchingRules) {
-					if (ipOrRange.matches(addr)) {
-						result.add(addr);
-						continue outerLoop;
-					}
-				}
 			}
+
 		}
 
 		if (result.size() == 0) {

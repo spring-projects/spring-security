@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.springframework.security.web.ssrf;
+package com.google.springframework.security.web.client;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -21,11 +21,11 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.hc.client5.http.DnsResolver;
 
-class CustomDnsResolver implements DnsResolver {
+class SsrfDnsResolver implements DnsResolver {
 
 	private final SsrfProtectionConfig ssrfProtectionConfig;
 
-	public CustomDnsResolver(SsrfProtectionConfig ssrfProtectionConfig) {
+	public SsrfDnsResolver(SsrfProtectionConfig ssrfProtectionConfig) {
 		this.ssrfProtectionConfig = ssrfProtectionConfig;
 	}
 

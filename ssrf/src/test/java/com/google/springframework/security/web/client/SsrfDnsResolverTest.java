@@ -1,4 +1,4 @@
-package com.google.springframework.security.web.ssrf;
+package com.google.springframework.security.web.client;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -14,7 +14,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class CustomDnsResolverTest {
+public class SsrfDnsResolverTest {
 
 	@Mock
 	private SsrfProtectionConfig ssrfProtectionConfig;
@@ -23,11 +23,11 @@ public class CustomDnsResolverTest {
 	private SsrfProtectionFilter ssrfProtectionFilter;
 
 
-	static class TestableCustomDnsResolver extends CustomDnsResolver {
+	static class TestableSsrfDnsResolver extends SsrfDnsResolver {
 
 		InetAddress[] addressesToReturn = null;
 
-		public TestableCustomDnsResolver(SsrfProtectionConfig ssrfProtectionConfig) {
+		public TestableSsrfDnsResolver(SsrfProtectionConfig ssrfProtectionConfig) {
 			super(ssrfProtectionConfig);
 		}
 
@@ -38,7 +38,7 @@ public class CustomDnsResolverTest {
 	}
 
 	@InjectMocks
-	private TestableCustomDnsResolver customDnsResolver;
+	private TestableSsrfDnsResolver customDnsResolver;
 
 	@Test
 	void testResolve_validHost() throws UnknownHostException, HostBlockedException {

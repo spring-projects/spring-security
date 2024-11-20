@@ -1,4 +1,4 @@
-package com.google.springframework.security.web.ssrf;
+package com.google.springframework.security.web.client;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
