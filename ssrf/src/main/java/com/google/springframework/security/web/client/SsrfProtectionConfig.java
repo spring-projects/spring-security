@@ -15,7 +15,6 @@
  */
 package com.google.springframework.security.web.client;
 
-import java.net.InetAddress;
 import java.util.List;
 
 
@@ -41,12 +40,7 @@ public class SsrfProtectionConfig {
 			ListedSsrfProtectionFilter.FilterMode mode) {
 
 		// TODO(vaspori): use/parse system properties
-		return new SsrfProtectionConfig(new SsrfProtectionFilter() {
-			@Override
-			public InetAddress[] filter(InetAddress[] addresses) throws HostBlockedException {
-				return addresses;
-			}
-		});
+		throw new UnsupportedOperationException("This feature has not yet been implemented.");
 	}
 
 

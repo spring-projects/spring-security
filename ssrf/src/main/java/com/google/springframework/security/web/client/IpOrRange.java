@@ -17,6 +17,8 @@ package com.google.springframework.security.web.client;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Class to represent and IPv4 or IPv6 range to be used in filtering. Inspired by:
@@ -24,6 +26,7 @@ import java.net.UnknownHostException;
  */
 public class IpOrRange {
 
+	private static final Log logger = LogFactory.getLog(IpOrRange.class);
 	private final InetAddress address;
 	private final int nMaskBits;
 
@@ -61,10 +64,12 @@ public class IpOrRange {
 
 	private InetAddress parseAddress(String address) {
 		try {
+			InetAddress result = InetAddress.getByName(address);
 			if (address.matches(".*[a-zA-Z\\-].*$") && !address.contains(":")) {
-				// TODO(vaspori): log warning that the current address for the hostname is going to be used
+				logger.warn("Hostname '" + address + "' resolved to " + result.toString()
+						+ " will be used on IP address matching");
 			}
-			return InetAddress.getByName(address);
+			return result;
 		} catch (UnknownHostException ex) {
 			throw new IllegalArgumentException("Failed to parse address '" + address + "'", ex);
 		}

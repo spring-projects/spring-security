@@ -17,12 +17,14 @@ package com.google.springframework.security.web.client;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.List;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.hc.client5.http.DnsResolver;
 
 class SsrfDnsResolver implements DnsResolver {
 
+
+	private static final Log logger = LogFactory.getLog(SsrfDnsResolver.class);
 	private final SsrfProtectionConfig ssrfProtectionConfig;
 
 	public SsrfDnsResolver(SsrfProtectionConfig ssrfProtectionConfig) {
@@ -37,11 +39,11 @@ class SsrfDnsResolver implements DnsResolver {
 		// ( Otherwise this would make us vulnerable to high-frequency switching between valid-invalid addresses )
 		InetAddress[] cachedResult = resolveAll(host);
 
-		List<InetAddress> result = new ArrayList<>(cachedResult.length);
 		try {
 			return ssrfProtectionConfig.getFilter().filter(cachedResult);
 		} catch (HostBlockedException e) {
-			// TODO(vaspori): log error as well, exception can't be chained
+			// log error as well, exception can't be chained
+			logger.error("DNS resolution for '" + host + "' resulted in error", e);
 			throw new UnknownHostException(
 					"Access to " + host + " was blocked because it violates the SSRF protection config");
 		}
@@ -54,7 +56,14 @@ class SsrfDnsResolver implements DnsResolver {
 
 	@Override
 	public String resolveCanonicalHostname(String host) throws UnknownHostException {
-		//TODO(vaspori): implement properly
-		return host;
+		if (host == null) {
+			return null;
+		}
+		final InetAddress in = InetAddress.getByName(host);
+		final String canonicalServer = in.getCanonicalHostName();
+		if (in.getHostAddress().contentEquals(canonicalServer)) {
+			return host;
+		}
+		return canonicalServer;
 	}
 }
