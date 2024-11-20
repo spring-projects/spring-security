@@ -3213,6 +3213,18 @@ public class ServerHttpSecurity {
 		}
 
 		/**
+		 * Configures custom headers writer
+		 * @param serverHttpHeadersWriterCustomizer the {@link Customizer} to provide more
+		 * options for the {@link ServerHttpHeadersWriterSpec}
+		 * @return the {@link HeaderSpec} to customize
+		 */
+		public HeaderSpec serverHttpHeadersWriter(
+				Customizer<ServerHttpHeadersWriterSpec> serverHttpHeadersWriterCustomizer) {
+			serverHttpHeadersWriterCustomizer.customize(new ServerHttpHeadersWriterSpec());
+			return this;
+		}
+
+		/**
 		 * Configures the Strict Transport Security response headers
 		 * @return the {@link HstsSpec} to configure
 		 * @deprecated For removal in 7.0. Use {@link #hsts(Customizer)} or
@@ -3892,6 +3904,30 @@ public class ServerHttpSecurity {
 			@Deprecated(since = "6.1", forRemoval = true)
 			public HeaderSpec and() {
 				return HeaderSpec.this;
+			}
+
+		}
+
+		/**
+		 * Configures {@link ServerHttpHeadersWriter}
+		 *
+		 * @author Evgeniy Cheban
+		 * @see #serverHttpHeadersWriter(Customizer)
+		 */
+		public final class ServerHttpHeadersWriterSpec {
+
+			private ServerHttpHeadersWriterSpec() {
+			}
+
+			/**
+			 * Configures custom headers writer
+			 * @param writer the {@link ServerHttpHeadersWriter} to provide custom headers
+			 * writer
+			 * @return the {@link HeaderSpec} to customize
+			 */
+			public ServerHttpHeadersWriterSpec writer(ServerHttpHeadersWriter writer) {
+				HeaderSpec.this.writer(writer);
+				return this;
 			}
 
 		}
