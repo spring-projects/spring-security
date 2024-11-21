@@ -175,7 +175,7 @@ SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 			.anyExchange().authenticated()
 		)
 		.oauth2ResourceServer(oauth2 -> oauth2
-			.jwt(withDefaults())
+			.jwt(Customizer.withDefaults())
 		);
 	return http.build();
 }
