@@ -53,8 +53,8 @@ public final class DefaultBearerTokenResolver implements BearerTokenResolver {
 	@Override
 	public String resolve(final HttpServletRequest request) {
 		final String authorizationHeaderToken = resolveFromAuthorizationHeader(request);
-		final String parameterToken = isParameterTokenSupportedForRequest(request)
-				? resolveFromRequestParameters(request) : null;
+		final boolean isParameterTokenSupported = isParameterTokenSupportedForRequest(request);
+		final String parameterToken = isParameterTokenSupported ? resolveFromRequestParameters(request) : null;
 		if (authorizationHeaderToken != null) {
 			if (parameterToken != null) {
 				BearerTokenError error = BearerTokenErrors
@@ -63,7 +63,7 @@ public final class DefaultBearerTokenResolver implements BearerTokenResolver {
 			}
 			return authorizationHeaderToken;
 		}
-		if (parameterToken != null && isParameterTokenEnabledForRequest(request)) {
+		if (parameterToken != null && isParameterTokenSupported) {
 			if (!StringUtils.hasText(parameterToken)) {
 				BearerTokenError error = BearerTokenErrors
 					.invalidRequest("The requested token parameter is an empty string");
