@@ -31,22 +31,22 @@ Maven::
             <groupId>org.opensaml</groupId>
             <artifactId>opensaml-core-api</artifactId>
             <version>5.1.2</version>
-        </depedency>
+        </dependency>
         <dependency>
             <groupId>org.opensaml</groupId>
             <artifactId>opensaml-core-impl</artifactId>
             <version>5.1.2</version>
-        </depedency>
+        </dependency>
         <dependency>
             <groupId>org.opensaml</groupId>
             <artifactId>opensaml-saml-api</artifactId>
             <version>5.1.2</version>
-        </depedency>
+        </dependency>
         <dependency>
             <groupId>org.opensaml</groupId>
             <artifactId>opensaml-saml-imple</artifactId>
             <version>5.1.2</version>
-        </depedency>
+        </dependency>
     </dependencies>
 </dependencyManagement>
 
