@@ -44,7 +44,7 @@ Maven::
         </dependency>
         <dependency>
             <groupId>org.opensaml</groupId>
-            <artifactId>opensaml-saml-imple</artifactId>
+            <artifactId>opensaml-saml-impl</artifactId>
             <version>5.1.2</version>
         </dependency>
     </dependencies>
