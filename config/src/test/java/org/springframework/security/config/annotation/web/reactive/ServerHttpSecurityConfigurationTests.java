@@ -21,20 +21,27 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.net.URI;
+import java.util.Iterator;
 
+import io.micrometer.observation.Observation;
+import io.micrometer.observation.ObservationHandler;
+import io.micrometer.observation.ObservationRegistry;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import reactor.core.publisher.Mono;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.messaging.rsocket.annotation.support.RSocketMessageHandler;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authentication.password.CompromisedPasswordDecision;
 import org.springframework.security.authentication.password.CompromisedPasswordException;
 import org.springframework.security.authentication.password.ReactiveCompromisedPasswordChecker;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.rsocket.EnableRSocketSecurity;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.config.users.ReactiveAuthenticationTestConfiguration;
@@ -60,6 +67,12 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.server.adapter.WebHttpHandlerBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.csrf;
 import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.mockAuthentication;
 import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.springSecurity;
@@ -203,6 +216,30 @@ public class ServerHttpSecurityConfigurationTests {
 			.exchange()
 			.expectBody(String.class)
 			.isEqualTo("harold");
+	}
+
+	@Test
+	public void getWhenUsingObservationRegistryThenObservesRequest() {
+		this.spring.register(ObservationRegistryConfig.class).autowire();
+		// @formatter:off
+		this.webClient
+				.get()
+				.uri("/hello")
+				.headers((headers) -> headers.setBasicAuth("user", "password"))
+				.exchange()
+				.expectStatus()
+				.isNotFound();
+		// @formatter:on
+		ObservationHandler<Observation.Context> handler = this.spring.getContext().getBean(ObservationHandler.class);
+		ArgumentCaptor<Observation.Context> captor = ArgumentCaptor.forClass(Observation.Context.class);
+		verify(handler, times(6)).onStart(captor.capture());
+		Iterator<Observation.Context> contexts = captor.getAllValues().iterator();
+		assertThat(contexts.next().getContextualName()).isEqualTo("http get");
+		assertThat(contexts.next().getContextualName()).isEqualTo("security filterchain before");
+		assertThat(contexts.next().getName()).isEqualTo("spring.security.authentications");
+		assertThat(contexts.next().getName()).isEqualTo("spring.security.authorizations");
+		assertThat(contexts.next().getName()).isEqualTo("spring.security.http.secured.requests");
+		assertThat(contexts.next().getContextualName()).isEqualTo("security filterchain after");
 	}
 
 	@Configuration
@@ -364,6 +401,50 @@ public class ServerHttpSecurityConfigurationTests {
 		@Bean
 		AnnotationTemplateExpressionDefaults templateExpressionDefaults() {
 			return new AnnotationTemplateExpressionDefaults();
+		}
+
+	}
+
+	@Configuration
+	@EnableWebFlux
+	@EnableWebFluxSecurity
+	static class ObservationRegistryConfig {
+
+		private ObservationHandler<Observation.Context> handler = mock(ObservationHandler.class);
+
+		@Bean
+		SecurityWebFilterChain app(ServerHttpSecurity http) throws Exception {
+			http.httpBasic(withDefaults()).authorizeExchange((authorize) -> authorize.anyExchange().authenticated());
+			return http.build();
+		}
+
+		@Bean
+		ReactiveUserDetailsService userDetailsService() {
+			return new MapReactiveUserDetailsService(
+					User.withDefaultPasswordEncoder().username("user").password("password").authorities("app").build());
+		}
+
+		@Bean
+		ObservationHandler<Observation.Context> observationHandler() {
+			return this.handler;
+		}
+
+		@Bean
+		ObservationRegistry observationRegistry() {
+			given(this.handler.supportsContext(any())).willReturn(true);
+			ObservationRegistry registry = ObservationRegistry.create();
+			registry.observationConfig().observationHandler(this.handler);
+			return registry;
+		}
+
+	}
+
+	@EnableRSocketSecurity
+	static class RSocketSecurityConfig {
+
+		@Bean
+		RSocketMessageHandler messageHandler() {
+			return new RSocketMessageHandler();
 		}
 
 	}
