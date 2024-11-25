@@ -1,0 +1,11 @@
+name: CI
+on:
+  push:
+    branches: [ main ]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check out main branch
+      uses: actions/checkout@v4
+    - run: gradle build
