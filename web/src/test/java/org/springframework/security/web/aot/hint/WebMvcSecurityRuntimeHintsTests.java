@@ -68,4 +68,10 @@ class WebMvcSecurityRuntimeHintsTests {
 			.accepts(this.hints);
 	}
 
+	@Test
+	void webauthnJavascriptHasHints() {
+		assertThat(RuntimeHintsPredicates.resource()
+			.forResource("org/springframework/security/spring-security-webauthn.js")).accepts(this.hints);
+	}
+
 }

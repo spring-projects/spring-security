@@ -27,6 +27,7 @@ import org.springframework.security.web.access.expression.WebSecurityExpressionR
  * {@link RuntimeHintsRegistrar} for WebMVC classes
  *
  * @author Marcus Da Coregio
+ * @author Daniel Garnier-Moiroux
  * @since 6.0
  */
 class WebMvcSecurityRuntimeHints implements RuntimeHintsRegistrar {
@@ -45,6 +46,12 @@ class WebMvcSecurityRuntimeHints implements RuntimeHintsRegistrar {
 		ClassPathResource css = new ClassPathResource("org/springframework/security/default-ui.css");
 		if (css.exists()) {
 			hints.resources().registerResource(css);
+		}
+
+		ClassPathResource webauthnJavascript = new ClassPathResource(
+				"org/springframework/security/spring-security-webauthn.js");
+		if (webauthnJavascript.exists()) {
+			hints.resources().registerResource(webauthnJavascript);
 		}
 
 	}
