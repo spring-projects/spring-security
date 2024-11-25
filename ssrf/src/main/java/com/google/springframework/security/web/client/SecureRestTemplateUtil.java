@@ -28,9 +28,7 @@ import org.springframework.web.client.RestTemplate;
 
 public class SecureRestTemplateUtil {
 
-	public static RestTemplate makeSecureHC5Template(SsrfProtectionConfig config) {
-
-		SsrfDnsResolver dnsResolver = new SsrfDnsResolver(config);
+	static RestTemplate buildWithResolver(SsrfDnsResolver dnsResolver) {
 		Registry<ConnectionSocketFactory> registry = RegistryBuilder.<ConnectionSocketFactory>create()
 				.register("http", PlainConnectionSocketFactory.getSocketFactory())
 				.register("https", SSLConnectionSocketFactory.getSocketFactory())
@@ -46,4 +44,15 @@ public class SecureRestTemplateUtil {
 		HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory(httpClient);
 		return new RestTemplate(requestFactory);
 	}
+
+	public static RestTemplate makeSecureHC5Template(SsrfProtectionConfig config) {
+		SsrfDnsResolver dnsResolver = new SsrfDnsResolver(config);
+		return buildWithResolver(dnsResolver);
+	}
+
+	public static RestTemplate makeHC5Default() {
+		SsrfDnsResolver dnsResolver = new SsrfDnsResolver(SsrfProtectionConfig.defaultFilter());
+		return buildWithResolver(dnsResolver);
+	}
+
 }

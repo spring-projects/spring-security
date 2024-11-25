@@ -15,10 +15,23 @@
  */
 package com.google.springframework.security.web.client;
 
+import com.google.springframework.security.web.client.ListedSsrfProtectionFilter.FilterMode;
+import java.util.Arrays;
 import java.util.List;
 
 
 public class SsrfProtectionConfig {
+
+
+	/**
+	 * Helper enum to make configuring with system properties easier
+	 */
+	enum ProtectionMode {
+		ALLOW_LIST,
+		DENY_LIST,
+		ALLOW_INTERNAL,
+		ALLOW_EXTERNAL,
+	}
 
 	private SsrfProtectionFilter filter;
 
@@ -36,11 +49,34 @@ public class SsrfProtectionConfig {
 				new ListedSsrfProtectionFilter(addresses.stream().map(IpOrRange::new).toList(), mode));
 	}
 
-	public static SsrfProtectionConfig defaultFilter(List<String> addresses,
-			ListedSsrfProtectionFilter.FilterMode mode) {
+	public static SsrfProtectionConfig defaultFilter() {
+		String modeProperty = System.getProperty("ssrf.protection.mode");
 
-		// TODO(vaspori): use/parse system properties
-		throw new UnsupportedOperationException("This feature has not yet been implemented.");
+		SsrfProtectionFilter filter = null;
+
+		if (modeProperty == null) {
+			throw new IllegalStateException("ssrf.protection.mode is not set but defaultFilter() requested");
+		}
+		ProtectionMode mode = ProtectionMode.valueOf(modeProperty.toUpperCase());
+
+		if (mode == ProtectionMode.ALLOW_LIST || mode == ProtectionMode.DENY_LIST) {
+			String ipList = System.getProperty("ssrf.protection.iplist");
+			if (ipList == null) {
+				throw new IllegalStateException(
+						"ssrf.protection.iplist is required for ALLOW_LIST or DENY_LIST modes in comma separated CIDR format");
+			}
+			FilterMode filterMode = (mode == ProtectionMode.ALLOW_LIST ? FilterMode.ALLOW_LIST : FilterMode.BLOCK_LIST);
+			filter = new ListedSsrfProtectionFilter(
+					Arrays.stream(ipList.strip().split(",")).map(IpOrRange::new).toList(), filterMode);
+		}
+		if (mode == ProtectionMode.ALLOW_EXTERNAL || mode == ProtectionMode.ALLOW_INTERNAL) {
+			BasicSSRFProtectionFilter.FilterMode filterMode = (mode == ProtectionMode.ALLOW_EXTERNAL
+					? BasicSSRFProtectionFilter.FilterMode.BLOCK_INTERNAL_ALLOW_EXTERNAL :
+					BasicSSRFProtectionFilter.FilterMode.ALLOW_INTERNAL_BLOCK_EXTERNAL);
+			filter = new BasicSSRFProtectionFilter(filterMode);
+		}
+
+		return new SsrfProtectionConfig(filter);
 	}
 
 
