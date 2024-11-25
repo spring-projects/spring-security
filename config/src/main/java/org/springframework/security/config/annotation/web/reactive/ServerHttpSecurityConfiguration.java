@@ -16,6 +16,8 @@
 
 package org.springframework.security.config.annotation.web.reactive;
 
+import java.util.Map;
+
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.ObjectProvider;
@@ -96,8 +98,12 @@ class ServerHttpSecurityConfiguration {
 	}
 
 	@Autowired(required = false)
-	void setAuthenticationManagerPostProcessor(ObjectPostProcessor<ReactiveAuthenticationManager> postProcessor) {
-		this.postProcessor = postProcessor;
+	void setAuthenticationManagerPostProcessor(
+			Map<String, ObjectPostProcessor<ReactiveAuthenticationManager>> postProcessors) {
+		if (postProcessors.size() == 1) {
+			this.postProcessor = postProcessors.values().iterator().next();
+		}
+		this.postProcessor = postProcessors.get("reactiveAuthenticationManagerPostProcessor");
 	}
 
 	@Autowired(required = false)

@@ -242,6 +242,31 @@ public class ServerHttpSecurityConfigurationTests {
 		assertThat(contexts.next().getContextualName()).isEqualTo("security filterchain after");
 	}
 
+	// gh-16161
+	@Test
+	public void getWhenUsingRSocketThenObservesRequest() {
+		this.spring.register(ObservationRegistryConfig.class, RSocketSecurityConfig.class).autowire();
+		// @formatter:off
+		this.webClient
+				.get()
+				.uri("/hello")
+				.headers((headers) -> headers.setBasicAuth("user", "password"))
+				.exchange()
+				.expectStatus()
+				.isNotFound();
+		// @formatter:on
+		ObservationHandler<Observation.Context> handler = this.spring.getContext().getBean(ObservationHandler.class);
+		ArgumentCaptor<Observation.Context> captor = ArgumentCaptor.forClass(Observation.Context.class);
+		verify(handler, times(6)).onStart(captor.capture());
+		Iterator<Observation.Context> contexts = captor.getAllValues().iterator();
+		assertThat(contexts.next().getContextualName()).isEqualTo("http get");
+		assertThat(contexts.next().getContextualName()).isEqualTo("security filterchain before");
+		assertThat(contexts.next().getName()).isEqualTo("spring.security.authentications");
+		assertThat(contexts.next().getName()).isEqualTo("spring.security.authorizations");
+		assertThat(contexts.next().getName()).isEqualTo("spring.security.http.secured.requests");
+		assertThat(contexts.next().getContextualName()).isEqualTo("security filterchain after");
+	}
+
 	@Configuration
 	static class SubclassConfig extends ServerHttpSecurityConfiguration {
 
