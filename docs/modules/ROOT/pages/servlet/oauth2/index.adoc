@@ -1032,7 +1032,9 @@ public class RestClientConfig {
 	@Bean
 	public RestClient restClient(OAuth2AuthorizedClientManager authorizedClientManager) {
 		OAuth2ClientHttpRequestInterceptor requestInterceptor =
-				new OAuth2ClientHttpRequestInterceptor(authorizedClientManager, clientRegistrationIdResolver());
+				new OAuth2ClientHttpRequestInterceptor(authorizedClientManager);
+		requestInterceptor.setClientRegistrationIdResolver(clientRegistrationIdResolver());
+
 		return RestClient.builder()
 				.requestInterceptor(requestInterceptor)
 				.build();
@@ -1059,7 +1061,9 @@ class RestClientConfig {
 
 	@Bean
 	fun restClient(authorizedClientManager: OAuth2AuthorizedClientManager): RestClient {
-		val requestInterceptor = OAuth2ClientHttpRequestInterceptor(authorizedClientManager, clientRegistrationIdResolver())
+		val requestInterceptor = OAuth2ClientHttpRequestInterceptor(authorizedClientManager)
+		requestInterceptor.setClientRegistrationIdResolver(clientRegistrationIdResolver())
+
 		return RestClient.builder()
 			.requestInterceptor(requestInterceptor)
 			.build()
