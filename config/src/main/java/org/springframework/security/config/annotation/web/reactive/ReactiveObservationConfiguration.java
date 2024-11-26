@@ -59,7 +59,7 @@ class ReactiveObservationConfiguration {
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-	static ObjectPostProcessor<ReactiveAuthenticationManager> authenticationManagerPostProcessor(
+	static ObjectPostProcessor<ReactiveAuthenticationManager> reactiveAuthenticationManagerPostProcessor(
 			ObjectProvider<ObservationRegistry> registry, ObjectProvider<SecurityObservationSettings> predicate) {
 		return new ObjectPostProcessor<>() {
 			@Override

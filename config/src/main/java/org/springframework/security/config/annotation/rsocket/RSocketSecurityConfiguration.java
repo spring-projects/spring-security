@@ -16,6 +16,8 @@
 
 package org.springframework.security.config.annotation.rsocket;
 
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -62,8 +64,12 @@ class RSocketSecurityConfiguration {
 	}
 
 	@Autowired(required = false)
-	void setAuthenticationManagerPostProcessor(ObjectPostProcessor<ReactiveAuthenticationManager> postProcessor) {
-		this.postProcessor = postProcessor;
+	void setAuthenticationManagerPostProcessor(
+			Map<String, ObjectPostProcessor<ReactiveAuthenticationManager>> postProcessors) {
+		if (postProcessors.size() == 1) {
+			this.postProcessor = postProcessors.values().iterator().next();
+		}
+		this.postProcessor = postProcessors.get("rSocketAuthenticationManagerPostProcessor");
 	}
 
 	@Bean(name = RSOCKET_SECURITY_BEAN_NAME)
