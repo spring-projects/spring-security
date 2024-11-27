@@ -17,6 +17,8 @@
 package org.springframework.security.oauth2.server.resource.introspection;
 
 import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -84,8 +86,10 @@ public class SpringOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 		Assert.notNull(clientId, "clientId cannot be null");
 		Assert.notNull(clientSecret, "clientSecret cannot be null");
 		this.requestEntityConverter = this.defaultRequestEntityConverter(URI.create(introspectionUri));
+		String encodeClientId = URLEncoder.encode(clientId, StandardCharsets.UTF_8);
+		String encodeClientSecret = URLEncoder.encode(clientSecret, StandardCharsets.UTF_8);
 		RestTemplate restTemplate = new RestTemplate();
-		restTemplate.getInterceptors().add(new BasicAuthenticationInterceptor(clientId, clientSecret));
+		restTemplate.getInterceptors().add(new BasicAuthenticationInterceptor(encodeClientId, encodeClientSecret));
 		this.restOperations = restTemplate;
 	}
 
