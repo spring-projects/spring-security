@@ -49,7 +49,7 @@ import org.springframework.web.util.UrlPathHelper;
  */
 public class MvcRequestMatcher implements RequestMatcher, RequestVariablesExtractor {
 
-	private final DefaultMatcher defaultMatcher = new DefaultMatcher();
+	private RequestMatcher defaultMatcher = new DefaultMatcher();
 
 	private final HandlerMappingIntrospector introspector;
 
@@ -128,6 +128,16 @@ public class MvcRequestMatcher implements RequestMatcher, RequestVariablesExtrac
 
 	protected final String getServletPath() {
 		return this.servletPath;
+	}
+
+	/**
+	 * The matcher that this should fall back on in the event that the request isn't
+	 * recognized by Spring MVC
+	 * @param defaultMatcher the default matcher to use
+	 * @since 6.4
+	 */
+	public void setDefaultMatcher(RequestMatcher defaultMatcher) {
+		this.defaultMatcher = defaultMatcher;
 	}
 
 	@Override

@@ -24,6 +24,7 @@ import jakarta.servlet.Servlet;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.ApplicationContext;
@@ -42,6 +43,7 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.DispatcherTypeRequestMatcher;
 import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcherFactory;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
@@ -87,6 +89,13 @@ public class AbstractRequestMatcherRegistryTests {
 		given(given).willReturn(postProcessors);
 		given(postProcessors.getObject()).willReturn(NO_OP_OBJECT_POST_PROCESSOR);
 		given(this.context.getServletContext()).willReturn(MockServletContext.mvc());
+		ObjectProvider<RequestMatcherFactory> requestMatcherFactories = new ObjectProvider<>() {
+			@Override
+			public RequestMatcherFactory getObject() throws BeansException {
+				return AbstractRequestMatcherRegistryTests.this.matcherRegistry.new DefaultRequestMatcherFactory();
+			}
+		};
+		given(this.context.getBeanProvider(RequestMatcherFactory.class)).willReturn(requestMatcherFactories);
 		this.matcherRegistry.setApplicationContext(this.context);
 		mockMvcIntrospector(true);
 	}

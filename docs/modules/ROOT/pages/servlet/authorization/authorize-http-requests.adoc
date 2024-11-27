@@ -640,10 +640,119 @@ Xml::
 ----
 ======
 
+[[conditions-for-servlet-path-matching]]
 This need can arise in at least two different ways:
 
 * If you use the `spring.mvc.servlet.path` Boot property to change the default path (`/`) to something else
 * If you register more than one Spring MVC `DispatcherServlet` (thus requiring that one of them not be the default path)
+
+=== Using a `RequestMatcherFactory`
+
+You can reduce the boilerplate of constructing several `MvcRequestMatcher` instances by providing a single instance of `RequestMatcherFactory`.
+
+For example, if all of your requests in `requestMatcher(String)` are MVC requests, then you can do:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Bean
+RequestMatcherFactory allRequestsAreMvc(HandlerMappingIntrospector introspector) {
+	MvcRequestMatcher.Builder mvc = new MvcRequestMatcher.Builder(introspector).servletPath("/my-servlet-path");
+	return mvc::pattern;
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Bean fun allRequestsAreMvc(introspector: HandlerMappingIntrospector?): RequestMatcherFactory {
+    var mvc = MvcRequestMatcher.Builder(introspector).servletPath("/my-servlet-path")
+    return mvc::pattern
+}
+----
+======
+
+Spring Security will use this builder for all request matchers specified as a `String`.
+
+[TIP]
+====
+Often the only non-MVC requests that there are in a Spring Boot application are those to static resources like `/css", '/js', and 'favicon.ico`.
+====
+
+You can permit these by using Spring Boot's `RequestMatchers` static factory like so:
+
+[tabs]
+======
+Java::
++
+[source,java]
+----
+@Bean
+SecurityFilterChain security(HttpSecurity http) throws Exception {
+	http
+        .authorizeHttpRequests((authorize) -> authorize
+            .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
+            .requestMatchers("/my", "/mvc", "/requests").hasAuthority("app")
+        )
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+http {
+    authorizeHttpRequests {
+        authorize(PathRequest.toStaticResources().atCommonLocations(), permitAll)
+        authorize("/my", hasAuthority("app"))
+        authorize("/mvc", hasAuthority("app"))
+        authorize("/requests", hasAuthority("app"))
+    }
+}
+----
+======
+
+Since `atCommonLocations` returns instances of `RequestMatcher`, this technique allows you to publish an MVC-based `RequestMatcherFactory` for the rest.
+
+In the event that <<conditions-for-servlet-path-matching, the absolute path would be ambiguous>>, you can publish an `MvcDelegatingRequestMatcherFactory` instance instead:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Bean
+RequestMatcherFactory allRequestsAreMvc(MvcRequestMatcherFactory.Builder builder) {
+	return builder.servletPath("/my-mvc-servlet-path").build();
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun allRequestsAreMvc(builder: MvcRequestMatcherFactory.Builder?): RequestMatcherBuilder {
+    return builder.servletPath("/my-mvc-servlet-path").build()
+}
+----
+======
+
+This produces matchers that check first if the request is an MVC request; if it is, use an `MvcRequestMatcher` and otherwise use an `AntPathRequestMatcher`.
+
+[NOTE]
+====
+The reason this `RequestMatcherFactory` is not used by default is because of potential ambiguities in the meaning of given `String` patterns.
+For example, consider a servlet mapped to `/example` and a Spring MVC endpoint mapped to `/mvc-servlet-path/example` where `/mvc-servlet-path` is the servlet path for MVC endpoints.
+In this case, it's unclear whether by `requestMatchers("/example")` you mean to secure `/example`` or `/mvc-servlet-path/example`.
+
+Publishing any `RequestMatcherFactory` indicates that you will handle these ambiguous situations, should they arise.
+====
 
 [[match-by-custom]]
 === Using a Custom Matcher
