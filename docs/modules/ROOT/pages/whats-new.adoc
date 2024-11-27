@@ -223,7 +223,7 @@ class SecurityConfig {
 == SAML 2.0
 
 * Added xref:servlet/saml2/opensaml.adoc[OpenSAML 5 Support].
-Now you can use either OpenSAML 4 or OpenSAML 5; by default, Spring Security will select the write implementations based on what's on your classpath.
+Now you can use either OpenSAML 4 or OpenSAML 5; by default, Spring Security will select the right implementations based on what's on your classpath.
 * Using EntityIDs for the `registrationId` is simplified.
 +
 A common pattern is to identify asserting parties by their `entityID`.
