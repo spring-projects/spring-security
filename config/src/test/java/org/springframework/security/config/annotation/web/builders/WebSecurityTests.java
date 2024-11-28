@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,9 +27,11 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -52,6 +54,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * @author Rob Winch
@@ -156,6 +159,12 @@ public class WebSecurityTests {
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_UNAUTHORIZED);
 	}
 
+	@Test
+	public void configureWhenSameSecurityMatchersConfiguredThenThrowsBeanCreationException() {
+		assertThatExceptionOfType(BeanCreationException.class)
+			.isThrownBy(() -> loadConfig(MultipleSecurityMatchersConfig.class));
+	}
+
 	public void loadConfig(Class<?>... configs) {
 		this.context = new AnnotationConfigWebApplicationContext();
 		this.context.register(configs);
@@ -166,6 +175,27 @@ public class WebSecurityTests {
 
 	@EnableWebSecurity
 	static class DefaultConfig {
+
+	}
+
+	@Configuration
+	@EnableWebMvc
+	@EnableWebSecurity
+	static class MultipleSecurityMatchersConfig {
+
+		@Bean
+		@Order(0)
+		SecurityFilterChain app(HttpSecurity http) throws Exception {
+			http.securityMatcher("/app/**").authorizeHttpRequests((auth) -> auth.anyRequest().authenticated());
+			return http.build();
+		}
+
+		@Bean
+		@Order(1)
+		SecurityFilterChain api(HttpSecurity http) throws Exception {
+			http.securityMatcher("/app/**").authorizeHttpRequests((auth) -> auth.anyRequest().authenticated());
+			return http.build();
+		}
 
 	}
 
