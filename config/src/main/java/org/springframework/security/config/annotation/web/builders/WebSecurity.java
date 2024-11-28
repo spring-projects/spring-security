@@ -44,6 +44,7 @@ import org.springframework.security.config.annotation.web.WebSecurityConfigurer;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfiguration;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
+import org.springframework.security.config.http.DefaultFilterChainValidator;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.FilterChainProxy;
@@ -338,6 +339,7 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 			filterChainProxy.setRequestRejectedHandler(requestRejectedHandler);
 		}
 		filterChainProxy.setFilterChainDecorator(getFilterChainDecorator());
+		filterChainProxy.setFilterChainValidator(new DefaultFilterChainValidator());
 		filterChainProxy.afterPropertiesSet();
 
 		Filter result = filterChainProxy;
