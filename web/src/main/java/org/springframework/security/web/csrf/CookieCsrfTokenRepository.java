@@ -189,10 +189,14 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 
 	private Cookie mapToCookie(ResponseCookie responseCookie) {
 		Cookie cookie = new Cookie(responseCookie.getName(), responseCookie.getValue());
-		cookie.setSecure(responseCookie.isSecure());
+		if (responseCookie.isSecure()) {
+			cookie.setSecure(true);
+		}
 		cookie.setPath(responseCookie.getPath());
 		cookie.setMaxAge((int) responseCookie.getMaxAge().getSeconds());
-		cookie.setHttpOnly(responseCookie.isHttpOnly());
+		if (responseCookie.isHttpOnly()) {
+			cookie.setHttpOnly(true);
+		}
 		if (StringUtils.hasLength(responseCookie.getDomain())) {
 			cookie.setDomain(responseCookie.getDomain());
 		}
