@@ -76,12 +76,12 @@ class AuthorizationFilterParser implements BeanDefinitionParser {
 	public BeanDefinition parse(Element element, ParserContext parserContext) {
 		if (!isUseExpressions(element)) {
 			parserContext.getReaderContext()
-				.error("AuthorizationManager must be used with `use-expressions=\"true\"", element);
+				.error("AuthorizationManager must be used with `use-expressions=\"true\"; Add `use-authorization-manager=\"false\"` or enable use of expressions in `<http>` block", element);
 			return null;
 		}
 		if (StringUtils.hasText(element.getAttribute(ATT_ACCESS_DECISION_MANAGER_REF))) {
 			parserContext.getReaderContext()
-				.error("AuthorizationManager cannot be used in conjunction with `access-decision-manager-ref`",
+				.error("AuthorizationManager cannot be used in conjunction with `access-decision-manager-ref`; either remove the reference to AccessDecisionManager or add `use-authorization-manager=\"false\"` to `<http>` block",
 						element);
 			return null;
 		}
