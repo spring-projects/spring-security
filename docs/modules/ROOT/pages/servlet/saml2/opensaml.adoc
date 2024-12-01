@@ -25,33 +25,6 @@ Maven::
 +
 [source,maven,role="primary"]
 ----
-<dependencyManagement>
-    <dependencies>
-        <dependency>
-            <groupId>org.opensaml</groupId>
-            <artifactId>opensaml-core-api</artifactId>
-            <version>5.1.2</version>
-        </dependency>
-        <dependency>
-            <groupId>org.opensaml</groupId>
-            <artifactId>opensaml-core-impl</artifactId>
-            <version>5.1.2</version>
-        </dependency>
-        <dependency>
-            <groupId>org.opensaml</groupId>
-            <artifactId>opensaml-saml-api</artifactId>
-            <version>5.1.2</version>
-        </dependency>
-        <dependency>
-            <groupId>org.opensaml</groupId>
-            <artifactId>opensaml-saml-impl</artifactId>
-            <version>5.1.2</version>
-        </dependency>
-    </dependencies>
-</dependencyManagement>
-
-// ...
-
 <dependencies>
     <dependency>
         <groupId>org.springframework.security</groupId>
@@ -59,9 +32,19 @@ Maven::
         <exclusions>
             <exclusion>
                 <groupId>org.opensaml</groupId>
-                <artifactId>opensaml-core</artifactId>
+                <artifactId>*</artifactId>
             </exclusion>
         </exclusions>
+    </dependency>
+    <dependency>
+        <groupId>org.opensaml</groupId>
+        <artifactId>opensaml-saml-api</artifactId>
+        <version>5.1.2</version>
+    </dependency>
+    <dependency>
+        <groupId>org.opensaml</groupId>
+        <artifactId>opensaml-saml-impl</artifactId>
+        <version>5.1.2</version>
     </dependency>
 </dependencies>
 ----
