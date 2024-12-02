@@ -17,8 +17,6 @@
 package org.springframework.security.web.reactive.result.method.annotation;
 
 import java.lang.annotation.Annotation;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Mono;
@@ -52,8 +50,6 @@ import org.springframework.web.server.ServerWebExchange;
  * @since 5.0
  */
 public class AuthenticationPrincipalArgumentResolver extends HandlerMethodArgumentResolverSupport {
-
-	private final Map<MethodParameter, Annotation> cachedAttributes = new ConcurrentHashMap<>();
 
 	private ExpressionParser parser = new SpelExpressionParser();
 
@@ -149,8 +145,7 @@ public class AuthenticationPrincipalArgumentResolver extends HandlerMethodArgume
 	 */
 	@SuppressWarnings("unchecked")
 	private <T extends Annotation> T findMethodAnnotation(MethodParameter parameter) {
-		return (T) this.cachedAttributes.computeIfAbsent(parameter,
-				(methodParameter) -> this.scanner.scan(methodParameter.getParameter()));
+		return (T) this.scanner.scan(parameter.getParameter());
 	}
 
 }
