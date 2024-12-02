@@ -11,6 +11,11 @@ jobs:
     name: Upload Release Asset
     runs-on: ubuntu-latest
     steps:
+    - name: Set up JDK 17
+      uses: actions/setup-java@v2
+      with:
+        java-version: 17
+        distribution: temurin
     - name: Checkout code
       uses: actions/checkout@v4
     - name: Build project # This would actually build your project, using zip for an example artifact
