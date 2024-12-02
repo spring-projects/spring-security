@@ -17,8 +17,6 @@
 package org.springframework.security.messaging.handler.invocation.reactive;
 
 import java.lang.annotation.Annotation;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Mono;
@@ -96,8 +94,6 @@ import org.springframework.util.StringUtils;
  * @since 5.2
  */
 public class CurrentSecurityContextArgumentResolver implements HandlerMethodArgumentResolver {
-
-	private final Map<MethodParameter, Annotation> cachedAttributes = new ConcurrentHashMap<>();
 
 	private ExpressionParser parser = new SpelExpressionParser();
 
@@ -222,8 +218,7 @@ public class CurrentSecurityContextArgumentResolver implements HandlerMethodArgu
 	 */
 	@SuppressWarnings("unchecked")
 	private <T extends Annotation> T findMethodAnnotation(MethodParameter parameter) {
-		return (T) this.cachedAttributes.computeIfAbsent(parameter,
-				(methodParameter) -> this.scanner.scan(methodParameter.getParameter()));
+		return (T) this.scanner.scan(parameter.getParameter());
 	}
 
 }
