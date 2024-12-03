@@ -16,9 +16,9 @@ This is the first iteration of the library. Currently the `RestTemplate` is back
 
 ## Usage
 ```java
-RestTemplate exampleTemplate = SecureRestTemplateUtil.makeSecureHC5Template(
-        SsrfProtectionConfig.makeBasicFilter(
-                FilterMode.ALLOW_INTERNAL_BLOCK_EXTERNAL));
+RestTemplate exampleTemplate = new SecureRestTemplate.Builder()
+    .networkMode(BLOCK_EXTERNAL)
+    .build();
 
 try {
     exampleTemplate.getForEntity("https://google.com", String.class);

@@ -15,11 +15,7 @@
  */
 package com.google.springframework.security.web.client;
 
-import java.net.InetAddress;
-
-
-public interface SsrfProtectionFilter {
-
-	InetAddress[] filteredAddresses(final InetAddress[] addresses) throws HostBlockedException;
-
+public enum NetworkMode {
+	BLOCK_EXTERNAL,
+	BLOCK_INTERNAL
 }

@@ -16,10 +16,10 @@ public class ListedSsrfProtectionFilterTest {
 	void testBlockList_blockedAddress() throws UnknownHostException, HostBlockedException {
 		List<IpOrRange> blockList = List.of(new IpOrRange("192.168.1.1"), new IpOrRange("10.0.0.0/24"));
 		ListedSsrfProtectionFilter filter = new ListedSsrfProtectionFilter(blockList,
-				ListedSsrfProtectionFilter.FilterMode.BLOCK_LIST);
+				ListedSsrfProtectionFilter.FilterMode.BLOCK_LIST, false);
 		InetAddress[] addresses = new InetAddress[]{InetAddress.getByName("192.168.1.1"),
 				InetAddress.getByName("8.8.8.8")};
-		InetAddress[] filtered = filter.filter(addresses);
+		InetAddress[] filtered = filter.filteredAddresses(addresses);
 		assertEquals(1, filtered.length);
 		assertEquals(InetAddress.getByName("8.8.8.8"), filtered[0]);
 	}
@@ -28,10 +28,10 @@ public class ListedSsrfProtectionFilterTest {
 	void testBlockList_allowedAddress() throws UnknownHostException, HostBlockedException {
 		List<IpOrRange> blockList = List.of(new IpOrRange("192.168.1.1"), new IpOrRange("10.0.0.0/24"));
 		ListedSsrfProtectionFilter filter = new ListedSsrfProtectionFilter(blockList,
-				ListedSsrfProtectionFilter.FilterMode.BLOCK_LIST);
+				ListedSsrfProtectionFilter.FilterMode.BLOCK_LIST, false);
 		InetAddress[] addresses = new InetAddress[]{InetAddress.getByName("192.168.1.2"),
 				InetAddress.getByName("8.8.8.8")};
-		InetAddress[] filtered = filter.filter(addresses);
+		InetAddress[] filtered = filter.filteredAddresses(addresses);
 		assertEquals(2, filtered.length);
 		assertTrue(Arrays.asList(filtered).containsAll(List.of(addresses)));
 	}
@@ -40,20 +40,20 @@ public class ListedSsrfProtectionFilterTest {
 	void testBlockList_allBlocked() throws UnknownHostException {
 		List<IpOrRange> blockList = List.of(new IpOrRange("192.168.1.0/24"), new IpOrRange("8.8.8.8"));
 		ListedSsrfProtectionFilter filter = new ListedSsrfProtectionFilter(blockList,
-				ListedSsrfProtectionFilter.FilterMode.BLOCK_LIST);
+				ListedSsrfProtectionFilter.FilterMode.BLOCK_LIST, false);
 		InetAddress[] addresses = new InetAddress[]{InetAddress.getByName("192.168.1.1"),
 				InetAddress.getByName("8.8.8.8")};
-		assertThrows(HostBlockedException.class, () -> filter.filter(addresses));
+		assertThrows(HostBlockedException.class, () -> filter.filteredAddresses(addresses));
 	}
 
 	@Test
 	void testAllowList_allowedAddress() throws UnknownHostException, HostBlockedException {
 		List<IpOrRange> allowList = List.of(new IpOrRange("192.168.1.1"), new IpOrRange("10.0.0.0/24"));
 		ListedSsrfProtectionFilter filter = new ListedSsrfProtectionFilter(allowList,
-				ListedSsrfProtectionFilter.FilterMode.ALLOW_LIST);
+				ListedSsrfProtectionFilter.FilterMode.ALLOW_LIST, false);
 		InetAddress[] addresses = new InetAddress[]{InetAddress.getByName("192.168.1.1"),
 				InetAddress.getByName("8.8.8.8")};
-		InetAddress[] filtered = filter.filter(addresses);
+		InetAddress[] filtered = filter.filteredAddresses(addresses);
 		assertEquals(1, filtered.length);
 		assertEquals(InetAddress.getByName("192.168.1.1"), filtered[0]);
 	}
@@ -62,11 +62,11 @@ public class ListedSsrfProtectionFilterTest {
 	void testAllowList_blockedAddress() throws UnknownHostException, HostBlockedException {
 		List<IpOrRange> allowList = List.of(new IpOrRange("192.168.1.1"), new IpOrRange("10.0.0.0/24"));
 		ListedSsrfProtectionFilter filter = new ListedSsrfProtectionFilter(allowList,
-				ListedSsrfProtectionFilter.FilterMode.ALLOW_LIST);
+				ListedSsrfProtectionFilter.FilterMode.ALLOW_LIST, false);
 		InetAddress[] addresses = new InetAddress[]{InetAddress.getByName("192.168.1.200"),
 				InetAddress.getByName("8.8.8.8")};
 		HostBlockedException ex = assertThrows(HostBlockedException.class,
-				() -> filter.filter(addresses), "This should throw an exception");
+				() -> filter.filteredAddresses(addresses), "This should throw an exception");
 		assertTrue(ex.getMessage().contains("blocked due to violating ALLOW_LIST"));
 
 	}
@@ -75,20 +75,33 @@ public class ListedSsrfProtectionFilterTest {
 	void testAllowList_allBlocked() throws UnknownHostException {
 		List<IpOrRange> allowList = List.of(new IpOrRange("172.16.0.0/16"));
 		ListedSsrfProtectionFilter filter = new ListedSsrfProtectionFilter(allowList,
-				ListedSsrfProtectionFilter.FilterMode.ALLOW_LIST);
+				ListedSsrfProtectionFilter.FilterMode.ALLOW_LIST, false);
 		InetAddress[] addresses = new InetAddress[]{InetAddress.getByName("192.168.1.1"),
 				InetAddress.getByName("8.8.8.8")};
-		assertThrows(HostBlockedException.class, () -> filter.filter(addresses));
+		assertThrows(HostBlockedException.class, () -> filter.filteredAddresses(addresses));
 	}
 
 	@Test
 	void testHostBlockedExceptionMessage() throws UnknownHostException {
 		List<IpOrRange> blockList = List.of(new IpOrRange("192.168.1.0/24"));
 		ListedSsrfProtectionFilter filter = new ListedSsrfProtectionFilter(blockList,
-				ListedSsrfProtectionFilter.FilterMode.BLOCK_LIST);
+				ListedSsrfProtectionFilter.FilterMode.BLOCK_LIST, false);
 		InetAddress[] addresses = new InetAddress[]{InetAddress.getByName("192.168.1.1")};
-		HostBlockedException exception = assertThrows(HostBlockedException.class, () -> filter.filter(addresses));
+		HostBlockedException exception = assertThrows(HostBlockedException.class,
+				() -> filter.filteredAddresses(addresses));
 		assertTrue(exception.getMessage().contains("192.168.1.1"));
 		assertTrue(exception.getMessage().contains("BLOCK_LIST"));
+	}
+
+	@Test
+	void testReportOnlyWhenBlockedException() throws UnknownHostException, HostBlockedException {
+		List<IpOrRange> blockList = List.of(new IpOrRange("192.168.1.0/24"));
+		ListedSsrfProtectionFilter filter = new ListedSsrfProtectionFilter(blockList,
+				ListedSsrfProtectionFilter.FilterMode.BLOCK_LIST, true);
+		InetAddress[] addresses = new InetAddress[]{InetAddress.getByName("192.168.1.1")};
+
+		InetAddress[] filtered = filter.filteredAddresses(addresses);
+		assertEquals(1, filtered.length);
+		assertTrue(Arrays.asList(filtered).containsAll(List.of(addresses)));
 	}
 }

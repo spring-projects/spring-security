@@ -17,6 +17,8 @@ package com.google.springframework.security.web.client;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Arrays;
+import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hc.client5.http.DnsResolver;
@@ -25,10 +27,12 @@ class SsrfDnsResolver implements DnsResolver {
 
 
 	private static final Log logger = LogFactory.getLog(SsrfDnsResolver.class);
-	private final SsrfProtectionConfig ssrfProtectionConfig;
 
-	public SsrfDnsResolver(SsrfProtectionConfig ssrfProtectionConfig) {
-		this.ssrfProtectionConfig = ssrfProtectionConfig;
+
+	protected final List<SsrfProtectionFilter> filters;
+
+	public SsrfDnsResolver(List<SsrfProtectionFilter> filters) {
+		this.filters = filters;
 	}
 
 	@Override
@@ -37,10 +41,15 @@ class SsrfDnsResolver implements DnsResolver {
 		// Internally these results are cached for 30 seconds (by default) to prevent naive DNS rebinding
 		// It's important to fetch it from the cache before running checks and to not run resolution again.
 		// ( Otherwise this would make us vulnerable to high-frequency switching between valid-invalid addresses )
-		InetAddress[] cachedResult = resolveAll(host);
+		final InetAddress[] cachedResult = resolveAll(host);
+		InetAddress[] results = Arrays.copyOf(cachedResult, cachedResult.length);
 
 		try {
-			return ssrfProtectionConfig.getFilter().filter(cachedResult);
+			for (SsrfProtectionFilter f : filters) {
+				// each filter can restrict the list of addresses resolved to a given host
+				results = f.filteredAddresses(results);
+			}
+			return results;
 		} catch (HostBlockedException e) {
 			// log error as well, exception can't be chained
 			logger.error("DNS resolution for '" + host + "' resulted in error", e);

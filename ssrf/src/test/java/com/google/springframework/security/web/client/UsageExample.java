@@ -1,15 +1,32 @@
 package com.google.springframework.security.web.client;
 
-import com.google.springframework.security.web.client.BasicSSRFProtectionFilter.FilterMode;
+import static com.google.springframework.security.web.client.NetworkMode.BLOCK_EXTERNAL;
+
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
 public class UsageExample {
 
+	public static void example3() {
+		RestTemplate exampleTemplate = new SecureRestTemplate.Builder()
+				.reportOnly(true) // Log warning about blocking, but don't block
+				.networkMode(BLOCK_EXTERNAL)
+				.withBlocklist(new String[]{"evil.com"})
+				.build();
+
+		try {
+			ResponseEntity<String> result = exampleTemplate.getForEntity("https://google.com", String.class);
+			System.out.println(result);
+		} catch (Exception e) {
+			// This should not run
+			System.err.println("Access blocked: " + e.getMessage());
+		}
+	}
 
 	public static void example2() {
-		RestTemplate exampleTemplate = SecureRestTemplateUtil.makeSecureHC5Template(
-				SsrfProtectionConfig.makeBasicFilter(
-						FilterMode.ALLOW_INTERNAL_BLOCK_EXTERNAL));
+		RestTemplate exampleTemplate = new SecureRestTemplate.Builder()
+				.networkMode(BLOCK_EXTERNAL)
+				.build();
 
 		try {
 			exampleTemplate.getForEntity("https://google.com", String.class);
@@ -25,13 +42,20 @@ public class UsageExample {
 	public static void example1() {
 		// run with `-Dssrf.protection.mode=deny_list -Dssrf.protection.iplist=127.0.0.1,192.168.0.0/16`
 		// if the properties are not set accordingly it will fail with IllegalStateException
-		RestTemplate exampleTemplate = SecureRestTemplateUtil.makeHC5Default();
+
+		// for this example:
+		System.setProperty("ssrf.protection.mode", "deny_list");
+		System.setProperty("ssrf.protection.iplist", "127.0.0.1,192.168.0.0/16");
+
+		RestTemplate exampleTemplate = SecureRestTemplate.buildDefault();
 		exampleTemplate.getForEntity("https://google.com", String.class);
 	}
 
 	public static void main(String[] args) {
 		example1();
 		example2();
+		example3();
 	}
 
 }
+

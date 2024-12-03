@@ -4,35 +4,32 @@ buildscript {
 	}
 }
 
-
 plugins {
-    // Apply the java-library plugin for API and implementation separation.
-    id 'java-library'
+	// Apply the java-library plugin for API and implementation separation.
+	id 'java-library'
 }
 
 repositories {
-    // Use Maven Central for resolving dependencies.
-    mavenCentral()
+	// Use Maven Central for resolving dependencies.
+	mavenCentral()
 }
 
 dependencies {
-    // Use JUnit Jupiter for testing.
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.8.2'
+	// Use JUnit Jupiter for testing.
+	testImplementation 'org.junit.jupiter:junit-jupiter:5.8.2'
 	testImplementation 'org.mockito:mockito-core:5.14.2'
 	testImplementation "org.mockito:mockito-junit-jupiter:5.14.2"
 
-    api 'org.springframework:spring-web:' + springVersion
+	api 'org.springframework:spring-web:' + springVersion
+	api 'org.springframework:spring-core:' + springVersion
 
-    api 'org.springframework:spring-core:' + springVersion
-
-
-	api("org.apache.httpcomponents.client5:httpclient5:5.3.1")
-	api("org.apache.httpcomponents.core5:httpcore5-reactive:5.2.5")
+	implementation("org.apache.httpcomponents.client5:httpclient5:5.3.1")
+	implementation("org.apache.httpcomponents.core5:httpcore5-reactive:5.2.5")
 
 	implementation 'io.projectreactor:reactor-core:3.6.11'
 }
 
 tasks.named('test') {
-    // Use JUnit Platform for unit tests.
-    useJUnitPlatform()
+	// Use JUnit Platform for unit tests.
+	useJUnitPlatform()
 }
