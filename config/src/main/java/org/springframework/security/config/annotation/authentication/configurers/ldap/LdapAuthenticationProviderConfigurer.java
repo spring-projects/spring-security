@@ -141,6 +141,16 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 	}
 
 	/**
+	 * @deprecated
+	 */
+	@Deprecated(since = "6.4", forRemoval = true)
+	public LdapAuthenticationProviderConfigurer<B> withObjectPostProcessor(
+			org.springframework.security.config.annotation.ObjectPostProcessor<?> objectPostProcessor) {
+		addObjectPostProcessor(objectPostProcessor);
+		return this;
+	}
+
+	/**
 	 * Gets the {@link LdapAuthoritiesPopulator} and defaults to
 	 * {@link DefaultLdapAuthoritiesPopulator}
 	 * @return the {@link LdapAuthoritiesPopulator}

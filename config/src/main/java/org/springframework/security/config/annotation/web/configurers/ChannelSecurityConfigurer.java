@@ -170,6 +170,16 @@ public final class ChannelSecurityConfigurer<H extends HttpSecurityBuilder<H>>
 		}
 
 		/**
+		 * @deprecated
+		 */
+		@Deprecated(since = "6.4", forRemoval = true)
+		public ChannelRequestMatcherRegistry withObjectPostProcessor(
+				org.springframework.security.config.annotation.ObjectPostProcessor<?> objectPostProcessor) {
+			addObjectPostProcessor(objectPostProcessor);
+			return this;
+		}
+
+		/**
 		 * Sets the {@link ChannelProcessor} instances to use in
 		 * {@link ChannelDecisionManagerImpl}
 		 * @param channelProcessors
