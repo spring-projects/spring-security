@@ -79,6 +79,15 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 		this(objectPostProcessor, false);
 	}
 
+	/**
+	 * @deprecated
+	 */
+	@Deprecated(since = "6.4", forRemoval = true)
+	protected AbstractConfiguredSecurityBuilder(
+			org.springframework.security.config.annotation.ObjectPostProcessor<Object> objectPostProcessor) {
+		this(objectPostProcessor, false);
+	}
+
 	/***
 	 * Creates a new instance with the provided {@link ObjectPostProcessor}. This post
 	 * processor must support Object since there are many types of objects that may be
@@ -88,6 +97,18 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 	 * {@link SecurityConfigurer}'s when performing apply
 	 */
 	protected AbstractConfiguredSecurityBuilder(ObjectPostProcessor<Object> objectPostProcessor,
+			boolean allowConfigurersOfSameType) {
+		Assert.notNull(objectPostProcessor, "objectPostProcessor cannot be null");
+		this.objectPostProcessor = objectPostProcessor;
+		this.allowConfigurersOfSameType = allowConfigurersOfSameType;
+	}
+
+	/**
+	 * @deprecated
+	 */
+	@Deprecated(since = "6.4", forRemoval = true)
+	protected AbstractConfiguredSecurityBuilder(
+			org.springframework.security.config.annotation.ObjectPostProcessor<Object> objectPostProcessor,
 			boolean allowConfigurersOfSameType) {
 		Assert.notNull(objectPostProcessor, "objectPostProcessor cannot be null");
 		this.objectPostProcessor = objectPostProcessor;

@@ -54,6 +54,17 @@ public abstract class AbstractHttpConfigurer<T extends AbstractHttpConfigurer<T,
 		return (T) this;
 	}
 
+	/**
+	 * @deprecated
+	 */
+	@Deprecated(since = "6.4", forRemoval = true)
+	@SuppressWarnings("unchecked")
+	public T withObjectPostProcessor(
+			org.springframework.security.config.annotation.ObjectPostProcessor<?> objectPostProcessor) {
+		addObjectPostProcessor(objectPostProcessor);
+		return (T) this;
+	}
+
 	protected SecurityContextHolderStrategy getSecurityContextHolderStrategy() {
 		if (this.securityContextHolderStrategy != null) {
 			return this.securityContextHolderStrategy;

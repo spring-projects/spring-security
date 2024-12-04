@@ -93,6 +93,15 @@ public abstract class SecurityConfigurerAdapter<O, B extends SecurityBuilder<O>>
 	}
 
 	/**
+	 * @deprecated
+	 */
+	@Deprecated(since = "6.4", forRemoval = true)
+	public void addObjectPostProcessor(
+			org.springframework.security.config.annotation.ObjectPostProcessor<?> objectPostProcessor) {
+		this.objectPostProcessor.addObjectPostProcessor(objectPostProcessor);
+	}
+
+	/**
 	 * Sets the {@link SecurityBuilder} to be used. This is automatically set when using
 	 * {@link AbstractConfiguredSecurityBuilder#apply(SecurityConfigurerAdapter)}
 	 * @param builder the {@link SecurityBuilder} to set

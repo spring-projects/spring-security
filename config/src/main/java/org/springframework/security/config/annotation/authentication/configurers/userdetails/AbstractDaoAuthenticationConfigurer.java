@@ -64,6 +64,17 @@ public abstract class AbstractDaoAuthenticationConfigurer<B extends ProviderMana
 	}
 
 	/**
+	 * @deprecated
+	 */
+	@Deprecated(since = "6.4", forRemoval = true)
+	@SuppressWarnings("unchecked")
+	public C withObjectPostProcessor(
+			org.springframework.security.config.annotation.ObjectPostProcessor<?> objectPostProcessor) {
+		addObjectPostProcessor(objectPostProcessor);
+		return (C) this;
+	}
+
+	/**
 	 * Allows specifying the {@link PasswordEncoder} to use with the
 	 * {@link DaoAuthenticationProvider}. The default is to use plain text.
 	 * @param passwordEncoder The {@link PasswordEncoder} to use.
