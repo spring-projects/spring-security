@@ -111,4 +111,4 @@ webauthn4j-core = 'com.webauthn4j:webauthn4j-core:0.28.3.RELEASE'
 
 [plugins]
 
-org-gradle-wrapper-upgrade = "org.gradle.wrapper-upgrade:0.11.4"
+org-gradle-wrapper-upgrade = "org.gradle.wrapper-upgrade:0.12"
