@@ -74,6 +74,16 @@ public class HttpSessionEventPublisher implements HttpSessionListener, HttpSessi
 		extracted(event.getSession(), new HttpSessionDestroyedEvent(event.getSession()));
 	}
 
+	/**
+	 * Handles the HttpSessionEvent by publishing a {@link HttpSessionIdChangedEvent}
+	 * to the application context when the session ID changes.
+	 *
+	 * <p>The event captures both the old session ID and the new session ID
+	 * (retrieved from the current session) for use by listeners.
+	 *
+	 * @param event the HttpSessionEvent passed in by the container
+	 * @param oldSessionId the previous session ID before the change
+	 */
 	@Override
 	public void sessionIdChanged(HttpSessionEvent event, String oldSessionId) {
 		extracted(event.getSession(), new HttpSessionIdChangedEvent(event.getSession(), oldSessionId));
