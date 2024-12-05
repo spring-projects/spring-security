@@ -15,6 +15,7 @@ This library provides a framework for preventing Server-Side Request Forgery (SS
 This is the first iteration of the library. Currently the `RestTemplate` is backed by an Apache Commons 5 HttpClient.
 
 ## Usage
+
 ```java
 RestTemplate exampleTemplate = new SecureRestTemplate.Builder()
     .reportOnly(true) // Log warning about blocking, but don't block
@@ -33,3 +34,5 @@ try {
     System.err.println("Access blocked: " + e.getMessage());
 }
 ```
+
+See `test/java/com/google/springframework/security/web/client/UsageExample.java` for more examples

@@ -62,15 +62,15 @@ public class SecureRestTemplate {
 			}
 			FilterMode filterMode = (mode == ProtectionMode.ALLOW_LIST ? FilterMode.ALLOW_LIST : FilterMode.BLOCK_LIST);
 			filter = new ListedSsrfProtectionFilter(
-					Arrays.stream(ipList.strip().split(",")).map(IpOrRange::new).toList(), filterMode, reportOnly);
+					Arrays.stream(ipList.strip().split(",")).map(IpOrRange::new).toList(), filterMode);
 		} else if (mode == ProtectionMode.BLOCK_INTERNAL || mode == ProtectionMode.BLOCK_EXTERNAL) {
 			NetworkMode filterMode = (mode == ProtectionMode.BLOCK_INTERNAL ? NetworkMode.BLOCK_INTERNAL
 					: NetworkMode.BLOCK_EXTERNAL);
 
-			filter = new BasicSsrfProtectionFilter(filterMode, reportOnly);
+			filter = new BasicSsrfProtectionFilter(filterMode);
 		}
 
-		return new Builder().withCustomFilter(filter).build();
+		return new Builder().reportOnly(reportOnly).withCustomFilter(filter).build();
 
 
 	}
@@ -152,21 +152,21 @@ public class SecureRestTemplate {
 			}
 
 			if (networkMode != null) {
-				filters.add(new BasicSsrfProtectionFilter(networkMode, isReportOnly));
+				filters.add(new BasicSsrfProtectionFilter(networkMode));
 			}
 
 			if (ipAllowList.size() > 0) {
 				filters.add(new ListedSsrfProtectionFilter(ipAllowList.stream().map(IpOrRange::new).collect(toList()),
-						FilterMode.ALLOW_LIST, isReportOnly));
+						FilterMode.ALLOW_LIST));
 			}
 			if (ipBlockList.size() > 0) {
 				filters.add(new ListedSsrfProtectionFilter(ipAllowList.stream().map(IpOrRange::new).collect(toList()),
-						FilterMode.BLOCK_LIST, isReportOnly));
+						FilterMode.BLOCK_LIST));
 			}
 
 			filters.addAll(customFilters);
 
-			SsrfDnsResolver dnsResolver = new SsrfDnsResolver(filters);
+			SsrfDnsResolver dnsResolver = new SsrfDnsResolver(filters, isReportOnly);
 
 			if (this.clientType == ClientType.HTTP_CLIENT_5) {
 				return buildHttpClient5(dnsResolver);

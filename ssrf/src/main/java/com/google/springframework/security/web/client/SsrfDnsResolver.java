@@ -25,14 +25,14 @@ import org.apache.hc.client5.http.DnsResolver;
 
 class SsrfDnsResolver implements DnsResolver {
 
-
 	private static final Log logger = LogFactory.getLog(SsrfDnsResolver.class);
 
-
 	protected final List<SsrfProtectionFilter> filters;
+	protected boolean reportOnly;
 
-	public SsrfDnsResolver(List<SsrfProtectionFilter> filters) {
+	public SsrfDnsResolver(List<SsrfProtectionFilter> filters, boolean reportOnly) {
 		this.filters = filters;
+		this.reportOnly = reportOnly;
 	}
 
 	@Override
@@ -49,13 +49,18 @@ class SsrfDnsResolver implements DnsResolver {
 				// each filter can restrict the list of addresses resolved to a given host
 				results = f.filterAddresses(results);
 			}
-			return results;
+		    return results;
 		} catch (HostBlockedException e) {
 			// log error as well, exception can't be chained
 			logger.error("DNS resolution for '" + host + "' resulted in error", e);
-			throw new UnknownHostException(
-					"Access to " + host + " was blocked because it violates the SSRF protection config");
+			if ( !reportOnly ) {
+				throw new UnknownHostException(
+						"Access to " + host + " was blocked because it violates the SSRF protection config");
+			} else {
+				return cachedResult;
+			}
 		}
+
 	}
 
 	// Address resolution moved to a helper function for testing purposes

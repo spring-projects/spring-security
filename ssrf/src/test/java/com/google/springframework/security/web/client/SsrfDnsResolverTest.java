@@ -26,7 +26,7 @@ public class SsrfDnsResolverTest {
 		InetAddress[] addressesToReturn = null;
 
 		public TestableSsrfDnsResolver(List<SsrfProtectionFilter> filterList) {
-			super(filterList);
+			super(filterList, false);
 		}
 
 		@Override
@@ -38,17 +38,22 @@ public class SsrfDnsResolverTest {
 			filters.clear();
 			filters.addAll(filterList);
 		}
+
+		public void setReportOnly(boolean b) {
+			reportOnly = b;
+		}
 	}
 
 	@InjectMocks
 	private TestableSsrfDnsResolver customDnsResolver = new TestableSsrfDnsResolver(new ArrayList<>());
 
 	@Test
-	void testResolve_validHost() throws UnknownHostException, HostBlockedException {
+	void testResolveWithValidHost() throws UnknownHostException, HostBlockedException {
 		String host = "www.example.com";
 		InetAddress[] addresses = new InetAddress[]{InetAddress.getByName("93.184.216.34")};
 		when(ssrfProtectionFilter.filterAddresses(addresses)).thenReturn(addresses);
 		customDnsResolver.addressesToReturn = addresses;
+		customDnsResolver.setReportOnly(false);
 		customDnsResolver.setFilters(List.of(ssrfProtectionFilter));
 
 		InetAddress[] resolvedAddresses = customDnsResolver.resolve(host);
@@ -58,16 +63,33 @@ public class SsrfDnsResolverTest {
 	}
 
 	@Test
-	void testResolve_blockedHost() throws UnknownHostException, HostBlockedException {
+	void testResolveBlockedHost() throws UnknownHostException, HostBlockedException {
 		String host = "192.168.1.1";
 		InetAddress[] addresses = new InetAddress[]{InetAddress.getByName(host)};
 		when(ssrfProtectionFilter.filterAddresses(addresses)).thenThrow(new HostBlockedException("Blocked"));
 		customDnsResolver.addressesToReturn = addresses;
 		customDnsResolver.setFilters(List.of(ssrfProtectionFilter));
+		customDnsResolver.setReportOnly(false);
 
 		UnknownHostException exception = assertThrows(UnknownHostException.class,
 				() -> customDnsResolver.resolve(host));
 		assertTrue(exception.getMessage().contains("blocked"));
+
+	}
+
+	@Test
+	void testResolveBlockedHostInRerpotOnlyMode() throws UnknownHostException, HostBlockedException {
+		String host = "192.168.1.1";
+		InetAddress[] addresses = new InetAddress[]{InetAddress.getByName(host)};
+		when(ssrfProtectionFilter.filterAddresses(addresses)).thenThrow(new HostBlockedException("Blocked"));
+		customDnsResolver.addressesToReturn = addresses;
+		customDnsResolver.setReportOnly(true);
+		customDnsResolver.setFilters(List.of(ssrfProtectionFilter));
+
+		InetAddress[] resolvedAddresses = customDnsResolver.resolve(host);
+
+		assertEquals(1, resolvedAddresses.length);
+		assertEquals(addresses[0], resolvedAddresses[0]);
 
 	}
 

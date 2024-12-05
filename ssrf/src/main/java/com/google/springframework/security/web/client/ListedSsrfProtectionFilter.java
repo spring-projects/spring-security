@@ -21,13 +21,8 @@ import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 public class ListedSsrfProtectionFilter implements SsrfProtectionFilter {
-
-	private static final Log logger = LogFactory.getLog(ListedSsrfProtectionFilter.class);
 
 	/**
 	 * FilterMode enum to make usage more intuitive ( practically this is just a bool )
@@ -40,12 +35,10 @@ public class ListedSsrfProtectionFilter implements SsrfProtectionFilter {
 	private List<IpOrRange> matchingRules;
 
 	private FilterMode mode;
-	private boolean reportOnly;
 
-	public ListedSsrfProtectionFilter(List<IpOrRange> addressList, FilterMode mode, boolean reportOnly) {
+	public ListedSsrfProtectionFilter(List<IpOrRange> addressList, FilterMode mode) {
 		this.matchingRules = addressList;
 		this.mode = mode;
-		this.reportOnly = reportOnly;
 	}
 
 	@Override
@@ -73,15 +66,8 @@ public class ListedSsrfProtectionFilter implements SsrfProtectionFilter {
 
 		if (result.size() == 0) {
 			String addrFmt = Arrays.stream(addresses).map(InetAddress::toString).collect(joining(", "));
-			String errorMessage =
-					"The following address(es) were blocked due to violating " + mode.name() + " policy: " + addrFmt;
-			if (reportOnly) {
-				logger.warn(errorMessage);
-				return addresses;
-			} else {
-				throw new HostBlockedException(errorMessage);
-			}
-
+			throw new HostBlockedException(
+					"The following address(es) were blocked due to violating " + mode.name() + " policy: " + addrFmt);
 		}
 
 		return result.toArray(new InetAddress[]{});

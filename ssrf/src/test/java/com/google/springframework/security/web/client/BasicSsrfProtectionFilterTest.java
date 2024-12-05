@@ -13,8 +13,8 @@ import org.junit.jupiter.api.Test;
 public class BasicSsrfProtectionFilterTest {
 
 	@Test
-	void testAllowInternalBlockExternal_internalAllowed() throws UnknownHostException, HostBlockedException {
-		BasicSsrfProtectionFilter filter = new BasicSsrfProtectionFilter(NetworkMode.BLOCK_EXTERNAL, false);
+	void testAllowInternalBlockExternalWithInternalAllowed() throws UnknownHostException, HostBlockedException {
+		BasicSsrfProtectionFilter filter = new BasicSsrfProtectionFilter(NetworkMode.BLOCK_EXTERNAL);
 		InetAddress[] addresses = new InetAddress[]{InetAddress.getByName("192.168.1.1"),
 				InetAddress.getByName("10.0.0.1")};
 		InetAddress[] filtered = filter.filterAddresses(addresses);
@@ -23,8 +23,8 @@ public class BasicSsrfProtectionFilterTest {
 	}
 
 	@Test
-	void testAllowInternalBlockExternal_externalBlocked() throws UnknownHostException, HostBlockedException {
-		BasicSsrfProtectionFilter filter = new BasicSsrfProtectionFilter(NetworkMode.BLOCK_EXTERNAL, false);
+	void testAllowInternalBlockExternalWithExternalBlocked() throws UnknownHostException, HostBlockedException {
+		BasicSsrfProtectionFilter filter = new BasicSsrfProtectionFilter(NetworkMode.BLOCK_EXTERNAL);
 		InetAddress[] addresses = new InetAddress[]{InetAddress.getByName("192.168.1.1"),
 				InetAddress.getByName("8.8.8.8")};
 		InetAddress[] filtered = filter.filterAddresses(addresses);
@@ -33,15 +33,15 @@ public class BasicSsrfProtectionFilterTest {
 	}
 
 	@Test
-	void testAllowInternalBlockExternal_allBlocked() throws UnknownHostException {
-		BasicSsrfProtectionFilter filter = new BasicSsrfProtectionFilter(NetworkMode.BLOCK_EXTERNAL, false);
+	void testAllowInternalBlockExternalWithAllBlocked() throws UnknownHostException {
+		BasicSsrfProtectionFilter filter = new BasicSsrfProtectionFilter(NetworkMode.BLOCK_EXTERNAL);
 		InetAddress[] addresses = new InetAddress[]{InetAddress.getByName("8.8.8.8"), InetAddress.getByName("1.1.1.1")};
 		assertThrows(HostBlockedException.class, () -> filter.filterAddresses(addresses));
 	}
 
 	@Test
-	void testBlockInternalAllowExternal_internalBlocked() throws UnknownHostException, HostBlockedException {
-		BasicSsrfProtectionFilter filter = new BasicSsrfProtectionFilter(NetworkMode.BLOCK_INTERNAL, false);
+	void testBlockInternalAllowExternalWithInternalBlocked() throws UnknownHostException, HostBlockedException {
+		BasicSsrfProtectionFilter filter = new BasicSsrfProtectionFilter(NetworkMode.BLOCK_INTERNAL);
 		InetAddress[] addresses = new InetAddress[]{InetAddress.getByName("192.168.1.1"),
 				InetAddress.getByName("8.8.8.8")};
 		InetAddress[] filtered = filter.filterAddresses(addresses);
@@ -50,8 +50,8 @@ public class BasicSsrfProtectionFilterTest {
 	}
 
 	@Test
-	void testBlockInternalAllowExternal_externalAllowed() throws UnknownHostException, HostBlockedException {
-		BasicSsrfProtectionFilter filter = new BasicSsrfProtectionFilter(NetworkMode.BLOCK_INTERNAL, false);
+	void testBlockInternalAllowExternalWithExternalAllowed() throws UnknownHostException, HostBlockedException {
+		BasicSsrfProtectionFilter filter = new BasicSsrfProtectionFilter(NetworkMode.BLOCK_INTERNAL);
 		InetAddress[] addresses = new InetAddress[]{InetAddress.getByName("8.8.8.8"), InetAddress.getByName("1.1.1.1")};
 		InetAddress[] filtered = filter.filterAddresses(addresses);
 		assertEquals(2, filtered.length);
@@ -59,8 +59,8 @@ public class BasicSsrfProtectionFilterTest {
 	}
 
 	@Test
-	void testBlockInternalAllowExternal_allBlocked() throws UnknownHostException {
-		BasicSsrfProtectionFilter filter = new BasicSsrfProtectionFilter(NetworkMode.BLOCK_INTERNAL, false);
+	void testBlockInternalAllowExternalWithAllBlocked() throws UnknownHostException {
+		BasicSsrfProtectionFilter filter = new BasicSsrfProtectionFilter(NetworkMode.BLOCK_INTERNAL);
 		InetAddress[] addresses = new InetAddress[]{InetAddress.getByName("192.168.1.1"),
 				InetAddress.getByName("10.0.0.1")};
 		assertThrows(HostBlockedException.class, () -> filter.filterAddresses(addresses));
@@ -68,7 +68,7 @@ public class BasicSsrfProtectionFilterTest {
 
 	@Test
 	void testHostBlockedExceptionMessage() throws UnknownHostException {
-		BasicSsrfProtectionFilter filter = new BasicSsrfProtectionFilter(NetworkMode.BLOCK_INTERNAL, false);
+		BasicSsrfProtectionFilter filter = new BasicSsrfProtectionFilter(NetworkMode.BLOCK_INTERNAL);
 		InetAddress[] addresses = new InetAddress[]{InetAddress.getByName("192.168.1.1"),
 				InetAddress.getByName("10.0.0.1")};
 		HostBlockedException exception = assertThrows(HostBlockedException.class,
@@ -78,14 +78,5 @@ public class BasicSsrfProtectionFilterTest {
 		assertTrue(exception.getMessage().contains("BLOCK_INTERNAL"));
 	}
 
-	@Test
-	void testReportOnlyHostBlocking() throws UnknownHostException, HostBlockedException {
-		BasicSsrfProtectionFilter filter = new BasicSsrfProtectionFilter(NetworkMode.BLOCK_INTERNAL, true);
-		InetAddress[] addresses = new InetAddress[]{InetAddress.getByName("192.168.1.1"),
-				InetAddress.getByName("10.0.0.1")};
 
-		InetAddress[] filtered = filter.filterAddresses(addresses);
-		assertEquals(2, filtered.length);
-
-	}
 }

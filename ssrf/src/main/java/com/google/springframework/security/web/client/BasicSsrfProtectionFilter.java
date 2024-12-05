@@ -21,19 +21,13 @@ import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 public class BasicSsrfProtectionFilter implements SsrfProtectionFilter {
 
-	private static final Log logger = LogFactory.getLog(BasicSsrfProtectionFilter.class);
-	private final boolean reportOnly;
 	private final NetworkMode mode;
 
-	public BasicSsrfProtectionFilter(NetworkMode mode, boolean reportOnly) {
+	public BasicSsrfProtectionFilter(NetworkMode mode) {
 		this.mode = mode;
-		this.reportOnly = reportOnly;
 	}
 
 	@Override
@@ -55,14 +49,8 @@ public class BasicSsrfProtectionFilter implements SsrfProtectionFilter {
 
 		if (result.size() == 0) {
 			String addrFmt = Arrays.stream(addresses).map(InetAddress::toString).collect(joining(", "));
-			String errorMessage =
-					"The following address(es) were blocked due to violating " + mode.name() + " policy: " + addrFmt;
-			if (reportOnly) {
-				logger.warn(errorMessage);
-				return addresses;
-			} else {
-				throw new HostBlockedException(errorMessage);
-			}
+			throw new HostBlockedException(
+					"The following address(es) were blocked due to violating " + mode.name() + " policy: " + addrFmt);
 		}
 
 		return result.toArray(new InetAddress[]{});
