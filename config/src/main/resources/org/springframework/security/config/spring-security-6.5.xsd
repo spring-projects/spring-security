@@ -2688,6 +2688,13 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
+      <xs:attribute name="max-sessions-ref" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>Allows injection of the SessionLimit instance used by the
+                ConcurrentSessionControlAuthenticationStrategy
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
       <xs:attribute name="expired-url" type="xs:token">
          <xs:annotation>
             <xs:documentation>The URL a user will be redirected to if they attempt to use a session which has been
