@@ -2,16 +2,19 @@ package com.google.springframework.security.web.client;
 
 import static com.google.springframework.security.web.client.NetworkMode.BLOCK_EXTERNAL;
 
+import java.net.InetAddress;
+import java.util.Arrays;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
 public class UsageExample {
 
 	public static void example3() {
-		RestTemplate exampleTemplate = new SecureRestTemplate.Builder()
-				.reportOnly(true) // Log warning about blocking, but don't block
-				.networkMode(BLOCK_EXTERNAL)
-				.withBlocklist(new String[]{"evil.com"})
+		RestTemplate exampleTemplate = new SecureRestTemplate.Builder().reportOnly(
+						true) // Log warning about blocking, but don't block
+				.networkMode(BLOCK_EXTERNAL).withCustomFilter(
+						addresses -> Arrays.stream(addresses).filter(a -> !a.isMCNodeLocal())
+								.toArray(InetAddress[]::new)).withBlocklist("evil.com", "6.6.6.9/16", "123.123.123.123")
 				.build();
 
 		try {
@@ -24,9 +27,7 @@ public class UsageExample {
 	}
 
 	public static void example2() {
-		RestTemplate exampleTemplate = new SecureRestTemplate.Builder()
-				.networkMode(BLOCK_EXTERNAL)
-				.build();
+		RestTemplate exampleTemplate = new SecureRestTemplate.Builder().networkMode(BLOCK_EXTERNAL).build();
 
 		try {
 			exampleTemplate.getForEntity("https://google.com", String.class);

@@ -15,6 +15,8 @@
  */
 package com.google.springframework.security.web.client;
 
+import static java.util.stream.Collectors.joining;
+
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,7 +37,7 @@ public class BasicSsrfProtectionFilter implements SsrfProtectionFilter {
 	}
 
 	@Override
-	public InetAddress[] filteredAddresses(InetAddress[] addresses) throws HostBlockedException {
+	public InetAddress[] filterAddresses(InetAddress[] addresses) throws HostBlockedException {
 
 		List<InetAddress> result = new ArrayList<>(addresses.length);
 
@@ -52,7 +54,7 @@ public class BasicSsrfProtectionFilter implements SsrfProtectionFilter {
 		}
 
 		if (result.size() == 0) {
-			String addrFmt = Arrays.stream(addresses).map(a -> a.toString()).collect(Collectors.joining(", "));
+			String addrFmt = Arrays.stream(addresses).map(InetAddress::toString).collect(joining(", "));
 			String errorMessage =
 					"The following address(es) were blocked due to violating " + mode.name() + " policy: " + addrFmt;
 			if (reportOnly) {

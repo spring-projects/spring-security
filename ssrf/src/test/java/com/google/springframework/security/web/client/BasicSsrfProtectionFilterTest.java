@@ -17,7 +17,7 @@ public class BasicSsrfProtectionFilterTest {
 		BasicSsrfProtectionFilter filter = new BasicSsrfProtectionFilter(NetworkMode.BLOCK_EXTERNAL, false);
 		InetAddress[] addresses = new InetAddress[]{InetAddress.getByName("192.168.1.1"),
 				InetAddress.getByName("10.0.0.1")};
-		InetAddress[] filtered = filter.filteredAddresses(addresses);
+		InetAddress[] filtered = filter.filterAddresses(addresses);
 		assertEquals(2, filtered.length);
 		assertTrue(Arrays.asList(filtered).containsAll(List.of(addresses)));
 	}
@@ -27,7 +27,7 @@ public class BasicSsrfProtectionFilterTest {
 		BasicSsrfProtectionFilter filter = new BasicSsrfProtectionFilter(NetworkMode.BLOCK_EXTERNAL, false);
 		InetAddress[] addresses = new InetAddress[]{InetAddress.getByName("192.168.1.1"),
 				InetAddress.getByName("8.8.8.8")};
-		InetAddress[] filtered = filter.filteredAddresses(addresses);
+		InetAddress[] filtered = filter.filterAddresses(addresses);
 		assertEquals(1, filtered.length);
 		assertEquals(InetAddress.getByName("192.168.1.1"), filtered[0]);
 	}
@@ -36,7 +36,7 @@ public class BasicSsrfProtectionFilterTest {
 	void testAllowInternalBlockExternal_allBlocked() throws UnknownHostException {
 		BasicSsrfProtectionFilter filter = new BasicSsrfProtectionFilter(NetworkMode.BLOCK_EXTERNAL, false);
 		InetAddress[] addresses = new InetAddress[]{InetAddress.getByName("8.8.8.8"), InetAddress.getByName("1.1.1.1")};
-		assertThrows(HostBlockedException.class, () -> filter.filteredAddresses(addresses));
+		assertThrows(HostBlockedException.class, () -> filter.filterAddresses(addresses));
 	}
 
 	@Test
@@ -44,7 +44,7 @@ public class BasicSsrfProtectionFilterTest {
 		BasicSsrfProtectionFilter filter = new BasicSsrfProtectionFilter(NetworkMode.BLOCK_INTERNAL, false);
 		InetAddress[] addresses = new InetAddress[]{InetAddress.getByName("192.168.1.1"),
 				InetAddress.getByName("8.8.8.8")};
-		InetAddress[] filtered = filter.filteredAddresses(addresses);
+		InetAddress[] filtered = filter.filterAddresses(addresses);
 		assertEquals(1, filtered.length);
 		assertEquals(InetAddress.getByName("8.8.8.8"), filtered[0]);
 	}
@@ -53,7 +53,7 @@ public class BasicSsrfProtectionFilterTest {
 	void testBlockInternalAllowExternal_externalAllowed() throws UnknownHostException, HostBlockedException {
 		BasicSsrfProtectionFilter filter = new BasicSsrfProtectionFilter(NetworkMode.BLOCK_INTERNAL, false);
 		InetAddress[] addresses = new InetAddress[]{InetAddress.getByName("8.8.8.8"), InetAddress.getByName("1.1.1.1")};
-		InetAddress[] filtered = filter.filteredAddresses(addresses);
+		InetAddress[] filtered = filter.filterAddresses(addresses);
 		assertEquals(2, filtered.length);
 		assertTrue(Arrays.asList(filtered).containsAll(List.of(addresses)));
 	}
@@ -63,7 +63,7 @@ public class BasicSsrfProtectionFilterTest {
 		BasicSsrfProtectionFilter filter = new BasicSsrfProtectionFilter(NetworkMode.BLOCK_INTERNAL, false);
 		InetAddress[] addresses = new InetAddress[]{InetAddress.getByName("192.168.1.1"),
 				InetAddress.getByName("10.0.0.1")};
-		assertThrows(HostBlockedException.class, () -> filter.filteredAddresses(addresses));
+		assertThrows(HostBlockedException.class, () -> filter.filterAddresses(addresses));
 	}
 
 	@Test
@@ -72,7 +72,7 @@ public class BasicSsrfProtectionFilterTest {
 		InetAddress[] addresses = new InetAddress[]{InetAddress.getByName("192.168.1.1"),
 				InetAddress.getByName("10.0.0.1")};
 		HostBlockedException exception = assertThrows(HostBlockedException.class,
-				() -> filter.filteredAddresses(addresses));
+				() -> filter.filterAddresses(addresses));
 		assertTrue(exception.getMessage().contains("192.168.1.1"));
 		assertTrue(exception.getMessage().contains("10.0.0.1"));
 		assertTrue(exception.getMessage().contains("BLOCK_INTERNAL"));
@@ -84,7 +84,7 @@ public class BasicSsrfProtectionFilterTest {
 		InetAddress[] addresses = new InetAddress[]{InetAddress.getByName("192.168.1.1"),
 				InetAddress.getByName("10.0.0.1")};
 
-		InetAddress[] filtered = filter.filteredAddresses(addresses);
+		InetAddress[] filtered = filter.filterAddresses(addresses);
 		assertEquals(2, filtered.length);
 
 	}

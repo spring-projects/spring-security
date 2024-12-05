@@ -20,6 +20,6 @@ import java.net.InetAddress;
 
 public interface SsrfProtectionFilter {
 
-	InetAddress[] filteredAddresses(final InetAddress[] addresses) throws HostBlockedException;
+	InetAddress[] filterAddresses(final InetAddress[] addresses) throws HostBlockedException;
 
 }

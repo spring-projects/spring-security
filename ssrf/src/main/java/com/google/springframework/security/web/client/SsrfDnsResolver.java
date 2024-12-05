@@ -41,13 +41,13 @@ class SsrfDnsResolver implements DnsResolver {
 		// Internally these results are cached for 30 seconds (by default) to prevent naive DNS rebinding
 		// It's important to fetch it from the cache before running checks and to not run resolution again.
 		// ( Otherwise this would make us vulnerable to high-frequency switching between valid-invalid addresses )
-		final InetAddress[] cachedResult = resolveAll(host);
+		InetAddress[] cachedResult = resolveAll(host);
 		InetAddress[] results = Arrays.copyOf(cachedResult, cachedResult.length);
 
 		try {
 			for (SsrfProtectionFilter f : filters) {
 				// each filter can restrict the list of addresses resolved to a given host
-				results = f.filteredAddresses(results);
+				results = f.filterAddresses(results);
 			}
 			return results;
 		} catch (HostBlockedException e) {

@@ -15,11 +15,12 @@
  */
 package com.google.springframework.security.web.client;
 
+import static java.util.stream.Collectors.toList;
+
 import com.google.springframework.security.web.client.ListedSsrfProtectionFilter.FilterMode;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
 import org.apache.hc.client5.http.impl.io.BasicHttpClientConnectionManager;
@@ -36,9 +37,8 @@ public class SecureRestTemplate {
 	/**
 	 * Helper enum to make configuring with system properties easier
 	 */
-	enum ProtectionMode {
-		// TODO(vaspori): make naming consistent with NetworkMode
-		ALLOW_LIST, DENY_LIST, ALLOW_INTERNAL, ALLOW_EXTERNAL,
+	private enum ProtectionMode {
+		ALLOW_LIST, DENY_LIST, BLOCK_EXTERNAL, BLOCK_INTERNAL,
 	}
 
 	public static RestTemplate buildDefault() {
@@ -63,9 +63,8 @@ public class SecureRestTemplate {
 			FilterMode filterMode = (mode == ProtectionMode.ALLOW_LIST ? FilterMode.ALLOW_LIST : FilterMode.BLOCK_LIST);
 			filter = new ListedSsrfProtectionFilter(
 					Arrays.stream(ipList.strip().split(",")).map(IpOrRange::new).toList(), filterMode, reportOnly);
-		} else if (mode == ProtectionMode.ALLOW_EXTERNAL || mode == ProtectionMode.ALLOW_INTERNAL) {
-			NetworkMode filterMode = (mode == ProtectionMode.ALLOW_EXTERNAL
-					? NetworkMode.BLOCK_INTERNAL
+		} else if (mode == ProtectionMode.BLOCK_INTERNAL || mode == ProtectionMode.BLOCK_EXTERNAL) {
+			NetworkMode filterMode = (mode == ProtectionMode.BLOCK_INTERNAL ? NetworkMode.BLOCK_INTERNAL
 					: NetworkMode.BLOCK_EXTERNAL);
 
 			filter = new BasicSsrfProtectionFilter(filterMode, reportOnly);
@@ -97,15 +96,26 @@ public class SecureRestTemplate {
 			return this;
 		}
 
-		public Builder withAllowlist(String[] ipList) {
+		public Builder withAllowlist(String... ipList) {
 			this.ipAllowList.addAll(List.of(ipList));
 			return this;
 		}
 
-		public Builder withBlocklist(String[] ipList) {
+		public Builder withAllowlist(Iterable<String> ipList) {
+			ipList.forEach(this.ipAllowList::add);
+			return this;
+		}
+
+		public Builder withBlocklist(String... ipList) {
 			this.ipBlockList.addAll(List.of(ipList));
 			return this;
 		}
+
+		public Builder withBlocklist(Iterable<String> ipList) {
+			ipList.forEach(this.ipBlockList::add);
+			return this;
+		}
+
 
 		public Builder withCustomFilter(SsrfProtectionFilter filter) {
 			this.customFilters.add(filter);
@@ -121,15 +131,12 @@ public class SecureRestTemplate {
 
 			Registry<ConnectionSocketFactory> registry = RegistryBuilder.<ConnectionSocketFactory>create()
 					.register("http", PlainConnectionSocketFactory.getSocketFactory())
-					.register("https", SSLConnectionSocketFactory.getSocketFactory())
-					.build();
+					.register("https", SSLConnectionSocketFactory.getSocketFactory()).build();
 
-			BasicHttpClientConnectionManager connManager = new BasicHttpClientConnectionManager(
-					registry, null, null, dnsResolver);
+			BasicHttpClientConnectionManager connManager = new BasicHttpClientConnectionManager(registry, null, null,
+					dnsResolver);
 
-			CloseableHttpClient httpClient = HttpClientBuilder.create()
-					.setConnectionManager(connManager)
-					.build();
+			CloseableHttpClient httpClient = HttpClientBuilder.create().setConnectionManager(connManager).build();
 
 			HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory(
 					httpClient);
@@ -149,14 +156,12 @@ public class SecureRestTemplate {
 			}
 
 			if (ipAllowList.size() > 0) {
-				filters.add(new ListedSsrfProtectionFilter(
-						ipAllowList.stream().map(IpOrRange::new).collect(Collectors.toList()),
+				filters.add(new ListedSsrfProtectionFilter(ipAllowList.stream().map(IpOrRange::new).collect(toList()),
 						FilterMode.ALLOW_LIST, isReportOnly));
 			}
 			if (ipBlockList.size() > 0) {
-				filters.add(new ListedSsrfProtectionFilter(
-						ipAllowList.stream().map(IpOrRange::new).collect(Collectors.toList()),
-						FilterMode.ALLOW_LIST, isReportOnly));
+				filters.add(new ListedSsrfProtectionFilter(ipAllowList.stream().map(IpOrRange::new).collect(toList()),
+						FilterMode.BLOCK_LIST, isReportOnly));
 			}
 
 			filters.addAll(customFilters);

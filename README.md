@@ -17,12 +17,19 @@ This is the first iteration of the library. Currently the `RestTemplate` is back
 ## Usage
 ```java
 RestTemplate exampleTemplate = new SecureRestTemplate.Builder()
+    .reportOnly(true) // Log warning about blocking, but don't block
     .networkMode(BLOCK_EXTERNAL)
+    .withCustomFilter(addresses ->
+        Arrays.stream(addresses).filter(a -> !a.isMCNodeLocal()).toArray(InetAddress[]::new)
+    )
+    .withBlocklist("evil.com", "6.6.6.9/16", "123.123.123.123")
     .build();
 
 try {
-    exampleTemplate.getForEntity("https://google.com", String.class);
+    ResponseEntity<String> result = exampleTemplate.getForEntity("https://google.com", String.class);
+    System.out.println(result);
 } catch (Exception e) {
+    // This should not run
     System.err.println("Access blocked: " + e.getMessage());
 }
 ```

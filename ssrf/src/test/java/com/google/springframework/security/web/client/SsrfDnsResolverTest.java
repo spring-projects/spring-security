@@ -47,7 +47,7 @@ public class SsrfDnsResolverTest {
 	void testResolve_validHost() throws UnknownHostException, HostBlockedException {
 		String host = "www.example.com";
 		InetAddress[] addresses = new InetAddress[]{InetAddress.getByName("93.184.216.34")};
-		when(ssrfProtectionFilter.filteredAddresses(addresses)).thenReturn(addresses);
+		when(ssrfProtectionFilter.filterAddresses(addresses)).thenReturn(addresses);
 		customDnsResolver.addressesToReturn = addresses;
 		customDnsResolver.setFilters(List.of(ssrfProtectionFilter));
 
@@ -61,7 +61,7 @@ public class SsrfDnsResolverTest {
 	void testResolve_blockedHost() throws UnknownHostException, HostBlockedException {
 		String host = "192.168.1.1";
 		InetAddress[] addresses = new InetAddress[]{InetAddress.getByName(host)};
-		when(ssrfProtectionFilter.filteredAddresses(addresses)).thenThrow(new HostBlockedException("Blocked"));
+		when(ssrfProtectionFilter.filterAddresses(addresses)).thenThrow(new HostBlockedException("Blocked"));
 		customDnsResolver.addressesToReturn = addresses;
 		customDnsResolver.setFilters(List.of(ssrfProtectionFilter));
 
@@ -76,6 +76,6 @@ public class SsrfDnsResolverTest {
 	void testResolveCanonicalHostname() throws UnknownHostException {
 		String host = "www.example.com";
 		String resolvedHostname = customDnsResolver.resolveCanonicalHostname(host);
-		assertEquals(host, resolvedHostname); // Since the method is not fully implemented yet
+		assertEquals(host, resolvedHostname);
 	}
 }

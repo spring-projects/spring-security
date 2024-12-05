@@ -19,7 +19,7 @@ public class ListedSsrfProtectionFilterTest {
 				ListedSsrfProtectionFilter.FilterMode.BLOCK_LIST, false);
 		InetAddress[] addresses = new InetAddress[]{InetAddress.getByName("192.168.1.1"),
 				InetAddress.getByName("8.8.8.8")};
-		InetAddress[] filtered = filter.filteredAddresses(addresses);
+		InetAddress[] filtered = filter.filterAddresses(addresses);
 		assertEquals(1, filtered.length);
 		assertEquals(InetAddress.getByName("8.8.8.8"), filtered[0]);
 	}
@@ -31,7 +31,7 @@ public class ListedSsrfProtectionFilterTest {
 				ListedSsrfProtectionFilter.FilterMode.BLOCK_LIST, false);
 		InetAddress[] addresses = new InetAddress[]{InetAddress.getByName("192.168.1.2"),
 				InetAddress.getByName("8.8.8.8")};
-		InetAddress[] filtered = filter.filteredAddresses(addresses);
+		InetAddress[] filtered = filter.filterAddresses(addresses);
 		assertEquals(2, filtered.length);
 		assertTrue(Arrays.asList(filtered).containsAll(List.of(addresses)));
 	}
@@ -43,7 +43,7 @@ public class ListedSsrfProtectionFilterTest {
 				ListedSsrfProtectionFilter.FilterMode.BLOCK_LIST, false);
 		InetAddress[] addresses = new InetAddress[]{InetAddress.getByName("192.168.1.1"),
 				InetAddress.getByName("8.8.8.8")};
-		assertThrows(HostBlockedException.class, () -> filter.filteredAddresses(addresses));
+		assertThrows(HostBlockedException.class, () -> filter.filterAddresses(addresses));
 	}
 
 	@Test
@@ -53,7 +53,7 @@ public class ListedSsrfProtectionFilterTest {
 				ListedSsrfProtectionFilter.FilterMode.ALLOW_LIST, false);
 		InetAddress[] addresses = new InetAddress[]{InetAddress.getByName("192.168.1.1"),
 				InetAddress.getByName("8.8.8.8")};
-		InetAddress[] filtered = filter.filteredAddresses(addresses);
+		InetAddress[] filtered = filter.filterAddresses(addresses);
 		assertEquals(1, filtered.length);
 		assertEquals(InetAddress.getByName("192.168.1.1"), filtered[0]);
 	}
@@ -66,7 +66,7 @@ public class ListedSsrfProtectionFilterTest {
 		InetAddress[] addresses = new InetAddress[]{InetAddress.getByName("192.168.1.200"),
 				InetAddress.getByName("8.8.8.8")};
 		HostBlockedException ex = assertThrows(HostBlockedException.class,
-				() -> filter.filteredAddresses(addresses), "This should throw an exception");
+				() -> filter.filterAddresses(addresses), "This should throw an exception");
 		assertTrue(ex.getMessage().contains("blocked due to violating ALLOW_LIST"));
 
 	}
@@ -78,7 +78,7 @@ public class ListedSsrfProtectionFilterTest {
 				ListedSsrfProtectionFilter.FilterMode.ALLOW_LIST, false);
 		InetAddress[] addresses = new InetAddress[]{InetAddress.getByName("192.168.1.1"),
 				InetAddress.getByName("8.8.8.8")};
-		assertThrows(HostBlockedException.class, () -> filter.filteredAddresses(addresses));
+		assertThrows(HostBlockedException.class, () -> filter.filterAddresses(addresses));
 	}
 
 	@Test
@@ -88,7 +88,7 @@ public class ListedSsrfProtectionFilterTest {
 				ListedSsrfProtectionFilter.FilterMode.BLOCK_LIST, false);
 		InetAddress[] addresses = new InetAddress[]{InetAddress.getByName("192.168.1.1")};
 		HostBlockedException exception = assertThrows(HostBlockedException.class,
-				() -> filter.filteredAddresses(addresses));
+				() -> filter.filterAddresses(addresses));
 		assertTrue(exception.getMessage().contains("192.168.1.1"));
 		assertTrue(exception.getMessage().contains("BLOCK_LIST"));
 	}
@@ -100,7 +100,7 @@ public class ListedSsrfProtectionFilterTest {
 				ListedSsrfProtectionFilter.FilterMode.BLOCK_LIST, true);
 		InetAddress[] addresses = new InetAddress[]{InetAddress.getByName("192.168.1.1")};
 
-		InetAddress[] filtered = filter.filteredAddresses(addresses);
+		InetAddress[] filtered = filter.filterAddresses(addresses);
 		assertEquals(1, filtered.length);
 		assertTrue(Arrays.asList(filtered).containsAll(List.of(addresses)));
 	}
