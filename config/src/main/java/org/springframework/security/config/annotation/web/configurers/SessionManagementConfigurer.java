@@ -59,6 +59,7 @@ import org.springframework.security.web.session.DisableEncodeUrlFilter;
 import org.springframework.security.web.session.ForceEagerSessionCreationFilter;
 import org.springframework.security.web.session.InvalidSessionStrategy;
 import org.springframework.security.web.session.SessionInformationExpiredStrategy;
+import org.springframework.security.web.session.SessionLimitStrategy;
 import org.springframework.security.web.session.SessionManagementFilter;
 import org.springframework.security.web.session.SimpleRedirectInvalidSessionStrategy;
 import org.springframework.security.web.session.SimpleRedirectSessionInformationExpiredStrategy;
@@ -118,6 +119,8 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 	private InvalidSessionStrategy invalidSessionStrategy;
 
 	private SessionInformationExpiredStrategy expiredSessionStrategy;
+
+	private SessionLimitStrategy sessionLimitStrategy;
 
 	private List<SessionAuthenticationStrategy> sessionAuthenticationStrategies = new ArrayList<>();
 
@@ -570,7 +573,10 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 			SessionRegistry sessionRegistry = getSessionRegistry(http);
 			ConcurrentSessionControlAuthenticationStrategy concurrentSessionControlStrategy = new ConcurrentSessionControlAuthenticationStrategy(
 					sessionRegistry);
-			concurrentSessionControlStrategy.setMaximumSessions(this.maximumSessions);
+			SessionLimitStrategy sessionLimitStrategyValue = getSessionLimitStrategy();
+			if (sessionLimitStrategyValue != null) {
+				concurrentSessionControlStrategy.setSessionLimitStrategy(sessionLimitStrategyValue);
+			}
 			concurrentSessionControlStrategy.setExceptionIfMaximumExceeded(this.maxSessionsPreventsLogin);
 			concurrentSessionControlStrategy = postProcess(concurrentSessionControlStrategy);
 			RegisterSessionAuthenticationStrategy registerSessionStrategy = new RegisterSessionAuthenticationStrategy(
@@ -586,6 +592,17 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 		this.sessionAuthenticationStrategy = postProcess(
 				new CompositeSessionAuthenticationStrategy(delegateStrategies));
 		return this.sessionAuthenticationStrategy;
+	}
+
+	private SessionLimitStrategy getSessionLimitStrategy() {
+		if (this.sessionLimitStrategy != null) {
+			return this.sessionLimitStrategy;
+		}
+		if (this.maximumSessions == null) {
+			return null;
+		}
+		this.sessionLimitStrategy = SessionLimitStrategy.of(this.maximumSessions);
+		return this.sessionLimitStrategy;
 	}
 
 	private SessionRegistry getSessionRegistry(H http) {
@@ -614,7 +631,7 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 	 * @return
 	 */
 	private boolean isConcurrentSessionControlEnabled() {
-		return this.maximumSessions != null;
+		return this.maximumSessions != null || this.sessionLimitStrategy != null;
 	}
 
 	/**
@@ -707,6 +724,17 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 		 */
 		public ConcurrencyControlConfigurer maximumSessions(int maximumSessions) {
 			SessionManagementConfigurer.this.maximumSessions = maximumSessions;
+			return this;
+		}
+
+		/**
+		 * Determines the behaviour when a session limit is detected.
+		 * @param sessionLimitStrategy the {@link SessionLimitStrategy} to check the
+		 * maximum number of sessions for a user
+		 * @return the {@link ConcurrencyControlConfigurer} for further customizations
+		 */
+		public ConcurrencyControlConfigurer sessionLimitStrategy(SessionLimitStrategy sessionLimitStrategy) {
+			SessionManagementConfigurer.this.sessionLimitStrategy = sessionLimitStrategy;
 			return this;
 		}
 

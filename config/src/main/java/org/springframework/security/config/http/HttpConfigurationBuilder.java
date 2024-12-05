@@ -122,6 +122,10 @@ class HttpConfigurationBuilder {
 
 	private static final String ATT_SESSION_AUTH_STRATEGY_REF = "session-authentication-strategy-ref";
 
+	private static final String ATT_SESSION_LIMIT_STRATEGY_REF = "session-limit-strategy-ref";
+
+	private static final String ATT_MAX_SESSIONS = "max-sessions";
+
 	private static final String ATT_SESSION_AUTH_ERROR_URL = "session-authentication-error-url";
 
 	private static final String ATT_SECURITY_CONTEXT_HOLDER_STRATEGY = "security-context-holder-strategy-ref";
@@ -485,9 +489,15 @@ class HttpConfigurationBuilder {
 			concurrentSessionStrategy.addConstructorArgValue(this.sessionRegistryRef);
 			String maxSessions = this.pc.getReaderContext()
 				.getEnvironment()
-				.resolvePlaceholders(sessionCtrlElt.getAttribute("max-sessions"));
+				.resolvePlaceholders(sessionCtrlElt.getAttribute(ATT_MAX_SESSIONS));
 			if (StringUtils.hasText(maxSessions)) {
 				concurrentSessionStrategy.addPropertyValue("maximumSessions", maxSessions);
+			}
+			String sessionLimitStrategyRef = this.pc.getReaderContext()
+				.getEnvironment()
+				.resolvePlaceholders(sessionCtrlElt.getAttribute(ATT_SESSION_LIMIT_STRATEGY_REF));
+			if (StringUtils.hasText(sessionLimitStrategyRef)) {
+				concurrentSessionStrategy.addPropertyReference("sessionLimitStrategy", sessionLimitStrategyRef);
 			}
 			String exceptionIfMaximumExceeded = sessionCtrlElt.getAttribute("error-if-maximum-exceeded");
 			if (StringUtils.hasText(exceptionIfMaximumExceeded)) {
@@ -589,6 +599,13 @@ class HttpConfigurationBuilder {
 		if (StringUtils.hasText(expiryUrl) && StringUtils.hasText(expiredSessionStrategyRef)) {
 			this.pc.getReaderContext()
 				.error("Cannot use 'expired-url' attribute and 'expired-session-strategy-ref'" + " attribute together.",
+						source);
+		}
+		String maxSessions = element.getAttribute(ATT_MAX_SESSIONS);
+		String sessionLimitStrategyRef = element.getAttribute(ATT_SESSION_LIMIT_STRATEGY_REF);
+		if (StringUtils.hasText(maxSessions) && StringUtils.hasText(sessionLimitStrategyRef)) {
+			this.pc.getReaderContext()
+				.error("Cannot use 'max-sessions' attribute and 'session-limit-strategy-ref' attribute together.",
 						source);
 		}
 		if (StringUtils.hasText(expiryUrl)) {
