@@ -96,7 +96,7 @@ this.rest.get()
 ----
 ======
 
-The prececing example invokes the `https://other-service.example.com/endpoint`, adding the bearer token `Authorization` header for you.
+The preceding example invokes the `https://other-service.example.com/endpoint`, adding the bearer token `Authorization` header for you.
 
 In places where you need to override this behavior, you can supply the header yourself:
 

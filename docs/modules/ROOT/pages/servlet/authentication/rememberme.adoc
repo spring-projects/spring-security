@@ -50,7 +50,7 @@ If you have more than one in your application context, you need to specify which
 
 [[remember-me-persistent-token]]
 == Persistent Token Approach
-This approach is based on the article https://web.archive.org/web/20180819014446/http://jaspan.com/improved_persistent_login_cookie_best_practice[Improved Persistent Login Cookie Best Practice] with some minor modifications  footnote:[Essentially, the username is not included in the cookie, to prevent exposing a valid login name unecessarily.
+This approach is based on the article https://web.archive.org/web/20180819014446/http://jaspan.com/improved_persistent_login_cookie_best_practice[Improved Persistent Login Cookie Best Practice] with some minor modifications  footnote:[Essentially, the username is not included in the cookie, to prevent exposing a valid login name unnecessarily.
 There is a discussion on this in the comments section of this article.].
 To use this approach with namespace configuration, you would supply a datasource reference:
 
