@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableMap;
+import jakarta.servlet.http.HttpSession;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -33,14 +34,21 @@ import org.springframework.beans.factory.parsing.BeanDefinitionParsingException;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionStoreException;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.web.session.SessionLimit;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultMatcher;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
@@ -49,6 +57,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @author Josh Cummings
  * @author Rafiullah Hamedy
  * @author Marcus Da Coregio
+ * @author Claudenir Freitas
  */
 @ExtendWith(SpringTestContextExtension.class)
 public class HttpHeadersConfigTests {
@@ -782,6 +791,120 @@ public class HttpHeadersConfigTests {
 		// @formatter:on
 	}
 
+	@Test
+	public void requestWhenSessionManagementConcurrencyControlMaxSessionIsOne() throws Exception {
+		System.setProperty("security.session-management.concurrency-control.max-sessions", "1");
+		this.spring.configLocations(this.xml("DefaultsSessionManagementConcurrencyControlMaxSessions")).autowire();
+		// @formatter:off
+		MockHttpServletRequestBuilder requestBuilder = post("/login")
+				.with(csrf())
+				.param("username", "user")
+				.param("password", "password");
+		HttpSession firstSession = this.mvc.perform(requestBuilder)
+				.andExpect(status().is3xxRedirection())
+				.andExpect(redirectedUrl("/"))
+				.andReturn()
+				.getRequest()
+				.getSession(false);
+		// @formatter:on
+		assertThat(firstSession).isNotNull();
+		// @formatter:off
+		this.mvc.perform(requestBuilder)
+				.andExpect(status().isFound())
+				.andExpect(redirectedUrl("/login?error"));
+		// @formatter:on
+	}
+
+	@Test
+	public void requestWhenSessionManagementConcurrencyControlMaxSessionIsUnlimited() throws Exception {
+		System.setProperty("security.session-management.concurrency-control.max-sessions", "-1");
+		this.spring.configLocations(this.xml("DefaultsSessionManagementConcurrencyControlMaxSessions")).autowire();
+		// @formatter:off
+		MockHttpServletRequestBuilder requestBuilder = post("/login")
+				.with(csrf())
+				.param("username", "user")
+				.param("password", "password");
+		HttpSession firstSession = this.mvc.perform(requestBuilder)
+				.andExpect(status().is3xxRedirection())
+				.andExpect(redirectedUrl("/"))
+				.andReturn()
+				.getRequest()
+				.getSession(false);
+		assertThat(firstSession).isNotNull();
+		HttpSession secondSession = this.mvc.perform(requestBuilder)
+				.andExpect(status().is3xxRedirection())
+				.andExpect(redirectedUrl("/"))
+				.andReturn()
+				.getRequest()
+				.getSession(false);
+		assertThat(secondSession).isNotNull();
+		// @formatter:on
+		assertThat(firstSession.getId()).isNotEqualTo(secondSession.getId());
+	}
+
+	@Test
+	public void requestWhenSessionManagementConcurrencyControlMaxSessionRefIsOneForNonAdminUsers() throws Exception {
+		this.spring.configLocations(this.xml("DefaultsSessionManagementConcurrencyControlMaxSessionsRef")).autowire();
+		// @formatter:off
+		MockHttpServletRequestBuilder requestBuilder = post("/login")
+				.with(csrf())
+				.param("username", "user")
+				.param("password", "password");
+		HttpSession firstSession = this.mvc.perform(requestBuilder)
+				.andExpect(status().is3xxRedirection())
+				.andExpect(redirectedUrl("/"))
+				.andReturn()
+				.getRequest()
+				.getSession(false);
+		// @formatter:on
+		assertThat(firstSession).isNotNull();
+		// @formatter:off
+		this.mvc.perform(requestBuilder)
+				.andExpect(status().isFound())
+				.andExpect(redirectedUrl("/login?error"));
+		// @formatter:on
+	}
+
+	@Test
+	public void requestWhenSessionManagementConcurrencyControlMaxSessionRefIsTwoForAdminUsers() throws Exception {
+		this.spring.configLocations(this.xml("DefaultsSessionManagementConcurrencyControlMaxSessionsRef")).autowire();
+		// @formatter:off
+		MockHttpServletRequestBuilder requestBuilder = post("/login")
+				.with(csrf())
+				.param("username", "admin")
+				.param("password", "password");
+		HttpSession firstSession = this.mvc.perform(requestBuilder)
+				.andExpect(status().is3xxRedirection())
+				.andExpect(redirectedUrl("/"))
+				.andReturn()
+				.getRequest()
+				.getSession(false);
+		assertThat(firstSession).isNotNull();
+		HttpSession secondSession = this.mvc.perform(requestBuilder)
+				.andExpect(status().is3xxRedirection())
+				.andExpect(redirectedUrl("/"))
+				.andReturn()
+				.getRequest()
+				.getSession(false);
+		assertThat(secondSession).isNotNull();
+		// @formatter:on
+		assertThat(firstSession.getId()).isNotEqualTo(secondSession.getId());
+		// @formatter:off
+		this.mvc.perform(requestBuilder)
+				.andExpect(status().isFound())
+				.andExpect(redirectedUrl("/login?error"));
+		// @formatter:on
+	}
+
+	@Test
+	public void requestWhenSessionManagementConcurrencyControlWithInvalidMaxSessionConfig() {
+		assertThatExceptionOfType(BeanDefinitionParsingException.class)
+			.isThrownBy(() -> this.spring
+				.configLocations(this.xml("DefaultsSessionManagementConcurrencyControlWithInvalidMaxSessionsConfig"))
+				.autowire())
+			.withMessageContaining("Cannot use 'max-sessions' attribute and 'max-sessions-ref' attribute together.");
+	}
+
 	private static ResultMatcher includesDefaults() {
 		return includes(defaultHeaders);
 	}
@@ -828,6 +951,18 @@ public class HttpHeadersConfigTests {
 		@GetMapping("/")
 		public String ok() {
 			return "ok";
+		}
+
+	}
+
+	public static class CustomSessionLimit implements SessionLimit {
+
+		@Override
+		public Integer apply(Authentication authentication) {
+			if ("admin".equals(authentication.getName())) {
+				return 2;
+			}
+			return 1;
 		}
 
 	}
