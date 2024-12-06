@@ -2688,7 +2688,7 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-      <xs:attribute name="session-limit-strategy-ref" type="xs:token">
+      <xs:attribute name="max-sessions-ref" type="xs:token">
          <xs:annotation>
             <xs:documentation>Allows injection of the SessionLimitStrategy instance used by the
                 ConcurrentSessionControlAuthenticationStrategy

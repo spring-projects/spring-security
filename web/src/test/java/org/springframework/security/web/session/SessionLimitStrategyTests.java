@@ -37,7 +37,7 @@ class SessionLimitStrategyTests {
 	@Test
 	void testUnlimitedInstanceTest() {
 		SessionLimitStrategy sessionLimit = SessionLimitStrategy.UNLIMITED;
-		int result = sessionLimit.resolve(this.authentication);
+		int result = sessionLimit.apply(this.authentication);
 		assertThat(result).isEqualTo(-1);
 	}
 
@@ -45,7 +45,7 @@ class SessionLimitStrategyTests {
 	@ValueSource(ints = { -1, 1, 2, 3 })
 	void testInstanceWithValidMaxSessionsTest(int maxSessions) {
 		SessionLimitStrategy sessionLimit = SessionLimitStrategy.of(maxSessions);
-		int result = sessionLimit.resolve(this.authentication);
+		int result = sessionLimit.apply(this.authentication);
 		assertThat(result).isEqualTo(maxSessions);
 	}
 

@@ -131,7 +131,7 @@ public class ConcurrentSessionControlAuthenticationStrategy
 	 * @return either -1 meaning unlimited, or a positive integer to limit (never zero)
 	 */
 	protected int getMaximumSessionsForThisUser(Authentication authentication) {
-		return this.sessionLimitStrategy.resolve(authentication);
+		return this.sessionLimitStrategy.apply(authentication);
 	}
 
 	/**
@@ -187,7 +187,7 @@ public class ConcurrentSessionControlAuthenticationStrategy
 	 * unlimited sessions.
 	 * @param sessionLimitStrategy the session limit strategy
 	 */
-	public void setSessionLimitStrategy(SessionLimitStrategy sessionLimitStrategy) {
+	public void setMaximumSessions(SessionLimitStrategy sessionLimitStrategy) {
 		Assert.notNull(sessionLimitStrategy, "sessionLimitStrategy cannot be null");
 		this.sessionLimitStrategy = sessionLimitStrategy;
 	}

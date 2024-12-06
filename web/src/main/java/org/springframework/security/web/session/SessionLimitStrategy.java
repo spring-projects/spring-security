@@ -16,6 +16,8 @@
 
 package org.springframework.security.web.session;
 
+import java.util.function.Function;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.util.Assert;
 
@@ -26,10 +28,7 @@ import org.springframework.util.Assert;
  * @author Claudenir Freitas
  * @since 6.5
  */
-@FunctionalInterface
-public interface SessionLimitStrategy {
-
-	int resolve(Authentication authentication);
+public interface SessionLimitStrategy extends Function<Authentication, Integer> {
 
 	/**
 	 * Represents unlimited sessions.

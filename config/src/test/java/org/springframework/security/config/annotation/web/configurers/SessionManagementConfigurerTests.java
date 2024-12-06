@@ -711,10 +711,8 @@ public class SessionManagementConfigurerTests {
 			// @formatter:off
 			http
 					.formLogin(withDefaults())
-					.sessionManagement((sessionManagement) ->
-							sessionManagement
-									.sessionConcurrency((sessionConcurrency) ->
-											sessionConcurrency
+					.sessionManagement((sessionManagement) -> sessionManagement
+									.sessionConcurrency((sessionConcurrency) -> sessionConcurrency
 													.sessionLimitStrategy(sessionLimitStrategy)
 													.maxSessionsPreventsLogin(true)
 									)

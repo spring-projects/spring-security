@@ -148,16 +148,16 @@ public class ConcurrentSessionControlAuthenticationStrategyTests {
 	}
 
 	@Test
-	public void setSessionLimitStrategyWithNullValue() {
+	public void setMaximumSessionsWithNullValue() {
 		assertThatExceptionOfType(IllegalArgumentException.class)
-			.isThrownBy(() -> this.strategy.setSessionLimitStrategy(null))
+			.isThrownBy(() -> this.strategy.setMaximumSessions(null))
 			.withMessage("sessionLimitStrategy cannot be null");
 	}
 
 	@Test
 	public void noRegisteredSessionUsingSessionLimitStrategy() {
 		given(this.sessionRegistry.getAllSessions(any(), anyBoolean())).willReturn(Collections.emptyList());
-		this.strategy.setSessionLimitStrategy(SessionLimitStrategy.of(1));
+		this.strategy.setMaximumSessions(SessionLimitStrategy.of(1));
 		this.strategy.setExceptionIfMaximumExceeded(true);
 		this.strategy.onAuthentication(this.authentication, this.request, this.response);
 		// no exception
@@ -169,7 +169,7 @@ public class ConcurrentSessionControlAuthenticationStrategyTests {
 		this.request.setSession(session);
 		given(this.sessionRegistry.getAllSessions(any(), anyBoolean()))
 			.willReturn(Collections.singletonList(this.sessionInformation));
-		this.strategy.setSessionLimitStrategy(SessionLimitStrategy.of(1));
+		this.strategy.setMaximumSessions(SessionLimitStrategy.of(1));
 		this.strategy.setExceptionIfMaximumExceeded(true);
 		this.strategy.onAuthentication(this.authentication, this.request, this.response);
 		// no exception
@@ -179,7 +179,7 @@ public class ConcurrentSessionControlAuthenticationStrategyTests {
 	public void maxSessionsWithExceptionUsingSessionLimitStrategy() {
 		given(this.sessionRegistry.getAllSessions(any(), anyBoolean()))
 			.willReturn(Collections.singletonList(this.sessionInformation));
-		this.strategy.setSessionLimitStrategy(SessionLimitStrategy.of(1));
+		this.strategy.setMaximumSessions(SessionLimitStrategy.of(1));
 		this.strategy.setExceptionIfMaximumExceeded(true);
 		assertThatExceptionOfType(SessionAuthenticationException.class)
 			.isThrownBy(() -> this.strategy.onAuthentication(this.authentication, this.request, this.response));
@@ -189,7 +189,7 @@ public class ConcurrentSessionControlAuthenticationStrategyTests {
 	public void maxSessionsExpireExistingUserUsingSessionLimitStrategy() {
 		given(this.sessionRegistry.getAllSessions(any(), anyBoolean()))
 			.willReturn(Collections.singletonList(this.sessionInformation));
-		this.strategy.setSessionLimitStrategy(SessionLimitStrategy.of(1));
+		this.strategy.setMaximumSessions(SessionLimitStrategy.of(1));
 		this.strategy.onAuthentication(this.authentication, this.request, this.response);
 		assertThat(this.sessionInformation.isExpired()).isTrue();
 	}
@@ -200,7 +200,7 @@ public class ConcurrentSessionControlAuthenticationStrategyTests {
 				new Date(1374766999999L));
 		given(this.sessionRegistry.getAllSessions(any(), anyBoolean()))
 			.willReturn(Arrays.asList(moreRecentSessionInfo, this.sessionInformation));
-		this.strategy.setSessionLimitStrategy(SessionLimitStrategy.of(2));
+		this.strategy.setMaximumSessions(SessionLimitStrategy.of(2));
 		this.strategy.onAuthentication(this.authentication, this.request, this.response);
 		assertThat(this.sessionInformation.isExpired()).isTrue();
 	}
@@ -213,7 +213,7 @@ public class ConcurrentSessionControlAuthenticationStrategyTests {
 				"unique2", new Date(1374766134215L));
 		given(this.sessionRegistry.getAllSessions(any(), anyBoolean()))
 			.willReturn(Arrays.asList(oldestSessionInfo, secondOldestSessionInfo, this.sessionInformation));
-		this.strategy.setSessionLimitStrategy(SessionLimitStrategy.of(2));
+		this.strategy.setMaximumSessions(SessionLimitStrategy.of(2));
 		this.strategy.onAuthentication(this.authentication, this.request, this.response);
 		assertThat(oldestSessionInfo.isExpired()).isTrue();
 		assertThat(secondOldestSessionInfo.isExpired()).isTrue();
@@ -222,7 +222,7 @@ public class ConcurrentSessionControlAuthenticationStrategyTests {
 
 	@Test
 	public void onAuthenticationWhenSessionLimitIsUnlimited() {
-		this.strategy.setSessionLimitStrategy(SessionLimitStrategy.UNLIMITED);
+		this.strategy.setMaximumSessions(SessionLimitStrategy.UNLIMITED);
 		this.strategy.onAuthentication(this.authentication, this.request, this.response);
 		verifyNoInteractions(this.sessionRegistry);
 	}

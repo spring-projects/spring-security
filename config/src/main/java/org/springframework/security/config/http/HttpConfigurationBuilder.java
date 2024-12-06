@@ -122,7 +122,7 @@ class HttpConfigurationBuilder {
 
 	private static final String ATT_SESSION_AUTH_STRATEGY_REF = "session-authentication-strategy-ref";
 
-	private static final String ATT_SESSION_LIMIT_STRATEGY_REF = "session-limit-strategy-ref";
+	private static final String ATT_MAX_SESSIONS_REF = "max-sessions-ref";
 
 	private static final String ATT_MAX_SESSIONS = "max-sessions";
 
@@ -495,7 +495,7 @@ class HttpConfigurationBuilder {
 			}
 			String sessionLimitStrategyRef = this.pc.getReaderContext()
 				.getEnvironment()
-				.resolvePlaceholders(sessionCtrlElt.getAttribute(ATT_SESSION_LIMIT_STRATEGY_REF));
+				.resolvePlaceholders(sessionCtrlElt.getAttribute(ATT_MAX_SESSIONS_REF));
 			if (StringUtils.hasText(sessionLimitStrategyRef)) {
 				concurrentSessionStrategy.addPropertyReference("sessionLimitStrategy", sessionLimitStrategyRef);
 			}
@@ -602,11 +602,10 @@ class HttpConfigurationBuilder {
 						source);
 		}
 		String maxSessions = element.getAttribute(ATT_MAX_SESSIONS);
-		String sessionLimitStrategyRef = element.getAttribute(ATT_SESSION_LIMIT_STRATEGY_REF);
-		if (StringUtils.hasText(maxSessions) && StringUtils.hasText(sessionLimitStrategyRef)) {
+		String maxSessionsRef = element.getAttribute(ATT_MAX_SESSIONS_REF);
+		if (StringUtils.hasText(maxSessions) && StringUtils.hasText(maxSessionsRef)) {
 			this.pc.getReaderContext()
-				.error("Cannot use 'max-sessions' attribute and 'session-limit-strategy-ref' attribute together.",
-						source);
+				.error("Cannot use 'max-sessions' attribute and 'max-sessions-ref' attribute together.", source);
 		}
 		if (StringUtils.hasText(expiryUrl)) {
 			BeanDefinitionBuilder expiredSessionBldr = BeanDefinitionBuilder

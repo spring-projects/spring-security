@@ -126,8 +126,6 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 
 	private SessionRegistry sessionRegistry;
 
-	private Integer maximumSessions;
-
 	private String expiredUrl;
 
 	private boolean maxSessionsPreventsLogin;
@@ -332,7 +330,7 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 	 * @return the {@link SessionManagementConfigurer} for further customizations
 	 */
 	public ConcurrencyControlConfigurer maximumSessions(int maximumSessions) {
-		this.maximumSessions = maximumSessions;
+		this.sessionLimitStrategy = SessionLimitStrategy.of(maximumSessions);
 		this.propertiesThatRequireImplicitAuthentication.add("maximumSessions = " + maximumSessions);
 		return new ConcurrencyControlConfigurer();
 	}
@@ -573,9 +571,8 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 			SessionRegistry sessionRegistry = getSessionRegistry(http);
 			ConcurrentSessionControlAuthenticationStrategy concurrentSessionControlStrategy = new ConcurrentSessionControlAuthenticationStrategy(
 					sessionRegistry);
-			SessionLimitStrategy sessionLimitStrategyValue = getSessionLimitStrategy();
-			if (sessionLimitStrategyValue != null) {
-				concurrentSessionControlStrategy.setSessionLimitStrategy(sessionLimitStrategyValue);
+			if (this.sessionLimitStrategy != null) {
+				concurrentSessionControlStrategy.setMaximumSessions(this.sessionLimitStrategy);
 			}
 			concurrentSessionControlStrategy.setExceptionIfMaximumExceeded(this.maxSessionsPreventsLogin);
 			concurrentSessionControlStrategy = postProcess(concurrentSessionControlStrategy);
@@ -592,17 +589,6 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 		this.sessionAuthenticationStrategy = postProcess(
 				new CompositeSessionAuthenticationStrategy(delegateStrategies));
 		return this.sessionAuthenticationStrategy;
-	}
-
-	private SessionLimitStrategy getSessionLimitStrategy() {
-		if (this.sessionLimitStrategy != null) {
-			return this.sessionLimitStrategy;
-		}
-		if (this.maximumSessions == null) {
-			return null;
-		}
-		this.sessionLimitStrategy = SessionLimitStrategy.of(this.maximumSessions);
-		return this.sessionLimitStrategy;
 	}
 
 	private SessionRegistry getSessionRegistry(H http) {
@@ -631,7 +617,7 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 	 * @return
 	 */
 	private boolean isConcurrentSessionControlEnabled() {
-		return this.maximumSessions != null || this.sessionLimitStrategy != null;
+		return this.sessionLimitStrategy != null;
 	}
 
 	/**
@@ -723,7 +709,7 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 		 * @return the {@link ConcurrencyControlConfigurer} for further customizations
 		 */
 		public ConcurrencyControlConfigurer maximumSessions(int maximumSessions) {
-			SessionManagementConfigurer.this.maximumSessions = maximumSessions;
+			SessionManagementConfigurer.this.sessionLimitStrategy = SessionLimitStrategy.of(maximumSessions);
 			return this;
 		}
 
