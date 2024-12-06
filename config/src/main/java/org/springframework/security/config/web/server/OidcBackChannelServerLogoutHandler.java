@@ -16,8 +16,8 @@
 
 package org.springframework.security.config.web.server;
 
-import java.nio.charset.StandardCharsets;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -25,14 +25,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import org.springframework.core.io.buffer.DataBuffer;
+import org.springframework.core.ResolvableType;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.codec.EncoderHttpMessageWriter;
+import org.springframework.http.codec.HttpMessageWriter;
 import org.springframework.http.server.reactive.ServerHttpRequest;
-import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.oidc.server.session.ReactiveOidcSessionRegistry;
 import org.springframework.security.oauth2.client.oidc.session.OidcSessionInformation;
@@ -44,6 +45,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -62,6 +64,9 @@ public final class OidcBackChannelServerLogoutHandler implements ServerLogoutHan
 	private final Log logger = LogFactory.getLog(getClass());
 
 	private final ReactiveOidcSessionRegistry sessionRegistry;
+
+	private final HttpMessageWriter<OAuth2Error> errorHttpMessageConverter = new EncoderHttpMessageWriter<>(
+			new OAuth2ErrorEncoder());
 
 	private WebClient web = WebClient.create();
 
@@ -101,7 +106,7 @@ public final class OidcBackChannelServerLogoutHandler implements ServerLogoutHan
 						totalCount.intValue()));
 			}
 			if (!list.isEmpty()) {
-				return handleLogoutFailure(exchange.getExchange().getResponse(), oauth2Error(list));
+				return handleLogoutFailure(exchange.getExchange(), oauth2Error(list));
 			}
 			else {
 				return Mono.empty();
@@ -164,17 +169,11 @@ public final class OidcBackChannelServerLogoutHandler implements ServerLogoutHan
 				"https://openid.net/specs/openid-connect-backchannel-1_0.html#Validation");
 	}
 
-	private Mono<Void> handleLogoutFailure(ServerHttpResponse response, OAuth2Error error) {
-		response.setRawStatusCode(HttpServletResponse.SC_BAD_REQUEST);
-		byte[] bytes = String.format("""
-				{
-					"error_code": "%s",
-					"error_description": "%s",
-					"error_uri: "%s"
-				}
-				""", error.getErrorCode(), error.getDescription(), error.getUri()).getBytes(StandardCharsets.UTF_8);
-		DataBuffer buffer = response.bufferFactory().wrap(bytes);
-		return response.writeWith(Flux.just(buffer));
+	private Mono<Void> handleLogoutFailure(ServerWebExchange exchange, OAuth2Error error) {
+		exchange.getResponse().setRawStatusCode(HttpServletResponse.SC_BAD_REQUEST);
+		return this.errorHttpMessageConverter.write(Mono.just(error), ResolvableType.forClass(Object.class),
+				ResolvableType.forClass(Object.class), MediaType.APPLICATION_JSON, exchange.getRequest(),
+				exchange.getResponse(), Collections.emptyMap());
 	}
 
 	/**
