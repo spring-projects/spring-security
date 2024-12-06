@@ -38,6 +38,7 @@ import org.springframework.beans.factory.support.ManagedList;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Scope;
 import org.springframework.context.expression.BeanFactoryResolver;
 import org.springframework.expression.BeanResolver;
 import org.springframework.security.core.annotation.AnnotationTemplateExpressionDefaults;
@@ -54,6 +55,7 @@ import org.springframework.security.web.method.annotation.AuthenticationPrincipa
 import org.springframework.security.web.method.annotation.CsrfTokenArgumentResolver;
 import org.springframework.security.web.method.annotation.CurrentSecurityContextArgumentResolver;
 import org.springframework.security.web.servlet.support.csrf.CsrfRequestDataValueProcessor;
+import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcherFactory;
 import org.springframework.web.filter.CompositeFilter;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
@@ -173,6 +175,12 @@ class WebMvcSecurityConfiguration implements WebMvcConfigurer, ApplicationContex
 				}
 			}
 		};
+	}
+
+	@Bean
+	@Scope("prototype")
+	MvcRequestMatcherFactory.Builder mvcRequestMatcherFactoryBuilder(HandlerMappingIntrospector introspector) {
+		return MvcRequestMatcherFactory.builder(introspector);
 	}
 
 	/**
