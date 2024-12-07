@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package org.springframework.security.config.web.server
 
 import org.springframework.security.web.server.header.CacheControlServerHttpHeadersWriter
+import org.springframework.security.web.server.header.ServerHttpHeadersWriter
 import org.springframework.security.web.server.header.ContentTypeOptionsServerHttpHeadersWriter
 import org.springframework.security.web.server.header.ReferrerPolicyServerHttpHeadersWriter
 import org.springframework.security.web.server.header.StrictTransportSecurityServerHttpHeadersWriter
@@ -43,6 +44,7 @@ class ServerHeadersDsl {
     private var crossOriginOpenerPolicy: ((ServerHttpSecurity.HeaderSpec.CrossOriginOpenerPolicySpec) -> Unit)? = null
     private var crossOriginEmbedderPolicy: ((ServerHttpSecurity.HeaderSpec.CrossOriginEmbedderPolicySpec) -> Unit)? = null
     private var crossOriginResourcePolicy: ((ServerHttpSecurity.HeaderSpec.CrossOriginResourcePolicySpec) -> Unit)? = null
+    private var serverHttpHeadersWriter: ((ServerHttpSecurity.HeaderSpec.ServerHttpHeadersWriterSpec) -> Unit)? = null
 
     private var disabled = false
 
@@ -199,6 +201,15 @@ class ServerHeadersDsl {
     }
 
     /**
+     * Allows customizations for the [ServerHttpHeadersWriter] which allows writing headers just before the response is committed
+     *
+     * @param serverHttpHeadersWriterConfig the customization to apply to the header
+     */
+    fun serverHttpHeadersWriter(serverHttpHeadersWriterConfig: ServerHttpHeadersWriterDsl.() -> Unit) {
+        this.serverHttpHeadersWriter = ServerHttpHeadersWriterDsl().apply(serverHttpHeadersWriterConfig).get()
+    }
+
+    /**
      * Disables HTTP response headers.
      */
     fun disable() {
@@ -243,6 +254,9 @@ class ServerHeadersDsl {
             }
             crossOriginResourcePolicy?.also {
                 headers.crossOriginResourcePolicy(crossOriginResourcePolicy)
+            }
+            serverHttpHeadersWriter?.also {
+                headers.serverHttpHeadersWriter(serverHttpHeadersWriter)
             }
             if (disabled) {
                 headers.disable()
