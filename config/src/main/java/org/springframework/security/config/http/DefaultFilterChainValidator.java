@@ -53,7 +53,6 @@ import org.springframework.security.web.jaasapi.JaasApiIntegrationFilter;
 import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter;
 import org.springframework.security.web.session.SessionManagementFilter;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
-import org.springframework.security.web.util.matcher.RequestMatcher;
 
 public class DefaultFilterChainValidator implements FilterChainProxy.FilterChainValidator {
 
@@ -75,11 +74,12 @@ public class DefaultFilterChainValidator implements FilterChainProxy.FilterChain
 		// Check that the universal pattern is listed at the end, if at all
 		Iterator<SecurityFilterChain> chains = filterChains.iterator();
 		while (chains.hasNext()) {
-			RequestMatcher matcher = ((DefaultSecurityFilterChain) chains.next()).getRequestMatcher();
-			if (AnyRequestMatcher.INSTANCE.equals(matcher) && chains.hasNext()) {
-				throw new IllegalArgumentException("A universal match pattern ('/**') is defined "
-						+ " before other patterns in the filter chain, causing them to be ignored. Please check the "
-						+ "ordering in your <security:http> namespace or FilterChainProxy bean configuration");
+			if (chains.next() instanceof DefaultSecurityFilterChain securityFilterChain) {
+				if (AnyRequestMatcher.INSTANCE.equals(securityFilterChain.getRequestMatcher()) && chains.hasNext()) {
+					throw new IllegalArgumentException("A universal match pattern ('/**') is defined "
+							+ " before other patterns in the filter chain, causing them to be ignored. Please check the "
+							+ "ordering in your <security:http> namespace or FilterChainProxy bean configuration");
+				}
 			}
 		}
 	}
@@ -88,10 +88,13 @@ public class DefaultFilterChainValidator implements FilterChainProxy.FilterChain
 		while (chains.size() > 1) {
 			DefaultSecurityFilterChain chain = (DefaultSecurityFilterChain) chains.remove(0);
 			for (SecurityFilterChain test : chains) {
-				if (chain.getRequestMatcher().equals(((DefaultSecurityFilterChain) test).getRequestMatcher())) {
-					throw new IllegalArgumentException("The FilterChainProxy contains two filter chains using the"
-							+ " matcher " + chain.getRequestMatcher() + ". If you are using multiple <http> namespace "
-							+ "elements, you must use a 'pattern' attribute to define the request patterns to which they apply.");
+				if (test instanceof DefaultSecurityFilterChain securityFilterChain) {
+					if (chain.getRequestMatcher().equals(securityFilterChain.getRequestMatcher())) {
+						throw new IllegalArgumentException("The FilterChainProxy contains two filter chains using the"
+								+ " matcher " + chain.getRequestMatcher()
+								+ ". If you are using multiple <http> namespace "
+								+ "elements, you must use a 'pattern' attribute to define the request patterns to which they apply.");
+					}
 				}
 			}
 		}
