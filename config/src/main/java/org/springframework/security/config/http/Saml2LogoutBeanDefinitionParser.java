@@ -146,6 +146,7 @@ final class Saml2LogoutBeanDefinitionParser implements BeanDefinitionParser {
 		BeanMetadataElement saml2LogoutRequestSuccessHandler = BeanDefinitionBuilder
 			.rootBeanDefinition(Saml2RelyingPartyInitiatedLogoutSuccessHandler.class)
 			.addConstructorArgValue(logoutRequestResolver)
+			.addPropertyValue("logoutRequestRepository", logoutRequestRepository)
 			.getBeanDefinition();
 		this.logoutFilter = BeanDefinitionBuilder.rootBeanDefinition(LogoutFilter.class)
 			.addConstructorArgValue(saml2LogoutRequestSuccessHandler)
