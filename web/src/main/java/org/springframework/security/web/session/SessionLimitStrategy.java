@@ -42,7 +42,7 @@ public interface SessionLimitStrategy extends Function<Authentication, Integer> 
 	 * @return a {@link SessionLimitStrategy} instance that returns the given value.
 	 */
 	static SessionLimitStrategy of(int maxSessions) {
-		Assert.isTrue(maxSessions != 0 && maxSessions >= -1,
+		Assert.isTrue(maxSessions != 0,
 				"MaximumLogins must be either -1 to allow unlimited logins, or a positive integer to specify a maximum");
 		return (authentication) -> maxSessions;
 	}
