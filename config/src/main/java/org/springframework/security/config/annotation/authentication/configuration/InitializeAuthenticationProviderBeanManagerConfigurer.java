@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,12 @@
 
 package org.springframework.security.config.annotation.authentication.configuration;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.annotation.Order;
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 
@@ -49,6 +53,8 @@ class InitializeAuthenticationProviderBeanManagerConfigurer extends GlobalAuthen
 
 	class InitializeAuthenticationProviderManagerConfigurer extends GlobalAuthenticationConfigurerAdapter {
 
+		private final Log logger = LogFactory.getLog(getClass());
+
 		@Override
 		public void configure(AuthenticationManagerBuilder auth) {
 			if (auth.isConfigured()) {
@@ -69,6 +75,12 @@ class InitializeAuthenticationProviderBeanManagerConfigurer extends GlobalAuthen
 			String[] beanNames = InitializeAuthenticationProviderBeanManagerConfigurer.this.context
 				.getBeanNamesForType(type);
 			if (beanNames.length != 1) {
+				if (beanNames.length > 1) {
+					this.logger.info(LogMessage.format("Found %s AuthenticationProvider beans, with names %s. "
+							+ "Global Authentication Manager will not be configured with AuthenticationProviders. "
+							+ "Consider publishing a single AuthenticationProvider bean, or wiring your Providers directly "
+							+ "using the DSL.", beanNames.length, beanNames));
+				}
 				return null;
 			}
 			return InitializeAuthenticationProviderBeanManagerConfigurer.this.context.getBean(beanNames[0], type);
