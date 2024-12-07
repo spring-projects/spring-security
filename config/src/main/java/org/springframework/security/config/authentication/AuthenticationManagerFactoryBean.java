@@ -65,8 +65,7 @@ public class AuthenticationManagerFactoryBean implements FactoryBean<Authenticat
 			if (uds == null) {
 				throw new NoSuchBeanDefinitionException(BeanIds.AUTHENTICATION_MANAGER, MISSING_BEAN_ERROR_MESSAGE);
 			}
-			DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-			provider.setUserDetailsService(uds);
+			DaoAuthenticationProvider provider = new DaoAuthenticationProvider(uds);
 			PasswordEncoder passwordEncoder = this.bf.getBeanProvider(PasswordEncoder.class).getIfUnique();
 			if (passwordEncoder != null) {
 				provider.setPasswordEncoder(passwordEncoder);
