@@ -28,6 +28,7 @@ import org.junit.jupiter.api.Test;
 
 import org.springframework.core.MethodParameter;
 import org.springframework.core.annotation.AliasFor;
+import org.springframework.core.annotation.AnnotatedMethod;
 import org.springframework.expression.BeanResolver;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.annotation.AnnotationTemplateExpressionDefaults;
@@ -214,6 +215,18 @@ public class AuthenticationPrincipalArgumentResolverTests {
 			.isEqualTo(this.expectedPrincipal);
 	}
 
+	@Test
+	public void resolveArgumentAnnotationFromInterface() {
+		CustomUserPrincipal principal = new CustomUserPrincipal();
+		setAuthenticationPrincipal(principal);
+		assertThat(this.resolver.resolveArgument(getUserByInterface(), null, null, null))
+			.isEqualTo(this.expectedPrincipal);
+	}
+
+	private MethodParameter getUserByInterface() {
+		return getMethodParameter("getUserByInterface", CustomUserPrincipal.class);
+	}
+
 	private MethodParameter showUserNoAnnotation() {
 		return getMethodParameter("showUserNoAnnotation", String.class);
 	}
@@ -272,7 +285,7 @@ public class AuthenticationPrincipalArgumentResolverTests {
 
 	private MethodParameter getMethodParameter(String methodName, Class<?>... paramTypes) {
 		Method method = ReflectionUtils.findMethod(TestController.class, methodName, paramTypes);
-		return new MethodParameter(method, 0);
+		return new AnnotatedMethod(method).getMethodParameters()[0];
 	}
 
 	private void setAuthenticationPrincipal(Object principal) {
@@ -312,7 +325,18 @@ public class AuthenticationPrincipalArgumentResolverTests {
 
 	}
 
-	public static class TestController {
+	interface UserApi {
+
+		String getUserByInterface(@AuthenticationPrincipal CustomUserPrincipal user);
+
+	}
+
+	public static class TestController implements UserApi {
+
+		@Override
+		public String getUserByInterface(CustomUserPrincipal user) {
+			return "";
+		}
 
 		public void showUserNoAnnotation(String user) {
 		}
