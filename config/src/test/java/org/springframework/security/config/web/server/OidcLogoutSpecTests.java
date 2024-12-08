@@ -51,6 +51,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.client.reactive.ClientHttpConnector;
@@ -101,6 +102,7 @@ import org.springframework.web.server.adapter.WebHttpHandlerBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasValue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.atLeastOnce;
@@ -199,7 +201,10 @@ public class OidcLogoutSpecTests {
 			.body(BodyInserters.fromFormData("logout_token", "invalid"))
 			.exchange()
 			.expectStatus()
-			.isBadRequest();
+			.isBadRequest()
+			.expectBody(new ParameterizedTypeReference<Map<String, String>>() {
+			})
+			.value(hasValue("invalid_request"));
 		this.test.get().uri("/token/logout").cookie("SESSION", session).exchange().expectStatus().isOk();
 	}
 
@@ -266,9 +271,10 @@ public class OidcLogoutSpecTests {
 			.exchange()
 			.expectStatus()
 			.isBadRequest()
-			.expectBody(String.class)
-			.value(containsString("partial_logout"))
-			.value(containsString("not all sessions were terminated"));
+			.expectBody(new ParameterizedTypeReference<Map<String, String>>() {
+			})
+			.value(hasValue("partial_logout"))
+			.value(hasValue(containsString("not all sessions were terminated")));
 		this.test.get().uri("/token/logout").cookie("SESSION", one).exchange().expectStatus().isOk();
 	}
 

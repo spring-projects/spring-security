@@ -18,7 +18,7 @@ org-springframework = "6.2.0"
 
 [libraries]
 ch-qos-logback-logback-classic = "ch.qos.logback:logback-classic:1.5.12"
-com-fasterxml-jackson-jackson-bom = "com.fasterxml.jackson:jackson-bom:2.18.1"
+com-fasterxml-jackson-jackson-bom = "com.fasterxml.jackson:jackson-bom:2.18.2"
 com-google-inject-guice = "com.google.inject:guice:3.0"
 com-netflix-nebula-nebula-project-plugin = "com.netflix.nebula:nebula-project-plugin:8.2.0"
 com-nimbusds-nimbus-jose-jwt = "com.nimbusds:nimbus-jose-jwt:9.37.3"
@@ -48,7 +48,7 @@ jakarta-websocket-jakarta-websocket-client-api = { module = "jakarta.websocket:j
 jakarta-xml-bind-jakarta-xml-bind-api = "jakarta.xml.bind:jakarta.xml.bind-api:4.0.2"
 ldapsdk = "ldapsdk:ldapsdk:4.1"
 net-sourceforge-htmlunit = "net.sourceforge.htmlunit:htmlunit:2.70.0"
-org-htmlunit-htmlunit = "org.htmlunit:htmlunit:4.6.0"
+org-htmlunit-htmlunit = "org.htmlunit:htmlunit:4.7.0"
 org-apache-directory-server-apacheds-core = { module = "org.apache.directory.server:apacheds-core", version.ref = "org-apache-directory-server" }
 org-apache-directory-server-apacheds-entry = { module = "org.apache.directory.server:apacheds-core-entry", version.ref = "org-apache-directory-server" }
 org-apache-directory-server-apacheds-protocol-ldap = { module = "org.apache.directory.server:apacheds-protocol-ldap", version.ref = "org-apache-directory-server" }
@@ -82,7 +82,7 @@ org-opensaml-opensaml-saml-impl = { module = "org.opensaml:opensaml-saml-impl", 
 org-opensaml-opensaml5-saml-api = { module = "org.opensaml:opensaml-saml-api", version.ref = "org-opensaml5" }
 org-opensaml-opensaml5-saml-impl = { module = "org.opensaml:opensaml-saml-impl", version.ref = "org-opensaml5" }
 org-python-jython = { module = "org.python:jython", version = "2.5.3" }
-org-seleniumhq-selenium-htmlunit-driver = "org.seleniumhq.selenium:htmlunit3-driver:4.26.0"
+org-seleniumhq-selenium-htmlunit-driver = "org.seleniumhq.selenium:htmlunit3-driver:4.27.0"
 org-seleniumhq-selenium-selenium-java = "org.seleniumhq.selenium:selenium-java:4.27.0"
 org-seleniumhq-selenium-selenium-support = "org.seleniumhq.selenium:selenium-support:3.141.59"
 org-skyscreamer-jsonassert = "org.skyscreamer:jsonassert:1.5.3"
@@ -107,8 +107,8 @@ org-jfrog-buildinfo-build-info-extractor-gradle = "org.jfrog.buildinfo:build-inf
 org-sonarsource-scanner-gradle-sonarqube-gradle-plugin = "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.8.0.1969"
 org-instancio-instancio-junit = "org.instancio:instancio-junit:3.7.1"
 
-webauthn4j-core = 'com.webauthn4j:webauthn4j-core:0.28.2.RELEASE'
+webauthn4j-core = 'com.webauthn4j:webauthn4j-core:0.28.3.RELEASE'
 
 [plugins]
 
-org-gradle-wrapper-upgrade = "org.gradle.wrapper-upgrade:0.11.4"
+org-gradle-wrapper-upgrade = "org.gradle.wrapper-upgrade:0.12"

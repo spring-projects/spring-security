@@ -178,6 +178,17 @@ class HttpSecurityConfiguration {
 			this.defaultPasswordEncoder = defaultPasswordEncoder;
 		}
 
+		/**
+		 * @deprecated
+		 */
+		@Deprecated(since = "6.4", forRemoval = true)
+		DefaultPasswordEncoderAuthenticationManagerBuilder(
+				org.springframework.security.config.annotation.ObjectPostProcessor<Object> objectPostProcessor,
+				PasswordEncoder defaultPasswordEncoder) {
+			super(objectPostProcessor);
+			this.defaultPasswordEncoder = defaultPasswordEncoder;
+		}
+
 		@Override
 		public InMemoryUserDetailsManagerConfigurer<AuthenticationManagerBuilder> inMemoryAuthentication()
 				throws Exception {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -189,6 +189,16 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 		 */
 		public AuthorizationManagerRequestMatcherRegistry withObjectPostProcessor(
 				ObjectPostProcessor<?> objectPostProcessor) {
+			addObjectPostProcessor(objectPostProcessor);
+			return this;
+		}
+
+		/**
+		 * @deprecated
+		 */
+		@Deprecated(since = "6.4", forRemoval = true)
+		public AuthorizationManagerRequestMatcherRegistry withObjectPostProcessor(
+				org.springframework.security.config.annotation.ObjectPostProcessor<?> objectPostProcessor) {
 			addObjectPostProcessor(objectPostProcessor);
 			return this;
 		}

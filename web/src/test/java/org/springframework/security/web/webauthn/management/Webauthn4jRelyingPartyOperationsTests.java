@@ -45,6 +45,7 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.web.webauthn.api.AuthenticatorAttestationResponse;
 import org.springframework.security.web.webauthn.api.AuthenticatorAttestationResponse.AuthenticatorAttestationResponseBuilder;
 import org.springframework.security.web.webauthn.api.AuthenticatorSelectionCriteria;
+import org.springframework.security.web.webauthn.api.AuthenticatorTransport;
 import org.springframework.security.web.webauthn.api.Bytes;
 import org.springframework.security.web.webauthn.api.CredentialRecord;
 import org.springframework.security.web.webauthn.api.PublicKeyCredential;
@@ -222,6 +223,47 @@ class Webauthn4jRelyingPartyOperationsTests {
 	@Test
 	void registerCredentialWhenRpRegistrationRequestNullThenIllegalArgumentException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.rpOperations.registerCredential(null));
+	}
+
+	@Test
+	void registerCredentialWhenDefaultTransportsThenSuccess() {
+		PublicKeyCredentialCreationOptions creationOptions = TestPublicKeyCredentialCreationOptions
+			.createPublicKeyCredentialCreationOptions()
+			.build();
+		PublicKeyCredential<AuthenticatorAttestationResponse> publicKeyCredential = TestPublicKeyCredential
+			.createPublicKeyCredential()
+			.build();
+		RelyingPartyPublicKey rpPublicKey = new RelyingPartyPublicKey(publicKeyCredential, this.label);
+
+		ImmutableRelyingPartyRegistrationRequest rpRegistrationRequest = new ImmutableRelyingPartyRegistrationRequest(
+				creationOptions, rpPublicKey);
+		CredentialRecord credentialRecord = this.rpOperations.registerCredential(rpRegistrationRequest);
+		assertThat(credentialRecord).isNotNull();
+		assertThat(credentialRecord.getCredentialId()).isNotNull();
+		assertThat(credentialRecord.getTransports()).containsExactlyInAnyOrder(AuthenticatorTransport.INTERNAL,
+				AuthenticatorTransport.HYBRID);
+	}
+
+	@Test
+	void registerCredentialWhenInternalTransportThenCredentialRecordHasTransport() {
+		PublicKeyCredentialCreationOptions creationOptions = TestPublicKeyCredentialCreationOptions
+			.createPublicKeyCredentialCreationOptions()
+			.build();
+		AuthenticatorAttestationResponse response = TestAuthenticatorAttestationResponse
+			.createAuthenticatorAttestationResponse()
+			.transports(AuthenticatorTransport.INTERNAL)
+			.build();
+		PublicKeyCredential<AuthenticatorAttestationResponse> publicKeyCredential = TestPublicKeyCredential
+			.createPublicKeyCredential()
+			.response(response)
+			.build();
+		RelyingPartyPublicKey rpPublicKey = new RelyingPartyPublicKey(publicKeyCredential, this.label);
+
+		ImmutableRelyingPartyRegistrationRequest rpRegistrationRequest = new ImmutableRelyingPartyRegistrationRequest(
+				creationOptions, rpPublicKey);
+		CredentialRecord credentialRecord = this.rpOperations.registerCredential(rpRegistrationRequest);
+		assertThat(credentialRecord).isNotNull();
+		assertThat(credentialRecord.getTransports()).containsExactlyInAnyOrder(AuthenticatorTransport.INTERNAL);
 	}
 
 	@Test

@@ -17,8 +17,6 @@
 package org.springframework.security.messaging.context;
 
 import java.lang.annotation.Annotation;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.core.MethodParameter;
 import org.springframework.expression.Expression;
@@ -95,8 +93,6 @@ public final class AuthenticationPrincipalArgumentResolver implements HandlerMet
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
 		.getContextHolderStrategy();
 
-	private final Map<MethodParameter, Annotation> cachedAttributes = new ConcurrentHashMap<>();
-
 	private ExpressionParser parser = new SpelExpressionParser();
 
 	private SecurityAnnotationScanner<AuthenticationPrincipal> scanner = SecurityAnnotationScanners
@@ -164,8 +160,7 @@ public final class AuthenticationPrincipalArgumentResolver implements HandlerMet
 	 */
 	@SuppressWarnings("unchecked")
 	private <T extends Annotation> T findMethodAnnotation(MethodParameter parameter) {
-		return (T) this.cachedAttributes.computeIfAbsent(parameter,
-				(methodParameter) -> this.scanner.scan(methodParameter.getParameter()));
+		return (T) this.scanner.scan(parameter.getParameter());
 	}
 
 }

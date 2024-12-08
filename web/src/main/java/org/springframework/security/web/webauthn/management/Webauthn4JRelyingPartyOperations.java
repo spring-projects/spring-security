@@ -20,6 +20,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -254,7 +255,9 @@ public class Webauthn4JRelyingPartyOperations implements WebAuthnRelyingPartyOpe
 		boolean userPresenceRequired = true;
 		List<com.webauthn4j.data.PublicKeyCredentialParameters> pubKeyCredParams = convertCredentialParamsToWebauthn4j(
 				creationOptions.getPubKeyCredParams());
-		RegistrationRequest webauthn4jRegistrationRequest = new RegistrationRequest(attestationObject, clientDataJSON);
+		Set<String> transports = convertTransportsToString(response);
+		RegistrationRequest webauthn4jRegistrationRequest = new RegistrationRequest(attestationObject, clientDataJSON,
+				transports);
 		RegistrationParameters registrationParameters = new RegistrationParameters(serverProperty, pubKeyCredParams,
 				userVerificationRequired, userPresenceRequired);
 		RegistrationData registrationData = this.webAuthnManager.validate(webauthn4jRegistrationRequest,
@@ -281,6 +284,17 @@ public class Webauthn4JRelyingPartyOperations implements WebAuthnRelyingPartyOpe
 			.build();
 		this.userCredentials.save(userCredential);
 		return userCredential;
+	}
+
+	private static Set<String> convertTransportsToString(AuthenticatorAttestationResponse response) {
+		if (response.getTransports() == null) {
+			return null;
+		}
+		Set<String> transports = new HashSet<>(response.getTransports().size());
+		for (AuthenticatorTransport transport : response.getTransports()) {
+			transports.add(transport.getValue());
+		}
+		return transports;
 	}
 
 	private List<com.webauthn4j.data.PublicKeyCredentialParameters> convertCredentialParamsToWebauthn4j(
