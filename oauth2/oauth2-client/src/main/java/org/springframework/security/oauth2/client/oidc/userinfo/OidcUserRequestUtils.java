@@ -91,9 +91,10 @@ final class OidcUserRequestUtils {
 			authorities.add(new SimpleGrantedAuthority("SCOPE_" + scope));
 		}
 		if (StringUtils.hasText(userNameAttributeName)) {
+			// TODO: Get name from OidcUserAuthority.collectClaims.
 			return new DefaultOidcUser(authorities, userRequest.getIdToken(), userInfo, userNameAttributeName);
 		}
-		return new DefaultOidcUser(authorities, userRequest.getIdToken(), userInfo);
+		return new DefaultOidcUser(userRequest.getIdToken(), userInfo, authorities);
 	}
 
 	private OidcUserRequestUtils() {

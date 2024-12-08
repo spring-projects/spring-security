@@ -1024,7 +1024,7 @@ public final class SecurityMockServerConfigurers {
 		}
 
 		private OidcUser defaultPrincipal() {
-			return new DefaultOidcUser(getAuthorities(), getOidcIdToken(), this.userInfo);
+			return new DefaultOidcUser(getOidcIdToken(), this.userInfo, getAuthorities());
 		}
 
 	}
