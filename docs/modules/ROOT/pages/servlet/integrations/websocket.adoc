@@ -205,6 +205,78 @@ This will ensure that:
 <5> Any other message of type MESSAGE or SUBSCRIBE is rejected. Due to 6 we do not need this step, but it illustrates how one can match on specific message types.
 <6> Any other Message is rejected. This is a good idea to ensure that you do not miss any messages.
 
+[[migrating-spel-expressions]]
+=== Migrating SpEL Expressions
+
+If you are migrating from an older version of Spring Security, your destination matchers may include SpEL expressions.
+It's recommended that these be changed to using concrete implementations of `AuthorizationManager` since this is independently testable.
+
+However, to ease migration, you can also use a class like the following:
+
+[source,java]
+----
+public final class MessageExpressionAuthorizationManager implements AuthorizationManager<MessageAuthorizationContext<?>> {
+
+	private SecurityExpressionHandler<Message<?>> expressionHandler = new DefaultMessageSecurityExpressionHandler();
+
+	private Expression expression;
+
+	public MessageExpressionAuthorizationManager(String expressionString) {
+		Assert.hasText(expressionString, "expressionString cannot be empty");
+		this.expression = this.expressionHandler.getExpressionParser().parseExpression(expressionString);
+	}
+
+	@Override
+	public AuthorizationDecision check(Supplier<Authentication> authentication, MessageAuthorizationContext<?> context) {
+		EvaluationContext ctx = this.expressionHandler.createEvaluationContext(authentication, context.getMessage());
+		boolean granted = ExpressionUtils.evaluateAsBoolean(this.expression, ctx);
+		return new ExpressionAuthorizationDecision(granted, this.expression);
+	}
+
+}
+----
+
+And specify an instance for each matcher that you cannot get migrate:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Configuration
+public class WebSocketSecurityConfig {
+
+    @Bean
+    public AuthorizationManager<Message<?>> messageAuthorizationManager(MessageMatcherDelegatingAuthorizationManager.Builder messages) {
+        messages
+                // ...
+                .simpSubscribeDestMatchers("/topic/friends/{friend}").access(new MessageExpressionAuthorizationManager("#friends == 'john"));
+                // ...
+
+        return messages.build();
+    }
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Configuration
+open class WebSocketSecurityConfig {
+    fun messageAuthorizationManager(messages: MessageMatcherDelegatingAuthorizationManager.Builder): AuthorizationManager<Message<?> {
+        messages
+            // ..
+            .simpSubscribeDestMatchers("/topic/friends/{friends}").access(MessageExpressionAuthorizationManager("#friends == 'john"))
+            // ...
+
+        return messages.build()
+    }
+}
+----
+======
+
 [[websocket-authorization-notes]]
 === WebSocket Authorization Notes
 
