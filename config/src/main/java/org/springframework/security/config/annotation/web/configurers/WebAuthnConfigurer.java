@@ -16,7 +16,6 @@
 
 package org.springframework.security.config.annotation.web.configurers;
 
-import java.lang.reflect.Constructor;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
@@ -24,9 +23,6 @@ import java.util.Set;
 
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -35,8 +31,6 @@ import org.springframework.security.web.authentication.ui.DefaultLoginPageGenera
 import org.springframework.security.web.authentication.ui.DefaultResourcesFilter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.csrf.CsrfToken;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialRpEntity;
 import org.springframework.security.web.webauthn.authentication.PublicKeyCredentialRequestOptionsFilter;
 import org.springframework.security.web.webauthn.authentication.WebAuthnAuthenticationFilter;
@@ -50,8 +44,6 @@ import org.springframework.security.web.webauthn.management.Webauthn4JRelyingPar
 import org.springframework.security.web.webauthn.registration.DefaultWebAuthnRegistrationPageGeneratingFilter;
 import org.springframework.security.web.webauthn.registration.PublicKeyCredentialCreationOptionsFilter;
 import org.springframework.security.web.webauthn.registration.WebAuthnRegistrationFilter;
-
-import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
 
 /**
  * Configures WebAuthn for Spring Security applications
@@ -68,6 +60,8 @@ public class WebAuthnConfigurer<H extends HttpSecurityBuilder<H>>
 	private String rpName;
 
 	private Set<String> allowedOrigins = new HashSet<>();
+
+	private boolean disableDefaultRegistrationPage = false;
 
 	/**
 	 * The Relying Party id.
@@ -110,6 +104,18 @@ public class WebAuthnConfigurer<H extends HttpSecurityBuilder<H>>
 		return this;
 	}
 
+	/**
+	 * Configures whether the default webauthn registration should be disabled. Setting it
+	 * to {@code true} will prevent the configurer from registering the
+	 * {@link DefaultWebAuthnRegistrationPageGeneratingFilter}.
+	 * @param disable disable the default registration page if true, enable it otherwise
+	 * @return the {@link WebAuthnConfigurer} for further customization
+	 */
+	public WebAuthnConfigurer<H> disableDefaultRegistrationPage(boolean disable) {
+		this.disableDefaultRegistrationPage = disable;
+		return this;
+	}
+
 	@Override
 	public void configure(H http) throws Exception {
 		UserDetailsService userDetailsService = getSharedOrBean(http, UserDetailsService.class).orElseGet(() -> {
@@ -127,29 +133,29 @@ public class WebAuthnConfigurer<H extends HttpSecurityBuilder<H>>
 		http.addFilterBefore(webAuthnAuthnFilter, BasicAuthenticationFilter.class);
 		http.addFilterAfter(new WebAuthnRegistrationFilter(userCredentials, rpOperations), AuthorizationFilter.class);
 		http.addFilterBefore(new PublicKeyCredentialCreationOptionsFilter(rpOperations), AuthorizationFilter.class);
-		http.addFilterAfter(new DefaultWebAuthnRegistrationPageGeneratingFilter(userEntities, userCredentials),
-				AuthorizationFilter.class);
 		http.addFilterBefore(new PublicKeyCredentialRequestOptionsFilter(rpOperations), AuthorizationFilter.class);
+
 		DefaultLoginPageGeneratingFilter loginPageGeneratingFilter = http
 			.getSharedObject(DefaultLoginPageGeneratingFilter.class);
-		if (loginPageGeneratingFilter != null) {
-			ClassPathResource webauthn = new ClassPathResource(
-					"org/springframework/security/spring-security-webauthn.js");
-			AntPathRequestMatcher matcher = antMatcher(HttpMethod.GET, "/login/webauthn.js");
-
-			Constructor<DefaultResourcesFilter> constructor = DefaultResourcesFilter.class
-				.getDeclaredConstructor(RequestMatcher.class, ClassPathResource.class, MediaType.class);
-			constructor.setAccessible(true);
-			DefaultResourcesFilter resourcesFilter = constructor.newInstance(matcher, webauthn,
-					MediaType.parseMediaType("text/javascript"));
-			http.addFilter(resourcesFilter);
-			DefaultLoginPageGeneratingFilter loginGeneratingFilter = http
-				.getSharedObject(DefaultLoginPageGeneratingFilter.class);
-			loginGeneratingFilter.setPasskeysEnabled(true);
-			loginGeneratingFilter.setResolveHeaders((request) -> {
+		boolean isLoginPageEnabled = loginPageGeneratingFilter != null && loginPageGeneratingFilter.isEnabled();
+		if (isLoginPageEnabled) {
+			loginPageGeneratingFilter.setPasskeysEnabled(true);
+			loginPageGeneratingFilter.setResolveHeaders((request) -> {
 				CsrfToken csrfToken = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
 				return Map.of(csrfToken.getHeaderName(), csrfToken.getToken());
 			});
+		}
+
+		if (!this.disableDefaultRegistrationPage) {
+			http.addFilterAfter(new DefaultWebAuthnRegistrationPageGeneratingFilter(userEntities, userCredentials),
+					AuthorizationFilter.class);
+			if (!isLoginPageEnabled) {
+				http.addFilter(DefaultResourcesFilter.css());
+			}
+		}
+
+		if (isLoginPageEnabled || !this.disableDefaultRegistrationPage) {
+			http.addFilter(DefaultResourcesFilter.webauthn());
 		}
 	}
 

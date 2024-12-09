@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -626,7 +626,7 @@ public class NimbusReactiveJwtDecoderTests {
 		JWSKeySelector<JWKSecurityContext> jwsKeySelector = NimbusReactiveJwtDecoder.withJwkSetUri(this.jwkSetUri)
 			.jwsKeySelector(jwkSource)
 			.block();
-		assertThat(jwsKeySelector instanceof JWSVerificationKeySelector);
+		assertThat(jwsKeySelector).isInstanceOf(JWSVerificationKeySelector.class);
 		JWSVerificationKeySelector<JWKSecurityContext> jwsVerificationKeySelector = (JWSVerificationKeySelector<JWKSecurityContext>) jwsKeySelector;
 		assertThat(jwsVerificationKeySelector.isAllowed(JWSAlgorithm.RS256)).isTrue();
 	}
@@ -638,7 +638,7 @@ public class NimbusReactiveJwtDecoderTests {
 			.jwsAlgorithm(SignatureAlgorithm.RS512)
 			.jwsKeySelector(jwkSource)
 			.block();
-		assertThat(jwsKeySelector instanceof JWSVerificationKeySelector);
+		assertThat(jwsKeySelector).isInstanceOf(JWSVerificationKeySelector.class);
 		JWSVerificationKeySelector<JWKSecurityContext> jwsVerificationKeySelector = (JWSVerificationKeySelector<JWKSecurityContext>) jwsKeySelector;
 		assertThat(jwsVerificationKeySelector.isAllowed(JWSAlgorithm.RS512)).isTrue();
 	}
@@ -652,7 +652,7 @@ public class NimbusReactiveJwtDecoderTests {
 				.jwsAlgorithm(SignatureAlgorithm.RS512)
 				.jwsKeySelector(jwkSource).block();
 		// @formatter:on
-		assertThat(jwsKeySelector instanceof JWSVerificationKeySelector);
+		assertThat(jwsKeySelector).isInstanceOf(JWSVerificationKeySelector.class);
 		JWSVerificationKeySelector<?> jwsAlgorithmMapKeySelector = (JWSVerificationKeySelector<?>) jwsKeySelector;
 		assertThat(jwsAlgorithmMapKeySelector.isAllowed(JWSAlgorithm.RS256)).isTrue();
 		assertThat(jwsAlgorithmMapKeySelector.isAllowed(JWSAlgorithm.RS512)).isTrue();

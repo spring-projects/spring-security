@@ -51,8 +51,9 @@ public class AuthorizeReturnObjectDataHintsRegistrarTests {
 		GenericApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
 		RuntimeHints hints = new RuntimeHints();
 		this.registrar.registerHints(hints, context.getBeanFactory());
-		assertThat(hints.reflection().typeHints().map((hint) -> hint.getType().getName()))
-			.containsOnly(cglibClassName(MyObject.class), cglibClassName(MySubObject.class));
+		assertThat(hints.reflection().typeHints().map((hint) -> hint.getType().getName())).containsOnly(
+				cglibClassName(MyObject.class), cglibClassName(MySubObject.class), MyObject.class.getName(),
+				MySubObject.class.getName());
 	}
 
 	private static String cglibClassName(Class<?> clazz) {

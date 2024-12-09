@@ -88,6 +88,7 @@ Let's take a look at how `OpaqueTokenAuthenticationProvider` works within Spring
 The figure explains details of how the xref:servlet/authentication/architecture.adoc#servlet-authentication-authenticationmanager[`AuthenticationManager`] in figures from xref:servlet/oauth2/resource-server/index.adoc#oauth2resourceserver-authentication-bearertokenauthenticationfilter[Reading the Bearer Token] works.
 
 .`OpaqueTokenAuthenticationProvider` Usage
+[.invert-dark]
 image::{figures}/opaquetokenauthenticationprovider.png[]
 
 image:{icondir}/number_1.png[] The authentication `Filter` from xref:servlet/oauth2/resource-server/index.adoc#oauth2resourceserver-authentication-bearertokenauthenticationfilter[Reading the Bearer Token] passes a `BearerTokenAuthenticationToken` to the `AuthenticationManager` which is implemented by xref:servlet/authentication/architecture.adoc#servlet-authentication-providermanager[`ProviderManager`].

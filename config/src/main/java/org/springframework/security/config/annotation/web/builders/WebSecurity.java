@@ -136,6 +136,14 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 	}
 
 	/**
+	 * @deprecated
+	 */
+	@Deprecated(since = "6.4", forRemoval = true)
+	public WebSecurity(org.springframework.security.config.annotation.ObjectPostProcessor<Object> objectPostProcessor) {
+		super(objectPostProcessor);
+	}
+
+	/**
 	 * <p>
 	 * Allows adding {@link RequestMatcher} instances that Spring Security should ignore.
 	 * Web Security provided by Spring Security (including the {@link SecurityContext})

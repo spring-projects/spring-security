@@ -407,6 +407,16 @@ public class GlobalMethodSecurityConfiguration implements ImportAware, SmartInit
 		this.objectPostProcessor = objectPostProcessor;
 	}
 
+	/**
+	 * @deprecated
+	 */
+	@Deprecated(since = "6.4", forRemoval = true)
+	@Autowired(required = false)
+	public void setObjectPostProcessor(
+			org.springframework.security.config.annotation.ObjectPostProcessor<Object> objectPostProcessor) {
+		this.objectPostProcessor = objectPostProcessor;
+	}
+
 	@Autowired(required = false)
 	public void setMethodSecurityExpressionHandler(List<MethodSecurityExpressionHandler> handlers) {
 		if (handlers.size() != 1) {

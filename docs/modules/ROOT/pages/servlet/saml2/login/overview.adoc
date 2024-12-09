@@ -7,6 +7,7 @@ First, we see that, like <<oauth2login, OAuth 2.0 Login>>, Spring Security takes
 It does this through a series of redirects:
 
 .Redirecting to Asserting Party Authentication
+[.invert-dark]
 image::{figures}/saml2webssoauthenticationrequestfilter.png[]
 
 [NOTE]
@@ -34,6 +35,7 @@ The following image shows how Spring Security authenticates a `<saml2:Response>`
 
 [[servlet-saml2login-authentication-saml2webssoauthenticationfilter]]
 .Authenticating a `<saml2:Response>`
+[.invert-dark]
 image::{figures}/saml2webssoauthenticationfilter.png[]
 
 [NOTE]

@@ -16,6 +16,8 @@
 
 package org.springframework.security.ldap.authentication;
 
+import java.util.Locale;
+
 /**
  * Helper class to encode and decode ldap names and values.
  *
@@ -53,7 +55,7 @@ final class LdapEncoder {
 	}
 
 	static String toTwoCharHex(char c) {
-		String raw = Integer.toHexString(c).toUpperCase();
+		String raw = Integer.toHexString(c).toUpperCase(Locale.ENGLISH);
 		return (raw.length() > 1) ? raw : "0" + raw;
 	}
 

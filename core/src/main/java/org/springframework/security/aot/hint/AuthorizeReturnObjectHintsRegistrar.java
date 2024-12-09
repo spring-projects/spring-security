@@ -119,8 +119,10 @@ public final class AuthorizeReturnObjectHintsRegistrar implements SecurityHintsR
 		}
 		if (SpringProxy.class.isAssignableFrom(proxied)) {
 			hints.reflection()
-				.registerType(proxied, MemberCategory.INVOKE_PUBLIC_METHODS, MemberCategory.PUBLIC_FIELDS,
-						MemberCategory.DECLARED_FIELDS);
+				.registerType(clazz, MemberCategory.INVOKE_DECLARED_CONSTRUCTORS,
+						MemberCategory.INVOKE_DECLARED_METHODS)
+				.registerType(proxied, MemberCategory.INVOKE_DECLARED_CONSTRUCTORS,
+						MemberCategory.INVOKE_DECLARED_METHODS, MemberCategory.DECLARED_FIELDS);
 		}
 	}
 

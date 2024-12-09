@@ -65,6 +65,7 @@ In many cases, your authorization rules will be more sophisticated than that, so
 This section builds on xref:servlet/architecture.adoc#servlet-architecture[Servlet Architecture and Implementation] by digging deeper into how xref:servlet/authorization/index.adoc#servlet-authorization[authorization] works at the request level in Servlet-based applications.
 
 .Authorize HttpServletRequest
+[.invert-dark]
 image::{figures}/authorizationfilter.png[]
 
 * image:{icondir}/number_1.png[] First, the `AuthorizationFilter` constructs a `Supplier` that retrieves an  xref:servlet/authentication/architecture.adoc#servlet-authentication-authentication[Authentication] from the xref:servlet/authentication/architecture.adoc#servlet-authentication-securitycontextholder[SecurityContextHolder].

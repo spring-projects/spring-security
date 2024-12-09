@@ -22,6 +22,7 @@ This also gives a good idea of the high level flow of authentication and how pie
 At the heart of Spring Security's authentication model is the `SecurityContextHolder`.
 It contains the <<servlet-authentication-securitycontext>>.
 
+[.invert-dark]
 image::{figures}/securitycontextholder.png[]
 
 The `SecurityContextHolder` is where Spring Security stores the details of who is xref:features/authentication/index.adoc#authentication[authenticated].
@@ -175,6 +176,7 @@ javadoc:org.springframework.security.authentication.ProviderManager[] is the mos
 Each `AuthenticationProvider` has an opportunity to indicate that authentication should be successful, fail, or indicate it cannot make a decision and allow a downstream `AuthenticationProvider` to decide.
 If none of the configured `AuthenticationProvider` instances can authenticate, authentication fails with a `ProviderNotFoundException`, which is a special `AuthenticationException` that indicates that the `ProviderManager` was not configured to support the type of `Authentication` that was passed into it.
 
+[.invert-dark]
 image::{figures}/providermanager.png[]
 
 In practice each `AuthenticationProvider` knows how to perform a specific type of authentication.
@@ -184,16 +186,24 @@ This lets each `AuthenticationProvider` do a very specific type of authenticatio
 `ProviderManager` also allows configuring an optional parent `AuthenticationManager`, which is consulted in the event that no `AuthenticationProvider` can perform authentication.
 The parent can be any type of `AuthenticationManager`, but it is often an instance of `ProviderManager`.
 
+[.invert-dark]
 image::{figures}/providermanager-parent.png[]
 
 In fact, multiple `ProviderManager` instances might share the same parent `AuthenticationManager`.
 This is somewhat common in scenarios where there are multiple xref:servlet/architecture.adoc#servlet-securityfilterchain[`SecurityFilterChain`] instances that have some authentication in common (the shared parent `AuthenticationManager`), but also different authentication mechanisms (the different `ProviderManager` instances).
 
+[.invert-dark]
 image::{figures}/providermanagers-parent.png[]
 
 [[servlet-authentication-providermanager-erasing-credentials]]
 By default, `ProviderManager` tries to clear any sensitive credentials information from the `Authentication` object that is returned by a successful authentication request.
 This prevents information, such as passwords, being retained longer than necessary in the `HttpSession`.
+
+[NOTE]
+====
+The `CredentialsContainer` interface plays a critical role in the authentication process.
+It allows for the erasure of credential information once it is no longer needed, thereby enhancing security by ensuring sensitive data is not retained longer than necessary.
+====
 
 This may cause issues when you use a cache of user objects, for example, to improve performance in a stateless application.
 If the `Authentication` contains a reference to an object in the cache (such as a `UserDetails` instance) and this has its credentials removed, it is no longer possible to authenticate against the cached value.
@@ -234,6 +244,7 @@ Before the credentials can be authenticated, Spring Security typically requests 
 
 Next, the `AbstractAuthenticationProcessingFilter` can authenticate any authentication requests that are submitted to it.
 
+[.invert-dark]
 image::{figures}/abstractauthenticationprocessingfilter.png[]
 
 image:{icondir}/number_1.png[] When the user submits their credentials, the `AbstractAuthenticationProcessingFilter` creates an <<servlet-authentication-authentication,`Authentication`>> from the `HttpServletRequest` to be authenticated.
@@ -245,7 +256,7 @@ image:{icondir}/number_2.png[] Next, the <<servlet-authentication-authentication
 image:{icondir}/number_3.png[] If authentication fails, then __Failure__.
 
 * The <<servlet-authentication-securitycontextholder>> is cleared out.
-* `RememberMeServices.loginFail` is invoked.ƒ
+* `RememberMeServices.loginFail` is invoked.
 If remember me is not configured, this is a no-op.
 See the javadoc:org.springframework.security.web.authentication.rememberme.package-summary[rememberme] package.
 * `AuthenticationFailureHandler` is invoked.

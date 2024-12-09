@@ -92,6 +92,7 @@ Let's take a look at how `JwtAuthenticationProvider` works within Spring Securit
 The figure explains details of how the xref:servlet/authentication/architecture.adoc#servlet-authentication-authenticationmanager[`AuthenticationManager`] in figures from xref:servlet/oauth2/resource-server/index.adoc#oauth2resourceserver-authentication-bearertokenauthenticationfilter[Reading the Bearer Token] works.
 
 .`JwtAuthenticationProvider` Usage
+[.invert-dark]
 image::{figures}/jwtauthenticationprovider.png[]
 
 image:{icondir}/number_1.png[] The authentication `Filter` from xref:servlet/oauth2/resource-server/index.adoc#oauth2resourceserver-authentication-bearertokenauthenticationfilter[Reading the Bearer Token] passes a `BearerTokenAuthenticationToken` to the `AuthenticationManager` which is implemented by xref:servlet/authentication/architecture.adoc#servlet-authentication-providermanager[`ProviderManager`].

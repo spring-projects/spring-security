@@ -21,6 +21,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -63,7 +64,7 @@ public final class HaveIBeenPwnedRestApiPasswordChecker implements CompromisedPa
 	@NonNull
 	public CompromisedPasswordDecision check(String password) {
 		byte[] hash = this.sha1Digest.digest(password.getBytes(StandardCharsets.UTF_8));
-		String encoded = new String(Hex.encode(hash)).toUpperCase();
+		String encoded = new String(Hex.encode(hash)).toUpperCase(Locale.ROOT);
 		String prefix = encoded.substring(0, PREFIX_LENGTH);
 		String suffix = encoded.substring(PREFIX_LENGTH);
 
