@@ -810,6 +810,8 @@ class WebSocketSecurityConfig: WebSocketMessageBrokerConfigurer {
 ----
 ======
 
+This also implies that you will need to xref:servlet/integrations/websocket.adoc#websocket-authorization[use a `MessageMatcherDelegationAuthorizationManager`] to specify your authorization rules.
+
 [[servlet-authorizationmanager-messages-opt-out]]
 === Opt-out Steps
 
