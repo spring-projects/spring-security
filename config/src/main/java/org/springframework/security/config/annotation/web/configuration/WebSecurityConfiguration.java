@@ -80,9 +80,6 @@ public class WebSecurityConfiguration implements ImportAware, BeanClassLoaderAwa
 	private ClassLoader beanClassLoader;
 
 	@Autowired(required = false)
-	private ObjectPostProcessor<Object> objectObjectPostProcessor;
-
-	@Autowired(required = false)
 	private HttpSecurity httpSecurity;
 
 	@Bean
