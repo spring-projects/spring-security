@@ -251,7 +251,7 @@ For additional details about how dependencies are resolved, see https://maven.ap
 
 [[maven-repositories]]
 === Maven Repositories
-All GA releases (that is, versions ending in .RELEASE) are deployed to Maven Central, so you need not declare additional Maven repositories in your build configuration.
+All https://github.com/spring-projects/spring-security/wiki/Release-Schedule-Guidelines[GA releases] are deployed to Maven Central, so you need not declare additional Maven repositories in your build configuration.
 
 For Gradle using the `mavenCentral()` repository is sufficient for GA releases.
 
