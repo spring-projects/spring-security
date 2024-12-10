@@ -16,14 +16,17 @@
 
 package org.springframework.security.messaging.handler.invocation.reactive;
 
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Mono;
 
 import org.springframework.core.MethodParameter;
 import org.springframework.core.annotation.AliasFor;
+import org.springframework.core.annotation.AnnotatedMethod;
 import org.springframework.core.annotation.SynthesizingMethodParameter;
 import org.springframework.security.authentication.TestAuthentication;
 import org.springframework.security.authentication.TestingAuthenticationToken;
@@ -128,6 +131,19 @@ public class AuthenticationPrincipalArgumentResolverTests {
 		assertThat(this.resolver.supportsParameter(arg0("monoUserDetails"))).isFalse();
 	}
 
+	@Test
+	public void resolveArgumentWhenAliasForOnInterfaceThenInherits() {
+		CustomUserPrincipal principal = new CustomUserPrincipal();
+		Authentication authentication = new TestingAuthenticationToken(principal, "password", "ROLE_USER");
+		ResolvableMethod method = ResolvableMethod.on(TestController.class)
+			.named("showUserNoConcreteAnnotation")
+			.method();
+		MethodParameter parameter = new AnnotatedMethod(method.method()).getMethodParameters()[0];
+		Mono<Object> result = this.resolver.resolveArgument(parameter, null)
+			.contextWrite(ReactiveSecurityContextHolder.withAuthentication(authentication));
+		assertThat(result.block()).isEqualTo(principal.property);
+	}
+
 	@SuppressWarnings("unused")
 	private void monoUserDetails(Mono<UserDetails> user) {
 	}
@@ -172,6 +188,8 @@ public class AuthenticationPrincipalArgumentResolverTests {
 
 		public final int id = 1;
 
+		public final String property = "property";
+
 		public Object getPrincipal() {
 			return this;
 		}
@@ -192,6 +210,31 @@ public class AuthenticationPrincipalArgumentResolverTests {
 	public @interface CurrentUser3 {
 
 		String property() default "";
+
+	}
+
+	@Target({ ElementType.PARAMETER })
+	@Retention(RetentionPolicy.RUNTIME)
+	@AuthenticationPrincipal
+	@interface Property {
+
+		@AliasFor(attribute = "expression", annotation = AuthenticationPrincipal.class)
+		String value() default "id";
+
+	}
+
+	private interface TestInterface {
+
+		void showUserNoConcreteAnnotation(@Property("property") String property);
+
+	}
+
+	private static class TestController implements TestInterface {
+
+		@Override
+		public void showUserNoConcreteAnnotation(String user) {
+
+		}
 
 	}
 

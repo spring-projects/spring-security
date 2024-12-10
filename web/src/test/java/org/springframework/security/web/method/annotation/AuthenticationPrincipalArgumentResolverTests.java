@@ -28,6 +28,7 @@ import org.junit.jupiter.api.Test;
 
 import org.springframework.core.MethodParameter;
 import org.springframework.core.annotation.AliasFor;
+import org.springframework.core.annotation.AnnotatedMethod;
 import org.springframework.expression.BeanResolver;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.annotation.AnnotationTemplateExpressionDefaults;
@@ -214,8 +215,20 @@ public class AuthenticationPrincipalArgumentResolverTests {
 			.isEqualTo(this.expectedPrincipal);
 	}
 
+	@Test
+	public void resolveArgumentWhenAliasForOnInterfaceThenInherits() throws Exception {
+		CustomUserPrincipal principal = new CustomUserPrincipal();
+		setAuthenticationPrincipal(principal);
+		assertThat(this.resolver.resolveArgument(showUserNoConcreteAnnotation(), null, null, null))
+			.isEqualTo(principal.property);
+	}
+
 	private MethodParameter showUserNoAnnotation() {
 		return getMethodParameter("showUserNoAnnotation", String.class);
+	}
+
+	private MethodParameter showUserNoConcreteAnnotation() {
+		return getMethodParameter("showUserNoConcreteAnnotation", String.class);
 	}
 
 	private MethodParameter showUserAnnotationString() {
@@ -272,7 +285,7 @@ public class AuthenticationPrincipalArgumentResolverTests {
 
 	private MethodParameter getMethodParameter(String methodName, Class<?>... paramTypes) {
 		Method method = ReflectionUtils.findMethod(TestController.class, methodName, paramTypes);
-		return new MethodParameter(method, 0);
+		return new AnnotatedMethod(method).getMethodParameters()[0];
 	}
 
 	private void setAuthenticationPrincipal(Object principal) {
@@ -295,6 +308,16 @@ public class AuthenticationPrincipalArgumentResolverTests {
 
 	}
 
+	@Target({ ElementType.PARAMETER })
+	@Retention(RetentionPolicy.RUNTIME)
+	@AuthenticationPrincipal
+	@interface Property {
+
+		@AliasFor(attribute = "expression", annotation = AuthenticationPrincipal.class)
+		String value() default "id";
+
+	}
+
 	@Retention(RetentionPolicy.RUNTIME)
 	@AuthenticationPrincipal
 	public @interface CurrentUser2 {
@@ -312,9 +335,20 @@ public class AuthenticationPrincipalArgumentResolverTests {
 
 	}
 
-	public static class TestController {
+	public interface TestInterface {
+
+		void showUserNoConcreteAnnotation(@Property("property") String property);
+
+	}
+
+	public static class TestController implements TestInterface {
 
 		public void showUserNoAnnotation(String user) {
+		}
+
+		@Override
+		public void showUserNoConcreteAnnotation(String user) {
+
 		}
 
 		public void showUserAnnotation(@AuthenticationPrincipal String user) {

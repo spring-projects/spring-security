@@ -19,6 +19,8 @@ package org.springframework.security.web.method.annotation;
 import java.lang.annotation.Annotation;
 
 import org.springframework.core.MethodParameter;
+import org.springframework.core.annotation.AnnotationUtils;
+import org.springframework.core.annotation.MergedAnnotations;
 import org.springframework.expression.BeanResolver;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
@@ -93,6 +95,8 @@ import org.springframework.web.method.support.ModelAndViewContainer;
  */
 public final class AuthenticationPrincipalArgumentResolver implements HandlerMethodArgumentResolver {
 
+	private final Class<AuthenticationPrincipal> annotationType = AuthenticationPrincipal.class;
+
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
 		.getContextHolderStrategy();
 
@@ -100,6 +104,8 @@ public final class AuthenticationPrincipalArgumentResolver implements HandlerMet
 
 	private SecurityAnnotationScanner<AuthenticationPrincipal> scanner = SecurityAnnotationScanners
 		.requireUnique(AuthenticationPrincipal.class);
+
+	private boolean useAnnotationTemplate = false;
 
 	private BeanResolver beanResolver;
 
@@ -165,6 +171,7 @@ public final class AuthenticationPrincipalArgumentResolver implements HandlerMet
 	 */
 	public void setTemplateDefaults(AnnotationTemplateExpressionDefaults templateDefaults) {
 		this.scanner = SecurityAnnotationScanners.requireUnique(AuthenticationPrincipal.class, templateDefaults);
+		this.useAnnotationTemplate = templateDefaults != null;
 	}
 
 	/**
@@ -174,8 +181,22 @@ public final class AuthenticationPrincipalArgumentResolver implements HandlerMet
 	 * @return the {@link Annotation} that was found or null.
 	 */
 	@SuppressWarnings("unchecked")
-	private <T extends Annotation> T findMethodAnnotation(MethodParameter parameter) {
-		return (T) this.scanner.scan(parameter.getParameter());
+	private AuthenticationPrincipal findMethodAnnotation(MethodParameter parameter) {
+		if (this.useAnnotationTemplate) {
+			return this.scanner.scan(parameter.getParameter());
+		}
+		AuthenticationPrincipal annotation = parameter.getParameterAnnotation(this.annotationType);
+		if (annotation != null) {
+			return annotation;
+		}
+		Annotation[] annotationsToSearch = parameter.getParameterAnnotations();
+		for (Annotation toSearch : annotationsToSearch) {
+			annotation = AnnotationUtils.findAnnotation(toSearch.annotationType(), this.annotationType);
+			if (annotation != null) {
+				return MergedAnnotations.from(toSearch).get(this.annotationType).synthesize();
+			}
+		}
+		return null;
 	}
 
 }
