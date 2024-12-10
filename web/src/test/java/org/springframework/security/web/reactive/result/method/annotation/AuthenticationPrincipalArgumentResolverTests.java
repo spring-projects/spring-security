@@ -32,6 +32,7 @@ import reactor.core.publisher.Mono;
 import org.springframework.core.MethodParameter;
 import org.springframework.core.ReactiveAdapterRegistry;
 import org.springframework.core.annotation.AliasFor;
+import org.springframework.core.annotation.AnnotatedMethod;
 import org.springframework.core.annotation.SynthesizingMethodParameter;
 import org.springframework.expression.BeanResolver;
 import org.springframework.security.core.Authentication;
@@ -230,6 +231,19 @@ public class AuthenticationPrincipalArgumentResolverTests {
 		assertThat(result.block()).isEqualTo(principal.id);
 	}
 
+	@Test
+	public void resolveArgumentWhenAliasForOnInterfaceThenInherits() {
+		CustomUserPrincipal principal = new CustomUserPrincipal();
+		given(this.authentication.getPrincipal()).willReturn(principal);
+		ResolvableMethod method = ResolvableMethod.on(TestController.class)
+			.named("showUserNoConcreteAnnotation")
+			.build();
+		MethodParameter parameter = new AnnotatedMethod(method.method()).getMethodParameters()[0];
+		Mono<Object> result = this.resolver.resolveArgument(parameter, this.bindingContext, this.exchange)
+			.contextWrite(ReactiveSecurityContextHolder.withAuthentication(this.authentication));
+		assertThat(result.block()).isEqualTo(principal.property);
+	}
+
 	private MethodParameter arg0(String methodName) {
 		ResolvableMethod method = ResolvableMethod.on(getClass()).named(methodName).build();
 		return new SynthesizingMethodParameter(method.method(), 0);
@@ -317,6 +331,8 @@ public class AuthenticationPrincipalArgumentResolverTests {
 
 		public final int id = 1;
 
+		public final String property = "property";
+
 		public Object getPrincipal() {
 			return this;
 		}
@@ -337,6 +353,31 @@ public class AuthenticationPrincipalArgumentResolverTests {
 	public @interface CurrentUser3 {
 
 		String property() default "";
+
+	}
+
+	@Target({ ElementType.PARAMETER })
+	@Retention(RetentionPolicy.RUNTIME)
+	@AuthenticationPrincipal
+	@interface Property {
+
+		@AliasFor(attribute = "expression", annotation = AuthenticationPrincipal.class)
+		String value() default "id";
+
+	}
+
+	private interface TestInterface {
+
+		void showUserNoConcreteAnnotation(@Property("property") String property);
+
+	}
+
+	private static class TestController implements TestInterface {
+
+		@Override
+		public void showUserNoConcreteAnnotation(String user) {
+
+		}
 
 	}
 
