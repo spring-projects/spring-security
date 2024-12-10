@@ -713,7 +713,7 @@ public class SessionManagementConfigurerTests {
 					.formLogin(withDefaults())
 					.sessionManagement((sessionManagement) -> sessionManagement
 									.sessionConcurrency((sessionConcurrency) -> sessionConcurrency
-													.sessionLimitStrategy(sessionLimitStrategy)
+													.maximumSessions(sessionLimitStrategy)
 													.maxSessionsPreventsLogin(true)
 									)
 					);

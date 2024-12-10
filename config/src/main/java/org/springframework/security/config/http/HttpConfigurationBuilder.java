@@ -493,11 +493,11 @@ class HttpConfigurationBuilder {
 			if (StringUtils.hasText(maxSessions)) {
 				concurrentSessionStrategy.addPropertyValue("maximumSessions", maxSessions);
 			}
-			String sessionLimitStrategyRef = this.pc.getReaderContext()
+			String maxSessionsRef = this.pc.getReaderContext()
 				.getEnvironment()
 				.resolvePlaceholders(sessionCtrlElt.getAttribute(ATT_MAX_SESSIONS_REF));
-			if (StringUtils.hasText(sessionLimitStrategyRef)) {
-				concurrentSessionStrategy.addPropertyReference("sessionLimitStrategy", sessionLimitStrategyRef);
+			if (StringUtils.hasText(maxSessionsRef)) {
+				concurrentSessionStrategy.addPropertyReference("maximumSessions", maxSessionsRef);
 			}
 			String exceptionIfMaximumExceeded = sessionCtrlElt.getAttribute("error-if-maximum-exceeded");
 			if (StringUtils.hasText(exceptionIfMaximumExceeded)) {

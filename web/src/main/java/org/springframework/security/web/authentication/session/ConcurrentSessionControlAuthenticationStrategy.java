@@ -186,6 +186,7 @@ public class ConcurrentSessionControlAuthenticationStrategy
 	 * Sets the <tt>sessionLimitStrategy</tt> property. The default value is 1. Use -1 for
 	 * unlimited sessions.
 	 * @param sessionLimitStrategy the session limit strategy
+	 * @since 6.5
 	 */
 	public void setMaximumSessions(SessionLimitStrategy sessionLimitStrategy) {
 		Assert.notNull(sessionLimitStrategy, "sessionLimitStrategy cannot be null");

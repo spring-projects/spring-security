@@ -120,7 +120,7 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 
 	private SessionInformationExpiredStrategy expiredSessionStrategy;
 
-	private SessionLimitStrategy sessionLimitStrategy;
+	private SessionLimitStrategy sessionLimit;
 
 	private List<SessionAuthenticationStrategy> sessionAuthenticationStrategies = new ArrayList<>();
 
@@ -330,7 +330,7 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 	 * @return the {@link SessionManagementConfigurer} for further customizations
 	 */
 	public ConcurrencyControlConfigurer maximumSessions(int maximumSessions) {
-		this.sessionLimitStrategy = SessionLimitStrategy.of(maximumSessions);
+		this.sessionLimit = SessionLimitStrategy.of(maximumSessions);
 		this.propertiesThatRequireImplicitAuthentication.add("maximumSessions = " + maximumSessions);
 		return new ConcurrencyControlConfigurer();
 	}
@@ -571,8 +571,8 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 			SessionRegistry sessionRegistry = getSessionRegistry(http);
 			ConcurrentSessionControlAuthenticationStrategy concurrentSessionControlStrategy = new ConcurrentSessionControlAuthenticationStrategy(
 					sessionRegistry);
-			if (this.sessionLimitStrategy != null) {
-				concurrentSessionControlStrategy.setMaximumSessions(this.sessionLimitStrategy);
+			if (this.sessionLimit != null) {
+				concurrentSessionControlStrategy.setMaximumSessions(this.sessionLimit);
 			}
 			concurrentSessionControlStrategy.setExceptionIfMaximumExceeded(this.maxSessionsPreventsLogin);
 			concurrentSessionControlStrategy = postProcess(concurrentSessionControlStrategy);
@@ -617,7 +617,7 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 	 * @return
 	 */
 	private boolean isConcurrentSessionControlEnabled() {
-		return this.sessionLimitStrategy != null;
+		return this.sessionLimit != null;
 	}
 
 	/**
@@ -709,7 +709,7 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 		 * @return the {@link ConcurrencyControlConfigurer} for further customizations
 		 */
 		public ConcurrencyControlConfigurer maximumSessions(int maximumSessions) {
-			SessionManagementConfigurer.this.sessionLimitStrategy = SessionLimitStrategy.of(maximumSessions);
+			SessionManagementConfigurer.this.sessionLimit = SessionLimitStrategy.of(maximumSessions);
 			return this;
 		}
 
@@ -719,8 +719,8 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 		 * maximum number of sessions for a user
 		 * @return the {@link ConcurrencyControlConfigurer} for further customizations
 		 */
-		public ConcurrencyControlConfigurer sessionLimitStrategy(SessionLimitStrategy sessionLimitStrategy) {
-			SessionManagementConfigurer.this.sessionLimitStrategy = sessionLimitStrategy;
+		public ConcurrencyControlConfigurer maximumSessions(SessionLimitStrategy sessionLimitStrategy) {
+			SessionManagementConfigurer.this.sessionLimit = sessionLimitStrategy;
 			return this;
 		}
 
