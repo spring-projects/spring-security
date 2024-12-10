@@ -40,7 +40,7 @@ public final class TestPublicKeyCredentialCreationOptions {
 		ImmutableAuthenticationExtensionsClientInputs clientInputs = new ImmutableAuthenticationExtensionsClientInputs(
 				ImmutableAuthenticationExtensionsClientInput.credProps);
 		return PublicKeyCredentialCreationOptions.builder()
-			.attestation(AttestationConveyancePreference.DIRECT)
+			.attestation(AttestationConveyancePreference.NONE)
 			.user(userEntity)
 			.pubKeyCredParams(PublicKeyCredentialParameters.EdDSA, PublicKeyCredentialParameters.ES256,
 					PublicKeyCredentialParameters.RS256)

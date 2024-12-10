@@ -153,7 +153,7 @@ class PublicKeyCredentialCreationOptionsFilterTests {
 									"residentKey": "required",
 									"userVerification": "preferred"
 								},
-								"attestation": "direct",
+								"attestation": "none",
 								"extensions": {
 									"credProps": true
 								}

@@ -149,7 +149,7 @@ class JacksonTests {
 	void writePublicKeyCredentialCreationOptions() throws Exception {
 		String expected = """
 				{
-				    "attestation": "direct",
+				    "attestation": "none",
 				    "authenticatorSelection": {
 				        "residentKey": "required"
 				    },
