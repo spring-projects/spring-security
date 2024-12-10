@@ -249,9 +249,9 @@ This approach uses Maven's "`bill of materials`" (BOM) concept and is only avail
 For additional details about how dependencies are resolved, see https://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html[Maven's Introduction to the Dependency Mechanism documentation].
 ====
 
-[[maven-gearepositories]]
+[[maven-repositories]]
 === Maven Repositories
-All GA releases (that is, versions ending in .RELEASE) are deployed to Maven Central, so you need not declare additional Maven repositories in your `pom.xml`.
+All GA releases (that is, versions ending in .RELEASE) are deployed to Maven Central, so you need not declare additional Maven repositories in your build configuration.
 
 For Gradle using the `mavenCentral()` repository is sufficient for GA releases.
 
