@@ -196,7 +196,7 @@ image::{figures}/securitycontextpersistencefilter.png[]
 
 image:{icondir}/number_1.png[] Before running the rest of the application, `SecurityContextPersistenceFilter` loads the `SecurityContext` from the `SecurityContextRepository` and sets it on the `SecurityContextHolder`.
 
-image:{icondir}/number_2.png[] Next, the application is ran.
+image:{icondir}/number_2.png[] Next, the application is run.
 
 image:{icondir}/number_3.png[] Finally, if the `SecurityContext` has changed, we save the `SecurityContext` using the `SecurityContextRepository`.
 This means that when using `SecurityContextPersistenceFilter`, just setting the `SecurityContextHolder` will ensure that the `SecurityContext` is persisted using `SecurityContextRepository`.
@@ -219,7 +219,7 @@ image::{figures}/securitycontextholderfilter.png[]
 
 image:{icondir}/number_1.png[] Before running the rest of the application, `SecurityContextHolderFilter` loads the `SecurityContext` from the `SecurityContextRepository` and sets it on the `SecurityContextHolder`.
 
-image:{icondir}/number_2.png[] Next, the application is ran.
+image:{icondir}/number_2.png[] Next, the application is run.
 
 Unlike, xref:servlet/authentication/persistence.adoc#securitycontextpersistencefilter[`SecurityContextPersistenceFilter`], `SecurityContextHolderFilter` only loads the `SecurityContext` it does not save the `SecurityContext`.
 This means that when using `SecurityContextHolderFilter`, it is required that the `SecurityContext` is explicitly saved.
