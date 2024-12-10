@@ -183,7 +183,7 @@ public class Webauthn4JRelyingPartyOperations implements WebAuthnRelyingPartyOpe
 		List<CredentialRecord> credentialRecords = this.userCredentials.findByUserId(userEntity.getId());
 
 		PublicKeyCredentialCreationOptions options = PublicKeyCredentialCreationOptions.builder()
-			.attestation(AttestationConveyancePreference.DIRECT)
+			.attestation(AttestationConveyancePreference.NONE)
 			.pubKeyCredParams(PublicKeyCredentialParameters.EdDSA, PublicKeyCredentialParameters.ES256,
 					PublicKeyCredentialParameters.RS256)
 			.authenticatorSelection(authenticatorSelection)
