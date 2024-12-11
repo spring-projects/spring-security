@@ -138,7 +138,7 @@ public class DefaultReactiveOAuth2UserService implements ReactiveOAuth2UserServi
 					authorities.add(new SimpleGrantedAuthority("SCOPE_" + scope));
 				}
 
-				return new DefaultOAuth2User(authorities, attrs, userNameAttributeName);
+				return new DefaultOAuth2User(attrs.get(userNameAttributeName).toString(), attrs, authorities);
 			})
 			.onErrorMap((ex) -> (ex instanceof UnsupportedMediaTypeException ||
 					ex.getCause() instanceof UnsupportedMediaTypeException), (ex) -> {
