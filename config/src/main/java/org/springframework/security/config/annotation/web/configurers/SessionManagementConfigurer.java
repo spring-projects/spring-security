@@ -571,9 +571,7 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 			SessionRegistry sessionRegistry = getSessionRegistry(http);
 			ConcurrentSessionControlAuthenticationStrategy concurrentSessionControlStrategy = new ConcurrentSessionControlAuthenticationStrategy(
 					sessionRegistry);
-			if (this.sessionLimit != null) {
-				concurrentSessionControlStrategy.setMaximumSessions(this.sessionLimit);
-			}
+			concurrentSessionControlStrategy.setMaximumSessions(this.sessionLimit);
 			concurrentSessionControlStrategy.setExceptionIfMaximumExceeded(this.maxSessionsPreventsLogin);
 			concurrentSessionControlStrategy = postProcess(concurrentSessionControlStrategy);
 			RegisterSessionAuthenticationStrategy registerSessionStrategy = new RegisterSessionAuthenticationStrategy(
