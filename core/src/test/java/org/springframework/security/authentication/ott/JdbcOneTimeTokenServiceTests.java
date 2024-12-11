@@ -229,4 +229,5 @@ class JdbcOneTimeTokenServiceTests {
 		OneTimeToken consumed = this.oneTimeTokenServiceWithTokenSettings.consume(authenticationToken);
 		assertThat(consumed).isNull();
 	}
+
 }

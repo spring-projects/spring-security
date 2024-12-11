@@ -38,12 +38,14 @@ import static org.assertj.core.api.Assertions.assertThatNoException;
  * @author Marcus da Coregio
  */
 class InMemoryOneTimeTokenServiceTests {
+
 	static final Duration CUSTOM_EXPIRE_DURATION = Duration.ofMinutes(30L);
 
 	InMemoryOneTimeTokenService oneTimeTokenService = new InMemoryOneTimeTokenService();
 
 	InMemoryOneTimeTokenService oneTimeTokenServiceWithTokenSettings = new InMemoryOneTimeTokenService(
 			OneTimeTokenSettings.withDefaults().timeToLive(CUSTOM_EXPIRE_DURATION).build());
+
 	@Test
 	void generateThenTokenValueShouldBeValidUuidAndProvidedUsernameIsUsed() {
 		GenerateOneTimeTokenRequest request = new GenerateOneTimeTokenRequest("user");
