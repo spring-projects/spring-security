@@ -513,4 +513,25 @@ class StrictServerWebExchangeFirewallTests {
 		assertThat(exchange.getRequest().getHeaders().get(null)).isNull();
 	}
 
+	@Test
+	void getFirewalledExchangeWhenMutateThenHeadersStillFirewalled() {
+		String invalidHeaderName = "bad name";
+		this.firewall.setAllowedHeaderNames((name) -> !name.equals(invalidHeaderName));
+		ServerWebExchange exchange = getFirewalledExchange();
+		ServerWebExchange mutatedExchange = exchange.mutate().request(exchange.getRequest().mutate().build()).build();
+		HttpHeaders headers = mutatedExchange.getRequest().getHeaders();
+		assertThatExceptionOfType(ServerExchangeRejectedException.class)
+			.isThrownBy(() -> headers.get(invalidHeaderName));
+	}
+
+	@Test
+	void getMutatedFirewalledExchangeGetHeaderWhenNotAllowedHeaderNameThenException() {
+		String invalidHeaderName = "bad name";
+		this.firewall.setAllowedHeaderNames((name) -> !name.equals(invalidHeaderName));
+		ServerWebExchange exchange = getFirewalledExchange();
+		HttpHeaders headers = exchange.getRequest().mutate().build().getHeaders();
+		assertThatExceptionOfType(ServerExchangeRejectedException.class)
+			.isThrownBy(() -> headers.get(invalidHeaderName));
+	}
+
 }
