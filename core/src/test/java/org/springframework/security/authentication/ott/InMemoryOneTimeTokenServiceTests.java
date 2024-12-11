@@ -17,6 +17,7 @@
 package org.springframework.security.authentication.ott;
 
 import java.time.Clock;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
@@ -37,9 +38,12 @@ import static org.assertj.core.api.Assertions.assertThatNoException;
  * @author Marcus da Coregio
  */
 class InMemoryOneTimeTokenServiceTests {
+	static final Duration CUSTOM_EXPIRE_DURATION = Duration.ofMinutes(30L);
 
 	InMemoryOneTimeTokenService oneTimeTokenService = new InMemoryOneTimeTokenService();
 
+	InMemoryOneTimeTokenService oneTimeTokenServiceWithTokenSettings = new InMemoryOneTimeTokenService(
+			OneTimeTokenSettings.withDefaults().timeToLive(CUSTOM_EXPIRE_DURATION).build());
 	@Test
 	void generateThenTokenValueShouldBeValidUuidAndProvidedUsernameIsUsed() {
 		GenerateOneTimeTokenRequest request = new GenerateOneTimeTokenRequest("user");
@@ -108,6 +112,41 @@ class InMemoryOneTimeTokenServiceTests {
 				.isThrownBy(() -> this.oneTimeTokenService.setClock(null))
 				.withMessage("clock cannot be null");
 		// @formatter:on
+	}
+
+	@Test
+	void generateOneTimeTokenWithCustomExpireTimeThenTokenShouldHaveCustomExpiration() {
+		GenerateOneTimeTokenRequest request = new GenerateOneTimeTokenRequest("user");
+		OneTimeToken generated = this.oneTimeTokenServiceWithTokenSettings.generate(request);
+		Instant twentyNineMinutesFromNow = Instant.now().plus(29, ChronoUnit.MINUTES);
+		Instant thirtyOneMinutesFromNow = Instant.now().plus(31, ChronoUnit.MINUTES);
+		assertThat(generated.getExpiresAt()).isBetween(twentyNineMinutesFromNow, thirtyOneMinutesFromNow);
+	}
+
+	@Test
+	void consumeWhenTokenWithCustomExpireTimeIsValidThenReturnToken() {
+		GenerateOneTimeTokenRequest request = new GenerateOneTimeTokenRequest("user");
+		OneTimeToken generated = this.oneTimeTokenServiceWithTokenSettings.generate(request);
+		OneTimeTokenAuthenticationToken authenticationToken = new OneTimeTokenAuthenticationToken(
+				generated.getTokenValue());
+		Clock fifteenMinutesFromNow = Clock.fixed(Instant.now().plus(15, ChronoUnit.MINUTES), ZoneOffset.UTC);
+		this.oneTimeTokenServiceWithTokenSettings.setClock(fifteenMinutesFromNow);
+		OneTimeToken consumed = this.oneTimeTokenServiceWithTokenSettings.consume(authenticationToken);
+		assertThat(consumed.getTokenValue()).isEqualTo(generated.getTokenValue());
+		assertThat(consumed.getUsername()).isEqualTo(generated.getUsername());
+		assertThat(consumed.getExpiresAt()).isEqualTo(generated.getExpiresAt());
+	}
+
+	@Test
+	void consumeWhenTokenWithCustomExpireTimeIsExpiredThenReturnNull() {
+		GenerateOneTimeTokenRequest request = new GenerateOneTimeTokenRequest("user");
+		OneTimeToken generated = this.oneTimeTokenServiceWithTokenSettings.generate(request);
+		OneTimeTokenAuthenticationToken authenticationToken = new OneTimeTokenAuthenticationToken(
+				generated.getTokenValue());
+		Clock thirtyOneMinutesFromNow = Clock.fixed(Instant.now().plus(31, ChronoUnit.MINUTES), ZoneOffset.UTC);
+		this.oneTimeTokenServiceWithTokenSettings.setClock(thirtyOneMinutesFromNow);
+		OneTimeToken consumed = this.oneTimeTokenService.consume(authenticationToken);
+		assertThat(consumed).isNull();
 	}
 
 	private List<OneTimeToken> generate(int howMany) {

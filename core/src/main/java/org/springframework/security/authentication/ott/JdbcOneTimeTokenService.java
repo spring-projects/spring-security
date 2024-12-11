@@ -21,7 +21,6 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.time.Clock;
-import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -62,6 +61,8 @@ public final class JdbcOneTimeTokenService implements OneTimeTokenService, Dispo
 	private final Log logger = LogFactory.getLog(getClass());
 
 	private final JdbcOperations jdbcOperations;
+
+	private final OneTimeTokenSettings oneTimeTokenSettings;
 
 	private Function<OneTimeToken, List<SqlParameterValue>> oneTimeTokenParametersMapper = new OneTimeTokenParametersMapper();
 
@@ -107,9 +108,25 @@ public final class JdbcOneTimeTokenService implements OneTimeTokenService, Dispo
 	 * @param jdbcOperations the JDBC operations
 	 */
 	public JdbcOneTimeTokenService(JdbcOperations jdbcOperations) {
+		this(jdbcOperations, null);
+	}
+
+	/**
+	 * Constructs a {@code JdbcOneTimeTokenService} using the provided parameters.
+	 * @param jdbcOperations the JDBC operations
+	 * @param oneTimeTokenSettings the {@link OneTimeTokenSettings} to use when generating
+	 * OneTimeTokens
+	 * @since 6.4.2
+	 * @see OneTimeTokenSettings
+	 */
+	public JdbcOneTimeTokenService(JdbcOperations jdbcOperations, OneTimeTokenSettings oneTimeTokenSettings) {
 		Assert.notNull(jdbcOperations, "jdbcOperations cannot be null");
 		this.jdbcOperations = jdbcOperations;
 		this.taskScheduler = createTaskScheduler(DEFAULT_CLEANUP_CRON);
+		if (oneTimeTokenSettings == null) {
+			oneTimeTokenSettings = OneTimeTokenSettings.withDefaults().build();
+		}
+		this.oneTimeTokenSettings = oneTimeTokenSettings;
 	}
 
 	/**
@@ -132,8 +149,8 @@ public final class JdbcOneTimeTokenService implements OneTimeTokenService, Dispo
 	public OneTimeToken generate(GenerateOneTimeTokenRequest request) {
 		Assert.notNull(request, "generateOneTimeTokenRequest cannot be null");
 		String token = UUID.randomUUID().toString();
-		Instant fiveMinutesFromNow = this.clock.instant().plus(Duration.ofMinutes(5));
-		OneTimeToken oneTimeToken = new DefaultOneTimeToken(token, request.getUsername(), fiveMinutesFromNow);
+		Instant expireTime = this.clock.instant().plus(this.oneTimeTokenSettings.getTimeToLive());
+		OneTimeToken oneTimeToken = new DefaultOneTimeToken(token, request.getUsername(), expireTime);
 		insertOneTimeToken(oneTimeToken);
 		return oneTimeToken;
 	}
