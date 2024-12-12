@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,6 +64,7 @@ import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.session.ConcurrentSessionFilter;
 import org.springframework.security.web.session.HttpSessionDestroyedEvent;
+import org.springframework.security.web.session.SessionLimitStrategy;
 import org.springframework.security.web.session.SessionManagementFilter;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -244,6 +245,82 @@ public class SessionManagementConfigurerTests {
 				.param("username", "user")
 				.param("password", "password");
 		this.mvc.perform(secondRequest)
+				.andExpect(status().isFound())
+				.andExpect(redirectedUrl("/login?error"));
+		// @formatter:on
+	}
+
+	@Test
+	public void loginWhenAdminUserLoggedInAndSessionLimitStrategyIsConfiguredThenLoginSuccessfully() throws Exception {
+		this.spring.register(ConcurrencyControlWithSessionLimitStrategyConfig.class).autowire();
+		// @formatter:off
+		MockHttpServletRequestBuilder requestBuilder = post("/login")
+				.with(csrf())
+				.param("username", "admin")
+				.param("password", "password");
+		HttpSession firstSession = this.mvc.perform(requestBuilder)
+				.andExpect(status().is3xxRedirection())
+				.andExpect(redirectedUrl("/"))
+				.andReturn()
+				.getRequest()
+				.getSession(false);
+		assertThat(firstSession).isNotNull();
+		HttpSession secondSession = this.mvc.perform(requestBuilder)
+				.andExpect(status().is3xxRedirection())
+				.andExpect(redirectedUrl("/"))
+				.andReturn()
+				.getRequest()
+				.getSession(false);
+		assertThat(secondSession).isNotNull();
+		// @formatter:on
+		assertThat(firstSession.getId()).isNotEqualTo(secondSession.getId());
+	}
+
+	@Test
+	public void loginWhenAdminUserLoggedInAndSessionLimitStrategyIsConfiguredThenLoginPrevented() throws Exception {
+		this.spring.register(ConcurrencyControlWithSessionLimitStrategyConfig.class).autowire();
+		// @formatter:off
+		MockHttpServletRequestBuilder requestBuilder = post("/login")
+				.with(csrf())
+				.param("username", "admin")
+				.param("password", "password");
+		HttpSession firstSession = this.mvc.perform(requestBuilder)
+				.andExpect(status().is3xxRedirection())
+				.andExpect(redirectedUrl("/"))
+				.andReturn()
+				.getRequest()
+				.getSession(false);
+		assertThat(firstSession).isNotNull();
+		HttpSession secondSession = this.mvc.perform(requestBuilder)
+				.andExpect(status().is3xxRedirection())
+				.andExpect(redirectedUrl("/"))
+				.andReturn()
+				.getRequest()
+				.getSession(false);
+		assertThat(secondSession).isNotNull();
+		assertThat(firstSession.getId()).isNotEqualTo(secondSession.getId());
+		this.mvc.perform(requestBuilder)
+				.andExpect(status().isFound())
+				.andExpect(redirectedUrl("/login?error"));
+		// @formatter:on
+	}
+
+	@Test
+	public void loginWhenUserLoggedInAndSessionLimitStrategyIsConfiguredThenLoginPrevented() throws Exception {
+		this.spring.register(ConcurrencyControlWithSessionLimitStrategyConfig.class).autowire();
+		// @formatter:off
+		MockHttpServletRequestBuilder requestBuilder = post("/login")
+				.with(csrf())
+				.param("username", "user")
+				.param("password", "password");
+		HttpSession firstSession = this.mvc.perform(requestBuilder)
+				.andExpect(status().is3xxRedirection())
+				.andExpect(redirectedUrl("/"))
+				.andReturn()
+				.getRequest()
+				.getSession(false);
+		assertThat(firstSession).isNotNull();
+		this.mvc.perform(requestBuilder)
 				.andExpect(status().isFound())
 				.andExpect(redirectedUrl("/login?error"));
 		// @formatter:on
@@ -621,6 +698,42 @@ public class SessionManagementConfigurerTests {
 		@Bean
 		UserDetailsService userDetailsService() {
 			return new InMemoryUserDetailsManager(PasswordEncodedUser.user());
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	static class ConcurrencyControlWithSessionLimitStrategyConfig {
+
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http, SessionLimitStrategy sessionLimitStrategy) throws Exception {
+			// @formatter:off
+			http
+					.formLogin(withDefaults())
+					.sessionManagement((sessionManagement) -> sessionManagement
+									.sessionConcurrency((sessionConcurrency) -> sessionConcurrency
+													.maximumSessions(sessionLimitStrategy)
+													.maxSessionsPreventsLogin(true)
+									)
+					);
+			// @formatter:on
+			return http.build();
+		}
+
+		@Bean
+		UserDetailsService userDetailsService() {
+			return new InMemoryUserDetailsManager(PasswordEncodedUser.admin(), PasswordEncodedUser.user());
+		}
+
+		@Bean
+		SessionLimitStrategy sessionLimitStrategy() {
+			return (authentication) -> {
+				if ("admin".equals(authentication.getName())) {
+					return 2;
+				}
+				return 1;
+			};
 		}
 
 	}
