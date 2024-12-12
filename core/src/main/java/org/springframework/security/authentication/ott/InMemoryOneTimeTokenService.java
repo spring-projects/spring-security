@@ -36,6 +36,26 @@ import org.springframework.util.Assert;
  */
 public final class InMemoryOneTimeTokenService implements OneTimeTokenService {
 
+	private final OneTimeTokenSettings oneTimeTokenSettings;
+
+	public InMemoryOneTimeTokenService() {
+		this(null);
+	}
+
+	/**
+	 * Constructs a {@code InMemoryOneTimeTokenService} using the provided parameters.
+	 * @param oneTimeTokenSettings the {@link OneTimeTokenSettings} to use when generating
+	 * OneTimeTokens
+	 * @since 6.4.2
+	 * @see OneTimeTokenSettings
+	 */
+	public InMemoryOneTimeTokenService(OneTimeTokenSettings oneTimeTokenSettings) {
+		if (oneTimeTokenSettings == null) {
+			oneTimeTokenSettings = OneTimeTokenSettings.withDefaults().build();
+		}
+		this.oneTimeTokenSettings = oneTimeTokenSettings;
+	}
+
 	private final Map<String, OneTimeToken> oneTimeTokenByToken = new ConcurrentHashMap<>();
 
 	private Clock clock = Clock.systemUTC();
@@ -44,8 +64,8 @@ public final class InMemoryOneTimeTokenService implements OneTimeTokenService {
 	@NonNull
 	public OneTimeToken generate(GenerateOneTimeTokenRequest request) {
 		String token = UUID.randomUUID().toString();
-		Instant fiveMinutesFromNow = this.clock.instant().plusSeconds(300);
-		OneTimeToken ott = new DefaultOneTimeToken(token, request.getUsername(), fiveMinutesFromNow);
+		Instant expireTime = this.clock.instant().plus(this.oneTimeTokenSettings.getTimeToLive());
+		OneTimeToken ott = new DefaultOneTimeToken(token, request.getUsername(), expireTime);
 		this.oneTimeTokenByToken.put(token, ott);
 		cleanExpiredTokensIfNeeded();
 		return ott;
