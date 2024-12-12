@@ -298,9 +298,13 @@ class SpringSecurityCoreVersionSerializableTests {
 		for (BeanDefinition component : components) {
 			Class<?> clazz = Class.forName(component.getBeanClassName());
 			boolean isAbstract = Modifier.isAbstract(clazz.getModifiers());
+			if (isAbstract) {
+				continue;
+			}
 			boolean matchesExpectedSerialVersion = ObjectStreamClass.lookup(clazz)
 				.getSerialVersionUID() == securitySerialVersionUid;
-			if (!isAbstract && matchesExpectedSerialVersion) {
+			boolean isUnderTest = generatorByClassName.containsKey(clazz);
+			if (matchesExpectedSerialVersion || isUnderTest) {
 				classes.add(clazz);
 			}
 		}
