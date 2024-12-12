@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package org.springframework.security.saml2.provider.service.authentication;
 
+import java.io.Serial;
 import java.util.Collection;
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
@@ -36,6 +37,9 @@ import org.springframework.util.Assert;
  * @see AbstractAuthenticationToken
  */
 public class Saml2Authentication extends AbstractAuthenticationToken {
+
+	@Serial
+	private static final long serialVersionUID = 405897702378720477L;
 
 	private final AuthenticatedPrincipal principal;
 
