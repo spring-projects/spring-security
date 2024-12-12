@@ -41,6 +41,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.util.Assert;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
+import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
 final class ReactiveJwtDecoderProviderConfigurationUtils {
@@ -93,29 +94,29 @@ final class ReactiveJwtDecoderProviderConfigurationUtils {
 	}
 
 	static Mono<Map<String, Object>> getConfigurationForIssuerLocation(String issuer, WebClient web) {
-		URI uri = URI.create(issuer);
+		UriComponents uri = UriComponentsBuilder.fromUriString(issuer).build();
 		return getConfiguration(issuer, web, oidc(uri), oidcRfc8414(uri), oauth(uri));
 	}
 
-	private static URI oidc(URI issuer) {
+	private static URI oidc(UriComponents issuer) {
 		// @formatter:off
-		return UriComponentsBuilder.fromUri(issuer)
+		return UriComponentsBuilder.newInstance().uriComponents(issuer)
 				.replacePath(issuer.getPath() + OIDC_METADATA_PATH)
 				.build(Collections.emptyMap());
 		// @formatter:on
 	}
 
-	private static URI oidcRfc8414(URI issuer) {
+	private static URI oidcRfc8414(UriComponents issuer) {
 		// @formatter:off
-		return UriComponentsBuilder.fromUri(issuer)
+		return UriComponentsBuilder.newInstance().uriComponents(issuer)
 				.replacePath(OIDC_METADATA_PATH + issuer.getPath())
 				.build(Collections.emptyMap());
 		// @formatter:on
 	}
 
-	private static URI oauth(URI issuer) {
+	private static URI oauth(UriComponents issuer) {
 		// @formatter:off
-		return UriComponentsBuilder.fromUri(issuer)
+		return UriComponentsBuilder.newInstance().uriComponents(issuer)
 				.replacePath(OAUTH_METADATA_PATH + issuer.getPath())
 				.build(Collections.emptyMap());
 		// @formatter:on
