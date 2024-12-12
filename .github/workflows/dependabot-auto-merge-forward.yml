@@ -38,7 +38,7 @@ jobs:
         id: run-auto-merge-forward
         uses: spring-io/spring-security-release-tools/.github/actions/auto-merge-forward@actions-v1
         with:
-          branches: 5.8.x,${{ needs.get-supported-branches.outputs.supported_versions }},main
+          branches: ${{ needs.get-supported-branches.outputs.supported_versions }},main
           from-author: dependabot[bot]
   notify_result:
     name: Check for failures
