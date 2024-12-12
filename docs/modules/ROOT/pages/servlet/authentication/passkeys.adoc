@@ -175,7 +175,7 @@ Since the challenge is persisted (state is changed) to be compared at the time o
     "residentKey": "required",
     "userVerification": "preferred"
   },
-  "attestation": "direct",
+  "attestation": "none",
   "extensions": {
     "credProps": true
   }
