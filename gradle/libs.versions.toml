@@ -89,7 +89,7 @@ org-skyscreamer-jsonassert = "org.skyscreamer:jsonassert:1.5.3"
 org-slf4j-log4j-over-slf4j = "org.slf4j:log4j-over-slf4j:1.7.36"
 org-slf4j-slf4j-api = "org.slf4j:slf4j-api:2.0.16"
 org-springframework-data-spring-data-bom = "org.springframework.data:spring-data-bom:2024.1.0"
-org-springframework-ldap-spring-ldap-core = "org.springframework.ldap:spring-ldap-core:3.2.8"
+org-springframework-ldap-spring-ldap-core = "org.springframework.ldap:spring-ldap-core:3.2.10"
 org-springframework-spring-framework-bom = { module = "org.springframework:spring-framework-bom", version.ref = "org-springframework" }
 org-synchronoss-cloud-nio-multipart-parser = "org.synchronoss.cloud:nio-multipart-parser:1.1.0"
 
