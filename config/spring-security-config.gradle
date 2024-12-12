@@ -172,6 +172,17 @@ configure(project.tasks.withType(Test)) {
 	}
 }
 
+test {
+	onOutput { descriptor, event ->
+		if (!project.hasProperty('serialization')) {
+			return
+		}
+		if (descriptor.name=='listClassesMissingSerialVersion()') {
+			logger.lifecycle(event.message)
+		}
+	}
+}
+
 tasks.register("opensaml5Test", Test) {
 	filter {
 		includeTestsMatching "org.springframework.security.config.annotation.web.configurers.saml2.*"

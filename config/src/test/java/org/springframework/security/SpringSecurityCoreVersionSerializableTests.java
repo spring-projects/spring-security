@@ -25,6 +25,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.ObjectStreamClass;
 import java.io.Serializable;
+import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -36,6 +37,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apereo.cas.client.validation.AssertionImpl;
@@ -44,6 +46,7 @@ import org.instancio.InstancioApi;
 import org.instancio.Select;
 import org.instancio.generator.Generator;
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
@@ -287,6 +290,39 @@ class SpringSecurityCoreVersionSerializableTests {
 			}
 		}
 		return Files.list(previousVersionFolder);
+	}
+
+	@Test
+	void listClassesMissingSerialVersion() throws Exception {
+		ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(false);
+		provider.addIncludeFilter(new AssignableTypeFilter(Serializable.class));
+		List<Class<?>> classes = new ArrayList<>();
+
+		Set<BeanDefinition> components = provider.findCandidateComponents("org/springframework/security");
+		for (BeanDefinition component : components) {
+			Class<?> clazz = Class.forName(component.getBeanClassName());
+			boolean isAbstract = Modifier.isAbstract(clazz.getModifiers());
+			if (isAbstract) {
+				continue;
+			}
+			if (clazz.isEnum()) {
+				continue;
+			}
+			if (clazz.getName().contains("Tests")) {
+				continue;
+			}
+			boolean hasSerialVersion = Stream.of(clazz.getDeclaredFields())
+				.map(Field::getName)
+				.anyMatch((n) -> n.equals("serialVersionUID"));
+			if (!hasSerialVersion) {
+				classes.add(clazz);
+			}
+		}
+		if (!classes.isEmpty()) {
+			System.out
+				.println("Found " + classes.size() + " Serializable classes that don't declare a seriallVersionUID");
+			System.out.println(classes.stream().map(Class::getName).collect(Collectors.joining("\r\n")));
+		}
 	}
 
 	static Stream<Class<?>> getClassesToSerialize() throws Exception {
