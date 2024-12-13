@@ -90,6 +90,8 @@ import org.springframework.security.oauth2.jwt.TestJwts;
 import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthentication;
 import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+import org.springframework.security.saml2.provider.service.authentication.DefaultSaml2AuthenticatedPrincipal;
+import org.springframework.security.saml2.provider.service.authentication.TestSaml2Authentications;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 
@@ -231,6 +233,10 @@ class SpringSecurityCoreVersionSerializableTests {
 			token.setDetails(details);
 			return token;
 		});
+
+		// saml2-service-provider
+		generatorByClassName.put(DefaultSaml2AuthenticatedPrincipal.class,
+				(r) -> TestSaml2Authentications.authentication().getPrincipal());
 
 		// web
 		generatorByClassName.put(PreAuthenticatedAuthenticationToken.class, (r) -> {
