@@ -31,7 +31,6 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
@@ -67,7 +66,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Daniel Garnier-Moiroux
  */
-@Disabled
 class WebAuthnWebDriverTests {
 
 	private String baseUrl;
@@ -194,6 +192,11 @@ class WebAuthnWebDriverTests {
 		this.driver.findElement(passkeyLabel()).sendKeys("Virtual authenticator");
 		this.driver.findElement(registerPasskeyButton()).click();
 
+		// Ensure the page location has changed before performing further assertions.
+		// This is required because the location change is asynchronously performed in
+		// javascript, and performing assertions based on this.driver.findElement(...)
+		// may result in a StaleElementReferenceException.
+		await(() -> assertThat(this.driver.getCurrentUrl()).endsWith("/webauthn/register?success"));
 		await(() -> assertHasAlertStartingWith("success", "Success!"));
 
 		List<WebElement> passkeyRows = this.driver.findElements(passkeyTableRows());
