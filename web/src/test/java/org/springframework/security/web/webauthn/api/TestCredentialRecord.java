@@ -16,6 +16,9 @@
 
 package org.springframework.security.web.webauthn.api;
 
+import java.time.Instant;
+import java.util.Set;
+
 public final class TestCredentialRecord {
 
 	public static ImmutableCredentialRecord.ImmutableCredentialRecordBuilder userCredential() {
@@ -26,6 +29,24 @@ public final class TestCredentialRecord {
 			.publicKey(ImmutablePublicKeyCose.fromBase64(
 					"pQECAyYgASFYIC7DAiV_trHFPjieOxXbec7q2taBcgLnIi19zrUwVhCdIlggvN6riHORK_velHcTLFK_uJhyKK0oBkJqzNqR2E-2xf8="))
 			.backupEligible(true)
+			.backupState(true);
+	}
+
+	public static ImmutableCredentialRecord.ImmutableCredentialRecordBuilder fullUserCredential() {
+		return ImmutableCredentialRecord.builder()
+			.label("label")
+			.credentialId(Bytes.fromBase64("NauGCN7bZ5jEBwThcde51g"))
+			.userEntityUserId(Bytes.fromBase64("vKBFhsWT3gQnn-gHdT4VXIvjDkVXVYg5w8CLGHPunMM"))
+			.publicKey(ImmutablePublicKeyCose.fromBase64(
+					"pQECAyYgASFYIC7DAiV_trHFPjieOxXbec7q2taBcgLnIi19zrUwVhCdIlggvN6riHORK_velHcTLFK_uJhyKK0oBkJqzNqR2E-2xf8="))
+			.backupEligible(true)
+			.created(Instant.now())
+			.transports(Set.of(AuthenticatorTransport.BLE, AuthenticatorTransport.HYBRID))
+			.signatureCount(100)
+			.uvInitialized(false)
+			.credentialType(PublicKeyCredentialType.PUBLIC_KEY)
+			.attestationObject(new Bytes("test".getBytes()))
+			.attestationClientDataJSON(new Bytes(("test").getBytes()))
 			.backupState(true);
 	}
 
