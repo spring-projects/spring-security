@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package org.springframework.security.oauth2.core.oidc;
 
+import java.io.Serial;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Collections;
@@ -47,6 +48,9 @@ import org.springframework.util.Assert;
  * Claims</a>
  */
 public class OidcIdToken extends AbstractOAuth2Token implements IdTokenClaimAccessor {
+
+	@Serial
+	private static final long serialVersionUID = -1840734870428968020L;
 
 	private final Map<String, Object> claims;
 

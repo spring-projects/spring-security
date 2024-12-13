@@ -18,6 +18,7 @@ package org.springframework.security.ldap.userdetails;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.Serial;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -490,6 +491,9 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 	 * @since 4.2.9
 	 */
 	private static class PasswordModifyRequest implements ExtendedRequest {
+
+		@Serial
+		private static final long serialVersionUID = 3154223576081503237L;
 
 		private static final byte SEQUENCE_TYPE = 48;
 

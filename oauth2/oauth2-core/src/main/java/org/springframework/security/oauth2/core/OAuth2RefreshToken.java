@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package org.springframework.security.oauth2.core;
 
+import java.io.Serial;
 import java.time.Instant;
 
 /**
@@ -35,6 +36,9 @@ import java.time.Instant;
  * 1.5 Refresh Token</a>
  */
 public class OAuth2RefreshToken extends AbstractOAuth2Token {
+
+	@Serial
+	private static final long serialVersionUID = -4114856398229602435L;
 
 	/**
 	 * Constructs an {@code OAuth2RefreshToken} using the provided parameters.

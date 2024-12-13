@@ -16,6 +16,7 @@
 
 package org.springframework.security.authentication.ott;
 
+import java.io.Serial;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -29,6 +30,9 @@ import org.springframework.security.core.GrantedAuthority;
  * @since 6.4
  */
 public class OneTimeTokenAuthenticationToken extends AbstractAuthenticationToken {
+
+	@Serial
+	private static final long serialVersionUID = -8691636031126328365L;
 
 	private final Object principal;
 

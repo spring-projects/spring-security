@@ -16,6 +16,7 @@
 
 package org.springframework.security.oauth2.server.resource.introspection;
 
+import java.io.Serial;
 import java.net.URI;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -224,6 +225,9 @@ public class SpringReactiveOpaqueTokenIntrospector implements ReactiveOpaqueToke
 
 	// gh-7563
 	private static final class ArrayListFromString extends ArrayList<String> {
+
+		@Serial
+		private static final long serialVersionUID = 9182779930765511117L;
 
 		ArrayListFromString(String... elements) {
 			super(Arrays.asList(elements));
