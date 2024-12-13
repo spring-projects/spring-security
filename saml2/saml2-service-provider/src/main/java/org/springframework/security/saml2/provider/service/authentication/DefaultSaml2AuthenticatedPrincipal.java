@@ -16,6 +16,7 @@
 
 package org.springframework.security.saml2.provider.service.authentication;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
@@ -31,6 +32,9 @@ import org.springframework.util.Assert;
  * @since 5.4
  */
 public class DefaultSaml2AuthenticatedPrincipal implements Saml2AuthenticatedPrincipal, Serializable {
+
+	@Serial
+	private static final long serialVersionUID = -7601324133433139825L;
 
 	private final String name;
 
