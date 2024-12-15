@@ -123,6 +123,8 @@ import org.springframework.security.saml2.provider.service.authentication.Saml2R
 import org.springframework.security.saml2.provider.service.authentication.TestSaml2Authentications;
 import org.springframework.security.saml2.provider.service.authentication.TestSaml2PostAuthenticationRequests;
 import org.springframework.security.saml2.provider.service.authentication.TestSaml2RedirectAuthenticationRequests;
+import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
+import org.springframework.security.saml2.provider.service.registration.TestRelyingPartyRegistrations;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 
@@ -309,6 +311,7 @@ class SpringSecurityCoreVersionSerializableTests {
 				(r) -> TestSaml2PostAuthenticationRequests.create());
 		generatorByClassName.put(Saml2RedirectAuthenticationRequest.class,
 				(r) -> TestSaml2RedirectAuthenticationRequests.create());
+		generatorByClassName.put(RelyingPartyRegistration.class, (r) -> TestRelyingPartyRegistrations.full().build());
 
 		// web
 		generatorByClassName.put(AnonymousAuthenticationToken.class, (r) -> {
