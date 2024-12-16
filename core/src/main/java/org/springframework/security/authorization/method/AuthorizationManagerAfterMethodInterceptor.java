@@ -29,10 +29,10 @@ import org.springframework.core.log.LogMessage;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
-import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.authorization.AuthorizationEventPublisher;
 import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
@@ -60,7 +60,7 @@ public final class AuthorizationManagerAfterMethodInterceptor implements Authori
 
 	private int order;
 
-	private AuthorizationEventPublisher eventPublisher = AuthorizationManagerAfterMethodInterceptor::noPublish;
+	private AuthorizationEventPublisher eventPublisher = new NoOpAuthorizationEventPublisher();
 
 	/**
 	 * Creates an instance.
@@ -182,22 +182,22 @@ public final class AuthorizationManagerAfterMethodInterceptor implements Authori
 	private Object attemptAuthorization(MethodInvocation mi, Object result) {
 		this.logger.debug(LogMessage.of(() -> "Authorizing method invocation " + mi));
 		MethodInvocationResult object = new MethodInvocationResult(mi, result);
-		AuthorizationDecision decision = this.authorizationManager.check(this::getAuthentication, object);
-		this.eventPublisher.publishAuthorizationEvent(this::getAuthentication, object, decision);
-		if (decision != null && !decision.isGranted()) {
+		AuthorizationResult authorizationResult = this.authorizationManager.authorize(this::getAuthentication, object);
+		this.eventPublisher.publishAuthorizationEvent(this::getAuthentication, object, authorizationResult);
+		if (authorizationResult != null && !authorizationResult.isGranted()) {
 			this.logger.debug(LogMessage.of(() -> "Failed to authorize " + mi + " with authorization manager "
-					+ this.authorizationManager + " and decision " + decision));
-			return handlePostInvocationDenied(object, decision);
+					+ this.authorizationManager + " and authorizationResult " + authorizationResult));
+			return handlePostInvocationDenied(object, authorizationResult);
 		}
 		this.logger.debug(LogMessage.of(() -> "Authorized method invocation " + mi));
 		return result;
 	}
 
-	private Object handlePostInvocationDenied(MethodInvocationResult mi, AuthorizationDecision decision) {
+	private Object handlePostInvocationDenied(MethodInvocationResult mi, AuthorizationResult result) {
 		if (this.authorizationManager instanceof MethodAuthorizationDeniedHandler deniedHandler) {
-			return deniedHandler.handleDeniedInvocationResult(mi, decision);
+			return deniedHandler.handleDeniedInvocationResult(mi, result);
 		}
-		return this.defaultHandler.handleDeniedInvocationResult(mi, decision);
+		return this.defaultHandler.handleDeniedInvocationResult(mi, result);
 	}
 
 	private Authentication getAuthentication() {
@@ -207,11 +207,6 @@ public final class AuthorizationManagerAfterMethodInterceptor implements Authori
 					"An Authentication object was not found in the SecurityContext");
 		}
 		return authentication;
-	}
-
-	private static <T> void noPublish(Supplier<Authentication> authentication, T object,
-			AuthorizationDecision decision) {
-
 	}
 
 }

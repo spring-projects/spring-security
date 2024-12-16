@@ -28,16 +28,29 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import io.micrometer.observation.Observation;
+import io.micrometer.observation.ObservationHandler;
+import io.micrometer.observation.ObservationRegistry;
+import io.micrometer.observation.ObservationTextPublisher;
+import jakarta.annotation.security.DenyAll;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import org.springframework.aop.Advisor;
+import org.springframework.aop.config.AopConfigUtils;
 import org.springframework.aop.support.DefaultPointcutAdvisor;
 import org.springframework.aop.support.JdkRegexpMethodPointcut;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.FactoryBean;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import org.springframework.context.annotation.AdviceMode;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -50,6 +63,7 @@ import org.springframework.security.access.annotation.BusinessService;
 import org.springframework.security.access.annotation.BusinessServiceImpl;
 import org.springframework.security.access.annotation.ExpressionProtectedBusinessServiceImpl;
 import org.springframework.security.access.annotation.Jsr250BusinessServiceImpl;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
@@ -61,6 +75,8 @@ import org.springframework.security.access.prepost.PreFilter;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationEventPublisher;
 import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.security.authorization.AuthorizationResult;
+import org.springframework.security.authorization.method.AuthorizationAdvisor;
 import org.springframework.security.authorization.method.AuthorizationAdvisorProxyFactory;
 import org.springframework.security.authorization.method.AuthorizationAdvisorProxyFactory.TargetVisitor;
 import org.springframework.security.authorization.method.AuthorizationInterceptorsOrder;
@@ -72,14 +88,17 @@ import org.springframework.security.authorization.method.PrePostTemplateDefaults
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.SecurityContextChangedListenerConfig;
 import org.springframework.security.config.core.GrantedAuthorityDefaults;
+import org.springframework.security.config.observation.SecurityObservationSettings;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.config.test.SpringTestParentApplicationContextExecutionListener;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AnnotationTemplateExpressionDefaults;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.context.support.WithSecurityContextTestExecutionListener;
+import org.springframework.stereotype.Component;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -92,9 +111,13 @@ import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.clearInvocations;
+import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 /**
  * Tests for {@link PrePostMethodSecurityConfiguration}.
@@ -605,69 +628,77 @@ public class PrePostMethodSecurityConfigurationTests {
 		assertThat(filtered).containsExactly("DoNotDrop");
 	}
 
-	@Test
+	@ParameterizedTest
+	@ValueSource(classes = { LegacyMetaAnnotationPlaceholderConfig.class, MetaAnnotationPlaceholderConfig.class })
 	@WithMockUser
-	public void methodeWhenParameterizedPreAuthorizeMetaAnnotationThenPasses() {
-		this.spring.register(MetaAnnotationPlaceholderConfig.class).autowire();
+	public void methodeWhenParameterizedPreAuthorizeMetaAnnotationThenPasses(Class<?> config) {
+		this.spring.register(config).autowire();
 		MetaAnnotationService service = this.spring.getContext().getBean(MetaAnnotationService.class);
 		assertThat(service.hasRole("USER")).isTrue();
 	}
 
-	@Test
+	@ParameterizedTest
+	@ValueSource(classes = { LegacyMetaAnnotationPlaceholderConfig.class, MetaAnnotationPlaceholderConfig.class })
 	@WithMockUser
-	public void methodRoleWhenPreAuthorizeMetaAnnotationHardcodedParameterThenPasses() {
-		this.spring.register(MetaAnnotationPlaceholderConfig.class).autowire();
+	public void methodRoleWhenPreAuthorizeMetaAnnotationHardcodedParameterThenPasses(Class<?> config) {
+		this.spring.register(config).autowire();
 		MetaAnnotationService service = this.spring.getContext().getBean(MetaAnnotationService.class);
 		assertThat(service.hasUserRole()).isTrue();
 	}
 
-	@Test
-	public void methodWhenParameterizedAnnotationThenFails() {
-		this.spring.register(MetaAnnotationPlaceholderConfig.class).autowire();
+	@ParameterizedTest
+	@ValueSource(classes = { LegacyMetaAnnotationPlaceholderConfig.class, MetaAnnotationPlaceholderConfig.class })
+	public void methodWhenParameterizedAnnotationThenFails(Class<?> config) {
+		this.spring.register(config).autowire();
 		MetaAnnotationService service = this.spring.getContext().getBean(MetaAnnotationService.class);
 		assertThatExceptionOfType(IllegalArgumentException.class)
 			.isThrownBy(service::placeholdersOnlyResolvedByMetaAnnotations);
 	}
 
-	@Test
+	@ParameterizedTest
+	@ValueSource(classes = { LegacyMetaAnnotationPlaceholderConfig.class, MetaAnnotationPlaceholderConfig.class })
 	@WithMockUser(authorities = "SCOPE_message:read")
-	public void methodWhenMultiplePlaceholdersHasAuthorityThenPasses() {
-		this.spring.register(MetaAnnotationPlaceholderConfig.class).autowire();
+	public void methodWhenMultiplePlaceholdersHasAuthorityThenPasses(Class<?> config) {
+		this.spring.register(config).autowire();
 		MetaAnnotationService service = this.spring.getContext().getBean(MetaAnnotationService.class);
 		assertThat(service.readMessage()).isEqualTo("message");
 	}
 
-	@Test
+	@ParameterizedTest
+	@ValueSource(classes = { LegacyMetaAnnotationPlaceholderConfig.class, MetaAnnotationPlaceholderConfig.class })
 	@WithMockUser(roles = "ADMIN")
-	public void methodWhenMultiplePlaceholdersHasRoleThenPasses() {
-		this.spring.register(MetaAnnotationPlaceholderConfig.class).autowire();
+	public void methodWhenMultiplePlaceholdersHasRoleThenPasses(Class<?> config) {
+		this.spring.register(config).autowire();
 		MetaAnnotationService service = this.spring.getContext().getBean(MetaAnnotationService.class);
 		assertThat(service.readMessage()).isEqualTo("message");
 	}
 
-	@Test
+	@ParameterizedTest
+	@ValueSource(classes = { LegacyMetaAnnotationPlaceholderConfig.class, MetaAnnotationPlaceholderConfig.class })
 	@WithMockUser
-	public void methodWhenPostAuthorizeMetaAnnotationThenAuthorizes() {
-		this.spring.register(MetaAnnotationPlaceholderConfig.class).autowire();
+	public void methodWhenPostAuthorizeMetaAnnotationThenAuthorizes(Class<?> config) {
+		this.spring.register(config).autowire();
 		MetaAnnotationService service = this.spring.getContext().getBean(MetaAnnotationService.class);
 		service.startsWithDave("daveMatthews");
 		assertThatExceptionOfType(AccessDeniedException.class)
 			.isThrownBy(() -> service.startsWithDave("jenniferHarper"));
 	}
 
-	@Test
+	@ParameterizedTest
+	@ValueSource(classes = { LegacyMetaAnnotationPlaceholderConfig.class, MetaAnnotationPlaceholderConfig.class })
 	@WithMockUser
-	public void methodWhenPreFilterMetaAnnotationThenFilters() {
-		this.spring.register(MetaAnnotationPlaceholderConfig.class).autowire();
+	public void methodWhenPreFilterMetaAnnotationThenFilters(Class<?> config) {
+		this.spring.register(config).autowire();
 		MetaAnnotationService service = this.spring.getContext().getBean(MetaAnnotationService.class);
 		assertThat(service.parametersContainDave(new ArrayList<>(List.of("dave", "carla", "vanessa", "paul"))))
 			.containsExactly("dave");
 	}
 
-	@Test
+	@ParameterizedTest
+	@ValueSource(classes = { LegacyMetaAnnotationPlaceholderConfig.class, MetaAnnotationPlaceholderConfig.class })
 	@WithMockUser
-	public void methodWhenPostFilterMetaAnnotationThenFilters() {
-		this.spring.register(MetaAnnotationPlaceholderConfig.class).autowire();
+	public void methodWhenPostFilterMetaAnnotationThenFilters(Class<?> config) {
+		this.spring.register(config).autowire();
 		MetaAnnotationService service = this.spring.getContext().getBean(MetaAnnotationService.class);
 		assertThat(service.resultsContainDave(new ArrayList<>(List.of("dave", "carla", "vanessa", "paul"))))
 			.containsExactly("dave");
@@ -825,7 +856,7 @@ public class PrePostMethodSecurityConfigurationTests {
 	@WithMockUser
 	void postAuthorizeWhenNullDeniedMetaAnnotationThanWorks() {
 		this.spring
-			.register(MethodSecurityServiceEnabledConfig.class, MetaAnnotationPlaceholderConfig.class,
+			.register(MethodSecurityServiceEnabledConfig.class, LegacyMetaAnnotationPlaceholderConfig.class,
 					MethodSecurityService.NullPostProcessor.class)
 			.autowire();
 		MethodSecurityService service = this.spring.getContext().getBean(MethodSecurityService.class);
@@ -944,6 +975,134 @@ public class PrePostMethodSecurityConfigurationTests {
 		verify(handler, never()).handleDeniedInvocation(any(), any(Authz.AuthzResult.class));
 	}
 
+	// gh-15352
+	@Test
+	void annotationsInChildClassesDoNotAffectSuperclasses() {
+		this.spring.register(AbstractClassConfig.class).autowire();
+		this.spring.getContext().getBean(ClassInheritingAbstractClassWithNoAnnotations.class).method();
+	}
+
+	// gh-15592
+	@Test
+	void autowireWhenDefaultsThenCreatesExactlyOneAdvisorPerAnnotation() {
+		this.spring.register(MethodSecurityServiceConfig.class).autowire();
+		AuthorizationAdvisorProxyFactory proxyFactory = this.spring.getContext()
+			.getBean(AuthorizationAdvisorProxyFactory.class);
+		assertThat(proxyFactory).hasSize(5);
+		assertThat(this.spring.getContext().getBeanNamesForType(AuthorizationAdvisor.class)).hasSize(5)
+			.containsExactlyInAnyOrder("preFilterAuthorizationMethodInterceptor",
+					"preAuthorizeAuthorizationMethodInterceptor", "postAuthorizeAuthorizationMethodInterceptor",
+					"postFilterAuthorizationMethodInterceptor", "authorizeReturnObjectMethodInterceptor");
+	}
+
+	// gh-15592
+	@Test
+	void autowireWhenAspectJAutoProxyAndFactoryBeanThenExactlyOneAdvisorPerAnnotation() {
+		this.spring.register(AspectJAwareAutoProxyAndFactoryBeansConfig.class).autowire();
+		AuthorizationAdvisorProxyFactory proxyFactory = this.spring.getContext()
+			.getBean(AuthorizationAdvisorProxyFactory.class);
+		assertThat(proxyFactory).hasSize(5);
+		assertThat(this.spring.getContext().getBeanNamesForType(AuthorizationAdvisor.class)).hasSize(5)
+			.containsExactlyInAnyOrder("preFilterAuthorizationMethodInterceptor",
+					"preAuthorizeAuthorizationMethodInterceptor", "postAuthorizeAuthorizationMethodInterceptor",
+					"postFilterAuthorizationMethodInterceptor", "authorizeReturnObjectMethodInterceptor");
+	}
+
+	// gh-15651
+	@Test
+	@WithMockUser(roles = "ADMIN")
+	public void adviseWhenPrePostEnabledThenEachInterceptorRunsExactlyOnce() {
+		this.spring.register(MethodSecurityServiceConfig.class, CustomMethodSecurityExpressionHandlerConfig.class)
+			.autowire();
+		MethodSecurityExpressionHandler expressionHandler = this.spring.getContext()
+			.getBean(MethodSecurityExpressionHandler.class);
+		this.methodSecurityService.manyAnnotations(new ArrayList<>(Arrays.asList("harold", "jonathan", "tim", "bo")));
+		verify(expressionHandler, times(4)).createEvaluationContext(any(Supplier.class), any());
+	}
+
+	// gh-15721
+	@Test
+	@WithMockUser(roles = "uid")
+	public void methodWhenMetaAnnotationPropertiesHasClassProperties() {
+		this.spring.register(MetaAnnotationPlaceholderConfig.class).autowire();
+		MetaAnnotationService service = this.spring.getContext().getBean(MetaAnnotationService.class);
+		assertThat(service.getIdPath("uid")).isEqualTo("uid");
+	}
+
+	@Test
+	@WithMockUser
+	public void prePostMethodWhenObservationRegistryThenObserved() {
+		this.spring.register(MethodSecurityServiceEnabledConfig.class, ObservationRegistryConfig.class).autowire();
+		this.methodSecurityService.preAuthorizePermitAll();
+		ObservationHandler<?> handler = this.spring.getContext().getBean(ObservationHandler.class);
+		verify(handler).onStart(any());
+		verify(handler).onStop(any());
+		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(this.methodSecurityService::preAuthorize);
+		verify(handler).onError(any());
+	}
+
+	@Test
+	@WithMockUser
+	public void securedMethodWhenObservationRegistryThenObserved() {
+		this.spring.register(MethodSecurityServiceEnabledConfig.class, ObservationRegistryConfig.class).autowire();
+		this.methodSecurityService.securedUser();
+		ObservationHandler<?> handler = this.spring.getContext().getBean(ObservationHandler.class);
+		verify(handler).onStart(any());
+		verify(handler).onStop(any());
+		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(this.methodSecurityService::secured);
+		verify(handler).onError(any());
+	}
+
+	@Test
+	@WithMockUser
+	public void jsr250MethodWhenObservationRegistryThenObserved() {
+		this.spring.register(MethodSecurityServiceEnabledConfig.class, ObservationRegistryConfig.class).autowire();
+		this.methodSecurityService.jsr250RolesAllowedUser();
+		ObservationHandler<?> handler = this.spring.getContext().getBean(ObservationHandler.class);
+		verify(handler).onStart(any());
+		verify(handler).onStop(any());
+		assertThatExceptionOfType(AccessDeniedException.class)
+			.isThrownBy(this.methodSecurityService::jsr250RolesAllowed);
+		verify(handler).onError(any());
+	}
+
+	@Test
+	@WithMockUser
+	public void prePostMethodWhenExcludeAuthorizationObservationsThenUnobserved() {
+		this.spring
+			.register(MethodSecurityServiceEnabledConfig.class, ObservationRegistryConfig.class,
+					SelectableObservationsConfig.class)
+			.autowire();
+		this.methodSecurityService.preAuthorizePermitAll();
+		ObservationHandler<?> handler = this.spring.getContext().getBean(ObservationHandler.class);
+		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(this.methodSecurityService::preAuthorize);
+		verifyNoInteractions(handler);
+	}
+
+	@Test
+	@WithMockUser
+	public void securedMethodWhenExcludeAuthorizationObservationsThenUnobserved() {
+		this.spring
+			.register(MethodSecurityServiceEnabledConfig.class, ObservationRegistryConfig.class,
+					SelectableObservationsConfig.class)
+			.autowire();
+		this.methodSecurityService.securedUser();
+		ObservationHandler<?> handler = this.spring.getContext().getBean(ObservationHandler.class);
+		verifyNoInteractions(handler);
+	}
+
+	@Test
+	@WithMockUser
+	public void jsr250MethodWhenExcludeAuthorizationObservationsThenUnobserved() {
+		this.spring
+			.register(MethodSecurityServiceEnabledConfig.class, ObservationRegistryConfig.class,
+					SelectableObservationsConfig.class)
+			.autowire();
+		this.methodSecurityService.jsr250RolesAllowedUser();
+		ObservationHandler<?> handler = this.spring.getContext().getBean(ObservationHandler.class);
+		verifyNoInteractions(handler);
+	}
+
 	private static Consumer<ConfigurableWebApplicationContext> disallowBeanOverriding() {
 		return (context) -> ((AnnotationConfigWebApplicationContext) context).setAllowBeanDefinitionOverriding(false);
 	}
@@ -1040,6 +1199,19 @@ public class PrePostMethodSecurityConfigurationTests {
 
 	@Configuration
 	@EnableMethodSecurity
+	static class CustomMethodSecurityExpressionHandlerConfig {
+
+		private final MethodSecurityExpressionHandler expressionHandler = spy(
+				new DefaultMethodSecurityExpressionHandler());
+
+		@Bean
+		MethodSecurityExpressionHandler methodSecurityExpressionHandler() {
+			return this.expressionHandler;
+		}
+
+	}
+
+	@EnableMethodSecurity
 	static class CustomPermissionEvaluatorConfig {
 
 		@Bean
@@ -1123,6 +1295,8 @@ public class PrePostMethodSecurityConfigurationTests {
 
 		@Bean
 		AuthorizationEventPublisher authorizationEventPublisher() {
+			doCallRealMethod().when(this.publisher)
+				.publishAuthorizationEvent(any(), any(), any(AuthorizationResult.class));
 			return this.publisher;
 		}
 
@@ -1259,11 +1433,27 @@ public class PrePostMethodSecurityConfigurationTests {
 
 	@Configuration
 	@EnableMethodSecurity
-	static class MetaAnnotationPlaceholderConfig {
+	static class LegacyMetaAnnotationPlaceholderConfig {
 
 		@Bean
 		PrePostTemplateDefaults methodSecurityDefaults() {
 			return new PrePostTemplateDefaults();
+		}
+
+		@Bean
+		MetaAnnotationService metaAnnotationService() {
+			return new MetaAnnotationService();
+		}
+
+	}
+
+	@Configuration
+	@EnableMethodSecurity
+	static class MetaAnnotationPlaceholderConfig {
+
+		@Bean
+		AnnotationTemplateExpressionDefaults methodSecurityDefaults() {
+			return new AnnotationTemplateExpressionDefaults();
 		}
 
 		@Bean
@@ -1308,6 +1498,27 @@ public class PrePostMethodSecurityConfigurationTests {
 		List<String> resultsContainDave(List<String> list) {
 			return list;
 		}
+
+		@RestrictedAccess(entityClass = EntityClass.class)
+		String getIdPath(String id) {
+			return id;
+		}
+
+	}
+
+	@Retention(RetentionPolicy.RUNTIME)
+	@PreAuthorize("hasRole({idPath})")
+	@interface RestrictedAccess {
+
+		String idPath() default "#id";
+
+		Class<?> entityClass();
+
+		String[] recipes() default {};
+
+	}
+
+	static class EntityClass {
 
 	}
 
@@ -1476,6 +1687,110 @@ public class PrePostMethodSecurityConfigurationTests {
 		@Bean
 		MethodAuthorizationDeniedHandler methodAuthorizationDeniedHandler() {
 			return this.handler;
+		}
+
+	}
+
+	abstract static class AbstractClassWithNoAnnotations {
+
+		String method() {
+			return "ok";
+		}
+
+	}
+
+	@PreAuthorize("denyAll()")
+	@Secured("DENIED")
+	@DenyAll
+	static class ClassInheritingAbstractClassWithNoAnnotations extends AbstractClassWithNoAnnotations {
+
+	}
+
+	@EnableMethodSecurity(securedEnabled = true, jsr250Enabled = true)
+	static class AbstractClassConfig {
+
+		@Bean
+		ClassInheritingAbstractClassWithNoAnnotations inheriting() {
+			return new ClassInheritingAbstractClassWithNoAnnotations();
+		}
+
+	}
+
+	@Configuration
+	@EnableMethodSecurity
+	static class AspectJAwareAutoProxyAndFactoryBeansConfig {
+
+		@Bean
+		static BeanDefinitionRegistryPostProcessor beanDefinitionRegistryPostProcessor() {
+			return AopConfigUtils::registerAspectJAnnotationAutoProxyCreatorIfNecessary;
+		}
+
+		@Component
+		static class MyFactoryBean implements FactoryBean<Object> {
+
+			@Override
+			public Object getObject() throws Exception {
+				return new Object();
+			}
+
+			@Override
+			public Class<?> getObjectType() {
+				return Object.class;
+			}
+
+		}
+
+	}
+
+	@Configuration
+	static class ObservationRegistryConfig {
+
+		private final ObservationRegistry registry = ObservationRegistry.create();
+
+		private final ObservationHandler<Observation.Context> handler = spy(new ObservationTextPublisher());
+
+		@Bean
+		ObservationRegistry observationRegistry() {
+			return this.registry;
+		}
+
+		@Bean
+		ObservationHandler<Observation.Context> observationHandler() {
+			return this.handler;
+		}
+
+		@Bean
+		ObservationRegistryPostProcessor observationRegistryPostProcessor(
+				ObjectProvider<ObservationHandler<Observation.Context>> handler) {
+			return new ObservationRegistryPostProcessor(handler);
+		}
+
+	}
+
+	static class ObservationRegistryPostProcessor implements BeanPostProcessor {
+
+		private final ObjectProvider<ObservationHandler<Observation.Context>> handler;
+
+		ObservationRegistryPostProcessor(ObjectProvider<ObservationHandler<Observation.Context>> handler) {
+			this.handler = handler;
+		}
+
+		@Override
+		public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+			if (bean instanceof ObservationRegistry registry) {
+				registry.observationConfig().observationHandler(this.handler.getObject());
+			}
+			return bean;
+		}
+
+	}
+
+	@Configuration
+	static class SelectableObservationsConfig {
+
+		@Bean
+		SecurityObservationSettings observabilityDefaults() {
+			return SecurityObservationSettings.withDefaults().shouldObserveAuthorizations(false).build();
 		}
 
 	}

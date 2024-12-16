@@ -90,7 +90,7 @@ public final class TokenExchangeOAuth2AuthorizedClientProvider implements OAuth2
 		OAuth2AccessTokenResponse tokenResponse = getTokenResponse(clientRegistration, grantRequest);
 
 		return new OAuth2AuthorizedClient(clientRegistration, context.getPrincipal().getName(),
-				tokenResponse.getAccessToken());
+				tokenResponse.getAccessToken(), tokenResponse.getRefreshToken());
 	}
 
 	private OAuth2Token resolveSubjectToken(OAuth2AuthorizationContext context) {

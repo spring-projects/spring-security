@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package org.springframework.security.config.annotation.web.configurers;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -52,6 +53,7 @@ public class NamespaceHttpFirewallTests {
 	MockMvc mvc;
 
 	@Test
+	@Disabled("MockMvc uses UriComponentsBuilder::fromUriString which was changed in https://github.com/spring-projects/spring-framework/issues/32513")
 	public void requestWhenPathContainsDoubleDotsThenBehaviorMatchesNamespace() throws Exception {
 		this.rule.register(HttpFirewallConfig.class).autowire();
 		this.mvc.perform(get("/public/../private/")).andExpect(status().isBadRequest());

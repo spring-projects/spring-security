@@ -7,18 +7,18 @@ The OAuth 2.0 Client features provide support for the Client role as defined in 
 At a high-level, the core features available are:
 
 .Authorization Grant support
-* https://tools.ietf.org/html/rfc6749#section-1.3.1[Authorization Code]
-* https://tools.ietf.org/html/rfc6749#section-6[Refresh Token]
-* https://tools.ietf.org/html/rfc6749#section-1.3.4[Client Credentials]
-* https://tools.ietf.org/html/rfc6749#section-1.3.3[Resource Owner Password Credentials]
-* https://datatracker.ietf.org/doc/html/rfc7523#section-2.1[JWT Bearer]
-* https://datatracker.ietf.org/doc/html/rfc8693#section-2.1[Token Exchange]
+* xref:reactive/oauth2/client/authorization-grants.adoc#oauth2-client-authorization-code[Authorization Code]
+* xref:reactive/oauth2/client/authorization-grants.adoc#oauth2-client-refresh-token[Refresh Token]
+* xref:reactive/oauth2/client/authorization-grants.adoc#oauth2-client-client-credentials[Client Credentials]
+* xref:reactive/oauth2/client/authorization-grants.adoc#oauth2-client-password[Resource Owner Password Credentials]
+* xref:reactive/oauth2/client/authorization-grants.adoc#oauth2-client-jwt-bearer[JWT Bearer]
+* xref:reactive/oauth2/client/authorization-grants.adoc#oauth2-client-token-exchange[Token Exchange]
 
 .Client Authentication support
-* https://datatracker.ietf.org/doc/html/rfc7523#section-2.2[JWT Bearer]
+* xref:reactive/oauth2/client/client-authentication.adoc#oauth2-client-authentication-jwt-bearer[JWT Bearer]
 
 .HTTP Client support
-* xref:reactive/oauth2/client/authorized-clients.adoc#oauth2Client-webclient-webflux[`WebClient` integration for Reactive Environments] (for requesting protected resources)
+* xref:reactive/oauth2/client/authorized-clients.adoc#oauth2-client-web-client[`WebClient` integration for Reactive Environments] (for requesting protected resources)
 
 The `ServerHttpSecurity.oauth2Client()` DSL provides a number of configuration options for customizing the core components used by OAuth 2.0 Client.
 

@@ -75,6 +75,7 @@ import org.springframework.util.Assert;
  *
  * @author Rob Winch
  * @author Eddú Meléndez
+ * @author Jinwoo Bae
  * @since 4.2.4
  * @see DefaultHttpFirewall
  */
@@ -134,13 +135,21 @@ public class StrictHttpFirewall implements HttpFirewall {
 
 	private static final Predicate<String> HEADER_VALUE_PREDICATE = (s) -> HEADER_VALUE_PATTERN.matcher(s).matches();
 
-	private Predicate<String> allowedHeaderNames = ASSIGNED_AND_NOT_ISO_CONTROL_PREDICATE;
+	private Predicate<String> allowedHeaderNames = ALLOWED_HEADER_NAMES;
 
-	private Predicate<String> allowedHeaderValues = HEADER_VALUE_PREDICATE;
+	public static final Predicate<String> ALLOWED_HEADER_NAMES = ASSIGNED_AND_NOT_ISO_CONTROL_PREDICATE;
 
-	private Predicate<String> allowedParameterNames = ASSIGNED_AND_NOT_ISO_CONTROL_PREDICATE;
+	private Predicate<String> allowedHeaderValues = ALLOWED_HEADER_VALUES;
 
-	private Predicate<String> allowedParameterValues = (value) -> true;
+	public static final Predicate<String> ALLOWED_HEADER_VALUES = HEADER_VALUE_PREDICATE;
+
+	private Predicate<String> allowedParameterNames = ALLOWED_PARAMETER_NAMES;
+
+	public static final Predicate<String> ALLOWED_PARAMETER_NAMES = ASSIGNED_AND_NOT_ISO_CONTROL_PREDICATE;
+
+	private Predicate<String> allowedParameterValues = ALLOWED_PARAMETER_VALUES;
+
+	public static final Predicate<String> ALLOWED_PARAMETER_VALUES = (value) -> true;
 
 	public StrictHttpFirewall() {
 		urlBlocklistsAddAll(FORBIDDEN_SEMICOLON);
@@ -602,10 +611,7 @@ public class StrictHttpFirewall implements HttpFirewall {
 		if (valueContains(request.getServletPath(), value)) {
 			return true;
 		}
-		if (valueContains(request.getPathInfo(), value)) {
-			return true;
-		}
-		return false;
+		return valueContains(request.getPathInfo(), value);
 	}
 
 	private static boolean containsOnlyPrintableAsciiCharacters(String uri) {
@@ -728,7 +734,7 @@ public class StrictHttpFirewall implements HttpFirewall {
 				validateAllowedHeaderName(name);
 			}
 			Enumeration<String> headers = super.getHeaders(name);
-			return new Enumeration<String>() {
+			return new Enumeration<>() {
 
 				@Override
 				public boolean hasMoreElements() {
@@ -748,7 +754,7 @@ public class StrictHttpFirewall implements HttpFirewall {
 		@Override
 		public Enumeration<String> getHeaderNames() {
 			Enumeration<String> names = super.getHeaderNames();
-			return new Enumeration<String>() {
+			return new Enumeration<>() {
 
 				@Override
 				public boolean hasMoreElements() {
@@ -794,7 +800,7 @@ public class StrictHttpFirewall implements HttpFirewall {
 		@Override
 		public Enumeration<String> getParameterNames() {
 			Enumeration<String> paramaterNames = super.getParameterNames();
-			return new Enumeration<String>() {
+			return new Enumeration<>() {
 
 				@Override
 				public boolean hasMoreElements() {

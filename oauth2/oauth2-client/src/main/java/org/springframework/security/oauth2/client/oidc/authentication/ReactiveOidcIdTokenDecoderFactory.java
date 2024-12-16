@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,7 +70,7 @@ public final class ReactiveOidcIdTokenDecoderFactory implements ReactiveJwtDecod
 
 	private static final Map<JwsAlgorithm, String> JCA_ALGORITHM_MAPPINGS;
 	static {
-		Map<JwsAlgorithm, String> mappings = new HashMap<JwsAlgorithm, String>();
+		Map<JwsAlgorithm, String> mappings = new HashMap<>();
 		mappings.put(MacAlgorithm.HS256, "HmacSHA256");
 		mappings.put(MacAlgorithm.HS384, "HmacSHA384");
 		mappings.put(MacAlgorithm.HS512, "HmacSHA512");

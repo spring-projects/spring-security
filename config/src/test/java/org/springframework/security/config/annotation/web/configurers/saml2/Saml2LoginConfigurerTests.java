@@ -25,13 +25,14 @@ import java.util.Collections;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import net.shibboleth.utilities.java.support.xml.SerializeSupport;
+import org.instancio.internal.util.ReflectionUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import org.opensaml.core.Version;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
 import org.opensaml.core.xml.io.Marshaller;
 import org.opensaml.saml.saml2.core.Assertion;
@@ -69,6 +70,7 @@ import org.springframework.security.saml2.core.Saml2Utils;
 import org.springframework.security.saml2.core.TestSaml2X509Credentials;
 import org.springframework.security.saml2.provider.service.authentication.AbstractSaml2AuthenticationRequest;
 import org.springframework.security.saml2.provider.service.authentication.OpenSaml4AuthenticationProvider;
+import org.springframework.security.saml2.provider.service.authentication.OpenSaml5AuthenticationProvider;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticatedPrincipal;
 import org.springframework.security.saml2.provider.service.authentication.Saml2Authentication;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationException;
@@ -83,6 +85,7 @@ import org.springframework.security.saml2.provider.service.web.RelyingPartyRegis
 import org.springframework.security.saml2.provider.service.web.Saml2AuthenticationRequestRepository;
 import org.springframework.security.saml2.provider.service.web.Saml2AuthenticationTokenConverter;
 import org.springframework.security.saml2.provider.service.web.authentication.OpenSaml4AuthenticationRequestResolver;
+import org.springframework.security.saml2.provider.service.web.authentication.OpenSaml5AuthenticationRequestResolver;
 import org.springframework.security.saml2.provider.service.web.authentication.Saml2AuthenticationRequestResolver;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.SecurityFilterChain;
@@ -91,6 +94,7 @@ import org.springframework.security.web.authentication.AuthenticationFailureHand
 import org.springframework.security.web.context.HttpRequestResponseHolder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
@@ -101,6 +105,7 @@ import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.startsWith;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.atLeastOnce;
@@ -113,6 +118,7 @@ import static org.springframework.security.config.annotation.SecurityContextChan
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -131,6 +137,8 @@ public class Saml2LoginConfigurerTests {
 		.assertingPartyDetails((party) -> party
 			.verificationX509Credentials((c) -> c.add(TestSaml2X509Credentials.relyingPartyVerifyingCredential())))
 		.build();
+
+	private static final boolean USE_OPENSAML_5 = Version.getVersion().startsWith("5");
 
 	private static String SIGNED_RESPONSE;
 
@@ -172,7 +180,11 @@ public class Saml2LoginConfigurerTests {
 				registration.getSigningX509Credentials().iterator().next(), relyingPartyEntityId);
 		Marshaller marshaller = XMLObjectProviderRegistrySupport.getMarshallerFactory().getMarshaller(signed);
 		Element element = marshaller.marshall(signed);
-		String serialized = SerializeSupport.nodeToString(element);
+		Class<?> clazz = ReflectionUtils.loadClass("net.shibboleth.utilities.java.support.xml.SerializeSupport");
+		if (clazz == null) {
+			clazz = ReflectionUtils.loadClass("net.shibboleth.shared.xml.SerializeSupport");
+		}
+		String serialized = ReflectionTestUtils.invokeMethod(clazz, "nodeToString", element);
 		SIGNED_RESPONSE = Saml2Utils.samlEncode(serialized.getBytes(StandardCharsets.UTF_8));
 	}
 
@@ -306,7 +318,7 @@ public class Saml2LoginConfigurerTests {
 		Saml2AuthenticationException exception = captor.getValue();
 		assertThat(exception.getSaml2Error().getErrorCode()).isEqualTo(Saml2ErrorCodes.INVALID_RESPONSE);
 		assertThat(exception.getSaml2Error().getDescription()).isEqualTo("Unable to inflate string");
-		assertThat(exception.getCause()).isInstanceOf(IOException.class);
+		assertThat(exception).hasRootCauseInstanceOf(IOException.class);
 	}
 
 	@Test
@@ -341,6 +353,19 @@ public class Saml2LoginConfigurerTests {
 			.getBean(Saml2AuthenticationRequestRepository.class);
 		verify(repository).saveAuthenticationRequest(any(AbstractSaml2AuthenticationRequest.class),
 				any(HttpServletRequest.class), any(HttpServletResponse.class));
+	}
+
+	@Test
+	public void authenticationRequestWhenCustomAuthenticationRequestPathRepositoryThenUses() throws Exception {
+		this.spring.register(CustomAuthenticationRequestUriQuery.class).autowire();
+		MockHttpServletRequestBuilder request = get("/custom/auth/sso");
+		this.mvc.perform(request)
+			.andExpect(status().isFound())
+			.andExpect(redirectedUrl("http://localhost/custom/auth/sso?entityId=registration-id"));
+		request.queryParam("entityId", registration.getRegistrationId());
+		MvcResult result = this.mvc.perform(request).andExpect(status().isFound()).andReturn();
+		String redirectedUrl = result.getResponse().getRedirectedUrl();
+		assertThat(redirectedUrl).startsWith(registration.getAssertingPartyDetails().getSingleSignOnServiceLocation());
 	}
 
 	@Test
@@ -390,7 +415,7 @@ public class Saml2LoginConfigurerTests {
 			.andExpect(redirectedUrl("http://localhost/login"));
 		this.mvc.perform(get("/").accept(MediaType.TEXT_HTML))
 			.andExpect(status().isFound())
-			.andExpect(redirectedUrl("http://localhost/saml2/authenticate/registration-id"));
+			.andExpect(header().string("Location", startsWith("http://localhost/saml2/authenticate")));
 	}
 
 	@Test
@@ -526,6 +551,12 @@ public class Saml2LoginConfigurerTests {
 				RelyingPartyRegistrationRepository registrations) {
 			RelyingPartyRegistrationResolver registrationResolver = new DefaultRelyingPartyRegistrationResolver(
 					registrations);
+			if (USE_OPENSAML_5) {
+				OpenSaml5AuthenticationRequestResolver delegate = new OpenSaml5AuthenticationRequestResolver(
+						registrationResolver);
+				delegate.setAuthnRequestCustomizer((parameters) -> parameters.getAuthnRequest().setForceAuthn(true));
+				return delegate;
+			}
 			OpenSaml4AuthenticationRequestResolver delegate = new OpenSaml4AuthenticationRequestResolver(
 					registrationResolver);
 			delegate.setAuthnRequestCustomizer((parameters) -> parameters.getAuthnRequest().setForceAuthn(true));
@@ -559,6 +590,12 @@ public class Saml2LoginConfigurerTests {
 				RelyingPartyRegistrationRepository registrations) {
 			RelyingPartyRegistrationResolver registrationResolver = new DefaultRelyingPartyRegistrationResolver(
 					registrations);
+			if (USE_OPENSAML_5) {
+				OpenSaml5AuthenticationRequestResolver delegate = new OpenSaml5AuthenticationRequestResolver(
+						registrationResolver);
+				delegate.setAuthnRequestCustomizer((parameters) -> parameters.getAuthnRequest().setForceAuthn(true));
+				return delegate;
+			}
 			OpenSaml4AuthenticationRequestResolver delegate = new OpenSaml4AuthenticationRequestResolver(
 					registrationResolver);
 			delegate.setAuthnRequestCustomizer((parameters) -> parameters.getAuthnRequest().setForceAuthn(true));
@@ -672,6 +709,23 @@ public class Saml2LoginConfigurerTests {
 	@Configuration
 	@EnableWebSecurity
 	@Import(Saml2LoginConfigBeans.class)
+	static class CustomAuthenticationRequestUriQuery {
+
+		@Bean
+		SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+					.authorizeHttpRequests((authz) -> authz.anyRequest().authenticated())
+					.saml2Login((saml2) -> saml2.authenticationRequestUriQuery("/custom/auth/sso?entityId={registrationId}"));
+			// @formatter:on
+			return http.build();
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	@Import(Saml2LoginConfigBeans.class)
 	static class CustomLoginProcessingUrlCustomAuthenticationConverter {
 
 		@Bean
@@ -720,7 +774,8 @@ public class Saml2LoginConfigurerTests {
 	@Import(Saml2LoginConfigBeans.class)
 	static class CustomAuthenticationProviderConfig {
 
-		private final OpenSaml4AuthenticationProvider provider = spy(new OpenSaml4AuthenticationProvider());
+		private final AuthenticationProvider provider = spy(
+				USE_OPENSAML_5 ? new OpenSaml5AuthenticationProvider() : new OpenSaml4AuthenticationProvider());
 
 		@Bean
 		SecurityFilterChain web(HttpSecurity http) throws Exception {

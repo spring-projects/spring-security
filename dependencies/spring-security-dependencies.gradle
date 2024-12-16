@@ -47,6 +47,7 @@ dependencies {
 		api libs.jakarta.websocket.jakarta.websocket.client.api
 		api libs.ldapsdk
 		api libs.net.sourceforge.htmlunit
+		api libs.org.htmlunit.htmlunit
 		api libs.org.apache.directory.server.apacheds.entry
 		api libs.org.apache.directory.server.apacheds.core
 		api libs.org.apache.directory.server.apacheds.protocol.ldap
@@ -65,7 +66,6 @@ dependencies {
 		api libs.org.hibernate.orm.hibernate.core
 		api libs.org.hsqldb
 		api libs.org.apereo.cas.client.cas.client.core
-		api libs.org.opensaml.opensaml.core
 		api libs.org.opensaml.opensaml.saml.api
 		api libs.org.opensaml.opensaml.saml.impl
 		api libs.org.python.jython

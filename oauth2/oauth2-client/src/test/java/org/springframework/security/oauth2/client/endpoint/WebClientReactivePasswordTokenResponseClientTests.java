@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,11 @@
 
 package org.springframework.security.oauth2.client.endpoint;
 
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Collections;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import javax.crypto.spec.SecretKeySpec;
@@ -37,12 +39,14 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ReactiveHttpInputMessage;
+import org.springframework.security.oauth2.client.MockResponses;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
+import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.core.endpoint.TestOAuth2AccessTokenResponses;
 import org.springframework.security.oauth2.jose.TestJwks;
 import org.springframework.security.oauth2.jose.TestKeys;
@@ -101,14 +105,7 @@ public class WebClientReactivePasswordTokenResponseClientTests {
 	@Test
 	public void getTokenResponseWhenSuccessResponseDoesNotIncludeScopeThenReturnAccessTokenResponseWithNoScope()
 			throws Exception {
-		// @formatter:off
-		String accessTokenSuccessResponse = "{\n"
-			+ "   \"access_token\": \"access-token-1234\",\n"
-			+ "   \"token_type\": \"bearer\",\n"
-			+ "   \"expires_in\": \"3600\"\n"
-			+ "}\n";
-		// @formatter:on
-		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+		this.server.enqueue(MockResponses.json("access-token-response.json"));
 		Instant expiresAtBefore = Instant.now().plusSeconds(3600);
 		ClientRegistration clientRegistration = this.clientRegistrationBuilder.build();
 		OAuth2PasswordGrantRequest passwordGrantRequest = new OAuth2PasswordGrantRequest(clientRegistration,
@@ -120,7 +117,7 @@ public class WebClientReactivePasswordTokenResponseClientTests {
 		assertThat(recordedRequest.getMethod()).isEqualTo(HttpMethod.POST.toString());
 		assertThat(recordedRequest.getHeader(HttpHeaders.ACCEPT)).isEqualTo(MediaType.APPLICATION_JSON_VALUE);
 		assertThat(recordedRequest.getHeader(HttpHeaders.CONTENT_TYPE))
-			.isEqualTo(MediaType.APPLICATION_FORM_URLENCODED_VALUE + ";charset=UTF-8");
+			.isEqualTo(MediaType.APPLICATION_FORM_URLENCODED_VALUE);
 		String formParameters = recordedRequest.getBody().readUtf8();
 		assertThat(formParameters).contains("grant_type=password");
 		assertThat(formParameters).contains("username=user1");
@@ -135,15 +132,7 @@ public class WebClientReactivePasswordTokenResponseClientTests {
 
 	@Test
 	public void getTokenResponseWhenSuccessResponseIncludesScopeThenReturnAccessTokenResponse() throws Exception {
-		// @formatter:off
-		String accessTokenSuccessResponse = "{\n"
-			+ "   \"access_token\": \"access-token-1234\",\n"
-			+ "   \"token_type\": \"bearer\",\n"
-			+ "   \"expires_in\": \"3600\",\n"
-			+ "   \"scope\": \"read write\"\n"
-			+ "}\n";
-		// @formatter:on
-		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+		this.server.enqueue(MockResponses.json("access-token-response-read-write.json"));
 		Instant expiresAtBefore = Instant.now().plusSeconds(3600);
 		ClientRegistration clientRegistration = this.clientRegistrationBuilder.build();
 		OAuth2PasswordGrantRequest passwordGrantRequest = new OAuth2PasswordGrantRequest(clientRegistration,
@@ -155,7 +144,7 @@ public class WebClientReactivePasswordTokenResponseClientTests {
 		assertThat(recordedRequest.getMethod()).isEqualTo(HttpMethod.POST.toString());
 		assertThat(recordedRequest.getHeader(HttpHeaders.ACCEPT)).isEqualTo(MediaType.APPLICATION_JSON_VALUE);
 		assertThat(recordedRequest.getHeader(HttpHeaders.CONTENT_TYPE))
-			.isEqualTo(MediaType.APPLICATION_FORM_URLENCODED_VALUE + ";charset=UTF-8");
+			.isEqualTo(MediaType.APPLICATION_FORM_URLENCODED_VALUE);
 		String formParameters = recordedRequest.getBody().readUtf8();
 		assertThat(formParameters).contains("grant_type=password");
 		assertThat(formParameters).contains("username=user1");
@@ -171,14 +160,7 @@ public class WebClientReactivePasswordTokenResponseClientTests {
 
 	@Test
 	public void getTokenResponseWhenClientAuthenticationPostThenFormParametersAreSent() throws Exception {
-		// @formatter:off
-		String accessTokenSuccessResponse = "{\n"
-			+ "   \"access_token\": \"access-token-1234\",\n"
-			+ "   \"token_type\": \"bearer\",\n"
-			+ "   \"expires_in\": \"3600\"\n"
-			+ "}\n";
-		// @formatter:on
-		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+		this.server.enqueue(MockResponses.json("access-token-response.json"));
 		ClientRegistration clientRegistration = this.clientRegistrationBuilder
 			.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST)
 			.build();
@@ -194,14 +176,7 @@ public class WebClientReactivePasswordTokenResponseClientTests {
 
 	@Test
 	public void getTokenResponseWhenAuthenticationClientSecretJwtThenFormParametersAreSent() throws Exception {
-		// @formatter:off
-		String accessTokenSuccessResponse = "{\n"
-				+ "   \"access_token\": \"access-token-1234\",\n"
-				+ "   \"token_type\": \"bearer\",\n"
-				+ "   \"expires_in\": \"3600\"\n"
-				+ "}\n";
-		// @formatter:on
-		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+		this.server.enqueue(MockResponses.json("access-token-response.json"));
 
 		// @formatter:off
 		ClientRegistration clientRegistration = this.clientRegistrationBuilder
@@ -229,14 +204,7 @@ public class WebClientReactivePasswordTokenResponseClientTests {
 
 	@Test
 	public void getTokenResponseWhenAuthenticationPrivateKeyJwtThenFormParametersAreSent() throws Exception {
-		// @formatter:off
-		String accessTokenSuccessResponse = "{\n"
-				+ "   \"access_token\": \"access-token-1234\",\n"
-				+ "   \"token_type\": \"bearer\",\n"
-				+ "   \"expires_in\": \"3600\"\n"
-				+ "}\n";
-		// @formatter:on
-		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+		this.server.enqueue(MockResponses.json("access-token-response.json"));
 
 		// @formatter:off
 		ClientRegistration clientRegistration = this.clientRegistrationBuilder
@@ -267,14 +235,7 @@ public class WebClientReactivePasswordTokenResponseClientTests {
 
 	@Test
 	public void getTokenResponseWhenSuccessResponseAndNotBearerTokenTypeThenThrowOAuth2AuthorizationException() {
-		// @formatter:off
-		String accessTokenSuccessResponse = "{\n"
-			+ "   \"access_token\": \"access-token-1234\",\n"
-			+ "   \"token_type\": \"not-bearer\",\n"
-			+ "   \"expires_in\": \"3600\"\n"
-			+ "}\n";
-		// @formatter:on
-		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+		this.server.enqueue(MockResponses.json("invalid-token-type-response.json"));
 		OAuth2PasswordGrantRequest passwordGrantRequest = new OAuth2PasswordGrantRequest(
 				this.clientRegistrationBuilder.build(), this.username, this.password);
 		assertThatExceptionOfType(OAuth2AuthorizationException.class)
@@ -287,15 +248,7 @@ public class WebClientReactivePasswordTokenResponseClientTests {
 
 	@Test
 	public void getTokenResponseWhenSuccessResponseIncludesScopeThenAccessTokenHasResponseScope() throws Exception {
-		// @formatter:off
-		String accessTokenSuccessResponse = "{\n"
-			+ "   \"access_token\": \"access-token-1234\",\n"
-			+ "   \"token_type\": \"bearer\",\n"
-			+ "   \"expires_in\": \"3600\",\n"
-			+ "   \"scope\": \"read\"\n"
-			+ "}\n";
-		// @formatter:on
-		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+		this.server.enqueue(MockResponses.json("access-token-response-read.json"));
 		OAuth2PasswordGrantRequest passwordGrantRequest = new OAuth2PasswordGrantRequest(
 				this.clientRegistrationBuilder.build(), this.username, this.password);
 		OAuth2AccessTokenResponse accessTokenResponse = this.tokenResponseClient.getTokenResponse(passwordGrantRequest)
@@ -308,12 +261,7 @@ public class WebClientReactivePasswordTokenResponseClientTests {
 
 	@Test
 	public void getTokenResponseWhenErrorResponseThenThrowOAuth2AuthorizationException() {
-		// @formatter:off
-		String accessTokenErrorResponse = "{\n"
-				+ "   \"error\": \"unauthorized_client\"\n"
-				+ "}\n";
-		// @formatter:on
-		this.server.enqueue(jsonResponse(accessTokenErrorResponse).setResponseCode(400));
+		this.server.enqueue(MockResponses.json("unauthorized-client-response.json").setResponseCode(400));
 		OAuth2PasswordGrantRequest passwordGrantRequest = new OAuth2PasswordGrantRequest(
 				this.clientRegistrationBuilder.build(), this.username, this.password);
 		assertThatExceptionOfType(OAuth2AuthorizationException.class)
@@ -332,14 +280,6 @@ public class WebClientReactivePasswordTokenResponseClientTests {
 			.satisfies((ex) -> assertThat(ex.getError().getErrorCode()).isEqualTo("invalid_token_response"))
 			.withMessageContaining("[invalid_token_response]")
 			.withMessageContaining("Empty OAuth 2.0 Access Token Response");
-	}
-
-	private MockResponse jsonResponse(String json) {
-		// @formatter:off
-		return new MockResponse()
-				.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-				.setBody(json);
-		// @formatter:on
 	}
 
 	// gh-10130
@@ -361,20 +301,12 @@ public class WebClientReactivePasswordTokenResponseClientTests {
 	public void convertWhenHeadersConverterAddedThenCalled() throws Exception {
 		OAuth2PasswordGrantRequest request = new OAuth2PasswordGrantRequest(this.clientRegistrationBuilder.build(),
 				this.username, this.password);
-		Converter<OAuth2PasswordGrantRequest, HttpHeaders> addedHeadersConverter = mock(Converter.class);
+		Converter<OAuth2PasswordGrantRequest, HttpHeaders> addedHeadersConverter = mock();
 		HttpHeaders headers = new HttpHeaders();
 		headers.put("custom-header-name", Collections.singletonList("custom-header-value"));
 		given(addedHeadersConverter.convert(request)).willReturn(headers);
 		this.tokenResponseClient.addHeadersConverter(addedHeadersConverter);
-		// @formatter:off
-		String accessTokenSuccessResponse = "{\n"
-				+ "   \"access_token\": \"access-token-1234\",\n"
-				+ "   \"token_type\": \"bearer\",\n"
-				+ "   \"expires_in\": \"3600\",\n"
-				+ "   \"scope\": \"read\"\n"
-				+ "}\n";
-		// @formatter:on
-		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+		this.server.enqueue(MockResponses.json("access-token-response.json"));
 		this.tokenResponseClient.getTokenResponse(request).block();
 		verify(addedHeadersConverter).convert(request);
 		RecordedRequest actualRequest = this.server.takeRequest();
@@ -389,20 +321,12 @@ public class WebClientReactivePasswordTokenResponseClientTests {
 		OAuth2PasswordGrantRequest request = new OAuth2PasswordGrantRequest(this.clientRegistrationBuilder.build(),
 				this.username, this.password);
 		ClientRegistration clientRegistration = request.getClientRegistration();
-		Converter<OAuth2PasswordGrantRequest, HttpHeaders> headersConverter = mock(Converter.class);
+		Converter<OAuth2PasswordGrantRequest, HttpHeaders> headersConverter = mock();
 		HttpHeaders headers = new HttpHeaders();
 		headers.setBasicAuth(clientRegistration.getClientId(), clientRegistration.getClientSecret());
 		given(headersConverter.convert(request)).willReturn(headers);
 		this.tokenResponseClient.setHeadersConverter(headersConverter);
-		// @formatter:off
-		String accessTokenSuccessResponse = "{\n"
-				+ "   \"access_token\": \"access-token-1234\",\n"
-				+ "   \"token_type\": \"bearer\",\n"
-				+ "   \"expires_in\": \"3600\",\n"
-				+ "   \"scope\": \"read\"\n"
-				+ "}\n";
-		// @formatter:on
-		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+		this.server.enqueue(MockResponses.json("access-token-response.json"));
 		this.tokenResponseClient.getTokenResponse(request).block();
 		verify(headersConverter).convert(request);
 		RecordedRequest actualRequest = this.server.takeRequest();
@@ -423,65 +347,86 @@ public class WebClientReactivePasswordTokenResponseClientTests {
 	}
 
 	@Test
-	public void convertWhenParametersConverterAddedThenCalled() throws Exception {
+	public void getTokenResponseWhenParametersConverterAddedThenCalled() throws Exception {
 		OAuth2PasswordGrantRequest request = new OAuth2PasswordGrantRequest(this.clientRegistrationBuilder.build(),
 				this.username, this.password);
-		Converter<OAuth2PasswordGrantRequest, MultiValueMap<String, String>> addedParametersConverter = mock(
-				Converter.class);
+		Converter<OAuth2PasswordGrantRequest, MultiValueMap<String, String>> addedParametersConverter = mock();
 		MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
 		parameters.add("custom-parameter-name", "custom-parameter-value");
 		given(addedParametersConverter.convert(request)).willReturn(parameters);
 		this.tokenResponseClient.addParametersConverter(addedParametersConverter);
-		// @formatter:off
-		String accessTokenSuccessResponse = "{\n"
-				+ "  \"access_token\":\"MTQ0NjJkZmQ5OTM2NDE1ZTZjNGZmZjI3\",\n"
-				+ "  \"token_type\":\"bearer\",\n"
-				+ "  \"expires_in\":3600,\n"
-				+ "  \"refresh_token\":\"IwOGYzYTlmM2YxOTQ5MGE3YmNmMDFkNTVk\"\n"
-				+ "}";
-		// @formatter:on
-		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+		this.server.enqueue(MockResponses.json("access-token-response.json"));
 		this.tokenResponseClient.getTokenResponse(request).block();
 		verify(addedParametersConverter).convert(request);
 		RecordedRequest actualRequest = this.server.takeRequest();
-		assertThat(actualRequest.getBody().readUtf8()).contains("grant_type=password",
-				"custom-parameter-name=custom-parameter-value");
+		String formParameters = actualRequest.getBody().readUtf8();
+		// @formatter:off
+		assertThat(formParameters).contains(
+				param(OAuth2ParameterNames.GRANT_TYPE, "password"),
+				param("custom-parameter-name", "custom-parameter-value")
+		);
+		// @formatter:on
 	}
 
 	@Test
-	public void convertWhenParametersConverterSetThenCalled() throws Exception {
+	public void getTokenResponseWhenParametersConverterSetThenCalled() throws Exception {
 		OAuth2PasswordGrantRequest request = new OAuth2PasswordGrantRequest(this.clientRegistrationBuilder.build(),
 				this.username, this.password);
-		Converter<OAuth2PasswordGrantRequest, MultiValueMap<String, String>> parametersConverter = mock(
-				Converter.class);
+		Converter<OAuth2PasswordGrantRequest, MultiValueMap<String, String>> parametersConverter = mock();
 		MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
 		parameters.add("custom-parameter-name", "custom-parameter-value");
 		given(parametersConverter.convert(request)).willReturn(parameters);
 		this.tokenResponseClient.setParametersConverter(parametersConverter);
-		// @formatter:off
-		String accessTokenSuccessResponse = "{\n"
-				+ "  \"access_token\":\"MTQ0NjJkZmQ5OTM2NDE1ZTZjNGZmZjI3\",\n"
-				+ "  \"token_type\":\"bearer\",\n"
-				+ "  \"expires_in\":3600,\n"
-				+ "  \"refresh_token\":\"IwOGYzYTlmM2YxOTQ5MGE3YmNmMDFkNTVk\"\n"
-				+ "}";
-		// @formatter:on
-		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+		this.server.enqueue(MockResponses.json("access-token-response.json"));
 		this.tokenResponseClient.getTokenResponse(request).block();
 		verify(parametersConverter).convert(request);
 		RecordedRequest actualRequest = this.server.takeRequest();
 		assertThat(actualRequest.getBody().readUtf8()).contains("custom-parameter-name=custom-parameter-value");
 	}
 
+	@Test
+	public void getTokenResponseWhenParametersConverterSetThenAbleToOverrideDefaultParameters() throws Exception {
+		this.clientRegistrationBuilder.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST);
+		OAuth2PasswordGrantRequest request = new OAuth2PasswordGrantRequest(this.clientRegistrationBuilder.build(),
+				this.username, this.password);
+		MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
+		parameters.set(OAuth2ParameterNames.GRANT_TYPE, "custom");
+		parameters.set(OAuth2ParameterNames.USERNAME, "user");
+		parameters.set(OAuth2ParameterNames.PASSWORD, "password");
+		parameters.set(OAuth2ParameterNames.SCOPE, "one two");
+		this.tokenResponseClient.setParametersConverter((grantRequest) -> parameters);
+		this.server.enqueue(MockResponses.json("access-token-response.json"));
+		this.tokenResponseClient.getTokenResponse(request).block();
+		String formParameters = this.server.takeRequest().getBody().readUtf8();
+		// @formatter:off
+		assertThat(formParameters).contains(
+				param(OAuth2ParameterNames.GRANT_TYPE, "custom"),
+				param(OAuth2ParameterNames.CLIENT_ID, "client-id"),
+				param(OAuth2ParameterNames.SCOPE, "one two"),
+				param(OAuth2ParameterNames.USERNAME, "user"),
+				param(OAuth2ParameterNames.PASSWORD, "password")
+		);
+		// @formatter:on
+	}
+
+	@Test
+	public void getTokenResponseWhenParametersCustomizerSetThenCalled() throws Exception {
+		this.server.enqueue(MockResponses.json("access-token-response.json"));
+		OAuth2PasswordGrantRequest request = new OAuth2PasswordGrantRequest(this.clientRegistrationBuilder.build(),
+				this.username, this.password);
+		Consumer<MultiValueMap<String, String>> parametersCustomizer = mock();
+		this.tokenResponseClient.setParametersCustomizer(parametersCustomizer);
+		this.tokenResponseClient.getTokenResponse(request).block();
+		verify(parametersCustomizer).accept(any());
+	}
+
 	// gh-10260
 	@Test
 	public void getTokenResponseWhenSuccessCustomResponseThenReturnAccessTokenResponse() {
 
-		String accessTokenSuccessResponse = "{}";
-
 		WebClientReactivePasswordTokenResponseClient customClient = new WebClientReactivePasswordTokenResponseClient();
 
-		BodyExtractor<Mono<OAuth2AccessTokenResponse>, ReactiveHttpInputMessage> extractor = mock(BodyExtractor.class);
+		BodyExtractor<Mono<OAuth2AccessTokenResponse>, ReactiveHttpInputMessage> extractor = mock();
 		OAuth2AccessTokenResponse response = TestOAuth2AccessTokenResponses.accessTokenResponse().build();
 		given(extractor.extract(any(), any())).willReturn(Mono.just(response));
 
@@ -491,11 +436,15 @@ public class WebClientReactivePasswordTokenResponseClientTests {
 		OAuth2PasswordGrantRequest passwordGrantRequest = new OAuth2PasswordGrantRequest(clientRegistration,
 				this.username, this.password);
 
-		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+		this.server.enqueue(MockResponses.json("access-token-response.json"));
 
 		OAuth2AccessTokenResponse accessTokenResponse = customClient.getTokenResponse(passwordGrantRequest).block();
 		assertThat(accessTokenResponse.getAccessToken()).isNotNull();
 
+	}
+
+	private static String param(String parameterName, String parameterValue) {
+		return "%s=%s".formatted(parameterName, URLEncoder.encode(parameterValue, StandardCharsets.UTF_8));
 	}
 
 }

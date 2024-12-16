@@ -650,7 +650,7 @@ public class OAuth2LoginConfigurerTests {
 	}
 
 	@Test
-	public void configureWhenOidcSessionStrategyThenUses() {
+	public void configureWhenOidcSessionRegistryThenUses() {
 		this.spring.register(OAuth2LoginWithOidcSessionRegistry.class).autowire();
 		OidcSessionRegistry registry = this.spring.getContext().getBean(OidcSessionRegistry.class);
 		this.spring.getContext().publishEvent(new HttpSessionDestroyedEvent(this.request.getSession()));

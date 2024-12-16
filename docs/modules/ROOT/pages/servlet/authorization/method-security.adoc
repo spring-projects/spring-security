@@ -35,7 +35,7 @@ Xml::
 Then, you are immediately able to annotate any Spring-managed class or method with <<use-preauthorize, `@PreAuthorize`>>, <<use-postauthorize,`@PostAuthorize`>>, <<use-prefilter,`@PreFilter`>>, and <<use-postfilter,`@PostFilter`>> to authorize method invocations, including the input parameters and return values.
 
 [NOTE]
-{spring-boot-reference-url}using.html#using.build-systems.starters[Spring Boot Starter Security] does not activate method-level authorization by default.
+{spring-boot-reference-url}reference/using/build-systems.html#using.build-systems.starters[Spring Boot Starter Security] does not activate method-level authorization by default.
 
 Method Security supports many other use cases as well including <<use-aspectj, AspectJ support>>, <<use-programmatic-authorization,custom annotations>>, and several configuration points.
 Consider learning about the following use cases:
@@ -115,17 +115,18 @@ open class MyCustomerService {
 
 A given invocation to `MyCustomerService#readCustomer` may look something like this when Method Security <<activate-method-security,is activated>>:
 
+[.invert-dark]
 image::{figures}/methodsecurity.png[]
 
-1. Spring AOP invokes its proxy method for `readCustomer`. Among the proxy's other advisors, it invokes an {security-api-url}org/springframework/security/authorization/method/AuthorizationManagerBeforeMethodInterceptor/html[`AuthorizationManagerBeforeMethodInterceptor`] that matches <<annotation-method-pointcuts,the `@PreAuthorize` pointcut>>
-2. The interceptor invokes {security-api-url}org/springframework/security/authorization/method/PreAuthorizeAuthorizationManager.html[`PreAuthorizeAuthorizationManager#check`]
+1. Spring AOP invokes its proxy method for `readCustomer`. Among the proxy's other advisors, it invokes an javadoc:org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor[] that matches <<annotation-method-pointcuts,the `@PreAuthorize` pointcut>>
+2. The interceptor invokes javadoc:org.springframework.security.authorization.method.PreAuthorizeAuthorizationManager[`PreAuthorizeAuthorizationManager#check`]
 3. The authorization manager uses a `MethodSecurityExpressionHandler` to parse the annotation's <<authorization-expressions,SpEL expression>> and constructs a corresponding `EvaluationContext` from a `MethodSecurityExpressionRoot` containing xref:servlet/authentication/architecture.adoc#servlet-authentication-authentication[a `Supplier<Authentication>`] and `MethodInvocation`.
 4. The interceptor uses this context to evaluate the expression; specifically, it reads xref:servlet/authentication/architecture.adoc#servlet-authentication-authentication[the `Authentication`] from the `Supplier` and checks whether it has `permission:read` in its collection of xref:servlet/authorization/architecture.adoc#authz-authorities[authorities]
 5. If the evaluation passes, then Spring AOP proceeds to invoke the method.
-6. If not, the interceptor publishes an `AuthorizationDeniedEvent` and throws an {security-api-url}org/springframework/security/access/AccessDeniedException.html[`AccessDeniedException`] which xref:servlet/architecture.adoc#servlet-exceptiontranslationfilter[the `ExceptionTranslationFilter`] catches and returns a 403 status code to the response
-7. After the method returns, Spring AOP invokes an {security-api-url}org/springframework/security/authorization/method/AuthorizationManagerAfterMethodInterceptor.html[`AuthorizationManagerAfterMethodInterceptor`] that matches <<annotation-method-pointcuts,the `@PostAuthorize` pointcut>>, operating the same as above, but with {security-api-url}org/springframework/security/authorization/method/PostAuthorizeAuthorizationManager.html[`PostAuthorizeAuthorizationManager`]
+6. If not, the interceptor publishes an `AuthorizationDeniedEvent` and throws an javadoc:org.springframework.security.access.AccessDeniedException[] which xref:servlet/architecture.adoc#servlet-exceptiontranslationfilter[the `ExceptionTranslationFilter`] catches and returns a 403 status code to the response
+7. After the method returns, Spring AOP invokes an javadoc:org.springframework.security.authorization.method.AuthorizationManagerAfterMethodInterceptor[] that matches <<annotation-method-pointcuts,the `@PostAuthorize` pointcut>>, operating the same as above, but with javadoc:org.springframework.security.authorization.method.PostAuthorizeAuthorizationManager[]
 8. If the evaluation passes (in this case, the return value belongs to the logged-in user), processing continues normally
-9. If not, the interceptor publishes an `AuthorizationDeniedEvent` and throws an {security-api-url}org/springframework/security/access/AccessDeniedException.html[`AccessDeniedException`], which xref:servlet/architecture.adoc#servlet-exceptiontranslationfilter[the `ExceptionTranslationFilter`] catches and returns a 403 status code to the response
+9. If not, the interceptor publishes an `AuthorizationDeniedEvent` and throws an javadoc:org.springframework.security.access.AccessDeniedException[], which xref:servlet/architecture.adoc#servlet-exceptiontranslationfilter[the `ExceptionTranslationFilter`] catches and returns a 403 status code to the response
 
 [NOTE]
 If the method is not being called in the context of an HTTP request, you will likely need to handle the `AccessDeniedException` yourself
@@ -150,7 +151,7 @@ Instead, use SpEL's boolean support or its support for delegating to a separate 
 
 Each annotation has its own pointcut instance that looks for that annotation or its <<meta-annotations,meta-annotation>> counterparts across the entire object hierarchy, starting at <<class-or-interface-annotations,the method and its enclosing class>>.
 
-You can see the specifics of this in {security-api-url}org/springframework/security/authorization/method/AuthorizationMethodPointcuts.html[`AuthorizationMethodPointcuts`].
+// FIXME: AuthorizationMethodPointcuts is package private and Javadoc is not published You can see the specifics of this in javadoc:org.springframework.security.authorization.method.AuthorizationMethodPointcuts[].
 
 [[annotation-method-interceptors]]
 === Each Annotation Has Its Own Method Interceptor
@@ -161,12 +162,12 @@ For example, if needed, you can disable the Spring Security defaults and <<_enab
 
 The method interceptors are as follows:
 
-* For <<use-preauthorize,`@PreAuthorize`>>, Spring Security uses {security-api-url}org/springframework/security/authorization/method/AuthorizationManagerBeforeMethodInterceptor.html[`AuthorizationManagerBeforeMethodInterceptor#preAuthorize`], which in turn uses {security-api-url}org/springframework/security/authorization/method/PreAuthorizeAuthorizationManager.html[`PreAuthorizeAuthorizationManager`]
-* For <<use-postauthorize,`@PostAuthorize`>>, Spring Security uses {security-api-url}org/springframework/security/authorization/method/AuthorizationManagerAfterMethodInterceptor.html[`AuthorizationManagerBeforeMethodInterceptor#postAuthorize`], which in turn uses {security-api-url}org/springframework/security/authorization/method/PostAuthorizeAuthorizationManager.html[`PostAuthorizeAuthorizationManager`]
-* For <<use-prefilter,`@PreFilter`>>, Spring Security uses {security-api-url}org/springframework/security/authorization/method/PreFilterAuthorizationMethodInterceptor.html[`PreFilterAuthorizationMethodInterceptor`]
-* For <<use-postfilter,`@PostFilter`>>, Spring Security uses {security-api-url}org/springframework/security/authorization/method/PostFilterAuthorizationMethodInterceptor.html[`PostFilterAuthorizationMethodInterceptor`]
-* For <<use-secured,`@Secured`>>, Spring Security uses {security-api-url}org/springframework/security/authorization/method/AuthorizationManagerBeforeMethodInterceptor.html[`AuthorizationManagerBeforeMethodInterceptor#secured`], which in turn uses {security-api-url}org/springframework/security/authorization/method/SecuredAuthorizationManager.html[`SecuredAuthorizationManager`]
-* For JSR-250 annotations, Spring Security uses {security-api-url}org/springframework/security/authorization/method/AuthorizationManagerBeforeMethodInterceptor.html[`AuthorizationManagerBeforeMethodInterceptor#jsr250`], which in turn uses {security-api-url}org/springframework/security/authorization/method/Jsr250AuthorizationManager.html[`Jsr250AuthorizationManager`]
+* For <<use-preauthorize,`@PreAuthorize`>>, Spring Security uses javadoc:org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor[`AuthorizationManagerBeforeMethodInterceptor#preAuthorize`], which in turn uses javadoc:org.springframework.security.authorization.method.PreAuthorizeAuthorizationManager[]
+* For <<use-postauthorize,`@PostAuthorize`>>, Spring Security uses javadoc:org.springframework.security.authorization.method.AuthorizationManagerAfterMethodInterceptor[`AuthorizationManagerAfterMethodInterceptor#postAuthorize`], which in turn uses javadoc:org.springframework.security.authorization.method.PostAuthorizeAuthorizationManager[]
+* For <<use-prefilter,`@PreFilter`>>, Spring Security uses javadoc:org.springframework.security.authorization.method.PreFilterAuthorizationMethodInterceptor[]
+* For <<use-postfilter,`@PostFilter`>>, Spring Security uses javadoc:org.springframework.security.authorization.method.PostFilterAuthorizationMethodInterceptor[]
+* For <<use-secured,`@Secured`>>, Spring Security uses javadoc:org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor[`AuthorizationManagerBeforeMethodInterceptor#secured`], which in turn uses javadoc:org.springframework.security.authorization.method.SecuredAuthorizationManager[]
+* For JSR-250 annotations, Spring Security uses javadoc:org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor[`AuthorizationManagerBeforeMethodInterceptor#jsr250`], which in turn uses javadoc:org.springframework.security.authorization.method.Jsr250AuthorizationManager[]
 
 Generally speaking, you can consider the following listing as representative of what interceptors Spring Security publishes when you add `@EnableMethodSecurity`:
 
@@ -240,7 +241,7 @@ static RoleHierarchy roleHierarchy() {
 
 Kotlin::
 +
-[source,java,role="secondary"]
+[source,kotlin,role="secondary"]
 ----
 companion object {
     @Bean
@@ -311,7 +312,7 @@ The primary way Spring Security enables method-level authorization support is th
 [[use-preauthorize]]
 === Authorizing Method Invocation with `@PreAuthorize`
 
-When <<activate-method-security,Method Security is active>>, you can annotate a method with the {security-api-url}org/springframework/security/access/prepost/PreAuthorize.html[`@PreAuthorize`] annotation like so:
+When <<activate-method-security,Method Security is active>>, you can annotate a method with the javadoc:org.springframework.security.access.prepost.PreAuthorize[format=annotation] annotation like so:
 
 [tabs]
 ======
@@ -399,7 +400,7 @@ While `@PreAuthorize` is quite helpful for declaring needed authorities, it can 
 [[use-postauthorize]]
 === Authorization Method Results with `@PostAuthorize`
 
-When Method Security is active, you can annotate a method with the {security-api-url}org/springframework/security/access/prepost/PostAuthorize.html[`@PostAuthorize`] annotation like so:
+When Method Security is active, you can annotate a method with the javadoc:org.springframework.security.access.prepost.PostAuthorize[format=annotation] annotation like so:
 
 [tabs]
 ======
@@ -546,10 +547,7 @@ If not, Spring Security will throw an `AccessDeniedException` and return a 403 s
 [[use-prefilter]]
 === Filtering Method Parameters with `@PreFilter`
 
-[NOTE]
-`@PreFilter` is not yet supported for Kotlin-specific data types; for that reason, only Java snippets are shown
-
-When Method Security is active, you can annotate a method with the {security-api-url}org/springframework/security/access/prepost/PreFilter.html[`@PreFilter`] annotation like so:
+When Method Security is active, you can annotate a method with the javadoc:org.springframework.security.access.prepost.PreFilter[format=annotation] annotation like so:
 
 [tabs]
 ======
@@ -563,6 +561,20 @@ public class BankService {
 	public Collection<Account> updateAccounts(Account... accounts) {
         // ... `accounts` will only contain the accounts owned by the logged-in user
         return updated;
+	}
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Component
+open class BankService {
+	@PreFilter("filterObject.owner == authentication.name")
+	fun updateAccounts(vararg accounts: Account): Collection<Account> {
+        // ... `accounts` will only contain the accounts owned by the logged-in user
+        return updated
 	}
 }
 ----
@@ -589,6 +601,23 @@ void updateAccountsWhenOwnedThenReturns() {
     Account notOwnedBy = ...
     Collection<Account> updated = this.bankService.updateAccounts(ownedBy, notOwnedBy);
     assertThat(updated).containsOnly(ownedBy);
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Autowired
+lateinit var bankService: BankService
+
+@WithMockUser(username="owner")
+@Test
+fun updateAccountsWhenOwnedThenReturns() {
+    val ownedBy: Account = ...
+    val notOwnedBy: Account = ...
+    val updated: Collection<Account> = bankService.updateAccounts(ownedBy, notOwnedBy)
+    assertThat(updated).containsOnly(ownedBy)
 }
 ----
 ======
@@ -618,6 +647,23 @@ public Collection<Account> updateAccounts(Map<String, Account> accounts)
 @PreFilter("filterObject.owner == authentication.name")
 public Collection<Account> updateAccounts(Stream<Account> accounts)
 ----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@PreFilter("filterObject.owner == authentication.name")
+fun updateAccounts(accounts: Array<Account>): Collection<Account>
+
+@PreFilter("filterObject.owner == authentication.name")
+fun updateAccounts(accounts: Collection<Account>): Collection<Account>
+
+@PreFilter("filterObject.value.owner == authentication.name")
+fun updateAccounts(accounts: Map<String, Account>): Collection<Account>
+
+@PreFilter("filterObject.owner == authentication.name")
+fun updateAccounts(accounts: Stream<Account>): Collection<Account>
+----
 ======
 
 The result is that the above method will only have the `Account` instances where their `owner` attribute matches the logged-in user's `name`.
@@ -625,10 +671,7 @@ The result is that the above method will only have the `Account` instances where
 [[use-postfilter]]
 === Filtering Method Results with `@PostFilter`
 
-[NOTE]
-`@PostFilter` is not yet supported for Kotlin-specific data types; for that reason, only Java snippets are shown
-
-When Method Security is active, you can annotate a method with the {security-api-url}org/springframework/security/access/prepost/PostFilter.html[`@PostFilter`] annotation like so:
+When Method Security is active, you can annotate a method with the javadoc:org.springframework.security.access.prepost.PostFilter[format=annotation] annotation like so:
 
 [tabs]
 ======
@@ -642,6 +685,20 @@ public class BankService {
 	public Collection<Account> readAccounts(String... ids) {
         // ... the return value will be filtered to only contain the accounts owned by the logged-in user
         return accounts;
+	}
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Component
+open class BankService {
+	@PreFilter("filterObject.owner == authentication.name")
+	fun readAccounts(vararg ids: String): Collection<Account> {
+        // ... the return value will be filtered to only contain the accounts owned by the logged-in user
+        return accounts
 	}
 }
 ----
@@ -669,6 +726,22 @@ void readAccountsWhenOwnedThenReturns() {
     assertThat(accounts.get(0).getOwner()).isEqualTo("owner");
 }
 ----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Autowired
+lateinit var bankService: BankService
+
+@WithMockUser(username="owner")
+@Test
+fun readAccountsWhenOwnedThenReturns() {
+    val accounts: Collection<Account> = bankService.updateAccounts("owner", "not-owner")
+    assertThat(accounts).hasSize(1)
+    assertThat(accounts[0].owner).isEqualTo("owner")
+}
+----
 ======
 
 [TIP]
@@ -678,7 +751,15 @@ void readAccountsWhenOwnedThenReturns() {
 
 For example, the above `readAccounts` declaration will function the same way as the following other three:
 
-```java
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@PostFilter("filterObject.owner == authentication.name")
+public Collection<Account> readAccounts(String... ids)
+
 @PostFilter("filterObject.owner == authentication.name")
 public Account[] readAccounts(String... ids)
 
@@ -687,7 +768,25 @@ public Map<String, Account> readAccounts(String... ids)
 
 @PostFilter("filterObject.owner == authentication.name")
 public Stream<Account> readAccounts(String... ids)
-```
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@PostFilter("filterObject.owner == authentication.name")
+fun readAccounts(vararg ids: String): Collection<Account>
+
+@PostFilter("filterObject.owner == authentication.name")
+fun readAccounts(vararg ids: String): Array<Account>
+
+@PostFilter("filterObject.owner == authentication.name")
+fun readAccounts(vararg ids: String): Map<String, Account>
+
+@PostFilter("filterObject.owner == authentication.name")
+fun readAccounts(vararg ids: String): Stream<Account>
+----
+======
 
 The result is that the above method will return the `Account` instances where their `owner` attribute matches the logged-in user's `name`.
 
@@ -697,8 +796,8 @@ In-memory filtering can obviously be expensive, and so be considerate of whether
 [[use-secured]]
 === Authorizing Method Invocation with `@Secured`
 
-{security-api-url}org/springframework/security/access/annotation/Secured.html[`@Secured`] is a legacy option for authorizing invocations.
-<<use-preauthorize,`@PreAuthorize`>> supercedes it and is recommended instead.
+javadoc:org.springframework.security.access.annotation.Secured[format=annotation] is a legacy option for authorizing invocations.
+<<use-preauthorize,`@PreAuthorize`>> supersedes it and is recommended instead.
 
 To use the `@Secured` annotation, you should first change your Method Security declaration to enable it like so:
 
@@ -914,8 +1013,8 @@ Java::
 [source,java,role="primary"]
 ----
 @Bean
-static PrePostTemplateDefaults prePostTemplateDefaults() {
-	return new PrePostTemplateDefaults();
+static AnnotationTemplateExpressionDefaults templateExpressionDefaults() {
+	return new AnnotationTemplateExpressionDefaults();
 }
 ----
 
@@ -925,8 +1024,8 @@ Kotlin::
 ----
 companion object {
     @Bean
-    fun prePostTemplateDefaults(): PrePostTemplateDefaults {
-        return PrePostTemplateDefaults()
+    fun templateExpressionDefaults(): AnnotationTemplateExpressionDefaults {
+        return AnnotationTemplateExpressionDefaults()
     }
 }
 ----
@@ -955,7 +1054,7 @@ Kotlin::
 @Target(ElementType.METHOD, ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @PreAuthorize("hasRole('{value}')")
-annotation class IsAdmin(val value: String)
+annotation class HasRole(val value: String)
 ----
 ======
 
@@ -1377,7 +1476,7 @@ You can place your interceptor in between Spring Security method interceptors us
 === Customizing Expression Handling
 
 Or, third, you can customize how each SpEL expression is handled.
-To do that, you can expose a custom {security-api-url}org.springframework.security.access.expression.method.MethodSecurityExpressionHandler.html[`MethodSecurityExpressionHandler`], like so:
+To do that, you can expose a custom javadoc:org.springframework.security.access.expression.method.MethodSecurityExpressionHandler[], like so:
 
 .Custom MethodSecurityExpressionHandler
 [tabs]
@@ -1429,6 +1528,177 @@ We expose `MethodSecurityExpressionHandler` using a `static` method to ensure th
 ====
 
 You can also <<subclass-defaultmethodsecurityexpressionhandler,subclass `DefaultMessageSecurityExpressionHandler`>> to add your own custom authorization expressions beyond the defaults.
+
+[[pre-post-authorize-aot]]
+=== Working with AOT
+
+Spring Security will scan all beans in the application context for methods that use `@PreAuthorize` or `@PostAuthorize`.
+When it finds one, it will resolve any beans used inside the security expression and register the appropriate runtime hints for that bean.
+If it finds a method that uses `@AuthorizeReturnObject`, it will recursively search inside the method's return type for `@PreAuthorize` and `@PostAuthorize` annotations and register them accordingly.
+
+For example, consider the following Spring Boot application:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Service
+public class AccountService { <1>
+
+    @PreAuthorize("@authz.decide()") <2>
+    @AuthorizeReturnObject <3>
+    public Account getAccountById(String accountId) {
+        // ...
+    }
+
+}
+
+public class Account {
+
+    private final String accountNumber;
+
+    // ...
+
+    @PreAuthorize("@accountAuthz.canViewAccountNumber()") <4>
+    public String getAccountNumber() {
+        return this.accountNumber;
+    }
+
+    @AuthorizeReturnObject <5>
+    public User getUser() {
+        return new User("John Doe");
+    }
+
+}
+
+public class User {
+
+    private final String fullName;
+
+    // ...
+
+    @PostAuthorize("@myOtherAuthz.decide()") <6>
+    public String getFullName() {
+        return this.fullName;
+    }
+
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Service
+class AccountService { <1>
+
+    @PreAuthorize("@authz.decide()") <2>
+    @AuthorizeReturnObject <3>
+    fun getAccountById(accountId: String): Account {
+        // ...
+    }
+
+}
+
+class Account(private val accountNumber: String) {
+
+    @PreAuthorize("@accountAuthz.canViewAccountNumber()") <4>
+    fun getAccountNumber(): String {
+        return this.accountNumber
+    }
+
+    @AuthorizeReturnObject <5>
+    fun getUser(): User {
+        return User("John Doe")
+    }
+
+}
+
+class User(private val fullName: String) {
+
+    @PostAuthorize("@myOtherAuthz.decide()") <6>
+    fun getFullName(): String {
+        return this.fullName
+    }
+
+}
+----
+======
+
+<1> Spring Security finds the `AccountService` bean
+<2> Finding a method that uses `@PreAuthorize`, it will resolve any bean names used inside the expression, `authz` in that case, and register runtime hints for the bean class
+<3> Finding a method that uses `@AuthorizeReturnObject`, it will look into the method's return type for any `@PreAuthorize` or `@PostAuthorize`
+<4> Then, it finds a `@PreAuthorize` with another bean name: `accountAuthz`; the runtime hints are registered for the bean class as well
+<5> Finding another `@AuthorizeReturnObject` it will look again into the method's return type
+<6> Now, a `@PostAuthorize` is found with yet another bean name used: `myOtherAuthz`; the runtime hints are registered for the bean class as well
+
+There will be many times when Spring Security cannot determine the actual return type of the method ahead of time since it may be hidden in an erased generic type.
+
+Consider the following service:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Service
+public class AccountService {
+
+    @AuthorizeReturnObject
+    public List<Account> getAllAccounts() {
+        // ...
+    }
+
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Service
+class AccountService {
+
+    @AuthorizeReturnObject
+    fun getAllAccounts(): List<Account> {
+        // ...
+    }
+
+}
+----
+======
+
+In this case, the generic type is erased and so it isn’t apparent to Spring Security ahead-of-time that `Account` needs to be visited in order to check for `@PreAuthorize` and `@PostAuthorize`.
+
+To address this, you can publish a javadoc:org.springframework.security.aot.hint.PrePostAuthorizeExpressionBeanHintsRegistrar[`PrePostAuthorizeExpressionBeanHintsRegistrar`] like so:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Bean
+@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+static SecurityHintsRegistrar registerTheseToo() {
+    return new PrePostAuthorizeExpressionBeanHintsRegistrar(Account.class);
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Bean
+@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+fun registerTheseToo(): SecurityHintsRegistrar {
+    return PrePostAuthorizeExpressionBeanHintsRegistrar(Account::class.java)
+}
+----
+======
 
 [[use-aspectj]]
 == Authorizing with AspectJ
@@ -1706,7 +1976,7 @@ The intention of this expression is to require that the current `Authentication`
 +
 Behind the scenes, this is implemented by using `AnnotationParameterNameDiscoverer`, which you can customize to support the value attribute of any specified annotation.
 
-* If xref:servlet/integrations/data.adoc[Spring Data's] `@Param` annotation is present on at least one parameter for the method, the value is used.
+2. If xref:servlet/integrations/data.adoc[Spring Data's] `@Param` annotation is present on at least one parameter for the method, the value is used.
 The following example uses the `@Param` annotation:
 +
 [tabs]
@@ -1740,10 +2010,10 @@ The intention of this expression is to require that `name` be equal to `Authenti
 +
 Behind the scenes, this is implemented by using `AnnotationParameterNameDiscoverer`, which you can customize to support the value attribute of any specified annotation.
 
-* If you compile your code with the `-parameters` argument, the standard JDK reflection API is used to discover the parameter names.
+3. If you compile your code with the `-parameters` argument, the standard JDK reflection API is used to discover the parameter names.
 This works on both classes and interfaces.
 
-* Finally, if you compile your code with debug symbols, the parameter names are discovered by using the debug symbols.
+4. Finally, if you compile your code with debug symbols, the parameter names are discovered by using the debug symbols.
 This does not work for interfaces, since they do not have debug information about the parameter names.
 For interfaces, either annotations or the `-parameters` approach must be used.
 
@@ -2007,11 +2277,6 @@ fun getEmailWhenProxiedThenAuthorizes() {
 ----
 ======
 
-[NOTE]
-====
-This feature does not yet support Spring AOT
-====
-
 === Proxying Collections
 
 `AuthorizationProxyFactory` supports Java collections, streams, arrays, optionals, and iterators by proxying the element type and maps by proxying the value type.
@@ -2102,10 +2367,10 @@ Java::
 ----
 @RestController
 public class UserController {
-	@Autowired
+    @Autowired
     AuthorizationProxyFactory proxyFactory;
 
-	@GetMapping
+    @GetMapping
     User currentUser(@AuthenticationPrincipal User user) {
         return this.proxyFactory.proxy(user);
     }
@@ -2129,38 +2394,7 @@ class UserController  {
 ----
 ======
 
-If you are using Jackson, though, this may result in a serialization error like the following:
-
-[source,bash]
-====
-com.fasterxml.jackson.databind.exc.InvalidDefinitionException: Direct self-reference leading to cycle
-====
-
-This is due to how Jackson works with CGLIB proxies.
-To address this, add the following annotation to the top of the `User` class:
-
-[tabs]
-======
-Java::
-+
-[source,java,role="primary"]
-----
-@JsonSerialize(as = User.class)
-public class User {
-
-}
-----
-
-Kotlin::
-+
-[source,kotlin,role="secondary"]
-----
-@JsonSerialize(`as` = User::class)
-class User
-----
-======
-
-Finally, you will need to publish a <<custom_advice, custom interceptor>> to catch the `AccessDeniedException` thrown for each field, which you can do like so:
+You will need to <<fallback-values-authorization-denied,add a `MethodAuthorizationDeniedHandler`>> like this one:
 
 [tabs]
 ======
@@ -2169,60 +2403,37 @@ Java::
 [source,java,role="primary"]
 ----
 @Component
-public class AccessDeniedExceptionInterceptor implements AuthorizationAdvisor {
-    private final AuthorizationAdvisor advisor = AuthorizationManagerBeforeMethodInterceptor.preAuthorize();
-
-	@Override
-	public Object invoke(MethodInvocation invocation) throws Throwable {
-		try {
-			return invocation.proceed();
-		} catch (AccessDeniedException ex) {
-			return null;
-		}
-	}
-
-	@Override
-	public Pointcut getPointcut() {
-		return this.advisor.getPointcut();
-	}
-
-	@Override
-	public Advice getAdvice() {
-		return this;
-	}
-
-	@Override
-	public int getOrder() {
-		return this.advisor.getOrder() - 1;
-	}
-}
-----
-
-Kotlin::
-+
-[source,kotlin,role="secondary"]
-----
-@Component
-class AccessDeniedExceptionInterceptor: AuthorizationAdvisor {
-    var advisor: AuthorizationAdvisor = AuthorizationManagerBeforeMethodInterceptor.preAuthorize()
-
-    @Throws(Throwable::class)
-    fun invoke(invocation: MethodInvocation): Any? {
-        return try  {
-            invocation.proceed()
-        } catch (ex:AccessDeniedException) {
-            null
-        }
+public class Null implements MethodAuthorizationDeniedHandler {
+    @Override
+    public Object handleDeniedInvocation(MethodInvocation methodInvocation, AuthorizationResult authorizationResult) {
+        return null;
     }
+}
 
-     val pointcut: Pointcut
-     get() = advisor.getPointcut()
+// ...
 
-     val advice: Advice
-     get() = this
+@HandleAuthorizationDenied(handlerClass = Null.class)
+public class User {
+	...
+}
+----
 
-     val order: Int
-     get() = advisor.getOrder() - 1
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Component
+class Null : MethodAuthorizationDeniedHandler {
+    override fun handleDeniedInvocation(methodInvocation: MethodInvocation?, authorizationResult: AuthorizationResult?): Any? {
+        return null
+    }
+}
+
+// ...
+
+@HandleAuthorizationDenied(handlerClass = Null.class)
+open class User {
+	...
 }
 ----
 ======
@@ -2250,8 +2461,167 @@ And if they do have that authority, they'll see:
 
 [TIP]
 ====
-You can also add the Spring Boot property `spring.jackson.default-property-inclusion=non_null` to exclude the null value, if you also don't want to reveal the JSON key to an unauthorized user.
+You can also add the Spring Boot property `spring.jackson.default-property-inclusion=non_null` to exclude the null value from serialization, if you also don't want to reveal the JSON key to an unauthorized user.
 ====
+
+[[authorize-return-object-aot]]
+=== Working with AOT
+
+Spring Security will scan all beans in the application context for methods that use `@AuthorizeReturnObject`.
+When it finds one, it will create and register the appropriate proxy class ahead of time.
+It will also recursively search for other nested objects that also use `@AuthorizeReturnObject` and register them accordingly.
+
+For example, consider the following Spring Boot application:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@SpringBootApplication
+public class MyApplication {
+	@RestController
+    public static class MyController { <1>
+		@GetMapping
+        @AuthorizeReturnObject
+        Message getMessage() { <2>
+			return new Message(someUser, "hello!");
+        }
+    }
+
+	public static class Message { <3>
+		User to;
+		String text;
+
+		// ...
+
+        @AuthorizeReturnObject
+        public User getTo() { <4>
+			return this.to;
+        }
+
+		// ...
+	}
+
+	public static class User { <5>
+		// ...
+	}
+
+	public static void main(String[] args) {
+		SpringApplication.run(MyApplication.class);
+	}
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@SpringBootApplication
+open class MyApplication {
+	@RestController
+    open class MyController { <1>
+		@GetMapping
+        @AuthorizeReturnObject
+        fun getMessage():Message { <2>
+			return Message(someUser, "hello!")
+        }
+    }
+
+	open class Message { <3>
+		val to: User
+		val test: String
+
+		// ...
+
+        @AuthorizeReturnObject
+        fun getTo(): User { <4>
+			return this.to
+        }
+
+		// ...
+	}
+
+	open class User { <5>
+		// ...
+	}
+
+	fun main(args: Array<String>) {
+		SpringApplication.run(MyApplication.class)
+	}
+}
+----
+======
+<1> - First, Spring Security finds the `MyController` bean
+<2> - Finding a method that uses `@AuthorizeReturnObject`, it proxies `Message`, the return value, and registers that proxy class to `RuntimeHints`
+<3> - Then, it traverses `Message` to see if it uses `@AuthorizeReturnObject`
+<4> - Finding a method that uses `@AuthorizeReturnObject`, it proxies `User`, the return value, and registers that proxy class to `RuntimeHints`
+<5> - Finally, it traverses `User` to see if it uses `@AuthorizeReturnObject`; finding nothing, the algorithm completes
+
+There will be many times when Spring Security cannot determine the proxy class ahead of time since it may be hidden in an erased generic type.
+
+Consider the following change to `MyController`:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@RestController
+public static class MyController {
+    @GetMapping
+    @AuthorizeReturnObject
+    List<Message> getMessages() {
+        return List.of(new Message(someUser, "hello!"));
+    }
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@RestController
+static class MyController {
+    @AuthorizeReturnObject
+    @GetMapping
+    fun getMessages(): Array<Message> = arrayOf(Message(someUser, "hello!"))
+}
+----
+======
+
+In this case, the generic type is erased and so it isn't apparent to Spring Security ahead-of-time that `Message` will need to be proxied at runtime.
+
+To address this, you can publish `AuthorizeProxyFactoryHintsRegistrar` like so:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Bean
+@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+static SecurityHintsRegsitrar registerTheseToo(AuthorizationProxyFactory proxyFactory) {
+	return new AuthorizeReturnObjectHintsRegistrar(proxyFactory, Message.class);
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Bean
+@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+fun registerTheseToo(proxyFactory: AuthorizationProxyFactory?): SecurityHintsRegistrar {
+    return AuthorizeReturnObjectHintsRegistrar(proxyFactory, Message::class.java)
+}
+----
+======
+
+Spring Security will register that class and then traverse its type as before.
 
 [[fallback-values-authorization-denied]]
 == Providing Fallback Values When Authorization is Denied
@@ -2259,8 +2629,8 @@ You can also add the Spring Boot property `spring.jackson.default-property-inclu
 There are some scenarios where you may not wish to throw an `AuthorizationDeniedException` when a method is invoked without the required permissions.
 Instead, you might wish to return a post-processed result, like a masked result, or a default value in cases where authorization denied happened before invoking the method.
 
-Spring Security provides support for handling authorization denied on method invocation by using the {security-api-url}org/springframework/security/authorization/method/HandleAuthorizationDenied.html[`@HandleAuthorizationDenied`].
-The handler works for denied authorizations that happened in the <<authorizing-with-annotations,`@PreAuthorize` and `@PostAuthorize` annotations>> as well as {security-api-url}org/springframework/security/authorization/AuthorizationDeniedException.html[`AuthorizationDeniedException`] thrown from the method invocation itself.
+Spring Security provides support for handling authorization denied on method invocation by using the javadoc:org.springframework.security.authorization.method.HandleAuthorizationDenied[format=annotation].
+The handler works for denied authorizations that happened in the <<authorizing-with-annotations,`@PreAuthorize` and `@PostAuthorize` annotations>> as well as javadoc:org.springframework.security.authorization.AuthorizationDeniedException[] thrown from the method invocation itself.
 
 Let's consider the example from the <<authorize-object,previous section>>, but instead of creating the `AccessDeniedExceptionInterceptor` to transform an `AccessDeniedException` to a `null` return value, we will use the `handlerClass` attribute from `@HandleAuthorizationDenied`:
 
@@ -2375,7 +2745,7 @@ fun getEmailWhenProxiedThenNullEmail() {
 There are some scenarios where you might want to return a secure result derived from the denied result.
 For example, if a user is not authorized to see email addresses, you might want to apply some masking on the original email address, i.e. _useremail@example.com_ would become _use\\******@example.com_.
 
-For those scenarios, you can override the `handleDeniedInvocationResult` from the `MethodAuthorizationDeniedHandler`, which has the {security-api-url}org/springframework/security/authorization/method/MethodInvocationResult.html[`MethodInvocationResult`] as an argument.
+For those scenarios, you can override the `handleDeniedInvocationResult` from the `MethodAuthorizationDeniedHandler`, which has the javadoc:org.springframework.security.authorization.method.MethodInvocationResult[] as an argument.
 Let's continue with the previous example, but instead of returning `null`, we will return a masked value of the email:
 
 [tabs]
@@ -2720,7 +3090,7 @@ If you are using `@EnableGlobalMethodSecurity`, you should migrate to `@EnableMe
 [[servlet-replace-globalmethodsecurity-with-methodsecurity]]
 === Replace xref:servlet/authorization/method-security.adoc#jc-enable-global-method-security[global method security] with xref:servlet/authorization/method-security.adoc#jc-enable-method-security[method security]
 
-{security-api-url}org/springframework/security/config/annotation/method/configuration/EnableGlobalMethodSecurity.html[`@EnableGlobalMethodSecurity`] and xref:servlet/appendix/namespace/method-security.adoc#nsa-global-method-security[`<global-method-security>`] are deprecated in favor of {security-api-url}org/springframework/security/config/annotation/method/configuration/EnableMethodSecurity.html[`@EnableMethodSecurity`] and xref:servlet/appendix/namespace/method-security.adoc#nsa-method-security[`<method-security>`], respectively.
+javadoc:org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity[format=annotation] and xref:servlet/appendix/namespace/method-security.adoc#nsa-global-method-security[`<global-method-security>`] are deprecated in favor of javadoc:org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity[`@EnableMethodSecurity`] and xref:servlet/appendix/namespace/method-security.adoc#nsa-method-security[`<method-security>`], respectively.
 The new annotation and XML element activate Spring's xref:servlet/authorization/method-security.adoc#jc-enable-method-security[pre-post annotations] by default and use `AuthorizationManager` internally.
 
 This means that the following two listings are functionally equivalent:

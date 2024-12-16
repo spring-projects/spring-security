@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,13 @@
 
 package org.springframework.security.oauth2.core.oidc.user;
 
+import java.io.Serial;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.lang.Nullable;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
@@ -33,6 +36,9 @@ import org.springframework.util.Assert;
  * @see OidcUser
  */
 public class OidcUserAuthority extends OAuth2UserAuthority {
+
+	@Serial
+	private static final long serialVersionUID = -4675866280835753141L;
 
 	private final OidcIdToken idToken;
 
@@ -58,6 +64,20 @@ public class OidcUserAuthority extends OAuth2UserAuthority {
 	}
 
 	/**
+	 * Constructs a {@code OidcUserAuthority} using the provided parameters and defaults
+	 * {@link #getAuthority()} to {@code OIDC_USER}.
+	 * @param idToken the {@link OidcIdToken ID Token} containing claims about the user
+	 * @param userInfo the {@link OidcUserInfo UserInfo} containing claims about the user,
+	 * may be {@code null}
+	 * @param userNameAttributeName the attribute name used to access the user's name from
+	 * the attributes
+	 * @since 6.4
+	 */
+	public OidcUserAuthority(OidcIdToken idToken, OidcUserInfo userInfo, @Nullable String userNameAttributeName) {
+		this("OIDC_USER", idToken, userInfo, userNameAttributeName);
+	}
+
+	/**
 	 * Constructs a {@code OidcUserAuthority} using the provided parameters.
 	 * @param authority the authority granted to the user
 	 * @param idToken the {@link OidcIdToken ID Token} containing claims about the user
@@ -65,7 +85,22 @@ public class OidcUserAuthority extends OAuth2UserAuthority {
 	 * may be {@code null}
 	 */
 	public OidcUserAuthority(String authority, OidcIdToken idToken, OidcUserInfo userInfo) {
-		super(authority, collectClaims(idToken, userInfo));
+		this(authority, idToken, userInfo, IdTokenClaimNames.SUB);
+	}
+
+	/**
+	 * Constructs a {@code OidcUserAuthority} using the provided parameters.
+	 * @param authority the authority granted to the user
+	 * @param idToken the {@link OidcIdToken ID Token} containing claims about the user
+	 * @param userInfo the {@link OidcUserInfo UserInfo} containing claims about the user,
+	 * may be {@code null}
+	 * @param userNameAttributeName the attribute name used to access the user's name from
+	 * the attributes
+	 * @since 6.4
+	 */
+	public OidcUserAuthority(String authority, OidcIdToken idToken, OidcUserInfo userInfo,
+			@Nullable String userNameAttributeName) {
+		super(authority, collectClaims(idToken, userInfo), userNameAttributeName);
 		this.idToken = idToken;
 		this.userInfo = userInfo;
 	}

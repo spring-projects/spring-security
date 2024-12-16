@@ -163,7 +163,7 @@ public class AccessControlListTag extends TagSupport {
 			.getParent()) {
 			map.putAll(context.getBeansOfType(type));
 		}
-		if (map.size() == 0) {
+		if (map.isEmpty()) {
 			return null;
 		}
 		if (map.size() == 1) {

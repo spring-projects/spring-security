@@ -24,10 +24,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 
-import com.gargoylesoftware.htmlunit.FormEncodingType;
-import com.gargoylesoftware.htmlunit.WebClient;
-import com.gargoylesoftware.htmlunit.WebRequest;
-import com.gargoylesoftware.htmlunit.util.NameValuePair;
+import org.htmlunit.FormEncodingType;
+import org.htmlunit.WebClient;
+import org.htmlunit.WebRequest;
+import org.htmlunit.util.Cookie;
+import org.htmlunit.util.NameValuePair;
 import reactor.core.publisher.Mono;
 
 import org.springframework.http.HttpMethod;
@@ -117,8 +118,8 @@ final class HtmlUnitWebTestClient {
 				request.cookie(cookieName, cookieValue);
 			}
 		}
-		Set<com.gargoylesoftware.htmlunit.util.Cookie> managedCookies = this.webClient.getCookies(webRequest.getUrl());
-		for (com.gargoylesoftware.htmlunit.util.Cookie cookie : managedCookies) {
+		Set<Cookie> managedCookies = this.webClient.getCookies(webRequest.getUrl());
+		for (Cookie cookie : managedCookies) {
 			request.cookie(cookie.getName(), cookie.getValue());
 		}
 	}

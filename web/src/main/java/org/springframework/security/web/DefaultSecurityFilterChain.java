@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,17 +24,26 @@ import jakarta.servlet.Filter;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import reactor.util.annotation.NonNull;
 
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.beans.factory.BeanNameAware;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.core.log.LogMessage;
 import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.util.StringUtils;
 
 /**
  * Standard implementation of {@code SecurityFilterChain}.
  *
  * @author Luke Taylor
+ * @author Jinwoo Bae
  * @since 3.1
  */
-public final class DefaultSecurityFilterChain implements SecurityFilterChain {
+public final class DefaultSecurityFilterChain implements SecurityFilterChain, BeanNameAware, BeanFactoryAware {
 
 	private static final Log logger = LogFactory.getLog(DefaultSecurityFilterChain.class);
 
@@ -42,16 +51,25 @@ public final class DefaultSecurityFilterChain implements SecurityFilterChain {
 
 	private final List<Filter> filters;
 
+	private String beanName;
+
+	private ConfigurableListableBeanFactory beanFactory;
+
 	public DefaultSecurityFilterChain(RequestMatcher requestMatcher, Filter... filters) {
 		this(requestMatcher, Arrays.asList(filters));
 	}
 
 	public DefaultSecurityFilterChain(RequestMatcher requestMatcher, List<Filter> filters) {
 		if (filters.isEmpty()) {
-			logger.info(LogMessage.format("Will not secure %s", requestMatcher));
+			logger.debug(LogMessage.format("Will not secure %s", requestMatcher));
 		}
 		else {
-			logger.info(LogMessage.format("Will secure %s with %s", requestMatcher, filters));
+			List<String> filterNames = new ArrayList<>();
+			for (Filter filter : filters) {
+				filterNames.add(filter.getClass().getSimpleName());
+			}
+			String names = StringUtils.collectionToDelimitedString(filterNames, ", ");
+			logger.debug(LogMessage.format("Will secure %s with filters: %s", requestMatcher, names));
 		}
 		this.requestMatcher = requestMatcher;
 		this.filters = new ArrayList<>(filters);
@@ -73,8 +91,38 @@ public final class DefaultSecurityFilterChain implements SecurityFilterChain {
 
 	@Override
 	public String toString() {
-		return this.getClass().getSimpleName() + " [RequestMatcher=" + this.requestMatcher + ", Filters=" + this.filters
-				+ "]";
+		List<String> filterNames = new ArrayList<>();
+		for (Filter filter : this.filters) {
+			String name = filter.getClass().getSimpleName();
+			if (name.endsWith("Filter")) {
+				name = name.substring(0, name.length() - "Filter".length());
+			}
+			filterNames.add(name);
+		}
+		String declaration = this.getClass().getSimpleName();
+		if (this.beanName != null) {
+			declaration += " defined as '" + this.beanName + "'";
+			if (this.beanFactory != null) {
+				BeanDefinition bd = this.beanFactory.getBeanDefinition(this.beanName);
+				String description = bd.getResourceDescription();
+				if (description != null) {
+					declaration += " in [" + description + "]";
+				}
+			}
+		}
+		return declaration + " matching [" + this.requestMatcher + "] and having filters " + filterNames;
+	}
+
+	@Override
+	public void setBeanName(@NonNull String name) {
+		this.beanName = name;
+	}
+
+	@Override
+	public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
+		if (beanFactory instanceof ConfigurableListableBeanFactory listable) {
+			this.beanFactory = listable;
+		}
 	}
 
 }

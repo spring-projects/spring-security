@@ -23,8 +23,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
 
+import org.aopalliance.intercept.MethodInvocation;
 import org.junit.jupiter.api.Test;
 
+import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.core.annotation.AnnotationConfigurationException;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
@@ -33,6 +35,7 @@ import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.authentication.TestAuthentication;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authorization.AuthorizationDecision;
+import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.core.Authentication;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -146,21 +149,10 @@ public class PostAuthorizeAuthorizationManagerTests {
 	}
 
 	@Test
-	public void checkInheritedAnnotationsWhenDuplicatedThenAnnotationConfigurationException() throws Exception {
-		Supplier<Authentication> authentication = () -> new TestingAuthenticationToken("user", "password", "ROLE_USER");
-		MockMethodInvocation methodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
-				"inheritedAnnotations");
-		MethodInvocationResult result = new MethodInvocationResult(methodInvocation, null);
-		PostAuthorizeAuthorizationManager manager = new PostAuthorizeAuthorizationManager();
-		assertThatExceptionOfType(AnnotationConfigurationException.class)
-			.isThrownBy(() -> manager.check(authentication, result));
-	}
-
-	@Test
 	public void checkInheritedAnnotationsWhenConflictingThenAnnotationConfigurationException() throws Exception {
 		Supplier<Authentication> authentication = () -> new TestingAuthenticationToken("user", "password", "ROLE_USER");
-		MockMethodInvocation methodInvocation = new MockMethodInvocation(new ClassLevelAnnotations(),
-				ClassLevelAnnotations.class, "inheritedAnnotations");
+		MockMethodInvocation methodInvocation = new MockMethodInvocation(new ConflictingAnnotations(),
+				ConflictingAnnotations.class, "inheritedAnnotations");
 		MethodInvocationResult result = new MethodInvocationResult(methodInvocation, null);
 		PostAuthorizeAuthorizationManager manager = new PostAuthorizeAuthorizationManager();
 		assertThatExceptionOfType(AnnotationConfigurationException.class)
@@ -168,26 +160,31 @@ public class PostAuthorizeAuthorizationManagerTests {
 	}
 
 	@Test
-	public void checkRequiresUserWhenMethodsFromInheritThenApplies() throws Exception {
-		MockMethodInvocation methodInvocation = new MockMethodInvocation(new PostAuthorizeClass(),
-				PostAuthorizeClass.class, "securedUser");
-		MethodInvocationResult result = new MethodInvocationResult(methodInvocation, null);
+	public void checkWhenHandlerDeniedNoApplicationContextThenReflectivelyConstructs() throws Exception {
 		PostAuthorizeAuthorizationManager manager = new PostAuthorizeAuthorizationManager();
-		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedUser, result);
-		assertThat(decision.isGranted()).isTrue();
+		assertThat(handleDeniedInvocationResult("methodOne", manager)).isNull();
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> handleDeniedInvocationResult("methodTwo", manager));
 	}
 
-	@PostAuthorize("hasRole('USER')")
-	public static class PostAuthorizeClass extends ParentClass {
-
+	@Test
+	public void checkWhenHandlerDeniedApplicationContextThenLooksForBean() throws Exception {
+		GenericApplicationContext context = new GenericApplicationContext();
+		context.registerBean(NoDefaultConstructorHandler.class, () -> new NoDefaultConstructorHandler(new Object()));
+		context.refresh();
+		PostAuthorizeAuthorizationManager manager = new PostAuthorizeAuthorizationManager();
+		manager.setApplicationContext(context);
+		assertThat(handleDeniedInvocationResult("methodTwo", manager)).isNull();
+		assertThatExceptionOfType(IllegalStateException.class)
+			.isThrownBy(() -> handleDeniedInvocationResult("methodOne", manager));
 	}
 
-	public static class ParentClass {
-
-		public void securedUser() {
-
-		}
-
+	private Object handleDeniedInvocationResult(String methodName, PostAuthorizeAuthorizationManager manager)
+			throws Exception {
+		MethodInvocation invocation = new MockMethodInvocation(new UsingHandleDeniedAuthorization(),
+				UsingHandleDeniedAuthorization.class, methodName);
+		MethodInvocationResult result = new MethodInvocationResult(invocation, null);
+		return manager.handleDeniedInvocationResult(result, null);
 	}
 
 	public static class TestClass implements InterfaceAnnotationsOne, InterfaceAnnotationsTwo {
@@ -233,6 +230,14 @@ public class PostAuthorizeAuthorizationManagerTests {
 
 	}
 
+	public static class ConflictingAnnotations implements InterfaceAnnotationsOne, InterfaceAnnotationsTwo {
+
+		@Override
+		public void inheritedAnnotations() {
+		}
+
+	}
+
 	public interface InterfaceAnnotationsOne {
 
 		@PostAuthorize("hasRole('ADMIN')")
@@ -257,6 +262,46 @@ public class PostAuthorizeAuthorizationManagerTests {
 	@Retention(RetentionPolicy.RUNTIME)
 	@PostAuthorize("hasRole('USER')")
 	public @interface MyPostAuthorize {
+
+	}
+
+	public static final class UsingHandleDeniedAuthorization {
+
+		@HandleAuthorizationDenied(handlerClass = NullHandler.class)
+		@PostAuthorize("denyAll()")
+		public String methodOne() {
+			return "ok";
+		}
+
+		@HandleAuthorizationDenied(handlerClass = NoDefaultConstructorHandler.class)
+		@PostAuthorize("denyAll()")
+		public String methodTwo() {
+			return "ok";
+		}
+
+	}
+
+	public static final class NullHandler implements MethodAuthorizationDeniedHandler {
+
+		@Override
+		public Object handleDeniedInvocation(MethodInvocation methodInvocation,
+				AuthorizationResult authorizationResult) {
+			return null;
+		}
+
+	}
+
+	public static final class NoDefaultConstructorHandler implements MethodAuthorizationDeniedHandler {
+
+		private NoDefaultConstructorHandler(Object parameter) {
+
+		}
+
+		@Override
+		public Object handleDeniedInvocation(MethodInvocation methodInvocation,
+				AuthorizationResult authorizationResult) {
+			return null;
+		}
 
 	}
 

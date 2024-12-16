@@ -26,6 +26,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
 import org.springframework.security.web.authentication.ui.DefaultLogoutPageGeneratingFilter;
+import org.springframework.security.web.authentication.ui.DefaultResourcesFilter;
 import org.springframework.security.web.csrf.CsrfToken;
 
 /**
@@ -98,6 +99,7 @@ public final class DefaultLoginPageConfigurer<H extends HttpSecurityBuilder<H>>
 		if (this.loginPageGeneratingFilter.isEnabled() && authenticationEntryPoint == null) {
 			this.loginPageGeneratingFilter = postProcess(this.loginPageGeneratingFilter);
 			http.addFilter(this.loginPageGeneratingFilter);
+			http.addFilter(DefaultResourcesFilter.css());
 			LogoutConfigurer<H> logoutConfigurer = http.getConfigurer(LogoutConfigurer.class);
 			if (logoutConfigurer != null) {
 				http.addFilter(this.logoutPageGeneratingFilter);

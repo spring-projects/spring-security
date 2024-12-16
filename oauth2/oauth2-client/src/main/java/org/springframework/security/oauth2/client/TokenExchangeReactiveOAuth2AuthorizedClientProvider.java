@@ -88,7 +88,7 @@ public final class TokenExchangeReactiveOAuth2AuthorizedClientProvider
 			.onErrorMap(OAuth2AuthorizationException.class,
 					(ex) -> new ClientAuthorizationException(ex.getError(), clientRegistration.getRegistrationId(), ex))
 			.map((tokenResponse) -> new OAuth2AuthorizedClient(clientRegistration, context.getPrincipal().getName(),
-					tokenResponse.getAccessToken()));
+					tokenResponse.getAccessToken(), tokenResponse.getRefreshToken()));
 	}
 
 	private Mono<OAuth2Token> resolveSubjectToken(OAuth2AuthorizationContext context) {

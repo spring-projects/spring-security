@@ -1,11 +1,10 @@
-[[oauth2Client-additional-features]]
-= Authorized Client Features
+[[oauth2-client-additional-features]]
+= [[oauth2Client-additional-features]]Authorized Client Features
 
-This section covers additional features provided by Spring Security for the OAuth2 client.
+This section covers additional features provided by Spring Security for OAuth2 client.
 
-
-[[oauth2Client-registered-authorized-client]]
-== Resolving an Authorized Client
+[[oauth2-client-registered-authorized-client]]
+== [[oauth2Client-registered-authorized-client]]Resolving an Authorized Client
 
 The `@RegisteredOAuth2AuthorizedClient` annotation provides the ability to resolve a method parameter to an argument value of type `OAuth2AuthorizedClient`.
 This is a convenient alternative compared to accessing the `OAuth2AuthorizedClient` by using the `OAuth2AuthorizedClientManager` or `OAuth2AuthorizedClientService`.
@@ -51,9 +50,453 @@ class OAuth2ClientController {
 
 The `@RegisteredOAuth2AuthorizedClient` annotation is handled by `OAuth2AuthorizedClientArgumentResolver`, which directly uses an xref:servlet/oauth2/client/core.adoc#oauth2Client-authorized-manager-provider[`OAuth2AuthorizedClientManager`] and, therefore, inherits its capabilities.
 
+[[oauth2-client-rest-client]]
+== RestClient Integration
 
-[[oauth2Client-webclient-servlet]]
-== WebClient Integration for Servlet Environments
+Support for `RestClient` is provided by `OAuth2ClientHttpRequestInterceptor`.
+This interceptor provides the ability to make protected resources requests by placing a `Bearer` token in the `Authorization` header of an outbound request.
+The interceptor directly uses an `OAuth2AuthorizedClientManager` and therefore inherits the following capabilities:
+
+* Performs an OAuth 2.0 Access Token request to obtain `OAuth2AccessToken` if the client has not yet been authorized
+** `authorization_code`: Triggers the Authorization Request redirect to initiate the flow
+** `client_credentials`: The access token is obtained directly from the Token Endpoint
+** `password`: The access token is obtained directly from the Token Endpoint
+** Additional grant types are supported by xref:servlet/oauth2/index.adoc#oauth2-client-enable-extension-grant-type[enabling extension grant types]
+* If an existing `OAuth2AccessToken` is expired, it is refreshed (or renewed)
+
+The following example uses the default `OAuth2AuthorizedClientManager` to configure a `RestClient` capable of accessing protected resources by placing `Bearer` tokens in the `Authorization` header of each request:
+
+.Configure `RestClient` with `ClientHttpRequestInterceptor`
+[tabs]
+=====
+Java::
++
+[source,java,role="primary"]
+----
+@Configuration
+public class RestClientConfig {
+
+	@Bean
+	public RestClient restClient(OAuth2AuthorizedClientManager authorizedClientManager) {
+		OAuth2ClientHttpRequestInterceptor requestInterceptor =
+				new OAuth2ClientHttpRequestInterceptor(authorizedClientManager);
+
+		return RestClient.builder()
+				.requestInterceptor(requestInterceptor)
+				.build();
+	}
+
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Configuration
+class RestClientConfig {
+
+	@Bean
+	fun restClient(authorizedClientManager: OAuth2AuthorizedClientManager): RestClient {
+		val requestInterceptor = OAuth2ClientHttpRequestInterceptor(authorizedClientManager)
+
+		return RestClient.builder()
+			.requestInterceptor(requestInterceptor)
+			.build()
+	}
+
+}
+----
+=====
+
+[[oauth2-client-rest-client-registration-id]]
+=== Providing the `clientRegistrationId`
+
+`OAuth2ClientHttpRequestInterceptor` uses a `ClientRegistrationIdResolver` to determine which client is used to obtain an access token.
+By default, `RequestAttributeClientRegistrationIdResolver` is used to resolve the `clientRegistrationId` from `HttpRequest#attributes()`.
+
+The following example demonstrates providing a `clientRegistrationId` via attributes:
+
+.Provide `clientRegistrationId` via attributes
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+import static org.springframework.security.oauth2.client.web.client.RequestAttributeClientRegistrationIdResolver.clientRegistrationId;
+
+@Controller
+public class ResourceController {
+
+	private final RestClient restClient;
+
+	public ResourceController(RestClient restClient) {
+		this.restClient = restClient;
+	}
+
+	@GetMapping("/")
+	public String index() {
+		String resourceUri = "...";
+
+		String body = this.restClient.get()
+				.uri(resourceUri)
+				.attributes(clientRegistrationId("okta"))   // <1>
+				.retrieve()
+				.body(String.class);
+
+		// ...
+
+		return "index";
+	}
+
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+import org.springframework.security.oauth2.client.web.client.RequestAttributeClientRegistrationIdResolver.clientRegistrationId
+import org.springframework.web.client.body
+
+@Controller
+class ResourceController(private restClient: RestClient) {
+
+	@GetMapping("/")
+	fun index(): String {
+		val resourceUri = "..."
+
+		val body: String = restClient.get()
+				.uri(resourceUri)
+				.attributes(clientRegistrationId("okta"))   // <1>
+				.retrieve()
+				.body<String>()
+
+		// ...
+
+		return "index"
+	}
+
+}
+----
+======
+<1> `clientRegistrationId()` is a `static` method in `RequestAttributeClientRegistrationIdResolver`.
+
+Alternatively, a custom `ClientRegistrationIdResolver` can be provided.
+The following example configures a custom implementation that resolves the `clientRegistrationId` from the current user.
+
+.Configure `ClientHttpRequestInterceptor` with custom `ClientRegistrationIdResolver`
+[tabs]
+=====
+Java::
++
+[source,java,role="primary"]
+----
+@Configuration
+public class RestClientConfig {
+
+	@Bean
+	public RestClient restClient(OAuth2AuthorizedClientManager authorizedClientManager) {
+		OAuth2ClientHttpRequestInterceptor requestInterceptor =
+				new OAuth2ClientHttpRequestInterceptor(authorizedClientManager);
+		requestInterceptor.setClientRegistrationIdResolver(clientRegistrationIdResolver());
+
+		return RestClient.builder()
+				.requestInterceptor(requestInterceptor)
+				.build();
+	}
+
+	private static ClientRegistrationIdResolver clientRegistrationIdResolver() {
+		return (request) -> {
+			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+			return (authentication instanceof OAuth2AuthenticationToken principal)
+					? principal.getAuthorizedClientRegistrationId() : null;
+		};
+	}
+
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Configuration
+class RestClientConfig {
+
+	@Bean
+	fun restClient(authorizedClientManager: OAuth2AuthorizedClientManager): RestClient {
+		val requestInterceptor = OAuth2ClientHttpRequestInterceptor(authorizedClientManager)
+		requestInterceptor.setClientRegistrationIdResolver(clientRegistrationIdResolver())
+
+		return RestClient.builder()
+			.requestInterceptor(requestInterceptor)
+			.build()
+	}
+
+	fun clientRegistrationIdResolver(): ClientRegistrationIdResolver {
+		return ClientRegistrationIdResolver { request ->
+			val authentication = SecurityContextHolder.getContext().getAuthentication()
+			return if (authentication instanceof OAuth2AuthenticationToken) {
+				authentication.getAuthorizedClientRegistrationId()
+			} else {
+                null
+			}
+		}
+	}
+
+}
+----
+=====
+
+[[oauth2-client-rest-client-principal]]
+=== Providing the `principal`
+
+`OAuth2ClientHttpRequestInterceptor` uses a `PrincipalResolver` to determine which principal name is associated with the access token, which allows an application to choose how to scope the `OAuth2AuthorizedClient` that is stored.
+By default, `SecurityContextHolderPrincipalResolver` is used to resolve the current `principal` from the `SecurityContextHolder`.
+
+Alternatively, the `principal` can be resolved from `HttpRequest#attributes()` by configuring `RequestAttributePrincipalResolver`, as the following example shows:
+
+.Configure `ClientHttpRequestInterceptor` with `RequestAttributePrincipalResolver`
+[tabs]
+=====
+Java::
++
+[source,java,role="primary"]
+----
+@Configuration
+public class RestClientConfig {
+
+	@Bean
+	public RestClient restClient(OAuth2AuthorizedClientManager authorizedClientManager) {
+		OAuth2ClientHttpRequestInterceptor requestInterceptor =
+				new OAuth2ClientHttpRequestInterceptor(authorizedClientManager);
+		requestInterceptor.setPrincipalResolver(new RequestAttributePrincipalResolver());
+
+		return RestClient.builder()
+				.requestInterceptor(requestInterceptor)
+				.build();
+	}
+
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Configuration
+class RestClientConfig {
+
+	@Bean
+	fun restClient(authorizedClientManager: OAuth2AuthorizedClientManager): RestClient {
+		val requestInterceptor = OAuth2ClientHttpRequestInterceptor(authorizedClientManager)
+		requestInterceptor.setPrincipalResolver(RequestAttributePrincipalResolver())
+
+		return RestClient.builder()
+			.requestInterceptor(requestInterceptor)
+			.build()
+	}
+
+}
+----
+=====
+
+The following example demonstrates providing a `principal` name via attributes that scopes the `OAuth2AuthorizedClient` to the application instead of the current user:
+
+.Provide `principal` name via attributes
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+import static org.springframework.security.oauth2.client.web.client.RequestAttributeClientRegistrationIdResolver.clientRegistrationId;
+import static org.springframework.security.oauth2.client.web.client.RequestAttributePrincipalResolver.principal;
+
+@Controller
+public class ResourceController {
+
+	private final RestClient restClient;
+
+	public ResourceController(RestClient restClient) {
+		this.restClient = restClient;
+	}
+
+	@GetMapping("/")
+	public String index() {
+		String resourceUri = "...";
+
+		String body = this.restClient.get()
+				.uri(resourceUri)
+				.attributes(clientRegistrationId("okta"))
+				.attributes(principal("my-application"))   // <1>
+				.retrieve()
+				.body(String.class);
+
+		// ...
+
+		return "index";
+	}
+
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+import org.springframework.security.oauth2.client.web.client.RequestAttributeClientRegistrationIdResolver.clientRegistrationId
+import org.springframework.security.oauth2.client.web.client.RequestAttributePrincipalResolver.principal
+import org.springframework.web.client.body
+
+@Controller
+class ResourceController(private restClient: RestClient) {
+
+    @GetMapping("/")
+	fun index(): String {
+		val resourceUri = "..."
+
+		val body: String = restClient.get()
+				.uri(resourceUri)
+				.attributes(clientRegistrationId("okta"))
+				.attributes(principal("my-application"))   // <1>
+				.retrieve()
+				.body<String>()
+
+		// ...
+
+		return "index"
+	}
+
+}
+----
+======
+<1> `principal()` is a `static` method in `RequestAttributePrincipalResolver`.
+
+[[oauth2-client-rest-client-authorization-failure-handler]]
+=== Handling Failure
+
+If an access token is invalid for any reason (e.g. expired token), it can be beneficial to handle the failure by removing the access token so that it cannot be used again.
+You can set up the interceptor to do this automatically by providing an `OAuth2AuthorizationFailureHandler` to remove the access token.
+
+The following example uses an `OAuth2AuthorizedClientRepository` to set up an `OAuth2AuthorizationFailureHandler` that removes an invalid `OAuth2AuthorizedClient` *within* the context of an `HttpServletRequest`:
+
+.Configure `OAuth2AuthorizationFailureHandler` using `OAuth2AuthorizedClientRepository`
+[tabs]
+=====
+Java::
++
+[source,java,role="primary"]
+----
+@Configuration
+public class RestClientConfig {
+
+	@Bean
+	public RestClient restClient(OAuth2AuthorizedClientManager authorizedClientManager,
+			OAuth2AuthorizedClientRepository authorizedClientRepository) {
+
+		OAuth2ClientHttpRequestInterceptor requestInterceptor =
+				new OAuth2ClientHttpRequestInterceptor(authorizedClientManager);
+
+		OAuth2AuthorizationFailureHandler authorizationFailureHandler =
+			OAuth2ClientHttpRequestInterceptor.authorizationFailureHandler(authorizedClientRepository);
+		requestInterceptor.setAuthorizationFailureHandler(authorizationFailureHandler);
+
+		return RestClient.builder()
+				.requestInterceptor(requestInterceptor)
+				.build();
+	}
+
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Configuration
+class RestClientConfig {
+
+	@Bean
+	fun restClient(authorizedClientManager: OAuth2AuthorizedClientManager,
+			authorizedClientRepository: OAuth2AuthorizedClientRepository): RestClient {
+
+		val requestInterceptor = OAuth2ClientHttpRequestInterceptor(authorizedClientManager)
+
+		val authorizationFailureHandler = OAuth2ClientHttpRequestInterceptor
+			.authorizationFailureHandler(authorizedClientRepository)
+		requestInterceptor.setAuthorizationFailureHandler(authorizationFailureHandler)
+
+		return RestClient.builder()
+			.requestInterceptor(requestInterceptor)
+			.build()
+	}
+
+}
+----
+=====
+
+Alternatively, an `OAuth2AuthorizedClientService` can be used to remove an invalid `OAuth2AuthorizedClient` *outside* the context of an `HttpServletRequest`, as the following example shows:
+
+.Configure `OAuth2AuthorizationFailureHandler` using `OAuth2AuthorizedClientService`
+[tabs]
+=====
+Java::
++
+[source,java,role="primary"]
+----
+@Configuration
+public class RestClientConfig {
+
+	@Bean
+	public RestClient restClient(OAuth2AuthorizedClientManager authorizedClientManager,
+			OAuth2AuthorizedClientService authorizedClientService) {
+
+		OAuth2ClientHttpRequestInterceptor requestInterceptor =
+				new OAuth2ClientHttpRequestInterceptor(authorizedClientManager);
+
+		OAuth2AuthorizationFailureHandler authorizationFailureHandler =
+			OAuth2ClientHttpRequestInterceptor.authorizationFailureHandler(authorizedClientService);
+		requestInterceptor.setAuthorizationFailureHandler(authorizationFailureHandler);
+
+		return RestClient.builder()
+				.requestInterceptor(requestInterceptor)
+				.build();
+	}
+
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Configuration
+class RestClientConfig {
+
+	@Bean
+	fun restClient(authorizedClientManager: OAuth2AuthorizedClientManager,
+			authorizedClientService: OAuth2AuthorizedClientService): RestClient {
+
+		val requestInterceptor = OAuth2ClientHttpRequestInterceptor(authorizedClientManager)
+
+		val authorizationFailureHandler = OAuth2ClientHttpRequestInterceptor
+			.authorizationFailureHandler(authorizedClientService)
+		requestInterceptor.setAuthorizationFailureHandler(authorizationFailureHandler)
+
+		return RestClient.builder()
+			.requestInterceptor(requestInterceptor)
+			.build()
+	}
+
+}
+----
+=====
+
+[[oauth2-client-web-client]]
+== [[oauth2Client-webclient-servlet]]WebClient Integration for Servlet Environments
 
 The OAuth 2.0 Client support integrates with `WebClient` by using an `ExchangeFilterFunction`.
 
@@ -98,6 +541,7 @@ fun webClient(authorizedClientManager: OAuth2AuthorizedClientManager?): WebClien
 ----
 ======
 
+[[oauth2-client-web-client-authorized-client]]
 === Providing the Authorized Client
 
 The `ServletOAuth2AuthorizedClientExchangeFilterFunction` determines the client to use (for a request) by resolving the `OAuth2AuthorizedClient` from the `ClientRequest.attributes()` (request attributes).
@@ -256,9 +700,11 @@ fun index(): String {
 <1> `authentication()` is a `static` method in `ServletOAuth2AuthorizedClientExchangeFilterFunction`.
 
 [WARNING]
+====
 It is recommended to be cautious with this feature since all HTTP requests will receive an access token bound to the provided principal.
+====
 
-
+[[oauth2-client-web-client-default-authorized-client]]
 === Defaulting the Authorized Client
 
 If neither `OAuth2AuthorizedClient` or `ClientRegistration.getRegistrationId()` is provided as a request attribute, the `ServletOAuth2AuthorizedClientExchangeFilterFunction` can determine the _default_ client to use, depending on its configuration.

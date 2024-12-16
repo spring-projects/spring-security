@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,6 @@ import java.util.Set;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
-import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.GenericApplicationListenerAdapter;
@@ -100,6 +99,7 @@ import org.springframework.util.CollectionUtils;
  *
  * @author Rob Winch
  * @author Onur Kagan Ozcan
+ * @author Ngoc Nhan
  * @since 3.2
  * @see SessionManagementFilter
  * @see ConcurrentSessionFilter
@@ -630,12 +630,8 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 		if (context == null) {
 			return null;
 		}
-		try {
-			return context.getBean(type);
-		}
-		catch (NoSuchBeanDefinitionException ex) {
-			return null;
-		}
+
+		return context.getBeanProvider(type).getIfUnique();
 	}
 
 	/**

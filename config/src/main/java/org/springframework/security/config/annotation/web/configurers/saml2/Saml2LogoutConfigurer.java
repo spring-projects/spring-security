@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,10 +18,9 @@ package org.springframework.security.config.annotation.web.configurers.saml2;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import java.util.function.Predicate;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.opensaml.core.Version;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -33,19 +32,25 @@ import org.springframework.security.config.annotation.web.configurers.LogoutConf
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticatedPrincipal;
-import org.springframework.security.saml2.provider.service.authentication.logout.OpenSamlLogoutRequestValidator;
-import org.springframework.security.saml2.provider.service.authentication.logout.OpenSamlLogoutResponseValidator;
+import org.springframework.security.saml2.provider.service.authentication.logout.OpenSaml4LogoutRequestValidator;
+import org.springframework.security.saml2.provider.service.authentication.logout.OpenSaml4LogoutResponseValidator;
+import org.springframework.security.saml2.provider.service.authentication.logout.OpenSaml5LogoutRequestValidator;
+import org.springframework.security.saml2.provider.service.authentication.logout.OpenSaml5LogoutResponseValidator;
 import org.springframework.security.saml2.provider.service.authentication.logout.Saml2LogoutRequestValidator;
 import org.springframework.security.saml2.provider.service.authentication.logout.Saml2LogoutResponseValidator;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
 import org.springframework.security.saml2.provider.service.web.authentication.logout.HttpSessionLogoutRequestRepository;
 import org.springframework.security.saml2.provider.service.web.authentication.logout.OpenSaml4LogoutRequestResolver;
+import org.springframework.security.saml2.provider.service.web.authentication.logout.OpenSaml4LogoutRequestValidatorParametersResolver;
 import org.springframework.security.saml2.provider.service.web.authentication.logout.OpenSaml4LogoutResponseResolver;
-import org.springframework.security.saml2.provider.service.web.authentication.logout.OpenSamlLogoutRequestValidatorParametersResolver;
+import org.springframework.security.saml2.provider.service.web.authentication.logout.OpenSaml5LogoutRequestResolver;
+import org.springframework.security.saml2.provider.service.web.authentication.logout.OpenSaml5LogoutRequestValidatorParametersResolver;
+import org.springframework.security.saml2.provider.service.web.authentication.logout.OpenSaml5LogoutResponseResolver;
 import org.springframework.security.saml2.provider.service.web.authentication.logout.Saml2LogoutRequestFilter;
 import org.springframework.security.saml2.provider.service.web.authentication.logout.Saml2LogoutRequestRepository;
 import org.springframework.security.saml2.provider.service.web.authentication.logout.Saml2LogoutRequestResolver;
+import org.springframework.security.saml2.provider.service.web.authentication.logout.Saml2LogoutRequestValidatorParametersResolver;
 import org.springframework.security.saml2.provider.service.web.authentication.logout.Saml2LogoutResponseFilter;
 import org.springframework.security.saml2.provider.service.web.authentication.logout.Saml2LogoutResponseResolver;
 import org.springframework.security.saml2.provider.service.web.authentication.logout.Saml2RelyingPartyInitiatedLogoutSuccessHandler;
@@ -60,6 +65,7 @@ import org.springframework.security.web.csrf.CsrfLogoutHandler;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.security.web.util.matcher.AndRequestMatcher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.ParameterRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
 /**
@@ -101,11 +107,14 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
  * Uses {@link CsrfTokenRepository} to add the {@link CsrfLogoutHandler}.
  *
  * @author Josh Cummings
+ * @author Ngoc Nhan
  * @since 5.6
  * @see Saml2LogoutConfigurer
  */
 public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 		extends AbstractHttpConfigurer<Saml2LogoutConfigurer<H>, H> {
+
+	private static final boolean USE_OPENSAML_5 = Version.getVersion().startsWith("5");
 
 	private ApplicationContext context;
 
@@ -251,14 +260,26 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 			RelyingPartyRegistrationRepository registrations) {
 		LogoutHandler[] logoutHandlers = this.logoutHandlers.toArray(new LogoutHandler[0]);
 		Saml2LogoutResponseResolver logoutResponseResolver = createSaml2LogoutResponseResolver(registrations);
-		RequestMatcher requestMatcher = createLogoutRequestMatcher();
-		OpenSamlLogoutRequestValidatorParametersResolver parameters = new OpenSamlLogoutRequestValidatorParametersResolver(
-				registrations);
-		parameters.setRequestMatcher(requestMatcher);
-		Saml2LogoutRequestFilter filter = new Saml2LogoutRequestFilter(parameters,
+		Saml2LogoutRequestFilter filter = new Saml2LogoutRequestFilter(
+				createSaml2LogoutResponseParametersResolver(registrations),
 				this.logoutRequestConfigurer.logoutRequestValidator(), logoutResponseResolver, logoutHandlers);
 		filter.setSecurityContextHolderStrategy(getSecurityContextHolderStrategy());
 		return postProcess(filter);
+	}
+
+	private Saml2LogoutRequestValidatorParametersResolver createSaml2LogoutResponseParametersResolver(
+			RelyingPartyRegistrationRepository registrations) {
+		RequestMatcher requestMatcher = createLogoutRequestMatcher();
+		if (USE_OPENSAML_5) {
+			OpenSaml5LogoutRequestValidatorParametersResolver parameters = new OpenSaml5LogoutRequestValidatorParametersResolver(
+					registrations);
+			parameters.setRequestMatcher(requestMatcher);
+			return parameters;
+		}
+		OpenSaml4LogoutRequestValidatorParametersResolver parameters = new OpenSaml4LogoutRequestValidatorParametersResolver(
+				registrations);
+		parameters.setRequestMatcher(requestMatcher);
+		return parameters;
 	}
 
 	private Saml2LogoutResponseFilter createLogoutResponseProcessingFilter(
@@ -316,10 +337,7 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 		if (this.context == null) {
 			return null;
 		}
-		if (this.context.getBeanNamesForType(clazz).length == 0) {
-			return null;
-		}
-		return this.context.getBean(clazz);
+		return this.context.getBeanProvider(clazz).getIfAvailable();
 	}
 
 	/**
@@ -398,15 +416,21 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 		}
 
 		private Saml2LogoutRequestValidator logoutRequestValidator() {
-			if (this.logoutRequestValidator == null) {
-				return new OpenSamlLogoutRequestValidator();
+			if (this.logoutRequestValidator != null) {
+				return this.logoutRequestValidator;
 			}
-			return this.logoutRequestValidator;
+			if (USE_OPENSAML_5) {
+				return new OpenSaml5LogoutRequestValidator();
+			}
+			return new OpenSaml4LogoutRequestValidator();
 		}
 
 		private Saml2LogoutRequestResolver logoutRequestResolver(RelyingPartyRegistrationRepository registrations) {
 			if (this.logoutRequestResolver != null) {
 				return this.logoutRequestResolver;
+			}
+			if (USE_OPENSAML_5) {
+				return new OpenSaml5LogoutRequestResolver(registrations);
 			}
 			return new OpenSaml4LogoutRequestResolver(registrations);
 		}
@@ -474,17 +498,23 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 		}
 
 		private Saml2LogoutResponseValidator logoutResponseValidator() {
-			if (this.logoutResponseValidator == null) {
-				return new OpenSamlLogoutResponseValidator();
+			if (this.logoutResponseValidator != null) {
+				return this.logoutResponseValidator;
 			}
-			return this.logoutResponseValidator;
+			if (USE_OPENSAML_5) {
+				return new OpenSaml5LogoutResponseValidator();
+			}
+			return new OpenSaml4LogoutResponseValidator();
 		}
 
 		private Saml2LogoutResponseResolver logoutResponseResolver(RelyingPartyRegistrationRepository registrations) {
-			if (this.logoutResponseResolver == null) {
-				return new OpenSaml4LogoutResponseResolver(registrations);
+			if (this.logoutResponseResolver != null) {
+				return this.logoutResponseResolver;
 			}
-			return this.logoutResponseResolver;
+			if (USE_OPENSAML_5) {
+				return new OpenSaml5LogoutResponseResolver(registrations);
+			}
+			return new OpenSaml4LogoutResponseResolver(registrations);
 		}
 
 	}
@@ -504,23 +534,6 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 				return false;
 			}
 			return authentication.getPrincipal() instanceof Saml2AuthenticatedPrincipal;
-		}
-
-	}
-
-	private static class ParameterRequestMatcher implements RequestMatcher {
-
-		Predicate<String> test = Objects::nonNull;
-
-		String name;
-
-		ParameterRequestMatcher(String name) {
-			this.name = name;
-		}
-
-		@Override
-		public boolean matches(HttpServletRequest request) {
-			return this.test.test(request.getParameter(this.name));
 		}
 
 	}

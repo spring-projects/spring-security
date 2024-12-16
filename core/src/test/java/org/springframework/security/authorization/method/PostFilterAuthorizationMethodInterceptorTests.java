@@ -49,6 +49,7 @@ import static org.mockito.Mockito.verify;
  * Tests for {@link PostFilterAuthorizationMethodInterceptor}.
  *
  * @author Evgeniy Cheban
+ * @author Gengwu Zhao
  */
 public class PostFilterAuthorizationMethodInterceptorTests {
 
@@ -110,15 +111,6 @@ public class PostFilterAuthorizationMethodInterceptorTests {
 	}
 
 	@Test
-	public void checkInheritedAnnotationsWhenDuplicatedThenAnnotationConfigurationException() throws Exception {
-		MockMethodInvocation methodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
-				"inheritedAnnotations");
-		PostFilterAuthorizationMethodInterceptor advice = new PostFilterAuthorizationMethodInterceptor();
-		assertThatExceptionOfType(AnnotationConfigurationException.class)
-			.isThrownBy(() -> advice.invoke(methodInvocation));
-	}
-
-	@Test
 	public void checkInheritedAnnotationsWhenConflictingThenAnnotationConfigurationException() throws Exception {
 		MockMethodInvocation methodInvocation = new MockMethodInvocation(new ConflictingAnnotations(),
 				ConflictingAnnotations.class, "inheritedAnnotations");
@@ -129,10 +121,11 @@ public class PostFilterAuthorizationMethodInterceptorTests {
 
 	@Test
 	public void postFilterWhenMockSecurityContextHolderStrategyThenUses() throws Throwable {
-		SecurityContextHolderStrategy strategy = mock(SecurityContextHolderStrategy.class);
+
 		Authentication authentication = new TestingAuthenticationToken("john", "password",
 				AuthorityUtils.createAuthorityList("authority"));
-		given(strategy.getContext()).willReturn(new SecurityContextImpl(authentication));
+		SecurityContextHolderStrategy strategy = mockSecurityContextHolderStrategy(
+				new SecurityContextImpl(authentication));
 		String[] array = { "john", "bob" };
 		MockMethodInvocation invocation = new MockMethodInvocation(new TestClass(), TestClass.class,
 				"doSomethingArrayAuthentication", new Class[] { String[].class }, new Object[] { array }) {
@@ -150,10 +143,11 @@ public class PostFilterAuthorizationMethodInterceptorTests {
 	// gh-12877
 	@Test
 	public void postFilterWhenStaticSecurityContextHolderStrategyAfterConstructorThenUses() throws Throwable {
-		SecurityContextHolderStrategy strategy = mock(SecurityContextHolderStrategy.class);
+
 		Authentication authentication = new TestingAuthenticationToken("john", "password",
 				AuthorityUtils.createAuthorityList("authority"));
-		given(strategy.getContext()).willReturn(new SecurityContextImpl(authentication));
+		SecurityContextHolderStrategy strategy = mockSecurityContextHolderStrategy(
+				new SecurityContextImpl(authentication));
 		String[] array = { "john", "bob" };
 		MockMethodInvocation invocation = new MockMethodInvocation(new TestClass(), TestClass.class,
 				"doSomethingArrayAuthentication", new Class[] { String[].class }, new Object[] { array }) {
@@ -170,32 +164,11 @@ public class PostFilterAuthorizationMethodInterceptorTests {
 		SecurityContextHolder.setContextHolderStrategy(saved);
 	}
 
-	@Test
-	public void checkPostFilterWhenMethodsFromInheritThenApplies() throws Throwable {
-		String[] array = { "john", "bob" };
-		MockMethodInvocation methodInvocation = new MockMethodInvocation(new PostFilterClass(), PostFilterClass.class,
-				"inheritMethod", new Class[] { String[].class }, new Object[] { array }) {
-			@Override
-			public Object proceed() {
-				return array;
-			}
-		};
-		PostFilterAuthorizationMethodInterceptor advice = new PostFilterAuthorizationMethodInterceptor();
-		Object result = advice.invoke(methodInvocation);
-		assertThat(result).asInstanceOf(InstanceOfAssertFactories.array(String[].class)).containsOnly("john");
-	}
+	private SecurityContextHolderStrategy mockSecurityContextHolderStrategy(SecurityContextImpl securityContextImpl) {
 
-	@PostFilter("filterObject == 'john'")
-	public static class PostFilterClass extends ParentClass {
-
-	}
-
-	public static class ParentClass {
-
-		public String[] inheritMethod(String[] array) {
-			return array;
-		}
-
+		SecurityContextHolderStrategy strategy = mock(SecurityContextHolderStrategy.class);
+		given(strategy.getContext()).willReturn(securityContextImpl);
+		return strategy;
 	}
 
 	@PostFilter("filterObject == 'john'")
@@ -230,12 +203,10 @@ public class PostFilterAuthorizationMethodInterceptorTests {
 
 	}
 
-	public static class ConflictingAnnotations implements InterfaceAnnotationsThree {
+	public static class ConflictingAnnotations implements InterfaceAnnotationsOne, InterfaceAnnotationsTwo {
 
 		@Override
-		@PostFilter("filterObject == 'jack'")
 		public void inheritedAnnotations() {
-
 		}
 
 	}

@@ -138,7 +138,6 @@ public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoin
 		logger.debug(LogMessage.format("Server side forward to: %s", loginForm));
 		RequestDispatcher dispatcher = request.getRequestDispatcher(loginForm);
 		dispatcher.forward(request, response);
-		return;
 	}
 
 	protected String buildRedirectUrlToLoginPage(HttpServletRequest request, HttpServletResponse response,

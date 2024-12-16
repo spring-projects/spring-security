@@ -339,7 +339,7 @@ Java::
 [source,java,role="primary"]
 ----
 @Bean
-JWTProcessor jwtProcessor(JWTClaimSetJWSKeySelector keySelector) {
+JWTProcessor jwtProcessor(JWTClaimsSetAwareJWSKeySelector keySelector) {
 	ConfigurableJWTProcessor<SecurityContext> jwtProcessor =
             new DefaultJWTProcessor();
 	jwtProcessor.setJWTClaimSetJWSKeySelector(keySelector);
@@ -419,7 +419,7 @@ Java::
 ----
 @Bean
 JwtDecoder jwtDecoder(JWTProcessor jwtProcessor, OAuth2TokenValidator<Jwt> jwtValidator) {
-	NimbusJwtDecoder decoder = new NimbusJwtDecoder(processor);
+	NimbusJwtDecoder decoder = new NimbusJwtDecoder(jwtProcessor);
 	OAuth2TokenValidator<Jwt> validator = new DelegatingOAuth2TokenValidator<>
 			(JwtValidators.createDefault(), jwtValidator);
 	decoder.setJwtValidator(validator);

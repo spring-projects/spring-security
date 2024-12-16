@@ -211,7 +211,7 @@ public class FilterChainProxy extends GenericFilterBean {
 		FirewalledRequest firewallRequest = this.firewall.getFirewalledRequest((HttpServletRequest) request);
 		HttpServletResponse firewallResponse = this.firewall.getFirewalledResponse((HttpServletResponse) response);
 		List<Filter> filters = getFilters(firewallRequest);
-		if (filters == null || filters.size() == 0) {
+		if (filters == null || filters.isEmpty()) {
 			if (logger.isTraceEnabled()) {
 				logger.trace(LogMessage.of(() -> "No security for " + requestLine(firewallRequest)));
 			}

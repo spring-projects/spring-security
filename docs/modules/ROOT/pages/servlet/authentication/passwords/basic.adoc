@@ -9,6 +9,7 @@ This section describes how HTTP Basic Authentication works within Spring Securit
 First, we see the https://tools.ietf.org/html/rfc7235#section-4.1[WWW-Authenticate] header is sent back to an unauthenticated client:
 
 .Sending WWW-Authenticate Header
+[.invert-dark]
 image::{figures}/basicauthenticationentrypoint.png[]
 
 The preceding figure builds off our xref:servlet/architecture.adoc#servlet-securityfilterchain[`SecurityFilterChain`] diagram.
@@ -18,7 +19,7 @@ image:{icondir}/number_1.png[] First, a user makes an unauthenticated request to
 image:{icondir}/number_2.png[] Spring Security's xref:servlet/authorization/authorize-http-requests.adoc[`AuthorizationFilter`] indicates that the unauthenticated request is __Denied__ by throwing an `AccessDeniedException`.
 
 image:{icondir}/number_3.png[] Since the user is not authenticated, xref:servlet/architecture.adoc#servlet-exceptiontranslationfilter[`ExceptionTranslationFilter`] initiates __Start Authentication__.
-The configured xref:servlet/authentication/architecture.adoc#servlet-authentication-authenticationentrypoint[`AuthenticationEntryPoint`] is an instance of {security-api-url}org/springframework/security/web/authentication/www/BasicAuthenticationEntryPoint.html[`BasicAuthenticationEntryPoint`], which sends a WWW-Authenticate header.
+The configured xref:servlet/authentication/architecture.adoc#servlet-authentication-authenticationentrypoint[`AuthenticationEntryPoint`] is an instance of javadoc:org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint[], which sends a WWW-Authenticate header.
 The `RequestCache` is typically a `NullRequestCache` that does not save the request since the client is capable of replaying the requests it originally requested.
 
 When a client receives the `WWW-Authenticate` header, it knows it should retry with a username and password.
@@ -26,6 +27,7 @@ The following image shows the flow for the username and password being processed
 
 [[servlet-authentication-basicauthenticationfilter]]
 .Authenticating Username and Password
+[.invert-dark]
 image::{figures}/basicauthenticationfilter.png[]
 
 The preceding figure builds off our xref:servlet/architecture.adoc#servlet-securityfilterchain[`SecurityFilterChain`] diagram.
@@ -41,18 +43,18 @@ image:{icondir}/number_3.png[] If authentication fails, then __Failure__.
 . The xref:servlet/authentication/architecture.adoc#servlet-authentication-securitycontextholder[SecurityContextHolder] is cleared out.
 . `RememberMeServices.loginFail` is invoked.
 If remember me is not configured, this is a no-op.
-See the {security-api-url}org/springframework/security/web/authentication/RememberMeServices.html[`RememberMeServices`] interface in the Javadoc.
+See the javadoc:org.springframework.security.web.authentication.RememberMeServices[] interface in the Javadoc.
 . `AuthenticationEntryPoint` is invoked to trigger the WWW-Authenticate to be sent again.
-See the {security-api-url}org/springframework/security/web/AuthenticationEntryPoint.html[`AuthenticationEntryPoint`] interface in the Javadoc.
+See the javadoc:org.springframework.security.web.AuthenticationEntryPoint[] interface in the Javadoc.
 
 image:{icondir}/number_4.png[] If authentication is successful, then __Success__.
 
 . The xref:servlet/authentication/architecture.adoc#servlet-authentication-authentication[Authentication] is set on the xref:servlet/authentication/architecture.adoc#servlet-authentication-securitycontextholder[SecurityContextHolder].
 . `RememberMeServices.loginSuccess` is invoked.
 If remember me is not configured, this is a no-op.
-See the {security-api-url}org/springframework/security/web/authentication/RememberMeServices.html[`RememberMeServices`] interface in the Javadoc.
+See the javadoc:org.springframework.security.web.authentication.RememberMeServices[] interface in the Javadoc.
 . The `BasicAuthenticationFilter` invokes `FilterChain.doFilter(request,response)` to continue with the rest of the application logic.
-See the {security-api-url}org/springframework/security/web/authentication/www/BasicAuthenticationFilter.html[`BasicAuthenticationFilter`] Class in the Javadoc
+See the javadoc:org.springframework.security.web.authentication.www.BasicAuthenticationFilter[] Class in the Javadoc
 
 By default, Spring Security's HTTP Basic Authentication support is enabled.
 However, as soon as any servlet based configuration is provided, HTTP Basic must be explicitly provided.

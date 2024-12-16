@@ -16,12 +16,24 @@
 
 package org.springframework.security.config.annotation.method.configuration;
 
+import java.util.List;
+
 import reactor.core.publisher.Mono;
 
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 
 public class ReactiveMethodSecurityServiceImpl implements ReactiveMethodSecurityService {
+
+	@Override
+	public Mono<String> preAuthorizeUser() {
+		return Mono.just("user");
+	}
+
+	@Override
+	public Mono<String> preAuthorizeAdmin() {
+		return Mono.just("admin");
+	}
 
 	@Override
 	public Mono<String> preAuthorizeGetCardNumberIfAdmin(String cardNumber) {
@@ -86,6 +98,16 @@ public class ReactiveMethodSecurityServiceImpl implements ReactiveMethodSecurity
 	@Override
 	public Mono<String> checkCustomResult(boolean result) {
 		return Mono.just("ok");
+	}
+
+	@Override
+	public Mono<String> preAuthorizeHasPermission(String kgName) {
+		return Mono.just("ok");
+	}
+
+	@Override
+	public Mono<List<String>> manyAnnotations(Mono<List<String>> array) {
+		return array;
 	}
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ public class AuthorizationObservationContext<T> extends Observation.Context {
 
 	private final T object;
 
-	private AuthorizationDecision decision;
+	private AuthorizationResult authorizationResult;
 
 	public AuthorizationObservationContext(T object) {
 		Assert.notNull(object, "object cannot be null");
@@ -71,17 +71,46 @@ public class AuthorizationObservationContext<T> extends Observation.Context {
 	/**
 	 * Get the observed {@link AuthorizationDecision}
 	 * @return the observed {@link AuthorizationDecision}
+	 * @deprecated please use {@link #getAuthorizationResult()} instead
 	 */
+	@Deprecated
 	public AuthorizationDecision getDecision() {
-		return this.decision;
+		if (this.authorizationResult == null) {
+			return null;
+		}
+		if (this.authorizationResult instanceof AuthorizationDecision decision) {
+			return decision;
+		}
+		throw new IllegalArgumentException(
+				"Please call getAuthorizationResult instead. If you must call getDecision, please ensure that the result you provide is of type AuthorizationDecision");
 	}
 
 	/**
 	 * Set the observed {@link AuthorizationDecision}
 	 * @param decision the observed {@link AuthorizationDecision}
+	 * @deprecated please use {@link #setAuthorizationResult(AuthorizationResult)} instead
 	 */
+	@Deprecated
 	public void setDecision(AuthorizationDecision decision) {
-		this.decision = decision;
+		this.authorizationResult = decision;
+	}
+
+	/**
+	 * Get the observed {@link AuthorizationResult}
+	 * @return the observed {@link AuthorizationResult}
+	 * @since 6.4
+	 */
+	public AuthorizationResult getAuthorizationResult() {
+		return this.authorizationResult;
+	}
+
+	/**
+	 * Set the observed {@link AuthorizationResult}
+	 * @param authorizationResult the observed {@link AuthorizationResult}
+	 * @since 6.4
+	 */
+	public void setAuthorizationResult(AuthorizationResult authorizationResult) {
+		this.authorizationResult = authorizationResult;
 	}
 
 }

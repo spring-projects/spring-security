@@ -30,6 +30,7 @@ import org.springframework.security.saml2.Saml2Exception;
 import org.springframework.security.saml2.provider.service.metadata.Saml2MetadataResolver;
 import org.springframework.security.saml2.provider.service.metadata.Saml2MetadataResponse;
 import org.springframework.security.saml2.provider.service.metadata.Saml2MetadataResponseResolver;
+import org.springframework.security.saml2.provider.service.registration.IterableRelyingPartyRegistrationRepository;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
 import org.springframework.security.saml2.provider.service.web.RelyingPartyRegistrationPlaceholderResolvers;
@@ -104,6 +105,9 @@ public class RequestMatcherMetadataResponseResolver implements Saml2MetadataResp
 		Saml2MetadataResponse response = responseByRegistrationId(request, registrationId);
 		if (response != null) {
 			return response;
+		}
+		if (this.registrations instanceof IterableRelyingPartyRegistrationRepository iterable) {
+			return responseByIterable(request, iterable);
 		}
 		if (this.registrations instanceof Iterable<?>) {
 			Iterable<RelyingPartyRegistration> registrations = (Iterable<RelyingPartyRegistration>) this.registrations;

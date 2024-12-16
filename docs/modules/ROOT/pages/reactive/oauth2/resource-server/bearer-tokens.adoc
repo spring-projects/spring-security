@@ -41,7 +41,7 @@ return http {
 == Bearer Token Propagation
 
 Now that you have a bearer token, you can pass that to downstream services.
-This is possible with `{security-api-url}org/springframework/security/oauth2/server/resource/web/reactive/function/client/ServerBearerExchangeFilterFunction.html[ServerBearerExchangeFilterFunction]`:
+This is possible with javadoc:org.springframework.security.oauth2.server.resource.web.reactive.function.client.ServerBearerExchangeFilterFunction[]:
 
 [tabs]
 ======
@@ -70,7 +70,7 @@ fun rest(): WebClient {
 ----
 ======
 
-When the `WebClient` shown in the preceding example performs requests, Spring Security looks up the current `Authentication` and extract any `{security-api-url}org/springframework/security/oauth2/core/AbstractOAuth2Token.html[AbstractOAuth2Token]` credential.
+When the `WebClient` shown in the preceding example performs requests, Spring Security looks up the current `Authentication` and extract any javadoc:org.springframework.security.oauth2.core.AbstractOAuth2Token[] credential.
 Then, it propagates that token in the `Authorization` header -- for example:
 
 [tabs]
@@ -96,7 +96,7 @@ this.rest.get()
 ----
 ======
 
-The prececing example invokes the `https://other-service.example.com/endpoint`, adding the bearer token `Authorization` header for you.
+The preceding example invokes the `https://other-service.example.com/endpoint`, adding the bearer token `Authorization` header for you.
 
 In places where you need to override this behavior, you can supply the header yourself:
 

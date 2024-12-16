@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,12 @@
 
 package org.springframework.security.web.authentication;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.Locale;
 
 import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.context.support.MessageSourceAccessor;
@@ -183,6 +185,92 @@ public class DefaultLoginPageGeneratingFilterTests {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		filter.doFilter(request, response, this.chain);
 		assertThat(response.getContentAsString()).contains("Invalid credentials");
+	}
+
+	@Test
+	public void generateWhenOneTimeTokenLoginThenOttForm() throws Exception {
+		DefaultLoginPageGeneratingFilter filter = new DefaultLoginPageGeneratingFilter();
+		filter.setLoginPageUrl(DefaultLoginPageGeneratingFilter.DEFAULT_LOGIN_PAGE_URL);
+		filter.setOneTimeTokenEnabled(true);
+		filter.setOneTimeTokenGenerationUrl("/ott/authenticate");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		filter.doFilter(new MockHttpServletRequest("GET", "/login"), response, this.chain);
+		assertThat(response.getContentAsString()).contains("Request a One-Time Token");
+		assertThat(response.getContentAsString()).contains("""
+				      <form id="ott-form" class="login-form" method="post" action="/ott/authenticate">
+				        <h2>Request a One-Time Token</h2>
+
+				        <p>
+				          <label for="ott-username" class="screenreader">Username</label>
+				          <input type="text" id="ott-username" name="username" placeholder="Username" required>
+				        </p>
+
+				        <button class="primary" type="submit" form="ott-form">Send Token</button>
+				      </form>
+				""");
+	}
+
+	@Test
+	void generatesThenRenders() throws ServletException, IOException {
+		DefaultLoginPageGeneratingFilter filter = new DefaultLoginPageGeneratingFilter(
+				new UsernamePasswordAuthenticationFilter());
+		filter.setLoginPageUrl(DefaultLoginPageGeneratingFilter.DEFAULT_LOGIN_PAGE_URL);
+		filter.setSaml2LoginEnabled(true);
+		String clientName = "Google < > \" \' &";
+		filter.setSaml2AuthenticationUrlToProviderName(Collections.singletonMap("/saml/sso/google", clientName));
+		filter.setOauth2LoginEnabled(true);
+		clientName = "Google < > \" \' &";
+		filter.setOauth2AuthenticationUrlToClientName(
+				Collections.singletonMap("/oauth2/authorization/google", clientName));
+
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/login");
+		request.setQueryString("error");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		request.getSession()
+			.setAttribute(WebAttributes.AUTHENTICATION_EXCEPTION, new BadCredentialsException("Bad credentials"));
+		filter.doFilter(request, response, this.chain);
+		assertThat(response.getContentAsString()).isEqualTo("""
+				<!DOCTYPE html>
+				<html lang="en">
+				  <head>
+				    <meta charset="utf-8">
+				    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+				    <meta name="description" content="">
+				    <meta name="author" content="">
+				    <title>Please sign in</title>
+				    <link href="/default-ui.css" rel="stylesheet" />
+				  </head>
+				  <body>
+				    <div class="content">
+				      <form class="login-form" method="post" action="null">
+				        <h2>Please sign in</h2>
+				<div class="alert alert-danger" role="alert">Bad credentials</div>
+				        <p>
+				          <label for="username" class="screenreader">Username</label>
+				          <input type="text" id="username" name="username" placeholder="Username" required autofocus>
+				        </p>
+				        <p>
+				          <label for="password" class="screenreader">Password</label>
+				          <input type="password" id="password" name="password" placeholder="Password" required>
+				        </p>
+
+
+				        <button type="submit" class="primary">Sign in</button>
+				      </form>
+
+				<h2>Login with OAuth 2.0</h2>
+				<div class="alert alert-danger" role="alert">Bad credentials</div>
+				<table class="table table-striped">
+				  <tr><td><a href="/oauth2/authorization/google">Google &lt; &gt; &quot; &#39; &amp;</a></td></tr>
+				</table>
+				<h2>Login with SAML 2.0</h2>
+				<div class="alert alert-danger" role="alert">Bad credentials</div>
+				<table class="table table-striped">
+				  <tr><td><a href="/saml/sso/google">Google &lt; &gt; &quot; &#39; &amp;</a></td></tr>
+				</table>
+				    </div>
+				  </body>
+				</html>""");
 	}
 
 }

@@ -51,6 +51,7 @@ import static org.mockito.Mockito.verify;
  * Tests for {@link PreFilterAuthorizationMethodInterceptor}.
  *
  * @author Evgeniy Cheban
+ * @author Gengwu Zhao
  */
 public class PreFilterAuthorizationMethodInterceptorTests {
 
@@ -170,15 +171,6 @@ public class PreFilterAuthorizationMethodInterceptorTests {
 	}
 
 	@Test
-	public void checkInheritedAnnotationsWhenDuplicatedThenAnnotationConfigurationException() throws Exception {
-		MockMethodInvocation methodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
-				"inheritedAnnotations");
-		PreFilterAuthorizationMethodInterceptor advice = new PreFilterAuthorizationMethodInterceptor();
-		assertThatExceptionOfType(AnnotationConfigurationException.class)
-			.isThrownBy(() -> advice.invoke(methodInvocation));
-	}
-
-	@Test
 	public void checkInheritedAnnotationsWhenConflictingThenAnnotationConfigurationException() throws Exception {
 		MockMethodInvocation methodInvocation = new MockMethodInvocation(new ConflictingAnnotations(),
 				ConflictingAnnotations.class, "inheritedAnnotations");
@@ -189,10 +181,10 @@ public class PreFilterAuthorizationMethodInterceptorTests {
 
 	@Test
 	public void preFilterWhenMockSecurityContextHolderStrategyThenUses() throws Throwable {
-		SecurityContextHolderStrategy strategy = mock(SecurityContextHolderStrategy.class);
 		Authentication authentication = new TestingAuthenticationToken("john", "password",
 				AuthorityUtils.createAuthorityList("authority"));
-		given(strategy.getContext()).willReturn(new SecurityContextImpl(authentication));
+		SecurityContextHolderStrategy strategy = mockSecurityContextHolderStrategy(
+				new SecurityContextImpl(authentication));
 		List<String> list = new ArrayList<>();
 		list.add("john");
 		list.add("bob");
@@ -207,10 +199,10 @@ public class PreFilterAuthorizationMethodInterceptorTests {
 	// gh-12877
 	@Test
 	public void preFilterWhenStaticSecurityContextHolderStrategyAfterConstructorThenUses() throws Throwable {
-		SecurityContextHolderStrategy strategy = mock(SecurityContextHolderStrategy.class);
 		Authentication authentication = new TestingAuthenticationToken("john", "password",
 				AuthorityUtils.createAuthorityList("authority"));
-		given(strategy.getContext()).willReturn(new SecurityContextImpl(authentication));
+		SecurityContextHolderStrategy strategy = mockSecurityContextHolderStrategy(
+				new SecurityContextImpl(authentication));
 		List<String> list = new ArrayList<>();
 		list.add("john");
 		list.add("bob");
@@ -224,30 +216,11 @@ public class PreFilterAuthorizationMethodInterceptorTests {
 		SecurityContextHolder.setContextHolderStrategy(saved);
 	}
 
-	@Test
-	public void checkPreFilterWhenMethodsFromInheritThenApplies() throws Throwable {
-		List<String> list = new ArrayList<>();
-		list.add("john");
-		list.add("bob");
-		MockMethodInvocation invocation = new MockMethodInvocation(new PreFilterClass(), PreFilterClass.class,
-				"inheritMethod", new Class[] { List.class }, new Object[] { list });
-		PreFilterAuthorizationMethodInterceptor advice = new PreFilterAuthorizationMethodInterceptor();
-		advice.invoke(invocation);
-		assertThat(list).hasSize(1);
-		assertThat(list.get(0)).isEqualTo("john");
-	}
+	private SecurityContextHolderStrategy mockSecurityContextHolderStrategy(SecurityContextImpl securityContextImpl) {
 
-	@PreFilter("filterObject == 'john'")
-	public static class PreFilterClass extends ParentClass {
-
-	}
-
-	public static class ParentClass {
-
-		public void inheritMethod(List<String> list) {
-
-		}
-
+		SecurityContextHolderStrategy strategy = mock(SecurityContextHolderStrategy.class);
+		given(strategy.getContext()).willReturn(securityContextImpl);
+		return strategy;
 	}
 
 	@PreFilter("filterObject == 'john'")
@@ -297,12 +270,10 @@ public class PreFilterAuthorizationMethodInterceptorTests {
 
 	}
 
-	public static class ConflictingAnnotations implements InterfaceAnnotationsThree {
+	public static class ConflictingAnnotations implements InterfaceAnnotationsOne, InterfaceAnnotationsTwo {
 
 		@Override
-		@PreFilter("filterObject == 'jack'")
 		public void inheritedAnnotations() {
-
 		}
 
 	}

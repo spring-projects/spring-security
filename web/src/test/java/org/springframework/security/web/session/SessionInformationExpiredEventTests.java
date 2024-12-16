@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2016 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,10 +20,12 @@ import java.util.Date;
 
 import org.junit.jupiter.api.Test;
 
+import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.core.session.SessionInformation;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
@@ -48,6 +50,15 @@ public class SessionInformationExpiredEventTests {
 	public void constructorWhenResponseNullThenThrowsException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> new SessionInformationExpiredEvent(
 				new SessionInformation("fake", "sessionId", new Date()), new MockHttpServletRequest(), null));
+	}
+
+	@Test
+	void constructorWhenFilterChainThenGetFilterChainReturnsNotNull() {
+		MockFilterChain filterChain = new MockFilterChain();
+		SessionInformationExpiredEvent event = new SessionInformationExpiredEvent(
+				new SessionInformation("fake", "sessionId", new Date()), new MockHttpServletRequest(),
+				new MockHttpServletResponse(), filterChain);
+		assertThat(event.getFilterChain()).isSameAs(filterChain);
 	}
 
 }

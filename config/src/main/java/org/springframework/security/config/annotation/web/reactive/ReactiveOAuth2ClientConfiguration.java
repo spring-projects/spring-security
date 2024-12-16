@@ -30,7 +30,6 @@ import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.ObjectProvider;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
@@ -93,9 +92,16 @@ final class ReactiveOAuth2ClientConfiguration {
 	@Configuration(proxyBeanMethods = false)
 	static class OAuth2ClientWebFluxSecurityConfiguration implements WebFluxConfigurer {
 
-		private ReactiveOAuth2AuthorizedClientManager authorizedClientManager;
+		private final ReactiveOAuth2AuthorizedClientManager authorizedClientManager;
 
-		private ReactiveOAuth2AuthorizedClientManagerRegistrar authorizedClientManagerRegistrar;
+		private final ReactiveOAuth2AuthorizedClientManagerRegistrar authorizedClientManagerRegistrar;
+
+		OAuth2ClientWebFluxSecurityConfiguration(
+				ObjectProvider<ReactiveOAuth2AuthorizedClientManager> authorizedClientManager,
+				ReactiveOAuth2AuthorizedClientManagerRegistrar authorizedClientManagerRegistrar) {
+			this.authorizedClientManager = authorizedClientManager.getIfUnique();
+			this.authorizedClientManagerRegistrar = authorizedClientManagerRegistrar;
+		}
 
 		@Override
 		public void configureArgumentResolvers(ArgumentResolverConfigurer configurer) {
@@ -103,19 +109,6 @@ final class ReactiveOAuth2ClientConfiguration {
 			if (authorizedClientManager != null) {
 				configurer.addCustomResolver(new OAuth2AuthorizedClientArgumentResolver(authorizedClientManager));
 			}
-		}
-
-		@Autowired(required = false)
-		void setAuthorizedClientManager(List<ReactiveOAuth2AuthorizedClientManager> authorizedClientManager) {
-			if (authorizedClientManager.size() == 1) {
-				this.authorizedClientManager = authorizedClientManager.get(0);
-			}
-		}
-
-		@Autowired
-		void setAuthorizedClientManagerRegistrar(
-				ReactiveOAuth2AuthorizedClientManagerRegistrar authorizedClientManagerRegistrar) {
-			this.authorizedClientManagerRegistrar = authorizedClientManagerRegistrar;
 		}
 
 		private ReactiveOAuth2AuthorizedClientManager getAuthorizedClientManager() {

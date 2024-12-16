@@ -32,8 +32,8 @@ import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.util.Assert;
 
 /**
- * {@link RememberMeServices} implementation based on Barry Jaspan's
- * <a href="http://jaspan.com/improved_persistent_login_cookie_best_practice">Improved
+ * {@link RememberMeServices} implementation based on Barry Jaspan's <a href=
+ * "https://web.archive.org/web/20180819014446/http://jaspan.com/improved_persistent_login_cookie_best_practice">Improved
  * Persistent Login Cookie Best Practice</a>.
  *
  * There is a slight modification to the described approach, in that the username is not

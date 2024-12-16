@@ -17,6 +17,7 @@
 package org.springframework.security.authorization.method;
 
 import java.lang.reflect.Array;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -37,10 +38,14 @@ import java.util.TreeSet;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
+import org.aopalliance.aop.Advice;
+import org.aopalliance.intercept.MethodInvocation;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import org.springframework.aop.Advisor;
+import org.springframework.aop.Pointcut;
+import org.springframework.aop.framework.AopInfrastructureBean;
 import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 import org.springframework.lang.NonNull;
@@ -75,7 +80,7 @@ import org.springframework.util.ClassUtils;
  * @since 6.3
  */
 public final class AuthorizationAdvisorProxyFactory
-		implements AuthorizationProxyFactory, Iterable<AuthorizationAdvisor> {
+		implements AuthorizationProxyFactory, Iterable<AuthorizationAdvisor>, AopInfrastructureBean {
 
 	private static final boolean isReactivePresent = ClassUtils.isPresent("reactor.core.publisher.Mono", null);
 
@@ -86,14 +91,24 @@ public final class AuthorizationAdvisorProxyFactory
 	private static final TargetVisitor DEFAULT_VISITOR_SKIP_VALUE_TYPES = TargetVisitor.of(new ClassVisitor(),
 			new IgnoreValueTypeVisitor(), DEFAULT_VISITOR);
 
+	private final AuthorizationProxyMethodInterceptor authorizationProxy = new AuthorizationProxyMethodInterceptor();
+
 	private List<AuthorizationAdvisor> advisors;
 
 	private TargetVisitor visitor = DEFAULT_VISITOR;
 
-	private AuthorizationAdvisorProxyFactory(List<AuthorizationAdvisor> advisors) {
+	/**
+	 * Construct an {@link AuthorizationAdvisorProxyFactory} with the provided advisors.
+	 *
+	 * <p>
+	 * The list may be empty, in the case where advisors are added later using
+	 * {@link #addAdvisor}.
+	 * @param advisors the advisors to use
+	 * @since 6.4
+	 */
+	public AuthorizationAdvisorProxyFactory(List<AuthorizationAdvisor> advisors) {
 		this.advisors = new ArrayList<>(advisors);
-		this.advisors.add(new AuthorizeReturnObjectMethodInterceptor(this));
-		setAdvisors(this.advisors);
+		AnnotationAwareOrderComparator.sort(this.advisors);
 	}
 
 	/**
@@ -108,7 +123,9 @@ public final class AuthorizationAdvisorProxyFactory
 		advisors.add(AuthorizationManagerAfterMethodInterceptor.postAuthorize());
 		advisors.add(new PreFilterAuthorizationMethodInterceptor());
 		advisors.add(new PostFilterAuthorizationMethodInterceptor());
-		return new AuthorizationAdvisorProxyFactory(advisors);
+		AuthorizationAdvisorProxyFactory proxyFactory = new AuthorizationAdvisorProxyFactory(advisors);
+		proxyFactory.addAdvisor(new AuthorizeReturnObjectMethodInterceptor(proxyFactory));
+		return proxyFactory;
 	}
 
 	/**
@@ -123,7 +140,9 @@ public final class AuthorizationAdvisorProxyFactory
 		advisors.add(AuthorizationManagerAfterReactiveMethodInterceptor.postAuthorize());
 		advisors.add(new PreFilterAuthorizationReactiveMethodInterceptor());
 		advisors.add(new PostFilterAuthorizationReactiveMethodInterceptor());
-		return new AuthorizationAdvisorProxyFactory(advisors);
+		AuthorizationAdvisorProxyFactory proxyFactory = new AuthorizationAdvisorProxyFactory(advisors);
+		proxyFactory.addAdvisor(new AuthorizeReturnObjectMethodInterceptor(proxyFactory));
+		return proxyFactory;
 	}
 
 	/**
@@ -146,17 +165,24 @@ public final class AuthorizationAdvisorProxyFactory
 	 */
 	@Override
 	public Object proxy(Object target) {
+		AnnotationAwareOrderComparator.sort(this.advisors);
 		if (target == null) {
 			return null;
+		}
+		if (target instanceof AuthorizationProxy proxied) {
+			return proxied;
 		}
 		Object proxied = this.visitor.visit(this, target);
 		if (proxied != null) {
 			return proxied;
 		}
 		ProxyFactory factory = new ProxyFactory(target);
+		factory.addAdvisors(this.authorizationProxy);
 		for (Advisor advisor : this.advisors) {
 			factory.addAdvisors(advisor);
 		}
+		factory.addInterface(AuthorizationProxy.class);
+		factory.setOpaque(true);
 		factory.setProxyTargetClass(!Modifier.isFinal(target.getClass().getModifiers()));
 		return factory.getProxy();
 	}
@@ -167,10 +193,11 @@ public final class AuthorizationAdvisorProxyFactory
 	 * <p>
 	 * All advisors are re-sorted by their advisor order.
 	 * @param advisors the advisors to add
+	 * @deprecated Please use {@link #addAdvisor} instead
 	 */
+	@Deprecated
 	public void setAdvisors(AuthorizationAdvisor... advisors) {
 		this.advisors = new ArrayList<>(List.of(advisors));
-		AnnotationAwareOrderComparator.sort(this.advisors);
 	}
 
 	/**
@@ -179,10 +206,26 @@ public final class AuthorizationAdvisorProxyFactory
 	 * <p>
 	 * All advisors are re-sorted by their advisor order.
 	 * @param advisors the advisors to add
+	 * @deprecated Please use {@link #addAdvisor} instead
 	 */
+	@Deprecated
 	public void setAdvisors(Collection<AuthorizationAdvisor> advisors) {
 		this.advisors = new ArrayList<>(advisors);
-		AnnotationAwareOrderComparator.sort(this.advisors);
+	}
+
+	/**
+	 * Add an advisor that should be included to each proxy created.
+	 *
+	 * <p>
+	 * This method sorts the advisors based on the order in
+	 * {@link AuthorizationAdvisor#getOrder}. You can use the values in
+	 * {@link AuthorizationInterceptorsOrder}to ensure advisors are located where you need
+	 * them.
+	 * @param advisor
+	 * @since 6.4
+	 */
+	public void addAdvisor(AuthorizationAdvisor advisor) {
+		this.advisors.add(advisor);
 	}
 
 	/**
@@ -320,16 +363,24 @@ public final class AuthorizationAdvisorProxyFactory
 
 	private static final class ClassVisitor implements TargetVisitor {
 
+		private final AuthorizationProxyMethodInterceptor authorizationProxy = new AuthorizationProxyMethodInterceptor();
+
 		@Override
 		public Object visit(AuthorizationAdvisorProxyFactory proxyFactory, Object object) {
 			if (object instanceof Class<?> targetClass) {
+				if (AuthorizationProxy.class.isAssignableFrom(targetClass)) {
+					return targetClass;
+				}
 				ProxyFactory factory = new ProxyFactory();
 				factory.setTargetClass(targetClass);
 				factory.setInterfaces(ClassUtils.getAllInterfacesForClass(targetClass));
+				factory.setOpaque(true);
 				factory.setProxyTargetClass(!Modifier.isFinal(targetClass.getModifiers()));
+				factory.addAdvisor(this.authorizationProxy);
 				for (Advisor advisor : proxyFactory) {
 					factory.addAdvisors(advisor);
 				}
+				factory.addInterface(AuthorizationProxy.class);
 				return factory.getProxyClass(getClass().getClassLoader());
 			}
 			return null;
@@ -535,6 +586,36 @@ public final class AuthorizationAdvisorProxyFactory
 
 		private Flux<?> proxyFlux(AuthorizationProxyFactory proxyFactory, Flux<?> flux) {
 			return flux.map(proxyFactory::proxy);
+		}
+
+	}
+
+	private static final class AuthorizationProxyMethodInterceptor implements AuthorizationAdvisor {
+
+		private static final Method GET_TARGET_METHOD = ClassUtils.getMethod(AuthorizationProxy.class,
+				"toAuthorizedTarget");
+
+		@Override
+		public Object invoke(MethodInvocation invocation) throws Throwable {
+			if (invocation.getMethod().equals(GET_TARGET_METHOD)) {
+				return invocation.getThis();
+			}
+			return invocation.proceed();
+		}
+
+		@Override
+		public Pointcut getPointcut() {
+			return Pointcut.TRUE;
+		}
+
+		@Override
+		public Advice getAdvice() {
+			return this;
+		}
+
+		@Override
+		public int getOrder() {
+			return 0;
 		}
 
 	}

@@ -75,7 +75,7 @@ final class JwtDecoderProviderConfigurationUtils {
 		rest.setRequestFactory(requestFactory);
 	}
 
-	private static final ParameterizedTypeReference<Map<String, Object>> STRING_OBJECT_MAP = new ParameterizedTypeReference<Map<String, Object>>() {
+	private static final ParameterizedTypeReference<Map<String, Object>> STRING_OBJECT_MAP = new ParameterizedTypeReference<>() {
 	};
 
 	private JwtDecoderProviderConfigurationUtils() {

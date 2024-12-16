@@ -16,12 +16,9 @@
 
 package org.springframework.security.authorization.method;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
 
 import org.aopalliance.intercept.MethodInvocation;
 
@@ -29,6 +26,7 @@ import org.springframework.core.MethodClassKey;
 import org.springframework.lang.NonNull;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
+import org.springframework.security.core.annotation.AnnotationTemplateExpressionDefaults;
 import org.springframework.util.Assert;
 
 /**
@@ -42,8 +40,6 @@ abstract class AbstractExpressionAttributeRegistry<T extends ExpressionAttribute
 	private final Map<MethodClassKey, T> cachedAttributes = new ConcurrentHashMap<>();
 
 	private MethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler();
-
-	private PrePostTemplateDefaults defaults;
 
 	/**
 	 * Returns an {@link ExpressionAttribute} for the {@link MethodInvocation}.
@@ -68,11 +64,6 @@ abstract class AbstractExpressionAttributeRegistry<T extends ExpressionAttribute
 		return this.cachedAttributes.computeIfAbsent(cacheKey, (k) -> resolveAttribute(method, targetClass));
 	}
 
-	final <A extends Annotation> Function<AnnotatedElement, A> findUniqueAnnotation(Class<A> type) {
-		return (this.defaults != null) ? AuthorizationAnnotationUtils.withDefaults(type, this.defaults)
-				: AuthorizationAnnotationUtils.withDefaults(type);
-	}
-
 	/**
 	 * Returns the {@link MethodSecurityExpressionHandler}.
 	 * @return the {@link MethodSecurityExpressionHandler} to use
@@ -86,9 +77,14 @@ abstract class AbstractExpressionAttributeRegistry<T extends ExpressionAttribute
 		this.expressionHandler = expressionHandler;
 	}
 
+	@Deprecated
 	void setTemplateDefaults(PrePostTemplateDefaults defaults) {
-		this.defaults = defaults;
+		AnnotationTemplateExpressionDefaults adapter = new AnnotationTemplateExpressionDefaults();
+		adapter.setIgnoreUnknown(defaults.isIgnoreUnknown());
+		setTemplateDefaults(adapter);
 	}
+
+	abstract void setTemplateDefaults(AnnotationTemplateExpressionDefaults adapter);
 
 	/**
 	 * Subclasses should implement this method to provide the non-null

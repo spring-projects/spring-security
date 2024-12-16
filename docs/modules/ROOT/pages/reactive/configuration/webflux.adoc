@@ -132,7 +132,7 @@ class HelloWebfluxSecurityConfig {
 ======
 
 [NOTE]
-Make sure to import the `org.springframework.security.config.annotation.web.invoke` function to enable the Kotlin DSL in your class, as the IDE will not always auto-import the method, causing compilation issues.
+Make sure to import the `org.springframework.security.config.web.server.invoke` function to enable the Kotlin DSL in your class, as the IDE will not always auto-import the method, causing compilation issues.
 
 This configuration explicitly sets up all the same things as our minimal configuration.
 From here, you can more easily make changes to the defaults.

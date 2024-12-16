@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2014 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.springframework.security.ldap.userdetails;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -176,7 +177,7 @@ public class NestedLdapAuthoritiesPopulator extends DefaultLdapAuthoritiesPopula
 		if (getAttributeNames() == null) {
 			setAttributeNames(new HashSet<>());
 		}
-		if (StringUtils.hasText(getGroupRoleAttribute()) && !getAttributeNames().contains(getGroupRoleAttribute())) {
+		if (StringUtils.hasText(getGroupRoleAttribute())) {
 			getAttributeNames().add(getGroupRoleAttribute());
 		}
 		Set<Map<String, List<String>>> userRoles = getLdapTemplate().searchForMultipleAttributeValues(
@@ -193,14 +194,14 @@ public class NestedLdapAuthoritiesPopulator extends DefaultLdapAuthoritiesPopula
 			}
 			for (String role : roles) {
 				if (isConvertToUpperCase()) {
-					role = role.toUpperCase();
+					role = role.toUpperCase(Locale.ROOT);
 				}
 				role = getRolePrefix() + role;
 				// if the group already exist, we will not search for it's parents again.
 				// this prevents a forever loop for a misconfigured ldap directory
 				circular = circular | (!authorities.add(new LdapAuthority(role, dn, record)));
 			}
-			String roleName = (roles.size() > 0) ? roles.iterator().next() : dn;
+			String roleName = (!roles.isEmpty()) ? roles.iterator().next() : dn;
 			if (!circular) {
 				performNestedSearch(dn, roleName, authorities, (depth - 1));
 			}

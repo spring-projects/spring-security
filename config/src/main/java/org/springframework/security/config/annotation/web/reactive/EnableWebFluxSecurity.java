@@ -86,7 +86,7 @@ import org.springframework.security.config.web.server.ServerHttpSecurity;
 @Target(ElementType.TYPE)
 @Documented
 @Import({ ServerHttpSecurityConfiguration.class, WebFluxSecurityConfiguration.class,
-		ReactiveOAuth2ClientImportSelector.class })
+		ReactiveOAuth2ClientImportSelector.class, ReactiveObservationImportSelector.class })
 public @interface EnableWebFluxSecurity {
 
 }

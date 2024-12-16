@@ -28,7 +28,7 @@ import org.springframework.security.saml2.provider.service.registration.RelyingP
  *
  * The returned logout request is suitable for sending to the asserting party based on,
  * for example, the location and binding specified in
- * {@link RelyingPartyRegistration#getAssertingPartyDetails()}.
+ * {@link RelyingPartyRegistration#getAssertingPartyMetadata()}.
  *
  * @author Josh Cummings
  * @since 5.6

@@ -16,8 +16,7 @@
 
 package org.springframework.security.config.annotation.authentication.configuration;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -39,6 +38,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
  * {@link PasswordEncoder} is defined will wire this up too.
  *
  * @author Rob Winch
+ * @author Ngoc Nhan
  * @since 4.1
  */
 @Order(InitializeUserDetailsBeanManagerConfigurer.DEFAULT_ORDER)
@@ -66,31 +66,32 @@ class InitializeUserDetailsBeanManagerConfigurer extends GlobalAuthenticationCon
 
 		@Override
 		public void configure(AuthenticationManagerBuilder auth) throws Exception {
-			List<BeanWithName<UserDetailsService>> userDetailsServices = getBeansWithName(UserDetailsService.class);
+			String[] beanNames = InitializeUserDetailsBeanManagerConfigurer.this.context
+				.getBeanNamesForType(UserDetailsService.class);
 			if (auth.isConfigured()) {
-				if (!userDetailsServices.isEmpty()) {
+				if (beanNames.length > 0) {
 					this.logger.warn("Global AuthenticationManager configured with an AuthenticationProvider bean. "
-							+ "UserDetailsService beans will not be used for username/password login. "
+							+ "UserDetailsService beans will not be used by Spring Security for automatically configuring username/password login. "
 							+ "Consider removing the AuthenticationProvider bean. "
-							+ "Alternatively, consider using the UserDetailsService in a manually instantiated "
-							+ "DaoAuthenticationProvider.");
+							+ "Alternatively, consider using the UserDetailsService in a manually instantiated DaoAuthenticationProvider. "
+							+ "If the current configuration is intentional, to turn off this warning, "
+							+ "increase the logging level of 'org.springframework.security.config.annotation.authentication.configuration.InitializeUserDetailsBeanManagerConfigurer' to ERROR");
 				}
 				return;
 			}
 
-			if (userDetailsServices.isEmpty()) {
+			if (beanNames.length == 0) {
 				return;
 			}
-			else if (userDetailsServices.size() > 1) {
-				List<String> beanNames = userDetailsServices.stream().map(BeanWithName::getName).toList();
+			else if (beanNames.length > 1) {
 				this.logger.warn(LogMessage.format("Found %s UserDetailsService beans, with names %s. "
 						+ "Global Authentication Manager will not use a UserDetailsService for username/password login. "
-						+ "Consider publishing a single UserDetailsService bean.", userDetailsServices.size(),
-						beanNames));
+						+ "Consider publishing a single UserDetailsService bean.", beanNames.length,
+						Arrays.toString(beanNames)));
 				return;
 			}
-			var userDetailsService = userDetailsServices.get(0).getBean();
-			var userDetailsServiceBeanName = userDetailsServices.get(0).getName();
+			UserDetailsService userDetailsService = InitializeUserDetailsBeanManagerConfigurer.this.context
+				.getBean(beanNames[0], UserDetailsService.class);
 			PasswordEncoder passwordEncoder = getBeanOrNull(PasswordEncoder.class);
 			UserDetailsPasswordService passwordManager = getBeanOrNull(UserDetailsPasswordService.class);
 			CompromisedPasswordChecker passwordChecker = getBeanOrNull(CompromisedPasswordChecker.class);
@@ -111,8 +112,7 @@ class InitializeUserDetailsBeanManagerConfigurer extends GlobalAuthenticationCon
 			provider.afterPropertiesSet();
 			auth.authenticationProvider(provider);
 			this.logger.info(LogMessage.format(
-					"Global AuthenticationManager configured with UserDetailsService bean with name %s",
-					userDetailsServiceBeanName));
+					"Global AuthenticationManager configured with UserDetailsService bean with name %s", beanNames[0]));
 		}
 
 		/**
@@ -120,46 +120,7 @@ class InitializeUserDetailsBeanManagerConfigurer extends GlobalAuthenticationCon
 		 * component, null otherwise.
 		 */
 		private <T> T getBeanOrNull(Class<T> type) {
-			String[] beanNames = InitializeUserDetailsBeanManagerConfigurer.this.context.getBeanNamesForType(type);
-			if (beanNames.length != 1) {
-				return null;
-			}
-			return InitializeUserDetailsBeanManagerConfigurer.this.context.getBean(beanNames[0], type);
-		}
-
-		/**
-		 * @return a list of beans of the requested class, along with their names. If
-		 * there are no registered beans of that type, the list is empty.
-		 */
-		private <T> List<BeanWithName<T>> getBeansWithName(Class<T> type) {
-			List<BeanWithName<T>> beanWithNames = new ArrayList<>();
-			String[] beanNames = InitializeUserDetailsBeanManagerConfigurer.this.context.getBeanNamesForType(type);
-			for (String beanName : beanNames) {
-				T bean = InitializeUserDetailsBeanManagerConfigurer.this.context.getBean(beanNames[0], type);
-				beanWithNames.add(new BeanWithName<T>(bean, beanName));
-			}
-			return beanWithNames;
-		}
-
-		static class BeanWithName<T> {
-
-			private final T bean;
-
-			private final String name;
-
-			BeanWithName(T bean, String name) {
-				this.bean = bean;
-				this.name = name;
-			}
-
-			T getBean() {
-				return this.bean;
-			}
-
-			String getName() {
-				return this.name;
-			}
-
+			return InitializeUserDetailsBeanManagerConfigurer.this.context.getBeanProvider(type).getIfUnique();
 		}
 
 	}

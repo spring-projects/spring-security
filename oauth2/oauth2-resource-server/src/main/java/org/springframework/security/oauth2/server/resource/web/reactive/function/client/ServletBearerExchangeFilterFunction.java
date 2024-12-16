@@ -50,11 +50,6 @@ import org.springframework.web.reactive.function.client.ExchangeFunction;
  * To locate the bearer token, this looks in the Reactor {@link Context} for a key of type
  * {@link Authentication}.
  *
- * Registering
- * {@see org.springframework.security.config.annotation.web.configuration.OAuth2ResourceServerConfiguration.OAuth2ResourceServerWebFluxSecurityConfiguration.BearerRequestContextSubscriberRegistrar},
- * as a {@code @Bean} will take care of this automatically, but certainly an application
- * can supply a {@link Context} of its own to override.
- *
  * @author Josh Cummings
  * @since 5.2
  */

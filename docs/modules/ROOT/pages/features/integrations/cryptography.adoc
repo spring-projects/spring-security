@@ -8,9 +8,9 @@ The code is distributed as part of the core module but has no dependencies on an
 
 [[spring-security-crypto-encryption]]
 == Encryptors
-The {security-api-url}org/springframework/security/crypto/encrypt/Encryptors.html[`Encryptors`] class provides factory methods for constructing symmetric encryptors.
-This class lets you create {security-api-url}org/springframework/security/crypto/encrypt/BytesEncryptor.html[`BytesEncryptor`] instances to encrypt data in raw `byte[]` form.
-You can also construct {security-api-url}org/springframework/security/crypto/encrypt/TextEncryptor.html[TextEncryptor] instances to encrypt text strings.
+The javadoc:org.springframework.security.crypto.encrypt.Encryptors[] class provides factory methods for constructing symmetric encryptors.
+This class lets you create javadoc:org.springframework.security.crypto.encrypt.BytesEncryptor[] instances to encrypt data in raw `byte[]` form.
+You can also construct javadoc:org.springframework.security.crypto.encrypt.TextEncryptor[] instances to encrypt text strings.
 Encryptors are thread-safe.
 
 [NOTE]
@@ -101,9 +101,9 @@ Encrypted results are returned as hex-encoded strings for easy storage on the fi
 
 [[spring-security-crypto-keygenerators]]
 == Key Generators
-The {security-api-url}org/springframework/security/crypto/keygen/KeyGenerators.html[`KeyGenerators`] class provides a number of convenience factory methods for constructing different types of key generators.
-By using this class, you can create a {security-api-url}org/springframework/security/crypto/keygen/BytesKeyGenerator.html[`BytesKeyGenerator`] to generate `byte[]` keys.
-You can also construct a {security-api-url}org/springframework/security/crypto/keygen/StringKeyGenerator.html`[StringKeyGenerator]` to generate string keys.
+The javadoc:org.springframework.security.crypto.keygen.KeyGenerators[] class provides a number of convenience factory methods for constructing different types of key generators.
+By using this class, you can create a javadoc:org.springframework.security.crypto.keygen.BytesKeyGenerator[] to generate `byte[]` keys.
+You can also construct a javadoc:org.springframework.security.crypto.keygen.StringKeyGenerator[] to generate string keys.
 `KeyGenerators` is a thread-safe class.
 
 === BytesKeyGenerator

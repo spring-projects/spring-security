@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.util.Assert;
 
 /**
  * A {@link OAuth2TokenValidator} that validates OIDC Logout Token claims in conformance
@@ -57,7 +58,9 @@ final class OidcBackChannelLogoutTokenValidator implements OAuth2TokenValidator<
 
 	OidcBackChannelLogoutTokenValidator(ClientRegistration clientRegistration) {
 		this.audience = clientRegistration.getClientId();
-		this.issuer = clientRegistration.getProviderDetails().getIssuerUri();
+		String issuer = clientRegistration.getProviderDetails().getIssuerUri();
+		Assert.hasText(issuer, "Provider issuer cannot be null");
+		this.issuer = issuer;
 	}
 
 	@Override

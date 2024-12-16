@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,8 +32,8 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.TestingAuthenticationToken;
-import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.FilterChainProxy;
@@ -221,8 +221,8 @@ public class DefaultFilterChainValidator implements FilterChainProxy.FilterChain
 			AuthorizationManager<HttpServletRequest> authorizationManager = authorizationFilter
 				.getAuthorizationManager();
 			try {
-				AuthorizationDecision decision = authorizationManager.check(() -> TEST, loginRequest.getHttpRequest());
-				return decision != null && decision.isGranted();
+				AuthorizationResult result = authorizationManager.authorize(() -> TEST, loginRequest.getHttpRequest());
+				return result != null && result.isGranted();
 			}
 			catch (Exception ex) {
 				return false;
@@ -252,8 +252,8 @@ public class DefaultFilterChainValidator implements FilterChainProxy.FilterChain
 			return () -> {
 				AuthorizationManager<HttpServletRequest> authorizationManager = authorizationFilter
 					.getAuthorizationManager();
-				AuthorizationDecision decision = authorizationManager.check(() -> token, loginRequest.getHttpRequest());
-				return decision != null && decision.isGranted();
+				AuthorizationResult result = authorizationManager.authorize(() -> token, loginRequest.getHttpRequest());
+				return result != null && result.isGranted();
 			};
 		}
 		return () -> true;

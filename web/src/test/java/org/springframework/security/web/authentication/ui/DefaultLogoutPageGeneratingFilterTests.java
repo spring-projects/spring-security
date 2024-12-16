@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,18 +39,7 @@ public class DefaultLogoutPageGeneratingFilterTests {
 	public void doFilterWhenNoHiddenInputsThenPageRendered() throws Exception {
 		MockMvc mockMvc = MockMvcBuilders.standaloneSetup(new Object()).addFilter(this.filter).build();
 		mockMvc.perform(get("/logout"))
-			.andExpect(content().string("<!DOCTYPE html>\n" + "<html lang=\"en\">\n" + "  <head>\n"
-					+ "    <meta charset=\"utf-8\">\n"
-					+ "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\">\n"
-					+ "    <meta name=\"description\" content=\"\">\n" + "    <meta name=\"author\" content=\"\">\n"
-					+ "    <title>Confirm Log Out?</title>\n"
-					+ "    <link href=\"https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css\" rel=\"stylesheet\" integrity=\"sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M\" crossorigin=\"anonymous\">\n"
-					+ "    <link href=\"https://getbootstrap.com/docs/4.0/examples/signin/signin.css\" rel=\"stylesheet\" integrity=\"sha384-oOE/3m0LUMPub4kaC09mrdEhIc+e3exm4xOGxAmuFXhBNF4hcg/6MiAXAf5p0P56\" crossorigin=\"anonymous\"/>\n"
-					+ "  </head>\n" + "  <body>\n" + "     <div class=\"container\">\n"
-					+ "      <form class=\"form-signin\" method=\"post\" action=\"/logout\">\n"
-					+ "        <h2 class=\"form-signin-heading\">Are you sure you want to log out?</h2>\n"
-					+ "        <button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\">Log Out</button>\n"
-					+ "      </form>\n" + "    </div>\n" + "  </body>\n" + "</html>"))
+			.andExpect(content().string(containsString("Are you sure you want to log out?")))
 			.andExpect(content().contentType("text/html;charset=UTF-8"));
 	}
 
@@ -68,6 +57,34 @@ public class DefaultLogoutPageGeneratingFilterTests {
 		MockMvc mockMvc = MockMvcBuilders.standaloneSetup(new Object()).addFilters(this.filter).build();
 		mockMvc.perform(get("/context/logout").contextPath("/context"))
 			.andExpect(content().string(containsString("action=\"/context/logout\"")));
+	}
+
+	@Test
+	void doFilterWhenRequestContextAndHiddenInputsSetThenRendered() throws Exception {
+		this.filter.setResolveHiddenInputs((r) -> Collections.singletonMap("_csrf", "csrf-token-1"));
+		MockMvc mockMvc = MockMvcBuilders.standaloneSetup(new Object()).addFilters(this.filter).build();
+
+		mockMvc.perform(get("/context/logout").contextPath("/context")).andExpect(content().string("""
+				<!DOCTYPE html>
+				<html lang="en">
+				  <head>
+				    <meta charset="utf-8">
+				    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+				    <meta name="description" content="">
+				    <meta name="author" content="">
+				    <title>Confirm Log Out?</title>
+				    <link href="/context/default-ui.css" rel="stylesheet" />
+				  </head>
+				  <body>
+				    <div class="content">
+				      <form class="logout-form" method="post" action="/context/logout">
+				        <h2>Are you sure you want to log out?</h2>
+				        <input name="_csrf" type="hidden" value="csrf-token-1" />
+				        <button class="primary" type="submit">Log Out</button>
+				      </form>
+				    </div>
+				  </body>
+				</html>"""));
 	}
 
 }

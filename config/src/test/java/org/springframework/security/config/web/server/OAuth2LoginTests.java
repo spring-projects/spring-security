@@ -31,6 +31,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authentication.UserDetailsRepositoryReactiveAuthenticationManager;
@@ -63,7 +64,10 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.registration.InMemoryReactiveClientRegistrationRepository;
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
+import org.springframework.security.oauth2.client.userinfo.DefaultReactiveOAuth2UserService;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.ReactiveOAuth2UserService;
+import org.springframework.security.oauth2.client.web.server.DefaultServerOAuth2AuthorizationRequestResolver;
 import org.springframework.security.oauth2.client.web.server.ServerAuthorizationRequestRepository;
 import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizationRequestResolver;
 import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizedClientRepository;
@@ -82,6 +86,7 @@ import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
 import org.springframework.security.oauth2.core.oidc.endpoint.OidcParameterNames;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.oidc.user.TestOidcUsers;
+import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.core.user.TestOAuth2Users;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -253,6 +258,65 @@ public class OAuth2LoginTests {
 				.header("X-Requested-With", "XMLHttpRequest")
 				.exchange()
 				.expectStatus().isUnauthorized();
+		// @formatter:on
+	}
+
+	@Test
+	public void defaultLoginPageWhenCustomLoginPageThenGeneratedLoginPageDoesNotExist() {
+		this.spring
+			.register(OAuth2LoginWithSingleClientRegistrations.class, OAuth2LoginWithCustomLoginPage.class,
+					WebFluxConfig.class)
+			.autowire();
+		// @formatter:off
+		this.client.get()
+			.uri("/login")
+			.exchange()
+			.expectStatus().isNotFound();
+		// @formatter:on
+	}
+
+	@Test
+	public void oauth2LoginWhenCustomLoginPageAndSingleClientRegistrationThenRedirectsToLoginPage() {
+		this.spring
+			.register(OAuth2LoginWithSingleClientRegistrations.class, OAuth2LoginWithCustomLoginPage.class,
+					WebFluxConfig.class)
+			.autowire();
+		// @formatter:off
+		this.client.get()
+			.uri("/")
+			.exchange()
+			.expectStatus().is3xxRedirection()
+			.expectHeader().valueEquals(HttpHeaders.LOCATION, "/login");
+		// @formatter:on
+	}
+
+	@Test
+	public void oauth2LoginWhenCustomLoginPageAndMultipleClientRegistrationsThenRedirectsToLoginPage() {
+		this.spring
+			.register(OAuth2LoginWithMultipleClientRegistrations.class, OAuth2LoginWithCustomLoginPage.class,
+					WebFluxConfig.class)
+			.autowire();
+		// @formatter:off
+		this.client.get()
+			.uri("/")
+			.exchange()
+			.expectStatus().is3xxRedirection()
+			.expectHeader().valueEquals(HttpHeaders.LOCATION, "/login");
+		// @formatter:on
+	}
+
+	@Test
+	public void oauth2LoginWhenProviderLoginPageAndMultipleClientRegistrationsThenRedirectsToProvider() {
+		this.spring
+			.register(OAuth2LoginWithMultipleClientRegistrations.class, OAuth2LoginWithProviderLoginPage.class,
+					WebFluxConfig.class)
+			.autowire();
+		// @formatter:off
+		this.client.get()
+			.uri("/")
+			.exchange()
+			.expectStatus().is3xxRedirection()
+			.expectHeader().valueEquals(HttpHeaders.LOCATION, "/oauth2/authorization/github");
 		// @formatter:on
 	}
 
@@ -457,6 +521,7 @@ public class OAuth2LoginTests {
 		OidcUser user = TestOidcUsers.create();
 		ReactiveOAuth2UserService<OidcUserRequest, OidcUser> userService = config.userService;
 		given(userService.loadUser(any())).willReturn(Mono.just(user));
+		ServerOAuth2AuthorizationRequestResolver authorizationRequestResolver = config.authorizationRequestResolver;
 		// @formatter:off
 		webTestClient.get()
 				.uri("/login/oauth2/code/google")
@@ -466,6 +531,7 @@ public class OAuth2LoginTests {
 		verify(config.jwtDecoderFactory).createDecoder(any());
 		verify(tokenResponseClient).getTokenResponse(any());
 		verify(securityContextRepository).save(any(), any());
+		verify(authorizationRequestResolver).resolve(any());
 	}
 
 	// gh-5562
@@ -601,6 +667,41 @@ public class OAuth2LoginTests {
 			.block()).isEmpty();
 	}
 
+	@Test
+	public void oauth2LoginWhenOauth2UserServiceBeanPresent() {
+		this.spring.register(OAuth2LoginWithMultipleClientRegistrations.class, OAuth2LoginWithOauth2UserService.class)
+			.autowire();
+		WebTestClient webTestClient = WebTestClientBuilder.bindToWebFilters(this.springSecurity).build();
+		OAuth2LoginWithOauth2UserService config = this.spring.getContext()
+			.getBean(OAuth2LoginWithOauth2UserService.class);
+		OAuth2AuthorizationRequest request = TestOAuth2AuthorizationRequests.request().scope("openid").build();
+		OAuth2AuthorizationResponse response = TestOAuth2AuthorizationResponses.success().build();
+		OAuth2AuthorizationExchange exchange = new OAuth2AuthorizationExchange(request, response);
+		OAuth2AccessToken accessToken = TestOAuth2AccessTokens.scopes("openid");
+		OAuth2AuthorizationCodeAuthenticationToken token = new OAuth2AuthorizationCodeAuthenticationToken(google,
+				exchange, accessToken);
+		ServerAuthenticationConverter converter = config.authenticationConverter;
+		given(converter.convert(any())).willReturn(Mono.just(token));
+		ServerSecurityContextRepository securityContextRepository = config.securityContextRepository;
+		given(securityContextRepository.save(any(), any())).willReturn(Mono.empty());
+		given(securityContextRepository.load(any())).willReturn(authentication(token));
+		Map<String, Object> additionalParameters = new HashMap<>();
+		additionalParameters.put(OidcParameterNames.ID_TOKEN, "id-token");
+		OAuth2AccessTokenResponse accessTokenResponse = OAuth2AccessTokenResponse.withToken(accessToken.getTokenValue())
+			.tokenType(accessToken.getTokenType())
+			.scopes(accessToken.getScopes())
+			.additionalParameters(additionalParameters)
+			.build();
+		ReactiveOAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> tokenResponseClient = config.tokenResponseClient;
+		given(tokenResponseClient.getTokenResponse(any())).willReturn(Mono.just(accessTokenResponse));
+		ReactiveOAuth2UserService<OAuth2UserRequest, OAuth2User> userService = config.reactiveOAuth2UserService;
+		given(userService.loadUser(any())).willReturn(Mono
+			.just(new DefaultOAuth2User(AuthorityUtils.createAuthorityList("USER"), Map.of("sub", "subject"), "sub")));
+		webTestClient.get().uri("/login/oauth2/code/google").exchange().expectStatus().is3xxRedirection();
+		verify(userService).loadUser(any());
+
+	}
+
 	Mono<SecurityContext> authentication(Authentication authentication) {
 		SecurityContext context = new SecurityContextImpl();
 		context.setAuthentication(authentication);
@@ -609,6 +710,51 @@ public class OAuth2LoginTests {
 
 	<T> T getBean(Class<T> beanClass) {
 		return this.spring.getContext().getBean(beanClass);
+	}
+
+	@Configuration
+	static class OAuth2LoginWithOauth2UserService {
+
+		ReactiveOAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> tokenResponseClient = mock(
+				ReactiveOAuth2AccessTokenResponseClient.class);
+
+		ReactiveOAuth2UserService<OAuth2UserRequest, OAuth2User> reactiveOAuth2UserService = mock(
+				DefaultReactiveOAuth2UserService.class);
+
+		ServerAuthenticationConverter authenticationConverter = mock(ServerAuthenticationConverter.class);
+
+		ServerSecurityContextRepository securityContextRepository = mock(ServerSecurityContextRepository.class);
+
+		@Bean
+		SecurityWebFilterChain springSecurity(ServerHttpSecurity http) {
+			http.authorizeExchange((authorize) -> authorize.anyExchange().authenticated())
+				.oauth2Login((c) -> c.authenticationConverter(this.authenticationConverter)
+					.securityContextRepository(this.securityContextRepository));
+			return http.build();
+		}
+
+		@Bean
+		ReactiveOAuth2UserService<OAuth2UserRequest, OAuth2User> customOAuth2UserService() {
+			return this.reactiveOAuth2UserService;
+		}
+
+		@Bean
+		ReactiveJwtDecoderFactory<ClientRegistration> jwtDecoderFactory() {
+			return (clientRegistration) -> (token) -> {
+				Map<String, Object> claims = new HashMap<>();
+				claims.put(IdTokenClaimNames.SUB, "subject");
+				claims.put(IdTokenClaimNames.ISS, "http://localhost/issuer");
+				claims.put(IdTokenClaimNames.AUD, Collections.singletonList("client"));
+				claims.put(IdTokenClaimNames.AZP, "client");
+				return Mono.just(TestJwts.jwt().claims((c) -> c.putAll(claims)).build());
+			};
+		}
+
+		@Bean
+		ReactiveOAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> requestReactiveOAuth2AccessTokenResponseClient() {
+			return this.tokenResponseClient;
+		}
+
 	}
 
 	@Configuration
@@ -754,6 +900,46 @@ public class OAuth2LoginTests {
 	}
 
 	@Configuration
+	@EnableWebFluxSecurity
+	static class OAuth2LoginWithCustomLoginPage {
+
+		@Bean
+		SecurityWebFilterChain filterChain(ServerHttpSecurity http) {
+			// @formatter:off
+			http
+				.authorizeExchange((authorize) -> authorize
+					.pathMatchers(HttpMethod.GET, "/login").permitAll()
+					.anyExchange().authenticated()
+				)
+				.oauth2Login((oauth2) -> oauth2
+					.loginPage("/login")
+				);
+			// @formatter:on
+			return http.build();
+		}
+
+	}
+
+	@Configuration
+	@EnableWebFluxSecurity
+	static class OAuth2LoginWithProviderLoginPage {
+
+		@Bean
+		SecurityWebFilterChain filterChain(ServerHttpSecurity http) {
+			// @formatter:off
+			http.authorizeExchange((authorize) -> authorize
+					.anyExchange().authenticated()
+				)
+				.oauth2Login((oauth2) -> oauth2
+					.loginPage("/oauth2/authorization/github")
+				);
+			// @formatter:on
+			return http.build();
+		}
+
+	}
+
+	@Configuration
 	static class OAuth2LoginMockAuthenticationManagerConfig {
 
 		ReactiveAuthenticationManager manager = mock(ReactiveAuthenticationManager.class);
@@ -837,6 +1023,10 @@ public class OAuth2LoginTests {
 
 		ServerSecurityContextRepository securityContextRepository = mock(ServerSecurityContextRepository.class);
 
+		ServerOAuth2AuthorizationRequestResolver authorizationRequestResolver = spy(
+				new DefaultServerOAuth2AuthorizationRequestResolver(new InMemoryReactiveClientRegistrationRepository(
+						TestClientRegistrations.clientRegistration().build())));
+
 		@Bean
 		SecurityWebFilterChain springSecurityFilter(ServerHttpSecurity http) {
 			// @formatter:off
@@ -862,6 +1052,11 @@ public class OAuth2LoginTests {
 		@Bean
 		ReactiveJwtDecoderFactory<ClientRegistration> jwtDecoderFactory() {
 			return this.jwtDecoderFactory;
+		}
+
+		@Bean
+		ServerOAuth2AuthorizationRequestResolver authorizationRequestResolver() {
+			return this.authorizationRequestResolver;
 		}
 
 		@Bean

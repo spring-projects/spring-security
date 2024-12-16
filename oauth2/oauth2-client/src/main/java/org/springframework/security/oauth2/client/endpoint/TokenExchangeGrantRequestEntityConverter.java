@@ -39,7 +39,9 @@ import org.springframework.util.StringUtils;
  * @see RequestEntity
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc8693#section-1.1">Section
  * 1.1 Delegation vs. Impersonation Semantics</a>
+ * @deprecated Use {@link DefaultOAuth2TokenRequestParametersConverter} instead
  */
+@Deprecated(since = "6.4")
 public class TokenExchangeGrantRequestEntityConverter
 		extends AbstractOAuth2AuthorizationGrantRequestEntityConverter<TokenExchangeGrantRequest> {
 

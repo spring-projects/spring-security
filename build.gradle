@@ -24,6 +24,7 @@ apply plugin: 's101'
 apply plugin: 'io.spring.convention.root'
 apply plugin: 'org.jetbrains.kotlin.jvm'
 apply plugin: 'org.springframework.security.versions.verify-dependencies-versions'
+apply plugin: 'org.springframework.security.check-expected-branch-version'
 apply plugin: 'io.spring.security.release'
 
 group = 'org.springframework.security'
@@ -105,7 +106,7 @@ develocity {
 }
 
 nohttp {
-	source.exclude "buildSrc/build/**"
+	source.exclude "buildSrc/build/**", "javascript/.gradle/**", "javascript/package-lock.json", "javascript/node_modules/**", "javascript/build/**", "javascript/dist/**"
 	source.builtBy(project(':spring-security-config').tasks.withType(RncToXsd))
 }
 
@@ -125,7 +126,7 @@ wrapperUpgrade {
 	gradle {
 		'spring-security' {
 			repo = 'spring-projects/spring-security'
-			baseBranch = '6.1.x' // runs only on 6.1.x and the update is merged forward to main
+			baseBranch = '6.2.x' // runs only on 6.2.x and the update is merged forward to main
 		}
 	}
 }

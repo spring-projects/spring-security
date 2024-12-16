@@ -234,7 +234,7 @@ fun jwtDecoder(): ReactiveJwtDecoder {
 
 [NOTE]
 ====
-Calling `{security-api-url}org/springframework/security/oauth2/jwt/ReactiveJwtDecoders.html#fromIssuerLocation-java.lang.String-[ReactiveJwtDecoders#fromIssuerLocation]` invokes the Provider Configuration or Authorization Server Metadata endpoint to derive the JWK Set URI.
+Calling javadoc:org.springframework.security.oauth2.jwt.ReactiveJwtDecoders#fromIssuerLocation-java.lang.String-[ReactiveJwtDecoders#fromIssuerLocation] invokes the Provider Configuration or Authorization Server Metadata endpoint to derive the JWK Set URI.
 If the application does not expose a `ReactiveJwtDecoder` bean, Spring Boot exposes the above default one.
 ====
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,6 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.aop.framework.ProxyFactoryBean;
 import org.springframework.aop.target.LazyInitTargetSource;
 import org.springframework.beans.factory.BeanFactoryUtils;
-import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -40,7 +39,7 @@ import org.springframework.core.log.LogMessage;
 import org.springframework.security.authentication.AuthenticationEventPublisher;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
-import org.springframework.security.config.annotation.ObjectPostProcessor;
+import org.springframework.security.config.ObjectPostProcessor;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configurers.provisioning.InMemoryUserDetailsManagerConfigurer;
 import org.springframework.security.config.annotation.authentication.configurers.provisioning.JdbcUserDetailsManagerConfigurer;
@@ -57,6 +56,7 @@ import org.springframework.util.Assert;
  * Exports the authentication {@link Configuration}
  *
  * @author Rob Winch
+ * @author Ngoc Nhan
  * @since 3.2
  *
  */
@@ -197,15 +197,6 @@ public class AuthenticationConfiguration {
 		return lazyBean(AuthenticationManager.class);
 	}
 
-	private static <T> T getBeanOrNull(ApplicationContext applicationContext, Class<T> type) {
-		try {
-			return applicationContext.getBean(type);
-		}
-		catch (NoSuchBeanDefinitionException notFound) {
-			return null;
-		}
-	}
-
 	private static class EnableGlobalAuthenticationAutowiredConfigurer extends GlobalAuthenticationConfigurerAdapter {
 
 		private final ApplicationContext context;
@@ -330,12 +321,9 @@ public class AuthenticationConfiguration {
 			if (this.passwordEncoder != null) {
 				return this.passwordEncoder;
 			}
-			PasswordEncoder passwordEncoder = getBeanOrNull(this.applicationContext, PasswordEncoder.class);
-			if (passwordEncoder == null) {
-				passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
-			}
-			this.passwordEncoder = passwordEncoder;
-			return passwordEncoder;
+			this.passwordEncoder = this.applicationContext.getBeanProvider(PasswordEncoder.class)
+				.getIfUnique(PasswordEncoderFactories::createDelegatingPasswordEncoder);
+			return this.passwordEncoder;
 		}
 
 		@Override

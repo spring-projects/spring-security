@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package org.springframework.security.ldap.userdetails;
 
+import java.io.Serial;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -31,16 +32,19 @@ import org.springframework.util.Assert;
  */
 public class LdapAuthority implements GrantedAuthority {
 
-	private String dn;
+	@Serial
+	private static final long serialVersionUID = 343193700821611354L;
 
-	private String role;
+	private final String dn;
 
-	private Map<String, List<String>> attributes;
+	private final String role;
+
+	private final Map<String, List<String>> attributes;
 
 	/**
 	 * Constructs an LdapAuthority that has a role and a DN but no other attributes
-	 * @param role
-	 * @param dn
+	 * @param role the principal's role
+	 * @param dn the distinguished name
 	 */
 	public LdapAuthority(String role, String dn) {
 		this(role, dn, null);
@@ -48,9 +52,9 @@ public class LdapAuthority implements GrantedAuthority {
 
 	/**
 	 * Constructs an LdapAuthority with the given role, DN and other LDAP attributes
-	 * @param role
-	 * @param dn
-	 * @param attributes
+	 * @param role the principal's role
+	 * @param dn the distinguished name
+	 * @param attributes additional LDAP attributes
 	 */
 	public LdapAuthority(String role, String dn, Map<String, List<String>> attributes) {
 		Assert.notNull(role, "role can not be null");
@@ -70,7 +74,7 @@ public class LdapAuthority implements GrantedAuthority {
 
 	/**
 	 * Returns the DN for this LDAP authority
-	 * @return
+	 * @return the distinguished name
 	 */
 	public String getDn() {
 		return this.dn;
@@ -91,7 +95,7 @@ public class LdapAuthority implements GrantedAuthority {
 
 	/**
 	 * Returns the first attribute value for a specified attribute
-	 * @param name
+	 * @param name the attribute name
 	 * @return the first attribute value for a specified attribute, may be null
 	 */
 	public String getFirstAttributeValue(String name) {

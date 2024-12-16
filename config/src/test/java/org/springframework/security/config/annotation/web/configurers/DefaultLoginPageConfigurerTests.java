@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,12 +22,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.mock.web.MockHttpSession;
-import org.springframework.security.config.annotation.ObjectPostProcessor;
+import org.springframework.security.config.ObjectPostProcessor;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
+import org.springframework.security.core.SpringSecurityMessageSource;
 import org.springframework.security.core.userdetails.PasswordEncodedUser;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
@@ -38,6 +40,7 @@ import org.springframework.security.web.authentication.LoginUrlAuthenticationEnt
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
+import org.springframework.security.web.authentication.ui.DefaultResourcesFilter;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.DefaultCsrfToken;
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
@@ -46,6 +49,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -55,6 +59,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -72,6 +77,8 @@ public class DefaultLoginPageConfigurerTests {
 	@Autowired
 	MockMvc mvc;
 
+	MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
+
 	@Test
 	public void getWhenFormLoginEnabledThenRedirectsToLoginPage() throws Exception {
 		this.spring.register(DefaultLoginPageConfig.class).autowire();
@@ -87,34 +94,40 @@ public class DefaultLoginPageConfigurerTests {
 		this.mvc.perform(get("/login").sessionAttr(csrfAttributeName, csrfToken))
 				.andExpect((result) -> {
 					CsrfToken token = (CsrfToken) result.getRequest().getAttribute(CsrfToken.class.getName());
-					assertThat(result.getResponse().getContentAsString()).isEqualTo("<!DOCTYPE html>\n"
-						+ "<html lang=\"en\">\n"
-						+ "  <head>\n"
-						+ "    <meta charset=\"utf-8\">\n"
-						+ "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\">\n"
-						+ "    <meta name=\"description\" content=\"\">\n"
-						+ "    <meta name=\"author\" content=\"\">\n"
-						+ "    <title>Please sign in</title>\n"
-						+ "    <link href=\"https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css\" rel=\"stylesheet\" integrity=\"sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M\" crossorigin=\"anonymous\">\n"
-						+ "    <link href=\"https://getbootstrap.com/docs/4.0/examples/signin/signin.css\" rel=\"stylesheet\" integrity=\"sha384-oOE/3m0LUMPub4kaC09mrdEhIc+e3exm4xOGxAmuFXhBNF4hcg/6MiAXAf5p0P56\" crossorigin=\"anonymous\"/>\n"
-						+ "  </head>\n"
-						+ "  <body>\n"
-						+ "     <div class=\"container\">\n"
-						+ "      <form class=\"form-signin\" method=\"post\" action=\"/login\">\n"
-						+ "        <h2 class=\"form-signin-heading\">Please sign in</h2>\n"
-						+ "        <p>\n"
-						+ "          <label for=\"username\" class=\"sr-only\">Username</label>\n"
-						+ "          <input type=\"text\" id=\"username\" name=\"username\" class=\"form-control\" placeholder=\"Username\" required autofocus>\n"
-						+ "        </p>\n"
-						+ "        <p>\n"
-						+ "          <label for=\"password\" class=\"sr-only\">Password</label>\n"
-						+ "          <input type=\"password\" id=\"password\" name=\"password\" class=\"form-control\" placeholder=\"Password\" required>\n"
-						+ "        </p>\n"
-						+ "<input name=\"" + token.getParameterName() + "\" type=\"hidden\" value=\"" + token.getToken() + "\" />\n"
-						+ "        <button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\">Sign in</button>\n"
-						+ "      </form>\n"
-						+ "</div>\n"
-						+ "</body></html>");
+					assertThat(result.getResponse().getContentAsString()).isEqualTo("""
+						<!DOCTYPE html>
+						<html lang="en">
+						  <head>
+						    <meta charset="utf-8">
+						    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+						    <meta name="description" content="">
+						    <meta name="author" content="">
+						    <title>Please sign in</title>
+						    <link href="/default-ui.css" rel="stylesheet" />
+						  </head>
+						  <body>
+						    <div class="content">
+						      <form class="login-form" method="post" action="/login">
+						        <h2>Please sign in</h2>
+
+						        <p>
+						          <label for="username" class="screenreader">Username</label>
+						          <input type="text" id="username" name="username" placeholder="Username" required autofocus>
+						        </p>
+						        <p>
+						          <label for="password" class="screenreader">Password</label>
+						          <input type="password" id="password" name="password" placeholder="Password" required>
+						        </p>
+
+						<input name="_csrf" type="hidden" value="%s" />
+						        <button type="submit" class="primary">Sign in</button>
+						      </form>
+
+
+
+						    </div>
+						  </body>
+						</html>""".formatted(token.getToken()));
 				});
 		// @formatter:on
 	}
@@ -135,34 +148,43 @@ public class DefaultLoginPageConfigurerTests {
 		this.mvc.perform(get("/login?error").session((MockHttpSession) mvcResult.getRequest().getSession())
 				.sessionAttr(csrfAttributeName, csrfToken))
 				.andExpect((result) -> {
+					String badCredentialsLocalizedMessage = this.messages
+							.getMessage("AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials");
 					CsrfToken token = (CsrfToken) result.getRequest().getAttribute(CsrfToken.class.getName());
-					assertThat(result.getResponse().getContentAsString()).isEqualTo("<!DOCTYPE html>\n"
-						+ "<html lang=\"en\">\n"
-						+ "  <head>\n"
-						+ "    <meta charset=\"utf-8\">\n"
-						+ "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\">\n"
-						+ "    <meta name=\"description\" content=\"\">\n"
-						+ "    <meta name=\"author\" content=\"\">\n"
-						+ "    <title>Please sign in</title>\n"
-						+ "    <link href=\"https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css\" rel=\"stylesheet\" integrity=\"sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M\" crossorigin=\"anonymous\">\n"
-						+ "    <link href=\"https://getbootstrap.com/docs/4.0/examples/signin/signin.css\" rel=\"stylesheet\" integrity=\"sha384-oOE/3m0LUMPub4kaC09mrdEhIc+e3exm4xOGxAmuFXhBNF4hcg/6MiAXAf5p0P56\" crossorigin=\"anonymous\"/>\n"
-						+ "  </head>\n"
-						+ "  <body>\n"
-						+ "     <div class=\"container\">\n"
-						+ "      <form class=\"form-signin\" method=\"post\" action=\"/login\">\n"
-						+ "        <h2 class=\"form-signin-heading\">Please sign in</h2>\n"
-						+ "<div class=\"alert alert-danger\" role=\"alert\">Bad credentials</div>        <p>\n"
-						+ "          <label for=\"username\" class=\"sr-only\">Username</label>\n"
-						+ "          <input type=\"text\" id=\"username\" name=\"username\" class=\"form-control\" placeholder=\"Username\" required autofocus>\n"
-						+ "        </p>\n" + "        <p>\n"
-						+ "          <label for=\"password\" class=\"sr-only\">Password</label>\n"
-						+ "          <input type=\"password\" id=\"password\" name=\"password\" class=\"form-control\" placeholder=\"Password\" required>\n"
-						+ "        </p>\n"
-						+ "<input name=\"" + token.getParameterName() + "\" type=\"hidden\" value=\"" + token.getToken() + "\" />\n"
-						+ "        <button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\">Sign in</button>\n"
-						+ "      </form>\n"
-						+ "</div>\n"
-						+ "</body></html>");
+					assertThat(result.getResponse().getContentAsString()).isEqualTo("""
+						<!DOCTYPE html>
+						<html lang="en">
+						  <head>
+						    <meta charset="utf-8">
+						    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+						    <meta name="description" content="">
+						    <meta name="author" content="">
+						    <title>Please sign in</title>
+						    <link href="/default-ui.css" rel="stylesheet" />
+						  </head>
+						  <body>
+						    <div class="content">
+						      <form class="login-form" method="post" action="/login">
+						        <h2>Please sign in</h2>
+						<div class="alert alert-danger" role="alert">%s</div>
+						        <p>
+						          <label for="username" class="screenreader">Username</label>
+						          <input type="text" id="username" name="username" placeholder="Username" required autofocus>
+						        </p>
+						        <p>
+						          <label for="password" class="screenreader">Password</label>
+						          <input type="password" id="password" name="password" placeholder="Password" required>
+						        </p>
+
+						<input name="_csrf" type="hidden" value="%s" />
+						        <button type="submit" class="primary">Sign in</button>
+						      </form>
+
+
+
+						    </div>
+						  </body>
+						</html>""".formatted(badCredentialsLocalizedMessage, token.getToken()));
 				});
 		// @formatter:on
 	}
@@ -188,36 +210,50 @@ public class DefaultLoginPageConfigurerTests {
 		this.mvc.perform(get("/login?logout").sessionAttr(csrfAttributeName, csrfToken))
 				.andExpect((result) -> {
 					CsrfToken token = (CsrfToken) result.getRequest().getAttribute(CsrfToken.class.getName());
-					assertThat(result.getResponse().getContentAsString()).isEqualTo("<!DOCTYPE html>\n"
-						+ "<html lang=\"en\">\n"
-						+ "  <head>\n"
-						+ "    <meta charset=\"utf-8\">\n"
-						+ "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\">\n"
-						+ "    <meta name=\"description\" content=\"\">\n"
-						+ "    <meta name=\"author\" content=\"\">\n"
-						+ "    <title>Please sign in</title>\n"
-						+ "    <link href=\"https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css\" rel=\"stylesheet\" integrity=\"sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M\" crossorigin=\"anonymous\">\n"
-						+ "    <link href=\"https://getbootstrap.com/docs/4.0/examples/signin/signin.css\" rel=\"stylesheet\" integrity=\"sha384-oOE/3m0LUMPub4kaC09mrdEhIc+e3exm4xOGxAmuFXhBNF4hcg/6MiAXAf5p0P56\" crossorigin=\"anonymous\"/>\n"
-						+ "  </head>\n"
-						+ "  <body>\n"
-						+ "     <div class=\"container\">\n"
-						+ "      <form class=\"form-signin\" method=\"post\" action=\"/login\">\n"
-						+ "        <h2 class=\"form-signin-heading\">Please sign in</h2>\n"
-						+ "<div class=\"alert alert-success\" role=\"alert\">You have been signed out</div>        <p>\n"
-						+ "          <label for=\"username\" class=\"sr-only\">Username</label>\n"
-						+ "          <input type=\"text\" id=\"username\" name=\"username\" class=\"form-control\" placeholder=\"Username\" required autofocus>\n"
-						+ "        </p>\n"
-						+ "        <p>\n"
-						+ "          <label for=\"password\" class=\"sr-only\">Password</label>\n"
-						+ "          <input type=\"password\" id=\"password\" name=\"password\" class=\"form-control\" placeholder=\"Password\" required>\n"
-						+ "        </p>\n"
-						+ "<input name=\"" + token.getParameterName() + "\" type=\"hidden\" value=\"" + token.getToken() + "\" />\n"
-						+ "        <button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\">Sign in</button>\n"
-						+ "      </form>\n"
-						+ "</div>\n"
-						+ "</body></html>");
+					assertThat(result.getResponse().getContentAsString()).isEqualTo("""
+						<!DOCTYPE html>
+						<html lang="en">
+						  <head>
+						    <meta charset="utf-8">
+						    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+						    <meta name="description" content="">
+						    <meta name="author" content="">
+						    <title>Please sign in</title>
+						    <link href="/default-ui.css" rel="stylesheet" />
+						  </head>
+						  <body>
+						    <div class="content">
+						      <form class="login-form" method="post" action="/login">
+						        <h2>Please sign in</h2>
+						<div class="alert alert-success" role="alert">You have been signed out</div>
+						        <p>
+						          <label for="username" class="screenreader">Username</label>
+						          <input type="text" id="username" name="username" placeholder="Username" required autofocus>
+						        </p>
+						        <p>
+						          <label for="password" class="screenreader">Password</label>
+						          <input type="password" id="password" name="password" placeholder="Password" required>
+						        </p>
+
+						<input name="_csrf" type="hidden" value="%s" />
+						        <button type="submit" class="primary">Sign in</button>
+						      </form>
+
+
+
+						    </div>
+						  </body>
+						</html>""".formatted(token.getToken()));
 				});
-		// @formatter:on
+	}
+
+	@Test
+	public void cssWhenFormLoginConfiguredThenServesCss() throws Exception {
+		this.spring.register(DefaultLoginPageConfig.class).autowire();
+		this.mvc.perform(get("/default-ui.css"))
+				.andExpect(status().isOk())
+				.andExpect(header().string("content-type", "text/css;charset=UTF-8"))
+				.andExpect(content().string(containsString("body {")));
 	}
 
 	@Test
@@ -241,35 +277,40 @@ public class DefaultLoginPageConfigurerTests {
 		this.mvc.perform(get("/login").sessionAttr(csrfAttributeName, csrfToken))
 				.andExpect((result) -> {
 					CsrfToken token = (CsrfToken) result.getRequest().getAttribute(CsrfToken.class.getName());
-					assertThat(result.getResponse().getContentAsString()).isEqualTo("<!DOCTYPE html>\n"
-						+ "<html lang=\"en\">\n"
-						+ "  <head>\n"
-						+ "    <meta charset=\"utf-8\">\n"
-						+ "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\">\n"
-						+ "    <meta name=\"description\" content=\"\">\n"
-						+ "    <meta name=\"author\" content=\"\">\n"
-						+ "    <title>Please sign in</title>\n"
-						+ "    <link href=\"https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css\" rel=\"stylesheet\" integrity=\"sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M\" crossorigin=\"anonymous\">\n"
-						+ "    <link href=\"https://getbootstrap.com/docs/4.0/examples/signin/signin.css\" rel=\"stylesheet\" integrity=\"sha384-oOE/3m0LUMPub4kaC09mrdEhIc+e3exm4xOGxAmuFXhBNF4hcg/6MiAXAf5p0P56\" crossorigin=\"anonymous\"/>\n"
-						+ "  </head>\n"
-						+ "  <body>\n"
-						+ "     <div class=\"container\">\n"
-						+ "      <form class=\"form-signin\" method=\"post\" action=\"/login\">\n"
-						+ "        <h2 class=\"form-signin-heading\">Please sign in</h2>\n"
-						+ "        <p>\n"
-						+ "          <label for=\"username\" class=\"sr-only\">Username</label>\n"
-						+ "          <input type=\"text\" id=\"username\" name=\"username\" class=\"form-control\" placeholder=\"Username\" required autofocus>\n"
-						+ "        </p>\n"
-						+ "        <p>\n"
-						+ "          <label for=\"password\" class=\"sr-only\">Password</label>\n"
-						+ "          <input type=\"password\" id=\"password\" name=\"password\" class=\"form-control\" placeholder=\"Password\" required>\n"
-						+ "        </p>\n"
-						+ "<p><input type='checkbox' name='remember-me'/> Remember me on this computer.</p>\n"
-						+ "<input name=\"" + token.getParameterName() + "\" type=\"hidden\" value=\"" + token.getToken() + "\" />\n"
-						+ "        <button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\">Sign in</button>\n"
-						+ "      </form>\n"
-						+ "</div>\n"
-						+ "</body></html>");
+					assertThat(result.getResponse().getContentAsString()).isEqualTo("""
+						<!DOCTYPE html>
+						<html lang="en">
+						  <head>
+						    <meta charset="utf-8">
+						    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+						    <meta name="description" content="">
+						    <meta name="author" content="">
+						    <title>Please sign in</title>
+						    <link href="/default-ui.css" rel="stylesheet" />
+						  </head>
+						  <body>
+						    <div class="content">
+						      <form class="login-form" method="post" action="/login">
+						        <h2>Please sign in</h2>
+
+						        <p>
+						          <label for="username" class="screenreader">Username</label>
+						          <input type="text" id="username" name="username" placeholder="Username" required autofocus>
+						        </p>
+						        <p>
+						          <label for="password" class="screenreader">Password</label>
+						          <input type="password" id="password" name="password" placeholder="Password" required>
+						        </p>
+						<p><input type='checkbox' name='remember-me'/> Remember me on this computer.</p>
+						<input name="_csrf" type="hidden" value="%s" />
+						        <button type="submit" class="primary">Sign in</button>
+						      </form>
+
+
+
+						    </div>
+						  </body>
+						</html>""".formatted(token.getToken()));
 				});
 		// @formatter:on
 	}
@@ -313,6 +354,22 @@ public class DefaultLoginPageConfigurerTests {
 			.stream()
 			.filter((filter) -> filter.getClass().isAssignableFrom(DefaultLoginPageGeneratingFilter.class))
 			.count()).isZero();
+	}
+
+	@Test
+	public void configureWhenAuthenticationEntryPointThenDoesNotServeCss() throws Exception {
+		this.spring.register(DefaultLoginWithCustomAuthenticationEntryPointConfig.class).autowire();
+		FilterChainProxy filterChain = this.spring.getContext().getBean(FilterChainProxy.class);
+		assertThat(filterChain.getFilterChains()
+			.get(0)
+			.getFilters()
+			.stream()
+			.filter((filter) -> filter.getClass().isAssignableFrom(DefaultResourcesFilter.class))
+			.count()).isZero();
+		//@formatter:off
+		this.mvc.perform(get("/default-ui.css"))
+				.andExpect(status().is3xxRedirection());
+		//@formatter:on
 	}
 
 	@Test

@@ -38,6 +38,8 @@ import org.springframework.security.core.Authentication;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -78,6 +80,7 @@ public class Jsr250AuthorizationManagerTests {
 	@Test
 	public void setAuthoritiesAuthorizationManagerWhenNotNullThenVerifyUsage() throws Exception {
 		AuthorizationManager<Collection<String>> authoritiesAuthorizationManager = mock(AuthorizationManager.class);
+		given(authoritiesAuthorizationManager.authorize(any(), any())).willCallRealMethod();
 		Jsr250AuthorizationManager manager = new Jsr250AuthorizationManager();
 		manager.setAuthoritiesAuthorizationManager(authoritiesAuthorizationManager);
 		MockMethodInvocation methodInvocation = new MockMethodInvocation(new ClassLevelAnnotations(),
@@ -206,73 +209,13 @@ public class Jsr250AuthorizationManagerTests {
 	}
 
 	@Test
-	public void checkInheritedAnnotationsWhenDuplicatedThenAnnotationConfigurationException() throws Exception {
+	public void checkInheritedAnnotationsWhenConflictingThenAnnotationConfigurationException() throws Exception {
 		Supplier<Authentication> authentication = () -> new TestingAuthenticationToken("user", "password", "ROLE_USER");
 		MockMethodInvocation methodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
 				"inheritedAnnotations");
 		Jsr250AuthorizationManager manager = new Jsr250AuthorizationManager();
 		assertThatExceptionOfType(AnnotationConfigurationException.class)
 			.isThrownBy(() -> manager.check(authentication, methodInvocation));
-	}
-
-	@Test
-	public void checkInheritedAnnotationsWhenConflictingThenAnnotationConfigurationException() throws Exception {
-		Supplier<Authentication> authentication = () -> new TestingAuthenticationToken("user", "password", "ROLE_USER");
-		MockMethodInvocation methodInvocation = new MockMethodInvocation(new ClassLevelAnnotations(),
-				ClassLevelAnnotations.class, "inheritedAnnotations");
-		Jsr250AuthorizationManager manager = new Jsr250AuthorizationManager();
-		assertThatExceptionOfType(AnnotationConfigurationException.class)
-			.isThrownBy(() -> manager.check(authentication, methodInvocation));
-	}
-
-	@Test
-	public void checkRequiresUserWhenMethodsFromInheritThenApplies() throws Exception {
-		MockMethodInvocation methodInvocation = new MockMethodInvocation(new RolesAllowedClass(),
-				RolesAllowedClass.class, "securedUser");
-		Jsr250AuthorizationManager manager = new Jsr250AuthorizationManager();
-		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedUser, methodInvocation);
-		assertThat(decision.isGranted()).isTrue();
-	}
-
-	@Test
-	public void checkPermitAllWhenMethodsFromInheritThenApplies() throws Exception {
-		MockMethodInvocation methodInvocation = new MockMethodInvocation(new PermitAllClass(), PermitAllClass.class,
-				"securedUser");
-		Jsr250AuthorizationManager manager = new Jsr250AuthorizationManager();
-		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedUser, methodInvocation);
-		assertThat(decision.isGranted()).isTrue();
-	}
-
-	@Test
-	public void checkDenyAllWhenMethodsFromInheritThenApplies() throws Exception {
-		MockMethodInvocation methodInvocation = new MockMethodInvocation(new DenyAllClass(), DenyAllClass.class,
-				"securedUser");
-		Jsr250AuthorizationManager manager = new Jsr250AuthorizationManager();
-		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedUser, methodInvocation);
-		assertThat(decision.isGranted()).isFalse();
-	}
-
-	@RolesAllowed("USER")
-	public static class RolesAllowedClass extends ParentClass {
-
-	}
-
-	@PermitAll
-	public static class PermitAllClass extends ParentClass {
-
-	}
-
-	@DenyAll
-	public static class DenyAllClass extends ParentClass {
-
-	}
-
-	public static class ParentClass {
-
-		public void securedUser() {
-
-		}
-
 	}
 
 	public static class TestClass implements InterfaceAnnotationsOne, InterfaceAnnotationsTwo {

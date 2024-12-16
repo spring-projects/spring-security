@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,8 +27,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.core.MethodParameter;
+import org.springframework.core.annotation.AliasFor;
+import org.springframework.core.annotation.AnnotatedMethod;
 import org.springframework.expression.BeanResolver;
 import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.core.annotation.AnnotationTemplateExpressionDefaults;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -193,8 +196,39 @@ public class AuthenticationPrincipalArgumentResolverTests {
 			.isEqualTo(this.expectedPrincipal);
 	}
 
+	@Test
+	public void resolveArgumentCustomMetaAnnotation() throws Exception {
+		CustomUserPrincipal principal = new CustomUserPrincipal();
+		setAuthenticationPrincipal(principal);
+		this.expectedPrincipal = principal.id;
+		assertThat(this.resolver.resolveArgument(showUserCustomMetaAnnotation(), null, null, null))
+			.isEqualTo(this.expectedPrincipal);
+	}
+
+	@Test
+	public void resolveArgumentCustomMetaAnnotationTpl() throws Exception {
+		CustomUserPrincipal principal = new CustomUserPrincipal();
+		setAuthenticationPrincipal(principal);
+		this.resolver.setTemplateDefaults(new AnnotationTemplateExpressionDefaults());
+		this.expectedPrincipal = principal.id;
+		assertThat(this.resolver.resolveArgument(showUserCustomMetaAnnotationTpl(), null, null, null))
+			.isEqualTo(this.expectedPrincipal);
+	}
+
+	@Test
+	public void resolveArgumentWhenAliasForOnInterfaceThenInherits() throws Exception {
+		CustomUserPrincipal principal = new CustomUserPrincipal();
+		setAuthenticationPrincipal(principal);
+		assertThat(this.resolver.resolveArgument(showUserNoConcreteAnnotation(), null, null, null))
+			.isEqualTo(principal.property);
+	}
+
 	private MethodParameter showUserNoAnnotation() {
 		return getMethodParameter("showUserNoAnnotation", String.class);
+	}
+
+	private MethodParameter showUserNoConcreteAnnotation() {
+		return getMethodParameter("showUserNoConcreteAnnotation", String.class);
 	}
 
 	private MethodParameter showUserAnnotationString() {
@@ -241,9 +275,17 @@ public class AuthenticationPrincipalArgumentResolverTests {
 		return getMethodParameter("showUserAnnotation", Object.class);
 	}
 
+	private MethodParameter showUserCustomMetaAnnotation() {
+		return getMethodParameter("showUserCustomMetaAnnotation", int.class);
+	}
+
+	private MethodParameter showUserCustomMetaAnnotationTpl() {
+		return getMethodParameter("showUserCustomMetaAnnotationTpl", int.class);
+	}
+
 	private MethodParameter getMethodParameter(String methodName, Class<?>... paramTypes) {
 		Method method = ReflectionUtils.findMethod(TestController.class, methodName, paramTypes);
-		return new MethodParameter(method, 0);
+		return new AnnotatedMethod(method).getMethodParameters()[0];
 	}
 
 	private void setAuthenticationPrincipal(Object principal) {
@@ -266,9 +308,47 @@ public class AuthenticationPrincipalArgumentResolverTests {
 
 	}
 
-	public static class TestController {
+	@Target({ ElementType.PARAMETER })
+	@Retention(RetentionPolicy.RUNTIME)
+	@AuthenticationPrincipal
+	@interface Property {
+
+		@AliasFor(attribute = "expression", annotation = AuthenticationPrincipal.class)
+		String value() default "id";
+
+	}
+
+	@Retention(RetentionPolicy.RUNTIME)
+	@AuthenticationPrincipal
+	public @interface CurrentUser2 {
+
+		@AliasFor(annotation = AuthenticationPrincipal.class)
+		String expression() default "";
+
+	}
+
+	@Retention(RetentionPolicy.RUNTIME)
+	@AuthenticationPrincipal(expression = "principal.{property}")
+	public @interface CurrentUser3 {
+
+		String property() default "";
+
+	}
+
+	public interface TestInterface {
+
+		void showUserNoConcreteAnnotation(@Property("property") String property);
+
+	}
+
+	public static class TestController implements TestInterface {
 
 		public void showUserNoAnnotation(String user) {
+		}
+
+		@Override
+		public void showUserNoConcreteAnnotation(String user) {
+
 		}
 
 		public void showUserAnnotation(@AuthenticationPrincipal String user) {
@@ -288,6 +368,12 @@ public class AuthenticationPrincipalArgumentResolverTests {
 		}
 
 		public void showUserCustomAnnotation(@CurrentUser CustomUserPrincipal user) {
+		}
+
+		public void showUserCustomMetaAnnotation(@CurrentUser2(expression = "principal.id") int userId) {
+		}
+
+		public void showUserCustomMetaAnnotationTpl(@CurrentUser3(property = "id") int userId) {
 		}
 
 		public void showUserAnnotation(@AuthenticationPrincipal Object user) {
@@ -313,6 +399,10 @@ public class AuthenticationPrincipalArgumentResolverTests {
 		public final String property = "property";
 
 		public final int id = 1;
+
+		public Object getPrincipal() {
+			return this;
+		}
 
 	}
 

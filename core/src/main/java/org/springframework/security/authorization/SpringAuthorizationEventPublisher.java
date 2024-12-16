@@ -55,10 +55,16 @@ public final class SpringAuthorizationEventPublisher implements AuthorizationEve
 	@Override
 	public <T> void publishAuthorizationEvent(Supplier<Authentication> authentication, T object,
 			AuthorizationDecision decision) {
-		if (decision == null || decision.isGranted()) {
+		publishAuthorizationEvent(authentication, object, (AuthorizationResult) decision);
+	}
+
+	@Override
+	public <T> void publishAuthorizationEvent(Supplier<Authentication> authentication, T object,
+			AuthorizationResult result) {
+		if (result == null || result.isGranted()) {
 			return;
 		}
-		AuthorizationDeniedEvent<T> failure = new AuthorizationDeniedEvent<>(authentication, object, decision);
+		AuthorizationDeniedEvent<T> failure = new AuthorizationDeniedEvent<>(authentication, object, result);
 		this.eventPublisher.publishEvent(failure);
 	}
 

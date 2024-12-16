@@ -189,28 +189,28 @@ Next, let's see the architectural components that Spring Security uses to suppor
 For RP-initiated logout:
 
 image:{icondir}/number_1.png[] Spring Security executes its xref:servlet/authentication/logout.adoc#logout-architecture[logout flow], calling its ``LogoutHandler``s to invalidate the session and perform other cleanup.
-It then invokes the {security-api-url}org/springframework/security/saml2/provider/service/web/authentication/logout/Saml2RelyingPartyInitiatedLogoutSuccessHandler.html[`Saml2RelyingPartyInitiatedLogoutSuccessHandler`].
+It then invokes the javadoc:org.springframework.security.saml2.provider.service.web.authentication.logout.Saml2RelyingPartyInitiatedLogoutSuccessHandler[].
 
 image:{icondir}/number_2.png[] The logout success handler uses an instance of
-{security-api-url}org/springframework/security/saml2/provider/service/web/authentication/logout/Saml2LogoutRequestResolver.html[`Saml2LogoutRequestResolver`] to create, sign, and serialize a `<saml2:LogoutRequest>`.
+javadoc:org.springframework.security.saml2.provider.service.web.authentication.logout.Saml2LogoutRequestResolver[] to create, sign, and serialize a `<saml2:LogoutRequest>`.
 It uses the keys and configuration from the xref:servlet/saml2/login/overview.adoc#servlet-saml2login-relyingpartyregistration[`RelyingPartyRegistration`] that is associated with the current `Saml2AuthenticatedPrincipal`.
 Then, it redirect-POSTs the `<saml2:LogoutRequest>` to the asserting party SLO endpoint
 
 The browser hands control over to the asserting party.
 If the asserting party redirects back (which it may not), then the application proceeds to step image:{icondir}/number_3.png[].
 
-image:{icondir}/number_3.png[] The {security-api-url}org/springframework/security/saml2/provider/service/web/authentication/logout/Saml2LogoutResponseFilter.html[`Saml2LogoutResponseFilter`] deserializes, verifies, and processes the `<saml2:LogoutResponse>` with its {security-api-url}org/springframework/security/saml2/provider/service/authentication/logout/Saml2LogoutResponseValidator.html[`Saml2LogoutResponseValidator`].
+image:{icondir}/number_3.png[] The javadoc:org.springframework.security.saml2.provider.service.web.authentication.logout.Saml2LogoutResponseFilter[] deserializes, verifies, and processes the `<saml2:LogoutResponse>` with its javadoc:org.springframework.security.saml2.provider.service.authentication.logout.Saml2LogoutResponseValidator[].
 
 image:{icondir}/number_4.png[] If valid, then it completes the local logout flow by redirecting to `/login?logout`, or whatever has been configured.
 If invalid, then it responds with a 400.
 
 For AP-initiated logout:
 
-image:{icondir}/number_1.png[] The {security-api-url}org/springframework/security/saml2/provider/service/web/authentication/logout/Saml2LogoutRequestFilter.html[`Saml2LogoutRequestFilter`] deserializes, verifies, and processes the `<saml2:LogoutRequest>` with its {security-api-url}org/springframework/security/saml2/provider/service/authentication/logout/Saml2LogoutRequestValidator.html[`Saml2LogoutRequestValidator`].
+image:{icondir}/number_1.png[] The javadoc:org.springframework.security.saml2.provider.service.web.authentication.logout.Saml2LogoutRequestFilter[] deserializes, verifies, and processes the `<saml2:LogoutRequest>` with its javadoc:org.springframework.security.saml2.provider.service.authentication.logout.Saml2LogoutRequestValidator[].
 
 image:{icondir}/number_2.png[] If valid, then the filter calls the configured ``LogoutHandler``s, invalidating the session and performing other cleanup.
 
-image:{icondir}/number_3.png[] It uses a {security-api-url}org/springframework/security/saml2/provider/service/web/authentication/logout/Saml2LogoutResponseResolver.html[`Saml2LogoutResponseResolver`] to create, sign and serialize a `<saml2:LogoutResponse>`.
+image:{icondir}/number_3.png[] It uses a javadoc:org.springframework.security.saml2.provider.service.web.authentication.logout.Saml2LogoutResponseResolver[] to create, sign and serialize a `<saml2:LogoutResponse>`.
 It uses the keys and configuration from the xref:servlet/saml2/login/overview.adoc#servlet-saml2login-relyingpartyregistration[`RelyingPartyRegistration`] derived from the endpoint or from the contents of the `<saml2:LogoutRequest>`.
 Then, it redirect-POSTs the `<saml2:LogoutResponse>` to the asserting party SLO endpoint.
 
@@ -339,7 +339,7 @@ It's common to need to set other values in the `<saml2:LogoutRequest>` than the 
 
 By default, Spring Security will issue a `<saml2:LogoutRequest>` and supply:
 
-* The `Destination` attribute - from `RelyingPartyRegistration#getAssertingPartyDetails#getSingleLogoutServiceLocation`
+* The `Destination` attribute - from `RelyingPartyRegistration#getAssertingPartyMetadata#getSingleLogoutServiceLocation`
 * The `ID` attribute - a GUID
 * The `<Issuer>` element - from `RelyingPartyRegistration#getEntityId`
 * The `<NameID>` element - from `Authentication#getName`
@@ -424,7 +424,7 @@ It's common to need to set other values in the `<saml2:LogoutResponse>` than the
 
 By default, Spring Security will issue a `<saml2:LogoutResponse>` and supply:
 
-* The `Destination` attribute - from `RelyingPartyRegistration#getAssertingPartyDetails#getSingleLogoutServiceResponseLocation`
+* The `Destination` attribute - from `RelyingPartyRegistration#getAssertingPartyMetadata#getSingleLogoutServiceResponseLocation`
 * The `ID` attribute - a GUID
 * The `<Issuer>` element - from `RelyingPartyRegistration#getEntityId`
 * The `<Status>` element - `SUCCESS`
@@ -605,7 +605,7 @@ Kotlin::
 ----
 @Component
 open class MyOpenSamlLogoutResponseValidator: Saml2LogoutResponseValidator {
-	private val delegate = OpenSamlLogoutResponseValidator()
+	private val delegate = OpenSaml4LogoutResponseValidator()
 
 	@Override
     fun logout(parameters: Saml2LogoutResponseValidatorParameters): Saml2LogoutResponseValidator {

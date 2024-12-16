@@ -7,6 +7,7 @@ First, we see that, like <<oauth2login, OAuth 2.0 Login>>, Spring Security takes
 It does this through a series of redirects:
 
 .Redirecting to Asserting Party Authentication
+[.invert-dark]
 image::{figures}/saml2webssoauthenticationrequestfilter.png[]
 
 [NOTE]
@@ -19,7 +20,7 @@ image:{icondir}/number_1.png[] First, a user makes an unauthenticated request to
 image:{icondir}/number_2.png[] Spring Security's xref:servlet/authorization/authorize-http-requests.adoc[`AuthorizationFilter`] indicates that the unauthenticated request is _Denied_ by throwing an `AccessDeniedException`.
 
 image:{icondir}/number_3.png[] Since the user lacks authorization, the xref:servlet/architecture.adoc#servlet-exceptiontranslationfilter[`ExceptionTranslationFilter`] initiates _Start Authentication_.
-The configured xref:servlet/authentication/architecture.adoc#servlet-authentication-authenticationentrypoint[`AuthenticationEntryPoint`] is an instance of {security-api-url}org/springframework/security/web/authentication/LoginUrlAuthenticationEntryPoint.html[`LoginUrlAuthenticationEntryPoint`], which redirects to <<servlet-saml2login-sp-initiated-factory,the `<saml2:AuthnRequest>` generating endpoint>>, `Saml2WebSsoAuthenticationRequestFilter`.
+The configured xref:servlet/authentication/architecture.adoc#servlet-authentication-authenticationentrypoint[`AuthenticationEntryPoint`] is an instance of javadoc:org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint[], which redirects to <<servlet-saml2login-sp-initiated-factory,the `<saml2:AuthnRequest>` generating endpoint>>, `Saml2WebSsoAuthenticationRequestFilter`.
 Alternatively, if you have <<servlet-saml2login-relyingpartyregistrationrepository,configured more than one asserting party>>, it first redirects to a picker page.
 
 image:{icondir}/number_4.png[] Next, the `Saml2WebSsoAuthenticationRequestFilter` creates, signs, serializes, and encodes a `<saml2:AuthnRequest>` using its configured <<servlet-saml2login-sp-initiated-factory,`Saml2AuthenticationRequestFactory`>>.
@@ -34,6 +35,7 @@ The following image shows how Spring Security authenticates a `<saml2:Response>`
 
 [[servlet-saml2login-authentication-saml2webssoauthenticationfilter]]
 .Authenticating a `<saml2:Response>`
+[.invert-dark]
 image::{figures}/saml2webssoauthenticationfilter.png[]
 
 [NOTE]
@@ -418,7 +420,7 @@ class MyCustomSecurityConfiguration {
 The preceding example requires the role of `USER` for any URL that starts with `/messages/`.
 
 [[servlet-saml2login-relyingpartyregistrationrepository]]
-The second `@Bean` Spring Boot creates is a {security-api-url}org/springframework/security/saml2/provider/service/registration/RelyingPartyRegistrationRepository.html[`RelyingPartyRegistrationRepository`], which represents the asserting party and relying party metadata.
+The second `@Bean` Spring Boot creates is a javadoc:org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository[], which represents the asserting party and relying party metadata.
 This includes such things as the location of the SSO endpoint the relying party should use when requesting authentication from the asserting party.
 
 You can override the default by publishing your own `RelyingPartyRegistrationRepository` bean.
@@ -484,7 +486,7 @@ public RelyingPartyRegistrationRepository relyingPartyRegistrations() throws Exc
     Saml2X509Credential credential = Saml2X509Credential.verification(certificate);
     RelyingPartyRegistration registration = RelyingPartyRegistration
             .withRegistrationId("example")
-            .assertingPartyDetails(party -> party
+            .assertingPartyMetadata(party -> party
                 .entityId("https://idp.example.com/issuer")
                 .singleSignOnServiceLocation("https://idp.example.com/SSO.saml2")
                 .wantAuthnRequestsSigned(false)
@@ -508,7 +510,7 @@ open fun relyingPartyRegistrations(): RelyingPartyRegistrationRepository {
     val credential: Saml2X509Credential = Saml2X509Credential.verification(certificate)
     val registration = RelyingPartyRegistration
         .withRegistrationId("example")
-        .assertingPartyDetails { party: AssertingPartyDetails.Builder ->
+        .assertingPartyMetadata { party: AssertingPartyMetadata.Builder ->
             party
                 .entityId("https://idp.example.com/issuer")
                 .singleSignOnServiceLocation("https://idp.example.com/SSO.saml2")
@@ -588,9 +590,60 @@ class MyCustomSecurityConfiguration {
 A relying party can be multi-tenant by registering more than one relying party in the `RelyingPartyRegistrationRepository`.
 ====
 
+[[servlet-saml2login-relyingpartyregistrationrepository-caching]]
+If you want your metadata to be refreshable on a periodic basis, you can wrap your repository in `CachingRelyingPartyRegistrationRepository` like so:
+
+.Caching Relying Party Registration Repository
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Configuration
+@EnableWebSecurity
+public class MyCustomSecurityConfiguration {
+    @Bean
+    public RelyingPartyRegistrationRepository registrations(CacheManager cacheManager) {
+		Supplier<IterableRelyingPartyRegistrationRepository> delegate = () ->
+            new InMemoryRelyingPartyRegistrationRepository(RelyingPartyRegistrations
+                .fromMetadataLocation("https://idp.example.org/ap/metadata")
+                .registrationId("ap").build());
+		CachingRelyingPartyRegistrationRepository registrations =
+            new CachingRelyingPartyRegistrationRepository(delegate);
+		registrations.setCache(cacheManager.getCache("my-cache-name"));
+        return registrations;
+    }
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Configuration
+@EnableWebSecurity
+class MyCustomSecurityConfiguration  {
+    @Bean
+    fun registrations(cacheManager: CacheManager): RelyingPartyRegistrationRepository {
+        val delegate = Supplier<IterableRelyingPartyRegistrationRepository> {
+             InMemoryRelyingPartyRegistrationRepository(RelyingPartyRegistrations
+                .fromMetadataLocation("https://idp.example.org/ap/metadata")
+                .registrationId("ap").build())
+        }
+        val registrations = CachingRelyingPartyRegistrationRepository(delegate)
+        registrations.setCache(cacheManager.getCache("my-cache-name"))
+        return registrations
+    }
+}
+----
+======
+
+In this way, the set of `RelyingPartyRegistration`s will refresh based on {spring-framework-reference-url}integration/cache/store-configuration.html[the cache's eviction schedule].
+
 [[servlet-saml2login-relyingpartyregistration]]
 == RelyingPartyRegistration
-A {security-api-url}org/springframework/security/saml2/provider/service/registration/RelyingPartyRegistration.html[`RelyingPartyRegistration`]
+A javadoc:org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration[]
 instance represents a link between an relying party and an asserting party's metadata.
 
 In a `RelyingPartyRegistration`, you can provide relying party metadata like its `Issuer` value, where it expects SAML Responses to be sent to, and any credentials that it owns for the purposes of signing or decrypting payloads.
@@ -648,7 +701,7 @@ RelyingPartyRegistration relyingPartyRegistration = RelyingPartyRegistration.wit
         .entityId("{baseUrl}/{registrationId}")
         .decryptionX509Credentials(c -> c.add(relyingPartyDecryptingCredential()))
         .assertionConsumerServiceLocation("/my-login-endpoint/{registrationId}")
-        .assertingPartyDetails(party -> party
+        .assertingPartyMetadata(party -> party
                 .entityId("https://ap.example.org")
                 .verificationX509Credentials(c -> c.add(assertingPartyVerifyingCredential()))
                 .singleSignOnServiceLocation("https://ap.example.org/SSO.saml2")
@@ -667,7 +720,7 @@ val relyingPartyRegistration =
             c.add(relyingPartyDecryptingCredential())
         }
         .assertionConsumerServiceLocation("/my-login-endpoint/{registrationId}")
-        .assertingPartyDetails { party -> party
+        .assertingPartyMetadata { party -> party
                 .entityId("https://ap.example.org")
                 .verificationX509Credentials { c -> c.add(assertingPartyVerifyingCredential()) }
                 .singleSignOnServiceLocation("https://ap.example.org/SSO.saml2")
@@ -679,7 +732,7 @@ val relyingPartyRegistration =
 [TIP]
 ====
 The top-level metadata methods are details about the relying party.
-The methods inside `assertingPartyDetails` are details about the asserting party.
+The methods inside `AssertingPartyMetadata` are details about the asserting party.
 ====
 
 [NOTE]
@@ -949,12 +1002,12 @@ Collection<RelyingPartyRegistration> registrations = RelyingPartyRegistrations
             .entityId("https://example.org/saml2/sp")
             .build()
         )
-        .collect(Collectors.toList()));
+        .collect(Collectors.toList());
 ----
 
 Kotlin::
 +
-[source,java,role="secondary"]
+[source,kotlin,role="secondary"]
 ----
 var registrations: Collection<RelyingPartyRegistration> = RelyingPartyRegistrations
         .collectionFromMetadataLocation("https://example.org/saml2/idp/metadata.xml")
@@ -964,7 +1017,7 @@ var registrations: Collection<RelyingPartyRegistration> = RelyingPartyRegistrati
             .assertionConsumerServiceLocation("{baseUrl}/login/saml2/sso")
             .build()
         }
-        .collect(Collectors.toList()));
+        .collect(Collectors.toList())
 ----
 ======
 

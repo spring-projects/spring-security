@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,12 +47,12 @@ public class PasswordPolicyAwareContextSource extends DefaultSpringSecurityConte
 
 	@Override
 	public DirContext getContext(String principal, String credentials) throws PasswordPolicyException {
-		if (principal.equals(this.userDn)) {
+		if (principal.equals(getUserDn())) {
 			return super.getContext(principal, credentials);
 		}
-		this.logger.trace(LogMessage.format("Binding as %s, prior to reconnect as user %s", this.userDn, principal));
+		this.logger.trace(LogMessage.format("Binding as %s, prior to reconnect as user %s", getUserDn(), principal));
 		// First bind as manager user before rebinding as the specific principal.
-		LdapContext ctx = (LdapContext) super.getContext(this.userDn, this.password);
+		LdapContext ctx = (LdapContext) super.getContext(getUserDn(), getPassword());
 		Control[] rctls = { new PasswordPolicyControl(false) };
 		try {
 			ctx.addToEnvironment(Context.SECURITY_PRINCIPAL, principal);
@@ -77,7 +77,7 @@ public class PasswordPolicyAwareContextSource extends DefaultSpringSecurityConte
 	@Override
 	@SuppressWarnings("unchecked")
 	protected Hashtable getAuthenticatedEnv(String principal, String credentials) {
-		Hashtable env = super.getAuthenticatedEnv(principal, credentials);
+		Hashtable<String, Object> env = super.getAuthenticatedEnv(principal, credentials);
 		env.put(LdapContext.CONTROL_FACTORIES, PasswordPolicyControlFactory.class.getName());
 		return env;
 	}

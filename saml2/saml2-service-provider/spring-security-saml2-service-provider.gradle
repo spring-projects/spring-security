@@ -1,13 +1,105 @@
 apply plugin: 'io.spring.convention.spring-module'
 
+configurations {
+	opensamlFiveMain { extendsFrom(optional, provided) }
+	opensamlFiveTest { extendsFrom(opensamlFiveMain, testImplementation) }
+}
+
+sourceSets {
+	opensaml4Main {
+		java {
+			compileClasspath += main.output
+			srcDir 'src/opensaml4Main/java'
+		}
+	}
+	opensaml5Main {
+		java {
+			compileClasspath = main.output + configurations.opensamlFiveMain
+			srcDir 'src/opensaml5Main/java'
+		}
+	}
+	opensaml4Test {
+		java {
+			compileClasspath += main.output + test.output + opensaml4Main.output + test.compileClasspath
+			runtimeClasspath += main.output + test.output + opensaml4Main.output + test.runtimeClasspath
+			srcDir 'src/opensaml4Test/java'
+		}
+	}
+	opensaml5Test {
+		java {
+			compileClasspath = main.output + test.output + opensaml5Main.output + configurations.opensamlFiveTest
+			runtimeClasspath = main.output + test.output + opensaml5Main.output + configurations.opensamlFiveTest
+			srcDir 'src/opensaml5Test/java'
+		}
+	}
+}
+
+sourceSets.configureEach { set ->
+	if (!set.name.containsIgnoreCase("main")) {
+		return
+	}
+	def from = copySpec {
+		from("$projectDir/src/$set.name/java/org/springframework/security/saml2/internal")
+	}
+
+	copy {
+		into "$projectDir/src/$set.name/java/org/springframework/security/saml2/provider/service/authentication/logout"
+		filter { line -> line.replaceAll(".saml2.internal", ".saml2.provider.service.authentication.logout") }
+		with from
+	}
+
+	copy {
+		into "$projectDir/src/$set.name/java/org/springframework/security/saml2/provider/service/authentication"
+		filter { line -> line.replaceAll(".saml2.internal", ".saml2.provider.service.authentication") }
+		with from
+	}
+
+	copy {
+		into "$projectDir/src/$set.name/java/org/springframework/security/saml2/provider/service/metadata"
+		filter { line -> line.replaceAll(".saml2.internal", ".saml2.provider.service.metadata") }
+		with from
+	}
+
+	copy {
+		into "$projectDir/src/$set.name/java/org/springframework/security/saml2/provider/service/web/authentication/logout"
+		filter { line -> line.replaceAll(".saml2.internal", ".saml2.provider.service.web.authentication.logout") }
+		with from
+	}
+
+	copy {
+		into "$projectDir/src/$set.name/java/org/springframework/security/saml2/provider/service/web/authentication"
+		filter { line -> line.replaceAll(".saml2.internal", ".saml2.provider.service.web.authentication") }
+		with from
+	}
+
+	copy {
+		into "$projectDir/src/$set.name/java/org/springframework/security/saml2/provider/service/web"
+		filter { line -> line.replaceAll(".saml2.internal", ".saml2.provider.service.web") }
+		with from
+	}
+
+	copy {
+		into "$projectDir/src/$set.name/java/org/springframework/security/saml2/provider/service/registration"
+		filter { line -> line.replaceAll(".saml2.internal", ".saml2.provider.service.registration") }
+		with from
+	}
+}
+
 dependencies {
 	management platform(project(":spring-security-dependencies"))
 	api project(':spring-security-web')
-	api "org.opensaml:opensaml-core"
-	api ("org.opensaml:opensaml-saml-api")  {
+
+	api ('org.opensaml:opensaml-saml-api')  {
 		exclude group: 'commons-logging', module: 'commons-logging'
 	}
-	api ("org.opensaml:opensaml-saml-impl")  {
+	api ('org.opensaml:opensaml-saml-impl')  {
+		exclude group: 'commons-logging', module: 'commons-logging'
+	}
+
+	opensamlFiveMain (libs.org.opensaml.opensaml5.saml.api)  {
+		exclude group: 'commons-logging', module: 'commons-logging'
+	}
+	opensamlFiveMain (libs.org.opensaml.opensaml5.saml.impl)  {
 		exclude group: 'commons-logging', module: 'commons-logging'
 	}
 
@@ -24,4 +116,44 @@ dependencies {
 	testImplementation "org.mockito:mockito-core"
 	testImplementation "org.mockito:mockito-junit-jupiter"
 	testImplementation "org.springframework:spring-test"
+}
+
+jar {
+	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+	from sourceSets.opensaml4Main.output
+	from sourceSets.opensaml5Main.output
+}
+
+sourcesJar {
+	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+	from sourceSets.opensaml4Main.allJava
+	from sourceSets.opensaml5Main.allJava
+}
+
+testJar {
+	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+	from sourceSets.opensaml4Test.output
+	from sourceSets.opensaml5Test.output
+}
+
+javadoc {
+	classpath += configurations.opensamlFiveMain
+	source = sourceSets.main.allJava + sourceSets.opensaml4Main.allJava + sourceSets.opensaml5Main.allJava
+}
+
+tasks.register("opensaml4Test", Test) {
+	useJUnitPlatform()
+	testClassesDirs = sourceSets.opensaml4Test.output.classesDirs
+	classpath = sourceSets.opensaml4Test.runtimeClasspath
+}
+
+tasks.register("opensaml5Test", Test) {
+	useJUnitPlatform()
+	testClassesDirs = sourceSets.opensaml5Test.output.classesDirs
+	classpath = sourceSets.opensaml5Test.output + sourceSets.opensaml5Test.runtimeClasspath
+}
+
+tasks.named("test") {
+	dependsOn opensaml4Test
+	dependsOn opensaml5Test
 }

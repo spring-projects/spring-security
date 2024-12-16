@@ -52,6 +52,8 @@ import static org.mockito.BDDMockito.verify;
 
 /**
  * Tests for {@link JwtIssuerReactiveAuthenticationManagerResolver}
+ *
+ * @deprecated Superseded by {@link JwtIssuerReactiveAuthenticationManagerResolverTests}
  */
 @Deprecated
 public class JwtIssuerReactiveAuthenticationManagerResolverDeprecatedTests {

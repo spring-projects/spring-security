@@ -23,13 +23,19 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
+import org.springframework.security.config.annotation.web.configurers.oauth2.client.OidcBackChannelLogoutHandler
+import org.springframework.security.config.annotation.web.oauth2.login.OidcBackChannelLogoutDsl
 import org.springframework.security.config.test.SpringTestContext
 import org.springframework.security.config.test.SpringTestContextExtension
+import org.springframework.security.oauth2.client.oidc.session.InMemoryOidcSessionRegistry
+import org.springframework.security.oauth2.client.oidc.session.OidcSessionRegistry
 import org.springframework.security.oauth2.client.registration.ClientRegistration
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations
 import org.springframework.security.web.SecurityFilterChain
+import org.springframework.security.web.authentication.logout.LogoutHandler
+import org.springframework.test.util.ReflectionTestUtils
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.post
 
@@ -53,11 +59,22 @@ class OidcLogoutDslTests {
         this.mockMvc.post("/logout/connect/back-channel/" + clientRegistration.registrationId) {
             param("logout_token", "token")
         }.andExpect { status { isBadRequest() } }
+        val chain: SecurityFilterChain = this.spring.context.getBean(SecurityFilterChain::class.java)
+        for (filter in chain.filters) {
+            if (filter.javaClass.simpleName.equals("OidcBackChannelLogoutFilter")) {
+                val logoutHandler = ReflectionTestUtils.getField(filter, "logoutHandler") as LogoutHandler
+                val backChannelLogoutHandler = ReflectionTestUtils.getField(logoutHandler, "left") as LogoutHandler
+                var cookieName = ReflectionTestUtils.getField(backChannelLogoutHandler, "sessionCookieName") as String
+                assert(cookieName.equals("SESSION"))
+            }
+        }
     }
 
     @Configuration
     @EnableWebSecurity
     open class ClientRepositoryConfig {
+
+        private val sessionRegistry = InMemoryOidcSessionRegistry()
 
         @Bean
         open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
@@ -71,6 +88,13 @@ class OidcLogoutDslTests {
                 }
             }
             return http.build()
+        }
+
+        @Bean
+        open fun oidcLogoutHandler(): OidcBackChannelLogoutHandler {
+            val logoutHandler = OidcBackChannelLogoutHandler(this.sessionRegistry)
+            logoutHandler.setSessionCookieName("SESSION");
+            return logoutHandler;
         }
 
         @Bean

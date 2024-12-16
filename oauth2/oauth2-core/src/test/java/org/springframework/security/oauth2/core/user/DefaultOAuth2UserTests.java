@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  *
  * @author Vedran Pavic
  * @author Joe Grandja
+ * @author Park Hyojong
  */
 public class DefaultOAuth2UserTests {
 
@@ -57,6 +58,12 @@ public class DefaultOAuth2UserTests {
 	public void constructorWhenAttributesIsEmptyThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException()
 			.isThrownBy(() -> new DefaultOAuth2User(AUTHORITIES, Collections.emptyMap(), ATTRIBUTE_NAME_KEY));
+	}
+
+	@Test
+	public void constructorWhenAttributeValueIsNullThenThrowIllegalArgumentException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> new DefaultOAuth2User(AUTHORITIES,
+				Collections.singletonMap(ATTRIBUTE_NAME_KEY, null), ATTRIBUTE_NAME_KEY));
 	}
 
 	@Test

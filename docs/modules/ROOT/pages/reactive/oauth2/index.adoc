@@ -69,8 +69,8 @@ See xref:getting-spring-security.adoc[] for additional options when not using Sp
 
 Consider the following use cases for OAuth2 Resource Server:
 
-* <<oauth2-resource-server-access-token,I want to protect access to the API using OAuth2>> (authorization server provides JWT or opaque access token)
-* <<oauth2-resource-server-custom-jwt,I want to protect access to the API using a JWT>> (custom token)
+* I want to <<oauth2-resource-server-access-token,protect access to the API using OAuth2>> (authorization server provides JWT or opaque access token)
+* I want to <<oauth2-resource-server-custom-jwt,protect access to the API using a JWT>> (custom token)
 
 [[oauth2-resource-server-access-token]]
 === Protect Access with an OAuth2 Access Token
@@ -166,7 +166,7 @@ class SecurityConfig {
 [[oauth2-resource-server-access-token-opaque]]
 ==== Opaque Token Support
 
-The following example configures an `OpaqueTokenIntrospector` bean using Spring Boot configuration properties:
+The following example configures an `ReactiveOpaqueTokenIntrospector` bean using Spring Boot configuration properties:
 
 [source,yaml]
 ----
@@ -393,13 +393,13 @@ See xref:getting-spring-security.adoc[] for additional options when not using Sp
 
 Consider the following use cases for OAuth2 Client:
 
-* <<oauth2-client-log-users-in,I want to log users in using OAuth 2.0 or OpenID Connect 1.0>>
-* <<oauth2-client-access-protected-resources,I want to obtain an access token for users in order to access a third-party API>>
-* <<oauth2-client-access-protected-resources-current-user,I want to do both>> (log users in _and_ access a third-party API)
-* <<oauth2-client-enable-extension-grant-type,I want to enable an extension grant type>>
-* <<oauth2-client-customize-existing-grant-type,I want to customize an existing grant type>>
-* <<oauth2-client-customize-request-parameters,I want to customize token request parameters>>
-* <<oauth2-client-customize-web-client,I want to customize the `WebClient` used by OAuth2 Client components>>
+* I want to <<oauth2-client-log-users-in,log users in using OAuth 2.0 or OpenID Connect 1.0>>
+* I want to <<oauth2-client-access-protected-resources,obtain an access token for users>> in order to access a third-party API
+* I want to <<oauth2-client-access-protected-resources-current-user,do both>> (log users in _and_ access a third-party API)
+* I want to <<oauth2-client-enable-extension-grant-type,enable an extension grant type>>
+* I want to <<oauth2-client-customize-existing-grant-type,customize an existing grant type>>
+* I want to <<oauth2-client-customize-request-parameters,customize token request parameters>>
+* I want to <<oauth2-client-customize-web-client,customize the `WebClient` used by OAuth2 Client components>>
 
 [[oauth2-client-log-users-in]]
 === Log Users In with OAuth2
@@ -1608,7 +1608,7 @@ class SecurityConfig {
 [[further-reading]]
 == Further Reading
 
-This preceding sections introduced Spring Security's support for OAuth2 with examples for common scenarios.
+The preceding sections introduced Spring Security's support for OAuth2 with examples for common scenarios.
 You can read more about OAuth2 Client and Resource Server in the following sections of the reference documentation:
 
 * xref:reactive/oauth2/login/index.adoc[]

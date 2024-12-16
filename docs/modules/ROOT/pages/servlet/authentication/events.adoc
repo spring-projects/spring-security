@@ -107,7 +107,7 @@ public AuthenticationEventPublisher authenticationEventPublisher
     Map<Class<? extends AuthenticationException>,
         Class<? extends AbstractAuthenticationFailureEvent>> mapping =
             Collections.singletonMap(FooException.class, FooEvent.class);
-    AuthenticationEventPublisher authenticationEventPublisher =
+    DefaultAuthenticationEventPublisher authenticationEventPublisher =
         new DefaultAuthenticationEventPublisher(applicationEventPublisher);
     authenticationEventPublisher.setAdditionalExceptionMappings(mapping);
     return authenticationEventPublisher;
@@ -143,10 +143,10 @@ Java::
 @Bean
 public AuthenticationEventPublisher authenticationEventPublisher
         (ApplicationEventPublisher applicationEventPublisher) {
-    AuthenticationEventPublisher authenticationEventPublisher =
+    DefaultAuthenticationEventPublisher authenticationEventPublisher =
         new DefaultAuthenticationEventPublisher(applicationEventPublisher);
     authenticationEventPublisher.setDefaultAuthenticationFailureEvent
-        (GenericAuthenticationFailureEvent.class);
+        (AbstractAuthenticationFailureEvent.class);
     return authenticationEventPublisher;
 }
 ----
@@ -159,7 +159,7 @@ Kotlin::
 fun authenticationEventPublisher
         (applicationEventPublisher: ApplicationEventPublisher?): AuthenticationEventPublisher {
     val authenticationEventPublisher = DefaultAuthenticationEventPublisher(applicationEventPublisher)
-    authenticationEventPublisher.setDefaultAuthenticationFailureEvent(GenericAuthenticationFailureEvent::class.java)
+    authenticationEventPublisher.setDefaultAuthenticationFailureEvent(AbstractAuthenticationFailureEvent::class.java)
     return authenticationEventPublisher
 }
 ----

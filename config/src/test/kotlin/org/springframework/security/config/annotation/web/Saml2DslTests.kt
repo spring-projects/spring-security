@@ -43,11 +43,13 @@ import org.springframework.security.saml2.provider.service.registration.TestRely
 import org.springframework.security.saml2.provider.service.web.authentication.Saml2WebSsoAuthenticationFilter
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.MvcResult
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import java.security.cert.Certificate
 import java.security.cert.CertificateFactory
-import java.util.Base64
+import java.util.*
 
 /**
  * Tests for [Saml2Dsl]
@@ -136,6 +138,23 @@ class Saml2DslTests {
         verify(exactly = 1) { Saml2LoginCustomAuthenticationManagerConfig.AUTHENTICATION_MANAGER.authenticate(any()) }
     }
 
+    @Test
+    @Throws(Exception::class)
+    fun authenticationRequestWhenCustomAuthenticationRequestPathRepositoryThenUses() {
+        this.spring.register(CustomAuthenticationRequestUriQuery::class.java).autowire()
+        val registration = TestRelyingPartyRegistrations.relyingPartyRegistration().build();
+        val request = MockMvcRequestBuilders.get("/custom/auth/sso")
+        this.mockMvc.perform(request)
+            .andExpect(MockMvcResultMatchers.status().isFound())
+            .andExpect(MockMvcResultMatchers.redirectedUrl("http://localhost/custom/auth/sso?entityId=simplesamlphp"))
+        request.queryParam("entityId", registration.registrationId)
+        val result: MvcResult =
+            this.mockMvc.perform(request).andExpect(MockMvcResultMatchers.status().isFound()).andReturn()
+        val redirectedUrl = result.response.redirectedUrl
+        Assertions.assertThat(redirectedUrl)
+            .startsWith(registration.assertingPartyDetails.singleSignOnServiceLocation)
+    }
+
     @Configuration
     @EnableWebSecurity
     open class Saml2LoginCustomAuthenticationManagerConfig {
@@ -160,6 +179,28 @@ class Saml2DslTests {
                 repository.findByRegistrationId(any())
             } returns TestRelyingPartyRegistrations.relyingPartyRegistration().build()
             return repository
+        }
+    }
+
+    @Configuration
+    @EnableWebSecurity
+    open class CustomAuthenticationRequestUriQuery {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+            http {
+                authorizeHttpRequests {
+                    authorize(anyRequest, authenticated)
+                }
+                saml2Login {
+                    authenticationRequestUriQuery = "/custom/auth/sso?entityId={registrationId}"
+                }
+            }
+            return http.build()
+        }
+
+        @Bean
+        open fun relyingPartyRegistrationRepository(): RelyingPartyRegistrationRepository? {
+            return InMemoryRelyingPartyRegistrationRepository(TestRelyingPartyRegistrations.relyingPartyRegistration().build())
         }
     }
 }

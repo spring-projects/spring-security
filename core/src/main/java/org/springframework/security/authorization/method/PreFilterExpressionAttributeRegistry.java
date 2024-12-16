@@ -16,14 +16,14 @@
 
 package org.springframework.security.authorization.method;
 
-import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
-import java.util.function.Function;
 
-import org.springframework.aop.support.AopUtils;
 import org.springframework.expression.Expression;
 import org.springframework.lang.NonNull;
 import org.springframework.security.access.prepost.PreFilter;
+import org.springframework.security.core.annotation.AnnotationTemplateExpressionDefaults;
+import org.springframework.security.core.annotation.SecurityAnnotationScanner;
+import org.springframework.security.core.annotation.SecurityAnnotationScanners;
 
 /**
  * For internal use only, as this contract is likely to change.
@@ -35,11 +35,12 @@ import org.springframework.security.access.prepost.PreFilter;
 final class PreFilterExpressionAttributeRegistry
 		extends AbstractExpressionAttributeRegistry<PreFilterExpressionAttributeRegistry.PreFilterExpressionAttribute> {
 
+	private SecurityAnnotationScanner<PreFilter> scanner = SecurityAnnotationScanners.requireUnique(PreFilter.class);
+
 	@NonNull
 	@Override
 	PreFilterExpressionAttribute resolveAttribute(Method method, Class<?> targetClass) {
-		Method specificMethod = AopUtils.getMostSpecificMethod(method, targetClass);
-		PreFilter preFilter = findPreFilterAnnotation(specificMethod, targetClass);
+		PreFilter preFilter = findPreFilterAnnotation(method, targetClass);
 		if (preFilter == null) {
 			return PreFilterExpressionAttribute.NULL_ATTRIBUTE;
 		}
@@ -48,10 +49,13 @@ final class PreFilterExpressionAttributeRegistry
 		return new PreFilterExpressionAttribute(preFilterExpression, preFilter.filterTarget());
 	}
 
+	void setTemplateDefaults(AnnotationTemplateExpressionDefaults defaults) {
+		this.scanner = SecurityAnnotationScanners.requireUnique(PreFilter.class, defaults);
+	}
+
 	private PreFilter findPreFilterAnnotation(Method method, Class<?> targetClass) {
-		Function<AnnotatedElement, PreFilter> lookup = findUniqueAnnotation(PreFilter.class);
-		PreFilter preFilter = lookup.apply(method);
-		return (preFilter != null) ? preFilter : lookup.apply(targetClass(method, targetClass));
+		Class<?> targetClassToUse = targetClass(method, targetClass);
+		return this.scanner.scan(method, targetClassToUse);
 	}
 
 	static final class PreFilterExpressionAttribute extends ExpressionAttribute {

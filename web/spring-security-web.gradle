@@ -1,6 +1,31 @@
 apply plugin: 'io.spring.convention.spring-module'
 
+configurations {
+	javascript {
+		canBeConsumed = false
+	}
+}
+
+def syncJavascript = tasks.register('syncJavascript', Sync) {
+	group = 'Build'
+	description = 'Syncs the Javascript from the javascript configuration'
+	into project.layout.buildDirectory.dir('spring-security-javascript')
+	from(configurations.javascript) {
+		into 'org/springframework/security'
+	}
+}
+
+
+sourceSets {
+	main {
+		resources {
+			srcDirs(syncJavascript)
+		}
+	}
+}
+
 dependencies {
+	javascript project(path: ':spring-security-javascript', configuration: 'javascript')
 	management platform(project(":spring-security-dependencies"))
 	api project(':spring-security-core')
 	api 'org.springframework:spring-core'
@@ -16,6 +41,7 @@ dependencies {
 	optional 'org.springframework:spring-tx'
 	optional 'org.springframework:spring-webflux'
 	optional 'org.springframework:spring-webmvc'
+	optional libs.webauthn4j.core
 
 	provided 'jakarta.servlet:jakarta.servlet-api'
 

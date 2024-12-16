@@ -16,14 +16,14 @@
 
 package org.springframework.security.authorization.method;
 
-import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
-import java.util.function.Function;
 
-import org.springframework.aop.support.AopUtils;
 import org.springframework.expression.Expression;
 import org.springframework.lang.NonNull;
 import org.springframework.security.access.prepost.PostFilter;
+import org.springframework.security.core.annotation.AnnotationTemplateExpressionDefaults;
+import org.springframework.security.core.annotation.SecurityAnnotationScanner;
+import org.springframework.security.core.annotation.SecurityAnnotationScanners;
 
 /**
  * For internal use only, as this contract is likely to change.
@@ -34,11 +34,12 @@ import org.springframework.security.access.prepost.PostFilter;
  */
 final class PostFilterExpressionAttributeRegistry extends AbstractExpressionAttributeRegistry<ExpressionAttribute> {
 
+	private SecurityAnnotationScanner<PostFilter> scanner = SecurityAnnotationScanners.requireUnique(PostFilter.class);
+
 	@NonNull
 	@Override
 	ExpressionAttribute resolveAttribute(Method method, Class<?> targetClass) {
-		Method specificMethod = AopUtils.getMostSpecificMethod(method, targetClass);
-		PostFilter postFilter = findPostFilterAnnotation(specificMethod, targetClass);
+		PostFilter postFilter = findPostFilterAnnotation(method, targetClass);
 		if (postFilter == null) {
 			return ExpressionAttribute.NULL_ATTRIBUTE;
 		}
@@ -47,10 +48,13 @@ final class PostFilterExpressionAttributeRegistry extends AbstractExpressionAttr
 		return new ExpressionAttribute(postFilterExpression);
 	}
 
+	void setTemplateDefaults(AnnotationTemplateExpressionDefaults defaults) {
+		this.scanner = SecurityAnnotationScanners.requireUnique(PostFilter.class, defaults);
+	}
+
 	private PostFilter findPostFilterAnnotation(Method method, Class<?> targetClass) {
-		Function<AnnotatedElement, PostFilter> lookup = findUniqueAnnotation(PostFilter.class);
-		PostFilter postFilter = lookup.apply(method);
-		return (postFilter != null) ? postFilter : lookup.apply(targetClass(method, targetClass));
+		Class<?> targetClassToUse = targetClass(method, targetClass);
+		return this.scanner.scan(method, targetClassToUse);
 	}
 
 }

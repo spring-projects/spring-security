@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,6 +61,7 @@ class AuthorizationManagerWebInvocationPrivilegeEvaluatorTests {
 	@Test
 	void isAllowedWhenAuthorizationManagerAllowsThenAllowedTrue() {
 		given(this.authorizationManager.check(any(), any())).willReturn(new AuthorizationDecision(true));
+		given(this.authorizationManager.authorize(any(), any())).willCallRealMethod();
 		boolean allowed = this.privilegeEvaluator.isAllowed("/test", TestAuthentication.authenticatedUser());
 		assertThat(allowed).isTrue();
 		verify(this.authorizationManager).check(any(), any());
@@ -69,6 +70,7 @@ class AuthorizationManagerWebInvocationPrivilegeEvaluatorTests {
 	@Test
 	void isAllowedWhenAuthorizationManagerDeniesAllowedFalse() {
 		given(this.authorizationManager.check(any(), any())).willReturn(new AuthorizationDecision(false));
+		given(this.authorizationManager.authorize(any(), any())).willCallRealMethod();
 		boolean allowed = this.privilegeEvaluator.isAllowed("/test", TestAuthentication.authenticatedUser());
 		assertThat(allowed).isFalse();
 	}
@@ -76,6 +78,7 @@ class AuthorizationManagerWebInvocationPrivilegeEvaluatorTests {
 	@Test
 	void isAllowedWhenAuthorizationManagerAbstainsThenAllowedTrue() {
 		given(this.authorizationManager.check(any(), any())).willReturn(null);
+		given(this.authorizationManager.authorize(any(), any())).willCallRealMethod();
 		boolean allowed = this.privilegeEvaluator.isAllowed("/test", TestAuthentication.authenticatedUser());
 		assertThat(allowed).isTrue();
 	}
@@ -83,6 +86,7 @@ class AuthorizationManagerWebInvocationPrivilegeEvaluatorTests {
 	@Test
 	void isAllowedWhenServletContextExistsThenFilterInvocationHasServletContext() {
 		ServletContext servletContext = new MockServletContext();
+		given(this.authorizationManager.authorize(any(), any())).willCallRealMethod();
 		this.privilegeEvaluator.setServletContext(servletContext);
 		this.privilegeEvaluator.isAllowed("/test", TestAuthentication.authenticatedUser());
 		ArgumentCaptor<HttpServletRequest> captor = ArgumentCaptor.forClass(HttpServletRequest.class);
@@ -99,6 +103,7 @@ class AuthorizationManagerWebInvocationPrivilegeEvaluatorTests {
 	void isAllowedWhenRequestTransformerThenUsesRequestTransformerResult() {
 		HttpServletRequest request = new MockHttpServletRequest();
 		given(this.requestTransformer.transform(any())).willReturn(request);
+		given(this.authorizationManager.authorize(any(), any())).willCallRealMethod();
 		this.privilegeEvaluator.setRequestTransformer(this.requestTransformer);
 
 		this.privilegeEvaluator.isAllowed("/test", TestAuthentication.authenticatedUser());

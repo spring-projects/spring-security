@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,6 +44,7 @@ import org.springframework.util.Assert;
  *
  * @author Joe Grandja
  * @author Eddú Meléndez
+ * @author Park Hyojong
  * @since 5.0
  * @see OAuth2User
  */
@@ -68,9 +69,9 @@ public class DefaultOAuth2User implements OAuth2User, Serializable {
 			String nameAttributeKey) {
 		Assert.notEmpty(attributes, "attributes cannot be empty");
 		Assert.hasText(nameAttributeKey, "nameAttributeKey cannot be empty");
-		if (!attributes.containsKey(nameAttributeKey)) {
-			throw new IllegalArgumentException("Missing attribute '" + nameAttributeKey + "' in attributes");
-		}
+		Assert.notNull(attributes.get(nameAttributeKey),
+				"Attribute value for '" + nameAttributeKey + "' cannot be null");
+
 		this.authorities = (authorities != null)
 				? Collections.unmodifiableSet(new LinkedHashSet<>(this.sortAuthorities(authorities)))
 				: Collections.unmodifiableSet(new LinkedHashSet<>(AuthorityUtils.NO_AUTHORITIES));

@@ -6,7 +6,7 @@ CORS must be processed before Spring Security, because the pre-flight request do
 If the request does not contain any cookies and Spring Security is first, the request determines that the user is not authenticated (since there are no cookies in the request) and rejects it.
 
 The easiest way to ensure that CORS is handled first is to use the `CorsFilter`.
-Users can integrate the `CorsFilter` with Spring Security by providing a `CorsConfigurationSource`.
+Users can integrate the `CorsFilter` with Spring Security by providing a `CorsConfigurationSource`. Note that Spring Security will automatically configure CORS only if a `UrlBasedCorsConfigurationSource` instance is present.
 For example, the following will integrate CORS support within Spring Security:
 
 [tabs]
@@ -16,7 +16,7 @@ Java::
 [source,java,role="primary"]
 ----
 @Bean
-CorsConfigurationSource corsConfigurationSource() {
+UrlBasedCorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration configuration = new CorsConfiguration();
     configuration.setAllowedOrigins(Arrays.asList("https://example.com"));
     configuration.setAllowedMethods(Arrays.asList("GET","POST"));
@@ -31,7 +31,7 @@ Kotlin::
 [source,kotlin,role="secondary"]
 ----
 @Bean
-fun corsConfigurationSource(): CorsConfigurationSource {
+fun corsConfigurationSource(): UrlBasedCorsConfigurationSource {
     val configuration = CorsConfiguration()
     configuration.allowedOrigins = listOf("https://example.com")
     configuration.allowedMethods = listOf("GET", "POST")
@@ -147,7 +147,7 @@ public class WebSecurityConfig {
 		return http.build();
 	}
 
-	CorsConfigurationSource apiConfigurationSource() {
+	UrlBasedCorsConfigurationSource apiConfigurationSource() {
 		CorsConfiguration configuration = new CorsConfiguration();
 		configuration.setAllowedOrigins(Arrays.asList("https://api.example.com"));
 		configuration.setAllowedMethods(Arrays.asList("GET","POST"));
@@ -156,7 +156,7 @@ public class WebSecurityConfig {
 		return source;
 	}
 
-	CorsConfigurationSource myWebsiteConfigurationSource() {
+	UrlBasedCorsConfigurationSource myWebsiteConfigurationSource() {
 		CorsConfiguration configuration = new CorsConfiguration();
 		configuration.setAllowedOrigins(Arrays.asList("https://example.com"));
 		configuration.setAllowedMethods(Arrays.asList("GET","POST"));
@@ -173,7 +173,7 @@ Kotlin::
 [source,kotlin,role="secondary"]
 ----
 @Bean
-fun corsConfigurationSource(): CorsConfigurationSource {
+fun corsConfigurationSource(): UrlBasedCorsConfigurationSource {
     val configuration = CorsConfiguration()
     configuration.allowedOrigins = listOf("https://example.com")
     configuration.allowedMethods = listOf("GET", "POST")

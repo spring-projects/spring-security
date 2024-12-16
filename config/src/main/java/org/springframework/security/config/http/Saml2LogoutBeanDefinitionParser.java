@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,6 @@ package org.springframework.security.config.http;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
-import java.util.function.Predicate;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.w3c.dom.Element;
@@ -44,6 +42,7 @@ import org.springframework.security.web.authentication.logout.SecurityContextLog
 import org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler;
 import org.springframework.security.web.util.matcher.AndRequestMatcher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.ParameterRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -226,23 +225,6 @@ final class Saml2LogoutBeanDefinitionParser implements BeanDefinitionParser {
 
 	BeanDefinition getLogoutFilter() {
 		return this.logoutFilter;
-	}
-
-	private static class ParameterRequestMatcher implements RequestMatcher {
-
-		Predicate<String> test = Objects::nonNull;
-
-		String name;
-
-		ParameterRequestMatcher(String name) {
-			this.name = name;
-		}
-
-		@Override
-		public boolean matches(HttpServletRequest request) {
-			return this.test.test(request.getParameter(this.name));
-		}
-
 	}
 
 	public static class Saml2RequestMatcher implements RequestMatcher {

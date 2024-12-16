@@ -2,9 +2,6 @@ name: PR Build
 
 on: pull_request
 
-env:
-  DEVELOCITY_ACCESS_KEY: ${{ secrets.GRADLE_ENTERPRISE_SECRET_ACCESS_KEY }}
-
 permissions:
   contents: read
 
@@ -21,7 +18,7 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
       - name: Build with Gradle
-        run: ./gradlew clean build --continue
+        run: ./gradlew clean build -PskipCheckExpectedBranchVersion --continue --scan
   generate-docs:
     name: Generate Docs
     runs-on: ubuntu-latest
@@ -42,3 +39,13 @@ jobs:
           name: docs
           path: docs/build/site
           overwrite: true
+  send-notification:
+    name: Send Notification
+    needs: [ build, generate-docs ]
+    if: ${{ failure() && github.event.pull_request.user.login == 'dependabot[bot]' && github.repository == 'spring-projects/spring-security' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Notification
+        uses: spring-io/spring-security-release-tools/.github/actions/send-notification@v1
+        with:
+          webhook-url: ${{ secrets.SPRING_SECURITY_CI_GCHAT_WEBHOOK_URL }}

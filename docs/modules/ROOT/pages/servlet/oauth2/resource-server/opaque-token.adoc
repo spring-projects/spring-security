@@ -68,7 +68,7 @@ Given an Opaque Token, Resource Server will
 2. Inspect the response for an `{ 'active' : true }` attribute
 3. Map each scope to an authority with the prefix `SCOPE_`
 
-The resulting `Authentication#getPrincipal`, by default, is a Spring Security `{security-api-url}org/springframework/security/oauth2/core/OAuth2AuthenticatedPrincipal.html[OAuth2AuthenticatedPrincipal]` object, and `Authentication#getName` maps to the token's `sub` property, if one is present.
+The resulting `Authentication#getPrincipal`, by default, is a Spring Security javadoc:org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal[] object, and `Authentication#getName` maps to the token's `sub` property, if one is present.
 
 From here, you may want to jump to:
 
@@ -82,15 +82,16 @@ From here, you may want to jump to:
 
 Next, let's see the architectural components that Spring Security uses to support https://tools.ietf.org/html/rfc7662[opaque token] Authentication in servlet-based applications, like the one we just saw.
 
-{security-api-url}org/springframework/security/oauth2/server/resource/authentication/OpaqueTokenAuthenticationProvider.html[`OpaqueTokenAuthenticationProvider`] is an xref:servlet/authentication/architecture.adoc#servlet-authentication-authenticationprovider[`AuthenticationProvider`] implementation that leverages a <<oauth2resourceserver-opaque-introspector,`OpaqueTokenIntrospector`>> to authenticate an opaque token.
+javadoc:org.springframework.security.oauth2.server.resource.authentication.OpaqueTokenAuthenticationProvider[] is an xref:servlet/authentication/architecture.adoc#servlet-authentication-authenticationprovider[`AuthenticationProvider`] implementation that leverages a <<oauth2resourceserver-opaque-introspector,`OpaqueTokenIntrospector`>> to authenticate an opaque token.
 
 Let's take a look at how `OpaqueTokenAuthenticationProvider` works within Spring Security.
-The figure explains details of how the xref:servlet/authentication/architecture.adoc#servlet-authentication-authenticationmanager[`AuthenticationManager`] in figures from <<oauth2resourceserver-authentication-bearertokenauthenticationfilter,Reading the Bearer Token>> works.
+The figure explains details of how the xref:servlet/authentication/architecture.adoc#servlet-authentication-authenticationmanager[`AuthenticationManager`] in figures from xref:servlet/oauth2/resource-server/index.adoc#oauth2resourceserver-authentication-bearertokenauthenticationfilter[Reading the Bearer Token] works.
 
 .`OpaqueTokenAuthenticationProvider` Usage
+[.invert-dark]
 image::{figures}/opaquetokenauthenticationprovider.png[]
 
-image:{icondir}/number_1.png[] The authentication `Filter` from <<oauth2resourceserver-authentication-bearertokenauthenticationfilter,Reading the Bearer Token>> passes a `BearerTokenAuthenticationToken` to the `AuthenticationManager` which is implemented by xref:servlet/authentication/architecture.adoc#servlet-authentication-providermanager[`ProviderManager`].
+image:{icondir}/number_1.png[] The authentication `Filter` from xref:servlet/oauth2/resource-server/index.adoc#oauth2resourceserver-authentication-bearertokenauthenticationfilter[Reading the Bearer Token] passes a `BearerTokenAuthenticationToken` to the `AuthenticationManager` which is implemented by xref:servlet/authentication/architecture.adoc#servlet-authentication-providermanager[`ProviderManager`].
 
 image:{icondir}/number_2.png[] The `ProviderManager` is configured to use an xref:servlet/authentication/architecture.adoc#servlet-authentication-authenticationprovider[AuthenticationProvider] of type `OpaqueTokenAuthenticationProvider`.
 
@@ -204,7 +205,9 @@ public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         .authorizeHttpRequests(authorize -> authorize
             .anyRequest().authenticated()
         )
-        .oauth2ResourceServer(OAuth2ResourceServerConfigurer::opaqueToken);
+        .oauth2ResourceServer(oauth2 -> oauth2
+            .opaqueToken(Customizer.withDefaults())
+        );
     return http.build();
 }
 ----
@@ -564,7 +567,9 @@ public class MappedAuthorities {
                 .requestMatchers("/messages/**").access(hasScope("messages"))
                 .anyRequest().authenticated()
             )
-            .oauth2ResourceServer(OAuth2ResourceServerConfigurer::opaqueToken);
+            .oauth2ResourceServer(oauth2 -> oauth2
+                .opaqueToken(Customizer.withDefaults())
+            );
         return http.build();
     }
 }

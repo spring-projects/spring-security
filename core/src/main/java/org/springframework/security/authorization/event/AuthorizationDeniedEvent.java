@@ -20,6 +20,7 @@ import java.util.function.Supplier;
 
 import org.springframework.context.ApplicationEvent;
 import org.springframework.security.authorization.AuthorizationDecision;
+import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.core.Authentication;
 
 /**
@@ -31,8 +32,19 @@ import org.springframework.security.core.Authentication;
  */
 public class AuthorizationDeniedEvent<T> extends AuthorizationEvent {
 
+	/**
+	 * @deprecated Please use an {@link AuthorizationResult} constructor instead
+	 */
+	@Deprecated
 	public AuthorizationDeniedEvent(Supplier<Authentication> authentication, T object, AuthorizationDecision decision) {
 		super(authentication, object, decision);
+	}
+
+	/**
+	 * @since 6.4
+	 */
+	public AuthorizationDeniedEvent(Supplier<Authentication> authentication, T object, AuthorizationResult result) {
+		super(authentication, object, result);
 	}
 
 	/**

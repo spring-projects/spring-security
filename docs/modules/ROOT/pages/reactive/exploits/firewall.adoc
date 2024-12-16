@@ -1,0 +1,234 @@
+[[webflux-serverwebexchangefirewall]]
+= ServerWebExchangeFirewall
+
+There are various ways a request can be created by malicious users that can exploit applications.
+Spring Security provides the `ServerWebExchangeFirewall` to allow rejecting requests that look malicious.
+The default implementation is `StrictServerWebExchangeFirewall` which rejects malicious requests.
+
+For example a request could contain path-traversal sequences (such as `/../`) or multiple forward slashes (`//`) that could also cause pattern-matches to fail.
+Some containers normalize these out before performing the servlet mapping, but others do not.
+To protect against issues like these, `WebFilterChainProxy` uses a `ServerWebExchangeFirewall` strategy to check and wrap the request.
+By default, un-normalized requests are automatically rejected, and path parameters are removed for matching purposes.
+(So, for example, an original request path of `/secure;hack=1/somefile.html;hack=2` is returned as `/secure/somefile.html`.)
+It is, therefore, essential that a `WebFilterChainProxy` is used.
+
+In practice, we recommend that you use method security at your service layer, to control access to your application, rather than rely entirely on the use of security constraints defined at the web-application level.
+URLs change, and it is difficult to take into account all the possible URLs that an application might support and how requests might be manipulated.
+You should restrict yourself to using a few simple patterns that are simple to understand.
+Always try to use a "`deny-by-default`" approach, where you have a catch-all wildcard (`/**` or `**`) defined last to deny access.
+
+Security defined at the service layer is much more robust and harder to bypass, so you should always take advantage of Spring Security's method security options.
+
+You can customize the `ServerWebExchangeFirewall` by exposing it as a Bean.
+
+.Allow Matrix Variables
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Bean
+public StrictServerWebExchangeFirewall httpFirewall() {
+    StrictServerWebExchangeFirewall firewall = new StrictServerWebExchangeFirewall();
+    firewall.setAllowSemicolon(true);
+    return firewall;
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun httpFirewall(): StrictServerWebExchangeFirewall {
+    val firewall = StrictServerWebExchangeFirewall()
+    firewall.setAllowSemicolon(true)
+    return firewall
+}
+----
+======
+
+To protect against https://www.owasp.org/index.php/Cross_Site_Tracing[Cross Site Tracing (XST)] and https://www.owasp.org/index.php/Test_HTTP_Methods_(OTG-CONFIG-006)[HTTP Verb Tampering], the `StrictServerWebExchangeFirewall` provides an allowed list of valid HTTP methods that are allowed.
+The default valid methods are `DELETE`, `GET`, `HEAD`, `OPTIONS`, `PATCH`, `POST`, and `PUT`.
+If your application needs to modify the valid methods, you can configure a custom `StrictServerWebExchangeFirewall` bean.
+The following example allows only HTTP `GET` and `POST` methods:
+
+
+.Allow Only GET & POST
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Bean
+public StrictServerWebExchangeFirewall httpFirewall() {
+    StrictServerWebExchangeFirewall firewall = new StrictServerWebExchangeFirewall();
+    firewall.setAllowedHttpMethods(Arrays.asList("GET", "POST"));
+    return firewall;
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun httpFirewall(): StrictServerWebExchangeFirewall {
+    val firewall = StrictServerWebExchangeFirewall()
+    firewall.setAllowedHttpMethods(listOf("GET", "POST"))
+    return firewall
+}
+----
+======
+
+If you must allow any HTTP method (not recommended), you can use `StrictServerWebExchangeFirewall.setUnsafeAllowAnyHttpMethod(true)`.
+Doing so entirely disables validation of the HTTP method.
+
+
+[[webflux-serverwebexchangefirewall-headers-parameters]]
+`StrictServerWebExchangeFirewall` also checks header names and values and parameter names.
+It requires that each character have a defined code point and not be a control character.
+
+This requirement can be relaxed or adjusted as necessary by using the following methods:
+
+* `StrictServerWebExchangeFirewall#setAllowedHeaderNames(Predicate)`
+* `StrictServerWebExchangeFirewall#setAllowedHeaderValues(Predicate)`
+* `StrictServerWebExchangeFirewall#setAllowedParameterNames(Predicate)`
+
+[NOTE]
+====
+Parameter values can be also controlled with `setAllowedParameterValues(Predicate)`.
+====
+
+For example, to switch off this check, you can wire your `StrictServerWebExchangeFirewall` with `Predicate` instances that always return `true`:
+
+.Allow Any Header Name, Header Value, and Parameter Name
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Bean
+public StrictServerWebExchangeFirewall httpFirewall() {
+    StrictServerWebExchangeFirewall firewall = new StrictServerWebExchangeFirewall();
+    firewall.setAllowedHeaderNames((header) -> true);
+    firewall.setAllowedHeaderValues((header) -> true);
+    firewall.setAllowedParameterNames((parameter) -> true);
+    return firewall;
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun httpFirewall(): StrictServerWebExchangeFirewall {
+    val firewall = StrictServerWebExchangeFirewall()
+    firewall.setAllowedHeaderNames { true }
+    firewall.setAllowedHeaderValues { true }
+    firewall.setAllowedParameterNames { true }
+    return firewall
+}
+----
+======
+
+Alternatively, there might be a specific value that you need to allow.
+
+For example, iPhone Xʀ uses a `User-Agent` that includes a character that is not in the ISO-8859-1 charset.
+Due to this fact, some application servers parse this value into two separate characters, the latter being an undefined character.
+
+You can address this with the `setAllowedHeaderValues` method:
+
+.Allow Certain User Agents
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Bean
+public StrictServerWebExchangeFirewall httpFirewall() {
+    StrictServerWebExchangeFirewall firewall = new StrictServerWebExchangeFirewall();
+    Pattern allowed = Pattern.compile("[\\p{IsAssigned}&&[^\\p{IsControl}]]*");
+    Pattern userAgent = ...;
+    firewall.setAllowedHeaderValues((header) -> allowed.matcher(header).matches() || userAgent.matcher(header).matches());
+    return firewall;
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun httpFirewall(): StrictServerWebExchangeFirewall {
+    val firewall = StrictServerWebExchangeFirewall()
+    val allowed = Pattern.compile("[\\p{IsAssigned}&&[^\\p{IsControl}]]*")
+    val userAgent = Pattern.compile(...)
+    firewall.setAllowedHeaderValues { allowed.matcher(it).matches() || userAgent.matcher(it).matches() }
+    return firewall
+}
+----
+======
+
+In the case of header values, you may instead consider parsing them as UTF-8 at verification time:
+
+.Parse Headers As UTF-8
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+firewall.setAllowedHeaderValues((header) -> {
+    String parsed = new String(header.getBytes(ISO_8859_1), UTF_8);
+    return allowed.matcher(parsed).matches();
+});
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+firewall.setAllowedHeaderValues {
+    val parsed = String(header.getBytes(ISO_8859_1), UTF_8)
+    return allowed.matcher(parsed).matches()
+}
+----
+======
+
+The `ServerExchangeRejectedHandler` interface is used to handle `ServerExchangeRejectedException` throw by Spring Security's `ServerWebExchangeFirewall`.
+By default `HttpStatusExchangeRejectedHandler` is used to send an HTTP 400 response to clients when a request is rejected.
+To customize the behavior, users can expose a `ServerExchangeRejectedHandler` Bean.
+For example, the following will send an HTTP 404 when the request is rejected:
+
+
+.Send 404 on Request Rejected
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Bean
+ServerExchangeRejectedHandler rejectedHandler() {
+	return new HttpStatusExchangeRejectedHandler(HttpStatus.NOT_FOUND);
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun rejectedHandler(): ServerExchangeRejectedHandler {
+    return HttpStatusExchangeRejectedHandler(HttpStatus.NOT_FOUND)
+}
+----
+======
+
+Handling can be completely customized by creating a custom `ServerExchangeRejectedHandler` implementation.

@@ -28,4 +28,5 @@
 		<intercept-message pattern="/**" access="permitAll"/>
 	</websocket-message-broker>
 
+	<b:bean name="annotationExpressionTemplateDefaults" class="org.springframework.security.core.annotation.AnnotationTemplateExpressionDefaults"/>
 </b:beans>

@@ -127,7 +127,7 @@ public class MyApplication {
 	}
 
 	@Bean
-	ObservationRegistry<ObservationRegistry> observationRegistry() {
+	ObservationRegistry observationRegistry() {
 		ObservationRegistry registry = ObservationRegistry.create();
 		registry.observationConfig().observationHandler(new ObservationTextPublisher());
 		return registry;
@@ -157,7 +157,7 @@ class MyApplication {
 	}
 
 	@Bean
-	fun observationRegistry(): ObservationRegistry<ObservationRegistry> {
+	fun observationRegistry(): ObservationRegistry {
 		ObservationRegistry registry = ObservationRegistry.create()
 		registry.observationConfig().observationHandler(ObservationTextPublisher())
 		return registry
@@ -187,7 +187,7 @@ Xml::
 If you don't want any Spring Security observations, in a Spring Boot application you can publish a `ObservationRegistry.NOOP` `@Bean`.
 However, this may turn off observations for more than just Spring Security.
 
-Instead, you can alter the provided `ObservationRegistry` with an `ObservationPredicate` like the following:
+Instead, you can publish a `SecurityObservationSettings` like the following:
 
 [tabs]
 ======
@@ -196,9 +196,8 @@ Java::
 [source,java,role="primary"]
 ----
 @Bean
-ObservationRegistryCustomizer<ObservationRegistry> noSpringSecurityObservations() {
-	ObservationPredicate predicate = (name, context) -> !name.startsWith("spring.security.");
-	return (registry) -> registry.observationConfig().observationPredicate(predicate);
+SecurityObservationSettings noSpringSecurityObservations() {
+	return SecurityObservationSettings.noObservations();
 }
 ----
 
@@ -207,16 +206,76 @@ Kotlin::
 [source,kotlin,role="secondary"]
 ----
 @Bean
-fun noSpringSecurityObservations(): ObservationRegistryCustomizer<ObservationRegistry> {
-	ObservationPredicate predicate = (name: String, context: Observation.Context) -> !name.startsWith("spring.security.")
-	(registry: ObservationRegistry) -> registry.observationConfig().observationPredicate(predicate)
+fun noSpringSecurityObservations(): SecurityObservationSettings {
+	return SecurityObservationSettings.noObservations()
 }
 ----
 ======
 
+and then Spring Security will not wrap any filter chains, authentications, or authorizations in their `ObservationXXX` counterparts.
+
 [TIP]
 There is no facility for disabling observations with XML support.
 Instead, simply do not set the `observation-registry-ref` attribute.
+
+You can also disable security for only a subset of Security's observations.
+For example, the `SecurityObservationSettings` bean excludes the filter chain observations by default.
+So, you can also do:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Bean
+SecurityObservationSettings defaultSpringSecurityObservations() {
+	return SecurityObservationSettings.withDefaults().build();
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun defaultSpringSecurityObservations(): SecurityObservationSettings {
+	return SecurityObservationSettings.withDefaults().build()
+}
+----
+======
+
+Or you can turn on and off observations individually, based on the defaults:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Bean
+SecurityObservationSettings allSpringSecurityObservations() {
+	return SecurityObservationSettings.withDefaults()
+            .shouldObserveFilterChains(true).build();
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun allSpringSecurityObservations(): SecurityObservationSettings {
+    return SecurityObservabilityDefaults.builder()
+            .shouldObserveFilterChains(true).build()
+}
+----
+======
+
+[NOTE]
+=====
+For backward compatibility, all Spring Security observations are made unless a `SecurityObservationSettings` is published.
+=====
 
 [[webflux-observability-tracing-listing]]
 === Trace Listing
@@ -232,5 +291,5 @@ Spring Security tracks the following spans on each request:
 7. `spring.security.authorizations` - a span that wraps authorization attempts
 
 [TIP]
-`spring.security.http.chains.before` + `spring.security.http.secured.requests` + `spring.security.http.chains.after` = `spring.security.http.requests`
+`spring.security.http.chains.before` + `spring.security.http.secured.requests` + `spring.security.http.chains.after` = `spring.security.http.requests` +
 `spring.security.http.chains.before` + `spring.security.http.chains.after` = Spring Security's part of the request

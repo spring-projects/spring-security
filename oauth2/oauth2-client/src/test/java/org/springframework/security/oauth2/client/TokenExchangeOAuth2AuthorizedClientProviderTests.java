@@ -213,7 +213,9 @@ public class TokenExchangeOAuth2AuthorizedClientProviderTests {
 				issuedAt, expiresAt);
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.clientRegistration,
 				this.principal.getName(), accessToken);
-		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses.accessTokenResponse().build();
+		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses.accessTokenResponse()
+			.refreshToken("refresh")
+			.build();
 		given(this.accessTokenResponseClient.getTokenResponse(any(TokenExchangeGrantRequest.class)))
 			.willReturn(accessTokenResponse);
 		// @formatter:off
@@ -228,6 +230,7 @@ public class TokenExchangeOAuth2AuthorizedClientProviderTests {
 		assertThat(reauthorizedClient.getClientRegistration()).isSameAs(this.clientRegistration);
 		assertThat(reauthorizedClient.getPrincipalName()).isEqualTo(this.principal.getName());
 		assertThat(reauthorizedClient.getAccessToken()).isEqualTo(accessTokenResponse.getAccessToken());
+		assertThat(reauthorizedClient.getRefreshToken()).isEqualTo(accessTokenResponse.getRefreshToken());
 		ArgumentCaptor<TokenExchangeGrantRequest> grantRequestCaptor = ArgumentCaptor
 			.forClass(TokenExchangeGrantRequest.class);
 		verify(this.accessTokenResponseClient).getTokenResponse(grantRequestCaptor.capture());
@@ -248,7 +251,9 @@ public class TokenExchangeOAuth2AuthorizedClientProviderTests {
 		// Shorten the lifespan of the access token by 90 seconds, which will ultimately
 		// force it to expire on the client
 		this.authorizedClientProvider.setClockSkew(Duration.ofSeconds(90));
-		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses.accessTokenResponse().build();
+		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses.accessTokenResponse()
+			.refreshToken("refresh")
+			.build();
 		given(this.accessTokenResponseClient.getTokenResponse(any(TokenExchangeGrantRequest.class)))
 			.willReturn(accessTokenResponse);
 		// @formatter:off
@@ -263,6 +268,7 @@ public class TokenExchangeOAuth2AuthorizedClientProviderTests {
 		assertThat(reauthorizedClient.getClientRegistration()).isSameAs(this.clientRegistration);
 		assertThat(reauthorizedClient.getPrincipalName()).isEqualTo(this.principal.getName());
 		assertThat(reauthorizedClient.getAccessToken()).isEqualTo(accessTokenResponse.getAccessToken());
+		assertThat(reauthorizedClient.getRefreshToken()).isEqualTo(accessTokenResponse.getRefreshToken());
 		ArgumentCaptor<TokenExchangeGrantRequest> grantRequestCaptor = ArgumentCaptor
 			.forClass(TokenExchangeGrantRequest.class);
 		verify(this.accessTokenResponseClient).getTokenResponse(grantRequestCaptor.capture());
@@ -285,7 +291,9 @@ public class TokenExchangeOAuth2AuthorizedClientProviderTests {
 
 	@Test
 	public void authorizeWhenTokenExchangeAndNotAuthorizedAndSubjectTokenResolvesThenAuthorized() {
-		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses.accessTokenResponse().build();
+		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses.accessTokenResponse()
+			.refreshToken("refresh")
+			.build();
 		given(this.accessTokenResponseClient.getTokenResponse(any(TokenExchangeGrantRequest.class)))
 			.willReturn(accessTokenResponse);
 		// @formatter:off
@@ -299,6 +307,7 @@ public class TokenExchangeOAuth2AuthorizedClientProviderTests {
 		assertThat(authorizedClient.getClientRegistration()).isSameAs(this.clientRegistration);
 		assertThat(authorizedClient.getPrincipalName()).isEqualTo(this.principal.getName());
 		assertThat(authorizedClient.getAccessToken()).isEqualTo(accessTokenResponse.getAccessToken());
+		assertThat(authorizedClient.getRefreshToken()).isEqualTo(accessTokenResponse.getRefreshToken());
 		ArgumentCaptor<TokenExchangeGrantRequest> grantRequestCaptor = ArgumentCaptor
 			.forClass(TokenExchangeGrantRequest.class);
 		verify(this.accessTokenResponseClient).getTokenResponse(grantRequestCaptor.capture());
@@ -312,7 +321,9 @@ public class TokenExchangeOAuth2AuthorizedClientProviderTests {
 		Function<OAuth2AuthorizationContext, OAuth2Token> subjectTokenResolver = mock(Function.class);
 		given(subjectTokenResolver.apply(any(OAuth2AuthorizationContext.class))).willReturn(this.subjectToken);
 		this.authorizedClientProvider.setSubjectTokenResolver(subjectTokenResolver);
-		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses.accessTokenResponse().build();
+		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses.accessTokenResponse()
+			.refreshToken("refresh")
+			.build();
 		given(this.accessTokenResponseClient.getTokenResponse(any(TokenExchangeGrantRequest.class)))
 			.willReturn(accessTokenResponse);
 		TestingAuthenticationToken principal = new TestingAuthenticationToken("user", "password");
@@ -327,6 +338,7 @@ public class TokenExchangeOAuth2AuthorizedClientProviderTests {
 		assertThat(authorizedClient.getClientRegistration()).isSameAs(this.clientRegistration);
 		assertThat(authorizedClient.getPrincipalName()).isEqualTo(principal.getName());
 		assertThat(authorizedClient.getAccessToken()).isEqualTo(accessTokenResponse.getAccessToken());
+		assertThat(authorizedClient.getRefreshToken()).isEqualTo(accessTokenResponse.getRefreshToken());
 		verify(subjectTokenResolver).apply(authorizationContext);
 		ArgumentCaptor<TokenExchangeGrantRequest> grantRequestCaptor = ArgumentCaptor
 			.forClass(TokenExchangeGrantRequest.class);
@@ -341,7 +353,9 @@ public class TokenExchangeOAuth2AuthorizedClientProviderTests {
 		Function<OAuth2AuthorizationContext, OAuth2Token> actorTokenResolver = mock(Function.class);
 		given(actorTokenResolver.apply(any(OAuth2AuthorizationContext.class))).willReturn(this.actorToken);
 		this.authorizedClientProvider.setActorTokenResolver(actorTokenResolver);
-		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses.accessTokenResponse().build();
+		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses.accessTokenResponse()
+			.refreshToken("refresh")
+			.build();
 		given(this.accessTokenResponseClient.getTokenResponse(any(TokenExchangeGrantRequest.class)))
 			.willReturn(accessTokenResponse);
 		// @formatter:off
@@ -355,6 +369,7 @@ public class TokenExchangeOAuth2AuthorizedClientProviderTests {
 		assertThat(authorizedClient.getClientRegistration()).isSameAs(this.clientRegistration);
 		assertThat(authorizedClient.getPrincipalName()).isEqualTo(this.principal.getName());
 		assertThat(authorizedClient.getAccessToken()).isEqualTo(accessTokenResponse.getAccessToken());
+		assertThat(authorizedClient.getRefreshToken()).isEqualTo(accessTokenResponse.getRefreshToken());
 		verify(actorTokenResolver).apply(authorizationContext);
 		ArgumentCaptor<TokenExchangeGrantRequest> grantRequestCaptor = ArgumentCaptor
 			.forClass(TokenExchangeGrantRequest.class);

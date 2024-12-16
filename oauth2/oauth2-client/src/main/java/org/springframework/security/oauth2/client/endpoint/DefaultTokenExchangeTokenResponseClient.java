@@ -50,7 +50,9 @@ import org.springframework.web.client.RestTemplate;
  * 2.1 Request</a>
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc8693#section-2.2">Section
  * 2.2 Response</a>
+ * @deprecated Use {@link RestClientRefreshTokenTokenResponseClient} instead
  */
+@Deprecated(since = "6.4")
 public final class DefaultTokenExchangeTokenResponseClient
 		implements OAuth2AccessTokenResponseClient<TokenExchangeGrantRequest> {
 

@@ -4,7 +4,7 @@
 Similar to xref:servlet/authentication/session-management.adoc#ns-concurrent-sessions[Servlet's Concurrent Sessions Control], Spring Security also provides support to limit the number of concurrent sessions a user can have in a Reactive application.
 
 When you set up Concurrent Sessions Control in Spring Security, it monitors authentications carried out through Form Login, xref:reactive/oauth2/login/index.adoc[OAuth 2.0 Login], and HTTP Basic authentication by hooking into the way those authentication mechanisms handle authentication success.
-More specifically, the session management DSL will add the {security-api-url}org/springframework/security/web/server/authentication/ConcurrentSessionControlServerAuthenticationSuccessHandler.html[ConcurrentSessionControlServerAuthenticationSuccessHandler] and the {security-api-url}org/springframework/security/web/server/authentication/RegisterSessionServerAuthenticationSuccessHandler.html[RegisterSessionServerAuthenticationSuccessHandler] to the list of `ServerAuthenticationSuccessHandler` used by the authentication filter.
+More specifically, the session management DSL will add the javadoc:org.springframework.security.web.server.authentication.ConcurrentSessionControlServerAuthenticationSuccessHandler[] and the javadoc:org.springframework.security.web.server.authentication.RegisterSessionServerAuthenticationSuccessHandler[] to the list of `ServerAuthenticationSuccessHandler` used by the authentication filter.
 
 The following sections contains examples of how to configure Concurrent Sessions Control.
 
@@ -188,12 +188,18 @@ open fun reactiveSessionRegistry(): ReactiveSessionRegistry {
 When the maximum number of sessions is exceeded, by default, the least recently used session(s) will be expired.
 If you want to change that behavior, you can <<concurrent-sessions-control-custom-strategy,customize the strategy used when the maximum number of sessions is exceeded>>.
 
+[IMPORTANT]
+====
+The Concurrent Session Management is not aware if there is another session in some Identity Provider that you might use via xref:reactive/oauth2/login/index.adoc[OAuth 2 Login] for example.
+If you also need to invalidate the session against the Identity Provider you must <<concurrent-sessions-control-custom-strategy,include your own implementation of `ServerMaximumSessionsExceededHandler`>>.
+====
+
 [[concurrent-sessions-control-custom-strategy]]
 == Handling Maximum Number of Sessions Exceeded
 
-By default, when the maximum number of sessions is exceeded, the least recently used session(s) will be expired by using the {security-api-url}org/springframework/security/web/server/authentication/session/InvalidateLeastUsedMaximumSessionsExceededHandler.html[InvalidateLeastUsedMaximumSessionsExceededHandler].
-Spring Security also provides another implementation that prevents the user from creating new sessions by using the {security-api-url}org/springframework/security/web/server/authentication/session/PreventLoginMaximumSessionsExceededHandler.html[PreventLoginMaximumSessionsExceededHandler].
-If you want to use your own strategy, you can provide a different implementation of {security-api-url}org/springframework/security/web/server/authentication/session/ServerMaximumSessionsExceededHandler.html[ServerMaximumSessionsExceededHandler].
+By default, when the maximum number of sessions is exceeded, the least recently used session(s) will be expired by using the javadoc:org.springframework.security.web.server.authentication.InvalidateLeastUsedServerMaximumSessionsExceededHandler[].
+Spring Security also provides another implementation that prevents the user from creating new sessions by using the javadoc:org.springframework.security.web.server.authentication.PreventLoginServerMaximumSessionsExceededHandler[].
+If you want to use your own strategy, you can provide a different implementation of javadoc:org.springframework.security.web.server.authentication.ServerMaximumSessionsExceededHandler[].
 
 .Configuring maximumSessionsExceededHandler
 [tabs]
@@ -248,9 +254,9 @@ open fun reactiveSessionRegistry(): ReactiveSessionRegistry {
 [[reactive-concurrent-sessions-control-specify-session-registry]]
 == Specifying a `ReactiveSessionRegistry`
 
-In order to keep track of the user's sessions, Spring Security uses a {security-api-url}org/springframework/security/core/session/ReactiveSessionRegistry.html[ReactiveSessionRegistry], and, every time a user logs in, their session information is saved.
+In order to keep track of the user's sessions, Spring Security uses a javadoc:org.springframework.security.core.session.ReactiveSessionRegistry[], and, every time a user logs in, their session information is saved.
 
-Spring Security ships with {security-api-url}org/springframework/security/core/session/InMemoryReactiveSessionRegistry.html[InMemoryReactiveSessionRegistry] implementation of `ReactiveSessionRegistry`.
+Spring Security ships with javadoc:org.springframework.security.core.session.InMemoryReactiveSessionRegistry[] implementation of `ReactiveSessionRegistry`.
 
 To specify a `ReactiveSessionRegistry` implementation you can either declare it as a bean:
 

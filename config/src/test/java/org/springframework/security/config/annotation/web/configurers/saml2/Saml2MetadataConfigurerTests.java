@@ -30,7 +30,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
-import org.springframework.security.saml2.provider.service.metadata.OpenSamlMetadataResolver;
+import org.springframework.security.saml2.provider.service.metadata.OpenSaml4MetadataResolver;
 import org.springframework.security.saml2.provider.service.metadata.RequestMatcherMetadataResponseResolver;
 import org.springframework.security.saml2.provider.service.metadata.Saml2MetadataResponse;
 import org.springframework.security.saml2.provider.service.metadata.Saml2MetadataResponseResolver;
@@ -159,7 +159,7 @@ public class Saml2MetadataConfigurerTests {
 		// should ignore
 		@Bean
 		Saml2MetadataResponseResolver metadataResponseResolver(RelyingPartyRegistrationRepository registrations) {
-			return new RequestMatcherMetadataResponseResolver(registrations, new OpenSamlMetadataResolver());
+			return new RequestMatcherMetadataResponseResolver(registrations, new OpenSaml4MetadataResolver());
 		}
 
 	}

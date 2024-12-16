@@ -16,21 +16,17 @@
 
 package org.springframework.security.config.annotation.method.configuration;
 
-import java.util.function.Consumer;
-import java.util.function.Supplier;
-
-import io.micrometer.observation.ObservationRegistry;
-import org.aopalliance.aop.Advice;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import org.springframework.aop.Pointcut;
 import org.springframework.aop.framework.AopInfrastructureBean;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportAware;
@@ -38,21 +34,23 @@ import org.springframework.context.annotation.Role;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
-import org.springframework.security.access.hierarchicalroles.NullRoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
+import org.springframework.security.aot.hint.PrePostAuthorizeHintsRegistrar;
+import org.springframework.security.aot.hint.SecurityHintsRegistrar;
 import org.springframework.security.authorization.AuthorizationEventPublisher;
 import org.springframework.security.authorization.AuthorizationManager;
-import org.springframework.security.authorization.method.AuthorizationAdvisor;
 import org.springframework.security.authorization.method.AuthorizationManagerAfterMethodInterceptor;
 import org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor;
+import org.springframework.security.authorization.method.MethodInvocationResult;
 import org.springframework.security.authorization.method.PostAuthorizeAuthorizationManager;
 import org.springframework.security.authorization.method.PostFilterAuthorizationMethodInterceptor;
 import org.springframework.security.authorization.method.PreAuthorizeAuthorizationManager;
 import org.springframework.security.authorization.method.PreFilterAuthorizationMethodInterceptor;
 import org.springframework.security.authorization.method.PrePostTemplateDefaults;
+import org.springframework.security.config.ObjectPostProcessor;
 import org.springframework.security.config.core.GrantedAuthorityDefaults;
+import org.springframework.security.core.annotation.AnnotationTemplateExpressionDefaults;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
-import org.springframework.util.function.SingletonSupplier;
 
 /**
  * Base {@link Configuration} for enabling Spring Security Method Security.
@@ -62,164 +60,153 @@ import org.springframework.util.function.SingletonSupplier;
  * @since 5.6
  * @see EnableMethodSecurity
  */
-@Configuration(proxyBeanMethods = false)
+@Configuration(value = "_prePostMethodSecurityConfiguration", proxyBeanMethods = false)
 @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-final class PrePostMethodSecurityConfiguration implements ImportAware, AopInfrastructureBean {
+final class PrePostMethodSecurityConfiguration implements ImportAware, ApplicationContextAware, AopInfrastructureBean {
 
-	private int interceptorOrderOffset;
+	private static final Pointcut preFilterPointcut = new PreFilterAuthorizationMethodInterceptor().getPointcut();
+
+	private static final Pointcut preAuthorizePointcut = AuthorizationManagerBeforeMethodInterceptor.preAuthorize()
+		.getPointcut();
+
+	private static final Pointcut postAuthorizePointcut = AuthorizationManagerAfterMethodInterceptor.postAuthorize()
+		.getPointcut();
+
+	private static final Pointcut postFilterPointcut = new PostFilterAuthorizationMethodInterceptor().getPointcut();
+
+	private final PreAuthorizeAuthorizationManager preAuthorizeAuthorizationManager = new PreAuthorizeAuthorizationManager();
+
+	private final PostAuthorizeAuthorizationManager postAuthorizeAuthorizationManager = new PostAuthorizeAuthorizationManager();
+
+	private final PreFilterAuthorizationMethodInterceptor preFilterMethodInterceptor = new PreFilterAuthorizationMethodInterceptor();
+
+	private final AuthorizationManagerBeforeMethodInterceptor preAuthorizeMethodInterceptor;
+
+	private final AuthorizationManagerAfterMethodInterceptor postAuthorizeMethodInterceptor;
+
+	private final PostFilterAuthorizationMethodInterceptor postFilterMethodInterceptor = new PostFilterAuthorizationMethodInterceptor();
+
+	private final DefaultMethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler();
+
+	PrePostMethodSecurityConfiguration(
+			ObjectProvider<ObjectPostProcessor<AuthorizationManager<MethodInvocation>>> preAuthorizeProcessor,
+			ObjectProvider<ObjectPostProcessor<AuthorizationManager<MethodInvocationResult>>> postAuthorizeProcessor) {
+		this.preFilterMethodInterceptor.setExpressionHandler(this.expressionHandler);
+		this.preAuthorizeAuthorizationManager.setExpressionHandler(this.expressionHandler);
+		this.postAuthorizeAuthorizationManager.setExpressionHandler(this.expressionHandler);
+		this.postFilterMethodInterceptor.setExpressionHandler(this.expressionHandler);
+		AuthorizationManager<MethodInvocation> preAuthorize = preAuthorizeProcessor
+			.getIfUnique(ObjectPostProcessor::identity)
+			.postProcess(this.preAuthorizeAuthorizationManager);
+		this.preAuthorizeMethodInterceptor = AuthorizationManagerBeforeMethodInterceptor.preAuthorize(preAuthorize);
+		AuthorizationManager<MethodInvocationResult> postAuthorize = postAuthorizeProcessor
+			.getIfUnique(ObjectPostProcessor::identity)
+			.postProcess(this.postAuthorizeAuthorizationManager);
+		this.postAuthorizeMethodInterceptor = AuthorizationManagerAfterMethodInterceptor.postAuthorize(postAuthorize);
+	}
+
+	@Override
+	public void setApplicationContext(ApplicationContext context) throws BeansException {
+		this.expressionHandler.setApplicationContext(context);
+		this.preAuthorizeAuthorizationManager.setApplicationContext(context);
+		this.postAuthorizeAuthorizationManager.setApplicationContext(context);
+	}
+
+	@Autowired(required = false)
+	void setGrantedAuthorityDefaults(GrantedAuthorityDefaults grantedAuthorityDefaults) {
+		this.expressionHandler.setDefaultRolePrefix(grantedAuthorityDefaults.getRolePrefix());
+	}
+
+	@Autowired(required = false)
+	void setRoleHierarchy(RoleHierarchy roleHierarchy) {
+		this.expressionHandler.setRoleHierarchy(roleHierarchy);
+	}
+
+	@Autowired(required = false)
+	void setTemplateDefaults(AnnotationTemplateExpressionDefaults templateDefaults) {
+		this.preFilterMethodInterceptor.setTemplateDefaults(templateDefaults);
+		this.preAuthorizeAuthorizationManager.setTemplateDefaults(templateDefaults);
+		this.postAuthorizeAuthorizationManager.setTemplateDefaults(templateDefaults);
+		this.postFilterMethodInterceptor.setTemplateDefaults(templateDefaults);
+	}
+
+	@Autowired(required = false)
+	void setTemplateDefaults(PrePostTemplateDefaults templateDefaults) {
+		this.preFilterMethodInterceptor.setTemplateDefaults(templateDefaults);
+		this.preAuthorizeAuthorizationManager.setTemplateDefaults(templateDefaults);
+		this.postAuthorizeAuthorizationManager.setTemplateDefaults(templateDefaults);
+		this.postFilterMethodInterceptor.setTemplateDefaults(templateDefaults);
+	}
+
+	@Autowired(required = false)
+	void setExpressionHandler(MethodSecurityExpressionHandler expressionHandler) {
+		this.preFilterMethodInterceptor.setExpressionHandler(expressionHandler);
+		this.preAuthorizeAuthorizationManager.setExpressionHandler(expressionHandler);
+		this.postAuthorizeAuthorizationManager.setExpressionHandler(expressionHandler);
+		this.postFilterMethodInterceptor.setExpressionHandler(expressionHandler);
+	}
+
+	@Autowired(required = false)
+	void setSecurityContextHolderStrategy(SecurityContextHolderStrategy securityContextHolderStrategy) {
+		this.preFilterMethodInterceptor.setSecurityContextHolderStrategy(securityContextHolderStrategy);
+		this.preAuthorizeMethodInterceptor.setSecurityContextHolderStrategy(securityContextHolderStrategy);
+		this.postAuthorizeMethodInterceptor.setSecurityContextHolderStrategy(securityContextHolderStrategy);
+		this.postFilterMethodInterceptor.setSecurityContextHolderStrategy(securityContextHolderStrategy);
+	}
+
+	@Autowired(required = false)
+	void setAuthorizationEventPublisher(AuthorizationEventPublisher publisher) {
+		this.preAuthorizeMethodInterceptor.setAuthorizationEventPublisher(publisher);
+		this.postAuthorizeMethodInterceptor.setAuthorizationEventPublisher(publisher);
+	}
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 	static MethodInterceptor preFilterAuthorizationMethodInterceptor(
-			ObjectProvider<GrantedAuthorityDefaults> defaultsProvider,
-			ObjectProvider<PrePostTemplateDefaults> methodSecurityDefaultsProvider,
-			ObjectProvider<MethodSecurityExpressionHandler> expressionHandlerProvider,
-			ObjectProvider<SecurityContextHolderStrategy> strategyProvider,
-			ObjectProvider<RoleHierarchy> roleHierarchyProvider, PrePostMethodSecurityConfiguration configuration,
-			ApplicationContext context) {
-		PreFilterAuthorizationMethodInterceptor preFilter = new PreFilterAuthorizationMethodInterceptor();
-		preFilter.setOrder(preFilter.getOrder() + configuration.interceptorOrderOffset);
-		return new DeferringMethodInterceptor<>(preFilter, (f) -> {
-			methodSecurityDefaultsProvider.ifAvailable(f::setTemplateDefaults);
-			f.setExpressionHandler(expressionHandlerProvider
-				.getIfAvailable(() -> defaultExpressionHandler(defaultsProvider, roleHierarchyProvider, context)));
-			strategyProvider.ifAvailable(f::setSecurityContextHolderStrategy);
-		});
+			ObjectProvider<PrePostMethodSecurityConfiguration> _prePostMethodSecurityConfiguration) {
+		return new DeferringMethodInterceptor<>(preFilterPointcut,
+				() -> _prePostMethodSecurityConfiguration.getObject().preFilterMethodInterceptor);
 	}
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 	static MethodInterceptor preAuthorizeAuthorizationMethodInterceptor(
-			ObjectProvider<GrantedAuthorityDefaults> defaultsProvider,
-			ObjectProvider<PrePostTemplateDefaults> methodSecurityDefaultsProvider,
-			ObjectProvider<MethodSecurityExpressionHandler> expressionHandlerProvider,
-			ObjectProvider<SecurityContextHolderStrategy> strategyProvider,
-			ObjectProvider<AuthorizationEventPublisher> eventPublisherProvider,
-			ObjectProvider<ObservationRegistry> registryProvider, ObjectProvider<RoleHierarchy> roleHierarchyProvider,
-			PrePostMethodSecurityConfiguration configuration, ApplicationContext context) {
-		PreAuthorizeAuthorizationManager manager = new PreAuthorizeAuthorizationManager();
-		manager.setApplicationContext(context);
-		AuthorizationManagerBeforeMethodInterceptor preAuthorize = AuthorizationManagerBeforeMethodInterceptor
-			.preAuthorize(manager(manager, registryProvider));
-		preAuthorize.setOrder(preAuthorize.getOrder() + configuration.interceptorOrderOffset);
-		return new DeferringMethodInterceptor<>(preAuthorize, (f) -> {
-			methodSecurityDefaultsProvider.ifAvailable(manager::setTemplateDefaults);
-			manager.setExpressionHandler(expressionHandlerProvider
-				.getIfAvailable(() -> defaultExpressionHandler(defaultsProvider, roleHierarchyProvider, context)));
-			strategyProvider.ifAvailable(f::setSecurityContextHolderStrategy);
-			eventPublisherProvider.ifAvailable(f::setAuthorizationEventPublisher);
-		});
+			ObjectProvider<PrePostMethodSecurityConfiguration> _prePostMethodSecurityConfiguration) {
+		return new DeferringMethodInterceptor<>(preAuthorizePointcut,
+				() -> _prePostMethodSecurityConfiguration.getObject().preAuthorizeMethodInterceptor);
 	}
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 	static MethodInterceptor postAuthorizeAuthorizationMethodInterceptor(
-			ObjectProvider<GrantedAuthorityDefaults> defaultsProvider,
-			ObjectProvider<PrePostTemplateDefaults> methodSecurityDefaultsProvider,
-			ObjectProvider<MethodSecurityExpressionHandler> expressionHandlerProvider,
-			ObjectProvider<SecurityContextHolderStrategy> strategyProvider,
-			ObjectProvider<AuthorizationEventPublisher> eventPublisherProvider,
-			ObjectProvider<ObservationRegistry> registryProvider, ObjectProvider<RoleHierarchy> roleHierarchyProvider,
-			PrePostMethodSecurityConfiguration configuration, ApplicationContext context) {
-		PostAuthorizeAuthorizationManager manager = new PostAuthorizeAuthorizationManager();
-		manager.setApplicationContext(context);
-		AuthorizationManagerAfterMethodInterceptor postAuthorize = AuthorizationManagerAfterMethodInterceptor
-			.postAuthorize(manager(manager, registryProvider));
-		postAuthorize.setOrder(postAuthorize.getOrder() + configuration.interceptorOrderOffset);
-		return new DeferringMethodInterceptor<>(postAuthorize, (f) -> {
-			methodSecurityDefaultsProvider.ifAvailable(manager::setTemplateDefaults);
-			manager.setExpressionHandler(expressionHandlerProvider
-				.getIfAvailable(() -> defaultExpressionHandler(defaultsProvider, roleHierarchyProvider, context)));
-			strategyProvider.ifAvailable(f::setSecurityContextHolderStrategy);
-			eventPublisherProvider.ifAvailable(f::setAuthorizationEventPublisher);
-		});
+			ObjectProvider<PrePostMethodSecurityConfiguration> _prePostMethodSecurityConfiguration) {
+		return new DeferringMethodInterceptor<>(postAuthorizePointcut,
+				() -> _prePostMethodSecurityConfiguration.getObject().postAuthorizeMethodInterceptor);
 	}
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 	static MethodInterceptor postFilterAuthorizationMethodInterceptor(
-			ObjectProvider<GrantedAuthorityDefaults> defaultsProvider,
-			ObjectProvider<PrePostTemplateDefaults> methodSecurityDefaultsProvider,
-			ObjectProvider<MethodSecurityExpressionHandler> expressionHandlerProvider,
-			ObjectProvider<SecurityContextHolderStrategy> strategyProvider,
-			ObjectProvider<RoleHierarchy> roleHierarchyProvider, PrePostMethodSecurityConfiguration configuration,
-			ApplicationContext context) {
-		PostFilterAuthorizationMethodInterceptor postFilter = new PostFilterAuthorizationMethodInterceptor();
-		postFilter.setOrder(postFilter.getOrder() + configuration.interceptorOrderOffset);
-		return new DeferringMethodInterceptor<>(postFilter, (f) -> {
-			methodSecurityDefaultsProvider.ifAvailable(f::setTemplateDefaults);
-			f.setExpressionHandler(expressionHandlerProvider
-				.getIfAvailable(() -> defaultExpressionHandler(defaultsProvider, roleHierarchyProvider, context)));
-			strategyProvider.ifAvailable(f::setSecurityContextHolderStrategy);
-		});
+			ObjectProvider<PrePostMethodSecurityConfiguration> _prePostMethodSecurityConfiguration) {
+		return new DeferringMethodInterceptor<>(postFilterPointcut,
+				() -> _prePostMethodSecurityConfiguration.getObject().postFilterMethodInterceptor);
 	}
 
-	private static MethodSecurityExpressionHandler defaultExpressionHandler(
-			ObjectProvider<GrantedAuthorityDefaults> defaultsProvider,
-			ObjectProvider<RoleHierarchy> roleHierarchyProvider, ApplicationContext context) {
-		DefaultMethodSecurityExpressionHandler handler = new DefaultMethodSecurityExpressionHandler();
-		RoleHierarchy roleHierarchy = roleHierarchyProvider.getIfAvailable(NullRoleHierarchy::new);
-		handler.setRoleHierarchy(roleHierarchy);
-		defaultsProvider.ifAvailable((d) -> handler.setDefaultRolePrefix(d.getRolePrefix()));
-		handler.setApplicationContext(context);
-		return handler;
-	}
-
-	static <T> AuthorizationManager<T> manager(AuthorizationManager<T> delegate,
-			ObjectProvider<ObservationRegistry> registryProvider) {
-		return new DeferringObservationAuthorizationManager<>(registryProvider, delegate);
+	@Bean
+	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+	static SecurityHintsRegistrar prePostAuthorizeExpressionHintsRegistrar() {
+		return new PrePostAuthorizeHintsRegistrar();
 	}
 
 	@Override
 	public void setImportMetadata(AnnotationMetadata importMetadata) {
 		EnableMethodSecurity annotation = importMetadata.getAnnotations().get(EnableMethodSecurity.class).synthesize();
-		this.interceptorOrderOffset = annotation.offset();
-	}
-
-	private static final class DeferringMethodInterceptor<M extends AuthorizationAdvisor>
-			implements AuthorizationAdvisor {
-
-		private final Pointcut pointcut;
-
-		private final int order;
-
-		private final Supplier<M> delegate;
-
-		DeferringMethodInterceptor(M delegate, Consumer<M> supplier) {
-			this.pointcut = delegate.getPointcut();
-			this.order = delegate.getOrder();
-			this.delegate = SingletonSupplier.of(() -> {
-				supplier.accept(delegate);
-				return delegate;
-			});
-		}
-
-		@Nullable
-		@Override
-		public Object invoke(@NotNull MethodInvocation invocation) throws Throwable {
-			return this.delegate.get().invoke(invocation);
-		}
-
-		@Override
-		public Pointcut getPointcut() {
-			return this.pointcut;
-		}
-
-		@Override
-		public Advice getAdvice() {
-			return this;
-		}
-
-		@Override
-		public int getOrder() {
-			return this.order;
-		}
-
-		@Override
-		public boolean isPerInstance() {
-			return true;
-		}
-
+		this.preFilterMethodInterceptor.setOrder(this.preFilterMethodInterceptor.getOrder() + annotation.offset());
+		this.preAuthorizeMethodInterceptor
+			.setOrder(this.preAuthorizeMethodInterceptor.getOrder() + annotation.offset());
+		this.postAuthorizeMethodInterceptor
+			.setOrder(this.postAuthorizeMethodInterceptor.getOrder() + annotation.offset());
+		this.postFilterMethodInterceptor.setOrder(this.postFilterMethodInterceptor.getOrder() + annotation.offset());
 	}
 
 }

@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2002-2023 the original author or authors.
  *
@@ -72,4 +73,5 @@ class OidcLogoutDsl {
             backChannel?.also { oidcLogout.backChannel(backChannel) }
         }
     }
+
 }

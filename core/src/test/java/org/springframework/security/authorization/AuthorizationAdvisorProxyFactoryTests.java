@@ -34,6 +34,8 @@ import java.util.TreeSet;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
@@ -44,6 +46,7 @@ import org.springframework.security.authentication.TestAuthentication;
 import org.springframework.security.authorization.method.AuthorizationAdvisor;
 import org.springframework.security.authorization.method.AuthorizationAdvisorProxyFactory;
 import org.springframework.security.authorization.method.AuthorizationAdvisorProxyFactory.TargetVisitor;
+import org.springframework.security.authorization.method.AuthorizationProxy;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -334,6 +337,27 @@ public class AuthorizationAdvisorProxyFactoryTests {
 		assertThatExceptionOfType(ClassCastException.class).isThrownBy(() -> ((Integer) factory.proxy(35)).intValue());
 		factory.setTargetVisitor(TargetVisitor.defaultsSkipValueTypes());
 		assertThat(factory.proxy(35)).isEqualTo(35);
+	}
+
+	@Test
+	public void serializeWhenAuthorizationProxyObjectThenOnlyIncludesProxiedProperties()
+			throws JsonProcessingException {
+		SecurityContextHolder.getContext().setAuthentication(this.admin);
+		AuthorizationAdvisorProxyFactory factory = AuthorizationAdvisorProxyFactory.withDefaults();
+		User user = proxy(factory, this.alan);
+		ObjectMapper mapper = new ObjectMapper();
+		String serialized = mapper.writeValueAsString(user);
+		Map<String, Object> properties = mapper.readValue(serialized, Map.class);
+		assertThat(properties).hasSize(3).containsKeys("id", "firstName", "lastName");
+	}
+
+	@Test
+	public void proxyWhenDefaultsThenInstanceOfAuthorizationProxy() {
+		AuthorizationAdvisorProxyFactory factory = AuthorizationAdvisorProxyFactory.withDefaults();
+		Flight flight = proxy(factory, this.flight);
+		assertThat(flight).isInstanceOf(AuthorizationProxy.class);
+		Flight target = (Flight) ((AuthorizationProxy) flight).toAuthorizedTarget();
+		assertThat(target).isSameAs(this.flight);
 	}
 
 	private Authentication authenticated(String user, String... authorities) {

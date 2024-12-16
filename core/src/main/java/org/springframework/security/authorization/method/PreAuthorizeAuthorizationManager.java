@@ -28,6 +28,7 @@ import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AnnotationTemplateExpressionDefaults;
 
 /**
  * An {@link AuthorizationManager} which can determine if an {@link Authentication} may
@@ -57,8 +58,23 @@ public final class PreAuthorizeAuthorizationManager
 	 * not be resolved.
 	 * @param defaults - whether to resolve pre/post-authorization templates parameters
 	 * @since 6.3
+	 * @deprecated Please use
+	 * {@link #setTemplateDefaults(AnnotationTemplateExpressionDefaults)} instead
 	 */
+	@Deprecated
 	public void setTemplateDefaults(PrePostTemplateDefaults defaults) {
+		this.registry.setTemplateDefaults(defaults);
+	}
+
+	/**
+	 * Configure pre/post-authorization template resolution
+	 * <p>
+	 * By default, this value is <code>null</code>, which indicates that templates should
+	 * not be resolved.
+	 * @param defaults - whether to resolve pre/post-authorization templates parameters
+	 * @since 6.4
+	 */
+	public void setTemplateDefaults(AnnotationTemplateExpressionDefaults defaults) {
 		this.registry.setTemplateDefaults(defaults);
 	}
 

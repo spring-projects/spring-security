@@ -20,6 +20,7 @@ import java.lang.reflect.Modifier;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
 import org.springframework.aop.framework.ProxyFactory;
@@ -36,7 +37,7 @@ import org.springframework.context.MessageSourceAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.NativeDetector;
-import org.springframework.security.config.annotation.ObjectPostProcessor;
+import org.springframework.security.config.ObjectPostProcessor;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.web.context.ServletContextAware;
@@ -141,7 +142,7 @@ public class AutowireBeanFactoryObjectPostProcessorTests {
 
 	@Test
 	void postProcessWhenObjectIsCgLibProxyAndInNativeImageThenUseExistingBean() {
-		try (var detector = Mockito.mockStatic(NativeDetector.class)) {
+		try (MockedStatic<NativeDetector> detector = Mockito.mockStatic(NativeDetector.class)) {
 			given(NativeDetector.inNativeImage()).willReturn(true);
 
 			ProxyFactory proxyFactory = new ProxyFactory(new MyClass());
@@ -158,7 +159,7 @@ public class AutowireBeanFactoryObjectPostProcessorTests {
 
 	@Test
 	void postProcessWhenObjectIsCgLibProxyAndInNativeImageAndBeanDoesNotExistsThenIllegalStateException() {
-		try (var detector = Mockito.mockStatic(NativeDetector.class)) {
+		try (MockedStatic<NativeDetector> detector = Mockito.mockStatic(NativeDetector.class)) {
 			given(NativeDetector.inNativeImage()).willReturn(true);
 
 			ProxyFactory proxyFactory = new ProxyFactory(new MyClass());

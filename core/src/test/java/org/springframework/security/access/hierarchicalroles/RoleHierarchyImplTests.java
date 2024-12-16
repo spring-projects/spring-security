@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -250,6 +250,24 @@ public class RoleHierarchyImplTests {
 			.role("B")
 			.implies("C", "D")
 			.build();
+		List<GrantedAuthority> flatAuthorities = AuthorityUtils.createAuthorityList("ROLE_A");
+		List<GrantedAuthority> allAuthorities = AuthorityUtils.createAuthorityList("ROLE_A", "ROLE_B", "ROLE_C",
+				"ROLE_D");
+
+		assertThat(roleHierarchyImpl).isNotNull();
+		assertThat(roleHierarchyImpl.getReachableGrantedAuthorities(flatAuthorities))
+			.containsExactlyInAnyOrderElementsOf(allAuthorities);
+	}
+
+	@Test
+	public void testBuilderWithRepeatedRoleBuilder() {
+		RoleHierarchyImpl roleHierarchyImpl = RoleHierarchyImpl.withDefaultRolePrefix()
+			.role("A")
+			.implies("B")
+			.role("A") // Adding more implied roles to the existing role 'A'
+			.implies("C", "D")
+			.build();
+
 		List<GrantedAuthority> flatAuthorities = AuthorityUtils.createAuthorityList("ROLE_A");
 		List<GrantedAuthority> allAuthorities = AuthorityUtils.createAuthorityList("ROLE_A", "ROLE_B", "ROLE_C",
 				"ROLE_D");

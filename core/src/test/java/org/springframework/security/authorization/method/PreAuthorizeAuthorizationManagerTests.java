@@ -20,9 +20,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.function.Supplier;
 
+import org.aopalliance.intercept.MethodInvocation;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.aop.TargetClassAware;
+import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.core.annotation.AnnotationConfigurationException;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
@@ -31,6 +33,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.TestAuthentication;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authorization.AuthorizationDecision;
+import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.core.Authentication;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -115,20 +118,10 @@ public class PreAuthorizeAuthorizationManagerTests {
 	}
 
 	@Test
-	public void checkInheritedAnnotationsWhenDuplicatedThenAnnotationConfigurationException() throws Exception {
-		Supplier<Authentication> authentication = () -> new TestingAuthenticationToken("user", "password", "ROLE_USER");
-		MockMethodInvocation methodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
-				"inheritedAnnotations");
-		PreAuthorizeAuthorizationManager manager = new PreAuthorizeAuthorizationManager();
-		assertThatExceptionOfType(AnnotationConfigurationException.class)
-			.isThrownBy(() -> manager.check(authentication, methodInvocation));
-	}
-
-	@Test
 	public void checkInheritedAnnotationsWhenConflictingThenAnnotationConfigurationException() throws Exception {
 		Supplier<Authentication> authentication = () -> new TestingAuthenticationToken("user", "password", "ROLE_USER");
-		MockMethodInvocation methodInvocation = new MockMethodInvocation(new ClassLevelAnnotations(),
-				ClassLevelAnnotations.class, "inheritedAnnotations");
+		MockMethodInvocation methodInvocation = new MockMethodInvocation(new ConflictingAnnotations(),
+				ConflictingAnnotations.class, "inheritedAnnotations");
 		PreAuthorizeAuthorizationManager manager = new PreAuthorizeAuthorizationManager();
 		assertThatExceptionOfType(AnnotationConfigurationException.class)
 			.isThrownBy(() -> manager.check(authentication, methodInvocation));
@@ -148,25 +141,30 @@ public class PreAuthorizeAuthorizationManagerTests {
 	}
 
 	@Test
-	public void checkRequiresUserWhenMethodsFromInheritThenApplies() throws Exception {
-		MockMethodInvocation methodInvocation = new MockMethodInvocation(new PreAuthorizeClass(),
-				PreAuthorizeClass.class, "securedUser");
+	public void checkWhenHandlerDeniedNoApplicationContextThenReflectivelyConstructs() throws Exception {
 		PreAuthorizeAuthorizationManager manager = new PreAuthorizeAuthorizationManager();
-		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedUser, methodInvocation);
-		assertThat(decision.isGranted()).isTrue();
+		assertThat(handleDeniedInvocationResult("methodOne", manager)).isNull();
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> handleDeniedInvocationResult("methodTwo", manager));
 	}
 
-	@PreAuthorize("hasRole('USER')")
-	public static class PreAuthorizeClass extends ParentClass {
-
+	@Test
+	public void checkWhenHandlerDeniedApplicationContextThenLooksForBean() throws Exception {
+		GenericApplicationContext context = new GenericApplicationContext();
+		context.registerBean(NoDefaultConstructorHandler.class, () -> new NoDefaultConstructorHandler(new Object()));
+		context.refresh();
+		PreAuthorizeAuthorizationManager manager = new PreAuthorizeAuthorizationManager();
+		manager.setApplicationContext(context);
+		assertThat(handleDeniedInvocationResult("methodTwo", manager)).isNull();
+		assertThatExceptionOfType(IllegalStateException.class)
+			.isThrownBy(() -> handleDeniedInvocationResult("methodOne", manager));
 	}
 
-	public static class ParentClass {
-
-		public void securedUser() {
-
-		}
-
+	private Object handleDeniedInvocationResult(String methodName, PreAuthorizeAuthorizationManager manager)
+			throws Exception {
+		MethodInvocation invocation = new MockMethodInvocation(new UsingHandleDeniedAuthorization(),
+				UsingHandleDeniedAuthorization.class, methodName);
+		return manager.handleDeniedInvocation(invocation, null);
 	}
 
 	public static class TestClass implements InterfaceAnnotationsOne, InterfaceAnnotationsTwo {
@@ -203,6 +201,14 @@ public class PreAuthorizeAuthorizationManagerTests {
 		@PreAuthorize("hasRole('ADMIN')")
 		public void inheritedAnnotations() {
 
+		}
+
+	}
+
+	public static class ConflictingAnnotations implements InterfaceAnnotationsOne, InterfaceAnnotationsTwo {
+
+		@Override
+		public void inheritedAnnotations() {
 		}
 
 	}
@@ -259,6 +265,46 @@ public class PreAuthorizeAuthorizationManagerTests {
 		@Override
 		public void inheritedAnnotations() {
 			super.inheritedAnnotations();
+		}
+
+	}
+
+	public static final class UsingHandleDeniedAuthorization {
+
+		@HandleAuthorizationDenied(handlerClass = NullHandler.class)
+		@PreAuthorize("denyAll()")
+		public String methodOne() {
+			return "ok";
+		}
+
+		@HandleAuthorizationDenied(handlerClass = NoDefaultConstructorHandler.class)
+		@PreAuthorize("denyAll()")
+		public String methodTwo() {
+			return "ok";
+		}
+
+	}
+
+	public static final class NullHandler implements MethodAuthorizationDeniedHandler {
+
+		@Override
+		public Object handleDeniedInvocation(MethodInvocation methodInvocation,
+				AuthorizationResult authorizationResult) {
+			return null;
+		}
+
+	}
+
+	public static final class NoDefaultConstructorHandler implements MethodAuthorizationDeniedHandler {
+
+		private NoDefaultConstructorHandler(Object parameter) {
+
+		}
+
+		@Override
+		public Object handleDeniedInvocation(MethodInvocation methodInvocation,
+				AuthorizationResult authorizationResult) {
+			return null;
 		}
 
 	}

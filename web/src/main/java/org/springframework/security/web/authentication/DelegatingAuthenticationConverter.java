@@ -16,7 +16,6 @@
 
 package org.springframework.security.web.authentication;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -38,7 +37,7 @@ public final class DelegatingAuthenticationConverter implements AuthenticationCo
 
 	public DelegatingAuthenticationConverter(List<AuthenticationConverter> delegates) {
 		Assert.notEmpty(delegates, "delegates cannot be null");
-		this.delegates = new ArrayList<>(delegates);
+		this.delegates = List.copyOf(delegates);
 	}
 
 	public DelegatingAuthenticationConverter(AuthenticationConverter... delegates) {

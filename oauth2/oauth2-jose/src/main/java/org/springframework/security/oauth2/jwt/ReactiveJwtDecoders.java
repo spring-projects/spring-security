@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,11 +49,12 @@ public final class ReactiveJwtDecoders {
 	 * @return a {@link ReactiveJwtDecoder} that was initialized by the OpenID Provider
 	 * Configuration.
 	 */
-	public static ReactiveJwtDecoder fromOidcIssuerLocation(String oidcIssuerLocation) {
+	@SuppressWarnings("unchecked")
+	public static <T extends ReactiveJwtDecoder> T fromOidcIssuerLocation(String oidcIssuerLocation) {
 		Assert.hasText(oidcIssuerLocation, "oidcIssuerLocation cannot be empty");
 		Map<String, Object> configuration = JwtDecoderProviderConfigurationUtils
 			.getConfigurationForOidcIssuerLocation(oidcIssuerLocation);
-		return withProviderConfiguration(configuration, oidcIssuerLocation);
+		return (T) withProviderConfiguration(configuration, oidcIssuerLocation);
 	}
 
 	/**
@@ -85,11 +86,12 @@ public final class ReactiveJwtDecoders {
 	 * @return a {@link ReactiveJwtDecoder} that was initialized by one of the described
 	 * endpoints
 	 */
-	public static ReactiveJwtDecoder fromIssuerLocation(String issuer) {
+	@SuppressWarnings("unchecked")
+	public static <T extends ReactiveJwtDecoder> T fromIssuerLocation(String issuer) {
 		Assert.hasText(issuer, "issuer cannot be empty");
 		Map<String, Object> configuration = JwtDecoderProviderConfigurationUtils
 			.getConfigurationForIssuerLocation(issuer);
-		return withProviderConfiguration(configuration, issuer);
+		return (T) withProviderConfiguration(configuration, issuer);
 	}
 
 	/**

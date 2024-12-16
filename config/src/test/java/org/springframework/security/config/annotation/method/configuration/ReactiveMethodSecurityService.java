@@ -21,6 +21,7 @@ import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.List;
 
 import org.aopalliance.intercept.MethodInvocation;
 import reactor.core.publisher.Mono;
@@ -31,7 +32,9 @@ import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.access.prepost.PreFilter;
 import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.authorization.method.HandleAuthorizationDenied;
 import org.springframework.security.authorization.method.MethodAuthorizationDeniedHandler;
@@ -44,6 +47,12 @@ import org.springframework.util.StringUtils;
  */
 @ReactiveMethodSecurityService.Mask("classmask")
 public interface ReactiveMethodSecurityService {
+
+	@PreAuthorize("hasRole('USER')")
+	Mono<String> preAuthorizeUser();
+
+	@PreAuthorize("hasRole('ADMIN')")
+	Mono<String> preAuthorizeAdmin();
 
 	@PreAuthorize("hasRole('ADMIN')")
 	@HandleAuthorizationDenied(handlerClass = StarMaskingHandler.class)
@@ -100,6 +109,15 @@ public interface ReactiveMethodSecurityService {
 	@PostAuthorize("@authz.checkReactiveResult(!#result)")
 	@HandleAuthorizationDenied(handlerClass = MethodAuthorizationDeniedHandler.class)
 	Mono<String> checkCustomResult(boolean result);
+
+	@PreAuthorize("hasPermission(#kgName, 'read')")
+	Mono<String> preAuthorizeHasPermission(String kgName);
+
+	@PreAuthorize("hasRole('ADMIN')")
+	@PostAuthorize("hasRole('ADMIN')")
+	@PreFilter("true")
+	@PostFilter("true")
+	Mono<List<String>> manyAnnotations(Mono<List<String>> array);
 
 	class StarMaskingHandler implements MethodAuthorizationDeniedHandler {
 

@@ -18,6 +18,7 @@ package org.springframework.security.cas.authentication;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apereo.cas.client.validation.Assertion;
 import org.apereo.cas.client.validation.AssertionImpl;
@@ -31,11 +32,13 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.cas.ServiceProperties;
 import org.springframework.security.cas.web.authentication.ServiceAuthenticationDetails;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.AuthenticationUserDetailsService;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsChecker;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 
@@ -55,6 +58,7 @@ import static org.mockito.Mockito.verify;
  *
  * @author Ben Alex
  * @author Scott Battaglia
+ * @author Kim Youngwoong
  */
 @SuppressWarnings("unchecked")
 public class CasAuthenticationProviderTests {
@@ -318,6 +322,29 @@ public class CasAuthenticationProviderTests {
 		CasAuthenticationProvider cap = new CasAuthenticationProvider();
 		assertThat(cap.supports(CasServiceTicketAuthenticationToken.class)).isTrue();
 		assertThat(cap.supports(CasAuthenticationToken.class)).isTrue();
+	}
+
+	@Test
+	public void testSetUserDetailsChecker() throws AuthenticationException {
+		CasAuthenticationProvider cap = new CasAuthenticationProvider();
+		cap.setAuthenticationUserDetailsService(new MockAuthoritiesPopulator());
+		cap.setKey("qwerty");
+		cap.setTicketValidator(new MockTicketValidator(true));
+		cap.setServiceProperties(makeServiceProperties());
+		cap.afterPropertiesSet();
+		CasServiceTicketAuthenticationToken token = CasServiceTicketAuthenticationToken.stateful("ST-123");
+
+		AtomicInteger checkCount = new AtomicInteger(0);
+		UserDetailsChecker userDetailsChecker = new UserDetailsChecker() {
+			@Override
+			public void check(UserDetails user) {
+				checkCount.incrementAndGet();
+			}
+		};
+		cap.setUserDetailsChecker(userDetailsChecker);
+		cap.authenticate(token);
+
+		assertThat(checkCount.get()).isEqualTo(1);
 	}
 
 	private class MockAuthoritiesPopulator implements AuthenticationUserDetailsService {

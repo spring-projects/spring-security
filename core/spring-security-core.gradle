@@ -1,6 +1,9 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 import java.util.concurrent.Callable
 
 apply plugin: 'io.spring.convention.spring-module'
+apply plugin: 'kotlin'
 
 dependencies {
 	management platform(project(":spring-security-dependencies"))
@@ -28,9 +31,13 @@ dependencies {
 	testImplementation "org.junit.jupiter:junit-jupiter-engine"
 	testImplementation "org.mockito:mockito-core"
 	testImplementation "org.mockito:mockito-junit-jupiter"
+	testImplementation "org.springframework:spring-core-test"
 	testImplementation "org.springframework:spring-test"
 	testImplementation 'org.skyscreamer:jsonassert'
 	testImplementation 'org.springframework:spring-test'
+	testImplementation 'org.jetbrains.kotlin:kotlin-reflect'
+	testImplementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
+	testImplementation 'io.mockk:mockk'
 
 	testRuntimeOnly 'org.hsqldb:hsqldb'
 }
@@ -56,4 +63,13 @@ configure(project.tasks.withType(Test)) {
 Callable<String> springVersion() {
 	return  (Callable<String>) { project.configurations.compileClasspath.resolvedConfiguration.resolvedArtifacts
     .find { it.name == 'spring-core' }.moduleVersion.id.version }
+}
+
+tasks.withType(KotlinCompile).configureEach {
+	kotlinOptions {
+		languageVersion = "1.7"
+		apiVersion = "1.7"
+		freeCompilerArgs = ["-Xjsr305=strict", "-Xsuppress-version-warnings"]
+		jvmTarget = "17"
+	}
 }

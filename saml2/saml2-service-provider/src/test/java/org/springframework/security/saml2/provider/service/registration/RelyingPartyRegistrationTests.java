@@ -16,13 +16,19 @@
 
 package org.springframework.security.saml2.provider.service.registration;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.function.Consumer;
+
 import org.junit.jupiter.api.Test;
 
 import org.springframework.security.saml2.core.Saml2X509Credential;
 import org.springframework.security.saml2.core.TestSaml2X509Credentials;
+import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration.AssertingPartyDetails;
 import org.springframework.security.saml2.provider.service.web.authentication.Saml2WebSsoAuthenticationFilter;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 public class RelyingPartyRegistrationTests {
 
@@ -164,6 +170,188 @@ public class RelyingPartyRegistrationTests {
 			.containsExactly(verifyingCredential, altApCredential);
 		assertThat(relyingPartyRegistration.getAssertingPartyDetails().getEncryptionX509Credentials())
 			.containsExactly(encryptingCredential, altApCredential);
+	}
+
+	@Test
+	void withAssertingPartyMetadataWhenMetadataThenBuilderCopies() {
+		RelyingPartyRegistration registration = TestRelyingPartyRegistrations.relyingPartyRegistration()
+			.nameIdFormat("format")
+			.assertingPartyMetadata((a) -> a.singleSignOnServiceBinding(Saml2MessageBinding.POST))
+			.assertingPartyMetadata((a) -> a.wantAuthnRequestsSigned(false))
+			.assertingPartyMetadata((a) -> a.signingAlgorithms((algs) -> algs.add("alg")))
+			.assertionConsumerServiceBinding(Saml2MessageBinding.REDIRECT)
+			.build();
+		RelyingPartyRegistration copied = RelyingPartyRegistration
+			.withAssertingPartyMetadata(registration.getAssertingPartyMetadata())
+			.registrationId(registration.getRegistrationId())
+			.entityId(registration.getEntityId())
+			.signingX509Credentials((c) -> c.addAll(registration.getSigningX509Credentials()))
+			.decryptionX509Credentials((c) -> c.addAll(registration.getDecryptionX509Credentials()))
+			.assertionConsumerServiceLocation(registration.getAssertionConsumerServiceLocation())
+			.assertionConsumerServiceBinding(registration.getAssertionConsumerServiceBinding())
+			.singleLogoutServiceLocation(registration.getSingleLogoutServiceLocation())
+			.singleLogoutServiceResponseLocation(registration.getSingleLogoutServiceResponseLocation())
+			.singleLogoutServiceBindings((c) -> c.addAll(registration.getSingleLogoutServiceBindings()))
+			.nameIdFormat(registration.getNameIdFormat())
+			.authnRequestsSigned(registration.isAuthnRequestsSigned())
+			.build();
+		compareRegistrations(registration, copied);
+	}
+
+	@Test
+	void withAssertingPartyMetadataWhenMetadataThenDisallowsDetails() {
+		AssertingPartyMetadata metadata = new CustomAssertingPartyMetadata();
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> RelyingPartyRegistration.withAssertingPartyMetadata(metadata)
+				.assertingPartyDetails((a) -> a.entityId("entity-id"))
+				.build());
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(
+				() -> RelyingPartyRegistration.withAssertingPartyMetadata(metadata).build().getAssertingPartyDetails());
+	}
+
+	@Test
+	void withAssertingPartyMetadataWhenDetailsThenBuilderCopies() {
+		RelyingPartyRegistration registration = TestRelyingPartyRegistrations.relyingPartyRegistration()
+			.nameIdFormat("format")
+			.assertingPartyMetadata((a) -> a.singleSignOnServiceBinding(Saml2MessageBinding.POST))
+			.assertingPartyMetadata((a) -> a.wantAuthnRequestsSigned(false))
+			.assertingPartyMetadata((a) -> a.signingAlgorithms((algs) -> algs.add("alg")))
+			.assertionConsumerServiceBinding(Saml2MessageBinding.REDIRECT)
+			.build();
+		AssertingPartyDetails details = registration.getAssertingPartyDetails();
+		RelyingPartyRegistration copied = RelyingPartyRegistration.withAssertingPartyDetails(details)
+			.assertingPartyDetails((a) -> a.entityId(details.getEntityId()))
+			.registrationId(registration.getRegistrationId())
+			.entityId(registration.getEntityId())
+			.signingX509Credentials((c) -> c.addAll(registration.getSigningX509Credentials()))
+			.decryptionX509Credentials((c) -> c.addAll(registration.getDecryptionX509Credentials()))
+			.assertionConsumerServiceLocation(registration.getAssertionConsumerServiceLocation())
+			.assertionConsumerServiceBinding(registration.getAssertionConsumerServiceBinding())
+			.singleLogoutServiceLocation(registration.getSingleLogoutServiceLocation())
+			.singleLogoutServiceResponseLocation(registration.getSingleLogoutServiceResponseLocation())
+			.singleLogoutServiceBindings((c) -> c.addAll(registration.getSingleLogoutServiceBindings()))
+			.nameIdFormat(registration.getNameIdFormat())
+			.authnRequestsSigned(registration.isAuthnRequestsSigned())
+			.build();
+		compareRegistrations(registration, copied);
+	}
+
+	private static class CustomAssertingPartyMetadata implements AssertingPartyMetadata {
+
+		@Override
+		public String getEntityId() {
+			return "";
+		}
+
+		@Override
+		public boolean getWantAuthnRequestsSigned() {
+			return false;
+		}
+
+		@Override
+		public List<String> getSigningAlgorithms() {
+			return List.of();
+		}
+
+		@Override
+		public Collection<Saml2X509Credential> getVerificationX509Credentials() {
+			return List.of();
+		}
+
+		@Override
+		public Collection<Saml2X509Credential> getEncryptionX509Credentials() {
+			return List.of();
+		}
+
+		@Override
+		public String getSingleSignOnServiceLocation() {
+			return "";
+		}
+
+		@Override
+		public Saml2MessageBinding getSingleSignOnServiceBinding() {
+			return null;
+		}
+
+		@Override
+		public String getSingleLogoutServiceLocation() {
+			return "";
+		}
+
+		@Override
+		public String getSingleLogoutServiceResponseLocation() {
+			return "";
+		}
+
+		@Override
+		public Saml2MessageBinding getSingleLogoutServiceBinding() {
+			return null;
+		}
+
+		@Override
+		public Builder mutate() {
+			return new Builder();
+		}
+
+		private static class Builder implements AssertingPartyMetadata.Builder<Builder> {
+
+			@Override
+			public Builder entityId(String entityId) {
+				return this;
+			}
+
+			@Override
+			public Builder wantAuthnRequestsSigned(boolean wantAuthnRequestsSigned) {
+				return this;
+			}
+
+			@Override
+			public Builder signingAlgorithms(Consumer<List<String>> signingMethodAlgorithmsConsumer) {
+				return this;
+			}
+
+			@Override
+			public Builder verificationX509Credentials(Consumer<Collection<Saml2X509Credential>> credentialsConsumer) {
+				return this;
+			}
+
+			@Override
+			public Builder encryptionX509Credentials(Consumer<Collection<Saml2X509Credential>> credentialsConsumer) {
+				return this;
+			}
+
+			@Override
+			public Builder singleSignOnServiceLocation(String singleSignOnServiceLocation) {
+				return this;
+			}
+
+			@Override
+			public Builder singleSignOnServiceBinding(Saml2MessageBinding singleSignOnServiceBinding) {
+				return this;
+			}
+
+			@Override
+			public Builder singleLogoutServiceLocation(String singleLogoutServiceLocation) {
+				return this;
+			}
+
+			@Override
+			public Builder singleLogoutServiceResponseLocation(String singleLogoutServiceResponseLocation) {
+				return this;
+			}
+
+			@Override
+			public Builder singleLogoutServiceBinding(Saml2MessageBinding singleLogoutServiceBinding) {
+				return this;
+			}
+
+			@Override
+			public AssertingPartyMetadata build() {
+				return new CustomAssertingPartyMetadata();
+			}
+
+		}
+
 	}
 
 }

@@ -18,6 +18,7 @@ package org.springframework.security.config.annotation.web.oauth2.login
 
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configurers.oauth2.client.OidcLogoutConfigurer
+import org.springframework.security.web.authentication.logout.LogoutHandler
 
 /**
  * A Kotlin DSL to configure the OIDC 1.0 Back-Channel configuration using
@@ -28,7 +29,26 @@ import org.springframework.security.config.annotation.web.configurers.oauth2.cli
  */
 @OAuth2LoginSecurityMarker
 class OidcBackChannelLogoutDsl {
+    private var _logoutUri: String? = null
+    private var _logoutHandler: LogoutHandler? = null
+
+    var logoutHandler: LogoutHandler?
+        get() = _logoutHandler
+        set(value) {
+            _logoutHandler = value
+            _logoutUri = null
+        }
+    var logoutUri: String?
+        get() = _logoutUri
+        set(value) {
+            _logoutUri = value
+            _logoutHandler = null
+        }
+
     internal fun get(): (OidcLogoutConfigurer<HttpSecurity>.BackChannelLogoutConfigurer) -> Unit {
-        return { backChannel -> }
+        return { backChannel ->
+            logoutHandler?.also { backChannel.logoutHandler(logoutHandler) }
+            logoutUri?.also { backChannel.logoutUri(logoutUri) }
+        }
     }
 }

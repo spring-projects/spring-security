@@ -52,7 +52,7 @@ import org.springframework.context.annotation.Import;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @Documented
-@Import(WebSocketMessageBrokerSecurityConfiguration.class)
+@Import({ WebSocketMessageBrokerSecurityConfiguration.class, WebSocketObservationImportSelector.class })
 public @interface EnableWebSocketSecurity {
 
 }

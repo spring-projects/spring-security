@@ -153,12 +153,12 @@ This means that we are running our `Runnable` with the same user that was used t
 See the {security-api-url}index.html[Javadoc] for additional integrations with both the Java concurrent APIs and the Spring Task abstractions.
 They are self-explanatory once you understand the previous code.
 
-* {security-api-url}org/springframework/security/concurrent/DelegatingSecurityContextCallable.html[`DelegatingSecurityContextCallable`]
-* {security-api-url}org/springframework/security/concurrent/DelegatingSecurityContextExecutor.html[`DelegatingSecurityContextExecutor`]
-* {security-api-url}org/springframework/security/concurrent/DelegatingSecurityContextExecutorService.html[`DelegatingSecurityContextExecutorService`]
-* {security-api-url}org/springframework/security/concurrent/DelegatingSecurityContextRunnable.html[`DelegatingSecurityContextRunnable`]
-* {security-api-url}org/springframework/security/concurrent/DelegatingSecurityContextScheduledExecutorService.html[`DelegatingSecurityContextScheduledExecutorService`]
-* {security-api-url}org/springframework/security/scheduling/DelegatingSecurityContextSchedulingTaskExecutor.html[`DelegatingSecurityContextSchedulingTaskExecutor`]
-* {security-api-url}org/springframework/security/task/DelegatingSecurityContextAsyncTaskExecutor.html[`DelegatingSecurityContextAsyncTaskExecutor`]
-* {security-api-url}org/springframework/security/task/DelegatingSecurityContextTaskExecutor.html[`DelegatingSecurityContextTaskExecutor`]
-* {security-api-url}org/springframework/security/scheduling/DelegatingSecurityContextTaskScheduler.html[`DelegatingSecurityContextTaskScheduler`]
+* javadoc:org.springframework.security.concurrent.DelegatingSecurityContextCallable[]
+* javadoc:org.springframework.security.concurrent.DelegatingSecurityContextExecutor[]
+* javadoc:org.springframework.security.concurrent.DelegatingSecurityContextExecutorService[]
+* javadoc:org.springframework.security.concurrent.DelegatingSecurityContextRunnable[]
+* javadoc:org.springframework.security.concurrent.DelegatingSecurityContextScheduledExecutorService[]
+* javadoc:org.springframework.security.scheduling.DelegatingSecurityContextSchedulingTaskExecutor[]
+* javadoc:org.springframework.security.task.DelegatingSecurityContextAsyncTaskExecutor[]
+* javadoc:org.springframework.security.task.DelegatingSecurityContextTaskExecutor[]
+* javadoc:org.springframework.security.scheduling.DelegatingSecurityContextTaskScheduler[]

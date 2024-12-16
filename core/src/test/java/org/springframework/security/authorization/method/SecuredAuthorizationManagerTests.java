@@ -147,8 +147,8 @@ public class SecuredAuthorizationManagerTests {
 	@Test
 	public void checkInheritedAnnotationsWhenConflictingThenAnnotationConfigurationException() throws Exception {
 		Supplier<Authentication> authentication = () -> new TestingAuthenticationToken("user", "password", "ROLE_USER");
-		MockMethodInvocation methodInvocation = new MockMethodInvocation(new ClassLevelAnnotations(),
-				ClassLevelAnnotations.class, "inheritedAnnotations");
+		MockMethodInvocation methodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
+				"inheritedAnnotations");
 		SecuredAuthorizationManager manager = new SecuredAuthorizationManager();
 		assertThatExceptionOfType(AnnotationConfigurationException.class)
 			.isThrownBy(() -> manager.check(authentication, methodInvocation));
@@ -165,28 +165,6 @@ public class SecuredAuthorizationManagerTests {
 		decision = manager.check(TestAuthentication::authenticatedAdmin, methodInvocation);
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isTrue();
-	}
-
-	@Test
-	public void checkRequiresUserWhenMethodsFromInheritThenApplies() throws Exception {
-		MockMethodInvocation methodInvocation = new MockMethodInvocation(new SecuredSonClass(), SecuredSonClass.class,
-				"securedUser");
-		SecuredAuthorizationManager manager = new SecuredAuthorizationManager();
-		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedUser, methodInvocation);
-		assertThat(decision.isGranted()).isTrue();
-	}
-
-	@Secured("ROLE_USER")
-	public static class SecuredSonClass extends ParentClass {
-
-	}
-
-	public static class ParentClass {
-
-		public void securedUser() {
-
-		}
-
 	}
 
 	public static class TestClass implements InterfaceAnnotationsOne, InterfaceAnnotationsTwo {

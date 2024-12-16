@@ -140,7 +140,7 @@ public final class AuthorizationManagerBeforeReactiveMethodInterceptor implement
 
 	private Flux<Object> preAuthorized(MethodInvocation mi, Flux<Object> mapping) {
 		Mono<Authentication> authentication = ReactiveAuthenticationUtils.getAuthentication();
-		return this.authorizationManager.check(authentication, mi)
+		return this.authorizationManager.authorize(authentication, mi)
 			.switchIfEmpty(Mono.just(new AuthorizationDecision(false)))
 			.flatMapMany((decision) -> {
 				if (decision.isGranted()) {
@@ -153,7 +153,7 @@ public final class AuthorizationManagerBeforeReactiveMethodInterceptor implement
 
 	private Mono<Object> preAuthorized(MethodInvocation mi, Mono<Object> mapping) {
 		Mono<Authentication> authentication = ReactiveAuthenticationUtils.getAuthentication();
-		return this.authorizationManager.check(authentication, mi)
+		return this.authorizationManager.authorize(authentication, mi)
 			.switchIfEmpty(Mono.just(new AuthorizationDecision(false)))
 			.flatMap((decision) -> {
 				if (decision.isGranted()) {

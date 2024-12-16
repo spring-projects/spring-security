@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,12 +20,16 @@ import java.lang.annotation.Annotation;
 
 import org.springframework.core.MethodParameter;
 import org.springframework.core.annotation.AnnotationUtils;
+import org.springframework.core.annotation.MergedAnnotations;
 import org.springframework.expression.BeanResolver;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
+import org.springframework.security.core.annotation.AnnotationTemplateExpressionDefaults;
 import org.springframework.security.core.annotation.CurrentSecurityContext;
+import org.springframework.security.core.annotation.SecurityAnnotationScanner;
+import org.springframework.security.core.annotation.SecurityAnnotationScanners;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
@@ -72,6 +76,7 @@ import org.springframework.web.method.support.ModelAndViewContainer;
  * </p>
  *
  * @author Dan Zheng
+ * @author DingHao
  * @since 5.2
  */
 public final class CurrentSecurityContextArgumentResolver implements HandlerMethodArgumentResolver {
@@ -81,12 +86,19 @@ public final class CurrentSecurityContextArgumentResolver implements HandlerMeth
 
 	private ExpressionParser parser = new SpelExpressionParser();
 
+	private final Class<CurrentSecurityContext> annotationType = CurrentSecurityContext.class;
+
+	private SecurityAnnotationScanner<CurrentSecurityContext> scanner = SecurityAnnotationScanners
+		.requireUnique(this.annotationType);
+
+	private boolean useAnnotationTemplate = false;
+
 	private BeanResolver beanResolver;
 
 	@Override
 	public boolean supportsParameter(MethodParameter parameter) {
 		return SecurityContext.class.isAssignableFrom(parameter.getParameterType())
-				|| findMethodAnnotation(CurrentSecurityContext.class, parameter) != null;
+				|| findMethodAnnotation(parameter) != null;
 	}
 
 	@Override
@@ -96,7 +108,7 @@ public final class CurrentSecurityContextArgumentResolver implements HandlerMeth
 		if (securityContext == null) {
 			return null;
 		}
-		CurrentSecurityContext annotation = findMethodAnnotation(CurrentSecurityContext.class, parameter);
+		CurrentSecurityContext annotation = findMethodAnnotation(parameter);
 		if (annotation != null) {
 			return resolveSecurityContextFromAnnotation(parameter, annotation, securityContext);
 		}
@@ -124,6 +136,20 @@ public final class CurrentSecurityContextArgumentResolver implements HandlerMeth
 		this.beanResolver = beanResolver;
 	}
 
+	/**
+	 * Configure CurrentSecurityContext template resolution
+	 * <p>
+	 * By default, this value is <code>null</code>, which indicates that templates should
+	 * not be resolved.
+	 * @param templateDefaults - whether to resolve CurrentSecurityContext templates
+	 * parameters
+	 * @since 6.4
+	 */
+	public void setTemplateDefaults(AnnotationTemplateExpressionDefaults templateDefaults) {
+		this.useAnnotationTemplate = templateDefaults != null;
+		this.scanner = SecurityAnnotationScanners.requireUnique(CurrentSecurityContext.class, templateDefaults);
+	}
+
 	private Object resolveSecurityContextFromAnnotation(MethodParameter parameter, CurrentSecurityContext annotation,
 			SecurityContext securityContext) {
 		Object securityContextResult = securityContext;
@@ -149,21 +175,22 @@ public final class CurrentSecurityContextArgumentResolver implements HandlerMeth
 
 	/**
 	 * Obtain the specified {@link Annotation} on the specified {@link MethodParameter}.
-	 * @param annotationClass the class of the {@link Annotation} to find on the
-	 * {@link MethodParameter}
 	 * @param parameter the {@link MethodParameter} to search for an {@link Annotation}
 	 * @return the {@link Annotation} that was found or null.
 	 */
-	private <T extends Annotation> T findMethodAnnotation(Class<T> annotationClass, MethodParameter parameter) {
-		T annotation = parameter.getParameterAnnotation(annotationClass);
+	private CurrentSecurityContext findMethodAnnotation(MethodParameter parameter) {
+		if (this.useAnnotationTemplate) {
+			return this.scanner.scan(parameter.getParameter());
+		}
+		CurrentSecurityContext annotation = parameter.getParameterAnnotation(this.annotationType);
 		if (annotation != null) {
 			return annotation;
 		}
 		Annotation[] annotationsToSearch = parameter.getParameterAnnotations();
 		for (Annotation toSearch : annotationsToSearch) {
-			annotation = AnnotationUtils.findAnnotation(toSearch.annotationType(), annotationClass);
+			annotation = AnnotationUtils.findAnnotation(toSearch.annotationType(), this.annotationType);
 			if (annotation != null) {
-				return annotation;
+				return MergedAnnotations.from(toSearch).get(this.annotationType).synthesize();
 			}
 		}
 		return null;

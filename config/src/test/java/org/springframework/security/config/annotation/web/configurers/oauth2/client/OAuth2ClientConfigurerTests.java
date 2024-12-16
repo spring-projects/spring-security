@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -285,6 +285,22 @@ public class OAuth2ClientConfigurerTests {
 		verify(authorizationRedirectStrategy).sendRedirect(any(), any(), anyString());
 	}
 
+	@Test
+	public void configureWhenCustomAuthorizationRequestResolverBeanPresentThenAuthorizationRequestResolverUsed()
+			throws Exception {
+		OAuth2AuthorizationRequestResolver defaultAuthorizationRequestResolver = authorizationRequestResolver;
+		authorizationRequestResolver = mock(OAuth2AuthorizationRequestResolver.class);
+		given(authorizationRequestResolver.resolve(any()))
+			.willAnswer((invocation) -> defaultAuthorizationRequestResolver.resolve(invocation.getArgument(0)));
+		this.spring.register(OAuth2ClientInLambdaConfig.class, AuthorizationRequestResolverConfig.class).autowire();
+		// @formatter:off
+		this.mockMvc.perform(get("/oauth2/authorization/registration-1"))
+				.andExpect(status().is3xxRedirection())
+				.andReturn();
+		// @formatter:on
+		verify(authorizationRequestResolver).resolve(any());
+	}
+
 	@EnableWebSecurity
 	@Configuration
 	@EnableWebMvc
@@ -358,6 +374,16 @@ public class OAuth2ClientConfigurerTests {
 		@Bean
 		OAuth2AuthorizedClientRepository authorizedClientRepository() {
 			return authorizedClientRepository;
+		}
+
+	}
+
+	@Configuration
+	static class AuthorizationRequestResolverConfig {
+
+		@Bean
+		OAuth2AuthorizationRequestResolver authorizationRequestResolver() {
+			return authorizationRequestResolver;
 		}
 
 	}

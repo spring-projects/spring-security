@@ -93,6 +93,7 @@ import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.security.web.authentication.preauth.x509.X509AuthenticationFilter;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
 import org.springframework.security.web.authentication.ui.DefaultLogoutPageGeneratingFilter;
+import org.springframework.security.web.authentication.ui.DefaultResourcesFilter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.context.HttpRequestResponseHolder;
 import org.springframework.security.web.context.SecurityContextHolderFilter;
@@ -848,6 +849,7 @@ public class MiscHttpConfigTests {
 		assertThat(filters.next()).isInstanceOf(CsrfFilter.class);
 		assertThat(filters.next()).isInstanceOf(LogoutFilter.class);
 		assertThat(filters.next()).isInstanceOf(UsernamePasswordAuthenticationFilter.class);
+		assertThat(filters.next()).isInstanceOf(DefaultResourcesFilter.class);
 		assertThat(filters.next()).isInstanceOf(DefaultLoginPageGeneratingFilter.class);
 		assertThat(filters.next()).isInstanceOf(DefaultLogoutPageGeneratingFilter.class);
 		assertThat(filters.next()).isInstanceOf(BasicAuthenticationFilter.class);

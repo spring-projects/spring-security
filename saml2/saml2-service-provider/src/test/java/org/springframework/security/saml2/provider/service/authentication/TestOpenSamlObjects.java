@@ -45,6 +45,7 @@ import org.opensaml.core.xml.schema.impl.XSStringBuilder;
 import org.opensaml.core.xml.schema.impl.XSURIBuilder;
 import org.opensaml.saml.common.SAMLVersion;
 import org.opensaml.saml.common.SignableSAMLObject;
+import org.opensaml.saml.common.xml.SAMLConstants;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.Attribute;
 import org.opensaml.saml.saml2.core.AttributeStatement;
@@ -74,6 +75,14 @@ import org.opensaml.saml.saml2.core.impl.NameIDBuilder;
 import org.opensaml.saml.saml2.core.impl.StatusBuilder;
 import org.opensaml.saml.saml2.core.impl.StatusCodeBuilder;
 import org.opensaml.saml.saml2.encryption.Encrypter;
+import org.opensaml.saml.saml2.metadata.EntityDescriptor;
+import org.opensaml.saml.saml2.metadata.IDPSSODescriptor;
+import org.opensaml.saml.saml2.metadata.KeyDescriptor;
+import org.opensaml.saml.saml2.metadata.SingleSignOnService;
+import org.opensaml.saml.saml2.metadata.impl.EntityDescriptorBuilder;
+import org.opensaml.saml.saml2.metadata.impl.IDPSSODescriptorBuilder;
+import org.opensaml.saml.saml2.metadata.impl.KeyDescriptorBuilder;
+import org.opensaml.saml.saml2.metadata.impl.SingleSignOnServiceBuilder;
 import org.opensaml.security.SecurityException;
 import org.opensaml.security.credential.BasicCredential;
 import org.opensaml.security.credential.Credential;
@@ -83,6 +92,9 @@ import org.opensaml.xmlsec.SignatureSigningParameters;
 import org.opensaml.xmlsec.encryption.support.DataEncryptionParameters;
 import org.opensaml.xmlsec.encryption.support.EncryptionException;
 import org.opensaml.xmlsec.encryption.support.KeyEncryptionParameters;
+import org.opensaml.xmlsec.keyinfo.KeyInfoSupport;
+import org.opensaml.xmlsec.signature.KeyInfo;
+import org.opensaml.xmlsec.signature.impl.KeyInfoBuilder;
 import org.opensaml.xmlsec.signature.support.SignatureConstants;
 import org.opensaml.xmlsec.signature.support.SignatureException;
 import org.opensaml.xmlsec.signature.support.SignatureSupport;
@@ -92,6 +104,7 @@ import org.springframework.security.saml2.core.OpenSamlInitializationService;
 import org.springframework.security.saml2.core.Saml2X509Credential;
 import org.springframework.security.saml2.core.TestSaml2X509Credentials;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
+import org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding;
 
 public final class TestOpenSamlObjects {
 
@@ -221,7 +234,7 @@ public final class TestOpenSamlObjects {
 		return logoutRequest;
 	}
 
-	static Credential getSigningCredential(Saml2X509Credential credential, String entityId) {
+	public static Credential getSigningCredential(Saml2X509Credential credential, String entityId) {
 		BasicCredential cred = getBasicCredential(credential);
 		cred.setEntityId(entityId);
 		cred.setUsageType(UsageType.SIGNING);
@@ -464,6 +477,39 @@ public final class TestOpenSamlObjects {
 		logoutRequest.setIssuer(issuer);
 		logoutRequest.setDestination(registration.getAssertingPartyDetails().getSingleLogoutServiceLocation());
 		return logoutRequest;
+	}
+
+	public static EntityDescriptor entityDescriptor(RelyingPartyRegistration registration) {
+		EntityDescriptorBuilder entityDescriptorBuilder = new EntityDescriptorBuilder();
+		EntityDescriptor entityDescriptor = entityDescriptorBuilder.buildObject();
+		entityDescriptor.setEntityID(registration.getAssertingPartyDetails().getEntityId());
+		IDPSSODescriptorBuilder idpssoDescriptorBuilder = new IDPSSODescriptorBuilder();
+		IDPSSODescriptor idpssoDescriptor = idpssoDescriptorBuilder.buildObject();
+		idpssoDescriptor.addSupportedProtocol(SAMLConstants.SAML20P_NS);
+		SingleSignOnServiceBuilder singleSignOnServiceBuilder = new SingleSignOnServiceBuilder();
+		SingleSignOnService singleSignOnService = singleSignOnServiceBuilder.buildObject();
+		singleSignOnService.setBinding(Saml2MessageBinding.POST.getUrn());
+		singleSignOnService.setLocation(registration.getAssertingPartyDetails().getSingleSignOnServiceLocation());
+		idpssoDescriptor.getSingleSignOnServices().add(singleSignOnService);
+		KeyDescriptorBuilder keyDescriptorBuilder = new KeyDescriptorBuilder();
+		KeyDescriptor keyDescriptor = keyDescriptorBuilder.buildObject();
+		keyDescriptor.setUse(UsageType.SIGNING);
+		KeyInfoBuilder keyInfoBuilder = new KeyInfoBuilder();
+		KeyInfo keyInfo = keyInfoBuilder.buildObject();
+		addCertificate(keyInfo, registration.getSigningX509Credentials().iterator().next().getCertificate());
+		keyDescriptor.setKeyInfo(keyInfo);
+		idpssoDescriptor.getKeyDescriptors().add(keyDescriptor);
+		entityDescriptor.getRoleDescriptors(IDPSSODescriptor.DEFAULT_ELEMENT_NAME).add(idpssoDescriptor);
+		return entityDescriptor;
+	}
+
+	static void addCertificate(KeyInfo info, X509Certificate certificate) {
+		try {
+			KeyInfoSupport.addCertificate(info, certificate);
+		}
+		catch (Exception ex) {
+			throw new Saml2Exception(ex);
+		}
 	}
 
 	static <T extends XMLObject> T build(QName qName) {

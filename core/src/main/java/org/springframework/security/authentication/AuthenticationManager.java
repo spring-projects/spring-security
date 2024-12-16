@@ -23,7 +23,9 @@ import org.springframework.security.core.AuthenticationException;
  * Processes an {@link Authentication} request.
  *
  * @author Ben Alex
+ * @author KyeongHoon Lee
  */
+@FunctionalInterface
 public interface AuthenticationManager {
 
 	/**

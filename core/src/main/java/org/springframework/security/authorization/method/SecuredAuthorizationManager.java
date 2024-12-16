@@ -26,13 +26,14 @@ import java.util.function.Supplier;
 
 import org.aopalliance.intercept.MethodInvocation;
 
-import org.springframework.aop.support.AopUtils;
 import org.springframework.core.MethodClassKey;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.authorization.AuthoritiesAuthorizationManager;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.SecurityAnnotationScanner;
+import org.springframework.security.core.annotation.SecurityAnnotationScanners;
 import org.springframework.util.Assert;
 
 /**
@@ -49,6 +50,8 @@ public final class SecuredAuthorizationManager implements AuthorizationManager<M
 	private AuthorizationManager<Collection<String>> authoritiesAuthorizationManager = new AuthoritiesAuthorizationManager();
 
 	private final Map<MethodClassKey, Set<String>> cachedAuthorities = new ConcurrentHashMap<>();
+
+	private final SecurityAnnotationScanner<Secured> scanner = SecurityAnnotationScanners.requireUnique(Secured.class);
 
 	/**
 	 * Sets an {@link AuthorizationManager} that accepts a collection of authority
@@ -70,7 +73,9 @@ public final class SecuredAuthorizationManager implements AuthorizationManager<M
 	 * @param mi the {@link MethodInvocation} to check
 	 * @return an {@link AuthorizationDecision} or null if the {@link Secured} annotation
 	 * is not present
+	 * @deprecated please use {@link #authorize(Supplier, Object)} instead
 	 */
+	@Deprecated
 	@Override
 	public AuthorizationDecision check(Supplier<Authentication> authentication, MethodInvocation mi) {
 		Set<String> authorities = getAuthorities(mi);
@@ -86,15 +91,13 @@ public final class SecuredAuthorizationManager implements AuthorizationManager<M
 	}
 
 	private Set<String> resolveAuthorities(Method method, Class<?> targetClass) {
-		Method specificMethod = AopUtils.getMostSpecificMethod(method, targetClass);
-		Secured secured = findSecuredAnnotation(specificMethod, targetClass);
+		Secured secured = findSecuredAnnotation(method, targetClass);
 		return (secured != null) ? Set.of(secured.value()) : Collections.emptySet();
 	}
 
 	private Secured findSecuredAnnotation(Method method, Class<?> targetClass) {
-		Secured secured = AuthorizationAnnotationUtils.findUniqueAnnotation(method, Secured.class);
-		return (secured != null) ? secured : AuthorizationAnnotationUtils
-			.findUniqueAnnotation((targetClass != null) ? targetClass : method.getDeclaringClass(), Secured.class);
+		Class<?> targetClassToUse = (targetClass != null) ? targetClass : method.getDeclaringClass();
+		return this.scanner.scan(method, targetClassToUse);
 	}
 
 }

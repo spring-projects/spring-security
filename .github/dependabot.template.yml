@@ -36,6 +36,5 @@ updates:
     schedule:
       interval: weekly
     ignore:
-      - dependency-name: "sjohnr/*"
       - dependency-name: "spring-io/*"
       - dependency-name: "spring-security-release-tools/*"

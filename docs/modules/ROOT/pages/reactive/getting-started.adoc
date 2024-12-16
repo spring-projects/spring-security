@@ -75,7 +75,7 @@ Using generated security password: 8e557245-73e2-4286-969a-ff57fe326336
 [[authenticating]]
 == Authenticating
 
-You can access the application at http://localhost:8080/ which will redirect the browser to the default log in page. You can provide the default username of `user` with the randomly generated password that is logged to the console. The browser is then taken to the orginally requested page.
+You can access the application at http://localhost:8080/ which will redirect the browser to the default log in page. You can provide the default username of `user` with the randomly generated password that is logged to the console. The browser is then taken to the originally requested page.
 
 To log out you can visit http://localhost:8080/logout and then confirming you wish to log out.
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -584,7 +584,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 	 * </ul>
 	 * @return the {@link PermissionsPolicyConfig} for additional configuration
 	 * @since 5.5
-	 * @deprecated For removal in 7.0. Use {@link #permissionsPolicy(Customizer)} or
+	 * @deprecated For removal in 7.0. Use {@link #permissionsPolicyHeader(Customizer)} or
 	 * {@code permissionsPolicy(Customizer.withDefaults())} to stick with defaults. See
 	 * the <a href=
 	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
@@ -610,12 +610,37 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 	 * @return the {@link PermissionsPolicyConfig} for additional configuration
 	 * @throws IllegalArgumentException if policyDirectives is {@code null} or empty
 	 * @since 5.5
+	 * @deprecated For removal in 7.0. Use {@link #permissionsPolicyHeader(Customizer)}
+	 * instead
 	 * @see PermissionsPolicyHeaderWriter
 	 */
+	@Deprecated(since = "6.4", forRemoval = true)
 	public PermissionsPolicyConfig permissionsPolicy(Customizer<PermissionsPolicyConfig> permissionsPolicyCustomizer) {
 		this.permissionsPolicy.writer = new PermissionsPolicyHeaderWriter();
 		permissionsPolicyCustomizer.customize(this.permissionsPolicy);
 		return this.permissionsPolicy;
+	}
+
+	/**
+	 * Allows configuration for
+	 * <a href="https://w3c.github.io/webappsec-permissions-policy/"> Permissions
+	 * Policy</a>.
+	 * <p>
+	 * Calling this method automatically enables (includes) the {@code Permissions-Policy}
+	 * header in the response using the supplied policy directive(s).
+	 * <p>
+	 * Configuration is provided to the {@link PermissionsPolicyHeaderWriter} which is
+	 * responsible for writing the header.
+	 * @return the {@link PermissionsPolicyConfig} for additional configuration
+	 * @throws IllegalArgumentException if policyDirectives is {@code null} or empty
+	 * @since 6.4
+	 * @see PermissionsPolicyHeaderWriter
+	 */
+	public HeadersConfigurer<H> permissionsPolicyHeader(
+			Customizer<PermissionsPolicyConfig> permissionsPolicyCustomizer) {
+		this.permissionsPolicy.writer = new PermissionsPolicyHeaderWriter();
+		permissionsPolicyCustomizer.customize(this.permissionsPolicy);
+		return this;
 	}
 
 	/**

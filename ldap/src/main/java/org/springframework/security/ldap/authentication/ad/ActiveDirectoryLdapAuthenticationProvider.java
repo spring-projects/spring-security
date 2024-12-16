@@ -20,6 +20,7 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -135,14 +136,16 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
 
 	/**
 	 * @param domain the domain name (can be null or empty)
-	 * @param url an LDAP url (or multiple URLs)
+	 * @param url an LDAP url (or multiple space-delimited URLs).
 	 * @param rootDn the root DN (can be null or empty)
+	 * @see <a href="https://docs.oracle.com/javase/jndi/tutorial/ldap/misc/url.html">JNDI
+	 * URL format documentation</a>
 	 */
 	public ActiveDirectoryLdapAuthenticationProvider(String domain, String url, String rootDn) {
 		Assert.isTrue(StringUtils.hasText(url), "Url cannot be empty");
-		this.domain = StringUtils.hasText(domain) ? domain.toLowerCase() : null;
+		this.domain = StringUtils.hasText(domain) ? domain.toLowerCase(Locale.ROOT) : null;
 		this.url = url;
-		this.rootDn = StringUtils.hasText(rootDn) ? rootDn.toLowerCase() : null;
+		this.rootDn = StringUtils.hasText(rootDn) ? rootDn.toLowerCase(Locale.ROOT) : null;
 	}
 
 	/**
@@ -151,7 +154,7 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
 	 */
 	public ActiveDirectoryLdapAuthenticationProvider(String domain, String url) {
 		Assert.isTrue(StringUtils.hasText(url), "Url cannot be empty");
-		this.domain = StringUtils.hasText(domain) ? domain.toLowerCase() : null;
+		this.domain = StringUtils.hasText(domain) ? domain.toLowerCase(Locale.ROOT) : null;
 		this.url = url;
 		this.rootDn = (this.domain != null) ? rootDnFromDomain(this.domain) : null;
 	}
@@ -189,12 +192,11 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
 
 	private DirContext bindAsUser(String username, String password) {
 		// TODO. add DNS lookup based on domain
-		final String bindUrl = this.url;
 		Hashtable<String, Object> env = new Hashtable<>();
 		env.put(Context.SECURITY_AUTHENTICATION, "simple");
 		String bindPrincipal = createBindPrincipal(username);
 		env.put(Context.SECURITY_PRINCIPAL, bindPrincipal);
-		env.put(Context.PROVIDER_URL, bindUrl);
+		env.put(Context.PROVIDER_URL, this.url);
 		env.put(Context.SECURITY_CREDENTIALS, password);
 		env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
 		env.put(Context.OBJECT_FACTORIES, DefaultDirObjectFactory.class.getName());
@@ -334,7 +336,7 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
 	}
 
 	String createBindPrincipal(String username) {
-		if (this.domain == null || username.toLowerCase().endsWith(this.domain)) {
+		if (this.domain == null || username.toLowerCase(Locale.ROOT).endsWith(this.domain)) {
 			return username;
 		}
 		return username + "@" + this.domain;

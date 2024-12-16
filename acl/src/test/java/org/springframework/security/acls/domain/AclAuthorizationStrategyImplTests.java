@@ -25,6 +25,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.acls.model.Acl;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
@@ -34,6 +35,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.core.context.SecurityContextImpl;
 
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
@@ -84,6 +86,15 @@ public class AclAuthorizationStrategyImplTests {
 		given(this.acl.getOwner()).willReturn(new GrantedAuthoritySid("ROLE_AUTH"));
 		this.strategy = new AclAuthorizationStrategyImpl(new SimpleGrantedAuthority("ROLE_SYSTEM_ADMIN"));
 		this.strategy.securityCheck(this.acl, AclAuthorizationStrategy.CHANGE_GENERAL);
+	}
+
+	@Test
+	public void securityCheckWhenRoleReachableByHierarchyThenAuthorized() {
+		given(this.acl.getOwner()).willReturn(new GrantedAuthoritySid("ROLE_AUTH_B"));
+		this.strategy = new AclAuthorizationStrategyImpl(new SimpleGrantedAuthority("ROLE_SYSTEM_ADMIN"));
+		this.strategy.setRoleHierarchy(RoleHierarchyImpl.fromHierarchy("ROLE_AUTH > ROLE_AUTH_B"));
+		assertThatNoException()
+			.isThrownBy(() -> this.strategy.securityCheck(this.acl, AclAuthorizationStrategy.CHANGE_GENERAL));
 	}
 
 	@Test

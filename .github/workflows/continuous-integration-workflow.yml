@@ -9,7 +9,7 @@ on:
   workflow_dispatch: # Manual trigger
 
 env:
-  DEVELOCITY_ACCESS_KEY: ${{ secrets.GRADLE_ENTERPRISE_SECRET_ACCESS_KEY }}
+  DEVELOCITY_ACCESS_KEY: ${{ secrets.DEVELOCITY_ACCESS_KEY }}
 
 permissions:
   contents: read
@@ -39,7 +39,7 @@ jobs:
             toolchain: 17
     with:
       java-version: ${{ matrix.java-version }}
-      test-args: --refresh-dependencies -PforceMavenRepositories=snapshot -PisOverrideVersionCatalog -PtestToolchain=${{ matrix.toolchain }} -PspringFrameworkVersion=6.1.+ -PreactorVersion=2023.0.+ -PspringDataVersion=2023.1.+ --stacktrace
+      test-args: --refresh-dependencies -PforceMavenRepositories=snapshot -PisOverrideVersionCatalog -PtestToolchain=${{ matrix.toolchain }} -PspringFrameworkVersion=6.2.+ -PreactorVersion=2023.0.+ -PspringDataVersion=2024.0.+ --stacktrace
     secrets: inherit
   check-samples:
     name: Check Samples
@@ -63,7 +63,7 @@ jobs:
           samples_branch=$(cat gradle.properties | grep "samplesBranch=" | awk -F'=' '{print $2}')
           ./gradlew publishMavenJavaPublicationToLocalRepository
           ./gradlew cloneRepository -PrepositoryName="spring-projects/spring-security-samples" -Pref="$samples_branch" -PcloneOutputDirectory="$SAMPLES_DIR"
-          ./gradlew --project-dir "$SAMPLES_DIR" --init-script spring-security-ci.gradle -PlocalRepositoryPath="$LOCAL_REPOSITORY_PATH" -PspringSecurityVersion="$version" :runAllTests
+          ./gradlew --refresh-dependencies --project-dir "$SAMPLES_DIR" --init-script spring-security-ci.gradle -PlocalRepositoryPath="$LOCAL_REPOSITORY_PATH" -PspringSecurityVersion="$version" test integrationTest
   check-tangles:
     name: Check for Package Tangles
     runs-on: ubuntu-latest
@@ -113,20 +113,13 @@ jobs:
       artifact-path: org/springframework/security/spring-security-core
       slack-announcing-id: spring-security-announcing
     secrets: inherit
-  notify_result:
-    name: Check for failures
+  send-notification:
+    name: Send Notification
     needs: [ perform-release ]
-    if: failure()
+    if: ${{ failure() || cancelled() }}
     runs-on: ubuntu-latest
-    permissions:
-      actions: read
     steps:
-      - name: Send Slack message
-        # Workaround while waiting for Gamesight/slack-workflow-status#38 to be fixed
-        # See https://github.com/Gamesight/slack-workflow-status/issues/38
-        uses: sjohnr/slack-workflow-status@v1-beta
+      - name: Send Notification
+        uses: spring-io/spring-security-release-tools/.github/actions/send-notification@v1
         with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
-          channel: '#spring-security-ci'
-          name: 'CI Notifier'
+          webhook-url: ${{ secrets.SPRING_SECURITY_CI_GCHAT_WEBHOOK_URL }}

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -78,13 +78,18 @@ final class OidcUserRequestUtils {
 
 	static OidcUser getUser(OidcUserRequest userRequest, OidcUserInfo userInfo) {
 		Set<GrantedAuthority> authorities = new LinkedHashSet<>();
-		authorities.add(new OidcUserAuthority(userRequest.getIdToken(), userInfo));
+		ClientRegistration.ProviderDetails providerDetails = userRequest.getClientRegistration().getProviderDetails();
+		String userNameAttributeName = providerDetails.getUserInfoEndpoint().getUserNameAttributeName();
+		if (StringUtils.hasText(userNameAttributeName)) {
+			authorities.add(new OidcUserAuthority(userRequest.getIdToken(), userInfo, userNameAttributeName));
+		}
+		else {
+			authorities.add(new OidcUserAuthority(userRequest.getIdToken(), userInfo));
+		}
 		OAuth2AccessToken token = userRequest.getAccessToken();
 		for (String scope : token.getScopes()) {
 			authorities.add(new SimpleGrantedAuthority("SCOPE_" + scope));
 		}
-		ClientRegistration.ProviderDetails providerDetails = userRequest.getClientRegistration().getProviderDetails();
-		String userNameAttributeName = providerDetails.getUserInfoEndpoint().getUserNameAttributeName();
 		if (StringUtils.hasText(userNameAttributeName)) {
 			return new DefaultOidcUser(authorities, userRequest.getIdToken(), userInfo, userNameAttributeName);
 		}
