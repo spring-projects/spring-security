@@ -19,6 +19,7 @@ updates:
       - dependency-name: com.nimbusds:nimbus-jose-jwt
       - dependency-name: org.python:jython
       - dependency-name: org.apache.directory.server:*
+      - dependency-name: org.apache.directory.shared:*
       - dependency-name: org.junit:junit-bom
         update-types:
           - version-update:semver-major
@@ -44,6 +45,7 @@ updates:
       - dependency-name: com.nimbusds:nimbus-jose-jwt
       - dependency-name: org.python:jython
       - dependency-name: org.apache.directory.server:*
+      - dependency-name: org.apache.directory.shared:*
       - dependency-name: org.junit:junit-bom
         update-types:
           - version-update:semver-major
@@ -69,6 +71,7 @@ updates:
       - dependency-name: com.nimbusds:nimbus-jose-jwt
       - dependency-name: org.python:jython
       - dependency-name: org.apache.directory.server:*
+      - dependency-name: org.apache.directory.shared:*
       - dependency-name: org.junit:junit-bom
         update-types:
           - version-update:semver-major
