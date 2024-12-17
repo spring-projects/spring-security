@@ -16,6 +16,8 @@
 
 package org.springframework.security.web.authentication.www;
 
+import java.io.Serial;
+
 import org.springframework.security.core.AuthenticationException;
 
 /**
@@ -24,6 +26,9 @@ import org.springframework.security.core.AuthenticationException;
  * @author Ben Alex
  */
 public class NonceExpiredException extends AuthenticationException {
+
+	@Serial
+	private static final long serialVersionUID = -3487244679050681257L;
 
 	/**
 	 * Constructs a <code>NonceExpiredException</code> with the specified message.

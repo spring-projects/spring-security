@@ -128,6 +128,12 @@ import org.springframework.security.saml2.provider.service.authentication.TestSa
 import org.springframework.security.saml2.provider.service.authentication.TestSaml2RedirectAuthenticationRequests;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
+import org.springframework.security.web.authentication.preauth.PreAuthenticatedCredentialsNotFoundException;
+import org.springframework.security.web.authentication.rememberme.CookieTheftException;
+import org.springframework.security.web.authentication.rememberme.InvalidCookieException;
+import org.springframework.security.web.authentication.rememberme.RememberMeAuthenticationException;
+import org.springframework.security.web.authentication.session.SessionAuthenticationException;
+import org.springframework.security.web.authentication.www.NonceExpiredException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -328,6 +334,16 @@ class SpringSecurityCoreVersionSerializableTests {
 			token.setDetails(details);
 			return token;
 		});
+		generatorByClassName.put(PreAuthenticatedCredentialsNotFoundException.class,
+				(r) -> new PreAuthenticatedCredentialsNotFoundException("message", new IOException("fail")));
+		generatorByClassName.put(CookieTheftException.class, (r) -> new CookieTheftException("message"));
+		generatorByClassName.put(InvalidCookieException.class, (r) -> new InvalidCookieException("message"));
+		generatorByClassName.put(RememberMeAuthenticationException.class,
+				(r) -> new RememberMeAuthenticationException("message", new IOException("fail")));
+		generatorByClassName.put(SessionAuthenticationException.class,
+				(r) -> new SessionAuthenticationException("message"));
+		generatorByClassName.put(NonceExpiredException.class,
+				(r) -> new NonceExpiredException("message", new IOException("fail")));
 	}
 
 	@ParameterizedTest
