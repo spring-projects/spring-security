@@ -460,6 +460,8 @@ public class RelyingPartyRegistration implements Serializable {
 	 */
 	public static class AssertingPartyDetails implements AssertingPartyMetadata {
 
+		private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+
 		private final String entityId;
 
 		private final boolean wantAuthnRequestsSigned;
