@@ -116,8 +116,11 @@ import org.springframework.security.oauth2.server.resource.authentication.Bearer
 import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionAuthenticatedPrincipal;
+import org.springframework.security.saml2.Saml2Exception;
+import org.springframework.security.saml2.core.Saml2Error;
 import org.springframework.security.saml2.provider.service.authentication.DefaultSaml2AuthenticatedPrincipal;
 import org.springframework.security.saml2.provider.service.authentication.Saml2Authentication;
+import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationException;
 import org.springframework.security.saml2.provider.service.authentication.Saml2PostAuthenticationRequest;
 import org.springframework.security.saml2.provider.service.authentication.Saml2RedirectAuthenticationRequest;
 import org.springframework.security.saml2.provider.service.authentication.TestSaml2Authentications;
@@ -301,6 +304,10 @@ class SpringSecurityCoreVersionSerializableTests {
 				(r) -> new LdapAuthority("USER", "username", Map.of("attribute", List.of("value1", "value2"))));
 
 		// saml2-service-provider
+		generatorByClassName.put(Saml2AuthenticationException.class,
+				(r) -> new Saml2AuthenticationException(new Saml2Error("code", "descirption"), "message",
+						new IOException("fail")));
+		generatorByClassName.put(Saml2Exception.class, (r) -> new Saml2Exception("message", new IOException("fail")));
 		generatorByClassName.put(DefaultSaml2AuthenticatedPrincipal.class,
 				(r) -> TestSaml2Authentications.authentication().getPrincipal());
 		generatorByClassName.put(Saml2Authentication.class,
