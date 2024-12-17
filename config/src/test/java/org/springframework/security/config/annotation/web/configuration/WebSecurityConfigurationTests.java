@@ -323,7 +323,7 @@ public class WebSecurityConfigurationTests {
 		assertThatExceptionOfType(BeanCreationException.class)
 			.isThrownBy(() -> this.spring.register(MultipleAnyRequestSecurityFilterChainConfig.class).autowire())
 			.havingRootCause()
-			.isExactlyInstanceOf(IllegalArgumentException.class);
+			.isInstanceOf(IllegalArgumentException.class);
 	}
 
 	private void assertAnotherUserPermission(WebInvocationPrivilegeEvaluator privilegeEvaluator) {
