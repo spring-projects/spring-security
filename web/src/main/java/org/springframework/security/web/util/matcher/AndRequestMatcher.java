@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.logging.Log;
@@ -88,6 +89,23 @@ public final class AndRequestMatcher implements RequestMatcher {
 			variables.putAll(result.getVariables());
 		}
 		return MatchResult.match(variables);
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
+		AndRequestMatcher that = (AndRequestMatcher) o;
+		return Objects.equals(this.requestMatchers, that.requestMatchers);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(this.requestMatchers);
 	}
 
 	@Override
