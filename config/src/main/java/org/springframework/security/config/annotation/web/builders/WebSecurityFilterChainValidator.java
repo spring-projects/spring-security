@@ -21,11 +21,14 @@ import java.util.List;
 import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.UnreachableFilterChainException;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 
 /**
  * A filter chain validator for filter chains built by {@link WebSecurity}
  *
+ * @author Josh Cummings
+ * @author Max Batischev
  * @since 6.5
  */
 final class WebSecurityFilterChainValidator implements FilterChainProxy.FilterChainValidator {
@@ -33,18 +36,42 @@ final class WebSecurityFilterChainValidator implements FilterChainProxy.FilterCh
 	@Override
 	public void validate(FilterChainProxy filterChainProxy) {
 		List<SecurityFilterChain> chains = filterChainProxy.getFilterChains();
+		checkForAnyRequestRequestMatcher(chains);
+		checkForDuplicateMatchers(chains);
+	}
+
+	private void checkForAnyRequestRequestMatcher(List<SecurityFilterChain> chains) {
 		DefaultSecurityFilterChain anyRequestFilterChain = null;
 		for (SecurityFilterChain chain : chains) {
 			if (anyRequestFilterChain != null) {
 				String message = "A filter chain that matches any request [" + anyRequestFilterChain
 						+ "] has already been configured, which means that this filter chain [" + chain
 						+ "] will never get invoked. Please use `HttpSecurity#securityMatcher` to ensure that there is only one filter chain configured for 'any request' and that the 'any request' filter chain is published last.";
-				throw new IllegalArgumentException(message);
+				throw new UnreachableFilterChainException(message, anyRequestFilterChain, chain);
 			}
 			if (chain instanceof DefaultSecurityFilterChain defaultChain) {
 				if (defaultChain.getRequestMatcher() instanceof AnyRequestMatcher) {
 					anyRequestFilterChain = defaultChain;
 				}
+			}
+		}
+	}
+
+	private void checkForDuplicateMatchers(List<SecurityFilterChain> chains) {
+		DefaultSecurityFilterChain filterChain = null;
+		for (SecurityFilterChain chain : chains) {
+			if (filterChain != null) {
+				if (chain instanceof DefaultSecurityFilterChain defaultChain) {
+					if (defaultChain.getRequestMatcher().equals(filterChain.getRequestMatcher())) {
+						throw new UnreachableFilterChainException(
+								"The FilterChainProxy contains two filter chains using the" + " matcher "
+										+ defaultChain.getRequestMatcher(),
+								filterChain, defaultChain);
+					}
+				}
+			}
+			if (chain instanceof DefaultSecurityFilterChain defaultChain) {
+				filterChain = defaultChain;
 			}
 		}
 	}
