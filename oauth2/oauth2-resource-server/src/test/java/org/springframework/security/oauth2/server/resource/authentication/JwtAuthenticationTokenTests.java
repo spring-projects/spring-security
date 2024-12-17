@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,11 +24,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.oauth2.jose.jws.JwsAlgorithms;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.TestJwts;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.mockito.Mockito.mock;
 
 /**
  * Tests for {@link JwtAuthenticationToken}
@@ -113,6 +116,20 @@ public class JwtAuthenticationTokenTests {
 		assertThat(new JwtAuthenticationToken(jwt, authorities, null).getName()).isNull();
 		assertThat(new JwtAuthenticationToken(jwt, authorities).getName()).isNull();
 		assertThat(new JwtAuthenticationToken(jwt).getName()).isNull();
+	}
+
+	@Test
+	public void testConstructorWithPrincipal() {
+		Collection<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList("test");
+		User principal = mock(User.class);
+		Jwt jwt = TestJwts.user();
+		JwtAuthenticationToken token = new JwtAuthenticationToken(jwt, principal, authorities, "Hayden");
+		assertThat(token.getToken()).isSameAs(jwt);
+		assertThat(token.getCredentials()).isSameAs(jwt);
+		assertThat(token.getPrincipal()).isSameAs(principal);
+		assertThat(token.getAuthorities()).isEqualTo(authorities);
+		assertThat(token.isAuthenticated()).isTrue();
+		assertThat(token.getName()).isEqualTo("Hayden");
 	}
 
 	private Jwt.Builder builder() {
