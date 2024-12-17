@@ -16,7 +16,9 @@
 
 package org.springframework.security.config.http;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.logging.Log;
@@ -33,6 +35,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.FilterChainProxy;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.UnreachableFilterChainException;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.access.intercept.DefaultFilterInvocationSecurityMetadataSource;
@@ -40,9 +44,11 @@ import org.springframework.security.web.access.intercept.FilterInvocationSecurit
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willThrow;
@@ -128,6 +134,23 @@ public class DefaultFilterChainValidatorTests {
 		this.authorizationInterceptor.setSecurityMetadataSource(customMetaDataSource);
 		this.validator.validate(this.chain);
 		verify(customMetaDataSource, atLeastOnce()).getAttributes(any());
+	}
+
+	@Test
+	void validateWhenSameRequestMatchersArePresentThenUnreachableFilterChainException() {
+		AnonymousAuthenticationFilter authenticationFilter = mock(AnonymousAuthenticationFilter.class);
+		ExceptionTranslationFilter exceptionTranslationFilter = mock(ExceptionTranslationFilter.class);
+		SecurityFilterChain chain1 = new DefaultSecurityFilterChain(AntPathRequestMatcher.antMatcher("/api"),
+				authenticationFilter, exceptionTranslationFilter, this.authorizationInterceptor);
+		SecurityFilterChain chain2 = new DefaultSecurityFilterChain(AntPathRequestMatcher.antMatcher("/api"),
+				authenticationFilter, exceptionTranslationFilter, this.authorizationInterceptor);
+		List<SecurityFilterChain> chains = new ArrayList<>();
+		chains.add(chain2);
+		chains.add(chain1);
+		FilterChainProxy proxy = new FilterChainProxy(chains);
+
+		assertThatExceptionOfType(UnreachableFilterChainException.class)
+			.isThrownBy(() -> this.validator.validate(proxy));
 	}
 
 }
