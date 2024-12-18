@@ -35,7 +35,7 @@ import org.springframework.beans.factory.xml.XmlBeanDefinitionStoreException;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.web.session.SessionLimit;
+import org.springframework.security.web.authentication.session.SessionLimit;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;

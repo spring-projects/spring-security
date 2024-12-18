@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.web.session;
+package org.springframework.security.web.authentication.session;
 
 import java.util.function.Function;
 

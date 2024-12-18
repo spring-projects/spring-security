@@ -399,7 +399,62 @@ XML::
 
 This will prevent a user from logging in multiple times - a second login will cause the first to be invalidated.
 
-Using Spring Boot, you can test the above configuration scenario the following way:
+You can also adjust this based on who the user is.
+For example, administrators may be able to have more than one session:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Bean
+public SecurityFilterChain filterChain(HttpSecurity http) {
+	AuthorizationManager<?> isAdmin = AuthorityAuthorizationManager.hasRole("ADMIN");
+    http
+        .sessionManagement(session -> session
+            .maximumSessions((authentication) -> isAdmin.authorize(() -> authentication, null).isGranted() ? -1 : 1)
+        );
+    return http.build();
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Bean
+open fun filterChain(http: HttpSecurity): SecurityFilterChain {
+    val isAdmin: AuthorizationManager<*> = AuthorityAuthorizationManager.hasRole("ADMIN")
+    http {
+        sessionManagement {
+            sessionConcurrency {
+                maximumSessions {
+                    authentication -> if (isAdmin.authorize({ authentication }, null)!!.isGranted) -1 else 1
+                }
+            }
+        }
+    }
+    return http.build()
+}
+----
+
+XML::
++
+[source,xml,role="secondary"]
+----
+<http>
+...
+<session-management>
+    <concurrency-control max-sessions-ref="sessionLimit" />
+</session-management>
+</http>
+
+<b:bean id="sessionLimit" class="my.SessionLimitImplementation"/>
+----
+======
+
+Using Spring Boot, you can test the above configurations in the following way:
 
 [tabs]
 ======
