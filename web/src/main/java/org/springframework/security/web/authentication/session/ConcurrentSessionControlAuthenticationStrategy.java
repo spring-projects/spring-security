@@ -33,7 +33,6 @@ import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.session.ConcurrentSessionFilter;
-import org.springframework.security.web.session.SessionLimit;
 import org.springframework.security.web.session.SessionManagementFilter;
 import org.springframework.util.Assert;
 
