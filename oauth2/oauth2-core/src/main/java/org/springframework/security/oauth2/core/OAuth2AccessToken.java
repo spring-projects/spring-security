@@ -107,6 +107,9 @@ public class OAuth2AccessToken extends AbstractOAuth2Token {
 
 		public static final TokenType BEARER = new TokenType("Bearer");
 
+		/**
+		 * @since 6.5
+		 */
 		public static final TokenType DPOP = new TokenType("DPoP");
 
 		private final String value;
