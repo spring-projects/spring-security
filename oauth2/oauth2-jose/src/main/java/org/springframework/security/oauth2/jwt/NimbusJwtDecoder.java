@@ -441,7 +441,7 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 					JWKSet jwkSet = this.jwkSetCache.get();
 					if (this.jwkSetCache.requiresRefresh() || jwkSet == null) {
 						synchronized (this) {
-							jwkSet = fetchJWKSet(context);
+							jwkSet = fetchJWKSet();
 							this.jwkSetCache.put(jwkSet);
 						}
 					}
@@ -457,7 +457,7 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 						return Collections.emptyList();
 					}
 					synchronized (this) {
-						jwkSet = fetchJWKSet(context);
+						jwkSet = fetchJWKSet();
 						this.jwkSetCache.put(jwkSet);
 					}
 					if(jwkSet == null) {
@@ -465,12 +465,12 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 					}
 					return jwkSelector.select(jwkSet);
 				}
-				return jwkSelector.select(fetchJWKSet(context));
+				return jwkSelector.select(fetchJWKSet());
 			}
 
-			private JWKSet fetchJWKSet(SecurityContext context) throws KeySourceException {
+			private JWKSet fetchJWKSet() throws KeySourceException {
 				return this.urlBasedJWKSetSource.getJWKSet(JWKSetCacheRefreshEvaluator.noRefresh(),
-						System.currentTimeMillis(), context);
+						System.currentTimeMillis(), null);
 			}
 
 			private String getFirstSpecifiedKeyID(JWKMatcher jwkMatcher) {
