@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -213,7 +213,8 @@ public class ExceptionHandlingConfigurerTests {
 	@Test
 	public void getWhenUsingDefaultsAndUnauthenticatedThenRedirectsToLogin() throws Exception {
 		this.spring.register(DefaultHttpConfig.class).autowire();
-		this.mvc.perform(get("/").header(HttpHeaders.ACCEPT, "bogus/type")).andExpect(redirectedUrl("/login"));
+		this.mvc.perform(get("/").header(HttpHeaders.ACCEPT, "bogus/type"))
+			.andExpect(redirectedUrl("http://localhost/login"));
 	}
 
 	@Test

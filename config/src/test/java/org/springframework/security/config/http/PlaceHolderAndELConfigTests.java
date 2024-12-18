@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -73,7 +73,7 @@ public class PlaceHolderAndELConfigTests {
 		// login-page setting
 		// @formatter:off
 		this.mvc.perform(get("/secured"))
-				.andExpect(redirectedUrl("/loginPage"));
+				.andExpect(redirectedUrl("http://localhost/loginPage"));
 		// login-processing-url setting
 		// default-target-url setting
 		this.mvc.perform(post("/loginPage").param("username", "user").param("password", "password"))
@@ -98,7 +98,7 @@ public class PlaceHolderAndELConfigTests {
 		// login-page setting
 		// @formatter:off
 		this.mvc.perform(get("/secured"))
-				.andExpect(redirectedUrl("/loginPage"));
+				.andExpect(redirectedUrl("http://localhost/loginPage"));
 		// login-processing-url setting
 		// default-target-url setting
 		this.mvc.perform(post("/loginPage").param("username", "user").param("password", "password"))

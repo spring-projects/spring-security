@@ -437,7 +437,7 @@ public class OAuth2LoginConfigurerTests {
 		this.request = new MockHttpServletRequest("GET", requestUri);
 		this.request.setServletPath(requestUri);
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
-		assertThat(this.response.getRedirectedUrl()).matches("/oauth2/authorization/google");
+		assertThat(this.response.getRedirectedUrl()).matches("http://localhost/oauth2/authorization/google");
 	}
 
 	// gh-6802
@@ -448,7 +448,7 @@ public class OAuth2LoginConfigurerTests {
 		this.request = new MockHttpServletRequest("GET", requestUri);
 		this.request.setServletPath(requestUri);
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
-		assertThat(this.response.getRedirectedUrl()).matches("/login");
+		assertThat(this.response.getRedirectedUrl()).matches("http://localhost/login");
 	}
 
 	// gh-5347
@@ -461,7 +461,7 @@ public class OAuth2LoginConfigurerTests {
 		this.request.setServletPath(requestUri);
 		this.request.addHeader(HttpHeaders.ACCEPT, new MediaType("image", "*").toString());
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
-		assertThat(this.response.getRedirectedUrl()).matches("/login");
+		assertThat(this.response.getRedirectedUrl()).matches("http://localhost/login");
 	}
 
 	// gh-5347
@@ -472,7 +472,7 @@ public class OAuth2LoginConfigurerTests {
 		this.request = new MockHttpServletRequest("GET", requestUri);
 		this.request.setServletPath(requestUri);
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
-		assertThat(this.response.getRedirectedUrl()).matches("/login");
+		assertThat(this.response.getRedirectedUrl()).matches("http://localhost/login");
 	}
 
 	// gh-6812
@@ -521,7 +521,7 @@ public class OAuth2LoginConfigurerTests {
 		this.request = new MockHttpServletRequest("GET", requestUri);
 		this.request.setServletPath(requestUri);
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
-		assertThat(this.response.getRedirectedUrl()).matches("/oauth2/authorization/google");
+		assertThat(this.response.getRedirectedUrl()).matches("http://localhost/oauth2/authorization/google");
 	}
 
 	@Test
@@ -531,7 +531,7 @@ public class OAuth2LoginConfigurerTests {
 		this.request = new MockHttpServletRequest("GET", requestUri);
 		this.request.setServletPath(requestUri);
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
-		assertThat(this.response.getRedirectedUrl()).matches("/custom-login");
+		assertThat(this.response.getRedirectedUrl()).matches("http://localhost/custom-login");
 	}
 
 	@Test
@@ -541,7 +541,7 @@ public class OAuth2LoginConfigurerTests {
 		this.request = new MockHttpServletRequest("GET", requestUri);
 		this.request.setServletPath(requestUri);
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
-		assertThat(this.response.getRedirectedUrl()).matches("/custom-login");
+		assertThat(this.response.getRedirectedUrl()).matches("http://localhost/custom-login");
 	}
 
 	@Test

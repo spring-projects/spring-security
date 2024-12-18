@@ -143,7 +143,7 @@ class FormLoginDslTests {
         this.mockMvc.get("/")
                 .andExpect {
                     status { isFound() }
-                    redirectedUrl("/login")
+                    redirectedUrl("http://localhost/login")
                 }
     }
 
@@ -169,7 +169,7 @@ class FormLoginDslTests {
         this.mockMvc.get("/")
                 .andExpect {
                     status { isFound() }
-                    redirectedUrl("/log-in")
+                    redirectedUrl("http://localhost/log-in")
                 }
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -78,7 +78,7 @@ public class SecurityContextHolderAwareRequestConfigTests {
 		// @formatter:off
 		this.mvc.perform(get("/authenticate"))
 				.andExpect(status().isFound())
-				.andExpect(redirectedUrl("/login"));
+				.andExpect(redirectedUrl("http://localhost/login"));
 		// @formatter:on
 	}
 
@@ -114,7 +114,7 @@ public class SecurityContextHolderAwareRequestConfigTests {
 		// @formatter:off
 		this.mvc.perform(get("/authenticate"))
 				.andExpect(status().isFound())
-				.andExpect(redirectedUrl("/login"));
+				.andExpect(redirectedUrl("http://localhost/login"));
 		// @formatter:on
 	}
 
@@ -137,10 +137,10 @@ public class SecurityContextHolderAwareRequestConfigTests {
 		// @formatter:off
 		this.mvc.perform(get("/authenticate"))
 				.andExpect(status().isFound())
-				.andExpect(redirectedUrl("/login"));
+				.andExpect(redirectedUrl("http://localhost/login"));
 		this.mvc.perform(get("/v2/authenticate"))
 				.andExpect(status().isFound())
-				.andExpect(redirectedUrl("/login2"));
+				.andExpect(redirectedUrl("http://localhost/login2"));
 		// @formatter:on
 	}
 
@@ -177,10 +177,10 @@ public class SecurityContextHolderAwareRequestConfigTests {
 	@Test
 	public void servletLogoutWhenUsingCustomLogoutThenUsesSpringSecurity() throws Exception {
 		this.spring.configLocations(this.xml("Logout")).autowire();
-		// @formatter:off
 		this.mvc.perform(get("/authenticate"))
-				.andExpect(status().isFound())
-				.andExpect(redirectedUrl("/signin"));
+			.andExpect(status().isFound())
+			.andExpect(redirectedUrl("http://localhost/signin"));
+		// @formatter:off
 		MvcResult result = this.mvc.perform(get("/good-login"))
 				.andReturn();
 		// @formatter:on
