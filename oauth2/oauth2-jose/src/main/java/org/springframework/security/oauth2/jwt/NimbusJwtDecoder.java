@@ -18,6 +18,7 @@ package org.springframework.security.oauth2.jwt;
 
 import com.nimbusds.jose.KeySourceException;
 import com.nimbusds.jose.jwk.JWK;
+import com.nimbusds.jose.jwk.JWKMatcher;
 import com.nimbusds.jose.jwk.JWKSelector;
 import com.nimbusds.jose.jwk.source.JWKSetCacheRefreshEvaluator;
 import com.nimbusds.jose.jwk.source.URLBasedJWKSetSource;
@@ -437,20 +438,32 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 			@Override
 			public List<JWK> get(JWKSelector jwkSelector, SecurityContext context) throws KeySourceException {
 				if (this.jwkSetCache != null) {
-					synchronized (this) {
-						JWKSet jwkSet = this.jwkSetCache.get();
-						if (this.jwkSetCache.requiresRefresh() || jwkSet == null) {
+					JWKSet jwkSet = this.jwkSetCache.get();
+					if (this.jwkSetCache.requiresRefresh() || jwkSet == null) {
+						synchronized (this) {
 							jwkSet = fetchJWKSet(context);
 							this.jwkSetCache.put(jwkSet);
 						}
-						List<JWK> jwks = jwkSelector.select(jwkSet);
-						if(!jwks.isEmpty()) {
-							return jwks;
-						}
+					}
+					List<JWK> matches = jwkSelector.select(jwkSet);
+					if(!matches.isEmpty()) {
+						return matches;
+					}
+					String soughtKeyID = getFirstSpecifiedKeyID(jwkSelector.getMatcher());
+					if (soughtKeyID == null) {
+						return Collections.emptyList();
+					}
+					if (jwkSet.getKeyByKeyId(soughtKeyID) != null) {
+						return Collections.emptyList();
+					}
+					synchronized (this) {
 						jwkSet = fetchJWKSet(context);
 						this.jwkSetCache.put(jwkSet);
-						return jwkSelector.select(jwkSet);
 					}
+					if(jwkSet == null) {
+						return Collections.emptyList();
+					}
+					return jwkSelector.select(jwkSet);
 				}
 				return jwkSelector.select(fetchJWKSet(context));
 			}
@@ -458,6 +471,21 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 			private JWKSet fetchJWKSet(SecurityContext context) throws KeySourceException {
 				return this.urlBasedJWKSetSource.getJWKSet(JWKSetCacheRefreshEvaluator.noRefresh(),
 						System.currentTimeMillis(), context);
+			}
+
+			private static String getFirstSpecifiedKeyID(JWKMatcher jwkMatcher) {
+				Set<String> keyIDs = jwkMatcher.getKeyIDs();
+
+				if (keyIDs == null || keyIDs.isEmpty()) {
+					return null;
+				}
+
+				for (String id: keyIDs) {
+					if (id != null) {
+						return id;
+					}
+				}
+				return null;
 			}
 		}
 
