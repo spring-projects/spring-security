@@ -78,6 +78,8 @@ public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoin
 
 	private boolean useForward = false;
 
+	private boolean favorRelativeUris = false;
+
 	private final RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
 
 	/**
@@ -144,23 +146,41 @@ public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoin
 	protected String buildRedirectUrlToLoginPage(HttpServletRequest request, HttpServletResponse response,
 			AuthenticationException authException) {
 		String loginForm = determineUrlToUseForThisRequest(request, response, authException);
-		if (UrlUtils.isAbsoluteUrl(loginForm) || !this.forceHttps || "https".equals(request.getScheme())) {
+		if (UrlUtils.isAbsoluteUrl(loginForm)) {
 			return loginForm;
 		}
+		if (requiresRewrite(request)) {
+			return httpsUri(request, loginForm);
+		}
+		return this.favorRelativeUris ? loginForm : absoluteUri(request, loginForm).getUrl();
+	}
+
+	private boolean requiresRewrite(HttpServletRequest request) {
+		return this.forceHttps && "http".equals(request.getScheme());
+	}
+
+	private String httpsUri(HttpServletRequest request, String path) {
 		int serverPort = this.portResolver.getServerPort(request);
 		Integer httpsPort = this.portMapper.lookupHttpsPort(serverPort);
 		if (httpsPort == null) {
 			logger.warn(LogMessage.format("Unable to redirect to HTTPS as no port mapping found for HTTP port %s",
 					serverPort));
-			return loginForm;
+			return this.favorRelativeUris ? path : absoluteUri(request, path).getUrl();
 		}
+		RedirectUrlBuilder builder = absoluteUri(request, path);
+		builder.setScheme("https");
+		builder.setPort(httpsPort);
+		return builder.getUrl();
+	}
+
+	private RedirectUrlBuilder absoluteUri(HttpServletRequest request, String path) {
 		RedirectUrlBuilder urlBuilder = new RedirectUrlBuilder();
-		urlBuilder.setScheme("https");
+		urlBuilder.setScheme(request.getScheme());
 		urlBuilder.setServerName(request.getServerName());
-		urlBuilder.setPort(httpsPort);
+		urlBuilder.setPort(this.portResolver.getServerPort(request));
 		urlBuilder.setContextPath(request.getContextPath());
-		urlBuilder.setPathInfo(loginForm);
-		return urlBuilder.getUrl();
+		urlBuilder.setPathInfo(path);
+		return urlBuilder;
 	}
 
 	/**
@@ -236,6 +256,20 @@ public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoin
 
 	protected boolean isUseForward() {
 		return this.useForward;
+	}
+
+	/**
+	 * Favor using relative URIs when formulating a redirect.
+	 *
+	 * <p>
+	 * Note that a relative redirect is not always possible. For example, when redirecting
+	 * from {@code http} to {@code https}, the URL needs to be absolute.
+	 * </p>
+	 * @param favorRelativeUris whether to favor relative URIs or not
+	 * @since 6.5
+	 */
+	public void setFavorRelativeUris(boolean favorRelativeUris) {
+		this.favorRelativeUris = favorRelativeUris;
 	}
 
 }

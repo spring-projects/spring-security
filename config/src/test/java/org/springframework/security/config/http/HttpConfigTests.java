@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -71,7 +71,7 @@ public class HttpConfigTests {
 		// @formatter:off
 		this.mvc.perform(get("/"))
 				.andExpect(status().isFound())
-				.andExpect(redirectedUrl("/login"));
+				.andExpect(redirectedUrl("http://localhost/login"));
 		// @formatter:on
 	}
 
@@ -81,7 +81,7 @@ public class HttpConfigTests {
 		// @formatter:off
 		this.mvc.perform(get("/"))
 				.andExpect(status().isFound())
-				.andExpect(redirectedUrl("/login"));
+				.andExpect(redirectedUrl("http://localhost/login"));
 		// @formatter:on
 	}
 
@@ -95,7 +95,7 @@ public class HttpConfigTests {
 		// @formatter:off
 		this.mvc.perform(get("/"))
 				.andExpect(status().isFound())
-				.andExpect(redirectedUrl("/login"));
+				.andExpect(redirectedUrl("http://localhost/login"));
 		// @formatter:on
 		verify(authorizationManager).check(any(), any());
 	}
@@ -109,7 +109,7 @@ public class HttpConfigTests {
 		proxy.doFilter(request, new EncodeUrlDenyingHttpServletResponseWrapper(response), (req, resp) -> {
 		});
 		assertThat(response.getStatus()).isEqualTo(HttpStatus.SC_MOVED_TEMPORARILY);
-		assertThat(response.getRedirectedUrl()).isEqualTo("/login");
+		assertThat(response.getRedirectedUrl()).isEqualTo("http://localhost/login");
 	}
 
 	@Test

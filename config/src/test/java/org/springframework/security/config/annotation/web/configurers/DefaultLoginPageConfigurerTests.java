@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -82,7 +82,7 @@ public class DefaultLoginPageConfigurerTests {
 	@Test
 	public void getWhenFormLoginEnabledThenRedirectsToLoginPage() throws Exception {
 		this.spring.register(DefaultLoginPageConfig.class).autowire();
-		this.mvc.perform(get("/")).andExpect(redirectedUrl("/login"));
+		this.mvc.perform(get("/")).andExpect(redirectedUrl("http://localhost/login"));
 	}
 
 	@Test
