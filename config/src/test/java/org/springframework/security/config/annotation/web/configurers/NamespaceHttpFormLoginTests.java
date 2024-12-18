@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -65,7 +65,7 @@ public class NamespaceHttpFormLoginTests {
 	@Test
 	public void formLoginWhenDefaultConfigurationThenMatchesNamespace() throws Exception {
 		this.spring.register(FormLoginConfig.class, UserDetailsServiceConfig.class).autowire();
-		this.mvc.perform(get("/")).andExpect(redirectedUrl("/login"));
+		this.mvc.perform(get("/")).andExpect(redirectedUrl("http://localhost/login"));
 		this.mvc.perform(post("/login").with(csrf())).andExpect(redirectedUrl("/login?error"));
 		// @formatter:off
 		MockHttpServletRequestBuilder loginRequest = post("/login")
@@ -79,7 +79,7 @@ public class NamespaceHttpFormLoginTests {
 	@Test
 	public void formLoginWithCustomEndpointsThenBehaviorMatchesNamespace() throws Exception {
 		this.spring.register(FormLoginCustomConfig.class, UserDetailsServiceConfig.class).autowire();
-		this.mvc.perform(get("/")).andExpect(redirectedUrl("/authentication/login"));
+		this.mvc.perform(get("/")).andExpect(redirectedUrl("http://localhost/authentication/login"));
 		this.mvc.perform(post("/authentication/login/process").with(csrf()))
 			.andExpect(redirectedUrl("/authentication/login?failed"));
 		// @formatter:off
@@ -94,7 +94,7 @@ public class NamespaceHttpFormLoginTests {
 	@Test
 	public void formLoginWithCustomHandlersThenBehaviorMatchesNamespace() throws Exception {
 		this.spring.register(FormLoginCustomRefsConfig.class, UserDetailsServiceConfig.class).autowire();
-		this.mvc.perform(get("/")).andExpect(redirectedUrl("/login"));
+		this.mvc.perform(get("/")).andExpect(redirectedUrl("http://localhost/login"));
 		this.mvc.perform(post("/login").with(csrf())).andExpect(redirectedUrl("/custom/failure"));
 		verifyBean(WebAuthenticationDetailsSource.class).buildDetails(any(HttpServletRequest.class));
 		// @formatter:off

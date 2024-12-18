@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -104,7 +104,7 @@ public class NamespaceRememberMeTests {
 				.with(csrf())
 				.cookie(rememberMe);
 		this.mvc.perform(authenticationClassRequest)
-				.andExpect(redirectedUrl("/login"))
+				.andExpect(redirectedUrl("http://localhost/login"))
 				.andReturn();
 		// @formatter:on
 	}
@@ -150,7 +150,7 @@ public class NamespaceRememberMeTests {
 		// @formatter:off
 		this.mvc.perform(somewhereRequest)
 				.andExpect(status().isFound())
-				.andExpect(redirectedUrl("/login"));
+				.andExpect(redirectedUrl("http://localhost/login"));
 		MockHttpServletRequestBuilder loginWithRememberme = post("/login").with(rememberMeLogin());
 		Cookie withKey = this.mvc.perform(loginWithRememberme)
 				.andReturn()
