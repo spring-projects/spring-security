@@ -457,8 +457,12 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 						return Collections.emptyList();
 					}
 					synchronized (this) {
-						jwkSet = fetchJWKSet();
-						this.jwkSetCache.put(jwkSet);
+						if(jwkSet == this.jwkSetCache.get()) {
+							jwkSet = fetchJWKSet();
+							this.jwkSetCache.put(jwkSet);
+						} else {
+							jwkSet = this.jwkSetCache.get();
+						}
 					}
 					if(jwkSet == null) {
 						return Collections.emptyList();
