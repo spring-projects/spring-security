@@ -473,7 +473,7 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 						System.currentTimeMillis(), context);
 			}
 
-			private static String getFirstSpecifiedKeyID(JWKMatcher jwkMatcher) {
+			private String getFirstSpecifiedKeyID(JWKMatcher jwkMatcher) {
 				Set<String> keyIDs = jwkMatcher.getKeyIDs();
 
 				if (keyIDs == null || keyIDs.isEmpty()) {
