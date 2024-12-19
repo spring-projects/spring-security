@@ -33,6 +33,8 @@ import org.springframework.security.web.access.intercept.FilterSecurityIntercept
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatchers;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatNoException;
@@ -86,6 +88,25 @@ public class WebSecurityFilterChainValidatorTests {
 				this.authenticationFilter, this.exceptionTranslationFilter, this.authorizationInterceptor);
 		SecurityFilterChain chain2 = new DefaultSecurityFilterChain(AntPathRequestMatcher.antMatcher("/api"),
 				this.authenticationFilter, this.exceptionTranslationFilter, this.authorizationInterceptor);
+		List<SecurityFilterChain> chains = new ArrayList<>();
+		chains.add(chain2);
+		chains.add(chain1);
+		FilterChainProxy proxy = new FilterChainProxy(chains);
+
+		assertThatExceptionOfType(UnreachableFilterChainException.class)
+			.isThrownBy(() -> this.validator.validate(proxy));
+	}
+
+	@Test
+	void validateWhenSameComposedRequestMatchersArePresentThenUnreachableFilterChainException() {
+		RequestMatcher matcher1 = RequestMatchers.anyOf(RequestMatchers.allOf(AntPathRequestMatcher.antMatcher("/api"),
+				AntPathRequestMatcher.antMatcher("*.do")), AntPathRequestMatcher.antMatcher("/admin"));
+		RequestMatcher matcher2 = RequestMatchers.anyOf(RequestMatchers.allOf(AntPathRequestMatcher.antMatcher("/api"),
+				AntPathRequestMatcher.antMatcher("*.do")), AntPathRequestMatcher.antMatcher("/admin"));
+		SecurityFilterChain chain1 = new DefaultSecurityFilterChain(matcher1, this.authenticationFilter,
+				this.exceptionTranslationFilter, this.authorizationInterceptor);
+		SecurityFilterChain chain2 = new DefaultSecurityFilterChain(matcher2, this.authenticationFilter,
+				this.exceptionTranslationFilter, this.authorizationInterceptor);
 		List<SecurityFilterChain> chains = new ArrayList<>();
 		chains.add(chain2);
 		chains.add(chain1);
