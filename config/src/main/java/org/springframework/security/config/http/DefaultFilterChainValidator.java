@@ -39,6 +39,7 @@ import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.UnreachableFilterChainException;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
@@ -53,7 +54,6 @@ import org.springframework.security.web.jaasapi.JaasApiIntegrationFilter;
 import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter;
 import org.springframework.security.web.session.SessionManagementFilter;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
-import org.springframework.security.web.util.matcher.RequestMatcher;
 
 public class DefaultFilterChainValidator implements FilterChainProxy.FilterChainValidator {
 
@@ -69,31 +69,67 @@ public class DefaultFilterChainValidator implements FilterChainProxy.FilterChain
 		}
 		checkPathOrder(new ArrayList<>(fcp.getFilterChains()));
 		checkForDuplicateMatchers(new ArrayList<>(fcp.getFilterChains()));
+		checkAuthorizationFilters(new ArrayList<>(fcp.getFilterChains()));
 	}
 
 	private void checkPathOrder(List<SecurityFilterChain> filterChains) {
 		// Check that the universal pattern is listed at the end, if at all
 		Iterator<SecurityFilterChain> chains = filterChains.iterator();
 		while (chains.hasNext()) {
-			RequestMatcher matcher = ((DefaultSecurityFilterChain) chains.next()).getRequestMatcher();
-			if (AnyRequestMatcher.INSTANCE.equals(matcher) && chains.hasNext()) {
-				throw new IllegalArgumentException("A universal match pattern ('/**') is defined "
-						+ " before other patterns in the filter chain, causing them to be ignored. Please check the "
-						+ "ordering in your <security:http> namespace or FilterChainProxy bean configuration");
+			if (chains.next() instanceof DefaultSecurityFilterChain securityFilterChain) {
+				if (AnyRequestMatcher.INSTANCE.equals(securityFilterChain.getRequestMatcher()) && chains.hasNext()) {
+					throw new UnreachableFilterChainException("A universal match pattern ('/**') is defined "
+							+ " before other patterns in the filter chain, causing them to be ignored. Please check the "
+							+ "ordering in your <security:http> namespace or FilterChainProxy bean configuration",
+							securityFilterChain, chains.next());
+				}
 			}
 		}
 	}
 
 	private void checkForDuplicateMatchers(List<SecurityFilterChain> chains) {
-		while (chains.size() > 1) {
-			DefaultSecurityFilterChain chain = (DefaultSecurityFilterChain) chains.remove(0);
-			for (SecurityFilterChain test : chains) {
-				if (chain.getRequestMatcher().equals(((DefaultSecurityFilterChain) test).getRequestMatcher())) {
-					throw new IllegalArgumentException("The FilterChainProxy contains two filter chains using the"
-							+ " matcher " + chain.getRequestMatcher() + ". If you are using multiple <http> namespace "
-							+ "elements, you must use a 'pattern' attribute to define the request patterns to which they apply.");
+		DefaultSecurityFilterChain filterChain = null;
+		for (SecurityFilterChain chain : chains) {
+			if (filterChain != null) {
+				if (chain instanceof DefaultSecurityFilterChain defaultChain) {
+					if (defaultChain.getRequestMatcher().equals(filterChain.getRequestMatcher())) {
+						throw new UnreachableFilterChainException(
+								"The FilterChainProxy contains two filter chains using the" + " matcher "
+										+ defaultChain.getRequestMatcher()
+										+ ". If you are using multiple <http> namespace "
+										+ "elements, you must use a 'pattern' attribute to define the request patterns to which they apply.",
+								defaultChain, chain);
+					}
 				}
 			}
+			if (chain instanceof DefaultSecurityFilterChain defaultChain) {
+				filterChain = defaultChain;
+			}
+		}
+	}
+
+	private void checkAuthorizationFilters(List<SecurityFilterChain> chains) {
+		Filter authorizationFilter = null;
+		Filter filterSecurityInterceptor = null;
+		for (SecurityFilterChain chain : chains) {
+			for (Filter filter : chain.getFilters()) {
+				if (filter instanceof AuthorizationFilter) {
+					authorizationFilter = filter;
+				}
+				if (filter instanceof FilterSecurityInterceptor) {
+					filterSecurityInterceptor = filter;
+				}
+			}
+			if (authorizationFilter != null && filterSecurityInterceptor != null) {
+				this.logger.warn(
+						"It is not recommended to use authorizeRequests in the configuration. Please only use authorizeHttpRequests");
+			}
+			if (filterSecurityInterceptor != null) {
+				this.logger.warn(
+						"Usage of authorizeRequests is deprecated. Please use authorizeHttpRequests in the configuration");
+			}
+			authorizationFilter = null;
+			filterSecurityInterceptor = null;
 		}
 	}
 
