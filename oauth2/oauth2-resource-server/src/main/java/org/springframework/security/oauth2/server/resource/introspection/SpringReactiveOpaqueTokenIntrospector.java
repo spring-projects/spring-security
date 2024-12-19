@@ -18,6 +18,8 @@ package org.springframework.security.oauth2.server.resource.introspection;
 
 import java.io.Serial;
 import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -80,7 +82,11 @@ public class SpringReactiveOpaqueTokenIntrospector implements ReactiveOpaqueToke
 		Assert.hasText(clientId, "clientId cannot be empty");
 		Assert.notNull(clientSecret, "clientSecret cannot be null");
 		this.introspectionUri = URI.create(introspectionUri);
-		this.webClient = WebClient.builder().defaultHeaders((h) -> h.setBasicAuth(clientId, clientSecret)).build();
+		String encodeClientId = URLEncoder.encode(clientId, StandardCharsets.UTF_8);
+		String encodeClientSecret = URLEncoder.encode(clientSecret, StandardCharsets.UTF_8);
+		this.webClient = WebClient.builder()
+			.defaultHeaders((h) -> h.setBasicAuth(encodeClientId, encodeClientSecret))
+			.build();
 	}
 
 	/**

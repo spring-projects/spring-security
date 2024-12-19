@@ -339,6 +339,29 @@ public class SpringOpaqueTokenIntrospectorTests {
 		verify(authenticationConverter).convert(any());
 	}
 
+	@Test
+	public void encodeClientIdAndClientSecret() throws Exception {
+		try (MockWebServer server = new MockWebServer()) {
+			String response = """
+					{
+						"active": true,
+						"username": "client%&1"
+					}
+					""";
+			server.setDispatcher(requiresAuth("client%25%261", "secret%40%242", response));
+			String introspectUri = server.url("/introspect").toString();
+			OpaqueTokenIntrospector introspectionClient = new SpringOpaqueTokenIntrospector(introspectUri, "client%&1",
+					"secret@$2");
+			OAuth2AuthenticatedPrincipal authority = introspectionClient.introspect("token");
+			// @formatter:off
+			assertThat(authority.getAttributes())
+					.isNotNull()
+					.containsEntry(OAuth2TokenIntrospectionClaimNames.ACTIVE, true)
+					.containsEntry(OAuth2TokenIntrospectionClaimNames.USERNAME, "client%&1");
+			// @formatter:on
+		}
+	}
+
 	private static ResponseEntity<Map<String, Object>> response(String content) {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);
