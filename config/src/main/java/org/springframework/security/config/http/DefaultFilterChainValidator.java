@@ -69,6 +69,7 @@ public class DefaultFilterChainValidator implements FilterChainProxy.FilterChain
 		}
 		checkPathOrder(new ArrayList<>(fcp.getFilterChains()));
 		checkForDuplicateMatchers(new ArrayList<>(fcp.getFilterChains()));
+		checkAuthorizationFilters(new ArrayList<>(fcp.getFilterChains()));
 	}
 
 	private void checkPathOrder(List<SecurityFilterChain> filterChains) {
@@ -104,6 +105,31 @@ public class DefaultFilterChainValidator implements FilterChainProxy.FilterChain
 			if (chain instanceof DefaultSecurityFilterChain defaultChain) {
 				filterChain = defaultChain;
 			}
+		}
+	}
+
+	private void checkAuthorizationFilters(List<SecurityFilterChain> chains) {
+		Filter authorizationFilter = null;
+		Filter filterSecurityInterceptor = null;
+		for (SecurityFilterChain chain : chains) {
+			for (Filter filter : chain.getFilters()) {
+				if (filter instanceof AuthorizationFilter) {
+					authorizationFilter = filter;
+				}
+				if (filter instanceof FilterSecurityInterceptor) {
+					filterSecurityInterceptor = filter;
+				}
+			}
+			if (authorizationFilter != null && filterSecurityInterceptor != null) {
+				this.logger.warn(
+						"It is not recommended to use authorizeRequests in the configuration. Please only use authorizeHttpRequests");
+			}
+			if (filterSecurityInterceptor != null) {
+				this.logger.warn(
+						"Usage of authorizeRequests is deprecated. Please use authorizeHttpRequests in the configuration");
+			}
+			authorizationFilter = null;
+			filterSecurityInterceptor = null;
 		}
 	}
 
