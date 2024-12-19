@@ -49,6 +49,7 @@ import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willThrow;
@@ -101,6 +102,11 @@ public class DefaultFilterChainValidatorTests {
 		this.chainAuthorizationFilter = new FilterChainProxy(securityChainAuthorizationFilter);
 		this.validator = new DefaultFilterChainValidator();
 		ReflectionTestUtils.setField(this.validator, "logger", this.logger);
+	}
+
+	@Test
+	void validateWhenFilterSecurityInterceptorConfiguredThenValidates() {
+		assertThatNoException().isThrownBy(() -> this.validator.validate(this.chain));
 	}
 
 	// SEC-1878
