@@ -18,6 +18,9 @@ package org.springframework.security.oauth2.server.resource.introspection;
 
 import java.io.Serial;
 import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -74,7 +77,9 @@ public class SpringReactiveOpaqueTokenIntrospector implements ReactiveOpaqueToke
 	 * @param introspectionUri The introspection endpoint uri
 	 * @param clientId The client id authorized to introspect
 	 * @param clientSecret The client secret for the authorized client
+	 * @deprecated
 	 */
+	@Deprecated(since = "6.5", forRemoval = true)
 	public SpringReactiveOpaqueTokenIntrospector(String introspectionUri, String clientId, String clientSecret) {
 		Assert.hasText(introspectionUri, "introspectionUri cannot be empty");
 		Assert.hasText(clientId, "clientId cannot be empty");
@@ -245,6 +250,101 @@ public class SpringReactiveOpaqueTokenIntrospector implements ReactiveOpaqueToke
 				return list;
 			}
 			return OAuth2TokenIntrospectionClaimAccessor.super.getScopes();
+		}
+
+	}
+
+	/**
+	 * Used to build {@link SpringReactiveOpaqueTokenIntrospector}.
+	 *
+	 * @author Ngoc Nhan
+	 * @since 6.5
+	 */
+	public static final class SpringReactiveOpaqueTokenIntrospectorBuilder {
+
+		private final String introspectionUri;
+
+		private SpringReactiveOpaqueTokenIntrospectorBuilder(String introspectionUri) {
+			this.introspectionUri = introspectionUri;
+		}
+
+		/**
+		 * Creates a {@code SpringReactiveOpaqueTokenIntrospectorBuilder} with the
+		 * provided parameters
+		 * @param introspectionUri The introspection endpoint uri
+		 * @return the {@link SpringReactiveOpaqueTokenIntrospectorBuilder}
+		 * @since 6.5
+		 */
+		public static SpringReactiveOpaqueTokenIntrospectorBuilder withIntrospectionUri(String introspectionUri) {
+
+			return new SpringReactiveOpaqueTokenIntrospectorBuilder(introspectionUri);
+		}
+
+		/**
+		 * Creates a {@code SpringReactiveOpaqueTokenIntrospector} with the provided
+		 * parameters
+		 * @param clientId The client id authorized that should be encode
+		 * @param clientSecret The client secret that should be encode for the authorized
+		 * client
+		 * @return the {@link SpringReactiveOpaqueTokenIntrospector}
+		 * @since 6.5
+		 */
+		public SpringReactiveOpaqueTokenIntrospector introspectionEncodeClientCredentials(String clientId,
+				String clientSecret) {
+			return this.introspectionEncodeClientCredentials(clientId, clientSecret, StandardCharsets.UTF_8);
+		}
+
+		/**
+		 * Creates a {@code SpringReactiveOpaqueTokenIntrospector} with the provided
+		 * parameters
+		 * @param clientId The client id authorized that should be encode
+		 * @param clientSecret The client secret that should be encode for the authorized
+		 * client
+		 * @param charset the charset to use
+		 * @return the {@link SpringReactiveOpaqueTokenIntrospector}
+		 * @since 6.5
+		 */
+		public SpringReactiveOpaqueTokenIntrospector introspectionEncodeClientCredentials(String clientId,
+				String clientSecret, Charset charset) {
+			Assert.notNull(clientId, "clientId cannot be null");
+			Assert.notNull(clientSecret, "clientSecret cannot be null");
+			Assert.notNull(charset, "charset cannot be null");
+			String encodeClientId = URLEncoder.encode(clientId, charset);
+			String encodeClientSecret = URLEncoder.encode(clientSecret, charset);
+			WebClient webClient = WebClient.builder()
+				.defaultHeaders((h) -> h.setBasicAuth(encodeClientId, encodeClientSecret))
+				.build();
+			return new SpringReactiveOpaqueTokenIntrospector(this.introspectionUri, webClient);
+		}
+
+		/**
+		 * Creates a {@code SpringReactiveOpaqueTokenIntrospector} with the provided
+		 * parameters
+		 * @param clientId The client id authorized
+		 * @param clientSecret The client secret for the authorized client
+		 * @return the {@link SpringReactiveOpaqueTokenIntrospector}
+		 * @since 6.5
+		 */
+		public SpringReactiveOpaqueTokenIntrospector introspectionClientCredentials(String clientId,
+				String clientSecret) {
+			Assert.notNull(clientId, "clientId cannot be null");
+			Assert.notNull(clientSecret, "clientSecret cannot be null");
+			WebClient webClient = WebClient.builder()
+				.defaultHeaders((h) -> h.setBasicAuth(clientId, clientSecret))
+				.build();
+			return new SpringReactiveOpaqueTokenIntrospector(this.introspectionUri, webClient);
+		}
+
+		/**
+		 * Creates a {@code SpringReactiveOpaqueTokenIntrospector} with the provided
+		 * parameters
+		 * @param webClient The client for performing the introspection request
+		 * @return the {@link SpringReactiveOpaqueTokenIntrospector}
+		 * @since 6.5
+		 */
+		public SpringReactiveOpaqueTokenIntrospector withRestOperations(WebClient webClient) {
+			Assert.notNull(webClient, "webClient cannot be null");
+			return new SpringReactiveOpaqueTokenIntrospector(this.introspectionUri, webClient);
 		}
 
 	}
