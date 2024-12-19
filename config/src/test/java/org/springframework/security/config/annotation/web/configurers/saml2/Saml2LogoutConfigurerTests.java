@@ -484,6 +484,7 @@ public class Saml2LogoutConfigurerTests {
 		verify(getBean(Saml2LogoutResponseValidator.class)).validate(any());
 	}
 
+	// gh-11363
 	@Test
 	public void saml2LogoutWhenCustomLogoutRequestRepositoryThenUses() throws Exception {
 		this.spring.register(Saml2LogoutComponentsConfig.class).autowire();
