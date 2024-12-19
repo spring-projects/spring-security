@@ -48,6 +48,7 @@ import org.springframework.security.web.util.matcher.DispatcherTypeRequestMatche
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcherFactory;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.web.context.WebApplicationContext;
@@ -72,6 +73,8 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 	private static final boolean mvcPresent;
 
 	private static final RequestMatcher ANY_REQUEST = AnyRequestMatcher.INSTANCE;
+
+	private final RequestMatcherFactory requestMatcherFactory = new DefaultRequestMatcherFactory();
 
 	private ApplicationContext context;
 
@@ -216,13 +219,9 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 		if (servletContext == null) {
 			return requestMatchers(RequestMatchers.antMatchersAsArray(method, patterns));
 		}
-		List<RequestMatcher> matchers = new ArrayList<>();
-		for (String pattern : patterns) {
-			AntPathRequestMatcher ant = new AntPathRequestMatcher(pattern, (method != null) ? method.name() : null);
-			MvcRequestMatcher mvc = createMvcMatchers(method, pattern).get(0);
-			matchers.add(new DeferredRequestMatcher((c) -> resolve(ant, mvc, c), mvc, ant));
-		}
-		return requestMatchers(matchers.toArray(new RequestMatcher[0]));
+		RequestMatcherFactory builder = context.getBeanProvider(RequestMatcherFactory.class)
+			.getIfUnique(() -> this.requestMatcherFactory);
+		return requestMatchers(builder.requestMatchers(method, patterns));
 	}
 
 	private boolean anyPathsDontStartWithLeadingSlash(String... patterns) {
@@ -469,6 +468,17 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 		 */
 		static List<RequestMatcher> regexMatchers(String... regexPatterns) {
 			return regexMatchers(null, regexPatterns);
+		}
+
+	}
+
+	class DefaultRequestMatcherFactory implements RequestMatcherFactory {
+
+		@Override
+		public RequestMatcher requestMatcher(HttpMethod method, String pattern) {
+			AntPathRequestMatcher ant = new AntPathRequestMatcher(pattern, (method != null) ? method.name() : null);
+			MvcRequestMatcher mvc = createMvcMatchers(method, pattern).get(0);
+			return new DeferredRequestMatcher((c) -> resolve(ant, mvc, c), mvc, ant);
 		}
 
 	}
