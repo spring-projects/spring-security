@@ -35,6 +35,7 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 
 /**
  * Tests for {@link WebSecurityFilterChainValidator}
@@ -54,6 +55,15 @@ public class WebSecurityFilterChainValidatorTests {
 
 	@Mock
 	private FilterSecurityInterceptor authorizationInterceptor;
+
+	@Test
+	void validateWhenFilterSecurityInterceptorConfiguredThenValidates() {
+		SecurityFilterChain chain = new DefaultSecurityFilterChain(AntPathRequestMatcher.antMatcher("/api"),
+				this.authenticationFilter, this.exceptionTranslationFilter, this.authorizationInterceptor);
+		FilterChainProxy proxy = new FilterChainProxy(List.of(chain));
+
+		assertThatNoException().isThrownBy(() -> this.validator.validate(proxy));
+	}
 
 	@Test
 	void validateWhenAnyRequestMatcherIsPresentThenUnreachableFilterChainException() {

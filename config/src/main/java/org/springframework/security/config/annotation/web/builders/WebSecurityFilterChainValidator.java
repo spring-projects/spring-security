@@ -18,10 +18,16 @@ package org.springframework.security.config.annotation.web.builders;
 
 import java.util.List;
 
+import jakarta.servlet.Filter;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.UnreachableFilterChainException;
+import org.springframework.security.web.access.intercept.AuthorizationFilter;
+import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 
 /**
@@ -33,11 +39,14 @@ import org.springframework.security.web.util.matcher.AnyRequestMatcher;
  */
 final class WebSecurityFilterChainValidator implements FilterChainProxy.FilterChainValidator {
 
+	private final Log logger = LogFactory.getLog(getClass());
+
 	@Override
 	public void validate(FilterChainProxy filterChainProxy) {
 		List<SecurityFilterChain> chains = filterChainProxy.getFilterChains();
 		checkForAnyRequestRequestMatcher(chains);
 		checkForDuplicateMatchers(chains);
+		checkAuthorizationFilters(chains);
 	}
 
 	private void checkForAnyRequestRequestMatcher(List<SecurityFilterChain> chains) {
@@ -73,6 +82,31 @@ final class WebSecurityFilterChainValidator implements FilterChainProxy.FilterCh
 			if (chain instanceof DefaultSecurityFilterChain defaultChain) {
 				filterChain = defaultChain;
 			}
+		}
+	}
+
+	private void checkAuthorizationFilters(List<SecurityFilterChain> chains) {
+		Filter authorizationFilter = null;
+		Filter filterSecurityInterceptor = null;
+		for (SecurityFilterChain chain : chains) {
+			for (Filter filter : chain.getFilters()) {
+				if (filter instanceof AuthorizationFilter) {
+					authorizationFilter = filter;
+				}
+				if (filter instanceof FilterSecurityInterceptor) {
+					filterSecurityInterceptor = filter;
+				}
+			}
+			if (authorizationFilter != null && filterSecurityInterceptor != null) {
+				this.logger.warn(
+						"It is not recommended to use authorizeRequests in the configuration. Please only use authorizeHttpRequests");
+			}
+			if (filterSecurityInterceptor != null) {
+				this.logger.warn(
+						"Usage of authorizeRequests is deprecated. Please use authorizeHttpRequests in the configuration");
+			}
+			authorizationFilter = null;
+			filterSecurityInterceptor = null;
 		}
 	}
 
