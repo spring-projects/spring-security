@@ -16,7 +16,13 @@
 
 package org.springframework.security.core.annotation;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
@@ -33,6 +39,9 @@ public class UniqueSecurityAnnotationScannerTests {
 
 	private UniqueSecurityAnnotationScanner<PreAuthorize> scanner = new UniqueSecurityAnnotationScanner<>(
 			PreAuthorize.class);
+
+	private UniqueSecurityAnnotationScanner<CustomParameterAnnotation> parameterScanner = new UniqueSecurityAnnotationScanner<>(
+			CustomParameterAnnotation.class);
 
 	@Test
 	void scanWhenAnnotationOnInterfaceThenResolves() throws Exception {
@@ -249,6 +258,101 @@ public class UniqueSecurityAnnotationScannerTests {
 		Class<?> targetClass = ClassInheritingAbstractClassNoAnnotations.class;
 		PreAuthorize preAuthorize = this.scanner.scan(method, targetClass);
 		assertThat(preAuthorize).isNull();
+	}
+
+	@Test
+	void scanParameterAnnotationWhenAnnotationOnInterface() throws Exception {
+		Parameter parameter = UserService.class.getDeclaredMethod("add", String.class).getParameters()[0];
+		CustomParameterAnnotation customParameterAnnotation = this.parameterScanner.scan(parameter);
+		assertThat(customParameterAnnotation.value()).isEqualTo("one");
+	}
+
+	@Test
+	void scanParameterAnnotationWhenClassInheritingInterfaceAnnotation() throws Exception {
+		Parameter parameter = UserServiceImpl.class.getDeclaredMethod("add", String.class).getParameters()[0];
+		CustomParameterAnnotation customParameterAnnotation = this.parameterScanner.scan(parameter);
+		assertThat(customParameterAnnotation.value()).isEqualTo("one");
+	}
+
+	@Test
+	void scanParameterAnnotationWhenClassOverridingMethodOverridingInterface() throws Exception {
+		Parameter parameter = UserServiceImpl.class.getDeclaredMethod("get", String.class).getParameters()[0];
+		CustomParameterAnnotation customParameterAnnotation = this.parameterScanner.scan(parameter);
+		assertThat(customParameterAnnotation.value()).isEqualTo("five");
+	}
+
+	@Test
+	void scanParameterAnnotationWhenMultipleMethodInheritanceThenException() throws Exception {
+		Parameter parameter = UserServiceImpl.class.getDeclaredMethod("list", String.class).getParameters()[0];
+		assertThatExceptionOfType(AnnotationConfigurationException.class)
+			.isThrownBy(() -> this.parameterScanner.scan(parameter));
+	}
+
+	@Test
+	void scanParameterAnnotationWhenInterfaceNoAnnotationsThenException() throws Exception {
+		Parameter parameter = UserServiceImpl.class.getDeclaredMethod("delete", String.class).getParameters()[0];
+		assertThatExceptionOfType(AnnotationConfigurationException.class)
+			.isThrownBy(() -> this.parameterScanner.scan(parameter));
+	}
+
+	interface UserService {
+
+		void add(@CustomParameterAnnotation("one") String user);
+
+		List<String> list(@CustomParameterAnnotation("two") String user);
+
+		String get(@CustomParameterAnnotation("three") String user);
+
+		void delete(@CustomParameterAnnotation("five") String user);
+
+	}
+
+	interface OtherUserService {
+
+		List<String> list(@CustomParameterAnnotation("four") String user);
+
+	}
+
+	interface ThirdPartyUserService {
+
+		void delete(@CustomParameterAnnotation("five") String user);
+
+	}
+
+	interface RemoteUserService extends ThirdPartyUserService {
+
+	}
+
+	static class UserServiceImpl implements UserService, OtherUserService, RemoteUserService {
+
+		@Override
+		public void add(String user) {
+
+		}
+
+		@Override
+		public List<String> list(String user) {
+			return List.of(user);
+		}
+
+		@Override
+		public String get(@CustomParameterAnnotation("five") String user) {
+			return user;
+		}
+
+		@Override
+		public void delete(String user) {
+
+		}
+
+	}
+
+	@Target({ ElementType.PARAMETER })
+	@Retention(RetentionPolicy.RUNTIME)
+	@interface CustomParameterAnnotation {
+
+		String value();
+
 	}
 
 	@PreAuthorize("one")
