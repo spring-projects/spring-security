@@ -64,7 +64,7 @@ org-apereo-cas-client-cas-client-core = "org.apereo.cas.client:cas-client-core:4
 io-freefair-gradle-aspectj-plugin = "io.freefair.gradle:aspectj-plugin:8.11"
 org-aspectj-aspectjrt = { module = "org.aspectj:aspectjrt", version.ref = "org-aspectj" }
 org-aspectj-aspectjweaver = { module = "org.aspectj:aspectjweaver", version.ref = "org-aspectj" }
-org-assertj-assertj-core = "org.assertj:assertj-core:3.26.3"
+org-assertj-assertj-core = "org.assertj:assertj-core:3.27.0"
 org-bouncycastle-bcpkix-jdk15on = { module = "org.bouncycastle:bcpkix-jdk18on", version.ref = "org-bouncycastle" }
 org-bouncycastle-bcprov-jdk15on = { module = "org.bouncycastle:bcprov-jdk18on", version.ref = "org-bouncycastle" }
 org-eclipse-jetty-jetty-server = { module = "org.eclipse.jetty:jetty-server", version.ref = "org-eclipse-jetty" }
