@@ -26,15 +26,37 @@ import org.springframework.util.Assert;
  */
 public class GenerateOneTimeTokenRequest {
 
+	private static final int DEFAULT_EXPIRES_IN = 300;
+
 	private final String username;
+
+	private final int expiresIn;
 
 	public GenerateOneTimeTokenRequest(String username) {
 		Assert.hasText(username, "username cannot be empty");
 		this.username = username;
+		this.expiresIn = DEFAULT_EXPIRES_IN;
+	}
+
+	/**
+	 * Constructs an <code>GenerateOneTimeTokenRequest</code> with the specified username
+	 * and expiresIn
+	 * @param username username
+	 * @param expiresIn one-time token expiration time (seconds)
+	 */
+	public GenerateOneTimeTokenRequest(String username, int expiresIn) {
+		Assert.hasText(username, "username cannot be empty");
+		Assert.isTrue(expiresIn > 0, "expiresIn must be > 0");
+		this.username = username;
+		this.expiresIn = expiresIn;
 	}
 
 	public String getUsername() {
 		return this.username;
+	}
+
+	public int getExpiresIn() {
+		return this.expiresIn;
 	}
 
 }
