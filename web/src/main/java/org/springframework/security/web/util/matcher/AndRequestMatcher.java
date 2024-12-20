@@ -23,8 +23,6 @@ import java.util.Map;
 import java.util.Objects;
 
 import jakarta.servlet.http.HttpServletRequest;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import org.springframework.util.Assert;
 
@@ -36,8 +34,6 @@ import org.springframework.util.Assert;
  * @since 3.2
  */
 public final class AndRequestMatcher implements RequestMatcher {
-
-	private final Log logger = LogFactory.getLog(getClass());
 
 	private final List<RequestMatcher> requestMatchers;
 
