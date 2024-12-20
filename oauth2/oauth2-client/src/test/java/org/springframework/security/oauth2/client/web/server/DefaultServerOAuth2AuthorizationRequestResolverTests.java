@@ -16,6 +16,8 @@
 
 package org.springframework.security.oauth2.client.web.server;
 
+import java.util.function.Consumer;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -68,7 +70,8 @@ public class DefaultServerOAuth2AuthorizationRequestResolverTests {
 
 	@Test
 	public void setAuthorizationRequestCustomizerWhenNullThenThrowIllegalArgumentException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> this.resolver.setAuthorizationRequestCustomizer(null));
+		assertThatIllegalArgumentException().isThrownBy(() -> this.resolver
+			.setAuthorizationRequestCustomizer((Consumer<OAuth2AuthorizationRequest.Builder>) null));
 	}
 
 	@Test
@@ -252,6 +255,18 @@ public class DefaultServerOAuth2AuthorizationRequestResolverTests {
 			.matches("https://example.com/login/oauth/authorize\\?" + "response_type=code&"
 					+ "scope=openid&state=.{15,}&" + "redirect_uri=/login/oauth2/code/registration-id&"
 					+ "nonce=([a-zA-Z0-9\\-\\.\\_\\~]){43}&" + "appid=client-id");
+	}
+
+	@Test
+	public void resolveWhenAuthorizationRequestCustomizerAdditionParameterFromRequest() {
+		given(this.clientRegistrationRepository.findByRegistrationId(any()))
+			.willReturn(Mono.just(TestClientRegistrations.clientRegistration().scope(OidcScopes.OPENID).build()));
+		this.resolver.setAuthorizationRequestCustomizer((builder, exchange) -> builder.parameters((params) -> {
+			params.put("aa", exchange.getRequest().getQueryParams().getFirst("a"));
+			params.put("bb", exchange.getRequest().getQueryParams().getFirst("b"));
+		}));
+		OAuth2AuthorizationRequest authorizationRequest = resolve("/oauth2/authorization/registration-id?a=A&b=B");
+		assertThat(authorizationRequest.getAuthorizationRequestUri()).contains("aa=A&bb=B");
 	}
 
 	private OAuth2AuthorizationRequest resolve(String path) {
