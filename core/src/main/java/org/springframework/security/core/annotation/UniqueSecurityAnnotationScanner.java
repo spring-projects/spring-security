@@ -149,14 +149,10 @@ final class UniqueSecurityAnnotationScanner<A extends Annotation> extends Abstra
 		}
 		Executable executable = current.getDeclaringExecutable();
 		if (executable instanceof Method method) {
-			Class<?> clazz = method.getDeclaringClass();
-			Set<Class<?>> visited = new HashSet<>();
-			while (clazz != null && clazz != Object.class) {
-				directAnnotations = findClosestParameterAnnotations(method, clazz, current, visited);
-				if (!directAnnotations.isEmpty()) {
-					return directAnnotations;
-				}
-				clazz = clazz.getSuperclass();
+			directAnnotations = findClosestParameterAnnotations(method, method.getDeclaringClass(), current,
+					new HashSet<>());
+			if (!directAnnotations.isEmpty()) {
+				return directAnnotations;
 			}
 		}
 		return Collections.emptyList();
@@ -164,10 +160,15 @@ final class UniqueSecurityAnnotationScanner<A extends Annotation> extends Abstra
 
 	private List<MergedAnnotation<A>> findClosestParameterAnnotations(Method method, Class<?> clazz, Parameter current,
 			Set<Class<?>> visited) {
-		if (!visited.add(clazz)) {
+		if (clazz == null || clazz == Object.class || !visited.add(clazz)) {
 			return Collections.emptyList();
 		}
-		List<MergedAnnotation<A>> annotations = new ArrayList<>(findDirectParameterAnnotations(method, clazz, current));
+		List<MergedAnnotation<A>> directAnnotations = findDirectParameterAnnotations(method, clazz, current);
+		if (!directAnnotations.isEmpty()) {
+			return directAnnotations;
+		}
+		List<MergedAnnotation<A>> annotations = new ArrayList<>(
+				findClosestParameterAnnotations(method, clazz.getSuperclass(), current, visited));
 		for (Class<?> ifc : clazz.getInterfaces()) {
 			annotations.addAll(findClosestParameterAnnotations(method, ifc, current, visited));
 		}
