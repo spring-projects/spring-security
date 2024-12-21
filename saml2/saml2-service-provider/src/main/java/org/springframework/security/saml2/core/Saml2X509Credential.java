@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package org.springframework.security.saml2.core;
 
+import java.io.Serializable;
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
@@ -35,7 +36,9 @@ import org.springframework.util.Assert;
  * @author Josh Cummings
  * @since 5.4
  */
-public final class Saml2X509Credential {
+public final class Saml2X509Credential implements Serializable {
+
+	private static final long serialVersionUID = -1015853414272603517L;
 
 	private final PrivateKey privateKey;
 
