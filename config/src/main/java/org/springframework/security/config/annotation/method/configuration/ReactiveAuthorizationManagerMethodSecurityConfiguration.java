@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,6 +51,7 @@ import org.springframework.security.core.annotation.AnnotationTemplateExpression
  * Configuration for a {@link ReactiveAuthenticationManager} based Method Security.
  *
  * @author Evgeniy Cheban
+ * @author Ding Hao
  * @since 5.8
  */
 @Configuration(value = "_reactiveMethodSecurityConfiguration", proxyBeanMethods = false)
@@ -83,7 +84,6 @@ final class ReactiveAuthorizationManagerMethodSecurityConfiguration
 
 	private final AuthorizationManagerAfterReactiveMethodInterceptor postAuthorizeMethodInterceptor;
 
-	@Autowired(required = false)
 	ReactiveAuthorizationManagerMethodSecurityConfiguration(MethodSecurityExpressionHandler expressionHandler,
 			ObjectProvider<ObjectPostProcessor<ReactiveAuthorizationManager<MethodInvocation>>> preAuthorizePostProcessor,
 			ObjectProvider<ObjectPostProcessor<ReactiveAuthorizationManager<MethodInvocationResult>>> postAuthorizePostProcessor) {
