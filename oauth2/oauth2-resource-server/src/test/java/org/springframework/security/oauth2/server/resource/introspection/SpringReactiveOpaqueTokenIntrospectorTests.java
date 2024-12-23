@@ -17,6 +17,7 @@
 package org.springframework.security.oauth2.server.resource.introspection;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Base64;
@@ -259,6 +260,52 @@ public class SpringReactiveOpaqueTokenIntrospectorTests {
 	public void constructorWhenRestOperationsIsNullThenIllegalArgumentException() {
 		assertThatIllegalArgumentException()
 			.isThrownBy(() -> new SpringReactiveOpaqueTokenIntrospector(INTROSPECTION_URL, null));
+	}
+
+	@Test
+	public void introspectWithoutEncodeClientCredentialsThenExceptionIsThrown() throws Exception {
+		try (MockWebServer server = new MockWebServer()) {
+			String response = """
+					{
+						"active": true,
+						"username": "client%&1"
+					}
+					""";
+			server.setDispatcher(requiresAuth("client%25%261", "secret%40%242", response));
+			String introspectUri = server.url("/introspect").toString();
+			ReactiveOpaqueTokenIntrospector introspectionClient = new SpringReactiveOpaqueTokenIntrospector(
+					introspectUri, "client%&1", "secret@$2");
+			// @formatter:off
+			assertThatExceptionOfType(OAuth2IntrospectionException.class)
+					.isThrownBy(() -> introspectionClient.introspect("token").block());
+			// @formatter:on
+		}
+	}
+
+	@Test
+	public void introspectWithEncodeClientCredentialsThenOk() throws Exception {
+		try (MockWebServer server = new MockWebServer()) {
+			String response = """
+					{
+						"active": true,
+						"username": "client%&1"
+					}
+					""";
+			server.setDispatcher(requiresAuth("client%25%261", "secret%40%242", response));
+			String introspectUri = server.url("/introspect").toString();
+			ReactiveOpaqueTokenIntrospector introspectionClient = SpringReactiveOpaqueTokenIntrospector
+				.withIntrospectionUri(introspectUri)
+				.clientId("client%&1", StandardCharsets.UTF_8)
+				.clientSecret("secret@$2", StandardCharsets.UTF_8)
+				.build();
+			OAuth2AuthenticatedPrincipal authority = introspectionClient.introspect("token").block();
+			// @formatter:off
+			assertThat(authority.getAttributes())
+					.isNotNull()
+					.containsEntry(OAuth2TokenIntrospectionClaimNames.ACTIVE, true)
+					.containsEntry(OAuth2TokenIntrospectionClaimNames.USERNAME, "client%&1");
+			// @formatter:on
+		}
 	}
 
 	private WebClient mockResponse(String response) {

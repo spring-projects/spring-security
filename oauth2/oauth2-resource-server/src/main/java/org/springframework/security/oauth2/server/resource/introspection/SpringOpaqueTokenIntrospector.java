@@ -18,6 +18,8 @@ package org.springframework.security.oauth2.server.resource.introspection;
 
 import java.io.Serial;
 import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.Charset;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -79,7 +81,9 @@ public class SpringOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 	 * @param introspectionUri The introspection endpoint uri
 	 * @param clientId The client id authorized to introspect
 	 * @param clientSecret The client's secret
+	 * @deprecated Please use {@link SpringOpaqueTokenIntrospector.Builder}
 	 */
+	@Deprecated(since = "6.5", forRemoval = true)
 	public SpringOpaqueTokenIntrospector(String introspectionUri, String clientId, String clientSecret) {
 		Assert.notNull(introspectionUri, "introspectionUri cannot be null");
 		Assert.notNull(clientId, "clientId cannot be null");
@@ -269,6 +273,18 @@ public class SpringOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 		return authorities;
 	}
 
+	/**
+	 * Creates a {@code SpringOpaqueTokenIntrospector.Builder} with the given
+	 * introspection endpoint uri
+	 * @param introspectionUri The introspection endpoint uri
+	 * @return the {@link SpringOpaqueTokenIntrospector.Builder}
+	 * @since 6.5
+	 */
+	public static Builder withIntrospectionUri(String introspectionUri) {
+		Assert.notNull(introspectionUri, "introspectionUri cannot be null");
+		return new Builder(introspectionUri);
+	}
+
 	// gh-7563
 	private static final class ArrayListFromString extends ArrayList<String> {
 
@@ -291,6 +307,89 @@ public class SpringOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 				return list;
 			}
 			return OAuth2TokenIntrospectionClaimAccessor.super.getScopes();
+		}
+
+	}
+
+	/**
+	 * Used to build {@link SpringOpaqueTokenIntrospector}.
+	 *
+	 * @author Ngoc Nhan
+	 * @since 6.5
+	 */
+	public static final class Builder {
+
+		private final String introspectionUri;
+
+		private String clientId;
+
+		private String clientSecret;
+
+		private Builder(String introspectionUri) {
+			this.introspectionUri = introspectionUri;
+		}
+
+		/**
+		 * Uses the given parameters to build {@code SpringOpaqueTokenIntrospector}
+		 * @param clientId The client id authorized that should be encoded
+		 * @param charset The charset to use
+		 * @return the {@link SpringOpaqueTokenIntrospector.Builder}
+		 * @since 6.5
+		 */
+		public Builder clientId(String clientId, Charset charset) {
+			Assert.notNull(clientId, "clientId cannot be null");
+			Assert.notNull(charset, "charset cannot be null");
+			this.clientId = URLEncoder.encode(clientId, charset);
+			return this;
+		}
+
+		/**
+		 * Uses the given parameter to build {@code SpringOpaqueTokenIntrospector}
+		 * @param clientId The client id authorized
+		 * @return the {@link SpringOpaqueTokenIntrospector.Builder}
+		 * @since 6.5
+		 */
+		public Builder clientId(String clientId) {
+			Assert.notNull(clientId, "clientId cannot be null");
+			this.clientId = clientId;
+			return this;
+		}
+
+		/**
+		 * Uses the given parameters to build {@code SpringOpaqueTokenIntrospector}
+		 * @param clientSecret The client's secret that should be encoded
+		 * @param charset The charset to use
+		 * @return the {@link SpringOpaqueTokenIntrospector.Builder}
+		 * @since 6.5
+		 */
+		public Builder clientSecret(String clientSecret, Charset charset) {
+			Assert.notNull(clientSecret, "clientSecret cannot be null");
+			Assert.notNull(charset, "charset cannot be null");
+			this.clientSecret = URLEncoder.encode(clientSecret, charset);
+			return this;
+		}
+
+		/**
+		 * Uses the given parameter to build {@code SpringOpaqueTokenIntrospector}
+		 * @param clientSecret The client's secret
+		 * @return the {@link SpringOpaqueTokenIntrospector.Builder}
+		 * @since 6.5
+		 */
+		public Builder clientSecret(String clientSecret) {
+			Assert.notNull(clientSecret, "clientSecret cannot be null");
+			this.clientSecret = clientSecret;
+			return this;
+		}
+
+		/**
+		 * Creates a {@code SpringOpaqueTokenIntrospector}
+		 * @return the {@link SpringOpaqueTokenIntrospector}
+		 * @since 6.5
+		 */
+		public SpringOpaqueTokenIntrospector build() {
+			RestTemplate restTemplate = new RestTemplate();
+			restTemplate.getInterceptors().add(new BasicAuthenticationInterceptor(this.clientId, this.clientSecret));
+			return new SpringOpaqueTokenIntrospector(this.introspectionUri, restTemplate);
 		}
 
 	}
