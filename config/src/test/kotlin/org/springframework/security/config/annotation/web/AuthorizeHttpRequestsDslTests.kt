@@ -27,6 +27,8 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpMethod
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl
+import org.springframework.security.authentication.RememberMeAuthenticationToken
+import org.springframework.security.authentication.TestAuthentication
 import org.springframework.security.authorization.AuthorizationDecision
 import org.springframework.security.authorization.AuthorizationManager
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
@@ -35,11 +37,11 @@ import org.springframework.security.config.core.GrantedAuthorityDefaults
 import org.springframework.security.config.test.SpringTestContext
 import org.springframework.security.config.test.SpringTestContextExtension
 import org.springframework.security.core.Authentication
+import org.springframework.security.core.authority.AuthorityUtils
 import org.springframework.security.core.userdetails.User
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.provisioning.InMemoryUserDetailsManager
-import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf
-import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.access.intercept.RequestAuthorizationContext
 import org.springframework.security.web.util.matcher.RegexRequestMatcher
@@ -960,5 +962,62 @@ class AuthorizeHttpRequestsDslTests {
 
         }
 
+    }
+
+    @Test
+    fun `request when fully authenticated configured then responds ok`() {
+        this.spring.register(FullyAuthenticatedConfig::class.java).autowire()
+
+        this.mockMvc.get("/path") {
+            with(user("user").roles("USER"))
+        }.andExpect {
+            status {
+                isOk()
+            }
+        }
+    }
+
+    @Test
+    fun `request when fully authenticated configured and remember-me token then responds unauthorized`() {
+        this.spring.register(FullyAuthenticatedConfig::class.java).autowire()
+        val rememberMe = RememberMeAuthenticationToken("key", "user",
+                AuthorityUtils.createAuthorityList("ROLE_USER"))
+
+        this.mockMvc.get("/path") {
+            with(user("user").roles("USER"))
+            with(authentication(rememberMe))
+        }.andExpect {
+            status {
+                isUnauthorized()
+            }
+        }
+    }
+
+    @Configuration
+    @EnableWebSecurity
+    @EnableWebMvc
+    open class FullyAuthenticatedConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+            http {
+                authorizeHttpRequests {
+                    authorize("/path", fullyAuthenticated)
+                }
+                httpBasic {  }
+                rememberMe {  }
+            }
+            return http.build()
+        }
+
+        @Bean
+        open fun userDetailsService(): UserDetailsService = InMemoryUserDetailsManager(TestAuthentication.user())
+
+        @RestController
+        internal class PathController {
+            @GetMapping("/path")
+            fun path(): String {
+                return "ok"
+            }
+        }
     }
 }
