@@ -226,7 +226,7 @@ Kotlin::
 ----
 http {
     logout {
-        deleteCookies = "our-custom-cookie"
+        deleteCookies("our-custom-cookie")
     }
 }
 ----
