@@ -22,6 +22,15 @@ image:{icondir}/number_3.png[] Since the user is not authenticated, xref:servlet
 The configured xref:servlet/authentication/architecture.adoc#servlet-authentication-authenticationentrypoint[`AuthenticationEntryPoint`] is an instance of javadoc:org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint[], which sends a WWW-Authenticate header.
 The `RequestCache` is typically a `NullRequestCache` that does not save the request since the client is capable of replaying the requests it originally requested.
 
+[NOTE]
+====
+The default HTTP Basic Auth Provider will suppress both Response body and `WWW-Authenticate` header in the 401 response when
+the request was made with a `X-Requested-By: XMLHttpRequest` header. This allows frontends to implement their own
+authentication code, instead of triggering the browser login dialog.
+To override, implement your own
+javadoc:org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint[] .
+====
+
 When a client receives the `WWW-Authenticate` header, it knows it should retry with a username and password.
 The following image shows the flow for the username and password being processed:
 
