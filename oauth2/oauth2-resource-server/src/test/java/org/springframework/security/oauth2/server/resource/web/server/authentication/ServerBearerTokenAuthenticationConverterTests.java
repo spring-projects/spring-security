@@ -157,6 +157,7 @@ public class ServerBearerTokenAuthenticationConverterTests {
 	@Test
 	public void resolveWhenValidHeaderIsPresentTogetherWithQueryParameterThenAuthenticationExceptionIsThrown() {
 		// @formatter:off
+		this.converter.setAllowUriQueryParameter(true);
 		MockServerHttpRequest.BaseBuilder<?> request = MockServerHttpRequest.get("/")
 				.queryParam("access_token", TEST_TOKEN)
 				.header(HttpHeaders.AUTHORIZATION, "Bearer " + TEST_TOKEN);
@@ -205,6 +206,7 @@ public class ServerBearerTokenAuthenticationConverterTests {
 
 	@Test
 	void resolveWhenQueryParameterHasMultipleAccessTokensThenOAuth2AuthenticationException() {
+		this.converter.setAllowUriQueryParameter(true);
 		MockServerHttpRequest.BaseBuilder<?> request = MockServerHttpRequest.get("/")
 			.queryParam("access_token", TEST_TOKEN, TEST_TOKEN);
 		assertThatExceptionOfType(OAuth2AuthenticationException.class).isThrownBy(() -> convertToToken(request))
@@ -215,6 +217,14 @@ public class ServerBearerTokenAuthenticationConverterTests {
 				assertThat(error.getHttpStatus()).isEqualTo(HttpStatus.BAD_REQUEST);
 			});
 
+	}
+
+	// gh-16038
+	@Test
+	void resolveWhenRequestContainsTwoAccessTokenQueryParametersAndSupportIsDisabledThenTokenIsNotResolved() {
+		MockServerHttpRequest.BaseBuilder<?> request = MockServerHttpRequest.get("/")
+			.queryParam("access_token", TEST_TOKEN, TEST_TOKEN);
+		assertThat(convertToToken(request)).isNull();
 	}
 
 	private BearerTokenAuthenticationToken convertToToken(MockServerHttpRequest.BaseBuilder<?> request) {
