@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,6 +38,8 @@ import org.springframework.security.core.Authentication;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -78,6 +80,7 @@ public class Jsr250AuthorizationManagerTests {
 	@Test
 	public void setAuthoritiesAuthorizationManagerWhenNotNullThenVerifyUsage() throws Exception {
 		AuthorizationManager<Collection<String>> authoritiesAuthorizationManager = mock(AuthorizationManager.class);
+		given(authoritiesAuthorizationManager.authorize(any(), any())).willCallRealMethod();
 		Jsr250AuthorizationManager manager = new Jsr250AuthorizationManager();
 		manager.setAuthoritiesAuthorizationManager(authoritiesAuthorizationManager);
 		MockMethodInvocation methodInvocation = new MockMethodInvocation(new ClassLevelAnnotations(),
@@ -206,20 +209,10 @@ public class Jsr250AuthorizationManagerTests {
 	}
 
 	@Test
-	public void checkInheritedAnnotationsWhenDuplicatedThenAnnotationConfigurationException() throws Exception {
+	public void checkInheritedAnnotationsWhenConflictingThenAnnotationConfigurationException() throws Exception {
 		Supplier<Authentication> authentication = () -> new TestingAuthenticationToken("user", "password", "ROLE_USER");
 		MockMethodInvocation methodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
 				"inheritedAnnotations");
-		Jsr250AuthorizationManager manager = new Jsr250AuthorizationManager();
-		assertThatExceptionOfType(AnnotationConfigurationException.class)
-			.isThrownBy(() -> manager.check(authentication, methodInvocation));
-	}
-
-	@Test
-	public void checkInheritedAnnotationsWhenConflictingThenAnnotationConfigurationException() throws Exception {
-		Supplier<Authentication> authentication = () -> new TestingAuthenticationToken("user", "password", "ROLE_USER");
-		MockMethodInvocation methodInvocation = new MockMethodInvocation(new ClassLevelAnnotations(),
-				ClassLevelAnnotations.class, "inheritedAnnotations");
 		Jsr250AuthorizationManager manager = new Jsr250AuthorizationManager();
 		assertThatExceptionOfType(AnnotationConfigurationException.class)
 			.isThrownBy(() -> manager.check(authentication, methodInvocation));

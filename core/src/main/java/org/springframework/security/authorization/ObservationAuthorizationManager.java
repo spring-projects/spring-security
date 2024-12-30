@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,11 +21,15 @@ import java.util.function.Supplier;
 import io.micrometer.observation.Observation;
 import io.micrometer.observation.ObservationConvention;
 import io.micrometer.observation.ObservationRegistry;
+import org.aopalliance.intercept.MethodInvocation;
 
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authorization.method.MethodAuthorizationDeniedHandler;
+import org.springframework.security.authorization.method.MethodInvocationResult;
+import org.springframework.security.authorization.method.ThrowingMethodAuthorizationDeniedHandler;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.SpringSecurityMessageSource;
 import org.springframework.util.Assert;
@@ -36,7 +40,8 @@ import org.springframework.util.Assert;
  * @author Josh Cummings
  * @since 6.0
  */
-public final class ObservationAuthorizationManager<T> implements AuthorizationManager<T>, MessageSourceAware {
+public final class ObservationAuthorizationManager<T>
+		implements AuthorizationManager<T>, MessageSourceAware, MethodAuthorizationDeniedHandler {
 
 	private final ObservationRegistry registry;
 
@@ -46,11 +51,20 @@ public final class ObservationAuthorizationManager<T> implements AuthorizationMa
 
 	private MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
 
+	private MethodAuthorizationDeniedHandler handler = new ThrowingMethodAuthorizationDeniedHandler();
+
 	public ObservationAuthorizationManager(ObservationRegistry registry, AuthorizationManager<T> delegate) {
 		this.registry = registry;
 		this.delegate = delegate;
+		if (delegate instanceof MethodAuthorizationDeniedHandler h) {
+			this.handler = h;
+		}
 	}
 
+	/**
+	 * @deprecated please use {@link #authorize(Supplier, Object)} instead
+	 */
+	@Deprecated
 	@Override
 	public AuthorizationDecision check(Supplier<Authentication> authentication, T object) {
 		AuthorizationObservationContext<T> context = new AuthorizationObservationContext<>(object);
@@ -61,7 +75,7 @@ public final class ObservationAuthorizationManager<T> implements AuthorizationMa
 		Observation observation = Observation.createNotStarted(this.convention, () -> context, this.registry).start();
 		try (Observation.Scope scope = observation.openScope()) {
 			AuthorizationDecision decision = this.delegate.check(wrapped, object);
-			context.setDecision(decision);
+			context.setAuthorizationResult(decision);
 			if (decision != null && !decision.isGranted()) {
 				observation.error(new AccessDeniedException(
 						this.messages.getMessage("AbstractAccessDecisionManager.accessDenied", "Access Denied")));
@@ -96,6 +110,17 @@ public final class ObservationAuthorizationManager<T> implements AuthorizationMa
 	@Override
 	public void setMessageSource(final MessageSource messageSource) {
 		this.messages = new MessageSourceAccessor(messageSource);
+	}
+
+	@Override
+	public Object handleDeniedInvocation(MethodInvocation methodInvocation, AuthorizationResult authorizationResult) {
+		return this.handler.handleDeniedInvocation(methodInvocation, authorizationResult);
+	}
+
+	@Override
+	public Object handleDeniedInvocationResult(MethodInvocationResult methodInvocationResult,
+			AuthorizationResult authorizationResult) {
+		return this.handler.handleDeniedInvocationResult(methodInvocationResult, authorizationResult);
 	}
 
 }

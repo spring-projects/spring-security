@@ -116,10 +116,17 @@ final class OAuth2ClientConfigurerUtils {
 
 	static <B extends HttpSecurityBuilder<B>> OidcSessionRegistry getOidcSessionRegistry(B builder) {
 		OidcSessionRegistry sessionRegistry = builder.getSharedObject(OidcSessionRegistry.class);
-		if (sessionRegistry == null) {
-			sessionRegistry = new InMemoryOidcSessionRegistry();
-			builder.setSharedObject(OidcSessionRegistry.class, sessionRegistry);
+		if (sessionRegistry != null) {
+			return sessionRegistry;
 		}
+		ApplicationContext context = builder.getSharedObject(ApplicationContext.class);
+		if (context.getBeanNamesForType(OidcSessionRegistry.class).length == 1) {
+			sessionRegistry = context.getBean(OidcSessionRegistry.class);
+		}
+		else {
+			sessionRegistry = new InMemoryOidcSessionRegistry();
+		}
+		builder.setSharedObject(OidcSessionRegistry.class, sessionRegistry);
 		return sessionRegistry;
 	}
 

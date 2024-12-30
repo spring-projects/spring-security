@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -33,13 +34,13 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import io.micrometer.observation.ObservationRegistry;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import reactor.core.publisher.Mono;
 import reactor.util.context.Context;
 
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.Ordered;
 import org.springframework.core.ResolvableType;
@@ -52,12 +53,16 @@ import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.DelegatingReactiveAuthenticationManager;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.ReactiveAuthenticationManagerResolver;
+import org.springframework.security.authentication.ott.OneTimeToken;
+import org.springframework.security.authentication.ott.reactive.InMemoryReactiveOneTimeTokenService;
+import org.springframework.security.authentication.ott.reactive.OneTimeTokenReactiveAuthenticationManager;
+import org.springframework.security.authentication.ott.reactive.ReactiveOneTimeTokenService;
 import org.springframework.security.authorization.AuthenticatedReactiveAuthorizationManager;
 import org.springframework.security.authorization.AuthorityReactiveAuthorizationManager;
 import org.springframework.security.authorization.AuthorizationDecision;
-import org.springframework.security.authorization.ObservationReactiveAuthorizationManager;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.ObjectPostProcessor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -111,6 +116,7 @@ import org.springframework.security.oauth2.server.resource.web.access.server.Bea
 import org.springframework.security.oauth2.server.resource.web.server.BearerTokenServerAuthenticationEntryPoint;
 import org.springframework.security.oauth2.server.resource.web.server.authentication.ServerBearerTokenAuthenticationConverter;
 import org.springframework.security.web.PortMapper;
+import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.authentication.preauth.x509.SubjectDnX509PrincipalExtractor;
 import org.springframework.security.web.authentication.preauth.x509.X509PrincipalExtractor;
 import org.springframework.security.web.server.DefaultServerRedirectStrategy;
@@ -150,6 +156,9 @@ import org.springframework.security.web.server.authentication.logout.LogoutWebFi
 import org.springframework.security.web.server.authentication.logout.SecurityContextServerLogoutHandler;
 import org.springframework.security.web.server.authentication.logout.ServerLogoutHandler;
 import org.springframework.security.web.server.authentication.logout.ServerLogoutSuccessHandler;
+import org.springframework.security.web.server.authentication.ott.GenerateOneTimeTokenWebFilter;
+import org.springframework.security.web.server.authentication.ott.ServerOneTimeTokenAuthenticationConverter;
+import org.springframework.security.web.server.authentication.ott.ServerOneTimeTokenGenerationSuccessHandler;
 import org.springframework.security.web.server.authorization.AuthorizationContext;
 import org.springframework.security.web.server.authorization.AuthorizationWebFilter;
 import org.springframework.security.web.server.authorization.DelegatingReactiveAuthorizationManager;
@@ -192,8 +201,10 @@ import org.springframework.security.web.server.savedrequest.ServerRequestCache;
 import org.springframework.security.web.server.savedrequest.ServerRequestCacheWebFilter;
 import org.springframework.security.web.server.savedrequest.WebSessionServerRequestCache;
 import org.springframework.security.web.server.transport.HttpsRedirectWebFilter;
+import org.springframework.security.web.server.ui.DefaultResourcesWebFilter;
 import org.springframework.security.web.server.ui.LoginPageGeneratingWebFilter;
 import org.springframework.security.web.server.ui.LogoutPageGeneratingWebFilter;
+import org.springframework.security.web.server.ui.OneTimeTokenSubmitPageGeneratingWebFilter;
 import org.springframework.security.web.server.util.matcher.AndServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.MediaTypeServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.NegatedServerWebExchangeMatcher;
@@ -204,6 +215,7 @@ import org.springframework.security.web.server.util.matcher.ServerWebExchangeMat
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.cors.reactive.CorsConfigurationSource;
 import org.springframework.web.cors.reactive.CorsProcessor;
 import org.springframework.web.cors.reactive.CorsWebFilter;
@@ -214,6 +226,8 @@ import org.springframework.web.server.ServerWebExchangeDecorator;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 import org.springframework.web.server.WebSession;
+import org.springframework.web.server.adapter.WebHttpHandlerBuilder;
+import org.springframework.web.server.session.DefaultWebSessionManager;
 import org.springframework.web.util.pattern.PathPatternParser;
 
 /**
@@ -341,6 +355,8 @@ public class ServerHttpSecurity {
 	private Throwable built;
 
 	private AnonymousSpec anonymous;
+
+	private OneTimeTokenLoginSpec oneTimeTokenLogin;
 
 	protected ServerHttpSecurity() {
 	}
@@ -1544,6 +1560,43 @@ public class ServerHttpSecurity {
 	}
 
 	/**
+	 * Configures One-Time Token Login Support.
+	 *
+	 * <h2>Example Configuration</h2>
+	 *
+	 * <pre>
+	 * &#064;Configuration
+	 * &#064;EnableWebFluxSecurity
+	 * public class SecurityConfig {
+	 *
+	 * 	&#064;Bean
+	 * 	public SecurityWebFilterChain securityFilterChain(ServerHttpSecurity http) throws Exception {
+	 * 		http
+	 * 			// ...
+	 * 			.oneTimeTokenLogin(Customizer.withDefaults());
+	 * 		return http.build();
+	 * 	}
+	 *
+	 * 	&#064;Bean
+	 * 	public ServerOneTimeTokenGenerationSuccessHandler oneTimeTokenGenerationSuccessHandler() {
+	 * 		return new MyMagicLinkServerOneTimeTokenGenerationSuccessHandler();
+	 * 	}
+	 *
+	 * }
+	 * </pre>
+	 * @param oneTimeTokenLoginCustomizer the {@link Customizer} to provide more options
+	 * for the {@link OneTimeTokenLoginSpec}
+	 * @return the {@link ServerHttpSecurity} for further customizations
+	 */
+	public ServerHttpSecurity oneTimeTokenLogin(Customizer<OneTimeTokenLoginSpec> oneTimeTokenLoginCustomizer) {
+		if (this.oneTimeTokenLogin == null) {
+			this.oneTimeTokenLogin = new OneTimeTokenLoginSpec();
+		}
+		oneTimeTokenLoginCustomizer.customize(this.oneTimeTokenLogin);
+		return this;
+	}
+
+	/**
 	 * Builds the {@link SecurityWebFilterChain}
 	 * @return the {@link SecurityWebFilterChain}
 	 */
@@ -1635,6 +1688,18 @@ public class ServerHttpSecurity {
 			this.logout.configure(this);
 		}
 		this.requestCache.configure(this);
+		if (this.oneTimeTokenLogin != null) {
+			if (this.oneTimeTokenLogin.securityContextRepository != null) {
+				this.oneTimeTokenLogin.securityContextRepository(this.oneTimeTokenLogin.securityContextRepository);
+			}
+			else if (this.securityContextRepository != null) {
+				this.oneTimeTokenLogin.securityContextRepository(this.securityContextRepository);
+			}
+			else {
+				this.oneTimeTokenLogin.securityContextRepository(new WebSessionServerSecurityContextRepository());
+			}
+			this.oneTimeTokenLogin.configure(this);
+		}
 		this.addFilterAt(new SecurityContextServerWebExchangeWebFilter(),
 				SecurityWebFiltersOrder.SECURITY_CONTEXT_SERVER_WEB_EXCHANGE);
 		if (this.authorizeExchange != null) {
@@ -1729,26 +1794,34 @@ public class ServerHttpSecurity {
 	}
 
 	private <T> T getBeanOrDefault(Class<T> beanClass, T defaultInstance) {
-		T bean = getBeanOrNull(beanClass);
-		if (bean == null) {
+		if (this.context == null) {
 			return defaultInstance;
 		}
-		return bean;
+		return this.context.getBeanProvider(beanClass).getIfUnique(() -> defaultInstance);
+	}
+
+	private <T> ObjectProvider<T> getBeanProvider(ResolvableType type) {
+		if (this.context == null) {
+			return new ObjectProvider<>() {
+				@Override
+				public Iterator<T> iterator() {
+					return Collections.emptyIterator();
+				}
+			};
+		}
+		return this.context.getBeanProvider(type);
 	}
 
 	private <T> T getBeanOrNull(Class<T> beanClass) {
 		return getBeanOrNull(ResolvableType.forClass(beanClass));
 	}
 
+	@SuppressWarnings("unchecked")
 	private <T> T getBeanOrNull(ResolvableType type) {
 		if (this.context == null) {
 			return null;
 		}
-		String[] names = this.context.getBeanNamesForType(type);
-		if (names.length == 1) {
-			return (T) this.context.getBean(names[0]);
-		}
-		return null;
+		return (T) this.context.getBeanProvider(type).getIfUnique();
 	}
 
 	private <T> T getBeanOrNull(String beanName, Class<T> requiredClass) {
@@ -1793,6 +1866,17 @@ public class ServerHttpSecurity {
 		private boolean anyExchangeRegistered;
 
 		private PathPatternParser pathPatternParser;
+
+		private ObjectPostProcessor<ReactiveAuthorizationManager<ServerWebExchange>> postProcessor = ObjectPostProcessor
+			.identity();
+
+		public AuthorizeExchangeSpec() {
+			ResolvableType type = ResolvableType.forClassWithGenerics(ObjectPostProcessor.class,
+					ResolvableType.forClassWithGenerics(ReactiveAuthorizationManager.class, ServerWebExchange.class));
+			ObjectProvider<ObjectPostProcessor<ReactiveAuthorizationManager<ServerWebExchange>>> postProcessor = getBeanProvider(
+					type);
+			postProcessor.ifUnique((p) -> this.postProcessor = p);
+		}
 
 		/**
 		 * Allows method chaining to continue configuring the {@link ServerHttpSecurity}
@@ -1846,10 +1930,7 @@ public class ServerHttpSecurity {
 			Assert.state(this.matcher == null,
 					() -> "The matcher " + this.matcher + " does not have an access rule defined");
 			ReactiveAuthorizationManager<ServerWebExchange> manager = this.managerBldr.build();
-			ObservationRegistry registry = getBeanOrDefault(ObservationRegistry.class, ObservationRegistry.NOOP);
-			if (!registry.isNoop()) {
-				manager = new ObservationReactiveAuthorizationManager<>(registry, manager);
-			}
+			manager = this.postProcessor.postProcess(manager);
 			AuthorizationWebFilter result = new AuthorizationWebFilter(manager);
 			http.addFilterAt(result, SecurityWebFiltersOrder.AUTHORIZATION);
 		}
@@ -1964,7 +2045,7 @@ public class ServerHttpSecurity {
 
 		private SessionLimit sessionLimit = SessionLimit.UNLIMITED;
 
-		private ServerMaximumSessionsExceededHandler maximumSessionsExceededHandler = new InvalidateLeastUsedServerMaximumSessionsExceededHandler();
+		private ServerMaximumSessionsExceededHandler maximumSessionsExceededHandler;
 
 		/**
 		 * Configures how many sessions are allowed for a given user.
@@ -1983,9 +2064,8 @@ public class ServerHttpSecurity {
 			if (this.concurrentSessions != null) {
 				ReactiveSessionRegistry reactiveSessionRegistry = getSessionRegistry();
 				ConcurrentSessionControlServerAuthenticationSuccessHandler concurrentSessionControlStrategy = new ConcurrentSessionControlServerAuthenticationSuccessHandler(
-						reactiveSessionRegistry);
+						reactiveSessionRegistry, getMaximumSessionsExceededHandler());
 				concurrentSessionControlStrategy.setSessionLimit(this.sessionLimit);
-				concurrentSessionControlStrategy.setMaximumSessionsExceededHandler(this.maximumSessionsExceededHandler);
 				RegisterSessionServerAuthenticationSuccessHandler registerSessionAuthenticationStrategy = new RegisterSessionServerAuthenticationSuccessHandler(
 						reactiveSessionRegistry);
 				this.authenticationSuccessHandler = new DelegatingServerAuthenticationSuccessHandler(
@@ -1995,6 +2075,24 @@ public class ServerHttpSecurity {
 				configureSuccessHandlerOnAuthenticationFilters();
 				http.addFilterAfter(sessionRegistryWebFilter, SecurityWebFiltersOrder.HTTP_HEADERS_WRITER);
 			}
+		}
+
+		private ServerMaximumSessionsExceededHandler getMaximumSessionsExceededHandler() {
+			if (this.maximumSessionsExceededHandler != null) {
+				return this.maximumSessionsExceededHandler;
+			}
+			DefaultWebSessionManager webSessionManager = getBeanOrNull(
+					WebHttpHandlerBuilder.WEB_SESSION_MANAGER_BEAN_NAME, DefaultWebSessionManager.class);
+			if (webSessionManager != null) {
+				this.maximumSessionsExceededHandler = new InvalidateLeastUsedServerMaximumSessionsExceededHandler(
+						webSessionManager.getSessionStore());
+			}
+			if (this.maximumSessionsExceededHandler == null) {
+				throw new IllegalStateException(
+						"Could not create a default ServerMaximumSessionsExceededHandler. Please provide "
+								+ "a ServerMaximumSessionsExceededHandler via DSL");
+			}
+			return this.maximumSessionsExceededHandler;
 		}
 
 		private void configureSuccessHandlerOnAuthenticationFilters() {
@@ -2143,19 +2241,23 @@ public class ServerHttpSecurity {
 				@Override
 				public Mono<Void> changeSessionId() {
 					String currentId = this.session.getId();
-					return SessionRegistryWebFilter.this.sessionRegistry.removeSessionInformation(currentId)
-						.flatMap((information) -> this.session.changeSessionId().thenReturn(information))
-						.flatMap((information) -> {
-							information = information.withSessionId(this.session.getId());
-							return SessionRegistryWebFilter.this.sessionRegistry.saveSessionInformation(information);
-						});
+					return this.session.changeSessionId()
+						.then(Mono.defer(
+								() -> SessionRegistryWebFilter.this.sessionRegistry.removeSessionInformation(currentId)
+									.flatMap((information) -> {
+										information = information.withSessionId(this.session.getId());
+										return SessionRegistryWebFilter.this.sessionRegistry
+											.saveSessionInformation(information);
+									})));
 				}
 
 				@Override
 				public Mono<Void> invalidate() {
 					String currentId = this.session.getId();
-					return SessionRegistryWebFilter.this.sessionRegistry.removeSessionInformation(currentId)
-						.flatMap((information) -> this.session.invalidate());
+					return this.session.invalidate()
+						.then(Mono.defer(() -> SessionRegistryWebFilter.this.sessionRegistry
+							.removeSessionInformation(currentId)))
+						.then();
 				}
 
 				@Override
@@ -2932,7 +3034,8 @@ public class ServerHttpSecurity {
 			if (http.authenticationEntryPoint != null) {
 				return;
 			}
-			if (http.formLogin != null && http.formLogin.isEntryPointExplicit) {
+			if (http.formLogin != null && http.formLogin.isEntryPointExplicit
+					|| http.oauth2Login != null && StringUtils.hasText(http.oauth2Login.loginPage)) {
 				return;
 			}
 			LoginPageGeneratingWebFilter loginPage = null;
@@ -2949,6 +3052,7 @@ public class ServerHttpSecurity {
 			}
 			if (loginPage != null) {
 				http.addFilterAt(loginPage, SecurityWebFiltersOrder.LOGIN_PAGE_GENERATING);
+				http.addFilterBefore(DefaultResourcesWebFilter.css(), SecurityWebFiltersOrder.LOGIN_PAGE_GENERATING);
 				if (http.logout != null) {
 					http.addFilterAt(new LogoutPageGeneratingWebFilter(),
 							SecurityWebFiltersOrder.LOGOUT_PAGE_GENERATING);
@@ -4108,6 +4212,8 @@ public class ServerHttpSecurity {
 
 		private ServerAuthenticationFailureHandler authenticationFailureHandler;
 
+		private String loginPage;
+
 		private OAuth2LoginSpec() {
 		}
 
@@ -4338,6 +4444,19 @@ public class ServerHttpSecurity {
 		}
 
 		/**
+		 * Specifies the URL to send users to if login is required. A default login page
+		 * will be generated when this attribute is not specified.
+		 * @param loginPage the URL to send users to if login is required
+		 * @return the {@link OAuth2LoginSpec} for further configuration
+		 * @since 6.4
+		 */
+		public OAuth2LoginSpec loginPage(String loginPage) {
+			Assert.hasText(loginPage, "loginPage cannot be empty");
+			this.loginPage = loginPage;
+			return this;
+		}
+
+		/**
 		 * Allows method chaining to continue configuring the {@link ServerHttpSecurity}
 		 * @return the {@link ServerHttpSecurity} to continue configuring
 		 * @deprecated For removal in 7.0. Use {@link #oauth2Login(Customizer)} or
@@ -4362,8 +4481,10 @@ public class ServerHttpSecurity {
 
 			ReactiveAuthenticationManager manager = getAuthenticationManager();
 			ReactiveOidcSessionRegistry sessionRegistry = getOidcSessionRegistry();
-			AuthenticationWebFilter authenticationFilter = new OidcSessionRegistryAuthenticationWebFilter(manager,
-					authorizedClientRepository, sessionRegistry);
+			AuthenticationWebFilter authenticationFilter = (sessionRegistry != null)
+					? new OidcSessionRegistryAuthenticationWebFilter(manager, authorizedClientRepository,
+							sessionRegistry)
+					: new OAuth2LoginAuthenticationWebFilter(manager, authorizedClientRepository);
 			authenticationFilter.setRequiresAuthenticationMatcher(getAuthenticationMatcher());
 			authenticationFilter
 				.setServerAuthenticationConverter(getAuthenticationConverter(clientRegistrationRepository));
@@ -4372,19 +4493,15 @@ public class ServerHttpSecurity {
 			authenticationFilter.setSecurityContextRepository(this.securityContextRepository);
 
 			setDefaultEntryPoints(http);
-			http.addFilterAfter(new OidcSessionRegistryWebFilter(sessionRegistry),
-					SecurityWebFiltersOrder.HTTP_HEADERS_WRITER);
+			if (sessionRegistry != null) {
+				http.addFilterAfter(new OidcSessionRegistryWebFilter(sessionRegistry),
+						SecurityWebFiltersOrder.HTTP_HEADERS_WRITER);
+			}
 			http.addFilterAt(oauthRedirectFilter, SecurityWebFiltersOrder.HTTP_BASIC);
 			http.addFilterAt(authenticationFilter, SecurityWebFiltersOrder.AUTHENTICATION);
 		}
 
 		private void setDefaultEntryPoints(ServerHttpSecurity http) {
-			String defaultLoginPage = "/login";
-			Map<String, String> urlToText = http.oauth2Login.getLinks();
-			String providerLoginPage = null;
-			if (urlToText.size() == 1) {
-				providerLoginPage = urlToText.keySet().iterator().next();
-			}
 			MediaTypeServerWebExchangeMatcher htmlMatcher = new MediaTypeServerWebExchangeMatcher(
 					MediaType.APPLICATION_XHTML_XML, new MediaType("image", "*"), MediaType.TEXT_HTML,
 					MediaType.TEXT_PLAIN);
@@ -4398,27 +4515,42 @@ public class ServerHttpSecurity {
 			ServerWebExchangeMatcher notXhrMatcher = new NegatedServerWebExchangeMatcher(xhrMatcher);
 			ServerWebExchangeMatcher defaultEntryPointMatcher = new AndServerWebExchangeMatcher(notXhrMatcher,
 					htmlMatcher);
-			if (providerLoginPage != null) {
-				ServerWebExchangeMatcher loginPageMatcher = new PathPatternParserServerWebExchangeMatcher(
-						defaultLoginPage);
-				ServerWebExchangeMatcher faviconMatcher = new PathPatternParserServerWebExchangeMatcher("/favicon.ico");
-				ServerWebExchangeMatcher defaultLoginPageMatcher = new AndServerWebExchangeMatcher(
-						new OrServerWebExchangeMatcher(loginPageMatcher, faviconMatcher), defaultEntryPointMatcher);
+			String loginPage = "/login";
+			if (StringUtils.hasText(this.loginPage)) {
+				loginPage = this.loginPage;
+			}
+			else {
+				Map<String, String> urlToText = http.oauth2Login.getLinks();
+				String providerLoginPage = null;
+				if (urlToText.size() == 1) {
+					providerLoginPage = urlToText.keySet().iterator().next();
+				}
+				if (providerLoginPage != null) {
+					ServerWebExchangeMatcher loginPageMatcher = new PathPatternParserServerWebExchangeMatcher(
+							loginPage);
+					ServerWebExchangeMatcher faviconMatcher = new PathPatternParserServerWebExchangeMatcher(
+							"/favicon.ico");
+					ServerWebExchangeMatcher defaultLoginPageMatcher = new AndServerWebExchangeMatcher(
+							new OrServerWebExchangeMatcher(loginPageMatcher, faviconMatcher), defaultEntryPointMatcher);
 
-				ServerWebExchangeMatcher matcher = new AndServerWebExchangeMatcher(notXhrMatcher,
-						new NegatedServerWebExchangeMatcher(defaultLoginPageMatcher));
-				RedirectServerAuthenticationEntryPoint entryPoint = new RedirectServerAuthenticationEntryPoint(
-						providerLoginPage);
-				entryPoint.setRequestCache(http.requestCache.requestCache);
-				http.defaultEntryPoints.add(new DelegateEntry(matcher, entryPoint));
+					ServerWebExchangeMatcher matcher = new AndServerWebExchangeMatcher(notXhrMatcher,
+							new NegatedServerWebExchangeMatcher(defaultLoginPageMatcher));
+					RedirectServerAuthenticationEntryPoint entryPoint = new RedirectServerAuthenticationEntryPoint(
+							providerLoginPage);
+					entryPoint.setRequestCache(http.requestCache.requestCache);
+					http.defaultEntryPoints.add(new DelegateEntry(matcher, entryPoint));
+				}
 			}
 			RedirectServerAuthenticationEntryPoint defaultEntryPoint = new RedirectServerAuthenticationEntryPoint(
-					defaultLoginPage);
+					loginPage);
 			defaultEntryPoint.setRequestCache(http.requestCache.requestCache);
 			http.defaultEntryPoints.add(new DelegateEntry(defaultEntryPointMatcher, defaultEntryPoint));
 		}
 
 		private ReactiveOidcSessionRegistry getOidcSessionRegistry() {
+			if (ServerHttpSecurity.this.oidcLogout == null && this.oidcSessionRegistry == null) {
+				return null;
+			}
 			if (this.oidcSessionRegistry == null) {
 				this.oidcSessionRegistry = getBeanOrNull(ReactiveOidcSessionRegistry.class);
 			}
@@ -4454,7 +4586,9 @@ public class ServerHttpSecurity {
 			if (bean != null) {
 				return bean;
 			}
-			return new OidcReactiveOAuth2UserService();
+			OidcReactiveOAuth2UserService reactiveOAuth2UserService = new OidcReactiveOAuth2UserService();
+			reactiveOAuth2UserService.setOauth2UserService(getOauth2UserService());
+			return reactiveOAuth2UserService;
 		}
 
 		private ReactiveOAuth2UserService<OAuth2UserRequest, OAuth2User> getOauth2UserService() {
@@ -4500,9 +4634,12 @@ public class ServerHttpSecurity {
 		}
 
 		private OAuth2AuthorizationRequestRedirectWebFilter getRedirectWebFilter() {
-			OAuth2AuthorizationRequestRedirectWebFilter oauthRedirectFilter;
-			if (this.authorizationRequestResolver != null) {
-				return new OAuth2AuthorizationRequestRedirectWebFilter(this.authorizationRequestResolver);
+			ServerOAuth2AuthorizationRequestResolver authorizationRequestResolver = this.authorizationRequestResolver;
+			if (authorizationRequestResolver == null) {
+				authorizationRequestResolver = getBeanOrNull(ServerOAuth2AuthorizationRequestResolver.class);
+			}
+			if (authorizationRequestResolver != null) {
+				return new OAuth2AuthorizationRequestRedirectWebFilter(authorizationRequestResolver);
 			}
 			return new OAuth2AuthorizationRequestRedirectWebFilter(getClientRegistrationRepository());
 		}
@@ -4656,8 +4793,7 @@ public class ServerHttpSecurity {
 
 		}
 
-		private static final class OidcSessionRegistryAuthenticationWebFilter
-				extends OAuth2LoginAuthenticationWebFilter {
+		static final class OidcSessionRegistryAuthenticationWebFilter extends OAuth2LoginAuthenticationWebFilter {
 
 			private final Log logger = LogFactory.getLog(getClass());
 
@@ -4755,9 +4891,20 @@ public class ServerHttpSecurity {
 		private ReactiveAuthenticationManager getAuthenticationManager() {
 			if (this.authenticationManager == null) {
 				this.authenticationManager = new OAuth2AuthorizationCodeReactiveAuthenticationManager(
-						new WebClientReactiveAuthorizationCodeTokenResponseClient());
+						getAuthorizationCodeTokenResponseClient());
 			}
 			return this.authenticationManager;
+		}
+
+		private ReactiveOAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> getAuthorizationCodeTokenResponseClient() {
+			ResolvableType resolvableType = ResolvableType.forClassWithGenerics(
+					ReactiveOAuth2AccessTokenResponseClient.class, OAuth2AuthorizationCodeGrantRequest.class);
+			ReactiveOAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient = getBeanOrNull(
+					resolvableType);
+			if (accessTokenResponseClient == null) {
+				accessTokenResponseClient = new WebClientReactiveAuthorizationCodeTokenResponseClient();
+			}
+			return accessTokenResponseClient;
 		}
 
 		/**
@@ -5438,7 +5585,7 @@ public class ServerHttpSecurity {
 
 		private ReactiveOidcSessionRegistry getSessionRegistry() {
 			if (this.sessionRegistry == null && ServerHttpSecurity.this.oauth2Login == null) {
-				return new InMemoryReactiveOidcSessionRegistry();
+				return getBeanOrDefault(ReactiveOidcSessionRegistry.class, new InMemoryReactiveOidcSessionRegistry());
 			}
 			if (this.sessionRegistry == null) {
 				return ServerHttpSecurity.this.oauth2Login.oidcSessionRegistry;
@@ -5455,7 +5602,7 @@ public class ServerHttpSecurity {
 
 			private final ReactiveAuthenticationManager authenticationManager = new OidcBackChannelLogoutReactiveAuthenticationManager();
 
-			private ServerLogoutHandler logoutHandler;
+			private Supplier<ServerLogoutHandler> logoutHandler = this::logoutHandler;
 
 			private ServerAuthenticationConverter authenticationConverter() {
 				if (this.authenticationConverter == null) {
@@ -5470,19 +5617,169 @@ public class ServerHttpSecurity {
 			}
 
 			private ServerLogoutHandler logoutHandler() {
-				if (this.logoutHandler == null) {
-					OidcBackChannelServerLogoutHandler logoutHandler = new OidcBackChannelServerLogoutHandler();
-					logoutHandler.setSessionRegistry(OidcLogoutSpec.this.getSessionRegistry());
-					this.logoutHandler = logoutHandler;
+				OidcBackChannelServerLogoutHandler logoutHandler = getBeanOrNull(
+						OidcBackChannelServerLogoutHandler.class);
+				if (logoutHandler != null) {
+					return logoutHandler;
 				}
-				return this.logoutHandler;
+				logoutHandler = new OidcBackChannelServerLogoutHandler(OidcLogoutSpec.this.getSessionRegistry());
+				return logoutHandler;
+			}
+
+			/**
+			 * Use this endpoint when invoking a back-channel logout.
+			 *
+			 * <p>
+			 * The resulting {@link LogoutHandler} will {@code POST} the session cookie
+			 * and CSRF token to this endpoint to invalidate the corresponding end-user
+			 * session.
+			 *
+			 * <p>
+			 * Supports URI templates like {@code {baseUrl}}, {@code {baseScheme}}, and
+			 * {@code {basePort}}.
+			 *
+			 * <p>
+			 * By default, the URI is set to
+			 * {@code {baseUrl}/logout/connect/back-channel/{registrationId}}, meaning
+			 * that the scheme and port of the original back-channel request is preserved,
+			 * while the host and endpoint are changed.
+			 *
+			 * <p>
+			 * If you are using Spring Security for the logout endpoint, the path part of
+			 * this URI should match the value configured there.
+			 *
+			 * <p>
+			 * Otherwise, this is handy in the event that your server configuration means
+			 * that the scheme, server name, or port in the {@code Host} header are
+			 * different from how you would address the same server internally.
+			 * @param logoutUri the URI to request logout on the back-channel
+			 * @return the {@link BackChannelLogoutConfigurer} for further customizations
+			 * @since 6.2.4
+			 */
+			public BackChannelLogoutConfigurer logoutUri(String logoutUri) {
+				this.logoutHandler = () -> {
+					OidcBackChannelServerLogoutHandler logoutHandler = new OidcBackChannelServerLogoutHandler(
+							OidcLogoutSpec.this.getSessionRegistry());
+					logoutHandler.setLogoutUri(logoutUri);
+					return logoutHandler;
+				};
+				return this;
+			}
+
+			/**
+			 * Configure what and how per-session logout will be performed.
+			 *
+			 * <p>
+			 * This overrides any value given to {@link #logoutUri(String)}
+			 *
+			 * <p>
+			 * By default, the resulting {@link LogoutHandler} will {@code POST} the
+			 * session cookie and OIDC logout token back to the original back-channel
+			 * logout endpoint.
+			 *
+			 * <p>
+			 * Using this method changes the underlying default that {@code POST}s the
+			 * session cookie and CSRF token to your application's {@code /logout}
+			 * endpoint. As such, it is recommended to call this instead of accepting the
+			 * {@code /logout} default as this does not require any special CSRF
+			 * configuration, even if you don't require other changes.
+			 *
+			 * <p>
+			 * For example, configuring Back-Channel Logout in the following way:
+			 *
+			 * <pre>
+			 * 	http
+			 *     	.oidcLogout((oidc) -&gt; oidc
+			 *     		.backChannel((backChannel) -&gt; backChannel
+			 *     			.logoutHandler(new OidcBackChannelServerLogoutHandler())
+			 *     		)
+			 *     	);
+			 * </pre>
+			 *
+			 * will make so that the per-session logout invocation no longer requires
+			 * special CSRF configurations.
+			 *
+			 * <p>
+			 * The default URI is
+			 * {@code {baseUrl}/logout/connect/back-channel/{registrationId}}, which is
+			 * simply an internal version of the same endpoint exposed to your
+			 * Back-Channel services. You can use
+			 * {@link OidcBackChannelServerLogoutHandler#setLogoutUri(String)} to alter
+			 * the scheme, server name, or port in the {@code Host} header to accommodate
+			 * how your application would address itself internally.
+			 *
+			 * <p>
+			 * For example, if the way your application would internally call itself is on
+			 * a different scheme and port than incoming traffic, you can configure the
+			 * endpoint in the following way:
+			 *
+			 * <pre>
+			 * 	http
+			 * 		.oidcLogout((oidc) -&gt; oidc
+			 * 			.backChannel((backChannel) -&gt; backChannel
+			 * 				.logoutUri("http://localhost:9000/logout/connect/back-channel/{registrationId}")
+			 * 			)
+			 * 		);
+			 * </pre>
+			 *
+			 * <p>
+			 * You can also publish it as a {@code @Bean} as follows:
+			 *
+			 * <pre>
+			 *	&commat;Bean
+			 *	OidcBackChannelServerLogoutHandler oidcLogoutHandler() {
+			 *  	OidcBackChannelServerLogoutHandler logoutHandler = new OidcBackChannelServerLogoutHandler();
+			 *  	logoutHandler.setLogoutUri("http://localhost:9000/logout/connect/back-channel/{registrationId}");
+			 *  	return logoutHandler;
+			 *	}
+			 * </pre>
+			 *
+			 * to have the same effect.
+			 * @param logoutHandler the {@link ServerLogoutHandler} to use each individual
+			 * session
+			 * @return {@link BackChannelLogoutConfigurer} for further customizations
+			 * @since 6.4
+			 */
+			public BackChannelLogoutConfigurer logoutHandler(ServerLogoutHandler logoutHandler) {
+				this.logoutHandler = () -> logoutHandler;
+				return this;
 			}
 
 			void configure(ServerHttpSecurity http) {
+				ServerLogoutHandler oidcLogout = this.logoutHandler.get();
+				ServerLogoutHandler sessionLogout = new SecurityContextServerLogoutHandler();
+				LogoutSpec logout = ServerHttpSecurity.this.logout;
+				if (logout != null) {
+					sessionLogout = new DelegatingServerLogoutHandler(logout.logoutHandlers);
+				}
 				OidcBackChannelLogoutWebFilter filter = new OidcBackChannelLogoutWebFilter(authenticationConverter(),
-						authenticationManager());
-				filter.setLogoutHandler(logoutHandler());
+						authenticationManager(), new EitherLogoutHandler(oidcLogout, sessionLogout));
 				http.addFilterBefore(filter, SecurityWebFiltersOrder.CSRF);
+			}
+
+			private static final class EitherLogoutHandler implements ServerLogoutHandler {
+
+				private final ServerLogoutHandler left;
+
+				private final ServerLogoutHandler right;
+
+				EitherLogoutHandler(ServerLogoutHandler left, ServerLogoutHandler right) {
+					this.left = left;
+					this.right = right;
+				}
+
+				@Override
+				public Mono<Void> logout(WebFilterExchange exchange, Authentication authentication) {
+					return exchange.getExchange().getFormData().flatMap((data) -> {
+						if (data.getFirst("_spring_security_internal_logout") == null) {
+							return this.left.logout(exchange, authentication);
+						}
+						else {
+							return this.right.logout(exchange, authentication);
+						}
+					});
+				}
+
 			}
 
 		}
@@ -5610,6 +5907,297 @@ public class ServerHttpSecurity {
 		}
 
 		private AnonymousSpec() {
+		}
+
+	}
+
+	/**
+	 * Configures One-Time Token Login Support
+	 *
+	 * @author Max Batischev
+	 * @since 6.4
+	 * @see #oneTimeTokenLogin(Customizer)
+	 */
+	public final class OneTimeTokenLoginSpec {
+
+		private ReactiveAuthenticationManager authenticationManager;
+
+		private ReactiveOneTimeTokenService tokenService;
+
+		private ServerAuthenticationConverter authenticationConverter = new ServerOneTimeTokenAuthenticationConverter();
+
+		private ServerAuthenticationFailureHandler authenticationFailureHandler;
+
+		private final RedirectServerAuthenticationSuccessHandler defaultSuccessHandler = new RedirectServerAuthenticationSuccessHandler(
+				"/");
+
+		private final List<ServerAuthenticationSuccessHandler> defaultSuccessHandlers = new ArrayList<>(
+				List.of(this.defaultSuccessHandler));
+
+		private final List<ServerAuthenticationSuccessHandler> authenticationSuccessHandlers = new ArrayList<>();
+
+		private ServerOneTimeTokenGenerationSuccessHandler tokenGenerationSuccessHandler;
+
+		private ServerSecurityContextRepository securityContextRepository;
+
+		private String loginProcessingUrl = "/login/ott";
+
+		private String defaultSubmitPageUrl = "/login/ott";
+
+		private String tokenGeneratingUrl = "/ott/generate";
+
+		private boolean submitPageEnabled = true;
+
+		protected void configure(ServerHttpSecurity http) {
+			configureSubmitPage(http);
+			configureOttGenerateFilter(http);
+			configureOttAuthenticationFilter(http);
+			configureDefaultLoginPage(http);
+		}
+
+		private void configureOttAuthenticationFilter(ServerHttpSecurity http) {
+			AuthenticationWebFilter ottWebFilter = new AuthenticationWebFilter(getAuthenticationManager());
+			ottWebFilter.setServerAuthenticationConverter(this.authenticationConverter);
+			ottWebFilter.setAuthenticationFailureHandler(getAuthenticationFailureHandler());
+			ottWebFilter.setAuthenticationSuccessHandler(getAuthenticationSuccessHandler());
+			ottWebFilter.setRequiresAuthenticationMatcher(
+					ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, this.loginProcessingUrl));
+			ottWebFilter.setSecurityContextRepository(this.securityContextRepository);
+			http.addFilterAt(ottWebFilter, SecurityWebFiltersOrder.AUTHENTICATION);
+		}
+
+		private void configureSubmitPage(ServerHttpSecurity http) {
+			if (!this.submitPageEnabled) {
+				return;
+			}
+			OneTimeTokenSubmitPageGeneratingWebFilter submitPage = new OneTimeTokenSubmitPageGeneratingWebFilter();
+			submitPage.setLoginProcessingUrl(this.loginProcessingUrl);
+
+			if (StringUtils.hasText(this.defaultSubmitPageUrl)) {
+				submitPage.setRequestMatcher(
+						ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, this.defaultSubmitPageUrl));
+			}
+			http.addFilterAt(submitPage, SecurityWebFiltersOrder.ONE_TIME_TOKEN_SUBMIT_PAGE_GENERATING);
+		}
+
+		private void configureOttGenerateFilter(ServerHttpSecurity http) {
+			GenerateOneTimeTokenWebFilter generateFilter = new GenerateOneTimeTokenWebFilter(getTokenService(),
+					getTokenGenerationSuccessHandler());
+			generateFilter
+				.setRequestMatcher(ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, this.tokenGeneratingUrl));
+			http.addFilterAt(generateFilter, SecurityWebFiltersOrder.ONE_TIME_TOKEN);
+		}
+
+		private void configureDefaultLoginPage(ServerHttpSecurity http) {
+			if (http.formLogin != null) {
+				for (WebFilter webFilter : http.webFilters) {
+					OrderedWebFilter orderedWebFilter = (OrderedWebFilter) webFilter;
+					if (orderedWebFilter.webFilter instanceof LoginPageGeneratingWebFilter loginPageGeneratingFilter) {
+						loginPageGeneratingFilter.setOneTimeTokenEnabled(true);
+						loginPageGeneratingFilter.setGenerateOneTimeTokenUrl(this.tokenGeneratingUrl);
+						break;
+					}
+				}
+			}
+		}
+
+		/**
+		 * Allows customizing the list of {@link ServerAuthenticationSuccessHandler}. The
+		 * default list contains a {@link RedirectServerAuthenticationSuccessHandler} that
+		 * redirects to "/".
+		 * @param handlersConsumer the handlers consumer
+		 * @return the {@link OneTimeTokenLoginSpec} to continue configuring
+		 */
+		public OneTimeTokenLoginSpec authenticationSuccessHandler(
+				Consumer<List<ServerAuthenticationSuccessHandler>> handlersConsumer) {
+			Assert.notNull(handlersConsumer, "handlersConsumer cannot be null");
+			handlersConsumer.accept(this.authenticationSuccessHandlers);
+			return this;
+		}
+
+		/**
+		 * Specifies the {@link ServerAuthenticationSuccessHandler}
+		 * @param authenticationSuccessHandler the
+		 * {@link ServerAuthenticationSuccessHandler}.
+		 */
+		public OneTimeTokenLoginSpec authenticationSuccessHandler(
+				ServerAuthenticationSuccessHandler authenticationSuccessHandler) {
+			Assert.notNull(authenticationSuccessHandler, "authenticationSuccessHandler cannot be null");
+			authenticationSuccessHandler((handlers) -> {
+				handlers.clear();
+				handlers.add(authenticationSuccessHandler);
+			});
+			return this;
+		}
+
+		private ServerAuthenticationSuccessHandler getAuthenticationSuccessHandler() {
+			if (this.authenticationSuccessHandlers.isEmpty()) {
+				return new DelegatingServerAuthenticationSuccessHandler(this.defaultSuccessHandlers);
+			}
+			return new DelegatingServerAuthenticationSuccessHandler(this.authenticationSuccessHandlers);
+		}
+
+		/**
+		 * Specifies the {@link ServerAuthenticationFailureHandler} to use when
+		 * authentication fails. The default is redirecting to "/login?error" using
+		 * {@link RedirectServerAuthenticationFailureHandler}
+		 * @param authenticationFailureHandler the
+		 * {@link ServerAuthenticationFailureHandler} to use when authentication fails.
+		 */
+		public OneTimeTokenLoginSpec authenticationFailureHandler(
+				ServerAuthenticationFailureHandler authenticationFailureHandler) {
+			Assert.notNull(authenticationFailureHandler, "authenticationFailureHandler cannot be null");
+			this.authenticationFailureHandler = authenticationFailureHandler;
+			return this;
+		}
+
+		ServerAuthenticationFailureHandler getAuthenticationFailureHandler() {
+			if (this.authenticationFailureHandler == null) {
+				this.authenticationFailureHandler = new RedirectServerAuthenticationFailureHandler("/login?error");
+			}
+			return this.authenticationFailureHandler;
+		}
+
+		/**
+		 * Specifies {@link ReactiveAuthenticationManager} for one time tokens. Default
+		 * implementation is {@link OneTimeTokenReactiveAuthenticationManager}
+		 * @param authenticationManager
+		 */
+		public OneTimeTokenLoginSpec authenticationManager(ReactiveAuthenticationManager authenticationManager) {
+			Assert.notNull(authenticationManager, "authenticationManager cannot be null");
+			this.authenticationManager = authenticationManager;
+			return this;
+		}
+
+		ReactiveAuthenticationManager getAuthenticationManager() {
+			if (this.authenticationManager == null) {
+				ReactiveUserDetailsService userDetailsService = getBean(ReactiveUserDetailsService.class);
+				return new OneTimeTokenReactiveAuthenticationManager(getTokenService(), userDetailsService);
+			}
+			return this.authenticationManager;
+		}
+
+		/**
+		 * Configures the {@link ReactiveOneTimeTokenService} used to generate and consume
+		 * {@link OneTimeToken}
+		 * @param oneTimeTokenService
+		 */
+		public OneTimeTokenLoginSpec tokenService(ReactiveOneTimeTokenService oneTimeTokenService) {
+			Assert.notNull(oneTimeTokenService, "oneTimeTokenService cannot be null");
+			this.tokenService = oneTimeTokenService;
+			return this;
+		}
+
+		ReactiveOneTimeTokenService getTokenService() {
+			if (this.tokenService != null) {
+				return this.tokenService;
+			}
+			ReactiveOneTimeTokenService oneTimeTokenService = getBeanOrNull(ReactiveOneTimeTokenService.class);
+			if (oneTimeTokenService != null) {
+				return oneTimeTokenService;
+			}
+			this.tokenService = new InMemoryReactiveOneTimeTokenService();
+			return this.tokenService;
+		}
+
+		/**
+		 * Use this {@link ServerAuthenticationConverter} when converting incoming
+		 * requests to an {@link Authentication}. By default, the
+		 * {@link ServerOneTimeTokenAuthenticationConverter} is used.
+		 * @param authenticationConverter the {@link ServerAuthenticationConverter} to use
+		 */
+		public OneTimeTokenLoginSpec authenticationConverter(ServerAuthenticationConverter authenticationConverter) {
+			Assert.notNull(authenticationConverter, "authenticationConverter cannot be null");
+			this.authenticationConverter = authenticationConverter;
+			return this;
+		}
+
+		/**
+		 * Specifies the URL to process the login request, defaults to {@code /login/ott}.
+		 * Only POST requests are processed, for that reason make sure that you pass a
+		 * valid CSRF token if CSRF protection is enabled.
+		 * @param loginProcessingUrl
+		 */
+		public OneTimeTokenLoginSpec loginProcessingUrl(String loginProcessingUrl) {
+			Assert.hasText(loginProcessingUrl, "loginProcessingUrl cannot be null or empty");
+			this.loginProcessingUrl = loginProcessingUrl;
+			return this;
+		}
+
+		/**
+		 * Configures whether the default one-time token submit page should be shown. This
+		 * will prevent the {@link OneTimeTokenSubmitPageGeneratingWebFilter} to be
+		 * configured.
+		 * @param show
+		 */
+		public OneTimeTokenLoginSpec showDefaultSubmitPage(boolean show) {
+			this.submitPageEnabled = show;
+			return this;
+		}
+
+		/**
+		 * Sets the URL that the default submit page will be generated. Defaults to
+		 * {@code /login/ott}. If you don't want to generate the default submit page you
+		 * should use {@link #showDefaultSubmitPage(boolean)}. Note that this method
+		 * always invoke {@link #showDefaultSubmitPage(boolean)} passing {@code true}.
+		 * @param submitPageUrl
+		 */
+		public OneTimeTokenLoginSpec defaultSubmitPageUrl(String submitPageUrl) {
+			Assert.hasText(submitPageUrl, "submitPageUrl cannot be null or empty");
+			this.defaultSubmitPageUrl = submitPageUrl;
+			showDefaultSubmitPage(true);
+			return this;
+		}
+
+		/**
+		 * Specifies strategy to be used to handle generated one-time tokens.
+		 * @param oneTimeTokenGenerationSuccessHandler
+		 */
+		public OneTimeTokenLoginSpec tokenGenerationSuccessHandler(
+				ServerOneTimeTokenGenerationSuccessHandler oneTimeTokenGenerationSuccessHandler) {
+			Assert.notNull(oneTimeTokenGenerationSuccessHandler, "oneTimeTokenGenerationSuccessHandler cannot be null");
+			this.tokenGenerationSuccessHandler = oneTimeTokenGenerationSuccessHandler;
+			return this;
+		}
+
+		/**
+		 * Specifies the URL that a One-Time Token generate request will be processed.
+		 * Defaults to {@code /ott/generate}.
+		 * @param tokenGeneratingUrl
+		 */
+		public OneTimeTokenLoginSpec tokenGeneratingUrl(String tokenGeneratingUrl) {
+			Assert.hasText(tokenGeneratingUrl, "tokenGeneratingUrl cannot be null or empty");
+			this.tokenGeneratingUrl = tokenGeneratingUrl;
+			return this;
+		}
+
+		/**
+		 * The {@link ServerSecurityContextRepository} used to save the
+		 * {@code Authentication}. Defaults to
+		 * {@link WebSessionServerSecurityContextRepository}. For the
+		 * {@code SecurityContext} to be loaded on subsequent requests the
+		 * {@link ReactorContextWebFilter} must be configured to be able to load the value
+		 * (they are not implicitly linked).
+		 * @param securityContextRepository the repository to use
+		 * @return the {@link OneTimeTokenLoginSpec} to continue configuring
+		 */
+		public OneTimeTokenLoginSpec securityContextRepository(
+				ServerSecurityContextRepository securityContextRepository) {
+			this.securityContextRepository = securityContextRepository;
+			return this;
+		}
+
+		private ServerOneTimeTokenGenerationSuccessHandler getTokenGenerationSuccessHandler() {
+			if (this.tokenGenerationSuccessHandler == null) {
+				this.tokenGenerationSuccessHandler = getBeanOrNull(ServerOneTimeTokenGenerationSuccessHandler.class);
+			}
+			if (this.tokenGenerationSuccessHandler == null) {
+				throw new IllegalStateException("""
+						A ServerOneTimeTokenGenerationSuccessHandler is required to enable oneTimeTokenLogin().
+						Please provide it as a bean or pass it to the oneTimeTokenLogin() DSL.
+						""");
+			}
+			return this.tokenGenerationSuccessHandler;
 		}
 
 	}

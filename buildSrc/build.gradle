@@ -27,10 +27,6 @@ sourceSets {
 
 gradlePlugin {
 	plugins {
-		checkAntoraVersion {
-			id = "org.springframework.antora.check-version"
-			implementationClass = "org.springframework.gradle.antora.AntoraVersionPlugin"
-		}
 		trang {
 			id = "trang"
 			implementationClass = "trang.TrangPlugin"
@@ -43,26 +39,6 @@ gradlePlugin {
 			id = "io.spring.convention.management-configuration"
 			implementationClass = "io.spring.gradle.convention.ManagementConfigurationPlugin"
 		}
-		updateProjectVersion {
-			id = "org.springframework.security.update-version"
-			implementationClass = "org.springframework.security.convention.versions.UpdateProjectVersionPlugin"
-		}
-		sagan {
-			id = "org.springframework.security.sagan"
-			implementationClass = "org.springframework.gradle.sagan.SaganPlugin"
-		}
-		githubMilestone {
-			id = "org.springframework.github.milestone"
-			implementationClass = "org.springframework.gradle.github.milestones.GitHubMilestonePlugin"
-		}
-		githubChangelog {
-			id = "org.springframework.github.changelog"
-			implementationClass = "org.springframework.gradle.github.changelog.GitHubChangelogPlugin"
-		}
-		githubRelease {
-			id = "org.springframework.github.release"
-			implementationClass = "org.springframework.gradle.github.release.GitHubReleasePlugin"
-		}
 		s101 {
 			id = "s101"
 			implementationClass = "s101.S101Plugin"
@@ -70,6 +46,10 @@ gradlePlugin {
 		verifyDependenciesVersions {
 			id = "org.springframework.security.versions.verify-dependencies-versions"
 			implementationClass = "org.springframework.security.convention.versions.VerifyDependenciesVersionsPlugin"
+		}
+		checkExpectedBranchVersion {
+			id = "org.springframework.security.check-expected-branch-version"
+			implementationClass = "org.springframework.security.CheckExpectedBranchVersionPlugin"
 		}
 	}
 }
@@ -96,11 +76,14 @@ dependencies {
 	implementation libs.com.github.spullara.mustache.java.compiler
 	implementation libs.io.spring.javaformat.spring.javaformat.gradle.plugin
 	implementation libs.io.spring.nohttp.nohttp.gradle
-	implementation libs.net.sourceforge.htmlunit
+	implementation (libs.net.sourceforge.htmlunit) {
+		exclude group: 'org.eclipse.jetty.websocket', module: 'websocket-client'
+	}
 	implementation libs.org.hidetake.gradle.ssh.plugin
 	implementation libs.org.jfrog.buildinfo.build.info.extractor.gradle
 	implementation libs.org.sonarsource.scanner.gradle.sonarqube.gradle.plugin
 	implementation libs.com.squareup.okhttp3.okhttp
+	implementation libs.io.spring.security.release.plugin
 
 	testImplementation platform(libs.org.junit.junit.bom)
 	testImplementation platform(libs.org.mockito.mockito.bom)

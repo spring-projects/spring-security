@@ -8,14 +8,18 @@ apply plugin: 'io.spring.convention.docs'
 apply plugin: 'java'
 
 antora {
-	playbook = 'cached-antora-playbook.yml'
-	playbookProvider {
-		repository = 'spring-projects/spring-security'
-		branch = 'docs-build'
-		path = 'lib/antora/templates/per-branch-antora-playbook.yml'
-		checkLocalBranch = true
-	}
 	options = [clean: true, fetch: !project.gradle.startParameter.offline, stacktrace: true]
+	environment = [
+		'BUILD_REFNAME': 'HEAD',
+		'BUILD_VERSION': project.version,
+	]
+}
+
+tasks.register("syncAntoraAttachments", Sync) {
+	group = 'Documentation'
+	description = 'Syncs the Antora attachments'
+	from project.provider( { project.tasks.api.outputs } )
+	into project.layout.buildDirectory.dir('generated-antora-resources/modules/ROOT/assets/attachments/api/java')
 }
 
 tasks.named("generateAntoraYml") {
@@ -23,9 +27,14 @@ tasks.named("generateAntoraYml") {
 	asciidocAttributes.putAll(providers.provider( { resolvedVersions(project.configurations.testRuntimeClasspath) }))
 }
 
+tasks.register("generateAntoraResources") {
+	dependsOn 'generateAntoraYml', 'syncAntoraAttachments'
+}
+
 dependencies {
 	testImplementation platform(project(':spring-security-dependencies'))
 	testImplementation 'com.unboundid:unboundid-ldapsdk'
+	testImplementation libs.webauthn4j.core
 	testImplementation 'org.apache.directory.server:apacheds-core'
 	testImplementation 'org.springframework:spring-core'
 }
@@ -47,9 +56,9 @@ def generateAttributes() {
 	def securityApiUrl = "$securityDocsUrl/api/"
 	def securityReferenceUrl = "$securityDocsUrl/reference/html5/"
 	def springFrameworkApiUrl = "https://docs.spring.io/spring-framework/docs/$springFrameworkVersion/javadoc-api/"
-	def springFrameworkReferenceUrl = "https://docs.spring.io/spring-framework/docs/$springFrameworkVersion/reference/html/"
-	def springBootReferenceUrl = "https://docs.spring.io/spring-boot/docs/$springBootVersion/reference/html/"
-	def springBootApiUrl = "https://docs.spring.io/spring-boot/docs/$springBootVersion/api/"
+	def springFrameworkReferenceUrl = "https://docs.spring.io/spring-framework/reference/$springFrameworkVersion/"
+	def springBootReferenceUrl = "https://docs.spring.io/spring-boot/$springBootVersion/"
+	def springBootApiUrl = "https://docs.spring.io/spring-boot/$springBootVersion/api/java/"
 
 	return	['gh-old-samples-url': ghOldSamplesUrl.toString(),
 		'gh-samples-url': ghSamplesUrl.toString(),

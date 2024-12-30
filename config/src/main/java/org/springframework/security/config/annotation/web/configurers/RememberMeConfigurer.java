@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package org.springframework.security.config.annotation.web.configurers;
 
 import java.util.UUID;
 
-import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.RememberMeAuthenticationProvider;
@@ -34,6 +33,7 @@ import org.springframework.security.web.authentication.rememberme.PersistentToke
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 import org.springframework.security.web.authentication.rememberme.RememberMeAuthenticationFilter;
 import org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices;
+import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.util.Assert;
@@ -78,6 +78,7 @@ import org.springframework.util.Assert;
  *
  * @author Rob Winch
  * @author Eddú Meléndez
+ * @author Ngoc Nhan
  * @since 3.2
  */
 public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>>
@@ -296,6 +297,13 @@ public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>>
 			rememberMeFilter.setSecurityContextRepository(securityContextRepository);
 		}
 		rememberMeFilter.setSecurityContextHolderStrategy(getSecurityContextHolderStrategy());
+
+		SessionAuthenticationStrategy sessionAuthenticationStrategy = http
+			.getSharedObject(SessionAuthenticationStrategy.class);
+		if (sessionAuthenticationStrategy != null) {
+			rememberMeFilter.setSessionAuthenticationStrategy(sessionAuthenticationStrategy);
+		}
+
 		rememberMeFilter = postProcess(rememberMeFilter);
 		http.addFilter(rememberMeFilter);
 	}
@@ -444,20 +452,12 @@ public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>>
 		if (shared != null) {
 			return shared;
 		}
-		return getBeanOrNull(type);
-	}
 
-	private <T> T getBeanOrNull(Class<T> type) {
 		ApplicationContext context = getBuilder().getSharedObject(ApplicationContext.class);
 		if (context == null) {
 			return null;
 		}
-		try {
-			return context.getBean(type);
-		}
-		catch (NoSuchBeanDefinitionException ex) {
-			return null;
-		}
+		return context.getBeanProvider(type).getIfUnique();
 	}
 
 }

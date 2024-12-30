@@ -18,10 +18,10 @@ package org.springframework.security.htmlunit.server;
 
 import java.io.IOException;
 
-import com.gargoylesoftware.htmlunit.WebClient;
-import com.gargoylesoftware.htmlunit.WebConnection;
-import com.gargoylesoftware.htmlunit.WebRequest;
-import com.gargoylesoftware.htmlunit.WebResponse;
+import org.htmlunit.WebClient;
+import org.htmlunit.WebConnection;
+import org.htmlunit.WebRequest;
+import org.htmlunit.WebResponse;
 
 import org.springframework.lang.Nullable;
 import org.springframework.test.web.reactive.server.FluxExchangeResult;

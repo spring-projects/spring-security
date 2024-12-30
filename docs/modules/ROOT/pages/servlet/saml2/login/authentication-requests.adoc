@@ -4,13 +4,50 @@
 As stated earlier, Spring Security's SAML 2.0 support produces a `<saml2:AuthnRequest>` to commence authentication with the asserting party.
 
 Spring Security achieves this in part by registering the `Saml2WebSsoAuthenticationRequestFilter` in the filter chain.
-This filter by default responds to endpoint `+/saml2/authenticate/{registrationId}+`.
+This filter by default responds to the endpoints `+/saml2/authenticate/{registrationId}+` and `+/saml2/authenticate?registrationId={registrationId}+`.
 
 For example, if you were deployed to `https://rp.example.com` and you gave your registration an ID of `okta`, you could navigate to:
 
 `https://rp.example.org/saml2/authenticate/okta`
 
 and the result would be a redirect that included a `SAMLRequest` parameter containing the signed, deflated, and encoded `<saml2:AuthnRequest>`.
+
+[[configuring-authentication-request-uri]]
+== Configuring the `<saml2:AuthnRequest>` Endpoint
+
+To configure the endpoint differently from the default, you can set the value in `saml2Login`:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Bean
+SecurityFilterChain filterChain(HttpSecurity http) {
+	http
+        .saml2Login((saml2) -> saml2
+            .authenticationRequestUriQuery("/custom/auth/sso?peerEntityID={registrationId}")
+        );
+	return new CustomSaml2AuthenticationRequestRepository();
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun filterChain(http: HttpSecurity): SecurityFilterChain {
+    http {
+        saml2Login {
+            authenticationRequestUriQuery = "/custom/auth/sso?peerEntityID={registrationId}"
+        }
+    }
+    return CustomSaml2AuthenticationRequestRepository()
+}
+----
+======
 
 [[servlet-saml2login-store-authn-request]]
 == Changing How the `<saml2:AuthnRequest>` Gets Stored
@@ -78,7 +115,7 @@ Java::
 ----
 RelyingPartyRegistration relyingPartyRegistration = RelyingPartyRegistration.withRegistrationId("okta")
         // ...
-        .assertingPartyDetails(party -> party
+        .assertingPartyMetadata(party -> party
             // ...
             .wantAuthnRequestsSigned(false)
         )
@@ -87,16 +124,16 @@ RelyingPartyRegistration relyingPartyRegistration = RelyingPartyRegistration.wit
 
 Kotlin::
 +
-[source,java,role="secondary"]
+[source,kotlin,role="secondary"]
 ----
 var relyingPartyRegistration: RelyingPartyRegistration =
     RelyingPartyRegistration.withRegistrationId("okta")
         // ...
-        .assertingPartyDetails { party: AssertingPartyDetails.Builder -> party
+        .assertingPartyMetadata { party: AssertingPartyMetadata.Builder -> party
                 // ...
                 .wantAuthnRequestsSigned(false)
         }
-        .build();
+        .build()
 ----
 ======
 
@@ -118,7 +155,7 @@ Java::
 String metadataLocation = "classpath:asserting-party-metadata.xml";
 RelyingPartyRegistration relyingPartyRegistration = RelyingPartyRegistrations.fromMetadataLocation(metadataLocation)
         // ...
-        .assertingPartyDetails((party) -> party
+        .assertingPartyMetadata((party) -> party
             // ...
             .signingAlgorithms((sign) -> sign.add(SignatureConstants.ALGO_ID_SIGNATURE_RSA_SHA512))
         )
@@ -133,7 +170,7 @@ var metadataLocation = "classpath:asserting-party-metadata.xml"
 var relyingPartyRegistration: RelyingPartyRegistration =
     RelyingPartyRegistrations.fromMetadataLocation(metadataLocation)
         // ...
-        .assertingPartyDetails { party: AssertingPartyDetails.Builder -> party
+        .assertingPartyMetadata { party: AssertingPartyMetadata.Builder -> party
                 // ...
                 .signingAlgorithms { sign: MutableList<String?> ->
                     sign.add(
@@ -141,7 +178,7 @@ var relyingPartyRegistration: RelyingPartyRegistration =
                     )
                 }
         }
-        .build();
+        .build()
 ----
 ======
 
@@ -161,7 +198,7 @@ Java::
 ----
 RelyingPartyRegistration relyingPartyRegistration = RelyingPartyRegistration.withRegistrationId("okta")
         // ...
-        .assertingPartyDetails(party -> party
+        .assertingPartyMetadata(party -> party
             // ...
             .singleSignOnServiceBinding(Saml2MessageBinding.POST)
         )
@@ -175,7 +212,7 @@ Kotlin::
 var relyingPartyRegistration: RelyingPartyRegistration? =
     RelyingPartyRegistration.withRegistrationId("okta")
         // ...
-        .assertingPartyDetails { party: AssertingPartyDetails.Builder -> party
+        .assertingPartyMetadata { party: AssertingPartyMetadata.Builder -> party
             // ...
             .singleSignOnServiceBinding(Saml2MessageBinding.POST)
         }

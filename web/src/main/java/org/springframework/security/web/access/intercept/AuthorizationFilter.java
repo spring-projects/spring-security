@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,11 +28,12 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authorization.AuthorizationDecision;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.authorization.AuthorizationEventPublisher;
 import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.authorization.event.AuthorizationDeniedEvent;
 import org.springframework.security.authorization.event.AuthorizationGrantedEvent;
 import org.springframework.security.core.Authentication;
@@ -55,7 +56,7 @@ public class AuthorizationFilter extends GenericFilterBean {
 
 	private final AuthorizationManager<HttpServletRequest> authorizationManager;
 
-	private AuthorizationEventPublisher eventPublisher = AuthorizationFilter::noPublish;
+	private AuthorizationEventPublisher eventPublisher = new NoopAuthorizationEventPublisher();
 
 	private boolean observeOncePerRequest = false;
 
@@ -92,10 +93,10 @@ public class AuthorizationFilter extends GenericFilterBean {
 		String alreadyFilteredAttributeName = getAlreadyFilteredAttributeName();
 		request.setAttribute(alreadyFilteredAttributeName, Boolean.TRUE);
 		try {
-			AuthorizationDecision decision = this.authorizationManager.check(this::getAuthentication, request);
-			this.eventPublisher.publishAuthorizationEvent(this::getAuthentication, request, decision);
-			if (decision != null && !decision.isGranted()) {
-				throw new AccessDeniedException("Access Denied");
+			AuthorizationResult result = this.authorizationManager.authorize(this::getAuthentication, request);
+			this.eventPublisher.publishAuthorizationEvent(this::getAuthentication, request, result);
+			if (result != null && !result.isGranted()) {
+				throw new AuthorizationDeniedException("Access Denied", result);
 			}
 			chain.doFilter(request, response);
 		}
@@ -108,10 +109,8 @@ public class AuthorizationFilter extends GenericFilterBean {
 		if (DispatcherType.ERROR.equals(request.getDispatcherType()) && !this.filterErrorDispatch) {
 			return true;
 		}
-		if (DispatcherType.ASYNC.equals(request.getDispatcherType()) && !this.filterAsyncDispatch) {
-			return true;
-		}
-		return false;
+
+		return DispatcherType.ASYNC.equals(request.getDispatcherType()) && !this.filterAsyncDispatch;
 	}
 
 	private boolean isApplied(HttpServletRequest request) {
@@ -195,11 +194,6 @@ public class AuthorizationFilter extends GenericFilterBean {
 		this.filterAsyncDispatch = shouldFilterAllDispatcherTypes;
 	}
 
-	private static <T> void noPublish(Supplier<Authentication> authentication, T object,
-			AuthorizationDecision decision) {
-
-	}
-
 	public boolean isObserveOncePerRequest() {
 		return this.observeOncePerRequest;
 	}
@@ -233,6 +227,21 @@ public class AuthorizationFilter extends GenericFilterBean {
 	 */
 	public void setFilterAsyncDispatch(boolean filterAsyncDispatch) {
 		this.filterAsyncDispatch = filterAsyncDispatch;
+	}
+
+	private static class NoopAuthorizationEventPublisher implements AuthorizationEventPublisher {
+
+		@Override
+		public <T> void publishAuthorizationEvent(Supplier<Authentication> authentication, T object,
+				AuthorizationDecision decision) {
+
+		}
+
+		@Override
+		public <T> void publishAuthorizationEvent(Supplier<Authentication> authentication, T object,
+				AuthorizationResult result) {
+		}
+
 	}
 
 }

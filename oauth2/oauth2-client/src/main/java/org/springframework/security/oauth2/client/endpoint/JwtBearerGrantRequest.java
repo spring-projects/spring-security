@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,13 @@ package org.springframework.security.oauth2.client.endpoint;
 
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
+import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.util.StringUtils;
 
 /**
  * A JWT Bearer Grant request that holds a {@link Jwt} assertion.
@@ -55,6 +60,23 @@ public class JwtBearerGrantRequest extends AbstractOAuth2AuthorizationGrantReque
 	 */
 	public Jwt getJwt() {
 		return this.jwt;
+	}
+
+	/**
+	 * Populate default parameters for the JWT Bearer Grant.
+	 * @param grantRequest the authorization grant request
+	 * @return a {@link MultiValueMap} of the parameters used in the OAuth 2.0 Access
+	 * Token Request body
+	 */
+	static MultiValueMap<String, String> defaultParameters(JwtBearerGrantRequest grantRequest) {
+		ClientRegistration clientRegistration = grantRequest.getClientRegistration();
+		MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
+		if (!CollectionUtils.isEmpty(clientRegistration.getScopes())) {
+			parameters.set(OAuth2ParameterNames.SCOPE,
+					StringUtils.collectionToDelimitedString(clientRegistration.getScopes(), " "));
+		}
+		parameters.set(OAuth2ParameterNames.ASSERTION, grantRequest.getJwt().getTokenValue());
+		return parameters;
 	}
 
 }

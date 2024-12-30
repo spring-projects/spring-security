@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,12 @@
 package s101;
 
 import java.io.File;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import com.gargoylesoftware.htmlunit.WebClient;
+import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
+import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import org.gradle.api.Project;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Input;
@@ -25,6 +30,11 @@ import org.gradle.api.tasks.InputDirectory;
 
 public class S101PluginExtension {
 	private final Property<String> licenseId;
+
+	private final Property<String> repository;
+
+	private final Property<String> version;
+
 	private final Property<File> installationDirectory;
 	private final Property<File> configurationDirectory;
 	private final Property<String> label;
@@ -65,6 +75,24 @@ public class S101PluginExtension {
 		this.label.set(label);
 	}
 
+	@Input
+	public Property<String> getRepository() {
+		return repository;
+	}
+
+	public void setRepository(String repository) {
+		this.repository.set(repository);
+	}
+
+	@Input
+	public Property<String> getVersion() {
+		return this.version;
+	}
+
+	public void setVersion(String version) {
+		this.version.set(version);
+	}
+
 	public S101PluginExtension(Project project) {
 		this.licenseId = project.getObjects().property(String.class);
 		if (project.hasProperty("s101.licenseId")) {
@@ -77,6 +105,32 @@ public class S101PluginExtension {
 		this.label = project.getObjects().property(String.class);
 		if (project.hasProperty("s101.label")) {
 			setLabel((String) project.findProperty("s101.label"));
+		}
+		this.repository = project.getObjects().property(String.class);
+		if (project.hasProperty("s101.repository")) {
+			setRepository((String) project.findProperty("s101.repository"));
+		} else {
+			setRepository("https://structure101.com/binaries/v6");
+		}
+		this.version = project.getObjects().property(String.class);
+		if (project.hasProperty("s101.version")) {
+			setVersion((String) project.findProperty("s101.version"));
+		} else {
+			try (final WebClient webClient = new WebClient()) {
+				HtmlPage page = webClient.getPage(getRepository().get());
+				Matcher matcher = null;
+				for (HtmlAnchor anchor : page.getAnchors()) {
+					Matcher candidate = Pattern.compile("(structure101-build-java-all-)(.*).zip").matcher(anchor.getHrefAttribute());
+					if (candidate.find()) {
+						matcher = candidate;
+					}
+				}
+				if (matcher != null) {
+					setVersion(matcher.group(2));
+				}
+			} catch (Exception ex) {
+				throw new RuntimeException(ex);
+			}
 		}
 	}
 }

@@ -60,6 +60,7 @@ import org.springframework.security.web.authentication.preauth.x509.SubjectDnX50
 import org.springframework.security.web.authentication.preauth.x509.X509AuthenticationFilter;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
 import org.springframework.security.web.authentication.ui.DefaultLogoutPageGeneratingFilter;
+import org.springframework.security.web.authentication.ui.DefaultResourcesFilter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.csrf.CsrfToken;
@@ -154,6 +155,8 @@ final class AuthenticationConfigBuilder {
 	private BeanDefinition loginPageGenerationFilter;
 
 	private BeanDefinition logoutPageGenerationFilter;
+
+	private BeanDefinition defaultResourcesFilter;
 
 	private BeanDefinition etf;
 
@@ -635,6 +638,9 @@ final class AuthenticationConfigBuilder {
 			}
 			this.loginPageGenerationFilter = loginPageFilter.getBeanDefinition();
 			this.logoutPageGenerationFilter = logoutPageFilter.getBeanDefinition();
+			this.defaultResourcesFilter = BeanDefinitionBuilder.rootBeanDefinition(DefaultResourcesFilter.class)
+				.setFactoryMethod("css")
+				.getBeanDefinition();
 		}
 	}
 
@@ -889,6 +895,9 @@ final class AuthenticationConfigBuilder {
 		if (this.loginPageGenerationFilter != null) {
 			filters.add(new OrderDecorator(this.loginPageGenerationFilter, SecurityFilters.LOGIN_PAGE_FILTER));
 			filters.add(new OrderDecorator(this.logoutPageGenerationFilter, SecurityFilters.LOGOUT_PAGE_FILTER));
+		}
+		if (this.defaultResourcesFilter != null) {
+			filters.add(new OrderDecorator(this.defaultResourcesFilter, SecurityFilters.DEFAULT_RESOURCES_FILTER));
 		}
 		if (this.basicFilter != null) {
 			filters.add(new OrderDecorator(this.basicFilter, SecurityFilters.BASIC_AUTH_FILTER));

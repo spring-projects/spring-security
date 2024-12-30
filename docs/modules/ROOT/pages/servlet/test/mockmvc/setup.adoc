@@ -44,7 +44,7 @@ Kotlin::
 +
 [source,kotlin,role="secondary"]
 ----
-@ExtendWith(SpringExtension.class)
+@ExtendWith(SpringExtension::class)
 @ContextConfiguration(classes = [SecurityConfig::class])
 @WebAppConfiguration
 class CsrfShowcaseTests {
@@ -52,7 +52,7 @@ class CsrfShowcaseTests {
     @Autowired
     private lateinit var context: WebApplicationContext
 
-    private var mvc: MockMvc? = null
+    private lateinit var mvc: MockMvc
 
     @BeforeEach
     fun setup() {

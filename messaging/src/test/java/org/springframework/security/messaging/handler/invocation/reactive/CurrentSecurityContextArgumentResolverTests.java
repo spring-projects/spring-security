@@ -16,16 +16,20 @@
 
 package org.springframework.security.messaging.handler.invocation.reactive;
 
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Mono;
 
 import org.springframework.core.MethodParameter;
+import org.springframework.core.annotation.AliasFor;
 import org.springframework.core.annotation.SynthesizingMethodParameter;
 import org.springframework.security.authentication.TestAuthentication;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AnnotationTemplateExpressionDefaults;
 import org.springframework.security.core.annotation.CurrentSecurityContext;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
@@ -171,6 +175,39 @@ public class CurrentSecurityContextArgumentResolverTests {
 		assertThat(result.block().getAuthentication().getPrincipal()).isEqualTo(authentication.getPrincipal());
 	}
 
+	@Test
+	public void resolveArgumentCustomMetaAnnotation() {
+		Authentication authentication = TestAuthentication.authenticatedUser();
+		CustomSecurityContext securityContext = new CustomSecurityContext();
+		securityContext.setAuthentication(authentication);
+		Mono<UserDetails> result = (Mono<UserDetails>) this.resolver
+			.resolveArgument(arg0("showUserCustomMetaAnnotation"), null)
+			.contextWrite(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(securityContext)))
+			.block();
+		assertThat(result.block()).isEqualTo(authentication.getPrincipal());
+	}
+
+	@Test
+	public void resolveArgumentCustomMetaAnnotationTpl() {
+		this.resolver.setTemplateDefaults(new AnnotationTemplateExpressionDefaults());
+		Authentication authentication = TestAuthentication.authenticatedUser();
+		CustomSecurityContext securityContext = new CustomSecurityContext();
+		securityContext.setAuthentication(authentication);
+		Mono<UserDetails> result = (Mono<UserDetails>) this.resolver
+			.resolveArgument(arg0("showUserCustomMetaAnnotationTpl"), null)
+			.contextWrite(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(securityContext)))
+			.block();
+		assertThat(result.block()).isEqualTo(authentication.getPrincipal());
+	}
+
+	private void showUserCustomMetaAnnotation(
+			@AliasedCurrentSecurityContext(expression = "authentication.principal") Mono<UserDetails> user) {
+	}
+
+	private void showUserCustomMetaAnnotationTpl(
+			@CurrentAuthenticationProperty(property = "principal") Mono<UserDetails> user) {
+	}
+
 	@SuppressWarnings("unused")
 	private void monoCustomSecurityContext(Mono<CustomSecurityContext> securityContext) {
 	}
@@ -183,6 +220,25 @@ public class CurrentSecurityContextArgumentResolverTests {
 	@CurrentSecurityContext(expression = "authentication?.principal")
 	@Retention(RetentionPolicy.RUNTIME)
 	@interface CurrentUser {
+
+	}
+
+	@Target({ ElementType.PARAMETER })
+	@Retention(RetentionPolicy.RUNTIME)
+	@CurrentSecurityContext
+	@interface AliasedCurrentSecurityContext {
+
+		@AliasFor(annotation = CurrentSecurityContext.class)
+		String expression() default "";
+
+	}
+
+	@Target({ ElementType.PARAMETER })
+	@Retention(RetentionPolicy.RUNTIME)
+	@CurrentSecurityContext(expression = "authentication.{property}")
+	@interface CurrentAuthenticationProperty {
+
+		String property() default "";
 
 	}
 

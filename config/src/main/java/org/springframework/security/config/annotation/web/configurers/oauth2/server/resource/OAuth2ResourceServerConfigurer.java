@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -326,8 +326,7 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 			allMatcher.setUseEquals(true);
 			RequestMatcher notHtmlMatcher = new NegatedRequestMatcher(
 					new MediaTypeRequestMatcher(contentNegotiationStrategy, MediaType.TEXT_HTML));
-			RequestMatcher restNotHtmlMatcher = new AndRequestMatcher(
-					Arrays.<RequestMatcher>asList(notHtmlMatcher, restMatcher));
+			RequestMatcher restNotHtmlMatcher = new AndRequestMatcher(Arrays.asList(notHtmlMatcher, restMatcher));
 			RequestMatcher preferredMatcher = new OrRequestMatcher(
 					Arrays.asList(this.requestMatcher, X_REQUESTED_WITH, restNotHtmlMatcher, allMatcher));
 			exceptionHandling.defaultAuthenticationEntryPointFor(this.authenticationEntryPoint, preferredMatcher);

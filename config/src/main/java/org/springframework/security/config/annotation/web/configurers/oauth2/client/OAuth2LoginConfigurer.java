@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -149,6 +149,7 @@ import org.springframework.util.ReflectionUtils;
  *
  * @author Joe Grandja
  * @author Kazuki Shimizu
+ * @author Ngoc Nhan
  * @since 5.0
  * @see HttpSecurity#oauth2Login()
  * @see OAuth2AuthorizationRequestRedirectFilter
@@ -446,12 +447,10 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		if (names.length > 1) {
 			throw new NoUniqueBeanDefinitionException(type, names);
 		}
-		if (names.length == 1) {
-			return (JwtDecoderFactory<ClientRegistration>) this.getBuilder()
-				.getSharedObject(ApplicationContext.class)
-				.getBean(names[0]);
-		}
-		return null;
+		return (JwtDecoderFactory<ClientRegistration>) this.getBuilder()
+			.getSharedObject(ApplicationContext.class)
+			.getBeanProvider(type)
+			.getIfUnique();
 	}
 
 	private GrantedAuthoritiesMapper getGrantedAuthoritiesMapper() {
@@ -503,15 +502,13 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		return (bean != null) ? bean : new DefaultOAuth2UserService();
 	}
 
+	@SuppressWarnings("unchecked")
 	private <T> T getBeanOrNull(ResolvableType type) {
 		ApplicationContext context = getBuilder().getSharedObject(ApplicationContext.class);
-		if (context != null) {
-			String[] names = context.getBeanNamesForType(type);
-			if (names.length == 1) {
-				return (T) context.getBean(names[0]);
-			}
+		if (context == null) {
+			return null;
 		}
-		return null;
+		return (T) context.getBeanProvider(type).getIfUnique();
 	}
 
 	private void initDefaultLoginFilter(B http) {
@@ -582,6 +579,10 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 	}
 
 	private void configureOidcSessionRegistry(B http) {
+		if (http.getConfigurer(OidcLogoutConfigurer.class) == null
+				&& http.getSharedObject(OidcSessionRegistry.class) == null) {
+			return;
+		}
 		OidcSessionRegistry sessionRegistry = OAuth2ClientConfigurerUtils.getOidcSessionRegistry(http);
 		SessionManagementConfigurer<B> sessionConfigurer = http.getConfigurer(SessionManagementConfigurer.class);
 		if (sessionConfigurer != null) {

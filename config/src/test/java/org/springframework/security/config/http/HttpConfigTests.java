@@ -91,6 +91,7 @@ public class HttpConfigTests {
 		AuthorizationManager<HttpServletRequest> authorizationManager = this.spring.getContext()
 			.getBean(AuthorizationManager.class);
 		given(authorizationManager.check(any(), any())).willReturn(new AuthorizationDecision(false));
+		given(authorizationManager.authorize(any(), any())).willCallRealMethod();
 		// @formatter:off
 		this.mvc.perform(get("/"))
 				.andExpect(status().isFound())

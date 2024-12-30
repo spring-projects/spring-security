@@ -50,6 +50,10 @@ public final class PayloadExchangeMatcherReactiveAuthorizationManager
 		this.mappings = mappings;
 	}
 
+	/**
+	 * @deprecated please use {@link #authorize(Mono, Object)} instead
+	 */
+	@Deprecated
 	@Override
 	public Mono<AuthorizationDecision> check(Mono<Authentication> authentication, PayloadExchange exchange) {
 		return Flux.fromIterable(this.mappings)

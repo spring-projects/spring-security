@@ -33,6 +33,9 @@ import org.springframework.security.authentication.InternalAuthenticationService
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.password.CompromisedPasswordChecker;
+import org.springframework.security.authentication.password.CompromisedPasswordDecision;
+import org.springframework.security.authentication.password.CompromisedPasswordException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -48,6 +51,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -504,6 +508,42 @@ public class DaoAuthenticationProviderTests {
 		verify(encoder, times(0)).matches(anyString(), anyString());
 	}
 
+	@Test
+	void authenticateWhenPasswordLeakedThenException() {
+		DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+		provider.setPasswordEncoder(PasswordEncoderFactories.createDelegatingPasswordEncoder());
+		UserDetails user = User.withDefaultPasswordEncoder()
+			.username("user")
+			.password("password")
+			.roles("USER")
+			.build();
+		provider.setUserDetailsService(withUsers(user));
+		provider.setCompromisedPasswordChecker(new TestCompromisedPasswordChecker());
+		assertThatExceptionOfType(CompromisedPasswordException.class).isThrownBy(
+				() -> provider.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("user", "password")))
+			.withMessage("The provided password is compromised, please change your password");
+	}
+
+	@Test
+	void authenticateWhenPasswordNotLeakedThenNoException() {
+		DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+		provider.setPasswordEncoder(PasswordEncoderFactories.createDelegatingPasswordEncoder());
+		UserDetails user = User.withDefaultPasswordEncoder()
+			.username("user")
+			.password("strongpassword")
+			.roles("USER")
+			.build();
+		provider.setUserDetailsService(withUsers(user));
+		provider.setCompromisedPasswordChecker(new TestCompromisedPasswordChecker());
+		Authentication authentication = provider
+			.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("user", "strongpassword"));
+		assertThat(authentication).isNotNull();
+	}
+
+	private UserDetailsService withUsers(UserDetails... users) {
+		return new InMemoryUserDetailsManager(users);
+	}
+
 	private DaoAuthenticationProvider createProvider() {
 		DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
 		provider.setPasswordEncoder(NoOpPasswordEncoder.getInstance());
@@ -590,6 +630,18 @@ public class DaoAuthenticationProviderTests {
 				return new User("peter", "opal", true, true, false, true, ROLES_12);
 			}
 			throw new UsernameNotFoundException("Could not find: " + username);
+		}
+
+	}
+
+	private static class TestCompromisedPasswordChecker implements CompromisedPasswordChecker {
+
+		@Override
+		public CompromisedPasswordDecision check(String password) {
+			if ("password".equals(password)) {
+				return new CompromisedPasswordDecision(true);
+			}
+			return new CompromisedPasswordDecision(false);
 		}
 
 	}

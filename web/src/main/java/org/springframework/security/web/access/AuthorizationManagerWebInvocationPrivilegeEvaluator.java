@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@ package org.springframework.security.web.access;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
 
-import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.util.Assert;
@@ -57,8 +57,8 @@ public final class AuthorizationManagerWebInvocationPrivilegeEvaluator
 	public boolean isAllowed(String contextPath, String uri, String method, Authentication authentication) {
 		FilterInvocation filterInvocation = new FilterInvocation(contextPath, uri, method, this.servletContext);
 		HttpServletRequest httpRequest = this.requestTransformer.transform(filterInvocation.getHttpRequest());
-		AuthorizationDecision decision = this.authorizationManager.check(() -> authentication, httpRequest);
-		return decision == null || decision.isGranted();
+		AuthorizationResult result = this.authorizationManager.authorize(() -> authentication, httpRequest);
+		return result == null || result.isGranted();
 	}
 
 	@Override

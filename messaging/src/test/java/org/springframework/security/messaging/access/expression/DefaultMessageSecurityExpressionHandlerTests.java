@@ -22,6 +22,7 @@ import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -50,7 +51,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 @ExtendWith(MockitoExtension.class)
 public class DefaultMessageSecurityExpressionHandlerTests {
 
-	@Mock
+	@Mock(answer = Answers.CALLS_REAL_METHODS)
 	AuthenticationTrustResolver trustResolver;
 
 	@Mock

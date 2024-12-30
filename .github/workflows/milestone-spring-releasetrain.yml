@@ -23,18 +23,13 @@ jobs:
         export TOOL_VERSION=0.1.1
         wget "https://repo.maven.apache.org/maven2/io/spring/releasetrain/spring-release-train-tools/$TOOL_VERSION/spring-release-train-tools-$TOOL_VERSION.jar"
         java -cp "spring-release-train-tools-$TOOL_VERSION.jar" io.spring.releasetrain.CheckMilestoneDueOnMain --dueOn "$DUE_ON" --expectedDayOfWeek MONDAY --expectedMondayCount 3
-  notify_result:
-    name: Check for failures
-    needs: [spring-releasetrain-checks]
-    if: failure()
+  send-notification:
+    name: Send Notification
+    needs: [ spring-releasetrain-checks ]
+    if: ${{ failure() || cancelled() }}
     runs-on: ubuntu-latest
-    permissions:
-      actions: read
     steps:
-      - name: Send Slack message
-        uses: Gamesight/slack-workflow-status@v1.2.0
+      - name: Send Notification
+        uses: spring-io/spring-security-release-tools/.github/actions/send-notification@v1
         with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
-          channel: '#spring-security-ci'
-          name: 'CI Notifier'
+          webhook-url: ${{ secrets.SPRING_SECURITY_CI_GCHAT_WEBHOOK_URL }}

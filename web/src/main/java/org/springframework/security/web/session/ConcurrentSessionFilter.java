@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -141,7 +141,7 @@ public class ConcurrentSessionFilter extends GenericFilterBean {
 						.of(() -> "Requested session ID " + request.getRequestedSessionId() + " has expired."));
 					doLogout(request, response);
 					this.sessionInformationExpiredStrategy
-						.onExpiredSessionDetected(new SessionInformationExpiredEvent(info, request, response));
+						.onExpiredSessionDetected(new SessionInformationExpiredEvent(info, request, response, chain));
 					return;
 				}
 				// Non-expired - update last request date/time

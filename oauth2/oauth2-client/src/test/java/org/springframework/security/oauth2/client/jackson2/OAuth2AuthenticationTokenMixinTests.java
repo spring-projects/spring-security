@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -247,6 +247,7 @@ public class OAuth2AuthenticationTokenMixinTests {
 		return "{\n" +
 				"          \"@class\": \"org.springframework.security.oauth2.core.user.OAuth2UserAuthority\",\n" +
 				"          \"authority\": \"" + oauth2UserAuthority.getAuthority() + "\",\n" +
+				"          \"userNameAttributeName\": \"username\",\n" +
 				"          \"attributes\": {\n" +
 				"            \"@class\": \"java.util.Collections$UnmodifiableMap\",\n" +
 				"            \"username\": \"user\"\n" +
@@ -260,6 +261,7 @@ public class OAuth2AuthenticationTokenMixinTests {
 		return "{\n" +
 				"          \"@class\": \"org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority\",\n" +
 				"          \"authority\": \"" + oidcUserAuthority.getAuthority() + "\",\n" +
+				"          \"userNameAttributeName\": \"" + oidcUserAuthority.getUserNameAttributeName() + "\",\n" +
 				"          \"idToken\": " + asJson(oidcUserAuthority.getIdToken()) + ",\n" +
 				"          \"userInfo\": " + asJson(oidcUserAuthority.getUserInfo()) + "\n" +
 				"        }";

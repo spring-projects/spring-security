@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,17 +16,21 @@
 
 package org.springframework.security.config.annotation.web
 
+import org.springframework.context.ApplicationContext
 import org.springframework.http.HttpMethod
+import org.springframework.security.access.hierarchicalroles.NullRoleHierarchy
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy
 import org.springframework.security.authorization.AuthenticatedAuthorizationManager
 import org.springframework.security.authorization.AuthorityAuthorizationManager
 import org.springframework.security.authorization.AuthorizationDecision
 import org.springframework.security.authorization.AuthorizationManager
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer
+import org.springframework.security.config.core.GrantedAuthorityDefaults
 import org.springframework.security.core.Authentication
+import org.springframework.security.web.access.IpAddressAuthorizationManager
 import org.springframework.security.web.access.intercept.AuthorizationFilter
 import org.springframework.security.web.access.intercept.RequestAuthorizationContext
-import org.springframework.security.web.access.IpAddressAuthorizationManager
 import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher
 import org.springframework.security.web.util.matcher.AnyRequestMatcher
 import org.springframework.security.web.util.matcher.RequestMatcher
@@ -41,10 +45,29 @@ import java.util.function.Supplier
  * @since 5.7
  * @property shouldFilterAllDispatcherTypes whether the [AuthorizationFilter] should filter all dispatcher types
  */
-class AuthorizeHttpRequestsDsl : AbstractRequestMatcherDsl() {
+class AuthorizeHttpRequestsDsl : AbstractRequestMatcherDsl {
+    @Deprecated("""
+        Add authorization rules to DispatcherType directly.
+
+        @Configuration
+        @EnableWebSecurity
+        public class SecurityConfig {
+            @Bean
+            public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+                http
+                    .authorizeHttpRequests((authorize) -> authorize
+                        .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
+                        // ...
+                    );
+                return http.build();
+            }
+          }
+    """)
     var shouldFilterAllDispatcherTypes: Boolean? = null
 
     private val authorizationRules = mutableListOf<AuthorizationManagerRule>()
+    private val rolePrefix: String
+    private val roleHierarchy: RoleHierarchy
 
     private val HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME = "mvcHandlerMappingIntrospector"
     private val HANDLER_MAPPING_INTROSPECTOR = "org.springframework.web.servlet.handler.HandlerMappingIntrospector"
@@ -190,7 +213,8 @@ class AuthorizeHttpRequestsDsl : AbstractRequestMatcherDsl() {
      * @return the [AuthorizationManager] with the provided authority
      */
     fun hasAuthority(authority: String): AuthorizationManager<RequestAuthorizationContext> {
-        return AuthorityAuthorizationManager.hasAuthority(authority)
+        val manager = AuthorityAuthorizationManager.hasAuthority<RequestAuthorizationContext>(authority)
+        return withRoleHierarchy(manager)
     }
 
     /**
@@ -200,7 +224,8 @@ class AuthorizeHttpRequestsDsl : AbstractRequestMatcherDsl() {
      * @return the [AuthorizationManager] with the provided authorities
      */
     fun hasAnyAuthority(vararg authorities: String): AuthorizationManager<RequestAuthorizationContext> {
-        return AuthorityAuthorizationManager.hasAnyAuthority(*authorities)
+        val manager = AuthorityAuthorizationManager.hasAnyAuthority<RequestAuthorizationContext>(*authorities)
+        return withRoleHierarchy(manager)
     }
 
     /**
@@ -210,7 +235,8 @@ class AuthorizeHttpRequestsDsl : AbstractRequestMatcherDsl() {
      * @return the [AuthorizationManager] with the provided role
      */
     fun hasRole(role: String): AuthorizationManager<RequestAuthorizationContext> {
-        return AuthorityAuthorizationManager.hasRole(role)
+        val manager = AuthorityAuthorizationManager.hasAnyRole<RequestAuthorizationContext>(this.rolePrefix, arrayOf(role))
+        return withRoleHierarchy(manager)
     }
 
     /**
@@ -220,7 +246,8 @@ class AuthorizeHttpRequestsDsl : AbstractRequestMatcherDsl() {
      * @return the [AuthorizationManager] with the provided roles
      */
     fun hasAnyRole(vararg roles: String): AuthorizationManager<RequestAuthorizationContext> {
-        return AuthorityAuthorizationManager.hasAnyRole(*roles)
+        val manager = AuthorityAuthorizationManager.hasAnyRole<RequestAuthorizationContext>(this.rolePrefix, arrayOf(*roles))
+        return withRoleHierarchy(manager)
     }
 
     /**
@@ -272,5 +299,38 @@ class AuthorizeHttpRequestsDsl : AbstractRequestMatcherDsl() {
                 requests.shouldFilterAllDispatcherTypes(shouldFilter)
             }
         }
+    }
+
+    constructor() {
+        this.rolePrefix = "ROLE_"
+        this.roleHierarchy = NullRoleHierarchy()
+    }
+
+    constructor(context: ApplicationContext) {
+        val rolePrefix = resolveRolePrefix(context)
+        this.rolePrefix = rolePrefix
+        val roleHierarchy = resolveRoleHierarchy(context)
+        this.roleHierarchy = roleHierarchy
+    }
+
+    private fun resolveRolePrefix(context: ApplicationContext): String {
+        val beanNames = context.getBeanNamesForType(GrantedAuthorityDefaults::class.java)
+        if (beanNames.isNotEmpty()) {
+            return context.getBean(GrantedAuthorityDefaults::class.java).rolePrefix
+        }
+        return "ROLE_";
+    }
+
+    private fun resolveRoleHierarchy(context: ApplicationContext): RoleHierarchy {
+        val beanNames = context.getBeanNamesForType(RoleHierarchy::class.java)
+        if (beanNames.isNotEmpty()) {
+            return context.getBean(RoleHierarchy::class.java)
+        }
+        return NullRoleHierarchy()
+    }
+
+    private fun withRoleHierarchy(manager: AuthorityAuthorizationManager<RequestAuthorizationContext>): AuthorityAuthorizationManager<RequestAuthorizationContext> {
+        manager.setRoleHierarchy(this.roleHierarchy)
+        return manager
     }
 }

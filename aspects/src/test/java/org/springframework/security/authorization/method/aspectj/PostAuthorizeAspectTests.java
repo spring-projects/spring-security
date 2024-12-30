@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -103,6 +103,13 @@ public class PostAuthorizeAspectTests {
 		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(this.prePostSecured::denyAllMethod);
 	}
 
+	@Test
+	public void nestedDenyAllPostAuthorizeDeniesAccess() {
+		SecurityContextHolder.getContext().setAuthentication(this.anne);
+		assertThatExceptionOfType(AccessDeniedException.class)
+			.isThrownBy(() -> this.secured.myObject().denyAllMethod());
+	}
+
 	interface SecuredInterface {
 
 		@PostAuthorize("hasRole('X')")
@@ -134,6 +141,10 @@ public class PostAuthorizeAspectTests {
 			privateMethod();
 		}
 
+		NestedObject myObject() {
+			return new NestedObject();
+		}
+
 	}
 
 	static class SecuredImplSubclass extends SecuredImpl {
@@ -153,6 +164,15 @@ public class PostAuthorizeAspectTests {
 
 		@PostAuthorize("denyAll")
 		void denyAllMethod() {
+		}
+
+	}
+
+	static class NestedObject {
+
+		@PostAuthorize("denyAll")
+		void denyAllMethod() {
+
 		}
 
 	}

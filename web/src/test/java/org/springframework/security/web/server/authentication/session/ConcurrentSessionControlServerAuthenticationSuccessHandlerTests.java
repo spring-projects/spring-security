@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -74,15 +74,23 @@ class ConcurrentSessionControlServerAuthenticationSuccessHandlerTests {
 		given(this.exchange.getRequest()).willReturn(MockServerHttpRequest.get("/").build());
 		given(this.exchange.getSession()).willReturn(Mono.just(new MockWebSession()));
 		given(this.handler.handle(any())).willReturn(Mono.empty());
-		this.strategy = new ConcurrentSessionControlServerAuthenticationSuccessHandler(this.sessionRegistry);
-		this.strategy.setMaximumSessionsExceededHandler(this.handler);
+		this.strategy = new ConcurrentSessionControlServerAuthenticationSuccessHandler(this.sessionRegistry,
+				this.handler);
 	}
 
 	@Test
 	void constructorWhenNullRegistryThenException() {
 		assertThatIllegalArgumentException()
-			.isThrownBy(() -> new ConcurrentSessionControlServerAuthenticationSuccessHandler(null))
+			.isThrownBy(() -> new ConcurrentSessionControlServerAuthenticationSuccessHandler(null, this.handler))
 			.withMessage("sessionRegistry cannot be null");
+	}
+
+	@Test
+	void constructorWhenNullHandlerThenException() {
+		assertThatIllegalArgumentException()
+			.isThrownBy(
+					() -> new ConcurrentSessionControlServerAuthenticationSuccessHandler(this.sessionRegistry, null))
+			.withMessage("maximumSessionsExceededHandler cannot be null");
 	}
 
 	@Test
@@ -92,16 +100,10 @@ class ConcurrentSessionControlServerAuthenticationSuccessHandlerTests {
 	}
 
 	@Test
-	void setMaximumSessionsExceededHandlerWhenNullThenException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> this.strategy.setMaximumSessionsExceededHandler(null))
-			.withMessage("maximumSessionsExceededHandler cannot be null");
-	}
-
-	@Test
 	void onAuthenticationWhenSessionLimitIsUnlimitedThenDoNothing() {
 		ServerMaximumSessionsExceededHandler handler = mock(ServerMaximumSessionsExceededHandler.class);
+		this.strategy = new ConcurrentSessionControlServerAuthenticationSuccessHandler(this.sessionRegistry, handler);
 		this.strategy.setSessionLimit(SessionLimit.UNLIMITED);
-		this.strategy.setMaximumSessionsExceededHandler(handler);
 		this.strategy.onAuthenticationSuccess(null, TestAuthentication.authenticatedUser()).block();
 		verifyNoInteractions(handler, this.sessionRegistry);
 	}
@@ -111,7 +113,7 @@ class ConcurrentSessionControlServerAuthenticationSuccessHandlerTests {
 		Authentication authentication = TestAuthentication.authenticatedUser();
 		List<ReactiveSessionInformation> sessions = Arrays.asList(createSessionInformation("100"),
 				createSessionInformation("101"));
-		given(this.sessionRegistry.getAllSessions(authentication.getPrincipal(), false))
+		given(this.sessionRegistry.getAllSessions(authentication.getPrincipal()))
 			.willReturn(Flux.fromIterable(sessions));
 		this.strategy.onAuthenticationSuccess(new WebFilterExchange(this.exchange, this.chain), authentication).block();
 		verify(this.handler).handle(this.contextCaptor.capture());
@@ -127,7 +129,7 @@ class ConcurrentSessionControlServerAuthenticationSuccessHandlerTests {
 		List<ReactiveSessionInformation> sessions = Arrays.asList(createSessionInformation("100"),
 				createSessionInformation("101"), createSessionInformation("102"), createSessionInformation("103"),
 				createSessionInformation("104"));
-		given(this.sessionRegistry.getAllSessions(authentication.getPrincipal(), false))
+		given(this.sessionRegistry.getAllSessions(authentication.getPrincipal()))
 			.willReturn(Flux.fromIterable(sessions));
 		this.strategy.onAuthenticationSuccess(new WebFilterExchange(this.exchange, this.chain), authentication).block();
 		verify(this.handler).handle(this.contextCaptor.capture());
@@ -151,10 +153,8 @@ class ConcurrentSessionControlServerAuthenticationSuccessHandlerTests {
 		List<ReactiveSessionInformation> adminSessions = Arrays.asList(createSessionInformation("200"),
 				createSessionInformation("201"));
 
-		given(this.sessionRegistry.getAllSessions(user.getPrincipal(), false))
-			.willReturn(Flux.fromIterable(userSessions));
-		given(this.sessionRegistry.getAllSessions(admin.getPrincipal(), false))
-			.willReturn(Flux.fromIterable(adminSessions));
+		given(this.sessionRegistry.getAllSessions(user.getPrincipal())).willReturn(Flux.fromIterable(userSessions));
+		given(this.sessionRegistry.getAllSessions(admin.getPrincipal())).willReturn(Flux.fromIterable(adminSessions));
 
 		this.strategy.onAuthenticationSuccess(new WebFilterExchange(this.exchange, this.chain), user).block();
 		this.strategy.onAuthenticationSuccess(new WebFilterExchange(this.exchange, this.chain), admin).block();

@@ -101,7 +101,7 @@ The `AuthorizationManager` interface contains two methods:
 ----
 AuthorizationDecision check(Supplier<Authentication> authentication, Object secureObject);
 
-default AuthorizationDecision verify(Supplier<Authentication> authentication, Object secureObject)
+default void verify(Supplier<Authentication> authentication, Object secureObject)
         throws AccessDeniedException {
     // ...
 }
@@ -126,6 +126,7 @@ For method security, you can use `AuthorizationManagerBeforeMethodInterceptor` a
 
 [[authz-authorization-manager-implementations]]
 .Authorization Manager Implementations
+[.invert-dark]
 image::{figures}/authorizationhierarchy.png[]
 
 Using this approach, a composition of `AuthorizationManager` implementations can be polled on an authorization decision.
@@ -145,7 +146,7 @@ Many sites allow certain limited access under remember-me authentication, but re
 
 [[authz-authorization-managers]]
 ==== AuthorizationManagers
-There are also helpful static factories in {security-api-url}org/springframework/security/authorization/AuthorizationManagers.html[`AuthorizationManagers`] for composing individual ``AuthorizationManager``s into more sophisticated expressions.
+There are also helpful static factories in javadoc:org.springframework.security.authorization.AuthorizationManagers[] for composing individual ``AuthorizationManager``s into more sophisticated expressions.
 
 [[authz-custom-authorization-manager]]
 ==== Custom Authorization Managers
@@ -241,8 +242,8 @@ Alternatively, you can modify every access constraint which requires the "user" 
 This can get quite complicated if you have a lot of different roles in your application.
 
 The use of a role-hierarchy allows you to configure which roles (or authorities) should include others.
-An extended version of Spring Security's `RoleVoter`, `RoleHierarchyVoter`, is configured with a `RoleHierarchy`, from which it obtains all the "reachable authorities" which the user is assigned.
-A typical configuration might look like this:
+This is supported for filter-based authorization in `HttpSecurity#authorizeHttpRequests` and for method-based authorization through `DefaultMethodSecurityExpressionHandler` for pre-post annotations, `SecuredAuthorizationManager` for `@Secured`, and `Jsr250AuthorizationManager` for JSR-250 annotations.
+You can configure the behavior for all of them at once in the following way:
 
 .Hierarchical Roles Configuration
 [tabs]
@@ -260,7 +261,7 @@ static RoleHierarchy roleHierarchy() {
         .build();
 }
 
-// and, if using method security also add
+// and, if using pre-post method security also add
 @Bean
 static MethodSecurityExpressionHandler methodSecurityExpressionHandler(RoleHierarchy roleHierarchy) {
 	DefaultMethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler();
@@ -292,13 +293,10 @@ Xml::
 ----
 ======
 
-[NOTE]
-`RoleHierarchy` bean configuration is not yet ported over to `@EnableMethodSecurity`.
-As such this example is using `AccessDecisionVoter`.
-If you need `RoleHierarchy` support for method security, please continue using `@EnableGlobalMethodSecurity` until https://github.com/spring-projects/spring-security/issues/12783 is complete.
-
 Here we have four roles in a hierarchy `ROLE_ADMIN => ROLE_STAFF => ROLE_USER => ROLE_GUEST`.
-A user who is authenticated with `ROLE_ADMIN`, will behave as if they have all four roles when security constraints are evaluated against an `AuthorizationManager` adapted to call the above `RoleHierarchyVoter`.
+A user who is authenticated with `ROLE_ADMIN`, will behave as if they have all four roles when security constraints are evaluated against any filter- or method-based rules.
+
+[TIP]
 The `>` symbol can be thought of as meaning "includes".
 
 Role hierarchies offer a convenient means of simplifying the access-control configuration data for your application and/or reducing the number of authorities which you need to assign to a user.
@@ -345,6 +343,7 @@ The following image shows the `AccessDecisionManager` interface:
 
 [[authz-access-voting]]
 .Voting Decision Manager
+[.invert-dark]
 image::{figures}/access-decision-voting.png[]
 
 By using this approach, a series of `AccessDecisionVoter` implementations are polled on an authorization decision.
@@ -394,7 +393,7 @@ Many sites allow certain limited access under remember-me authentication but req
 
 When we have used the `IS_AUTHENTICATED_ANONYMOUSLY` attribute to grant anonymous access, this attribute was being processed by the `AuthenticatedVoter`.
 For more information, see
-{security-api-url}org/springframework/security/access/vote/AuthenticatedVoter.html[`AuthenticatedVoter`].
+javadoc:org.springframework.security.access.vote.AuthenticatedVoter[].
 
 
 [[authz-custom-voter]]
@@ -405,6 +404,7 @@ For example, on the Spring web site, you can find a https://spring.io/blog/2009/
 
 [[authz-after-invocation]]
 .After Invocation Implementation
+[.invert-dark]
 image::{figures}/after-invocation.png[]
 
 Like many other parts of Spring Security, `AfterInvocationManager` has a single concrete implementation, `AfterInvocationProviderManager`, which polls a list of ``AfterInvocationProvider``s.

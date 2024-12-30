@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 package s101;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,18 +33,11 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
-import java.util.jar.JarEntry;
-import java.util.jar.JarInputStream;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import com.gargoylesoftware.htmlunit.WebClient;
-import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
-import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;
@@ -71,6 +63,10 @@ public class S101Configurer {
 
 	private final Path licenseDirectory;
 
+	private final String repository;
+
+	private final String version;
+
 	private final Project project;
 	private final Logger logger;
 
@@ -90,6 +86,9 @@ public class S101Configurer {
 			throw new UncheckedIOException(ex);
 		}
 		this.licenseDirectory = new File(System.getProperty("user.home") + "/.Structure101/java").toPath();
+		S101PluginExtension extension = project.getExtensions().getByType(S101PluginExtension.class);
+		this.repository = extension.getRepository().get();
+		this.version = extension.getVersion().get();
 	}
 
 	public void license(String licenseId) {
@@ -129,25 +128,7 @@ public class S101Configurer {
 
 	public void configure(File installationDirectory, File configurationDirectory) {
 		deleteDirectory(configurationDirectory);
-		String version = computeVersionFromInstallation(installationDirectory);
-		configureProject(version, configurationDirectory);
-	}
-
-	private String computeVersionFromInstallation(File installationDirectory) {
-		File buildJar = new File(installationDirectory, "structure101-java-build.jar");
-		try (JarInputStream input = new JarInputStream(new FileInputStream(buildJar))) {
-			JarEntry entry;
-			while ((entry = input.getNextJarEntry()) != null) {
-				if (entry.getName().contains("structure101-build.properties")) {
-					Properties properties = new Properties();
-					properties.load(input);
-					return properties.getProperty("s101-build");
-				}
-			}
-		} catch (Exception ex) {
-			throw new RuntimeException(ex);
-		}
-		throw new IllegalStateException("Unable to determine Structure101 version");
+		configureProject(this.version, configurationDirectory);
 	}
 
 	private boolean deleteDirectory(File directoryToBeDeleted) {
@@ -161,24 +142,8 @@ public class S101Configurer {
 	}
 
 	private String installBuildTool(File installationDirectory, File configurationDirectory) {
-		String source = "https://structure101.com/binaries/v6";
-		try (final WebClient webClient = new WebClient()) {
-			HtmlPage page = webClient.getPage(source);
-			Matcher matcher = null;
-			for (HtmlAnchor anchor : page.getAnchors()) {
-				Matcher candidate = Pattern.compile("(structure101-build-java-all-)(.*).zip").matcher(anchor.getHrefAttribute());
-				if (candidate.find()) {
-					matcher = candidate;
-				}
-			}
-			if (matcher == null) {
-				return null;
-			}
-			copyZipToFilesystem(source, installationDirectory, matcher.group(1) + matcher.group(2));
-			return matcher.group(2);
-		} catch (Exception ex) {
-			throw new RuntimeException(ex);
-		}
+		copyZipToFilesystem(this.repository, installationDirectory, "structure101-build-java-all-" + this.version);
+		return this.version;
 	}
 
 	private void copyZipToFilesystem(String source, File destination, String name) {

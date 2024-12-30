@@ -6,6 +6,12 @@ apply plugin: 'io.spring.convention.spring-module'
 apply plugin: 'trang'
 apply plugin: 'kotlin'
 
+configurations {
+	opensaml5 {
+		extendsFrom(optional, tests)
+	}
+}
+
 dependencies {
 	management platform(project(":spring-security-dependencies"))
 	// NB: Don't add other compile time dependencies to the config module as this breaks tooling
@@ -15,9 +21,11 @@ dependencies {
 	api 'org.springframework:spring-context'
 	api 'org.springframework:spring-core'
 
+	optional project(':spring-security-data')
 	optional project(':spring-security-ldap')
 	optional project(':spring-security-messaging')
-	optional project(':spring-security-saml2-service-provider')
+	optional project(path: ':spring-security-saml2-service-provider')
+	opensaml5 project(path: ':spring-security-saml2-service-provider', configuration: 'opensamlFiveMain')
 	optional project(':spring-security-oauth2-client')
 	optional project(':spring-security-oauth2-jose')
 	optional project(':spring-security-oauth2-resource-server')
@@ -35,6 +43,7 @@ dependencies {
 	optional 'org.jetbrains.kotlin:kotlin-reflect'
 	optional 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
 	optional 'jakarta.annotation:jakarta.annotation-api'
+	optional libs.webauthn4j.core
 
 	provided 'jakarta.servlet:jakarta.servlet-api'
 
@@ -65,7 +74,7 @@ dependencies {
 	testImplementation 'jakarta.websocket:jakarta.websocket-api'
 	testImplementation 'jakarta.websocket:jakarta.websocket-client-api'
 	testImplementation 'ldapsdk:ldapsdk:4.1'
-	testImplementation('net.sourceforge.htmlunit:htmlunit') {
+	testImplementation('org.htmlunit:htmlunit') {
 		exclude group: 'commons-logging', module: 'commons-logging'
 		exclude group: 'xml-apis', module: 'xml-apis'
 	}
@@ -80,7 +89,7 @@ dependencies {
 	testImplementation "org.hibernate.orm:hibernate-core"
 	testImplementation 'org.hsqldb:hsqldb'
 	testImplementation 'org.mockito:mockito-core'
-	testImplementation('org.seleniumhq.selenium:htmlunit-driver') {
+	testImplementation('org.seleniumhq.selenium:htmlunit3-driver') {
 		exclude group: 'commons-logging', module: 'commons-logging'
 		exclude group: 'xml-apis', module: 'xml-apis'
 	}
@@ -113,6 +122,8 @@ dependencies {
 		exclude group: "org.slf4j", module: "jcl-over-slf4j"
 	}
 	testImplementation libs.org.instancio.instancio.junit
+	testImplementation libs.org.eclipse.jetty.jetty.server
+	testImplementation libs.org.eclipse.jetty.jetty.servlet
 
 	testRuntimeOnly 'org.hsqldb:hsqldb'
 }
@@ -159,4 +170,27 @@ configure(project.tasks.withType(Test)) {
 	doFirst {
 		systemProperties['springSecurityVersion'] = version
 	}
+}
+
+test {
+	onOutput { descriptor, event ->
+		if (!project.hasProperty('serialization')) {
+			return
+		}
+		if (descriptor.name=='listClassesMissingSerialVersion()') {
+			logger.lifecycle(event.message)
+		}
+	}
+}
+
+tasks.register("opensaml5Test", Test) {
+	filter {
+		includeTestsMatching "org.springframework.security.config.annotation.web.configurers.saml2.*"
+	}
+	useJUnitPlatform()
+	classpath = sourceSets.main.output + sourceSets.test.output + configurations.opensaml5
+}
+
+tasks.named("check") {
+	dependsOn opensaml5Test
 }

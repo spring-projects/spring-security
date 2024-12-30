@@ -98,7 +98,7 @@ public class LdapProviderBeanDefinitionParser implements BeanDefinitionParser {
 			}
 			else if (StringUtils.hasText(hash)) {
 				authenticatorBuilder.addPropertyValue("passwordEncoder",
-						PasswordEncoderParser.createPasswordEncoderBeanDefinition(hash, false));
+						PasswordEncoderParser.createPasswordEncoderBeanDefinition(hash));
 			}
 		}
 		authenticatorBuilder.addConstructorArgValue(contextSource);

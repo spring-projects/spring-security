@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,18 @@
 
 package org.springframework.security.oauth2.client.oidc.userinfo;
 
+import java.util.LinkedHashSet;
+import java.util.Set;
+
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
+import org.springframework.security.oauth2.core.OAuth2AccessToken;
+import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
+import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
+import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -64,6 +74,26 @@ final class OidcUserRequestUtils {
 					userRequest.getClientRegistration().getScopes());
 		}
 		return false;
+	}
+
+	static OidcUser getUser(OidcUserRequest userRequest, OidcUserInfo userInfo) {
+		Set<GrantedAuthority> authorities = new LinkedHashSet<>();
+		ClientRegistration.ProviderDetails providerDetails = userRequest.getClientRegistration().getProviderDetails();
+		String userNameAttributeName = providerDetails.getUserInfoEndpoint().getUserNameAttributeName();
+		if (StringUtils.hasText(userNameAttributeName)) {
+			authorities.add(new OidcUserAuthority(userRequest.getIdToken(), userInfo, userNameAttributeName));
+		}
+		else {
+			authorities.add(new OidcUserAuthority(userRequest.getIdToken(), userInfo));
+		}
+		OAuth2AccessToken token = userRequest.getAccessToken();
+		for (String scope : token.getScopes()) {
+			authorities.add(new SimpleGrantedAuthority("SCOPE_" + scope));
+		}
+		if (StringUtils.hasText(userNameAttributeName)) {
+			return new DefaultOidcUser(authorities, userRequest.getIdToken(), userInfo, userNameAttributeName);
+		}
+		return new DefaultOidcUser(authorities, userRequest.getIdToken(), userInfo);
 	}
 
 	private OidcUserRequestUtils() {

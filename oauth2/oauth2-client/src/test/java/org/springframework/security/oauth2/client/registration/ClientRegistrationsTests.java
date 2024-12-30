@@ -455,6 +455,120 @@ public class ClientRegistrationsTests {
 		// @formatter:on
 	}
 
+	@Test
+	public void issuerWhenOidcConfigurationAllInformationThenSuccess() throws Exception {
+		ClientRegistration registration = registration(this.response).build();
+		ClientRegistration.ProviderDetails provider = registration.getProviderDetails();
+		assertIssuerMetadata(registration, provider);
+		assertThat(provider.getUserInfoEndpoint().getUri()).isEqualTo("https://example.com/oauth2/v3/userinfo");
+	}
+
+	private ClientRegistration.Builder registration(Map<String, Object> configuration) {
+		this.issuer = "https://example.com";
+		return ClientRegistrations.fromOidcConfiguration(configuration)
+			.clientId("client-id")
+			.clientSecret("client-secret");
+	}
+
+	@Test
+	public void issuerWhenOidcConfigurationResponseMissingJwksUriThenThrowsIllegalArgumentException() throws Exception {
+		this.response.remove("jwks_uri");
+		assertThatIllegalArgumentException().isThrownBy(() -> registration(this.response).build())
+			.withMessageContaining("The public JWK set URI must not be null");
+	}
+
+	@Test
+	public void issuerWhenOidcConfigurationResponseMissingUserInfoUriThenSuccess() throws Exception {
+		this.response.remove("userinfo_endpoint");
+		ClientRegistration registration = registration(this.response).build();
+		assertThat(registration.getProviderDetails().getUserInfoEndpoint().getUri()).isNull();
+	}
+
+	@Test
+	public void issuerWhenOidcConfigurationGrantTypesSupportedNullThenDefaulted() throws Exception {
+		this.response.remove("grant_types_supported");
+		ClientRegistration registration = registration(this.response).build();
+		assertThat(registration.getAuthorizationGrantType()).isEqualTo(AuthorizationGrantType.AUTHORIZATION_CODE);
+	}
+
+	@Test
+	public void issuerWhenOidcConfigurationImplicitGrantTypeThenSuccess() throws Exception {
+		this.response.put("grant_types_supported", Arrays.asList("implicit"));
+		ClientRegistration registration = registration(this.response).build();
+		// The authorization_code grant type is still the default
+		assertThat(registration.getAuthorizationGrantType()).isEqualTo(AuthorizationGrantType.AUTHORIZATION_CODE);
+	}
+
+	@Test
+	public void issuerWhenOidcConfigurationResponseAuthorizationEndpointIsNullThenSuccess() throws Exception {
+		this.response.put("grant_types_supported", Arrays.asList("urn:ietf:params:oauth:grant-type:jwt-bearer"));
+		this.response.remove("authorization_endpoint");
+		ClientRegistration registration = registration(this.response)
+			.authorizationGrantType(AuthorizationGrantType.JWT_BEARER)
+			.build();
+		assertThat(registration.getAuthorizationGrantType()).isEqualTo(AuthorizationGrantType.JWT_BEARER);
+		ClientRegistration.ProviderDetails provider = registration.getProviderDetails();
+		assertThat(provider.getAuthorizationUri()).isNull();
+	}
+
+	@Test
+	public void issuerWhenOidcConfigurationTokenEndpointAuthMethodsNullThenDefaulted() throws Exception {
+		this.response.remove("token_endpoint_auth_methods_supported");
+		ClientRegistration registration = registration(this.response).build();
+		assertThat(registration.getClientAuthenticationMethod())
+			.isEqualTo(ClientAuthenticationMethod.CLIENT_SECRET_BASIC);
+	}
+
+	@Test
+	public void issuerWhenOidcConfigurationClientSecretBasicAuthMethodThenMethodIsBasic() throws Exception {
+		this.response.put("token_endpoint_auth_methods_supported", Arrays.asList("client_secret_basic"));
+		ClientRegistration registration = registration(this.response).build();
+		assertThat(registration.getClientAuthenticationMethod())
+			.isEqualTo(ClientAuthenticationMethod.CLIENT_SECRET_BASIC);
+	}
+
+	@Test
+	public void issuerWhenOidcConfigurationTokenEndpointAuthMethodsPostThenMethodIsPost() throws Exception {
+		this.response.put("token_endpoint_auth_methods_supported", Arrays.asList("client_secret_post"));
+		ClientRegistration registration = registration(this.response).build();
+		assertThat(registration.getClientAuthenticationMethod())
+			.isEqualTo(ClientAuthenticationMethod.CLIENT_SECRET_POST);
+	}
+
+	@Test
+	public void issuerWhenOidcConfigurationClientSecretJwtAuthMethodThenMethodIsClientSecretBasic() throws Exception {
+		this.response.put("token_endpoint_auth_methods_supported", Arrays.asList("client_secret_jwt"));
+		ClientRegistration registration = registration(this.response).build();
+		// The client_secret_basic auth method is still the default
+		assertThat(registration.getClientAuthenticationMethod())
+			.isEqualTo(ClientAuthenticationMethod.CLIENT_SECRET_BASIC);
+	}
+
+	@Test
+	public void issuerWhenOidcConfigurationPrivateKeyJwtAuthMethodThenMethodIsClientSecretBasic() throws Exception {
+		this.response.put("token_endpoint_auth_methods_supported", Arrays.asList("private_key_jwt"));
+		ClientRegistration registration = registration(this.response).build();
+		// The client_secret_basic auth method is still the default
+		assertThat(registration.getClientAuthenticationMethod())
+			.isEqualTo(ClientAuthenticationMethod.CLIENT_SECRET_BASIC);
+	}
+
+	@Test
+	public void issuerWhenOidcConfigurationTokenEndpointAuthMethodsNoneThenMethodIsNone() throws Exception {
+		this.response.put("token_endpoint_auth_methods_supported", Arrays.asList("none"));
+		ClientRegistration registration = registration(this.response).build();
+		assertThat(registration.getClientAuthenticationMethod()).isEqualTo(ClientAuthenticationMethod.NONE);
+	}
+
+	@Test
+	public void issuerWhenOidcConfigurationTlsClientAuthMethodThenSuccess() throws Exception {
+		this.response.put("token_endpoint_auth_methods_supported", Arrays.asList("tls_client_auth"));
+		ClientRegistration registration = registration(this.response).build();
+		// The client_secret_basic auth method is still the default
+		assertThat(registration.getClientAuthenticationMethod())
+			.isEqualTo(ClientAuthenticationMethod.CLIENT_SECRET_BASIC);
+	}
+
 	private ClientRegistration.Builder registration(String path) throws Exception {
 		this.issuer = createIssuerFromServer(path);
 		this.response.put("issuer", this.issuer);

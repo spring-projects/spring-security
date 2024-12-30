@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,14 +20,14 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.core.convert.converter.Converter;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistration.ProviderDetails;
@@ -40,6 +40,7 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.converter.ClaimConversionService;
 import org.springframework.security.oauth2.core.converter.ClaimTypeConverter;
+import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.OidcScopes;
 import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.security.oauth2.core.oidc.StandardClaimNames;
@@ -56,6 +57,7 @@ import org.springframework.util.StringUtils;
  * Provider's.
  *
  * @author Joe Grandja
+ * @author Steve Riesenberg
  * @since 5.0
  * @see OAuth2UserService
  * @see OidcUserRequest
@@ -77,6 +79,10 @@ public class OidcUserService implements OAuth2UserService<OidcUserRequest, OidcU
 
 	private Function<ClientRegistration, Converter<Map<String, Object>, Map<String, Object>>> claimTypeConverterFactory = (
 			clientRegistration) -> DEFAULT_CLAIM_TYPE_CONVERTER;
+
+	private Predicate<OidcUserRequest> retrieveUserInfo = this::shouldRetrieveUserInfo;
+
+	private BiFunction<OidcUserRequest, OidcUserInfo, OidcUser> oidcUserMapper = OidcUserRequestUtils::getUser;
 
 	/**
 	 * Returns the default {@link Converter}'s used for type conversion of claim values
@@ -105,7 +111,7 @@ public class OidcUserService implements OAuth2UserService<OidcUserRequest, OidcU
 	public OidcUser loadUser(OidcUserRequest userRequest) throws OAuth2AuthenticationException {
 		Assert.notNull(userRequest, "userRequest cannot be null");
 		OidcUserInfo userInfo = null;
-		if (this.shouldRetrieveUserInfo(userRequest)) {
+		if (this.retrieveUserInfo.test(userRequest)) {
 			OAuth2User oauth2User = this.oauth2UserService.loadUser(userRequest);
 			Map<String, Object> claims = getClaims(userRequest, oauth2User);
 			userInfo = new OidcUserInfo(claims);
@@ -127,13 +133,7 @@ public class OidcUserService implements OAuth2UserService<OidcUserRequest, OidcU
 				throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
 			}
 		}
-		Set<GrantedAuthority> authorities = new LinkedHashSet<>();
-		authorities.add(new OidcUserAuthority(userRequest.getIdToken(), userInfo));
-		OAuth2AccessToken token = userRequest.getAccessToken();
-		for (String authority : token.getScopes()) {
-			authorities.add(new SimpleGrantedAuthority("SCOPE_" + authority));
-		}
-		return getUser(userRequest, userInfo, authorities);
+		return this.oidcUserMapper.apply(userRequest, userInfo);
 	}
 
 	private Map<String, Object> getClaims(OidcUserRequest userRequest, OAuth2User oauth2User) {
@@ -143,15 +143,6 @@ public class OidcUserService implements OAuth2UserService<OidcUserRequest, OidcU
 			return converter.convert(oauth2User.getAttributes());
 		}
 		return DEFAULT_CLAIM_TYPE_CONVERTER.convert(oauth2User.getAttributes());
-	}
-
-	private OidcUser getUser(OidcUserRequest userRequest, OidcUserInfo userInfo, Set<GrantedAuthority> authorities) {
-		ProviderDetails providerDetails = userRequest.getClientRegistration().getProviderDetails();
-		String userNameAttributeName = providerDetails.getUserInfoEndpoint().getUserNameAttributeName();
-		if (StringUtils.hasText(userNameAttributeName)) {
-			return new DefaultOidcUser(authorities, userRequest.getIdToken(), userInfo, userNameAttributeName);
-		}
-		return new DefaultOidcUser(authorities, userRequest.getIdToken(), userInfo);
 	}
 
 	private boolean shouldRetrieveUserInfo(OidcUserRequest userRequest) {
@@ -221,10 +212,91 @@ public class OidcUserService implements OAuth2UserService<OidcUserRequest, OidcU
 	 * resource will be requested, otherwise it will not.
 	 * @param accessibleScopes the scope(s) that allow access to the user info resource
 	 * @since 5.2
+	 * @deprecated Use {@link #setRetrieveUserInfo(Predicate)} instead
 	 */
+	@Deprecated(since = "6.3", forRemoval = true)
 	public final void setAccessibleScopes(Set<String> accessibleScopes) {
 		Assert.notNull(accessibleScopes, "accessibleScopes cannot be null");
 		this.accessibleScopes = accessibleScopes;
+	}
+
+	/**
+	 * Sets the {@code Predicate} used to determine if the UserInfo Endpoint should be
+	 * called to retrieve information about the End-User (Resource Owner).
+	 * <p>
+	 * By default, the UserInfo Endpoint is called if all of the following are true:
+	 * <ul>
+	 * <li>The user info endpoint is defined on the ClientRegistration</li>
+	 * <li>The Client Registration uses the
+	 * {@link AuthorizationGrantType#AUTHORIZATION_CODE}</li>
+	 * <li>The access token contains one or more scopes allowed to access the UserInfo
+	 * Endpoint ({@link OidcScopes#PROFILE profile}, {@link OidcScopes#EMAIL email},
+	 * {@link OidcScopes#ADDRESS address} or {@link OidcScopes#PHONE phone}) or the access
+	 * token scopes are empty</li>
+	 * </ul>
+	 * @param retrieveUserInfo the function used to determine if the UserInfo Endpoint
+	 * should be called
+	 * @since 6.3
+	 */
+	public final void setRetrieveUserInfo(Predicate<OidcUserRequest> retrieveUserInfo) {
+		Assert.notNull(retrieveUserInfo, "retrieveUserInfo cannot be null");
+		this.retrieveUserInfo = retrieveUserInfo;
+	}
+
+	/**
+	 * Sets the {@code BiFunction} used to map the {@link OidcUser user} from the
+	 * {@link OidcUserRequest user request} and {@link OidcUserInfo user info}.
+	 * <p>
+	 * This is useful when you need to map the user or authorities from the access token
+	 * itself. For example, when the authorization server provides authorization
+	 * information in the access token payload you can do the following: <pre>
+	 * 	&#64;Bean
+	 * 	public OidcUserService oidcUserService() {
+	 * 		var userService = new OidcUserService();
+	 * 		userService.setOidcUserMapper(oidcUserMapper());
+	 * 		return userService;
+	 * 	}
+	 *
+	 * 	private static BiFunction&lt;OidcUserRequest, OidcUserInfo, OidcUser&gt; oidcUserMapper() {
+	 * 		return (userRequest, userInfo) -> {
+	 * 			var accessToken = userRequest.getAccessToken();
+	 * 			var grantedAuthorities = new HashSet&lt;GrantedAuthority&gt;();
+	 * 			// TODO: Map authorities from the access token
+	 * 			var userNameAttributeName = "preferred_username";
+	 * 			return new DefaultOidcUser(
+	 * 				grantedAuthorities,
+	 * 				userRequest.getIdToken(),
+	 * 				userInfo,
+	 * 				userNameAttributeName
+	 * 			);
+	 * 		};
+	 * 	}
+	 * </pre>
+	 * <p>
+	 * Note that you can access the {@code userNameAttributeName} via the
+	 * {@link ClientRegistration} as follows: <pre>
+	 * 	var userNameAttributeName = userRequest.getClientRegistration()
+	 * 		.getProviderDetails()
+	 * 		.getUserInfoEndpoint()
+	 * 		.getUserNameAttributeName();
+	 * </pre>
+	 * <p>
+	 * By default, a {@link DefaultOidcUser} is created with authorities mapped as
+	 * follows:
+	 * <ul>
+	 * <li>An {@link OidcUserAuthority} is created from the {@link OidcIdToken} and
+	 * {@link OidcUserInfo} with an authority of {@code OIDC_USER}</li>
+	 * <li>Additional {@link SimpleGrantedAuthority authorities} are mapped from the
+	 * {@link OAuth2AccessToken#getScopes() access token scopes} with a prefix of
+	 * {@code SCOPE_}</li>
+	 * </ul>
+	 * @param oidcUserMapper the function used to map the {@link OidcUser} from the
+	 * {@link OidcUserRequest} and {@link OidcUserInfo}
+	 * @since 6.3
+	 */
+	public final void setOidcUserMapper(BiFunction<OidcUserRequest, OidcUserInfo, OidcUser> oidcUserMapper) {
+		Assert.notNull(oidcUserMapper, "oidcUserMapper cannot be null");
+		this.oidcUserMapper = oidcUserMapper;
 	}
 
 }

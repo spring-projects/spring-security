@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,34 +60,12 @@ public class DefaultLogoutPageGeneratingFilter extends OncePerRequestFilter {
 	}
 
 	private void renderLogout(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		StringBuilder sb = new StringBuilder();
-		sb.append("<!DOCTYPE html>\n");
-		sb.append("<html lang=\"en\">\n");
-		sb.append("  <head>\n");
-		sb.append("    <meta charset=\"utf-8\">\n");
-		sb.append("    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\">\n");
-		sb.append("    <meta name=\"description\" content=\"\">\n");
-		sb.append("    <meta name=\"author\" content=\"\">\n");
-		sb.append("    <title>Confirm Log Out?</title>\n");
-		sb.append("    <link href=\"https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css\" "
-				+ "rel=\"stylesheet\" integrity=\"sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M\" "
-				+ "crossorigin=\"anonymous\">\n");
-		sb.append("    <link href=\"https://getbootstrap.com/docs/4.0/examples/signin/signin.css\" "
-				+ "rel=\"stylesheet\" integrity=\"sha384-oOE/3m0LUMPub4kaC09mrdEhIc+e3exm4xOGxAmuFXhBNF4hcg/6MiAXAf5p0P56\" crossorigin=\"anonymous\"/>\n");
-		sb.append("  </head>\n");
-		sb.append("  <body>\n");
-		sb.append("     <div class=\"container\">\n");
-		sb.append("      <form class=\"form-signin\" method=\"post\" action=\"" + request.getContextPath()
-				+ "/logout\">\n");
-		sb.append("        <h2 class=\"form-signin-heading\">Are you sure you want to log out?</h2>\n");
-		sb.append(renderHiddenInputs(request)
-				+ "        <button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\">Log Out</button>\n");
-		sb.append("      </form>\n");
-		sb.append("    </div>\n");
-		sb.append("  </body>\n");
-		sb.append("</html>");
+		String renderedPage = HtmlTemplates.fromTemplate(LOGOUT_PAGE_TEMPLATE)
+			.withValue("contextPath", request.getContextPath())
+			.withRawHtml("hiddenInputs", renderHiddenInputs(request).indent(8))
+			.render();
 		response.setContentType("text/html;charset=UTF-8");
-		response.getWriter().write(sb.toString());
+		response.getWriter().write(renderedPage);
 	}
 
 	/**
@@ -104,13 +82,39 @@ public class DefaultLogoutPageGeneratingFilter extends OncePerRequestFilter {
 	private String renderHiddenInputs(HttpServletRequest request) {
 		StringBuilder sb = new StringBuilder();
 		for (Map.Entry<String, String> input : this.resolveHiddenInputs.apply(request).entrySet()) {
-			sb.append("<input name=\"");
-			sb.append(input.getKey());
-			sb.append("\" type=\"hidden\" value=\"");
-			sb.append(input.getValue());
-			sb.append("\" />\n");
+			String inputElement = HtmlTemplates.fromTemplate(HIDDEN_HTML_INPUT_TEMPLATE)
+				.withValue("name", input.getKey())
+				.withValue("value", input.getValue())
+				.render();
+			sb.append(inputElement);
 		}
 		return sb.toString();
 	}
+
+	private static final String LOGOUT_PAGE_TEMPLATE = """
+			<!DOCTYPE html>
+			<html lang="en">
+			  <head>
+			    <meta charset="utf-8">
+			    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+			    <meta name="description" content="">
+			    <meta name="author" content="">
+			    <title>Confirm Log Out?</title>
+			    <link href="{{contextPath}}/default-ui.css" rel="stylesheet" />
+			  </head>
+			  <body>
+			    <div class="content">
+			      <form class="logout-form" method="post" action="{{contextPath}}/logout">
+			        <h2>Are you sure you want to log out?</h2>
+			{{hiddenInputs}}
+			        <button class="primary" type="submit">Log Out</button>
+			      </form>
+			    </div>
+			  </body>
+			</html>""";
+
+	private static final String HIDDEN_HTML_INPUT_TEMPLATE = """
+			<input name="{{name}}" type="hidden" value="{{value}}" />
+			""";
 
 }

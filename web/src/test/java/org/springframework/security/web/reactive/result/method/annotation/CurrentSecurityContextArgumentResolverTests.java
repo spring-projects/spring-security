@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,10 +31,12 @@ import reactor.util.context.Context;
 
 import org.springframework.core.MethodParameter;
 import org.springframework.core.ReactiveAdapterRegistry;
+import org.springframework.core.annotation.AliasFor;
 import org.springframework.expression.BeanResolver;
 import org.springframework.expression.spel.SpelEvaluationException;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AnnotationTemplateExpressionDefaults;
 import org.springframework.security.core.annotation.CurrentSecurityContext;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
@@ -402,6 +404,42 @@ public class CurrentSecurityContextArgumentResolverTests {
 		ReactiveSecurityContextHolder.clearContext();
 	}
 
+	@Test
+	public void resolveArgumentCustomMetaAnnotation() {
+		MethodParameter parameter = ResolvableMethod.on(getClass())
+			.named("showUserCustomMetaAnnotation")
+			.build()
+			.arg(Mono.class, String.class);
+		Authentication auth = buildAuthenticationWithPrincipal("current_authentication");
+		Context context = ReactiveSecurityContextHolder.withAuthentication(auth);
+		Mono<Object> argument = this.resolver.resolveArgument(parameter, this.bindingContext, this.exchange);
+		String principal = (String) argument.contextWrite(context).cast(Mono.class).block().block();
+		assertThat(principal).isSameAs(auth.getPrincipal());
+		ReactiveSecurityContextHolder.clearContext();
+	}
+
+	@Test
+	public void resolveArgumentCustomMetaAnnotationTpl() {
+		this.resolver.setTemplateDefaults(new AnnotationTemplateExpressionDefaults());
+		MethodParameter parameter = ResolvableMethod.on(getClass())
+			.named("showUserCustomMetaAnnotationTpl")
+			.build()
+			.arg(Mono.class, String.class);
+		Authentication auth = buildAuthenticationWithPrincipal("current_authentication");
+		Context context = ReactiveSecurityContextHolder.withAuthentication(auth);
+		Mono<Object> argument = this.resolver.resolveArgument(parameter, this.bindingContext, this.exchange);
+		String principal = (String) argument.contextWrite(context).cast(Mono.class).block().block();
+		assertThat(principal).isSameAs(auth.getPrincipal());
+		ReactiveSecurityContextHolder.clearContext();
+	}
+
+	void showUserCustomMetaAnnotation(
+			@AliasedCurrentSecurityContext(expression = "authentication.principal") Mono<String> user) {
+	}
+
+	void showUserCustomMetaAnnotationTpl(@CurrentAuthenticationProperty(property = "principal") Mono<String> user) {
+	}
+
 	void securityContext(@CurrentSecurityContext Mono<SecurityContext> monoSecurityContext) {
 	}
 
@@ -476,6 +514,25 @@ public class CurrentSecurityContextArgumentResolverTests {
 	@Retention(RetentionPolicy.RUNTIME)
 	@CurrentSecurityContext(errorOnInvalidType = true)
 	@interface CurrentSecurityWithErrorOnInvalidType {
+
+	}
+
+	@Target({ ElementType.PARAMETER })
+	@Retention(RetentionPolicy.RUNTIME)
+	@CurrentSecurityContext
+	@interface AliasedCurrentSecurityContext {
+
+		@AliasFor(annotation = CurrentSecurityContext.class)
+		String expression() default "";
+
+	}
+
+	@Target({ ElementType.PARAMETER })
+	@Retention(RetentionPolicy.RUNTIME)
+	@CurrentSecurityContext(expression = "authentication.{property}")
+	@interface CurrentAuthenticationProperty {
+
+		String property() default "";
 
 	}
 

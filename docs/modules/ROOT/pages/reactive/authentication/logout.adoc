@@ -20,7 +20,7 @@ Java::
 @Bean
 SecurityWebFilterChain http(ServerHttpSecurity http) throws Exception {
     DelegatingServerLogoutHandler logoutHandler = new DelegatingServerLogoutHandler(
-            new WebSessionServerLogoutHandler(), new SecurityContextServerLogoutHandler()
+            new SecurityContextServerLogoutHandler(), new WebSessionServerLogoutHandler()
     );
 
     http
@@ -38,7 +38,7 @@ Kotlin::
 @Bean
 fun http(http: ServerHttpSecurity): SecurityWebFilterChain {
     val customLogoutHandler = DelegatingServerLogoutHandler(
-        WebSessionServerLogoutHandler(), SecurityContextServerLogoutHandler()
+        SecurityContextServerLogoutHandler(), WebSessionServerLogoutHandler()
     )
     
     return http {

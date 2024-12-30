@@ -42,7 +42,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.authentication.TestingAuthenticationToken;
-import org.springframework.security.config.annotation.ObjectPostProcessor;
+import org.springframework.security.config.ObjectPostProcessor;
 import org.springframework.security.config.annotation.SecurityContextChangedListenerConfig;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -484,6 +484,7 @@ public class Saml2LogoutConfigurerTests {
 		verify(getBean(Saml2LogoutResponseValidator.class)).validate(any());
 	}
 
+	// gh-11363
 	@Test
 	public void saml2LogoutWhenCustomLogoutRequestRepositoryThenUses() throws Exception {
 		this.spring.register(Saml2LogoutComponentsConfig.class).autowire();

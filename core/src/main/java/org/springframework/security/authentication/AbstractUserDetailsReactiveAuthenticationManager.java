@@ -25,6 +25,10 @@ import reactor.core.scheduler.Schedulers;
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.security.authentication.password.CompromisedPasswordChecker;
+import org.springframework.security.authentication.password.CompromisedPasswordDecision;
+import org.springframework.security.authentication.password.CompromisedPasswordException;
+import org.springframework.security.authentication.password.ReactiveCompromisedPasswordChecker;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.SpringSecurityMessageSource;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsPasswordService;
@@ -64,6 +68,8 @@ public abstract class AbstractUserDetailsReactiveAuthenticationManager
 
 	private UserDetailsChecker postAuthenticationChecks = this::defaultPostAuthenticationChecks;
 
+	private ReactiveCompromisedPasswordChecker compromisedPasswordChecker;
+
 	private void defaultPreAuthenticationChecks(UserDetails user) {
 		if (!user.isAccountNonLocked()) {
 			this.logger.debug("User account is locked");
@@ -100,10 +106,21 @@ public abstract class AbstractUserDetailsReactiveAuthenticationManager
 				.publishOn(this.scheduler)
 				.filter((userDetails) -> this.passwordEncoder.matches(presentedPassword, userDetails.getPassword()))
 				.switchIfEmpty(Mono.defer(() -> Mono.error(new BadCredentialsException("Invalid Credentials"))))
+				.flatMap((userDetails) -> checkCompromisedPassword(presentedPassword).thenReturn(userDetails))
 				.flatMap((userDetails) -> upgradeEncodingIfNecessary(userDetails, presentedPassword))
 				.doOnNext(this.postAuthenticationChecks::check)
 				.map(this::createUsernamePasswordAuthenticationToken);
 		// @formatter:on
+	}
+
+	private Mono<Void> checkCompromisedPassword(String password) {
+		if (this.compromisedPasswordChecker == null) {
+			return Mono.empty();
+		}
+		return this.compromisedPasswordChecker.check(password)
+			.filter(CompromisedPasswordDecision::isCompromised)
+			.flatMap((compromised) -> Mono.error(new CompromisedPasswordException(
+					"The provided password is compromised, please change your password")));
 	}
 
 	private Mono<UserDetails> upgradeEncodingIfNecessary(UserDetails userDetails, String presentedPassword) {
@@ -174,6 +191,16 @@ public abstract class AbstractUserDetailsReactiveAuthenticationManager
 	public void setMessageSource(MessageSource messageSource) {
 		Assert.notNull(messageSource, "messageSource cannot be null");
 		this.messages = new MessageSourceAccessor(messageSource);
+	}
+
+	/**
+	 * Sets the {@link ReactiveCompromisedPasswordChecker} to be used before creating a
+	 * successful authentication. Defaults to {@code null}.
+	 * @param compromisedPasswordChecker the {@link CompromisedPasswordChecker} to use
+	 * @since 6.3
+	 */
+	public void setCompromisedPasswordChecker(ReactiveCompromisedPasswordChecker compromisedPasswordChecker) {
+		this.compromisedPasswordChecker = compromisedPasswordChecker;
 	}
 
 	/**

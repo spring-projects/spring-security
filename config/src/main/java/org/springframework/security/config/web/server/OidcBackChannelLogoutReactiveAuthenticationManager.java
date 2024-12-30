@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,12 @@
 
 package org.springframework.security.config.web.server;
 
+import java.util.function.Function;
+
+import com.nimbusds.jose.JOSEObjectType;
+import com.nimbusds.jose.proc.DefaultJOSEObjectTypeVerifier;
+import com.nimbusds.jose.proc.JOSEObjectTypeVerifier;
+import com.nimbusds.jose.proc.JWKSecurityContext;
 import reactor.core.publisher.Mono;
 
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -23,19 +29,24 @@ import org.springframework.security.authentication.AuthenticationServiceExceptio
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.oauth2.client.oidc.authentication.ReactiveOidcIdTokenDecoderFactory;
+import org.springframework.security.oauth2.client.oidc.authentication.OidcIdTokenDecoderFactory;
 import org.springframework.security.oauth2.client.oidc.authentication.logout.OidcLogoutToken;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
+import org.springframework.security.oauth2.core.OAuth2TokenValidator;
+import org.springframework.security.oauth2.core.converter.ClaimTypeConverter;
 import org.springframework.security.oauth2.jwt.BadJwtException;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtDecoderFactory;
+import org.springframework.security.oauth2.jwt.JwtValidators;
+import org.springframework.security.oauth2.jwt.NimbusReactiveJwtDecoder;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoderFactory;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 /**
  * An {@link AuthenticationProvider} that authenticates an OIDC Logout Token; namely
@@ -61,9 +72,28 @@ final class OidcBackChannelLogoutReactiveAuthenticationManager implements Reacti
 	 * Construct an {@link OidcBackChannelLogoutReactiveAuthenticationManager}
 	 */
 	OidcBackChannelLogoutReactiveAuthenticationManager() {
-		ReactiveOidcIdTokenDecoderFactory logoutTokenDecoderFactory = new ReactiveOidcIdTokenDecoderFactory();
-		logoutTokenDecoderFactory.setJwtValidatorFactory(new DefaultOidcLogoutTokenValidatorFactory());
-		this.logoutTokenDecoderFactory = logoutTokenDecoderFactory;
+		Function<ClientRegistration, OAuth2TokenValidator<Jwt>> jwtValidator = (clientRegistration) -> JwtValidators
+			.createDefaultWithValidators(new OidcBackChannelLogoutTokenValidator(clientRegistration));
+		this.logoutTokenDecoderFactory = (clientRegistration) -> {
+			String jwkSetUri = clientRegistration.getProviderDetails().getJwkSetUri();
+			if (!StringUtils.hasText(jwkSetUri)) {
+				OAuth2Error oauth2Error = new OAuth2Error("missing_signature_verifier",
+						"Failed to find a Signature Verifier for Client Registration: '"
+								+ clientRegistration.getRegistrationId()
+								+ "'. Check to ensure you have configured the JwkSet URI.",
+						null);
+				throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
+			}
+			JOSEObjectTypeVerifier<JWKSecurityContext> typeVerifier = new DefaultJOSEObjectTypeVerifier<>(null,
+					JOSEObjectType.JWT, new JOSEObjectType("logout+jwt"));
+			NimbusReactiveJwtDecoder decoder = NimbusReactiveJwtDecoder.withJwkSetUri(jwkSetUri)
+				.jwtProcessorCustomizer((processor) -> processor.setJWSTypeVerifier(typeVerifier))
+				.build();
+			decoder.setJwtValidator(jwtValidator.apply(clientRegistration));
+			decoder.setClaimSetConverter(
+					new ClaimTypeConverter(OidcIdTokenDecoderFactory.createDefaultClaimTypeConverters()));
+			return decoder;
+		};
 	}
 
 	/**
@@ -80,7 +110,7 @@ final class OidcBackChannelLogoutReactiveAuthenticationManager implements Reacti
 			.map((jwt) -> OidcLogoutToken.withTokenValue(logoutToken)
 				.claims((claims) -> claims.putAll(jwt.getClaims()))
 				.build())
-			.map(OidcBackChannelLogoutAuthentication::new);
+			.map((oidcLogoutToken) -> new OidcBackChannelLogoutAuthentication(oidcLogoutToken, registration));
 	}
 
 	private Mono<Jwt> decode(ClientRegistration registration, String token) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,6 @@ import io.micrometer.common.KeyValues;
 import io.micrometer.observation.Observation;
 import io.micrometer.observation.ObservationConvention;
 import org.aopalliance.intercept.MethodInvocation;
-
-import org.springframework.security.authorization.method.MethodInvocationResult;
 
 /**
  * An {@link ObservationConvention} for translating authorizations into {@link KeyValues}.
@@ -85,10 +83,10 @@ public final class AuthorizationObservationConvention
 		if (context.getObject() instanceof MethodInvocation) {
 			return "method";
 		}
-		if (context.getObject() instanceof MethodInvocationResult) {
+		String className = context.getObject().getClass().getSimpleName();
+		if (className.contains("Method")) {
 			return "method";
 		}
-		String className = context.getObject().getClass().getSimpleName();
 		if (className.contains("Request")) {
 			return "request";
 		}
@@ -102,10 +100,10 @@ public final class AuthorizationObservationConvention
 	}
 
 	private String getAuthorizationDecision(AuthorizationObservationContext<?> context) {
-		if (context.getDecision() == null) {
+		if (context.getAuthorizationResult() == null) {
 			return "unknown";
 		}
-		return String.valueOf(context.getDecision().isGranted());
+		return String.valueOf(context.getAuthorizationResult().isGranted());
 	}
 
 	private String getAuthorities(AuthorizationObservationContext<?> context) {
@@ -116,10 +114,10 @@ public final class AuthorizationObservationConvention
 	}
 
 	private String getDecisionDetails(AuthorizationObservationContext<?> context) {
-		if (context.getDecision() == null) {
+		if (context.getAuthorizationResult() == null) {
 			return "unknown";
 		}
-		AuthorizationDecision decision = context.getDecision();
+		AuthorizationResult decision = context.getAuthorizationResult();
 		return String.valueOf(decision);
 	}
 

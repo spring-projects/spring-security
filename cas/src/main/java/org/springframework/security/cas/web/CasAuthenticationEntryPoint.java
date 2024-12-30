@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ import org.springframework.security.cas.ServiceProperties;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.DefaultRedirectStrategy;
+import org.springframework.security.web.RedirectStrategy;
 import org.springframework.util.Assert;
 
 /**
@@ -61,6 +62,8 @@ public class CasAuthenticationEntryPoint implements AuthenticationEntryPoint, In
 	 */
 	private boolean encodeServiceUrlWithSessionId = true;
 
+	private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
+
 	@Override
 	public void afterPropertiesSet() {
 		Assert.hasLength(this.loginUrl, "loginUrl must be specified");
@@ -74,8 +77,7 @@ public class CasAuthenticationEntryPoint implements AuthenticationEntryPoint, In
 		String urlEncodedService = createServiceUrl(servletRequest, response);
 		String redirectUrl = createRedirectUrl(urlEncodedService);
 		preCommence(servletRequest, response);
-		new DefaultRedirectStrategy().sendRedirect(servletRequest, response, redirectUrl);
-		// response.sendRedirect(redirectUrl);
+		this.redirectStrategy.sendRedirect(servletRequest, response, redirectUrl);
 	}
 
 	/**
@@ -147,6 +149,16 @@ public class CasAuthenticationEntryPoint implements AuthenticationEntryPoint, In
 	 */
 	protected boolean getEncodeServiceUrlWithSessionId() {
 		return this.encodeServiceUrlWithSessionId;
+	}
+
+	/**
+	 * Sets the {@link RedirectStrategy} to use
+	 * @param redirectStrategy the {@link RedirectStrategy} to use
+	 * @since 6.3
+	 */
+	public void setRedirectStrategy(RedirectStrategy redirectStrategy) {
+		Assert.notNull(redirectStrategy, "redirectStrategy cannot be null");
+		this.redirectStrategy = redirectStrategy;
 	}
 
 }

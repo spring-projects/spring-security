@@ -1,0 +1,22 @@
+name: Trigger Dependabot Auto Merge Forward
+
+on:
+  push:
+    branches:
+      - '*.x'
+
+permissions: read-all
+
+jobs:
+  trigger-worflow:
+    name: Trigger Workflow
+    runs-on: ubuntu-latest
+    if: ${{ github.event.commits[0].author.username == 'dependabot[bot]' && github.repository == 'spring-projects/spring-security' }}
+    steps:
+      - name: Checkout
+        id: checkout
+        uses: actions/checkout@v4
+      - id: trigger
+        env:
+          GH_TOKEN: ${{ secrets.GH_ACTIONS_REPO_TOKEN }}
+        run: gh workflow run dependabot-auto-merge-forward.yml -r main

@@ -105,7 +105,7 @@ Xml::
 == Bearer Token Propagation
 
 Now that your resource server has validated the token, it might be handy to pass it to downstream services.
-This is quite simple with `{security-api-url}org/springframework/security/oauth2/server/resource/web/reactive/function/client/ServletBearerExchangeFilterFunction.html[ServletBearerExchangeFilterFunction]`, which you can see in the following example:
+This is quite simple with javadoc:org.springframework.security.oauth2.server.resource.web.reactive.function.client.ServletBearerExchangeFilterFunction[], which you can see in the following example:
 
 [tabs]
 ======
@@ -134,7 +134,7 @@ fun rest(): WebClient {
 ----
 ======
 
-When the above `WebClient` is used to perform requests, Spring Security will look up the current `Authentication` and extract any `{security-api-url}org/springframework/security/oauth2/core/AbstractOAuth2Token.html[AbstractOAuth2Token]` credential.
+When the above `WebClient` is used to perform requests, Spring Security will look up the current `Authentication` and extract any javadoc:org.springframework.security.oauth2.core.AbstractOAuth2Token[] credential.
 Then, it will propagate that token in the `Authorization` header.
 
 For example:
@@ -198,7 +198,7 @@ this.rest.get()
 In this case, the filter will fall back and simply forward the request onto the rest of the web filter chain.
 
 [NOTE]
-Unlike the {security-api-url}org/springframework/security/oauth2/client/web/reactive/function/client/ServletOAuth2AuthorizedClientExchangeFilterFunction.html[OAuth 2.0 Client filter function], this filter function makes no attempt to renew the token, should it be expired.
+Unlike the javadoc:org.springframework.security.oauth2.client.web.reactive.function.client.ServletOAuth2AuthorizedClientExchangeFilterFunction[OAuth 2.0 Client filter function], this filter function makes no attempt to renew the token, should it be expired.
 To obtain this level of support, please use the OAuth 2.0 Client filter.
 
 === `RestTemplate` support
@@ -259,7 +259,7 @@ fun rest(): RestTemplate {
 
 
 [NOTE]
-Unlike the {security-api-url}org/springframework/security/oauth2/client/OAuth2AuthorizedClientManager.html[OAuth 2.0 Authorized Client Manager], this filter interceptor makes no attempt to renew the token, should it be expired.
+Unlike the javadoc:org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager[OAuth 2.0 Authorized Client Manager], this filter interceptor makes no attempt to renew the token, should it be expired.
 To obtain this level of support, please create an interceptor using the xref:servlet/oauth2/client/index.adoc#oauth2client[OAuth 2.0 Authorized Client Manager].
 
 [[oauth2resourceserver-bearertoken-failure]]

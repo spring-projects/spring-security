@@ -1,0 +1,36 @@
+name: Update dependabot.yml
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+
+  get-supported-branches:
+    uses: spring-io/spring-security-release-tools/.github/workflows/retrieve-spring-supported-versions.yml@actions-v1
+    with:
+      project: spring-security
+      type: oss
+      repository_name: spring-projects/spring-security
+
+  main:
+    runs-on: ubuntu-latest
+    needs: [get-supported-branches]
+    if: ${{ (github.repository == 'spring-projects/spring-security') && (github.ref == 'refs/heads/main') }}
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: spring-io/spring-security-release-tools/.github/actions/generate-dependabot-yml@actions-v1
+        name: Update dependabot.yml
+        with:
+          gradle-branches: ${{ needs.get-supported-branches.outputs.supported_versions }},main
+          github-actions-branches: ${{ needs.get-supported-branches.outputs.supported_versions }},main,docs-build
+          gh-token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: Update dependabot.yml

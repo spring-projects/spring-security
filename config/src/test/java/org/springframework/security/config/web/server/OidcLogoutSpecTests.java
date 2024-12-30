@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,8 +25,8 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
-import com.gargoylesoftware.htmlunit.util.UrlUtils;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
@@ -40,6 +40,7 @@ import okhttp3.mockwebserver.Dispatcher;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
+import org.htmlunit.util.UrlUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import reactor.core.publisher.Mono;
@@ -50,6 +51,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.client.reactive.ClientHttpConnector;
@@ -74,6 +76,8 @@ import org.springframework.security.oauth2.client.registration.TestClientRegistr
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.TestOidcIdTokens;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
+import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
+import org.springframework.security.oauth2.jwt.JwsHeader;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
@@ -96,7 +100,9 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.server.WebSession;
 import org.springframework.web.server.adapter.WebHttpHandlerBuilder;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasValue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.atLeastOnce;
@@ -195,7 +201,10 @@ public class OidcLogoutSpecTests {
 			.body(BodyInserters.fromFormData("logout_token", "invalid"))
 			.exchange()
 			.expectStatus()
-			.isBadRequest();
+			.isBadRequest()
+			.expectBody(new ParameterizedTypeReference<Map<String, String>>() {
+			})
+			.value(hasValue("invalid_request"));
 		this.test.get().uri("/token/logout").cookie("SESSION", session).exchange().expectStatus().isOk();
 	}
 
@@ -240,6 +249,79 @@ public class OidcLogoutSpecTests {
 			.isOk();
 		this.test.get().uri("/token/logout").cookie("SESSION", two).exchange().expectStatus().isUnauthorized();
 		this.test.get().uri("/token/logout").cookie("SESSION", three).exchange().expectStatus().isUnauthorized();
+	}
+
+	@Test
+	void logoutWhenRemoteLogoutUriThenUses() {
+		this.spring.register(WebServerConfig.class, OidcProviderConfig.class, LogoutUriConfig.class).autowire();
+		String registrationId = this.clientRegistration.getRegistrationId();
+		String one = login();
+		String logoutToken = this.test.get()
+			.uri("/token/logout/all")
+			.cookie("SESSION", one)
+			.exchange()
+			.expectStatus()
+			.isOk()
+			.returnResult(String.class)
+			.getResponseBody()
+			.blockFirst();
+		this.test.post()
+			.uri(this.web.url("/logout/connect/back-channel/" + registrationId).toString())
+			.body(BodyInserters.fromFormData("logout_token", logoutToken))
+			.exchange()
+			.expectStatus()
+			.isBadRequest()
+			.expectBody(new ParameterizedTypeReference<Map<String, String>>() {
+			})
+			.value(hasValue("partial_logout"))
+			.value(hasValue(containsString("not all sessions were terminated")));
+		this.test.get().uri("/token/logout").cookie("SESSION", one).exchange().expectStatus().isOk();
+	}
+
+	@Test
+	void logoutWhenSelfRemoteLogoutUriThenUses() {
+		this.spring.register(WebServerConfig.class, OidcProviderConfig.class, SelfLogoutUriConfig.class).autowire();
+		String registrationId = this.clientRegistration.getRegistrationId();
+		String sessionId = login();
+		String logoutToken = this.test.get()
+			.uri("/token/logout")
+			.cookie("SESSION", sessionId)
+			.exchange()
+			.expectStatus()
+			.isOk()
+			.returnResult(String.class)
+			.getResponseBody()
+			.blockFirst();
+		this.test.post()
+			.uri(this.web.url("/logout/connect/back-channel/" + registrationId).toString())
+			.body(BodyInserters.fromFormData("logout_token", logoutToken))
+			.exchange()
+			.expectStatus()
+			.isOk();
+		this.test.get().uri("/token/logout").cookie("SESSION", sessionId).exchange().expectStatus().isUnauthorized();
+	}
+
+	@Test
+	void logoutWhenDifferentCookieNameThenUses() {
+		this.spring.register(OidcProviderConfig.class, CookieConfig.class).autowire();
+		String registrationId = this.clientRegistration.getRegistrationId();
+		String sessionId = login();
+		String logoutToken = this.test.get()
+			.uri("/token/logout")
+			.cookie("SESSION", sessionId)
+			.exchange()
+			.expectStatus()
+			.isOk()
+			.returnResult(String.class)
+			.getResponseBody()
+			.blockFirst();
+		this.test.post()
+			.uri(this.web.url("/logout/connect/back-channel/" + registrationId).toString())
+			.body(BodyInserters.fromFormData("logout_token", logoutToken))
+			.exchange()
+			.expectStatus()
+			.isOk();
+		this.test.get().uri("/token/logout").cookie("SESSION", sessionId).exchange().expectStatus().isUnauthorized();
 	}
 
 	@Test
@@ -295,6 +377,30 @@ public class OidcLogoutSpecTests {
 			.getBean(ReactiveOidcSessionRegistry.class);
 		verify(sessionRegistry, atLeastOnce()).saveSessionInformation(any());
 		verify(sessionRegistry, atLeastOnce()).removeSessionInformation(any(OidcLogoutToken.class));
+	}
+
+	@Test
+	void logoutWhenProviderIssuerMissingThen5xxServerError() {
+		this.spring.register(WebServerConfig.class, OidcProviderConfig.class, ProviderIssuerMissingConfig.class)
+			.autowire();
+		String registrationId = this.clientRegistration.getRegistrationId();
+		String session = login();
+		String logoutToken = this.test.mutateWith(session(session))
+			.get()
+			.uri("/token/logout")
+			.exchange()
+			.expectStatus()
+			.isOk()
+			.returnResult(String.class)
+			.getResponseBody()
+			.blockFirst();
+		this.test.post()
+			.uri(this.web.url("/logout/connect/back-channel/" + registrationId).toString())
+			.body(BodyInserters.fromFormData("logout_token", logoutToken))
+			.exchange()
+			.expectStatus()
+			.is5xxServerError();
+		this.test.mutateWith(session(session)).get().uri("/token/logout").exchange().expectStatus().isOk();
 	}
 
 	private String login() {
@@ -399,6 +505,105 @@ public class OidcLogoutSpecTests {
 	@Configuration
 	@EnableWebFluxSecurity
 	@Import(RegistrationConfig.class)
+	static class LogoutUriConfig {
+
+		@Bean
+		@Order(1)
+		SecurityWebFilterChain filters(ServerHttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+					.authorizeExchange((authorize) -> authorize.anyExchange().authenticated())
+					.oauth2Login(Customizer.withDefaults())
+					.oidcLogout((oidc) -> oidc
+						.backChannel((backchannel) -> backchannel.logoutUri("http://localhost/wrong"))
+					);
+			// @formatter:on
+
+			return http.build();
+		}
+
+	}
+
+	@Configuration
+	@EnableWebFluxSecurity
+	@Import(RegistrationConfig.class)
+	static class SelfLogoutUriConfig {
+
+		@Bean
+		@Order(1)
+		SecurityWebFilterChain filters(ServerHttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeExchange((authorize) -> authorize.anyExchange().authenticated())
+				.oauth2Login(Customizer.withDefaults())
+				.oidcLogout((oidc) -> oidc
+					.backChannel(Customizer.withDefaults())
+				);
+			// @formatter:on
+
+			return http.build();
+		}
+
+	}
+
+	@Configuration
+	@EnableWebFluxSecurity
+	@Import(RegistrationConfig.class)
+	static class CookieConfig {
+
+		private final MockWebServer server = new MockWebServer();
+
+		@Bean
+		@Order(1)
+		SecurityWebFilterChain filters(ServerHttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeExchange((authorize) -> authorize.anyExchange().authenticated())
+				.oauth2Login(Customizer.withDefaults())
+				.oidcLogout((oidc) -> oidc
+					.backChannel(Customizer.withDefaults())
+				);
+			// @formatter:on
+
+			return http.build();
+		}
+
+		@Bean
+		ReactiveOidcSessionRegistry oidcSessionRegistry() {
+			return new InMemoryReactiveOidcSessionRegistry();
+		}
+
+		@Bean
+		OidcBackChannelServerLogoutHandler oidcLogoutHandler(ReactiveOidcSessionRegistry sessionRegistry) {
+			OidcBackChannelServerLogoutHandler logoutHandler = new OidcBackChannelServerLogoutHandler(sessionRegistry);
+			logoutHandler.setSessionCookieName("JSESSIONID");
+			return logoutHandler;
+		}
+
+		@Bean
+		MockWebServer web(ObjectProvider<WebTestClient> web) {
+			WebTestClientDispatcher dispatcher = new WebTestClientDispatcher(web);
+			dispatcher.setAssertion((rr) -> {
+				String cookie = rr.getHeaders().get("Cookie");
+				if (cookie == null) {
+					return;
+				}
+				assertThat(cookie).contains("JSESSIONID");
+			});
+			this.server.setDispatcher(dispatcher);
+			return this.server;
+		}
+
+		@PreDestroy
+		void shutdown() throws IOException {
+			this.server.shutdown();
+		}
+
+	}
+
+	@Configuration
+	@EnableWebFluxSecurity
+	@Import(RegistrationConfig.class)
 	static class WithCustomComponentsConfig {
 
 		ReactiveOidcSessionRegistry sessionRegistry = spy(new InMemoryReactiveOidcSessionRegistry());
@@ -409,7 +614,7 @@ public class OidcLogoutSpecTests {
 		// @formatter:off
 			http
 					.authorizeExchange((authorize) -> authorize.anyExchange().authenticated())
-					.oauth2Login((oauth2) -> oauth2.oidcSessionRegistry(this.sessionRegistry))
+					.oauth2Login(Customizer.withDefaults())
 					.oidcLogout((oidc) -> oidc.backChannel(Customizer.withDefaults()));
 			// @formatter:on
 
@@ -452,6 +657,54 @@ public class OidcLogoutSpecTests {
 	}
 
 	@Configuration
+	static class ProviderIssuerMissingRegistrationConfig {
+
+		@Autowired(required = false)
+		MockWebServer web;
+
+		@Bean
+		ClientRegistration clientRegistration() {
+			if (this.web == null) {
+				return TestClientRegistrations.clientRegistration().issuerUri(null).build();
+			}
+			String issuer = this.web.url("/").toString();
+			return TestClientRegistrations.clientRegistration()
+				.issuerUri(null)
+				.jwkSetUri(issuer + "jwks")
+				.tokenUri(issuer + "token")
+				.userInfoUri(issuer + "user")
+				.scope("openid")
+				.build();
+		}
+
+		@Bean
+		ReactiveClientRegistrationRepository clientRegistrationRepository(ClientRegistration clientRegistration) {
+			return new InMemoryReactiveClientRegistrationRepository(clientRegistration);
+		}
+
+	}
+
+	@Configuration
+	@EnableWebFluxSecurity
+	@Import(ProviderIssuerMissingRegistrationConfig.class)
+	static class ProviderIssuerMissingConfig {
+
+		@Bean
+		@Order(1)
+		SecurityWebFilterChain filters(ServerHttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+					.authorizeExchange((authorize) -> authorize.anyExchange().authenticated())
+					.oauth2Login(Customizer.withDefaults())
+					.oidcLogout((oidc) -> oidc.backChannel(Customizer.withDefaults()));
+			// @formatter:on
+
+			return http.build();
+		}
+
+	}
+
+	@Configuration
 	@EnableWebFluxSecurity
 	@EnableWebFlux
 	@RestController
@@ -488,6 +741,9 @@ public class OidcLogoutSpecTests {
 
 		@Autowired
 		ClientRegistration registration;
+
+		@Autowired(required = false)
+		MockWebServer web;
 
 		static ServerWebExchangeMatcher or(String... patterns) {
 			List<ServerWebExchangeMatcher> matchers = new ArrayList<>();
@@ -533,7 +789,7 @@ public class OidcLogoutSpecTests {
 		Map<String, Object> accessToken(WebSession session) {
 			JwtEncoderParameters parameters = JwtEncoderParameters
 					.from(JwtClaimsSet.builder().id("id").subject(this.username)
-							.issuer(this.registration.getProviderDetails().getIssuerUri()).issuedAt(Instant.now())
+							.issuer(getIssuerUri()).issuedAt(Instant.now())
 							.expiresAt(Instant.now().plusSeconds(86400)).claim("scope", "openid").build());
 			String token = this.encoder.encode(parameters).getTokenValue();
 			return new OIDCTokens(idToken(session.getId()), new BearerAccessToken(token, 86400, new Scope("openid")), null)
@@ -541,13 +797,20 @@ public class OidcLogoutSpecTests {
 		}
 
 		String idToken(String sessionId) {
-			OidcIdToken token = TestOidcIdTokens.idToken().issuer(this.registration.getProviderDetails().getIssuerUri())
+			OidcIdToken token = TestOidcIdTokens.idToken().issuer(getIssuerUri())
 					.subject(this.username).expiresAt(Instant.now().plusSeconds(86400))
 					.audience(List.of(this.registration.getClientId())).nonce(this.nonce)
 					.claim(LogoutTokenClaimNames.SID, sessionId).build();
 			JwtEncoderParameters parameters = JwtEncoderParameters
 					.from(JwtClaimsSet.builder().claims((claims) -> claims.putAll(token.getClaims())).build());
 			return this.encoder.encode(parameters).getTokenValue();
+		}
+
+		private String getIssuerUri() {
+			if (this.web == null) {
+				return TestClientRegistrations.clientRegistration().build().getProviderDetails().getIssuerUri();
+			}
+			return this.web.url("/").toString();
 		}
 
 		@GetMapping("/user")
@@ -564,8 +827,9 @@ public class OidcLogoutSpecTests {
 		String logoutToken(@AuthenticationPrincipal OidcUser user) {
 			OidcLogoutToken token = TestOidcLogoutTokens.withUser(user)
 					.audience(List.of(this.registration.getClientId())).build();
-			JwtEncoderParameters parameters = JwtEncoderParameters
-					.from(JwtClaimsSet.builder().claims((claims) -> claims.putAll(token.getClaims())).build());
+			JwsHeader header = JwsHeader.with(SignatureAlgorithm.RS256).type("logout+jwt").build();
+			JwtClaimsSet claims = JwtClaimsSet.builder().claims((c) -> c.putAll(token.getClaims())).build();
+			JwtEncoderParameters parameters = JwtEncoderParameters.from(header, claims);
 			return this.encoder.encode(parameters).getTokenValue();
 		}
 
@@ -574,8 +838,9 @@ public class OidcLogoutSpecTests {
 			OidcLogoutToken token = TestOidcLogoutTokens.withUser(user)
 					.audience(List.of(this.registration.getClientId()))
 					.claims((claims) -> claims.remove(LogoutTokenClaimNames.SID)).build();
-			JwtEncoderParameters parameters = JwtEncoderParameters
-					.from(JwtClaimsSet.builder().claims((claims) -> claims.putAll(token.getClaims())).build());
+			JwsHeader header = JwsHeader.with(SignatureAlgorithm.RS256).type("JWT").build();
+			JwtClaimsSet claims = JwtClaimsSet.builder().claims((c) -> c.putAll(token.getClaims())).build();
+			JwtEncoderParameters parameters = JwtEncoderParameters.from(header, claims);
 			return this.encoder.encode(parameters).getTokenValue();
 		}
 	}
@@ -604,12 +869,15 @@ public class OidcLogoutSpecTests {
 
 		private WebTestClient web;
 
+		private Consumer<RecordedRequest> assertion = (rr) -> { };
+
 		WebTestClientDispatcher(ObjectProvider<WebTestClient> web) {
 			this.webProvider = web;
 		}
 
 		@Override
 		public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
+			this.assertion.accept(request);
 			this.web = this.webProvider.getObject();
 			String method = request.getMethod();
 			String path = request.getPath();
@@ -652,6 +920,10 @@ public class OidcLogoutSpecTests {
 			}
 		}
 
+		void setAssertion(Consumer<RecordedRequest> assertion) {
+			this.assertion = assertion;
+		}
+
 		private String session(RecordedRequest request) {
 			String cookieHeaderValue = request.getHeader("Cookie");
 			if (cookieHeaderValue == null) {
@@ -661,6 +933,9 @@ public class OidcLogoutSpecTests {
 			for (String cookie : cookies) {
 				String[] parts = cookie.split("=");
 				if (SESSION_COOKIE_NAME.equals(parts[0])) {
+					return parts[1];
+				}
+				if ("JSESSIONID".equals(parts[0])) {
 					return parts[1];
 				}
 			}

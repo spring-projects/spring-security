@@ -1,0 +1,45 @@
+name: Mark Duplicate Dependabot PRs
+
+on:
+  pull_request:
+    types: [closed]
+
+jobs:
+  check_duplicate_prs:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.merged == true && github.event.pull_request.user.login == 'dependabot[bot]'
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Extract Dependency Name from PR Title
+        id: extract
+        run: |
+          PR_TITLE="${{ github.event.pull_request.title }}"
+          DEPENDENCY_NAME=$(echo "$PR_TITLE" | awk -F ' from ' '{print $1}')
+          echo "dependency_name=$DEPENDENCY_NAME" >> $GITHUB_OUTPUT
+
+      - name: Find PRs
+        id: find_duplicates
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          PRS=$(gh pr list --search 'milestone:${{ github.event.pull_request.milestone.title }} is:merged in:title "${{ steps.extract.outputs.dependency_name }}"' --json number --jq 'map(.number) | join(",")')
+          echo "prs=$PRS" >> $GITHUB_OUTPUT
+
+      - name: Label Duplicate PRs
+        if: steps.find_duplicates.outputs.prs != ''
+        env:
+          PRS: ${{ steps.find_duplicates.outputs.prs }}
+          CURRENT_PR_NUMBER: ${{ github.event.pull_request.number }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          for i in ${PRS//,/ }
+          do
+            if [ ! $i -eq "$CURRENT_PR_NUMBER" ]; then
+              echo "Marking PR $i as duplicate"
+              gh pr edit "$i" --add-label "status: duplicate"
+              gh pr comment "$i" --body "Duplicate of #$CURRENT_PR_NUMBER"
+            fi
+          done

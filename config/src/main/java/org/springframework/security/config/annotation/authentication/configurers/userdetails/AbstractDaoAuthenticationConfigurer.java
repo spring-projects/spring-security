@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 package org.springframework.security.config.annotation.authentication.configurers.userdetails;
 
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.annotation.ObjectPostProcessor;
+import org.springframework.security.config.ObjectPostProcessor;
 import org.springframework.security.config.annotation.SecurityBuilder;
 import org.springframework.security.config.annotation.authentication.ProviderManagerBuilder;
 import org.springframework.security.core.userdetails.UserDetailsPasswordService;
@@ -36,7 +36,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 public abstract class AbstractDaoAuthenticationConfigurer<B extends ProviderManagerBuilder<B>, C extends AbstractDaoAuthenticationConfigurer<B, C, U>, U extends UserDetailsService>
 		extends UserDetailsAwareConfigurer<B, U> {
 
-	private DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+	private DaoAuthenticationProvider provider;
 
 	private final U userDetailsService;
 
@@ -46,7 +46,7 @@ public abstract class AbstractDaoAuthenticationConfigurer<B extends ProviderMana
 	 */
 	AbstractDaoAuthenticationConfigurer(U userDetailsService) {
 		this.userDetailsService = userDetailsService;
-		this.provider.setUserDetailsService(userDetailsService);
+		this.provider = new DaoAuthenticationProvider(userDetailsService);
 		if (userDetailsService instanceof UserDetailsPasswordService) {
 			this.provider.setUserDetailsPasswordService((UserDetailsPasswordService) userDetailsService);
 		}
@@ -59,6 +59,17 @@ public abstract class AbstractDaoAuthenticationConfigurer<B extends ProviderMana
 	 */
 	@SuppressWarnings("unchecked")
 	public C withObjectPostProcessor(ObjectPostProcessor<?> objectPostProcessor) {
+		addObjectPostProcessor(objectPostProcessor);
+		return (C) this;
+	}
+
+	/**
+	 * @deprecated
+	 */
+	@Deprecated(since = "6.4", forRemoval = true)
+	@SuppressWarnings("unchecked")
+	public C withObjectPostProcessor(
+			org.springframework.security.config.annotation.ObjectPostProcessor<?> objectPostProcessor) {
 		addObjectPostProcessor(objectPostProcessor);
 		return (C) this;
 	}

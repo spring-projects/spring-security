@@ -31,6 +31,7 @@ import org.springframework.security.authorization.AuthorityAuthorizationManager;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.web.util.UrlUtils;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher.MatchResult;
@@ -67,11 +68,13 @@ public final class RequestMatcherDelegatingAuthorizationManager implements Autho
 	 * @return an {@link AuthorizationDecision}. If there is no {@link RequestMatcher}
 	 * matching the request, or the {@link AuthorizationManager} could not decide, then
 	 * null is returned
+	 * @deprecated please use {@link #authorize(Supplier, Object)} instead
 	 */
+	@Deprecated
 	@Override
 	public AuthorizationDecision check(Supplier<Authentication> authentication, HttpServletRequest request) {
 		if (this.logger.isTraceEnabled()) {
-			this.logger.trace(LogMessage.format("Authorizing %s", request));
+			this.logger.trace(LogMessage.format("Authorizing %s", requestLine(request)));
 		}
 		for (RequestMatcherEntry<AuthorizationManager<RequestAuthorizationContext>> mapping : this.mappings) {
 
@@ -80,7 +83,8 @@ public final class RequestMatcherDelegatingAuthorizationManager implements Autho
 			if (matchResult.isMatch()) {
 				AuthorizationManager<RequestAuthorizationContext> manager = mapping.getEntry();
 				if (this.logger.isTraceEnabled()) {
-					this.logger.trace(LogMessage.format("Checking authorization on %s using %s", request, manager));
+					this.logger.trace(
+							LogMessage.format("Checking authorization on %s using %s", requestLine(request), manager));
 				}
 				return manager.check(authentication,
 						new RequestAuthorizationContext(request, matchResult.getVariables()));
@@ -90,6 +94,10 @@ public final class RequestMatcherDelegatingAuthorizationManager implements Autho
 			this.logger.trace(LogMessage.of(() -> "Denying request since did not find matching RequestMatcher"));
 		}
 		return DENY;
+	}
+
+	private static String requestLine(HttpServletRequest request) {
+		return request.getMethod() + " " + UrlUtils.buildRequestUrl(request);
 	}
 
 	/**

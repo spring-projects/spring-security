@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,10 +27,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.core.MethodParameter;
+import org.springframework.core.annotation.AliasFor;
 import org.springframework.expression.BeanResolver;
 import org.springframework.expression.spel.SpelEvaluationException;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AnnotationTemplateExpressionDefaults;
 import org.springframework.security.core.annotation.CurrentSecurityContext;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContext;
@@ -247,6 +249,23 @@ public class CurrentSecurityContextArgumentResolverTests {
 			.resolveArgument(showCurrentSecurityWithErrorOnInvalidTypeMisMatch(), null, null, null));
 	}
 
+	@Test
+	public void resolveArgumentCustomMetaAnnotation() {
+		String principal = "current_authentcation";
+		setAuthenticationPrincipal(principal);
+		String p = (String) this.resolver.resolveArgument(showUserCustomMetaAnnotation(), null, null, null);
+		assertThat(p).isEqualTo(principal);
+	}
+
+	@Test
+	public void resolveArgumentCustomMetaAnnotationTpl() {
+		String principal = "current_authentcation";
+		setAuthenticationPrincipal(principal);
+		this.resolver.setTemplateDefaults(new AnnotationTemplateExpressionDefaults());
+		String p = (String) this.resolver.resolveArgument(showUserCustomMetaAnnotationTpl(), null, null, null);
+		assertThat(p).isEqualTo(principal);
+	}
+
 	private MethodParameter showSecurityContextNoAnnotationTypeMismatch() {
 		return getMethodParameter("showSecurityContextNoAnnotation", String.class);
 	}
@@ -305,6 +324,14 @@ public class CurrentSecurityContextArgumentResolverTests {
 
 	public MethodParameter showCurrentAuthentication() {
 		return getMethodParameter("showCurrentAuthentication", Authentication.class);
+	}
+
+	public MethodParameter showUserCustomMetaAnnotation() {
+		return getMethodParameter("showUserCustomMetaAnnotation", String.class);
+	}
+
+	public MethodParameter showUserCustomMetaAnnotationTpl() {
+		return getMethodParameter("showUserCustomMetaAnnotationTpl", String.class);
 	}
 
 	public MethodParameter showCurrentSecurityWithErrorOnInvalidType() {
@@ -394,6 +421,14 @@ public class CurrentSecurityContextArgumentResolverTests {
 		public void showCurrentAuthentication(@CurrentAuthentication Authentication authentication) {
 		}
 
+		public void showUserCustomMetaAnnotation(
+				@AliasedCurrentSecurityContext(expression = "authentication.principal") String name) {
+		}
+
+		public void showUserCustomMetaAnnotationTpl(
+				@CurrentAuthenticationProperty(property = "principal") String name) {
+		}
+
 		public void showCurrentSecurityWithErrorOnInvalidType(
 				@CurrentSecurityWithErrorOnInvalidType SecurityContext context) {
 		}
@@ -444,6 +479,25 @@ public class CurrentSecurityContextArgumentResolverTests {
 	@Retention(RetentionPolicy.RUNTIME)
 	@CurrentSecurityContext(errorOnInvalidType = true)
 	static @interface CurrentSecurityWithErrorOnInvalidType {
+
+	}
+
+	@Target({ ElementType.PARAMETER })
+	@Retention(RetentionPolicy.RUNTIME)
+	@CurrentSecurityContext
+	@interface AliasedCurrentSecurityContext {
+
+		@AliasFor(annotation = CurrentSecurityContext.class)
+		String expression() default "";
+
+	}
+
+	@Target({ ElementType.PARAMETER })
+	@Retention(RetentionPolicy.RUNTIME)
+	@CurrentSecurityContext(expression = "authentication.{property}")
+	@interface CurrentAuthenticationProperty {
+
+		String property() default "";
 
 	}
 

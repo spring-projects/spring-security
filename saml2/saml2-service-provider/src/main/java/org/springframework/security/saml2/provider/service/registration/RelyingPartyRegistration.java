@@ -24,8 +24,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Consumer;
 
-import org.opensaml.xmlsec.signature.support.SignatureConstants;
-
 import org.springframework.security.saml2.core.Saml2X509Credential;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
@@ -88,7 +86,7 @@ public class RelyingPartyRegistration {
 
 	private final boolean authnRequestsSigned;
 
-	private final AssertingPartyDetails assertingPartyDetails;
+	private final AssertingPartyMetadata assertingPartyMetadata;
 
 	private final Collection<Saml2X509Credential> decryptionX509Credentials;
 
@@ -127,7 +125,45 @@ public class RelyingPartyRegistration {
 		this.singleLogoutServiceBindings = Collections.unmodifiableList(new LinkedList<>(singleLogoutServiceBindings));
 		this.nameIdFormat = nameIdFormat;
 		this.authnRequestsSigned = authnRequestsSigned;
-		this.assertingPartyDetails = assertingPartyDetails;
+		this.assertingPartyMetadata = assertingPartyDetails;
+		this.decryptionX509Credentials = Collections.unmodifiableList(new LinkedList<>(decryptionX509Credentials));
+		this.signingX509Credentials = Collections.unmodifiableList(new LinkedList<>(signingX509Credentials));
+	}
+
+	private RelyingPartyRegistration(String registrationId, String entityId, String assertionConsumerServiceLocation,
+			Saml2MessageBinding assertionConsumerServiceBinding, String singleLogoutServiceLocation,
+			String singleLogoutServiceResponseLocation, Collection<Saml2MessageBinding> singleLogoutServiceBindings,
+			AssertingPartyMetadata assertingPartyMetadata, String nameIdFormat, boolean authnRequestsSigned,
+			Collection<Saml2X509Credential> decryptionX509Credentials,
+			Collection<Saml2X509Credential> signingX509Credentials) {
+		Assert.hasText(registrationId, "registrationId cannot be empty");
+		Assert.hasText(entityId, "entityId cannot be empty");
+		Assert.hasText(assertionConsumerServiceLocation, "assertionConsumerServiceLocation cannot be empty");
+		Assert.notNull(assertionConsumerServiceBinding, "assertionConsumerServiceBinding cannot be null");
+		Assert.isTrue(singleLogoutServiceLocation == null || !CollectionUtils.isEmpty(singleLogoutServiceBindings),
+				"singleLogoutServiceBindings cannot be null or empty when singleLogoutServiceLocation is set");
+		Assert.notNull(assertingPartyMetadata, "assertingPartyDetails cannot be null");
+		Assert.notNull(decryptionX509Credentials, "decryptionX509Credentials cannot be null");
+		for (Saml2X509Credential c : decryptionX509Credentials) {
+			Assert.notNull(c, "decryptionX509Credentials cannot contain null elements");
+			Assert.isTrue(c.isDecryptionCredential(),
+					"All decryptionX509Credentials must have a usage of DECRYPTION set");
+		}
+		Assert.notNull(signingX509Credentials, "signingX509Credentials cannot be null");
+		for (Saml2X509Credential c : signingX509Credentials) {
+			Assert.notNull(c, "signingX509Credentials cannot contain null elements");
+			Assert.isTrue(c.isSigningCredential(), "All signingX509Credentials must have a usage of SIGNING set");
+		}
+		this.registrationId = registrationId;
+		this.entityId = entityId;
+		this.assertionConsumerServiceLocation = assertionConsumerServiceLocation;
+		this.assertionConsumerServiceBinding = assertionConsumerServiceBinding;
+		this.singleLogoutServiceLocation = singleLogoutServiceLocation;
+		this.singleLogoutServiceResponseLocation = singleLogoutServiceResponseLocation;
+		this.singleLogoutServiceBindings = Collections.unmodifiableList(new LinkedList<>(singleLogoutServiceBindings));
+		this.nameIdFormat = nameIdFormat;
+		this.authnRequestsSigned = authnRequestsSigned;
+		this.assertingPartyMetadata = assertingPartyMetadata;
 		this.decryptionX509Credentials = Collections.unmodifiableList(new LinkedList<>(decryptionX509Credentials));
 		this.signingX509Credentials = Collections.unmodifiableList(new LinkedList<>(signingX509Credentials));
 	}
@@ -139,8 +175,7 @@ public class RelyingPartyRegistration {
 	 * @since 6.1
 	 */
 	public Builder mutate() {
-		AssertingPartyDetails party = this.assertingPartyDetails;
-		return withRegistrationId(this.registrationId).entityId(this.entityId)
+		return new Builder(this.registrationId, this.assertingPartyMetadata.mutate()).entityId(this.entityId)
 			.signingX509Credentials((c) -> c.addAll(this.signingX509Credentials))
 			.decryptionX509Credentials((c) -> c.addAll(this.decryptionX509Credentials))
 			.assertionConsumerServiceLocation(this.assertionConsumerServiceLocation)
@@ -149,17 +184,7 @@ public class RelyingPartyRegistration {
 			.singleLogoutServiceResponseLocation(this.singleLogoutServiceResponseLocation)
 			.singleLogoutServiceBindings((c) -> c.addAll(this.singleLogoutServiceBindings))
 			.nameIdFormat(this.nameIdFormat)
-			.authnRequestsSigned(this.authnRequestsSigned)
-			.assertingPartyDetails((assertingParty) -> assertingParty.entityId(party.getEntityId())
-				.wantAuthnRequestsSigned(party.getWantAuthnRequestsSigned())
-				.signingAlgorithms((algorithms) -> algorithms.addAll(party.getSigningAlgorithms()))
-				.verificationX509Credentials((c) -> c.addAll(party.getVerificationX509Credentials()))
-				.encryptionX509Credentials((c) -> c.addAll(party.getEncryptionX509Credentials()))
-				.singleSignOnServiceLocation(party.getSingleSignOnServiceLocation())
-				.singleSignOnServiceBinding(party.getSingleSignOnServiceBinding())
-				.singleLogoutServiceLocation(party.getSingleLogoutServiceLocation())
-				.singleLogoutServiceResponseLocation(party.getSingleLogoutServiceResponseLocation())
-				.singleLogoutServiceBinding(party.getSingleLogoutServiceBinding()));
+			.authnRequestsSigned(this.authnRequestsSigned);
 	}
 
 	/**
@@ -328,9 +353,22 @@ public class RelyingPartyRegistration {
 	 * Get the configuration details for the Asserting Party
 	 * @return the {@link AssertingPartyDetails}
 	 * @since 5.4
+	 * @deprecated Use {@link #getAssertingPartyMetadata()} instead
 	 */
+	@Deprecated
 	public AssertingPartyDetails getAssertingPartyDetails() {
-		return this.assertingPartyDetails;
+		Assert.isInstanceOf(AssertingPartyDetails.class, this.assertingPartyMetadata,
+				"This class was initialized with an AssertingPartyMetadata, please call #getAssertingPartyMetadata instead");
+		return (AssertingPartyDetails) this.assertingPartyMetadata;
+	}
+
+	/**
+	 * Get the metadata for the Asserting Party
+	 * @return the {@link AssertingPartyDetails}
+	 * @since 6.4
+	 */
+	public AssertingPartyMetadata getAssertingPartyMetadata() {
+		return this.assertingPartyMetadata;
 	}
 
 	/**
@@ -344,19 +382,34 @@ public class RelyingPartyRegistration {
 		return new Builder(registrationId, new AssertingPartyDetails.Builder());
 	}
 
+	/**
+	 * @param assertingPartyDetails the asserting party metadata
+	 * @return {@code Builder} to create a {@code RelyingPartyRegistration} object
+	 * @deprecated Use {@link #withAssertingPartyMetadata} instead
+	 */
+	@Deprecated(forRemoval = true, since = "6.4")
 	public static Builder withAssertingPartyDetails(AssertingPartyDetails assertingPartyDetails) {
 		Assert.notNull(assertingPartyDetails, "assertingPartyDetails cannot be null");
-		return withRegistrationId(assertingPartyDetails.getEntityId())
-			.assertingPartyDetails((party) -> party.entityId(assertingPartyDetails.getEntityId())
-				.wantAuthnRequestsSigned(assertingPartyDetails.getWantAuthnRequestsSigned())
-				.signingAlgorithms((algorithms) -> algorithms.addAll(assertingPartyDetails.getSigningAlgorithms()))
-				.verificationX509Credentials((c) -> c.addAll(assertingPartyDetails.getVerificationX509Credentials()))
-				.encryptionX509Credentials((c) -> c.addAll(assertingPartyDetails.getEncryptionX509Credentials()))
-				.singleSignOnServiceLocation(assertingPartyDetails.getSingleSignOnServiceLocation())
-				.singleSignOnServiceBinding(assertingPartyDetails.getSingleSignOnServiceBinding())
-				.singleLogoutServiceLocation(assertingPartyDetails.getSingleLogoutServiceLocation())
-				.singleLogoutServiceResponseLocation(assertingPartyDetails.getSingleLogoutServiceResponseLocation())
-				.singleLogoutServiceBinding(assertingPartyDetails.getSingleLogoutServiceBinding()));
+		return new Builder(assertingPartyDetails.getEntityId(), assertingPartyDetails.mutate());
+	}
+
+	/**
+	 * Creates a {@code RelyingPartyRegistration} {@link Builder} with a
+	 * {@code registrationId} equivalent to the asserting party entity id. Also
+	 * initializes to the contents of the given {@link AssertingPartyMetadata}.
+	 *
+	 * <p>
+	 * Presented as a convenience method when working with
+	 * {@link AssertingPartyMetadataRepository} return values. As such, only supports
+	 * {@link AssertingPartyMetadata} instances of type {@link AssertingPartyDetails}.
+	 * @param metadata the metadata used to initialize the
+	 * {@link RelyingPartyRegistration} {@link Builder}
+	 * @return {@link Builder} to create a {@link RelyingPartyRegistration} object
+	 * @since 6.4
+	 */
+	public static Builder withAssertingPartyMetadata(AssertingPartyMetadata metadata) {
+		Assert.notNull(metadata, "assertingPartyMetadata cannot be null");
+		return new Builder(metadata.getEntityId(), metadata.mutate());
 	}
 
 	/**
@@ -401,7 +454,7 @@ public class RelyingPartyRegistration {
 	 *
 	 * @since 5.4
 	 */
-	public static class AssertingPartyDetails {
+	public static class AssertingPartyDetails implements AssertingPartyMetadata {
 
 		private final String entityId;
 
@@ -592,7 +645,20 @@ public class RelyingPartyRegistration {
 			return this.singleLogoutServiceBinding;
 		}
 
-		public static class Builder {
+		public AssertingPartyDetails.Builder mutate() {
+			return new AssertingPartyDetails.Builder().entityId(this.entityId)
+				.wantAuthnRequestsSigned(this.wantAuthnRequestsSigned)
+				.signingAlgorithms((algorithms) -> algorithms.addAll(this.signingAlgorithms))
+				.verificationX509Credentials((c) -> c.addAll(this.verificationX509Credentials))
+				.encryptionX509Credentials((c) -> c.addAll(this.encryptionX509Credentials))
+				.singleSignOnServiceLocation(this.singleSignOnServiceLocation)
+				.singleSignOnServiceBinding(this.singleSignOnServiceBinding)
+				.singleLogoutServiceLocation(this.singleLogoutServiceLocation)
+				.singleLogoutServiceResponseLocation(this.singleLogoutServiceResponseLocation)
+				.singleLogoutServiceBinding(this.singleLogoutServiceBinding);
+		}
+
+		public static class Builder implements AssertingPartyMetadata.Builder<Builder> {
 
 			private String entityId;
 
@@ -770,7 +836,7 @@ public class RelyingPartyRegistration {
 			 */
 			public AssertingPartyDetails build() {
 				List<String> signingAlgorithms = this.signingAlgorithms.isEmpty()
-						? Collections.singletonList(SignatureConstants.ALGO_ID_SIGNATURE_RSA_SHA256)
+						? Collections.singletonList("http://www.w3.org/2001/04/xmldsig-more#rsa-sha256")
 						: Collections.unmodifiableList(this.signingAlgorithms);
 
 				return new AssertingPartyDetails(this.entityId, this.wantAuthnRequestsSigned, signingAlgorithms,
@@ -808,11 +874,11 @@ public class RelyingPartyRegistration {
 
 		private boolean authnRequestsSigned = false;
 
-		private AssertingPartyDetails.Builder assertingPartyDetailsBuilder;
+		private AssertingPartyMetadata.Builder<?> assertingPartyMetadataBuilder;
 
-		protected Builder(String registrationId, AssertingPartyDetails.Builder assertingPartyDetailsBuilder) {
+		protected Builder(String registrationId, AssertingPartyMetadata.Builder<?> assertingPartyMetadataBuilder) {
 			this.registrationId = registrationId;
-			this.assertingPartyDetailsBuilder = assertingPartyDetailsBuilder;
+			this.assertingPartyMetadataBuilder = assertingPartyMetadataBuilder;
 		}
 
 		/**
@@ -1017,9 +1083,24 @@ public class RelyingPartyRegistration {
 		 * @param assertingPartyDetails The {@link Consumer} to apply
 		 * @return the {@link Builder} for further configuration
 		 * @since 5.4
+		 * @deprecated Use {@link #assertingPartyMetadata} instead
 		 */
+		@Deprecated(forRemoval = true, since = "6.4")
 		public Builder assertingPartyDetails(Consumer<AssertingPartyDetails.Builder> assertingPartyDetails) {
-			assertingPartyDetails.accept(this.assertingPartyDetailsBuilder);
+			Assert.isInstanceOf(AssertingPartyDetails.Builder.class, this.assertingPartyMetadataBuilder,
+					"This class was constructed with an AssertingPartyMetadata instance, as such, please use #assertingPartyMetadata");
+			assertingPartyDetails.accept((AssertingPartyDetails.Builder) this.assertingPartyMetadataBuilder);
+			return this;
+		}
+
+		/**
+		 * Apply this {@link Consumer} to further configure the Asserting Party metadata
+		 * @param assertingPartyMetadata The {@link Consumer} to apply
+		 * @return the {@link Builder} for further configuration
+		 * @since 6.4
+		 */
+		public Builder assertingPartyMetadata(Consumer<AssertingPartyMetadata.Builder<?>> assertingPartyMetadata) {
+			assertingPartyMetadata.accept(this.assertingPartyMetadataBuilder);
 			return this;
 		}
 
@@ -1037,7 +1118,7 @@ public class RelyingPartyRegistration {
 				this.singleLogoutServiceBindings.add(Saml2MessageBinding.POST);
 			}
 
-			AssertingPartyDetails party = this.assertingPartyDetailsBuilder.build();
+			AssertingPartyMetadata party = this.assertingPartyMetadataBuilder.build();
 			return new RelyingPartyRegistration(this.registrationId, this.entityId,
 					this.assertionConsumerServiceLocation, this.assertionConsumerServiceBinding,
 					this.singleLogoutServiceLocation, this.singleLogoutServiceResponseLocation,

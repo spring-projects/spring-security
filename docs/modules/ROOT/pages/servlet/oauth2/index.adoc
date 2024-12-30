@@ -68,8 +68,8 @@ See xref:getting-spring-security.adoc[] for additional options when not using Sp
 
 Consider the following use cases for OAuth2 Resource Server:
 
-* <<oauth2-resource-server-access-token,I want to protect access to the API using OAuth2>> (authorization server provides JWT or opaque access token)
-* <<oauth2-resource-server-custom-jwt,I want to protect access to the API using a JWT>> (custom token)
+* I want to <<oauth2-resource-server-access-token,protect access to the API using OAuth2>> (authorization server provides JWT or opaque access token)
+* I want to <<oauth2-resource-server-custom-jwt,protect access to the API using a JWT>> (custom token)
 
 [[oauth2-resource-server-access-token]]
 === Protect Access with an OAuth2 Access Token
@@ -398,13 +398,15 @@ See xref:getting-spring-security.adoc[] for additional options when not using Sp
 
 Consider the following use cases for OAuth2 Client:
 
-* <<oauth2-client-log-users-in,I want to log users in using OAuth 2.0 or OpenID Connect 1.0>>
-* <<oauth2-client-access-protected-resources,I want to obtain an access token for users in order to access a third-party API>>
-* <<oauth2-client-access-protected-resources-current-user,I want to do both>> (log users in _and_ access a third-party API)
-* <<oauth2-client-enable-extension-grant-type,I want to enable an extension grant type>>
-* <<oauth2-client-customize-existing-grant-type,I want to customize an existing grant type>>
-* <<oauth2-client-customize-request-parameters,I want to customize token request parameters>>
-* <<oauth2-client-customize-rest-operations,I want to customize the `RestOperations` used by OAuth2 Client components>>
+* I want to <<oauth2-client-log-users-in,log users in using OAuth 2.0 or OpenID Connect 1.0>>
+* I want to <<oauth2-client-access-protected-resources,use `RestClient` to obtain an access token for users>> in order to access a third-party API
+* I want to <<oauth2-client-access-protected-resources-webclient,use `WebClient` to obtain an access token for users>> in order to access a third-party API
+* I want to <<oauth2-client-access-protected-resources-current-user,do both>> (log users in _and_ access a third-party API)
+* I want to <<oauth2-client-client-credentials,use the `client_credentials` grant type>> to obtain a single token per application
+* I want to <<oauth2-client-enable-extension-grant-type,enable an extension grant type>>
+* I want to <<oauth2-client-customize-existing-grant-type,customize an existing grant type>>
+* I want to <<oauth2-client-customize-request-parameters,customize token request parameters>>
+* I want to <<oauth2-client-customize-rest-operations,customize the `RestOperations` used by OAuth2 Client components>>
 
 [[oauth2-client-log-users-in]]
 === Log Users In with OAuth2
@@ -491,7 +493,7 @@ With the above configuration, the application now supports two additional endpoi
 ====
 The presence of the `openid` scope in the above configuration indicates that OpenID Connect 1.0 should be used.
 This instructs Spring Security to use OIDC-specific components (such as `OidcUserService`) during request processing.
-Without this scope, Spring Security will use OAuth2-specific components (such as `OAuth2UserService`) instead.
+Without this scope, Spring Security will use OAuth2-specific components (such as `DefaultOAuth2UserService`) instead.
 ====
 
 [[oauth2-client-access-protected-resources]]
@@ -584,7 +586,206 @@ Spring Security provides implementations of `OAuth2AuthorizedClientManager` for 
 Spring Security registers a default `OAuth2AuthorizedClientManager` bean for you when one does not exist.
 ====
 
-The easiest way to use an `OAuth2AuthorizedClientManager` is via an `ExchangeFilterFunction` that intercepts requests through a `WebClient`.
+The easiest way to use an `OAuth2AuthorizedClientManager` is via a `ClientHttpRequestInterceptor` that intercepts requests through a `RestClient`, which is already available when `spring-web` is on the classpath.
+
+The following example uses the default `OAuth2AuthorizedClientManager` to configure a `RestClient` capable of accessing protected resources by placing `Bearer` tokens in the `Authorization` header of each request:
+
+.Configure `RestClient` with `ClientHttpRequestInterceptor`
+[tabs]
+=====
+Java::
++
+[source,java,role="primary"]
+----
+@Configuration
+public class RestClientConfig {
+
+	@Bean
+	public RestClient restClient(OAuth2AuthorizedClientManager authorizedClientManager) {
+		OAuth2ClientHttpRequestInterceptor requestInterceptor =
+				new OAuth2ClientHttpRequestInterceptor(authorizedClientManager);
+		return RestClient.builder()
+				.requestInterceptor(requestInterceptor)
+				.build();
+	}
+
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Configuration
+class RestClientConfig {
+
+	@Bean
+	fun restClient(authorizedClientManager: OAuth2AuthorizedClientManager): RestClient {
+		val requestInterceptor = OAuth2ClientHttpRequestInterceptor(authorizedClientManager)
+		return RestClient.builder()
+			.requestInterceptor(requestInterceptor)
+			.build()
+	}
+
+}
+----
+=====
+
+This configured `RestClient` can be used as in the following example:
+
+[[oauth2-client-accessing-protected-resources-example]]
+.Use `RestClient` to Access Protected Resources
+[tabs]
+=====
+Java::
++
+[source,java,role="primary"]
+----
+import static org.springframework.security.oauth2.client.web.client.RequestAttributeClientRegistrationIdResolver.clientRegistrationId;
+
+@RestController
+public class MessagesController {
+
+	private final RestClient restClient;
+
+	public MessagesController(RestClient restClient) {
+		this.restClient = restClient;
+	}
+
+	@GetMapping("/messages")
+	public ResponseEntity<List<Message>> messages() {
+		Message[] messages = this.restClient.get()
+				.uri("http://localhost:8090/messages")
+				.attributes(clientRegistrationId("my-oauth2-client"))
+				.retrieve()
+				.body(Message[].class);
+		return ResponseEntity.ok(Arrays.asList(messages));
+	}
+
+	public record Message(String message) {
+	}
+
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+import org.springframework.security.oauth2.client.web.client.RequestAttributeClientRegistrationIdResolver.clientRegistrationId
+import org.springframework.web.client.body
+
+@RestController
+class MessagesController(private val restClient: RestClient) {
+
+	@GetMapping("/messages")
+	fun messages(): ResponseEntity<List<Message>> {
+		val messages = restClient.get()
+			.uri("http://localhost:8090/messages")
+			.attributes(clientRegistrationId("my-oauth2-client"))
+			.retrieve()
+			.body<Array<Message>>()!!
+			.toList()
+		return ResponseEntity.ok(messages)
+	}
+
+	data class Message(val message: String)
+
+}
+----
+=====
+
+[[oauth2-client-access-protected-resources-webclient]]
+=== Access Protected Resources with `WebClient`
+
+Making requests to a third party API that is protected by OAuth2 is a core use case of OAuth2 Client.
+This is accomplished by authorizing a client (represented by the `OAuth2AuthorizedClient` class in Spring Security) and accessing protected resources by placing a `Bearer` token in the `Authorization` header of an outbound request.
+
+The following example configures the application to act as an OAuth2 Client capable of requesting protected resources from a third party API:
+
+.Configure OAuth2 Client
+[tabs]
+=====
+Java::
++
+[source,java,role="primary"]
+----
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig {
+
+	@Bean
+	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+		http
+			// ...
+			.oauth2Client(Customizer.withDefaults());
+		return http.build();
+	}
+
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+import org.springframework.security.config.annotation.web.invoke
+
+@Configuration
+@EnableWebSecurity
+class SecurityConfig {
+
+	@Bean
+	fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+		http {
+			// ...
+			oauth2Client { }
+		}
+
+		return http.build()
+	}
+
+}
+----
+=====
+
+[NOTE]
+====
+The above example does not provide a way to log users in.
+You can use any other login mechanism (such as `formLogin()`).
+See the <<oauth2-client-access-protected-resources-current-user,previous section>> for an example combining `oauth2Client()` with `oauth2Login()`.
+====
+
+In addition to the above configuration, the application requires at least one `ClientRegistration` to be configured through the use of a `ClientRegistrationRepository` bean.
+The following example configures an `InMemoryClientRegistrationRepository` bean using Spring Boot configuration properties:
+
+[source,yaml]
+----
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          my-oauth2-client:
+            provider: my-auth-server
+            client-id: my-client-id
+            client-secret: my-client-secret
+            authorization-grant-type: authorization_code
+            scope: message.read,message.write
+        provider:
+          my-auth-server:
+            issuer-uri: https://my-auth-server.com
+----
+
+In addition to configuring Spring Security to support OAuth2 Client features, you will also need to decide how you will be accessing protected resources and configure your application accordingly.
+Spring Security provides implementations of `OAuth2AuthorizedClientManager` for obtaining access tokens that can be used to access protected resources.
+
+[TIP]
+====
+Spring Security registers a default `OAuth2AuthorizedClientManager` bean for you when one does not exist.
+====
+
+<<oauth2-client-access-protected-resources,Instead of configuring a `RestClient`>>, another way to use an `OAuth2AuthorizedClientManager` is via an `ExchangeFilterFunction` that intercepts requests through a `WebClient`.
 To use `WebClient`, you will need to add the `spring-webflux` dependency along with a reactive client implementation:
 
 .Add Spring WebFlux Dependency
@@ -658,7 +859,6 @@ class WebClientConfig {
 
 This configured `WebClient` can be used as in the following example:
 
-[[oauth2-client-accessing-protected-resources-example]]
 .Use `WebClient` to Access Protected Resources
 [tabs]
 =====
@@ -708,7 +908,7 @@ class MessagesController(private val webClient: WebClient) {
 			.uri("http://localhost:8090/messages")
 			.attributes(clientRegistrationId("my-oauth2-client"))
 			.retrieve()
-			.toEntityList(Message::class.java)
+			.toEntityList<Message>()
 			.block()!!
 	}
 
@@ -815,38 +1015,11 @@ Spring Security provides implementations of `OAuth2AuthorizedClientManager` for 
 Spring Security registers a default `OAuth2AuthorizedClientManager` bean for you when one does not exist.
 ====
 
-The easiest way to use an `OAuth2AuthorizedClientManager` is via an `ExchangeFilterFunction` that intercepts requests through a `WebClient`.
-To use `WebClient`, you will need to add the `spring-webflux` dependency along with a reactive client implementation:
+The easiest way to use an `OAuth2AuthorizedClientManager` is via a `ClientHttpRequestInterceptor` that intercepts requests through a `RestClient`, which is already available when `spring-web` is on the classpath.
 
-.Add Spring WebFlux Dependency
-[tabs]
-======
-Gradle::
-+
-[source,gradle,role="primary"]
-----
-implementation 'org.springframework:spring-webflux'
-implementation 'io.projectreactor.netty:reactor-netty'
-----
+The following example uses the default `OAuth2AuthorizedClientManager` to configure a `RestClient` capable of accessing protected resources by placing `Bearer` tokens in the `Authorization` header of each request:
 
-Maven::
-+
-[source,maven,role="secondary"]
-----
-<dependency>
-	<groupId>org.springframework</groupId>
-	<artifactId>spring-webflux</artifactId>
-</dependency>
-<dependency>
-	<groupId>io.projectreactor.netty</groupId>
-	<artifactId>reactor-netty</artifactId>
-</dependency>
-----
-======
-
-The following example uses the default `OAuth2AuthorizedClientManager` to configure a `WebClient` capable of accessing protected resources by placing `Bearer` tokens in the `Authorization` header of each request:
-
-.Configure `WebClient` with `ExchangeFilterFunction`
+.Configure `RestClient` with `ClientHttpRequestInterceptor`
 [tabs]
 =====
 Java::
@@ -854,15 +1027,26 @@ Java::
 [source,java,role="primary"]
 ----
 @Configuration
-public class WebClientConfig {
+public class RestClientConfig {
 
 	@Bean
-	public WebClient webClient(OAuth2AuthorizedClientManager authorizedClientManager) {
-		ServletOAuth2AuthorizedClientExchangeFilterFunction filter =
-				new ServletOAuth2AuthorizedClientExchangeFilterFunction(authorizedClientManager);
-		return WebClient.builder()
-				.apply(filter.oauth2Configuration())
+	public RestClient restClient(OAuth2AuthorizedClientManager authorizedClientManager) {
+		OAuth2ClientHttpRequestInterceptor requestInterceptor =
+				new OAuth2ClientHttpRequestInterceptor(authorizedClientManager);
+		requestInterceptor.setClientRegistrationIdResolver(clientRegistrationIdResolver());
+
+		return RestClient.builder()
+				.requestInterceptor(requestInterceptor)
 				.build();
+	}
+
+	private static ClientRegistrationIdResolver clientRegistrationIdResolver() {
+		return (request) -> {
+			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+			return (authentication instanceof OAuth2AuthenticationToken principal)
+				? principal.getAuthorizedClientRegistrationId()
+				: null;
+		};
 	}
 
 }
@@ -873,24 +1057,37 @@ Kotlin::
 [source,kotlin,role="secondary"]
 ----
 @Configuration
-class WebClientConfig {
+class RestClientConfig {
 
 	@Bean
-	fun webClient(authorizedClientManager: OAuth2AuthorizedClientManager): WebClient {
-		val filter = ServletOAuth2AuthorizedClientExchangeFilterFunction(authorizedClientManager)
-		return WebClient.builder()
-			.apply(filter.oauth2Configuration())
+	fun restClient(authorizedClientManager: OAuth2AuthorizedClientManager): RestClient {
+		val requestInterceptor = OAuth2ClientHttpRequestInterceptor(authorizedClientManager)
+		requestInterceptor.setClientRegistrationIdResolver(clientRegistrationIdResolver())
+
+		return RestClient.builder()
+			.requestInterceptor(requestInterceptor)
 			.build()
+	}
+
+	private fun clientRegistrationIdResolver(): OAuth2ClientHttpRequestInterceptor.ClientRegistrationIdResolver {
+		return OAuth2ClientHttpRequestInterceptor.ClientRegistrationIdResolver { request ->
+			val authentication = SecurityContextHolder.getContext().authentication
+			if (authentication is OAuth2AuthenticationToken) {
+				authentication.authorizedClientRegistrationId
+			} else {
+				null
+			}
+		}
 	}
 
 }
 ----
 =====
 
-This configured `WebClient` can be used as in the following example:
+This configured `RestClient` can be used as in the following example:
 
 [[oauth2-client-accessing-protected-resources-current-user-example]]
-.Use `WebClient` to Access Protected Resources (Current User)
+.Use `RestClient` to Access Protected Resources (Current User)
 [tabs]
 =====
 Java::
@@ -900,19 +1097,19 @@ Java::
 @RestController
 public class MessagesController {
 
-	private final WebClient webClient;
+	private final RestClient restClient;
 
-	public MessagesController(WebClient webClient) {
-		this.webClient = webClient;
+	public MessagesController(RestClient restClient) {
+		this.restClient = restClient;
 	}
 
 	@GetMapping("/messages")
 	public ResponseEntity<List<Message>> messages() {
-		return this.webClient.get()
+		Message[] messages = this.restClient.get()
 				.uri("http://localhost:8090/messages")
 				.retrieve()
-				.toEntityList(Message.class)
-				.block();
+				.body(Message[].class);
+		return ResponseEntity.ok(Arrays.asList(messages));
 	}
 
 	public record Message(String message) {
@@ -925,16 +1122,19 @@ Kotlin::
 +
 [source,kotlin,role="secondary"]
 ----
+import org.springframework.web.client.body
+
 @RestController
-class MessagesController(private val webClient: WebClient) {
+class MessagesController(private val restClient: RestClient) {
 
 	@GetMapping("/messages")
 	fun messages(): ResponseEntity<List<Message>> {
-		return webClient.get()
+		val messages = restClient.get()
 			.uri("http://localhost:8090/messages")
 			.retrieve()
-			.toEntityList(Message::class.java)
-			.block()!!
+			.body<Array<Message>>()!!
+			.toList()
+		return ResponseEntity.ok(messages)
 	}
 
 	data class Message(val message: String)
@@ -949,11 +1149,156 @@ Unlike the <<oauth2-client-accessing-protected-resources-example,previous exampl
 This is because it can be derived from the currently logged in user.
 ====
 
+[[oauth2-client-client-credentials]]
+=== Use the Client Credentials Grant
+
+[NOTE]
+====
+This section focuses on additional considerations for the client credentials grant type.
+See <<oauth2-client-access-protected-resources>> for general setup and usage with all grant types.
+====
+
+The https://tools.ietf.org/html/rfc6749#section-1.3.4[client credentials grant] allows a client to obtain an `access_token` on behalf of itself.
+The client credentials grant is a simple flow that does not involve a resource owner (i.e. a user).
+
+[WARNING]
+====
+It is important to note that typical use of the client credentials grant implies that any request (or user) can potentially obtain an access token and make protected resources requests to a resource server.
+Exercise caution when designing applications to ensure that users cannot make unauthorized requests since every request will be able to obtain an access token.
+====
+
+When obtaining access tokens within a web application where users can log in, the default behavior of Spring Security is to obtain an access token per user.
+
+[NOTE]
+====
+By default, access tokens are scoped to the principal name of the current user which means every user will receive a unique access token.
+====
+
+Clients using the client credentials grant typically require access tokens to be scoped to the application instead of to individual users so there is only one access token per application.
+In order to scope access tokens to the application, you will need to set a strategy for resolving a custom principal name.
+The following example does this by configuring a `RestClient` with the `RequestAttributePrincipalResolver`:
+
+.Configure `RestClient` for `client_credentials`
+[tabs]
+=====
+Java::
++
+[source,java,role="primary"]
+----
+@Configuration
+public class RestClientConfig {
+
+	@Bean
+	public RestClient restClient(OAuth2AuthorizedClientManager authorizedClientManager) {
+		OAuth2ClientHttpRequestInterceptor requestInterceptor =
+				new OAuth2ClientHttpRequestInterceptor(authorizedClientManager);
+		requestInterceptor.setPrincipalResolver(new RequestAttributePrincipalResolver());
+		return RestClient.builder()
+				.requestInterceptor(requestInterceptor)
+				.build();
+	}
+
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Configuration
+class RestClientConfig {
+
+	@Bean
+	fun restClient(authorizedClientManager: OAuth2AuthorizedClientManager): RestClient {
+		val requestInterceptor = OAuth2ClientHttpRequestInterceptor(authorizedClientManager)
+		requestInterceptor.setPrincipalResolver(RequestAttributePrincipalResolver())
+		return RestClient.builder()
+			.requestInterceptor(requestInterceptor)
+			.build()
+	}
+
+}
+----
+=====
+
+With the above configuration in place, a principal name can be specified for each request.
+The following example demonstrates how to scope access tokens to the application by specifying a principal name:
+
+.Scope Access Tokens to the Application
+[tabs]
+=====
+Java::
++
+[source,java,role="primary"]
+----
+import static org.springframework.security.oauth2.client.web.client.RequestAttributeClientRegistrationIdResolver.clientRegistrationId;
+import static org.springframework.security.oauth2.client.web.client.RequestAttributePrincipalResolver.principal;
+
+@RestController
+public class MessagesController {
+
+	private final RestClient restClient;
+
+	public MessagesController(RestClient restClient) {
+		this.restClient = restClient;
+	}
+
+	@GetMapping("/messages")
+	public ResponseEntity<List<Message>> messages() {
+		Message[] messages = this.restClient.get()
+				.uri("http://localhost:8090/messages")
+				.attributes(clientRegistrationId("my-oauth2-client"))
+				.attributes(principal("my-application"))
+				.retrieve()
+				.body(Message[].class);
+		return ResponseEntity.ok(Arrays.asList(messages));
+	}
+
+	public record Message(String message) {
+	}
+
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+import org.springframework.security.oauth2.client.web.client.RequestAttributeClientRegistrationIdResolver.clientRegistrationId
+import org.springframework.security.oauth2.client.web.client.RequestAttributePrincipalResolver.principal
+import org.springframework.web.client.body
+
+@RestController
+class MessagesController(private val restClient: RestClient) {
+
+	@GetMapping("/messages")
+	fun messages(): ResponseEntity<List<Message>> {
+		val messages = restClient.get()
+			.uri("http://localhost:8090/messages")
+			.attributes(clientRegistrationId("my-oauth2-client"))
+			.attributes(principal("my-application"))
+			.retrieve()
+			.body<Array<Message>>()!!
+			.toList()
+		return ResponseEntity.ok(messages)
+	}
+
+	data class Message(val message: String)
+
+}
+----
+=====
+
+[NOTE]
+====
+When specifying a principal name via attributes as in the above example, there will only be a single access token and it will be used for all requests.
+====
+
 [[oauth2-client-enable-extension-grant-type]]
 === Enable an Extension Grant Type
 
 A common use case involves enabling and/or configuring an extension grant type.
-For example, Spring Security provides support for the `jwt-bearer` grant type, but does not enable it by default because it is not part of the core OAuth 2.0 specification.
+For example, Spring Security provides support for the `jwt-bearer` and `token-exchange` grant types, but does not enable them by default because they are not part of the core OAuth 2.0 specification.
 
 With Spring Security 6.2 and later, we can simply publish a bean for one or more `OAuth2AuthorizedClientProvider` and they will be picked up automatically.
 The following example simply enables the `jwt-bearer` grant type:
@@ -1356,10 +1701,16 @@ Spring Security automatically resolves the following generic types of `OAuth2Acc
 * `OAuth2ClientCredentialsGrantRequest` (see `DefaultClientCredentialsTokenResponseClient`)
 * `OAuth2PasswordGrantRequest` (see `DefaultPasswordTokenResponseClient`)
 * `JwtBearerGrantRequest` (see `DefaultJwtBearerTokenResponseClient`)
+* `TokenExchangeGrantRequest` (see `DefaultTokenExchangeTokenResponseClient`)
 
 [TIP]
 ====
 Publishing a bean of type `OAuth2AccessTokenResponseClient<JwtBearerGrantRequest>` will automatically enable the `jwt-bearer` grant type without the need to <<oauth2-client-enable-extension-grant-type,configure it separately>>.
+====
+
+[TIP]
+====
+Publishing a bean of type `OAuth2AccessTokenResponseClient<TokenExchangeGrantRequest>` will automatically enable the `token-exchange` grant type without the need to <<oauth2-client-enable-extension-grant-type,configure it separately>>.
 ====
 
 [[oauth2-client-customize-rest-operations]]
@@ -1428,6 +1779,15 @@ public class SecurityConfig {
 	}
 
 	@Bean
+	public OAuth2AccessTokenResponseClient<TokenExchangeGrantRequest> tokenExchangeAccessTokenResponseClient() {
+		DefaultTokenExchangeTokenResponseClient accessTokenResponseClient =
+			new DefaultTokenExchangeTokenResponseClient();
+		accessTokenResponseClient.setRestOperations(restTemplate());
+
+		return accessTokenResponseClient;
+	}
+
+	@Bean
 	public RestTemplate restTemplate() {
 		// ...
 	}
@@ -1477,6 +1837,14 @@ class SecurityConfig {
 	@Bean
 	fun jwtBearerAccessTokenResponseClient(): OAuth2AccessTokenResponseClient<JwtBearerGrantRequest> {
 		val accessTokenResponseClient = DefaultJwtBearerTokenResponseClient()
+		accessTokenResponseClient.setRestOperations(restTemplate())
+
+		return accessTokenResponseClient
+	}
+
+	@Bean
+	fun tokenExchangeAccessTokenResponseClient(): OAuth2AccessTokenResponseClient<TokenExchangeGrantRequest> {
+		val accessTokenResponseClient = DefaultTokenExchangeTokenResponseClient()
 		accessTokenResponseClient.setRestOperations(restTemplate())
 
 		return accessTokenResponseClient
@@ -1561,6 +1929,14 @@ public class SecurityConfig {
 			new JwtBearerOAuth2AuthorizedClientProvider();
 		jwtBearerAuthorizedClientProvider.setAccessTokenResponseClient(jwtBearerAccessTokenResponseClient);
 
+		DefaultTokenExchangeTokenResponseClient tokenExchangeAccessTokenResponseClient =
+			new DefaultTokenExchangeTokenResponseClient();
+		tokenExchangeAccessTokenResponseClient.setRestOperations(restTemplate());
+
+		TokenExchangeOAuth2AuthorizedClientProvider tokenExchangeAuthorizedClientProvider =
+			new TokenExchangeOAuth2AuthorizedClientProvider();
+		tokenExchangeAuthorizedClientProvider.setAccessTokenResponseClient(tokenExchangeAccessTokenResponseClient);
+
 		OAuth2AuthorizedClientProvider authorizedClientProvider =
 			OAuth2AuthorizedClientProviderBuilder.builder()
 				.authorizationCode()
@@ -1574,6 +1950,7 @@ public class SecurityConfig {
 					.accessTokenResponseClient(passwordAccessTokenResponseClient)
 				)
 				.provider(jwtBearerAuthorizedClientProvider)
+				.provider(tokenExchangeAuthorizedClientProvider)
 				.build();
 
 		DefaultOAuth2AuthorizedClientManager authorizedClientManager =
@@ -1644,6 +2021,12 @@ class SecurityConfig {
 		val jwtBearerAuthorizedClientProvider = JwtBearerOAuth2AuthorizedClientProvider()
 		jwtBearerAuthorizedClientProvider.setAccessTokenResponseClient(jwtBearerAccessTokenResponseClient)
 
+		val tokenExchangeAccessTokenResponseClient = DefaultTokenExchangeTokenResponseClient()
+		tokenExchangeAccessTokenResponseClient.setRestOperations(restTemplate())
+
+		val tokenExchangeAuthorizedClientProvider = TokenExchangeOAuth2AuthorizedClientProvider()
+		tokenExchangeAuthorizedClientProvider.setAccessTokenResponseClient(tokenExchangeAccessTokenResponseClient)
+
 		val authorizedClientProvider = OAuth2AuthorizedClientProviderBuilder.builder()
 			.authorizationCode()
 			.refreshToken { refreshToken ->
@@ -1656,6 +2039,7 @@ class SecurityConfig {
 				password.accessTokenResponseClient(passwordAccessTokenResponseClient)
 			}
 			.provider(jwtBearerAuthorizedClientProvider)
+			.provider(tokenExchangeAuthorizedClientProvider)
 			.build()
 
 		val authorizedClientManager = DefaultOAuth2AuthorizedClientManager(
@@ -1679,7 +2063,7 @@ class SecurityConfig {
 [[further-reading]]
 == Further Reading
 
-This preceding sections introduced Spring Security's support for OAuth2 with examples for common scenarios.
+The preceding sections introduced Spring Security's support for OAuth2 with examples for common scenarios.
 You can read more about OAuth2 Client and Resource Server in the following sections of the reference documentation:
 
 * xref:servlet/oauth2/login/index.adoc[]

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.access.expression.SecurityExpressionHandler;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
-import org.springframework.security.config.annotation.ObjectPostProcessor;
+import org.springframework.security.config.ObjectPostProcessor;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.core.GrantedAuthorityDefaults;
@@ -75,6 +75,7 @@ import org.springframework.util.StringUtils;
  * @param <H> the type of {@link HttpSecurityBuilder} that is being configured
  * @author Rob Winch
  * @author Yanming Zhou
+ * @author Ngoc Nhan
  * @since 3.2
  * @see org.springframework.security.config.annotation.web.builders.HttpSecurity#authorizeRequests()
  * @deprecated Use {@link AuthorizeHttpRequestsConfigurer} instead
@@ -106,10 +107,9 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
 	 * @see HttpSecurity#authorizeRequests()
 	 */
 	public ExpressionUrlAuthorizationConfigurer(ApplicationContext context) {
-		String[] grantedAuthorityDefaultsBeanNames = context.getBeanNamesForType(GrantedAuthorityDefaults.class);
-		if (grantedAuthorityDefaultsBeanNames.length == 1) {
-			GrantedAuthorityDefaults grantedAuthorityDefaults = context.getBean(grantedAuthorityDefaultsBeanNames[0],
-					GrantedAuthorityDefaults.class);
+		GrantedAuthorityDefaults grantedAuthorityDefaults = context.getBeanProvider(GrantedAuthorityDefaults.class)
+			.getIfUnique();
+		if (grantedAuthorityDefaults != null) {
 			this.rolePrefix = grantedAuthorityDefaults.getRolePrefix();
 		}
 		else {
@@ -167,22 +167,11 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
 		}
 		ApplicationContext context = http.getSharedObject(ApplicationContext.class);
 		if (context != null) {
-			String[] roleHiearchyBeanNames = context.getBeanNamesForType(RoleHierarchy.class);
-			if (roleHiearchyBeanNames.length == 1) {
-				defaultHandler.setRoleHierarchy(context.getBean(roleHiearchyBeanNames[0], RoleHierarchy.class));
-			}
-			String[] grantedAuthorityDefaultsBeanNames = context.getBeanNamesForType(GrantedAuthorityDefaults.class);
-			if (grantedAuthorityDefaultsBeanNames.length == 1) {
-				GrantedAuthorityDefaults grantedAuthorityDefaults = context
-					.getBean(grantedAuthorityDefaultsBeanNames[0], GrantedAuthorityDefaults.class);
-				defaultHandler.setDefaultRolePrefix(grantedAuthorityDefaults.getRolePrefix());
-			}
-			String[] permissionEvaluatorBeanNames = context.getBeanNamesForType(PermissionEvaluator.class);
-			if (permissionEvaluatorBeanNames.length == 1) {
-				PermissionEvaluator permissionEvaluator = context.getBean(permissionEvaluatorBeanNames[0],
-						PermissionEvaluator.class);
-				defaultHandler.setPermissionEvaluator(permissionEvaluator);
-			}
+			context.getBeanProvider(RoleHierarchy.class).ifUnique(defaultHandler::setRoleHierarchy);
+			context.getBeanProvider(GrantedAuthorityDefaults.class)
+				.ifUnique((grantedAuthorityDefaults) -> defaultHandler
+					.setDefaultRolePrefix(grantedAuthorityDefaults.getRolePrefix()));
+			context.getBeanProvider(PermissionEvaluator.class).ifUnique(defaultHandler::setPermissionEvaluator);
 		}
 		this.expressionHandler = postProcess(defaultHandler);
 		return this.expressionHandler;
@@ -245,6 +234,16 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
 		 * customizations
 		 */
 		public ExpressionInterceptUrlRegistry withObjectPostProcessor(ObjectPostProcessor<?> objectPostProcessor) {
+			addObjectPostProcessor(objectPostProcessor);
+			return this;
+		}
+
+		/**
+		 * @deprecated
+		 */
+		@Deprecated(since = "6.4", forRemoval = true)
+		public ExpressionInterceptUrlRegistry withObjectPostProcessor(
+				org.springframework.security.config.annotation.ObjectPostProcessor<?> objectPostProcessor) {
 			addObjectPostProcessor(objectPostProcessor);
 			return this;
 		}

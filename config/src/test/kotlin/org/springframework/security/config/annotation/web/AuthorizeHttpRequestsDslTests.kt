@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,8 @@
 
 package org.springframework.security.config.annotation.web
 
-import org.assertj.core.api.Assertions.*
+import jakarta.servlet.DispatcherType
+import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.UnsatisfiedDependencyException
@@ -24,10 +25,13 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpMethod
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy
+import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl
 import org.springframework.security.authorization.AuthorizationDecision
 import org.springframework.security.authorization.AuthorizationManager
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
+import org.springframework.security.config.core.GrantedAuthorityDefaults
 import org.springframework.security.config.test.SpringTestContext
 import org.springframework.security.config.test.SpringTestContextExtension
 import org.springframework.security.core.Authentication
@@ -55,7 +59,6 @@ import org.springframework.web.servlet.config.annotation.PathMatchConfigurer
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 import org.springframework.web.util.WebUtils
 import java.util.function.Supplier
-import jakarta.servlet.DispatcherType
 
 /**
  * Tests for [AuthorizeHttpRequestsDsl]
@@ -835,7 +838,6 @@ class AuthorizeHttpRequestsDslTests {
     @EnableWebSecurity
     @EnableWebMvc
     open class HasIpAddressConfig {
-
         @Bean
         open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
@@ -852,5 +854,111 @@ class AuthorizeHttpRequestsDslTests {
             fun path() {
             }
         }
+    }
+
+    @Test
+    fun `hasRole when prefixed by configured role prefix should fail to configure`() {
+        assertThatThrownBy { this.spring.register(RoleValidationConfig::class.java).autowire() }
+            .isInstanceOf(UnsatisfiedDependencyException::class.java)
+            .hasRootCauseInstanceOf(IllegalArgumentException::class.java)
+            .hasMessageContaining(
+                "ROLE_JUNIPER should not start with ROLE_ since ROLE_ is automatically prepended when using hasAnyRole. Consider using hasAnyAuthority instead."
+            )
+        assertThatThrownBy { this.spring.register(RoleValidationConfig::class.java, GrantedAuthorityDefaultsConfig::class.java).autowire() }
+            .isInstanceOf(UnsatisfiedDependencyException::class.java)
+            .hasRootCauseInstanceOf(IllegalArgumentException::class.java)
+            .hasMessageContaining(
+                "CUSTOM_JUNIPER should not start with CUSTOM_ since CUSTOM_ is automatically prepended when using hasAnyRole. Consider using hasAnyAuthority instead."
+            )
+    }
+
+    @Configuration
+    @EnableWebSecurity
+    @EnableWebMvc
+    open class RoleValidationConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+            http {
+                authorizeHttpRequests {
+                    authorize("/role", hasAnyRole("ROLE_JUNIPER"))
+                    authorize("/custom", hasRole("CUSTOM_JUNIPER"))
+                }
+            }
+            return http.build()
+        }
+    }
+
+    @Configuration
+    open class GrantedAuthorityDefaultsConfig {
+        @Bean
+        open fun grantedAuthorityDefaults(): GrantedAuthorityDefaults {
+            return GrantedAuthorityDefaults("CUSTOM_")
+        }
+    }
+
+    @Test
+    fun `hasRole when role hierarchy configured then honor hierarchy`() {
+        this.spring.register(RoleHierarchyConfig::class.java).autowire()
+        this.mockMvc.get("/protected") {
+            with(httpBasic("admin", "password"))
+        }.andExpect {
+            status {
+                isOk()
+            }
+        }
+        this.mockMvc.get("/protected") {
+            with(httpBasic("user", "password"))
+        }.andExpect {
+            status {
+                isOk()
+            }
+        }
+    }
+
+    @Configuration
+    @EnableWebSecurity
+    @EnableWebMvc
+    open class RoleHierarchyConfig {
+
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+            http {
+                authorizeHttpRequests {
+                    authorize("/protected", hasRole("USER"))
+                }
+                httpBasic { }
+            }
+            return http.build()
+        }
+
+        @Bean
+        open fun roleHierarchy(): RoleHierarchy {
+            return RoleHierarchyImpl.fromHierarchy("ROLE_ADMIN > ROLE_USER")
+        }
+
+        @Bean
+        open fun userDetailsService(): UserDetailsService {
+            val user = User.withDefaultPasswordEncoder()
+                .username("user")
+                .password("password")
+                .roles("USER")
+                .build()
+            val admin = User.withDefaultPasswordEncoder()
+                .username("admin")
+                .password("password")
+                .roles("ADMIN")
+                .build()
+            return InMemoryUserDetailsManager(user, admin)
+        }
+
+        @RestController
+        internal class PathController {
+
+            @RequestMapping("/protected")
+            fun path() {
+            }
+
+        }
+
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -187,9 +187,9 @@ public class ServerBearerTokenAuthenticationConverterTests {
 				.isThrownBy(() -> convertToToken(request))
 				.satisfies((ex) -> {
 					BearerTokenError error = (BearerTokenError) ex.getError();
-					assertThat(error.getErrorCode()).isEqualTo(BearerTokenErrorCodes.INVALID_TOKEN);
+					assertThat(error.getErrorCode()).isEqualTo(BearerTokenErrorCodes.INVALID_REQUEST);
 					assertThat(error.getUri()).isEqualTo("https://tools.ietf.org/html/rfc6750#section-3.1");
-					assertThat(error.getHttpStatus()).isEqualTo(HttpStatus.UNAUTHORIZED);
+					assertThat(error.getHttpStatus()).isEqualTo(HttpStatus.BAD_REQUEST);
 				});
 		// @formatter:on
 	}

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.springframework.security.config.http;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import io.micrometer.observation.ObservationRegistry;
 import jakarta.servlet.ServletRequest;
@@ -120,6 +121,10 @@ class HttpConfigurationBuilder {
 	private static final String ATT_OBSERVATION_REGISTRY_REF = "observation-registry-ref";
 
 	private static final String ATT_SESSION_AUTH_STRATEGY_REF = "session-authentication-strategy-ref";
+
+	private static final String ATT_MAX_SESSIONS_REF = "max-sessions-ref";
+
+	private static final String ATT_MAX_SESSIONS = "max-sessions";
 
 	private static final String ATT_SESSION_AUTH_ERROR_URL = "session-authentication-error-url";
 
@@ -313,7 +318,7 @@ class HttpConfigurationBuilder {
 
 	// Needed to account for placeholders
 	static String createPath(String path, boolean lowerCase) {
-		return lowerCase ? path.toLowerCase() : path;
+		return lowerCase ? path.toLowerCase(Locale.ENGLISH) : path;
 	}
 
 	BeanMetadataElement getSecurityContextHolderStrategyForAuthenticationFilters() {
@@ -484,9 +489,15 @@ class HttpConfigurationBuilder {
 			concurrentSessionStrategy.addConstructorArgValue(this.sessionRegistryRef);
 			String maxSessions = this.pc.getReaderContext()
 				.getEnvironment()
-				.resolvePlaceholders(sessionCtrlElt.getAttribute("max-sessions"));
+				.resolvePlaceholders(sessionCtrlElt.getAttribute(ATT_MAX_SESSIONS));
 			if (StringUtils.hasText(maxSessions)) {
 				concurrentSessionStrategy.addPropertyValue("maximumSessions", maxSessions);
+			}
+			String maxSessionsRef = this.pc.getReaderContext()
+				.getEnvironment()
+				.resolvePlaceholders(sessionCtrlElt.getAttribute(ATT_MAX_SESSIONS_REF));
+			if (StringUtils.hasText(maxSessionsRef)) {
+				concurrentSessionStrategy.addPropertyReference("maximumSessions", maxSessionsRef);
 			}
 			String exceptionIfMaximumExceeded = sessionCtrlElt.getAttribute("error-if-maximum-exceeded");
 			if (StringUtils.hasText(exceptionIfMaximumExceeded)) {
@@ -589,6 +600,12 @@ class HttpConfigurationBuilder {
 			this.pc.getReaderContext()
 				.error("Cannot use 'expired-url' attribute and 'expired-session-strategy-ref'" + " attribute together.",
 						source);
+		}
+		String maxSessions = element.getAttribute(ATT_MAX_SESSIONS);
+		String maxSessionsRef = element.getAttribute(ATT_MAX_SESSIONS_REF);
+		if (StringUtils.hasText(maxSessions) && StringUtils.hasText(maxSessionsRef)) {
+			this.pc.getReaderContext()
+				.error("Cannot use 'max-sessions' attribute and 'max-sessions-ref' attribute together.", source);
 		}
 		if (StringUtils.hasText(expiryUrl)) {
 			BeanDefinitionBuilder expiredSessionBldr = BeanDefinitionBuilder

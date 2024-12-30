@@ -59,7 +59,7 @@ The name may be used in certain scenarios, such as when displaying the name of t
  which contains the cryptographic key(s) used to verify the https://tools.ietf.org/html/rfc7515[JSON Web Signature (JWS)] of the ID Token and optionally the UserInfo Response.
 <12> `issuerUri`: Returns the issuer identifier uri for the OpenID Connect 1.0 provider or the OAuth 2.0 Authorization Server.
 <13> `configurationMetadata`: The https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig[OpenID Provider Configuration Information].
- This information will only be available if the Spring Boot 2.x property `spring.security.oauth2.client.provider.[providerId].issuerUri` is configured.
+ This information will only be available if the Spring Boot property `spring.security.oauth2.client.provider.[providerId].issuerUri` is configured.
 <14> `(userInfoEndpoint)uri`: The UserInfo Endpoint URI used to access the claims/attributes of the authenticated end-user.
 <15> `(userInfoEndpoint)authenticationMethod`: The authentication method used when sending the access token to the UserInfo Endpoint.
 The supported values are *header*, *form* and *query*.
@@ -97,13 +97,17 @@ As an alternative, you can use `ClientRegistrations.fromOidcIssuerLocation()` to
 The `ReactiveClientRegistrationRepository` serves as a repository for OAuth 2.0 / OpenID Connect 1.0 `ClientRegistration`(s).
 
 [NOTE]
+====
 Client registration information is ultimately stored and owned by the associated Authorization Server.
 This repository provides the ability to retrieve a sub-set of the primary client registration information, which is stored with the Authorization Server.
+====
 
-Spring Boot 2.x auto-configuration binds each of the properties under `spring.security.oauth2.client.registration._[registrationId]_` to an instance of `ClientRegistration` and then composes each of the `ClientRegistration` instance(s) within a `ReactiveClientRegistrationRepository`.
+Spring Boot auto-configuration binds each of the properties under `spring.security.oauth2.client.registration._[registrationId]_` to an instance of `ClientRegistration` and then composes each of the `ClientRegistration` instance(s) within a `ReactiveClientRegistrationRepository`.
 
 [NOTE]
+====
 The default implementation of `ReactiveClientRegistrationRepository` is `InMemoryReactiveClientRegistrationRepository`.
+====
 
 The auto-configuration also registers the `ReactiveClientRegistrationRepository` as a `@Bean` in the `ApplicationContext` so that it is available for dependency-injection, if needed by the application.
 
@@ -213,15 +217,19 @@ class OAuth2ClientController {
 ======
 
 [NOTE]
-Spring Boot 2.x auto-configuration registers an `ServerOAuth2AuthorizedClientRepository` and/or `ReactiveOAuth2AuthorizedClientService` `@Bean` in the `ApplicationContext`.
+====
+Spring Boot auto-configuration registers an `ServerOAuth2AuthorizedClientRepository` and/or `ReactiveOAuth2AuthorizedClientService` `@Bean` in the `ApplicationContext`.
 However, the application may choose to override and register a custom `ServerOAuth2AuthorizedClientRepository` or `ReactiveOAuth2AuthorizedClientService` `@Bean`.
+====
 
 The default implementation of `ReactiveOAuth2AuthorizedClientService` is `InMemoryReactiveOAuth2AuthorizedClientService`, which stores `OAuth2AuthorizedClient`(s) in-memory.
 
 Alternatively, the R2DBC implementation `R2dbcReactiveOAuth2AuthorizedClientService` may be configured for persisting `OAuth2AuthorizedClient`(s) in a database.
 
 [NOTE]
+====
 `R2dbcReactiveOAuth2AuthorizedClientService` depends on the table definition described in xref:servlet/appendix/database-schema.adoc#dbschema-oauth2-client[ OAuth 2.0 Client Schema].
+====
 
 
 [[oauth2Client-authorized-manager-provider]]

@@ -26,6 +26,7 @@ import org.springframework.security.authorization.AuthorizationManager;
  * @see org.springframework.security.authorization.method.AuthorizationManagerAfterMethodInterceptor
  * @deprecated Use delegation with {@link AuthorizationManager}
  */
+@Deprecated
 public interface PrePostInvocationAttributeFactory extends AopInfrastructureBean {
 
 	PreInvocationAttribute createPreInvocationAttribute(String preFilterAttribute, String filterObject,

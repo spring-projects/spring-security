@@ -1,146 +1,150 @@
 version: 2
-
 registries:
   spring-milestones:
     type: maven-repository
     url: https://repo.spring.io/milestone
-
 updates:
-
-  - package-ecosystem: "gradle"
-    target-branch: "main"
-    milestone: 326 # 6.3.x
-    directory: "/"
+  - package-ecosystem: gradle
+    target-branch: 6.4.x
+    directory: /
     schedule:
-      interval: "daily"
-      time: "03:00"
-      timezone: "Etc/UTC"
-    labels: [ "type: dependency-upgrade" ]
+      interval: daily
+      time: '03:00'
+      timezone: Etc/UTC
+    labels:
+      - 'type: dependency-upgrade'
     registries:
-      - "spring-milestones"
+      - spring-milestones
     ignore:
-      - dependency-name: "com.nimbusds:nimbus-jose-jwt" # nimbus-jose-jwt gets updated when oauth2-oidc-sdk is updated to ensure consistency
-      - dependency-name: "org.python:jython" # jython updates break integration tests
-      - dependency-name: "org.apache.directory.server:*" # ApacheDS version > 1.5.5 contains break changes
-      - dependency-name: "org.junit:junit-bom"
-        update-types: [ "version-update:semver-major" ]
-      - dependency-name: "org.mockito:mockito-bom"
-        update-types: [ "version-update:semver-major" ]
-      - dependency-name: "*"
-        update-types: [ "version-update:semver-major", "version-update:semver-minor" ]
-
-  - package-ecosystem: "gradle"
-    target-branch: "6.2.x"
-    milestone: 319 # 6.2.x
-    directory: "/"
+      - dependency-name: com.nimbusds:nimbus-jose-jwt
+      - dependency-name: org.python:jython
+      - dependency-name: org.apache.directory.server:*
+      - dependency-name: org.apache.directory.shared:*
+      - dependency-name: org.junit:junit-bom
+        update-types:
+          - version-update:semver-major
+      - dependency-name: org.mockito:mockito-bom
+        update-types:
+          - version-update:semver-major
+      - dependency-name: '*'
+        update-types:
+          - version-update:semver-major
+          - version-update:semver-minor
+  - package-ecosystem: gradle
+    target-branch: 6.3.x
+    directory: /
     schedule:
-      interval: "daily"
-      time: "03:00"
-      timezone: "Etc/UTC"
-    labels: [ "type: dependency-upgrade" ]
+      interval: daily
+      time: '03:00'
+      timezone: Etc/UTC
+    labels:
+      - 'type: dependency-upgrade'
     registries:
-      - "spring-milestones"
+      - spring-milestones
     ignore:
-      - dependency-name: "com.nimbusds:nimbus-jose-jwt" # nimbus-jose-jwt gets updated when oauth2-oidc-sdk is updated to ensure consistency
-      - dependency-name: "org.python:jython" # jython updates break integration tests
-      - dependency-name: "org.apache.directory.server:*" # ApacheDS version > 1.5.5 contains break changes
-      - dependency-name: "org.apache.directory.shared:*" # ApacheDS version > 0.9.15 contains breaking changes
-      - dependency-name: "org.junit:junit-bom"
-        update-types: [ "version-update:semver-major" ]
-      - dependency-name: "org.mockito:mockito-bom"
-        update-types: [ "version-update:semver-major" ]
-      - dependency-name: "*"
-        update-types: [ "version-update:semver-major", "version-update:semver-minor" ]
-
-  - package-ecosystem: "gradle"
-    target-branch: "6.1.x"
-    milestone: 318 # 6.1.x
-    directory: "/"
+      - dependency-name: com.nimbusds:nimbus-jose-jwt
+      - dependency-name: org.python:jython
+      - dependency-name: org.apache.directory.server:*
+      - dependency-name: org.apache.directory.shared:*
+      - dependency-name: org.junit:junit-bom
+        update-types:
+          - version-update:semver-major
+      - dependency-name: org.mockito:mockito-bom
+        update-types:
+          - version-update:semver-major
+      - dependency-name: '*'
+        update-types:
+          - version-update:semver-major
+          - version-update:semver-minor
+  - package-ecosystem: gradle
+    target-branch: main
+    directory: /
     schedule:
-      interval: "daily"
-      time: "03:00"
-      timezone: "Etc/UTC"
-    labels: [ "type: dependency-upgrade" ]
+      interval: daily
+      time: '03:00'
+      timezone: Etc/UTC
+    labels:
+      - 'type: dependency-upgrade'
+    registries:
+      - spring-milestones
     ignore:
-      - dependency-name: "com.nimbusds:nimbus-jose-jwt" # nimbus-jose-jwt gets updated when oauth2-oidc-sdk is updated to ensure consistency
-      - dependency-name: "org.python:jython" # jython updates break integration tests
-      - dependency-name: "org.apache.directory.server:*" # ApacheDS version > 1.5.5 contains break changes
-      - dependency-name: "org.junit:junit-bom"
-        update-types: [ "version-update:semver-major" ]
-      - dependency-name: "org.mockito:mockito-bom"
-        update-types: [ "version-update:semver-major" ]
-      - dependency-name: "*"
-        update-types: [ "version-update:semver-major", "version-update:semver-minor" ]
-
-  - package-ecosystem: "gradle"
-    target-branch: "5.8.x"
-    milestone: 246 # 5.8.x
-    directory: "/"
-    schedule:
-      interval: "daily"
-      time: "03:00"
-      timezone: "Etc/UTC"
-    labels: [ "type: dependency-upgrade" ]
-    ignore:
-      - dependency-name: "com.nimbusds:nimbus-jose-jwt" # nimbus-jose-jwt gets updated when oauth2-oidc-sdk is updated to ensure consistency
-      - dependency-name: "org.python:jython" # jython updates break integration tests
-      - dependency-name: "org.apache.directory.server:*" # ApacheDS version > 1.5.5 contains break changes
-      - dependency-name: "io.mockk:mockk" # mockk updates break tests
-      - dependency-name: "org.opensaml:*" # org.opensaml maintains two different versions, so it must be updated manually
-      - dependency-name: "org.junit:junit-bom"
-        update-types: [ "version-update:semver-major" ]
-      - dependency-name: "org.mockito:mockito-bom"
-        update-types: [ "version-update:semver-major" ]
-      - dependency-name: "*"
-        update-types: [ "version-update:semver-major", "version-update:semver-minor" ]
-
-  - package-ecosystem: "gradle"
-    target-branch: "docs-build"
-    directory: "/"
-    schedule:
-      interval: "daily"
-      time: "03:00"
-      timezone: "Etc/UTC"
-    labels: [ "type: dependency-upgrade" ]
-
-#    GitHub Actions
+      - dependency-name: com.nimbusds:nimbus-jose-jwt
+      - dependency-name: org.python:jython
+      - dependency-name: org.apache.directory.server:*
+      - dependency-name: org.apache.directory.shared:*
+      - dependency-name: org.junit:junit-bom
+        update-types:
+          - version-update:semver-major
+      - dependency-name: org.mockito:mockito-bom
+        update-types:
+          - version-update:semver-major
+      - dependency-name: com.gradle.enterprise
+        update-types:
+          - version-update:semver-major
+          - version-update:semver-minor
+      - dependency-name: '*'
+        update-types:
+          - version-update:semver-major
 
   - package-ecosystem: github-actions
-    target-branch: "main"
-    milestone: 326 # 6.3.x
-    directory: "/"
+    target-branch: 6.4.x
+    directory: /
     schedule:
       interval: weekly
+    labels:
+      - 'type: task'
+      - 'in: build'
     ignore:
-      - dependency-name: "sjohnr/*"
+      - dependency-name: sjohnr/*
   - package-ecosystem: github-actions
-    target-branch: "6.2.x"
-    milestone: 319 # 6.2.x
-    directory: "/"
+    target-branch: 6.3.x
+    directory: /
     schedule:
       interval: weekly
+    labels:
+      - 'type: task'
+      - 'in: build'
     ignore:
-      - dependency-name: "sjohnr/*"
+      - dependency-name: sjohnr/*
   - package-ecosystem: github-actions
-    target-branch: "6.1.x"
-    milestone: 318 # 6.1.x
-    directory: "/"
+    target-branch: main
+    directory: /
     schedule:
       interval: weekly
-    ignore:
-      - dependency-name: "sjohnr/*"
+    labels:
+      - 'type: task'
+      - 'in: build'
   - package-ecosystem: github-actions
-    target-branch: "5.8.x"
-    milestone: 246 # 5.8.x
-    directory: "/"
+    target-branch: docs-build
+    directory: /
     schedule:
       interval: weekly
-    ignore:
-      - dependency-name: "sjohnr/*"
-  - package-ecosystem: github-actions
-    target-branch: "docs-build"
-    directory: "/"
+    labels:
+      - 'type: task'
+      - 'in: build'
+
+  - package-ecosystem: npm
+    target-branch: docs-build
+    directory: /
     schedule:
       interval: weekly
-    ignore:
-      - dependency-name: "sjohnr/*"
+    labels:
+      - 'type: task'
+      - 'in: build'
+
+  - package-ecosystem: npm
+    target-branch: main
+    directory: /docs
+    schedule:
+      interval: weekly
+    labels:
+      - 'type: task'
+      - 'in: build'
+  - package-ecosystem: npm
+    target-branch: 6.3.x
+    directory: /docs
+    schedule:
+      interval: weekly
+    labels:
+      - 'type: task'
+      - 'in: build'

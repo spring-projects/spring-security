@@ -61,8 +61,7 @@ public class AuthenticatedVoter implements AccessDecisionVoter<Object> {
 	private AuthenticationTrustResolver authenticationTrustResolver = new AuthenticationTrustResolverImpl();
 
 	private boolean isFullyAuthenticated(Authentication authentication) {
-		return (!this.authenticationTrustResolver.isAnonymous(authentication)
-				&& !this.authenticationTrustResolver.isRememberMe(authentication));
+		return this.authenticationTrustResolver.isFullyAuthenticated(authentication);
 	}
 
 	public void setAuthenticationTrustResolver(AuthenticationTrustResolver authenticationTrustResolver) {

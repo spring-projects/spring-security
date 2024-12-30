@@ -49,7 +49,6 @@ import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoderFactory;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
-import org.springframework.web.reactive.function.client.WebClient;
 
 /**
  * A {@link ReactiveJwtDecoderFactory factory} that provides a {@link ReactiveJwtDecoder}
@@ -59,6 +58,7 @@ import org.springframework.web.reactive.function.client.WebClient;
  * @author Joe Grandja
  * @author Rafael Dominguez
  * @author Mark Heckler
+ * @author Ubaid ur Rehman
  * @since 5.2
  * @see ReactiveJwtDecoderFactory
  * @see ClientRegistration
@@ -70,7 +70,7 @@ public final class ReactiveOidcIdTokenDecoderFactory implements ReactiveJwtDecod
 
 	private static final Map<JwsAlgorithm, String> JCA_ALGORITHM_MAPPINGS;
 	static {
-		Map<JwsAlgorithm, String> mappings = new HashMap<JwsAlgorithm, String>();
+		Map<JwsAlgorithm, String> mappings = new HashMap<>();
 		mappings.put(MacAlgorithm.HS256, "HmacSHA256");
 		mappings.put(MacAlgorithm.HS384, "HmacSHA384");
 		mappings.put(MacAlgorithm.HS512, "HmacSHA512");
@@ -89,8 +89,6 @@ public final class ReactiveOidcIdTokenDecoderFactory implements ReactiveJwtDecod
 
 	private Function<ClientRegistration, Converter<Map<String, Object>, Map<String, Object>>> claimTypeConverterFactory = (
 			clientRegistration) -> DEFAULT_CLAIM_TYPE_CONVERTER;
-
-	private Function<ClientRegistration, WebClient> webClientFactory = (clientRegistration) -> WebClient.create();
 
 	/**
 	 * Returns the default {@link Converter}'s used for type conversion of claim values
@@ -168,7 +166,6 @@ public final class ReactiveOidcIdTokenDecoderFactory implements ReactiveJwtDecod
 			}
 			return NimbusReactiveJwtDecoder.withJwkSetUri(jwkSetUri)
 				.jwsAlgorithm((SignatureAlgorithm) jwsAlgorithm)
-				.webClient(this.webClientFactory.apply(clientRegistration))
 				.build();
 		}
 		if (jwsAlgorithm != null && MacAlgorithm.class.isAssignableFrom(jwsAlgorithm.getClass())) {
@@ -243,21 +240,6 @@ public final class ReactiveOidcIdTokenDecoderFactory implements ReactiveJwtDecod
 			Function<ClientRegistration, Converter<Map<String, Object>, Map<String, Object>>> claimTypeConverterFactory) {
 		Assert.notNull(claimTypeConverterFactory, "claimTypeConverterFactory cannot be null");
 		this.claimTypeConverterFactory = claimTypeConverterFactory;
-	}
-
-	/**
-	 * Sets the factory that provides a {@link WebClient} used by
-	 * {@link NimbusReactiveJwtDecoder} to coordinate with the authorization servers
-	 * indicated in the <a href="https://tools.ietf.org/html/rfc7517#section-5">JWK
-	 * Set</a> uri.
-	 * @param webClientFactory the factory that provides a {@link WebClient} used by
-	 * {@link NimbusReactiveJwtDecoder}
-	 *
-	 * @since 6.3
-	 */
-	public void setWebClientFactory(Function<ClientRegistration, WebClient> webClientFactory) {
-		Assert.notNull(webClientFactory, "webClientFactory cannot be null");
-		this.webClientFactory = webClientFactory;
 	}
 
 }

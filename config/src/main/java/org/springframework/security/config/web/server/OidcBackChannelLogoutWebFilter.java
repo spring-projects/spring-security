@@ -16,16 +16,17 @@
 
 package org.springframework.security.config.web.server;
 
-import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import org.springframework.core.io.buffer.DataBuffer;
-import org.springframework.http.server.reactive.ServerHttpResponse;
+import org.springframework.core.ResolvableType;
+import org.springframework.http.MediaType;
+import org.springframework.http.codec.EncoderHttpMessageWriter;
+import org.springframework.http.codec.HttpMessageWriter;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
@@ -34,7 +35,6 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.web.authentication.AuthenticationConverter;
-import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.security.web.server.authentication.ServerAuthenticationConverter;
 import org.springframework.security.web.server.authentication.logout.ServerLogoutHandler;
@@ -60,7 +60,10 @@ class OidcBackChannelLogoutWebFilter implements WebFilter {
 
 	private final ReactiveAuthenticationManager authenticationManager;
 
-	private ServerLogoutHandler logoutHandler = new OidcBackChannelServerLogoutHandler();
+	private final ServerLogoutHandler logoutHandler;
+
+	private final HttpMessageWriter<OAuth2Error> errorHttpMessageConverter = new EncoderHttpMessageWriter<>(
+			new OAuth2ErrorEncoder());
 
 	/**
 	 * Construct an {@link OidcBackChannelLogoutWebFilter}
@@ -70,11 +73,13 @@ class OidcBackChannelLogoutWebFilter implements WebFilter {
 	 * Logout Tokens
 	 */
 	OidcBackChannelLogoutWebFilter(ServerAuthenticationConverter authenticationConverter,
-			ReactiveAuthenticationManager authenticationManager) {
+			ReactiveAuthenticationManager authenticationManager, ServerLogoutHandler logoutHandler) {
 		Assert.notNull(authenticationConverter, "authenticationConverter cannot be null");
 		Assert.notNull(authenticationManager, "authenticationManager cannot be null");
+		Assert.notNull(logoutHandler, "logoutHandler cannot be null");
 		this.authenticationConverter = authenticationConverter;
 		this.authenticationManager = authenticationManager;
+		this.logoutHandler = logoutHandler;
 	}
 
 	@Override
@@ -84,7 +89,7 @@ class OidcBackChannelLogoutWebFilter implements WebFilter {
 			if (ex instanceof AuthenticationServiceException) {
 				return Mono.error(ex);
 			}
-			return handleAuthenticationFailure(exchange.getResponse(), ex).then(Mono.empty());
+			return handleAuthenticationFailure(exchange, ex).then(Mono.empty());
 		})
 			.switchIfEmpty(chain.filter(exchange).then(Mono.empty()))
 			.flatMap(this.authenticationManager::authenticate)
@@ -93,7 +98,7 @@ class OidcBackChannelLogoutWebFilter implements WebFilter {
 				if (ex instanceof AuthenticationServiceException) {
 					return Mono.error(ex);
 				}
-				return handleAuthenticationFailure(exchange.getResponse(), ex).then(Mono.empty());
+				return handleAuthenticationFailure(exchange, ex).then(Mono.empty());
 			})
 			.flatMap((authentication) -> {
 				WebFilterExchange webFilterExchange = new WebFilterExchange(exchange, chain);
@@ -101,19 +106,12 @@ class OidcBackChannelLogoutWebFilter implements WebFilter {
 			});
 	}
 
-	private Mono<Void> handleAuthenticationFailure(ServerHttpResponse response, Exception ex) {
+	private Mono<Void> handleAuthenticationFailure(ServerWebExchange exchange, Exception ex) {
 		this.logger.debug("Failed to process OIDC Back-Channel Logout", ex);
-		response.setRawStatusCode(HttpServletResponse.SC_BAD_REQUEST);
-		OAuth2Error error = oauth2Error(ex);
-		byte[] bytes = String.format("""
-				{
-					"error_code": "%s",
-					"error_description": "%s",
-					"error_uri: "%s"
-				}
-				""", error.getErrorCode(), error.getDescription(), error.getUri()).getBytes(StandardCharsets.UTF_8);
-		DataBuffer buffer = response.bufferFactory().wrap(bytes);
-		return response.writeWith(Flux.just(buffer));
+		exchange.getResponse().setRawStatusCode(HttpServletResponse.SC_BAD_REQUEST);
+		return this.errorHttpMessageConverter.write(Mono.just(oauth2Error(ex)), ResolvableType.forClass(Object.class),
+				ResolvableType.forClass(Object.class), MediaType.APPLICATION_JSON, exchange.getRequest(),
+				exchange.getResponse(), Collections.emptyMap());
 	}
 
 	private OAuth2Error oauth2Error(Exception ex) {
@@ -122,16 +120,6 @@ class OidcBackChannelLogoutWebFilter implements WebFilter {
 		}
 		return new OAuth2Error(OAuth2ErrorCodes.INVALID_REQUEST, ex.getMessage(),
 				"https://openid.net/specs/openid-connect-backchannel-1_0.html#Validation");
-	}
-
-	/**
-	 * The strategy for expiring all Client sessions indicated by the logout request.
-	 * Defaults to {@link OidcBackChannelServerLogoutHandler}.
-	 * @param logoutHandler the {@link LogoutHandler} to use
-	 */
-	void setLogoutHandler(ServerLogoutHandler logoutHandler) {
-		Assert.notNull(logoutHandler, "logoutHandler cannot be null");
-		this.logoutHandler = logoutHandler;
 	}
 
 }

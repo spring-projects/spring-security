@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package org.springframework.security.oauth2.jwt;
 
+import java.io.Serial;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Collections;
@@ -48,6 +49,9 @@ import org.springframework.util.Assert;
  * (JWE)</a>
  */
 public class Jwt extends AbstractOAuth2Token implements JwtClaimAccessor {
+
+	@Serial
+	private static final long serialVersionUID = 4872843562494199108L;
 
 	private final Map<String, Object> headers;
 

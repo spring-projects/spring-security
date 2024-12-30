@@ -68,7 +68,7 @@ public final class RelyingPartyRegistrationPlaceholderResolvers {
 	 */
 	public static UriResolver uriResolver(HttpServletRequest request, RelyingPartyRegistration registration) {
 		String relyingPartyEntityId = registration.getEntityId();
-		String assertingPartyEntityId = registration.getAssertingPartyDetails().getEntityId();
+		String assertingPartyEntityId = registration.getAssertingPartyMetadata().getEntityId();
 		String registrationId = registration.getRegistrationId();
 		Map<String, String> uriVariables = uriVariables(request);
 		uriVariables.put("relyingPartyEntityId", StringUtils.hasText(relyingPartyEntityId) ? relyingPartyEntityId : "");

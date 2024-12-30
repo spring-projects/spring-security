@@ -19,7 +19,7 @@ This improves upon `@EnableReactiveMethodSecurity` in a number of ways. `@Enable
 
 1. Uses the simplified `AuthorizationManager` API instead of metadata sources, config attributes, decision managers, and voters.
 This simplifies reuse and customization.
-2. Supports reactive return types. Note that we are waiting on https://github.com/spring-projects/spring-framework/issues/22462[additional coroutine support from the Spring Framework] before adding coroutine support.
+2. Supports reactive return types including Kotlin coroutines.
 3. Is built using native Spring AOP, removing abstractions and allowing you to use Spring AOP building blocks to customize
 4. Checks for conflicting annotations to ensure an unambiguous security configuration
 5. Complies with JSR-250
@@ -88,37 +88,6 @@ public Function<Account, Mono<Boolean>> func() {
 ----
 ======
 
-=== Customizing Authorization
-
-Spring Security's `@PreAuthorize`, `@PostAuthorize`, `@PreFilter`, and `@PostFilter` ship with rich expression-based support.
-
-
-[[jc-reactive-method-security-custom-granted-authority-defaults]]
-Also, for role-based authorization, Spring Security adds a default `ROLE_` prefix, which is uses when evaluating expressions like `hasRole`.
-You can configure the authorization rules to use a different prefix by exposing a `GrantedAuthorityDefaults` bean, like so:
-
-.Custom MethodSecurityExpressionHandler
-[tabs]
-======
-Java::
-+
-[source,java,role="primary"]
-----
-@Bean
-static GrantedAuthorityDefaults grantedAuthorityDefaults() {
-	return new GrantedAuthorityDefaults("MYPREFIX_");
-}
-----
-======
-
-[TIP]
-====
-We expose `GrantedAuthorityDefaults` using a `static` method to ensure that Spring publishes it before it initializes Spring Security's method security `@Configuration` classes
-====
-
-[[jc-reactive-method-security-custom-authorization-manager]]
-=== Custom Authorization Managers
-
 Method authorization is a combination of before- and after-method authorization.
 
 [NOTE]
@@ -173,10 +142,17 @@ class MethodSecurityConfig {
 ======
 
 Notice that Spring Security's method security is built using Spring AOP.
-So, interceptors are invoked based on the order specified.
-This can be customized by calling `setOrder` on the interceptor instances like so:
 
-.Publish Custom Advisor
+=== Customizing Authorization
+
+Spring Security's `@PreAuthorize`, `@PostAuthorize`, `@PreFilter`, and `@PostFilter` ship with rich expression-based support.
+
+
+[[jc-reactive-method-security-custom-granted-authority-defaults]]
+Also, for role-based authorization, Spring Security adds a default `ROLE_` prefix, which is uses when evaluating expressions like `hasRole`.
+You can configure the authorization rules to use a different prefix by exposing a `GrantedAuthorityDefaults` bean, like so:
+
+.Custom GrantedAuthorityDefaults
 [tabs]
 ======
 Java::
@@ -185,17 +161,178 @@ Java::
 ----
 @Bean
 @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-Advisor postFilterAuthorizationMethodInterceptor() {
-	PostFilterAuthorizationMethodInterceptor interceptor = new PostFilterAuthorizationReactiveMethodInterceptor();
-	interceptor.setOrder(AuthorizationInterceptorOrders.POST_AUTHORIZE.getOrder() - 1);
-	return interceptor;
+static GrantedAuthorityDefaults grantedAuthorityDefaults() {
+	return new GrantedAuthorityDefaults("MYPREFIX_");
 }
 ----
 ======
 
-You may want to only support `@PreAuthorize` in your application, in which case you can do the following:
+[TIP]
+====
+We expose `GrantedAuthorityDefaults` using a `static` method to ensure that Spring publishes it before it initializes Spring Security's method security `@Configuration` classes.
+Since the `GrantedAuthorityDefaults` bean is part of internal workings of Spring Security, we should also expose it as an infrastructural bean effectively avoiding some warnings related to bean post-processing (see https://github.com/spring-projects/spring-security/issues/14751[gh-14751]).
+====
 
-.Only @PreAuthorize Configuration
+[[use-programmatic-authorization]]
+== Authorizing Methods Programmatically
+
+As you've already seen, there are several ways that you can specify non-trivial authorization rules using xref:servlet/authorization/method-security.adoc#authorization-expressions[Method Security SpEL expressions].
+
+There are a number of ways that you can instead allow your logic to be Java-based instead of SpEL-based.
+This gives use access the entire Java language for increased testability and flow control.
+
+=== Using a Custom Bean in SpEL
+
+The first way to authorize a method programmatically is a two-step process.
+
+First, declare a bean that has a method that takes a `MethodSecurityExpressionOperations` instance like the following:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Component("authz")
+public class AuthorizationLogic {
+    public decide(MethodSecurityExpressionOperations operations): Mono<Boolean> {
+        // ... authorization logic
+    }
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Component("authz")
+open class AuthorizationLogic {
+    fun decide(val operations: MethodSecurityExpressionOperations): Mono<Boolean> {
+        // ... authorization logic
+    }
+}
+----
+======
+
+Then, reference that bean in your annotations in the following way:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Controller
+public class MyController {
+    @PreAuthorize("@authz.decide(#root)")
+    @GetMapping("/endpoint")
+    public Mono<String> endpoint() {
+        // ...
+    }
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Controller
+open class MyController {
+    @PreAuthorize("@authz.decide(#root)")
+    @GetMapping("/endpoint")
+    fun endpoint(): Mono<String> {
+        // ...
+    }
+}
+----
+======
+
+Spring Security will invoke the given method on that bean for each method invocation.
+
+What's nice about this is all your authorization logic is in a separate class that can be independently unit tested and verified for correctness.
+It also has access to the full Java language.
+
+[TIP]
+In addition to returning a `Mono<Boolean>`, you can also return `Mono.empty()` to indicate that the code abstains from making a decision.
+
+If you want to include more information about the nature of the decision, you can instead return a custom `AuthorizationDecision` like this:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Component("authz")
+public class AuthorizationLogic {
+    public Mono<AuthorizationDecision> decide(MethodSecurityExpressionOperations operations) {
+        // ... authorization logic
+        return Mono.just(new MyAuthorizationDecision(false, details));
+    }
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Component("authz")
+open class AuthorizationLogic {
+    fun decide(val operations: MethodSecurityExpressionOperations): Mono<AuthorizationDecision> {
+        // ... authorization logic
+        return Mono.just(MyAuthorizationDecision(false, details))
+    }
+}
+----
+======
+
+Or throw a custom `AuthorizationDeniedException` instance.
+Note, though, that returning an object is preferred as this doesn't incur the expense of generating a stacktrace.
+
+Then, you can access the custom details when you xref:servlet/authorization/method-security.adoc#fallback-values-authorization-denied[customize how the authorization result is handled].
+
+[[jc-reactive-method-security-custom-authorization-manager]]
+[[custom-authorization-managers]]
+=== Using a Custom Authorization Manager
+
+The second way to authorize a method programmatically is to create a custom xref:servlet/authorization/architecture.adoc#_the_authorizationmanager[`AuthorizationManager`].
+
+First, declare an authorization manager instance, perhaps like this one:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Component
+public class MyPreAuthorizeAuthorizationManager implements ReactiveAuthorizationManager<MethodInvocation> {
+    @Override
+    public Mono<AuthorizationDecision> check(Supplier<Authentication> authentication, MethodInvocation invocation) {
+        // ... authorization logic
+    }
+
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Component
+class MyPreAuthorizeAuthorizationManager : ReactiveAuthorizationManager<MethodInvocation> {
+    override fun check(authentication: Supplier<Authentication>, invocation: MethodInvocation): Mono<AuthorizationDecision> {
+        // ... authorization logic
+    }
+
+}
+----
+======
+
+Then, publish the method interceptor with a pointcut that corresponds to when you want that `ReactiveAuthorizationManager` to run.
+For example, you could replace how `@PreAuthorize` and `@PostAuthorize` work like so:
+
+.Only @PreAuthorize and @PostAuthorize Configuration
 [tabs]
 ======
 Java::
@@ -203,47 +340,40 @@ Java::
 [source,java,role="primary"]
 ----
 @Configuration
+@EnableMethodSecurity(prePostEnabled = false)
 class MethodSecurityConfig {
-	@Bean
-	BeanDefinitionRegistryPostProcessor aopConfig() {
-		return AopConfigUtils::registerAutoProxyCreatorIfNecessary;
+    @Bean
+	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+	Advisor preAuthorize(MyPreAuthorizeAuthorizationManager manager) {
+		return AuthorizationManagerBeforeReactiveMethodInterceptor.preAuthorize(manager);
 	}
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-	Advisor preAuthorize() {
-		return AuthorizationManagerBeforeMethodInterceptor.preAuthorize();
+	Advisor postAuthorize(MyPostAuthorizeAuthorizationManager manager) {
+		return AuthorizationManagerAfterReactiveMethodInterceptor.postAuthorize(manager);
 	}
 }
 ----
-======
 
-Or, you may have a custom before-method `ReactiveAuthorizationManager` that you want to add to the list.
-
-In this case, you will need to tell Spring Security both the `ReactiveAuthorizationManager` and to which methods and classes your authorization manager applies.
-
-Thus, you can configure Spring Security to invoke your `ReactiveAuthorizationManager` in between `@PreAuthorize` and `@PostAuthorize` like so:
-
-.Custom Before Advisor
-
-[tabs]
-======
-Java::
+Kotlin::
 +
-[source,java,role="primary"]
+[source,kotlin,role="secondary"]
 ----
-@EnableReactiveMethodSecurity(useAuthorizationManager=true)
+@Configuration
+@EnableMethodSecurity(prePostEnabled = false)
 class MethodSecurityConfig {
+   	@Bean
+	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+	fun preAuthorize(val manager: MyPreAuthorizeAuthorizationManager) : Advisor {
+		return AuthorizationManagerBeforeReactiveMethodInterceptor.preAuthorize(manager)
+	}
+
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-	public Advisor customAuthorize() {
-		JdkRegexpMethodPointcut pattern = new JdkRegexpMethodPointcut();
-		pattern.setPattern("org.mycompany.myapp.service.*");
-		ReactiveAuthorizationManager<MethodInvocation> rule = AuthorityAuthorizationManager.isAuthenticated();
-		AuthorizationManagerBeforeReactiveMethodInterceptor interceptor = new AuthorizationManagerBeforeReactiveMethodInterceptor(pattern, rule);
-		interceptor.setOrder(AuthorizationInterceptorsOrder.PRE_AUTHORIZE_ADVISOR_ORDER.getOrder() + 1);
-		return interceptor;
-    }
+	fun postAuthorize(val manager: MyPostAuthorizeAuthorizationManager) : Advisor {
+		return AuthorizationManagerAfterReactiveMethodInterceptor.postAuthorize(manager)
+	}
 }
 ----
 ======
@@ -253,63 +383,50 @@ class MethodSecurityConfig {
 You can place your interceptor in between Spring Security method interceptors using the order constants specified in `AuthorizationInterceptorsOrder`.
 ====
 
-The same can be done for after-method authorization.
-After-method authorization is generally concerned with analysing the return value to verify access.
+[[customizing-expression-handling]]
+=== Customizing Expression Handling
 
-For example, you might have a method that confirms that the account requested actually belongs to the logged-in user like so:
+Or, third, you can customize how each SpEL expression is handled.
+To do that, you can expose a custom `MethodSecurityExpressionHandler`, like so:
 
-.@PostAuthorize example
+.Custom MethodSecurityExpressionHandler
 [tabs]
 ======
 Java::
 +
 [source,java,role="primary"]
 ----
-public interface BankService {
-
-	@PreAuthorize("hasRole('USER')")
-	@PostAuthorize("returnObject.owner == authentication.name")
-	Mono<Account> readAccount(Long id);
+@Bean
+static MethodSecurityExpressionHandler methodSecurityExpressionHandler(RoleHierarchy roleHierarchy) {
+	DefaultMethodSecurityExpressionHandler handler = new DefaultMethodSecurityExpressionHandler();
+	handler.setRoleHierarchy(roleHierarchy);
+	return handler;
 }
 ----
-======
 
-You can supply your own `AuthorizationMethodInterceptor` to customize how access to the return value is evaluated.
-
-For example, if you have your own custom annotation, you can configure it like so:
-
-
-.Custom After Advisor
-[tabs]
-======
-Java::
+Kotlin::
 +
-[source,java,role="primary"]
+[source,kotlin,role="secondary"]
 ----
-@EnableReactiveMethodSecurity(useAuthorizationManager=true)
-class MethodSecurityConfig {
+companion object {
 	@Bean
-	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-	public Advisor customAuthorize(ReactiveAuthorizationManager<MethodInvocationResult> rules) {
-		AnnotationMethodMatcher pattern = new AnnotationMethodMatcher(MySecurityAnnotation.class);
-		AuthorizationManagerAfterReactiveMethodInterceptor interceptor = new AuthorizationManagerAfterReactiveMethodInterceptor(pattern, rules);
-		interceptor.setOrder(AuthorizationInterceptorsOrder.POST_AUTHORIZE_ADVISOR_ORDER.getOrder() + 1);
-		return interceptor;
+	fun methodSecurityExpressionHandler(val roleHierarchy: RoleHierarchy) : MethodSecurityExpressionHandler {
+		val handler = DefaultMethodSecurityExpressionHandler()
+		handler.setRoleHierarchy(roleHierarchy)
+		return handler
 	}
 }
 ----
 ======
 
-and it will be invoked after the `@PostAuthorize` interceptor.
+[TIP]
+====
+We expose `MethodSecurityExpressionHandler` using a `static` method to ensure that Spring publishes it before it initializes Spring Security's method security `@Configuration` classes
+====
+
+You can also subclass xref:servlet/authorization/method-security.adoc#subclass-defaultmethodsecurityexpressionhandler[`DefaultMessageSecurityExpressionHandler`] to add your own custom authorization expressions beyond the defaults.
 
 == EnableReactiveMethodSecurity
-
-[WARNING]
-====
-`@EnableReactiveMethodSecurity` also supports Kotlin coroutines, though only to a limited degree.
-When intercepting coroutines, only the first interceptor participates.
-If any other interceptors are present and come after Spring Security's method security interceptor, https://github.com/spring-projects/spring-framework/issues/22462[they will be skipped].
-====
 
 [tabs]
 ======

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Answers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -40,8 +41,8 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.ObjectPostProcessor;
 import org.springframework.security.config.TestDeferredSecurityContext;
-import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -58,6 +59,7 @@ import org.springframework.security.web.authentication.session.ChangeSessionIdAu
 import org.springframework.security.web.authentication.session.CompositeSessionAuthenticationStrategy;
 import org.springframework.security.web.authentication.session.ConcurrentSessionControlAuthenticationStrategy;
 import org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy;
+import org.springframework.security.web.authentication.session.SessionLimit;
 import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.savedrequest.RequestCache;
@@ -82,6 +84,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.withSettings;
 import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
@@ -248,6 +251,82 @@ public class SessionManagementConfigurerTests {
 	}
 
 	@Test
+	public void loginWhenAdminUserLoggedInAndSessionLimitIsConfiguredThenLoginSuccessfully() throws Exception {
+		this.spring.register(ConcurrencyControlWithSessionLimitConfig.class).autowire();
+		// @formatter:off
+		MockHttpServletRequestBuilder requestBuilder = post("/login")
+				.with(csrf())
+				.param("username", "admin")
+				.param("password", "password");
+		HttpSession firstSession = this.mvc.perform(requestBuilder)
+				.andExpect(status().is3xxRedirection())
+				.andExpect(redirectedUrl("/"))
+				.andReturn()
+				.getRequest()
+				.getSession(false);
+		assertThat(firstSession).isNotNull();
+		HttpSession secondSession = this.mvc.perform(requestBuilder)
+				.andExpect(status().is3xxRedirection())
+				.andExpect(redirectedUrl("/"))
+				.andReturn()
+				.getRequest()
+				.getSession(false);
+		assertThat(secondSession).isNotNull();
+		// @formatter:on
+		assertThat(firstSession.getId()).isNotEqualTo(secondSession.getId());
+	}
+
+	@Test
+	public void loginWhenAdminUserLoggedInAndSessionLimitIsConfiguredThenLoginPrevented() throws Exception {
+		this.spring.register(ConcurrencyControlWithSessionLimitConfig.class).autowire();
+		// @formatter:off
+		MockHttpServletRequestBuilder requestBuilder = post("/login")
+				.with(csrf())
+				.param("username", "admin")
+				.param("password", "password");
+		HttpSession firstSession = this.mvc.perform(requestBuilder)
+				.andExpect(status().is3xxRedirection())
+				.andExpect(redirectedUrl("/"))
+				.andReturn()
+				.getRequest()
+				.getSession(false);
+		assertThat(firstSession).isNotNull();
+		HttpSession secondSession = this.mvc.perform(requestBuilder)
+				.andExpect(status().is3xxRedirection())
+				.andExpect(redirectedUrl("/"))
+				.andReturn()
+				.getRequest()
+				.getSession(false);
+		assertThat(secondSession).isNotNull();
+		assertThat(firstSession.getId()).isNotEqualTo(secondSession.getId());
+		this.mvc.perform(requestBuilder)
+				.andExpect(status().isFound())
+				.andExpect(redirectedUrl("/login?error"));
+		// @formatter:on
+	}
+
+	@Test
+	public void loginWhenUserLoggedInAndSessionLimitIsConfiguredThenLoginPrevented() throws Exception {
+		this.spring.register(ConcurrencyControlWithSessionLimitConfig.class).autowire();
+		// @formatter:off
+		MockHttpServletRequestBuilder requestBuilder = post("/login")
+				.with(csrf())
+				.param("username", "user")
+				.param("password", "password");
+		HttpSession firstSession = this.mvc.perform(requestBuilder)
+				.andExpect(status().is3xxRedirection())
+				.andExpect(redirectedUrl("/"))
+				.andReturn()
+				.getRequest()
+				.getSession(false);
+		assertThat(firstSession).isNotNull();
+		this.mvc.perform(requestBuilder)
+				.andExpect(status().isFound())
+				.andExpect(redirectedUrl("/login?error"));
+		// @formatter:on
+	}
+
+	@Test
 	public void requestWhenSessionCreationPolicyStateLessInLambdaThenNoSessionCreated() throws Exception {
 		this.spring.register(SessionCreationPolicyStateLessInLambdaConfig.class).autowire();
 		MvcResult mvcResult = this.mvc.perform(get("/")).andReturn();
@@ -304,7 +383,8 @@ public class SessionManagementConfigurerTests {
 	@Test
 	public void getWhenAnonymousRequestAndTrustResolverSharedObjectReturnsAnonymousFalseThenSessionIsSaved()
 			throws Exception {
-		SharedTrustResolverConfig.TR = mock(AuthenticationTrustResolver.class);
+		SharedTrustResolverConfig.TR = mock(AuthenticationTrustResolver.class,
+				withSettings().defaultAnswer(Answers.CALLS_REAL_METHODS));
 		given(SharedTrustResolverConfig.TR.isAnonymous(any())).willReturn(false);
 		this.spring.register(SharedTrustResolverConfig.class).autowire();
 		MvcResult mvcResult = this.mvc.perform(get("/")).andReturn();
@@ -618,6 +698,42 @@ public class SessionManagementConfigurerTests {
 		@Bean
 		UserDetailsService userDetailsService() {
 			return new InMemoryUserDetailsManager(PasswordEncodedUser.user());
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	static class ConcurrencyControlWithSessionLimitConfig {
+
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http, SessionLimit sessionLimit) throws Exception {
+			// @formatter:off
+			http
+					.formLogin(withDefaults())
+					.sessionManagement((sessionManagement) -> sessionManagement
+									.sessionConcurrency((sessionConcurrency) -> sessionConcurrency
+													.maximumSessions(sessionLimit)
+													.maxSessionsPreventsLogin(true)
+									)
+					);
+			// @formatter:on
+			return http.build();
+		}
+
+		@Bean
+		UserDetailsService userDetailsService() {
+			return new InMemoryUserDetailsManager(PasswordEncodedUser.admin(), PasswordEncodedUser.user());
+		}
+
+		@Bean
+		SessionLimit SessionLimit() {
+			return (authentication) -> {
+				if ("admin".equals(authentication.getName())) {
+					return 2;
+				}
+				return 1;
+			};
 		}
 
 	}

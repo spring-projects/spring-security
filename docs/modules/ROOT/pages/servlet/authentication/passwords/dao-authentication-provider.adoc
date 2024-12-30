@@ -2,12 +2,13 @@
 = DaoAuthenticationProvider
 :figures: servlet/authentication/unpwd
 
-{security-api-url}org/springframework/security/authentication/dao/DaoAuthenticationProvider.html[`DaoAuthenticationProvider`] is an xref:servlet/authentication/architecture.adoc#servlet-authentication-authenticationprovider[`AuthenticationProvider`] implementation that uses a xref:servlet/authentication/passwords/user-details-service.adoc#servlet-authentication-userdetailsservice[`UserDetailsService`] and xref:servlet/authentication/passwords/password-encoder.adoc#servlet-authentication-password-storage[`PasswordEncoder`] to authenticate a username and password.
+javadoc:org.springframework.security.authentication.dao.DaoAuthenticationProvider[] is an xref:servlet/authentication/architecture.adoc#servlet-authentication-authenticationprovider[`AuthenticationProvider`] implementation that uses a xref:servlet/authentication/passwords/user-details-service.adoc#servlet-authentication-userdetailsservice[`UserDetailsService`] and xref:servlet/authentication/passwords/password-encoder.adoc#servlet-authentication-password-storage[`PasswordEncoder`] to authenticate a username and password.
 
 This section examines how `DaoAuthenticationProvider` works within Spring Security.
 The following figure explains the workings of the xref:servlet/authentication/architecture.adoc#servlet-authentication-authenticationmanager[`AuthenticationManager`] in figures from the xref:servlet/authentication/passwords/index.adoc#servlet-authentication-unpwd-input[Reading the Username & Password] section.
 
 .`DaoAuthenticationProvider` Usage
+[.invert-dark]
 image::{figures}/daoauthenticationprovider.png[]
 
 image:{icondir}/number_1.png[] The authentication `Filter` from the xref:servlet/authentication/passwords/index.adoc#servlet-authentication-unpwd-input[Reading the Username & Password] section passes a `UsernamePasswordAuthenticationToken` to the `AuthenticationManager`, which is implemented by xref:servlet/authentication/architecture.adoc#servlet-authentication-providermanager[`ProviderManager`].

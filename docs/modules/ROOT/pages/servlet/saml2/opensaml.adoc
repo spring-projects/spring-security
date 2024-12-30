@@ -1,0 +1,76 @@
+= OpenSAML Support
+
+Spring Security provides an API for implementing SAML 2.0 features, and it also provides a default implementation using OpenSAML.
+
+Because Spring Security supports more than one version of OpenSAML at the same time, the components use the following naming convention:
+
+* Any component that is usable across all supported versions is named `OpenSamlXXX`.
+* Any component that targets OpenSAML 4.x is named `OpenSaml4XXX`
+* Any component that targets OpenSAML 5.x is named `OpenSaml5XXX`
+
+`spring-security-config` selects between these implementations by default by discovering which version your application is currently using.
+For example, if you are using OpenSAML 4, Spring Security will use the `OpenSaml4XXX` components.
+
+== Selecting OpenSAML 4
+
+Spring Security depends on OpenSAML 4 by default, so you need do nothing to begin using it other than importing the `spring-security-saml` dependency.
+
+== Selecting OpenSAML 5
+
+To use OpenSAML, you should override the `opensaml` dependencies as follows:
+
+[tabs]
+======
+Maven::
++
+[source,maven,role="primary"]
+----
+<dependencies>
+    <dependency>
+        <groupId>org.springframework.security</groupId>
+        <artifactId>spring-security-saml2-service-provider</artifactId>
+        <exclusions>
+            <exclusion>
+                <groupId>org.opensaml</groupId>
+                <artifactId>*</artifactId>
+            </exclusion>
+        </exclusions>
+    </dependency>
+    <dependency>
+        <groupId>org.opensaml</groupId>
+        <artifactId>opensaml-saml-api</artifactId>
+        <version>5.1.2</version>
+    </dependency>
+    <dependency>
+        <groupId>org.opensaml</groupId>
+        <artifactId>opensaml-saml-impl</artifactId>
+        <version>5.1.2</version>
+    </dependency>
+</dependencies>
+----
+
+Gradle::
++
+[source,gradle,role="secondary"]
+----
+dependencies {
+    constraints {
+        implementation "org.opensaml:opensaml-core-api:5.1.2"
+        implementation "org.opensaml:opensaml-core-impl:5.1.2"
+        implementation "org.opensaml:opensaml-saml-api:5.1.2"
+        implementation "org.opensaml:opensaml-saml-impl:5.1.2"
+    }
+
+    // ...
+
+    implementation ('org.springframework.security:spring-security-saml2-service-provider') {
+        exclude group: "org.opensaml", module: "opensaml-core"
+    }
+
+    // ...
+}
+----
+======
+
+[NOTE]
+The exclusion is necessary because OpenSAML 5 splits `opensaml-core` into `opensaml-core-api` and `opensaml-core-impl`

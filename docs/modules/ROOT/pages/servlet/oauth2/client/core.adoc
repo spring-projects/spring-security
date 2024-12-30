@@ -60,7 +60,7 @@ The name may be used in certain scenarios, such as when displaying the name of t
 which contains the cryptographic key(s) used to verify the https://tools.ietf.org/html/rfc7515[JSON Web Signature (JWS)] of the ID Token and (optionally) the UserInfo Response.
 <12> `issuerUri`: Returns the issuer identifier URI for the OpenID Connect 1.0 provider or the OAuth 2.0 Authorization Server.
 <13> `configurationMetadata`: The https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig[OpenID Provider Configuration Information].
-This information is available only if the Spring Boot 2.x property `spring.security.oauth2.client.provider.[providerId].issuerUri` is configured.
+This information is available only if the Spring Boot property `spring.security.oauth2.client.provider.[providerId].issuerUri` is configured.
 <14> `(userInfoEndpoint)uri`: The UserInfo Endpoint URI used to access the claims and attributes of the authenticated end-user.
 <15> `(userInfoEndpoint)authenticationMethod`: The authentication method used when sending the access token to the UserInfo Endpoint.
 The supported values are *header*, *form*, and *query*.
@@ -103,7 +103,7 @@ Client registration information is ultimately stored and owned by the associated
 This repository provides the ability to retrieve a subset of the primary client registration information, which is stored with the Authorization Server.
 ====
 
-Spring Boot 2.x auto-configuration binds each of the properties under `spring.security.oauth2.client.registration._[registrationId]_` to an instance of `ClientRegistration` and then composes each of the `ClientRegistration` instance(s) within a `ClientRegistrationRepository`.
+Spring Boot auto-configuration binds each of the properties under `spring.security.oauth2.client.registration._[registrationId]_` to an instance of `ClientRegistration` and then composes each of the `ClientRegistration` instance(s) within a `ClientRegistrationRepository`.
 
 [NOTE]
 ====
@@ -231,7 +231,7 @@ class OAuth2ClientController {
 
 [NOTE]
 ====
-Spring Boot 2.x auto-configuration registers an `OAuth2AuthorizedClientRepository` or an `OAuth2AuthorizedClientService` `@Bean` in the `ApplicationContext`.
+Spring Boot auto-configuration registers an `OAuth2AuthorizedClientRepository` or an `OAuth2AuthorizedClientService` `@Bean` in the `ApplicationContext`.
 However, the application can override and register a custom `OAuth2AuthorizedClientRepository` or `OAuth2AuthorizedClientService` `@Bean`.
 ====
 

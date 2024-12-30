@@ -16,12 +16,25 @@
 
 package org.springframework.security.saml2.provider.service.registration;
 
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
 
+import org.opensaml.saml.common.xml.SAMLConstants;
+import org.opensaml.saml.ext.saml2alg.SigningMethod;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
+import org.opensaml.saml.saml2.metadata.Extensions;
+import org.opensaml.saml.saml2.metadata.IDPSSODescriptor;
+import org.opensaml.saml.saml2.metadata.KeyDescriptor;
+import org.opensaml.saml.saml2.metadata.SingleLogoutService;
+import org.opensaml.saml.saml2.metadata.SingleSignOnService;
+import org.opensaml.security.credential.UsageType;
+import org.opensaml.xmlsec.keyinfo.KeyInfoSupport;
 
+import org.springframework.security.saml2.Saml2Exception;
 import org.springframework.security.saml2.core.Saml2X509Credential;
 
 /**
@@ -62,7 +75,125 @@ public final class OpenSamlAssertingPartyDetails extends RelyingPartyRegistratio
 	 * for further configurations
 	 */
 	public static OpenSamlAssertingPartyDetails.Builder withEntityDescriptor(EntityDescriptor entity) {
-		return new OpenSamlAssertingPartyDetails.Builder(entity);
+		IDPSSODescriptor idpssoDescriptor = entity.getIDPSSODescriptor(SAMLConstants.SAML20P_NS);
+		if (idpssoDescriptor == null) {
+			throw new Saml2Exception("Metadata response is missing the necessary IDPSSODescriptor element");
+		}
+		List<Saml2X509Credential> verification = new ArrayList<>();
+		List<Saml2X509Credential> encryption = new ArrayList<>();
+		for (KeyDescriptor keyDescriptor : idpssoDescriptor.getKeyDescriptors()) {
+			if (keyDescriptor.getUse().equals(UsageType.SIGNING)) {
+				List<X509Certificate> certificates = certificates(keyDescriptor);
+				for (X509Certificate certificate : certificates) {
+					verification.add(Saml2X509Credential.verification(certificate));
+				}
+			}
+			if (keyDescriptor.getUse().equals(UsageType.ENCRYPTION)) {
+				List<X509Certificate> certificates = certificates(keyDescriptor);
+				for (X509Certificate certificate : certificates) {
+					encryption.add(Saml2X509Credential.encryption(certificate));
+				}
+			}
+			if (keyDescriptor.getUse().equals(UsageType.UNSPECIFIED)) {
+				List<X509Certificate> certificates = certificates(keyDescriptor);
+				for (X509Certificate certificate : certificates) {
+					verification.add(Saml2X509Credential.verification(certificate));
+					encryption.add(Saml2X509Credential.encryption(certificate));
+				}
+			}
+		}
+		if (verification.isEmpty()) {
+			throw new Saml2Exception(
+					"Metadata response is missing verification certificates, necessary for verifying SAML assertions");
+		}
+		OpenSamlAssertingPartyDetails.Builder builder = new OpenSamlAssertingPartyDetails.Builder(entity)
+			.entityId(entity.getEntityID())
+			.wantAuthnRequestsSigned(Boolean.TRUE.equals(idpssoDescriptor.getWantAuthnRequestsSigned()))
+			.verificationX509Credentials((c) -> c.addAll(verification))
+			.encryptionX509Credentials((c) -> c.addAll(encryption));
+
+		List<SigningMethod> signingMethods = signingMethods(idpssoDescriptor);
+		for (SigningMethod method : signingMethods) {
+			builder.signingAlgorithms((algorithms) -> algorithms.add(method.getAlgorithm()));
+		}
+		if (idpssoDescriptor.getSingleSignOnServices().isEmpty()) {
+			throw new Saml2Exception(
+					"Metadata response is missing a SingleSignOnService, necessary for sending AuthnRequests");
+		}
+		for (SingleSignOnService singleSignOnService : idpssoDescriptor.getSingleSignOnServices()) {
+			Saml2MessageBinding binding;
+			if (singleSignOnService.getBinding().equals(Saml2MessageBinding.POST.getUrn())) {
+				binding = Saml2MessageBinding.POST;
+			}
+			else if (singleSignOnService.getBinding().equals(Saml2MessageBinding.REDIRECT.getUrn())) {
+				binding = Saml2MessageBinding.REDIRECT;
+			}
+			else {
+				continue;
+			}
+			builder.singleSignOnServiceLocation(singleSignOnService.getLocation()).singleSignOnServiceBinding(binding);
+			break;
+		}
+		for (SingleLogoutService singleLogoutService : idpssoDescriptor.getSingleLogoutServices()) {
+			Saml2MessageBinding binding;
+			if (singleLogoutService.getBinding().equals(Saml2MessageBinding.POST.getUrn())) {
+				binding = Saml2MessageBinding.POST;
+			}
+			else if (singleLogoutService.getBinding().equals(Saml2MessageBinding.REDIRECT.getUrn())) {
+				binding = Saml2MessageBinding.REDIRECT;
+			}
+			else {
+				continue;
+			}
+			String responseLocation = (singleLogoutService.getResponseLocation() == null)
+					? singleLogoutService.getLocation() : singleLogoutService.getResponseLocation();
+			builder.singleLogoutServiceLocation(singleLogoutService.getLocation())
+				.singleLogoutServiceResponseLocation(responseLocation)
+				.singleLogoutServiceBinding(binding);
+			break;
+		}
+		return builder;
+	}
+
+	private static List<X509Certificate> certificates(KeyDescriptor keyDescriptor) {
+		try {
+			return KeyInfoSupport.getCertificates(keyDescriptor.getKeyInfo());
+		}
+		catch (CertificateException ex) {
+			throw new Saml2Exception(ex);
+		}
+	}
+
+	private static List<SigningMethod> signingMethods(IDPSSODescriptor idpssoDescriptor) {
+		Extensions extensions = idpssoDescriptor.getExtensions();
+		List<SigningMethod> result = signingMethods(extensions);
+		if (!result.isEmpty()) {
+			return result;
+		}
+		EntityDescriptor descriptor = (EntityDescriptor) idpssoDescriptor.getParent();
+		extensions = descriptor.getExtensions();
+		return signingMethods(extensions);
+	}
+
+	private static <T> List<T> signingMethods(Extensions extensions) {
+		if (extensions != null) {
+			return (List<T>) extensions.getUnknownXMLObjects(SigningMethod.DEFAULT_ELEMENT_NAME);
+		}
+		return new ArrayList<>();
+	}
+
+	@Override
+	public OpenSamlAssertingPartyDetails.Builder mutate() {
+		return new OpenSamlAssertingPartyDetails.Builder(this.descriptor).entityId(getEntityId())
+			.wantAuthnRequestsSigned(getWantAuthnRequestsSigned())
+			.signingAlgorithms((algorithms) -> algorithms.addAll(getSigningAlgorithms()))
+			.verificationX509Credentials((c) -> c.addAll(getVerificationX509Credentials()))
+			.encryptionX509Credentials((c) -> c.addAll(getEncryptionX509Credentials()))
+			.singleSignOnServiceLocation(getSingleSignOnServiceLocation())
+			.singleSignOnServiceBinding(getSingleSignOnServiceBinding())
+			.singleLogoutServiceLocation(getSingleLogoutServiceLocation())
+			.singleLogoutServiceResponseLocation(getSingleLogoutServiceResponseLocation())
+			.singleLogoutServiceBinding(getSingleLogoutServiceBinding());
 	}
 
 	/**

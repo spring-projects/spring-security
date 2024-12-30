@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package org.springframework.security.oauth2.core;
 
+import java.io.Serial;
 import java.time.Instant;
 
 /**
@@ -29,6 +30,9 @@ import java.time.Instant;
  * 3.2 Device Authorization Response</a>
  */
 public class OAuth2UserCode extends AbstractOAuth2Token {
+
+	@Serial
+	private static final long serialVersionUID = -3948612521903348476L;
 
 	/**
 	 * Constructs an {@code OAuth2UserCode} using the provided parameters.

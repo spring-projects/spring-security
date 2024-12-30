@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,10 @@
 
 package org.springframework.security.cas.web;
 
+import java.io.IOException;
+
 import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpSession;
 import org.apereo.cas.client.proxy.ProxyGrantingTicketStorage;
 import org.junit.jupiter.api.AfterEach;
@@ -35,6 +38,8 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
+import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
@@ -238,6 +243,27 @@ public class CasAuthenticationFilterTests {
 		assertThat(response.getRedirectedUrl()).isEqualTo("http://localhost?continue");
 		assertThat(session.getAttribute(CasGatewayAuthenticationRedirectFilter.CAS_GATEWAY_AUTHENTICATION_ATTR))
 			.isNull();
+	}
+
+	@Test
+	void successfulAuthenticationWhenSecurityContextRepositorySetThenUses() throws ServletException, IOException {
+		SecurityContextRepository securityContextRepository = mock(SecurityContextRepository.class);
+		CasAuthenticationFilter filter = new CasAuthenticationFilter();
+		filter.setSecurityContextRepository(securityContextRepository);
+		filter.successfulAuthentication(new MockHttpServletRequest(), new MockHttpServletResponse(),
+				new MockFilterChain(), mock(Authentication.class));
+		verify(securityContextRepository).saveContext(any(SecurityContext.class), any(), any());
+	}
+
+	@Test
+	void successfulAuthenticationWhenSecurityContextHolderStrategySetThenUses() throws ServletException, IOException {
+		SecurityContextHolderStrategy securityContextRepository = mock(SecurityContextHolderStrategy.class);
+		given(securityContextRepository.createEmptyContext()).willReturn(new SecurityContextImpl());
+		CasAuthenticationFilter filter = new CasAuthenticationFilter();
+		filter.setSecurityContextHolderStrategy(securityContextRepository);
+		filter.successfulAuthentication(new MockHttpServletRequest(), new MockHttpServletResponse(),
+				new MockFilterChain(), mock(Authentication.class));
+		verify(securityContextRepository).setContext(any(SecurityContext.class));
 	}
 
 }

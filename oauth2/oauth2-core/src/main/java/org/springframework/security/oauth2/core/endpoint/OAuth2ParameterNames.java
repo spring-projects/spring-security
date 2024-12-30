@@ -182,6 +182,54 @@ public final class OAuth2ParameterNames {
 	 */
 	public static final String INTERVAL = "interval";
 
+	/**
+	 * {@code audience} - used in Token Exchange Access Token Request.
+	 * @since 6.3
+	 */
+	public static final String AUDIENCE = "audience";
+
+	/**
+	 * {@code resource} - used in Token Exchange Access Token Request.
+	 * @since 6.3
+	 */
+	public static final String RESOURCE = "resource";
+
+	/**
+	 * {@code requested_token_type} - used in Token Exchange Access Token Request.
+	 * @since 6.3
+	 */
+	public static final String REQUESTED_TOKEN_TYPE = "requested_token_type";
+
+	/**
+	 * {@code issued_token_type} - used in Token Exchange Access Token Response.
+	 * @since 6.3
+	 */
+	public static final String ISSUED_TOKEN_TYPE = "issued_token_type";
+
+	/**
+	 * {@code subject_token} - used in Token Exchange Access Token Request.
+	 * @since 6.3
+	 */
+	public static final String SUBJECT_TOKEN = "subject_token";
+
+	/**
+	 * {@code subject_token_type} - used in Token Exchange Access Token Request.
+	 * @since 6.3
+	 */
+	public static final String SUBJECT_TOKEN_TYPE = "subject_token_type";
+
+	/**
+	 * {@code actor_token} - used in Token Exchange Access Token Request.
+	 * @since 6.3
+	 */
+	public static final String ACTOR_TOKEN = "actor_token";
+
+	/**
+	 * {@code actor_token_type} - used in Token Exchange Access Token Request.
+	 * @since 6.3
+	 */
+	public static final String ACTOR_TOKEN_TYPE = "actor_token_type";
+
 	private OAuth2ParameterNames() {
 	}
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
 
 package org.springframework.security.saml2.provider.service.authentication;
 
+import java.io.Serial;
+
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding;
 
@@ -29,6 +31,9 @@ import org.springframework.security.saml2.provider.service.registration.Saml2Mes
  * @see org.springframework.security.saml2.provider.service.web.authentication.Saml2AuthenticationRequestResolver
  */
 public final class Saml2RedirectAuthenticationRequest extends AbstractSaml2AuthenticationRequest {
+
+	@Serial
+	private static final long serialVersionUID = 6476874109764554798L;
 
 	private final String sigAlg;
 
@@ -73,7 +78,7 @@ public final class Saml2RedirectAuthenticationRequest extends AbstractSaml2Authe
 	 * @since 5.7
 	 */
 	public static Builder withRelyingPartyRegistration(RelyingPartyRegistration registration) {
-		String location = registration.getAssertingPartyDetails().getSingleSignOnServiceLocation();
+		String location = registration.getAssertingPartyMetadata().getSingleSignOnServiceLocation();
 		return new Builder(registration).authenticationRequestUri(location);
 	}
 

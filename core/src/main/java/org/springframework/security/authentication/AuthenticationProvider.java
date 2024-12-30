@@ -47,10 +47,10 @@ public interface AuthenticationProvider {
 	 * <p>
 	 * Returning <code>true</code> does not guarantee an
 	 * <code>AuthenticationProvider</code> will be able to authenticate the presented
-	 * instance of the <code>Authentication</code> class. It simply indicates it can
-	 * support closer evaluation of it. An <code>AuthenticationProvider</code> can still
-	 * return <code>null</code> from the {@link #authenticate(Authentication)} method to
-	 * indicate another <code>AuthenticationProvider</code> should be tried.
+	 * <code>Authentication</code> object. It simply indicates it can support closer
+	 * evaluation of it. An <code>AuthenticationProvider</code> can still return
+	 * <code>null</code> from the {@link #authenticate(Authentication)} method to indicate
+	 * another <code>AuthenticationProvider</code> should be tried.
 	 * </p>
 	 * <p>
 	 * Selection of an <code>AuthenticationProvider</code> capable of performing

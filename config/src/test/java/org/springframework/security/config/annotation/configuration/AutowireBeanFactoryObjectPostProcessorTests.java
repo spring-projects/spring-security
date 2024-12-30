@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,14 @@
 
 package org.springframework.security.config.annotation.configuration;
 
+import java.lang.reflect.Modifier;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 
+import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.beans.factory.BeanClassLoaderAware;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.DisposableBean;
@@ -31,13 +36,16 @@ import org.springframework.context.EnvironmentAware;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.ObjectPostProcessor;
+import org.springframework.core.NativeDetector;
+import org.springframework.security.config.ObjectPostProcessor;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.web.context.ServletContextAware;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatException;
 import static org.mockito.ArgumentMatchers.isNotNull;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -130,6 +138,59 @@ public class AutowireBeanFactoryObjectPostProcessorTests {
 		this.spring.testConfigLocations("AutowireBeanFactoryObjectPostProcessorTests-aopconfig.xml").autowire();
 		MyAdvisedBean bean = this.spring.getContext().getBean(MyAdvisedBean.class);
 		assertThat(bean.doStuff()).isEqualTo("null");
+	}
+
+	@Test
+	void postProcessWhenObjectIsCgLibProxyAndInNativeImageThenUseExistingBean() {
+		try (MockedStatic<NativeDetector> detector = Mockito.mockStatic(NativeDetector.class)) {
+			given(NativeDetector.inNativeImage()).willReturn(true);
+
+			ProxyFactory proxyFactory = new ProxyFactory(new MyClass());
+			proxyFactory.setProxyTargetClass(!Modifier.isFinal(MyClass.class.getModifiers()));
+			MyClass myClass = (MyClass) proxyFactory.getProxy();
+
+			this.spring.register(Config.class, myClass.getClass()).autowire();
+			this.spring.getContext().getBean(myClass.getClass()).setIdentifier("0000");
+
+			MyClass postProcessed = this.objectObjectPostProcessor.postProcess(myClass);
+			assertThat(postProcessed.getIdentifier()).isEqualTo("0000");
+		}
+	}
+
+	@Test
+	void postProcessWhenObjectIsCgLibProxyAndInNativeImageAndBeanDoesNotExistsThenIllegalStateException() {
+		try (MockedStatic<NativeDetector> detector = Mockito.mockStatic(NativeDetector.class)) {
+			given(NativeDetector.inNativeImage()).willReturn(true);
+
+			ProxyFactory proxyFactory = new ProxyFactory(new MyClass());
+			proxyFactory.setProxyTargetClass(!Modifier.isFinal(MyClass.class.getModifiers()));
+			MyClass myClass = (MyClass) proxyFactory.getProxy();
+
+			this.spring.register(Config.class).autowire();
+
+			assertThatException().isThrownBy(() -> this.objectObjectPostProcessor.postProcess(myClass))
+				.havingRootCause()
+				.isInstanceOf(IllegalStateException.class)
+				.withMessage(
+						"""
+								Failed to resolve an unique bean (single or primary) of type [class org.springframework.security.config.annotation.configuration.AutowireBeanFactoryObjectPostProcessorTests$MyClass$$SpringCGLIB$$0] from the BeanFactory.
+								Because the object is a CGLIB Proxy, a raw bean cannot be initialized during runtime in a native image.
+								""");
+		}
+	}
+
+	static class MyClass {
+
+		private String identifier = "1234";
+
+		String getIdentifier() {
+			return this.identifier;
+		}
+
+		void setIdentifier(String identifier) {
+			this.identifier = identifier;
+		}
+
 	}
 
 	@Configuration

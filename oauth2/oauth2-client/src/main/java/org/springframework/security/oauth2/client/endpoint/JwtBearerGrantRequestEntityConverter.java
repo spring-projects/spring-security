@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,9 @@ import org.springframework.util.StringUtils;
  * @see RequestEntity
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7523#section-2.1">Section
  * 2.1 Using JWTs as Authorization Grants</a>
+ * @deprecated Use {@link DefaultOAuth2TokenRequestParametersConverter} instead
  */
+@Deprecated(since = "6.4")
 public class JwtBearerGrantRequestEntityConverter
 		extends AbstractOAuth2AuthorizationGrantRequestEntityConverter<JwtBearerGrantRequest> {
 

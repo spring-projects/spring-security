@@ -23,8 +23,8 @@ String json = mapper.writeValueAsString(context);
 ====
 The following Spring Security modules provide Jackson support:
 
-- spring-security-core ({security-api-url}org/springframework/security/jackson2/CoreJackson2Module.html[`CoreJackson2Module`])
-- spring-security-web ({security-api-url}org/springframework/security/web/jackson2/WebJackson2Module.html[`WebJackson2Module`], {security-api-url}org/springframework/security/web/jackson2/WebServletJackson2Module.html[`WebServletJackson2Module`], {security-api-url}org/springframework/security/web/server/jackson2/WebServerJackson2Module.html[`WebServerJackson2Module`])
-- <<oauth2client, spring-security-oauth2-client>> ({security-api-url}org/springframework/security/oauth2/client/jackson2/OAuth2ClientJackson2Module.html[`OAuth2ClientJackson2Module`])
-- spring-security-cas ({security-api-url}org/springframework/security/cas/jackson2/CasJackson2Module.html[`CasJackson2Module`])
+- spring-security-core (javadoc:org.springframework.security.jackson2.CoreJackson2Module[])
+- spring-security-web (javadoc:org.springframework.security.web.jackson2.WebJackson2Module[], javadoc:org.springframework.security.web.jackson2.WebServletJackson2Module[], javadoc:org.springframework.security.web.server.jackson2.WebServerJackson2Module[])
+- <<oauth2client, spring-security-oauth2-client>> (javadoc:org.springframework.security.oauth2.client.jackson2.OAuth2ClientJackson2Module[])
+- spring-security-cas (javadoc:org.springframework.security.cas.jackson2.CasJackson2Module[])
 ====

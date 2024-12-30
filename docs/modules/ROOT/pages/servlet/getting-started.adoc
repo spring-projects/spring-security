@@ -17,7 +17,7 @@ You first need to add Spring Security to your application's classpath; two ways 
 [[servlet-hello-starting]]
 == Starting Hello Spring Security Boot
 
-With Spring Security <<servlet-hello-dependencies,on the classpath>>, you can now {spring-boot-reference-url}#using.running-your-application[run the Spring Boot application].
+With Spring Security <<servlet-hello-dependencies,on the classpath>>, you can now {spring-boot-reference-url}reference/using/running-your-application.html[run the Spring Boot application].
 The following snippet shows some of the output that indicates that Spring Security is enabled in your application:
 
 .Running Spring Boot Application
@@ -131,7 +131,7 @@ public class DefaultSecurityConfig {
     InMemoryUserDetailsManager inMemoryUserDetailsManager() { <2>
         String generatedPassword = // ...;
         return new InMemoryUserDetailsManager(User.withUsername("user")
-                .password(generatedPassword).roles("ROLE_USER").build());
+                .password(generatedPassword).roles("USER").build());
     }
 
     @Bean

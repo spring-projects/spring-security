@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,8 @@ package org.springframework.security.config.annotation.method.configuration;
 
 import java.util.List;
 
+import org.springframework.security.authorization.AuthorizationDecision;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -124,6 +126,81 @@ public class MethodSecurityServiceImpl implements MethodSecurityService {
 
 	@Override
 	public void repeatedAnnotations() {
+	}
+
+	@Override
+	public String postAuthorizeGetCardNumberIfAdmin(String cardNumber) {
+		return cardNumber;
+	}
+
+	@Override
+	public String preAuthorizeGetCardNumberIfAdmin(String cardNumber) {
+		return cardNumber;
+	}
+
+	@Override
+	public String preAuthorizeWithHandlerChildGetCardNumberIfAdmin(String cardNumber) {
+		return cardNumber;
+	}
+
+	@Override
+	public String preAuthorizeThrowAccessDeniedManually() {
+		throw new AuthorizationDeniedException("Access Denied", new AuthorizationDecision(false));
+	}
+
+	@Override
+	public String postAuthorizeThrowAccessDeniedManually() {
+		throw new AuthorizationDeniedException("Access Denied", new AuthorizationDecision(false));
+	}
+
+	@Override
+	public String preAuthorizeDeniedMethodWithMaskAnnotation() {
+		return "ok";
+	}
+
+	@Override
+	public String preAuthorizeDeniedMethodWithNoMaskAnnotation() {
+		return "ok";
+	}
+
+	@Override
+	public String postAuthorizeDeniedWithNullDenied() {
+		return "ok";
+	}
+
+	@Override
+	public String postAuthorizeDeniedMethodWithMaskAnnotation() {
+		return "ok";
+	}
+
+	@Override
+	public String postAuthorizeDeniedMethodWithNoMaskAnnotation() {
+		return "ok";
+	}
+
+	@Override
+	public String preAuthorizeWithMaskAnnotationUsingBean() {
+		return "ok";
+	}
+
+	@Override
+	public String postAuthorizeWithMaskAnnotationUsingBean() {
+		return "ok";
+	}
+
+	@Override
+	public UserRecordWithEmailProtected getUserRecordWithEmailProtected() {
+		return new UserRecordWithEmailProtected("username", "useremail@example.com");
+	}
+
+	@Override
+	public UserRecordWithEmailProtected getUserWithFallbackWhenUnauthorized() {
+		return new UserRecordWithEmailProtected("username", "useremail@example.com");
+	}
+
+	@Override
+	public String checkCustomResult(boolean result) {
+		return "ok";
 	}
 
 }

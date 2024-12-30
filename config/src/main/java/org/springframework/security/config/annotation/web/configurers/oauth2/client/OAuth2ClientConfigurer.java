@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -86,6 +86,7 @@ import org.springframework.util.Assert;
  *
  * @author Joe Grandja
  * @author Parikshit Dutta
+ * @author Ngoc Nhan
  * @since 5.1
  * @see OAuth2AuthorizationRequestRedirectFilter
  * @see OAuth2AuthorizationCodeGrantFilter
@@ -285,7 +286,9 @@ public final class OAuth2ClientConfigurer<B extends HttpSecurityBuilder<B>>
 			}
 			ClientRegistrationRepository clientRegistrationRepository = OAuth2ClientConfigurerUtils
 				.getClientRegistrationRepository(getBuilder());
-			return new DefaultOAuth2AuthorizationRequestResolver(clientRegistrationRepository,
+			ResolvableType resolvableType = ResolvableType.forClass(OAuth2AuthorizationRequestResolver.class);
+			OAuth2AuthorizationRequestResolver bean = getBeanOrNull(resolvableType);
+			return (bean != null) ? bean : new DefaultOAuth2AuthorizationRequestResolver(clientRegistrationRepository,
 					OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI);
 		}
 
@@ -318,13 +321,10 @@ public final class OAuth2ClientConfigurer<B extends HttpSecurityBuilder<B>>
 		@SuppressWarnings("unchecked")
 		private <T> T getBeanOrNull(ResolvableType type) {
 			ApplicationContext context = getBuilder().getSharedObject(ApplicationContext.class);
-			if (context != null) {
-				String[] names = context.getBeanNamesForType(type);
-				if (names.length == 1) {
-					return (T) context.getBean(names[0]);
-				}
+			if (context == null) {
+				return null;
 			}
-			return null;
+			return (T) context.getBeanProvider(type).getIfUnique();
 		}
 
 	}

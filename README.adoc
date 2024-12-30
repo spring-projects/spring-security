@@ -15,14 +15,16 @@ For a detailed list of features and access to the latest release, please visit h
 Please see our https://github.com/spring-projects/.github/blob/main/CODE_OF_CONDUCT.md[code of conduct]
 
 == Downloading Artifacts
-See https://docs.spring.io/spring-security/site/docs/current/reference/html5/#getting[Getting Spring Security] for how to obtain Spring Security.
+See https://docs.spring.io/spring-security/reference/getting-spring-security.html[Getting Spring Security] for how to obtain Spring Security.
 
 == Documentation
-Be sure to read the https://docs.spring.io/spring-security/site/docs/current/reference/htmlsingle/[Spring Security Reference].
+Be sure to read the https://docs.spring.io/spring-security/reference/[Spring Security Reference].
 Extensive JavaDoc for the Spring Security code is also available in the https://docs.spring.io/spring-security/site/docs/current/api/[Spring Security API Documentation].
 
+You may also want to check out https://docs.spring.io/spring-security/reference/whats-new.html[what's new in the latest release].
+
 == Quick Start
-See https://docs.spring.io/spring-security/site/docs/current/reference/html5/#servlet-hello[Hello Spring Security] to get started with a "Hello, World" application.
+See https://docs.spring.io/spring-security/reference/servlet/getting-started.html[Hello Spring Security] to get started with a "Hello, World" application.
 
 == Building from Source
 Spring Security uses a https://gradle.org[Gradle]-based build system.

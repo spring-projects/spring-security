@@ -1,4 +1,22 @@
-http\://www.springframework.org/schema/security/spring-security.xsd=org/springframework/security/config/spring-security-6.3.xsd
+#
+# Copyright 2002-2024 the original author or authors.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+http\://www.springframework.org/schema/security/spring-security.xsd=org/springframework/security/config/spring-security-6.5.xsd
+http\://www.springframework.org/schema/security/spring-security-6.5.xsd=org/springframework/security/config/spring-security-6.5.xsd
+http\://www.springframework.org/schema/security/spring-security-6.4.xsd=org/springframework/security/config/spring-security-6.4.xsd
 http\://www.springframework.org/schema/security/spring-security-6.3.xsd=org/springframework/security/config/spring-security-6.3.xsd
 http\://www.springframework.org/schema/security/spring-security-6.2.xsd=org/springframework/security/config/spring-security-6.2.xsd
 http\://www.springframework.org/schema/security/spring-security-6.1.xsd=org/springframework/security/config/spring-security-6.1.xsd
@@ -23,7 +41,9 @@ http\://www.springframework.org/schema/security/spring-security-2.0.xsd=org/spri
 http\://www.springframework.org/schema/security/spring-security-2.0.1.xsd=org/springframework/security/config/spring-security-2.0.1.xsd
 http\://www.springframework.org/schema/security/spring-security-2.0.2.xsd=org/springframework/security/config/spring-security-2.0.2.xsd
 http\://www.springframework.org/schema/security/spring-security-2.0.4.xsd=org/springframework/security/config/spring-security-2.0.4.xsd
-https\://www.springframework.org/schema/security/spring-security.xsd=org/springframework/security/config/spring-security-6.3.xsd
+https\://www.springframework.org/schema/security/spring-security.xsd=org/springframework/security/config/spring-security-6.5.xsd
+https\://www.springframework.org/schema/security/spring-security-6.5.xsd=org/springframework/security/config/spring-security-6.5.xsd
+https\://www.springframework.org/schema/security/spring-security-6.4.xsd=org/springframework/security/config/spring-security-6.4.xsd
 https\://www.springframework.org/schema/security/spring-security-6.3.xsd=org/springframework/security/config/spring-security-6.3.xsd
 https\://www.springframework.org/schema/security/spring-security-6.2.xsd=org/springframework/security/config/spring-security-6.2.xsd
 https\://www.springframework.org/schema/security/spring-security-6.1.xsd=org/springframework/security/config/spring-security-6.1.xsd

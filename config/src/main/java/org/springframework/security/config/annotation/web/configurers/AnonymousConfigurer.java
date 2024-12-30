@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,6 +52,8 @@ public final class AnonymousConfigurer<H extends HttpSecurityBuilder<H>>
 	private Object principal = "anonymousUser";
 
 	private List<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS");
+
+	private String computedKey;
 
 	/**
 	 * Creates a new instance
@@ -144,26 +146,31 @@ public final class AnonymousConfigurer<H extends HttpSecurityBuilder<H>>
 		if (this.authenticationProvider == null) {
 			this.authenticationProvider = new AnonymousAuthenticationProvider(getKey());
 		}
-		if (this.authenticationFilter == null) {
-			this.authenticationFilter = new AnonymousAuthenticationFilter(getKey(), this.principal, this.authorities);
-			this.authenticationFilter.setSecurityContextHolderStrategy(getSecurityContextHolderStrategy());
-		}
-		this.authenticationFilter.setSecurityContextHolderStrategy(getSecurityContextHolderStrategy());
 		this.authenticationProvider = postProcess(this.authenticationProvider);
 		http.authenticationProvider(this.authenticationProvider);
 	}
 
 	@Override
 	public void configure(H http) {
+		if (this.authenticationFilter == null) {
+			this.authenticationFilter = new AnonymousAuthenticationFilter(getKey(), this.principal, this.authorities);
+		}
+		this.authenticationFilter.setSecurityContextHolderStrategy(getSecurityContextHolderStrategy());
 		this.authenticationFilter.afterPropertiesSet();
 		http.addFilter(this.authenticationFilter);
 	}
 
 	private String getKey() {
-		if (this.key == null) {
-			this.key = UUID.randomUUID().toString();
+		if (this.computedKey != null) {
+			return this.computedKey;
 		}
-		return this.key;
+		if (this.key == null) {
+			this.computedKey = UUID.randomUUID().toString();
+		}
+		else {
+			this.computedKey = this.key;
+		}
+		return this.computedKey;
 	}
 
 }

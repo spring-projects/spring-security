@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,13 +20,17 @@ import java.lang.annotation.Annotation;
 
 import org.springframework.core.MethodParameter;
 import org.springframework.core.annotation.AnnotationUtils;
+import org.springframework.core.annotation.MergedAnnotations;
 import org.springframework.expression.BeanResolver;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AnnotationTemplateExpressionDefaults;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.annotation.SecurityAnnotationScanner;
+import org.springframework.security.core.annotation.SecurityAnnotationScanners;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.stereotype.Controller;
@@ -86,20 +90,28 @@ import org.springframework.web.method.support.ModelAndViewContainer;
  * </pre>
  *
  * @author Rob Winch
+ * @author DingHao
  * @since 4.0
  */
 public final class AuthenticationPrincipalArgumentResolver implements HandlerMethodArgumentResolver {
+
+	private final Class<AuthenticationPrincipal> annotationType = AuthenticationPrincipal.class;
 
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
 		.getContextHolderStrategy();
 
 	private ExpressionParser parser = new SpelExpressionParser();
 
+	private SecurityAnnotationScanner<AuthenticationPrincipal> scanner = SecurityAnnotationScanners
+		.requireUnique(AuthenticationPrincipal.class);
+
+	private boolean useAnnotationTemplate = false;
+
 	private BeanResolver beanResolver;
 
 	@Override
 	public boolean supportsParameter(MethodParameter parameter) {
-		return findMethodAnnotation(AuthenticationPrincipal.class, parameter) != null;
+		return findMethodAnnotation(parameter) != null;
 	}
 
 	@Override
@@ -110,7 +122,7 @@ public final class AuthenticationPrincipalArgumentResolver implements HandlerMet
 			return null;
 		}
 		Object principal = authentication.getPrincipal();
-		AuthenticationPrincipal annotation = findMethodAnnotation(AuthenticationPrincipal.class, parameter);
+		AuthenticationPrincipal annotation = findMethodAnnotation(parameter);
 		String expressionToParse = annotation.expression();
 		if (StringUtils.hasLength(expressionToParse)) {
 			StandardEvaluationContext context = new StandardEvaluationContext();
@@ -149,22 +161,39 @@ public final class AuthenticationPrincipalArgumentResolver implements HandlerMet
 	}
 
 	/**
+	 * Configure AuthenticationPrincipal template resolution
+	 * <p>
+	 * By default, this value is <code>null</code>, which indicates that templates should
+	 * not be resolved.
+	 * @param templateDefaults - whether to resolve AuthenticationPrincipal templates
+	 * parameters
+	 * @since 6.4
+	 */
+	public void setTemplateDefaults(AnnotationTemplateExpressionDefaults templateDefaults) {
+		this.scanner = SecurityAnnotationScanners.requireUnique(AuthenticationPrincipal.class, templateDefaults);
+		this.useAnnotationTemplate = templateDefaults != null;
+	}
+
+	/**
 	 * Obtains the specified {@link Annotation} on the specified {@link MethodParameter}.
-	 * @param annotationClass the class of the {@link Annotation} to find on the
 	 * {@link MethodParameter}
 	 * @param parameter the {@link MethodParameter} to search for an {@link Annotation}
 	 * @return the {@link Annotation} that was found or null.
 	 */
-	private <T extends Annotation> T findMethodAnnotation(Class<T> annotationClass, MethodParameter parameter) {
-		T annotation = parameter.getParameterAnnotation(annotationClass);
+	@SuppressWarnings("unchecked")
+	private AuthenticationPrincipal findMethodAnnotation(MethodParameter parameter) {
+		if (this.useAnnotationTemplate) {
+			return this.scanner.scan(parameter.getParameter());
+		}
+		AuthenticationPrincipal annotation = parameter.getParameterAnnotation(this.annotationType);
 		if (annotation != null) {
 			return annotation;
 		}
 		Annotation[] annotationsToSearch = parameter.getParameterAnnotations();
 		for (Annotation toSearch : annotationsToSearch) {
-			annotation = AnnotationUtils.findAnnotation(toSearch.annotationType(), annotationClass);
+			annotation = AnnotationUtils.findAnnotation(toSearch.annotationType(), this.annotationType);
 			if (annotation != null) {
-				return annotation;
+				return MergedAnnotations.from(toSearch).get(this.annotationType).synthesize();
 			}
 		}
 		return null;

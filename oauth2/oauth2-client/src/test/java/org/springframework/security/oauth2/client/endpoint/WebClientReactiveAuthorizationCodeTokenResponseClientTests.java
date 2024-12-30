@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,17 +16,18 @@
 
 package org.springframework.security.oauth2.client.endpoint;
 
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import javax.crypto.spec.SecretKeySpec;
 
 import com.nimbusds.jose.jwk.JWK;
-import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
 import org.junit.jupiter.api.AfterEach;
@@ -36,9 +37,8 @@ import reactor.core.publisher.Mono;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ReactiveHttpInputMessage;
+import org.springframework.security.oauth2.client.MockResponses;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
@@ -48,6 +48,7 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenRespon
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationExchange;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResponse;
+import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.core.endpoint.PkceParameterNames;
 import org.springframework.security.oauth2.core.endpoint.TestOAuth2AccessTokenResponses;
 import org.springframework.security.oauth2.jose.TestJwks;
@@ -93,18 +94,7 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClientTests {
 
 	@Test
 	public void getTokenResponseWhenSuccessResponseThenReturnAccessTokenResponse() throws Exception {
-		// @formatter:off
-		String accessTokenSuccessResponse = "{\n"
-			+ "   \"access_token\": \"access-token-1234\",\n"
-			+ "   \"token_type\": \"bearer\",\n"
-			+ "   \"expires_in\": \"3600\",\n"
-			+ "   \"scope\": \"openid profile\",\n"
-			+ "   \"refresh_token\": \"refresh-token-1234\",\n"
-			+ "   \"custom_parameter_1\": \"custom-value-1\",\n"
-			+ "   \"custom_parameter_2\": \"custom-value-2\"\n"
-			+ "}\n";
-		// @formatter:on
-		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+		this.server.enqueue(MockResponses.json("access-token-response-openid-profile-2.json"));
 		Instant expiresAtBefore = Instant.now().plusSeconds(3600);
 		OAuth2AccessTokenResponse accessTokenResponse = this.tokenResponseClient
 			.getTokenResponse(authorizationCodeGrantRequest())
@@ -125,14 +115,7 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClientTests {
 
 	@Test
 	public void getTokenResponseWhenAuthenticationClientSecretJwtThenFormParametersAreSent() throws Exception {
-		// @formatter:off
-		String accessTokenSuccessResponse = "{\n"
-				+ "	  \"access_token\": \"access-token-1234\",\n"
-				+ "   \"token_type\": \"bearer\",\n"
-				+ "   \"expires_in\": \"3600\"\n"
-				+ "}\n";
-		// @formatter:on
-		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+		this.server.enqueue(MockResponses.json("access-token-response.json"));
 
 		// @formatter:off
 		ClientRegistration clientRegistration = this.clientRegistration
@@ -158,14 +141,7 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClientTests {
 
 	@Test
 	public void getTokenResponseWhenAuthenticationPrivateKeyJwtThenFormParametersAreSent() throws Exception {
-		// @formatter:off
-		String accessTokenSuccessResponse = "{\n"
-				+ "	  \"access_token\": \"access-token-1234\",\n"
-				+ "   \"token_type\": \"bearer\",\n"
-				+ "   \"expires_in\": \"3600\"\n"
-				+ "}\n";
-		// @formatter:on
-		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+		this.server.enqueue(MockResponses.json("access-token-response.json"));
 
 		// @formatter:off
 		ClientRegistration clientRegistration = this.clientRegistration
@@ -194,9 +170,7 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClientTests {
 
 	@Test
 	public void getTokenResponseWhenErrorResponseThenThrowOAuth2AuthorizationException() {
-		String accessTokenErrorResponse = "{\n" + "   \"error\": \"unauthorized_client\"\n" + "}\n";
-		this.server
-			.enqueue(jsonResponse(accessTokenErrorResponse).setResponseCode(HttpStatus.INTERNAL_SERVER_ERROR.value()));
+		this.server.enqueue(MockResponses.json("unauthorized-client-response.json").setResponseCode(500));
 		assertThatExceptionOfType(OAuth2AuthorizationException.class)
 			.isThrownBy(() -> this.tokenResponseClient.getTokenResponse(authorizationCodeGrantRequest()).block())
 			.satisfies((ex) -> assertThat(ex.getError().getErrorCode()).isEqualTo("unauthorized_client"))
@@ -206,9 +180,7 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClientTests {
 	// gh-5594
 	@Test
 	public void getTokenResponseWhenServerErrorResponseThenThrowOAuth2AuthorizationException() {
-		String accessTokenErrorResponse = "{}";
-		this.server
-			.enqueue(jsonResponse(accessTokenErrorResponse).setResponseCode(HttpStatus.INTERNAL_SERVER_ERROR.value()));
+		this.server.enqueue(MockResponses.json("server-error-response.json").setResponseCode(500));
 		assertThatExceptionOfType(OAuth2AuthorizationException.class)
 			.isThrownBy(() -> this.tokenResponseClient.getTokenResponse(authorizationCodeGrantRequest()).block())
 			.withMessageContaining("server_error");
@@ -216,14 +188,7 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClientTests {
 
 	@Test
 	public void getTokenResponseWhenSuccessResponseAndNotBearerTokenTypeThenThrowOAuth2AuthorizationException() {
-		// @formatter:off
-		String accessTokenSuccessResponse = "{\n"
-			+ "\"access_token\": \"access-token-1234\",\n"
-			+ "   \"token_type\": \"not-bearer\",\n"
-			+ "   \"expires_in\": \"3600\"\n"
-			+ "}\n";
-		// @formatter:on
-		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+		this.server.enqueue(MockResponses.json("invalid-token-type-response.json"));
 		assertThatExceptionOfType(OAuth2AuthorizationException.class)
 			.isThrownBy(() -> this.tokenResponseClient.getTokenResponse(authorizationCodeGrantRequest()).block())
 			.withMessageContaining("invalid_token_response");
@@ -231,15 +196,7 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClientTests {
 
 	@Test
 	public void getTokenResponseWhenSuccessResponseIncludesScopeThenReturnAccessTokenResponseUsingResponseScope() {
-		// @formatter:off
-		String accessTokenSuccessResponse = "{\n"
-			+ "\"access_token\": \"access-token-1234\",\n"
-			+ "   \"token_type\": \"bearer\",\n"
-			+ "   \"expires_in\": \"3600\",\n"
-			+ "   \"scope\": \"openid profile\"\n"
-			+ "}\n";
-		// @formatter:on
-		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+		this.server.enqueue(MockResponses.json("access-token-response-openid-profile.json"));
 		this.clientRegistration.scope("openid", "profile", "email", "address");
 		OAuth2AccessTokenResponse accessTokenResponse = this.tokenResponseClient
 			.getTokenResponse(authorizationCodeGrantRequest())
@@ -249,14 +206,7 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClientTests {
 
 	@Test
 	public void getTokenResponseWhenSuccessResponseDoesNotIncludeScopeThenReturnAccessTokenResponseWithNoScopes() {
-		// @formatter:off
-		String accessTokenSuccessResponse = "{\n"
-			+ "   \"access_token\": \"access-token-1234\",\n"
-			+ "   \"token_type\": \"bearer\",\n"
-			+ "   \"expires_in\": \"3600\"\n"
-			+ "}\n";
-		// @formatter:on
-		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+		this.server.enqueue(MockResponses.json("access-token-response.json"));
 		this.clientRegistration.scope("openid", "profile", "email", "address");
 		OAuth2AccessTokenResponse accessTokenResponse = this.tokenResponseClient
 			.getTokenResponse(authorizationCodeGrantRequest())
@@ -285,10 +235,6 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClientTests {
 		return new OAuth2AuthorizationCodeGrantRequest(registration, authorizationExchange);
 	}
 
-	private MockResponse jsonResponse(String json) {
-		return new MockResponse().setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE).setBody(json);
-	}
-
 	@Test
 	public void setWebClientNullThenIllegalArgumentException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.tokenResponseClient.setWebClient(null));
@@ -296,18 +242,10 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClientTests {
 
 	@Test
 	public void setCustomWebClientThenCustomWebClientIsUsed() {
-		WebClient customClient = mock(WebClient.class);
+		WebClient customClient = mock();
 		given(customClient.post()).willReturn(WebClient.builder().build().post());
 		this.tokenResponseClient.setWebClient(customClient);
-		// @formatter:off
-		String accessTokenSuccessResponse = "{\n"
-			+ "   \"access_token\": \"access-token-1234\",\n"
-			+ "   \"token_type\": \"bearer\",\n"
-			+ "   \"expires_in\": \"3600\",\n"
-			+ "   \"scope\": \"openid profile\"\n"
-			+ "}\n";
-		// @formatter:on
-		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+		this.server.enqueue(MockResponses.json("access-token-response.json"));
 		this.clientRegistration.scope("openid", "profile", "email", "address");
 		OAuth2AccessTokenResponse response = this.tokenResponseClient.getTokenResponse(authorizationCodeGrantRequest())
 			.block();
@@ -317,14 +255,7 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClientTests {
 	@Test
 	public void getTokenResponseWhenOAuth2AuthorizationRequestContainsPkceParametersThenTokenRequestBodyShouldContainCodeVerifier()
 			throws Exception {
-		// @formatter:off
-		String accessTokenSuccessResponse = "{\n"
-			+ "   \"access_token\": \"access-token-1234\",\n"
-			+ "   \"token_type\": \"bearer\",\n"
-			+ "   \"expires_in\": \"3600\"\n"
-			+ "}\n";
-		// @formatter:on
-		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+		this.server.enqueue(MockResponses.json("access-token-response.json"));
 		this.tokenResponseClient.getTokenResponse(pkceAuthorizationCodeGrantRequest()).block();
 		String body = this.server.takeRequest().getBody().readUtf8();
 		assertThat(body).isEqualTo(
@@ -379,20 +310,12 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClientTests {
 	@Test
 	public void convertWhenHeadersConverterAddedThenCalled() throws Exception {
 		OAuth2AuthorizationCodeGrantRequest request = authorizationCodeGrantRequest();
-		Converter<OAuth2AuthorizationCodeGrantRequest, HttpHeaders> addedHeadersConverter = mock(Converter.class);
+		Converter<OAuth2AuthorizationCodeGrantRequest, HttpHeaders> addedHeadersConverter = mock();
 		HttpHeaders headers = new HttpHeaders();
 		headers.put("custom-header-name", Collections.singletonList("custom-header-value"));
 		given(addedHeadersConverter.convert(request)).willReturn(headers);
 		this.tokenResponseClient.addHeadersConverter(addedHeadersConverter);
-		// @formatter:off
-		String accessTokenSuccessResponse = "{\n"
-				+ "   \"access_token\": \"access-token-1234\",\n"
-				+ "   \"token_type\": \"bearer\",\n"
-				+ "   \"expires_in\": \"3600\",\n"
-				+ "   \"scope\": \"openid profile\"\n"
-				+ "}\n";
-		// @formatter:on
-		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+		this.server.enqueue(MockResponses.json("access-token-response.json"));
 		this.tokenResponseClient.getTokenResponse(request).block();
 		verify(addedHeadersConverter).convert(request);
 		RecordedRequest actualRequest = this.server.takeRequest();
@@ -406,20 +329,12 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClientTests {
 	public void convertWhenHeadersConverterSetThenCalled() throws Exception {
 		OAuth2AuthorizationCodeGrantRequest request = authorizationCodeGrantRequest();
 		ClientRegistration clientRegistration = request.getClientRegistration();
-		Converter<OAuth2AuthorizationCodeGrantRequest, HttpHeaders> headersConverter = mock(Converter.class);
+		Converter<OAuth2AuthorizationCodeGrantRequest, HttpHeaders> headersConverter = mock();
 		HttpHeaders headers = new HttpHeaders();
 		headers.setBasicAuth(clientRegistration.getClientId(), clientRegistration.getClientSecret());
 		given(headersConverter.convert(request)).willReturn(headers);
 		this.tokenResponseClient.setHeadersConverter(headersConverter);
-		// @formatter:off
-		String accessTokenSuccessResponse = "{\n"
-				+ "   \"access_token\": \"access-token-1234\",\n"
-				+ "   \"token_type\": \"bearer\",\n"
-				+ "   \"expires_in\": \"3600\",\n"
-				+ "   \"scope\": \"openid profile\"\n"
-				+ "}\n";
-		// @formatter:on
-		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+		this.server.enqueue(MockResponses.json("access-token-response.json"));
 		this.tokenResponseClient.getTokenResponse(request).block();
 		verify(headersConverter).convert(request);
 		RecordedRequest actualRequest = this.server.takeRequest();
@@ -440,23 +355,14 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClientTests {
 	}
 
 	@Test
-	public void convertWhenParametersConverterAddedThenCalled() throws Exception {
+	public void getTokenResponseWhenParametersConverterAddedThenCalled() throws Exception {
 		OAuth2AuthorizationCodeGrantRequest request = authorizationCodeGrantRequest();
-		Converter<OAuth2AuthorizationCodeGrantRequest, MultiValueMap<String, String>> addedParametersConverter = mock(
-				Converter.class);
+		Converter<OAuth2AuthorizationCodeGrantRequest, MultiValueMap<String, String>> addedParametersConverter = mock();
 		MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
 		parameters.add("custom-parameter-name", "custom-parameter-value");
 		given(addedParametersConverter.convert(request)).willReturn(parameters);
 		this.tokenResponseClient.addParametersConverter(addedParametersConverter);
-		// @formatter:off
-		String accessTokenSuccessResponse = "{\n"
-				+ "  \"access_token\":\"MTQ0NjJkZmQ5OTM2NDE1ZTZjNGZmZjI3\",\n"
-				+ "  \"token_type\":\"bearer\",\n"
-				+ "  \"expires_in\":3600,\n"
-				+ "  \"refresh_token\":\"IwOGYzYTlmM2YxOTQ5MGE3YmNmMDFkNTVk\"\n"
-				+ "}";
-		// @formatter:on
-		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+		this.server.enqueue(MockResponses.json("access-token-response.json"));
 		this.tokenResponseClient.getTokenResponse(request).block();
 		verify(addedParametersConverter).convert(request);
 		RecordedRequest actualRequest = this.server.takeRequest();
@@ -465,44 +371,65 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClientTests {
 	}
 
 	@Test
-	public void convertWhenParametersConverterSetThenCalled() throws Exception {
+	public void getTokenResponseWhenParametersConverterSetThenCalled() throws Exception {
 		OAuth2AuthorizationCodeGrantRequest request = authorizationCodeGrantRequest();
-		Converter<OAuth2AuthorizationCodeGrantRequest, MultiValueMap<String, String>> parametersConverter = mock(
-				Converter.class);
+		Converter<OAuth2AuthorizationCodeGrantRequest, MultiValueMap<String, String>> parametersConverter = mock();
 		MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
 		parameters.add("custom-parameter-name", "custom-parameter-value");
 		given(parametersConverter.convert(request)).willReturn(parameters);
 		this.tokenResponseClient.setParametersConverter(parametersConverter);
-		// @formatter:off
-		String accessTokenSuccessResponse = "{\n"
-				+ "  \"access_token\":\"MTQ0NjJkZmQ5OTM2NDE1ZTZjNGZmZjI3\",\n"
-				+ "  \"token_type\":\"bearer\",\n"
-				+ "  \"expires_in\":3600,\n"
-				+ "  \"refresh_token\":\"IwOGYzYTlmM2YxOTQ5MGE3YmNmMDFkNTVk\"\n"
-				+ "}";
-		// @formatter:on
-		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+		this.server.enqueue(MockResponses.json("access-token-response.json"));
 		this.tokenResponseClient.getTokenResponse(request).block();
 		verify(parametersConverter).convert(request);
 		RecordedRequest actualRequest = this.server.takeRequest();
 		assertThat(actualRequest.getBody().readUtf8()).contains("custom-parameter-name=custom-parameter-value");
 	}
 
+	@Test
+	public void getTokenResponseWhenParametersConverterSetThenAbleToOverrideDefaultParameters() throws Exception {
+		this.clientRegistration.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST);
+		OAuth2AuthorizationCodeGrantRequest request = authorizationCodeGrantRequest();
+		this.server.enqueue(MockResponses.json("access-token-response.json"));
+		MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
+		parameters.set(OAuth2ParameterNames.GRANT_TYPE, "custom");
+		parameters.set(OAuth2ParameterNames.CODE, "custom-code");
+		parameters.set(OAuth2ParameterNames.REDIRECT_URI, "custom-uri");
+		this.tokenResponseClient.setParametersConverter((grantRequest) -> parameters);
+		this.tokenResponseClient.getTokenResponse(request).block();
+		String formParameters = this.server.takeRequest().getBody().readUtf8();
+		// @formatter:off
+		assertThat(formParameters).contains(
+				param(OAuth2ParameterNames.GRANT_TYPE, "custom"),
+				param(OAuth2ParameterNames.CLIENT_ID, "client-id"),
+				param(OAuth2ParameterNames.CODE, "custom-code"),
+				param(OAuth2ParameterNames.REDIRECT_URI, "custom-uri")
+		);
+		// @formatter:on
+	}
+
+	@Test
+	public void getTokenResponseWhenParametersCustomizerSetThenCalled() throws Exception {
+		this.server.enqueue(MockResponses.json("access-token-response.json"));
+		OAuth2AuthorizationCodeGrantRequest request = authorizationCodeGrantRequest();
+		Consumer<MultiValueMap<String, String>> parametersCustomizer = mock();
+		this.tokenResponseClient.setParametersCustomizer(parametersCustomizer);
+		this.tokenResponseClient.getTokenResponse(request).block();
+		verify(parametersCustomizer).accept(any());
+	}
+
 	// gh-10260
 	@Test
 	public void getTokenResponseWhenSuccessCustomResponseThenReturnAccessTokenResponse() {
 
-		String accessTokenSuccessResponse = "{}";
-
 		WebClientReactiveAuthorizationCodeTokenResponseClient customClient = new WebClientReactiveAuthorizationCodeTokenResponseClient();
 
-		BodyExtractor<Mono<OAuth2AccessTokenResponse>, ReactiveHttpInputMessage> extractor = mock(BodyExtractor.class);
+		BodyExtractor<Mono<OAuth2AccessTokenResponse>, ReactiveHttpInputMessage> extractor = mock();
 		OAuth2AccessTokenResponse response = TestOAuth2AccessTokenResponses.accessTokenResponse().build();
 		given(extractor.extract(any(), any())).willReturn(Mono.just(response));
 
 		customClient.setBodyExtractor(extractor);
 
-		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+		this.server.enqueue(MockResponses.json("access-token-response.json"));
 		OAuth2AccessTokenResponse accessTokenResponse = customClient.getTokenResponse(authorizationCodeGrantRequest())
 			.block();
 		assertThat(accessTokenResponse.getAccessToken()).isNotNull();
@@ -531,6 +458,10 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClientTests {
 				clientRegistration);
 		assertThatExceptionOfType(IllegalArgumentException.class)
 			.isThrownBy(() -> this.tokenResponseClient.getTokenResponse(authorizationCodeGrantRequest).block());
+	}
+
+	private static String param(String parameterName, String parameterValue) {
+		return "%s=%s".formatted(parameterName, URLEncoder.encode(parameterValue, StandardCharsets.UTF_8));
 	}
 
 }

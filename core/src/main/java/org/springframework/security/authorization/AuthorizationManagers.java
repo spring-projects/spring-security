@@ -18,6 +18,9 @@ package org.springframework.security.authorization;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
+
+import org.springframework.security.core.Authentication;
 
 /**
  * A factory class to create an {@link AuthorizationManager} instances.
@@ -55,22 +58,22 @@ public final class AuthorizationManagers {
 	@SafeVarargs
 	public static <T> AuthorizationManager<T> anyOf(AuthorizationDecision allAbstainDefaultDecision,
 			AuthorizationManager<T>... managers) {
-		return (authentication, object) -> {
-			List<AuthorizationDecision> decisions = new ArrayList<>();
+		return (AuthorizationManagerCheckAdapter<T>) (authentication, object) -> {
+			List<AuthorizationResult> results = new ArrayList<>();
 			for (AuthorizationManager<T> manager : managers) {
-				AuthorizationDecision decision = manager.check(authentication, object);
-				if (decision == null) {
+				AuthorizationResult result = manager.authorize(authentication, object);
+				if (result == null) {
 					continue;
 				}
-				if (decision.isGranted()) {
-					return decision;
+				if (result.isGranted()) {
+					return result;
 				}
-				decisions.add(decision);
+				results.add(result);
 			}
-			if (decisions.isEmpty()) {
+			if (results.isEmpty()) {
 				return allAbstainDefaultDecision;
 			}
-			return new CompositeAuthorizationDecision(false, decisions);
+			return new CompositeAuthorizationDecision(false, results);
 		};
 	}
 
@@ -101,22 +104,22 @@ public final class AuthorizationManagers {
 	@SafeVarargs
 	public static <T> AuthorizationManager<T> allOf(AuthorizationDecision allAbstainDefaultDecision,
 			AuthorizationManager<T>... managers) {
-		return (authentication, object) -> {
-			List<AuthorizationDecision> decisions = new ArrayList<>();
+		return (AuthorizationManagerCheckAdapter<T>) (authentication, object) -> {
+			List<AuthorizationResult> results = new ArrayList<>();
 			for (AuthorizationManager<T> manager : managers) {
-				AuthorizationDecision decision = manager.check(authentication, object);
-				if (decision == null) {
+				AuthorizationResult result = manager.authorize(authentication, object);
+				if (result == null) {
 					continue;
 				}
-				if (!decision.isGranted()) {
-					return decision;
+				if (!result.isGranted()) {
+					return result;
 				}
-				decisions.add(decision);
+				results.add(result);
 			}
-			if (decisions.isEmpty()) {
+			if (results.isEmpty()) {
 				return allAbstainDefaultDecision;
 			}
-			return new CompositeAuthorizationDecision(true, decisions);
+			return new CompositeAuthorizationDecision(true, results);
 		};
 	}
 
@@ -131,11 +134,11 @@ public final class AuthorizationManagers {
 	 */
 	public static <T> AuthorizationManager<T> not(AuthorizationManager<T> manager) {
 		return (authentication, object) -> {
-			AuthorizationDecision decision = manager.check(authentication, object);
-			if (decision == null) {
+			AuthorizationResult result = manager.authorize(authentication, object);
+			if (result == null) {
 				return null;
 			}
-			return new NotAuthorizationDecision(decision);
+			return new NotAuthorizationDecision(result);
 		};
 	}
 
@@ -144,33 +147,52 @@ public final class AuthorizationManagers {
 
 	private static final class CompositeAuthorizationDecision extends AuthorizationDecision {
 
-		private final List<AuthorizationDecision> decisions;
+		private final List<AuthorizationResult> results;
 
-		private CompositeAuthorizationDecision(boolean granted, List<AuthorizationDecision> decisions) {
+		private CompositeAuthorizationDecision(boolean granted, List<AuthorizationResult> results) {
 			super(granted);
-			this.decisions = decisions;
+			this.results = results;
 		}
 
 		@Override
 		public String toString() {
-			return "CompositeAuthorizationDecision [decisions=" + this.decisions + ']';
+			return "CompositeAuthorizationDecision [results=" + this.results + ']';
 		}
 
 	}
 
 	private static final class NotAuthorizationDecision extends AuthorizationDecision {
 
-		private final AuthorizationDecision decision;
+		private final AuthorizationResult result;
 
-		private NotAuthorizationDecision(AuthorizationDecision decision) {
-			super(!decision.isGranted());
-			this.decision = decision;
+		private NotAuthorizationDecision(AuthorizationResult result) {
+			super(!result.isGranted());
+			this.result = result;
 		}
 
 		@Override
 		public String toString() {
-			return "NotAuthorizationDecision [decision=" + this.decision + ']';
+			return "NotAuthorizationDecision [result=" + this.result + ']';
 		}
+
+	}
+
+	private interface AuthorizationManagerCheckAdapter<T> extends AuthorizationManager<T> {
+
+		@Override
+		default AuthorizationDecision check(Supplier<Authentication> authentication, T object) {
+			AuthorizationResult result = authorize(authentication, object);
+			if (result == null) {
+				return null;
+			}
+			if (result instanceof AuthorizationDecision decision) {
+				return decision;
+			}
+			throw new IllegalArgumentException(
+					"please call #authorize or ensure that the result is of type AuthorizationDecision");
+		}
+
+		AuthorizationResult authorize(Supplier<Authentication> authentication, T object);
 
 	}
 

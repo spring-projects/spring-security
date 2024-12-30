@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,16 +18,19 @@ package org.springframework.security.config.annotation.web.configurers.saml2;
 
 import java.util.function.Function;
 
+import org.opensaml.core.Version;
+
 import org.springframework.context.ApplicationContext;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.saml2.provider.service.metadata.OpenSamlMetadataResolver;
-import org.springframework.security.saml2.provider.service.metadata.RequestMatcherMetadataResponseResolver;
+import org.springframework.security.saml2.provider.service.metadata.OpenSaml4MetadataResolver;
+import org.springframework.security.saml2.provider.service.metadata.OpenSaml5MetadataResolver;
 import org.springframework.security.saml2.provider.service.metadata.Saml2MetadataResponseResolver;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
 import org.springframework.security.saml2.provider.service.web.Saml2MetadataFilter;
+import org.springframework.security.saml2.provider.service.web.metadata.RequestMatcherMetadataResponseResolver;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.util.Assert;
@@ -73,6 +76,8 @@ import org.springframework.util.Assert;
 public class Saml2MetadataConfigurer<H extends HttpSecurityBuilder<H>>
 		extends AbstractHttpConfigurer<Saml2LogoutConfigurer<H>, H> {
 
+	private static final boolean USE_OPENSAML_5 = Version.getVersion().startsWith("5");
+
 	private final ApplicationContext context;
 
 	private Function<RelyingPartyRegistrationRepository, Saml2MetadataResponseResolver> metadataResponseResolver;
@@ -103,8 +108,14 @@ public class Saml2MetadataConfigurer<H extends HttpSecurityBuilder<H>>
 	public Saml2MetadataConfigurer<H> metadataUrl(String metadataUrl) {
 		Assert.hasText(metadataUrl, "metadataUrl cannot be empty");
 		this.metadataResponseResolver = (registrations) -> {
+			if (USE_OPENSAML_5) {
+				RequestMatcherMetadataResponseResolver metadata = new RequestMatcherMetadataResponseResolver(
+						registrations, new OpenSaml5MetadataResolver());
+				metadata.setRequestMatcher(new AntPathRequestMatcher(metadataUrl));
+				return metadata;
+			}
 			RequestMatcherMetadataResponseResolver metadata = new RequestMatcherMetadataResponseResolver(registrations,
-					new OpenSamlMetadataResolver());
+					new OpenSaml4MetadataResolver());
 			metadata.setRequestMatcher(new AntPathRequestMatcher(metadataUrl));
 			return metadata;
 		};
@@ -143,7 +154,10 @@ public class Saml2MetadataConfigurer<H extends HttpSecurityBuilder<H>>
 			return metadataResponseResolver;
 		}
 		RelyingPartyRegistrationRepository registrations = getRelyingPartyRegistrationRepository(http);
-		return new RequestMatcherMetadataResponseResolver(registrations, new OpenSamlMetadataResolver());
+		if (USE_OPENSAML_5) {
+			return new RequestMatcherMetadataResponseResolver(registrations, new OpenSaml5MetadataResolver());
+		}
+		return new RequestMatcherMetadataResponseResolver(registrations, new OpenSaml4MetadataResolver());
 	}
 
 	private RelyingPartyRegistrationRepository getRelyingPartyRegistrationRepository(H http) {
@@ -160,10 +174,7 @@ public class Saml2MetadataConfigurer<H extends HttpSecurityBuilder<H>>
 		if (this.context == null) {
 			return null;
 		}
-		if (this.context.getBeanNamesForType(clazz).length == 0) {
-			return null;
-		}
-		return this.context.getBean(clazz);
+		return this.context.getBeanProvider(clazz).getIfAvailable();
 	}
 
 }

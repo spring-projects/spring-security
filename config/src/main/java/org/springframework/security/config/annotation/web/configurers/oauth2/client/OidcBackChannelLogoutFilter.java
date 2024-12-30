@@ -58,7 +58,7 @@ class OidcBackChannelLogoutFilter extends OncePerRequestFilter {
 
 	private final OAuth2ErrorHttpMessageConverter errorHttpMessageConverter = new OAuth2ErrorHttpMessageConverter();
 
-	private LogoutHandler logoutHandler = new OidcBackChannelLogoutHandler();
+	private final LogoutHandler logoutHandler;
 
 	/**
 	 * Construct an {@link OidcBackChannelLogoutFilter}
@@ -68,11 +68,13 @@ class OidcBackChannelLogoutFilter extends OncePerRequestFilter {
 	 * Logout Tokens
 	 */
 	OidcBackChannelLogoutFilter(AuthenticationConverter authenticationConverter,
-			AuthenticationManager authenticationManager) {
+			AuthenticationManager authenticationManager, LogoutHandler logoutHandler) {
 		Assert.notNull(authenticationConverter, "authenticationConverter cannot be null");
 		Assert.notNull(authenticationManager, "authenticationManager cannot be null");
+		Assert.notNull(logoutHandler, "logoutHandler cannot be null");
 		this.authenticationConverter = authenticationConverter;
 		this.authenticationManager = authenticationManager;
+		this.logoutHandler = logoutHandler;
 	}
 
 	/**
@@ -124,16 +126,6 @@ class OidcBackChannelLogoutFilter extends OncePerRequestFilter {
 		}
 		return new OAuth2Error(OAuth2ErrorCodes.INVALID_REQUEST, ex.getMessage(),
 				"https://openid.net/specs/openid-connect-backchannel-1_0.html#Validation");
-	}
-
-	/**
-	 * The strategy for expiring all Client sessions indicated by the logout request.
-	 * Defaults to {@link OidcBackChannelLogoutHandler}.
-	 * @param logoutHandler the {@link LogoutHandler} to use
-	 */
-	void setLogoutHandler(LogoutHandler logoutHandler) {
-		Assert.notNull(logoutHandler, "logoutHandler cannot be null");
-		this.logoutHandler = logoutHandler;
 	}
 
 }

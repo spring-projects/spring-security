@@ -1331,6 +1331,12 @@ Reference to an `OpaqueTokenAuthenticationConverter`. Responsible for converting
 == <relying-party-registrations>
 The container element for relying party(ies) registered (xref:servlet/saml2/login/overview.adoc#servlet-saml2login-relyingpartyregistration[ClientRegistration]) with a SAML 2.0 Identity Provider.
 
+[[nsa-relying-party-registrations-attributes]]
+=== <relying-party-registrations> Attributes
+
+[[nsa-relying-party-registrations-id]]
+* **id**
+The ID that uniquely identifies the `RelyingPartyRegistrationRepository`.
 
 [[nsa-relying-party-registrations-children]]
 === Child Elements of <relying-party-registrations>
@@ -2162,6 +2168,9 @@ Allows injection of the ExpiredSessionStrategy instance used by the ConcurrentSe
 Maps to the `maximumSessions` property of `ConcurrentSessionControlAuthenticationStrategy`.
 Specify `-1` as the value to support unlimited sessions.
 
+[[nsa-concurrency-control-max-sessions-ref]]
+* **max-sessions-ref**
+Allows injection of the SessionLimit instance used by the ConcurrentSessionControlAuthenticationStrategy
 
 [[nsa-concurrency-control-session-registry-alias]]
 * **session-registry-alias**

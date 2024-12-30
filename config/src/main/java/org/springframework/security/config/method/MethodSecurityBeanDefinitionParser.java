@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,6 +67,7 @@ import org.springframework.util.xml.DomUtils;
  * Processes the top-level "method-security" element.
  *
  * @author Josh Cummings
+ * @author Ngoc Nhan
  * @since 5.6
  */
 public class MethodSecurityBeanDefinitionParser implements BeanDefinitionParser {
@@ -307,13 +308,9 @@ public class MethodSecurityBeanDefinitionParser implements BeanDefinitionParser 
 
 		@Override
 		public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-			String[] grantedAuthorityDefaultsBeanNames = applicationContext
-				.getBeanNamesForType(GrantedAuthorityDefaults.class);
-			if (grantedAuthorityDefaultsBeanNames.length == 1) {
-				GrantedAuthorityDefaults grantedAuthorityDefaults = applicationContext
-					.getBean(grantedAuthorityDefaultsBeanNames[0], GrantedAuthorityDefaults.class);
-				this.expressionHandler.setDefaultRolePrefix(grantedAuthorityDefaults.getRolePrefix());
-			}
+			applicationContext.getBeanProvider(GrantedAuthorityDefaults.class)
+				.ifUnique((grantedAuthorityDefaults) -> this.expressionHandler
+					.setDefaultRolePrefix(grantedAuthorityDefaults.getRolePrefix()));
 		}
 
 	}
@@ -347,13 +344,9 @@ public class MethodSecurityBeanDefinitionParser implements BeanDefinitionParser 
 
 		@Override
 		public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-			String[] grantedAuthorityDefaultsBeanNames = applicationContext
-				.getBeanNamesForType(GrantedAuthorityDefaults.class);
-			if (grantedAuthorityDefaultsBeanNames.length == 1) {
-				GrantedAuthorityDefaults grantedAuthorityDefaults = applicationContext
-					.getBean(grantedAuthorityDefaultsBeanNames[0], GrantedAuthorityDefaults.class);
-				this.manager.setRolePrefix(grantedAuthorityDefaults.getRolePrefix());
-			}
+			applicationContext.getBeanProvider(GrantedAuthorityDefaults.class)
+				.ifUnique((grantedAuthorityDefaults) -> this.manager
+					.setRolePrefix(grantedAuthorityDefaults.getRolePrefix()));
 		}
 
 		public void setSecurityContextHolderStrategy(SecurityContextHolderStrategy securityContextHolderStrategy) {

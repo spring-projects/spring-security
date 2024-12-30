@@ -1,0 +1,27 @@
+#!/bin/bash
+# .git/hooks/pre-push
+
+echo "Verifying if the target branch matches the version in gradle.properties"
+
+# Get the current branch name
+branch_name=$(git symbolic-ref --short HEAD)
+
+# Verify if branch name ends with '.x'
+if [[ ! "$branch_name" =~ \.x$ ]]; then
+  echo "Branch name '$branch_name' does not end with '.x', skipping verification."
+  exit 0
+fi
+
+# Extract version from gradle.properties
+version=$(cat gradle.properties | grep 'version=' | awk -F'=' '{print $2}')
+
+# Extract the version prefix from the version
+version_prefix=$(echo $version | cut -d'-' -f1 | sed 's/\.[0-9]*$//')
+
+# Check if branch starts with the version prefix
+if [[ "$branch_name" != "$version_prefix"* ]]; then
+  echo "Branch name '$branch_name' does not match the version prefix '$version_prefix' in gradle.properties. Make sure you are pushing to the right branch."
+  exit 1
+fi
+
+exit 0

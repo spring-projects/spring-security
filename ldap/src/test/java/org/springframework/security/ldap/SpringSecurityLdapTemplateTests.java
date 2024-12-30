@@ -16,6 +16,7 @@
 
 package org.springframework.security.ldap;
 
+import javax.naming.Name;
 import javax.naming.NamingEnumeration;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
@@ -29,7 +30,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.ldap.core.DirContextAdapter;
-import org.springframework.ldap.core.DistinguishedName;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -60,7 +60,8 @@ public class SpringSecurityLdapTemplateTests {
 		String searchResultName = "ldap://example.com/dc=springframework,dc=org";
 		Object[] params = new Object[] {};
 		DirContextAdapter searchResultObject = mock(DirContextAdapter.class);
-		given(this.ctx.search(any(DistinguishedName.class), eq(filter), eq(params), this.searchControls.capture()))
+		given(this.ctx.getNameInNamespace()).willReturn("dc=springframework,dc=org");
+		given(this.ctx.search(any(Name.class), eq(filter), eq(params), this.searchControls.capture()))
 			.willReturn(this.resultsEnum);
 		given(this.resultsEnum.hasMore()).willReturn(true, false);
 		given(this.resultsEnum.next()).willReturn(this.searchResult);

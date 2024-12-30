@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,13 @@
 
 package org.springframework.security.config.annotation.web.configurers.oauth2.client;
 
+import java.util.function.Function;
+
+import com.nimbusds.jose.JOSEObjectType;
+import com.nimbusds.jose.proc.DefaultJOSEObjectTypeVerifier;
+import com.nimbusds.jose.proc.JOSEObjectTypeVerifier;
+import com.nimbusds.jose.proc.SecurityContext;
+
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.Authentication;
@@ -26,11 +33,15 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
+import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.jwt.BadJwtException;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtDecoderFactory;
+import org.springframework.security.oauth2.jwt.JwtValidators;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 /**
  * An {@link AuthenticationProvider} that authenticates an OIDC Logout Token; namely
@@ -56,9 +67,27 @@ final class OidcBackChannelLogoutAuthenticationProvider implements Authenticatio
 	 * Construct an {@link OidcBackChannelLogoutAuthenticationProvider}
 	 */
 	OidcBackChannelLogoutAuthenticationProvider() {
-		OidcIdTokenDecoderFactory logoutTokenDecoderFactory = new OidcIdTokenDecoderFactory();
-		logoutTokenDecoderFactory.setJwtValidatorFactory(new DefaultOidcLogoutTokenValidatorFactory());
-		this.logoutTokenDecoderFactory = logoutTokenDecoderFactory;
+		Function<ClientRegistration, OAuth2TokenValidator<Jwt>> jwtValidator = (clientRegistration) -> JwtValidators
+			.createDefaultWithValidators(new OidcBackChannelLogoutTokenValidator(clientRegistration));
+		this.logoutTokenDecoderFactory = (clientRegistration) -> {
+			String jwkSetUri = clientRegistration.getProviderDetails().getJwkSetUri();
+			if (!StringUtils.hasText(jwkSetUri)) {
+				OAuth2Error oauth2Error = new OAuth2Error("missing_signature_verifier",
+						"Failed to find a Signature Verifier for Client Registration: '"
+								+ clientRegistration.getRegistrationId()
+								+ "'. Check to ensure you have configured the JwkSet URI.",
+						null);
+				throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
+			}
+			JOSEObjectTypeVerifier<SecurityContext> typeVerifier = new DefaultJOSEObjectTypeVerifier<>(null,
+					JOSEObjectType.JWT, new JOSEObjectType("logout+jwt"));
+			NimbusJwtDecoder decoder = NimbusJwtDecoder.withJwkSetUri(jwkSetUri)
+				.jwtProcessorCustomizer((processor) -> processor.setJWSTypeVerifier(typeVerifier))
+				.build();
+			decoder.setJwtValidator(jwtValidator.apply(clientRegistration));
+			decoder.setClaimSetConverter(OidcIdTokenDecoderFactory.createDefaultClaimTypeConverter());
+			return decoder;
+		};
 	}
 
 	/**
@@ -75,7 +104,7 @@ final class OidcBackChannelLogoutAuthenticationProvider implements Authenticatio
 		OidcLogoutToken oidcLogoutToken = OidcLogoutToken.withTokenValue(logoutToken)
 			.claims((claims) -> claims.putAll(jwt.getClaims()))
 			.build();
-		return new OidcBackChannelLogoutAuthentication(oidcLogoutToken);
+		return new OidcBackChannelLogoutAuthentication(oidcLogoutToken, registration);
 	}
 
 	/**

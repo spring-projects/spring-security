@@ -65,6 +65,7 @@ In many cases, your authorization rules will be more sophisticated than that, so
 This section builds on xref:servlet/architecture.adoc#servlet-architecture[Servlet Architecture and Implementation] by digging deeper into how xref:servlet/authorization/index.adoc#servlet-authorization[authorization] works at the request level in Servlet-based applications.
 
 .Authorize HttpServletRequest
+[.invert-dark]
 image::{figures}/authorizationfilter.png[]
 
 * image:{icondir}/number_1.png[] First, the `AuthorizationFilter` constructs a `Supplier` that retrieves an  xref:servlet/authentication/architecture.adoc#servlet-authentication-authentication[Authentication] from the xref:servlet/authentication/architecture.adoc#servlet-authentication-securitycontextholder[SecurityContextHolder].
@@ -124,7 +125,7 @@ In this case, authorization happens twice; once for authorizing `/endpoint` and 
 
 For that reason, you may want to <<match-by-dispatcher-type, permit all `FORWARD` dispatches>>.
 
-Another example of this principle is {spring-boot-reference-url}web.html#web.servlet.spring-mvc.error-handling[how Spring Boot handles errors].
+Another example of this principle is {spring-boot-reference-url}reference/web/servlet.html#web.servlet.spring-mvc.error-handling[how Spring Boot handles errors].
 If the container catches an exception, say like the following:
 
 .Sample Erroring Spring MVC Controller
@@ -185,15 +186,15 @@ Java::
 [source,java,role="primary"]
 ----
 @Bean
-SecurityFilterChain web(HttpSecurity http) throws Exception {
-	http
-		.authorizeHttpRequests((authorize) -> authorize
-			.requestMatchers("/endpoint").hasAuthority("USER")
-			.anyRequest().authenticated()
-		)
+public SecurityFilterChain web(HttpSecurity http) throws Exception {
+    http
+        .authorizeHttpRequests((authorize) -> authorize
+	    .requestMatchers("/endpoint").hasAuthority("USER")
+            .anyRequest().authenticated()
+        )
         // ...
 
-	return http.build();
+    return http.build();
 }
 ----
 
@@ -202,14 +203,15 @@ Kotlin::
 [source,kotlin,role="secondary"]
 ----
 @Bean
-SecurityFilterChain web(HttpSecurity http) throws Exception {
-	http {
+fun web(http: HttpSecurity): SecurityFilterChain {
+    http {
         authorizeHttpRequests {
             authorize("/endpoint", hasAuthority("USER"))
             authorize(anyRequest, authenticated)
         }
-	}
-	return http.build();
+    }
+
+    return http.build()
 }
 ----
 
@@ -258,7 +260,7 @@ void endpointWhenNotUserAuthorityThenForbidden() {
 @Test
 void anyWhenUnauthenticatedThenUnauthorized() {
     this.mvc.perform(get("/any"))
-        .andExpect(status().isUnauthorized())
+        .andExpect(status().isUnauthorized());
 }
 ----
 ======
@@ -387,7 +389,7 @@ void endpointWhenNotUserAuthorityThenForbidden() {
 @Test
 void anyWhenUnauthenticatedThenUnauthorized() {
     this.mvc.perform(get("/any"))
-        .andExpect(status().isUnauthorized())
+        .andExpect(status().isUnauthorized());
 }
 ----
 ======
@@ -402,7 +404,7 @@ Spring Security supports matching requests against a regular expression.
 This can come in handy if you want to apply more strict matching criteria than `**` on a subdirectory.
 
 For example, consider a path that contains the username and the rule that all usernames must be alphanumeric.
-You can use {security-api-url}org/springframework/security/web/util/matcher/RegexRequestMatcher.html[`RegexRequestMatcher`] to respect this rule, like so:
+You can use javadoc:org.springframework.security.web.util.matcher.RegexRequestMatcher[] to respect this rule, like so:
 
 .Match with Regex
 [tabs]
@@ -521,7 +523,7 @@ void getWhenNoReadAuthorityThenForbidden() {
 @Test
 void postWhenWriteAuthorityThenAuthorized() {
     this.mvc.perform(post("/any").with(csrf()))
-        .andExpect(status().isOk())
+        .andExpect(status().isOk());
 }
 
 @WithMockUser(authorities="read")
@@ -545,8 +547,10 @@ And even though xref:servlet/authentication/architecture.adoc#servlet-authentica
 To address that, you can configure Spring Security Java configuration to allow dispatcher types like `FORWARD` and `ERROR`, like so:
 
 .Match by Dispatcher Type
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="secondary"]
 ----
 http
@@ -557,7 +561,8 @@ http
     )
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 http {
@@ -569,7 +574,7 @@ http {
     }
 }
 ----
-====
+======
 
 [[match-by-mvc]]
 === Using an MvcRequestMatcher
@@ -583,8 +588,10 @@ For example, if Spring MVC is mapped to `/spring-mvc` instead of `/` (the defaul
 You need to use `MvcRequestMatcher` to split the servlet path and the controller path in your configuration like so:
 
 .Match by MvcRequestMatcher
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -604,7 +611,8 @@ SecurityFilterChain appEndpoints(HttpSecurity http, MvcRequestMatcher.Builder mv
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -621,7 +629,8 @@ fun appEndpoints(http: HttpSecurity, mvc: MvcRequestMatcher.Builder): SecurityFi
     }
 ----
 
-.Xml
+Xml::
++
 [source,xml,role="secondary"]
 ----
 <http>
@@ -629,7 +638,7 @@ fun appEndpoints(http: HttpSecurity, mvc: MvcRequestMatcher.Builder): SecurityFi
     <intercept-url pattern="/**" access="authenticated"/>
 </http>
 ----
-====
+======
 
 This need can arise in at least two different ways:
 
@@ -642,11 +651,13 @@ This need can arise in at least two different ways:
 [NOTE]
 This feature is not currently supported in XML
 
-In Java configuration, you can create your own {security-api-url}org/springframework/security/web/util/matcher/RequestMatcher.html[`RequestMatcher`] and supply it to the DSL like so:
+In Java configuration, you can create your own javadoc:org.springframework.security.web.util.matcher.RequestMatcher[] and supply it to the DSL like so:
 
 .Authorize by Dispatcher Type
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="secondary"]
 ----
 RequestMatcher printview = (request) -> request.getParameter("print") != null;
@@ -657,7 +668,8 @@ http
     )
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 val printview: RequestMatcher = { (request) -> request.getParameter("print") != null }
@@ -668,10 +680,10 @@ http {
     }
 }
 ----
-====
+======
 
 [TIP]
-Because {security-api-url}org/springframework/security/web/util/matcher/RequestMatcher.html[`RequestMatcher`] is a functional interface, you can supply it as a lambda in the DSL.
+Because javadoc:org.springframework.security.web.util.matcher.RequestMatcher[] is a functional interface, you can supply it as a lambda in the DSL.
 However, if you want to extract values from the request, you will need to have a concrete class since that requires overriding a `default` method.
 
 Once authorized, you can test it using xref:servlet/test/method.adoc#test-method-withmockuser[Security's test support] in the following way:
@@ -805,7 +817,7 @@ Xml::
 </http>
 ----
 ======
-<1> We specified a URL patters that any user can access.
+<1> We specified a URL pattern that any user can access.
 Specifically, any user can access a request if the URL starts with "/static/".
 <2> Any URL that starts with "/admin/" will be restricted to users who have the role "ROLE_ADMIN".
 You will notice that since we are invoking the `hasRole` method we do not need to specify the "ROLE_" prefix.
@@ -888,8 +900,10 @@ When you have static resources it can be tempting to configure the filter chain 
 A more secure approach is to permit them using `permitAll` like so:
 
 .Permit Static Resources
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="secondary"]
 ----
 http
@@ -899,7 +913,8 @@ http
     )
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 http {
@@ -909,7 +924,7 @@ http {
     }
 }
 ----
-====
+======
 
 It's more secure because even with static resources it's important to write secure headers, which Spring Security cannot do if the request is ignored.
 
@@ -921,15 +936,15 @@ Because the performance impact is now addressed, Spring Security recommends usin
 == Migrating from `authorizeRequests`
 
 [NOTE]
-`AuthorizationFilter` supersedes {security-api-url}org/springframework/security/web/access/intercept/FilterSecurityInterceptor.html[`FilterSecurityInterceptor`].
+`AuthorizationFilter` supersedes javadoc:org.springframework.security.web.access.intercept.FilterSecurityInterceptor[].
 To remain backward compatible, `FilterSecurityInterceptor` remains the default.
 This section discusses how `AuthorizationFilter` works and how to override the default configuration.
 
-The {security-api-url}org/springframework/security/web/access/intercept/AuthorizationFilter.html[`AuthorizationFilter`] provides xref:servlet/authorization/index.adoc#servlet-authorization[authorization] for ``HttpServletRequest``s.
+The javadoc:org.springframework.security.web.access.intercept.AuthorizationFilter[] provides xref:servlet/authorization/index.adoc#servlet-authorization[authorization] for ``HttpServletRequest``s.
 It is inserted into the xref:servlet/architecture.adoc#servlet-filterchainproxy[FilterChainProxy] as one of the xref:servlet/architecture.adoc#servlet-security-filters[Security Filters].
 
 You can override the default when you declare a `SecurityFilterChain`.
-Instead of using {security-api-url}org/springframework/security/config/annotation/web/builders/HttpSecurity.html#authorizeRequests()[`authorizeRequests`], use `authorizeHttpRequests`, like so:
+Instead of using javadoc:org.springframework.security.config.annotation.web.builders.HttpSecurity#authorizeRequests()[authorizeRequests], use `authorizeHttpRequests`, like so:
 
 .Use authorizeHttpRequests
 [tabs]
@@ -959,12 +974,12 @@ This simplifies reuse and customization.
 Instead of the authentication needing to be looked up for every request, it will only look it up in requests where an authorization decision requires authentication.
 3. Bean-based configuration support.
 
-When `authorizeHttpRequests` is used instead of `authorizeRequests`, then {security-api-url}org/springframework/security/web/access/intercept/AuthorizationFilter.html[`AuthorizationFilter`] is used instead of {security-api-url}org/springframework/security/web/access/intercept/FilterSecurityInterceptor.html[`FilterSecurityInterceptor`].
+When `authorizeHttpRequests` is used instead of `authorizeRequests`, then javadoc:org.springframework.security.web.access.intercept.AuthorizationFilter[] is used instead of javadoc:org.springframework.security.web.access.intercept.FilterSecurityInterceptor[].
 
 === Migrating Expressions
 
 Where possible, it is recommended that you use type-safe authorization managers instead of SpEL.
-For Java configuration, {security-api-url}org/springframework/security/web/access/expression/WebExpressionAuthorizationManager.html[`WebExpressionAuthorizationManager`] is available to help migrate legacy SpEL.
+For Java configuration, javadoc:org.springframework.security.web.access.expression.WebExpressionAuthorizationManager[] is available to help migrate legacy SpEL.
 
 To use `WebExpressionAuthorizationManager`, you can construct one with the expression you are trying to migrate, like so:
 
@@ -1008,12 +1023,12 @@ Kotlin::
 
 For complex instructions that include bean references as well as other expressions, it is recommended that you change those to implement `AuthorizationManager` and refer to them by calling `.access(AuthorizationManager)`.
 
-If you are not able to do that, you can configure a {security-api-url}org/springframework/security/web/access/expression/DefaultHttpSecurityExpressionHandler.html[`DefaultHttpSecurityExpressionHandler`] with a bean resolver and supply that to `WebExpressionAuthorizationManager#setExpressionhandler`.
+If you are not able to do that, you can configure a javadoc:org.springframework.security.web.access.expression.DefaultHttpSecurityExpressionHandler[] with a bean resolver and supply that to `WebExpressionAuthorizationManager#setExpressionhandler`.
 
 [[security-matchers]]
 == Security Matchers
 
-The {security-api-url}org/springframework/security/web/util/matcher/RequestMatcher.html[`RequestMatcher`] interface is used to determine if a request matches a given rule.
+The javadoc:org.springframework.security.web.util.matcher.RequestMatcher[] interface is used to determine if a request matches a given rule.
 We use `securityMatchers` to determine if xref:servlet/configuration/java.adoc#jc-httpsecurity[a given `HttpSecurity`] should be applied to a given request.
 The same way, we can use `requestMatchers` to determine the authorization rules that we should apply to a given request.
 Look at the following example:
@@ -1073,7 +1088,7 @@ open class SecurityConfig {
 <3> Allow access to URLs that start with `/admin/` to users with the `ADMIN` role
 <4> Any other request that doesn't match the rules above, will require authentication
 
-The `securityMatcher(s)` and `requestMatcher(s)` methods will decide which `RequestMatcher` implementation fits best for your application: If {spring-framework-reference-url}web.html#spring-web[Spring MVC] is in the classpath, then {security-api-url}org/springframework/security/web/servlet/util/matcher/MvcRequestMatcher.html[`MvcRequestMatcher`] will be used, otherwise, {security-api-url}org/springframework/security/web/servlet/util/matcher/AntPathRequestMatcher.html[`AntPathRequestMatcher`] will be used.
+The `securityMatcher(s)` and `requestMatcher(s)` methods will decide which `RequestMatcher` implementation fits best for your application: If {spring-framework-reference-url}web.html#spring-web[Spring MVC] is in the classpath, then javadoc:org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher[] will be used, otherwise, javadoc:org.springframework.security.web.util.matcher.AntPathRequestMatcher[] will be used.
 You can read more about the Spring MVC integration xref:servlet/integrations/mvc.adoc[here].
 
 If you want to use a specific `RequestMatcher`, just pass an implementation to the `securityMatcher` and/or `requestMatcher` methods:

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,8 +21,11 @@ import java.util.Base64;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.server.resource.BearerTokenError;
+import org.springframework.security.oauth2.server.resource.BearerTokenErrorCodes;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -256,6 +259,37 @@ public class DefaultBearerTokenResolverTests {
 		request.setQueryString("access_token=" + TEST_TOKEN);
 		request.addParameter("access_token", TEST_TOKEN);
 		assertThat(this.resolver.resolve(request)).isNull();
+	}
+
+	@Test
+	public void resolveWhenQueryParameterIsPresentAndEmptyStringThenTokenIsNotResolved() {
+		this.resolver.setAllowUriQueryParameter(true);
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setMethod("GET");
+		request.addParameter("access_token", "");
+		assertThatExceptionOfType(OAuth2AuthenticationException.class).isThrownBy(() -> this.resolver.resolve(request))
+			.withMessageContaining("The requested token parameter is an empty string")
+			.satisfies((e) -> {
+				BearerTokenError error = (BearerTokenError) e.getError();
+				assertThat(error.getErrorCode()).isEqualTo(BearerTokenErrorCodes.INVALID_REQUEST);
+				assertThat(error.getHttpStatus()).isEqualTo(HttpStatus.BAD_REQUEST);
+			});
+	}
+
+	@Test
+	public void resolveWhenFormParameterIsPresentAndEmptyStringThenTokenIsNotResolved() {
+		this.resolver.setAllowFormEncodedBodyParameter(true);
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setMethod("POST");
+		request.setContentType("application/x-www-form-urlencoded");
+		request.addParameter("access_token", "");
+		assertThatExceptionOfType(OAuth2AuthenticationException.class).isThrownBy(() -> this.resolver.resolve(request))
+			.withMessageContaining("The requested token parameter is an empty string")
+			.satisfies((e) -> {
+				BearerTokenError error = (BearerTokenError) e.getError();
+				assertThat(error.getErrorCode()).isEqualTo(BearerTokenErrorCodes.INVALID_REQUEST);
+				assertThat(error.getHttpStatus()).isEqualTo(HttpStatus.BAD_REQUEST);
+			});
 	}
 
 }

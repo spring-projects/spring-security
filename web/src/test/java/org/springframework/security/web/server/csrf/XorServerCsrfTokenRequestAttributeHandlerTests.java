@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,6 +46,9 @@ import static org.mockito.Mockito.verify;
  */
 public class XorServerCsrfTokenRequestAttributeHandlerTests {
 
+	/*
+	 * Token format: 3 random pad bytes + 3 padded bytes.
+	 */
 	private static final byte[] XOR_CSRF_TOKEN_BYTES = new byte[] { 1, 1, 1, 96, 99, 98 };
 
 	private static final String XOR_CSRF_TOKEN_VALUE = Base64.getEncoder().encodeToString(XOR_CSRF_TOKEN_BYTES);
@@ -188,16 +191,76 @@ public class XorServerCsrfTokenRequestAttributeHandlerTests {
 		StepVerifier.create(csrfToken).expectNext(this.token.getToken()).verifyComplete();
 	}
 
+	// gh-13310, gh-15184
 	@Test
-	public void resolveCsrfTokenIsInvalidThenReturnsNull() {
+	public void resolveCsrfTokenValueWhenCsrfBytesIsShorterThanRandomBytesThenReturnsNull() {
+		/*
+		 * Token format: 3 random pad bytes + 2 padded bytes.
+		 */
+		byte[] actualBytes = { 1, 1, 1, 96, 99 };
+		String actualToken = Base64.getEncoder().encodeToString(actualBytes);
 		this.exchange = MockServerWebExchange
 			.builder(MockServerHttpRequest.post("/")
 				.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-				.body(this.token.getParameterName() + "=" + XOR_CSRF_TOKEN_VALUE))
+				.header(this.token.getHeaderName(), actualToken))
 			.build();
-		CsrfToken token = new DefaultCsrfToken("headerName", "paramName", "a");
-		Mono<String> csrfToken = this.handler.resolveCsrfTokenValue(this.exchange, token);
-		assertThat(csrfToken.block()).isNull();
+		String tokenValue = this.handler.resolveCsrfTokenValue(this.exchange, this.token).block();
+		assertThat(tokenValue).isNull();
+	}
+
+	// gh-13310, gh-15184
+	@Test
+	public void resolveCsrfTokenValueWhenCsrfBytesIsLongerThanRandomBytesThenReturnsNull() {
+		/*
+		 * Token format: 3 random pad bytes + 4 padded bytes.
+		 */
+		byte[] actualBytes = { 1, 1, 1, 96, 99, 98, 97 };
+		String actualToken = Base64.getEncoder().encodeToString(actualBytes);
+		this.exchange = MockServerWebExchange
+			.builder(MockServerHttpRequest.post("/")
+				.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+				.header(this.token.getHeaderName(), actualToken))
+			.build();
+		String tokenValue = this.handler.resolveCsrfTokenValue(this.exchange, this.token).block();
+		assertThat(tokenValue).isNull();
+	}
+
+	// gh-13310, gh-15184
+	@Test
+	public void resolveCsrfTokenValueWhenTokenBytesIsShorterThanActualBytesThenReturnsNull() {
+		this.exchange = MockServerWebExchange
+			.builder(MockServerHttpRequest.post("/")
+				.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+				.header(this.token.getHeaderName(), XOR_CSRF_TOKEN_VALUE))
+			.build();
+		CsrfToken csrfToken = new DefaultCsrfToken("headerName", "paramName", "a");
+		String tokenValue = this.handler.resolveCsrfTokenValue(this.exchange, csrfToken).block();
+		assertThat(tokenValue).isNull();
+	}
+
+	// gh-13310, gh-15184
+	@Test
+	public void resolveCsrfTokenValueWhenTokenBytesIsLongerThanActualBytesThenReturnsNull() {
+		this.exchange = MockServerWebExchange
+			.builder(MockServerHttpRequest.post("/")
+				.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+				.header(this.token.getHeaderName(), XOR_CSRF_TOKEN_VALUE))
+			.build();
+		CsrfToken csrfToken = new DefaultCsrfToken("headerName", "paramName", "abcde");
+		String tokenValue = this.handler.resolveCsrfTokenValue(this.exchange, csrfToken).block();
+		assertThat(tokenValue).isNull();
+	}
+
+	// gh-13310, gh-15184
+	@Test
+	public void resolveCsrfTokenValueWhenActualBytesIsEmptyThenReturnsNull() {
+		this.exchange = MockServerWebExchange
+			.builder(MockServerHttpRequest.post("/")
+				.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+				.header(this.token.getHeaderName(), ""))
+			.build();
+		String tokenValue = this.handler.resolveCsrfTokenValue(this.exchange, this.token).block();
+		assertThat(tokenValue).isNull();
 	}
 
 	private static Answer<Void> fillByteArray() {

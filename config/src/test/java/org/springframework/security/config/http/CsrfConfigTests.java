@@ -22,12 +22,12 @@ import java.util.List;
 import jakarta.servlet.Filter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.eclipse.jetty.http.HttpStatus;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.access.AccessDeniedException;
@@ -566,7 +566,7 @@ public class CsrfConfigTests {
 		@Override
 		public void handle(HttpServletRequest request, HttpServletResponse response,
 				AccessDeniedException accessDeniedException) {
-			response.setStatus(HttpStatus.IM_A_TEAPOT_418);
+			response.setStatus(HttpStatus.I_AM_A_TEAPOT.value());
 		}
 
 	}

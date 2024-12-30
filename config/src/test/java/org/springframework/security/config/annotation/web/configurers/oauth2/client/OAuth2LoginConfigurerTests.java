@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.http.HttpHeaders;
 import org.junit.jupiter.api.AfterEach;
@@ -36,6 +37,7 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.event.SmartApplicationListener;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockFilterChain;
@@ -48,6 +50,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.oauth2.client.CommonOAuth2Provider;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
+import org.springframework.security.context.DelegatingApplicationListener;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -55,9 +58,11 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.core.context.SecurityContextChangedListener;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
+import org.springframework.security.core.session.SessionDestroyedEvent;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
+import org.springframework.security.oauth2.client.oidc.session.OidcSessionRegistry;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
 import org.springframework.security.oauth2.client.oidc.web.logout.OidcClientInitiatedLogoutSuccessHandler;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
@@ -95,7 +100,9 @@ import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.context.HttpRequestResponseHolder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
+import org.springframework.security.web.session.HttpSessionDestroyedEvent;
 import org.springframework.security.web.util.matcher.RequestHeaderRequestMatcher;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 
@@ -150,10 +157,10 @@ public class OAuth2LoginConfigurerTests {
 	@Autowired
 	private FilterChainProxy springSecurityFilterChain;
 
-	@Autowired
+	@Autowired(required = false)
 	private AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository;
 
-	@Autowired
+	@Autowired(required = false)
 	SecurityContextRepository securityContextRepository;
 
 	public final SpringTestContext spring = new SpringTestContext(this);
@@ -642,6 +649,26 @@ public class OAuth2LoginConfigurerTests {
 			.andExpect(redirectedUrl("https://logout?id_token_hint=id-token"));
 	}
 
+	@Test
+	public void configureWhenOidcSessionRegistryThenUses() {
+		this.spring.register(OAuth2LoginWithOidcSessionRegistry.class).autowire();
+		OidcSessionRegistry registry = this.spring.getContext().getBean(OidcSessionRegistry.class);
+		this.spring.getContext().publishEvent(new HttpSessionDestroyedEvent(this.request.getSession()));
+		verify(registry).removeSessionInformation(this.request.getSession().getId());
+	}
+
+	// gh-14558
+	@Test
+	public void oauth2LoginWhenDefaultsThenNoOidcSessionRegistry() {
+		this.spring.register(OAuth2LoginConfig.class).autowire();
+		DelegatingApplicationListener listener = this.spring.getContext().getBean(DelegatingApplicationListener.class);
+		List<SmartApplicationListener> listeners = (List<SmartApplicationListener>) ReflectionTestUtils
+			.getField(listener, "listeners");
+		assertThat(listeners.stream()
+			.filter((l) -> l.supportsEventType(SessionDestroyedEvent.class))
+			.collect(Collectors.toList())).isEmpty();
+	}
+
 	private void loadConfig(Class<?>... configs) {
 		AnnotationConfigWebApplicationContext applicationContext = new AnnotationConfigWebApplicationContext();
 		applicationContext.register(configs);
@@ -1113,6 +1140,32 @@ public class OAuth2LoginConfigurerTests {
 				.httpBasic();
 			// @formatter:on
 			return super.configureFilterChain(http);
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	static class OAuth2LoginWithOidcSessionRegistry {
+
+		private final OidcSessionRegistry registry = mock(OidcSessionRegistry.class);
+
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.oauth2Login((oauth2) -> oauth2
+					.clientRegistrationRepository(
+							new InMemoryClientRegistrationRepository(GOOGLE_CLIENT_REGISTRATION))
+					.oidcSessionRegistry(this.registry)
+				);
+			// @formatter:on
+			return http.build();
+		}
+
+		@Bean
+		OidcSessionRegistry oidcSessionRegistry() {
+			return this.registry;
 		}
 
 	}

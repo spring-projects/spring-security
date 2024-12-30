@@ -31,7 +31,6 @@ import org.springframework.security.authentication.AccountStatusUserDetailsCheck
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.cas.ServiceProperties;
-import org.springframework.security.cas.web.authentication.ServiceAuthenticationDetails;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.SpringSecurityMessageSource;
@@ -57,6 +56,7 @@ import org.springframework.util.Assert;
  *
  * @author Ben Alex
  * @author Scott Battaglia
+ * @author Kim Youngwoong
  */
 public class CasAuthenticationProvider implements AuthenticationProvider, InitializingBean, MessageSourceAware {
 
@@ -64,7 +64,7 @@ public class CasAuthenticationProvider implements AuthenticationProvider, Initia
 
 	private AuthenticationUserDetailsService<CasAssertionAuthenticationToken> authenticationUserDetailsService;
 
-	private final UserDetailsChecker userDetailsChecker = new AccountStatusUserDetailsChecker();
+	private UserDetailsChecker userDetailsChecker = new AccountStatusUserDetailsChecker();
 
 	protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
 
@@ -186,6 +186,17 @@ public class CasAuthenticationProvider implements AuthenticationProvider, Initia
 	public void setAuthenticationUserDetailsService(
 			final AuthenticationUserDetailsService<CasAssertionAuthenticationToken> authenticationUserDetailsService) {
 		this.authenticationUserDetailsService = authenticationUserDetailsService;
+	}
+
+	/**
+	 * Sets the UserDetailsChecker to be used for checking the status of retrieved user
+	 * details. This allows customization of the UserDetailsChecker implementation.
+	 * @param userDetailsChecker the UserDetailsChecker to be set
+	 * @since 6.4
+	 */
+	public void setUserDetailsChecker(final UserDetailsChecker userDetailsChecker) {
+		Assert.notNull(userDetailsChecker, "userDetailsChecker cannot be null");
+		this.userDetailsChecker = userDetailsChecker;
 	}
 
 	public void setServiceProperties(final ServiceProperties serviceProperties) {

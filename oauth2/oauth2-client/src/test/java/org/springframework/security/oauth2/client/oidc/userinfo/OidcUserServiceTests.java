@@ -22,7 +22,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -30,12 +32,14 @@ import okhttp3.mockwebserver.RecordedRequest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
@@ -48,8 +52,10 @@ import org.springframework.security.oauth2.core.converter.ClaimTypeConverter;
 import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.OidcScopes;
+import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.security.oauth2.core.oidc.StandardClaimNames;
 import org.springframework.security.oauth2.core.oidc.TestOidcIdTokens;
+import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -58,6 +64,8 @@ import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -127,6 +135,24 @@ public class OidcUserServiceTests {
 	@Test
 	public void setAccessibleScopesWhenEmptyThenSet() {
 		this.userService.setAccessibleScopes(Collections.emptySet());
+	}
+
+	@Test
+	public void setRetrieveUserInfoWhenNullThenThrowIllegalArgumentException() {
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.userService.setRetrieveUserInfo(null))
+				.withMessage("retrieveUserInfo cannot be null");
+		// @formatter:on
+	}
+
+	@Test
+	public void setOidcUserMapperWhenNullThenThrowIllegalArgumentException() {
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.userService.setOidcUserMapper(null))
+				.withMessage("oidcUserMapper cannot be null");
+		// @formatter:on
 	}
 
 	@Test
@@ -216,6 +242,61 @@ public class OidcUserServiceTests {
 		OidcUser user = this.userService
 			.loadUser(new OidcUserRequest(clientRegistration, this.accessToken, this.idToken));
 		assertThat(user.getUserInfo()).isNotNull();
+	}
+
+	@Test
+	public void loadUserWhenCustomRetrieveUserInfoSetThenUsed() {
+		// @formatter:off
+		String userInfoResponse = "{\n"
+				+ "   \"sub\": \"subject1\",\n"
+				+ "   \"name\": \"first last\",\n"
+				+ "   \"given_name\": \"first\",\n"
+				+ "   \"family_name\": \"last\",\n"
+				+ "   \"preferred_username\": \"user1\",\n"
+				+ "   \"email\": \"user1@example.com\"\n"
+				+ "}\n";
+		// @formatter:on
+		this.server.enqueue(jsonResponse(userInfoResponse));
+		String userInfoUri = this.server.url("/user").toString();
+		ClientRegistration clientRegistration = this.clientRegistrationBuilder.userInfoUri(userInfoUri).build();
+		this.accessToken = TestOAuth2AccessTokens.noScopes();
+		Predicate<OidcUserRequest> customRetrieveUserInfo = mock(Predicate.class);
+		given(customRetrieveUserInfo.test(any(OidcUserRequest.class))).willReturn(true);
+		this.userService.setRetrieveUserInfo(customRetrieveUserInfo);
+		OidcUser user = this.userService
+			.loadUser(new OidcUserRequest(clientRegistration, this.accessToken, this.idToken));
+		assertThat(user.getUserInfo()).isNotNull();
+	}
+
+	@Test
+	public void loadUserWhenCustomOidcUserMapperSetThenUsed() {
+		// @formatter:off
+		String userInfoResponse = "{\n"
+				+ "   \"sub\": \"subject1\",\n"
+				+ "   \"name\": \"first last\",\n"
+				+ "   \"given_name\": \"first\",\n"
+				+ "   \"family_name\": \"last\",\n"
+				+ "   \"preferred_username\": \"user1\",\n"
+				+ "   \"email\": \"user1@example.com\"\n"
+				+ "}\n";
+		// @formatter:on
+		this.server.enqueue(jsonResponse(userInfoResponse));
+		String userInfoUri = this.server.url("/user").toString();
+		ClientRegistration clientRegistration = this.clientRegistrationBuilder.userInfoUri(userInfoUri).build();
+		this.accessToken = TestOAuth2AccessTokens.noScopes();
+		BiFunction<OidcUserRequest, OidcUserInfo, OidcUser> customOidcUserMapper = mock(BiFunction.class);
+		OidcUser actualUser = new DefaultOidcUser(AuthorityUtils.createAuthorityList("a", "b"), this.idToken,
+				IdTokenClaimNames.SUB);
+		given(customOidcUserMapper.apply(any(OidcUserRequest.class), any(OidcUserInfo.class))).willReturn(actualUser);
+		this.userService.setOidcUserMapper(customOidcUserMapper);
+		OidcUserRequest userRequest = new OidcUserRequest(clientRegistration, this.accessToken, this.idToken);
+		OidcUser user = this.userService.loadUser(userRequest);
+		assertThat(user).isEqualTo(actualUser);
+		ArgumentCaptor<OidcUserInfo> userInfoCaptor = ArgumentCaptor.forClass(OidcUserInfo.class);
+		verify(customOidcUserMapper).apply(eq(userRequest), userInfoCaptor.capture());
+		OidcUserInfo userInfo = userInfoCaptor.getValue();
+		assertThat(userInfo.getSubject()).isEqualTo("subject1");
+		assertThat(userInfo.getClaimAsString("preferred_username")).isEqualTo("user1");
 	}
 
 	@Test
@@ -535,6 +616,7 @@ public class OidcUserServiceTests {
 		OAuth2UserAuthority userAuthority = (OAuth2UserAuthority) user.getAuthorities().iterator().next();
 		assertThat(userAuthority.getAuthority()).isEqualTo("OIDC_USER");
 		assertThat(userAuthority.getAttributes()).isEqualTo(user.getAttributes());
+		assertThat(userAuthority.getUserNameAttributeName()).isEqualTo("user-name");
 	}
 
 	private MockResponse jsonResponse(String json) {

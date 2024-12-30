@@ -38,8 +38,10 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.core.endpoint.PkceParameterNames;
 import org.springframework.security.oauth2.core.oidc.OidcScopes;
 import org.springframework.security.oauth2.core.oidc.endpoint.OidcParameterNames;
+import org.springframework.web.util.InvalidUrlException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.entry;
 
@@ -255,17 +257,14 @@ public class DefaultOAuth2AuthorizationRequestResolverTests {
 	}
 
 	@Test
-	public void resolveWhenAuthorizationRequestHasNoPortThenExpandedRedirectUriWithExtraVarsExcludesPort() {
+	public void resolveWhenAuthorizationRequestHasNoPortThenInvalidUrlException() {
 		ClientRegistration clientRegistration = this.fineRedirectUriTemplateRegistration;
 		String requestUri = this.authorizationRequestBaseUri + "/" + clientRegistration.getRegistrationId();
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", requestUri);
 		request.setScheme("https");
 		request.setServerPort(-1);
 		request.setServletPath(requestUri);
-		OAuth2AuthorizationRequest authorizationRequest = this.resolver.resolve(request);
-		assertThat(authorizationRequest.getRedirectUri()).isNotEqualTo(clientRegistration.getRedirectUri());
-		assertThat(authorizationRequest.getRedirectUri())
-			.isEqualTo("https://localhost/login/oauth2/code/" + clientRegistration.getRegistrationId());
+		assertThatExceptionOfType(InvalidUrlException.class).isThrownBy(() -> this.resolver.resolve(request));
 	}
 
 	// gh-5520

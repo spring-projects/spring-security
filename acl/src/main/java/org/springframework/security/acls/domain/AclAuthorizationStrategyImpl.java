@@ -17,10 +17,13 @@
 package org.springframework.security.acls.domain;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.hierarchicalroles.NullRoleHierarchy;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.acls.model.Acl;
 import org.springframework.security.acls.model.Sid;
 import org.springframework.security.acls.model.SidRetrievalStrategy;
@@ -58,6 +61,8 @@ public class AclAuthorizationStrategyImpl implements AclAuthorizationStrategy {
 	private final GrantedAuthority gaTakeOwnership;
 
 	private SidRetrievalStrategy sidRetrievalStrategy = new SidRetrievalStrategyImpl();
+
+	private RoleHierarchy roleHierarchy = new NullRoleHierarchy();
 
 	/**
 	 * Constructor. The only mandatory parameter relates to the system-wide
@@ -100,7 +105,9 @@ public class AclAuthorizationStrategyImpl implements AclAuthorizationStrategy {
 		}
 
 		// Iterate this principal's authorities to determine right
-		Set<String> authorities = AuthorityUtils.authorityListToSet(authentication.getAuthorities());
+		Collection<? extends GrantedAuthority> reachableGrantedAuthorities = this.roleHierarchy
+			.getReachableGrantedAuthorities(authentication.getAuthorities());
+		Set<String> authorities = AuthorityUtils.authorityListToSet(reachableGrantedAuthorities);
 		if (acl.getOwner() instanceof GrantedAuthoritySid
 				&& authorities.contains(((GrantedAuthoritySid) acl.getOwner()).getGrantedAuthority())) {
 			return;
@@ -160,6 +167,16 @@ public class AclAuthorizationStrategyImpl implements AclAuthorizationStrategy {
 	public void setSecurityContextHolderStrategy(SecurityContextHolderStrategy securityContextHolderStrategy) {
 		Assert.notNull(securityContextHolderStrategy, "securityContextHolderStrategy cannot be null");
 		this.securityContextHolderStrategy = securityContextHolderStrategy;
+	}
+
+	/**
+	 * Sets the {@link RoleHierarchy} to use. The default is to use a
+	 * {@link NullRoleHierarchy}
+	 * @since 6.4
+	 */
+	public void setRoleHierarchy(RoleHierarchy roleHierarchy) {
+		Assert.notNull(roleHierarchy, "roleHierarchy cannot be null");
+		this.roleHierarchy = roleHierarchy;
 	}
 
 }

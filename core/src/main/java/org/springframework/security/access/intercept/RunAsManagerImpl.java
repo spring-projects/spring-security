@@ -80,7 +80,7 @@ public class RunAsManagerImpl implements RunAsManager, InitializingBean {
 				newAuthorities.add(extraAuthority);
 			}
 		}
-		if (newAuthorities.size() == 0) {
+		if (newAuthorities.isEmpty()) {
 			return null;
 		}
 		// Add existing authorities

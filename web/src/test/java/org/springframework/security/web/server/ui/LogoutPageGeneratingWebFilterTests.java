@@ -43,4 +43,33 @@ public class LogoutPageGeneratingWebFilterTests {
 		assertThat(exchange.getResponse().getBodyAsString().block()).contains("action=\"/logout\"");
 	}
 
+	@Test
+	void filterThenRendersPage() {
+		LogoutPageGeneratingWebFilter filter = new LogoutPageGeneratingWebFilter();
+		MockServerWebExchange exchange = MockServerWebExchange
+			.from(MockServerHttpRequest.get("/test/logout").contextPath("/test"));
+		filter.filter(exchange, (e) -> Mono.empty()).block();
+		assertThat(exchange.getResponse().getBodyAsString().block()).isEqualTo("""
+				<!DOCTYPE html>
+				<html lang="en">
+				  <head>
+				    <meta charset="utf-8">
+				    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+				    <meta name="description" content="">
+				    <meta name="author" content="">
+				    <title>Confirm Log Out?</title>
+				    <link href="/test/default-ui.css" rel="stylesheet" />
+				  </head>
+				  <body>
+				    <div class="content">
+				      <form class="logout-form" method="post" action="/test/logout">
+				        <h2>Are you sure you want to log out?</h2>
+
+				        <button class="primary" type="submit">Log Out</button>
+				      </form>
+				    </div>
+				  </body>
+				</html>""");
+	}
+
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -76,12 +76,13 @@ class AuthorizationFilterParser implements BeanDefinitionParser {
 	public BeanDefinition parse(Element element, ParserContext parserContext) {
 		if (!isUseExpressions(element)) {
 			parserContext.getReaderContext()
-				.error("AuthorizationManager must be used with `use-expressions=\"true\"", element);
+				.error("AuthorizationManager must be used with `use-expressions=\"true\"; either add `use-authorization-manager=\"false\"` or `use-expressions=`\"false\"` in your `<http>` block",
+						element);
 			return null;
 		}
 		if (StringUtils.hasText(element.getAttribute(ATT_ACCESS_DECISION_MANAGER_REF))) {
 			parserContext.getReaderContext()
-				.error("AuthorizationManager cannot be used in conjunction with `access-decision-manager-ref`",
+				.error("AuthorizationManager cannot be used in conjunction with `access-decision-manager-ref`; either remove the reference to AccessDecisionManager or add `use-authorization-manager=\"false\"` to your `<http>` block",
 						element);
 			return null;
 		}

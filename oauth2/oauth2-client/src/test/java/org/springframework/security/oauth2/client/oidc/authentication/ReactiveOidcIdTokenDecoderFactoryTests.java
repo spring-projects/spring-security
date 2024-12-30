@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,6 @@ import org.springframework.security.oauth2.jose.jws.JwsAlgorithm;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.web.reactive.function.client.WebClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -47,6 +46,7 @@ import static org.mockito.Mockito.verify;
 /**
  * @author Joe Grandja
  * @author Rafael Dominguez
+ * @author Ubaid ur Rehman
  * @since 5.2
  */
 public class ReactiveOidcIdTokenDecoderFactoryTests {
@@ -93,11 +93,6 @@ public class ReactiveOidcIdTokenDecoderFactoryTests {
 	public void setClaimTypeConverterFactoryWhenNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException()
 			.isThrownBy(() -> this.idTokenDecoderFactory.setClaimTypeConverterFactory(null));
-	}
-
-	@Test
-	public void setWebClientFactoryWhenNullThenThrowIllegalArgumentException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> this.idTokenDecoderFactory.setWebClientFactory(null));
 	}
 
 	@Test
@@ -180,16 +175,6 @@ public class ReactiveOidcIdTokenDecoderFactoryTests {
 			.willReturn(new ClaimTypeConverter(OidcIdTokenDecoderFactory.createDefaultClaimTypeConverters()));
 		this.idTokenDecoderFactory.createDecoder(clientRegistration);
 		verify(customClaimTypeConverterFactory).apply(same(clientRegistration));
-	}
-
-	@Test
-	public void createDecoderWhenCustomWebClientFactorySetThenApplied() {
-		Function<ClientRegistration, WebClient> customWebClientFactory = mock(Function.class);
-		this.idTokenDecoderFactory.setWebClientFactory(customWebClientFactory);
-		ClientRegistration clientRegistration = this.registration.build();
-		given(customWebClientFactory.apply(same(clientRegistration))).willReturn(WebClient.create());
-		this.idTokenDecoderFactory.createDecoder(clientRegistration);
-		verify(customWebClientFactory).apply(same(clientRegistration));
 	}
 
 }

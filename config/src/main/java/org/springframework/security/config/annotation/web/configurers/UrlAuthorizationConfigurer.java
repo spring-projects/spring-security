@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.access.vote.AuthenticatedVoter;
 import org.springframework.security.access.vote.RoleVoter;
-import org.springframework.security.config.annotation.ObjectPostProcessor;
+import org.springframework.security.config.ObjectPostProcessor;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.web.access.intercept.DefaultFilterInvocationSecurityMetadataSource;
 import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
@@ -113,6 +113,14 @@ public final class UrlAuthorizationConfigurer<H extends HttpSecurityBuilder<H>>
 	 */
 	@Override
 	public UrlAuthorizationConfigurer<H> withObjectPostProcessor(ObjectPostProcessor<?> objectPostProcessor) {
+		addObjectPostProcessor(objectPostProcessor);
+		return this;
+	}
+
+	@Deprecated(since = "6.4", forRemoval = true)
+	@Override
+	public UrlAuthorizationConfigurer<H> withObjectPostProcessor(
+			org.springframework.security.config.annotation.ObjectPostProcessor<?> objectPostProcessor) {
 		addObjectPostProcessor(objectPostProcessor);
 		return this;
 	}

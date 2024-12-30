@@ -23,12 +23,9 @@ apply plugin: 'locks'
 apply plugin: 's101'
 apply plugin: 'io.spring.convention.root'
 apply plugin: 'org.jetbrains.kotlin.jvm'
-apply plugin: 'org.springframework.security.update-version'
-apply plugin: 'org.springframework.security.sagan'
-apply plugin: 'org.springframework.github.milestone'
-apply plugin: 'org.springframework.github.changelog'
-apply plugin: 'org.springframework.github.release'
 apply plugin: 'org.springframework.security.versions.verify-dependencies-versions'
+apply plugin: 'org.springframework.security.check-expected-branch-version'
+apply plugin: 'io.spring.security.release'
 
 group = 'org.springframework.security'
 description = 'Spring Security'
@@ -42,53 +39,12 @@ repositories {
 	maven { url "https://repo.spring.io/milestone" }
 }
 
-tasks.named("saganCreateRelease") {
-	referenceDocUrl = "https://docs.spring.io/spring-security/reference/{version}/index.html"
-	apiDocUrl = "https://docs.spring.io/spring-security/site/docs/{version}/api/"
-}
-
-tasks.named("gitHubCheckMilestoneHasNoOpenIssues") {
-	repository {
-		owner = "spring-projects"
-		name = "spring-security"
-	}
-}
-
-tasks.named("gitHubNextReleaseMilestone") {
-	repository {
-		owner = "spring-projects"
-		name = "spring-security"
-	}
-}
-
-tasks.named("gitHubCheckNextVersionDueToday") {
-	repository {
-		owner = "spring-projects"
-		name = "spring-security"
-	}
-}
-
-tasks.named("scheduleNextRelease") {
-	repository {
-		owner = "spring-projects"
-		name = "spring-security"
-	}
+springRelease {
 	weekOfMonth = 3
 	dayOfWeek = 1
-}
-
-tasks.named("createGitHubRelease") {
-	repository {
-		owner = "spring-projects"
-		name = "spring-security"
-	}
-}
-
-tasks.named("dispatchGitHubWorkflow") {
-	repository {
-		owner = "spring-projects"
-		name = "spring-security"
-	}
+	referenceDocUrl = "https://docs.spring.io/spring-security/reference/{version}/index.html"
+	apiDocUrl = "https://docs.spring.io/spring-security/site/docs/{version}/api/"
+	replaceSnapshotVersionInReferenceDocUrl = true
 }
 
 def toolchainVersion() {
@@ -142,15 +98,15 @@ allprojects {
 	}
 }
 
-if (hasProperty('buildScan')) {
+develocity {
 	buildScan {
-		termsOfServiceUrl = 'https://gradle.com/terms-of-service'
-		termsOfServiceAgree = 'yes'
+		termsOfUseUrl = 'https://gradle.com/help/legal-terms-of-use'
+		termsOfUseAgree = 'yes'
 	}
 }
 
 nohttp {
-	source.exclude "buildSrc/build/**"
+	source.exclude "buildSrc/build/**", "javascript/.gradle/**", "javascript/package-lock.json", "javascript/node_modules/**", "javascript/build/**", "javascript/dist/**"
 	source.builtBy(project(':spring-security-config').tasks.withType(RncToXsd))
 }
 
@@ -162,6 +118,7 @@ tasks.register('cloneRepository', IncludeRepoTask) {
 }
 
 s101 {
+	repository = 'https://structure101.com/binaries/latest'
 	configurationDirectory = project.file("etc/s101")
 }
 
@@ -169,7 +126,7 @@ wrapperUpgrade {
 	gradle {
 		'spring-security' {
 			repo = 'spring-projects/spring-security'
-			baseBranch = '6.1.x' // runs only on 6.1.x and the update is merged forward to main
+			baseBranch = '6.2.x' // runs only on 6.2.x and the update is merged forward to main
 		}
 	}
 }

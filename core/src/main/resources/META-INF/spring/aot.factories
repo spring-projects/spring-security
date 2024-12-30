@@ -1,2 +1,6 @@
 org.springframework.aot.hint.RuntimeHintsRegistrar=\
-org.springframework.security.aot.hint.CoreSecurityRuntimeHints
+org.springframework.security.aot.hint.CoreSecurityRuntimeHints,\
+org.springframework.security.aot.hint.OneTimeTokenRuntimeHints
+
+org.springframework.beans.factory.aot.BeanFactoryInitializationAotProcessor=\
+org.springframework.security.aot.hint.SecurityHintsAotProcessor

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,11 +42,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 abstract class AbstractOAuth2AuthorizationGrantRequestEntityConverter<T extends AbstractOAuth2AuthorizationGrantRequest>
 		implements Converter<T, RequestEntity<?>> {
 
-	// @formatter:off
-	private Converter<T, HttpHeaders> headersConverter =
-			(authorizationGrantRequest) -> OAuth2AuthorizationGrantRequestEntityUtils
-					.getTokenRequestHeaders(authorizationGrantRequest.getClientRegistration());
-	// @formatter:on
+	private Converter<T, HttpHeaders> headersConverter = DefaultOAuth2TokenRequestHeadersConverter.withCharsetUtf8();
 
 	private Converter<T, MultiValueMap<String, String>> parametersConverter = this::createParameters;
 

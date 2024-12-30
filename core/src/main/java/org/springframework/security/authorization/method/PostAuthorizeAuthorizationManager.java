@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,14 +20,15 @@ import java.util.function.Supplier;
 
 import org.aopalliance.intercept.MethodInvocation;
 
+import org.springframework.context.ApplicationContext;
 import org.springframework.expression.EvaluationContext;
-import org.springframework.security.access.expression.ExpressionUtils;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
-import org.springframework.security.authorization.ExpressionAuthorizationDecision;
+import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AnnotationTemplateExpressionDefaults;
 
 /**
  * An {@link AuthorizationManager} which can determine if an {@link Authentication} may
@@ -37,7 +38,8 @@ import org.springframework.security.core.Authentication;
  * @author Evgeniy Cheban
  * @since 5.6
  */
-public final class PostAuthorizeAuthorizationManager implements AuthorizationManager<MethodInvocationResult> {
+public final class PostAuthorizeAuthorizationManager
+		implements AuthorizationManager<MethodInvocationResult>, MethodAuthorizationDeniedHandler {
 
 	private PostAuthorizeExpressionAttributeRegistry registry = new PostAuthorizeExpressionAttributeRegistry();
 
@@ -46,7 +48,46 @@ public final class PostAuthorizeAuthorizationManager implements AuthorizationMan
 	 * @param expressionHandler the {@link MethodSecurityExpressionHandler} to use
 	 */
 	public void setExpressionHandler(MethodSecurityExpressionHandler expressionHandler) {
-		this.registry = new PostAuthorizeExpressionAttributeRegistry(expressionHandler);
+		this.registry.setExpressionHandler(expressionHandler);
+	}
+
+	/**
+	 * Configure pre/post-authorization template resolution
+	 * <p>
+	 * By default, this value is <code>null</code>, which indicates that templates should
+	 * not be resolved.
+	 * @param defaults - whether to resolve pre/post-authorization templates parameters
+	 * @since 6.3
+	 * @deprecated Please use
+	 * {@link #setTemplateDefaults(AnnotationTemplateExpressionDefaults)} instead
+	 */
+	@Deprecated
+	public void setTemplateDefaults(PrePostTemplateDefaults defaults) {
+		this.registry.setTemplateDefaults(defaults);
+	}
+
+	/**
+	 * Configure pre/post-authorization template resolution
+	 * <p>
+	 * By default, this value is <code>null</code>, which indicates that templates should
+	 * not be resolved.
+	 * @param defaults - whether to resolve pre/post-authorization templates parameters
+	 * @since 6.4
+	 */
+	public void setTemplateDefaults(AnnotationTemplateExpressionDefaults defaults) {
+		this.registry.setTemplateDefaults(defaults);
+	}
+
+	/**
+	 * Invokes
+	 * {@link PostAuthorizeExpressionAttributeRegistry#setApplicationContext(ApplicationContext)}
+	 * with the provided {@link ApplicationContext}.
+	 * @param context the {@link ApplicationContext}
+	 * @since 6.3
+	 * @see PreAuthorizeExpressionAttributeRegistry#setApplicationContext(ApplicationContext)
+	 */
+	public void setApplicationContext(ApplicationContext context) {
+		this.registry.setApplicationContext(context);
 	}
 
 	/**
@@ -67,8 +108,23 @@ public final class PostAuthorizeAuthorizationManager implements AuthorizationMan
 		MethodSecurityExpressionHandler expressionHandler = this.registry.getExpressionHandler();
 		EvaluationContext ctx = expressionHandler.createEvaluationContext(authentication, mi.getMethodInvocation());
 		expressionHandler.setReturnObject(mi.getResult(), ctx);
-		boolean granted = ExpressionUtils.evaluateAsBoolean(attribute.getExpression(), ctx);
-		return new ExpressionAuthorizationDecision(granted, attribute.getExpression());
+		return (AuthorizationDecision) ExpressionUtils.evaluate(attribute.getExpression(), ctx);
+	}
+
+	@Override
+	public Object handleDeniedInvocation(MethodInvocation methodInvocation, AuthorizationResult authorizationResult) {
+		ExpressionAttribute attribute = this.registry.getAttribute(methodInvocation);
+		PostAuthorizeExpressionAttribute postAuthorizeAttribute = (PostAuthorizeExpressionAttribute) attribute;
+		return postAuthorizeAttribute.getHandler().handleDeniedInvocation(methodInvocation, authorizationResult);
+	}
+
+	@Override
+	public Object handleDeniedInvocationResult(MethodInvocationResult methodInvocationResult,
+			AuthorizationResult authorizationResult) {
+		ExpressionAttribute attribute = this.registry.getAttribute(methodInvocationResult.getMethodInvocation());
+		PostAuthorizeExpressionAttribute postAuthorizeAttribute = (PostAuthorizeExpressionAttribute) attribute;
+		return postAuthorizeAttribute.getHandler()
+			.handleDeniedInvocationResult(methodInvocationResult, authorizationResult);
 	}
 
 }

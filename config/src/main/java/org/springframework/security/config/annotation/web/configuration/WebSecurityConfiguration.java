@@ -38,7 +38,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.security.access.expression.SecurityExpressionHandler;
 import org.springframework.security.config.Customizer;
-import org.springframework.security.config.annotation.ObjectPostProcessor;
+import org.springframework.security.config.ObjectPostProcessor;
 import org.springframework.security.config.annotation.SecurityConfigurer;
 import org.springframework.security.config.annotation.web.WebSecurityConfigurer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -78,9 +78,6 @@ public class WebSecurityConfiguration implements ImportAware, BeanClassLoaderAwa
 	private List<WebSecurityCustomizer> webSecurityCustomizers = Collections.emptyList();
 
 	private ClassLoader beanClassLoader;
-
-	@Autowired(required = false)
-	private ObjectPostProcessor<Object> objectObjectPostProcessor;
 
 	@Autowired(required = false)
 	private HttpSecurity httpSecurity;

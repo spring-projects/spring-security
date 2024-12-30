@@ -150,23 +150,11 @@ public class PostAuthorizeReactiveAuthorizationManagerTests {
 	}
 
 	@Test
-	public void checkInheritedAnnotationsWhenDuplicatedThenAnnotationConfigurationException() throws Exception {
-		Mono<Authentication> authentication = Mono
-			.just(new TestingAuthenticationToken("user", "password", "ROLE_USER"));
-		MockMethodInvocation methodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
-				"inheritedAnnotations");
-		MethodInvocationResult result = new MethodInvocationResult(methodInvocation, null);
-		PostAuthorizeReactiveAuthorizationManager manager = new PostAuthorizeReactiveAuthorizationManager();
-		assertThatExceptionOfType(AnnotationConfigurationException.class)
-			.isThrownBy(() -> manager.check(authentication, result));
-	}
-
-	@Test
 	public void checkInheritedAnnotationsWhenConflictingThenAnnotationConfigurationException() throws Exception {
 		Mono<Authentication> authentication = Mono
 			.just(new TestingAuthenticationToken("user", "password", "ROLE_USER"));
-		MockMethodInvocation methodInvocation = new MockMethodInvocation(new ClassLevelAnnotations(),
-				ClassLevelAnnotations.class, "inheritedAnnotations");
+		MockMethodInvocation methodInvocation = new MockMethodInvocation(new ConflictingAnnotations(),
+				ConflictingAnnotations.class, "inheritedAnnotations");
 		MethodInvocationResult result = new MethodInvocationResult(methodInvocation, null);
 		PostAuthorizeReactiveAuthorizationManager manager = new PostAuthorizeReactiveAuthorizationManager();
 		assertThatExceptionOfType(AnnotationConfigurationException.class)
@@ -212,6 +200,14 @@ public class PostAuthorizeReactiveAuthorizationManagerTests {
 		@PostAuthorize("hasRole('ADMIN')")
 		public void inheritedAnnotations() {
 
+		}
+
+	}
+
+	public static class ConflictingAnnotations implements InterfaceAnnotationsOne, InterfaceAnnotationsTwo {
+
+		@Override
+		public void inheritedAnnotations() {
 		}
 
 	}

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -30,7 +29,7 @@ import org.springframework.core.io.support.SpringFactoriesLoader;
 import org.springframework.security.authentication.AuthenticationEventPublisher;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
-import org.springframework.security.config.annotation.ObjectPostProcessor;
+import org.springframework.security.config.ObjectPostProcessor;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.authentication.configurers.provisioning.InMemoryUserDetailsManagerConfigurer;
@@ -47,7 +46,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter;
 import org.springframework.web.accept.ContentNegotiationStrategy;
 import org.springframework.web.accept.HeaderContentNegotiationStrategy;
-import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
@@ -55,6 +54,8 @@ import static org.springframework.security.config.Customizer.withDefaults;
  * {@link Configuration} that exposes the {@link HttpSecurity} bean.
  *
  * @author Eleftheria Stein
+ * @author Jinwoo Bae
+ * @author Ngoc Nhan
  * @since 5.4
  */
 @Configuration(proxyBeanMethods = false)
@@ -131,8 +132,7 @@ class HttpSecurityConfiguration {
 	}
 
 	private void applyCorsIfAvailable(HttpSecurity http) throws Exception {
-		String[] beanNames = this.context.getBeanNamesForType(CorsConfigurationSource.class);
-		if (beanNames.length == 1) {
+		if (this.context.getBeanNamesForType(UrlBasedCorsConfigurationSource.class).length > 0) {
 			http.cors(withDefaults());
 		}
 	}
@@ -173,6 +173,17 @@ class HttpSecurityConfiguration {
 		 * @param objectPostProcessor the {@link ObjectPostProcessor} instance to use.
 		 */
 		DefaultPasswordEncoderAuthenticationManagerBuilder(ObjectPostProcessor<Object> objectPostProcessor,
+				PasswordEncoder defaultPasswordEncoder) {
+			super(objectPostProcessor);
+			this.defaultPasswordEncoder = defaultPasswordEncoder;
+		}
+
+		/**
+		 * @deprecated
+		 */
+		@Deprecated(since = "6.4", forRemoval = true)
+		DefaultPasswordEncoderAuthenticationManagerBuilder(
+				org.springframework.security.config.annotation.ObjectPostProcessor<Object> objectPostProcessor,
 				PasswordEncoder defaultPasswordEncoder) {
 			super(objectPostProcessor);
 			this.defaultPasswordEncoder = defaultPasswordEncoder;
@@ -226,21 +237,9 @@ class HttpSecurityConfiguration {
 			if (this.passwordEncoder != null) {
 				return this.passwordEncoder;
 			}
-			PasswordEncoder passwordEncoder = getBeanOrNull(PasswordEncoder.class);
-			if (passwordEncoder == null) {
-				passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
-			}
-			this.passwordEncoder = passwordEncoder;
-			return passwordEncoder;
-		}
-
-		private <T> T getBeanOrNull(Class<T> type) {
-			try {
-				return this.applicationContext.getBean(type);
-			}
-			catch (NoSuchBeanDefinitionException ex) {
-				return null;
-			}
+			this.passwordEncoder = this.applicationContext.getBeanProvider(PasswordEncoder.class)
+				.getIfUnique(PasswordEncoderFactories::createDelegatingPasswordEncoder);
+			return this.passwordEncoder;
 		}
 
 		@Override

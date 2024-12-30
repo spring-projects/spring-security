@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,6 @@ import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.ObjectProvider;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
@@ -51,11 +50,13 @@ import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProvider;
 import org.springframework.security.oauth2.client.PasswordOAuth2AuthorizedClientProvider;
 import org.springframework.security.oauth2.client.RefreshTokenOAuth2AuthorizedClientProvider;
+import org.springframework.security.oauth2.client.TokenExchangeOAuth2AuthorizedClientProvider;
 import org.springframework.security.oauth2.client.endpoint.JwtBearerGrantRequest;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2ClientCredentialsGrantRequest;
 import org.springframework.security.oauth2.client.endpoint.OAuth2PasswordGrantRequest;
 import org.springframework.security.oauth2.client.endpoint.OAuth2RefreshTokenGrantRequest;
+import org.springframework.security.oauth2.client.endpoint.TokenExchangeGrantRequest;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
@@ -116,11 +117,19 @@ final class OAuth2ClientConfiguration {
 	@Configuration(proxyBeanMethods = false)
 	static class OAuth2ClientWebMvcSecurityConfiguration implements WebMvcConfigurer {
 
-		private OAuth2AuthorizedClientManager authorizedClientManager;
+		private final OAuth2AuthorizedClientManager authorizedClientManager;
 
-		private SecurityContextHolderStrategy securityContextHolderStrategy;
+		private final ObjectProvider<SecurityContextHolderStrategy> securityContextHolderStrategy;
 
-		private OAuth2AuthorizedClientManagerRegistrar authorizedClientManagerRegistrar;
+		private final OAuth2AuthorizedClientManagerRegistrar authorizedClientManagerRegistrar;
+
+		OAuth2ClientWebMvcSecurityConfiguration(ObjectProvider<OAuth2AuthorizedClientManager> authorizedClientManager,
+				ObjectProvider<SecurityContextHolderStrategy> securityContextHolderStrategy,
+				OAuth2AuthorizedClientManagerRegistrar authorizedClientManagerRegistrar) {
+			this.authorizedClientManager = authorizedClientManager.getIfUnique();
+			this.securityContextHolderStrategy = securityContextHolderStrategy;
+			this.authorizedClientManagerRegistrar = authorizedClientManagerRegistrar;
+		}
 
 		@Override
 		public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
@@ -128,29 +137,9 @@ final class OAuth2ClientConfiguration {
 			if (authorizedClientManager != null) {
 				OAuth2AuthorizedClientArgumentResolver resolver = new OAuth2AuthorizedClientArgumentResolver(
 						authorizedClientManager);
-				if (this.securityContextHolderStrategy != null) {
-					resolver.setSecurityContextHolderStrategy(this.securityContextHolderStrategy);
-				}
+				this.securityContextHolderStrategy.ifAvailable(resolver::setSecurityContextHolderStrategy);
 				argumentResolvers.add(resolver);
 			}
-		}
-
-		@Autowired(required = false)
-		void setAuthorizedClientManager(List<OAuth2AuthorizedClientManager> authorizedClientManagers) {
-			if (authorizedClientManagers.size() == 1) {
-				this.authorizedClientManager = authorizedClientManagers.get(0);
-			}
-		}
-
-		@Autowired(required = false)
-		void setSecurityContextHolderStrategy(SecurityContextHolderStrategy strategy) {
-			this.securityContextHolderStrategy = strategy;
-		}
-
-		@Autowired
-		void setAuthorizedClientManagerRegistrar(
-				OAuth2AuthorizedClientManagerRegistrar authorizedClientManagerRegistrar) {
-			this.authorizedClientManagerRegistrar = authorizedClientManagerRegistrar;
 		}
 
 		private OAuth2AuthorizedClientManager getAuthorizedClientManager() {
@@ -183,7 +172,8 @@ final class OAuth2ClientConfiguration {
 				RefreshTokenOAuth2AuthorizedClientProvider.class,
 				ClientCredentialsOAuth2AuthorizedClientProvider.class,
 				PasswordOAuth2AuthorizedClientProvider.class,
-				JwtBearerOAuth2AuthorizedClientProvider.class
+				JwtBearerOAuth2AuthorizedClientProvider.class,
+				TokenExchangeOAuth2AuthorizedClientProvider.class
 		);
 		// @formatter:on
 
@@ -253,6 +243,12 @@ final class OAuth2ClientConfiguration {
 						authorizedClientProviderBeans);
 				if (jwtBearerAuthorizedClientProvider != null) {
 					authorizedClientProviders.add(jwtBearerAuthorizedClientProvider);
+				}
+
+				OAuth2AuthorizedClientProvider tokenExchangeAuthorizedClientProvider = getTokenExchangeAuthorizedClientProvider(
+						authorizedClientProviderBeans);
+				if (tokenExchangeAuthorizedClientProvider != null) {
+					authorizedClientProviders.add(tokenExchangeAuthorizedClientProvider);
 				}
 
 				authorizedClientProviders.addAll(getAdditionalAuthorizedClientProviders(authorizedClientProviderBeans));
@@ -356,6 +352,25 @@ final class OAuth2ClientConfiguration {
 			if (accessTokenResponseClient != null) {
 				if (authorizedClientProvider == null) {
 					authorizedClientProvider = new JwtBearerOAuth2AuthorizedClientProvider();
+				}
+
+				authorizedClientProvider.setAccessTokenResponseClient(accessTokenResponseClient);
+			}
+
+			return authorizedClientProvider;
+		}
+
+		private OAuth2AuthorizedClientProvider getTokenExchangeAuthorizedClientProvider(
+				Collection<OAuth2AuthorizedClientProvider> authorizedClientProviders) {
+			TokenExchangeOAuth2AuthorizedClientProvider authorizedClientProvider = getAuthorizedClientProviderByType(
+					authorizedClientProviders, TokenExchangeOAuth2AuthorizedClientProvider.class);
+
+			OAuth2AccessTokenResponseClient<TokenExchangeGrantRequest> accessTokenResponseClient = getBeanOfType(
+					ResolvableType.forClassWithGenerics(OAuth2AccessTokenResponseClient.class,
+							TokenExchangeGrantRequest.class));
+			if (accessTokenResponseClient != null) {
+				if (authorizedClientProvider == null) {
+					authorizedClientProvider = new TokenExchangeOAuth2AuthorizedClientProvider();
 				}
 
 				authorizedClientProvider.setAccessTokenResponseClient(accessTokenResponseClient);

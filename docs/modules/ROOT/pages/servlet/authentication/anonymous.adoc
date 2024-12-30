@@ -27,7 +27,7 @@ You can customize (or disable) it by using the `<anonymous>` element.
 You need not configure the beans described here unless you are using traditional bean configuration.
 
 Three classes work together to provide the anonymous authentication feature.
-`AnonymousAuthenticationToken` is an implementation of `Authentication` and stores the `GrantedAuthority` instancesthat apply to the anonymous principal.
+`AnonymousAuthenticationToken` is an implementation of `Authentication` and stores the `GrantedAuthority` instances that apply to the anonymous principal.
 There is a corresponding `AnonymousAuthenticationProvider`, which is chained into the `ProviderManager` so that `AnonymousAuthenticationToken` instances are accepted.
 Finally, an `AnonymousAuthenticationFilter` is chained after the normal authentication mechanisms and automatically adds an `AnonymousAuthenticationToken` to the `SecurityContextHolder` if there is no existing `Authentication` held there.
 The filter and authentication provider is defined as follows:

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,6 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
-import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -69,7 +68,7 @@ import org.springframework.security.access.vote.RoleVoter;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
-import org.springframework.security.config.annotation.ObjectPostProcessor;
+import org.springframework.security.config.ObjectPostProcessor;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.core.GrantedAuthorityDefaults;
@@ -84,6 +83,7 @@ import org.springframework.util.Assert;
  *
  * @author Rob Winch
  * @author Eddú Meléndez
+ * @author Ngoc Nhan
  * @since 3.2
  * @see EnableGlobalMethodSecurity
  * @deprecated Use {@link PrePostMethodSecurityConfiguration},
@@ -97,7 +97,7 @@ public class GlobalMethodSecurityConfiguration implements ImportAware, SmartInit
 
 	private static final Log logger = LogFactory.getLog(GlobalMethodSecurityConfiguration.class);
 
-	private ObjectPostProcessor<Object> objectPostProcessor = new ObjectPostProcessor<Object>() {
+	private ObjectPostProcessor<Object> objectPostProcessor = new ObjectPostProcessor<>() {
 
 		@Override
 		public <T> T postProcess(T object) {
@@ -168,19 +168,19 @@ public class GlobalMethodSecurityConfiguration implements ImportAware, SmartInit
 		catch (Exception ex) {
 			throw new RuntimeException(ex);
 		}
-		PermissionEvaluator permissionEvaluator = getSingleBeanOrNull(PermissionEvaluator.class);
+		PermissionEvaluator permissionEvaluator = getBeanOrNull(PermissionEvaluator.class);
 		if (permissionEvaluator != null) {
 			this.defaultMethodExpressionHandler.setPermissionEvaluator(permissionEvaluator);
 		}
-		RoleHierarchy roleHierarchy = getSingleBeanOrNull(RoleHierarchy.class);
+		RoleHierarchy roleHierarchy = getBeanOrNull(RoleHierarchy.class);
 		if (roleHierarchy != null) {
 			this.defaultMethodExpressionHandler.setRoleHierarchy(roleHierarchy);
 		}
-		AuthenticationTrustResolver trustResolver = getSingleBeanOrNull(AuthenticationTrustResolver.class);
+		AuthenticationTrustResolver trustResolver = getBeanOrNull(AuthenticationTrustResolver.class);
 		if (trustResolver != null) {
 			this.defaultMethodExpressionHandler.setTrustResolver(trustResolver);
 		}
-		GrantedAuthorityDefaults grantedAuthorityDefaults = getSingleBeanOrNull(GrantedAuthorityDefaults.class);
+		GrantedAuthorityDefaults grantedAuthorityDefaults = getBeanOrNull(GrantedAuthorityDefaults.class);
 		if (grantedAuthorityDefaults != null) {
 			this.defaultMethodExpressionHandler.setDefaultRolePrefix(grantedAuthorityDefaults.getRolePrefix());
 		}
@@ -188,13 +188,8 @@ public class GlobalMethodSecurityConfiguration implements ImportAware, SmartInit
 		this.defaultMethodExpressionHandler = this.objectPostProcessor.postProcess(this.defaultMethodExpressionHandler);
 	}
 
-	private <T> T getSingleBeanOrNull(Class<T> type) {
-		try {
-			return this.context.getBean(type);
-		}
-		catch (NoSuchBeanDefinitionException ex) {
-		}
-		return null;
+	private <T> T getBeanOrNull(Class<T> type) {
+		return this.context.getBeanProvider(type).getIfUnique();
 	}
 
 	private void initializeMethodSecurityInterceptor() throws Exception {
@@ -262,7 +257,7 @@ public class GlobalMethodSecurityConfiguration implements ImportAware, SmartInit
 			decisionVoters.add(new Jsr250Voter());
 		}
 		RoleVoter roleVoter = new RoleVoter();
-		GrantedAuthorityDefaults grantedAuthorityDefaults = getSingleBeanOrNull(GrantedAuthorityDefaults.class);
+		GrantedAuthorityDefaults grantedAuthorityDefaults = getBeanOrNull(GrantedAuthorityDefaults.class);
 		if (grantedAuthorityDefaults != null) {
 			roleVoter.setRolePrefix(grantedAuthorityDefaults.getRolePrefix());
 		}
@@ -373,7 +368,7 @@ public class GlobalMethodSecurityConfiguration implements ImportAware, SmartInit
 			sources.add(new SecuredAnnotationSecurityMetadataSource());
 		}
 		if (isJsr250Enabled) {
-			GrantedAuthorityDefaults grantedAuthorityDefaults = getSingleBeanOrNull(GrantedAuthorityDefaults.class);
+			GrantedAuthorityDefaults grantedAuthorityDefaults = getBeanOrNull(GrantedAuthorityDefaults.class);
 			Jsr250MethodSecurityMetadataSource jsr250MethodSecurityMetadataSource = this.context
 				.getBean(Jsr250MethodSecurityMetadataSource.class);
 			if (grantedAuthorityDefaults != null) {
@@ -409,6 +404,16 @@ public class GlobalMethodSecurityConfiguration implements ImportAware, SmartInit
 
 	@Autowired(required = false)
 	public void setObjectPostProcessor(ObjectPostProcessor<Object> objectPostProcessor) {
+		this.objectPostProcessor = objectPostProcessor;
+	}
+
+	/**
+	 * @deprecated
+	 */
+	@Deprecated(since = "6.4", forRemoval = true)
+	@Autowired(required = false)
+	public void setObjectPostProcessor(
+			org.springframework.security.config.annotation.ObjectPostProcessor<Object> objectPostProcessor) {
 		this.objectPostProcessor = objectPostProcessor;
 	}
 

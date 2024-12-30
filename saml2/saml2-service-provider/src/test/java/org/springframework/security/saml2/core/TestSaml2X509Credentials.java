@@ -18,14 +18,12 @@ package org.springframework.security.saml2.core;
 
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
-import java.security.KeyException;
 import java.security.PrivateKey;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 
-import org.opensaml.security.crypto.KeySupport;
-
+import org.springframework.security.converter.RsaKeyConverters;
 import org.springframework.security.saml2.Saml2Exception;
 import org.springframework.security.saml2.core.Saml2X509Credential.Saml2X509CredentialType;
 
@@ -84,12 +82,7 @@ public final class TestSaml2X509Credentials {
 	}
 
 	private static PrivateKey privateKey(String key) {
-		try {
-			return KeySupport.decodePrivateKey(key.getBytes(StandardCharsets.UTF_8), new char[0]);
-		}
-		catch (KeyException ex) {
-			throw new Saml2Exception(ex);
-		}
+		return RsaKeyConverters.pkcs8().convert(new ByteArrayInputStream(key.getBytes(StandardCharsets.UTF_8)));
 	}
 
 	private static X509Certificate idpCertificate() {

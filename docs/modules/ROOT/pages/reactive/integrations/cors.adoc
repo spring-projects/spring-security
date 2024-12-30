@@ -17,7 +17,7 @@ Java::
 [source,java,role="primary"]
 ----
 @Bean
-CorsConfigurationSource corsConfigurationSource() {
+UrlBasedCorsConfigurationSource corsConfigurationSource() {
 	CorsConfiguration configuration = new CorsConfiguration();
 	configuration.setAllowedOrigins(Arrays.asList("https://example.com"));
 	configuration.setAllowedMethods(Arrays.asList("GET","POST"));
@@ -32,7 +32,7 @@ Kotlin::
 [source,kotlin,role="secondary"]
 ----
 @Bean
-fun corsConfigurationSource(): CorsConfigurationSource {
+fun corsConfigurationSource(): UrlBasedCorsConfigurationSource {
     val configuration = CorsConfiguration()
     configuration.allowedOrigins = listOf("https://example.com")
     configuration.allowedMethods = listOf("GET", "POST")

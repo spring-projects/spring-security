@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,10 @@
 
 package org.springframework.security.config.websocket;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -47,6 +51,7 @@ import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.messaging.support.GenericMessage;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.expression.SecurityExpressionOperations;
+import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.config.test.SpringTestContext;
@@ -55,6 +60,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
+import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.messaging.access.expression.DefaultMessageSecurityExpressionHandler;
 import org.springframework.security.messaging.access.expression.MessageSecurityExpressionRoot;
 import org.springframework.security.test.context.annotation.SecurityTestExecutionListeners;
@@ -377,6 +383,24 @@ public class WebSocketMessageBrokerConfigTests {
 	}
 
 	@Test
+	public void sendMessageWhenMetaAnnotationThenAuthenticationPrincipalResolved() {
+		this.spring.configLocations(xml("SyncConfig")).autowire();
+		Authentication harold = new TestingAuthenticationToken("harold", "password", "ROLE_USER");
+		try {
+			getSecurityContextHolderStrategy().setContext(new SecurityContextImpl(harold));
+			this.clientInboundChannel.send(message("/hi"));
+			assertThat(this.spring.getContext().getBean(MessageController.class).message).isEqualTo("Hi, Harold!");
+			Authentication user = new TestingAuthenticationToken("user", "password", "ROLE_USER");
+			getSecurityContextHolderStrategy().setContext(new SecurityContextImpl(user));
+			this.clientInboundChannel.send(message("/hi"));
+			assertThat(this.spring.getContext().getBean(MessageController.class).message).isEqualTo("Hi, Stranger!");
+		}
+		finally {
+			getSecurityContextHolderStrategy().clearContext();
+		}
+	}
+
+	@Test
 	public void requestWhenConnectMessageThenUsesCsrfTokenHandshakeInterceptor() throws Exception {
 		this.spring.configLocations(xml("SyncConfig")).autowire();
 		WebApplicationContext context = this.spring.getContext();
@@ -490,6 +514,7 @@ public class WebSocketMessageBrokerConfigTests {
 		AuthorizationManager<Message<?>> authorizationManager = this.spring.getContext()
 			.getBean(AuthorizationManager.class);
 		given(authorizationManager.check(any(), any())).willReturn(new AuthorizationDecision(false));
+		given(authorizationManager.authorize(any(), any())).willCallRealMethod();
 		Message<?> message = message("/any");
 		assertThatExceptionOfType(Exception.class).isThrownBy(send(message))
 			.withCauseInstanceOf(AccessDeniedException.class);
@@ -553,14 +578,30 @@ public class WebSocketMessageBrokerConfigTests {
 
 	}
 
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target(ElementType.PARAMETER)
+	@AuthenticationPrincipal(expression = "#this.equals('{value}')")
+	@interface IsUser {
+
+		String value() default "user";
+
+	}
+
 	@Controller
 	static class MessageController {
 
 		String username;
 
+		String message;
+
 		@MessageMapping("/message")
 		void authentication(@AuthenticationPrincipal String username) {
 			this.username = username;
+		}
+
+		@MessageMapping("/hi")
+		void sayHello(@IsUser("harold") boolean isHarold) {
+			this.message = isHarold ? "Hi, Harold!" : "Hi, Stranger!";
 		}
 
 	}

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,13 +19,19 @@ package org.springframework.security.web.server.authentication.session;
 import java.util.Collections;
 
 import org.junit.jupiter.api.Test;
+import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
 
 import org.springframework.security.authentication.TestAuthentication;
 import org.springframework.security.web.authentication.session.SessionAuthenticationException;
 import org.springframework.security.web.server.authentication.MaximumSessionsContext;
 import org.springframework.security.web.server.authentication.PreventLoginServerMaximumSessionsExceededHandler;
+import org.springframework.web.server.WebSession;
 
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 /**
  * Tests for {@link PreventLoginServerMaximumSessionsExceededHandler}.
@@ -35,13 +41,17 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 class PreventLoginServerMaximumSessionsExceededHandlerTests {
 
 	@Test
-	void handleWhenInvokedThenThrowsSessionAuthenticationException() {
+	void handleWhenInvokedThenInvalidateWebSessionAndThrowsSessionAuthenticationException() {
 		PreventLoginServerMaximumSessionsExceededHandler handler = new PreventLoginServerMaximumSessionsExceededHandler();
+		WebSession webSession = mock();
+		given(webSession.invalidate()).willReturn(Mono.empty());
 		MaximumSessionsContext context = new MaximumSessionsContext(TestAuthentication.authenticatedUser(),
-				Collections.emptyList(), 1);
-		assertThatExceptionOfType(SessionAuthenticationException.class)
-			.isThrownBy(() -> handler.handle(context).block())
-			.withMessage("Maximum sessions of 1 for authentication 'user' exceeded");
+				Collections.emptyList(), 1, webSession);
+		StepVerifier.create(handler.handle(context)).expectErrorSatisfies((ex) -> {
+			assertThat(ex).isInstanceOf(SessionAuthenticationException.class);
+			assertThat(ex.getMessage()).isEqualTo("Maximum sessions exceeded");
+		}).verify();
+		verify(webSession).invalidate();
 	}
 
 }

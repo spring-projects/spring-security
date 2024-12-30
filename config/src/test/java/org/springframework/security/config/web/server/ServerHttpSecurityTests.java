@@ -23,6 +23,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.http.HttpHeaders;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -738,6 +739,40 @@ public class ServerHttpSecurityTests {
 			.isSameAs(authorizationRedirectStrategy);
 	}
 
+	@Test
+	void resourcesWhenLoginPageConfiguredThenServesCss() {
+		this.http.formLogin(withDefaults());
+		this.http.authenticationManager(this.authenticationManager);
+		WebTestClient client = WebTestClientBuilder
+			.bindToControllerAndWebFilters(NotFoundController.class, this.http.build())
+			.build();
+
+		client.get()
+			.uri("/default-ui.css")
+			.exchange()
+			.expectStatus()
+			.isOk()
+			.expectBody(String.class)
+			.value(Matchers.containsString("body {"));
+	}
+
+	@Test
+	void resourcesWhenLoginPageNotConfiguredThenDoesNotServeCss() {
+		this.http.httpBasic(withDefaults());
+		this.http.authenticationManager(this.authenticationManager);
+		WebTestClient client = WebTestClientBuilder
+			.bindToControllerAndWebFilters(NotFoundController.class, this.http.build())
+			.build();
+
+		client.get()
+			.uri("/default-ui.css")
+			.exchange()
+			.expectStatus()
+			.isNotFound()
+			.expectBody(String.class)
+			.isEqualTo(null);
+	}
+
 	private boolean isX509Filter(WebFilter filter) {
 		try {
 			Object converter = ReflectionTestUtils.getField(filter, "authenticationConverter");
@@ -772,6 +807,13 @@ public class ServerHttpSecurityTests {
 				.map((c) -> c.get(ServerWebExchange.class))
 				.map((e) -> e.getRequest().getPath().pathWithinApplication().value());
 		}
+
+	}
+
+	@RestController
+	private static class NotFoundController {
+
+		// Empty controller, makes WebTestClient return HTTP 404
 
 	}
 

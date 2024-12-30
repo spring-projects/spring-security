@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package org.springframework.security.config.annotation.web.reactive;
 
-import io.micrometer.observation.ObservationRegistry;
+import java.util.Map;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
@@ -29,10 +29,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.expression.BeanFactoryResolver;
 import org.springframework.core.ReactiveAdapterRegistry;
-import org.springframework.security.authentication.ObservationReactiveAuthenticationManager;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.UserDetailsRepositoryReactiveAuthenticationManager;
+import org.springframework.security.authentication.password.ReactiveCompromisedPasswordChecker;
+import org.springframework.security.config.ObjectPostProcessor;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
+import org.springframework.security.core.annotation.AnnotationTemplateExpressionDefaults;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsPasswordService;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -63,7 +65,9 @@ class ServerHttpSecurityConfiguration {
 
 	private ReactiveUserDetailsPasswordService userDetailsPasswordService;
 
-	private ObservationRegistry observationRegistry = ObservationRegistry.NOOP;
+	private ReactiveCompromisedPasswordChecker compromisedPasswordChecker;
+
+	private ObjectPostProcessor<ReactiveAuthenticationManager> postProcessor = ObjectPostProcessor.identity();
 
 	@Autowired(required = false)
 	private BeanFactory beanFactory;
@@ -94,40 +98,55 @@ class ServerHttpSecurityConfiguration {
 	}
 
 	@Autowired(required = false)
-	void setObservationRegistry(ObservationRegistry observationRegistry) {
-		this.observationRegistry = observationRegistry;
+	void setAuthenticationManagerPostProcessor(
+			Map<String, ObjectPostProcessor<ReactiveAuthenticationManager>> postProcessors) {
+		if (postProcessors.size() == 1) {
+			this.postProcessor = postProcessors.values().iterator().next();
+		}
+		this.postProcessor = postProcessors.get("reactiveAuthenticationManagerPostProcessor");
+	}
+
+	@Autowired(required = false)
+	void setCompromisedPasswordChecker(ReactiveCompromisedPasswordChecker compromisedPasswordChecker) {
+		this.compromisedPasswordChecker = compromisedPasswordChecker;
 	}
 
 	@Bean
 	static WebFluxConfigurer authenticationPrincipalArgumentResolverConfigurer(
-			ObjectProvider<AuthenticationPrincipalArgumentResolver> authenticationPrincipalArgumentResolver) {
+			ObjectProvider<AuthenticationPrincipalArgumentResolver> authenticationPrincipalArgumentResolver,
+			ObjectProvider<CurrentSecurityContextArgumentResolver> currentSecurityContextArgumentResolvers) {
 		return new WebFluxConfigurer() {
 
 			@Override
 			public void configureArgumentResolvers(ArgumentResolverConfigurer configurer) {
-				configurer.addCustomResolver(authenticationPrincipalArgumentResolver.getObject());
+				configurer.addCustomResolver(authenticationPrincipalArgumentResolver.getObject(),
+						currentSecurityContextArgumentResolvers.getObject());
 			}
 
 		};
 	}
 
 	@Bean
-	AuthenticationPrincipalArgumentResolver authenticationPrincipalArgumentResolver() {
+	AuthenticationPrincipalArgumentResolver authenticationPrincipalArgumentResolver(
+			ObjectProvider<AnnotationTemplateExpressionDefaults> templateDefaults) {
 		AuthenticationPrincipalArgumentResolver resolver = new AuthenticationPrincipalArgumentResolver(
 				this.adapterRegistry);
 		if (this.beanFactory != null) {
 			resolver.setBeanResolver(new BeanFactoryResolver(this.beanFactory));
 		}
+		templateDefaults.ifAvailable(resolver::setTemplateDefaults);
 		return resolver;
 	}
 
 	@Bean
-	CurrentSecurityContextArgumentResolver reactiveCurrentSecurityContextArgumentResolver() {
+	CurrentSecurityContextArgumentResolver reactiveCurrentSecurityContextArgumentResolver(
+			ObjectProvider<AnnotationTemplateExpressionDefaults> templateDefaults) {
 		CurrentSecurityContextArgumentResolver resolver = new CurrentSecurityContextArgumentResolver(
 				this.adapterRegistry);
 		if (this.beanFactory != null) {
 			resolver.setBeanResolver(new BeanFactoryResolver(this.beanFactory));
 		}
+		templateDefaults.ifAvailable(resolver::setTemplateDefaults);
 		return resolver;
 	}
 
@@ -153,10 +172,8 @@ class ServerHttpSecurityConfiguration {
 				manager.setPasswordEncoder(this.passwordEncoder);
 			}
 			manager.setUserDetailsPasswordService(this.userDetailsPasswordService);
-			if (!this.observationRegistry.isNoop()) {
-				return new ObservationReactiveAuthenticationManager(this.observationRegistry, manager);
-			}
-			return manager;
+			manager.setCompromisedPasswordChecker(this.compromisedPasswordChecker);
+			return this.postProcessor.postProcess(manager);
 		}
 		return null;
 	}

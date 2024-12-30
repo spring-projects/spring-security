@@ -1,53 +1,235 @@
 = Release Process
 
-The release process for Spring Security is partially automated. The following table outlines which steps are automated and which are manual. Follow the links to read about each step.
+The release process for Spring Security is entirely automated via the https://github.com/spring-io/spring-security-release-tools/blob/main/release-plugin/README.adoc[Spring Security Release Plugin] and https://github.com/spring-io/spring-security-release-tools/tree/main/.github/workflows[reusable workflows].
+The following table outlines the steps that are taken by the automation.
 
-[cols="1,1"]
+WARNING: The `5.8.x` branch does not have all of the improvements from the `6.x.x` branches. See "Status (5.8.x)" for which steps are still manual.
+
+In case of a failure, you can follow the links below to read about each step, which includes instructions for performing the step manually if applicable.
+See <<frequently-asked-questions,FAQ>> for troubleshooting tips.
+
+[cols="1,1,1"]
 |===
-| Step | Status
+| Step | Status (5.8.x) | Status (6.0.x+)
 
 | <<update-dependencies>>
-| :x: manual
+| :white_check_mark: automated
+| :white_check_mark: automated
 
 | <<check-all-issues-are-closed>>
-| :white_check_mark: automated (scheduled release will abort if any issues are open)
+| :white_check_mark: automated
+| :white_check_mark: automated
 
 | <<update-release-version>>
 | :white_check_mark: automated
-
-| <<update-antora-version>>
-| :white_check_mark: automated
-
-| <<build-locally>>
-| :x: manual (when updating dependencies)
-
-| <<push-release-commit>>
-| :white_check_mark: automated
-
-| <<announce-release-on-slack>>
 | :white_check_mark: automated
 
 | <<tag-release>>
 | :white_check_mark: automated
+| :white_check_mark: automated
 
-| <<update-to-next-development-version>>
+| <<push-release-commit>>
+| :white_check_mark: automated
+| :white_check_mark: automated
+
+| <<build-locally>>
+| :white_check_mark: automated
+| :white_check_mark: automated
+
+| <<update-release-notes-on-github>>
+| :white_check_mark: automated
 | :white_check_mark: automated
 
 | <<update-version-on-project-page>>
 | :x: manual
-
-| <<update-release-notes-on-github>>
 | :white_check_mark: automated
 
 | <<close-create-milestone,Close milestone>>
-| :x: manual (move issues to new milestone before release)
+| :x: manual
+| :white_check_mark: automated
+
+| <<announce-release-on-slack>>
+| :white_check_mark: automated
+| :white_check_mark: automated
+
+| <<update-to-next-development-version>>
+| :white_check_mark: automated
+| :white_check_mark: automated
 
 | <<close-create-milestone,Create milestone>>
-| :white_check_mark: automated (if not already created)
+| :white_check_mark: automated
+| :white_check_mark: automated
 
 | <<announce-release-on-other-channels>>
 | :x: manual
+| :x: manual
 |===
+
+[#update-dependencies]
+== Update dependencies
+
+Dependency versions are managed in the file xref:./gradle/libs.versions.toml[libs.versions.toml] and are automatically updated by xref:./.github/dependabot.yml[dependabot].
+
+[#check-all-issues-are-closed]
+== Check all issues are closed
+
+The first step of a release is to check if there are any open issues remaining in a milestone.
+
+NOTE: A scheduled release will not proceed if there are any open issues.
+
+TIP: If you need to prevent a release from occurring automatically, the easiest way to block a release is to add an unresolved issue to the milestone.
+
+The https://github.com/spring-io/spring-security-release-tools/blob/main/release-plugin/README.adoc#checkMilestoneHasNoOpenIssues[`checkMilestoneHasOpenIssues`] command will check if there are any open issues for the release.
+Before running the command manually, replace the following values:
+
+* `<next-version>` - Replace with the title of the milestone you are releasing now (i.e. 5.5.0-RC1)
+* `<github-personal-access-token>` - Replace with a https://github.com/settings/tokens[GitHub personal access token] that has a scope of `public_repo`. This is optional since you are unlikely to reach the rate limit for such a simple check.
+
+[source,bash]
+----
+./gradlew checkMilestoneHasOpenIssues -PnextVersion=<next-version> -PgitHubAccessToken=<github-personal-access-token>
+----
+
+Alternatively, you can manually check using the https://github.com/spring-projects/spring-security/milestones[milestones] page.
+
+[#update-release-version]
+== Update release version
+
+If all issues for the release are <<check-all-issues-are-closed,closed>>, the version number is automatically updated using the milestone title.
+When performing this step manually, update the version number in `gradle.properties` for the release (for example `5.5.0`) and commit the change using the message "Release x.y.z".
+
+[#tag-release]
+== Tag release
+
+The release will automatically be tagged using the milestone title.
+It is not required to tag manually.
+However, you can perform this step manually by running the following command:
+
+[source,bash]
+----
+git tag 5.5.0
+----
+
+[#push-release-commit]
+== Push release commit
+
+During a scheduled release, the release commit will automatically be pushed to trigger a build.
+If performing this step manually, you can push the commit and tag and GitHub actions will build and deploy the artifacts with the following command:
+
+[source,bash]
+----
+git push --atomic origin main 5.5.0
+----
+
+The build will automatically wait for artifacts to be released to Maven Central.
+You can get notified manually when uploading is complete by running the following:
+
+[source,bash]
+----
+./scripts/release/wait-for-done.sh 5.5.0
+----
+
+[#build-locally]
+== Build
+
+All checks will automatically be performed by the build prior to uploading the artifacts to Maven Central.
+If something goes wrong, you can run the build locally using:
+
+[source,bash]
+----
+./gradlew check
+----
+
+[#update-release-notes-on-github]
+== Update release notes on GitHub
+
+Once the release has been uploaded to Maven Central, release notes will automatically be generated and a GitHub release will be created.
+To do this manually, you can use the https://github.com/spring-io/spring-security-release-tools/blob/main/release-plugin/README.adoc#generateChangelog[`generateChangelog`] command to generate the release notes by replacing:
+
+* `<next-version>` - Replace with the milestone you are releasing now (i.e. 5.5.0)
+
+[source,bash]
+----
+./gradlew generateChangelog -PnextVersion=<next-version>
+----
+
+Then copy the release notes to your clipboard (your mileage may vary with the following command):
+
+[source,bash]
+----
+cat build/changelog/release-notes.md | xclip -selection clipboard
+----
+
+Finally, create the
+https://github.com/spring-projects/spring-security/releases[release on
+GitHub], associate it with the tag, and paste the generated notes.
+
+Alternatively, you can run the https://github.com/spring-io/spring-security-release-tools/blob/main/release-plugin/README.adoc#createGitHubRelease[`createGitHubRelease`] command to perform these steps automatically, replacing:
+
+* `<next-version>` - Replace with the milestone you are releasing now (i.e. 5.5.0)
+* `<branch>` - The name of the branch to be tagged (if the release commit has not already been tagged)
+* `<github-personal-access-token>` - Replace with a https://github.com/settings/tokens[GitHub personal access token] that has a scope of `write:org`
+
+[source,bash]
+----
+./gradlew createGitHubRelease -PnextVersion=<next-version> -Pbranch=<branch> -PcreateRelease=true -PgitHubAccessToken=<github-personal-access-token>
+----
+
+[#update-version-on-project-page]
+== Update version on project page
+
+The build will automatically update the project versions on https://spring.io/projects/spring-security#learn.
+To do this manually, you can use the https://github.com/spring-io/spring-security-release-tools/blob/main/release-plugin/README.adoc#createSaganRelease[`createSaganRelease`] and https://github.com/spring-io/spring-security-release-tools/blob/main/release-plugin/README.adoc#deleteSaganRelease[`deleteSaganRelease`] commands using the following parameters:
+
+* `<next-version>` - Replace with the milestone you are releasing now (i.e. 5.5.0)
+* `<previous-version>` - Replace with the previous release which will be removed from the listed versions (i.e. 5.5.0-RC1)
+* `<github-personal-access-token>` - Replace with a https://github.com/settings/tokens[GitHub personal access token] that has a scope of `read:org` as https://spring.io/restdocs/index.html#authentication[documented for spring.io api]
+
+[source,bash]
+----
+./gradlew createSaganRelease deleteSaganRelease -PnextVersion=<next-version> -PpreviousVersion=<previous-version> -PgitHubAccessToken=<github-personal-access-token>
+----
+
+Alternatively, you can log into Contentful and update the versions manually on the Spring Security project page.
+
+[#close-create-milestone]
+== Close / Create milestone
+
+The release milestone will be automatically closed once the release is complete.
+To proceed manually, perform the following steps:
+
+1. Visit https://github.com/spring-projects/spring-security/milestones[GitHub
+Milestones] and create a new milestone for the next release version
+2. Move any open issues from the existing milestone you just released to the new milestone
+3. Close the milestone for the release
+
+NOTE: Remember that scheduled releases <<check-all-issues-are-closed,will not proceed>> if there are still open issues in the milestone.
+
+[#announce-release-on-slack]
+== Announce release on Slack
+
+The release will automatically be announced on Slack.
+If proceeding manually, announce the release on Slack in the channel https://pivotal.slack.com/messages/spring-release[#spring-release], including the keyword `+spring-security-announcing+` in the message.
+Something like:
+
+....
+spring-security-announcing `5.5.0` is available now
+....
+
+[#update-to-next-development-version]
+== Update to next development version
+
+After the release is complete and artifacts have been uploaded to Maven Central, the build will automatically update to the next development version, commit and push.
+If proceeding manually, update the version in `gradle.properties` to the next `+SNAPSHOT+` version with the commit message "Next development version" and then push.
+
+[#announce-release-on-other-channels]
+== Announce release on other channels
+
+* Create a blog post on Contentful
+* Tweet from https://twitter.com/springsecurity[@SpringSecurity]
+
+[[frequently-asked-questions]]
+== Frequently Asked Questions
 
 *When should I update dependencies manually?* Dependencies should be updated at the latest the end of the week prior to the release. This is usually the Friday following the 2nd Monday of the month (counting from the first week with a Monday). When in doubt, check the https://github.com/spring-projects/spring-security/milestones[milestones] page for release due dates.
 
@@ -59,9 +241,10 @@ The scheduled release process currently runs every Monday but only releases when
 The automated release process occurs on the following branches:
 
 * `main`
-* `6.0.x`
+* `6.2.x`
+* `6.1.x`
+* `6.0.x` (commercial only)
 * `5.8.x`
-* `5.7.x`
 
 For each of the above branches, the automated process performs the following checks before proceeding with the release:
 
@@ -71,7 +254,7 @@ For each of the above branches, the automated process performs the following che
 [IMPORTANT]
 You should ensure all issues are closed or moved to another milestone prior to a scheduled release.
 
-If the above checks pass, the version number is updated (in `gradle.properties` and `antora.yml`) and a commit is pushed to trigger the CI process.
+If the above checks pass, the version number is updated (in `gradle.properties`) and a commit is pushed to trigger the CI process.
 
 *How do I trigger a release manually?* You can trigger a release manually in two ways:
 
@@ -81,199 +264,3 @@ If the above checks pass, the version number is updated (in `gradle.properties` 
 *When should additional manual steps be performed?* All other automated steps listed above occur during the normal CI process. Additional manual steps can be performed at any time once the builds pass and releases are finished.
 
 *What if something goes wrong?* If the normal CI process fails, you can retry by re-running the failed jobs with the "Re-run failed jobs" option in GitHub Actions. If changes are required, you should revert the "Release x.y.z" commit, delete the tag, and proceed manually.
-
-[#update-dependencies]
-== Update dependencies
-
-Ensure you have no changes in your local repository.
-Change to a new branch.
-For example:
-
-[source,bash]
-----
-$ git checkout -b 5.5.0-RC1-dependencies
-----
-
-Review the rules in build.gradle to ensure the rules make sense.
-For example, we should not allow major version updates in a patch release.
-Also ensure that all of the exclusions still make sense.
-
-The following Gradle command will update your dependencies creating a commit for each dependency update.
-The first invocation of the command will take quite a while (~20 minutes depending on internet speed) to run because it is indexing all the versions of all the dependencies.
-
-[source,bash]
-----
-$ ./gradlew updateDependencies
-----
-
-Review the commits to ensure that the updated dependency versions make sense for this release. For example, we should not perform a major version update for a patch release.
-
-[source,bash]
-----
-$ git log
-----
-
-If any of the versions don’t make sense, update `build.gradle` to ensure that the version is excluded.
-
-Run all the checks:
-
-[source,bash]
-----
-$ ./gradlew check
-----
-
-If they don’t work, you can run a git bisect to discover what broke the build.
-Fix any commits that broke the build.
-
-Check out the original brach:
-
-[source,bash]
-----
-$ git checkout -
-----
-
-The following command will update the dependencies again but this time creating a ticket for each update and placing `Closes gh-<number>` in the commit. Replacing the following values:
-
-* <github-personal-access-token> - Replace with a https://github.com/settings/tokens[GitHub personal access token] that has a scope of `public_repo`
-* <next-version> - Replace with the title of the milestone you are releasing now (i.e. 5.5.0-RC1)
-
-[source,bash]
-----
-$ ./gradlew updateDependencies -PupdateMode=GITHUB_ISSUE -PgitHubAccessToken=<github-personal-access-token> -PnextVersion=<next-version>
-----
-
-Apply any fixes from your previous branch that were necessary.
-
-[#check-all-issues-are-closed]
-== Check all issues are closed
-
-The following command will check if there are any open issues for the ticket.
-Before running the command, replace the following values:
-
-* <github-personal-access-token> - Replace with a https://github.com/settings/tokens[GitHub personal access token] that has a scope of `public_repo`. This is optional since you are unlikely to reach the rate limit for such a simple check.
-* <next-version> - Replace with the title of the milestone you are releasing now (i.e. 5.5.0-RC1)
-
-[source,bash]
-----
-$ ./gradlew gitHubCheckMilestoneHasNoOpenIssues -PgitHubAccessToken=<github-personal-access-token> -PnextVersion=<next-version>
-----
-
-Alternatively, you can manually check using https://github.com/spring-projects/spring-security/milestones
-
-[#update-release-version]
-== Update release version
-
-Update the version number in `gradle.properties` for the release, for example `5.5.0-M1`, `5.5.0-RC1`, `5.5.0`
-
-[#update-antora-version]
-== Update antora version
-
-You will need to update the antora.yml version.
-If you are unsure of what the values should be, the following task will instruct you what the expected values are:
-
-[source,bash]
-----
-./gradlew :spring-security-docs:antoraCheckVersion
-----
-
-[#build-locally]
-== Build locally
-
-Run the build using
-
-[source,bash]
-----
-$ ./gradlew check
-----
-
-[#push-release-commit]
-== Push release commit
-
-Push the commit and GitHub actions will build and deploy the artifacts
-If you are pushing to Maven Central, then you can get notified when it’s uploaded by running the following:
-
-[source,bash]
-----
-$ ./scripts/release/wait-for-done.sh 5.5.0
-----
-
-[#announce-release-on-slack]
-== Announce release on Slack
-
-* Announce via Slack on
-https://pivotal.slack.com/messages/spring-release[#spring-release],
-including the keyword `+spring-security-announcing+` in the message.
-Something like:
-
-....
-spring-security-announcing 5.5.0 is available.
-....
-
-[#tag-release]
-== Tag release
-
-* Tag the release and then push the tag
-
-....
-git tag 5.4.0-RC1
-git push origin 5.4.0-RC1
-....
-
-[#update-to-next-development-version]
-== Update to next development version
-
-* Update `gradle.properties` version to next `+SNAPSHOT+` version, update antora.yml, and then push
-
-[#update-version-on-project-page]
-== Update version on project page
-
-The following command will update https://spring.io/projects/spring-security#learn with the new release version using the following parameters
-
-<github-personal-access-token> - Replace with a https://github.com/settings/tokens[GitHub personal access token] that has a scope of `read:org` as https://spring.io/restdocs/index.html#authentication[documented for spring.io api]
-<next-version> - Replace with the milestone you are releasing now (i.e. 5.5.0-RC1)
-<previous-version> - Replace with the previous release which will be removed from the listed versions (i.e. 5.5.0-M3)
-
-[source,bash]
-----
-$ ./gradlew saganCreateRelease saganDeleteRelease -PgitHubAccessToken=<github-personal-access-token> -PnextVersion=<next-version> -PpreviousVersion=<previous-version>
-----
-
-[#update-release-notes-on-github]
-== Update release notes on GitHub
-
-Generate the Release Notes replacing:
-
-* <next-version> - Replace with the milestone you are releasing now (i.e. 5.5.0-RC1)
-
-----
-$ ./gradlew generateChangelog -PnextVersion=<next-version>
-----
-
-* Copy the release notes to your clipboard (your mileage may vary with
-the following command)
-
-....
-cat build/changelog/release-notes.md | xclip -selection clipboard
-....
-
-* Create the
-https://github.com/spring-projects/spring-security/releases[release on
-GitHub], associate it with the tag, and paste the generated notes
-
-[#close-create-milestone]
-== Close / Create milestone
-
-* In
-https://github.com/spring-projects/spring-security/milestones[GitHub
-Milestones], create a new milestone for the next release version
-* Move any open issues from the existing milestone you just released to
-the new milestone
-* Close the milestone for the release.
-
-[#announce-release-on-other-channels]
-== Announce release on other channels
-
-* Create a https://spring.io/admin/blog[Blog]
-* Tweet from [@SpringSecurity](https://twitter.com/springsecurity)
-
-

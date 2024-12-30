@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -316,6 +316,14 @@ public class WebSecurityConfigurationTests {
 		assertThat(privilegeEvaluator.isAllowed("/another", null)).isFalse();
 		assertThat(privilegeEvaluator.isAllowed("/ignoring1", null)).isTrue();
 		assertThat(privilegeEvaluator.isAllowed("/ignoring1/child", null)).isTrue();
+	}
+
+	@Test
+	public void loadConfigWhenTwoSecurityFilterChainsPresentAndSecondWithAnyRequestThenException() {
+		assertThatExceptionOfType(BeanCreationException.class)
+			.isThrownBy(() -> this.spring.register(MultipleAnyRequestSecurityFilterChainConfig.class).autowire())
+			.havingRootCause()
+			.isInstanceOf(IllegalArgumentException.class);
 	}
 
 	private void assertAnotherUserPermission(WebInvocationPrivilegeEvaluator privilegeEvaluator) {
@@ -814,6 +822,28 @@ public class WebSecurityConfigurationTests {
 		@Order(Ordered.LOWEST_PRECEDENCE)
 		public SecurityFilterChain permitAll(HttpSecurity http) throws Exception {
 			http.authorizeRequests((requests) -> requests.anyRequest().permitAll());
+			return http.build();
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	@EnableWebMvc
+	@Import(AuthenticationTestConfiguration.class)
+	static class MultipleAnyRequestSecurityFilterChainConfig {
+
+		@Bean
+		@Order(0)
+		SecurityFilterChain api1(HttpSecurity http) throws Exception {
+			http.authorizeHttpRequests((auth) -> auth.anyRequest().authenticated());
+			return http.build();
+		}
+
+		@Bean
+		@Order(1)
+		SecurityFilterChain api2(HttpSecurity http) throws Exception {
+			http.securityMatcher("/app/**").authorizeHttpRequests((auth) -> auth.anyRequest().authenticated());
 			return http.build();
 		}
 

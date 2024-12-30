@@ -105,7 +105,7 @@ Once merged, the fix will be forwarded-ported to applicable branches including `
 1. Create a local branch
 If this is for an issue, consider a branch name with the issue number, like `gh-22276`.
 [[write-tests]]
-1. Add JUnit Tests for your changes
+1. Add documentation and JUnit Tests for your changes.
 [[update-copyright]]
 1. In all files you edited, if the copyright header is of the form 2002-20xx, update the final copyright year to the current year.
 [[add-since]]

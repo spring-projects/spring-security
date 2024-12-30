@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import io.micrometer.observation.ObservationRegistry;
-
 import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -33,8 +31,9 @@ import org.springframework.messaging.handler.invocation.HandlerMethodArgumentRes
 import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.security.authorization.AuthorizationManager;
-import org.springframework.security.authorization.ObservationAuthorizationManager;
 import org.springframework.security.authorization.SpringAuthorizationEventPublisher;
+import org.springframework.security.config.ObjectPostProcessor;
+import org.springframework.security.core.annotation.AnnotationTemplateExpressionDefaults;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.messaging.access.intercept.AuthorizationChannelInterceptor;
@@ -78,9 +77,11 @@ final class WebSocketMessageBrokerSecurityConfiguration
 
 	private AuthorizationManager<Message<?>> authorizationManager = ANY_MESSAGE_AUTHENTICATED;
 
-	private ObservationRegistry observationRegistry = ObservationRegistry.NOOP;
+	private ObjectPostProcessor<AuthorizationManager<Message<?>>> postProcessor = ObjectPostProcessor.identity();
 
 	private ApplicationContext context;
+
+	private AnnotationTemplateExpressionDefaults templateDefaults;
 
 	WebSocketMessageBrokerSecurityConfiguration(ApplicationContext context) {
 		this.context = context;
@@ -90,6 +91,7 @@ final class WebSocketMessageBrokerSecurityConfiguration
 	public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
 		AuthenticationPrincipalArgumentResolver resolver = new AuthenticationPrincipalArgumentResolver();
 		resolver.setSecurityContextHolderStrategy(this.securityContextHolderStrategy);
+		resolver.setTemplateDefaults(this.templateDefaults);
 		argumentResolvers.add(resolver);
 	}
 
@@ -102,9 +104,7 @@ final class WebSocketMessageBrokerSecurityConfiguration
 		}
 
 		AuthorizationManager<Message<?>> manager = this.authorizationManager;
-		if (!this.observationRegistry.isNoop()) {
-			manager = new ObservationAuthorizationManager<>(this.observationRegistry, manager);
-		}
+		manager = this.postProcessor.postProcess(manager);
 		AuthorizationChannelInterceptor interceptor = new AuthorizationChannelInterceptor(manager);
 		interceptor.setAuthorizationEventPublisher(new SpringAuthorizationEventPublisher(this.context));
 		interceptor.setSecurityContextHolderStrategy(this.securityContextHolderStrategy);
@@ -124,8 +124,14 @@ final class WebSocketMessageBrokerSecurityConfiguration
 	}
 
 	@Autowired(required = false)
-	void setObservationRegistry(ObservationRegistry observationRegistry) {
-		this.observationRegistry = observationRegistry;
+	void setMessageAuthorizationManagerPostProcessor(
+			ObjectPostProcessor<AuthorizationManager<Message<?>>> postProcessor) {
+		this.postProcessor = postProcessor;
+	}
+
+	@Autowired(required = false)
+	void setTemplateDefaults(AnnotationTemplateExpressionDefaults templateDefaults) {
+		this.templateDefaults = templateDefaults;
 	}
 
 	@Override

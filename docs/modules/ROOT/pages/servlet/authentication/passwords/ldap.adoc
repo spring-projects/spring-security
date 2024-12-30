@@ -10,6 +10,41 @@ However, despite using a username and password for authentication, it does not u
 There are many different scenarios for how an LDAP server can be configured, so Spring Security's LDAP provider is fully configurable.
 It uses separate strategy interfaces for authentication and role retrieval and provides default implementations, which can be configured to handle a wide range of situations.
 
+[[servlet-authentication-ldap-required-dependencies]]
+== Required Dependencies
+
+To get started, add the `spring-security-ldap` dependency to your project.
+When using Spring Boot, add the following dependencies:
+
+.Spring Security LDAP Dependencies
+[tabs]
+======
+Maven::
++
+[source,xml,role="primary"]
+----
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-data-ldap</artifactId>
+</dependency>
+
+<dependency>
+    <groupId>org.springframework.security</groupId>
+    <artifactId>spring-security-ldap</artifactId>
+</dependency>
+----
+
+Gradle::
++
+[source,groovy,role="secondary"]
+----
+depenendencies {
+    implementation "org.springframework.boot:spring-boot-starter-data-ldap"
+    implementation "org.springframework.security:spring-security-ldap"
+}
+----
+======
+
 [[servlet-authentication-ldap-prerequisites]]
 == Prerequisites
 
@@ -81,14 +116,14 @@ dn: cn=user,ou=groups,dc=springframework,dc=org
 objectclass: top
 objectclass: groupOfNames
 cn: user
-uniqueMember: uid=admin,ou=people,dc=springframework,dc=org
-uniqueMember: uid=user,ou=people,dc=springframework,dc=org
+member: uid=admin,ou=people,dc=springframework,dc=org
+member: uid=user,ou=people,dc=springframework,dc=org
 
 dn: cn=admin,ou=groups,dc=springframework,dc=org
 objectclass: top
 objectclass: groupOfNames
 cn: admin
-uniqueMember: uid=admin,ou=people,dc=springframework,dc=org
+member: uid=admin,ou=people,dc=springframework,dc=org
 ----
 
 [[servlet-authentication-ldap-unboundid]]

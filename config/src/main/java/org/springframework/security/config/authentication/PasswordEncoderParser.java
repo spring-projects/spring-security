@@ -41,8 +41,6 @@ public class PasswordEncoderParser {
 
 	public static final String ATT_HASH = "hash";
 
-	static final String ATT_BASE_64 = "base64";
-
 	static final String OPT_HASH_BCRYPT = "bcrypt";
 
 	private static final Map<String, Class<?>> ENCODER_CLASSES = Collections.singletonMap(OPT_HASH_BCRYPT,
@@ -62,19 +60,17 @@ public class PasswordEncoderParser {
 			return;
 		}
 		String hash = element.getAttribute(ATT_HASH);
-		boolean useBase64 = StringUtils.hasText(element.getAttribute(ATT_BASE_64))
-				&& Boolean.parseBoolean(element.getAttribute(ATT_BASE_64));
 		String ref = element.getAttribute(ATT_REF);
 		if (StringUtils.hasText(ref)) {
 			this.passwordEncoder = new RuntimeBeanReference(ref);
 		}
 		else {
-			this.passwordEncoder = createPasswordEncoderBeanDefinition(hash, useBase64);
+			this.passwordEncoder = createPasswordEncoderBeanDefinition(hash);
 			((RootBeanDefinition) this.passwordEncoder).setSource(parserContext.extractSource(element));
 		}
 	}
 
-	public static BeanDefinition createPasswordEncoderBeanDefinition(String hash, boolean useBase64) {
+	public static BeanDefinition createPasswordEncoderBeanDefinition(String hash) {
 		Class<?> beanClass = ENCODER_CLASSES.get(hash);
 		BeanDefinitionBuilder beanBldr = BeanDefinitionBuilder.rootBeanDefinition(beanClass);
 		return beanBldr.getBeanDefinition();

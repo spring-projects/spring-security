@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import org.springframework.context.annotation.AutoProxyRegistrar;
 import org.springframework.context.annotation.ImportSelector;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.lang.NonNull;
+import org.springframework.util.ClassUtils;
 
 /**
  * Dynamically determines which imports to include using the {@link EnableMethodSecurity}
@@ -36,6 +37,12 @@ import org.springframework.lang.NonNull;
  * @since 5.6
  */
 final class MethodSecuritySelector implements ImportSelector {
+
+	private static final boolean isDataPresent = ClassUtils
+		.isPresent("org.springframework.security.data.aot.hint.AuthorizeReturnObjectDataHintsRegistrar", null);
+
+	private static final boolean isObservabilityPresent = ClassUtils
+		.isPresent("io.micrometer.observation.ObservationRegistry", null);
 
 	private final ImportSelector autoProxy = new AutoProxyRegistrarSelector();
 
@@ -55,6 +62,13 @@ final class MethodSecuritySelector implements ImportSelector {
 		}
 		if (annotation.jsr250Enabled()) {
 			imports.add(Jsr250MethodSecurityConfiguration.class.getName());
+		}
+		imports.add(AuthorizationProxyConfiguration.class.getName());
+		if (isDataPresent) {
+			imports.add(AuthorizationProxyDataConfiguration.class.getName());
+		}
+		if (isObservabilityPresent) {
+			imports.add(MethodObservationConfiguration.class.getName());
 		}
 		return imports.toArray(new String[0]);
 	}

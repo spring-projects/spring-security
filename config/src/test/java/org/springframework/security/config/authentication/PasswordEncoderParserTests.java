@@ -20,10 +20,13 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -63,6 +66,17 @@ public class PasswordEncoderParserTests {
 		this.mockMvc.perform(get("/").with(httpBasic("user", "password")))
 				.andExpect(status().isOk());
 		// @formatter:on
+	}
+
+	@Test
+	void testCreatePasswordEncoderBeanDefinition() throws Exception {
+		String hash = "bcrypt";
+		Class<?> expectedBeanClass = BCryptPasswordEncoder.class;
+
+		BeanDefinition beanDefinition = PasswordEncoderParser.createPasswordEncoderBeanDefinition(hash);
+
+		Class<?> actualBeanClass = Class.forName(beanDefinition.getBeanClassName());
+		assertThat(actualBeanClass).isEqualTo(expectedBeanClass);
 	}
 
 }

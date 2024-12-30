@@ -1,0 +1,40 @@
+version: 2
+
+registries:
+  spring-milestones:
+    type: maven-repository
+    url: https://repo.spring.io/milestone
+
+updates:
+
+  - package-ecosystem: "gradle"
+    target-branch: "main"
+    directory: "/"
+    schedule:
+      interval: "daily"
+      time: "03:00"
+      timezone: "Etc/UTC"
+    labels: [ "type: dependency-upgrade" ]
+    registries:
+      - "spring-milestones"
+    ignore:
+      - dependency-name: "com.nimbusds:nimbus-jose-jwt" # nimbus-jose-jwt gets updated when oauth2-oidc-sdk is updated to ensure consistency
+      - dependency-name: "org.python:jython" # jython updates break integration tests
+      - dependency-name: "org.apache.directory.server:*" # ApacheDS version > 1.5.5 contains break changes
+      - dependency-name: "org.junit:junit-bom"
+        update-types: [ "version-update:semver-major" ]
+      - dependency-name: "org.mockito:mockito-bom"
+        update-types: [ "version-update:semver-major" ]
+      - dependency-name: "*"
+        update-types: [ "version-update:semver-major", "version-update:semver-minor" ]
+
+  #    GitHub Actions
+
+  - package-ecosystem: github-actions
+    target-branch: "main"
+    directory: "/"
+    schedule:
+      interval: weekly
+    ignore:
+      - dependency-name: "spring-io/*"
+      - dependency-name: "spring-security-release-tools/*"

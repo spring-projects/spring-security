@@ -1,0 +1,35 @@
+name: Update Antora UI Spring
+
+on:
+  schedule:
+    - cron: '0 10 * * *' # Once per day at 10am UTC
+  workflow_dispatch:
+
+permissions:
+  pull-requests: write
+  issues: write
+  contents: write
+
+jobs:
+  update-antora-ui-spring:
+    runs-on: ubuntu-latest
+    name: Update on Supported Branches
+    strategy:
+      matrix:
+        branch: [ '5.8.x', '6.2.x', '6.3.x', 'main' ]
+    steps:
+      - uses: spring-io/spring-doc-actions/update-antora-spring-ui@852920ba3fb1f28b35a2f13201133bc00ef33677
+        name: Update
+        with:
+          docs-branch: ${{ matrix.branch }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          antora-file-path: 'docs/antora-playbook.yml'
+  update-antora-ui-spring-docs-build:
+    runs-on: ubuntu-latest
+    name: Update on docs-build
+    steps:
+      - uses: spring-io/spring-doc-actions/update-antora-spring-ui@852920ba3fb1f28b35a2f13201133bc00ef33677
+        name: Update
+        with:
+          docs-branch: 'docs-build'
+          token: ${{ secrets.GITHUB_TOKEN }}

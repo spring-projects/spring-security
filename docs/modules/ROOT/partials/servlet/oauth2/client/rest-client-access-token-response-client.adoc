@@ -1,0 +1,390 @@
+To opt-in to using `{class-name}`, simply provide a bean as in the following example and it will be picked up by the default `OAuth2AuthorizedClientManager` automatically:
+
+[#oauth2-client-{section-id}-access-token-response-client-bean]
+.Access Token Response Configuration
+[tabs]
+======
+Java::
++
+[source,java,role="primary",subs="+attributes"]
+----
+@Bean
+public OAuth2AccessTokenResponseClient<{grant-request}> accessTokenResponseClient() {
+	return new {class-name}();
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary",subs="+attributes"]
+----
+@Bean
+fun accessTokenResponseClient(): OAuth2AccessTokenResponseClient<{grant-type}> {
+	return {class-name}()
+}
+----
+======
+
+[NOTE]
+====
+The new implementation will be the default in Spring Security 7.
+====
+
+`{class-name}` is very flexible and provides several options for customizing the OAuth 2.0 Access Token request and response for the {grant-type} grant.
+Choose from the following use cases to learn more:
+
+* I want to <<oauth2-client-{section-id}-access-token-request-headers,customize headers of the Access Token request>>
+* I want to <<oauth2-client-{section-id}-access-token-request-parameters,customize parameters of the Access Token request>>
+* I want to <<oauth2-client-{section-id}-access-token-response-rest-client,customize the instance of `RestClient` that is used>>
+* I want to <<oauth2-client-{section-id}-access-token-response-parameters,customize parameters of the Access Token response>>
+* I want to <<oauth2-client-{section-id}-access-token-response-errors,customize error handling of the Access Token response>>
+
+[#oauth2-client-{section-id}-access-token-request]
+== Customizing the Access Token Request
+
+`{class-name}` provides hooks for customizing HTTP headers and request parameters of the OAuth 2.0 Access Token Request.
+
+[#oauth2-client-{section-id}-access-token-request-headers]
+=== Customizing Request Headers
+
+There are two options for customizing HTTP headers:
+
+* Add additional headers by calling `addHeadersConverter()`
+* Fully customize headers by calling `setHeadersConverter()`
+
+You can include additional headers without affecting the default headers added to every request using `addHeadersConverter()`.
+The following example adds a `User-Agent` header to the request when the `registrationId` is `spring`:
+
+.Include Additional HTTP Headers
+[tabs]
+======
+Java::
++
+[source,java,role="primary",subs="+attributes"]
+----
+{class-name} accessTokenResponseClient =
+	new {class-name}();
+accessTokenResponseClient.addHeadersConverter(grantRequest -> {
+	ClientRegistration clientRegistration = grantRequest.getClientRegistration();
+	HttpHeaders headers = new HttpHeaders();
+	if (clientRegistration.getRegistrationId().equals("spring")) {
+		headers.set(HttpHeaders.USER_AGENT, "my-user-agent");
+	}
+	return headers;
+});
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary",subs="+attributes"]
+----
+val accessTokenResponseClient = {class-name}()
+accessTokenResponseClient.addHeadersConverter { grantRequest ->
+	val clientRegistration = grantRequest.getClientRegistration()
+	val headers = HttpHeaders()
+	if (clientRegistration.getRegistrationId() == "spring") {
+        headers[HttpHeaders.USER_AGENT] = "my-user-agent"
+	}
+	headers
+}
+----
+======
+
+You can fully customize headers by re-using `DefaultOAuth2TokenRequestHeadersConverter` or providing a custom implementation using `setHeadersConverter()`.
+The following example re-uses `DefaultOAuth2TokenRequestHeadersConverter` and disables `encodeClientCredentials` so that HTTP Basic credentials are no longer encoded with `application/x-www-form-urlencoded`:
+
+.Customize HTTP Headers
+[tabs]
+======
+Java::
++
+[source,java,role="primary",subs="+attributes"]
+----
+DefaultOAuth2TokenRequestHeadersConverter headersConverter =
+	new DefaultOAuth2TokenRequestHeadersConverter();
+headersConverter.setEncodeClientCredentials(false);
+
+{class-name} accessTokenResponseClient =
+	new {class-name}();
+accessTokenResponseClient.setHeadersConverter(headersConverter);
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary",subs="+attributes"]
+----
+val headersConverter = DefaultOAuth2TokenRequestHeadersConverter()
+headersConverter.setEncodeClientCredentials(false)
+
+val accessTokenResponseClient = {class-name}()
+accessTokenResponseClient.setHeadersConverter(headersConverter)
+----
+======
+
+[#oauth2-client-{section-id}-access-token-request-parameters]
+=== Customizing Request Parameters
+
+There are three options for customizing request parameters:
+
+* Add additional parameters by calling `addParametersConverter()`
+* Override parameters by calling `setParametersConverter()`
+* Fully customize parameters by calling `setParametersCustomizer()`
+
+[NOTE]
+====
+Using `setParametersConverter()` does not fully customize parameters because it would require the user to provide all default parameters themselves.
+Default parameters are always provided, but can be fully customized or omitted by calling `setParametersCustomizer()`.
+====
+
+You can include additional parameters without affecting the default parameters added to every request using `addParametersConverter()`.
+The following example adds an `audience` parameter to the request when the `registrationId` is `keycloak`:
+
+.Include Additional Request Parameters
+[tabs]
+======
+Java::
++
+[source,java,role="primary",subs="+attributes"]
+----
+{class-name} accessTokenResponseClient =
+	new {class-name}();
+accessTokenResponseClient.addParametersConverter(grantRequest -> {
+	ClientRegistration clientRegistration = grantRequest.getClientRegistration();
+	MultiValueMap<String, String> parameters = new LinkedMultiValueMap<String, String>();
+	if (clientRegistration.getRegistrationId().equals("keycloak")) {
+		parameters.set(OAuth2ParameterNames.AUDIENCE, "my-audience");
+	}
+	return parameters;
+});
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary",subs="+attributes"]
+----
+val accessTokenResponseClient = {class-name}()
+accessTokenResponseClient.addParametersConverter { grantRequest ->
+	val clientRegistration = grantRequest.getClientRegistration()
+	val parameters = LinkedMultiValueMap<String, String>()
+	if (clientRegistration.getRegistrationId() == "keycloak") {
+        parameters[OAuth2ParameterNames.AUDIENCE] = "my-audience"
+	}
+	parameters
+}
+----
+======
+
+You can override default parameters using `setParametersConverter()`.
+The following example overrides the `client_id` parameter when the `registrationId` is `okta`:
+
+.Override Request Parameters
+[tabs]
+======
+Java::
++
+[source,java,role="primary",subs="+attributes"]
+----
+{class-name} accessTokenResponseClient =
+	new {class-name}();
+accessTokenResponseClient.setParametersConverter(grantRequest -> {
+	ClientRegistration clientRegistration = grantRequest.getClientRegistration();
+	LinkedMultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
+	if (clientRegistration.getRegistrationId().equals("okta")) {
+		parameters.set(OAuth2ParameterNames.CLIENT_ID, "my-client");
+	}
+	return parameters;
+});
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary",subs="+attributes"]
+----
+val parametersConverter = DefaultOAuth2TokenRequestParametersConverter<{grant-request}>()
+parametersConverter.setParametersCustomizer { parameters ->
+	if (parameters.containsKey(OAuth2ParameterNames.CLIENT_ASSERTION)) {
+		parameters.remove(OAuth2ParameterNames.CLIENT_ID)
+	}
+}
+
+val accessTokenResponseClient = {class-name}()
+accessTokenResponseClient.setParametersConverter { grantRequest ->
+    val clientRegistration = grantRequest.getClientRegistration()
+	val parameters = LinkedMultiValueMap<String, String>()
+	if (clientRegistration.getRegistrationId() == "okta") {
+        parameters[OAuth2ParameterNames.CLIENT_ID] = "my-client"
+	}
+	parameters
+}
+----
+======
+
+You can fully customize parameters (including omitting default parameters) using `setParametersCustomizer()`.
+The following example omits the `client_id` parameter when the `client_assertion` parameter is present in the request:
+
+.Omit Request Parameters
+[tabs]
+======
+Java::
++
+[source,java,role="primary",subs="+attributes"]
+----
+{class-name} accessTokenResponseClient =
+	new {class-name}();
+accessTokenResponseClient.setParametersCustomizer(parameters -> {
+	if (parameters.containsKey(OAuth2ParameterNames.CLIENT_ASSERTION)) {
+		parameters.remove(OAuth2ParameterNames.CLIENT_ID);
+	}
+});
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary",subs="+attributes"]
+----
+val accessTokenResponseClient = {class-name}()
+accessTokenResponseClient.setParametersCustomizer { parameters ->
+	if (parameters.containsKey(OAuth2ParameterNames.CLIENT_ASSERTION)) {
+		parameters.remove(OAuth2ParameterNames.CLIENT_ID)
+	}
+}
+----
+======
+
+[#oauth2-client-{section-id}-access-token-response]
+== Customizing the Access Token Response
+
+`{class-name}` provides hooks for customizing response parameters and error handling of the OAuth 2.0 Access Token Response.
+
+[#oauth2-client-{section-id}-access-token-response-rest-client]
+=== Customizing the `WebClient`
+
+You can customize the Token Response by providing a pre-configured `RestClient` to `setRestClient()`.
+The default `RestClient` is configured as follows:
+
+.Default `RestClient` Configuration
+[tabs]
+======
+Java::
++
+[source,java,role="primary",subs="+attributes"]
+----
+RestClient restClient = RestClient.builder()
+	.messageConverters(messageConverters -> {
+		messageConverters.clear();
+		messageConverters.add(new FormHttpMessageConverter());
+		messageConverters.add(new OAuth2AccessTokenResponseHttpMessageConverter());
+	})
+	.defaultStatusHandler(new OAuth2ErrorResponseErrorHandler())
+	.build();
+
+{class-name} accessTokenResponseClient =
+	new {class-name}();
+accessTokenResponseClient.setRestClient(restClient);
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary",subs="+attributes"]
+----
+val restClient = RestClient.builder()
+	.messageConverters { messageConverters ->
+		messageConverters.clear()
+		messageConverters.add(FormHttpMessageConverter())
+		messageConverters.add(OAuth2AccessTokenResponseHttpMessageConverter())
+	}
+	.defaultStatusHandler(OAuth2ErrorResponseErrorHandler())
+	.build()
+
+val accessTokenResponseClient = {class-name}()
+accessTokenResponseClient.setRestClient(restClient)
+----
+======
+
+`OAuth2AccessTokenResponseHttpMessageConverter` is an `HttpMessageConverter` for an OAuth 2.0 Access Token Response.
+You can customize the conversion of Token Response parameters to an `OAuth2AccessTokenResponse` by calling `setAccessTokenResponseConverter()`.
+The default implementation is `DefaultMapOAuth2AccessTokenResponseConverter`.
+
+`OAuth2ErrorResponseErrorHandler` is a `ResponseErrorHandler` that can handle an OAuth 2.0 Error, such as `400 Bad Request`.
+It uses an `OAuth2ErrorHttpMessageConverter` for converting the OAuth 2.0 Error parameters to an `OAuth2Error`.
+You can customize the conversion of Token Response parameters to an `OAuth2Error` by calling `setErrorConverter()`.
+
+[TIP]
+====
+Spring MVC `FormHttpMessageConverter` is required, as it is used when sending the OAuth 2.0 Access Token Request.
+====
+
+[#oauth2-client-{section-id}-access-token-response-parameters]
+=== Customizing Response Parameters
+
+The following example provides a starting point for customizing the conversion of Token Response parameters to an `OAuth2AccessTokenResponse`:
+
+.Customize Access Token Response Converter
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+OAuth2AccessTokenResponseHttpMessageConverter accessTokenResponseMessageConverter =
+	new OAuth2AccessTokenResponseHttpMessageConverter();
+accessTokenResponseMessageConverter.setAccessTokenResponseConverter(parameters -> {
+	// ...
+	return OAuth2AccessTokenResponse.withToken("custom-token")
+		// ...
+		.build();
+});
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+val accessTokenResponseMessageConverter = OAuth2AccessTokenResponseHttpMessageConverter()
+accessTokenResponseMessageConverter.setAccessTokenResponseConverter { parameters ->
+	// ...
+	return OAuth2AccessTokenResponse.withToken("custom-token")
+		// ...
+		.build()
+}
+----
+======
+
+[#oauth2-client-{section-id}-access-token-response-errors]
+=== Customizing Error Handling
+
+The following example provides a starting point for customizing the conversion of Error parameters to an `OAuth2Error`:
+
+.Customize Access Token Error Handler
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+OAuth2ErrorHttpMessageConverter errorConverter =
+	new OAuth2ErrorHttpMessageConverter();
+errorConverter.setErrorConverter(parameters -> {
+	// ...
+	return new OAuth2Error("custom-error", "custom description", "custom-uri");
+});
+
+OAuth2ErrorResponseErrorHandler errorHandler =
+	new OAuth2ErrorResponseErrorHandler();
+errorHandler.setErrorConverter(errorConverter);
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+val errorConverter = OAuth2ErrorHttpMessageConverter()
+errorConverter.setErrorConverter { parameters ->
+	// ...
+	return OAuth2Error("custom-error", "custom description", "custom-uri")
+}
+
+val errorHandler = OAuth2ErrorResponseErrorHandler()
+errorHandler.setErrorConverter(errorConverter)
+----
+======

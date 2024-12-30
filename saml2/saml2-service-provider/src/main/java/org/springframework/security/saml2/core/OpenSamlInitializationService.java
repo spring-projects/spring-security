@@ -16,20 +16,14 @@
 
 package org.springframework.security.saml2.core;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
-import javax.xml.XMLConstants;
-
-import net.shibboleth.utilities.java.support.xml.BasicParserPool;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opensaml.core.config.ConfigurationService;
 import org.opensaml.core.config.InitializationService;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistry;
-import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
 
 import org.springframework.security.saml2.Saml2Exception;
 
@@ -124,33 +118,12 @@ public final class OpenSamlInitializationService {
 			catch (Exception ex) {
 				throw new Saml2Exception(ex);
 			}
-			BasicParserPool parserPool = new BasicParserPool();
-			parserPool.setMaxPoolSize(50);
-			parserPool.setBuilderFeatures(getParserBuilderFeatures());
-			try {
-				parserPool.initialize();
-			}
-			catch (Exception ex) {
-				throw new Saml2Exception(ex);
-			}
-			XMLObjectProviderRegistrySupport.setParserPool(parserPool);
 			registryConsumer.accept(ConfigurationService.get(XMLObjectProviderRegistry.class));
 			log.debug("Initialized OpenSAML");
 			return true;
 		}
 		log.debug("Refused to re-initialize OpenSAML");
 		return false;
-	}
-
-	private static Map<String, Boolean> getParserBuilderFeatures() {
-		Map<String, Boolean> parserBuilderFeatures = new HashMap<>();
-		parserBuilderFeatures.put("http://apache.org/xml/features/disallow-doctype-decl", Boolean.TRUE);
-		parserBuilderFeatures.put(XMLConstants.FEATURE_SECURE_PROCESSING, Boolean.TRUE);
-		parserBuilderFeatures.put("http://xml.org/sax/features/external-general-entities", Boolean.FALSE);
-		parserBuilderFeatures.put("http://apache.org/xml/features/validation/schema/normalized-value", Boolean.FALSE);
-		parserBuilderFeatures.put("http://xml.org/sax/features/external-parameter-entities", Boolean.FALSE);
-		parserBuilderFeatures.put("http://apache.org/xml/features/dom/defer-node-expansion", Boolean.FALSE);
-		return parserBuilderFeatures;
 	}
 
 }

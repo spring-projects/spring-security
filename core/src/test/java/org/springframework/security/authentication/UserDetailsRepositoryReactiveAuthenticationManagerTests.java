@@ -24,8 +24,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
+import reactor.test.StepVerifier;
 
 import org.springframework.context.MessageSource;
+import org.springframework.security.authentication.password.CompromisedPasswordDecision;
+import org.springframework.security.authentication.password.CompromisedPasswordException;
+import org.springframework.security.authentication.password.ReactiveCompromisedPasswordChecker;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsPasswordService;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
@@ -34,6 +38,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsChecker;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
@@ -220,6 +225,41 @@ public class UserDetailsRepositoryReactiveAuthenticationManagerTests {
 	}
 
 	@Test
+	public void authenticateWhenPasswordCompromisedThenException() {
+		// @formatter:off
+		UserDetails user = User.withUsername("user")
+				.password("{noop}password")
+				.roles("USER")
+				.build();
+		// @formatter:on
+		given(this.userDetailsService.findByUsername(any())).willReturn(Mono.just(user));
+		this.manager.setCompromisedPasswordChecker(new TestReactivePasswordChecker());
+		UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.unauthenticated(user,
+				"password");
+		StepVerifier.create(this.manager.authenticate(token))
+			.expectErrorSatisfies((ex) -> assertThat(ex).isInstanceOf(CompromisedPasswordException.class)
+				.withFailMessage("The provided password is compromised, please change your password"))
+			.verify();
+	}
+
+	@Test
+	public void authenticateWhenPasswordNotCompromisedThenSuccess() {
+		// @formatter:off
+		UserDetails user = User.withUsername("user")
+				.password("{noop}notcompromised")
+				.roles("USER")
+				.build();
+		// @formatter:on
+		given(this.userDetailsService.findByUsername(any())).willReturn(Mono.just(user));
+		this.manager.setCompromisedPasswordChecker(new TestReactivePasswordChecker());
+		UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.unauthenticated(user,
+				"notcompromised");
+		StepVerifier.create(this.manager.authenticate(token))
+			.assertNext((authentication) -> assertThat(authentication.getPrincipal()).isEqualTo(user))
+			.verifyComplete();
+	}
+
+	@Test
 	public void setMessageSourceWhenNullThenThrowsException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.manager.setMessageSource(null));
 	}
@@ -231,6 +271,18 @@ public class UserDetailsRepositoryReactiveAuthenticationManagerTests {
 		String code = "code";
 		this.manager.messages.getMessage(code);
 		verify(source).getMessage(eq(code), any(), any());
+	}
+
+	static class TestReactivePasswordChecker implements ReactiveCompromisedPasswordChecker {
+
+		@Override
+		public Mono<CompromisedPasswordDecision> check(String password) {
+			if ("password".equals(password)) {
+				return Mono.just(new CompromisedPasswordDecision(true));
+			}
+			return Mono.just(new CompromisedPasswordDecision(false));
+		}
+
 	}
 
 }

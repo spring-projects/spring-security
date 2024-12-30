@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -88,6 +88,7 @@ import org.springframework.util.xml.DomUtils;
  * @author Ben Alex
  * @author Luke Taylor
  * @author Rob Winch
+ * @author Ngoc Nhan
  * @since 2.0
  * @deprecated Use {@link MethodSecurityBeanDefinitionParser} instead
  */
@@ -483,13 +484,8 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
 
 		@Override
 		public final void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-			String[] grantedAuthorityDefaultsBeanNames = applicationContext
-				.getBeanNamesForType(GrantedAuthorityDefaults.class);
-			if (grantedAuthorityDefaultsBeanNames.length == 1) {
-				GrantedAuthorityDefaults grantedAuthorityDefaults = applicationContext
-					.getBean(grantedAuthorityDefaultsBeanNames[0], GrantedAuthorityDefaults.class);
-				this.rolePrefix = grantedAuthorityDefaults.getRolePrefix();
-			}
+			applicationContext.getBeanProvider(GrantedAuthorityDefaults.class)
+				.ifUnique((grantedAuthorityDefaults) -> this.rolePrefix = grantedAuthorityDefaults.getRolePrefix());
 		}
 
 	}

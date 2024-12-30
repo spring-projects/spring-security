@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,8 +26,8 @@ import org.springframework.security.authentication.AuthenticationEventPublisher;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.config.ObjectPostProcessor;
 import org.springframework.security.config.annotation.AbstractConfiguredSecurityBuilder;
-import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.SecurityBuilder;
 import org.springframework.security.config.annotation.SecurityConfigurer;
 import org.springframework.security.config.annotation.authentication.ProviderManagerBuilder;
@@ -67,9 +67,20 @@ public class AuthenticationManagerBuilder
 
 	/**
 	 * Creates a new instance
-	 * @param objectPostProcessor the {@link ObjectPostProcessor} instance to use.
+	 * @param objectPostProcessor the
+	 * {@link org.springframework.security.config.annotation.ObjectPostProcessor} instance
+	 * to use.
 	 */
 	public AuthenticationManagerBuilder(ObjectPostProcessor<Object> objectPostProcessor) {
+		super(objectPostProcessor, true);
+	}
+
+	/**
+	 * @deprecated
+	 */
+	@Deprecated(since = "6.4", forRemoval = true)
+	public AuthenticationManagerBuilder(
+			org.springframework.security.config.annotation.ObjectPostProcessor<Object> objectPostProcessor) {
 		super(objectPostProcessor, true);
 	}
 

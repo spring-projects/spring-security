@@ -16,15 +16,22 @@
 
 package org.springframework.security.config.http;
 
+import org.opensaml.core.Version;
 import org.w3c.dom.Element;
 
 import org.springframework.beans.BeanMetadataElement;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
-import org.springframework.security.saml2.provider.service.authentication.logout.OpenSamlLogoutRequestValidator;
-import org.springframework.security.saml2.provider.service.authentication.logout.OpenSamlLogoutResponseValidator;
+import org.springframework.security.saml2.provider.service.authentication.logout.OpenSaml4LogoutRequestValidator;
+import org.springframework.security.saml2.provider.service.authentication.logout.OpenSaml4LogoutResponseValidator;
+import org.springframework.security.saml2.provider.service.authentication.logout.OpenSaml5LogoutRequestValidator;
+import org.springframework.security.saml2.provider.service.authentication.logout.OpenSaml5LogoutResponseValidator;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
 import org.springframework.security.saml2.provider.service.web.authentication.logout.HttpSessionLogoutRequestRepository;
+import org.springframework.security.saml2.provider.service.web.authentication.logout.OpenSaml4LogoutRequestResolver;
+import org.springframework.security.saml2.provider.service.web.authentication.logout.OpenSaml4LogoutResponseResolver;
+import org.springframework.security.saml2.provider.service.web.authentication.logout.OpenSaml5LogoutRequestResolver;
+import org.springframework.security.saml2.provider.service.web.authentication.logout.OpenSaml5LogoutResponseResolver;
 import org.springframework.util.StringUtils;
 
 /**
@@ -32,6 +39,8 @@ import org.springframework.util.StringUtils;
  * @since 5.7
  */
 final class Saml2LogoutBeanDefinitionParserUtils {
+
+	private static final boolean USE_OPENSAML_5 = Version.getVersion().startsWith("5");
 
 	private static final String ATT_RELYING_PARTY_REGISTRATION_REPOSITORY_REF = "relying-party-registration-repository-ref";
 
@@ -62,8 +71,12 @@ final class Saml2LogoutBeanDefinitionParserUtils {
 		if (StringUtils.hasText(logoutResponseResolver)) {
 			return new RuntimeBeanReference(logoutResponseResolver);
 		}
-		return BeanDefinitionBuilder.rootBeanDefinition(
-				"org.springframework.security.saml2.provider.service.web.authentication.logout.OpenSaml4LogoutResponseResolver")
+		if (USE_OPENSAML_5) {
+			return BeanDefinitionBuilder.rootBeanDefinition(OpenSaml5LogoutResponseResolver.class)
+				.addConstructorArgValue(registrations)
+				.getBeanDefinition();
+		}
+		return BeanDefinitionBuilder.rootBeanDefinition(OpenSaml4LogoutResponseResolver.class)
 			.addConstructorArgValue(registrations)
 			.getBeanDefinition();
 	}
@@ -73,7 +86,10 @@ final class Saml2LogoutBeanDefinitionParserUtils {
 		if (StringUtils.hasText(logoutRequestValidator)) {
 			return new RuntimeBeanReference(logoutRequestValidator);
 		}
-		return BeanDefinitionBuilder.rootBeanDefinition(OpenSamlLogoutRequestValidator.class).getBeanDefinition();
+		if (USE_OPENSAML_5) {
+			return BeanDefinitionBuilder.rootBeanDefinition(OpenSaml5LogoutRequestValidator.class).getBeanDefinition();
+		}
+		return BeanDefinitionBuilder.rootBeanDefinition(OpenSaml4LogoutRequestValidator.class).getBeanDefinition();
 	}
 
 	static BeanMetadataElement getLogoutResponseValidator(Element element) {
@@ -81,7 +97,10 @@ final class Saml2LogoutBeanDefinitionParserUtils {
 		if (StringUtils.hasText(logoutResponseValidator)) {
 			return new RuntimeBeanReference(logoutResponseValidator);
 		}
-		return BeanDefinitionBuilder.rootBeanDefinition(OpenSamlLogoutResponseValidator.class).getBeanDefinition();
+		if (USE_OPENSAML_5) {
+			return BeanDefinitionBuilder.rootBeanDefinition(OpenSaml5LogoutResponseValidator.class).getBeanDefinition();
+		}
+		return BeanDefinitionBuilder.rootBeanDefinition(OpenSaml4LogoutResponseValidator.class).getBeanDefinition();
 	}
 
 	static BeanMetadataElement getLogoutRequestRepository(Element element) {
@@ -97,8 +116,12 @@ final class Saml2LogoutBeanDefinitionParserUtils {
 		if (StringUtils.hasText(logoutRequestResolver)) {
 			return new RuntimeBeanReference(logoutRequestResolver);
 		}
-		return BeanDefinitionBuilder.rootBeanDefinition(
-				"org.springframework.security.saml2.provider.service.web.authentication.logout.OpenSaml4LogoutRequestResolver")
+		if (USE_OPENSAML_5) {
+			return BeanDefinitionBuilder.rootBeanDefinition(OpenSaml5LogoutRequestResolver.class)
+				.addConstructorArgValue(registrations)
+				.getBeanDefinition();
+		}
+		return BeanDefinitionBuilder.rootBeanDefinition(OpenSaml4LogoutRequestResolver.class)
 			.addConstructorArgValue(registrations)
 			.getBeanDefinition();
 	}

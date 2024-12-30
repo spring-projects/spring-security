@@ -59,8 +59,8 @@ Cookie: SESSION=4c66e474-3f5a-43ed-8e48-cc1d8cb1d1c8
 == SecurityContextRepository
 
 // FIXME: api documentation
-In Spring Security the association of the user to future requests is made using  {security-api-url}org/springframework/security/web/context/SecurityContextRepository.html[`SecurityContextRepository`].
-The default implementation of `SecurityContextRepository` is {security-api-url}org/springframework/security/web/context/DelegatingSecurityContextRepository.html[`DelegatingSecurityContextRepository`] which delegates to the following:
+In Spring Security the association of the user to future requests is made using  javadoc:org.springframework.security.web.context.SecurityContextRepository[].
+The default implementation of `SecurityContextRepository` is javadoc:org.springframework.security.web.context.DelegatingSecurityContextRepository[] which delegates to the following:
 
 * <<httpsecuritycontextrepository,`HttpSessionSecurityContextRepository`>>
 * <<requestattributesecuritycontextrepository,`RequestAttributeSecurityContextRepository`>>
@@ -68,18 +68,18 @@ The default implementation of `SecurityContextRepository` is {security-api-url}o
 [[httpsecuritycontextrepository]]
 === HttpSessionSecurityContextRepository
 
-The {security-api-url}org/springframework/security/web/context/HttpSessionSecurityContextRepository.html[`HttpSessionSecurityContextRepository`] associates the xref:servlet/authentication/architecture.adoc#servlet-authentication-securitycontext[`SecurityContext`] to the `HttpSession`.
+The javadoc:org.springframework.security.web.context.HttpSessionSecurityContextRepository[] associates the xref:servlet/authentication/architecture.adoc#servlet-authentication-securitycontext[`SecurityContext`] to the `HttpSession`.
 Users can replace `HttpSessionSecurityContextRepository` with another implementation of `SecurityContextRepository` if they wish to associate the user with subsequent requests in another way or not at all.
 
 [[nullsecuritycontextrepository]]
 === NullSecurityContextRepository
 
-If it is not desirable to associate the `SecurityContext` to an `HttpSession` (i.e. when authenticating with OAuth) the {security-api-url}org/springframework/security/web/context/NullSecurityContextRepository.html[`NullSecurityContextRepository`] is an implementation of `SecurityContextRepository` that does nothing.
+If it is not desirable to associate the `SecurityContext` to an `HttpSession` (i.e. when authenticating with OAuth) the javadoc:org.springframework.security.web.context.NullSecurityContextRepository[] is an implementation of `SecurityContextRepository` that does nothing.
 
 [[requestattributesecuritycontextrepository]]
 === RequestAttributeSecurityContextRepository
 
-The {security-api-url}org/springframework/security/web/context/RequestAttributeSecurityContextRepository.html[`RequestAttributeSecurityContextRepository`] saves the `SecurityContext` as a request attribute to make sure the `SecurityContext` is available for a single request that occurs across dispatch types that may clear out the `SecurityContext`.
+The javadoc:org.springframework.security.web.context.RequestAttributeSecurityContextRepository[] saves the `SecurityContext` as a request attribute to make sure the `SecurityContext` is available for a single request that occurs across dispatch types that may clear out the `SecurityContext`.
 
 For example, assume that a client makes a request, is authenticated, and then an error occurs.
 Depending on the servlet container implementation, the error means that any `SecurityContext` that was established is cleared out and then the error dispatch is made.
@@ -118,7 +118,7 @@ XML::
 [[delegatingsecuritycontextrepository]]
 === DelegatingSecurityContextRepository
 
-The {security-api-url}org/springframework/security/web/context/DelegatingSecurityContextRepository.html[`DelegatingSecurityContextRepository`] saves the `SecurityContext` to multiple `SecurityContextRepository` delegates and allows retrieval from any of the delegates in a specified order.
+The javadoc:org.springframework.security.web.context.DelegatingSecurityContextRepository[] saves the `SecurityContext` to multiple `SecurityContextRepository` delegates and allows retrieval from any of the delegates in a specified order.
 
 The most useful arrangement for this is configured with the following example, which allows the use of both xref:requestattributesecuritycontextrepository[`RequestAttributeSecurityContextRepository`] and xref:httpsecuritycontextrepository[`HttpSessionSecurityContextRepository`] simultaneously.
 
@@ -189,29 +189,32 @@ In Spring Security 6, the example shown above is the default configuration.
 [[securitycontextpersistencefilter]]
 == SecurityContextPersistenceFilter
 
-The {security-api-url}org/springframework/security/web/context/SecurityContextPersistenceFilter.html[`SecurityContextPersistenceFilter`] is responsible for persisting the `SecurityContext` between requests using the xref::servlet/authentication/persistence.adoc#securitycontextrepository[`SecurityContextRepository`].
+The javadoc:org.springframework.security.web.context.SecurityContextPersistenceFilter[] is responsible for persisting the `SecurityContext` between requests using the xref::servlet/authentication/persistence.adoc#securitycontextrepository[`SecurityContextRepository`].
 
+[.invert-dark]
 image::{figures}/securitycontextpersistencefilter.png[]
 
 image:{icondir}/number_1.png[] Before running the rest of the application, `SecurityContextPersistenceFilter` loads the `SecurityContext` from the `SecurityContextRepository` and sets it on the `SecurityContextHolder`.
 
 image:{icondir}/number_2.png[] Next, the application is ran.
 
-image:{icondir}/number_3.png[] Finally, if the `SecurityContext` has changed, we save the `SecurityContext` using the `SecurityContextPersistenceRepository`.
+image:{icondir}/number_3.png[] Finally, if the `SecurityContext` has changed, we save the `SecurityContext` using the `SecurityContextRepository`.
 This means that when using `SecurityContextPersistenceFilter`, just setting the `SecurityContextHolder` will ensure that the `SecurityContext` is persisted using `SecurityContextRepository`.
 
 In some cases a response is committed and written to the client before the `SecurityContextPersistenceFilter` method completes.
 For example, if a redirect is sent to the client the response is immediately written back to the client.
 This means that establishing an `HttpSession` would not be possible in step 3 because the session id could not be included in the already written response.
-Another situation that can happen is that if a client authenticates successfully, the response is committed before `SecurityContextPersistenceFilter` completes, and the client makes a second request before the `SecurityContextPersistenceFilter` completes the wrong authentication could be present in the second request.
+Another situation that can happen is that if a client authenticates successfully, the response is committed before `SecurityContextPersistenceFilter` completes, and the client makes a second request before the `SecurityContextPersistenceFilter` completes. the wrong authentication could be present in the second request.
+
 
 To avoid these problems, the `SecurityContextPersistenceFilter` wraps both the `HttpServletRequest` and the `HttpServletResponse` to detect if the `SecurityContext` has changed and if so save the `SecurityContext` just before the response is committed.
 
 [[securitycontextholderfilter]]
 == SecurityContextHolderFilter
 
-The {security-api-url}org/springframework/security/web/context/SecurityContextHolderFilter.html[`SecurityContextHolderFilter`] is responsible for loading the `SecurityContext` between requests using the xref::servlet/authentication/persistence.adoc#securitycontextrepository[`SecurityContextRepository`].
+The javadoc:org.springframework.security.web.context.SecurityContextHolderFilter[] is responsible for loading the `SecurityContext` between requests using the xref::servlet/authentication/persistence.adoc#securitycontextrepository[`SecurityContextRepository`].
 
+[.invert-dark]
 image::{figures}/securitycontextholderfilter.png[]
 
 image:{icondir}/number_1.png[] Before running the rest of the application, `SecurityContextHolderFilter` loads the `SecurityContext` from the `SecurityContextRepository` and sets it on the `SecurityContextHolder`.

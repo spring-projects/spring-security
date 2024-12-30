@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,12 @@
 
 package org.springframework.security.config.web.server;
 
+import java.io.Serial;
 import java.util.Collections;
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.oauth2.client.oidc.authentication.logout.OidcLogoutToken;
+import org.springframework.security.oauth2.client.registration.ClientRegistration;
 
 /**
  * An {@link org.springframework.security.core.Authentication} implementation that
@@ -35,15 +37,21 @@ import org.springframework.security.oauth2.client.oidc.authentication.logout.Oid
  */
 class OidcBackChannelLogoutAuthentication extends AbstractAuthenticationToken {
 
+	@Serial
+	private static final long serialVersionUID = 9095810699956350287L;
+
 	private final OidcLogoutToken logoutToken;
+
+	private final ClientRegistration clientRegistration;
 
 	/**
 	 * Construct an {@link OidcBackChannelLogoutAuthentication}
 	 * @param logoutToken a deserialized, verified OIDC Logout Token
 	 */
-	OidcBackChannelLogoutAuthentication(OidcLogoutToken logoutToken) {
+	OidcBackChannelLogoutAuthentication(OidcLogoutToken logoutToken, ClientRegistration clientRegistration) {
 		super(Collections.emptyList());
 		this.logoutToken = logoutToken;
+		this.clientRegistration = clientRegistration;
 		setAuthenticated(true);
 	}
 
@@ -61,6 +69,10 @@ class OidcBackChannelLogoutAuthentication extends AbstractAuthenticationToken {
 	@Override
 	public OidcLogoutToken getCredentials() {
 		return this.logoutToken;
+	}
+
+	ClientRegistration getClientRegistration() {
+		return this.clientRegistration;
 	}
 
 }

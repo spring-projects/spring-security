@@ -93,7 +93,7 @@ public class SecurityContextHolderAwareRequestWrapper extends HttpServletRequest
 	 */
 	private Authentication getAuthentication() {
 		Authentication auth = this.securityContextHolderStrategy.getContext().getAuthentication();
-		return (!this.trustResolver.isAnonymous(auth)) ? auth : null;
+		return (this.trustResolver.isAuthenticated(auth)) ? auth : null;
 	}
 
 	/**

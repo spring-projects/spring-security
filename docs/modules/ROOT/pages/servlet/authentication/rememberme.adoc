@@ -50,9 +50,9 @@ If you have more than one in your application context, you need to specify which
 
 [[remember-me-persistent-token]]
 == Persistent Token Approach
-This approach is based on the article titled http://jaspan.com/improved_persistent_login_cookie_best_practice[http://jaspan.com/improved_persistent_login_cookie_best_practice], with some minor modifications. (Essentially, the username is not included in the cookie, to prevent exposing a valid login name unecessarily.
-There is a discussion on this in the comments section of this article.)
-To use the this approach with namespace configuration, supply a datasource reference:
+This approach is based on the article https://web.archive.org/web/20180819014446/http://jaspan.com/improved_persistent_login_cookie_best_practice[Improved Persistent Login Cookie Best Practice] with some minor modifications  footnote:[Essentially, the username is not included in the cookie, to prevent exposing a valid login name unnecessarily.
+There is a discussion on this in the comments section of this article.].
+To use this approach with namespace configuration, you would supply a datasource reference:
 
 [source,xml]
 ----
@@ -89,7 +89,7 @@ void loginSuccess(HttpServletRequest request, HttpServletResponse response,
 	Authentication successfulAuthentication);
 ----
 
-See the Javadoc for {security-api-url}org/springframework/security/web/authentication/RememberMeServices.html[`RememberMeServices`] for a fuller discussion on what the methods do, although note that, at this stage, `AbstractAuthenticationProcessingFilter` calls only the `loginFail()` and `loginSuccess()` methods.
+See the Javadoc for javadoc:org.springframework.security.web.authentication.RememberMeServices[] for a fuller discussion on what the methods do, although note that, at this stage, `AbstractAuthenticationProcessingFilter` calls only the `loginFail()` and `loginSuccess()` methods.
 The `autoLogin()` method is called by `RememberMeAuthenticationFilter` whenever the `SecurityContextHolder` does not contain an `Authentication`.
 This interface, therefore, provides the underlying remember-me implementation with sufficient notification of authentication-related events and delegates to the implementation whenever a candidate web request might contain a cookie and wish to be remembered.
 This design allows any number of remember-me implementation strategies.

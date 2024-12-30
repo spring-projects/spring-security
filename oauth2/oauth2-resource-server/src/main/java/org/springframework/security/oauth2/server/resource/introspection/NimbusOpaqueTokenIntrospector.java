@@ -58,7 +58,9 @@ import org.springframework.web.client.RestTemplate;
  * @author Josh Cummings
  * @author MD Sayem Ahmed
  * @since 5.2
+ * @deprecated Please use {@link SpringOpaqueTokenIntrospector} instead
  */
+@Deprecated
 public class NimbusOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 
 	private static final String AUTHORITY_PREFIX = "SCOPE_";

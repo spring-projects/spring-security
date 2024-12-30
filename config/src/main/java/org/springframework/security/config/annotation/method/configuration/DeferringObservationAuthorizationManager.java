@@ -19,17 +19,25 @@ package org.springframework.security.config.annotation.method.configuration;
 import java.util.function.Supplier;
 
 import io.micrometer.observation.ObservationRegistry;
+import org.aopalliance.intercept.MethodInvocation;
 
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.authorization.ObservationAuthorizationManager;
+import org.springframework.security.authorization.method.MethodAuthorizationDeniedHandler;
+import org.springframework.security.authorization.method.MethodInvocationResult;
+import org.springframework.security.authorization.method.ThrowingMethodAuthorizationDeniedHandler;
 import org.springframework.security.core.Authentication;
 import org.springframework.util.function.SingletonSupplier;
 
-final class DeferringObservationAuthorizationManager<T> implements AuthorizationManager<T> {
+final class DeferringObservationAuthorizationManager<T>
+		implements AuthorizationManager<T>, MethodAuthorizationDeniedHandler {
 
 	private final Supplier<AuthorizationManager<T>> delegate;
+
+	private MethodAuthorizationDeniedHandler handler = new ThrowingMethodAuthorizationDeniedHandler();
 
 	DeferringObservationAuthorizationManager(ObjectProvider<ObservationRegistry> provider,
 			AuthorizationManager<T> delegate) {
@@ -40,11 +48,25 @@ final class DeferringObservationAuthorizationManager<T> implements Authorization
 			}
 			return new ObservationAuthorizationManager<>(registry, delegate);
 		});
+		if (delegate instanceof MethodAuthorizationDeniedHandler h) {
+			this.handler = h;
+		}
 	}
 
 	@Override
 	public AuthorizationDecision check(Supplier<Authentication> authentication, T object) {
 		return this.delegate.get().check(authentication, object);
+	}
+
+	@Override
+	public Object handleDeniedInvocation(MethodInvocation methodInvocation, AuthorizationResult authorizationResult) {
+		return this.handler.handleDeniedInvocation(methodInvocation, authorizationResult);
+	}
+
+	@Override
+	public Object handleDeniedInvocationResult(MethodInvocationResult methodInvocationResult,
+			AuthorizationResult authorizationResult) {
+		return this.handler.handleDeniedInvocationResult(methodInvocationResult, authorizationResult);
 	}
 
 }

@@ -106,8 +106,7 @@ public final class AuthenticatedPrincipalServerOAuth2AuthorizedClientRepository
 	}
 
 	private boolean isPrincipalAuthenticated(Authentication authentication) {
-		return authentication != null && !this.authenticationTrustResolver.isAnonymous(authentication)
-				&& authentication.isAuthenticated();
+		return this.authenticationTrustResolver.isAuthenticated(authentication);
 	}
 
 }

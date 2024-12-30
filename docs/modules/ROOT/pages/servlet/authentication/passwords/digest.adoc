@@ -33,7 +33,7 @@ key:              A private key to prevent modification of the nonce token
 ----
 
 You need to ensure that you xref:features/authentication/password-storage.adoc#authentication-password-storage-configuration[configure] insecure plain text xref:features/authentication/password-storage.adoc#authentication-password-storage[Password Storage] using `NoOpPasswordEncoder`.
-(See the {security-api-url}org/springframework/security/crypto/password/NoOpPasswordEncoder.html[`NoOpPasswordEncoder`] class in the Javadoc.)
+(See the javadoc:org.springframework.security.crypto.password.NoOpPasswordEncoder[] class in the Javadoc.)
 The following provides an example of configuring Digest Authentication with Java Configuration:
 
 .Digest Authentication
@@ -46,16 +46,18 @@ Java::
 @Autowired
 UserDetailsService userDetailsService;
 
-DigestAuthenticationEntryPoint entryPoint() {
+DigestAuthenticationEntryPoint authenticationEntryPoint() {
 	DigestAuthenticationEntryPoint result = new DigestAuthenticationEntryPoint();
 	result.setRealmName("My App Realm");
 	result.setKey("3028472b-da34-4501-bfd8-a355c42bdf92");
+	return result;
 }
 
 DigestAuthenticationFilter digestAuthenticationFilter() {
 	DigestAuthenticationFilter result = new DigestAuthenticationFilter();
 	result.setUserDetailsService(userDetailsService);
-	result.setAuthenticationEntryPoint(entryPoint());
+	result.setAuthenticationEntryPoint(authenticationEntryPoint());
+	return result;
 }
 
 @Bean
@@ -63,7 +65,7 @@ public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 	http
 		// ...
 		.exceptionHandling(e -> e.authenticationEntryPoint(authenticationEntryPoint()))
-		.addFilterBefore(digestFilter());
+		.addFilter(digestAuthenticationFilter());
 	return http.build();
 }
 ----

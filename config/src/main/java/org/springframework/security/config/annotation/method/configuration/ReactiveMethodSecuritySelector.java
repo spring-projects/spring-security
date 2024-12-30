@@ -26,6 +26,7 @@ import org.springframework.context.annotation.AutoProxyRegistrar;
 import org.springframework.context.annotation.ImportSelector;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.lang.NonNull;
+import org.springframework.util.ClassUtils;
 
 /**
  * @author Rob Winch
@@ -33,6 +34,12 @@ import org.springframework.lang.NonNull;
  * @since 5.0
  */
 class ReactiveMethodSecuritySelector implements ImportSelector {
+
+	private static final boolean isDataPresent = ClassUtils
+		.isPresent("org.springframework.security.data.aot.hint.AuthorizeReturnObjectDataHintsRegistrar", null);
+
+	private static final boolean isObservabilityPresent = ClassUtils
+		.isPresent("io.micrometer.observation.ObservationRegistry", null);
 
 	private final ImportSelector autoProxy = new AutoProxyRegistrarSelector();
 
@@ -51,13 +58,21 @@ class ReactiveMethodSecuritySelector implements ImportSelector {
 		else {
 			imports.add(ReactiveMethodSecurityConfiguration.class.getName());
 		}
+		if (isDataPresent) {
+			imports.add(AuthorizationProxyDataConfiguration.class.getName());
+		}
+		if (isObservabilityPresent) {
+			imports.add(ReactiveMethodObservationConfiguration.class.getName());
+		}
+		imports.add(AuthorizationProxyConfiguration.class.getName());
 		return imports.toArray(new String[0]);
 	}
 
 	private static final class AutoProxyRegistrarSelector
 			extends AdviceModeImportSelector<EnableReactiveMethodSecurity> {
 
-		private static final String[] IMPORTS = new String[] { AutoProxyRegistrar.class.getName() };
+		private static final String[] IMPORTS = new String[] { AutoProxyRegistrar.class.getName(),
+				MethodSecurityAdvisorRegistrar.class.getName() };
 
 		@Override
 		protected String[] selectImports(@NonNull AdviceMode adviceMode) {

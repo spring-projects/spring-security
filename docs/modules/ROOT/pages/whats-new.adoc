@@ -1,21 +1,5 @@
 [[new]]
-= What's New in Spring Security 6.3
+= What's New in Spring Security 6.5
 
-Spring Security 6.3 provides a number of new features.
-Below are the highlights of the release.
-
-== General
-
-- https://spring.io/blog/2024/01/19/spring-security-6-3-adds-passive-jdk-serialization-deserialization-for[blog post] - Added Passive JDK Serialization/Deserialization for Seamless Upgrades
-
-== Configuration
-
-- https://github.com/spring-projects/spring-security/issues/6192[gh-6192] - xref:reactive/authentication/concurrent-sessions-control.adoc[docs] Add Concurrent Sessions Control on WebFlux
-
-== CAS
-
-- https://github.com/spring-projects/spring-security/pull/14193[gh-14193] - Added support for CAS Gateway Authentication
-
-== Crypto
-
-- https://github.com/spring-projects/spring-security/issues/14202[gh-14202] - Migrated spring-security-rsa into spring-security-crypto
+Spring Security 6.5 provides a number of new features.
+Below are the highlights of the release, or you can view https://github.com/spring-projects/spring-security/releases[the release notes] for a detailed listing of each feature and bug fix.

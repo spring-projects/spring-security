@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,20 @@
 
 package org.springframework.security.config.annotation.method.configuration;
 
-import io.micrometer.observation.ObservationRegistry;
+import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 
+import org.springframework.aop.Pointcut;
+import org.springframework.aop.framework.AopInfrastructureBean;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Fallback;
 import org.springframework.context.annotation.Role;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
@@ -36,7 +42,10 @@ import org.springframework.security.authorization.method.PostAuthorizeReactiveAu
 import org.springframework.security.authorization.method.PostFilterAuthorizationReactiveMethodInterceptor;
 import org.springframework.security.authorization.method.PreAuthorizeReactiveAuthorizationManager;
 import org.springframework.security.authorization.method.PreFilterAuthorizationReactiveMethodInterceptor;
+import org.springframework.security.authorization.method.PrePostTemplateDefaults;
+import org.springframework.security.config.ObjectPostProcessor;
 import org.springframework.security.config.core.GrantedAuthorityDefaults;
+import org.springframework.security.core.annotation.AnnotationTemplateExpressionDefaults;
 
 /**
  * Configuration for a {@link ReactiveAuthenticationManager} based Method Security.
@@ -44,43 +53,115 @@ import org.springframework.security.config.core.GrantedAuthorityDefaults;
  * @author Evgeniy Cheban
  * @since 5.8
  */
-@Configuration(proxyBeanMethods = false)
-final class ReactiveAuthorizationManagerMethodSecurityConfiguration {
+@Configuration(value = "_reactiveMethodSecurityConfiguration", proxyBeanMethods = false)
+final class ReactiveAuthorizationManagerMethodSecurityConfiguration
+		implements AopInfrastructureBean, ApplicationContextAware {
 
-	@Bean
-	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-	static PreFilterAuthorizationReactiveMethodInterceptor preFilterInterceptor(
-			MethodSecurityExpressionHandler expressionHandler) {
-		return new PreFilterAuthorizationReactiveMethodInterceptor(expressionHandler);
+	private static final Pointcut preFilterPointcut = new PreFilterAuthorizationReactiveMethodInterceptor()
+		.getPointcut();
+
+	private static final Pointcut preAuthorizePointcut = AuthorizationManagerBeforeReactiveMethodInterceptor
+		.preAuthorize()
+		.getPointcut();
+
+	private static final Pointcut postAuthorizePointcut = AuthorizationManagerAfterReactiveMethodInterceptor
+		.postAuthorize()
+		.getPointcut();
+
+	private static final Pointcut postFilterPointcut = new PostFilterAuthorizationReactiveMethodInterceptor()
+		.getPointcut();
+
+	private PreFilterAuthorizationReactiveMethodInterceptor preFilterMethodInterceptor = new PreFilterAuthorizationReactiveMethodInterceptor();
+
+	private PreAuthorizeReactiveAuthorizationManager preAuthorizeAuthorizationManager = new PreAuthorizeReactiveAuthorizationManager();
+
+	private PostAuthorizeReactiveAuthorizationManager postAuthorizeAuthorizationManager = new PostAuthorizeReactiveAuthorizationManager();
+
+	private PostFilterAuthorizationReactiveMethodInterceptor postFilterMethodInterceptor = new PostFilterAuthorizationReactiveMethodInterceptor();
+
+	private final AuthorizationManagerBeforeReactiveMethodInterceptor preAuthorizeMethodInterceptor;
+
+	private final AuthorizationManagerAfterReactiveMethodInterceptor postAuthorizeMethodInterceptor;
+
+	@Autowired(required = false)
+	ReactiveAuthorizationManagerMethodSecurityConfiguration(MethodSecurityExpressionHandler expressionHandler,
+			ObjectProvider<ObjectPostProcessor<ReactiveAuthorizationManager<MethodInvocation>>> preAuthorizePostProcessor,
+			ObjectProvider<ObjectPostProcessor<ReactiveAuthorizationManager<MethodInvocationResult>>> postAuthorizePostProcessor) {
+		if (expressionHandler != null) {
+			this.preFilterMethodInterceptor = new PreFilterAuthorizationReactiveMethodInterceptor(expressionHandler);
+			this.preAuthorizeAuthorizationManager = new PreAuthorizeReactiveAuthorizationManager(expressionHandler);
+			this.postFilterMethodInterceptor = new PostFilterAuthorizationReactiveMethodInterceptor(expressionHandler);
+			this.postAuthorizeAuthorizationManager = new PostAuthorizeReactiveAuthorizationManager(expressionHandler);
+		}
+		ReactiveAuthorizationManager<MethodInvocation> preAuthorize = preAuthorizePostProcessor
+			.getIfUnique(ObjectPostProcessor::identity)
+			.postProcess(this.preAuthorizeAuthorizationManager);
+		this.preAuthorizeMethodInterceptor = AuthorizationManagerBeforeReactiveMethodInterceptor
+			.preAuthorize(preAuthorize);
+		ReactiveAuthorizationManager<MethodInvocationResult> postAuthorize = postAuthorizePostProcessor
+			.getIfAvailable(ObjectPostProcessor::identity)
+			.postProcess(this.postAuthorizeAuthorizationManager);
+		this.postAuthorizeMethodInterceptor = AuthorizationManagerAfterReactiveMethodInterceptor
+			.postAuthorize(postAuthorize);
+	}
+
+	@Override
+	public void setApplicationContext(ApplicationContext context) throws BeansException {
+		this.preAuthorizeAuthorizationManager.setApplicationContext(context);
+		this.postAuthorizeAuthorizationManager.setApplicationContext(context);
+	}
+
+	@Autowired(required = false)
+	void setTemplateDefaults(PrePostTemplateDefaults templateDefaults) {
+		this.preFilterMethodInterceptor.setTemplateDefaults(templateDefaults);
+		this.preAuthorizeAuthorizationManager.setTemplateDefaults(templateDefaults);
+		this.postAuthorizeAuthorizationManager.setTemplateDefaults(templateDefaults);
+		this.postFilterMethodInterceptor.setTemplateDefaults(templateDefaults);
+	}
+
+	@Autowired(required = false)
+	void setTemplateDefaults(AnnotationTemplateExpressionDefaults templateDefaults) {
+		this.preFilterMethodInterceptor.setTemplateDefaults(templateDefaults);
+		this.preAuthorizeAuthorizationManager.setTemplateDefaults(templateDefaults);
+		this.postAuthorizeAuthorizationManager.setTemplateDefaults(templateDefaults);
+		this.postFilterMethodInterceptor.setTemplateDefaults(templateDefaults);
 	}
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-	static AuthorizationManagerBeforeReactiveMethodInterceptor preAuthorizeInterceptor(
-			MethodSecurityExpressionHandler expressionHandler, ObjectProvider<ObservationRegistry> registryProvider) {
-		ReactiveAuthorizationManager<MethodInvocation> authorizationManager = manager(
-				new PreAuthorizeReactiveAuthorizationManager(expressionHandler), registryProvider);
-		return AuthorizationManagerBeforeReactiveMethodInterceptor.preAuthorize(authorizationManager);
+	static MethodInterceptor preFilterAuthorizationMethodInterceptor(
+			ObjectProvider<ReactiveAuthorizationManagerMethodSecurityConfiguration> _reactiveMethodSecurityConfiguration) {
+		return new DeferringMethodInterceptor<>(preFilterPointcut,
+				() -> _reactiveMethodSecurityConfiguration.getObject().preFilterMethodInterceptor);
 	}
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-	static PostFilterAuthorizationReactiveMethodInterceptor postFilterInterceptor(
-			MethodSecurityExpressionHandler expressionHandler) {
-		return new PostFilterAuthorizationReactiveMethodInterceptor(expressionHandler);
+	static MethodInterceptor preAuthorizeAuthorizationMethodInterceptor(
+			ObjectProvider<ReactiveAuthorizationManagerMethodSecurityConfiguration> _reactiveMethodSecurityConfiguration) {
+		return new DeferringMethodInterceptor<>(preAuthorizePointcut,
+				() -> _reactiveMethodSecurityConfiguration.getObject().preAuthorizeMethodInterceptor);
 	}
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-	static AuthorizationManagerAfterReactiveMethodInterceptor postAuthorizeInterceptor(
-			MethodSecurityExpressionHandler expressionHandler, ObjectProvider<ObservationRegistry> registryProvider) {
-		ReactiveAuthorizationManager<MethodInvocationResult> authorizationManager = manager(
-				new PostAuthorizeReactiveAuthorizationManager(expressionHandler), registryProvider);
-		return AuthorizationManagerAfterReactiveMethodInterceptor.postAuthorize(authorizationManager);
+	static MethodInterceptor postFilterAuthorizationMethodInterceptor(
+			ObjectProvider<ReactiveAuthorizationManagerMethodSecurityConfiguration> _reactiveMethodSecurityConfiguration) {
+		return new DeferringMethodInterceptor<>(postFilterPointcut,
+				() -> _reactiveMethodSecurityConfiguration.getObject().postFilterMethodInterceptor);
 	}
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+	static MethodInterceptor postAuthorizeAuthorizationMethodInterceptor(
+			ObjectProvider<ReactiveAuthorizationManagerMethodSecurityConfiguration> _reactiveMethodSecurityConfiguration) {
+		return new DeferringMethodInterceptor<>(postAuthorizePointcut,
+				() -> _reactiveMethodSecurityConfiguration.getObject().postAuthorizeMethodInterceptor);
+	}
+
+	@Bean
+	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+	@Fallback
 	static DefaultMethodSecurityExpressionHandler methodSecurityExpressionHandler(
 			@Autowired(required = false) GrantedAuthorityDefaults grantedAuthorityDefaults) {
 		DefaultMethodSecurityExpressionHandler handler = new DefaultMethodSecurityExpressionHandler();
@@ -88,11 +169,6 @@ final class ReactiveAuthorizationManagerMethodSecurityConfiguration {
 			handler.setDefaultRolePrefix(grantedAuthorityDefaults.getRolePrefix());
 		}
 		return handler;
-	}
-
-	static <T> ReactiveAuthorizationManager<T> manager(ReactiveAuthorizationManager<T> delegate,
-			ObjectProvider<ObservationRegistry> registryProvider) {
-		return new DeferringObservationReactiveAuthorizationManager<>(registryProvider, delegate);
 	}
 
 }

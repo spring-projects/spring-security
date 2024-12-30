@@ -61,6 +61,7 @@ import org.springframework.util.StringUtils;
  * @author colin sampaleanu
  * @author Omri Spector
  * @author Luke Taylor
+ * @author Michal Okosy
  * @since 3.0
  */
 public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoint, InitializingBean {
@@ -76,6 +77,8 @@ public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoin
 	private boolean forceHttps = false;
 
 	private boolean useForward = false;
+
+	private boolean favorRelativeUris = false;
 
 	private final RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
 
@@ -138,7 +141,6 @@ public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoin
 		logger.debug(LogMessage.format("Server side forward to: %s", loginForm));
 		RequestDispatcher dispatcher = request.getRequestDispatcher(loginForm);
 		dispatcher.forward(request, response);
-		return;
 	}
 
 	protected String buildRedirectUrlToLoginPage(HttpServletRequest request, HttpServletResponse response,
@@ -147,27 +149,38 @@ public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoin
 		if (UrlUtils.isAbsoluteUrl(loginForm)) {
 			return loginForm;
 		}
-		int serverPort = this.portResolver.getServerPort(request);
-		String scheme = request.getScheme();
-		RedirectUrlBuilder urlBuilder = new RedirectUrlBuilder();
-		urlBuilder.setScheme(scheme);
-		urlBuilder.setServerName(request.getServerName());
-		urlBuilder.setPort(serverPort);
-		urlBuilder.setContextPath(request.getContextPath());
-		urlBuilder.setPathInfo(loginForm);
-		if (this.forceHttps && "http".equals(scheme)) {
-			Integer httpsPort = this.portMapper.lookupHttpsPort(serverPort);
-			if (httpsPort != null) {
-				// Overwrite scheme and port in the redirect URL
-				urlBuilder.setScheme("https");
-				urlBuilder.setPort(httpsPort);
-			}
-			else {
-				logger.warn(LogMessage.format("Unable to redirect to HTTPS as no port mapping found for HTTP port %s",
-						serverPort));
-			}
+		if (requiresRewrite(request)) {
+			return httpsUri(request, loginForm);
 		}
-		return urlBuilder.getUrl();
+		return this.favorRelativeUris ? loginForm : absoluteUri(request, loginForm).getUrl();
+	}
+
+	private boolean requiresRewrite(HttpServletRequest request) {
+		return this.forceHttps && "http".equals(request.getScheme());
+	}
+
+	private String httpsUri(HttpServletRequest request, String path) {
+		int serverPort = this.portResolver.getServerPort(request);
+		Integer httpsPort = this.portMapper.lookupHttpsPort(serverPort);
+		if (httpsPort == null) {
+			logger.warn(LogMessage.format("Unable to redirect to HTTPS as no port mapping found for HTTP port %s",
+					serverPort));
+			return this.favorRelativeUris ? path : absoluteUri(request, path).getUrl();
+		}
+		RedirectUrlBuilder builder = absoluteUri(request, path);
+		builder.setScheme("https");
+		builder.setPort(httpsPort);
+		return builder.getUrl();
+	}
+
+	private RedirectUrlBuilder absoluteUri(HttpServletRequest request, String path) {
+		RedirectUrlBuilder urlBuilder = new RedirectUrlBuilder();
+		urlBuilder.setScheme(request.getScheme());
+		urlBuilder.setServerName(request.getServerName());
+		urlBuilder.setPort(this.portResolver.getServerPort(request));
+		urlBuilder.setContextPath(request.getContextPath());
+		urlBuilder.setPathInfo(path);
+		return urlBuilder;
 	}
 
 	/**
@@ -243,6 +256,20 @@ public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoin
 
 	protected boolean isUseForward() {
 		return this.useForward;
+	}
+
+	/**
+	 * Favor using relative URIs when formulating a redirect.
+	 *
+	 * <p>
+	 * Note that a relative redirect is not always possible. For example, when redirecting
+	 * from {@code http} to {@code https}, the URL needs to be absolute.
+	 * </p>
+	 * @param favorRelativeUris whether to favor relative URIs or not
+	 * @since 6.5
+	 */
+	public void setFavorRelativeUris(boolean favorRelativeUris) {
+		this.favorRelativeUris = favorRelativeUris;
 	}
 
 }

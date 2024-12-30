@@ -22,6 +22,7 @@ This also gives a good idea of the high level flow of authentication and how pie
 At the heart of Spring Security's authentication model is the `SecurityContextHolder`.
 It contains the <<servlet-authentication-securitycontext>>.
 
+[.invert-dark]
 image::{figures}/securitycontextholder.png[]
 
 The `SecurityContextHolder` is where Spring Security stores the details of who is xref:features/authentication/index.adoc#authentication[authenticated].
@@ -117,13 +118,13 @@ However, if you do, take a look at the JavaDoc for `SecurityContextHolder` to le
 [[servlet-authentication-securitycontext]]
 == SecurityContext
 
-The {security-api-url}org/springframework/security/core/context/SecurityContext.html[`SecurityContext`] is obtained from the <<servlet-authentication-securitycontextholder>>.
+The javadoc:org.springframework.security.core.context.SecurityContext[] is obtained from the <<servlet-authentication-securitycontextholder>>.
 The `SecurityContext` contains an <<servlet-authentication-authentication>> object.
 
 [[servlet-authentication-authentication]]
 == Authentication
 
-The {security-api-url}org/springframework/security/core/Authentication.html[`Authentication`] interface serves two main purposes within Spring Security:
+The javadoc:org.springframework.security.core.Authentication[] interface serves two main purposes within Spring Security:
 
 * An input to <<servlet-authentication-authenticationmanager,`AuthenticationManager`>> to provide the credentials a user has provided to authenticate.
 When used in this scenario, `isAuthenticated()` returns `false`.
@@ -141,7 +142,7 @@ Two examples are roles and scopes.
 
 [[servlet-authentication-granted-authority]]
 == GrantedAuthority
-{security-api-url}org/springframework/security/core/GrantedAuthority.html[`GrantedAuthority`] instances are high-level permissions that the user is granted.
+javadoc:org.springframework.security.core.GrantedAuthority[] instances are high-level permissions that the user is granted.
 Two examples are roles and scopes.
 
 You can obtain `GrantedAuthority` instances from the <<servlet-authentication-authentication,`Authentication.getAuthorities()`>> method.
@@ -160,7 +161,7 @@ Of course, Spring Security is expressly designed to handle this common requireme
 [[servlet-authentication-authenticationmanager]]
 == AuthenticationManager
 
-{security-api-url}org/springframework/security/authentication/AuthenticationManager.html[`AuthenticationManager`] is the API that defines how Spring Security's Filters perform  xref:features/authentication/index.adoc#authentication[authentication].
+javadoc:org.springframework.security.authentication.AuthenticationManager[] is the API that defines how Spring Security's Filters perform  xref:features/authentication/index.adoc#authentication[authentication].
 The <<servlet-authentication-authentication,`Authentication`>> that is returned is then set on the <<servlet-authentication-securitycontextholder>> by the controller (that is, by xref:servlet/architecture.adoc#servlet-security-filters[Spring Security's `Filters` instances]) that invoked the `AuthenticationManager`.
 If you are not integrating with Spring Security's `Filters` instances, you can set the `SecurityContextHolder` directly and are not required to use an `AuthenticationManager`.
 
@@ -170,11 +171,12 @@ While the implementation of `AuthenticationManager` could be anything, the most 
 [[servlet-authentication-providermanager]]
 == ProviderManager
 
-{security-api-url}org/springframework/security/authentication/ProviderManager.html[`ProviderManager`] is the most commonly used implementation of <<servlet-authentication-authenticationmanager,`AuthenticationManager`>>.
+javadoc:org.springframework.security.authentication.ProviderManager[] is the most commonly used implementation of <<servlet-authentication-authenticationmanager,`AuthenticationManager`>>.
 `ProviderManager` delegates to a `List` of <<servlet-authentication-authenticationprovider,`AuthenticationProvider`>> instances.
 Each `AuthenticationProvider` has an opportunity to indicate that authentication should be successful, fail, or indicate it cannot make a decision and allow a downstream `AuthenticationProvider` to decide.
 If none of the configured `AuthenticationProvider` instances can authenticate, authentication fails with a `ProviderNotFoundException`, which is a special `AuthenticationException` that indicates that the `ProviderManager` was not configured to support the type of `Authentication` that was passed into it.
 
+[.invert-dark]
 image::{figures}/providermanager.png[]
 
 In practice each `AuthenticationProvider` knows how to perform a specific type of authentication.
@@ -184,35 +186,43 @@ This lets each `AuthenticationProvider` do a very specific type of authenticatio
 `ProviderManager` also allows configuring an optional parent `AuthenticationManager`, which is consulted in the event that no `AuthenticationProvider` can perform authentication.
 The parent can be any type of `AuthenticationManager`, but it is often an instance of `ProviderManager`.
 
+[.invert-dark]
 image::{figures}/providermanager-parent.png[]
 
 In fact, multiple `ProviderManager` instances might share the same parent `AuthenticationManager`.
 This is somewhat common in scenarios where there are multiple xref:servlet/architecture.adoc#servlet-securityfilterchain[`SecurityFilterChain`] instances that have some authentication in common (the shared parent `AuthenticationManager`), but also different authentication mechanisms (the different `ProviderManager` instances).
 
+[.invert-dark]
 image::{figures}/providermanagers-parent.png[]
 
 [[servlet-authentication-providermanager-erasing-credentials]]
 By default, `ProviderManager` tries to clear any sensitive credentials information from the `Authentication` object that is returned by a successful authentication request.
 This prevents information, such as passwords, being retained longer than necessary in the `HttpSession`.
 
+[NOTE]
+====
+The `CredentialsContainer` interface plays a critical role in the authentication process.
+It allows for the erasure of credential information once it is no longer needed, thereby enhancing security by ensuring sensitive data is not retained longer than necessary.
+====
+
 This may cause issues when you use a cache of user objects, for example, to improve performance in a stateless application.
 If the `Authentication` contains a reference to an object in the cache (such as a `UserDetails` instance) and this has its credentials removed, it is no longer possible to authenticate against the cached value.
 You need to take this into account if you use a cache.
 An obvious solution is to first make a copy of the object, either in the cache implementation or in the `AuthenticationProvider` that creates the returned `Authentication` object.
 Alternatively, you can disable the `eraseCredentialsAfterAuthentication` property on `ProviderManager`.
-See the Javadoc for the {security-api-url}org/springframework/security/authentication/ProviderManager.html[ProviderManager] class.
+See the Javadoc for the javadoc:org.springframework.security.authentication.ProviderManager[] class.
 
 [[servlet-authentication-authenticationprovider]]
 == AuthenticationProvider
 
-You can inject multiple {security-api-url}org/springframework/security/authentication/AuthenticationProvider.html[``AuthenticationProvider``s] instances into <<servlet-authentication-providermanager,`ProviderManager`>>.
+You can inject multiple javadoc:org.springframework.security.authentication.AuthenticationProvider[] instances into <<servlet-authentication-providermanager,`ProviderManager`>>.
 Each `AuthenticationProvider` performs a specific type of authentication.
 For example, xref:servlet/authentication/passwords/dao-authentication-provider.adoc#servlet-authentication-daoauthenticationprovider[`DaoAuthenticationProvider`] supports username/password-based authentication, while `JwtAuthenticationProvider` supports authenticating a JWT token.
 
 [[servlet-authentication-authenticationentrypoint]]
 == Request Credentials with `AuthenticationEntryPoint`
 
-{security-api-url}org/springframework/security/web/AuthenticationEntryPoint.html[`AuthenticationEntryPoint`] is used to send an HTTP response that requests credentials from a client.
+javadoc:org.springframework.security.web.AuthenticationEntryPoint[] is used to send an HTTP response that requests credentials from a client.
 
 Sometimes, a client proactively includes credentials (such as a username and password) to request a resource.
 In these cases, Spring Security does not need to provide an HTTP response that requests credentials from the client, since they are already included.
@@ -229,11 +239,12 @@ The `AuthenticationEntryPoint` implementation might perform a xref:servlet/authe
 [[servlet-authentication-abstractprocessingfilter]]
 == AbstractAuthenticationProcessingFilter
 
-{security-api-url}org/springframework/security/web/authentication/AbstractAuthenticationProcessingFilter.html[`AbstractAuthenticationProcessingFilter`] is used as a base `Filter` for authenticating a user's credentials.
+javadoc:org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter[] is used as a base `Filter` for authenticating a user's credentials.
 Before the credentials can be authenticated, Spring Security typically requests the credentials by using <<servlet-authentication-authenticationentrypoint,`AuthenticationEntryPoint`>>.
 
 Next, the `AbstractAuthenticationProcessingFilter` can authenticate any authentication requests that are submitted to it.
 
+[.invert-dark]
 image::{figures}/abstractauthenticationprocessingfilter.png[]
 
 image:{icondir}/number_1.png[] When the user submits their credentials, the `AbstractAuthenticationProcessingFilter` creates an <<servlet-authentication-authentication,`Authentication`>> from the `HttpServletRequest` to be authenticated.
@@ -247,24 +258,24 @@ image:{icondir}/number_3.png[] If authentication fails, then __Failure__.
 * The <<servlet-authentication-securitycontextholder>> is cleared out.
 * `RememberMeServices.loginFail` is invoked.
 If remember me is not configured, this is a no-op.
-See the {security-api-url}org/springframework/security/web/authentication/rememberme/package-frame.html[`rememberme`] package.
+See the javadoc:org.springframework.security.web.authentication.rememberme.package-summary[rememberme] package.
 * `AuthenticationFailureHandler` is invoked.
-See the {security-api-url}org/springframework/security/web/authentication/AuthenticationFailureHandler.html[`AuthenticationFailureHandler`] interface.
+See the javadoc:org.springframework.security.web.authentication.AuthenticationFailureHandler[] interface.
 
 image:{icondir}/number_4.png[] If authentication is successful, then __Success__.
 
 * `SessionAuthenticationStrategy` is notified of a new login.
-See the {security-api-url}org/springframework/security/web/authentication/session/SessionAuthenticationStrategy.html[`SessionAuthenticationStrategy`] interface.
+See the javadoc:org.springframework.security.web.authentication.session.SessionAuthenticationStrategy[] interface.
 * The <<servlet-authentication-authentication>> is set on the <<servlet-authentication-securitycontextholder>>.
 Later, if you need to save the `SecurityContext` so that it can be automatically set on future requests, `SecurityContextRepository#saveContext` must be explicitly invoked.
-See the {security-api-url}org/springframework/security/web/context/SecurityContextHolderFilter.html[`SecurityContextHolderFilter`] class.
+See the javadoc:org.springframework.security.web.context.SecurityContextHolderFilter[] class.
 
 * `RememberMeServices.loginSuccess` is invoked.
 If remember me is not configured, this is a no-op.
-See the {security-api-url}org/springframework/security/web/authentication/rememberme/package-frame.html[`rememberme`] package.
+See the javadoc:org.springframework.security.web.authentication.rememberme.package-summary[rememberme] package.
 * `ApplicationEventPublisher` publishes an `InteractiveAuthenticationSuccessEvent`.
 * `AuthenticationSuccessHandler` is invoked.
-See the {security-api-url}org/springframework/security/web/authentication/AuthenticationSuccessHandler.html[`AuthenticationSuccessHandler`] interface.
+See the javadoc:org.springframework.security.web.authentication.AuthenticationSuccessHandler[] interface.
 
 
 // daoauthenticationprovider (goes in username/password)

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,17 @@
 
 package org.springframework.security.config.annotation.authentication.configuration;
 
+import java.util.Arrays;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.authentication.password.CompromisedPasswordChecker;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.userdetails.UserDetailsPasswordService;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -31,6 +38,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
  * {@link PasswordEncoder} is defined will wire this up too.
  *
  * @author Rob Winch
+ * @author Ngoc Nhan
  * @since 4.1
  */
 @Order(InitializeUserDetailsBeanManagerConfigurer.DEFAULT_ORDER)
@@ -54,27 +62,53 @@ class InitializeUserDetailsBeanManagerConfigurer extends GlobalAuthenticationCon
 
 	class InitializeUserDetailsManagerConfigurer extends GlobalAuthenticationConfigurerAdapter {
 
+		private final Log logger = LogFactory.getLog(getClass());
+
 		@Override
 		public void configure(AuthenticationManagerBuilder auth) throws Exception {
+			String[] beanNames = InitializeUserDetailsBeanManagerConfigurer.this.context
+				.getBeanNamesForType(UserDetailsService.class);
 			if (auth.isConfigured()) {
+				if (beanNames.length > 0) {
+					this.logger.warn("Global AuthenticationManager configured with an AuthenticationProvider bean. "
+							+ "UserDetailsService beans will not be used by Spring Security for automatically configuring username/password login. "
+							+ "Consider removing the AuthenticationProvider bean. "
+							+ "Alternatively, consider using the UserDetailsService in a manually instantiated DaoAuthenticationProvider. "
+							+ "If the current configuration is intentional, to turn off this warning, "
+							+ "increase the logging level of 'org.springframework.security.config.annotation.authentication.configuration.InitializeUserDetailsBeanManagerConfigurer' to ERROR");
+				}
 				return;
 			}
-			UserDetailsService userDetailsService = getBeanOrNull(UserDetailsService.class);
-			if (userDetailsService == null) {
+
+			if (beanNames.length == 0) {
 				return;
 			}
+			else if (beanNames.length > 1) {
+				this.logger.warn(LogMessage.format("Found %s UserDetailsService beans, with names %s. "
+						+ "Global Authentication Manager will not use a UserDetailsService for username/password login. "
+						+ "Consider publishing a single UserDetailsService bean.", beanNames.length,
+						Arrays.toString(beanNames)));
+				return;
+			}
+			UserDetailsService userDetailsService = InitializeUserDetailsBeanManagerConfigurer.this.context
+				.getBean(beanNames[0], UserDetailsService.class);
 			PasswordEncoder passwordEncoder = getBeanOrNull(PasswordEncoder.class);
 			UserDetailsPasswordService passwordManager = getBeanOrNull(UserDetailsPasswordService.class);
-			DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-			provider.setUserDetailsService(userDetailsService);
+			CompromisedPasswordChecker passwordChecker = getBeanOrNull(CompromisedPasswordChecker.class);
+			DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsService);
 			if (passwordEncoder != null) {
 				provider.setPasswordEncoder(passwordEncoder);
 			}
 			if (passwordManager != null) {
 				provider.setUserDetailsPasswordService(passwordManager);
 			}
+			if (passwordChecker != null) {
+				provider.setCompromisedPasswordChecker(passwordChecker);
+			}
 			provider.afterPropertiesSet();
 			auth.authenticationProvider(provider);
+			this.logger.info(LogMessage.format(
+					"Global AuthenticationManager configured with UserDetailsService bean with name %s", beanNames[0]));
 		}
 
 		/**
@@ -82,11 +116,7 @@ class InitializeUserDetailsBeanManagerConfigurer extends GlobalAuthenticationCon
 		 * component, null otherwise.
 		 */
 		private <T> T getBeanOrNull(Class<T> type) {
-			String[] beanNames = InitializeUserDetailsBeanManagerConfigurer.this.context.getBeanNamesForType(type);
-			if (beanNames.length != 1) {
-				return null;
-			}
-			return InitializeUserDetailsBeanManagerConfigurer.this.context.getBean(beanNames[0], type);
+			return InitializeUserDetailsBeanManagerConfigurer.this.context.getBeanProvider(type).getIfUnique();
 		}
 
 	}

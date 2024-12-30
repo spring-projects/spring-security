@@ -59,6 +59,7 @@ public class AuthenticatedVoterTests {
 		assertThat(AccessDecisionVoter.ACCESS_GRANTED).isEqualTo(voter.vote(createAnonymous(), null, def));
 		assertThat(AccessDecisionVoter.ACCESS_GRANTED).isEqualTo(voter.vote(createRememberMe(), null, def));
 		assertThat(AccessDecisionVoter.ACCESS_GRANTED).isEqualTo(voter.vote(createFullyAuthenticated(), null, def));
+		assertThat(AccessDecisionVoter.ACCESS_DENIED).isEqualTo(voter.vote(null, null, def));
 	}
 
 	@Test
@@ -68,6 +69,7 @@ public class AuthenticatedVoterTests {
 		assertThat(AccessDecisionVoter.ACCESS_DENIED).isEqualTo(voter.vote(createAnonymous(), null, def));
 		assertThat(AccessDecisionVoter.ACCESS_DENIED).isEqualTo(voter.vote(createRememberMe(), null, def));
 		assertThat(AccessDecisionVoter.ACCESS_GRANTED).isEqualTo(voter.vote(createFullyAuthenticated(), null, def));
+		assertThat(AccessDecisionVoter.ACCESS_DENIED).isEqualTo(voter.vote(null, null, def));
 	}
 
 	@Test
@@ -77,6 +79,7 @@ public class AuthenticatedVoterTests {
 		assertThat(AccessDecisionVoter.ACCESS_DENIED).isEqualTo(voter.vote(createAnonymous(), null, def));
 		assertThat(AccessDecisionVoter.ACCESS_GRANTED).isEqualTo(voter.vote(createRememberMe(), null, def));
 		assertThat(AccessDecisionVoter.ACCESS_GRANTED).isEqualTo(voter.vote(createFullyAuthenticated(), null, def));
+		assertThat(AccessDecisionVoter.ACCESS_DENIED).isEqualTo(voter.vote(null, null, def));
 	}
 
 	@Test

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,8 @@ import java.util.List;
 
 import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
+import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 
 /**
  * Provides factory methods for creating {@code OAuth2TokenValidator<Jwt>}
@@ -50,10 +52,7 @@ public final class JwtValidators {
 	 * supplied
 	 */
 	public static OAuth2TokenValidator<Jwt> createDefaultWithIssuer(String issuer) {
-		List<OAuth2TokenValidator<Jwt>> validators = new ArrayList<>();
-		validators.add(new JwtTimestampValidator());
-		validators.add(new JwtIssuerValidator(issuer));
-		return new DelegatingOAuth2TokenValidator<>(validators);
+		return createDefaultWithValidators(new JwtIssuerValidator(issuer));
 	}
 
 	/**
@@ -69,7 +68,52 @@ public final class JwtValidators {
 	 * supplied
 	 */
 	public static OAuth2TokenValidator<Jwt> createDefault() {
-		return new DelegatingOAuth2TokenValidator<>(Arrays.asList(new JwtTimestampValidator()));
+		return new DelegatingOAuth2TokenValidator<>(
+				Arrays.asList(new JwtTimestampValidator(), new X509CertificateThumbprintValidator(
+						X509CertificateThumbprintValidator.DEFAULT_X509_CERTIFICATE_SUPPLIER)));
+	}
+
+	/**
+	 * <p>
+	 * Create a {@link Jwt} default validator with standard validators and additional
+	 * validators.
+	 * </p>
+	 * @param validators additional validators
+	 * @return - a delegating validator containing all standard validators with additional
+	 * validators
+	 * @since 6.3
+	 */
+	public static OAuth2TokenValidator<Jwt> createDefaultWithValidators(List<OAuth2TokenValidator<Jwt>> validators) {
+		Assert.notEmpty(validators, "validators cannot be null or empty");
+		List<OAuth2TokenValidator<Jwt>> tokenValidators = new ArrayList<>(validators);
+		X509CertificateThumbprintValidator x509CertificateThumbprintValidator = CollectionUtils
+			.findValueOfType(tokenValidators, X509CertificateThumbprintValidator.class);
+		if (x509CertificateThumbprintValidator == null) {
+			tokenValidators.add(0, new X509CertificateThumbprintValidator(
+					X509CertificateThumbprintValidator.DEFAULT_X509_CERTIFICATE_SUPPLIER));
+		}
+		JwtTimestampValidator jwtTimestampValidator = CollectionUtils.findValueOfType(tokenValidators,
+				JwtTimestampValidator.class);
+		if (jwtTimestampValidator == null) {
+			tokenValidators.add(0, new JwtTimestampValidator());
+		}
+		return new DelegatingOAuth2TokenValidator<>(tokenValidators);
+	}
+
+	/**
+	 * <p>
+	 * Create a {@link Jwt} default validator with standard validators and additional
+	 * validators.
+	 * </p>
+	 * @param validators additional validators
+	 * @return - a delegating validator containing all standard validators with additional
+	 * validators
+	 * @since 6.3
+	 */
+	public static OAuth2TokenValidator<Jwt> createDefaultWithValidators(OAuth2TokenValidator<Jwt>... validators) {
+		Assert.notEmpty(validators, "validators cannot be null or empty");
+		List<OAuth2TokenValidator<Jwt>> tokenValidators = new ArrayList<>(Arrays.asList(validators));
+		return createDefaultWithValidators(tokenValidators);
 	}
 
 }

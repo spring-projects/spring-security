@@ -54,7 +54,9 @@ import org.springframework.web.reactive.function.client.WebClient;
  *
  * @author Josh Cummings
  * @since 5.2
+ * @deprecated Please use {@link SpringReactiveOpaqueTokenIntrospector} instead
  */
+@Deprecated
 public class NimbusReactiveOpaqueTokenIntrospector implements ReactiveOpaqueTokenIntrospector {
 
 	private static final String AUTHORITY_PREFIX = "SCOPE_";

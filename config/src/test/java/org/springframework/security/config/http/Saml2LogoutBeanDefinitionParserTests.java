@@ -63,6 +63,7 @@ import org.springframework.web.util.UriUtils;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.verify;
@@ -378,6 +379,22 @@ public class Saml2LogoutBeanDefinitionParserTests {
 			.willReturn(Saml2LogoutValidatorResult.success());
 		this.mvc.perform(get("/logout/saml2/slo").param("SAMLResponse", "samlResponse")).andReturn();
 		verify(getBean(Saml2LogoutResponseValidator.class)).validate(any());
+	}
+
+	// gh-11363
+	@Test
+	public void saml2LogoutWhenCustomLogoutRequestRepositoryThenUses() throws Exception {
+		this.spring.configLocations(this.xml("CustomComponents")).autowire();
+		RelyingPartyRegistration registration = this.repository.findByRegistrationId("get");
+		Saml2LogoutRequest logoutRequest = Saml2LogoutRequest.withRelyingPartyRegistration(registration)
+			.samlRequest(this.rpLogoutRequest)
+			.id(this.rpLogoutRequestId)
+			.relayState(this.rpLogoutRequestRelayState)
+			.parameters((params) -> params.put("Signature", this.rpLogoutRequestSignature))
+			.build();
+		given(getBean(Saml2LogoutRequestResolver.class).resolve(any(), any())).willReturn(logoutRequest);
+		this.mvc.perform(post("/logout").with(authentication(this.saml2User)).with(csrf()));
+		verify(getBean(Saml2LogoutRequestRepository.class)).saveLogoutRequest(eq(logoutRequest), any(), any());
 	}
 
 	private <T> T getBean(Class<T> clazz) {

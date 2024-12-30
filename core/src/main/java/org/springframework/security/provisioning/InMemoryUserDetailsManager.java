@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package org.springframework.security.provisioning;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 
@@ -30,6 +31,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.CredentialsContainer;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.core.userdetails.User;
@@ -96,23 +98,33 @@ public class InMemoryUserDetailsManager implements UserDetailsManager, UserDetai
 	@Override
 	public void createUser(UserDetails user) {
 		Assert.isTrue(!userExists(user.getUsername()), "user should not exist");
-		this.users.put(user.getUsername().toLowerCase(), new MutableUser(user));
+		if (user instanceof MutableUserDetails mutable) {
+			this.users.put(user.getUsername().toLowerCase(Locale.ROOT), mutable);
+		}
+		else {
+			this.users.put(user.getUsername().toLowerCase(Locale.ROOT), new MutableUser(user));
+		}
 	}
 
 	@Override
 	public void deleteUser(String username) {
-		this.users.remove(username.toLowerCase());
+		this.users.remove(username.toLowerCase(Locale.ROOT));
 	}
 
 	@Override
 	public void updateUser(UserDetails user) {
 		Assert.isTrue(userExists(user.getUsername()), "user should exist");
-		this.users.put(user.getUsername().toLowerCase(), new MutableUser(user));
+		if (user instanceof MutableUserDetails mutable) {
+			this.users.put(user.getUsername().toLowerCase(Locale.ROOT), mutable);
+		}
+		else {
+			this.users.put(user.getUsername().toLowerCase(Locale.ROOT), new MutableUser(user));
+		}
 	}
 
 	@Override
 	public boolean userExists(String username) {
-		return this.users.containsKey(username.toLowerCase());
+		return this.users.containsKey(username.toLowerCase(Locale.ROOT));
 	}
 
 	@Override
@@ -143,16 +155,19 @@ public class InMemoryUserDetailsManager implements UserDetailsManager, UserDetai
 	@Override
 	public UserDetails updatePassword(UserDetails user, String newPassword) {
 		String username = user.getUsername();
-		MutableUserDetails mutableUser = this.users.get(username.toLowerCase());
+		MutableUserDetails mutableUser = this.users.get(username.toLowerCase(Locale.ROOT));
 		mutableUser.setPassword(newPassword);
 		return mutableUser;
 	}
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		UserDetails user = this.users.get(username.toLowerCase());
+		UserDetails user = this.users.get(username.toLowerCase(Locale.ROOT));
 		if (user == null) {
 			throw new UsernameNotFoundException(username);
+		}
+		if (user instanceof CredentialsContainer) {
+			return user;
 		}
 		return new User(user.getUsername(), user.getPassword(), user.isEnabled(), user.isAccountNonExpired(),
 				user.isCredentialsNonExpired(), user.isAccountNonLocked(), user.getAuthorities());

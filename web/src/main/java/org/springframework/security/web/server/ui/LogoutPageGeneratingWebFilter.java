@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -69,36 +69,44 @@ public class LogoutPageGeneratingWebFilter implements WebFilter {
 	}
 
 	private static byte[] createPage(String csrfTokenHtmlInput, String contextPath) {
-		StringBuilder page = new StringBuilder();
-		page.append("<!DOCTYPE html>\n");
-		page.append("<html lang=\"en\">\n");
-		page.append("  <head>\n");
-		page.append("    <meta charset=\"utf-8\">\n");
-		page.append("    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\">\n");
-		page.append("    <meta name=\"description\" content=\"\">\n");
-		page.append("    <meta name=\"author\" content=\"\">\n");
-		page.append("    <title>Confirm Log Out?</title>\n");
-		page.append("    <link href=\"https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css\" "
-				+ "rel=\"stylesheet\" integrity=\"sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M\" crossorigin=\"anonymous\">\n");
-		page.append("    <link href=\"https://getbootstrap.com/docs/4.0/examples/signin/signin.css\" "
-				+ "rel=\"stylesheet\" integrity=\"sha384-oOE/3m0LUMPub4kaC09mrdEhIc+e3exm4xOGxAmuFXhBNF4hcg/6MiAXAf5p0P56\" crossorigin=\"anonymous\"/>\n");
-		page.append("  </head>\n");
-		page.append("  <body>\n");
-		page.append("     <div class=\"container\">\n");
-		page.append("      <form class=\"form-signin\" method=\"post\" action=\"" + contextPath + "/logout\">\n");
-		page.append("        <h2 class=\"form-signin-heading\">Are you sure you want to log out?</h2>\n");
-		page.append(csrfTokenHtmlInput);
-		page.append("        <button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\">Log Out</button>\n");
-		page.append("      </form>\n");
-		page.append("    </div>\n");
-		page.append("  </body>\n");
-		page.append("</html>");
-		return page.toString().getBytes(Charset.defaultCharset());
+		return HtmlTemplates.fromTemplate(LOGOUT_PAGE_TEMPLATE)
+			.withValue("contextPath", contextPath)
+			.withRawHtml("csrf", csrfTokenHtmlInput.indent(8))
+			.render()
+			.getBytes(Charset.defaultCharset());
 	}
 
 	private static String csrfToken(CsrfToken token) {
-		return "          <input type=\"hidden\" name=\"" + token.getParameterName() + "\" value=\"" + token.getToken()
-				+ "\">\n";
+		return HtmlTemplates.fromTemplate(CSRF_INPUT_TEMPLATE)
+			.withValue("name", token.getParameterName())
+			.withValue("value", token.getToken())
+			.render();
 	}
+
+	private static final String LOGOUT_PAGE_TEMPLATE = """
+			<!DOCTYPE html>
+			<html lang="en">
+			  <head>
+			    <meta charset="utf-8">
+			    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+			    <meta name="description" content="">
+			    <meta name="author" content="">
+			    <title>Confirm Log Out?</title>
+			    <link href="{{contextPath}}/default-ui.css" rel="stylesheet" />
+			  </head>
+			  <body>
+			    <div class="content">
+			      <form class="logout-form" method="post" action="{{contextPath}}/logout">
+			        <h2>Are you sure you want to log out?</h2>
+			{{csrf}}
+			        <button class="primary" type="submit">Log Out</button>
+			      </form>
+			    </div>
+			  </body>
+			</html>""";
+
+	private static final String CSRF_INPUT_TEMPLATE = """
+			<input name="{{name}}" type="hidden" value="{{value}}" />
+			""";
 
 }

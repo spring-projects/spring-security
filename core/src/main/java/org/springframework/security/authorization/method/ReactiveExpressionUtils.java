@@ -21,6 +21,8 @@ import reactor.core.publisher.Mono;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.EvaluationException;
 import org.springframework.expression.Expression;
+import org.springframework.security.authorization.AuthorizationResult;
+import org.springframework.security.authorization.ExpressionAuthorizationDecision;
 
 /**
  * For internal use only, as this contract is likely to change.
@@ -29,6 +31,33 @@ import org.springframework.expression.Expression;
  * @since 5.8
  */
 final class ReactiveExpressionUtils {
+
+	static Mono<AuthorizationResult> evaluate(Expression expr, EvaluationContext ctx) {
+		return Mono.defer(() -> {
+			Object value;
+			try {
+				value = expr.getValue(ctx);
+			}
+			catch (EvaluationException ex) {
+				return Mono.error(() -> new IllegalArgumentException(
+						"Failed to evaluate expression '" + expr.getExpressionString() + "'", ex));
+			}
+			if (value instanceof Mono<?> mono) {
+				return mono.flatMap((data) -> adapt(expr, data));
+			}
+			return adapt(expr, value);
+		});
+	}
+
+	private static Mono<AuthorizationResult> adapt(Expression expr, Object value) {
+		if (value instanceof Boolean granted) {
+			return Mono.just(new ExpressionAuthorizationDecision(granted, expr));
+		}
+		if (value instanceof AuthorizationResult decision) {
+			return Mono.just(decision);
+		}
+		return createInvalidReturnTypeMono(expr);
+	}
 
 	static Mono<Boolean> evaluateAsBoolean(Expression expr, EvaluationContext ctx) {
 		return Mono.defer(() -> {
@@ -56,9 +85,9 @@ final class ReactiveExpressionUtils {
 		});
 	}
 
-	private static Mono<Boolean> createInvalidReturnTypeMono(Expression expr) {
-		return Mono.error(() -> new IllegalStateException(
-				"Expression: '" + expr.getExpressionString() + "' must return boolean or Mono<Boolean>"));
+	private static <T> Mono<T> createInvalidReturnTypeMono(Expression expr) {
+		return Mono.error(() -> new IllegalStateException("Expression: '" + expr.getExpressionString()
+				+ "' must return boolean, Mono<Boolean>, AuthorizationResult, or Mono<AuthorizationResult>"));
 	}
 
 	private ReactiveExpressionUtils() {
