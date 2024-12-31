@@ -16,28 +16,9 @@
 
 package org.springframework.security.oauth2.jwt;
 
-import java.net.URI;
-import java.net.URL;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-
-import com.nimbusds.jose.JOSEException;
-import com.nimbusds.jose.JOSEObjectType;
-import com.nimbusds.jose.JWSAlgorithm;
-import com.nimbusds.jose.JWSHeader;
-import com.nimbusds.jose.JWSSigner;
+import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.factories.DefaultJWSSignerFactory;
-import com.nimbusds.jose.jwk.JWK;
-import com.nimbusds.jose.jwk.JWKMatcher;
-import com.nimbusds.jose.jwk.JWKSelector;
-import com.nimbusds.jose.jwk.KeyType;
-import com.nimbusds.jose.jwk.KeyUse;
+import com.nimbusds.jose.jwk.*;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 import com.nimbusds.jose.produce.JWSSignerFactory;
@@ -45,11 +26,17 @@ import com.nimbusds.jose.util.Base64;
 import com.nimbusds.jose.util.Base64URL;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
-
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+
+import java.net.URI;
+import java.net.URL;
+import java.time.Instant;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * An implementation of a {@link JwtEncoder} that encodes a JSON Web Token (JWT) using the
@@ -61,7 +48,6 @@ import org.springframework.util.StringUtils;
  * <b>NOTE:</b> This implementation uses the Nimbus JOSE + JWT SDK.
  *
  * @author Joe Grandja
- * @since 5.6
  * @see JwtEncoder
  * @see com.nimbusds.jose.jwk.source.JWKSource
  * @see com.nimbusds.jose.jwk.JWK
@@ -73,6 +59,7 @@ import org.springframework.util.StringUtils;
  * Compact Serialization</a>
  * @see <a target="_blank" href="https://connect2id.com/products/nimbus-jose-jwt">Nimbus
  * JOSE + JWT SDK</a>
+ * @since 5.6
  */
 public final class NimbusJwtEncoder implements JwtEncoder {
 
@@ -84,6 +71,8 @@ public final class NimbusJwtEncoder implements JwtEncoder {
 
 	private final Map<JWK, JWSSigner> jwsSigners = new ConcurrentHashMap<>();
 
+	private Converter<List<JWK>, JWK> jwkSelector;
+
 	private final JWKSource<SecurityContext> jwkSource;
 
 	/**
@@ -93,6 +82,10 @@ public final class NimbusJwtEncoder implements JwtEncoder {
 	public NimbusJwtEncoder(JWKSource<SecurityContext> jwkSource) {
 		Assert.notNull(jwkSource, "jwkSource cannot be null");
 		this.jwkSource = jwkSource;
+	}
+
+	public void setJwkSelector(Converter<List<JWK>, JWK> jwkSelector) {
+		this.jwkSelector = jwkSelector;
 	}
 
 	@Override
@@ -118,20 +111,20 @@ public final class NimbusJwtEncoder implements JwtEncoder {
 		try {
 			JWKSelector jwkSelector = new JWKSelector(createJwkMatcher(headers));
 			jwks = this.jwkSource.get(jwkSelector, null);
-		}
-		catch (Exception ex) {
+		} catch (Exception ex) {
 			throw new JwtEncodingException(String.format(ENCODING_ERROR_MESSAGE_TEMPLATE,
 					"Failed to select a JWK signing key -> " + ex.getMessage()), ex);
 		}
-
-		if (jwks.size() > 1) {
-			throw new JwtEncodingException(String.format(ENCODING_ERROR_MESSAGE_TEMPLATE,
-					"Found multiple JWK signing keys for algorithm '" + headers.getAlgorithm().getName() + "'"));
-		}
-
 		if (jwks.isEmpty()) {
 			throw new JwtEncodingException(
 					String.format(ENCODING_ERROR_MESSAGE_TEMPLATE, "Failed to select a JWK signing key"));
+		}
+		if (null != this.jwkSelector) {
+			return this.jwkSelector.convert(jwks);
+		}
+		if (jwks.size() > 1) {
+			throw new JwtEncodingException(String.format(ENCODING_ERROR_MESSAGE_TEMPLATE,
+					"Found multiple JWK signing keys for algorithm '" + headers.getAlgorithm().getName() + "'"));
 		}
 
 		return jwks.get(0);
@@ -146,8 +139,7 @@ public final class NimbusJwtEncoder implements JwtEncoder {
 		SignedJWT signedJwt = new SignedJWT(jwsHeader, jwtClaimsSet);
 		try {
 			signedJwt.sign(jwsSigner);
-		}
-		catch (JOSEException ex) {
+		} catch (JOSEException ex) {
 			throw new JwtEncodingException(
 					String.format(ENCODING_ERROR_MESSAGE_TEMPLATE, "Failed to sign the JWT -> " + ex.getMessage()), ex);
 		}
@@ -167,8 +159,7 @@ public final class NimbusJwtEncoder implements JwtEncoder {
 					.x509CertSHA256Thumbprint(Base64URL.from(headers.getX509SHA256Thumbprint()))
 					.build();
 			// @formatter:on
-		}
-		else if (JWSAlgorithm.Family.HMAC_SHA.contains(jwsAlgorithm)) {
+		} else if (JWSAlgorithm.Family.HMAC_SHA.contains(jwsAlgorithm)) {
 			// @formatter:off
 			return new JWKMatcher.Builder()
 					.keyType(KeyType.forAlgorithm(jwsAlgorithm))
@@ -206,8 +197,7 @@ public final class NimbusJwtEncoder implements JwtEncoder {
 	private static JWSSigner createSigner(JWK jwk) {
 		try {
 			return JWS_SIGNER_FACTORY.createJWSSigner(jwk);
-		}
-		catch (JOSEException ex) {
+		} catch (JOSEException ex) {
 			throw new JwtEncodingException(String.format(ENCODING_ERROR_MESSAGE_TEMPLATE,
 					"Failed to create a JWS Signer -> " + ex.getMessage()), ex);
 		}
@@ -224,8 +214,7 @@ public final class NimbusJwtEncoder implements JwtEncoder {
 		if (!CollectionUtils.isEmpty(jwk)) {
 			try {
 				builder.jwk(JWK.parse(jwk));
-			}
-			catch (Exception ex) {
+			} catch (Exception ex) {
 				throw new JwtEncodingException(String.format(ENCODING_ERROR_MESSAGE_TEMPLATE,
 						"Unable to convert '" + JoseHeaderNames.JWK + "' JOSE header"), ex);
 			}
@@ -342,8 +331,7 @@ public final class NimbusJwtEncoder implements JwtEncoder {
 	private static URI convertAsURI(String header, URL url) {
 		try {
 			return url.toURI();
-		}
-		catch (Exception ex) {
+		} catch (Exception ex) {
 			throw new JwtEncodingException(String.format(ENCODING_ERROR_MESSAGE_TEMPLATE,
 					"Unable to convert '" + header + "' JOSE header to a URI"), ex);
 		}
