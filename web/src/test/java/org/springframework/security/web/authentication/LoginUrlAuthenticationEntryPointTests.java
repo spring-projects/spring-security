@@ -135,6 +135,12 @@ public class LoginUrlAuthenticationEntryPointTests {
 		ep.setPortResolver(new MockPortResolver(8080, 8443));
 		ep.commence(request, response, null);
 		assertThat(response.getRedirectedUrl()).isEqualTo("https://www.example.com:8443/bigWebApp/hello");
+		// access to https via http port
+		request.setServerPort(8080);
+		response = new MockHttpServletResponse();
+		ep.setPortResolver(new MockPortResolver(8080, 8443));
+		ep.commence(request, response, null);
+		assertThat(response.getRedirectedUrl()).isEqualTo("https://www.example.com:8443/bigWebApp/hello");
 	}
 
 	@Test
@@ -229,6 +235,56 @@ public class LoginUrlAuthenticationEntryPointTests {
 		LoginUrlAuthenticationEntryPoint ep = new LoginUrlAuthenticationEntryPoint("https://somesite.com/login");
 		ep.setUseForward(true);
 		assertThatIllegalArgumentException().isThrownBy(ep::afterPropertiesSet);
+	}
+
+	@Test
+	public void commenceWhenFavorRelativeUrisThenHttpsSchemeNotIncluded() throws Exception {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setRequestURI("/some_path");
+		request.setScheme("https");
+		request.setServerName("www.example.com");
+		request.setContextPath("/bigWebApp");
+		request.setServerPort(443);
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		LoginUrlAuthenticationEntryPoint ep = new LoginUrlAuthenticationEntryPoint("/hello");
+		ep.setFavorRelativeUris(true);
+		ep.setPortMapper(new PortMapperImpl());
+		ep.setForceHttps(true);
+		ep.setPortMapper(new PortMapperImpl());
+		ep.setPortResolver(new MockPortResolver(80, 443));
+		ep.afterPropertiesSet();
+		ep.commence(request, response, null);
+		assertThat(response.getRedirectedUrl()).isEqualTo("/bigWebApp/hello");
+		request.setServerPort(8443);
+		response = new MockHttpServletResponse();
+		ep.setPortResolver(new MockPortResolver(8080, 8443));
+		ep.commence(request, response, null);
+		assertThat(response.getRedirectedUrl()).isEqualTo("/bigWebApp/hello");
+		// access to https via http port
+		request.setServerPort(8080);
+		response = new MockHttpServletResponse();
+		ep.setPortResolver(new MockPortResolver(8080, 8443));
+		ep.commence(request, response, null);
+		assertThat(response.getRedirectedUrl()).isEqualTo("/bigWebApp/hello");
+	}
+
+	@Test
+	public void commenceWhenFavorRelativeUrisThenHttpSchemeNotIncluded() throws Exception {
+		LoginUrlAuthenticationEntryPoint ep = new LoginUrlAuthenticationEntryPoint("/hello");
+		ep.setFavorRelativeUris(true);
+		ep.setPortMapper(new PortMapperImpl());
+		ep.setPortResolver(new MockPortResolver(80, 443));
+		ep.afterPropertiesSet();
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setRequestURI("/some_path");
+		request.setContextPath("/bigWebApp");
+		request.setScheme("http");
+		request.setServerName("localhost");
+		request.setContextPath("/bigWebApp");
+		request.setServerPort(80);
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		ep.commence(request, response, null);
+		assertThat(response.getRedirectedUrl()).isEqualTo("/bigWebApp/hello");
 	}
 
 }

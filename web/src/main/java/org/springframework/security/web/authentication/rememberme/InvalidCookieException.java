@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
 
 package org.springframework.security.web.authentication.rememberme;
 
+import java.io.Serial;
+
 /**
  * Exception thrown by a RememberMeServices implementation to indicate that a submitted
  * cookie is of an invalid format or has expired.
@@ -23,6 +25,9 @@ package org.springframework.security.web.authentication.rememberme;
  * @author Luke Taylor
  */
 public class InvalidCookieException extends RememberMeAuthenticationException {
+
+	@Serial
+	private static final long serialVersionUID = -7952247791921087125L;
 
 	public InvalidCookieException(String message) {
 		super(message);

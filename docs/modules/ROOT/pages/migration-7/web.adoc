@@ -1,0 +1,104 @@
+= Web Migrations
+
+== Favor Relative URIs
+
+When redirecting to a login endpoint, Spring Security has favored absolute URIs in the past.
+For example, if you set your login page like so:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+http
+    // ...
+    .formLogin((form) -> form.loginPage("/my-login"))
+    // ...
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+http {
+    formLogin {
+        loginPage = "/my-login"
+    }
+}
+----
+
+Xml::
++
+[source,kotlin,role="secondary"]
+----
+<http ...>
+    <form-login login-page="/my-login"/>
+</http>
+----
+======
+
+then when redirecting to `/my-login` Spring Security would use a `Location:` like the following:
+
+[source]
+----
+302 Found
+// ...
+Location: https://myapp.example.org/my-login
+----
+
+However, this is no longer necessary given that the RFC is was based on is now obsolete.
+
+In Spring Security 7, this is changed to use a relative URI like so:
+
+[source]
+----
+302 Found
+// ...
+Location: /my-login
+----
+
+Most applications will not notice a difference.
+However, in the event that this change causes problems, you can switch back to the Spring Security 6 behavior by setting the `favorRelativeUrls` value:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+LoginUrlAuthenticationEntryPoint entryPoint = new LoginUrlAuthenticationEntryPoint("/my-login");
+entryPoint.setFavorRelativeUris(false);
+http
+    // ...
+    .exceptionHandling((exceptions) -> exceptions.authenticaitonEntryPoint(entryPoint))
+    // ...
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+LoginUrlAuthenticationEntryPoint entryPoint = LoginUrlAuthenticationEntryPoint("/my-login")
+entryPoint.setFavorRelativeUris(false)
+
+http {
+    exceptionHandling {
+        authenticationEntryPoint = entryPoint
+    }
+}
+----
+
+Xml::
++
+[source,kotlin,role="secondary"]
+----
+<http entry-point-ref="myEntryPoint">
+    <!-- ... -->
+</http>
+
+<b:bean id="myEntryPoint" class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint">
+    <b:property name="favorRelativeUris" value="true"/>
+</b:bean>
+----
+======

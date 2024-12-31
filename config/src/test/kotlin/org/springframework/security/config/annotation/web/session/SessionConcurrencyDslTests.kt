@@ -18,18 +18,19 @@ package org.springframework.security.config.annotation.web.session
 
 import io.mockk.every
 import io.mockk.mockkObject
-import java.util.Date
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.mock.web.MockHttpSession
+import org.springframework.security.authorization.AuthorityAuthorizationManager
+import org.springframework.security.authorization.AuthorizationManager
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
+import org.springframework.security.config.annotation.web.invoke
 import org.springframework.security.config.test.SpringTestContext
 import org.springframework.security.config.test.SpringTestContextExtension
-import org.springframework.security.config.annotation.web.invoke
 import org.springframework.security.core.session.SessionInformation
 import org.springframework.security.core.session.SessionRegistry
 import org.springframework.security.core.session.SessionRegistryImpl
@@ -44,6 +45,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import java.util.*
 
 /**
  * Tests for [SessionConcurrencyDsl]
@@ -173,16 +175,75 @@ class SessionConcurrencyDslTests {
         open fun sessionRegistry(): SessionRegistry = SESSION_REGISTRY
     }
 
+    @Test
+    fun `session concurrency when session limit then no more sessions allowed`() {
+        this.spring.register(MaximumSessionsFunctionConfig::class.java, UserDetailsConfig::class.java).autowire()
+
+        this.mockMvc.perform(post("/login")
+            .with(csrf())
+            .param("username", "user")
+            .param("password", "password"))
+
+        this.mockMvc.perform(post("/login")
+            .with(csrf())
+            .param("username", "user")
+            .param("password", "password"))
+            .andExpect(status().isFound)
+            .andExpect(redirectedUrl("/login?error"))
+
+        this.mockMvc.perform(post("/login")
+            .with(csrf())
+            .param("username", "admin")
+            .param("password", "password"))
+            .andExpect(status().isFound)
+            .andExpect(redirectedUrl("/"))
+
+        this.mockMvc.perform(post("/login")
+            .with(csrf())
+            .param("username", "admin")
+            .param("password", "password"))
+            .andExpect(status().isFound)
+            .andExpect(redirectedUrl("/"))
+    }
+
+    @Configuration
+    @EnableWebSecurity
+    open class MaximumSessionsFunctionConfig {
+
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+            val isAdmin: AuthorizationManager<Any> = AuthorityAuthorizationManager.hasRole("ADMIN")
+            http {
+                sessionManagement {
+                    sessionConcurrency {
+                        maximumSessions {
+                            authentication -> if (isAdmin.authorize({ authentication }, null)!!.isGranted) -1 else 1
+                        }
+                        maxSessionsPreventsLogin = true
+                    }
+                }
+                formLogin { }
+            }
+            return http.build()
+        }
+
+    }
+
     @Configuration
     open class UserDetailsConfig {
         @Bean
         open fun userDetailsService(): UserDetailsService {
-            val userDetails = User.withDefaultPasswordEncoder()
+            val user = User.withDefaultPasswordEncoder()
                     .username("user")
                     .password("password")
                     .roles("USER")
                     .build()
-            return InMemoryUserDetailsManager(userDetails)
+            val admin = User.withDefaultPasswordEncoder()
+                .username("admin")
+                .password("password")
+                .roles("ADMIN")
+                .build()
+            return InMemoryUserDetailsManager(user, admin)
         }
     }
 }

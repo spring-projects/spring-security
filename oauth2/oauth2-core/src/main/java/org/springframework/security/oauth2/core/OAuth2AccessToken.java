@@ -107,9 +107,19 @@ public class OAuth2AccessToken extends AbstractOAuth2Token {
 
 		public static final TokenType BEARER = new TokenType("Bearer");
 
+		/**
+		 * @since 6.5
+		 */
+		public static final TokenType DPOP = new TokenType("DPoP");
+
 		private final String value;
 
-		private TokenType(String value) {
+		/**
+		 * Constructs a {@code TokenType} using the provided value.
+		 * @param value the value of the token type
+		 * @since 6.5
+		 */
+		public TokenType(String value) {
 			Assert.hasText(value, "value cannot be empty");
 			this.value = value;
 		}

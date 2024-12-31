@@ -19,7 +19,9 @@ package org.springframework.security.config.annotation.web.session
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configurers.SessionManagementConfigurer
 import org.springframework.security.core.session.SessionRegistry
+import org.springframework.security.web.authentication.session.SessionLimit
 import org.springframework.security.web.session.SessionInformationExpiredStrategy
+import org.springframework.util.Assert
 
 /**
  * A Kotlin DSL to configure the behaviour of multiple sessions using idiomatic
@@ -44,11 +46,20 @@ class SessionConcurrencyDsl {
     var expiredSessionStrategy: SessionInformationExpiredStrategy? = null
     var maxSessionsPreventsLogin: Boolean? = null
     var sessionRegistry: SessionRegistry? = null
+    private var sessionLimit: SessionLimit? = null
+
+    fun maximumSessions(max: SessionLimit) {
+        this.sessionLimit = max
+    }
 
     internal fun get(): (SessionManagementConfigurer<HttpSecurity>.ConcurrencyControlConfigurer) -> Unit {
+        Assert.isTrue(maximumSessions == null || sessionLimit == null, "You cannot specify maximumSessions as both an Int and a SessionLimit. Please use only one.")
         return { sessionConcurrencyControl ->
             maximumSessions?.also {
                 sessionConcurrencyControl.maximumSessions(maximumSessions!!)
+            }
+            sessionLimit?.also {
+                sessionConcurrencyControl.maximumSessions(sessionLimit!!)
             }
             expiredUrl?.also {
                 sessionConcurrencyControl.expiredUrl(expiredUrl)

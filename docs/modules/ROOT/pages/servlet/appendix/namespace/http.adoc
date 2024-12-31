@@ -2168,6 +2168,9 @@ Allows injection of the ExpiredSessionStrategy instance used by the ConcurrentSe
 Maps to the `maximumSessions` property of `ConcurrentSessionControlAuthenticationStrategy`.
 Specify `-1` as the value to support unlimited sessions.
 
+[[nsa-concurrency-control-max-sessions-ref]]
+* **max-sessions-ref**
+Allows injection of the SessionLimit instance used by the ConcurrentSessionControlAuthenticationStrategy
 
 [[nsa-concurrency-control-session-registry-alias]]
 * **session-registry-alias**

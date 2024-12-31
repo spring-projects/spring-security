@@ -1,2 +1,4 @@
 org.springframework.aot.hint.RuntimeHintsRegistrar=\
-org.springframework.security.web.aot.hint.WebMvcSecurityRuntimeHints
+org.springframework.security.web.aot.hint.WebMvcSecurityRuntimeHints,\
+org.springframework.security.web.aot.hint.UserCredentialRuntimeHints,\
+org.springframework.security.web.aot.hint.PublicKeyCredentialUserEntityRuntimeHints
