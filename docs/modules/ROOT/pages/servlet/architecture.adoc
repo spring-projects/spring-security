@@ -170,7 +170,7 @@ In fact, a `SecurityFilterChain` might have zero security `Filter` instances if 
 
 The Security Filters are inserted into the <<servlet-filterchainproxy>> with the <<servlet-securityfilterchain>> API.
 Those filters can be used for a number of different purposes, like
-xref:servlet/exploits/index.adoc[exploit protection],xref:servlet/authentication/index.adoc[authentication], xref:servlet/authorization/index.adoc[authorization], and more.
+xref:servlet/exploits/index.adoc[exploit protection], xref:servlet/authentication/index.adoc[authentication], xref:servlet/authorization/index.adoc[authorization], and more.
 The filters are executed in a specific order to guarantee that they are invoked at the right time, for example, the `Filter` that performs authentication should be invoked before the `Filter` that performs authorization.
 It is typically not necessary to know the ordering of Spring Security's ``Filter``s.
 However, there are times that it is beneficial to know the ordering, if you want to know them, you can check the {gh-url}/config/src/main/java/org/springframework/security/config/annotation/web/builders/FilterOrderRegistration.java[`FilterOrderRegistration` code].
