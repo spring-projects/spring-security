@@ -562,6 +562,136 @@ In the event that you are unable to reconfigure `HttpSecurity` to not add a cert
 ----
 ====
 
+[[servlet-public-endpoints]]
+== Configuring Public Endpoints
+
+There are often endpoints that need to be accessible without authentication, such as login pages, public assets, or public APIs. The `@SecurityFilterChain` API allows you to configure which endpoints should be publicly accessible.
+
+Let's look at how to configure endpoints to allow public access:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Bean
+public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+   http
+       .csrf(Customizer.withDefaults())
+       .httpBasic(Customizer.withDefaults())
+       .authorizeHttpRequests(authorize -> authorize
+           // Public endpoints
+           .requestMatchers("/public/**", "/error").permitAll()
+           .requestMatchers(HttpMethod.GET, "/actuator/health").permitAll()
+           // Secure everything else
+           .anyRequest().authenticated()
+       );
+   return http.build();
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun filterChain(http: HttpSecurity): SecurityFilterChain {
+    http {
+        csrf { }
+        httpBasic { }
+        authorizeHttpRequests {
+            // Public endpoints
+            requestMatchers("/public/**", "/error").permitAll()
+            requestMatchers(HttpMethod.GET, "/actuator/health").permitAll()
+            // Secure everything else
+            anyRequest().authenticated()
+        }
+    }
+    return http.build()
+}
+----
+
+======
+
+[NOTE]
+====
+If a request presents credentials (tokens, Basic Auth, etc.), Spring Security will attempt to authenticate the user even when an endpoint is configured with `permitAll()`.
+====
+
+
+[TIP]
+By using the `@Order` annotation, you can define separate security filter chains for public and secured endpoints.
+Filter chains with lower order numbers are evaluated first.
+
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Bean
+@Order(1)
+public SecurityFilterChain publicFilterChain(HttpSecurity http) throws Exception {
+    http
+        .securityMatchers(matchers -> matchers
+            .requestMatchers("/public/**", "/error", "/actuator/health")
+        )
+        .authorizeHttpRequests(authorize -> authorize
+            .anyRequest().permitAll()
+        );
+    return http.build();
+}
+
+@Bean
+@Order(2)
+public SecurityFilterChain protectedFilterChain(HttpSecurity http) throws Exception {
+    http
+        .csrf(Customizer.withDefaults())
+        .httpBasic(Customizer.withDefaults())
+        .authorizeHttpRequests(authorize -> authorize
+            .anyRequest().authenticated()
+        );
+    return http.build();
+}
+
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Bean
+@Order(1)
+fun publicFilterChain(http: HttpSecurity): SecurityFilterChain {
+    http {
+        securityMatchers {
+            requestMatchers("/public/**", "/error", "/actuator/health")
+        }
+        authorizeHttpRequests {
+            anyRequest().permitAll()
+        }
+    }
+    return http.build()
+}
+
+@Bean
+@Order(2)
+fun protectedFilterChain(http: HttpSecurity): SecurityFilterChain {
+    http {
+        csrf { }
+        httpBasic { }
+        authorizeHttpRequests {
+            anyRequest().authenticated()
+        }
+    }
+    return http.build()
+}
+----
+
+======
+
 [[servlet-exceptiontranslationfilter]]
 == Handling Security Exceptions
 
