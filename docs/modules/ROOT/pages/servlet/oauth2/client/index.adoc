@@ -1,5 +1,5 @@
 [[oauth2-client]]
-= [[oauth2client]]OAuth 2.0 Client
+= OAuth 2.0 Client
 :page-section-summary-toc: 1
 
 The OAuth 2.0 Client features provide support for the Client role as defined in the https://tools.ietf.org/html/rfc6749#section-1.1[OAuth 2.0 Authorization Framework].
