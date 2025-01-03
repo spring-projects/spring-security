@@ -609,7 +609,7 @@ try {
 }
 ----
 <1> As described in <<servlet-filters-review>>, invoking `FilterChain.doFilter(request, response)` is the equivalent of invoking the rest of the application.
-This means that if another part of the application, (<<servlet-authorization-filtersecurityinterceptor,`FilterSecurityInterceptor`>> or method security) throws an `AuthenticationException` or `AccessDeniedException` it is caught and handled here.
+This means that if another part of the application, (xref:servlet/authorization/authorize-http-requests.adoc[`AuthorizationFilter`] or method security) throws an `AuthenticationException` or `AccessDeniedException` it is caught and handled here.
 <2> If the user is not authenticated or it is an `AuthenticationException`, __Start Authentication__.
 <3> Otherwise, __Access Denied__
 
