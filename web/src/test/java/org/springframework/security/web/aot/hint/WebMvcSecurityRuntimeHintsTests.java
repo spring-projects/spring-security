@@ -74,4 +74,10 @@ class WebMvcSecurityRuntimeHintsTests {
 			.forResource("org/springframework/security/spring-security-webauthn.js")).accepts(this.hints);
 	}
 
+	@Test
+	void formRedirectJavascriptHasHints() {
+		assertThat(RuntimeHintsPredicates.resource().forResource("org/springframework/security/form-redirect.js"))
+			.accepts(this.hints);
+	}
+
 }
