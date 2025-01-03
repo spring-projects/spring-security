@@ -216,13 +216,15 @@ Java::
 ----
 @PreAuthorize("hasAuthority('permission:read') || hasRole('ADMIN')")
 ----
-======
 
-.Kotlin
-[source,kotlin,role="kotlin"]
+Kotlin::
++
+[source,kotlin,role="secondary"]
 ----
 @PreAuthorize("hasAuthority('permission:read') || hasRole('ADMIN')")
 ----
+======
+
 
 However, you could instead grant `permission:read` to those with `ROLE_ADMIN`.
 One way to do this is with a `RoleHierarchy` like so:
