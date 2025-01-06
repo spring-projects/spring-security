@@ -90,8 +90,8 @@ Please do your best to follow these steps.
 Don't worry if you don't get them all correct the first time, we will help you.
 
 [[sign-cla]]
-1. If you have not previously done so, please sign the https://cla.spring.io/sign/spring[Contributor License Agreement].
-You will be reminded automatically when you submit the PR.
+1. All commits must include a __Signed-off-by__ trailer at the end of each commit message to indicate that the contributor agrees to the Developer Certificate of Origin.
+For additional details, please refer to the blog post https://spring.io/blog/2025/01/06/hello-dco-goodbye-cla-simplifying-contributions-to-spring[Hello DCO, Goodbye CLA: Simplifying Contributions to Spring].
 [[create-an-issue]]
 1. Must you https://github.com/spring-projects/spring-security/issues/new/choose[create an issue] first? No, but it is recommended for features and larger bug fixes. It's easier discuss with the team first to determine the right fix or enhancement.
 For typos and straightforward bug fixes, starting with a pull request is encouraged.
