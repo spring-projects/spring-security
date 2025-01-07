@@ -105,6 +105,7 @@ dependencies {
 
 	provided 'jakarta.servlet:jakarta.servlet-api'
 
+	optional 'org.springframework:spring-jdbc'
 	optional 'com.fasterxml.jackson.core:jackson-databind'
 
 	testImplementation 'com.squareup.okhttp3:mockwebserver'
