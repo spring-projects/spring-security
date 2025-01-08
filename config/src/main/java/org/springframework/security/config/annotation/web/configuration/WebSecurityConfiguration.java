@@ -22,6 +22,7 @@ import java.util.Map;
 
 import jakarta.servlet.Filter;
 
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
@@ -74,9 +75,6 @@ public class WebSecurityConfiguration implements ImportAware {
 
 	private List<WebSecurityCustomizer> webSecurityCustomizers = Collections.emptyList();
 
-	@Autowired(required = false)
-	private HttpSecurity httpSecurity;
-
 	@Bean
 	public static DelegatingApplicationListener delegatingApplicationListener() {
 		return new DelegatingApplicationListener();
@@ -94,14 +92,15 @@ public class WebSecurityConfiguration implements ImportAware {
 	 * @throws Exception
 	 */
 	@Bean(name = AbstractSecurityWebApplicationInitializer.DEFAULT_FILTER_NAME)
-	public Filter springSecurityFilterChain() throws Exception {
+	public Filter springSecurityFilterChain(ObjectProvider<HttpSecurity> provider) throws Exception {
 		boolean hasFilterChain = !this.securityFilterChains.isEmpty();
 		if (!hasFilterChain) {
 			this.webSecurity.addSecurityFilterChainBuilder(() -> {
-				this.httpSecurity.authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated());
-				this.httpSecurity.formLogin(Customizer.withDefaults());
-				this.httpSecurity.httpBasic(Customizer.withDefaults());
-				return this.httpSecurity.build();
+				HttpSecurity httpSecurity = provider.getObject();
+				httpSecurity.authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated());
+				httpSecurity.formLogin(Customizer.withDefaults());
+				httpSecurity.httpBasic(Customizer.withDefaults());
+				return httpSecurity.build();
 			});
 		}
 		for (SecurityFilterChain securityFilterChain : this.securityFilterChains) {
