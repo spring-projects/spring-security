@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,6 +50,7 @@ import org.springframework.security.web.webauthn.registration.WebAuthnRegistrati
  *
  * @param <H> the type of builder
  * @author Rob Winch
+ * @author DingHao
  * @since 6.4
  */
 public class WebAuthnConfigurer<H extends HttpSecurityBuilder<H>>
@@ -130,10 +131,14 @@ public class WebAuthnConfigurer<H extends HttpSecurityBuilder<H>>
 		WebAuthnAuthenticationFilter webAuthnAuthnFilter = new WebAuthnAuthenticationFilter();
 		webAuthnAuthnFilter.setAuthenticationManager(
 				new ProviderManager(new WebAuthnAuthenticationProvider(rpOperations, userDetailsService)));
+		webAuthnAuthnFilter = postProcess(webAuthnAuthnFilter);
 		http.addFilterBefore(webAuthnAuthnFilter, BasicAuthenticationFilter.class);
-		http.addFilterAfter(new WebAuthnRegistrationFilter(userCredentials, rpOperations), AuthorizationFilter.class);
-		http.addFilterBefore(new PublicKeyCredentialCreationOptionsFilter(rpOperations), AuthorizationFilter.class);
-		http.addFilterBefore(new PublicKeyCredentialRequestOptionsFilter(rpOperations), AuthorizationFilter.class);
+		http.addFilterAfter(postProcess(new WebAuthnRegistrationFilter(userCredentials, rpOperations)),
+				AuthorizationFilter.class);
+		http.addFilterBefore(postProcess(new PublicKeyCredentialCreationOptionsFilter(rpOperations)),
+				AuthorizationFilter.class);
+		http.addFilterBefore(postProcess(new PublicKeyCredentialRequestOptionsFilter(rpOperations)),
+				AuthorizationFilter.class);
 
 		DefaultLoginPageGeneratingFilter loginPageGeneratingFilter = http
 			.getSharedObject(DefaultLoginPageGeneratingFilter.class);

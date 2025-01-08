@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,9 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -34,6 +36,14 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.ui.DefaultResourcesFilter;
+import org.springframework.security.web.webauthn.authentication.HttpSessionPublicKeyCredentialRequestOptionsRepository;
+import org.springframework.security.web.webauthn.authentication.PublicKeyCredentialRequestOptionsFilter;
+import org.springframework.security.web.webauthn.authentication.PublicKeyCredentialRequestOptionsRepository;
+import org.springframework.security.web.webauthn.authentication.WebAuthnAuthenticationFilter;
+import org.springframework.security.web.webauthn.registration.HttpSessionPublicKeyCredentialCreationOptionsRepository;
+import org.springframework.security.web.webauthn.registration.PublicKeyCredentialCreationOptionsFilter;
+import org.springframework.security.web.webauthn.registration.PublicKeyCredentialCreationOptionsRepository;
+import org.springframework.security.web.webauthn.registration.WebAuthnRegistrationFilter;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -124,6 +134,67 @@ public class WebAuthnConfigurerTests {
 	public void webauthnWhenConfiguredAndNoDefaultRegistrationPageThenDoesNotServeJavascript() throws Exception {
 		this.spring.register(NoDefaultRegistrationPageConfiguration.class).autowire();
 		this.mvc.perform(get("/login/webauthn.js")).andExpect(status().isNotFound());
+	}
+
+	@Test
+	public void configWebauthn() {
+		this.spring.register(WebauthnFilterConfiguration.class).autowire();
+		assertThat(WebauthnFilterConfiguration.count).isEqualTo(4);
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	static class WebauthnFilterConfiguration {
+
+		static int count = 0;
+
+		@Bean
+		PublicKeyCredentialRequestOptionsRepository requestOptionsRepository() {
+			return new HttpSessionPublicKeyCredentialRequestOptionsRepository();
+		}
+
+		@Bean
+		PublicKeyCredentialCreationOptionsRepository creationOptionsRepository() {
+			return new HttpSessionPublicKeyCredentialCreationOptionsRepository();
+		}
+
+		@Bean
+		static BeanPostProcessor beanPostProcessor(PublicKeyCredentialRequestOptionsRepository requestOptionsRepository,
+				PublicKeyCredentialCreationOptionsRepository creationOptionsRepository) {
+			return new BeanPostProcessor() {
+				@Override
+				public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+					if (bean instanceof WebAuthnAuthenticationFilter filter) {
+						filter.setRequestOptionsRepository(requestOptionsRepository);
+						count++;
+					}
+					else if (bean instanceof WebAuthnRegistrationFilter filter) {
+						filter.setCreationOptionsRepository(creationOptionsRepository);
+						count++;
+					}
+					else if (bean instanceof PublicKeyCredentialCreationOptionsFilter filter) {
+						filter.setCreationOptionsRepository(creationOptionsRepository);
+						count++;
+					}
+					else if (bean instanceof PublicKeyCredentialRequestOptionsFilter filter) {
+						filter.setRequestOptionsRepository(requestOptionsRepository);
+						count++;
+					}
+					return bean;
+				}
+			};
+		}
+
+		@Bean
+		UserDetailsService userDetailsService() {
+			return new InMemoryUserDetailsManager();
+		}
+
+		@Bean
+		SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+			return http.webAuthn(Customizer.withDefaults()).build();
+		}
+
 	}
 
 	@Configuration

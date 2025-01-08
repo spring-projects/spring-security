@@ -103,4 +103,15 @@ public class PublicKeyCredentialCreationOptionsFilter extends OncePerRequestFilt
 		this.converter.write(options, MediaType.APPLICATION_JSON, new ServletServerHttpResponse(response));
 	}
 
+	/**
+	 * Sets the {@link PublicKeyCredentialCreationOptionsRepository} to use. The default
+	 * is {@link HttpSessionPublicKeyCredentialCreationOptionsRepository}.
+	 * @param creationOptionsRepository the
+	 * {@link PublicKeyCredentialCreationOptionsRepository} to use. Cannot be null.
+	 */
+	public void setCreationOptionsRepository(PublicKeyCredentialCreationOptionsRepository creationOptionsRepository) {
+		Assert.notNull(creationOptionsRepository, "creationOptionsRepository cannot be null");
+		this.repository = creationOptionsRepository;
+	}
+
 }
