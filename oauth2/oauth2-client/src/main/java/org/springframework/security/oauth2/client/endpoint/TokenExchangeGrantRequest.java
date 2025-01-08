@@ -27,6 +27,8 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 
+import java.util.Map;
+
 /**
  * A Token Exchange Grant request that holds the {@link OAuth2Token subject token} and
  * optional {@link OAuth2Token actor token}.
@@ -53,6 +55,8 @@ public class TokenExchangeGrantRequest extends AbstractOAuth2AuthorizationGrantR
 
 	private final OAuth2Token actorToken;
 
+	private final Map<String, Object> additionalParameters;
+
 	/**
 	 * Constructs a {@code TokenExchangeGrantRequest} using the provided parameters.
 	 * @param clientRegistration the client registration
@@ -61,12 +65,24 @@ public class TokenExchangeGrantRequest extends AbstractOAuth2AuthorizationGrantR
 	 */
 	public TokenExchangeGrantRequest(ClientRegistration clientRegistration, OAuth2Token subjectToken,
 			OAuth2Token actorToken) {
+		this(clientRegistration,subjectToken,actorToken,null);
+	}
+
+	/**
+	 * Constructs a {@code TokenExchangeGrantRequest} using the provided parameters.
+	 * @param clientRegistration the client registration
+	 * @param subjectToken the subject token
+	 * @param actorToken the actor token
+	 */
+	public TokenExchangeGrantRequest(ClientRegistration clientRegistration, OAuth2Token subjectToken,
+			OAuth2Token actorToken, Map<String, Object> additionalParameters) {
 		super(AuthorizationGrantType.TOKEN_EXCHANGE, clientRegistration);
 		Assert.isTrue(AuthorizationGrantType.TOKEN_EXCHANGE.equals(clientRegistration.getAuthorizationGrantType()),
 				"clientRegistration.authorizationGrantType must be AuthorizationGrantType.TOKEN_EXCHANGE");
 		Assert.notNull(subjectToken, "subjectToken cannot be null");
 		this.subjectToken = subjectToken;
 		this.actorToken = actorToken;
+		this.additionalParameters = additionalParameters;
 	}
 
 	/**
@@ -83,6 +99,14 @@ public class TokenExchangeGrantRequest extends AbstractOAuth2AuthorizationGrantR
 	 */
 	public OAuth2Token getActorToken() {
 		return this.actorToken;
+	}
+
+	/**
+	 * Returns the {@link Map additional parameters}.
+	 * @return the {@link Map additional parameters}
+	 */
+	public Map<String, Object> getAdditionalParameters() {
+		return this.additionalParameters;
 	}
 
 	/**

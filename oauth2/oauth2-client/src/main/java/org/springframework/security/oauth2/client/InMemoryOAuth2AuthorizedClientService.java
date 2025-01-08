@@ -86,7 +86,8 @@ public final class InMemoryOAuth2AuthorizedClientService implements OAuth2Author
 			return null;
 		}
 		return (T) new OAuth2AuthorizedClient(registration, cachedAuthorizedClient.getPrincipalName(),
-				cachedAuthorizedClient.getAccessToken(), cachedAuthorizedClient.getRefreshToken());
+				cachedAuthorizedClient.getAccessToken(), cachedAuthorizedClient.getRefreshToken(),
+				cachedAuthorizedClient.getAttributes());
 	}
 
 	@Override

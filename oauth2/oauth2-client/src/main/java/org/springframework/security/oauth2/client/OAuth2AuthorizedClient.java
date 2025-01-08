@@ -17,6 +17,7 @@
 package org.springframework.security.oauth2.client;
 
 import java.io.Serializable;
+import java.util.Map;
 
 import org.springframework.lang.Nullable;
 import org.springframework.security.core.SpringSecurityCoreVersion;
@@ -53,6 +54,8 @@ public class OAuth2AuthorizedClient implements Serializable {
 
 	private final OAuth2RefreshToken refreshToken;
 
+	private final Map<String, Object> attributes;
+
 	/**
 	 * Constructs an {@code OAuth2AuthorizedClient} using the provided parameters.
 	 * @param clientRegistration the authorized client's registration
@@ -73,6 +76,20 @@ public class OAuth2AuthorizedClient implements Serializable {
 	 */
 	public OAuth2AuthorizedClient(ClientRegistration clientRegistration, String principalName,
 			OAuth2AccessToken accessToken, @Nullable OAuth2RefreshToken refreshToken) {
+		this(clientRegistration, principalName, accessToken, refreshToken, null);
+	}
+
+	/**
+	 * Constructs an {@code OAuth2AuthorizedClient} using the provided parameters.
+	 * @param clientRegistration the authorized client's registration
+	 * @param principalName the name of the End-User {@code Principal} (Resource Owner)
+	 * @param accessToken the access token credential granted
+	 * @param refreshToken the refresh token credential granted
+	 * @param attributes associated with the client
+	 */
+	public OAuth2AuthorizedClient(ClientRegistration clientRegistration, String principalName,
+			OAuth2AccessToken accessToken, @Nullable OAuth2RefreshToken refreshToken,
+			@Nullable Map<String, Object> attributes) {
 		Assert.notNull(clientRegistration, "clientRegistration cannot be null");
 		Assert.hasText(principalName, "principalName cannot be empty");
 		Assert.notNull(accessToken, "accessToken cannot be null");
@@ -80,6 +97,7 @@ public class OAuth2AuthorizedClient implements Serializable {
 		this.principalName = principalName;
 		this.accessToken = accessToken;
 		this.refreshToken = refreshToken;
+		this.attributes = attributes;
 	}
 
 	/**
@@ -115,4 +133,21 @@ public class OAuth2AuthorizedClient implements Serializable {
 		return this.refreshToken;
 	}
 
+	/**
+	 * Returns the {@link Map} attributes.
+	 * @return the {@link Map}
+	 * @since 6.5
+	 */
+	public @Nullable Map<String, Object> getAttributes() {
+		return this.attributes;
+	}
+
+	@Nullable
+	@SuppressWarnings("unchecked")
+	public <T> T getAttribute(String name) {
+		if (this.getAttributes() == null) {
+			return null;
+		}
+		return (T) this.getAttributes().get(name);
+	}
 }
