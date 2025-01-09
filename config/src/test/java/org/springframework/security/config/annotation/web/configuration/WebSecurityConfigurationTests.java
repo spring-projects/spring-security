@@ -331,7 +331,8 @@ public class WebSecurityConfigurationTests {
 	@Test
 	public void avoidUnnecessaryHttpSecurityInstantiationWhenProvideOneSecurityFilterChain() {
 		this.spring.register(SecurityFilterChainConfig.class).autowire();
-		assertThat(this.spring.getContext().getBean(CustomBeanPostProcessor.class).instantiationCount).isEqualTo(1);
+		assertThat(this.spring.getContext().getBean(CountHttpSecurityBeanPostProcessor.class).instantiationCount)
+			.isEqualTo(1);
 	}
 
 	private void assertAnotherUserPermission(WebInvocationPrivilegeEvaluator privilegeEvaluator) {
@@ -357,7 +358,7 @@ public class WebSecurityConfigurationTests {
 
 	@Configuration
 	@EnableWebSecurity
-	@Import(CustomBeanPostProcessor.class)
+	@Import(CountHttpSecurityBeanPostProcessor.class)
 	static class SecurityFilterChainConfig {
 
 		@Bean
@@ -367,7 +368,7 @@ public class WebSecurityConfigurationTests {
 
 	}
 
-	static class CustomBeanPostProcessor implements BeanPostProcessor {
+	static class CountHttpSecurityBeanPostProcessor implements BeanPostProcessor {
 
 		int instantiationCount = 0;
 
