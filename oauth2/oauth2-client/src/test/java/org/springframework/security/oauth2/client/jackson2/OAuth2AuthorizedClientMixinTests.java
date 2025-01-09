@@ -276,7 +276,10 @@ public class OAuth2AuthorizedClientMixinTests {
 				"        " + configurationMetadata + "\n" +
 				"      }\n" +
 				"    },\n" +
-				"    \"clientName\": \"" + clientRegistration.getClientName() + "\"\n" +
+				"    \"clientName\": \"" + clientRegistration.getClientName() + "\",\n" +
+				"    \"clientSettings\": {\n" +
+				"      \"requireProofKey\": " + clientRegistration.getClientSettings().isRequireProofKey() + "\n" +
+				"    }\n" +
 				"}";
 		// @formatter:on
 	}

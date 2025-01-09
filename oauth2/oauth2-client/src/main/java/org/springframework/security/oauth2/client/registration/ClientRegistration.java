@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,6 +70,8 @@ public final class ClientRegistration implements Serializable {
 	private ProviderDetails providerDetails = new ProviderDetails();
 
 	private String clientName;
+
+	private ClientSettings clientSettings;
 
 	private ClientRegistration() {
 	}
@@ -162,6 +164,14 @@ public final class ClientRegistration implements Serializable {
 		return this.clientName;
 	}
 
+	/**
+	 * Returns the {@link ClientSettings client configuration settings}.
+	 * @return the {@link ClientSettings}
+	 */
+	public ClientSettings getClientSettings() {
+		return this.clientSettings;
+	}
+
 	@Override
 	public String toString() {
 		// @formatter:off
@@ -175,6 +185,7 @@ public final class ClientRegistration implements Serializable {
 				+ '\'' + ", scopes=" + this.scopes
 				+ ", providerDetails=" + this.providerDetails
 				+ ", clientName='" + this.clientName + '\''
+				+ ", clientSettings='" + this.clientSettings + '\''
 				+ '}';
 		// @formatter:on
 	}
@@ -367,6 +378,8 @@ public final class ClientRegistration implements Serializable {
 
 		private String clientName;
 
+		private ClientSettings clientSettings;
+
 		private Builder(String registrationId) {
 			this.registrationId = registrationId;
 		}
@@ -391,6 +404,7 @@ public final class ClientRegistration implements Serializable {
 				this.configurationMetadata = new HashMap<>(configurationMetadata);
 			}
 			this.clientName = clientRegistration.clientName;
+			this.clientSettings = clientRegistration.clientSettings;
 		}
 
 		/**
@@ -595,6 +609,16 @@ public final class ClientRegistration implements Serializable {
 		}
 
 		/**
+		 * Sets the {@link ClientSettings client configuration settings}.
+		 * @param clientSettings the client configuration settings
+		 * @return the {@link Builder}
+		 */
+		public Builder clientSettings(ClientSettings clientSettings) {
+			this.clientSettings = clientSettings;
+			return this;
+		}
+
+		/**
 		 * Builds a new {@link ClientRegistration}.
 		 * @return a {@link ClientRegistration}
 		 */
@@ -627,12 +651,14 @@ public final class ClientRegistration implements Serializable {
 			clientRegistration.providerDetails = createProviderDetails(clientRegistration);
 			clientRegistration.clientName = StringUtils.hasText(this.clientName) ? this.clientName
 					: this.registrationId;
+			clientRegistration.clientSettings = (this.clientSettings == null) ? ClientSettings.builder().build()
+					: this.clientSettings;
 			return clientRegistration;
 		}
 
 		private ClientAuthenticationMethod deduceClientAuthenticationMethod(ClientRegistration clientRegistration) {
 			if (AuthorizationGrantType.AUTHORIZATION_CODE.equals(this.authorizationGrantType)
-					&& !StringUtils.hasText(this.clientSecret)) {
+					&& (!StringUtils.hasText(this.clientSecret))) {
 				return ClientAuthenticationMethod.NONE;
 			}
 			return ClientAuthenticationMethod.CLIENT_SECRET_BASIC;
