@@ -318,7 +318,7 @@ public class AbstractRequestMatcherRegistryTests {
 		List<RequestMatcher> requestMatchers = this.matcherRegistry.requestMatchers("/services/*");
 		assertThat(requestMatchers).hasSize(1);
 		assertThat(requestMatchers.get(0)).isInstanceOf(DispatcherServletDelegatingRequestMatcher.class);
-		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/services/endpoint");
+		MockHttpServletRequest request = new MockHttpServletRequest(servletContext, "GET", "/services/endpoint");
 		request.setHttpServletMapping(TestMockHttpServletMappings.defaultMapping());
 		assertThat(requestMatchers.get(0).matcher(request).isMatch()).isTrue();
 		request.setHttpServletMapping(TestMockHttpServletMappings.path(request, "/services"));
@@ -334,9 +334,8 @@ public class AbstractRequestMatcherRegistryTests {
 		servletContext.addServlet("path", Servlet.class).addMapping("/services/*");
 		MvcRequestMatcher mvc = mock(MvcRequestMatcher.class);
 		AntPathRequestMatcher ant = mock(AntPathRequestMatcher.class);
-		DispatcherServletDelegatingRequestMatcher requestMatcher = new DispatcherServletDelegatingRequestMatcher(ant,
-				mvc, servletContext);
-		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/services/endpoint");
+		RequestMatcher requestMatcher = new DispatcherServletDelegatingRequestMatcher(ant, mvc);
+		MockHttpServletRequest request = new MockHttpServletRequest(servletContext, "GET", "/services/endpoint");
 		request.setHttpServletMapping(TestMockHttpServletMappings.defaultMapping());
 		assertThat(requestMatcher.matches(request)).isFalse();
 		verify(mvc).matches(request);
@@ -354,9 +353,8 @@ public class AbstractRequestMatcherRegistryTests {
 		servletContext.addServlet("path", Servlet.class).addMapping("/services/*");
 		MvcRequestMatcher mvc = mock(MvcRequestMatcher.class);
 		AntPathRequestMatcher ant = mock(AntPathRequestMatcher.class);
-		DispatcherServletDelegatingRequestMatcher requestMatcher = new DispatcherServletDelegatingRequestMatcher(ant,
-				mvc, servletContext);
-		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/services/endpoint");
+		RequestMatcher requestMatcher = new DispatcherServletDelegatingRequestMatcher(ant, mvc);
+		MockHttpServletRequest request = new MockHttpServletRequest(servletContext, "GET", "/services/endpoint");
 		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> requestMatcher.matcher(request));
 	}
 

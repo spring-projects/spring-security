@@ -447,18 +447,12 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 
 	static class DispatcherServletRequestMatcher implements RequestMatcher {
 
-		private final ServletContext servletContext;
-
-		DispatcherServletRequestMatcher(ServletContext servletContext) {
-			this.servletContext = servletContext;
-		}
-
 		@Override
 		public boolean matches(HttpServletRequest request) {
 			String name = request.getHttpServletMapping().getServletName();
-			ServletRegistration registration = this.servletContext.getServletRegistration(name);
+			ServletRegistration registration = request.getServletContext().getServletRegistration(name);
 			Assert.notNull(registration,
-					() -> computeErrorMessage(this.servletContext.getServletRegistrations().values()));
+					() -> computeErrorMessage(request.getServletContext().getServletRegistrations().values()));
 			try {
 				Class<?> clazz = Class.forName(registration.getClassName());
 				return DispatcherServlet.class.isAssignableFrom(clazz);
@@ -478,10 +472,8 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 
 		private final RequestMatcher dispatcherServlet;
 
-		DispatcherServletDelegatingRequestMatcher(AntPathRequestMatcher ant, MvcRequestMatcher mvc,
-				ServletContext servletContext) {
-			this(ant, mvc, new OrRequestMatcher(new MockMvcRequestMatcher(),
-					new DispatcherServletRequestMatcher(servletContext)));
+		DispatcherServletDelegatingRequestMatcher(AntPathRequestMatcher ant, MvcRequestMatcher mvc) {
+			this(ant, mvc, new OrRequestMatcher(new MockMvcRequestMatcher(), new DispatcherServletRequestMatcher()));
 		}
 
 		DispatcherServletDelegatingRequestMatcher(AntPathRequestMatcher ant, MvcRequestMatcher mvc,
