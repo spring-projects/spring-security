@@ -74,6 +74,42 @@ class WebAuthnDslTests {
                 }
     }
 
+    @Test
+    fun `webauthn and formLogin configured with disabled default registration page`() {
+        spring.register(FormLoginAndNoDefaultRegistrationPageConfiguration::class.java).autowire()
+
+        this.mockMvc.get("/login/webauthn.js")
+                .andExpect {
+                    MockMvcResultMatchers.status().isOk
+                    header {
+                        string("content-type", "text/javascript;charset=UTF-8")
+                    }
+                    content {
+                        string(Matchers.containsString("async function authenticate("))
+                    }
+                }
+    }
+
+    @Configuration
+    @EnableWebSecurity
+    open class FormLoginAndNoDefaultRegistrationPageConfiguration {
+        @Bean
+        open fun userDetailsService(): UserDetailsService  =
+                InMemoryUserDetailsManager()
+
+
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+            http{
+                formLogin { }
+                webAuthn {
+                    disableDefaultRegistrationPage = true
+                }
+            }
+            return http.build()
+        }
+    }
+
     @Configuration
     @EnableWebSecurity
     open class DefaultWebauthnConfig {
