@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import org.springframework.security.config.annotation.web.configurers.WebAuthnCo
  * @property the allowed origins
  * @since 6.4
  * @author Rob Winch
+ * @author Max Batischev
  */
 @SecurityMarker
 class WebAuthnDsl {
@@ -34,10 +35,10 @@ class WebAuthnDsl {
     var allowedOrigins: Set<String>? = null
 
     internal fun get(): (WebAuthnConfigurer<HttpSecurity>) -> Unit {
-        return { webAuthn -> webAuthn
-                .rpId(rpId)
-                .rpName(rpName)
-                .allowedOrigins(allowedOrigins);
+        return { webAuthn ->
+            rpName?.also { webAuthn.rpName(rpName) }
+            rpId?.also { webAuthn.rpId(rpId) }
+            allowedOrigins?.also { webAuthn.allowedOrigins(allowedOrigins) }
         }
     }
 }
