@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,6 +53,8 @@ import static org.springframework.security.web.util.matcher.AntPathRequestMatche
  * {@link PublicKeyCredentialCreationOptions} for <a href=
  * "https://w3c.github.io/webappsec-credential-management/#dom-credentialscontainer-create">creating</a>
  * a new credential.
+ *
+ * @author DingHao
  */
 public class PublicKeyCredentialCreationOptionsFilter extends OncePerRequestFilter {
 
@@ -67,7 +69,7 @@ public class PublicKeyCredentialCreationOptionsFilter extends OncePerRequestFilt
 
 	private final WebAuthnRelyingPartyOperations rpOperations;
 
-	private final HttpMessageConverter<Object> converter = new MappingJackson2HttpMessageConverter(
+	private HttpMessageConverter<Object> converter = new MappingJackson2HttpMessageConverter(
 			Jackson2ObjectMapperBuilder.json().modules(new WebauthnJackson2Module()).build());
 
 	/**
@@ -101,6 +103,17 @@ public class PublicKeyCredentialCreationOptionsFilter extends OncePerRequestFilt
 		response.setStatus(HttpServletResponse.SC_OK);
 		response.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
 		this.converter.write(options, MediaType.APPLICATION_JSON, new ServletServerHttpResponse(response));
+	}
+
+	/**
+	 * Set the {@link HttpMessageConverter} to read the
+	 * {@link WebAuthnRegistrationFilter.WebAuthnRegistrationRequest} and write the
+	 * response. The default is {@link MappingJackson2HttpMessageConverter}.
+	 * @param converter the {@link HttpMessageConverter} to use. Cannot be null.
+	 */
+	public void setConverter(HttpMessageConverter<Object> converter) {
+		Assert.notNull(converter, "converter cannot be null");
+		this.converter = converter;
 	}
 
 }
