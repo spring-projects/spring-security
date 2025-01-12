@@ -108,7 +108,7 @@ Kotlin::
 open class MyCustomerService {
     @PreAuthorize("hasAuthority('permission:read')")
     @PostAuthorize("returnObject.owner == authentication.name")
-    fun readCustomer(val id: String): Customer { ... }
+    fun readCustomer(id: String): Customer { ... }
 }
 ----
 ======
@@ -216,13 +216,15 @@ Java::
 ----
 @PreAuthorize("hasAuthority('permission:read') || hasRole('ADMIN')")
 ----
-======
 
-.Kotlin
-[source,kotlin,role="kotlin"]
+Kotlin::
++
+[source,kotlin,role="secondary"]
 ----
 @PreAuthorize("hasAuthority('permission:read') || hasRole('ADMIN')")
 ----
+======
+
 
 However, you could instead grant `permission:read` to those with `ROLE_ADMIN`.
 One way to do this is with a `RoleHierarchy` like so:
@@ -336,7 +338,7 @@ Kotlin::
 @Component
 open class BankService {
 	@PreAuthorize("hasRole('ADMIN')")
-	fun readAccount(val id: Long): Account {
+	fun readAccount(id: Long): Account {
         // ... is only invoked if the `Authentication` has the `ROLE_ADMIN` authority
 	}
 }
@@ -424,7 +426,7 @@ Kotlin::
 @Component
 open class BankService {
 	@PostAuthorize("returnObject.owner == authentication.name")
-	fun readAccount(val id: Long): Account {
+	fun readAccount(id: Long): Account {
         // ... is only returned if the `Account` belongs to the logged in user
 	}
 }
@@ -534,7 +536,7 @@ Kotlin::
 @Component
 open class BankService {
 	@RequireOwnership
-	fun readAccount(val id: Long): Account {
+	fun readAccount(id: Long): Account {
         // ... is only returned if the `Account` belongs to the logged in user
 	}
 }
@@ -991,7 +993,7 @@ Kotlin::
 @Component
 open class BankService {
 	@IsAdmin
-	fun readAccount(val id: Long): Account {
+	fun readAccount(id: Long): Account {
         // ... is only returned if the `Account` belongs to the logged in user
 	}
 }
@@ -1082,7 +1084,7 @@ Kotlin::
 @Component
 open class BankService {
 	@HasRole("ADMIN")
-	fun readAccount(val id: Long): Account {
+	fun readAccount(id: Long): Account {
         // ... is only returned if the `Account` belongs to the logged in user
 	}
 }
@@ -1142,7 +1144,7 @@ Kotlin::
 @Component
 open class BankService {
 	@HasAnyRole(roles = arrayOf("'USER'", "'ADMIN'"))
-	fun readAccount(val id: Long): Account {
+	fun readAccount(id: Long): Account {
         // ... is only returned if the `Account` belongs to the logged in user
 	}
 }
@@ -1269,7 +1271,7 @@ Kotlin::
 ----
 @Component("authz")
 open class AuthorizationLogic {
-    fun decide(val operations: MethodSecurityExpressionOperations): boolean {
+    fun decide(operations: MethodSecurityExpressionOperations): boolean {
         // ... authorization logic
     }
 }
@@ -1340,7 +1342,7 @@ Kotlin::
 ----
 @Component("authz")
 open class AuthorizationLogic {
-    fun decide(val operations: MethodSecurityExpressionOperations): AuthorizationDecision {
+    fun decide(operations: MethodSecurityExpressionOperations): AuthorizationDecision {
         // ... authorization logic
         return MyAuthorizationDecision(false, details)
     }
@@ -1433,13 +1435,13 @@ Kotlin::
 class MethodSecurityConfig {
    	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-	fun preAuthorize(val manager: MyAuthorizationManager) : Advisor {
+	fun preAuthorize(manager: MyAuthorizationManager) : Advisor {
 		return AuthorizationManagerBeforeMethodInterceptor.preAuthorize(manager)
 	}
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-	fun postAuthorize(val manager: MyAuthorizationManager) : Advisor {
+	fun postAuthorize(manager: MyAuthorizationManager) : Advisor {
 		return AuthorizationManagerAfterMethodInterceptor.postAuthorize(manager)
 	}
 }
@@ -1499,7 +1501,7 @@ Kotlin::
 ----
 companion object {
 	@Bean
-	fun methodSecurityExpressionHandler(val roleHierarchy: RoleHierarchy) : MethodSecurityExpressionHandler {
+	fun methodSecurityExpressionHandler(roleHierarchy: RoleHierarchy) : MethodSecurityExpressionHandler {
 		val handler = DefaultMethodSecurityExpressionHandler()
 		handler.setRoleHierarchy(roleHierarchy)
 		return handler
@@ -3234,7 +3236,7 @@ Kotlin::
 [source,kotlin,role="secondary"]
 ----
 class MyAuthorizer {
-	fun isAdmin(val root: MethodSecurityExpressionOperations): boolean {
+	fun isAdmin(root: MethodSecurityExpressionOperations): boolean {
 		val decision = root.hasAuthority("ADMIN");
 		// custom work ...
         return decision;
@@ -3293,7 +3295,7 @@ Kotlin::
 ----
 @Component
 class MyExpressionHandler: DefaultMethodSecurityExpressionHandler {
-    override fun createEvaluationContext(val authentication: Supplier<Authentication>,
+    override fun createEvaluationContext(authentication: Supplier<Authentication>,
         val mi: MethodInvocation): EvaluationContext {
 		val context = super.createEvaluationContext(authentication, mi) as StandardEvaluationContext
         val delegate = context.getRootObject().getValue() as MethodSecurityExpressionOperations

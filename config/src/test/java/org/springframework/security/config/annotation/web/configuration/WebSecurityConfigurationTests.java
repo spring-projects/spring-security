@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,8 +27,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -326,6 +328,13 @@ public class WebSecurityConfigurationTests {
 			.isInstanceOf(IllegalArgumentException.class);
 	}
 
+	@Test
+	public void avoidUnnecessaryHttpSecurityInstantiationWhenProvideOneSecurityFilterChain() {
+		this.spring.register(SecurityFilterChainConfig.class).autowire();
+		assertThat(this.spring.getContext().getBean(CountHttpSecurityBeanPostProcessor.class).instantiationCount)
+			.isEqualTo(1);
+	}
+
 	private void assertAnotherUserPermission(WebInvocationPrivilegeEvaluator privilegeEvaluator) {
 		Authentication anotherUser = new TestingAuthenticationToken("anotherUser", "password", "ROLE_ANOTHER");
 		assertThat(privilegeEvaluator.isAllowed("/user", anotherUser)).isFalse();
@@ -345,6 +354,32 @@ public class WebSecurityConfigurationTests {
 		assertThat(privilegeEvaluator.isAllowed("/user", user)).isTrue();
 		assertThat(privilegeEvaluator.isAllowed("/admin", user)).isFalse();
 		assertThat(privilegeEvaluator.isAllowed("/another", user)).isTrue();
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	@Import(CountHttpSecurityBeanPostProcessor.class)
+	static class SecurityFilterChainConfig {
+
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			return http.authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated()).build();
+		}
+
+	}
+
+	static class CountHttpSecurityBeanPostProcessor implements BeanPostProcessor {
+
+		int instantiationCount = 0;
+
+		@Override
+		public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+			if (bean instanceof HttpSecurity) {
+				this.instantiationCount++;
+			}
+			return bean;
+		}
+
 	}
 
 	@Configuration

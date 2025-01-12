@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -68,6 +68,7 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.client.web.AuthenticatedPrincipalOAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
+import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizationRequestResolver;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
@@ -396,20 +397,8 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 
 	@Override
 	public void configure(B http) throws Exception {
-		OAuth2AuthorizationRequestRedirectFilter authorizationRequestFilter;
-		if (this.authorizationEndpointConfig.authorizationRequestResolver != null) {
-			authorizationRequestFilter = new OAuth2AuthorizationRequestRedirectFilter(
-					this.authorizationEndpointConfig.authorizationRequestResolver);
-		}
-		else {
-			String authorizationRequestBaseUri = this.authorizationEndpointConfig.authorizationRequestBaseUri;
-			if (authorizationRequestBaseUri == null) {
-				authorizationRequestBaseUri = OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI;
-			}
-			authorizationRequestFilter = new OAuth2AuthorizationRequestRedirectFilter(
-					OAuth2ClientConfigurerUtils.getClientRegistrationRepository(this.getBuilder()),
-					authorizationRequestBaseUri);
-		}
+		OAuth2AuthorizationRequestRedirectFilter authorizationRequestFilter = new OAuth2AuthorizationRequestRedirectFilter(
+				getAuthorizationRequestResolver());
 		if (this.authorizationEndpointConfig.authorizationRequestRepository != null) {
 			authorizationRequestFilter
 				.setAuthorizationRequestRepository(this.authorizationEndpointConfig.authorizationRequestRepository);
@@ -438,6 +427,24 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 	@Override
 	protected RequestMatcher createLoginProcessingUrlMatcher(String loginProcessingUrl) {
 		return new AntPathRequestMatcher(loginProcessingUrl);
+	}
+
+	private OAuth2AuthorizationRequestResolver getAuthorizationRequestResolver() {
+		if (this.authorizationEndpointConfig.authorizationRequestResolver != null) {
+			return this.authorizationEndpointConfig.authorizationRequestResolver;
+		}
+		ClientRegistrationRepository clientRegistrationRepository = OAuth2ClientConfigurerUtils
+			.getClientRegistrationRepository(getBuilder());
+		ResolvableType resolvableType = ResolvableType.forClass(OAuth2AuthorizationRequestResolver.class);
+		OAuth2AuthorizationRequestResolver bean = getBeanOrNull(resolvableType);
+		if (bean != null) {
+			return bean;
+		}
+		String authorizationRequestBaseUri = this.authorizationEndpointConfig.authorizationRequestBaseUri;
+		if (authorizationRequestBaseUri == null) {
+			authorizationRequestBaseUri = OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI;
+		}
+		return new DefaultOAuth2AuthorizationRequestResolver(clientRegistrationRepository, authorizationRequestBaseUri);
 	}
 
 	@SuppressWarnings("unchecked")
