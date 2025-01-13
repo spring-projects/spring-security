@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -522,11 +522,11 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 	}
 
 	@Test
-	public void getBearerTokenResolverWhenNoResolverSpecifiedThenTheDefaultIsUsed() {
+	public void getAuthenticationConverterWhenNoConverterSpecifiedThenTheDefaultIsUsed() {
 		OAuth2ResourceServerBeanDefinitionParser oauth2 = new OAuth2ResourceServerBeanDefinitionParser(
 				mock(BeanReference.class), mock(List.class), mock(Map.class), mock(Map.class), mock(List.class),
 				mock(BeanMetadataElement.class));
-		assertThat(oauth2.getBearerTokenResolver(mock(Element.class))).isInstanceOf(RootBeanDefinition.class);
+		assertThat(oauth2.getAuthenticationConverter(mock(Element.class))).isInstanceOf(RootBeanDefinition.class);
 	}
 
 	@Test
