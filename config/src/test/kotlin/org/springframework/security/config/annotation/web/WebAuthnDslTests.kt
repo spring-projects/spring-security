@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package org.springframework.security.config.annotation.web
 
+import org.hamcrest.Matchers
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -30,7 +31,9 @@ import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.provisioning.InMemoryUserDetailsManager
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 
 /**
  * Tests for [WebAuthnDsl]
@@ -53,6 +56,76 @@ class WebAuthnDslTests {
                 .andExpect {
                     status { isForbidden() }
                 }
+    }
+
+    @Test
+    fun `webauthn and formLogin configured with default registration page`() {
+        spring.register(DefaultWebauthnConfig::class.java).autowire()
+
+        this.mockMvc.get("/login/webauthn.js")
+                .andExpect {
+                    MockMvcResultMatchers.status().isOk
+                    header {
+                        string("content-type", "text/javascript;charset=UTF-8")
+                    }
+                    content {
+                        string(Matchers.containsString("async function authenticate("))
+                    }
+                }
+    }
+
+    @Test
+    fun `webauthn and formLogin configured with disabled default registration page`() {
+        spring.register(FormLoginAndNoDefaultRegistrationPageConfiguration::class.java).autowire()
+
+        this.mockMvc.get("/login/webauthn.js")
+                .andExpect {
+                    MockMvcResultMatchers.status().isOk
+                    header {
+                        string("content-type", "text/javascript;charset=UTF-8")
+                    }
+                    content {
+                        string(Matchers.containsString("async function authenticate("))
+                    }
+                }
+    }
+
+    @Configuration
+    @EnableWebSecurity
+    open class FormLoginAndNoDefaultRegistrationPageConfiguration {
+        @Bean
+        open fun userDetailsService(): UserDetailsService  =
+                InMemoryUserDetailsManager()
+
+
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+            http{
+                formLogin { }
+                webAuthn {
+                    disableDefaultRegistrationPage = true
+                }
+            }
+            return http.build()
+        }
+    }
+
+    @Configuration
+    @EnableWebSecurity
+    open class DefaultWebauthnConfig {
+        @Bean
+        open fun userDetailsService(): UserDetailsService  =
+                InMemoryUserDetailsManager()
+
+
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+            http{
+                formLogin { }
+                webAuthn { }
+            }
+            return http.build()
+        }
     }
 
     @Configuration
