@@ -134,6 +134,10 @@ import org.springframework.security.web.authentication.rememberme.InvalidCookieE
 import org.springframework.security.web.authentication.rememberme.RememberMeAuthenticationException;
 import org.springframework.security.web.authentication.session.SessionAuthenticationException;
 import org.springframework.security.web.authentication.www.NonceExpiredException;
+import org.springframework.security.web.csrf.CsrfException;
+import org.springframework.security.web.csrf.DefaultCsrfToken;
+import org.springframework.security.web.csrf.InvalidCsrfTokenException;
+import org.springframework.security.web.csrf.MissingCsrfTokenException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -344,6 +348,13 @@ class SpringSecurityCoreVersionSerializableTests {
 				(r) -> new SessionAuthenticationException("message"));
 		generatorByClassName.put(NonceExpiredException.class,
 				(r) -> new NonceExpiredException("message", new IOException("fail")));
+		generatorByClassName.put(CsrfException.class, (r) -> new CsrfException("message"));
+		generatorByClassName.put(org.springframework.security.web.server.csrf.CsrfException.class, (r) -> new org.springframework.security.web.server.csrf.CsrfException("message"));
+		generatorByClassName.put(InvalidCsrfTokenException.class, (r) -> new InvalidCsrfTokenException(new DefaultCsrfToken("header", "parameter", "token"), "token"));
+		generatorByClassName.put(MissingCsrfTokenException.class, (r) -> new MissingCsrfTokenException("token"));
+		generatorByClassName.put(DefaultCsrfToken.class, (r) -> new DefaultCsrfToken("header", "parameter", "token"));
+		generatorByClassName.put(org.springframework.security.web.server.csrf.DefaultCsrfToken.class, (r) -> new org.springframework.security.web.server.csrf.DefaultCsrfToken("header", "parameter", "token"));
+
 	}
 
 	@ParameterizedTest

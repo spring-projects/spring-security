@@ -159,6 +159,7 @@ public final class LazyCsrfTokenRepository implements CsrfTokenRepository {
 
 	}
 
+	@SuppressWarnings("serial")
 	private static final class SaveOnAccessCsrfToken implements CsrfToken {
 
 		private transient CsrfTokenRepository tokenRepository;
