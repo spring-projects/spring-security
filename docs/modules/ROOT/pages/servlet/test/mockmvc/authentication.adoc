@@ -5,7 +5,7 @@ It is often desirable to run tests as a specific user.
 There are two simple ways to populate the user:
 
 * <<test-mockmvc-securitycontextholder-rpp,Running as a User in Spring MVC Test with RequestPostProcessor>>
-* <<running-as-a-user-in-spring-mvc-test-with-annotations,Running as a User in Spring MVC Test with Annotations>>
+* <<test-mockmvc-withmockuser,Running as a User in Spring MVC Test with Annotations>>
 
 [[test-mockmvc-securitycontextholder-rpp]]
 == Running as a User in Spring MVC Test with RequestPostProcessor
