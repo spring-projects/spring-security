@@ -45,6 +45,7 @@ import org.springframework.util.Assert;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
 /**
@@ -82,11 +83,12 @@ final class JwtDecoderProviderConfigurationUtils {
 	}
 
 	static Map<String, Object> getConfigurationForOidcIssuerLocation(String oidcIssuerLocation) {
-		return getConfiguration(oidcIssuerLocation, rest, oidc(URI.create(oidcIssuerLocation)));
+		UriComponents uri = UriComponentsBuilder.fromUriString(oidcIssuerLocation).build();
+		return getConfiguration(oidcIssuerLocation, rest, oidc(uri));
 	}
 
 	static Map<String, Object> getConfigurationForIssuerLocation(String issuer, RestOperations rest) {
-		URI uri = URI.create(issuer);
+		UriComponents uri = UriComponentsBuilder.fromUriString(issuer).build();
 		return getConfiguration(issuer, rest, oidc(uri), oidcRfc8414(uri), oauth(uri));
 	}
 
@@ -183,25 +185,25 @@ final class JwtDecoderProviderConfigurationUtils {
 		throw new IllegalArgumentException(errorMessage);
 	}
 
-	private static URI oidc(URI issuer) {
+	private static URI oidc(UriComponents issuer) {
 		// @formatter:off
-		return UriComponentsBuilder.fromUri(issuer)
+		return UriComponentsBuilder.newInstance().uriComponents(issuer)
 				.replacePath(issuer.getPath() + OIDC_METADATA_PATH)
 				.build(Collections.emptyMap());
 		// @formatter:on
 	}
 
-	private static URI oidcRfc8414(URI issuer) {
+	private static URI oidcRfc8414(UriComponents issuer) {
 		// @formatter:off
-		return UriComponentsBuilder.fromUri(issuer)
+		return UriComponentsBuilder.newInstance().uriComponents(issuer)
 				.replacePath(OIDC_METADATA_PATH + issuer.getPath())
 				.build(Collections.emptyMap());
 		// @formatter:on
 	}
 
-	private static URI oauth(URI issuer) {
+	private static URI oauth(UriComponents issuer) {
 		// @formatter:off
-		return UriComponentsBuilder.fromUri(issuer)
+		return UriComponentsBuilder.newInstance().uriComponents(issuer)
 				.replacePath(OAUTH_METADATA_PATH + issuer.getPath())
 				.build(Collections.emptyMap());
 		// @formatter:on
