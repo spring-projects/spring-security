@@ -16,6 +16,8 @@
 
 package org.springframework.security.web.csrf;
 
+import java.io.Serial;
+
 import org.springframework.security.access.AccessDeniedException;
 
 /**
@@ -24,8 +26,10 @@ import org.springframework.security.access.AccessDeniedException;
  * @author Rob Winch
  * @since 3.2
  */
-@SuppressWarnings("serial")
 public class CsrfException extends AccessDeniedException {
+
+	@Serial
+	private static final long serialVersionUID = 7802567627837252670L;
 
 	public CsrfException(String message) {
 		super(message);
