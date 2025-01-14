@@ -23,7 +23,7 @@ import org.springframework.security.config.annotation.web.configurers.WebAuthnCo
  * A Kotlin DSL to configure [HttpSecurity] webauthn using idiomatic Kotlin code.
  * @property rpName the relying party name
  * @property rpId the relying party id
- * @property the allowed origins
+ * @property allowedOrigins allowed origins
  * @property disableDefaultRegistrationPage disable default webauthn registration page
  * @since 6.4
  * @author Rob Winch
