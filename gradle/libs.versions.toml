@@ -28,7 +28,7 @@ com-squareup-okhttp3-okhttp = { module = "com.squareup.okhttp3:okhttp", version.
 com-unboundid-unboundid-ldapsdk = "com.unboundid:unboundid-ldapsdk:6.0.11"
 com-unboundid-unboundid-ldapsdk7 = "com.unboundid:unboundid-ldapsdk:7.0.1"
 commons-collections = "commons-collections:commons-collections:3.2.2"
-io-micrometer-micrometer-observation = "io.micrometer:micrometer-observation:1.14.2"
+io-micrometer-micrometer-observation = "io.micrometer:micrometer-observation:1.14.3"
 io-mockk = "io.mockk:mockk:1.13.16"
 io-projectreactor-reactor-bom = "io.projectreactor:reactor-bom:2023.0.13"
 io-rsocket-rsocket-bom = { module = "io.rsocket:rsocket-bom", version.ref = "io-rsocket" }
