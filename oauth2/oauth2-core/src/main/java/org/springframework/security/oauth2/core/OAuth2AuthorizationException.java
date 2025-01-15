@@ -16,6 +16,8 @@
 
 package org.springframework.security.oauth2.core;
 
+import java.io.Serial;
+
 import org.springframework.util.Assert;
 
 /**
@@ -25,6 +27,9 @@ import org.springframework.util.Assert;
  * @since 5.1
  */
 public class OAuth2AuthorizationException extends RuntimeException {
+
+	@Serial
+	private static final long serialVersionUID = -5470222190376181102L;
 
 	private final OAuth2Error error;
 

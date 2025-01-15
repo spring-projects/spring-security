@@ -16,6 +16,8 @@
 
 package org.springframework.security.oauth2.jwt;
 
+import java.io.Serial;
+
 /**
  * An exception thrown when a {@link JwtDecoder} or {@link ReactiveJwtDecoder}'s lazy
  * initialization fails.
@@ -24,6 +26,9 @@ package org.springframework.security.oauth2.jwt;
  * @since 5.6
  */
 public class JwtDecoderInitializationException extends RuntimeException {
+
+	@Serial
+	private static final long serialVersionUID = 2786360018315628982L;
 
 	public JwtDecoderInitializationException(String message, Throwable cause) {
 		super(message, cause);

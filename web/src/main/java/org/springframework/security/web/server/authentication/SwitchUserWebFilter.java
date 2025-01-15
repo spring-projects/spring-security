@@ -353,6 +353,7 @@ public class SwitchUserWebFilter implements WebFilter {
 		this.switchUserMatcher = switchUserMatcher;
 	}
 
+	@SuppressWarnings("serial")
 	private static class SwitchUserAuthenticationException extends RuntimeException {
 
 		SwitchUserAuthenticationException(AuthenticationException exception) {

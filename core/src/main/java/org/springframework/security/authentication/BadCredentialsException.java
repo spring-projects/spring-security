@@ -16,6 +16,8 @@
 
 package org.springframework.security.authentication;
 
+import java.io.Serial;
+
 import org.springframework.security.core.AuthenticationException;
 
 /**
@@ -25,6 +27,9 @@ import org.springframework.security.core.AuthenticationException;
  * @author Ben Alex
  */
 public class BadCredentialsException extends AuthenticationException {
+
+	@Serial
+	private static final long serialVersionUID = 2742216069043066973L;
 
 	/**
 	 * Constructs a <code>BadCredentialsException</code> with the specified message.

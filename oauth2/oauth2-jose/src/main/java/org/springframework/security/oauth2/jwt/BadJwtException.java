@@ -16,6 +16,8 @@
 
 package org.springframework.security.oauth2.jwt;
 
+import java.io.Serial;
+
 /**
  * An exception similar to
  * {@link org.springframework.security.authentication.BadCredentialsException} that
@@ -25,6 +27,9 @@ package org.springframework.security.oauth2.jwt;
  * @since 5.3
  */
 public class BadJwtException extends JwtException {
+
+	@Serial
+	private static final long serialVersionUID = 7748429527132280501L;
 
 	public BadJwtException(String message) {
 		super(message);

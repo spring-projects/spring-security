@@ -16,6 +16,8 @@
 
 package org.springframework.security.authorization;
 
+import java.io.Serial;
+
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.util.Assert;
 
@@ -26,6 +28,9 @@ import org.springframework.util.Assert;
  * @since 6.3
  */
 public class AuthorizationDeniedException extends AccessDeniedException implements AuthorizationResult {
+
+	@Serial
+	private static final long serialVersionUID = 3227305845919610459L;
 
 	private final AuthorizationResult result;
 

@@ -16,6 +16,8 @@
 
 package org.springframework.security.oauth2.jwt;
 
+import java.io.Serial;
+
 /**
  * This exception is thrown when an error occurs while attempting to encode a JSON Web
  * Token (JWT).
@@ -24,6 +26,9 @@ package org.springframework.security.oauth2.jwt;
  * @since 5.6
  */
 public class JwtEncodingException extends JwtException {
+
+	@Serial
+	private static final long serialVersionUID = 6581840872589902213L;
 
 	/**
 	 * Constructs a {@code JwtEncodingException} using the provided parameters.
