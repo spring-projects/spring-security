@@ -201,6 +201,7 @@ public final class SecurityJackson2Modules {
 	 *
 	 * @author Rob Winch
 	 */
+	@SuppressWarnings("serial")
 	static class AllowlistTypeResolverBuilder extends ObjectMapper.DefaultTypeResolverBuilder {
 
 		AllowlistTypeResolverBuilder(ObjectMapper.DefaultTyping defaultTyping) {

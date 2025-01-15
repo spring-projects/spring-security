@@ -47,6 +47,7 @@ import org.springframework.security.web.webauthn.management.RelyingPartyPublicKe
  * @author Rob Winch
  * @since 6.4
  */
+@SuppressWarnings("serial")
 public class WebauthnJackson2Module extends SimpleModule {
 
 	/**
