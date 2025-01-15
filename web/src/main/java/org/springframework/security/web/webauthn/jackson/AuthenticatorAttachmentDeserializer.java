@@ -31,6 +31,7 @@ import org.springframework.security.web.webauthn.api.AuthenticatorAttachment;
  * @author Rob Winch
  * @since 6.4
  */
+@SuppressWarnings("serial")
 class AuthenticatorAttachmentDeserializer extends StdDeserializer<AuthenticatorAttachment> {
 
 	AuthenticatorAttachmentDeserializer() {

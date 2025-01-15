@@ -39,6 +39,7 @@ import org.springframework.security.web.webauthn.api.ImmutableAuthenticationExte
  * @author Rob Winch
  * @since 6.4
  */
+@SuppressWarnings("serial")
 class AuthenticationExtensionsClientOutputsDeserializer extends StdDeserializer<AuthenticationExtensionsClientOutputs> {
 
 	private static final Log logger = LogFactory.getLog(AuthenticationExtensionsClientOutputsDeserializer.class);
