@@ -16,6 +16,8 @@
 
 package org.springframework.security.ldap.ppolicy;
 
+import java.io.Serial;
+
 /**
  * Generic exception raised by the ppolicy package.
  * <p>
@@ -26,6 +28,9 @@ package org.springframework.security.ldap.ppolicy;
  * @since 3.0
  */
 public class PasswordPolicyException extends RuntimeException {
+
+	@Serial
+	private static final long serialVersionUID = 2586535034047453106L;
 
 	private final PasswordPolicyErrorStatus status;
 

@@ -40,6 +40,7 @@ import org.springframework.security.core.AuthenticationException;
  *
  * @author Rob Winch
  */
+@SuppressWarnings("serial")
 public final class ActiveDirectoryAuthenticationException extends AuthenticationException {
 
 	private final String dataCode;

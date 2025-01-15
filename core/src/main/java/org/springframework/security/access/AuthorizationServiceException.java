@@ -16,6 +16,8 @@
 
 package org.springframework.security.access;
 
+import java.io.Serial;
+
 /**
  * Thrown if an authorization request could not be processed due to a system problem.
  * <p>
@@ -25,6 +27,9 @@ package org.springframework.security.access;
  * @author Ben Alex
  */
 public class AuthorizationServiceException extends AccessDeniedException {
+
+	@Serial
+	private static final long serialVersionUID = 4817857292041606900L;
 
 	/**
 	 * Constructs an <code>AuthorizationServiceException</code> with the specified

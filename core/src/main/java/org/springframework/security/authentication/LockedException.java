@@ -16,6 +16,8 @@
 
 package org.springframework.security.authentication;
 
+import java.io.Serial;
+
 /**
  * Thrown if an authentication request is rejected because the account is locked. Makes no
  * assertion as to whether or not the credentials were valid.
@@ -23,6 +25,9 @@ package org.springframework.security.authentication;
  * @author Ben Alex
  */
 public class LockedException extends AccountStatusException {
+
+	@Serial
+	private static final long serialVersionUID = 548864198455046567L;
 
 	/**
 	 * Constructs a <code>LockedException</code> with the specified message.

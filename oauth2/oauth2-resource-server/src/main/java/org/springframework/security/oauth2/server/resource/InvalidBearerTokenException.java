@@ -16,6 +16,8 @@
 
 package org.springframework.security.oauth2.server.resource;
 
+import java.io.Serial;
+
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 
 /**
@@ -25,6 +27,9 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
  * @since 5.3
  */
 public class InvalidBearerTokenException extends OAuth2AuthenticationException {
+
+	@Serial
+	private static final long serialVersionUID = 6904689954809100280L;
 
 	/**
 	 * Construct an instance of {@link InvalidBearerTokenException} given the provided
