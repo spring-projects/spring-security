@@ -31,6 +31,7 @@ import org.springframework.security.web.webauthn.api.CredProtectAuthenticationEx
  *
  * @author Rob Winch
  */
+@SuppressWarnings("serial")
 class CredProtectAuthenticationExtensionsClientInputSerializer
 		extends StdSerializer<CredProtectAuthenticationExtensionsClientInput> {
 
