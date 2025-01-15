@@ -54,15 +54,29 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.type.filter.AssignableTypeFilter;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.AuthorizationServiceException;
 import org.springframework.security.access.intercept.RunAsUserToken;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
+import org.springframework.security.authentication.AccountExpiredException;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
+import org.springframework.security.authentication.AuthenticationServiceException;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.CredentialsExpiredException;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
+import org.springframework.security.authentication.LockedException;
+import org.springframework.security.authentication.ProviderNotFoundException;
 import org.springframework.security.authentication.RememberMeAuthenticationToken;
 import org.springframework.security.authentication.TestAuthentication;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.jaas.JaasAuthenticationToken;
+import org.springframework.security.authentication.ott.InvalidOneTimeTokenException;
 import org.springframework.security.authentication.ott.OneTimeTokenAuthenticationToken;
+import org.springframework.security.authentication.password.CompromisedPasswordException;
 import org.springframework.security.cas.authentication.CasAssertionAuthenticationToken;
 import org.springframework.security.cas.authentication.CasAuthenticationToken;
 import org.springframework.security.cas.authentication.CasServiceTicketAuthenticationToken;
@@ -72,7 +86,12 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.session.ReactiveSessionInformation;
 import org.springframework.security.core.session.SessionInformation;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.ldap.ppolicy.PasswordPolicyErrorStatus;
+import org.springframework.security.ldap.ppolicy.PasswordPolicyException;
 import org.springframework.security.ldap.userdetails.LdapAuthority;
+import org.springframework.security.oauth2.client.ClientAuthorizationException;
+import org.springframework.security.oauth2.client.ClientAuthorizationRequiredException;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthorizationCodeAuthenticationToken;
@@ -88,7 +107,10 @@ import org.springframework.security.oauth2.client.registration.TestClientRegistr
 import org.springframework.security.oauth2.core.DefaultOAuth2AuthenticatedPrincipal;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.security.oauth2.core.OAuth2DeviceCode;
+import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2RefreshToken;
 import org.springframework.security.oauth2.core.OAuth2UserCode;
 import org.springframework.security.oauth2.core.TestOAuth2AccessTokens;
@@ -108,14 +130,22 @@ import org.springframework.security.oauth2.core.oidc.user.TestOidcUsers;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 import org.springframework.security.oauth2.core.user.TestOAuth2Users;
+import org.springframework.security.oauth2.jwt.BadJwtException;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtDecoderInitializationException;
+import org.springframework.security.oauth2.jwt.JwtEncodingException;
+import org.springframework.security.oauth2.jwt.JwtException;
+import org.springframework.security.oauth2.jwt.JwtValidationException;
 import org.springframework.security.oauth2.jwt.TestJwts;
 import org.springframework.security.oauth2.server.resource.BearerTokenError;
 import org.springframework.security.oauth2.server.resource.BearerTokenErrors;
+import org.springframework.security.oauth2.server.resource.InvalidBearerTokenException;
 import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthentication;
 import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+import org.springframework.security.oauth2.server.resource.introspection.BadOpaqueTokenException;
 import org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionAuthenticatedPrincipal;
+import org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionException;
 import org.springframework.security.saml2.Saml2Exception;
 import org.springframework.security.saml2.core.Saml2Error;
 import org.springframework.security.saml2.provider.service.authentication.DefaultSaml2AuthenticatedPrincipal;
@@ -138,6 +168,8 @@ import org.springframework.security.web.csrf.CsrfException;
 import org.springframework.security.web.csrf.DefaultCsrfToken;
 import org.springframework.security.web.csrf.InvalidCsrfTokenException;
 import org.springframework.security.web.csrf.MissingCsrfTokenException;
+import org.springframework.security.web.firewall.RequestRejectedException;
+import org.springframework.security.web.server.firewall.ServerExchangeRejectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -193,6 +225,12 @@ class SpringSecurityCoreVersionSerializableTests {
 		generatorByClassName.put(OidcUserAuthority.class,
 				(r) -> new OidcUserAuthority(TestOidcIdTokens.idToken().build(),
 						new OidcUserInfo(Map.of("claim", "value")), "claim"));
+		generatorByClassName.put(OAuth2AuthenticationException.class,
+				(r) -> new OAuth2AuthenticationException(new OAuth2Error("error", "description", "uri"), "message",
+						new RuntimeException()));
+		generatorByClassName.put(OAuth2AuthorizationException.class,
+				(r) -> new OAuth2AuthorizationException(new OAuth2Error("error", "description", "uri"), "message",
+						new RuntimeException()));
 
 		// oauth2-client
 		ClientRegistration.Builder clientRegistrationBuilder = TestClientRegistrations.clientRegistration();
@@ -231,6 +269,21 @@ class SpringSecurityCoreVersionSerializableTests {
 			return new DefaultOAuth2AuthenticatedPrincipal(principal.getName(), principal.getAttributes(),
 					(Collection<GrantedAuthority>) principal.getAuthorities());
 		});
+		generatorByClassName.put(ClientAuthorizationException.class,
+				(r) -> new ClientAuthorizationException(new OAuth2Error("error", "description", "uri"), "id", "message",
+						new RuntimeException()));
+		generatorByClassName.put(ClientAuthorizationRequiredException.class,
+				(r) -> new ClientAuthorizationRequiredException("id"));
+
+		// oauth2-jose
+		generatorByClassName.put(BadJwtException.class, (r) -> new BadJwtException("token", new RuntimeException()));
+		generatorByClassName.put(JwtDecoderInitializationException.class,
+				(r) -> new JwtDecoderInitializationException("message", new RuntimeException()));
+		generatorByClassName.put(JwtEncodingException.class,
+				(r) -> new JwtEncodingException("message", new RuntimeException()));
+		generatorByClassName.put(JwtException.class, (r) -> new JwtException("message", new RuntimeException()));
+		generatorByClassName.put(JwtValidationException.class,
+				(r) -> new JwtValidationException("message", List.of(new OAuth2Error("error", "description", "uri"))));
 
 		// oauth2-jwt
 		generatorByClassName.put(Jwt.class, (r) -> TestJwts.user());
@@ -262,6 +315,12 @@ class SpringSecurityCoreVersionSerializableTests {
 		generatorByClassName.put(BearerTokenError.class, (r) -> BearerTokenErrors.invalidToken("invalid token"));
 		generatorByClassName.put(OAuth2IntrospectionAuthenticatedPrincipal.class,
 				(r) -> TestOAuth2AuthenticatedPrincipals.active());
+		generatorByClassName.put(InvalidBearerTokenException.class,
+				(r) -> new InvalidBearerTokenException("description", new RuntimeException()));
+		generatorByClassName.put(BadOpaqueTokenException.class,
+				(r) -> new BadOpaqueTokenException("message", new RuntimeException()));
+		generatorByClassName.put(OAuth2IntrospectionException.class,
+				(r) -> new OAuth2IntrospectionException("message", new RuntimeException()));
 
 		// core
 		generatorByClassName.put(RunAsUserToken.class, (r) -> {
@@ -287,7 +346,33 @@ class SpringSecurityCoreVersionSerializableTests {
 		});
 		generatorByClassName.put(OneTimeTokenAuthenticationToken.class,
 				(r) -> applyDetails(new OneTimeTokenAuthenticationToken("username", "token")));
-
+		generatorByClassName.put(AccessDeniedException.class,
+				(r) -> new AccessDeniedException("access denied", new RuntimeException()));
+		generatorByClassName.put(AuthorizationServiceException.class,
+				(r) -> new AuthorizationServiceException("access denied", new RuntimeException()));
+		generatorByClassName.put(AccountExpiredException.class,
+				(r) -> new AccountExpiredException("error", new RuntimeException()));
+		generatorByClassName.put(AuthenticationCredentialsNotFoundException.class,
+				(r) -> new AuthenticationCredentialsNotFoundException("error", new RuntimeException()));
+		generatorByClassName.put(AuthenticationServiceException.class,
+				(r) -> new AuthenticationServiceException("error", new RuntimeException()));
+		generatorByClassName.put(BadCredentialsException.class,
+				(r) -> new BadCredentialsException("error", new RuntimeException()));
+		generatorByClassName.put(CredentialsExpiredException.class,
+				(r) -> new CredentialsExpiredException("error", new RuntimeException()));
+		generatorByClassName.put(DisabledException.class,
+				(r) -> new DisabledException("error", new RuntimeException()));
+		generatorByClassName.put(InsufficientAuthenticationException.class,
+				(r) -> new InsufficientAuthenticationException("error", new RuntimeException()));
+		generatorByClassName.put(InternalAuthenticationServiceException.class,
+				(r) -> new InternalAuthenticationServiceException("error", new RuntimeException()));
+		generatorByClassName.put(LockedException.class, (r) -> new LockedException("error", new RuntimeException()));
+		generatorByClassName.put(ProviderNotFoundException.class, (r) -> new ProviderNotFoundException("error"));
+		generatorByClassName.put(InvalidOneTimeTokenException.class, (r) -> new InvalidOneTimeTokenException("error"));
+		generatorByClassName.put(CompromisedPasswordException.class,
+				(r) -> new CompromisedPasswordException("error", new RuntimeException()));
+		generatorByClassName.put(UsernameNotFoundException.class,
+				(r) -> new UsernameNotFoundException("error", new RuntimeException()));
 		generatorByClassName.put(TestingAuthenticationToken.class,
 				(r) -> applyDetails(new TestingAuthenticationToken("username", "password")));
 
@@ -312,6 +397,8 @@ class SpringSecurityCoreVersionSerializableTests {
 		// ldap
 		generatorByClassName.put(LdapAuthority.class,
 				(r) -> new LdapAuthority("USER", "username", Map.of("attribute", List.of("value1", "value2"))));
+		generatorByClassName.put(PasswordPolicyException.class,
+				(r) -> new PasswordPolicyException(PasswordPolicyErrorStatus.INSUFFICIENT_PASSWORD_QUALITY));
 
 		// saml2-service-provider
 		generatorByClassName.put(Saml2AuthenticationException.class,
@@ -358,7 +445,9 @@ class SpringSecurityCoreVersionSerializableTests {
 		generatorByClassName.put(org.springframework.security.web.server.csrf.DefaultCsrfToken.class,
 				(r) -> new org.springframework.security.web.server.csrf.DefaultCsrfToken("header", "parameter",
 						"token"));
-
+		generatorByClassName.put(RequestRejectedException.class, (r) -> new RequestRejectedException("message"));
+		generatorByClassName.put(ServerExchangeRejectedException.class,
+				(r) -> new ServerExchangeRejectedException("message"));
 	}
 
 	@ParameterizedTest

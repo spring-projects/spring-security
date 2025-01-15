@@ -16,10 +16,15 @@
 
 package org.springframework.security.web.firewall;
 
+import java.io.Serial;
+
 /**
  * @author Luke Taylor
  */
 public class RequestRejectedException extends RuntimeException {
+
+	@Serial
+	private static final long serialVersionUID = 7226768874760909859L;
 
 	public RequestRejectedException(String message) {
 		super(message);

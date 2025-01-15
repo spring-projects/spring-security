@@ -617,6 +617,7 @@ public final class Base64 {
 		return out;
 	}
 
+	@SuppressWarnings("serial")
 	static class InvalidBase64CharacterException extends IllegalArgumentException {
 
 		InvalidBase64CharacterException(String message) {
