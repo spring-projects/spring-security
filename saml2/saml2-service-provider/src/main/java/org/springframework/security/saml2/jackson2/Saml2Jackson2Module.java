@@ -39,6 +39,7 @@ import org.springframework.security.saml2.provider.service.authentication.logout
  * @since 5.7
  * @see SecurityJackson2Modules
  */
+@SuppressWarnings("serial")
 public class Saml2Jackson2Module extends SimpleModule {
 
 	public Saml2Jackson2Module() {
