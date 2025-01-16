@@ -49,6 +49,7 @@ import org.springframework.security.web.util.matcher.DispatcherTypeRequestMatche
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcherBuilder;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.web.context.WebApplicationContext;
@@ -73,6 +74,8 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 	private static final boolean mvcPresent;
 
 	private static final RequestMatcher ANY_REQUEST = AnyRequestMatcher.INSTANCE;
+
+	private final RequestMatcherBuilder requestMatcherBuilder = new DefaultRequestMatcherBuilder();
 
 	private ApplicationContext context;
 
@@ -217,13 +220,9 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 		if (servletContext == null) {
 			return requestMatchers(RequestMatchers.antMatchersAsArray(method, patterns));
 		}
-		List<RequestMatcher> matchers = new ArrayList<>();
-		for (String pattern : patterns) {
-			AntPathRequestMatcher ant = new AntPathRequestMatcher(pattern, (method != null) ? method.name() : null);
-			MvcRequestMatcher mvc = createMvcMatchers(method, pattern).get(0);
-			matchers.add(new DeferredRequestMatcher((c) -> resolve(ant, mvc, c), mvc, ant));
-		}
-		return requestMatchers(matchers.toArray(new RequestMatcher[0]));
+		RequestMatcherBuilder builder = context.getBeanProvider(RequestMatcherBuilder.class)
+			.getIfUnique(() -> this.requestMatcherBuilder);
+		return requestMatchers(builder.pattern(method, patterns));
 	}
 
 	private boolean anyPathsDontStartWithLeadingSlash(String... patterns) {
@@ -264,11 +263,14 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 	}
 
 	private static String computeErrorMessage(Collection<? extends ServletRegistration> registrations) {
-		String template = "This method cannot decide whether these patterns are Spring MVC patterns or not. "
-				+ "If this endpoint is a Spring MVC endpoint, please use requestMatchers(MvcRequestMatcher); "
-				+ "otherwise, please use requestMatchers(AntPathRequestMatcher).\n\n"
-				+ "This is because there is more than one mappable servlet in your servlet context: %s.\n\n"
-				+ "For each MvcRequestMatcher, call MvcRequestMatcher#setServletPath to indicate the servlet path.";
+		String template = """
+				This method cannot decide whether these patterns are Spring MVC patterns or not. \
+				This is because there is more than one mappable servlet in your servlet context: %s.
+
+				To address this, please create one ServletRequestMatcherBuilder#servletPath for each servlet that has \
+				authorized endpoints and use them to construct request matchers manually. \
+				If all your URIs are unambiguous, then you can simply publish one ServletRequestMatcherBuilders#servletPath as \
+				a @Bean and Spring Security will use it for all URIs""";
 		Map<String, Collection<String>> mappings = new LinkedHashMap<>();
 		for (ServletRegistration registration : registrations) {
 			mappings.put(registration.getClassName(), registration.getMappings());
@@ -398,6 +400,17 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 		 */
 		static List<RequestMatcher> regexMatchers(String... regexPatterns) {
 			return regexMatchers(null, regexPatterns);
+		}
+
+	}
+
+	class DefaultRequestMatcherBuilder implements RequestMatcherBuilder {
+
+		@Override
+		public RequestMatcher pattern(HttpMethod method, String pattern) {
+			AntPathRequestMatcher ant = new AntPathRequestMatcher(pattern, (method != null) ? method.name() : null);
+			MvcRequestMatcher mvc = createMvcMatchers(method, pattern).get(0);
+			return new DeferredRequestMatcher((c) -> resolve(ant, mvc, c), mvc, ant);
 		}
 
 	}
