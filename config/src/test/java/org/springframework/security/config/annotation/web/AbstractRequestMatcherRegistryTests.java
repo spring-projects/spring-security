@@ -21,6 +21,7 @@ import java.util.List;
 
 import jakarta.servlet.DispatcherType;
 import jakarta.servlet.Servlet;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -39,6 +40,7 @@ import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.web.servlet.MockServletContext;
 import org.springframework.security.web.servlet.TestMockHttpServletMappings;
 import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.DispatcherTypeRequestMatcher;
 import org.springframework.security.web.util.matcher.RegexRequestMatcher;
@@ -49,10 +51,13 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.DispatcherServlet;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.InstanceOfAssertFactories.type;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -91,11 +96,13 @@ public class AbstractRequestMatcherRegistryTests {
 		given(this.context.getServletContext()).willReturn(MockServletContext.mvc());
 		ObjectProvider<RequestMatcherBuilder> requestMatcherFactories = new ObjectProvider<>() {
 			@Override
-			public RequestMatcherBuilder getObject() throws BeansException {
+			public @NotNull RequestMatcherBuilder getObject() throws BeansException {
 				return AbstractRequestMatcherRegistryTests.this.matcherRegistry.new DefaultRequestMatcherBuilder();
 			}
 		};
 		given(this.context.getBeanProvider(RequestMatcherBuilder.class)).willReturn(requestMatcherFactories);
+		HandlerMappingIntrospector introspector = mock(HandlerMappingIntrospector.class);
+		given(this.context.getBean(any(), eq(HandlerMappingIntrospector.class))).willReturn(introspector);
 		this.matcherRegistry.setApplicationContext(this.context);
 		mockMvcIntrospector(true);
 	}
@@ -231,7 +238,7 @@ public class AbstractRequestMatcherRegistryTests {
 			assertThat(requestMatchers).hasSize(1);
 			assertThat(requestMatchers.get(0)).asInstanceOf(type(DispatcherServletDelegatingRequestMatcher.class))
 				.extracting((matcher) -> matcher.requestMatcher(request))
-				.isInstanceOf(MvcRequestMatcher.class);
+				.isInstanceOf(PathPatternRequestMatcher.class);
 			servletContext.addServlet("servletOne", Servlet.class).addMapping("/one");
 			servletContext.addServlet("servletTwo", Servlet.class).addMapping("/two");
 			requestMatchers = this.matcherRegistry.requestMatchers("/**");
@@ -239,7 +246,7 @@ public class AbstractRequestMatcherRegistryTests {
 			assertThat(requestMatchers).hasSize(1);
 			assertThat(requestMatchers.get(0)).asInstanceOf(type(DispatcherServletDelegatingRequestMatcher.class))
 				.extracting((matcher) -> matcher.requestMatcher(request))
-				.isInstanceOf(MvcRequestMatcher.class);
+				.isInstanceOf(PathPatternRequestMatcher.class);
 			servletContext.addServlet("servletOne", Servlet.class);
 			servletContext.addServlet("servletTwo", Servlet.class);
 			requestMatchers = this.matcherRegistry.requestMatchers("/**");
@@ -247,7 +254,7 @@ public class AbstractRequestMatcherRegistryTests {
 			assertThat(requestMatchers).hasSize(1);
 			assertThat(requestMatchers.get(0)).asInstanceOf(type(DispatcherServletDelegatingRequestMatcher.class))
 				.extracting((matcher) -> matcher.requestMatcher(request))
-				.isInstanceOf(MvcRequestMatcher.class);
+				.isInstanceOf(PathPatternRequestMatcher.class);
 		}
 	}
 

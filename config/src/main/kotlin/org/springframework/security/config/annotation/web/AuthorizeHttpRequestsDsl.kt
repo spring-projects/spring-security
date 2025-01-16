@@ -32,10 +32,12 @@ import org.springframework.security.web.access.IpAddressAuthorizationManager
 import org.springframework.security.web.access.intercept.AuthorizationFilter
 import org.springframework.security.web.access.intercept.RequestAuthorizationContext
 import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher
 import org.springframework.security.web.util.matcher.AnyRequestMatcher
 import org.springframework.security.web.util.matcher.RequestMatcher
 import org.springframework.util.ClassUtils
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector
+import org.springframework.web.util.pattern.PathPatternParser
 import java.util.function.Supplier
 
 /**
@@ -292,11 +294,20 @@ class AuthorizeHttpRequestsDsl : AbstractRequestMatcherDsl {
                             PatternType.ANT -> requests.requestMatchers(rule.httpMethod, rule.pattern).access(rule.rule)
                             PatternType.MVC -> {
                                 val introspector = requests.applicationContext.getBean(HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME, HandlerMappingIntrospector::class.java)
-                                val mvcMatcher = MvcRequestMatcher.Builder(introspector)
-                                    .servletPath(rule.servletPath)
-                                    .pattern(rule.pattern)
-                                mvcMatcher.setMethod(rule.httpMethod)
-                                requests.requestMatchers(mvcMatcher).access(rule.rule)
+                                if (introspector.allHandlerMappingsUsePathPatternParser()) {
+                                    val pathPatternParser: PathPatternParser = requests.applicationContext.getBeanProvider(PathPatternParser::class.java)
+                                        .getIfUnique({PathPatternParser.defaultInstance})
+                                    val mvcMatcher = PathPatternRequestMatcher.withPathPatternParser(pathPatternParser)
+                                        .servletPath(rule.servletPath)
+                                        .pattern(rule.httpMethod, rule.pattern)
+                                    requests.requestMatchers(mvcMatcher).access(rule.rule)
+                                } else {
+                                    val mvcMatcher = MvcRequestMatcher.Builder(introspector)
+                                        .servletPath(rule.servletPath)
+                                        .pattern(rule.pattern)
+                                    mvcMatcher.setMethod(rule.httpMethod)
+                                    requests.requestMatchers(mvcMatcher).access(rule.rule)
+                                }
                             }
                         }
                     }

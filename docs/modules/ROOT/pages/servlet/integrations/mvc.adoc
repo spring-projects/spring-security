@@ -22,13 +22,13 @@ This means that, if you use more advanced options, such as integrating with `Web
 ====
 
 [[mvc-requestmatcher]]
-== MvcRequestMatcher
+== PathPatternRequestMatcher
 
-Spring Security provides deep integration with how Spring MVC matches on URLs with `MvcRequestMatcher`.
+Spring Security provides deep integration with how Spring MVC matches on URLs with `PahtPatternRequestMatcher`.
 This is helpful to ensure that your Security rules match the logic used to handle your requests.
 
-To use `MvcRequestMatcher`, you must place the Spring Security Configuration in the same `ApplicationContext` as your `DispatcherServlet`.
-This is necessary because Spring Security's `MvcRequestMatcher` expects a `HandlerMappingIntrospector` bean with the name of `mvcHandlerMappingIntrospector` to be registered by your Spring MVC configuration that is used to perform the matching.
+To use `PathPatternRequestMatcher`, you may need to place the Spring Security Configuration in the same `ApplicationContext` as your `DispatcherServlet`.
+This is necessary when using a custom `PathPatternParser` `@Bean`. In this case, both Spring MVC and  Spring Security needs to be able to see this bean.
 
 For a `web.xml` file, this means that you should place your configuration in the `DispatcherServlet.xml`:
 
@@ -196,18 +196,18 @@ Additionally, depending on our Spring MVC configuration, the `/admin` URL also m
 The problem is that our security rule protects only  `/admin`.
 We could add additional rules for all the permutations of Spring MVC, but this would be quite verbose and tedious.
 
-Fortunately, when using the `requestMatchers` DSL method, Spring Security automatically creates a `MvcRequestMatcher` if it detects that Spring MVC is available in the classpath.
+Fortunately, when using the `requestMatchers` DSL method, Spring Security automatically creates a `PathPatternRequestMatcher` if it detects that Spring MVC is available in the classpath.
 Therefore, it will protect the same URLs that Spring MVC will match on by using Spring MVC to match on the URL.
 
 One common requirement when using Spring MVC is to specify the servlet path property.
 
-For Java-based Configuration, you can use the `MvcRequestMatcher.Builder` to create multiple `MvcRequestMatcher` instances that share the same servlet path:
+For Java-based Configuration, you can use the `PathPatternRequestMatcher.Builder` to create multiple `PathPatternRequestMatcher` instances that share the same servlet path:
 
 [source,java,role="primary"]
 ----
 @Bean
-public SecurityFilterChain filterChain(HttpSecurity http, HandlerMappingIntrospector introspector) throws Exception {
-	MvcRequestMatcher.Builder mvcMatcherBuilder = new MvcRequestMatcher.Builder(introspector).servletPath("/path");
+public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+	PathPatternRequestMatcher.Builder mvcMatcherBuilder = new PathPatternRequestMatcher.Builder().servletPath("/path");
 	http
 		.authorizeHttpRequests((authorize) -> authorize
 			.requestMatchers(mvcMatcherBuilder.pattern("/admin")).hasRole("ADMIN")
@@ -216,6 +216,11 @@ public SecurityFilterChain filterChain(HttpSecurity http, HandlerMappingIntrospe
 	return http.build();
 }
 ----
+
+[NOTE]
+=====
+For your convenience, you also can use `ServletRequestMatcherBuilders` which exposes an API that more directly reflects the Servlet spec.
+=====
 
 For Kotlin and XML, this happens when you specify the servlet path for each path like so:
 

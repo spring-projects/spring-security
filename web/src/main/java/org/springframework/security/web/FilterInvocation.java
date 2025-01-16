@@ -25,6 +25,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -178,6 +179,8 @@ public class FilterInvocation {
 
 		private final Map<String, String[]> parameters = new LinkedHashMap<>();
 
+		private final Map<String, Object> attributes = new HashMap<>();
+
 		DummyRequest() {
 			super(UNSUPPORTED_REQUEST);
 		}
@@ -189,7 +192,12 @@ public class FilterInvocation {
 
 		@Override
 		public Object getAttribute(String attributeName) {
-			return null;
+			return this.attributes.get(attributeName);
+		}
+
+		@Override
+		public void setAttribute(String name, Object value) {
+			this.attributes.put(name, value);
 		}
 
 		void setRequestURI(String requestURI) {
