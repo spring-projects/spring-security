@@ -3,3 +3,10 @@
 
 Spring Security 6.5 provides a number of new features.
 Below are the highlights of the release, or you can view https://github.com/spring-projects/spring-security/releases[the release notes] for a detailed listing of each feature and bug fix.
+
+== Breaking Changes
+
+=== Observability
+
+The `security.security.reached.filter.section` key name was corrected to `spring.security.reached.filter.section`.
+Note that this may affect reports that operate on this key name.
