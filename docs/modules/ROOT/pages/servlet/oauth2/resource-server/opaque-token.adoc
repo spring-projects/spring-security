@@ -307,7 +307,8 @@ Java::
 ----
 @Bean
 public OpaqueTokenIntrospector introspector() {
-    return new NimbusOpaqueTokenIntrospector(introspectionUri, clientId, clientSecret);
+    return SpringOpaqueTokenIntrospector.withIntrospectionUri(introspectionUri)
+            .clientId(clientId).clientSecret(clientSecret).build();
 }
 ----
 
@@ -317,7 +318,8 @@ Kotlin::
 ----
 @Bean
 fun introspector(): OpaqueTokenIntrospector {
-    return NimbusOpaqueTokenIntrospector(introspectionUri, clientId, clientSecret)
+    return SpringOpaqueTokenIntrospector.withIntrospectionUri(introspectionUri)
+            .clientId(clientId).clientSecret(clientSecret).build()
 }
 ----
 ======
@@ -532,7 +534,8 @@ Or, exposing a <<oauth2resourceserver-opaque-architecture-introspector,`OpaqueTo
 ----
 @Bean
 public OpaqueTokenIntrospector introspector() {
-    return new NimbusOpaqueTokenIntrospector(introspectionUri, clientId, clientSecret);
+    return return SpringOpaqueTokenIntrospector.withIntrospectionUri(introspectionUri)
+            .clientId(clientId).clientSecret(clientSecret).build();
 }
 ----
 
@@ -662,8 +665,9 @@ Java::
 [source,java,role="primary"]
 ----
 public class CustomAuthoritiesOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
-    private OpaqueTokenIntrospector delegate =
-            new NimbusOpaqueTokenIntrospector("https://idp.example.org/introspect", "client", "secret");
+    private OpaqueTokenIntrospector delegate = SpringOpaqueTokenIntrospector
+            .withIntrospectionUri("https://idp.example.org/introspect")
+            .clientId("client").clientSecret("secret").build();
 
     public OAuth2AuthenticatedPrincipal introspect(String token) {
         OAuth2AuthenticatedPrincipal principal = this.delegate.introspect(token);
@@ -685,7 +689,9 @@ Kotlin::
 [source,kotlin,role="secondary"]
 ----
 class CustomAuthoritiesOpaqueTokenIntrospector : OpaqueTokenIntrospector {
-    private val delegate: OpaqueTokenIntrospector = NimbusOpaqueTokenIntrospector("https://idp.example.org/introspect", "client", "secret")
+    private val delegate: OpaqueTokenIntrospector = SpringOpaqueTokenIntrospector
+            .withIntrospectionUri("https://idp.example.org/introspect")
+            .clientId("client").clientSecret("secret").build()
     override fun introspect(token: String): OAuth2AuthenticatedPrincipal {
         val principal: OAuth2AuthenticatedPrincipal = delegate.introspect(token)
         return DefaultOAuth2AuthenticatedPrincipal(
@@ -750,7 +756,7 @@ public OpaqueTokenIntrospector introspector(RestTemplateBuilder builder, OAuth2R
             .setReadTimeout(Duration.ofSeconds(60))
             .build();
 
-    return new NimbusOpaqueTokenIntrospector(introspectionUri, rest);
+    return SpringOpaqueTokenIntrospector(introspectionUri, rest);
 }
 ----
 
@@ -765,7 +771,7 @@ fun introspector(builder: RestTemplateBuilder, properties: OAuth2ResourceServerP
             .setConnectTimeout(Duration.ofSeconds(60))
             .setReadTimeout(Duration.ofSeconds(60))
             .build()
-    return NimbusOpaqueTokenIntrospector(introspectionUri, rest)
+    return SpringOpaqueTokenIntrospector(introspectionUri, rest)
 }
 ----
 ======
@@ -807,8 +813,9 @@ Java::
 [source,java,role="primary"]
 ----
 public class JwtOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
-    private OpaqueTokenIntrospector delegate =
-            new NimbusOpaqueTokenIntrospector("https://idp.example.org/introspect", "client", "secret");
+    private OpaqueTokenIntrospector delegate = SpringOpaqueTokenIntrospector
+            .withIntrospectionUri("https://idp.example.org/introspect")
+            .clientId("client").clientSecret("secret").build();
     private JwtDecoder jwtDecoder = new NimbusJwtDecoder(new ParseOnlyJWTProcessor());
 
     public OAuth2AuthenticatedPrincipal introspect(String token) {
@@ -835,7 +842,9 @@ Kotlin::
 [source,kotlin,role="secondary"]
 ----
 class JwtOpaqueTokenIntrospector : OpaqueTokenIntrospector {
-    private val delegate: OpaqueTokenIntrospector = NimbusOpaqueTokenIntrospector("https://idp.example.org/introspect", "client", "secret")
+    private val delegate: OpaqueTokenIntrospector = SpringOpaqueTokenIntrospector
+            .withIntrospectionUri("https://idp.example.org/introspect")
+            .clientId("client").clientSecret("secret").build()
     private val jwtDecoder: JwtDecoder = NimbusJwtDecoder(ParseOnlyJWTProcessor())
     override fun introspect(token: String): OAuth2AuthenticatedPrincipal {
         val principal = delegate.introspect(token)
@@ -902,8 +911,9 @@ Java::
 [source,java,role="primary"]
 ----
 public class UserInfoOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
-    private final OpaqueTokenIntrospector delegate =
-            new NimbusOpaqueTokenIntrospector("https://idp.example.org/introspect", "client", "secret");
+    private final OpaqueTokenIntrospector delegate = SpringOpaqueTokenIntrospector
+            .withIntrospectionUri("https://idp.example.org/introspect")
+            .clientId("client").clientSecret("secret").build();
     private final OAuth2UserService oauth2UserService = new DefaultOAuth2UserService();
 
     private final ClientRegistrationRepository repository;
@@ -928,7 +938,9 @@ Kotlin::
 [source,kotlin,role="secondary"]
 ----
 class UserInfoOpaqueTokenIntrospector : OpaqueTokenIntrospector {
-    private val delegate: OpaqueTokenIntrospector = NimbusOpaqueTokenIntrospector("https://idp.example.org/introspect", "client", "secret")
+    private val delegate: OpaqueTokenIntrospector = SpringOpaqueTokenIntrospector
+            .withIntrospectionUri("https://idp.example.org/introspect")
+            .clientId("client").clientSecret("secret").build()
     private val oauth2UserService = DefaultOAuth2UserService()
     private val repository: ClientRegistrationRepository? = null
 
@@ -957,8 +969,9 @@ Java::
 [source,java,role="primary"]
 ----
 public class UserInfoOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
-    private final OpaqueTokenIntrospector delegate =
-            new NimbusOpaqueTokenIntrospector("https://idp.example.org/introspect", "client", "secret");
+    private final OpaqueTokenIntrospector delegate = SpringOpaqueTokenIntrospector
+            .withIntrospectionUri("https://idp.example.org/introspect")
+            .clientId("client").clientSecret("secret").build();
     private final WebClient rest = WebClient.create();
 
     @Override
@@ -974,7 +987,9 @@ Kotlin::
 [source,kotlin,role="secondary"]
 ----
 class UserInfoOpaqueTokenIntrospector : OpaqueTokenIntrospector {
-    private val delegate: OpaqueTokenIntrospector = NimbusOpaqueTokenIntrospector("https://idp.example.org/introspect", "client", "secret")
+    private val delegate: OpaqueTokenIntrospector = SpringOpaqueTokenIntrospector
+            .withIntrospectionUri("https://idp.example.org/introspect")
+            .clientId("client").clientSecret("secret").build()
     private val rest: WebClient = WebClient.create()
 
     override fun introspect(token: String): OAuth2AuthenticatedPrincipal {
