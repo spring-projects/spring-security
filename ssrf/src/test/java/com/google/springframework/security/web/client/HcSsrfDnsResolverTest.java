@@ -16,16 +16,16 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class SsrfDnsResolverTest {
+public class HcSsrfDnsResolverTest {
 
 	@Mock
 	private SsrfProtectionFilter ssrfProtectionFilter;
 
-	static class TestableSsrfDnsResolver extends SsrfDnsResolver {
+	static class TestableHcSsrfDnsResolver extends HcSsrfDnsResolver {
 
 		InetAddress[] addressesToReturn = null;
 
-		public TestableSsrfDnsResolver(List<SsrfProtectionFilter> filterList) {
+		public TestableHcSsrfDnsResolver(List<SsrfProtectionFilter> filterList) {
 			super(filterList, false);
 		}
 
@@ -33,6 +33,7 @@ public class SsrfDnsResolverTest {
 		protected InetAddress[] resolveAll(String host) throws UnknownHostException {
 			return addressesToReturn;
 		}
+
 
 		public void setFilters(List<SsrfProtectionFilter> filterList) {
 			filters.clear();
@@ -45,7 +46,7 @@ public class SsrfDnsResolverTest {
 	}
 
 	@InjectMocks
-	private TestableSsrfDnsResolver customDnsResolver = new TestableSsrfDnsResolver(new ArrayList<>());
+	private TestableHcSsrfDnsResolver customDnsResolver = new TestableHcSsrfDnsResolver(new ArrayList<>());
 
 	@Test
 	void testResolveWithValidHost() throws UnknownHostException, HostBlockedException {
@@ -96,7 +97,7 @@ public class SsrfDnsResolverTest {
 
 	@Test
 	void testResolveCanonicalHostname() throws UnknownHostException {
-		String host = "www.example.com";
+		String host = "localhost";
 		String resolvedHostname = customDnsResolver.resolveCanonicalHostname(host);
 		assertEquals(host, resolvedHostname);
 	}

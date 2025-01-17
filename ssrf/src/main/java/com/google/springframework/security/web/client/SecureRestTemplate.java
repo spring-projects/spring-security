@@ -21,6 +21,7 @@ import com.google.springframework.security.web.client.ListedSsrfProtectionFilter
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.apache.hc.client5.http.DnsResolver;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
 import org.apache.hc.client5.http.impl.io.BasicHttpClientConnectionManager;
@@ -29,7 +30,11 @@ import org.apache.hc.client5.http.socket.PlainConnectionSocketFactory;
 import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory;
 import org.apache.hc.core5.http.config.Registry;
 import org.apache.hc.core5.http.config.RegistryBuilder;
+import org.eclipse.jetty.client.HttpClient;
+import org.eclipse.jetty.util.SocketAddressResolver;
+import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.http.client.JettyClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
 public class SecureRestTemplate {
@@ -84,56 +89,76 @@ public class SecureRestTemplate {
 		private List<String> ipBlockList = new ArrayList<>();
 		private boolean isReportOnly = false;
 		private NetworkMode networkMode = null;
+
+		// Currently redundant due to changes around using a Jetty client.
+		// Keeping it for future use when more client types are added.
 		private ClientType clientType = ClientType.HTTP_CLIENT_5;
+		private HttpClient jettyClient = null;
+
+
+		public Builder fromJettyClient(HttpClient jettyClient) {
+			this.jettyClient = jettyClient;
+			this.clientType = ClientType.JETTY_CLIENT;
+			return this;
+		}
 
 		public Builder reportOnly(boolean isReportOnly) {
 			this.isReportOnly = isReportOnly;
 			return this;
 		}
 
-		public Builder networkMode(NetworkMode mode) {
-			this.networkMode = mode;
+		public Builder networkMode(NetworkMode networkMode) {
+			this.networkMode = networkMode;
 			return this;
 		}
 
 		public Builder withAllowlist(String... ipList) {
-			this.ipAllowList.addAll(List.of(ipList));
+			ipAllowList.addAll(List.of(ipList));
 			return this;
 		}
 
 		public Builder withAllowlist(Iterable<String> ipList) {
-			ipList.forEach(this.ipAllowList::add);
+			ipList.forEach(ipAllowList::add);
 			return this;
 		}
 
 		public Builder withBlocklist(String... ipList) {
-			this.ipBlockList.addAll(List.of(ipList));
+			ipBlockList.addAll(List.of(ipList));
 			return this;
 		}
 
 		public Builder withBlocklist(Iterable<String> ipList) {
-			ipList.forEach(this.ipBlockList::add);
+			ipList.forEach(ipBlockList::add);
 			return this;
 		}
 
 
 		public Builder withCustomFilter(SsrfProtectionFilter filter) {
-			this.customFilters.add(filter);
+			customFilters.add(filter);
 			return this;
 		}
 
-		public Builder withClient(ClientType clientType) {
+		// Reserved for future use, when adding more ClientTypes
+		// Currently HC5 is the default and Jetty Client needs to be externally provided
+		// because of cleanup issues
+		private Builder withClient(ClientType clientType) {
+			if (clientType == ClientType.JETTY_CLIENT) {
+				throw new IllegalStateException(
+						"The Builder was created from a Jetty HttpClient. Cannot change ClientType.");
+			}
+
 			this.clientType = clientType;
 			return this;
 		}
 
-		private RestTemplate buildHttpClient5(SsrfDnsResolver dnsResolver) {
+		private RestTemplate buildHttpClient5(HcSsrfDnsResolver dnsResolver) {
 
 			Registry<ConnectionSocketFactory> registry = RegistryBuilder.<ConnectionSocketFactory>create()
 					.register("http", PlainConnectionSocketFactory.getSocketFactory())
 					.register("https", SSLConnectionSocketFactory.getSocketFactory()).build();
 
-			BasicHttpClientConnectionManager connManager = new BasicHttpClientConnectionManager(registry, null, null,
+			BasicHttpClientConnectionManager connManager = new BasicHttpClientConnectionManager(registry, null,
+					null,
 					dnsResolver);
 
 			CloseableHttpClient httpClient = HttpClientBuilder.create().setConnectionManager(connManager).build();
@@ -143,7 +168,13 @@ public class SecureRestTemplate {
 			return new RestTemplate(requestFactory);
 		}
 
-		public RestTemplate build() {
+		private RestTemplate buildJettyClient(JettySsrfDnsResolver dnsResolver) {
+			jettyClient.setSocketAddressResolver(dnsResolver);
+			JettyClientHttpRequestFactory requestFactory = new JettyClientHttpRequestFactory(jettyClient);
+			return new RestTemplate(requestFactory);
+		}
+
+		private List<SsrfProtectionFilter> buildFilters() {
 			List<SsrfProtectionFilter> filters = new ArrayList<>();
 
 			if (ipAllowList.size() != 0 && ipBlockList.size() != 0) {
@@ -165,13 +196,50 @@ public class SecureRestTemplate {
 			}
 
 			filters.addAll(customFilters);
+			return filters;
+		}
 
-			SsrfDnsResolver dnsResolver = new SsrfDnsResolver(filters, isReportOnly);
+		public SocketAddressResolver buildJettyResolver() {
+			return new JettySsrfDnsResolver(buildFilters(), isReportOnly);
+		}
 
-			if (this.clientType == ClientType.HTTP_CLIENT_5) {
-				return buildHttpClient5(dnsResolver);
+		public DnsResolver buildHttpClientDnsResolver() {
+			return new HcSsrfDnsResolver(buildFilters(), isReportOnly);
+		}
+
+		public ClientHttpRequestFactory buildHttpRequestFactory() {
+			if (clientType == ClientType.HTTP_CLIENT_5) {
+				// TODO(vaspori): deduplicate
+				Registry<ConnectionSocketFactory> registry = RegistryBuilder.<ConnectionSocketFactory>create()
+						.register("http", PlainConnectionSocketFactory.getSocketFactory())
+						.register("https", SSLConnectionSocketFactory.getSocketFactory()).build();
+
+				BasicHttpClientConnectionManager connManager = new BasicHttpClientConnectionManager(registry, null,
+						null,
+						new HcSsrfDnsResolver(buildFilters(), isReportOnly));
+
+				CloseableHttpClient httpClient = HttpClientBuilder.create().setConnectionManager(connManager).build();
+
+				return new HttpComponentsClientHttpRequestFactory(
+						httpClient);
+			} else if (clientType == ClientType.JETTY_CLIENT) {
+				jettyClient.setSocketAddressResolver(new JettySsrfDnsResolver(buildFilters(), isReportOnly));
+				return new JettyClientHttpRequestFactory(jettyClient);
 			} else {
-				throw new IllegalArgumentException("Only HTTP_CLIENT_5 backed RestTemplates are supported for now");
+				throw new IllegalArgumentException(
+						"Only HTTP_CLIENT_5 and Jetty backed RestTemplates are supported for now");
+			}
+		}
+
+		public RestTemplate build() {
+
+			if (clientType == ClientType.HTTP_CLIENT_5) {
+				return buildHttpClient5(new HcSsrfDnsResolver(buildFilters(), isReportOnly));
+			} else if (clientType == ClientType.JETTY_CLIENT) {
+				return buildJettyClient(new JettySsrfDnsResolver(buildFilters(), isReportOnly));
+			} else {
+				throw new IllegalArgumentException(
+						"Only HTTP_CLIENT_5 and Jetty backed RestTemplates are supported for now");
 			}
 		}
 	}

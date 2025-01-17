@@ -19,12 +19,15 @@ dependencies {
 	testImplementation 'org.junit.jupiter:junit-jupiter:5.8.2'
 	testImplementation 'org.mockito:mockito-core:5.14.2'
 	testImplementation "org.mockito:mockito-junit-jupiter:5.14.2"
+	testImplementation 'org.springframework:spring-context:' + springVersion
 
 	api 'org.springframework:spring-web:' + springVersion
 	api 'org.springframework:spring-core:' + springVersion
 
 	implementation("org.apache.httpcomponents.client5:httpclient5:5.3.1")
 	implementation("org.apache.httpcomponents.core5:httpcore5-reactive:5.2.5")
+
+	implementation 'org.eclipse.jetty:jetty-client:12.0.15'
 
 	implementation 'io.projectreactor:reactor-core:3.6.11'
 }
