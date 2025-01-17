@@ -753,4 +753,27 @@ public class ClientRegistrationTests {
 		assertThat(clientRegistration.getClientAuthenticationMethod()).isEqualTo(clientAuthenticationMethod);
 	}
 
+	@Test
+	void clientSettingsWhenNullThenThrowIllegalArgumentException() {
+		assertThatIllegalArgumentException()
+			.isThrownBy(() -> ClientRegistration.withRegistrationId(REGISTRATION_ID).clientSettings(null));
+	}
+
+	// gh-16382
+	@Test
+	void buildWhenDefaultClientSettingsThenDefaulted() {
+		ClientRegistration clientRegistration = ClientRegistration.withRegistrationId(REGISTRATION_ID)
+			.clientId(CLIENT_ID)
+			.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+			.redirectUri(REDIRECT_URI)
+			.authorizationUri(AUTHORIZATION_URI)
+			.tokenUri(TOKEN_URI)
+			.build();
+
+		// should not be null
+		assertThat(clientRegistration.getClientSettings()).isNotNull();
+		// proof key should be false for passivity
+		assertThat(clientRegistration.getClientSettings().isRequireProofKey()).isFalse();
+	}
+
 }

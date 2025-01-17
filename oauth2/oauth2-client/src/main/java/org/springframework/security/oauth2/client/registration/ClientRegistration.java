@@ -378,7 +378,7 @@ public final class ClientRegistration implements Serializable {
 
 		private String clientName;
 
-		private ClientSettings clientSettings;
+		private ClientSettings clientSettings = ClientSettings.builder().build();
 
 		private Builder(String registrationId) {
 			this.registrationId = registrationId;
@@ -614,6 +614,7 @@ public final class ClientRegistration implements Serializable {
 		 * @return the {@link Builder}
 		 */
 		public Builder clientSettings(ClientSettings clientSettings) {
+			Assert.notNull(clientSettings, "clientSettings cannot be null");
 			this.clientSettings = clientSettings;
 			return this;
 		}
@@ -651,8 +652,7 @@ public final class ClientRegistration implements Serializable {
 			clientRegistration.providerDetails = createProviderDetails(clientRegistration);
 			clientRegistration.clientName = StringUtils.hasText(this.clientName) ? this.clientName
 					: this.registrationId;
-			clientRegistration.clientSettings = (this.clientSettings == null) ? ClientSettings.builder().build()
-					: this.clientSettings;
+			clientRegistration.clientSettings = this.clientSettings;
 			return clientRegistration;
 		}
 
