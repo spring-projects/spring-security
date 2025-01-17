@@ -41,8 +41,16 @@ async function authenticate(headers, contextPath, useConditionalMediation) {
   }
 
   // FIXME: Use https://www.w3.org/TR/webauthn-3/#sctn-parseRequestOptionsFromJSON
+  const decodedAllowCredentials = !options.allowCredentials
+    ? []
+    : options.allowCredentials.map((cred) => ({
+        ...cred,
+        id: base64url.decode(cred.id),
+      }));
+
   const decodedOptions = {
     ...options,
+    allowCredentials: decodedAllowCredentials,
     challenge: base64url.decode(options.challenge),
   };
 
