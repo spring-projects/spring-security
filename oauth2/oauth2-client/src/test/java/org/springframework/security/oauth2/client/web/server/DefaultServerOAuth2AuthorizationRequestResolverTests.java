@@ -27,7 +27,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
-import org.springframework.security.oauth2.client.registration.ClientSettings;
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestCustomizers;
@@ -172,7 +171,9 @@ public class DefaultServerOAuth2AuthorizationRequestResolverTests {
 
 	@Test
 	void resolveWhenRequireProofKeyTrueThenPkceEnabled() {
-		ClientSettings pkceEnabled = ClientSettings.builder().requireProofKey(true).build();
+		ClientRegistration.ClientSettings pkceEnabled = ClientRegistration.ClientSettings.builder()
+			.requireProofKey(true)
+			.build();
 		ClientRegistration clientWithPkceEnabled = TestClientRegistrations.clientRegistration()
 			.clientSettings(pkceEnabled)
 			.build();

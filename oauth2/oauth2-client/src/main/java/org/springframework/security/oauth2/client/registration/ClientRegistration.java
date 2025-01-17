@@ -26,6 +26,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
@@ -737,6 +738,78 @@ public final class ClientRegistration implements Serializable {
 
 		private static boolean withinTheRangeOf(int c, int min, int max) {
 			return c >= min && c <= max;
+		}
+
+	}
+
+	/**
+	 * A facility for client configuration settings.
+	 *
+	 * @author DingHao
+	 * @since 6.5
+	 */
+	public static final class ClientSettings {
+
+		private boolean requireProofKey;
+
+		private ClientSettings() {
+
+		}
+
+		public boolean isRequireProofKey() {
+			return this.requireProofKey;
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (this == o) {
+				return true;
+			}
+			if (!(o instanceof ClientSettings that)) {
+				return false;
+			}
+			return this.requireProofKey == that.requireProofKey;
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hashCode(this.requireProofKey);
+		}
+
+		@Override
+		public String toString() {
+			return "ClientSettings{" + "requireProofKey=" + this.requireProofKey + '}';
+		}
+
+		public static Builder builder() {
+			return new Builder();
+		}
+
+		public static final class Builder {
+
+			private boolean requireProofKey;
+
+			private Builder() {
+			}
+
+			/**
+			 * Set to {@code true} if the client is required to provide a proof key
+			 * challenge and verifier when performing the Authorization Code Grant flow.
+			 * @param requireProofKey {@code true} if the client is required to provide a
+			 * proof key challenge and verifier, {@code false} otherwise
+			 * @return the {@link Builder} for further configuration
+			 */
+			public Builder requireProofKey(boolean requireProofKey) {
+				this.requireProofKey = requireProofKey;
+				return this;
+			}
+
+			public ClientSettings build() {
+				ClientSettings clientSettings = new ClientSettings();
+				clientSettings.requireProofKey = this.requireProofKey;
+				return clientSettings;
+			}
+
 		}
 
 	}

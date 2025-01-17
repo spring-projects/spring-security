@@ -786,7 +786,9 @@ public class ClientRegistrationTests {
 	// gh-16382
 	@Test
 	void buildWhenNewAuthorizationCodeAndPkceThenBuilds() {
-		ClientSettings pkceEnabled = ClientSettings.builder().requireProofKey(true).build();
+		ClientRegistration.ClientSettings pkceEnabled = ClientRegistration.ClientSettings.builder()
+			.requireProofKey(true)
+			.build();
 		ClientRegistration clientRegistration = ClientRegistration.withRegistrationId(REGISTRATION_ID)
 			.clientId(CLIENT_ID)
 			.clientSettings(pkceEnabled)
@@ -803,7 +805,9 @@ public class ClientRegistrationTests {
 	@ParameterizedTest
 	@MethodSource("invalidPkceGrantTypes")
 	void buildWhenInvalidGrantTypeForPkceThenException(AuthorizationGrantType invalidGrantType) {
-		ClientSettings pkceEnabled = ClientSettings.builder().requireProofKey(true).build();
+		ClientRegistration.ClientSettings pkceEnabled = ClientRegistration.ClientSettings.builder()
+			.requireProofKey(true)
+			.build();
 		ClientRegistration.Builder builder = ClientRegistration.withRegistrationId(REGISTRATION_ID)
 			.clientId(CLIENT_ID)
 			.clientSettings(pkceEnabled)
