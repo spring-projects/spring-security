@@ -16,6 +16,8 @@
 
 package org.springframework.security.web.authentication.switchuser;
 
+import java.io.Serial;
+
 import org.springframework.security.authentication.event.AbstractAuthenticationEvent;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -26,6 +28,9 @@ import org.springframework.security.core.userdetails.UserDetails;
  * @author Mark St.Godard
  */
 public class AuthenticationSwitchUserEvent extends AbstractAuthenticationEvent {
+
+	@Serial
+	private static final long serialVersionUID = 6265996480231793939L;
 
 	private final UserDetails targetUser;
 

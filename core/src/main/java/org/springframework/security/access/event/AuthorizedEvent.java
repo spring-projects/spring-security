@@ -34,6 +34,7 @@ import org.springframework.util.Assert;
  * instead
  */
 @Deprecated
+@SuppressWarnings("serial")
 public class AuthorizedEvent extends AbstractAuthorizationEvent {
 
 	private final Authentication authentication;

@@ -33,6 +33,7 @@ import org.springframework.security.core.session.SessionDestroyedEvent;
  * @author Luke Taylor
  * @author Rob Winch
  */
+@SuppressWarnings("serial")
 public class HttpSessionDestroyedEvent extends SessionDestroyedEvent {
 
 	public HttpSessionDestroyedEvent(HttpSession session) {

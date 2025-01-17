@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
 
 package org.springframework.security.web.session;
 
+import java.io.Serial;
+
 import jakarta.servlet.http.HttpSession;
 
 import org.springframework.security.core.session.SessionIdChangedEvent;
@@ -26,7 +28,11 @@ import org.springframework.security.core.session.SessionIdChangedEvent;
  *
  * @since 5.4
  */
+@SuppressWarnings("serial")
 public class HttpSessionIdChangedEvent extends SessionIdChangedEvent {
+
+	@Serial
+	private static final long serialVersionUID = -5725731666499807941L;
 
 	private final String oldSessionId;
 

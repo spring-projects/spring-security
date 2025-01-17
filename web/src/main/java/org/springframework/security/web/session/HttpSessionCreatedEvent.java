@@ -27,6 +27,7 @@ import org.springframework.security.core.session.SessionCreationEvent;
  * @author Ray Krueger
  * @author Luke Taylor
  */
+@SuppressWarnings("serial")
 public class HttpSessionCreatedEvent extends SessionCreationEvent {
 
 	public HttpSessionCreatedEvent(HttpSession session) {

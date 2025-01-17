@@ -16,6 +16,8 @@
 
 package org.springframework.security.authentication.event;
 
+import java.io.Serial;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 
@@ -26,6 +28,9 @@ import org.springframework.security.core.AuthenticationException;
  * @author Ben Alex
  */
 public class AuthenticationFailureProviderNotFoundEvent extends AbstractAuthenticationFailureEvent {
+
+	@Serial
+	private static final long serialVersionUID = 9122219669183263487L;
 
 	public AuthenticationFailureProviderNotFoundEvent(Authentication authentication,
 			AuthenticationException exception) {

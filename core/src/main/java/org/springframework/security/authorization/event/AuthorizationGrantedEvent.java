@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package org.springframework.security.authorization.event;
 
+import java.io.Serial;
 import java.util.function.Supplier;
 
 import org.springframework.context.ApplicationEvent;
@@ -30,7 +31,11 @@ import org.springframework.security.core.Authentication;
  * @author Josh Cummings
  * @since 5.7
  */
+@SuppressWarnings("serial")
 public class AuthorizationGrantedEvent<T> extends AuthorizationEvent {
+
+	@Serial
+	private static final long serialVersionUID = -8690818228055810339L;
 
 	/**
 	 * @deprecated please use a constructor that takes an
