@@ -44,6 +44,7 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationProvider;
 import org.springframework.security.oauth2.server.resource.authentication.OpaqueTokenAuthenticationProvider;
+import org.springframework.security.oauth2.server.resource.introspection.JwtPrincipalConverter;
 import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector;
 import org.springframework.security.oauth2.server.resource.introspection.SpringOpaqueTokenIntrospector;
@@ -103,6 +104,8 @@ import org.springframework.web.accept.HeaderContentNegotiationStrategy;
  * <li>customizing the conversion from a {@link Jwt} to an
  * {@link org.springframework.security.core.Authentication} with
  * {@link JwtConfigurer#jwtAuthenticationConverter(Converter)}</li>
+ * <li>customizing the conversion from a {@link Jwt} to a principal {@link Object} with
+ * {@link JwtConfigurer#jwtPrincipalConverter(JwtPrincipalConverter)}</li>
  * </ul>
  *
  * <p>
@@ -382,6 +385,8 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 
 		private Converter<Jwt, ? extends AbstractAuthenticationToken> jwtAuthenticationConverter;
 
+		private JwtPrincipalConverter jwtPrincipalConverter;
+
 		JwtConfigurer(ApplicationContext context) {
 			this.context = context;
 		}
@@ -408,6 +413,11 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 			return this;
 		}
 
+		public JwtConfigurer jwtPrincipalConverter(JwtPrincipalConverter jwtPrincipalConverter) {
+			this.jwtPrincipalConverter = jwtPrincipalConverter;
+			return this;
+		}
+
 		/**
 		 * @deprecated For removal in 7.0. Use {@link #jwt(Customizer)} or
 		 * {@code jwt(Customizer.withDefaults())} to stick with defaults. See the <a href=
@@ -421,14 +431,31 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 
 		Converter<Jwt, ? extends AbstractAuthenticationToken> getJwtAuthenticationConverter() {
 			if (this.jwtAuthenticationConverter == null) {
-				if (this.context.getBeanNamesForType(JwtAuthenticationConverter.class).length > 0) {
-					this.jwtAuthenticationConverter = this.context.getBean(JwtAuthenticationConverter.class);
-				}
-				else {
-					this.jwtAuthenticationConverter = new JwtAuthenticationConverter();
-				}
+				final var authenticationConverter = getOrCreateJwtAuthenticationConverter();
+				authenticationConverter.setJwtPrincipalConverter(getJwtPrincipalConverter());
+				this.jwtAuthenticationConverter = authenticationConverter;
 			}
 			return this.jwtAuthenticationConverter;
+		}
+
+		JwtPrincipalConverter getJwtPrincipalConverter() {
+			if (this.jwtPrincipalConverter == null) {
+				if (this.context.getBeanNamesForType(JwtPrincipalConverter.class).length > 0) {
+					return this.context.getBean(JwtPrincipalConverter.class);
+				} else {
+					return (jwt, principalName) -> jwt;
+				}
+			} else {
+				return this.jwtPrincipalConverter;
+			}
+		}
+
+		private JwtAuthenticationConverter getOrCreateJwtAuthenticationConverter() {
+			if (this.context.getBeanNamesForType(JwtAuthenticationConverter.class).length > 0) {
+				return this.context.getBean(JwtAuthenticationConverter.class);
+			} else {
+				return new JwtAuthenticationConverter();
+			}
 		}
 
 		JwtDecoder getJwtDecoder() {
