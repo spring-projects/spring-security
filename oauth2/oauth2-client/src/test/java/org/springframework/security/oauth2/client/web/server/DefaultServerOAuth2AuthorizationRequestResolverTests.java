@@ -169,6 +169,22 @@ public class DefaultServerOAuth2AuthorizationRequestResolverTests {
 		assertPkceNotApplied(request, registration2);
 	}
 
+	@Test
+	void resolveWhenRequireProofKeyTrueThenPkceEnabled() {
+		ClientRegistration.ClientSettings pkceEnabled = ClientRegistration.ClientSettings.builder()
+			.requireProofKey(true)
+			.build();
+		ClientRegistration clientWithPkceEnabled = TestClientRegistrations.clientRegistration()
+			.clientSettings(pkceEnabled)
+			.build();
+		given(this.clientRegistrationRepository.findByRegistrationId(any()))
+			.willReturn(Mono.just(clientWithPkceEnabled));
+
+		OAuth2AuthorizationRequest request = resolve(
+				"/oauth2/authorization/" + clientWithPkceEnabled.getRegistrationId());
+		assertPkceApplied(request, clientWithPkceEnabled);
+	}
+
 	private void assertPkceApplied(OAuth2AuthorizationRequest authorizationRequest,
 			ClientRegistration clientRegistration) {
 		assertThat(authorizationRequest.getAdditionalParameters()).containsKey(PkceParameterNames.CODE_CHALLENGE);

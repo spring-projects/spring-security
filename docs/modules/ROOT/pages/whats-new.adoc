@@ -10,3 +10,7 @@ Below are the highlights of the release, or you can view https://github.com/spri
 
 The `security.security.reached.filter.section` key name was corrected to `spring.security.reached.filter.section`.
 Note that this may affect reports that operate on this key name.
+
+== OAuth
+
+* https://github.com/spring-projects/spring-security/pull/16386[gh-16386] - Enable PKCE for confidential clients using `ClientRegistration.clientSettings.requireProofKey=true` for xref:servlet/oauth2/client/core.adoc#oauth2Client-client-registration-requireProofKey[servlet] and xref:reactive/oauth2/client/core.adoc#oauth2Client-client-registration-requireProofKey[reactive] applications

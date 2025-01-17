@@ -111,4 +111,9 @@ public final class AuthorizationGrantType implements Serializable {
 		return this.getValue().hashCode();
 	}
 
+	@Override
+	public String toString() {
+		return "AuthorizationGrantType{" + "value='" + this.value + '\'' + '}';
+	}
+
 }
