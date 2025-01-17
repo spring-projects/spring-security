@@ -32,6 +32,7 @@ import org.springframework.util.Assert;
  * instead.
  */
 @Deprecated
+@SuppressWarnings("serial")
 public class AuthenticationCredentialsNotFoundEvent extends AbstractAuthorizationEvent {
 
 	private final AuthenticationCredentialsNotFoundException credentialsNotFoundException;

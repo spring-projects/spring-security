@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,6 +54,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.type.filter.AssignableTypeFilter;
+import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.AuthorizationServiceException;
 import org.springframework.security.access.intercept.RunAsUserToken;
@@ -73,16 +74,33 @@ import org.springframework.security.authentication.RememberMeAuthenticationToken
 import org.springframework.security.authentication.TestAuthentication;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.event.AuthenticationFailureBadCredentialsEvent;
+import org.springframework.security.authentication.event.AuthenticationFailureCredentialsExpiredEvent;
+import org.springframework.security.authentication.event.AuthenticationFailureDisabledEvent;
+import org.springframework.security.authentication.event.AuthenticationFailureExpiredEvent;
+import org.springframework.security.authentication.event.AuthenticationFailureLockedEvent;
+import org.springframework.security.authentication.event.AuthenticationFailureProviderNotFoundEvent;
+import org.springframework.security.authentication.event.AuthenticationFailureProxyUntrustedEvent;
+import org.springframework.security.authentication.event.AuthenticationFailureServiceExceptionEvent;
+import org.springframework.security.authentication.event.AuthenticationSuccessEvent;
+import org.springframework.security.authentication.event.InteractiveAuthenticationSuccessEvent;
+import org.springframework.security.authentication.event.LogoutSuccessEvent;
 import org.springframework.security.authentication.jaas.JaasAuthenticationToken;
+import org.springframework.security.authentication.jaas.event.JaasAuthenticationFailedEvent;
+import org.springframework.security.authentication.jaas.event.JaasAuthenticationSuccessEvent;
 import org.springframework.security.authentication.ott.InvalidOneTimeTokenException;
 import org.springframework.security.authentication.ott.OneTimeTokenAuthenticationToken;
 import org.springframework.security.authentication.password.CompromisedPasswordException;
 import org.springframework.security.cas.authentication.CasAssertionAuthenticationToken;
 import org.springframework.security.cas.authentication.CasAuthenticationToken;
 import org.springframework.security.cas.authentication.CasServiceTicketAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextImpl;
+import org.springframework.security.core.session.AbstractSessionEvent;
 import org.springframework.security.core.session.ReactiveSessionInformation;
 import org.springframework.security.core.session.SessionInformation;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -163,6 +181,8 @@ import org.springframework.security.web.authentication.rememberme.CookieTheftExc
 import org.springframework.security.web.authentication.rememberme.InvalidCookieException;
 import org.springframework.security.web.authentication.rememberme.RememberMeAuthenticationException;
 import org.springframework.security.web.authentication.session.SessionAuthenticationException;
+import org.springframework.security.web.authentication.session.SessionFixationProtectionEvent;
+import org.springframework.security.web.authentication.switchuser.AuthenticationSwitchUserEvent;
 import org.springframework.security.web.authentication.www.NonceExpiredException;
 import org.springframework.security.web.csrf.CsrfException;
 import org.springframework.security.web.csrf.DefaultCsrfToken;
@@ -170,6 +190,7 @@ import org.springframework.security.web.csrf.InvalidCsrfTokenException;
 import org.springframework.security.web.csrf.MissingCsrfTokenException;
 import org.springframework.security.web.firewall.RequestRejectedException;
 import org.springframework.security.web.server.firewall.ServerExchangeRejectedException;
+import org.springframework.security.web.session.HttpSessionCreatedEvent;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -200,6 +221,8 @@ class SpringSecurityCoreVersionSerializableTests {
 
 	static {
 		UserDetails user = TestAuthentication.user();
+		Authentication authentication = TestAuthentication.authenticated(user);
+		SecurityContext securityContext = new SecurityContextImpl(authentication);
 
 		// oauth2-core
 		generatorByClassName.put(DefaultOAuth2User.class, (r) -> TestOAuth2Users.create());
@@ -375,6 +398,37 @@ class SpringSecurityCoreVersionSerializableTests {
 				(r) -> new UsernameNotFoundException("error", new RuntimeException()));
 		generatorByClassName.put(TestingAuthenticationToken.class,
 				(r) -> applyDetails(new TestingAuthenticationToken("username", "password")));
+		generatorByClassName.put(AuthenticationFailureBadCredentialsEvent.class,
+				(r) -> new AuthenticationFailureBadCredentialsEvent(authentication,
+						new BadCredentialsException("message")));
+		generatorByClassName.put(AuthenticationFailureCredentialsExpiredEvent.class,
+				(r) -> new AuthenticationFailureCredentialsExpiredEvent(authentication,
+						new CredentialsExpiredException("message")));
+		generatorByClassName.put(AuthenticationFailureDisabledEvent.class,
+				(r) -> new AuthenticationFailureDisabledEvent(authentication, new DisabledException("message")));
+		generatorByClassName.put(AuthenticationFailureExpiredEvent.class,
+				(r) -> new AuthenticationFailureExpiredEvent(authentication, new AccountExpiredException("message")));
+		generatorByClassName.put(AuthenticationFailureLockedEvent.class,
+				(r) -> new AuthenticationFailureLockedEvent(authentication, new LockedException("message")));
+		generatorByClassName.put(AuthenticationFailureProviderNotFoundEvent.class,
+				(r) -> new AuthenticationFailureProviderNotFoundEvent(authentication,
+						new ProviderNotFoundException("message")));
+		generatorByClassName.put(AuthenticationFailureProxyUntrustedEvent.class,
+				(r) -> new AuthenticationFailureProxyUntrustedEvent(authentication,
+						new AuthenticationServiceException("message")));
+		generatorByClassName.put(AuthenticationFailureServiceExceptionEvent.class,
+				(r) -> new AuthenticationFailureServiceExceptionEvent(authentication,
+						new AuthenticationServiceException("message")));
+		generatorByClassName.put(AuthenticationSuccessEvent.class,
+				(r) -> new AuthenticationSuccessEvent(authentication));
+		generatorByClassName.put(InteractiveAuthenticationSuccessEvent.class,
+				(r) -> new InteractiveAuthenticationSuccessEvent(authentication, Authentication.class));
+		generatorByClassName.put(LogoutSuccessEvent.class, (r) -> new LogoutSuccessEvent(authentication));
+		generatorByClassName.put(JaasAuthenticationFailedEvent.class,
+				(r) -> new JaasAuthenticationFailedEvent(authentication, new RuntimeException("message")));
+		generatorByClassName.put(JaasAuthenticationSuccessEvent.class,
+				(r) -> new JaasAuthenticationSuccessEvent(authentication));
+		generatorByClassName.put(AbstractSessionEvent.class, (r) -> new AbstractSessionEvent(securityContext));
 
 		// cas
 		generatorByClassName.put(CasServiceTicketAuthenticationToken.class, (r) -> {
@@ -448,6 +502,12 @@ class SpringSecurityCoreVersionSerializableTests {
 		generatorByClassName.put(RequestRejectedException.class, (r) -> new RequestRejectedException("message"));
 		generatorByClassName.put(ServerExchangeRejectedException.class,
 				(r) -> new ServerExchangeRejectedException("message"));
+		generatorByClassName.put(SessionFixationProtectionEvent.class,
+				(r) -> new SessionFixationProtectionEvent(authentication, "old", "new"));
+		generatorByClassName.put(AuthenticationSwitchUserEvent.class,
+				(r) -> new AuthenticationSwitchUserEvent(authentication, user));
+		generatorByClassName.put(HttpSessionCreatedEvent.class,
+				(r) -> new HttpSessionCreatedEvent(new MockHttpSession()));
 	}
 
 	@ParameterizedTest

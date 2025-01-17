@@ -16,6 +16,8 @@
 
 package org.springframework.security.authentication.event;
 
+import java.io.Serial;
+
 import org.springframework.security.core.Authentication;
 
 /**
@@ -24,6 +26,9 @@ import org.springframework.security.core.Authentication;
  * @author Ben Alex
  */
 public class AuthenticationSuccessEvent extends AbstractAuthenticationEvent {
+
+	@Serial
+	private static final long serialVersionUID = 2537206344128673963L;
 
 	public AuthenticationSuccessEvent(Authentication authentication) {
 		super(authentication);

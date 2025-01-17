@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
 
 package org.springframework.security.web.authentication.session;
 
+import java.io.Serial;
+
 import org.springframework.security.authentication.event.AbstractAuthenticationEvent;
 import org.springframework.security.core.Authentication;
 import org.springframework.util.Assert;
@@ -28,6 +30,9 @@ import org.springframework.util.Assert;
  * @see SessionFixationProtectionStrategy
  */
 public class SessionFixationProtectionEvent extends AbstractAuthenticationEvent {
+
+	@Serial
+	private static final long serialVersionUID = -2554621992006921150L;
 
 	private final String oldSessionId;
 
