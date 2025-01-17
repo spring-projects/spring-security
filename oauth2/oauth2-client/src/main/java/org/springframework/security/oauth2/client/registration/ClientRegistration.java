@@ -711,6 +711,12 @@ public final class ClientRegistration implements Serializable {
 							"AuthorizationGrantType: %s does not match the pre-defined constant %s and won't match a valid OAuth2AuthorizedClientProvider",
 							this.authorizationGrantType, authorizationGrantType));
 				}
+				if (!AuthorizationGrantType.AUTHORIZATION_CODE.equals(this.authorizationGrantType)
+						&& this.clientSettings.isRequireProofKey()) {
+					throw new IllegalStateException(
+							"clientSettings.isRequireProofKey=true is only valid with authorizationGrantType=AUTHORIZATION_CODE. Got authorizationGrantType="
+									+ this.authorizationGrantType);
+				}
 			}
 		}
 
