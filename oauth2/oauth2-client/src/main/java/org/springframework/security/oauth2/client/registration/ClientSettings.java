@@ -16,6 +16,8 @@
 
 package org.springframework.security.oauth2.client.registration;
 
+import java.util.Objects;
+
 /**
  * A facility for client configuration settings.
  *
@@ -32,6 +34,27 @@ public final class ClientSettings {
 
 	public boolean isRequireProofKey() {
 		return this.requireProofKey;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) {
+			return true;
+		}
+		if (!(o instanceof ClientSettings that)) {
+			return false;
+		}
+		return this.requireProofKey == that.requireProofKey;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hashCode(this.requireProofKey);
+	}
+
+	@Override
+	public String toString() {
+		return "ClientSettings{" + "requireProofKey=" + this.requireProofKey + '}';
 	}
 
 	public static Builder builder() {
