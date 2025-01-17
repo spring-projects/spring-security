@@ -28,7 +28,6 @@ import org.mockito.Mockito;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
-import org.springframework.security.oauth2.client.registration.ClientSettings;
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
@@ -583,7 +582,7 @@ public class DefaultOAuth2AuthorizationRequestResolverTests {
 	private static ClientRegistration.Builder pkceClientRegistration() {
 		return ClientRegistration.withRegistrationId("pkce")
 			.redirectUri("{baseUrl}/{action}/oauth2/code/{registrationId}")
-			.clientSettings(ClientSettings.builder().requireProofKey(true).build())
+			.clientSettings(ClientRegistration.ClientSettings.builder().requireProofKey(true).build())
 			.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
 			.scope("read:user")
 			.authorizationUri("https://example.com/login/oauth/authorize")
