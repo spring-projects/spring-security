@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package org.springframework.security.saml2.provider.service.registration;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -66,7 +67,9 @@ import org.springframework.util.CollectionUtils;
  * @author Josh Cummings
  * @since 5.2
  */
-public class RelyingPartyRegistration {
+public class RelyingPartyRegistration implements Serializable {
+
+	private static final long serialVersionUID = -2718908121120942813L;
 
 	private final String registrationId;
 
@@ -455,6 +458,8 @@ public class RelyingPartyRegistration {
 	 * @since 5.4
 	 */
 	public static class AssertingPartyDetails implements AssertingPartyMetadata {
+
+		private static final long serialVersionUID = 8728930758311995475L;
 
 		private final String entityId;
 

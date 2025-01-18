@@ -16,6 +16,7 @@
 
 package org.springframework.security.saml2.provider.service.registration;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
@@ -28,7 +29,7 @@ import org.springframework.security.saml2.core.Saml2X509Credential;
  * @author Josh Cummings
  * @since 6.4
  */
-public interface AssertingPartyMetadata {
+public interface AssertingPartyMetadata extends Serializable {
 
 	/**
 	 * Get the asserting party's <a href=
