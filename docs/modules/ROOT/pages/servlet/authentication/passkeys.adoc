@@ -60,6 +60,7 @@ Java::
 ----
 @Bean
 SecurityFilterChain filterChain(HttpSecurity http) {
+	// ...
 	http
 		// ...
 		.formLogin(withDefaults())
@@ -67,6 +68,8 @@ SecurityFilterChain filterChain(HttpSecurity http) {
 			.rpName("Spring Security Relying Party")
 			.rpId("example.com")
 			.allowedOrigins("https://example.com")
+			// optional properties
+			.creationOptionsRepository(new CustomPublicKeyCredentialCreationOptionsRepository())
 		);
 	return http.build();
 }
@@ -89,11 +92,14 @@ Kotlin::
 ----
 @Bean
 open fun filterChain(http: HttpSecurity): SecurityFilterChain {
+	// ...
 	http {
 		webAuthn {
 			rpName = "Spring Security Relying Party"
 			rpId = "example.com"
 			allowedOrigins = setOf("https://example.com")
+			// optional properties
+			creationOptionsRepository = CustomPublicKeyCredentialCreationOptionsRepository()
 		}
 	}
 }
@@ -106,6 +112,36 @@ open fun userDetailsService(): UserDetailsService {
 		.roles("USER")
 		.build()
 	return InMemoryUserDetailsManager(userDetails)
+}
+----
+======
+
+[[passkeys-configuration-pkccor]]
+=== Custom PublicKeyCredentialCreationOptionsRepository
+
+The `PublicKeyCredentialCreationOptionsRepository` is used to persist the `PublicKeyCredentialCreationOptions` between requests.
+The default is to persist it the `HttpSession`, but at times users may need to customize this behavior.
+This can be done by setting the optional property `creationOptionsRepository` demonstrated in xref:./passkeys.adoc#passkeys-configuration[Configuration] or by exposing a `PublicKeyCredentialCreationOptionsRepository` Bean:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Bean
+CustomPublicKeyCredentialCreationOptionsRepository creationOptionsRepository() {
+	return new CustomPublicKeyCredentialCreationOptionsRepository();
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Bean
+open fun creationOptionsRepository(): CustomPublicKeyCredentialCreationOptionsRepository {
+	return CustomPublicKeyCredentialCreationOptionsRepository()
 }
 ----
 ======
