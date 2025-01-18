@@ -18,6 +18,7 @@ package org.springframework.security.config.annotation.web
 
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configurers.WebAuthnConfigurer
+import org.springframework.security.web.webauthn.registration.PublicKeyCredentialCreationOptionsRepository
 
 /**
  * A Kotlin DSL to configure [HttpSecurity] webauthn using idiomatic Kotlin code.
@@ -35,6 +36,7 @@ class WebAuthnDsl {
     var rpId: String? = null
     var allowedOrigins: Set<String>? = null
     var disableDefaultRegistrationPage: Boolean? = false
+    var creationOptionsRepository: PublicKeyCredentialCreationOptionsRepository? = null
 
     internal fun get(): (WebAuthnConfigurer<HttpSecurity>) -> Unit {
         return { webAuthn ->
@@ -42,6 +44,7 @@ class WebAuthnDsl {
             rpId?.also { webAuthn.rpId(rpId) }
             allowedOrigins?.also { webAuthn.allowedOrigins(allowedOrigins) }
             disableDefaultRegistrationPage?.also { webAuthn.disableDefaultRegistrationPage(disableDefaultRegistrationPage!!) }
+            creationOptionsRepository?.also { webAuthn.creationOptionsRepository(creationOptionsRepository) }
         }
     }
 }
