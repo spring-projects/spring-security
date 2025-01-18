@@ -16,6 +16,7 @@
 
 package org.springframework.security.oauth2.client.registration;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
@@ -748,7 +749,10 @@ public final class ClientRegistration implements Serializable {
 	 * @author DingHao
 	 * @since 6.5
 	 */
-	public static final class ClientSettings {
+	public static final class ClientSettings implements Serializable {
+
+		@Serial
+		private static final long serialVersionUID = 7495627155437124692L;
 
 		private boolean requireProofKey;
 
