@@ -118,6 +118,49 @@ open fun userDetailsService(): UserDetailsService {
 ----
 ======
 
+
+[[passkeys-configuration-persistence]]
+=== JDBC & Custom Persistence
+
+WebAuthn performs persistence with javadoc:org.springframework.security.web.webauthn.management.PublicKeyCredentialUserEntityRepository[] and javadoc:org.springframework.security.web.webauthn.management.UserCredentialRepository[].
+The default is to use in memory persistence, but JDBC persistence is support with javadoc:org.springframework.security.web.webauthn.management.JdbcPublicKeyCredentialUserEntityRepository[] and javadoc:org.springframework.security.web.webauthn.management.JdbcUserCredentialRepository[].
+To configure JDBC based persistence, expose the repositories as a Bean:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Bean
+JdbcPublicKeyCredentialUserEntityRepository jdbcPublicKeyCredentialRepository(JdbcOperations jdbc) {
+	return new JdbcPublicKeyCredentialUserEntityRepository(jdbc);
+}
+
+@Bean
+JdbcUserCredentialRepository jdbcUserCredentialRepository(JdbcOperations jdbc) {
+	return new JdbcUserCredentialRepository(jdbc);
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun jdbcPublicKeyCredentialRepository(jdbc: JdbcOperations): JdbcPublicKeyCredentialUserEntityRepository {
+    return JdbcPublicKeyCredentialUserEntityRepository(jdbc)
+}
+
+@Bean
+fun jdbcUserCredentialRepository(jdbc: JdbcOperations): JdbcUserCredentialRepository {
+    return JdbcUserCredentialRepository(jdbc)
+}
+----
+======
+
+If JDBC does not meet your needs, you can create your own implementations of the interfaces and use them by exposing them as a Bean similar to the example above.
+
 [[passkeys-configuration-pkccor]]
 === Custom PublicKeyCredentialCreationOptionsRepository
 
