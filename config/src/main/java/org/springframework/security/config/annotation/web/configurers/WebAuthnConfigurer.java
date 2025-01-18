@@ -120,8 +120,9 @@ public class WebAuthnConfigurer<H extends HttpSecurityBuilder<H>>
 	}
 
 	/**
-	 * Sets PublicKeyCredentialCreationOptionsRepository
-	 * @param converter the creationOptionsRepository
+	 * Sets {@link HttpMessageConverter} used for WebAuthn to read/write to the HTTP
+	 * request/response.
+	 * @param converter the {@link HttpMessageConverter}
 	 * @return the {@link WebAuthnConfigurer} for further customization
 	 */
 	public WebAuthnConfigurer<H> messageConverter(HttpMessageConverter<Object> converter) {
