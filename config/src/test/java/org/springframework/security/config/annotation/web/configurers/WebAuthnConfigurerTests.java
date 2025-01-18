@@ -187,8 +187,8 @@ public class WebAuthnConfigurerTests {
 		TestingAuthenticationToken user = new TestingAuthenticationToken("user", "password", "ROLE_USER");
 		SecurityContextHolder.setContext(new SecurityContextImpl(user));
 		PublicKeyCredentialCreationOptions options = TestPublicKeyCredentialCreationOptions
-				.createPublicKeyCredentialCreationOptions()
-				.build();
+			.createPublicKeyCredentialCreationOptions()
+			.build();
 		WebAuthnRelyingPartyOperations rpOperations = mock(WebAuthnRelyingPartyOperations.class);
 		ConfigMessageConverter.rpOperations = rpOperations;
 		given(rpOperations.createPublicKeyCredentialCreationOptions(any())).willReturn(options);
@@ -203,8 +203,8 @@ public class WebAuthnConfigurerTests {
 		ConfigMessageConverter.converter = converter;
 		this.spring.register(ConfigMessageConverter.class).autowire();
 		this.mvc.perform(post("/webauthn/register/options"))
-				.andExpect(status().isOk())
-				.andExpect(content().string(expectedBody));
+			.andExpect(status().isOk())
+			.andExpect(content().string(expectedBody));
 	}
 
 	@Configuration
