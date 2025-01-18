@@ -17,4 +17,5 @@ Note that this may affect reports that operate on this key name.
 
 == WebAuthn
 
+* https://github.com/spring-projects/spring-security/pull/16397[gh-16397] - Added the ability to configure a custom `HttpMessageConverter` for Passkeys using the optional xref:servlet/authentication/passkeys.adoc#passkeys-configuration[`messageConverter` property] on the `webAuthn` DSL.
 * https://github.com/spring-projects/spring-security/pull/16396[gh-16396] - Added the ability to configure a custom xref:servlet/authentication/passkeys.adoc#passkeys-configuration-pkccor[`PublicKeyCredentialCreationOptionsRepository`]

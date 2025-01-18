@@ -70,6 +70,7 @@ SecurityFilterChain filterChain(HttpSecurity http) {
 			.allowedOrigins("https://example.com")
 			// optional properties
 			.creationOptionsRepository(new CustomPublicKeyCredentialCreationOptionsRepository())
+			.messageConverter(new CustomHttpMessageConverter())
 		);
 	return http.build();
 }
@@ -100,6 +101,7 @@ open fun filterChain(http: HttpSecurity): SecurityFilterChain {
 			allowedOrigins = setOf("https://example.com")
 			// optional properties
 			creationOptionsRepository = CustomPublicKeyCredentialCreationOptionsRepository()
+			messageConverter = CustomHttpMessageConverter()
 		}
 	}
 }
