@@ -106,6 +106,17 @@ public class PublicKeyCredentialCreationOptionsFilter extends OncePerRequestFilt
 	}
 
 	/**
+	 * Sets the {@link PublicKeyCredentialCreationOptionsRepository} to use. The default
+	 * is {@link HttpSessionPublicKeyCredentialCreationOptionsRepository}.
+	 * @param creationOptionsRepository the
+	 * {@link PublicKeyCredentialCreationOptionsRepository} to use. Cannot be null.
+	 */
+	public void setCreationOptionsRepository(PublicKeyCredentialCreationOptionsRepository creationOptionsRepository) {
+		Assert.notNull(creationOptionsRepository, "creationOptionsRepository cannot be null");
+		this.repository = creationOptionsRepository;
+	}
+
+	/**
 	 * Set the {@link HttpMessageConverter} to read the
 	 * {@link WebAuthnRegistrationFilter.WebAuthnRegistrationRequest} and write the
 	 * response. The default is {@link MappingJackson2HttpMessageConverter}.
