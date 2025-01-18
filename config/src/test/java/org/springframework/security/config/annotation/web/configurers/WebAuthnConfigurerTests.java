@@ -16,7 +16,7 @@
 
 package org.springframework.security.config.annotation.web.configurers;
 
-import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
@@ -25,12 +25,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpInputMessage;
 import org.springframework.http.HttpOutputMessage;
-import org.springframework.http.converter.AbstractHttpMessageConverter;
 import org.springframework.http.converter.HttpMessageConverter;
-import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.http.converter.HttpMessageNotWritableException;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -53,6 +49,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willAnswer;
 import static org.mockito.Mockito.mock;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -153,29 +150,19 @@ public class WebAuthnConfigurerTests {
 		WebAuthnRelyingPartyOperations rpOperations = mock(WebAuthnRelyingPartyOperations.class);
 		ConfigMessageConverter.rpOperations = rpOperations;
 		given(rpOperations.createPublicKeyCredentialCreationOptions(any())).willReturn(options);
-		HttpMessageConverter<Object> converter = new AbstractHttpMessageConverter<>() {
-			@Override
-			protected boolean supports(Class<?> clazz) {
-				return true;
-			}
-
-			@Override
-			protected Object readInternal(Class<?> clazz, HttpInputMessage inputMessage)
-					throws IOException, HttpMessageNotReadableException {
-				return null;
-			}
-
-			@Override
-			protected void writeInternal(Object o, HttpOutputMessage outputMessage)
-					throws IOException, HttpMessageNotWritableException {
-				outputMessage.getBody().write("123".getBytes());
-			}
-		};
+		HttpMessageConverter<Object> converter = mock(HttpMessageConverter.class);
+		given(converter.canWrite(any(), any())).willReturn(true);
+		String expectedBody = "123";
+		willAnswer((args) -> {
+			HttpOutputMessage out = (HttpOutputMessage) args.getArguments()[2];
+			out.getBody().write(expectedBody.getBytes(StandardCharsets.UTF_8));
+			return null;
+		}).given(converter).write(any(), any(), any());
 		ConfigMessageConverter.converter = converter;
 		this.spring.register(ConfigMessageConverter.class).autowire();
 		this.mvc.perform(post("/webauthn/register/options"))
 			.andExpect(status().isOk())
-			.andExpect(content().string("123"));
+			.andExpect(content().string(expectedBody));
 	}
 
 	@Configuration
