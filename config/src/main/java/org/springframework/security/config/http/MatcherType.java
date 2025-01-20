@@ -16,20 +16,25 @@
 
 package org.springframework.security.config.http;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.w3c.dom.Element;
 
+import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
+import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
+import org.springframework.web.util.pattern.PathPatternParser;
 
 /**
  * Defines the {@link RequestMatcher} types supported by the namespace.
@@ -40,7 +45,7 @@ import org.springframework.util.StringUtils;
 public enum MatcherType {
 
 	ant(AntPathRequestMatcher.class), regex(RegexRequestMatcher.class), ciRegex(RegexRequestMatcher.class),
-	mvc(MvcRequestMatcher.class);
+	mvc(MvcRequestMatcherFactoryBean.class);
 
 	private static final String HANDLER_MAPPING_INTROSPECTOR = "org.springframework.web.servlet.handler.HandlerMappingIntrospector";
 
@@ -98,6 +103,58 @@ public enum MatcherType {
 			return MatcherType.mvc;
 		}
 		return MatcherType.fromElement(elt);
+	}
+
+	private static class MvcRequestMatcherFactoryBean implements FactoryBean<RequestMatcher>, RequestMatcher {
+
+		private final HandlerMappingIntrospector introspector;
+
+		private final String pattern;
+
+		private PathPatternParser pathPatternParser = PathPatternParser.defaultInstance;
+
+		private String servletPath;
+
+		private HttpMethod method;
+
+		public MvcRequestMatcherFactoryBean(HandlerMappingIntrospector introspector, String pattern) {
+			this.introspector = introspector;
+			this.pattern = pattern;
+		}
+
+		@Override
+		public RequestMatcher getObject() {
+			if (this.introspector.allHandlerMappingsUsePathPatternParser()) {
+				return PathPatternRequestMatcher.withPathPatternParser(this.pathPatternParser)
+					.servletPath(this.servletPath)
+					.pattern(this.method, this.pattern);
+			}
+			return new MvcRequestMatcher.Builder(this.introspector).servletPath(this.servletPath)
+				.pattern(this.method, this.pattern);
+		}
+
+		@Override
+		public Class<?> getObjectType() {
+			return RequestMatcher.class;
+		}
+
+		@Override
+		public boolean matches(HttpServletRequest request) {
+			return getObject().matches(request);
+		}
+
+		public void setPathPatternParser(PathPatternParser pathPatternParser) {
+			this.pathPatternParser = pathPatternParser;
+		}
+
+		public void setServletPath(String servletPath) {
+			this.servletPath = servletPath;
+		}
+
+		public void setMethod(HttpMethod method) {
+			this.method = method;
+		}
+
 	}
 
 }

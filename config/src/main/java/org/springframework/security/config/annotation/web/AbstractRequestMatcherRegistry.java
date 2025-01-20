@@ -43,17 +43,19 @@ import org.springframework.security.config.ObjectPostProcessor;
 import org.springframework.security.config.annotation.web.ServletRegistrationsSupport.RegistrationMapping;
 import org.springframework.security.config.annotation.web.configurers.AbstractConfigAttributeRequestMatcherRegistry;
 import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 import org.springframework.security.web.util.matcher.DispatcherTypeRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcherBuilder;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.servlet.DispatcherServlet;
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
+import org.springframework.web.util.pattern.PathPatternParser;
 
 /**
  * A base class for registering {@link RequestMatcher}'s. For example, it might allow for
@@ -73,6 +75,8 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 	private static final boolean mvcPresent;
 
 	private static final RequestMatcher ANY_REQUEST = AnyRequestMatcher.INSTANCE;
+
+	private final RequestMatcherBuilder requestMatcherBuilder = new DefaultRequestMatcherBuilder();
 
 	private ApplicationContext context;
 
@@ -217,13 +221,9 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 		if (servletContext == null) {
 			return requestMatchers(RequestMatchers.antMatchersAsArray(method, patterns));
 		}
-		List<RequestMatcher> matchers = new ArrayList<>();
-		for (String pattern : patterns) {
-			AntPathRequestMatcher ant = new AntPathRequestMatcher(pattern, (method != null) ? method.name() : null);
-			MvcRequestMatcher mvc = createMvcMatchers(method, pattern).get(0);
-			matchers.add(new DeferredRequestMatcher((c) -> resolve(ant, mvc, c), mvc, ant));
-		}
-		return requestMatchers(matchers.toArray(new RequestMatcher[0]));
+		RequestMatcherBuilder builder = context.getBeanProvider(RequestMatcherBuilder.class)
+			.getIfUnique(() -> this.requestMatcherBuilder);
+		return requestMatchers(builder.pattern(method, patterns));
 	}
 
 	private boolean anyPathsDontStartWithLeadingSlash(String... patterns) {
@@ -235,7 +235,7 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 		return false;
 	}
 
-	private RequestMatcher resolve(AntPathRequestMatcher ant, MvcRequestMatcher mvc, ServletContext servletContext) {
+	private RequestMatcher resolve(AntPathRequestMatcher ant, RequestMatcher mvc, ServletContext servletContext) {
 		ServletRegistrationsSupport registrations = new ServletRegistrationsSupport(servletContext);
 		Collection<RegistrationMapping> mappings = registrations.mappings();
 		if (mappings.isEmpty()) {
@@ -264,11 +264,14 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 	}
 
 	private static String computeErrorMessage(Collection<? extends ServletRegistration> registrations) {
-		String template = "This method cannot decide whether these patterns are Spring MVC patterns or not. "
-				+ "If this endpoint is a Spring MVC endpoint, please use requestMatchers(MvcRequestMatcher); "
-				+ "otherwise, please use requestMatchers(AntPathRequestMatcher).\n\n"
-				+ "This is because there is more than one mappable servlet in your servlet context: %s.\n\n"
-				+ "For each MvcRequestMatcher, call MvcRequestMatcher#setServletPath to indicate the servlet path.";
+		String template = """
+				This method cannot decide whether these patterns are Spring MVC patterns or not. \
+				This is because there is more than one mappable servlet in your servlet context: %s.
+
+				To address this, please create one ServletRequestMatcherBuilder#servletPath for each servlet that has \
+				authorized endpoints and use them to construct request matchers manually. \
+				If all your URIs are unambiguous, then you can simply publish one ServletRequestMatcherBuilders#servletPath as \
+				a @Bean and Spring Security will use it for all URIs""";
 		Map<String, Collection<String>> mappings = new LinkedHashMap<>();
 		for (ServletRegistration registration : registrations) {
 			mappings.put(registration.getClassName(), registration.getMappings());
@@ -278,10 +281,10 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 
 	/**
 	 * <p>
-	 * If the {@link HandlerMappingIntrospector} is available in the classpath, maps to an
-	 * {@link MvcRequestMatcher} that does not care which {@link HttpMethod} is used. This
-	 * matcher will use the same rules that Spring MVC uses for matching. For example,
-	 * often times a mapping of the path "/path" will match on "/path", "/path/",
+	 * If the {@link HandlerMappingIntrospector} is available in the classpath, maps to a
+	 * {@link PathPatternRequestMatcher} that does not care which {@link HttpMethod} is
+	 * used. This matcher will use the same rules that Spring MVC uses for matching. For
+	 * example, often times a mapping of the path "/path" will match on "/path", "/path/",
 	 * "/path.html", etc. If the {@link HandlerMappingIntrospector} is not available, maps
 	 * to an {@link AntPathRequestMatcher}.
 	 * </p>
@@ -402,6 +405,35 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 
 	}
 
+	class DefaultRequestMatcherBuilder implements RequestMatcherBuilder {
+
+		@Override
+		public RequestMatcher pattern(HttpMethod method, String pattern) {
+			Assert.state(!AbstractRequestMatcherRegistry.this.anyRequestConfigured,
+					"Can't configure mvcMatchers after anyRequest");
+			AntPathRequestMatcher ant = new AntPathRequestMatcher(pattern, (method != null) ? method.name() : null);
+			RequestMatcher mvc;
+			if (!AbstractRequestMatcherRegistry.this.context.containsBean(HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME)) {
+				throw new NoSuchBeanDefinitionException("A Bean named " + HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME
+						+ " of type " + HandlerMappingIntrospector.class.getName()
+						+ " is required to use MvcRequestMatcher. Please ensure Spring Security & Spring MVC are configured in a shared ApplicationContext.");
+			}
+			HandlerMappingIntrospector introspector = AbstractRequestMatcherRegistry.this.context
+				.getBean(HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME, HandlerMappingIntrospector.class);
+			if (introspector.allHandlerMappingsUsePathPatternParser()) {
+				PathPatternParser pathPatternParser = AbstractRequestMatcherRegistry.this.context
+					.getBeanProvider(PathPatternParser.class)
+					.getIfUnique(() -> PathPatternParser.defaultInstance);
+				mvc = PathPatternRequestMatcher.withPathPatternParser(pathPatternParser).pattern(method, pattern);
+			}
+			else {
+				mvc = createMvcMatchers(method, pattern).get(0);
+			}
+			return new DeferredRequestMatcher((c) -> resolve(ant, mvc, c), mvc, ant);
+		}
+
+	}
+
 	static class DeferredRequestMatcher implements RequestMatcher {
 
 		final Function<ServletContext, RequestMatcher> requestMatcherFactory;
@@ -453,13 +485,8 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 			ServletRegistration registration = request.getServletContext().getServletRegistration(name);
 			Assert.notNull(registration,
 					() -> computeErrorMessage(request.getServletContext().getServletRegistrations().values()));
-			try {
-				Class<?> clazz = Class.forName(registration.getClassName());
-				return DispatcherServlet.class.isAssignableFrom(clazz);
-			}
-			catch (ClassNotFoundException ex) {
-				return false;
-			}
+			return new RegistrationMapping(registration, request.getHttpServletMapping().getPattern())
+				.isDispatcherServlet();
 		}
 
 	}
@@ -468,15 +495,15 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 
 		private final AntPathRequestMatcher ant;
 
-		private final MvcRequestMatcher mvc;
+		private final RequestMatcher mvc;
 
 		private final RequestMatcher dispatcherServlet;
 
-		DispatcherServletDelegatingRequestMatcher(AntPathRequestMatcher ant, MvcRequestMatcher mvc) {
+		DispatcherServletDelegatingRequestMatcher(AntPathRequestMatcher ant, RequestMatcher mvc) {
 			this(ant, mvc, new OrRequestMatcher(new MockMvcRequestMatcher(), new DispatcherServletRequestMatcher()));
 		}
 
-		DispatcherServletDelegatingRequestMatcher(AntPathRequestMatcher ant, MvcRequestMatcher mvc,
+		DispatcherServletDelegatingRequestMatcher(AntPathRequestMatcher ant, RequestMatcher mvc,
 				RequestMatcher dispatcherServlet) {
 			this.ant = ant;
 			this.mvc = mvc;

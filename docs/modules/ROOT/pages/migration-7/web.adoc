@@ -102,3 +102,23 @@ Xml::
 </b:bean>
 ----
 ======
+
+== Favor PathPatternRequestMatcher
+
+`MvcRequestMatcher` is deprecated in 6.5.
+XML, Kotlin, and Java will all favor `PathPatternRequestMatcher` by default in 7.0.
+
+If you aren't already publishing a `RequestMatcherBuilder` bean, you can prepare for this change in defaults by publishing the following bean:
+
+[source,java]
+----
+@Bean
+RequestMatcherBuilder favorPathPattern() {
+	return ServletRequestMatcherBuilders.deducePath();
+}
+----
+
+This static factory aligns with the Spring Security defaults for request matchers except that it uses `PathPatternRequestMatcher` instead.
+It reflects what the default will be in Spring Security 7.
+
+If this creates problems for you and you cannot use this bean at the moment, then change each of your `String` URI authorization rules to xref:servlet/authorization/authorize-http-requests.adoc#security-matchers[use a `RequestMatcher`].

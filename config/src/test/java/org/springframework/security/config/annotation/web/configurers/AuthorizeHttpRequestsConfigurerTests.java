@@ -64,6 +64,8 @@ import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
 import org.springframework.security.web.access.intercept.RequestMatcherDelegatingAuthorizationManager;
 import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcherBuilder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
@@ -72,6 +74,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.DispatcherServlet;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
@@ -665,6 +668,19 @@ public class AuthorizeHttpRequestsConfigurerTests {
 		this.mvc.perform(get("/").with(user("user").roles("USER"))).andExpect(status().isOk());
 		this.mvc.perform(get("/").with(user("user").roles("WRONG"))).andExpect(status().isForbidden());
 		verifyNoInteractions(handler);
+	}
+
+	@Test
+	public void requestMatchersWhenMultipleDispatcherServletsAndPathBeanThenAllows() throws Exception {
+		this.spring.register(MvcRequestMatcherBuilderConfig.class, BasicController.class)
+			.postProcessor((context) -> context.getServletContext()
+				.addServlet("otherDispatcherServlet", DispatcherServlet.class)
+				.addMapping("/mvc"))
+			.autowire();
+		this.mvc.perform(get("/mvc/path").servletPath("/mvc").with(user("user"))).andExpect(status().isOk());
+		this.mvc.perform(get("/mvc/path").servletPath("/mvc").with(user("user").roles("DENIED")))
+			.andExpect(status().isForbidden());
+		this.mvc.perform(get("/path").with(user("user"))).andExpect(status().isForbidden());
 	}
 
 	@Configuration
@@ -1262,6 +1278,10 @@ public class AuthorizeHttpRequestsConfigurerTests {
 		void rootPost() {
 		}
 
+		@GetMapping("/path")
+		void path() {
+		}
+
 	}
 
 	@Configuration
@@ -1313,6 +1333,26 @@ public class AuthorizeHttpRequestsConfigurerTests {
 		@Bean
 		SecurityObservationSettings observabilityDefaults() {
 			return SecurityObservationSettings.withDefaults().shouldObserveAuthorizations(false).build();
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	@EnableWebMvc
+	static class MvcRequestMatcherBuilderConfig {
+
+		@Bean
+		RequestMatcherBuilder servletPath() {
+			return PathPatternRequestMatcher.builder().servletPath("/mvc");
+		}
+
+		@Bean
+		SecurityFilterChain security(HttpSecurity http) throws Exception {
+			http.authorizeHttpRequests((authorize) -> authorize.requestMatchers("/path").hasRole("USER"))
+				.httpBasic(withDefaults());
+
+			return http.build();
 		}
 
 	}

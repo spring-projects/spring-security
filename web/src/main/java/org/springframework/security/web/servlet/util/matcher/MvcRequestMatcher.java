@@ -23,6 +23,7 @@ import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.http.HttpMethod;
 import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcherBuilder;
 import org.springframework.security.web.util.matcher.RequestVariablesExtractor;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.PathMatcher;
@@ -46,7 +47,9 @@ import org.springframework.web.util.UrlPathHelper;
  * @author Eddú Meléndez
  * @author Evgeniy Cheban
  * @since 4.1.1
+ * @deprecated Use {@link PathPatternRequestMatcher} instead.
  */
+@Deprecated
 public class MvcRequestMatcher implements RequestMatcher, RequestVariablesExtractor {
 
 	private final DefaultMatcher defaultMatcher = new DefaultMatcher();
@@ -197,7 +200,7 @@ public class MvcRequestMatcher implements RequestMatcher, RequestVariablesExtrac
 	 * @author Marcus Da Coregio
 	 * @since 5.8
 	 */
-	public static final class Builder {
+	public static final class Builder implements RequestMatcherBuilder {
 
 		private final HandlerMappingIntrospector introspector;
 
@@ -237,6 +240,7 @@ public class MvcRequestMatcher implements RequestMatcher, RequestVariablesExtrac
 		 * @param pattern the patterns used to match
 		 * @return the generated {@link MvcRequestMatcher}
 		 */
+		@Override
 		public MvcRequestMatcher pattern(HttpMethod method, String pattern) {
 			MvcRequestMatcher mvcRequestMatcher = new MvcRequestMatcher(this.introspector, pattern);
 			mvcRequestMatcher.setServletPath(this.servletPath);
