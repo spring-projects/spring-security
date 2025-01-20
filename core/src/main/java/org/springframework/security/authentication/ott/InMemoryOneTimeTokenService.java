@@ -44,8 +44,8 @@ public final class InMemoryOneTimeTokenService implements OneTimeTokenService {
 	@NonNull
 	public OneTimeToken generate(GenerateOneTimeTokenRequest request) {
 		String token = UUID.randomUUID().toString();
-		Instant fiveMinutesFromNow = this.clock.instant().plusSeconds(300);
-		OneTimeToken ott = new DefaultOneTimeToken(token, request.getUsername(), fiveMinutesFromNow);
+		Instant expiresAt = this.clock.instant().plusSeconds(request.getExpiresIn());
+		OneTimeToken ott = new DefaultOneTimeToken(token, request.getUsername(), expiresAt);
 		this.oneTimeTokenByToken.put(token, ott);
 		cleanExpiredTokensIfNeeded();
 		return ott;

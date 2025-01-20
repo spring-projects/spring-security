@@ -29,7 +29,6 @@ import org.springframework.security.authentication.ott.OneTimeToken;
 import org.springframework.security.authentication.ott.OneTimeTokenService;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
@@ -49,6 +48,8 @@ public final class GenerateOneTimeTokenFilter extends OncePerRequestFilter {
 
 	private RequestMatcher requestMatcher = antMatcher(HttpMethod.POST, "/ott/generate");
 
+	private GenerateOneTimeTokenRequestResolver requestResolver = new DefaultGenerateOneTimeTokenRequestResolver();
+
 	public GenerateOneTimeTokenFilter(OneTimeTokenService tokenService,
 			OneTimeTokenGenerationSuccessHandler tokenGenerationSuccessHandler) {
 		Assert.notNull(tokenService, "tokenService cannot be null");
@@ -64,12 +65,11 @@ public final class GenerateOneTimeTokenFilter extends OncePerRequestFilter {
 			filterChain.doFilter(request, response);
 			return;
 		}
-		String username = request.getParameter("username");
-		if (!StringUtils.hasText(username)) {
+		GenerateOneTimeTokenRequest generateRequest = this.requestResolver.resolve(request);
+		if (generateRequest == null) {
 			filterChain.doFilter(request, response);
 			return;
 		}
-		GenerateOneTimeTokenRequest generateRequest = new GenerateOneTimeTokenRequest(username);
 		OneTimeToken ott = this.tokenService.generate(generateRequest);
 		this.tokenGenerationSuccessHandler.handle(request, response, ott);
 	}
@@ -81,6 +81,17 @@ public final class GenerateOneTimeTokenFilter extends OncePerRequestFilter {
 	public void setRequestMatcher(RequestMatcher requestMatcher) {
 		Assert.notNull(requestMatcher, "requestMatcher cannot be null");
 		this.requestMatcher = requestMatcher;
+	}
+
+	/**
+	 * Use the given {@link GenerateOneTimeTokenRequestResolver} to resolve
+	 * {@link GenerateOneTimeTokenRequest}.
+	 * @param requestResolver {@link GenerateOneTimeTokenRequestResolver}
+	 * @since 6.5
+	 */
+	public void setRequestResolver(GenerateOneTimeTokenRequestResolver requestResolver) {
+		Assert.notNull(requestResolver, "requestResolver cannot be null");
+		this.requestResolver = requestResolver;
 	}
 
 }
