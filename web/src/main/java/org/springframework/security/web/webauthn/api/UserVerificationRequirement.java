@@ -22,6 +22,7 @@ package org.springframework.security.web.webauthn.api;
  * is used by the Relying Party to indicate if user verification is needed.
  *
  * @author Rob Winch
+ * @author Justin Cranford
  * @since 6.4
  */
 public final class UserVerificationRequirement {
@@ -64,6 +65,26 @@ public final class UserVerificationRequirement {
 	 */
 	public String getValue() {
 		return this.value;
+	}
+
+	/**
+	 * Gets the value
+	 * @param value the string
+	 * @return the value
+	 * @author Justin Cranford
+	 * @since 6.5
+	 */
+	public static UserVerificationRequirement valueOf(String value) {
+		if (DISCOURAGED.getValue().equals(value)) {
+			return DISCOURAGED;
+		}
+		if (PREFERRED.getValue().equals(value)) {
+			return PREFERRED;
+		}
+		if (REQUIRED.getValue().equals(value)) {
+			return REQUIRED;
+		}
+		return new UserVerificationRequirement(value);
 	}
 
 }
