@@ -16,6 +16,8 @@
 
 package org.springframework.security.web.webauthn.api;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.Set;
 
 /**
@@ -29,7 +31,10 @@ import java.util.Set;
  * @author Rob Winch
  * @since 6.4
  */
-public final class PublicKeyCredentialDescriptor {
+public final class PublicKeyCredentialDescriptor implements Serializable {
+
+	@Serial
+	private static final long serialVersionUID = 8793385059692676240L;
 
 	private final PublicKeyCredentialType type;
 
