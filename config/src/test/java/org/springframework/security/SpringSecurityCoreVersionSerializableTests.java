@@ -191,6 +191,9 @@ import org.springframework.security.web.csrf.MissingCsrfTokenException;
 import org.springframework.security.web.firewall.RequestRejectedException;
 import org.springframework.security.web.server.firewall.ServerExchangeRejectedException;
 import org.springframework.security.web.session.HttpSessionCreatedEvent;
+import org.springframework.security.web.webauthn.api.Bytes;
+import org.springframework.security.web.webauthn.api.ImmutablePublicKeyCredentialUserEntity;
+import org.springframework.security.web.webauthn.api.TestPublicKeyCredentialUserEntity;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -508,6 +511,11 @@ class SpringSecurityCoreVersionSerializableTests {
 				(r) -> new AuthenticationSwitchUserEvent(authentication, user));
 		generatorByClassName.put(HttpSessionCreatedEvent.class,
 				(r) -> new HttpSessionCreatedEvent(new MockHttpSession()));
+
+		// webauthn
+		generatorByClassName.put(Bytes.class, (r) -> Bytes.random());
+		generatorByClassName.put(ImmutablePublicKeyCredentialUserEntity.class,
+				(r) -> TestPublicKeyCredentialUserEntity.userEntity().build());
 	}
 
 	@ParameterizedTest
