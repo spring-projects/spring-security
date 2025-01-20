@@ -121,6 +121,7 @@ import org.springframework.security.oauth2.client.oidc.authentication.logout.Tes
 import org.springframework.security.oauth2.client.oidc.session.OidcSessionInformation;
 import org.springframework.security.oauth2.client.oidc.session.TestOidcSessionInformations;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.client.registration.ClientRegistration.ClientSettings;
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.core.DefaultOAuth2AuthenticatedPrincipal;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
@@ -239,11 +240,12 @@ class SpringSecurityCoreVersionSerializableTests {
 				(r) -> new ReactiveSessionInformation(user, r.alphanumeric(4), Instant.ofEpochMilli(1704378933936L)));
 		generatorByClassName.put(OAuth2AccessToken.class, (r) -> TestOAuth2AccessTokens.scopes("scope"));
 		generatorByClassName.put(OAuth2DeviceCode.class,
-				(r) -> new OAuth2DeviceCode("token", Instant.now(), Instant.now()));
+				(r) -> new OAuth2DeviceCode("token", Instant.now(), Instant.now().plusSeconds(1)));
 		generatorByClassName.put(OAuth2RefreshToken.class,
-				(r) -> new OAuth2RefreshToken("refreshToken", Instant.now(), Instant.now()));
+				(r) -> new OAuth2RefreshToken("refreshToken", Instant.now(), Instant.now().plusSeconds(1)));
 		generatorByClassName.put(OAuth2UserCode.class,
-				(r) -> new OAuth2UserCode("token", Instant.now(), Instant.now()));
+				(r) -> new OAuth2UserCode("token", Instant.now(), Instant.now().plusSeconds(1)));
+		generatorByClassName.put(ClientSettings.class, (r) -> ClientSettings.builder().build());
 		generatorByClassName.put(DefaultOidcUser.class, (r) -> TestOidcUsers.create());
 		generatorByClassName.put(OidcUserAuthority.class,
 				(r) -> new OidcUserAuthority(TestOidcIdTokens.idToken().build(),
