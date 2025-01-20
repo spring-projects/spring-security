@@ -191,6 +191,14 @@ import org.springframework.security.web.csrf.MissingCsrfTokenException;
 import org.springframework.security.web.firewall.RequestRejectedException;
 import org.springframework.security.web.server.firewall.ServerExchangeRejectedException;
 import org.springframework.security.web.session.HttpSessionCreatedEvent;
+import org.springframework.security.web.webauthn.api.AttestationConveyancePreference;
+import org.springframework.security.web.webauthn.api.AuthenticatorAttachment;
+import org.springframework.security.web.webauthn.api.AuthenticatorSelectionCriteria;
+import org.springframework.security.web.webauthn.api.Bytes;
+import org.springframework.security.web.webauthn.api.PublicKeyCredentialCreationOptions;
+import org.springframework.security.web.webauthn.api.PublicKeyCredentialRpEntity;
+import org.springframework.security.web.webauthn.api.ResidentKeyRequirement;
+import org.springframework.security.web.webauthn.api.UserVerificationRequirement;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -508,6 +516,19 @@ class SpringSecurityCoreVersionSerializableTests {
 				(r) -> new AuthenticationSwitchUserEvent(authentication, user));
 		generatorByClassName.put(HttpSessionCreatedEvent.class,
 				(r) -> new HttpSessionCreatedEvent(new MockHttpSession()));
+
+		// webauthn
+		generatorByClassName.put(PublicKeyCredentialCreationOptions.class,
+				(r) -> PublicKeyCredentialCreationOptions.builder().build());
+		generatorByClassName.put(PublicKeyCredentialRpEntity.class,
+				(r) -> PublicKeyCredentialRpEntity.builder().build());
+		generatorByClassName.put(Bytes.class, (r) -> Bytes.random());
+		generatorByClassName.put(AuthenticatorSelectionCriteria.class,
+				(r) -> AuthenticatorSelectionCriteria.builder().build());
+		generatorByClassName.put(AuthenticatorAttachment.class, (r) -> AuthenticatorAttachment.CROSS_PLATFORM);
+		generatorByClassName.put(ResidentKeyRequirement.class, (r) -> ResidentKeyRequirement.REQUIRED);
+		generatorByClassName.put(UserVerificationRequirement.class, (r) -> UserVerificationRequirement.REQUIRED);
+		generatorByClassName.put(AttestationConveyancePreference.class, (r) -> AttestationConveyancePreference.NONE);
 	}
 
 	@ParameterizedTest
