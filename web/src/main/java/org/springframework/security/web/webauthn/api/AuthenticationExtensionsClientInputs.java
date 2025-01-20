@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package org.springframework.security.web.webauthn.api;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -31,7 +32,7 @@ import java.util.List;
  * @since 6.4
  * @see PublicKeyCredentialCreationOptions#getExtensions()
  */
-public interface AuthenticationExtensionsClientInputs {
+public interface AuthenticationExtensionsClientInputs extends Serializable {
 
 	/**
 	 * Gets all of the {@link AuthenticationExtensionsClientInput}.
