@@ -19,29 +19,27 @@ package org.springframework.security.web.webauthn.jackson;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import org.springframework.security.web.webauthn.api.COSEAlgorithmIdentifier;
+import org.springframework.security.web.webauthn.api.UserVerificationRequirement;
 
 import java.io.IOException;
 
 /**
- * Jackson serializer for {@link COSEAlgorithmIdentifier}
+ * Jackson deserializer for {@link UserVerificationRequirement}
  *
- * @author Rob Winch
  * @author Justin Cranford
- * @since 6.4
+ * @since 6.5
  */
 @SuppressWarnings("serial")
-class COSEAlgorithmIdentifierDeserializer extends StdDeserializer<COSEAlgorithmIdentifier> {
+public class UserVerificationRequirementDeserializer extends StdDeserializer<UserVerificationRequirement> {
 
-	COSEAlgorithmIdentifierDeserializer() {
-		super(COSEAlgorithmIdentifier.class);
-	}
+    public UserVerificationRequirementDeserializer() {
+        super(UserVerificationRequirement.class);
+    }
 
-	@Override
-	public COSEAlgorithmIdentifier deserialize(JsonParser parser, DeserializationContext ctxt)
+    @Override
+    public UserVerificationRequirement deserialize(JsonParser parser, DeserializationContext ctxt)
 			throws IOException {
-		Long transportValue = parser.readValueAs(Long.class);
-		return COSEAlgorithmIdentifier.valueOf(transportValue);
-	}
-
+		String type = parser.readValueAs(String.class);
+		return UserVerificationRequirement.valueOf(type);
+    }
 }

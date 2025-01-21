@@ -17,26 +17,32 @@
 package org.springframework.security.web.webauthn.jackson;
 
 import java.io.IOException;
+import java.time.Duration;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
-
-import org.springframework.security.web.webauthn.api.AuthenticatorTransport;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 
 /**
- * Jackson serializer for {@link AuthenticatorTransport}
+ * Jackson deserializer for {@link Duration}
  *
- * @author Rob Winch
- * @since 6.4
+ * @author Justin Cranford
+ * @since 6.5
  */
 @SuppressWarnings("serial")
-class AuthenticatorTransportSerializer extends JsonSerializer<AuthenticatorTransport> {
+class DurationDeserializer extends StdDeserializer<Duration> {
 
-	@Override
-	public void serialize(AuthenticatorTransport transport, JsonGenerator jgen, SerializerProvider provider)
-			throws IOException {
-		jgen.writeString(transport.getValue());
+	/**
+	 * Creates an instance.
+	 */
+	DurationDeserializer() {
+		super(Duration.class);
 	}
 
+	@Override
+	public Duration deserialize(JsonParser parser, DeserializationContext ctxt)
+			throws IOException {
+		long millis = parser.getLongValue();
+		return Duration.ofMillis(millis);
+	}
 }

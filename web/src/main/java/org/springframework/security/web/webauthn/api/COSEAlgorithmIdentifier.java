@@ -22,6 +22,7 @@ package org.springframework.security.web.webauthn.api;
  * used to identify a cryptographic algorithm.
  *
  * @author Rob Winch
+ * @author Justin Cranford
  * @since 6.4
  * @see PublicKeyCredentialParameters#getAlg()
  */
@@ -62,4 +63,24 @@ public final class COSEAlgorithmIdentifier {
 		return new COSEAlgorithmIdentifier[] { EdDSA, ES256, ES384, ES512, RS256, RS384, RS512, RS1 };
 	}
 
+	public static COSEAlgorithmIdentifier valueOf(long value) {
+		if (COSEAlgorithmIdentifier.EdDSA.getValue() == value) {
+			return EdDSA;
+		} else if (COSEAlgorithmIdentifier.ES256.getValue() == value) {
+			return ES256;
+		} else if (COSEAlgorithmIdentifier.ES384.getValue() == value) {
+			return ES384;
+		} else if (COSEAlgorithmIdentifier.ES512.getValue() == value) {
+			return ES512;
+		} else if (COSEAlgorithmIdentifier.RS256.getValue() == value) {
+			return RS256;
+		} else if (COSEAlgorithmIdentifier.RS384.getValue() == value) {
+			return RS384;
+		} else if (COSEAlgorithmIdentifier.RS512.getValue() == value) {
+			return RS512;
+		} else if (COSEAlgorithmIdentifier.RS1.getValue() == value) {
+			return RS1;
+		}
+		return new COSEAlgorithmIdentifier(value);
+	}
 }

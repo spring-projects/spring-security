@@ -34,8 +34,12 @@ import org.springframework.security.web.webauthn.api.CredProtectAuthenticationEx
 import org.springframework.security.web.webauthn.api.CredentialPropertiesOutput;
 import org.springframework.security.web.webauthn.api.PublicKeyCredential;
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialCreationOptions;
+import org.springframework.security.web.webauthn.api.PublicKeyCredentialDescriptor;
+import org.springframework.security.web.webauthn.api.PublicKeyCredentialParameters;
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialRequestOptions;
+import org.springframework.security.web.webauthn.api.PublicKeyCredentialRpEntity;
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialType;
+import org.springframework.security.web.webauthn.api.PublicKeyCredentialUserEntity;
 import org.springframework.security.web.webauthn.api.ResidentKeyRequirement;
 import org.springframework.security.web.webauthn.api.UserVerificationRequirement;
 import org.springframework.security.web.webauthn.management.RelyingPartyPublicKey;
@@ -92,6 +96,12 @@ public class WebauthnJackson2Module extends SimpleModule {
 		context.setMixInAnnotations(RelyingPartyPublicKey.class, RelyingPartyPublicKeyMixin.class);
 		context.setMixInAnnotations(ResidentKeyRequirement.class, ResidentKeyRequirementMixin.class);
 		context.setMixInAnnotations(UserVerificationRequirement.class, UserVerificationRequirementMixin.class);
+
+		context.setMixInAnnotations(PublicKeyCredentialUserEntity.class, PublicKeyCredentialUserEntityMixin.class);
+		context.setMixInAnnotations(PublicKeyCredentialRpEntity.class, PublicKeyCredentialRpEntityMixin.class);
+		context.setMixInAnnotations(PublicKeyCredentialParameters.class, PublicKeyCredentialParametersMixin.class);
+		context.setMixInAnnotations(PublicKeyCredentialDescriptor.class, PublicKeyCredentialDescriptorMixin.class);
+
 	}
 
 }
