@@ -16,7 +16,6 @@
 
 package org.springframework.security.web.webauthn.authentication;
 
-import java.beans.Transient;
 import java.io.Serial;
 import java.util.Collection;
 
