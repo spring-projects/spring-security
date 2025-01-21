@@ -569,6 +569,19 @@ public class DefaultOAuth2AuthorizationRequestResolverTests {
 	}
 
 	@Test
+	public void resolveWhenAuthorizationRequestNoProvideAuthorizationRequestBaseUri() {
+		OAuth2AuthorizationRequestResolver resolver = new DefaultOAuth2AuthorizationRequestResolver(
+				this.clientRegistrationRepository);
+		ClientRegistration clientRegistration = this.registration2;
+		String requestUri = this.authorizationRequestBaseUri + "/" + clientRegistration.getRegistrationId();
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", requestUri);
+		request.setServletPath(requestUri);
+		OAuth2AuthorizationRequest authorizationRequest = resolver.resolve(request);
+		assertThat(authorizationRequest.getRedirectUri())
+				.isEqualTo("http://localhost/login/oauth2/code/" + clientRegistration.getRegistrationId());
+	}
+
+	@Test
 	public void resolveWhenAuthorizationRequestProvideCodeChallengeMethod() {
 		ClientRegistration clientRegistration = this.pkceClientRegistration;
 		String requestUri = this.authorizationRequestBaseUri + "/" + clientRegistration.getRegistrationId();
