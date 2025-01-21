@@ -191,6 +191,26 @@ import org.springframework.security.web.csrf.MissingCsrfTokenException;
 import org.springframework.security.web.firewall.RequestRejectedException;
 import org.springframework.security.web.server.firewall.ServerExchangeRejectedException;
 import org.springframework.security.web.session.HttpSessionCreatedEvent;
+import org.springframework.security.web.webauthn.api.AttestationConveyancePreference;
+import org.springframework.security.web.webauthn.api.AuthenticatorAttachment;
+import org.springframework.security.web.webauthn.api.AuthenticatorSelectionCriteria;
+import org.springframework.security.web.webauthn.api.AuthenticatorTransport;
+import org.springframework.security.web.webauthn.api.Bytes;
+import org.springframework.security.web.webauthn.api.COSEAlgorithmIdentifier;
+import org.springframework.security.web.webauthn.api.CredentialRecord;
+import org.springframework.security.web.webauthn.api.ImmutableAuthenticationExtensionsClientInput;
+import org.springframework.security.web.webauthn.api.ImmutableAuthenticationExtensionsClientInputs;
+import org.springframework.security.web.webauthn.api.PublicKeyCredentialCreationOptions;
+import org.springframework.security.web.webauthn.api.PublicKeyCredentialDescriptor;
+import org.springframework.security.web.webauthn.api.PublicKeyCredentialParameters;
+import org.springframework.security.web.webauthn.api.PublicKeyCredentialRpEntity;
+import org.springframework.security.web.webauthn.api.PublicKeyCredentialType;
+import org.springframework.security.web.webauthn.api.ResidentKeyRequirement;
+import org.springframework.security.web.webauthn.api.TestCredentialRecord;
+import org.springframework.security.web.webauthn.api.TestPublicKeyCredentialCreationOptions;
+import org.springframework.security.web.webauthn.api.TestPublicKeyCredentialUserEntity;
+import org.springframework.security.web.webauthn.api.UserVerificationRequirement;
+import org.springframework.security.web.webauthn.management.TestPublicKeyCredentialRpEntity;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -508,6 +528,41 @@ class SpringSecurityCoreVersionSerializableTests {
 				(r) -> new AuthenticationSwitchUserEvent(authentication, user));
 		generatorByClassName.put(HttpSessionCreatedEvent.class,
 				(r) -> new HttpSessionCreatedEvent(new MockHttpSession()));
+
+		// webauthn
+		generatorByClassName.put(PublicKeyCredentialCreationOptions.class, (r) -> {
+			CredentialRecord credentialRecord = TestCredentialRecord.userCredential().build();
+			PublicKeyCredentialDescriptor descriptor = PublicKeyCredentialDescriptor.builder()
+				.id(credentialRecord.getCredentialId())
+				.transports(credentialRecord.getTransports())
+				.build();
+			return TestPublicKeyCredentialCreationOptions.createPublicKeyCredentialCreationOptions()
+				.rp(TestPublicKeyCredentialRpEntity.createRpEntity().build())
+				.user(TestPublicKeyCredentialUserEntity.userEntity().build())
+				.excludeCredentials(List.of(descriptor))
+				.build();
+		});
+		generatorByClassName.put(PublicKeyCredentialRpEntity.class,
+				(r) -> TestPublicKeyCredentialRpEntity.createRpEntity().build());
+		generatorByClassName.put(Bytes.class, (r) -> Bytes.random());
+		generatorByClassName.put(AuthenticatorSelectionCriteria.class,
+				(r) -> AuthenticatorSelectionCriteria.builder().build());
+		generatorByClassName.put(AuthenticatorAttachment.class, (r) -> AuthenticatorAttachment.CROSS_PLATFORM);
+		generatorByClassName.put(ResidentKeyRequirement.class, (r) -> ResidentKeyRequirement.REQUIRED);
+		generatorByClassName.put(UserVerificationRequirement.class, (r) -> UserVerificationRequirement.REQUIRED);
+		generatorByClassName.put(AttestationConveyancePreference.class, (r) -> AttestationConveyancePreference.NONE);
+		generatorByClassName.put(PublicKeyCredentialParameters.class, (r) -> PublicKeyCredentialParameters.EdDSA);
+		generatorByClassName.put(COSEAlgorithmIdentifier.class, (r) -> COSEAlgorithmIdentifier.EdDSA);
+		generatorByClassName.put(ImmutableAuthenticationExtensionsClientInputs.class,
+				(r) -> new ImmutableAuthenticationExtensionsClientInputs(
+						ImmutableAuthenticationExtensionsClientInput.credProps));
+		generatorByClassName.put(PublicKeyCredentialDescriptor.class,
+				(r) -> PublicKeyCredentialDescriptor.builder()
+					.transports(AuthenticatorTransport.HYBRID)
+					.id(Bytes.fromBase64("ChfoCM8CJA_wwUGDdzdtuw"))
+					.build());
+		generatorByClassName.put(PublicKeyCredentialType.class, (r) -> PublicKeyCredentialType.PUBLIC_KEY);
+		generatorByClassName.put(AuthenticatorTransport.class, (r) -> AuthenticatorTransport.HYBRID);
 	}
 
 	@ParameterizedTest
