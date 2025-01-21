@@ -193,7 +193,10 @@ import org.springframework.security.web.server.firewall.ServerExchangeRejectedEx
 import org.springframework.security.web.session.HttpSessionCreatedEvent;
 import org.springframework.security.web.webauthn.api.Bytes;
 import org.springframework.security.web.webauthn.api.ImmutablePublicKeyCredentialUserEntity;
+import org.springframework.security.web.webauthn.api.PublicKeyCredentialUserEntity;
+import org.springframework.security.web.webauthn.api.TestBytes;
 import org.springframework.security.web.webauthn.api.TestPublicKeyCredentialUserEntity;
+import org.springframework.security.web.webauthn.authentication.WebAuthnAuthentication;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -513,9 +516,18 @@ class SpringSecurityCoreVersionSerializableTests {
 				(r) -> new HttpSessionCreatedEvent(new MockHttpSession()));
 
 		// webauthn
-		generatorByClassName.put(Bytes.class, (r) -> Bytes.random());
+		generatorByClassName.put(Bytes.class, (r) -> TestBytes.getInstance());
 		generatorByClassName.put(ImmutablePublicKeyCredentialUserEntity.class,
-				(r) -> TestPublicKeyCredentialUserEntity.userEntity().build());
+				(r) -> TestPublicKeyCredentialUserEntity.userEntity().id(TestBytes.getInstance()).build());
+		generatorByClassName.put(WebAuthnAuthentication.class, (r) -> {
+			PublicKeyCredentialUserEntity userEntity = TestPublicKeyCredentialUserEntity.userEntity()
+				.id(TestBytes.getInstance())
+				.build();
+			List<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList("ROLE_USER");
+			WebAuthnAuthentication webAuthnAuthentication = new WebAuthnAuthentication(userEntity, authorities);
+			webAuthnAuthentication.setDetails(details);
+			return webAuthnAuthentication;
+		});
 	}
 
 	@ParameterizedTest
