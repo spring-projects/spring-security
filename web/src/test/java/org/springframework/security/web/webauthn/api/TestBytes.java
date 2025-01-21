@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,16 @@
 
 package org.springframework.security.web.webauthn.api;
 
-import org.springframework.security.web.webauthn.api.ImmutablePublicKeyCredentialUserEntity.PublicKeyCredentialUserEntityBuilder;
+/**
+ * @author Rob Winch
+ */
+public final class TestBytes {
 
-public final class TestPublicKeyCredentialUserEntity {
-
-	public static PublicKeyCredentialUserEntityBuilder userEntity() {
-		return ImmutablePublicKeyCredentialUserEntity.builder().name("user").id(TestBytes.get()).displayName("user");
+	public static Bytes get() {
+		return Bytes.fromBase64("OSCtNugR-n4YR4ozlHRa-CKXzY9v-yMKtQGcvui5xN8");
 	}
 
-	private TestPublicKeyCredentialUserEntity() {
+	private TestBytes() {
 	}
 
 }
