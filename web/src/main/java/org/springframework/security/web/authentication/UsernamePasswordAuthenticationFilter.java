@@ -124,6 +124,7 @@ public class UsernamePasswordAuthenticationFilter extends AbstractAuthentication
 	 */
 	protected void setDetails(HttpServletRequest request, UsernamePasswordAuthenticationToken authRequest) {
 		authRequest.setDetails(this.authenticationDetailsSource.buildDetails(request));
+		request.setAttribute("authRequest", authRequest);
 	}
 
 	/**
