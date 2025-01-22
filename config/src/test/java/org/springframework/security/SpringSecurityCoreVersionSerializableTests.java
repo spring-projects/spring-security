@@ -16,6 +16,8 @@
 
 package org.springframework.security;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -35,12 +37,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.apache.commons.lang3.ObjectUtils;
 import org.apereo.cas.client.validation.AssertionImpl;
 import org.instancio.Instancio;
 import org.instancio.InstancioApi;
@@ -192,6 +196,7 @@ import org.springframework.security.web.csrf.MissingCsrfTokenException;
 import org.springframework.security.web.firewall.RequestRejectedException;
 import org.springframework.security.web.server.firewall.ServerExchangeRejectedException;
 import org.springframework.security.web.session.HttpSessionCreatedEvent;
+import org.springframework.util.ReflectionUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -510,6 +515,52 @@ class SpringSecurityCoreVersionSerializableTests {
 				(r) -> new AuthenticationSwitchUserEvent(authentication, user));
 		generatorByClassName.put(HttpSessionCreatedEvent.class,
 				(r) -> new HttpSessionCreatedEvent(new MockHttpSession()));
+	}
+
+	@ParameterizedTest
+	@MethodSource("getClassesToSerialize")
+	void serializeAndDeserializeAreEqual(Class<?> clazz) throws Exception {
+		Object expected = instancioWithDefaults(clazz).create();
+		assertThat(expected).isInstanceOf(clazz);
+		try (ByteArrayOutputStream out = new ByteArrayOutputStream();
+				ObjectOutputStream objectOutputStream = new ObjectOutputStream(out)) {
+			objectOutputStream.writeObject(expected);
+			objectOutputStream.flush();
+
+			try (ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
+					ObjectInputStream objectInputStream = new ObjectInputStream(in)) {
+				Object deserialized = objectInputStream.readObject();
+				// Ignore transient fields Event classes extend from EventObject which has
+				// transient source property
+				Set<String> transientFieldNames = new HashSet();
+				Set<Class<?>> visitedClasses = new HashSet();
+				collectTransientFieldNames(transientFieldNames, visitedClasses, clazz);
+				assertThat(deserialized).usingRecursiveComparison()
+					.ignoringFields(transientFieldNames.toArray(new String[0]))
+					// RuntimeExceptions do not fully work but ensure the message does
+					.withComparatorForType((lhs, rhs) -> ObjectUtils.compare(lhs.getMessage(), rhs.getMessage()),
+							RuntimeException.class)
+					.isEqualTo(expected);
+			}
+		}
+	}
+
+	private static void collectTransientFieldNames(Set<String> transientFieldNames, Set<Class<?>> visitedClasses,
+			Class<?> clazz) {
+		if (!visitedClasses.add(clazz) || clazz.isPrimitive()) {
+			return;
+		}
+		ReflectionUtils.doWithFields(clazz, (field) -> {
+			if (Modifier.isTransient(field.getModifiers())) {
+				transientFieldNames.add(field.getName());
+			}
+			collectTransientFieldNames(transientFieldNames, visitedClasses, field.getType());
+		});
+	}
+
+	@Test
+	void debug() throws Exception {
+		serializeAndDeserializeAreEqual(JaasAuthenticationFailedEvent.class);
 	}
 
 	@ParameterizedTest
