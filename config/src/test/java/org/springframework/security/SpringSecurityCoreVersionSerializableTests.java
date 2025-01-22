@@ -558,11 +558,6 @@ class SpringSecurityCoreVersionSerializableTests {
 		});
 	}
 
-	@Test
-	void debug() throws Exception {
-		serializeAndDeserializeAreEqual(JaasAuthenticationFailedEvent.class);
-	}
-
 	@ParameterizedTest
 	@MethodSource("getClassesToSerialize")
 	@Disabled("This method should only be used to serialize the classes once")
