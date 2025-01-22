@@ -33,6 +33,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriverService;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -273,12 +274,14 @@ class WebAuthnWebDriverTests {
 
 	/**
 	 * Await until the assertion passes. If the assertion fails, it will display the
-	 * assertion error in stdout.
+	 * assertion error in stdout. WebDriver-related exceptions are ignored, so that
+	 * {@code assertion}s can interact with the page and be retried on error, e.g.
+	 * {@code assertThat(this.driver.findElement(By.Id("some-id")).isNotNull()}.
 	 */
 	private void await(Supplier<AbstractAssert<?, ?>> assertion) {
 		new FluentWait<>(this.driver).withTimeout(Duration.ofSeconds(2))
 			.pollingEvery(Duration.ofMillis(100))
-			.ignoring(AssertionError.class)
+			.ignoring(AssertionError.class, WebDriverException.class)
 			.until((d) -> {
 				assertion.get();
 				return true;
