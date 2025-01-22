@@ -23,7 +23,6 @@ import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.ott.GenerateOneTimeTokenRequest;
 import org.springframework.security.authentication.ott.InMemoryOneTimeTokenService;
@@ -32,6 +31,9 @@ import org.springframework.security.authentication.ott.OneTimeTokenAuthenticatio
 import org.springframework.security.authentication.ott.OneTimeTokenService;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractAuthenticationFilterConfigurer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -49,34 +51,70 @@ import org.springframework.security.web.authentication.ott.OneTimeTokenGeneratio
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
 import org.springframework.security.web.authentication.ui.DefaultOneTimeTokenSubmitPageGeneratingFilter;
 import org.springframework.security.web.authentication.ui.DefaultResourcesFilter;
-import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
-import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.csrf.CsrfToken;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
 
-public final class OneTimeTokenLoginConfigurer<H extends HttpSecurityBuilder<H>>
-		extends AbstractHttpConfigurer<OneTimeTokenLoginConfigurer<H>, H> {
+/**
+ * An {@link AbstractHttpConfigurer} for One-Time Token Login.
+ *
+ * <p>
+ * One-Time Token Login provides an application with the capability to have users log in
+ * by obtaining a single-use token out of band, for example through email.
+ *
+ * <p>
+ * Defaults are provided for all configuration options, with the only required
+ * configuration being
+ * {@link #tokenGenerationSuccessHandler(OneTimeTokenGenerationSuccessHandler)}.
+ * Alternatively, a {@link OneTimeTokenGenerationSuccessHandler} {@code @Bean} may be
+ * registered instead.
+ *
+ * <h2>Security Filters</h2>
+ *
+ * The following {@code Filter}s are populated:
+ *
+ * <ul>
+ * <li>{@link DefaultOneTimeTokenSubmitPageGeneratingFilter}</li>
+ * <li>{@link GenerateOneTimeTokenFilter}</li>
+ * <li>{@link OneTimeTokenAuthenticationFilter}</li>
+ * </ul>
+ *
+ * <h2>Shared Objects Used</h2>
+ *
+ * The following shared objects are used:
+ *
+ * <ul>
+ * <li>{@link DefaultLoginPageGeneratingFilter} - if {@link #loginPage(String)} is not
+ * configured and {@code DefaultLoginPageGeneratingFilter} is available, then a default
+ * login page will be made available</li>
+ * </ul>
+ *
+ * @author Marcus Da Coregio
+ * @author Daniel Garnier-Moiroux
+ * @since 6.4
+ * @see HttpSecurity#oneTimeTokenLogin(Customizer)
+ * @see DefaultOneTimeTokenSubmitPageGeneratingFilter
+ * @see GenerateOneTimeTokenFilter
+ * @see OneTimeTokenAuthenticationFilter
+ * @see AbstractAuthenticationFilterConfigurer
+ */
+public final class OneTimeTokenLoginConfigurer<H extends HttpSecurityBuilder<H>> extends
+		AbstractAuthenticationFilterConfigurer<H, OneTimeTokenLoginConfigurer<H>, OneTimeTokenAuthenticationFilter> {
 
 	private final ApplicationContext context;
 
 	private OneTimeTokenService oneTimeTokenService;
 
-	private AuthenticationConverter authenticationConverter = new OneTimeTokenAuthenticationConverter();
-
-	private AuthenticationFailureHandler authenticationFailureHandler;
-
-	private AuthenticationSuccessHandler authenticationSuccessHandler = new SavedRequestAwareAuthenticationSuccessHandler();
-
-	private String defaultSubmitPageUrl = "/login/ott";
+	private String defaultSubmitPageUrl = DefaultOneTimeTokenSubmitPageGeneratingFilter.DEFAULT_SUBMIT_PAGE_URL;
 
 	private boolean submitPageEnabled = true;
 
 	private String loginProcessingUrl = OneTimeTokenAuthenticationFilter.DEFAULT_LOGIN_PROCESSING_URL;
 
-	private String tokenGeneratingUrl = "/ott/generate";
+	private String tokenGeneratingUrl = GenerateOneTimeTokenFilter.DEFAULT_GENERATE_URL;
 
 	private OneTimeTokenGenerationSuccessHandler oneTimeTokenGenerationSuccessHandler;
 
@@ -85,58 +123,41 @@ public final class OneTimeTokenLoginConfigurer<H extends HttpSecurityBuilder<H>>
 	private GenerateOneTimeTokenRequestResolver requestResolver;
 
 	public OneTimeTokenLoginConfigurer(ApplicationContext context) {
+		super(new OneTimeTokenAuthenticationFilter(), OneTimeTokenAuthenticationFilter.DEFAULT_LOGIN_PROCESSING_URL);
 		this.context = context;
 	}
 
 	@Override
-	public void init(H http) {
+	public void init(H http) throws Exception {
+		super.init(http);
 		AuthenticationProvider authenticationProvider = getAuthenticationProvider();
 		http.authenticationProvider(postProcess(authenticationProvider));
-		configureDefaultLoginPage(http);
+		intiDefaultLoginFilter(http);
 	}
 
-	private void configureDefaultLoginPage(H http) {
+	private void intiDefaultLoginFilter(H http) {
 		DefaultLoginPageGeneratingFilter loginPageGeneratingFilter = http
 			.getSharedObject(DefaultLoginPageGeneratingFilter.class);
-		if (loginPageGeneratingFilter == null) {
+		if (loginPageGeneratingFilter == null || isCustomLoginPage()) {
 			return;
 		}
 		loginPageGeneratingFilter.setOneTimeTokenEnabled(true);
 		loginPageGeneratingFilter.setOneTimeTokenGenerationUrl(this.tokenGeneratingUrl);
-		if (this.authenticationFailureHandler == null
-				&& StringUtils.hasText(loginPageGeneratingFilter.getLoginPageUrl())) {
-			this.authenticationFailureHandler = new SimpleUrlAuthenticationFailureHandler(
-					loginPageGeneratingFilter.getLoginPageUrl() + "?error");
+
+		if (!StringUtils.hasText(loginPageGeneratingFilter.getLoginPageUrl())) {
+			loginPageGeneratingFilter.setLoginPageUrl(DefaultLoginPageGeneratingFilter.DEFAULT_LOGIN_PAGE_URL);
+			loginPageGeneratingFilter.setFailureUrl(DefaultLoginPageGeneratingFilter.DEFAULT_LOGIN_PAGE_URL + "?"
+					+ DefaultLoginPageGeneratingFilter.ERROR_PARAMETER_NAME);
+			loginPageGeneratingFilter
+				.setLogoutSuccessUrl(DefaultLoginPageGeneratingFilter.DEFAULT_LOGIN_PAGE_URL + "?logout");
 		}
 	}
 
 	@Override
-	public void configure(H http) {
+	public void configure(H http) throws Exception {
+		super.configure(http);
 		configureSubmitPage(http);
 		configureOttGenerateFilter(http);
-		configureOttAuthenticationFilter(http);
-	}
-
-	private void configureOttAuthenticationFilter(H http) {
-		AuthenticationManager authenticationManager = http.getSharedObject(AuthenticationManager.class);
-		OneTimeTokenAuthenticationFilter oneTimeTokenAuthenticationFilter = new OneTimeTokenAuthenticationFilter();
-		oneTimeTokenAuthenticationFilter.setAuthenticationManager(authenticationManager);
-		if (this.loginProcessingUrl != null) {
-			oneTimeTokenAuthenticationFilter
-				.setRequiresAuthenticationRequestMatcher(antMatcher(HttpMethod.POST, this.loginProcessingUrl));
-		}
-		oneTimeTokenAuthenticationFilter.setAuthenticationSuccessHandler(this.authenticationSuccessHandler);
-		oneTimeTokenAuthenticationFilter.setAuthenticationFailureHandler(getAuthenticationFailureHandler());
-		oneTimeTokenAuthenticationFilter.setSecurityContextRepository(getSecurityContextRepository(http));
-		http.addFilter(postProcess(oneTimeTokenAuthenticationFilter));
-	}
-
-	private SecurityContextRepository getSecurityContextRepository(H http) {
-		SecurityContextRepository securityContextRepository = http.getSharedObject(SecurityContextRepository.class);
-		if (securityContextRepository != null) {
-			return securityContextRepository;
-		}
-		return new HttpSessionSecurityContextRepository();
 	}
 
 	private void configureOttGenerateFilter(H http) {
@@ -170,7 +191,7 @@ public final class OneTimeTokenLoginConfigurer<H extends HttpSecurityBuilder<H>>
 		DefaultOneTimeTokenSubmitPageGeneratingFilter submitPage = new DefaultOneTimeTokenSubmitPageGeneratingFilter();
 		submitPage.setResolveHiddenInputs(this::hiddenInputs);
 		submitPage.setRequestMatcher(antMatcher(HttpMethod.GET, this.defaultSubmitPageUrl));
-		submitPage.setLoginProcessingUrl(this.loginProcessingUrl);
+		submitPage.setLoginProcessingUrl(this.getLoginProcessingUrl());
 		http.addFilter(postProcess(submitPage));
 	}
 
@@ -182,6 +203,11 @@ public final class OneTimeTokenLoginConfigurer<H extends HttpSecurityBuilder<H>>
 		this.authenticationProvider = new OneTimeTokenAuthenticationProvider(getOneTimeTokenService(),
 				userDetailsService);
 		return this.authenticationProvider;
+	}
+
+	@Override
+	protected RequestMatcher createLoginProcessingUrlMatcher(String loginProcessingUrl) {
+		return antMatcher(HttpMethod.POST, loginProcessingUrl);
 	}
 
 	/**
@@ -221,12 +247,23 @@ public final class OneTimeTokenLoginConfigurer<H extends HttpSecurityBuilder<H>>
 	 * Only POST requests are processed, for that reason make sure that you pass a valid
 	 * CSRF token if CSRF protection is enabled.
 	 * @param loginProcessingUrl
-	 * @see org.springframework.security.config.annotation.web.builders.HttpSecurity#csrf(Customizer)
+	 * @see HttpSecurity#csrf(Customizer)
 	 */
 	public OneTimeTokenLoginConfigurer<H> loginProcessingUrl(String loginProcessingUrl) {
 		Assert.hasText(loginProcessingUrl, "loginProcessingUrl cannot be null or empty");
-		this.loginProcessingUrl = loginProcessingUrl;
+		super.loginProcessingUrl(loginProcessingUrl);
 		return this;
+	}
+
+	/**
+	 * Specifies the URL to send users to if login is required. If used with
+	 * {@link EnableWebSecurity} a default login page will be generated when this
+	 * attribute is not specified.
+	 * @param loginPage
+	 */
+	@Override
+	public OneTimeTokenLoginConfigurer<H> loginPage(String loginPage) {
+		return super.loginPage(loginPage);
 	}
 
 	/**
@@ -273,7 +310,7 @@ public final class OneTimeTokenLoginConfigurer<H extends HttpSecurityBuilder<H>>
 	 */
 	public OneTimeTokenLoginConfigurer<H> authenticationConverter(AuthenticationConverter authenticationConverter) {
 		Assert.notNull(authenticationConverter, "authenticationConverter cannot be null");
-		this.authenticationConverter = authenticationConverter;
+		this.getAuthenticationFilter().setAuthenticationConverter(authenticationConverter);
 		return this;
 	}
 
@@ -283,11 +320,13 @@ public final class OneTimeTokenLoginConfigurer<H extends HttpSecurityBuilder<H>>
 	 * {@link SimpleUrlAuthenticationFailureHandler}
 	 * @param authenticationFailureHandler the {@link AuthenticationFailureHandler} to use
 	 * when authentication fails.
+	 * @deprecated Use {@link #failureHandler(AuthenticationFailureHandler)} instead
 	 */
+	@Deprecated(since = "6.5")
 	public OneTimeTokenLoginConfigurer<H> authenticationFailureHandler(
 			AuthenticationFailureHandler authenticationFailureHandler) {
 		Assert.notNull(authenticationFailureHandler, "authenticationFailureHandler cannot be null");
-		this.authenticationFailureHandler = authenticationFailureHandler;
+		super.failureHandler(authenticationFailureHandler);
 		return this;
 	}
 
@@ -296,20 +335,14 @@ public final class OneTimeTokenLoginConfigurer<H extends HttpSecurityBuilder<H>>
 	 * {@link SavedRequestAwareAuthenticationSuccessHandler} with no additional properties
 	 * set.
 	 * @param authenticationSuccessHandler the {@link AuthenticationSuccessHandler}.
+	 * @deprecated Use {@link #successHandler(AuthenticationSuccessHandler)} instead
 	 */
+	@Deprecated(since = "6.5")
 	public OneTimeTokenLoginConfigurer<H> authenticationSuccessHandler(
 			AuthenticationSuccessHandler authenticationSuccessHandler) {
 		Assert.notNull(authenticationSuccessHandler, "authenticationSuccessHandler cannot be null");
-		this.authenticationSuccessHandler = authenticationSuccessHandler;
+		super.successHandler(authenticationSuccessHandler);
 		return this;
-	}
-
-	private AuthenticationFailureHandler getAuthenticationFailureHandler() {
-		if (this.authenticationFailureHandler != null) {
-			return this.authenticationFailureHandler;
-		}
-		this.authenticationFailureHandler = new SimpleUrlAuthenticationFailureHandler("/login?error");
-		return this.authenticationFailureHandler;
 	}
 
 	/**

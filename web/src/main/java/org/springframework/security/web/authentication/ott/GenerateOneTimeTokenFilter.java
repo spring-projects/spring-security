@@ -43,11 +43,13 @@ import static org.springframework.security.web.util.matcher.AntPathRequestMatche
  */
 public final class GenerateOneTimeTokenFilter extends OncePerRequestFilter {
 
+	public static final String DEFAULT_GENERATE_URL = "/ott/generate";
+
 	private final OneTimeTokenService tokenService;
 
 	private final OneTimeTokenGenerationSuccessHandler tokenGenerationSuccessHandler;
 
-	private RequestMatcher requestMatcher = antMatcher(HttpMethod.POST, "/ott/generate");
+	private RequestMatcher requestMatcher = antMatcher(HttpMethod.POST, DEFAULT_GENERATE_URL);
 
 	private GenerateOneTimeTokenRequestResolver requestResolver = new DefaultGenerateOneTimeTokenRequestResolver();
 

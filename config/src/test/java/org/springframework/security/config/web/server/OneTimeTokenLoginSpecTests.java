@@ -245,6 +245,41 @@ public class OneTimeTokenLoginSpecTests {
 	}
 
 	@Test
+	void oneTimeTokenWhenConfiguredThenRendersRequestTokenForm() {
+		this.spring.register(OneTimeTokenDefaultConfig.class).autowire();
+
+		//@formatter:off
+		byte[] responseByteArray = this.client.mutateWith(SecurityMockServerConfigurers.csrf())
+				.get()
+				.uri((uriBuilder) -> uriBuilder
+						.path("/login")
+						.build()
+				)
+				.exchange()
+				.expectBody()
+				.returnResult()
+				.getResponseBody();
+		// @formatter:on
+
+		String response = new String(responseByteArray);
+
+		assertThat(response.contains(EXPECTED_HTML_HEAD)).isTrue();
+		assertThat(response.contains(GENERATE_OTT_PART)).isTrue();
+	}
+
+	@Test
+	void oneTimeTokenWhenConfiguredThenRedirectsToLoginPage() {
+		this.spring.register(OneTimeTokenDefaultConfig.class).autowire();
+
+		this.client.mutateWith(SecurityMockServerConfigurers.csrf())
+			.get()
+			.uri((uriBuilder) -> uriBuilder.path("/").build())
+			.exchange()
+			.expectHeader()
+			.location("/login");
+	}
+
+	@Test
 	void oneTimeTokenWhenFormLoginConfiguredThenRendersRequestTokenForm() {
 		this.spring.register(OneTimeTokenFormLoginConfig.class).autowire();
 
@@ -266,6 +301,18 @@ public class OneTimeTokenLoginSpecTests {
 		assertThat(response.contains(EXPECTED_HTML_HEAD)).isTrue();
 		assertThat(response.contains(LOGIN_PART)).isTrue();
 		assertThat(response.contains(GENERATE_OTT_PART)).isTrue();
+	}
+
+	@Test
+	void oneTimeTokenWhenCustomLoginPageThenRedirects() {
+		this.spring.register(OneTimeTokenDifferentUrlsConfig.class).autowire();
+
+		this.client.mutateWith(SecurityMockServerConfigurers.csrf())
+			.get()
+			.uri((uriBuilder) -> uriBuilder.path("/login").build())
+			.exchange()
+			.expectHeader()
+			.location("/custom-login");
 	}
 
 	@Test
@@ -318,6 +365,7 @@ public class OneTimeTokenLoginSpecTests {
 							.authenticated()
 					)
 					.oneTimeTokenLogin((ott) -> ott
+							.loginPage("/custom-login")
 							.tokenGeneratingUrl("/generateurl")
 							.tokenGenerationSuccessHandler(new TestServerOneTimeTokenGenerationSuccessHandler("/redirected"))
 							.loginProcessingUrl("/loginprocessingurl")

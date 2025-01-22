@@ -146,8 +146,8 @@ public class OneTimeTokenLoginConfigurerTests {
 	}
 
 	@Test
-	void oneTimeTokenWhenFormLoginConfiguredThenRendersRequestTokenForm() throws Exception {
-		this.spring.register(OneTimeTokenFormLoginConfig.class).autowire();
+	void oneTimeTokenWhenConfiguredThenRendersRequestTokenForm() throws Exception {
+		this.spring.register(OneTimeTokenDefaultConfig.class).autowire();
 		CsrfToken csrfToken = new DefaultCsrfToken("X-CSRF-TOKEN", "_csrf", "BaseSpringSpec_CSRFTOKEN");
 		String csrfAttributeName = HttpSessionCsrfTokenRepository.class.getName().concat(".CSRF_TOKEN");
 		//@formatter:off
@@ -168,21 +168,7 @@ public class OneTimeTokenLoginConfigurerTests {
 						  </head>
 						  <body>
 						    <div class="content">
-						      <form class="login-form" method="post" action="/login">
-						        <h2>Please sign in</h2>
 
-						        <p>
-						          <label for="username" class="screenreader">Username</label>
-						          <input type="text" id="username" name="username" placeholder="Username" required autofocus>
-						        </p>
-						        <p>
-						          <label for="password" class="screenreader">Password</label>
-						          <input type="password" id="password" name="password" placeholder="Password" required>
-						        </p>
-
-						<input name="_csrf" type="hidden" value="%s" />
-						        <button type="submit" class="primary">Sign in</button>
-						      </form>
 						      <form id="ott-form" class="login-form" method="post" action="/ott/generate">
 						        <h2>Request a One-Time Token</h2>
 
@@ -200,6 +186,14 @@ public class OneTimeTokenLoginConfigurerTests {
 						</html>""".formatted(token.getToken(), token.getToken()));
 				});
 		//@formatter:on
+	}
+
+	@Test
+	void oneTimeTokenWhenLoginPageConfiguredThenRedirects() throws Exception {
+		this.spring.register(OneTimeTokenLoginPageConfig.class).autowire();
+		this.mvc.perform(get("/login"))
+			.andExpect(status().isFound())
+			.andExpect(redirectedUrl("http://localhost/custom-login"));
 	}
 
 	@Test
@@ -307,6 +301,34 @@ public class OneTimeTokenLoginConfigurerTests {
 	@Configuration(proxyBeanMethods = false)
 	@EnableWebSecurity
 	@Import(UserDetailsServiceConfig.class)
+	static class OneTimeTokenLoginPageConfig {
+
+		@Bean
+		SecurityFilterChain securityFilterChain(HttpSecurity http,
+				OneTimeTokenGenerationSuccessHandler ottSuccessHandler) throws Exception {
+			// @formatter:off
+			http
+					.authorizeHttpRequests((authz) -> authz
+							.anyRequest().authenticated()
+					)
+					.oneTimeTokenLogin((ott) -> ott
+							.tokenGenerationSuccessHandler(ottSuccessHandler)
+							.loginPage("/custom-login")
+					);
+			// @formatter:on
+			return http.build();
+		}
+
+		@Bean
+		TestOneTimeTokenGenerationSuccessHandler ottSuccessHandler() {
+			return new TestOneTimeTokenGenerationSuccessHandler();
+		}
+
+	}
+
+	@Configuration(proxyBeanMethods = false)
+	@EnableWebSecurity
+	@Import(UserDetailsServiceConfig.class)
 	static class OneTimeTokenDifferentUrlsConfig {
 
 		@Bean
@@ -321,7 +343,7 @@ public class OneTimeTokenLoginConfigurerTests {
 							.tokenGeneratingUrl("/generateurl")
 							.tokenGenerationSuccessHandler(ottSuccessHandler)
 							.loginProcessingUrl("/loginprocessingurl")
-							.authenticationSuccessHandler(new SimpleUrlAuthenticationSuccessHandler("/authenticated"))
+							.successHandler(new SimpleUrlAuthenticationSuccessHandler("/authenticated"))
 					);
 			// @formatter:on
 			return http.build();
@@ -330,34 +352,6 @@ public class OneTimeTokenLoginConfigurerTests {
 		@Bean
 		TestOneTimeTokenGenerationSuccessHandler ottSuccessHandler() {
 			return new TestOneTimeTokenGenerationSuccessHandler("/redirected");
-		}
-
-	}
-
-	@Configuration(proxyBeanMethods = false)
-	@EnableWebSecurity
-	@Import(UserDetailsServiceConfig.class)
-	static class OneTimeTokenFormLoginConfig {
-
-		@Bean
-		SecurityFilterChain securityFilterChain(HttpSecurity http,
-				OneTimeTokenGenerationSuccessHandler ottSuccessHandler) throws Exception {
-			// @formatter:off
-			http
-					.authorizeHttpRequests((authz) -> authz
-							.anyRequest().authenticated()
-					)
-					.formLogin(Customizer.withDefaults())
-					.oneTimeTokenLogin((ott) -> ott
-							.tokenGenerationSuccessHandler(ottSuccessHandler)
-					);
-			// @formatter:on
-			return http.build();
-		}
-
-		@Bean
-		TestOneTimeTokenGenerationSuccessHandler ottSuccessHandler() {
-			return new TestOneTimeTokenGenerationSuccessHandler();
 		}
 
 	}
