@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -75,6 +75,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
@@ -285,6 +286,49 @@ public class OAuth2ClientConfigurerTests {
 		verify(authorizationRedirectStrategy).sendRedirect(any(), any(), anyString());
 	}
 
+	@Test
+	public void configureWhenOAuth2LoginBeansConfiguredThenNotShared() throws Exception {
+		this.spring.register(OAuth2ClientConfigWithOAuth2Login.class).autowire();
+		// Setup the Authorization Request in the session
+		Map<String, Object> attributes = new HashMap<>();
+		attributes.put(OAuth2ParameterNames.REGISTRATION_ID, this.registration1.getRegistrationId());
+		// @formatter:off
+		OAuth2AuthorizationRequest authorizationRequest = OAuth2AuthorizationRequest.authorizationCode()
+			.authorizationUri(this.registration1.getProviderDetails().getAuthorizationUri())
+			.clientId(this.registration1.getClientId())
+			.redirectUri("http://localhost/client-1")
+			.state("state")
+			.attributes(attributes)
+			.build();
+		// @formatter:on
+		AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository = new HttpSessionOAuth2AuthorizationRequestRepository();
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		authorizationRequestRepository.saveAuthorizationRequest(authorizationRequest, request, response);
+		MockHttpSession session = (MockHttpSession) request.getSession();
+		String principalName = "user1";
+		TestingAuthenticationToken authentication = new TestingAuthenticationToken(principalName, "password");
+		// @formatter:off
+		MockHttpServletRequestBuilder clientRequest = get("/client-1")
+			.param(OAuth2ParameterNames.CODE, "code")
+			.param(OAuth2ParameterNames.STATE, "state")
+			.with(authentication(authentication))
+			.session(session);
+		this.mockMvc.perform(clientRequest)
+			.andExpect(status().is3xxRedirection())
+			.andExpect(redirectedUrl("http://localhost/client-1"));
+		// @formatter:on
+		OAuth2AuthorizedClient authorizedClient = authorizedClientRepository
+			.loadAuthorizedClient(this.registration1.getRegistrationId(), authentication, request);
+		assertThat(authorizedClient).isNotNull();
+		// Ensure shared objects set for OAuth2 Client are not used
+		ClientRegistrationRepository clientRegistrationRepository = this.spring.getContext()
+			.getBean(ClientRegistrationRepository.class);
+		OAuth2AuthorizedClientRepository authorizedClientRepository = this.spring.getContext()
+			.getBean(OAuth2AuthorizedClientRepository.class);
+		verifyNoInteractions(clientRegistrationRepository, authorizedClientRepository);
+	}
+
 	@EnableWebSecurity
 	@Configuration
 	@EnableWebMvc
@@ -358,6 +402,53 @@ public class OAuth2ClientConfigurerTests {
 		@Bean
 		OAuth2AuthorizedClientRepository authorizedClientRepository() {
 			return authorizedClientRepository;
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	@EnableWebMvc
+	static class OAuth2ClientConfigWithOAuth2Login {
+
+		private final ClientRegistrationRepository clientRegistrationRepository = mock(
+				ClientRegistrationRepository.class);
+
+		private final OAuth2AuthorizedClientRepository authorizedClientRepository = mock(
+				OAuth2AuthorizedClientRepository.class);
+
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeHttpRequests((authorize) -> authorize
+					.anyRequest().authenticated()
+				)
+				.oauth2Client((oauth2Client) -> oauth2Client
+					.clientRegistrationRepository(OAuth2ClientConfigurerTests.clientRegistrationRepository)
+					.authorizedClientService(OAuth2ClientConfigurerTests.authorizedClientService)
+					.authorizationCodeGrant((authorizationCode) -> authorizationCode
+						.authorizationRequestResolver(authorizationRequestResolver)
+						.authorizationRedirectStrategy(authorizationRedirectStrategy)
+						.accessTokenResponseClient(accessTokenResponseClient)
+					)
+				)
+				.oauth2Login((oauth2Login) -> oauth2Login
+					.clientRegistrationRepository(this.clientRegistrationRepository)
+					.authorizedClientRepository(this.authorizedClientRepository)
+				);
+			// @formatter:on
+			return http.build();
+		}
+
+		@Bean
+		ClientRegistrationRepository clientRegistrationRepository() {
+			return this.clientRegistrationRepository;
+		}
+
+		@Bean
+		OAuth2AuthorizedClientRepository authorizedClientRepository() {
+			return this.authorizedClientRepository;
 		}
 
 	}

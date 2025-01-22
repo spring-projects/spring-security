@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -172,6 +172,10 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 
 	private String loginProcessingUrl = OAuth2LoginAuthenticationFilter.DEFAULT_FILTER_PROCESSES_URI;
 
+	private ClientRegistrationRepository clientRegistrationRepository;
+
+	private OAuth2AuthorizedClientRepository authorizedClientRepository;
+
 	/**
 	 * Sets the repository of client registrations.
 	 * @param clientRegistrationRepository the repository of client registrations
@@ -181,6 +185,7 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 			ClientRegistrationRepository clientRegistrationRepository) {
 		Assert.notNull(clientRegistrationRepository, "clientRegistrationRepository cannot be null");
 		this.getBuilder().setSharedObject(ClientRegistrationRepository.class, clientRegistrationRepository);
+		this.clientRegistrationRepository = clientRegistrationRepository;
 		return this;
 	}
 
@@ -194,6 +199,7 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 			OAuth2AuthorizedClientRepository authorizedClientRepository) {
 		Assert.notNull(authorizedClientRepository, "authorizedClientRepository cannot be null");
 		this.getBuilder().setSharedObject(OAuth2AuthorizedClientRepository.class, authorizedClientRepository);
+		this.authorizedClientRepository = authorizedClientRepository;
 		return this;
 	}
 
@@ -339,8 +345,7 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 	@Override
 	public void init(B http) throws Exception {
 		OAuth2LoginAuthenticationFilter authenticationFilter = new OAuth2LoginAuthenticationFilter(
-				OAuth2ClientConfigurerUtils.getClientRegistrationRepository(this.getBuilder()),
-				OAuth2ClientConfigurerUtils.getAuthorizedClientRepository(this.getBuilder()), this.loginProcessingUrl);
+				this.getClientRegistrationRepository(), this.getAuthorizedClientRepository(), this.loginProcessingUrl);
 		authenticationFilter.setSecurityContextHolderStrategy(getSecurityContextHolderStrategy());
 		this.setAuthenticationFilter(authenticationFilter);
 		super.loginProcessingUrl(this.loginProcessingUrl);
@@ -406,8 +411,7 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 				authorizationRequestBaseUri = OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI;
 			}
 			authorizationRequestFilter = new OAuth2AuthorizationRequestRedirectFilter(
-					OAuth2ClientConfigurerUtils.getClientRegistrationRepository(this.getBuilder()),
-					authorizationRequestBaseUri);
+					this.getClientRegistrationRepository(), authorizationRequestBaseUri);
 		}
 		if (this.authorizationEndpointConfig.authorizationRequestRepository != null) {
 			authorizationRequestFilter
@@ -437,6 +441,16 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 	@Override
 	protected RequestMatcher createLoginProcessingUrlMatcher(String loginProcessingUrl) {
 		return new AntPathRequestMatcher(loginProcessingUrl);
+	}
+
+	private ClientRegistrationRepository getClientRegistrationRepository() {
+		return (this.clientRegistrationRepository != null) ? this.clientRegistrationRepository
+				: OAuth2ClientConfigurerUtils.getClientRegistrationRepository(this.getBuilder());
+	}
+
+	private OAuth2AuthorizedClientRepository getAuthorizedClientRepository() {
+		return (this.authorizedClientRepository != null) ? this.authorizedClientRepository
+				: OAuth2ClientConfigurerUtils.getAuthorizedClientRepository(this.getBuilder());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -529,8 +543,7 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 	@SuppressWarnings("unchecked")
 	private Map<String, String> getLoginLinks() {
 		Iterable<ClientRegistration> clientRegistrations = null;
-		ClientRegistrationRepository clientRegistrationRepository = OAuth2ClientConfigurerUtils
-			.getClientRegistrationRepository(this.getBuilder());
+		ClientRegistrationRepository clientRegistrationRepository = this.getClientRegistrationRepository();
 		ResolvableType type = ResolvableType.forInstance(clientRegistrationRepository).as(Iterable.class);
 		if (type != ResolvableType.NONE && ClientRegistration.class.isAssignableFrom(type.resolveGenerics()[0])) {
 			clientRegistrations = (Iterable<ClientRegistration>) clientRegistrationRepository;

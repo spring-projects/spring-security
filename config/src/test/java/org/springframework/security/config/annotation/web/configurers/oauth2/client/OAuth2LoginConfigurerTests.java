@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -73,7 +73,9 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
 import org.springframework.security.oauth2.client.web.HttpSessionOAuth2AuthorizationRequestRepository;
+import org.springframework.security.oauth2.client.web.HttpSessionOAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
@@ -115,6 +117,7 @@ import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.springframework.security.config.annotation.SecurityContextChangedListenerArgumentMatchers.setAuthentication;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -669,6 +672,30 @@ public class OAuth2LoginConfigurerTests {
 			.collect(Collectors.toList())).isEmpty();
 	}
 
+	@Test
+	public void oidcLoginWhenOAuth2ClientBeansConfiguredThenNotShared() throws Exception {
+		this.spring.register(OAuth2LoginConfigWithOAuth2Client.class, JwtDecoderFactoryConfig.class).autowire();
+		OAuth2AuthorizationRequest authorizationRequest = createOAuth2AuthorizationRequest("openid");
+		this.authorizationRequestRepository.saveAuthorizationRequest(authorizationRequest, this.request, this.response);
+		this.request.setParameter("code", "code123");
+		this.request.setParameter("state", authorizationRequest.getState());
+		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
+		Authentication authentication = this.securityContextRepository
+			.loadContext(new HttpRequestResponseHolder(this.request, this.response))
+			.getAuthentication();
+		assertThat(authentication.getAuthorities()).hasSize(1);
+		assertThat(authentication.getAuthorities()).first()
+			.isInstanceOf(OidcUserAuthority.class)
+			.hasToString("OIDC_USER");
+
+		// Ensure shared objects set for OAuth2 Client are not used
+		ClientRegistrationRepository clientRegistrationRepository = this.spring.getContext()
+			.getBean(ClientRegistrationRepository.class);
+		OAuth2AuthorizedClientRepository authorizedClientRepository = this.spring.getContext()
+			.getBean(OAuth2AuthorizedClientRepository.class);
+		verifyNoInteractions(clientRegistrationRepository, authorizedClientRepository);
+	}
+
 	private void loadConfig(Class<?>... configs) {
 		AnnotationConfigWebApplicationContext applicationContext = new AnnotationConfigWebApplicationContext();
 		applicationContext.register(configs);
@@ -1188,6 +1215,45 @@ public class OAuth2LoginConfigurerTests {
 							new RequestHeaderRequestMatcher("X-Requested-With", "XMLHttpRequest"));
 			// @formatter:on
 			return super.configureFilterChain(http);
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	static class OAuth2LoginConfigWithOAuth2Client extends CommonLambdaSecurityFilterChainConfig {
+
+		private final ClientRegistrationRepository clientRegistrationRepository = mock(
+				ClientRegistrationRepository.class);
+
+		private final OAuth2AuthorizedClientRepository authorizedClientRepository = mock(
+				OAuth2AuthorizedClientRepository.class);
+
+		@Bean
+		SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.oauth2Login((oauth2Login) -> oauth2Login
+					.clientRegistrationRepository(
+						new InMemoryClientRegistrationRepository(GOOGLE_CLIENT_REGISTRATION))
+					.authorizedClientRepository(new HttpSessionOAuth2AuthorizedClientRepository())
+				)
+				.oauth2Client((oauth2Client) -> oauth2Client
+					.clientRegistrationRepository(this.clientRegistrationRepository)
+					.authorizedClientRepository(this.authorizedClientRepository)
+				);
+			// @formatter:on
+			return super.configureFilterChain(http);
+		}
+
+		@Bean
+		ClientRegistrationRepository clientRegistrationRepository() {
+			return this.clientRegistrationRepository;
+		}
+
+		@Bean
+		OAuth2AuthorizedClientRepository authorizedClientRepository() {
+			return this.authorizedClientRepository;
 		}
 
 	}
