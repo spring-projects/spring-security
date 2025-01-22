@@ -1,6 +1,7 @@
 package com.google.springframework.security.web.client;
 
 import static com.google.springframework.security.web.client.NetworkMode.BLOCK_EXTERNAL;
+import static org.springframework.http.MediaType.TEXT_HTML;
 
 import java.net.InetAddress;
 import java.util.Arrays;
@@ -26,10 +27,27 @@ import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.http.client.JettyClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestTemplate;
 
 
 public class UsageExample {
+
+	public static void example7() {
+		System.out.println("Example 7");
+		RestClient exampleClient = RestClient.create(new SecureRestTemplate.Builder().
+				networkMode(BLOCK_EXTERNAL).build());
+
+		try {
+			exampleClient.get()
+					.uri("https://google.com")
+					.accept(TEXT_HTML)
+					.retrieve()
+					.body(String.class);
+		} catch (Exception e) {
+			System.err.println("Access blocked: " + e.getMessage());
+		}
+	}
 
 	public static void example6() {
 		System.out.println("Example 6");
@@ -223,7 +241,9 @@ public class UsageExample {
 		example4();
 		example5();
 		example6();
+		example7();
 	}
+
 
 }
 
