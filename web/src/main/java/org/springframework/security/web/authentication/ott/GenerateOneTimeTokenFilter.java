@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,6 +49,8 @@ public final class GenerateOneTimeTokenFilter extends OncePerRequestFilter {
 
 	private RequestMatcher requestMatcher = antMatcher(HttpMethod.POST, "/ott/generate");
 
+	private GenerateOneTimeTokenRequestResolver requestResolver = new DefaultGenerateOneTimeTokenRequestResolver();
+
 	public GenerateOneTimeTokenFilter(OneTimeTokenService tokenService,
 			OneTimeTokenGenerationSuccessHandler tokenGenerationSuccessHandler) {
 		Assert.notNull(tokenService, "tokenService cannot be null");
@@ -69,8 +71,12 @@ public final class GenerateOneTimeTokenFilter extends OncePerRequestFilter {
 			filterChain.doFilter(request, response);
 			return;
 		}
-		GenerateOneTimeTokenRequest generateRequest = new GenerateOneTimeTokenRequest(username);
+		GenerateOneTimeTokenRequest generateRequest = this.requestResolver.resolve(request);
 		OneTimeToken ott = this.tokenService.generate(generateRequest);
+		if (generateRequest == null) {
+			filterChain.doFilter(request, response);
+			return;
+		}
 		this.tokenGenerationSuccessHandler.handle(request, response, ott);
 	}
 
@@ -81,6 +87,17 @@ public final class GenerateOneTimeTokenFilter extends OncePerRequestFilter {
 	public void setRequestMatcher(RequestMatcher requestMatcher) {
 		Assert.notNull(requestMatcher, "requestMatcher cannot be null");
 		this.requestMatcher = requestMatcher;
+	}
+
+	/**
+	 * Use the given {@link GenerateOneTimeTokenRequestResolver} to resolve
+	 * {@link GenerateOneTimeTokenRequest}.
+	 * @param requestResolver {@link GenerateOneTimeTokenRequestResolver}
+	 * @since 6.5
+	 */
+	public void setRequestResolver(GenerateOneTimeTokenRequestResolver requestResolver) {
+		Assert.notNull(requestResolver, "requestResolver cannot be null");
+		this.requestResolver = requestResolver;
 	}
 
 }

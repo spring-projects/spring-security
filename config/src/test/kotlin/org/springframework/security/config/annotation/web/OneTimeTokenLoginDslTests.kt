@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.springframework.security.config.annotation.web
 
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -36,11 +37,15 @@ import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequ
 import org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler
+import org.springframework.security.web.authentication.ott.DefaultGenerateOneTimeTokenRequestResolver
 import org.springframework.security.web.authentication.ott.OneTimeTokenGenerationSuccessHandler
 import org.springframework.security.web.authentication.ott.RedirectOneTimeTokenGenerationSuccessHandler
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
+import java.time.Duration
+import java.time.Instant
+import java.time.ZoneOffset
 
 /**
  * Tests for [OneTimeTokenLoginDsl]
@@ -104,6 +109,32 @@ class OneTimeTokenLoginDslTests {
             )
     }
 
+    @Test
+    fun `oneTimeToken when custom resolver set then use custom token`() {
+        spring.register(OneTimeTokenConfigWithCustomTokenResolver::class.java).autowire()
+
+        this.mockMvc.perform(
+                MockMvcRequestBuilders.post("/ott/generate").param("username", "user")
+                        .with(SecurityMockMvcRequestPostProcessors.csrf())
+        ).andExpectAll(
+                MockMvcResultMatchers
+                        .status()
+                        .isFound(),
+                MockMvcResultMatchers
+                        .redirectedUrl("/login/ott")
+        )
+
+        val token = TestOneTimeTokenGenerationSuccessHandler.lastToken
+
+        assertThat(getCurrentMinutes(token!!.expiresAt)).isEqualTo(10)
+    }
+
+    private fun getCurrentMinutes(expiresAt: Instant): Int {
+        val expiresMinutes = expiresAt.atZone(ZoneOffset.UTC).minute
+        val currentMinutes = Instant.now().atZone(ZoneOffset.UTC).minute
+        return expiresMinutes - currentMinutes
+    }
+
     @Configuration
     @EnableWebSecurity
     @Import(UserDetailsServiceConfig::class)
@@ -123,6 +154,32 @@ class OneTimeTokenLoginDslTests {
             // @formatter:on
             return http.build()
         }
+    }
+
+    @Configuration
+    @EnableWebSecurity
+    @Import(UserDetailsServiceConfig::class)
+    open class OneTimeTokenConfigWithCustomTokenResolver {
+
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+            // @formatter:off
+            http {
+                authorizeHttpRequests {
+                    authorize(anyRequest, authenticated)
+                }
+                oneTimeTokenLogin {
+                    oneTimeTokenGenerationSuccessHandler = TestOneTimeTokenGenerationSuccessHandler()
+                    generateRequestResolver = DefaultGenerateOneTimeTokenRequestResolver().apply {
+                        this.setExpiresIn(Duration.ofMinutes(10))
+                    }
+                }
+            }
+            // @formatter:on
+            return http.build()
+        }
+
+
     }
 
     @EnableWebSecurity
