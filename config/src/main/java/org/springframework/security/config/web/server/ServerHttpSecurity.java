@@ -3039,7 +3039,8 @@ public class ServerHttpSecurity {
 				return;
 			}
 			if (http.formLogin != null && http.formLogin.isEntryPointExplicit
-					|| http.oauth2Login != null && StringUtils.hasText(http.oauth2Login.loginPage)) {
+					|| http.oauth2Login != null && StringUtils.hasText(http.oauth2Login.loginPage)
+					|| http.oneTimeTokenLogin != null && StringUtils.hasText(http.oneTimeTokenLogin.loginPage)) {
 				return;
 			}
 			LoginPageGeneratingWebFilter loginPage = null;
@@ -3053,6 +3054,13 @@ public class ServerHttpSecurity {
 					loginPage = new LoginPageGeneratingWebFilter();
 				}
 				loginPage.setOauth2AuthenticationUrlToClientName(urlToText);
+			}
+			if (http.oneTimeTokenLogin != null) {
+				if (loginPage == null) {
+					loginPage = new LoginPageGeneratingWebFilter();
+				}
+				loginPage.setOneTimeTokenEnabled(true);
+				loginPage.setGenerateOneTimeTokenUrl(http.oneTimeTokenLogin.tokenGeneratingUrl);
 			}
 			if (loginPage != null) {
 				http.addFilterAt(loginPage, SecurityWebFiltersOrder.LOGIN_PAGE_GENERATING);
@@ -5954,11 +5962,13 @@ public class ServerHttpSecurity {
 
 		private boolean submitPageEnabled = true;
 
+		private String loginPage;
+
 		protected void configure(ServerHttpSecurity http) {
 			configureSubmitPage(http);
 			configureOttGenerateFilter(http);
 			configureOttAuthenticationFilter(http);
-			configureDefaultLoginPage(http);
+			configureDefaultEntryPoint(http);
 		}
 
 		private void configureOttAuthenticationFilter(ServerHttpSecurity http) {
@@ -5995,17 +6005,29 @@ public class ServerHttpSecurity {
 			http.addFilterAt(generateFilter, SecurityWebFiltersOrder.ONE_TIME_TOKEN);
 		}
 
-		private void configureDefaultLoginPage(ServerHttpSecurity http) {
-			if (http.formLogin != null) {
-				for (WebFilter webFilter : http.webFilters) {
-					OrderedWebFilter orderedWebFilter = (OrderedWebFilter) webFilter;
-					if (orderedWebFilter.webFilter instanceof LoginPageGeneratingWebFilter loginPageGeneratingFilter) {
-						loginPageGeneratingFilter.setOneTimeTokenEnabled(true);
-						loginPageGeneratingFilter.setGenerateOneTimeTokenUrl(this.tokenGeneratingUrl);
-						break;
-					}
+		private void configureDefaultEntryPoint(ServerHttpSecurity http) {
+			MediaTypeServerWebExchangeMatcher htmlMatcher = new MediaTypeServerWebExchangeMatcher(
+					MediaType.APPLICATION_XHTML_XML, new MediaType("image", "*"), MediaType.TEXT_HTML,
+					MediaType.TEXT_PLAIN);
+			htmlMatcher.setIgnoredMediaTypes(Collections.singleton(MediaType.ALL));
+			ServerWebExchangeMatcher xhrMatcher = (exchange) -> {
+				if (exchange.getRequest().getHeaders().getOrEmpty("X-Requested-With").contains("XMLHttpRequest")) {
+					return ServerWebExchangeMatcher.MatchResult.match();
 				}
+				return ServerWebExchangeMatcher.MatchResult.notMatch();
+			};
+			ServerWebExchangeMatcher notXhrMatcher = new NegatedServerWebExchangeMatcher(xhrMatcher);
+			ServerWebExchangeMatcher defaultEntryPointMatcher = new AndServerWebExchangeMatcher(notXhrMatcher,
+					htmlMatcher);
+			String loginPage = "/login";
+			if (this.loginPage != null) {
+				loginPage = this.loginPage;
 			}
+			RedirectServerAuthenticationEntryPoint defaultEntryPoint = new RedirectServerAuthenticationEntryPoint(
+					loginPage);
+			defaultEntryPoint.setRequestCache(http.requestCache.requestCache);
+			http.defaultEntryPoints.add(new DelegateEntry(defaultEntryPointMatcher, defaultEntryPoint));
+
 		}
 
 		/**
@@ -6231,6 +6253,19 @@ public class ServerHttpSecurity {
 						""");
 			}
 			return this.tokenGenerationSuccessHandler;
+		}
+
+		/**
+		 * Specifies the URL to send users to if login is required. A default login page
+		 * will be generated when this attribute is not specified.
+		 * @param loginPage the URL to send users to if login is required
+		 * @return the {@link OAuth2LoginSpec} for further configuration
+		 * @since 6.5
+		 */
+		public OneTimeTokenLoginSpec loginPage(String loginPage) {
+			Assert.hasText(loginPage, "loginPage cannot be empty");
+			this.loginPage = loginPage;
+			return this;
 		}
 
 	}
