@@ -48,7 +48,7 @@ jakarta-websocket-jakarta-websocket-client-api = { module = "jakarta.websocket:j
 jakarta-xml-bind-jakarta-xml-bind-api = "jakarta.xml.bind:jakarta.xml.bind-api:4.0.2"
 ldapsdk = "ldapsdk:ldapsdk:4.1"
 net-sourceforge-htmlunit = "net.sourceforge.htmlunit:htmlunit:2.70.0"
-org-htmlunit-htmlunit = "org.htmlunit:htmlunit:4.8.0"
+org-htmlunit-htmlunit = "org.htmlunit:htmlunit:4.9.0"
 org-apache-directory-server-apacheds-core = { module = "org.apache.directory.server:apacheds-core", version.ref = "org-apache-directory-server" }
 org-apache-directory-server-apacheds-entry = { module = "org.apache.directory.server:apacheds-core-entry", version.ref = "org-apache-directory-server" }
 org-apache-directory-server-apacheds-protocol-ldap = { module = "org.apache.directory.server:apacheds-protocol-ldap", version.ref = "org-apache-directory-server" }
