@@ -104,6 +104,7 @@ import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextImpl;
+import org.springframework.security.core.context.TransientSecurityContext;
 import org.springframework.security.core.session.AbstractSessionEvent;
 import org.springframework.security.core.session.ReactiveSessionInformation;
 import org.springframework.security.core.session.SessionInformation;
@@ -444,6 +445,7 @@ class SpringSecurityCoreVersionSerializableTests {
 				(r) -> new JaasAuthenticationSuccessEvent(authentication));
 		generatorByClassName.put(AbstractSessionEvent.class, (r) -> new AbstractSessionEvent(securityContext));
 		generatorByClassName.put(SecurityConfig.class, (r) -> new SecurityConfig("value"));
+		generatorByClassName.put(TransientSecurityContext.class, (r) -> new TransientSecurityContext(authentication));
 
 		// cas
 		generatorByClassName.put(CasServiceTicketAuthenticationToken.class, (r) -> {
