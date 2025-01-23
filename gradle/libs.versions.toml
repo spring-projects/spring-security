@@ -61,7 +61,7 @@ org-apache-maven-resolver-maven-resolver-connector-basic = { module = "org.apach
 org-apache-maven-resolver-maven-resolver-impl = { module = "org.apache.maven.resolver:maven-resolver-impl", version.ref = "org-apache-maven-resolver" }
 org-apache-maven-resolver-maven-resolver-transport-http = { module = "org.apache.maven.resolver:maven-resolver-transport-http", version.ref = "org-apache-maven-resolver" }
 org-apereo-cas-client-cas-client-core = "org.apereo.cas.client:cas-client-core:4.0.4"
-io-freefair-gradle-aspectj-plugin = "io.freefair.gradle:aspectj-plugin:8.11"
+io-freefair-gradle-aspectj-plugin = "io.freefair.gradle:aspectj-plugin:8.12"
 org-aspectj-aspectjrt = { module = "org.aspectj:aspectjrt", version.ref = "org-aspectj" }
 org-aspectj-aspectjweaver = { module = "org.aspectj:aspectjweaver", version.ref = "org-aspectj" }
 org-assertj-assertj-core = "org.assertj:assertj-core:3.27.3"
