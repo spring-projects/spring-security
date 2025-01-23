@@ -61,6 +61,7 @@ import org.springframework.core.type.filter.AssignableTypeFilter;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.AuthorizationServiceException;
+import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.access.intercept.RunAsUserToken;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.AccountExpiredException;
@@ -436,6 +437,7 @@ class SpringSecurityCoreVersionSerializableTests {
 		generatorByClassName.put(JaasAuthenticationSuccessEvent.class,
 				(r) -> new JaasAuthenticationSuccessEvent(authentication));
 		generatorByClassName.put(AbstractSessionEvent.class, (r) -> new AbstractSessionEvent(securityContext));
+		generatorByClassName.put(SecurityConfig.class, (r) -> new SecurityConfig("value"));
 
 		// cas
 		generatorByClassName.put(CasServiceTicketAuthenticationToken.class, (r) -> {
