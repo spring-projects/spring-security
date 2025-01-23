@@ -16,6 +16,8 @@
 
 package org.springframework.security.ldap.ppolicy;
 
+import java.io.Serial;
+
 import javax.naming.ldap.Control;
 
 /**
@@ -36,6 +38,9 @@ public class PasswordPolicyControl implements Control {
 	 * OID of the Password Policy Control
 	 */
 	public static final String OID = "1.3.6.1.4.1.42.2.27.8.5.1";
+
+	@Serial
+	private static final long serialVersionUID = 2843242715616817932L;
 
 	private final boolean critical;
 
