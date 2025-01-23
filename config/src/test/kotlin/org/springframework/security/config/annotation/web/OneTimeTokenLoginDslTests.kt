@@ -74,7 +74,7 @@ class OneTimeTokenLoginDslTests {
                 .redirectedUrl("/login/ott")
         )
 
-        val token = TestOneTimeTokenGenerationSuccessHandler.lastToken?.tokenValue
+        val token = getLastToken().tokenValue
 
         this.mockMvc.perform(
             MockMvcRequestBuilders.post("/login/ott").param("token", token)
@@ -96,7 +96,7 @@ class OneTimeTokenLoginDslTests {
         )
             .andExpectAll(MockMvcResultMatchers.status().isFound(), MockMvcResultMatchers.redirectedUrl("/redirected"))
 
-        val token = TestOneTimeTokenGenerationSuccessHandler.lastToken?.tokenValue
+        val token = getLastToken().tokenValue
 
         this.mockMvc.perform(
             MockMvcRequestBuilders.post("/loginprocessingurl").param("token", token)
@@ -124,7 +124,7 @@ class OneTimeTokenLoginDslTests {
                         .redirectedUrl("/login/ott")
         )
 
-        val token = TestOneTimeTokenGenerationSuccessHandler.lastToken
+        val token = getLastToken()
 
         assertThat(getCurrentMinutes(token!!.expiresAt)).isEqualTo(10)
     }
@@ -135,24 +135,35 @@ class OneTimeTokenLoginDslTests {
         return expiresMinutes - currentMinutes
     }
 
+    private fun getLastToken(): OneTimeToken {
+        val lastToken = spring.context
+            .getBean(TestOneTimeTokenGenerationSuccessHandler::class.java).lastToken
+        return lastToken!!
+    }
+
     @Configuration
     @EnableWebSecurity
     @Import(UserDetailsServiceConfig::class)
     open class OneTimeTokenConfig {
 
         @Bean
-        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+        open fun securityFilterChain(http: HttpSecurity, ottSuccessHandler: OneTimeTokenGenerationSuccessHandler): SecurityFilterChain {
             // @formatter:off
             http {
                 authorizeHttpRequests {
                     authorize(anyRequest, authenticated)
                 }
                 oneTimeTokenLogin {
-                    oneTimeTokenGenerationSuccessHandler = TestOneTimeTokenGenerationSuccessHandler()
+                    oneTimeTokenGenerationSuccessHandler = ottSuccessHandler
                 }
             }
             // @formatter:on
             return http.build()
+        }
+
+        @Bean
+        open fun ottSuccessHandler(): TestOneTimeTokenGenerationSuccessHandler {
+            return TestOneTimeTokenGenerationSuccessHandler()
         }
     }
 
@@ -162,14 +173,14 @@ class OneTimeTokenLoginDslTests {
     open class OneTimeTokenConfigWithCustomTokenResolver {
 
         @Bean
-        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+        open fun securityFilterChain(http: HttpSecurity, ottSuccessHandler: OneTimeTokenGenerationSuccessHandler): SecurityFilterChain {
             // @formatter:off
             http {
                 authorizeHttpRequests {
                     authorize(anyRequest, authenticated)
                 }
                 oneTimeTokenLogin {
-                    oneTimeTokenGenerationSuccessHandler = TestOneTimeTokenGenerationSuccessHandler()
+                    oneTimeTokenGenerationSuccessHandler = ottSuccessHandler
                     generateRequestResolver = DefaultGenerateOneTimeTokenRequestResolver().apply {
                         this.setExpiresIn(Duration.ofMinutes(10))
                     }
@@ -179,6 +190,10 @@ class OneTimeTokenLoginDslTests {
             return http.build()
         }
 
+        @Bean
+        open fun ottSuccessHandler(): TestOneTimeTokenGenerationSuccessHandler {
+            return TestOneTimeTokenGenerationSuccessHandler()
+        }
 
     }
 
@@ -187,7 +202,7 @@ class OneTimeTokenLoginDslTests {
     @Import(UserDetailsServiceConfig::class)
     open class OneTimeTokenDifferentUrlsConfig {
         @Bean
-        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+        open fun securityFilterChain(http: HttpSecurity, ottSuccessHandler: OneTimeTokenGenerationSuccessHandler): SecurityFilterChain {
             // @formatter:off
             http {
                 authorizeHttpRequests {
@@ -195,13 +210,18 @@ class OneTimeTokenLoginDslTests {
                 }
                 oneTimeTokenLogin {
                     tokenGeneratingUrl = "/generateurl"
-                    oneTimeTokenGenerationSuccessHandler = TestOneTimeTokenGenerationSuccessHandler("/redirected")
+                    oneTimeTokenGenerationSuccessHandler = ottSuccessHandler
                     loginProcessingUrl = "/loginprocessingurl"
                     authenticationSuccessHandler = SimpleUrlAuthenticationSuccessHandler("/authenticated")
                 }
             }
             // @formatter:on
             return http.build()
+        }
+
+        @Bean
+        open fun ottSuccessHandler(): TestOneTimeTokenGenerationSuccessHandler {
+            return TestOneTimeTokenGenerationSuccessHandler("/redirected")
         }
     }
 
@@ -213,9 +233,10 @@ class OneTimeTokenLoginDslTests {
             InMemoryUserDetailsManager(PasswordEncodedUser.user(), PasswordEncodedUser.admin())
     }
 
-    private class TestOneTimeTokenGenerationSuccessHandler :
+    class TestOneTimeTokenGenerationSuccessHandler :
         OneTimeTokenGenerationSuccessHandler {
         private val delegate: OneTimeTokenGenerationSuccessHandler
+        var lastToken: OneTimeToken? = null
 
         constructor() {
             this.delegate =
@@ -232,12 +253,9 @@ class OneTimeTokenLoginDslTests {
         }
 
         override fun handle(request: HttpServletRequest, response: HttpServletResponse, oneTimeToken: OneTimeToken) {
-            lastToken = oneTimeToken
+            this.lastToken = oneTimeToken
             delegate.handle(request, response, oneTimeToken)
         }
 
-        companion object {
-            var lastToken: OneTimeToken? = null
-        }
     }
 }
