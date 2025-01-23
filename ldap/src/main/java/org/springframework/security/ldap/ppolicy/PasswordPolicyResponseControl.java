@@ -19,6 +19,7 @@ package org.springframework.security.ldap.ppolicy;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serial;
 
 import netscape.ldap.ber.stream.BERChoice;
 import netscape.ldap.ber.stream.BERElement;
@@ -52,6 +53,9 @@ import org.springframework.dao.DataRetrievalFailureException;
 public class PasswordPolicyResponseControl extends PasswordPolicyControl {
 
 	private static final Log logger = LogFactory.getLog(PasswordPolicyResponseControl.class);
+
+	@Serial
+	private static final long serialVersionUID = -4592657167939234499L;
 
 	private final byte[] encodedValue;
 

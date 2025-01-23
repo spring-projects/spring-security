@@ -111,8 +111,10 @@ import org.springframework.security.core.session.ReactiveSessionInformation;
 import org.springframework.security.core.session.SessionInformation;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.ldap.ppolicy.PasswordPolicyControl;
 import org.springframework.security.ldap.ppolicy.PasswordPolicyErrorStatus;
 import org.springframework.security.ldap.ppolicy.PasswordPolicyException;
+import org.springframework.security.ldap.ppolicy.PasswordPolicyResponseControl;
 import org.springframework.security.ldap.userdetails.LdapAuthority;
 import org.springframework.security.oauth2.client.ClientAuthorizationException;
 import org.springframework.security.oauth2.client.ClientAuthorizationRequiredException;
@@ -464,6 +466,11 @@ class SpringSecurityCoreVersionSerializableTests {
 				(r) -> new LdapAuthority("USER", "username", Map.of("attribute", List.of("value1", "value2"))));
 		generatorByClassName.put(PasswordPolicyException.class,
 				(r) -> new PasswordPolicyException(PasswordPolicyErrorStatus.INSUFFICIENT_PASSWORD_QUALITY));
+		generatorByClassName.put(PasswordPolicyControl.class, (r) -> new PasswordPolicyControl(true));
+		generatorByClassName.put(PasswordPolicyResponseControl.class, (r) -> {
+			byte[] encodedResponse = { 0x30, 0x05, (byte) 0xA0, 0x03, (byte) 0xA0, 0x1, 0x21 };
+			return new PasswordPolicyResponseControl(encodedResponse);
+		});
 
 		// saml2-service-provider
 		generatorByClassName.put(Saml2AuthenticationException.class,
