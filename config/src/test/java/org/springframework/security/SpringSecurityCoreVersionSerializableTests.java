@@ -36,11 +36,13 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import jakarta.servlet.http.Cookie;
 import org.apereo.cas.client.validation.AssertionImpl;
 import org.instancio.Instancio;
 import org.instancio.InstancioApi;
@@ -54,6 +56,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.type.filter.AssignableTypeFilter;
+import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.AuthorizationServiceException;
@@ -174,6 +177,7 @@ import org.springframework.security.saml2.provider.service.authentication.Saml2R
 import org.springframework.security.saml2.provider.service.authentication.TestSaml2Authentications;
 import org.springframework.security.saml2.provider.service.authentication.TestSaml2PostAuthenticationRequests;
 import org.springframework.security.saml2.provider.service.authentication.TestSaml2RedirectAuthenticationRequests;
+import org.springframework.security.web.PortResolverImpl;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedCredentialsNotFoundException;
@@ -189,8 +193,11 @@ import org.springframework.security.web.csrf.DefaultCsrfToken;
 import org.springframework.security.web.csrf.InvalidCsrfTokenException;
 import org.springframework.security.web.csrf.MissingCsrfTokenException;
 import org.springframework.security.web.firewall.RequestRejectedException;
+import org.springframework.security.web.savedrequest.DefaultSavedRequest;
+import org.springframework.security.web.savedrequest.SimpleSavedRequest;
 import org.springframework.security.web.server.firewall.ServerExchangeRejectedException;
 import org.springframework.security.web.session.HttpSessionCreatedEvent;
+import org.springframework.security.web.util.UrlUtils;
 import org.springframework.security.web.webauthn.api.Bytes;
 import org.springframework.security.web.webauthn.api.ImmutablePublicKeyCredentialUserEntity;
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialUserEntity;
@@ -514,6 +521,20 @@ class SpringSecurityCoreVersionSerializableTests {
 				(r) -> new AuthenticationSwitchUserEvent(authentication, user));
 		generatorByClassName.put(HttpSessionCreatedEvent.class,
 				(r) -> new HttpSessionCreatedEvent(new MockHttpSession()));
+		generatorByClassName.put(SimpleSavedRequest.class, (r) -> {
+			MockHttpServletRequest request = new MockHttpServletRequest("GET", "/uri");
+			request.setQueryString("query=string");
+			request.setScheme("https");
+			request.setServerName("localhost");
+			request.setServerPort(80);
+			request.setRequestURI("/uri");
+			request.setCookies(new Cookie("name", "value"));
+			request.addHeader("header", "value");
+			request.addParameter("parameter", "value");
+			request.setPathInfo("/path");
+			request.addPreferredLocale(Locale.ENGLISH);
+			return new SimpleSavedRequest(new DefaultSavedRequest(request, new PortResolverImpl(), "continue"));
+		});
 
 		// webauthn
 		generatorByClassName.put(Bytes.class, (r) -> TestBytes.get());
