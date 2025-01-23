@@ -196,6 +196,18 @@ import org.springframework.security.web.csrf.MissingCsrfTokenException;
 import org.springframework.security.web.firewall.RequestRejectedException;
 import org.springframework.security.web.server.firewall.ServerExchangeRejectedException;
 import org.springframework.security.web.session.HttpSessionCreatedEvent;
+import org.springframework.security.web.webauthn.api.AuthenticationExtensionsClientInputs;
+import org.springframework.security.web.webauthn.api.AuthenticatorTransport;
+import org.springframework.security.web.webauthn.api.Bytes;
+import org.springframework.security.web.webauthn.api.CredProtectAuthenticationExtensionsClientInput;
+import org.springframework.security.web.webauthn.api.ImmutableAuthenticationExtensionsClientInput;
+import org.springframework.security.web.webauthn.api.ImmutableAuthenticationExtensionsClientInputs;
+import org.springframework.security.web.webauthn.api.PublicKeyCredentialDescriptor;
+import org.springframework.security.web.webauthn.api.PublicKeyCredentialRequestOptions;
+import org.springframework.security.web.webauthn.api.PublicKeyCredentialType;
+import org.springframework.security.web.webauthn.api.TestBytes;
+import org.springframework.security.web.webauthn.api.TestPublicKeyCredentialRequestOptions;
+import org.springframework.security.web.webauthn.api.UserVerificationRequirement;
 import org.springframework.util.ReflectionUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -515,6 +527,39 @@ class SpringSecurityCoreVersionSerializableTests {
 				(r) -> new AuthenticationSwitchUserEvent(authentication, user));
 		generatorByClassName.put(HttpSessionCreatedEvent.class,
 				(r) -> new HttpSessionCreatedEvent(new MockHttpSession()));
+
+		// webauthn
+		CredProtectAuthenticationExtensionsClientInput.CredProtect credProtect = new CredProtectAuthenticationExtensionsClientInput.CredProtect(
+				CredProtectAuthenticationExtensionsClientInput.CredProtect.ProtectionPolicy.USER_VERIFICATION_OPTIONAL,
+				true);
+		Bytes id = TestBytes.get();
+		AuthenticationExtensionsClientInputs inputs = new ImmutableAuthenticationExtensionsClientInputs(
+				ImmutableAuthenticationExtensionsClientInput.credProps);
+		// @formatter:off
+		PublicKeyCredentialDescriptor descriptor = PublicKeyCredentialDescriptor.builder()
+				.id(id)
+				.type(PublicKeyCredentialType.PUBLIC_KEY)
+				.transports(Set.of(AuthenticatorTransport.USB))
+				.build();
+		// @formatter:on
+		generatorByClassName.put(AuthenticatorTransport.class, (a) -> AuthenticatorTransport.USB);
+		generatorByClassName.put(PublicKeyCredentialType.class, (k) -> PublicKeyCredentialType.PUBLIC_KEY);
+		generatorByClassName.put(UserVerificationRequirement.class, (r) -> UserVerificationRequirement.REQUIRED);
+		generatorByClassName.put(CredProtectAuthenticationExtensionsClientInput.CredProtect.class, (c) -> credProtect);
+		generatorByClassName.put(CredProtectAuthenticationExtensionsClientInput.class,
+				(c) -> new CredProtectAuthenticationExtensionsClientInput(credProtect));
+		generatorByClassName.put(ImmutableAuthenticationExtensionsClientInputs.class, (i) -> inputs);
+		generatorByClassName.put(ImmutableAuthenticationExtensionsClientInput.class,
+				(i) -> ImmutableAuthenticationExtensionsClientInput.credProps);
+		generatorByClassName.put(Bytes.class, (b) -> id);
+		generatorByClassName.put(PublicKeyCredentialDescriptor.class, (d) -> descriptor);
+		// @formatter:off
+		generatorByClassName.put(PublicKeyCredentialRequestOptions.class, (o) -> TestPublicKeyCredentialRequestOptions.create()
+				.extensions(inputs)
+				.allowCredentials(List.of(descriptor))
+				.build()
+		);
+		// @formatter:on
 	}
 
 	@ParameterizedTest
