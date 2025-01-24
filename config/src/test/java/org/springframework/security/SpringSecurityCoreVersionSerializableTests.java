@@ -584,7 +584,9 @@ class SpringSecurityCoreVersionSerializableTests {
 		generatorByClassName.put(CredProtectAuthenticationExtensionsClientInput.class,
 				(c) -> new CredProtectAuthenticationExtensionsClientInput(credProtect));
 		generatorByClassName.put(ImmutableAuthenticationExtensionsClientInputs.class, (i) -> inputs);
-		generatorByClassName.put(ImmutableAuthenticationExtensionsClientInput.class,
+		Field credPropsField = ReflectionUtils.findField(ImmutableAuthenticationExtensionsClientInput.class,
+				"credProps");
+		generatorByClassName.put(credPropsField.getType(),
 				(i) -> ImmutableAuthenticationExtensionsClientInput.credProps);
 		generatorByClassName.put(Bytes.class, (b) -> id);
 		generatorByClassName.put(PublicKeyCredentialDescriptor.class, (d) -> descriptor);
