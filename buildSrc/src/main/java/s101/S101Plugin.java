@@ -50,7 +50,7 @@ public class S101Plugin implements Plugin<Project> {
 
 	private void configure(JavaExec exec) {
 		exec.setDescription("Runs Structure101 headless analysis, installing and configuring if necessary");
-		exec.dependsOn("check");
+		exec.dependsOn("assemble");
 		Project project = exec.getProject();
 		S101PluginExtension extension = project.getExtensions().getByType(S101PluginExtension.class);
 		exec
