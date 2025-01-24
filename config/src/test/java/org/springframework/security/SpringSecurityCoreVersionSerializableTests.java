@@ -206,22 +206,32 @@ import org.springframework.security.web.savedrequest.DefaultSavedRequest;
 import org.springframework.security.web.savedrequest.SimpleSavedRequest;
 import org.springframework.security.web.server.firewall.ServerExchangeRejectedException;
 import org.springframework.security.web.session.HttpSessionCreatedEvent;
+import org.springframework.security.web.webauthn.api.AttestationConveyancePreference;
 import org.springframework.security.web.webauthn.api.AuthenticationExtensionsClientInputs;
+import org.springframework.security.web.webauthn.api.AuthenticatorAttachment;
+import org.springframework.security.web.webauthn.api.AuthenticatorSelectionCriteria;
 import org.springframework.security.web.webauthn.api.AuthenticatorTransport;
 import org.springframework.security.web.webauthn.api.Bytes;
+import org.springframework.security.web.webauthn.api.COSEAlgorithmIdentifier;
 import org.springframework.security.web.webauthn.api.CredProtectAuthenticationExtensionsClientInput;
 import org.springframework.security.web.webauthn.api.ImmutableAuthenticationExtensionsClientInput;
 import org.springframework.security.web.webauthn.api.ImmutableAuthenticationExtensionsClientInputs;
 import org.springframework.security.web.webauthn.api.ImmutablePublicKeyCredentialUserEntity;
+import org.springframework.security.web.webauthn.api.PublicKeyCredentialCreationOptions;
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialDescriptor;
+import org.springframework.security.web.webauthn.api.PublicKeyCredentialParameters;
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialRequestOptions;
+import org.springframework.security.web.webauthn.api.PublicKeyCredentialRpEntity;
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialType;
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialUserEntity;
+import org.springframework.security.web.webauthn.api.ResidentKeyRequirement;
 import org.springframework.security.web.webauthn.api.TestBytes;
+import org.springframework.security.web.webauthn.api.TestPublicKeyCredentialCreationOptions;
 import org.springframework.security.web.webauthn.api.TestPublicKeyCredentialRequestOptions;
 import org.springframework.security.web.webauthn.api.TestPublicKeyCredentialUserEntity;
 import org.springframework.security.web.webauthn.api.UserVerificationRequirement;
 import org.springframework.security.web.webauthn.authentication.WebAuthnAuthentication;
+import org.springframework.security.web.webauthn.management.TestPublicKeyCredentialRpEntity;
 import org.springframework.util.ReflectionUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -608,6 +618,24 @@ class SpringSecurityCoreVersionSerializableTests {
 			webAuthnAuthentication.setDetails(details);
 			return webAuthnAuthentication;
 		});
+		generatorByClassName.put(AttestationConveyancePreference.class,
+				(r) -> AttestationConveyancePreference.INDIRECT);
+		generatorByClassName.put(AuthenticatorAttachment.class, (r) -> AuthenticatorAttachment.CROSS_PLATFORM);
+		generatorByClassName.put(AuthenticatorSelectionCriteria.class,
+				(r) -> AuthenticatorSelectionCriteria.builder()
+					.userVerification(UserVerificationRequirement.REQUIRED)
+					.build());
+		generatorByClassName.put(COSEAlgorithmIdentifier.class, (r) -> COSEAlgorithmIdentifier.ES256);
+		generatorByClassName.put(PublicKeyCredentialParameters.class, (r) -> PublicKeyCredentialParameters.ES256);
+		generatorByClassName.put(PublicKeyCredentialRpEntity.class,
+				(r) -> TestPublicKeyCredentialRpEntity.createRpEntity().build());
+		generatorByClassName.put(ResidentKeyRequirement.class, (r) -> ResidentKeyRequirement.REQUIRED);
+		generatorByClassName.put(PublicKeyCredentialCreationOptions.class,
+				(r) -> TestPublicKeyCredentialCreationOptions.createPublicKeyCredentialCreationOptions()
+					.rp(TestPublicKeyCredentialRpEntity.createRpEntity().build())
+					.user(TestPublicKeyCredentialUserEntity.userEntity().build())
+					.excludeCredentials(List.of(descriptor))
+					.build());
 	}
 
 	@ParameterizedTest
