@@ -545,3 +545,37 @@ class MagicLinkOneTimeTokenGenerationSuccessHandler : OneTimeTokenGenerationSucc
 }
 ----
 ======
+
+[[customize-generate-token-request]]
+== Customize GenerateOneTimeTokenRequest Instance
+There are a number of reasons that you may want to adjust an GenerateOneTimeTokenRequest. For example, you may want expiresIn to be set to 10 mins, which Spring Security sets to 5 mins by default.
+
+You can customize elements of GenerateOneTimeTokenRequest by publishing an GenerateOneTimeTokenRequestResolver as a @Bean, like so:
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Bean
+GenerateOneTimeTokenRequestResolver generateOneTimeTokenRequestResolver() {
+    DefaultGenerateOneTimeTokenRequestResolver delegate = new DefaultGenerateOneTimeTokenRequestResolver();
+        return (request) -> {
+		    GenerateOneTimeTokenRequest generate = delegate.resolve(request);
+		    return new GenerateOneTimeTokenRequest(generate.getUsername(), Duration.ofSeconds(600));
+	};
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun generateRequestResolver() : GenerateOneTimeTokenRequestResolver {
+    return DefaultGenerateOneTimeTokenRequestResolver().apply {
+        this.setExpiresIn(Duration.ofMinutes(10))
+    }
+}
+----
+======

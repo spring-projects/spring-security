@@ -30,7 +30,7 @@ import java.io.Serializable;
 public final class UserVerificationRequirement implements Serializable {
 
 	@Serial
-	private static final long serialVersionUID = -3244572922495418318L;
+	private static final long serialVersionUID = -2801001231345540040L;
 
 	/**
 	 * The <a href=

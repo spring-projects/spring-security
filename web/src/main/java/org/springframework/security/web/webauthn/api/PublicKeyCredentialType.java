@@ -30,7 +30,7 @@ import java.io.Serializable;
 public final class PublicKeyCredentialType implements Serializable {
 
 	@Serial
-	private static final long serialVersionUID = -2264670582162292655L;
+	private static final long serialVersionUID = 7025333122210061679L;
 
 	/**
 	 * The only credential type that currently exists.

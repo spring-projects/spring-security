@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,9 @@
 
 package org.springframework.security.web.webauthn.api;
 
+import java.io.Serial;
+import java.io.Serializable;
+
 /**
  * Implements <a href=
  * "https://fidoalliance.org/specs/fido-v2.2-rd-20230321/fido-client-to-authenticator-protocol-v2.2-rd-20230321.html#sctn-credProtect-extension">
@@ -26,6 +29,9 @@ package org.springframework.security.web.webauthn.api;
  */
 public class CredProtectAuthenticationExtensionsClientInput
 		implements AuthenticationExtensionsClientInput<CredProtectAuthenticationExtensionsClientInput.CredProtect> {
+
+	@Serial
+	private static final long serialVersionUID = -6418175591005843455L;
 
 	private final CredProtect input;
 
@@ -43,7 +49,10 @@ public class CredProtectAuthenticationExtensionsClientInput
 		return this.input;
 	}
 
-	public static class CredProtect {
+	public static class CredProtect implements Serializable {
+
+		@Serial
+		private static final long serialVersionUID = 109597301115842688L;
 
 		private final ProtectionPolicy credProtectionPolicy;
 

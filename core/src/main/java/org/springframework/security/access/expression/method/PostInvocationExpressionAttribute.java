@@ -28,6 +28,7 @@ import org.springframework.security.access.prepost.PostInvocationAttribute;
  * instead
  */
 @Deprecated
+@SuppressWarnings("serial")
 class PostInvocationExpressionAttribute extends AbstractExpressionBasedMethodConfigAttribute
 		implements PostInvocationAttribute {
 

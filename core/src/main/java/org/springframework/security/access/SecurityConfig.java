@@ -16,6 +16,7 @@
 
 package org.springframework.security.access;
 
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,6 +29,9 @@ import org.springframework.util.StringUtils;
  * @author Ben Alex
  */
 public class SecurityConfig implements ConfigAttribute {
+
+	@Serial
+	private static final long serialVersionUID = -7138084564199804304L;
 
 	private final String attrib;
 

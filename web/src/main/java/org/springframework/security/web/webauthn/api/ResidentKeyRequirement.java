@@ -30,7 +30,7 @@ import java.io.Serializable;
 public final class ResidentKeyRequirement implements Serializable {
 
 	@Serial
-	private static final long serialVersionUID = -298844375633893587L;
+	private static final long serialVersionUID = -2771567035819540060L;
 
 	/**
 	 * The <a href=

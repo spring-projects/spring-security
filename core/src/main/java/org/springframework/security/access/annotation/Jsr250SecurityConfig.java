@@ -30,6 +30,7 @@ import org.springframework.security.authorization.method.AuthorizationManagerBef
  * @deprecated Use {@link AuthorizationManagerBeforeMethodInterceptor#jsr250()} instead
  */
 @Deprecated
+@SuppressWarnings("serial")
 public class Jsr250SecurityConfig extends SecurityConfig {
 
 	public static final Jsr250SecurityConfig PERMIT_ALL_ATTRIBUTE = new Jsr250SecurityConfig(PermitAll.class.getName());

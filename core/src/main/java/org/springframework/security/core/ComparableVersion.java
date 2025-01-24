@@ -405,6 +405,7 @@ class ComparableVersion implements Comparable<ComparableVersion> {
 	 * Represents a version list item. This class is used both for the global item list
 	 * and for sub-lists (which start with '-(number)' in the version specification).
 	 */
+	@SuppressWarnings("serial")
 	private static class ListItem extends ArrayList<Item> implements Item {
 
 		@Override

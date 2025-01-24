@@ -48,7 +48,7 @@ jakarta-websocket-jakarta-websocket-client-api = { module = "jakarta.websocket:j
 jakarta-xml-bind-jakarta-xml-bind-api = "jakarta.xml.bind:jakarta.xml.bind-api:4.0.2"
 ldapsdk = "ldapsdk:ldapsdk:4.1"
 net-sourceforge-htmlunit = "net.sourceforge.htmlunit:htmlunit:2.70.0"
-org-htmlunit-htmlunit = "org.htmlunit:htmlunit:4.8.0"
+org-htmlunit-htmlunit = "org.htmlunit:htmlunit:4.9.0"
 org-apache-directory-server-apacheds-core = { module = "org.apache.directory.server:apacheds-core", version.ref = "org-apache-directory-server" }
 org-apache-directory-server-apacheds-entry = { module = "org.apache.directory.server:apacheds-core-entry", version.ref = "org-apache-directory-server" }
 org-apache-directory-server-apacheds-protocol-ldap = { module = "org.apache.directory.server:apacheds-protocol-ldap", version.ref = "org-apache-directory-server" }
@@ -61,7 +61,7 @@ org-apache-maven-resolver-maven-resolver-connector-basic = { module = "org.apach
 org-apache-maven-resolver-maven-resolver-impl = { module = "org.apache.maven.resolver:maven-resolver-impl", version.ref = "org-apache-maven-resolver" }
 org-apache-maven-resolver-maven-resolver-transport-http = { module = "org.apache.maven.resolver:maven-resolver-transport-http", version.ref = "org-apache-maven-resolver" }
 org-apereo-cas-client-cas-client-core = "org.apereo.cas.client:cas-client-core:4.0.4"
-io-freefair-gradle-aspectj-plugin = "io.freefair.gradle:aspectj-plugin:8.11"
+io-freefair-gradle-aspectj-plugin = "io.freefair.gradle:aspectj-plugin:8.12"
 org-aspectj-aspectjrt = { module = "org.aspectj:aspectjrt", version.ref = "org-aspectj" }
 org-aspectj-aspectjweaver = { module = "org.aspectj:aspectjweaver", version.ref = "org-aspectj" }
 org-assertj-assertj-core = "org.assertj:assertj-core:3.27.3"
@@ -83,7 +83,7 @@ org-opensaml-opensaml5-saml-api = { module = "org.opensaml:opensaml-saml-api", v
 org-opensaml-opensaml5-saml-impl = { module = "org.opensaml:opensaml-saml-impl", version.ref = "org-opensaml5" }
 org-python-jython = { module = "org.python:jython", version = "2.5.3" }
 org-seleniumhq-selenium-htmlunit-driver = "org.seleniumhq.selenium:htmlunit3-driver:4.27.0"
-org-seleniumhq-selenium-selenium-java = "org.seleniumhq.selenium:selenium-java:4.27.0"
+org-seleniumhq-selenium-selenium-java = "org.seleniumhq.selenium:selenium-java:4.28.1"
 org-seleniumhq-selenium-selenium-support = "org.seleniumhq.selenium:selenium-support:3.141.59"
 org-skyscreamer-jsonassert = "org.skyscreamer:jsonassert:1.5.3"
 org-slf4j-log4j-over-slf4j = "org.slf4j:log4j-over-slf4j:1.7.36"
@@ -100,7 +100,7 @@ org-yaml-snakeyaml = "org.yaml:snakeyaml:1.33"
 org-apache-commons-commons-io = "org.apache.commons:commons-io:1.3.2"
 io-github-gradle-nexus-publish-plugin = "io.github.gradle-nexus:publish-plugin:1.3.0"
 org-gretty-gretty = "org.gretty:gretty:4.1.6"
-com-github-ben-manes-gradle-versions-plugin = "com.github.ben-manes:gradle-versions-plugin:0.51.0"
+com-github-ben-manes-gradle-versions-plugin = "com.github.ben-manes:gradle-versions-plugin:0.52.0"
 com-github-spullara-mustache-java-compiler = "com.github.spullara.mustache.java:compiler:0.9.14"
 org-hidetake-gradle-ssh-plugin = "org.hidetake:gradle-ssh-plugin:2.10.1"
 org-jfrog-buildinfo-build-info-extractor-gradle = "org.jfrog.buildinfo:build-info-extractor-gradle:4.33.23"

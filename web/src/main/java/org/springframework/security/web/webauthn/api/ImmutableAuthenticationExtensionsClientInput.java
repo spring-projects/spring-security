@@ -29,7 +29,7 @@ import java.io.Serial;
 public class ImmutableAuthenticationExtensionsClientInput<T> implements AuthenticationExtensionsClientInput<T> {
 
 	@Serial
-	private static final long serialVersionUID = 7418261700160525896L;
+	private static final long serialVersionUID = -1738152485672656808L;
 
 	/**
 	 * https://www.w3.org/TR/webauthn-3/#sctn-authenticator-credential-properties-extension

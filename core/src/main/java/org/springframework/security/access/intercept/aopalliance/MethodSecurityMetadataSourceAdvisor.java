@@ -54,6 +54,7 @@ import org.springframework.util.CollectionUtils;
  * @deprecated Use {@link EnableMethodSecurity} or publish interceptors directly
  */
 @Deprecated
+@SuppressWarnings("serial")
 public class MethodSecurityMetadataSourceAdvisor extends AbstractPointcutAdvisor implements BeanFactoryAware {
 
 	private transient MethodSecurityMetadataSource attributeSource;

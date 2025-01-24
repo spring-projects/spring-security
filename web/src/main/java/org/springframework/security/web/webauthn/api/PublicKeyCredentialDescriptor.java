@@ -34,7 +34,7 @@ import java.util.Set;
 public final class PublicKeyCredentialDescriptor implements Serializable {
 
 	@Serial
-	private static final long serialVersionUID = 6644055636930767601L;
+	private static final long serialVersionUID = 8793385059692676240L;
 
 	private final PublicKeyCredentialType type;
 

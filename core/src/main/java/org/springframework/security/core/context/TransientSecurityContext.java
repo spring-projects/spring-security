@@ -16,6 +16,8 @@
 
 package org.springframework.security.core.context;
 
+import java.io.Serial;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.Transient;
 
@@ -29,6 +31,9 @@ import org.springframework.security.core.Transient;
  */
 @Transient
 public class TransientSecurityContext extends SecurityContextImpl {
+
+	@Serial
+	private static final long serialVersionUID = -7925492364422193347L;
 
 	public TransientSecurityContext() {
 	}

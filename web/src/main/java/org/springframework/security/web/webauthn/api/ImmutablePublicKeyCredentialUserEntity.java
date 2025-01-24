@@ -31,7 +31,7 @@ import java.io.Serial;
 public final class ImmutablePublicKeyCredentialUserEntity implements PublicKeyCredentialUserEntity {
 
 	@Serial
-	private static final long serialVersionUID = -6887789205332948120L;
+	private static final long serialVersionUID = -3438693960347279759L;
 
 	/**
 	 * When inherited by PublicKeyCredentialUserEntity, it is a human-palatable identifier

@@ -16,6 +16,7 @@
 
 package org.springframework.security.web.savedrequest;
 
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -34,6 +35,9 @@ import org.springframework.util.Assert;
  * @since 5.1
  */
 public class SimpleSavedRequest implements SavedRequest {
+
+	@Serial
+	private static final long serialVersionUID = 807650604272166969L;
 
 	private String redirectUrl;
 

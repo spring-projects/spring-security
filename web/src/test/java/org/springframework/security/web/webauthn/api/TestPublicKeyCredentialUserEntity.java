@@ -21,7 +21,7 @@ import org.springframework.security.web.webauthn.api.ImmutablePublicKeyCredentia
 public final class TestPublicKeyCredentialUserEntity {
 
 	public static PublicKeyCredentialUserEntityBuilder userEntity() {
-		return ImmutablePublicKeyCredentialUserEntity.builder().name("user").id(Bytes.random()).displayName("user");
+		return ImmutablePublicKeyCredentialUserEntity.builder().name("user").id(TestBytes.get()).displayName("user");
 	}
 
 	private TestPublicKeyCredentialUserEntity() {

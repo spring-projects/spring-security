@@ -29,7 +29,7 @@ import java.util.List;
 public class ImmutableAuthenticationExtensionsClientInputs implements AuthenticationExtensionsClientInputs {
 
 	@Serial
-	private static final long serialVersionUID = -3891660830369199585L;
+	private static final long serialVersionUID = 4277817521578485720L;
 
 	private final List<AuthenticationExtensionsClientInput> inputs;
 

@@ -31,7 +31,7 @@ import java.io.Serializable;
 public final class AuthenticatorTransport implements Serializable {
 
 	@Serial
-	private static final long serialVersionUID = 3061229853243652081L;
+	private static final long serialVersionUID = -5617945441117386982L;
 
 	/**
 	 * <a href="https://www.w3.org/TR/webauthn-3/#dom-authenticatortransport-usb">usbc</a>
