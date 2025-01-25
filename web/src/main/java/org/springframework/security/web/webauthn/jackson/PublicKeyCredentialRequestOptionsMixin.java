@@ -16,23 +16,35 @@
 
 package org.springframework.security.web.webauthn.jackson;
 
-import java.time.Duration;
-
-import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-
+import org.springframework.security.web.webauthn.api.AuthenticationExtensionsClientInputs;
+import org.springframework.security.web.webauthn.api.Bytes;
+import org.springframework.security.web.webauthn.api.PublicKeyCredentialDescriptor;
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialRequestOptions;
+import org.springframework.security.web.webauthn.api.UserVerificationRequirement;
+
+import java.time.Duration;
+import java.util.List;
 
 /**
  * Jackson mixin for {@link PublicKeyCredentialRequestOptions}
  *
  * @author Rob Winch
+ * @author Justin Cranford
  * @since 6.4
  */
-@JsonInclude(content = JsonInclude.Include.NON_NULL)
 class PublicKeyCredentialRequestOptionsMixin {
-
-	@JsonSerialize(using = DurationSerializer.class)
-	private final Duration timeout = null;
-
+	@JsonCreator
+	public PublicKeyCredentialRequestOptionsMixin(
+		@JsonProperty("challenge") Bytes challenge,
+		@JsonProperty("timeout") @JsonSerialize(using=DurationSerializer.class) @JsonDeserialize(using=DurationDeserializer.class) Duration timeout,
+		@JsonProperty("rpId") String rpId,
+		@JsonProperty("allowCredentials") List<PublicKeyCredentialDescriptor> allowCredentials,
+		@JsonProperty("userVerification") UserVerificationRequirement userVerification,
+		@JsonProperty("extensions") AuthenticationExtensionsClientInputs extensions
+	) {
+	}
 }
