@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.springframework.security.config.web.server
 
 import org.springframework.security.authentication.ReactiveAuthenticationManager
 import org.springframework.security.authentication.ott.reactive.ReactiveOneTimeTokenService
+import org.springframework.security.web.server.authentication.ott.ServerGenerateOneTimeTokenRequestResolver
 import org.springframework.security.web.server.authentication.ServerAuthenticationConverter
 import org.springframework.security.web.server.authentication.ServerAuthenticationFailureHandler
 import org.springframework.security.web.server.authentication.ServerAuthenticationSuccessHandler
@@ -34,6 +35,7 @@ import org.springframework.security.web.server.context.ServerSecurityContextRepo
  * @property authenticationConverter Use this [ServerAuthenticationConverter] when converting incoming requests to an authentication
  * @property authenticationFailureHandler the [ServerAuthenticationFailureHandler] to use when authentication
  * @property authenticationSuccessHandler the [ServerAuthenticationSuccessHandler] to be used
+ * @property generateRequestResolver the [ServerGenerateOneTimeTokenRequestResolver] to be used
  * @property defaultSubmitPageUrl sets the URL that the default submit page will be generated
  * @property showDefaultSubmitPage configures whether the default one-time token submit page should be shown
  * @property loginProcessingUrl the URL to process the login request
@@ -50,6 +52,7 @@ class ServerOneTimeTokenLoginDsl {
     var authenticationSuccessHandler: ServerAuthenticationSuccessHandler? = null
     var tokenGenerationSuccessHandler: ServerOneTimeTokenGenerationSuccessHandler? = null
     var securityContextRepository: ServerSecurityContextRepository? = null
+    var generateRequestResolver: ServerGenerateOneTimeTokenRequestResolver? = null
     var defaultSubmitPageUrl: String? = null
     var loginProcessingUrl: String? = null
     var tokenGeneratingUrl: String? = null
@@ -71,6 +74,7 @@ class ServerOneTimeTokenLoginDsl {
                 )
             }
             securityContextRepository?.also { oneTimeTokenLogin.securityContextRepository(securityContextRepository) }
+            generateRequestResolver?.also { oneTimeTokenLogin.generateRequestResolver(generateRequestResolver) }
             defaultSubmitPageUrl?.also { oneTimeTokenLogin.defaultSubmitPageUrl(defaultSubmitPageUrl) }
             showDefaultSubmitPage?.also { oneTimeTokenLogin.showDefaultSubmitPage(showDefaultSubmitPage!!) }
             loginProcessingUrl?.also { oneTimeTokenLogin.loginProcessingUrl(loginProcessingUrl) }
