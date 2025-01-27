@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ package org.springframework.security.web.server.authentication.ott;
 import reactor.core.publisher.Mono;
 
 import org.springframework.http.HttpMethod;
-import org.springframework.security.authentication.ott.GenerateOneTimeTokenRequest;
 import org.springframework.security.authentication.ott.reactive.ReactiveOneTimeTokenService;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
@@ -37,11 +36,11 @@ import org.springframework.web.server.WebFilterChain;
  */
 public final class GenerateOneTimeTokenWebFilter implements WebFilter {
 
-	private static final String USERNAME = "username";
-
 	private final ReactiveOneTimeTokenService oneTimeTokenService;
 
 	private ServerWebExchangeMatcher matcher = ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, "/ott/generate");
+
+	private ServerGenerateOneTimeTokenRequestResolver generateRequestResolver = new DefaultServerGenerateOneTimeTokenRequestResolver();
 
 	private final ServerOneTimeTokenGenerationSuccessHandler oneTimeTokenGenerationSuccessHandler;
 
@@ -58,10 +57,9 @@ public final class GenerateOneTimeTokenWebFilter implements WebFilter {
 		// @formatter:off
 		return this.matcher.matches(exchange)
 				.filter(ServerWebExchangeMatcher.MatchResult::isMatch)
-				.then(exchange.getFormData())
-				.mapNotNull((data) -> data.getFirst(USERNAME))
+				.flatMap((result) -> this.generateRequestResolver.resolve(exchange))
 				.switchIfEmpty(chain.filter(exchange).then(Mono.empty()))
-				.flatMap((username) -> this.oneTimeTokenService.generate(new GenerateOneTimeTokenRequest(username)))
+				.flatMap(this.oneTimeTokenService::generate)
 				.flatMap((token) -> this.oneTimeTokenGenerationSuccessHandler.handle(exchange, token));
 		// @formatter:on
 	}
@@ -73,6 +71,17 @@ public final class GenerateOneTimeTokenWebFilter implements WebFilter {
 	public void setRequestMatcher(ServerWebExchangeMatcher matcher) {
 		Assert.notNull(matcher, "matcher cannot be null");
 		this.matcher = matcher;
+	}
+
+	/**
+	 * Use the given {@link ServerGenerateOneTimeTokenRequestResolver} to resolve the
+	 * request, defaults to {@link DefaultServerGenerateOneTimeTokenRequestResolver}
+	 * @param requestResolver {@link ServerGenerateOneTimeTokenRequestResolver}
+	 * @since 6.5
+	 */
+	public void setGenerateRequestResolver(ServerGenerateOneTimeTokenRequestResolver requestResolver) {
+		Assert.notNull(requestResolver, "requestResolver cannot be null");
+		this.generateRequestResolver = requestResolver;
 	}
 
 }
