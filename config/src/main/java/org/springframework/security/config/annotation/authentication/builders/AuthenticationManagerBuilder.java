@@ -82,6 +82,7 @@ public class AuthenticationManagerBuilder
 	public AuthenticationManagerBuilder(
 			org.springframework.security.config.annotation.ObjectPostProcessor<Object> objectPostProcessor) {
 		super(objectPostProcessor, true);
+		System.out.println("data is secured");
 	}
 
 	/**
