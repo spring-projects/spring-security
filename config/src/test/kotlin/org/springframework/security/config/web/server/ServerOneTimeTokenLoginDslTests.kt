@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package org.springframework.security.config.web.server
 
+import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import reactor.core.publisher.Mono
@@ -26,6 +27,7 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import org.springframework.context.ApplicationContext
 import org.springframework.http.MediaType
+import org.springframework.security.authentication.ott.GenerateOneTimeTokenRequest
 import org.springframework.security.authentication.ott.OneTimeToken
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
 import org.springframework.security.config.test.SpringTestContext
@@ -34,6 +36,8 @@ import org.springframework.security.core.userdetails.MapReactiveUserDetailsServi
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService
 import org.springframework.security.core.userdetails.User
 import org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers
+import org.springframework.security.web.server.authentication.ott.DefaultServerGenerateOneTimeTokenRequestResolver
+import org.springframework.security.web.server.authentication.ott.ServerGenerateOneTimeTokenRequestResolver
 import org.springframework.security.web.server.SecurityWebFilterChain
 import org.springframework.security.web.server.authentication.RedirectServerAuthenticationSuccessHandler
 import org.springframework.security.web.server.authentication.ott.ServerOneTimeTokenGenerationSuccessHandler
@@ -43,6 +47,9 @@ import org.springframework.web.reactive.config.EnableWebFlux
 import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.server.ServerWebExchange
 import org.springframework.web.util.UriBuilder
+import java.time.Duration
+import java.time.Instant
+import java.time.ZoneOffset
 
 /**
  * Tests for [ServerOneTimeTokenLoginDsl]
@@ -146,6 +153,48 @@ class ServerOneTimeTokenLoginDslTests {
         // @formatter:on
     }
 
+    @Test
+    fun `oneTimeToken when custom token expiration time set then authenticate`() {
+        spring.register(OneTimeTokenConfigWithCustomTokenExpirationTime::class.java).autowire()
+
+        // @formatter:off
+        client.mutateWith(SecurityMockServerConfigurers.csrf())
+                .post()
+                .uri{ uriBuilder: UriBuilder -> uriBuilder
+                        .path("/ott/generate")
+                        .build()
+                }
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                .body(BodyInserters.fromFormData("username", "user"))
+                .exchange()
+                .expectStatus()
+                .is3xxRedirection()
+                .expectHeader().valueEquals("Location", "/login/ott")
+
+        client.mutateWith(SecurityMockServerConfigurers.csrf())
+                .post()
+                .uri{ uriBuilder:UriBuilder -> uriBuilder
+                        .path("/ott/generate")
+                        .build()
+                }
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                .body(BodyInserters.fromFormData("username", "user"))
+                .exchange()
+                .expectStatus()
+                .is3xxRedirection()
+                .expectHeader().valueEquals("Location", "/login/ott")
+
+        val token = TestServerOneTimeTokenGenerationSuccessHandler.lastToken
+
+        Assertions.assertThat(getCurrentMinutes(token!!.expiresAt)).isEqualTo(10)
+    }
+
+    private fun getCurrentMinutes(expiresAt:Instant): Int {
+        val expiresMinutes = expiresAt.atZone(ZoneOffset.UTC).minute
+        val currentMinutes = Instant.now().atZone(ZoneOffset.UTC).minute
+        return expiresMinutes - currentMinutes
+    }
+
     @Configuration
     @EnableWebFlux
     @EnableWebFluxSecurity
@@ -197,6 +246,34 @@ class ServerOneTimeTokenLoginDslTests {
         @Bean
         open fun userDetailsService(): ReactiveUserDetailsService =
             MapReactiveUserDetailsService(User("user", "password", listOf()))
+    }
+
+    @Configuration(proxyBeanMethods = false)
+    @EnableWebFlux
+    @EnableWebFluxSecurity
+    @Import(OneTimeTokenLoginSpecTests.UserDetailsServiceConfig::class)
+    open class OneTimeTokenConfigWithCustomTokenExpirationTime {
+        @Bean
+        open fun securityWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
+            // @formatter:off
+            return http {
+                authorizeExchange {
+                    authorize(anyExchange, authenticated)
+                }
+                oneTimeTokenLogin {
+                    tokenGenerationSuccessHandler = TestServerOneTimeTokenGenerationSuccessHandler()
+                }
+            }
+        }
+
+        @Bean
+        open fun resolver(): ServerGenerateOneTimeTokenRequestResolver {
+            val resolver = DefaultServerGenerateOneTimeTokenRequestResolver()
+            return ServerGenerateOneTimeTokenRequestResolver { exchange ->
+                resolver.resolve(exchange)
+                        .map { request -> GenerateOneTimeTokenRequest(request.username, Duration.ofSeconds(600)) }
+            }
+        }
     }
 
     private class TestServerOneTimeTokenGenerationSuccessHandler: ServerOneTimeTokenGenerationSuccessHandler {

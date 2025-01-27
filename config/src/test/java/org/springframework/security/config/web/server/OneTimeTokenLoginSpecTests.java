@@ -271,10 +271,10 @@ public class OneTimeTokenLoginSpecTests {
 	@Test
 	void oneTimeTokenWhenNoOneTimeTokenGenerationSuccessHandlerThenException() {
 		assertThatException()
-			.isThrownBy(() -> this.spring.register(OneTimeTokenNotGeneratedOttHandlerConfig.class).autowire())
-			.havingRootCause()
-			.isInstanceOf(IllegalStateException.class)
-			.withMessage("""
+				.isThrownBy(() -> this.spring.register(OneTimeTokenNotGeneratedOttHandlerConfig.class).autowire())
+				.havingRootCause()
+				.isInstanceOf(IllegalStateException.class)
+				.withMessage("""
 					A ServerOneTimeTokenGenerationSuccessHandler is required to enable oneTimeTokenLogin().
 					Please provide it as a bean or pass it to the oneTimeTokenLogin() DSL.
 					""");
