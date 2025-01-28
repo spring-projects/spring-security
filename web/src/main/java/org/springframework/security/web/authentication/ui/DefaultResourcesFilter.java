@@ -111,20 +111,4 @@ public final class DefaultResourcesFilter extends GenericFilterBean {
 				new MediaType("text", "javascript", StandardCharsets.UTF_8));
 	}
 
-	/**
-	 * Create an instance of {@link DefaultResourcesFilter} serving Spring Security's
-	 * default webauthn javascript.
-	 * <p>
-	 * The created {@link DefaultResourcesFilter} matches requests
-	 * {@code HTTP GET /form-redirect.js}, and returns the default webauthn javascript at
-	 * {@code org/springframework/security/form-redirect.js} with content-type
-	 * {@code text/javascript;charset=UTF-8}.
-	 * @return -
-	 */
-	public static DefaultResourcesFilter formRedirectJavascript() {
-		return new DefaultResourcesFilter(AntPathRequestMatcher.antMatcher(HttpMethod.GET, "/form-redirect.js"),
-				new ClassPathResource("org/springframework/security/form-redirect.js"),
-				new MediaType("text", "javascript", StandardCharsets.UTF_8));
-	}
-
 }

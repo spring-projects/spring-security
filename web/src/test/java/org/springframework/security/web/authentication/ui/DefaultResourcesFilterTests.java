@@ -94,35 +94,4 @@ public class DefaultResourcesFilterTests {
 
 	}
 
-	@Nested
-	class FormRedirectJavascriptFilter {
-
-		private final DefaultResourcesFilter formRedirectJavascriptFilter = DefaultResourcesFilter
-			.formRedirectJavascript();
-
-		private final MockMvc mockMvc = MockMvcBuilders.standaloneSetup(new Object())
-			.addFilters(this.formRedirectJavascriptFilter)
-			.build();
-
-		@Test
-		void doFilterThenRender() throws Exception {
-			this.mockMvc.perform(get("/form-redirect.js"))
-				.andExpect(status().isOk())
-				.andExpect(content().contentType("text/javascript;charset=UTF-8"))
-				.andExpect(content().string(containsString("submit")));
-		}
-
-		@Test
-		void doFilterWhenPathDoesNotMatchThenCallsThrough() throws Exception {
-			this.mockMvc.perform(get("/does-not-match")).andExpect(status().isNotFound());
-		}
-
-		@Test
-		void toStringPrintsPathAndResource() {
-			assertThat(this.formRedirectJavascriptFilter.toString()).isEqualTo(
-					"DefaultResourcesFilter [matcher=Ant [pattern='/form-redirect.js', GET], resource=org/springframework/security/form-redirect.js]");
-		}
-
-	}
-
 }

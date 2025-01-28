@@ -54,11 +54,6 @@ class WebMvcSecurityRuntimeHints implements RuntimeHintsRegistrar {
 			hints.resources().registerResource(webauthnJavascript);
 		}
 
-		ClassPathResource redirect = new ClassPathResource("org/springframework/security/form-redirect.js");
-		if (redirect.exists()) {
-			hints.resources().registerResource(redirect);
-		}
-
 	}
 
 }
