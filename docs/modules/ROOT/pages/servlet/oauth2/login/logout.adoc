@@ -125,7 +125,7 @@ If used, the application's base URL, such as `https://app.example.org`, replaces
 [NOTE]
 ====
 By default, `OidcClientInitiatedLogoutSuccessHandler` redirects to the logout URL using a standard HTTP redirect with the `GET` method.
-To perform the logout using a `POST` request, set the redirect strategy to `FormRedirectStrategy`, for example with `OidcClientInitiatedLogoutSuccessHandler.setRedirectStrategy(new FormRedirectStrategy())`.
+To perform the logout using a `POST` request, set the redirect strategy to `FormPostRedirectStrategy`, for example with `OidcClientInitiatedLogoutSuccessHandler.setRedirectStrategy(new FormPostRedirectStrategy())`.
 ====
 
 [[configure-provider-initiated-oidc-logout]]

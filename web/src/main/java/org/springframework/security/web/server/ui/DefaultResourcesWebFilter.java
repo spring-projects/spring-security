@@ -98,21 +98,4 @@ public final class DefaultResourcesWebFilter implements WebFilter {
 				new MediaType("text", "css", StandardCharsets.UTF_8));
 	}
 
-	/**
-	 * Create an instance of {@link DefaultResourcesWebFilter} serving Spring Security's
-	 * form redirect javascript.
-	 * <p>
-	 * The created {@link DefaultResourcesFilter} matches requests
-	 * {@code HTTP GET /form-redirect.js}, and returns the default javascript at
-	 * {@code org/springframework/security/form-redirect.js} with content-type
-	 * {@code text/javascript;charset=UTF-8}.
-	 * @return -
-	 */
-	public static DefaultResourcesWebFilter formRedirectJavascript() {
-		return new DefaultResourcesWebFilter(
-				new PathPatternParserServerWebExchangeMatcher("/form-redirect.js", HttpMethod.GET),
-				new ClassPathResource("org/springframework/security/form-redirect.js"),
-				new MediaType("text", "javascript", StandardCharsets.UTF_8));
-	}
-
 }

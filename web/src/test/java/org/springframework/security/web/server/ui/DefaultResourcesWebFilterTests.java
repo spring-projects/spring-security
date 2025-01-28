@@ -36,7 +36,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Daniel Garnier-Moiroux
  * @since 6.4
  */
-class DefaultResourcesCssWebFilterTests {
+class DefaultResourcesWebFilterTests {
 
 	private final WebHandler notFoundHandler = (exchange) -> {
 		exchange.getResponse().setStatusCode(HttpStatus.NOT_FOUND);
