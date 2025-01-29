@@ -82,10 +82,9 @@ public final class BearerTokenServerAuthenticationEntryPoint implements ServerAu
 			if (StringUtils.hasText(error.getUri())) {
 				parameters.put("error_uri", error.getUri());
 			}
-			if (error instanceof BearerTokenError bearerTokenError) {
-				if (StringUtils.hasText(bearerTokenError.getScope())) {
-					parameters.put("scope", bearerTokenError.getScope());
-				}
+			if (error instanceof BearerTokenError bearerTokenError
+					&& StringUtils.hasText(bearerTokenError.getScope())) {
+				parameters.put("scope", bearerTokenError.getScope());
 			}
 		}
 		return parameters;
