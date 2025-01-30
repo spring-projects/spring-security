@@ -79,7 +79,7 @@ jobs:
         env:
           STRUCTURE101_LICENSEID: ${{ secrets.STRUCTURE101_LICENSEID }}
         run: |
-          ./gradlew check s101 -Ps101.licenseId="$STRUCTURE101_LICENSEID" --stacktrace
+          ./gradlew assemble && ./gradlew s101 -Ps101.licenseId="$STRUCTURE101_LICENSEID" --stacktrace
   deploy-artifacts:
     name: Deploy Artifacts
     needs: [ build, test, check-samples, check-tangles ]
