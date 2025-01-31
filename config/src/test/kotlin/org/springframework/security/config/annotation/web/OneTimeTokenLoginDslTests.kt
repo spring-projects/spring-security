@@ -16,6 +16,10 @@
 
 package org.springframework.security.config.annotation.web
 
+import io.mockk.every
+import io.mockk.justRun
+import io.mockk.mockk
+import io.mockk.verify
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.assertj.core.api.Assertions.assertThat
@@ -25,7 +29,10 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
+import org.springframework.security.authentication.ott.DefaultOneTimeToken
+import org.springframework.security.authentication.ott.GenerateOneTimeTokenRequest
 import org.springframework.security.authentication.ott.OneTimeToken
+import org.springframework.security.authentication.ott.OneTimeTokenService
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.test.SpringTestContext
@@ -38,6 +45,7 @@ import org.springframework.security.test.web.servlet.response.SecurityMockMvcRes
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler
 import org.springframework.security.web.authentication.ott.DefaultGenerateOneTimeTokenRequestResolver
+import org.springframework.security.web.authentication.ott.GenerateOneTimeTokenRequestResolver
 import org.springframework.security.web.authentication.ott.OneTimeTokenGenerationSuccessHandler
 import org.springframework.security.web.authentication.ott.RedirectOneTimeTokenGenerationSuccessHandler
 import org.springframework.test.web.servlet.MockMvc
@@ -59,6 +67,15 @@ class OneTimeTokenLoginDslTests {
 
     @Autowired
     private lateinit var mockMvc: MockMvc
+
+    @Autowired(required = false)
+    private lateinit var resolver: GenerateOneTimeTokenRequestResolver
+
+    @Autowired(required = false)
+    private lateinit var tokenService: OneTimeTokenService
+
+    @Autowired(required = false)
+    private lateinit var tokenGenerationSuccessHandler: OneTimeTokenGenerationSuccessHandler
 
     @Test
     fun `oneTimeToken when correct token then can authenticate`() {
@@ -110,29 +127,22 @@ class OneTimeTokenLoginDslTests {
     }
 
     @Test
-    fun `oneTimeToken when custom resolver set then use custom token`() {
-        spring.register(OneTimeTokenConfigWithCustomTokenResolver::class.java).autowire()
-
+    fun `oneTimeToken when custom impls set then used`() {
+        spring.register(OneTimeTokenConfigWithCustomImpls::class.java).autowire()
+        val expectedGenerateRequest = GenerateOneTimeTokenRequest("username-123", Duration.ofMinutes(10));
+        val ott = DefaultOneTimeToken("token-123", expectedGenerateRequest.username, Instant.now().plus(expectedGenerateRequest.expiresIn))
+        every { resolver.resolve(any()) } returns expectedGenerateRequest
+        every { tokenService.generate(expectedGenerateRequest) } returns ott
+        justRun { tokenGenerationSuccessHandler.handle(any(), any(), eq(ott)) }
         this.mockMvc.perform(
                 MockMvcRequestBuilders.post("/ott/generate").param("username", "user")
                         .with(SecurityMockMvcRequestPostProcessors.csrf())
-        ).andExpectAll(
-                MockMvcResultMatchers
-                        .status()
-                        .isFound(),
-                MockMvcResultMatchers
-                        .redirectedUrl("/login/ott")
         )
 
-        val token = getLastToken()
+        verify { resolver.resolve(any()) }
+        verify { tokenService.generate(expectedGenerateRequest) }
+        verify { tokenGenerationSuccessHandler.handle(any(), any(), eq(ott)) }
 
-        assertThat(getCurrentMinutes(token!!.expiresAt)).isEqualTo(10)
-    }
-
-    private fun getCurrentMinutes(expiresAt: Instant): Int {
-        val expiresMinutes = expiresAt.atZone(ZoneOffset.UTC).minute
-        val currentMinutes = Instant.now().atZone(ZoneOffset.UTC).minute
-        return expiresMinutes - currentMinutes
     }
 
     private fun getLastToken(): OneTimeToken {
@@ -170,20 +180,22 @@ class OneTimeTokenLoginDslTests {
     @Configuration
     @EnableWebSecurity
     @Import(UserDetailsServiceConfig::class)
-    open class OneTimeTokenConfigWithCustomTokenResolver {
+    open class OneTimeTokenConfigWithCustomImpls {
 
         @Bean
-        open fun securityFilterChain(http: HttpSecurity, ottSuccessHandler: OneTimeTokenGenerationSuccessHandler): SecurityFilterChain {
+        open fun securityFilterChain(http: HttpSecurity,
+                                     ottRequestResolver: GenerateOneTimeTokenRequestResolver,
+                                     ottService: OneTimeTokenService,
+                                     ottSuccessHandler: OneTimeTokenGenerationSuccessHandler): SecurityFilterChain {
             // @formatter:off
             http {
                 authorizeHttpRequests {
                     authorize(anyRequest, authenticated)
                 }
                 oneTimeTokenLogin {
+                    generateRequestResolver = ottRequestResolver
+                    tokenService = ottService
                     oneTimeTokenGenerationSuccessHandler = ottSuccessHandler
-                    generateRequestResolver = DefaultGenerateOneTimeTokenRequestResolver().apply {
-                        this.setExpiresIn(Duration.ofMinutes(10))
-                    }
                 }
             }
             // @formatter:on
@@ -191,8 +203,18 @@ class OneTimeTokenLoginDslTests {
         }
 
         @Bean
-        open fun ottSuccessHandler(): TestOneTimeTokenGenerationSuccessHandler {
-            return TestOneTimeTokenGenerationSuccessHandler()
+        open fun ottRequestResolver(): GenerateOneTimeTokenRequestResolver {
+            return mockk()
+        }
+
+        @Bean
+        open fun ottService(): OneTimeTokenService {
+            return mockk()
+        }
+
+        @Bean
+        open fun ottSuccessHandler(): OneTimeTokenGenerationSuccessHandler {
+            return mockk()
         }
 
     }

@@ -19,7 +19,6 @@ package org.springframework.security.config.annotation.web.configurers.ott;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
-import java.time.ZoneOffset;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -32,8 +31,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.security.authentication.ott.DefaultOneTimeToken;
 import org.springframework.security.authentication.ott.GenerateOneTimeTokenRequest;
 import org.springframework.security.authentication.ott.OneTimeToken;
+import org.springframework.security.authentication.ott.OneTimeTokenService;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -44,7 +45,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
-import org.springframework.security.web.authentication.ott.DefaultGenerateOneTimeTokenRequestResolver;
 import org.springframework.security.web.authentication.ott.GenerateOneTimeTokenRequestResolver;
 import org.springframework.security.web.authentication.ott.OneTimeTokenGenerationSuccessHandler;
 import org.springframework.security.web.authentication.ott.RedirectOneTimeTokenGenerationSuccessHandler;
@@ -55,6 +55,11 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatException;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.unauthenticated;
@@ -71,6 +76,15 @@ public class OneTimeTokenLoginConfigurerTests {
 
 	@Autowired(required = false)
 	MockMvc mvc;
+
+	@Autowired(required = false)
+	private GenerateOneTimeTokenRequestResolver resolver;
+
+	@Autowired(required = false)
+	private OneTimeTokenService tokenService;
+
+	@Autowired(required = false)
+	private OneTimeTokenGenerationSuccessHandler tokenGenerationSuccessHandler;
 
 	@Test
 	void oneTimeTokenWhenCorrectTokenThenCanAuthenticate() throws Exception {
@@ -202,21 +216,18 @@ public class OneTimeTokenLoginConfigurerTests {
 
 	@Test
 	void oneTimeTokenWhenCustomTokenExpirationTimeSetThenAuthenticate() throws Exception {
-		this.spring.register(OneTimeTokenConfigWithCustomTokenExpirationTime.class).autowire();
-		this.mvc.perform(post("/ott/generate").param("username", "user").with(csrf()))
-			.andExpectAll(status().isFound(), redirectedUrl("/login/ott"));
+		this.spring.register(OneTimeTokenConfigWithCustomImpls.class).autowire();
+		GenerateOneTimeTokenRequest expectedGenerateRequest = new GenerateOneTimeTokenRequest("username-123",
+				Duration.ofMinutes(10));
+		OneTimeToken ott = new DefaultOneTimeToken("token-123", expectedGenerateRequest.getUsername(),
+				Instant.now().plus(expectedGenerateRequest.getExpiresIn()));
+		given(this.resolver.resolve(any())).willReturn(expectedGenerateRequest);
+		given(this.tokenService.generate(expectedGenerateRequest)).willReturn(ott);
+		this.mvc.perform(post("/ott/generate").param("username", "user").with(csrf()));
 
-		OneTimeToken token = getLastToken();
-
-		this.mvc.perform(post("/login/ott").param("token", token.getTokenValue()).with(csrf()))
-			.andExpectAll(status().isFound(), redirectedUrl("/"), authenticated());
-		assertThat(getCurrentMinutes(token.getExpiresAt())).isEqualTo(10);
-	}
-
-	private int getCurrentMinutes(Instant expiresAt) {
-		int expiresMinutes = expiresAt.atZone(ZoneOffset.UTC).getMinute();
-		int currentMinutes = Instant.now().atZone(ZoneOffset.UTC).getMinute();
-		return expiresMinutes - currentMinutes;
+		verify(this.resolver).resolve(any());
+		verify(this.tokenService).generate(expectedGenerateRequest);
+		verify(this.tokenGenerationSuccessHandler).handle(any(), any(), eq(ott));
 	}
 
 	private OneTimeToken getLastToken() {
@@ -228,17 +239,21 @@ public class OneTimeTokenLoginConfigurerTests {
 	@Configuration(proxyBeanMethods = false)
 	@EnableWebSecurity
 	@Import(UserDetailsServiceConfig.class)
-	static class OneTimeTokenConfigWithCustomTokenExpirationTime {
+	static class OneTimeTokenConfigWithCustomImpls {
 
 		@Bean
 		SecurityFilterChain securityFilterChain(HttpSecurity http,
+				GenerateOneTimeTokenRequestResolver ottRequestResolver, OneTimeTokenService ottTokenService,
 				OneTimeTokenGenerationSuccessHandler ottSuccessHandler) throws Exception {
+
 			// @formatter:off
-			http
+				http
 					.authorizeHttpRequests((authz) -> authz
 							.anyRequest().authenticated()
 					)
 					.oneTimeTokenLogin((ott) -> ott
+							.generateRequestResolver(ottRequestResolver)
+							.tokenService(ottTokenService)
 							.tokenGenerationSuccessHandler(ottSuccessHandler)
 					);
 			// @formatter:on
@@ -246,17 +261,18 @@ public class OneTimeTokenLoginConfigurerTests {
 		}
 
 		@Bean
-		TestOneTimeTokenGenerationSuccessHandler ottSuccessHandler() {
-			return new TestOneTimeTokenGenerationSuccessHandler();
+		GenerateOneTimeTokenRequestResolver generateOneTimeTokenRequestResolver() {
+			return mock(GenerateOneTimeTokenRequestResolver.class);
 		}
 
 		@Bean
-		GenerateOneTimeTokenRequestResolver generateOneTimeTokenRequestResolver() {
-			DefaultGenerateOneTimeTokenRequestResolver delegate = new DefaultGenerateOneTimeTokenRequestResolver();
-			return (request) -> {
-				GenerateOneTimeTokenRequest generate = delegate.resolve(request);
-				return new GenerateOneTimeTokenRequest(generate.getUsername(), Duration.ofSeconds(600));
-			};
+		OneTimeTokenService ottService() {
+			return mock(OneTimeTokenService.class);
+		}
+
+		@Bean
+		OneTimeTokenGenerationSuccessHandler ottSuccessHandler() {
+			return mock(OneTimeTokenGenerationSuccessHandler.class);
 		}
 
 	}
