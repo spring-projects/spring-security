@@ -178,8 +178,10 @@ import org.springframework.security.saml2.credentials.TestSaml2X509Credentials;
 import org.springframework.security.saml2.provider.service.authentication.DefaultSaml2AuthenticatedPrincipal;
 import org.springframework.security.saml2.provider.service.authentication.Saml2Authentication;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationException;
+import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationToken;
 import org.springframework.security.saml2.provider.service.authentication.Saml2PostAuthenticationRequest;
 import org.springframework.security.saml2.provider.service.authentication.Saml2RedirectAuthenticationRequest;
+import org.springframework.security.saml2.provider.service.authentication.TestSaml2AuthenticationTokens;
 import org.springframework.security.saml2.provider.service.authentication.TestSaml2Authentications;
 import org.springframework.security.saml2.provider.service.authentication.TestSaml2PostAuthenticationRequests;
 import org.springframework.security.saml2.provider.service.authentication.TestSaml2RedirectAuthenticationRequests;
@@ -500,6 +502,11 @@ class SpringSecurityCoreVersionSerializableTests {
 		generatorByClassName.put(AssertingPartyDetails.class,
 				(r) -> TestRelyingPartyRegistrations.full().build().getAssertingPartyMetadata());
 		generatorByClassName.put(RelyingPartyRegistration.class, (r) -> TestRelyingPartyRegistrations.full().build());
+		generatorByClassName.put(Saml2AuthenticationToken.class, (r) -> {
+			Saml2AuthenticationToken token = TestSaml2AuthenticationTokens.tokenRequested();
+			token.setDetails(details);
+			return token;
+		});
 
 		// web
 		generatorByClassName.put(AnonymousAuthenticationToken.class, (r) -> {
