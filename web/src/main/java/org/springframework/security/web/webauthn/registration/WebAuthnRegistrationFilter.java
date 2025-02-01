@@ -105,6 +105,24 @@ public class WebAuthnRegistrationFilter extends OncePerRequestFilter {
 		this.rpOptions = rpOptions;
 	}
 
+	/**
+	 * Sets the {@link RequestMatcher} used to trigger this filter.
+	 * @param registerCredentialMatcher the {@link RequestMatcher} to use
+	 */
+	public void setRegisterCredentialMatcher(RequestMatcher registerCredentialMatcher) {
+		Assert.notNull(registerCredentialMatcher, "registerCredentialMatcher cannot be null");
+		this.registerCredentialMatcher = registerCredentialMatcher;
+	}
+
+	/**
+	 * Sets the {@link RequestMatcher} used to trigger this filter.
+	 * @param removeCredentialMatcher the {@link RequestMatcher} to use
+	 */
+	public void setRemoveCredentialMatcher(RequestMatcher removeCredentialMatcher) {
+		Assert.notNull(removeCredentialMatcher, "removeCredentialMatcher cannot be null");
+		this.removeCredentialMatcher = removeCredentialMatcher;
+	}
+
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {

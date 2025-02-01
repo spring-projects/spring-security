@@ -84,12 +84,12 @@ public class PublicKeyCredentialCreationOptionsFilter extends OncePerRequestFilt
 	}
 
 	/**
-	 * Use the given {@link ServerWebExchangeMatcher} to match the request.
-	 * @param matcher {@link ServerWebExchangeMatcher}
+	 * Sets the {@link RequestMatcher} used to trigger this filter.
+	 * @param requestMatcher the {@link RequestMatcher} to use
 	 */
-	public void setRequestMatcher(ServerWebExchangeMatcher matcher) {
-		Assert.notNull(matcher, "matcher cannot be null");
-		this.matcher = matcher;
+	public void setRequestMatcher(RequestMatcher requestMatcher) {
+		Assert.notNull(requestMatcher, "requestMatcher cannot be null");
+		this.matcher = requestMatcher;
 	}
 
 	@Override
