@@ -30,6 +30,7 @@ import org.springframework.security.web.webauthn.api.AttestationConveyancePrefer
  * @author Rob Winch
  * @since 6.4
  */
+@SuppressWarnings("serial")
 class AttestationConveyancePreferenceSerializer extends StdSerializer<AttestationConveyancePreference> {
 
 	AttestationConveyancePreferenceSerializer() {

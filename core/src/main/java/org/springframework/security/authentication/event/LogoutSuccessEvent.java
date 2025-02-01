@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
 
 package org.springframework.security.authentication.event;
 
+import java.io.Serial;
+
 import org.springframework.security.core.Authentication;
 
 /**
@@ -25,6 +27,9 @@ import org.springframework.security.core.Authentication;
  * @since 5.2.0
  */
 public class LogoutSuccessEvent extends AbstractAuthenticationEvent {
+
+	@Serial
+	private static final long serialVersionUID = 5112491795571632311L;
 
 	public LogoutSuccessEvent(Authentication authentication) {
 		super(authentication);

@@ -16,6 +16,8 @@
 
 package org.springframework.security.oauth2.server.resource.introspection;
 
+import java.io.Serial;
+
 /**
  * Base exception for all OAuth 2.0 Introspection related errors
  *
@@ -23,6 +25,9 @@ package org.springframework.security.oauth2.server.resource.introspection;
  * @since 5.2
  */
 public class OAuth2IntrospectionException extends RuntimeException {
+
+	@Serial
+	private static final long serialVersionUID = -7327790383594166793L;
 
 	public OAuth2IntrospectionException(String message) {
 		super(message);

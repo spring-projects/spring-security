@@ -16,6 +16,8 @@
 
 package org.springframework.security.oauth2.server.resource.introspection;
 
+import java.io.Serial;
+
 /**
  * An exception similar to
  * {@link org.springframework.security.authentication.BadCredentialsException} that
@@ -25,6 +27,9 @@ package org.springframework.security.oauth2.server.resource.introspection;
  * @since 5.3
  */
 public class BadOpaqueTokenException extends OAuth2IntrospectionException {
+
+	@Serial
+	private static final long serialVersionUID = -6937847463454551076L;
 
 	public BadOpaqueTokenException(String message) {
 		super(message);

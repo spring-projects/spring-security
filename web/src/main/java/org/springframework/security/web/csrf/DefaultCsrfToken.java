@@ -16,6 +16,8 @@
 
 package org.springframework.security.web.csrf;
 
+import java.io.Serial;
+
 import org.springframework.util.Assert;
 
 /**
@@ -24,8 +26,10 @@ import org.springframework.util.Assert;
  * @author Rob Winch
  * @since 3.2
  */
-@SuppressWarnings("serial")
 public final class DefaultCsrfToken implements CsrfToken {
+
+	@Serial
+	private static final long serialVersionUID = 6552658053267913685L;
 
 	private final String token;
 

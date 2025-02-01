@@ -20,6 +20,7 @@ package org.springframework.security.oauth2.client.web;
  * @author Steve Riesenberg
  * @since 5.8
  */
+@SuppressWarnings("serial")
 class InvalidClientRegistrationIdException extends IllegalArgumentException {
 
 	/**

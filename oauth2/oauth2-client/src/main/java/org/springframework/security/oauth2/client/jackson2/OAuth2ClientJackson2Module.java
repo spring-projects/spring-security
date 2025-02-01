@@ -86,6 +86,7 @@ import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
  * @see OAuth2AuthenticationExceptionMixin
  * @see OAuth2ErrorMixin
  */
+@SuppressWarnings("serial")
 public class OAuth2ClientJackson2Module extends SimpleModule {
 
 	public OAuth2ClientJackson2Module() {

@@ -29,6 +29,7 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
  * @author Rob Winch
  * @since 6.4
  */
+@SuppressWarnings("serial")
 class DurationSerializer extends StdSerializer<Duration> {
 
 	/**

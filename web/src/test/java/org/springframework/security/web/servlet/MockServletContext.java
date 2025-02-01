@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.config;
+package org.springframework.security.web.servlet;
 
 import java.util.Arrays;
 import java.util.Collection;

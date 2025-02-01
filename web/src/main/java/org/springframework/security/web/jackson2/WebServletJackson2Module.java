@@ -44,6 +44,7 @@ import org.springframework.security.web.savedrequest.SavedCookie;
  * @since 5.1
  * @see SecurityJackson2Modules
  */
+@SuppressWarnings("serial")
 public class WebServletJackson2Module extends SimpleModule {
 
 	public WebServletJackson2Module() {

@@ -18,7 +18,7 @@ def get_fixed_issues()
   message = `git log -1 --pretty=%B #{rev}`
   message.each_line do |line|
     $log.debug "Checking #{line} for message"
-    fixed << line.strip if /^(?:Fixes|Closes) gh-(\d+)/.match(line)
+    fixed << line.strip if /^(?:Fixes|Closes) gh-(\d+)/i.match(line)
   end
   $log.debug "Found fixed issues #{fixed}"
   return fixed;

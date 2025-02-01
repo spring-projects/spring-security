@@ -85,7 +85,13 @@ describe("webauthn-core", () => {
       challenge: "nRbOrtNKTfJ1JaxfUDKs8j3B-JFqyGQw8DO4u6eV3JA",
       timeout: 300000,
       rpId: "localhost",
-      allowCredentials: [],
+      allowCredentials: [
+        {
+          id: "nOsjw8eaaqSwVdTBBYE1FqfGdHs",
+          type: "public-key",
+          transports: [],
+        },
+      ],
       userVerification: "preferred",
       extensions: {},
     };
@@ -172,7 +178,13 @@ describe("webauthn-core", () => {
           challenge: base64url.decode("nRbOrtNKTfJ1JaxfUDKs8j3B-JFqyGQw8DO4u6eV3JA"),
           timeout: 300000,
           rpId: "localhost",
-          allowCredentials: [],
+          allowCredentials: [
+            {
+              id: base64url.decode("nOsjw8eaaqSwVdTBBYE1FqfGdHs"),
+              type: "public-key",
+              transports: [],
+            },
+          ],
           userVerification: "preferred",
           extensions: {},
         },

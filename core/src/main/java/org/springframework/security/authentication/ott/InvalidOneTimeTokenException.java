@@ -16,6 +16,8 @@
 
 package org.springframework.security.authentication.ott;
 
+import java.io.Serial;
+
 import org.springframework.security.core.AuthenticationException;
 
 /**
@@ -25,6 +27,9 @@ import org.springframework.security.core.AuthenticationException;
  * @since 6.4
  */
 public class InvalidOneTimeTokenException extends AuthenticationException {
+
+	@Serial
+	private static final long serialVersionUID = -3651018515682919943L;
 
 	public InvalidOneTimeTokenException(String msg) {
 		super(msg);

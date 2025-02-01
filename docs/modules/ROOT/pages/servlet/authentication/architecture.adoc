@@ -2,7 +2,7 @@
 = Servlet Authentication Architecture
 :figures: servlet/authentication/architecture
 
-This discussion expands on xref:servlet/architecture.adoc#servlet-architecture[Servlet Security: The Big Picture] to describe the main architectural components of Spring Security's used in Servlet authentication.
+This discussion expands on xref:servlet/architecture.adoc#servlet-architecture[Servlet Security: The Big Picture] to describe the main architectural components that Spring Security uses in Servlet authentication.
 If you need concrete flows that explain how these pieces fit together, look at the xref:servlet/authentication/index.adoc#servlet-authentication-mechanisms[Authentication Mechanism] specific sections.
 
 * <<servlet-authentication-securitycontextholder>> - The `SecurityContextHolder` is where Spring Security stores the details of who is xref:features/authentication/index.adoc#authentication[authenticated].

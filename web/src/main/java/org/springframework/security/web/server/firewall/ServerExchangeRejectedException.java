@@ -16,6 +16,8 @@
 
 package org.springframework.security.web.server.firewall;
 
+import java.io.Serial;
+
 /**
  * Thrown when a {@link org.springframework.web.server.ServerWebExchange} is rejected.
  *
@@ -23,6 +25,9 @@ package org.springframework.security.web.server.firewall;
  * @since 6.4
  */
 public class ServerExchangeRejectedException extends RuntimeException {
+
+	@Serial
+	private static final long serialVersionUID = 904984955691607748L;
 
 	public ServerExchangeRejectedException(String message) {
 		super(message);

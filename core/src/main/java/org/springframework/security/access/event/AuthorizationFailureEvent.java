@@ -39,6 +39,7 @@ import org.springframework.util.Assert;
  * instead
  */
 @Deprecated
+@SuppressWarnings("serial")
 public class AuthorizationFailureEvent extends AbstractAuthorizationEvent {
 
 	private final AccessDeniedException accessDeniedException;
