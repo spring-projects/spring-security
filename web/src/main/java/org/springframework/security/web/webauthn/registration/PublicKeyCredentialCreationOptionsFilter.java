@@ -38,6 +38,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
+import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialCreationOptions;
 import org.springframework.security.web.webauthn.jackson.WebauthnJackson2Module;
@@ -80,6 +81,15 @@ public class PublicKeyCredentialCreationOptionsFilter extends OncePerRequestFilt
 	public PublicKeyCredentialCreationOptionsFilter(WebAuthnRelyingPartyOperations rpOperations) {
 		Assert.notNull(rpOperations, "rpOperations cannot be null");
 		this.rpOperations = rpOperations;
+	}
+
+	/**
+	 * Use the given {@link ServerWebExchangeMatcher} to match the request.
+	 * @param matcher {@link ServerWebExchangeMatcher}
+	 */
+	public void setRequestMatcher(ServerWebExchangeMatcher matcher) {
+		Assert.notNull(matcher, "matcher cannot be null");
+		this.matcher = matcher;
 	}
 
 	@Override
