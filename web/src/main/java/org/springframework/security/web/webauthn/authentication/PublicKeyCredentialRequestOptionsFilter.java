@@ -75,6 +75,15 @@ public class PublicKeyCredentialRequestOptionsFilter extends OncePerRequestFilte
 		this.rpOptions = rpOptions;
 	}
 
+	/**
+	 * Sets the {@link RequestMatcher} used to trigger this filter.
+	 * @param requestMatcher the {@link RequestMatcher} to use
+	 */
+	public void setRequestMatcher(RequestMatcher requestMatcher) {
+		Assert.notNull(requestMatcher, "requestMatcher cannot be null");
+		this.matcher = requestMatcher;
+	}
+
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
