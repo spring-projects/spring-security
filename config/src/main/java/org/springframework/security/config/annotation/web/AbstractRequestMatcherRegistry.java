@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -264,11 +264,14 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 	}
 
 	private static String computeErrorMessage(Collection<? extends ServletRegistration> registrations) {
-		String template = "This method cannot decide whether these patterns are Spring MVC patterns or not. "
-				+ "If this endpoint is a Spring MVC endpoint, please use requestMatchers(MvcRequestMatcher); "
-				+ "otherwise, please use requestMatchers(AntPathRequestMatcher).\n\n"
-				+ "This is because there is more than one mappable servlet in your servlet context: %s.\n\n"
-				+ "For each MvcRequestMatcher, call MvcRequestMatcher#setServletPath to indicate the servlet path.";
+		String template = """
+				This method cannot decide whether these patterns are Spring MVC patterns or not. \
+				This is because there is more than one mappable servlet in your servlet context: %s.
+
+				To address this, please create one ServletRequestMatcherBuilder#servletPath for each servlet that has \
+				authorized endpoints and use them to construct request matchers manually. \
+				If all your URIs are absolute, then you can simply use ServletRequestMatcherBuilders#requestPath \
+				for all URIs""";
 		Map<String, Collection<String>> mappings = new LinkedHashMap<>();
 		for (ServletRegistration registration : registrations) {
 			mappings.put(registration.getClassName(), registration.getMappings());

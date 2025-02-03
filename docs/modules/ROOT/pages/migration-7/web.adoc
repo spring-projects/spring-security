@@ -102,3 +102,12 @@ Xml::
 </b:bean>
 ----
 ======
+
+== Use Absolute Authorization URIs
+
+The Java DSL now requires that all URIs be absolute (less any context root).
+
+This means any endpoints that are not part of the default servlet, xref:servlet/authorization/authorize-http-requests.adoc#match-by-mvc[the servlet path needs to be specified].
+For URIs that match an extension, like `.jsp`, use `regexMatcher("\\.jsp$")`.
+
+Alternatively, you can change each of your `String` URI authorization rules to xref:servlet/authorization/authorize-http-requests.adoc#security-matchers[use a `RequestMatcher`].
