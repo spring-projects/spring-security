@@ -22,6 +22,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import reactor.core.publisher.Mono;
@@ -92,7 +93,8 @@ public class DefaultServerOAuth2AuthorizationRequestResolver implements ServerOA
 
 	private final ReactiveClientRegistrationRepository clientRegistrationRepository;
 
-	private Consumer<OAuth2AuthorizationRequest.Builder> authorizationRequestCustomizer = (customizer) -> {
+	private BiConsumer<OAuth2AuthorizationRequest.Builder, ServerWebExchange> authorizationRequestCustomizer = (
+			customizer, exchange) -> {
 	};
 
 	/**
@@ -148,10 +150,28 @@ public class DefaultServerOAuth2AuthorizationRequestResolver implements ServerOA
 	 * @param authorizationRequestCustomizer the {@code Consumer} to be provided the
 	 * {@link OAuth2AuthorizationRequest.Builder}
 	 * @since 5.3
+	 * @deprecated Use {@link #setAuthorizationRequestCustomizer(BiConsumer) } instead
+	 * @see OAuth2AuthorizationRequestCustomizers
+	 */
+	@Deprecated
+	public final void setAuthorizationRequestCustomizer(
+			Consumer<OAuth2AuthorizationRequest.Builder> authorizationRequestCustomizer) {
+		Assert.notNull(authorizationRequestCustomizer, "authorizationRequestCustomizer cannot be null");
+		this.authorizationRequestCustomizer = (customizer, exchange) -> authorizationRequestCustomizer
+			.accept(customizer);
+	}
+
+	/**
+	 * Sets the {@code BiConsumer} to be provided the
+	 * {@link OAuth2AuthorizationRequest.Builder} and {@link ServerWebExchange} allowing
+	 * for further customizations.
+	 * @param authorizationRequestCustomizer the {@code BiConsumer} to be provided the
+	 * {@link OAuth2AuthorizationRequest.Builder} and {@link ServerWebExchange}
+	 * @since 6.5
 	 * @see OAuth2AuthorizationRequestCustomizers
 	 */
 	public final void setAuthorizationRequestCustomizer(
-			Consumer<OAuth2AuthorizationRequest.Builder> authorizationRequestCustomizer) {
+			BiConsumer<OAuth2AuthorizationRequest.Builder, ServerWebExchange> authorizationRequestCustomizer) {
 		Assert.notNull(authorizationRequestCustomizer, "authorizationRequestCustomizer cannot be null");
 		this.authorizationRequestCustomizer = authorizationRequestCustomizer;
 	}
@@ -175,7 +195,7 @@ public class DefaultServerOAuth2AuthorizationRequestResolver implements ServerOA
 				.state(DEFAULT_STATE_GENERATOR.generateKey());
 		// @formatter:on
 
-		this.authorizationRequestCustomizer.accept(builder);
+		this.authorizationRequestCustomizer.accept(builder, exchange);
 
 		return builder.build();
 	}
