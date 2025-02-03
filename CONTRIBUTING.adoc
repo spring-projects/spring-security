@@ -112,7 +112,7 @@ See https://git-scm.com/book/en/Git-Tools-Rewriting-History[Rewriting History se
 11. [[format-commit-messages]] Format commit messages using 55 characters for the subject line, 72 characters per line
 for the description, followed by the issue fixed, for example, `Closes gh-22276`.
 See the https://git-scm.com/book/en/Distributed-Git-Contributing-to-a-Project#Commit-Guidelines[Commit Guidelines section of Pro Git] for best practices around commit messages, and use `git log` to see some examples.
-Present tense is preferred.
+Favor imperative tense over present tense (use "Fix" instead of "Fixes"); avoid past tense (use "Fix" instead of "Fixed").
 +
 [indent=0]
 ----
