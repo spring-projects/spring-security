@@ -286,7 +286,7 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 			.withValue("passwordParameter", this.passwordParameter)
 			.withRawHtml("rememberMeInput", renderRememberMe(this.rememberMeParameter))
 			.withRawHtml("hiddenInputs", hiddenInputs)
-			.withValue("autocomplete", this.passkeysEnabled ? "autocomplete=\"password webauthn\"" : "")
+			.withRawHtml("autocomplete", this.passkeysEnabled ? "autocomplete=\"password webauthn\" " : "")
 			.render();
 	}
 
