@@ -107,7 +107,7 @@ org-jfrog-buildinfo-build-info-extractor-gradle = "org.jfrog.buildinfo:build-inf
 org-sonarsource-scanner-gradle-sonarqube-gradle-plugin = "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.8.0.1969"
 org-instancio-instancio-junit = "org.instancio:instancio-junit:3.7.1"
 
-webauthn4j-core = 'com.webauthn4j:webauthn4j-core:0.28.4.RELEASE'
+webauthn4j-core = 'com.webauthn4j:webauthn4j-core:0.28.5.RELEASE'
 
 [plugins]
 
