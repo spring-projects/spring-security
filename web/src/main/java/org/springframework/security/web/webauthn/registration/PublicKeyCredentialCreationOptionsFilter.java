@@ -84,7 +84,10 @@ public class PublicKeyCredentialCreationOptionsFilter extends OncePerRequestFilt
 
 	/**
 	 * Sets the {@link RequestMatcher} used to trigger this filter.
+	 * <p>
+	 * By default, the {@link RequestMatcher} is {@code POST /webauthn/register/options}.
 	 * @param requestMatcher the {@link RequestMatcher} to use
+	 * @since 6.5
 	 */
 	public void setRequestMatcher(RequestMatcher requestMatcher) {
 		Assert.notNull(requestMatcher, "requestMatcher cannot be null");
