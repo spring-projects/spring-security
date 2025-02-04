@@ -1,6 +1,6 @@
 [versions]
 com-squareup-okhttp3 = "3.14.9"
-io-rsocket = "1.1.4"
+io-rsocket = "1.1.5"
 io-spring-javaformat = "0.0.43"
 io-spring-nohttp = "0.0.11"
 jakarta-websocket = "2.1.1"
