@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,8 @@ import com.nimbusds.jose.KeySourceException;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKMatcher;
 import com.nimbusds.jose.jwk.JWKSelector;
-import com.nimbusds.jose.jwk.source.JWKSetCacheRefreshEvaluator;
-import com.nimbusds.jose.jwk.source.URLBasedJWKSetSource;
+import com.nimbusds.jose.jwk.source.JWKSetParseException;
+import com.nimbusds.jose.jwk.source.JWKSetRetrievalException;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -35,6 +35,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -48,8 +49,6 @@ import com.nimbusds.jose.proc.JWSKeySelector;
 import com.nimbusds.jose.proc.JWSVerificationKeySelector;
 import com.nimbusds.jose.proc.SecurityContext;
 import com.nimbusds.jose.proc.SingleKeyJWSKeySelector;
-import com.nimbusds.jose.util.Resource;
-import com.nimbusds.jose.util.ResourceRetriever;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.JWTParser;
@@ -61,6 +60,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.cache.Cache;
+import org.springframework.cache.support.NoOpCache;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -278,7 +278,7 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 
 		private RestOperations restOperations = new RestTemplate();
 
-		private Cache cache;
+		private Cache cache = new NoOpCache("default");
 
 		private Consumer<ConfigurableJWTProcessor<SecurityContext>> jwtProcessorCustomizer;
 
@@ -381,19 +381,13 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 			return new JWSVerificationKeySelector<>(jwsAlgorithms, jwkSource);
 		}
 
-		JWKSource<SecurityContext> jwkSource(ResourceRetriever jwkSetRetriever, String jwkSetUri) {
-			URLBasedJWKSetSource urlBasedJWKSetSource = new URLBasedJWKSetSource(toURL(jwkSetUri), jwkSetRetriever);
-			if(this.cache == null) {
-				return new SpringURLBasedJWKSource(urlBasedJWKSetSource);
-			}
-			SpringJWKSetCache jwkSetCache = new SpringJWKSetCache(jwkSetUri, this.cache);
-			return new SpringURLBasedJWKSource<>(urlBasedJWKSetSource, jwkSetCache);
+		JWKSource<SecurityContext> jwkSource() {
+			String jwkSetUri = this.jwkSetUri.apply(this.restOperations);
+			return new SpringJWKSource<>(this.restOperations, this.cache, toURL(jwkSetUri), jwkSetUri);
 		}
 
 		JWTProcessor<SecurityContext> processor() {
-			ResourceRetriever jwkSetRetriever = new RestOperationsResourceRetriever(this.restOperations);
-			String jwkSetUri = this.jwkSetUri.apply(this.restOperations);
-			JWKSource<SecurityContext> jwkSource = jwkSource(jwkSetRetriever, jwkSetUri);
+			JWKSource<SecurityContext> jwkSource = jwkSource();
 			ConfigurableJWTProcessor<SecurityContext> jwtProcessor = new DefaultJWTProcessor<>();
 			jwtProcessor.setJWSKeySelector(jwsKeySelector(jwkSource));
 			// Spring Security validates the claim set independent from Nimbus
@@ -420,153 +414,130 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 			}
 		}
 
-		private static final class SpringURLBasedJWKSource<C extends SecurityContext> implements JWKSource<C> {
-
-			private final URLBasedJWKSetSource urlBasedJWKSetSource;
-
-			private final SpringJWKSetCache jwkSetCache;
-
-			private SpringURLBasedJWKSource(URLBasedJWKSetSource urlBasedJWKSetSource) {
-				this(urlBasedJWKSetSource, null);
-			}
-
-			private SpringURLBasedJWKSource(URLBasedJWKSetSource urlBasedJWKSetSource, SpringJWKSetCache jwkSetCache) {
-				this.urlBasedJWKSetSource = urlBasedJWKSetSource;
-				this.jwkSetCache = jwkSetCache;
-			}
-
-			@Override
-			public List<JWK> get(JWKSelector jwkSelector, SecurityContext context) throws KeySourceException {
-				if (this.jwkSetCache != null) {
-					JWKSet jwkSet = this.jwkSetCache.get();
-					if (this.jwkSetCache.requiresRefresh() || jwkSet == null) {
-						synchronized (this) {
-							jwkSet = fetchJWKSet();
-							this.jwkSetCache.put(jwkSet);
-						}
-					}
-					List<JWK> matches = jwkSelector.select(jwkSet);
-					if(!matches.isEmpty()) {
-						return matches;
-					}
-					String soughtKeyID = getFirstSpecifiedKeyID(jwkSelector.getMatcher());
-					if (soughtKeyID == null) {
-						return Collections.emptyList();
-					}
-					if (jwkSet.getKeyByKeyId(soughtKeyID) != null) {
-						return Collections.emptyList();
-					}
-					synchronized (this) {
-						if(jwkSet == this.jwkSetCache.get()) {
-							jwkSet = fetchJWKSet();
-							this.jwkSetCache.put(jwkSet);
-						} else {
-							jwkSet = this.jwkSetCache.get();
-						}
-					}
-					if(jwkSet == null) {
-						return Collections.emptyList();
-					}
-					return jwkSelector.select(jwkSet);
-				}
-				return jwkSelector.select(fetchJWKSet());
-			}
-
-			private JWKSet fetchJWKSet() throws KeySourceException {
-				return this.urlBasedJWKSetSource.getJWKSet(JWKSetCacheRefreshEvaluator.noRefresh(),
-						System.currentTimeMillis(), null);
-			}
-
-			private String getFirstSpecifiedKeyID(JWKMatcher jwkMatcher) {
-				Set<String> keyIDs = jwkMatcher.getKeyIDs();
-
-				if (keyIDs == null || keyIDs.isEmpty()) {
-					return null;
-				}
-
-				for (String id: keyIDs) {
-					if (id != null) {
-						return id;
-					}
-				}
-				return null;
-			}
-		}
-
-		private static final class SpringJWKSetCache {
-
-			private final String jwkSetUri;
-
-			private final Cache cache;
-
-			private JWKSet jwkSet;
-
-			SpringJWKSetCache(String jwkSetUri, Cache cache) {
-				this.jwkSetUri = jwkSetUri;
-				this.cache = cache;
-				this.updateJwkSetFromCache();
-			}
-
-			private void updateJwkSetFromCache() {
-				String cachedJwkSet = this.cache.get(this.jwkSetUri, String.class);
-				if (cachedJwkSet != null) {
-					try {
-						this.jwkSet = JWKSet.parse(cachedJwkSet);
-					}
-					catch (ParseException ignored) {
-						// Ignore invalid cache value
-					}
-				}
-			}
-
-			// Note: Only called from inside a synchronized block in SpringURLBasedJWKSource.
-			public void put(JWKSet jwkSet) {
-				this.jwkSet = jwkSet;
-				this.cache.put(this.jwkSetUri, jwkSet.toString(false));
-			}
-
-			public JWKSet get() {
-				return (!requiresRefresh()) ? this.jwkSet : null;
-			}
-
-			public boolean requiresRefresh() {
-				return this.cache.get(this.jwkSetUri) == null;
-			}
-
-		}
-
-		private static class RestOperationsResourceRetriever implements ResourceRetriever {
+		private static final class SpringJWKSource<C extends SecurityContext> implements JWKSource<C> {
 
 			private static final MediaType APPLICATION_JWK_SET_JSON = new MediaType("application", "jwk-set+json");
 
+			private final ReentrantLock reentrantLock = new ReentrantLock();
+
 			private final RestOperations restOperations;
 
-			RestOperationsResourceRetriever(RestOperations restOperations) {
+			private final Cache cache;
+
+			private final URL url;
+
+			private final String jwkSetUri;
+
+			private SpringJWKSource(RestOperations restOperations, Cache cache, URL url, String jwkSetUri) {
 				Assert.notNull(restOperations, "restOperations cannot be null");
 				this.restOperations = restOperations;
+				this.cache = cache;
+				this.url = url;
+				this.jwkSetUri = jwkSetUri;
 			}
 
+
 			@Override
-			public Resource retrieveResource(URL url) throws IOException {
+			public List<JWK> get(JWKSelector jwkSelector, SecurityContext context) throws KeySourceException {
+				String cachedJwkSet = this.cache.get(this.jwkSetUri, String.class);
+				JWKSet jwkSet = null;
+				if (cachedJwkSet != null) {
+					jwkSet = parse(cachedJwkSet);
+				}
+				if (jwkSet == null) {
+					if(reentrantLock.tryLock()) {
+						try {
+							String cachedJwkSetAfterLock = this.cache.get(this.jwkSetUri, String.class);
+							if (cachedJwkSetAfterLock != null) {
+								jwkSet = parse(cachedJwkSetAfterLock);
+							}
+							if(jwkSet == null) {
+								try {
+									jwkSet = fetchJWKSet();
+								} catch (IOException e) {
+									throw new JWKSetRetrievalException("Couldn't retrieve JWK set from URL: " + e.getMessage(), e);
+								}
+							}
+						} finally {
+							reentrantLock.unlock();
+						}
+					}
+				}
+				List<JWK> matches = jwkSelector.select(jwkSet);
+				if(!matches.isEmpty()) {
+					return matches;
+				}
+				String soughtKeyID = getFirstSpecifiedKeyID(jwkSelector.getMatcher());
+				if (soughtKeyID == null) {
+					return Collections.emptyList();
+				}
+				if (jwkSet.getKeyByKeyId(soughtKeyID) != null) {
+					return Collections.emptyList();
+				}
+
+				if(reentrantLock.tryLock()) {
+					try {
+						String jwkSetUri = this.cache.get(this.jwkSetUri, String.class);
+						JWKSet cacheJwkSet = parse(jwkSetUri);
+						if(jwkSetUri != null && cacheJwkSet.toString().equals(jwkSet.toString())) {
+							try {
+								jwkSet = fetchJWKSet();
+							} catch (IOException e) {
+								throw new JWKSetRetrievalException("Couldn't retrieve JWK set from URL: " + e.getMessage(), e);
+							}
+						} else if (jwkSetUri != null) {
+							jwkSet = parse(jwkSetUri);
+						}
+					} finally {
+						reentrantLock.unlock();
+					}
+				}
+				if(jwkSet == null) {
+					return Collections.emptyList();
+				}
+				return jwkSelector.select(jwkSet);
+			}
+
+			private JWKSet fetchJWKSet() throws IOException, KeySourceException {
 				HttpHeaders headers = new HttpHeaders();
 				headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON, APPLICATION_JWK_SET_JSON));
-				ResponseEntity<String> response = getResponse(url, headers);
+				ResponseEntity<String> response = getResponse(headers);
 				if (response.getStatusCode().value() != 200) {
 					throw new IOException(response.toString());
 				}
-				return new Resource(response.getBody(), "UTF-8");
+				try {
+					String jwkSet = response.getBody();
+					this.cache.put(this.jwkSetUri, jwkSet);
+					return JWKSet.parse(jwkSet);
+				} catch (ParseException e) {
+					throw new JWKSetParseException("Unable to parse JWK set", e);
+				}
 			}
 
-			private ResponseEntity<String> getResponse(URL url, HttpHeaders headers) throws IOException {
+			private ResponseEntity<String> getResponse(HttpHeaders headers) throws IOException {
 				try {
-					RequestEntity<Void> request = new RequestEntity<>(headers, HttpMethod.GET, url.toURI());
+					RequestEntity<Void> request = new RequestEntity<>(headers, HttpMethod.GET, this.url.toURI());
 					return this.restOperations.exchange(request, String.class);
-				}
-				catch (Exception ex) {
+				} catch (Exception ex) {
 					throw new IOException(ex);
 				}
 			}
 
+			private JWKSet parse(String cachedJwkSet) {
+				JWKSet jwkSet = null;
+				try {
+					jwkSet = JWKSet.parse(cachedJwkSet);
+				} catch (ParseException ignored) {
+					// Ignore invalid cache value
+				}
+				return jwkSet;
+			}
+
+			private String getFirstSpecifiedKeyID(JWKMatcher jwkMatcher) {
+				Set<String> keyIDs = jwkMatcher.getKeyIDs();
+				return (keyIDs == null || keyIDs.isEmpty()) ?
+						null : keyIDs.stream().filter(id -> id != null).findFirst().orElse(null);
+			}
 		}
 
 	}
