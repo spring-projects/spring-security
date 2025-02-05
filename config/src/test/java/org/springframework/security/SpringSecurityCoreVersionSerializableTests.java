@@ -95,6 +95,9 @@ import org.springframework.security.authentication.jaas.event.JaasAuthentication
 import org.springframework.security.authentication.ott.InvalidOneTimeTokenException;
 import org.springframework.security.authentication.ott.OneTimeTokenAuthenticationToken;
 import org.springframework.security.authentication.password.CompromisedPasswordException;
+import org.springframework.security.authorization.AuthorityAuthorizationDecision;
+import org.springframework.security.authorization.AuthorizationDecision;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.cas.authentication.CasAssertionAuthenticationToken;
 import org.springframework.security.cas.authentication.CasAuthenticationToken;
 import org.springframework.security.cas.authentication.CasServiceTicketAuthenticationToken;
@@ -454,6 +457,11 @@ class SpringSecurityCoreVersionSerializableTests {
 		generatorByClassName.put(AbstractSessionEvent.class, (r) -> new AbstractSessionEvent(securityContext));
 		generatorByClassName.put(SecurityConfig.class, (r) -> new SecurityConfig("value"));
 		generatorByClassName.put(TransientSecurityContext.class, (r) -> new TransientSecurityContext(authentication));
+		generatorByClassName.put(AuthorizationDeniedException.class,
+				(r) -> new AuthorizationDeniedException("message", new AuthorizationDecision(false)));
+		generatorByClassName.put(AuthorizationDecision.class, (r) -> new AuthorizationDecision(true));
+		generatorByClassName.put(AuthorityAuthorizationDecision.class,
+				(r) -> new AuthorityAuthorizationDecision(true, AuthorityUtils.createAuthorityList("ROLE_USER")));
 
 		// cas
 		generatorByClassName.put(CasServiceTicketAuthenticationToken.class, (r) -> {
