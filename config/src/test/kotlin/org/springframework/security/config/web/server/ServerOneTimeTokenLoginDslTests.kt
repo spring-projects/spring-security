@@ -16,18 +16,17 @@
 
 package org.springframework.security.config.web.server
 
-import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import reactor.core.publisher.Mono
-
+import org.mockito.ArgumentMatchers
+import org.mockito.Mockito
+import org.mockito.Mockito.verify
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
-import org.springframework.context.ApplicationContext
 import org.springframework.http.MediaType
-import org.springframework.security.authentication.ott.GenerateOneTimeTokenRequest
 import org.springframework.security.authentication.ott.OneTimeToken
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
 import org.springframework.security.config.test.SpringTestContext
@@ -36,10 +35,10 @@ import org.springframework.security.core.userdetails.MapReactiveUserDetailsServi
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService
 import org.springframework.security.core.userdetails.User
 import org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers
-import org.springframework.security.web.server.authentication.ott.DefaultServerGenerateOneTimeTokenRequestResolver
-import org.springframework.security.web.server.authentication.ott.ServerGenerateOneTimeTokenRequestResolver
 import org.springframework.security.web.server.SecurityWebFilterChain
 import org.springframework.security.web.server.authentication.RedirectServerAuthenticationSuccessHandler
+import org.springframework.security.web.server.authentication.ott.DefaultServerGenerateOneTimeTokenRequestResolver
+import org.springframework.security.web.server.authentication.ott.ServerGenerateOneTimeTokenRequestResolver
 import org.springframework.security.web.server.authentication.ott.ServerOneTimeTokenGenerationSuccessHandler
 import org.springframework.security.web.server.authentication.ott.ServerRedirectOneTimeTokenGenerationSuccessHandler
 import org.springframework.test.web.reactive.server.WebTestClient
@@ -47,9 +46,7 @@ import org.springframework.web.reactive.config.EnableWebFlux
 import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.server.ServerWebExchange
 import org.springframework.web.util.UriBuilder
-import java.time.Duration
-import java.time.Instant
-import java.time.ZoneOffset
+import reactor.core.publisher.Mono
 
 /**
  * Tests for [ServerOneTimeTokenLoginDsl]
@@ -102,7 +99,7 @@ class ServerOneTimeTokenLoginDslTests {
             .is3xxRedirection()
             .expectHeader().valueEquals("Location", "/login/ott")
 
-        val token = TestServerOneTimeTokenGenerationSuccessHandler.lastToken?.tokenValue
+        val token = lastToken()!!.tokenValue
 
         client.mutateWith(SecurityMockServerConfigurers.csrf())
             .post()
@@ -136,7 +133,7 @@ class ServerOneTimeTokenLoginDslTests {
             .is3xxRedirection()
             .expectHeader().valueEquals("Location", "/redirected")
 
-        val token = TestServerOneTimeTokenGenerationSuccessHandler.lastToken?.tokenValue
+        val token = lastToken()!!.tokenValue
 
         client.mutateWith(SecurityMockServerConfigurers.csrf())
             .post()
@@ -154,8 +151,8 @@ class ServerOneTimeTokenLoginDslTests {
     }
 
     @Test
-    fun `oneTimeToken when custom token expiration time set then authenticate`() {
-        spring.register(OneTimeTokenConfigWithCustomTokenExpirationTime::class.java).autowire()
+    fun `oneTimeToken when custom request resolver set then custom resolver use`() {
+        spring.register(OneTimeTokenConfigWithCustomRequestResolver::class.java).autowire()
 
         // @formatter:off
         client.mutateWith(SecurityMockServerConfigurers.csrf())
@@ -171,29 +168,18 @@ class ServerOneTimeTokenLoginDslTests {
                 .is3xxRedirection()
                 .expectHeader().valueEquals("Location", "/login/ott")
 
-        client.mutateWith(SecurityMockServerConfigurers.csrf())
-                .post()
-                .uri{ uriBuilder:UriBuilder -> uriBuilder
-                        .path("/ott/generate")
-                        .build()
-                }
-                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .body(BodyInserters.fromFormData("username", "user"))
-                .exchange()
-                .expectStatus()
-                .is3xxRedirection()
-                .expectHeader().valueEquals("Location", "/login/ott")
+        val resolver = spring.context
+                .getBean(ServerGenerateOneTimeTokenRequestResolver::class.java)
 
-        val token = TestServerOneTimeTokenGenerationSuccessHandler.lastToken
-
-        Assertions.assertThat(getCurrentMinutes(token!!.expiresAt)).isEqualTo(10)
+        verify(resolver, Mockito.times(1))
+                .resolve(ArgumentMatchers.any(ServerWebExchange::class.java))
+        // @formatter:on
     }
 
-    private fun getCurrentMinutes(expiresAt:Instant): Int {
-        val expiresMinutes = expiresAt.atZone(ZoneOffset.UTC).minute
-        val currentMinutes = Instant.now().atZone(ZoneOffset.UTC).minute
-        return expiresMinutes - currentMinutes
-    }
+    private fun lastToken():OneTimeToken? =
+        spring.context.getBean(TestServerOneTimeTokenGenerationSuccessHandler::class.java)
+                .lastToken
+
 
     @Configuration
     @EnableWebFlux
@@ -202,18 +188,23 @@ class ServerOneTimeTokenLoginDslTests {
     open class OneTimeTokenConfig {
 
         @Bean
-        open fun springWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
+        open fun springWebFilterChain(http: ServerHttpSecurity,
+                                      ottSuccessHandler: ServerOneTimeTokenGenerationSuccessHandler): SecurityWebFilterChain {
             // @formatter:off
             return http {
                 authorizeExchange {
                     authorize(anyExchange, authenticated)
                 }
                 oneTimeTokenLogin {
-                    tokenGenerationSuccessHandler = TestServerOneTimeTokenGenerationSuccessHandler()
+                    tokenGenerationSuccessHandler = ottSuccessHandler
                 }
             }
             // @formatter:on
         }
+
+        @Bean
+        open fun ottSuccessHandler(): ServerOneTimeTokenGenerationSuccessHandler =
+                TestServerOneTimeTokenGenerationSuccessHandler()
     }
 
     @Configuration
@@ -223,7 +214,8 @@ class ServerOneTimeTokenLoginDslTests {
     open class OneTimeTokenDifferentUrlsConfig {
 
         @Bean
-        open fun springWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
+        open fun springWebFilterChain(http: ServerHttpSecurity,
+                                      ottSuccessHandler: ServerOneTimeTokenGenerationSuccessHandler): SecurityWebFilterChain {
             // @formatter:off
             return http {
                 authorizeExchange {
@@ -231,13 +223,17 @@ class ServerOneTimeTokenLoginDslTests {
                 }
                 oneTimeTokenLogin {
                     tokenGeneratingUrl = "/generateurl"
-                    tokenGenerationSuccessHandler = TestServerOneTimeTokenGenerationSuccessHandler("/redirected")
+                    tokenGenerationSuccessHandler = ottSuccessHandler
                     loginProcessingUrl = "/loginprocessingurl"
                     authenticationSuccessHandler = RedirectServerAuthenticationSuccessHandler("/authenticated")
                 }
             }
             // @formatter:on
         }
+
+        @Bean
+        open fun ottSuccessHandler(): ServerOneTimeTokenGenerationSuccessHandler =
+                TestServerOneTimeTokenGenerationSuccessHandler("/redirected")
     }
 
     @Configuration(proxyBeanMethods = false)
@@ -252,36 +248,33 @@ class ServerOneTimeTokenLoginDslTests {
     @EnableWebFlux
     @EnableWebFluxSecurity
     @Import(OneTimeTokenLoginSpecTests.UserDetailsServiceConfig::class)
-    open class OneTimeTokenConfigWithCustomTokenExpirationTime {
+    open class OneTimeTokenConfigWithCustomRequestResolver {
         @Bean
-        open fun securityWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
+        open fun securityWebFilterChain(http: ServerHttpSecurity,
+                                        ottSuccessHandler: ServerOneTimeTokenGenerationSuccessHandler): SecurityWebFilterChain {
             // @formatter:off
             return http {
                 authorizeExchange {
                     authorize(anyExchange, authenticated)
                 }
                 oneTimeTokenLogin {
-                    tokenGenerationSuccessHandler = TestServerOneTimeTokenGenerationSuccessHandler()
+                    tokenGenerationSuccessHandler = ottSuccessHandler
                 }
             }
         }
 
         @Bean
-        open fun resolver(): ServerGenerateOneTimeTokenRequestResolver {
-            val resolver = DefaultServerGenerateOneTimeTokenRequestResolver()
-            return ServerGenerateOneTimeTokenRequestResolver { exchange ->
-                resolver.resolve(exchange)
-                        .map { request -> GenerateOneTimeTokenRequest(request.username, Duration.ofSeconds(600)) }
-            }
-        }
+        open fun resolver(): ServerGenerateOneTimeTokenRequestResolver =
+                Mockito.spy(DefaultServerGenerateOneTimeTokenRequestResolver())
+
+        @Bean
+        open fun ottSuccessHandler(): ServerOneTimeTokenGenerationSuccessHandler =
+                TestServerOneTimeTokenGenerationSuccessHandler()
     }
 
     private class TestServerOneTimeTokenGenerationSuccessHandler: ServerOneTimeTokenGenerationSuccessHandler {
         private var delegate: ServerRedirectOneTimeTokenGenerationSuccessHandler? = null
-
-        companion object {
-            var lastToken: OneTimeToken? = null
-        }
+        var lastToken: OneTimeToken? = null
 
         constructor() {
             this.delegate = ServerRedirectOneTimeTokenGenerationSuccessHandler("/login/ott")
