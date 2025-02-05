@@ -108,7 +108,7 @@ public class NimbusJwtEncoderTests {
 	}
 
 	@Test
-	public void encodeWhenJwkMultipleSelectedThenThrowJwtEncodingException() throws Exception {
+	public void encodeWhenJwkMultipleSelectedThenThrowJwtEncodingException() {
 		RSAKey rsaJwk = TestJwks.DEFAULT_RSA_JWK;
 		this.jwkList.add(rsaJwk);
 		this.jwkList.add(rsaJwk);
@@ -122,7 +122,7 @@ public class NimbusJwtEncoderTests {
 	}
 
 	@Test
-	public void encodeWhenJwkMultipleSelectedWithJwkSelector() throws Exception {
+	public void encodeWhenJwkMultipleSelectedWithJwkSelector() {
 		RSAKey rsaJwk = TestJwks.DEFAULT_RSA_JWK;
 		this.jwkList.add(rsaJwk);
 		this.jwkList.add(rsaJwk);
@@ -131,16 +131,15 @@ public class NimbusJwtEncoderTests {
 		JwsHeader jwsHeader = JwsHeader.with(SignatureAlgorithm.RS256).build();
 		JwtClaimsSet jwtClaimsSet = TestJwtClaimsSets.jwtClaimsSet().build();
 
-		Jwt encodedJws = this.jwtEncoder.encode(JwtEncoderParameters.from(jwtClaimsSet));
+		Jwt encodedJws = this.jwtEncoder.encode(JwtEncoderParameters.from(jwsHeader,jwtClaimsSet));
 		assertThat(encodedJws.getHeaders()).containsEntry(JoseHeaderNames.ALG, SignatureAlgorithm.RS256);
 
-		this.jwtEncoder.setJwkSelector(jwkSelector -> jwkSelector.get(jwkSelector.size()-1));
-		 jwtClaimsSet = TestJwtClaimsSets.jwtClaimsSet().build();
-		 encodedJws = this.jwtEncoder.encode(JwtEncoderParameters.from(jwtClaimsSet));
+		this.jwtEncoder.setJwkSelector(jwkSelector -> jwkSelector.get(jwkSelector.size() - 1));
+		jwtClaimsSet = TestJwtClaimsSets.jwtClaimsSet().build();
+		encodedJws = this.jwtEncoder.encode(JwtEncoderParameters.from(jwtClaimsSet));
 		assertThat(encodedJws.getHeaders()).containsEntry(JoseHeaderNames.ALG, SignatureAlgorithm.RS256);
 		this.jwtEncoder.setJwkSelector(null);
 	}
-
 
 	@Test
 	public void encodeWhenJwkSelectEmptyThenThrowJwtEncodingException() {

@@ -111,7 +111,8 @@ public final class NimbusJwtEncoder implements JwtEncoder {
 		try {
 			JWKSelector jwkSelector = new JWKSelector(createJwkMatcher(headers));
 			jwks = this.jwkSource.get(jwkSelector, null);
-		} catch (Exception ex) {
+		}
+		catch (Exception ex) {
 			throw new JwtEncodingException(String.format(ENCODING_ERROR_MESSAGE_TEMPLATE,
 					"Failed to select a JWK signing key -> " + ex.getMessage()), ex);
 		}
@@ -139,7 +140,8 @@ public final class NimbusJwtEncoder implements JwtEncoder {
 		SignedJWT signedJwt = new SignedJWT(jwsHeader, jwtClaimsSet);
 		try {
 			signedJwt.sign(jwsSigner);
-		} catch (JOSEException ex) {
+		}
+		catch (JOSEException ex) {
 			throw new JwtEncodingException(
 					String.format(ENCODING_ERROR_MESSAGE_TEMPLATE, "Failed to sign the JWT -> " + ex.getMessage()), ex);
 		}
@@ -159,7 +161,8 @@ public final class NimbusJwtEncoder implements JwtEncoder {
 					.x509CertSHA256Thumbprint(Base64URL.from(headers.getX509SHA256Thumbprint()))
 					.build();
 			// @formatter:on
-		} else if (JWSAlgorithm.Family.HMAC_SHA.contains(jwsAlgorithm)) {
+		}
+		else if (JWSAlgorithm.Family.HMAC_SHA.contains(jwsAlgorithm)) {
 			// @formatter:off
 			return new JWKMatcher.Builder()
 					.keyType(KeyType.forAlgorithm(jwsAlgorithm))
@@ -197,7 +200,8 @@ public final class NimbusJwtEncoder implements JwtEncoder {
 	private static JWSSigner createSigner(JWK jwk) {
 		try {
 			return JWS_SIGNER_FACTORY.createJWSSigner(jwk);
-		} catch (JOSEException ex) {
+		}
+		catch (JOSEException ex) {
 			throw new JwtEncodingException(String.format(ENCODING_ERROR_MESSAGE_TEMPLATE,
 					"Failed to create a JWS Signer -> " + ex.getMessage()), ex);
 		}
@@ -214,7 +218,8 @@ public final class NimbusJwtEncoder implements JwtEncoder {
 		if (!CollectionUtils.isEmpty(jwk)) {
 			try {
 				builder.jwk(JWK.parse(jwk));
-			} catch (Exception ex) {
+			}
+			catch (Exception ex) {
 				throw new JwtEncodingException(String.format(ENCODING_ERROR_MESSAGE_TEMPLATE,
 						"Unable to convert '" + JoseHeaderNames.JWK + "' JOSE header"), ex);
 			}
@@ -331,7 +336,8 @@ public final class NimbusJwtEncoder implements JwtEncoder {
 	private static URI convertAsURI(String header, URL url) {
 		try {
 			return url.toURI();
-		} catch (Exception ex) {
+		}
+		catch (Exception ex) {
 			throw new JwtEncodingException(String.format(ENCODING_ERROR_MESSAGE_TEMPLATE,
 					"Unable to convert '" + header + "' JOSE header to a URI"), ex);
 		}
