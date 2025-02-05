@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,8 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentMatchers;
+import org.mockito.Mockito;
 import reactor.core.publisher.Mono;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +42,8 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.authentication.RedirectServerAuthenticationSuccessHandler;
+import org.springframework.security.web.server.authentication.ott.DefaultServerGenerateOneTimeTokenRequestResolver;
+import org.springframework.security.web.server.authentication.ott.ServerGenerateOneTimeTokenRequestResolver;
 import org.springframework.security.web.server.authentication.ott.ServerOneTimeTokenGenerationSuccessHandler;
 import org.springframework.security.web.server.authentication.ott.ServerRedirectOneTimeTokenGenerationSuccessHandler;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -49,6 +53,8 @@ import org.springframework.web.server.ServerWebExchange;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatException;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 /**
  * Tests for {@link ServerHttpSecurity.OneTimeTokenLoginSpec}
@@ -107,7 +113,7 @@ public class OneTimeTokenLoginSpecTests {
 				.expectHeader().valueEquals("Location", "/login/ott");
 		// @formatter:on
 
-		String token = TestServerOneTimeTokenGenerationSuccessHandler.lastToken.getTokenValue();
+		String token = getLastToken().getTokenValue();
 
 		// @formatter:off
 		this.client.mutateWith(SecurityMockServerConfigurers.csrf())
@@ -143,7 +149,7 @@ public class OneTimeTokenLoginSpecTests {
 				.expectHeader().valueEquals("Location", "/redirected");
 		// @formatter:on
 
-		String token = TestServerOneTimeTokenGenerationSuccessHandler.lastToken.getTokenValue();
+		String token = getLastToken().getTokenValue();
 
 		// @formatter:off
 		this.client.mutateWith(SecurityMockServerConfigurers.csrf())
@@ -179,7 +185,7 @@ public class OneTimeTokenLoginSpecTests {
 				.expectHeader().valueEquals("Location", "/login/ott");
 		// @formatter:on
 
-		String token = TestServerOneTimeTokenGenerationSuccessHandler.lastToken.getTokenValue();
+		String token = getLastToken().getTokenValue();
 
 		// @formatter:off
 		this.client.mutateWith(SecurityMockServerConfigurers.csrf())
@@ -268,16 +274,47 @@ public class OneTimeTokenLoginSpecTests {
 		assertThat(response.contains(GENERATE_OTT_PART)).isTrue();
 	}
 
+	private OneTimeToken getLastToken() {
+		OneTimeToken lastToken = this.spring.getContext()
+			.getBean(TestServerOneTimeTokenGenerationSuccessHandler.class).lastToken;
+		return lastToken;
+	}
+
 	@Test
 	void oneTimeTokenWhenNoOneTimeTokenGenerationSuccessHandlerThenException() {
 		assertThatException()
-				.isThrownBy(() -> this.spring.register(OneTimeTokenNotGeneratedOttHandlerConfig.class).autowire())
-				.havingRootCause()
-				.isInstanceOf(IllegalStateException.class)
-				.withMessage("""
+			.isThrownBy(() -> this.spring.register(OneTimeTokenNotGeneratedOttHandlerConfig.class).autowire())
+			.havingRootCause()
+			.isInstanceOf(IllegalStateException.class)
+			.withMessage("""
 					A ServerOneTimeTokenGenerationSuccessHandler is required to enable oneTimeTokenLogin().
 					Please provide it as a bean or pass it to the oneTimeTokenLogin() DSL.
 					""");
+	}
+
+	@Test
+	void oneTimeTokenWhenCustomRequestResolverSetThenCustomResolverUse() {
+		this.spring.register(OneTimeTokenConfigWithCustomRequestResolver.class).autowire();
+
+		// @formatter:off
+		this.client.mutateWith(SecurityMockServerConfigurers.csrf())
+				.post()
+				.uri((uriBuilder) -> uriBuilder
+						.path("/ott/generate")
+						.build()
+				)
+				.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+				.body(BodyInserters.fromFormData("username", "user"))
+				.exchange()
+				.expectStatus()
+				.is3xxRedirection()
+				.expectHeader().valueEquals("Location", "/login/ott");
+		// @formatter:on
+
+		ServerGenerateOneTimeTokenRequestResolver resolver = this.spring.getContext()
+			.getBean(ServerGenerateOneTimeTokenRequestResolver.class);
+
+		verify(resolver, times(1)).resolve(ArgumentMatchers.any(ServerWebExchange.class));
 	}
 
 	@Configuration(proxyBeanMethods = false)
@@ -287,7 +324,8 @@ public class OneTimeTokenLoginSpecTests {
 	static class OneTimeTokenDefaultConfig {
 
 		@Bean
-		SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
+		SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http,
+				ServerOneTimeTokenGenerationSuccessHandler ottSuccessHandler) {
 			// @formatter:off
 			http
 					.authorizeExchange((authorize) -> authorize
@@ -295,10 +333,15 @@ public class OneTimeTokenLoginSpecTests {
 							.authenticated()
 					)
 					.oneTimeTokenLogin((ott) -> ott
-							.tokenGenerationSuccessHandler(new TestServerOneTimeTokenGenerationSuccessHandler())
+							.tokenGenerationSuccessHandler(ottSuccessHandler)
 					);
 			// @formatter:on
 			return http.build();
+		}
+
+		@Bean
+		TestServerOneTimeTokenGenerationSuccessHandler ottSuccessHandler() {
+			return new TestServerOneTimeTokenGenerationSuccessHandler();
 		}
 
 	}
@@ -310,7 +353,8 @@ public class OneTimeTokenLoginSpecTests {
 	static class OneTimeTokenDifferentUrlsConfig {
 
 		@Bean
-		SecurityWebFilterChain securityFilterChain(ServerHttpSecurity http) {
+		SecurityWebFilterChain securityFilterChain(ServerHttpSecurity http,
+				ServerOneTimeTokenGenerationSuccessHandler ottSuccessHandler) {
 			// @formatter:off
 			http
 					.authorizeExchange((authorize) -> authorize
@@ -319,12 +363,17 @@ public class OneTimeTokenLoginSpecTests {
 					)
 					.oneTimeTokenLogin((ott) -> ott
 							.tokenGeneratingUrl("/generateurl")
-							.tokenGenerationSuccessHandler(new TestServerOneTimeTokenGenerationSuccessHandler("/redirected"))
+							.tokenGenerationSuccessHandler(ottSuccessHandler)
 							.loginProcessingUrl("/loginprocessingurl")
 							.authenticationSuccessHandler(new RedirectServerAuthenticationSuccessHandler("/authenticated"))
 					);
 			// @formatter:on
 			return http.build();
+		}
+
+		@Bean
+		TestServerOneTimeTokenGenerationSuccessHandler ottSuccessHandler() {
+			return new TestServerOneTimeTokenGenerationSuccessHandler("/redirected");
 		}
 
 	}
@@ -336,7 +385,8 @@ public class OneTimeTokenLoginSpecTests {
 	static class OneTimeTokenFormLoginConfig {
 
 		@Bean
-		SecurityWebFilterChain securityFilterChain(ServerHttpSecurity http) {
+		SecurityWebFilterChain securityFilterChain(ServerHttpSecurity http,
+				ServerOneTimeTokenGenerationSuccessHandler ottSuccessHandler) {
 			// @formatter:off
 			http
 					.authorizeExchange((authorize) -> authorize
@@ -345,10 +395,15 @@ public class OneTimeTokenLoginSpecTests {
 					)
 					.formLogin(Customizer.withDefaults())
 					.oneTimeTokenLogin((ott) -> ott
-							.tokenGenerationSuccessHandler(new TestServerOneTimeTokenGenerationSuccessHandler())
+							.tokenGenerationSuccessHandler(ottSuccessHandler)
 					);
 			// @formatter:on
 			return http.build();
+		}
+
+		@Bean
+		TestServerOneTimeTokenGenerationSuccessHandler ottSuccessHandler() {
+			return new TestServerOneTimeTokenGenerationSuccessHandler();
 		}
 
 	}
@@ -385,10 +440,44 @@ public class OneTimeTokenLoginSpecTests {
 
 	}
 
+	@Configuration(proxyBeanMethods = false)
+	@EnableWebFlux
+	@EnableWebFluxSecurity
+	@Import(UserDetailsServiceConfig.class)
+	static class OneTimeTokenConfigWithCustomRequestResolver {
+
+		@Bean
+		SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http,
+				ServerOneTimeTokenGenerationSuccessHandler ottSuccessHandler) {
+			// @formatter:off
+			http
+					.authorizeExchange((authorize) -> authorize
+							.anyExchange()
+							.authenticated()
+					)
+					.oneTimeTokenLogin((ott) -> ott
+							.tokenGenerationSuccessHandler(ottSuccessHandler)
+					);
+			// @formatter:on
+			return http.build();
+		}
+
+		@Bean
+		ServerGenerateOneTimeTokenRequestResolver resolver() {
+			return Mockito.spy(new DefaultServerGenerateOneTimeTokenRequestResolver());
+		}
+
+		@Bean
+		TestServerOneTimeTokenGenerationSuccessHandler ottSuccessHandler() {
+			return new TestServerOneTimeTokenGenerationSuccessHandler();
+		}
+
+	}
+
 	private static class TestServerOneTimeTokenGenerationSuccessHandler
 			implements ServerOneTimeTokenGenerationSuccessHandler {
 
-		private static OneTimeToken lastToken;
+		private OneTimeToken lastToken;
 
 		private final ServerOneTimeTokenGenerationSuccessHandler delegate;
 
@@ -402,7 +491,7 @@ public class OneTimeTokenLoginSpecTests {
 
 		@Override
 		public Mono<Void> handle(ServerWebExchange exchange, OneTimeToken oneTimeToken) {
-			lastToken = oneTimeToken;
+			this.lastToken = oneTimeToken;
 			return this.delegate.handle(exchange, oneTimeToken);
 		}
 
