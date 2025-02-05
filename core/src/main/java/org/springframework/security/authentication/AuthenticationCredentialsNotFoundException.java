@@ -16,6 +16,8 @@
 
 package org.springframework.security.authentication;
 
+import java.io.Serial;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 
@@ -27,6 +29,9 @@ import org.springframework.security.core.AuthenticationException;
  * @author Ben Alex
  */
 public class AuthenticationCredentialsNotFoundException extends AuthenticationException {
+
+	@Serial
+	private static final long serialVersionUID = 4153580041526791384L;
 
 	/**
 	 * Constructs an <code>AuthenticationCredentialsNotFoundException</code> with the

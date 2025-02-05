@@ -38,6 +38,7 @@ import org.springframework.security.web.server.csrf.DefaultCsrfToken;
  * @since 5.1
  * @see SecurityJackson2Modules
  */
+@SuppressWarnings("serial")
 public class WebServerJackson2Module extends SimpleModule {
 
 	private static final String NAME = WebServerJackson2Module.class.getName();

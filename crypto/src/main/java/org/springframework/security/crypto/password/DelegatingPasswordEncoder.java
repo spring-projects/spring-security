@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,6 @@ package org.springframework.security.crypto.password;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import org.springframework.util.StringUtils;
 
 /**
  * A password encoder that delegates to another PasswordEncoder based upon a prefixed
@@ -297,10 +295,10 @@ public class DelegatingPasswordEncoder implements PasswordEncoder {
 		@Override
 		public boolean matches(CharSequence rawPassword, String prefixEncodedPassword) {
 			String id = extractId(prefixEncodedPassword);
-			if (StringUtils.hasText(id)) {
+			if (id != null && !id.isBlank()) {
 				throw new IllegalArgumentException(String.format(NO_PASSWORD_ENCODER_MAPPED, id));
 			}
-			if (StringUtils.hasText(prefixEncodedPassword)) {
+			if (prefixEncodedPassword != null && !prefixEncodedPassword.isBlank()) {
 				int start = prefixEncodedPassword.indexOf(DelegatingPasswordEncoder.this.idPrefix);
 				int end = prefixEncodedPassword.indexOf(DelegatingPasswordEncoder.this.idSuffix, start);
 				if (start < 0 && end < 0) {

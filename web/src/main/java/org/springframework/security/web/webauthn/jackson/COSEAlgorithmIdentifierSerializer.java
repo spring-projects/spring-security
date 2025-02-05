@@ -30,6 +30,7 @@ import org.springframework.security.web.webauthn.api.COSEAlgorithmIdentifier;
  * @author Rob Winch
  * @since 6.4
  */
+@SuppressWarnings("serial")
 class COSEAlgorithmIdentifierSerializer extends StdSerializer<COSEAlgorithmIdentifier> {
 
 	COSEAlgorithmIdentifierSerializer() {

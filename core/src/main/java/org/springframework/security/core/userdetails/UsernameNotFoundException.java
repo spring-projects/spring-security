@@ -16,6 +16,8 @@
 
 package org.springframework.security.core.userdetails;
 
+import java.io.Serial;
+
 import org.springframework.security.core.AuthenticationException;
 
 /**
@@ -25,6 +27,9 @@ import org.springframework.security.core.AuthenticationException;
  * @author Ben Alex
  */
 public class UsernameNotFoundException extends AuthenticationException {
+
+	@Serial
+	private static final long serialVersionUID = 1410688585992297006L;
 
 	/**
 	 * Constructs a <code>UsernameNotFoundException</code> with the specified message.

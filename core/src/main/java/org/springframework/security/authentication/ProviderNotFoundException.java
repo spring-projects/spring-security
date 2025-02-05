@@ -16,6 +16,8 @@
 
 package org.springframework.security.authentication;
 
+import java.io.Serial;
+
 import org.springframework.security.core.AuthenticationException;
 
 /**
@@ -26,6 +28,9 @@ import org.springframework.security.core.AuthenticationException;
  * @author Ben Alex
  */
 public class ProviderNotFoundException extends AuthenticationException {
+
+	@Serial
+	private static final long serialVersionUID = 8107665253214447614L;
 
 	/**
 	 * Constructs a <code>ProviderNotFoundException</code> with the specified message.

@@ -62,6 +62,7 @@ public class CsrfTokenRequestAttributeHandler implements CsrfTokenRequestHandler
 		request.setAttribute(csrfAttrName, csrfToken);
 	}
 
+	@SuppressWarnings("serial")
 	private static final class SupplierCsrfToken implements CsrfToken {
 
 		private final Supplier<CsrfToken> csrfTokenSupplier;

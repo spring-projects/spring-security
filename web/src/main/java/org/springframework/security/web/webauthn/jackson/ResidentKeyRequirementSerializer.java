@@ -30,6 +30,7 @@ import org.springframework.security.web.webauthn.api.ResidentKeyRequirement;
  * @author Rob Winch
  * @since 6.4
  */
+@SuppressWarnings("serial")
 class ResidentKeyRequirementSerializer extends StdSerializer<ResidentKeyRequirement> {
 
 	/**

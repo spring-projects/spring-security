@@ -34,6 +34,7 @@ import org.springframework.security.authorization.event.AuthorizationGrantedEven
  * {@link AuthorizationGrantedEvent#getSource()} to deduce public invocations.
  */
 @Deprecated
+@SuppressWarnings("serial")
 public class PublicInvocationEvent extends AbstractAuthorizationEvent {
 
 	/**

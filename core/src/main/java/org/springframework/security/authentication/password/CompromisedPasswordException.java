@@ -16,6 +16,8 @@
 
 package org.springframework.security.authentication.password;
 
+import java.io.Serial;
+
 import org.springframework.security.core.AuthenticationException;
 
 /**
@@ -25,6 +27,9 @@ import org.springframework.security.core.AuthenticationException;
  * @since 6.3
  */
 public class CompromisedPasswordException extends AuthenticationException {
+
+	@Serial
+	private static final long serialVersionUID = -885858958297842864L;
 
 	public CompromisedPasswordException(String message) {
 		super(message);

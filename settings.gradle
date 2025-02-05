@@ -34,8 +34,8 @@ buildFiles.each { File buildFile ->
 	boolean isKotlin = buildFile.name.endsWith(".kts")
 	if(isDefaultName) {
 		String buildFilePath = buildFile.parentFile.absolutePath
-		String projectPath = buildFilePath.replace(rootDirPath, '').replace(File.separator, ':')
-		include projectPath
+		String projectName = buildFilePath.tokenize(File.separator)[-1]
+		configureProject(':' + projectName, projectName, buildFile)
 	} else {
 		String projectName
 		if (isKotlin) {
@@ -43,11 +43,15 @@ buildFiles.each { File buildFile ->
 		} else {
 		 	projectName = buildFile.name.replace('.gradle', '')
 		}
-		String projectPath = ':' + projectName;
-		include projectPath
-		def project = findProject("${projectPath}")
-		project.name = projectName
-		project.projectDir = buildFile.parentFile
-		project.buildFileName = buildFile.name
+		configureProject(':' + projectName, projectName, buildFile)
 	}
+}
+
+def configureProject(String projectPath, String projectName, File buildFile) {
+    include(projectPath)
+
+    def project = findProject(projectPath)
+    project.name = projectName
+    project.projectDir = buildFile.parentFile
+    project.buildFileName = buildFile.name
 }

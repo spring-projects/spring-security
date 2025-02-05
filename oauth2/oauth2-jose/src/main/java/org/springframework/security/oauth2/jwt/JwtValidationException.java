@@ -16,6 +16,7 @@
 
 package org.springframework.security.oauth2.jwt;
 
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -30,6 +31,9 @@ import org.springframework.util.Assert;
  * @since 5.1
  */
 public class JwtValidationException extends BadJwtException {
+
+	@Serial
+	private static final long serialVersionUID = 134652048447295615L;
 
 	private final Collection<OAuth2Error> errors;
 

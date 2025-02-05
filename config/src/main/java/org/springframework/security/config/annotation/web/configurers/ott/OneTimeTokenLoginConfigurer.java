@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.ott.GenerateOneTimeTokenRequest;
 import org.springframework.security.authentication.ott.InMemoryOneTimeTokenService;
 import org.springframework.security.authentication.ott.OneTimeToken;
 import org.springframework.security.authentication.ott.OneTimeTokenAuthenticationProvider;
@@ -40,7 +41,9 @@ import org.springframework.security.web.authentication.AuthenticationFilter;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
+import org.springframework.security.web.authentication.ott.DefaultGenerateOneTimeTokenRequestResolver;
 import org.springframework.security.web.authentication.ott.GenerateOneTimeTokenFilter;
+import org.springframework.security.web.authentication.ott.GenerateOneTimeTokenRequestResolver;
 import org.springframework.security.web.authentication.ott.OneTimeTokenAuthenticationConverter;
 import org.springframework.security.web.authentication.ott.OneTimeTokenGenerationSuccessHandler;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
@@ -79,13 +82,15 @@ public final class OneTimeTokenLoginConfigurer<H extends HttpSecurityBuilder<H>>
 
 	private AuthenticationProvider authenticationProvider;
 
+	private GenerateOneTimeTokenRequestResolver requestResolver;
+
 	public OneTimeTokenLoginConfigurer(ApplicationContext context) {
 		this.context = context;
 	}
 
 	@Override
 	public void init(H http) {
-		AuthenticationProvider authenticationProvider = getAuthenticationProvider(http);
+		AuthenticationProvider authenticationProvider = getAuthenticationProvider();
 		http.authenticationProvider(postProcess(authenticationProvider));
 		configureDefaultLoginPage(http);
 	}
@@ -132,16 +137,19 @@ public final class OneTimeTokenLoginConfigurer<H extends HttpSecurityBuilder<H>>
 	}
 
 	private void configureOttGenerateFilter(H http) {
-		GenerateOneTimeTokenFilter generateFilter = new GenerateOneTimeTokenFilter(getOneTimeTokenService(http),
-				getOneTimeTokenGenerationSuccessHandler(http));
+		GenerateOneTimeTokenFilter generateFilter = new GenerateOneTimeTokenFilter(getOneTimeTokenService(),
+				getOneTimeTokenGenerationSuccessHandler());
 		generateFilter.setRequestMatcher(antMatcher(HttpMethod.POST, this.tokenGeneratingUrl));
+		generateFilter.setRequestResolver(getGenerateRequestResolver());
 		http.addFilter(postProcess(generateFilter));
 		http.addFilter(DefaultResourcesFilter.css());
 	}
 
-	private OneTimeTokenGenerationSuccessHandler getOneTimeTokenGenerationSuccessHandler(H http) {
+	private OneTimeTokenGenerationSuccessHandler getOneTimeTokenGenerationSuccessHandler() {
 		if (this.oneTimeTokenGenerationSuccessHandler == null) {
-			this.oneTimeTokenGenerationSuccessHandler = getBeanOrNull(http, OneTimeTokenGenerationSuccessHandler.class);
+			this.oneTimeTokenGenerationSuccessHandler = this.context
+				.getBeanProvider(OneTimeTokenGenerationSuccessHandler.class)
+				.getIfUnique();
 		}
 		if (this.oneTimeTokenGenerationSuccessHandler == null) {
 			throw new IllegalStateException("""
@@ -163,12 +171,12 @@ public final class OneTimeTokenLoginConfigurer<H extends HttpSecurityBuilder<H>>
 		http.addFilter(postProcess(submitPage));
 	}
 
-	private AuthenticationProvider getAuthenticationProvider(H http) {
+	private AuthenticationProvider getAuthenticationProvider() {
 		if (this.authenticationProvider != null) {
 			return this.authenticationProvider;
 		}
-		UserDetailsService userDetailsService = getContext().getBean(UserDetailsService.class);
-		this.authenticationProvider = new OneTimeTokenAuthenticationProvider(getOneTimeTokenService(http),
+		UserDetailsService userDetailsService = this.context.getBean(UserDetailsService.class);
+		this.authenticationProvider = new OneTimeTokenAuthenticationProvider(getOneTimeTokenService(),
 				userDetailsService);
 		return this.authenticationProvider;
 	}
@@ -301,27 +309,35 @@ public final class OneTimeTokenLoginConfigurer<H extends HttpSecurityBuilder<H>>
 		return this.authenticationFailureHandler;
 	}
 
-	private OneTimeTokenService getOneTimeTokenService(H http) {
+	/**
+	 * Use this {@link GenerateOneTimeTokenRequestResolver} when resolving
+	 * {@link GenerateOneTimeTokenRequest} from {@link HttpServletRequest}. By default,
+	 * the {@link DefaultGenerateOneTimeTokenRequestResolver} is used.
+	 * @param requestResolver the {@link GenerateOneTimeTokenRequestResolver}
+	 * @since 6.5
+	 */
+	public OneTimeTokenLoginConfigurer<H> generateRequestResolver(GenerateOneTimeTokenRequestResolver requestResolver) {
+		Assert.notNull(requestResolver, "requestResolver cannot be null");
+		this.requestResolver = requestResolver;
+		return this;
+	}
+
+	private GenerateOneTimeTokenRequestResolver getGenerateRequestResolver() {
+		if (this.requestResolver != null) {
+			return this.requestResolver;
+		}
+		this.requestResolver = this.context.getBeanProvider(GenerateOneTimeTokenRequestResolver.class)
+			.getIfUnique(DefaultGenerateOneTimeTokenRequestResolver::new);
+		return this.requestResolver;
+	}
+
+	private OneTimeTokenService getOneTimeTokenService() {
 		if (this.oneTimeTokenService != null) {
 			return this.oneTimeTokenService;
 		}
-		OneTimeTokenService bean = getBeanOrNull(http, OneTimeTokenService.class);
-		if (bean != null) {
-			this.oneTimeTokenService = bean;
-		}
-		else {
-			this.oneTimeTokenService = new InMemoryOneTimeTokenService();
-		}
+		this.oneTimeTokenService = this.context.getBeanProvider(OneTimeTokenService.class)
+			.getIfUnique(InMemoryOneTimeTokenService::new);
 		return this.oneTimeTokenService;
-	}
-
-	private <C> C getBeanOrNull(H http, Class<C> clazz) {
-		ApplicationContext context = http.getSharedObject(ApplicationContext.class);
-		if (context == null) {
-			return null;
-		}
-
-		return context.getBeanProvider(clazz).getIfUnique();
 	}
 
 	private Map<String, String> hiddenInputs(HttpServletRequest request) {
@@ -330,6 +346,10 @@ public final class OneTimeTokenLoginConfigurer<H extends HttpSecurityBuilder<H>>
 				: Collections.emptyMap();
 	}
 
+	/**
+	 * @deprecated Use this.context instead
+	 */
+	@Deprecated
 	public ApplicationContext getContext() {
 		return this.context;
 	}

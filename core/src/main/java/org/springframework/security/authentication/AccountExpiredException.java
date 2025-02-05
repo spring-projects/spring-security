@@ -16,6 +16,8 @@
 
 package org.springframework.security.authentication;
 
+import java.io.Serial;
+
 /**
  * Thrown if an authentication request is rejected because the account has expired. Makes
  * no assertion as to whether or not the credentials were valid.
@@ -23,6 +25,9 @@ package org.springframework.security.authentication;
  * @author Ben Alex
  */
 public class AccountExpiredException extends AccountStatusException {
+
+	@Serial
+	private static final long serialVersionUID = 3732869526329993353L;
 
 	/**
 	 * Constructs a <code>AccountExpiredException</code> with the specified message.

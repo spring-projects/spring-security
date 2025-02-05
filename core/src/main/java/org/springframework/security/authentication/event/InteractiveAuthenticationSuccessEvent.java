@@ -16,6 +16,8 @@
 
 package org.springframework.security.authentication.event;
 
+import java.io.Serial;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.util.Assert;
 
@@ -33,6 +35,9 @@ import org.springframework.util.Assert;
  * @author Ben Alex
  */
 public class InteractiveAuthenticationSuccessEvent extends AbstractAuthenticationEvent {
+
+	@Serial
+	private static final long serialVersionUID = -1990271553478571709L;
 
 	private final Class<?> generatedBy;
 

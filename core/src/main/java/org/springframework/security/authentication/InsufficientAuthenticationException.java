@@ -16,6 +16,8 @@
 
 package org.springframework.security.authentication;
 
+import java.io.Serial;
+
 import org.springframework.security.core.AuthenticationException;
 
 /**
@@ -32,6 +34,9 @@ import org.springframework.security.core.AuthenticationException;
  * @author Ben Alex
  */
 public class InsufficientAuthenticationException extends AuthenticationException {
+
+	@Serial
+	private static final long serialVersionUID = -5514084346181236128L;
 
 	/**
 	 * Constructs an <code>InsufficientAuthenticationException</code> with the specified

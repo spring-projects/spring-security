@@ -199,12 +199,10 @@ We could add additional rules for all the permutations of Spring MVC, but this w
 Fortunately, when using the `requestMatchers` DSL method, Spring Security automatically creates a `MvcRequestMatcher` if it detects that Spring MVC is available in the classpath.
 Therefore, it will protect the same URLs that Spring MVC will match on by using Spring MVC to match on the URL.
 
-One common requirement when using Spring MVC is to specify the servlet path property, for that you can use the `MvcRequestMatcher.Builder` to create multiple `MvcRequestMatcher` instances that share the same servlet path:
+One common requirement when using Spring MVC is to specify the servlet path property.
 
-[tabs]
-======
-Java::
-+
+For Java-based Configuration, you can use the `MvcRequestMatcher.Builder` to create multiple `MvcRequestMatcher` instances that share the same servlet path:
+
 [source,java,role="primary"]
 ----
 @Bean
@@ -219,32 +217,36 @@ public SecurityFilterChain filterChain(HttpSecurity http, HandlerMappingIntrospe
 }
 ----
 
+For Kotlin and XML, this happens when you specify the servlet path for each path like so:
+
+[tabs]
+======
 Kotlin::
 +
 [source,kotlin,role="secondary"]
 ----
 @Bean
-open fun filterChain(http: HttpSecurity, introspector: HandlerMappingIntrospector): SecurityFilterChain {
-    val mvcMatcherBuilder = MvcRequestMatcher.Builder(introspector)
+open fun filterChain(http: HttpSecurity): SecurityFilterChain {
     http {
         authorizeHttpRequests {
-            authorize(mvcMatcherBuilder.pattern("/admin"), hasRole("ADMIN"))
-            authorize(mvcMatcherBuilder.pattern("/user"), hasRole("USER"))
+            authorize("/admin/**", "/mvc", hasRole("ADMIN"))
+            authorize("/user/**", "/mvc", hasRole("USER"))
         }
     }
     return http.build()
 }
 ----
-======
 
-The following XML has the same effect:
-
-[source,xml]
+Xml::
++
+[source,xml, role="secondary"]
 ----
 <http request-matcher="mvc">
-	<intercept-url pattern="/admin" access="hasRole('ADMIN')"/>
+	<intercept-url pattern="/admin/**" servlet-path="/mvc" access="hasRole('ADMIN')"/>
+    <intercept-url pattern="/user/**" servlet-path="/mvc" access="hasRole('USER')"/>
 </http>
 ----
+======
 
 [[mvc-authentication-principal]]
 == @AuthenticationPrincipal

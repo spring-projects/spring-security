@@ -1,0 +1,68 @@
+= Authentication Changes
+
+== Opaque Token Credentials Will Be Encoded For You
+
+In order to comply more closely with the Introspection RFC, Spring Security's opaque token support will encode the client id and secret before creating the authorization header.
+This change means you will no longer have to encode the client id and secret yourself.
+
+If your client id or secret contain URL-unsafe characters, then you can prepare yourself for this change by doing the following:
+
+=== Replace Usage of `introspectionClientCredentials`
+
+Since Spring Security can now do the encoding for you, replace xref:servlet/oauth2/resource-server/opaque-token.adoc#oauth2resourceserver-opaque-introspectionuri-dsl[using `introspectionClientCredentials`] with publishing the following `@Bean`:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Bean
+OpaqueTokenIntrospector introspector() {
+	return SpringOpaqueTokenIntrospector.withIntrospectionUri(introspectionUri)
+            .clientId(unencodedClientId).clientSecret(unencodedClientSecret).build();
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun introspector(): OpaqueTokenIntrospector {
+    return SpringOpaqueTokenIntrospector.withIntrospectionUri(introspectionUri)
+            .clientId(unencodedClientId).clientSecret(unencodedClientSecret).build()
+}
+----
+======
+
+The above will be the default in 7.0.
+
+If this setting gives you trouble or you cannot apply it for now, you can use the `RestOperations` constructor instead:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Bean
+OpaqueTokenIntrospector introspector() {
+	RestTemplate rest = new RestTemplate();
+	rest.addInterceptor(new BasicAuthenticationInterceptor(encodedClientId, encodedClientSecret));
+	return new SpringOpaqueTokenIntrospector(introspectionUri, rest);
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun introspector(): OpaqueTokenIntrospector {
+	val rest = RestTemplate()
+	rest.addInterceptor(BasicAuthenticationInterceptor(encodedClientId, encodedClientSecret))
+	return SpringOpaqueTokenIntrospector(introspectionUri, rest)
+}
+----
+======

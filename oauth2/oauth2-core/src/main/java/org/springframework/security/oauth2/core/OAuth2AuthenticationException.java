@@ -16,6 +16,8 @@
 
 package org.springframework.security.oauth2.core;
 
+import java.io.Serial;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.util.Assert;
@@ -40,6 +42,9 @@ import org.springframework.util.Assert;
  * @since 5.0
  */
 public class OAuth2AuthenticationException extends AuthenticationException {
+
+	@Serial
+	private static final long serialVersionUID = -7832130893085581438L;
 
 	private final OAuth2Error error;
 

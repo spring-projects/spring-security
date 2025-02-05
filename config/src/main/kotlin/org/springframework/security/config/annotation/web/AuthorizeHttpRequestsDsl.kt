@@ -275,6 +275,13 @@ class AuthorizeHttpRequestsDsl : AbstractRequestMatcherDsl {
     val authenticated: AuthorizationManager<RequestAuthorizationContext> =
         AuthenticatedAuthorizationManager.authenticated()
 
+    /**
+     * Specify that URLs are allowed by users who have authenticated and were not "remembered".
+     * @since 6.5
+     */
+    val fullyAuthenticated: AuthorizationManager<RequestAuthorizationContext> =
+            AuthenticatedAuthorizationManager.fullyAuthenticated()
+
     internal fun get(): (AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry) -> Unit {
         return { requests ->
             authorizationRules.forEach { rule ->

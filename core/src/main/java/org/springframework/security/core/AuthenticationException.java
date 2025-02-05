@@ -16,6 +16,8 @@
 
 package org.springframework.security.core;
 
+import java.io.Serial;
+
 /**
  * Abstract superclass for all exceptions related to an {@link Authentication} object
  * being invalid for whatever reason.
@@ -23,6 +25,9 @@ package org.springframework.security.core;
  * @author Ben Alex
  */
 public abstract class AuthenticationException extends RuntimeException {
+
+	@Serial
+	private static final long serialVersionUID = 2018827803361503060L;
 
 	/**
 	 * Constructs an {@code AuthenticationException} with the specified message and root

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,6 +56,8 @@ public class DefaultOAuth2AuthorizationRequestResolverTests {
 
 	private ClientRegistration registration2;
 
+	private ClientRegistration pkceClientRegistration;
+
 	private ClientRegistration fineRedirectUriTemplateRegistration;
 
 	private ClientRegistration publicClientRegistration;
@@ -72,6 +74,9 @@ public class DefaultOAuth2AuthorizationRequestResolverTests {
 	public void setUp() {
 		this.registration1 = TestClientRegistrations.clientRegistration().build();
 		this.registration2 = TestClientRegistrations.clientRegistration2().build();
+
+		this.pkceClientRegistration = pkceClientRegistration().build();
+
 		this.fineRedirectUriTemplateRegistration = fineRedirectUriTemplateClientRegistration().build();
 		// @formatter:off
 		this.publicClientRegistration = TestClientRegistrations.clientRegistration()
@@ -86,8 +91,8 @@ public class DefaultOAuth2AuthorizationRequestResolverTests {
 				.build();
 		// @formatter:on
 		this.clientRegistrationRepository = new InMemoryClientRegistrationRepository(this.registration1,
-				this.registration2, this.fineRedirectUriTemplateRegistration, this.publicClientRegistration,
-				this.oidcRegistration);
+				this.registration2, this.pkceClientRegistration, this.fineRedirectUriTemplateRegistration,
+				this.publicClientRegistration, this.oidcRegistration);
 		this.resolver = new DefaultOAuth2AuthorizationRequestResolver(this.clientRegistrationRepository,
 				this.authorizationRequestBaseUri);
 	}
@@ -561,6 +566,32 @@ public class DefaultOAuth2AuthorizationRequestResolverTests {
 				"https://example.com/login/oauth/authorize\\?" + "response_type=code&" + "scope=openid&state=.{15,}&"
 						+ "redirect_uri=http://localhost/login/oauth2/code/oidc-registration-id&"
 						+ "nonce=([a-zA-Z0-9\\-\\.\\_\\~]){43}&" + "appid=client-id");
+	}
+
+	@Test
+	public void resolveWhenAuthorizationRequestProvideCodeChallengeMethod() {
+		ClientRegistration clientRegistration = this.pkceClientRegistration;
+		String requestUri = this.authorizationRequestBaseUri + "/" + clientRegistration.getRegistrationId();
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", requestUri);
+		request.setServletPath(requestUri);
+		OAuth2AuthorizationRequest authorizationRequest = this.resolver.resolve(request);
+		assertThat(authorizationRequest.getAdditionalParameters().containsKey(PkceParameterNames.CODE_CHALLENGE_METHOD))
+			.isTrue();
+	}
+
+	private static ClientRegistration.Builder pkceClientRegistration() {
+		return ClientRegistration.withRegistrationId("pkce")
+			.redirectUri("{baseUrl}/{action}/oauth2/code/{registrationId}")
+			.clientSettings(ClientRegistration.ClientSettings.builder().requireProofKey(true).build())
+			.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+			.scope("read:user")
+			.authorizationUri("https://example.com/login/oauth/authorize")
+			.tokenUri("https://example.com/login/oauth/access_token")
+			.userInfoUri("https://api.example.com/user")
+			.userNameAttributeName("id")
+			.clientName("Client Name")
+			.clientId("client-id-3")
+			.clientSecret("client-secret");
 	}
 
 	private static ClientRegistration.Builder fineRedirectUriTemplateClientRegistration() {

@@ -16,6 +16,8 @@
 
 package org.springframework.security.authentication;
 
+import java.io.Serial;
+
 import org.springframework.security.core.AuthenticationException;
 
 /**
@@ -28,6 +30,9 @@ import org.springframework.security.core.AuthenticationException;
  * @see InternalAuthenticationServiceException
  */
 public class AuthenticationServiceException extends AuthenticationException {
+
+	@Serial
+	private static final long serialVersionUID = -1591626195291329340L;
 
 	/**
 	 * Constructs an <code>AuthenticationServiceException</code> with the specified

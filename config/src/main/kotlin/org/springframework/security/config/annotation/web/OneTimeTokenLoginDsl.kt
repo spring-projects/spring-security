@@ -23,6 +23,7 @@ import org.springframework.security.config.annotation.web.configurers.ott.OneTim
 import org.springframework.security.web.authentication.AuthenticationConverter
 import org.springframework.security.web.authentication.AuthenticationFailureHandler
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler
+import org.springframework.security.web.authentication.ott.GenerateOneTimeTokenRequestResolver
 import org.springframework.security.web.authentication.ott.OneTimeTokenGenerationSuccessHandler
 
 /**
@@ -34,6 +35,7 @@ import org.springframework.security.web.authentication.ott.OneTimeTokenGeneratio
  * @property authenticationConverter Use this [AuthenticationConverter] when converting incoming requests to an authentication
  * @property authenticationFailureHandler the [AuthenticationFailureHandler] to use when authentication
  * @property authenticationSuccessHandler the [AuthenticationSuccessHandler] to be used
+ * @property generateRequestResolver the [GenerateOneTimeTokenRequestResolver] to be used
  * @property defaultSubmitPageUrl sets the URL that the default submit page will be generated
  * @property showDefaultSubmitPage configures whether the default one-time token submit page should be shown
  * @property loginProcessingUrl the URL to process the login request
@@ -47,6 +49,7 @@ class OneTimeTokenLoginDsl {
     var authenticationConverter: AuthenticationConverter? = null
     var authenticationFailureHandler: AuthenticationFailureHandler? = null
     var authenticationSuccessHandler: AuthenticationSuccessHandler? = null
+    var generateRequestResolver: GenerateOneTimeTokenRequestResolver? = null
     var defaultSubmitPageUrl: String? = null
     var loginProcessingUrl: String? = null
     var tokenGeneratingUrl: String? = null
@@ -66,6 +69,11 @@ class OneTimeTokenLoginDsl {
             authenticationSuccessHandler?.also {
                 oneTimeTokenLoginConfigurer.authenticationSuccessHandler(
                     authenticationSuccessHandler
+                )
+            }
+            generateRequestResolver?.also {
+                oneTimeTokenLoginConfigurer.generateRequestResolver(
+                        generateRequestResolver
                 )
             }
             defaultSubmitPageUrl?.also { oneTimeTokenLoginConfigurer.defaultSubmitPageUrl(defaultSubmitPageUrl) }

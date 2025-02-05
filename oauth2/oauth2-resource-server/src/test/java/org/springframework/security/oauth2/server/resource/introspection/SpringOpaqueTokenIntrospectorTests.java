@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -337,6 +337,50 @@ public class SpringOpaqueTokenIntrospectorTests {
 		introspectionClient.setAuthenticationConverter(authenticationConverter);
 		introspectionClient.introspect(tokenToIntrospect);
 		verify(authenticationConverter).convert(any());
+	}
+
+	@Test
+	public void introspectWithoutEncodeClientCredentialsThenExceptionIsThrown() throws Exception {
+		try (MockWebServer server = new MockWebServer()) {
+			String response = """
+					{
+						"active": true,
+						"username": "client%&1"
+					}
+					""";
+			server.setDispatcher(requiresAuth("client%25%261", "secret%40%242", response));
+			String introspectUri = server.url("/introspect").toString();
+			OpaqueTokenIntrospector introspectionClient = new SpringOpaqueTokenIntrospector(introspectUri, "client%&1",
+					"secret@$2");
+			assertThatExceptionOfType(OAuth2IntrospectionException.class)
+				.isThrownBy(() -> introspectionClient.introspect("token"));
+		}
+	}
+
+	@Test
+	public void introspectWithEncodeClientCredentialsThenOk() throws Exception {
+		try (MockWebServer server = new MockWebServer()) {
+			String response = """
+					{
+						"active": true,
+						"username": "client&1"
+					}
+					""";
+			server.setDispatcher(requiresAuth("client%261", "secret%40%242", response));
+			String introspectUri = server.url("/introspect").toString();
+			OpaqueTokenIntrospector introspectionClient = SpringOpaqueTokenIntrospector
+				.withIntrospectionUri(introspectUri)
+				.clientId("client&1")
+				.clientSecret("secret@$2")
+				.build();
+			OAuth2AuthenticatedPrincipal authority = introspectionClient.introspect("token");
+			// @formatter:off
+			assertThat(authority.getAttributes())
+					.isNotNull()
+					.containsEntry(OAuth2TokenIntrospectionClaimNames.ACTIVE, true)
+					.containsEntry(OAuth2TokenIntrospectionClaimNames.USERNAME, "client&1");
+			// @formatter:on
+		}
 	}
 
 	private static ResponseEntity<Map<String, Object>> response(String content) {

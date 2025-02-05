@@ -16,6 +16,8 @@
 
 package org.springframework.security.authentication.jaas.event;
 
+import java.io.Serial;
+
 import org.springframework.security.core.Authentication;
 
 /**
@@ -27,6 +29,9 @@ import org.springframework.security.core.Authentication;
  * @author Ray Krueger
  */
 public class JaasAuthenticationSuccessEvent extends JaasAuthenticationEvent {
+
+	@Serial
+	private static final long serialVersionUID = 2236826715750256181L;
 
 	public JaasAuthenticationSuccessEvent(Authentication auth) {
 		super(auth);
