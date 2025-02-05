@@ -37,7 +37,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.AuthenticationConverter;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
-import org.springframework.security.web.authentication.AuthenticationFilter;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
@@ -45,6 +44,7 @@ import org.springframework.security.web.authentication.ott.DefaultGenerateOneTim
 import org.springframework.security.web.authentication.ott.GenerateOneTimeTokenFilter;
 import org.springframework.security.web.authentication.ott.GenerateOneTimeTokenRequestResolver;
 import org.springframework.security.web.authentication.ott.OneTimeTokenAuthenticationConverter;
+import org.springframework.security.web.authentication.ott.OneTimeTokenAuthenticationFilter;
 import org.springframework.security.web.authentication.ott.OneTimeTokenGenerationSuccessHandler;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
 import org.springframework.security.web.authentication.ui.DefaultOneTimeTokenSubmitPageGeneratingFilter;
@@ -74,7 +74,7 @@ public final class OneTimeTokenLoginConfigurer<H extends HttpSecurityBuilder<H>>
 
 	private boolean submitPageEnabled = true;
 
-	private String loginProcessingUrl = "/login/ott";
+	private String loginProcessingUrl = OneTimeTokenAuthenticationFilter.DEFAULT_LOGIN_PROCESSING_URL;
 
 	private String tokenGeneratingUrl = "/ott/generate";
 
@@ -119,12 +119,15 @@ public final class OneTimeTokenLoginConfigurer<H extends HttpSecurityBuilder<H>>
 
 	private void configureOttAuthenticationFilter(H http) {
 		AuthenticationManager authenticationManager = http.getSharedObject(AuthenticationManager.class);
-		AuthenticationFilter oneTimeTokenAuthenticationFilter = new AuthenticationFilter(authenticationManager,
-				this.authenticationConverter);
+		OneTimeTokenAuthenticationFilter oneTimeTokenAuthenticationFilter = new OneTimeTokenAuthenticationFilter();
+		oneTimeTokenAuthenticationFilter.setAuthenticationManager(authenticationManager);
+		if (this.loginProcessingUrl != null) {
+			oneTimeTokenAuthenticationFilter
+				.setRequiresAuthenticationRequestMatcher(antMatcher(HttpMethod.POST, this.loginProcessingUrl));
+		}
+		oneTimeTokenAuthenticationFilter.setAuthenticationSuccessHandler(this.authenticationSuccessHandler);
+		oneTimeTokenAuthenticationFilter.setAuthenticationFailureHandler(getAuthenticationFailureHandler());
 		oneTimeTokenAuthenticationFilter.setSecurityContextRepository(getSecurityContextRepository(http));
-		oneTimeTokenAuthenticationFilter.setRequestMatcher(antMatcher(HttpMethod.POST, this.loginProcessingUrl));
-		oneTimeTokenAuthenticationFilter.setFailureHandler(getAuthenticationFailureHandler());
-		oneTimeTokenAuthenticationFilter.setSuccessHandler(this.authenticationSuccessHandler);
 		http.addFilter(postProcess(oneTimeTokenAuthenticationFilter));
 	}
 
