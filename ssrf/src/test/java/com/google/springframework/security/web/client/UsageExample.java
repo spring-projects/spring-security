@@ -58,7 +58,7 @@ public class UsageExample {
 				.withCustomFilter(
 						addresses -> Arrays.stream(addresses).filter(a -> !a.isMCNodeLocal())
 								.toArray(InetAddress[]::new)).withBlocklist("evil.com", "6.6.6.9/16", "123.123.123.123")
-				.buildHttpRequestFactory();
+				.buildToHttpRequestFactory();
 
 		if (clientHttpRequestFactory instanceof HttpComponentsClientHttpRequestFactory) {
 			HttpComponentsClientHttpRequestFactory factory = (HttpComponentsClientHttpRequestFactory) clientHttpRequestFactory;
@@ -87,7 +87,7 @@ public class UsageExample {
 				.withCustomFilter(
 						addresses -> Arrays.stream(addresses).filter(a -> !a.isMCNodeLocal())
 								.toArray(InetAddress[]::new)).withBlocklist("evil.com", "6.6.6.9/16", "123.123.123.123")
-				.buildHttpClientDnsResolver();
+				.buildToHttpClientDnsResolver();
 
 		// When a very custom client is needed
 		Registry<ConnectionSocketFactory> registry = RegistryBuilder.<ConnectionSocketFactory>create()
