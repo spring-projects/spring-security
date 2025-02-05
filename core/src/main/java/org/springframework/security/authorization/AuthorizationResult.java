@@ -16,13 +16,15 @@
 
 package org.springframework.security.authorization;
 
+import java.io.Serializable;
+
 /**
  * Represents an authorization result
  *
  * @author Marcus da Coregio
  * @since 6.3
  */
-public interface AuthorizationResult {
+public interface AuthorizationResult extends Serializable {
 
 	/**
 	 * @return whether the access has been granted
