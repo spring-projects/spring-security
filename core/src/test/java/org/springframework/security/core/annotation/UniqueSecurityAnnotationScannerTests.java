@@ -295,6 +295,13 @@ public class UniqueSecurityAnnotationScannerTests {
 			.isThrownBy(() -> this.parameterScanner.scan(parameter));
 	}
 
+	@Test
+	void scanParameterAnnotationWhenPresentInParentAndInterfaceThenException() throws Exception {
+		Parameter parameter = DefaultUserService.class.getDeclaredMethod("batch", String[].class).getParameters()[0];
+		assertThatExceptionOfType(AnnotationConfigurationException.class)
+			.isThrownBy(() -> this.parameterScanner.scan(parameter));
+	}
+
 	interface UserService {
 
 		void add(@CustomParameterAnnotation("one") String user);
@@ -321,6 +328,8 @@ public class UniqueSecurityAnnotationScannerTests {
 
 	interface RemoteUserService extends ThirdPartyUserService {
 
+		void batch(@CustomParameterAnnotation("six") String... user);
+
 	}
 
 	static class UserServiceImpl implements UserService, OtherUserService, RemoteUserService {
@@ -342,6 +351,20 @@ public class UniqueSecurityAnnotationScannerTests {
 
 		@Override
 		public void delete(String user) {
+
+		}
+
+		@Override
+		public void batch(@CustomParameterAnnotation("seven") String... user) {
+
+		}
+
+	}
+
+	static class DefaultUserService extends UserServiceImpl implements RemoteUserService {
+
+		@Override
+		public void batch(String... user) {
 
 		}
 
