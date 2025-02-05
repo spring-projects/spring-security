@@ -148,7 +148,11 @@ Java::
 ----
 @GetMapping("/")
 public String method(@CurrentSecurityContext SecurityContext context) {
-	return context.getAuthentication().getName();
+	if (context.getAuthentication() instanceOf AnonymousAuthenticationToken) {
+		return "anonymous"
+	} else {
+		return "not anonymous"
+	}
 }
 ----
 
@@ -157,7 +161,12 @@ Kotlin::
 [source,kotlin,role="secondary"]
 ----
 @GetMapping("/")
-fun method(@CurrentSecurityContext context : SecurityContext) : String =
-		context!!.authentication!!.name
+fun method(@CurrentSecurityContext context : SecurityContext) : String {
+   return if (context!!.authentication is AnonymousAuthenticationToken) {
+	"anonymous"
+   } else {
+	"not anonymous"
+   }
+}
 ----
 ======
