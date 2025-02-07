@@ -29,6 +29,9 @@ public interface WebInvocationPrivilegeEvaluator {
 	/**
 	 * Determines whether the user represented by the supplied <tt>Authentication</tt>
 	 * object is allowed to invoke the supplied URI.
+	 * <p>
+	 * Note this will only match authorization rules that don't require a certain
+	 * {@code HttpMethod}.
 	 * @param uri the URI excluding the context path (a default context path setting will
 	 * be used)
 	 */
@@ -36,13 +39,18 @@ public interface WebInvocationPrivilegeEvaluator {
 
 	/**
 	 * Determines whether the user represented by the supplied <tt>Authentication</tt>
-	 * object is allowed to invoke the supplied URI, with the given .
+	 * object is allowed to invoke the supplied URI, with the given parameters.
 	 * <p>
-	 * Note the default implementation of <tt>FilterInvocationSecurityMetadataSource</tt>
+	 * Note:
+	 * <ul>
+	 * <li>The default implementation of <tt>FilterInvocationSecurityMetadataSource</tt>
 	 * disregards the <code>contextPath</code> when evaluating which secure object
 	 * metadata applies to a given request URI, so generally the <code>contextPath</code>
 	 * is unimportant unless you are using a custom
-	 * <code>FilterInvocationSecurityMetadataSource</code>.
+	 * <code>FilterInvocationSecurityMetadataSource</code>.</li>
+	 * <li>this will only match authorization rules that don't require a certain
+	 * {@code HttpMethod}.</li>
+	 * </ul>
 	 * @param uri the URI excluding the context path
 	 * @param contextPath the context path (may be null).
 	 * @param method the HTTP method (or null, for any method)
