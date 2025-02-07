@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,7 +51,7 @@ import org.springframework.web.util.UriComponentsBuilder;
  */
 public class OidcClientInitiatedServerLogoutSuccessHandler implements ServerLogoutSuccessHandler {
 
-	private final ServerRedirectStrategy redirectStrategy = new DefaultServerRedirectStrategy();
+	private ServerRedirectStrategy redirectStrategy = new DefaultServerRedirectStrategy();
 
 	private final RedirectServerLogoutSuccessHandler serverLogoutSuccessHandler = new RedirectServerLogoutSuccessHandler();
 
@@ -197,6 +197,17 @@ public class OidcClientInitiatedServerLogoutSuccessHandler implements ServerLogo
 	public void setRedirectUriResolver(Converter<RedirectUriParameters, Mono<String>> redirectUriResolver) {
 		Assert.notNull(redirectUriResolver, "redirectUriResolver cannot be null");
 		this.redirectUriResolver = redirectUriResolver;
+	}
+
+	/**
+	 * Set the {@link ServerRedirectStrategy} to use, default
+	 * {@link DefaultServerRedirectStrategy}
+	 * @param redirectStrategy {@link ServerRedirectStrategy}
+	 * @since 6.5
+	 */
+	public void setRedirectStrategy(ServerRedirectStrategy redirectStrategy) {
+		Assert.notNull(redirectStrategy, "redirectStrategy cannot be null");
+		this.redirectStrategy = redirectStrategy;
 	}
 
 	/**
