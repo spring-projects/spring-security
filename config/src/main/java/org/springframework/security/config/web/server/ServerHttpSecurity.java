@@ -5600,7 +5600,7 @@ public class ServerHttpSecurity {
 
 			private ServerAuthenticationConverter authenticationConverter;
 
-			private final ReactiveAuthenticationManager authenticationManager = new OidcBackChannelLogoutReactiveAuthenticationManager();
+			private ReactiveAuthenticationManager authenticationManager;
 
 			private Supplier<ServerLogoutHandler> logoutHandler = this::logoutHandler;
 
@@ -5613,6 +5613,9 @@ public class ServerHttpSecurity {
 			}
 
 			private ReactiveAuthenticationManager authenticationManager() {
+				if (this.authenticationManager == null) {
+					this.authenticationManager = new OidcBackChannelLogoutReactiveAuthenticationManager();
+				}
 				return this.authenticationManager;
 			}
 
@@ -5743,6 +5746,41 @@ public class ServerHttpSecurity {
 			public BackChannelLogoutConfigurer logoutHandler(ServerLogoutHandler logoutHandler) {
 				this.logoutHandler = () -> logoutHandler;
 				return this;
+			}
+
+			/**
+			 * Configure a custom instance of the authentication manager used for
+			 * back-channel logout.
+			 *
+			 * <p>
+			 * By default, a new instance of
+			 * {@link OidcBackChannelLogoutReactiveAuthenticationManager} will be created.
+			 * If you want to customize the authentication manager, you can use this
+			 * method.
+			 *
+			 * <p>
+			 * For example, if you want to customize the WebClient instance for fetching
+			 * the JWKS keys in the logout process, you can configure Back-Channel Logout
+			 * in the following way:
+			 *
+			 * <pre>
+			 * 	http
+			 *     	.oidcLogout((oidc) -&gt; oidc
+			 *     		.backChannel(config -> {
+			 *     			var logoutTokenDecoderFactory = new CustomOidcLogoutTokenDecoderFactory();
+			 * 				var manager = new OidcBackChannelLogoutReactiveAuthenticationManager();
+			 * 				manager.setLogoutTokenDecoderFactory(logoutTokenDecoderFactory);
+			 * 				config.authenticationManager(manager);
+			 *			}))
+			 *     	);
+			 * </pre>
+			 * @param authenticationManager the {@link ReactiveAuthenticationManager} to
+			 * use as replacement of the default used authentication manager
+			 * @return {@link BackChannelLogoutConfigurer} for further customizations
+			 * @since 6.5
+			 */
+			public void setAuthenticationManager(ReactiveAuthenticationManager authenticationManager) {
+				this.authenticationManager = authenticationManager;
 			}
 
 			void configure(ServerHttpSecurity http) {

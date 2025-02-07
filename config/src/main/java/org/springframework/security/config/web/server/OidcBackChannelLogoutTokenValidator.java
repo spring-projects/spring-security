@@ -46,7 +46,7 @@ import org.springframework.util.Assert;
  * "https://openid.net/specs/openid-connect-backchannel-1_0.html#Validation">the OIDC
  * Back-Channel Logout spec</a>
  */
-final class OidcBackChannelLogoutTokenValidator implements OAuth2TokenValidator<Jwt> {
+public final class OidcBackChannelLogoutTokenValidator implements OAuth2TokenValidator<Jwt> {
 
 	private static final String LOGOUT_VALIDATION_URL = "https://openid.net/specs/openid-connect-backchannel-1_0.html#Validation";
 
@@ -56,7 +56,7 @@ final class OidcBackChannelLogoutTokenValidator implements OAuth2TokenValidator<
 
 	private final String issuer;
 
-	OidcBackChannelLogoutTokenValidator(ClientRegistration clientRegistration) {
+	public OidcBackChannelLogoutTokenValidator(ClientRegistration clientRegistration) {
 		this.audience = clientRegistration.getClientId();
 		String issuer = clientRegistration.getProviderDetails().getIssuerUri();
 		Assert.hasText(issuer, "Provider issuer cannot be null");
