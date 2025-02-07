@@ -180,19 +180,6 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 	}
 
 	/**
-	 * Register the {@link RequestMatcher} represented by this builder
-	 * @param builder the
-	 * {@link org.springframework.security.web.util.matcher.RequestMatchers.Builder} to
-	 * use
-	 * @return the object that is chained after creating the {@link RequestMatcher}
-	 * @since 6.5
-	 */
-	public C requestMatchers(org.springframework.security.web.util.matcher.RequestMatchers.Builder builder) {
-		Assert.state(!this.anyRequestConfigured, "Can't configure requestMatchers after anyRequest");
-		return chainRequestMatchers(List.of(builder.matcher()));
-	}
-
-	/**
 	 * <p>
 	 * If the {@link HandlerMappingIntrospector} is available in the classpath, maps to an
 	 * {@link MvcRequestMatcher} that also specifies a specific {@link HttpMethod} to

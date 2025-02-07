@@ -93,8 +93,8 @@ class RequestMatchersTests {
 
 	@Test
 	void matcherWhenServletPathThenMatchesOnlyServletPath() {
-		RequestMatchers.Builder servlet = RequestMatchers.servlet("/servlet/path");
-		RequestMatcher matcher = servlet.methods(HttpMethod.GET).uris("/endpoint").matcher();
+		RequestMatchers.Builder servlet = RequestMatchers.servletPath("/servlet/path");
+		RequestMatcher matcher = servlet.methods(HttpMethod.GET).pathPatterns("/endpoint").matcher();
 		ServletContext servletContext = servletContext("/servlet/path");
 		assertThat(matcher
 			.matches(get("/servlet/path/endpoint").servletPath("/servlet/path").buildRequest(servletContext))).isTrue();
@@ -104,7 +104,7 @@ class RequestMatchersTests {
 	@Test
 	void matcherWhenRequestPathThenIgnoresServletPath() {
 		RequestMatchers.Builder request = RequestMatchers.request();
-		RequestMatcher matcher = request.methods(HttpMethod.GET).uris("/endpoint").matcher();
+		RequestMatcher matcher = request.methods(HttpMethod.GET).pathPatterns("/endpoint").matcher();
 		assertThat(matcher.matches(get("/servlet/path/endpoint").servletPath("/servlet/path").buildRequest(null)))
 			.isTrue();
 		assertThat(matcher.matches(get("/endpoint").servletPath("/endpoint").buildRequest(null))).isTrue();
@@ -112,17 +112,20 @@ class RequestMatchersTests {
 
 	@Test
 	void matcherWhenServletPathThenRequiresServletPathToExist() {
-		RequestMatchers.Builder servlet = RequestMatchers.servlet("/servlet/path");
-		RequestMatcher matcher = servlet.methods(HttpMethod.GET).uris("/endpoint").matcher();
+		RequestMatchers.Builder servlet = RequestMatchers.servletPath("/servlet/path");
+		RequestMatcher matcher = servlet.methods(HttpMethod.GET).pathPatterns("/endpoint").matcher();
 		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(
 				() -> matcher.matches(get("/servlet/path/endpoint").servletPath("/servlet/path").buildRequest(null)));
 	}
 
 	@Test
 	void servletPathWhenEndsWithSlashOrStarThenIllegalArgument() {
-		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> RequestMatchers.servlet("/path/**"));
-		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> RequestMatchers.servlet("/path/*"));
-		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> RequestMatchers.servlet("/path/"));
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> RequestMatchers.servletPath("/path/**"));
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> RequestMatchers.servletPath("/path/*"));
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> RequestMatchers.servletPath("/path/"));
 	}
 
 	MockServletContext servletContext(String... servletPath) {

@@ -34,13 +34,13 @@ import org.springframework.web.util.pattern.PathPatternParser;
  * is, it should exclude any context or servlet path).
  *
  * <p>
- * To also match the servlet, please see {@link RequestMatchers#servlet}
+ * To also match the servlet, please see {@link RequestMatchers#servletPath}
  *
  * <p>
  * Note that the {@link org.springframework.web.servlet.HandlerMapping} that contains the
- * related URI patterns must be using the same
- * {@link org.springframework.web.util.pattern.PathPatternParser} configured in this
- * class.
+ * related URI patterns must be using {@link PathPatternParser#defaultInstance}. If that
+ * is not the case, use {@link PathPatternParser} to parse your path and provide a
+ * {@link PathPattern} in the constructor.
  * </p>
  *
  * @author Josh Cummings

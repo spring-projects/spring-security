@@ -103,11 +103,42 @@ Xml::
 ----
 ======
 
-== Use Absolute Authorization URIs
+== Include the Servlet Path Prefix in Authorization Rules
 
-The Java DSL now requires that all URIs be absolute (less any context root).
+As of Spring Security 7, `AntPathRequestMatcher` and `MvcRequestMatcher` are no longer supported and the Java DSL requires that all URIs be absolute (less any context root).
 
-This means any endpoints that are not part of the default servlet, xref:servlet/authorization/authorize-http-requests.adoc#match-by-mvc[the servlet path needs to be specified].
-For URIs that match an extension, like `.jsp`, use `regexMatcher("\\.jsp$")`.
+For many applications this will make no difference since most commonly all URIs listed are matched by the default servlet.
 
-Alternatively, you can change each of your `String` URI authorization rules to xref:servlet/authorization/authorize-http-requests.adoc#security-matchers[use a `RequestMatcher`].
+However, if you have other servlets with servlet path prefixes, xref:servlet/authorization/authorize-http-requests.adoc[then these paths need to be supplied separately].
+
+For example, if I have a Spring MVC controller with `@RequestMapping("/orders")` and my MVC application is deployed to `/mvc` (instead of the default servlet), then the URI for this endpoint is `/mvc/orders`.
+Historically, the Java DSL hasn't had a simple way to specify the servlet path prefix and Spring Security attempted to infer it.
+
+Over time, we learned that these inference would surprise developers.
+Instead of taking this responsibility away from developers, now it is simpler to specify the servlet path prefix like so:
+
+[method,java]
+----
+RequestMatchers.Builder servlet = RequestMatchers.servlet("/mvc");
+http
+    .authorizeHttpRequests((authorize) -> authorize
+        .requestMatchers(servlet.uris("/orders/**").matcher()).authenticated()
+    )
+----
+
+
+For paths that belong to the default servlet, use `RequestMatchers.request()` instead:
+
+[method,java]
+----
+RequestMatchers.Builder request = RequestMatchers.request();
+http
+    .authorizeHttpRequests((authorize) -> authorize
+        .requestMatchers(request.uris("/js/**").matcher()).authenticated()
+    )
+----
+
+Note that this doesn't address every kind of servlet since not all servlets have a path prefix.
+For example, expressions that match the JSP Servlet might use an ant pattern `/**/*.jsp`.
+
+There is not yet a general-purpose replacement for these, and so you are encouraged to use `RegexRequestMatcher`, like so:  `regexMatcher("\\.jsp$")`.

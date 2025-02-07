@@ -57,19 +57,19 @@ public class PathPatternRequestMatcherTests {
 
 	@Test
 	void matcherWhenSameMethodThenMatchResult() {
-		RequestMatcher matcher = RequestMatchers.request().methods(HttpMethod.GET).uris("/uri").matcher();
+		RequestMatcher matcher = RequestMatchers.request().methods(HttpMethod.GET).pathPatterns("/uri").matcher();
 		assertThat(matcher.matches(request("/uri"))).isTrue();
 	}
 
 	@Test
 	void matcherWhenDifferentPathThenNoMatch() {
-		RequestMatcher matcher = RequestMatchers.request().methods(HttpMethod.GET).uris("/uri").matcher();
+		RequestMatcher matcher = RequestMatchers.request().methods(HttpMethod.GET).pathPatterns("/uri").matcher();
 		assertThat(matcher.matches(request("GET", "/urj", ""))).isFalse();
 	}
 
 	@Test
 	void matcherWhenDifferentMethodThenNoMatch() {
-		RequestMatcher matcher = RequestMatchers.request().methods(HttpMethod.GET).uris("/uri").matcher();
+		RequestMatcher matcher = RequestMatchers.request().methods(HttpMethod.GET).pathPatterns("/uri").matcher();
 		assertThat(matcher.matches(request("POST", "/mvc/uri", "/mvc"))).isFalse();
 	}
 

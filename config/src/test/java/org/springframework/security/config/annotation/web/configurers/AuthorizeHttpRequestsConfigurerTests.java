@@ -1343,11 +1343,11 @@ public class AuthorizeHttpRequestsConfigurerTests {
 
 		@Bean
 		SecurityFilterChain security(HttpSecurity http) throws Exception {
-			RequestMatchers.Builder mvc = RequestMatchers.servlet("/mvc");
+			RequestMatchers.Builder mvc = RequestMatchers.servletPath("/mvc");
 			// @formatter:off
 			http
 				.authorizeHttpRequests((authorize) -> authorize
-					.requestMatchers(mvc.uris("/path/**")).hasRole("USER")
+					.requestMatchers(mvc.pathPatterns("/path/**").matcher()).hasRole("USER")
 				)
 				.httpBasic(withDefaults());
 			// @formatter:on

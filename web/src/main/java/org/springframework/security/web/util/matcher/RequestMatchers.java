@@ -22,6 +22,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
 
 import jakarta.servlet.DispatcherType;
 import jakarta.servlet.RequestDispatcher;
@@ -33,6 +34,7 @@ import jakarta.servlet.http.MappingMatch;
 
 import org.springframework.http.HttpMethod;
 import org.springframework.lang.Nullable;
+import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
 import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
@@ -96,16 +98,23 @@ public final class RequestMatchers {
 
 	/**
 	 * Create {@link RequestMatcher}s whose URIs are relative to the given
-	 * {@code servletPath}.
+	 * {@code servletPath} prefix.
 	 *
 	 * <p>
-	 * The {@code servletPath} must correlate to a configured servlet in your application.
-	 * The path must be of the format {@code /path}.
+	 * The {@code servletPath} must correlate to a value that would match the result of
+	 * {@link HttpServletRequest#getServletPath()} and its corresponding servlet.
+	 *
+	 * <p>
+	 * That is, if you have a servlet mapping of {@code /path/*}, then
+	 * {@link HttpServletRequest#getServletPath()} would return {@code /path} and so
+	 * {@code /path} is what is specified here.
+	 *
+	 * Specify the path here without the trailing {@code /*}.
 	 * @return a {@link Builder} that treats URIs as relative to the given
 	 * {@code servletPath}
 	 * @since 6.5
 	 */
-	public static Builder servlet(String servletPath) {
+	public static Builder servletPath(String servletPath) {
 		Assert.notNull(servletPath, "servletPath cannot be null");
 		Assert.isTrue(servletPath.startsWith("/"), "servletPath must start with '/'");
 		Assert.isTrue(!servletPath.endsWith("/"), "servletPath must not end with a slash");
@@ -147,25 +156,22 @@ public final class RequestMatchers {
 
 		private final RequestMatcher dispatcherTypes;
 
-		private final RequestMatcher matchers;
-
 		private Builder() {
 			this(AnyRequestMatcher.INSTANCE, AnyRequestMatcher.INSTANCE, AnyRequestMatcher.INSTANCE,
-					AnyRequestMatcher.INSTANCE, AnyRequestMatcher.INSTANCE);
+					AnyRequestMatcher.INSTANCE);
 		}
 
 		private Builder(String servletPath) {
 			this(new ServletPathRequestMatcher(servletPath), AnyRequestMatcher.INSTANCE, AnyRequestMatcher.INSTANCE,
-					AnyRequestMatcher.INSTANCE, AnyRequestMatcher.INSTANCE);
+					AnyRequestMatcher.INSTANCE);
 		}
 
 		private Builder(RequestMatcher servletPath, RequestMatcher methods, RequestMatcher uris,
-				RequestMatcher dispatcherTypes, RequestMatcher matchers) {
+				RequestMatcher dispatcherTypes) {
 			this.servletPath = servletPath;
 			this.methods = methods;
 			this.uris = uris;
 			this.dispatcherTypes = dispatcherTypes;
-			this.matchers = matchers;
 		}
 
 		/**
@@ -178,25 +184,43 @@ public final class RequestMatchers {
 			for (int i = 0; i < methods.length; i++) {
 				matchers[i] = new HttpMethodRequestMatcher(methods[i]);
 			}
-			return new Builder(this.servletPath, anyOf(matchers), this.uris, this.dispatcherTypes, this.matchers);
+			return new Builder(this.servletPath, anyOf(matchers), this.uris, this.dispatcherTypes);
 		}
 
 		/**
-		 * Match requests with any of these URIs
+		 * Match requests with any of these path patterns
 		 *
 		 * <p>
-		 * URIs can be Ant patterns like {@code /path/**}.
-		 * @param uris the URIs to match
+		 * Path patterns always start with a slash and may contain placeholders. They can
+		 * also be followed by {@code /**} to signify all URIs under a given path.
+		 *
+		 * <p>
+		 * These must be specified relative to any servlet path prefix (meaning you should
+		 * exclude the context path and any servlet path prefix in stating your pattern).
+		 *
+		 * <p>
+		 * The following are valid patterns and their meaning
+		 * <ul>
+		 * <li>{@code /path} - match exactly and only `/path`</li>
+		 * <li>{@code /path/**} - match `/path` and any of its descendents</li>
+		 * <li>{@code /path/{value}/**} - match `/path/subdirectory` and any of its
+		 * descendents, capturing the value of the subdirectory in
+		 * {@link RequestAuthorizationContext#getVariables()}</li>
+		 * </ul>
+		 *
+		 * <p>
+		 * A more comprehensive list can be found at {@link PathPattern}.
+		 * @param pathPatterns the path patterns to match
 		 * @return the {@link Builder} for more configuration
 		 */
-		public Builder uris(String... uris) {
-			RequestMatcher[] matchers = new RequestMatcher[uris.length];
-			for (int i = 0; i < uris.length; i++) {
-				Assert.isTrue(uris[i].startsWith("/"), "pattern must start with '/'");
+		public Builder pathPatterns(String... pathPatterns) {
+			RequestMatcher[] matchers = new RequestMatcher[pathPatterns.length];
+			for (int i = 0; i < pathPatterns.length; i++) {
+				Assert.isTrue(pathPatterns[i].startsWith("/"), "path patterns must start with /");
 				PathPatternParser parser = PathPatternParser.defaultInstance;
-				matchers[i] = new PathPatternRequestMatcher(parser.parse(uris[i]));
+				matchers[i] = new PathPatternRequestMatcher(parser.parse(pathPatterns[i]));
 			}
-			return new Builder(this.servletPath, this.methods, anyOf(matchers), this.dispatcherTypes, this.matchers);
+			return new Builder(this.servletPath, this.methods, anyOf(matchers), this.dispatcherTypes);
 		}
 
 		/**
@@ -204,22 +228,19 @@ public final class RequestMatchers {
 		 *
 		 * <p>
 		 * Use this when you have a non-default {@link PathPatternParser}
-		 * @param uris the URIs to match
+		 * @param pathPatterns the URIs to match
 		 * @return the {@link Builder} for more configuration
 		 */
-		public Builder uris(PathPattern... uris) {
-			RequestMatcher[] matchers = new RequestMatcher[uris.length];
-			for (int i = 0; i < uris.length; i++) {
-				matchers[i] = new PathPatternRequestMatcher(uris[i]);
+		public Builder pathPatterns(PathPattern... pathPatterns) {
+			RequestMatcher[] matchers = new RequestMatcher[pathPatterns.length];
+			for (int i = 0; i < pathPatterns.length; i++) {
+				matchers[i] = new PathPatternRequestMatcher(pathPatterns[i]);
 			}
-			return new Builder(this.servletPath, this.methods, anyOf(matchers), this.dispatcherTypes, this.matchers);
+			return new Builder(this.servletPath, this.methods, anyOf(matchers), this.dispatcherTypes);
 		}
 
 		/**
 		 * Match requests with any of these dispatcherTypes
-		 *
-		 * <p>
-		 * URIs can be Ant patterns like {@code /path/**}.
 		 * @param dispatcherTypes the {@link DispatcherType}s to match
 		 * @return the {@link Builder} for more configuration
 		 */
@@ -228,16 +249,7 @@ public final class RequestMatchers {
 			for (int i = 0; i < dispatcherTypes.length; i++) {
 				matchers[i] = new DispatcherTypeRequestMatcher(dispatcherTypes[i]);
 			}
-			return new Builder(this.servletPath, this.methods, this.uris, anyOf(matchers), this.matchers);
-		}
-
-		/**
-		 * Match requests with any of these {@link RequestMatcher}s
-		 * @param requestMatchers the {@link RequestMatchers}s to match
-		 * @return the {@link Builder} for more configuration
-		 */
-		public Builder matching(RequestMatcher... requestMatchers) {
-			return new Builder(this.servletPath, this.methods, this.uris, this.dispatcherTypes, anyOf(requestMatchers));
+			return new Builder(this.servletPath, this.methods, this.uris, anyOf(matchers));
 		}
 
 		/**
@@ -245,7 +257,7 @@ public final class RequestMatchers {
 		 * @return the composite {@link RequestMatcher}
 		 */
 		public RequestMatcher matcher() {
-			return allOf(this.servletPath, this.methods, this.uris, this.dispatcherTypes, this.matchers);
+			return allOf(this.servletPath, this.methods, this.uris, this.dispatcherTypes);
 		}
 
 	}
@@ -264,7 +276,15 @@ public final class RequestMatchers {
 
 	}
 
-	private record ServletPathRequestMatcher(String path) implements RequestMatcher {
+	private static final class ServletPathRequestMatcher implements RequestMatcher {
+
+		private final String path;
+
+		private final AtomicReference<Boolean> servletExists = new AtomicReference();
+
+		ServletPathRequestMatcher(String servletPath) {
+			this.path = servletPath;
+		}
 
 		@Override
 		public boolean matches(HttpServletRequest request) {
@@ -274,16 +294,22 @@ public final class RequestMatchers {
 		}
 
 		private boolean servletExists(HttpServletRequest request) {
-			if (request.getAttribute("org.springframework.test.web.servlet.MockMvc.MVC_RESULT_ATTRIBUTE") != null) {
-				return true;
-			}
-			ServletContext servletContext = request.getServletContext();
-			for (ServletRegistration registration : servletContext.getServletRegistrations().values()) {
-				if (registration.getMappings().contains(this.path + "/*")) {
+			return this.servletExists.updateAndGet((value) -> {
+				if (value != null) {
+					return value;
+				}
+				if (request.getAttribute("org.springframework.test.web.servlet.MockMvc.MVC_RESULT_ATTRIBUTE") != null) {
 					return true;
 				}
-			}
-			return false;
+				for (ServletRegistration registration : request.getServletContext()
+					.getServletRegistrations()
+					.values()) {
+					if (registration.getMappings().contains(this.path + "/*")) {
+						return true;
+					}
+				}
+				return false;
+			});
 		}
 
 		private Map<String, Collection<String>> registrationMappings(HttpServletRequest request) {
@@ -313,6 +339,7 @@ public final class RequestMatchers {
 		public String toString() {
 			return "ServletPath [" + this.path + "]";
 		}
+
 	}
 
 }
