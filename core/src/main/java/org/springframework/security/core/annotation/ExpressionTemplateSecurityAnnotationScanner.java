@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,6 +62,7 @@ import org.springframework.util.PropertyPlaceholderHelper;
  *
  * @param <A> the annotation to search for and synthesize
  * @author Josh Cummings
+ * @author DingHao
  * @since 6.4
  */
 final class ExpressionTemplateSecurityAnnotationScanner<A extends Annotation>
@@ -116,25 +117,33 @@ final class ExpressionTemplateSecurityAnnotationScanner<A extends Annotation>
 		PropertyPlaceholderHelper helper = new PropertyPlaceholderHelper("{", "}", null, null,
 				this.templateDefaults.isIgnoreUnknown());
 		Map<String, Object> properties = new HashMap<>(mergedAnnotation.asMap());
-		Map<String, Object> metaAnnotationProperties = mergedAnnotation.getMetaSource().asMap();
-		Map<String, String> stringProperties = new HashMap<>();
-		for (Map.Entry<String, Object> property : metaAnnotationProperties.entrySet()) {
-			String key = property.getKey();
-			Object value = property.getValue();
-			String asString = (value instanceof String) ? (String) value
-					: conversionService.convert(value, String.class);
-			stringProperties.put(key, asString);
-		}
-		Map<String, Object> annotationProperties = mergedAnnotation.asMap();
-		for (Map.Entry<String, Object> annotationProperty : annotationProperties.entrySet()) {
+		Map<String, String> metaAnnotationProperties = extractMetaAnnotationProperties(mergedAnnotation);
+		for (Map.Entry<String, Object> annotationProperty : mergedAnnotation.asMap().entrySet()) {
 			if (!(annotationProperty.getValue() instanceof String expression)) {
 				continue;
 			}
-			String value = helper.replacePlaceholders(expression, stringProperties::get);
+			String value = helper.replacePlaceholders(expression, metaAnnotationProperties::get);
 			properties.put(annotationProperty.getKey(), value);
 		}
 		AnnotatedElement annotatedElement = (AnnotatedElement) mergedAnnotation.getSource();
 		return MergedAnnotation.of(annotatedElement, this.type, properties);
+	}
+
+	private Map<String, String> extractMetaAnnotationProperties(MergedAnnotation<A> mergedAnnotation) {
+		Map<String, String> stringProperties = new HashMap<>();
+		Map<String, Object> metaAnnotationProperties = new HashMap<>();
+		MergedAnnotation<?> metaSource = mergedAnnotation.getMetaSource();
+		while (metaSource != null) {
+			metaAnnotationProperties.putAll(metaSource.asMap());
+			metaSource = metaSource.getMetaSource();
+		}
+		for (Map.Entry<String, Object> property : metaAnnotationProperties.entrySet()) {
+			Object value = property.getValue();
+			String valueString = (value instanceof String) ? (String) value
+					: conversionService.convert(value, String.class);
+			stringProperties.put(property.getKey(), valueString);
+		}
+		return stringProperties;
 	}
 
 	static class ClassToStringConverter implements GenericConverter {
