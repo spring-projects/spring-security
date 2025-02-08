@@ -237,8 +237,8 @@ The above configuration will result in the following `Filter` ordering:
 |====
 | Filter | Added by
 | xref:servlet/exploits/csrf.adoc[CsrfFilter] | `HttpSecurity#csrf`
-| xref:servlet/authentication/passwords/form.adoc#servlet-authentication-form[UsernamePasswordAuthenticationFilter] | `HttpSecurity#formLogin`
 | xref:servlet/authentication/passwords/basic.adoc[BasicAuthenticationFilter] | `HttpSecurity#httpBasic`
+| xref:servlet/authentication/passwords/form.adoc#servlet-authentication-form[UsernamePasswordAuthenticationFilter] | `HttpSecurity#formLogin`
 | xref:servlet/authorization/authorize-http-requests.adoc[AuthorizationFilter] | `HttpSecurity#authorizeHttpRequests`
 |====
 
