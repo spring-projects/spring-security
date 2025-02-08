@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -53,6 +54,7 @@ import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.DelegatingReactiveAuthenticationManager;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.ReactiveAuthenticationManagerResolver;
+import org.springframework.security.authentication.ott.GenerateOneTimeTokenRequest;
 import org.springframework.security.authentication.ott.OneTimeToken;
 import org.springframework.security.authentication.ott.reactive.InMemoryReactiveOneTimeTokenService;
 import org.springframework.security.authentication.ott.reactive.OneTimeTokenReactiveAuthenticationManager;
@@ -156,7 +158,9 @@ import org.springframework.security.web.server.authentication.logout.LogoutWebFi
 import org.springframework.security.web.server.authentication.logout.SecurityContextServerLogoutHandler;
 import org.springframework.security.web.server.authentication.logout.ServerLogoutHandler;
 import org.springframework.security.web.server.authentication.logout.ServerLogoutSuccessHandler;
+import org.springframework.security.web.server.authentication.ott.DefaultServerGenerateOneTimeTokenRequestResolver;
 import org.springframework.security.web.server.authentication.ott.GenerateOneTimeTokenWebFilter;
+import org.springframework.security.web.server.authentication.ott.ServerGenerateOneTimeTokenRequestResolver;
 import org.springframework.security.web.server.authentication.ott.ServerOneTimeTokenAuthenticationConverter;
 import org.springframework.security.web.server.authentication.ott.ServerOneTimeTokenGenerationSuccessHandler;
 import org.springframework.security.web.server.authorization.AuthorizationContext;
@@ -5940,6 +5944,8 @@ public class ServerHttpSecurity {
 
 		private ServerSecurityContextRepository securityContextRepository;
 
+		private ServerGenerateOneTimeTokenRequestResolver requestResolver;
+
 		private String loginProcessingUrl = "/login/ott";
 
 		private String defaultSubmitPageUrl = "/login/ott";
@@ -5985,6 +5991,7 @@ public class ServerHttpSecurity {
 					getTokenGenerationSuccessHandler());
 			generateFilter
 				.setRequestMatcher(ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, this.tokenGeneratingUrl));
+			generateFilter.setGenerateRequestResolver(getRequestResolver());
 			http.addFilterAt(generateFilter, SecurityWebFiltersOrder.ONE_TIME_TOKEN);
 		}
 
@@ -6110,6 +6117,32 @@ public class ServerHttpSecurity {
 			Assert.notNull(authenticationConverter, "authenticationConverter cannot be null");
 			this.authenticationConverter = authenticationConverter;
 			return this;
+		}
+
+		/**
+		 * Use this {@link ServerGenerateOneTimeTokenRequestResolver} when resolving
+		 * {@link GenerateOneTimeTokenRequest} from {@link ServerWebExchange}. By default,
+		 * the {@link DefaultServerGenerateOneTimeTokenRequestResolver} is used.
+		 * @param requestResolver the
+		 * {@link DefaultServerGenerateOneTimeTokenRequestResolver} to use
+		 * @since 6.5
+		 */
+		public OneTimeTokenLoginSpec generateRequestResolver(
+				ServerGenerateOneTimeTokenRequestResolver requestResolver) {
+			Assert.notNull(requestResolver, "generateRequestResolver cannot be null");
+			this.requestResolver = requestResolver;
+			return this;
+		}
+
+		private ServerGenerateOneTimeTokenRequestResolver getRequestResolver() {
+			if (this.requestResolver != null) {
+				return this.requestResolver;
+			}
+			ServerGenerateOneTimeTokenRequestResolver bean = getBeanOrNull(
+					ServerGenerateOneTimeTokenRequestResolver.class);
+			this.requestResolver = Objects.requireNonNullElseGet(bean,
+					DefaultServerGenerateOneTimeTokenRequestResolver::new);
+			return this.requestResolver;
 		}
 
 		/**

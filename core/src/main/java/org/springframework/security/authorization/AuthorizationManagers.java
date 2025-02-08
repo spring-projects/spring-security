@@ -145,6 +145,7 @@ public final class AuthorizationManagers {
 	private AuthorizationManagers() {
 	}
 
+	@SuppressWarnings("serial")
 	private static final class CompositeAuthorizationDecision extends AuthorizationDecision {
 
 		private final List<AuthorizationResult> results;
@@ -161,6 +162,7 @@ public final class AuthorizationManagers {
 
 	}
 
+	@SuppressWarnings("serial")
 	private static final class NotAuthorizationDecision extends AuthorizationDecision {
 
 		private final AuthorizationResult result;

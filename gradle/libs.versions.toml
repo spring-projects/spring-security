@@ -82,7 +82,7 @@ org-opensaml-opensaml-saml-impl = { module = "org.opensaml:opensaml-saml-impl", 
 org-opensaml-opensaml5-saml-api = { module = "org.opensaml:opensaml-saml-api", version.ref = "org-opensaml5" }
 org-opensaml-opensaml5-saml-impl = { module = "org.opensaml:opensaml-saml-impl", version.ref = "org-opensaml5" }
 org-python-jython = { module = "org.python:jython", version = "2.5.3" }
-org-seleniumhq-selenium-htmlunit-driver = "org.seleniumhq.selenium:htmlunit3-driver:4.27.0"
+org-seleniumhq-selenium-htmlunit-driver = "org.seleniumhq.selenium:htmlunit3-driver:4.28.0"
 org-seleniumhq-selenium-selenium-java = "org.seleniumhq.selenium:selenium-java:4.28.1"
 org-seleniumhq-selenium-selenium-support = "org.seleniumhq.selenium:selenium-support:3.141.59"
 org-skyscreamer-jsonassert = "org.skyscreamer:jsonassert:1.5.3"
