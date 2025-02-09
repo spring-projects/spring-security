@@ -57,8 +57,10 @@ import org.springframework.util.function.SingletonSupplier;
 public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder<H>>
 		extends AbstractHttpConfigurer<AuthorizeHttpRequestsConfigurer<H>, H> {
 
-	static final AuthorizationManager<RequestAuthorizationContext> permitAllAuthorizationManager = (a,
-			o) -> new AuthorizationDecision(true);
+	static final AuthorizationDecision AUTHORIZATION_DECISION = new AuthorizationDecision(true);
+
+	static final AuthorizationManager<RequestAuthorizationContext> PERMIT_ALL_AUTHORIZATION_MANAGER = (a,
+			o) -> AUTHORIZATION_DECISION;
 
 	private final AuthorizationManagerRequestMatcherRegistry registry;
 
@@ -287,7 +289,7 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 		 * customizations
 		 */
 		public AuthorizationManagerRequestMatcherRegistry permitAll() {
-			return access(permitAllAuthorizationManager);
+			return access(PERMIT_ALL_AUTHORIZATION_MANAGER);
 		}
 
 		/**

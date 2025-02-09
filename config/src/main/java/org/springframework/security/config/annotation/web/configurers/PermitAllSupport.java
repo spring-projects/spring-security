@@ -63,7 +63,7 @@ final class PermitAllSupport {
 								SecurityConfig.createList(ExpressionUrlAuthorizationConfigurer.permitAll)));
 				}
 				else {
-					httpConfigurer.addFirst(matcher, AuthorizeHttpRequestsConfigurer.permitAllAuthorizationManager);
+					httpConfigurer.addFirst(matcher, AuthorizeHttpRequestsConfigurer.PERMIT_ALL_AUTHORIZATION_MANAGER);
 				}
 			}
 		}
