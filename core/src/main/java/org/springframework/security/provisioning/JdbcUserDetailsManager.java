@@ -181,7 +181,7 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 		return getJdbcTemplate().query(getUsersByUsernameQuery(), this::mapToUser, username);
 	}
 
-	private UserDetails mapToUser(ResultSet rs, int rowNum) throws SQLException {
+	protected UserDetails mapToUser(ResultSet rs, int rowNum) throws SQLException {
 		String userName = rs.getString(1);
 		String password = rs.getString(2);
 		boolean enabled = rs.getBoolean(3);
@@ -390,7 +390,7 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 				this::mapToGrantedAuthority);
 	}
 
-	private GrantedAuthority mapToGrantedAuthority(ResultSet rs, int rowNum) throws SQLException {
+	protected GrantedAuthority mapToGrantedAuthority(ResultSet rs, int rowNum) throws SQLException {
 		String roleName = getRolePrefix() + rs.getString(3);
 		return new SimpleGrantedAuthority(roleName);
 	}
