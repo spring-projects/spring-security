@@ -16,15 +16,32 @@
 
 package org.springframework.security.web.servlet.util.matcher;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
 
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletRegistration;
+import jakarta.servlet.http.HttpServletMapping;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.MappingMatch;
 
+import org.springframework.http.HttpMethod;
 import org.springframework.http.server.PathContainer;
 import org.springframework.http.server.RequestPath;
+import org.springframework.lang.Nullable;
+import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
+import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
-import org.springframework.security.web.util.matcher.RequestMatchers;
+import org.springframework.util.Assert;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.util.ServletRequestPathUtils;
+import org.springframework.web.util.UriUtils;
+import org.springframework.web.util.WebUtils;
 import org.springframework.web.util.pattern.PathPattern;
 import org.springframework.web.util.pattern.PathPatternParser;
 
@@ -34,7 +51,7 @@ import org.springframework.web.util.pattern.PathPatternParser;
  * is, it should exclude any context or servlet path).
  *
  * <p>
- * To also match the servlet, please see {@link RequestMatchers#servletPath}
+ * To also match the servlet, please see {@link PathPatternRequestMatcher#servletPath}
  *
  * <p>
  * Note that the {@link org.springframework.web.servlet.HandlerMapping} that contains the
@@ -50,6 +67,10 @@ public final class PathPatternRequestMatcher implements RequestMatcher {
 
 	private final PathPattern pattern;
 
+	private RequestMatcher servletPath = AnyRequestMatcher.INSTANCE;
+
+	private RequestMatcher method = AnyRequestMatcher.INSTANCE;
+
 	/**
 	 * Creates a {@link PathPatternRequestMatcher} that uses the provided {@code pattern}.
 	 * <p>
@@ -57,22 +78,47 @@ public final class PathPatternRequestMatcher implements RequestMatcher {
 	 * </p>
 	 * @param pattern the pattern used to match
 	 */
-	public PathPatternRequestMatcher(PathPattern pattern) {
+	private PathPatternRequestMatcher(PathPattern pattern) {
 		this.pattern = pattern;
 	}
 
 	/**
-	 * Creates a {@link PathPatternRequestMatcher} that uses the provided {@code pattern},
-	 * parsing it with {@link PathPatternParser#defaultInstance}.
+	 * Create a {@link PathPatternRequestMatcher} whose URIs do not have a servlet path
+	 * prefix
 	 * <p>
-	 * The {@code pattern} should be relative to the servlet path
-	 * </p>
-	 * @param pattern the pattern used to match
+	 * When there is no context path, then these URIs are effectively absolute.
+	 * @return a {@link PathPatternRequestMatcher.Builder} that treats URIs as relative to
+	 * the context path, if any
+	 * @since 6.5
 	 */
-	public static PathPatternRequestMatcher pathPattern(String pattern) {
-		PathPatternParser parser = PathPatternParser.defaultInstance;
-		PathPattern pathPattern = parser.parse(pattern);
-		return new PathPatternRequestMatcher(pathPattern);
+	public static Builder path() {
+		return new Builder();
+	}
+
+	/**
+	 * Create a {@link PathPatternRequestMatcher} whose URIs are relative to the given
+	 * {@code servletPath} prefix.
+	 *
+	 * <p>
+	 * The {@code servletPath} must correlate to a value that would match the result of
+	 * {@link HttpServletRequest#getServletPath()} and its corresponding servlet.
+	 *
+	 * <p>
+	 * That is, if you have a servlet mapping of {@code /path/*}, then
+	 * {@link HttpServletRequest#getServletPath()} would return {@code /path} and so
+	 * {@code /path} is what is specified here.
+	 *
+	 * Specify the path here without the trailing {@code /*}.
+	 * @return a {@link PathPatternRequestMatcher.Builder} that treats URIs as relative to
+	 * the given {@code servletPath}
+	 * @since 6.5
+	 */
+	public static Builder servletPath(String servletPath) {
+		Assert.notNull(servletPath, "servletPath cannot be null");
+		Assert.isTrue(servletPath.startsWith("/"), "servletPath must start with '/'");
+		Assert.isTrue(!servletPath.endsWith("/"), "servletPath must not end with a slash");
+		Assert.isTrue(!servletPath.contains("*"), "servletPath must not contain a star");
+		return new Builder(new ServletPathRequestMatcher(servletPath));
 	}
 
 	/**
@@ -88,9 +134,23 @@ public final class PathPatternRequestMatcher implements RequestMatcher {
 	 */
 	@Override
 	public MatchResult matcher(HttpServletRequest request) {
+		if (!this.servletPath.matches(request)) {
+			return MatchResult.notMatch();
+		}
+		if (!this.method.matches(request)) {
+			return MatchResult.notMatch();
+		}
 		PathContainer path = getRequestPath(request).pathWithinApplication();
 		PathPattern.PathMatchInfo info = this.pattern.matchAndExtract(path);
 		return (info != null) ? MatchResult.match(info.getUriVariables()) : MatchResult.notMatch();
+	}
+
+	void setMethod(RequestMatcher method) {
+		this.method = method;
+	}
+
+	void setServletPath(RequestMatcher servletPath) {
+		this.servletPath = servletPath;
 	}
 
 	private RequestPath getRequestPath(HttpServletRequest request) {
@@ -121,7 +181,234 @@ public final class PathPatternRequestMatcher implements RequestMatcher {
 	 */
 	@Override
 	public String toString() {
-		return "PathPattern [" + this.pattern + "]";
+		StringBuilder request = new StringBuilder();
+		if (this.method instanceof HttpMethodRequestMatcher m) {
+			request.append(m.method.name()).append(' ');
+		}
+		if (this.servletPath instanceof ServletPathRequestMatcher s) {
+			request.append(s.path);
+		}
+		return "PathPattern [" + request + this.pattern + "]";
+	}
+
+	/**
+	 * A builder for specifying various elements of a request for the purpose of creating
+	 * a {@link PathPatternRequestMatcher}.
+	 *
+	 * <p>
+	 * For example, if Spring MVC is deployed to `/mvc` and another servlet to `/other`,
+	 * then you can use this builder to do:
+	 * </p>
+	 *
+	 * <code>
+	 *     http
+	 *         .authorizeHttpRequests((authorize) -> authorize
+	 *              .requestMatchers(servletPath("/mvc").pattern("/user/**").matcher()).hasAuthority("user")
+	 *              .requestMatchers(servletPath("/other").pattern("/admin/**").matcher()).hasAuthority("admin")
+	 *         )
+	 *             ...
+	 * </code>
+	 */
+	public static final class Builder {
+
+		private static final PathPattern ANY_PATH = PathPatternParser.defaultInstance.parse("/**");
+
+		private final RequestMatcher method;
+
+		private final RequestMatcher servletPath;
+
+		private final PathPattern pathPattern;
+
+		Builder() {
+			this(AnyRequestMatcher.INSTANCE);
+		}
+
+		Builder(RequestMatcher servletPath) {
+			this(AnyRequestMatcher.INSTANCE, servletPath, ANY_PATH);
+		}
+
+		Builder(RequestMatcher method, RequestMatcher servletPath, PathPattern pathPattern) {
+			this.method = method;
+			this.servletPath = servletPath;
+			this.pathPattern = pathPattern;
+		}
+
+		/**
+		 * Match requests having this path pattern.
+		 *
+		 * <p>
+		 * Path patterns always start with a slash and may contain placeholders. They can
+		 * also be followed by {@code /**} to signify all URIs under a given path.
+		 *
+		 * <p>
+		 * These must be specified relative to any servlet path prefix (meaning you should
+		 * exclude the context path and any servlet path prefix in stating your pattern).
+		 *
+		 * <p>
+		 * The following are valid patterns and their meaning
+		 * <ul>
+		 * <li>{@code /path} - match exactly and only `/path`</li>
+		 * <li>{@code /path/**} - match `/path` and any of its descendents</li>
+		 * <li>{@code /path/{value}/**} - match `/path/subdirectory` and any of its
+		 * descendents, capturing the value of the subdirectory in
+		 * {@link RequestAuthorizationContext#getVariables()}</li>
+		 * </ul>
+		 *
+		 * <p>
+		 * The pattern is parsed using {@link PathPatternParser#defaultInstance} A more
+		 * comprehensive list can be found at {@link PathPattern}.
+		 * @param pathPattern the path pattern to match
+		 * @return the {@link Builder} for more configuration
+		 */
+		public Builder pattern(String pathPattern) {
+			Assert.notNull(pathPattern, "pattern cannot be null");
+			Assert.isTrue(pathPattern.startsWith("/"), "pattern must start with a /");
+			PathPatternParser parser = PathPatternParser.defaultInstance;
+			return new Builder(this.method, this.servletPath, parser.parse(pathPattern));
+		}
+
+		/**
+		 * Match requests having this path pattern.
+		 *
+		 * <p>
+		 * Path patterns always start with a slash and may contain placeholders. They can
+		 * also be followed by {@code /**} to signify all URIs under a given path.
+		 *
+		 * <p>
+		 * These must be specified relative to any servlet path prefix (meaning you should
+		 * exclude the context path and any servlet path prefix in stating your pattern).
+		 *
+		 * <p>
+		 * The following are valid patterns and their meaning
+		 * <ul>
+		 * <li>{@code /path} - match exactly and only `/path`</li>
+		 * <li>{@code /path/**} - match `/path` and any of its descendents</li>
+		 * <li>{@code /path/{value}/**} - match `/path/subdirectory` and any of its
+		 * descendents, capturing the value of the subdirectory in
+		 * {@link RequestAuthorizationContext#getVariables()}</li>
+		 * </ul>
+		 *
+		 * <p>
+		 * A more comprehensive list can be found at {@link PathPattern}.
+		 * @param pathPattern the path pattern to match
+		 * @return the {@link Builder} for more configuration
+		 */
+		public Builder pattern(PathPattern pathPattern) {
+			Assert.notNull(pathPattern, "pathPattern cannot be null");
+			return new Builder(this.method, this.servletPath, pathPattern);
+		}
+
+		/**
+		 * Match requests having this {@link HttpMethod}.
+		 * @param method the {@link HttpMethod} to match
+		 * @return the {@link Builder} for more configuration
+		 */
+		public Builder method(HttpMethod method) {
+			Assert.notNull(method, "method cannot be null");
+			return new Builder(new HttpMethodRequestMatcher(method), this.servletPath, this.pathPattern);
+		}
+
+		/**
+		 * Create the {@link PathPatternRequestMatcher}/
+		 * @return the {@link PathPatternRequestMatcher}
+		 */
+		public PathPatternRequestMatcher matcher() {
+			PathPatternRequestMatcher pathPattern = new PathPatternRequestMatcher(this.pathPattern);
+			if (this.method != AnyRequestMatcher.INSTANCE) {
+				pathPattern.setMethod(this.method);
+			}
+			if (this.servletPath != AnyRequestMatcher.INSTANCE) {
+				pathPattern.setServletPath(this.servletPath);
+			}
+			return pathPattern;
+		}
+
+	}
+
+	private static final class HttpMethodRequestMatcher implements RequestMatcher {
+
+		private final HttpMethod method;
+
+		HttpMethodRequestMatcher(HttpMethod method) {
+			this.method = method;
+		}
+
+		@Override
+		public boolean matches(HttpServletRequest request) {
+			return this.method.name().equals(request.getMethod());
+		}
+
+		@Override
+		public String toString() {
+			return "HttpMethod [" + this.method + "]";
+		}
+
+	}
+
+	private static final class ServletPathRequestMatcher implements RequestMatcher {
+
+		private final String path;
+
+		private final AtomicReference<Boolean> servletExists = new AtomicReference<>();
+
+		ServletPathRequestMatcher(String servletPath) {
+			this.path = servletPath;
+		}
+
+		@Override
+		public boolean matches(HttpServletRequest request) {
+			Assert.isTrue(servletExists(request), () -> this.path + "/* does not exist in your servlet registration "
+					+ registrationMappings(request));
+			return Objects.equals(this.path, getServletPathPrefix(request));
+		}
+
+		private boolean servletExists(HttpServletRequest request) {
+			return this.servletExists.updateAndGet((value) -> {
+				if (value != null) {
+					return value;
+				}
+				if (request.getAttribute("org.springframework.test.web.servlet.MockMvc.MVC_RESULT_ATTRIBUTE") != null) {
+					return true;
+				}
+				for (ServletRegistration registration : request.getServletContext()
+					.getServletRegistrations()
+					.values()) {
+					if (registration.getMappings().contains(this.path + "/*")) {
+						return true;
+					}
+				}
+				return false;
+			});
+		}
+
+		private Map<String, Collection<String>> registrationMappings(HttpServletRequest request) {
+			Map<String, Collection<String>> map = new LinkedHashMap<>();
+			ServletContext servletContext = request.getServletContext();
+			for (ServletRegistration registration : servletContext.getServletRegistrations().values()) {
+				map.put(registration.getName(), registration.getMappings());
+			}
+			return map;
+		}
+
+		@Nullable
+		private static String getServletPathPrefix(HttpServletRequest request) {
+			HttpServletMapping mapping = (HttpServletMapping) request.getAttribute(RequestDispatcher.INCLUDE_MAPPING);
+			mapping = (mapping != null) ? mapping : request.getHttpServletMapping();
+			if (ObjectUtils.nullSafeEquals(mapping.getMappingMatch(), MappingMatch.PATH)) {
+				String servletPath = (String) request.getAttribute(WebUtils.INCLUDE_SERVLET_PATH_ATTRIBUTE);
+				servletPath = (servletPath != null) ? servletPath : request.getServletPath();
+				servletPath = servletPath.endsWith("/") ? servletPath.substring(0, servletPath.length() - 1)
+						: servletPath;
+				return UriUtils.encodePath(servletPath, StandardCharsets.UTF_8);
+			}
+			return null;
+		}
+
+		@Override
+		public String toString() {
+			return "ServletPath [" + this.path + "]";
+		}
+
 	}
 
 }
