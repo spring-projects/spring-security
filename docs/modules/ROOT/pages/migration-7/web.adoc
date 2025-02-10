@@ -119,22 +119,22 @@ Instead of taking this responsibility away from developers, now it is simpler to
 
 [method,java]
 ----
-RequestMatchers.Builder servlet = RequestMatchers.servlet("/mvc");
+PathPatternRequestParser.Builder servlet = PathPatternRequestParser.servletPath("/mvc");
 http
     .authorizeHttpRequests((authorize) -> authorize
-        .requestMatchers(servlet.uris("/orders/**").matcher()).authenticated()
+        .requestMatchers(servlet.pattern("/orders/**").matcher()).authenticated()
     )
 ----
 
 
-For paths that belong to the default servlet, use `RequestMatchers.request()` instead:
+For paths that belong to the default servlet, use `PathPatternRequestParser.path()` instead:
 
 [method,java]
 ----
-RequestMatchers.Builder request = RequestMatchers.request();
+PathPatternRequestParser.Builder request = PathPatternRequestParser.path();
 http
     .authorizeHttpRequests((authorize) -> authorize
-        .requestMatchers(request.uris("/js/**").matcher()).authenticated()
+        .requestMatchers(request.pattern("/js/**").matcher()).authenticated()
     )
 ----
 

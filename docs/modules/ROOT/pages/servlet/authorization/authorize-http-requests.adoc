@@ -590,14 +590,14 @@ Java::
 +
 [source,java,role="primary"]
 ----
-import static org.springframework.security.web.servlet.util.matcher.RequestMatchers.servlet;
+import static org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher.servletPath;
 
 @Bean
 SecurityFilterChain appEndpoints(HttpSecurity http) {
 	http
         .authorizeHttpRequests((authorize) -> authorize
-            .requestMatchers(servlet("/spring-mvc").uris("/admin/**")).hasAuthority("admin")
-            .requestMatchers(servlet("/spring-mvc").uris("/my/controller/**")).hasAuthority("controller")
+            .requestMatchers(servletPath("/spring-mvc").pattern("/admin/**").matcher()).hasAuthority("admin")
+            .requestMatchers(servletPath("/spring-mvc").pattern("/my/controller/**").matcher()).hasAuthority("controller")
             .anyRequest().authenticated()
         );
 
@@ -639,15 +639,15 @@ With Java, note that the `ServletRequestMatcherBuilders` return value can be reu
 
 [source,java,role="primary"]
 ----
-import static org.springframework.security.web.servlet.util.matcher.RequestMatchers.servlet;
+import static org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher.servletPath;
 
 @Bean
 SecurityFilterChain appEndpoints(HttpSecurity http) {
-	RequestMatchers.Builder mvc = servlet("/spring-mvc");
+	PathPatternRequestMatcher.Builder mvc = servletPath("/spring-mvc");
 	http
         .authorizeHttpRequests((authorize) -> authorize
-            .requestMatchers(mvc.uris("/admin/**")).hasAuthority("admin")
-            .requestMatchers(mvc.uris("/my/controller/**")).hasAuthority("controller")
+            .requestMatchers(mvc.pattern("/admin/**").matcher()).hasAuthority("admin")
+            .requestMatchers(mvc.pattern("/my/controller/**").matcher()).hasAuthority("controller")
             .anyRequest().authenticated()
         );
 

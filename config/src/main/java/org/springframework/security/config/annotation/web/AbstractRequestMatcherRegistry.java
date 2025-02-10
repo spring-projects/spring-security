@@ -268,7 +268,7 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 				This method cannot decide whether these patterns are Spring MVC patterns or not. \
 				This is because there is more than one mappable servlet in your servlet context: %s.
 
-				To address this, please create one RequestMatchers#servlet for each servlet that has \
+				To address this, please create one PathPatternRequestMatcher#servletPath for each servlet that has \
 				authorized endpoints and use them to construct request matchers manually.
 				""";
 		Map<String, Collection<String>> mappings = new LinkedHashMap<>();

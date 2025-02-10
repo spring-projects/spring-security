@@ -64,7 +64,7 @@ import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
 import org.springframework.security.web.access.intercept.RequestMatcherDelegatingAuthorizationManager;
 import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
-import org.springframework.security.web.util.matcher.RequestMatchers;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
@@ -1343,11 +1343,11 @@ public class AuthorizeHttpRequestsConfigurerTests {
 
 		@Bean
 		SecurityFilterChain security(HttpSecurity http) throws Exception {
-			RequestMatchers.Builder mvc = RequestMatchers.servletPath("/mvc");
+			PathPatternRequestMatcher.Builder mvc = PathPatternRequestMatcher.servletPath("/mvc");
 			// @formatter:off
 			http
 				.authorizeHttpRequests((authorize) -> authorize
-					.requestMatchers(mvc.pathPatterns("/path/**").matcher()).hasRole("USER")
+					.requestMatchers(mvc.pattern("/path/**").matcher()).hasRole("USER")
 				)
 				.httpBasic(withDefaults());
 			// @formatter:on
