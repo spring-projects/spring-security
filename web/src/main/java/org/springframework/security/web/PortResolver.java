@@ -31,6 +31,14 @@ import jakarta.servlet.ServletRequest;
  */
 public interface PortResolver {
 
+	PortResolver NO_OP = new PortResolver() {
+
+		@Override
+		public int getServerPort(ServletRequest request) {
+			return request.getServerPort();
+		}
+	};
+
 	/**
 	 * Indicates the port the <code>ServletRequest</code> was received on.
 	 * @param request that the method should lookup the port for
