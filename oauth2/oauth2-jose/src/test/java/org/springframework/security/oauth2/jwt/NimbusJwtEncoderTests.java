@@ -107,7 +107,6 @@ public class NimbusJwtEncoderTests {
 			.withMessageContaining("Failed to select a JWK signing key -> key source error");
 	}
 
-
 	@Test
 	public void encodeWhenJwkSelectEmptyThenThrowJwtEncodingException() {
 		JwsHeader jwsHeader = JwsHeader.with(SignatureAlgorithm.RS256).build();
