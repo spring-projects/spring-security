@@ -17,8 +17,20 @@ package com.google.springframework.security.web.client;
 
 import java.net.InetAddress;
 
-
+/**
+ * The interface which is used to implement all filtering logic in the DNS resolvers used by {@link SecureRestTemplate}.
+ */
 public interface SsrfProtectionFilter {
+
+	/**
+	 * Because a hostname can be resolved to multiple addresses ( e.g. round-robin DNS ) all implementations
+	 * must check that all the address conform to their internal filtering logic.
+	 *
+	 * @param addresses list addresses to checked against a filtering criteria.
+	 * @return the list of InetAddress that pass through the filter
+     *
+	 * @throws HostBlockedException when there are no addresses that pass the filtering criteria this exception should be thrown.
+	 */
 
 	InetAddress[] filterAddresses(final InetAddress[] addresses) throws HostBlockedException;
 

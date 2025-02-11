@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class ListedSsrfProtectionFilter implements SsrfProtectionFilter {
+class ListedSsrfProtectionFilter implements SsrfProtectionFilter {
 
 	/**
 	 * FilterMode enum to make usage more intuitive ( practically this is just a bool )

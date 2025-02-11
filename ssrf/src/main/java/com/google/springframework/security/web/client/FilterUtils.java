@@ -17,7 +17,7 @@ package com.google.springframework.security.web.client;
 
 import java.net.InetAddress;
 
-public class FilterUtils {
+class FilterUtils {
 
 	public static boolean isInternalIp(InetAddress addr) {
 

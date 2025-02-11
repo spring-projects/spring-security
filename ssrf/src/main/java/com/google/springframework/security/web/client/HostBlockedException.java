@@ -17,6 +17,10 @@ package com.google.springframework.security.web.client;
 
 import java.io.IOException;
 
+/**
+ * Exception thrown when a request violates the security criteria specified in a
+ * {@link com.google.springframework.security.web.client.SsrfProtectionFilter}
+ */
 public class HostBlockedException extends IOException {
 
 	private static final long serialVersionUID = 1;

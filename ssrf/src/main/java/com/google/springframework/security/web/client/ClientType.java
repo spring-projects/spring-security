@@ -15,6 +15,10 @@
  */
 package com.google.springframework.security.web.client;
 
+/**
+ * Enum to be used in {@link com.google.springframework.security.web.client.SecureRestTemplate} to select
+ * the underlying HTTP client type.
+ */
 public enum ClientType {
 	HTTP_CLIENT_5,
 	JETTY_CLIENT

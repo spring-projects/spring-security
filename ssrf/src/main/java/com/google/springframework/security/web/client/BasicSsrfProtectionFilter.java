@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class BasicSsrfProtectionFilter implements SsrfProtectionFilter {
+class BasicSsrfProtectionFilter implements SsrfProtectionFilter {
 
 	private final NetworkMode mode;
 

@@ -15,6 +15,10 @@
  */
 package com.google.springframework.security.web.client;
 
+/**
+ * This specifies if the {@link com.google.springframework.security.web.client.SecureRestTemplate} should
+ * allow request to the local network only or only towards the internet only ( e.g. to prevent access to cloud VM metadata ).
+ */
 public enum NetworkMode {
 	BLOCK_EXTERNAL,
 	BLOCK_INTERNAL

@@ -38,18 +38,56 @@ import org.springframework.http.client.JettyClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
 /**
- * SecureRestTemplate provides a way to create a RestTemplate which protects against unintentional network access
- * and provides mitigations against Server Side Resource Forgery via DNS rebinding.
- *
+ * SecureRestTemplate provides a way to create a RestTemplate which protects against unintentional network access and
+ * provides mitigations against Server Side Resource Forgery via DNS rebinding. Use the associated
+ * {@link com.google.springframework.security.web.client.SecureRestTemplate.Builder} to create new instances, it also
+ * provides a method to create the underlying  {@link org.springframework.http.client.ClientHttpRequestFactory}.
+ * Currently two flavours are supported, backed by Apache HttpClient 5 or Jetty.
  */
 public class SecureRestTemplate {
 
 	/**
-	 * Helper enum to make configuring with system properties easier
+	 * Helper enum to make configuring with system properties easier, when using {@link #buildDefault()}
+	 *
+	 * @see #ALLOW_LIST
+	 * @see #DENY_LIST
+	 * @see #BLOCK_EXTERNAL
+	 * @see #BLOCK_INTERNAL
 	 */
 	private enum ProtectionMode {
-		ALLOW_LIST, DENY_LIST, BLOCK_EXTERNAL, BLOCK_INTERNAL,
+		/**
+		 * Use the <b>ssrf.protection.iplist</b> property in {@link #buildDefault()} as an allow-list.
+		 */
+		ALLOW_LIST,
+		/**
+		 * Use the <b>ssrf.protection.iplist</b> property in {@link #buildDefault()} as a deny-list.
+		 */
+		DENY_LIST,
+
+		/**
+		 * Block requests directed towards the non-local, non-loopback addresses.
+		 */
+		BLOCK_EXTERNAL,
+
+		/**
+		 * Block requests directed towards the local or loopback addresses.
+		 */
+		BLOCK_INTERNAL,
 	}
+
+	/**
+	 * Build {@link com.google.springframework.security.web.client.SecureRestTemplate} based on JVM global system
+	 * properties. The following properties can be used to configured:
+	 * <ul>
+	 *     <li><b>ssrf.protection.mode</b></li> Mandatory property to specify
+	 *     {@link com.google.springframework.security.web.client.SecureRestTemplate.ProtectionMode} if you would like to use this method.
+	 *     <li><b>ssrf.protection.iplist</b></li>
+	 *     The list of ip addresses or hostnames to use for allow-listing/block-listing based on the property above when it's set to
+	 *      <b>ALLOW_LIST</b> or <b>DENY_LIST</b>.
+	 *     <li><b>ssrf.protection.report_only</b></li> If set, request are not blocked just logged. Only the existence of the property is checked, the value is ignored.
+	 *
+	 * </ul>
+	 */
 
 	public static RestTemplate buildDefault() {
 
@@ -85,6 +123,11 @@ public class SecureRestTemplate {
 
 	}
 
+	/**
+	 * Builder class to create a  {@link com.google.springframework.security.web.client.SecureRestTemplate} or an
+	 * underlying {@link org.springframework.http.client.ClientHttpRequestFactory}. It also exposes ways to create the
+	 * underlying DNS-resolvers which contain the heart of the protection logic.
+	 */
 	public static class Builder {
 
 		private List<SsrfProtectionFilter> customFilters = new ArrayList<>();
@@ -100,6 +143,14 @@ public class SecureRestTemplate {
 		private ClientType clientType = ClientType.HTTP_CLIENT_5;
 		private HttpClient jettyClient = null;
 
+		/**
+		 * Create a {@link com.google.springframework.security.web.client.SecureRestTemplate} with a
+		 * {@link org.eclipse.jetty.client.HttpClient} to use to make the requests. The lifetime of a
+		 * {@link org.eclipse.jetty.client.HttpClient} should be handled by Spring (or manually)
+		 * {@see UsageExample.java}
+		 *
+		 * @param jettyClient the HttpClient to use
+		 */
 
 		public Builder fromJettyClient(HttpClient jettyClient) {
 			this.jettyClient = jettyClient;
@@ -107,37 +158,60 @@ public class SecureRestTemplate {
 			return this;
 		}
 
+		/**
+		 * When set to true rule violating requests are not blocked only logged.
+		 */
 		public Builder reportOnly(boolean isReportOnly) {
 			this.isReportOnly = isReportOnly;
 			return this;
 		}
 
+		/**
+		 * Set mode do block requests towards the internet or block requests towards the internet.
+		 */
 		public Builder networkMode(NetworkMode networkMode) {
 			this.networkMode = networkMode;
 			return this;
 		}
 
+		/**
+		 * List of ip-addresses or hostnames to use in an allow-list.
+		 */
 		public Builder withAllowlist(String... ipList) {
 			ipAllowList.addAll(List.of(ipList));
 			return this;
 		}
 
+		/**
+		 * List of ip-addresses or hostnames to use in an allow-list.
+		 */
 		public Builder withAllowlist(Iterable<String> ipList) {
 			ipList.forEach(ipAllowList::add);
 			return this;
 		}
 
+
+		/**
+		 * List of ip-addresses or hostnames to use in an block-list.
+		 */
 		public Builder withBlocklist(String... ipList) {
 			ipBlockList.addAll(List.of(ipList));
 			return this;
 		}
 
+		/**
+		 * List of ip-addresses or hostnames to use in an block-list.
+		 */
 		public Builder withBlocklist(Iterable<String> ipList) {
 			ipList.forEach(ipBlockList::add);
 			return this;
 		}
 
-
+		/**
+		 * When very specific criteria are needed to block or allow a request a custom
+		 * {@link com.google.springframework.security.web.client.SsrfProtectionFilter} implementation can be plugged
+		 * in.
+		 */
 		public Builder withCustomFilter(SsrfProtectionFilter filter) {
 			customFilters.add(filter);
 			return this;
@@ -203,14 +277,30 @@ public class SecureRestTemplate {
 			return filters;
 		}
 
+		/**
+		 * Helper method to create the Jetty specific DNS resolver used in an underlying
+		 * {@link org.eclipse.jetty.client.HttpClient} for request filtering.
+		 *
+		 * @return the custom resolver which implements the filtering and DNS rebinding protection logic.
+		 */
 		public SocketAddressResolver buildToJettyResolver() {
 			return new JettySsrfDnsResolver(makeFilters(), isReportOnly);
 		}
 
+		/**
+		 * Helper method to create the DNS resolver used in an underlying
+		 * {@link org.apache.hc.client5.http.impl.classic.CloseableHttpClient} for request filtering.
+		 *
+		 * @return the custom resolver which implements the filtering and DNS rebinding protection logic.
+		 */
 		public DnsResolver buildToHttpClientDnsResolver() {
 			return new HcSsrfDnsResolver(makeFilters(), isReportOnly);
 		}
 
+		/**
+		 * Helper method to create a {@link org.springframework.http.client.ClientHttpRequestFactory} for more
+		 * customization before creating a RestTemplate or RestClient.
+		 */
 		public ClientHttpRequestFactory buildToHttpRequestFactory() {
 			if (clientType == ClientType.HTTP_CLIENT_5) {
 				return makeHttpClient5(new HcSsrfDnsResolver(makeFilters(), isReportOnly));
@@ -223,6 +313,10 @@ public class SecureRestTemplate {
 			}
 		}
 
+		/**
+		 * Create the {@link com.google.springframework.security.web.client.SecureRestTemplate} configured by this
+		 * builder.
+		 */
 		public RestTemplate build() {
 			if (clientType == ClientType.HTTP_CLIENT_5) {
 				return new RestTemplate(makeHttpClient5(new HcSsrfDnsResolver(makeFilters(), isReportOnly)));
