@@ -2,7 +2,7 @@
 [[jc]]
 = Java Configuration
 
-General support for https://docs.spring.io/spring/docs/3.1.x/spring-framework-reference/html/beans.html#beans-java[Java configuration] was added to Spring Framework in Spring 3.1.
+General support for https://docs.spring.io/spring-framework/reference/core/beans/java.html[Java configuration] was added to Spring Framework in Spring 3.1.
 Spring Security 3.2 introduced Java configuration to let users configure Spring Security without the use of any XML.
 
 If you are familiar with the xref:servlet/configuration/xml-namespace.adoc#ns-config[Security Namespace Configuration], you should find quite a few similarities between it and Spring Security Java configuration.
@@ -64,7 +64,7 @@ This configuration is not complex or extensive, but it does a lot:
 === AbstractSecurityWebApplicationInitializer
 
 The next step is to register the `springSecurityFilterChain` with the WAR file.
-You can do so in Java configuration with https://docs.spring.io/spring/docs/3.2.x/spring-framework-reference/html/mvc.html#mvc-container-config[Spring's `WebApplicationInitializer` support] in a Servlet 3.0+ environment.
+You can do so in Java configuration with https://docs.spring.io/spring-framework/reference/web/webmvc/mvc-servlet/container-config.html[Spring's `WebApplicationInitializer` support] in a Servlet 3.0+ environment.
 Not surprisingly, Spring Security provides a base class (`AbstractSecurityWebApplicationInitializer`) to ensure that the `springSecurityFilterChain` gets registered for you.
 The way in which we use `AbstractSecurityWebApplicationInitializer` differs depending on if we are already using Spring or if Spring Security is the only Spring component in our application.
 
