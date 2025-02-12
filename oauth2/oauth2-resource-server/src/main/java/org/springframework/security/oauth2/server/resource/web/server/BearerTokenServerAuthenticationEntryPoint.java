@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -73,8 +73,8 @@ public final class BearerTokenServerAuthenticationEntryPoint implements ServerAu
 		if (this.realmName != null) {
 			parameters.put("realm", this.realmName);
 		}
-		if (authException instanceof OAuth2AuthenticationException) {
-			OAuth2Error error = ((OAuth2AuthenticationException) authException).getError();
+		if (authException instanceof OAuth2AuthenticationException oAuth2AuthenticationException) {
+			OAuth2Error error = oAuth2AuthenticationException.getError();
 			parameters.put("error", error.getErrorCode());
 			if (StringUtils.hasText(error.getDescription())) {
 				parameters.put("error_description", error.getDescription());
@@ -82,20 +82,19 @@ public final class BearerTokenServerAuthenticationEntryPoint implements ServerAu
 			if (StringUtils.hasText(error.getUri())) {
 				parameters.put("error_uri", error.getUri());
 			}
-			if (error instanceof BearerTokenError bearerTokenError) {
-				if (StringUtils.hasText(bearerTokenError.getScope())) {
-					parameters.put("scope", bearerTokenError.getScope());
-				}
+			if (error instanceof BearerTokenError bearerTokenError
+					&& StringUtils.hasText(bearerTokenError.getScope())) {
+				parameters.put("scope", bearerTokenError.getScope());
 			}
 		}
 		return parameters;
 	}
 
 	private HttpStatus getStatus(AuthenticationException authException) {
-		if (authException instanceof OAuth2AuthenticationException) {
-			OAuth2Error error = ((OAuth2AuthenticationException) authException).getError();
-			if (error instanceof BearerTokenError) {
-				return ((BearerTokenError) error).getHttpStatus();
+		if (authException instanceof OAuth2AuthenticationException oAuth2AuthenticationException) {
+			OAuth2Error error = oAuth2AuthenticationException.getError();
+			if (error instanceof BearerTokenError bearerTokenError) {
+				return bearerTokenError.getHttpStatus();
 			}
 		}
 		return HttpStatus.UNAUTHORIZED;
