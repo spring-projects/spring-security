@@ -185,13 +185,25 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
 					break;
 				}
 			}
-			catch (AccountStatusException | InternalAuthenticationServiceException ex) {
+			catch (AccountStatusException ex) {
 				prepareException(ex, authentication);
+				logger.debug(LogMessage.format("Authentication failed for user '%s' since account status is %s",
+						authentication.getName(), ex.getMessage()));
+				// SEC-546: Avoid polling additional providers if auth failure is due to
+				// invalid account status
+				throw ex;
+			}
+			catch (InternalAuthenticationServiceException ex) {
+				prepareException(ex, authentication);
+				logger.debug(LogMessage.format(
+						"Authentication failed due to an internal authentication service error: %s", ex.getMessage()));
 				// SEC-546: Avoid polling additional providers if auth failure is due to
 				// invalid account status
 				throw ex;
 			}
 			catch (AuthenticationException ex) {
+				logger.debug(LogMessage.format("Authentication failed with provider %s since %s",
+						provider.getClass().getSimpleName(), ex.getMessage()));
 				lastException = ex;
 			}
 		}
@@ -241,6 +253,13 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
 		if (parentException == null) {
 			prepareException(lastException, authentication);
 		}
+
+		// Ensure this message is not logged when authentication is attempted by
+		// the parent provider
+		if (this.parent != null) {
+			logger.debug("Denying authentication since all attempted providers failed");
+		}
+
 		throw lastException;
 	}
 
