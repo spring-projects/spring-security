@@ -105,12 +105,15 @@ public final class DefaultAddressStandardClaim implements AddressStandardClaim {
 
 	@Override
 	public int hashCode() {
+
 		int result = (this.getFormatted() != null) ? this.getFormatted().hashCode() : 0;
-		result = 31 * result + ((this.getStreetAddress() != null) ? this.getStreetAddress().hashCode() : 0);
-		result = 31 * result + ((this.getLocality() != null) ? this.getLocality().hashCode() : 0);
-		result = 31 * result + ((this.getRegion() != null) ? this.getRegion().hashCode() : 0);
-		result = 31 * result + ((this.getPostalCode() != null) ? this.getPostalCode().hashCode() : 0);
-		result = 31 * result + ((this.getCountry() != null) ? this.getCountry().hashCode() : 0);
+		int thirtyOne = 31;
+
+		result = thirtyOne * result + ((this.getStreetAddress() != null) ? this.getStreetAddress().hashCode() : 0);
+		result = thirtyOne * result + ((this.getLocality() != null) ? this.getLocality().hashCode() : 0);
+		result = thirtyOne * result + ((this.getRegion() != null) ? this.getRegion().hashCode() : 0);
+		result = thirtyOne * result + ((this.getPostalCode() != null) ? this.getPostalCode().hashCode() : 0);
+		result = thirtyOne * result + ((this.getCountry() != null) ? this.getCountry().hashCode() : 0);
 		return result;
 	}
 
