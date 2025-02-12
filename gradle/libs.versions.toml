@@ -28,7 +28,7 @@ com-unboundid-unboundid-ldapsdk = "com.unboundid:unboundid-ldapsdk:6.0.11"
 commons-collections = "commons-collections:commons-collections:3.2.2"
 io-micrometer-micrometer-observation = "io.micrometer:micrometer-observation:1.12.13"
 io-mockk = "io.mockk:mockk:1.13.16"
-io-projectreactor-reactor-bom = "io.projectreactor:reactor-bom:2023.0.14"
+io-projectreactor-reactor-bom = "io.projectreactor:reactor-bom:2023.0.15"
 io-rsocket-rsocket-bom = { module = "io.rsocket:rsocket-bom", version.ref = "io-rsocket" }
 io-spring-javaformat-spring-javaformat-checkstyle = { module = "io.spring.javaformat:spring-javaformat-checkstyle", version.ref = "io-spring-javaformat" }
 io-spring-javaformat-spring-javaformat-gradle-plugin = { module = "io.spring.javaformat:spring-javaformat-gradle-plugin", version.ref = "io-spring-javaformat" }
