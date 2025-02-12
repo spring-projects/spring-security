@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,9 @@
 
 package org.springframework.security.web.webauthn.api;
 
+import java.io.Serial;
+import java.io.Serializable;
+
 /**
  * <a href=
  * "https://www.w3.org/TR/webauthn-3/#sctn-alg-identifier">COSEAlgorithmIdentifier</a> is
@@ -25,7 +28,10 @@ package org.springframework.security.web.webauthn.api;
  * @since 6.4
  * @see PublicKeyCredentialParameters#getAlg()
  */
-public final class COSEAlgorithmIdentifier {
+public final class COSEAlgorithmIdentifier implements Serializable {
+
+	@Serial
+	private static final long serialVersionUID = 2916227211464921463L;
 
 	public static final COSEAlgorithmIdentifier EdDSA = new COSEAlgorithmIdentifier(-8);
 
