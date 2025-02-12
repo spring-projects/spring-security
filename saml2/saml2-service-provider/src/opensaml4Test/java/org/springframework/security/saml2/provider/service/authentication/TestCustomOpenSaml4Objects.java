@@ -113,7 +113,7 @@ public final class TestCustomOpenSaml4Objects {
 		 * represents
 		 * @param namespacePrefix the prefix for the given namespace
 		 */
-		protected CustomOpenSamlObjectImpl(@javax.annotation.Nullable String namespaceURI,
+		protected CustomOpenSamlObjectImpl(@Nullable String namespaceURI,
 				@NonNull String elementLocalName, @Nullable String namespacePrefix) {
 			super(namespaceURI, elementLocalName, namespacePrefix);
 			super.getNamespaceManager().registerNamespaceDeclaration(new Namespace(CUSTOM_NS, TYPE_CUSTOM_PREFIX));
