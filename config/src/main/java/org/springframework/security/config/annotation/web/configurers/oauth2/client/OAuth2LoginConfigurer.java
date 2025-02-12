@@ -93,6 +93,7 @@ import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.util.matcher.AndRequestMatcher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
+import org.springframework.security.web.util.matcher.MethodPatternRequestMatcherFactory;
 import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestHeaderRequestMatcher;
@@ -431,7 +432,7 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 
 	@Override
 	protected RequestMatcher createLoginProcessingUrlMatcher(String loginProcessingUrl) {
-		return new AntPathRequestMatcher(loginProcessingUrl);
+		return getRequestMatcherFactory().matcher(loginProcessingUrl);
 	}
 
 	private OAuth2AuthorizationRequestResolver getAuthorizationRequestResolver() {
@@ -569,8 +570,8 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 	}
 
 	private AuthenticationEntryPoint getLoginEntryPoint(B http, String providerLoginPage) {
-		RequestMatcher loginPageMatcher = new AntPathRequestMatcher(this.getLoginPage());
-		RequestMatcher faviconMatcher = new AntPathRequestMatcher("/favicon.ico");
+		RequestMatcher loginPageMatcher = getRequestMatcherFactory().matcher(this.getLoginPage());
+		RequestMatcher faviconMatcher = getRequestMatcherFactory().matcher("/favicon.ico");
 		RequestMatcher defaultEntryPointMatcher = this.getAuthenticationEntryPointMatcher(http);
 		RequestMatcher defaultLoginPageMatcher = new AndRequestMatcher(
 				new OrRequestMatcher(loginPageMatcher, faviconMatcher), defaultEntryPointMatcher);
@@ -623,6 +624,12 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		}
 		SmartApplicationListener smartListener = new GenericApplicationListenerAdapter(delegate);
 		delegating.addListener(smartListener);
+	}
+
+	private MethodPatternRequestMatcherFactory getRequestMatcherFactory() {
+		return getBuilder().getSharedObject(ApplicationContext.class)
+			.getBeanProvider(MethodPatternRequestMatcherFactory.class)
+			.getIfUnique(() -> AntPathRequestMatcher::antMatcher);
 	}
 
 	/**

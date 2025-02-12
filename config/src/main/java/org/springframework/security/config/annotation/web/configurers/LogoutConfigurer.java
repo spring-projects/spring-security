@@ -22,6 +22,8 @@ import java.util.List;
 
 import jakarta.servlet.http.HttpSession;
 
+import org.springframework.context.ApplicationContext;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.SecurityConfigurer;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -38,6 +40,7 @@ import org.springframework.security.web.authentication.ui.DefaultLoginPageGenera
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.MethodPatternRequestMatcherFactory;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
@@ -368,7 +371,13 @@ public final class LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 	}
 
 	private RequestMatcher createLogoutRequestMatcher(String httpMethod) {
-		return new AntPathRequestMatcher(this.logoutUrl, httpMethod);
+		return getRequestMatcherFactory().matcher(HttpMethod.valueOf(httpMethod), this.logoutUrl);
+	}
+
+	private MethodPatternRequestMatcherFactory getRequestMatcherFactory() {
+		return getBuilder().getSharedObject(ApplicationContext.class)
+			.getBeanProvider(MethodPatternRequestMatcherFactory.class)
+			.getIfUnique(() -> AntPathRequestMatcher::antMatcher);
 	}
 
 }

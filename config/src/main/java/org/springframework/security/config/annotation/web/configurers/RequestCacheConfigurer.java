@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.springframework.context.ApplicationContext;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -31,6 +32,7 @@ import org.springframework.security.web.savedrequest.RequestCacheAwareFilter;
 import org.springframework.security.web.util.matcher.AndRequestMatcher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
+import org.springframework.security.web.util.matcher.MethodPatternRequestMatcherFactory;
 import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestHeaderRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
@@ -140,13 +142,13 @@ public final class RequestCacheConfigurer<H extends HttpSecurityBuilder<H>>
 
 	@SuppressWarnings("unchecked")
 	private RequestMatcher createDefaultSavedRequestMatcher(H http) {
-		RequestMatcher notFavIcon = new NegatedRequestMatcher(new AntPathRequestMatcher("/**/favicon.*"));
+		RequestMatcher notFavIcon = new NegatedRequestMatcher(getRequestMatcherFactory().matcher("/**/favicon.*"));
 		RequestMatcher notXRequestedWith = new NegatedRequestMatcher(
 				new RequestHeaderRequestMatcher("X-Requested-With", "XMLHttpRequest"));
 		boolean isCsrfEnabled = http.getConfigurer(CsrfConfigurer.class) != null;
 		List<RequestMatcher> matchers = new ArrayList<>();
 		if (isCsrfEnabled) {
-			RequestMatcher getRequests = new AntPathRequestMatcher("/**", "GET");
+			RequestMatcher getRequests = getRequestMatcherFactory().matcher(HttpMethod.GET, "/**");
 			matchers.add(0, getRequests);
 		}
 		matchers.add(notFavIcon);
@@ -165,6 +167,12 @@ public final class RequestCacheConfigurer<H extends HttpSecurityBuilder<H>>
 		MediaTypeRequestMatcher mediaRequest = new MediaTypeRequestMatcher(contentNegotiationStrategy, mediaType);
 		mediaRequest.setIgnoredMediaTypes(Collections.singleton(MediaType.ALL));
 		return new NegatedRequestMatcher(mediaRequest);
+	}
+
+	private MethodPatternRequestMatcherFactory getRequestMatcherFactory() {
+		return getBuilder().getSharedObject(ApplicationContext.class)
+			.getBeanProvider(MethodPatternRequestMatcherFactory.class)
+			.getIfUnique(() -> AntPathRequestMatcher::antMatcher);
 	}
 
 }

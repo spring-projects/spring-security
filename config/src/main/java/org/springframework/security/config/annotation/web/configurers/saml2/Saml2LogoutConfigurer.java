@@ -23,6 +23,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.opensaml.core.Version;
 
 import org.springframework.context.ApplicationContext;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
@@ -65,6 +66,7 @@ import org.springframework.security.web.csrf.CsrfLogoutHandler;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.security.web.util.matcher.AndRequestMatcher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.MethodPatternRequestMatcherFactory;
 import org.springframework.security.web.util.matcher.ParameterRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
@@ -304,19 +306,19 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 	}
 
 	private RequestMatcher createLogoutMatcher() {
-		RequestMatcher logout = new AntPathRequestMatcher(this.logoutUrl, "POST");
+		RequestMatcher logout = getRequestMatcherFactory().matcher(HttpMethod.POST, this.logoutUrl);
 		RequestMatcher saml2 = new Saml2RequestMatcher(getSecurityContextHolderStrategy());
 		return new AndRequestMatcher(logout, saml2);
 	}
 
 	private RequestMatcher createLogoutRequestMatcher() {
-		RequestMatcher logout = new AntPathRequestMatcher(this.logoutRequestConfigurer.logoutUrl);
+		RequestMatcher logout = getRequestMatcherFactory().matcher(this.logoutRequestConfigurer.logoutUrl);
 		RequestMatcher samlRequest = new ParameterRequestMatcher("SAMLRequest");
 		return new AndRequestMatcher(logout, samlRequest);
 	}
 
 	private RequestMatcher createLogoutResponseMatcher() {
-		RequestMatcher logout = new AntPathRequestMatcher(this.logoutResponseConfigurer.logoutUrl);
+		RequestMatcher logout = getRequestMatcherFactory().matcher(this.logoutResponseConfigurer.logoutUrl);
 		RequestMatcher samlResponse = new ParameterRequestMatcher("SAMLResponse");
 		return new AndRequestMatcher(logout, samlResponse);
 	}
@@ -331,6 +333,12 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 	private Saml2LogoutResponseResolver createSaml2LogoutResponseResolver(
 			RelyingPartyRegistrationRepository registrations) {
 		return this.logoutResponseConfigurer.logoutResponseResolver(registrations);
+	}
+
+	private MethodPatternRequestMatcherFactory getRequestMatcherFactory() {
+		return getBuilder().getSharedObject(ApplicationContext.class)
+			.getBeanProvider(MethodPatternRequestMatcherFactory.class)
+			.getIfUnique(() -> AntPathRequestMatcher::antMatcher);
 	}
 
 	private <C> C getBeanOrNull(Class<C> clazz) {

@@ -46,6 +46,7 @@ import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 import org.springframework.security.web.util.matcher.DispatcherTypeRequestMatcher;
+import org.springframework.security.web.util.matcher.MethodPatternRequestMatcherFactory;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
@@ -218,10 +219,9 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 			return requestMatchers(RequestMatchers.antMatchersAsArray(method, patterns));
 		}
 		List<RequestMatcher> matchers = new ArrayList<>();
+		MethodPatternRequestMatcherFactory requestMatcherFactory = getRequestMatcherFactory();
 		for (String pattern : patterns) {
-			AntPathRequestMatcher ant = new AntPathRequestMatcher(pattern, (method != null) ? method.name() : null);
-			MvcRequestMatcher mvc = createMvcMatchers(method, pattern).get(0);
-			matchers.add(new DeferredRequestMatcher((c) -> resolve(ant, mvc, c), mvc, ant));
+			matchers.add(requestMatcherFactory.matcher(method, pattern));
 		}
 		return requestMatchers(matchers.toArray(new RequestMatcher[0]));
 	}
@@ -331,6 +331,11 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 	 */
 	protected abstract C chainRequestMatchers(List<RequestMatcher> requestMatchers);
 
+	private MethodPatternRequestMatcherFactory getRequestMatcherFactory() {
+		return this.context.getBeanProvider(MethodPatternRequestMatcherFactory.class)
+			.getIfUnique(DefaultMethodPatternRequestMatcherFactory::new);
+	}
+
 	/**
 	 * Utilities for creating {@link RequestMatcher} instances.
 	 *
@@ -400,6 +405,17 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 		 */
 		static List<RequestMatcher> regexMatchers(String... regexPatterns) {
 			return regexMatchers(null, regexPatterns);
+		}
+
+	}
+
+	class DefaultMethodPatternRequestMatcherFactory implements MethodPatternRequestMatcherFactory {
+
+		@Override
+		public RequestMatcher matcher(HttpMethod method, String pattern) {
+			AntPathRequestMatcher ant = new AntPathRequestMatcher(pattern, (method != null) ? method.name() : null);
+			MvcRequestMatcher mvc = createMvcMatchers(method, pattern).get(0);
+			return new DeferredRequestMatcher((c) -> resolve(ant, mvc, c), mvc, ant);
 		}
 
 	}

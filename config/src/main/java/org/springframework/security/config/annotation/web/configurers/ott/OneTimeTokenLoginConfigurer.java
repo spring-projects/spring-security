@@ -52,11 +52,11 @@ import org.springframework.security.web.authentication.ui.DefaultLoginPageGenera
 import org.springframework.security.web.authentication.ui.DefaultOneTimeTokenSubmitPageGeneratingFilter;
 import org.springframework.security.web.authentication.ui.DefaultResourcesFilter;
 import org.springframework.security.web.csrf.CsrfToken;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.MethodPatternRequestMatcherFactory;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
-
-import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
 
 /**
  * An {@link AbstractHttpConfigurer} for One-Time Token Login.
@@ -163,7 +163,7 @@ public final class OneTimeTokenLoginConfigurer<H extends HttpSecurityBuilder<H>>
 	private void configureOttGenerateFilter(H http) {
 		GenerateOneTimeTokenFilter generateFilter = new GenerateOneTimeTokenFilter(getOneTimeTokenService(),
 				getOneTimeTokenGenerationSuccessHandler());
-		generateFilter.setRequestMatcher(antMatcher(HttpMethod.POST, this.tokenGeneratingUrl));
+		generateFilter.setRequestMatcher(getRequestMatcherFactory().matcher(HttpMethod.POST, this.tokenGeneratingUrl));
 		generateFilter.setRequestResolver(getGenerateRequestResolver());
 		http.addFilter(postProcess(generateFilter));
 		http.addFilter(DefaultResourcesFilter.css());
@@ -190,7 +190,7 @@ public final class OneTimeTokenLoginConfigurer<H extends HttpSecurityBuilder<H>>
 		}
 		DefaultOneTimeTokenSubmitPageGeneratingFilter submitPage = new DefaultOneTimeTokenSubmitPageGeneratingFilter();
 		submitPage.setResolveHiddenInputs(this::hiddenInputs);
-		submitPage.setRequestMatcher(antMatcher(HttpMethod.GET, this.defaultSubmitPageUrl));
+		submitPage.setRequestMatcher(getRequestMatcherFactory().matcher(HttpMethod.GET, this.defaultSubmitPageUrl));
 		submitPage.setLoginProcessingUrl(this.getLoginProcessingUrl());
 		http.addFilter(postProcess(submitPage));
 	}
@@ -207,7 +207,13 @@ public final class OneTimeTokenLoginConfigurer<H extends HttpSecurityBuilder<H>>
 
 	@Override
 	protected RequestMatcher createLoginProcessingUrlMatcher(String loginProcessingUrl) {
-		return antMatcher(HttpMethod.POST, loginProcessingUrl);
+		return getRequestMatcherFactory().matcher(HttpMethod.POST, loginProcessingUrl);
+	}
+
+	private MethodPatternRequestMatcherFactory getRequestMatcherFactory() {
+		return getBuilder().getSharedObject(ApplicationContext.class)
+			.getBeanProvider(MethodPatternRequestMatcherFactory.class)
+			.getIfUnique(() -> AntPathRequestMatcher::antMatcher);
 	}
 
 	/**

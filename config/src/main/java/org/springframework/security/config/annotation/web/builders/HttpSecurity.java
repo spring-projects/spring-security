@@ -93,6 +93,7 @@ import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
+import org.springframework.security.web.util.matcher.MethodPatternRequestMatcherFactory;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
@@ -3684,11 +3685,14 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * @see MvcRequestMatcher
 	 */
 	public HttpSecurity securityMatcher(String... patterns) {
-		if (mvcPresent) {
-			this.requestMatcher = new OrRequestMatcher(createMvcMatchers(patterns));
-			return this;
+		List<RequestMatcher> matchers = new ArrayList<>();
+		MethodPatternRequestMatcherFactory factory = getSharedObject(ApplicationContext.class)
+			.getBeanProvider(MethodPatternRequestMatcherFactory.class)
+			.getIfUnique(() -> (method, pattern) -> mvcPresent ? createMvcMatcher(pattern) : createAntMatcher(pattern));
+		for (String pattern : patterns) {
+			matchers.add(factory.matcher(pattern));
 		}
-		this.requestMatcher = new OrRequestMatcher(createAntMatchers(patterns));
+		this.requestMatcher = new OrRequestMatcher(matchers);
 		return this;
 	}
 
@@ -3717,15 +3721,11 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 		return HttpSecurity.this;
 	}
 
-	private List<RequestMatcher> createAntMatchers(String... patterns) {
-		List<RequestMatcher> matchers = new ArrayList<>(patterns.length);
-		for (String pattern : patterns) {
-			matchers.add(new AntPathRequestMatcher(pattern));
-		}
-		return matchers;
+	private RequestMatcher createAntMatcher(String pattern) {
+		return new AntPathRequestMatcher(pattern);
 	}
 
-	private List<RequestMatcher> createMvcMatchers(String... mvcPatterns) {
+	private RequestMatcher createMvcMatcher(String mvcPattern) {
 		ResolvableType type = ResolvableType.forClassWithGenerics(ObjectPostProcessor.class, Object.class);
 		ObjectProvider<ObjectPostProcessor<Object>> postProcessors = getContext().getBeanProvider(type);
 		ObjectPostProcessor<Object> opp = postProcessors.getObject();
@@ -3736,13 +3736,9 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 		}
 		HandlerMappingIntrospector introspector = getContext().getBean(HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME,
 				HandlerMappingIntrospector.class);
-		List<RequestMatcher> matchers = new ArrayList<>(mvcPatterns.length);
-		for (String mvcPattern : mvcPatterns) {
-			MvcRequestMatcher matcher = new MvcRequestMatcher(introspector, mvcPattern);
-			opp.postProcess(matcher);
-			matchers.add(matcher);
-		}
-		return matchers;
+		MvcRequestMatcher matcher = new MvcRequestMatcher(introspector, mvcPattern);
+		opp.postProcess(matcher);
+		return matcher;
 	}
 
 	/**

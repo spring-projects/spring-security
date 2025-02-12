@@ -38,49 +38,49 @@ public class PathPatternRequestMatcherTests {
 
 	@Test
 	void matcherWhenPatternMatchesRequestThenMatchResult() {
-		RequestMatcher matcher = PathPatternRequestMatcher.path().pattern("/uri").matcher();
+		RequestMatcher matcher = PathPatternRequestMatcher.path().matcher("/uri");
 		assertThat(matcher.matches(request("/uri"))).isTrue();
 	}
 
 	@Test
 	void matcherWhenPatternContainsPlaceholdersThenMatchResult() {
-		RequestMatcher matcher = PathPatternRequestMatcher.path().pattern("/uri/{username}").matcher();
+		RequestMatcher matcher = PathPatternRequestMatcher.path().matcher("/uri/{username}");
 		assertThat(matcher.matcher(request("/uri/bob")).getVariables()).containsEntry("username", "bob");
 	}
 
 	@Test
 	void matcherWhenOnlyPathInfoMatchesThenMatches() {
-		RequestMatcher matcher = PathPatternRequestMatcher.path().pattern("/uri").matcher();
+		RequestMatcher matcher = PathPatternRequestMatcher.path().matcher("/uri");
 		assertThat(matcher.matches(request("GET", "/mvc/uri", "/mvc"))).isTrue();
 	}
 
 	@Test
 	void matcherWhenUriContainsServletPathThenNoMatch() {
-		RequestMatcher matcher = PathPatternRequestMatcher.path().pattern("/mvc/uri").matcher();
+		RequestMatcher matcher = PathPatternRequestMatcher.path().matcher("/mvc/uri");
 		assertThat(matcher.matches(request("GET", "/mvc/uri", "/mvc"))).isFalse();
 	}
 
 	@Test
 	void matcherWhenSameMethodThenMatchResult() {
-		RequestMatcher matcher = PathPatternRequestMatcher.path().method(HttpMethod.GET).pattern("/uri").matcher();
+		RequestMatcher matcher = PathPatternRequestMatcher.path().matcher(HttpMethod.GET, "/uri");
 		assertThat(matcher.matches(request("/uri"))).isTrue();
 	}
 
 	@Test
 	void matcherWhenDifferentPathThenNoMatch() {
-		RequestMatcher matcher = PathPatternRequestMatcher.path().method(HttpMethod.GET).pattern("/uri").matcher();
+		RequestMatcher matcher = PathPatternRequestMatcher.path().matcher(HttpMethod.GET, "/uri");
 		assertThat(matcher.matches(request("GET", "/urj", ""))).isFalse();
 	}
 
 	@Test
 	void matcherWhenDifferentMethodThenNoMatch() {
-		RequestMatcher matcher = PathPatternRequestMatcher.path().method(HttpMethod.GET).pattern("/uri").matcher();
+		RequestMatcher matcher = PathPatternRequestMatcher.path().matcher(HttpMethod.GET, "/uri");
 		assertThat(matcher.matches(request("POST", "/mvc/uri", "/mvc"))).isFalse();
 	}
 
 	@Test
 	void matcherWhenNoMethodThenMatches() {
-		RequestMatcher matcher = PathPatternRequestMatcher.path().pattern("/uri").matcher();
+		RequestMatcher matcher = PathPatternRequestMatcher.path().matcher("/uri");
 		assertThat(matcher.matches(request("POST", "/uri", ""))).isTrue();
 		assertThat(matcher.matches(request("GET", "/uri", ""))).isTrue();
 	}
@@ -88,7 +88,7 @@ public class PathPatternRequestMatcherTests {
 	@Test
 	void matcherWhenServletPathThenMatchesOnlyServletPath() {
 		PathPatternRequestMatcher.Builder servlet = PathPatternRequestMatcher.servletPath("/servlet/path");
-		RequestMatcher matcher = servlet.method(HttpMethod.GET).pattern("/endpoint").matcher();
+		RequestMatcher matcher = servlet.matcher(HttpMethod.GET, "/endpoint");
 		ServletContext servletContext = servletContext("/servlet/path");
 		assertThat(matcher
 			.matches(get("/servlet/path/endpoint").servletPath("/servlet/path").buildRequest(servletContext))).isTrue();
@@ -98,7 +98,7 @@ public class PathPatternRequestMatcherTests {
 	@Test
 	void matcherWhenRequestPathThenIgnoresServletPath() {
 		PathPatternRequestMatcher.Builder request = PathPatternRequestMatcher.path();
-		RequestMatcher matcher = request.method(HttpMethod.GET).pattern("/endpoint").matcher();
+		RequestMatcher matcher = request.matcher(HttpMethod.GET, "/endpoint");
 		assertThat(matcher.matches(get("/servlet/path/endpoint").servletPath("/servlet/path").buildRequest(null)))
 			.isTrue();
 		assertThat(matcher.matches(get("/endpoint").servletPath("/endpoint").buildRequest(null))).isTrue();
@@ -107,7 +107,7 @@ public class PathPatternRequestMatcherTests {
 	@Test
 	void matcherWhenServletPathThenRequiresServletPathToExist() {
 		PathPatternRequestMatcher.Builder servlet = PathPatternRequestMatcher.servletPath("/servlet/path");
-		RequestMatcher matcher = servlet.method(HttpMethod.GET).pattern("/endpoint").matcher();
+		RequestMatcher matcher = servlet.matcher(HttpMethod.GET, "/endpoint");
 		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(
 				() -> matcher.matches(get("/servlet/path/endpoint").servletPath("/servlet/path").buildRequest(null)));
 	}

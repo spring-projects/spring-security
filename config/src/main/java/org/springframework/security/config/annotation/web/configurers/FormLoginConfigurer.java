@@ -16,6 +16,8 @@
 
 package org.springframework.security.config.annotation.web.configurers;
 
+import org.springframework.context.ApplicationContext;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -27,6 +29,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.MethodPatternRequestMatcherFactory;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
 /**
@@ -234,7 +237,7 @@ public final class FormLoginConfigurer<H extends HttpSecurityBuilder<H>> extends
 
 	@Override
 	protected RequestMatcher createLoginProcessingUrlMatcher(String loginProcessingUrl) {
-		return new AntPathRequestMatcher(loginProcessingUrl, "POST");
+		return getRequestMatcherFactory().matcher(HttpMethod.POST, loginProcessingUrl);
 	}
 
 	/**
@@ -269,6 +272,12 @@ public final class FormLoginConfigurer<H extends HttpSecurityBuilder<H>> extends
 			loginPageGeneratingFilter.setFailureUrl(getFailureUrl());
 			loginPageGeneratingFilter.setAuthenticationUrl(getLoginProcessingUrl());
 		}
+	}
+
+	private MethodPatternRequestMatcherFactory getRequestMatcherFactory() {
+		return getBuilder().getSharedObject(ApplicationContext.class)
+			.getBeanProvider(MethodPatternRequestMatcherFactory.class)
+			.getIfUnique(() -> AntPathRequestMatcher::antMatcher);
 	}
 
 }

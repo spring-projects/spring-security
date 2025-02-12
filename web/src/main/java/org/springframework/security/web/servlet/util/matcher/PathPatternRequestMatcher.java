@@ -36,6 +36,7 @@ import org.springframework.http.server.RequestPath;
 import org.springframework.lang.Nullable;
 import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
+import org.springframework.security.web.util.matcher.MethodPatternRequestMatcherFactory;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
@@ -203,72 +204,32 @@ public final class PathPatternRequestMatcher implements RequestMatcher {
 	 * <code>
 	 *     http
 	 *         .authorizeHttpRequests((authorize) -> authorize
-	 *              .requestMatchers(servletPath("/mvc").pattern("/user/**").matcher()).hasAuthority("user")
-	 *              .requestMatchers(servletPath("/other").pattern("/admin/**").matcher()).hasAuthority("admin")
+	 *              .requestMatchers(servletPath("/mvc").matcher("/user/**")).hasAuthority("user")
+	 *              .requestMatchers(servletPath("/other").matcher("/admin/**")).hasAuthority("admin")
 	 *         )
 	 *             ...
 	 * </code>
 	 */
-	public static final class Builder {
+	public static final class Builder implements MethodPatternRequestMatcherFactory {
 
-		private static final PathPattern ANY_PATH = PathPatternParser.defaultInstance.parse("/**");
-
-		private final RequestMatcher method;
+		private PathPatternParser parser = PathPatternParser.defaultInstance;
 
 		private final RequestMatcher servletPath;
-
-		private final PathPattern pathPattern;
 
 		Builder() {
 			this(AnyRequestMatcher.INSTANCE);
 		}
 
 		Builder(RequestMatcher servletPath) {
-			this(AnyRequestMatcher.INSTANCE, servletPath, ANY_PATH);
-		}
-
-		Builder(RequestMatcher method, RequestMatcher servletPath, PathPattern pathPattern) {
-			this.method = method;
 			this.servletPath = servletPath;
-			this.pathPattern = pathPattern;
 		}
 
 		/**
-		 * Match requests having this path pattern.
+		 * Match requests having this {@link HttpMethod} and path pattern.
 		 *
 		 * <p>
-		 * Path patterns always start with a slash and may contain placeholders. They can
-		 * also be followed by {@code /**} to signify all URIs under a given path.
-		 *
-		 * <p>
-		 * These must be specified relative to any servlet path prefix (meaning you should
-		 * exclude the context path and any servlet path prefix in stating your pattern).
-		 *
-		 * <p>
-		 * The following are valid patterns and their meaning
-		 * <ul>
-		 * <li>{@code /path} - match exactly and only `/path`</li>
-		 * <li>{@code /path/**} - match `/path` and any of its descendents</li>
-		 * <li>{@code /path/{value}/**} - match `/path/subdirectory` and any of its
-		 * descendents, capturing the value of the subdirectory in
-		 * {@link RequestAuthorizationContext#getVariables()}</li>
-		 * </ul>
-		 *
-		 * <p>
-		 * The pattern is parsed using {@link PathPatternParser#defaultInstance} A more
-		 * comprehensive list can be found at {@link PathPattern}.
-		 * @param pathPattern the path pattern to match
-		 * @return the {@link Builder} for more configuration
-		 */
-		public Builder pattern(String pathPattern) {
-			Assert.notNull(pathPattern, "pattern cannot be null");
-			Assert.isTrue(pathPattern.startsWith("/"), "pattern must start with a /");
-			PathPatternParser parser = PathPatternParser.defaultInstance;
-			return new Builder(this.method, this.servletPath, parser.parse(pathPattern));
-		}
-
-		/**
-		 * Match requests having this path pattern.
+		 * When the HTTP {@code method} is null, then the matcher does not consider the
+		 * HTTP method
 		 *
 		 * <p>
 		 * Path patterns always start with a slash and may contain placeholders. They can
@@ -290,37 +251,22 @@ public final class PathPatternRequestMatcher implements RequestMatcher {
 		 *
 		 * <p>
 		 * A more comprehensive list can be found at {@link PathPattern}.
-		 * @param pathPattern the path pattern to match
+		 * @param method the {@link HttpMethod} to match, may be null
+		 * @param pattern the path pattern to match
 		 * @return the {@link Builder} for more configuration
 		 */
-		public Builder pattern(PathPattern pathPattern) {
-			Assert.notNull(pathPattern, "pathPattern cannot be null");
-			return new Builder(this.method, this.servletPath, pathPattern);
-		}
-
-		/**
-		 * Match requests having this {@link HttpMethod}.
-		 * @param method the {@link HttpMethod} to match
-		 * @return the {@link Builder} for more configuration
-		 */
-		public Builder method(HttpMethod method) {
-			Assert.notNull(method, "method cannot be null");
-			return new Builder(new HttpMethodRequestMatcher(method), this.servletPath, this.pathPattern);
-		}
-
-		/**
-		 * Create the {@link PathPatternRequestMatcher}/
-		 * @return the {@link PathPatternRequestMatcher}
-		 */
-		public PathPatternRequestMatcher matcher() {
-			PathPatternRequestMatcher pathPattern = new PathPatternRequestMatcher(this.pathPattern);
-			if (this.method != AnyRequestMatcher.INSTANCE) {
-				pathPattern.setMethod(this.method);
+		public PathPatternRequestMatcher matcher(@Nullable HttpMethod method, String pattern) {
+			Assert.notNull(pattern, "pattern cannot be null");
+			Assert.isTrue(pattern.startsWith("/"), "pattern must start with a /");
+			PathPattern pathPattern = this.parser.parse(pattern);
+			PathPatternRequestMatcher requestMatcher = new PathPatternRequestMatcher(pathPattern);
+			if (method != null) {
+				requestMatcher.setMethod(new HttpMethodRequestMatcher(method));
 			}
 			if (this.servletPath != AnyRequestMatcher.INSTANCE) {
-				pathPattern.setServletPath(this.servletPath);
+				requestMatcher.setServletPath(this.servletPath);
 			}
-			return pathPattern;
+			return requestMatcher;
 		}
 
 	}

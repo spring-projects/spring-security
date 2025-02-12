@@ -33,6 +33,7 @@ import org.springframework.security.saml2.provider.service.web.Saml2MetadataFilt
 import org.springframework.security.saml2.provider.service.web.metadata.RequestMatcherMetadataResponseResolver;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.MethodPatternRequestMatcherFactory;
 import org.springframework.util.Assert;
 
 /**
@@ -111,12 +112,12 @@ public class Saml2MetadataConfigurer<H extends HttpSecurityBuilder<H>>
 			if (USE_OPENSAML_5) {
 				RequestMatcherMetadataResponseResolver metadata = new RequestMatcherMetadataResponseResolver(
 						registrations, new OpenSaml5MetadataResolver());
-				metadata.setRequestMatcher(new AntPathRequestMatcher(metadataUrl));
+				metadata.setRequestMatcher(getRequestMatcherFactory().matcher(metadataUrl));
 				return metadata;
 			}
 			RequestMatcherMetadataResponseResolver metadata = new RequestMatcherMetadataResponseResolver(registrations,
 					new OpenSaml4MetadataResolver());
-			metadata.setRequestMatcher(new AntPathRequestMatcher(metadataUrl));
+			metadata.setRequestMatcher(getRequestMatcherFactory().matcher(metadataUrl));
 			return metadata;
 		};
 		return this;
@@ -168,6 +169,12 @@ public class Saml2MetadataConfigurer<H extends HttpSecurityBuilder<H>>
 		else {
 			return getBeanOrNull(RelyingPartyRegistrationRepository.class);
 		}
+	}
+
+	private MethodPatternRequestMatcherFactory getRequestMatcherFactory() {
+		return getBuilder().getSharedObject(ApplicationContext.class)
+			.getBeanProvider(MethodPatternRequestMatcherFactory.class)
+			.getIfUnique(() -> AntPathRequestMatcher::antMatcher);
 	}
 
 	private <C> C getBeanOrNull(Class<C> clazz) {
