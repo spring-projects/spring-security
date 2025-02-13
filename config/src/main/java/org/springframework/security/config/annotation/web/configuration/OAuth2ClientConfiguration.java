@@ -34,6 +34,9 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.AnnotationBeanNameGenerator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -160,7 +163,7 @@ final class OAuth2ClientConfiguration {
 	 * @since 6.2.0
 	 */
 	static final class OAuth2AuthorizedClientManagerRegistrar
-			implements BeanDefinitionRegistryPostProcessor, BeanFactoryAware {
+			implements ApplicationContextAware, BeanDefinitionRegistryPostProcessor, BeanFactoryAware {
 
 		static final String BEAN_NAME = "authorizedClientManagerRegistrar";
 
@@ -178,6 +181,8 @@ final class OAuth2ClientConfiguration {
 		// @formatter:on
 
 		private final AnnotationBeanNameGenerator beanNameGenerator = new AnnotationBeanNameGenerator();
+
+		private ApplicationEventPublisher eventPublisher;
 
 		private ListableBeanFactory beanFactory;
 
@@ -302,6 +307,10 @@ final class OAuth2ClientConfiguration {
 				authorizedClientProvider.setAccessTokenResponseClient(accessTokenResponseClient);
 			}
 
+			if (this.eventPublisher != null) {
+				authorizedClientProvider.setApplicationEventPublisher(this.eventPublisher);
+			}
+
 			return authorizedClientProvider;
 		}
 
@@ -421,6 +430,11 @@ final class OAuth2ClientConfiguration {
 		private <T> T getBeanOfType(ResolvableType resolvableType) {
 			ObjectProvider<T> objectProvider = this.beanFactory.getBeanProvider(resolvableType, true);
 			return objectProvider.getIfAvailable();
+		}
+
+		@Override
+		public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+			this.eventPublisher = applicationContext;
 		}
 
 	}
