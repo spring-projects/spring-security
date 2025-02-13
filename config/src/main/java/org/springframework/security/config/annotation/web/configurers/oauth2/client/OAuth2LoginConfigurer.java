@@ -57,6 +57,7 @@ import org.springframework.security.oauth2.client.endpoint.DefaultAuthorizationC
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
 import org.springframework.security.oauth2.client.oidc.authentication.OidcAuthorizationCodeAuthenticationProvider;
+import org.springframework.security.oauth2.client.oidc.authentication.RefreshOidcIdTokenHandler;
 import org.springframework.security.oauth2.client.oidc.session.InMemoryOidcSessionRegistry;
 import org.springframework.security.oauth2.client.oidc.session.OidcSessionInformation;
 import org.springframework.security.oauth2.client.oidc.session.OidcSessionRegistry;
@@ -394,6 +395,15 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 				oidcAuthorizationCodeAuthenticationProvider.setAuthoritiesMapper(userAuthoritiesMapper);
 			}
 			http.authenticationProvider(this.postProcess(oidcAuthorizationCodeAuthenticationProvider));
+
+			RefreshOidcIdTokenHandler refreshOidcIdTokenHandler = new RefreshOidcIdTokenHandler();
+			if (this.getSecurityContextHolderStrategy() != null) {
+				refreshOidcIdTokenHandler.setSecurityContextHolderStrategy(this.getSecurityContextHolderStrategy());
+			}
+			if (jwtDecoderFactory != null) {
+				refreshOidcIdTokenHandler.setJwtDecoderFactory(jwtDecoderFactory);
+			}
+			registerDelegateApplicationListener(refreshOidcIdTokenHandler);
 		}
 		else {
 			http.authenticationProvider(new OidcAuthenticationRequestChecker());
