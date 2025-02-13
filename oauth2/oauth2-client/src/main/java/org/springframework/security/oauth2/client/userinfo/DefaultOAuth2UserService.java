@@ -96,11 +96,7 @@ public class DefaultOAuth2UserService implements OAuth2UserService<OAuth2UserReq
 		OAuth2AccessToken token = userRequest.getAccessToken();
 		Map<String, Object> attributes = this.attributesConverter.convert(userRequest).convert(response.getBody());
 		Collection<GrantedAuthority> authorities = getAuthorities(token, attributes, userNameAttributeName);
-		return new DefaultOAuth2User.Builder()
-			.nameAttributeKey(userNameAttributeName)
-			.attributes(attributes)
-			.authorities(authorities)
-			.build();
+		return new DefaultOAuth2User(authorities, attributes, userNameAttributeName);
 	}
 
 	/**

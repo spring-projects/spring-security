@@ -509,9 +509,9 @@ Java::
 [source,java,role="primary"]
 ----
 OAuth2User oauth2User = new DefaultOAuth2User(
-        "foo_user",
+        AuthorityUtils.createAuthorityList("SCOPE_message:read"),
         Collections.singletonMap("user_name", "foo_user"),
-        AuthorityUtils.createAuthorityList("SCOPE_message:read"));
+        "user_name");
 
 client
     .mutateWith(mockOAuth2Login().oauth2User(oauth2User))

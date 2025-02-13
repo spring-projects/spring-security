@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
 
 package org.springframework.security.oauth2.core.user;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
@@ -107,6 +109,17 @@ public class DefaultOAuth2UserTests {
 	public void constructorWhenCreatedThenIsSerializable() {
 		DefaultOAuth2User user = new DefaultOAuth2User(AUTHORITIES, ATTRIBUTES, ATTRIBUTE_NAME_KEY);
 		SerializationUtils.serialize(user);
+	}
+
+	@Test
+	public void constructorWhenWithAuthoritiesThenReplaces() {
+		DefaultOAuth2User user = new DefaultOAuth2User(AUTHORITIES, ATTRIBUTES, ATTRIBUTE_NAME_KEY);
+		Collection<GrantedAuthority> additional = new ArrayList<>(AUTHORITIES);
+		additional.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
+		DefaultOAuth2User copy = user.withAuthorities(additional);
+		assertThat((Set<GrantedAuthority>) user.getAuthorities()).containsAll(AUTHORITIES);
+		assertThat((Set<GrantedAuthority>) copy.getAuthorities()).containsAll(additional);
+		assertThat(copy.getAttributes()).isEqualTo(user.getAttributes());
 	}
 
 }

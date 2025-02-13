@@ -17,7 +17,6 @@
 package org.springframework.security.oauth2.client.oidc.userinfo;
 
 import java.util.LinkedHashSet;
-import java.util.Map;
 import java.util.Set;
 
 import org.springframework.security.core.GrantedAuthority;
@@ -29,7 +28,6 @@ import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority;
-import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -92,15 +90,10 @@ final class OidcUserRequestUtils {
 		for (String scope : token.getScopes()) {
 			authorities.add(new SimpleGrantedAuthority("SCOPE_" + scope));
 		}
-		DefaultOidcUser.Builder userBuilder = new DefaultOidcUser.Builder();
 		if (StringUtils.hasText(userNameAttributeName)) {
-			userBuilder.nameAttributeKey(userNameAttributeName);
+			return new DefaultOidcUser(authorities, userRequest.getIdToken(), userInfo, userNameAttributeName);
 		}
-		return userBuilder
-			.idToken(userRequest.getIdToken())
-			.userInfo(userInfo)
-			.authorities(authorities)
-			.build();
+		return new DefaultOidcUser(authorities, userRequest.getIdToken(), userInfo);
 	}
 
 	private OidcUserRequestUtils() {

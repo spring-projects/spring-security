@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,6 +35,13 @@ import org.springframework.util.Assert;
 /**
  * The default implementation of an {@link OAuth2User}.
  *
+ * <p>
+ * User attribute names are <b>not</b> standardized between providers and therefore it is
+ * required to supply the <i>key</i> for the user's &quot;name&quot; attribute to one of
+ * the constructors. The <i>key</i> will be used for accessing the &quot;name&quot; of the
+ * {@code Principal} (user) via {@link #getAttributes()} and returning it from
+ * {@link #getName()}.
+ *
  * @author Joe Grandja
  * @author Eddú Meléndez
  * @author Park Hyojong
@@ -49,7 +56,7 @@ public class DefaultOAuth2User implements OAuth2User, Serializable {
 
 	private final Map<String, Object> attributes;
 
-	private final String name;
+	private final String nameAttributeKey;
 
 	/**
 	 * Constructs a {@code DefaultOAuth2User} using the provided parameters.
@@ -58,31 +65,29 @@ public class DefaultOAuth2User implements OAuth2User, Serializable {
 	 * @param nameAttributeKey the key used to access the user's &quot;name&quot; from
 	 * {@link #getAttributes()}
 	 */
-	@Deprecated
 	public DefaultOAuth2User(Collection<? extends GrantedAuthority> authorities, Map<String, Object> attributes,
 			String nameAttributeKey) {
-		this(getNameFromAttributes(attributes, nameAttributeKey), attributes, authorities);
-	}
-
-	/**
-	 * Constructs a {@code DefaultOAuth2User} using the provided parameters.
-	 * @param name the name of the user
-	 * @param authorities the authorities granted to the user
-	 * @param attributes the attributes about the user
-	 */
-	public DefaultOAuth2User(String name, Map<String, Object> attributes,
-			Collection<? extends GrantedAuthority> authorities) {
 		Assert.notEmpty(attributes, "attributes cannot be empty");
-		this.attributes = Collections.unmodifiableMap(new LinkedHashMap<>(attributes));
+		Assert.hasText(nameAttributeKey, "nameAttributeKey cannot be empty");
+		Assert.notNull(attributes.get(nameAttributeKey),
+				"Attribute value for '" + nameAttributeKey + "' cannot be null");
+
 		this.authorities = (authorities != null)
 				? Collections.unmodifiableSet(new LinkedHashSet<>(this.sortAuthorities(authorities)))
 				: Collections.unmodifiableSet(new LinkedHashSet<>(AuthorityUtils.NO_AUTHORITIES));
-		this.name = (name != null) ? name : (String) this.attributes.get("sub");
+		this.attributes = Collections.unmodifiableMap(new LinkedHashMap<>(attributes));
+		this.nameAttributeKey = nameAttributeKey;
+	}
+
+	protected DefaultOAuth2User(DefaultOAuth2User copy, Collection<GrantedAuthority> authorities) {
+		this.nameAttributeKey = copy.nameAttributeKey;
+		this.attributes = copy.attributes;
+		this.authorities = sortAuthorities(authorities);
 	}
 
 	@Override
 	public String getName() {
-		return this.name;
+		return this.getAttribute(this.nameAttributeKey).toString();
 	}
 
 	@Override
@@ -93,6 +98,16 @@ public class DefaultOAuth2User implements OAuth2User, Serializable {
 	@Override
 	public Map<String, Object> getAttributes() {
 		return this.attributes;
+	}
+
+	/**
+	 * Copy this {@code DefaultOAuth2User}, using the provided {@code authorities}
+	 * @param authorities the authorities to use
+	 * @return a new {@code DefaultOAuth2User}
+	 * @since 6.5
+	 */
+	public DefaultOAuth2User withAuthorities(Collection<GrantedAuthority> authorities) {
+		return new DefaultOAuth2User(this, authorities);
 	}
 
 	private Set<GrantedAuthority> sortAuthorities(Collection<? extends GrantedAuthority> authorities) {
@@ -139,78 +154,6 @@ public class DefaultOAuth2User implements OAuth2User, Serializable {
 		sb.append(getAttributes());
 		sb.append("]");
 		return sb.toString();
-	}
-
-	protected static String getNameFromAttributes(Map<String, Object> attributes, String nameAttributeKey) {
-		Assert.hasText(nameAttributeKey, "nameAttributeKey cannot be empty");
-		Assert.notNull(attributes.get(nameAttributeKey),
-				"Attribute value for '" + nameAttributeKey + "' cannot be null");
-		return attributes.get(nameAttributeKey).toString();
-	}
-
-	/**
-	 * A builder for {@link DefaultOAuth2User}.
-	 */
-	public static class Builder {
-
-		private String name;
-
-		private String nameAttributeKey;
-
-		private Map<String, Object> attributes;
-
-		private Collection<? extends GrantedAuthority> authorities;
-
-		/**
-		 * Sets the name of the user.
-		 * @param name the name of the user
-		 * @return the {@link Builder}
-		 */
-		public Builder name(String name) {
-			this.name = name;
-			return this;
-		}
-
-		/**
-		 * Sets the key used to access the user's &quot;name&quot; from the user attributes if no &quot;name&quot; is
-		 * provided.
-		 * @param nameAttributeKey the key used to access the user's &quot;name&quot; from the user attributes.
-		 * @return the {@link Builder}
-		 */
-		public Builder nameAttributeKey(String nameAttributeKey) {
-			this.nameAttributeKey = nameAttributeKey;
-			return this;
-		}
-
-		/**
-		 * Sets the attributes about the user.
-		 * @param attributes the attributes about the user
-		 * @return the {@link Builder}
-		 */
-		public Builder attributes(Map<String, Object> attributes) {
-			this.attributes = attributes;
-			return this;
-		}
-
-		/**
-		 * Sets the authorities granted to the user.
-		 * @param authorities the authorities granted to the user
-		 * @return the {@link Builder}
-		 */
-		public Builder authorities(Collection<? extends GrantedAuthority> authorities) {
-			this.authorities = authorities;
-			return this;
-		}
-
-		/**
-		 * Builds a new {@link DefaultOAuth2User}.
-		 * @return a {@link DefaultOAuth2User}
-		 */
-		public DefaultOAuth2User build() {
-			String name = this.name != null ? this.name : getNameFromAttributes(this.attributes, this.nameAttributeKey);
-			return new DefaultOAuth2User(name, this.attributes, this.authorities);
-		}
-
 	}
 
 }

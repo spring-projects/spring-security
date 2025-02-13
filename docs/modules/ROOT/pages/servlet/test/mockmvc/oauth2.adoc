@@ -514,9 +514,9 @@ Java::
 [source,java,role="primary"]
 ----
 OAuth2User oauth2User = new DefaultOAuth2User(
-        "foo_user",
+        AuthorityUtils.createAuthorityList("SCOPE_message:read"),
         Collections.singletonMap("user_name", "foo_user"),
-        AuthorityUtils.createAuthorityList("SCOPE_message:read"));
+        "user_name");
 
 mvc
     .perform(get("/endpoint")

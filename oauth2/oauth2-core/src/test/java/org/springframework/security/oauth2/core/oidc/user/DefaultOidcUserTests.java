@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,8 @@
 package org.springframework.security.oauth2.core.oidc.user;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -31,6 +33,7 @@ import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.security.oauth2.core.oidc.StandardClaimNames;
+import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -145,6 +148,17 @@ public class DefaultOidcUserTests {
 		assertThat(user.getAuthorities().iterator().next()).isEqualTo(AUTHORITY);
 		assertThat(user.getAttributes()).containsOnlyKeys(IdTokenClaimNames.ISS, IdTokenClaimNames.SUB,
 				StandardClaimNames.NAME, StandardClaimNames.EMAIL);
+	}
+
+	@Test
+	public void constructorWhenWithAuthoritiesThenReplaces() {
+		DefaultOidcUser user = new DefaultOidcUser(AUTHORITIES, ID_TOKEN, USER_INFO);
+		Collection<GrantedAuthority> additional = new ArrayList<>(AUTHORITIES);
+		additional.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
+		DefaultOAuth2User copy = user.withAuthorities(additional);
+		assertThat((Set<GrantedAuthority>) user.getAuthorities()).containsAll(AUTHORITIES);
+		assertThat((Set<GrantedAuthority>) copy.getAuthorities()).containsAll(additional);
+		assertThat(copy.getAttributes()).isEqualTo(user.getAttributes());
 	}
 
 }
