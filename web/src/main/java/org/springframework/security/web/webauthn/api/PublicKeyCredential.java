@@ -40,7 +40,7 @@ public final class PublicKeyCredential<R extends AuthenticatorResponse> implemen
 
 	private final R response;
 
-	private final transient AuthenticatorAttachment authenticatorAttachment;
+	private final AuthenticatorAttachment authenticatorAttachment;
 
 	private final AuthenticationExtensionsClientOutputs clientExtensionResults;
 

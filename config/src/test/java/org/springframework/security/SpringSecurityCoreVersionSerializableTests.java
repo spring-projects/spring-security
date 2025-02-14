@@ -46,6 +46,7 @@ import jakarta.servlet.http.Cookie;
 import org.apereo.cas.client.validation.AssertionImpl;
 import org.instancio.Instancio;
 import org.instancio.InstancioApi;
+import org.instancio.InstancioOfClassApi;
 import org.instancio.Select;
 import org.instancio.generator.Generator;
 import org.junit.jupiter.api.Disabled;
@@ -55,6 +56,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
+import org.springframework.core.ResolvableType;
 import org.springframework.core.type.filter.AssignableTypeFilter;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpSession;
@@ -214,6 +216,7 @@ import org.springframework.security.web.session.HttpSessionCreatedEvent;
 import org.springframework.security.web.webauthn.api.AuthenticationExtensionsClientInputs;
 import org.springframework.security.web.webauthn.api.AuthenticationExtensionsClientOutputs;
 import org.springframework.security.web.webauthn.api.AuthenticatorAssertionResponse;
+import org.springframework.security.web.webauthn.api.AuthenticatorAttachment;
 import org.springframework.security.web.webauthn.api.AuthenticatorTransport;
 import org.springframework.security.web.webauthn.api.Bytes;
 import org.springframework.security.web.webauthn.api.CredProtectAuthenticationExtensionsClientInput;
@@ -658,6 +661,7 @@ class SpringSecurityCoreVersionSerializableTests {
 		generatorByClassName.put(RelyingPartyAuthenticationRequest.class, (r) -> authRequest);
 		generatorByClassName.put(PublicKeyCredential.class, (r) -> credential);
 		generatorByClassName.put(WebAuthnAuthenticationRequestToken.class, (r) -> requestToken);
+		generatorByClassName.put(AuthenticatorAttachment.class, (r) -> AuthenticatorAttachment.PLATFORM);
 		// @formatter:on
 	}
 
@@ -768,7 +772,11 @@ class SpringSecurityCoreVersionSerializableTests {
 	}
 
 	private static InstancioApi<?> instancioWithDefaults(Class<?> clazz) {
-		InstancioApi<?> instancio = Instancio.of(clazz);
+		InstancioOfClassApi<?> instancio = Instancio.of(clazz);
+		ResolvableType[] generics = ResolvableType.forClass(clazz).getGenerics();
+		for (ResolvableType type : generics) {
+			instancio.withTypeParameters(type.resolve());
+		}
 		if (generatorByClassName.containsKey(clazz)) {
 			instancio.supply(Select.all(clazz), generatorByClassName.get(clazz));
 		}
