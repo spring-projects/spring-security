@@ -633,6 +633,7 @@ class SpringSecurityCoreVersionSerializableTests {
 			webAuthnAuthentication.setDetails(details);
 			return webAuthnAuthentication;
 		});
+		// @formatter:on
 	}
 
 	@ParameterizedTest
