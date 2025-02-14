@@ -87,17 +87,12 @@ public final class NimbusJwtEncoder implements JwtEncoder {
 
 	private final JWKSource<SecurityContext> jwkSource;
 
-	private Converter<List<JWK>, JWK> jwkSelector= (jwks)->{
-		if (jwks.size() > 1) {
-			throw new JwtEncodingException(String.format(
-					"Failed to select a key since there are multiple for the signing algorithm [%s]; " +
-							"please specify a selector in NimbusJwsEncoder#setJwkSelector",jwks.get(0).getAlgorithm()));
-		}
-		if (jwks.isEmpty()) {
-			throw new JwtEncodingException(
-					String.format(ENCODING_ERROR_MESSAGE_TEMPLATE, "Failed to select a JWK signing key"));
-		}
-		return jwks.get(0);
+	private Converter<List<JWK>, JWK> jwkSelector = (jwks) -> {
+		throw new JwtEncodingException(
+				String.format(
+						"Failed to select a key since there are multiple for the signing algorithm [%s]; "
+								+ "please specify a selector in NimbusJwsEncoder#setJwkSelector",
+						jwks.get(0).getAlgorithm()));
 	};
 
 	/**
@@ -108,17 +103,20 @@ public final class NimbusJwtEncoder implements JwtEncoder {
 		Assert.notNull(jwkSource, "jwkSource cannot be null");
 		this.jwkSource = jwkSource;
 	}
+
 	/**
-	 * Use this strategy to reduce the list of matching JWKs down to a since one.
-	 * <p> For example, you can call {@code setJwkSelector(List::getFirst)} in order
-	 * to have this encoder select the first match.
+	 * Use this strategy to reduce the list of matching JWKs when there is more than one.
+	 * <p>
+	 * For example, you can call {@code setJwkSelector(List::getFirst)} in order to have
+	 * this encoder select the first match.
 	 *
-	 * <p> By default, the class with throw an exception if there is more than one result.
+	 * <p>
+	 * By default, the class with throw an exception.
 	 * @since 6.5
 	 */
 	public void setJwkSelector(Converter<List<JWK>, JWK> jwkSelector) {
-		if(null!=jwkSelector)
-			this.jwkSelector = jwkSelector;
+		Assert.notNull(jwkSelector, "jwkSelector cannot be null");
+		this.jwkSelector = jwkSelector;
 	}
 
 	@Override
@@ -148,6 +146,13 @@ public final class NimbusJwtEncoder implements JwtEncoder {
 		catch (Exception ex) {
 			throw new JwtEncodingException(String.format(ENCODING_ERROR_MESSAGE_TEMPLATE,
 					"Failed to select a JWK signing key -> " + ex.getMessage()), ex);
+		}
+		if (jwks.isEmpty()) {
+			throw new JwtEncodingException(
+					String.format(ENCODING_ERROR_MESSAGE_TEMPLATE, "Failed to select a JWK signing key"));
+		}
+		if (jwks.size() == 1) {
+			return jwks.get(0);
 		}
 		return this.jwkSelector.convert(jwks);
 	}
