@@ -51,4 +51,16 @@ class FilterUtilsTest {
 		assertFalse(FilterUtils.isInternalIp(addr));
 	}
 
+	@Test
+	public void testIsInternalUniqueLocalAddresses() throws UnknownHostException {
+		InetAddress addr = InetAddress.getByName("fcaa::4860:4860:8888");
+		assertTrue(FilterUtils.isInternalIp(addr));
+	}
+
+	@Test
+	public void testIsTranslatedLocalAddress() throws UnknownHostException {
+		InetAddress addr = InetAddress.getByName("0064:ff9b::127.0.0.1");
+		assertTrue(FilterUtils.isInternalIp(addr));
+	}
+
 }

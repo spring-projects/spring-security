@@ -47,10 +47,11 @@ class BasicSsrfProtectionFilter implements SsrfProtectionFilter {
 
 		}
 
-		if (result.size() == 0) {
+		if (result.isEmpty()) {
 			String addrFmt = Arrays.stream(addresses).map(InetAddress::toString).collect(joining(", "));
 			throw new HostBlockedException(
-					"The following address(es) were blocked due to violating " + mode.name() + " policy: " + addrFmt);
+					String.format("The following address(es) were blocked due to violating %s, policy: %s", mode.name(),
+							addrFmt));
 		}
 
 		return result.toArray(new InetAddress[]{});

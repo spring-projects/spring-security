@@ -69,7 +69,8 @@ class JettySsrfDnsResolver implements SocketAddressResolver {
 				promise.succeeded(socketAddresses);
 			} else {
 				promise.failed(new UnknownHostException(
-						"Access to " + host + " was blocked because it violates the SSRF protection config"));
+						String.format("Access to '%s' was blocked because it violates the SSRF protection config",
+								host)));
 			}
 		} catch (UnknownHostException e) {
 			promise.failed(e);

@@ -269,7 +269,7 @@ public class SecureRestTemplate {
 						FilterMode.ALLOW_LIST));
 			}
 			if (ipBlockList.size() > 0) {
-				filters.add(new ListedSsrfProtectionFilter(ipAllowList.stream().map(IpOrRange::new).collect(toList()),
+				filters.add(new ListedSsrfProtectionFilter(ipBlockList.stream().map(IpOrRange::new).collect(toList()),
 						FilterMode.BLOCK_LIST));
 			}
 

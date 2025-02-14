@@ -24,7 +24,7 @@ import org.apache.commons.logging.LogFactory;
  * Class to represent and IPv4 or IPv6 range to be used in filtering. Inspired by:
  * org.springframework.security.web.util.matcher.IpAddressMatcher.java
  */
-public class IpOrRange {
+public final class IpOrRange {
 
 	private static final Log logger = LogFactory.getLog(IpOrRange.class);
 	private final InetAddress address;
@@ -71,7 +71,7 @@ public class IpOrRange {
 			}
 			return result;
 		} catch (UnknownHostException ex) {
-			throw new IllegalArgumentException("Failed to parse address '" + address + "'", ex);
+			throw new IllegalArgumentException(String.format("Failed to parse address '%s'", address), ex);
 		}
 	}
 
