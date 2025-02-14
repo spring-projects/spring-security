@@ -50,6 +50,7 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.apereo.cas.client.validation.AssertionImpl;
 import org.instancio.Instancio;
 import org.instancio.InstancioApi;
+import org.instancio.InstancioOfClassApi;
 import org.instancio.Select;
 import org.instancio.generator.Generator;
 import org.junit.jupiter.api.Disabled;
@@ -59,6 +60,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
+import org.springframework.core.ResolvableType;
 import org.springframework.core.type.filter.AssignableTypeFilter;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpSession;
@@ -217,21 +219,31 @@ import org.springframework.security.web.savedrequest.SimpleSavedRequest;
 import org.springframework.security.web.server.firewall.ServerExchangeRejectedException;
 import org.springframework.security.web.session.HttpSessionCreatedEvent;
 import org.springframework.security.web.webauthn.api.AuthenticationExtensionsClientInputs;
+import org.springframework.security.web.webauthn.api.AuthenticationExtensionsClientOutputs;
+import org.springframework.security.web.webauthn.api.AuthenticatorAssertionResponse;
+import org.springframework.security.web.webauthn.api.AuthenticatorAttachment;
 import org.springframework.security.web.webauthn.api.AuthenticatorTransport;
 import org.springframework.security.web.webauthn.api.Bytes;
 import org.springframework.security.web.webauthn.api.CredProtectAuthenticationExtensionsClientInput;
+import org.springframework.security.web.webauthn.api.CredentialPropertiesOutput;
 import org.springframework.security.web.webauthn.api.ImmutableAuthenticationExtensionsClientInput;
 import org.springframework.security.web.webauthn.api.ImmutableAuthenticationExtensionsClientInputs;
+import org.springframework.security.web.webauthn.api.ImmutableAuthenticationExtensionsClientOutputs;
 import org.springframework.security.web.webauthn.api.ImmutablePublicKeyCredentialUserEntity;
+import org.springframework.security.web.webauthn.api.PublicKeyCredential;
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialDescriptor;
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialRequestOptions;
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialType;
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialUserEntity;
+import org.springframework.security.web.webauthn.api.TestAuthenticationAssertionResponses;
 import org.springframework.security.web.webauthn.api.TestBytes;
+import org.springframework.security.web.webauthn.api.TestPublicKeyCredential;
 import org.springframework.security.web.webauthn.api.TestPublicKeyCredentialRequestOptions;
 import org.springframework.security.web.webauthn.api.TestPublicKeyCredentialUserEntity;
 import org.springframework.security.web.webauthn.api.UserVerificationRequirement;
 import org.springframework.security.web.webauthn.authentication.WebAuthnAuthentication;
+import org.springframework.security.web.webauthn.authentication.WebAuthnAuthenticationRequestToken;
+import org.springframework.security.web.webauthn.management.RelyingPartyAuthenticationRequest;
 import org.springframework.util.ReflectionUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -621,6 +633,27 @@ class SpringSecurityCoreVersionSerializableTests {
 				.allowCredentials(List.of(descriptor))
 				.build()
 		);
+
+		CredentialPropertiesOutput credentialOutput = new CredentialPropertiesOutput(false);
+		AuthenticationExtensionsClientOutputs outputs = new ImmutableAuthenticationExtensionsClientOutputs(credentialOutput);
+		AuthenticatorAssertionResponse response = TestAuthenticationAssertionResponses.createAuthenticatorAssertionResponse()
+				.build();
+		PublicKeyCredential<AuthenticatorAssertionResponse> credential = TestPublicKeyCredential.createPublicKeyCredential(
+				response, outputs)
+				.build();
+		RelyingPartyAuthenticationRequest authRequest = new RelyingPartyAuthenticationRequest(
+				TestPublicKeyCredentialRequestOptions.create().build(),
+				credential
+		);
+		WebAuthnAuthenticationRequestToken requestToken = new WebAuthnAuthenticationRequestToken(authRequest);
+		requestToken.setDetails(details);
+		generatorByClassName.put(CredentialPropertiesOutput.class, (o) -> credentialOutput);
+		generatorByClassName.put(ImmutableAuthenticationExtensionsClientOutputs.class, (o) -> outputs);
+		generatorByClassName.put(AuthenticatorAssertionResponse.class, (r) -> response);
+		generatorByClassName.put(RelyingPartyAuthenticationRequest.class, (r) -> authRequest);
+		generatorByClassName.put(PublicKeyCredential.class, (r) -> credential);
+		generatorByClassName.put(WebAuthnAuthenticationRequestToken.class, (r) -> requestToken);
+		generatorByClassName.put(AuthenticatorAttachment.class, (r) -> AuthenticatorAttachment.PLATFORM);
 		// @formatter:on
 		generatorByClassName.put(ImmutablePublicKeyCredentialUserEntity.class,
 				(r) -> TestPublicKeyCredentialUserEntity.userEntity().id(TestBytes.get()).build());
@@ -784,7 +817,11 @@ class SpringSecurityCoreVersionSerializableTests {
 	}
 
 	private static InstancioApi<?> instancioWithDefaults(Class<?> clazz) {
-		InstancioApi<?> instancio = Instancio.of(clazz);
+		InstancioOfClassApi<?> instancio = Instancio.of(clazz);
+		ResolvableType[] generics = ResolvableType.forClass(clazz).getGenerics();
+		for (ResolvableType type : generics) {
+			instancio.withTypeParameters(type.resolve());
+		}
 		if (generatorByClassName.containsKey(clazz)) {
 			instancio.supply(Select.all(clazz), generatorByClassName.get(clazz));
 		}
