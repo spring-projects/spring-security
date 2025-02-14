@@ -232,7 +232,7 @@ public class OidcAuthorizationCodeAuthenticationProvider implements Authenticati
 		return OAuth2LoginAuthenticationToken.class.isAssignableFrom(authentication);
 	}
 
-	protected OidcIdToken createOidcToken(ClientRegistration clientRegistration,
+	private OidcIdToken createOidcToken(ClientRegistration clientRegistration,
 			OAuth2AccessTokenResponse accessTokenResponse) {
 		JwtDecoder jwtDecoder = this.jwtDecoderFactory.createDecoder(clientRegistration);
 		Jwt jwt = getJwt(accessTokenResponse, jwtDecoder);

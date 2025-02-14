@@ -395,8 +395,13 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 			}
 			http.authenticationProvider(this.postProcess(oidcAuthorizationCodeAuthenticationProvider));
 
-			RefreshOidcIdTokenHandler refreshOidcIdTokenHandler = new RefreshOidcIdTokenHandler(
-					oidcAuthorizationCodeAuthenticationProvider);
+			RefreshOidcIdTokenHandler refreshOidcIdTokenHandler = new RefreshOidcIdTokenHandler();
+			if (this.getSecurityContextHolderStrategy() != null) {
+				refreshOidcIdTokenHandler.setSecurityContextHolderStrategy(this.getSecurityContextHolderStrategy());
+			}
+			if (jwtDecoderFactory != null) {
+				refreshOidcIdTokenHandler.setJwtDecoderFactory(jwtDecoderFactory);
+			}
 			registerDelegateApplicationListener(refreshOidcIdTokenHandler);
 		}
 		else {
