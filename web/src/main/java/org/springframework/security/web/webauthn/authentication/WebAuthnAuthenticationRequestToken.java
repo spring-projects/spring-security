@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
 
 package org.springframework.security.web.webauthn.authentication;
 
+import java.io.Serial;
+
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.web.webauthn.management.RelyingPartyAuthenticationRequest;
@@ -29,6 +31,9 @@ import org.springframework.util.Assert;
  * @since 6.4
  */
 public class WebAuthnAuthenticationRequestToken extends AbstractAuthenticationToken {
+
+	@Serial
+	private static final long serialVersionUID = -1682693433877522403L;
 
 	private final RelyingPartyAuthenticationRequest webAuthnRequest;
 
