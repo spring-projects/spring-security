@@ -187,16 +187,16 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
 			}
 			catch (AccountStatusException ex) {
 				prepareException(ex, authentication);
-				logger.debug(LogMessage.format("Authentication failed for user '%s' since account status is %s",
-						authentication.getName(), ex.getMessage()));
+				logger.debug(LogMessage.format("Authentication failed for user '%s' since their account status is %s",
+						authentication.getName(), ex.getMessage()), ex);
 				// SEC-546: Avoid polling additional providers if auth failure is due to
 				// invalid account status
 				throw ex;
 			}
 			catch (InternalAuthenticationServiceException ex) {
 				prepareException(ex, authentication);
-				logger.debug(LogMessage.format(
-						"Authentication failed due to an internal authentication service error: %s", ex.getMessage()));
+				logger.debug(LogMessage.format("Authentication service failed internally for user '%s'",
+						authentication.getName()), ex);
 				// SEC-546: Avoid polling additional providers if auth failure is due to
 				// invalid account status
 				throw ex;
