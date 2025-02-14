@@ -452,7 +452,7 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 			<div class="login-form">
 			<h2>Login with Passkeys</h2>
 			<button id="passkey-signin" type="submit" class="primary">Sign in with a passkey</button>
-			</form>
+			</div>
 			""";
 
 	private static final String LOGIN_PAGE_TEMPLATE = """
