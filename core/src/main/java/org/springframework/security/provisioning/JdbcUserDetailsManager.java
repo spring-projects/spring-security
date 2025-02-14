@@ -30,6 +30,7 @@ import org.springframework.context.ApplicationContextException;
 import org.springframework.core.log.LogMessage;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.core.PreparedStatementSetter;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -156,11 +157,18 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 
 	private UserCache userCache = new NullUserCache();
 
+	private RowMapper<UserDetails> userDetailsMapper = this::mapToUser;
+
 	public JdbcUserDetailsManager() {
 	}
 
 	public JdbcUserDetailsManager(DataSource dataSource) {
 		setDataSource(dataSource);
+	}
+
+	public void setUserDetailsMapper(RowMapper<UserDetails> mapper) {
+		Assert.notNull(mapper, "userDetailsMapper cannot be null");
+		this.userDetailsMapper = mapper;
 	}
 
 	@Override
@@ -178,7 +186,7 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 	 */
 	@Override
 	protected List<UserDetails> loadUsersByUsername(String username) {
-		return getJdbcTemplate().query(getUsersByUsernameQuery(), this::mapToUser, username);
+		return getJdbcTemplate().query(getUsersByUsernameQuery(), userDetailsMapper, username);
 	}
 
 	protected UserDetails mapToUser(ResultSet rs, int rowNum) throws SQLException {
