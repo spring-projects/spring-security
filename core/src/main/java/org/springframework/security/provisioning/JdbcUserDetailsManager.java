@@ -189,7 +189,7 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 		return getJdbcTemplate().query(getUsersByUsernameQuery(), userDetailsMapper, username);
 	}
 
-	protected UserDetails mapToUser(ResultSet rs, int rowNum) throws SQLException {
+	private UserDetails mapToUser(ResultSet rs, int rowNum) throws SQLException {
 		String userName = rs.getString(1);
 		String password = rs.getString(2);
 		boolean enabled = rs.getBoolean(3);
