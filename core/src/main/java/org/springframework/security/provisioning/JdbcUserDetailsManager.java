@@ -166,6 +166,17 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 		setDataSource(dataSource);
 	}
 
+	/**
+	 * Sets the {@code RowMapper} to convert each user result row into a
+	 * {@link UserDetails} object.
+	 *
+	 * The default mapper expects columns with names like 'username', 'password',
+	 * 'enabled', etc., and maps them directly to the corresponding UserDetails
+	 * properties.
+	 * @param mapper the {@code RowMapper} to use for mapping rows in the database, must
+	 * not be null
+	 * @since 6.5
+	 */
 	public void setUserDetailsMapper(RowMapper<UserDetails> mapper) {
 		Assert.notNull(mapper, "userDetailsMapper cannot be null");
 		this.userDetailsMapper = mapper;
