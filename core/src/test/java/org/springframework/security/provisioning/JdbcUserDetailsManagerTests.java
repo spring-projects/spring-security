@@ -16,6 +16,7 @@
 
 package org.springframework.security.provisioning;
 
+import java.sql.SQLException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -28,6 +29,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.security.PopulatedDatabase;
 import org.springframework.security.TestDataSource;
 import org.springframework.security.access.AccessDeniedException;
@@ -48,14 +50,17 @@ import org.springframework.security.core.userdetails.UserDetails;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests for {@link JdbcUserDetailsManager}
  *
  * @author Luke Taylor
+ * @author dae won
  */
 public class JdbcUserDetailsManagerTests {
 
@@ -363,6 +368,24 @@ public class JdbcUserDetailsManagerTests {
 				AuthorityUtils.createAuthorityList("ROLE_USER"));
 		Authentication updatedAuth = this.manager.createNewAuthentication(currentAuth, "new");
 		assertThat(updatedAuth.getCredentials()).isNull();
+	}
+
+	@Test
+	public void setUserDetailsMapperWithNullMapperThrowsException() {
+		assertThatExceptionOfType(IllegalArgumentException.class)
+				.isThrownBy(() -> this.manager.setUserDetailsMapper(null))
+				.withMessage("userDetailsMapper cannot be null");
+	}
+
+	@Test
+	public void setUserDetailsMapperWithMockMapper() throws SQLException {
+		RowMapper<UserDetails> mockMapper = mock(RowMapper.class);
+		when(mockMapper.mapRow(any(), anyInt())).thenReturn(joe);
+		this.manager.setUserDetailsMapper(mockMapper);
+		insertJoe();
+		UserDetails newJoe = this.manager.loadUserByUsername("joe");
+		assertThat(joe).isEqualTo(newJoe);
+		verify(mockMapper).mapRow(any(), anyInt());
 	}
 
 	private Authentication authenticateJoe() {
