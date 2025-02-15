@@ -31,6 +31,7 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
+import org.springframework.security.oauth2.core.oidc.OidcScopes;
 import org.springframework.security.oauth2.core.oidc.StandardClaimNames;
 import org.springframework.security.oauth2.core.oidc.endpoint.OidcParameterNames;
 import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
@@ -46,6 +47,8 @@ import org.springframework.util.Assert;
  */
 public class RefreshOidcIdTokenHandler implements ApplicationListener<OAuth2TokenRefreshedEvent> {
 
+	private static final String MISSING_ID_TOKEN_ERROR_CODE = "missing_id_token";
+
 	private static final String INVALID_ID_TOKEN_ERROR_CODE = "invalid_id_token";
 
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
@@ -56,20 +59,31 @@ public class RefreshOidcIdTokenHandler implements ApplicationListener<OAuth2Toke
 	@Override
 	public void onApplicationEvent(OAuth2TokenRefreshedEvent event) {
 		OAuth2AuthorizedClient authorizedClient = event.getAuthorizedClient();
+
+		if (!authorizedClient.getClientRegistration().getScopes().contains(OidcScopes.OPENID)) {
+			return;
+		}
+
+		Authentication authentication = this.securityContextHolderStrategy.getContext().getAuthentication();
+		if (!(authentication instanceof OAuth2AuthenticationToken oauth2Authentication)) {
+			return;
+		}
+		if (!(authentication.getPrincipal() instanceof DefaultOidcUser defaultOidcUser)) {
+			return;
+		}
+
 		OAuth2AccessTokenResponse accessTokenResponse = event.getAccessTokenResponse();
+
+		String idToken = (String) accessTokenResponse.getAdditionalParameters().get(OidcParameterNames.ID_TOKEN);
+		if (idToken == null || idToken.isBlank()) {
+			OAuth2Error missingIdTokenError = new OAuth2Error(MISSING_ID_TOKEN_ERROR_CODE,
+					"ID token is missing in the token response", null);
+			throw new OAuth2AuthenticationException(missingIdTokenError, missingIdTokenError.toString());
+		}
+
 		ClientRegistration clientRegistration = authorizedClient.getClientRegistration();
 		OidcIdToken refreshedOidcToken = createOidcToken(clientRegistration, accessTokenResponse);
-		Authentication authentication = this.securityContextHolderStrategy.getContext().getAuthentication();
-		if (authentication instanceof OAuth2AuthenticationToken oauth2AuthenticationToken) {
-			if (authentication.getPrincipal() instanceof DefaultOidcUser defaultOidcUser) {
-				OidcUser oidcUser = new DefaultOidcUser(defaultOidcUser.getAuthorities(), refreshedOidcToken,
-						defaultOidcUser.getUserInfo(), StandardClaimNames.SUB);
-				SecurityContext context = this.securityContextHolderStrategy.createEmptyContext();
-				context.setAuthentication(new OAuth2AuthenticationToken(oidcUser, oidcUser.getAuthorities(),
-						oauth2AuthenticationToken.getAuthorizedClientRegistrationId()));
-				this.securityContextHolderStrategy.setContext(context);
-			}
-		}
+		updateSecurityContext(oauth2Authentication, defaultOidcUser, refreshedOidcToken);
 	}
 
 	/**
@@ -90,6 +104,18 @@ public class RefreshOidcIdTokenHandler implements ApplicationListener<OAuth2Toke
 	public final void setJwtDecoderFactory(JwtDecoderFactory<ClientRegistration> jwtDecoderFactory) {
 		Assert.notNull(jwtDecoderFactory, "jwtDecoderFactory cannot be null");
 		this.jwtDecoderFactory = jwtDecoderFactory;
+	}
+
+	private void updateSecurityContext(OAuth2AuthenticationToken oauth2Authentication, DefaultOidcUser defaultOidcUser,
+			OidcIdToken refreshedOidcToken) {
+		OidcUser oidcUser = new DefaultOidcUser(defaultOidcUser.getAuthorities(), refreshedOidcToken,
+				defaultOidcUser.getUserInfo(), StandardClaimNames.SUB);
+
+		SecurityContext context = this.securityContextHolderStrategy.createEmptyContext();
+		context.setAuthentication(new OAuth2AuthenticationToken(oidcUser, oidcUser.getAuthorities(),
+				oauth2Authentication.getAuthorizedClientRegistrationId()));
+
+		this.securityContextHolderStrategy.setContext(context);
 	}
 
 	private OidcIdToken createOidcToken(ClientRegistration clientRegistration,
