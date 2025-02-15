@@ -159,6 +159,8 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 
 	private RowMapper<UserDetails> userDetailsMapper = this::mapToUser;
 
+	private RowMapper<GrantedAuthority> grantedAuthorityMapper = this::mapToGrantedAuthority;
+
 	public JdbcUserDetailsManager() {
 	}
 
@@ -182,6 +184,21 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 		this.userDetailsMapper = mapper;
 	}
 
+	/**
+	 * Sets the {@code RowMapper} to convert each authority result row into a
+	 * {@link GrantedAuthority} object.
+	 *
+	 * The default mapper expects columns with names like 'authority' or 'role', and maps
+	 * them directly to SimpleGrantedAuthority objects.
+	 * @param mapper the {@code RowMapper} to use for mapping rows in the database to
+	 * GrantedAuthority objects, must not be null
+	 * @since 6.5
+	 */
+	public void setGrantedAuthorityMapper(RowMapper<GrantedAuthority> mapper) {
+		Assert.notNull(mapper, "grantedAuthorityMapper cannot be null");
+		this.grantedAuthorityMapper = mapper;
+	}
+
 	@Override
 	protected void initDao() throws ApplicationContextException {
 		if (this.authenticationManager == null) {
@@ -197,7 +214,7 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 	 */
 	@Override
 	protected List<UserDetails> loadUsersByUsername(String username) {
-		return getJdbcTemplate().query(getUsersByUsernameQuery(), userDetailsMapper, username);
+		return getJdbcTemplate().query(getUsersByUsernameQuery(), this.userDetailsMapper, username);
 	}
 
 	private UserDetails mapToUser(ResultSet rs, int rowNum) throws SQLException {
@@ -406,10 +423,10 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 		this.logger.debug("Loading authorities for group '" + groupName + "'");
 		Assert.hasText(groupName, "groupName should have text");
 		return getJdbcTemplate().query(this.groupAuthoritiesSql, new String[] { groupName },
-				this::mapToGrantedAuthority);
+				this.grantedAuthorityMapper);
 	}
 
-	protected GrantedAuthority mapToGrantedAuthority(ResultSet rs, int rowNum) throws SQLException {
+	private GrantedAuthority mapToGrantedAuthority(ResultSet rs, int rowNum) throws SQLException {
 		String roleName = getRolePrefix() + rs.getString(3);
 		return new SimpleGrantedAuthority(roleName);
 	}

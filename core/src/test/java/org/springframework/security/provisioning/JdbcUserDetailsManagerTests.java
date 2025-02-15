@@ -52,9 +52,8 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.BDDMockito.mock;
+import static org.mockito.BDDMockito.verify;
 
 /**
  * Tests for {@link JdbcUserDetailsManager}
@@ -373,18 +372,36 @@ public class JdbcUserDetailsManagerTests {
 	@Test
 	public void setUserDetailsMapperWithNullMapperThrowsException() {
 		assertThatExceptionOfType(IllegalArgumentException.class)
-				.isThrownBy(() -> this.manager.setUserDetailsMapper(null))
-				.withMessage("userDetailsMapper cannot be null");
+			.isThrownBy(() -> this.manager.setUserDetailsMapper(null))
+			.withMessage("userDetailsMapper cannot be null");
 	}
 
 	@Test
 	public void setUserDetailsMapperWithMockMapper() throws SQLException {
 		RowMapper<UserDetails> mockMapper = mock(RowMapper.class);
-		when(mockMapper.mapRow(any(), anyInt())).thenReturn(joe);
+		given(mockMapper.mapRow(any(), anyInt())).willReturn(joe);
 		this.manager.setUserDetailsMapper(mockMapper);
 		insertJoe();
 		UserDetails newJoe = this.manager.loadUserByUsername("joe");
 		assertThat(joe).isEqualTo(newJoe);
+		verify(mockMapper).mapRow(any(), anyInt());
+	}
+
+	@Test
+	public void setGrantedAuthorityMapperWithNullMapperThrowsException() {
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> this.manager.setGrantedAuthorityMapper(null))
+			.withMessage("grantedAuthorityMapper cannot be null");
+	}
+
+	@Test
+	public void setGrantedAuthorityMapperWithMockMapper() throws SQLException {
+		RowMapper<GrantedAuthority> mockMapper = mock(RowMapper.class);
+		GrantedAuthority mockAuthority = new SimpleGrantedAuthority("ROLE_MOCK");
+		given(mockMapper.mapRow(any(), anyInt())).willReturn(mockAuthority);
+		this.manager.setGrantedAuthorityMapper(mockMapper);
+		List<GrantedAuthority> authGroup = this.manager.findGroupAuthorities("GROUP_0");
+		assertThat(authGroup.get(0)).isEqualTo(mockAuthority);
 		verify(mockMapper).mapRow(any(), anyInt());
 	}
 
