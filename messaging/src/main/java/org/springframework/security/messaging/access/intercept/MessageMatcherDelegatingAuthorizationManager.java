@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ import org.springframework.security.authorization.AuthenticatedAuthorizationMana
 import org.springframework.security.authorization.AuthorityAuthorizationManager;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.security.authorization.SingleResultAuthorizationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.messaging.util.matcher.MessageMatcher;
 import org.springframework.security.messaging.util.matcher.SimpDestinationMessageMatcher;
@@ -319,7 +320,7 @@ public final class MessageMatcherDelegatingAuthorizationManager implements Autho
 			 * @return the {@link Builder} for further customization
 			 */
 			public Builder permitAll() {
-				return access((authentication, context) -> new AuthorizationDecision(true));
+				return access(SingleResultAuthorizationManager.permitAll());
 			}
 
 			/**
@@ -327,7 +328,7 @@ public final class MessageMatcherDelegatingAuthorizationManager implements Autho
 			 * @return the {@link Builder} for further customization
 			 */
 			public Builder denyAll() {
-				return access((authorization, context) -> new AuthorizationDecision(false));
+				return access(SingleResultAuthorizationManager.denyAll());
 			}
 
 			/**
