@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package org.springframework.security.config.annotation.web.configurers;
 import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.security.access.SecurityConfig;
+import org.springframework.security.authorization.SingleResultAuthorizationManager;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.configurers.AbstractConfigAttributeRequestMatcherRegistry.UrlMapping;
 import org.springframework.security.web.util.matcher.RequestMatcher;
@@ -63,7 +64,7 @@ final class PermitAllSupport {
 								SecurityConfig.createList(ExpressionUrlAuthorizationConfigurer.permitAll)));
 				}
 				else {
-					httpConfigurer.addFirst(matcher, AuthorizeHttpRequestsConfigurer.PERMIT_ALL_AUTHORIZATION_MANAGER);
+					httpConfigurer.addFirst(matcher, SingleResultAuthorizationManager.permitAll());
 				}
 			}
 		}
