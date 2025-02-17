@@ -70,7 +70,7 @@ org-bouncycastle-bcprov-jdk15on = { module = "org.bouncycastle:bcprov-jdk18on", 
 org-eclipse-jetty-jetty-server = { module = "org.eclipse.jetty:jetty-server", version.ref = "org-eclipse-jetty" }
 org-eclipse-jetty-jetty-servlet = { module = "org.eclipse.jetty:jetty-servlet", version.ref = "org-eclipse-jetty" }
 org-hamcrest = "org.hamcrest:hamcrest:2.2"
-org-hibernate-orm-hibernate-core = "org.hibernate.orm:hibernate-core:6.6.7.Final"
+org-hibernate-orm-hibernate-core = "org.hibernate.orm:hibernate-core:6.6.8.Final"
 org-hsqldb = "org.hsqldb:hsqldb:2.7.4"
 org-jetbrains-kotlin-kotlin-bom = { module = "org.jetbrains.kotlin:kotlin-bom", version.ref = "org-jetbrains-kotlin" }
 org-jetbrains-kotlin-kotlin-gradle-plugin = "org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.25"
