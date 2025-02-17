@@ -75,6 +75,6 @@ https://spring.io/support[Commercial support] is available too.
 == Contributing
 https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request[Pull requests] are welcome; see the https://github.com/spring-projects/spring-security/blob/main/CONTRIBUTING.adoc[contributor guidelines] for details.
 
-== License
+== License 
 Spring Security is Open Source software released under the
 https://www.apache.org/licenses/LICENSE-2.0.html[Apache 2.0 license].
