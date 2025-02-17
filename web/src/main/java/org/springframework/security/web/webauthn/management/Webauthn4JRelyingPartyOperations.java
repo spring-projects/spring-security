@@ -46,6 +46,7 @@ import com.webauthn4j.data.client.challenge.DefaultChallenge;
 import com.webauthn4j.data.extension.authenticator.RegistrationExtensionAuthenticatorOutput;
 import com.webauthn4j.server.ServerProperty;
 
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
 import org.springframework.security.core.Authentication;
@@ -333,9 +334,7 @@ public class Webauthn4JRelyingPartyOperations implements WebAuthnRelyingPartyOpe
 	public PublicKeyCredentialRequestOptions createCredentialRequestOptions(
 			PublicKeyCredentialRequestOptionsRequest request) {
 		Authentication authentication = request.getAuthentication();
-		// FIXME: do not load credentialRecords if anonymous
-		PublicKeyCredentialUserEntity userEntity = findUserEntityOrCreateAndSave(authentication.getName());
-		List<CredentialRecord> credentialRecords = this.userCredentials.findByUserId(userEntity.getId());
+		List<CredentialRecord> credentialRecords = findCredentialRecords(authentication);
 		return PublicKeyCredentialRequestOptions.builder()
 			.allowCredentials(credentialDescriptors(credentialRecords))
 			.challenge(Bytes.random())
@@ -344,6 +343,17 @@ public class Webauthn4JRelyingPartyOperations implements WebAuthnRelyingPartyOpe
 			.userVerification(UserVerificationRequirement.PREFERRED)
 			.customize(this.customizeRequestOptions)
 			.build();
+	}
+
+	private List<CredentialRecord> findCredentialRecords(Authentication authentication) {
+		if (authentication instanceof AnonymousAuthenticationToken) {
+			return Collections.emptyList();
+		}
+		PublicKeyCredentialUserEntity userEntity = this.userEntities.findByUsername(authentication.getName());
+		if (userEntity == null) {
+			return Collections.emptyList();
+		}
+		return this.userCredentials.findByUserId(userEntity.getId());
 	}
 
 	@Override
