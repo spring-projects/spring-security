@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package org.springframework.security.web.webauthn.api;
 
+import java.io.Serial;
 import java.util.Arrays;
 import java.util.List;
 
@@ -25,6 +26,9 @@ import java.util.List;
  * @author Rob Winch
  */
 public class ImmutableAuthenticationExtensionsClientOutputs implements AuthenticationExtensionsClientOutputs {
+
+	@Serial
+	private static final long serialVersionUID = -4656390173585180393L;
 
 	private final List<AuthenticationExtensionsClientOutput<?>> outputs;
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,6 +36,17 @@ public final class TestPublicKeyCredential {
 			.response(response)
 			.type(PublicKeyCredentialType.PUBLIC_KEY)
 			.clientExtensionResults(clientExtensionResults);
+	}
+
+	public static <R extends AuthenticatorResponse> PublicKeyCredential.PublicKeyCredentialBuilder<R> createPublicKeyCredential(
+			R response, AuthenticationExtensionsClientOutputs outputs) {
+		return PublicKeyCredential.builder()
+			.id("AX6nVVERrH6opMafUGn3Z9EyNEy6cftfBKV_2YxYl1jdW8CSJxMKGXFV3bnrKTiMSJeInkG7C6B2lPt8E5i3KaM")
+			.rawId(Bytes
+				.fromBase64("AX6nVVERrH6opMafUGn3Z9EyNEy6cftfBKV_2YxYl1jdW8CSJxMKGXFV3bnrKTiMSJeInkG7C6B2lPt8E5i3KaM"))
+			.response(response)
+			.type(PublicKeyCredentialType.PUBLIC_KEY)
+			.clientExtensionResults(outputs);
 	}
 
 	private TestPublicKeyCredential() {

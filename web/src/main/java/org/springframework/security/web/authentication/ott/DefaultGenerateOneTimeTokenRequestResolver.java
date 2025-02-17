@@ -51,7 +51,7 @@ public final class DefaultGenerateOneTimeTokenRequestResolver implements Generat
 	 * @param expiresIn one-time token expiration time
 	 */
 	public void setExpiresIn(Duration expiresIn) {
-		Assert.notNull(expiresIn, "expiresAt cannot be null");
+		Assert.notNull(expiresIn, "expiresIn cannot be null");
 		this.expiresIn = expiresIn;
 	}
 

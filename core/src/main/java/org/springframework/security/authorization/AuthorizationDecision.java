@@ -16,11 +16,16 @@
 
 package org.springframework.security.authorization;
 
+import java.io.Serial;
+
 /**
  * @author Rob Winch
  * @since 5.0
  */
 public class AuthorizationDecision implements AuthorizationResult {
+
+	@Serial
+	private static final long serialVersionUID = -3226018324649244416L;
 
 	private final boolean granted;
 

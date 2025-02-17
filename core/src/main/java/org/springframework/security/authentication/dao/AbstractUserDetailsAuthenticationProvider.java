@@ -23,6 +23,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.authentication.AccountExpiredException;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -133,7 +134,7 @@ public abstract class AbstractUserDetailsAuthenticationProvider
 				user = retrieveUser(username, (UsernamePasswordAuthenticationToken) authentication);
 			}
 			catch (UsernameNotFoundException ex) {
-				this.logger.debug("Failed to find user '" + username + "'");
+				this.logger.debug(LogMessage.format("Failed to find user '%s'", username));
 				if (!this.hideUserNotFoundExceptions) {
 					throw ex;
 				}

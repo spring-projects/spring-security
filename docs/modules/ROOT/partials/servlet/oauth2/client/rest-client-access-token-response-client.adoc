@@ -257,7 +257,7 @@ accessTokenResponseClient.setParametersCustomizer { parameters ->
 `{class-name}` provides hooks for customizing response parameters and error handling of the OAuth 2.0 Access Token Response.
 
 [#oauth2-client-{section-id}-access-token-response-rest-client]
-=== Customizing the `WebClient`
+=== Customizing the `RestClient`
 
 You can customize the Token Response by providing a pre-configured `RestClient` to `setRestClient()`.
 The default `RestClient` is configured as follows:

@@ -16,6 +16,10 @@
 
 package org.springframework.security.web.webauthn.api;
 
+import java.io.ObjectStreamException;
+import java.io.Serial;
+import java.io.Serializable;
+
 /**
  * The <a href=
  * "https://www.w3.org/TR/webauthn-3/#enumdef-authenticatorattachment">AuthenticatorAttachment</a>.
@@ -23,7 +27,10 @@ package org.springframework.security.web.webauthn.api;
  * @author Rob Winch
  * @since 6.4
  */
-public final class AuthenticatorAttachment {
+public final class AuthenticatorAttachment implements Serializable {
+
+	@Serial
+	private static final long serialVersionUID = 8446133215195918090L;
 
 	/**
 	 * Indicates <a href=
@@ -83,6 +90,11 @@ public final class AuthenticatorAttachment {
 
 	public static AuthenticatorAttachment[] values() {
 		return new AuthenticatorAttachment[] { CROSS_PLATFORM, PLATFORM };
+	}
+
+	@Serial
+	private Object readResolve() throws ObjectStreamException {
+		return valueOf(this.value);
 	}
 
 }

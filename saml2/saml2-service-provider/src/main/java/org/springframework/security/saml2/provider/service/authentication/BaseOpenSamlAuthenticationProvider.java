@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 
-import javax.annotation.Nonnull;
 import javax.xml.namespace.QName;
 
 import org.apache.commons.logging.Log;
@@ -67,6 +66,7 @@ import org.opensaml.saml.saml2.core.SubjectConfirmationData;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.log.LogMessage;
+import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;
@@ -565,13 +565,13 @@ class BaseOpenSamlAuthenticationProvider implements AuthenticationProvider {
 			conditions.add(new AudienceRestrictionConditionValidator());
 			conditions.add(new DelegationRestrictionConditionValidator());
 			conditions.add(new ConditionValidator() {
-				@Nonnull
+				@NonNull
 				@Override
 				public QName getServicedCondition() {
 					return OneTimeUse.DEFAULT_ELEMENT_NAME;
 				}
 
-				@Nonnull
+				@NonNull
 				@Override
 				public ValidationResult validate(Condition condition, Assertion assertion, ValidationContext context) {
 					// applications should validate their own OneTimeUse conditions
@@ -580,16 +580,16 @@ class BaseOpenSamlAuthenticationProvider implements AuthenticationProvider {
 			});
 			conditions.add(new ProxyRestrictionConditionValidator());
 			subjects.add(new BearerSubjectConfirmationValidator() {
-				@Nonnull
-				protected ValidationResult validateAddress(@Nonnull SubjectConfirmation confirmation,
-						@Nonnull Assertion assertion, @Nonnull ValidationContext context, boolean required)
+				@NonNull
+				protected ValidationResult validateAddress(@NonNull SubjectConfirmation confirmation,
+						@NonNull Assertion assertion, @NonNull ValidationContext context, boolean required)
 						throws AssertionValidationException {
 					return ValidationResult.VALID;
 				}
 
-				@Nonnull
-				protected ValidationResult validateAddress(@Nonnull SubjectConfirmationData confirmationData,
-						@Nonnull Assertion assertion, @Nonnull ValidationContext context, boolean required)
+				@NonNull
+				protected ValidationResult validateAddress(@NonNull SubjectConfirmationData confirmationData,
+						@NonNull Assertion assertion, @NonNull ValidationContext context, boolean required)
 						throws AssertionValidationException {
 					// applications should validate their own addresses - gh-7514
 					return ValidationResult.VALID;
@@ -599,7 +599,7 @@ class BaseOpenSamlAuthenticationProvider implements AuthenticationProvider {
 
 		static final SAML20AssertionValidator attributeValidator = new SAML20AssertionValidator(conditions, subjects,
 				statements, null, null, null) {
-			@Nonnull
+			@NonNull
 			@Override
 			protected ValidationResult validateSignature(Assertion token, ValidationContext context) {
 				return ValidationResult.VALID;

@@ -24,6 +24,7 @@ import org.springframework.expression.Expression;
  * @author Marcus Da Coregio
  * @since 5.8
  */
+@SuppressWarnings("serial")
 public class ExpressionAuthorizationDecision extends AuthorizationDecision {
 
 	private final Expression expression;

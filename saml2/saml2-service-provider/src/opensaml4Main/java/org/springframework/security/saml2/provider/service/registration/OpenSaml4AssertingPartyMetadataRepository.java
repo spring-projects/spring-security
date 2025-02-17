@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,8 +25,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.function.Consumer;
-
-import javax.annotation.Nonnull;
 
 import net.shibboleth.utilities.java.support.resolver.CriteriaSet;
 import org.opensaml.core.criterion.EntityIdCriterion;
@@ -265,7 +263,7 @@ public final class OpenSaml4AssertingPartyMetadataRepository implements Assertin
 				return this.resource.getFile();
 			}
 
-			@Nonnull
+			@NonNull
 			@Override
 			public InputStream getInputStream() throws IOException {
 				return this.resource.getInputStream();
