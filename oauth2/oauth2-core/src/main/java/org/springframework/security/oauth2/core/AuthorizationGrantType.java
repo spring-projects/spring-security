@@ -28,7 +28,7 @@ import org.springframework.util.Assert;
  *
  * <p>
  * The OAuth 2.0 Authorization Framework defines four standard grant types: authorization
- * code, resource owner password credentials, and client credentials. It also provides an
+ * code, implicit, resource owner password credentials, and client credentials. It also provides an
  * extensibility mechanism for defining additional grant types.
  *
  * @author Joe Grandja
