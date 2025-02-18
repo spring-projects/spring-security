@@ -16,19 +16,15 @@
 
 package org.springframework.security.web.servlet.util.matcher;
 
-import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
-import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletRegistration;
-import jakarta.servlet.http.HttpServletMapping;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.MappingMatch;
 
 import org.springframework.http.HttpMethod;
 import org.springframework.http.server.PathContainer;
@@ -39,10 +35,7 @@ import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 import org.springframework.security.web.util.matcher.MethodPatternRequestMatcherFactory;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
-import org.springframework.util.ObjectUtils;
 import org.springframework.web.util.ServletRequestPathUtils;
-import org.springframework.web.util.UriUtils;
-import org.springframework.web.util.WebUtils;
 import org.springframework.web.util.pattern.PathPattern;
 import org.springframework.web.util.pattern.PathPatternParser;
 
@@ -88,9 +81,7 @@ public final class PathPatternRequestMatcher implements RequestMatcher {
 	 * prefix
 	 * <p>
 	 * When there is no context path, then these URIs are effectively absolute.
-	 * @return a {@link PathPatternRequestMatcher.Builder} that treats URIs as relative to
-	 * the context path, if any
-	 * @since 6.5
+	 * @return a {@link Builder} that treats URIs as relative to the context path, if any
 	 */
 	public static Builder path() {
 		return new Builder();
@@ -109,17 +100,25 @@ public final class PathPatternRequestMatcher implements RequestMatcher {
 	 * {@link HttpServletRequest#getServletPath()} would return {@code /path} and so
 	 * {@code /path} is what is specified here.
 	 *
+	 * <p>
 	 * Specify the path here without the trailing {@code /*}.
-	 * @return a {@link PathPatternRequestMatcher.Builder} that treats URIs as relative to
-	 * the given {@code servletPath}
-	 * @since 6.5
+	 * @return a {@link Builder} that treats URIs as relative to the given
+	 * {@code servletPath}
 	 */
 	public static Builder servletPath(String servletPath) {
-		Assert.notNull(servletPath, "servletPath cannot be null");
-		Assert.isTrue(servletPath.startsWith("/"), "servletPath must start with '/'");
-		Assert.isTrue(!servletPath.endsWith("/"), "servletPath must not end with a slash");
-		Assert.isTrue(!servletPath.contains("*"), "servletPath must not contain a star");
-		return new Builder(new ServletPathRequestMatcher(servletPath));
+		return new Builder().servletPath(servletPath);
+	}
+
+	/**
+	 * Use this {@link PathPatternParser} to parse path patterns. Uses
+	 * {@link PathPatternParser#defaultInstance} by default.
+	 * @param parser the {@link PathPatternParser} to use
+	 * @return a {@link Builder} that treats URIs as relative to the given
+	 * {@code servletPath}
+	 */
+	public static Builder withPathPatternParser(PathPatternParser parser) {
+		Assert.notNull(parser, "pathPatternParser cannot be null");
+		return new Builder(parser);
 	}
 
 	/**
@@ -212,16 +211,27 @@ public final class PathPatternRequestMatcher implements RequestMatcher {
 	 */
 	public static final class Builder implements MethodPatternRequestMatcherFactory {
 
-		private PathPatternParser parser = PathPatternParser.defaultInstance;
+		private final PathPatternParser parser;
 
-		private final RequestMatcher servletPath;
+		private RequestMatcher servletPath = AnyRequestMatcher.INSTANCE;
 
-		Builder() {
-			this(AnyRequestMatcher.INSTANCE);
+		private Builder() {
+			this.parser = PathPatternParser.defaultInstance;
 		}
 
-		Builder(RequestMatcher servletPath) {
-			this.servletPath = servletPath;
+		private Builder(PathPatternParser parser) {
+			this.parser = parser;
+		}
+
+		/**
+		 * Match requests starting with this {@code servletPath}.
+		 * @param servletPath the servlet path prefix
+		 * @see PathPatternRequestMatcher#servletPath
+		 * @return the {@link Builder} for more configuration
+		 */
+		public Builder servletPath(String servletPath) {
+			this.servletPath = new ServletPathRequestMatcher(servletPath);
+			return this;
 		}
 
 		/**
@@ -298,6 +308,10 @@ public final class PathPatternRequestMatcher implements RequestMatcher {
 		private final AtomicReference<Boolean> servletExists = new AtomicReference<>();
 
 		ServletPathRequestMatcher(String servletPath) {
+			Assert.notNull(servletPath, "servletPath cannot be null");
+			Assert.isTrue(servletPath.startsWith("/"), "servletPath must start with '/'");
+			Assert.isTrue(!servletPath.endsWith("/"), "servletPath must not end with a slash");
+			Assert.isTrue(!servletPath.contains("*"), "servletPath must not contain a star");
 			this.path = servletPath;
 		}
 
@@ -305,7 +319,7 @@ public final class PathPatternRequestMatcher implements RequestMatcher {
 		public boolean matches(HttpServletRequest request) {
 			Assert.isTrue(servletExists(request), () -> this.path + "/* does not exist in your servlet registration "
 					+ registrationMappings(request));
-			return Objects.equals(this.path, getServletPathPrefix(request));
+			return Objects.equals(this.path, ServletRequestPathUtils.getServletPathPrefix(request));
 		}
 
 		private boolean servletExists(HttpServletRequest request) {
@@ -334,20 +348,6 @@ public final class PathPatternRequestMatcher implements RequestMatcher {
 				map.put(registration.getName(), registration.getMappings());
 			}
 			return map;
-		}
-
-		@Nullable
-		private static String getServletPathPrefix(HttpServletRequest request) {
-			HttpServletMapping mapping = (HttpServletMapping) request.getAttribute(RequestDispatcher.INCLUDE_MAPPING);
-			mapping = (mapping != null) ? mapping : request.getHttpServletMapping();
-			if (ObjectUtils.nullSafeEquals(mapping.getMappingMatch(), MappingMatch.PATH)) {
-				String servletPath = (String) request.getAttribute(WebUtils.INCLUDE_SERVLET_PATH_ATTRIBUTE);
-				servletPath = (servletPath != null) ? servletPath : request.getServletPath();
-				servletPath = servletPath.endsWith("/") ? servletPath.substring(0, servletPath.length() - 1)
-						: servletPath;
-				return UriUtils.encodePath(servletPath, StandardCharsets.UTF_8);
-			}
-			return null;
 		}
 
 		@Override

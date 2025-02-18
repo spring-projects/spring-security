@@ -17,6 +17,7 @@
 package org.springframework.security.web.util.matcher;
 
 import org.springframework.http.HttpMethod;
+import org.springframework.lang.Nullable;
 
 /**
  * A strategy for constructing request matchers that match method-path pairs
@@ -26,10 +27,26 @@ import org.springframework.http.HttpMethod;
  */
 public interface MethodPatternRequestMatcherFactory {
 
+	/**
+	 * Request a method-pattern request matcher given the following {{@code method} and
+	 * {@code pattern}.
+	 * This method in this case is treated as a wildcard.
+	 *
+	 * @param pattern the path pattern to use
+	 * @return the {@link RequestMatcher}
+	 */
 	default RequestMatcher matcher(String pattern) {
 		return matcher(null, pattern);
 	}
 
-	RequestMatcher matcher(HttpMethod method, String pattern);
+	/**
+	 * Request a method-pattern request matcher given the following
+	 * {@code method} and {@code pattern}.
+	 *
+	 * @param method the method to use, may be null
+	 * @param pattern the path pattern to use
+	 * @return the {@link RequestMatcher}
+	 */
+	RequestMatcher matcher(@Nullable HttpMethod method, String pattern);
 
 }

@@ -15,8 +15,8 @@ Java::
 [source,java,role="primary"]
 ----
 @Bean
-MethodPatternRequestMatcherFactory requestMatcherFactory() {
-	return PathPatternRequestMatcher.path();
+MethodPatternRequestMatcherFactory requestMatcherFactory(@Qualifier("mvcPatternParser") PathPatternParser parser) {
+	return PathPatternRequestMatcher.withPathPatternParser(parser);
 }
 ----
 
@@ -25,8 +25,8 @@ Kotlin::
 [source,kotlin,role="secondary"]
 ----
 @Bean
-fun requestMatcherFactory(): MethodPatternRequestMatcherFactory {
-    return PathPatternRequestMatcher.path()
+fun requestMatcherFactory(@Qualifier("mvcPatternParser") parser: PathPatternParser): MethodPatternRequestMatcherFactory {
+	return PathPatternRequestMatcher.withPathPatternParser(parser)
 }
 ----
 ======
