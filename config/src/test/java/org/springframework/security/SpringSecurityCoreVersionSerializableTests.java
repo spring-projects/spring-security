@@ -32,6 +32,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -39,7 +40,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import jakarta.servlet.http.Cookie;
@@ -717,7 +717,7 @@ class SpringSecurityCoreVersionSerializableTests {
 	}
 
 	@Test
-	void listClassesMissingSerialVersion() throws Exception {
+	void allSerializableClassesShouldHaveSerialVersionOrSuppressWarnings() throws Exception {
 		ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(false);
 		provider.addIncludeFilter(new AssignableTypeFilter(Serializable.class));
 		List<Class<?>> classes = new ArrayList<>();
@@ -725,10 +725,6 @@ class SpringSecurityCoreVersionSerializableTests {
 		Set<BeanDefinition> components = provider.findCandidateComponents("org/springframework/security");
 		for (BeanDefinition component : components) {
 			Class<?> clazz = Class.forName(component.getBeanClassName());
-			boolean isAbstract = Modifier.isAbstract(clazz.getModifiers());
-			if (isAbstract) {
-				continue;
-			}
 			if (clazz.isEnum()) {
 				continue;
 			}
@@ -738,15 +734,16 @@ class SpringSecurityCoreVersionSerializableTests {
 			boolean hasSerialVersion = Stream.of(clazz.getDeclaredFields())
 				.map(Field::getName)
 				.anyMatch((n) -> n.equals("serialVersionUID"));
-			if (!hasSerialVersion) {
+			SuppressWarnings suppressWarnings = clazz.getAnnotation(SuppressWarnings.class);
+			boolean hasSerialIgnore = suppressWarnings == null
+					|| Arrays.asList(suppressWarnings.value()).contains("Serial");
+			if (!hasSerialVersion && !hasSerialIgnore) {
 				classes.add(clazz);
 			}
 		}
-		if (!classes.isEmpty()) {
-			System.out
-				.println("Found " + classes.size() + " Serializable classes that don't declare a seriallVersionUID");
-			System.out.println(classes.stream().map(Class::getName).collect(Collectors.joining("\r\n")));
-		}
+		assertThat(classes)
+			.describedAs("Found Serializable classes that are either missing a serialVersionUID or a @SuppressWarnings")
+			.isEmpty();
 	}
 
 	static Stream<Class<?>> getClassesToSerialize() throws Exception {
