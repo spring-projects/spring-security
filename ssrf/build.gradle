@@ -30,6 +30,22 @@ dependencies {
 	implementation 'org.eclipse.jetty:jetty-client:12.0.15'
 
 	implementation 'io.projectreactor:reactor-core:3.6.11'
+
+	// Core Netty functionality (EventLoop, Channel, etc.)
+	implementation 'io.netty:netty-common:4.1.107.Final' // Use latest version
+	implementation 'io.netty:netty-buffer:4.1.107.Final'
+	implementation 'io.netty:netty-transport:4.1.107.Final'
+
+	// Netty's DNS resolver (REQUIRED NOW)
+	implementation 'io.netty:netty-resolver-dns:4.1.107.Final'
+
+	// Spring WebFlux (REQUIRED for WebClient, make available to tests)
+	api "org.springframework:spring-webflux:$springVersion"
+	testImplementation "org.springframework:spring-webflux:$springVersion" // Add this line
+	implementation "org.springframework:spring-context:$springVersion"
+
+	// Reactor Netty HTTP Client (REQUIRED for reactor.netty.http.client.HttpClient)
+	implementation 'io.projectreactor.netty:reactor-netty-http:1.1.15' // Use latest version
 }
 
 tasks.named('test') {
