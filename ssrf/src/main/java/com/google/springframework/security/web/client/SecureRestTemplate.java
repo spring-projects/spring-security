@@ -18,7 +18,6 @@ package com.google.springframework.security.web.client;
 import static java.util.stream.Collectors.toList;
 
 import com.google.springframework.security.web.client.ListedSsrfProtectionFilter.FilterMode;
-import io.netty.resolver.AddressResolverGroup;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -36,8 +35,6 @@ import org.eclipse.jetty.util.SocketAddressResolver;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.http.client.JettyClientHttpRequestFactory;
-import org.springframework.http.client.reactive.ClientHttpConnector;
-import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.web.client.RestTemplate;
 
 /**
@@ -145,7 +142,6 @@ public class SecureRestTemplate {
 		// Keeping it for future use when more client types are added.
 		private ClientType clientType = ClientType.HTTP_CLIENT_5;
 		private HttpClient jettyClient = null;
-		private reactor.netty.http.client.HttpClient nettyClient = null;
 
 		/**
 		 * Create a {@link com.google.springframework.security.web.client.SecureRestTemplate} with a
@@ -159,12 +155,6 @@ public class SecureRestTemplate {
 		public Builder fromJettyClient(HttpClient jettyClient) {
 			this.jettyClient = jettyClient;
 			this.clientType = ClientType.JETTY_CLIENT;
-			return this;
-		}
-
-		public Builder fromNettyClient(reactor.netty.http.client.HttpClient nettyClient) {
-			this.nettyClient = nettyClient;
-			this.clientType = ClientType.NETTY_CLIENT;
 			return this;
 		}
 
@@ -305,14 +295,6 @@ public class SecureRestTemplate {
 		 */
 		public DnsResolver buildToHttpClientDnsResolver() {
 			return new HcSsrfDnsResolver(makeFilters(), isReportOnly);
-		}
-
-		public ClientHttpConnector buildToClientHttpConnector() {
-			if (clientType != ClientType.NETTY_CLIENT) {
-				throw new IllegalStateException("buildToClientHttpConnector() can only be used with NETTY_CLIENT.");
-			}
-			NettySsrfDnsResolver nettyResolver = new NettySsrfDnsResolver(makeFilters(), isReportOnly);
-			return new ReactorClientHttpConnector(nettyClient.resolver(nettyResolver)); // Directly use resolver()
 		}
 
 		/**

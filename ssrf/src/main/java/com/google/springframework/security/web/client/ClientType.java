@@ -21,6 +21,5 @@ package com.google.springframework.security.web.client;
  */
 public enum ClientType {
 	HTTP_CLIENT_5,
-	JETTY_CLIENT,
-	NETTY_CLIENT
+	JETTY_CLIENT
 }
