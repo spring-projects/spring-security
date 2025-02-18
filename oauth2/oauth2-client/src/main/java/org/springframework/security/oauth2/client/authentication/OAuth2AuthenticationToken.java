@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ import org.springframework.util.Assert;
  * <p>
  * The {@link Authentication} associates an {@link OAuth2User} {@code Principal} to the
  * identifier of the {@link #getAuthorizedClientRegistrationId() Authorized Client}, which
- * the End-User ({@code Principal}) granted authorization to so that it can access it's
+ * the End-User ({@code Principal}) granted authorization to so that it can access its
  * protected resources at the UserInfo Endpoint.
  *
  * @author Joe Grandja
