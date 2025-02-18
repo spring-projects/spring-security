@@ -23,6 +23,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 
@@ -55,7 +56,7 @@ public class Http403ForbiddenEntryPoint implements AuthenticationEntryPoint {
 	public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException arg2)
 			throws IOException {
 		logger.debug("Pre-authenticated entry point called. Rejecting access");
-		response.sendError(HttpServletResponse.SC_FORBIDDEN, "Access Denied");
+		response.sendError(HttpStatus.FORBIDDEN.value(), HttpStatus.FORBIDDEN.getReasonPhrase());
 	}
 
 }
