@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 import org.springframework.security.web.webauthn.api.AuthenticatorTransport;
 import org.springframework.security.web.webauthn.api.CredentialRecord;
+import org.springframework.security.web.webauthn.api.ImmutableCredentialRecord;
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialType;
 import org.springframework.security.web.webauthn.api.TestCredentialRecord;
 
@@ -131,6 +132,27 @@ public class JdbcUserCredentialRepositoryTests {
 		assertThat(savedUserCredential.getTransports().contains(AuthenticatorTransport.BLE)).isTrue();
 		assertThat(new String(savedUserCredential.getAttestationObject().getBytes())).isEqualTo("test");
 		assertThat(new String(savedUserCredential.getAttestationClientDataJSON().getBytes())).isEqualTo("test");
+	}
+
+	@Test
+	void saveCredentialRecordWhenRecordExistsThenReturnsUpdated() {
+		CredentialRecord userCredential = TestCredentialRecord.fullUserCredential().build();
+		this.jdbcUserCredentialRepository.save(userCredential);
+		// @formatter:off
+		CredentialRecord updatedRecord = ImmutableCredentialRecord.fromCredentialRecord(userCredential)
+				.backupEligible(false)
+				.uvInitialized(true)
+				.signatureCount(200).build();
+		// @formatter:on
+
+		this.jdbcUserCredentialRepository.save(updatedRecord);
+
+		CredentialRecord record = this.jdbcUserCredentialRepository
+			.findByCredentialId(userCredential.getCredentialId());
+
+		assertThat(record.getSignatureCount()).isEqualTo(200);
+		assertThat(record.isUvInitialized()).isTrue();
+		assertThat(record.isBackupEligible()).isFalse();
 	}
 
 	@Test
