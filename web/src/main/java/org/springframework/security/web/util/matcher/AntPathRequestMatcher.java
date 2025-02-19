@@ -100,9 +100,8 @@ public final class AntPathRequestMatcher implements RequestMatcher, RequestVaria
 	 * @since 5.8
 	 */
 	public static AntPathRequestMatcher antMatcher(HttpMethod method, String pattern) {
-		Assert.notNull(method, "method cannot be null");
 		Assert.hasText(pattern, "pattern cannot be empty");
-		return new AntPathRequestMatcher(pattern, method.name());
+		return new AntPathRequestMatcher(pattern, (method != null) ? method.name() : null);
 	}
 
 	/**
