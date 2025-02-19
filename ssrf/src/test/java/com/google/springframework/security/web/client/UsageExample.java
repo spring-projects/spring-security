@@ -285,13 +285,13 @@ public class UsageExample {
 	}
 
 	public static void main(String[] args) {
-		// example1();
-		// example2();
-		// example3();
-		// example4();
-		// example5();
-		// example6();
-		// example7();
+		example1();
+		example2();
+		example3();
+		example4();
+		example5();
+		example6();
+		example7();
 		example8();
 	}
 
