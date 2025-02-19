@@ -16,17 +16,19 @@
 
 package org.springframework.security.web.webauthn.jackson;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-
 import org.springframework.security.web.webauthn.api.UserVerificationRequirement;
 
 /**
  * Jackson mixin for {@link UserVerificationRequirement}
  *
  * @author Rob Winch
+ * @author Justin Cranford
  * @since 6.4
  */
 @JsonSerialize(using = UserVerificationRequirementSerializer.class)
+@JsonDeserialize(using = UserVerificationRequirementDeserializer.class)
 abstract class UserVerificationRequirementMixin {
 
 }
