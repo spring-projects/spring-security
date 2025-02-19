@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.KeySourceException;
 import com.nimbusds.jose.jwk.ECKey;
 import com.nimbusds.jose.jwk.JWK;
@@ -39,6 +40,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.oauth2.jose.TestJwks;
 import org.springframework.security.oauth2.jose.TestKeys;
 import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
@@ -51,6 +53,8 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 /**
  * Tests for {@link NimbusJwtEncoder}.
@@ -109,7 +113,7 @@ public class NimbusJwtEncoderTests {
 
 	@Test
 	public void encodeWhenJwkMultipleSelectedThenThrowJwtEncodingException() throws Exception {
-		RSAKey rsaJwk = TestJwks.DEFAULT_RSA_JWK;
+		RSAKey rsaJwk = TestJwks.rsa().algorithm(JWSAlgorithm.RS256).build();
 		this.jwkList.add(rsaJwk);
 		this.jwkList.add(rsaJwk);
 
@@ -118,7 +122,7 @@ public class NimbusJwtEncoderTests {
 
 		assertThatExceptionOfType(JwtEncodingException.class)
 			.isThrownBy(() -> this.jwtEncoder.encode(JwtEncoderParameters.from(jwsHeader, jwtClaimsSet)))
-			.withMessageContaining("Found multiple JWK signing keys for algorithm 'RS256'");
+			.withMessageContaining("Failed to select a key since there are multiple for the signing algorithm [RS256]");
 	}
 
 	@Test
@@ -289,6 +293,55 @@ public class NimbusJwtEncoderTests {
 		jwtDecoder.decode(encodedJws.getTokenValue());
 
 		assertThat(jwk1.getKeyID()).isNotEqualTo(jwk2.getKeyID());
+	}
+
+	@Test
+	public void encodeWhenMultipleKeysThenJwkSelectorUsed() throws Exception {
+		JWK jwk = TestJwks.rsa().algorithm(JWSAlgorithm.RS256).build();
+		JWKSource<SecurityContext> jwkSource = mock(JWKSource.class);
+		given(jwkSource.get(any(), any())).willReturn(List.of(jwk, jwk));
+		Converter<List<JWK>, JWK> selector = mock(Converter.class);
+		given(selector.convert(any())).willReturn(TestJwks.DEFAULT_RSA_JWK);
+
+		NimbusJwtEncoder jwtEncoder = new NimbusJwtEncoder(jwkSource);
+		jwtEncoder.setJwkSelector(selector);
+
+		JwtClaimsSet claims = JwtClaimsSet.builder().subject("sub").build();
+		jwtEncoder.encode(JwtEncoderParameters.from(claims));
+
+		verify(selector).convert(any());
+	}
+
+	@Test
+	public void encodeWhenSingleKeyThenJwkSelectorIsNotUsed() throws Exception {
+		JWK jwk = TestJwks.rsa().algorithm(JWSAlgorithm.RS256).build();
+		JWKSource<SecurityContext> jwkSource = mock(JWKSource.class);
+		given(jwkSource.get(any(), any())).willReturn(List.of(jwk));
+		Converter<List<JWK>, JWK> selector = mock(Converter.class);
+
+		NimbusJwtEncoder jwtEncoder = new NimbusJwtEncoder(jwkSource);
+		jwtEncoder.setJwkSelector(selector);
+
+		JwtClaimsSet claims = JwtClaimsSet.builder().subject("sub").build();
+		jwtEncoder.encode(JwtEncoderParameters.from(claims));
+
+		verifyNoInteractions(selector);
+	}
+
+	@Test
+	public void encodeWhenNoKeysThenJwkSelectorIsNotUsed() throws Exception {
+		JWKSource<SecurityContext> jwkSource = mock(JWKSource.class);
+		given(jwkSource.get(any(), any())).willReturn(List.of());
+		Converter<List<JWK>, JWK> selector = mock(Converter.class);
+
+		NimbusJwtEncoder jwtEncoder = new NimbusJwtEncoder(jwkSource);
+		jwtEncoder.setJwkSelector(selector);
+
+		JwtClaimsSet claims = JwtClaimsSet.builder().subject("sub").build();
+		assertThatExceptionOfType(JwtEncodingException.class)
+			.isThrownBy(() -> jwtEncoder.encode(JwtEncoderParameters.from(claims)));
+
+		verifyNoInteractions(selector);
 	}
 
 	private static final class JwkListResultCaptor implements Answer<List<JWK>> {
