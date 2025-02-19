@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package org.springframework.security.oauth2.server.resource.authentication;
 
+import org.springframework.security.oauth2.server.resource.introspection.JwtPrincipalConverter;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -38,7 +39,7 @@ public final class ReactiveJwtAuthenticationConverter implements Converter<Jwt, 
 
 	private Converter<Jwt, Flux<GrantedAuthority>> jwtGrantedAuthoritiesConverter = new ReactiveJwtGrantedAuthoritiesConverterAdapter(
 			new JwtGrantedAuthoritiesConverter());
-
+	private JwtPrincipalConverter principalConverter = (jwt, principalName) -> jwt;
 	private String principalClaimName = JwtClaimNames.SUB;
 
 	@Override
@@ -48,7 +49,8 @@ public final class ReactiveJwtAuthenticationConverter implements Converter<Jwt, 
 				.collectList()
 				.map((authorities) -> {
 					String principalName = jwt.getClaimAsString(this.principalClaimName);
-					return new JwtAuthenticationToken(jwt, authorities, principalName);
+					Object principal = principalConverter.convert(jwt, principalName);
+					return new JwtAuthenticationToken(jwt, principal, authorities, principalName);
 				});
 		// @formatter:on
 	}
@@ -73,6 +75,15 @@ public final class ReactiveJwtAuthenticationConverter implements Converter<Jwt, 
 	public void setPrincipalClaimName(String principalClaimName) {
 		Assert.hasText(principalClaimName, "principalClaimName cannot be empty");
 		this.principalClaimName = principalClaimName;
+	}
+
+	/**
+	 * Sets the principal converter. Defaults to {@link Jwt}.
+	 * @param jwtPrincipalConverter The principal converter
+	 */
+	public void setJwtPrincipalConverter(JwtPrincipalConverter jwtPrincipalConverter) {
+		Assert.notNull(jwtPrincipalConverter, "jwtPrincipalConverter cannot be null");
+		this.principalConverter = jwtPrincipalConverter;
 	}
 
 }
