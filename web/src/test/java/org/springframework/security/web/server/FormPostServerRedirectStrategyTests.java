@@ -30,15 +30,15 @@ import org.springframework.mock.web.server.MockServerWebExchange;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Tests for {@link ServerFormPostRedirectStrategy}.
+ * Tests for {@link FormPostServerRedirectStrategy}.
  *
  * @author Max Batischev
  */
-public class ServerFormPostRedirectStrategyTests {
+public class FormPostServerRedirectStrategyTests {
 
 	private static final String POLICY_DIRECTIVE_PATTERN = "script-src 'nonce-(.+)'";
 
-	private final ServerRedirectStrategy redirectStrategy = new ServerFormPostRedirectStrategy();
+	private final ServerRedirectStrategy redirectStrategy = new FormPostServerRedirectStrategy();
 
 	private final MockServerHttpRequest request = MockServerHttpRequest.get("https://localhost").build();
 
@@ -89,7 +89,7 @@ public class ServerFormPostRedirectStrategyTests {
 	}
 
 	@Test
-	public void redirectWhenLocationAbsoluteUilWithQueryParamsIsPresentThenRedirect() {
+	public void redirectWhenLocationAbsoluteUriWithQueryParamsIsPresentThenRedirect() {
 		this.redirectStrategy
 			.sendRedirect(this.webExchange, URI.create("https://example.com/path?param1=one&param2=two#fragment"))
 			.block();
@@ -105,7 +105,7 @@ public class ServerFormPostRedirectStrategyTests {
 
 	private ThrowingConsumer<MockServerHttpResponse> hasScriptSrcNonce() {
 		return (response) -> {
-			final String policyDirective = response.getHeaders().get("Content-Security-Policy").get(0);
+			final String policyDirective = response.getHeaders().getFirst("Content-Security-Policy");
 			assertThat(policyDirective).isNotEmpty();
 			assertThat(policyDirective).matches(POLICY_DIRECTIVE_PATTERN);
 

@@ -26,6 +26,7 @@ import reactor.core.publisher.Mono;
 
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferFactory;
+import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpResponse;
@@ -41,14 +42,12 @@ import org.springframework.web.util.UriComponentsBuilder;
  * data instead of query string data.
  *
  * @author Max Batischev
+ * @author Steve Riesenberg
  * @since 6.5
  */
-public final class ServerFormPostRedirectStrategy implements ServerRedirectStrategy {
+public final class FormPostServerRedirectStrategy implements ServerRedirectStrategy {
 
 	private static final String CONTENT_SECURITY_POLICY_HEADER = "Content-Security-Policy";
-
-	private static final StringKeyGenerator DEFAULT_NONCE_GENERATOR = new Base64StringKeyGenerator(
-			Base64.getUrlEncoder().withoutPadding(), 96);
 
 	private static final String REDIRECT_PAGE_TEMPLATE = """
 			<!DOCTYPE html>
@@ -79,46 +78,46 @@ public final class ServerFormPostRedirectStrategy implements ServerRedirectStrat
 			<input name="{{name}}" type="hidden" value="{{value}}" />
 			""";
 
+	private static final StringKeyGenerator DEFAULT_NONCE_GENERATOR = new Base64StringKeyGenerator(
+			Base64.getUrlEncoder().withoutPadding(), 96);
+
 	@Override
 	public Mono<Void> sendRedirect(ServerWebExchange exchange, URI location) {
-		String nonce = DEFAULT_NONCE_GENERATOR.generateKey();
-		String policyDirective = "script-src 'nonce-%s'".formatted(nonce);
+		final UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromUri(location);
 
-		ServerHttpResponse response = exchange.getResponse();
-		response.setStatusCode(HttpStatus.OK);
-		response.getHeaders().setContentType(MediaType.TEXT_HTML);
-		response.getHeaders().add(CONTENT_SECURITY_POLICY_HEADER, policyDirective);
-		return response.writeWith(createBuffer(exchange, location, nonce));
-	}
-
-	private Mono<DataBuffer> createBuffer(ServerWebExchange exchange, URI location, String nonce) {
-		byte[] bytes = createPage(location, nonce);
-		DataBufferFactory bufferFactory = exchange.getResponse().bufferFactory();
-		return Mono.just(bufferFactory.wrap(bytes));
-	}
-
-	private byte[] createPage(URI location, String nonce) {
-		UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromUri(location);
-
-		StringBuilder hiddenInputsHtmlBuilder = new StringBuilder();
+		final StringBuilder hiddenInputsHtmlBuilder = new StringBuilder();
 		for (final Map.Entry<String, List<String>> entry : uriComponentsBuilder.build().getQueryParams().entrySet()) {
 			final String name = entry.getKey();
 			for (final String value : entry.getValue()) {
 				// @formatter:off
 				final String hiddenInput = HIDDEN_INPUT_TEMPLATE
-						.replace("{{name}}", HtmlUtils.htmlEscape(name))
-						.replace("{{value}}", HtmlUtils.htmlEscape(value));
+					.replace("{{name}}", HtmlUtils.htmlEscape(name))
+					.replace("{{value}}", HtmlUtils.htmlEscape(value));
 				// @formatter:on
 				hiddenInputsHtmlBuilder.append(hiddenInput.trim());
 			}
 		}
+
+		// Create the script-src policy directive for the Content-Security-Policy header
+		final String nonce = DEFAULT_NONCE_GENERATOR.generateKey();
+		final String policyDirective = "script-src 'nonce-%s'".formatted(nonce);
+
 		// @formatter:off
-		return REDIRECT_PAGE_TEMPLATE
-				.replace("{{action}}", HtmlUtils.htmlEscape(uriComponentsBuilder.query(null).build().toUriString()))
-				.replace("{{params}}", hiddenInputsHtmlBuilder.toString())
-				.replace("{{nonce}}", HtmlUtils.htmlEscape(nonce))
-				.getBytes(StandardCharsets.UTF_8);
+		final String html = REDIRECT_PAGE_TEMPLATE
+			// Clear the query string as we don't want that to be part of the form action URL
+			.replace("{{action}}", HtmlUtils.htmlEscape(uriComponentsBuilder.query(null).build().toUriString()))
+			.replace("{{params}}", hiddenInputsHtmlBuilder.toString())
+			.replace("{{nonce}}", HtmlUtils.htmlEscape(nonce));
 		// @formatter:on
+
+		final ServerHttpResponse response = exchange.getResponse();
+		response.setStatusCode(HttpStatus.OK);
+		response.getHeaders().setContentType(MediaType.TEXT_HTML);
+		response.getHeaders().set(CONTENT_SECURITY_POLICY_HEADER, policyDirective);
+
+		final DataBufferFactory bufferFactory = response.bufferFactory();
+		final DataBuffer buffer = bufferFactory.wrap(html.getBytes(StandardCharsets.UTF_8));
+		return response.writeWith(Mono.just(buffer)).doOnError((error) -> DataBufferUtils.release(buffer));
 	}
 
 }

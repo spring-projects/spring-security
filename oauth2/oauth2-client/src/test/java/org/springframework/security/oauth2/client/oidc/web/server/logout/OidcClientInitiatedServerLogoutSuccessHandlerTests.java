@@ -229,7 +229,7 @@ public class OidcClientInitiatedServerLogoutSuccessHandlerTests {
 	}
 
 	@Test
-	public void logoutWhenCustomRedirectStrategySetThenCustomRedirectStrategyUse() {
+	public void logoutWhenCustomRedirectStrategySetThenCustomRedirectStrategyUsed() {
 		ServerRedirectStrategy redirectStrategy = mock(ServerRedirectStrategy.class);
 		given(redirectStrategy.sendRedirect(any(), any())).willReturn(Mono.empty());
 		OAuth2AuthenticationToken token = new OAuth2AuthenticationToken(TestOidcUsers.create(),
