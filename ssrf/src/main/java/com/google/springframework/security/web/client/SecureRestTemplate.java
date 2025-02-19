@@ -18,26 +18,12 @@ package com.google.springframework.security.web.client;
 import static java.util.stream.Collectors.toList;
 
 import com.google.springframework.security.web.client.ListedSsrfProtectionFilter.FilterMode;
-import io.netty.resolver.AddressResolverGroup;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import org.apache.hc.client5.http.DnsResolver;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
-import org.apache.hc.client5.http.impl.io.BasicHttpClientConnectionManager;
-import org.apache.hc.client5.http.socket.ConnectionSocketFactory;
-import org.apache.hc.client5.http.socket.PlainConnectionSocketFactory;
-import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory;
-import org.apache.hc.core5.http.config.Registry;
-import org.apache.hc.core5.http.config.RegistryBuilder;
-import org.eclipse.jetty.client.HttpClient;
-import org.eclipse.jetty.util.SocketAddressResolver;
 import org.springframework.http.client.ClientHttpRequestFactory;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
-import org.springframework.http.client.JettyClientHttpRequestFactory;
 import org.springframework.http.client.reactive.ClientHttpConnector;
-import org.springframework.http.client.reactive.ReactorClientHttpConnector;
+import org.springframework.util.ClassUtils;
 import org.springframework.web.client.RestTemplate;
 
 /**
@@ -76,6 +62,14 @@ public class SecureRestTemplate {
 		 * Block requests directed towards the local or loopback addresses.
 		 */
 		BLOCK_INTERNAL,
+	}
+
+	private static final boolean hc5Present;
+
+	static {
+		ClassLoader classLoader = RestTemplate.class.getClassLoader();
+		hc5Present = ClassUtils.isPresent("org.apache.hc.client5.http.impl.io.BasicHttpClientConnectionManager",
+				classLoader);
 	}
 
 	/**
@@ -122,8 +116,6 @@ public class SecureRestTemplate {
 		}
 
 		return new Builder().reportOnly(reportOnly).withCustomFilter(filter).build();
-
-
 	}
 
 	/**
@@ -141,31 +133,58 @@ public class SecureRestTemplate {
 		private boolean isReportOnly = false;
 		private NetworkMode networkMode = null;
 
-		// Currently redundant due to changes around using a Jetty client.
-		// Keeping it for future use when more client types are added.
 		private ClientType clientType = ClientType.HTTP_CLIENT_5;
-		private HttpClient jettyClient = null;
-		private reactor.netty.http.client.HttpClient nettyClient = null;
+
+		private ClientAdapter clientAdapter = null;
 
 		/**
-		 * Create a {@link com.google.springframework.security.web.client.SecureRestTemplate} with a
-		 * {@link org.eclipse.jetty.client.HttpClient} to use to make the requests. The lifetime of a
-		 * {@link org.eclipse.jetty.client.HttpClient} should be handled by Spring (or manually)
+		 * Create a {@link com.google.springframework.security.web.client.SecureRestTemplate} by using a Jetty client.
+		 *
 		 * {@see UsageExample.java}
 		 *
-		 * @param jettyClient the HttpClient to use
+		 * @param jettyClient a {@link JettyClientAdapter} should be used here
 		 */
-
-		public Builder fromJettyClient(HttpClient jettyClient) {
-			this.jettyClient = jettyClient;
+		public Builder fromJettyClient(ClientAdapter jettyClient) {
+			// TODO(vaspori): make sure clientType and adapter are consistent or remove clientType
 			this.clientType = ClientType.JETTY_CLIENT;
+			this.clientAdapter = jettyClient;
 			return this;
 		}
 
-		public Builder fromNettyClient(reactor.netty.http.client.HttpClient nettyClient) {
-			this.nettyClient = nettyClient;
+
+		/**
+		 * Create a {@link com.google.springframework.security.web.client.SecureRestTemplate} by using a Netty client.
+		 *
+		 * {@see UsageExample.java}
+		 *
+		 * @param nettyClient a {@link NettyClientAdapter} should be used here
+		 */
+		public Builder fromNettyClient(ClientAdapter nettyClient) {
 			this.clientType = ClientType.NETTY_CLIENT;
+			this.clientAdapter = nettyClient;
 			return this;
+		}
+
+		/**
+		 * Create a {@link com.google.springframework.security.web.client.SecureRestTemplate} by using a Apache
+		 * HttpClient . {@link Hc5ClientAdapter} makes it also possible to customize the parameters of the underlying
+		 * client: {@see UsageExample.java}
+		 *
+		 * @param hc5Client a {@link Hc5ClientAdapter} should be used here
+		 */
+		public Builder fromApacheClient(ClientAdapter hc5Client) {
+			this.clientType = ClientType.HTTP_CLIENT_5;
+			this.clientAdapter = hc5Client;
+			return this;
+		}
+
+		/**
+		 * Create a default Builder, an Apache HttpClient will be used as a default. If the library is not in the
+		 * classpath, the {@see build()} method will throw a RuntimeException().
+		 */
+		public Builder() {
+			this.clientType = ClientType.HTTP_CLIENT_5;
+
 		}
 
 		/**
@@ -227,41 +246,6 @@ public class SecureRestTemplate {
 			return this;
 		}
 
-		// Reserved for future use, when adding more ClientTypes
-		// Currently HC5 is the default and Jetty Client needs to be externally provided
-		// because of cleanup issues
-		private Builder withClient(ClientType clientType) {
-			if (clientType == ClientType.JETTY_CLIENT) {
-				throw new IllegalStateException(
-						"The Builder was created from a Jetty HttpClient. Cannot change ClientType.");
-			}
-
-			this.clientType = clientType;
-			return this;
-		}
-
-		private ClientHttpRequestFactory makeHttpClient5(HcSsrfDnsResolver dnsResolver) {
-
-			Registry<ConnectionSocketFactory> registry = RegistryBuilder.<ConnectionSocketFactory>create()
-					.register("http", PlainConnectionSocketFactory.getSocketFactory())
-					.register("https", SSLConnectionSocketFactory.getSocketFactory()).build();
-
-			BasicHttpClientConnectionManager connManager = new BasicHttpClientConnectionManager(registry, null, null,
-					dnsResolver);
-
-			CloseableHttpClient httpClient = HttpClientBuilder.create().setConnectionManager(connManager).build();
-
-			HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory(
-					httpClient);
-			return requestFactory;
-		}
-
-		private ClientHttpRequestFactory makeJettyClient(JettySsrfDnsResolver dnsResolver) {
-			jettyClient.setSocketAddressResolver(dnsResolver);
-			JettyClientHttpRequestFactory requestFactory = new JettyClientHttpRequestFactory(jettyClient);
-			return requestFactory;
-		}
-
 		private List<SsrfProtectionFilter> makeFilters() {
 			List<SsrfProtectionFilter> filters = new ArrayList<>();
 
@@ -287,48 +271,39 @@ public class SecureRestTemplate {
 			return filters;
 		}
 
-		/**
-		 * Helper method to create the Jetty specific DNS resolver used in an underlying
-		 * {@link org.eclipse.jetty.client.HttpClient} for request filtering.
-		 *
-		 * @return the custom resolver which implements the filtering and DNS rebinding protection logic.
-		 */
-		public SocketAddressResolver buildToJettyResolver() {
-			return new JettySsrfDnsResolver(makeFilters(), isReportOnly);
-		}
+		private void checkDependencies() {
+			if (clientType == ClientType.HTTP_CLIENT_5 && clientAdapter == null) {
+				if (SecureRestTemplate.hc5Present) {
+					try {
+						Class<?> aClass = Class.forName(
+								"com.google.springframework.security.web.client.Hc5ClientAdapter");
+						this.clientAdapter = (ClientAdapter) aClass.getDeclaredConstructor().newInstance();
+					} catch (Exception e) {
+						throw new RuntimeException(e);
+					}
+				} else {
+					throw new RuntimeException(
+							"Dependency org.apache.httpcomponents.client5:httpclient5 required for this RestTemplate");
+				}
+			}
 
-		/**
-		 * Helper method to create the DNS resolver used in an underlying
-		 * {@link org.apache.hc.client5.http.impl.classic.CloseableHttpClient} for request filtering.
-		 *
-		 * @return the custom resolver which implements the filtering and DNS rebinding protection logic.
-		 */
-		public DnsResolver buildToHttpClientDnsResolver() {
-			return new HcSsrfDnsResolver(makeFilters(), isReportOnly);
 		}
 
 		public ClientHttpConnector buildToClientHttpConnector() {
 			if (clientType != ClientType.NETTY_CLIENT) {
 				throw new IllegalStateException("buildToClientHttpConnector() can only be used with NETTY_CLIENT.");
 			}
-			NettySsrfDnsResolver nettyResolver = new NettySsrfDnsResolver(makeFilters(), isReportOnly);
-			return new ReactorClientHttpConnector(nettyClient.resolver(nettyResolver)); // Directly use resolver()
+			return clientAdapter.buildToClientHttpConnector(makeFilters(), isReportOnly);
 		}
+
 
 		/**
 		 * Helper method to create a {@link org.springframework.http.client.ClientHttpRequestFactory} for more
 		 * customization before creating a RestTemplate or RestClient.
 		 */
 		public ClientHttpRequestFactory buildToHttpRequestFactory() {
-			if (clientType == ClientType.HTTP_CLIENT_5) {
-				return makeHttpClient5(new HcSsrfDnsResolver(makeFilters(), isReportOnly));
-			} else if (clientType == ClientType.JETTY_CLIENT) {
-				jettyClient.setSocketAddressResolver(new JettySsrfDnsResolver(makeFilters(), isReportOnly));
-				return new JettyClientHttpRequestFactory(jettyClient);
-			} else {
-				throw new IllegalArgumentException(
-						"Only HTTP_CLIENT_5 and Jetty backed RestTemplates are supported for now");
-			}
+			checkDependencies();
+			return this.clientAdapter.buildToHttpRequestFactory(makeFilters(), isReportOnly);
 		}
 
 		/**
@@ -336,14 +311,8 @@ public class SecureRestTemplate {
 		 * builder.
 		 */
 		public RestTemplate build() {
-			if (clientType == ClientType.HTTP_CLIENT_5) {
-				return new RestTemplate(makeHttpClient5(new HcSsrfDnsResolver(makeFilters(), isReportOnly)));
-			} else if (clientType == ClientType.JETTY_CLIENT) {
-				return new RestTemplate(makeJettyClient(new JettySsrfDnsResolver(makeFilters(), isReportOnly)));
-			} else {
-				throw new IllegalArgumentException(
-						"Only HTTP_CLIENT_5 and Jetty backed RestTemplates are supported for now");
-			}
+			checkDependencies();
+			return this.clientAdapter.buildRestTemplate(makeFilters(), isReportOnly);
 		}
 	}
 }

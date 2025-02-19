@@ -23,14 +23,14 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hc.client5.http.DnsResolver;
 
-class HcSsrfDnsResolver implements DnsResolver {
+class Hc5SsrfDnsResolver implements DnsResolver {
 
-	private static final Log logger = LogFactory.getLog(HcSsrfDnsResolver.class);
+	private static final Log logger = LogFactory.getLog(Hc5SsrfDnsResolver.class);
 
 	protected final List<SsrfProtectionFilter> filters;
 	protected boolean reportOnly;
 
-	public HcSsrfDnsResolver(List<SsrfProtectionFilter> filters, boolean reportOnly) {
+	public Hc5SsrfDnsResolver(List<SsrfProtectionFilter> filters, boolean reportOnly) {
 		this.filters = filters;
 		this.reportOnly = reportOnly;
 	}

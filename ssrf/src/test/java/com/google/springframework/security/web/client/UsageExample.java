@@ -1,12 +1,10 @@
 package com.google.springframework.security.web.client;
 
 import static com.google.springframework.security.web.client.NetworkMode.BLOCK_EXTERNAL;
-import static com.google.springframework.security.web.client.NetworkMode.BLOCK_INTERNAL;
 import static org.springframework.http.MediaType.TEXT_HTML;
 
 import java.net.InetAddress;
 import java.util.Arrays;
-import java.util.List;
 import org.apache.hc.client5.http.DnsResolver;
 import org.apache.hc.client5.http.config.ConnectionConfig;
 import org.apache.hc.client5.http.config.TlsConfig;
@@ -46,7 +44,7 @@ public class UsageExample {
 
 		// 3. Create the SecureRestTemplate.Builder and configure it for Netty
 		SecureRestTemplate.Builder builder = new SecureRestTemplate.Builder()
-				.fromNettyClient(nettyClient)  // Use the Netty client
+				.fromNettyClient(new NettyClientAdapter(nettyClient))  // Use the Netty client
 				.reportOnly(false) // 'false' to block, 'true' to report only
 				.withCustomFilter(new BasicSsrfProtectionFilter(BLOCK_EXTERNAL));
 
@@ -131,35 +129,38 @@ public class UsageExample {
 		System.out.println("Example 5");
 
 		// For SSRF prevention the "magic is built into the DNS resolver"
-		DnsResolver dnsResolver = new SecureRestTemplate.Builder()
+		RestTemplate secureRestTemplate = new SecureRestTemplate.Builder()
+				.fromApacheClient(Hc5ClientAdapter.withCustomBuilder((DnsResolver dnsResolver) -> {
+
+					// When a very custom client is needed
+					Registry<ConnectionSocketFactory> registry = RegistryBuilder.<ConnectionSocketFactory>create()
+							.register("http", PlainConnectionSocketFactory.getSocketFactory())
+							.register("https", SSLConnectionSocketFactory.getSocketFactory()).build();
+
+					BasicHttpClientConnectionManager connManager = new BasicHttpClientConnectionManager(registry, null,
+							null,
+							dnsResolver);
+
+					// with custom timeout
+					connManager.setConnectionConfig(
+							ConnectionConfig.custom().setConnectTimeout(Timeout.ofMinutes(2)).build());
+					// with custom TLS config
+					connManager.setTlsConfig(TlsConfig.custom().setSupportedCipherSuites("TLSv1-3").build());
+
+					CloseableHttpClient httpClient = HttpClientBuilder.create().setConnectionManager(connManager)
+							.build();
+
+					HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory(
+							httpClient);
+
+					return requestFactory;
+				}))
 				.reportOnly(true) // Log warning about blocking, but don't block
 				.networkMode(BLOCK_EXTERNAL)
 				.withCustomFilter(
 						addresses -> Arrays.stream(addresses).filter(a -> !a.isMCNodeLocal())
 								.toArray(InetAddress[]::new)).withBlocklist("evil.com", "6.6.6.9/16", "123.123.123.123")
-				.buildToHttpClientDnsResolver();
-
-		// When a very custom client is needed
-		Registry<ConnectionSocketFactory> registry = RegistryBuilder.<ConnectionSocketFactory>create()
-				.register("http", PlainConnectionSocketFactory.getSocketFactory())
-				.register("https", SSLConnectionSocketFactory.getSocketFactory()).build();
-
-		BasicHttpClientConnectionManager connManager = new BasicHttpClientConnectionManager(registry, null,
-				null,
-				dnsResolver);
-
-		// with custom timeout
-		connManager.setConnectionConfig(ConnectionConfig.custom().setConnectTimeout(Timeout.ofMinutes(2)).build());
-		// with custom TLS config
-		connManager.setTlsConfig(TlsConfig.custom().setSupportedCipherSuites("TLSv1-3").build());
-
-		CloseableHttpClient httpClient = HttpClientBuilder.create().setConnectionManager(connManager).build();
-
-		HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory(
-				httpClient);
-
-		// a secure RestTemplate can be still built
-		RestTemplate secureRestTemplate = new RestTemplate(requestFactory);
+				.build();        // a secure RestTemplate can be still built
 
 		try {
 			ResponseEntity<String> result = secureRestTemplate.getForEntity("https://google.com", String.class);
@@ -190,7 +191,7 @@ public class UsageExample {
 		@Bean("secureRestTemplate")
 		RestTemplate secureRestTemplate(HttpClient jettyClient) {
 			return new SecureRestTemplate.Builder()
-					.fromJettyClient(jettyClient)
+					.fromJettyClient(new JettyClientAdapter(jettyClient))
 					.reportOnly(true) // Log warning about blocking, but don't block
 					.networkMode(BLOCK_EXTERNAL)
 					.withCustomFilter(addresses -> Arrays.stream(addresses).filter(a -> !a.isMCNodeLocal())

@@ -16,12 +16,12 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class HcSsrfDnsResolverTest {
+public class Hc5SsrfDnsResolverTest {
 
 	@Mock
 	private SsrfProtectionFilter ssrfProtectionFilter;
 
-	static class TestableHcSsrfDnsResolver extends HcSsrfDnsResolver {
+	static class TestableHcSsrfDnsResolver extends Hc5SsrfDnsResolver {
 
 		InetAddress[] addressesToReturn = null;
 
