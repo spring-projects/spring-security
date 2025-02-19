@@ -107,8 +107,9 @@ public class WebAuthnRegistrationFilter extends OncePerRequestFilter {
 
 	/**
 	 * Sets the {@link RequestMatcher} to trigger this filter's the credential
-	 * registration operation . By default, the {@link RequestMatcher} is
-	 * {@code POST /webauthn/register}.
+	 * registration operation .
+	 * <p/>
+	 * By default, the {@link RequestMatcher} is {@code POST /webauthn/register}.
 	 * @param registerCredentialMatcher the {@link RequestMatcher} to use
 	 * @since 6.5
 	 */
@@ -119,8 +120,9 @@ public class WebAuthnRegistrationFilter extends OncePerRequestFilter {
 
 	/**
 	 * Sets the {@link RequestMatcher} to trigger this filter's the credential removal
-	 * operation . By default, the {@link RequestMatcher} is {@code DELETE
-	 * /webauthn/register/{id}}.
+	 * operation .
+	 * <p/>
+	 * By default, the {@link RequestMatcher} is {@code DELETE /webauthn/register/{id}}.
 	 * @param removeCredentialMatcher the {@link RequestMatcher} to use
 	 * @since 6.5
 	 */
