@@ -24,10 +24,13 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.lang.Nullable;
 import org.springframework.security.oauth2.client.endpoint.DefaultRefreshTokenTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2RefreshTokenGrantRequest;
+import org.springframework.security.oauth2.client.event.OAuth2TokenRefreshedEvent;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.security.oauth2.core.OAuth2Token;
@@ -43,9 +46,12 @@ import org.springframework.util.Assert;
  * @see OAuth2AuthorizedClientProvider
  * @see DefaultRefreshTokenTokenResponseClient
  */
-public final class RefreshTokenOAuth2AuthorizedClientProvider implements OAuth2AuthorizedClientProvider {
+public final class RefreshTokenOAuth2AuthorizedClientProvider
+		implements OAuth2AuthorizedClientProvider, ApplicationEventPublisherAware {
 
 	private OAuth2AccessTokenResponseClient<OAuth2RefreshTokenGrantRequest> accessTokenResponseClient = new DefaultRefreshTokenTokenResponseClient();
+
+	private ApplicationEventPublisher eventPublisher;
 
 	private Duration clockSkew = Duration.ofSeconds(60);
 
@@ -91,8 +97,17 @@ public final class RefreshTokenOAuth2AuthorizedClientProvider implements OAuth2A
 				authorizedClient.getClientRegistration(), authorizedClient.getAccessToken(),
 				authorizedClient.getRefreshToken(), scopes);
 		OAuth2AccessTokenResponse tokenResponse = getTokenResponse(authorizedClient, refreshTokenGrantRequest);
-		return new OAuth2AuthorizedClient(context.getAuthorizedClient().getClientRegistration(),
-				context.getPrincipal().getName(), tokenResponse.getAccessToken(), tokenResponse.getRefreshToken());
+
+		OAuth2AuthorizedClient updatedOAuth2AuthorizedClient = new OAuth2AuthorizedClient(
+				authorizedClient.getClientRegistration(), context.getPrincipal().getName(),
+				tokenResponse.getAccessToken(), tokenResponse.getRefreshToken());
+
+		if (this.eventPublisher != null) {
+			this.eventPublisher
+				.publishEvent(new OAuth2TokenRefreshedEvent(this, updatedOAuth2AuthorizedClient, tokenResponse));
+		}
+
+		return updatedOAuth2AuthorizedClient;
 	}
 
 	private OAuth2AccessTokenResponse getTokenResponse(OAuth2AuthorizedClient authorizedClient,
@@ -147,6 +162,11 @@ public final class RefreshTokenOAuth2AuthorizedClientProvider implements OAuth2A
 	public void setClock(Clock clock) {
 		Assert.notNull(clock, "clock cannot be null");
 		this.clock = clock;
+	}
+
+	@Override
+	public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
+		this.eventPublisher = applicationEventPublisher;
 	}
 
 }

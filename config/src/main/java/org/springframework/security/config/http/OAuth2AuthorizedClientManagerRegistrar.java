@@ -34,6 +34,7 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.AnnotationBeanNameGenerator;
 import org.springframework.core.ResolvableType;
 import org.springframework.security.oauth2.client.AuthorizationCodeOAuth2AuthorizedClientProvider;
@@ -195,6 +196,12 @@ final class OAuth2AuthorizedClientManagerRegistrar implements BeanDefinitionRegi
 						OAuth2RefreshTokenGrantRequest.class));
 		if (accessTokenResponseClient != null) {
 			authorizedClientProvider.setAccessTokenResponseClient(accessTokenResponseClient);
+		}
+
+		ApplicationEventPublisher applicationEventPublisher = getBeanOfType(
+				ResolvableType.forClass(ApplicationEventPublisher.class));
+		if (applicationEventPublisher != null) {
+			authorizedClientProvider.setApplicationEventPublisher(applicationEventPublisher);
 		}
 
 		return authorizedClientProvider;
