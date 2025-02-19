@@ -1,10 +1,12 @@
 package com.google.springframework.security.web.client;
 
 import static com.google.springframework.security.web.client.NetworkMode.BLOCK_EXTERNAL;
+import static com.google.springframework.security.web.client.NetworkMode.BLOCK_INTERNAL;
 import static org.springframework.http.MediaType.TEXT_HTML;
 
 import java.net.InetAddress;
 import java.util.Arrays;
+import java.util.List;
 import org.apache.hc.client5.http.DnsResolver;
 import org.apache.hc.client5.http.config.ConnectionConfig;
 import org.apache.hc.client5.http.config.TlsConfig;
@@ -26,12 +28,60 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.http.client.JettyClientHttpRequestFactory;
+import org.springframework.http.client.reactive.ClientHttpConnector;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 
 public class UsageExample {
+
+	public static void example8() {
+		System.out.println("Example 8 (WebClient - Netty - should be blocked)");
+
+		// 2. Create a Reactor Netty HttpClient (default settings are fine for this example)
+		reactor.netty.http.client.HttpClient nettyClient = reactor.netty.http.client.HttpClient.create();
+
+		// 3. Create the SecureRestTemplate.Builder and configure it for Netty
+		SecureRestTemplate.Builder builder = new SecureRestTemplate.Builder()
+				.fromNettyClient(nettyClient)  // Use the Netty client
+				.reportOnly(false) // 'false' to block, 'true' to report only
+				.withCustomFilter(new BasicSsrfProtectionFilter(BLOCK_EXTERNAL));
+
+		// 4. Get the ClientHttpConnector (this integrates the SSRF protection)
+		ClientHttpConnector connector = builder.buildToClientHttpConnector();
+
+		// 5. Create a WebClient using the connector
+		WebClient webClient = WebClient.builder()
+				.clientConnector(connector)
+				.build();
+
+		// 6. Make a request to a BLOCKED URL (e.g., google.com)
+		Mono<String> blockedResponseMono = webClient.get()
+				.uri("https://www.google.com") // This *should* be blocked
+				.retrieve()
+				.bodyToMono(String.class);
+
+		blockedResponseMono.subscribe(
+				response -> {
+					// Should NOT be reached if blocking is enabled
+					System.out.println("BLOCKED Request - Unexpected Success: " + response);
+				},
+				error -> {
+					// *Should* be reached if blocking is enabled
+					System.err.println("BLOCKED Request - Expected Failure: " + error.getMessage());
+				}
+		);
+
+		// Keep the application running (for demonstration purposes only)
+		try {
+			Thread.sleep(5000); // Wait for the asynchronous request to complete
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+		}
+	}
 
 	public static void example7() {
 		System.out.println("Example 7");
@@ -242,6 +292,7 @@ public class UsageExample {
 		example5();
 		example6();
 		example7();
+		example8();
 	}
 
 
