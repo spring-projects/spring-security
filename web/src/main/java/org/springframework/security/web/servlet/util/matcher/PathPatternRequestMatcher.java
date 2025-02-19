@@ -32,7 +32,7 @@ import org.springframework.http.server.RequestPath;
 import org.springframework.lang.Nullable;
 import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
-import org.springframework.security.web.util.matcher.MethodPatternRequestMatcherFactory;
+import org.springframework.security.web.util.matcher.MethodPathRequestMatcherFactory;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 import org.springframework.web.util.ServletRequestPathUtils;
@@ -209,7 +209,7 @@ public final class PathPatternRequestMatcher implements RequestMatcher {
 	 *             ...
 	 * </code>
 	 */
-	public static final class Builder implements MethodPatternRequestMatcherFactory {
+	public static final class Builder implements MethodPathRequestMatcherFactory {
 
 		private final PathPatternParser parser;
 
@@ -226,8 +226,8 @@ public final class PathPatternRequestMatcher implements RequestMatcher {
 		/**
 		 * Match requests starting with this {@code servletPath}.
 		 * @param servletPath the servlet path prefix
-		 * @see PathPatternRequestMatcher#servletPath
 		 * @return the {@link Builder} for more configuration
+		 * @see PathPatternRequestMatcher#servletPath
 		 */
 		public Builder servletPath(String servletPath) {
 			this.servletPath = new ServletPathRequestMatcher(servletPath);
@@ -262,13 +262,13 @@ public final class PathPatternRequestMatcher implements RequestMatcher {
 		 * <p>
 		 * A more comprehensive list can be found at {@link PathPattern}.
 		 * @param method the {@link HttpMethod} to match, may be null
-		 * @param pattern the path pattern to match
+		 * @param path the path pattern to match
 		 * @return the {@link Builder} for more configuration
 		 */
-		public PathPatternRequestMatcher matcher(@Nullable HttpMethod method, String pattern) {
-			Assert.notNull(pattern, "pattern cannot be null");
-			Assert.isTrue(pattern.startsWith("/"), "pattern must start with a /");
-			PathPattern pathPattern = this.parser.parse(pattern);
+		public PathPatternRequestMatcher matcher(@Nullable HttpMethod method, String path) {
+			Assert.notNull(path, "pattern cannot be null");
+			Assert.isTrue(path.startsWith("/"), "pattern must start with a /");
+			PathPattern pathPattern = this.parser.parse(path);
 			PathPatternRequestMatcher requestMatcher = new PathPatternRequestMatcher(pathPattern);
 			if (method != null) {
 				requestMatcher.setMethod(new HttpMethodRequestMatcher(method));

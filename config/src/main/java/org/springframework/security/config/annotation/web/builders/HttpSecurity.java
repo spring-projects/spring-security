@@ -93,7 +93,7 @@ import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
-import org.springframework.security.web.util.matcher.MethodPatternRequestMatcherFactory;
+import org.springframework.security.web.util.matcher.MethodPathRequestMatcherFactory;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
@@ -3686,8 +3686,8 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 */
 	public HttpSecurity securityMatcher(String... patterns) {
 		List<RequestMatcher> matchers = new ArrayList<>();
-		MethodPatternRequestMatcherFactory factory = getSharedObject(ApplicationContext.class)
-			.getBeanProvider(MethodPatternRequestMatcherFactory.class)
+		MethodPathRequestMatcherFactory factory = getSharedObject(ApplicationContext.class)
+			.getBeanProvider(MethodPathRequestMatcherFactory.class)
 			.getIfUnique(() -> (method, pattern) -> mvcPresent ? createMvcMatcher(pattern) : createAntMatcher(pattern));
 		for (String pattern : patterns) {
 			matchers.add(factory.matcher(pattern));

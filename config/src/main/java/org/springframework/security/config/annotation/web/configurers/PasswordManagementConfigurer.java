@@ -21,7 +21,7 @@ import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.web.RequestMatcherRedirectFilter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.security.web.util.matcher.MethodPatternRequestMatcherFactory;
+import org.springframework.security.web.util.matcher.MethodPathRequestMatcherFactory;
 import org.springframework.util.Assert;
 
 /**
@@ -61,9 +61,9 @@ public final class PasswordManagementConfigurer<B extends HttpSecurityBuilder<B>
 		http.addFilterBefore(postProcess(changePasswordFilter), UsernamePasswordAuthenticationFilter.class);
 	}
 
-	private MethodPatternRequestMatcherFactory getRequestMatcherFactory() {
+	private MethodPathRequestMatcherFactory getRequestMatcherFactory() {
 		return getBuilder().getSharedObject(ApplicationContext.class)
-			.getBeanProvider(MethodPatternRequestMatcherFactory.class)
+			.getBeanProvider(MethodPathRequestMatcherFactory.class)
 			.getIfUnique(() -> AntPathRequestMatcher::antMatcher);
 	}
 

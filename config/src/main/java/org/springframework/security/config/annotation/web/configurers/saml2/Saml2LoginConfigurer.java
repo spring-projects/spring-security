@@ -57,7 +57,7 @@ import org.springframework.security.web.authentication.LoginUrlAuthenticationEnt
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
 import org.springframework.security.web.util.matcher.AndRequestMatcher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.security.web.util.matcher.MethodPatternRequestMatcherFactory;
+import org.springframework.security.web.util.matcher.MethodPathRequestMatcherFactory;
 import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.ParameterRequestMatcher;
@@ -505,9 +505,9 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		return repository;
 	}
 
-	private MethodPatternRequestMatcherFactory getRequestMatcherFactory() {
+	private MethodPathRequestMatcherFactory getRequestMatcherFactory() {
 		return getBuilder().getSharedObject(ApplicationContext.class)
-			.getBeanProvider(MethodPatternRequestMatcherFactory.class)
+			.getBeanProvider(MethodPathRequestMatcherFactory.class)
 			.getIfUnique(() -> AntPathRequestMatcher::antMatcher);
 	}
 

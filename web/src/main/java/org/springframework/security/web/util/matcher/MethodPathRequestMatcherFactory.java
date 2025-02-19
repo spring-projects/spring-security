@@ -25,28 +25,25 @@ import org.springframework.lang.Nullable;
  * @author Josh Cummings
  * @since 6.5
  */
-public interface MethodPatternRequestMatcherFactory {
+public interface MethodPathRequestMatcherFactory {
 
 	/**
-	 * Request a method-pattern request matcher given the following {{@code method} and
-	 * {@code pattern}.
-	 * This method in this case is treated as a wildcard.
-	 *
-	 * @param pattern the path pattern to use
+	 * Request a method-pattern request matcher given the following {@code method} and
+	 * {@code pattern}. This method in this case is treated as a wildcard.
+	 * @param path the path pattern to use
 	 * @return the {@link RequestMatcher}
 	 */
-	default RequestMatcher matcher(String pattern) {
-		return matcher(null, pattern);
+	default RequestMatcher matcher(String path) {
+		return matcher(null, path);
 	}
 
 	/**
-	 * Request a method-pattern request matcher given the following
-	 * {@code method} and {@code pattern}.
-	 *
+	 * Request a method-pattern request matcher given the following {@code method} and
+	 * {@code pattern}.
 	 * @param method the method to use, may be null
-	 * @param pattern the path pattern to use
+	 * @param path the path pattern to use
 	 * @return the {@link RequestMatcher}
 	 */
-	RequestMatcher matcher(@Nullable HttpMethod method, String pattern);
+	RequestMatcher matcher(@Nullable HttpMethod method, String path);
 
 }

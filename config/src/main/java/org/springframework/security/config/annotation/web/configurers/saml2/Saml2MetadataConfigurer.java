@@ -33,7 +33,7 @@ import org.springframework.security.saml2.provider.service.web.Saml2MetadataFilt
 import org.springframework.security.saml2.provider.service.web.metadata.RequestMatcherMetadataResponseResolver;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.security.web.util.matcher.MethodPatternRequestMatcherFactory;
+import org.springframework.security.web.util.matcher.MethodPathRequestMatcherFactory;
 import org.springframework.util.Assert;
 
 /**
@@ -171,9 +171,9 @@ public class Saml2MetadataConfigurer<H extends HttpSecurityBuilder<H>>
 		}
 	}
 
-	private MethodPatternRequestMatcherFactory getRequestMatcherFactory() {
+	private MethodPathRequestMatcherFactory getRequestMatcherFactory() {
 		return getBuilder().getSharedObject(ApplicationContext.class)
-			.getBeanProvider(MethodPatternRequestMatcherFactory.class)
+			.getBeanProvider(MethodPathRequestMatcherFactory.class)
 			.getIfUnique(() -> AntPathRequestMatcher::antMatcher);
 	}
 

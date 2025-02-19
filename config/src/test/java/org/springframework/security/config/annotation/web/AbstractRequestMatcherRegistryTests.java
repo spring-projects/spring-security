@@ -42,7 +42,7 @@ import org.springframework.security.web.servlet.TestMockHttpServletMappings;
 import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.DispatcherTypeRequestMatcher;
-import org.springframework.security.web.util.matcher.MethodPatternRequestMatcherFactory;
+import org.springframework.security.web.util.matcher.MethodPathRequestMatcherFactory;
 import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.test.web.servlet.MockMvc;
@@ -89,15 +89,15 @@ public class AbstractRequestMatcherRegistryTests {
 		ObjectProvider<ObjectPostProcessor<Object>> given = this.context.getBeanProvider(type);
 		given(given).willReturn(postProcessors);
 		given(postProcessors.getObject()).willReturn(NO_OP_OBJECT_POST_PROCESSOR);
-		MethodPatternRequestMatcherFactory factory = this.matcherRegistry.new DefaultMethodPatternRequestMatcherFactory();
-		ObjectProvider<MethodPatternRequestMatcherFactory> requestMatcherFactory = new ObjectProvider<>() {
+		MethodPathRequestMatcherFactory factory = this.matcherRegistry.new DefaultMethodPathRequestMatcherFactory();
+		ObjectProvider<MethodPathRequestMatcherFactory> requestMatcherFactory = new ObjectProvider<>() {
 			@Override
 			@NonNull
-			public MethodPatternRequestMatcherFactory getObject() throws BeansException {
+			public MethodPathRequestMatcherFactory getObject() throws BeansException {
 				return factory;
 			}
 		};
-		given(this.context.getBeanProvider(MethodPatternRequestMatcherFactory.class)).willReturn(requestMatcherFactory);
+		given(this.context.getBeanProvider(MethodPathRequestMatcherFactory.class)).willReturn(requestMatcherFactory);
 		given(this.context.getServletContext()).willReturn(MockServletContext.mvc());
 		this.matcherRegistry.setApplicationContext(this.context);
 		mockMvcIntrospector(true);

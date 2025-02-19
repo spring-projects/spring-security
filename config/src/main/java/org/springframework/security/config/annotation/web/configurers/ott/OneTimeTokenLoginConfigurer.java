@@ -53,7 +53,7 @@ import org.springframework.security.web.authentication.ui.DefaultOneTimeTokenSub
 import org.springframework.security.web.authentication.ui.DefaultResourcesFilter;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.security.web.util.matcher.MethodPatternRequestMatcherFactory;
+import org.springframework.security.web.util.matcher.MethodPathRequestMatcherFactory;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -210,9 +210,9 @@ public final class OneTimeTokenLoginConfigurer<H extends HttpSecurityBuilder<H>>
 		return getRequestMatcherFactory().matcher(HttpMethod.POST, loginProcessingUrl);
 	}
 
-	private MethodPatternRequestMatcherFactory getRequestMatcherFactory() {
+	private MethodPathRequestMatcherFactory getRequestMatcherFactory() {
 		return getBuilder().getSharedObject(ApplicationContext.class)
-			.getBeanProvider(MethodPatternRequestMatcherFactory.class)
+			.getBeanProvider(MethodPathRequestMatcherFactory.class)
 			.getIfUnique(() -> AntPathRequestMatcher::antMatcher);
 	}
 

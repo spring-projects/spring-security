@@ -93,7 +93,7 @@ import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.util.matcher.AndRequestMatcher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
-import org.springframework.security.web.util.matcher.MethodPatternRequestMatcherFactory;
+import org.springframework.security.web.util.matcher.MethodPathRequestMatcherFactory;
 import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestHeaderRequestMatcher;
@@ -626,9 +626,9 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		delegating.addListener(smartListener);
 	}
 
-	private MethodPatternRequestMatcherFactory getRequestMatcherFactory() {
+	private MethodPathRequestMatcherFactory getRequestMatcherFactory() {
 		return getBuilder().getSharedObject(ApplicationContext.class)
-			.getBeanProvider(MethodPatternRequestMatcherFactory.class)
+			.getBeanProvider(MethodPathRequestMatcherFactory.class)
 			.getIfUnique(() -> AntPathRequestMatcher::antMatcher);
 	}
 
