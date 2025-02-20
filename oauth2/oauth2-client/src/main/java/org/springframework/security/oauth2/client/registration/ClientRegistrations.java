@@ -37,6 +37,7 @@ import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
 import org.springframework.util.Assert;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
 /**
@@ -211,13 +212,18 @@ public final class ClientRegistrations {
 		};
 	}
 
-	private static Supplier<ClientRegistration.Builder> oidcRfc8414(URI issuer) {
+	private static Supplier<ClientRegistration.Builder> oidcRfc8414(String issuer) {
+		URI uri = oidcRfc8414Uri(issuer);
+		return getRfc8414Builder(issuer, uri);
+	}
+
+	static URI oidcRfc8414Uri(String issuer) {
+		UriComponents uri = UriComponentsBuilder.fromUriString(issuer).build();
 		// @formatter:off
-		URI uri = UriComponentsBuilder.fromUri(issuer)
-				.replacePath(OIDC_METADATA_PATH + issuer.getPath())
+		return UriComponentsBuilder.newInstance().uriComponents(uri)
+				.replacePath(OIDC_METADATA_PATH + uri.getPath())
 				.build(Collections.emptyMap());
 		// @formatter:on
-		return getRfc8414Builder(issuer, uri);
 	}
 
 	private static Supplier<ClientRegistration.Builder> oauth(URI issuer) {
