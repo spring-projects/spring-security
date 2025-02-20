@@ -43,6 +43,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import jakarta.servlet.http.Cookie;
@@ -98,6 +99,7 @@ import org.springframework.security.authentication.event.LogoutSuccessEvent;
 import org.springframework.security.authentication.jaas.JaasAuthenticationToken;
 import org.springframework.security.authentication.jaas.event.JaasAuthenticationFailedEvent;
 import org.springframework.security.authentication.jaas.event.JaasAuthenticationSuccessEvent;
+import org.springframework.security.authentication.ott.DefaultOneTimeToken;
 import org.springframework.security.authentication.ott.InvalidOneTimeTokenException;
 import org.springframework.security.authentication.ott.OneTimeTokenAuthenticationToken;
 import org.springframework.security.authentication.password.CompromisedPasswordException;
@@ -667,6 +669,11 @@ class SpringSecurityCoreVersionSerializableTests {
 			return webAuthnAuthentication;
 		});
 		// @formatter:on
+
+		// One-Time Token
+		DefaultOneTimeToken oneTimeToken = new DefaultOneTimeToken(UUID.randomUUID().toString(), "user",
+				Instant.now().plusSeconds(300));
+		generatorByClassName.put(DefaultOneTimeToken.class, (t) -> oneTimeToken);
 	}
 
 	@ParameterizedTest
