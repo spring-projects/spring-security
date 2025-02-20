@@ -62,7 +62,7 @@ public final class OneTimeTokenAuthenticationProvider implements AuthenticationP
 			return authenticated;
 		}
 		catch (UsernameNotFoundException ex) {
-			throw new BadCredentialsException("Authentication failed.");
+			throw new BadCredentialsException("Failed to authenticate the one-time token");
 		}
 	}
 
