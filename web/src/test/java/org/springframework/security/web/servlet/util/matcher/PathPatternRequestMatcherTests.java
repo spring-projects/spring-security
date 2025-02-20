@@ -90,18 +90,25 @@ public class PathPatternRequestMatcherTests {
 		PathPatternRequestMatcher.Builder servlet = PathPatternRequestMatcher.servletPath("/servlet/path");
 		RequestMatcher matcher = servlet.matcher(HttpMethod.GET, "/endpoint");
 		ServletContext servletContext = servletContext("/servlet/path");
-		assertThat(matcher
-			.matches(get("/servlet/path/endpoint").servletPath("/servlet/path").buildRequest(servletContext))).isTrue();
-		assertThat(matcher.matches(get("/endpoint").servletPath("/endpoint").buildRequest(servletContext))).isFalse();
+		MockHttpServletRequest mock = get("/servlet/path/endpoint").servletPath("/servlet/path")
+			.buildRequest(servletContext);
+		ServletRequestPathUtils.parseAndCache(mock);
+		assertThat(matcher.matches(mock)).isTrue();
+		mock = get("/endpoint").servletPath("/endpoint").buildRequest(servletContext);
+		ServletRequestPathUtils.parseAndCache(mock);
+		assertThat(matcher.matches(mock)).isFalse();
 	}
 
 	@Test
 	void matcherWhenRequestPathThenIgnoresServletPath() {
 		PathPatternRequestMatcher.Builder request = PathPatternRequestMatcher.path();
 		RequestMatcher matcher = request.matcher(HttpMethod.GET, "/endpoint");
-		assertThat(matcher.matches(get("/servlet/path/endpoint").servletPath("/servlet/path").buildRequest(null)))
-			.isTrue();
-		assertThat(matcher.matches(get("/endpoint").servletPath("/endpoint").buildRequest(null))).isTrue();
+		MockHttpServletRequest mock = get("/servlet/path/endpoint").servletPath("/servlet/path").buildRequest(null);
+		ServletRequestPathUtils.parseAndCache(mock);
+		assertThat(matcher.matches(mock)).isTrue();
+		mock = get("/endpoint").servletPath("/endpoint").buildRequest(null);
+		ServletRequestPathUtils.parseAndCache(mock);
+		assertThat(matcher.matches(mock)).isTrue();
 	}
 
 	@Test

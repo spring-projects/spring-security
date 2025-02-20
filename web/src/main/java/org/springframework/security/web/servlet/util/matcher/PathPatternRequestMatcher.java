@@ -32,7 +32,6 @@ import org.springframework.http.server.RequestPath;
 import org.springframework.lang.Nullable;
 import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
-import org.springframework.security.web.util.matcher.MethodPathRequestMatcherFactory;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 import org.springframework.web.util.ServletRequestPathUtils;
@@ -154,7 +153,7 @@ public final class PathPatternRequestMatcher implements RequestMatcher {
 	}
 
 	private RequestPath getRequestPath(HttpServletRequest request) {
-		return ServletRequestPathUtils.parseAndCache(request);
+		return ServletRequestPathUtils.getParsedRequestPath(request);
 	}
 
 	/**
@@ -209,7 +208,7 @@ public final class PathPatternRequestMatcher implements RequestMatcher {
 	 *             ...
 	 * </code>
 	 */
-	public static final class Builder implements MethodPathRequestMatcherFactory {
+	public static final class Builder {
 
 		private final PathPatternParser parser;
 
@@ -232,6 +231,40 @@ public final class PathPatternRequestMatcher implements RequestMatcher {
 		public Builder servletPath(String servletPath) {
 			this.servletPath = new ServletPathRequestMatcher(servletPath);
 			return this;
+		}
+
+		/**
+		 * Match requests having this path pattern.
+		 *
+		 * <p>
+		 * When the HTTP {@code method} is null, then the matcher does not consider the
+		 * HTTP method
+		 *
+		 * <p>
+		 * Path patterns always start with a slash and may contain placeholders. They can
+		 * also be followed by {@code /**} to signify all URIs under a given path.
+		 *
+		 * <p>
+		 * These must be specified relative to any servlet path prefix (meaning you should
+		 * exclude the context path and any servlet path prefix in stating your pattern).
+		 *
+		 * <p>
+		 * The following are valid patterns and their meaning
+		 * <ul>
+		 * <li>{@code /path} - match exactly and only `/path`</li>
+		 * <li>{@code /path/**} - match `/path` and any of its descendents</li>
+		 * <li>{@code /path/{value}/**} - match `/path/subdirectory` and any of its
+		 * descendents, capturing the value of the subdirectory in
+		 * {@link RequestAuthorizationContext#getVariables()}</li>
+		 * </ul>
+		 *
+		 * <p>
+		 * A more comprehensive list can be found at {@link PathPattern}.
+		 * @param path the path pattern to match
+		 * @return the {@link Builder} for more configuration
+		 */
+		public PathPatternRequestMatcher matcher(String path) {
+			return matcher(null, path);
 		}
 
 		/**
