@@ -17,7 +17,6 @@
 package org.springframework.security.oauth2.client.registration;
 
 import java.net.URI;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -146,7 +145,7 @@ public final class ClientRegistrations {
 	 */
 	public static ClientRegistration.Builder fromOidcIssuerLocation(String issuer) {
 		Assert.hasText(issuer, "issuer cannot be empty");
-		return getBuilder(issuer, oidc(URI.create(issuer)));
+		return getBuilder(issuer, oidc(issuer));
 	}
 
 	/**
@@ -189,21 +188,17 @@ public final class ClientRegistrations {
 	 */
 	public static ClientRegistration.Builder fromIssuerLocation(String issuer) {
 		Assert.hasText(issuer, "issuer cannot be empty");
-		URI uri = URI.create(issuer);
-		return getBuilder(issuer, oidc(uri), oidcRfc8414(uri), oauth(uri));
+		return getBuilder(issuer, oidc(issuer), oidcRfc8414(issuer), oauth(issuer));
 	}
 
-	private static Supplier<ClientRegistration.Builder> oidc(URI issuer) {
-		// @formatter:off
-		URI uri = UriComponentsBuilder.fromUri(issuer)
-				.replacePath(issuer.getPath() + OIDC_METADATA_PATH)
-				.build(Collections.emptyMap());
+	static Supplier<ClientRegistration.Builder> oidc(String issuer) {
+		UriComponents uri = oidcUri(issuer);
 		// @formatter:on
 		return () -> {
-			RequestEntity<Void> request = RequestEntity.get(uri).build();
+			RequestEntity<Void> request = RequestEntity.get(uri.toUriString()).build();
 			Map<String, Object> configuration = rest.exchange(request, typeReference).getBody();
 			OIDCProviderMetadata metadata = parse(configuration, OIDCProviderMetadata::parse);
-			ClientRegistration.Builder builder = withProviderConfiguration(metadata, issuer.toASCIIString())
+			ClientRegistration.Builder builder = withProviderConfiguration(metadata, issuer)
 				.jwkSetUri(metadata.getJWKSetURI().toASCIIString());
 			if (metadata.getUserInfoEndpointURI() != null) {
 				builder.userInfoUri(metadata.getUserInfoEndpointURI().toASCIIString());
@@ -212,35 +207,48 @@ public final class ClientRegistrations {
 		};
 	}
 
-	private static Supplier<ClientRegistration.Builder> oidcRfc8414(String issuer) {
-		URI uri = oidcRfc8414Uri(issuer);
+	static UriComponents oidcUri(String issuer) {
+		UriComponents uri = UriComponentsBuilder.fromUriString(issuer).build();
+		// @formatter:off
+		return UriComponentsBuilder.newInstance().uriComponents(uri)
+				.replacePath(uri.getPath() + OIDC_METADATA_PATH)
+				.build();
+	}
+
+	static Supplier<ClientRegistration.Builder> oidcRfc8414(String issuer) {
+		UriComponents uri = oidcRfc8414Uri(issuer);
+		// @formatter:on
 		return getRfc8414Builder(issuer, uri);
 	}
 
-	static URI oidcRfc8414Uri(String issuer) {
+	static UriComponents oidcRfc8414Uri(String issuer) {
 		UriComponents uri = UriComponentsBuilder.fromUriString(issuer).build();
 		// @formatter:off
 		return UriComponentsBuilder.newInstance().uriComponents(uri)
 				.replacePath(OIDC_METADATA_PATH + uri.getPath())
-				.build(Collections.emptyMap());
-		// @formatter:on
+				.build();
 	}
 
-	private static Supplier<ClientRegistration.Builder> oauth(URI issuer) {
-		// @formatter:off
-		URI uri = UriComponentsBuilder.fromUri(issuer)
-				.replacePath(OAUTH_METADATA_PATH + issuer.getPath())
-				.build(Collections.emptyMap());
-		// @formatter:on
+	static Supplier<ClientRegistration.Builder> oauth(String issuer) {
+		UriComponents uri = oauthUri(issuer);
 		return getRfc8414Builder(issuer, uri);
 	}
 
-	private static Supplier<ClientRegistration.Builder> getRfc8414Builder(URI issuer, URI uri) {
+	static UriComponents oauthUri(String issuer) {
+		UriComponents uri = UriComponentsBuilder.fromUriString(issuer).build();
+		// @formatter:off
+		return UriComponentsBuilder.newInstance().uriComponents(uri)
+				.replacePath(OAUTH_METADATA_PATH + uri.getPath())
+				.build();
+		// @formatter:on
+	}
+
+	private static Supplier<ClientRegistration.Builder> getRfc8414Builder(String issuer, UriComponents uri) {
 		return () -> {
-			RequestEntity<Void> request = RequestEntity.get(uri).build();
+			RequestEntity<Void> request = RequestEntity.get(uri.toUriString()).build();
 			Map<String, Object> configuration = rest.exchange(request, typeReference).getBody();
 			AuthorizationServerMetadata metadata = parse(configuration, AuthorizationServerMetadata::parse);
-			ClientRegistration.Builder builder = withProviderConfiguration(metadata, issuer.toASCIIString());
+			ClientRegistration.Builder builder = withProviderConfiguration(metadata, issuer);
 			URI jwkSetUri = metadata.getJWKSetURI();
 			if (jwkSetUri != null) {
 				builder.jwkSetUri(jwkSetUri.toASCIIString());
