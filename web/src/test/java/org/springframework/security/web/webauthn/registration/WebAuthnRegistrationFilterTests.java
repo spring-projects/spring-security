@@ -30,6 +30,7 @@ import org.springframework.http.converter.GenericHttpMessageConverter;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockServletContext;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.webauthn.api.ImmutableCredentialRecord;
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialCreationOptions;
 import org.springframework.security.web.webauthn.api.TestCredentialRecord;
@@ -100,9 +101,40 @@ class WebAuthnRegistrationFilterTests {
 
 	private WebAuthnRegistrationFilter filter;
 
+	private MockHttpServletRequest request;
+
 	@BeforeEach
 	void setup() {
 		this.filter = new WebAuthnRegistrationFilter(this.userCredentials, this.operations);
+		this.request = new MockHttpServletRequest();
+		this.response = new MockHttpServletResponse();
+		this.chain = mock(FilterChain.class);
+	}
+
+	@Test
+	public void doFilterWhenCustomRequestRegisterCredentialMatcherThenUses() throws Exception {
+		this.request.setPathInfo("/register/path");
+		this.filter.setRegisterCredentialMatcher(new AntPathRequestMatcher("/register/path"));
+		this.filter.doFilter(this.request, this.response, this.chain);
+		verifyNoInteractions(this.chain);
+	}
+
+	@Test
+	public void doFilterWhenCustomRequestRemoveCredentialMatcherThenUses() throws Exception {
+		this.request.setPathInfo("/remove/path");
+		this.filter.setRemoveCredentialMatcher(new AntPathRequestMatcher("/remove/path"));
+		this.filter.doFilter(this.request, this.response, this.chain);
+		verifyNoInteractions(this.chain);
+	}
+
+	@Test
+	public void setRequestRegisterCredentialWhenNullThenIllegalArgument() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.filter.setRegisterCredentialMatcher(null));
+	}
+
+	@Test
+	public void setRequestRemoveCredentialWhenNullThenIllegalArgument() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.filter.setRemoveCredentialMatcher(null));
 	}
 
 	@Test
