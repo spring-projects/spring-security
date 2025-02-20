@@ -19,25 +19,31 @@ package org.springframework.security.config.annotation.web.configurers;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Pattern;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.http.server.PathContainer;
+import org.springframework.http.server.RequestPath;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.NullRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.savedrequest.RequestCacheAwareFilter;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.util.matcher.AndRequestMatcher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
-import org.springframework.security.web.util.matcher.MethodPathRequestMatcherFactory;
 import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestHeaderRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.accept.ContentNegotiationStrategy;
 import org.springframework.web.accept.HeaderContentNegotiationStrategy;
+import org.springframework.web.util.ServletRequestPathUtils;
 
 /**
  * Adds request cache for Spring Security. Specifically this ensures that requests that
@@ -142,7 +148,7 @@ public final class RequestCacheConfigurer<H extends HttpSecurityBuilder<H>>
 
 	@SuppressWarnings("unchecked")
 	private RequestMatcher createDefaultSavedRequestMatcher(H http) {
-		RequestMatcher notFavIcon = new NegatedRequestMatcher(getRequestMatcherFactory().matcher("/**/favicon.*"));
+		RequestMatcher notFavIcon = new NegatedRequestMatcher(getFaviconRequestMatcher());
 		RequestMatcher notXRequestedWith = new NegatedRequestMatcher(
 				new RequestHeaderRequestMatcher("X-Requested-With", "XMLHttpRequest"));
 		boolean isCsrfEnabled = http.getConfigurer(CsrfConfigurer.class) != null;
@@ -169,10 +175,39 @@ public final class RequestCacheConfigurer<H extends HttpSecurityBuilder<H>>
 		return new NegatedRequestMatcher(mediaRequest);
 	}
 
+	private RequestMatcher getFaviconRequestMatcher() {
+		PathPatternRequestMatcher.Builder builder = getBuilder().getSharedObject(ApplicationContext.class)
+			.getBeanProvider(PathPatternRequestMatcher.Builder.class)
+			.getIfUnique();
+		if (builder == null) {
+			return new AntPathRequestMatcher("/**/favicon.*");
+		}
+		else {
+			return new FilenameRequestMatcher(Pattern.compile("favicon.*"));
+		}
+	}
+
 	private MethodPathRequestMatcherFactory getRequestMatcherFactory() {
-		return getBuilder().getSharedObject(ApplicationContext.class)
-			.getBeanProvider(MethodPathRequestMatcherFactory.class)
-			.getIfUnique(() -> AntPathRequestMatcher::antMatcher);
+		ApplicationContext context = getBuilder().getSharedObject(ApplicationContext.class);
+		return MethodPathRequestMatcherFactory.fromApplicationContext(context);
+	}
+
+	private static final class FilenameRequestMatcher implements RequestMatcher {
+
+		private final Pattern pattern;
+
+		FilenameRequestMatcher(Pattern pattern) {
+			this.pattern = pattern;
+		}
+
+		@Override
+		public boolean matches(HttpServletRequest request) {
+			RequestPath path = ServletRequestPathUtils.getParsedRequestPath(request);
+			List<PathContainer.Element> elements = path.elements();
+			String file = elements.get(elements.size() - 1).value();
+			return this.pattern.matcher(file).matches();
+		}
+
 	}
 
 }

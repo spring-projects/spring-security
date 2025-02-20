@@ -56,8 +56,6 @@ import org.springframework.security.web.authentication.DelegatingAuthenticationE
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
 import org.springframework.security.web.util.matcher.AndRequestMatcher;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.security.web.util.matcher.MethodPathRequestMatcherFactory;
 import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.ParameterRequestMatcher;
@@ -506,9 +504,8 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 	}
 
 	private MethodPathRequestMatcherFactory getRequestMatcherFactory() {
-		return getBuilder().getSharedObject(ApplicationContext.class)
-			.getBeanProvider(MethodPathRequestMatcherFactory.class)
-			.getIfUnique(() -> AntPathRequestMatcher::antMatcher);
+		return MethodPathRequestMatcherFactory
+			.fromApplicationContext(getBuilder().getSharedObject(ApplicationContext.class));
 	}
 
 	private <C> C getSharedOrBean(B http, Class<C> clazz) {

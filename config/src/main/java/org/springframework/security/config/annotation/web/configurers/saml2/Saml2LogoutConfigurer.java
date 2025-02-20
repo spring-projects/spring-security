@@ -65,8 +65,6 @@ import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.security.web.csrf.CsrfLogoutHandler;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.security.web.util.matcher.AndRequestMatcher;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.security.web.util.matcher.MethodPathRequestMatcherFactory;
 import org.springframework.security.web.util.matcher.ParameterRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
@@ -336,9 +334,8 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 	}
 
 	private MethodPathRequestMatcherFactory getRequestMatcherFactory() {
-		return getBuilder().getSharedObject(ApplicationContext.class)
-			.getBeanProvider(MethodPathRequestMatcherFactory.class)
-			.getIfUnique(() -> AntPathRequestMatcher::antMatcher);
+		return MethodPathRequestMatcherFactory
+			.fromApplicationContext(getBuilder().getSharedObject(ApplicationContext.class));
 	}
 
 	private <C> C getBeanOrNull(Class<C> clazz) {

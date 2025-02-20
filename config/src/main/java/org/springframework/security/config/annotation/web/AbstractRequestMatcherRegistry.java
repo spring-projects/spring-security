@@ -43,10 +43,10 @@ import org.springframework.security.config.ObjectPostProcessor;
 import org.springframework.security.config.annotation.web.ServletRegistrationsSupport.RegistrationMapping;
 import org.springframework.security.config.annotation.web.configurers.AbstractConfigAttributeRequestMatcherRegistry;
 import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 import org.springframework.security.web.util.matcher.DispatcherTypeRequestMatcher;
-import org.springframework.security.web.util.matcher.MethodPathRequestMatcherFactory;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
@@ -332,8 +332,10 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 	protected abstract C chainRequestMatchers(List<RequestMatcher> requestMatchers);
 
 	private MethodPathRequestMatcherFactory getRequestMatcherFactory() {
-		return this.context.getBeanProvider(MethodPathRequestMatcherFactory.class)
-			.getIfUnique(DefaultMethodPathRequestMatcherFactory::new);
+		PathPatternRequestMatcher.Builder builder = this.context
+			.getBeanProvider(PathPatternRequestMatcher.Builder.class)
+			.getIfUnique();
+		return (builder != null) ? builder::matcher : new DefaultMethodPathRequestMatcherFactory();
 	}
 
 	/**

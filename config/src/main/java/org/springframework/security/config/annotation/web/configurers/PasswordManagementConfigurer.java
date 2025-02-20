@@ -20,8 +20,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.web.RequestMatcherRedirectFilter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.security.web.util.matcher.MethodPathRequestMatcherFactory;
 import org.springframework.util.Assert;
 
 /**
@@ -62,9 +60,8 @@ public final class PasswordManagementConfigurer<B extends HttpSecurityBuilder<B>
 	}
 
 	private MethodPathRequestMatcherFactory getRequestMatcherFactory() {
-		return getBuilder().getSharedObject(ApplicationContext.class)
-			.getBeanProvider(MethodPathRequestMatcherFactory.class)
-			.getIfUnique(() -> AntPathRequestMatcher::antMatcher);
+		return MethodPathRequestMatcherFactory
+			.fromApplicationContext(getBuilder().getSharedObject(ApplicationContext.class));
 	}
 
 }

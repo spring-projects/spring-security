@@ -28,8 +28,6 @@ import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.security.web.util.matcher.MethodPathRequestMatcherFactory;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
 /**
@@ -275,9 +273,8 @@ public final class FormLoginConfigurer<H extends HttpSecurityBuilder<H>> extends
 	}
 
 	private MethodPathRequestMatcherFactory getRequestMatcherFactory() {
-		return getBuilder().getSharedObject(ApplicationContext.class)
-			.getBeanProvider(MethodPathRequestMatcherFactory.class)
-			.getIfUnique(() -> AntPathRequestMatcher::antMatcher);
+		return MethodPathRequestMatcherFactory
+			.fromApplicationContext(getBuilder().getSharedObject(ApplicationContext.class));
 	}
 
 }

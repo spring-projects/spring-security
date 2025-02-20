@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -90,10 +90,10 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.context.AbstractSecurityWebApplicationInitializer;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
-import org.springframework.security.web.util.matcher.MethodPathRequestMatcherFactory;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
@@ -3686,9 +3686,11 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 */
 	public HttpSecurity securityMatcher(String... patterns) {
 		List<RequestMatcher> matchers = new ArrayList<>();
-		MethodPathRequestMatcherFactory factory = getSharedObject(ApplicationContext.class)
-			.getBeanProvider(MethodPathRequestMatcherFactory.class)
-			.getIfUnique(() -> (method, pattern) -> mvcPresent ? createMvcMatcher(pattern) : createAntMatcher(pattern));
+		PathPatternRequestMatcher.Builder builder = getSharedObject(ApplicationContext.class)
+			.getBeanProvider(PathPatternRequestMatcher.Builder.class)
+			.getIfUnique();
+		MethodPathRequestMatcherFactory factory = (builder != null) ? builder::matcher
+				: (method, pattern) -> mvcPresent ? createMvcMatcher(pattern) : createAntMatcher(pattern);
 		for (String pattern : patterns) {
 			matchers.add(factory.matcher(pattern));
 		}

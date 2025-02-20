@@ -51,6 +51,7 @@ import org.springframework.security.config.core.GrantedAuthorityDefaults;
 import org.springframework.security.config.observation.SecurityObservationSettings;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
+import org.springframework.security.config.web.PathPatternRequestMatcherBuilderFactoryBean;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -680,6 +681,13 @@ public class AuthorizeHttpRequestsConfigurerTests {
 		this.mvc.perform(get("/mvc/path").servletPath("/mvc").with(user("user").roles("DENIED")))
 			.andExpect(status().isForbidden());
 		this.mvc.perform(get("/path").with(user("user"))).andExpect(status().isForbidden());
+	}
+
+	@Test
+	public void requestMatchersWhenFactoryBeanThenAuthorizes() throws Exception {
+		this.spring.register(PathPatternFactoryBeanConfig.class).autowire();
+		this.mvc.perform(get("/path/resource")).andExpect(status().isUnauthorized());
+		this.mvc.perform(get("/path/resource").with(user("user").roles("USER"))).andExpect(status().isNotFound());
 	}
 
 	@Configuration
@@ -1353,6 +1361,31 @@ public class AuthorizeHttpRequestsConfigurerTests {
 			// @formatter:on
 
 			return http.build();
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	@EnableWebMvc
+	static class PathPatternFactoryBeanConfig {
+
+		@Bean
+		SecurityFilterChain security(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeHttpRequests((authorize) -> authorize
+					.requestMatchers("/path/**").hasRole("USER")
+				)
+				.httpBasic(withDefaults());
+			// @formatter:on
+
+			return http.build();
+		}
+
+		@Bean
+		PathPatternRequestMatcherBuilderFactoryBean pathPatternFactoryBean() {
+			return new PathPatternRequestMatcherBuilderFactoryBean();
 		}
 
 	}
