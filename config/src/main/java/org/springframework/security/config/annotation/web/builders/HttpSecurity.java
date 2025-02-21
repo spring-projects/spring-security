@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,6 +45,7 @@ import org.springframework.security.config.annotation.SecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.AbstractRequestMatcherRegistry;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
+import org.springframework.security.config.annotation.web.RequestMatcherFactory;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfiguration;
 import org.springframework.security.config.annotation.web.configurers.AnonymousConfigurer;
@@ -3684,11 +3685,17 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * @see MvcRequestMatcher
 	 */
 	public HttpSecurity securityMatcher(String... patterns) {
-		if (mvcPresent) {
-			this.requestMatcher = new OrRequestMatcher(createMvcMatchers(patterns));
-			return this;
+		List<RequestMatcher> matchers = new ArrayList<>();
+		for (String pattern : patterns) {
+			if (RequestMatcherFactory.usesPathPatterns()) {
+				matchers.add(RequestMatcherFactory.matcher(pattern));
+			}
+			else {
+				RequestMatcher matcher = mvcPresent ? createMvcMatcher(pattern) : createAntMatcher(pattern);
+				matchers.add(matcher);
+			}
 		}
-		this.requestMatcher = new OrRequestMatcher(createAntMatchers(patterns));
+		this.requestMatcher = new OrRequestMatcher(matchers);
 		return this;
 	}
 
@@ -3717,15 +3724,11 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 		return HttpSecurity.this;
 	}
 
-	private List<RequestMatcher> createAntMatchers(String... patterns) {
-		List<RequestMatcher> matchers = new ArrayList<>(patterns.length);
-		for (String pattern : patterns) {
-			matchers.add(new AntPathRequestMatcher(pattern));
-		}
-		return matchers;
+	private RequestMatcher createAntMatcher(String pattern) {
+		return new AntPathRequestMatcher(pattern);
 	}
 
-	private List<RequestMatcher> createMvcMatchers(String... mvcPatterns) {
+	private RequestMatcher createMvcMatcher(String mvcPattern) {
 		ResolvableType type = ResolvableType.forClassWithGenerics(ObjectPostProcessor.class, Object.class);
 		ObjectProvider<ObjectPostProcessor<Object>> postProcessors = getContext().getBeanProvider(type);
 		ObjectPostProcessor<Object> opp = postProcessors.getObject();
@@ -3736,13 +3739,9 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 		}
 		HandlerMappingIntrospector introspector = getContext().getBean(HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME,
 				HandlerMappingIntrospector.class);
-		List<RequestMatcher> matchers = new ArrayList<>(mvcPatterns.length);
-		for (String mvcPattern : mvcPatterns) {
-			MvcRequestMatcher matcher = new MvcRequestMatcher(introspector, mvcPattern);
-			opp.postProcess(matcher);
-			matchers.add(matcher);
-		}
-		return matchers;
+		MvcRequestMatcher matcher = new MvcRequestMatcher(introspector, mvcPattern);
+		opp.postProcess(matcher);
+		return matcher;
 	}
 
 	/**

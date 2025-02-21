@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -219,9 +219,14 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 		}
 		List<RequestMatcher> matchers = new ArrayList<>();
 		for (String pattern : patterns) {
-			AntPathRequestMatcher ant = new AntPathRequestMatcher(pattern, (method != null) ? method.name() : null);
-			MvcRequestMatcher mvc = createMvcMatchers(method, pattern).get(0);
-			matchers.add(new DeferredRequestMatcher((c) -> resolve(ant, mvc, c), mvc, ant));
+			if (RequestMatcherFactory.usesPathPatterns()) {
+				matchers.add(RequestMatcherFactory.matcher(method, pattern));
+			}
+			else {
+				AntPathRequestMatcher ant = new AntPathRequestMatcher(pattern, (method != null) ? method.name() : null);
+				MvcRequestMatcher mvc = createMvcMatchers(method, pattern).get(0);
+				matchers.add(new DeferredRequestMatcher((c) -> resolve(ant, mvc, c), mvc, ant));
+			}
 		}
 		return requestMatchers(matchers.toArray(new RequestMatcher[0]));
 	}
