@@ -695,7 +695,7 @@ Kotlin::
 ----
 @Component
 open class BankService {
-	@PreFilter("filterObject.owner == authentication.name")
+	@PostFilter("filterObject.owner == authentication.name")
 	fun readAccounts(vararg ids: String): Collection<Account> {
         // ... the return value will be filtered to only contain the accounts owned by the logged-in user
         return accounts
