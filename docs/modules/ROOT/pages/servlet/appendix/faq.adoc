@@ -649,7 +649,7 @@ class MyAuthoritiesPopulator : LdapAuthoritiesPopulator {
 
 You would then add a bean of this type to your application context and inject it into the `LdapAuthenticationProvider`. This is covered in the section on configuring LDAP by using explicit Spring beans in the LDAP chapter of the reference manual.
 Note that you cannot use the namespace for configuration in this case.
-You should also consult the security-api-url[Javadoc] for the relevant classes and interfaces.
+You should also consult the {security-api-url}[Javadoc] for the relevant classes and interfaces.
 
 
 [[appendix-faq-namespace-post-processor]]
