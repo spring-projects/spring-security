@@ -40,7 +40,7 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationProvider;
 import org.springframework.security.oauth2.server.resource.authentication.OpaqueTokenAuthenticationProvider;
-import org.springframework.security.oauth2.server.resource.introspection.NimbusOpaqueTokenIntrospector;
+import org.springframework.security.oauth2.server.resource.introspection.SpringOpaqueTokenIntrospector;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
 import org.springframework.security.oauth2.server.resource.web.DefaultBearerTokenResolver;
@@ -300,7 +300,7 @@ final class OAuth2ResourceServerBeanDefinitionParser implements BeanDefinitionPa
 			String clientId = element.getAttribute(CLIENT_ID);
 			String clientSecret = element.getAttribute(CLIENT_SECRET);
 			BeanDefinitionBuilder introspectorBuilder = BeanDefinitionBuilder
-				.rootBeanDefinition(NimbusOpaqueTokenIntrospector.class);
+				.rootBeanDefinition(SpringOpaqueTokenIntrospector.class);
 			introspectorBuilder.addConstructorArgValue(introspectionUri);
 			introspectorBuilder.addConstructorArgValue(clientId);
 			introspectorBuilder.addConstructorArgValue(clientSecret);
