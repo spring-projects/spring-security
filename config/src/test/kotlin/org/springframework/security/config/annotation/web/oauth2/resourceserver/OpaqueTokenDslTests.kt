@@ -24,6 +24,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -41,7 +42,6 @@ import org.springframework.security.oauth2.core.DefaultOAuth2AuthenticatedPrinci
 import org.springframework.security.oauth2.core.TestOAuth2AccessTokens
 import org.springframework.security.oauth2.jwt.JwtClaimNames
 import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthentication
-import org.springframework.security.oauth2.server.resource.introspection.NimbusOpaqueTokenIntrospector
 import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector
 import org.springframework.security.oauth2.server.resource.introspection.SpringOpaqueTokenIntrospector
 import org.springframework.security.web.SecurityFilterChain
@@ -84,14 +84,16 @@ class OpaqueTokenDslTests {
         val headers = HttpHeaders().apply {
             contentType = MediaType.APPLICATION_JSON
         }
-        val entity = ResponseEntity("{\n" +
-                "  \"active\" : true,\n" +
-                "  \"sub\": \"test-subject\",\n" +
-                "  \"scope\": \"message:read\",\n" +
-                "  \"exp\": 4683883211\n" +
-                "}", headers, HttpStatus.OK)
+        val entity = ResponseEntity(
+            mapOf<String, Any>(
+                "active" to true,
+                "sub" to "test-subject",
+                "scope" to "message:read",
+                "exp" to 4683883211
+            ), headers, HttpStatus.OK
+        )
         every {
-            DefaultOpaqueConfig.REST.exchange(any(), eq(String::class.java))
+            DefaultOpaqueConfig.REST.exchange(any(), any(ParameterizedTypeReference::class))
         } returns entity
 
         this.mockMvc.get("/authenticated") {
@@ -127,8 +129,8 @@ class OpaqueTokenDslTests {
         open fun rest(): RestOperations = REST
 
         @Bean
-        open fun tokenIntrospectionClient(): NimbusOpaqueTokenIntrospector {
-            return NimbusOpaqueTokenIntrospector("https://example.org/introspect", REST)
+        open fun tokenIntrospectionClient(): SpringOpaqueTokenIntrospector {
+            return SpringOpaqueTokenIntrospector("https://example.org/introspect", REST)
         }
     }
 
