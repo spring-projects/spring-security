@@ -99,6 +99,7 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestOperations;
+import org.springframework.web.client.RestTemplate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -659,8 +660,8 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 
 	@Test
 	public void getWhenIntrospectingThenOk() throws Exception {
-		this.spring.configLocations(xml("OpaqueTokenRestOperations"), xml("OpaqueToken")).autowire();
-		mockRestOperations(json("Active"));
+		this.spring.configLocations(xml("OpaqueTokenWebServer"), xml("OpaqueToken")).autowire();
+		mockWebServer(json("Active"));
 		// @formatter:off
 		this.mvc.perform(get("/authenticated").header("Authorization", "Bearer token"))
 				.andExpect(status().isNotFound());
@@ -669,9 +670,9 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 
 	@Test
 	public void configureWhenIntrospectingWithAuthenticationConverterThenUses() throws Exception {
-		this.spring.configLocations(xml("OpaqueTokenRestOperations"), xml("OpaqueTokenAndAuthenticationConverter"))
+		this.spring.configLocations(xml("OpaqueTokenWebServer"), xml("OpaqueTokenAndAuthenticationConverter"))
 			.autowire();
-		mockRestOperations(json("Active"));
+		mockWebServer(json("Active"));
 		OpaqueTokenAuthenticationConverter converter = bean(OpaqueTokenAuthenticationConverter.class);
 		given(converter.convert(any(), any())).willReturn(new TestingAuthenticationToken("user", "pass", "app"));
 		// @formatter:off
@@ -683,8 +684,8 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 
 	@Test
 	public void getWhenIntrospectionFailsThenUnauthorized() throws Exception {
-		this.spring.configLocations(xml("OpaqueTokenRestOperations"), xml("OpaqueToken")).autowire();
-		mockRestOperations(json("Inactive"));
+		this.spring.configLocations(xml("OpaqueTokenWebServer"), xml("OpaqueToken")).autowire();
+		mockWebServer(json("Inactive"));
 		// @formatter:off
 		MockHttpServletRequestBuilder request = get("/")
 				.header("Authorization", "Bearer token");
@@ -696,8 +697,8 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 
 	@Test
 	public void getWhenIntrospectionLacksScopeThenForbidden() throws Exception {
-		this.spring.configLocations(xml("OpaqueTokenRestOperations"), xml("OpaqueToken")).autowire();
-		mockRestOperations(json("ActiveNoScopes"));
+		this.spring.configLocations(xml("OpaqueTokenWebServer"), xml("OpaqueToken")).autowire();
+		mockWebServer(json("ActiveNoScopes"));
 		// @formatter:off
 		this.mvc.perform(get("/requires-read-scope").header("Authorization", "Bearer token"))
 				.andExpect(status().isForbidden())
@@ -1028,11 +1029,11 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 
 	static class OpaqueTokenIntrospectorFactoryBean implements FactoryBean<OpaqueTokenIntrospector> {
 
-		private RestOperations rest;
+		private String introspectionUri;
 
 		@Override
 		public OpaqueTokenIntrospector getObject() throws Exception {
-			return new NimbusOpaqueTokenIntrospector("https://idp.example.org", this.rest);
+			return new NimbusOpaqueTokenIntrospector(this.introspectionUri, new RestTemplate());
 		}
 
 		@Override
@@ -1040,8 +1041,8 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 			return OpaqueTokenIntrospector.class;
 		}
 
-		public void setRest(RestOperations rest) {
-			this.rest = rest;
+		public void setIntrospectionUri(String introspectionUri) {
+			this.introspectionUri = introspectionUri;
 		}
 
 	}

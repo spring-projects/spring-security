@@ -21,12 +21,10 @@
 		 xsi:schemaLocation="http://www.springframework.org/schema/security https://www.springframework.org/schema/security/spring-security.xsd
 		http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<b:bean name="rest" class="org.mockito.Mockito" factory-method="mock">
-		<b:constructor-arg value="org.springframework.web.client.RestOperations" type="java.lang.Class"/>
-	</b:bean>
-
 	<b:bean name="introspector"
 			class="org.springframework.security.config.http.OAuth2ResourceServerBeanDefinitionParserTests$OpaqueTokenIntrospectorFactoryBean">
-		<b:property name="rest" ref="rest"/>
+		<b:property name="introspectionUri" value="${introspection-uri}"/>
 	</b:bean>
+
+	<b:import resource="OAuth2ResourceServerBeanDefinitionParserTests-WebServer.xml"/>
 </b:beans>
