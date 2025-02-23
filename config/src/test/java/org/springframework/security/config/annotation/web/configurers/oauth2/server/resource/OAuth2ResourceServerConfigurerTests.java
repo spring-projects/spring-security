@@ -61,6 +61,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.env.ConfigurableEnvironment;
@@ -146,6 +147,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestOperations;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.context.support.GenericWebApplicationContext;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
@@ -618,8 +620,8 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	@Test
 	public void requestWhenIntrospectionConfiguredThenSessionIsNotCreated() throws Exception {
-		this.spring.register(RestOperationsConfig.class, OpaqueTokenConfig.class, BasicController.class).autowire();
-		mockRestOperations(json("Active"));
+		this.spring.register(OpaqueTokenConfig.class, BasicController.class).autowire();
+		mockWebServer(json("Active"));
 		// @formatter:off
 		MvcResult result = this.mvc.perform(get("/authenticated").with(bearerToken("token")))
 				.andExpect(status().isOk())
@@ -1060,8 +1062,8 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	@Test
 	public void getWhenIntrospectingThenOk() throws Exception {
-		this.spring.register(RestOperationsConfig.class, OpaqueTokenConfig.class, BasicController.class).autowire();
-		mockRestOperations(json("Active"));
+		this.spring.register(OpaqueTokenConfig.class, BasicController.class).autowire();
+		mockWebServer(json("Active"));
 		// @formatter:off
 		this.mvc.perform(get("/authenticated").with(bearerToken("token")))
 				.andExpect(status().isOk())
@@ -1071,9 +1073,8 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	@Test
 	public void getWhenOpaqueTokenInLambdaAndIntrospectingThenOk() throws Exception {
-		this.spring.register(RestOperationsConfig.class, OpaqueTokenInLambdaConfig.class, BasicController.class)
-			.autowire();
-		mockRestOperations(json("Active"));
+		this.spring.register(OpaqueTokenInLambdaConfig.class, BasicController.class).autowire();
+		mockWebServer(json("Active"));
 		// @formatter:off
 		this.mvc.perform(get("/authenticated").with(bearerToken("token")))
 				.andExpect(status().isOk())
@@ -1083,8 +1084,8 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	@Test
 	public void getWhenIntrospectionFailsThenUnauthorized() throws Exception {
-		this.spring.register(RestOperationsConfig.class, OpaqueTokenConfig.class).autowire();
-		mockRestOperations(json("Inactive"));
+		this.spring.register(OpaqueTokenConfig.class).autowire();
+		mockWebServer(json("Inactive"));
 		// @formatter:off
 		this.mvc.perform(get("/").with(bearerToken("token")))
 				.andExpect(status().isUnauthorized())
@@ -1094,8 +1095,8 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	@Test
 	public void getWhenIntrospectionLacksScopeThenForbidden() throws Exception {
-		this.spring.register(RestOperationsConfig.class, OpaqueTokenConfig.class).autowire();
-		mockRestOperations(json("ActiveNoScopes"));
+		this.spring.register(OpaqueTokenConfig.class).autowire();
+		mockWebServer(json("ActiveNoScopes"));
 		// @formatter:off
 		this.mvc.perform(get("/requires-read-scope").with(bearerToken("token")))
 				.andExpect(status().isForbidden())
@@ -1400,13 +1401,11 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	@Test
 	public void getWhenCustomAuthenticationConverterThenUsed() throws Exception {
-		this.spring
-			.register(RestOperationsConfig.class, OpaqueTokenAuthenticationConverterConfig.class, BasicController.class)
-			.autowire();
+		this.spring.register(OpaqueTokenAuthenticationConverterConfig.class, BasicController.class).autowire();
 		OpaqueTokenAuthenticationConverter authenticationConverter = bean(OpaqueTokenAuthenticationConverter.class);
 		given(authenticationConverter.convert(anyString(), any(OAuth2AuthenticatedPrincipal.class)))
 			.willReturn(new TestingAuthenticationToken("jdoe", null, Collections.emptyList()));
-		mockRestOperations(json("Active"));
+		mockWebServer(json("Active"));
 		// @formatter:off
 		this.mvc.perform(get("/authenticated").with(bearerToken("token")))
 				.andExpect(status().isOk())
@@ -2343,6 +2342,7 @@ public class OAuth2ResourceServerConfigurerTests {
 	@Configuration
 	@EnableWebSecurity
 	@EnableWebMvc
+	@Import(OpaqueTokenIntrospectorConfig.class)
 	static class OpaqueTokenConfig {
 
 		@Bean
@@ -2364,6 +2364,7 @@ public class OAuth2ResourceServerConfigurerTests {
 	@Configuration
 	@EnableWebSecurity
 	@EnableWebMvc
+	@Import(OpaqueTokenIntrospectorConfig.class)
 	static class OpaqueTokenInLambdaConfig {
 
 		@Bean
@@ -2387,6 +2388,7 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
+	@Import(OpaqueTokenIntrospectorConfig.class)
 	static class OpaqueTokenAuthenticationManagerConfig {
 
 		@Bean
@@ -2559,6 +2561,7 @@ public class OAuth2ResourceServerConfigurerTests {
 	@Configuration
 	@EnableWebSecurity
 	@EnableWebMvc
+	@Import(OpaqueTokenIntrospectorConfig.class)
 	static class OpaqueTokenAuthenticationConverterConfig {
 
 		@Bean
@@ -2579,6 +2582,20 @@ public class OAuth2ResourceServerConfigurerTests {
 		@Bean
 		OpaqueTokenAuthenticationConverter authenticationConverter() {
 			return mock(OpaqueTokenAuthenticationConverter.class);
+		}
+
+	}
+
+	@Configuration
+	@Import(WebServerConfig.class)
+	static class OpaqueTokenIntrospectorConfig {
+
+		@Value("${mockwebserver.url:https://example.org}")
+		String introspectUri;
+
+		@Bean
+		NimbusOpaqueTokenIntrospector introspector() {
+			return new NimbusOpaqueTokenIntrospector(this.introspectUri, new RestTemplate());
 		}
 
 	}
@@ -2692,11 +2709,6 @@ public class OAuth2ResourceServerConfigurerTests {
 			return NimbusJwtDecoder.withJwkSetUri("https://example.org/.well-known/jwks.json")
 				.restOperations(this.rest)
 				.build();
-		}
-
-		@Bean
-		NimbusOpaqueTokenIntrospector tokenIntrospectionClient() {
-			return new NimbusOpaqueTokenIntrospector("https://example.org/introspect", this.rest);
 		}
 
 	}
