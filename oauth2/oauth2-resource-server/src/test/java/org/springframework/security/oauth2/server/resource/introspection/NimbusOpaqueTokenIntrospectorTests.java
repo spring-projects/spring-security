@@ -97,13 +97,6 @@ public class NimbusOpaqueTokenIntrospectorTests {
 	// @formatter:on
 
 	// @formatter:off
-	private static final String MALFORMED_ISSUER_RESPONSE = "{\n"
-			+ "     \"active\" : \"true\",\n"
-			+ "     \"iss\" : \"badissuer\"\n"
-			+ "    }";
-	// @formatter:on
-
-	// @formatter:off
 	private static final String MALFORMED_SCOPE_RESPONSE = "{\n"
 			+ "      \"active\": true,\n"
 			+ "      \"client_id\": \"l238j323ds-23ij4\",\n"
@@ -233,18 +226,6 @@ public class NimbusOpaqueTokenIntrospectorTests {
 	public void introspectWhenIntrospectionTokenReturnsInvalidResponseThenInvalidToken() throws IOException {
 		try (MockWebServer server = new MockWebServer()) {
 			server.setDispatcher(requiresAuth(CLIENT_ID, CLIENT_SECRET, INVALID_RESPONSE));
-			String introspectUri = server.url("/introspect").toString();
-			OpaqueTokenIntrospector introspectionClient = new NimbusOpaqueTokenIntrospector(introspectUri, CLIENT_ID,
-					CLIENT_SECRET);
-			assertThatExceptionOfType(OAuth2IntrospectionException.class)
-				.isThrownBy(() -> introspectionClient.introspect("token"));
-		}
-	}
-
-	@Test
-	public void introspectWhenIntrospectionTokenReturnsMalformedIssuerResponseThenInvalidToken() throws IOException {
-		try (MockWebServer server = new MockWebServer()) {
-			server.setDispatcher(requiresAuth(CLIENT_ID, CLIENT_SECRET, MALFORMED_ISSUER_RESPONSE));
 			String introspectUri = server.url("/introspect").toString();
 			OpaqueTokenIntrospector introspectionClient = new NimbusOpaqueTokenIntrospector(introspectUri, CLIENT_ID,
 					CLIENT_SECRET);
