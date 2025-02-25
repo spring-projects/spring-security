@@ -101,7 +101,7 @@ class PublicKeyCredentialRequestOptionsFilterTests {
 	}
 
 	@Test
-	public void doFilterWhenCustomRequestMatcherThenUses() throws Exception {
+	void doFilterWhenCustomRequestMatcherThenUses() throws Exception {
 		RequestMatcher requestMatcher = mock(RequestMatcher.class);
 		this.filter.setRequestMatcher(requestMatcher);
 		FilterChain mock = mock(FilterChain.class);

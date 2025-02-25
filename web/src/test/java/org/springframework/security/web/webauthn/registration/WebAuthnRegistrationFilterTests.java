@@ -112,7 +112,7 @@ class WebAuthnRegistrationFilterTests {
 	}
 
 	@Test
-	public void doFilterWhenCustomRequestRegisterCredentialMatcherThenUses() throws Exception {
+	void doFilterWhenCustomRequestRegisterCredentialMatcherThenUses() throws Exception {
 		RequestMatcher requestMatcher = mock(RequestMatcher.class);
 		this.filter.setRegisterCredentialMatcher(requestMatcher);
 		FilterChain mock = mock(FilterChain.class);
@@ -121,7 +121,7 @@ class WebAuthnRegistrationFilterTests {
 	}
 
 	@Test
-	public void doFilterWhenCustomRequestRemoveCredentialMatcherThenUses() throws Exception {
+	void doFilterWhenCustomRequestRemoveCredentialMatcherThenUses() throws Exception {
 		RequestMatcher requestMatcher = mock(RequestMatcher.class);
 		this.filter.setRemoveCredentialMatcher(requestMatcher);
 		FilterChain mock = mock(FilterChain.class);
@@ -130,12 +130,12 @@ class WebAuthnRegistrationFilterTests {
 	}
 
 	@Test
-	public void setRequestRegisterCredentialWhenNullThenIllegalArgument() {
+	void setRequestRegisterCredentialWhenNullThenIllegalArgument() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.filter.setRegisterCredentialMatcher(null));
 	}
 
 	@Test
-	public void setRequestRemoveCredentialWhenNullThenIllegalArgument() {
+	void setRequestRemoveCredentialWhenNullThenIllegalArgument() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.filter.setRemoveCredentialMatcher(null));
 	}
 
