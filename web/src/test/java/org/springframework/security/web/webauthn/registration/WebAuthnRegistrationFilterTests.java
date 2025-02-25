@@ -30,6 +30,7 @@ import org.springframework.http.converter.GenericHttpMessageConverter;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockServletContext;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.security.web.webauthn.api.ImmutableCredentialRecord;
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialCreationOptions;
 import org.springframework.security.web.webauthn.api.TestCredentialRecord;
@@ -100,9 +101,42 @@ class WebAuthnRegistrationFilterTests {
 
 	private WebAuthnRegistrationFilter filter;
 
+	private MockHttpServletRequest request;
+
 	@BeforeEach
 	void setup() {
 		this.filter = new WebAuthnRegistrationFilter(this.userCredentials, this.operations);
+		this.request = new MockHttpServletRequest();
+		this.response = new MockHttpServletResponse();
+		this.chain = mock(FilterChain.class);
+	}
+
+	@Test
+	void doFilterWhenCustomRequestRegisterCredentialMatcherThenUses() throws Exception {
+		RequestMatcher requestMatcher = mock(RequestMatcher.class);
+		this.filter.setRegisterCredentialMatcher(requestMatcher);
+		FilterChain mock = mock(FilterChain.class);
+		this.filter.doFilter(this.request, this.response, mock);
+		verify(requestMatcher).matches(any());
+	}
+
+	@Test
+	void doFilterWhenCustomRequestRemoveCredentialMatcherThenUses() throws Exception {
+		RequestMatcher requestMatcher = mock(RequestMatcher.class);
+		this.filter.setRemoveCredentialMatcher(requestMatcher);
+		FilterChain mock = mock(FilterChain.class);
+		this.filter.doFilter(this.request, this.response, mock);
+		verify(requestMatcher).matches(any());
+	}
+
+	@Test
+	void setRequestRegisterCredentialWhenNullThenIllegalArgument() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.filter.setRegisterCredentialMatcher(null));
+	}
+
+	@Test
+	void setRequestRemoveCredentialWhenNullThenIllegalArgument() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.filter.setRemoveCredentialMatcher(null));
 	}
 
 	@Test
