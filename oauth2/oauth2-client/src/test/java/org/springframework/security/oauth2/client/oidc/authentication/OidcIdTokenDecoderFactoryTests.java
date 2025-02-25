@@ -34,6 +34,7 @@ import org.springframework.security.oauth2.jose.jws.JwsAlgorithm;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -46,6 +47,7 @@ import static org.mockito.Mockito.verify;
 /**
  * @author Joe Grandja
  * @author Rafael Dominguez
+ * @author Ivan Golovko
  * @since 5.2
  */
 public class OidcIdTokenDecoderFactoryTests {
@@ -175,6 +177,23 @@ public class OidcIdTokenDecoderFactoryTests {
 			.willReturn(new ClaimTypeConverter(OidcIdTokenDecoderFactory.createDefaultClaimTypeConverters()));
 		this.idTokenDecoderFactory.createDecoder(clientRegistration);
 		verify(customClaimTypeConverterFactory).apply(same(clientRegistration));
+	}
+
+	@Test
+	public void createDecoderTwiceWithCaching() {
+		ClientRegistration clientRegistration = this.registration.build();
+		JwtDecoder decoder1 = this.idTokenDecoderFactory.createDecoder(clientRegistration);
+		JwtDecoder decoder2 = this.idTokenDecoderFactory.createDecoder(clientRegistration);
+		assertThat(decoder1).isSameAs(decoder2);
+	}
+
+	@Test
+	public void createDecoderTwiceWithoutCaching() {
+		this.idTokenDecoderFactory = new OidcIdTokenDecoderFactory(false);
+		ClientRegistration clientRegistration = this.registration.build();
+		JwtDecoder decoder1 = this.idTokenDecoderFactory.createDecoder(clientRegistration);
+		JwtDecoder decoder2 = this.idTokenDecoderFactory.createDecoder(clientRegistration);
+		assertThat(decoder1).isNotSameAs(decoder2);
 	}
 
 }
