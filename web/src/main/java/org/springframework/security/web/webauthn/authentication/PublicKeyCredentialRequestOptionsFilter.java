@@ -75,6 +75,17 @@ public class PublicKeyCredentialRequestOptionsFilter extends OncePerRequestFilte
 		this.rpOptions = rpOptions;
 	}
 
+	/**
+	 * Sets the {@link RequestMatcher} used to trigger this filter. By default, the
+	 * {@link RequestMatcher} is {@code POST /webauthn/authenticate/options}.
+	 * @param requestMatcher the {@link RequestMatcher} to use
+	 * @since 6.5
+	 */
+	public void setRequestMatcher(RequestMatcher requestMatcher) {
+		Assert.notNull(requestMatcher, "requestMatcher cannot be null");
+		this.matcher = requestMatcher;
+	}
+
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {

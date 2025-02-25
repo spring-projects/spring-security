@@ -18,6 +18,7 @@ package org.springframework.security.web.webauthn.authentication;
 
 import java.nio.charset.StandardCharsets;
 
+import jakarta.servlet.FilterChain;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,10 +31,13 @@ import org.skyscreamer.jsonassert.JSONAssert;
 
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.server.ServletServerHttpResponse;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.core.context.SecurityContextImpl;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialCreationOptions;
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialRequestOptions;
 import org.springframework.security.web.webauthn.api.TestPublicKeyCredentialRequestOptions;
@@ -48,6 +52,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.verifyNoInteractions;
 import static org.mockito.BDDMockito.willAnswer;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -75,6 +80,10 @@ class PublicKeyCredentialRequestOptionsFilterTests {
 
 	private PublicKeyCredentialRequestOptionsFilter filter;
 
+	private MockHttpServletRequest request;
+
+	private MockHttpServletResponse response;
+
 	private MockMvc mockMvc;
 
 	@BeforeEach
@@ -82,11 +91,22 @@ class PublicKeyCredentialRequestOptionsFilterTests {
 		this.filter = new PublicKeyCredentialRequestOptionsFilter(this.relyingPartyOperations);
 		this.filter.setRequestOptionsRepository(this.requestOptionsRepository);
 		this.mockMvc = MockMvcBuilders.standaloneSetup().addFilter(this.filter).build();
+		this.request = new MockHttpServletRequest();
+		this.response = new MockHttpServletResponse();
 	}
 
 	@AfterEach
 	void cleanup() {
 		SecurityContextHolder.clearContext();
+	}
+
+	@Test
+	public void doFilterWhenCustomRequestMatcherThenUses() throws Exception {
+		RequestMatcher requestMatcher = mock(RequestMatcher.class);
+		this.filter.setRequestMatcher(requestMatcher);
+		FilterChain mock = mock(FilterChain.class);
+		this.filter.doFilter(request, response, mock);
+		verify(requestMatcher).matches(any());
 	}
 
 	@Test

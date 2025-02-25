@@ -18,7 +18,9 @@ package org.springframework.security.web.webauthn.registration;
 
 import java.util.Arrays;
 
+import jakarta.servlet.FilterChain;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -27,12 +29,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextImpl;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.security.web.webauthn.api.AuthenticatorTransport;
 import org.springframework.security.web.webauthn.api.Bytes;
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialCreationOptions;
@@ -47,7 +51,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -68,9 +72,36 @@ class PublicKeyCredentialCreationOptionsFilterTests {
 	@Mock
 	private WebAuthnRelyingPartyOperations rpOperations;
 
+	private PublicKeyCredentialCreationOptionsFilter filter;
+
+	private MockHttpServletRequest request;
+
+	private MockHttpServletResponse response;
+
+	@BeforeEach
+	public void setup() {
+		this.filter = new PublicKeyCredentialCreationOptionsFilter(this.rpOperations);
+		this.request = new MockHttpServletRequest();
+		this.response = new MockHttpServletResponse();
+	}
+
 	@AfterEach
 	void clear() {
 		SecurityContextHolder.clearContext();
+	}
+
+	@Test
+	public void doFilterWhenCustomRequestMatcherThenUses() throws Exception {
+		RequestMatcher requestMatcher = mock(RequestMatcher.class);
+		this.filter.setRequestMatcher(requestMatcher);
+		FilterChain mock = mock(FilterChain.class);
+		this.filter.doFilter(request, response, mock);
+		verify(requestMatcher).matches(any());
+	}
+
+	@Test
+	public void setRequestMatcherWhenNullThenIllegalArgument() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.filter.setRequestMatcher(null));
 	}
 
 	@Test
