@@ -52,7 +52,7 @@ import org.springframework.web.util.UriComponentsBuilder;
  *
  * <p>
  * <b>NOTE:</b> The default base {@code URI} {@code /oauth2/authorization} may be
- * overridden via it's constructor
+ * overridden via its constructor
  * {@link #DefaultOAuth2AuthorizationRequestResolver(ClientRegistrationRepository, String)}.
  *
  * @author Joe Grandja

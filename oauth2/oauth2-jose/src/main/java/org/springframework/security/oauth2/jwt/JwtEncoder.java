@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package org.springframework.security.oauth2.jwt;
 
 /**
  * Implementations of this interface are responsible for encoding a JSON Web Token (JWT)
- * to it's compact claims representation format.
+ * to its compact claims representation format.
  *
  * <p>
  * JWTs may be represented using the JWS Compact Serialization format for a JSON Web
@@ -47,7 +47,7 @@ package org.springframework.security.oauth2.jwt;
 public interface JwtEncoder {
 
 	/**
-	 * Encode the JWT to it's compact claims representation format.
+	 * Encode the JWT to its compact claims representation format.
 	 * @param parameters the parameters containing the JOSE header and JWT Claims Set
 	 * @return a {@link Jwt}
 	 * @throws JwtEncodingException if an error occurs while attempting to encode the JWT

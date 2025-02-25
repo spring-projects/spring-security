@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,8 +26,8 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.util.Assert;
 
 /**
- * An implementation of an {@link OAuth2UserService} that simply delegates to it's
- * internal {@code List} of {@link OAuth2UserService}(s).
+ * An implementation of an {@link OAuth2UserService} that simply delegates to its internal
+ * {@code List} of {@link OAuth2UserService}(s).
  * <p>
  * Each {@link OAuth2UserService} is given a chance to
  * {@link OAuth2UserService#loadUser(OAuth2UserRequest) load} an {@link OAuth2User} with
