@@ -17,21 +17,40 @@
 package org.springframework.security.saml2.provider.service.authentication;
 
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.xml.namespace.QName;
+
+import org.opensaml.saml.common.assertion.AssertionValidationException;
 import org.opensaml.saml.common.assertion.ValidationContext;
 import org.opensaml.saml.common.assertion.ValidationResult;
+import org.opensaml.saml.saml2.assertion.ConditionValidator;
 import org.opensaml.saml.saml2.assertion.SAML20AssertionValidator;
 import org.opensaml.saml.saml2.assertion.SAML2AssertionValidationParameters;
+import org.opensaml.saml.saml2.assertion.StatementValidator;
+import org.opensaml.saml.saml2.assertion.SubjectConfirmationValidator;
+import org.opensaml.saml.saml2.assertion.impl.AudienceRestrictionConditionValidator;
+import org.opensaml.saml.saml2.assertion.impl.BearerSubjectConfirmationValidator;
+import org.opensaml.saml.saml2.assertion.impl.DelegationRestrictionConditionValidator;
+import org.opensaml.saml.saml2.assertion.impl.ProxyRestrictionConditionValidator;
 import org.opensaml.saml.saml2.core.Assertion;
+import org.opensaml.saml.saml2.core.Condition;
 import org.opensaml.saml.saml2.core.EncryptedAssertion;
+import org.opensaml.saml.saml2.core.OneTimeUse;
 import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.core.SubjectConfirmation;
 import org.opensaml.saml.saml2.core.SubjectConfirmationData;
 import org.opensaml.saml.saml2.encryption.Decrypter;
+import org.opensaml.xmlsec.signature.support.SignaturePrevalidator;
+import org.opensaml.xmlsec.signature.support.SignatureTrustEngine;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
@@ -95,7 +114,7 @@ public final class OpenSaml5AuthenticationProvider implements AuthenticationProv
 	 */
 	public OpenSaml5AuthenticationProvider() {
 		this.delegate = new BaseOpenSamlAuthenticationProvider(new OpenSaml5Template());
-		setAssertionValidator(createDefaultAssertionValidator());
+		setAssertionValidator(AssertionValidator.withDefaults());
 	}
 
 	/**
@@ -173,14 +192,14 @@ public final class OpenSaml5AuthenticationProvider implements AuthenticationProv
 	 * Set the {@link Converter} to use for validating each {@link Assertion} in the SAML
 	 * 2.0 Response.
 	 *
-	 * You can still invoke the default validator by delgating to
-	 * {@link #createAssertionValidator}, like so:
+	 * You can still invoke the default validator by calling
+	 * {@link AssertionValidator#withDefaults()}, like so:
 	 *
 	 * <pre>
 	 *	OpenSamlAuthenticationProvider provider = new OpenSamlAuthenticationProvider();
+	 *  AssertionValidator validator = AssertionValidator.withDefaults();
 	 *  provider.setAssertionValidator(assertionToken -&gt; {
-	 *		Saml2ResponseValidatorResult result = createDefaultAssertionValidator()
-	 *			.convert(assertionToken)
+	 *		Saml2ResponseValidatorResult result = validator.validate(assertionToken);
 	 *		return result.concat(myCustomValidator.convert(assertionToken));
 	 *  });
 	 * </pre>
@@ -190,17 +209,12 @@ public final class OpenSaml5AuthenticationProvider implements AuthenticationProv
 	 *
 	 * <pre>
 	 *	OpenSamlAuthenticationProvider provider = new OpenSamlAuthenticationProvider();
-	 *	provider.setAssertionValidator(
-	 *		createDefaultAssertionValidator(assertionToken -&gt; {
-	 *			Map&lt;String, Object&gt; params = new HashMap&lt;&gt;();
-	 *			params.put(CLOCK_SKEW, 2 * 60 * 1000);
-	 *			// other parameters
-	 *			return new ValidationContext(params);
-	 *		}));
+	 *  AssertionValidator validator = AssertionValidator.builder().clockSkew(Duration.ofMinutes(2)).build();
+	 *	provider.setAssertionValidator(validator);
 	 * </pre>
 	 *
-	 * Consider taking a look at {@link #createValidationContext} to see how it constructs
-	 * a {@link ValidationContext}.
+	 * Consider taking a look at {@link AssertionValidator#createValidationContext} to see
+	 * how it constructs a {@link ValidationContext}.
 	 *
 	 * It is not necessary to delegate to the default validator. You can safely replace it
 	 * entirely with your own. Note that signature verification is performed as a separate
@@ -299,10 +313,11 @@ public final class OpenSaml5AuthenticationProvider implements AuthenticationProv
 	 * Construct a default strategy for validating each SAML 2.0 Assertion and associated
 	 * {@link Authentication} token
 	 * @return the default assertion validator strategy
+	 * @deprecated please use {@link AssertionValidator#withDefaults()} instead
 	 */
+	@Deprecated
 	public static Converter<AssertionToken, Saml2ResponseValidatorResult> createDefaultAssertionValidator() {
-		return createDefaultAssertionValidatorWithParameters(
-				(params) -> params.put(SAML2AssertionValidationParameters.CLOCK_SKEW, Duration.ofMinutes(5)));
+		return AssertionValidator.withDefaults();
 	}
 
 	/**
@@ -316,9 +331,25 @@ public final class OpenSaml5AuthenticationProvider implements AuthenticationProv
 	@Deprecated
 	public static Converter<AssertionToken, Saml2ResponseValidatorResult> createDefaultAssertionValidator(
 			Converter<AssertionToken, ValidationContext> contextConverter) {
-		return createAssertionValidator(Saml2ErrorCodes.INVALID_ASSERTION,
-				(assertionToken) -> BaseOpenSamlAuthenticationProvider.SAML20AssertionValidators.attributeValidator,
-				contextConverter);
+		return (assertionToken) -> {
+			Assertion assertion = assertionToken.getAssertion();
+			SAML20AssertionValidator validator = BaseOpenSamlAuthenticationProvider.SAML20AssertionValidators.attributeValidator;
+			ValidationContext context = contextConverter.convert(assertionToken);
+			try {
+				ValidationResult result = validator.validate(assertion, context);
+				if (result == ValidationResult.VALID) {
+					return Saml2ResponseValidatorResult.success();
+				}
+			}
+			catch (Exception ex) {
+				String message = String.format("Invalid assertion [%s] for SAML response [%s]: %s", assertion.getID(),
+						((Response) assertion.getParent()).getID(), ex.getMessage());
+				return Saml2ResponseValidatorResult.failure(new Saml2Error(Saml2ErrorCodes.INVALID_ASSERTION, message));
+			}
+			String message = String.format("Invalid assertion [%s] for SAML response [%s]: %s", assertion.getID(),
+					((Response) assertion.getParent()).getID(), context.getValidationFailureMessages());
+			return Saml2ResponseValidatorResult.failure(new Saml2Error(Saml2ErrorCodes.INVALID_ASSERTION, message));
+		};
 	}
 
 	/**
@@ -328,12 +359,12 @@ public final class OpenSaml5AuthenticationProvider implements AuthenticationProv
 	 * {@link ValidationContext} for each assertion being validated
 	 * @return the default assertion validator strategy
 	 * @since 5.8
+	 * @deprecated please use {@link AssertionValidator#withDefaults()} instead
 	 */
+	@Deprecated
 	public static Converter<AssertionToken, Saml2ResponseValidatorResult> createDefaultAssertionValidatorWithParameters(
 			Consumer<Map<String, Object>> validationContextParameters) {
-		return createAssertionValidator(Saml2ErrorCodes.INVALID_ASSERTION,
-				(assertionToken) -> BaseOpenSamlAuthenticationProvider.SAML20AssertionValidators.attributeValidator,
-				(assertionToken) -> createValidationContext(assertionToken, validationContextParameters));
+		return AssertionValidator.builder().validationContextParameters(validationContextParameters).build();
 	}
 
 	/**
@@ -362,71 +393,6 @@ public final class OpenSaml5AuthenticationProvider implements AuthenticationProv
 	@Override
 	public boolean supports(Class<?> authentication) {
 		return authentication != null && Saml2AuthenticationToken.class.isAssignableFrom(authentication);
-	}
-
-	private static Converter<AssertionToken, Saml2ResponseValidatorResult> createAssertionValidator(String errorCode,
-			Converter<AssertionToken, SAML20AssertionValidator> validatorConverter,
-			Converter<AssertionToken, ValidationContext> contextConverter) {
-
-		return (assertionToken) -> {
-			Assertion assertion = assertionToken.getAssertion();
-			SAML20AssertionValidator validator = validatorConverter.convert(assertionToken);
-			ValidationContext context = contextConverter.convert(assertionToken);
-			try {
-				ValidationResult result = validator.validate(assertion, context);
-				if (result == ValidationResult.VALID) {
-					return Saml2ResponseValidatorResult.success();
-				}
-			}
-			catch (Exception ex) {
-				String message = String.format("Invalid assertion [%s] for SAML response [%s]: %s", assertion.getID(),
-						((Response) assertion.getParent()).getID(), ex.getMessage());
-				return Saml2ResponseValidatorResult.failure(new Saml2Error(errorCode, message));
-			}
-			String message = String.format("Invalid assertion [%s] for SAML response [%s]: %s", assertion.getID(),
-					((Response) assertion.getParent()).getID(), context.getValidationFailureMessages());
-			return Saml2ResponseValidatorResult.failure(new Saml2Error(errorCode, message));
-		};
-	}
-
-	private static ValidationContext createValidationContext(AssertionToken assertionToken,
-			Consumer<Map<String, Object>> paramsConsumer) {
-		Saml2AuthenticationToken token = assertionToken.getToken();
-		RelyingPartyRegistration relyingPartyRegistration = token.getRelyingPartyRegistration();
-		String audience = relyingPartyRegistration.getEntityId();
-		String recipient = relyingPartyRegistration.getAssertionConsumerServiceLocation();
-		String assertingPartyEntityId = relyingPartyRegistration.getAssertingPartyMetadata().getEntityId();
-		Map<String, Object> params = new HashMap<>();
-		Assertion assertion = assertionToken.getAssertion();
-		if (assertionContainsInResponseTo(assertion)) {
-			String requestId = getAuthnRequestId(token.getAuthenticationRequest());
-			params.put(SAML2AssertionValidationParameters.SC_VALID_IN_RESPONSE_TO, requestId);
-		}
-		params.put(SAML2AssertionValidationParameters.COND_VALID_AUDIENCES, Collections.singleton(audience));
-		params.put(SAML2AssertionValidationParameters.SC_VALID_RECIPIENTS, Collections.singleton(recipient));
-		params.put(SAML2AssertionValidationParameters.VALID_ISSUERS, Collections.singleton(assertingPartyEntityId));
-		paramsConsumer.accept(params);
-		return new ValidationContext(params);
-	}
-
-	private static boolean assertionContainsInResponseTo(Assertion assertion) {
-		if (assertion.getSubject() == null) {
-			return false;
-		}
-		for (SubjectConfirmation confirmation : assertion.getSubject().getSubjectConfirmations()) {
-			SubjectConfirmationData confirmationData = confirmation.getSubjectConfirmationData();
-			if (confirmationData == null) {
-				continue;
-			}
-			if (StringUtils.hasText(confirmationData.getInResponseTo())) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	private static String getAuthnRequestId(AbstractSaml2AuthenticationRequest serialized) {
-		return (serialized != null) ? serialized.getId() : null;
 	}
 
 	/**
@@ -489,6 +455,268 @@ public final class OpenSaml5AuthenticationProvider implements AuthenticationProv
 
 		public Saml2AuthenticationToken getToken() {
 			return this.token;
+		}
+
+	}
+
+	/**
+	 * A default implementation of {@link OpenSaml5AuthenticationProvider}'s assertion
+	 * validator. This does not check the signature as signature verification is performed
+	 * by a different component
+	 *
+	 * @author Josh Cummings
+	 * @since 6.5
+	 */
+	public static final class AssertionValidator implements Converter<AssertionToken, Saml2ResponseValidatorResult> {
+
+		private final SAML20AssertionValidator assertionValidator;
+
+		private Consumer<Map<String, Object>> paramsConsumer = (map) -> {
+		};
+
+		public AssertionValidator(SAML20AssertionValidator assertionValidator) {
+			this.assertionValidator = assertionValidator;
+		}
+
+		@Override
+		public Saml2ResponseValidatorResult convert(AssertionToken source) {
+			Assertion assertion = source.getAssertion();
+			ValidationContext validationContext = createValidationContext(source);
+			try {
+				ValidationResult result = this.assertionValidator.validate(assertion, validationContext);
+				if (result == ValidationResult.VALID) {
+					return Saml2ResponseValidatorResult.success();
+				}
+			}
+			catch (Exception ex) {
+				String message = String.format("Invalid assertion [%s] for SAML response [%s]: %s", assertion.getID(),
+						((Response) assertion.getParent()).getID(), ex.getMessage());
+				return Saml2ResponseValidatorResult.failure(new Saml2Error(Saml2ErrorCodes.INVALID_ASSERTION, message));
+			}
+			String message = String.format("Invalid assertion [%s] for SAML response [%s]: %s", assertion.getID(),
+					((Response) assertion.getParent()).getID(), validationContext.getValidationFailureMessages());
+			return Saml2ResponseValidatorResult.failure(new Saml2Error(Saml2ErrorCodes.INVALID_ASSERTION, message));
+		}
+
+		/**
+		 * Validate this assertion
+		 * @param token the assertion to validate
+		 * @return the validation result
+		 */
+		public Saml2ResponseValidatorResult validate(AssertionToken token) {
+			return convert(token);
+		}
+
+		/**
+		 * Mutate the map of OpenSAML {@link ValidationContext} parameters using the given
+		 * {@code paramsConsumer}
+		 * @param paramsConsumer the context parameters mutator
+		 */
+		public void setValidationContextParameters(Consumer<Map<String, Object>> paramsConsumer) {
+			this.paramsConsumer = paramsConsumer;
+		}
+
+		private ValidationContext createValidationContext(AssertionToken assertionToken) {
+			Saml2AuthenticationToken token = assertionToken.getToken();
+			RelyingPartyRegistration relyingPartyRegistration = token.getRelyingPartyRegistration();
+			String audience = relyingPartyRegistration.getEntityId();
+			String recipient = relyingPartyRegistration.getAssertionConsumerServiceLocation();
+			String assertingPartyEntityId = relyingPartyRegistration.getAssertingPartyMetadata().getEntityId();
+			Map<String, Object> params = new HashMap<>();
+			Assertion assertion = assertionToken.getAssertion();
+			if (assertionContainsInResponseTo(assertion)) {
+				String requestId = getAuthnRequestId(token.getAuthenticationRequest());
+				params.put(SAML2AssertionValidationParameters.SC_VALID_IN_RESPONSE_TO, requestId);
+			}
+			params.put(SAML2AssertionValidationParameters.COND_VALID_AUDIENCES, Collections.singleton(audience));
+			params.put(SAML2AssertionValidationParameters.SC_VALID_RECIPIENTS, Collections.singleton(recipient));
+			params.put(SAML2AssertionValidationParameters.VALID_ISSUERS, Collections.singleton(assertingPartyEntityId));
+			params.put(SAML2AssertionValidationParameters.SC_CHECK_ADDRESS, false);
+			this.paramsConsumer.accept(params);
+			return new ValidationContext(params);
+		}
+
+		private static boolean assertionContainsInResponseTo(Assertion assertion) {
+			if (assertion.getSubject() == null) {
+				return false;
+			}
+			for (SubjectConfirmation confirmation : assertion.getSubject().getSubjectConfirmations()) {
+				SubjectConfirmationData confirmationData = confirmation.getSubjectConfirmationData();
+				if (confirmationData == null) {
+					continue;
+				}
+				if (StringUtils.hasText(confirmationData.getInResponseTo())) {
+					return true;
+				}
+			}
+			return false;
+		}
+
+		private static String getAuthnRequestId(AbstractSaml2AuthenticationRequest serialized) {
+			return (serialized != null) ? serialized.getId() : null;
+		}
+
+		/**
+		 * Create the default assertion validator
+		 * @return the default assertion validator
+		 */
+		public static AssertionValidator withDefaults() {
+			return new Builder().build();
+		}
+
+		/**
+		 * Use a builder to configure aspects of the validator
+		 * @return the {@link Builder} for configuration {@link AssertionValidator}
+		 */
+		public static Builder builder() {
+			return new Builder();
+		}
+
+		public static final class Builder {
+
+			private final List<ConditionValidator> conditions = new ArrayList<>();
+
+			private final List<SubjectConfirmationValidator> subjects = new ArrayList<>();
+
+			private final Map<String, Object> validationParameters = new HashMap<>();
+
+			private Builder() {
+				this.conditions.add(new AudienceRestrictionConditionValidator());
+				this.conditions.add(new DelegationRestrictionConditionValidator());
+				this.conditions.add(new ValidConditionValidator(OneTimeUse.DEFAULT_ELEMENT_NAME));
+				this.conditions.add(new ProxyRestrictionConditionValidator());
+				this.subjects.add(new BearerSubjectConfirmationValidator());
+				this.validationParameters.put(SAML2AssertionValidationParameters.CLOCK_SKEW, Duration.ofMinutes(5));
+			}
+
+			/**
+			 * Use this clock skew for validating assertion timestamps. The default is 5
+			 * minutes.
+			 * @param duration the duration to use
+			 * @return the {@link Builder} for further configuration
+			 */
+			public Builder clockSkew(Duration duration) {
+				this.validationParameters.put(SAML2AssertionValidationParameters.CLOCK_SKEW, duration);
+				return this;
+			}
+
+			/**
+			 * Mutate the map of {@link ValidationContext} static parameters. By default,
+			 * these include:
+			 * <ul>
+			 * <li>{@link SAML2AssertionValidationParameters#SC_VALID_IN_RESPONSE_TO}</li>>
+			 * <li>{@link SAML2AssertionValidationParameters#COND_VALID_AUDIENCES}</li>>
+			 * <li>{@link SAML2AssertionValidationParameters#SC_VALID_RECIPIENTS}</li>>
+			 * <li>{@link SAML2AssertionValidationParameters#VALID_ISSUERS}</li>>
+			 * <li>{@link SAML2AssertionValidationParameters#SC_CHECK_ADDRESS}</li>>
+			 * <li>{@link SAML2AssertionValidationParameters#CLOCK_SKEW}</li>>
+			 * </ul>
+			 *
+			 * Note that several of these are required by various validation steps, for
+			 * example {@code COND_VALID_AUDIENCES} is needed by
+			 * {@link BearerSubjectConfirmationValidator}. If you do not want these, the
+			 * best way to remove them is to remove the {@link #conditionValidators} or
+			 * {@link #subjectValidators} themselves
+			 * @param parameters the mutator to change the set of parameters
+			 * @return
+			 */
+			public Builder validationContextParameters(Consumer<Map<String, Object>> parameters) {
+				parameters.accept(this.validationParameters);
+				return this;
+			}
+
+			/**
+			 * Mutate the list of {@link ConditionValidator}s. By default, these include:
+			 * <ul>
+			 * <li>{@link AudienceRestrictionConditionValidator}</li>
+			 * <li>{@link DelegationRestrictionConditionValidator}</li>
+			 * <li>{@link ProxyRestrictionConditionValidator}</li>
+			 * </ul>
+			 * Note that it also adds a validator that skips the {@code saml2:OneTimeUse}
+			 * element since this validator does not have caching facilities. However, you
+			 * can construct your own instance of
+			 * {@link org.opensaml.saml.saml2.assertion.impl.OneTimeUseConditionValidator}
+			 * and supply it here.
+			 * @param conditions the mutator for changing the list of conditions to use
+			 * @return the {@link Builder} for further configuration
+			 */
+			public Builder conditionValidators(Consumer<List<ConditionValidator>> conditions) {
+				conditions.accept(this.conditions);
+				return this;
+			}
+
+			/**
+			 * Mutate the list of {@link ConditionValidator}s.
+			 * <p>
+			 * By default it only has {@link BearerSubjectConfirmationValidator} for which
+			 * address validation is skipped.
+			 *
+			 * To turn address validation on, use
+			 * {@link #validationContextParameters(Consumer)} to set the
+			 * {@link SAML2AssertionValidationParameters#SC_CHECK_ADDRESS} value.
+			 * @param subjects the mutator for changing the list of conditions to use
+			 * @return the {@link Builder} for further configuration
+			 */
+			public Builder subjectValidators(Consumer<List<SubjectConfirmationValidator>> subjects) {
+				subjects.accept(this.subjects);
+				return this;
+			}
+
+			/**
+			 * Build the {@link AssertionValidator}
+			 * @return the {@link AssertionValidator}
+			 */
+			public AssertionValidator build() {
+				AssertionValidator validator = new AssertionValidator(new ValidSignatureAssertionValidator(
+						this.conditions, this.subjects, List.of(), null, null, null));
+				validator.setValidationContextParameters((params) -> params.putAll(this.validationParameters));
+				return validator;
+			}
+
+		}
+
+		private static final class ValidConditionValidator implements ConditionValidator {
+
+			private final QName name;
+
+			private ValidConditionValidator(QName name) {
+				this.name = name;
+			}
+
+			@Nonnull
+			@Override
+			public QName getServicedCondition() {
+				return this.name;
+			}
+
+			@Nonnull
+			@Override
+			public ValidationResult validate(@Nonnull Condition condition, @Nonnull Assertion assertion,
+					@Nonnull ValidationContext context) {
+				return ValidationResult.VALID;
+			}
+
+		}
+
+		private static final class ValidSignatureAssertionValidator extends SAML20AssertionValidator {
+
+			private ValidSignatureAssertionValidator(@Nullable Collection<ConditionValidator> newConditionValidators,
+					@Nullable Collection<SubjectConfirmationValidator> newConfirmationValidators,
+					@Nullable Collection<StatementValidator> newStatementValidators,
+					@Nullable org.opensaml.saml.saml2.assertion.AssertionValidator newAssertionValidator,
+					@Nullable SignatureTrustEngine newTrustEngine,
+					@Nullable SignaturePrevalidator newSignaturePrevalidator) {
+				super(newConditionValidators, newConfirmationValidators, newStatementValidators, newAssertionValidator,
+						newTrustEngine, newSignaturePrevalidator);
+			}
+
+			@Nonnull
+			@Override
+			protected ValidationResult validateSignature(@Nonnull Assertion token, @Nonnull ValidationContext context)
+					throws AssertionValidationException {
+				return ValidationResult.VALID;
+			}
+
 		}
 
 	}
