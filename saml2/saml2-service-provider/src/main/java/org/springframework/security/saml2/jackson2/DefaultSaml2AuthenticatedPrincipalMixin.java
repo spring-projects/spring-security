@@ -38,7 +38,6 @@ import org.springframework.security.saml2.provider.service.authentication.Defaul
  *
  * @author Ulrich Grave
  * @since 5.7
- * @see DefaultSaml2AuthenticatedPrincipalDeserializer
  * @see Saml2Jackson2Module
  * @see SecurityJackson2Modules
  */
