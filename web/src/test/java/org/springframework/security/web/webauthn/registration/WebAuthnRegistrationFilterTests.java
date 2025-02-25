@@ -116,7 +116,7 @@ class WebAuthnRegistrationFilterTests {
 		RequestMatcher requestMatcher = mock(RequestMatcher.class);
 		this.filter.setRegisterCredentialMatcher(requestMatcher);
 		FilterChain mock = mock(FilterChain.class);
-		this.filter.doFilter(request, response, mock);
+		this.filter.doFilter(this.request, this.response, mock);
 		verify(requestMatcher).matches(any());
 	}
 
@@ -125,7 +125,7 @@ class WebAuthnRegistrationFilterTests {
 		RequestMatcher requestMatcher = mock(RequestMatcher.class);
 		this.filter.setRemoveCredentialMatcher(requestMatcher);
 		FilterChain mock = mock(FilterChain.class);
-		this.filter.doFilter(request, response, mock);
+		this.filter.doFilter(this.request, this.response, mock);
 		verify(requestMatcher).matches(any());
 	}
 

@@ -95,7 +95,7 @@ class PublicKeyCredentialCreationOptionsFilterTests {
 		RequestMatcher requestMatcher = mock(RequestMatcher.class);
 		this.filter.setRequestMatcher(requestMatcher);
 		FilterChain mock = mock(FilterChain.class);
-		this.filter.doFilter(request, response, mock);
+		this.filter.doFilter(this.request, this.response, mock);
 		verify(requestMatcher).matches(any());
 	}
 
