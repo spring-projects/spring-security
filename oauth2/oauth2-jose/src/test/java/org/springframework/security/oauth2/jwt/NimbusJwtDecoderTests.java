@@ -832,6 +832,28 @@ public class NimbusJwtDecoderTests {
 		// @formatter:on
 	}
 
+	@Test
+	public void decodeWhenPublicKeyValidateTypeFalseThenSkipsNimbusTypeValidation() throws Exception {
+		NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withPublicKey(TestKeys.DEFAULT_PUBLIC_KEY)
+			.validateType(false)
+			.build();
+		RSAPrivateKey privateKey = TestKeys.DEFAULT_PRIVATE_KEY;
+		SignedJWT jwt = signedJwt(privateKey,
+				new JWSHeader.Builder(JWSAlgorithm.RS256).type(JOSEObjectType.JOSE).build(),
+				new JWTClaimsSet.Builder().subject("subject").build());
+		jwtDecoder.decode(jwt.serialize());
+	}
+
+	@Test
+	public void decodeWhenSecretKeyValidateTypeFalseThenSkipsNimbusTypeValidation() throws Exception {
+		NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withSecretKey(TestKeys.DEFAULT_SECRET_KEY)
+			.validateType(false)
+			.build();
+		SignedJWT jwt = signedJwt(TestKeys.DEFAULT_SECRET_KEY, MacAlgorithm.HS256,
+				new JWTClaimsSet.Builder().subject("subject").build());
+		jwtDecoder.decode(jwt.serialize());
+	}
+
 	private RSAPublicKey key() throws InvalidKeySpecException {
 		byte[] decoded = Base64.getDecoder().decode(VERIFY_KEY.getBytes());
 		EncodedKeySpec spec = new X509EncodedKeySpec(decoded);
