@@ -91,7 +91,7 @@ http {
 
 Xml::
 +
-[source,kotlin,role="secondary"]
+[source,xml,role="secondary"]
 ----
 <http entry-point-ref="myEntryPoint">
     <!-- ... -->
