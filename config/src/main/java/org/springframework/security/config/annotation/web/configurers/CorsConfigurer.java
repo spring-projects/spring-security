@@ -24,6 +24,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.PreFlightRequestHandler;
 import org.springframework.web.filter.CorsFilter;
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
@@ -109,13 +110,14 @@ public class CorsConfigurer<H extends HttpSecurityBuilder<H>> extends AbstractHt
 		private static CorsFilter getMvcCorsFilter(ApplicationContext context) {
 			if (!context.containsBean(HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME)) {
 				throw new NoSuchBeanDefinitionException(HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME, "A Bean named "
-						+ HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME + " of type "
-						+ HandlerMappingIntrospector.class.getName()
+						+ HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME + " of type " + PreFlightRequestHandler.class.getName()
 						+ " is required to use MvcRequestMatcher. Please ensure Spring Security & Spring MVC are configured in a shared ApplicationContext.");
 			}
-			HandlerMappingIntrospector mappingIntrospector = context.getBean(HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME,
-					HandlerMappingIntrospector.class);
-			return new CorsFilter(mappingIntrospector);
+			PreFlightRequestHandler mappingIntrospector = context.getBean(HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME,
+					PreFlightRequestHandler.class);
+			Assert.isInstanceOf(CorsConfigurationSource.class, mappingIntrospector,
+					() -> "mappingIntrospector must implement " + CorsConfigurationSource.class.getName());
+			return new CorsFilter((CorsConfigurationSource) mappingIntrospector);
 		}
 
 	}
