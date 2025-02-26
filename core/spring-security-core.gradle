@@ -16,6 +16,7 @@ dependencies {
 	api 'io.micrometer:micrometer-observation'
 
 	optional 'com.fasterxml.jackson.core:jackson-databind'
+	optional 'io.micrometer:context-propagation'
 	optional 'io.projectreactor:reactor-core'
 	optional 'jakarta.annotation:jakarta.annotation-api'
 	optional 'org.aspectj:aspectjrt'

@@ -19,15 +19,22 @@ package org.springframework.security.oauth2.client.web;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
 import java.util.function.Function;
 
+import io.micrometer.context.ContextExecutorService;
+import io.micrometer.context.ContextSnapshotFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import reactor.core.publisher.Hooks;
 import reactor.core.publisher.Mono;
 import reactor.test.publisher.PublisherProbe;
 import reactor.util.context.Context;
 
+import org.springframework.core.task.SimpleAsyncTaskExecutor;
+import org.springframework.core.task.support.ExecutorServiceAdapter;
 import org.springframework.http.MediaType;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
@@ -563,6 +570,41 @@ public class DefaultReactiveOAuth2AuthorizedClientManagerTests {
 		String[] requestScopeAttribute = authorizationContext
 			.getAttribute(OAuth2AuthorizationContext.REQUEST_SCOPE_ATTRIBUTE_NAME);
 		assertThat(requestScopeAttribute).contains("read", "write");
+	}
+
+	@Test
+	public void authorizeWhenBlockingExecutionAndContextPropagationEnabledThenContextPropagated()
+			throws InterruptedException {
+		Hooks.enableAutomaticContextPropagation();
+		given(this.clientRegistrationRepository.findByRegistrationId(eq(this.clientRegistration.getRegistrationId())))
+			.willReturn(Mono.just(this.clientRegistration));
+		given(this.authorizedClientProvider.authorize(any(OAuth2AuthorizationContext.class)))
+			.willReturn(Mono.just(this.authorizedClient));
+		OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest
+			.withClientRegistrationId(this.clientRegistration.getRegistrationId())
+			.principal(this.principal)
+			.build();
+
+		CountDownLatch countDownLatch = new CountDownLatch(1);
+		Runnable task = () -> {
+			try {
+				OAuth2AuthorizedClient authorizedClient = this.authorizedClientManager.authorize(authorizeRequest)
+					.block();
+				assertThat(authorizedClient).isSameAs(this.authorizedClient);
+			}
+			finally {
+				countDownLatch.countDown();
+			}
+		};
+		try (SimpleAsyncTaskExecutor taskExecutor = new SimpleAsyncTaskExecutor()) {
+			ContextSnapshotFactory contextSnapshotFactory = ContextSnapshotFactory.builder().build();
+			ExecutorService executorService = ContextExecutorService.wrap(new ExecutorServiceAdapter(taskExecutor),
+					contextSnapshotFactory);
+			Mono.fromRunnable(() -> executorService.execute(task)).contextWrite(this.context).block();
+		}
+
+		countDownLatch.await();
+		verify(this.authorizedClientProvider).authorize(any(OAuth2AuthorizationContext.class));
 	}
 
 	private Mono<ServerWebExchange> currentServerWebExchange() {
