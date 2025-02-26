@@ -240,6 +240,10 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 	}
 
 	private RuntimeBeanReference createPortResolver(BeanReference portMapper, ParserContext pc) {
+		String beanName = "portResolver";
+		if (pc.getRegistry().containsBeanDefinition(beanName)) {
+			return new RuntimeBeanReference(beanName);
+		}
 		RootBeanDefinition portResolver = new RootBeanDefinition(PortResolverImpl.class);
 		portResolver.getPropertyValues().addPropertyValue("portMapper", portMapper);
 		String portResolverName = pc.getReaderContext().generateBeanName(portResolver);

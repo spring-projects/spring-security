@@ -21,6 +21,7 @@ import java.util.Collections;
 
 import jakarta.servlet.http.HttpServletRequest;
 
+import org.springframework.context.ApplicationContext;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -28,6 +29,7 @@ import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.PortMapper;
+import org.springframework.security.web.PortResolver;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -272,6 +274,10 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 		if (portMapper != null) {
 			this.authenticationEntryPoint.setPortMapper(portMapper);
 		}
+		PortResolver portResolver = getBeanOrNull(http, PortResolver.class);
+		if (portResolver != null) {
+			this.authenticationEntryPoint.setPortResolver(portResolver);
+		}
 		RequestCache requestCache = http.getSharedObject(RequestCache.class);
 		if (requestCache != null) {
 			this.defaultSuccessHandler.setRequestCache(requestCache);
@@ -410,6 +416,14 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 	private void setLoginPage(String loginPage) {
 		this.loginPage = loginPage;
 		this.authenticationEntryPoint = new LoginUrlAuthenticationEntryPoint(loginPage);
+	}
+
+	private <C> C getBeanOrNull(B http, Class<C> clazz) {
+		ApplicationContext context = http.getSharedObject(ApplicationContext.class);
+		if (context == null) {
+			return null;
+		}
+		return context.getBeanProvider(clazz).getIfUnique();
 	}
 
 	@SuppressWarnings("unchecked")
