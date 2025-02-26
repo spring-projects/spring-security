@@ -19,9 +19,9 @@ package org.springframework.security.core.annotation;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Factory for creating {@link SecurityAnnotationScanner} instances.
@@ -31,11 +31,11 @@ import java.util.Map;
  */
 public final class SecurityAnnotationScanners {
 
-	private static final Map<Class<? extends Annotation>, SecurityAnnotationScanner<? extends Annotation>> uniqueScanners = new HashMap<>();
+	private static final Map<Class<? extends Annotation>, SecurityAnnotationScanner<? extends Annotation>> uniqueScanners = new ConcurrentHashMap<>();
 
-	private static final Map<Class<? extends Annotation>, SecurityAnnotationScanner<? extends Annotation>> uniqueTemplateScanners = new HashMap<>();
+	private static final Map<Class<? extends Annotation>, SecurityAnnotationScanner<? extends Annotation>> uniqueTemplateScanners = new ConcurrentHashMap<>();
 
-	private static final Map<List<Class<? extends Annotation>>, SecurityAnnotationScanner<? extends Annotation>> uniqueTypesScanners = new HashMap<>();
+	private static final Map<List<Class<? extends Annotation>>, SecurityAnnotationScanner<? extends Annotation>> uniqueTypesScanners = new ConcurrentHashMap<>();
 
 	private SecurityAnnotationScanners() {
 	}
