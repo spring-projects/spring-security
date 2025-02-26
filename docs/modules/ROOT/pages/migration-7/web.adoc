@@ -102,3 +102,46 @@ Xml::
 </b:bean>
 ----
 ======
+
+== PortResolver
+
+Spring Security uses an API called `PortResolver` to provide a workaround for a bug in Internet Explorer.
+The workaround is no longer necessary and can cause users problems in some scenarios.
+For this reason, Spring Security 7 will remove the `PortResolver` interface.
+
+To prepare for this change, users should expose the `PortResolver.NO_OP` as a Bean named `portResolver`.
+This ensures that the `PortResolver` implementation that is used is a no-op (e.g. does nothing) which simulates the removal of `PortResolver`.
+An example configuration can be found below:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Bean
+PortResolver portResolver() {
+	return PortResolver.NO_OP;
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Bean
+open fun portResolver(): PortResolver {
+    return PortResolver.NO_OP
+}
+----
+
+Xml::
++
+[source,xml,role="secondary"]
+----
+
+<util:constant id="portResolver"
+    static-field="org.springframework.security.web.PortResolver.NO_OP">
+----
+======
+

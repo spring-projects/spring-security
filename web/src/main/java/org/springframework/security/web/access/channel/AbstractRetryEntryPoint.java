@@ -86,11 +86,13 @@ public abstract class AbstractRetryEntryPoint implements ChannelEntryPoint {
 		this.portMapper = portMapper;
 	}
 
+	@Deprecated(forRemoval = true)
 	public void setPortResolver(PortResolver portResolver) {
 		Assert.notNull(portResolver, "portResolver cannot be null");
 		this.portResolver = portResolver;
 	}
 
+	@Deprecated(forRemoval = true)
 	protected final PortResolver getPortResolver() {
 		return this.portResolver;
 	}

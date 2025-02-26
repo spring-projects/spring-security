@@ -100,11 +100,21 @@ public class DefaultSavedRequest implements SavedRequest {
 
 	private final String matchingRequestParameterName;
 
+	public DefaultSavedRequest(HttpServletRequest request) {
+		this(request, (String) null);
+	}
+
+	public DefaultSavedRequest(HttpServletRequest request, String matchingRequestParameterName) {
+		this(request, PortResolver.NO_OP, matchingRequestParameterName);
+	}
+
+	@Deprecated(forRemoval = true)
 	public DefaultSavedRequest(HttpServletRequest request, PortResolver portResolver) {
 		this(request, portResolver, null);
 	}
 
 	@SuppressWarnings("unchecked")
+	@Deprecated(forRemoval = true)
 	public DefaultSavedRequest(HttpServletRequest request, PortResolver portResolver,
 			String matchingRequestParameterName) {
 		Assert.notNull(request, "Request required");
@@ -221,7 +231,10 @@ public class DefaultSavedRequest implements SavedRequest {
 	 * @param request the actual request to be matched against this one
 	 * @param portResolver used to obtain the server port of the request
 	 * @return true if the request is deemed to match this one.
+	 * @deprecated This is deprecated for removal. Users can compare
+	 * {@link #getRedirectUrl()} to the {@link HttpServletRequest} URL instead.
 	 */
+	@Deprecated(forRemoval = true)
 	public boolean doesRequestMatch(HttpServletRequest request, PortResolver portResolver) {
 		if (!propertyEquals(this.pathInfo, request.getPathInfo())) {
 			return false;
