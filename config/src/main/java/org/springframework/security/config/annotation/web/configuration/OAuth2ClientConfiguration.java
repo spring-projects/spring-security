@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,9 +34,8 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.context.annotation.AnnotationBeanNameGenerator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -163,7 +162,7 @@ final class OAuth2ClientConfiguration {
 	 * @since 6.2.0
 	 */
 	static final class OAuth2AuthorizedClientManagerRegistrar
-			implements ApplicationContextAware, BeanDefinitionRegistryPostProcessor, BeanFactoryAware {
+			implements ApplicationEventPublisherAware, BeanDefinitionRegistryPostProcessor, BeanFactoryAware {
 
 		static final String BEAN_NAME = "authorizedClientManagerRegistrar";
 
@@ -182,7 +181,7 @@ final class OAuth2ClientConfiguration {
 
 		private final AnnotationBeanNameGenerator beanNameGenerator = new AnnotationBeanNameGenerator();
 
-		private ApplicationEventPublisher eventPublisher;
+		private ApplicationEventPublisher applicationEventPublisher;
 
 		private ListableBeanFactory beanFactory;
 
@@ -307,8 +306,8 @@ final class OAuth2ClientConfiguration {
 				authorizedClientProvider.setAccessTokenResponseClient(accessTokenResponseClient);
 			}
 
-			if (this.eventPublisher != null) {
-				authorizedClientProvider.setApplicationEventPublisher(this.eventPublisher);
+			if (this.applicationEventPublisher != null) {
+				authorizedClientProvider.setApplicationEventPublisher(this.applicationEventPublisher);
 			}
 
 			return authorizedClientProvider;
@@ -433,8 +432,8 @@ final class OAuth2ClientConfiguration {
 		}
 
 		@Override
-		public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-			this.eventPublisher = applicationContext;
+		public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
+			this.applicationEventPublisher = applicationEventPublisher;
 		}
 
 	}

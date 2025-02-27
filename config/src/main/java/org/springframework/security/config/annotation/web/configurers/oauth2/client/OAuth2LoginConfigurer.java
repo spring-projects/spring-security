@@ -57,7 +57,7 @@ import org.springframework.security.oauth2.client.endpoint.DefaultAuthorizationC
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
 import org.springframework.security.oauth2.client.oidc.authentication.OidcAuthorizationCodeAuthenticationProvider;
-import org.springframework.security.oauth2.client.oidc.authentication.RefreshOidcIdTokenHandler;
+import org.springframework.security.oauth2.client.oidc.authentication.OidcAuthorizedClientRefreshedEventListener;
 import org.springframework.security.oauth2.client.oidc.session.InMemoryOidcSessionRegistry;
 import org.springframework.security.oauth2.client.oidc.session.OidcSessionInformation;
 import org.springframework.security.oauth2.client.oidc.session.OidcSessionRegistry;
@@ -91,6 +91,7 @@ import org.springframework.security.web.authentication.LoginUrlAuthenticationEnt
 import org.springframework.security.web.authentication.session.SessionAuthenticationException;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
+import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.util.matcher.AndRequestMatcher;
@@ -387,23 +388,26 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 			OAuth2UserService<OidcUserRequest, OidcUser> oidcUserService = getOidcUserService();
 			OidcAuthorizationCodeAuthenticationProvider oidcAuthorizationCodeAuthenticationProvider = new OidcAuthorizationCodeAuthenticationProvider(
 					accessTokenResponseClient, oidcUserService);
+			OidcAuthorizedClientRefreshedEventListener oidcAuthorizedClientRefreshedEventListener = new OidcAuthorizedClientRefreshedEventListener();
+			oidcAuthorizedClientRefreshedEventListener.setUserService(oidcUserService);
+			oidcAuthorizedClientRefreshedEventListener
+				.setApplicationEventPublisher(http.getSharedObject(ApplicationContext.class));
+
 			JwtDecoderFactory<ClientRegistration> jwtDecoderFactory = this.getJwtDecoderFactoryBean();
 			if (jwtDecoderFactory != null) {
 				oidcAuthorizationCodeAuthenticationProvider.setJwtDecoderFactory(jwtDecoderFactory);
+				oidcAuthorizedClientRefreshedEventListener.setJwtDecoderFactory(jwtDecoderFactory);
 			}
 			if (userAuthoritiesMapper != null) {
 				oidcAuthorizationCodeAuthenticationProvider.setAuthoritiesMapper(userAuthoritiesMapper);
+				oidcAuthorizedClientRefreshedEventListener.setAuthoritiesMapper(userAuthoritiesMapper);
 			}
-			http.authenticationProvider(this.postProcess(oidcAuthorizationCodeAuthenticationProvider));
+			oidcAuthorizationCodeAuthenticationProvider = this.postProcess(oidcAuthorizationCodeAuthenticationProvider);
+			http.authenticationProvider(oidcAuthorizationCodeAuthenticationProvider);
 
-			RefreshOidcIdTokenHandler refreshOidcIdTokenHandler = new RefreshOidcIdTokenHandler();
-			if (this.getSecurityContextHolderStrategy() != null) {
-				refreshOidcIdTokenHandler.setSecurityContextHolderStrategy(this.getSecurityContextHolderStrategy());
-			}
-			if (jwtDecoderFactory != null) {
-				refreshOidcIdTokenHandler.setJwtDecoderFactory(jwtDecoderFactory);
-			}
-			registerDelegateApplicationListener(refreshOidcIdTokenHandler);
+			oidcAuthorizedClientRefreshedEventListener = this.postProcess(oidcAuthorizedClientRefreshedEventListener);
+			registerDelegateApplicationListener(oidcAuthorizedClientRefreshedEventListener);
+			configureOidcUserRefreshedEventListener(http);
 		}
 		else {
 			http.authenticationProvider(new OidcAuthenticationRequestChecker());
@@ -629,6 +633,16 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		OidcClientSessionEventListener listener = new OidcClientSessionEventListener();
 		listener.setSessionRegistry(sessionRegistry);
 		registerDelegateApplicationListener(listener);
+	}
+
+	private void configureOidcUserRefreshedEventListener(B http) {
+		OidcUserRefreshedEventListener oidcUserRefreshedEventListener = new OidcUserRefreshedEventListener();
+		oidcUserRefreshedEventListener.setSecurityContextHolderStrategy(this.getSecurityContextHolderStrategy());
+		SecurityContextRepository securityContextRepository = http.getSharedObject(SecurityContextRepository.class);
+		if (securityContextRepository != null) {
+			oidcUserRefreshedEventListener.setSecurityContextRepository(securityContextRepository);
+		}
+		registerDelegateApplicationListener(oidcUserRefreshedEventListener);
 	}
 
 	private void registerDelegateApplicationListener(ApplicationListener<?> delegate) {
