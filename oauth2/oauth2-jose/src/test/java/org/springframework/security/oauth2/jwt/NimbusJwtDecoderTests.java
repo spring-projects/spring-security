@@ -849,7 +849,8 @@ public class NimbusJwtDecoderTests {
 		NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withSecretKey(TestKeys.DEFAULT_SECRET_KEY)
 			.validateType(false)
 			.build();
-		SignedJWT jwt = signedJwt(TestKeys.DEFAULT_SECRET_KEY, MacAlgorithm.HS256,
+		SignedJWT jwt = signedJwt(TestKeys.DEFAULT_SECRET_KEY,
+				new JWSHeader.Builder(JWSAlgorithm.HS256).type(JOSEObjectType.JOSE).build(),
 				new JWTClaimsSet.Builder().subject("subject").build());
 		jwtDecoder.decode(jwt.serialize());
 	}

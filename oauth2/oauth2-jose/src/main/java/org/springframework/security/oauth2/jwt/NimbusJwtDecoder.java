@@ -279,8 +279,7 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 		private Function<JWKSource<SecurityContext>, Set<JWSAlgorithm>> defaultAlgorithms = (source) -> Set
 			.of(JWSAlgorithm.RS256);
 
-		private JOSEObjectTypeVerifier<SecurityContext> typeVerifier = new DefaultJOSEObjectTypeVerifier<>(
-				JOSEObjectType.JWT, null);
+		private JOSEObjectTypeVerifier<SecurityContext> typeVerifier = JWT_TYPE_VERIFIER;
 
 		private Set<SignatureAlgorithm> signatureAlgorithms = new HashSet<>();
 
@@ -332,7 +331,8 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 		 *     NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withIssuerLocation(issuer)
 		 *         .validateType(false)
 		 *         .build();
-		 *     jwtDecoder.setJwtValidator(JwtValidators.createDefaultWithIssuer(issuer);
+		 *     jwtDecoder.setJwtValidator(JwtValidators.createDefaultWithValidators(
+		 *     		new JwtIssuerValidator(issuer), JwtTypeValidator.jwt());
 		 * </code>
 		 *
 		 * <p>
@@ -550,8 +550,7 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 
 		private JWSAlgorithm jwsAlgorithm;
 
-		private JOSEObjectTypeVerifier<SecurityContext> typeVerifier = new DefaultJOSEObjectTypeVerifier<>(
-				JOSEObjectType.JWT, null);
+		private JOSEObjectTypeVerifier<SecurityContext> typeVerifier = JWT_TYPE_VERIFIER;
 
 		private RSAPublicKey key;
 
@@ -590,7 +589,8 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 		 *     NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withIssuerLocation(issuer)
 		 *         .validateType(false)
 		 *         .build();
-		 *     jwtDecoder.setJwtValidator(JwtValidators.createDefaultWithIssuer(issuer);
+		 *     jwtDecoder.setJwtValidator(JwtValidators.createDefaultWithValidators(
+		 *     		new JwtIssuerValidator(issuer), JwtTypeValidator.jwt());
 		 * </code>
 		 *
 		 * <p>
@@ -686,8 +686,7 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 
 		private JWSAlgorithm jwsAlgorithm = JWSAlgorithm.HS256;
 
-		private JOSEObjectTypeVerifier<SecurityContext> typeVerifier = new DefaultJOSEObjectTypeVerifier<>(
-				JOSEObjectType.JWT, null);
+		private JOSEObjectTypeVerifier<SecurityContext> typeVerifier = JWT_TYPE_VERIFIER;
 
 		private Consumer<ConfigurableJWTProcessor<SecurityContext>> jwtProcessorCustomizer;
 
@@ -723,7 +722,8 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 		 *     NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withIssuerLocation(issuer)
 		 *         .validateType(false)
 		 *         .build();
-		 *     jwtDecoder.setJwtValidator(JwtValidators.createDefaultWithIssuer(issuer);
+		 *     jwtDecoder.setJwtValidator(JwtValidators.createDefaultWithValidators(
+		 *     		new JwtIssuerValidator(issuer), JwtTypeValidator.jwt());
 		 * </code>
 		 *
 		 * <p>
