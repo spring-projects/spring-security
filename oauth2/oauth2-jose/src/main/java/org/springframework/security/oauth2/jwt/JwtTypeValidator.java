@@ -36,13 +36,17 @@ import org.springframework.util.StringUtils;
  */
 public final class JwtTypeValidator implements OAuth2TokenValidator<Jwt> {
 
-	private Collection<String> validTypes;
+	private final Collection<String> validTypes;
 
 	private boolean allowEmpty;
 
 	public JwtTypeValidator(Collection<String> validTypes) {
 		Assert.notEmpty(validTypes, "validTypes cannot be empty");
 		this.validTypes = new ArrayList<>(validTypes);
+	}
+
+	public JwtTypeValidator(String... validTypes) {
+		this(List.of(validTypes));
 	}
 
 	/**

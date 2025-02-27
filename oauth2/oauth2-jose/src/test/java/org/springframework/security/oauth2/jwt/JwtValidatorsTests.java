@@ -18,12 +18,14 @@ package org.springframework.security.oauth2.jwt;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 
 import org.junit.jupiter.api.Test;
 
 import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
+import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.util.CollectionUtils;
 
@@ -66,6 +68,40 @@ public class JwtValidatorsTests {
 	@Test
 	public void createWhenEmptyValidatorsThenThrowsException() {
 		assertThatException().isThrownBy(() -> JwtValidators.createDefaultWithValidators(Collections.emptyList()));
+	}
+
+	@Test
+	public void createAtJwtWhenIssuerClientIdAudienceThenBuilds() {
+		Jwt.Builder builder = TestJwts.jwt();
+		OAuth2TokenValidator<Jwt> validator = JwtValidators.createAtJwtValidator()
+			.audience("audience")
+			.clientId("clientId")
+			.issuer("issuer")
+			.build();
+
+		OAuth2TokenValidatorResult result = validator.validate(builder.build());
+		assertThat(result.getErrors().toString()).contains("at+jwt")
+			.contains("aud")
+			.contains("client_id")
+			.contains("iss");
+
+		result = validator.validate(builder.header(JoseHeaderNames.TYP, "JWT").build());
+		assertThat(result.getErrors().toString()).contains("at+jwt");
+
+		result = validator.validate(builder.header(JoseHeaderNames.TYP, "at+jwt").build());
+		assertThat(result.getErrors().toString()).doesNotContain("at+jwt");
+
+		result = validator.validate(builder.header(JoseHeaderNames.TYP, "application/at+jwt").build());
+		assertThat(result.getErrors().toString()).doesNotContain("at+jwt");
+
+		result = validator.validate(builder.audience(List.of("audience")).build());
+		assertThat(result.getErrors().toString()).doesNotContain("aud");
+
+		result = validator.validate(builder.claim("client_id", "clientId").build());
+		assertThat(result.getErrors().toString()).doesNotContain("client_id");
+
+		result = validator.validate(builder.issuer("issuer").build());
+		assertThat(result.getErrors().toString()).doesNotContain("iss");
 	}
 
 	@SuppressWarnings("unchecked")
