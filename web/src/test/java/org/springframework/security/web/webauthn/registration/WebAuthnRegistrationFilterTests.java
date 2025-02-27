@@ -27,6 +27,7 @@ import org.skyscreamer.jsonassert.JSONAssert;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.GenericHttpMessageConverter;
+import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockServletContext;
@@ -74,6 +75,8 @@ class WebAuthnRegistrationFilterTests {
 	@Mock
 	private FilterChain chain;
 
+	private MockHttpServletRequest request = new MockHttpServletRequest();
+
 	private MockHttpServletResponse response = new MockHttpServletResponse();
 
 	private static final String REGISTRATION_REQUEST_BODY = """
@@ -101,32 +104,26 @@ class WebAuthnRegistrationFilterTests {
 
 	private WebAuthnRegistrationFilter filter;
 
-	private MockHttpServletRequest request;
-
 	@BeforeEach
 	void setup() {
 		this.filter = new WebAuthnRegistrationFilter(this.userCredentials, this.operations);
-		this.request = new MockHttpServletRequest();
-		this.response = new MockHttpServletResponse();
-		this.chain = mock(FilterChain.class);
 	}
 
 	@Test
 	void doFilterWhenCustomRequestRegisterCredentialMatcherThenUses() throws Exception {
 		RequestMatcher requestMatcher = mock(RequestMatcher.class);
 		this.filter.setRegisterCredentialMatcher(requestMatcher);
-		FilterChain mock = mock(FilterChain.class);
-		this.filter.doFilter(this.request, this.response, mock);
+		this.filter.doFilter(this.request, this.response, new MockFilterChain());
 		verify(requestMatcher).matches(any());
 	}
 
 	@Test
 	void doFilterWhenCustomRequestRemoveCredentialMatcherThenUses() throws Exception {
 		RequestMatcher requestMatcher = mock(RequestMatcher.class);
+		given(requestMatcher.matcher(any())).willReturn(RequestMatcher.MatchResult.notMatch());
 		this.filter.setRemoveCredentialMatcher(requestMatcher);
-		FilterChain mock = mock(FilterChain.class);
-		this.filter.doFilter(this.request, this.response, mock);
-		verify(requestMatcher).matches(any());
+		this.filter.doFilter(this.request, this.response, new MockFilterChain());
+		verify(requestMatcher).matcher(any());
 	}
 
 	@Test
