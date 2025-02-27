@@ -130,7 +130,7 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 	 * Decode and validate the JWT from its compact claims representation format
 	 * @param token the JWT value
 	 * @return a validated {@link Jwt}
-	 * @throws JwtException
+	 * @throws JwtException when the token is malformed or otherwise invalid
 	 */
 	@Override
 	public Jwt decode(String token) throws JwtException {
@@ -274,14 +274,14 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 		private static final JOSEObjectTypeVerifier<SecurityContext> NO_TYPE_VERIFIER = (header, context) -> {
 		};
 
-		private Function<RestOperations, String> jwkSetUri;
+		private final Function<RestOperations, String> jwkSetUri;
 
 		private Function<JWKSource<SecurityContext>, Set<JWSAlgorithm>> defaultAlgorithms = (source) -> Set
 			.of(JWSAlgorithm.RS256);
 
 		private JOSEObjectTypeVerifier<SecurityContext> typeVerifier = JWT_TYPE_VERIFIER;
 
-		private Set<SignatureAlgorithm> signatureAlgorithms = new HashSet<>();
+		private final Set<SignatureAlgorithm> signatureAlgorithms = new HashSet<>();
 
 		private RestOperations restOperations = new RestTemplate();
 
@@ -337,9 +337,7 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 		 *
 		 * <p>
 		 * The difference is that by setting this to {@code false}, it allows you to
-		 * provide validation by type, like for {@code at+jwt}:
-		 *
-		 * <code>
+		 * provide validation by type, like for {@code at+jwt}: <code>
 		 *     NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withIssuerLocation(issuer)
 		 *         .validateType(false)
 		 *         .build();
@@ -388,8 +386,8 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 		 * <a href="https://tools.ietf.org/html/rfc7517#section-5">JWK Set</a> uri as well
 		 * as the <a href=
 		 * "https://openid.net/specs/openid-connect-core-1_0.html#IssuerIdentifier">Issuer</a>.
-		 * @param restOperations
-		 * @return
+		 * @param restOperations the {@link RestOperations} instance to use
+		 * @return a {@link JwkSetUriJwtDecoderBuilder} for further configurations
 		 */
 		public JwkSetUriJwtDecoderBuilder restOperations(RestOperations restOperations) {
 			Assert.notNull(restOperations, "restOperations cannot be null");
@@ -552,7 +550,7 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 
 		private JOSEObjectTypeVerifier<SecurityContext> typeVerifier = JWT_TYPE_VERIFIER;
 
-		private RSAPublicKey key;
+		private final RSAPublicKey key;
 
 		private Consumer<ConfigurableJWTProcessor<SecurityContext>> jwtProcessorCustomizer;
 
@@ -595,9 +593,7 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 		 *
 		 * <p>
 		 * The difference is that by setting this to {@code false}, it allows you to
-		 * provide validation by type, like for {@code at+jwt}:
-		 *
-		 * <code>
+		 * provide validation by type, like for {@code at+jwt}: <code>
 		 *     NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withIssuerLocation(issuer)
 		 *         .validateType(false)
 		 *         .build();
@@ -616,9 +612,7 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 		/**
 		 * Use the given signing
 		 * <a href="https://tools.ietf.org/html/rfc7515#section-4.1.1" target=
-		 * "_blank">algorithm</a>.
-		 *
-		 * The value should be one of
+		 * "_blank">algorithm</a>. The value should be one of
 		 * <a href="https://tools.ietf.org/html/rfc7518#section-3.3" target=
 		 * "_blank">RS256, RS384, or RS512</a>.
 		 * @param signatureAlgorithm the algorithm to use
@@ -728,9 +722,7 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 		 *
 		 * <p>
 		 * The difference is that by setting this to {@code false}, it allows you to
-		 * provide validation by type, like for {@code at+jwt}:
-		 *
-		 * <code>
+		 * provide validation by type, like for {@code at+jwt}: <code>
 		 *     NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withIssuerLocation(issuer)
 		 *         .validateType(false)
 		 *         .build();
@@ -749,9 +741,7 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 		/**
 		 * Use the given
 		 * <a href="https://tools.ietf.org/html/rfc7515#section-4.1.1" target=
-		 * "_blank">algorithm</a> when generating the MAC.
-		 *
-		 * The value should be one of
+		 * "_blank">algorithm</a> when generating the MAC. The value should be one of
 		 * <a href="https://tools.ietf.org/html/rfc7518#section-3.2" target=
 		 * "_blank">HS256, HS384 or HS512</a>.
 		 * @param macAlgorithm the MAC algorithm to use
