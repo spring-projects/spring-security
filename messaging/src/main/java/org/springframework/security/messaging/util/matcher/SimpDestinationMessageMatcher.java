@@ -35,7 +35,7 @@ import org.springframework.util.PathMatcher;
  *
  * @author Rob Winch
  * @since 4.0
- * @deprecated use {@link DestinationPathPatternMessageMatcher}
+ * @deprecated use {@link PathPatternMessageMatcher}
  */
 @Deprecated
 public final class SimpDestinationMessageMatcher implements MessageMatcher<Object> {
