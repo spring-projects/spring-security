@@ -534,6 +534,39 @@ class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecu
     }
 
     /**
+     * Configures channel security. In order for this configuration to be useful at least
+     * one mapping to a required channel must be provided.
+     *
+     * Example:
+     *
+     * The example below demonstrates how to require HTTPS for every request. Only
+     * requiring HTTPS for some requests is supported, for example if you need to differentiate
+     * between local and production deployments.
+     *
+     * ```
+     * @Configuration
+     * @EnableWebSecurity
+     * class RequireHttpsConfig {
+     *
+     * 	@Bean
+     * 	fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+     * 		http {
+     * 			redirectToHttps { }
+     * 		}
+     * 		return http.build();
+     * 	}
+     * }
+     * ```
+     * @param httpsRedirectConfiguration custom configuration to apply to HTTPS redirect rules
+     * @see [HttpsRedirectDsl]
+     * @since 6.5
+     */
+    fun redirectToHttps(httpsRedirectConfiguration: HttpsRedirectDsl.() -> Unit) {
+        val httpsRedirectCustomizer = HttpsRedirectDsl().apply(httpsRedirectConfiguration).get()
+        this.http.redirectToHttps(httpsRedirectCustomizer)
+    }
+
+    /**
      * Adds X509 based pre authentication to an application
      *
      * Example:

@@ -54,6 +54,7 @@ import org.springframework.security.web.session.ConcurrentSessionFilter;
 import org.springframework.security.web.session.DisableEncodeUrlFilter;
 import org.springframework.security.web.session.ForceEagerSessionCreationFilter;
 import org.springframework.security.web.session.SessionManagementFilter;
+import org.springframework.security.web.transport.HttpsRedirectFilter;
 import org.springframework.web.filter.CorsFilter;
 
 /**
@@ -78,6 +79,7 @@ final class FilterOrderRegistration {
 		put(DisableEncodeUrlFilter.class, order.next());
 		put(ForceEagerSessionCreationFilter.class, order.next());
 		put(ChannelProcessingFilter.class, order.next());
+		put(HttpsRedirectFilter.class, order.next());
 		order.next(); // gh-8105
 		put(WebAsyncManagerIntegrationFilter.class, order.next());
 		put(SecurityContextHolderFilter.class, order.next());
