@@ -21,9 +21,9 @@ import java.util.List;
 import org.springframework.security.config.annotation.web.configurers.DefaultLoginPageConfigurer;
 import org.springframework.test.util.ReflectionTestUtils;
 
-public final class TestHttpSecurity {
+public final class TestHttpSecurities {
 
-	private TestHttpSecurity() {
+	private TestHttpSecurities() {
 
 	}
 

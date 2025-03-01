@@ -75,7 +75,7 @@ class RequestMatcherDelegatingWebInvocationPrivilegeEvaluatorTests {
 	@Test
 	void isAllowedWhenNotMatchThenAllowed() {
 		RequestMatcherEntry<List<WebInvocationPrivilegeEvaluator>> notMatch = entry(this.alwaysDeny,
-				TestWebInvocationPrivilegeEvaluator.alwaysAllow());
+				TestWebInvocationPrivilegeEvaluators.alwaysAllow());
 		WebInvocationPrivilegeEvaluator delegating = evaluator(notMatch);
 		assertThat(delegating.isAllowed(this.uri, this.authentication)).isTrue();
 		verify(notMatch.getRequestMatcher()).matches(any());
@@ -96,9 +96,9 @@ class RequestMatcherDelegatingWebInvocationPrivilegeEvaluatorTests {
 	@Test
 	void isAllowedWhenNotMatchThenMatchThenOnlySecondDelegateInvoked() {
 		RequestMatcherEntry<List<WebInvocationPrivilegeEvaluator>> notMatchDelegate = entry(this.alwaysDeny,
-				TestWebInvocationPrivilegeEvaluator.alwaysAllow());
+				TestWebInvocationPrivilegeEvaluators.alwaysAllow());
 		RequestMatcherEntry<List<WebInvocationPrivilegeEvaluator>> matchDelegate = entry(this.alwaysMatch,
-				TestWebInvocationPrivilegeEvaluator.alwaysAllow());
+				TestWebInvocationPrivilegeEvaluators.alwaysAllow());
 		RequestMatcherEntry<List<WebInvocationPrivilegeEvaluator>> spyNotMatchDelegate = spy(notMatchDelegate);
 		RequestMatcherEntry<List<WebInvocationPrivilegeEvaluator>> spyMatchDelegate = spy(matchDelegate);
 
@@ -120,8 +120,8 @@ class RequestMatcherDelegatingWebInvocationPrivilegeEvaluatorTests {
 
 	@Test
 	void isAllowedWhenFirstDelegateDenyThenDoNotInvokeOthers() {
-		WebInvocationPrivilegeEvaluator deny = TestWebInvocationPrivilegeEvaluator.alwaysDeny();
-		WebInvocationPrivilegeEvaluator allow = TestWebInvocationPrivilegeEvaluator.alwaysAllow();
+		WebInvocationPrivilegeEvaluator deny = TestWebInvocationPrivilegeEvaluators.alwaysDeny();
+		WebInvocationPrivilegeEvaluator allow = TestWebInvocationPrivilegeEvaluators.alwaysAllow();
 		WebInvocationPrivilegeEvaluator spyDeny = spy(deny);
 		WebInvocationPrivilegeEvaluator spyAllow = spy(allow);
 		RequestMatcherEntry<List<WebInvocationPrivilegeEvaluator>> delegate = entry(this.alwaysMatch, spyDeny,
@@ -136,7 +136,7 @@ class RequestMatcherDelegatingWebInvocationPrivilegeEvaluatorTests {
 
 	@Test
 	void isAllowedWhenDifferentArgumentsThenCallSpecificIsAllowedInDelegate() {
-		WebInvocationPrivilegeEvaluator deny = TestWebInvocationPrivilegeEvaluator.alwaysDeny();
+		WebInvocationPrivilegeEvaluator deny = TestWebInvocationPrivilegeEvaluators.alwaysDeny();
 		WebInvocationPrivilegeEvaluator spyDeny = spy(deny);
 		RequestMatcherEntry<List<WebInvocationPrivilegeEvaluator>> delegate = entry(this.alwaysMatch, spyDeny);
 
@@ -197,11 +197,11 @@ class RequestMatcherDelegatingWebInvocationPrivilegeEvaluatorTests {
 	}
 
 	private RequestMatcherEntry<List<WebInvocationPrivilegeEvaluator>> allow(RequestMatcher requestMatcher) {
-		return entry(requestMatcher, TestWebInvocationPrivilegeEvaluator.alwaysAllow());
+		return entry(requestMatcher, TestWebInvocationPrivilegeEvaluators.alwaysAllow());
 	}
 
 	private RequestMatcherEntry<List<WebInvocationPrivilegeEvaluator>> deny(RequestMatcher requestMatcher) {
-		return entry(requestMatcher, TestWebInvocationPrivilegeEvaluator.alwaysDeny());
+		return entry(requestMatcher, TestWebInvocationPrivilegeEvaluators.alwaysDeny());
 	}
 
 	private RequestMatcherEntry<List<WebInvocationPrivilegeEvaluator>> entry(RequestMatcher requestMatcher,
