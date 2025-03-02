@@ -16,12 +16,8 @@
 
 package org.springframework.security.config.annotation.web.configurers.oauth2.client;
 
-import java.util.function.Consumer;
-import java.util.function.Function;
-
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
 import org.springframework.context.ApplicationContext;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
@@ -39,6 +35,9 @@ import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.util.Assert;
+
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * An {@link AbstractHttpConfigurer} for OIDC Logout flows
@@ -102,7 +101,10 @@ public final class OidcLogoutConfigurer<B extends HttpSecurityBuilder<B>>
 	/**
 	 * Configure OIDC Back-Channel Logout using the provided {@link Consumer}
 	 * @return the {@link OidcLogoutConfigurer} for further configuration
+	 * @deprecated For removal in a future release. Use
+	 * {@link HttpSecurity#oidcBackChannelLogout(Customizer)} instead.
 	 */
+	@Deprecated(since = "6.2", forRemoval = true)
 	public OidcLogoutConfigurer<B> backChannel(Customizer<BackChannelLogoutConfigurer> backChannelLogoutConfigurer) {
 		if (this.backChannel == null) {
 			this.backChannel = new BackChannelLogoutConfigurer();
@@ -157,35 +159,6 @@ public final class OidcLogoutConfigurer<B extends HttpSecurityBuilder<B>>
 			return logoutHandler;
 		}
 
-		/**
-		 * Use this endpoint when invoking a back-channel logout.
-		 *
-		 * <p>
-		 * The resulting {@link LogoutHandler} will {@code POST} the session cookie and
-		 * CSRF token to this endpoint to invalidate the corresponding end-user session.
-		 *
-		 * <p>
-		 * Supports URI templates like {@code {baseUrl}}, {@code {baseScheme}}, and
-		 * {@code {basePort}}.
-		 *
-		 * <p>
-		 * By default, the URI is set to
-		 * {@code {baseScheme}://localhost{basePort}/logout}, meaning that the scheme and
-		 * port of the original back-channel request is preserved, while the host and
-		 * endpoint are changed.
-		 *
-		 * <p>
-		 * If you are using Spring Security for the logout endpoint, the path part of this
-		 * URI should match the value configured there.
-		 *
-		 * <p>
-		 * Otherwise, this is handy in the event that your server configuration means that
-		 * the scheme, server name, or port in the {@code Host} header are different from
-		 * how you would address the same server internally.
-		 * @param logoutUri the URI to request logout on the back-channel
-		 * @return the {@link BackChannelLogoutConfigurer} for further customizations
-		 * @since 6.2.4
-		 */
 		public BackChannelLogoutConfigurer logoutUri(String logoutUri) {
 			this.logoutHandler = (http) -> {
 				OidcBackChannelLogoutHandler logoutHandler = new OidcBackChannelLogoutHandler(
