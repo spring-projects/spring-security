@@ -19,6 +19,7 @@ package org.springframework.security.oauth2.client;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.*;
 import java.util.function.Function;
 
 import org.springframework.lang.Nullable;
@@ -73,9 +74,19 @@ public final class TokenExchangeOAuth2AuthorizedClientProvider implements OAuth2
 		if (!AuthorizationGrantType.TOKEN_EXCHANGE.equals(clientRegistration.getAuthorizationGrantType())) {
 			return null;
 		}
+
+		Map<String, Object> contextAdditionalGrantRequestParameters =
+				context.getAttribute(OAuth2AuthorizationContext.ADDITIONAL_GRANT_REQUEST_PARAMETERS_ATTRIBUTE_NAME);
+
 		OAuth2AuthorizedClient authorizedClient = context.getAuthorizedClient();
-		if (authorizedClient != null && !hasTokenExpired(authorizedClient.getAccessToken())) {
-			// If client is already authorized but access token is NOT expired than no
+		Map<String, Object> authorizedClientAdditionalGrantRequestParameters =
+				authorizedClient != null
+						? authorizedClient.getAttribute(OAuth2AuthorizationContext.ADDITIONAL_GRANT_REQUEST_PARAMETERS_ATTRIBUTE_NAME)
+						: null;
+		if (authorizedClient != null
+			&& !hasTokenExpired(authorizedClient.getAccessToken())
+			&& Objects.equals(authorizedClientAdditionalGrantRequestParameters, contextAdditionalGrantRequestParameters)) {
+			// If client is already authorized but access token is NOT expired and the attributes are equal, then no
 			// need for re-authorization
 			return null;
 		}
@@ -86,11 +97,14 @@ public final class TokenExchangeOAuth2AuthorizedClientProvider implements OAuth2
 
 		OAuth2Token actorToken = this.actorTokenResolver.apply(context);
 		TokenExchangeGrantRequest grantRequest = new TokenExchangeGrantRequest(clientRegistration, subjectToken,
-				actorToken);
+				actorToken, contextAdditionalGrantRequestParameters);
 		OAuth2AccessTokenResponse tokenResponse = getTokenResponse(clientRegistration, grantRequest);
 
+		Map<String, Object> authorizedClientAttributes = new HashMap<>();
+		authorizedClientAttributes.put(OAuth2AuthorizationContext.ADDITIONAL_GRANT_REQUEST_PARAMETERS_ATTRIBUTE_NAME, contextAdditionalGrantRequestParameters);
+
 		return new OAuth2AuthorizedClient(clientRegistration, context.getPrincipal().getName(),
-				tokenResponse.getAccessToken(), tokenResponse.getRefreshToken());
+				tokenResponse.getAccessToken(), tokenResponse.getRefreshToken(), authorizedClientAttributes);
 	}
 
 	private OAuth2Token resolveSubjectToken(OAuth2AuthorizationContext context) {
