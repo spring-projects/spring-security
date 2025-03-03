@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -68,6 +68,19 @@ public class JwtAuthenticationToken extends AbstractOAuth2TokenAuthenticationTok
 	 */
 	public JwtAuthenticationToken(Jwt jwt, Collection<? extends GrantedAuthority> authorities, String name) {
 		super(jwt, authorities);
+		this.setAuthenticated(true);
+		this.name = name;
+	}
+
+	/**
+	 * Constructs a {@code JwtAuthenticationToken} using the provided parameters.
+	 * @param jwt the JWT
+	 * @param principal the principal converted from JWT
+	 * @param authorities the authorities assigned to the JWT
+	 * @param name the principal name
+	 */
+	public JwtAuthenticationToken(Jwt jwt, Object principal, Collection<? extends GrantedAuthority> authorities, String name) {
+		super(jwt, principal, jwt, authorities);
 		this.setAuthenticated(true);
 		this.name = name;
 	}
