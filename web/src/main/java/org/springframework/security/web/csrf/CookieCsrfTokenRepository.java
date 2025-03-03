@@ -169,14 +169,6 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 		this.cookieName = cookieName;
 	}
 
-	/**
-	 * @deprecated Use {@link #setCookieCustomizer(Consumer)} instead.
-	 */
-	@Deprecated(since = "6.1")
-	public void setCookieHttpOnly(boolean cookieHttpOnly) {
-		this.cookieHttpOnly = cookieHttpOnly;
-	}
-
 	private String getRequestContext(HttpServletRequest request) {
 		String contextPath = request.getContextPath();
 		return (contextPath.length() > 0) ? contextPath : "/";
@@ -228,34 +220,6 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 	 */
 	public String getCookiePath() {
 		return this.cookiePath;
-	}
-
-	/**
-	 * @since 5.2
-	 * @deprecated Use {@link #setCookieCustomizer(Consumer)} instead.
-	 */
-	@Deprecated(since = "6.1")
-	public void setCookieDomain(String cookieDomain) {
-		this.cookieDomain = cookieDomain;
-	}
-
-	/**
-	 * @since 5.4
-	 * @deprecated Use {@link #setCookieCustomizer(Consumer)} instead.
-	 */
-	@Deprecated(since = "6.1")
-	public void setSecure(Boolean secure) {
-		this.secure = secure;
-	}
-
-	/**
-	 * @since 5.5
-	 * @deprecated Use {@link #setCookieCustomizer(Consumer)} instead.
-	 */
-	@Deprecated(since = "6.1")
-	public void setCookieMaxAge(int cookieMaxAge) {
-		Assert.isTrue(cookieMaxAge != 0, "cookieMaxAge cannot be zero");
-		this.cookieMaxAge = cookieMaxAge;
 	}
 
 }
