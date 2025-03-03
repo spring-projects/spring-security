@@ -18,7 +18,7 @@ org-springframework = "6.2.3"
 
 [libraries]
 ch-qos-logback-logback-classic = "ch.qos.logback:logback-classic:1.5.17"
-com-fasterxml-jackson-jackson-bom = "com.fasterxml.jackson:jackson-bom:2.18.2"
+com-fasterxml-jackson-jackson-bom = "com.fasterxml.jackson:jackson-bom:2.18.3"
 com-google-inject-guice = "com.google.inject:guice:3.0"
 com-netflix-nebula-nebula-project-plugin = "com.netflix.nebula:nebula-project-plugin:8.2.0"
 com-nimbusds-nimbus-jose-jwt = "com.nimbusds:nimbus-jose-jwt:9.37.3"
