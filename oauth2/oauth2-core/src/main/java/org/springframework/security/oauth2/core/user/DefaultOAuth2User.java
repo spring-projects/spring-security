@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -79,6 +79,12 @@ public class DefaultOAuth2User implements OAuth2User, Serializable {
 		this.nameAttributeKey = nameAttributeKey;
 	}
 
+	protected DefaultOAuth2User(DefaultOAuth2User copy, Collection<GrantedAuthority> authorities) {
+		this.nameAttributeKey = copy.nameAttributeKey;
+		this.attributes = copy.attributes;
+		this.authorities = sortAuthorities(authorities);
+	}
+
 	@Override
 	public String getName() {
 		return this.getAttribute(this.nameAttributeKey).toString();
@@ -92,6 +98,16 @@ public class DefaultOAuth2User implements OAuth2User, Serializable {
 	@Override
 	public Map<String, Object> getAttributes() {
 		return this.attributes;
+	}
+
+	/**
+	 * Copy this {@code DefaultOAuth2User}, using the provided {@code authorities}
+	 * @param authorities the authorities to use
+	 * @return a new {@code DefaultOAuth2User}
+	 * @since 6.5
+	 */
+	public DefaultOAuth2User withAuthorities(Collection<GrantedAuthority> authorities) {
+		return new DefaultOAuth2User(this, authorities);
 	}
 
 	private Set<GrantedAuthority> sortAuthorities(Collection<? extends GrantedAuthority> authorities) {
