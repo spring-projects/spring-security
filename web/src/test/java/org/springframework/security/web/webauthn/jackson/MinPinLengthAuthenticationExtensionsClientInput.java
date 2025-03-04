@@ -16,27 +16,19 @@
 
 package org.springframework.security.web.webauthn.jackson;
 
-import java.io.IOException;
-
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
-
-import org.springframework.security.web.webauthn.api.AuthenticatorTransport;
+import org.springframework.security.web.webauthn.api.AuthenticationExtensionsClientInput;
 
 /**
- * Jackson serializer for {@link AuthenticatorTransport}
+ * Implements <a href=
+ * "https://fidoalliance.org/specs/fido-v2.2-rd-20230321/fido-client-to-authenticator-protocol-v2.2-rd-20230321.html#sctn-minpinlength-extension">
+ * Minimum PIN Length Extension (minPinLength)</a>.
  *
- * @author Rob Winch
- * @since 6.4
+ * @author Justin Cranford
+ * @since 6.5
  */
-@SuppressWarnings("serial")
-class AuthenticatorTransportSerializer extends JsonSerializer<AuthenticatorTransport> {
-
+record MinPinLengthAuthenticationExtensionsClientInput(Boolean getInput) implements AuthenticationExtensionsClientInput<Boolean> {
 	@Override
-	public void serialize(AuthenticatorTransport transport, JsonGenerator jgen, SerializerProvider provider)
-			throws IOException {
-		jgen.writeString(transport.getValue());
+	public String getExtensionId() {
+		return "minPinLength";
 	}
-
 }
