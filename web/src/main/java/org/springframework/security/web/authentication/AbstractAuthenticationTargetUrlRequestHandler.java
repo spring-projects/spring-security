@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -195,8 +195,10 @@ public abstract class AbstractAuthenticationTargetUrlRequestHandler {
 
 	/**
 	 * Allows overriding of the behaviour when redirecting to a target URL.
+	 * @param redirectStrategy {@link RedirectStrategy} to use
 	 */
 	public void setRedirectStrategy(RedirectStrategy redirectStrategy) {
+		Assert.notNull(redirectStrategy, "redirectStrategy cannot be null");
 		this.redirectStrategy = redirectStrategy;
 	}
 
