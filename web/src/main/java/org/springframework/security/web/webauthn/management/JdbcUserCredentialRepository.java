@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.ArgumentPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.PreparedStatementSetter;
@@ -154,12 +153,7 @@ public final class JdbcUserCredentialRepository implements UserCredentialReposit
 		Assert.notNull(record, "record cannot be null");
 		int rows = updateCredentialRecord(record);
 		if (rows == 0) {
-			try {
-				insertCredentialRecord(record);
-			}
-			catch (DuplicateKeyException ex) {
-				updateCredentialRecord(record);
-			}
+			insertCredentialRecord(record);
 		}
 	}
 
