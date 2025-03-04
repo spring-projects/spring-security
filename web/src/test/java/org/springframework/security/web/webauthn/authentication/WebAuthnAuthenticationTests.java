@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialUserEntity;
-import org.springframework.security.web.webauthn.api.TestPublicKeyCredentialUserEntity;
+import org.springframework.security.web.webauthn.api.TestPublicKeyCredentialUserEntities;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -32,7 +32,7 @@ class WebAuthnAuthenticationTests {
 
 	@Test
 	void isAuthenticatedThenTrue() {
-		PublicKeyCredentialUserEntity userEntity = TestPublicKeyCredentialUserEntity.userEntity().build();
+		PublicKeyCredentialUserEntity userEntity = TestPublicKeyCredentialUserEntities.userEntity().build();
 		List<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList("ROLE_USER");
 		WebAuthnAuthentication authentication = new WebAuthnAuthentication(userEntity, authorities);
 		assertThat(authentication.isAuthenticated()).isTrue();
@@ -40,7 +40,7 @@ class WebAuthnAuthenticationTests {
 
 	@Test
 	void setAuthenticationWhenTrueThenException() {
-		PublicKeyCredentialUserEntity userEntity = TestPublicKeyCredentialUserEntity.userEntity().build();
+		PublicKeyCredentialUserEntity userEntity = TestPublicKeyCredentialUserEntities.userEntity().build();
 		List<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList("ROLE_USER");
 		WebAuthnAuthentication authentication = new WebAuthnAuthentication(userEntity, authorities);
 		assertThatIllegalArgumentException().isThrownBy(() -> authentication.setAuthenticated(true));
@@ -48,7 +48,7 @@ class WebAuthnAuthenticationTests {
 
 	@Test
 	void setAuthenticationWhenFalseThenNotAuthenticated() {
-		PublicKeyCredentialUserEntity userEntity = TestPublicKeyCredentialUserEntity.userEntity().build();
+		PublicKeyCredentialUserEntity userEntity = TestPublicKeyCredentialUserEntities.userEntity().build();
 		List<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList("ROLE_USER");
 		WebAuthnAuthentication authentication = new WebAuthnAuthentication(userEntity, authorities);
 		authentication.setAuthenticated(false);

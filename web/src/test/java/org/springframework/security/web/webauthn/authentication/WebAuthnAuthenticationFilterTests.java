@@ -39,7 +39,7 @@ import org.springframework.security.web.webauthn.api.PublicKeyCredential;
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialRequestOptions;
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialUserEntity;
 import org.springframework.security.web.webauthn.api.TestPublicKeyCredentialRequestOptions;
-import org.springframework.security.web.webauthn.api.TestPublicKeyCredentialUserEntity;
+import org.springframework.security.web.webauthn.api.TestPublicKeyCredentialUserEntities;
 import org.springframework.security.web.webauthn.management.RelyingPartyAuthenticationRequest;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
@@ -153,7 +153,7 @@ class WebAuthnAuthenticationFilterTests {
 	void doFilterWhenValidThenOk() throws Exception {
 		PublicKeyCredentialRequestOptions options = TestPublicKeyCredentialRequestOptions.create().build();
 		given(this.requestOptionsRepository.load(any())).willReturn(options);
-		PublicKeyCredentialUserEntity principal = TestPublicKeyCredentialUserEntity.userEntity().build();
+		PublicKeyCredentialUserEntity principal = TestPublicKeyCredentialUserEntities.userEntity().build();
 		WebAuthnAuthentication authentication = new WebAuthnAuthentication(principal,
 				AuthorityUtils.createAuthorityList("ROLE_USER"));
 		given(this.authenticationManager.authenticate(any())).willReturn(authentication);
