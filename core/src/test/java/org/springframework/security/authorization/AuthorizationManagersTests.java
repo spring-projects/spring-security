@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,8 +29,8 @@ class AuthorizationManagersTests {
 
 	@Test
 	void checkAnyOfWhenOneGrantedThenGrantedDecision() {
-		AuthorizationManager<?> composed = AuthorizationManagers.anyOf((a, o) -> new AuthorizationDecision(false),
-				(a, o) -> new AuthorizationDecision(true));
+		AuthorizationManager<?> composed = AuthorizationManagers.anyOf(SingleResultAuthorizationManager.permitAll(),
+				SingleResultAuthorizationManager.permitAll());
 		AuthorizationDecision decision = composed.check(null, null);
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isTrue();
@@ -118,8 +118,8 @@ class AuthorizationManagersTests {
 
 	@Test
 	void checkAllOfWhenAllGrantedThenGrantedDecision() {
-		AuthorizationManager<?> composed = AuthorizationManagers.allOf((a, o) -> new AuthorizationDecision(true),
-				(a, o) -> new AuthorizationDecision(true));
+		AuthorizationManager<?> composed = AuthorizationManagers.allOf(SingleResultAuthorizationManager.permitAll(),
+				SingleResultAuthorizationManager.permitAll());
 		AuthorizationDecision decision = composed.check(null, null);
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isTrue();
@@ -158,7 +158,7 @@ class AuthorizationManagersTests {
 	void checkAllOfWithAllAbstainDefaultDecisionWhenOneDeniedThenDeniedDecision() {
 		AuthorizationDecision allAbstainDefaultDecision = new AuthorizationDecision(true);
 		AuthorizationManager<?> composed = AuthorizationManagers.allOf(allAbstainDefaultDecision,
-				(a, o) -> new AuthorizationDecision(true), (a, o) -> new AuthorizationDecision(false));
+				SingleResultAuthorizationManager.permitAll(), SingleResultAuthorizationManager.denyAll());
 		AuthorizationDecision decision = composed.check(null, null);
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isFalse();

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ import org.springframework.security.authorization.AuthenticatedAuthorizationMana
 import org.springframework.security.authorization.AuthorityAuthorizationManager;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.security.authorization.SingleResultAuthorizationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.util.UrlUtils;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
@@ -201,7 +202,7 @@ public final class RequestMatcherDelegatingAuthorizationManager implements Autho
 			 * @return the {@link Builder} for further customizations
 			 */
 			public Builder permitAll() {
-				return access((a, o) -> new AuthorizationDecision(true));
+				return access(SingleResultAuthorizationManager.permitAll());
 			}
 
 			/**
@@ -209,7 +210,7 @@ public final class RequestMatcherDelegatingAuthorizationManager implements Autho
 			 * @return the {@link Builder} for further customizations
 			 */
 			public Builder denyAll() {
-				return access((a, o) -> new AuthorizationDecision(false));
+				return access(SingleResultAuthorizationManager.denyAll());
 			}
 
 			/**
