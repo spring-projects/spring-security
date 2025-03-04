@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -112,6 +112,24 @@ public final class JdbcUserCredentialRepository implements UserCredentialReposit
 
 	private static final String DELETE_CREDENTIAL_RECORD_SQL = "DELETE FROM " + TABLE_NAME + " WHERE " + ID_FILTER;
 
+	// @formatter:off
+	private static final String UPDATE_CREDENTIAL_RECORD_SQL = "UPDATE " + TABLE_NAME
+			+ " SET user_entity_user_id = ?, " +
+			"public_key = ?, " +
+			"signature_count = ?, " +
+			"uv_initialized = ?, " +
+			"backup_eligible = ? ," +
+			"authenticator_transports = ?, " +
+			"public_key_credential_type = ?, " +
+			"backup_state = ?, " +
+			"attestation_object = ?, " +
+			"attestation_client_data_json = ?, " +
+			"created = ?, " +
+			"last_used = ?, " +
+			"label = ?"
+			+ " WHERE " + ID_FILTER;
+	// @formatter:on
+
 	/**
 	 * Constructs a {@code JdbcUserCredentialRepository} using the provided parameters.
 	 * @param jdbcOperations the JDBC operations
@@ -133,11 +151,29 @@ public final class JdbcUserCredentialRepository implements UserCredentialReposit
 	@Override
 	public void save(CredentialRecord record) {
 		Assert.notNull(record, "record cannot be null");
+		int rows = updateCredentialRecord(record);
+		if (rows == 0) {
+			insertCredentialRecord(record);
+		}
+	}
+
+	private void insertCredentialRecord(CredentialRecord record) {
 		List<SqlParameterValue> parameters = this.credentialRecordParametersMapper.apply(record);
 		try (LobCreator lobCreator = this.lobHandler.getLobCreator()) {
 			PreparedStatementSetter pss = new LobCreatorArgumentPreparedStatementSetter(lobCreator,
 					parameters.toArray());
 			this.jdbcOperations.update(SAVE_CREDENTIAL_RECORD_SQL, pss);
+		}
+	}
+
+	private int updateCredentialRecord(CredentialRecord record) {
+		List<SqlParameterValue> parameters = this.credentialRecordParametersMapper.apply(record);
+		SqlParameterValue credentialId = parameters.remove(0);
+		parameters.add(credentialId);
+		try (LobCreator lobCreator = this.lobHandler.getLobCreator()) {
+			PreparedStatementSetter pss = new LobCreatorArgumentPreparedStatementSetter(lobCreator,
+					parameters.toArray());
+			return this.jdbcOperations.update(UPDATE_CREDENTIAL_RECORD_SQL, pss);
 		}
 	}
 
