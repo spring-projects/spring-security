@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,13 +58,13 @@ public final class MessageMatcherDelegatingAuthorizationManagerTests {
 
 	@Test
 	void checkWhenSimpDestinationMatchesThenUses() {
-		AuthorizationManager<Message<?>> authorizationManager = builder().simpDestMatchers("destination")
+		AuthorizationManager<Message<?>> authorizationManager = builder().destinationPathPatterns("/destination")
 			.permitAll()
 			.anyMessage()
 			.denyAll()
 			.build();
 		MessageHeaders headers = new MessageHeaders(
-				Map.of(SimpMessageHeaderAccessor.DESTINATION_HEADER, "destination"));
+				Map.of(SimpMessageHeaderAccessor.DESTINATION_HEADER, "/destination"));
 		Message<?> message = new GenericMessage<>(new Object(), headers);
 		assertThat(authorizationManager.check(mock(Supplier.class), message).isGranted()).isTrue();
 	}
@@ -79,7 +79,7 @@ public final class MessageMatcherDelegatingAuthorizationManagerTests {
 		Message<?> message = new GenericMessage<>(new Object());
 		assertThat(authorizationManager.check(mock(Supplier.class), message).isGranted()).isTrue();
 		MessageHeaders headers = new MessageHeaders(
-				Map.of(SimpMessageHeaderAccessor.DESTINATION_HEADER, "destination"));
+				Map.of(SimpMessageHeaderAccessor.DESTINATION_HEADER, "/destination"));
 		message = new GenericMessage<>(new Object(), headers);
 		assertThat(authorizationManager.check(mock(Supplier.class), message).isGranted()).isFalse();
 	}
@@ -97,16 +97,64 @@ public final class MessageMatcherDelegatingAuthorizationManagerTests {
 		assertThat(authorizationManager.check(mock(Supplier.class), message).isGranted()).isTrue();
 	}
 
+	@Test
+	void checkWhenMessageTypeAndPathPatternMatches() {
+		AuthorizationManager<Message<?>> authorizationManager = builder()
+			.simpTypeMessageDestinationPatterns("/destination")
+			.permitAll()
+			.simpTypeSubscribeDestinationPatterns("/destination")
+			.denyAll()
+			.anyMessage()
+			.denyAll()
+			.build();
+		MessageHeaders headers = new MessageHeaders(Map.of(SimpMessageHeaderAccessor.MESSAGE_TYPE_HEADER,
+				SimpMessageType.MESSAGE, SimpMessageHeaderAccessor.DESTINATION_HEADER, "/destination"));
+		Message<?> message = new GenericMessage<>(new Object(), headers);
+		assertThat(authorizationManager.authorize(mock(Supplier.class), message).isGranted()).isTrue();
+		MessageHeaders headers2 = new MessageHeaders(Map.of(SimpMessageHeaderAccessor.MESSAGE_TYPE_HEADER,
+				SimpMessageType.SUBSCRIBE, SimpMessageHeaderAccessor.DESTINATION_HEADER, "/destination"));
+		Message<?> message2 = new GenericMessage<>(new Object(), headers2);
+		assertThat(authorizationManager.check(mock(Supplier.class), message2).isGranted()).isFalse();
+	}
+
+	@Test
+	void checkWhenMessageRouteAndPatternMismatch() {
+		AuthorizationManager<Message<?>> authorizationManager = builder().messageRouteSeparator()
+			.destinationPathPatterns("/destination.*")
+			.permitAll()
+			.anyMessage()
+			.denyAll()
+			.build();
+		MessageHeaders headers = new MessageHeaders(
+				Map.of(SimpMessageHeaderAccessor.DESTINATION_HEADER, "/destination.sub.asdf"));
+		Message<?> message = new GenericMessage<>(new Object(), headers);
+		assertThat(authorizationManager.check(mock(Supplier.class), message).isGranted()).isFalse();
+	}
+
 	// gh-12540
 	@Test
 	void checkWhenSimpDestinationMatchesThenVariablesExtracted() {
-		AuthorizationManager<Message<?>> authorizationManager = builder().simpDestMatchers("destination/{id}")
+		AuthorizationManager<Message<?>> authorizationManager = builder().destinationPathPatterns("/destination/{id}")
 			.access(variable("id").isEqualTo("3"))
 			.anyMessage()
 			.denyAll()
 			.build();
 		MessageHeaders headers = new MessageHeaders(
-				Map.of(SimpMessageHeaderAccessor.DESTINATION_HEADER, "destination/3"));
+				Map.of(SimpMessageHeaderAccessor.DESTINATION_HEADER, "/destination/3"));
+		Message<?> message = new GenericMessage<>(new Object(), headers);
+		assertThat(authorizationManager.check(mock(Supplier.class), message).isGranted()).isTrue();
+	}
+
+	@Test
+	void checkWhenMessageRouteDestinationMatchesThenVariablesExtracted() {
+		AuthorizationManager<Message<?>> authorizationManager = builder().messageRouteSeparator()
+			.destinationPathPatterns("/destination.{id}")
+			.access(variable("id").isEqualTo("3"))
+			.anyMessage()
+			.denyAll()
+			.build();
+		MessageHeaders headers = new MessageHeaders(
+				Map.of(SimpMessageHeaderAccessor.DESTINATION_HEADER, "/destination.3"));
 		Message<?> message = new GenericMessage<>(new Object(), headers);
 		assertThat(authorizationManager.check(mock(Supplier.class), message).isGranted()).isTrue();
 	}
@@ -120,13 +168,7 @@ public final class MessageMatcherDelegatingAuthorizationManagerTests {
 
 	}
 
-	private static final class Builder {
-
-		private final String name;
-
-		private Builder(String name) {
-			this.name = name;
-		}
+	private record Builder(String name) {
 
 		AuthorizationManager<MessageAuthorizationContext<?>> isEqualTo(String value) {
 			return (authentication, object) -> {
