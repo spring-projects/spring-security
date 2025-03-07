@@ -61,9 +61,10 @@ public class DefaultOAuth2UserTests {
 	}
 
 	@Test
-	public void constructorWhenAttributeValueIsNullThenThrowIllegalArgumentException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> new DefaultOAuth2User(AUTHORITIES,
-				Collections.singletonMap(ATTRIBUTE_NAME_KEY, null), ATTRIBUTE_NAME_KEY));
+	public void getNameWhenAttributeValueIsNullThenThrowIllegalArgumentException() {
+		final DefaultOAuth2User user = new DefaultOAuth2User(AUTHORITIES,
+				Collections.singletonMap(ATTRIBUTE_NAME_KEY, null), ATTRIBUTE_NAME_KEY);
+		assertThatIllegalArgumentException().isThrownBy(user::getName);
 	}
 
 	@Test
@@ -72,9 +73,10 @@ public class DefaultOAuth2UserTests {
 	}
 
 	@Test
-	public void constructorWhenNameAttributeKeyIsInvalidThenThrowIllegalArgumentException() {
+	public void getNameWhenNameAttributeKeyIsInvalidThenThrowIllegalArgumentException() {
+		final DefaultOAuth2User user = new DefaultOAuth2User(AUTHORITIES, ATTRIBUTES, "invalid");
 		assertThatIllegalArgumentException()
-			.isThrownBy(() -> new DefaultOAuth2User(AUTHORITIES, ATTRIBUTES, "invalid"));
+			.isThrownBy(user::getName);
 	}
 
 	@Test
