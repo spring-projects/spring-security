@@ -29,6 +29,8 @@ public abstract class AuthenticationException extends RuntimeException {
 	@Serial
 	private static final long serialVersionUID = 2018827803361503060L;
 
+	private final Authentication authRequest;
+
 	/**
 	 * Constructs an {@code AuthenticationException} with the specified message and root
 	 * cause.
@@ -37,6 +39,7 @@ public abstract class AuthenticationException extends RuntimeException {
 	 */
 	public AuthenticationException(String msg, Throwable cause) {
 		super(msg, cause);
+		this.authRequest = null;
 	}
 
 	/**
@@ -46,6 +49,12 @@ public abstract class AuthenticationException extends RuntimeException {
 	 */
 	public AuthenticationException(String msg) {
 		super(msg);
+		this.authRequest = null;
+	}
+
+	public AuthenticationException(String msg, Authentication authRequest) {
+		super(msg);
+		this.authRequest = authRequest;
 	}
 
 }
