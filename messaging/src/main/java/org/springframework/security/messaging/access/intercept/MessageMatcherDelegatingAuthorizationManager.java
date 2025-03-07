@@ -17,6 +17,7 @@
 package org.springframework.security.messaging.access.intercept;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -25,6 +26,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.core.log.LogMessage;
+import org.springframework.http.server.PathContainer;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.simp.SimpMessageType;
 import org.springframework.security.authorization.AuthenticatedAuthorizationManager;
@@ -34,12 +36,14 @@ import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.authorization.SingleResultAuthorizationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.messaging.util.matcher.MessageMatcher;
+import org.springframework.security.messaging.util.matcher.PathPatternMessageMatcher;
 import org.springframework.security.messaging.util.matcher.SimpDestinationMessageMatcher;
 import org.springframework.security.messaging.util.matcher.SimpMessageTypeMatcher;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.Assert;
 import org.springframework.util.PathMatcher;
 import org.springframework.util.function.SingletonSupplier;
+import org.springframework.web.util.pattern.PathPatternParser;
 
 public final class MessageMatcherDelegatingAuthorizationManager implements AuthorizationManager<Message<?>> {
 
@@ -88,12 +92,11 @@ public final class MessageMatcherDelegatingAuthorizationManager implements Autho
 		if (!matcher.matches((Message) message)) {
 			return null;
 		}
-		if (matcher instanceof SimpDestinationMessageMatcher simp) {
-			return new MessageAuthorizationContext<>(message, simp.extractPathVariables(message));
+		if (matcher instanceof Builder.LazySimpDestinationMessageMatcher pathMatcher) {
+			return new MessageAuthorizationContext<>(message, pathMatcher.extractPathVariables(message));
 		}
-		if (matcher instanceof Builder.LazySimpDestinationMessageMatcher) {
-			Builder.LazySimpDestinationMessageMatcher path = (Builder.LazySimpDestinationMessageMatcher) matcher;
-			return new MessageAuthorizationContext<>(message, path.extractPathVariables(message));
+		if (matcher instanceof Builder.LazySimpDestinationPatternMessageMatcher pathMatcher) {
+			return new MessageAuthorizationContext<>(message, pathMatcher.extractPathVariables(message));
 		}
 		return new MessageAuthorizationContext<>(message);
 	}
@@ -113,7 +116,10 @@ public final class MessageMatcherDelegatingAuthorizationManager implements Autho
 
 		private final List<Entry<AuthorizationManager<MessageAuthorizationContext<?>>>> mappings = new ArrayList<>();
 
+		@Deprecated
 		private Supplier<PathMatcher> pathMatcher = AntPathMatcher::new;
+
+		private boolean useHttpPathSeparator = true;
 
 		public Builder() {
 		}
@@ -133,11 +139,11 @@ public final class MessageMatcherDelegatingAuthorizationManager implements Autho
 		 * @return the Expression to associate
 		 */
 		public Builder.Constraint nullDestMatcher() {
-			return matchers(SimpDestinationMessageMatcher.NULL_DESTINATION_MATCHER);
+			return matchers(PathPatternMessageMatcher.NULL_DESTINATION_MATCHER);
 		}
 
 		/**
-		 * Maps a {@link List} of {@link SimpDestinationMessageMatcher} instances.
+		 * Maps a {@link List} of {@link SimpMessageTypeMatcher} instances.
 		 * @param typesToMatch the {@link SimpMessageType} instance to match on
 		 * @return the {@link Builder.Constraint} associated to the matchers.
 		 */
@@ -157,9 +163,28 @@ public final class MessageMatcherDelegatingAuthorizationManager implements Autho
 		 * @param patterns the patterns to create
 		 * {@link org.springframework.security.messaging.util.matcher.SimpDestinationMessageMatcher}
 		 * from.
+		 * @deprecated use {@link #destinationPathPatterns(String...)}
 		 */
+		@Deprecated
 		public Builder.Constraint simpDestMatchers(String... patterns) {
 			return simpDestMatchers(null, patterns);
+		}
+
+		/**
+		 * Allows the creation of a security {@link Constraint} applying to messages whose
+		 * destinations match the provided {@code patterns}.
+		 * <p>
+		 * The matching of each pattern is performed by a
+		 * {@link PathPatternMessageMatcher} instance that matches irrespectively of
+		 * {@link SimpMessageType}. If no destination is found on the {@code Message},
+		 * then each {@code Matcher} returns false.
+		 * </p>
+		 * @param patterns the destination path patterns to which the security
+		 * {@code Constraint} will be applicable
+		 * @since 6.5
+		 */
+		public Builder.Constraint destinationPathPatterns(String... patterns) {
+			return destinationPathPatterns(null, patterns);
 		}
 
 		/**
@@ -169,9 +194,26 @@ public final class MessageMatcherDelegatingAuthorizationManager implements Autho
 		 * @param patterns the patterns to create
 		 * {@link org.springframework.security.messaging.util.matcher.SimpDestinationMessageMatcher}
 		 * from.
+		 * @deprecated use {@link #destinationPathPatterns(String...)}
 		 */
+		@Deprecated
 		public Builder.Constraint simpMessageDestMatchers(String... patterns) {
 			return simpDestMatchers(SimpMessageType.MESSAGE, patterns);
+		}
+
+		/**
+		 * Allows the creation of a security {@link Constraint} applying to messages of
+		 * the type {@code SimpMessageType.MESSAGE} whose destinations match the provided
+		 * {@code patterns}.
+		 * <p>
+		 * The matching of each pattern is performed by a
+		 * {@link PathPatternMessageMatcher}. If no destination is found on the
+		 * {@code Message}, then each {@code Matcher} returns false.
+		 * @param patterns the patterns to create {@link PathPatternMessageMatcher} from.
+		 * @since 6.5
+		 */
+		public Builder.Constraint simpTypeMessageDestinationPatterns(String... patterns) {
+			return destinationPathPatterns(SimpMessageType.MESSAGE, patterns);
 		}
 
 		/**
@@ -181,9 +223,26 @@ public final class MessageMatcherDelegatingAuthorizationManager implements Autho
 		 * @param patterns the patterns to create
 		 * {@link org.springframework.security.messaging.util.matcher.SimpDestinationMessageMatcher}
 		 * from.
+		 * @deprecated use {@link #simpTypeSubscribeDestinationPatterns(String...)}
 		 */
+		@Deprecated
 		public Builder.Constraint simpSubscribeDestMatchers(String... patterns) {
 			return simpDestMatchers(SimpMessageType.SUBSCRIBE, patterns);
+		}
+
+		/**
+		 * Allows the creation of a security {@link Constraint} applying to messages of
+		 * the type {@code SimpMessageType.SUBSCRIBE} whose destinations match the
+		 * provided {@code patterns}.
+		 * <p>
+		 * The matching of each pattern is performed by a
+		 * {@link PathPatternMessageMatcher}. If no destination is found on the
+		 * {@code Message}, then each {@code Matcher} returns false.
+		 * @param patterns the patterns to create {@link PathPatternMessageMatcher} from.
+		 * @since 6.5
+		 */
+		public Builder.Constraint simpTypeSubscribeDestinationPatterns(String... patterns) {
+			return destinationPathPatterns(SimpMessageType.SUBSCRIBE, patterns);
 		}
 
 		/**
@@ -196,7 +255,9 @@ public final class MessageMatcherDelegatingAuthorizationManager implements Autho
 		 * from.
 		 * @return the {@link Builder.Constraint} that is associated to the
 		 * {@link MessageMatcher}
+		 * @deprecated use {@link #destinationPathPatterns(String...)}
 		 */
+		@Deprecated
 		private Builder.Constraint simpDestMatchers(SimpMessageType type, String... patterns) {
 			List<MessageMatcher<?>> matchers = new ArrayList<>(patterns.length);
 			for (String pattern : patterns) {
@@ -207,12 +268,50 @@ public final class MessageMatcherDelegatingAuthorizationManager implements Autho
 		}
 
 		/**
+		 * Allows the creation of a security {@link Constraint} applying to messages of
+		 * the provided {@code type} whose destinations match the provided
+		 * {@code patterns}.
+		 * <p>
+		 * The matching of each pattern is performed by a
+		 * {@link PathPatternMessageMatcher}. If no destination is found on the
+		 * {@code Message}, then each {@code Matcher} returns false.
+		 * </p>
+		 * @param type the {@link SimpMessageType} to match on. If null, the
+		 * {@link SimpMessageType} is not considered for matching.
+		 * @param patterns the patterns to create {@link PathPatternMessageMatcher} from.
+		 * @return the {@link Builder.Constraint} that is associated to the
+		 * {@link MessageMatcher}s
+		 * @since 6.5
+		 */
+		private Builder.Constraint destinationPathPatterns(SimpMessageType type, String... patterns) {
+			List<MessageMatcher<?>> matchers = new ArrayList<>(patterns.length);
+			for (String pattern : patterns) {
+				MessageMatcher<Object> matcher = new LazySimpDestinationPatternMessageMatcher(pattern, type,
+						this.useHttpPathSeparator);
+				matchers.add(matcher);
+			}
+			return new Builder.Constraint(matchers);
+		}
+
+		/**
+		 * Instruct this builder to match message destinations using the separator
+		 * configured in
+		 * {@link org.springframework.http.server.PathContainer.Options#MESSAGE_ROUTE}
+		 */
+		public Builder messageRouteSeparator() {
+			this.useHttpPathSeparator = false;
+			return this;
+		}
+
+		/**
 		 * The {@link PathMatcher} to be used with the
 		 * {@link Builder#simpDestMatchers(String...)}. The default is to use the default
 		 * constructor of {@link AntPathMatcher}.
 		 * @param pathMatcher the {@link PathMatcher} to use. Cannot be null.
 		 * @return the {@link Builder} for further customization.
+		 * @deprecated use {@link #messageRouteSeparator()} to alter the path separator
 		 */
+		@Deprecated
 		public Builder simpDestPathMatcher(PathMatcher pathMatcher) {
 			Assert.notNull(pathMatcher, "pathMatcher cannot be null");
 			this.pathMatcher = () -> pathMatcher;
@@ -225,7 +324,9 @@ public final class MessageMatcherDelegatingAuthorizationManager implements Autho
 		 * computation or lookup of the {@link PathMatcher}.
 		 * @param pathMatcher the {@link PathMatcher} to use. Cannot be null.
 		 * @return the {@link Builder} for further customization.
+		 * @deprecated use {@link #messageRouteSeparator()} to alter the path separator
 		 */
+		@Deprecated
 		public Builder simpDestPathMatcher(Supplier<PathMatcher> pathMatcher) {
 			Assert.notNull(pathMatcher, "pathMatcher cannot be null");
 			this.pathMatcher = pathMatcher;
@@ -241,9 +342,7 @@ public final class MessageMatcherDelegatingAuthorizationManager implements Autho
 		 */
 		public Builder.Constraint matchers(MessageMatcher<?>... matchers) {
 			List<MessageMatcher<?>> builders = new ArrayList<>(matchers.length);
-			for (MessageMatcher<?> matcher : matchers) {
-				builders.add(matcher);
-			}
+			builders.addAll(Arrays.asList(matchers));
 			return new Builder.Constraint(builders);
 		}
 
@@ -382,6 +481,7 @@ public final class MessageMatcherDelegatingAuthorizationManager implements Autho
 
 		}
 
+		@Deprecated
 		private final class LazySimpDestinationMessageMatcher implements MessageMatcher<Object> {
 
 			private final Supplier<SimpDestinationMessageMatcher> delegate;
@@ -413,6 +513,40 @@ public final class MessageMatcherDelegatingAuthorizationManager implements Autho
 
 		}
 
+		private static final class LazySimpDestinationPatternMessageMatcher implements MessageMatcher<Object> {
+
+			private final Supplier<PathPatternMessageMatcher> delegate;
+
+			private LazySimpDestinationPatternMessageMatcher(String pattern, SimpMessageType type,
+					boolean useHttpPathSeparator) {
+				this.delegate = SingletonSupplier.of(() -> {
+					PathPatternParser dotSeparatedPathParser = new PathPatternParser();
+					dotSeparatedPathParser.setPathOptions(PathContainer.Options.MESSAGE_ROUTE);
+					PathPatternMessageMatcher.Builder builder = (useHttpPathSeparator)
+							? PathPatternMessageMatcher.withDefaults()
+							: PathPatternMessageMatcher.withPathPatternParser(dotSeparatedPathParser);
+					if (type == null) {
+						return builder.matcher(pattern);
+					}
+					if (SimpMessageType.MESSAGE == type || SimpMessageType.SUBSCRIBE == type) {
+						return builder.matcher(pattern, type);
+					}
+					throw new IllegalStateException(type + " is not supported since it does not have a destination");
+				});
+			}
+
+			@Override
+			public boolean matches(Message<?> message) {
+				return this.delegate.get().matches(message);
+			}
+
+			Map<String, String> extractPathVariables(Message<?> message) {
+				MatchResult matchResult = this.delegate.get().matcher(message);
+				return matchResult.getVariables();
+			}
+
+		}
+
 	}
 
 	private static final class Entry<T> {
@@ -421,7 +555,7 @@ public final class MessageMatcherDelegatingAuthorizationManager implements Autho
 
 		private final T entry;
 
-		Entry(MessageMatcher requestMatcher, T entry) {
+		Entry(MessageMatcher<?> requestMatcher, T entry) {
 			this.messageMatcher = requestMatcher;
 			this.entry = entry;
 		}
