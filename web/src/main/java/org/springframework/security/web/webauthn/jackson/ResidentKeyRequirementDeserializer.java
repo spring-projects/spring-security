@@ -19,29 +19,27 @@ package org.springframework.security.web.webauthn.jackson;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import org.springframework.security.web.webauthn.api.COSEAlgorithmIdentifier;
+import org.springframework.security.web.webauthn.api.ResidentKeyRequirement;
 
 import java.io.IOException;
 
 /**
- * Jackson serializer for {@link COSEAlgorithmIdentifier}
+ * Jackson deserializer for {@link ResidentKeyRequirement}
  *
- * @author Rob Winch
  * @author Justin Cranford
- * @since 6.4
+ * @since 6.5
  */
 @SuppressWarnings("serial")
-class COSEAlgorithmIdentifierDeserializer extends StdDeserializer<COSEAlgorithmIdentifier> {
+public class ResidentKeyRequirementDeserializer extends StdDeserializer<ResidentKeyRequirement> {
 
-	COSEAlgorithmIdentifierDeserializer() {
-		super(COSEAlgorithmIdentifier.class);
-	}
+    public ResidentKeyRequirementDeserializer() {
+        super(ResidentKeyRequirement.class);
+    }
 
-	@Override
-	public COSEAlgorithmIdentifier deserialize(JsonParser parser, DeserializationContext ctxt)
+    @Override
+    public ResidentKeyRequirement deserialize(JsonParser parser, DeserializationContext ctxt)
 			throws IOException {
-		Long transportValue = parser.readValueAs(Long.class);
-		return COSEAlgorithmIdentifier.valueOf(transportValue);
-	}
-
+		String type = parser.readValueAs(String.class);
+		return ResidentKeyRequirement.valueOf(type);
+    }
 }

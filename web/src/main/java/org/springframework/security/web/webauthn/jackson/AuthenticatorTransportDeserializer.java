@@ -16,19 +16,18 @@
 
 package org.springframework.security.web.webauthn.jackson;
 
-import java.io.IOException;
-
-import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-
 import org.springframework.security.web.webauthn.api.AuthenticatorTransport;
+
+import java.io.IOException;
 
 /**
  * Jackson deserializer for {@link AuthenticatorTransport}
  *
  * @author Rob Winch
+ * @author Justin Cranford
  * @since 6.4
  */
 @SuppressWarnings("serial")
@@ -40,14 +39,9 @@ class AuthenticatorTransportDeserializer extends StdDeserializer<AuthenticatorTr
 
 	@Override
 	public AuthenticatorTransport deserialize(JsonParser parser, DeserializationContext ctxt)
-			throws IOException, JacksonException {
+			throws IOException {
 		String transportValue = parser.readValueAs(String.class);
-		for (AuthenticatorTransport transport : AuthenticatorTransport.values()) {
-			if (transport.getValue().equals(transportValue)) {
-				return transport;
-			}
-		}
-		return null;
+		return AuthenticatorTransport.valueOf(transportValue);
 	}
 
 }

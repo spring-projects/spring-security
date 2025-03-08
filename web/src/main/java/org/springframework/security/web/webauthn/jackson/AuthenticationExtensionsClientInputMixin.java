@@ -16,17 +16,19 @@
 
 package org.springframework.security.web.webauthn.jackson;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-
 import org.springframework.security.web.webauthn.api.AuthenticationExtensionsClientInputs;
 
 /**
  * Jackson mixin for {@link AuthenticationExtensionsClientInputs}
  *
  * @author Rob Winch
+ * @author Justin Cranford
  * @since 6.4
  */
 @JsonSerialize(using = AuthenticationExtensionsClientInputSerializer.class)
+@JsonDeserialize(using = AuthenticationExtensionsClientInputDeserializer.class)
 class AuthenticationExtensionsClientInputMixin {
 
 }

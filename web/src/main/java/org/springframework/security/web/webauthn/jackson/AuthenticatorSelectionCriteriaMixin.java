@@ -18,14 +18,19 @@ package org.springframework.security.web.webauthn.jackson;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.springframework.security.web.webauthn.api.AuthenticatorSelectionCriteria;
 
 /**
  * Jackson mixin for {@link AuthenticatorSelectionCriteria}
  *
  * @author Rob Winch
+ * @author Justin Cranford
  * @since 6.4
  */
+@JsonSerialize(using = AuthenticatorSelectionCriteriaSerializer.class)
+@JsonDeserialize(using = AuthenticatorSelectionCriteriaDeserializer.class)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 abstract class AuthenticatorSelectionCriteriaMixin {
 

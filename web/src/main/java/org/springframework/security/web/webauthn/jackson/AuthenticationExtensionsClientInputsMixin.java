@@ -16,6 +16,7 @@
 
 package org.springframework.security.web.webauthn.jackson;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import org.springframework.security.web.webauthn.api.AuthenticationExtensionsClientInputs;
@@ -27,6 +28,7 @@ import org.springframework.security.web.webauthn.api.AuthenticationExtensionsCli
  * @since 6.4
  */
 @JsonSerialize(using = AuthenticationExtensionsClientInputsSerializer.class)
+@JsonDeserialize(using = AuthenticationExtensionsClientInputsDeserializer.class)
 class AuthenticationExtensionsClientInputsMixin {
 
 }
