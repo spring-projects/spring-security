@@ -136,7 +136,7 @@ public class SecurityMockServerConfigurersTests extends AbstractMockServerConfig
 			.expectStatus()
 			.isEqualTo(HttpStatus.FORBIDDEN)
 			.expectBody()
-			.consumeWith((b) -> assertThat(new String(b.getResponseBody())).contains("CSRF"));
+			.consumeWith((b) -> assertThat(new String(b.getResponseBody())).contains("Access Denied"));
 		this.client.mutateWith(SecurityMockServerConfigurers.csrf()).post().exchange().expectStatus().isOk();
 	}
 
