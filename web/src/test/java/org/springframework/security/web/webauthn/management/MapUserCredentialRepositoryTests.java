@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.security.web.webauthn.api.CredentialRecord;
 import org.springframework.security.web.webauthn.api.ImmutableCredentialRecord;
 import org.springframework.security.web.webauthn.api.TestBytes;
-import org.springframework.security.web.webauthn.api.TestCredentialRecord;
+import org.springframework.security.web.webauthn.api.TestCredentialRecords;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -61,7 +61,7 @@ class MapUserCredentialRepositoryTests {
 
 	@Test
 	void deleteWhenCredentialNotFoundThenNoException() {
-		ImmutableCredentialRecord credentialRecord = TestCredentialRecord.userCredential().build();
+		ImmutableCredentialRecord credentialRecord = TestCredentialRecords.userCredential().build();
 		assertThatNoException().isThrownBy(() -> this.userCredentials.delete(credentialRecord.getCredentialId()));
 	}
 
@@ -72,7 +72,7 @@ class MapUserCredentialRepositoryTests {
 
 	@Test
 	void saveThenFound() {
-		ImmutableCredentialRecord credentialRecord = TestCredentialRecord.userCredential().build();
+		ImmutableCredentialRecord credentialRecord = TestCredentialRecords.userCredential().build();
 		this.userCredentials.save(credentialRecord);
 		assertThat(this.userCredentials.findByCredentialId(credentialRecord.getCredentialId()))
 			.isEqualTo(credentialRecord);
@@ -87,7 +87,7 @@ class MapUserCredentialRepositoryTests {
 
 	@Test
 	void saveAndDeleteThenNotFound() {
-		ImmutableCredentialRecord credentialRecord = TestCredentialRecord.userCredential().build();
+		ImmutableCredentialRecord credentialRecord = TestCredentialRecords.userCredential().build();
 		this.userCredentials.save(credentialRecord);
 		this.userCredentials.delete(credentialRecord.getCredentialId());
 		assertThat(this.userCredentials.findByCredentialId(credentialRecord.getCredentialId())).isNull();
@@ -96,7 +96,7 @@ class MapUserCredentialRepositoryTests {
 
 	@Test
 	void saveWhenUpdateThenUpdated() {
-		ImmutableCredentialRecord credentialRecord = TestCredentialRecord.userCredential().build();
+		ImmutableCredentialRecord credentialRecord = TestCredentialRecords.userCredential().build();
 		this.userCredentials.save(credentialRecord);
 		Instant updatedLastUsed = credentialRecord.getLastUsed().plusSeconds(120);
 		CredentialRecord updatedCredentialRecord = ImmutableCredentialRecord.fromCredentialRecord(credentialRecord)
@@ -111,7 +111,7 @@ class MapUserCredentialRepositoryTests {
 
 	@Test
 	void saveWhenSameUserThenUpdated() {
-		ImmutableCredentialRecord credentialRecord = TestCredentialRecord.userCredential().build();
+		ImmutableCredentialRecord credentialRecord = TestCredentialRecords.userCredential().build();
 		this.userCredentials.save(credentialRecord);
 		CredentialRecord newCredentialRecord = ImmutableCredentialRecord.fromCredentialRecord(credentialRecord)
 			.credentialId(TestBytes.get())
@@ -127,7 +127,7 @@ class MapUserCredentialRepositoryTests {
 
 	@Test
 	void saveWhenDifferentUserThenNewEntryAdded() {
-		ImmutableCredentialRecord credentialRecord = TestCredentialRecord.userCredential().build();
+		ImmutableCredentialRecord credentialRecord = TestCredentialRecords.userCredential().build();
 		this.userCredentials.save(credentialRecord);
 		CredentialRecord newCredentialRecord = ImmutableCredentialRecord.fromCredentialRecord(credentialRecord)
 			.userEntityUserId(TestBytes.get())

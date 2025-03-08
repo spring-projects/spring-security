@@ -16,10 +16,10 @@
 
 package org.springframework.security.web.webauthn.api;
 
-public final class TestPublicKeyCredential {
+public final class TestPublicKeyCredentials {
 
 	public static PublicKeyCredential.PublicKeyCredentialBuilder<AuthenticatorAttestationResponse> createPublicKeyCredential() {
-		AuthenticatorAttestationResponse response = TestAuthenticatorAttestationResponse
+		AuthenticatorAttestationResponse response = TestAuthenticatorAttestationResponses
 			.createAuthenticatorAttestationResponse()
 			.build();
 		return createPublicKeyCredential(response);
@@ -49,7 +49,7 @@ public final class TestPublicKeyCredential {
 			.clientExtensionResults(outputs);
 	}
 
-	private TestPublicKeyCredential() {
+	private TestPublicKeyCredentials() {
 	}
 
 }
