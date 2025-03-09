@@ -18,10 +18,13 @@ package org.springframework.security.oauth2.core.endpoint;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.Collections;
+import java.util.Map;
 
 import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 /**
@@ -45,6 +48,8 @@ public final class OAuth2AuthorizationResponse implements Serializable {
 	private String state;
 
 	private String code;
+
+	private Map<String, Object> additionalParameters;
 
 	private OAuth2Error error;
 
@@ -73,6 +78,15 @@ public final class OAuth2AuthorizationResponse implements Serializable {
 	 */
 	public String getCode() {
 		return this.code;
+	}
+
+	/**
+	 * Returns the additional parameters returned in the response.
+	 * @return a {@code Map} of the additional parameters returned in the response, may be
+	 * empty.
+	 */
+	public Map<String, Object> getAdditionalParameters() {
+		return this.additionalParameters;
 	}
 
 	/**
@@ -134,6 +148,8 @@ public final class OAuth2AuthorizationResponse implements Serializable {
 
 		private String code;
 
+		private Map<String, Object> additionalParameters;
+
 		private String errorCode;
 
 		private String errorDescription;
@@ -170,6 +186,16 @@ public final class OAuth2AuthorizationResponse implements Serializable {
 		 */
 		public Builder code(String code) {
 			this.code = code;
+			return this;
+		}
+
+		/**
+		 * Sets the additional parameters returned in the response.
+		 * @param additionalParameters the additional parameters returned in the response
+		 * @return the {@link Builder}
+		 */
+		public Builder additionalParameters(Map<String, Object> additionalParameters) {
+			this.additionalParameters = additionalParameters;
 			return this;
 		}
 
@@ -215,6 +241,9 @@ public final class OAuth2AuthorizationResponse implements Serializable {
 			OAuth2AuthorizationResponse authorizationResponse = new OAuth2AuthorizationResponse();
 			authorizationResponse.redirectUri = this.redirectUri;
 			authorizationResponse.state = this.state;
+			authorizationResponse.additionalParameters = Collections
+					.unmodifiableMap(CollectionUtils.isEmpty(this.additionalParameters) ? Collections.emptyMap()
+											 : this.additionalParameters);
 			if (StringUtils.hasText(this.code)) {
 				authorizationResponse.code = this.code;
 			}
