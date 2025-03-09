@@ -19,8 +19,15 @@ package org.springframework.security.messaging.access.intercept;
 import java.util.Map;
 import java.util.function.Supplier;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.context.ApplicationContext;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
@@ -30,6 +37,8 @@ import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.messaging.util.matcher.MessageMatcherFactory;
+import org.springframework.security.messaging.util.matcher.PathPatternMessageMatcher;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -37,7 +46,20 @@ import static org.mockito.Mockito.mock;
 /**
  * Tests for {@link MessageMatcherDelegatingAuthorizationManager}
  */
+@ExtendWith(MockitoExtension.class)
 public final class MessageMatcherDelegatingAuthorizationManagerTests {
+
+	@Mock
+	private ApplicationContext context;
+
+	@Mock
+	private ObjectProvider<PathPatternMessageMatcher.Builder> provider;
+
+	@BeforeEach
+	void setUp() {
+		Mockito.when(this.context.getBeanProvider(PathPatternMessageMatcher.Builder.class)).thenReturn(this.provider);
+		MessageMatcherFactory.setApplicationContext(this.context);
+	}
 
 	@Test
 	void checkWhenPermitAllThenPermits() {
@@ -58,7 +80,7 @@ public final class MessageMatcherDelegatingAuthorizationManagerTests {
 
 	@Test
 	void checkWhenSimpDestinationMatchesThenUses() {
-		AuthorizationManager<Message<?>> authorizationManager = builder().destinationPathPatterns("/destination")
+		AuthorizationManager<Message<?>> authorizationManager = builder().simpDestMatchers("/destination")
 			.permitAll()
 			.anyMessage()
 			.denyAll()
@@ -97,12 +119,27 @@ public final class MessageMatcherDelegatingAuthorizationManagerTests {
 		assertThat(authorizationManager.check(mock(Supplier.class), message).isGranted()).isTrue();
 	}
 
+	// gh-12540
+	@Test
+	void checkWhenSimpDestinationMatchesThenVariablesExtracted() {
+		AuthorizationManager<Message<?>> authorizationManager = builder().simpDestMatchers("/destination/*/{id}")
+			.access(variable("id").isEqualTo("3"))
+			.anyMessage()
+			.denyAll()
+			.build();
+		MessageHeaders headers = new MessageHeaders(
+				Map.of(SimpMessageHeaderAccessor.DESTINATION_HEADER, "/destination/sub/3"));
+		Message<?> message = new GenericMessage<>(new Object(), headers);
+		assertThat(authorizationManager.check(mock(Supplier.class), message).isGranted()).isTrue();
+	}
+
 	@Test
 	void checkWhenMessageTypeAndPathPatternMatches() {
-		AuthorizationManager<Message<?>> authorizationManager = builder()
-			.simpTypeMessageDestinationPatterns("/destination")
+		Mockito.when(this.provider.getIfUnique()).thenReturn(PathPatternMessageMatcher.withDefaults());
+		MessageMatcherFactory.setApplicationContext(this.context);
+		AuthorizationManager<Message<?>> authorizationManager = builder().simpMessageDestMatchers("/destination")
 			.permitAll()
-			.simpTypeSubscribeDestinationPatterns("/destination")
+			.simpSubscribeDestMatchers("/destination")
 			.denyAll()
 			.anyMessage()
 			.denyAll()
@@ -118,45 +155,18 @@ public final class MessageMatcherDelegatingAuthorizationManagerTests {
 	}
 
 	@Test
-	void checkWhenMessageRouteAndPatternMismatch() {
-		AuthorizationManager<Message<?>> authorizationManager = builder().messageRouteSeparator()
-			.destinationPathPatterns("/destination.*")
+	void checkPatternMismatch() {
+		Mockito.when(this.provider.getIfUnique()).thenReturn(PathPatternMessageMatcher.withDefaults());
+		MessageMatcherFactory.setApplicationContext(this.context);
+		AuthorizationManager<Message<?>> authorizationManager = builder().simpDestMatchers("/destination/*")
 			.permitAll()
 			.anyMessage()
 			.denyAll()
 			.build();
 		MessageHeaders headers = new MessageHeaders(
-				Map.of(SimpMessageHeaderAccessor.DESTINATION_HEADER, "/destination.sub.asdf"));
+				Map.of(SimpMessageHeaderAccessor.DESTINATION_HEADER, "/destination/sub/asdf"));
 		Message<?> message = new GenericMessage<>(new Object(), headers);
 		assertThat(authorizationManager.check(mock(Supplier.class), message).isGranted()).isFalse();
-	}
-
-	// gh-12540
-	@Test
-	void checkWhenSimpDestinationMatchesThenVariablesExtracted() {
-		AuthorizationManager<Message<?>> authorizationManager = builder().destinationPathPatterns("/destination/{id}")
-			.access(variable("id").isEqualTo("3"))
-			.anyMessage()
-			.denyAll()
-			.build();
-		MessageHeaders headers = new MessageHeaders(
-				Map.of(SimpMessageHeaderAccessor.DESTINATION_HEADER, "/destination/3"));
-		Message<?> message = new GenericMessage<>(new Object(), headers);
-		assertThat(authorizationManager.check(mock(Supplier.class), message).isGranted()).isTrue();
-	}
-
-	@Test
-	void checkWhenMessageRouteDestinationMatchesThenVariablesExtracted() {
-		AuthorizationManager<Message<?>> authorizationManager = builder().messageRouteSeparator()
-			.destinationPathPatterns("/destination.{id}")
-			.access(variable("id").isEqualTo("3"))
-			.anyMessage()
-			.denyAll()
-			.build();
-		MessageHeaders headers = new MessageHeaders(
-				Map.of(SimpMessageHeaderAccessor.DESTINATION_HEADER, "/destination.3"));
-		Message<?> message = new GenericMessage<>(new Object(), headers);
-		assertThat(authorizationManager.check(mock(Supplier.class), message).isGranted()).isTrue();
 	}
 
 	private MessageMatcherDelegatingAuthorizationManager.Builder builder() {
