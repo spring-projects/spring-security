@@ -22,6 +22,7 @@ package org.springframework.security.web.webauthn.api;
  * is used to supply additional parameters when creating a new credential.
  *
  * @author Rob Winch
+ * @author Justin Cranford
  * @since 6.4
  * @see PublicKeyCredentialCreationOptions#getPubKeyCredParams()
  */
@@ -94,6 +95,27 @@ public final class PublicKeyCredentialParameters {
 	 */
 	public COSEAlgorithmIdentifier getAlg() {
 		return this.alg;
+	}
+
+	public static PublicKeyCredentialParameters valueOf(PublicKeyCredentialType type, COSEAlgorithmIdentifier alg) {
+		if (PublicKeyCredentialParameters.EdDSA.getType().equals(type) && PublicKeyCredentialParameters.EdDSA.getAlg().equals(alg)) {
+			return EdDSA;
+		} else if (PublicKeyCredentialParameters.ES256.getType().equals(type) && PublicKeyCredentialParameters.ES256.getAlg().equals(alg)) {
+			return ES256;
+		} else if (PublicKeyCredentialParameters.ES384.getType().equals(type) && PublicKeyCredentialParameters.ES256.getAlg().equals(alg)) {
+			return ES384;
+		} else if (PublicKeyCredentialParameters.ES512.getType().equals(type) && PublicKeyCredentialParameters.ES256.getAlg().equals(alg)) {
+			return ES512;
+		} else if (PublicKeyCredentialParameters.RS256.getType().equals(type) && PublicKeyCredentialParameters.ES256.getAlg().equals(alg)) {
+			return RS256;
+		} else if (PublicKeyCredentialParameters.RS384.getType().equals(type) && PublicKeyCredentialParameters.ES256.getAlg().equals(alg)) {
+			return RS384;
+		} else if (PublicKeyCredentialParameters.RS512.getType().equals(type) && PublicKeyCredentialParameters.ES256.getAlg().equals(alg)) {
+			return RS512;
+		} else if (PublicKeyCredentialParameters.RS1.getType().equals(type) && PublicKeyCredentialParameters.ES256.getAlg().equals(alg)) {
+			return RS1;
+		}
+		return new PublicKeyCredentialParameters(type, alg);
 	}
 
 }

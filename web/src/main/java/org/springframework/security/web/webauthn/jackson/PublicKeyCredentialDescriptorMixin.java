@@ -16,27 +16,27 @@
 
 package org.springframework.security.web.webauthn.jackson;
 
-import java.io.IOException;
-
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
-
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.security.web.webauthn.api.AuthenticatorTransport;
+import org.springframework.security.web.webauthn.api.Bytes;
+import org.springframework.security.web.webauthn.api.PublicKeyCredentialDescriptor;
+import org.springframework.security.web.webauthn.api.PublicKeyCredentialType;
+
+import java.util.Set;
 
 /**
- * Jackson serializer for {@link AuthenticatorTransport}
+ * Jackson mixin for {@link PublicKeyCredentialDescriptor}
  *
- * @author Rob Winch
- * @since 6.4
+ * @author Justin Cranford
+ * @since 6.5
  */
-@SuppressWarnings("serial")
-class AuthenticatorTransportSerializer extends JsonSerializer<AuthenticatorTransport> {
-
-	@Override
-	public void serialize(AuthenticatorTransport transport, JsonGenerator jgen, SerializerProvider provider)
-			throws IOException {
-		jgen.writeString(transport.getValue());
+abstract class PublicKeyCredentialDescriptorMixin {
+	@JsonCreator
+	public PublicKeyCredentialDescriptorMixin(
+		@JsonProperty("type") PublicKeyCredentialType type,
+		@JsonProperty("id") Bytes id,
+		@JsonProperty("transports") Set<AuthenticatorTransport> transports
+	) {
 	}
-
 }

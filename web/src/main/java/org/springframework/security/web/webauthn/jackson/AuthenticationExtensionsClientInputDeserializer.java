@@ -17,31 +17,35 @@
 package org.springframework.security.web.webauthn.jackson;
 
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import org.springframework.security.web.webauthn.api.COSEAlgorithmIdentifier;
+import org.springframework.security.web.webauthn.api.AuthenticationExtensionsClientInput;
+import org.springframework.security.web.webauthn.api.ImmutableAuthenticationExtensionsClientInput;
 
 import java.io.IOException;
 
 /**
- * Jackson serializer for {@link COSEAlgorithmIdentifier}
+ * Jackson deserializer for {@link AuthenticationExtensionsClientInput}
  *
- * @author Rob Winch
  * @author Justin Cranford
- * @since 6.4
+ * @since 6.5
  */
 @SuppressWarnings("serial")
-class COSEAlgorithmIdentifierDeserializer extends StdDeserializer<COSEAlgorithmIdentifier> {
+class AuthenticationExtensionsClientInputDeserializer extends StdDeserializer<AuthenticationExtensionsClientInput> {
 
-	COSEAlgorithmIdentifierDeserializer() {
-		super(COSEAlgorithmIdentifier.class);
+	AuthenticationExtensionsClientInputDeserializer() {
+		super(AuthenticationExtensionsClientInput.class);
 	}
 
 	@Override
-	public COSEAlgorithmIdentifier deserialize(JsonParser parser, DeserializationContext ctxt)
+	public AuthenticationExtensionsClientInput deserialize(JsonParser parser, DeserializationContext ctxt)
 			throws IOException {
-		Long transportValue = parser.readValueAs(Long.class);
-		return COSEAlgorithmIdentifier.valueOf(transportValue);
+		if (parser.nextToken() != JsonToken.END_OBJECT) {
+			String extensionId = parser.currentName();
+			Object value = parser.readValueAs(Object.class);
+			return new ImmutableAuthenticationExtensionsClientInput(extensionId, value);
+		}
+		return null;
 	}
-
 }

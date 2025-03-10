@@ -26,6 +26,7 @@ import java.io.Serializable;
  * order to obtain an assertion for a specific credential.
  *
  * @author Rob Winch
+ * @author Justin Cranford
  * @since 6.4
  */
 public final class AuthenticatorTransport implements Serializable {
@@ -118,7 +119,7 @@ public final class AuthenticatorTransport implements Serializable {
 	}
 
 	public static AuthenticatorTransport[] values() {
-		return new AuthenticatorTransport[] { USB, NFC, BLE, HYBRID, INTERNAL };
+		return new AuthenticatorTransport[] { USB, NFC, BLE, SMART_CARD, HYBRID, INTERNAL };
 	}
 
 }
