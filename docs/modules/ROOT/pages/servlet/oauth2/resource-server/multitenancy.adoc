@@ -320,7 +320,7 @@ class TenantJWSKeySelector(tenants: TenantRepository) : JWTClaimsSetAwareJWSKeyS
 ----
 ======
 <1> A hypothetical source for tenant information
-<2> A cache for `JWSKeySelector`s, keyed by tenant identifier
+<2> A cache for ``JWSKeySelector``s, keyed by tenant identifier
 <3> Looking up the tenant is more secure than simply calculating the JWK Set endpoint on the fly - the lookup acts as a list of allowed tenants
 <4> Create a `JWSKeySelector` via the types of keys that come back from the JWK Set endpoint - the lazy lookup here means that you don't need to configure all tenants at startup
 
