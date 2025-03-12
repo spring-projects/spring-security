@@ -536,6 +536,18 @@ class Webauthn4jRelyingPartyOperationsTests {
 			.isEqualTo(creationOptions.getAuthenticatorSelection().getUserVerification());
 	}
 
+	@Test
+	void shouldReturnEmptyCredentialsWhenUserIsAnonymous() {
+		AnonymousAuthenticationToken authentication = new AnonymousAuthenticationToken("key", "anonymousUser",
+				Set.of(() -> "ROLE_ANONYMOUS"));
+		PublicKeyCredentialRequestOptionsRequest createRequest = new ImmutablePublicKeyCredentialRequestOptionsRequest(
+				authentication);
+		PublicKeyCredentialRequestOptions credentialRequestOptions = this.rpOperations
+			.createCredentialRequestOptions(createRequest);
+
+		assertThat(credentialRequestOptions.getAllowCredentials()).isEmpty();
+	}
+
 	private static AuthenticatorAttestationResponse setFlag(byte... flags) throws Exception {
 		AuthenticatorAttestationResponseBuilder authAttResponseBldr = TestAuthenticatorAttestationResponse
 			.createAuthenticatorAttestationResponse();
