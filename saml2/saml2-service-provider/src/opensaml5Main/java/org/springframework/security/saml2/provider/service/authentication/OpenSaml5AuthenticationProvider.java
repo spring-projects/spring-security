@@ -48,7 +48,7 @@ import org.springframework.util.StringUtils;
 /**
  * Implementation of {@link AuthenticationProvider} for SAML authentications when
  * receiving a {@code Response} object containing an {@code Assertion}. This
- * implementation uses the {@code OpenSAML 4} library.
+ * implementation uses the {@code OpenSAML 5} library.
  *
  * <p>
  * The {@link OpenSaml5AuthenticationProvider} supports {@link Saml2AuthenticationToken}
@@ -154,7 +154,7 @@ public final class OpenSaml5AuthenticationProvider implements AuthenticationProv
 	 * {@link #createDefaultResponseValidator()}, like so:
 	 *
 	 * <pre>
-	 * OpenSaml4AuthenticationProvider provider = new OpenSaml4AuthenticationProvider();
+	 * OpenSaml5AuthenticationProvider provider = new OpenSaml5AuthenticationProvider();
 	 * provider.setResponseValidator(responseToken -&gt; {
 	 * 		Saml2ResponseValidatorResult result = createDefaultResponseValidator()
 	 * 			.convert(responseToken)
