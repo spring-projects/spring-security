@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -245,7 +245,7 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 	 * be used to create an Authentication for saving.</li>
 	 * </ul>
 	 * @param authorizedClient the {@link OAuth2AuthorizedClient} to use.
-	 * @return the {@link Consumer} to populate the
+	 * @return the {@link Consumer} to populate the attributes
 	 */
 	public static Consumer<Map<String, Object>> oauth2AuthorizedClient(OAuth2AuthorizedClient authorizedClient) {
 		return (attributes) -> attributes.put(OAUTH2_AUTHORIZED_CLIENT_ATTR_NAME, authorizedClient);
