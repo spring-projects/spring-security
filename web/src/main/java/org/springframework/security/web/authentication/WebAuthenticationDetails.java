@@ -29,6 +29,7 @@ import org.springframework.security.core.SpringSecurityCoreVersion;
  *
  * @author Ben Alex
  * @author Luke Taylor
+ * @author Lazar Radinović
  */
 public class WebAuthenticationDetails implements Serializable {
 
@@ -44,7 +45,7 @@ public class WebAuthenticationDetails implements Serializable {
 	 * @param request that the authentication request was received from
 	 */
 	public WebAuthenticationDetails(HttpServletRequest request) {
-		this(request.getRemoteAddr(), extractSessionId(request));
+		this(getClientIp(request), extractSessionId(request));
 	}
 
 	/**
@@ -56,6 +57,20 @@ public class WebAuthenticationDetails implements Serializable {
 	public WebAuthenticationDetails(String remoteAddress, String sessionId) {
 		this.remoteAddress = remoteAddress;
 		this.sessionId = sessionId;
+	}
+
+	private static String getClientIp(HttpServletRequest request) {
+		String ip = request.getHeader("X-Forwarded-For");
+		if (ip != null && !ip.isBlank()) {
+			// Take the first IP (original client)
+			return ip.split(",")[0].trim();
+		}
+
+		// Alternative proxy header
+		ip = request.getHeader("X-Real-IP");
+
+		// Fallback to direct client ip
+		return (ip != null && !ip.isBlank()) ? ip : request.getRemoteAddr();
 	}
 
 	private static String extractSessionId(HttpServletRequest request) {
