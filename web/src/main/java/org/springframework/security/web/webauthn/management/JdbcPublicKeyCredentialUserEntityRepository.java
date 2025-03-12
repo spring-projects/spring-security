@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.ArgumentPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.PreparedStatementSetter;
@@ -124,17 +123,9 @@ public final class JdbcPublicKeyCredentialUserEntityRepository implements Public
 	@Override
 	public void save(PublicKeyCredentialUserEntity userEntity) {
 		Assert.notNull(userEntity, "userEntity cannot be null");
-		boolean existsUserEntity = null != this.findById(userEntity.getId());
-		if (existsUserEntity) {
-			updateUserEntity(userEntity);
-		}
-		else {
-			try {
-				insertUserEntity(userEntity);
-			}
-			catch (DuplicateKeyException ex) {
-				updateUserEntity(userEntity);
-			}
+		int rows = updateUserEntity(userEntity);
+		if (rows == 0) {
+			insertUserEntity(userEntity);
 		}
 	}
 
@@ -144,12 +135,12 @@ public final class JdbcPublicKeyCredentialUserEntityRepository implements Public
 		this.jdbcOperations.update(SAVE_USER_SQL, pss);
 	}
 
-	private void updateUserEntity(PublicKeyCredentialUserEntity userEntity) {
+	private int updateUserEntity(PublicKeyCredentialUserEntity userEntity) {
 		List<SqlParameterValue> parameters = this.userEntityParametersMapper.apply(userEntity);
 		SqlParameterValue userEntityId = parameters.remove(0);
 		parameters.add(userEntityId);
 		PreparedStatementSetter pss = new ArgumentPreparedStatementSetter(parameters.toArray());
-		this.jdbcOperations.update(UPDATE_USER_SQL, pss);
+		return this.jdbcOperations.update(UPDATE_USER_SQL, pss);
 	}
 
 	@Override
