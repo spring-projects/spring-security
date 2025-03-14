@@ -117,6 +117,8 @@ public abstract class AbstractUserDetailsAuthenticationProvider
 	public final void afterPropertiesSet() throws Exception {
 		Assert.notNull(this.userCache, "A user cache must be set");
 		Assert.notNull(this.messages, "A message source must be set");
+		Assert.notNull(this.preAuthenticationChecks, "A pre authentication checks must be set");
+		Assert.notNull(this.postAuthenticationChecks, "A post authentication checks must be set");
 		doAfterPropertiesSet();
 	}
 
