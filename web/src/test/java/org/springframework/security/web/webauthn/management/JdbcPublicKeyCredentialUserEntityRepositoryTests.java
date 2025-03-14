@@ -28,7 +28,7 @@ import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 import org.springframework.security.web.webauthn.api.Bytes;
 import org.springframework.security.web.webauthn.api.ImmutablePublicKeyCredentialUserEntity;
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialUserEntity;
-import org.springframework.security.web.webauthn.api.TestPublicKeyCredentialUserEntity;
+import org.springframework.security.web.webauthn.api.TestPublicKeyCredentialUserEntities;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -107,7 +107,7 @@ public class JdbcPublicKeyCredentialUserEntityRepositoryTests {
 
 	@Test
 	void saveUserEntityWhenSaveThenReturnsSaved() {
-		PublicKeyCredentialUserEntity userEntity = TestPublicKeyCredentialUserEntity.userEntity().build();
+		PublicKeyCredentialUserEntity userEntity = TestPublicKeyCredentialUserEntities.userEntity().build();
 
 		this.repository.save(userEntity);
 
@@ -120,7 +120,7 @@ public class JdbcPublicKeyCredentialUserEntityRepositoryTests {
 
 	@Test
 	void saveUserEntityWhenUserEntityExistsThenUpdates() {
-		PublicKeyCredentialUserEntity userEntity = TestPublicKeyCredentialUserEntity.userEntity().build();
+		PublicKeyCredentialUserEntity userEntity = TestPublicKeyCredentialUserEntities.userEntity().build();
 		this.repository.save(userEntity);
 
 		this.repository.save(testUserEntity(userEntity.getId()));
@@ -134,7 +134,7 @@ public class JdbcPublicKeyCredentialUserEntityRepositoryTests {
 
 	@Test
 	void findUserEntityByUserNameWhenUserEntityExistsThenReturnsSaved() {
-		PublicKeyCredentialUserEntity userEntity = TestPublicKeyCredentialUserEntity.userEntity().build();
+		PublicKeyCredentialUserEntity userEntity = TestPublicKeyCredentialUserEntities.userEntity().build();
 		this.repository.save(userEntity);
 
 		PublicKeyCredentialUserEntity savedUserEntity = this.repository.findByUsername(userEntity.getName());
@@ -144,7 +144,7 @@ public class JdbcPublicKeyCredentialUserEntityRepositoryTests {
 
 	@Test
 	void deleteUserEntityWhenRecordExistThenSuccess() {
-		PublicKeyCredentialUserEntity userEntity = TestPublicKeyCredentialUserEntity.userEntity().build();
+		PublicKeyCredentialUserEntity userEntity = TestPublicKeyCredentialUserEntities.userEntity().build();
 		this.repository.save(userEntity);
 
 		this.repository.delete(userEntity.getId());
@@ -155,7 +155,7 @@ public class JdbcPublicKeyCredentialUserEntityRepositoryTests {
 
 	@Test
 	void findUserEntityByIdWhenUserEntityDoesNotExistThenReturnsNull() {
-		PublicKeyCredentialUserEntity userEntity = TestPublicKeyCredentialUserEntity.userEntity().build();
+		PublicKeyCredentialUserEntity userEntity = TestPublicKeyCredentialUserEntities.userEntity().build();
 
 		PublicKeyCredentialUserEntity savedUserEntity = this.repository.findById(userEntity.getId());
 		assertThat(savedUserEntity).isNull();
@@ -163,7 +163,7 @@ public class JdbcPublicKeyCredentialUserEntityRepositoryTests {
 
 	@Test
 	void findUserEntityByUserNameWhenUserEntityDoesNotExistThenReturnsEmpty() {
-		PublicKeyCredentialUserEntity userEntity = TestPublicKeyCredentialUserEntity.userEntity().build();
+		PublicKeyCredentialUserEntity userEntity = TestPublicKeyCredentialUserEntities.userEntity().build();
 
 		PublicKeyCredentialUserEntity savedUserEntity = this.repository.findByUsername(userEntity.getName());
 		assertThat(savedUserEntity).isNull();
