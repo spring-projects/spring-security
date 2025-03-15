@@ -16,7 +16,7 @@ Java::
 [source,java,role="primary"]
 ----
 @Bean
-public SecurityEvaluationContextExtension securityEvaluationContextExtension() {
+SecurityEvaluationContextExtension securityEvaluationContextExtension() {
 	return new SecurityEvaluationContextExtension();
 }
 ----
@@ -50,7 +50,6 @@ Java::
 +
 [source,java,role="primary"]
 ----
-@Repository
 public interface MessageRepository extends PagingAndSortingRepository<Message,Long> {
 	@Query("select m from Message m where m.to.id = ?#{ principal?.id }")
 	Page<Message> findInbox(Pageable pageable);
@@ -61,7 +60,6 @@ Kotlin::
 +
 [source,kotlin,role="secondary"]
 ----
-@Repository
 interface MessageRepository : PagingAndSortingRepository<Message,Long> {
 	@Query("select m from Message m where m.to.id = ?#{ principal?.id }")
 	fun findInbox(pageable: Pageable): Page<Message>
