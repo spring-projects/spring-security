@@ -62,16 +62,6 @@ public abstract class AuthenticationException extends RuntimeException {
 		this.authRequest = null;
 	}
 
-	/**
-	 * Constructs an {@code AuthenticationException} with the specified message and root
-	 * cause.
-	 * @param msg the detail message
-	 * @param authRequest details about the failed authentication request
-	 */
-	public AuthenticationException(String msg, Authentication authRequest) {
-		super(msg);
-		Assert.notNull(authRequest, "AuthRequest cannot be null");
-	}
 
 	/**
 	 * Sets the {@link Authentication} object representing the failed authentication
