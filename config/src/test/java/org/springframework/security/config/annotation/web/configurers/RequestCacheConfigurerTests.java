@@ -170,6 +170,23 @@ public class RequestCacheConfigurerTests {
 	}
 
 	@Test
+	public void getWhenBookmarkedRequestIsWebSocketThenPostAuthenticationRedirectsToRoot() throws Exception {
+		this.spring.register(RequestCacheDefaultsConfig.class, DefaultSecurityConfig.class).autowire();
+		MockHttpServletRequestBuilder request = get("/messages").header("Upgrade", "websocket");
+		// @formatter:off
+		MockHttpSession session = (MockHttpSession) this.mvc.perform(request)
+				.andExpect(redirectedUrl("http://localhost/login"))
+				.andReturn()
+				.getRequest()
+				.getSession();
+		// @formatter:on
+		// ignores websocket
+		// This is desirable since websocket requests are typically not invoked
+		// directly from the browser and we don't want the browser to replay them
+		this.mvc.perform(formLogin(session)).andExpect(redirectedUrl("/"));
+	}
+
+	@Test
 	public void getWhenBookmarkedRequestIsAllMediaTypeThenPostAuthenticationRemembers() throws Exception {
 		this.spring.register(RequestCacheDefaultsConfig.class, DefaultSecurityConfig.class).autowire();
 		MockHttpServletRequestBuilder request = get("/messages").header(HttpHeaders.ACCEPT, MediaType.ALL);
