@@ -2,7 +2,7 @@ apply plugin: 'io.spring.convention.spring-module'
 
 configurations {
 	opensamlFiveMain { extendsFrom(optional, provided) }
-	opensamlFiveTest { extendsFrom(opensamlFiveMain, testImplementation) }
+	opensamlFiveTest { extendsFrom(opensamlFiveMain, testImplementation, testRuntimeOnly) }
 }
 
 sourceSets {
