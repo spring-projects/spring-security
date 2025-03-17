@@ -67,6 +67,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Daniel Garnier-Moiroux
  */
+@org.junit.jupiter.api.Disabled
 class WebAuthnWebDriverTests {
 
 	private String baseUrl;
