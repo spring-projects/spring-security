@@ -41,6 +41,7 @@ dependencies {
 	testImplementation 'io.mockk:mockk'
 
 	testRuntimeOnly 'org.hsqldb:hsqldb'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 task springVersion(type: org.gradle.api.tasks.WriteProperties) {

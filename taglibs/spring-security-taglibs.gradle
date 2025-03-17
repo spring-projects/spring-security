@@ -24,6 +24,8 @@ dependencies {
 	testImplementation "org.mockito:mockito-core"
 	testImplementation "org.mockito:mockito-junit-jupiter"
 	testImplementation "org.springframework:spring-test"
+
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 configure(project.tasks.withType(Test)) {
