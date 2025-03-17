@@ -60,6 +60,8 @@ public final class OAuth2AuthorizationContext {
 	 */
 	public static final String PASSWORD_ATTRIBUTE_NAME = OAuth2AuthorizationContext.class.getName().concat(".PASSWORD");
 
+	public static final String ADDITIONAL_GRANT_REQUEST_PARAMETERS_ATTRIBUTE_NAME = OAuth2AuthorizationContext.class.getName().concat(".ADDITIONAL_GRANT_REQUEST_PARAMETERS");
+
 	private ClientRegistration clientRegistration;
 
 	private OAuth2AuthorizedClient authorizedClient;
