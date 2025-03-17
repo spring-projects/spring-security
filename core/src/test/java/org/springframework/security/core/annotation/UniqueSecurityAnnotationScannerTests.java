@@ -295,6 +295,30 @@ public class UniqueSecurityAnnotationScannerTests {
 			.isThrownBy(() -> this.parameterScanner.scan(parameter));
 	}
 
+	// gh-16751
+	@Test
+	void scanWhenAnnotationOnParameterizedInterfaceTheLocates() throws Exception {
+		Method method = MyServiceImpl.class.getDeclaredMethod("get", String.class);
+		PreAuthorize pre = this.scanner.scan(method, method.getDeclaringClass());
+		assertThat(pre).isNotNull();
+	}
+
+	// gh-16751
+	@Test
+	void scanWhenAnnotationOnParameterizedSuperClassThenLocates() throws Exception {
+		Method method = MyServiceImpl.class.getDeclaredMethod("getExt", Long.class);
+		PreAuthorize pre = this.scanner.scan(method, method.getDeclaringClass());
+		assertThat(pre).isNotNull();
+	}
+
+	// gh-16751
+	@Test
+	void scanWhenAnnotationOnParameterizedMethodThenLocates() throws Exception {
+		Method method = MyServiceImpl.class.getDeclaredMethod("getExtByClass", Class.class, Long.class);
+		PreAuthorize pre = this.scanner.scan(method, method.getDeclaringClass());
+		assertThat(pre).isNotNull();
+	}
+
 	interface UserService {
 
 		void add(@CustomParameterAnnotation("one") String user);
@@ -678,6 +702,42 @@ public class UniqueSecurityAnnotationScannerTests {
 
 	@PreAuthorize("twentynine")
 	private static class ClassInheritingAbstractClassNoAnnotations extends AbstractClassNoAnnotations {
+
+	}
+
+	interface MyService<C, U> {
+
+		@PreAuthorize("thirty")
+		C get(U u);
+
+	}
+
+	abstract static class MyServiceExt<T> implements MyService<Integer, String> {
+
+		@PreAuthorize("thirtyone")
+		abstract T getExt(T t);
+
+		@PreAuthorize("thirtytwo")
+		abstract <S extends Number> S getExtByClass(Class<S> clazz, T t);
+
+	}
+
+	static class MyServiceImpl extends MyServiceExt<Long> {
+
+		@Override
+		public Integer get(final String s) {
+			return 0;
+		}
+
+		@Override
+		Long getExt(Long o) {
+			return 0L;
+		}
+
+		@Override
+		<S extends Number> S getExtByClass(Class<S> clazz, Long l) {
+			return null;
+		}
 
 	}
 
