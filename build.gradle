@@ -20,7 +20,6 @@ plugins {
 
 apply plugin: 'io.spring.nohttp'
 apply plugin: 'locks'
-apply plugin: 's101'
 apply plugin: 'io.spring.convention.root'
 apply plugin: 'org.jetbrains.kotlin.jvm'
 apply plugin: 'org.springframework.security.versions.verify-dependencies-versions'
@@ -115,11 +114,6 @@ tasks.register('cloneRepository', IncludeRepoTask) {
 	ref = project.getProperties().get("ref")
 	var defaultDirectory = project.file("build/tmp/clone")
 	outputDirectory = project.hasProperty("cloneOutputDirectory") ? project.file("$cloneOutputDirectory") : defaultDirectory
-}
-
-s101 {
-	repository = 'https://structure101.com/binaries/latest'
-	configurationDirectory = project.file("etc/s101")
 }
 
 wrapperUpgrade {
