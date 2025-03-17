@@ -64,7 +64,7 @@ public class ExpressionUtilsTests {
 	}
 
 	public Object throwException() {
-		throw new AuthorizationDeniedException("denied");
+		throw new AuthorizationDeniedException("denied", new AuthorizationDecision(false));
 	}
 
 	public boolean returnResult() {
