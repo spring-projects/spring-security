@@ -115,6 +115,7 @@ dependencies {
 	testImplementation libs.org.instancio.instancio.junit
 
 	testRuntimeOnly 'org.hsqldb:hsqldb'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 def rncToXsd = tasks.named('rncToXsd', RncToXsd)

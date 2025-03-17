@@ -25,6 +25,7 @@ dependencies {
 
 	testRuntimeOnly project(':spring-security-config')
 	testRuntimeOnly project(':spring-security-ldap')
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 integrationTest {

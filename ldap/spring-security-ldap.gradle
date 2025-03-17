@@ -35,6 +35,8 @@ dependencies {
 	testImplementation "org.mockito:mockito-junit-jupiter"
 	testImplementation "org.springframework:spring-test"
 	testImplementation 'org.skyscreamer:jsonassert'
+
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 integrationTest {
