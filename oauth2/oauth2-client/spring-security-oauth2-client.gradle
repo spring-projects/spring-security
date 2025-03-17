@@ -33,6 +33,7 @@ dependencies {
 	testImplementation "org.springframework:spring-test"
 
 	testRuntimeOnly 'org.hsqldb:hsqldb'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
 	provided 'jakarta.servlet:jakarta.servlet-api'
 }

@@ -126,6 +126,7 @@ dependencies {
 	testImplementation libs.org.eclipse.jetty.jetty.servlet
 
 	testRuntimeOnly 'org.hsqldb:hsqldb'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 def rncToXsd = tasks.named('rncToXsd', RncToXsd)
