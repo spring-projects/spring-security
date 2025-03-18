@@ -19,9 +19,11 @@ package org.springframework.security.messaging.util.matcher;
 import java.util.Collections;
 
 import org.springframework.http.server.PathContainer;
+import org.springframework.lang.Nullable;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessageType;
+import org.springframework.security.messaging.access.intercept.MessageAuthorizationContext;
 import org.springframework.util.Assert;
 import org.springframework.web.util.pattern.PathPattern;
 import org.springframework.web.util.pattern.PathPatternParser;
@@ -40,7 +42,7 @@ public final class PathPatternMessageMatcher implements MessageMatcher<Object> {
 
 	private final PathPattern pattern;
 
-	private final PathPatternParser parser;
+	private final PathContainer.Options options;
 
 	/**
 	 * The {@link MessageMatcher} that determines if the type matches. If the type was
@@ -48,8 +50,8 @@ public final class PathPatternMessageMatcher implements MessageMatcher<Object> {
 	 */
 	private MessageMatcher<Object> messageTypeMatcher = ANY_MESSAGE;
 
-	private PathPatternMessageMatcher(PathPattern pattern, PathPatternParser parser) {
-		this.parser = parser;
+	private PathPatternMessageMatcher(PathPattern pattern, PathContainer.Options options) {
+		this.options = options;
 		this.pattern = pattern;
 	}
 
@@ -78,17 +80,7 @@ public final class PathPatternMessageMatcher implements MessageMatcher<Object> {
 	 */
 	@Override
 	public boolean matches(Message<?> message) {
-		if (!this.messageTypeMatcher.matches(message)) {
-			return false;
-		}
-
-		String destination = getDestination(message);
-		if (destination == null) {
-			return false;
-		}
-
-		PathContainer destinationPathContainer = PathContainer.parsePath(destination, this.parser.getPathOptions());
-		return this.pattern.matches(destinationPathContainer);
+		return matcher(message).isMatch();
 	}
 
 	/**
@@ -109,7 +101,7 @@ public final class PathPatternMessageMatcher implements MessageMatcher<Object> {
 			return MatchResult.notMatch();
 		}
 
-		PathContainer destinationPathContainer = PathContainer.parsePath(destination, this.parser.getPathOptions());
+		PathContainer destinationPathContainer = PathContainer.parsePath(destination, this.options);
 		PathPattern.PathMatchInfo pathMatchInfo = this.pattern.matchAndExtract(destinationPathContainer);
 
 		return (pathMatchInfo != null) ? MatchResult.match(pathMatchInfo.getUriVariables()) : MatchResult.notMatch();
@@ -119,31 +111,90 @@ public final class PathPatternMessageMatcher implements MessageMatcher<Object> {
 		return SimpMessageHeaderAccessor.getDestination(message.getHeaders());
 	}
 
+	/**
+	 * A builder for specifying various elements of a message for the purpose of creating
+	 * a {@link PathPatternMessageMatcher}.
+	 */
 	public static class Builder {
 
 		private final PathPatternParser parser;
-
-		private MessageMatcher<Object> messageTypeMatcher = ANY_MESSAGE;
 
 		Builder(PathPatternParser parser) {
 			this.parser = parser;
 		}
 
+		/**
+		 * Match messages having this destination pattern.
+		 *
+		 * <p>
+		 * Path patterns always start with a slash and may contain placeholders. They can
+		 * also be followed by {@code /**} to signify all URIs under a given path.
+		 *
+		 * <p>
+		 * The following are valid patterns and their meaning
+		 * <ul>
+		 * <li>{@code /path} - match exactly and only `/path`</li>
+		 * <li>{@code /path/**} - match `/path` and any of its descendents</li>
+		 * <li>{@code /path/{value}/**} - match `/path/subdirectory` and any of its
+		 * descendents, capturing the value of the subdirectory in
+		 * {@link MessageAuthorizationContext#getVariables()}</li>
+		 * </ul>
+		 *
+		 * <p>
+		 * A more comprehensive list can be found at {@link PathPattern}.
+		 *
+		 * <p>
+		 * A dot-based message pattern is also supported when configuring a
+		 * {@link PathPatternParser} using
+		 * {@link PathPatternMessageMatcher#withPathPatternParser}
+		 * @param pattern the destination pattern to match
+		 * @return the {@link PathPatternMessageMatcher.Builder} for more configuration
+		 */
 		public PathPatternMessageMatcher matcher(String pattern) {
-			Assert.notNull(pattern, "Pattern must not be null");
-			PathPattern pathPattern = this.parser.parse(pattern);
-			PathPatternMessageMatcher matcher = new PathPatternMessageMatcher(pathPattern, this.parser);
-			if (this.messageTypeMatcher != ANY_MESSAGE) {
-				matcher.setMessageTypeMatcher(this.messageTypeMatcher);
-			}
-			return matcher;
+			return matcher(null, pattern);
 		}
 
-		public PathPatternMessageMatcher matcher(String pattern, SimpMessageType type) {
-			Assert.notNull(type, "Type must not be null");
-			this.messageTypeMatcher = new SimpMessageTypeMatcher(type);
-
-			return matcher(pattern);
+		/**
+		 * Match messages having this type and destination pattern.
+		 *
+		 * <p>
+		 * When the message {@code type} is null, then the matcher does not consider the
+		 * message type
+		 *
+		 * <p>
+		 * Path patterns always start with a slash and may contain placeholders. They can
+		 * also be followed by {@code /**} to signify all URIs under a given path.
+		 *
+		 * <p>
+		 * The following are valid patterns and their meaning
+		 * <ul>
+		 * <li>{@code /path} - match exactly and only `/path`</li>
+		 * <li>{@code /path/**} - match `/path` and any of its descendents</li>
+		 * <li>{@code /path/{value}/**} - match `/path/subdirectory` and any of its
+		 * descendents, capturing the value of the subdirectory in
+		 * {@link MessageAuthorizationContext#getVariables()}</li>
+		 * </ul>
+		 *
+		 * <p>
+		 * A more comprehensive list can be found at {@link PathPattern}.
+		 *
+		 * <p>
+		 * A dot-based message pattern is also supported when configuring a
+		 * {@link PathPatternParser} using
+		 * {@link PathPatternMessageMatcher#withPathPatternParser}
+		 * @param type the message type to match
+		 * @param pattern the destination pattern to match
+		 * @return the {@link PathPatternMessageMatcher.Builder} for more configuration
+		 */
+		public PathPatternMessageMatcher matcher(@Nullable SimpMessageType type, String pattern) {
+			Assert.notNull(pattern, "pattern must not be null");
+			PathPattern pathPattern = this.parser.parse(pattern);
+			PathPatternMessageMatcher matcher = new PathPatternMessageMatcher(pathPattern,
+					this.parser.getPathOptions());
+			if (type != null) {
+				matcher.setMessageTypeMatcher(new SimpMessageTypeMatcher(type));
+			}
+			return matcher;
 		}
 
 	}

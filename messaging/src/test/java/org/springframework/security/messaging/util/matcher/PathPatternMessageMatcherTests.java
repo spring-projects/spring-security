@@ -84,7 +84,7 @@ public class PathPatternMessageMatcherTests {
 
 	@Test
 	void matchesFalseWithDifferentMessageType() {
-		this.matcher = PathPatternMessageMatcher.withDefaults().matcher("/match", SimpMessageType.MESSAGE);
+		this.matcher = PathPatternMessageMatcher.withDefaults().matcher(SimpMessageType.MESSAGE, "/match");
 		this.messageBuilder.setHeader(SimpMessageHeaderAccessor.MESSAGE_TYPE_HEADER, SimpMessageType.DISCONNECT);
 		this.messageBuilder.setHeader(SimpMessageHeaderAccessor.DESTINATION_HEADER, "/match");
 
@@ -92,16 +92,16 @@ public class PathPatternMessageMatcherTests {
 	}
 
 	@Test
-	public void matchesTrueMessageType() {
-		this.matcher = PathPatternMessageMatcher.withDefaults().matcher("/match", SimpMessageType.MESSAGE);
+	void matchesTrueMessageType() {
+		this.matcher = PathPatternMessageMatcher.withDefaults().matcher(SimpMessageType.MESSAGE, "/match");
 		this.messageBuilder.setHeader(SimpMessageHeaderAccessor.DESTINATION_HEADER, "/match");
 		this.messageBuilder.setHeader(SimpMessageHeaderAccessor.MESSAGE_TYPE_HEADER, SimpMessageType.MESSAGE);
 		assertThat(this.matcher.matches(this.messageBuilder.build())).isTrue();
 	}
 
 	@Test
-	public void matchesTrueSubscribeType() {
-		this.matcher = PathPatternMessageMatcher.withDefaults().matcher("/match", SimpMessageType.SUBSCRIBE);
+	void matchesTrueSubscribeType() {
+		this.matcher = PathPatternMessageMatcher.withDefaults().matcher(SimpMessageType.SUBSCRIBE, "/match");
 		this.messageBuilder.setHeader(SimpMessageHeaderAccessor.DESTINATION_HEADER, "/match");
 		this.messageBuilder.setHeader(SimpMessageHeaderAccessor.MESSAGE_TYPE_HEADER, SimpMessageType.SUBSCRIBE);
 		assertThat(this.matcher.matches(this.messageBuilder.build())).isTrue();

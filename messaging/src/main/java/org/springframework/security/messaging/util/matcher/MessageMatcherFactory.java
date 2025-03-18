@@ -19,6 +19,12 @@ package org.springframework.security.messaging.util.matcher;
 import org.springframework.context.ApplicationContext;
 import org.springframework.messaging.simp.SimpMessageType;
 
+/**
+ * This utility exists only to facilitate applications opting into using path patterns in
+ * the Message Security DSL. It is for internal use only.
+ *
+ * @deprecated
+ */
 @Deprecated(forRemoval = true)
 public final class MessageMatcherFactory {
 
@@ -33,11 +39,11 @@ public final class MessageMatcherFactory {
 	}
 
 	public static MessageMatcher<?> matcher(String destination) {
-		return builder.matcher(destination);
+		return matcher(null, destination);
 	}
 
-	public static MessageMatcher<Object> matcher(String destination, SimpMessageType type) {
-		return (type != null) ? builder.matcher(destination, type) : builder.matcher(destination);
+	public static MessageMatcher<Object> matcher(SimpMessageType type, String destination) {
+		return builder.matcher(type, destination);
 	}
 
 	private MessageMatcherFactory() {
