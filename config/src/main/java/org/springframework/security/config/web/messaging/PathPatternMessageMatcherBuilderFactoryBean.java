@@ -14,36 +14,26 @@
  * limitations under the License.
  */
 
-package org.springframework.security.messaging.util.matcher;
+package org.springframework.security.config.web.messaging;
 
 import org.springframework.beans.factory.FactoryBean;
-import org.springframework.web.util.pattern.PathPatternParser;
+import org.springframework.security.messaging.access.intercept.MessageMatcherDelegatingAuthorizationManager;
+import org.springframework.security.messaging.util.matcher.PathPatternMessageMatcher;
 
 /**
  * Use this factory bean to configure the {@link PathPatternMessageMatcher.Builder} bean
- * used to create request matchers in
- * {@link org.springframework.security.messaging.access.intercept.MessageMatcherDelegatingAuthorizationManager}
+ * used to create request matchers in {@link MessageMatcherDelegatingAuthorizationManager}
  * and other parts of the DSL.
  *
  * @author Pat McCusker
  * @since 6.5
  */
-public class PathPatternMessageMatcherBuilderFactoryBean implements FactoryBean<PathPatternMessageMatcher.Builder> {
-
-	private final PathPatternParser parser;
-
-	public PathPatternMessageMatcherBuilderFactoryBean() {
-		this(null);
-	}
-
-	public PathPatternMessageMatcherBuilderFactoryBean(PathPatternParser parser) {
-		this.parser = parser;
-	}
+public final class PathPatternMessageMatcherBuilderFactoryBean
+		implements FactoryBean<PathPatternMessageMatcher.Builder> {
 
 	@Override
 	public PathPatternMessageMatcher.Builder getObject() throws Exception {
-		return (this.parser != null) ? PathPatternMessageMatcher.withPathPatternParser(this.parser)
-				: PathPatternMessageMatcher.withDefaults();
+		return PathPatternMessageMatcher.withDefaults();
 	}
 
 	@Override

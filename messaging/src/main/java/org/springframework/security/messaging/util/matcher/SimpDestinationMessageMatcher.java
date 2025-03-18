@@ -125,6 +125,12 @@ public final class SimpDestinationMessageMatcher implements MessageMatcher<Objec
 		return destination != null && this.matcher.match(this.pattern, destination);
 	}
 
+	@Override
+	public MatchResult matcher(Message<?> message) {
+		boolean match = matches(message);
+		return (!match) ? MatchResult.notMatch() : MatchResult.match(extractPathVariables(message));
+	}
+
 	public Map<String, String> extractPathVariables(Message<?> message) {
 		final String destination = SimpMessageHeaderAccessor.getDestination(message.getHeaders());
 		return (destination != null) ? this.matcher.extractUriTemplateVariables(this.pattern, destination)

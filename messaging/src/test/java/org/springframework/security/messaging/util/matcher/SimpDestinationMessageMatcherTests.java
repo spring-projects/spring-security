@@ -131,7 +131,7 @@ public class SimpDestinationMessageMatcherTests {
 	}
 
 	@Test
-	void illegalStateExceptionThrown_onExtractPathVariables_whenNoMatch() {
+	public void extractPathVariablesWhenNoMatchThenIllegalState() {
 		this.matcher = new SimpDestinationMessageMatcher("/nomatch");
 		this.messageBuilder.setHeader(SimpMessageHeaderAccessor.DESTINATION_HEADER, "/destination/1");
 		assertThatIllegalStateException()

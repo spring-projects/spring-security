@@ -17,9 +17,7 @@
 package org.springframework.security.messaging.access.intercept;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Supplier;
 
 import org.apache.commons.logging.Log;
@@ -98,9 +96,6 @@ public final class MessageMatcherDelegatingAuthorizationManager implements Autho
 			return new MessageAuthorizationContext<>(message, matchResult.getVariables());
 		}
 
-		if (matcher instanceof Builder.LazySimpDestinationMessageMatcher pathMatcher) {
-			return new MessageAuthorizationContext<>(message, pathMatcher.extractPathVariables(message));
-		}
 		return new MessageAuthorizationContext<>(message);
 	}
 
@@ -208,7 +203,7 @@ public final class MessageMatcherDelegatingAuthorizationManager implements Autho
 			List<MessageMatcher<?>> matchers = new ArrayList<>(patterns.length);
 			for (String pattern : patterns) {
 				MessageMatcher<Object> matcher = MessageMatcherFactory.usesPathPatterns()
-						? MessageMatcherFactory.matcher(pattern, type)
+						? MessageMatcherFactory.matcher(type, pattern)
 						: new LazySimpDestinationMessageMatcher(pattern, type);
 				matchers.add(matcher);
 			}
@@ -254,7 +249,9 @@ public final class MessageMatcherDelegatingAuthorizationManager implements Autho
 		 */
 		public Builder.Constraint matchers(MessageMatcher<?>... matchers) {
 			List<MessageMatcher<?>> builders = new ArrayList<>(matchers.length);
-			builders.addAll(Arrays.asList(matchers));
+			for (MessageMatcher<?> matcher : matchers) {
+				builders.add(matcher);
+			}
 			return new Builder.Constraint(builders);
 		}
 
@@ -419,8 +416,9 @@ public final class MessageMatcherDelegatingAuthorizationManager implements Autho
 				return this.delegate.get().matches(message);
 			}
 
-			Map<String, String> extractPathVariables(Message<?> message) {
-				return this.delegate.get().extractPathVariables(message);
+			@Override
+			public MatchResult matcher(Message<?> message) {
+				return this.delegate.get().matcher(message);
 			}
 
 		}
@@ -433,7 +431,7 @@ public final class MessageMatcherDelegatingAuthorizationManager implements Autho
 
 		private final T entry;
 
-		Entry(MessageMatcher<?> requestMatcher, T entry) {
+		Entry(MessageMatcher requestMatcher, T entry) {
 			this.messageMatcher = requestMatcher;
 			this.entry = entry;
 		}
