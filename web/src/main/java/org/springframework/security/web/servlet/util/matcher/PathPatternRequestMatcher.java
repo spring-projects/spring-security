@@ -127,7 +127,12 @@ public final class PathPatternRequestMatcher implements RequestMatcher {
 	}
 
 	private RequestPath getRequestPath(HttpServletRequest request) {
-		return ServletRequestPathUtils.getParsedRequestPath(request);
+		if (ServletRequestPathUtils.hasParsedRequestPath(request)) {
+			return ServletRequestPathUtils.getParsedRequestPath(request);
+		}
+		else {
+			return ServletRequestPathUtils.parseAndCache(request);
+		}
 	}
 
 	/**
