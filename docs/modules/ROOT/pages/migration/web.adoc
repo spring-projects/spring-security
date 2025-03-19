@@ -90,3 +90,98 @@ For example, expressions that match the JSP Servlet might use an ant pattern `/*
 There is not yet a general-purpose replacement for these, and so you are encouraged to use `RegexRequestMatcher`, like so:  `regexMatcher("\\.jsp$")`.
 
 For many applications this will make no difference since most commonly all URIs listed are matched by the default servlet.
+
+[[use-redirect-to-https]]
+== Use RedirectToHttps Instead of Channel Security
+
+Years ago, HTTPS at large was enough of a performance and configuration concern that applications wanted to be able to decide which segments of an application would require HTTPS.
+
+`requires-channel` in XML and `requiresChannel` in Java Config allowed configurating an application with that in mind:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+http
+    .requiresChannel((channel) -> channel
+        .requestMatchers("/secure/**").requiresSecureChannel()
+        .requestMatchers("/insecure/**").requiresInsecureChannel()
+    )
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+http {
+    requiresChannel {
+        secure("/secure/**")
+        seccure("/insecure/**", "REQUIRES_INSECURE_CHANNEL")
+    }
+}
+----
+
+Xml::
++
+[source,xml,role="secondary"]
+----
+<http>
+    <intercept-url pattern="/secure/**" access="authenticated" requires-channel="REQUIRES_SECURE_CHANNEL"/>
+    <intercept-url pattern="/insecure/**" access="authenticated" requires-channel="REQUIRES_INSECURE_CHANNEL"/>
+</http>
+----
+======
+
+Modern applications should either always require HTTPS.
+However, there are times, like when developing locally, when one would like the application to use HTTP.
+Or, you may have continuing circumstances that require part of your application to be HTTP.
+
+In any case, you can migrate to `redirect-to-https-request-matcher-ref` and `redirectToHttps` by first constructing a `RequestMatcher` that contains all circumstances where redirecting to HTTPS is needed.
+Then you can reference that request matcher like so:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+http
+    .redirectToHttps((https) -> https.requestMatchers("/secure/**"))
+    // ...
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+var secure: RequestMatcher = PathPatternRequestMatcher.withDefaults().pattern("/secure/**")
+http {
+    redirectToHttps {
+        requestMatchers = secure
+    }
+    // ...
+}
+----
+
+Xml::
++
+[source,xml,role="secondary"]
+----
+<b:bean id="builder" class="org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher$Builder"/>
+<b:bean id="secure" class="org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher" factory-bean="builder" factory-method="matcher">
+    <b:constructor-arg value="/secure/**"/>
+</b:bean>
+<http redirect-to-https-request-matcher-ref="secure">
+    <intercept-url pattern="/secure/**" access="authenticated"/>
+    <intercept-url pattern="/insecure/**" access="authenticated"/>
+    <!-- ... -->
+</http>
+----
+======
+
+[TIP]
+=====
+If you have several circumstances where HTTP is needed, consider using `OrRequestMatcher` to combine them into a single `RequestMatcher` instance.
+=====
