@@ -1242,7 +1242,13 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-      <xs:attribute name="redirect-to-https-request-matcher-ref" type="xs:token"/>
+      <xs:attribute name="redirect-to-https-request-matcher-ref" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>Optional attribute specifying the ID of the RequestMatcher implementation used to decide
+                whether to redirect a request to HTTPS
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
       <xs:attribute name="auto-config" type="xs:boolean">
          <xs:annotation>
             <xs:documentation>A legacy attribute which automatically registers a login form, BASIC authentication and a
@@ -3789,6 +3795,7 @@
          <xs:enumeration value="DISABLE_ENCODE_URL_FILTER"/>
          <xs:enumeration value="FORCE_EAGER_SESSION_FILTER"/>
          <xs:enumeration value="CHANNEL_FILTER"/>
+         <xs:enumeration value="HTTPS_REDIRECT_FILTER"/>
          <xs:enumeration value="SECURITY_CONTEXT_FILTER"/>
          <xs:enumeration value="CONCURRENT_SESSION_FILTER"/>
          <xs:enumeration value="WEB_ASYNC_MANAGER_FILTER"/>

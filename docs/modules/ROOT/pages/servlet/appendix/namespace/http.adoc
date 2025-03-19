@@ -118,7 +118,7 @@ If no pattern is defined, all requests will be matched, so the most specific pat
 Sets the realm name used for basic authentication (if enabled).
 Corresponds to the `realmName` property on `BasicAuthenticationEntryPoint`.
 
-[[nsa-redirect-to-https-request-matcher-ref]]
+[[nsa-http-redirect-to-https-request-matcher-ref]]
 * **redirect-to-https-request-matcher-ref**
 A reference to a bean that implements `RequestMatcher` that will determine which requests must redirect to HTTPS.
 This is helpful when, for example, wanting to run HTTP locally and HTTPS in production using a request header.
