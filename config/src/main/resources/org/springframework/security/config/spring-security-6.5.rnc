@@ -346,6 +346,8 @@ http.attlist &=
 	## Allows a RequestMatcher instance to be used, as an alternative to pattern-matching.
 	attribute request-matcher-ref { xsd:token }?
 http.attlist &=
+    attribute redirect-to-https-request-matcher-ref { xsd:token }?
+http.attlist &=
 	## A legacy attribute which automatically registers a login form, BASIC authentication and a logout URL and logout services. If unspecified, defaults to "false". We'd recommend you avoid using this and instead explicitly configure the services you require.
 	attribute auto-config {xsd:boolean}?
 http.attlist &=

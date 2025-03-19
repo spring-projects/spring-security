@@ -1242,6 +1242,7 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
+      <xs:attribute name="redirect-to-https-request-matcher-ref" type="xs:token"/>
       <xs:attribute name="auto-config" type="xs:boolean">
          <xs:annotation>
             <xs:documentation>A legacy attribute which automatically registers a login form, BASIC authentication and a
