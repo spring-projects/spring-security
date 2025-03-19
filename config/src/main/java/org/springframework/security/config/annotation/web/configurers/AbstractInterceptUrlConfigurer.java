@@ -151,6 +151,7 @@ public abstract class AbstractInterceptUrlConfigurer<C extends AbstractIntercept
 		return securityInterceptor;
 	}
 
+	@Deprecated
 	public abstract class AbstractInterceptUrlRegistry<R extends AbstractInterceptUrlRegistry<R, T>, T>
 			extends AbstractConfigAttributeRequestMatcherRegistry<T> {
 

@@ -202,6 +202,7 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
 		return "hasIpAddress('" + ipAddressExpression + "')";
 	}
 
+	@Deprecated
 	public final class ExpressionInterceptUrlRegistry extends
 			ExpressionUrlAuthorizationConfigurer<H>.AbstractInterceptUrlRegistry<ExpressionInterceptUrlRegistry, AuthorizedUrl> {
 

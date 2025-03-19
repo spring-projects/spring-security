@@ -203,6 +203,7 @@ public final class UrlAuthorizationConfigurer<H extends HttpSecurityBuilder<H>>
 		return authorities;
 	}
 
+	@Deprecated
 	public final class StandardInterceptUrlRegistry extends
 			UrlAuthorizationConfigurer<H>.AbstractInterceptUrlRegistry<StandardInterceptUrlRegistry, AuthorizedUrl> {
 

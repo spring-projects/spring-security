@@ -19,6 +19,7 @@ package org.springframework.security.web.access.expression;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
 import org.springframework.security.access.ConfigAttribute;
+import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.web.FilterInvocation;
 
 /**
@@ -26,7 +27,11 @@ import org.springframework.security.web.FilterInvocation;
  *
  * @author Luke Taylor
  * @since 3.0
+ * @deprecated In modern Spring Security APIs, each API manages its own configuration
+ * context. As such there is no direct replacement for this interface. Please see
+ * {@link AuthorizationManager}.
  */
+@Deprecated
 class WebExpressionConfigAttribute implements ConfigAttribute, EvaluationContextPostProcessor<FilterInvocation> {
 
 	private final Expression authorizeExpression;
