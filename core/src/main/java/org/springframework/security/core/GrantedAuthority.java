@@ -18,14 +18,14 @@ package org.springframework.security.core;
 
 import java.io.Serializable;
 
-import org.springframework.security.access.AccessDecisionManager;
+import org.springframework.security.authorization.AuthorizationManager;
 
 /**
  * Represents an authority granted to an {@link Authentication} object.
  *
  * <p>
  * A <code>GrantedAuthority</code> must either represent itself as a <code>String</code>
- * or be specifically supported by an {@link AccessDecisionManager}.
+ * or be specifically supported by an {@link AuthorizationManager}.
  *
  * @author Ben Alex
  */
@@ -34,7 +34,7 @@ public interface GrantedAuthority extends Serializable {
 	/**
 	 * If the <code>GrantedAuthority</code> can be represented as a <code>String</code>
 	 * and that <code>String</code> is sufficient in precision to be relied upon for an
-	 * access control decision by an {@link AccessDecisionManager} (or delegate), this
+	 * access control decision by an {@link AuthorizationManager} (or delegate), this
 	 * method should return such a <code>String</code>.
 	 * <p>
 	 * If the <code>GrantedAuthority</code> cannot be expressed with sufficient precision
