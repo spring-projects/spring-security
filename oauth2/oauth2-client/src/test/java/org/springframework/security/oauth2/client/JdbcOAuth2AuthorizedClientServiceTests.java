@@ -60,6 +60,7 @@ import static org.assertj.core.api.Assertions.within;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -306,6 +307,7 @@ public class JdbcOAuth2AuthorizedClientServiceTests {
 		this.authorizedClientService.loadAuthorizedClient(this.clientRegistration.getRegistrationId(),
 				principal.getName());
 		verify(authorizedClientRowMapper).mapRow(any(), anyInt());
+		verify(authorizedClientParametersMapper, atLeastOnce()).apply(any());
 	}
 
 	@Test
