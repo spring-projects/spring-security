@@ -133,7 +133,7 @@
 *** xref:servlet/appendix/faq.adoc[FAQ]
 * xref:reactive/index.adoc[Reactive Applications]
 ** xref:reactive/getting-started.adoc[Getting Started]
-** Authentication
+** xref:reactive/authentication/index.adoc[Authentication]
 *** xref:reactive/authentication/x509.adoc[X.509 Authentication]
 *** xref:reactive/authentication/logout.adoc[Logout]
 *** Session Management

@@ -2,4 +2,4 @@
 = Spring MVC Test Integration
 :page-section-summary-toc: 1
 
-Spring Security provides comprehensive integration with https://docs.spring.io/spring-framework/reference/testing/mockmvc.html[Spring Testing MockMVC]
+Spring Security provides comprehensive integration with {spring-framework-reference-url}testing/mockmvc.html[Spring MVC Test]
