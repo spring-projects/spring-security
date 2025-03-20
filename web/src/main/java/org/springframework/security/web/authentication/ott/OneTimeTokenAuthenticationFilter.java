@@ -16,19 +16,8 @@
 
 package org.springframework.security.web.authentication.ott;
 
-import java.io.IOException;
-
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
-import org.springframework.security.web.authentication.AuthenticationConverter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.util.Assert;
 
 /**
  * Filter that processes a one-time token for log in.
@@ -43,31 +32,9 @@ public final class OneTimeTokenAuthenticationFilter extends AbstractAuthenticati
 
 	public static final String DEFAULT_LOGIN_PROCESSING_URL = "/login/ott";
 
-	private AuthenticationConverter authenticationConverter = new OneTimeTokenAuthenticationConverter();
-
 	public OneTimeTokenAuthenticationFilter() {
 		super(new AntPathRequestMatcher(DEFAULT_LOGIN_PROCESSING_URL, "POST"));
-	}
-
-	@Override
-	public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
-			throws AuthenticationException, IOException, ServletException {
-		Authentication authentication = this.authenticationConverter.convert(request);
-		if (authentication == null) {
-			throw new BadCredentialsException("Unable to authenticate with the one-time token");
-		}
-		return getAuthenticationManager().authenticate(authentication);
-	}
-
-	/**
-	 * Use this {@link AuthenticationConverter} when converting incoming requests to an
-	 * {@link Authentication}. By default, the {@link OneTimeTokenAuthenticationConverter}
-	 * is used.
-	 * @param authenticationConverter the {@link AuthenticationConverter} to use
-	 */
-	public void setAuthenticationConverter(AuthenticationConverter authenticationConverter) {
-		Assert.notNull(authenticationConverter, "authenticationConverter cannot be null");
-		this.authenticationConverter = authenticationConverter;
+		setAuthenticationConverter(new OneTimeTokenAuthenticationConverter());
 	}
 
 }

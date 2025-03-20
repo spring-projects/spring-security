@@ -95,10 +95,10 @@ class OneTimeTokenAuthenticationFilterTests {
 	}
 
 	@Test
-	void doFilterWhenMissingTokenThenUnauthorized() throws ServletException, IOException {
-		this.filter.doFilter(post("/login/ott").buildRequest(new MockServletContext()), this.response, this.chain);
-		assertThat(this.response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED.value());
-		verifyNoInteractions(this.chain);
+	void doFilterWhenMissingTokenThenPropagatesRequest() throws ServletException, IOException {
+		FilterChain chain = mock(FilterChain.class);
+		this.filter.doFilter(post("/login/ott").buildRequest(new MockServletContext()), this.response, chain);
+		verify(chain).doFilter(any(), any());
 	}
 
 	@Test
