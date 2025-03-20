@@ -31,15 +31,7 @@ public abstract class AuthenticationException extends RuntimeException {
 	@Serial
 	private static final long serialVersionUID = 2018827803361503060L;
 
-	/**
-	 * The {@link Authentication} object representing the failed authentication attempt.
-	 * <p>
-	 * This field captures the authentication request that was attempted but ultimately
-	 * failed, providing critical information for diagnosing the failure and facilitating
-	 * debugging. If set, the value must not be null.
-	 * </p>
-	 */
-	private Authentication authRequest;
+	private Authentication authenticationRequest;
 
 	/**
 	 * Constructs an {@code AuthenticationException} with the specified message and root
@@ -49,7 +41,6 @@ public abstract class AuthenticationException extends RuntimeException {
 	 */
 	public AuthenticationException(String msg, Throwable cause) {
 		super(msg, cause);
-		this.authRequest = null;
 	}
 
 	/**
@@ -59,23 +50,33 @@ public abstract class AuthenticationException extends RuntimeException {
 	 */
 	public AuthenticationException(String msg) {
 		super(msg);
-		this.authRequest = null;
 	}
 
-
 	/**
-	 * Sets the {@link Authentication} object representing the failed authentication
+	 * Get the {@link Authentication} object representing the failed authentication
 	 * attempt.
 	 * <p>
-	 * This method allows the injection of the authentication request that resulted in a
-	 * failure. The provided {@code authRequest} should not be null if set.
-	 * </p>
-	 * @param authRequest the authentication request associated with the failed
-	 * authentication attempt.
+	 * This field captures the authentication request that was attempted but ultimately
+	 * failed, providing critical information for diagnosing the failure and facilitating
+	 * debugging
+	 * @since 6.5
 	 */
-	public void setAuthRequest(Authentication authRequest) {
-		Assert.notNull(authRequest, "AuthRequest cannot be null");
-		this.authRequest = authRequest;
+	public Authentication getAuthenticationRequest() {
+		return this.authenticationRequest;
+	}
+
+	/**
+	 * Set the {@link Authentication} object representing the failed authentication
+	 * attempt.
+	 * <p>
+	 * The provided {@code authenticationRequest} should not be null
+	 * @param authenticationRequest the authentication request associated with the failed
+	 * authentication attempt
+	 * @since 6.5
+	 */
+	public void setAuthenticationRequest(Authentication authenticationRequest) {
+		Assert.notNull(authenticationRequest, "authenticationRequest cannot be null");
+		this.authenticationRequest = authenticationRequest;
 	}
 
 }
