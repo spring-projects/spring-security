@@ -130,4 +130,25 @@ public final class IpAddressMatcher implements RequestMatcher {
 		}
 	}
 
+	/**
+	 * Returns the IP address this Matcher is matching for without mask bits.
+	 * @return a string representation of the IP address
+	 */
+	public String getHostAddress() {
+		return this.requiredAddress.getHostAddress();
+	}
+
+	/**
+	 * Returns the mask bits of the IP address this Matcher is matching for
+	 * @return a string representation of the mask bits
+	 */
+	public String getMaskBits() {
+		return String.valueOf(this.nMaskBits);
+	}
+
+	@Override
+	public String toString() {
+		return "IpAddressMatcher[" + getHostAddress() + "/" + getMaskBits() + "]";
+	}
+
 }

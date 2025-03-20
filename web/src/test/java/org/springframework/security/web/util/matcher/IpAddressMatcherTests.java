@@ -21,9 +21,7 @@ import org.junit.jupiter.api.Test;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatException;
-import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.*;
 
 /**
  * @author Luke Taylor
@@ -151,6 +149,34 @@ public class IpAddressMatcherTests {
 	public void constructorWhenRequiredAddressIsEmptyThenThrowsIllegalArgumentException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> new IpAddressMatcher(""))
 			.withMessage("ipAddress cannot be empty");
+	}
+
+	// gh-16693
+	@Test
+	public void getHostAddressReturnsCorrectIPv4String() {
+		IpAddressMatcher matcher = new IpAddressMatcher("192.168.1.0/24");
+		assertThat(matcher.getHostAddress()).isEqualTo("192.168.1.0");
+	}
+
+	// gh-16693
+	@Test
+	public void getMaskBitsIp4ReturnsCorrectString() {
+		IpAddressMatcher matcher = new IpAddressMatcher("192.168.1.0/24");
+		assertThat(matcher.getMaskBits()).isEqualTo("24");
+	}
+
+	// gh-16693
+	@Test
+	public void getHostAddressReturnsCorrectIPv6String() {
+		IpAddressMatcher matcher = new IpAddressMatcher("fe80::21f:5bff:fe33:bd68");
+		assertThat(matcher.getHostAddress()).isEqualTo("fe80:0:0:0:21f:5bff:fe33:bd68");
+	}
+
+	// gh-16693
+	@Test
+	public void getMaskBitsIp6ReturnsCorrectString() {
+		IpAddressMatcher matcher = new IpAddressMatcher("2001:DB8::/48");
+		assertThat(matcher.getMaskBits()).isEqualTo("48");
 	}
 
 }
