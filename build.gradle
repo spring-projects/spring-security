@@ -120,7 +120,7 @@ wrapperUpgrade {
 	gradle {
 		'spring-security' {
 			repo = 'spring-projects/spring-security'
-			baseBranch = '6.1.x' // runs only on 6.1.x and the update is merged forward to main
+			baseBranch = '6.3.x' // runs only on 6.3.x and the update is merged forward to main
 		}
 	}
 }
