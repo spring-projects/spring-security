@@ -24,11 +24,9 @@ The `RequestCache` is typically a `NullRequestCache` that does not save the requ
 
 [NOTE]
 ====
-The default HTTP Basic Auth Provider will suppress both Response body and `WWW-Authenticate` header in the 401 response when
-the request was made with a `X-Requested-By: XMLHttpRequest` header. This allows frontends to implement their own
-authentication code, instead of triggering the browser login dialog.
-To override, implement your own
-javadoc:org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint[] .
+The default HTTP Basic Auth Provider will suppress both Response body and `WWW-Authenticate` header in the 401 response when the request was made with a `X-Requested-By: XMLHttpRequest` header.
+This allows frontends to implement their own authentication code, instead of triggering the browser login dialog.
+To override, implement your own javadoc:org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint[].
 ====
 
 When a client receives the `WWW-Authenticate` header, it knows it should retry with a username and password.
