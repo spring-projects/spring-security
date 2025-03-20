@@ -222,4 +222,14 @@ public class BCryptPasswordEncoderTests {
 		assertThat(encoder.matches("wrong", "$2a$00$9N8N35BVs5TLqGL3pspAte5OWWA2a2aZIs.EGp7At7txYakFERMue")).isFalse();
 	}
 
+	@Test
+	public void enforcePasswordLength() {
+		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+		String password72chars = "123456789012345678901234567890123456789012345678901234567890123456789012";
+		assertThat(encoder.matches(password72chars, encoder.encode(password72chars))).isTrue();
+		String password73chars = password72chars.concat("a");
+		assertThatIllegalArgumentException()
+			.isThrownBy(() -> encoder.matches(password73chars, encoder.encode(password73chars)));
+	}
+
 }

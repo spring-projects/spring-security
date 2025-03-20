@@ -27,6 +27,8 @@ dependencies {
 	testImplementation "org.mockito:mockito-junit-jupiter"
 	testImplementation "org.springframework:spring-test"
 	testAspect sourceSets.main.output
+
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 compileAspectj.ajcOptions.outxmlfile = "META-INF/aop.xml"

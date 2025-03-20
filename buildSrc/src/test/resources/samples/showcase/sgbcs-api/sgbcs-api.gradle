@@ -6,5 +6,7 @@ dependencies {
 	implementation 'org.springframework:spring-core'
 	testImplementation "org.junit.jupiter:junit-jupiter-api"
 	testImplementation "org.junit.jupiter:junit-jupiter-engine"
+
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 

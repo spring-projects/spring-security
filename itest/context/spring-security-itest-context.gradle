@@ -22,6 +22,7 @@ dependencies {
 
 	testRuntimeOnly project(':spring-security-config')
 	testRuntimeOnly 'org.aspectj:aspectjweaver'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 System.setProperty('python.cachedir.skip', 'true')

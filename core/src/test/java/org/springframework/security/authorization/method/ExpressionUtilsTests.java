@@ -22,9 +22,11 @@ import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.security.authorization.AuthorizationDecision;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.authorization.ExpressionAuthorizationDecision;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 public class ExpressionUtilsTests {
 
@@ -48,8 +50,21 @@ public class ExpressionUtilsTests {
 		assertThat(ExpressionUtils.evaluate(expression, context)).isInstanceOf(ExpressionAuthorizationDecision.class);
 	}
 
+	@Test
+	public void evaluateWhenExpressionThrowsAuthorizationDeniedExceptionThenPropagates() {
+		SpelExpressionParser parser = new SpelExpressionParser();
+		Expression expression = parser.parseExpression("#root.throwException()");
+		StandardEvaluationContext context = new StandardEvaluationContext(this);
+		assertThatExceptionOfType(AuthorizationDeniedException.class)
+			.isThrownBy(() -> ExpressionUtils.evaluate(expression, context));
+	}
+
 	public AuthorizationDecision returnDecision() {
 		return new AuthorizationDecisionDetails(false, this.details);
+	}
+
+	public Object throwException() {
+		throw new AuthorizationDeniedException("denied", new AuthorizationDecision(false));
 	}
 
 	public boolean returnResult() {
