@@ -166,15 +166,18 @@ public final class PathPatternRequestMatcher implements RequestMatcher {
 	 * a {@link PathPatternRequestMatcher}.
 	 *
 	 * <p>
-	 * For example, if Spring MVC is deployed to `/mvc` and another servlet to `/other`,
-	 * then you can use this builder to do:
-	 * </p>
+	 * To match a request URI like {@code /app/servlet/my/resource/**} where {@code /app}
+	 * is the context path, you can do
+	 * {@code PathPatternRequestMatcher.withDefaults().matcher("/servlet/my/resource/**")}
 	 *
-	 * <code>
+	 * <p>
+	 * If you have many paths that have a common path prefix, you can use
+	 * {@link #basePath} to reduce repetition like so: <code>
+	 *     PathPatternRequestMatcher.Builder mvc = withDefaults().basePath("/mvc");
 	 *     http
 	 *         .authorizeHttpRequests((authorize) -> authorize
-	 *              .requestMatchers(servletPath("/mvc").matcher("/user/**")).hasAuthority("user")
-	 *              .requestMatchers(servletPath("/other").matcher("/admin/**")).hasAuthority("admin")
+	 *              .requestMatchers(mvc.matcher("/user/**")).hasAuthority("user")
+	 *              .requestMatchers(mvc.matcher("/admin/**")).hasAuthority("admin")
 	 *         )
 	 *             ...
 	 * </code>
@@ -183,7 +186,7 @@ public final class PathPatternRequestMatcher implements RequestMatcher {
 
 		private final PathPatternParser parser;
 
-		private final String servletPath;
+		private final String basePath;
 
 		Builder() {
 			this(PathPatternParser.defaultInstance);
@@ -193,22 +196,26 @@ public final class PathPatternRequestMatcher implements RequestMatcher {
 			this(parser, "");
 		}
 
-		Builder(PathPatternParser parser, String servletPath) {
+		Builder(PathPatternParser parser, String basePath) {
 			this.parser = parser;
-			this.servletPath = servletPath;
+			this.basePath = basePath;
 		}
 
 		/**
-		 * Match requests starting with this {@code servletPath}.
-		 * @param servletPath the servlet path prefix
+		 * Match requests starting with this {@code basePath}.
+		 *
+		 * <p>
+		 * Prefixes should be of the form {@code /my/prefix}, starting with a slash, not
+		 * ending in a slash, and not containing and wildcards
+		 * @param basePath the path prefix
 		 * @return the {@link Builder} for more configuration
 		 */
-		public Builder servletPath(String servletPath) {
-			Assert.notNull(servletPath, "servletPath cannot be null");
-			Assert.isTrue(servletPath.startsWith("/"), "servletPath must start with '/'");
-			Assert.isTrue(!servletPath.endsWith("/"), "servletPath must not end with a slash");
-			Assert.isTrue(!servletPath.contains("*"), "servletPath must not contain a star");
-			return new Builder(this.parser, servletPath);
+		public Builder basePath(String basePath) {
+			Assert.notNull(basePath, "basePath cannot be null");
+			Assert.isTrue(basePath.startsWith("/"), "basePath must start with '/'");
+			Assert.isTrue(!basePath.endsWith("/"), "basePath must not end with a slash");
+			Assert.isTrue(!basePath.contains("*"), "basePath must not contain a star");
+			return new Builder(this.parser, basePath);
 		}
 
 		/**
@@ -279,7 +286,7 @@ public final class PathPatternRequestMatcher implements RequestMatcher {
 		public PathPatternRequestMatcher matcher(@Nullable HttpMethod method, String path) {
 			Assert.notNull(path, "pattern cannot be null");
 			Assert.isTrue(path.startsWith("/"), "pattern must start with a /");
-			PathPattern pathPattern = this.parser.parse(this.servletPath + path);
+			PathPattern pathPattern = this.parser.parse(this.basePath + path);
 			PathPatternRequestMatcher requestMatcher = new PathPatternRequestMatcher(pathPattern);
 			if (method != null) {
 				requestMatcher.setMethod(new HttpMethodRequestMatcher(method));

@@ -1364,7 +1364,7 @@ public class AuthorizeHttpRequestsConfigurerTests {
 
 		@Bean
 		SecurityFilterChain security(HttpSecurity http) throws Exception {
-			PathPatternRequestMatcher.Builder mvc = PathPatternRequestMatcher.withDefaults().servletPath("/mvc");
+			PathPatternRequestMatcher.Builder mvc = PathPatternRequestMatcher.withDefaults().basePath("/mvc");
 			// @formatter:off
 			http
 				.authorizeHttpRequests((authorize) -> authorize
