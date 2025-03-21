@@ -190,6 +190,11 @@ public class JdbcUserDetailsManagerTests {
 	}
 
 	@Test
+	public void userExistsReturnsFalseForNullUsername() {
+		assertThat(this.manager.userExists(null)).isFalse();
+	}
+
+	@Test
 	public void userExistsReturnsTrueForExistingUsername() {
 		insertJoe();
 		assertThat(this.manager.userExists("joe")).isTrue();
