@@ -49,15 +49,15 @@ public class PathPatternRequestMatcherTests {
 	}
 
 	@Test
-	void matcherWhenOnlyPathInfoMatchesThenMatches() {
+	void matcherWhenOnlyPathInfoMatchesThenNoMatch() {
 		RequestMatcher matcher = PathPatternRequestMatcher.withDefaults().matcher("/uri");
-		assertThat(matcher.matches(request("GET", "/mvc/uri", "/mvc"))).isTrue();
+		assertThat(matcher.matches(request("GET", "/mvc/uri", "/mvc"))).isFalse();
 	}
 
 	@Test
-	void matcherWhenUriContainsServletPathThenNoMatch() {
+	void matcherWhenUriContainsServletPathThenMatch() {
 		RequestMatcher matcher = PathPatternRequestMatcher.withDefaults().matcher("/mvc/uri");
-		assertThat(matcher.matches(request("GET", "/mvc/uri", "/mvc"))).isFalse();
+		assertThat(matcher.matches(request("GET", "/mvc/uri", "/mvc"))).isTrue();
 	}
 
 	@Test
@@ -101,24 +101,33 @@ public class PathPatternRequestMatcherTests {
 	}
 
 	@Test
-	void matcherWhenRequestPathThenIgnoresServletPath() {
+	void matcherWhenRequestPathThenRequiresServletPath() {
 		PathPatternRequestMatcher.Builder request = PathPatternRequestMatcher.withDefaults();
 		RequestMatcher matcher = request.matcher(HttpMethod.GET, "/endpoint");
 		MockHttpServletRequest mock = get("/servlet/path/endpoint").servletPath("/servlet/path").buildRequest(null);
 		ServletRequestPathUtils.parseAndCache(mock);
-		assertThat(matcher.matches(mock)).isTrue();
+		assertThat(matcher.matches(mock)).isFalse();
 		mock = get("/endpoint").servletPath("/endpoint").buildRequest(null);
 		ServletRequestPathUtils.parseAndCache(mock);
 		assertThat(matcher.matches(mock)).isTrue();
 	}
 
 	@Test
-	void matcherWhenServletPathThenRequiresServletPathToExist() {
+	void matcherWhenMultiServletPathThenMatches() {
 		PathPatternRequestMatcher.Builder servlet = PathPatternRequestMatcher.withDefaults()
 			.servletPath("/servlet/path");
 		RequestMatcher matcher = servlet.matcher(HttpMethod.GET, "/endpoint");
-		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(
-				() -> matcher.matches(get("/servlet/path/endpoint").servletPath("/servlet/path").buildRequest(null)));
+		MockHttpServletRequest mock = get("/servlet/path/endpoint").servletPath("/servlet/path").buildRequest(null);
+		assertThat(matcher.matches(mock)).isTrue();
+	}
+
+	@Test
+	void matcherWhenMultiContextPathThenMatches() {
+		PathPatternRequestMatcher.Builder servlet = PathPatternRequestMatcher.withDefaults()
+			.servletPath("/servlet/path");
+		RequestMatcher matcher = servlet.matcher(HttpMethod.GET, "/endpoint");
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> matcher.matches(
+				get("/servlet/path/endpoint").servletPath("/servlet/path").contextPath("/app").buildRequest(null)));
 	}
 
 	@Test
