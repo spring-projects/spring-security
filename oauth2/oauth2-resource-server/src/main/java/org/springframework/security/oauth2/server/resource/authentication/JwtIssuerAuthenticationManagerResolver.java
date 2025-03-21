@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -176,9 +176,17 @@ public final class JwtIssuerAuthenticationManagerResolver implements Authenticat
 			String issuer = this.issuerConverter.convert(token);
 			AuthenticationManager authenticationManager = this.issuerAuthenticationManagerResolver.resolve(issuer);
 			if (authenticationManager == null) {
-				throw new InvalidBearerTokenException("Invalid issuer");
+				AuthenticationException ex = new InvalidBearerTokenException("Invalid issuer");
+				ex.setAuthenticationRequest(authentication);
+				throw ex;
 			}
-			return authenticationManager.authenticate(authentication);
+			try {
+				return authenticationManager.authenticate(authentication);
+			}
+			catch (AuthenticationException ex) {
+				ex.setAuthenticationRequest(authentication);
+				throw ex;
+			}
 		}
 
 	}
@@ -194,10 +202,14 @@ public final class JwtIssuerAuthenticationManagerResolver implements Authenticat
 					return issuer;
 				}
 			}
-			catch (Exception ex) {
-				throw new InvalidBearerTokenException(ex.getMessage(), ex);
+			catch (Exception cause) {
+				AuthenticationException ex = new InvalidBearerTokenException(cause.getMessage(), cause);
+				ex.setAuthenticationRequest(authentication);
+				throw ex;
 			}
-			throw new InvalidBearerTokenException("Missing issuer");
+			AuthenticationException ex = new InvalidBearerTokenException("Missing issuer");
+			ex.setAuthenticationRequest(authentication);
+			throw ex;
 		}
 
 	}

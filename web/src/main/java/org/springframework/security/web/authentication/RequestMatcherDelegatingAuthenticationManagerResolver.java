@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationManagerResolver;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.access.intercept.RequestMatcherDelegatingAuthorizationManager;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcherEntry;
@@ -46,7 +47,9 @@ public final class RequestMatcherDelegatingAuthenticationManagerResolver
 	private final List<RequestMatcherEntry<AuthenticationManager>> authenticationManagers;
 
 	private AuthenticationManager defaultAuthenticationManager = (authentication) -> {
-		throw new AuthenticationServiceException("Cannot authenticate " + authentication);
+		AuthenticationException ex = new AuthenticationServiceException("Cannot authenticate " + authentication);
+		ex.setAuthenticationRequest(authentication);
+		throw ex;
 	};
 
 	/**

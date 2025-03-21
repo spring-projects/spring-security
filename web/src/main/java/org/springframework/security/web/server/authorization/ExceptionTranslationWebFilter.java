@@ -101,6 +101,9 @@ public class ExceptionTranslationWebFilter implements WebFilter {
 		AuthenticationException cause = new InsufficientAuthenticationException(
 				"Full authentication is required to access this resource");
 		AuthenticationException ex = new AuthenticationCredentialsNotFoundException("Not Authenticated", cause);
+		if (authentication != null) {
+			ex.setAuthenticationRequest(authentication);
+		}
 		return this.authenticationEntryPoint.commence(exchange, ex).then(Mono.empty());
 	}
 
