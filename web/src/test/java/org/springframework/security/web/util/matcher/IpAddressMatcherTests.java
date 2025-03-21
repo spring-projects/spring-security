@@ -152,5 +152,18 @@ public class IpAddressMatcherTests {
 		assertThatIllegalArgumentException().isThrownBy(() -> new IpAddressMatcher(""))
 			.withMessage("ipAddress cannot be empty");
 	}
+	// gh-16693
+	@Test
+	public void getRequiredAddressWhenCidrIsValidThenReturnsHostAddress() {
+		IpAddressMatcher ipAddressMatcher = new IpAddressMatcher("192.168.1.0/24");
+		assertThat(ipAddressMatcher.getRequiredAddress().getHostAddress()).isEqualTo("192.168.1.0");
+	}
+
+	// gh-16693
+	@Test
+	public void getRequiredAddressWhenCidrIsValidThenReturnsMaskBits() {
+		IpAddressMatcher ipAddressMatcher = new IpAddressMatcher("192.168.1.0/24");
+		assertThat(ipAddressMatcher.getMaskBits()).isEqualTo(24);
+	}
 
 }

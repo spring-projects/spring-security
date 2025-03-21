@@ -130,4 +130,12 @@ public final class IpAddressMatcher implements RequestMatcher {
 		}
 	}
 
+	public InetAddress getRequiredAddress() {
+		return this.requiredAddress;
+	}
+
+	public int getMaskBits() {
+		return this.nMaskBits;
+	}
+
 }
