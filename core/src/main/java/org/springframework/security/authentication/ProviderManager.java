@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -202,6 +202,7 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
 				throw ex;
 			}
 			catch (AuthenticationException ex) {
+				ex.setAuthenticationRequest(authentication);
 				logger.debug(LogMessage.format("Authentication failed with provider %s since %s",
 						provider.getClass().getSimpleName(), ex.getMessage()));
 				lastException = ex;
@@ -265,6 +266,7 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
 
 	@SuppressWarnings("deprecation")
 	private void prepareException(AuthenticationException ex, Authentication auth) {
+		ex.setAuthenticationRequest(auth);
 		this.eventPublisher.publishAuthenticationFailure(ex, auth);
 	}
 

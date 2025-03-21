@@ -253,6 +253,34 @@ public class ProviderManagerTests {
 		verify(publisher).publishAuthenticationFailure(expected, authReq);
 	}
 
+	@Test
+	void whenAccountStatusExceptionThenAuthenticationRequestIsIncluded() {
+		AuthenticationException expected = new LockedException("");
+		ProviderManager mgr = new ProviderManager(createProviderWhichThrows(expected));
+		Authentication authReq = mock(Authentication.class);
+		assertThatExceptionOfType(LockedException.class).isThrownBy(() -> mgr.authenticate(authReq));
+		assertThat(expected.getAuthenticationRequest()).isEqualTo(authReq);
+	}
+
+	@Test
+	void whenInternalServiceAuthenticationExceptionThenAuthenticationRequestIsIncluded() {
+		AuthenticationException expected = new InternalAuthenticationServiceException("");
+		ProviderManager mgr = new ProviderManager(createProviderWhichThrows(expected));
+		Authentication authReq = mock(Authentication.class);
+		assertThatExceptionOfType(InternalAuthenticationServiceException.class)
+			.isThrownBy(() -> mgr.authenticate(authReq));
+		assertThat(expected.getAuthenticationRequest()).isEqualTo(authReq);
+	}
+
+	@Test
+	void whenAuthenticationExceptionThenAuthenticationRequestIsIncluded() {
+		AuthenticationException expected = new BadCredentialsException("");
+		ProviderManager mgr = new ProviderManager(createProviderWhichThrows(expected));
+		Authentication authReq = mock(Authentication.class);
+		assertThatExceptionOfType(BadCredentialsException.class).isThrownBy(() -> mgr.authenticate(authReq));
+		assertThat(expected.getAuthenticationRequest()).isEqualTo(authReq);
+	}
+
 	// SEC-2367
 	@Test
 	void providerThrowsInternalAuthenticationServiceException() {
