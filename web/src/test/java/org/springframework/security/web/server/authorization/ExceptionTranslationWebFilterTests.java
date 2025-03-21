@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -129,7 +129,6 @@ public class ExceptionTranslationWebFilterTests {
 	@Test
 	public void filterWhenAccessDeniedExceptionAndAuthenticatedThenHandled() {
 		given(this.deniedHandler.handle(any(), any())).willReturn(this.deniedPublisher.mono());
-		given(this.entryPoint.commence(any(), any())).willReturn(this.entryPointPublisher.mono());
 		given(this.exchange.getPrincipal()).willReturn(Mono.just(this.principal));
 		given(this.chain.filter(this.exchange)).willReturn(Mono.error(new AccessDeniedException("Not Authorized")));
 		StepVerifier.create(this.filter.filter(this.exchange, this.chain)).expectComplete().verify();
