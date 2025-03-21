@@ -17,16 +17,20 @@
 package org.springframework.security.web.access;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequestWrapper;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.util.matcher.RequestMatcherEntry;
 import org.springframework.util.Assert;
 import org.springframework.web.context.ServletContextAware;
+import org.springframework.web.util.ServletRequestPathUtils;
 
 /**
  * A {@link WebInvocationPrivilegeEvaluator} which delegates to a list of
@@ -116,8 +120,10 @@ public final class RequestMatcherDelegatingWebInvocationPrivilegeEvaluator
 
 	private List<WebInvocationPrivilegeEvaluator> getDelegate(String contextPath, String uri, String method) {
 		FilterInvocation filterInvocation = new FilterInvocation(contextPath, uri, method, this.servletContext);
+		HttpServletRequest request = new AttributesSupportingHttpServletRequest(filterInvocation.getHttpRequest());
+		ServletRequestPathUtils.parseAndCache(request);
 		for (RequestMatcherEntry<List<WebInvocationPrivilegeEvaluator>> delegate : this.delegates) {
-			if (delegate.getRequestMatcher().matches(filterInvocation.getHttpRequest())) {
+			if (delegate.getRequestMatcher().matches(request)) {
 				return delegate.getEntry();
 			}
 		}
@@ -127,6 +133,31 @@ public final class RequestMatcherDelegatingWebInvocationPrivilegeEvaluator
 	@Override
 	public void setServletContext(ServletContext servletContext) {
 		this.servletContext = servletContext;
+	}
+
+	private static final class AttributesSupportingHttpServletRequest extends HttpServletRequestWrapper {
+
+		private final Map<String, Object> attributes = new HashMap<>();
+
+		AttributesSupportingHttpServletRequest(HttpServletRequest request) {
+			super(request);
+		}
+
+		@Override
+		public Object getAttribute(String name) {
+			return this.attributes.get(name);
+		}
+
+		@Override
+		public void setAttribute(String name, Object value) {
+			this.attributes.put(name, value);
+		}
+
+		@Override
+		public void removeAttribute(String name) {
+			this.attributes.remove(name);
+		}
+
 	}
 
 }

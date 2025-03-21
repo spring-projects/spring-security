@@ -24,12 +24,16 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 
 import org.springframework.mock.web.MockServletContext;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcherEntry;
+import org.springframework.web.util.ServletRequestPathUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -196,6 +200,25 @@ class RequestMatcherDelegatingWebInvocationPrivilegeEvaluatorTests {
 			.isThrownBy(
 					() -> new RequestMatcherDelegatingWebInvocationPrivilegeEvaluator(Collections.singletonList(entry)))
 			.withMessageContaining("requestMatcher cannot be null");
+	}
+
+	// gh-16771
+	@Test
+	void isAllowedWhenInvokesDelegateThenCachesRequestPath() {
+		PathPatternRequestMatcher path = PathPatternRequestMatcher.withDefaults().matcher("/path/**");
+		PathPatternRequestMatcher any = PathPatternRequestMatcher.withDefaults().matcher("/**");
+		WebInvocationPrivilegeEvaluator delegating = new RequestMatcherDelegatingWebInvocationPrivilegeEvaluator(
+				List.of(deny(path), deny(any)));
+		try (MockedStatic<ServletRequestPathUtils> utils = Mockito.mockStatic(ServletRequestPathUtils.class,
+				Mockito.CALLS_REAL_METHODS)) {
+			delegating.isAllowed("/uri", null);
+			utils.verify(() -> ServletRequestPathUtils.parseAndCache(any()), times(1));
+		}
+	}
+
+	private RequestMatcherEntry<List<WebInvocationPrivilegeEvaluator>> deny(RequestMatcher requestMatcher) {
+		return new RequestMatcherEntry<>(requestMatcher,
+				Collections.singletonList(TestWebInvocationPrivilegeEvaluator.alwaysDeny()));
 	}
 
 }
