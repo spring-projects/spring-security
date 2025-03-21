@@ -2,7 +2,7 @@
 
 [NOTE]
 ====
-Spring Security's documentation can be http://docs.spring.io/spring-security/reference/spring-security-docs.zip[downloaded] as a zip file.
+Spring Security's documentation can be https://docs.spring.io/spring-security/reference/spring-security-docs.zip[downloaded] as a zip file.
 ====
 
 Spring Security is a framework that provides xref:features/authentication/index.adoc[authentication], xref:features/authorization/index.adoc[authorization], and xref:features/exploits/index.adoc[protection against common attacks].
