@@ -639,7 +639,7 @@ class MyCustomSecurityConfiguration  {
 ----
 ======
 
-In this way, the set of `RelyingPartyRegistration`s will refresh based on {spring-framework-reference-url}integration/cache/store-configuration.html[the cache's eviction schedule].
+In this way, the set of ``RelyingPartyRegistration``s will refresh based on {spring-framework-reference-url}integration/cache/store-configuration.html[the cache's eviction schedule].
 
 [[servlet-saml2login-relyingpartyregistration]]
 == RelyingPartyRegistration
@@ -971,9 +971,9 @@ As seen so far, Spring Security resolves the `RelyingPartyRegistration` by looki
 Depending on the use case, a number of other strategies are also employed to derive one.
 For example:
 
-* For processing `<saml2:Response>`s, the `RelyingPartyRegistration` is looked up from the associated `<saml2:AuthRequest>` or from the `<saml2:Response#Issuer>` element
-* For processing `<saml2:LogoutRequest>`s, the `RelyingPartyRegistration` is looked up from the currently logged in user or from the `<saml2:LogoutRequest#Issuer>` element
-* For publishing metadata, the `RelyingPartyRegistration`s are looked up from any repository that also implements `Iterable<RelyingPartyRegistration>`
+* For processing ``<saml2:Response>``s, the `RelyingPartyRegistration` is looked up from the associated `<saml2:AuthRequest>` or from the `<saml2:Response#Issuer>` element
+* For processing ``<saml2:LogoutRequest>``s, the `RelyingPartyRegistration` is looked up from the currently logged in user or from the `<saml2:LogoutRequest#Issuer>` element
+* For publishing metadata, the ``RelyingPartyRegistration``s are looked up from any repository that also implements `Iterable<RelyingPartyRegistration>`
 
 When this needs adjustment, you can turn to the specific components for each of these endpoints targeted at customizing this:
 
