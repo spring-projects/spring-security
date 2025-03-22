@@ -19,7 +19,7 @@ package org.springframework.security.web.webauthn.api;
 import java.time.Instant;
 import java.util.Set;
 
-public final class TestCredentialRecord {
+public final class TestCredentialRecords {
 
 	public static ImmutableCredentialRecord.ImmutableCredentialRecordBuilder userCredential() {
 		return ImmutableCredentialRecord.builder()
@@ -50,7 +50,7 @@ public final class TestCredentialRecord {
 			.backupState(true);
 	}
 
-	private TestCredentialRecord() {
+	private TestCredentialRecords() {
 	}
 
 }
