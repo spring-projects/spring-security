@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -97,6 +97,23 @@ public class DefaultOidcUser extends DefaultOAuth2User implements OidcUser {
 		super(authorities, OidcUserAuthority.collectClaims(idToken, userInfo), nameAttributeKey);
 		this.idToken = idToken;
 		this.userInfo = userInfo;
+	}
+
+	DefaultOidcUser(DefaultOidcUser user, Collection<GrantedAuthority> authorities) {
+		super(user, authorities);
+		this.idToken = user.idToken;
+		this.userInfo = user.userInfo;
+	}
+
+	/**
+	 * Copy this {@code DefaultOAuth2User}, using the provided {@code authorities}
+	 * @param authorities the authorities to use
+	 * @return a new {@code DefaultOAuth2User}
+	 * @since 6.5
+	 */
+	@Override
+	public DefaultOidcUser withAuthorities(Collection<GrantedAuthority> authorities) {
+		return new DefaultOidcUser(this, authorities);
 	}
 
 	@Override
