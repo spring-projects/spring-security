@@ -130,4 +130,11 @@ public final class IpAddressMatcher implements RequestMatcher {
 		}
 	}
 
+	@Override
+	public String toString() {
+		String hostAddress = this.requiredAddress.getHostAddress();
+		return (this.nMaskBits < 0)
+				? "IpAddressMatcher[" + hostAddress + "]"
+				: "IpAddressMatcher[" + hostAddress + "/" + this.nMaskBits + "]";
+	}
 }

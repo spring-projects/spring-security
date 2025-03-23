@@ -152,5 +152,24 @@ public class IpAddressMatcherTests {
 		assertThatIllegalArgumentException().isThrownBy(() -> new IpAddressMatcher(""))
 			.withMessage("ipAddress cannot be empty");
 	}
+	// gh-16795
+	@Test
+	public void toStringWhenCidrIsProvidedThenReturnsIpAddressWithCidr() {
+		IpAddressMatcher matcher = new IpAddressMatcher("192.168.1.0/24");
+
+		String result = matcher.toString();
+
+		assertThat(result).isEqualTo("IpAddressMatcher[192.168.1.0/24]");
+	}
+
+	// gh-16795
+	@Test
+	public void toStringWhenOnlyIpIsProvidedThenReturnsIpAddressOnly() {
+		IpAddressMatcher matcher = new IpAddressMatcher("127.0.0.1");
+
+		String result = matcher.toString();
+
+		assertThat(result).isEqualTo("IpAddressMatcher[127.0.0.1]");
+	}
 
 }
