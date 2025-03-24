@@ -5,7 +5,7 @@ import java.util.function.Function;
 import org.apache.hc.client5.http.DnsResolver;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
-import org.apache.hc.client5.http.impl.io.BasicHttpClientConnectionManager;
+import org.apache.hc.client5.http.io.HttpClientConnectionManager;
 import org.apache.hc.client5.http.socket.ConnectionSocketFactory;
 import org.apache.hc.client5.http.socket.PlainConnectionSocketFactory;
 import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory;
@@ -20,6 +20,8 @@ public class Hc5ClientAdapter implements ClientAdapter {
 
 	private Function<DnsResolver, ClientHttpRequestFactory> customBuilder = null;
 
+	private Function<Registry<ConnectionSocketFactory>, HttpClientConnectionManager> customConnectionMgr = null;
+
 
 	public Hc5ClientAdapter() {
 	}
@@ -28,6 +30,12 @@ public class Hc5ClientAdapter implements ClientAdapter {
 		Hc5ClientAdapter hc5ClientAdapter = new Hc5ClientAdapter();
 		hc5ClientAdapter.customBuilder = customBuilder;
 		return hc5ClientAdapter;
+	}
+
+	public Hc5ClientAdapter withConnectionManager(
+			Function<Registry<ConnectionSocketFactory>, HttpClientConnectionManager> customConnectionMgr) {
+		this.customConnectionMgr = customConnectionMgr;
+		return this;
 	}
 
 	@Override
@@ -41,10 +49,17 @@ public class Hc5ClientAdapter implements ClientAdapter {
 		if (customBuilder != null) {
 			return customBuilder.apply(hc5SsrfDnsResolver);
 		}
-		BasicHttpClientConnectionManager connManager = new BasicHttpClientConnectionManager(registry, null, null,
-				hc5SsrfDnsResolver);
 
-		CloseableHttpClient httpClient = HttpClientBuilder.create().setConnectionManager(connManager).build();
+		HttpClientConnectionManager connManager = null;
+		if (customConnectionMgr != null) {
+			connManager = customConnectionMgr.apply(registry);
+		}
+
+		// If connManager is null ( default ), this will use a PoolingHttpClientConnectionManager
+		// This behaviour corresponds to the HttpComponentsClientHttpRequestFactory default.
+		CloseableHttpClient httpClient = HttpClientBuilder.create().useSystemProperties()
+				.setConnectionManager(connManager)
+				.build();
 
 		HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory(
 				httpClient);
