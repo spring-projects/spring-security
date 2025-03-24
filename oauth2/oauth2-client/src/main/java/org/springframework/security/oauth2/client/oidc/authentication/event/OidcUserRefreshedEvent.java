@@ -31,7 +31,7 @@ import org.springframework.util.Assert;
  *
  * @author Steve Riesenberg
  * @since 6.5
- * @see org.springframework.security.oauth2.client.oidc.authentication.OidcAuthorizationCodeAuthenticationProvider
+ * @see org.springframework.security.oauth2.client.oidc.authentication.OidcAuthorizedClientRefreshedEventListener
  */
 public final class OidcUserRefreshedEvent extends ApplicationEvent {
 

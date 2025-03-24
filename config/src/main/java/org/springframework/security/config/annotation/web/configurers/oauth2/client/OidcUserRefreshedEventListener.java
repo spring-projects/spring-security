@@ -37,7 +37,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
  *
  * @author Steve Riesenberg
  * @since 6.5
- * @see org.springframework.security.oauth2.client.oidc.authentication.OidcAuthorizationCodeAuthenticationProvider
+ * @see org.springframework.security.oauth2.client.oidc.authentication.OidcAuthorizedClientRefreshedEventListener
  */
 final class OidcUserRefreshedEventListener implements ApplicationListener<OidcUserRefreshedEvent> {
 
