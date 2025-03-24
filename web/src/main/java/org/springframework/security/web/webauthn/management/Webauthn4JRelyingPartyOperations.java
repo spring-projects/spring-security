@@ -346,8 +346,7 @@ public class Webauthn4JRelyingPartyOperations implements WebAuthnRelyingPartyOpe
 	}
 
 	private List<CredentialRecord> findCredentialRecords(Authentication authentication) {
-		AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
-		if (authentication == null || trustResolver.isAnonymous(authentication)) {
+		if (authentication == null || this.trustResolver.isAnonymous(authentication)) {
 			return Collections.emptyList();
 		}
 		PublicKeyCredentialUserEntity userEntity = this.userEntities.findByUsername(authentication.getName());
