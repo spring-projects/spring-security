@@ -31,7 +31,7 @@ import org.springframework.security.web.webauthn.api.AuthenticatorTransport;
 import org.springframework.security.web.webauthn.api.CredentialRecord;
 import org.springframework.security.web.webauthn.api.ImmutableCredentialRecord;
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialType;
-import org.springframework.security.web.webauthn.api.TestCredentialRecord;
+import org.springframework.security.web.webauthn.api.TestCredentialRecords;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -110,7 +110,7 @@ public class JdbcUserCredentialRepositoryTests {
 
 	@Test
 	void saveCredentialRecordWhenSaveThenReturnsSaved() {
-		CredentialRecord userCredential = TestCredentialRecord.fullUserCredential().build();
+		CredentialRecord userCredential = TestCredentialRecords.fullUserCredential().build();
 		this.jdbcUserCredentialRepository.save(userCredential);
 
 		CredentialRecord savedUserCredential = this.jdbcUserCredentialRepository
@@ -136,7 +136,7 @@ public class JdbcUserCredentialRepositoryTests {
 
 	@Test
 	void saveCredentialRecordWhenRecordExistsThenReturnsUpdated() {
-		CredentialRecord userCredential = TestCredentialRecord.fullUserCredential().build();
+		CredentialRecord userCredential = TestCredentialRecords.fullUserCredential().build();
 		this.jdbcUserCredentialRepository.save(userCredential);
 		// @formatter:off
 		CredentialRecord updatedRecord = ImmutableCredentialRecord.fromCredentialRecord(userCredential)
@@ -157,7 +157,7 @@ public class JdbcUserCredentialRepositoryTests {
 
 	@Test
 	void findCredentialRecordByUserIdWhenRecordExistsThenReturnsSaved() {
-		CredentialRecord userCredential = TestCredentialRecord.fullUserCredential().build();
+		CredentialRecord userCredential = TestCredentialRecords.fullUserCredential().build();
 		this.jdbcUserCredentialRepository.save(userCredential);
 
 		List<CredentialRecord> credentialRecords = this.jdbcUserCredentialRepository
@@ -169,7 +169,7 @@ public class JdbcUserCredentialRepositoryTests {
 
 	@Test
 	void findCredentialRecordByUserIdWhenRecordDoesNotExistThenReturnsEmpty() {
-		CredentialRecord userCredential = TestCredentialRecord.fullUserCredential().build();
+		CredentialRecord userCredential = TestCredentialRecords.fullUserCredential().build();
 
 		List<CredentialRecord> credentialRecords = this.jdbcUserCredentialRepository
 			.findByUserId(userCredential.getUserEntityUserId());
@@ -179,7 +179,7 @@ public class JdbcUserCredentialRepositoryTests {
 
 	@Test
 	void findCredentialRecordByCredentialIdWhenRecordDoesNotExistThenReturnsNull() {
-		CredentialRecord userCredential = TestCredentialRecord.fullUserCredential().build();
+		CredentialRecord userCredential = TestCredentialRecords.fullUserCredential().build();
 
 		CredentialRecord credentialRecord = this.jdbcUserCredentialRepository
 			.findByCredentialId(userCredential.getCredentialId());
@@ -189,7 +189,7 @@ public class JdbcUserCredentialRepositoryTests {
 
 	@Test
 	void deleteCredentialRecordWhenRecordExistThenSuccess() {
-		CredentialRecord userCredential = TestCredentialRecord.fullUserCredential().build();
+		CredentialRecord userCredential = TestCredentialRecords.fullUserCredential().build();
 		this.jdbcUserCredentialRepository.save(userCredential);
 
 		this.jdbcUserCredentialRepository.delete(userCredential.getCredentialId());

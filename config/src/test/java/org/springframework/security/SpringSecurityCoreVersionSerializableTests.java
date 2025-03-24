@@ -239,9 +239,9 @@ import org.springframework.security.web.webauthn.api.PublicKeyCredentialType;
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialUserEntity;
 import org.springframework.security.web.webauthn.api.TestAuthenticationAssertionResponses;
 import org.springframework.security.web.webauthn.api.TestBytes;
-import org.springframework.security.web.webauthn.api.TestPublicKeyCredential;
 import org.springframework.security.web.webauthn.api.TestPublicKeyCredentialRequestOptions;
-import org.springframework.security.web.webauthn.api.TestPublicKeyCredentialUserEntity;
+import org.springframework.security.web.webauthn.api.TestPublicKeyCredentialUserEntities;
+import org.springframework.security.web.webauthn.api.TestPublicKeyCredentials;
 import org.springframework.security.web.webauthn.api.UserVerificationRequirement;
 import org.springframework.security.web.webauthn.authentication.WebAuthnAuthentication;
 import org.springframework.security.web.webauthn.authentication.WebAuthnAuthenticationRequestToken;
@@ -640,7 +640,7 @@ class SpringSecurityCoreVersionSerializableTests {
 		AuthenticationExtensionsClientOutputs outputs = new ImmutableAuthenticationExtensionsClientOutputs(credentialOutput);
 		AuthenticatorAssertionResponse response = TestAuthenticationAssertionResponses.createAuthenticatorAssertionResponse()
 				.build();
-		PublicKeyCredential<AuthenticatorAssertionResponse> credential = TestPublicKeyCredential.createPublicKeyCredential(
+		PublicKeyCredential<AuthenticatorAssertionResponse> credential = TestPublicKeyCredentials.createPublicKeyCredential(
 				response, outputs)
 				.build();
 		RelyingPartyAuthenticationRequest authRequest = new RelyingPartyAuthenticationRequest(
@@ -658,9 +658,9 @@ class SpringSecurityCoreVersionSerializableTests {
 		generatorByClassName.put(AuthenticatorAttachment.class, (r) -> AuthenticatorAttachment.PLATFORM);
 		// @formatter:on
 		generatorByClassName.put(ImmutablePublicKeyCredentialUserEntity.class,
-				(r) -> TestPublicKeyCredentialUserEntity.userEntity().id(TestBytes.get()).build());
+				(r) -> TestPublicKeyCredentialUserEntities.userEntity().id(TestBytes.get()).build());
 		generatorByClassName.put(WebAuthnAuthentication.class, (r) -> {
-			PublicKeyCredentialUserEntity userEntity = TestPublicKeyCredentialUserEntity.userEntity()
+			PublicKeyCredentialUserEntity userEntity = TestPublicKeyCredentialUserEntities.userEntity()
 				.id(TestBytes.get())
 				.build();
 			List<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList("ROLE_USER");
