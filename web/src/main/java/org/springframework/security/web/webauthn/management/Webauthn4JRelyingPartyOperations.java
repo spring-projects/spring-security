@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -346,7 +346,8 @@ public class Webauthn4JRelyingPartyOperations implements WebAuthnRelyingPartyOpe
 	}
 
 	private List<CredentialRecord> findCredentialRecords(Authentication authentication) {
-		if (authentication instanceof AnonymousAuthenticationToken) {
+		AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
+		if (authentication == null || trustResolver.isAnonymous(authentication)) {
 			return Collections.emptyList();
 		}
 		PublicKeyCredentialUserEntity userEntity = this.userEntities.findByUsername(authentication.getName());
