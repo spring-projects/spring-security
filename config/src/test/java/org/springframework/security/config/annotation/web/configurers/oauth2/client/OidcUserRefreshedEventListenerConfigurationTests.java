@@ -171,7 +171,8 @@ public class OidcUserRefreshedEventListenerConfigurationTests {
 		given(this.refreshTokenAccessTokenResponseClient.getTokenResponse(any(OAuth2RefreshTokenGrantRequest.class)))
 			.willReturn(accessTokenResponse);
 
-		OAuth2AuthenticationToken authentication = createAuthenticationToken(GOOGLE_CLIENT_REGISTRATION);
+		OAuth2AuthenticationToken authentication = createAuthenticationToken(GOOGLE_CLIENT_REGISTRATION,
+				createOidcUser());
 		OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest
 			.withClientRegistrationId(GOOGLE_CLIENT_REGISTRATION.getRegistrationId())
 			.principal(authentication)
@@ -194,7 +195,8 @@ public class OidcUserRefreshedEventListenerConfigurationTests {
 		given(this.refreshTokenAccessTokenResponseClient.getTokenResponse(any(OAuth2RefreshTokenGrantRequest.class)))
 			.willReturn(accessTokenResponse);
 
-		OAuth2AuthenticationToken authentication = createAuthenticationToken(GOOGLE_CLIENT_REGISTRATION);
+		OAuth2AuthenticationToken authentication = createAuthenticationToken(GOOGLE_CLIENT_REGISTRATION,
+				createOidcUser());
 		OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest
 			.withClientRegistrationId(GOOGLE_CLIENT_REGISTRATION.getRegistrationId())
 			.principal(authentication)
@@ -297,7 +299,8 @@ public class OidcUserRefreshedEventListenerConfigurationTests {
 		given(this.refreshTokenAccessTokenResponseClient.getTokenResponse(any(OAuth2RefreshTokenGrantRequest.class)))
 			.willReturn(accessTokenResponse);
 
-		OAuth2AuthenticationToken authentication = createAuthenticationToken(GITHUB_CLIENT_REGISTRATION);
+		OAuth2AuthenticationToken authentication = createAuthenticationToken(GITHUB_CLIENT_REGISTRATION,
+				createOidcUser());
 		SecurityContextImpl securityContext = new SecurityContextImpl(authentication);
 		SecurityContextHolder.setContext(securityContext);
 
@@ -316,17 +319,17 @@ public class OidcUserRefreshedEventListenerConfigurationTests {
 
 		OAuth2AuthorizedClient authorizedClient = createAuthorizedClient();
 		OAuth2AccessTokenResponse accessTokenResponse = createAccessTokenResponse(OidcScopes.OPENID);
-		Jwt jwt = createJwt();
-		OidcUser oidcUser = createOidcUser();
+		Jwt jwt = createJwt().build();
 		given(this.authorizedClientRepository.loadAuthorizedClient(anyString(), any(Authentication.class),
 				any(HttpServletRequest.class)))
 			.willReturn(authorizedClient);
 		given(this.refreshTokenAccessTokenResponseClient.getTokenResponse(any(OAuth2RefreshTokenGrantRequest.class)))
 			.willReturn(accessTokenResponse);
 		given(this.jwtDecoder.decode(anyString())).willReturn(jwt);
-		given(this.oidcUserService.loadUser(any(OidcUserRequest.class))).willReturn(oidcUser);
+		given(this.oidcUserService.loadUser(any(OidcUserRequest.class))).willReturn(createOidcUser());
 
-		OAuth2AuthenticationToken authentication = createAuthenticationToken(GOOGLE_CLIENT_REGISTRATION);
+		OAuth2AuthenticationToken authentication = createAuthenticationToken(GOOGLE_CLIENT_REGISTRATION,
+				createOidcUser());
 		SecurityContextImpl securityContext = new SecurityContextImpl(authentication);
 		SecurityContextHolder.setContext(securityContext);
 
@@ -405,31 +408,36 @@ public class OidcUserRefreshedEventListenerConfigurationTests {
 			.build();
 	}
 
-	private Jwt createJwt() {
+	private static Jwt.Builder createJwt() {
 		Instant issuedAt = Instant.now();
 		Instant expiresAt = issuedAt.plus(1, ChronoUnit.MINUTES);
 		return TestJwts.jwt()
+			.issuer("https://surf.school")
 			.subject(SUBJECT)
 			.tokenValue(ID_TOKEN_VALUE)
 			.issuedAt(issuedAt)
 			.expiresAt(expiresAt)
-			.build();
+			.audience(List.of("audience1", "audience2"));
 	}
 
-	private OidcUser createOidcUser() {
+	private static OidcUser createOidcUser() {
+		Instant issuedAt = Instant.now().minus(30, ChronoUnit.SECONDS);
+		Instant expiresAt = issuedAt.plus(5, ChronoUnit.MINUTES);
 		Map<String, Object> claims = new HashMap<>();
+		claims.put(IdTokenClaimNames.ISS, "https://surf.school");
 		claims.put(IdTokenClaimNames.SUB, SUBJECT);
-		claims.put(IdTokenClaimNames.ISS, "issuer");
+		claims.put(IdTokenClaimNames.IAT, issuedAt);
+		claims.put(IdTokenClaimNames.EXP, expiresAt);
 		claims.put(IdTokenClaimNames.AUD, List.of("audience1", "audience2"));
-		Instant issuedAt = Instant.now();
-		Instant expiresAt = issuedAt.plus(1, ChronoUnit.MINUTES);
+		claims.put(IdTokenClaimNames.AUTH_TIME, issuedAt);
+		claims.put(IdTokenClaimNames.NONCE, "nonce");
 		OidcIdToken idToken = new OidcIdToken(ID_TOKEN_VALUE, issuedAt, expiresAt, claims);
 
 		return new DefaultOidcUser(AuthorityUtils.createAuthorityList("OIDC_USER"), idToken);
 	}
 
-	private OAuth2AuthenticationToken createAuthenticationToken(ClientRegistration clientRegistration) {
-		OidcUser oidcUser = createOidcUser();
+	private OAuth2AuthenticationToken createAuthenticationToken(ClientRegistration clientRegistration,
+			OidcUser oidcUser) {
 		return new OAuth2AuthenticationToken(oidcUser, oidcUser.getAuthorities(),
 				clientRegistration.getRegistrationId());
 	}

@@ -16,6 +16,7 @@
 
 package org.springframework.security.oauth2.client.oidc.authentication;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Collection;
@@ -80,6 +81,10 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
  */
 public class OidcAuthorizedClientRefreshedEventListenerTests {
 
+	private static final String INVALID_ID_TOKEN_ERROR = "invalid_id_token";
+
+	private static final String INVALID_NONCE_ERROR = "invalid_nonce";
+
 	private static final String SUBJECT = "surfer-dude";
 
 	private static final String ACCESS_TOKEN_VALUE = "hang-ten";
@@ -108,6 +113,8 @@ public class OidcAuthorizedClientRefreshedEventListenerTests {
 
 	private OidcUser oidcUser;
 
+	private OAuth2AuthenticationToken authentication;
+
 	@BeforeEach
 	public void setUp() {
 		this.jwtDecoder = mock(JwtDecoder.class);
@@ -124,38 +131,72 @@ public class OidcAuthorizedClientRefreshedEventListenerTests {
 		this.clientRegistration = TestClientRegistrations.clientRegistration().scope(OidcScopes.OPENID).build();
 		this.authorizedClient = createAuthorizedClient(this.clientRegistration);
 		this.accessTokenResponse = createAccessTokenResponse(OidcScopes.OPENID);
-		this.jwt = createJwt();
+		this.jwt = createJwt().build();
 		this.oidcUser = createOidcUser();
+		this.authentication = createAuthenticationToken(this.clientRegistration, createOidcUser());
 	}
 
 	@Test
 	public void setSecurityContextHolderStrategyWhenNullThenThrowsIllegalArgumentException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> this.eventListener.setSecurityContextHolderStrategy(null))
+		// @formatter:off
+		assertThatIllegalArgumentException()
+			.isThrownBy(() -> this.eventListener.setSecurityContextHolderStrategy(null))
 			.withMessage("securityContextHolderStrategy cannot be null");
+		// @formatter:on
 	}
 
 	@Test
 	public void setJwtDecoderFactoryWhenNullThenThrowsIllegalArgumentException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> this.eventListener.setJwtDecoderFactory(null))
+		// @formatter:off
+		assertThatIllegalArgumentException()
+			.isThrownBy(() -> this.eventListener.setJwtDecoderFactory(null))
 			.withMessage("jwtDecoderFactory cannot be null");
+		// @formatter:on
 	}
 
 	@Test
 	public void setUserServiceWhenNullThenThrowsIllegalArgumentException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> this.eventListener.setUserService(null))
+		// @formatter:off
+		assertThatIllegalArgumentException()
+			.isThrownBy(() -> this.eventListener.setUserService(null))
 			.withMessage("userService cannot be null");
+		// @formatter:on
 	}
 
 	@Test
 	public void setAuthoritiesMapperWhenNullThenThrowsIllegalArgumentException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> this.eventListener.setAuthoritiesMapper(null))
+		// @formatter:off
+		assertThatIllegalArgumentException()
+			.isThrownBy(() -> this.eventListener.setAuthoritiesMapper(null))
 			.withMessage("authoritiesMapper cannot be null");
+		// @formatter:on
 	}
 
 	@Test
 	public void setApplicationEventPublisherWhenNullThenThrowsIllegalArgumentException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> this.eventListener.setApplicationEventPublisher(null))
+		// @formatter:off
+		assertThatIllegalArgumentException()
+			.isThrownBy(() -> this.eventListener.setApplicationEventPublisher(null))
 			.withMessage("applicationEventPublisher cannot be null");
+		// @formatter:on
+	}
+
+	@Test
+	public void setClockSkewWhenNullThenThrowsIllegalArgumentException() {
+		// @formatter:off
+		assertThatIllegalArgumentException()
+			.isThrownBy(() -> this.eventListener.setClockSkew(null))
+			.withMessage("clockSkew cannot be null");
+		// @formatter:on
+	}
+
+	@Test
+	public void setClockSkewWhenNegativeThenThrowsIllegalArgumentException() {
+		// @formatter:off
+		assertThatIllegalArgumentException()
+			.isThrownBy(() -> this.eventListener.setClockSkew(Duration.ofMillis(-1)))
+			.withMessage("clockSkew must be >= 0");
+		// @formatter:on
 	}
 
 	@Test
@@ -237,7 +278,7 @@ public class OidcAuthorizedClientRefreshedEventListenerTests {
 		ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration()
 			.registrationId("test")
 			.build();
-		OAuth2AuthenticationToken authentication = createAuthenticationToken(clientRegistration);
+		OAuth2AuthenticationToken authentication = createAuthenticationToken(clientRegistration, this.oidcUser);
 		SecurityContextImpl securityContext = new SecurityContextImpl(authentication);
 		given(this.securityContextHolderStrategy.getContext()).willReturn(securityContext);
 
@@ -251,9 +292,8 @@ public class OidcAuthorizedClientRefreshedEventListenerTests {
 	}
 
 	@Test
-	public void onApplicationEventWhenAccessTokenResponseIncludesIdTokenThenPublishOidcUserRefreshedEvent() {
-		OAuth2AuthenticationToken authentication = createAuthenticationToken(this.clientRegistration);
-		SecurityContextImpl securityContext = new SecurityContextImpl(authentication);
+	public void onApplicationEventWhenAccessTokenResponseIncludesIdTokenThenOidcUserRefreshedEventPublished() {
+		SecurityContextImpl securityContext = new SecurityContextImpl(this.authentication);
 		given(this.securityContextHolderStrategy.getContext()).willReturn(securityContext);
 		given(this.jwtDecoder.decode(anyString())).willReturn(this.jwt);
 		given(this.userService.loadUser(any(OidcUserRequest.class))).willReturn(this.oidcUser);
@@ -279,9 +319,10 @@ public class OidcAuthorizedClientRefreshedEventListenerTests {
 
 		OidcUserRefreshedEvent userRefreshedEvent = userRefreshedEventCaptor.getValue();
 		assertThat(userRefreshedEvent.getAccessTokenResponse()).isSameAs(this.accessTokenResponse);
-		assertThat(userRefreshedEvent.getOldOidcUser()).isSameAs(authentication.getPrincipal());
+		assertThat(userRefreshedEvent.getOldOidcUser()).isSameAs(this.authentication.getPrincipal());
 		assertThat(userRefreshedEvent.getNewOidcUser()).isSameAs(this.oidcUser);
-		assertThat(userRefreshedEvent.getAuthentication()).isNotSameAs(authentication);
+		assertThat(userRefreshedEvent.getOldOidcUser()).isNotSameAs(userRefreshedEvent.getNewOidcUser());
+		assertThat(userRefreshedEvent.getAuthentication()).isNotSameAs(this.authentication);
 		assertThat(userRefreshedEvent.getAuthentication()).isInstanceOf(OAuth2AuthenticationToken.class);
 
 		OAuth2AuthenticationToken authenticationResult = (OAuth2AuthenticationToken) userRefreshedEvent
@@ -293,10 +334,9 @@ public class OidcAuthorizedClientRefreshedEventListenerTests {
 	}
 
 	@Test
-	public void onApplicationEventWhenIdTokenNonceDoesNotMatchThenThrowsOAuth2AuthenticationException() {
-		Jwt jwt = TestJwts.jwt().claim(IdTokenClaimNames.NONCE, "invalid").build();
-		OAuth2AuthenticationToken authentication = createAuthenticationToken(this.clientRegistration);
-		SecurityContextImpl securityContext = new SecurityContextImpl(authentication);
+	public void onApplicationEventWhenIdTokenIssuerDoesNotMatchThenThrowsOAuth2AuthenticationException() {
+		Jwt jwt = createJwt().issuer("https://invalid.url").build();
+		SecurityContextImpl securityContext = new SecurityContextImpl(this.authentication);
 		given(this.securityContextHolderStrategy.getContext()).willReturn(securityContext);
 		given(this.jwtDecoder.decode(anyString())).willReturn(jwt);
 
@@ -304,9 +344,10 @@ public class OidcAuthorizedClientRefreshedEventListenerTests {
 				this.accessTokenResponse, this.authorizedClient);
 		assertThatExceptionOfType(OAuth2AuthenticationException.class)
 			.isThrownBy(() -> this.eventListener.onApplicationEvent(authorizedClientRefreshedEvent))
+			.withMessageContaining("Invalid issuer")
 			.extracting(OAuth2AuthenticationException::getError)
 			.extracting(OAuth2Error::getErrorCode)
-			.isEqualTo("invalid_nonce");
+			.isEqualTo(INVALID_ID_TOKEN_ERROR);
 		verify(this.securityContextHolderStrategy).getContext();
 		verify(this.jwtDecoder).decode(this.jwt.getTokenValue());
 		verifyNoMoreInteractions(this.securityContextHolderStrategy, this.jwtDecoder);
@@ -314,9 +355,148 @@ public class OidcAuthorizedClientRefreshedEventListenerTests {
 	}
 
 	@Test
+	public void onApplicationEventWhenIdTokenSubjectDoesNotMatchThenThrowsOAuth2AuthenticationException() {
+		Jwt jwt = createJwt().subject("invalid").build();
+		SecurityContextImpl securityContext = new SecurityContextImpl(this.authentication);
+		given(this.securityContextHolderStrategy.getContext()).willReturn(securityContext);
+		given(this.jwtDecoder.decode(anyString())).willReturn(jwt);
+
+		OAuth2AuthorizedClientRefreshedEvent authorizedClientRefreshedEvent = new OAuth2AuthorizedClientRefreshedEvent(
+				this.accessTokenResponse, this.authorizedClient);
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.eventListener.onApplicationEvent(authorizedClientRefreshedEvent))
+			.withMessageContaining("Invalid subject")
+			.extracting(OAuth2AuthenticationException::getError)
+			.extracting(OAuth2Error::getErrorCode)
+			.isEqualTo(INVALID_ID_TOKEN_ERROR);
+		verify(this.securityContextHolderStrategy).getContext();
+		verify(this.jwtDecoder).decode(this.jwt.getTokenValue());
+		verifyNoMoreInteractions(this.securityContextHolderStrategy, this.jwtDecoder);
+		verifyNoInteractions(this.userService, this.applicationEventPublisher);
+	}
+
+	@Test
+	public void onApplicationEventWhenIdTokenIssuedAtIsBeforeThenThrowsOAuth2AuthenticationException() {
+		Instant issuedAt = this.oidcUser.getIssuedAt().minus(2, ChronoUnit.MINUTES);
+		Jwt jwt = createJwt().issuedAt(issuedAt).build();
+		SecurityContextImpl securityContext = new SecurityContextImpl(this.authentication);
+		given(this.securityContextHolderStrategy.getContext()).willReturn(securityContext);
+		given(this.jwtDecoder.decode(anyString())).willReturn(jwt);
+
+		OAuth2AuthorizedClientRefreshedEvent authorizedClientRefreshedEvent = new OAuth2AuthorizedClientRefreshedEvent(
+				this.accessTokenResponse, this.authorizedClient);
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.eventListener.onApplicationEvent(authorizedClientRefreshedEvent))
+			.withMessageContaining("Invalid issued at time")
+			.extracting(OAuth2AuthenticationException::getError)
+			.extracting(OAuth2Error::getErrorCode)
+			.isEqualTo(INVALID_ID_TOKEN_ERROR);
+		verify(this.securityContextHolderStrategy).getContext();
+		verify(this.jwtDecoder).decode(this.jwt.getTokenValue());
+		verifyNoMoreInteractions(this.securityContextHolderStrategy, this.jwtDecoder);
+		verifyNoInteractions(this.userService, this.applicationEventPublisher);
+	}
+
+	@Test
+	public void onApplicationEventWhenIdTokenAudienceDoesNotMatchThenThrowsOAuth2AuthenticationException() {
+		Jwt jwt = createJwt().audience(List.of("audience1", "audience3")).build();
+		SecurityContextImpl securityContext = new SecurityContextImpl(this.authentication);
+		given(this.securityContextHolderStrategy.getContext()).willReturn(securityContext);
+		given(this.jwtDecoder.decode(anyString())).willReturn(jwt);
+
+		OAuth2AuthorizedClientRefreshedEvent authorizedClientRefreshedEvent = new OAuth2AuthorizedClientRefreshedEvent(
+				this.accessTokenResponse, this.authorizedClient);
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.eventListener.onApplicationEvent(authorizedClientRefreshedEvent))
+			.withMessageContaining("Invalid audience")
+			.extracting(OAuth2AuthenticationException::getError)
+			.extracting(OAuth2Error::getErrorCode)
+			.isEqualTo(INVALID_ID_TOKEN_ERROR);
+		verify(this.securityContextHolderStrategy).getContext();
+		verify(this.jwtDecoder).decode(this.jwt.getTokenValue());
+		verifyNoMoreInteractions(this.securityContextHolderStrategy, this.jwtDecoder);
+		verifyNoInteractions(this.userService, this.applicationEventPublisher);
+	}
+
+	@Test
+	public void onApplicationEventWhenIdTokenAuthenticatedAtDoesNotMatchThenThrowsOAuth2AuthenticationException() {
+		Instant authTime = this.oidcUser.getAuthenticatedAt().plus(5, ChronoUnit.SECONDS);
+		Jwt jwt = createJwt().claim(IdTokenClaimNames.AUTH_TIME, authTime).build();
+		SecurityContextImpl securityContext = new SecurityContextImpl(this.authentication);
+		given(this.securityContextHolderStrategy.getContext()).willReturn(securityContext);
+		given(this.jwtDecoder.decode(anyString())).willReturn(jwt);
+
+		OAuth2AuthorizedClientRefreshedEvent authorizedClientRefreshedEvent = new OAuth2AuthorizedClientRefreshedEvent(
+				this.accessTokenResponse, this.authorizedClient);
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.eventListener.onApplicationEvent(authorizedClientRefreshedEvent))
+			.withMessageContaining("Invalid authenticated at time")
+			.extracting(OAuth2AuthenticationException::getError)
+			.extracting(OAuth2Error::getErrorCode)
+			.isEqualTo(INVALID_ID_TOKEN_ERROR);
+		verify(this.securityContextHolderStrategy).getContext();
+		verify(this.jwtDecoder).decode(this.jwt.getTokenValue());
+		verifyNoMoreInteractions(this.securityContextHolderStrategy, this.jwtDecoder);
+		verifyNoInteractions(this.userService, this.applicationEventPublisher);
+	}
+
+	@Test
+	public void onApplicationEventWhenIdTokenAuthenticatedAtMatchesThenOidcUserRefreshedEventPublished() {
+		Instant authTime = this.authentication.getPrincipal().getAttribute(IdTokenClaimNames.AUTH_TIME);
+		Jwt jwt = createJwt().claim(IdTokenClaimNames.AUTH_TIME, authTime).build();
+		SecurityContextImpl securityContext = new SecurityContextImpl(this.authentication);
+		given(this.securityContextHolderStrategy.getContext()).willReturn(securityContext);
+		given(this.jwtDecoder.decode(anyString())).willReturn(jwt);
+		given(this.userService.loadUser(any(OidcUserRequest.class))).willReturn(this.oidcUser);
+
+		OAuth2AuthorizedClientRefreshedEvent authorizedClientRefreshedEvent = new OAuth2AuthorizedClientRefreshedEvent(
+				this.accessTokenResponse, this.authorizedClient);
+		this.eventListener.onApplicationEvent(authorizedClientRefreshedEvent);
+
+		verify(this.applicationEventPublisher).publishEvent(any(OidcUserRefreshedEvent.class));
+		verifyNoMoreInteractions(this.applicationEventPublisher);
+	}
+
+	@Test
+	public void onApplicationEventWhenIdTokenNonceDoesNotMatchThenThrowsOAuth2AuthenticationException() {
+		Jwt jwt = createJwt().claim(IdTokenClaimNames.NONCE, "invalid").build();
+		SecurityContextImpl securityContext = new SecurityContextImpl(this.authentication);
+		given(this.securityContextHolderStrategy.getContext()).willReturn(securityContext);
+		given(this.jwtDecoder.decode(anyString())).willReturn(jwt);
+
+		OAuth2AuthorizedClientRefreshedEvent authorizedClientRefreshedEvent = new OAuth2AuthorizedClientRefreshedEvent(
+				this.accessTokenResponse, this.authorizedClient);
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.eventListener.onApplicationEvent(authorizedClientRefreshedEvent))
+			.withMessageContaining("Invalid nonce")
+			.extracting(OAuth2AuthenticationException::getError)
+			.extracting(OAuth2Error::getErrorCode)
+			.isEqualTo(INVALID_NONCE_ERROR);
+		verify(this.securityContextHolderStrategy).getContext();
+		verify(this.jwtDecoder).decode(this.jwt.getTokenValue());
+		verifyNoMoreInteractions(this.securityContextHolderStrategy, this.jwtDecoder);
+		verifyNoInteractions(this.userService, this.applicationEventPublisher);
+	}
+
+	@Test
+	public void onApplicationEventWhenIdTokenNonceMatchesThenOidcUserRefreshedEventPublished() {
+		Jwt jwt = createJwt().claim(IdTokenClaimNames.NONCE, this.oidcUser.getNonce()).build();
+		SecurityContextImpl securityContext = new SecurityContextImpl(this.authentication);
+		given(this.securityContextHolderStrategy.getContext()).willReturn(securityContext);
+		given(this.jwtDecoder.decode(anyString())).willReturn(jwt);
+		given(this.userService.loadUser(any(OidcUserRequest.class))).willReturn(this.oidcUser);
+
+		OAuth2AuthorizedClientRefreshedEvent authorizedClientRefreshedEvent = new OAuth2AuthorizedClientRefreshedEvent(
+				this.accessTokenResponse, this.authorizedClient);
+		this.eventListener.onApplicationEvent(authorizedClientRefreshedEvent);
+
+		verify(this.applicationEventPublisher).publishEvent(any(OidcUserRefreshedEvent.class));
+		verifyNoMoreInteractions(this.applicationEventPublisher);
+	}
+
+	@Test
 	public void onApplicationEventWhenInvalidIdTokenThenThrowsOAuth2AuthenticationException() {
-		OAuth2AuthenticationToken authentication = createAuthenticationToken(this.clientRegistration);
-		SecurityContextImpl securityContext = new SecurityContextImpl(authentication);
+		SecurityContextImpl securityContext = new SecurityContextImpl(this.authentication);
 		given(this.securityContextHolderStrategy.getContext()).willReturn(securityContext);
 		given(this.jwtDecoder.decode(anyString())).willThrow(new JwtException("Invalid token"));
 
@@ -326,7 +506,7 @@ public class OidcAuthorizedClientRefreshedEventListenerTests {
 			.isThrownBy(() -> this.eventListener.onApplicationEvent(authorizedClientRefreshedEvent))
 			.extracting(OAuth2AuthenticationException::getError)
 			.extracting(OAuth2Error::getErrorCode)
-			.isEqualTo("invalid_id_token");
+			.isEqualTo(INVALID_ID_TOKEN_ERROR);
 		verify(this.securityContextHolderStrategy).getContext();
 		verify(this.jwtDecoder).decode(this.jwt.getTokenValue());
 		verifyNoMoreInteractions(this.securityContextHolderStrategy, this.jwtDecoder);
@@ -335,8 +515,7 @@ public class OidcAuthorizedClientRefreshedEventListenerTests {
 
 	@Test
 	public void onApplicationEventWhenCustomAuthoritiesMapperSetThenUsed() {
-		OAuth2AuthenticationToken authentication = createAuthenticationToken(this.clientRegistration);
-		SecurityContextImpl securityContext = new SecurityContextImpl(authentication);
+		SecurityContextImpl securityContext = new SecurityContextImpl(this.authentication);
 		given(this.securityContextHolderStrategy.getContext()).willReturn(securityContext);
 		given(this.jwtDecoder.decode(anyString())).willReturn(this.jwt);
 		given(this.userService.loadUser(any(OidcUserRequest.class))).willReturn(this.oidcUser);
@@ -377,33 +556,36 @@ public class OidcAuthorizedClientRefreshedEventListenerTests {
 			.build();
 	}
 
-	private static Jwt createJwt() {
+	private static Jwt.Builder createJwt() {
 		Instant issuedAt = Instant.now();
 		Instant expiresAt = issuedAt.plus(1, ChronoUnit.MINUTES);
 		return TestJwts.jwt()
+			.issuer("https://surf.school")
 			.subject(SUBJECT)
 			.tokenValue(ID_TOKEN_VALUE)
 			.issuedAt(issuedAt)
 			.expiresAt(expiresAt)
-			.claim(OidcParameterNames.NONCE, "nonce")
-			.build();
+			.audience(List.of("audience1", "audience2"));
 	}
 
 	private static OidcUser createOidcUser() {
+		Instant issuedAt = Instant.now().minus(30, ChronoUnit.SECONDS);
+		Instant expiresAt = issuedAt.plus(5, ChronoUnit.MINUTES);
 		Map<String, Object> claims = new HashMap<>();
+		claims.put(IdTokenClaimNames.ISS, "https://surf.school");
 		claims.put(IdTokenClaimNames.SUB, SUBJECT);
-		claims.put(IdTokenClaimNames.ISS, "issuer");
+		claims.put(IdTokenClaimNames.IAT, issuedAt);
+		claims.put(IdTokenClaimNames.EXP, expiresAt);
 		claims.put(IdTokenClaimNames.AUD, List.of("audience1", "audience2"));
+		claims.put(IdTokenClaimNames.AUTH_TIME, issuedAt);
 		claims.put(IdTokenClaimNames.NONCE, "nonce");
-		Instant issuedAt = Instant.now();
-		Instant expiresAt = issuedAt.plus(1, ChronoUnit.MINUTES);
 		OidcIdToken idToken = new OidcIdToken(ID_TOKEN_VALUE, issuedAt, expiresAt, claims);
 
 		return new DefaultOidcUser(AuthorityUtils.createAuthorityList("OIDC_USER"), idToken);
 	}
 
-	private static OAuth2AuthenticationToken createAuthenticationToken(ClientRegistration clientRegistration) {
-		OidcUser oidcUser = createOidcUser();
+	private static OAuth2AuthenticationToken createAuthenticationToken(ClientRegistration clientRegistration,
+			OidcUser oidcUser) {
 		return new OAuth2AuthenticationToken(oidcUser, oidcUser.getAuthorities(),
 				clientRegistration.getRegistrationId());
 	}

@@ -16,8 +16,12 @@
 
 package org.springframework.security.oauth2.client.oidc.authentication;
 
+import java.time.Duration;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
@@ -67,6 +71,8 @@ public final class OidcAuthorizedClientRefreshedEventListener
 
 	private static final String INVALID_NONCE_ERROR_CODE = "invalid_nonce";
 
+	private static final String REFRESH_TOKEN_RESPONSE_ERROR_URI = "https://openid.net/specs/openid-connect-core-1_0.html#RefreshTokenResponse";
+
 	private OAuth2UserService<OidcUserRequest, OidcUser> userService = new OidcUserService();
 
 	private JwtDecoderFactory<ClientRegistration> jwtDecoderFactory = new OidcIdTokenDecoderFactory();
@@ -77,6 +83,8 @@ public final class OidcAuthorizedClientRefreshedEventListener
 		.getContextHolderStrategy();
 
 	private ApplicationEventPublisher applicationEventPublisher;
+
+	private Duration clockSkew = Duration.ofSeconds(60);
 
 	@Override
 	public void onApplicationEvent(OAuth2AuthorizedClientRefreshedEvent event) {
@@ -119,7 +127,7 @@ public final class OidcAuthorizedClientRefreshedEventListener
 
 		// Refresh the OidcUser and send a user refreshed event
 		OidcIdToken idToken = createOidcToken(clientRegistration, accessTokenResponse);
-		validateNonce(existingOidcUser, idToken);
+		validateIdToken(existingOidcUser, idToken);
 		OidcUserRequest userRequest = new OidcUserRequest(clientRegistration, accessTokenResponse.getAccessToken(),
 				idToken, additionalParameters);
 		OidcUser oidcUser = this.userService.loadUser(userRequest);
@@ -187,6 +195,17 @@ public final class OidcAuthorizedClientRefreshedEventListener
 		this.applicationEventPublisher = applicationEventPublisher;
 	}
 
+	/**
+	 * Sets the maximum acceptable clock skew, which is used when checking the
+	 * {@link OidcIdToken#getIssuedAt() issuedAt} time. The default is 60 seconds.
+	 * @param clockSkew the maximum acceptable clock skew
+	 */
+	public void setClockSkew(Duration clockSkew) {
+		Assert.notNull(clockSkew, "clockSkew cannot be null");
+		Assert.isTrue(clockSkew.getSeconds() >= 0, "clockSkew must be >= 0");
+		this.clockSkew = clockSkew;
+	}
+
 	private OidcIdToken createOidcToken(ClientRegistration clientRegistration,
 			OAuth2AccessTokenResponse accessTokenResponse) {
 		JwtDecoder jwtDecoder = this.jwtDecoderFactory.createDecoder(clientRegistration);
@@ -205,13 +224,97 @@ public final class OidcAuthorizedClientRefreshedEventListener
 		}
 	}
 
+	private void validateIdToken(OidcUser existingOidcUser, OidcIdToken idToken) {
+		// OpenID Connect Core 1.0 - Section 12.2 Successful Refresh Response
+		// If an ID Token is returned as a result of a token refresh request, the
+		// following requirements apply:
+		// its iss Claim Value MUST be the same as in the ID Token issued when the
+		// original authentication occurred,
+		validateIssuer(existingOidcUser, idToken);
+		// its sub Claim Value MUST be the same as in the ID Token issued when the
+		// original authentication occurred,
+		validateSubject(existingOidcUser, idToken);
+		// its iat Claim MUST represent the time that the new ID Token is issued,
+		validateIssuedAt(existingOidcUser, idToken);
+		// its aud Claim Value MUST be the same as in the ID Token issued when the
+		// original authentication occurred,
+		validateAudience(existingOidcUser, idToken);
+		// if the ID Token contains an auth_time Claim, its value MUST represent the time
+		// of the original authentication - not the time that the new ID token is issued,
+		validateAuthenticatedAt(existingOidcUser, idToken);
+		// it SHOULD NOT have a nonce Claim, even when the ID Token issued at the time of
+		// the original authentication contained nonce; however, if it is present, its
+		// value MUST be the same as in the ID Token issued at the time of the original
+		// authentication,
+		validateNonce(existingOidcUser, idToken);
+	}
+
+	private void validateIssuer(OidcUser existingOidcUser, OidcIdToken idToken) {
+		if (!idToken.getIssuer().toString().equals(existingOidcUser.getIdToken().getIssuer().toString())) {
+			OAuth2Error oauth2Error = new OAuth2Error(INVALID_ID_TOKEN_ERROR_CODE, "Invalid issuer",
+					REFRESH_TOKEN_RESPONSE_ERROR_URI);
+			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
+		}
+	}
+
+	private void validateSubject(OidcUser existingOidcUser, OidcIdToken idToken) {
+		if (!idToken.getSubject().equals(existingOidcUser.getIdToken().getSubject())) {
+			OAuth2Error oauth2Error = new OAuth2Error(INVALID_ID_TOKEN_ERROR_CODE, "Invalid subject",
+					REFRESH_TOKEN_RESPONSE_ERROR_URI);
+			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
+		}
+	}
+
+	private void validateIssuedAt(OidcUser existingOidcUser, OidcIdToken idToken) {
+		if (!idToken.getIssuedAt().isAfter(existingOidcUser.getIdToken().getIssuedAt().minus(this.clockSkew))) {
+			OAuth2Error oauth2Error = new OAuth2Error(INVALID_ID_TOKEN_ERROR_CODE, "Invalid issued at time",
+					REFRESH_TOKEN_RESPONSE_ERROR_URI);
+			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
+		}
+	}
+
+	private void validateAudience(OidcUser existingOidcUser, OidcIdToken idToken) {
+		if (!isValidAudience(existingOidcUser, idToken)) {
+			OAuth2Error oauth2Error = new OAuth2Error(INVALID_ID_TOKEN_ERROR_CODE, "Invalid audience",
+					REFRESH_TOKEN_RESPONSE_ERROR_URI);
+			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
+		}
+	}
+
+	private boolean isValidAudience(OidcUser existingOidcUser, OidcIdToken idToken) {
+		List<String> idTokenAudiences = idToken.getAudience();
+		Set<String> oidcUserAudiences = new HashSet<>(existingOidcUser.getIdToken().getAudience());
+		if (idTokenAudiences.size() != oidcUserAudiences.size()) {
+			return false;
+		}
+		for (String audience : idTokenAudiences) {
+			if (!oidcUserAudiences.contains(audience)) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	private void validateAuthenticatedAt(OidcUser existingOidcUser, OidcIdToken idToken) {
+		if (idToken.getAuthenticatedAt() == null) {
+			return;
+		}
+
+		if (!idToken.getAuthenticatedAt().equals(existingOidcUser.getIdToken().getAuthenticatedAt())) {
+			OAuth2Error oauth2Error = new OAuth2Error(INVALID_ID_TOKEN_ERROR_CODE, "Invalid authenticated at time",
+					REFRESH_TOKEN_RESPONSE_ERROR_URI);
+			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
+		}
+	}
+
 	private void validateNonce(OidcUser existingOidcUser, OidcIdToken idToken) {
 		if (!StringUtils.hasText(idToken.getNonce())) {
 			return;
 		}
 
-		if (!idToken.getNonce().equals(existingOidcUser.getNonce())) {
-			OAuth2Error oauth2Error = new OAuth2Error(INVALID_NONCE_ERROR_CODE);
+		if (!idToken.getNonce().equals(existingOidcUser.getIdToken().getNonce())) {
+			OAuth2Error oauth2Error = new OAuth2Error(INVALID_NONCE_ERROR_CODE, "Invalid nonce",
+					REFRESH_TOKEN_RESPONSE_ERROR_URI);
 			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
 		}
 	}
