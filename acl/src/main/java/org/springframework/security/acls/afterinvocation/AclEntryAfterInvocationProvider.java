@@ -60,8 +60,10 @@ import org.springframework.security.core.SpringSecurityMessageSource;
  * granted and <code>null</code> will be returned.
  * <p>
  * All comparisons and prefixes are case sensitive.
- * @deprecated please use {@link AclPermissionEvaluator} instead. Spring Method Security annotations
- * may also prove useful, for example {@code @PostAuthorize("hasPermission(filterObject, read)")}
+ *
+ * @deprecated please use {@link AclPermissionEvaluator} instead. Spring Method Security
+ * annotations may also prove useful, for example
+ * {@code @PostAuthorize("hasPermission(filterObject, read)")}
  */
 @Deprecated
 public class AclEntryAfterInvocationProvider extends AbstractAclProvider implements MessageSourceAware {

@@ -96,8 +96,9 @@ import org.springframework.util.StringUtils;
  * All comparisons and prefixes are case sensitive.
  *
  * @author Ben Alex
- * @deprecated please use {@link AclPermissionEvaluator} instead. Spring Method Security annotations
- * may also prove useful, for example {@code @PreAuthorize("hasPermission(#id, ObjectsReturnType.class, read)")}
+ * @deprecated please use {@link AclPermissionEvaluator} instead. Spring Method Security
+ * annotations may also prove useful, for example
+ * {@code @PreAuthorize("hasPermission(#id, ObjectsReturnType.class, read)")}
  */
 @Deprecated
 public class AclEntryVoter extends AbstractAclVoter {

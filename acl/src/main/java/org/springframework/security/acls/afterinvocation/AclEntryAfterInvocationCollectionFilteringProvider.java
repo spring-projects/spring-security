@@ -63,8 +63,9 @@ import org.springframework.security.core.Authentication;
  *
  * @author Ben Alex
  * @author Paulo Neves
- * @deprecated please use {@link AclPermissionEvaluator} instead. Spring Method Security annotations
- * may also prove useful, for example {@code @PostFilter("hasPermission(filterObject, read)")}
+ * @deprecated please use {@link AclPermissionEvaluator} instead. Spring Method Security
+ * annotations may also prove useful, for example
+ * {@code @PostFilter("hasPermission(filterObject, read)")}
  */
 @Deprecated
 public class AclEntryAfterInvocationCollectionFilteringProvider extends AbstractAclProvider {

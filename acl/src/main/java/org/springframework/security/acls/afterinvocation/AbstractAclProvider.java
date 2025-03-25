@@ -40,8 +40,9 @@ import org.springframework.util.ObjectUtils;
  * services.
  *
  * @author Ben Alex
- * @deprecated please use {@link AclPermissionEvaluator} instead. Spring Method Security annotations
- * may also prove useful, for example {@code @PostAuthorize("hasPermission(filterObject, read)")}
+ * @deprecated please use {@link AclPermissionEvaluator} instead. Spring Method Security
+ * annotations may also prove useful, for example
+ * {@code @PostAuthorize("hasPermission(filterObject, read)")}
  */
 @Deprecated
 public abstract class AbstractAclProvider implements AfterInvocationProvider {
