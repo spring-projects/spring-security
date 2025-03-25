@@ -20,6 +20,7 @@ import java.util.List;
 
 import org.springframework.security.access.AfterInvocationProvider;
 import org.springframework.security.access.ConfigAttribute;
+import org.springframework.security.acls.AclPermissionEvaluator;
 import org.springframework.security.acls.domain.ObjectIdentityRetrievalStrategyImpl;
 import org.springframework.security.acls.domain.SidRetrievalStrategyImpl;
 import org.springframework.security.acls.model.Acl;
@@ -39,7 +40,10 @@ import org.springframework.util.ObjectUtils;
  * services.
  *
  * @author Ben Alex
+ * @deprecated please use {@link AclPermissionEvaluator} instead. Spring Method Security annotations
+ * may also prove useful, for example {@code @PostAuthorize("hasPermission(filterObject, read)")}
  */
+@Deprecated
 public abstract class AbstractAclProvider implements AfterInvocationProvider {
 
 	protected final AclService aclService;
