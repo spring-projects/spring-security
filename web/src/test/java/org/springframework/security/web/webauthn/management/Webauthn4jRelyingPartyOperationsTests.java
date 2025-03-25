@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,6 +42,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.userdetails.PasswordEncodedUser;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.webauthn.api.AuthenticatorAttestationResponse;
 import org.springframework.security.web.webauthn.api.AuthenticatorAttestationResponse.AuthenticatorAttestationResponseBuilder;
 import org.springframework.security.web.webauthn.api.AuthenticatorSelectionCriteria;
@@ -66,6 +68,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatRuntimeException;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 @ExtendWith(MockitoExtension.class)
 class Webauthn4jRelyingPartyOperationsTests {
@@ -534,6 +537,50 @@ class Webauthn4jRelyingPartyOperationsTests {
 			.createCredentialRequestOptions(createRequest);
 		assertThat(credentialRequestOptions.getUserVerification())
 			.isEqualTo(creationOptions.getAuthenticatorSelection().getUserVerification());
+	}
+
+	@Test
+	void createCredentialRequestOptionsWhenAnonymousAuthentication() {
+		AnonymousAuthenticationToken authentication = new AnonymousAuthenticationToken("key", "anonymousUser",
+				Set.of(() -> "ROLE_ANONYMOUS"));
+		PublicKeyCredentialRequestOptionsRequest createRequest = new ImmutablePublicKeyCredentialRequestOptionsRequest(
+				authentication);
+		PublicKeyCredentialRequestOptions credentialRequestOptions = this.rpOperations
+			.createCredentialRequestOptions(createRequest);
+
+		assertThat(credentialRequestOptions.getAllowCredentials()).isEmpty();
+		// verify anonymous user not saved
+		verifyNoInteractions(this.userEntities);
+	}
+
+	@Test
+	void createCredentialRequestOptionsWhenNullAuthentication() {
+		PublicKeyCredentialRequestOptionsRequest createRequest = new ImmutablePublicKeyCredentialRequestOptionsRequest(
+				null);
+		PublicKeyCredentialRequestOptions credentialRequestOptions = this.rpOperations
+			.createCredentialRequestOptions(createRequest);
+
+		assertThat(credentialRequestOptions.getAllowCredentials()).isEmpty();
+		// verify anonymous user not saved
+		verifyNoInteractions(this.userEntities);
+	}
+
+	@Test
+	void createCredentialRequestOptionsWhenAuthenticated() {
+		UserDetails user = PasswordEncodedUser.user();
+		UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(user, null,
+				user.getAuthorities());
+		PublicKeyCredentialUserEntity userEntity = TestPublicKeyCredentialUserEntity.userEntity().build();
+		CredentialRecord credentialRecord = TestCredentialRecord.userCredential().build();
+		given(this.userEntities.findByUsername(user.getUsername())).willReturn(userEntity);
+		given(this.userCredentials.findByUserId(userEntity.getId())).willReturn(Arrays.asList(credentialRecord));
+		PublicKeyCredentialRequestOptionsRequest createRequest = new ImmutablePublicKeyCredentialRequestOptionsRequest(
+				auth);
+		PublicKeyCredentialRequestOptions credentialRequestOptions = this.rpOperations
+			.createCredentialRequestOptions(createRequest);
+
+		assertThat(credentialRequestOptions.getAllowCredentials()).extracting(PublicKeyCredentialDescriptor::getId)
+			.containsExactly(credentialRecord.getCredentialId());
 	}
 
 	private static AuthenticatorAttestationResponse setFlag(byte... flags) throws Exception {

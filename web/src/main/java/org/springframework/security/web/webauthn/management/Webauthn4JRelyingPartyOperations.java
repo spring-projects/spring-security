@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -333,9 +333,7 @@ public class Webauthn4JRelyingPartyOperations implements WebAuthnRelyingPartyOpe
 	public PublicKeyCredentialRequestOptions createCredentialRequestOptions(
 			PublicKeyCredentialRequestOptionsRequest request) {
 		Authentication authentication = request.getAuthentication();
-		// FIXME: do not load credentialRecords if anonymous
-		PublicKeyCredentialUserEntity userEntity = findUserEntityOrCreateAndSave(authentication.getName());
-		List<CredentialRecord> credentialRecords = this.userCredentials.findByUserId(userEntity.getId());
+		List<CredentialRecord> credentialRecords = findCredentialRecords(authentication);
 		return PublicKeyCredentialRequestOptions.builder()
 			.allowCredentials(credentialDescriptors(credentialRecords))
 			.challenge(Bytes.random())
@@ -344,6 +342,17 @@ public class Webauthn4JRelyingPartyOperations implements WebAuthnRelyingPartyOpe
 			.userVerification(UserVerificationRequirement.PREFERRED)
 			.customize(this.customizeRequestOptions)
 			.build();
+	}
+
+	private List<CredentialRecord> findCredentialRecords(Authentication authentication) {
+		if (!this.trustResolver.isAuthenticated(authentication)) {
+			return Collections.emptyList();
+		}
+		PublicKeyCredentialUserEntity userEntity = this.userEntities.findByUsername(authentication.getName());
+		if (userEntity == null) {
+			return Collections.emptyList();
+		}
+		return this.userCredentials.findByUserId(userEntity.getId());
 	}
 
 	@Override
