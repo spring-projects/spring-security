@@ -583,7 +583,7 @@ Generally speaking, you can use `requestMatchers(String)` as demonstrated above.
 
 However, if you have authorization rules from multiple servlets, you need to specify those:
 
-.Match by MvcRequestMatcher
+.Match by PathPatternRequestMatcher
 [tabs]
 ======
 Java::
