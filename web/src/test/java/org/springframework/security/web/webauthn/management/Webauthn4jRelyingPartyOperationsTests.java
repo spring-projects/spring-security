@@ -537,7 +537,7 @@ class Webauthn4jRelyingPartyOperationsTests {
 	}
 
 	@Test
-	void shouldReturnEmptyCredentialsWhenUserIsAnonymous() {
+	void createCredentialRequestOptionsWhenAnonymousAuthentication() {
 		AnonymousAuthenticationToken authentication = new AnonymousAuthenticationToken("key", "anonymousUser",
 				Set.of(() -> "ROLE_ANONYMOUS"));
 		PublicKeyCredentialRequestOptionsRequest createRequest = new ImmutablePublicKeyCredentialRequestOptionsRequest(
@@ -549,7 +549,7 @@ class Webauthn4jRelyingPartyOperationsTests {
 	}
 
 	@Test
-	void shouldReturnEmptyCredentialsWhenAnonymousUserIsDisabled() {
+	void createCredentialRequestOptionsWhenNullAuthentication() {
 		PublicKeyCredentialRequestOptionsRequest createRequest = new ImmutablePublicKeyCredentialRequestOptionsRequest(null);
 		PublicKeyCredentialRequestOptions credentialRequestOptions = this.rpOperations
 			.createCredentialRequestOptions(createRequest);
