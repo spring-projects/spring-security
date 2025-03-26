@@ -107,7 +107,7 @@ public class CorsConfigurer<H extends HttpSecurityBuilder<H>> extends AbstractHt
 		 * @return
 		 */
 		private static CorsFilter getMvcCorsFilter(ApplicationContext context) {
-			if (context.getBeanNamesForType(CorsConfigurationSource.class).length > 0) {
+			if (context.containsBean(HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME)) {
 				CorsConfigurationSource corsConfigurationSource = context
 					.getBean(HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME, CorsConfigurationSource.class);
 				return new CorsFilter(corsConfigurationSource);
