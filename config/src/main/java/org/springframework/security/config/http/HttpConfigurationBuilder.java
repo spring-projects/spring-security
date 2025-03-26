@@ -83,7 +83,6 @@ import org.springframework.security.web.session.SessionManagementFilter;
 import org.springframework.security.web.session.SimpleRedirectInvalidSessionStrategy;
 import org.springframework.security.web.session.SimpleRedirectSessionInformationExpiredStrategy;
 import org.springframework.security.web.transport.HttpsRedirectFilter;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
@@ -751,7 +750,7 @@ class HttpConfigurationBuilder {
 				requestCacheBldr.addPropertyValue("portResolver", this.portResolver);
 				if (this.csrfFilter != null) {
 					BeanDefinitionBuilder requestCacheMatcherBldr = BeanDefinitionBuilder
-						.rootBeanDefinition(AntPathRequestMatcher.class);
+						.rootBeanDefinition(RequestMatcherFactoryBean.class);
 					requestCacheMatcherBldr.addConstructorArgValue("/**");
 					requestCacheMatcherBldr.addConstructorArgValue("GET");
 					requestCacheBldr.addPropertyValue("requestMatcher", requestCacheMatcherBldr.getBeanDefinition());

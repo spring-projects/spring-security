@@ -29,6 +29,13 @@ fun requestMatcherBuilder(): PathPatternRequestMatcherBuilderFactoryBean {
     return PathPatternRequestMatcherBuilderFactoryBean()
 }
 ----
+
+Xml::
++
+[source,xml,role="secondary"]
+----
+<b:bean class="org.springframework.security.config.web.PathPatternRequestMatcherBuilderFactoryBean"/>
+----
 ======
 
 This will tell the Spring Security DSL to use `PathPatternRequestMatcher` for all request matchers that it constructs.
