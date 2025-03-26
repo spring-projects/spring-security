@@ -42,21 +42,57 @@ This will tell the Spring Security DSL to use `PathPatternRequestMatcher` for al
 
 In the event that you are directly constructing an object (as opposed to having the DSL construct it) that has a `setRequestMatcher` method. you should also proactively specify a `PathPatternRequestMatcher` there as well.
 
-For example, in the case of `LogoutFilter`, it constructs an `AntPathRequestMatcher` in Spring Security 6:
+=== Migrate `exitUserUrl` and `switchUserUrl` Request Matchers in `SwitchUserFilter`
 
-[method,java]
+`SwitchUserFilter`, constructs an `AntPathRequestMatcher` in its `setExitUserUrl` and `setSwitchUserUrl` methods.
+This will change to use `PathPatternRequestMatcher` in Spring Security 7.
+
+To prepare for this change, call `setExitUserMatcher` and `setSwithcUserMatcher` to provide this `PathPatternRequestMatcher` in advance.
+That is, change this:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
 ----
-private RequestMatcher logoutUrl = new AntPathRequestMatcher("/logout");
+SwitchUserFilter switchUser = new SwitchUserFilter();
+// ... other configuration
+switchUser.setExitUserUrl("/exit/impersonate");
 ----
 
-and will change this to a `PathPatternRequestMatcher` in 7:
-
-[method,java]
+Kotlin::
++
+[source,kotlin,role="secondary"]
 ----
-private RequestMatcher logoutUrl = PathPatternRequestMatcher.path().matcher("/logout");
+val switchUser = SwitchUserFilter()
+// ... other configuration
+switchUser.setExitUserUrl("/exit/impersonate")
+----
+======
+
+to this:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+SwitchUserFilter switchUser = new SwitchUserFilter();
+// ... other configuration
+switchUser.setExitUserMatcher(PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.POST, "/exit/impersonate"));
 ----
 
-If you are constructing your own `LogoutFilter`, consider calling `setLogoutRequestMatcher` to provide this `PathPatternRequestMatcher` in advance.
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+val switchUser = SwitchUserFilter()
+// ... other configuration
+switchUser.setExitUserMatcher(PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.POST, "/exit/impersonate"))
+----
+======
 
 == Include the Servlet Path Prefix in Authorization Rules
 
