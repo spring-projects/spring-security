@@ -38,6 +38,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialCreationOptions;
 import org.springframework.security.web.webauthn.jackson.WebauthnJackson2Module;
@@ -45,8 +46,6 @@ import org.springframework.security.web.webauthn.management.ImmutablePublicKeyCr
 import org.springframework.security.web.webauthn.management.WebAuthnRelyingPartyOperations;
 import org.springframework.util.Assert;
 import org.springframework.web.filter.OncePerRequestFilter;
-
-import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
 
 /**
  * A {@link jakarta.servlet.Filter} that renders the
@@ -63,7 +62,8 @@ public class PublicKeyCredentialCreationOptionsFilter extends OncePerRequestFilt
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
 		.getContextHolderStrategy();
 
-	private RequestMatcher matcher = antMatcher(HttpMethod.POST, "/webauthn/register/options");
+	private RequestMatcher matcher = PathPatternRequestMatcher.withDefaults()
+		.matcher(HttpMethod.POST, "/webauthn/register/options");
 
 	private AuthorizationManager<HttpServletRequest> authorization = AuthenticatedAuthorizationManager.authenticated();
 

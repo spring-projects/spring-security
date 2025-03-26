@@ -273,7 +273,7 @@ public class AbstractAuthenticationProcessingFilterTests {
 		filter.setAuthenticationManager(mock(AuthenticationManager.class));
 		filter.setAuthenticationSuccessHandler(this.successHandler);
 		assertThatIllegalArgumentException().isThrownBy(() -> filter.setFilterProcessesUrl(null))
-			.withMessage("Pattern cannot be null or empty");
+			.withMessage("pattern cannot be null");
 	}
 
 	@Test

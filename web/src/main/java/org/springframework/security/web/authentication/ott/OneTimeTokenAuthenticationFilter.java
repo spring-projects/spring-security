@@ -16,8 +16,9 @@
 
 package org.springframework.security.web.authentication.ott;
 
+import org.springframework.http.HttpMethod;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 
 /**
  * Filter that processes a one-time token for log in.
@@ -33,7 +34,7 @@ public final class OneTimeTokenAuthenticationFilter extends AbstractAuthenticati
 	public static final String DEFAULT_LOGIN_PROCESSING_URL = "/login/ott";
 
 	public OneTimeTokenAuthenticationFilter() {
-		super(new AntPathRequestMatcher(DEFAULT_LOGIN_PROCESSING_URL, "POST"));
+		super(PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.POST, DEFAULT_LOGIN_PROCESSING_URL));
 		setAuthenticationConverter(new OneTimeTokenAuthenticationConverter());
 	}
 

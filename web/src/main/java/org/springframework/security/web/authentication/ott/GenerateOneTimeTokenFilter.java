@@ -27,12 +27,11 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.ott.GenerateOneTimeTokenRequest;
 import org.springframework.security.authentication.ott.OneTimeToken;
 import org.springframework.security.authentication.ott.OneTimeTokenService;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
-
-import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
 
 /**
  * Filter that process a One-Time Token generation request.
@@ -49,7 +48,8 @@ public final class GenerateOneTimeTokenFilter extends OncePerRequestFilter {
 
 	private final OneTimeTokenGenerationSuccessHandler tokenGenerationSuccessHandler;
 
-	private RequestMatcher requestMatcher = antMatcher(HttpMethod.POST, DEFAULT_GENERATE_URL);
+	private RequestMatcher requestMatcher = PathPatternRequestMatcher.withDefaults()
+		.matcher(HttpMethod.POST, DEFAULT_GENERATE_URL);
 
 	private GenerateOneTimeTokenRequestResolver requestResolver = new DefaultGenerateOneTimeTokenRequestResolver();
 
