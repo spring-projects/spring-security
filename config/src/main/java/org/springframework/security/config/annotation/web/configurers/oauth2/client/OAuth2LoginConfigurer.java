@@ -351,6 +351,8 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 	public void init(B http) throws Exception {
 		OAuth2LoginAuthenticationFilter authenticationFilter = new OAuth2LoginAuthenticationFilter(
 				this.getClientRegistrationRepository(), this.getAuthorizedClientRepository(), this.loginProcessingUrl);
+		RequestMatcher processUri = RequestMatcherFactory.matcher(this.loginProcessingUrl);
+		authenticationFilter.setRequiresAuthenticationRequestMatcher(processUri);
 		authenticationFilter.setSecurityContextHolderStrategy(getSecurityContextHolderStrategy());
 		this.setAuthenticationFilter(authenticationFilter);
 		super.loginProcessingUrl(this.loginProcessingUrl);
@@ -434,7 +436,8 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		http.addFilter(this.postProcess(authorizationRequestFilter));
 		OAuth2LoginAuthenticationFilter authenticationFilter = this.getAuthenticationFilter();
 		if (this.redirectionEndpointConfig.authorizationResponseBaseUri != null) {
-			authenticationFilter.setFilterProcessesUrl(this.redirectionEndpointConfig.authorizationResponseBaseUri);
+			authenticationFilter.setRequiresAuthenticationRequestMatcher(
+					RequestMatcherFactory.matcher(this.redirectionEndpointConfig.authorizationResponseBaseUri));
 		}
 		if (this.authorizationEndpointConfig.authorizationRequestRepository != null) {
 			authenticationFilter
