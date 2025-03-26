@@ -94,6 +94,51 @@ switchUser.setExitUserMatcher(PathPatternRequestMatcher.withDefaults().matcher(H
 ----
 ======
 
+=== Migrate CAS Proxy Receptor Request Matcher
+
+Spring Security 6 converts any configured `proxyReceptorUrl` to a request matcher that matches the end of the request, that is `/**/proxy/receptor`.
+In Spring Security 7, this pattern is not allowed and will change to using `PathPatternRequestMatcher`.
+Also in Spring Security 7m the URL should by absolute, excluding any context path, like so: `/proxy/receptor`.
+
+So to prepare for these change, you can use `setProxyReceptorRequestMatcher` instead of `setProxyReceptorUrl`.
+
+That is, change this:
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+casAuthentication.setProxyReceptorUrl("/proxy/receptor");
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+casAuthentication.setProxyReceptorUrl("/proxy/receptor")
+----
+======
+
+to this:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+casAuthentication.setProxyReceptorUrl(PathPatternRequestMatcher.withDefaults().matcher("/proxy/receptor"));
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+casAuthentication.setProxyReceptorUrl(PathPatternRequestMatcher.withDefaults().matcher("/proxy/receptor"))
+----
+======
+
 == Include the Servlet Path Prefix in Authorization Rules
 
 For many applications <<use-path-pattern, the above>> will make no difference since most commonly all URIs listed are matched by the default servlet.
