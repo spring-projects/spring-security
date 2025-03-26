@@ -68,6 +68,7 @@ public class Saml2WebSsoAuthenticationFilterTests {
 	@BeforeEach
 	public void setup() {
 		this.filter = new Saml2WebSsoAuthenticationFilter(this.repository);
+		this.request.setRequestURI("/login/saml2/sso/idp-registration-id");
 		this.request.setPathInfo("/login/saml2/sso/idp-registration-id");
 		this.request.setParameter(Saml2ParameterNames.SAML_RESPONSE, "xml-data-goes-here");
 	}
@@ -99,6 +100,7 @@ public class Saml2WebSsoAuthenticationFilterTests {
 	@Test
 	public void requiresAuthenticationWhenCustomProcessingUrlThenReturnsTrue() {
 		this.filter = new Saml2WebSsoAuthenticationFilter(this.repository, "/some/other/path/{registrationId}");
+		this.request.setRequestURI("/some/other/path/idp-registration-id");
 		this.request.setPathInfo("/some/other/path/idp-registration-id");
 		this.request.setParameter(Saml2ParameterNames.SAML_RESPONSE, "xml-data-goes-here");
 		assertThat(this.filter.requiresAuthentication(this.request, this.response)).isTrue();
@@ -108,6 +110,7 @@ public class Saml2WebSsoAuthenticationFilterTests {
 	public void attemptAuthenticationWhenRegistrationIdDoesNotExistThenThrowsException() {
 		given(this.repository.findByRegistrationId("non-existent-id")).willReturn(null);
 		this.filter = new Saml2WebSsoAuthenticationFilter(this.repository, "/some/other/path/{registrationId}");
+		this.request.setRequestURI("/some/other/path/non-existent-id");
 		this.request.setPathInfo("/some/other/path/non-existent-id");
 		this.request.setParameter(Saml2ParameterNames.SAML_RESPONSE, "response");
 		assertThatExceptionOfType(Saml2AuthenticationException.class)
@@ -123,6 +126,7 @@ public class Saml2WebSsoAuthenticationFilterTests {
 		given(authenticationConverter.convert(this.request)).willReturn(TestSaml2AuthenticationTokens.token());
 		this.filter = new Saml2WebSsoAuthenticationFilter(authenticationConverter, "/some/other/path/{registrationId}");
 		this.filter.setAuthenticationManager((authentication) -> null);
+		this.request.setRequestURI("/some/other/path/idp-registration-id");
 		this.request.setPathInfo("/some/other/path/idp-registration-id");
 		this.filter.setAuthenticationRequestRepository(authenticationRequestRepository);
 		this.filter.attemptAuthentication(this.request, this.response);
@@ -201,6 +205,7 @@ public class Saml2WebSsoAuthenticationFilterTests {
 		Saml2AuthenticationTokenConverter authenticationConverter = new Saml2AuthenticationTokenConverter(resolver);
 		this.filter = new Saml2WebSsoAuthenticationFilter(authenticationConverter, loginProcessingUrl);
 		this.filter.setAuthenticationManager(this.authenticationManager);
+		this.request.setRequestURI("/registration-id/login/saml2/sso");
 		this.request.setPathInfo("/registration-id/login/saml2/sso");
 		this.request.setParameter(Saml2ParameterNames.SAML_RESPONSE, "response");
 		this.filter.doFilter(this.request, this.response, new MockFilterChain());
