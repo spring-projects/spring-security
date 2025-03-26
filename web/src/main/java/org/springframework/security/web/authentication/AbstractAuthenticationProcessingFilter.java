@@ -46,7 +46,7 @@ import org.springframework.security.web.authentication.session.NullAuthenticated
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
-import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 import org.springframework.web.filter.GenericFilterBean;
@@ -395,7 +395,7 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 	 * @param filterProcessesUrl
 	 */
 	public void setFilterProcessesUrl(String filterProcessesUrl) {
-		setRequiresAuthenticationRequestMatcher(PathPatternRequestMatcher.withDefaults().matcher(filterProcessesUrl));
+		setRequiresAuthenticationRequestMatcher(new AntPathRequestMatcher(filterProcessesUrl));
 	}
 
 	public final void setRequiresAuthenticationRequestMatcher(RequestMatcher requestMatcher) {

@@ -63,6 +63,8 @@ public class Saml2WebSsoAuthenticationFilter extends AbstractAuthenticationProce
 	 */
 	public Saml2WebSsoAuthenticationFilter(RelyingPartyRegistrationRepository relyingPartyRegistrationRepository) {
 		this(relyingPartyRegistrationRepository, DEFAULT_FILTER_PROCESSES_URI);
+		RequestMatcher processUri = PathPatternRequestMatcher.withDefaults().matcher(DEFAULT_FILTER_PROCESSES_URI);
+		setRequiresAuthenticationRequestMatcher(processUri);
 	}
 
 	/**

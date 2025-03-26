@@ -94,6 +94,61 @@ switchUser.setExitUserMatcher(PathPatternRequestMatcher.withDefaults().matcher(H
 ----
 ======
 
+=== Migrate `filterProcessingUrl` Request Matcher in `AbstractAuthenticationProcessingFilter` Implementations
+
+Spring Security 6 converts any processing endpoint configured through `setFilterProcessingUrl` to an `AntPathRequestMatcher`.
+In Spring Security 7, this will change to `PathPatternRequestMatcher`.
+
+If you are directly invoking `setFilterProcessingUrl` on a filter that extends `AbstractAuthenticationProcessingFilter`, like `UsernamePasswordAuthenticationFilter`, `OAuth2LoginAuthenticationFilter`, `Saml2WebSsoAuthenticationFilter`, `OneTimeTokenAuthenticationFilter`, or `WebAuthnAuthenticationFilter`, call `setRequiredAuthenticationRequestMatcher` instead to provide this `PathPatternRequestMatcher` in advance.
+
+That is, change this:
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+UsernamePasswordAuthenticationFilter usernamePassword = new UsernamePasswordAuthenticationFilter(authenticationManager);
+usernamePassword.setFilterProcessingUrl("/my/processing/url");
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+val usernamePassword = UsernamePasswordAuthenticationFilter(authenticationManager)
+usernamePassword.setFilterProcessingUrl("/my/processing/url")
+----
+======
+
+to this:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+UsernamePasswordAuthenticationFilter usernamePassword = new UsernamePasswordAuthenticationFilter(authenticationManager);
+RequestMatcher requestMatcher = PathPatternRequestMatcher.withDefaults().matcher("/my/processing/url");
+usernamePassword.setRequest(requestMatcher);
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+val usernamePassword = UsernamePasswordAuthenticationFilter(authenticationManager)
+val requestMatcher = PathPatternRequestMatcher.withDefaults().matcher("/my/processing/url")
+usernamePassword.setRequest(requestMatcher)
+----
+======
+
+[NOTE]
+-----
+Most applications use the DSL instead of setting the `filterProcessingUrl` directly on a filter instance.
+-----
+
 === Migrate CAS Proxy Receptor Request Matcher
 
 Spring Security 6 converts any configured `proxyReceptorUrl` to a request matcher that matches the end of the request, that is `/**/proxy/receptor`.
