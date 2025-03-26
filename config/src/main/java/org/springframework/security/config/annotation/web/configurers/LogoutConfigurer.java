@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -145,7 +145,7 @@ public final class LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 	 * (i.e. log out) to protect against
 	 * <a href="https://en.wikipedia.org/wiki/Cross-site_request_forgery">CSRF
 	 * attacks</a>. If you really want to use an HTTP GET, you can use
-	 * <code>logoutRequestMatcher(new AntPathRequestMatcher(logoutUrl, "GET"));</code>
+	 * <code>logoutRequestMatcher(PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.GEt, logoutUrl));</code>
 	 * </p>
 	 * @param logoutUrl the URL that will invoke logout.
 	 * @return the {@link LogoutConfigurer} for further customization

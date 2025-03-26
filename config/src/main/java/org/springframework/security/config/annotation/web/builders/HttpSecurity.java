@@ -3706,8 +3706,8 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * {@link #securityMatcher(String...)}, {@link #securityMatchers(Customizer)} and
 	 * {@link #securityMatchers()}
 	 * </p>
-	 * @param requestMatcher the {@link RequestMatcher} to use (i.e. new
-	 * AntPathRequestMatcher("/admin/**","GET") )
+	 * @param requestMatcher the {@link RequestMatcher} to use, for example,
+	 * {@code PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.GET, "/admin/**")}
 	 * @return the {@link HttpSecurity} for further customizations
 	 * @see #securityMatcher(String...)
 	 */
