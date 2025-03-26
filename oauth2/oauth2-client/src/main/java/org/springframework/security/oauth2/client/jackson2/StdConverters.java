@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,8 +56,20 @@ abstract class StdConverters {
 			if (ClientAuthenticationMethod.CLIENT_SECRET_POST.getValue().equalsIgnoreCase(value)) {
 				return ClientAuthenticationMethod.CLIENT_SECRET_POST;
 			}
+			if (ClientAuthenticationMethod.CLIENT_SECRET_JWT.getValue().equalsIgnoreCase(value)) {
+				return ClientAuthenticationMethod.CLIENT_SECRET_JWT;
+			}
+			if (ClientAuthenticationMethod.PRIVATE_KEY_JWT.getValue().equalsIgnoreCase(value)) {
+				return ClientAuthenticationMethod.PRIVATE_KEY_JWT;
+			}
 			if (ClientAuthenticationMethod.NONE.getValue().equalsIgnoreCase(value)) {
 				return ClientAuthenticationMethod.NONE;
+			}
+			if (ClientAuthenticationMethod.TLS_CLIENT_AUTH.getValue().equalsIgnoreCase(value)) {
+				return ClientAuthenticationMethod.TLS_CLIENT_AUTH;
+			}
+			if (ClientAuthenticationMethod.SELF_SIGNED_TLS_CLIENT_AUTH.getValue().equalsIgnoreCase(value)) {
+				return ClientAuthenticationMethod.SELF_SIGNED_TLS_CLIENT_AUTH;
 			}
 			return null;
 		}
