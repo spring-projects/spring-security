@@ -398,7 +398,7 @@ fun springSecurityFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain 
 ----
 ======
 
-This is handy when deeper configuration, such as <<webflux-oauth2resourceserver-opaque-authorization-extraction,authority mapping>>or <<webflux-oauth2resourceserver-opaque-jwt-introspector,JWT revocation>>, is necessary.
+This is handy when deeper configuration, such as <<webflux-oauth2resourceserver-opaque-authorization-extraction,authority mapping>> or <<webflux-oauth2resourceserver-opaque-jwt-introspector,JWT revocation>>, is necessary.
 
 [[webflux-oauth2resourceserver-opaque-introspector-bean]]
 === Exposing a `ReactiveOpaqueTokenIntrospector` `@Bean`

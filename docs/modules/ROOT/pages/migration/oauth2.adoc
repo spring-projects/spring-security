@@ -2,7 +2,7 @@
 
 == Validate `typ` Header with `JwtTypeValidator`
 
-`NimbusJwtDecoder` in Spring Security 7 will move `typ` header validation to `JwtTypeValidator` intsead of relying on Nimbus.
+`NimbusJwtDecoder` in Spring Security 7 will move `typ` header validation to `JwtTypeValidator` instead of relying on Nimbus.
 This brings it in line with `NimbusJwtDecoder` validating claims instead of relying on Nimbus to validate them.
 
 If you are changing Nimbus's default type validation in a `jwtProcessorCustomizer` method, then you should move that to `JwtTypeValidator` or an implementation of `OAuth2TokenValidator` of your own.
