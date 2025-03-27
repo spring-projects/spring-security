@@ -109,7 +109,9 @@ public final class AuthorizationAdvisorProxyFactory
 		advisors.add(AuthorizationManagerAfterMethodInterceptor.postAuthorize());
 		advisors.add(new PreFilterAuthorizationMethodInterceptor());
 		advisors.add(new PostFilterAuthorizationMethodInterceptor());
-		return new AuthorizationAdvisorProxyFactory(advisors);
+		AuthorizationAdvisorProxyFactory factory = new AuthorizationAdvisorProxyFactory(advisors);
+		AnnotationAwareOrderComparator.sort(factory.advisors);
+		return factory;
 	}
 
 	/**
@@ -124,7 +126,9 @@ public final class AuthorizationAdvisorProxyFactory
 		advisors.add(AuthorizationManagerAfterReactiveMethodInterceptor.postAuthorize());
 		advisors.add(new PreFilterAuthorizationReactiveMethodInterceptor());
 		advisors.add(new PostFilterAuthorizationReactiveMethodInterceptor());
-		return new AuthorizationAdvisorProxyFactory(advisors);
+		AuthorizationAdvisorProxyFactory factory = new AuthorizationAdvisorProxyFactory(advisors);
+		AnnotationAwareOrderComparator.sort(factory.advisors);
+		return factory;
 	}
 
 	@Override
@@ -160,9 +164,9 @@ public final class AuthorizationAdvisorProxyFactory
 			return proxied;
 		}
 		ProxyFactory factory = new ProxyFactory(target);
-		for (Advisor advisor : this.advisors) {
-			factory.addAdvisors(advisor);
-		}
+		List<Advisor> advisors = new ArrayList<>(this.advisors);
+		AnnotationAwareOrderComparator.sort(advisors);
+		factory.addAdvisors(advisors);
 		factory.setProxyTargetClass(!Modifier.isFinal(target.getClass().getModifiers()));
 		return factory.getProxy();
 	}
