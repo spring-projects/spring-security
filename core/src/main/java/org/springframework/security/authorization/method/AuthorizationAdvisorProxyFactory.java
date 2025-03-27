@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,6 +42,7 @@ import reactor.core.publisher.Mono;
 
 import org.springframework.aop.Advisor;
 import org.springframework.aop.framework.ProxyFactory;
+import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authorization.AuthorizationProxyFactory;
@@ -75,7 +76,7 @@ import org.springframework.util.ClassUtils;
  * @since 6.3
  */
 public final class AuthorizationAdvisorProxyFactory
-		implements AuthorizationProxyFactory, Iterable<AuthorizationAdvisor> {
+		implements AuthorizationProxyFactory, Iterable<AuthorizationAdvisor>, SmartInitializingSingleton {
 
 	private static final boolean isReactivePresent = ClassUtils.isPresent("reactor.core.publisher.Mono", null);
 
@@ -126,6 +127,11 @@ public final class AuthorizationAdvisorProxyFactory
 		return new AuthorizationAdvisorProxyFactory(advisors);
 	}
 
+	@Override
+	public void afterSingletonsInstantiated() {
+		AnnotationAwareOrderComparator.sort(this.advisors);
+	}
+
 	/**
 	 * Proxy an object to enforce authorization advice.
 	 *
@@ -146,7 +152,6 @@ public final class AuthorizationAdvisorProxyFactory
 	 */
 	@Override
 	public Object proxy(Object target) {
-		AnnotationAwareOrderComparator.sort(this.advisors);
 		if (target == null) {
 			return null;
 		}
