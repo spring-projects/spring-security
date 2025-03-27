@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,6 +56,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Role;
+import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 import org.springframework.core.annotation.AnnotationConfigurationException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.PermissionEvaluator;
@@ -1101,6 +1102,21 @@ public class PrePostMethodSecurityConfigurationTests {
 		this.methodSecurityService.jsr250RolesAllowedUser();
 		ObservationHandler<?> handler = this.spring.getContext().getBean(ObservationHandler.class);
 		verifyNoInteractions(handler);
+	}
+
+	// gh-16819
+	@Test
+	void autowireWhenDefaultsThenAdvisorAnnotationsAreSorted() {
+		this.spring.register(MethodSecurityServiceConfig.class).autowire();
+		AuthorizationAdvisorProxyFactory proxyFactory = this.spring.getContext()
+			.getBean(AuthorizationAdvisorProxyFactory.class);
+		AnnotationAwareOrderComparator comparator = AnnotationAwareOrderComparator.INSTANCE;
+		AuthorizationAdvisor previous = null;
+		for (AuthorizationAdvisor advisor : proxyFactory) {
+			boolean ordered = previous == null || comparator.compare(previous, advisor) < 0;
+			assertThat(ordered).isTrue();
+			previous = advisor;
+		}
 	}
 
 	private static Consumer<ConfigurableWebApplicationContext> disallowBeanOverriding() {
