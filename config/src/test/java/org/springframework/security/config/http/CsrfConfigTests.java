@@ -22,6 +22,7 @@ import java.util.List;
 import jakarta.servlet.Filter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import org.eclipse.jetty.http.HttpStatus;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -334,6 +335,43 @@ public class CsrfConfigTests {
 				.session(session);
 		this.mvc.perform(ok).andExpect(status().isForbidden());
 		// @formatter:on
+	}
+
+	@Test
+	public void postWhenUsingCsrfAndXorCsrfTokenRequestAttributeHandlerThenCsrfAuthenticationStrategyUses()
+			throws Exception {
+		this.spring.configLocations(this.xml("WithXorCsrfTokenRequestAttributeHandler"), this.xml("shared-controllers"))
+			.autowire();
+		// @formatter:off
+		MvcResult mvcResult1 = this.mvc.perform(get("/csrf"))
+				.andExpect(status().isOk())
+				.andReturn();
+		// @formatter:on
+		MockHttpServletRequest request1 = mvcResult1.getRequest();
+		MockHttpSession session = (MockHttpSession) request1.getSession();
+		CsrfTokenRepository repository = WebTestUtils.getCsrfTokenRepository(request1);
+		// @formatter:off
+		MockHttpServletRequestBuilder login = post("/login")
+			.param("username", "user")
+			.param("password", "password")
+			.session(session)
+			.with(csrf());
+		this.mvc.perform(login)
+			.andExpect(status().is3xxRedirection())
+			.andExpect(redirectedUrl("/"));
+		// @formatter:on
+		assertThat(repository.loadToken(request1)).isNull();
+		// @formatter:off
+		MvcResult mvcResult2 = this.mvc.perform(get("/csrf").session(session))
+			.andExpect(status().isOk())
+			.andReturn();
+		// @formatter:on
+		MockHttpServletRequest request2 = mvcResult2.getRequest();
+		CsrfToken csrfToken = repository.loadToken(request2);
+		CsrfToken csrfTokenAttribute = (CsrfToken) request2.getAttribute(CsrfToken.class.getName());
+		assertThat(csrfTokenAttribute).isNotNull();
+		assertThat(csrfTokenAttribute.getToken()).isNotBlank();
+		assertThat(csrfTokenAttribute.getToken()).isNotEqualTo(csrfToken.getToken());
 	}
 
 	@Test
