@@ -66,3 +66,54 @@ fun introspector(): OpaqueTokenIntrospector {
 }
 ----
 ======
+
+== Deprecated Authentication#setAuthenticated
+
+The `Authentication#setAuthenticated` method has been deprecated in favor of implementing the `isAuthenticated()` method.
+
+Previously, implementations might use `setAuthenticated` to mark an authentication token as valid:
+
+[source,java]
+----
+Authentication auth = // create authentication
+auth.setAuthenticated(true); // DEPRECATED
+----
+
+Instead, implementations should override the `isAuthenticated()` method to determine authentication validity:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+public class MyAuthentication implements Authentication {
+
+	// Other methods...
+
+	@Override
+	public boolean isAuthenticated() {
+		// Custom logic to determine if this authentication is valid
+		return this.validated;
+	}
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+class MyAuthentication : Authentication {
+
+	// Other methods...
+
+	override fun isAuthenticated(): Boolean {
+		// Custom logic to determine if this authentication is valid
+		return this.validated
+	}
+}
+----
+======
+
+Note that existing implementations will still need to support `setAuthenticated` for backward compatibility,
+but new code should avoid calling this method.
