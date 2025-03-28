@@ -18,6 +18,7 @@ package org.springframework.security.oauth2.core.endpoint;
 
 import java.net.URI;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -28,8 +29,7 @@ import org.junit.jupiter.api.Test;
 
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.*;
 
 /**
  * Tests for {@link OAuth2AuthorizationRequest}.
@@ -363,6 +363,47 @@ public class OAuth2AuthorizationRequestTests {
 			.isEqualTo("https://example.com/login/oauth/authorize?response_type=code&client_id=client-id&state=state&"
 					+ "redirect_uri=https://example.com/authorize/oauth2/code/registration-id&"
 					+ "item1=null&item2=value2");
+	}
+
+	@Test
+	public void equalsTrueTest() {
+		OAuth2AuthorizationRequest authorizationRequest1 = TestOAuth2AuthorizationRequests.request()
+				.authorizationRequestUri("http://example.com")
+				.additionalParameters(Collections.singletonMap("someAdditionalParameterKey", "someAdditionalParameterValue"))
+				.parameters(parametersMap -> parametersMap.put("someParameterKey", "someParameterValue"))
+				.scope("someScope")
+				.build();
+
+		OAuth2AuthorizationRequest authorizationRequest2 = TestOAuth2AuthorizationRequests.request()
+				.authorizationRequestUri("http://example.com")
+				.additionalParameters(Collections.singletonMap("someAdditionalParameterKey", "someAdditionalParameterValue"))
+				.parameters(parametersMap -> parametersMap.put("someParameterKey", "someParameterValue"))
+				.scope("someScope")
+				.build();
+
+		assertThat(authorizationRequest1).isEqualTo(authorizationRequest2);
+	}
+
+	@Test
+	public void hashCodeTest() {
+		OAuth2AuthorizationRequest authorizationRequest1 = TestOAuth2AuthorizationRequests.request()
+				.authorizationRequestUri("http://example.com")
+				.additionalParameters(Collections.singletonMap("someAdditionalParameterKey", "someAdditionalParameterValue"))
+				.parameters(parametersMap -> parametersMap.put("someParameterKey", "someParameterValue"))
+				.scope("someScope")
+				.build();
+
+		OAuth2AuthorizationRequest authorizationRequest2 = TestOAuth2AuthorizationRequests.request()
+				.authorizationRequestUri("http://example.com")
+				.additionalParameters(Collections.singletonMap("someAdditionalParameterKey", "someAdditionalParameterValue"))
+				.parameters(parametersMap -> parametersMap.put("someParameterKey", "someParameterValue"))
+				.scope("someScope")
+				.build();
+
+		int authorizationRequest1HashCode = authorizationRequest1.hashCode();
+		int authorizationRequest2HashCode = authorizationRequest2.hashCode();
+
+		assertThat(authorizationRequest1HashCode).isEqualTo(authorizationRequest2HashCode);
 	}
 
 }
