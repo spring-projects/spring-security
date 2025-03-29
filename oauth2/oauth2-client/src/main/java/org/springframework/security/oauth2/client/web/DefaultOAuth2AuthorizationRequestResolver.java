@@ -90,6 +90,17 @@ public final class DefaultOAuth2AuthorizationRequestResolver implements OAuth2Au
 	 * Constructs a {@code DefaultOAuth2AuthorizationRequestResolver} using the provided
 	 * parameters.
 	 * @param clientRegistrationRepository the repository of client registrations
+	 * authorization requests
+	 */
+	public DefaultOAuth2AuthorizationRequestResolver(ClientRegistrationRepository clientRegistrationRepository) {
+		this(clientRegistrationRepository,
+				OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI);
+	}
+
+	/**
+	 * Constructs a {@code DefaultOAuth2AuthorizationRequestResolver} using the provided
+	 * parameters.
+	 * @param clientRegistrationRepository the repository of client registrations
 	 * @param authorizationRequestBaseUri the base {@code URI} used for resolving
 	 * authorization requests
 	 */
