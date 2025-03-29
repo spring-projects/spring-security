@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,9 +27,12 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
  *
  * @author Vedran Pavic
  * @since 5.1
+ * @deprecated Use
+ * {@link org.springframework.security.web.authentication.AuthenticationConverter} instead
  * @see <a href="https://tools.ietf.org/html/rfc6750#section-2" target="_blank">RFC 6750
  * Section 2: Authenticated Requests</a>
  */
+@Deprecated
 @FunctionalInterface
 public interface BearerTokenResolver {
 
