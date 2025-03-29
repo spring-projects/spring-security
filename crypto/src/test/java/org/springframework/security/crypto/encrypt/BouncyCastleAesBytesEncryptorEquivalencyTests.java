@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2021 the original author or authors.
+ * Copyright 2011-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,14 @@
 package org.springframework.security.crypto.encrypt;
 
 import java.security.SecureRandom;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.Random;
 import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.security.crypto.codec.Hex;
@@ -89,6 +93,64 @@ public class BouncyCastleAesBytesEncryptorEquivalencyTests {
 		testCompatibility(bcEncryptor, jceEncryptor);
 	}
 
+	@Test
+	public void bouncyCastleAesGcmWithAESFastEngineCompatible() throws Exception {
+		CryptoAssumptions.assumeGCMJCE();
+		BytesEncryptor fastEngineEncryptor = BouncyCastleAesGcmBytesEncryptor.withAESFastEngine(this.password,
+				this.salt, KeyGenerators.secureRandom(16));
+		BytesEncryptor defaultEngineEncryptor = new BouncyCastleAesGcmBytesEncryptor(this.password, this.salt,
+				KeyGenerators.secureRandom(16));
+		testCompatibility(fastEngineEncryptor, defaultEngineEncryptor);
+	}
+
+	@Test
+	public void bouncyCastleAesCbcWithAESFastEngineCompatible() throws Exception {
+		CryptoAssumptions.assumeCBCJCE();
+		BytesEncryptor fastEngineEncryptor = BouncyCastleAesCbcBytesEncryptor.withAESFastEngine(this.password,
+				this.salt, KeyGenerators.secureRandom(16));
+		BytesEncryptor defaultEngineEncryptor = new BouncyCastleAesCbcBytesEncryptor(this.password, this.salt,
+				KeyGenerators.secureRandom(16));
+		testCompatibility(fastEngineEncryptor, defaultEngineEncryptor);
+	}
+
+	/**
+	 * Comment out @Disabled below to compare relative speed of deprecated AESFastEngine
+	 * with the default AESEngine.
+	 */
+	@Disabled
+	@RepeatedTest(100)
+	public void bouncyCastleAesGcmWithAESFastEngineSpeedTest() throws Exception {
+		CryptoAssumptions.assumeGCMJCE();
+		BytesEncryptor defaultEngineEncryptor = new BouncyCastleAesGcmBytesEncryptor(this.password, this.salt,
+				KeyGenerators.secureRandom(16));
+		BytesEncryptor fastEngineEncryptor = BouncyCastleAesGcmBytesEncryptor.withAESFastEngine(this.password,
+				this.salt, KeyGenerators.secureRandom(16));
+		long defaultNanos = testSpeed(defaultEngineEncryptor);
+		long fastNanos = testSpeed(fastEngineEncryptor);
+		System.out.println(nanosToReadableString("AES GCM w/Default Engine", defaultNanos));
+		System.out.println(nanosToReadableString("AES GCM w/   Fast Engine", fastNanos));
+		assertThat(fastNanos).isLessThan(defaultNanos);
+	}
+
+	/**
+	 * Comment out @Disabled below to compare relative speed of deprecated AESFastEngine
+	 * with the default AESEngine.
+	 */
+	@Disabled
+	@RepeatedTest(100)
+	public void bouncyCastleAesCbcWithAESFastEngineSpeedTest() throws Exception {
+		CryptoAssumptions.assumeCBCJCE();
+		BytesEncryptor defaultEngineEncryptor = new BouncyCastleAesCbcBytesEncryptor(this.password, this.salt,
+				KeyGenerators.secureRandom(16));
+		BytesEncryptor fastEngineEncryptor = BouncyCastleAesCbcBytesEncryptor.withAESFastEngine(this.password,
+				this.salt, KeyGenerators.secureRandom(16));
+		long defaultNanos = testSpeed(defaultEngineEncryptor);
+		long fastNanos = testSpeed(fastEngineEncryptor);
+		System.out.println(nanosToReadableString("AES CBC w/Default Engine", defaultNanos));
+		System.out.println(nanosToReadableString("AES CBC w/   Fast Engine", fastNanos));
+		assertThat(fastNanos).isLessThan(defaultNanos);
+	}
+
 	private void testEquivalence(BytesEncryptor left, BytesEncryptor right) {
 		for (int size = 1; size < 2048; size++) {
 			this.testData = new byte[size];
@@ -107,7 +169,7 @@ public class BouncyCastleAesBytesEncryptorEquivalencyTests {
 
 	private void testCompatibility(BytesEncryptor left, BytesEncryptor right) {
 		// tests that right can decrypt what left encrypted and vice versa
-		// and that the decypted data is the same as the original
+		// and that the decrypted data is the same as the original
 		for (int size = 1; size < 2048; size++) {
 			this.testData = new byte[size];
 			this.secureRandom.nextBytes(this.testData);
@@ -118,6 +180,25 @@ public class BouncyCastleAesBytesEncryptorEquivalencyTests {
 			assertThat(leftDecrypted).containsExactly(this.testData);
 			assertThat(rightDecrypted).containsExactly(this.testData);
 		}
+	}
+
+	private long testSpeed(BytesEncryptor bytesEncryptor) {
+		long start = System.nanoTime();
+		for (int size = 0; size < 2048; size++) {
+			this.testData = new byte[size];
+			this.secureRandom.nextBytes(this.testData);
+			byte[] encrypted = bytesEncryptor.encrypt(this.testData);
+			byte[] decrypted = bytesEncryptor.decrypt(encrypted);
+			assertThat(decrypted).containsExactly(this.testData);
+		}
+		return System.nanoTime() - start;
+	}
+
+	private String nanosToReadableString(String label, long nanos) {
+		Duration duration = Duration.ofNanos(nanos);
+		Duration millis = duration.truncatedTo(ChronoUnit.MILLIS);
+		Duration micros = duration.minus(millis).dividedBy(1000);
+		return "%s: %dms %dμs".formatted(label, duration.toMillis(), micros.toNanos());
 	}
 
 	/**
