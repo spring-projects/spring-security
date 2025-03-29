@@ -1,5 +1,5 @@
 /*
- * Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -131,7 +131,9 @@ public interface Authentication extends Principal, Serializable {
 	 * trusted (by passing <code>true</code> as the argument) is rejected due to the
 	 * implementation being immutable or implementing its own alternative approach to
 	 * {@link #isAuthenticated()}
+	 * @deprecated in favor of implementing {@link #isAuthenticated()}
 	 */
+	@Deprecated
 	void setAuthenticated(boolean isAuthenticated) throws IllegalArgumentException;
 
 }
