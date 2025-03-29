@@ -18,13 +18,13 @@ package org.springframework.security.web.webauthn.api;
 
 import org.springframework.security.web.webauthn.api.ImmutablePublicKeyCredentialUserEntity.PublicKeyCredentialUserEntityBuilder;
 
-public final class TestPublicKeyCredentialUserEntity {
+public final class TestPublicKeyCredentialUserEntities {
 
 	public static PublicKeyCredentialUserEntityBuilder userEntity() {
 		return ImmutablePublicKeyCredentialUserEntity.builder().name("user").id(TestBytes.get()).displayName("user");
 	}
 
-	private TestPublicKeyCredentialUserEntity() {
+	private TestPublicKeyCredentialUserEntities() {
 	}
 
 }
