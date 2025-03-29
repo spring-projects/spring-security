@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtClaimNames;
+import org.springframework.security.oauth2.server.resource.introspection.JwtPrincipalConverter;
 import org.springframework.util.Assert;
 
 /**
@@ -35,15 +36,15 @@ import org.springframework.util.Assert;
 public class JwtAuthenticationConverter implements Converter<Jwt, AbstractAuthenticationToken> {
 
 	private Converter<Jwt, Collection<GrantedAuthority>> jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
-
+	private JwtPrincipalConverter principalConverter = (jwt, principalClaimValue) -> jwt;
 	private String principalClaimName = JwtClaimNames.SUB;
 
 	@Override
 	public final AbstractAuthenticationToken convert(Jwt jwt) {
 		Collection<GrantedAuthority> authorities = this.jwtGrantedAuthoritiesConverter.convert(jwt);
-
 		String principalClaimValue = jwt.getClaimAsString(this.principalClaimName);
-		return new JwtAuthenticationToken(jwt, authorities, principalClaimValue);
+		Object principal = principalConverter.convert(jwt, principalClaimValue);
+		return new JwtAuthenticationToken(jwt, principal, authorities, principalClaimValue);
 	}
 
 	/**
@@ -67,6 +68,15 @@ public class JwtAuthenticationConverter implements Converter<Jwt, AbstractAuthen
 	public void setPrincipalClaimName(String principalClaimName) {
 		Assert.hasText(principalClaimName, "principalClaimName cannot be empty");
 		this.principalClaimName = principalClaimName;
+	}
+
+	/**
+	 * Sets the principal converter. Defaults to {@link Jwt}.
+	 * @param jwtPrincipalConverter The principal converter
+	 */
+	public void setJwtPrincipalConverter(JwtPrincipalConverter jwtPrincipalConverter) {
+		Assert.notNull(jwtPrincipalConverter, "jwtPrincipalConverter cannot be null");
+		this.principalConverter = jwtPrincipalConverter;
 	}
 
 }
