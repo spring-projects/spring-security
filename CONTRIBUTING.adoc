@@ -79,7 +79,7 @@ See https://github.com/spring-projects/spring-security/tree/main#building-from-s
 
 The wiki pages https://github.com/spring-projects/spring-framework/wiki/Code-Style[Code Style] and https://github.com/spring-projects/spring-framework/wiki/IntelliJ-IDEA-Editor-Settings[IntelliJ IDEA Editor Settings] define the source file coding standards we use along with some IDEA editor settings we customize.
 
-To format the code as well as check the style, run `./gradlew format check`.
+To format the code as well as check the style, run `./gradlew format && ./gradlew check`.
 
 [[submit-a-pull-request]]
 === Submit a Pull Request
@@ -104,7 +104,7 @@ If this is for an issue, consider a branch name with the issue number, like `gh-
 6. [[update-copyright]] In all files you edited, if the copyright header is of the form 2002-20xx, update the final copyright year to the current year.
 7. [[add-since]] If on `main`, add `@since` JavaDoc attributes to new public APIs that your PR adds
 8. [[change-rnc]] If you are updating the XSD, please instead update the RNC file and then run `./gradlew :spring-security-config:rncToXsd`.
-9. [[format-code]] For each commit, build the code using `./gradlew format check`.
+9. [[format-code]] For each commit, build the code using `./gradlew format && ./gradlew check`.
 This command ensures the code meets most of <<code-style,the style guide>>; a notable exception is import order.
 10. [[commit-atomically]] Choose the granularity of your commits consciously and squash commits that represent
 multiple edits or corrections of the same logical change.
