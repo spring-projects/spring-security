@@ -288,7 +288,7 @@ class BankingSecurityConfig {
     open fun approvalsSecurityFilterChain(http: HttpSecurity): SecurityFilterChain {
         val approvalsPaths = arrayOf("/accounts/approvals/**", "/loans/approvals/**", "/credit-cards/approvals/**")
         http {
-            securityMatcher(approvalsPaths)
+            securityMatcher(*approvalsPaths)
             authorizeHttpRequests {
 				authorize(anyRequest, hasRole("ADMIN"))
             }
@@ -303,7 +303,7 @@ class BankingSecurityConfig {
         val bankingPaths = arrayOf("/accounts/**", "/loans/**", "/credit-cards/**", "/balances/**")
 		val viewBalancePaths = arrayOf("/balances/**")
         http {
-            securityMatcher(bankingPaths)
+            securityMatcher(*bankingPaths)
             authorizeHttpRequests {
                 authorize(viewBalancePaths, hasRole("VIEW_BALANCE"))
 				authorize(anyRequest, hasRole("USER"))
