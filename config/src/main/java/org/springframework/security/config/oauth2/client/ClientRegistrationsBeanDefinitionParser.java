@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -125,7 +125,7 @@ public final class ClientRegistrationsBeanDefinitionParser implements BeanDefini
 			getOptionalIfNotEmpty(parserContext, clientRegistrationElt.getAttribute(ATT_CLIENT_SECRET))
 				.ifPresent(builder::clientSecret);
 			getOptionalIfNotEmpty(parserContext, clientRegistrationElt.getAttribute(ATT_CLIENT_AUTHENTICATION_METHOD))
-				.map(ClientAuthenticationMethod::new)
+				.map(ClientAuthenticationMethod::valueOf)
 				.ifPresent(builder::clientAuthenticationMethod);
 			getOptionalIfNotEmpty(parserContext, clientRegistrationElt.getAttribute(ATT_AUTHORIZATION_GRANT_TYPE))
 				.map(AuthorizationGrantType::new)
