@@ -18,13 +18,13 @@ package org.springframework.security.web.webauthn.management;
 
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialRpEntity;
 
-public final class TestPublicKeyCredentialRpEntity {
+public final class TestPublicKeyCredentialRpEntities {
 
 	public static PublicKeyCredentialRpEntity.PublicKeyCredentialRpEntityBuilder createRpEntity() {
 		return PublicKeyCredentialRpEntity.builder().id("example.localhost").name("Spring Security Relying Party");
 	}
 
-	private TestPublicKeyCredentialRpEntity() {
+	private TestPublicKeyCredentialRpEntities() {
 	}
 
 }
