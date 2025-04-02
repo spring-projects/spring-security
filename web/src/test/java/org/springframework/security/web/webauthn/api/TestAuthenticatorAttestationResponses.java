@@ -16,7 +16,7 @@
 
 package org.springframework.security.web.webauthn.api;
 
-public final class TestAuthenticatorAttestationResponse {
+public final class TestAuthenticatorAttestationResponses {
 
 	public static AuthenticatorAttestationResponse.AuthenticatorAttestationResponseBuilder createAuthenticatorAttestationResponse() {
 		return AuthenticatorAttestationResponse.builder()
@@ -27,7 +27,7 @@ public final class TestAuthenticatorAttestationResponse {
 			.transports(AuthenticatorTransport.HYBRID, AuthenticatorTransport.INTERNAL);
 	}
 
-	private TestAuthenticatorAttestationResponse() {
+	private TestAuthenticatorAttestationResponses() {
 	}
 
 }
