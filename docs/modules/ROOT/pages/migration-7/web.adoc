@@ -339,6 +339,54 @@ casAuthentication.setProxyReceptorUrl(PathPatternRequestMatcher.withDefaults().m
 ----
 ======
 
+=== Migrate your WebInvocationPrivilegeEvaluator
+
+If you are using Spring Security's JSP Taglibs or are using `WebInvocationPrivilegeEvaluator` directly, be aware of the following changes:
+
+1. `RequestMatcherWebInvocationPrivilegeEvaluator` is deprecated in favor of `AuthorizationManagerWebInvocationPrivilegeEvaluator`
+2. `HandlerMappingIntrospectorRequestTransformer` is deprecated in favor of `PathPatternRequestTransformer`
+
+If you are not constructing these directly, you can opt-in to both changes in advance by publishing a `PathPatternRequestTransformer` like so:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Bean
+HttpServletRequestTransformer pathPatternRequestTransformer() {
+	return new PathPatternRequestTransformer();
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun pathPatternRequestTransformer(): HttpServletRequestTransformer {
+    return PathPatternRequestTransformer()
+}
+----
+
+Xml::
++
+[source,xml,role="secondary"]
+----
+<b:bean class="org.springframework.security.web.access.PathPatternRequestTransformer"/>
+----
+======
+
+Spring Security will take this as a signal to use the new implementations.
+
+[[NOTE]]
+----
+One difference you may notice is that `AuthorizationManagerWebPrivilegeInvocationEvaluator` allows the authentication to be `null` if the authorization rule is `permitAll`.
+
+Test your endpoints that `permitAll` in case JSP requests using this same require should not, in fact, be permitted.
+----
+
 == Include the Servlet Path Prefix in Authorization Rules
 
 For many applications <<use-path-pattern, the above>> will make no difference since most commonly all URIs listed are matched by the default servlet.

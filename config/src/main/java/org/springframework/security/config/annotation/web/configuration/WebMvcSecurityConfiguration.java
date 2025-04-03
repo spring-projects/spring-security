@@ -78,6 +78,8 @@ class WebMvcSecurityConfiguration implements WebMvcConfigurer, ApplicationContex
 
 	private static final String HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME = "mvcHandlerMappingIntrospector";
 
+	private static final String PATH_PATTERN_REQUEST_TRANSFORMER_BEAN_NAME = "pathPatternRequestTransformer";
+
 	private BeanResolver beanResolver;
 
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
@@ -119,18 +121,8 @@ class WebMvcSecurityConfiguration implements WebMvcConfigurer, ApplicationContex
 		}
 	}
 
-	/**
-	 * Used to ensure Spring MVC request matching is cached.
-	 *
-	 * Creates a {@link BeanDefinitionRegistryPostProcessor} that detects if a bean named
-	 * HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME is defined. If so, it moves the
-	 * AbstractSecurityWebApplicationInitializer.DEFAULT_FILTER_NAME to another bean name
-	 * and then adds a {@link CompositeFilter} that contains
-	 * {@link HandlerMappingIntrospector#createCacheFilter()} and the original
-	 * FilterChainProxy under the original Bean name.
-	 * @return
-	 */
 	@Bean
+	@Deprecated
 	static BeanDefinitionRegistryPostProcessor springSecurityHandlerMappingIntrospectorBeanDefinitionRegistryPostProcessor() {
 		return new BeanDefinitionRegistryPostProcessor() {
 			@Override
@@ -144,12 +136,15 @@ class WebMvcSecurityConfiguration implements WebMvcConfigurer, ApplicationContex
 				}
 
 				String hmiRequestTransformerBeanName = HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME + "RequestTransformer";
-				if (!registry.containsBeanDefinition(hmiRequestTransformerBeanName)) {
-					BeanDefinition hmiRequestTransformer = BeanDefinitionBuilder
-						.rootBeanDefinition(HandlerMappingIntrospectorRequestTransformer.class)
-						.addConstructorArgReference(HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME)
-						.getBeanDefinition();
-					registry.registerBeanDefinition(hmiRequestTransformerBeanName, hmiRequestTransformer);
+				if (!registry.containsBeanDefinition(PATH_PATTERN_REQUEST_TRANSFORMER_BEAN_NAME)
+						&& !registry.containsBeanDefinition(hmiRequestTransformerBeanName)) {
+					if (!registry.containsBeanDefinition(hmiRequestTransformerBeanName)) {
+						BeanDefinition hmiRequestTransformer = BeanDefinitionBuilder
+							.rootBeanDefinition(HandlerMappingIntrospectorRequestTransformer.class)
+							.addConstructorArgReference(HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME)
+							.getBeanDefinition();
+						registry.registerBeanDefinition(hmiRequestTransformerBeanName, hmiRequestTransformer);
+					}
 				}
 
 				BeanDefinition filterChainProxy = registry
@@ -178,7 +173,11 @@ class WebMvcSecurityConfiguration implements WebMvcConfigurer, ApplicationContex
 	/**
 	 * {@link FactoryBean} to defer creation of
 	 * {@link HandlerMappingIntrospector#createCacheFilter()}
+	 *
+	 * @deprecated see {@link WebSecurityConfiguration} for
+	 * {@link org.springframework.web.util.pattern.PathPattern} replacement
 	 */
+	@Deprecated
 	static class HandlerMappingIntrospectorCacheFilterFactoryBean
 			implements ApplicationContextAware, FactoryBean<Filter> {
 
@@ -207,7 +206,11 @@ class WebMvcSecurityConfiguration implements WebMvcConfigurer, ApplicationContex
 	 * Extends {@link FilterChainProxy} to provide as much passivity as possible but
 	 * delegates to {@link CompositeFilter} for
 	 * {@link #doFilter(ServletRequest, ServletResponse, FilterChain)}.
+	 *
+	 * @deprecated see {@link WebSecurityConfiguration} for
+	 * {@link org.springframework.web.util.pattern.PathPattern} replacement
 	 */
+	@Deprecated
 	static class CompositeFilterChainProxy extends FilterChainProxy {
 
 		/**

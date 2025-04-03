@@ -35,7 +35,9 @@ import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
  * default throw {@link UnsupportedOperationException}.
  *
  * @author Rob Winch
+ * @deprecated please use {@link PathPatternRequestTransformer} instead
  */
+@Deprecated(forRemoval = true)
 public class HandlerMappingIntrospectorRequestTransformer
 		implements AuthorizationManagerWebInvocationPrivilegeEvaluator.HttpServletRequestTransformer {
 
