@@ -476,6 +476,11 @@ public final class ClientRegistration implements Serializable {
 		 * Configuring uri template variables is especially useful when the client is
 		 * running behind a Proxy Server. This ensures that the X-Forwarded-* headers are
 		 * used when expanding the redirect-uri.
+		 *
+		 * <br />
+		 * If not specified and authorization grant type is
+		 * {@link AuthorizationGrantType#AUTHORIZATION_CODE}, defaults to
+		 * "{baseUrl}/login/oauth2/code/{registrationId}".
 		 * @param redirectUri the uri (or uri template) for the redirection endpoint
 		 * @return the {@link Builder}
 		 * @since 5.4
@@ -627,6 +632,10 @@ public final class ClientRegistration implements Serializable {
 		 */
 		public ClientRegistration build() {
 			Assert.notNull(this.authorizationGrantType, "authorizationGrantType cannot be null");
+			if (this.redirectUri == null && this.registrationId != null
+					&& AuthorizationGrantType.AUTHORIZATION_CODE.equals(this.authorizationGrantType)) {
+				this.redirectUri = "{baseUrl}/login/oauth2/code/" + this.registrationId;
+			}
 			if (AuthorizationGrantType.CLIENT_CREDENTIALS.equals(this.authorizationGrantType)) {
 				this.validateClientCredentialsGrantType();
 			}
