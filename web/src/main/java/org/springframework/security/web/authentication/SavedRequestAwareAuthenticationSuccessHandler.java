@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,11 @@
 
 package org.springframework.security.web.authentication;
 
-import java.io.IOException;
-
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.springframework.security.core.Authentication;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
@@ -70,24 +66,21 @@ public class SavedRequestAwareAuthenticationSuccessHandler extends SimpleUrlAuth
 	private RequestCache requestCache = new HttpSessionRequestCache();
 
 	@Override
-	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
-			Authentication authentication) throws ServletException, IOException {
+	protected String determineTargetUrl(HttpServletRequest request, HttpServletResponse response) {
 		SavedRequest savedRequest = this.requestCache.getRequest(request, response);
 		if (savedRequest == null) {
-			super.onAuthenticationSuccess(request, response, authentication);
-			return;
+			return super.determineTargetUrl(request, response);
 		}
+
 		String targetUrlParameter = getTargetUrlParameter();
 		if (isAlwaysUseDefaultTargetUrl()
 				|| (targetUrlParameter != null && StringUtils.hasText(request.getParameter(targetUrlParameter)))) {
 			this.requestCache.removeRequest(request, response);
-			super.onAuthenticationSuccess(request, response, authentication);
-			return;
+			return super.determineTargetUrl(request, response);
 		}
-		clearAuthenticationAttributes(request);
+
 		// Use the DefaultSavedRequest URL
-		String targetUrl = savedRequest.getRedirectUrl();
-		getRedirectStrategy().sendRedirect(request, response, targetUrl);
+		return savedRequest.getRedirectUrl();
 	}
 
 	public void setRequestCache(RequestCache requestCache) {
