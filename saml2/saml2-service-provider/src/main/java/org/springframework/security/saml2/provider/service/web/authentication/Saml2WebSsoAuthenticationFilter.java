@@ -29,7 +29,6 @@ import org.springframework.security.saml2.provider.service.authentication.Saml2A
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
 import org.springframework.security.saml2.provider.service.web.DefaultRelyingPartyRegistrationResolver;
 import org.springframework.security.saml2.provider.service.web.HttpSessionSaml2AuthenticationRequestRepository;
-import org.springframework.security.saml2.provider.service.web.RelyingPartyRegistrationResolver;
 import org.springframework.security.saml2.provider.service.web.Saml2AuthenticationRequestRepository;
 import org.springframework.security.saml2.provider.service.web.Saml2AuthenticationTokenConverter;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
@@ -77,9 +76,7 @@ public class Saml2WebSsoAuthenticationFilter extends AbstractAuthenticationProce
 	public Saml2WebSsoAuthenticationFilter(RelyingPartyRegistrationRepository relyingPartyRegistrationRepository,
 			String filterProcessesUrl) {
 		this(new Saml2AuthenticationTokenConverter(
-				(RelyingPartyRegistrationResolver) new DefaultRelyingPartyRegistrationResolver(
-						relyingPartyRegistrationRepository)),
-				filterProcessesUrl);
+				new DefaultRelyingPartyRegistrationResolver(relyingPartyRegistrationRepository)), filterProcessesUrl);
 		Assert.isTrue(filterProcessesUrl.contains("{registrationId}"),
 				"filterProcessesUrl must contain a {registrationId} match variable");
 	}
@@ -159,9 +156,9 @@ public class Saml2WebSsoAuthenticationFilter extends AbstractAuthenticationProce
 	}
 
 	private void setDetails(HttpServletRequest request, Authentication authentication) {
-		if (AbstractAuthenticationToken.class.isAssignableFrom(authentication.getClass())) {
+		if (authentication instanceof AbstractAuthenticationToken token) {
 			Object details = this.authenticationDetailsSource.buildDetails(request);
-			((AbstractAuthenticationToken) authentication).setDetails(details);
+			token.setDetails(details);
 		}
 	}
 

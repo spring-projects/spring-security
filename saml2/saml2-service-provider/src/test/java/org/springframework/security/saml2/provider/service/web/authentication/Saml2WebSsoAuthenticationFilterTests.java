@@ -16,6 +16,7 @@
 
 package org.springframework.security.saml2.provider.service.web.authentication;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -94,16 +95,18 @@ public class Saml2WebSsoAuthenticationFilterTests {
 
 	@Test
 	public void requiresAuthenticationWhenHappyPathThenReturnsTrue() {
-		assertThat(this.filter.requiresAuthentication(this.request, this.response)).isTrue();
+		RequiresAuthenticationExposingFilter filter = new RequiresAuthenticationExposingFilter(this.repository);
+		assertThat(filter.requiresAuthentication(this.request, this.response)).isTrue();
 	}
 
 	@Test
 	public void requiresAuthenticationWhenCustomProcessingUrlThenReturnsTrue() {
-		this.filter = new Saml2WebSsoAuthenticationFilter(this.repository, "/some/other/path/{registrationId}");
+		RequiresAuthenticationExposingFilter filter = new RequiresAuthenticationExposingFilter(this.repository,
+				"/some/other/path/{registrationId}");
 		this.request.setRequestURI("/some/other/path/idp-registration-id");
 		this.request.setPathInfo("/some/other/path/idp-registration-id");
 		this.request.setParameter(Saml2ParameterNames.SAML_RESPONSE, "xml-data-goes-here");
-		assertThat(this.filter.requiresAuthentication(this.request, this.response)).isTrue();
+		assertThat(filter.requiresAuthentication(this.request, this.response)).isTrue();
 	}
 
 	@Test
@@ -210,6 +213,23 @@ public class Saml2WebSsoAuthenticationFilterTests {
 		this.request.setParameter(Saml2ParameterNames.SAML_RESPONSE, "response");
 		this.filter.doFilter(this.request, this.response, new MockFilterChain());
 		verify(this.repository).findByRegistrationId("registration-id");
+	}
+
+	static final class RequiresAuthenticationExposingFilter extends Saml2WebSsoAuthenticationFilter {
+
+		RequiresAuthenticationExposingFilter(RelyingPartyRegistrationRepository relyingPartyRegistrationRepository) {
+			super(relyingPartyRegistrationRepository);
+		}
+
+		RequiresAuthenticationExposingFilter(RelyingPartyRegistrationRepository registrations, String url) {
+			super(registrations, url);
+		}
+
+		@Override
+		protected boolean requiresAuthentication(HttpServletRequest request, HttpServletResponse response) {
+			return super.requiresAuthentication(request, response);
+		}
+
 	}
 
 }
