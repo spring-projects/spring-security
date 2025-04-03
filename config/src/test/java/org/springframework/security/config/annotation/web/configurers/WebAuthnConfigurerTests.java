@@ -33,15 +33,22 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextImpl;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.ui.DefaultResourcesFilter;
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialCreationOptions;
+import org.springframework.security.web.webauthn.api.PublicKeyCredentialRequestOptions;
+import org.springframework.security.web.webauthn.api.PublicKeyCredentialUserEntity;
 import org.springframework.security.web.webauthn.api.TestPublicKeyCredentialCreationOptions;
+import org.springframework.security.web.webauthn.api.TestPublicKeyCredentialRequestOptions;
+import org.springframework.security.web.webauthn.api.TestPublicKeyCredentialUserEntity;
+import org.springframework.security.web.webauthn.authentication.HttpSessionPublicKeyCredentialRequestOptionsRepository;
 import org.springframework.security.web.webauthn.management.WebAuthnRelyingPartyOperations;
 import org.springframework.security.web.webauthn.registration.HttpSessionPublicKeyCredentialCreationOptionsRepository;
 import org.springframework.test.web.servlet.MockMvc;
@@ -66,6 +73,21 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class WebAuthnConfigurerTests {
 
 	public final SpringTestContext spring = new SpringTestContext(this);
+
+	private static final String WEBAUTHN_LOGIN_BODY = """
+				{
+					"id": "dYF7EGnRFFIXkpXi9XU2wg",
+					"rawId": "dYF7EGnRFFIXkpXi9XU2wg",
+					"response": {
+						"authenticatorData": "y9GqwTRaMpzVDbXq1dyEAXVOxrou08k22ggRC45MKNgdAAAAAA",
+						"clientDataJSON": "eyJ0eXBlIjoid2ViYXV0aG4uZ2V0IiwiY2hhbGxlbmdlIjoiRFVsRzRDbU9naWhKMG1vdXZFcE9HdUk0ZVJ6MGRRWmxUQmFtbjdHQ1FTNCIsIm9yaWdpbiI6Imh0dHBzOi8vZXhhbXBsZS5sb2NhbGhvc3Q6ODQ0MyIsImNyb3NzT3JpZ2luIjpmYWxzZX0",
+						"signature": "MEYCIQCW2BcUkRCAXDmGxwMi78jknenZ7_amWrUJEYoTkweldAIhAMD0EMp1rw2GfwhdrsFIeDsL7tfOXVPwOtfqJntjAo4z",
+						"userHandle": "Q3_0Xd64_HW0BlKRAJnVagJTpLKLgARCj8zjugpRnVo"
+					},
+					"clientExtensionResults": {},
+					"authenticatorAttachment": "platform"
+				}
+			""";
 
 	@Autowired
 	MockMvc mvc;
@@ -183,6 +205,53 @@ public class WebAuthnConfigurerTests {
 	}
 
 	@Test
+	public void webauthnWhenConfiguredPublicKeyCredentialRequestOptionsRepositoryBeanPresent() throws Exception {
+		PublicKeyCredentialRequestOptions options = TestPublicKeyCredentialRequestOptions.create()
+				.build();
+		WebAuthnRelyingPartyOperations rpOperations = mock(WebAuthnRelyingPartyOperations.class);
+		ConfigCredentialRequestOptionsRepositoryFromBean.rpOperations = rpOperations;
+		given(rpOperations.createCredentialRequestOptions(any())).willReturn(options);
+		String attrName = "attrName";
+		HttpSessionPublicKeyCredentialRequestOptionsRepository requestOptionsRepository = new HttpSessionPublicKeyCredentialRequestOptionsRepository();
+		requestOptionsRepository.setAttrName(attrName);
+		ConfigCredentialRequestOptionsRepositoryFromBean.requestOptionsRepository = requestOptionsRepository;
+		this.spring.register(ConfigCredentialRequestOptionsRepositoryFromBean.class).autowire();
+		this.mvc.perform(post("/webauthn/authenticate/options"))
+				.andExpect(status().isOk())
+				.andExpect(request().sessionAttribute(attrName, options));
+		PublicKeyCredentialUserEntity userEntity = TestPublicKeyCredentialUserEntity.userEntity().build();
+		given(rpOperations.authenticate(any())).willReturn(userEntity);
+		this.mvc.perform(post("/login/webauthn")
+						.content(WEBAUTHN_LOGIN_BODY)
+						.sessionAttr(attrName, options))
+				.andExpect(status().isOk());
+	}
+
+	@Test
+	public void webauthnWhenConfiguredPublicKeyCredentialRequestOptionsRepository() throws Exception {
+		PublicKeyCredentialRequestOptions options = TestPublicKeyCredentialRequestOptions
+				.create()
+				.build();
+		WebAuthnRelyingPartyOperations rpOperations = mock(WebAuthnRelyingPartyOperations.class);
+		ConfigCredentialRequestOptionsRepository.rpOperations = rpOperations;
+		given(rpOperations.createCredentialRequestOptions(any())).willReturn(options);
+		String attrName = "attrName";
+		HttpSessionPublicKeyCredentialRequestOptionsRepository requestOptionsRepository = new HttpSessionPublicKeyCredentialRequestOptionsRepository();
+		requestOptionsRepository.setAttrName(attrName);
+		ConfigCredentialRequestOptionsRepository.requestOptionsRepository = requestOptionsRepository;
+		this.spring.register(ConfigCredentialRequestOptionsRepository.class).autowire();
+		this.mvc.perform(post("/webauthn/authenticate/options"))
+				.andExpect(status().isOk())
+				.andExpect(request().sessionAttribute(attrName, options));
+		PublicKeyCredentialUserEntity userEntity = TestPublicKeyCredentialUserEntity.userEntity().build();
+		given(rpOperations.authenticate(any())).willReturn(userEntity);
+		this.mvc.perform(post("/login/webauthn")
+						.content(WEBAUTHN_LOGIN_BODY)
+						.sessionAttr(attrName, options))
+				.andExpect(status().isOk());
+	}
+
+	@Test
 	public void webauthnWhenConfiguredMessageConverter() throws Exception {
 		TestingAuthenticationToken user = new TestingAuthenticationToken("user", "password", "ROLE_USER");
 		SecurityContextHolder.setContext(new SecurityContextImpl(user));
@@ -263,6 +332,74 @@ public class WebAuthnConfigurerTests {
 		}
 
 	}
+
+	@Configuration
+	@EnableWebSecurity
+	static class ConfigCredentialRequestOptionsRepositoryFromBean {
+
+		private static HttpSessionPublicKeyCredentialRequestOptionsRepository requestOptionsRepository;
+
+		private static WebAuthnRelyingPartyOperations rpOperations;
+
+		@Bean
+		WebAuthnRelyingPartyOperations webAuthnRelyingPartyOperations() {
+			return ConfigCredentialRequestOptionsRepositoryFromBean.rpOperations;
+		}
+
+		@Bean
+		UserDetailsService userDetailsService() {
+			InMemoryUserDetailsManager userDetailsService = new InMemoryUserDetailsManager();
+			userDetailsService.createUser(User.builder().username("user")
+					.password("{noop}password")
+					.authorities(AuthorityUtils.createAuthorityList("ROLE_USER"))
+					.build());
+			return userDetailsService;
+		}
+
+		@Bean
+		HttpSessionPublicKeyCredentialRequestOptionsRepository credentialRequestOptionsRepository() {
+			return ConfigCredentialRequestOptionsRepositoryFromBean.requestOptionsRepository;
+		}
+
+		@Bean
+		SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+			return http.csrf(AbstractHttpConfigurer::disable).webAuthn(Customizer.withDefaults()).build();
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	static class ConfigCredentialRequestOptionsRepository {
+
+		private static HttpSessionPublicKeyCredentialRequestOptionsRepository requestOptionsRepository;
+
+		private static WebAuthnRelyingPartyOperations rpOperations;
+
+		@Bean
+		WebAuthnRelyingPartyOperations webAuthnRelyingPartyOperations() {
+			return ConfigCredentialRequestOptionsRepository.rpOperations;
+		}
+
+		@Bean
+		UserDetailsService userDetailsService() {
+			InMemoryUserDetailsManager userDetailsService = new InMemoryUserDetailsManager();
+			userDetailsService.createUser(User.builder().username("user")
+					.password("{noop}password")
+					.authorities(AuthorityUtils.createAuthorityList("ROLE_USER"))
+					.build());
+			return userDetailsService;
+		}
+
+		@Bean
+		SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+			return http.csrf(AbstractHttpConfigurer::disable)
+					.webAuthn((c) -> c.requestOptionsRepository(requestOptionsRepository))
+					.build();
+		}
+
+	}
+
 
 	@Configuration
 	@EnableWebSecurity
