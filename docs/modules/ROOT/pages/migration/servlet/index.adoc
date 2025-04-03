@@ -1,0 +1,4 @@
+= Servlet Migrations
+:page-section-summary-toc: 1
+
+If you have already performed the xref:migration/index.adoc[initial migration steps] for your Servlet application, you're now ready to perform steps specific to Servlet applications.
