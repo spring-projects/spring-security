@@ -5,7 +5,7 @@
 * xref:migration-7/index.adoc[Preparing for 7.0]
 ** xref:migration-7/configuration.adoc[Configuration]
 ** xref:migration-7/ldap.adoc[LDAP]
-* xref:migration/index.adoc[Migrating to 6.2]
+* xref:migration/index.adoc[Migrating to 6]
 ** xref:migration/authorization.adoc[Authorization Changes]
 * xref:getting-spring-security.adoc[Getting Spring Security]
 * xref:features/index.adoc[Features]
