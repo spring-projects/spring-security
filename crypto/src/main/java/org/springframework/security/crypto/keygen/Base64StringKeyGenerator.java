@@ -68,7 +68,7 @@ public class Base64StringKeyGenerator implements StringKeyGenerator {
 			throw new IllegalArgumentException("encode cannot be null");
 		}
 		if (keyLength < DEFAULT_KEY_LENGTH) {
-			throw new IllegalArgumentException("keyLength must be greater than or equal to" + DEFAULT_KEY_LENGTH);
+			throw new IllegalArgumentException("keyLength must be greater than or equal to " + DEFAULT_KEY_LENGTH);
 		}
 		this.encoder = encoder;
 		this.keyGenerator = KeyGenerators.secureRandom(keyLength);
