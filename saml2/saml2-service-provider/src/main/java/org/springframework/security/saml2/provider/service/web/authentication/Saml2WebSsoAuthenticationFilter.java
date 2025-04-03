@@ -54,6 +54,8 @@ public class Saml2WebSsoAuthenticationFilter extends AbstractAuthenticationProce
 
 	private Saml2AuthenticationRequestRepository<AbstractSaml2AuthenticationRequest> authenticationRequestRepository = new HttpSessionSaml2AuthenticationRequestRepository();
 
+	private boolean continueChainWhenNoRelyingPartyRegistrationFound = false;
+
 	/**
 	 * Creates a {@code Saml2WebSsoAuthenticationFilter} authentication filter that is
 	 * configured to use the {@link #DEFAULT_FILTER_PROCESSES_URI} processing URL
@@ -94,6 +96,7 @@ public class Saml2WebSsoAuthenticationFilter extends AbstractAuthenticationProce
 		this.authenticationConverter = authenticationConverter;
 		setAllowSessionCreation(true);
 		setSessionAuthenticationStrategy(new ChangeSessionIdAuthenticationStrategy());
+		setAuthenticationConverter(authenticationConverter);
 	}
 
 	/**
@@ -110,6 +113,7 @@ public class Saml2WebSsoAuthenticationFilter extends AbstractAuthenticationProce
 		this.authenticationConverter = authenticationConverter;
 		setAllowSessionCreation(true);
 		setSessionAuthenticationStrategy(new ChangeSessionIdAuthenticationStrategy());
+		setAuthenticationConverter(authenticationConverter);
 	}
 
 	@Override
@@ -122,6 +126,9 @@ public class Saml2WebSsoAuthenticationFilter extends AbstractAuthenticationProce
 			throws AuthenticationException {
 		Authentication authentication = this.authenticationConverter.convert(request);
 		if (authentication == null) {
+			if (this.continueChainWhenNoRelyingPartyRegistrationFound) {
+				return null;
+			}
 			Saml2Error saml2Error = new Saml2Error(Saml2ErrorCodes.RELYING_PARTY_REGISTRATION_NOT_FOUND,
 					"No relying party registration found");
 			throw new Saml2AuthenticationException(saml2Error);
@@ -156,10 +163,24 @@ public class Saml2WebSsoAuthenticationFilter extends AbstractAuthenticationProce
 	}
 
 	private void setDetails(HttpServletRequest request, Authentication authentication) {
+		if (authentication.getDetails() != null) {
+			return;
+		}
 		if (authentication instanceof AbstractAuthenticationToken token) {
 			Object details = this.authenticationDetailsSource.buildDetails(request);
 			token.setDetails(details);
 		}
+	}
+
+	/**
+	 * Indicate whether to continue with the rest of the filter chain in the event that no
+	 * relying party registration is found. This is {@code false} by default, meaning that
+	 * it will throw an exception.
+	 * @param continueChain whether to continue
+	 * @since 6.5
+	 */
+	public void setContinueChainWhenNoRelyingPartyRegistrationFound(boolean continueChain) {
+		this.continueChainWhenNoRelyingPartyRegistrationFound = continueChain;
 	}
 
 }
