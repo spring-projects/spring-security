@@ -83,6 +83,46 @@ open fun authenticationRequestRepository(): Saml2AuthenticationRequestRepository
 ----
 ======
 
+=== Caching the `<saml2:AuthnRequest>` by the Relay State
+
+If you don't want to use the session to store the `<saml2:AuthnRequest>`, you can also store it in a distributed cache.
+This can be helpful if you are trying to use `SameSite=Strict` and are losing the authentication request in the redirect from the Identity Provider.
+
+[NOTE]
+=====
+It's important to remember that there are security benefits to storing it in the session.
+One such benefit is the natural login fixation defense it provides.
+For example, if an application looks the authentication request up from the session, then even if an attacker provides their own SAML response to a victim, the login will fail.
+
+On the other hand, if we trust the InResponseTo or RelayState to retrieve the authentication request, then there's no way to know if the SAML response was requested by that handshake.
+=====
+
+To help with this, Spring Security has `CacheSaml2AuthenticationRequestRepository`, which you can publish as a bean for the filter chain to pick up:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Bean
+Saml2AuthenticationRequestRepository<?> authenticationRequestRepository() {
+	return new CacheSaml2AuthenticationRequestRepository();
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun authenticationRequestRepository(): Saml2AuthenticationRequestRepository<*> {
+    return CacheSaml2AuthenticationRequestRepository()
+}
+----
+======
+
+
 [[servlet-saml2login-sp-initiated-factory-signing]]
 == Changing How the `<saml2:AuthnRequest>` Gets Sent
 
