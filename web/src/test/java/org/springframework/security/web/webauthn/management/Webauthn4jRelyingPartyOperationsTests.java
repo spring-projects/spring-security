@@ -59,9 +59,9 @@ import org.springframework.security.web.webauthn.api.PublicKeyCredentialRpEntity
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialUserEntity;
 import org.springframework.security.web.webauthn.api.TestAuthenticatorAttestationResponses;
 import org.springframework.security.web.webauthn.api.TestCredentialRecords;
-import org.springframework.security.web.webauthn.api.TestPublicKeyCredentials;
 import org.springframework.security.web.webauthn.api.TestPublicKeyCredentialCreationOptions;
 import org.springframework.security.web.webauthn.api.TestPublicKeyCredentialUserEntities;
+import org.springframework.security.web.webauthn.api.TestPublicKeyCredentials;
 import org.springframework.security.web.webauthn.api.UserVerificationRequirement;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -305,7 +305,8 @@ class Webauthn4jRelyingPartyOperationsTests {
 		AuthenticatorAttestationResponseBuilder responseBldr = TestAuthenticatorAttestationResponses
 			.createAuthenticatorAttestationResponse()
 			.clientDataJSON(new Bytes(invalidTypeClientDataJSON.getBytes(StandardCharsets.UTF_8)));
-		PublicKeyCredential publicKey = TestPublicKeyCredentials.createPublicKeyCredential(responseBldr.build()).build();
+		PublicKeyCredential publicKey = TestPublicKeyCredentials.createPublicKeyCredential(responseBldr.build())
+			.build();
 		ImmutableRelyingPartyRegistrationRequest registrationRequest = new ImmutableRelyingPartyRegistrationRequest(
 				options, new RelyingPartyPublicKey(publicKey, this.label));
 		assertThatRuntimeException().isThrownBy(() -> this.rpOperations.registerCredential(registrationRequest))
@@ -327,7 +328,8 @@ class Webauthn4jRelyingPartyOperationsTests {
 			.build();
 		AuthenticatorAttestationResponseBuilder responseBldr = TestAuthenticatorAttestationResponses
 			.createAuthenticatorAttestationResponse();
-		PublicKeyCredential publicKey = TestPublicKeyCredentials.createPublicKeyCredential(responseBldr.build()).build();
+		PublicKeyCredential publicKey = TestPublicKeyCredentials.createPublicKeyCredential(responseBldr.build())
+			.build();
 		ImmutableRelyingPartyRegistrationRequest registrationRequest = new ImmutableRelyingPartyRegistrationRequest(
 				options, new RelyingPartyPublicKey(publicKey, this.label));
 
@@ -350,7 +352,8 @@ class Webauthn4jRelyingPartyOperationsTests {
 			.build();
 		AuthenticatorAttestationResponseBuilder responseBldr = TestAuthenticatorAttestationResponses
 			.createAuthenticatorAttestationResponse();
-		PublicKeyCredential publicKey = TestPublicKeyCredentials.createPublicKeyCredential(responseBldr.build()).build();
+		PublicKeyCredential publicKey = TestPublicKeyCredentials.createPublicKeyCredential(responseBldr.build())
+			.build();
 		ImmutableRelyingPartyRegistrationRequest registrationRequest = new ImmutableRelyingPartyRegistrationRequest(
 				options, new RelyingPartyPublicKey(publicKey, this.label));
 
@@ -375,7 +378,8 @@ class Webauthn4jRelyingPartyOperationsTests {
 			.build();
 		AuthenticatorAttestationResponseBuilder responseBldr = TestAuthenticatorAttestationResponses
 			.createAuthenticatorAttestationResponse();
-		PublicKeyCredential publicKey = TestPublicKeyCredentials.createPublicKeyCredential(responseBldr.build()).build();
+		PublicKeyCredential publicKey = TestPublicKeyCredentials.createPublicKeyCredential(responseBldr.build())
+			.build();
 		ImmutableRelyingPartyRegistrationRequest registrationRequest = new ImmutableRelyingPartyRegistrationRequest(
 				options, new RelyingPartyPublicKey(publicKey, this.label));
 
