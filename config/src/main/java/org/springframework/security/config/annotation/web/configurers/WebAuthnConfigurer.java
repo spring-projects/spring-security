@@ -34,6 +34,7 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialRpEntity;
 import org.springframework.security.web.webauthn.authentication.PublicKeyCredentialRequestOptionsFilter;
+import org.springframework.security.web.webauthn.authentication.PublicKeyCredentialRequestOptionsRepository;
 import org.springframework.security.web.webauthn.authentication.WebAuthnAuthenticationFilter;
 import org.springframework.security.web.webauthn.authentication.WebAuthnAuthenticationProvider;
 import org.springframework.security.web.webauthn.management.MapPublicKeyCredentialUserEntityRepository;
@@ -66,6 +67,8 @@ public class WebAuthnConfigurer<H extends HttpSecurityBuilder<H>>
 	private boolean disableDefaultRegistrationPage = false;
 
 	private PublicKeyCredentialCreationOptionsRepository creationOptionsRepository;
+
+	private PublicKeyCredentialRequestOptionsRepository requestOptionsRepository;
 
 	private HttpMessageConverter<Object> converter;
 
@@ -144,11 +147,21 @@ public class WebAuthnConfigurer<H extends HttpSecurityBuilder<H>>
 		return this;
 	}
 
+	/**
+	 * Sets PublicKeyCredentialRequestOptionsRepository.
+	 * @param requestOptionsRepository the requestOptionsRepository
+	 * @return the {@link WebAuthnConfigurer} for further customization
+	 */
+	public WebAuthnConfigurer<H> requestOptionsRepository(
+			PublicKeyCredentialRequestOptionsRepository requestOptionsRepository) {
+		this.requestOptionsRepository = requestOptionsRepository;
+		return this;
+	}
+
 	@Override
 	public void configure(H http) throws Exception {
-		UserDetailsService userDetailsService = getSharedOrBean(http, UserDetailsService.class).orElseGet(() -> {
-			throw new IllegalStateException("Missing UserDetailsService Bean");
-		});
+		UserDetailsService userDetailsService = getSharedOrBean(http, UserDetailsService.class)
+				.orElseThrow(() -> new IllegalStateException("Missing UserDetailsService Bean"));
 		PublicKeyCredentialUserEntityRepository userEntities = getSharedOrBean(http,
 				PublicKeyCredentialUserEntityRepository.class)
 			.orElse(userEntityRepository());
@@ -156,6 +169,7 @@ public class WebAuthnConfigurer<H extends HttpSecurityBuilder<H>>
 			.orElse(userCredentialRepository());
 		WebAuthnRelyingPartyOperations rpOperations = webAuthnRelyingPartyOperations(userEntities, userCredentials);
 		PublicKeyCredentialCreationOptionsRepository creationOptionsRepository = creationOptionsRepository();
+		PublicKeyCredentialRequestOptionsRepository requestOptionsRepository = requestOptionsRepository();
 		WebAuthnAuthenticationFilter webAuthnAuthnFilter = new WebAuthnAuthenticationFilter();
 		webAuthnAuthnFilter.setAuthenticationManager(
 				new ProviderManager(new WebAuthnAuthenticationProvider(rpOperations, userDetailsService)));
@@ -163,9 +177,14 @@ public class WebAuthnConfigurer<H extends HttpSecurityBuilder<H>>
 				rpOperations);
 		PublicKeyCredentialCreationOptionsFilter creationOptionsFilter = new PublicKeyCredentialCreationOptionsFilter(
 				rpOperations);
+		PublicKeyCredentialRequestOptionsFilter credentialRequestOptionsFilter = new PublicKeyCredentialRequestOptionsFilter(rpOperations);
 		if (creationOptionsRepository != null) {
 			webAuthnRegistrationFilter.setCreationOptionsRepository(creationOptionsRepository);
 			creationOptionsFilter.setCreationOptionsRepository(creationOptionsRepository);
+		}
+		if (requestOptionsRepository != null) {
+			credentialRequestOptionsFilter.setRequestOptionsRepository(requestOptionsRepository);
+			webAuthnAuthnFilter.setRequestOptionsRepository(requestOptionsRepository);
 		}
 		if (this.converter != null) {
 			webAuthnRegistrationFilter.setConverter(this.converter);
@@ -174,7 +193,7 @@ public class WebAuthnConfigurer<H extends HttpSecurityBuilder<H>>
 		http.addFilterBefore(webAuthnAuthnFilter, BasicAuthenticationFilter.class);
 		http.addFilterAfter(webAuthnRegistrationFilter, AuthorizationFilter.class);
 		http.addFilterBefore(creationOptionsFilter, AuthorizationFilter.class);
-		http.addFilterBefore(new PublicKeyCredentialRequestOptionsFilter(rpOperations), AuthorizationFilter.class);
+		http.addFilterBefore(credentialRequestOptionsFilter, AuthorizationFilter.class);
 
 		DefaultLoginPageGeneratingFilter loginPageGeneratingFilter = http
 			.getSharedObject(DefaultLoginPageGeneratingFilter.class);
@@ -206,6 +225,14 @@ public class WebAuthnConfigurer<H extends HttpSecurityBuilder<H>>
 		}
 		ApplicationContext context = getBuilder().getSharedObject(ApplicationContext.class);
 		return context.getBeanProvider(PublicKeyCredentialCreationOptionsRepository.class).getIfUnique();
+	}
+
+	private PublicKeyCredentialRequestOptionsRepository requestOptionsRepository() {
+		if (this.requestOptionsRepository != null) {
+			return this.requestOptionsRepository;
+		}
+		ApplicationContext context = getBuilder().getSharedObject(ApplicationContext.class);
+		return context.getBeanProvider(PublicKeyCredentialRequestOptionsRepository.class).getIfUnique();
 	}
 
 	private <C> Optional<C> getSharedOrBean(H http, Class<C> type) {
