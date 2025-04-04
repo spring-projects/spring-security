@@ -22,6 +22,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.test.SpringTestContext
@@ -30,6 +31,7 @@ import org.springframework.security.core.userdetails.User
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.provisioning.InMemoryUserDetailsManager
 import org.springframework.security.web.SecurityFilterChain
+import org.springframework.security.web.webauthn.registration.HttpSessionPublicKeyCredentialCreationOptionsRepository
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
@@ -56,6 +58,26 @@ class WebAuthnDslTests {
                 .andExpect {
                     status { isForbidden() }
                 }
+    }
+
+    @Test
+    fun `explicit PublicKeyCredentialCreationOptionsRepository`() {
+        this.spring.register(ExplicitPublicKeyCredentialCreationOptionsRepositoryConfig::class.java).autowire()
+
+        this.mockMvc.post("/test1")
+            .andExpect {
+                status { isForbidden() }
+            }
+    }
+
+    @Test
+    fun `explicit HttpMessageConverter`() {
+        this.spring.register(ExplicitHttpMessageConverterConfig::class.java).autowire()
+
+        this.mockMvc.post("/test1")
+            .andExpect {
+                status { isForbidden() }
+            }
     }
 
     @Test
@@ -125,6 +147,60 @@ class WebAuthnDslTests {
                 webAuthn { }
             }
             return http.build()
+        }
+    }
+
+    @Configuration
+    @EnableWebSecurity
+    open class ExplicitPublicKeyCredentialCreationOptionsRepositoryConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+            http {
+                webAuthn {
+                    rpName = "Spring Security Relying Party"
+                    rpId = "example.com"
+                    allowedOrigins = setOf("https://example.com")
+                    creationOptionsRepository = HttpSessionPublicKeyCredentialCreationOptionsRepository()
+                }
+            }
+            return http.build()
+        }
+
+        @Bean
+        open fun userDetailsService(): UserDetailsService {
+            val userDetails = User.withDefaultPasswordEncoder()
+                .username("rod")
+                .password("password")
+                .roles("USER")
+                .build()
+            return InMemoryUserDetailsManager(userDetails)
+        }
+    }
+
+    @Configuration
+    @EnableWebSecurity
+    open class ExplicitHttpMessageConverterConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+            http {
+                webAuthn {
+                    rpName = "Spring Security Relying Party"
+                    rpId = "example.com"
+                    allowedOrigins = setOf("https://example.com")
+                    messageConverter = MappingJackson2HttpMessageConverter()
+                }
+            }
+            return http.build()
+        }
+
+        @Bean
+        open fun userDetailsService(): UserDetailsService {
+            val userDetails = User.withDefaultPasswordEncoder()
+                .username("rod")
+                .password("password")
+                .roles("USER")
+                .build()
+            return InMemoryUserDetailsManager(userDetails)
         }
     }
 

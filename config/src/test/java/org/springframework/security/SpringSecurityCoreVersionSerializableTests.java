@@ -16,6 +16,8 @@
 
 package org.springframework.security;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -36,13 +38,16 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import jakarta.servlet.http.Cookie;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apereo.cas.client.validation.AssertionImpl;
 import org.instancio.Instancio;
 import org.instancio.InstancioApi;
@@ -94,6 +99,7 @@ import org.springframework.security.authentication.event.LogoutSuccessEvent;
 import org.springframework.security.authentication.jaas.JaasAuthenticationToken;
 import org.springframework.security.authentication.jaas.event.JaasAuthenticationFailedEvent;
 import org.springframework.security.authentication.jaas.event.JaasAuthenticationSuccessEvent;
+import org.springframework.security.authentication.ott.DefaultOneTimeToken;
 import org.springframework.security.authentication.ott.InvalidOneTimeTokenException;
 import org.springframework.security.authentication.ott.OneTimeTokenAuthenticationToken;
 import org.springframework.security.authentication.password.CompromisedPasswordException;
@@ -133,6 +139,7 @@ import org.springframework.security.oauth2.client.oidc.authentication.logout.Tes
 import org.springframework.security.oauth2.client.oidc.session.OidcSessionInformation;
 import org.springframework.security.oauth2.client.oidc.session.TestOidcSessionInformations;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.client.registration.ClientRegistration.ClientSettings;
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.core.DefaultOAuth2AuthenticatedPrincipal;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
@@ -232,9 +239,9 @@ import org.springframework.security.web.webauthn.api.PublicKeyCredentialType;
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialUserEntity;
 import org.springframework.security.web.webauthn.api.TestAuthenticationAssertionResponses;
 import org.springframework.security.web.webauthn.api.TestBytes;
-import org.springframework.security.web.webauthn.api.TestPublicKeyCredential;
 import org.springframework.security.web.webauthn.api.TestPublicKeyCredentialRequestOptions;
-import org.springframework.security.web.webauthn.api.TestPublicKeyCredentialUserEntity;
+import org.springframework.security.web.webauthn.api.TestPublicKeyCredentialUserEntities;
+import org.springframework.security.web.webauthn.api.TestPublicKeyCredentials;
 import org.springframework.security.web.webauthn.api.UserVerificationRequirement;
 import org.springframework.security.web.webauthn.authentication.WebAuthnAuthentication;
 import org.springframework.security.web.webauthn.authentication.WebAuthnAuthenticationRequestToken;
@@ -288,11 +295,12 @@ class SpringSecurityCoreVersionSerializableTests {
 				(r) -> new ReactiveSessionInformation(user, r.alphanumeric(4), Instant.ofEpochMilli(1704378933936L)));
 		generatorByClassName.put(OAuth2AccessToken.class, (r) -> TestOAuth2AccessTokens.scopes("scope"));
 		generatorByClassName.put(OAuth2DeviceCode.class,
-				(r) -> new OAuth2DeviceCode("token", Instant.now(), Instant.now()));
+				(r) -> new OAuth2DeviceCode("token", Instant.now(), Instant.now().plusSeconds(1)));
 		generatorByClassName.put(OAuth2RefreshToken.class,
-				(r) -> new OAuth2RefreshToken("refreshToken", Instant.now(), Instant.now()));
+				(r) -> new OAuth2RefreshToken("refreshToken", Instant.now(), Instant.now().plusSeconds(1)));
 		generatorByClassName.put(OAuth2UserCode.class,
-				(r) -> new OAuth2UserCode("token", Instant.now(), Instant.now()));
+				(r) -> new OAuth2UserCode("token", Instant.now(), Instant.now().plusSeconds(1)));
+		generatorByClassName.put(ClientSettings.class, (r) -> ClientSettings.builder().build());
 		generatorByClassName.put(DefaultOidcUser.class, (r) -> TestOidcUsers.create());
 		generatorByClassName.put(OidcUserAuthority.class,
 				(r) -> new OidcUserAuthority(TestOidcIdTokens.idToken().build(),
@@ -595,20 +603,6 @@ class SpringSecurityCoreVersionSerializableTests {
 		});
 
 		// webauthn
-		generatorByClassName.put(Bytes.class, (r) -> TestBytes.get());
-		generatorByClassName.put(ImmutablePublicKeyCredentialUserEntity.class,
-				(r) -> TestPublicKeyCredentialUserEntity.userEntity().id(TestBytes.get()).build());
-		generatorByClassName.put(WebAuthnAuthentication.class, (r) -> {
-			PublicKeyCredentialUserEntity userEntity = TestPublicKeyCredentialUserEntity.userEntity()
-				.id(TestBytes.get())
-				.build();
-			List<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList("ROLE_USER");
-			WebAuthnAuthentication webAuthnAuthentication = new WebAuthnAuthentication(userEntity, authorities);
-			webAuthnAuthentication.setDetails(details);
-			return webAuthnAuthentication;
-		});
-
-		// webauthn
 		CredProtectAuthenticationExtensionsClientInput.CredProtect credProtect = new CredProtectAuthenticationExtensionsClientInput.CredProtect(
 				CredProtectAuthenticationExtensionsClientInput.CredProtect.ProtectionPolicy.USER_VERIFICATION_OPTIONAL,
 				true);
@@ -646,7 +640,7 @@ class SpringSecurityCoreVersionSerializableTests {
 		AuthenticationExtensionsClientOutputs outputs = new ImmutableAuthenticationExtensionsClientOutputs(credentialOutput);
 		AuthenticatorAssertionResponse response = TestAuthenticationAssertionResponses.createAuthenticatorAssertionResponse()
 				.build();
-		PublicKeyCredential<AuthenticatorAssertionResponse> credential = TestPublicKeyCredential.createPublicKeyCredential(
+		PublicKeyCredential<AuthenticatorAssertionResponse> credential = TestPublicKeyCredentials.createPublicKeyCredential(
 				response, outputs)
 				.build();
 		RelyingPartyAuthenticationRequest authRequest = new RelyingPartyAuthenticationRequest(
@@ -663,6 +657,64 @@ class SpringSecurityCoreVersionSerializableTests {
 		generatorByClassName.put(WebAuthnAuthenticationRequestToken.class, (r) -> requestToken);
 		generatorByClassName.put(AuthenticatorAttachment.class, (r) -> AuthenticatorAttachment.PLATFORM);
 		// @formatter:on
+		generatorByClassName.put(ImmutablePublicKeyCredentialUserEntity.class,
+				(r) -> TestPublicKeyCredentialUserEntities.userEntity().id(TestBytes.get()).build());
+		generatorByClassName.put(WebAuthnAuthentication.class, (r) -> {
+			PublicKeyCredentialUserEntity userEntity = TestPublicKeyCredentialUserEntities.userEntity()
+				.id(TestBytes.get())
+				.build();
+			List<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList("ROLE_USER");
+			WebAuthnAuthentication webAuthnAuthentication = new WebAuthnAuthentication(userEntity, authorities);
+			webAuthnAuthentication.setDetails(details);
+			return webAuthnAuthentication;
+		});
+		// @formatter:on
+
+		// One-Time Token
+		DefaultOneTimeToken oneTimeToken = new DefaultOneTimeToken(UUID.randomUUID().toString(), "user",
+				Instant.now().plusSeconds(300));
+		generatorByClassName.put(DefaultOneTimeToken.class, (t) -> oneTimeToken);
+	}
+
+	@ParameterizedTest
+	@MethodSource("getClassesToSerialize")
+	void serializeAndDeserializeAreEqual(Class<?> clazz) throws Exception {
+		Object expected = instancioWithDefaults(clazz).create();
+		assertThat(expected).isInstanceOf(clazz);
+		try (ByteArrayOutputStream out = new ByteArrayOutputStream();
+				ObjectOutputStream objectOutputStream = new ObjectOutputStream(out)) {
+			objectOutputStream.writeObject(expected);
+			objectOutputStream.flush();
+
+			try (ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
+					ObjectInputStream objectInputStream = new ObjectInputStream(in)) {
+				Object deserialized = objectInputStream.readObject();
+				// Ignore transient fields Event classes extend from EventObject which has
+				// transient source property
+				Set<String> transientFieldNames = new HashSet();
+				Set<Class<?>> visitedClasses = new HashSet();
+				collectTransientFieldNames(transientFieldNames, visitedClasses, clazz);
+				assertThat(deserialized).usingRecursiveComparison()
+					.ignoringFields(transientFieldNames.toArray(new String[0]))
+					// RuntimeExceptions do not fully work but ensure the message does
+					.withComparatorForType((lhs, rhs) -> ObjectUtils.compare(lhs.getMessage(), rhs.getMessage()),
+							RuntimeException.class)
+					.isEqualTo(expected);
+			}
+		}
+	}
+
+	private static void collectTransientFieldNames(Set<String> transientFieldNames, Set<Class<?>> visitedClasses,
+			Class<?> clazz) {
+		if (!visitedClasses.add(clazz) || clazz.isPrimitive()) {
+			return;
+		}
+		ReflectionUtils.doWithFields(clazz, (field) -> {
+			if (Modifier.isTransient(field.getModifiers())) {
+				transientFieldNames.add(field.getName());
+			}
+			collectTransientFieldNames(transientFieldNames, visitedClasses, field.getType());
+		});
 	}
 
 	@ParameterizedTest

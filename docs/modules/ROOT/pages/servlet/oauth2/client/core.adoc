@@ -40,6 +40,10 @@ public final class ClientRegistration {
 
 		}
 	}
+
+	public static final class ClientSettings {
+		private boolean requireProofKey; // <17>
+	}
 }
 ----
 <1> `registrationId`: The ID that uniquely identifies the `ClientRegistration`.
@@ -65,6 +69,7 @@ This information is available only if the Spring Boot property `spring.security.
 <15> `(userInfoEndpoint)authenticationMethod`: The authentication method used when sending the access token to the UserInfo Endpoint.
 The supported values are *header*, *form*, and *query*.
 <16> `userNameAttributeName`: The name of the attribute returned in the UserInfo Response that references the Name or Identifier of the end-user.
+<17> [[oauth2Client-client-registration-requireProofKey]]`requireProofKey`: If `true` or if `authorizationGrantType` is `none`, then PKCE will be enabled by default.
 
 You can initially configure a `ClientRegistration` by using discovery of an OpenID Connect Provider's https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig[Configuration endpoint] or an Authorization Server's https://tools.ietf.org/html/rfc8414#section-3[Metadata endpoint].
 

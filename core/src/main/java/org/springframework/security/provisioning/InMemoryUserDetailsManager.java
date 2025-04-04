@@ -164,7 +164,7 @@ public class InMemoryUserDetailsManager implements UserDetailsManager, UserDetai
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		UserDetails user = this.users.get(username.toLowerCase(Locale.ROOT));
 		if (user == null) {
-			throw new UsernameNotFoundException(username);
+			throw new UsernameNotFoundException("user '" + username + "' not found");
 		}
 		if (user instanceof CredentialsContainer) {
 			return user;

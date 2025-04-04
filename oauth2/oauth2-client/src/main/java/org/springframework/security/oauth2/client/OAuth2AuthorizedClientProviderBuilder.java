@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2ClientCredentialsGrantRequest;
 import org.springframework.security.oauth2.client.endpoint.OAuth2PasswordGrantRequest;
@@ -359,6 +360,8 @@ public final class OAuth2AuthorizedClientProviderBuilder {
 
 		private OAuth2AccessTokenResponseClient<OAuth2RefreshTokenGrantRequest> accessTokenResponseClient;
 
+		private ApplicationEventPublisher eventPublisher;
+
 		private Duration clockSkew;
 
 		private Clock clock;
@@ -376,6 +379,18 @@ public final class OAuth2AuthorizedClientProviderBuilder {
 		public RefreshTokenGrantBuilder accessTokenResponseClient(
 				OAuth2AccessTokenResponseClient<OAuth2RefreshTokenGrantRequest> accessTokenResponseClient) {
 			this.accessTokenResponseClient = accessTokenResponseClient;
+			return this;
+		}
+
+		/**
+		 * Sets the {@link ApplicationEventPublisher} used when an access token is
+		 * refreshed.
+		 * @param eventPublisher the {@link ApplicationEventPublisher}
+		 * @return the {@link RefreshTokenGrantBuilder}
+		 * @since 6.5
+		 */
+		public RefreshTokenGrantBuilder eventPublisher(ApplicationEventPublisher eventPublisher) {
+			this.eventPublisher = eventPublisher;
 			return this;
 		}
 
@@ -413,6 +428,9 @@ public final class OAuth2AuthorizedClientProviderBuilder {
 			RefreshTokenOAuth2AuthorizedClientProvider authorizedClientProvider = new RefreshTokenOAuth2AuthorizedClientProvider();
 			if (this.accessTokenResponseClient != null) {
 				authorizedClientProvider.setAccessTokenResponseClient(this.accessTokenResponseClient);
+			}
+			if (this.eventPublisher != null) {
+				authorizedClientProvider.setApplicationEventPublisher(this.eventPublisher);
 			}
 			if (this.clockSkew != null) {
 				authorizedClientProvider.setClockSkew(this.clockSkew);

@@ -79,6 +79,10 @@ If the client is running in an untrusted environment (eg. native application or 
 . `client-secret` is omitted (or empty)
 . `client-authentication-method` is set to "none" (`ClientAuthenticationMethod.NONE`)
 
+or
+
+. When `ClientRegistration.clientSettings.requireProofKey` is `true` (in this case `ClientRegistration.authorizationGrantType` must be `authorization_code`)
+
 [TIP]
 ====
 If the OAuth 2.0 Provider supports PKCE for https://tools.ietf.org/html/rfc6749#section-2.1[Confidential Clients], you may (optionally) configure it using `DefaultServerOAuth2AuthorizationRequestResolver.setAuthorizationRequestCustomizer(OAuth2AuthorizationRequestCustomizers.withPkce())`.

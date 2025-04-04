@@ -16,8 +16,6 @@
 
 package org.springframework.security.oauth2.jwt;
 
-import java.net.URI;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -41,6 +39,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.util.Assert;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
+import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
 final class ReactiveJwtDecoderProviderConfigurationUtils {
@@ -93,38 +92,40 @@ final class ReactiveJwtDecoderProviderConfigurationUtils {
 	}
 
 	static Mono<Map<String, Object>> getConfigurationForIssuerLocation(String issuer, WebClient web) {
-		URI uri = URI.create(issuer);
-		return getConfiguration(issuer, web, oidc(uri), oidcRfc8414(uri), oauth(uri));
+		return getConfiguration(issuer, web, oidc(issuer), oidcRfc8414(issuer), oauth(issuer));
 	}
 
-	private static URI oidc(URI issuer) {
+	static UriComponents oidc(String issuer) {
+		UriComponents uri = UriComponentsBuilder.fromUriString(issuer).build();
 		// @formatter:off
-		return UriComponentsBuilder.fromUri(issuer)
-				.replacePath(issuer.getPath() + OIDC_METADATA_PATH)
-				.build(Collections.emptyMap());
+		return UriComponentsBuilder.newInstance().uriComponents(uri)
+				.replacePath(uri.getPath() + OIDC_METADATA_PATH)
+				.build();
 		// @formatter:on
 	}
 
-	private static URI oidcRfc8414(URI issuer) {
+	static UriComponents oidcRfc8414(String issuer) {
+		UriComponents uri = UriComponentsBuilder.fromUriString(issuer).build();
 		// @formatter:off
-		return UriComponentsBuilder.fromUri(issuer)
-				.replacePath(OIDC_METADATA_PATH + issuer.getPath())
-				.build(Collections.emptyMap());
+		return UriComponentsBuilder.newInstance().uriComponents(uri)
+				.replacePath(OIDC_METADATA_PATH + uri.getPath())
+				.build();
 		// @formatter:on
 	}
 
-	private static URI oauth(URI issuer) {
+	static UriComponents oauth(String issuer) {
+		UriComponents uri = UriComponentsBuilder.fromUriString(issuer).build();
 		// @formatter:off
-		return UriComponentsBuilder.fromUri(issuer)
-				.replacePath(OAUTH_METADATA_PATH + issuer.getPath())
-				.build(Collections.emptyMap());
+		return UriComponentsBuilder.newInstance().uriComponents(uri)
+				.replacePath(OAUTH_METADATA_PATH + uri.getPath())
+				.build();
 		// @formatter:on
 	}
 
-	private static Mono<Map<String, Object>> getConfiguration(String issuer, WebClient web, URI... uris) {
+	private static Mono<Map<String, Object>> getConfiguration(String issuer, WebClient web, UriComponents... uris) {
 		String errorMessage = "Unable to resolve the Configuration with the provided Issuer of " + "\"" + issuer + "\"";
 		return Flux.just(uris)
-			.concatMap((uri) -> web.get().uri(uri).retrieve().bodyToMono(STRING_OBJECT_MAP))
+			.concatMap((uri) -> web.get().uri(uri.toUriString()).retrieve().bodyToMono(STRING_OBJECT_MAP))
 			.flatMap((configuration) -> {
 				if (configuration.get("jwks_uri") == null) {
 					return Mono.error(() -> new IllegalArgumentException("The public JWK set URI must not be null"));

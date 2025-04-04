@@ -37,7 +37,7 @@ class DefaultOneTimeTokenSubmitPageGeneratingFilterTests {
 
 	DefaultOneTimeTokenSubmitPageGeneratingFilter filter = new DefaultOneTimeTokenSubmitPageGeneratingFilter();
 
-	MockHttpServletRequest request = new MockHttpServletRequest();
+	MockHttpServletRequest request = new MockHttpServletRequest("GET", "/login/ott");
 
 	MockHttpServletResponse response = new MockHttpServletResponse();
 
@@ -47,6 +47,7 @@ class DefaultOneTimeTokenSubmitPageGeneratingFilterTests {
 	void setup() {
 		this.request.setMethod("GET");
 		this.request.setServletPath("/login/ott");
+		this.request.setRequestURI("/login/ott");
 	}
 
 	@Test
@@ -80,6 +81,7 @@ class DefaultOneTimeTokenSubmitPageGeneratingFilterTests {
 	@Test
 	void setContextThenGenerates() throws Exception {
 		this.request.setContextPath("/context");
+		this.request.setRequestURI("/context/login/ott");
 		this.filter.setLoginProcessingUrl("/login/another");
 		this.filter.doFilterInternal(this.request, this.response, this.filterChain);
 		String response = this.response.getContentAsString();

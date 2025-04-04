@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,6 +47,7 @@ import org.springframework.aop.Advisor;
 import org.springframework.aop.Pointcut;
 import org.springframework.aop.framework.AopInfrastructureBean;
 import org.springframework.aop.framework.ProxyFactory;
+import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authorization.AuthorizationProxyFactory;
@@ -79,8 +80,8 @@ import org.springframework.util.ClassUtils;
  * @author Josh Cummings
  * @since 6.3
  */
-public final class AuthorizationAdvisorProxyFactory
-		implements AuthorizationProxyFactory, Iterable<AuthorizationAdvisor>, AopInfrastructureBean {
+public final class AuthorizationAdvisorProxyFactory implements AuthorizationProxyFactory,
+		Iterable<AuthorizationAdvisor>, AopInfrastructureBean, SmartInitializingSingleton {
 
 	private static final boolean isReactivePresent = ClassUtils.isPresent("reactor.core.publisher.Mono", null);
 
@@ -125,6 +126,7 @@ public final class AuthorizationAdvisorProxyFactory
 		advisors.add(new PostFilterAuthorizationMethodInterceptor());
 		AuthorizationAdvisorProxyFactory proxyFactory = new AuthorizationAdvisorProxyFactory(advisors);
 		proxyFactory.addAdvisor(new AuthorizeReturnObjectMethodInterceptor(proxyFactory));
+		AnnotationAwareOrderComparator.sort(proxyFactory.advisors);
 		return proxyFactory;
 	}
 
@@ -142,7 +144,13 @@ public final class AuthorizationAdvisorProxyFactory
 		advisors.add(new PostFilterAuthorizationReactiveMethodInterceptor());
 		AuthorizationAdvisorProxyFactory proxyFactory = new AuthorizationAdvisorProxyFactory(advisors);
 		proxyFactory.addAdvisor(new AuthorizeReturnObjectMethodInterceptor(proxyFactory));
+		AnnotationAwareOrderComparator.sort(proxyFactory.advisors);
 		return proxyFactory;
+	}
+
+	@Override
+	public void afterSingletonsInstantiated() {
+		AnnotationAwareOrderComparator.sort(this.advisors);
 	}
 
 	/**
@@ -165,7 +173,6 @@ public final class AuthorizationAdvisorProxyFactory
 	 */
 	@Override
 	public Object proxy(Object target) {
-		AnnotationAwareOrderComparator.sort(this.advisors);
 		if (target == null) {
 			return null;
 		}
@@ -178,9 +185,9 @@ public final class AuthorizationAdvisorProxyFactory
 		}
 		ProxyFactory factory = new ProxyFactory(target);
 		factory.addAdvisors(this.authorizationProxy);
-		for (Advisor advisor : this.advisors) {
-			factory.addAdvisors(advisor);
-		}
+		List<Advisor> advisors = new ArrayList<>(this.advisors);
+		AnnotationAwareOrderComparator.sort(advisors);
+		factory.addAdvisors(advisors);
 		factory.addInterface(AuthorizationProxy.class);
 		factory.setOpaque(true);
 		factory.setProxyTargetClass(!Modifier.isFinal(target.getClass().getModifiers()));

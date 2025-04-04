@@ -16,14 +16,16 @@
 
 package org.springframework.security.config.annotation.web
 
+import org.springframework.http.converter.HttpMessageConverter
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configurers.WebAuthnConfigurer
+import org.springframework.security.web.webauthn.registration.PublicKeyCredentialCreationOptionsRepository
 
 /**
  * A Kotlin DSL to configure [HttpSecurity] webauthn using idiomatic Kotlin code.
  * @property rpName the relying party name
  * @property rpId the relying party id
- * @property the allowed origins
+ * @property allowedOrigins allowed origins
  * @property disableDefaultRegistrationPage disable default webauthn registration page
  * @since 6.4
  * @author Rob Winch
@@ -35,6 +37,8 @@ class WebAuthnDsl {
     var rpId: String? = null
     var allowedOrigins: Set<String>? = null
     var disableDefaultRegistrationPage: Boolean? = false
+    var creationOptionsRepository: PublicKeyCredentialCreationOptionsRepository? = null
+    var messageConverter: HttpMessageConverter<Any>? = null
 
     internal fun get(): (WebAuthnConfigurer<HttpSecurity>) -> Unit {
         return { webAuthn ->
@@ -42,6 +46,8 @@ class WebAuthnDsl {
             rpId?.also { webAuthn.rpId(rpId) }
             allowedOrigins?.also { webAuthn.allowedOrigins(allowedOrigins) }
             disableDefaultRegistrationPage?.also { webAuthn.disableDefaultRegistrationPage(disableDefaultRegistrationPage!!) }
+            creationOptionsRepository?.also { webAuthn.creationOptionsRepository(creationOptionsRepository) }
+            messageConverter?.also { webAuthn.messageConverter(messageConverter) }
         }
     }
 }

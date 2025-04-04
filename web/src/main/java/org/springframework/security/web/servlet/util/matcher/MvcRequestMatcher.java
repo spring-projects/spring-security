@@ -46,7 +46,9 @@ import org.springframework.web.util.UrlPathHelper;
  * @author Eddú Meléndez
  * @author Evgeniy Cheban
  * @since 4.1.1
+ * @deprecated Please use {@link PathPatternRequestMatcher} instead
  */
+@Deprecated(forRemoval = true)
 public class MvcRequestMatcher implements RequestMatcher, RequestVariablesExtractor {
 
 	private final DefaultMatcher defaultMatcher = new DefaultMatcher();

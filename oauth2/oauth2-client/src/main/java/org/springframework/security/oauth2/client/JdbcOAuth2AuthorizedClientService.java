@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,6 @@ import java.util.Set;
 import java.util.function.Function;
 
 import org.springframework.dao.DataRetrievalFailureException;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.ArgumentPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.PreparedStatementSetter;
@@ -166,22 +165,13 @@ public class JdbcOAuth2AuthorizedClientService implements OAuth2AuthorizedClient
 	public void saveAuthorizedClient(OAuth2AuthorizedClient authorizedClient, Authentication principal) {
 		Assert.notNull(authorizedClient, "authorizedClient cannot be null");
 		Assert.notNull(principal, "principal cannot be null");
-		boolean existsAuthorizedClient = null != this
-			.loadAuthorizedClient(authorizedClient.getClientRegistration().getRegistrationId(), principal.getName());
-		if (existsAuthorizedClient) {
-			updateAuthorizedClient(authorizedClient, principal);
-		}
-		else {
-			try {
-				insertAuthorizedClient(authorizedClient, principal);
-			}
-			catch (DuplicateKeyException ex) {
-				updateAuthorizedClient(authorizedClient, principal);
-			}
+		int rows = updateAuthorizedClient(authorizedClient, principal);
+		if (rows == 0) {
+			insertAuthorizedClient(authorizedClient, principal);
 		}
 	}
 
-	private void updateAuthorizedClient(OAuth2AuthorizedClient authorizedClient, Authentication principal) {
+	private int updateAuthorizedClient(OAuth2AuthorizedClient authorizedClient, Authentication principal) {
 		List<SqlParameterValue> parameters = this.authorizedClientParametersMapper
 			.apply(new OAuth2AuthorizedClientHolder(authorizedClient, principal));
 		SqlParameterValue clientRegistrationIdParameter = parameters.remove(0);
@@ -191,7 +181,7 @@ public class JdbcOAuth2AuthorizedClientService implements OAuth2AuthorizedClient
 		try (LobCreator lobCreator = this.lobHandler.getLobCreator()) {
 			PreparedStatementSetter pss = new LobCreatorArgumentPreparedStatementSetter(lobCreator,
 					parameters.toArray());
-			this.jdbcOperations.update(UPDATE_AUTHORIZED_CLIENT_SQL, pss);
+			return this.jdbcOperations.update(UPDATE_AUTHORIZED_CLIENT_SQL, pss);
 		}
 	}
 

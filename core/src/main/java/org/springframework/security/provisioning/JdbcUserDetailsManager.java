@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ import org.springframework.context.ApplicationContextException;
 import org.springframework.core.log.LogMessage;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.core.PreparedStatementSetter;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -156,11 +157,46 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 
 	private UserCache userCache = new NullUserCache();
 
+	private RowMapper<UserDetails> userDetailsMapper = this::mapToUser;
+
+	private RowMapper<GrantedAuthority> grantedAuthorityMapper = this::mapToGrantedAuthority;
+
 	public JdbcUserDetailsManager() {
 	}
 
 	public JdbcUserDetailsManager(DataSource dataSource) {
 		setDataSource(dataSource);
+	}
+
+	/**
+	 * Sets the {@code RowMapper} to convert each user result row into a
+	 * {@link UserDetails} object.
+	 *
+	 * The default mapper expects columns with names like 'username', 'password',
+	 * 'enabled', etc., and maps them directly to the corresponding UserDetails
+	 * properties.
+	 * @param mapper the {@code RowMapper} to use for mapping rows in the database, must
+	 * not be null
+	 * @since 6.5
+	 */
+	public void setUserDetailsMapper(RowMapper<UserDetails> mapper) {
+		Assert.notNull(mapper, "userDetailsMapper cannot be null");
+		this.userDetailsMapper = mapper;
+	}
+
+	/**
+	 * Sets the {@code RowMapper} to convert each authority result row into a
+	 * {@link GrantedAuthority} object.
+	 *
+	 * The default mapper expects columns with names like 'authority' or 'role', and maps
+	 * them directly to SimpleGrantedAuthority objects.
+	 * @param mapper the {@code RowMapper} to use for mapping rows in the database to
+	 * GrantedAuthority objects, must not be null
+	 * @since 6.5
+	 */
+	public void setGrantedAuthorityMapper(RowMapper<GrantedAuthority> mapper) {
+		Assert.notNull(mapper, "grantedAuthorityMapper cannot be null");
+		this.grantedAuthorityMapper = mapper;
 	}
 
 	@Override
@@ -178,7 +214,7 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 	 */
 	@Override
 	protected List<UserDetails> loadUsersByUsername(String username) {
-		return getJdbcTemplate().query(getUsersByUsernameQuery(), this::mapToUser, username);
+		return getJdbcTemplate().query(getUsersByUsernameQuery(), this.userDetailsMapper, username);
 	}
 
 	private UserDetails mapToUser(ResultSet rs, int rowNum) throws SQLException {
@@ -387,7 +423,7 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 		this.logger.debug("Loading authorities for group '" + groupName + "'");
 		Assert.hasText(groupName, "groupName should have text");
 		return getJdbcTemplate().query(this.groupAuthoritiesSql, new String[] { groupName },
-				this::mapToGrantedAuthority);
+				this.grantedAuthorityMapper);
 	}
 
 	private GrantedAuthority mapToGrantedAuthority(ResultSet rs, int rowNum) throws SQLException {

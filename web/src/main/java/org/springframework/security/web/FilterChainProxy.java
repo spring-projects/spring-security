@@ -46,6 +46,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 import org.springframework.web.filter.DelegatingFilterProxy;
 import org.springframework.web.filter.GenericFilterBean;
+import org.springframework.web.filter.ServletRequestPathFilter;
 
 /**
  * Delegates {@code Filter} requests to a list of Spring-managed filter beans. As of
@@ -162,6 +163,8 @@ public class FilterChainProxy extends GenericFilterBean {
 
 	private FilterChainDecorator filterChainDecorator = new VirtualFilterChainDecorator();
 
+	private Filter springWebFilter = new ServletRequestPathFilter();
+
 	public FilterChainProxy() {
 	}
 
@@ -210,27 +213,29 @@ public class FilterChainProxy extends GenericFilterBean {
 			throws IOException, ServletException {
 		FirewalledRequest firewallRequest = this.firewall.getFirewalledRequest((HttpServletRequest) request);
 		HttpServletResponse firewallResponse = this.firewall.getFirewalledResponse((HttpServletResponse) response);
-		List<Filter> filters = getFilters(firewallRequest);
-		if (filters == null || filters.isEmpty()) {
-			if (logger.isTraceEnabled()) {
-				logger.trace(LogMessage.of(() -> "No security for " + requestLine(firewallRequest)));
+		this.springWebFilter.doFilter(firewallRequest, firewallResponse, (r, s) -> {
+			List<Filter> filters = getFilters(firewallRequest);
+			if (filters == null || filters.isEmpty()) {
+				if (logger.isTraceEnabled()) {
+					logger.trace(LogMessage.of(() -> "No security for " + requestLine(firewallRequest)));
+				}
+				firewallRequest.reset();
+				this.filterChainDecorator.decorate(chain).doFilter(firewallRequest, firewallResponse);
+				return;
 			}
-			firewallRequest.reset();
-			this.filterChainDecorator.decorate(chain).doFilter(firewallRequest, firewallResponse);
-			return;
-		}
-		if (logger.isDebugEnabled()) {
-			logger.debug(LogMessage.of(() -> "Securing " + requestLine(firewallRequest)));
-		}
-		FilterChain reset = (req, res) -> {
 			if (logger.isDebugEnabled()) {
-				logger.debug(LogMessage.of(() -> "Secured " + requestLine(firewallRequest)));
+				logger.debug(LogMessage.of(() -> "Securing " + requestLine(firewallRequest)));
 			}
-			// Deactivate path stripping as we exit the security filter chain
-			firewallRequest.reset();
-			chain.doFilter(req, res);
-		};
-		this.filterChainDecorator.decorate(reset, filters).doFilter(firewallRequest, firewallResponse);
+			FilterChain reset = (req, res) -> {
+				if (logger.isDebugEnabled()) {
+					logger.debug(LogMessage.of(() -> "Secured " + requestLine(firewallRequest)));
+				}
+				// Deactivate path stripping as we exit the security filter chain
+				firewallRequest.reset();
+				chain.doFilter(req, res);
+			};
+			this.filterChainDecorator.decorate(reset, filters).doFilter(firewallRequest, firewallResponse);
+		});
 	}
 
 	/**
@@ -443,6 +448,25 @@ public class FilterChainProxy extends GenericFilterBean {
 		@Override
 		public FilterChain decorate(FilterChain original, List<Filter> filters) {
 			return new VirtualFilterChain(original, filters);
+		}
+
+	}
+
+	private static final class FirewallFilter implements Filter {
+
+		private final HttpFirewall firewall;
+
+		private FirewallFilter(HttpFirewall firewall) {
+			this.firewall = firewall;
+		}
+
+		@Override
+		public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
+				throws IOException, ServletException {
+			HttpServletRequest request = (HttpServletRequest) servletRequest;
+			HttpServletResponse response = (HttpServletResponse) servletResponse;
+			filterChain.doFilter(this.firewall.getFirewalledRequest(request),
+					this.firewall.getFirewalledResponse(response));
 		}
 
 	}

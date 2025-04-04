@@ -17,7 +17,7 @@
 package org.springframework.security.saml2.provider.service.authentication.logout;
 
 /**
- * An OpenSAML 4.x compatible implementation of {@link Saml2LogoutResponseValidator}
+ * An OpenSAML 5.x compatible implementation of {@link Saml2LogoutResponseValidator}
  *
  * @author Josh Cummings
  * @since 5.6

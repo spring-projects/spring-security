@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import java.util.Map;
 
 import jakarta.servlet.Filter;
 
-import org.springframework.beans.factory.BeanClassLoaderAware;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
@@ -65,22 +65,15 @@ import org.springframework.security.web.context.AbstractSecurityWebApplicationIn
  * @see WebSecurity
  */
 @Configuration(proxyBeanMethods = false)
-public class WebSecurityConfiguration implements ImportAware, BeanClassLoaderAware {
+public class WebSecurityConfiguration implements ImportAware {
 
 	private WebSecurity webSecurity;
 
 	private Boolean debugEnabled;
 
-	private List<SecurityConfigurer<Filter, WebSecurity>> webSecurityConfigurers;
-
 	private List<SecurityFilterChain> securityFilterChains = Collections.emptyList();
 
 	private List<WebSecurityCustomizer> webSecurityCustomizers = Collections.emptyList();
-
-	private ClassLoader beanClassLoader;
-
-	@Autowired(required = false)
-	private HttpSecurity httpSecurity;
 
 	@Bean
 	public static DelegatingApplicationListener delegatingApplicationListener() {
@@ -99,14 +92,15 @@ public class WebSecurityConfiguration implements ImportAware, BeanClassLoaderAwa
 	 * @throws Exception
 	 */
 	@Bean(name = AbstractSecurityWebApplicationInitializer.DEFAULT_FILTER_NAME)
-	public Filter springSecurityFilterChain() throws Exception {
+	public Filter springSecurityFilterChain(ObjectProvider<HttpSecurity> provider) throws Exception {
 		boolean hasFilterChain = !this.securityFilterChains.isEmpty();
 		if (!hasFilterChain) {
 			this.webSecurity.addSecurityFilterChainBuilder(() -> {
-				this.httpSecurity.authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated());
-				this.httpSecurity.formLogin(Customizer.withDefaults());
-				this.httpSecurity.httpBasic(Customizer.withDefaults());
-				return this.httpSecurity.build();
+				HttpSecurity httpSecurity = provider.getObject();
+				httpSecurity.authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated());
+				httpSecurity.formLogin(Customizer.withDefaults());
+				httpSecurity.httpBasic(Customizer.withDefaults());
+				return httpSecurity.build();
 			});
 		}
 		for (SecurityFilterChain securityFilterChain : this.securityFilterChains) {
@@ -164,7 +158,6 @@ public class WebSecurityConfiguration implements ImportAware, BeanClassLoaderAwa
 		for (SecurityConfigurer<Filter, WebSecurity> webSecurityConfigurer : webSecurityConfigurers) {
 			this.webSecurity.apply(webSecurityConfigurer);
 		}
-		this.webSecurityConfigurers = webSecurityConfigurers;
 	}
 
 	@Autowired(required = false)
@@ -191,11 +184,6 @@ public class WebSecurityConfiguration implements ImportAware, BeanClassLoaderAwa
 		if (this.webSecurity != null) {
 			this.webSecurity.debug(this.debugEnabled);
 		}
-	}
-
-	@Override
-	public void setBeanClassLoader(ClassLoader classLoader) {
-		this.beanClassLoader = classLoader;
 	}
 
 	/**

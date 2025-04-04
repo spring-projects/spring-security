@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,14 +29,10 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.rememberme.AbstractRememberMeServices;
 import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
 import org.springframework.web.filter.GenericFilterBean;
 
 /**
@@ -133,7 +129,7 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 	}
 
 	public boolean isEnabled() {
-		return this.formLoginEnabled || this.oauth2LoginEnabled || this.saml2LoginEnabled;
+		return this.formLoginEnabled || this.oauth2LoginEnabled || this.saml2LoginEnabled || this.oneTimeTokenEnabled;
 	}
 
 	public void setLogoutSuccessUrl(String logoutSuccessUrl) {
@@ -221,7 +217,7 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 	}
 
 	private String generateLoginPageHtml(HttpServletRequest request, boolean loginError, boolean logoutSuccess) {
-		String errorMsg = loginError ? getLoginErrorMessage(request) : "Invalid credentials";
+		String errorMsg = "Invalid credentials";
 		String contextPath = request.getContextPath();
 
 		return HtmlTemplates.fromTemplate(LOGIN_PAGE_TEMPLATE)
@@ -356,21 +352,6 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 			.withValue("url", contextPath + url)
 			.withValue("clientName", clientName)
 			.render();
-	}
-
-	private String getLoginErrorMessage(HttpServletRequest request) {
-		HttpSession session = request.getSession(false);
-		if (session == null) {
-			return "Invalid credentials";
-		}
-		if (!(session
-			.getAttribute(WebAttributes.AUTHENTICATION_EXCEPTION) instanceof AuthenticationException exception)) {
-			return "Invalid credentials";
-		}
-		if (!StringUtils.hasText(exception.getMessage())) {
-			return "Invalid credentials";
-		}
-		return exception.getMessage();
 	}
 
 	private String renderHiddenInput(String name, String value) {

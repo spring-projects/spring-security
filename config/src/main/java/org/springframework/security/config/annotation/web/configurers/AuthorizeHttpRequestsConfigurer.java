@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@ import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationEventPublisher;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.authorization.AuthorizationManagers;
+import org.springframework.security.authorization.SingleResultAuthorizationManager;
 import org.springframework.security.authorization.SpringAuthorizationEventPublisher;
 import org.springframework.security.config.ObjectPostProcessor;
 import org.springframework.security.config.annotation.web.AbstractRequestMatcherRegistry;
@@ -56,9 +57,6 @@ import org.springframework.util.function.SingletonSupplier;
  */
 public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder<H>>
 		extends AbstractHttpConfigurer<AuthorizeHttpRequestsConfigurer<H>, H> {
-
-	static final AuthorizationManager<RequestAuthorizationContext> permitAllAuthorizationManager = (a,
-			o) -> new AuthorizationDecision(true);
 
 	private final AuthorizationManagerRequestMatcherRegistry registry;
 
@@ -287,7 +285,7 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 		 * customizations
 		 */
 		public AuthorizationManagerRequestMatcherRegistry permitAll() {
-			return access(permitAllAuthorizationManager);
+			return access(SingleResultAuthorizationManager.permitAll());
 		}
 
 		/**
@@ -296,7 +294,7 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 		 * customizations
 		 */
 		public AuthorizationManagerRequestMatcherRegistry denyAll() {
-			return access((a, o) -> new AuthorizationDecision(false));
+			return access(SingleResultAuthorizationManager.denyAll());
 		}
 
 		/**

@@ -38,6 +38,7 @@ import org.springframework.core.ResolvableType;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
+import org.springframework.security.config.annotation.web.RequestMatcherFactory;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractAuthenticationFilterConfigurer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -56,6 +57,7 @@ import org.springframework.security.oauth2.client.endpoint.DefaultAuthorizationC
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
 import org.springframework.security.oauth2.client.oidc.authentication.OidcAuthorizationCodeAuthenticationProvider;
+import org.springframework.security.oauth2.client.oidc.authentication.OidcAuthorizedClientRefreshedEventListener;
 import org.springframework.security.oauth2.client.oidc.session.InMemoryOidcSessionRegistry;
 import org.springframework.security.oauth2.client.oidc.session.OidcSessionInformation;
 import org.springframework.security.oauth2.client.oidc.session.OidcSessionRegistry;
@@ -68,6 +70,7 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.client.web.AuthenticatedPrincipalOAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
+import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizationRequestResolver;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
@@ -81,16 +84,17 @@ import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.jwt.JwtDecoderFactory;
 import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.PortResolver;
 import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.authentication.DelegatingAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.session.SessionAuthenticationException;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
+import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.util.matcher.AndRequestMatcher;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
@@ -347,6 +351,8 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 	public void init(B http) throws Exception {
 		OAuth2LoginAuthenticationFilter authenticationFilter = new OAuth2LoginAuthenticationFilter(
 				this.getClientRegistrationRepository(), this.getAuthorizedClientRepository(), this.loginProcessingUrl);
+		RequestMatcher processUri = RequestMatcherFactory.matcher(this.loginProcessingUrl);
+		authenticationFilter.setRequiresAuthenticationRequestMatcher(processUri);
 		authenticationFilter.setSecurityContextHolderStrategy(getSecurityContextHolderStrategy());
 		this.setAuthenticationFilter(authenticationFilter);
 		super.loginProcessingUrl(this.loginProcessingUrl);
@@ -384,14 +390,26 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 			OAuth2UserService<OidcUserRequest, OidcUser> oidcUserService = getOidcUserService();
 			OidcAuthorizationCodeAuthenticationProvider oidcAuthorizationCodeAuthenticationProvider = new OidcAuthorizationCodeAuthenticationProvider(
 					accessTokenResponseClient, oidcUserService);
+			OidcAuthorizedClientRefreshedEventListener oidcAuthorizedClientRefreshedEventListener = new OidcAuthorizedClientRefreshedEventListener();
+			oidcAuthorizedClientRefreshedEventListener.setUserService(oidcUserService);
+			oidcAuthorizedClientRefreshedEventListener
+				.setApplicationEventPublisher(http.getSharedObject(ApplicationContext.class));
+
 			JwtDecoderFactory<ClientRegistration> jwtDecoderFactory = this.getJwtDecoderFactoryBean();
 			if (jwtDecoderFactory != null) {
 				oidcAuthorizationCodeAuthenticationProvider.setJwtDecoderFactory(jwtDecoderFactory);
+				oidcAuthorizedClientRefreshedEventListener.setJwtDecoderFactory(jwtDecoderFactory);
 			}
 			if (userAuthoritiesMapper != null) {
 				oidcAuthorizationCodeAuthenticationProvider.setAuthoritiesMapper(userAuthoritiesMapper);
+				oidcAuthorizedClientRefreshedEventListener.setAuthoritiesMapper(userAuthoritiesMapper);
 			}
-			http.authenticationProvider(this.postProcess(oidcAuthorizationCodeAuthenticationProvider));
+			oidcAuthorizationCodeAuthenticationProvider = this.postProcess(oidcAuthorizationCodeAuthenticationProvider);
+			http.authenticationProvider(oidcAuthorizationCodeAuthenticationProvider);
+
+			oidcAuthorizedClientRefreshedEventListener = this.postProcess(oidcAuthorizedClientRefreshedEventListener);
+			registerDelegateApplicationListener(oidcAuthorizedClientRefreshedEventListener);
+			configureOidcUserRefreshedEventListener(http);
 		}
 		else {
 			http.authenticationProvider(new OidcAuthenticationRequestChecker());
@@ -401,19 +419,8 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 
 	@Override
 	public void configure(B http) throws Exception {
-		OAuth2AuthorizationRequestRedirectFilter authorizationRequestFilter;
-		if (this.authorizationEndpointConfig.authorizationRequestResolver != null) {
-			authorizationRequestFilter = new OAuth2AuthorizationRequestRedirectFilter(
-					this.authorizationEndpointConfig.authorizationRequestResolver);
-		}
-		else {
-			String authorizationRequestBaseUri = this.authorizationEndpointConfig.authorizationRequestBaseUri;
-			if (authorizationRequestBaseUri == null) {
-				authorizationRequestBaseUri = OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI;
-			}
-			authorizationRequestFilter = new OAuth2AuthorizationRequestRedirectFilter(
-					this.getClientRegistrationRepository(), authorizationRequestBaseUri);
-		}
+		OAuth2AuthorizationRequestRedirectFilter authorizationRequestFilter = new OAuth2AuthorizationRequestRedirectFilter(
+				getAuthorizationRequestResolver());
 		if (this.authorizationEndpointConfig.authorizationRequestRepository != null) {
 			authorizationRequestFilter
 				.setAuthorizationRequestRepository(this.authorizationEndpointConfig.authorizationRequestRepository);
@@ -429,7 +436,8 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		http.addFilter(this.postProcess(authorizationRequestFilter));
 		OAuth2LoginAuthenticationFilter authenticationFilter = this.getAuthenticationFilter();
 		if (this.redirectionEndpointConfig.authorizationResponseBaseUri != null) {
-			authenticationFilter.setFilterProcessesUrl(this.redirectionEndpointConfig.authorizationResponseBaseUri);
+			authenticationFilter.setRequiresAuthenticationRequestMatcher(
+					RequestMatcherFactory.matcher(this.redirectionEndpointConfig.authorizationResponseBaseUri));
 		}
 		if (this.authorizationEndpointConfig.authorizationRequestRepository != null) {
 			authenticationFilter
@@ -441,7 +449,24 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 
 	@Override
 	protected RequestMatcher createLoginProcessingUrlMatcher(String loginProcessingUrl) {
-		return new AntPathRequestMatcher(loginProcessingUrl);
+		return RequestMatcherFactory.matcher(loginProcessingUrl);
+	}
+
+	private OAuth2AuthorizationRequestResolver getAuthorizationRequestResolver() {
+		if (this.authorizationEndpointConfig.authorizationRequestResolver != null) {
+			return this.authorizationEndpointConfig.authorizationRequestResolver;
+		}
+		ClientRegistrationRepository clientRegistrationRepository = this.getClientRegistrationRepository();
+		ResolvableType resolvableType = ResolvableType.forClass(OAuth2AuthorizationRequestResolver.class);
+		OAuth2AuthorizationRequestResolver bean = getBeanOrNull(resolvableType);
+		if (bean != null) {
+			return bean;
+		}
+		String authorizationRequestBaseUri = this.authorizationEndpointConfig.authorizationRequestBaseUri;
+		if (authorizationRequestBaseUri == null) {
+			authorizationRequestBaseUri = OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI;
+		}
+		return new DefaultOAuth2AuthorizationRequestResolver(clientRegistrationRepository, authorizationRequestBaseUri);
 	}
 
 	private ClientRegistrationRepository getClientRegistrationRepository() {
@@ -562,8 +587,8 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 	}
 
 	private AuthenticationEntryPoint getLoginEntryPoint(B http, String providerLoginPage) {
-		RequestMatcher loginPageMatcher = new AntPathRequestMatcher(this.getLoginPage());
-		RequestMatcher faviconMatcher = new AntPathRequestMatcher("/favicon.ico");
+		RequestMatcher loginPageMatcher = RequestMatcherFactory.matcher(this.getLoginPage());
+		RequestMatcher faviconMatcher = RequestMatcherFactory.matcher("/favicon.ico");
 		RequestMatcher defaultEntryPointMatcher = this.getAuthenticationEntryPointMatcher(http);
 		RequestMatcher defaultLoginPageMatcher = new AndRequestMatcher(
 				new OrRequestMatcher(loginPageMatcher, faviconMatcher), defaultEntryPointMatcher);
@@ -571,8 +596,13 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 				new RequestHeaderRequestMatcher("X-Requested-With", "XMLHttpRequest"));
 		RequestMatcher formLoginNotEnabled = getFormLoginNotEnabledRequestMatcher(http);
 		LinkedHashMap<RequestMatcher, AuthenticationEntryPoint> entryPoints = new LinkedHashMap<>();
+		LoginUrlAuthenticationEntryPoint loginUrlEntryPoint = new LoginUrlAuthenticationEntryPoint(providerLoginPage);
+		PortResolver portResolver = getBeanOrNull(ResolvableType.forClass(PortResolver.class));
+		if (portResolver != null) {
+			loginUrlEntryPoint.setPortResolver(portResolver);
+		}
 		entryPoints.put(new AndRequestMatcher(notXRequestedWith, new NegatedRequestMatcher(defaultLoginPageMatcher),
-				formLoginNotEnabled), new LoginUrlAuthenticationEntryPoint(providerLoginPage));
+				formLoginNotEnabled), loginUrlEntryPoint);
 		DelegatingAuthenticationEntryPoint loginEntryPoint = new DelegatingAuthenticationEntryPoint(entryPoints);
 		loginEntryPoint.setDefaultEntryPoint(this.getAuthenticationEntryPoint());
 		return loginEntryPoint;
@@ -606,6 +636,16 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		OidcClientSessionEventListener listener = new OidcClientSessionEventListener();
 		listener.setSessionRegistry(sessionRegistry);
 		registerDelegateApplicationListener(listener);
+	}
+
+	private void configureOidcUserRefreshedEventListener(B http) {
+		OidcUserRefreshedEventListener oidcUserRefreshedEventListener = new OidcUserRefreshedEventListener();
+		oidcUserRefreshedEventListener.setSecurityContextHolderStrategy(this.getSecurityContextHolderStrategy());
+		SecurityContextRepository securityContextRepository = http.getSharedObject(SecurityContextRepository.class);
+		if (securityContextRepository != null) {
+			oidcUserRefreshedEventListener.setSecurityContextRepository(securityContextRepository);
+		}
+		registerDelegateApplicationListener(oidcUserRefreshedEventListener);
 	}
 
 	private void registerDelegateApplicationListener(ApplicationListener<?> delegate) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -152,6 +152,8 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 
 	private final ApplicationContext context;
 
+	private final DPoPAuthenticationConfigurer<H> dPoPAuthenticationConfigurer = new DPoPAuthenticationConfigurer<>();
+
 	private AuthenticationManagerResolver<HttpServletRequest> authenticationManagerResolver;
 
 	private BearerTokenResolver bearerTokenResolver;
@@ -283,6 +285,7 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 		filter.setSecurityContextHolderStrategy(getSecurityContextHolderStrategy());
 		filter = postProcess(filter);
 		http.addFilter(filter);
+		this.dPoPAuthenticationConfigurer.configure(http);
 	}
 
 	private void validateConfiguration() {

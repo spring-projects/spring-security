@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.core.log.LogMessage;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -40,7 +41,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
  */
 public class DefaultLogoutPageGeneratingFilter extends OncePerRequestFilter {
 
-	private RequestMatcher matcher = new AntPathRequestMatcher("/logout", "GET");
+	private RequestMatcher matcher = PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.GET, "/logout");
 
 	private Function<HttpServletRequest, Map<String, String>> resolveHiddenInputs = (request) -> Collections.emptyMap();
 

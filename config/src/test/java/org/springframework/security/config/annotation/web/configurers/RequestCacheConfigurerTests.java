@@ -34,6 +34,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
+import org.springframework.security.config.web.PathPatternRequestMatcherBuilderFactoryBean;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.test.web.servlet.RequestCacheResultMatcher;
@@ -291,6 +292,22 @@ public class RequestCacheConfigurerTests {
 		this.mvc.perform(formLogin(session)).andExpect(redirectedUrl("/"));
 	}
 
+	@Test
+	public void getWhenPathPatternFactoryBeanThenFaviconIcoRedirectsToRoot() throws Exception {
+		this.spring
+			.register(RequestCacheDefaultsConfig.class, DefaultSecurityConfig.class, PathPatternFactoryBeanConfig.class)
+			.autowire();
+		// @formatter:off
+		MockHttpSession session = (MockHttpSession) this.mvc.perform(get("/favicon.ico"))
+				.andExpect(redirectedUrl("http://localhost/login"))
+				.andReturn()
+				.getRequest()
+				.getSession();
+		// @formatter:on
+		// ignores favicon.ico
+		this.mvc.perform(formLogin(session)).andExpect(redirectedUrl("/"));
+	}
+
 	private static RequestBuilder formLogin(MockHttpSession session) {
 		// @formatter:off
 		return post("/login")
@@ -466,6 +483,17 @@ public class RequestCacheConfigurerTests {
 					.build()
 			);
 			// @formatter:on
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	static class PathPatternFactoryBeanConfig {
+
+		@Bean
+		PathPatternRequestMatcherBuilderFactoryBean factoryBean() {
+			return new PathPatternRequestMatcherBuilderFactoryBean();
 		}
 
 	}

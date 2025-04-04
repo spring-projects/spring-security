@@ -214,6 +214,71 @@ public class OAuth2AuthorizedClientMixinTests {
 		assertThat(authorizedClient.getRefreshToken()).isNull();
 	}
 
+	@Test
+	void deserializeWhenClientSettingsPropertyDoesNotExistThenDefaulted() throws JsonProcessingException {
+		// ClientRegistration.clientSettings was added later, so old values will be
+		// serialized without that property
+		// this test checks for passivity
+		ClientRegistration clientRegistration = this.clientRegistrationBuilder.build();
+		ClientRegistration.ProviderDetails providerDetails = clientRegistration.getProviderDetails();
+		ClientRegistration.ProviderDetails.UserInfoEndpoint userInfoEndpoint = providerDetails.getUserInfoEndpoint();
+		String scopes = "";
+		if (!CollectionUtils.isEmpty(clientRegistration.getScopes())) {
+			scopes = StringUtils.collectionToDelimitedString(clientRegistration.getScopes(), ",", "\"", "\"");
+		}
+		String configurationMetadata = "\"@class\": \"java.util.Collections$UnmodifiableMap\"";
+		if (!CollectionUtils.isEmpty(providerDetails.getConfigurationMetadata())) {
+			configurationMetadata += "," + providerDetails.getConfigurationMetadata()
+				.keySet()
+				.stream()
+				.map((key) -> "\"" + key + "\": \"" + providerDetails.getConfigurationMetadata().get(key) + "\"")
+				.collect(Collectors.joining(","));
+		}
+		// @formatter:off
+		String json = "{\n" +
+				"    \"@class\": \"org.springframework.security.oauth2.client.registration.ClientRegistration\",\n" +
+				"    \"registrationId\": \"" + clientRegistration.getRegistrationId() + "\",\n" +
+				"    \"clientId\": \"" + clientRegistration.getClientId() + "\",\n" +
+				"    \"clientSecret\": \"" + clientRegistration.getClientSecret() + "\",\n" +
+				"    \"clientAuthenticationMethod\": {\n" +
+				"      \"value\": \"" + clientRegistration.getClientAuthenticationMethod().getValue() + "\"\n" +
+				"    },\n" +
+				"    \"authorizationGrantType\": {\n" +
+				"      \"value\": \"" + clientRegistration.getAuthorizationGrantType().getValue() + "\"\n" +
+				"    },\n" +
+				"    \"redirectUri\": \"" + clientRegistration.getRedirectUri() + "\",\n" +
+				"    \"scopes\": [\n" +
+				"      \"java.util.Collections$UnmodifiableSet\",\n" +
+				"      [" + scopes + "]\n" +
+				"    ],\n" +
+				"    \"providerDetails\": {\n" +
+				"      \"@class\": \"org.springframework.security.oauth2.client.registration.ClientRegistration$ProviderDetails\",\n" +
+				"      \"authorizationUri\": \"" + providerDetails.getAuthorizationUri() + "\",\n" +
+				"      \"tokenUri\": \"" + providerDetails.getTokenUri() + "\",\n" +
+				"      \"userInfoEndpoint\": {\n" +
+				"        \"@class\": \"org.springframework.security.oauth2.client.registration.ClientRegistration$ProviderDetails$UserInfoEndpoint\",\n" +
+				"        \"uri\": " + ((userInfoEndpoint.getUri() != null) ? "\"" + userInfoEndpoint.getUri() + "\"" : null) + ",\n" +
+				"        \"authenticationMethod\": {\n" +
+				"          \"value\": \"" + userInfoEndpoint.getAuthenticationMethod().getValue() + "\"\n" +
+				"        },\n" +
+				"        \"userNameAttributeName\": " + ((userInfoEndpoint.getUserNameAttributeName() != null) ? "\"" + userInfoEndpoint.getUserNameAttributeName() + "\"" : null) + "\n" +
+				"      },\n" +
+				"      \"jwkSetUri\": " + ((providerDetails.getJwkSetUri() != null) ? "\"" + providerDetails.getJwkSetUri() + "\"" : null) + ",\n" +
+				"      \"issuerUri\": " + ((providerDetails.getIssuerUri() != null) ? "\"" + providerDetails.getIssuerUri() + "\"" : null) + ",\n" +
+				"      \"configurationMetadata\": {\n" +
+				"        " + configurationMetadata + "\n" +
+				"      }\n" +
+				"    },\n" +
+				"    \"clientName\": \"" + clientRegistration.getClientName() + "\"\n" +
+				"}";
+		// @formatter:on
+		// validate the test input
+		assertThat(json).doesNotContain("clientSettings");
+		ClientRegistration registration = this.mapper.readValue(json, ClientRegistration.class);
+		// the default value of requireProofKey is false
+		assertThat(registration.getClientSettings().isRequireProofKey()).isFalse();
+	}
+
 	private static String asJson(OAuth2AuthorizedClient authorizedClient) {
 		// @formatter:off
 		return "{\n" +
@@ -276,7 +341,10 @@ public class OAuth2AuthorizedClientMixinTests {
 				"        " + configurationMetadata + "\n" +
 				"      }\n" +
 				"    },\n" +
-				"    \"clientName\": \"" + clientRegistration.getClientName() + "\"\n" +
+				"    \"clientName\": \"" + clientRegistration.getClientName() + "\",\n" +
+				"    \"clientSettings\": {\n" +
+				"      \"requireProofKey\": " + clientRegistration.getClientSettings().isRequireProofKey() + "\n" +
+				"    }\n" +
 				"}";
 		// @formatter:on
 	}

@@ -36,6 +36,7 @@ dependencies {
 	api 'org.springframework:spring-web'
 
 	optional 'com.fasterxml.jackson.core:jackson-databind'
+	optional 'io.micrometer:context-propagation'
 	optional 'io.projectreactor:reactor-core'
 	optional 'org.springframework:spring-jdbc'
 	optional 'org.springframework:spring-tx'

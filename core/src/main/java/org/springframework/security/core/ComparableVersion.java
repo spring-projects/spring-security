@@ -415,7 +415,7 @@ class ComparableVersion implements Comparable<ComparableVersion> {
 
 		@Override
 		public boolean isNull() {
-			return (size() == 0);
+			return isEmpty();
 		}
 
 		void normalize() {
@@ -435,7 +435,7 @@ class ComparableVersion implements Comparable<ComparableVersion> {
 		@Override
 		public int compareTo(Item item) {
 			if (item == null) {
-				if (size() == 0) {
+				if (isEmpty()) {
 					return 0; // 1-0 = 1- (normalize) = 1
 				}
 				Item first = get(0);

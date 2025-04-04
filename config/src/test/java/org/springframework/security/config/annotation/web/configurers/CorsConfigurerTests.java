@@ -70,7 +70,8 @@ public class CorsConfigurerTests {
 		assertThatExceptionOfType(BeanCreationException.class)
 			.isThrownBy(() -> this.spring.register(DefaultCorsConfig.class).autowire())
 			.withMessageContaining(
-					"Please ensure Spring Security & Spring MVC are configured in a shared ApplicationContext");
+					"Please ensure that you are using `@EnableWebMvc`, are publishing a `WebMvcConfigurer`, "
+							+ "or are publishing a `CorsConfigurationSource` bean.");
 	}
 
 	@Test

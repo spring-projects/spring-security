@@ -1,0 +1,60 @@
+= Saml 2.0 Migrations
+
+== Continue Filter Chain When No Relying Party Found
+
+In Spring Security 6, `Saml2WebSsoAuthenticationFilter` throws an exception when the request URI matches, but no relying party registration is found.
+
+There are a number of cases when an application would not consider this an error situation.
+For example, this filter doesn't know how the `AuthorizationFilter` will respond to a missing relying party.
+In some cases it may be allowable.
+
+In other cases, you may want your `AuthenticationEntryPoint` to be invoked, which would happen if this filter were to allow the request to continue to the `AuthorizationFilter`.
+
+To improve this filter's flexibility, in Spring Security 7 it will continue the filter chain when there is no relying party registration found instead of throwing an exception.
+
+For many applications, the only notable change will be that your `authenticationEntryPoint` will be invoked if the relying party registration cannot be found.
+When you have only one asserting party, this means by default a new authentication request will be built and sent back to the asserting party, which may cause a "Too Many Redirects" loop.
+
+To see if you are affected in this way, you can prepare for this change in 6 by setting the following property in `Saml2WebSsoAuthenticationFilter`:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+http
+    .saml2Login((saml2) -> saml2
+        .withObjectPostProcessor(new ObjectPostProcessor<Saml2WebSsoAuhenticaionFilter>() {
+			@Override
+            public Saml2WebSsoAuthenticationFilter postProcess(Saml2WebSsoAuthenticationFilter filter) {
+				filter.setContinueChainWhenNoRelyingPartyRegistrationFound(true);
+				return filter;
+            }
+        })
+    )
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+http {
+    saml2Login { }
+    withObjectPostProcessor(
+        object : ObjectPostProcessor<Saml2WebSsoAuhenticaionFilter?>() {
+            override fun postProcess(filter: Saml2WebSsoAuthenticationFilter): Saml2WebSsoAuthenticationFilter {
+            filter.setContinueChainWhenNoRelyingPartyRegistrationFound(true)
+            return filter
+        }
+    })
+}
+----
+
+Xml::
++
+[source,xml,role="secondary"]
+----
+<b:bean id="saml2PostProcessor" class="org.example.MySaml2WebSsoAuthenticationFilterBeanPostProcessor"/>
+----
+======

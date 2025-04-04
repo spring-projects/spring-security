@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,13 +34,16 @@ import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
 
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.ReactiveAuthenticationManagerResolver;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.jose.TestKeys;
 import org.springframework.security.oauth2.jwt.JwtClaimNames;
+import org.springframework.security.oauth2.server.resource.InvalidBearerTokenException;
 import org.springframework.security.oauth2.server.resource.authentication.JwtIssuerReactiveAuthenticationManagerResolver.TrustedIssuerJwtAuthenticationManagerResolver;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -260,6 +263,20 @@ public class JwtIssuerReactiveAuthenticationManagerResolverTests {
 						.block())
 				.withMessage("Invalid token");
 		// @formatter:on
+	}
+
+	@Test
+	public void resolveWhenAuthenticationExceptionThenAuthenticationRequestIsIncluded() {
+		Authentication authentication = new BearerTokenAuthenticationToken(this.jwt);
+		AuthenticationException ex = new InvalidBearerTokenException("");
+		ReactiveAuthenticationManager manager = mock(ReactiveAuthenticationManager.class);
+		given(manager.authenticate(any())).willReturn(Mono.error(ex));
+		JwtIssuerReactiveAuthenticationManagerResolver resolver = new JwtIssuerReactiveAuthenticationManagerResolver(
+				(issuer) -> Mono.just(manager));
+		StepVerifier.create(resolver.resolve(null).block().authenticate(authentication))
+			.expectError(InvalidBearerTokenException.class)
+			.verify();
+		assertThat(ex.getAuthenticationRequest()).isEqualTo(authentication);
 	}
 
 	@Test

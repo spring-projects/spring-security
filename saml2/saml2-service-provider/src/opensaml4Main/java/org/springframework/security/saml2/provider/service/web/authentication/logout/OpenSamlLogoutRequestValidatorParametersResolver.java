@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ import org.springframework.security.saml2.provider.service.registration.RelyingP
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
 import org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding;
 import org.springframework.security.saml2.provider.service.web.RelyingPartyRegistrationPlaceholderResolvers;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
@@ -59,8 +59,8 @@ public final class OpenSamlLogoutRequestValidatorParametersResolver
 	}
 
 	private RequestMatcher requestMatcher = new OrRequestMatcher(
-			new AntPathRequestMatcher("/logout/saml2/slo/{registrationId}"),
-			new AntPathRequestMatcher("/logout/saml2/slo"));
+			PathPatternRequestMatcher.withDefaults().matcher("/logout/saml2/slo/{registrationId}"),
+			PathPatternRequestMatcher.withDefaults().matcher("/logout/saml2/slo"));
 
 	private final OpenSamlOperations saml = new OpenSaml4Template();
 

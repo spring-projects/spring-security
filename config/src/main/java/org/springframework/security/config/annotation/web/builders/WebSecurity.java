@@ -65,7 +65,6 @@ import org.springframework.security.web.firewall.HttpStatusRequestRejectedHandle
 import org.springframework.security.web.firewall.ObservationMarkingRequestRejectedHandler;
 import org.springframework.security.web.firewall.RequestRejectedHandler;
 import org.springframework.security.web.firewall.StrictHttpFirewall;
-import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcherEntry;
 import org.springframework.util.Assert;
@@ -310,20 +309,8 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 			requestMatcherPrivilegeEvaluatorsEntries
 				.add(getRequestMatcherPrivilegeEvaluatorsEntry(securityFilterChain));
 		}
-		DefaultSecurityFilterChain anyRequestFilterChain = null;
 		for (SecurityBuilder<? extends SecurityFilterChain> securityFilterChainBuilder : this.securityFilterChainBuilders) {
 			SecurityFilterChain securityFilterChain = securityFilterChainBuilder.build();
-			if (anyRequestFilterChain != null) {
-				String message = "A filter chain that matches any request [" + anyRequestFilterChain
-						+ "] has already been configured, which means that this filter chain [" + securityFilterChain
-						+ "] will never get invoked. Please use `HttpSecurity#securityMatcher` to ensure that there is only one filter chain configured for 'any request' and that the 'any request' filter chain is published last.";
-				throw new IllegalArgumentException(message);
-			}
-			if (securityFilterChain instanceof DefaultSecurityFilterChain defaultSecurityFilterChain) {
-				if (defaultSecurityFilterChain.getRequestMatcher() instanceof AnyRequestMatcher) {
-					anyRequestFilterChain = defaultSecurityFilterChain;
-				}
-			}
 			securityFilterChains.add(securityFilterChain);
 			requestMatcherPrivilegeEvaluatorsEntries
 				.add(getRequestMatcherPrivilegeEvaluatorsEntry(securityFilterChain));
@@ -345,6 +332,7 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 					new HttpStatusRequestRejectedHandler());
 			filterChainProxy.setRequestRejectedHandler(requestRejectedHandler);
 		}
+		filterChainProxy.setFilterChainValidator(new WebSecurityFilterChainValidator());
 		filterChainProxy.setFilterChainDecorator(getFilterChainDecorator());
 		filterChainProxy.afterPropertiesSet();
 

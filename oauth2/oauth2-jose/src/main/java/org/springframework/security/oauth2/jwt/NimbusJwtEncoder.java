@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,6 +46,7 @@ import com.nimbusds.jose.util.Base64URL;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
@@ -86,6 +87,14 @@ public final class NimbusJwtEncoder implements JwtEncoder {
 
 	private final JWKSource<SecurityContext> jwkSource;
 
+	private Converter<List<JWK>, JWK> jwkSelector = (jwks) -> {
+		throw new JwtEncodingException(
+				String.format(
+						"Failed to select a key since there are multiple for the signing algorithm [%s]; "
+								+ "please specify a selector in NimbusJwsEncoder#setJwkSelector",
+						jwks.get(0).getAlgorithm()));
+	};
+
 	/**
 	 * Constructs a {@code NimbusJwtEncoder} using the provided parameters.
 	 * @param jwkSource the {@code com.nimbusds.jose.jwk.source.JWKSource}
@@ -93,6 +102,21 @@ public final class NimbusJwtEncoder implements JwtEncoder {
 	public NimbusJwtEncoder(JWKSource<SecurityContext> jwkSource) {
 		Assert.notNull(jwkSource, "jwkSource cannot be null");
 		this.jwkSource = jwkSource;
+	}
+
+	/**
+	 * Use this strategy to reduce the list of matching JWKs when there is more than one.
+	 * <p>
+	 * For example, you can call {@code setJwkSelector(List::getFirst)} in order to have
+	 * this encoder select the first match.
+	 *
+	 * <p>
+	 * By default, the class with throw an exception.
+	 * @since 6.5
+	 */
+	public void setJwkSelector(Converter<List<JWK>, JWK> jwkSelector) {
+		Assert.notNull(jwkSelector, "jwkSelector cannot be null");
+		this.jwkSelector = jwkSelector;
 	}
 
 	@Override
@@ -123,18 +147,14 @@ public final class NimbusJwtEncoder implements JwtEncoder {
 			throw new JwtEncodingException(String.format(ENCODING_ERROR_MESSAGE_TEMPLATE,
 					"Failed to select a JWK signing key -> " + ex.getMessage()), ex);
 		}
-
-		if (jwks.size() > 1) {
-			throw new JwtEncodingException(String.format(ENCODING_ERROR_MESSAGE_TEMPLATE,
-					"Found multiple JWK signing keys for algorithm '" + headers.getAlgorithm().getName() + "'"));
-		}
-
 		if (jwks.isEmpty()) {
 			throw new JwtEncodingException(
 					String.format(ENCODING_ERROR_MESSAGE_TEMPLATE, "Failed to select a JWK signing key"));
 		}
-
-		return jwks.get(0);
+		if (jwks.size() == 1) {
+			return jwks.get(0);
+		}
+		return this.jwkSelector.convert(jwks);
 	}
 
 	private String serialize(JwsHeader headers, JwtClaimsSet claims, JWK jwk) {

@@ -243,7 +243,7 @@ public abstract class OnCommittedResponseWrapper extends HttpServletResponseWrap
 	}
 
 	/**
-	 * Calls <code>onResponseCommmitted()</code> with the current contents as long as
+	 * Calls <code>onResponseCommitted()</code> with the current contents as long as
 	 * {@link #disableOnResponseCommitted()} was not invoked.
 	 */
 	private void doOnResponseCommitted() {

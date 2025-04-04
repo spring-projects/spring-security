@@ -22,6 +22,13 @@ image:{icondir}/number_3.png[] Since the user is not authenticated, xref:servlet
 The configured xref:servlet/authentication/architecture.adoc#servlet-authentication-authenticationentrypoint[`AuthenticationEntryPoint`] is an instance of javadoc:org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint[], which sends a WWW-Authenticate header.
 The `RequestCache` is typically a `NullRequestCache` that does not save the request since the client is capable of replaying the requests it originally requested.
 
+[NOTE]
+====
+The default HTTP Basic Auth Provider will suppress both Response body and `WWW-Authenticate` header in the 401 response when the request was made with a `X-Requested-By: XMLHttpRequest` header.
+This allows frontends to implement their own authentication code, instead of triggering the browser login dialog.
+To override, implement your own javadoc:org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint[].
+====
+
 When a client receives the `WWW-Authenticate` header, it knows it should retry with a username and password.
 The following image shows the flow for the username and password being processed:
 
@@ -36,7 +43,7 @@ The preceding figure builds off our xref:servlet/architecture.adoc#servlet-secur
 image:{icondir}/number_1.png[] When the user submits their username and password, the `BasicAuthenticationFilter` creates a `UsernamePasswordAuthenticationToken`, which is a type of xref:servlet/authentication/architecture.adoc#servlet-authentication-authentication[`Authentication`] by extracting the username and password from the `HttpServletRequest`.
 
 image:{icondir}/number_2.png[] Next, the `UsernamePasswordAuthenticationToken` is passed into the `AuthenticationManager` to be authenticated.
-The details of what `AuthenticationManager` looks like depend on how the xref:servlet/authentication/passwords/index.adoc#servlet-authentication-unpwd-storage[user information is stored].
+The details of what `AuthenticationManager` looks like depend on how the xref:servlet/authentication/passwords/index.adoc#servlet-authentication-unpwd[user information is stored].
 
 image:{icondir}/number_3.png[] If authentication fails, then __Failure__.
 

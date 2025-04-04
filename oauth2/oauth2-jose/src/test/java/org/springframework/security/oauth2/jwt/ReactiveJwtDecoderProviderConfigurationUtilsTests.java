@@ -37,6 +37,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -225,6 +226,18 @@ public class ReactiveJwtDecoderProviderConfigurationUtilsTests {
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> ReactiveJwtDecoderProviderConfigurationUtils.getConfigurationForIssuerLocation("https://issuer", this.web).block());
 		// @formatter:on
+	}
+
+	// gh-15852
+	@Test
+	public void oidcWhenHostContainsUnderscoreThenRetains() {
+		UriComponents oidc = ReactiveJwtDecoderProviderConfigurationUtils.oidc("https://elated_sutherland:8080/path");
+		assertThat(oidc.getHost()).isEqualTo("elated_sutherland");
+		UriComponents oauth = ReactiveJwtDecoderProviderConfigurationUtils.oauth("https://elated_sutherland:8080/path");
+		assertThat(oauth.getHost()).isEqualTo("elated_sutherland");
+		UriComponents oidcRfc8414 = ReactiveJwtDecoderProviderConfigurationUtils
+			.oidcRfc8414("https://elated_sutherland:8080/path");
+		assertThat(oidcRfc8414.getHost()).isEqualTo("elated_sutherland");
 	}
 
 	private void prepareConfigurationResponse() {

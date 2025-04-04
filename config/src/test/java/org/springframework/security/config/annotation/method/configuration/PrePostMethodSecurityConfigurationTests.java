@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,11 +51,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.AdviceMode;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Role;
+import org.springframework.context.event.EventListener;
+import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 import org.springframework.core.annotation.AnnotationConfigurationException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.PermissionEvaluator;
@@ -76,6 +79,8 @@ import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationEventPublisher;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.authorization.AuthorizationResult;
+import org.springframework.security.authorization.SpringAuthorizationEventPublisher;
+import org.springframework.security.authorization.event.AuthorizationDeniedEvent;
 import org.springframework.security.authorization.method.AuthorizationAdvisor;
 import org.springframework.security.authorization.method.AuthorizationAdvisorProxyFactory;
 import org.springframework.security.authorization.method.AuthorizationAdvisorProxyFactory.TargetVisitor;
@@ -1103,6 +1108,32 @@ public class PrePostMethodSecurityConfigurationTests {
 		verifyNoInteractions(handler);
 	}
 
+	@Test
+	@WithMockUser
+	public void preAuthorizeWhenDenyAllThenPublishesParameterizedAuthorizationDeniedEvent() {
+		this.spring
+			.register(MethodSecurityServiceConfig.class, EventPublisherConfig.class, AuthorizationDeniedListener.class)
+			.autowire();
+		assertThatExceptionOfType(AccessDeniedException.class)
+			.isThrownBy(() -> this.methodSecurityService.preAuthorize());
+		assertThat(this.spring.getContext().getBean(AuthorizationDeniedListener.class).invocations).isEqualTo(1);
+	}
+
+	// gh-16819
+	@Test
+	void autowireWhenDefaultsThenAdvisorAnnotationsAreSorted() {
+		this.spring.register(MethodSecurityServiceConfig.class).autowire();
+		AuthorizationAdvisorProxyFactory proxyFactory = this.spring.getContext()
+			.getBean(AuthorizationAdvisorProxyFactory.class);
+		AnnotationAwareOrderComparator comparator = AnnotationAwareOrderComparator.INSTANCE;
+		AuthorizationAdvisor previous = null;
+		for (AuthorizationAdvisor advisor : proxyFactory) {
+			boolean ordered = previous == null || comparator.compare(previous, advisor) < 0;
+			assertThat(ordered).isTrue();
+			previous = advisor;
+		}
+	}
+
 	private static Consumer<ConfigurableWebApplicationContext> disallowBeanOverriding() {
 		return (context) -> ((AnnotationConfigWebApplicationContext) context).setAllowBeanDefinitionOverriding(false);
 	}
@@ -1791,6 +1822,28 @@ public class PrePostMethodSecurityConfigurationTests {
 		@Bean
 		SecurityObservationSettings observabilityDefaults() {
 			return SecurityObservationSettings.withDefaults().shouldObserveAuthorizations(false).build();
+		}
+
+	}
+
+	@Configuration
+	static class EventPublisherConfig {
+
+		@Bean
+		static AuthorizationEventPublisher eventPublisher(ApplicationEventPublisher publisher) {
+			return new SpringAuthorizationEventPublisher(publisher);
+		}
+
+	}
+
+	@Component
+	static class AuthorizationDeniedListener {
+
+		int invocations;
+
+		@EventListener
+		void onRequestDenied(AuthorizationDeniedEvent<? extends MethodInvocation> denied) {
+			this.invocations++;
 		}
 
 	}

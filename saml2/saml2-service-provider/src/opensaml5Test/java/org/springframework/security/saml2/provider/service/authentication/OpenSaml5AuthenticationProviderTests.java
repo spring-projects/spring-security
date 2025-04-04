@@ -39,11 +39,14 @@ import org.opensaml.core.xml.schema.XSDateTime;
 import org.opensaml.core.xml.schema.impl.XSDateTimeBuilder;
 import org.opensaml.saml.common.SignableSAMLObject;
 import org.opensaml.saml.common.assertion.ValidationContext;
+import org.opensaml.saml.common.assertion.ValidationResult;
+import org.opensaml.saml.saml2.assertion.ConditionValidator;
 import org.opensaml.saml.saml2.assertion.SAML2AssertionValidationParameters;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.Attribute;
 import org.opensaml.saml.saml2.core.AttributeStatement;
 import org.opensaml.saml.saml2.core.AttributeValue;
+import org.opensaml.saml.saml2.core.AudienceRestriction;
 import org.opensaml.saml.saml2.core.Conditions;
 import org.opensaml.saml.saml2.core.EncryptedAssertion;
 import org.opensaml.saml.saml2.core.EncryptedAttribute;
@@ -73,6 +76,7 @@ import org.springframework.security.saml2.core.Saml2Error;
 import org.springframework.security.saml2.core.Saml2ErrorCodes;
 import org.springframework.security.saml2.core.Saml2ResponseValidatorResult;
 import org.springframework.security.saml2.core.TestSaml2X509Credentials;
+import org.springframework.security.saml2.provider.service.authentication.OpenSaml5AuthenticationProvider.AssertionValidator;
 import org.springframework.security.saml2.provider.service.authentication.OpenSaml5AuthenticationProvider.ResponseToken;
 import org.springframework.security.saml2.provider.service.authentication.TestCustomOpenSaml5Objects.CustomOpenSamlObject;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
@@ -554,6 +558,25 @@ public class OpenSaml5AuthenticationProviderTests {
 			.willReturn(Saml2ResponseValidatorResult.success());
 		provider.authenticate(token);
 		verify(validator).convert(any(OpenSaml5AuthenticationProvider.AssertionToken.class));
+	}
+
+	@Test
+	public void authenticateWhenAssertionValidatorListThenUses() throws Exception {
+		ConditionValidator custom = mock(ConditionValidator.class);
+		given(custom.getServicedCondition()).willReturn(AudienceRestriction.DEFAULT_ELEMENT_NAME);
+		given(custom.validate(any(), any(), any())).willReturn(ValidationResult.INVALID);
+		AssertionValidator validator = AssertionValidator.builder().conditionValidators((c) -> c.add(custom)).build();
+		OpenSaml5AuthenticationProvider provider = new OpenSaml5AuthenticationProvider();
+		provider.setAssertionValidator(validator);
+		Response response = TestOpenSamlObjects.signedResponseWithOneAssertion((r) -> r.getAssertions()
+			.get(0)
+			.getConditions()
+			.getConditions()
+			.add(build(AudienceRestriction.DEFAULT_ELEMENT_NAME)));
+		Saml2AuthenticationToken token = token(response, verifying(registration()));
+		assertThatExceptionOfType(Saml2AuthenticationException.class).isThrownBy(() -> provider.authenticate(token))
+			.withMessageContaining("AudienceRestriction");
+		verify(custom).validate(any(), any(), any());
 	}
 
 	@Test

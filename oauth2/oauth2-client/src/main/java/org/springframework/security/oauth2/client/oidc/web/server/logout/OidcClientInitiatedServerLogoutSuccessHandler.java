@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import java.util.Map;
 
 import reactor.core.publisher.Mono;
 
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
@@ -35,6 +36,7 @@ import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.security.web.server.authentication.logout.RedirectServerLogoutSuccessHandler;
 import org.springframework.security.web.server.authentication.logout.ServerLogoutSuccessHandler;
 import org.springframework.util.Assert;
+import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -49,13 +51,15 @@ import org.springframework.web.util.UriComponentsBuilder;
  */
 public class OidcClientInitiatedServerLogoutSuccessHandler implements ServerLogoutSuccessHandler {
 
-	private final ServerRedirectStrategy redirectStrategy = new DefaultServerRedirectStrategy();
+	private ServerRedirectStrategy redirectStrategy = new DefaultServerRedirectStrategy();
 
 	private final RedirectServerLogoutSuccessHandler serverLogoutSuccessHandler = new RedirectServerLogoutSuccessHandler();
 
 	private final ReactiveClientRegistrationRepository clientRegistrationRepository;
 
 	private String postLogoutRedirectUri;
+
+	private Converter<RedirectUriParameters, Mono<String>> redirectUriResolver = new DefaultRedirectUriResolver();
 
 	/**
 	 * Constructs an {@link OidcClientInitiatedServerLogoutSuccessHandler} with the
@@ -79,15 +83,10 @@ public class OidcClientInitiatedServerLogoutSuccessHandler implements ServerLogo
 				.map(OAuth2AuthenticationToken.class::cast)
 				.map(OAuth2AuthenticationToken::getAuthorizedClientRegistrationId)
 				.flatMap(this.clientRegistrationRepository::findByRegistrationId)
-				.flatMap((clientRegistration) -> {
-					URI endSessionEndpoint = endSessionEndpoint(clientRegistration);
-					if (endSessionEndpoint == null) {
-						return Mono.empty();
-					}
-					String idToken = idToken(authentication);
-					String postLogoutRedirectUri = postLogoutRedirectUri(exchange.getExchange().getRequest(), clientRegistration);
-					return Mono.just(endpointUri(endSessionEndpoint, idToken, postLogoutRedirectUri));
-				})
+				.flatMap((clientRegistration) ->
+					this.redirectUriResolver.convert(
+							new RedirectUriParameters(exchange.getExchange(), authentication, clientRegistration))
+				)
 				.switchIfEmpty(
 						this.serverLogoutSuccessHandler.onLogoutSuccess(exchange, authentication).then(Mono.empty())
 				)
@@ -187,6 +186,92 @@ public class OidcClientInitiatedServerLogoutSuccessHandler implements ServerLogo
 	public void setLogoutSuccessUrl(URI logoutSuccessUrl) {
 		Assert.notNull(logoutSuccessUrl, "logoutSuccessUrl cannot be null");
 		this.serverLogoutSuccessHandler.setLogoutSuccessUrl(logoutSuccessUrl);
+	}
+
+	/**
+	 * Set the {@link Converter} that converts {@link RedirectUriParameters} to redirect
+	 * URI
+	 * @param redirectUriResolver {@link Converter}
+	 * @since 6.5
+	 */
+	public void setRedirectUriResolver(Converter<RedirectUriParameters, Mono<String>> redirectUriResolver) {
+		Assert.notNull(redirectUriResolver, "redirectUriResolver cannot be null");
+		this.redirectUriResolver = redirectUriResolver;
+	}
+
+	/**
+	 * Set the {@link ServerRedirectStrategy} to use, default
+	 * {@link DefaultServerRedirectStrategy}
+	 * @param redirectStrategy {@link ServerRedirectStrategy}
+	 * @since 6.5
+	 */
+	public void setRedirectStrategy(ServerRedirectStrategy redirectStrategy) {
+		Assert.notNull(redirectStrategy, "redirectStrategy cannot be null");
+		this.redirectStrategy = redirectStrategy;
+	}
+
+	/**
+	 * Parameters, required for redirect URI resolving.
+	 *
+	 * @author Max Batischev
+	 * @since 6.5
+	 */
+	public static final class RedirectUriParameters {
+
+		private final ServerWebExchange serverWebExchange;
+
+		private final Authentication authentication;
+
+		private final ClientRegistration clientRegistration;
+
+		public RedirectUriParameters(ServerWebExchange serverWebExchange, Authentication authentication,
+				ClientRegistration clientRegistration) {
+			Assert.notNull(clientRegistration, "clientRegistration cannot be null");
+			Assert.notNull(serverWebExchange, "serverWebExchange cannot be null");
+			Assert.notNull(authentication, "authentication cannot be null");
+			this.serverWebExchange = serverWebExchange;
+			this.authentication = authentication;
+			this.clientRegistration = clientRegistration;
+		}
+
+		public ServerWebExchange getServerWebExchange() {
+			return this.serverWebExchange;
+		}
+
+		public Authentication getAuthentication() {
+			return this.authentication;
+		}
+
+		public ClientRegistration getClientRegistration() {
+			return this.clientRegistration;
+		}
+
+	}
+
+	/**
+	 * Default {@link Converter} for redirect uri resolving.
+	 *
+	 * @since 6.5
+	 */
+	private final class DefaultRedirectUriResolver implements Converter<RedirectUriParameters, Mono<String>> {
+
+		@Override
+		public Mono<String> convert(RedirectUriParameters redirectUriParameters) {
+			// @formatter:off
+			return Mono.just(redirectUriParameters.authentication)
+				.flatMap((authentication) -> {
+					URI endSessionEndpoint = endSessionEndpoint(redirectUriParameters.clientRegistration);
+					if (endSessionEndpoint == null) {
+						return Mono.empty();
+					}
+					String idToken = idToken(authentication);
+					String postLogoutRedirectUri = postLogoutRedirectUri(
+							redirectUriParameters.serverWebExchange.getRequest(), redirectUriParameters.clientRegistration);
+					return Mono.just(endpointUri(endSessionEndpoint, idToken, postLogoutRedirectUri));
+				});
+			// @formatter:on
+		}
+
 	}
 
 }

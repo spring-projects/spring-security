@@ -192,6 +192,64 @@ open class SecurityConfig {
 ----
 ======
 
+If you are using xref:servlet/saml2/opensaml.adoc[OpenSAML 5], then we have a simpler way, using `OpenSaml5AuthenticationProvider.AssertionValidator`:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig {
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        OpenSaml5AuthenticationProvider authenticationProvider = new OpenSaml5AuthenticationProvider();
+        AssertionValidator assertionValidator = AssertionValidator.builder()
+                .clockSkew(Duration.ofMinutes(10)).build();
+		authenticationProvider.setAssertionValidator(assertionValidator);
+        http
+            .authorizeHttpRequests(authz -> authz
+                .anyRequest().authenticated()
+            )
+            .saml2Login(saml2 -> saml2
+                .authenticationManager(new ProviderManager(authenticationProvider))
+            );
+        return http.build();
+	}
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+
+
+@Configuration @EnableWebSecurity
+class SecurityConfig {
+    @Bean
+    @Throws(Exception::class)
+    fun filterChain(http: HttpSecurity): SecurityFilterChain {
+        val authenticationProvider = OpenSaml5AuthenticationProvider()
+        val assertionValidator = AssertionValidator.builder().clockSkew(Duration.ofMinutes(10)).build()
+        authenticationProvider.setAssertionValidator(assertionValidator)
+        http {
+            authorizeHttpRequests {
+                authorize(anyRequest, authenticated)
+            }
+            saml2Login {
+                authenticationManager = ProviderManager(authenticationProvider)
+            }
+        }
+        return http.build()
+    }
+}
+----
+======
+
 [[servlet-saml2login-opensamlauthenticationprovider-userdetailsservice]]
 == Coordinating with a `UserDetailsService`
 
@@ -367,6 +425,60 @@ provider.setAssertionValidator { assertionToken ->
 [NOTE]
 While recommended, it's not necessary to call ``OpenSaml4AuthenticationProvider``'s default assertion validator.
 A circumstance where you would skip it would be if you don't need it to check the `<AudienceRestriction>` or the `<SubjectConfirmation>` since you are doing those yourself.
+
+If you are using xref:servlet/saml2/opensaml.adoc[OpenSAML 5], then we have a simpler way using `OpenSaml5AuthenticationProvider.AssertionValidator`:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+OpenSaml5AuthenticationProvider provider = new OpenSaml5AuthenticationProvider();
+OneTimeUseConditionValidator validator = ...;
+AssertionValidator assertionValidator = AssertionValidator.builder()
+        .conditionValidators((c) -> c.add(validator)).build();
+provider.setAssertionValidator(assertionValidator);
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+val provider = OpenSaml5AuthenticationProvider()
+val validator: OneTimeUseConditionValidator = ...;
+val assertionValidator = AssertionValidator.builder()
+        .conditionValidators { add(validator) }.build()
+provider.setAssertionValidator(assertionValidator)
+----
+======
+
+You can use this same builder to remove validators that you don't want to use like so:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+OpenSaml5AuthenticationProvider provider = new OpenSaml5AuthenticationProvider();
+AssertionValidator assertionValidator = AssertionValidator.builder()
+        .conditionValidators((c) -> c.removeIf(AudienceRestrictionValidator.class::isInstance)).build();
+provider.setAssertionValidator(assertionValidator);
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+val provider = new OpenSaml5AuthenticationProvider()
+val assertionValidator = AssertionValidator.builder()
+        .conditionValidators {
+			c: List<ConditionValidator> -> c.removeIf { it is AudienceRestrictionValidator }
+        }.build()
+provider.setAssertionValidator(assertionValidator)
+----
+======
 
 [[servlet-saml2login-opensamlauthenticationprovider-decryption]]
 == Customizing Decryption

@@ -383,6 +383,19 @@ public class OAuth2LoginConfigurerTests {
 	}
 
 	@Test
+	public void oauth2LoginWithCustomAuthorizationRequestParametersAndResolverAsBean() throws Exception {
+		loadConfig(OAuth2LoginConfigCustomAuthorizationRequestResolverBean.class);
+		// @formatter:off
+		// @formatter:on
+		String requestUri = "/oauth2/authorization/google";
+		this.request = new MockHttpServletRequest("GET", requestUri);
+		this.request.setServletPath(requestUri);
+		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
+		assertThat(this.response.getRedirectedUrl()).isEqualTo(
+				"https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=clientId&scope=openid+profile+email&state=state&redirect_uri=http%3A%2F%2Flocalhost%2Flogin%2Foauth2%2Fcode%2Fgoogle&custom-param1=custom-value1");
+	}
+
+	@Test
 	public void requestWhenOauth2LoginWithCustomAuthorizationRequestParametersThenParametersInRedirectedUrl()
 			throws Exception {
 		loadConfig(OAuth2LoginConfigCustomAuthorizationRequestResolverInLambda.class);
@@ -963,6 +976,42 @@ public class OAuth2LoginConfigurerTests {
 						.authorizationRequestResolver(this.resolver);
 			// @formatter:on
 			return super.configureFilterChain(http);
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	static class OAuth2LoginConfigCustomAuthorizationRequestResolverBean extends CommonSecurityFilterChainConfig {
+
+		private ClientRegistrationRepository clientRegistrationRepository = new InMemoryClientRegistrationRepository(
+				GOOGLE_CLIENT_REGISTRATION);
+
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+					.oauth2Login()
+					.clientRegistrationRepository(this.clientRegistrationRepository)
+					.authorizationEndpoint();
+			// @formatter:on
+			return super.configureFilterChain(http);
+		}
+
+		@Bean
+		OAuth2AuthorizationRequestResolver resolver() {
+			OAuth2AuthorizationRequestResolver resolver = mock(OAuth2AuthorizationRequestResolver.class);
+			// @formatter:off
+			OAuth2AuthorizationRequest result = OAuth2AuthorizationRequest.authorizationCode()
+					.authorizationUri("https://accounts.google.com/authorize")
+					.clientId("client-id")
+					.state("adsfa")
+					.authorizationRequestUri(
+							"https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=clientId&scope=openid+profile+email&state=state&redirect_uri=http%3A%2F%2Flocalhost%2Flogin%2Foauth2%2Fcode%2Fgoogle&custom-param1=custom-value1")
+					.build();
+			given(resolver.resolve(any())).willReturn(result);
+			// @formatter:on
+			return resolver;
 		}
 
 	}

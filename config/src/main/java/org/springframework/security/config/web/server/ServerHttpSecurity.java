@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -53,6 +54,7 @@ import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.DelegatingReactiveAuthenticationManager;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.ReactiveAuthenticationManagerResolver;
+import org.springframework.security.authentication.ott.GenerateOneTimeTokenRequest;
 import org.springframework.security.authentication.ott.OneTimeToken;
 import org.springframework.security.authentication.ott.reactive.InMemoryReactiveOneTimeTokenService;
 import org.springframework.security.authentication.ott.reactive.OneTimeTokenReactiveAuthenticationManager;
@@ -156,7 +158,9 @@ import org.springframework.security.web.server.authentication.logout.LogoutWebFi
 import org.springframework.security.web.server.authentication.logout.SecurityContextServerLogoutHandler;
 import org.springframework.security.web.server.authentication.logout.ServerLogoutHandler;
 import org.springframework.security.web.server.authentication.logout.ServerLogoutSuccessHandler;
+import org.springframework.security.web.server.authentication.ott.DefaultServerGenerateOneTimeTokenRequestResolver;
 import org.springframework.security.web.server.authentication.ott.GenerateOneTimeTokenWebFilter;
+import org.springframework.security.web.server.authentication.ott.ServerGenerateOneTimeTokenRequestResolver;
 import org.springframework.security.web.server.authentication.ott.ServerOneTimeTokenAuthenticationConverter;
 import org.springframework.security.web.server.authentication.ott.ServerOneTimeTokenGenerationSuccessHandler;
 import org.springframework.security.web.server.authorization.AuthorizationContext;
@@ -3035,7 +3039,8 @@ public class ServerHttpSecurity {
 				return;
 			}
 			if (http.formLogin != null && http.formLogin.isEntryPointExplicit
-					|| http.oauth2Login != null && StringUtils.hasText(http.oauth2Login.loginPage)) {
+					|| http.oauth2Login != null && StringUtils.hasText(http.oauth2Login.loginPage)
+					|| http.oneTimeTokenLogin != null && StringUtils.hasText(http.oneTimeTokenLogin.loginPage)) {
 				return;
 			}
 			LoginPageGeneratingWebFilter loginPage = null;
@@ -3049,6 +3054,13 @@ public class ServerHttpSecurity {
 					loginPage = new LoginPageGeneratingWebFilter();
 				}
 				loginPage.setOauth2AuthenticationUrlToClientName(urlToText);
+			}
+			if (http.oneTimeTokenLogin != null) {
+				if (loginPage == null) {
+					loginPage = new LoginPageGeneratingWebFilter();
+				}
+				loginPage.setOneTimeTokenEnabled(true);
+				loginPage.setGenerateOneTimeTokenUrl(http.oneTimeTokenLogin.tokenGeneratingUrl);
 			}
 			if (loginPage != null) {
 				http.addFilterAt(loginPage, SecurityWebFiltersOrder.LOGIN_PAGE_GENERATING);
@@ -5940,6 +5952,8 @@ public class ServerHttpSecurity {
 
 		private ServerSecurityContextRepository securityContextRepository;
 
+		private ServerGenerateOneTimeTokenRequestResolver requestResolver;
+
 		private String loginProcessingUrl = "/login/ott";
 
 		private String defaultSubmitPageUrl = "/login/ott";
@@ -5948,11 +5962,13 @@ public class ServerHttpSecurity {
 
 		private boolean submitPageEnabled = true;
 
+		private String loginPage;
+
 		protected void configure(ServerHttpSecurity http) {
 			configureSubmitPage(http);
 			configureOttGenerateFilter(http);
 			configureOttAuthenticationFilter(http);
-			configureDefaultLoginPage(http);
+			configureDefaultEntryPoint(http);
 		}
 
 		private void configureOttAuthenticationFilter(ServerHttpSecurity http) {
@@ -5985,20 +6001,33 @@ public class ServerHttpSecurity {
 					getTokenGenerationSuccessHandler());
 			generateFilter
 				.setRequestMatcher(ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, this.tokenGeneratingUrl));
+			generateFilter.setGenerateRequestResolver(getRequestResolver());
 			http.addFilterAt(generateFilter, SecurityWebFiltersOrder.ONE_TIME_TOKEN);
 		}
 
-		private void configureDefaultLoginPage(ServerHttpSecurity http) {
-			if (http.formLogin != null) {
-				for (WebFilter webFilter : http.webFilters) {
-					OrderedWebFilter orderedWebFilter = (OrderedWebFilter) webFilter;
-					if (orderedWebFilter.webFilter instanceof LoginPageGeneratingWebFilter loginPageGeneratingFilter) {
-						loginPageGeneratingFilter.setOneTimeTokenEnabled(true);
-						loginPageGeneratingFilter.setGenerateOneTimeTokenUrl(this.tokenGeneratingUrl);
-						break;
-					}
+		private void configureDefaultEntryPoint(ServerHttpSecurity http) {
+			MediaTypeServerWebExchangeMatcher htmlMatcher = new MediaTypeServerWebExchangeMatcher(
+					MediaType.APPLICATION_XHTML_XML, new MediaType("image", "*"), MediaType.TEXT_HTML,
+					MediaType.TEXT_PLAIN);
+			htmlMatcher.setIgnoredMediaTypes(Collections.singleton(MediaType.ALL));
+			ServerWebExchangeMatcher xhrMatcher = (exchange) -> {
+				if (exchange.getRequest().getHeaders().getOrEmpty("X-Requested-With").contains("XMLHttpRequest")) {
+					return ServerWebExchangeMatcher.MatchResult.match();
 				}
+				return ServerWebExchangeMatcher.MatchResult.notMatch();
+			};
+			ServerWebExchangeMatcher notXhrMatcher = new NegatedServerWebExchangeMatcher(xhrMatcher);
+			ServerWebExchangeMatcher defaultEntryPointMatcher = new AndServerWebExchangeMatcher(notXhrMatcher,
+					htmlMatcher);
+			String loginPage = "/login";
+			if (this.loginPage != null) {
+				loginPage = this.loginPage;
 			}
+			RedirectServerAuthenticationEntryPoint defaultEntryPoint = new RedirectServerAuthenticationEntryPoint(
+					loginPage);
+			defaultEntryPoint.setRequestCache(http.requestCache.requestCache);
+			http.defaultEntryPoints.add(new DelegateEntry(defaultEntryPointMatcher, defaultEntryPoint));
+
 		}
 
 		/**
@@ -6113,6 +6142,32 @@ public class ServerHttpSecurity {
 		}
 
 		/**
+		 * Use this {@link ServerGenerateOneTimeTokenRequestResolver} when resolving
+		 * {@link GenerateOneTimeTokenRequest} from {@link ServerWebExchange}. By default,
+		 * the {@link DefaultServerGenerateOneTimeTokenRequestResolver} is used.
+		 * @param requestResolver the
+		 * {@link DefaultServerGenerateOneTimeTokenRequestResolver} to use
+		 * @since 6.5
+		 */
+		public OneTimeTokenLoginSpec generateRequestResolver(
+				ServerGenerateOneTimeTokenRequestResolver requestResolver) {
+			Assert.notNull(requestResolver, "generateRequestResolver cannot be null");
+			this.requestResolver = requestResolver;
+			return this;
+		}
+
+		private ServerGenerateOneTimeTokenRequestResolver getRequestResolver() {
+			if (this.requestResolver != null) {
+				return this.requestResolver;
+			}
+			ServerGenerateOneTimeTokenRequestResolver bean = getBeanOrNull(
+					ServerGenerateOneTimeTokenRequestResolver.class);
+			this.requestResolver = Objects.requireNonNullElseGet(bean,
+					DefaultServerGenerateOneTimeTokenRequestResolver::new);
+			return this.requestResolver;
+		}
+
+		/**
 		 * Specifies the URL to process the login request, defaults to {@code /login/ott}.
 		 * Only POST requests are processed, for that reason make sure that you pass a
 		 * valid CSRF token if CSRF protection is enabled.
@@ -6198,6 +6253,19 @@ public class ServerHttpSecurity {
 						""");
 			}
 			return this.tokenGenerationSuccessHandler;
+		}
+
+		/**
+		 * Specifies the URL to send users to if login is required. A default login page
+		 * will be generated when this attribute is not specified.
+		 * @param loginPage the URL to send users to if login is required
+		 * @return the {@link OAuth2LoginSpec} for further configuration
+		 * @since 6.5
+		 */
+		public OneTimeTokenLoginSpec loginPage(String loginPage) {
+			Assert.hasText(loginPage, "loginPage cannot be empty");
+			this.loginPage = loginPage;
+			return this;
 		}
 
 	}

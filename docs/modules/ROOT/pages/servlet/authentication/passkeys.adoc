@@ -60,6 +60,7 @@ Java::
 ----
 @Bean
 SecurityFilterChain filterChain(HttpSecurity http) {
+	// ...
 	http
 		// ...
 		.formLogin(withDefaults())
@@ -67,6 +68,9 @@ SecurityFilterChain filterChain(HttpSecurity http) {
 			.rpName("Spring Security Relying Party")
 			.rpId("example.com")
 			.allowedOrigins("https://example.com")
+			// optional properties
+			.creationOptionsRepository(new CustomPublicKeyCredentialCreationOptionsRepository())
+			.messageConverter(new CustomHttpMessageConverter())
 		);
 	return http.build();
 }
@@ -89,11 +93,15 @@ Kotlin::
 ----
 @Bean
 open fun filterChain(http: HttpSecurity): SecurityFilterChain {
+	// ...
 	http {
 		webAuthn {
 			rpName = "Spring Security Relying Party"
 			rpId = "example.com"
 			allowedOrigins = setOf("https://example.com")
+			// optional properties
+			creationOptionsRepository = CustomPublicKeyCredentialCreationOptionsRepository()
+			messageConverter = CustomHttpMessageConverter()
 		}
 	}
 }
@@ -106,6 +114,79 @@ open fun userDetailsService(): UserDetailsService {
 		.roles("USER")
 		.build()
 	return InMemoryUserDetailsManager(userDetails)
+}
+----
+======
+
+
+[[passkeys-configuration-persistence]]
+=== JDBC & Custom Persistence
+
+WebAuthn performs persistence with javadoc:org.springframework.security.web.webauthn.management.PublicKeyCredentialUserEntityRepository[] and javadoc:org.springframework.security.web.webauthn.management.UserCredentialRepository[].
+The default is to use in memory persistence, but JDBC persistence is support with javadoc:org.springframework.security.web.webauthn.management.JdbcPublicKeyCredentialUserEntityRepository[] and javadoc:org.springframework.security.web.webauthn.management.JdbcUserCredentialRepository[].
+To configure JDBC based persistence, expose the repositories as a Bean:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Bean
+JdbcPublicKeyCredentialUserEntityRepository jdbcPublicKeyCredentialRepository(JdbcOperations jdbc) {
+	return new JdbcPublicKeyCredentialUserEntityRepository(jdbc);
+}
+
+@Bean
+JdbcUserCredentialRepository jdbcUserCredentialRepository(JdbcOperations jdbc) {
+	return new JdbcUserCredentialRepository(jdbc);
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun jdbcPublicKeyCredentialRepository(jdbc: JdbcOperations): JdbcPublicKeyCredentialUserEntityRepository {
+    return JdbcPublicKeyCredentialUserEntityRepository(jdbc)
+}
+
+@Bean
+fun jdbcUserCredentialRepository(jdbc: JdbcOperations): JdbcUserCredentialRepository {
+    return JdbcUserCredentialRepository(jdbc)
+}
+----
+======
+
+If JDBC does not meet your needs, you can create your own implementations of the interfaces and use them by exposing them as a Bean similar to the example above.
+
+[[passkeys-configuration-pkccor]]
+=== Custom PublicKeyCredentialCreationOptionsRepository
+
+The `PublicKeyCredentialCreationOptionsRepository` is used to persist the `PublicKeyCredentialCreationOptions` between requests.
+The default is to persist it the `HttpSession`, but at times users may need to customize this behavior.
+This can be done by setting the optional property `creationOptionsRepository` demonstrated in xref:./passkeys.adoc#passkeys-configuration[Configuration] or by exposing a `PublicKeyCredentialCreationOptionsRepository` Bean:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Bean
+CustomPublicKeyCredentialCreationOptionsRepository creationOptionsRepository() {
+	return new CustomPublicKeyCredentialCreationOptionsRepository();
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Bean
+open fun creationOptionsRepository(): CustomPublicKeyCredentialCreationOptionsRepository {
+	return CustomPublicKeyCredentialCreationOptionsRepository()
 }
 ----
 ======

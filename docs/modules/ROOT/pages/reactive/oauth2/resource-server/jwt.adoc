@@ -936,6 +936,46 @@ fun jwtDecoder(): ReactiveJwtDecoder {
 By default, Resource Server configures a clock skew of 60 seconds.
 ====
 
+[[webflux-oauth2resourceserver-validation-rfc9068]]
+=== Configuring RFC 9068 Validation
+
+If you need to require tokens that meet https://datatracker.ietf.org/doc/rfc9068/[RFC 9068], you can configure validation in the following way:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Bean
+JwtDecoder jwtDecoder() {
+    NimbusReactiveJwtDecoder jwtDecoder = NimbusReactiveJwtDecoder.withIssuerLocation(issuerUri)
+            .validateTypes(false).build();
+    jwtDecoder.setJwtValidator(JwtValidators.createAtJwtValidator()
+            .audience("https://audience.example.org")
+            .clientId("client-identifier")
+            .issuer("https://issuer.example.org").build());
+     return jwtDecoder;
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun jwtDecoder(): JwtDecoder {
+    val jwtDecoder = NimbusReactiveJwtDecoder.withIssuerLocation(issuerUri)
+            .validateTypes(false).build()
+    jwtDecoder.setJwtValidator(JwtValidators.createAtJwtValidator()
+            .audience("https://audience.example.org")
+            .clientId("client-identifier")
+            .issuer("https://issuer.example.org").build())
+    return jwtDecoder
+}
+----
+======
+
 [[webflux-oauth2resourceserver-validation-custom]]
 ==== Configuring a Custom Validator
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,14 +22,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.config.ObjectPostProcessor;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
-import org.springframework.security.core.SpringSecurityMessageSource;
 import org.springframework.security.core.userdetails.PasswordEncodedUser;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
@@ -76,8 +74,6 @@ public class DefaultLoginPageConfigurerTests {
 
 	@Autowired
 	MockMvc mvc;
-
-	MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
 
 	@Test
 	public void getWhenFormLoginEnabledThenRedirectsToLoginPage() throws Exception {
@@ -148,8 +144,7 @@ public class DefaultLoginPageConfigurerTests {
 		this.mvc.perform(get("/login?error").session((MockHttpSession) mvcResult.getRequest().getSession())
 				.sessionAttr(csrfAttributeName, csrfToken))
 				.andExpect((result) -> {
-					String badCredentialsLocalizedMessage = this.messages
-							.getMessage("AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials");
+					String defaultErrorMessage = "Invalid credentials";
 					CsrfToken token = (CsrfToken) result.getRequest().getAttribute(CsrfToken.class.getName());
 					assertThat(result.getResponse().getContentAsString()).isEqualTo("""
 						<!DOCTYPE html>
@@ -184,7 +179,7 @@ public class DefaultLoginPageConfigurerTests {
 
 						    </div>
 						  </body>
-						</html>""".formatted(badCredentialsLocalizedMessage, token.getToken()));
+						</html>""".formatted(defaultErrorMessage, token.getToken()));
 				});
 		// @formatter:on
 	}

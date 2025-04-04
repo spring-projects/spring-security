@@ -19,6 +19,8 @@ package org.springframework.security.authorization.event;
 import java.util.function.Supplier;
 
 import org.springframework.context.ApplicationEvent;
+import org.springframework.core.ResolvableType;
+import org.springframework.core.ResolvableTypeProvider;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.core.Authentication;
@@ -31,7 +33,7 @@ import org.springframework.security.core.Authentication;
  * @since 5.7
  */
 @SuppressWarnings("serial")
-public class AuthorizationDeniedEvent<T> extends AuthorizationEvent {
+public class AuthorizationDeniedEvent<T> extends AuthorizationEvent implements ResolvableTypeProvider {
 
 	/**
 	 * @deprecated Please use an {@link AuthorizationResult} constructor instead
@@ -57,6 +59,16 @@ public class AuthorizationDeniedEvent<T> extends AuthorizationEvent {
 	@SuppressWarnings("unchecked")
 	public T getObject() {
 		return (T) getSource();
+	}
+
+	/**
+	 * Get {@link ResolvableType} of this class.
+	 * @return {@link ResolvableType}
+	 * @since 6.5
+	 */
+	@Override
+	public ResolvableType getResolvableType() {
+		return ResolvableType.forClassWithGenerics(getClass(), ResolvableType.forInstance(getObject()));
 	}
 
 }

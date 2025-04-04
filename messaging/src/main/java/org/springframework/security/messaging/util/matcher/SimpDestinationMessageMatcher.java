@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,9 @@ import org.springframework.util.PathMatcher;
  *
  * @author Rob Winch
  * @since 4.0
+ * @deprecated use {@link PathPatternMessageMatcher}
  */
+@Deprecated
 public final class SimpDestinationMessageMatcher implements MessageMatcher<Object> {
 
 	public static final MessageMatcher<Object> NULL_DESTINATION_MATCHER = (message) -> {
@@ -121,6 +123,12 @@ public final class SimpDestinationMessageMatcher implements MessageMatcher<Objec
 		}
 		String destination = SimpMessageHeaderAccessor.getDestination(message.getHeaders());
 		return destination != null && this.matcher.match(this.pattern, destination);
+	}
+
+	@Override
+	public MatchResult matcher(Message<?> message) {
+		boolean match = matches(message);
+		return (!match) ? MatchResult.notMatch() : MatchResult.match(extractPathVariables(message));
 	}
 
 	public Map<String, String> extractPathVariables(Message<?> message) {

@@ -79,7 +79,7 @@ See https://github.com/spring-projects/spring-security/tree/main#building-from-s
 
 The wiki pages https://github.com/spring-projects/spring-framework/wiki/Code-Style[Code Style] and https://github.com/spring-projects/spring-framework/wiki/IntelliJ-IDEA-Editor-Settings[IntelliJ IDEA Editor Settings] define the source file coding standards we use along with some IDEA editor settings we customize.
 
-To format the code as well as check the style, run `./gradlew format check`.
+To format the code as well as check the style, run `./gradlew format && ./gradlew check`.
 
 [[submit-a-pull-request]]
 === Submit a Pull Request
@@ -89,41 +89,30 @@ We are excited for your pull request! :heart:
 Please do your best to follow these steps.
 Don't worry if you don't get them all correct the first time, we will help you.
 
-[[sign-cla]]
-1. If you have not previously done so, please sign the https://cla.spring.io/sign/spring[Contributor License Agreement].
-You will be reminded automatically when you submit the PR.
-[[create-an-issue]]
-1. Must you https://github.com/spring-projects/spring-security/issues/new/choose[create an issue] first? No, but it is recommended for features and larger bug fixes. It's easier discuss with the team first to determine the right fix or enhancement.
+1. [[sign-cla]] All commits must include a __Signed-off-by__ trailer at the end of each commit message to indicate that the contributor agrees to the Developer Certificate of Origin.
+For additional details, please refer to the blog post https://spring.io/blog/2025/01/06/hello-dco-goodbye-cla-simplifying-contributions-to-spring[Hello DCO, Goodbye CLA: Simplifying Contributions to Spring].
+2. [[create-an-issue-list]] Must you https://github.com/spring-projects/spring-security/issues/new/choose[create an issue] first? No, but it is recommended for features and larger bug fixes. It's easier discuss with the team first to determine the right fix or enhancement.
 For typos and straightforward bug fixes, starting with a pull request is encouraged.
 Please include a description for context and motivation.
 Note that the team may close your pull request if it's not a fit for the project.
-[[choose-a-branch]]
-1. Always check out the branch indicated in the milestone and submit pull requests against it (for example, for milestone `5.8.3` use the `5.8.x` branch).
+3. [[choose-a-branch]] Always check out the branch indicated in the milestone and submit pull requests against it (for example, for milestone `5.8.3` use the `5.8.x` branch).
 If there is no milestone, choose `main`.
 Once merged, the fix will be forwarded-ported to applicable branches including `main`.
-[[create-a-local-branch]]
-1. Create a local branch
+4. [[create-a-local-branch]] Create a local branch
 If this is for an issue, consider a branch name with the issue number, like `gh-22276`.
-[[write-tests]]
-1. Add documentation and JUnit Tests for your changes.
-[[update-copyright]]
-1. In all files you edited, if the copyright header is of the form 2002-20xx, update the final copyright year to the current year.
-[[add-since]]
-1. If on `main`, add `@since` JavaDoc attributes to new public APIs that your PR adds
-[[change-rnc]]
-1. If you are updating the XSD, please instead update the RNC file and then run `./gradlew :spring-security-config:rncToXsd`.
-[[format-code]]
-1. For each commit, build the code using `./gradlew format check`.
+5. [[write-tests]] Add documentation and JUnit Tests for your changes.
+6. [[update-copyright]] In all files you edited, if the copyright header is of the form 2002-20xx, update the final copyright year to the current year.
+7. [[add-since]] If on `main`, add `@since` JavaDoc attributes to new public APIs that your PR adds
+8. [[change-rnc]] If you are updating the XSD, please instead update the RNC file and then run `./gradlew :spring-security-config:rncToXsd`.
+9. [[format-code]] For each commit, build the code using `./gradlew format && ./gradlew check`.
 This command ensures the code meets most of <<code-style,the style guide>>; a notable exception is import order.
-[[commit-atomically]]
-1. Choose the granularity of your commits consciously and squash commits that represent
+10. [[commit-atomically]] Choose the granularity of your commits consciously and squash commits that represent
 multiple edits or corrections of the same logical change.
 See https://git-scm.com/book/en/Git-Tools-Rewriting-History[Rewriting History section of Pro Git] for an overview of streamlining the commit history.
-[[format-commit-messages]]
-1. Format commit messages using 55 characters for the subject line, 72 characters per line
+11. [[format-commit-messages]] Format commit messages using 55 characters for the subject line, 72 characters per line
 for the description, followed by the issue fixed, for example, `Closes gh-22276`.
 See the https://git-scm.com/book/en/Distributed-Git-Contributing-to-a-Project#Commit-Guidelines[Commit Guidelines section of Pro Git] for best practices around commit messages, and use `git log` to see some examples.
-Present tense is preferred.
+Favor imperative tense over present tense (use "Fix" instead of "Fixes"); avoid past tense (use "Fix" instead of "Fixed").
 +
 [indent=0]
 ----

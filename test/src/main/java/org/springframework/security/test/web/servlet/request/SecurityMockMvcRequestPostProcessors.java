@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -1156,7 +1156,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 
 		/**
 		 * Mutate the attributes using the given {@link Consumer}
-		 * @param attributesConsumer The {@link Consumer} for mutating the {@Map} of
+		 * @param attributesConsumer The {@link Consumer} for mutating the {@code Map} of
 		 * attributes
 		 * @return the {@link OpaqueTokenRequestPostProcessor} for further configuration
 		 */
@@ -1317,7 +1317,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 
 		/**
 		 * Mutate the attributes using the given {@link Consumer}
-		 * @param attributesConsumer The {@link Consumer} for mutating the {@Map} of
+		 * @param attributesConsumer The {@link Consumer} for mutating the {@code Map} of
 		 * attributes
 		 * @return the {@link OAuth2LoginRequestPostProcessor} for further configuration
 		 */

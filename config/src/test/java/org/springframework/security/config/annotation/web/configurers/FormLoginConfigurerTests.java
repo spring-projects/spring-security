@@ -38,6 +38,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders;
 import org.springframework.security.web.PortMapper;
+import org.springframework.security.web.PortResolver;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
@@ -376,6 +377,13 @@ public class FormLoginConfigurerTests {
 		ObjectPostProcessorConfig.objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
 		this.spring.register(ObjectPostProcessorConfig.class).autowire();
 		verify(ObjectPostProcessorConfig.objectPostProcessor).postProcess(any(ExceptionTranslationFilter.class));
+	}
+
+	@Test
+	public void configureWhenPortResolverBeanThenPortResolverUsed() throws Exception {
+		this.spring.register(CustomPortResolverConfig.class).autowire();
+		this.mockMvc.perform(get("/requires-authentication")).andExpect(status().is3xxRedirection());
+		verify(this.spring.getContext().getBean(PortResolver.class)).getServerPort(any());
 	}
 
 	@Configuration
@@ -719,6 +727,35 @@ public class FormLoginConfigurerTests {
 		@Bean
 		static ObjectPostProcessor<Object> objectPostProcessor() {
 			return objectPostProcessor;
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	static class CustomPortResolverConfig {
+
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeHttpRequests((requests) -> requests
+					.anyRequest().authenticated()
+				)
+				.formLogin(withDefaults())
+				.requestCache(withDefaults());
+			return http.build();
+			// @formatter:on
+		}
+
+		@Bean
+		PortResolver portResolver() {
+			return mock(PortResolver.class);
+		}
+
+		@Bean
+		UserDetailsService userDetailsService() {
+			return new InMemoryUserDetailsManager(PasswordEncodedUser.user());
 		}
 
 	}

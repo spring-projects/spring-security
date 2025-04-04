@@ -18,6 +18,7 @@ package org.springframework.security.core.annotation;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
@@ -86,6 +87,7 @@ import org.springframework.util.ClassUtils;
  *
  * @param <A> the annotation to search for and synthesize
  * @author Josh Cummings
+ * @author DingHao
  * @since 6.4
  */
 final class UniqueSecurityAnnotationScanner<A extends Annotation> extends AbstractSecurityAnnotationScanner<A> {
@@ -110,7 +112,7 @@ final class UniqueSecurityAnnotationScanner<A extends Annotation> extends Abstra
 	MergedAnnotation<A> merge(AnnotatedElement element, Class<?> targetClass) {
 		if (element instanceof Parameter parameter) {
 			return this.uniqueParameterAnnotationCache.computeIfAbsent(parameter, (p) -> {
-				List<MergedAnnotation<A>> annotations = findDirectAnnotations(p);
+				List<MergedAnnotation<A>> annotations = findParameterAnnotations(p);
 				return requireUnique(p, annotations);
 			});
 		}
@@ -138,6 +140,57 @@ final class UniqueSecurityAnnotationScanner<A extends Annotation> extends Abstra
 						synthesized));
 			}
 		};
+	}
+
+	private List<MergedAnnotation<A>> findParameterAnnotations(Parameter current) {
+		List<MergedAnnotation<A>> directAnnotations = findDirectAnnotations(current);
+		if (!directAnnotations.isEmpty()) {
+			return directAnnotations;
+		}
+		Executable executable = current.getDeclaringExecutable();
+		if (executable instanceof Method method) {
+			directAnnotations = findClosestParameterAnnotations(method, method.getDeclaringClass(), current,
+					new HashSet<>());
+			if (!directAnnotations.isEmpty()) {
+				return directAnnotations;
+			}
+		}
+		return Collections.emptyList();
+	}
+
+	private List<MergedAnnotation<A>> findClosestParameterAnnotations(Method method, Class<?> clazz, Parameter current,
+			Set<Class<?>> visited) {
+		if (clazz == null || clazz == Object.class || !visited.add(clazz)) {
+			return Collections.emptyList();
+		}
+		List<MergedAnnotation<A>> directAnnotations = findDirectParameterAnnotations(method, clazz, current);
+		if (!directAnnotations.isEmpty()) {
+			return directAnnotations;
+		}
+		List<MergedAnnotation<A>> annotations = new ArrayList<>(
+				findClosestParameterAnnotations(method, clazz.getSuperclass(), current, visited));
+		for (Class<?> ifc : clazz.getInterfaces()) {
+			annotations.addAll(findClosestParameterAnnotations(method, ifc, current, visited));
+		}
+		return annotations;
+	}
+
+	private List<MergedAnnotation<A>> findDirectParameterAnnotations(Method method, Class<?> clazz, Parameter current) {
+		try {
+			Method methodToUse = clazz.getDeclaredMethod(method.getName(), method.getParameterTypes());
+			for (Parameter parameter : methodToUse.getParameters()) {
+				if (parameter.getName().equals(current.getName())) {
+					List<MergedAnnotation<A>> directAnnotations = findDirectAnnotations(parameter);
+					if (!directAnnotations.isEmpty()) {
+						return directAnnotations;
+					}
+				}
+			}
+		}
+		catch (NoSuchMethodException ex) {
+			// move on
+		}
+		return Collections.emptyList();
 	}
 
 	private List<MergedAnnotation<A>> findMethodAnnotations(Method method, Class<?> targetClass) {

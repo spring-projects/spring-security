@@ -107,15 +107,14 @@ public class CorsConfigurer<H extends HttpSecurityBuilder<H>> extends AbstractHt
 		 * @return
 		 */
 		private static CorsFilter getMvcCorsFilter(ApplicationContext context) {
-			if (!context.containsBean(HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME)) {
-				throw new NoSuchBeanDefinitionException(HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME, "A Bean named "
-						+ HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME + " of type "
-						+ HandlerMappingIntrospector.class.getName()
-						+ " is required to use MvcRequestMatcher. Please ensure Spring Security & Spring MVC are configured in a shared ApplicationContext.");
+			if (context.containsBean(HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME)) {
+				CorsConfigurationSource corsConfigurationSource = context
+					.getBean(HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME, CorsConfigurationSource.class);
+				return new CorsFilter(corsConfigurationSource);
 			}
-			HandlerMappingIntrospector mappingIntrospector = context.getBean(HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME,
-					HandlerMappingIntrospector.class);
-			return new CorsFilter(mappingIntrospector);
+			throw new NoSuchBeanDefinitionException(CorsConfigurationSource.class,
+					"Failed to find a bean that implements `CorsConfigurationSource`. Please ensure that you are using "
+							+ "`@EnableWebMvc`, are publishing a `WebMvcConfigurer`, or are publishing a `CorsConfigurationSource` bean.");
 		}
 
 	}

@@ -122,6 +122,12 @@ class OAuth2LoginSecurityConfig {
 If used, the application's base URL, such as `https://app.example.org`, replaces it at request time.
 ====
 
+[NOTE]
+====
+By default, `OidcClientInitiatedLogoutSuccessHandler` redirects to the logout URL using a standard HTTP redirect with the `GET` method.
+To perform the logout using a `POST` request, set the redirect strategy to `FormPostRedirectStrategy`, for example with `OidcClientInitiatedLogoutSuccessHandler.setRedirectStrategy(new FormPostRedirectStrategy())`.
+====
+
 [[configure-provider-initiated-oidc-logout]]
 == OpenID Connect 1.0 Back-Channel Logout
 
@@ -236,7 +242,7 @@ This means that it will only terminate sessions whose Client matches the `aud` c
 One notable part of this architecture's implementation is that it propagates the incoming back-channel request internally for each corresponding session.
 Initially, this may seem unnecessary.
 However, recall that the Servlet API does not give direct access to the `HttpSession` store.
-By making an internal logout call, the corresponding session can now be validated.
+By making an internal logout call, the corresponding session can now be invalidated.
 
 Additionally, forging a logout call internally allows for each set of ``LogoutHandler``s to be run against that session and corresponding `SecurityContext`.
 
@@ -293,7 +299,7 @@ Java::
 [source=java,role="primary"]
 ----
 @Bean
-OidcBackChannelLogoutHandler oidcLogoutHandler(OidcSessionRegistry sessionRegistry) {
+OidcBackChannelLogoutHandler oidcLogoutHandler(OidcSessionRegistry oidcSessionRegistry) {
     OidcBackChannelLogoutHandler logoutHandler = new OidcBackChannelLogoutHandler(oidcSessionRegistry);
     logoutHandler.setSessionCookieName("SESSION");
     return logoutHandler;
