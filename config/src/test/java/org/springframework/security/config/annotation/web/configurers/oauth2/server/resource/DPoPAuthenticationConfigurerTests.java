@@ -70,6 +70,7 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
@@ -120,7 +121,9 @@ public class DPoPAuthenticationConfigurerTests {
 						.header(HttpHeaders.AUTHORIZATION, "DPoP " + accessToken)
 						.header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
 						.header("DPoP", dPoPProof))
-				.andExpect(status().isUnauthorized());
+				.andExpect(status().isUnauthorized())
+				.andExpect(header().string(HttpHeaders.WWW_AUTHENTICATE,
+						"DPoP error=\"invalid_request\", error_description=\"Found multiple Authorization headers.\", algs=\"RS256 RS384 RS512 PS256 PS384 PS512 ES256 ES384 ES512\""));
 		// @formatter:on
 	}
 
@@ -134,7 +137,9 @@ public class DPoPAuthenticationConfigurerTests {
 		this.mvc.perform(get("/resource1")
 						.header(HttpHeaders.AUTHORIZATION, "DPoP " + accessToken + " m a l f o r m e d ")
 						.header("DPoP", dPoPProof))
-				.andExpect(status().isUnauthorized());
+				.andExpect(status().isUnauthorized())
+				.andExpect(header().string(HttpHeaders.WWW_AUTHENTICATE,
+						"DPoP error=\"invalid_token\", error_description=\"DPoP access token is malformed.\", algs=\"RS256 RS384 RS512 PS256 PS384 PS512 ES256 ES384 ES512\""));
 		// @formatter:on
 	}
 
@@ -149,7 +154,9 @@ public class DPoPAuthenticationConfigurerTests {
 						.header(HttpHeaders.AUTHORIZATION, "DPoP " + accessToken)
 						.header("DPoP", dPoPProof)
 						.header("DPoP", dPoPProof))
-				.andExpect(status().isUnauthorized());
+				.andExpect(status().isUnauthorized())
+				.andExpect(header().string(HttpHeaders.WWW_AUTHENTICATE,
+						"DPoP error=\"invalid_request\", error_description=\"DPoP proof is missing or invalid.\", algs=\"RS256 RS384 RS512 PS256 PS384 PS512 ES256 ES384 ES512\""));
 		// @formatter:on
 	}
 
