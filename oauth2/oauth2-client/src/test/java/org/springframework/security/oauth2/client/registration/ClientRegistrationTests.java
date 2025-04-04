@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -258,24 +258,22 @@ public class ClientRegistrationTests {
 	}
 
 	@Test
-	public void buildWhenAuthorizationCodeGrantRedirectUriIsNullThenThrowIllegalArgumentException() {
-		assertThatIllegalArgumentException().isThrownBy(() ->
+	public void buildWhenAuthorizationCodeGrantRedirectUriIsNullThenDefaultsToLoginOAuth2Code() {
 		// @formatter:off
-			ClientRegistration.withRegistrationId(REGISTRATION_ID)
-					.clientId(CLIENT_ID)
-					.clientSecret(CLIENT_SECRET)
-					.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
-					.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-					.redirectUri(null)
-					.scope(SCOPES.toArray(new String[0]))
-					.authorizationUri(AUTHORIZATION_URI)
-					.tokenUri(TOKEN_URI)
-					.userInfoAuthenticationMethod(AuthenticationMethod.FORM)
-					.jwkSetUri(JWK_SET_URI)
-					.clientName(CLIENT_NAME)
-					.build()
+		ClientRegistration registration = ClientRegistration.withRegistrationId(REGISTRATION_ID)
+				.clientId(CLIENT_ID)
+				.clientSecret(CLIENT_SECRET)
+				.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
+				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+				.scope(SCOPES.toArray(new String[0]))
+				.authorizationUri(AUTHORIZATION_URI)
+				.tokenUri(TOKEN_URI)
+				.userInfoAuthenticationMethod(AuthenticationMethod.FORM)
+				.jwkSetUri(JWK_SET_URI)
+				.clientName(CLIENT_NAME)
+				.build();
 		// @formatter:on
-		);
+		assertThat(registration.getRedirectUri()).isEqualTo("{baseUrl}/login/oauth2/code/" + REGISTRATION_ID);
 	}
 
 	// gh-5494
