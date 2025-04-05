@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -186,6 +186,71 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 	 */
 	public static Builder authorizationCode() {
 		return new Builder(AuthorizationGrantType.AUTHORIZATION_CODE);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null || this.getClass() != obj.getClass()) {
+			return false;
+		}
+		OAuth2AuthorizationRequest that = (OAuth2AuthorizationRequest) obj;
+
+		if (!this.authorizationUri.equals(that.authorizationUri)) {
+			return false;
+		}
+
+		if (!this.authorizationGrantType.equals(that.authorizationGrantType)) {
+			return false;
+		}
+
+		if (this.responseType != that.responseType) {
+			return false;
+		}
+
+		if (!this.clientId.equals(that.clientId)) {
+			return false;
+		}
+
+		if (!this.redirectUri.equals(that.redirectUri)) {
+			return false;
+		}
+
+		if (!this.scopes.equals(that.scopes)) {
+			return false;
+		}
+
+		if (!this.state.equals(that.state)) {
+			return false;
+		}
+
+		if (!this.additionalParameters.equals(that.additionalParameters)) {
+			return false;
+		}
+
+		if (!this.authorizationRequestUri.equals(that.authorizationRequestUri)) {
+			return false;
+		}
+
+		return this.attributes.equals(that.attributes);
+	}
+
+	@Override
+	public int hashCode() {
+		int result = this.authorizationUri.hashCode();
+		result = 31 * result + this.clientId.hashCode();
+		result = 31 * result + ((this.authorizationGrantType == null) ? 0 : this.authorizationGrantType.hashCode());
+		result = 31 * result + ((this.responseType == null) ? 0 : this.responseType.hashCode());
+		result = 31 * result + ((this.redirectUri == null) ? 0 : this.redirectUri.hashCode());
+		result = 31 * result + ((this.scopes == null) ? 0 : this.scopes.hashCode());
+		result = 31 * result + ((this.state == null) ? 0 : this.state.hashCode());
+		result = 31 * result + ((this.additionalParameters == null) ? 0 : this.additionalParameters.hashCode());
+		result = 31 * result + ((this.authorizationRequestUri == null) ? 0 : this.authorizationRequestUri.hashCode());
+		result = 31 * result + ((this.attributes == null) ? 0 : this.attributes.hashCode());
+
+		return result;
 	}
 
 	/**
