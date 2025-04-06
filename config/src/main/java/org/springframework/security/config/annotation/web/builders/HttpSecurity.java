@@ -16,8 +16,18 @@
 
 package org.springframework.security.config.annotation.web.builders;
 
-import jakarta.servlet.*;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.ApplicationContext;
@@ -38,8 +48,29 @@ import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.RequestMatcherFactory;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfiguration;
-import org.springframework.security.config.annotation.web.configurers.*;
+import org.springframework.security.config.annotation.web.configurers.AnonymousConfigurer;
+import org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer;
 import org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer.AuthorizationManagerRequestMatcherRegistry;
+import org.springframework.security.config.annotation.web.configurers.ChannelSecurityConfigurer;
+import org.springframework.security.config.annotation.web.configurers.CorsConfigurer;
+import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
+import org.springframework.security.config.annotation.web.configurers.ExceptionHandlingConfigurer;
+import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer;
+import org.springframework.security.config.annotation.web.configurers.FormLoginConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HttpBasicConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HttpsRedirectConfigurer;
+import org.springframework.security.config.annotation.web.configurers.JeeConfigurer;
+import org.springframework.security.config.annotation.web.configurers.LogoutConfigurer;
+import org.springframework.security.config.annotation.web.configurers.PasswordManagementConfigurer;
+import org.springframework.security.config.annotation.web.configurers.PortMapperConfigurer;
+import org.springframework.security.config.annotation.web.configurers.RememberMeConfigurer;
+import org.springframework.security.config.annotation.web.configurers.RequestCacheConfigurer;
+import org.springframework.security.config.annotation.web.configurers.SecurityContextConfigurer;
+import org.springframework.security.config.annotation.web.configurers.ServletApiConfigurer;
+import org.springframework.security.config.annotation.web.configurers.SessionManagementConfigurer;
+import org.springframework.security.config.annotation.web.configurers.WebAuthnConfigurer;
+import org.springframework.security.config.annotation.web.configurers.X509Configurer;
 import org.springframework.security.config.annotation.web.configurers.oauth2.client.OAuth2ClientConfigurer;
 import org.springframework.security.config.annotation.web.configurers.oauth2.client.OAuth2LoginConfigurer;
 import org.springframework.security.config.annotation.web.configurers.oauth2.client.OidcLogoutConfigurer;
@@ -72,10 +103,6 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.filter.CorsFilter;
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 /**
  * A {@link HttpSecurity} is similar to Spring Security's XML &lt;http&gt; element in the
@@ -2844,6 +2871,24 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 		return HttpSecurity.this;
 	}
 
+	/**
+	 * Configures OpenID Connect (OIDC) Back-Channel Logout support.
+	 *
+	 * <p>This method enables the configuration of OIDC Back-Channel Logout by applying
+	 * the provided {@link Customizer} to an instance of {@link OidcLogoutConfigurer}. It
+	 * initializes the back-channel logout support with default settings, making it easier
+	 * to integrate with other logout configurations.
+	 *
+	 * <p>For example, to enable OIDC Back-Channel Logout with default settings:
+	 * <pre>
+	 *     http.oidcBackChannelLogout(Customizer.withDefaults());
+	 * </pre>
+	 *
+	 * @param oidcBackChannelLogoutCustomizer the customizer to configure OIDC Back-Channel Logout options
+	 * @return the {@code HttpSecurity} instance for further customizations
+	 * @throws Exception if an error occurs during configuration
+	 * @since 6.5
+	 */
 	public HttpSecurity oidcBackChannelLogout(Customizer<OidcLogoutConfigurer<HttpSecurity>> oidcBackChannelLogoutCustomizer)
 			throws Exception {
 		oidcBackChannelLogoutCustomizer.customize(
