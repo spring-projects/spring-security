@@ -108,7 +108,7 @@ public final class CsrfFilter extends OncePerRequestFilter {
 			throws ServletException, IOException {
 		DeferredCsrfToken deferredCsrfToken = this.tokenRepository.loadDeferredToken(request, response);
 		request.setAttribute(DeferredCsrfToken.class.getName(), deferredCsrfToken);
-		this.requestHandler.handle(request, response, deferredCsrfToken::get);
+		this.requestHandler.handle(request, response, deferredCsrfToken);
 		if (!this.requireCsrfProtectionMatcher.matches(request)) {
 			if (this.logger.isTraceEnabled()) {
 				this.logger.trace("Did not protect against CSRF since request did not match "

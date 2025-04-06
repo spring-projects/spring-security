@@ -69,7 +69,7 @@ public final class CsrfAuthenticationStrategy implements SessionAuthenticationSt
 		if (containsToken) {
 			this.tokenRepository.saveToken(null, request, response);
 			DeferredCsrfToken deferredCsrfToken = this.tokenRepository.loadDeferredToken(request, response);
-			this.requestHandler.handle(request, response, deferredCsrfToken::get);
+			this.requestHandler.handle(request, response, deferredCsrfToken);
 			this.logger.debug("Replaced CSRF Token");
 		}
 	}
