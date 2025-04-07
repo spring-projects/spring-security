@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -77,18 +77,18 @@ public class ServerBearerTokenAuthenticationConverter implements ServerAuthentic
 			}
 			return authorizationHeaderToken;
 		}
-		if (parameterToken != null && isParameterTokenSupportedForRequest(request)) {
-			if (!StringUtils.hasText(parameterToken)) {
-				BearerTokenError error = BearerTokenErrors
-					.invalidRequest("The requested token parameter is an empty string");
-				throw new OAuth2AuthenticationException(error);
-			}
-			return parameterToken;
+		if (parameterToken != null && !StringUtils.hasText(parameterToken)) {
+			BearerTokenError error = BearerTokenErrors
+				.invalidRequest("The requested token parameter is an empty string");
+			throw new OAuth2AuthenticationException(error);
 		}
-		return null;
+		return parameterToken;
 	}
 
-	private static String resolveAccessTokenFromRequest(ServerHttpRequest request) {
+	private String resolveAccessTokenFromRequest(ServerHttpRequest request) {
+		if (!isParameterTokenSupportedForRequest(request)) {
+			return null;
+		}
 		List<String> parameterTokens = request.getQueryParams().get("access_token");
 		if (CollectionUtils.isEmpty(parameterTokens)) {
 			return null;
