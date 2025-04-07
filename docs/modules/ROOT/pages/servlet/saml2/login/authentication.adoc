@@ -250,11 +250,134 @@ class SecurityConfig {
 ----
 ======
 
+== Converting an `Assertion` into an `Authentication`
+
+`OpenSamlXAuthenticationProvider#setResponseAuthenticationConverter` provides a way for you to change how it converts your assertion into an `Authentication` instance.
+
+You can set a custom converter in the following way:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig {
+    @Autowired
+    Converter<ResponseToken, Saml2Authentication> authenticationConverter;
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        OpenSaml5AuthenticationProvider authenticationProvider = new OpenSaml5AuthenticationProvider();
+        authenticationProvider.setResponseAuthenticationConverter(this.authenticationConverter);
+
+        http
+            .authorizeHttpRequests((authz) -> authz
+                .anyRequest().authenticated())
+            .saml2Login((saml2) -> saml2
+                .authenticationManager(new ProviderManager(authenticationProvider))
+            );
+        return http.build();
+    }
+
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Configuration
+@EnableWebSecurity
+open class SecurityConfig {
+    @Autowired
+    var authenticationConverter: Converter<ResponseToken, Saml2Authentication>? = null
+
+    @Bean
+    open fun filterChain(http: HttpSecurity): SecurityFilterChain {
+        val authenticationProvider = OpenSaml5AuthenticationProvider()
+        authenticationProvider.setResponseAuthenticationConverter(this.authenticationConverter)
+        http {
+            authorizeRequests {
+                authorize(anyRequest, authenticated)
+            }
+            saml2Login {
+                authenticationManager = ProviderManager(authenticationProvider)
+            }
+        }
+        return http.build()
+    }
+}
+----
+======
+
+The ensuing examples all build off of this common construct to show you different ways this converter comes in handy.
+
 [[servlet-saml2login-opensamlauthenticationprovider-userdetailsservice]]
 == Coordinating with a `UserDetailsService`
 
 Or, perhaps you would like to include user details from a legacy `UserDetailsService`.
 In that case, the response authentication converter can come in handy, as can be seen below:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Component
+class MyUserDetailsResponseAuthenticationConverter implements Converter<ResponseToken, Saml2Authentication> {
+	private final ResponseAuthenticationConverter delegate = new ResponseAuthenticationConverter();
+	private final UserDetailsService userDetailsService;
+
+	MyUserDetailsResponseAuthenticationConverter(UserDetailsService userDetailsService) {
+		this.userDetailsService = userDetailsService;
+	}
+
+	@Override
+    public Saml2Authentication convert(ResponseToken responseToken) {
+	    Saml2Authentication authentication = this.delegate.convert(responseToken); <1>
+		UserDetails principal = this.userDetailsService.loadByUsername(username); <2>
+		String saml2Response = authentication.getSaml2Response();
+		Collection<GrantedAuthority> authorities = principal.getAuthorities();
+		return new Saml2Authentication((AuthenticatedPrincipal) userDetails, saml2Response, authorities); <3>
+    }
+
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Component
+open class MyUserDetailsResponseAuthenticationConverter(val delegate: ResponseAuthenticationConverter,
+        UserDetailsService userDetailsService): Converter<ResponseToken, Saml2Authentication> {
+
+	@Override
+    open fun convert(responseToken: ResponseToken): Saml2Authentication {
+	    val authentication = this.delegate.convert(responseToken) <1>
+		val principal = this.userDetailsService.loadByUsername(username) <2>
+		val saml2Response = authentication.getSaml2Response()
+		val authorities = principal.getAuthorities()
+		return Saml2Authentication(userDetails as AuthenticatedPrincipal, saml2Response, authorities) <3>
+    }
+
+}
+----
+======
+<1> First, call the default converter, which extracts attributes and authorities from the response
+<2> Second, call the xref:servlet/authentication/passwords/user-details-service.adoc#servlet-authentication-userdetailsservice[`UserDetailsService`] using the relevant information
+<3> Third, return an authentication that includes the user details
+
+[TIP]
+====
+If your `UserDetailsService` returns a value that also implements `AuthenticatedPrincipal`, then you don't need a custom authentication implementation.
+====
+
+Or, if you are using OpenSaml 4, then you can achieve something similar as follows:
 
 [tabs]
 ======
@@ -335,6 +458,78 @@ open class SecurityConfig {
 [NOTE]
 It's not required to call ``OpenSaml4AuthenticationProvider``'s default authentication converter.
 It returns a `Saml2AuthenticatedPrincipal` containing the attributes it extracted from ``AttributeStatement``s as well as the single `ROLE_USER` authority.
+
+=== Configuring the Principal Name
+
+Sometimes, the principal name is not in the `<saml2:NameID>` element.
+In that case, you can configure the `ResponseAuthenticationConverter` with a custom strategy like so:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Bean
+ResponseAuthenticationConverter authenticationConverter() {
+	ResponseAuthenticationConverter authenticationConverter = new ResponseAuthenticationConverter();
+	authenticationConverter.setPrincipalNameConverter((assertion) -> {
+		// ... work with OpenSAML's Assertion object to extract the principal
+	});
+	return authenticationConverter;
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun authenticationConverter(): ResponseAuthenticationConverter {
+    val authenticationConverter: ResponseAuthenticationConverter = ResponseAuthenticationConverter()
+    authenticationConverter.setPrincipalNameConverter { assertion ->
+		// ... work with OpenSAML's Assertion object to extract the principal
+    }
+    return authenticationConverter
+}
+----
+======
+
+=== Configuring a Principal's Granted Authorities
+
+Spring Security automatically grants `ROLE_USER` when using `OpenSamlXAuhenticationProvider`.
+With `OpenSaml5AuthenticationProvider`, you can configure a different set of granted authorities like so:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Bean
+ResponseAuthenticationConverter authenticationConverter() {
+	ResponseAuthenticationConverter authenticationConverter = new ResponseAuthenticationConverter();
+	authenticationConverter.setPrincipalNameConverter((assertion) -> {
+		// ... grant the needed authorities based on attributes in the assertion
+	});
+	return authenticationConverter;
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun authenticationConverter(): ResponseAuthenticationConverter {
+    val authenticationConverter = ResponseAuthenticationConverter()
+    authenticationConverter.setPrincipalNameConverter{ assertion ->
+		// ... grant the needed authorities based on attributes in the assertion
+    }
+    return authenticationConverter
+}
+----
+======
 
 [[servlet-saml2login-opensamlauthenticationprovider-additionalvalidation]]
 == Performing Additional Response Validation

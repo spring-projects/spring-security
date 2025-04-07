@@ -339,7 +339,7 @@ It's common to need to set other values in the `<saml2:LogoutRequest>` than the 
 
 By default, Spring Security will issue a `<saml2:LogoutRequest>` and supply:
 
-* The `Destination` attribute - from `RelyingPartyRegistration#getAssertingPartyMetadata#getSingleLogoutServiceLocation`
+* The `DestinationValidator` attribute - from `RelyingPartyRegistration#getAssertingPartyMetadata#getSingleLogoutServiceLocation`
 * The `ID` attribute - a GUID
 * The `<Issuer>` element - from `RelyingPartyRegistration#getEntityId`
 * The `<NameID>` element - from `Authentication#getName`
@@ -424,7 +424,7 @@ It's common to need to set other values in the `<saml2:LogoutResponse>` than the
 
 By default, Spring Security will issue a `<saml2:LogoutResponse>` and supply:
 
-* The `Destination` attribute - from `RelyingPartyRegistration#getAssertingPartyMetadata#getSingleLogoutServiceResponseLocation`
+* The `DestinationValidator` attribute - from `RelyingPartyRegistration#getAssertingPartyMetadata#getSingleLogoutServiceResponseLocation`
 * The `ID` attribute - a GUID
 * The `<Issuer>` element - from `RelyingPartyRegistration#getEntityId`
 * The `<Status>` element - `SUCCESS`

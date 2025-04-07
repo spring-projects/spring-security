@@ -110,6 +110,8 @@ class BaseOpenSamlAuthenticationProvider implements AuthenticationProvider {
 
 	private Converter<ResponseToken, ? extends AbstractAuthenticationToken> responseAuthenticationConverter = createDefaultResponseAuthenticationConverter();
 
+	private boolean validateResponseAfterAssertions = false;
+
 	private static final Set<String> includeChildStatusCodes = new HashSet<>(
 			Arrays.asList(StatusCode.REQUESTER, StatusCode.RESPONDER, StatusCode.VERSION_MISMATCH));
 
@@ -141,6 +143,10 @@ class BaseOpenSamlAuthenticationProvider implements AuthenticationProvider {
 			Converter<ResponseToken, ? extends AbstractAuthenticationToken> responseAuthenticationConverter) {
 		Assert.notNull(responseAuthenticationConverter, "responseAuthenticationConverter cannot be null");
 		this.responseAuthenticationConverter = responseAuthenticationConverter;
+	}
+
+	void setValidateResponseAfterAssertions(boolean validateResponseAfterAssertions) {
+		this.validateResponseAfterAssertions = validateResponseAfterAssertions;
 	}
 
 	static Converter<ResponseToken, Saml2ResponseValidatorResult> createDefaultResponseValidator() {
@@ -321,7 +327,9 @@ class BaseOpenSamlAuthenticationProvider implements AuthenticationProvider {
 			result = result.concat(new Saml2Error(Saml2ErrorCodes.INVALID_SIGNATURE,
 					"Did not decrypt response [" + response.getID() + "] since it is not signed"));
 		}
-		result = result.concat(this.responseValidator.convert(responseToken));
+		if (!this.validateResponseAfterAssertions) {
+			result = result.concat(this.responseValidator.convert(responseToken));
+		}
 		boolean allAssertionsSigned = true;
 		for (Assertion assertion : response.getAssertions()) {
 			AssertionToken assertionToken = new AssertionToken(assertion, token);
@@ -337,11 +345,16 @@ class BaseOpenSamlAuthenticationProvider implements AuthenticationProvider {
 					+ "Please either sign the response or all of the assertions.";
 			result = result.concat(new Saml2Error(Saml2ErrorCodes.INVALID_SIGNATURE, description));
 		}
-		Assertion firstAssertion = CollectionUtils.firstElement(response.getAssertions());
-		if (firstAssertion != null && !hasName(firstAssertion)) {
-			Saml2Error error = new Saml2Error(Saml2ErrorCodes.SUBJECT_NOT_FOUND,
-					"Assertion [" + firstAssertion.getID() + "] is missing a subject");
-			result = result.concat(error);
+		if (this.validateResponseAfterAssertions) {
+			result = result.concat(this.responseValidator.convert(responseToken));
+		}
+		else {
+			Assertion firstAssertion = CollectionUtils.firstElement(response.getAssertions());
+			if (firstAssertion != null && !hasName(firstAssertion)) {
+				Saml2Error error = new Saml2Error(Saml2ErrorCodes.SUBJECT_NOT_FOUND,
+						"Assertion [" + firstAssertion.getID() + "] is missing a subject");
+				result = result.concat(error);
+			}
 		}
 
 		if (result.hasErrors()) {
@@ -422,7 +435,7 @@ class BaseOpenSamlAuthenticationProvider implements AuthenticationProvider {
 		};
 	}
 
-	private boolean hasName(Assertion assertion) {
+	static boolean hasName(Assertion assertion) {
 		if (assertion == null) {
 			return false;
 		}
@@ -435,7 +448,7 @@ class BaseOpenSamlAuthenticationProvider implements AuthenticationProvider {
 		return assertion.getSubject().getNameID().getValue() != null;
 	}
 
-	private static Map<String, List<Object>> getAssertionAttributes(Assertion assertion) {
+	static Map<String, List<Object>> getAssertionAttributes(Assertion assertion) {
 		MultiValueMap<String, Object> attributeMap = new LinkedMultiValueMap<>();
 		for (AttributeStatement attributeStatement : assertion.getAttributeStatements()) {
 			for (Attribute attribute : attributeStatement.getAttributes()) {
@@ -452,7 +465,7 @@ class BaseOpenSamlAuthenticationProvider implements AuthenticationProvider {
 		return new LinkedHashMap<>(attributeMap); // gh-11785
 	}
 
-	private static List<String> getSessionIndexes(Assertion assertion) {
+	static List<String> getSessionIndexes(Assertion assertion) {
 		List<String> sessionIndexes = new ArrayList<>();
 		for (AuthnStatement statement : assertion.getAuthnStatements()) {
 			sessionIndexes.add(statement.getSessionIndex());
