@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -1560,12 +1560,15 @@ public class OAuth2ResourceServerConfigurerTests {
 		@Bean
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
+			DefaultBearerTokenResolver defaultBearerTokenResolver = new DefaultBearerTokenResolver();
+			defaultBearerTokenResolver.setAllowUriQueryParameter(true);
 			http
 				.authorizeRequests()
 					.requestMatchers("/requires-read-scope").access("hasAuthority('SCOPE_message:read')")
 					.anyRequest().authenticated()
 					.and()
 				.oauth2ResourceServer()
+					.bearerTokenResolver(defaultBearerTokenResolver)
 					.jwt()
 						.jwkSetUri(this.jwkSetUri);
 			return http.build();

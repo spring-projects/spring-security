@@ -52,26 +52,77 @@ public final class DefaultBearerTokenResolver implements BearerTokenResolver {
 
 	@Override
 	public String resolve(final HttpServletRequest request) {
-		final String authorizationHeaderToken = resolveFromAuthorizationHeader(request);
-		final String parameterToken = isParameterTokenSupportedForRequest(request)
-				? resolveFromRequestParameters(request) : null;
-		if (authorizationHeaderToken != null) {
-			if (parameterToken != null) {
+		// @formatter:off
+		return resolveToken(
+			resolveFromAuthorizationHeader(request),
+			resolveAccessTokenFromQueryString(request),
+			resolveAccessTokenFromBody(request)
+		);
+		// @formatter:on
+	}
+
+	private static String resolveToken(String... accessTokens) {
+		if (accessTokens == null || accessTokens.length == 0) {
+			return null;
+		}
+
+		String accessToken = null;
+		for (String token : accessTokens) {
+			if (accessToken == null) {
+				accessToken = token;
+			}
+			else if (token != null) {
 				BearerTokenError error = BearerTokenErrors
 					.invalidRequest("Found multiple bearer tokens in the request");
 				throw new OAuth2AuthenticationException(error);
 			}
-			return authorizationHeaderToken;
 		}
-		if (parameterToken != null && isParameterTokenEnabledForRequest(request)) {
-			if (!StringUtils.hasText(parameterToken)) {
-				BearerTokenError error = BearerTokenErrors
-					.invalidRequest("The requested token parameter is an empty string");
-				throw new OAuth2AuthenticationException(error);
-			}
-			return parameterToken;
+
+		if (accessToken != null && accessToken.isBlank()) {
+			BearerTokenError error = BearerTokenErrors
+				.invalidRequest("The requested token parameter is an empty string");
+			throw new OAuth2AuthenticationException(error);
 		}
-		return null;
+
+		return accessToken;
+	}
+
+	private String resolveFromAuthorizationHeader(HttpServletRequest request) {
+		String authorization = request.getHeader(this.bearerTokenHeaderName);
+		if (!StringUtils.startsWithIgnoreCase(authorization, "bearer")) {
+			return null;
+		}
+
+		Matcher matcher = authorizationPattern.matcher(authorization);
+		if (!matcher.matches()) {
+			BearerTokenError error = BearerTokenErrors.invalidToken("Bearer token is malformed");
+			throw new OAuth2AuthenticationException(error);
+		}
+
+		return matcher.group("token");
+	}
+
+	private String resolveAccessTokenFromQueryString(HttpServletRequest request) {
+		if (!this.allowUriQueryParameter || !HttpMethod.GET.name().equals(request.getMethod())) {
+			return null;
+		}
+
+		return resolveToken(request.getParameterValues(ACCESS_TOKEN_PARAMETER_NAME));
+	}
+
+	private String resolveAccessTokenFromBody(HttpServletRequest request) {
+		if (!this.allowFormEncodedBodyParameter
+				|| !MediaType.APPLICATION_FORM_URLENCODED_VALUE.equals(request.getContentType())
+				|| HttpMethod.GET.name().equals(request.getMethod())) {
+			return null;
+		}
+
+		String queryString = request.getQueryString();
+		if (queryString != null && queryString.contains(ACCESS_TOKEN_PARAMETER_NAME)) {
+			return null;
+		}
+
+		return resolveToken(request.getParameterValues(ACCESS_TOKEN_PARAMETER_NAME));
 	}
 
 	/**
@@ -107,52 +158,6 @@ public final class DefaultBearerTokenResolver implements BearerTokenResolver {
 	 */
 	public void setBearerTokenHeaderName(String bearerTokenHeaderName) {
 		this.bearerTokenHeaderName = bearerTokenHeaderName;
-	}
-
-	private String resolveFromAuthorizationHeader(HttpServletRequest request) {
-		String authorization = request.getHeader(this.bearerTokenHeaderName);
-		if (!StringUtils.startsWithIgnoreCase(authorization, "bearer")) {
-			return null;
-		}
-		Matcher matcher = authorizationPattern.matcher(authorization);
-		if (!matcher.matches()) {
-			BearerTokenError error = BearerTokenErrors.invalidToken("Bearer token is malformed");
-			throw new OAuth2AuthenticationException(error);
-		}
-		return matcher.group("token");
-	}
-
-	private static String resolveFromRequestParameters(HttpServletRequest request) {
-		String[] values = request.getParameterValues(ACCESS_TOKEN_PARAMETER_NAME);
-		if (values == null || values.length == 0) {
-			return null;
-		}
-		if (values.length == 1) {
-			return values[0];
-		}
-		BearerTokenError error = BearerTokenErrors.invalidRequest("Found multiple bearer tokens in the request");
-		throw new OAuth2AuthenticationException(error);
-	}
-
-	private boolean isParameterTokenSupportedForRequest(final HttpServletRequest request) {
-		return isFormEncodedRequest(request) || isGetRequest(request);
-	}
-
-	private static boolean isGetRequest(HttpServletRequest request) {
-		return HttpMethod.GET.name().equals(request.getMethod());
-	}
-
-	private static boolean isFormEncodedRequest(HttpServletRequest request) {
-		return MediaType.APPLICATION_FORM_URLENCODED_VALUE.equals(request.getContentType());
-	}
-
-	private static boolean hasAccessTokenInQueryString(HttpServletRequest request) {
-		return (request.getQueryString() != null) && request.getQueryString().contains(ACCESS_TOKEN_PARAMETER_NAME);
-	}
-
-	private boolean isParameterTokenEnabledForRequest(HttpServletRequest request) {
-		return ((this.allowFormEncodedBodyParameter && isFormEncodedRequest(request) && !isGetRequest(request)
-				&& !hasAccessTokenInQueryString(request)) || (this.allowUriQueryParameter && isGetRequest(request)));
 	}
 
 }
