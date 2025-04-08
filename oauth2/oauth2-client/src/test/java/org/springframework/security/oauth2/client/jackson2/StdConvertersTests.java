@@ -16,6 +16,8 @@
 
 package org.springframework.security.oauth2.client.jackson2;
 
+import java.util.stream.Stream;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -23,34 +25,29 @@ import com.fasterxml.jackson.databind.util.StdConverter;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 
-import java.util.stream.Stream;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+public class StdConvertersTests {
 
-public class StdConvertersTest {
-
-	private final StdConverter<JsonNode, ClientAuthenticationMethod> clientAuthenticationMethodConverter =
-			new StdConverters.ClientAuthenticationMethodConverter();
+	private final StdConverter<JsonNode, ClientAuthenticationMethod> clientAuthenticationMethodConverter = new StdConverters.ClientAuthenticationMethodConverter();
 
 	@ParameterizedTest
-	@MethodSource("testClientAuthenticationMethodConverting")
-	void testClientAuthenticationMethodConverting(String clientAuthenticationMethod) {
+	@MethodSource("convertWhenClientAuthenticationMethodConvertedThenDeserializes")
+	void convertWhenClientAuthenticationMethodConvertedThenDeserializes(String clientAuthenticationMethod) {
 		ObjectNode jsonNode = JsonNodeFactory.instance.objectNode();
 		jsonNode.put("value", clientAuthenticationMethod);
 		ClientAuthenticationMethod actual = this.clientAuthenticationMethodConverter.convert(jsonNode);
-		assertEquals(clientAuthenticationMethod, actual.getValue());
-
+		assertThat(actual.getValue()).isEqualTo(clientAuthenticationMethod);
 	}
 
-	static Stream<Arguments> testClientAuthenticationMethodConverting() {
-		return Stream.of(
-				Arguments.of(ClientAuthenticationMethod.CLIENT_SECRET_BASIC.getValue()),
+	static Stream<Arguments> convertWhenClientAuthenticationMethodConvertedThenDeserializes() {
+		return Stream.of(Arguments.of(ClientAuthenticationMethod.CLIENT_SECRET_BASIC.getValue()),
 				Arguments.of(ClientAuthenticationMethod.CLIENT_SECRET_POST.getValue()),
 				Arguments.of(ClientAuthenticationMethod.PRIVATE_KEY_JWT.getValue()),
-				Arguments.of(ClientAuthenticationMethod.NONE.getValue()),
-				Arguments.of("custom_method")
-		);
+				Arguments.of(ClientAuthenticationMethod.NONE.getValue()), Arguments.of("custom_method"));
 	}
+
 }
