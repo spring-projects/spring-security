@@ -38,7 +38,8 @@ public interface OpaqueTokenIntrospector {
 	/**
 	 * Introspect and verify the given token, returning its attributes.
 	 *
-	 * Returning a {@link OAuth2AuthenticatedPrincipal} is indicative that the token is valid.
+	 * Returning a {@link OAuth2AuthenticatedPrincipal} is indicative that the token is
+	 * valid.
 	 * @param token the token to introspect
 	 * @return the token's attributes
 	 */
