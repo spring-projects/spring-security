@@ -524,7 +524,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 			TestCsrfTokenRepository.enable(request);
 			MockHttpServletResponse response = new MockHttpServletResponse();
 			DeferredCsrfToken deferredCsrfToken = repository.loadDeferredToken(request, response);
-			handler.handle(request, response, deferredCsrfToken::get);
+			handler.handle(request, response, deferredCsrfToken);
 			CsrfToken token = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
 			String tokenValue = this.useInvalidToken ? INVALID_TOKEN_VALUE : token.getToken();
 			if (this.asHeader) {

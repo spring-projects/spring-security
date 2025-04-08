@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -108,7 +108,7 @@ public final class CsrfFilter extends OncePerRequestFilter {
 			throws ServletException, IOException {
 		DeferredCsrfToken deferredCsrfToken = this.tokenRepository.loadDeferredToken(request, response);
 		request.setAttribute(DeferredCsrfToken.class.getName(), deferredCsrfToken);
-		this.requestHandler.handle(request, response, deferredCsrfToken::get);
+		this.requestHandler.handle(request, response, deferredCsrfToken);
 		if (!this.requireCsrfProtectionMatcher.matches(request)) {
 			if (this.logger.isTraceEnabled()) {
 				this.logger.trace("Did not protect against CSRF since request did not match "
