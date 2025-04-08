@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -87,7 +87,7 @@ public class SessionManagementConfigurerServlet31Tests {
 		HttpSessionCsrfTokenRepository repository = new HttpSessionCsrfTokenRepository();
 		CsrfTokenRequestHandler handler = new XorCsrfTokenRequestAttributeHandler();
 		DeferredCsrfToken deferredCsrfToken = repository.loadDeferredToken(request, this.response);
-		handler.handle(request, this.response, deferredCsrfToken::get);
+		handler.handle(request, this.response, deferredCsrfToken);
 		CsrfToken token = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
 		request.setParameter(token.getParameterName(), token.getToken());
 		request.getSession().setAttribute("attribute1", "value1");
