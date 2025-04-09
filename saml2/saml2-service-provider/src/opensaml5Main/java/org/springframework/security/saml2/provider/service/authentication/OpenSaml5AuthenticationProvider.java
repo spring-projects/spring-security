@@ -53,6 +53,7 @@ import org.opensaml.xmlsec.signature.support.SignaturePrevalidator;
 import org.opensaml.xmlsec.signature.support.SignatureTrustEngine;
 
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;
@@ -60,6 +61,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.saml2.core.Saml2Error;
 import org.springframework.security.saml2.core.Saml2ErrorCodes;
 import org.springframework.security.saml2.core.Saml2ResponseValidatorResult;
+import org.springframework.security.saml2.provider.service.registration.AssertingPartyMetadata;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -114,6 +116,7 @@ public final class OpenSaml5AuthenticationProvider implements AuthenticationProv
 	 */
 	public OpenSaml5AuthenticationProvider() {
 		this.delegate = new BaseOpenSamlAuthenticationProvider(new OpenSaml5Template());
+		setResponseValidator(ResponseValidator.withDefaults());
 		setAssertionValidator(AssertionValidator.withDefaults());
 	}
 
@@ -301,12 +304,11 @@ public final class OpenSaml5AuthenticationProvider implements AuthenticationProv
 	 * Construct a default strategy for validating the SAML 2.0 Response
 	 * @return the default response validator strategy
 	 * @since 5.6
+	 * @deprecated please use {@link ResponseValidator#withDefaults()} instead
 	 */
+	@Deprecated
 	public static Converter<ResponseToken, Saml2ResponseValidatorResult> createDefaultResponseValidator() {
-		Converter<BaseOpenSamlAuthenticationProvider.ResponseToken, Saml2ResponseValidatorResult> delegate = BaseOpenSamlAuthenticationProvider
-			.createDefaultResponseValidator();
-		return (token) -> delegate
-			.convert(new BaseOpenSamlAuthenticationProvider.ResponseToken(token.getResponse(), token.getToken()));
+		return ResponseValidator.withDefaults();
 	}
 
 	/**
@@ -455,6 +457,135 @@ public final class OpenSaml5AuthenticationProvider implements AuthenticationProv
 
 		public Saml2AuthenticationToken getToken() {
 			return this.token;
+		}
+
+	}
+
+	/**
+	 * A response validator that checks the {@code InResponseTo} value against the
+	 * correlating {@link AbstractSaml2AuthenticationRequest}
+	 *
+	 * @since 6.5
+	 */
+	public static final class InResponseToValidator implements Converter<ResponseToken, Saml2ResponseValidatorResult> {
+
+		@Override
+		@NonNull
+		public Saml2ResponseValidatorResult convert(ResponseToken responseToken) {
+			AbstractSaml2AuthenticationRequest request = responseToken.getToken().getAuthenticationRequest();
+			Response response = responseToken.getResponse();
+			String inResponseTo = response.getInResponseTo();
+			return BaseOpenSamlAuthenticationProvider.validateInResponseTo(request, inResponseTo);
+		}
+
+	}
+
+	/**
+	 * A response validator that compares the {@code Destination} value to the configured
+	 * {@link RelyingPartyRegistration#getAssertionConsumerServiceLocation()}
+	 *
+	 * @since 6.5
+	 */
+	public static final class DestinationValidator implements Converter<ResponseToken, Saml2ResponseValidatorResult> {
+
+		@Override
+		@NonNull
+		public Saml2ResponseValidatorResult convert(ResponseToken responseToken) {
+			Response response = responseToken.getResponse();
+			Saml2AuthenticationToken token = responseToken.getToken();
+			String destination = response.getDestination();
+			String location = token.getRelyingPartyRegistration().getAssertionConsumerServiceLocation();
+			if (StringUtils.hasText(destination) && !destination.equals(location)) {
+				String message = "Invalid destination [" + destination + "] for SAML response [" + response.getID()
+						+ "]";
+				return Saml2ResponseValidatorResult
+					.failure(new Saml2Error(Saml2ErrorCodes.INVALID_DESTINATION, message));
+			}
+			return Saml2ResponseValidatorResult.success();
+		}
+
+	}
+
+	/**
+	 * A response validator that compares the {@code Issuer} value to the configured
+	 * {@link AssertingPartyMetadata#getEntityId()}
+	 *
+	 * @since 6.5
+	 */
+	public static final class IssuerValidator implements Converter<ResponseToken, Saml2ResponseValidatorResult> {
+
+		@Override
+		@NonNull
+		public Saml2ResponseValidatorResult convert(ResponseToken responseToken) {
+			Response response = responseToken.getResponse();
+			Saml2AuthenticationToken token = responseToken.getToken();
+			String issuer = response.getIssuer().getValue();
+			String assertingPartyEntityId = token.getRelyingPartyRegistration()
+				.getAssertingPartyMetadata()
+				.getEntityId();
+			if (!StringUtils.hasText(issuer) || !issuer.equals(assertingPartyEntityId)) {
+				String message = String.format("Invalid issuer [%s] for SAML response [%s]", issuer, response.getID());
+				return Saml2ResponseValidatorResult.failure(new Saml2Error(Saml2ErrorCodes.INVALID_ISSUER, message));
+			}
+			return Saml2ResponseValidatorResult.success();
+		}
+
+	}
+
+	/**
+	 * A composite response validator that confirms a {@code SUCCESS} status, that there
+	 * is at least one assertion, and any other configured converters
+	 *
+	 * @since 6.5
+	 * @see InResponseToValidator
+	 * @see DestinationValidator
+	 * @see IssuerValidator
+	 */
+	public static final class ResponseValidator implements Converter<ResponseToken, Saml2ResponseValidatorResult> {
+
+		private static final List<Converter<ResponseToken, Saml2ResponseValidatorResult>> DEFAULTS = List
+			.of(new InResponseToValidator(), new DestinationValidator(), new IssuerValidator());
+
+		private final List<Converter<ResponseToken, Saml2ResponseValidatorResult>> validators;
+
+		@SafeVarargs
+		public ResponseValidator(Converter<ResponseToken, Saml2ResponseValidatorResult>... validators) {
+			this.validators = List.of(validators);
+			Assert.notEmpty(this.validators, "validators cannot be empty");
+		}
+
+		public static ResponseValidator withDefaults() {
+			return new ResponseValidator(new InResponseToValidator(), new DestinationValidator(),
+					new IssuerValidator());
+		}
+
+		@SafeVarargs
+		public static ResponseValidator withDefaults(
+				Converter<ResponseToken, Saml2ResponseValidatorResult>... validators) {
+			List<Converter<ResponseToken, Saml2ResponseValidatorResult>> defaults = new ArrayList<>(DEFAULTS);
+			defaults.addAll(List.of(validators));
+			return new ResponseValidator(defaults.toArray(Converter[]::new));
+		}
+
+		@Override
+		public Saml2ResponseValidatorResult convert(ResponseToken responseToken) {
+			Response response = responseToken.getResponse();
+			Collection<Saml2Error> errors = new ArrayList<>();
+			List<String> statusCodes = BaseOpenSamlAuthenticationProvider.getStatusCodes(response);
+			if (!BaseOpenSamlAuthenticationProvider.isSuccess(statusCodes)) {
+				for (String statusCode : statusCodes) {
+					String message = String.format("Invalid status [%s] for SAML response [%s]", statusCode,
+							response.getID());
+					errors.add(new Saml2Error(Saml2ErrorCodes.INVALID_RESPONSE, message));
+				}
+			}
+			for (Converter<ResponseToken, Saml2ResponseValidatorResult> validator : this.validators) {
+				errors.addAll(validator.convert(responseToken).getErrors());
+			}
+			if (response.getAssertions().isEmpty()) {
+				errors.add(new Saml2Error(Saml2ErrorCodes.MALFORMED_RESPONSE_DATA, "No assertions found in response."));
+			}
+			return Saml2ResponseValidatorResult.failure(errors);
 		}
 
 	}

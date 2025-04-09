@@ -183,7 +183,7 @@ class BaseOpenSamlAuthenticationProvider implements AuthenticationProvider {
 		};
 	}
 
-	private static List<String> getStatusCodes(Response response) {
+	static List<String> getStatusCodes(Response response) {
 		if (response.getStatus() == null) {
 			return List.of(StatusCode.SUCCESS);
 		}
@@ -206,7 +206,7 @@ class BaseOpenSamlAuthenticationProvider implements AuthenticationProvider {
 		return List.of(parentStatusCodeValue, childStatusCodeValue);
 	}
 
-	private static boolean isSuccess(List<String> statusCodes) {
+	static boolean isSuccess(List<String> statusCodes) {
 		if (statusCodes.size() != 1) {
 			return false;
 		}
@@ -215,7 +215,7 @@ class BaseOpenSamlAuthenticationProvider implements AuthenticationProvider {
 		return StatusCode.SUCCESS.equals(statusCode);
 	}
 
-	private static Saml2ResponseValidatorResult validateInResponseTo(AbstractSaml2AuthenticationRequest storedRequest,
+	static Saml2ResponseValidatorResult validateInResponseTo(AbstractSaml2AuthenticationRequest storedRequest,
 			String inResponseTo) {
 		if (!StringUtils.hasText(inResponseTo)) {
 			return Saml2ResponseValidatorResult.success();

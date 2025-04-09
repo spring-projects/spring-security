@@ -78,6 +78,7 @@ import org.springframework.security.saml2.core.Saml2ResponseValidatorResult;
 import org.springframework.security.saml2.core.TestSaml2X509Credentials;
 import org.springframework.security.saml2.provider.service.authentication.OpenSaml5AuthenticationProvider.AssertionValidator;
 import org.springframework.security.saml2.provider.service.authentication.OpenSaml5AuthenticationProvider.ResponseToken;
+import org.springframework.security.saml2.provider.service.authentication.OpenSaml5AuthenticationProvider.ResponseValidator;
 import org.springframework.security.saml2.provider.service.authentication.TestCustomOpenSaml5Objects.CustomOpenSamlObject;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.TestRelyingPartyRegistrations;
@@ -752,6 +753,22 @@ public class OpenSaml5AuthenticationProviderTests {
 			.willReturn(Saml2ResponseValidatorResult.success());
 		provider.authenticate(token);
 		verify(validator).convert(any(OpenSaml5AuthenticationProvider.ResponseToken.class));
+	}
+
+	@Test
+	public void authenticateWhenCustomSetOfResponseValidatorsThenUses() {
+		Converter<OpenSaml5AuthenticationProvider.ResponseToken, Saml2ResponseValidatorResult> validator = mock(
+				Converter.class);
+		given(validator.convert(any()))
+			.willReturn(Saml2ResponseValidatorResult.failure(new Saml2Error("error", "description")));
+		ResponseValidator responseValidator = new ResponseValidator(validator);
+		OpenSaml5AuthenticationProvider provider = new OpenSaml5AuthenticationProvider();
+		provider.setResponseValidator(responseValidator);
+		Response response = TestOpenSamlObjects.signedResponseWithOneAssertion();
+		Saml2AuthenticationToken token = token(response, verifying(registration()));
+		assertThatExceptionOfType(Saml2AuthenticationException.class).isThrownBy(() -> provider.authenticate(token))
+			.withMessageContaining("description");
+		verify(validator).convert(any());
 	}
 
 	@Test

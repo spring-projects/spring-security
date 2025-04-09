@@ -359,6 +359,30 @@ provider.setResponseValidator((responseToken) -> {
 });
 ----
 
+When using `OpenSaml5AuthenticationProvider`, you can do the same with less boilerplate:
+
+[source,java]
+----
+OpenSaml5AuthenticationProvider provider = new OpenSaml5AuthenticationProvider();
+ResponseValidator responseValidator = ResponseValidator.withDefaults(myCustomValidator);
+provider.setResponseValidator(responseValidator);
+----
+
+You can also customize which validation steps Spring Security should do.
+For example, if you want to skip `Response#InResponseTo` validation, you can call ``ResponseValidator``'s constructor, excluding `InResponseToValidator` from the list:
+
+[source,java]
+----
+OpenSaml5AuthenticationProvider provider = new OpenSaml5AuthenticationProvider();
+ResponseValidator responseValidator = new ResponseValidator(new DestinationValidator(), new IssuerValidator());
+provider.setResponseValidator(responseValidator);
+----
+
+[TIP]
+====
+OpenSAML performs `Asssertion#InResponseTo` validation in its `BearerSubjectConfirmationValidator` class, which is configurable using <<_performing_additional_assertion_validation, setAssertionValidator>>.
+====
+
 == Performing Additional Assertion Validation
 `OpenSaml4AuthenticationProvider` performs minimal validation on SAML 2.0 Assertions.
 After verifying the signature, it will:
