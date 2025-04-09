@@ -18,6 +18,7 @@ Note that this may affect reports that operate on this key name.
 == OAuth
 
 * https://github.com/spring-projects/spring-security/pull/16386[gh-16386] - Enable PKCE for confidential clients using `ClientRegistration.clientSettings.requireProofKey=true` for xref:servlet/oauth2/client/core.adoc#oauth2Client-client-registration-requireProofKey[servlet] and xref:reactive/oauth2/client/core.adoc#oauth2Client-client-registration-requireProofKey[reactive] applications
+* https://github.com/spring-projects/spring-security/issues/16913[gh-16913] - Prepare OAuth2 Client deprecations for removal in Spring Security 7
 
 == WebAuthn
 
