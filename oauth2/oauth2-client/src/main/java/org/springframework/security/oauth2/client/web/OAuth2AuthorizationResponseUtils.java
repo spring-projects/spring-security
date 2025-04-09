@@ -16,13 +16,14 @@
 
 package org.springframework.security.oauth2.client.web;
 
-import java.util.Map;
+import java.util.*;
 
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResponse;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
+
 
 /**
  * Utility methods for an OAuth 2.0 Authorization Response.
@@ -62,15 +63,36 @@ final class OAuth2AuthorizationResponseUtils {
 				&& StringUtils.hasText(request.getFirst(OAuth2ParameterNames.STATE));
 	}
 
-	static OAuth2AuthorizationResponse convert(MultiValueMap<String, String> request, String redirectUri) {
-		String code = request.getFirst(OAuth2ParameterNames.CODE);
-		String errorCode = request.getFirst(OAuth2ParameterNames.ERROR);
-		String state = request.getFirst(OAuth2ParameterNames.STATE);
+	private static final Set<String> AUTHORIZATION_RESPONSE_PARAMETER_NAMES = new HashSet<>(
+			Arrays.asList(
+					OAuth2ParameterNames.CODE,
+					OAuth2ParameterNames.ERROR,
+					OAuth2ParameterNames.STATE,
+					OAuth2ParameterNames.ERROR_DESCRIPTION,
+					OAuth2ParameterNames.REDIRECT_URI,
+					OAuth2ParameterNames.ERROR_URI));
+
+	static OAuth2AuthorizationResponse convert(MultiValueMap<String, String> parameters, String redirectUri) {
+		String code = parameters.getFirst(OAuth2ParameterNames.CODE);
+		String errorCode = parameters.getFirst(OAuth2ParameterNames.ERROR);
+		String state = parameters.getFirst(OAuth2ParameterNames.STATE);
 		if (StringUtils.hasText(code)) {
-			return OAuth2AuthorizationResponse.success(code).redirectUri(redirectUri).state(state).build();
+			Map<String, Object> additionalParameters = new LinkedHashMap<>();
+			parameters.forEach((key, value) -> {
+				if (!AUTHORIZATION_RESPONSE_PARAMETER_NAMES.contains(key)) {
+					additionalParameters.put(
+							key,
+							value);
+				}
+			});
+			return OAuth2AuthorizationResponse.success(code)
+					.redirectUri(redirectUri)
+					.state(state)
+					.additionalParameters(additionalParameters)
+					.build();
 		}
-		String errorDescription = request.getFirst(OAuth2ParameterNames.ERROR_DESCRIPTION);
-		String errorUri = request.getFirst(OAuth2ParameterNames.ERROR_URI);
+		String errorDescription = parameters.getFirst(OAuth2ParameterNames.ERROR_DESCRIPTION);
+		String errorUri = parameters.getFirst(OAuth2ParameterNames.ERROR_URI);
 		// @formatter:off
 		return OAuth2AuthorizationResponse.error(errorCode)
 				.redirectUri(redirectUri)
