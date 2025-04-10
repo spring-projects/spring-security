@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package org.springframework.security.oauth2.client.userinfo;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 
@@ -95,6 +96,16 @@ public class DefaultOAuth2UserService implements OAuth2UserService<OAuth2UserReq
 		ResponseEntity<Map<String, Object>> response = getResponse(userRequest, request);
 		OAuth2AccessToken token = userRequest.getAccessToken();
 		Map<String, Object> attributes = this.attributesConverter.convert(userRequest).convert(response.getBody());
+
+		if (userNameAttributeName.contains(".") && !attributes.containsKey(userNameAttributeName)) {
+			Object nestedValue = extractNestedAttribute(attributes, userNameAttributeName);
+			if (nestedValue != null) {
+				Map<String, Object> enhancedAttributes = new HashMap<>(attributes);
+				enhancedAttributes.put(userNameAttributeName, nestedValue);
+				attributes = enhancedAttributes;
+			}
+		}
+
 		Collection<GrantedAuthority> authorities = getAuthorities(token, attributes, userNameAttributeName);
 		return new DefaultOAuth2User(authorities, attributes, userNameAttributeName);
 	}
@@ -195,6 +206,42 @@ public class DefaultOAuth2UserService implements OAuth2UserService<OAuth2UserReq
 			authorities.add(new SimpleGrantedAuthority("SCOPE_" + authority));
 		}
 		return authorities;
+	}
+
+	/**
+	 * Extract a value from nested attributes using a dot-notation path. For example,
+	 * "data.username" would extract the "username" field from the "data" object.
+	 * @param attributes the map of attributes
+	 * @param attributePath the attribute path in dot notation
+	 * @return the value at the specified path, or null if not found
+	 */
+	private Object extractNestedAttribute(Map<String, Object> attributes, String attributePath) {
+		if (attributes == null || attributePath == null) {
+			return null;
+		}
+
+		if (!attributePath.contains(".")) {
+			return attributes.get(attributePath);
+		}
+
+		String[] pathParts = attributePath.split("\\.");
+		Object currentValue = attributes;
+
+		for (String part : pathParts) {
+			if (!(currentValue instanceof Map)) {
+				return null;
+			}
+
+			@SuppressWarnings("unchecked")
+			Map<String, Object> currentMap = (Map<String, Object>) currentValue;
+			currentValue = currentMap.get(part);
+
+			if (currentValue == null) {
+				return null;
+			}
+		}
+
+		return currentValue;
 	}
 
 	/**
