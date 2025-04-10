@@ -60,6 +60,8 @@ import org.springframework.context.annotation.Role;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 import org.springframework.core.annotation.AnnotationConfigurationException;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.access.annotation.BusinessService;
@@ -90,7 +92,6 @@ import org.springframework.security.authorization.method.AuthorizeReturnObject;
 import org.springframework.security.authorization.method.MethodAuthorizationDeniedHandler;
 import org.springframework.security.authorization.method.MethodInvocationResult;
 import org.springframework.security.authorization.method.PrePostTemplateDefaults;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.SecurityContextChangedListenerConfig;
 import org.springframework.security.config.core.GrantedAuthorityDefaults;
 import org.springframework.security.config.observation.SecurityObservationSettings;
@@ -109,6 +110,7 @@ import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.context.ConfigurableWebApplicationContext;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
+import org.springframework.web.servlet.ModelAndView;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -727,6 +729,49 @@ public class PrePostMethodSecurityConfigurationTests {
 		Flight flight = flights.findById("1");
 		assertThatNoException().isThrownBy(flight::getSeats);
 		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(flight::getAltitude);
+	}
+
+	@Test
+	@WithMockUser(authorities = "airplane:read")
+	public void findByIdWhenAuthorizedResponseEntityThenAuthorizes() {
+		this.spring.register(AuthorizeResultConfig.class).autowire();
+		FlightRepository flights = this.spring.getContext().getBean(FlightRepository.class);
+		Flight flight = flights.webFindById("1").getBody();
+		assertThatNoException().isThrownBy(flight::getAltitude);
+		assertThatNoException().isThrownBy(flight::getSeats);
+		assertThat(flights.webFindById("5").getBody()).isNull();
+	}
+
+	@Test
+	@WithMockUser(authorities = "seating:read")
+	public void findByIdWhenUnauthorizedResponseEntityThenDenies() {
+		this.spring.register(AuthorizeResultConfig.class).autowire();
+		FlightRepository flights = this.spring.getContext().getBean(FlightRepository.class);
+		Flight flight = flights.webFindById("1").getBody();
+		assertThatNoException().isThrownBy(flight::getSeats);
+		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(flight::getAltitude);
+	}
+
+	@Test
+	@WithMockUser(authorities = "airplane:read")
+	public void findByIdWhenAuthorizedModelAndViewThenAuthorizes() {
+		this.spring.register(AuthorizeResultConfig.class).autowire();
+		FlightRepository flights = this.spring.getContext().getBean(FlightRepository.class);
+		Flight flight = (Flight) flights.webViewFindById("1").getModel().get("flight");
+		assertThatNoException().isThrownBy(flight::getAltitude);
+		assertThatNoException().isThrownBy(flight::getSeats);
+		assertThat(flights.webViewFindById("5").getModel().get("flight")).isNull();
+	}
+
+	@Test
+	@WithMockUser(authorities = "seating:read")
+	public void findByIdWhenUnauthorizedModelAndViewThenDenies() {
+		this.spring.register(AuthorizeResultConfig.class).autowire();
+		FlightRepository flights = this.spring.getContext().getBean(FlightRepository.class);
+		Flight flight = (Flight) flights.webViewFindById("1").getModel().get("flight");
+		assertThatNoException().isThrownBy(flight::getSeats);
+		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(flight::getAltitude);
+		assertThat(flights.webViewFindById("5").getModel().get("flight")).isNull();
 	}
 
 	@Test
@@ -1601,8 +1646,8 @@ public class PrePostMethodSecurityConfigurationTests {
 
 		@Bean
 		@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-		static Customizer<AuthorizationAdvisorProxyFactory> skipValueTypes() {
-			return (f) -> f.setTargetVisitor(TargetVisitor.defaultsSkipValueTypes());
+		static TargetVisitor skipValueTypes() {
+			return TargetVisitor.defaultsSkipValueTypes();
 		}
 
 		@Bean
@@ -1644,6 +1689,22 @@ public class PrePostMethodSecurityConfigurationTests {
 
 		void remove(String id) {
 			this.flights.remove(id);
+		}
+
+		ResponseEntity<Flight> webFindById(String id) {
+			Flight flight = this.flights.get(id);
+			if (flight == null) {
+				return ResponseEntity.notFound().build();
+			}
+			return ResponseEntity.ok(flight);
+		}
+
+		ModelAndView webViewFindById(String id) {
+			Flight flight = this.flights.get(id);
+			if (flight == null) {
+				return new ModelAndView("error", HttpStatusCode.valueOf(404));
+			}
+			return new ModelAndView("flights", Map.of("flight", flight));
 		}
 
 	}
