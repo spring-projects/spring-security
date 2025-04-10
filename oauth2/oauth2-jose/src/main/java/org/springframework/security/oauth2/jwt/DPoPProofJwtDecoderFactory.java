@@ -19,7 +19,6 @@ package org.springframework.security.oauth2.jwt;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.time.Clock;
-import java.time.Duration;
 import java.time.Instant;
 import java.util.Base64;
 import java.util.Collections;
@@ -122,7 +121,7 @@ public final class DPoPProofJwtDecoderFactory implements JwtDecoderFactory<DPoPP
 		return (context) -> new DelegatingOAuth2TokenValidator<>(
 				new JwtClaimValidator<>("htm", context.getMethod()::equals),
 				new JwtClaimValidator<>("htu", context.getTargetUri()::equals), new JtiClaimValidator(),
-				new IatClaimValidator());
+				new JwtIssuedAtValidator(true));
 	}
 
 	private static final class JtiClaimValidator implements OAuth2TokenValidator<Jwt> {
@@ -164,38 +163,6 @@ public final class DPoPProofJwtDecoderFactory implements JwtDecoderFactory<DPoPP
 			MessageDigest md = MessageDigest.getInstance("SHA-256");
 			byte[] digest = md.digest(value.getBytes(StandardCharsets.UTF_8));
 			return Base64.getUrlEncoder().withoutPadding().encodeToString(digest);
-		}
-
-	}
-
-	private static final class IatClaimValidator implements OAuth2TokenValidator<Jwt> {
-
-		private final Duration clockSkew = Duration.ofSeconds(60);
-
-		private final Clock clock = Clock.systemUTC();
-
-		@Override
-		public OAuth2TokenValidatorResult validate(Jwt jwt) {
-			Assert.notNull(jwt, "DPoP proof jwt cannot be null");
-			Instant issuedAt = jwt.getIssuedAt();
-			if (issuedAt == null) {
-				OAuth2Error error = createOAuth2Error("iat claim is required.");
-				return OAuth2TokenValidatorResult.failure(error);
-			}
-
-			// Check time window of validity
-			Instant now = Instant.now(this.clock);
-			Instant notBefore = now.minus(this.clockSkew);
-			Instant notAfter = now.plus(this.clockSkew);
-			if (issuedAt.isBefore(notBefore) || issuedAt.isAfter(notAfter)) {
-				OAuth2Error error = createOAuth2Error("iat claim is invalid.");
-				return OAuth2TokenValidatorResult.failure(error);
-			}
-			return OAuth2TokenValidatorResult.success();
-		}
-
-		private static OAuth2Error createOAuth2Error(String reason) {
-			return new OAuth2Error(OAuth2ErrorCodes.INVALID_DPOP_PROOF, reason, null);
 		}
 
 	}
