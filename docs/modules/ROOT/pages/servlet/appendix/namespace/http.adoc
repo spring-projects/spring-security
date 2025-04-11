@@ -1272,6 +1272,10 @@ Reference to a `BearerTokenResolver` which will retrieve the bearer token from t
 * **entry-point-ref**
 Reference to a `AuthenticationEntryPoint` which will handle unauthorized requests
 
+[[nsa-oauth2-resource-server-authentication-converter-ref]]
+* **authentication-converter-ref**
+Reference to a `AuthenticationConverter` which convert request to authentication
+
 [[nsa-jwt]]
 == <jwt>
 Represents an OAuth 2.0 Resource Server that will authorize JWTs

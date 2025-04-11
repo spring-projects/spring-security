@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -266,6 +266,16 @@ public class BearerTokenAuthenticationFilterTests {
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> filter.setAuthenticationDetailsSource(null))
 				.withMessageContaining("authenticationDetailsSource cannot be null");
+		// @formatter:on
+	}
+
+	@Test
+	public void setConverterWhenNullThenThrowsException() {
+		// @formatter:off
+		BearerTokenAuthenticationFilter filter = new BearerTokenAuthenticationFilter(this.authenticationManager);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> filter.setAuthenticationConverter(null))
+				.withMessageContaining("authenticationConverter cannot be null");
 		// @formatter:on
 	}
 
