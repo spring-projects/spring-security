@@ -172,7 +172,9 @@ public final class PathPatternRequestMatcher implements RequestMatcher {
 	 *
 	 * <p>
 	 * If you have many paths that have a common path prefix, you can use
-	 * {@link #basePath} to reduce repetition like so: <code>
+	 * {@link #basePath} to reduce repetition like so:
+	 *
+	 * <pre>
 	 *     PathPatternRequestMatcher.Builder mvc = withDefaults().basePath("/mvc");
 	 *     http
 	 *         .authorizeHttpRequests((authorize) -> authorize
@@ -180,7 +182,7 @@ public final class PathPatternRequestMatcher implements RequestMatcher {
 	 *              .requestMatchers(mvc.matcher("/admin/**")).hasAuthority("admin")
 	 *         )
 	 *             ...
-	 * </code>
+	 * </pre>
 	 */
 	public static final class Builder {
 
