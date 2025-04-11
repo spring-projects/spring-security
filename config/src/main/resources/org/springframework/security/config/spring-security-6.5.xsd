@@ -1999,6 +1999,12 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
+      <xs:attribute name="authentication-converter-ref" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>Reference to a AuthenticationConverter
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
   </xs:attributeGroup>
   <xs:element name="jwt">
       <xs:annotation>
