@@ -44,6 +44,7 @@ import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthen
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
 import org.springframework.security.oauth2.server.resource.web.DefaultBearerTokenResolver;
 import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.authentication.AuthenticationConverter;
 import org.springframework.security.web.authentication.AuthenticationEntryPointFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -83,11 +84,11 @@ public class BearerTokenAuthenticationFilter extends OncePerRequestFilter {
 	private AuthenticationFailureHandler authenticationFailureHandler = new AuthenticationEntryPointFailureHandler(
 			(request, response, exception) -> this.authenticationEntryPoint.commence(request, response, exception));
 
-	private BearerTokenResolver bearerTokenResolver = new DefaultBearerTokenResolver();
-
 	private AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource = new WebAuthenticationDetailsSource();
 
 	private SecurityContextRepository securityContextRepository = new RequestAttributeSecurityContextRepository();
+
+	private AuthenticationConverter authenticationConverter = new BearerTokenAuthenticationConverter();
 
 	/**
 	 * Construct a {@code BearerTokenAuthenticationFilter} using the provided parameter(s)
@@ -121,23 +122,21 @@ public class BearerTokenAuthenticationFilter extends OncePerRequestFilter {
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
-		String token;
+		Authentication authenticationRequest;
 		try {
-			token = this.bearerTokenResolver.resolve(request);
+			authenticationRequest = this.authenticationConverter.convert(request);
 		}
 		catch (OAuth2AuthenticationException invalid) {
 			this.logger.trace("Sending to authentication entry point since failed to resolve bearer token", invalid);
 			this.authenticationEntryPoint.commence(request, response, invalid);
 			return;
 		}
-		if (token == null) {
+
+		if (authenticationRequest == null) {
 			this.logger.trace("Did not process request since did not find bearer token");
 			filterChain.doFilter(request, response);
 			return;
 		}
-
-		BearerTokenAuthenticationToken authenticationRequest = new BearerTokenAuthenticationToken(token);
-		authenticationRequest.setDetails(this.authenticationDetailsSource.buildDetails(request));
 
 		try {
 			AuthenticationManager authenticationManager = this.authenticationManagerResolver.resolve(request);
@@ -194,7 +193,14 @@ public class BearerTokenAuthenticationFilter extends OncePerRequestFilter {
 	 */
 	public void setBearerTokenResolver(BearerTokenResolver bearerTokenResolver) {
 		Assert.notNull(bearerTokenResolver, "bearerTokenResolver cannot be null");
-		this.bearerTokenResolver = bearerTokenResolver;
+		this.authenticationConverter = (request) -> {
+			String token = bearerTokenResolver.resolve(request);
+			if (!StringUtils.hasText(token)) {
+				this.logger.trace("Did not process request since did not find bearer token");
+				return null;
+			}
+			return new BearerTokenAuthenticationToken(token);
+		};
 	}
 
 	/**
@@ -241,6 +247,17 @@ public class BearerTokenAuthenticationFilter extends OncePerRequestFilter {
 			jwkThumbprintClaim = (String) confirmationMethodClaim.get("jkt");
 		}
 		return StringUtils.hasText(jwkThumbprintClaim);
+	}
+
+	/**
+	 * Set the {@link AuthenticationConverter} to use. Defaults to
+	 * {@link BearerTokenAuthenticationConverter}.
+	 * @param authenticationConverter the {@code AuthenticationConverter} to use
+	 * @since 6.5
+	 */
+	public void setAuthenticationConverter(AuthenticationConverter authenticationConverter) {
+		Assert.notNull(authenticationConverter, "authenticationConverter cannot be null");
+		this.authenticationConverter = authenticationConverter;
 	}
 
 }
