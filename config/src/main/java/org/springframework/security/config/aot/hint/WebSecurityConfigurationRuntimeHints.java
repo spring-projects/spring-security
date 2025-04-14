@@ -35,6 +35,9 @@ class WebSecurityConfigurationRuntimeHints implements RuntimeHintsRegistrar {
 			.registerType(TypeReference
 				.of("org.springframework.security.config.annotation.web.configuration.WebSecurityConfiguration$CompositeFilterChainProxy"),
 					MemberCategory.INVOKE_DECLARED_CONSTRUCTORS);
+		hints.reflection()
+			.registerType(TypeReference.of("org.springframework.web.filter.ServletRequestPathFilter"),
+					MemberCategory.INVOKE_DECLARED_CONSTRUCTORS);
 	}
 
 }

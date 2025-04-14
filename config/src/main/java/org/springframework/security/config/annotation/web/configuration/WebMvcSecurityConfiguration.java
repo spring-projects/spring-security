@@ -122,7 +122,6 @@ class WebMvcSecurityConfiguration implements WebMvcConfigurer, ApplicationContex
 	}
 
 	@Bean
-	@Deprecated
 	static BeanDefinitionRegistryPostProcessor springSecurityHandlerMappingIntrospectorBeanDefinitionRegistryPostProcessor() {
 		return new BeanDefinitionRegistryPostProcessor() {
 			@Override

@@ -51,6 +51,9 @@ class WebSecurityConfigurationRuntimeHintsTests {
 			.onType(TypeReference
 				.of("org.springframework.security.config.annotation.web.configuration.WebSecurityConfiguration$CompositeFilterChainProxy"))
 			.withMemberCategory(MemberCategory.INVOKE_DECLARED_CONSTRUCTORS)).accepts(this.hints);
+		assertThat(RuntimeHintsPredicates.reflection()
+			.onType(TypeReference.of("org.springframework.web.filter.ServletRequestPathFilter"))
+			.withMemberCategory(MemberCategory.INVOKE_DECLARED_CONSTRUCTORS)).accepts(this.hints);
 	}
 
 }

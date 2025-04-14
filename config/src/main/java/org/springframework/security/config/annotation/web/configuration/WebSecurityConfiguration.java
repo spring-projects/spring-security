@@ -303,15 +303,9 @@ public class WebSecurityConfiguration implements ImportAware {
 		 * @param filters the Filters to delegate to. One of which must be
 		 * FilterChainProxy.
 		 */
-		@Autowired
 		CompositeFilterChainProxy(List<? extends Filter> filters) {
 			this.doFilterDelegate = createDoFilterDelegate(filters);
 			this.springSecurityFilterChain = findFilterChainProxy(filters);
-		}
-
-		CompositeFilterChainProxy(Filter delegate, FilterChainProxy filterChain) {
-			this.doFilterDelegate = delegate;
-			this.springSecurityFilterChain = filterChain;
 		}
 
 		@Override
