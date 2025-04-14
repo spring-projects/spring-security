@@ -94,7 +94,7 @@ org-springframework-ldap-spring-ldap-core = "org.springframework.ldap:spring-lda
 org-springframework-spring-framework-bom = { module = "org.springframework:spring-framework-bom", version.ref = "org-springframework" }
 org-synchronoss-cloud-nio-multipart-parser = "org.synchronoss.cloud:nio-multipart-parser:1.1.0"
 
-com-google-code-gson-gson = "com.google.code.gson:gson:2.12.1"
+com-google-code-gson-gson = "com.google.code.gson:gson:2.13.0"
 com-thaiopensource-trag = "com.thaiopensource:trang:20091111"
 net-sourceforge-saxon-saxon = "net.sourceforge.saxon:saxon:9.1.0.8"
 org-yaml-snakeyaml = "org.yaml:snakeyaml:1.33"
