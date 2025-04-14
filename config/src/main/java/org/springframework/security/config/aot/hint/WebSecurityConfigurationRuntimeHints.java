@@ -23,7 +23,7 @@ import org.springframework.aot.hint.TypeReference;
 
 /**
  * Runtime hints for
- * {@link org.springframework.security.config.annotation.web.configuration.WebMvcSecurityConfiguration}
+ * {@link org.springframework.security.config.annotation.web.configuration.WebSecurityConfiguration}
  *
  * @author Marcus da Coregio
  */

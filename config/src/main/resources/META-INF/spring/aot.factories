@@ -3,4 +3,5 @@ org.springframework.security.config.annotation.authentication.configuration.Auth
 
 org.springframework.aot.hint.RuntimeHintsRegistrar=\
 org.springframework.security.config.aot.hint.OAuth2LoginRuntimeHints,\
-org.springframework.security.config.aot.hint.WebMvcSecurityConfigurationRuntimeHints
+org.springframework.security.config.aot.hint.WebMvcSecurityConfigurationRuntimeHints, \
+org.springframework.security.config.aot.hint.WebSecurityConfigurationRuntimeHints
