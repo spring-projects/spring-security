@@ -59,7 +59,6 @@ public class NamespaceDebugTests {
 		Appender<ILoggingEvent> appender = mockAppenderFor("Spring Security Debugger");
 		this.spring.register(DebugWebSecurity.class).autowire();
 		this.mvc.perform(get("/"));
-		assertThat(filterChainClass()).isEqualTo(DebugFilter.class);
 		verify(appender, atLeastOnce()).doAppend(any(ILoggingEvent.class));
 	}
 

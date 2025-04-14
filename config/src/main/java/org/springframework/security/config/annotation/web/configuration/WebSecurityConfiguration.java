@@ -229,7 +229,7 @@ public class WebSecurityConfiguration implements ImportAware {
 				BeanDefinition filterChainProxy = registry
 					.getBeanDefinition(AbstractSecurityWebApplicationInitializer.DEFAULT_FILTER_NAME);
 
-				if (filterChainProxy.getResolvableType().isAssignableFrom(CompositeFilterChainProxy.class)) {
+				if (filterChainProxy.getResolvableType().isInstance(CompositeFilterChainProxy.class)) {
 					return;
 				}
 
@@ -243,11 +243,6 @@ public class WebSecurityConfiguration implements ImportAware {
 				BeanDefinitionBuilder compositeSpringSecurityFilterChainBldr = BeanDefinitionBuilder
 					.rootBeanDefinition(CompositeFilterChainProxy.class)
 					.addConstructorArgValue(filters);
-
-				if (filterChainProxy.getResolvableType().isInstance(DebugFilter.class)) {
-					compositeSpringSecurityFilterChainBldr = BeanDefinitionBuilder.rootBeanDefinition(DebugFilter.class)
-						.addConstructorArgValue(compositeSpringSecurityFilterChainBldr.getBeanDefinition());
-				}
 
 				registry.removeBeanDefinition(AbstractSecurityWebApplicationInitializer.DEFAULT_FILTER_NAME);
 				registry.registerBeanDefinition(AbstractSecurityWebApplicationInitializer.DEFAULT_FILTER_NAME,
@@ -308,6 +303,7 @@ public class WebSecurityConfiguration implements ImportAware {
 		 * @param filters the Filters to delegate to. One of which must be
 		 * FilterChainProxy.
 		 */
+		@Autowired
 		CompositeFilterChainProxy(List<? extends Filter> filters) {
 			this.doFilterDelegate = createDoFilterDelegate(filters);
 			this.springSecurityFilterChain = findFilterChainProxy(filters);
@@ -403,7 +399,7 @@ public class WebSecurityConfiguration implements ImportAware {
 					return fcp;
 				}
 				if (filter instanceof DebugFilter debugFilter) {
-					return new CompositeFilterChainProxy(debugFilter, debugFilter.getFilterChainProxy());
+					return debugFilter.getFilterChainProxy();
 				}
 			}
 			throw new IllegalStateException("Couldn't find FilterChainProxy in " + filters);
