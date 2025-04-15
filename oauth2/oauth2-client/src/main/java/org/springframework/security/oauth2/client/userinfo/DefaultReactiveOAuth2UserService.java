@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package org.springframework.security.oauth2.client.userinfo;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -128,7 +129,19 @@ public class DefaultReactiveOAuth2UserService implements ReactiveOAuth2UserServi
 							})
 					)
 					.bodyToMono(DefaultReactiveOAuth2UserService.STRING_OBJECT_MAP)
-					.mapNotNull((attributes) -> this.attributesConverter.convert(userRequest).convert(attributes));
+					.mapNotNull((attributes) -> {
+						Map<String, Object> convertedAttributes = this.attributesConverter.convert(userRequest).convert(attributes);
+						if (userNameAttributeName.contains(".") && !convertedAttributes.containsKey(userNameAttributeName)) {
+							Object nestedValue = extractNestedAttribute(convertedAttributes, userNameAttributeName);
+							if (nestedValue != null) {
+								Map<String, Object> enhancedAttributes = new HashMap<>(convertedAttributes);
+								enhancedAttributes.put(userNameAttributeName, nestedValue);
+								return enhancedAttributes;
+							}
+						}
+
+						return convertedAttributes;
+					});
 			return userAttributes.map((attrs) -> {
 				GrantedAuthority authority = new OAuth2UserAuthority(attrs, userNameAttributeName);
 				Set<GrantedAuthority> authorities = new HashSet<>();
@@ -187,6 +200,42 @@ public class DefaultReactiveOAuth2UserService implements ReactiveOAuth2UserServi
 						.setBearerAuth(userRequest.getAccessToken().getTokenValue())
 				);
 		// @formatter:on
+	}
+
+	/**
+	 * Extract a value from nested attributes using a dot-notation path. For example,
+	 * "data.username" would extract the "username" field from the "data" object.
+	 * @param attributes the map of attributes
+	 * @param attributePath the attribute path in dot notation
+	 * @return the value at the specified path, or null if not found
+	 */
+	private Object extractNestedAttribute(Map<String, Object> attributes, String attributePath) {
+		if (attributes == null || attributePath == null) {
+			return null;
+		}
+
+		if (!attributePath.contains(".")) {
+			return attributes.get(attributePath);
+		}
+
+		String[] pathParts = attributePath.split("\\.");
+		Object currentValue = attributes;
+
+		for (String part : pathParts) {
+			if (!(currentValue instanceof Map)) {
+				return null;
+			}
+
+			@SuppressWarnings("unchecked")
+			Map<String, Object> currentMap = (Map<String, Object>) currentValue;
+			currentValue = currentMap.get(part);
+
+			if (currentValue == null) {
+				return null;
+			}
+		}
+
+		return currentValue;
 	}
 
 	/**
