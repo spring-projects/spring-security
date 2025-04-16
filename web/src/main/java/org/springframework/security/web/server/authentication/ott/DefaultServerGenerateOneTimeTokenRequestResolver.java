@@ -17,6 +17,8 @@
 package org.springframework.security.web.server.authentication.ott;
 
 import java.time.Duration;
+import java.util.UUID;
+import java.util.function.Supplier;
 
 import reactor.core.publisher.Mono;
 
@@ -40,13 +42,15 @@ public final class DefaultServerGenerateOneTimeTokenRequestResolver
 
 	private Duration expiresIn = DEFAULT_EXPIRES_IN;
 
+	private Supplier<String> tokenValueFactory = () -> UUID.randomUUID().toString();
+
 	@Override
 	public Mono<GenerateOneTimeTokenRequest> resolve(ServerWebExchange exchange) {
 		// @formatter:off
 		return exchange.getFormData()
 				.mapNotNull((data) -> data.getFirst(USERNAME))
 				.switchIfEmpty(Mono.empty())
-				.map((username) -> new GenerateOneTimeTokenRequest(username, this.expiresIn));
+				.map((username) -> new GenerateOneTimeTokenRequest(username, this.expiresIn, this.tokenValueFactory.get()));
 		// @formatter:on
 	}
 
@@ -57,6 +61,16 @@ public final class DefaultServerGenerateOneTimeTokenRequestResolver
 	public void setExpiresIn(Duration expiresIn) {
 		Assert.notNull(expiresIn, "expiresIn cannot be null");
 		this.expiresIn = expiresIn;
+	}
+
+	/**
+	 * Sets factory for token value generation
+	 * @param tokenValueFactory factory for token value generation
+	 * @since 6.5
+	 */
+	public void setTokenValueFactory(Supplier<String> tokenValueFactory) {
+		Assert.notNull(tokenValueFactory, "tokenValueFactory cannot be null");
+		this.tokenValueFactory = tokenValueFactory;
 	}
 
 }
