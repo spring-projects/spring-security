@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -229,6 +229,13 @@ public final class OAuth2ParameterNames {
 	 * @since 6.3
 	 */
 	public static final String ACTOR_TOKEN_TYPE = "actor_token_type";
+
+	/**
+	 * {@code request_uri} - used in Pushed Authorization Response and Authorization
+	 * Request.
+	 * @since 6.5
+	 */
+	public static final String REQUEST_URI = "request_uri";
 
 	private OAuth2ParameterNames() {
 	}
