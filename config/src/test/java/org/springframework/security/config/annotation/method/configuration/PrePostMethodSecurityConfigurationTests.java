@@ -63,7 +63,14 @@ import org.springframework.context.annotation.Role;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 import org.springframework.core.annotation.AnnotationConfigurationException;
-import org.springframework.core.annotation.Order;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
+import org.springframework.data.geo.Distance;
+import org.springframework.data.geo.GeoPage;
+import org.springframework.data.geo.GeoResult;
+import org.springframework.data.geo.GeoResults;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
@@ -758,6 +765,28 @@ public class PrePostMethodSecurityConfigurationTests {
 
 	@Test
 	@WithMockUser(authorities = "airplane:read")
+	public void findGeoResultByIdWhenAuthorizedResultThenAuthorizes() {
+		this.spring.register(AuthorizeResultConfig.class).autowire();
+		FlightRepository flights = this.spring.getContext().getBean(FlightRepository.class);
+		GeoResult<Flight> geoResultFlight = flights.findGeoResultFlightById("1");
+		Flight flight = geoResultFlight.getContent();
+		assertThatNoException().isThrownBy(flight::getAltitude);
+		assertThatNoException().isThrownBy(flight::getSeats);
+	}
+
+	@Test
+	@WithMockUser(authorities = "seating:read")
+	public void findGeoResultByIdWhenUnauthorizedResultThenDenies() {
+		this.spring.register(AuthorizeResultConfig.class).autowire();
+		FlightRepository flights = this.spring.getContext().getBean(FlightRepository.class);
+		GeoResult<Flight> geoResultFlight = flights.findGeoResultFlightById("1");
+		Flight flight = geoResultFlight.getContent();
+		assertThatNoException().isThrownBy(flight::getSeats);
+		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(flight::getAltitude);
+	}
+
+	@Test
+	@WithMockUser(authorities = "airplane:read")
 	public void findByIdWhenAuthorizedResponseEntityThenAuthorizes() {
 		this.spring.register(AuthorizeResultConfig.class).autowire();
 		FlightRepository flights = this.spring.getContext().getBean(FlightRepository.class);
@@ -824,6 +853,46 @@ public class PrePostMethodSecurityConfigurationTests {
 		FlightRepository flights = this.spring.getContext().getBean(FlightRepository.class);
 		flights.findAll()
 			.forEachRemaining((flight) -> assertThat(flight.getPassengers()).extracting(Passenger::getName)
+				.doesNotContain("Kevin Mitnick"));
+	}
+
+	@Test
+	@WithMockUser(authorities = "airplane:read")
+	public void findPageWhenPostFilterThenFilters() {
+		this.spring.register(AuthorizeResultConfig.class).autowire();
+		FlightRepository flights = this.spring.getContext().getBean(FlightRepository.class);
+		flights.findPage()
+			.forEach((flight) -> assertThat(flight.getPassengers()).extracting(Passenger::getName)
+				.doesNotContain("Kevin Mitnick"));
+	}
+
+	@Test
+	@WithMockUser(authorities = "airplane:read")
+	public void findSliceWhenPostFilterThenFilters() {
+		this.spring.register(AuthorizeResultConfig.class).autowire();
+		FlightRepository flights = this.spring.getContext().getBean(FlightRepository.class);
+		flights.findSlice()
+			.forEach((flight) -> assertThat(flight.getPassengers()).extracting(Passenger::getName)
+				.doesNotContain("Kevin Mitnick"));
+	}
+
+	@Test
+	@WithMockUser(authorities = "airplane:read")
+	public void findGeoPageWhenPostFilterThenFilters() {
+		this.spring.register(AuthorizeResultConfig.class).autowire();
+		FlightRepository flights = this.spring.getContext().getBean(FlightRepository.class);
+		flights.findGeoPage()
+			.forEach((flight) -> assertThat(flight.getContent().getPassengers()).extracting(Passenger::getName)
+				.doesNotContain("Kevin Mitnick"));
+	}
+
+	@Test
+	@WithMockUser(authorities = "airplane:read")
+	public void findGeoResultsWhenPostFilterThenFilters() {
+		this.spring.register(AuthorizeResultConfig.class).autowire();
+		FlightRepository flights = this.spring.getContext().getBean(FlightRepository.class);
+		flights.findGeoResults()
+			.forEach((flight) -> assertThat(flight.getContent().getPassengers()).extracting(Passenger::getName)
 				.doesNotContain("Kevin Mitnick"));
 	}
 
@@ -1762,16 +1831,8 @@ public class PrePostMethodSecurityConfigurationTests {
 
 		@Bean
 		@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-		@Order(1)
-		static TargetVisitor mock() {
-			return Mockito.mock(TargetVisitor.class);
-		}
-
-		@Bean
-		@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-		@Order(0)
-		static TargetVisitor skipValueTypes() {
-			return TargetVisitor.defaultsSkipValueTypes();
+		static TargetVisitor customTargetVisitor() {
+			return TargetVisitor.of(Mockito.mock(), TargetVisitor.defaultsSkipValueTypes());
 		}
 
 		@Bean
@@ -1802,8 +1863,37 @@ public class PrePostMethodSecurityConfigurationTests {
 			return this.flights.values().iterator();
 		}
 
+		Page<Flight> findPage() {
+			return new PageImpl<>(new ArrayList<>(this.flights.values()));
+		}
+
+		Slice<Flight> findSlice() {
+			return new SliceImpl<>(new ArrayList<>(this.flights.values()));
+		}
+
+		GeoPage<Flight> findGeoPage() {
+			List<GeoResult<Flight>> results = new ArrayList<>();
+			for (Flight flight : this.flights.values()) {
+				results.add(new GeoResult<>(flight, new Distance(flight.altitude)));
+			}
+			return new GeoPage<>(new GeoResults<>(results));
+		}
+
+		GeoResults<Flight> findGeoResults() {
+			List<GeoResult<Flight>> results = new ArrayList<>();
+			for (Flight flight : this.flights.values()) {
+				results.add(new GeoResult<>(flight, new Distance(flight.altitude)));
+			}
+			return new GeoResults<>(results);
+		}
+
 		Flight findById(String id) {
 			return this.flights.get(id);
+		}
+
+		GeoResult<Flight> findGeoResultFlightById(String id) {
+			Flight flight = this.flights.get(id);
+			return new GeoResult<>(flight, new Distance(flight.altitude));
 		}
 
 		Flight save(Flight flight) {
