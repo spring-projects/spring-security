@@ -32,8 +32,8 @@ import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.http.server.ServletServerHttpResponse;
 import org.springframework.security.authorization.AuthenticatedAuthorizationManager;
-import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -104,8 +104,8 @@ public class PublicKeyCredentialCreationOptionsFilter extends OncePerRequestFilt
 
 		Supplier<SecurityContext> context = this.securityContextHolderStrategy.getDeferredContext();
 		Supplier<Authentication> authentication = () -> context.get().getAuthentication();
-		AuthorizationDecision decision = this.authorization.check(authentication, request);
-		if (!decision.isGranted()) {
+		AuthorizationResult result = this.authorization.authorize(authentication, request);
+		if (!result.isGranted()) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			return;
 		}
