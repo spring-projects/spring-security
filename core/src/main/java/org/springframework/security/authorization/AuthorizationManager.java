@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,9 +39,9 @@ public interface AuthorizationManager<T> {
 	 * @throws AccessDeniedException if access is not granted
 	 */
 	default void verify(Supplier<Authentication> authentication, T object) {
-		AuthorizationDecision decision = check(authentication, object);
-		if (decision != null && !decision.isGranted()) {
-			throw new AuthorizationDeniedException("Access Denied", decision);
+		AuthorizationResult result = authorize(authentication, object);
+		if (result != null && !result.isGranted()) {
+			throw new AuthorizationDeniedException("Access Denied", result);
 		}
 	}
 
