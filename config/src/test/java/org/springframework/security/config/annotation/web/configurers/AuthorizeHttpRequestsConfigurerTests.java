@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -155,7 +155,7 @@ public class AuthorizeHttpRequestsConfigurerTests {
 		CustomAuthorizationManagerConfig.authorizationManager = mock(AuthorizationManager.class);
 		this.spring.register(CustomAuthorizationManagerConfig.class, BasicController.class).autowire();
 		this.mvc.perform(get("/")).andExpect(status().isOk());
-		verify(CustomAuthorizationManagerConfig.authorizationManager).check(any(), any());
+		verify(CustomAuthorizationManagerConfig.authorizationManager).authorize(any(), any());
 	}
 
 	@Test
@@ -163,7 +163,7 @@ public class AuthorizeHttpRequestsConfigurerTests {
 		CustomAuthorizationManagerNoParameterConfig.authorizationManager = mock(AuthorizationManager.class);
 		this.spring.register(CustomAuthorizationManagerNoParameterConfig.class, BasicController.class).autowire();
 		this.mvc.perform(get("/")).andExpect(status().isOk());
-		verify(CustomAuthorizationManagerNoParameterConfig.authorizationManager).check(any(), any());
+		verify(CustomAuthorizationManagerNoParameterConfig.authorizationManager).authorize(any(), any());
 	}
 
 	@Test
