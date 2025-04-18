@@ -4,9 +4,8 @@
 [[oauth2resourceserver-opaque-minimaldependencies]]
 == Minimal Dependencies for Introspection
 As described in xref:servlet/oauth2/resource-server/jwt.adoc#oauth2resourceserver-jwt-minimaldependencies[Minimal Dependencies for JWT] most of Resource Server support is collected in `spring-security-oauth2-resource-server`.
-However unless a custom <<oauth2resourceserver-opaque-introspector,`OpaqueTokenIntrospector`>> is provided, the Resource Server will fallback to NimbusOpaqueTokenIntrospector.
-Meaning that both `spring-security-oauth2-resource-server` and `oauth2-oidc-sdk` are necessary in order to have a working minimal Resource Server that supports opaque Bearer Tokens.
-Please refer to `spring-security-oauth2-resource-server` in order to determine the correct version for `oauth2-oidc-sdk`.
+However unless a custom <<oauth2resourceserver-opaque-introspector,`OpaqueTokenIntrospector`>> is provided, the Resource Server will fallback to `SpringOpaqueTokenIntrospector`.
+This means that only `spring-security-oauth2-resource-server` is necessary in order to have a working minimal Resource Server that supports opaque Bearer Tokens.
 
 [[oauth2resourceserver-opaque-minimalconfiguration]]
 == Minimal Configuration for Introspection
@@ -361,7 +360,7 @@ Xml::
 [source,xml,role="primary"]
 ----
 <bean id="opaqueTokenIntrospector"
-        class="org.springframework.security.oauth2.server.resource.introspection.NimbusOpaqueTokenIntrospector">
+        class="org.springframework.security.oauth2.server.resource.introspection.SpringOpaqueTokenIntrospector">
     <constructor-arg value="${spring.security.oauth2.resourceserver.opaquetoken.introspection_uri}"/>
     <constructor-arg value="${spring.security.oauth2.resourceserver.opaquetoken.client_id}"/>
     <constructor-arg value="${spring.security.oauth2.resourceserver.opaquetoken.client_secret}"/>
@@ -445,7 +444,7 @@ Xml::
 [source,xml,role="secondary"]
 ----
 <bean id="opaqueTokenIntrospector"
-        class="org.springframework.security.oauth2.server.resource.introspection.NimbusOpaqueTokenIntrospector">
+        class="org.springframework.security.oauth2.server.resource.introspection.SpringOpaqueTokenIntrospector">
     <constructor-arg value="https://idp.example.com/introspect"/>
     <constructor-arg value="client"/>
     <constructor-arg value="secret"/>
@@ -740,7 +739,7 @@ By default, Resource Server uses connection and socket timeouts of 30 seconds ea
 This may be too short in some scenarios.
 Further, it doesn't take into account more sophisticated patterns like back-off and discovery.
 
-To adjust the way in which Resource Server connects to the authorization server, `NimbusOpaqueTokenIntrospector` accepts an instance of `RestOperations`:
+To adjust the way in which Resource Server connects to the authorization server, `SpringOpaqueTokenIntrospector` accepts an instance of `RestOperations`:
 
 [tabs]
 ======
