@@ -138,6 +138,7 @@ import org.springframework.web.accept.HeaderContentNegotiationStrategy;
  * @author Josh Cummings
  * @author Evgeniy Cheban
  * @author Jerome Wacongne &lt;ch4mp@c4-soft.com&gt;
+ * @author Yanming Zhou
  * @since 5.1
  * @see BearerTokenAuthenticationFilter
  * @see JwtAuthenticationProvider
@@ -490,8 +491,10 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 		public OpaqueTokenConfigurer introspectionUri(String introspectionUri) {
 			Assert.notNull(introspectionUri, "introspectionUri cannot be null");
 			this.introspectionUri = introspectionUri;
-			this.introspector = () -> new SpringOpaqueTokenIntrospector(this.introspectionUri, this.clientId,
-					this.clientSecret);
+			this.introspector = () -> SpringOpaqueTokenIntrospector.withIntrospectionUri(this.introspectionUri)
+				.clientId(this.clientId)
+				.clientSecret(this.clientSecret)
+				.build();
 			return this;
 		}
 
@@ -500,8 +503,10 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 			Assert.notNull(clientSecret, "clientSecret cannot be null");
 			this.clientId = clientId;
 			this.clientSecret = clientSecret;
-			this.introspector = () -> new SpringOpaqueTokenIntrospector(this.introspectionUri, this.clientId,
-					this.clientSecret);
+			this.introspector = () -> SpringOpaqueTokenIntrospector.withIntrospectionUri(this.introspectionUri)
+				.clientId(this.clientId)
+				.clientSecret(this.clientSecret)
+				.build();
 			return this;
 		}
 
