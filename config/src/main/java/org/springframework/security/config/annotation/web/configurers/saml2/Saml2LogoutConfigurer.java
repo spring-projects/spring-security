@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -109,6 +109,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
  *
  * @author Josh Cummings
  * @author Ngoc Nhan
+ * @author Evgeniy Cheban
  * @since 5.6
  * @see Saml2LogoutConfigurer
  */
@@ -262,10 +263,23 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 		LogoutHandler[] logoutHandlers = this.logoutHandlers.toArray(new LogoutHandler[0]);
 		Saml2LogoutResponseResolver logoutResponseResolver = createSaml2LogoutResponseResolver(registrations);
 		Saml2LogoutRequestFilter filter = new Saml2LogoutRequestFilter(
-				createSaml2LogoutResponseParametersResolver(registrations),
+				getLogoutRequestParametersResolver(registrations),
 				this.logoutRequestConfigurer.logoutRequestValidator(), logoutResponseResolver, logoutHandlers);
 		filter.setSecurityContextHolderStrategy(getSecurityContextHolderStrategy());
 		return postProcess(filter);
+	}
+
+	private Saml2LogoutRequestValidatorParametersResolver getLogoutRequestParametersResolver(
+			RelyingPartyRegistrationRepository registrations) {
+		if (this.logoutRequestConfigurer.logoutRequestParametersResolver != null) {
+			return this.logoutRequestConfigurer.logoutRequestParametersResolver;
+		}
+		Saml2LogoutRequestValidatorParametersResolver logoutRequestResolver = getBeanOrNull(
+				Saml2LogoutRequestValidatorParametersResolver.class);
+		if (logoutRequestResolver != null) {
+			return logoutRequestResolver;
+		}
+		return createSaml2LogoutResponseParametersResolver(registrations);
 	}
 
 	private Saml2LogoutRequestValidatorParametersResolver createSaml2LogoutResponseParametersResolver(
@@ -352,6 +366,8 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 
 		private Saml2LogoutRequestResolver logoutRequestResolver;
 
+		private Saml2LogoutRequestValidatorParametersResolver logoutRequestParametersResolver;
+
 		private Saml2LogoutRequestRepository logoutRequestRepository = new HttpSessionLogoutRequestRepository();
 
 		LogoutRequestConfigurer() {
@@ -391,6 +407,20 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 		 */
 		public LogoutRequestConfigurer logoutRequestResolver(Saml2LogoutRequestResolver logoutRequestResolver) {
 			this.logoutRequestResolver = logoutRequestResolver;
+			return this;
+		}
+
+		/**
+		 * Use this {@link Saml2LogoutRequestValidatorParametersResolver} for resolving
+		 * logout request and associated validation parameters.
+		 * @param logoutRequestParametersResolver the
+		 * {@link Saml2LogoutRequestValidatorParametersResolver} to use
+		 * @return the {@link LogoutRequestConfigurer} for further customizations
+		 * @since 6.5
+		 */
+		public LogoutRequestConfigurer logoutRequestParametersResolver(
+				Saml2LogoutRequestValidatorParametersResolver logoutRequestParametersResolver) {
+			this.logoutRequestParametersResolver = logoutRequestParametersResolver;
 			return this;
 		}
 
