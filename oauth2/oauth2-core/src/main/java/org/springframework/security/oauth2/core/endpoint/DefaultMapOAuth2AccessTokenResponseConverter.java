@@ -70,6 +70,10 @@ public final class DefaultMapOAuth2AccessTokenResponseConverter
 			.equalsIgnoreCase(getParameterValue(tokenResponseParameters, OAuth2ParameterNames.TOKEN_TYPE))) {
 			return OAuth2AccessToken.TokenType.BEARER;
 		}
+		else if (OAuth2AccessToken.TokenType.DPOP.getValue()
+				.equalsIgnoreCase(getParameterValue(tokenResponseParameters, OAuth2ParameterNames.TOKEN_TYPE))) {
+			return OAuth2AccessToken.TokenType.DPOP;
+		}
 		return null;
 	}
 

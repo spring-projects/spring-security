@@ -99,6 +99,18 @@ public class DefaultMapOAuth2AccessTokenResponseConverterTests {
 	}
 
 	@Test
+	public void shouldConvertDPoPToken() {
+		Map<String, Object> map = new HashMap<>();
+		map.put("access_token", "access-token-1234");
+		map.put("token_type", "dpop");
+		OAuth2AccessTokenResponse converted = this.messageConverter.convert(map);
+		OAuth2AccessToken accessToken = converted.getAccessToken();
+		assertThat(accessToken).isNotNull();
+		assertThat(accessToken.getTokenValue()).isEqualTo("access-token-1234");
+		assertThat(accessToken.getTokenType()).isEqualTo(OAuth2AccessToken.TokenType.DPOP);
+	}
+
+	@Test
 	public void shouldConvertWithUnsupportedExpiresIn() {
 		Map<String, Object> map = new HashMap<>();
 		map.put("access_token", "access-token-1234");
