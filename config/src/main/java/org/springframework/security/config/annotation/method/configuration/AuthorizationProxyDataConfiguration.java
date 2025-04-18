@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,23 @@
 
 package org.springframework.security.config.annotation.method.configuration;
 
+import java.util.List;
+
 import org.springframework.aop.framework.AopInfrastructureBean;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Role;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.SliceImpl;
+import org.springframework.data.geo.GeoPage;
+import org.springframework.data.geo.GeoResult;
+import org.springframework.data.geo.GeoResults;
 import org.springframework.security.aot.hint.SecurityHintsRegistrar;
 import org.springframework.security.authorization.AuthorizationProxyFactory;
+import org.springframework.security.authorization.method.AuthorizationAdvisorProxyFactory;
 import org.springframework.security.data.aot.hint.AuthorizeReturnObjectDataHintsRegistrar;
 
 @Configuration(proxyBeanMethods = false)
@@ -32,6 +42,47 @@ final class AuthorizationProxyDataConfiguration implements AopInfrastructureBean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 	static SecurityHintsRegistrar authorizeReturnObjectDataHintsRegistrar(AuthorizationProxyFactory proxyFactory) {
 		return new AuthorizeReturnObjectDataHintsRegistrar(proxyFactory);
+	}
+
+	@Bean
+	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+	@Order(Ordered.HIGHEST_PRECEDENCE + 100)
+	DataTargetVisitor dataTargetVisitor() {
+		return new DataTargetVisitor();
+	}
+
+	private static final class DataTargetVisitor implements AuthorizationAdvisorProxyFactory.TargetVisitor {
+
+		@Override
+		public Object visit(AuthorizationAdvisorProxyFactory proxyFactory, Object target) {
+			if (target instanceof GeoResults<?> geoResults) {
+				return new GeoResults<>(proxyCast(proxyFactory, geoResults.getContent()),
+						geoResults.getAverageDistance());
+			}
+			if (target instanceof GeoResult<?> geoResult) {
+				return new GeoResult<>(proxyCast(proxyFactory, geoResult.getContent()), geoResult.getDistance());
+			}
+			if (target instanceof GeoPage<?> geoPage) {
+				GeoResults<?> results = new GeoResults<>(proxyCast(proxyFactory, geoPage.getContent()),
+						geoPage.getAverageDistance());
+				return new GeoPage<>(results, geoPage.getPageable(), geoPage.getTotalElements());
+			}
+			if (target instanceof PageImpl<?> page) {
+				List<?> content = proxyCast(proxyFactory, page.getContent());
+				return new PageImpl<>(content, page.getPageable(), page.getTotalElements());
+			}
+			if (target instanceof SliceImpl<?> slice) {
+				List<?> content = proxyCast(proxyFactory, slice.getContent());
+				return new SliceImpl<>(content, slice.getPageable(), slice.hasNext());
+			}
+			return null;
+		}
+
+		@SuppressWarnings("unchecked")
+		private <T> T proxyCast(AuthorizationAdvisorProxyFactory proxyFactory, T target) {
+			return (T) proxyFactory.proxy(target);
+		}
+
 	}
 
 }
