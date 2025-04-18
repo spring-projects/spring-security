@@ -298,6 +298,7 @@ import org.springframework.web.util.pattern.PathPatternParser;
  * @author Parikshit Dutta
  * @author Ankur Pathak
  * @author Alexey Nesterov
+ * @author Yanming Zhou
  * @since 5.0
  */
 public class ServerHttpSecurity {
@@ -5443,8 +5444,11 @@ public class ServerHttpSecurity {
 			public OpaqueTokenSpec introspectionUri(String introspectionUri) {
 				Assert.hasText(introspectionUri, "introspectionUri cannot be empty");
 				this.introspectionUri = introspectionUri;
-				this.introspector = () -> new SpringReactiveOpaqueTokenIntrospector(this.introspectionUri,
-						this.clientId, this.clientSecret);
+				this.introspector = () -> SpringReactiveOpaqueTokenIntrospector
+					.withIntrospectionUri(this.introspectionUri)
+					.clientId(this.clientId)
+					.clientSecret(this.clientSecret)
+					.build();
 				return this;
 			}
 
@@ -5459,8 +5463,11 @@ public class ServerHttpSecurity {
 				Assert.notNull(clientSecret, "clientSecret cannot be null");
 				this.clientId = clientId;
 				this.clientSecret = clientSecret;
-				this.introspector = () -> new SpringReactiveOpaqueTokenIntrospector(this.introspectionUri,
-						this.clientId, this.clientSecret);
+				this.introspector = () -> SpringReactiveOpaqueTokenIntrospector
+					.withIntrospectionUri(this.introspectionUri)
+					.clientId(this.clientId)
+					.clientSecret(this.clientSecret)
+					.build();
 				return this;
 			}
 
