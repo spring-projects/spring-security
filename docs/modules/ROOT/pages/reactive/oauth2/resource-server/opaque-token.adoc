@@ -3,9 +3,8 @@
 [[webflux-oauth2resourceserver-opaque-minimaldependencies]]
 == Minimal Dependencies for Introspection
 As described in xref:servlet/oauth2/resource-server/jwt.adoc#oauth2resourceserver-jwt-minimaldependencies[Minimal Dependencies for JWT], most Resource Server support is collected in `spring-security-oauth2-resource-server`.
-However, unless you provide a custom <<webflux-oauth2resourceserver-opaque-introspector-bean,`ReactiveOpaqueTokenIntrospector`>>, the Resource Server falls back to `ReactiveOpaqueTokenIntrospector`.
-This means that both `spring-security-oauth2-resource-server` and `oauth2-oidc-sdk` are necessary to have a working minimal Resource Server that supports opaque Bearer Tokens.
-See `spring-security-oauth2-resource-server` in order to determine the correct version for `oauth2-oidc-sdk`.
+However, unless you provide a custom <<webflux-oauth2resourceserver-opaque-introspector-bean,`ReactiveOpaqueTokenIntrospector`>>, the Resource Server falls back to `SpringReactiveOpaqueTokenIntrospector`.
+This means that only `spring-security-oauth2-resource-server` is necessary to have a working minimal Resource Server that supports opaque Bearer Tokens.
 
 [[webflux-oauth2resourceserver-opaque-minimalconfiguration]]
 == Minimal Configuration for Introspection
