@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package org.springframework.security.oauth2.server.resource.authentication;
 import java.util.Collection;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.security.core.userdetails.User;
 import reactor.core.publisher.Flux;
 
 import org.springframework.core.convert.converter.Converter;
@@ -110,6 +111,21 @@ public class ReactiveJwtAuthenticationConverterTests {
 		Jwt jwt = TestJwts.jwt().claim("user_id", 100).build();
 		AbstractAuthenticationToken authentication = this.jwtAuthenticationConverter.convert(jwt).block();
 		assertThat(authentication.getName()).isEqualTo("100");
+	}
+
+	@Test
+	public void convertWithCustomJwtPrincipalConverter() {
+		this.jwtAuthenticationConverter.setJwtPrincipalConverter((jwt, name) -> User.withUsername(name).password("").build());
+		Jwt jwt = TestJwts.user();
+		AbstractAuthenticationToken authentication = this.jwtAuthenticationConverter.convert(jwt).block();
+		assertThat(authentication.getPrincipal()).isInstanceOf(User.class).hasFieldOrPropertyWithValue("username", "mock-test-subject");
+	}
+
+	@Test
+	public void convertWithDefaultJwtPrincipalConverter() {
+		Jwt jwt = TestJwts.user();
+		AbstractAuthenticationToken authentication = this.jwtAuthenticationConverter.convert(jwt).block();
+		assertThat(authentication.getPrincipal()).isInstanceOf(Jwt.class);
 	}
 
 }
