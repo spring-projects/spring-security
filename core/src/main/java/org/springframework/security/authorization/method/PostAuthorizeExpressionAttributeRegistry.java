@@ -17,8 +17,6 @@
 package org.springframework.security.authorization.method;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.function.BiFunction;
 
 import org.jspecify.annotations.Nullable;
 
@@ -28,8 +26,6 @@ import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.core.annotation.AnnotationTemplateExpressionDefaults;
 import org.springframework.security.core.annotation.SecurityAnnotationScanner;
 import org.springframework.security.core.annotation.SecurityAnnotationScanners;
-import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
 
 /**
  * For internal use only, as this contract is likely to change.
@@ -40,20 +36,11 @@ import org.springframework.util.StringUtils;
  */
 final class PostAuthorizeExpressionAttributeRegistry extends AbstractExpressionAttributeRegistry<ExpressionAttribute> {
 
-	private final MethodAuthorizationDeniedHandler defaultHandler = new ThrowingMethodAuthorizationDeniedHandler();
-
-	private final SecurityAnnotationScanner<HandleAuthorizationDenied> handleAuthorizationDeniedScanner = SecurityAnnotationScanners
-		.requireUnique(HandleAuthorizationDenied.class);
-
-	private BiFunction<String, Class<? extends MethodAuthorizationDeniedHandler>, MethodAuthorizationDeniedHandler> handlerResolver;
+	private final MethodAuthorizationDeniedHandlerResolver handlerResolver = new MethodAuthorizationDeniedHandlerResolver(
+			PostAuthorizeAuthorizationManager.class);
 
 	private SecurityAnnotationScanner<PostAuthorize> postAuthorizeScanner = SecurityAnnotationScanners
 		.requireUnique(PostAuthorize.class);
-
-	PostAuthorizeExpressionAttributeRegistry() {
-		this.handlerResolver = (beanName, clazz) -> new ReflectiveMethodAuthorizationDeniedHandler(clazz,
-				PostAuthorizeAuthorizationManager.class);
-	}
 
 	@Override
 	@Nullable ExpressionAttribute resolveAttribute(Method method, @Nullable Class<?> targetClass) {
@@ -62,17 +49,9 @@ final class PostAuthorizeExpressionAttributeRegistry extends AbstractExpressionA
 			return null;
 		}
 		Expression expression = getExpressionHandler().getExpressionParser().parseExpression(postAuthorize.value());
-		MethodAuthorizationDeniedHandler deniedHandler = resolveHandler(method, targetClass);
+		MethodAuthorizationDeniedHandler deniedHandler = this.handlerResolver.resolve(method,
+				targetClass(method, targetClass));
 		return new PostAuthorizeExpressionAttribute(expression, deniedHandler);
-	}
-
-	private MethodAuthorizationDeniedHandler resolveHandler(Method method, @Nullable Class<?> targetClass) {
-		Class<?> targetClassToUse = targetClass(method, targetClass);
-		HandleAuthorizationDenied deniedHandler = this.handleAuthorizationDeniedScanner.scan(method, targetClassToUse);
-		if (deniedHandler != null) {
-			return this.handlerResolver.apply(deniedHandler.handler(), deniedHandler.handlerClass());
-		}
-		return this.defaultHandler;
 	}
 
 	private @Nullable PostAuthorize findPostAuthorizeAnnotation(Method method, @Nullable Class<?> targetClass) {
@@ -86,31 +65,11 @@ final class PostAuthorizeExpressionAttributeRegistry extends AbstractExpressionA
 	 * @param context the {@link ApplicationContext} to use
 	 */
 	void setApplicationContext(ApplicationContext context) {
-		Assert.notNull(context, "context cannot be null");
-		this.handlerResolver = (beanName, clazz) -> resolveHandler(context, beanName, clazz);
+		this.handlerResolver.setContext(context);
 	}
 
 	void setTemplateDefaults(AnnotationTemplateExpressionDefaults templateDefaults) {
 		this.postAuthorizeScanner = SecurityAnnotationScanners.requireUnique(PostAuthorize.class, templateDefaults);
-	}
-
-	private MethodAuthorizationDeniedHandler resolveHandler(ApplicationContext context, String beanName,
-			Class<? extends MethodAuthorizationDeniedHandler> handlerClass) {
-		if (StringUtils.hasText(beanName)) {
-			return context.getBean(beanName, MethodAuthorizationDeniedHandler.class);
-		}
-		if (handlerClass == this.defaultHandler.getClass()) {
-			return this.defaultHandler;
-		}
-		String[] beanNames = context.getBeanNamesForType(handlerClass);
-		if (beanNames.length == 0) {
-			throw new IllegalStateException("Could not find a bean of type " + handlerClass.getName());
-		}
-		if (beanNames.length > 1) {
-			throw new IllegalStateException("Expected to find a single bean of type " + handlerClass.getName()
-					+ " but found " + Arrays.toString(beanNames));
-		}
-		return context.getBean(beanNames[0], handlerClass);
 	}
 
 }
