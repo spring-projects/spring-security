@@ -95,7 +95,8 @@ public class Argon2EncodingUtilsTests {
 	@Test
 	public void decodeWhenNonexistingAlgorithmThenThrowException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> Argon2EncodingUtils
-			.decode("$argon2x$v=19$m=1024,t=3,p=2$Y1JkRmJDdzIzZ3oyTWx4aw$cGE5Cbd/cx7micVhXVBdH5qTr66JI1iUyuNNVAnErXs"));
+			.decode("$argon2x$v=19$m=1024,t=3,p=2$Y1JkRmJDdzIzZ3oyTWx4aw$cGE5Cbd/cx7micVhXVBdH5qTr66JI1iUyuNNVAnErXs"))
+			.withMessageContaining("argon2x");
 	}
 
 	@Test
