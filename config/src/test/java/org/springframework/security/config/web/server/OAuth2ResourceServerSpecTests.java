@@ -179,6 +179,19 @@ public class OAuth2ResourceServerSpecTests {
 	}
 
 	@Test
+	public void getWhenBearerMissingInvalidToken() {
+		this.spring.register(PublicKeyConfig.class).autowire();
+		// @formatter:off
+		this.client.get()
+				.headers((headers) -> headers
+						.set("Authorization", ""))
+				.exchange()
+				.expectStatus().isUnauthorized()
+				.expectHeader().value(HttpHeaders.WWW_AUTHENTICATE, startsWith("Bearer error=\"missing_token\""));
+		// @formatter:on
+	}
+
+	@Test
 	public void getWhenUnsignedThenReturnsInvalidToken() {
 		this.spring.register(PublicKeyConfig.class).autowire();
 		// @formatter:off
