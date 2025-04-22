@@ -105,7 +105,7 @@ public class PublicKeyCredentialCreationOptionsFilter extends OncePerRequestFilt
 		Supplier<SecurityContext> context = this.securityContextHolderStrategy.getDeferredContext();
 		Supplier<Authentication> authentication = () -> context.get().getAuthentication();
 		AuthorizationResult result = this.authorization.authorize(authentication, request);
-		if (!result.isGranted()) {
+		if (result == null || !result.isGranted()) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			return;
 		}
