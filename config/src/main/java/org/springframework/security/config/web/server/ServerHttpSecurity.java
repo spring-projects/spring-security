@@ -2736,7 +2736,7 @@ public class ServerHttpSecurity {
 			ServerHttpSecurity.this.defaultEntryPoints.add(new DelegateEntry(preferredMatcher, this.entryPoint));
 			AuthenticationWebFilter authenticationFilter = new AuthenticationWebFilter(this.authenticationManager);
 			authenticationFilter.setAuthenticationFailureHandler(authenticationFailureHandler());
-			authenticationFilter.setAuthenticationConverter(new ServerHttpBasicAuthenticationConverter());
+			authenticationFilter.setServerAuthenticationConverter(new ServerHttpBasicAuthenticationConverter());
 			authenticationFilter.setSecurityContextRepository(this.securityContextRepository);
 			authenticationFilter.setAuthenticationSuccessHandler(getAuthenticationSuccessHandler(http));
 			http.addFilterAt(authenticationFilter, SecurityWebFiltersOrder.HTTP_BASIC);
@@ -3014,7 +3014,7 @@ public class ServerHttpSecurity {
 			AuthenticationWebFilter authenticationFilter = new AuthenticationWebFilter(this.authenticationManager);
 			authenticationFilter.setRequiresAuthenticationMatcher(this.requiresAuthenticationMatcher);
 			authenticationFilter.setAuthenticationFailureHandler(this.authenticationFailureHandler);
-			authenticationFilter.setAuthenticationConverter(new ServerFormLoginAuthenticationConverter());
+			authenticationFilter.setServerAuthenticationConverter(new ServerFormLoginAuthenticationConverter());
 			authenticationFilter.setAuthenticationSuccessHandler(getAuthenticationSuccessHandler(http));
 			authenticationFilter.setSecurityContextRepository(this.securityContextRepository);
 			http.addFilterAt(authenticationFilter, SecurityWebFiltersOrder.FORM_LOGIN);
