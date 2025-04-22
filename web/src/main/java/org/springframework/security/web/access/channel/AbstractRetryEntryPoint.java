@@ -34,7 +34,11 @@ import org.springframework.util.Assert;
 
 /**
  * @author Luke Taylor
+ * @deprecated please use
+ * {@link org.springframework.security.web.transport.HttpsRedirectFilter} and its
+ * associated {@link PortMapper}
  */
+@Deprecated
 public abstract class AbstractRetryEntryPoint implements ChannelEntryPoint {
 
 	protected final Log logger = LogFactory.getLog(getClass());

@@ -59,7 +59,10 @@ public final class PostAuthorizeReactiveAuthorizationManager
 	 * not be resolved.
 	 * @param defaults - whether to resolve pre/post-authorization templates parameters
 	 * @since 6.3
+	 * @deprecated please use
+	 * {@link #setTemplateDefaults(AnnotationTemplateExpressionDefaults)}
 	 */
+	@Deprecated
 	public void setTemplateDefaults(PrePostTemplateDefaults defaults) {
 		this.registry.setTemplateDefaults(defaults);
 	}
