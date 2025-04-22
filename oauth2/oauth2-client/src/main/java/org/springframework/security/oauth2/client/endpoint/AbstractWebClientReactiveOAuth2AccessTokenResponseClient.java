@@ -84,9 +84,7 @@ public abstract class AbstractWebClientReactiveOAuth2AccessTokenResponseClient<T
 		Assert.notNull(grantRequest, "grantRequest cannot be null");
 		// @formatter:off
 		return Mono.defer(() -> this.requestEntityConverter.convert(grantRequest)
-				.exchange()
-				.flatMap((response) -> response.body(this.bodyExtractor))
-		);
+				.exchangeToMono((response) -> response.body(this.bodyExtractor)));
 		// @formatter:on
 	}
 
