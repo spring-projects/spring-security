@@ -155,9 +155,9 @@ public final class MessageMatcherDelegatingAuthorizationManager implements Autho
 		/**
 		 * Maps a {@link List} of {@link SimpDestinationMessageMatcher} (or
 		 * {@link PathPatternMessageMatcher} if the application has configured a
-		 * {@link org.springframework.security.messaging.util.matcher.PathPatternMessageMatcherBuilderFactoryBean})
-		 * instances without regard to the {@link SimpMessageType}. If no destination is
-		 * found on the Message, then the Matcher returns false.
+		 * {@link PathPatternMessageMatcher.Builder} bean) instances without regard to the
+		 * {@link SimpMessageType}. If no destination is found on the Message, then the
+		 * Matcher returns false.
 		 * @param patterns the patterns to create {@code MessageMatcher}s from.
 		 */
 		public Builder.Constraint simpDestMatchers(String... patterns) {
@@ -167,9 +167,9 @@ public final class MessageMatcherDelegatingAuthorizationManager implements Autho
 		/**
 		 * Maps a {@link List} of {@link SimpDestinationMessageMatcher} (or
 		 * {@link PathPatternMessageMatcher} if the application has configured a
-		 * {@link org.springframework.security.messaging.util.matcher.PathPatternMessageMatcherBuilderFactoryBean})
-		 * instances that match on {@code SimpMessageType.MESSAGE}. If no destination is
-		 * found on the Message, then the Matcher returns false.
+		 * {@link PathPatternMessageMatcher.Builder} bean) instances that match on
+		 * {@code SimpMessageType.MESSAGE}. If no destination is found on the Message,
+		 * then the Matcher returns false.
 		 * @param patterns the patterns to create {@code MessageMatcher}s from.
 		 */
 		public Builder.Constraint simpMessageDestMatchers(String... patterns) {
@@ -179,9 +179,9 @@ public final class MessageMatcherDelegatingAuthorizationManager implements Autho
 		/**
 		 * Maps a {@link List} of {@link SimpDestinationMessageMatcher} (or
 		 * {@link PathPatternMessageMatcher} if the application has configured a
-		 * {@link org.springframework.security.messaging.util.matcher.PathPatternMessageMatcherBuilderFactoryBean})
-		 * instances that match on {@code SimpMessageType.SUBSCRIBE}. If no destination is
-		 * found on the Message, then the Matcher returns false.
+		 * {@link PathPatternMessageMatcher.Builder} bean) instances that match on
+		 * {@code SimpMessageType.SUBSCRIBE}. If no destination is found on the Message,
+		 * then the Matcher returns false.
 		 * @param patterns the patterns to create {@code MessageMatcher}s from.
 		 */
 		public Builder.Constraint simpSubscribeDestMatchers(String... patterns) {
@@ -189,10 +189,10 @@ public final class MessageMatcherDelegatingAuthorizationManager implements Autho
 		}
 
 		/**
-		 * Maps a {@link List} of {@link SimpDestinationMessageMatcher} instances, or
+		 * Maps a {@link List} of {@link SimpDestinationMessageMatcher} (or
 		 * {@link PathPatternMessageMatcher} if the application has configured a
-		 * {@link org.springframework.security.messaging.util.matcher.PathPatternMessageMatcherBuilderFactoryBean}.
-		 * If no destination is found on the Message, then the Matcher returns false.
+		 * {@link PathPatternMessageMatcher.Builder} bean) instances. If no destination is
+		 * found on the Message, then the Matcher returns false.
 		 * @param type the {@link SimpMessageType} to match on. If null, the
 		 * {@link SimpMessageType} is not considered for matching.
 		 * @param patterns the patterns to create {@code MessageMatcher}s from.

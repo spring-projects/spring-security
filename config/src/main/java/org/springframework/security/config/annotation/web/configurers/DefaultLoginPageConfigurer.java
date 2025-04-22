@@ -33,13 +33,6 @@ import org.springframework.security.web.csrf.CsrfToken;
  * Adds a Filter that will generate a login page if one is not specified otherwise when
  * using {@link EnableWebSecurity}.
  *
- * <p>
- * By default an
- * {@link org.springframework.security.web.access.channel.InsecureChannelProcessor} and a
- * {@link org.springframework.security.web.access.channel.SecureChannelProcessor} will be
- * registered.
- * </p>
- *
  * <h2>Security Filters</h2>
  *
  * The following Filters are conditionally populated
@@ -58,8 +51,6 @@ import org.springframework.security.web.csrf.CsrfToken;
  * The following shared objects are used:
  *
  * <ul>
- * <li>{@link org.springframework.security.web.PortMapper} is used to create the default
- * {@link org.springframework.security.web.access.channel.ChannelProcessor} instances</li>
  * <li>{@link FormLoginConfigurer} is used to determine if the
  * {@link DefaultLoginPageConfigurer} should be added and how to configure it.</li>
  * </ul>

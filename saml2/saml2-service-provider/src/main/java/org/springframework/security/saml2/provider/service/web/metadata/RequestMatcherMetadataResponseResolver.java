@@ -62,8 +62,7 @@ public class RequestMatcherMetadataResponseResolver implements Saml2MetadataResp
 	private final Saml2MetadataResolver metadata;
 
 	/**
-	 * Construct a
-	 * {@link org.springframework.security.saml2.provider.service.metadata.RequestMatcherMetadataResponseResolver}
+	 * Construct a {@link RequestMatcherMetadataResponseResolver}
 	 * @param registrations the source for relying party metadata
 	 * @param metadata the strategy for converting {@link RelyingPartyRegistration}s into
 	 * metadata

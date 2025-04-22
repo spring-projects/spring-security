@@ -30,7 +30,6 @@ import org.springframework.util.Assert;
  * @author Rob Winch
  * @author Ankur Pathak
  * @since 3.2
- * @see AllowFromStrategy
  */
 public final class XFrameOptionsHeaderWriter implements HeaderWriter {
 
@@ -50,8 +49,9 @@ public final class XFrameOptionsHeaderWriter implements HeaderWriter {
 	/**
 	 * Creates a new instance
 	 * @param frameOptionsMode the {@link XFrameOptionsMode} to use. If using
-	 * {@link XFrameOptionsMode#ALLOW_FROM}, use
-	 * {@link #XFrameOptionsHeaderWriter(AllowFromStrategy)} instead.
+	 * {@link XFrameOptionsMode#ALLOW_FROM}, use Content-Security-Policy with the <a href=
+	 * "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors">frame-ancestors</a>
+	 * directive instead.
 	 */
 	public XFrameOptionsHeaderWriter(XFrameOptionsMode frameOptionsMode) {
 		Assert.notNull(frameOptionsMode, "frameOptionsMode cannot be null");
@@ -70,6 +70,7 @@ public final class XFrameOptionsHeaderWriter implements HeaderWriter {
 	 * browsers. Instead use Content-Security-Policy with the <a href=
 	 * "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors">frame-ancestors</a>
 	 * directive.
+	 * @see AllowFromStrategy
 	 */
 	@Deprecated
 	public XFrameOptionsHeaderWriter(AllowFromStrategy allowFromStrategy) {
