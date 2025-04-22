@@ -100,8 +100,8 @@ public class JdbcAclService implements AclService {
 	@Override
 	public List<ObjectIdentity> findChildren(ObjectIdentity parentIdentity) {
 		Object[] args = { parentIdentity.getIdentifier().toString(), parentIdentity.getType() };
-		List<ObjectIdentity> objects = this.jdbcOperations.query(this.findChildrenSql, args,
-				(rs, rowNum) -> mapObjectIdentityRow(rs));
+		List<ObjectIdentity> objects = this.jdbcOperations.query(this.findChildrenSql,
+				(rs, rowNum) -> mapObjectIdentityRow(rs), args);
 		return (!objects.isEmpty()) ? objects : null;
 	}
 

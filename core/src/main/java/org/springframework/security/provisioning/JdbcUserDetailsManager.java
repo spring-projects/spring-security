@@ -336,8 +336,7 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 
 	@Override
 	public boolean userExists(String username) {
-		List<String> users = getJdbcTemplate().queryForList(this.userExistsSql, new String[] { username },
-				String.class);
+		List<String> users = getJdbcTemplate().queryForList(this.userExistsSql, String.class, username);
 		if (users.size() > 1) {
 			throw new IncorrectResultSizeDataAccessException("More than one user found with name '" + username + "'",
 					1);
@@ -353,7 +352,7 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 	@Override
 	public List<String> findUsersInGroup(String groupName) {
 		Assert.hasText(groupName, "groupName should have text");
-		return getJdbcTemplate().queryForList(this.findUsersInGroupSql, new String[] { groupName }, String.class);
+		return getJdbcTemplate().queryForList(this.findUsersInGroupSql, String.class, groupName);
 	}
 
 	@Override
@@ -422,8 +421,7 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 	public List<GrantedAuthority> findGroupAuthorities(String groupName) {
 		this.logger.debug("Loading authorities for group '" + groupName + "'");
 		Assert.hasText(groupName, "groupName should have text");
-		return getJdbcTemplate().query(this.groupAuthoritiesSql, new String[] { groupName },
-				this.grantedAuthorityMapper);
+		return getJdbcTemplate().query(this.groupAuthoritiesSql, this.grantedAuthorityMapper, groupName);
 	}
 
 	private GrantedAuthority mapToGrantedAuthority(ResultSet rs, int rowNum) throws SQLException {

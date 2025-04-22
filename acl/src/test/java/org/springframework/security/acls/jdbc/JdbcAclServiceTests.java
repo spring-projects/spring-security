@@ -109,7 +109,7 @@ public class JdbcAclServiceTests {
 		List<ObjectIdentity> result = new ArrayList<>();
 		result.add(new ObjectIdentityImpl(Object.class, "5577"));
 		Object[] args = { "1", "org.springframework.security.acls.jdbc.JdbcAclServiceTests$MockLongIdDomainObject" };
-		given(this.jdbcOperations.query(anyString(), eq(args), any(RowMapper.class))).willReturn(result);
+		given(this.jdbcOperations.query(anyString(), any(RowMapper.class), eq(args))).willReturn(result);
 		ObjectIdentity objectIdentity = new ObjectIdentityImpl(MockLongIdDomainObject.class, 1L);
 		List<ObjectIdentity> objectIdentities = this.aclService.findChildren(objectIdentity);
 		assertThat(objectIdentities).hasSize(1);

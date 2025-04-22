@@ -190,8 +190,7 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
 	 * @return the primary key or null if not found
 	 */
 	protected Long createOrRetrieveClassPrimaryKey(String type, boolean allowCreate, Class idType) {
-		List<Long> classIds = this.jdbcOperations.queryForList(this.selectClassPrimaryKey, new Object[] { type },
-				Long.class);
+		List<Long> classIds = this.jdbcOperations.queryForList(this.selectClassPrimaryKey, Long.class, type);
 
 		if (!classIds.isEmpty()) {
 			return classIds.get(0);
@@ -242,8 +241,8 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
 	 * @return the primary key or null if not found
 	 */
 	protected Long createOrRetrieveSidPrimaryKey(String sidName, boolean sidIsPrincipal, boolean allowCreate) {
-		List<Long> sidIds = this.jdbcOperations.queryForList(this.selectSidPrimaryKey,
-				new Object[] { sidIsPrincipal, sidName }, Long.class);
+		List<Long> sidIds = this.jdbcOperations.queryForList(this.selectSidPrimaryKey, Long.class, sidIsPrincipal,
+				sidName);
 		if (!sidIds.isEmpty()) {
 			return sidIds.get(0);
 		}
