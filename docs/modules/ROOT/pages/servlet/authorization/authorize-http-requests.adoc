@@ -594,7 +594,7 @@ import static org.springframework.security.web.servlet.util.matcher.PathPatternR
 
 @Bean
 SecurityFilterChain appEndpoints(HttpSecurity http) {
-	PathPatternRequestMatcher.Builder mvc = withDefaults().servletPath("/spring-mvc");
+	PathPatternRequestMatcher.Builder mvc = withDefaults().basePath("/spring-mvc");
 	http
         .authorizeHttpRequests((authorize) -> authorize
             .requestMatchers(mvc.matcher("/admin/**")).hasAuthority("admin")

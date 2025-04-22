@@ -401,7 +401,7 @@ Instead of taking this responsibility away from developers, now it is simpler to
 
 [method,java]
 ----
-PathPatternRequestParser.Builder servlet = PathPatternRequestParser.servletPath("/mvc");
+PathPatternRequestParser.Builder servlet = PathPatternRequestParser.withDefaults().basePath("/mvc");
 http
     .authorizeHttpRequests((authorize) -> authorize
         .requestMatchers(servlet.pattern("/orders/**").matcher()).authenticated()
@@ -409,11 +409,11 @@ http
 ----
 
 
-For paths that belong to the default servlet, use `PathPatternRequestParser.path()` instead:
+For paths that belong to the default servlet, use `PathPatternRequestParser.withDefaults()` instead:
 
 [method,java]
 ----
-PathPatternRequestParser.Builder request = PathPatternRequestParser.path();
+PathPatternRequestParser.Builder request = PathPatternRequestParser.withDefaults();
 http
     .authorizeHttpRequests((authorize) -> authorize
         .requestMatchers(request.pattern("/js/**").matcher()).authenticated()
