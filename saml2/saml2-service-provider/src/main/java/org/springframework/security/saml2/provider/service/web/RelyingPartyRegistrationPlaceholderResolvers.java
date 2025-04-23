@@ -82,7 +82,7 @@ public final class RelyingPartyRegistrationPlaceholderResolvers {
 	private static Map<String, String> uriVariables(HttpServletRequest request) {
 		String baseUrl = getApplicationUri(request);
 		Map<String, String> uriVariables = new HashMap<>();
-		UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl(baseUrl)
+		UriComponents uriComponents = UriComponentsBuilder.fromUriString(baseUrl)
 			.replaceQuery(null)
 			.fragment(null)
 			.build();
@@ -103,7 +103,7 @@ public final class RelyingPartyRegistrationPlaceholderResolvers {
 	}
 
 	private static String getApplicationUri(HttpServletRequest request) {
-		UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl(UrlUtils.buildFullRequestUrl(request))
+		UriComponents uriComponents = UriComponentsBuilder.fromUriString(UrlUtils.buildFullRequestUrl(request))
 			.replacePath(request.getContextPath())
 			.replaceQuery(null)
 			.fragment(null)

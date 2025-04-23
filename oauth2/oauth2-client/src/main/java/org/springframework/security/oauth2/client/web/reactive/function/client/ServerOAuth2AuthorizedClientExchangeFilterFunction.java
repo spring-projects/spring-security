@@ -29,6 +29,7 @@ import reactor.core.publisher.Mono;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -469,7 +470,7 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 		 * A map of HTTP Status Code to OAuth 2.0 Error codes for HTTP status codes that
 		 * should be interpreted as authentication or authorization failures.
 		 */
-		private final Map<Integer, String> httpStatusToOAuth2ErrorCodeMap;
+		private final Map<HttpStatusCode, String> httpStatusToOAuth2ErrorCodeMap;
 
 		/**
 		 * The {@link ReactiveOAuth2AuthorizationFailureHandler} to notify when an
@@ -480,9 +481,9 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 		private AuthorizationFailureForwarder(ReactiveOAuth2AuthorizationFailureHandler authorizationFailureHandler) {
 			Assert.notNull(authorizationFailureHandler, "authorizationFailureHandler cannot be null");
 			this.authorizationFailureHandler = authorizationFailureHandler;
-			Map<Integer, String> httpStatusToOAuth2Error = new HashMap<>();
-			httpStatusToOAuth2Error.put(HttpStatus.UNAUTHORIZED.value(), OAuth2ErrorCodes.INVALID_TOKEN);
-			httpStatusToOAuth2Error.put(HttpStatus.FORBIDDEN.value(), OAuth2ErrorCodes.INSUFFICIENT_SCOPE);
+			Map<HttpStatusCode, String> httpStatusToOAuth2Error = new HashMap<>();
+			httpStatusToOAuth2Error.put(HttpStatus.UNAUTHORIZED, OAuth2ErrorCodes.INVALID_TOKEN);
+			httpStatusToOAuth2Error.put(HttpStatus.FORBIDDEN, OAuth2ErrorCodes.INSUFFICIENT_SCOPE);
 			this.httpStatusToOAuth2ErrorCodeMap = Collections.unmodifiableMap(httpStatusToOAuth2Error);
 		}
 
@@ -525,10 +526,10 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 							authParameters.get(OAuth2ParameterNames.ERROR_URI));
 				}
 			}
-			return resolveErrorIfPossible(response.statusCode().value());
+			return resolveErrorIfPossible(response.statusCode());
 		}
 
-		private OAuth2Error resolveErrorIfPossible(int statusCode) {
+		private OAuth2Error resolveErrorIfPossible(HttpStatusCode statusCode) {
 			if (this.httpStatusToOAuth2ErrorCodeMap.containsKey(statusCode)) {
 				return new OAuth2Error(this.httpStatusToOAuth2ErrorCodeMap.get(statusCode), null,
 						"https://tools.ietf.org/html/rfc6750#section-3.1");
@@ -563,7 +564,7 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 		 */
 		private Mono<Void> handleWebClientResponseException(ClientRequest request,
 				WebClientResponseException exception) {
-			return Mono.justOrEmpty(resolveErrorIfPossible(exception.getRawStatusCode())).flatMap((oauth2Error) -> {
+			return Mono.justOrEmpty(resolveErrorIfPossible(exception.getStatusCode())).flatMap((oauth2Error) -> {
 				Mono<Optional<ServerWebExchange>> serverWebExchange = effectiveServerWebExchange(request);
 				Mono<String> clientRegistrationId = effectiveClientRegistrationId(request);
 				return Mono
