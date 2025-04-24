@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,6 +53,7 @@ public class PayloadExchangeMatcherReactiveAuthorizationManagerTests {
 	public void checkWhenGrantedThenGranted() {
 		AuthorizationDecision expected = new AuthorizationDecision(true);
 		given(this.authz.check(any(), any())).willReturn(Mono.just(expected));
+		given(this.authz.authorize(any(), any())).willCallRealMethod();
 		PayloadExchangeMatcherReactiveAuthorizationManager manager = PayloadExchangeMatcherReactiveAuthorizationManager
 			.builder()
 			.add(new PayloadExchangeMatcherEntry<>(PayloadExchangeMatchers.anyExchange(), this.authz))
@@ -64,6 +65,7 @@ public class PayloadExchangeMatcherReactiveAuthorizationManagerTests {
 	public void checkWhenDeniedThenDenied() {
 		AuthorizationDecision expected = new AuthorizationDecision(false);
 		given(this.authz.check(any(), any())).willReturn(Mono.just(expected));
+		given(this.authz.authorize(any(), any())).willCallRealMethod();
 		PayloadExchangeMatcherReactiveAuthorizationManager manager = PayloadExchangeMatcherReactiveAuthorizationManager
 			.builder()
 			.add(new PayloadExchangeMatcherEntry<>(PayloadExchangeMatchers.anyExchange(), this.authz))
@@ -75,6 +77,7 @@ public class PayloadExchangeMatcherReactiveAuthorizationManagerTests {
 	public void checkWhenFirstMatchThenSecondUsed() {
 		AuthorizationDecision expected = new AuthorizationDecision(true);
 		given(this.authz.check(any(), any())).willReturn(Mono.just(expected));
+		given(this.authz.authorize(any(), any())).willCallRealMethod();
 		PayloadExchangeMatcherReactiveAuthorizationManager manager = PayloadExchangeMatcherReactiveAuthorizationManager
 			.builder()
 			.add(new PayloadExchangeMatcherEntry<>(PayloadExchangeMatchers.anyExchange(), this.authz))
@@ -87,6 +90,7 @@ public class PayloadExchangeMatcherReactiveAuthorizationManagerTests {
 	public void checkWhenSecondMatchThenSecondUsed() {
 		AuthorizationDecision expected = new AuthorizationDecision(true);
 		given(this.authz2.check(any(), any())).willReturn(Mono.just(expected));
+		given(this.authz2.authorize(any(), any())).willCallRealMethod();
 		PayloadExchangeMatcherReactiveAuthorizationManager manager = PayloadExchangeMatcherReactiveAuthorizationManager
 			.builder()
 			.add(new PayloadExchangeMatcherEntry<>((e) -> PayloadExchangeMatcher.MatchResult.notMatch(), this.authz))
