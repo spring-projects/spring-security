@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,12 @@
 
 package org.springframework.security.web.csrf;
 
-import java.util.function.Supplier;
-
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
+import java.util.function.Supplier;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.core.log.LogMessage;
 import org.springframework.util.Assert;
 
 /**
@@ -30,11 +31,14 @@ import org.springframework.util.Assert;
  * available to the application through request attributes.
  *
  * @author Steve Riesenberg
+ * @author Yoobin Yoon
  * @since 5.8
  * @see CsrfTokenRequestAttributeHandler
  */
 @FunctionalInterface
 public interface CsrfTokenRequestHandler extends CsrfTokenRequestResolver {
+
+	Log logger = LogFactory.getLog(CsrfTokenRequestHandler.class);
 
 	/**
 	 * Handles a request using a {@link CsrfToken}.
@@ -51,6 +55,13 @@ public interface CsrfTokenRequestHandler extends CsrfTokenRequestResolver {
 		String actualToken = request.getHeader(csrfToken.getHeaderName());
 		if (actualToken == null) {
 			actualToken = request.getParameter(csrfToken.getParameterName());
+			if (actualToken != null) {
+				logger.trace(
+						LogMessage.format("CSRF token found in request parameter: %s", csrfToken.getParameterName()));
+			}
+		}
+		else {
+			logger.trace(LogMessage.format("CSRF token found in request header: %s", csrfToken.getHeaderName()));
 		}
 		return actualToken;
 	}

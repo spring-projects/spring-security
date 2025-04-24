@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,9 @@ package org.springframework.security.web.server.csrf;
 import java.security.SecureRandom;
 import java.util.Base64;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.core.log.LogMessage;
 import reactor.core.publisher.Mono;
 
 import org.springframework.security.crypto.codec.Utf8;
@@ -32,9 +35,12 @@ import org.springframework.web.server.ServerWebExchange;
  * masked value as either a form data value or header of the request.
  *
  * @author Steve Riesenberg
+ * @author Yoobin Yoon
  * @since 5.8
  */
 public final class XorServerCsrfTokenRequestAttributeHandler extends ServerCsrfTokenRequestAttributeHandler {
+
+	private static final Log logger = LogFactory.getLog(XorServerCsrfTokenRequestAttributeHandler.class);
 
 	private SecureRandom secureRandom = new SecureRandom();
 
@@ -57,13 +63,19 @@ public final class XorServerCsrfTokenRequestAttributeHandler extends ServerCsrfT
 					createXoredCsrfToken(this.secureRandom, token.getToken())))
 			.cast(CsrfToken.class)
 			.cache();
+		logger.trace(LogMessage.format("XOR CSRF token created and will be written to exchange attributes"));
 		super.handle(exchange, updatedCsrfToken);
 	}
 
 	@Override
 	public Mono<String> resolveCsrfTokenValue(ServerWebExchange exchange, CsrfToken csrfToken) {
 		return super.resolveCsrfTokenValue(exchange, csrfToken)
-			.flatMap((actualToken) -> Mono.justOrEmpty(getTokenValue(actualToken, csrfToken.getToken())));
+			.flatMap((actualToken) -> Mono.justOrEmpty(getTokenValue(actualToken, csrfToken.getToken())))
+			.doOnNext(tokenValue -> {
+				if (tokenValue != null) {
+					logger.trace(LogMessage.format("CSRF token successfully validated"));
+				}
+			});
 	}
 
 	private static String getTokenValue(String actualToken, String token) {
@@ -72,12 +84,14 @@ public final class XorServerCsrfTokenRequestAttributeHandler extends ServerCsrfT
 			actualBytes = Base64.getUrlDecoder().decode(actualToken);
 		}
 		catch (Exception ex) {
+			logger.trace(LogMessage.format("Failed to find CSRF token since Base64 decoding failed"), ex);
 			return null;
 		}
 
 		byte[] tokenBytes = Utf8.encode(token);
 		int tokenSize = tokenBytes.length;
 		if (actualBytes.length != tokenSize * 2) {
+			logger.trace(LogMessage.format("Failed to validate CSRF token since token length is invalid"));
 			return null;
 		}
 

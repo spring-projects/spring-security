@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,14 @@
 
 package org.springframework.security.web.csrf;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.security.SecureRandom;
 import java.util.Base64;
 import java.util.function.Supplier;
-
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.crypto.codec.Utf8;
 import org.springframework.util.Assert;
 
@@ -32,9 +33,12 @@ import org.springframework.util.Assert;
  * value from the masked value as either a header or parameter value of the request.
  *
  * @author Steve Riesenberg
+ * @author Yoobin Yoon
  * @since 5.8
  */
 public final class XorCsrfTokenRequestAttributeHandler extends CsrfTokenRequestAttributeHandler {
+
+	private static final Log logger = LogFactory.getLog(XorCsrfTokenRequestAttributeHandler.class);
 
 	private SecureRandom secureRandom = new SecureRandom();
 
@@ -55,6 +59,7 @@ public final class XorCsrfTokenRequestAttributeHandler extends CsrfTokenRequestA
 		Assert.notNull(response, "response cannot be null");
 		Assert.notNull(deferredCsrfToken, "deferredCsrfToken cannot be null");
 		Supplier<CsrfToken> updatedCsrfToken = deferCsrfTokenUpdate(deferredCsrfToken);
+		logger.trace(LogMessage.format("XOR CSRF token created and will be written to request attributes"));
 		super.handle(request, response, updatedCsrfToken);
 	}
 
@@ -70,7 +75,18 @@ public final class XorCsrfTokenRequestAttributeHandler extends CsrfTokenRequestA
 	@Override
 	public String resolveCsrfTokenValue(HttpServletRequest request, CsrfToken csrfToken) {
 		String actualToken = super.resolveCsrfTokenValue(request, csrfToken);
-		return getTokenValue(actualToken, csrfToken.getToken());
+		if (actualToken == null) {
+			logger.trace(LogMessage.format("No CSRF token value found in request"));
+			return null;
+		}
+		String tokenValue = getTokenValue(actualToken, csrfToken.getToken());
+		if (tokenValue == null) {
+			logger.trace(LogMessage.format("CSRF token validation failed"));
+		}
+		else {
+			logger.trace(LogMessage.format("CSRF token successfully validated"));
+		}
+		return tokenValue;
 	}
 
 	private static String getTokenValue(String actualToken, String token) {
@@ -79,12 +95,14 @@ public final class XorCsrfTokenRequestAttributeHandler extends CsrfTokenRequestA
 			actualBytes = Base64.getUrlDecoder().decode(actualToken);
 		}
 		catch (Exception ex) {
+			logger.trace(LogMessage.format("Failed to find CSRF token since Base64 decoding failed"), ex);
 			return null;
 		}
 
 		byte[] tokenBytes = Utf8.encode(token);
 		int tokenSize = tokenBytes.length;
 		if (actualBytes.length != tokenSize * 2) {
+			logger.trace(LogMessage.format("Failed to validate CSRF token since token length is invalid"));
 			return null;
 		}
 
