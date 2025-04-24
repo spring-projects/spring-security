@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,10 @@ import java.util.function.Supplier;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.crypto.codec.Utf8;
 import org.springframework.util.Assert;
 
@@ -32,9 +35,12 @@ import org.springframework.util.Assert;
  * value from the masked value as either a header or parameter value of the request.
  *
  * @author Steve Riesenberg
+ * @author Yoobin Yoon
  * @since 5.8
  */
 public final class XorCsrfTokenRequestAttributeHandler extends CsrfTokenRequestAttributeHandler {
+
+	private static final Log logger = LogFactory.getLog(XorCsrfTokenRequestAttributeHandler.class);
 
 	private SecureRandom secureRandom = new SecureRandom();
 
@@ -70,6 +76,9 @@ public final class XorCsrfTokenRequestAttributeHandler extends CsrfTokenRequestA
 	@Override
 	public String resolveCsrfTokenValue(HttpServletRequest request, CsrfToken csrfToken) {
 		String actualToken = super.resolveCsrfTokenValue(request, csrfToken);
+		if (actualToken == null) {
+			return null;
+		}
 		return getTokenValue(actualToken, csrfToken.getToken());
 	}
 
@@ -79,12 +88,16 @@ public final class XorCsrfTokenRequestAttributeHandler extends CsrfTokenRequestA
 			actualBytes = Base64.getUrlDecoder().decode(actualToken);
 		}
 		catch (Exception ex) {
+			logger.trace(LogMessage.format("Not returning the CSRF token since it's not Base64-encoded"), ex);
 			return null;
 		}
 
 		byte[] tokenBytes = Utf8.encode(token);
 		int tokenSize = tokenBytes.length;
 		if (actualBytes.length != tokenSize * 2) {
+			logger.trace(LogMessage.format(
+					"Not returning the CSRF token since its Base64-decoded length (%d) is not equal to (%d)",
+					actualBytes.length, tokenSize * 2));
 			return null;
 		}
 
