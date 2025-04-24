@@ -5,6 +5,8 @@ import java.util.function.Function;
 import org.apache.hc.client5.http.DnsResolver;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
 import org.apache.hc.client5.http.io.HttpClientConnectionManager;
 import org.apache.hc.client5.http.socket.ConnectionSocketFactory;
 import org.apache.hc.client5.http.socket.PlainConnectionSocketFactory;
@@ -54,6 +56,8 @@ public class Hc5ClientAdapter implements ClientAdapter {
 		if (customConnectionMgr != null) {
 			connManager = customConnectionMgr.apply(registry);
 		}
+
+		connManager = PoolingHttpClientConnectionManagerBuilder.create().setDnsResolver(hc5SsrfDnsResolver).build();
 
 		// If connManager is null ( default ), this will use a PoolingHttpClientConnectionManager
 		// This behaviour corresponds to the HttpComponentsClientHttpRequestFactory default.
