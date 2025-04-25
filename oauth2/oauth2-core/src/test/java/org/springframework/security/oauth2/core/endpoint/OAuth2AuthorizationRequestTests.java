@@ -368,18 +368,20 @@ public class OAuth2AuthorizationRequestTests {
 	@Test
 	public void equalsTrueTest() {
 		OAuth2AuthorizationRequest authorizationRequest1 = TestOAuth2AuthorizationRequests.request()
-				.authorizationRequestUri("http://example.com")
-				.additionalParameters(Collections.singletonMap("someAdditionalParameterKey", "someAdditionalParameterValue"))
-				.parameters(parametersMap -> parametersMap.put("someParameterKey", "someParameterValue"))
-				.scope("someScope")
-				.build();
+			.authorizationRequestUri("https://example.com")
+			.additionalParameters(
+					Collections.singletonMap("someAdditionalParameterKey", "someAdditionalParameterValue"))
+			.parameters((parametersMap) -> parametersMap.put("someParameterKey", "someParameterValue"))
+			.scope("someScope")
+			.build();
 
 		OAuth2AuthorizationRequest authorizationRequest2 = TestOAuth2AuthorizationRequests.request()
-				.authorizationRequestUri("http://example.com")
-				.additionalParameters(Collections.singletonMap("someAdditionalParameterKey", "someAdditionalParameterValue"))
-				.parameters(parametersMap -> parametersMap.put("someParameterKey", "someParameterValue"))
-				.scope("someScope")
-				.build();
+			.authorizationRequestUri("https://example.com")
+			.additionalParameters(
+					Collections.singletonMap("someAdditionalParameterKey", "someAdditionalParameterValue"))
+			.parameters((parametersMap) -> parametersMap.put("someParameterKey", "someParameterValue"))
+			.scope("someScope")
+			.build();
 
 		assertThat(authorizationRequest1).isEqualTo(authorizationRequest2);
 	}
@@ -387,18 +389,20 @@ public class OAuth2AuthorizationRequestTests {
 	@Test
 	public void hashCodeTest() {
 		OAuth2AuthorizationRequest authorizationRequest1 = TestOAuth2AuthorizationRequests.request()
-				.authorizationRequestUri("http://example.com")
-				.additionalParameters(Collections.singletonMap("someAdditionalParameterKey", "someAdditionalParameterValue"))
-				.parameters(parametersMap -> parametersMap.put("someParameterKey", "someParameterValue"))
-				.scope("someScope")
-				.build();
+			.authorizationRequestUri("https://example.com")
+			.additionalParameters(
+					Collections.singletonMap("someAdditionalParameterKey", "someAdditionalParameterValue"))
+			.parameters((parametersMap) -> parametersMap.put("someParameterKey", "someParameterValue"))
+			.scope("someScope")
+			.build();
 
 		OAuth2AuthorizationRequest authorizationRequest2 = TestOAuth2AuthorizationRequests.request()
-				.authorizationRequestUri("http://example.com")
-				.additionalParameters(Collections.singletonMap("someAdditionalParameterKey", "someAdditionalParameterValue"))
-				.parameters(parametersMap -> parametersMap.put("someParameterKey", "someParameterValue"))
-				.scope("someScope")
-				.build();
+			.authorizationRequestUri("https://example.com")
+			.additionalParameters(
+					Collections.singletonMap("someAdditionalParameterKey", "someAdditionalParameterValue"))
+			.parameters((parametersMap) -> parametersMap.put("someParameterKey", "someParameterValue"))
+			.scope("someScope")
+			.build();
 
 		int authorizationRequest1HashCode = authorizationRequest1.hashCode();
 		int authorizationRequest2HashCode = authorizationRequest2.hashCode();

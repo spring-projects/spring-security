@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -198,59 +199,23 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 		}
 		OAuth2AuthorizationRequest that = (OAuth2AuthorizationRequest) obj;
 
-		if (!this.authorizationUri.equals(that.authorizationUri)) {
-			return false;
-		}
-
-		if (!this.authorizationGrantType.equals(that.authorizationGrantType)) {
-			return false;
-		}
-
-		if (this.responseType != that.responseType) {
-			return false;
-		}
-
-		if (!this.clientId.equals(that.clientId)) {
-			return false;
-		}
-
-		if (!this.redirectUri.equals(that.redirectUri)) {
-			return false;
-		}
-
-		if (!this.scopes.equals(that.scopes)) {
-			return false;
-		}
-
-		if (!this.state.equals(that.state)) {
-			return false;
-		}
-
-		if (!this.additionalParameters.equals(that.additionalParameters)) {
-			return false;
-		}
-
-		if (!this.authorizationRequestUri.equals(that.authorizationRequestUri)) {
-			return false;
-		}
-
-		return this.attributes.equals(that.attributes);
+		return Objects.equals(this.authorizationUri, that.authorizationUri)
+				&& Objects.equals(this.authorizationGrantType, that.authorizationGrantType)
+				&& Objects.equals(this.responseType, that.responseType) && Objects.equals(this.clientId, that.clientId)
+				&& Objects.equals(this.redirectUri, that.redirectUri) && Objects.equals(this.scopes, that.scopes)
+				&& Objects.equals(this.state, that.state)
+				&& Objects.equals(this.additionalParameters, that.additionalParameters)
+				&& Objects.equals(this.authorizationRequestUri, that.authorizationRequestUri)
+				&& Objects.equals(this.attributes, that.attributes);
 	}
 
 	@Override
 	public int hashCode() {
-		int result = this.authorizationUri.hashCode();
-		result = 31 * result + this.clientId.hashCode();
-		result = 31 * result + ((this.authorizationGrantType == null) ? 0 : this.authorizationGrantType.hashCode());
-		result = 31 * result + ((this.responseType == null) ? 0 : this.responseType.hashCode());
-		result = 31 * result + ((this.redirectUri == null) ? 0 : this.redirectUri.hashCode());
-		result = 31 * result + ((this.scopes == null) ? 0 : this.scopes.hashCode());
-		result = 31 * result + ((this.state == null) ? 0 : this.state.hashCode());
-		result = 31 * result + ((this.additionalParameters == null) ? 0 : this.additionalParameters.hashCode());
-		result = 31 * result + ((this.authorizationRequestUri == null) ? 0 : this.authorizationRequestUri.hashCode());
-		result = 31 * result + ((this.attributes == null) ? 0 : this.attributes.hashCode());
-
-		return result;
+		return Objects.hashCode(this.authorizationUri) + Objects.hashCode(this.clientId)
+				+ Objects.hashCode(this.authorizationGrantType) + Objects.hashCode(this.responseType)
+				+ Objects.hashCode(this.redirectUri) + Objects.hashCode(this.scopes) + Objects.hashCode(this.state)
+				+ Objects.hashCode(this.additionalParameters) + Objects.hashCode(this.authorizationRequestUri)
+				+ Objects.hashCode(this.attributes);
 	}
 
 	/**
