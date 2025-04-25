@@ -9,7 +9,7 @@ permissions: write-all
 jobs:
   merge-dependabot-pr:
     runs-on: ubuntu-latest
-    if: github.actor == 'dependabot[bot]'
+    if: github.event.pull_request.user.login == 'dependabot[bot]'
     steps:
 
       - uses: actions/checkout@v4
