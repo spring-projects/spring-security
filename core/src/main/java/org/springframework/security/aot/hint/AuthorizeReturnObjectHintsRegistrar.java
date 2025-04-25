@@ -109,7 +109,7 @@ public final class AuthorizeReturnObjectHintsRegistrar implements SecurityHintsR
 	}
 
 	private void registerProxy(RuntimeHints hints, Class<?> clazz) {
-		Class<?> proxied = (Class<?>) this.proxyFactory.proxy(clazz);
+		Class<?> proxied = this.proxyFactory.proxy(clazz);
 		if (proxied == null) {
 			return;
 		}
