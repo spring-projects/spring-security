@@ -32,10 +32,13 @@ public class SchemaZipPlugin implements Plugin<Project> {
 				for (def key : schemas.keySet()) {
 					def shortName = key.replaceAll(/http.*schema.(.*).spring-.*/, '$1')
 					assert shortName != key
+					def schemaResourceName = schemas.get(key)
 					File xsdFile = module.sourceSets.main.resources.find {
-						it.path.endsWith(schemas.get(key))
+						it.path.endsWith(schemaResourceName)
 					}
-					assert xsdFile != null
+					if (xsdFile == null) {
+						throw new IllegalStateException("Could not find schema file for resource name " + schemaResourceName + " in src/main/resources")
+					}
 					schemaZip.into (shortName) {
 						duplicatesStrategy 'exclude'
 						from xsdFile.path
