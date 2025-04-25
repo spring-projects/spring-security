@@ -19,6 +19,7 @@ package org.springframework.security.authorization.method;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.EvaluationException;
 import org.springframework.expression.Expression;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.authorization.ExpressionAuthorizationDecision;
 
@@ -43,9 +44,24 @@ final class ExpressionUtils {
 					"SpEL expression must return either a Boolean or an AuthorizationDecision");
 		}
 		catch (EvaluationException ex) {
+			AuthorizationDeniedException denied = findAuthorizationException(ex);
+			if (denied != null) {
+				throw denied;
+			}
 			throw new IllegalArgumentException("Failed to evaluate expression '" + expr.getExpressionString() + "'",
 					ex);
 		}
+	}
+
+	static AuthorizationDeniedException findAuthorizationException(EvaluationException ex) {
+		Throwable cause = ex.getCause();
+		while (cause != null) {
+			if (cause instanceof AuthorizationDeniedException denied) {
+				return denied;
+			}
+			cause = cause.getCause();
+		}
+		return null;
 	}
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -288,6 +288,21 @@ class CookieServerCsrfTokenRepositoryTests {
 	void loadTokenWhenCookieExistsWithNullValue() {
 		setExpectedCookieValue(null);
 		loadAndAssertExpectedValues();
+	}
+
+	// gh-16820
+	@Test
+	void withHttpOnlyFalseWhenCookieCustomizerThenStillDefaultsToFalse() {
+		CookieServerCsrfTokenRepository repository = CookieServerCsrfTokenRepository.withHttpOnlyFalse();
+		repository.setCookieCustomizer((customizer) -> customizer.maxAge(1000));
+		MockServerHttpRequest.BaseBuilder<?> request = MockServerHttpRequest.get("/dummy");
+		MockServerWebExchange exchange = MockServerWebExchange.from(request);
+		CsrfToken csrfToken = repository.generateToken(exchange).block();
+		repository.saveToken(exchange, csrfToken).block();
+		ResponseCookie cookie = exchange.getResponse().getCookies().getFirst("XSRF-TOKEN");
+		assertThat(cookie).isNotNull();
+		assertThat(cookie.getMaxAge().getSeconds()).isEqualTo(1000);
+		assertThat(cookie.isHttpOnly()).isEqualTo(Boolean.FALSE);
 	}
 
 	private void setExpectedHeaderName(String expectedHeaderName) {

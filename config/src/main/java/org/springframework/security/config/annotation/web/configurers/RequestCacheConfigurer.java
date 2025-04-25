@@ -21,8 +21,10 @@ import java.util.Collections;
 import java.util.List;
 
 import org.springframework.context.ApplicationContext;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
+import org.springframework.security.config.annotation.web.RequestMatcherFactory;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.NullRequestCache;
@@ -140,13 +142,13 @@ public final class RequestCacheConfigurer<H extends HttpSecurityBuilder<H>>
 
 	@SuppressWarnings("unchecked")
 	private RequestMatcher createDefaultSavedRequestMatcher(H http) {
-		RequestMatcher notFavIcon = new NegatedRequestMatcher(new AntPathRequestMatcher("/**/favicon.*"));
+		RequestMatcher notFavIcon = new NegatedRequestMatcher(getFaviconRequestMatcher());
 		RequestMatcher notXRequestedWith = new NegatedRequestMatcher(
 				new RequestHeaderRequestMatcher("X-Requested-With", "XMLHttpRequest"));
 		boolean isCsrfEnabled = http.getConfigurer(CsrfConfigurer.class) != null;
 		List<RequestMatcher> matchers = new ArrayList<>();
 		if (isCsrfEnabled) {
-			RequestMatcher getRequests = new AntPathRequestMatcher("/**", "GET");
+			RequestMatcher getRequests = RequestMatcherFactory.matcher(HttpMethod.GET, "/**");
 			matchers.add(0, getRequests);
 		}
 		matchers.add(notFavIcon);
@@ -165,6 +167,15 @@ public final class RequestCacheConfigurer<H extends HttpSecurityBuilder<H>>
 		MediaTypeRequestMatcher mediaRequest = new MediaTypeRequestMatcher(contentNegotiationStrategy, mediaType);
 		mediaRequest.setIgnoredMediaTypes(Collections.singleton(MediaType.ALL));
 		return new NegatedRequestMatcher(mediaRequest);
+	}
+
+	private RequestMatcher getFaviconRequestMatcher() {
+		if (RequestMatcherFactory.usesPathPatterns()) {
+			return RequestMatcherFactory.matcher("/favicon.*");
+		}
+		else {
+			return new AntPathRequestMatcher("/**/favicon.*");
+		}
 	}
 
 }

@@ -31,7 +31,9 @@ import org.springframework.core.log.LogMessage;
  *
  * @author Ben Alex
  * @author Paulo Neves
+ * @deprecated please see {@code PostFilter}
  */
+@Deprecated
 class CollectionFilterer<T> implements Filterer<T> {
 
 	protected static final Log logger = LogFactory.getLog(CollectionFilterer.class);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ import org.springframework.security.web.authentication.AuthenticationFilter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.security.web.authentication.ott.GenerateOneTimeTokenFilter;
+import org.springframework.security.web.authentication.ott.OneTimeTokenAuthenticationFilter;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
 import org.springframework.security.web.authentication.preauth.x509.X509AuthenticationFilter;
 import org.springframework.security.web.authentication.rememberme.RememberMeAuthenticationFilter;
@@ -53,6 +54,7 @@ import org.springframework.security.web.session.ConcurrentSessionFilter;
 import org.springframework.security.web.session.DisableEncodeUrlFilter;
 import org.springframework.security.web.session.ForceEagerSessionCreationFilter;
 import org.springframework.security.web.session.SessionManagementFilter;
+import org.springframework.security.web.transport.HttpsRedirectFilter;
 import org.springframework.web.filter.CorsFilter;
 
 /**
@@ -77,6 +79,7 @@ final class FilterOrderRegistration {
 		put(DisableEncodeUrlFilter.class, order.next());
 		put(ForceEagerSessionCreationFilter.class, order.next());
 		put(ChannelProcessingFilter.class, order.next());
+		put(HttpsRedirectFilter.class, order.next());
 		order.next(); // gh-8105
 		put(WebAsyncManagerIntegrationFilter.class, order.next());
 		put(SecurityContextHolderFilter.class, order.next());
@@ -101,6 +104,7 @@ final class FilterOrderRegistration {
 				"org.springframework.security.saml2.provider.service.web.authentication.Saml2WebSsoAuthenticationFilter",
 				order.next());
 		put(UsernamePasswordAuthenticationFilter.class, order.next());
+		put(OneTimeTokenAuthenticationFilter.class, order.next());
 		order.next(); // gh-8105
 		put(DefaultResourcesFilter.class, order.next());
 		put(DefaultLoginPageGeneratingFilter.class, order.next());

@@ -16,6 +16,8 @@
 
 package org.springframework.security.web.access.channel;
 
+import org.springframework.security.web.PortMapper;
+
 /**
  * Commences a secure channel by retrying the original request using HTTPS.
  * <p>
@@ -25,7 +27,11 @@ package org.springframework.security.web.access.channel;
  * </p>
  *
  * @author Ben Alex
+ * @deprecated please use
+ * {@link org.springframework.security.web.transport.HttpsRedirectFilter} and its
+ * associated {@link PortMapper}
  */
+@Deprecated(since = "6.5")
 public class RetryWithHttpsEntryPoint extends AbstractRetryEntryPoint {
 
 	public RetryWithHttpsEntryPoint() {

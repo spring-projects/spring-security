@@ -32,7 +32,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.TestHttpSecurity;
+import org.springframework.security.config.annotation.web.builders.TestHttpSecurities;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
@@ -140,7 +140,7 @@ public class NamespaceHttpCustomFilterTests {
 		@Bean
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
-			TestHttpSecurity.disableDefaults(http);
+			TestHttpSecurities.disableDefaults(http);
 			http
 				// this works so long as the CustomFilter extends one of the standard filters
 				// if not, use addFilterBefore or addFilterAfter
@@ -158,7 +158,7 @@ public class NamespaceHttpCustomFilterTests {
 		@Bean
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
-			TestHttpSecurity.disableDefaults(http);
+			TestHttpSecurities.disableDefaults(http);
 			http
 				.addFilterAt(new OtherCustomFilter(), UsernamePasswordAuthenticationFilter.class);
 			return http.build();
@@ -179,7 +179,7 @@ public class NamespaceHttpCustomFilterTests {
 		@Bean
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
-			TestHttpSecurity.disableDefaults(http);
+			TestHttpSecurities.disableDefaults(http);
 			http
 				.authorizeRequests()
 					.anyRequest().hasRole("USER")

@@ -65,6 +65,7 @@ public class GenerateOneTimeTokenFilterTests {
 	void setup() {
 		this.request.setMethod("POST");
 		this.request.setServletPath("/ott/generate");
+		this.request.setRequestURI("/ott/generate");
 	}
 
 	@Test

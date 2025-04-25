@@ -32,12 +32,13 @@ import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.http.server.ServletServerHttpResponse;
 import org.springframework.security.authorization.AuthenticatedAuthorizationManager;
-import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialCreationOptions;
 import org.springframework.security.web.webauthn.jackson.WebauthnJackson2Module;
@@ -45,8 +46,6 @@ import org.springframework.security.web.webauthn.management.ImmutablePublicKeyCr
 import org.springframework.security.web.webauthn.management.WebAuthnRelyingPartyOperations;
 import org.springframework.util.Assert;
 import org.springframework.web.filter.OncePerRequestFilter;
-
-import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
 
 /**
  * A {@link jakarta.servlet.Filter} that renders the
@@ -63,7 +62,8 @@ public class PublicKeyCredentialCreationOptionsFilter extends OncePerRequestFilt
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
 		.getContextHolderStrategy();
 
-	private RequestMatcher matcher = antMatcher(HttpMethod.POST, "/webauthn/register/options");
+	private RequestMatcher matcher = PathPatternRequestMatcher.withDefaults()
+		.matcher(HttpMethod.POST, "/webauthn/register/options");
 
 	private AuthorizationManager<HttpServletRequest> authorization = AuthenticatedAuthorizationManager.authenticated();
 
@@ -82,6 +82,18 @@ public class PublicKeyCredentialCreationOptionsFilter extends OncePerRequestFilt
 		this.rpOperations = rpOperations;
 	}
 
+	/**
+	 * Sets the {@link RequestMatcher} used to trigger this filter.
+	 * <p>
+	 * By default, the {@link RequestMatcher} is {@code POST /webauthn/register/options}.
+	 * @param requestMatcher the {@link RequestMatcher} to use
+	 * @since 6.5
+	 */
+	public void setRequestMatcher(RequestMatcher requestMatcher) {
+		Assert.notNull(requestMatcher, "requestMatcher cannot be null");
+		this.matcher = requestMatcher;
+	}
+
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
@@ -92,8 +104,8 @@ public class PublicKeyCredentialCreationOptionsFilter extends OncePerRequestFilt
 
 		Supplier<SecurityContext> context = this.securityContextHolderStrategy.getDeferredContext();
 		Supplier<Authentication> authentication = () -> context.get().getAuthentication();
-		AuthorizationDecision decision = this.authorization.check(authentication, request);
-		if (!decision.isGranted()) {
+		AuthorizationResult result = this.authorization.authorize(authentication, request);
+		if (result == null || !result.isGranted()) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			return;
 		}

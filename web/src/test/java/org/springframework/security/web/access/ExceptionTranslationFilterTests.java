@@ -1,5 +1,5 @@
 /*
- * Copyright 2004-2024 the original author or authors.
+ * Copyright 2004-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ import jakarta.servlet.http.HttpSession;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -38,6 +39,7 @@ import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.RememberMeAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -105,6 +107,23 @@ public class ExceptionTranslationFilterTests {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		filter.doFilter(request, response, fc);
 		assertThat(response.getRedirectedUrl()).isEqualTo("/mycontext/login.jsp");
+	}
+
+	@Test
+	public void testAccessDeniedWhenAnonymousThenIncludesAuthenticationRequest() throws Exception {
+		// Setup our HTTP request
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/");
+		FilterChain fc = mockFilterChainWithException(new AccessDeniedException(""));
+		AnonymousAuthenticationToken token = new AnonymousAuthenticationToken("ignored", "ignored",
+				AuthorityUtils.createAuthorityList("IGNORED"));
+		SecurityContextHolder.getContext().setAuthentication(token);
+		AuthenticationEntryPoint entryPoint = mock(AuthenticationEntryPoint.class);
+		ExceptionTranslationFilter filter = new ExceptionTranslationFilter(entryPoint);
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		filter.doFilter(request, response, fc);
+		ArgumentCaptor<AuthenticationException> ex = ArgumentCaptor.forClass(AuthenticationException.class);
+		verify(entryPoint).commence(any(), any(), ex.capture());
+		assertThat(ex.getValue().getAuthenticationRequest()).isEqualTo(token);
 	}
 
 	@Test

@@ -26,6 +26,7 @@ import org.springframework.core.log.LogMessage;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.AuthorizationServiceException;
 import org.springframework.security.access.ConfigAttribute;
+import org.springframework.security.acls.AclPermissionEvaluator;
 import org.springframework.security.acls.model.AclService;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.security.core.Authentication;
@@ -62,7 +63,11 @@ import org.springframework.security.core.Authentication;
  *
  * @author Ben Alex
  * @author Paulo Neves
+ * @deprecated please use {@link AclPermissionEvaluator} instead. Spring Method Security
+ * annotations may also prove useful, for example
+ * {@code @PostFilter("hasPermission(filterObject, read)")}
  */
+@Deprecated
 public class AclEntryAfterInvocationCollectionFilteringProvider extends AbstractAclProvider {
 
 	protected static final Log logger = LogFactory.getLog(AclEntryAfterInvocationCollectionFilteringProvider.class);

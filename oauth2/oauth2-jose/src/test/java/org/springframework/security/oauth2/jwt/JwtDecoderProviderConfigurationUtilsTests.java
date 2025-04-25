@@ -35,6 +35,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.security.oauth2.jose.TestKeys;
 import org.springframework.security.oauth2.jose.jws.JwsAlgorithms;
 import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
+import org.springframework.web.util.UriComponents;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -88,6 +89,18 @@ public class JwtDecoderProviderConfigurationUtilsTests {
 		given(jwkSource.get(any(JWKSelector.class), isNull())).willReturn(Collections.singletonList(key));
 		Set<SignatureAlgorithm> algorithms = JwtDecoderProviderConfigurationUtils.getSignatureAlgorithms(jwkSource);
 		assertThat(algorithms).containsOnly(SignatureAlgorithm.RS256);
+	}
+
+	// gh-15852
+	@Test
+	public void oidcWhenHostContainsUnderscoreThenRetains() {
+		UriComponents oidc = JwtDecoderProviderConfigurationUtils.oidc("https://elated_sutherland:8080/path");
+		assertThat(oidc.getHost()).isEqualTo("elated_sutherland");
+		UriComponents oauth = JwtDecoderProviderConfigurationUtils.oauth("https://elated_sutherland:8080/path");
+		assertThat(oauth.getHost()).isEqualTo("elated_sutherland");
+		UriComponents oidcRfc8414 = JwtDecoderProviderConfigurationUtils
+			.oidcRfc8414("https://elated_sutherland:8080/path");
+		assertThat(oidcRfc8414.getHost()).isEqualTo("elated_sutherland");
 	}
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,7 @@ import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.http.server.ServletServerHttpResponse;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.security.web.webauthn.api.Bytes;
 import org.springframework.security.web.webauthn.api.CredentialRecord;
@@ -45,8 +46,6 @@ import org.springframework.security.web.webauthn.management.UserCredentialReposi
 import org.springframework.security.web.webauthn.management.WebAuthnRelyingPartyOperations;
 import org.springframework.util.Assert;
 import org.springframework.web.filter.OncePerRequestFilter;
-
-import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
 
 /**
  * Authenticates {@code PublicKeyCredential<AuthenticatorAssertionResponse>} that is
@@ -93,9 +92,11 @@ public class WebAuthnRegistrationFilter extends OncePerRequestFilter {
 
 	private PublicKeyCredentialCreationOptionsRepository creationOptionsRepository = new HttpSessionPublicKeyCredentialCreationOptionsRepository();
 
-	private RequestMatcher registerCredentialMatcher = antMatcher(HttpMethod.POST, DEFAULT_REGISTER_CREDENTIAL_URL);
+	private RequestMatcher registerCredentialMatcher = PathPatternRequestMatcher.withDefaults()
+		.matcher(HttpMethod.POST, DEFAULT_REGISTER_CREDENTIAL_URL);
 
-	private RequestMatcher removeCredentialMatcher = antMatcher(HttpMethod.DELETE, "/webauthn/register/{id}");
+	private RequestMatcher removeCredentialMatcher = PathPatternRequestMatcher.withDefaults()
+		.matcher(HttpMethod.DELETE, "/webauthn/register/{id}");
 
 	public WebAuthnRegistrationFilter(UserCredentialRepository userCredentials,
 			WebAuthnRelyingPartyOperations rpOptions) {
@@ -103,6 +104,32 @@ public class WebAuthnRegistrationFilter extends OncePerRequestFilter {
 		Assert.notNull(rpOptions, "rpOptions must not be null");
 		this.userCredentials = userCredentials;
 		this.rpOptions = rpOptions;
+	}
+
+	/**
+	 * Sets the {@link RequestMatcher} to trigger this filter's the credential
+	 * registration operation .
+	 * <p/>
+	 * By default, the {@link RequestMatcher} is {@code POST /webauthn/register}.
+	 * @param registerCredentialMatcher the {@link RequestMatcher} to use
+	 * @since 6.5
+	 */
+	public void setRegisterCredentialMatcher(RequestMatcher registerCredentialMatcher) {
+		Assert.notNull(registerCredentialMatcher, "registerCredentialMatcher cannot be null");
+		this.registerCredentialMatcher = registerCredentialMatcher;
+	}
+
+	/**
+	 * Sets the {@link RequestMatcher} to trigger this filter's the credential removal
+	 * operation .
+	 * <p/>
+	 * By default, the {@link RequestMatcher} is {@code DELETE /webauthn/register/{id}}.
+	 * @param removeCredentialMatcher the {@link RequestMatcher} to use
+	 * @since 6.5
+	 */
+	public void setRemoveCredentialMatcher(RequestMatcher removeCredentialMatcher) {
+		Assert.notNull(removeCredentialMatcher, "removeCredentialMatcher cannot be null");
+		this.removeCredentialMatcher = removeCredentialMatcher;
 	}
 
 	@Override

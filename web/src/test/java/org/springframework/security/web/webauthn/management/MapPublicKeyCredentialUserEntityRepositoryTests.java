@@ -19,7 +19,7 @@ package org.springframework.security.web.webauthn.management;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialUserEntity;
-import org.springframework.security.web.webauthn.api.TestPublicKeyCredentialUserEntity;
+import org.springframework.security.web.webauthn.api.TestPublicKeyCredentialUserEntities;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
@@ -36,7 +36,7 @@ class MapPublicKeyCredentialUserEntityRepositoryTests {
 
 	private String username = "username";
 
-	private PublicKeyCredentialUserEntity userEntity = TestPublicKeyCredentialUserEntity.userEntity()
+	private PublicKeyCredentialUserEntity userEntity = TestPublicKeyCredentialUserEntities.userEntity()
 		.name(this.username)
 		.build();
 
@@ -75,7 +75,7 @@ class MapPublicKeyCredentialUserEntityRepositoryTests {
 
 	@Test
 	void saveWhenUpdateThenUpdated() {
-		PublicKeyCredentialUserEntity newUserEntity = TestPublicKeyCredentialUserEntity.userEntity()
+		PublicKeyCredentialUserEntity newUserEntity = TestPublicKeyCredentialUserEntities.userEntity()
 			.name(this.userEntity.getName())
 			.displayName("Updated")
 			.build();

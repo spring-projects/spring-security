@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@ import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.security.web.RequestMatcherRedirectFilter;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.util.StringUtils;
 
 /**
@@ -45,9 +44,12 @@ public final class WellKnownChangePasswordBeanDefinitionParser implements BeanDe
 	 */
 	@Override
 	public BeanDefinition parse(Element element, ParserContext parserContext) {
+		BeanDefinition requestMatcher = BeanDefinitionBuilder.rootBeanDefinition(RequestMatcherFactoryBean.class)
+			.addConstructorArgValue(WELL_KNOWN_CHANGE_PASSWORD_PATTERN)
+			.getBeanDefinition();
 		BeanDefinition changePasswordFilter = BeanDefinitionBuilder
 			.rootBeanDefinition(RequestMatcherRedirectFilter.class)
-			.addConstructorArgValue(new AntPathRequestMatcher(WELL_KNOWN_CHANGE_PASSWORD_PATTERN))
+			.addConstructorArgValue(requestMatcher)
 			.addConstructorArgValue(getChangePasswordPage(element))
 			.getBeanDefinition();
 		parserContext.getReaderContext().registerWithGeneratedName(changePasswordFilter);

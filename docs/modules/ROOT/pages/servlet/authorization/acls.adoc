@@ -202,11 +202,139 @@ Instead, you need to write code similar to that shown in the preceding example f
 You should consider using AOP on your services layer to automatically integrate the ACL information with your services layer operations.
 We have found this approach to be effective.
 
-Once you have used the techniques described here to store some ACL information in the database, the next step is to actually use the ACL information as part of authorization decision logic.
-You have a number of choices here.
-You could write your own `AccessDecisionVoter` or `AfterInvocationProvider` that (respectively) fires before or after a method invocation.
-Such classes would use `AclService` to retrieve the relevant ACL and then call `Acl.isGranted(Permission[] permission, Sid[] sids, boolean administrativeMode)` to decide whether permission is granted or denied.
-Alternately, you could use our `AclEntryVoter`, `AclEntryAfterInvocationProvider` or `AclEntryAfterInvocationCollectionFilteringProvider` classes.
-All of these classes provide a declarative-based approach to evaluating ACL information at runtime, freeing you from needing to write any code.
+== Using the PermissionEvaluator
 
-See the https://github.com/spring-projects/spring-security-samples[sample applications] to learn how to use these classes.
+Once you have used the techniques described here to store some ACL information in the database, the next step is to actually use the ACL information as part of authorization decision logic.
+
+You have a number of choices here with the primary one being using `AclPermissionEvaluator` in your `@PreAuthorize`, `@PostAuthorize`, `@PreFilter`, and `@PostFilter` annotation expressions.
+
+This is a sample listing of the components needed to wire an `AclPersmissionEvaluator` into your authorization logic:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@EnableMethodSecurity
+@Configuration
+class SecurityConfig {
+	@Bean
+	static MethodSecurityExpressionHandler expressionHandler(AclPermissionEvaluator aclPermissionEvaluator) {
+		final DefaultMethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler();
+		expressionHandler.setPermissionEvaluator(aclPermissionEvaluator);
+		return expressionHandler;
+	}
+
+	@Bean
+	static AclPermissionEvaluator aclPermissionEvaluator(AclService aclService) {
+		return new AclPermissionEvaluator(aclService);
+	}
+
+	@Bean
+	static JdbcMutableAclService aclService(DataSource dataSource, LookupStrategy lookupStrategy, AclCache aclCache) {
+		return new JdbcMutableAclService(dataSource, lookupStrategy, aclCache);
+	}
+
+	@Bean
+	static LookupStrategy lookupStrategy(DataSource dataSource, AclCache cache,
+			AclAuthorizationStrategy aclAuthorizationStrategy, PermissionGrantingStrategy permissionGrantingStrategy) {
+		return new BasicLookupStrategy(dataSource, cache, aclAuthorizationStrategy, permissionGrantingStrategy);
+	}
+
+	@Bean
+	static AclCache aclCache(PermissionGrantingStrategy permissionGrantingStrategy,
+			AclAuthorizationStrategy aclAuthorizationStrategy) {
+		Cache cache = new ConcurrentMapCache("aclCache");
+		return new SpringCacheBasedAclCache(cache, permissionGrantingStrategy, aclAuthorizationStrategy);
+	}
+
+	@Bean
+	static AclAuthorizationStrategy aclAuthorizationStrategy() {
+		return new AclAuthorizationStrategyImpl(new SimpleGrantedAuthority("ADMIN"));
+	}
+
+	@Bean
+	static PermissionGrantingStrategy permissionGrantingStrategy() {
+		return new DefaultPermissionGrantingStrategy(new ConsoleAuditLogger());
+	}
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@EnableMethodSecurity
+@Configuration
+internal object SecurityConfig {
+    @Bean
+    fun expressionHandler(aclPermissionEvaluator: AclPermissionEvaluator?): MethodSecurityExpressionHandler {
+        val expressionHandler = DefaultMethodSecurityExpressionHandler()
+        expressionHandler.setPermissionEvaluator(aclPermissionEvaluator)
+        return expressionHandler
+    }
+
+    @Bean
+    fun aclPermissionEvaluator(aclService: AclService?): AclPermissionEvaluator {
+        return AclPermissionEvaluator(aclService)
+    }
+
+    @Bean
+    fun aclService(dataSource: DataSource?, lookupStrategy: LookupStrategy?, aclCache: AclCache?): JdbcMutableAclService {
+        return JdbcMutableAclService(dataSource, lookupStrategy, aclCache)
+    }
+
+    @Bean
+    fun lookupStrategy(dataSource: DataSource?, cache: AclCache?,
+    aclAuthorizationStrategy: AclAuthorizationStrategy?, permissionGrantingStrategy: PermissionGrantingStrategy?): LookupStrategy {
+        return BasicLookupStrategy(dataSource, cache, aclAuthorizationStrategy, permissionGrantingStrategy)
+    }
+
+    @Bean
+    fun aclCache(permissionGrantingStrategy: PermissionGrantingStrategy?,
+    aclAuthorizationStrategy: AclAuthorizationStrategy?): AclCache {
+        val cache: Cache = ConcurrentMapCache("aclCache")
+        return SpringCacheBasedAclCache(cache, permissionGrantingStrategy, aclAuthorizationStrategy)
+    }
+
+    @Bean
+    fun aclAuthorizationStrategy(): AclAuthorizationStrategy {
+        return AclAuthorizationStrategyImpl(SimpleGrantedAuthority("ADMIN"))
+    }
+
+    @Bean
+    fun permissionGrantingStrategy(): PermissionGrantingStrategy {
+        return DefaultPermissionGrantingStrategy(ConsoleAuditLogger())
+    }
+}
+----
+======
+
+
+Then using xref:servlet/authorization/method-security.adoc#authorizing-with-annotations[method-based security] you can use `hasPermission` in your annotation expressions like so:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@GetMapping
+@PostFilter("hasPermission(filterObject, read)")
+Iterable<Message> getAll() {
+	return this.messagesRepository.findAll();
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@GetMapping
+@PostFilter("hasPermission(filterObject, read)")
+fun getAll(): Iterable<Message> {
+    return this.messagesRepository.findAll()
+}
+----
+======

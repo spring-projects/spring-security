@@ -129,5 +129,5 @@ In this case, the filter falls back and forwards the request onto the rest of th
 
 [NOTE]
 ====
-Unlike the https://docs.spring.io/spring-security/site/docs/current-SNAPSHOT/api/org/springframework/security/oauth2/client/web/reactive/function/client/ServerOAuth2AuthorizedClientExchangeFilterFunction.html[OAuth 2.0 Client filter function], this filter function makes no attempt to renew the token, should it be expired.
+Unlike the javadoc:org.springframework.security.oauth2.client.web.reactive.function.client.ServerOAuth2AuthorizedClientExchangeFilterFunction[OAuth 2.0 Client filter function], this filter function makes no attempt to renew the token, should it be expired.
 ====

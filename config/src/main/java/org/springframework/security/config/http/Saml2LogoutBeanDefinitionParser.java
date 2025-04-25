@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,7 +41,6 @@ import org.springframework.security.web.authentication.logout.LogoutSuccessEvent
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler;
 import org.springframework.security.web.util.matcher.AndRequestMatcher;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.ParameterRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.CollectionUtils;
@@ -171,7 +170,7 @@ final class Saml2LogoutBeanDefinitionParser implements BeanDefinitionParser {
 	}
 
 	private BeanMetadataElement createLogoutRequestMatcher() {
-		BeanMetadataElement logoutMatcher = BeanDefinitionBuilder.rootBeanDefinition(AntPathRequestMatcher.class)
+		BeanMetadataElement logoutMatcher = BeanDefinitionBuilder.rootBeanDefinition(RequestMatcherFactoryBean.class)
 			.addConstructorArgValue(this.logoutUrl)
 			.addConstructorArgValue("POST")
 			.getBeanDefinition();
@@ -184,7 +183,8 @@ final class Saml2LogoutBeanDefinitionParser implements BeanDefinitionParser {
 	}
 
 	private BeanMetadataElement createSaml2LogoutRequestMatcher() {
-		BeanMetadataElement logoutRequestMatcher = BeanDefinitionBuilder.rootBeanDefinition(AntPathRequestMatcher.class)
+		BeanMetadataElement logoutRequestMatcher = BeanDefinitionBuilder
+			.rootBeanDefinition(RequestMatcherFactoryBean.class)
 			.addConstructorArgValue(this.logoutRequestUrl)
 			.getBeanDefinition();
 		BeanMetadataElement saml2RequestMatcher = BeanDefinitionBuilder
@@ -198,7 +198,7 @@ final class Saml2LogoutBeanDefinitionParser implements BeanDefinitionParser {
 
 	private BeanMetadataElement createSaml2LogoutResponseMatcher() {
 		BeanMetadataElement logoutResponseMatcher = BeanDefinitionBuilder
-			.rootBeanDefinition(AntPathRequestMatcher.class)
+			.rootBeanDefinition(RequestMatcherFactoryBean.class)
 			.addConstructorArgValue(this.logoutResponseUrl)
 			.getBeanDefinition();
 		BeanMetadataElement saml2ResponseMatcher = BeanDefinitionBuilder

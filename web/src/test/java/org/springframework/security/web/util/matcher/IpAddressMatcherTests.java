@@ -153,4 +153,18 @@ public class IpAddressMatcherTests {
 			.withMessage("ipAddress cannot be empty");
 	}
 
+	// gh-16795
+	@Test
+	public void toStringWhenCidrIsProvidedThenReturnsIpAddressWithCidr() {
+		IpAddressMatcher matcher = new IpAddressMatcher("192.168.1.0/24");
+		assertThat(matcher.toString()).hasToString("IpAddress [192.168.1.0/24]");
+	}
+
+	// gh-16795
+	@Test
+	public void toStringWhenOnlyIpIsProvidedThenReturnsIpAddressOnly() {
+		IpAddressMatcher matcher = new IpAddressMatcher("127.0.0.1");
+		assertThat(matcher.toString()).hasToString("IpAddress [127.0.0.1]");
+	}
+
 }

@@ -64,39 +64,23 @@ jobs:
           ./gradlew publishMavenJavaPublicationToLocalRepository
           ./gradlew cloneRepository -PrepositoryName="spring-projects/spring-security-samples" -Pref="$samples_branch" -PcloneOutputDirectory="$SAMPLES_DIR"
           ./gradlew --refresh-dependencies --project-dir "$SAMPLES_DIR" --init-script spring-security-ci.gradle -PlocalRepositoryPath="$LOCAL_REPOSITORY_PATH" -PspringSecurityVersion="$version" test integrationTest
-  check-tangles:
-    name: Check for Package Tangles
-    runs-on: ubuntu-latest
-    if: ${{ github.repository_owner == 'spring-projects' }}
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up gradle
-        uses: spring-io/spring-gradle-build-action@v2
-        with:
-          java-version: 17
-          distribution: temurin
-      - name: Check for package tangles
-        env:
-          STRUCTURE101_LICENSEID: ${{ secrets.STRUCTURE101_LICENSEID }}
-        run: |
-          ./gradlew assemble && ./gradlew s101 -Ps101.licenseId="$STRUCTURE101_LICENSEID" --stacktrace
   deploy-artifacts:
     name: Deploy Artifacts
-    needs: [ build, test, check-samples, check-tangles ]
+    needs: [ build, test, check-samples ]
     uses: spring-io/spring-security-release-tools/.github/workflows/deploy-artifacts.yml@v1
     with:
       should-deploy-artifacts: ${{ needs.build.outputs.should-deploy-artifacts }}
     secrets: inherit
   deploy-docs:
     name: Deploy Docs
-    needs: [ build, test, check-samples, check-tangles ]
+    needs: [ build, test, check-samples ]
     uses: spring-io/spring-security-release-tools/.github/workflows/deploy-docs.yml@v1
     with:
       should-deploy-docs: ${{ needs.build.outputs.should-deploy-artifacts }}
     secrets: inherit
   deploy-schema:
     name: Deploy Schema
-    needs: [ build, test, check-samples, check-tangles ]
+    needs: [ build, test, check-samples ]
     uses: spring-io/spring-security-release-tools/.github/workflows/deploy-schema.yml@v1
     with:
       should-deploy-schema: ${{ needs.build.outputs.should-deploy-artifacts }}

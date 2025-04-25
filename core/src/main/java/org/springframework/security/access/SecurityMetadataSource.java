@@ -20,13 +20,22 @@ import java.util.Collection;
 
 import org.springframework.aop.framework.AopInfrastructureBean;
 import org.springframework.security.access.intercept.AbstractSecurityInterceptor;
+import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.security.core.annotation.SecurityAnnotationScanner;
 
 /**
  * Implemented by classes that store and can identify the {@link ConfigAttribute}s that
  * applies to a given secure object invocation.
  *
  * @author Ben Alex
+ * @deprecated In modern Spring Security APIs, each API manages its own configuration
+ * context. As such there is no direct replacement for this interface. In the case of
+ * method security, please see {@link SecurityAnnotationScanner} and
+ * {@link AuthorizationManager}. In the case of channel security, please see
+ * {@code HttpsRedirectFilter}. In the case of web security, please see
+ * {@link AuthorizationManager}.
  */
+@Deprecated
 public interface SecurityMetadataSource extends AopInfrastructureBean {
 
 	/**

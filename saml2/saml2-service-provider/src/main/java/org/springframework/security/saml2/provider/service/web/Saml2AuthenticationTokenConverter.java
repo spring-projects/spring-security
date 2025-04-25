@@ -16,8 +16,6 @@
 
 package org.springframework.security.saml2.provider.service.web;
 
-import java.util.function.Function;
-
 import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.http.HttpMethod;
@@ -43,7 +41,7 @@ public final class Saml2AuthenticationTokenConverter implements AuthenticationCo
 
 	private final RelyingPartyRegistrationResolver relyingPartyRegistrationResolver;
 
-	private Function<HttpServletRequest, AbstractSaml2AuthenticationRequest> loader;
+	private Saml2AuthenticationRequestRepository<AbstractSaml2AuthenticationRequest> authenticationRequestRepository;
 
 	/**
 	 * Constructs a {@link Saml2AuthenticationTokenConverter} given a strategy for
@@ -54,12 +52,13 @@ public final class Saml2AuthenticationTokenConverter implements AuthenticationCo
 	public Saml2AuthenticationTokenConverter(RelyingPartyRegistrationResolver relyingPartyRegistrationResolver) {
 		Assert.notNull(relyingPartyRegistrationResolver, "relyingPartyRegistrationResolver cannot be null");
 		this.relyingPartyRegistrationResolver = relyingPartyRegistrationResolver;
-		this.loader = new HttpSessionSaml2AuthenticationRequestRepository()::loadAuthenticationRequest;
+		this.authenticationRequestRepository = new HttpSessionSaml2AuthenticationRequestRepository();
 	}
 
 	@Override
 	public Saml2AuthenticationToken convert(HttpServletRequest request) {
-		AbstractSaml2AuthenticationRequest authenticationRequest = loadAuthenticationRequest(request);
+		AbstractSaml2AuthenticationRequest authenticationRequest = this.authenticationRequestRepository
+			.loadAuthenticationRequest(request);
 		String relyingPartyRegistrationId = (authenticationRequest != null)
 				? authenticationRequest.getRelyingPartyRegistrationId() : null;
 		RelyingPartyRegistration relyingPartyRegistration = this.relyingPartyRegistrationResolver.resolve(request,
@@ -84,11 +83,7 @@ public final class Saml2AuthenticationTokenConverter implements AuthenticationCo
 	public void setAuthenticationRequestRepository(
 			Saml2AuthenticationRequestRepository<AbstractSaml2AuthenticationRequest> authenticationRequestRepository) {
 		Assert.notNull(authenticationRequestRepository, "authenticationRequestRepository cannot be null");
-		this.loader = authenticationRequestRepository::loadAuthenticationRequest;
-	}
-
-	private AbstractSaml2AuthenticationRequest loadAuthenticationRequest(HttpServletRequest request) {
-		return this.loader.apply(request);
+		this.authenticationRequestRepository = authenticationRequestRepository;
 	}
 
 	private String decode(HttpServletRequest request) {

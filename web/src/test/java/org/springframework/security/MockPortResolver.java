@@ -25,7 +25,9 @@ import org.springframework.security.web.PortResolver;
  *
  * @author Ben Alex
  * @author nomoreFt
+ * @deprecated
  */
+@Deprecated(forRemoval = true)
 public class MockPortResolver implements PortResolver {
 
 	private static final String HTTPS_SCHEME = "https";

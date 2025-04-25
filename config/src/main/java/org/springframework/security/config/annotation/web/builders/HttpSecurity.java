@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,6 +45,7 @@ import org.springframework.security.config.annotation.SecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.AbstractRequestMatcherRegistry;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
+import org.springframework.security.config.annotation.web.RequestMatcherFactory;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfiguration;
 import org.springframework.security.config.annotation.web.configurers.AnonymousConfigurer;
@@ -58,6 +59,7 @@ import org.springframework.security.config.annotation.web.configurers.Expression
 import org.springframework.security.config.annotation.web.configurers.FormLoginConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HttpBasicConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HttpsRedirectConfigurer;
 import org.springframework.security.config.annotation.web.configurers.JeeConfigurer;
 import org.springframework.security.config.annotation.web.configurers.LogoutConfigurer;
 import org.springframework.security.config.annotation.web.configurers.PasswordManagementConfigurer;
@@ -3135,12 +3137,61 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * the {@link ChannelSecurityConfigurer.ChannelRequestMatcherRegistry}
 	 * @return the {@link HttpSecurity} for further customizations
 	 * @throws Exception
+	 * @deprecated Use {@link #redirectToHttps}
 	 */
+	@Deprecated
 	public HttpSecurity requiresChannel(
 			Customizer<ChannelSecurityConfigurer<HttpSecurity>.ChannelRequestMatcherRegistry> requiresChannelCustomizer)
 			throws Exception {
 		ApplicationContext context = getContext();
 		requiresChannelCustomizer.customize(getOrApply(new ChannelSecurityConfigurer<>(context)).getRegistry());
+		return HttpSecurity.this;
+	}
+
+	/**
+	 * Configures channel security. In order for this configuration to be useful at least
+	 * one mapping to a required channel must be provided.
+	 *
+	 * <h2>Example Configuration</h2>
+	 *
+	 * The example below demonstrates how to require HTTPS for every request. Only
+	 * requiring HTTPS for some requests is supported, for example if you need to
+	 * differentiate between local and production deployments.
+	 *
+	 * <pre>
+	 * &#064;Configuration
+	 * &#064;EnableWebSecurity
+	 * public class RequireHttpsConfig {
+	 *
+	 * 	&#064;Bean
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	 * 		http
+	 * 			.authorizeHttpRequests((authorize) -&gt; authorize
+	 * 				anyRequest().authenticated()
+	 * 			)
+	 * 			.formLogin(withDefaults())
+	 * 			.redirectToHttps(withDefaults());
+	 * 		return http.build();
+	 * 	}
+	 *
+	 * 	&#064;Bean
+	 * 	public UserDetailsService userDetailsService() {
+	 * 		UserDetails user = User.withDefaultPasswordEncoder()
+	 * 			.username(&quot;user&quot;)
+	 * 			.password(&quot;password&quot;)
+	 * 			.roles(&quot;USER&quot;)
+	 * 			.build();
+	 * 		return new InMemoryUserDetailsManager(user);
+	 * 	}
+	 * }
+	 * </pre>
+	 * @param httpsRedirectConfigurerCustomizer the {@link Customizer} to provide more
+	 * options for the {@link HttpsRedirectConfigurer}
+	 * @return the {@link HttpSecurity} for further customizations
+	 */
+	public HttpSecurity redirectToHttps(
+			Customizer<HttpsRedirectConfigurer<HttpSecurity>> httpsRedirectConfigurerCustomizer) throws Exception {
+		httpsRedirectConfigurerCustomizer.customize(getOrApply(new HttpsRedirectConfigurer<>()));
 		return HttpSecurity.this;
 	}
 
@@ -3655,8 +3706,8 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * {@link #securityMatcher(String...)}, {@link #securityMatchers(Customizer)} and
 	 * {@link #securityMatchers()}
 	 * </p>
-	 * @param requestMatcher the {@link RequestMatcher} to use (i.e. new
-	 * AntPathRequestMatcher("/admin/**","GET") )
+	 * @param requestMatcher the {@link RequestMatcher} to use, for example,
+	 * {@code PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.GET, "/admin/**")}
 	 * @return the {@link HttpSecurity} for further customizations
 	 * @see #securityMatcher(String...)
 	 */
@@ -3684,11 +3735,17 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * @see MvcRequestMatcher
 	 */
 	public HttpSecurity securityMatcher(String... patterns) {
-		if (mvcPresent) {
-			this.requestMatcher = new OrRequestMatcher(createMvcMatchers(patterns));
-			return this;
+		List<RequestMatcher> matchers = new ArrayList<>();
+		for (String pattern : patterns) {
+			if (RequestMatcherFactory.usesPathPatterns()) {
+				matchers.add(RequestMatcherFactory.matcher(pattern));
+			}
+			else {
+				RequestMatcher matcher = mvcPresent ? createMvcMatcher(pattern) : createAntMatcher(pattern);
+				matchers.add(matcher);
+			}
 		}
-		this.requestMatcher = new OrRequestMatcher(createAntMatchers(patterns));
+		this.requestMatcher = new OrRequestMatcher(matchers);
 		return this;
 	}
 
@@ -3717,15 +3774,11 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 		return HttpSecurity.this;
 	}
 
-	private List<RequestMatcher> createAntMatchers(String... patterns) {
-		List<RequestMatcher> matchers = new ArrayList<>(patterns.length);
-		for (String pattern : patterns) {
-			matchers.add(new AntPathRequestMatcher(pattern));
-		}
-		return matchers;
+	private RequestMatcher createAntMatcher(String pattern) {
+		return new AntPathRequestMatcher(pattern);
 	}
 
-	private List<RequestMatcher> createMvcMatchers(String... mvcPatterns) {
+	private RequestMatcher createMvcMatcher(String mvcPattern) {
 		ResolvableType type = ResolvableType.forClassWithGenerics(ObjectPostProcessor.class, Object.class);
 		ObjectProvider<ObjectPostProcessor<Object>> postProcessors = getContext().getBeanProvider(type);
 		ObjectPostProcessor<Object> opp = postProcessors.getObject();
@@ -3736,13 +3789,9 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 		}
 		HandlerMappingIntrospector introspector = getContext().getBean(HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME,
 				HandlerMappingIntrospector.class);
-		List<RequestMatcher> matchers = new ArrayList<>(mvcPatterns.length);
-		for (String mvcPattern : mvcPatterns) {
-			MvcRequestMatcher matcher = new MvcRequestMatcher(introspector, mvcPattern);
-			opp.postProcess(matcher);
-			matchers.add(matcher);
-		}
-		return matchers;
+		MvcRequestMatcher matcher = new MvcRequestMatcher(introspector, mvcPattern);
+		opp.postProcess(matcher);
+		return matcher;
 	}
 
 	/**

@@ -19,17 +19,16 @@ package org.springframework.security.web.server.csrf;
 import java.util.Map;
 import java.util.UUID;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
+import org.springframework.web.server.WebSession;
 
 /**
  * A {@link ServerCsrfTokenRepository} that stores the {@link CsrfToken} in the
- * {@link HttpSession}.
+ * {@link WebSession}.
  *
  * @author Rob Winch
  * @since 5.0
@@ -78,7 +77,7 @@ public class WebSessionServerCsrfTokenRepository implements ServerCsrfTokenRepos
 	}
 
 	/**
-	 * Sets the {@link HttpServletRequest} parameter name that the {@link CsrfToken} is
+	 * Sets the {@link ServerWebExchange} parameter name that the {@link CsrfToken} is
 	 * expected to appear on
 	 * @param parameterName the new parameter name to use
 	 */
@@ -98,7 +97,7 @@ public class WebSessionServerCsrfTokenRepository implements ServerCsrfTokenRepos
 	}
 
 	/**
-	 * Sets the {@link HttpSession} attribute name that the {@link CsrfToken} is stored in
+	 * Sets the {@link WebSession} attribute name that the {@link CsrfToken} is stored in
 	 * @param sessionAttributeName the new attribute name to use
 	 */
 	public void setSessionAttributeName(String sessionAttributeName) {

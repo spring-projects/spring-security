@@ -23,7 +23,9 @@ import java.util.Iterator;
  *
  * @author Ben Alex
  * @author Paulo Neves
+ * @deprecated please use {@code PreFilter} and {@code @PostFilter} instead
  */
+@Deprecated
 interface Filterer<T> extends Iterable<T> {
 
 	/**

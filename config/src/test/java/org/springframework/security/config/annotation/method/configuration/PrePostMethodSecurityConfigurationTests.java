@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,6 +39,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.Mockito;
 
 import org.springframework.aop.Advisor;
 import org.springframework.aop.config.AopConfigUtils;
@@ -51,12 +52,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.AdviceMode;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Role;
+import org.springframework.context.event.EventListener;
+import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 import org.springframework.core.annotation.AnnotationConfigurationException;
+import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.access.annotation.BusinessService;
@@ -76,6 +83,8 @@ import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationEventPublisher;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.authorization.AuthorizationResult;
+import org.springframework.security.authorization.SpringAuthorizationEventPublisher;
+import org.springframework.security.authorization.event.AuthorizationDeniedEvent;
 import org.springframework.security.authorization.method.AuthorizationAdvisor;
 import org.springframework.security.authorization.method.AuthorizationAdvisorProxyFactory;
 import org.springframework.security.authorization.method.AuthorizationAdvisorProxyFactory.TargetVisitor;
@@ -85,7 +94,6 @@ import org.springframework.security.authorization.method.AuthorizeReturnObject;
 import org.springframework.security.authorization.method.MethodAuthorizationDeniedHandler;
 import org.springframework.security.authorization.method.MethodInvocationResult;
 import org.springframework.security.authorization.method.PrePostTemplateDefaults;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.SecurityContextChangedListenerConfig;
 import org.springframework.security.config.core.GrantedAuthorityDefaults;
 import org.springframework.security.config.observation.SecurityObservationSettings;
@@ -104,6 +112,7 @@ import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.context.ConfigurableWebApplicationContext;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
+import org.springframework.web.servlet.ModelAndView;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -725,6 +734,49 @@ public class PrePostMethodSecurityConfigurationTests {
 	}
 
 	@Test
+	@WithMockUser(authorities = "airplane:read")
+	public void findByIdWhenAuthorizedResponseEntityThenAuthorizes() {
+		this.spring.register(AuthorizeResultConfig.class).autowire();
+		FlightRepository flights = this.spring.getContext().getBean(FlightRepository.class);
+		Flight flight = flights.webFindById("1").getBody();
+		assertThatNoException().isThrownBy(flight::getAltitude);
+		assertThatNoException().isThrownBy(flight::getSeats);
+		assertThat(flights.webFindById("5").getBody()).isNull();
+	}
+
+	@Test
+	@WithMockUser(authorities = "seating:read")
+	public void findByIdWhenUnauthorizedResponseEntityThenDenies() {
+		this.spring.register(AuthorizeResultConfig.class).autowire();
+		FlightRepository flights = this.spring.getContext().getBean(FlightRepository.class);
+		Flight flight = flights.webFindById("1").getBody();
+		assertThatNoException().isThrownBy(flight::getSeats);
+		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(flight::getAltitude);
+	}
+
+	@Test
+	@WithMockUser(authorities = "airplane:read")
+	public void findByIdWhenAuthorizedModelAndViewThenAuthorizes() {
+		this.spring.register(AuthorizeResultConfig.class).autowire();
+		FlightRepository flights = this.spring.getContext().getBean(FlightRepository.class);
+		Flight flight = (Flight) flights.webViewFindById("1").getModel().get("flight");
+		assertThatNoException().isThrownBy(flight::getAltitude);
+		assertThatNoException().isThrownBy(flight::getSeats);
+		assertThat(flights.webViewFindById("5").getModel().get("flight")).isNull();
+	}
+
+	@Test
+	@WithMockUser(authorities = "seating:read")
+	public void findByIdWhenUnauthorizedModelAndViewThenDenies() {
+		this.spring.register(AuthorizeResultConfig.class).autowire();
+		FlightRepository flights = this.spring.getContext().getBean(FlightRepository.class);
+		Flight flight = (Flight) flights.webViewFindById("1").getModel().get("flight");
+		assertThatNoException().isThrownBy(flight::getSeats);
+		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(flight::getAltitude);
+		assertThat(flights.webViewFindById("5").getModel().get("flight")).isNull();
+	}
+
+	@Test
 	@WithMockUser(authorities = "seating:read")
 	public void findAllWhenUnauthorizedResultThenDenies() {
 		this.spring.register(AuthorizeResultConfig.class).autowire();
@@ -1101,6 +1153,32 @@ public class PrePostMethodSecurityConfigurationTests {
 		this.methodSecurityService.jsr250RolesAllowedUser();
 		ObservationHandler<?> handler = this.spring.getContext().getBean(ObservationHandler.class);
 		verifyNoInteractions(handler);
+	}
+
+	@Test
+	@WithMockUser
+	public void preAuthorizeWhenDenyAllThenPublishesParameterizedAuthorizationDeniedEvent() {
+		this.spring
+			.register(MethodSecurityServiceConfig.class, EventPublisherConfig.class, AuthorizationDeniedListener.class)
+			.autowire();
+		assertThatExceptionOfType(AccessDeniedException.class)
+			.isThrownBy(() -> this.methodSecurityService.preAuthorize());
+		assertThat(this.spring.getContext().getBean(AuthorizationDeniedListener.class).invocations).isEqualTo(1);
+	}
+
+	// gh-16819
+	@Test
+	void autowireWhenDefaultsThenAdvisorAnnotationsAreSorted() {
+		this.spring.register(MethodSecurityServiceConfig.class).autowire();
+		AuthorizationAdvisorProxyFactory proxyFactory = this.spring.getContext()
+			.getBean(AuthorizationAdvisorProxyFactory.class);
+		AnnotationAwareOrderComparator comparator = AnnotationAwareOrderComparator.INSTANCE;
+		AuthorizationAdvisor previous = null;
+		for (AuthorizationAdvisor advisor : proxyFactory) {
+			boolean ordered = previous == null || comparator.compare(previous, advisor) < 0;
+			assertThat(ordered).isTrue();
+			previous = advisor;
+		}
 	}
 
 	private static Consumer<ConfigurableWebApplicationContext> disallowBeanOverriding() {
@@ -1570,8 +1648,16 @@ public class PrePostMethodSecurityConfigurationTests {
 
 		@Bean
 		@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-		static Customizer<AuthorizationAdvisorProxyFactory> skipValueTypes() {
-			return (f) -> f.setTargetVisitor(TargetVisitor.defaultsSkipValueTypes());
+		@Order(1)
+		static TargetVisitor mock() {
+			return Mockito.mock(TargetVisitor.class);
+		}
+
+		@Bean
+		@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+		@Order(0)
+		static TargetVisitor skipValueTypes() {
+			return TargetVisitor.defaultsSkipValueTypes();
 		}
 
 		@Bean
@@ -1613,6 +1699,22 @@ public class PrePostMethodSecurityConfigurationTests {
 
 		void remove(String id) {
 			this.flights.remove(id);
+		}
+
+		ResponseEntity<Flight> webFindById(String id) {
+			Flight flight = this.flights.get(id);
+			if (flight == null) {
+				return ResponseEntity.notFound().build();
+			}
+			return ResponseEntity.ok(flight);
+		}
+
+		ModelAndView webViewFindById(String id) {
+			Flight flight = this.flights.get(id);
+			if (flight == null) {
+				return new ModelAndView("error", HttpStatusCode.valueOf(404));
+			}
+			return new ModelAndView("flights", Map.of("flight", flight));
 		}
 
 	}
@@ -1791,6 +1893,28 @@ public class PrePostMethodSecurityConfigurationTests {
 		@Bean
 		SecurityObservationSettings observabilityDefaults() {
 			return SecurityObservationSettings.withDefaults().shouldObserveAuthorizations(false).build();
+		}
+
+	}
+
+	@Configuration
+	static class EventPublisherConfig {
+
+		@Bean
+		static AuthorizationEventPublisher eventPublisher(ApplicationEventPublisher publisher) {
+			return new SpringAuthorizationEventPublisher(publisher);
+		}
+
+	}
+
+	@Component
+	static class AuthorizationDeniedListener {
+
+		int invocations;
+
+		@EventListener
+		void onRequestDenied(AuthorizationDeniedEvent<? extends MethodInvocation> denied) {
+			this.invocations++;
 		}
 
 	}

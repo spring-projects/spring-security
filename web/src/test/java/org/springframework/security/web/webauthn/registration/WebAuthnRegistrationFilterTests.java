@@ -27,12 +27,14 @@ import org.skyscreamer.jsonassert.JSONAssert;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.GenericHttpMessageConverter;
+import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockServletContext;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.security.web.webauthn.api.ImmutableCredentialRecord;
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialCreationOptions;
-import org.springframework.security.web.webauthn.api.TestCredentialRecord;
+import org.springframework.security.web.webauthn.api.TestCredentialRecords;
 import org.springframework.security.web.webauthn.api.TestPublicKeyCredentialCreationOptions;
 import org.springframework.security.web.webauthn.management.UserCredentialRepository;
 import org.springframework.security.web.webauthn.management.WebAuthnRelyingPartyOperations;
@@ -73,6 +75,8 @@ class WebAuthnRegistrationFilterTests {
 	@Mock
 	private FilterChain chain;
 
+	private MockHttpServletRequest request = new MockHttpServletRequest();
+
 	private MockHttpServletResponse response = new MockHttpServletResponse();
 
 	private static final String REGISTRATION_REQUEST_BODY = """
@@ -103,6 +107,33 @@ class WebAuthnRegistrationFilterTests {
 	@BeforeEach
 	void setup() {
 		this.filter = new WebAuthnRegistrationFilter(this.userCredentials, this.operations);
+	}
+
+	@Test
+	void doFilterWhenCustomRequestRegisterCredentialMatcherThenUses() throws Exception {
+		RequestMatcher requestMatcher = mock(RequestMatcher.class);
+		this.filter.setRegisterCredentialMatcher(requestMatcher);
+		this.filter.doFilter(this.request, this.response, new MockFilterChain());
+		verify(requestMatcher).matches(any());
+	}
+
+	@Test
+	void doFilterWhenCustomRequestRemoveCredentialMatcherThenUses() throws Exception {
+		RequestMatcher requestMatcher = mock(RequestMatcher.class);
+		given(requestMatcher.matcher(any())).willReturn(RequestMatcher.MatchResult.notMatch());
+		this.filter.setRemoveCredentialMatcher(requestMatcher);
+		this.filter.doFilter(this.request, this.response, new MockFilterChain());
+		verify(requestMatcher).matcher(any());
+	}
+
+	@Test
+	void setRequestRegisterCredentialWhenNullThenIllegalArgument() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.filter.setRegisterCredentialMatcher(null));
+	}
+
+	@Test
+	void setRequestRemoveCredentialWhenNullThenIllegalArgument() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.filter.setRemoveCredentialMatcher(null));
 	}
 
 	@Test
@@ -165,7 +196,7 @@ class WebAuthnRegistrationFilterTests {
 			.createPublicKeyCredentialCreationOptions()
 			.build();
 		given(this.creationOptionsRepository.load(any())).willReturn(creationOptions);
-		ImmutableCredentialRecord userCredential = TestCredentialRecord.userCredential().build();
+		ImmutableCredentialRecord userCredential = TestCredentialRecords.userCredential().build();
 		given(this.operations.registerCredential(any())).willReturn(userCredential);
 		MockHttpServletRequest request = registerCredentialRequest(REGISTRATION_REQUEST_BODY);
 		this.filter.doFilter(request, this.response, this.chain);

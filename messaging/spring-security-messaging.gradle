@@ -27,4 +27,5 @@ dependencies {
 	testImplementation "ch.qos.logback:logback-classic"
 
 	testRuntimeOnly 'org.hsqldb:hsqldb'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }

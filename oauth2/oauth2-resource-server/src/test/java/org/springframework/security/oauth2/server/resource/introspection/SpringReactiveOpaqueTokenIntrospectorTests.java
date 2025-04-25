@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import okhttp3.mockwebserver.Dispatcher;
@@ -322,7 +323,10 @@ public class SpringReactiveOpaqueTokenIntrospectorTests {
 		ClientResponse.Headers headers = mock(ClientResponse.Headers.class);
 		given(headers.contentType()).willReturn(Optional.of(MediaType.APPLICATION_JSON));
 		given(clientResponse.headers()).willReturn(headers);
-		given(spec.exchange()).willReturn(Mono.just(clientResponse));
+		given(spec.exchangeToMono(any())).willAnswer((invocation) -> {
+			Function<ClientResponse, Mono<ClientResponse>> fun = invocation.getArgument(0);
+			return fun.apply(clientResponse);
+		});
 		return webClient;
 	}
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,6 @@ import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.SqlParameterValue;
-import org.springframework.jdbc.support.lob.DefaultLobHandler;
 import org.springframework.jdbc.support.lob.LobCreator;
 import org.springframework.jdbc.support.lob.LobHandler;
 import org.springframework.security.web.webauthn.api.AuthenticatorTransport;
@@ -62,11 +61,11 @@ import org.springframework.util.CollectionUtils;
  */
 public final class JdbcUserCredentialRepository implements UserCredentialRepository {
 
-	private RowMapper<CredentialRecord> credentialRecordRowMapper = new CredentialRecordRowMapper();
+	private RowMapper<CredentialRecord> credentialRecordRowMapper = new CredentialRecordRowMapper(ResultSet::getBytes);
 
 	private Function<CredentialRecord, List<SqlParameterValue>> credentialRecordParametersMapper = new CredentialRecordParametersMapper();
 
-	private LobHandler lobHandler = new DefaultLobHandler();
+	private SetBytes setBytes = PreparedStatement::setBytes;
 
 	private final JdbcOperations jdbcOperations;
 
@@ -112,6 +111,24 @@ public final class JdbcUserCredentialRepository implements UserCredentialReposit
 
 	private static final String DELETE_CREDENTIAL_RECORD_SQL = "DELETE FROM " + TABLE_NAME + " WHERE " + ID_FILTER;
 
+	// @formatter:off
+	private static final String UPDATE_CREDENTIAL_RECORD_SQL = "UPDATE " + TABLE_NAME
+			+ " SET user_entity_user_id = ?, " +
+			"public_key = ?, " +
+			"signature_count = ?, " +
+			"uv_initialized = ?, " +
+			"backup_eligible = ? ," +
+			"authenticator_transports = ?, " +
+			"public_key_credential_type = ?, " +
+			"backup_state = ?, " +
+			"attestation_object = ?, " +
+			"attestation_client_data_json = ?, " +
+			"created = ?, " +
+			"last_used = ?, " +
+			"label = ?"
+			+ " WHERE " + ID_FILTER;
+	// @formatter:on
+
 	/**
 	 * Constructs a {@code JdbcUserCredentialRepository} using the provided parameters.
 	 * @param jdbcOperations the JDBC operations
@@ -133,12 +150,24 @@ public final class JdbcUserCredentialRepository implements UserCredentialReposit
 	@Override
 	public void save(CredentialRecord record) {
 		Assert.notNull(record, "record cannot be null");
-		List<SqlParameterValue> parameters = this.credentialRecordParametersMapper.apply(record);
-		try (LobCreator lobCreator = this.lobHandler.getLobCreator()) {
-			PreparedStatementSetter pss = new LobCreatorArgumentPreparedStatementSetter(lobCreator,
-					parameters.toArray());
-			this.jdbcOperations.update(SAVE_CREDENTIAL_RECORD_SQL, pss);
+		int rows = updateCredentialRecord(record);
+		if (rows == 0) {
+			insertCredentialRecord(record);
 		}
+	}
+
+	private void insertCredentialRecord(CredentialRecord record) {
+		List<SqlParameterValue> parameters = this.credentialRecordParametersMapper.apply(record);
+		PreparedStatementSetter pss = new BlobArgumentPreparedStatementSetter(this.setBytes, parameters.toArray());
+		this.jdbcOperations.update(SAVE_CREDENTIAL_RECORD_SQL, pss);
+	}
+
+	private int updateCredentialRecord(CredentialRecord record) {
+		List<SqlParameterValue> parameters = this.credentialRecordParametersMapper.apply(record);
+		SqlParameterValue credentialId = parameters.remove(0);
+		parameters.add(credentialId);
+		PreparedStatementSetter pss = new BlobArgumentPreparedStatementSetter(this.setBytes, parameters.toArray());
+		return this.jdbcOperations.update(UPDATE_CREDENTIAL_RECORD_SQL, pss);
 	}
 
 	@Override
@@ -159,10 +188,18 @@ public final class JdbcUserCredentialRepository implements UserCredentialReposit
 	/**
 	 * Sets a {@link LobHandler} for large binary fields and large text field parameters.
 	 * @param lobHandler the lob handler
+	 * @deprecated {@link LobHandler} is deprecated without replacement, as such this
+	 * method will also be removed without replacement
 	 */
+	@Deprecated(since = "6.5", forRemoval = true)
 	public void setLobHandler(LobHandler lobHandler) {
 		Assert.notNull(lobHandler, "lobHandler cannot be null");
-		this.lobHandler = lobHandler;
+		this.setBytes = (ps, index, bytes) -> {
+			try (LobCreator creator = lobHandler.getLobCreator()) {
+				creator.setBlobAsBytes(ps, index, bytes);
+			}
+		};
+		this.credentialRecordRowMapper = new CredentialRecordRowMapper(lobHandler::getBlobAsBytes);
 	}
 
 	private static class CredentialRecordParametersMapper
@@ -210,13 +247,25 @@ public final class JdbcUserCredentialRepository implements UserCredentialReposit
 
 	}
 
-	private static final class LobCreatorArgumentPreparedStatementSetter extends ArgumentPreparedStatementSetter {
+	private interface SetBytes {
 
-		private final LobCreator lobCreator;
+		void setBytes(PreparedStatement ps, int index, byte[] bytes) throws SQLException;
 
-		private LobCreatorArgumentPreparedStatementSetter(LobCreator lobCreator, Object[] args) {
+	}
+
+	private interface GetBytes {
+
+		byte[] getBytes(ResultSet rs, String columnName) throws SQLException;
+
+	}
+
+	private static final class BlobArgumentPreparedStatementSetter extends ArgumentPreparedStatementSetter {
+
+		private final SetBytes setBytes;
+
+		private BlobArgumentPreparedStatementSetter(SetBytes setBytes, Object[] args) {
 			super(args);
-			this.lobCreator = lobCreator;
+			this.setBytes = setBytes;
 		}
 
 		@Override
@@ -228,7 +277,7 @@ public final class JdbcUserCredentialRepository implements UserCredentialReposit
 								"Value of blob parameter must be byte[]");
 					}
 					byte[] valueBytes = (byte[]) paramValue.getValue();
-					this.lobCreator.setBlobAsBytes(ps, parameterPosition, valueBytes);
+					this.setBytes.setBytes(ps, parameterPosition, valueBytes);
 					return;
 				}
 			}
@@ -239,14 +288,17 @@ public final class JdbcUserCredentialRepository implements UserCredentialReposit
 
 	private static class CredentialRecordRowMapper implements RowMapper<CredentialRecord> {
 
-		private LobHandler lobHandler = new DefaultLobHandler();
+		private final GetBytes getBytes;
+
+		CredentialRecordRowMapper(GetBytes getBytes) {
+			this.getBytes = getBytes;
+		}
 
 		@Override
 		public CredentialRecord mapRow(ResultSet rs, int rowNum) throws SQLException {
 			Bytes credentialId = Bytes.fromBase64(new String(rs.getString("credential_id").getBytes()));
 			Bytes userEntityUserId = Bytes.fromBase64(new String(rs.getString("user_entity_user_id").getBytes()));
-			ImmutablePublicKeyCose publicKey = new ImmutablePublicKeyCose(
-					this.lobHandler.getBlobAsBytes(rs, "public_key"));
+			ImmutablePublicKeyCose publicKey = new ImmutablePublicKeyCose(this.getBytes.getBytes(rs, "public_key"));
 			long signatureCount = rs.getLong("signature_count");
 			boolean uvInitialized = rs.getBoolean("uv_initialized");
 			boolean backupEligible = rs.getBoolean("backup_eligible");
@@ -255,13 +307,13 @@ public final class JdbcUserCredentialRepository implements UserCredentialReposit
 			boolean backupState = rs.getBoolean("backup_state");
 
 			Bytes attestationObject = null;
-			byte[] rawAttestationObject = this.lobHandler.getBlobAsBytes(rs, "attestation_object");
+			byte[] rawAttestationObject = this.getBytes.getBytes(rs, "attestation_object");
 			if (rawAttestationObject != null) {
 				attestationObject = new Bytes(rawAttestationObject);
 			}
 
 			Bytes attestationClientDataJson = null;
-			byte[] rawAttestationClientDataJson = this.lobHandler.getBlobAsBytes(rs, "attestation_client_data_json");
+			byte[] rawAttestationClientDataJson = this.getBytes.getBytes(rs, "attestation_client_data_json");
 			if (rawAttestationClientDataJson != null) {
 				attestationClientDataJson = new Bytes(rawAttestationClientDataJson);
 			}

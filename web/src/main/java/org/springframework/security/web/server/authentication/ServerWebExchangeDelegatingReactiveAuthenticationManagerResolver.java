@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import reactor.core.publisher.Mono;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.ReactiveAuthenticationManagerResolver;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.access.intercept.RequestMatcherDelegatingAuthorizationManager;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcherEntry;
@@ -46,8 +47,11 @@ public final class ServerWebExchangeDelegatingReactiveAuthenticationManagerResol
 
 	private final List<ServerWebExchangeMatcherEntry<ReactiveAuthenticationManager>> authenticationManagers;
 
-	private ReactiveAuthenticationManager defaultAuthenticationManager = (authentication) -> Mono
-		.error(new AuthenticationServiceException("Cannot authenticate " + authentication));
+	private ReactiveAuthenticationManager defaultAuthenticationManager = (authentication) -> {
+		AuthenticationException ex = new AuthenticationServiceException("Cannot authenticate " + authentication);
+		ex.setAuthenticationRequest(authentication);
+		return Mono.error(ex);
+	};
 
 	/**
 	 * Construct an

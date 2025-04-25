@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,7 +43,6 @@ import org.springframework.security.saml2.provider.service.web.Saml2WebSsoAuthen
 import org.springframework.security.saml2.provider.service.web.authentication.Saml2WebSsoAuthenticationFilter;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
 
@@ -216,7 +215,7 @@ final class Saml2LoginBeanDefinitionParser implements BeanDefinitionParser {
 		}
 		if (saml2LoginAuthenticationEntryPoint != null) {
 			BeanDefinitionBuilder requestMatcherBuilder = BeanDefinitionBuilder
-				.rootBeanDefinition(AntPathRequestMatcher.class);
+				.rootBeanDefinition(RequestMatcherFactoryBean.class);
 			requestMatcherBuilder.addConstructorArgValue(this.loginProcessingUrl);
 			BeanDefinition requestMatcher = requestMatcherBuilder.getBeanDefinition();
 			this.entryPoints.put(requestMatcher, saml2LoginAuthenticationEntryPoint);
@@ -260,7 +259,7 @@ final class Saml2LoginBeanDefinitionParser implements BeanDefinitionParser {
 
 	private void registerDefaultCsrfOverride() {
 		BeanDefinitionBuilder requestMatcherBuilder = BeanDefinitionBuilder
-			.rootBeanDefinition(AntPathRequestMatcher.class);
+			.rootBeanDefinition(RequestMatcherFactoryBean.class);
 		requestMatcherBuilder.addConstructorArgValue(this.loginProcessingUrl);
 		BeanDefinition requestMatcher = requestMatcherBuilder.getBeanDefinition();
 		this.csrfIgnoreRequestMatchers.add(requestMatcher);

@@ -32,8 +32,10 @@ import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.event.EventListener;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.authentication.RememberMeAuthenticationToken;
@@ -43,6 +45,8 @@ import org.springframework.security.authorization.AuthorizationEventPublisher;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.authorization.AuthorizationObservationContext;
 import org.springframework.security.authorization.AuthorizationResult;
+import org.springframework.security.authorization.SpringAuthorizationEventPublisher;
+import org.springframework.security.authorization.event.AuthorizationDeniedEvent;
 import org.springframework.security.config.ObjectPostProcessor;
 import org.springframework.security.config.annotation.web.AbstractRequestMatcherRegistry;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -51,6 +55,7 @@ import org.springframework.security.config.core.GrantedAuthorityDefaults;
 import org.springframework.security.config.observation.SecurityObservationSettings;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
+import org.springframework.security.config.web.PathPatternRequestMatcherBuilderFactoryBean;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -64,6 +69,8 @@ import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
 import org.springframework.security.web.access.intercept.RequestMatcherDelegatingAuthorizationManager;
 import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
+import org.springframework.stereotype.Component;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
@@ -72,6 +79,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.DispatcherServlet;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
@@ -665,6 +673,34 @@ public class AuthorizeHttpRequestsConfigurerTests {
 		this.mvc.perform(get("/").with(user("user").roles("USER"))).andExpect(status().isOk());
 		this.mvc.perform(get("/").with(user("user").roles("WRONG"))).andExpect(status().isForbidden());
 		verifyNoInteractions(handler);
+	}
+
+	@Test
+	public void getWhenDeniedThenParameterizedAuthorizationDeniedEventIsPublished() throws Exception {
+		this.spring.register(DenyAllConfig.class, EventPublisherConfig.class, AuthorizationDeniedListener.class)
+			.autowire();
+		this.mvc.perform(get("/").with(user("user")));
+		assertThat(this.spring.getContext().getBean(AuthorizationDeniedListener.class).invocations).isEqualTo(1);
+	}
+
+	@Test
+	public void requestMatchersWhenMultipleDispatcherServletsAndPathBeanThenAllows() throws Exception {
+		this.spring.register(MvcRequestMatcherBuilderConfig.class, BasicController.class)
+			.postProcessor((context) -> context.getServletContext()
+				.addServlet("otherDispatcherServlet", DispatcherServlet.class)
+				.addMapping("/mvc"))
+			.autowire();
+		this.mvc.perform(get("/mvc/path").servletPath("/mvc").with(user("user"))).andExpect(status().isOk());
+		this.mvc.perform(get("/mvc/path").servletPath("/mvc").with(user("user").roles("DENIED")))
+			.andExpect(status().isForbidden());
+		this.mvc.perform(get("/path").with(user("user"))).andExpect(status().isForbidden());
+	}
+
+	@Test
+	public void requestMatchersWhenFactoryBeanThenAuthorizes() throws Exception {
+		this.spring.register(PathPatternFactoryBeanConfig.class).autowire();
+		this.mvc.perform(get("/path/resource")).andExpect(status().isUnauthorized());
+		this.mvc.perform(get("/path/resource").with(user("user").roles("USER"))).andExpect(status().isNotFound());
 	}
 
 	@Configuration
@@ -1262,6 +1298,10 @@ public class AuthorizeHttpRequestsConfigurerTests {
 		void rootPost() {
 		}
 
+		@GetMapping("/path")
+		void path() {
+		}
+
 	}
 
 	@Configuration
@@ -1313,6 +1353,74 @@ public class AuthorizeHttpRequestsConfigurerTests {
 		@Bean
 		SecurityObservationSettings observabilityDefaults() {
 			return SecurityObservationSettings.withDefaults().shouldObserveAuthorizations(false).build();
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	@EnableWebMvc
+	static class MvcRequestMatcherBuilderConfig {
+
+		@Bean
+		SecurityFilterChain security(HttpSecurity http) throws Exception {
+			PathPatternRequestMatcher.Builder mvc = PathPatternRequestMatcher.withDefaults().basePath("/mvc");
+			// @formatter:off
+			http
+				.authorizeHttpRequests((authorize) -> authorize
+					.requestMatchers(mvc.matcher("/path/**")).hasRole("USER")
+				)
+				.httpBasic(withDefaults());
+			// @formatter:on
+
+			return http.build();
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	@EnableWebMvc
+	static class PathPatternFactoryBeanConfig {
+
+		@Bean
+		SecurityFilterChain security(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeHttpRequests((authorize) -> authorize
+					.requestMatchers("/path/**").hasRole("USER")
+				)
+				.httpBasic(withDefaults());
+			// @formatter:on
+
+			return http.build();
+		}
+
+		@Bean
+		PathPatternRequestMatcherBuilderFactoryBean pathPatternFactoryBean() {
+			return new PathPatternRequestMatcherBuilderFactoryBean();
+		}
+
+	}
+
+	@Configuration
+	static class EventPublisherConfig {
+
+		@Bean
+		static AuthorizationEventPublisher eventPublisher(ApplicationEventPublisher publisher) {
+			return new SpringAuthorizationEventPublisher(publisher);
+		}
+
+	}
+
+	@Component
+	static class AuthorizationDeniedListener {
+
+		int invocations;
+
+		@EventListener
+		void onRequestDenied(AuthorizationDeniedEvent<? extends HttpServletRequest> denied) {
+			this.invocations++;
 		}
 
 	}

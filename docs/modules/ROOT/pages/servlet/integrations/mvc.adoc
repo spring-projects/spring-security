@@ -22,45 +22,13 @@ This means that, if you use more advanced options, such as integrating with `Web
 ====
 
 [[mvc-requestmatcher]]
-== MvcRequestMatcher
+== PathPatternRequestMatcher
 
-Spring Security provides deep integration with how Spring MVC matches on URLs with `MvcRequestMatcher`.
+Spring Security provides deep integration with how Spring MVC matches on URLs with `PathPatternRequestMatcher`.
 This is helpful to ensure that your Security rules match the logic used to handle your requests.
 
-To use `MvcRequestMatcher`, you must place the Spring Security Configuration in the same `ApplicationContext` as your `DispatcherServlet`.
-This is necessary because Spring Security's `MvcRequestMatcher` expects a `HandlerMappingIntrospector` bean with the name of `mvcHandlerMappingIntrospector` to be registered by your Spring MVC configuration that is used to perform the matching.
-
-For a `web.xml` file, this means that you should place your configuration in the `DispatcherServlet.xml`:
-
-[source,xml]
-----
-<listener>
-  <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
-</listener>
-
-<!-- All Spring Configuration (both MVC and Security) are in /WEB-INF/spring/ -->
-<context-param>
-  <param-name>contextConfigLocation</param-name>
-  <param-value>/WEB-INF/spring/*.xml</param-value>
-</context-param>
-
-<servlet>
-  <servlet-name>spring</servlet-name>
-  <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
-  <!-- Load from the ContextLoaderListener -->
-  <init-param>
-    <param-name>contextConfigLocation</param-name>
-    <param-value></param-value>
-  </init-param>
-</servlet>
-
-<servlet-mapping>
-  <servlet-name>spring</servlet-name>
-  <url-pattern>/</url-pattern>
-</servlet-mapping>
-----
-
-The following `WebSecurityConfiguration` in placed in the  `ApplicationContext` of the `DispatcherServlet`.
+`PathPatternRequestMatcher` must use the same `PathPatternParser` as Spring MVC.
+If you are not customizing the `PathPatternParser`, then you can do:
 
 [tabs]
 ======
@@ -68,24 +36,9 @@ Java::
 +
 [source,java,role="primary"]
 ----
-public class SecurityInitializer extends
-    AbstractAnnotationConfigDispatcherServletInitializer {
-
-  @Override
-  protected Class<?>[] getRootConfigClasses() {
-    return null;
-  }
-
-  @Override
-  protected Class<?>[] getServletConfigClasses() {
-    return new Class[] { RootConfiguration.class,
-        WebMvcConfiguration.class };
-  }
-
-  @Override
-  protected String[] getServletMappings() {
-    return new String[] { "/" };
-  }
+@Bean
+PathPatternRequestMatcherBuilderFactoryBean usePathPattern() {
+	return new PathPatternRequestMatcherBuilderFactoryBean();
 }
 ----
 
@@ -93,24 +46,23 @@ Kotlin::
 +
 [source,kotlin,role="secondary"]
 ----
-class SecurityInitializer : AbstractAnnotationConfigDispatcherServletInitializer() {
-    override fun getRootConfigClasses(): Array<Class<*>>? {
-        return null
-    }
-
-    override fun getServletConfigClasses(): Array<Class<*>> {
-        return arrayOf(
-            RootConfiguration::class.java,
-            WebMvcConfiguration::class.java
-        )
-    }
-
-    override fun getServletMappings(): Array<String> {
-        return arrayOf("/")
-    }
+@Bean
+fun usePathPattern(): PathPatternRequestMatcherBuilderFactoryBean {
+    return PathPatternRequestMatcherBuilderFactoryBean()
 }
 ----
+
+Xml::
++
+[source,xml,role="secondary"]
+----
+<b:bean class="org.springframework.security.config.web.PathPatternRequestMatcherBuilderFactoryBean"/>
+----
 ======
+
+and Spring Security will find the appropriate Spring MVC configuration for you.
+
+If you *are* customizing Spring MVC's `PathPatternParser` instance, you will need to <<security-mvc-same-application-context, configure Spring Security and Spring MVC in the same `ApplicationContext`>>.
 
 [NOTE]
 ====
@@ -121,132 +73,7 @@ Method security ensures that, if someone has bypassed the web authorization rule
 This is known as https://en.wikipedia.org/wiki/Defense_in_depth_(computing)[Defense in Depth]
 ====
 
-Consider a controller that is mapped as follows:
-
-[tabs]
-======
-Java::
-+
-[source,java,role="primary"]
-----
-@RequestMapping("/admin")
-public String admin() {
-	// ...
-}
-----
-
-Kotlin::
-+
-[source,kotlin,role="secondary"]
-----
-@RequestMapping("/admin")
-fun admin(): String {
-    // ...
-}
-----
-======
-
-To restrict access to this controller method to admin users, you can provide authorization rules by matching on the `HttpServletRequest` with the following:
-
-[tabs]
-======
-Java::
-+
-[source,java,role="primary"]
-----
-@Bean
-public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-	http
-		.authorizeHttpRequests((authorize) -> authorize
-			.requestMatchers("/admin").hasRole("ADMIN")
-		);
-	return http.build();
-}
-----
-
-Kotlin::
-+
-[source,kotlin,role="secondary"]
-----
-@Bean
-open fun filterChain(http: HttpSecurity): SecurityFilterChain {
-    http {
-        authorizeHttpRequests {
-            authorize("/admin", hasRole("ADMIN"))
-        }
-    }
-    return http.build()
-}
-----
-======
-
-The following listing does the same thing in XML:
-
-[source,xml]
-----
-<http>
-	<intercept-url pattern="/admin" access="hasRole('ADMIN')"/>
-</http>
-----
-
-With either configuration, the `/admin` URL requires the authenticated user to be an admin user.
-However, depending on our Spring MVC configuration, the `/admin.html` URL also maps to our `admin()` method.
-Additionally, depending on our Spring MVC configuration, the `/admin` URL also maps to our `admin()` method.
-
-The problem is that our security rule protects only  `/admin`.
-We could add additional rules for all the permutations of Spring MVC, but this would be quite verbose and tedious.
-
-Fortunately, when using the `requestMatchers` DSL method, Spring Security automatically creates a `MvcRequestMatcher` if it detects that Spring MVC is available in the classpath.
-Therefore, it will protect the same URLs that Spring MVC will match on by using Spring MVC to match on the URL.
-
-One common requirement when using Spring MVC is to specify the servlet path property.
-
-For Java-based Configuration, you can use the `MvcRequestMatcher.Builder` to create multiple `MvcRequestMatcher` instances that share the same servlet path:
-
-[source,java,role="primary"]
-----
-@Bean
-public SecurityFilterChain filterChain(HttpSecurity http, HandlerMappingIntrospector introspector) throws Exception {
-	MvcRequestMatcher.Builder mvcMatcherBuilder = new MvcRequestMatcher.Builder(introspector).servletPath("/path");
-	http
-		.authorizeHttpRequests((authorize) -> authorize
-			.requestMatchers(mvcMatcherBuilder.pattern("/admin")).hasRole("ADMIN")
-			.requestMatchers(mvcMatcherBuilder.pattern("/user")).hasRole("USER")
-		);
-	return http.build();
-}
-----
-
-For Kotlin and XML, this happens when you specify the servlet path for each path like so:
-
-[tabs]
-======
-Kotlin::
-+
-[source,kotlin,role="secondary"]
-----
-@Bean
-open fun filterChain(http: HttpSecurity): SecurityFilterChain {
-    http {
-        authorizeHttpRequests {
-            authorize("/admin/**", "/mvc", hasRole("ADMIN"))
-            authorize("/user/**", "/mvc", hasRole("USER"))
-        }
-    }
-    return http.build()
-}
-----
-
-Xml::
-+
-[source,xml, role="secondary"]
-----
-<http request-matcher="mvc">
-	<intercept-url pattern="/admin/**" servlet-path="/mvc" access="hasRole('ADMIN')"/>
-    <intercept-url pattern="/user/**" servlet-path="/mvc" access="hasRole('USER')"/>
-</http>
-----
-======
+Now that Spring MVC is integrated with Spring Security, you are ready to write some xref:servlet/authorization/authorize-http-requests.adoc[authorization rules] that will use `PathPatternRequestMatcher`.
 
 [[mvc-authentication-principal]]
 == @AuthenticationPrincipal
@@ -766,3 +593,95 @@ class CsrfController {
 
 It is important to keep the `CsrfToken` a secret from other domains.
 This means that, if you use https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS[Cross Origin Sharing (CORS)], you should *NOT* expose the `CsrfToken` to any external domains.
+
+[[security-mvc-same-application-context]]
+== Configuring Spring MVC and Spring Security in the Same Application Context
+
+If you are using Boot, Spring MVC and Spring Security are in the same application context by default.
+
+Otherwise, for Java Config, including both `@EnableWebMvc` and `@EnableWebSecurity` will construct Spring Security and Spring MVC components in the same context.
+
+Of, if you are using ``ServletListener``s you can do:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+public class SecurityInitializer extends
+    AbstractAnnotationConfigDispatcherServletInitializer {
+
+  @Override
+  protected Class<?>[] getRootConfigClasses() {
+    return null;
+  }
+
+  @Override
+  protected Class<?>[] getServletConfigClasses() {
+    return new Class[] { RootConfiguration.class,
+        WebMvcConfiguration.class };
+  }
+
+  @Override
+  protected String[] getServletMappings() {
+    return new String[] { "/" };
+  }
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+class SecurityInitializer : AbstractAnnotationConfigDispatcherServletInitializer() {
+    override fun getRootConfigClasses(): Array<Class<*>>? {
+        return null
+    }
+
+    override fun getServletConfigClasses(): Array<Class<*>> {
+        return arrayOf(
+            RootConfiguration::class.java,
+            WebMvcConfiguration::class.java
+        )
+    }
+
+    override fun getServletMappings(): Array<String> {
+        return arrayOf("/")
+    }
+}
+----
+======
+
+And finally for a `web.xml` file, you configure the `DispatcherServlet` like so:
+
+[source,xml]
+----
+<listener>
+  <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+</listener>
+
+<!-- All Spring Configuration (both MVC and Security) are in /WEB-INF/spring/ -->
+<context-param>
+  <param-name>contextConfigLocation</param-name>
+  <param-value>/WEB-INF/spring/*.xml</param-value>
+</context-param>
+
+<servlet>
+  <servlet-name>spring</servlet-name>
+  <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+  <!-- Load from the ContextLoaderListener -->
+  <init-param>
+    <param-name>contextConfigLocation</param-name>
+    <param-value></param-value>
+  </init-param>
+</servlet>
+
+<servlet-mapping>
+  <servlet-name>spring</servlet-name>
+  <url-pattern>/</url-pattern>
+</servlet-mapping>
+----
+
+The following `WebSecurityConfiguration` in placed in the  `ApplicationContext` of the `DispatcherServlet`.
+

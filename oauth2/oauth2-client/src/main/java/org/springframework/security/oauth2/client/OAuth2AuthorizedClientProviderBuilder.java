@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2ClientCredentialsGrantRequest;
 import org.springframework.security.oauth2.client.endpoint.OAuth2PasswordGrantRequest;
@@ -137,13 +138,12 @@ public final class OAuth2AuthorizedClientProviderBuilder {
 	/**
 	 * Configures support for the {@code password} grant.
 	 * @return the {@link OAuth2AuthorizedClientProviderBuilder}
-	 * @deprecated The latest OAuth 2.0 Security Best Current Practice disallows the use
-	 * of the Resource Owner Password Credentials grant. See reference
-	 * <a target="_blank" href=
-	 * "https://datatracker.ietf.org/doc/html/draft-ietf-oauth-security-topics-19#section-2.4">OAuth
-	 * 2.0 Security Best Current Practice.</a>
+	 * @deprecated The OAuth 2.0 Security Best Current Practice disallows the use of the
+	 * Resource Owner Password Credentials grant. See reference <a target="_blank" href=
+	 * "https://datatracker.ietf.org/doc/html/rfc9700#section-2.4">OAuth 2.0 Security Best
+	 * Current Practice.</a>
 	 */
-	@Deprecated
+	@Deprecated(since = "5.8", forRemoval = true)
 	public OAuth2AuthorizedClientProviderBuilder password() {
 		this.builders.computeIfAbsent(PasswordOAuth2AuthorizedClientProvider.class, (k) -> new PasswordGrantBuilder());
 		return OAuth2AuthorizedClientProviderBuilder.this;
@@ -154,13 +154,12 @@ public final class OAuth2AuthorizedClientProviderBuilder {
 	 * @param builderConsumer a {@code Consumer} of {@link PasswordGrantBuilder} used for
 	 * further configuration
 	 * @return the {@link OAuth2AuthorizedClientProviderBuilder}
-	 * @deprecated The latest OAuth 2.0 Security Best Current Practice disallows the use
-	 * of the Resource Owner Password Credentials grant. See reference
-	 * <a target="_blank" href=
-	 * "https://datatracker.ietf.org/doc/html/draft-ietf-oauth-security-topics-19#section-2.4">OAuth
-	 * 2.0 Security Best Current Practice.</a>
+	 * @deprecated The OAuth 2.0 Security Best Current Practice disallows the use of the
+	 * Resource Owner Password Credentials grant. See reference <a target="_blank" href=
+	 * "https://datatracker.ietf.org/doc/html/rfc9700#section-2.4">OAuth 2.0 Security Best
+	 * Current Practice.</a>
 	 */
-	@Deprecated
+	@Deprecated(since = "5.8", forRemoval = true)
 	public OAuth2AuthorizedClientProviderBuilder password(Consumer<PasswordGrantBuilder> builderConsumer) {
 		PasswordGrantBuilder builder = (PasswordGrantBuilder) this.builders
 			.computeIfAbsent(PasswordOAuth2AuthorizedClientProvider.class, (k) -> new PasswordGrantBuilder());
@@ -359,6 +358,8 @@ public final class OAuth2AuthorizedClientProviderBuilder {
 
 		private OAuth2AccessTokenResponseClient<OAuth2RefreshTokenGrantRequest> accessTokenResponseClient;
 
+		private ApplicationEventPublisher eventPublisher;
+
 		private Duration clockSkew;
 
 		private Clock clock;
@@ -376,6 +377,18 @@ public final class OAuth2AuthorizedClientProviderBuilder {
 		public RefreshTokenGrantBuilder accessTokenResponseClient(
 				OAuth2AccessTokenResponseClient<OAuth2RefreshTokenGrantRequest> accessTokenResponseClient) {
 			this.accessTokenResponseClient = accessTokenResponseClient;
+			return this;
+		}
+
+		/**
+		 * Sets the {@link ApplicationEventPublisher} used when an access token is
+		 * refreshed.
+		 * @param eventPublisher the {@link ApplicationEventPublisher}
+		 * @return the {@link RefreshTokenGrantBuilder}
+		 * @since 6.5
+		 */
+		public RefreshTokenGrantBuilder eventPublisher(ApplicationEventPublisher eventPublisher) {
+			this.eventPublisher = eventPublisher;
 			return this;
 		}
 
@@ -413,6 +426,9 @@ public final class OAuth2AuthorizedClientProviderBuilder {
 			RefreshTokenOAuth2AuthorizedClientProvider authorizedClientProvider = new RefreshTokenOAuth2AuthorizedClientProvider();
 			if (this.accessTokenResponseClient != null) {
 				authorizedClientProvider.setAccessTokenResponseClient(this.accessTokenResponseClient);
+			}
+			if (this.eventPublisher != null) {
+				authorizedClientProvider.setApplicationEventPublisher(this.eventPublisher);
 			}
 			if (this.clockSkew != null) {
 				authorizedClientProvider.setClockSkew(this.clockSkew);

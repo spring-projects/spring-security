@@ -31,7 +31,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.ObjectPostProcessor;
 import org.springframework.security.config.TestDeferredSecurityContext;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.TestHttpSecurity;
+import org.springframework.security.config.annotation.web.builders.TestHttpSecurities;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
@@ -199,7 +199,7 @@ public class SecurityContextConfigurerTests {
 
 		@Bean
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-			TestHttpSecurity.disableDefaults(http);
+			TestHttpSecurities.disableDefaults(http);
 			// @formatter:off
 			http
 				.addFilter(new WebAsyncManagerIntegrationFilter())

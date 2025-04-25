@@ -34,6 +34,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -42,7 +43,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import jakarta.servlet.http.Cookie;
@@ -50,6 +51,7 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.apereo.cas.client.validation.AssertionImpl;
 import org.instancio.Instancio;
 import org.instancio.InstancioApi;
+import org.instancio.InstancioOfClassApi;
 import org.instancio.Select;
 import org.instancio.generator.Generator;
 import org.junit.jupiter.api.Disabled;
@@ -59,6 +61,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
+import org.springframework.core.ResolvableType;
 import org.springframework.core.type.filter.AssignableTypeFilter;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpSession;
@@ -96,9 +99,13 @@ import org.springframework.security.authentication.event.LogoutSuccessEvent;
 import org.springframework.security.authentication.jaas.JaasAuthenticationToken;
 import org.springframework.security.authentication.jaas.event.JaasAuthenticationFailedEvent;
 import org.springframework.security.authentication.jaas.event.JaasAuthenticationSuccessEvent;
+import org.springframework.security.authentication.ott.DefaultOneTimeToken;
 import org.springframework.security.authentication.ott.InvalidOneTimeTokenException;
 import org.springframework.security.authentication.ott.OneTimeTokenAuthenticationToken;
 import org.springframework.security.authentication.password.CompromisedPasswordException;
+import org.springframework.security.authorization.AuthorityAuthorizationDecision;
+import org.springframework.security.authorization.AuthorizationDecision;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.cas.authentication.CasAssertionAuthenticationToken;
 import org.springframework.security.cas.authentication.CasAuthenticationToken;
 import org.springframework.security.cas.authentication.CasServiceTicketAuthenticationToken;
@@ -214,21 +221,31 @@ import org.springframework.security.web.savedrequest.SimpleSavedRequest;
 import org.springframework.security.web.server.firewall.ServerExchangeRejectedException;
 import org.springframework.security.web.session.HttpSessionCreatedEvent;
 import org.springframework.security.web.webauthn.api.AuthenticationExtensionsClientInputs;
+import org.springframework.security.web.webauthn.api.AuthenticationExtensionsClientOutputs;
+import org.springframework.security.web.webauthn.api.AuthenticatorAssertionResponse;
+import org.springframework.security.web.webauthn.api.AuthenticatorAttachment;
 import org.springframework.security.web.webauthn.api.AuthenticatorTransport;
 import org.springframework.security.web.webauthn.api.Bytes;
 import org.springframework.security.web.webauthn.api.CredProtectAuthenticationExtensionsClientInput;
+import org.springframework.security.web.webauthn.api.CredentialPropertiesOutput;
 import org.springframework.security.web.webauthn.api.ImmutableAuthenticationExtensionsClientInput;
 import org.springframework.security.web.webauthn.api.ImmutableAuthenticationExtensionsClientInputs;
+import org.springframework.security.web.webauthn.api.ImmutableAuthenticationExtensionsClientOutputs;
 import org.springframework.security.web.webauthn.api.ImmutablePublicKeyCredentialUserEntity;
+import org.springframework.security.web.webauthn.api.PublicKeyCredential;
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialDescriptor;
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialRequestOptions;
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialType;
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialUserEntity;
+import org.springframework.security.web.webauthn.api.TestAuthenticationAssertionResponses;
 import org.springframework.security.web.webauthn.api.TestBytes;
 import org.springframework.security.web.webauthn.api.TestPublicKeyCredentialRequestOptions;
-import org.springframework.security.web.webauthn.api.TestPublicKeyCredentialUserEntity;
+import org.springframework.security.web.webauthn.api.TestPublicKeyCredentialUserEntities;
+import org.springframework.security.web.webauthn.api.TestPublicKeyCredentials;
 import org.springframework.security.web.webauthn.api.UserVerificationRequirement;
 import org.springframework.security.web.webauthn.authentication.WebAuthnAuthentication;
+import org.springframework.security.web.webauthn.authentication.WebAuthnAuthenticationRequestToken;
+import org.springframework.security.web.webauthn.management.RelyingPartyAuthenticationRequest;
 import org.springframework.util.ReflectionUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -471,6 +488,11 @@ class SpringSecurityCoreVersionSerializableTests {
 		generatorByClassName.put(AbstractSessionEvent.class, (r) -> new AbstractSessionEvent(securityContext));
 		generatorByClassName.put(SecurityConfig.class, (r) -> new SecurityConfig("value"));
 		generatorByClassName.put(TransientSecurityContext.class, (r) -> new TransientSecurityContext(authentication));
+		generatorByClassName.put(AuthorizationDeniedException.class,
+				(r) -> new AuthorizationDeniedException("message", new AuthorizationDecision(false)));
+		generatorByClassName.put(AuthorizationDecision.class, (r) -> new AuthorizationDecision(true));
+		generatorByClassName.put(AuthorityAuthorizationDecision.class,
+				(r) -> new AuthorityAuthorizationDecision(true, AuthorityUtils.createAuthorityList("ROLE_USER")));
 
 		// cas
 		generatorByClassName.put(CasServiceTicketAuthenticationToken.class, (r) -> {
@@ -613,11 +635,32 @@ class SpringSecurityCoreVersionSerializableTests {
 				.allowCredentials(List.of(descriptor))
 				.build()
 		);
+
+		CredentialPropertiesOutput credentialOutput = new CredentialPropertiesOutput(false);
+		AuthenticationExtensionsClientOutputs outputs = new ImmutableAuthenticationExtensionsClientOutputs(credentialOutput);
+		AuthenticatorAssertionResponse response = TestAuthenticationAssertionResponses.createAuthenticatorAssertionResponse()
+				.build();
+		PublicKeyCredential<AuthenticatorAssertionResponse> credential = TestPublicKeyCredentials.createPublicKeyCredential(
+				response, outputs)
+				.build();
+		RelyingPartyAuthenticationRequest authRequest = new RelyingPartyAuthenticationRequest(
+				TestPublicKeyCredentialRequestOptions.create().build(),
+				credential
+		);
+		WebAuthnAuthenticationRequestToken requestToken = new WebAuthnAuthenticationRequestToken(authRequest);
+		requestToken.setDetails(details);
+		generatorByClassName.put(CredentialPropertiesOutput.class, (o) -> credentialOutput);
+		generatorByClassName.put(ImmutableAuthenticationExtensionsClientOutputs.class, (o) -> outputs);
+		generatorByClassName.put(AuthenticatorAssertionResponse.class, (r) -> response);
+		generatorByClassName.put(RelyingPartyAuthenticationRequest.class, (r) -> authRequest);
+		generatorByClassName.put(PublicKeyCredential.class, (r) -> credential);
+		generatorByClassName.put(WebAuthnAuthenticationRequestToken.class, (r) -> requestToken);
+		generatorByClassName.put(AuthenticatorAttachment.class, (r) -> AuthenticatorAttachment.PLATFORM);
 		// @formatter:on
 		generatorByClassName.put(ImmutablePublicKeyCredentialUserEntity.class,
-				(r) -> TestPublicKeyCredentialUserEntity.userEntity().id(TestBytes.get()).build());
+				(r) -> TestPublicKeyCredentialUserEntities.userEntity().id(TestBytes.get()).build());
 		generatorByClassName.put(WebAuthnAuthentication.class, (r) -> {
-			PublicKeyCredentialUserEntity userEntity = TestPublicKeyCredentialUserEntity.userEntity()
+			PublicKeyCredentialUserEntity userEntity = TestPublicKeyCredentialUserEntities.userEntity()
 				.id(TestBytes.get())
 				.build();
 			List<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList("ROLE_USER");
@@ -625,6 +668,12 @@ class SpringSecurityCoreVersionSerializableTests {
 			webAuthnAuthentication.setDetails(details);
 			return webAuthnAuthentication;
 		});
+		// @formatter:on
+
+		// One-Time Token
+		DefaultOneTimeToken oneTimeToken = new DefaultOneTimeToken(UUID.randomUUID().toString(), "user",
+				Instant.now().plusSeconds(300));
+		generatorByClassName.put(DefaultOneTimeToken.class, (t) -> oneTimeToken);
 	}
 
 	@ParameterizedTest
@@ -720,7 +769,7 @@ class SpringSecurityCoreVersionSerializableTests {
 	}
 
 	@Test
-	void listClassesMissingSerialVersion() throws Exception {
+	void allSerializableClassesShouldHaveSerialVersionOrSuppressWarnings() throws Exception {
 		ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(false);
 		provider.addIncludeFilter(new AssignableTypeFilter(Serializable.class));
 		List<Class<?>> classes = new ArrayList<>();
@@ -728,10 +777,6 @@ class SpringSecurityCoreVersionSerializableTests {
 		Set<BeanDefinition> components = provider.findCandidateComponents("org/springframework/security");
 		for (BeanDefinition component : components) {
 			Class<?> clazz = Class.forName(component.getBeanClassName());
-			boolean isAbstract = Modifier.isAbstract(clazz.getModifiers());
-			if (isAbstract) {
-				continue;
-			}
 			if (clazz.isEnum()) {
 				continue;
 			}
@@ -741,15 +786,16 @@ class SpringSecurityCoreVersionSerializableTests {
 			boolean hasSerialVersion = Stream.of(clazz.getDeclaredFields())
 				.map(Field::getName)
 				.anyMatch((n) -> n.equals("serialVersionUID"));
-			if (!hasSerialVersion) {
+			SuppressWarnings suppressWarnings = clazz.getAnnotation(SuppressWarnings.class);
+			boolean hasSerialIgnore = suppressWarnings == null
+					|| Arrays.asList(suppressWarnings.value()).contains("Serial");
+			if (!hasSerialVersion && !hasSerialIgnore) {
 				classes.add(clazz);
 			}
 		}
-		if (!classes.isEmpty()) {
-			System.out
-				.println("Found " + classes.size() + " Serializable classes that don't declare a seriallVersionUID");
-			System.out.println(classes.stream().map(Class::getName).collect(Collectors.joining("\r\n")));
-		}
+		assertThat(classes)
+			.describedAs("Found Serializable classes that are either missing a serialVersionUID or a @SuppressWarnings")
+			.isEmpty();
 	}
 
 	static Stream<Class<?>> getClassesToSerialize() throws Exception {
@@ -775,7 +821,11 @@ class SpringSecurityCoreVersionSerializableTests {
 	}
 
 	private static InstancioApi<?> instancioWithDefaults(Class<?> clazz) {
-		InstancioApi<?> instancio = Instancio.of(clazz);
+		InstancioOfClassApi<?> instancio = Instancio.of(clazz);
+		ResolvableType[] generics = ResolvableType.forClass(clazz).getGenerics();
+		for (ResolvableType type : generics) {
+			instancio.withTypeParameters(type.resolve());
+		}
 		if (generatorByClassName.containsKey(clazz)) {
 			instancio.supply(Select.all(clazz), generatorByClassName.get(clazz));
 		}

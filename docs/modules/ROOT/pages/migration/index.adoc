@@ -1,23 +1,35 @@
 [[migration]]
-= Migrating to 6.2
+= Migrating to 6.0
 :spring-security-reference-base-url: https://docs.spring.io/spring-security/reference
 
-This guide provides instructions for migrating from Spring Security 6.1 to Spring Security 6.2.
+The Spring Security team has prepared the 5.8 release to simplify upgrading to Spring Security 6.0.
+Use 5.8 and
+ifdef::spring-security-version[]
+{spring-security-reference-base-url}/5.8/migration/index.html[its preparation steps]
+endif::[]
+ifndef::spring-security-version[]
+its preparation steps
+endif::[]
+to simplify updating to 6.0.
 
-== Update to Spring Security 6.2
+After updating to 5.8, follow this guide to perform any remaining migration or cleanup steps.
 
-When updating to a new minor version, it is important that you are already using the latest patch release of the previous minor version.
-For example, if you are upgrading to Spring Security 6.2, you should already be using the latest patch release of Spring Security 6.1.
-This makes it easier to identify any changes that may have been introduced in the new minor version.
+And recall that if you run into trouble, the preparation guide includes opt-out steps to revert to 5.x behaviors.
 
-Therefore, the first step is to ensure you are on the latest patch release of Spring Boot 3.1.
-Next, you should ensure you are on the latest patch release of Spring Security 6.1.
-Typically, the latest patch release of Spring Boot uses the latest patch release of Spring Security.
+== Update to Spring Security 6
 
-With those two steps complete, you can now update to Spring Security 6.2.
+The first step is to ensure you are the latest patch release of Spring Boot 3.0.
+Next, you should ensure you are on the latest patch release of Spring Security 6.
+For directions, on how to update to Spring Security 6 visit the xref:getting-spring-security.adoc[] section of the reference guide.
 
-== Quick Reference
+== Update Package Names
 
-The following list provide a quick reference for the changes that are described in this guide.
+Now that you are updated, you need to change your `javax` imports to `jakarta` imports.
 
-- xref:migration/authorization.adoc#compile-with-parameters[You are using method parameter names in `@PreAuthorize`, `@PostAuthorize`, or any other method security annotations]
+== Compile With `--parameters`
+
+If you are using method parameter names in `@PreAuthorize`, `@PostAuthorize`, or any other method security annotations, you may need to xref:migration/servlet/authorization.adoc#compile-with-parameters[compile with `-parameters`].
+
+== Perform Application-Specific Steps
+
+Next, there are steps you need to perform based on whether it is a xref:migration/servlet/index.adoc[Servlet] or xref:migration/reactive.adoc[Reactive] application.

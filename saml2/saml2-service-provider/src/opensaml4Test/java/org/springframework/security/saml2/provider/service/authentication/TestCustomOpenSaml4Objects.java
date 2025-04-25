@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ package org.springframework.security.saml2.provider.service.authentication;
 import java.util.Collections;
 import java.util.List;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.xml.namespace.QName;
 
@@ -40,6 +39,7 @@ import org.opensaml.saml.common.xml.SAMLConstants;
 import org.opensaml.saml.saml2.core.AttributeValue;
 import org.w3c.dom.Element;
 
+import org.springframework.lang.NonNull;
 import org.springframework.security.saml2.core.OpenSamlInitializationService;
 
 public final class TestCustomOpenSaml4Objects {
@@ -103,7 +103,7 @@ public final class TestCustomOpenSaml4Objects {
 
 	public static class CustomOpenSamlObjectImpl extends AbstractXMLObject implements CustomOpenSamlObject {
 
-		@Nonnull
+		@NonNull
 		private IndexedXMLObjectChildrenList<XMLObject> unknownXMLObjects;
 
 		/**
@@ -113,22 +113,22 @@ public final class TestCustomOpenSaml4Objects {
 		 * represents
 		 * @param namespacePrefix the prefix for the given namespace
 		 */
-		protected CustomOpenSamlObjectImpl(@Nullable String namespaceURI, @Nonnull String elementLocalName,
+		protected CustomOpenSamlObjectImpl(@Nullable String namespaceURI, @NonNull String elementLocalName,
 				@Nullable String namespacePrefix) {
 			super(namespaceURI, elementLocalName, namespacePrefix);
 			super.getNamespaceManager().registerNamespaceDeclaration(new Namespace(CUSTOM_NS, TYPE_CUSTOM_PREFIX));
 			this.unknownXMLObjects = new IndexedXMLObjectChildrenList<>(this);
 		}
 
-		@Nonnull
+		@NonNull
 		@Override
 		public List<XMLObject> getUnknownXMLObjects() {
 			return this.unknownXMLObjects;
 		}
 
-		@Nonnull
+		@NonNull
 		@Override
-		public List<XMLObject> getUnknownXMLObjects(@Nonnull QName typeOrName) {
+		public List<XMLObject> getUnknownXMLObjects(@NonNull QName typeOrName) {
 			return (List<XMLObject>) this.unknownXMLObjects.subList(typeOrName);
 		}
 
@@ -162,9 +162,9 @@ public final class TestCustomOpenSaml4Objects {
 
 	public static class CustomSamlObjectBuilder extends AbstractXMLObjectBuilder<CustomOpenSamlObject> {
 
-		@Nonnull
+		@NonNull
 		@Override
-		public CustomOpenSamlObject buildObject(@Nullable String namespaceURI, @Nonnull String localName,
+		public CustomOpenSamlObject buildObject(@Nullable String namespaceURI, @NonNull String localName,
 				@Nullable String namespacePrefix) {
 			return new CustomOpenSamlObjectImpl(namespaceURI, localName, namespacePrefix);
 		}
@@ -178,7 +178,7 @@ public final class TestCustomOpenSaml4Objects {
 		}
 
 		@Override
-		protected void marshallElementContent(@Nonnull XMLObject xmlObject, @Nonnull Element domElement) {
+		protected void marshallElementContent(@NonNull XMLObject xmlObject, @NonNull Element domElement) {
 			final CustomOpenSamlObject customSamlObject = (CustomOpenSamlObject) xmlObject;
 
 			for (XMLObject object : customSamlObject.getOrderedChildren()) {
@@ -195,15 +195,15 @@ public final class TestCustomOpenSaml4Objects {
 		}
 
 		@Override
-		protected void processChildElement(@Nonnull XMLObject parentXMLObject, @Nonnull XMLObject childXMLObject)
+		protected void processChildElement(@NonNull XMLObject parentXMLObject, @NonNull XMLObject childXMLObject)
 				throws UnmarshallingException {
 			final CustomOpenSamlObject customSamlObject = (CustomOpenSamlObject) parentXMLObject;
 			customSamlObject.getUnknownXMLObjects().add(childXMLObject);
 		}
 
-		@Nonnull
+		@NonNull
 		@Override
-		protected XMLObject buildXMLObject(@Nonnull Element domElement) {
+		protected XMLObject buildXMLObject(@NonNull Element domElement) {
 			return new CustomOpenSamlObjectImpl(SAMLConstants.SAML20_NS, AttributeValue.DEFAULT_ELEMENT_LOCAL_NAME,
 					CustomOpenSamlObject.TYPE_CUSTOM_PREFIX);
 		}

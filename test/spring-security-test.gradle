@@ -32,4 +32,6 @@ dependencies {
 	testImplementation 'org.skyscreamer:jsonassert'
 	testImplementation 'org.springframework:spring-webmvc'
 	testImplementation 'org.springframework:spring-tx'
+
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -192,7 +192,7 @@ class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecu
      *     @Bean
      *     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
      *         http {
-     *             securityMatcher(AntPathRequestMatcher("/private/&ast;&ast;"))
+     *             securityMatcher(PathPatternRequestMatcher.withDefaults().matcher("/private/&ast;&ast;"))
      *             formLogin {
      *                 loginPage = "/log-in"
      *             }
@@ -527,10 +527,45 @@ class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecu
      * @param requiresChannelConfiguration custom configuration that specifies
      * channel security
      * @see [RequiresChannelDsl]
+     * @deprecated please use [redirectToHttps] instead
      */
+    @Deprecated(message="since 6.5 use redirectToHttps instead")
     fun requiresChannel(requiresChannelConfiguration: RequiresChannelDsl.() -> Unit) {
         val requiresChannelCustomizer = RequiresChannelDsl().apply(requiresChannelConfiguration).get()
         this.http.requiresChannel(requiresChannelCustomizer)
+    }
+
+    /**
+     * Configures channel security. In order for this configuration to be useful at least
+     * one mapping to a required channel must be provided.
+     *
+     * Example:
+     *
+     * The example below demonstrates how to require HTTPS for every request. Only
+     * requiring HTTPS for some requests is supported, for example if you need to differentiate
+     * between local and production deployments.
+     *
+     * ```
+     * @Configuration
+     * @EnableWebSecurity
+     * class RequireHttpsConfig {
+     *
+     * 	@Bean
+     * 	fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+     * 		http {
+     * 			redirectToHttps { }
+     * 		}
+     * 		return http.build();
+     * 	}
+     * }
+     * ```
+     * @param httpsRedirectConfiguration custom configuration to apply to HTTPS redirect rules
+     * @see [HttpsRedirectDsl]
+     * @since 6.5
+     */
+    fun redirectToHttps(httpsRedirectConfiguration: HttpsRedirectDsl.() -> Unit) {
+        val httpsRedirectCustomizer = HttpsRedirectDsl().apply(httpsRedirectConfiguration).get()
+        this.http.redirectToHttps(httpsRedirectCustomizer)
     }
 
     /**

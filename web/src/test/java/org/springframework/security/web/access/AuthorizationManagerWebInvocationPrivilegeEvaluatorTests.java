@@ -31,6 +31,8 @@ import org.springframework.security.authentication.TestAuthentication;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.web.access.AuthorizationManagerWebInvocationPrivilegeEvaluator.HttpServletRequestTransformer;
+import org.springframework.security.web.access.intercept.RequestMatcherDelegatingAuthorizationManager;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -109,6 +111,21 @@ class AuthorizationManagerWebInvocationPrivilegeEvaluatorTests {
 		this.privilegeEvaluator.isAllowed("/test", TestAuthentication.authenticatedUser());
 
 		verify(this.authorizationManager).check(any(), eq(request));
+	}
+
+	// gh-16771
+	@Test
+	void isAllowedWhenInvokesDelegateThenCachesRequestPath() {
+		RequestMatcherDelegatingAuthorizationManager authorizationManager = RequestMatcherDelegatingAuthorizationManager
+			.builder()
+			.add(PathPatternRequestMatcher.withDefaults().matcher("/test/**"),
+					(authentication, context) -> this.authorizationManager.check(authentication, context.getRequest()))
+			.build();
+		AuthorizationManagerWebInvocationPrivilegeEvaluator privilegeEvaluator = new AuthorizationManagerWebInvocationPrivilegeEvaluator(
+				authorizationManager);
+		privilegeEvaluator.setRequestTransformer(new PathPatternRequestTransformer());
+		privilegeEvaluator.isAllowed("/test", TestAuthentication.authenticatedUser());
+		verify(this.authorizationManager).check(any(), any());
 	}
 
 }

@@ -447,4 +447,23 @@ public class FilterChainProxy extends GenericFilterBean {
 
 	}
 
+	private static final class FirewallFilter implements Filter {
+
+		private final HttpFirewall firewall;
+
+		private FirewallFilter(HttpFirewall firewall) {
+			this.firewall = firewall;
+		}
+
+		@Override
+		public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
+				throws IOException, ServletException {
+			HttpServletRequest request = (HttpServletRequest) servletRequest;
+			HttpServletResponse response = (HttpServletResponse) servletResponse;
+			filterChain.doFilter(this.firewall.getFirewalledRequest(request),
+					this.firewall.getFirewalledResponse(response));
+		}
+
+	}
+
 }

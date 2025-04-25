@@ -51,6 +51,10 @@ class WebTestUtilsRuntimeHints implements RuntimeHintsRegistrar {
 			.registerType(TypeReference
 				.of("org.springframework.security.config.annotation.web.configuration.WebMvcSecurityConfiguration$CompositeFilterChainProxy"),
 					MemberCategory.INVOKE_DECLARED_METHODS);
+		hints.reflection()
+			.registerType(TypeReference
+				.of("org.springframework.security.config.annotation.web.configuration.WebSecurityConfiguration$CompositeFilterChainProxy"),
+					MemberCategory.INVOKE_DECLARED_METHODS);
 	}
 
 	private void registerCsrfTokenRepositoryHints(RuntimeHints hints) {

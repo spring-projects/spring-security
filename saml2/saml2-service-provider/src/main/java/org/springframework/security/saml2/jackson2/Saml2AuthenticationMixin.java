@@ -39,7 +39,6 @@ import org.springframework.security.saml2.provider.service.authentication.Saml2A
  *
  * @author Ulrich Grave
  * @since 5.7
- * @see Saml2AuthenticationDeserializer
  * @see Saml2Jackson2Module
  * @see SecurityJackson2Modules
  */

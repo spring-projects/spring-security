@@ -17,6 +17,8 @@
 package org.springframework.security.web.access.intercept;
 
 import org.springframework.security.access.SecurityMetadataSource;
+import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.security.core.annotation.SecurityAnnotationScanner;
 import org.springframework.security.web.FilterInvocation;
 
 /**
@@ -24,7 +26,14 @@ import org.springframework.security.web.FilterInvocation;
  * designed to perform lookups keyed on {@link FilterInvocation}s.
  *
  * @author Ben Alex
+ * @deprecated In modern Spring Security APIs, each API manages its own configuration
+ * context. As such there is no direct replacement for this interface. In the case of
+ * method security, please see {@link SecurityAnnotationScanner} and
+ * {@link AuthorizationManager}. In the case of channel security, please see
+ * {@code HttpsRedirectFilter}. In the case of web security, please see
+ * {@link AuthorizationManager}.
  */
+@Deprecated
 public interface FilterInvocationSecurityMetadataSource extends SecurityMetadataSource {
 
 }

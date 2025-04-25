@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -80,6 +80,8 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 	private static final String ATT_OBSERVATION_REGISTRY_REF = "observation-registry-ref";
 
 	static final String ATT_REQUEST_MATCHER_REF = "request-matcher-ref";
+
+	static final String ATT_REDIRECT_TO_HTTPS_REQUEST_MATCHER_REF = "redirect-to-https-request-matcher-ref";
 
 	static final String ATT_PATH_PATTERN = "pattern";
 
@@ -240,6 +242,10 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 	}
 
 	private RuntimeBeanReference createPortResolver(BeanReference portMapper, ParserContext pc) {
+		String beanName = "portResolver";
+		if (pc.getRegistry().containsBeanDefinition(beanName)) {
+			return new RuntimeBeanReference(beanName);
+		}
 		RootBeanDefinition portResolver = new RootBeanDefinition(PortResolverImpl.class);
 		portResolver.getPropertyValues().addPropertyValue("portMapper", portMapper);
 		String portResolverName = pc.getReaderContext().generateBeanName(portResolver);

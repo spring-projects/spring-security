@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import java.util.Map;
 import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.http.HttpMethod;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -53,7 +54,9 @@ import org.springframework.web.util.UrlPathHelper;
  * @author Manuel Jordan
  * @since 3.1
  * @see org.springframework.util.AntPathMatcher
+ * @deprecated please use {@link PathPatternRequestMatcher} instead
  */
+@Deprecated(forRemoval = true)
 public final class AntPathRequestMatcher implements RequestMatcher, RequestVariablesExtractor {
 
 	private static final String MATCH_ALL = "/**";

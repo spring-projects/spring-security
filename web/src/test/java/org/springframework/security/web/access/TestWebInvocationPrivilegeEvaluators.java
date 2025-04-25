@@ -18,13 +18,13 @@ package org.springframework.security.web.access;
 
 import org.springframework.security.core.Authentication;
 
-public final class TestWebInvocationPrivilegeEvaluator {
+public final class TestWebInvocationPrivilegeEvaluators {
 
 	private static final AlwaysAllowWebInvocationPrivilegeEvaluator ALWAYS_ALLOW = new AlwaysAllowWebInvocationPrivilegeEvaluator();
 
 	private static final AlwaysDenyWebInvocationPrivilegeEvaluator ALWAYS_DENY = new AlwaysDenyWebInvocationPrivilegeEvaluator();
 
-	private TestWebInvocationPrivilegeEvaluator() {
+	private TestWebInvocationPrivilegeEvaluators() {
 	}
 
 	public static WebInvocationPrivilegeEvaluator alwaysAllow() {

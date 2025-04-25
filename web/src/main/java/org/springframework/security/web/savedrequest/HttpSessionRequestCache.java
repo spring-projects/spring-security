@@ -164,6 +164,7 @@ public class HttpSessionRequestCache implements RequestCache {
 		this.createSessionAllowed = createSessionAllowed;
 	}
 
+	@Deprecated(forRemoval = true)
 	public void setPortResolver(PortResolver portResolver) {
 		this.portResolver = portResolver;
 	}

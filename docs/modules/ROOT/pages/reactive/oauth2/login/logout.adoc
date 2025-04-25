@@ -123,6 +123,12 @@ class OAuth2LoginSecurityConfig {
 If used, the application's base URL, such as `https://app.example.org`, replaces it at request time.
 ====
 
+[NOTE]
+====
+By default, `OidcClientInitiatedServerLogoutSuccessHandler` redirects to the logout URL using a standard HTTP redirect with the `GET` method.
+To perform the logout using a `POST` request, set the redirect strategy to `FormPostServerRedirectStrategy`, for example with `OidcClientInitiatedServerLogoutSuccessHandler.setRedirectStrategy(new ServerFormPostRedirectStrategy())`.
+====
+
 [[configure-provider-initiated-oidc-logout]]
 == OpenID Connect 1.0 Back-Channel Logout
 

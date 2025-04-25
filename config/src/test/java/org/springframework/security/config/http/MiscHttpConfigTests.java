@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -109,6 +109,7 @@ import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.savedrequest.RequestCacheAwareFilter;
 import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter;
 import org.springframework.security.web.session.DisableEncodeUrlFilter;
+import org.springframework.security.web.transport.HttpsRedirectFilter;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
@@ -347,6 +348,21 @@ public class MiscHttpConfigTests {
 	public void configureWhenInterceptUrlWithRequiresChannelThenAddedChannelFilterToChain() {
 		this.spring.configLocations(xml("InterceptUrlMethodRequiresHttpsAny")).autowire();
 		assertThat(getFilter(ChannelProcessingFilter.class)).isNotNull();
+	}
+
+	@Test
+	public void configureWhenRedirectToHttpsThenFilterAdded() {
+		this.spring.configLocations(xml("RedirectToHttpsRequiresHttpsAny")).autowire();
+		assertThat(getFilter(HttpsRedirectFilter.class)).isNotNull();
+	}
+
+	@Test
+	public void getWhenRedirectToHttpsAnyThenRedirects() throws Exception {
+		this.spring.configLocations(xml("RedirectToHttpsRequiresHttpsAny")).autowire();
+		// @formatter:off
+		this.mvc.perform(get("http://localhost"))
+				.andExpect(redirectedUrl("https://localhost"));
+		// @formatter:on
 	}
 
 	@Test

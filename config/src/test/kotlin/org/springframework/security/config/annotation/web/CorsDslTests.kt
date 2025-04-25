@@ -56,7 +56,8 @@ class CorsDslTests {
     fun `CORS when no MVC then exception`() {
         assertThatThrownBy { this.spring.register(DefaultCorsConfig::class.java).autowire() }
                 .isInstanceOf(BeanCreationException::class.java)
-                .hasMessageContaining("Please ensure Spring Security & Spring MVC are configured in a shared ApplicationContext")
+                .hasMessageContaining("Please ensure that you are using `@EnableWebMvc`, are publishing a `WebMvcConfigurer`, " +
+                        "or are publishing a `CorsConfigurationSource` bean.")
 
     }
 

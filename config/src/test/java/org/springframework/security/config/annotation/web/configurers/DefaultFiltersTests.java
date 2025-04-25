@@ -31,7 +31,7 @@ import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.TestHttpSecurity;
+import org.springframework.security.config.annotation.web.builders.TestHttpSecurities;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.test.SpringTestContext;
@@ -169,7 +169,7 @@ public class DefaultFiltersTests {
 
 		@Bean
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-			TestHttpSecurity.disableDefaults(http);
+			TestHttpSecurities.disableDefaults(http);
 			http.formLogin();
 			return http.build();
 		}

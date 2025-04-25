@@ -34,6 +34,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
+import org.springframework.web.util.UriComponents;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -567,6 +568,17 @@ public class ClientRegistrationsTests {
 		// The client_secret_basic auth method is still the default
 		assertThat(registration.getClientAuthenticationMethod())
 			.isEqualTo(ClientAuthenticationMethod.CLIENT_SECRET_BASIC);
+	}
+
+	// gh-15852
+	@Test
+	public void oidcWhenHostContainsUnderscoreThenRetains() {
+		UriComponents oidc = ClientRegistrations.oidcUri("https://elated_sutherland:8080/path");
+		assertThat(oidc.getHost()).isEqualTo("elated_sutherland");
+		UriComponents oauth = ClientRegistrations.oauthUri("https://elated_sutherland:8080/path");
+		assertThat(oauth.getHost()).isEqualTo("elated_sutherland");
+		UriComponents oidcRfc8414 = ClientRegistrations.oidcRfc8414Uri("https://elated_sutherland:8080/path");
+		assertThat(oidcRfc8414.getHost()).isEqualTo("elated_sutherland");
 	}
 
 	private ClientRegistration.Builder registration(String path) throws Exception {

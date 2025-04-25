@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,14 +50,19 @@ public class ExceptionTranslationWebFilter implements WebFilter {
 	@Override
 	public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
 		return chain.filter(exchange)
-			.onErrorResume(AccessDeniedException.class, (denied) -> exchange.getPrincipal()
-				.filter((principal) -> (!(principal instanceof Authentication) || (principal instanceof Authentication
-						&& (this.authenticationTrustResolver.isAuthenticated((Authentication) principal)))))
-				.switchIfEmpty(commenceAuthentication(exchange,
-						new InsufficientAuthenticationException(
-								"Full authentication is required to access this resource")))
-				.flatMap((principal) -> this.accessDeniedHandler.handle(exchange, denied))
-				.then());
+			.onErrorResume(AccessDeniedException.class,
+					(denied) -> exchange.getPrincipal()
+						.switchIfEmpty(Mono.defer(() -> commenceAuthentication(exchange, null)))
+						.flatMap((principal) -> {
+							if (!(principal instanceof Authentication authentication)) {
+								return this.accessDeniedHandler.handle(exchange, denied);
+							}
+							if (this.authenticationTrustResolver.isAuthenticated(authentication)) {
+								return this.accessDeniedHandler.handle(exchange, denied);
+							}
+							return commenceAuthentication(exchange, authentication);
+						})
+						.then());
 	}
 
 	/**
@@ -92,10 +97,14 @@ public class ExceptionTranslationWebFilter implements WebFilter {
 		this.authenticationTrustResolver = authenticationTrustResolver;
 	}
 
-	private <T> Mono<T> commenceAuthentication(ServerWebExchange exchange, AuthenticationException denied) {
-		return this.authenticationEntryPoint
-			.commence(exchange, new AuthenticationCredentialsNotFoundException("Not Authenticated", denied))
-			.then(Mono.empty());
+	private <T> Mono<T> commenceAuthentication(ServerWebExchange exchange, Authentication authentication) {
+		AuthenticationException cause = new InsufficientAuthenticationException(
+				"Full authentication is required to access this resource");
+		AuthenticationException ex = new AuthenticationCredentialsNotFoundException("Not Authenticated", cause);
+		if (authentication != null) {
+			ex.setAuthenticationRequest(authentication);
+		}
+		return this.authenticationEntryPoint.commence(exchange, ex).then(Mono.empty());
 	}
 
 }

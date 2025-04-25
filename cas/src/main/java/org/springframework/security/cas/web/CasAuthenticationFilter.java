@@ -51,6 +51,7 @@ import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.savedrequest.SavedRequest;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
@@ -215,6 +216,8 @@ public class CasAuthenticationFilter extends AbstractAuthenticationProcessingFil
 
 	public CasAuthenticationFilter() {
 		super("/login/cas");
+		RequestMatcher processUri = PathPatternRequestMatcher.withDefaults().matcher("/login/cas");
+		setRequiresAuthenticationRequestMatcher(processUri);
 		setAuthenticationFailureHandler(new SimpleUrlAuthenticationFailureHandler());
 		setSecurityContextRepository(this.securityContextRepository);
 	}
@@ -317,6 +320,18 @@ public class CasAuthenticationFilter extends AbstractAuthenticationProcessingFil
 	@Override
 	public final void setAuthenticationFailureHandler(AuthenticationFailureHandler failureHandler) {
 		super.setAuthenticationFailureHandler(new CasAuthenticationFailureHandler(failureHandler));
+	}
+
+	/**
+	 * Use this {@code RequestMatcher} to match proxy receptor requests. Without setting
+	 * this matcher, {@link CasAuthenticationFilter} will not capture any proxy receptor
+	 * requets.
+	 * @param proxyReceptorMatcher the {@link RequestMatcher} to use
+	 * @since 6.5
+	 */
+	public final void setProxyReceptorMatcher(RequestMatcher proxyReceptorMatcher) {
+		Assert.notNull(proxyReceptorMatcher, "proxyReceptorMatcher cannot be null");
+		this.proxyReceptorMatcher = proxyReceptorMatcher;
 	}
 
 	public final void setProxyReceptorUrl(final String proxyReceptorUrl) {

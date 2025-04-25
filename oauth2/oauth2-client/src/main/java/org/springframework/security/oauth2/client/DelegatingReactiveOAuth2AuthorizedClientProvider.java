@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ import org.springframework.util.Assert;
 
 /**
  * An implementation of a {@link ReactiveOAuth2AuthorizedClientProvider} that simply
- * delegates to it's internal {@code List} of
+ * delegates to its internal {@code List} of
  * {@link ReactiveOAuth2AuthorizedClientProvider}(s).
  * <p>
  * Each provider is given a chance to

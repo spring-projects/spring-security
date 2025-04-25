@@ -95,6 +95,8 @@ dependencies {
 	testImplementation 'org.mockito:mockito-core'
 	testImplementation 'org.mockito:mockito-junit-jupiter'
 	testImplementation libs.com.squareup.okhttp3.mockwebserver
+
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 

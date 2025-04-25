@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@ import org.springframework.http.server.ServletServerHttpResponse;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialRequestOptions;
 import org.springframework.security.web.webauthn.jackson.WebauthnJackson2Module;
@@ -40,8 +41,6 @@ import org.springframework.security.web.webauthn.management.ImmutablePublicKeyCr
 import org.springframework.security.web.webauthn.management.WebAuthnRelyingPartyOperations;
 import org.springframework.util.Assert;
 import org.springframework.web.filter.OncePerRequestFilter;
-
-import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
 
 /**
  * A {@link jakarta.servlet.Filter} that renders the
@@ -54,7 +53,8 @@ import static org.springframework.security.web.util.matcher.AntPathRequestMatche
  */
 public class PublicKeyCredentialRequestOptionsFilter extends OncePerRequestFilter {
 
-	private RequestMatcher matcher = antMatcher(HttpMethod.POST, "/webauthn/authenticate/options");
+	private RequestMatcher matcher = PathPatternRequestMatcher.withDefaults()
+		.matcher(HttpMethod.POST, "/webauthn/authenticate/options");
 
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
 		.getContextHolderStrategy();
@@ -73,6 +73,17 @@ public class PublicKeyCredentialRequestOptionsFilter extends OncePerRequestFilte
 	public PublicKeyCredentialRequestOptionsFilter(WebAuthnRelyingPartyOperations rpOptions) {
 		Assert.notNull(rpOptions, "rpOperations cannot be null");
 		this.rpOptions = rpOptions;
+	}
+
+	/**
+	 * Sets the {@link RequestMatcher} used to trigger this filter. By default, the
+	 * {@link RequestMatcher} is {@code POST /webauthn/authenticate/options}.
+	 * @param requestMatcher the {@link RequestMatcher} to use
+	 * @since 6.5
+	 */
+	public void setRequestMatcher(RequestMatcher requestMatcher) {
+		Assert.notNull(requestMatcher, "requestMatcher cannot be null");
+		this.matcher = requestMatcher;
 	}
 
 	@Override

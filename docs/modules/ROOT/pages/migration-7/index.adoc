@@ -1,5 +1,6 @@
 [[preparing]]
 = Preparing for 7.0
+:page-section-summary-toc: 1
 
 While Spring Security 7.0 does not have a release date yet, it is important to start preparing for it now.
 

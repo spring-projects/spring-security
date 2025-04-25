@@ -35,7 +35,9 @@ import org.springframework.util.Assert;
  * {@link PortMapper}.
  *
  * @author Ben Alex
+ * @deprecated This existed for an old IE bug and is no longer need.
  */
+@Deprecated(forRemoval = true)
 public class PortResolverImpl implements PortResolver {
 
 	private PortMapper portMapper = new PortMapperImpl();

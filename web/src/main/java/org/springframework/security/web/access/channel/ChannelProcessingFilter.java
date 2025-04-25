@@ -83,7 +83,9 @@ import org.springframework.web.filter.GenericFilterBean;
  * over HTTPS.
  *
  * @author Ben Alex
+ * @deprecated see {@link org.springframework.security.web.transport.HttpsRedirectFilter}
  */
+@Deprecated
 public class ChannelProcessingFilter extends GenericFilterBean {
 
 	private ChannelDecisionManager channelDecisionManager;

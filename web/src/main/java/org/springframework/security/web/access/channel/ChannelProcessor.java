@@ -23,6 +23,7 @@ import jakarta.servlet.ServletException;
 
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.web.FilterInvocation;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 
 /**
  * Decides whether a web channel meets a specific security condition.
@@ -34,7 +35,10 @@ import org.springframework.security.web.FilterInvocation;
  * themselves. The callers of the implementation do not take any action.
  *
  * @author Ben Alex
+ * @deprecated no replacement is planned, though consider using a custom
+ * {@link RequestMatcher} for any sophisticated decision-making
  */
+@Deprecated
 public interface ChannelProcessor {
 
 	/**

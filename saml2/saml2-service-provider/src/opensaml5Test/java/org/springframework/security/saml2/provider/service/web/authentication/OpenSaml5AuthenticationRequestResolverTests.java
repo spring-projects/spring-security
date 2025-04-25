@@ -102,7 +102,7 @@ public class OpenSaml5AuthenticationRequestResolverTests {
 	}
 
 	private MockHttpServletRequest givenRequest(String path) {
-		MockHttpServletRequest request = new MockHttpServletRequest();
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", path);
 		request.setServletPath(path);
 		return request;
 	}

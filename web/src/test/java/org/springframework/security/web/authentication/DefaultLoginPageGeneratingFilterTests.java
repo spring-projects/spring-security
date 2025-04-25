@@ -18,17 +18,14 @@ package org.springframework.security.web.authentication;
 
 import java.io.IOException;
 import java.util.Collections;
-import java.util.Locale;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import org.junit.jupiter.api.Test;
 
-import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.core.SpringSecurityMessageSource;
 import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
 
@@ -126,22 +123,6 @@ public class DefaultLoginPageGeneratingFilterTests {
 		request.setQueryString("not");
 		filter.doFilter(request, response, this.chain);
 		assertThat(response.getContentAsString()).isEmpty();
-	}
-
-	/* SEC-1111 */
-	@Test
-	public void handlesNonIso8859CharsInErrorMessage() throws Exception {
-		DefaultLoginPageGeneratingFilter filter = new DefaultLoginPageGeneratingFilter(
-				new UsernamePasswordAuthenticationFilter());
-		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/login");
-		MockHttpServletResponse response = new MockHttpServletResponse();
-		request.setQueryString("error");
-		MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
-		String message = messages.getMessage("AbstractUserDetailsAuthenticationProvider.badCredentials",
-				"Bad credentials", Locale.KOREA);
-		request.getSession().setAttribute(WebAttributes.AUTHENTICATION_EXCEPTION, new BadCredentialsException(message));
-		filter.doFilter(request, response, this.chain);
-		assertThat(response.getContentAsString()).contains(message);
 	}
 
 	// gh-5394
@@ -244,7 +225,7 @@ public class DefaultLoginPageGeneratingFilterTests {
 				    <div class="content">
 				      <form class="login-form" method="post" action="null">
 				        <h2>Please sign in</h2>
-				<div class="alert alert-danger" role="alert">Bad credentials</div>
+				<div class="alert alert-danger" role="alert">Invalid credentials</div>
 				        <p>
 				          <label for="username" class="screenreader">Username</label>
 				          <input type="text" id="username" name="username" placeholder="Username" required autofocus>
@@ -259,12 +240,12 @@ public class DefaultLoginPageGeneratingFilterTests {
 				      </form>
 
 				<h2>Login with OAuth 2.0</h2>
-				<div class="alert alert-danger" role="alert">Bad credentials</div>
+				<div class="alert alert-danger" role="alert">Invalid credentials</div>
 				<table class="table table-striped">
 				  <tr><td><a href="/oauth2/authorization/google">Google &lt; &gt; &quot; &#39; &amp;</a></td></tr>
 				</table>
 				<h2>Login with SAML 2.0</h2>
-				<div class="alert alert-danger" role="alert">Bad credentials</div>
+				<div class="alert alert-danger" role="alert">Invalid credentials</div>
 				<table class="table table-striped">
 				  <tr><td><a href="/saml/sso/google">Google &lt; &gt; &quot; &#39; &amp;</a></td></tr>
 				</table>

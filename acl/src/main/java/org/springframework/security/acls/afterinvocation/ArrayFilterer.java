@@ -32,7 +32,9 @@ import org.springframework.core.log.LogMessage;
  *
  * @author Ben Alex
  * @author Paulo Neves
+ * @deprecated please see {@code PostFilter}
  */
+@Deprecated
 class ArrayFilterer<T> implements Filterer<T> {
 
 	protected static final Log logger = LogFactory.getLog(ArrayFilterer.class);

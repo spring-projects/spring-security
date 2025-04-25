@@ -36,8 +36,9 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequ
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.core.oidc.OidcScopes;
 import org.springframework.security.oauth2.core.oidc.endpoint.OidcParameterNames;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.util.UrlUtils;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -52,7 +53,7 @@ import org.springframework.web.util.UriComponentsBuilder;
  *
  * <p>
  * <b>NOTE:</b> The default base {@code URI} {@code /oauth2/authorization} may be
- * overridden via it's constructor
+ * overridden via its constructor
  * {@link #DefaultOAuth2AuthorizationRequestResolver(ClientRegistrationRepository, String)}.
  *
  * @author Joe Grandja
@@ -80,7 +81,7 @@ public final class DefaultOAuth2AuthorizationRequestResolver implements OAuth2Au
 
 	private final ClientRegistrationRepository clientRegistrationRepository;
 
-	private final AntPathRequestMatcher authorizationRequestMatcher;
+	private final RequestMatcher authorizationRequestMatcher;
 
 	private Consumer<OAuth2AuthorizationRequest.Builder> authorizationRequestCustomizer = (customizer) -> {
 	};
@@ -97,8 +98,8 @@ public final class DefaultOAuth2AuthorizationRequestResolver implements OAuth2Au
 		Assert.notNull(clientRegistrationRepository, "clientRegistrationRepository cannot be null");
 		Assert.hasText(authorizationRequestBaseUri, "authorizationRequestBaseUri cannot be empty");
 		this.clientRegistrationRepository = clientRegistrationRepository;
-		this.authorizationRequestMatcher = new AntPathRequestMatcher(
-				authorizationRequestBaseUri + "/{" + REGISTRATION_ID_URI_VARIABLE_NAME + "}");
+		this.authorizationRequestMatcher = PathPatternRequestMatcher.withDefaults()
+			.matcher(authorizationRequestBaseUri + "/{" + REGISTRATION_ID_URI_VARIABLE_NAME + "}");
 	}
 
 	@Override
@@ -225,7 +226,7 @@ public final class DefaultOAuth2AuthorizationRequestResolver implements OAuth2Au
 		Map<String, String> uriVariables = new HashMap<>();
 		uriVariables.put("registrationId", clientRegistration.getRegistrationId());
 		// @formatter:off
-		UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl(UrlUtils.buildFullRequestUrl(request))
+		UriComponents uriComponents = UriComponentsBuilder.fromUriString(UrlUtils.buildFullRequestUrl(request))
 				.replacePath(request.getContextPath())
 				.replaceQuery(null)
 				.fragment(null)

@@ -19,6 +19,8 @@ package org.springframework.security.access;
 import java.io.Serializable;
 
 import org.springframework.security.access.intercept.RunAsManager;
+import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.security.core.annotation.SecurityAnnotationScanner;
 
 /**
  * Stores a security system related configuration attribute.
@@ -35,7 +37,14 @@ import org.springframework.security.access.intercept.RunAsManager;
  * target.
  *
  * @author Ben Alex
+ * @deprecated In modern Spring Security APIs, each API manages its own configuration
+ * context. As such there is no direct replacement for this interface. In the case of
+ * method security, please see {@link SecurityAnnotationScanner} and
+ * {@link AuthorizationManager}. In the case of channel security, please see
+ * {@code HttpsRedirectFilter}. In the case of web security, please see
+ * {@link AuthorizationManager}.
  */
+@Deprecated
 public interface ConfigAttribute extends Serializable {
 
 	/**

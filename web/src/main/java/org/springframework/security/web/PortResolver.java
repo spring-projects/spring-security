@@ -28,8 +28,18 @@ import jakarta.servlet.ServletRequest;
  * </p>
  *
  * @author Ben Alex
+ * @deprecated This existed for an old IE bug and is no longer need.
  */
+@Deprecated(forRemoval = true, since = "6.5")
 public interface PortResolver {
+
+	PortResolver NO_OP = new PortResolver() {
+
+		@Override
+		public int getServerPort(ServletRequest request) {
+			return request.getServerPort();
+		}
+	};
 
 	/**
 	 * Indicates the port the <code>ServletRequest</code> was received on.

@@ -57,9 +57,12 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AuthorizationManagerWebInvocationPrivilegeEvaluator;
+import org.springframework.security.web.access.PathPatternRequestTransformer;
 import org.springframework.security.web.access.RequestMatcherDelegatingWebInvocationPrivilegeEvaluator;
 import org.springframework.security.web.access.WebInvocationPrivilegeEvaluator;
 import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.util.ClassUtils;
@@ -69,8 +72,12 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -318,6 +325,27 @@ public class WebSecurityConfigurationTests {
 		assertThat(privilegeEvaluator.isAllowed("/another", null)).isFalse();
 		assertThat(privilegeEvaluator.isAllowed("/ignoring1", null)).isTrue();
 		assertThat(privilegeEvaluator.isAllowed("/ignoring1/child", null)).isTrue();
+	}
+
+	@Test
+	public void loadConfigWhenUsePathPatternThenEvaluates() {
+		this.spring.register(UsePathPatternConfig.class).autowire();
+		WebInvocationPrivilegeEvaluator privilegeEvaluator = this.spring.getContext()
+			.getBean(WebInvocationPrivilegeEvaluator.class);
+		assertUserPermissions(privilegeEvaluator);
+		assertAdminPermissions(privilegeEvaluator);
+		assertAnotherUserPermission(privilegeEvaluator);
+		// null authentication
+		assertThat(privilegeEvaluator.isAllowed("/user", null)).isFalse();
+		assertThat(privilegeEvaluator.isAllowed("/admin", null)).isFalse();
+		assertThat(privilegeEvaluator.isAllowed("/another", null)).isTrue();
+		assertThat(privilegeEvaluator.isAllowed("/ignoring1", null)).isTrue();
+		assertThat(privilegeEvaluator.isAllowed("/ignoring1/child", null)).isTrue();
+		AuthorizationManagerWebInvocationPrivilegeEvaluator.HttpServletRequestTransformer requestTransformer = this.spring
+			.getContext()
+			.getBean(AuthorizationManagerWebInvocationPrivilegeEvaluator.HttpServletRequestTransformer.class);
+		verify(requestTransformer, atLeastOnce()).transform(any());
+
 	}
 
 	@Test
@@ -857,6 +885,53 @@ public class WebSecurityConfigurationTests {
 		@Order(Ordered.LOWEST_PRECEDENCE)
 		public SecurityFilterChain permitAll(HttpSecurity http) throws Exception {
 			http.authorizeRequests((requests) -> requests.anyRequest().permitAll());
+			return http.build();
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	@EnableWebMvc
+	@Import(AuthenticationTestConfiguration.class)
+	static class UsePathPatternConfig {
+
+		@Bean
+		AuthorizationManagerWebInvocationPrivilegeEvaluator.HttpServletRequestTransformer pathPatternRequestTransformer() {
+			return spy(new PathPatternRequestTransformer());
+		}
+
+		@Bean
+		public WebSecurityCustomizer webSecurityCustomizer() {
+			return (web) -> web.ignoring().requestMatchers("/ignoring1/**");
+		}
+
+		@Bean
+		@Order(Ordered.HIGHEST_PRECEDENCE)
+		public SecurityFilterChain notAuthorized(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.securityMatchers((requests) -> requests.requestMatchers(PathPatternRequestMatcher.withDefaults().matcher("/user")))
+				.authorizeHttpRequests((requests) -> requests.anyRequest().hasRole("USER"));
+			// @formatter:on
+			return http.build();
+		}
+
+		@Bean
+		@Order(Ordered.HIGHEST_PRECEDENCE + 1)
+		public SecurityFilterChain admin(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.securityMatchers((requests) -> requests.requestMatchers(PathPatternRequestMatcher.withDefaults().matcher("/admin")))
+				.authorizeHttpRequests((requests) -> requests.anyRequest().hasRole("ADMIN"));
+			// @formatter:on
+			return http.build();
+		}
+
+		@Bean
+		@Order(Ordered.LOWEST_PRECEDENCE)
+		public SecurityFilterChain permitAll(HttpSecurity http) throws Exception {
+			http.authorizeHttpRequests((requests) -> requests.anyRequest().permitAll());
 			return http.build();
 		}
 

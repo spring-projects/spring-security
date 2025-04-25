@@ -17,9 +17,9 @@
 package org.springframework.security.config.annotation.web.configurers;
 
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
+import org.springframework.security.config.annotation.web.RequestMatcherFactory;
 import org.springframework.security.web.RequestMatcherRedirectFilter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.util.Assert;
 
 /**
@@ -55,7 +55,7 @@ public final class PasswordManagementConfigurer<B extends HttpSecurityBuilder<B>
 	@Override
 	public void configure(B http) throws Exception {
 		RequestMatcherRedirectFilter changePasswordFilter = new RequestMatcherRedirectFilter(
-				new AntPathRequestMatcher(WELL_KNOWN_CHANGE_PASSWORD_PATTERN), this.changePasswordPage);
+				RequestMatcherFactory.matcher(WELL_KNOWN_CHANGE_PASSWORD_PATTERN), this.changePasswordPage);
 		http.addFilterBefore(postProcess(changePasswordFilter), UsernamePasswordAuthenticationFilter.class);
 	}
 

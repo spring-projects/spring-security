@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,9 @@
 
 package org.springframework.security.web.webauthn.api;
 
+import java.io.Serial;
+import java.io.Serializable;
+
 /**
  * <a href=
  * "https://www.w3.org/TR/webauthn-3/#dictdef-credentialpropertiesoutput">CredentialPropertiesOutput</a>
@@ -26,6 +29,9 @@ package org.springframework.security.web.webauthn.api;
  */
 public class CredentialPropertiesOutput
 		implements AuthenticationExtensionsClientOutput<CredentialPropertiesOutput.ExtensionOutput> {
+
+	@Serial
+	private static final long serialVersionUID = -3201699313968303331L;
 
 	/**
 	 * The extension id.
@@ -59,7 +65,10 @@ public class CredentialPropertiesOutput
 	 * @since 6.4
 	 * @see #getOutput()
 	 */
-	public static final class ExtensionOutput {
+	public static final class ExtensionOutput implements Serializable {
+
+		@Serial
+		private static final long serialVersionUID = 4557406414847424019L;
 
 		private final boolean rk;
 

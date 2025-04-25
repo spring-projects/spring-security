@@ -16,6 +16,7 @@
 
 package org.springframework.security.authorization;
 
+import java.io.Serial;
 import java.util.Collection;
 
 import org.springframework.security.core.GrantedAuthority;
@@ -27,6 +28,9 @@ import org.springframework.security.core.GrantedAuthority;
  * @since 5.6
  */
 public class AuthorityAuthorizationDecision extends AuthorizationDecision {
+
+	@Serial
+	private static final long serialVersionUID = -8338309042331376592L;
 
 	private final Collection<GrantedAuthority> authorities;
 

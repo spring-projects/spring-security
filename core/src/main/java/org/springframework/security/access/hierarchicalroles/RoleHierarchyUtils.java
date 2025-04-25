@@ -43,7 +43,9 @@ public final class RoleHierarchyUtils {
 	 * @return a string representation of a role hierarchy
 	 * @throws IllegalArgumentException if roleHierarchyMap is null or empty or if a role
 	 * name is null or empty or if an implied role name(s) is null or empty
+	 * @deprecated please see {@link RoleHierarchyImpl#setHierarchy} deprecation notice
 	 */
+	@Deprecated
 	public static String roleHierarchyFromMap(Map<String, List<String>> roleHierarchyMap) {
 		Assert.notEmpty(roleHierarchyMap, "roleHierarchyMap cannot be empty");
 		StringWriter result = new StringWriter();

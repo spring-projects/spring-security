@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -482,7 +482,6 @@ final class OpenSaml4Template implements OpenSamlOperations {
 
 		private void decryptResponse(Response response) {
 			Collection<Assertion> decrypteds = new ArrayList<>();
-			Collection<EncryptedAssertion> encrypteds = new ArrayList<>();
 
 			int count = 0;
 			int size = response.getEncryptedAssertions().size();
@@ -492,7 +491,6 @@ final class OpenSaml4Template implements OpenSamlOperations {
 				try {
 					Assertion decrypted = this.decrypter.decrypt(encrypted);
 					if (decrypted != null) {
-						encrypteds.add(encrypted);
 						decrypteds.add(decrypted);
 					}
 					count++;
@@ -502,7 +500,6 @@ final class OpenSaml4Template implements OpenSamlOperations {
 				}
 			}
 
-			response.getEncryptedAssertions().removeAll(encrypteds);
 			response.getAssertions().addAll(decrypteds);
 
 			// Re-marshall the response so that any ID attributes within the decrypted
@@ -534,7 +531,6 @@ final class OpenSaml4Template implements OpenSamlOperations {
 								NameID decrypted = (NameID) this.decrypter.decrypt(d.getEncryptedID());
 								if (decrypted != null) {
 									d.setNameID(decrypted);
-									d.setEncryptedID(null);
 								}
 							}
 							catch (DecryptionException ex) {
@@ -548,12 +544,10 @@ final class OpenSaml4Template implements OpenSamlOperations {
 
 		private void decryptAttributes(AttributeStatement statement) {
 			Collection<Attribute> decrypteds = new ArrayList<>();
-			Collection<EncryptedAttribute> encrypteds = new ArrayList<>();
 			for (EncryptedAttribute encrypted : statement.getEncryptedAttributes()) {
 				try {
 					Attribute decrypted = this.decrypter.decrypt(encrypted);
 					if (decrypted != null) {
-						encrypteds.add(encrypted);
 						decrypteds.add(decrypted);
 					}
 				}
@@ -561,7 +555,6 @@ final class OpenSaml4Template implements OpenSamlOperations {
 					throw new Saml2Exception(ex);
 				}
 			}
-			statement.getEncryptedAttributes().removeAll(encrypteds);
 			statement.getAttributes().addAll(decrypteds);
 		}
 
@@ -572,7 +565,6 @@ final class OpenSaml4Template implements OpenSamlOperations {
 						NameID decrypted = (NameID) this.decrypter.decrypt(subject.getEncryptedID());
 						if (decrypted != null) {
 							subject.setNameID(decrypted);
-							subject.setEncryptedID(null);
 						}
 					}
 					catch (final DecryptionException ex) {
@@ -586,7 +578,6 @@ final class OpenSaml4Template implements OpenSamlOperations {
 							NameID decrypted = (NameID) this.decrypter.decrypt(sc.getEncryptedID());
 							if (decrypted != null) {
 								sc.setNameID(decrypted);
-								sc.setEncryptedID(null);
 							}
 						}
 						catch (final DecryptionException ex) {
@@ -603,7 +594,6 @@ final class OpenSaml4Template implements OpenSamlOperations {
 					NameID decrypted = (NameID) this.decrypter.decrypt(request.getEncryptedID());
 					if (decrypted != null) {
 						request.setNameID(decrypted);
-						request.setEncryptedID(null);
 					}
 				}
 				catch (DecryptionException ex) {

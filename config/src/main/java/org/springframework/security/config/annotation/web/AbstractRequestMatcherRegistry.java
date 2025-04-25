@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,7 +41,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.lang.Nullable;
 import org.springframework.security.config.ObjectPostProcessor;
 import org.springframework.security.config.annotation.web.ServletRegistrationsSupport.RegistrationMapping;
-import org.springframework.security.config.annotation.web.configurers.AbstractConfigAttributeRequestMatcherRegistry;
 import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
@@ -170,7 +169,7 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 
 	/**
 	 * Associates a list of {@link RequestMatcher} instances with the
-	 * {@link AbstractConfigAttributeRequestMatcherRegistry}
+	 * {@link AbstractRequestMatcherRegistry}
 	 * @param requestMatchers the {@link RequestMatcher} instances
 	 * @return the object that is chained after creating the {@link RequestMatcher}
 	 */
@@ -219,9 +218,14 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 		}
 		List<RequestMatcher> matchers = new ArrayList<>();
 		for (String pattern : patterns) {
-			AntPathRequestMatcher ant = new AntPathRequestMatcher(pattern, (method != null) ? method.name() : null);
-			MvcRequestMatcher mvc = createMvcMatchers(method, pattern).get(0);
-			matchers.add(new DeferredRequestMatcher((c) -> resolve(ant, mvc, c), mvc, ant));
+			if (RequestMatcherFactory.usesPathPatterns()) {
+				matchers.add(RequestMatcherFactory.matcher(method, pattern));
+			}
+			else {
+				AntPathRequestMatcher ant = new AntPathRequestMatcher(pattern, (method != null) ? method.name() : null);
+				MvcRequestMatcher mvc = createMvcMatchers(method, pattern).get(0);
+				matchers.add(new DeferredRequestMatcher((c) -> resolve(ant, mvc, c), mvc, ant));
+			}
 		}
 		return requestMatchers(matchers.toArray(new RequestMatcher[0]));
 	}
@@ -264,11 +268,13 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 	}
 
 	private static String computeErrorMessage(Collection<? extends ServletRegistration> registrations) {
-		String template = "This method cannot decide whether these patterns are Spring MVC patterns or not. "
-				+ "If this endpoint is a Spring MVC endpoint, please use requestMatchers(MvcRequestMatcher); "
-				+ "otherwise, please use requestMatchers(AntPathRequestMatcher).\n\n"
-				+ "This is because there is more than one mappable servlet in your servlet context: %s.\n\n"
-				+ "For each MvcRequestMatcher, call MvcRequestMatcher#setServletPath to indicate the servlet path.";
+		String template = """
+				This method cannot decide whether these patterns are Spring MVC patterns or not. \
+				This is because there is more than one mappable servlet in your servlet context: %s.
+
+				To address this, please create one PathPatternRequestMatcher.Builder#servletPath for each servlet that has \
+				authorized endpoints and use them to construct request matchers manually.
+				""";
 		Map<String, Collection<String>> mappings = new LinkedHashMap<>();
 		for (ServletRegistration registration : registrations) {
 			mappings.put(registration.getClassName(), registration.getMappings());

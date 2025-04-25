@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import reactor.core.publisher.Mono;
 
 /**
  * Implementations of this interface are responsible for &quot;decoding&quot; a JSON Web
- * Token (JWT) from it's compact claims representation format to a {@link Jwt}.
+ * Token (JWT) from its compact claims representation format to a {@link Jwt}.
  *
  * <p>
  * JWTs may be represented using the JWS Compact Serialization format for a JSON Web
@@ -46,7 +46,7 @@ import reactor.core.publisher.Mono;
 public interface ReactiveJwtDecoder {
 
 	/**
-	 * Decodes the JWT from it's compact claims representation format and returns a
+	 * Decodes the JWT from its compact claims representation format and returns a
 	 * {@link Jwt}.
 	 * @param token the JWT value
 	 * @return a {@link Jwt}

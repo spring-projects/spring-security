@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,6 +40,7 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.aop.Pointcut;
+import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.TestAuthentication;
@@ -358,6 +359,32 @@ public class AuthorizationAdvisorProxyFactoryTests {
 		assertThat(flight).isInstanceOf(AuthorizationProxy.class);
 		Flight target = (Flight) ((AuthorizationProxy) flight).toAuthorizedTarget();
 		assertThat(target).isSameAs(this.flight);
+	}
+
+	// gh-16819
+	@Test
+	void advisorsWhenWithDefaultsThenAreSorted() {
+		AuthorizationAdvisorProxyFactory proxyFactory = AuthorizationAdvisorProxyFactory.withDefaults();
+		AnnotationAwareOrderComparator comparator = AnnotationAwareOrderComparator.INSTANCE;
+		AuthorizationAdvisor previous = null;
+		for (AuthorizationAdvisor advisor : proxyFactory) {
+			boolean ordered = previous == null || comparator.compare(previous, advisor) < 0;
+			assertThat(ordered).isTrue();
+			previous = advisor;
+		}
+	}
+
+	// gh-16819
+	@Test
+	void advisorsWhenWithReactiveDefaultsThenAreSorted() {
+		AuthorizationAdvisorProxyFactory proxyFactory = AuthorizationAdvisorProxyFactory.withReactiveDefaults();
+		AnnotationAwareOrderComparator comparator = AnnotationAwareOrderComparator.INSTANCE;
+		AuthorizationAdvisor previous = null;
+		for (AuthorizationAdvisor advisor : proxyFactory) {
+			boolean ordered = previous == null || comparator.compare(previous, advisor) < 0;
+			assertThat(ordered).isTrue();
+			previous = advisor;
+		}
 	}
 
 	private Authentication authenticated(String user, String... authorities) {

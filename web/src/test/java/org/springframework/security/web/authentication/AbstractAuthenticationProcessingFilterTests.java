@@ -100,7 +100,7 @@ public class AbstractAuthenticationProcessingFilterTests {
 
 	@Test
 	public void testDefaultProcessesFilterUrlMatchesWithPathParameter() {
-		MockHttpServletRequest request = createMockAuthenticationRequest();
+		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/login;jsessionid=I8MIONOSTHOR");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		MockAuthenticationFilter filter = new MockAuthenticationFilter();
 		filter.setFilterProcessesUrl("/login");

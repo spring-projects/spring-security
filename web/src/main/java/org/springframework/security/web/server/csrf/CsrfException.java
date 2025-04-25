@@ -19,13 +19,12 @@ package org.springframework.security.web.server.csrf;
 import java.io.Serial;
 
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.web.csrf.CsrfToken;
 
 /**
- * Thrown when an invalid or missing {@link CsrfToken} is found in the HttpServletRequest
+ * Thrown when an invalid or missing {@link CsrfToken} is found in the ServerWebExchange
  *
  * @author Rob Winch
- * @since 3.2
+ * @since 5.0
  */
 public class CsrfException extends AccessDeniedException {
 

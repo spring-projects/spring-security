@@ -27,6 +27,7 @@ import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.ConfigAttribute;
+import org.springframework.security.acls.AclPermissionEvaluator;
 import org.springframework.security.acls.model.AclService;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.security.core.Authentication;
@@ -59,7 +60,12 @@ import org.springframework.security.core.SpringSecurityMessageSource;
  * granted and <code>null</code> will be returned.
  * <p>
  * All comparisons and prefixes are case sensitive.
+ *
+ * @deprecated please use {@link AclPermissionEvaluator} instead. Spring Method Security
+ * annotations may also prove useful, for example
+ * {@code @PostAuthorize("hasPermission(filterObject, read)")}
  */
+@Deprecated
 public class AclEntryAfterInvocationProvider extends AbstractAclProvider implements MessageSourceAware {
 
 	protected static final Log logger = LogFactory.getLog(AclEntryAfterInvocationProvider.class);

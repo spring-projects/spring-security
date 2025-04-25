@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,12 +33,10 @@ public class AuthorizationManagerTests {
 
 	@Test
 	public void verifyWhenCheckReturnedGrantedDecisionThenPasses() {
-		AuthorizationManager<Object> manager = (a, o) -> new AuthorizationDecision(true);
-
 		Authentication authentication = new TestingAuthenticationToken("user", "password", "ROLE_1", "ROLE_2");
 		Object object = new Object();
 
-		manager.verify(() -> authentication, object);
+		SingleResultAuthorizationManager.permitAll().verify(() -> authentication, object);
 	}
 
 	@Test
@@ -53,13 +51,11 @@ public class AuthorizationManagerTests {
 
 	@Test
 	public void verifyWhenCheckReturnedDeniedDecisionThenAccessDeniedException() {
-		AuthorizationManager<Object> manager = (a, o) -> new AuthorizationDecision(false);
-
 		Authentication authentication = new TestingAuthenticationToken("user", "password", "ROLE_1", "ROLE_2");
 		Object object = new Object();
 
 		assertThatExceptionOfType(AccessDeniedException.class)
-			.isThrownBy(() -> manager.verify(() -> authentication, object))
+			.isThrownBy(() -> SingleResultAuthorizationManager.denyAll().verify(() -> authentication, object))
 			.withMessage("Access Denied");
 	}
 

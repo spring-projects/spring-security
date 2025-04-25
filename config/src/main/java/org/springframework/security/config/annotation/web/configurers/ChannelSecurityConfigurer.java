@@ -78,7 +78,9 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
  * @author Rob Winch
  * @author Onur Kagan Ozcan
  * @since 3.2
+ * @deprecated please use {@link HttpsRedirectConfigurer} instead
  */
+@Deprecated
 public final class ChannelSecurityConfigurer<H extends HttpSecurityBuilder<H>>
 		extends AbstractHttpConfigurer<ChannelSecurityConfigurer<H>, H> {
 
@@ -147,6 +149,10 @@ public final class ChannelSecurityConfigurer<H extends HttpSecurityBuilder<H>>
 		return this.REGISTRY;
 	}
 
+	/**
+	 * @deprecated no replacement planned
+	 */
+	@Deprecated
 	public final class ChannelRequestMatcherRegistry
 			extends AbstractConfigAttributeRequestMatcherRegistry<RequiresChannelUrl> {
 
@@ -215,6 +221,10 @@ public final class ChannelSecurityConfigurer<H extends HttpSecurityBuilder<H>>
 
 	}
 
+	/**
+	 * @deprecated no replacement planned
+	 */
+	@Deprecated
 	public class RequiresChannelUrl {
 
 		protected List<? extends RequestMatcher> requestMatchers;
