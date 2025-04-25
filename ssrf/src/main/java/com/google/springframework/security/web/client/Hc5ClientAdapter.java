@@ -55,9 +55,9 @@ public class Hc5ClientAdapter implements ClientAdapter {
 		HttpClientConnectionManager connManager = null;
 		if (customConnectionMgr != null) {
 			connManager = customConnectionMgr.apply(registry);
+		} else {
+			connManager = PoolingHttpClientConnectionManagerBuilder.create().setDnsResolver(hc5SsrfDnsResolver).build();
 		}
-
-		connManager = PoolingHttpClientConnectionManagerBuilder.create().setDnsResolver(hc5SsrfDnsResolver).build();
 
 		// If connManager is null ( default ), this will use a PoolingHttpClientConnectionManager
 		// This behaviour corresponds to the HttpComponentsClientHttpRequestFactory default.
