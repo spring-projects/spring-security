@@ -4,7 +4,9 @@ on: pull_request_target
 
 run-name: Merge Dependabot PR ${{ github.ref_name }}
 
-permissions: write-all
+permissions:
+  pull-requests: write
+  contents: write
 
 jobs:
   merge-dependabot-pr:
