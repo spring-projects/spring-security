@@ -152,9 +152,8 @@ public class WebAuthnConfigurer<H extends HttpSecurityBuilder<H>>
 
 	@Override
 	public void configure(H http) throws Exception {
-		UserDetailsService userDetailsService = getSharedOrBean(http, UserDetailsService.class).orElseGet(() -> {
-			throw new IllegalStateException("Missing UserDetailsService Bean");
-		});
+		UserDetailsService userDetailsService = getSharedOrBean(http, UserDetailsService.class)
+			.orElseThrow(() -> new IllegalStateException("Missing UserDetailsService Bean"));
 		PublicKeyCredentialUserEntityRepository userEntities = getSharedOrBean(http,
 				PublicKeyCredentialUserEntityRepository.class)
 			.orElse(userEntityRepository());
@@ -244,12 +243,9 @@ public class WebAuthnConfigurer<H extends HttpSecurityBuilder<H>>
 			PublicKeyCredentialUserEntityRepository userEntities, UserCredentialRepository userCredentials) {
 		Optional<WebAuthnRelyingPartyOperations> webauthnOperationsBean = getBeanOrNull(
 				WebAuthnRelyingPartyOperations.class);
-		if (webauthnOperationsBean.isPresent()) {
-			return webauthnOperationsBean.get();
-		}
-		Webauthn4JRelyingPartyOperations result = new Webauthn4JRelyingPartyOperations(userEntities, userCredentials,
-				PublicKeyCredentialRpEntity.builder().id(this.rpId).name(this.rpName).build(), this.allowedOrigins);
-		return result;
+		return webauthnOperationsBean.orElseGet(() -> new Webauthn4JRelyingPartyOperations(userEntities,
+				userCredentials, PublicKeyCredentialRpEntity.builder().id(this.rpId).name(this.rpName).build(),
+				this.allowedOrigins));
 	}
 
 }
