@@ -46,6 +46,7 @@ import org.springframework.security.web.webauthn.registration.DefaultWebAuthnReg
 import org.springframework.security.web.webauthn.registration.PublicKeyCredentialCreationOptionsFilter;
 import org.springframework.security.web.webauthn.registration.PublicKeyCredentialCreationOptionsRepository;
 import org.springframework.security.web.webauthn.registration.WebAuthnRegistrationFilter;
+import org.springframework.util.Assert;
 
 /**
  * Configures WebAuthn for Spring Security applications
@@ -75,6 +76,7 @@ public class WebAuthnConfigurer<H extends HttpSecurityBuilder<H>>
 	 * @return the {@link WebAuthnConfigurer} for further customization
 	 */
 	public WebAuthnConfigurer<H> rpId(String rpId) {
+		Assert.hasText(rpId, "rpId be null or empty");
 		this.rpId = rpId;
 		return this;
 	}
@@ -85,6 +87,7 @@ public class WebAuthnConfigurer<H extends HttpSecurityBuilder<H>>
 	 * @return the {@link WebAuthnConfigurer} for further customization
 	 */
 	public WebAuthnConfigurer<H> rpName(String rpName) {
+		Assert.hasText(rpName, "rpName can't be null or empty");
 		this.rpName = rpName;
 		return this;
 	}
@@ -106,6 +109,7 @@ public class WebAuthnConfigurer<H extends HttpSecurityBuilder<H>>
 	 * @see #allowedOrigins(String...)
 	 */
 	public WebAuthnConfigurer<H> allowedOrigins(Set<String> allowedOrigins) {
+		Assert.notNull(allowedOrigins, "allowedOrigins can't be null");
 		this.allowedOrigins = allowedOrigins;
 		return this;
 	}
@@ -129,6 +133,7 @@ public class WebAuthnConfigurer<H extends HttpSecurityBuilder<H>>
 	 * @return the {@link WebAuthnConfigurer} for further customization
 	 */
 	public WebAuthnConfigurer<H> messageConverter(HttpMessageConverter<Object> converter) {
+		Assert.notNull(converter, "converter can't be null");
 		this.converter = converter;
 		return this;
 	}
@@ -140,6 +145,7 @@ public class WebAuthnConfigurer<H extends HttpSecurityBuilder<H>>
 	 */
 	public WebAuthnConfigurer<H> creationOptionsRepository(
 			PublicKeyCredentialCreationOptionsRepository creationOptionsRepository) {
+		Assert.notNull(creationOptionsRepository, "creationOptionsRepository can't be null");
 		this.creationOptionsRepository = creationOptionsRepository;
 		return this;
 	}
