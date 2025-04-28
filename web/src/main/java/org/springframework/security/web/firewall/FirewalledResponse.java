@@ -67,7 +67,6 @@ class FirewalledResponse extends HttpServletResponseWrapper {
 			validateCrlf(SET_COOKIE_HEADER, cookie.getValue());
 			validateCrlf(SET_COOKIE_HEADER, cookie.getPath());
 			validateCrlf(SET_COOKIE_HEADER, cookie.getDomain());
-			validateCrlf(SET_COOKIE_HEADER, cookie.getComment());
 		}
 		super.addCookie(cookie);
 	}

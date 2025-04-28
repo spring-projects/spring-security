@@ -35,8 +35,6 @@ public class SavedCookie implements Serializable {
 
 	private final String value;
 
-	private final String comment;
-
 	private final String domain;
 
 	private final int maxAge;
@@ -45,28 +43,13 @@ public class SavedCookie implements Serializable {
 
 	private final boolean secure;
 
-	private final int version;
-
-	/**
-	 * @deprecated use
-	 * {@link org.springframework.security.web.savedrequest.SavedCookie#SavedCookie(String, String, String, int, String, boolean)}
-	 * instead
-	 */
-	@Deprecated(forRemoval = true, since = "6.1")
-	public SavedCookie(String name, String value, String comment, String domain, int maxAge, String path,
-			boolean secure, int version) {
+	public SavedCookie(String name, String value, String domain, int maxAge, String path, boolean secure) {
 		this.name = name;
 		this.value = value;
-		this.comment = comment;
 		this.domain = domain;
 		this.maxAge = maxAge;
 		this.path = path;
 		this.secure = secure;
-		this.version = version;
-	}
-
-	public SavedCookie(String name, String value, String domain, int maxAge, String path, boolean secure) {
-		this(name, value, null, domain, maxAge, path, secure, 0);
 	}
 
 	public SavedCookie(Cookie cookie) {
@@ -80,11 +63,6 @@ public class SavedCookie implements Serializable {
 
 	public String getValue() {
 		return this.value;
-	}
-
-	@Deprecated(forRemoval = true, since = "6.1")
-	public String getComment() {
-		return this.comment;
 	}
 
 	public String getDomain() {
@@ -103,23 +81,14 @@ public class SavedCookie implements Serializable {
 		return this.secure;
 	}
 
-	@Deprecated(forRemoval = true, since = "6.1")
-	public int getVersion() {
-		return this.version;
-	}
-
 	public Cookie getCookie() {
 		Cookie cookie = new Cookie(getName(), getValue());
-		if (getComment() != null) {
-			cookie.setComment(getComment());
-		}
 		if (getDomain() != null) {
 			cookie.setDomain(getDomain());
 		}
 		if (getPath() != null) {
 			cookie.setPath(getPath());
 		}
-		cookie.setVersion(getVersion());
 		cookie.setMaxAge(getMaxAge());
 		cookie.setSecure(isSecure());
 		return cookie;
