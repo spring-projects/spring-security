@@ -372,9 +372,6 @@ public abstract class AbstractRememberMeServices
 		if (this.cookieDomain != null) {
 			cookie.setDomain(this.cookieDomain);
 		}
-		if (maxAge < 1) {
-			cookie.setVersion(1);
-		}
 		cookie.setSecure((this.useSecureCookie != null) ? this.useSecureCookie : request.isSecure());
 		cookie.setHttpOnly(true);
 

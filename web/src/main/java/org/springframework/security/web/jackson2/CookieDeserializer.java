@@ -45,11 +45,9 @@ class CookieDeserializer extends JsonDeserializer<Cookie> {
 		ObjectMapper mapper = (ObjectMapper) jp.getCodec();
 		JsonNode jsonNode = mapper.readTree(jp);
 		Cookie cookie = new Cookie(readJsonNode(jsonNode, "name").asText(), readJsonNode(jsonNode, "value").asText());
-		cookie.setComment(readJsonNode(jsonNode, "comment").asText());
 		cookie.setDomain(readJsonNode(jsonNode, "domain").asText());
 		cookie.setMaxAge(readJsonNode(jsonNode, "maxAge").asInt(-1));
 		cookie.setSecure(readJsonNode(jsonNode, "secure").asBoolean());
-		cookie.setVersion(readJsonNode(jsonNode, "version").asInt());
 		cookie.setPath(readJsonNode(jsonNode, "path").asText());
 		JsonNode attributes = readJsonNode(jsonNode, "attributes");
 		cookie.setHttpOnly(readJsonNode(attributes, "HttpOnly") != null);

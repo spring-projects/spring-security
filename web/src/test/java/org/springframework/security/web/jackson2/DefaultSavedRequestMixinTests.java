@@ -45,11 +45,9 @@ public class DefaultSavedRequestMixinTests extends AbstractMixinTests {
 		+ "\"@class\": \"org.springframework.security.web.savedrequest.SavedCookie\", "
 		+ "\"name\": \"SESSION\", "
 		+ "\"value\": \"123456789\", "
-		+ "\"comment\": null, "
 		+ "\"maxAge\": -1, "
 		+ "\"path\": null, "
 		+ "\"secure\":false, "
-		+ "\"version\": 0, "
 		+ "\"domain\": null"
 	+ "}]]";
 	// @formatter:on
