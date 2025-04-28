@@ -8,13 +8,11 @@ The browser automatically checks that the certificate presented by a server has 
 You can also use SSL with "`mutual authentication`". The server then requests a valid certificate from the client as part of the SSL handshake.
 The server authenticates the client by checking that its certificate is signed by an acceptable authority.
 If a valid certificate has been provided, it can be obtained through the servlet API in an application.
-The Spring Security X.509 module extracts the certificate by using a filter.
-It maps the certificate to an application user and loads that user's set of granted authorities for use with the standard Spring Security infrastructure.
-
-You can also use SSL with "`mutual authentication`". The server then requests a valid certificate from the client as part of the SSL handshake.
-The server authenticates the client by checking that its certificate is signed by an acceptable authority.
 For example, if you use Tomcat, you should read the https://tomcat.apache.org/tomcat-10.1-doc/ssl-howto.html[Tomcat SSL instructions].
 You should get this working before trying it out with Spring Security.
+
+The Spring Security X.509 module extracts the certificate by using a filter.
+It maps the certificate to an application user and loads that user's set of granted authorities for use with the standard Spring Security infrastructure.
 
 
 == Adding X.509 Authentication to Your Web Application
