@@ -166,7 +166,7 @@ class BaseOpenSamlAuthenticationProvider implements AuthenticationProvider {
 			String inResponseTo = response.getInResponseTo();
 			result = result.concat(validateInResponseTo(token.getAuthenticationRequest(), inResponseTo));
 
-			String issuer = response.getIssuer().getValue();
+			String issuer = issuer(response);
 			String destination = response.getDestination();
 			String location = token.getRelyingPartyRegistration().getAssertionConsumerServiceLocation();
 			if (StringUtils.hasText(destination) && !destination.equals(location)) {
@@ -187,6 +187,13 @@ class BaseOpenSamlAuthenticationProvider implements AuthenticationProvider {
 			}
 			return result;
 		};
+	}
+
+	private static String issuer(Response response) {
+		if (response.getIssuer() == null) {
+			return null;
+		}
+		return response.getIssuer().getValue();
 	}
 
 	static List<String> getStatusCodes(Response response) {
@@ -314,7 +321,7 @@ class BaseOpenSamlAuthenticationProvider implements AuthenticationProvider {
 	}
 
 	private void process(Saml2AuthenticationToken token, Response response) {
-		String issuer = response.getIssuer().getValue();
+		String issuer = issuer(response);
 		this.logger.debug(LogMessage.format("Processing SAML response from %s", issuer));
 		boolean responseSigned = response.isSigned();
 

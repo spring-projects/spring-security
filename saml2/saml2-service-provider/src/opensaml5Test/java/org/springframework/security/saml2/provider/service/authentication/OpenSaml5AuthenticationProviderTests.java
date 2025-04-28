@@ -975,6 +975,15 @@ public class OpenSaml5AuthenticationProviderTests {
 		provider.authenticate(token);
 	}
 
+	// gh-16989
+	@Test
+	public void authenticateWhenNullIssuerThenNoNullPointer() {
+		OpenSaml5AuthenticationProvider provider = new OpenSaml5AuthenticationProvider();
+		Response response = TestOpenSamlObjects.signedResponseWithOneAssertion((r) -> r.setIssuer(null));
+		Saml2AuthenticationToken token = token(response, verifying(registration()));
+		assertThatExceptionOfType(Saml2AuthenticationException.class).isThrownBy(() -> provider.authenticate(token));
+	}
+
 	private <T extends XMLObject> T build(QName qName) {
 		return (T) XMLObjectProviderRegistrySupport.getBuilderFactory().getBuilder(qName).buildObject(qName);
 	}
