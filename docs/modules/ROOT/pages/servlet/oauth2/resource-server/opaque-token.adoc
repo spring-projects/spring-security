@@ -28,7 +28,7 @@ spring:
   security:
     oauth2:
       resourceserver:
-        opaque-token:
+        opaquetoken:
           introspection-uri: https://idp.example.com/introspect
           client-id: client
           client-secret: secret
@@ -782,7 +782,7 @@ spring:
   security:
     oauth2:
       resourceserver:
-        opaque-token:
+        opaquetoken:
           introspection-uri: https://idp.example.org/introspection
           client-id: client
           client-secret: secret
