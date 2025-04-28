@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -859,6 +859,15 @@ public class OpenSaml4AuthenticationProviderTests {
 		response.getAssertions().add(assertion);
 		Saml2AuthenticationToken token = token(signed(response), verifying(registration()));
 		provider.authenticate(token);
+	}
+
+	// gh-16989
+	@Test
+	public void authenticateWhenNullIssuerThenNoNullPointer() {
+		OpenSaml4AuthenticationProvider provider = new OpenSaml4AuthenticationProvider();
+		Response response = TestOpenSamlObjects.signedResponseWithOneAssertion((r) -> r.setIssuer(null));
+		Saml2AuthenticationToken token = token(response, verifying(registration()));
+		assertThatExceptionOfType(Saml2AuthenticationException.class).isThrownBy(() -> provider.authenticate(token));
 	}
 
 	private <T extends XMLObject> T build(QName qName) {

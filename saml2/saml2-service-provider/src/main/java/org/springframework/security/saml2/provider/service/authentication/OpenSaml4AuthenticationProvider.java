@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -391,7 +391,7 @@ public final class OpenSaml4AuthenticationProvider implements AuthenticationProv
 			String inResponseTo = response.getInResponseTo();
 			result = result.concat(validateInResponseTo(token.getAuthenticationRequest(), inResponseTo));
 
-			String issuer = response.getIssuer().getValue();
+			String issuer = issuer(response);
 			String destination = response.getDestination();
 			String location = token.getRelyingPartyRegistration().getAssertionConsumerServiceLocation();
 			if (StringUtils.hasText(destination) && !destination.equals(location)) {
@@ -412,6 +412,13 @@ public final class OpenSaml4AuthenticationProvider implements AuthenticationProv
 			}
 			return result;
 		};
+	}
+
+	private static String issuer(Response response) {
+		if (response.getIssuer() == null) {
+			return null;
+		}
+		return response.getIssuer().getValue();
 	}
 
 	private static List<String> getStatusCodes(Response response) {
@@ -576,7 +583,7 @@ public final class OpenSaml4AuthenticationProvider implements AuthenticationProv
 	}
 
 	private void process(Saml2AuthenticationToken token, Response response) {
-		String issuer = response.getIssuer().getValue();
+		String issuer = issuer(response);
 		this.logger.debug(LogMessage.format("Processing SAML response from %s", issuer));
 		boolean responseSigned = response.isSigned();
 
