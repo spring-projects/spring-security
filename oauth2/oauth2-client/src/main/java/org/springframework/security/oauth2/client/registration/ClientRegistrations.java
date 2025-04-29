@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package org.springframework.security.oauth2.client.registration;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,6 +50,7 @@ import org.springframework.web.util.UriComponentsBuilder;
  * @author Rob Winch
  * @author Josh Cummings
  * @author Rafiullah Hamedy
+ * @author Evgeniy Cheban
  * @since 5.1
  */
 public final class ClientRegistrations {
@@ -265,6 +267,7 @@ public final class ClientRegistrations {
 	private static ClientRegistration.Builder getBuilder(String issuer,
 			Supplier<ClientRegistration.Builder>... suppliers) {
 		String errorMessage = "Unable to resolve Configuration with the provided Issuer of \"" + issuer + "\"";
+		List<String> errors = new ArrayList<>();
 		for (Supplier<ClientRegistration.Builder> supplier : suppliers) {
 			try {
 				return supplier.get();
@@ -273,6 +276,7 @@ public final class ClientRegistrations {
 				if (!ex.getStatusCode().is4xxClientError()) {
 					throw ex;
 				}
+				errors.add(ex.getMessage());
 				// else try another endpoint
 			}
 			catch (IllegalArgumentException | IllegalStateException ex) {
@@ -281,6 +285,9 @@ public final class ClientRegistrations {
 			catch (RuntimeException ex) {
 				throw new IllegalArgumentException(errorMessage, ex);
 			}
+		}
+		if (!errors.isEmpty()) {
+			throw new IllegalArgumentException(errorMessage + ", errors: " + errors);
 		}
 		throw new IllegalArgumentException(errorMessage);
 	}

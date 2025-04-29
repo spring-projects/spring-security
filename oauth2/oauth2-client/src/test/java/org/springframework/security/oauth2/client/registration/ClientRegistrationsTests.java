@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,12 +37,14 @@ import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.web.util.UriComponents;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
 /**
  * @author Rob Winch
  * @author Rafiullah Hamedy
+ * @author Evgeniy Cheban
  * @since 5.1
  */
 public class ClientRegistrationsTests {
@@ -579,6 +581,33 @@ public class ClientRegistrationsTests {
 		assertThat(oauth.getHost()).isEqualTo("elated_sutherland");
 		UriComponents oidcRfc8414 = ClientRegistrations.oidcRfc8414Uri("https://elated_sutherland:8080/path");
 		assertThat(oidcRfc8414.getHost()).isEqualTo("elated_sutherland");
+	}
+
+	@Test
+	public void issuerWhenAllEndpointsFailedThenExceptionIncludesFailureInformation() {
+		this.issuer = createIssuerFromServer("issuer1");
+		this.server.setDispatcher(new Dispatcher() {
+			@Override
+			public MockResponse dispatch(RecordedRequest request) {
+				int responseCode = switch (request.getPath()) {
+					case "/issuer1/.well-known/openid-configuration" -> 405;
+					case "/.well-known/openid-configuration/issuer1" -> 400;
+					default -> 404;
+				};
+				return new MockResponse().setResponseCode(responseCode);
+			}
+		});
+		String message = """
+				Unable to resolve Configuration with the provided Issuer of "%s", errors: [\
+				405 Client Error on GET request for "%s": [no body], \
+				400 Client Error on GET request for "%s": [no body], \
+				404 Client Error on GET request for "%s": [no body]]\
+				""".formatted(this.issuer, this.server.url("/issuer1/.well-known/openid-configuration"),
+				this.server.url("/.well-known/openid-configuration/issuer1"),
+				this.server.url("/.well-known/oauth-authorization-server/issuer1"));
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> ClientRegistrations.fromIssuerLocation(this.issuer).build())
+			.withMessage(message);
 	}
 
 	private ClientRegistration.Builder registration(String path) throws Exception {
