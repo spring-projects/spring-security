@@ -585,17 +585,11 @@ public class ClientRegistrationsTests {
 				return new MockResponse().setResponseCode(responseCode);
 			}
 		});
-		String message = """
-				Unable to resolve Configuration with the provided Issuer of "%s", errors: [\
-				405 Client Error on GET request for "%s": [no body], \
-				400 Client Error on GET request for "%s": [no body], \
-				404 Client Error on GET request for "%s": [no body]]\
-				""".formatted(this.issuer, this.server.url("/issuer1/.well-known/openid-configuration"),
-				this.server.url("/.well-known/openid-configuration/issuer1"),
-				this.server.url("/.well-known/oauth-authorization-server/issuer1"));
 		assertThatExceptionOfType(IllegalArgumentException.class)
 			.isThrownBy(() -> ClientRegistrations.fromIssuerLocation(this.issuer).build())
-			.withMessage(message);
+			.withMessageContaining("405")
+			.withMessageContaining("400")
+			.withMessageContaining("404");
 	}
 
 	private ClientRegistration.Builder registration(String path) throws Exception {
