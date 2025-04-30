@@ -78,6 +78,8 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 
 	private String rolePrefix = "ROLE_";
 
+	private boolean convertRoleToUpperCase = true;
+
 	private String userSearchBase = ""; // only for search
 
 	private String userSearchFilter = null; // "uid={0}"; // only for search
@@ -164,6 +166,7 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 		defaultAuthoritiesPopulator.setGroupSearchFilter(this.groupSearchFilter);
 		defaultAuthoritiesPopulator.setSearchSubtree(this.groupSearchSubtree);
 		defaultAuthoritiesPopulator.setRolePrefix(this.rolePrefix);
+		defaultAuthoritiesPopulator.setConvertToUpperCase(this.convertRoleToUpperCase);
 		this.ldapAuthoritiesPopulator = postProcess(defaultAuthoritiesPopulator);
 		return defaultAuthoritiesPopulator;
 	}
@@ -322,6 +325,16 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 	 */
 	public LdapAuthenticationProviderConfigurer<B> groupRoleAttribute(String groupRoleAttribute) {
 		this.groupRoleAttribute = groupRoleAttribute;
+		return this;
+	}
+
+	/**
+	 * Should we convert the role name to uppercase. Default is true
+	 * @param convertRoleToUpperCase if role will be converted to upper case
+	 * @return the {@link LdapAuthenticationProviderConfigurer} for further customizations
+	 */
+	public LdapAuthenticationProviderConfigurer<B> convertRoleToUpperCase(boolean convertRoleToUpperCase) {
+		this.convertRoleToUpperCase = convertRoleToUpperCase;
 		return this;
 	}
 
