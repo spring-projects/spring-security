@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -802,42 +802,42 @@ public class StrictServerWebExchangeFirewall implements ServerWebExchangeFirewal
 
 				@Override
 				public Builder method(HttpMethod httpMethod) {
-					return this.delegate.method(httpMethod);
+					return new StrictFirewallBuilder(this.delegate.method(httpMethod));
 				}
 
 				@Override
 				public Builder uri(URI uri) {
-					return this.delegate.uri(uri);
+					return new StrictFirewallBuilder(this.delegate.uri(uri));
 				}
 
 				@Override
 				public Builder path(String path) {
-					return this.delegate.path(path);
+					return new StrictFirewallBuilder(this.delegate.path(path));
 				}
 
 				@Override
 				public Builder contextPath(String contextPath) {
-					return this.delegate.contextPath(contextPath);
+					return new StrictFirewallBuilder(this.delegate.contextPath(contextPath));
 				}
 
 				@Override
 				public Builder header(String headerName, String... headerValues) {
-					return this.delegate.header(headerName, headerValues);
+					return new StrictFirewallBuilder(this.delegate.header(headerName, headerValues));
 				}
 
 				@Override
 				public Builder headers(Consumer<HttpHeaders> headersConsumer) {
-					return this.delegate.headers(headersConsumer);
+					return new StrictFirewallBuilder(this.delegate.headers(headersConsumer));
 				}
 
 				@Override
 				public Builder sslInfo(SslInfo sslInfo) {
-					return this.delegate.sslInfo(sslInfo);
+					return new StrictFirewallBuilder(this.delegate.sslInfo(sslInfo));
 				}
 
 				@Override
 				public Builder remoteAddress(InetSocketAddress remoteAddress) {
-					return this.delegate.remoteAddress(remoteAddress);
+					return new StrictFirewallBuilder(this.delegate.remoteAddress(remoteAddress));
 				}
 
 				@Override
