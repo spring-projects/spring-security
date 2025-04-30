@@ -17,6 +17,7 @@
 package org.springframework.security.ldap.userdetails;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -188,7 +189,7 @@ public class DefaultLdapAuthoritiesPopulatorTests {
 		this.populator.setAuthorityMapper((record) -> {
 			String dn = record.get(SpringSecurityLdapTemplate.DN_KEY).get(0);
 			String role = record.get(this.populator.getGroupRoleAttribute()).get(0);
-			return new LdapAuthority(role, dn);
+			return Collections.singletonList(new LdapAuthority(role, dn));
 		});
 
 		DirContextAdapter ctx = new DirContextAdapter(

@@ -16,14 +16,8 @@
 
 package org.springframework.security.ldap.userdetails;
 
-import java.util.*;
-import java.util.function.Function;
-
-import javax.naming.directory.SearchControls;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.springframework.core.log.LogMessage;
 import org.springframework.ldap.core.ContextSource;
 import org.springframework.ldap.core.DirContextOperations;
@@ -32,7 +26,10 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.ldap.SpringSecurityLdapTemplate;
 import org.springframework.util.Assert;
-import org.springframework.util.CollectionUtils;
+
+import javax.naming.directory.SearchControls;
+import java.util.*;
+import java.util.function.Function;
 
 /**
  * The default strategy for obtaining user role information from the directory.
@@ -165,8 +162,8 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 			logger.info("Will perform group search from the context source base since groupSearchBase is empty.");
 		}
 		this.authorityMapper = (record) -> {
-			List<String> roles = record.getOrDefault(this.groupRoleAttribute, Collections.EMPTY_LIST);
-			return roles.stream().filter(r -> r != null).map(role -> {
+			List<String> roles = record.getOrDefault(this.groupRoleAttribute, Collections.emptyList());
+			return roles.stream().filter(Objects::nonNull).map(role -> {
 				if (this.convertToUpperCase) {
 					return role.toUpperCase(Locale.ROOT);
 				}
