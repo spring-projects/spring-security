@@ -16,13 +16,7 @@
 
 package org.springframework.security.ldap.userdetails;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 
 import javax.naming.directory.SearchControls;
@@ -150,7 +144,7 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 	/**
 	 * The mapping function to be used to populate authorities.
 	 */
-	private Function<Map<String, List<String>>, GrantedAuthority> authorityMapper;
+	private Function<Map<String, List<String>>, List<? extends GrantedAuthority>> authorityMapper;
 
 	/**
 	 * Constructor for group search scenarios. <tt>userRoleAttributes</tt> may still be
@@ -171,18 +165,15 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 			logger.info("Will perform group search from the context source base since groupSearchBase is empty.");
 		}
 		this.authorityMapper = (record) -> {
-			List<String> roles = record.get(this.groupRoleAttribute);
-			if (CollectionUtils.isEmpty(roles)) {
-				return null;
-			}
-			String role = roles.get(0);
-			if (role == null) {
-				return null;
-			}
-			if (this.convertToUpperCase) {
-				role = role.toUpperCase(Locale.ROOT);
-			}
-			return new SimpleGrantedAuthority(this.rolePrefix + role);
+			List<String> roles = record.getOrDefault(this.groupRoleAttribute, Collections.EMPTY_LIST);
+			return roles.stream().filter(r -> r != null).map(role -> {
+				if (this.convertToUpperCase) {
+					return role.toUpperCase(Locale.ROOT);
+				}
+				else {
+					return role;
+				}
+			}).map(role -> new SimpleGrantedAuthority(this.rolePrefix + role)).toList();
 		};
 	}
 
@@ -234,10 +225,7 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 				new String[] { this.groupRoleAttribute });
 		logger.debug(LogMessage.of(() -> "Found roles from search " + userRoles));
 		for (Map<String, List<String>> role : userRoles) {
-			GrantedAuthority authority = this.authorityMapper.apply(role);
-			if (authority != null) {
-				authorities.add(authority);
-			}
+			authorities.addAll(this.authorityMapper.apply(role));
 		}
 		return authorities;
 	}
@@ -311,7 +299,8 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 	 * {@link GrantedAuthority} given the context record.
 	 * @param authorityMapper the mapping function
 	 */
-	public void setAuthorityMapper(Function<Map<String, List<String>>, GrantedAuthority> authorityMapper) {
+	public void setAuthorityMapper(
+			Function<Map<String, List<String>>, List<? extends GrantedAuthority>> authorityMapper) {
 		Assert.notNull(authorityMapper, "authorityMapper must not be null");
 		this.authorityMapper = authorityMapper;
 	}
