@@ -67,8 +67,8 @@ public class CsrfTokenRequestAttributeHandler implements CsrfTokenRequestHandler
 				: csrfToken.getParameterName();
 		request.setAttribute(csrfAttrName, csrfToken);
 
-		logger.trace(LogMessage.format("CSRF token written to request attributes: %s, %s", CsrfToken.class.getName(),
-				csrfAttrName));
+		logger.trace(LogMessage.format("Wrote a CSRF token to the following request attributes: [%s, %s]", csrfAttrName,
+				CsrfToken.class.getName()));
 	}
 
 	@SuppressWarnings("serial")

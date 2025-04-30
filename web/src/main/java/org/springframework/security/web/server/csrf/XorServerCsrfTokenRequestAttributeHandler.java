@@ -63,19 +63,13 @@ public final class XorServerCsrfTokenRequestAttributeHandler extends ServerCsrfT
 					createXoredCsrfToken(this.secureRandom, token.getToken())))
 			.cast(CsrfToken.class)
 			.cache();
-		logger.trace(LogMessage.format("XOR CSRF token created and will be written to exchange attributes"));
 		super.handle(exchange, updatedCsrfToken);
 	}
 
 	@Override
 	public Mono<String> resolveCsrfTokenValue(ServerWebExchange exchange, CsrfToken csrfToken) {
 		return super.resolveCsrfTokenValue(exchange, csrfToken)
-			.flatMap((actualToken) -> Mono.justOrEmpty(getTokenValue(actualToken, csrfToken.getToken())))
-			.doOnNext(tokenValue -> {
-				if (tokenValue != null) {
-					logger.trace(LogMessage.format("CSRF token successfully validated"));
-				}
-			});
+			.flatMap((actualToken) -> Mono.justOrEmpty(getTokenValue(actualToken, csrfToken.getToken())));
 	}
 
 	private static String getTokenValue(String actualToken, String token) {

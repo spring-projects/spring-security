@@ -19,8 +19,6 @@ package org.springframework.security.web.csrf;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.function.Supplier;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.core.log.LogMessage;
 import org.springframework.util.Assert;
 
@@ -38,8 +36,6 @@ import org.springframework.util.Assert;
 @FunctionalInterface
 public interface CsrfTokenRequestHandler extends CsrfTokenRequestResolver {
 
-	Log logger = LogFactory.getLog(CsrfTokenRequestHandler.class);
-
 	/**
 	 * Handles a request using a {@link CsrfToken}.
 	 * @param request the {@code HttpServletRequest} being handled
@@ -53,17 +49,20 @@ public interface CsrfTokenRequestHandler extends CsrfTokenRequestResolver {
 		Assert.notNull(request, "request cannot be null");
 		Assert.notNull(csrfToken, "csrfToken cannot be null");
 		String actualToken = request.getHeader(csrfToken.getHeaderName());
-		if (actualToken == null) {
-			actualToken = request.getParameter(csrfToken.getParameterName());
-			if (actualToken != null) {
-				logger.trace(
-						LogMessage.format("CSRF token found in request parameter: %s", csrfToken.getParameterName()));
-			}
+		if (actualToken != null) {
+			return actualToken;
 		}
-		else {
-			logger.trace(LogMessage.format("CSRF token found in request header: %s", csrfToken.getHeaderName()));
+		CsrfTokenRequestHandlerLoggerHolder.logger.trace(
+				LogMessage.format("Did not find a CSRF token in the [%s] request header", csrfToken.getHeaderName()));
+
+		actualToken = request.getParameter(csrfToken.getParameterName());
+		if (actualToken != null) {
+			return actualToken;
 		}
-		return actualToken;
+		CsrfTokenRequestHandlerLoggerHolder.logger.trace(LogMessage
+			.format("Did not find a CSRF token in the [%s] request parameter", csrfToken.getParameterName()));
+
+		return null;
 	}
 
 }

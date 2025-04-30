@@ -59,7 +59,6 @@ public final class XorCsrfTokenRequestAttributeHandler extends CsrfTokenRequestA
 		Assert.notNull(response, "response cannot be null");
 		Assert.notNull(deferredCsrfToken, "deferredCsrfToken cannot be null");
 		Supplier<CsrfToken> updatedCsrfToken = deferCsrfTokenUpdate(deferredCsrfToken);
-		logger.trace(LogMessage.format("XOR CSRF token created and will be written to request attributes"));
 		super.handle(request, response, updatedCsrfToken);
 	}
 
@@ -76,16 +75,10 @@ public final class XorCsrfTokenRequestAttributeHandler extends CsrfTokenRequestA
 	public String resolveCsrfTokenValue(HttpServletRequest request, CsrfToken csrfToken) {
 		String actualToken = super.resolveCsrfTokenValue(request, csrfToken);
 		if (actualToken == null) {
-			logger.trace(LogMessage.format("No CSRF token value found in request"));
 			return null;
 		}
 		String tokenValue = getTokenValue(actualToken, csrfToken.getToken());
-		if (tokenValue == null) {
-			logger.trace(LogMessage.format("CSRF token validation failed"));
-		}
-		else {
-			logger.trace(LogMessage.format("CSRF token successfully validated"));
-		}
+
 		return tokenValue;
 	}
 
@@ -95,14 +88,16 @@ public final class XorCsrfTokenRequestAttributeHandler extends CsrfTokenRequestA
 			actualBytes = Base64.getUrlDecoder().decode(actualToken);
 		}
 		catch (Exception ex) {
-			logger.trace(LogMessage.format("Failed to find CSRF token since Base64 decoding failed"), ex);
+			logger.trace(LogMessage.format("Not returning the CSRF token since it's not Base64-encoded"), ex);
 			return null;
 		}
 
 		byte[] tokenBytes = Utf8.encode(token);
 		int tokenSize = tokenBytes.length;
 		if (actualBytes.length != tokenSize * 2) {
-			logger.trace(LogMessage.format("Failed to validate CSRF token since token length is invalid"));
+			logger.trace(LogMessage.format(
+					"Not returning the CSRF token since its Base64-decoded length (%d) is not equal to (%d)",
+					actualBytes.length, tokenSize * 2));
 			return null;
 		}
 
