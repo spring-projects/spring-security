@@ -3668,6 +3668,7 @@
             <xs:restriction base="xs:token">
                <xs:enumeration value="unsafe-none"/>
                <xs:enumeration value="require-corp"/>
+               <xs:enumeration value="credentialless"/>
             </xs:restriction>
          </xs:simpleType>
       </xs:attribute>
