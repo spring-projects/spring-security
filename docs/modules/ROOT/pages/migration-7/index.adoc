@@ -7,3 +7,12 @@ While Spring Security 7.0 does not have a release date yet, it is important to s
 This preparation guide is designed to summarize the biggest changes in Spring Security 7.0 and provide steps to prepare for them.
 
 It is important to keep your application up to date with the latest Spring Security 6 and Spring Boot 3 releases.
+
+[WARNING]
+====
+Spring Security does not support HTTP-Redirect binding for SAML 2.0 Responses.
+
+According to the SAML specification, the HTTP-Redirect binding is not permitted for SAML Responses due to URL length and signature limitations. Attempting to use this binding may result in unexpected errors.
+
+Use HTTP-POST binding instead when configuring your identity provider.
+====
