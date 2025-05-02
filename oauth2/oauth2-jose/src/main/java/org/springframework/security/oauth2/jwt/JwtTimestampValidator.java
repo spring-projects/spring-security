@@ -52,6 +52,8 @@ public final class JwtTimestampValidator implements OAuth2TokenValidator<Jwt> {
 
 	private static final Duration DEFAULT_MAX_CLOCK_SKEW = Duration.of(60, ChronoUnit.SECONDS);
 
+	private final boolean required;
+
 	private final Duration clockSkew;
 
 	private Clock clock = Clock.systemUTC();
@@ -60,11 +62,20 @@ public final class JwtTimestampValidator implements OAuth2TokenValidator<Jwt> {
 	 * A basic instance with no custom verification and the default max clock skew
 	 */
 	public JwtTimestampValidator() {
-		this(DEFAULT_MAX_CLOCK_SKEW);
+		this(DEFAULT_MAX_CLOCK_SKEW, false);
+	}
+
+	public JwtTimestampValidator(boolean required) {
+		this(DEFAULT_MAX_CLOCK_SKEW, required);
 	}
 
 	public JwtTimestampValidator(Duration clockSkew) {
+		this(clockSkew, false);
+	}
+
+	public JwtTimestampValidator(Duration clockSkew, boolean required) {
 		Assert.notNull(clockSkew, "clockSkew cannot be null");
+		this.required = required;
 		this.clockSkew = clockSkew;
 	}
 
@@ -72,13 +83,17 @@ public final class JwtTimestampValidator implements OAuth2TokenValidator<Jwt> {
 	public OAuth2TokenValidatorResult validate(Jwt jwt) {
 		Assert.notNull(jwt, "jwt cannot be null");
 		Instant expiry = jwt.getExpiresAt();
+		Instant notBefore = jwt.getNotBefore();
+		if (this.required && !(expiry != null || notBefore != null)) {
+			OAuth2Error oAuth2Error = createOAuth2Error("exp and nbf are required");
+			return OAuth2TokenValidatorResult.failure(oAuth2Error);
+		}
 		if (expiry != null) {
 			if (Instant.now(this.clock).minus(this.clockSkew).isAfter(expiry)) {
 				OAuth2Error oAuth2Error = createOAuth2Error(String.format("Jwt expired at %s", jwt.getExpiresAt()));
 				return OAuth2TokenValidatorResult.failure(oAuth2Error);
 			}
 		}
-		Instant notBefore = jwt.getNotBefore();
 		if (notBefore != null) {
 			if (Instant.now(this.clock).plus(this.clockSkew).isBefore(notBefore)) {
 				OAuth2Error oAuth2Error = createOAuth2Error(String.format("Jwt used before %s", jwt.getNotBefore()));

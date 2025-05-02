@@ -33,18 +33,29 @@ public final class JwtAudienceValidator implements OAuth2TokenValidator<Jwt> {
 	private final JwtClaimValidator<Collection<String>> validator;
 
 	/**
-	 * Constructs a {@link JwtAudienceValidator} using the provided parameters
+	 * Constructs a {@link JwtAudienceValidator} using the provided parameters with
+	 * {@link JwtClaimNames#ISS "iss"} claim is REQUIRED
 	 * @param audience - The audience that each {@link Jwt} should have.
 	 */
 	public JwtAudienceValidator(String audience) {
+		this(audience, true);
+	}
+
+	/**
+	 * Constructs a {@link JwtIssuerValidator} using the provided parameters
+	 * @param audience - The audience that each {@link Jwt} should have.
+	 * @param required -{@code true} if the {@link JwtClaimNames#AUD "aud"} claim is
+	 * REQUIRED in the {@link Jwt}, {@code false} otherwise
+	 */
+	public JwtAudienceValidator(String audience, boolean required) {
 		Assert.notNull(audience, "audience cannot be null");
 		this.validator = new JwtClaimValidator<>(JwtClaimNames.AUD,
-				(claimValue) -> (claimValue != null) && claimValue.contains(audience));
+				(claimValue) -> (claimValue != null) ? claimValue.contains(audience) : !required);
 	}
 
 	@Override
 	public OAuth2TokenValidatorResult validate(Jwt token) {
-		Assert.notNull(token, "token cannot be null");
+		Assert.notNull(token, "jwt cannot be null");
 		return this.validator.validate(token);
 	}
 

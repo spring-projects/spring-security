@@ -16,8 +16,6 @@
 
 package org.springframework.security.oauth2.jwt;
 
-import java.util.function.Predicate;
-
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 import org.springframework.util.Assert;
@@ -33,19 +31,29 @@ public final class JwtIssuerValidator implements OAuth2TokenValidator<Jwt> {
 	private final JwtClaimValidator<Object> validator;
 
 	/**
-	 * Constructs a {@link JwtIssuerValidator} using the provided parameters
+	 * Constructs a {@link JwtIssuerValidator} using the provided parameters with
+	 * {@link JwtClaimNames#ISS "iss"} claim is REQUIRED
 	 * @param issuer - The issuer that each {@link Jwt} should have.
 	 */
 	public JwtIssuerValidator(String issuer) {
-		Assert.notNull(issuer, "issuer cannot be null");
+		this(issuer, true);
+	}
 
-		Predicate<Object> testClaimValue = (claimValue) -> (claimValue != null) && issuer.equals(claimValue.toString());
-		this.validator = new JwtClaimValidator<>(JwtClaimNames.ISS, testClaimValue);
+	/**
+	 * Constructs a {@link JwtIssuerValidator} using the provided parameters
+	 * @param issuer - The issuer that each {@link Jwt} should have.
+	 * @param required -{@code true} if the {@link JwtClaimNames#ISS "iss"} claim is
+	 * REQUIRED in the {@link Jwt}, {@code false} otherwise
+	 */
+	public JwtIssuerValidator(String issuer, boolean required) {
+		Assert.notNull(issuer, "issuer cannot be null");
+		this.validator = new JwtClaimValidator<>(JwtClaimNames.ISS,
+				(claimValue) -> (claimValue != null) ? issuer.equals(claimValue.toString()) : !required);
 	}
 
 	@Override
 	public OAuth2TokenValidatorResult validate(Jwt token) {
-		Assert.notNull(token, "token cannot be null");
+		Assert.notNull(token, "jwt cannot be null");
 		return this.validator.validate(token);
 	}
 
