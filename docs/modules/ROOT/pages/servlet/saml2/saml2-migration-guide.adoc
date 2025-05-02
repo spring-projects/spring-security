@@ -1,0 +1,72 @@
+NOTE: This document is a work in progress. Please check back regularly for updates.
+
+This document contains guidance for moving SAML 2.0 Service Providers from Spring Security SAML Extensions 1.x to Spring Security 5.7.x. Since Spring Security doesn’t provide Identity Provider support, migrating a Spring Security SAML Extensions Identity Provider is out of scope for this document.
+
+Because the two approaches are as different as they are, this document will tend to cover patterns more than precise search-and-replace steps.
+
+[[saml2-login-logout]]
+== Login & Logout
+
+=== Changes In Approach
+
+https://github.com/spring-projects/spring-security[Spring Security] takes a slightly different approach from https://github.com/spring-projects/spring-security-saml[Spring Security SAML Extensions] in a few notable ways.
+
+==== Simplified Enablement
+
+Spring Security SAML Extensions support for Service Providers is provided by a series of filters enabled by adding each filter manually in the correct order to various Spring Security filter chains.
+
+Spring Security’s SAML 2.0 Service Provider support is enabled via the Spring Security `saml2Login` and `saml2Logout` DSL methods. It selects the correct filters to add and puts them in the appropriate places in the filter chain.
+
+==== Stronger Encapsulation
+
+Like Spring Security SAML Extensions, Spring Security bases it’s SAML support on OpenSAML. The Extensions project exposes OpenSAML over public interfaces, blurring the lines between the two projects, effectively requiring OpenSAML, and making upgrades to later versions of OpenSAML more complicated.
+
+Spring Security provides stronger encapsulation. No public interfaces expose OpenSAML components and any class that exposes OpenSAML in its public API is named with an `OpenSaml` prefix for additional clarity.
+
+==== Out-of-the-box Multitenancy
+
+Spring Security SAML Extensions offered some lightweight support for declaring more than one Identity Provider and accessing it at login time using the `idp` request parameter. This was limiting as far as changing things at runtime was concerned and also doesn’t allow for a many-to-many relationship between relying and asserting parties.
+
+Spring Security builds SAML 2.0 multitenancy into its default URLs and basic components in the form of a `RelyingPartyRegistration`. This component acts as a link between a Relying Party’s metadata and an Asserting Party’s metadata, and all pairs are available for lookup in a `RelyingPartyRegistrationRepository`. Each URL represents a unique registration pair to be retrieved.
+
+Whether it’s AuthnRequests, Responses, LogoutRequests, LogoutResponses, or EntityDescriptors, each filter is based off of `RelyingPartyRegistrationRepository` and so is fundamentally multi-tenant.
+
+=== Examples Matrix
+
+Both Spring Security and Spring Security SAML Extensions have examples for how to configure the Service Provider:
+
+[options="header"]
+|===
+| Use case | Spring Security | Spring Security SAML Extension
+
+| Login & Logout | https://github.com/spring-projects/spring-security-samples/tree/main/servlet/spring-boot/java/saml2/login[Sample] |
+https://github.com/jzheaux/spring-security-saml-migrate/tree/main/login-logout[Sample]
+| Login using SAML Extension URLs | https://github.com/spring-projects/spring-security-samples/tree/main/servlet/spring-boot/java/saml2/custom-urls[Sample] | -
+|===
+
+You can also see a showcase example in https://github.com/spring-projects/spring-security-saml/tree/main/sample[Spring Security SAML Extension]'s GitHub project.
+
+
+[NOTE]
+====
+Spring Security does not support HTTP-Redirect binding for SAML 2.0 Responses.
+According to the SAML specification, the HTTP-Redirect binding is not permitted for SAML Responses due to URL length and signature limitations. Attempting to use this binding may result in unexpected errors.
+Use HTTP-POST binding instead when configuring your identity provider.
+====
+
+[[saml2-metadata]]
+== Metadata
+
+Support for metadata is currently quite simple. Additions to its functionality are under consideration.
+
+`RelyingPartyRegistrations` builds off of the existing multitenancy support and can derive multiple ``RelyingPartyRegistration``s from a single EntityDescriptor endpoint. These can then be paired with locally-configured relying party information as needed.
+
+For applications that require Spring Security SAML Extension’s refreshable metadata feature, please see https://github.com/spring-projects/spring-security-samples/tree/main/servlet/spring-boot/java/saml2/refreshable-metadata[the associated Spring Security sample] for how to add.
+
+[[saml2-unported]]
+== Unported Features
+
+There are some features that are not yet ported over and there are as yet no plans to do so:
+
+* HTTP-Redirect binding for SAML 2.0 Responses
+* Artifact binding support
