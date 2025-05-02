@@ -24,6 +24,7 @@ import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
+import org.springframework.security.http.MediaTypes;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 
@@ -40,9 +41,6 @@ import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
  */
 public final class DefaultOAuth2TokenRequestHeadersConverter<T extends AbstractOAuth2AuthorizationGrantRequest>
 		implements Converter<T, HttpHeaders> {
-
-	private static final MediaType APPLICATION_JSON_UTF8 = new MediaType(MediaType.APPLICATION_JSON,
-			StandardCharsets.UTF_8);
 
 	private static final MediaType APPLICATION_FORM_URLENCODED_UTF8 = new MediaType(
 			MediaType.APPLICATION_FORM_URLENCODED, StandardCharsets.UTF_8);
@@ -101,7 +99,7 @@ public final class DefaultOAuth2TokenRequestHeadersConverter<T extends AbstractO
 	 */
 	static <T extends AbstractOAuth2AuthorizationGrantRequest> DefaultOAuth2TokenRequestHeadersConverter<T> withCharsetUtf8() {
 		DefaultOAuth2TokenRequestHeadersConverter<T> converter = new DefaultOAuth2TokenRequestHeadersConverter<>();
-		converter.accept = List.of(APPLICATION_JSON_UTF8);
+		converter.accept = List.of(MediaTypes.APPLICATION_JSON_UTF8);
 		converter.contentType = APPLICATION_FORM_URLENCODED_UTF8;
 		return converter;
 	}
