@@ -259,7 +259,7 @@ Java::
 +
 [source,java,role="primary"]
 ----
-HeaderWriterLogoutHandler clearSiteData = new HeaderWriterLogoutHandler(new ClearSiteDataHeaderWriter());
+HeaderWriterLogoutHandler clearSiteData = new HeaderWriterLogoutHandler(new ClearSiteDataHeaderWriter(Directives.ALL));
 http
     .logout((logout) -> logout.addLogoutHandler(clearSiteData))
 ----
@@ -268,7 +268,7 @@ Kotlin::
 +
 [source,kotlin,role="secondary"]
 ----
-val clearSiteData = HeaderWriterLogoutHandler(ClearSiteDataHeaderWriter())
+val clearSiteData = HeaderWriterLogoutHandler(ClearSiteDataHeaderWriter(Directives.ALL))
 http {
     logout {
         addLogoutHandler(clearSiteData)
