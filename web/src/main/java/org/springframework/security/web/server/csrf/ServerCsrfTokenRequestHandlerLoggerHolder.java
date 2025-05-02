@@ -21,11 +21,12 @@ import org.apache.commons.logging.LogFactory;
 
 /**
  * Utility class for holding the logger for {@link ServerCsrfTokenRequestHandler}
- *
- * @since 5.8
  */
-class ServerCsrfTokenRequestHandlerLoggerHolder {
+final class ServerCsrfTokenRequestHandlerLoggerHolder {
 
 	static final Log logger = LogFactory.getLog(ServerCsrfTokenRequestHandler.class);
+
+	private ServerCsrfTokenRequestHandlerLoggerHolder() {
+	}
 
 }

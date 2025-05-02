@@ -16,9 +16,11 @@
 
 package org.springframework.security.web.csrf;
 
+import java.util.function.Supplier;
+
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.util.function.Supplier;
+
 import org.springframework.core.log.LogMessage;
 import org.springframework.util.Assert;
 

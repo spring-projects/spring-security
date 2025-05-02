@@ -21,9 +21,9 @@ import java.util.Base64;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.core.log.LogMessage;
 import reactor.core.publisher.Mono;
 
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.crypto.codec.Utf8;
 import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
@@ -78,14 +78,16 @@ public final class XorServerCsrfTokenRequestAttributeHandler extends ServerCsrfT
 			actualBytes = Base64.getUrlDecoder().decode(actualToken);
 		}
 		catch (Exception ex) {
-			logger.trace(LogMessage.format("Failed to find CSRF token since Base64 decoding failed"), ex);
+			logger.trace(LogMessage.format("Not returning the CSRF token since it's not Base64-encoded"), ex);
 			return null;
 		}
 
 		byte[] tokenBytes = Utf8.encode(token);
 		int tokenSize = tokenBytes.length;
 		if (actualBytes.length != tokenSize * 2) {
-			logger.trace(LogMessage.format("Failed to validate CSRF token since token length is invalid"));
+			logger.trace(LogMessage.format(
+					"Not returning the CSRF token since its Base64-decoded length (%d) is not equal to (%d)",
+					actualBytes.length, tokenSize * 2));
 			return null;
 		}
 

@@ -16,9 +16,9 @@
 
 package org.springframework.security.web.server.csrf;
 
-import org.springframework.core.log.LogMessage;
 import reactor.core.publisher.Mono;
 
+import org.springframework.core.log.LogMessage;
 import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
 
@@ -47,21 +47,25 @@ public interface ServerCsrfTokenRequestHandler extends ServerCsrfTokenRequestRes
 	default Mono<String> resolveCsrfTokenValue(ServerWebExchange exchange, CsrfToken csrfToken) {
 		Assert.notNull(exchange, "exchange cannot be null");
 		Assert.notNull(csrfToken, "csrfToken cannot be null");
+
+		String headerName = csrfToken.getHeaderName();
+		String parameterName = csrfToken.getParameterName();
+
 		return exchange.getFormData().flatMap((data) -> {
-			String token = data.getFirst(csrfToken.getParameterName());
+			String token = data.getFirst(parameterName);
 			if (token != null) {
 				return Mono.just(token);
 			}
-			ServerCsrfTokenRequestHandlerLoggerHolder.logger.trace(LogMessage
-				.format("Did not find a CSRF token in the [%s] request parameter", csrfToken.getParameterName()));
+			ServerCsrfTokenRequestHandlerLoggerHolder.logger
+				.trace(LogMessage.format("Did not find a CSRF token in the [%s] request parameter", parameterName));
 			return Mono.empty();
 		}).switchIfEmpty(Mono.defer(() -> {
-			String token = exchange.getRequest().getHeaders().getFirst(csrfToken.getHeaderName());
+			String token = exchange.getRequest().getHeaders().getFirst(headerName);
 			if (token != null) {
 				return Mono.just(token);
 			}
-			ServerCsrfTokenRequestHandlerLoggerHolder.logger.trace(LogMessage
-				.format("Did not find a CSRF token in the [%s] request header", csrfToken.getHeaderName()));
+			ServerCsrfTokenRequestHandlerLoggerHolder.logger
+				.trace(LogMessage.format("Did not find a CSRF token in the [%s] request header", headerName));
 			return Mono.empty();
 		}));
 	}

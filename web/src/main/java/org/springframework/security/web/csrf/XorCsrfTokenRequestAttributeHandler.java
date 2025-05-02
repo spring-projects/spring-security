@@ -16,13 +16,15 @@
 
 package org.springframework.security.web.csrf;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import java.security.SecureRandom;
 import java.util.Base64;
 import java.util.function.Supplier;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.springframework.core.log.LogMessage;
 import org.springframework.security.crypto.codec.Utf8;
 import org.springframework.util.Assert;
@@ -77,9 +79,7 @@ public final class XorCsrfTokenRequestAttributeHandler extends CsrfTokenRequestA
 		if (actualToken == null) {
 			return null;
 		}
-		String tokenValue = getTokenValue(actualToken, csrfToken.getToken());
-
-		return tokenValue;
+		return getTokenValue(actualToken, csrfToken.getToken());
 	}
 
 	private static String getTokenValue(String actualToken, String token) {

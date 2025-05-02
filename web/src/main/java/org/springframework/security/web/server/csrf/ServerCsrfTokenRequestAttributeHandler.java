@@ -18,9 +18,9 @@ package org.springframework.security.web.server.csrf;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.core.log.LogMessage;
 import reactor.core.publisher.Mono;
 
+import org.springframework.core.log.LogMessage;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.FormFieldPart;
@@ -48,8 +48,7 @@ public class ServerCsrfTokenRequestAttributeHandler implements ServerCsrfTokenRe
 		Assert.notNull(exchange, "exchange cannot be null");
 		Assert.notNull(csrfToken, "csrfToken cannot be null");
 		exchange.getAttributes().put(CsrfToken.class.getName(), csrfToken);
-		logger.trace(LogMessage.format("Wrote a CSRF token to the following exchange attributes: [%s]",
-				CsrfToken.class.getName()));
+		logger.trace(LogMessage.format("Wrote a CSRF token to the [%s] exchange attribute", CsrfToken.class.getName()));
 	}
 
 	@Override
