@@ -87,16 +87,6 @@ updates:
           - version-update:semver-major
 
   - package-ecosystem: github-actions
-    target-branch: 6.4.x
-    directory: /
-    schedule:
-      interval: weekly
-    labels:
-      - 'type: task'
-      - 'in: build'
-    ignore:
-      - dependency-name: sjohnr/*
-  - package-ecosystem: github-actions
     target-branch: 6.3.x
     directory: /
     schedule:
@@ -106,14 +96,6 @@ updates:
       - 'in: build'
     ignore:
       - dependency-name: sjohnr/*
-  - package-ecosystem: github-actions
-    target-branch: main
-    directory: /
-    schedule:
-      interval: weekly
-    labels:
-      - 'type: task'
-      - 'in: build'
   - package-ecosystem: github-actions
     target-branch: docs-build
     directory: /
