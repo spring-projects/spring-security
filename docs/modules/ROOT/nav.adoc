@@ -89,6 +89,7 @@
 **** xref:servlet/saml2/login/authentication.adoc[SAML2 Authentication Responses]
 *** xref:servlet/saml2/logout.adoc[SAML2 Logout]
 *** xref:servlet/saml2/metadata.adoc[SAML2 Metadata]
+*** xref:saml2/saml2-migration-guide.adoc[SAML 2.0 Migration Guide]
 ** xref:servlet/exploits/index.adoc[Protection Against Exploits]
 *** xref:servlet/exploits/csrf.adoc[]
 *** xref:servlet/exploits/headers.adoc[]
