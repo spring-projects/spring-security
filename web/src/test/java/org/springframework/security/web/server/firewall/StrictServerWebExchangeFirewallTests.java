@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -530,6 +530,19 @@ class StrictServerWebExchangeFirewallTests {
 		this.firewall.setAllowedHeaderNames((name) -> !name.equals(invalidHeaderName));
 		ServerWebExchange exchange = getFirewalledExchange();
 		HttpHeaders headers = exchange.getRequest().mutate().build().getHeaders();
+		assertThatExceptionOfType(ServerExchangeRejectedException.class)
+			.isThrownBy(() -> headers.get(invalidHeaderName));
+	}
+
+	// gh-16978
+	@Test
+	void getMutatedFirewalledExchangeHeadersGetHeaderWhenNotAllowedHeaderNameThenException() {
+		String invalidHeaderName = "bad name";
+		this.firewall.setAllowedHeaderNames((name) -> !name.equals(invalidHeaderName));
+		ServerWebExchange exchange = getFirewalledExchange();
+		var mutatedRequest = exchange.getRequest().mutate().method(HttpMethod.POST).build();
+		var mutatedExchange = exchange.mutate().request(mutatedRequest).build();
+		HttpHeaders headers = mutatedExchange.getRequest().getHeaders();
 		assertThatExceptionOfType(ServerExchangeRejectedException.class)
 			.isThrownBy(() -> headers.get(invalidHeaderName));
 	}
