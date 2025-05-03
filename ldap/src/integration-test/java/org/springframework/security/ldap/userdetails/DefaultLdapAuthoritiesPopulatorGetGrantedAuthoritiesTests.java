@@ -53,10 +53,11 @@ public class DefaultLdapAuthoritiesPopulatorGetGrantedAuthoritiesTests {
 	@BeforeEach
 	public void setUp() {
 		this.populator = new DefaultLdapAuthoritiesPopulator(this.contextSource, "ou=groups");
-		this.populator.setIgnorePartialResultException(false);
+		// this.populator.setIgnorePartialResultException(false);
 	}
 
 	@Test
+	// fix me this is broken with the LdapClient
 	public void groupSearchDoesNotAllowNullRoles() {
 		this.populator.setRolePrefix("ROLE_");
 		this.populator.setGroupRoleAttribute("ou");
