@@ -44,6 +44,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import jakarta.servlet.http.Cookie;
@@ -68,6 +69,7 @@ import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.AuthorizationServiceException;
 import org.springframework.security.access.SecurityConfig;
+import org.springframework.security.access.hierarchicalroles.CycleInRoleHierarchyException;
 import org.springframework.security.access.intercept.RunAsUserToken;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.AccountExpiredException;
@@ -106,9 +108,12 @@ import org.springframework.security.authentication.password.CompromisedPasswordE
 import org.springframework.security.authorization.AuthorityAuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.security.authorization.event.AuthorizationEvent;
+import org.springframework.security.authorization.event.AuthorizationGrantedEvent;
 import org.springframework.security.cas.authentication.CasAssertionAuthenticationToken;
 import org.springframework.security.cas.authentication.CasAuthenticationToken;
 import org.springframework.security.cas.authentication.CasServiceTicketAuthenticationToken;
+import org.springframework.security.config.annotation.AlreadyBuiltException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.SpringSecurityCoreVersion;
@@ -195,8 +200,10 @@ import org.springframework.security.saml2.provider.service.authentication.Saml2P
 import org.springframework.security.saml2.provider.service.authentication.Saml2RedirectAuthenticationRequest;
 import org.springframework.security.saml2.provider.service.authentication.TestSaml2AuthenticationTokens;
 import org.springframework.security.saml2.provider.service.authentication.TestSaml2Authentications;
+import org.springframework.security.saml2.provider.service.authentication.TestSaml2LogoutRequests;
 import org.springframework.security.saml2.provider.service.authentication.TestSaml2PostAuthenticationRequests;
 import org.springframework.security.saml2.provider.service.authentication.TestSaml2RedirectAuthenticationRequests;
+import org.springframework.security.saml2.provider.service.authentication.logout.Saml2LogoutRequest;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration.AssertingPartyDetails;
 import org.springframework.security.saml2.provider.service.registration.TestRelyingPartyRegistrations;
@@ -220,6 +227,7 @@ import org.springframework.security.web.savedrequest.DefaultSavedRequest;
 import org.springframework.security.web.savedrequest.SimpleSavedRequest;
 import org.springframework.security.web.server.firewall.ServerExchangeRejectedException;
 import org.springframework.security.web.session.HttpSessionCreatedEvent;
+import org.springframework.security.web.session.HttpSessionIdChangedEvent;
 import org.springframework.security.web.webauthn.api.AuthenticationExtensionsClientInputs;
 import org.springframework.security.web.webauthn.api.AuthenticationExtensionsClientOutputs;
 import org.springframework.security.web.webauthn.api.AuthenticatorAssertionResponse;
@@ -268,6 +276,8 @@ import static org.assertj.core.api.Assertions.fail;
 class SpringSecurityCoreVersionSerializableTests {
 
 	private static final Map<Class<?>, Generator<?>> generatorByClassName = new HashMap<>();
+
+	private static final Map<Class<?>, Supplier<InstancioApi<?>>> instancioByClassName = new HashMap<>();
 
 	static final long securitySerialVersionUid = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 
@@ -402,6 +412,9 @@ class SpringSecurityCoreVersionSerializableTests {
 		generatorByClassName.put(OAuth2IntrospectionException.class,
 				(r) -> new OAuth2IntrospectionException("message", new RuntimeException()));
 
+		// config
+		generatorByClassName.put(AlreadyBuiltException.class, (r) -> new AlreadyBuiltException("message"));
+
 		// core
 		generatorByClassName.put(RunAsUserToken.class, (r) -> {
 			RunAsUserToken token = new RunAsUserToken("key", user, "creds", user.getAuthorities(),
@@ -493,6 +506,20 @@ class SpringSecurityCoreVersionSerializableTests {
 		generatorByClassName.put(AuthorizationDecision.class, (r) -> new AuthorizationDecision(true));
 		generatorByClassName.put(AuthorityAuthorizationDecision.class,
 				(r) -> new AuthorityAuthorizationDecision(true, AuthorityUtils.createAuthorityList("ROLE_USER")));
+		generatorByClassName.put(CycleInRoleHierarchyException.class, (r) -> new CycleInRoleHierarchyException());
+		generatorByClassName.put(AuthorizationEvent.class,
+				(r) -> new AuthorizationEvent(new SerializableSupplier<>(authentication), "source",
+						new AuthorizationDecision(true)));
+		generatorByClassName.put(AuthorizationGrantedEvent.class,
+				(r) -> new AuthorizationGrantedEvent<>(new SerializableSupplier<>(authentication), "source",
+						new AuthorizationDecision(true)));
+		instancioByClassName.put(AuthorizationGrantedEvent.class, () -> {
+			InstancioOfClassApi<?> instancio = Instancio.of(AuthorizationGrantedEvent.class);
+			instancio.withTypeParameters(String.class);
+			instancio.supply(Select.all(AuthorizationGrantedEvent.class),
+					generatorByClassName.get(AuthorizationGrantedEvent.class));
+			return instancio;
+		});
 
 		// cas
 		generatorByClassName.put(CasServiceTicketAuthenticationToken.class, (r) -> {
@@ -546,6 +573,7 @@ class SpringSecurityCoreVersionSerializableTests {
 			token.setDetails(details);
 			return token;
 		});
+		generatorByClassName.put(Saml2LogoutRequest.class, (r) -> TestSaml2LogoutRequests.create());
 
 		// web
 		generatorByClassName.put(AnonymousAuthenticationToken.class, (r) -> {
@@ -601,6 +629,9 @@ class SpringSecurityCoreVersionSerializableTests {
 			request.addPreferredLocale(Locale.ENGLISH);
 			return new SimpleSavedRequest(new DefaultSavedRequest(request, new PortResolverImpl(), "continue"));
 		});
+
+		generatorByClassName.put(HttpSessionIdChangedEvent.class,
+				(r) -> new HttpSessionIdChangedEvent(new MockHttpSession(), "1"));
 
 		// webauthn
 		CredProtectAuthenticationExtensionsClientInput.CredProtect credProtect = new CredProtectAuthenticationExtensionsClientInput.CredProtect(
@@ -669,6 +700,9 @@ class SpringSecurityCoreVersionSerializableTests {
 			return webAuthnAuthentication;
 		});
 		// @formatter:on
+
+		generatorByClassName.put(CredentialPropertiesOutput.ExtensionOutput.class,
+				(r) -> new CredentialPropertiesOutput(true).getOutput());
 
 		// One-Time Token
 		DefaultOneTimeToken oneTimeToken = new DefaultOneTimeToken(UUID.randomUUID().toString(), "user",
@@ -742,7 +776,28 @@ class SpringSecurityCoreVersionSerializableTests {
 	}
 
 	@ParameterizedTest
-	@MethodSource("getFilesToDeserialize")
+	@MethodSource("getCurrentSerializedFiles")
+	void shouldBeAbleToDeserializeClassFromCurrentVersion(Path filePath) {
+		try (FileInputStream fileInputStream = new FileInputStream(filePath.toFile());
+				ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream)) {
+			Object obj = objectInputStream.readObject();
+			Class<?> clazz = Class.forName(filePath.getFileName().toString().replace(".serialized", ""));
+			assertThat(obj).isInstanceOf(clazz);
+		}
+		catch (IOException | ClassNotFoundException ex) {
+			fail("Could not deserialize " + filePath, ex);
+		}
+	}
+
+	static Stream<Path> getCurrentSerializedFiles() throws Exception {
+		assertThat(currentVersionFolder.toFile().exists())
+			.as("Make sure that the " + currentVersionFolder + " exists and is not empty")
+			.isTrue();
+		return getClassesToSerialize().map((clazz) -> currentVersionFolder.resolve(clazz.getName() + ".serialized"));
+	}
+
+	@ParameterizedTest
+	@MethodSource("getPreviousSerializedFiles")
 	void shouldBeAbleToDeserializeClassFromPreviousVersion(Path filePath) {
 		try (FileInputStream fileInputStream = new FileInputStream(filePath.toFile());
 				ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream)) {
@@ -755,7 +810,7 @@ class SpringSecurityCoreVersionSerializableTests {
 		}
 	}
 
-	static Stream<Path> getFilesToDeserialize() throws IOException {
+	static Stream<Path> getPreviousSerializedFiles() throws IOException {
 		assertThat(previousVersionFolder.toFile().exists())
 			.as("Make sure that the " + previousVersionFolder + " exists and is not empty")
 			.isTrue();
@@ -791,10 +846,18 @@ class SpringSecurityCoreVersionSerializableTests {
 					|| Arrays.asList(suppressWarnings.value()).contains("Serial");
 			if (!hasSerialVersion && !hasSerialIgnore) {
 				classes.add(clazz);
+				continue;
+			}
+			boolean isReachable = Modifier.isPublic(clazz.getModifiers());
+			boolean hasSampleSerialization = currentVersionFolder.resolve(clazz.getName() + ".serialized")
+				.toFile()
+				.exists();
+			if (hasSerialVersion && isReachable && !hasSampleSerialization) {
+				classes.add(clazz);
 			}
 		}
-		assertThat(classes)
-			.describedAs("Found Serializable classes that are either missing a serialVersionUID or a @SuppressWarnings")
+		assertThat(classes).describedAs(
+				"Found Serializable classes that are either missing a serialVersionUID or a @SuppressWarnings or a sample serialized file")
 			.isEmpty();
 	}
 
@@ -821,6 +884,9 @@ class SpringSecurityCoreVersionSerializableTests {
 	}
 
 	private static InstancioApi<?> instancioWithDefaults(Class<?> clazz) {
+		if (instancioByClassName.containsKey(clazz)) {
+			return instancioByClassName.get(clazz).get();
+		}
 		InstancioOfClassApi<?> instancio = Instancio.of(clazz);
 		ResolvableType[] generics = ResolvableType.forClass(clazz).getGenerics();
 		for (ResolvableType type : generics) {
@@ -851,6 +917,22 @@ class SpringSecurityCoreVersionSerializableTests {
 		parts[1] = String.valueOf(Integer.parseInt(parts[1]) - 1);
 		parts[2] = "x";
 		return String.join(".", parts);
+	}
+
+	@SuppressWarnings("serial")
+	private static final class SerializableSupplier<T> implements Supplier<T>, Serializable {
+
+		private final T value;
+
+		SerializableSupplier(T value) {
+			this.value = value;
+		}
+
+		@Override
+		public T get() {
+			return this.value;
+		}
+
 	}
 
 }

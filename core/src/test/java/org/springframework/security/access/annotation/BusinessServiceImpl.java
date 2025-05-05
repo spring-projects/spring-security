@@ -16,17 +16,14 @@
 
 package org.springframework.security.access.annotation;
 
-import java.io.Serial;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * @author Joe Scalise
  */
+@SuppressWarnings("serial")
 public class BusinessServiceImpl<E extends Entity> implements BusinessService {
-
-	@Serial
-	private static final long serialVersionUID = -4249394090237180795L;
 
 	@Override
 	@Secured({ "ROLE_USER" })
