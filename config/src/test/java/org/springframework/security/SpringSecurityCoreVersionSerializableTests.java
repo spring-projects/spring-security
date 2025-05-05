@@ -16,6 +16,8 @@
 
 package org.springframework.security;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -36,13 +38,17 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import jakarta.servlet.http.Cookie;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apereo.cas.client.validation.AssertionImpl;
 import org.instancio.Instancio;
 import org.instancio.InstancioApi;
@@ -63,6 +69,7 @@ import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.AuthorizationServiceException;
 import org.springframework.security.access.SecurityConfig;
+import org.springframework.security.access.hierarchicalroles.CycleInRoleHierarchyException;
 import org.springframework.security.access.intercept.RunAsUserToken;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.AccountExpiredException;
@@ -94,15 +101,19 @@ import org.springframework.security.authentication.event.LogoutSuccessEvent;
 import org.springframework.security.authentication.jaas.JaasAuthenticationToken;
 import org.springframework.security.authentication.jaas.event.JaasAuthenticationFailedEvent;
 import org.springframework.security.authentication.jaas.event.JaasAuthenticationSuccessEvent;
+import org.springframework.security.authentication.ott.DefaultOneTimeToken;
 import org.springframework.security.authentication.ott.InvalidOneTimeTokenException;
 import org.springframework.security.authentication.ott.OneTimeTokenAuthenticationToken;
 import org.springframework.security.authentication.password.CompromisedPasswordException;
 import org.springframework.security.authorization.AuthorityAuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.security.authorization.event.AuthorizationEvent;
+import org.springframework.security.authorization.event.AuthorizationGrantedEvent;
 import org.springframework.security.cas.authentication.CasAssertionAuthenticationToken;
 import org.springframework.security.cas.authentication.CasAuthenticationToken;
 import org.springframework.security.cas.authentication.CasServiceTicketAuthenticationToken;
+import org.springframework.security.config.annotation.AlreadyBuiltException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.SpringSecurityCoreVersion;
@@ -128,11 +139,14 @@ import org.springframework.security.oauth2.client.authentication.OAuth2Authoriza
 import org.springframework.security.oauth2.client.authentication.OAuth2LoginAuthenticationToken;
 import org.springframework.security.oauth2.client.authentication.TestOAuth2AuthenticationTokens;
 import org.springframework.security.oauth2.client.authentication.TestOAuth2AuthorizationCodeAuthenticationTokens;
+import org.springframework.security.oauth2.client.event.OAuth2AuthorizedClientRefreshedEvent;
+import org.springframework.security.oauth2.client.oidc.authentication.event.OidcUserRefreshedEvent;
 import org.springframework.security.oauth2.client.oidc.authentication.logout.OidcLogoutToken;
 import org.springframework.security.oauth2.client.oidc.authentication.logout.TestOidcLogoutTokens;
 import org.springframework.security.oauth2.client.oidc.session.OidcSessionInformation;
 import org.springframework.security.oauth2.client.oidc.session.TestOidcSessionInformations;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.client.registration.ClientRegistration.ClientSettings;
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.core.DefaultOAuth2AuthenticatedPrincipal;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
@@ -148,6 +162,7 @@ import org.springframework.security.oauth2.core.TestOAuth2AuthenticatedPrincipal
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationExchange;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResponse;
+import org.springframework.security.oauth2.core.endpoint.TestOAuth2AccessTokenResponses;
 import org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationExchanges;
 import org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationRequests;
 import org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationResponses;
@@ -172,6 +187,7 @@ import org.springframework.security.oauth2.server.resource.BearerTokenErrors;
 import org.springframework.security.oauth2.server.resource.InvalidBearerTokenException;
 import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthentication;
 import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthenticationToken;
+import org.springframework.security.oauth2.server.resource.authentication.DPoPAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.introspection.BadOpaqueTokenException;
 import org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionAuthenticatedPrincipal;
@@ -188,8 +204,10 @@ import org.springframework.security.saml2.provider.service.authentication.Saml2P
 import org.springframework.security.saml2.provider.service.authentication.Saml2RedirectAuthenticationRequest;
 import org.springframework.security.saml2.provider.service.authentication.TestSaml2AuthenticationTokens;
 import org.springframework.security.saml2.provider.service.authentication.TestSaml2Authentications;
+import org.springframework.security.saml2.provider.service.authentication.TestSaml2LogoutRequests;
 import org.springframework.security.saml2.provider.service.authentication.TestSaml2PostAuthenticationRequests;
 import org.springframework.security.saml2.provider.service.authentication.TestSaml2RedirectAuthenticationRequests;
+import org.springframework.security.saml2.provider.service.authentication.logout.Saml2LogoutRequest;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration.AssertingPartyDetails;
 import org.springframework.security.saml2.provider.service.registration.TestRelyingPartyRegistrations;
@@ -213,6 +231,7 @@ import org.springframework.security.web.savedrequest.DefaultSavedRequest;
 import org.springframework.security.web.savedrequest.SimpleSavedRequest;
 import org.springframework.security.web.server.firewall.ServerExchangeRejectedException;
 import org.springframework.security.web.session.HttpSessionCreatedEvent;
+import org.springframework.security.web.session.HttpSessionIdChangedEvent;
 import org.springframework.security.web.webauthn.api.AuthenticationExtensionsClientInputs;
 import org.springframework.security.web.webauthn.api.AuthenticationExtensionsClientOutputs;
 import org.springframework.security.web.webauthn.api.AuthenticatorAssertionResponse;
@@ -234,7 +253,9 @@ import org.springframework.security.web.webauthn.api.TestAuthenticationAssertion
 import org.springframework.security.web.webauthn.api.TestBytes;
 import org.springframework.security.web.webauthn.api.TestPublicKeyCredential;
 import org.springframework.security.web.webauthn.api.TestPublicKeyCredentialRequestOptions;
+import org.springframework.security.web.webauthn.api.TestPublicKeyCredentialUserEntities;
 import org.springframework.security.web.webauthn.api.TestPublicKeyCredentialUserEntity;
+import org.springframework.security.web.webauthn.api.TestPublicKeyCredentials;
 import org.springframework.security.web.webauthn.api.UserVerificationRequirement;
 import org.springframework.security.web.webauthn.authentication.WebAuthnAuthentication;
 import org.springframework.security.web.webauthn.authentication.WebAuthnAuthenticationRequestToken;
@@ -261,6 +282,8 @@ import static org.assertj.core.api.Assertions.fail;
 class SpringSecurityCoreVersionSerializableTests {
 
 	private static final Map<Class<?>, Generator<?>> generatorByClassName = new HashMap<>();
+
+	private static final Map<Class<?>, Supplier<InstancioApi<?>>> instancioByClassName = new HashMap<>();
 
 	static final long securitySerialVersionUid = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 
@@ -766,10 +789,18 @@ class SpringSecurityCoreVersionSerializableTests {
 					|| Arrays.asList(suppressWarnings.value()).contains("Serial");
 			if (!hasSerialVersion && !hasSerialIgnore) {
 				classes.add(clazz);
+				continue;
+			}
+			boolean isReachable = Modifier.isPublic(clazz.getModifiers());
+			boolean hasSampleSerialization = currentVersionFolder.resolve(clazz.getName() + ".serialized")
+				.toFile()
+				.exists();
+			if (hasSerialVersion && isReachable && !hasSampleSerialization) {
+				classes.add(clazz);
 			}
 		}
-		assertThat(classes)
-			.describedAs("Found Serializable classes that are either missing a serialVersionUID or a @SuppressWarnings")
+		assertThat(classes).describedAs(
+				"Found Serializable classes that are either missing a serialVersionUID or a @SuppressWarnings or a sample serialized file")
 			.isEmpty();
 	}
 
@@ -796,6 +827,9 @@ class SpringSecurityCoreVersionSerializableTests {
 	}
 
 	private static InstancioApi<?> instancioWithDefaults(Class<?> clazz) {
+		if (instancioByClassName.containsKey(clazz)) {
+			return instancioByClassName.get(clazz).get();
+		}
 		InstancioOfClassApi<?> instancio = Instancio.of(clazz);
 		ResolvableType[] generics = ResolvableType.forClass(clazz).getGenerics();
 		for (ResolvableType type : generics) {
