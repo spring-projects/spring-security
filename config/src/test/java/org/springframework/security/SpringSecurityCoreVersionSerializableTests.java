@@ -740,17 +740,11 @@ class SpringSecurityCoreVersionSerializableTests {
 		}
 	}
 
-	static Stream<Path> getCurrentSerializedFiles() throws IOException {
+	static Stream<Path> getCurrentSerializedFiles() throws Exception {
 		assertThat(currentVersionFolder.toFile().exists())
 			.as("Make sure that the " + currentVersionFolder + " exists and is not empty")
 			.isTrue();
-		try (Stream<Path> files = Files.list(currentVersionFolder)) {
-			if (files.findFirst().isEmpty()) {
-				fail("Please make sure to run SpringSecurityCoreVersionSerializableTests#serializeCurrentVersionClasses for the "
-						+ getPreviousVersion() + " version");
-			}
-		}
-		return Files.list(currentVersionFolder);
+		return getClassesToSerialize().map((clazz) -> currentVersionFolder.resolve(clazz.getName() + ".serialized"));
 	}
 
 	@ParameterizedTest
