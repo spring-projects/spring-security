@@ -4,7 +4,8 @@ on:
   schedule:
     - cron:  '0 2 * * *' # 2am UTC
   workflow_dispatch:
-
+permissions:
+  pull-requests: write
 jobs:
   upgrade_wrapper:
     name: Execution
