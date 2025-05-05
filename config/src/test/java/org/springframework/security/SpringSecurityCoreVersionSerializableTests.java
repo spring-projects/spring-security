@@ -139,6 +139,8 @@ import org.springframework.security.oauth2.client.authentication.OAuth2Authoriza
 import org.springframework.security.oauth2.client.authentication.OAuth2LoginAuthenticationToken;
 import org.springframework.security.oauth2.client.authentication.TestOAuth2AuthenticationTokens;
 import org.springframework.security.oauth2.client.authentication.TestOAuth2AuthorizationCodeAuthenticationTokens;
+import org.springframework.security.oauth2.client.event.OAuth2AuthorizedClientRefreshedEvent;
+import org.springframework.security.oauth2.client.oidc.authentication.event.OidcUserRefreshedEvent;
 import org.springframework.security.oauth2.client.oidc.authentication.logout.OidcLogoutToken;
 import org.springframework.security.oauth2.client.oidc.authentication.logout.TestOidcLogoutTokens;
 import org.springframework.security.oauth2.client.oidc.session.OidcSessionInformation;
@@ -160,6 +162,7 @@ import org.springframework.security.oauth2.core.TestOAuth2AuthenticatedPrincipal
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationExchange;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResponse;
+import org.springframework.security.oauth2.core.endpoint.TestOAuth2AccessTokenResponses;
 import org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationExchanges;
 import org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationRequests;
 import org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationResponses;
@@ -184,6 +187,7 @@ import org.springframework.security.oauth2.server.resource.BearerTokenErrors;
 import org.springframework.security.oauth2.server.resource.InvalidBearerTokenException;
 import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthentication;
 import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthenticationToken;
+import org.springframework.security.oauth2.server.resource.authentication.DPoPAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.introspection.BadOpaqueTokenException;
 import org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionAuthenticatedPrincipal;
@@ -364,6 +368,13 @@ class SpringSecurityCoreVersionSerializableTests {
 						new RuntimeException()));
 		generatorByClassName.put(ClientAuthorizationRequiredException.class,
 				(r) -> new ClientAuthorizationRequiredException("id"));
+		generatorByClassName
+			.put(OAuth2AuthorizedClientRefreshedEvent.class, (r) -> new OAuth2AuthorizedClientRefreshedEvent(
+					TestOAuth2AccessTokenResponses.accessTokenResponse().build(),
+					new OAuth2AuthorizedClient(clientRegistration, "principal", TestOAuth2AccessTokens.noScopes())));
+		generatorByClassName.put(OidcUserRefreshedEvent.class,
+				(r) -> new OidcUserRefreshedEvent(TestOAuth2AccessTokenResponses.accessTokenResponse().build(),
+						TestOidcUsers.create(), TestOidcUsers.create(), authentication));
 
 		// oauth2-jose
 		generatorByClassName.put(BadJwtException.class, (r) -> new BadJwtException("token", new RuntimeException()));
@@ -411,6 +422,8 @@ class SpringSecurityCoreVersionSerializableTests {
 				(r) -> new BadOpaqueTokenException("message", new RuntimeException()));
 		generatorByClassName.put(OAuth2IntrospectionException.class,
 				(r) -> new OAuth2IntrospectionException("message", new RuntimeException()));
+		generatorByClassName.put(DPoPAuthenticationToken.class,
+				(r) -> applyDetails(new DPoPAuthenticationToken("token", "proof", "method", "uri")));
 
 		// config
 		generatorByClassName.put(AlreadyBuiltException.class, (r) -> new AlreadyBuiltException("message"));
