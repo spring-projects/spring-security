@@ -690,7 +690,34 @@ class SpringSecurityCoreVersionSerializableTests {
 	}
 
 	@ParameterizedTest
-	@MethodSource("getFilesToDeserialize")
+	@MethodSource("getCurrentSerializedFiles")
+	void shouldBeAbleToDeserializeClassFromCurrentVersion(Path filePath) {
+		try (FileInputStream fileInputStream = new FileInputStream(filePath.toFile());
+				ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream)) {
+			Object obj = objectInputStream.readObject();
+			Class<?> clazz = Class.forName(filePath.getFileName().toString().replace(".serialized", ""));
+			assertThat(obj).isInstanceOf(clazz);
+		}
+		catch (IOException | ClassNotFoundException ex) {
+			fail("Could not deserialize " + filePath, ex);
+		}
+	}
+
+	static Stream<Path> getCurrentSerializedFiles() throws IOException {
+		assertThat(currentVersionFolder.toFile().exists())
+			.as("Make sure that the " + currentVersionFolder + " exists and is not empty")
+			.isTrue();
+		try (Stream<Path> files = Files.list(currentVersionFolder)) {
+			if (files.findFirst().isEmpty()) {
+				fail("Please make sure to run SpringSecurityCoreVersionSerializableTests#serializeCurrentVersionClasses for the "
+						+ getPreviousVersion() + " version");
+			}
+		}
+		return Files.list(currentVersionFolder);
+	}
+
+	@ParameterizedTest
+	@MethodSource("getPreviousSerializedFiles")
 	void shouldBeAbleToDeserializeClassFromPreviousVersion(Path filePath) {
 		try (FileInputStream fileInputStream = new FileInputStream(filePath.toFile());
 				ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream)) {
@@ -703,7 +730,7 @@ class SpringSecurityCoreVersionSerializableTests {
 		}
 	}
 
-	static Stream<Path> getFilesToDeserialize() throws IOException {
+	static Stream<Path> getPreviousSerializedFiles() throws IOException {
 		assertThat(previousVersionFolder.toFile().exists())
 			.as("Make sure that the " + previousVersionFolder + " exists and is not empty")
 			.isTrue();
