@@ -775,10 +775,10 @@ class SpringSecurityCoreVersionSerializableTests {
 			return;
 		}
 		Files.createFile(filePath);
-		Object instance = instancioWithDefaults(clazz).create();
-		assertThat(instance).isInstanceOf(clazz);
 		try (FileOutputStream fileOutputStream = new FileOutputStream(file);
 				ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream)) {
+			Object instance = instancioWithDefaults(clazz).create();
+			assertThat(instance).isInstanceOf(clazz);
 			objectOutputStream.writeObject(instance);
 			objectOutputStream.flush();
 		}
