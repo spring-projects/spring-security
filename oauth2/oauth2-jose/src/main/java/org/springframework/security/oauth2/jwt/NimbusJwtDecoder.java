@@ -289,6 +289,8 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 
 		private Consumer<ConfigurableJWTProcessor<SecurityContext>> jwtProcessorCustomizer;
 
+		private Consumer<JWKSourceBuilder<SecurityContext>> jwkSourceBuilderCustomizer;
+
 		private JwkSetUriJwtDecoderBuilder(String jwkSetUri) {
 			Assert.hasText(jwkSetUri, "jwkSetUri cannot be empty");
 			this.jwkSetUri = (rest) -> jwkSetUri;
@@ -423,6 +425,20 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 			return this;
 		}
 
+		/**
+		 * Use the given {@link Consumer} to customize the {@link JWKSourceBuilder} before
+		 * passing it to the build {@link NimbusJwtDecoder}.
+		 * @param jwkSourceBuilderCustomizer the callback used to alter the builder
+		 * @return a {@link JwkSetUriJwtDecoderBuilder} for further configurations
+		 * @since 6.5
+		 */
+		public JwkSetUriJwtDecoderBuilder jwkSourceBuilderCustomizer(
+				Consumer<JWKSourceBuilder<SecurityContext>> jwkSourceBuilderCustomizer) {
+			Assert.notNull(jwkSourceBuilderCustomizer, "jwkSourceBuilderCustomizer cannot be null");
+			this.jwkSourceBuilderCustomizer = jwkSourceBuilderCustomizer;
+			return this;
+		}
+
 		JWSKeySelector<SecurityContext> jwsKeySelector(JWKSource<SecurityContext> jwkSource) {
 			if (this.signatureAlgorithms.isEmpty()) {
 				return new JWSVerificationKeySelector<>(this.defaultAlgorithms.apply(jwkSource), jwkSource);
@@ -437,11 +453,17 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 
 		JWKSource<SecurityContext> jwkSource() {
 			String jwkSetUri = this.jwkSetUri.apply(this.restOperations);
-			return JWKSourceBuilder.create(new SpringJWKSource<>(this.restOperations, this.cache, jwkSetUri))
+			JWKSourceBuilder<SecurityContext> jwkSourceBuilder = JWKSourceBuilder
+				.create(new SpringJWKSource<>(this.restOperations, this.cache, jwkSetUri))
 				.refreshAheadCache(false)
 				.rateLimited(false)
-				.cache(this.cache instanceof NoOpCache)
-				.build();
+				.cache(this.cache instanceof NoOpCache);
+
+			if (this.jwkSourceBuilderCustomizer != null) {
+				this.jwkSourceBuilderCustomizer.accept(jwkSourceBuilder);
+			}
+
+			return jwkSourceBuilder.build();
 		}
 
 		JWTProcessor<SecurityContext> processor() {
