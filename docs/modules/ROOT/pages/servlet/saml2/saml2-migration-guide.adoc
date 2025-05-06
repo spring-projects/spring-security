@@ -13,7 +13,10 @@ https://github.com/spring-projects/spring-security[Spring Security] takes a slig
 
 Spring Security SAML Extensions support for Service Providers is provided by a series of filters enabled by adding each filter manually in the correct order to various Spring Security filter chains.
 
-Spring Security’s SAML 2.0 Service Provider support is enabled via the Spring Security `saml2Login` and `saml2Logout` DSL methods. It selects the correct filters to add and puts them in the appropriate places in the filter chain.
+Spring Security’s SAML 2.0 Service Provider support is enabled via the Spring Security DSL methods:
+xref:servlet/saml2/login/index.adoc[`saml2Login`],
+xref:servlet/saml2/logout.adoc[`saml2Logout`], and
+xref:servlet/saml2/metadata.adoc[`saml2Metadata`]. It selects the correct filters to add and puts them in the appropriate places in the filter chain.
 
 ==== Stronger Encapsulation
 
