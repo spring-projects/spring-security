@@ -85,7 +85,7 @@ final class HtmlUnitWebTestClient {
 			}
 			return request;
 		}
-		return request.body(BodyInserters.fromObject(requestBody));
+		return request.body(BodyInserters.fromProducer(requestBody, String.class));
 	}
 
 	private MultiValueMap<String, String> formData(List<NameValuePair> params) {
