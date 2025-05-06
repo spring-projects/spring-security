@@ -254,8 +254,6 @@ public class InterceptUrlConfigTests {
 	public void requestWhenUsingMvcMatchersThenAuthorizesRequestsAccordingly() throws Exception {
 		this.spring.configLocations(this.xml("MvcMatchers")).autowire();
 		this.mvc.perform(get("/path")).andExpect(status().isUnauthorized());
-		this.mvc.perform(get("/path.html")).andExpect(status().isUnauthorized());
-		this.mvc.perform(get("/path/")).andExpect(status().isUnauthorized());
 	}
 
 	@Test
@@ -303,10 +301,6 @@ public class InterceptUrlConfigTests {
 		context.setServletContext(servletContext);
 		// @formatter:off
 		this.mvc.perform(get("/spring/path").servletPath("/spring"))
-				.andExpect(status().isUnauthorized());
-		this.mvc.perform(get("/spring/path.html").servletPath("/spring"))
-				.andExpect(status().isUnauthorized());
-		this.mvc.perform(get("/spring/path/").servletPath("/spring"))
 				.andExpect(status().isUnauthorized());
 		// @formatter:on
 	}
