@@ -39,7 +39,7 @@ jobs:
             toolchain: 17
     with:
       java-version: ${{ matrix.java-version }}
-      test-args: --refresh-dependencies -PforceMavenRepositories=snapshot -PisOverrideVersionCatalog -PtestToolchain=${{ matrix.toolchain }} -PspringFrameworkVersion=6.2.+ -PreactorVersion=2023.0.+ -PspringDataVersion=2024.0.+ --stacktrace
+      test-args: --refresh-dependencies -PforceMavenRepositories=snapshot -PisOverrideVersionCatalog -PtestToolchain=${{ matrix.toolchain }} -PspringFrameworkVersion=7.+ -PreactorVersion=2025.+ -PspringDataVersion=2025.+ --stacktrace
     secrets: inherit
   check-samples:
     name: Check Samples
