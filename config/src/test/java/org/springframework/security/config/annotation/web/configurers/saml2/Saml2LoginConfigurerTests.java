@@ -253,7 +253,7 @@ public class Saml2LoginConfigurerTests {
 	public void authenticationRequestWhenAuthenticationRequestResolverBeanThenUses() throws Exception {
 		this.spring.register(CustomAuthenticationRequestResolverBean.class).autowire();
 		MvcResult result = this.mvc.perform(get("/saml2/authenticate/registration-id")).andReturn();
-		UriComponents components = UriComponentsBuilder.fromHttpUrl(result.getResponse().getRedirectedUrl()).build();
+		UriComponents components = UriComponentsBuilder.fromUriString(result.getResponse().getRedirectedUrl()).build();
 		String samlRequest = components.getQueryParams().getFirst("SAMLRequest");
 		String decoded = URLDecoder.decode(samlRequest, "UTF-8");
 		String inflated = Saml2Utils.samlInflate(Saml2Utils.samlDecode(decoded));
@@ -264,7 +264,7 @@ public class Saml2LoginConfigurerTests {
 	public void authenticationRequestWhenAuthenticationRequestResolverDslThenUses() throws Exception {
 		this.spring.register(CustomAuthenticationRequestResolverDsl.class).autowire();
 		MvcResult result = this.mvc.perform(get("/saml2/authenticate/registration-id")).andReturn();
-		UriComponents components = UriComponentsBuilder.fromHttpUrl(result.getResponse().getRedirectedUrl()).build();
+		UriComponents components = UriComponentsBuilder.fromUriString(result.getResponse().getRedirectedUrl()).build();
 		String samlRequest = components.getQueryParams().getFirst("SAMLRequest");
 		String decoded = URLDecoder.decode(samlRequest, "UTF-8");
 		String inflated = Saml2Utils.samlInflate(Saml2Utils.samlDecode(decoded));
