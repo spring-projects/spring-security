@@ -444,7 +444,7 @@ class StrictServerWebExchangeFirewallTests {
 		ServerWebExchange exchange = getFirewalledExchange();
 		HttpHeaders headers = exchange.getRequest().getHeaders();
 		assertThatExceptionOfType(ServerExchangeRejectedException.class)
-			.isThrownBy(() -> headers.keySet().iterator().next());
+			.isThrownBy(() -> headers.headerNames().iterator().next());
 	}
 
 	@Test

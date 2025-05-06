@@ -18,8 +18,6 @@ package org.springframework.security.config.web.server;
 
 import java.time.Duration;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -80,14 +78,14 @@ public class HeaderSpecTests {
 
 	@Test
 	public void headersWhenDisableThenNoSecurityHeaders() {
-		new HashSet<>(this.expectedHeaders.keySet()).forEach(this::expectHeaderNamesNotPresent);
+		new HashSet<>(this.expectedHeaders.headerNames()).forEach(this::expectHeaderNamesNotPresent);
 		this.http.headers().disable();
 		assertHeaders();
 	}
 
 	@Test
 	public void headersWhenDisableInLambdaThenNoSecurityHeaders() {
-		new HashSet<>(this.expectedHeaders.keySet()).forEach(this::expectHeaderNamesNotPresent);
+		new HashSet<>(this.expectedHeaders.headerNames()).forEach(this::expectHeaderNamesNotPresent);
 		this.http.headers((headers) -> headers.disable());
 		assertHeaders();
 	}
@@ -515,12 +513,13 @@ public class HeaderSpecTests {
 			.uri("https://example.com/")
 			.exchange()
 			.returnResult(String.class);
-		Map<String, List<String>> responseHeaders = response.getResponseHeaders();
+		HttpHeaders responseHeaders = response.getResponseHeaders();
 		if (!this.expectedHeaders.isEmpty()) {
-			assertThat(responseHeaders).describedAs(response.toString()).containsAllEntriesOf(this.expectedHeaders);
+			this.expectedHeaders.forEach(
+					(headerName, headerValues) -> assertThat(responseHeaders.get(headerName)).isEqualTo(headerValues));
 		}
 		if (!this.headerNamesNotPresent.isEmpty()) {
-			assertThat(responseHeaders.keySet()).doesNotContainAnyElementsOf(this.headerNamesNotPresent);
+			assertThat(responseHeaders.headerNames()).doesNotContainAnyElementsOf(this.headerNamesNotPresent);
 		}
 	}
 
