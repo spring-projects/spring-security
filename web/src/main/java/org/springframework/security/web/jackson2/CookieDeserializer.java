@@ -52,7 +52,7 @@ class CookieDeserializer extends JsonDeserializer<Cookie> {
 		cookie.setVersion(readJsonNode(jsonNode, "version").asInt());
 		cookie.setPath(readJsonNode(jsonNode, "path").asText());
 		JsonNode attributes = readJsonNode(jsonNode, "attributes");
-		cookie.setHttpOnly(readJsonNode(attributes, "HttpOnly").asBoolean());
+		cookie.setHttpOnly(readJsonNode(attributes, "HttpOnly") != null);
 		return cookie;
 	}
 

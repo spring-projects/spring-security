@@ -1,31 +1,5 @@
 [[new]]
-= What's New in Spring Security 6.5
+= What's New in Spring Security 7.0
 
-Spring Security 6.5 provides a number of new features.
+Spring Security 7.0 provides a number of new features.
 Below are the highlights of the release, or you can view https://github.com/spring-projects/spring-security/releases[the release notes] for a detailed listing of each feature and bug fix.
-
-== New Features
-
-* Support for automatic context-propagation with Micrometer (https://github.com/spring-projects/spring-security/issues/16665[gh-16665])
-
-== Breaking Changes
-
-=== Observability
-
-The `security.security.reached.filter.section` key name was corrected to `spring.security.reached.filter.section`.
-Note that this may affect reports that operate on this key name.
-
-== OAuth
-
-* https://github.com/spring-projects/spring-security/pull/16386[gh-16386] - Enable PKCE for confidential clients using `ClientRegistration.clientSettings.requireProofKey=true` for xref:servlet/oauth2/client/core.adoc#oauth2Client-client-registration-requireProofKey[servlet] and xref:reactive/oauth2/client/core.adoc#oauth2Client-client-registration-requireProofKey[reactive] applications
-* https://github.com/spring-projects/spring-security/issues/16913[gh-16913] - Prepare OAuth2 Client deprecations for removal in Spring Security 7
-
-== WebAuthn
-
-* https://github.com/spring-projects/spring-security/pull/16282[gh-16282] - xref:servlet/authentication/passkeys.adoc#passkeys-configuration-persistence[JDBC Persistence] for WebAuthn/Passkeys
-* https://github.com/spring-projects/spring-security/pull/16397[gh-16397] - Added the ability to configure a custom `HttpMessageConverter` for Passkeys using the optional xref:servlet/authentication/passkeys.adoc#passkeys-configuration[`messageConverter` property] on the `webAuthn` DSL.
-* https://github.com/spring-projects/spring-security/pull/16396[gh-16396] - Added the ability to configure a custom xref:servlet/authentication/passkeys.adoc#passkeys-configuration-pkccor[`PublicKeyCredentialCreationOptionsRepository`]
-
-== One-Time Token Login
-
-* https://github.com/spring-projects/spring-security/issues/16291[gh-16291] - `oneTimeTokenLogin()` now supports customizing GenerateOneTimeTokenRequest xref:servlet/authentication/onetimetoken.adoc#customize-generate-token-request[via GenerateOneTimeTokenRequestResolver]

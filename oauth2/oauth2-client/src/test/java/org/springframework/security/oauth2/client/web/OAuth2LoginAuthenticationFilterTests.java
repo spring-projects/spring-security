@@ -475,7 +475,7 @@ public class OAuth2LoginAuthenticationFilterTests {
 	}
 
 	private String expandRedirectUri(HttpServletRequest request, ClientRegistration clientRegistration) {
-		String baseUrl = UriComponentsBuilder.fromHttpUrl(UrlUtils.buildFullRequestUrl(request))
+		String baseUrl = UriComponentsBuilder.fromUriString(UrlUtils.buildFullRequestUrl(request))
 			.replaceQuery(null)
 			.replacePath(request.getContextPath())
 			.build()

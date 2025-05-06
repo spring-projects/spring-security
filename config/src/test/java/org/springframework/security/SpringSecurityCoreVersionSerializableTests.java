@@ -260,6 +260,12 @@ class SpringSecurityCoreVersionSerializableTests {
 		String version = System.getProperty("springSecurityVersion");
 		String[] parts = version.split("\\.");
 		parts[1] = String.valueOf(Integer.parseInt(parts[1]) - 1);
+		// FIXME: the 7 should not be hardcoded
+		if ("7".equals(parts[0]) && "-1".equals(parts[1])) {
+			// if it is version 7.0.x, the previous version is 6.5.x
+			parts[0] = String.valueOf(Integer.parseInt(parts[0]) - 1);
+			parts[1] = "5"; // FIXME: this should not be hard coded
+		}
 		parts[2] = "x";
 		return String.join(".", parts);
 	}

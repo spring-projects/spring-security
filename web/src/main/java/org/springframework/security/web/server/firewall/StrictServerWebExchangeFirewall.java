@@ -135,8 +135,8 @@ public class StrictServerWebExchangeFirewall implements ServerWebExchangeFirewal
 	private static final Pattern ASSIGNED_AND_NOT_ISO_CONTROL_PATTERN = Pattern
 		.compile("[\\p{IsAssigned}&&[^\\p{IsControl}]]*");
 
-	private static final Predicate<String> ASSIGNED_AND_NOT_ISO_CONTROL_PREDICATE = (
-			s) -> ASSIGNED_AND_NOT_ISO_CONTROL_PATTERN.matcher(s).matches();
+	private static final Predicate<String> ASSIGNED_AND_NOT_ISO_CONTROL_PREDICATE = (s) -> s == null
+			|| ASSIGNED_AND_NOT_ISO_CONTROL_PATTERN.matcher(s).matches();
 
 	private static final Pattern HEADER_VALUE_PATTERN = Pattern.compile("[\\p{IsAssigned}&&[[^\\p{IsControl}]||\\t]]*");
 
@@ -198,13 +198,11 @@ public class StrictServerWebExchangeFirewall implements ServerWebExchangeFirewal
 			exchange.getResponse().beforeCommit(() -> Mono.fromRunnable(() -> {
 				ServerHttpResponse response = exchange.getResponse();
 				HttpHeaders headers = response.getHeaders();
-				for (Map.Entry<String, List<String>> header : headers.entrySet()) {
-					String headerName = header.getKey();
-					List<String> headerValues = header.getValue();
+				headers.forEach((headerName, headerValues) -> {
 					for (String headerValue : headerValues) {
 						validateCrlf(headerName, headerValue);
 					}
-				}
+				});
 			}));
 			return new StrictFirewallServerWebExchange(exchange);
 		});
@@ -767,23 +765,21 @@ public class StrictServerWebExchangeFirewall implements ServerWebExchangeFirewal
 				}
 
 				@Override
-				public List<String> get(Object key) {
-					if (key instanceof String headerName) {
-						validateAllowedHeaderName(headerName);
-					}
-					List<String> headerValues = super.get(key);
+				public List<String> get(String headerName) {
+					validateAllowedHeaderName(headerName);
+					List<String> headerValues = super.get(headerName);
 					if (headerValues == null) {
 						return headerValues;
 					}
 					for (String headerValue : headerValues) {
-						validateAllowedHeaderValue(key, headerValue);
+						validateAllowedHeaderValue(headerName, headerValue);
 					}
 					return headerValues;
 				}
 
 				@Override
-				public Set<String> keySet() {
-					Set<String> headerNames = super.keySet();
+				public Set<String> headerNames() {
+					Set<String> headerNames = super.headerNames();
 					for (String headerName : headerNames) {
 						validateAllowedHeaderName(headerName);
 					}

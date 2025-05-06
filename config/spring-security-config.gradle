@@ -127,6 +127,7 @@ dependencies {
 
 	testRuntimeOnly 'org.hsqldb:hsqldb'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
 }
 
 def rncToXsd = tasks.named('rncToXsd', RncToXsd)

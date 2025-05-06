@@ -102,7 +102,7 @@ public class StaticServerHttpHeadersWriterTests {
 			.header(HttpHeaders.EXPIRES, CacheControlServerHttpHeadersWriter.EXPIRES_VALUE)
 			.build();
 		this.writer.writeHttpHeaders(this.exchange);
-		assertThat(this.headers).hasSize(1);
+		assertThat(this.headers.headerNames()).hasSize(1);
 		assertThat(this.headers.get(HttpHeaders.CACHE_CONTROL)).containsOnly(headerValue);
 	}
 
