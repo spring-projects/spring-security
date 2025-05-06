@@ -123,3 +123,60 @@ In versions prior to 6.2, if you had a xref:servlet/configuration/java.adoc#jc-c
 However, starting from version 6.2, this method is deprecated and will be removed in 7.0 because it will no longer be possible to chain configurations using `.and()` once `.and()` is removed (see https://github.com/spring-projects/spring-security/issues/13067).
 Instead, it is recommended to use the new `.with(...)` method.
 For more information about how to use `.with(...)` please refer to the xref:servlet/configuration/java.adoc#jc-custom-dsls[Custom DSLs section].
+
+== Use `dispatcherTypeMatchers` instead of `shouldFilterAllDispatcherTypes`
+
+If you are permitting the ERROR dispatch, you may be using `shouldFilterAllDispatcherTypes(false)` in the `auhorizeHttpRequests` DSL:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+http
+    .authorizeHttpRequests((authorize) -> authorize
+        .shouldFilterAllDispatcherTypes(false)
+        // ...
+    )
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+http {
+    authorizeHttpRequests {
+        shouldFilterAllDispatcherTypes = false
+        // ...
+    }
+}
+----
+======
+
+In preparation for 7, change this to use `dispatcherTypeMatchers`:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+http
+    .authorizHttpRequests((authorize) -> authorize
+        .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
+        // ...
+    )
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+http {
+    authorizeHttpRequests {
+        authorize(new DispatcherTypeRequestMatcher(DispatcherType.ERROR), permitAll())
+    }
+}
+----
+======
