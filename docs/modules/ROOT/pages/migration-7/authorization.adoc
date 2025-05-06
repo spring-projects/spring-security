@@ -22,3 +22,82 @@ public void doSomething(Long id) {
 
 You must compile with `-parameters` to ensure that the parameter names are available at runtime.
 For more information about this, please visit the https://github.com/spring-projects/spring-framework/wiki/Upgrading-to-Spring-Framework-6.x#core-container[Upgrading to Spring Framework 6.1 page].
+
+=== Favor `AnnotationTemplateExpressionDefaults` over `PrePostTemplateDefaults`
+
+In Spring Security 7, `AnnotationTemplateExpressionDefaults` will be included by default.
+
+If you are customizing `PrePostTemplateDefaults` or simply want to see how your application responds to `AnnotationTemplateExpressionDefaults`, you can publish an `AnnotationTemplateExpressionDefaults` bean instead of a `PrePostTemplateDefaults` method:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Bean
+static AnnotationTemplateExpressionDefaults templateExpressionDefaults() {
+	return new AnnotationTemplateExpressionDefaults();
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+companion object {
+    @Bean
+    fun templateExpressionDefaults() = AnnotationTemplateExpressionDefaults()
+}
+----
+
+Xml::
++
+[source,xml,role="secondary"]
+----
+<b:bean id="templateExpressionDefaults" class="org.springframework.security.core.annotation.AnnotationTemplateExpressionDefaults"/>
+----
+======
+
+==== I Am Publishing an AuthorizationAdvisor Bean
+
+If you are publishing an `AuthorizationAdvisor` bean, like `AuthorizationManagerBeforeMethodInterceptor`, `AuthorizationManagerAfterMethodInterceptor`, `PreFilterAuthorizationMethodInterceptor`, or `PostFilterAuthorizationMethodInterceptor`, you can do the same by calling `setTemplateDefaults` with an `AnnotationTemplateExpressionDefaults` instance instead:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Bean
+@Role(BeanDescription.ROLE_INFRASTRUCTURE)
+static Advisor preFilter() {
+	PreFilterAuthorizationMethodInterceptor interceptor = new PreFilterAuthorizationMethodInterceptor();
+	interceptor.setTemplateDefaults(new AnnotationTemplateExpressionDefaults());
+	return interceptor;
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+companion object {
+    @Bean
+    @Role(BeanDescription.ROLE_INFRASTRUCTURE)
+    fun preFilter(): Advisor {
+        val interceptor = PreFilterAuthorizationMethodInterceptor()
+        interceptor.setTemplateDefaults(AnnotationTemplateExpressionDefaults)
+        return interceptor
+    }
+}
+----
+======
+
+=== Publish `AuthorizationAdvisor` instances instead of adding them in a `Customizer<AuthorizationAdvisorProxyFactory>`
+
+While the ability to customize the `AuthorizationAdvisorProxyFactory` instance will remain in Spring Security 7, the ability to add advisors will be removed in favor of picking up published `AuthorizationAdvisor` beans.
+
+If you are not calling `AuthorizationAdvisorProxyFactory#setAdvisors` or `AuthorizationAdvisorProxyFactory#addAdvisor`, you need do nothing.
+
+If you are, publish the `AuthorizationAdvisor` bean instead and Spring Security will pick it up and apply it automatically.

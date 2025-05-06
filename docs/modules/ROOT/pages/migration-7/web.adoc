@@ -521,3 +521,49 @@ Xml::
 =====
 If you have several circumstances where HTTP is needed, consider using `OrRequestMatcher` to combine them into a single `RequestMatcher` instance.
 =====
+
+== Use `setCookieCustomizer` instead of individual setters
+
+In favor of a simpler API, `CookieCsrfTokenRepository#setCookieCustomizer` allows you to change any aspect of the cookie, replacing `setCookieHttpOnly`, `setCookieMaxAge`, `setSecure`, and `setCookieDomain`.
+
+Change this:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+CookeCsrfTokenRepository csrf = CookeCsrfTokenRepository.withHttpOnlyFalse();
+csrf.setCookieMaxAge(86400)
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+val csrf = CookeCsrfTokenRepository.withHttpOnlyFalse()
+csrf.setCookieMaxAge(86400)
+----
+======
+
+to this:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+CookeCsrfTokenRepository csrf = CookeCsrfTokenRepository.withHttpOnlyFalse();
+csrf.setCookieCustomizer((c) -> c.maxAge(86400));
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+val csrf = CookeCsrfTokenRepository.withHttpOnlyFalse()
+csrf.setCookieCustomizer { -> it.maxAge(86400) }
+----
+======

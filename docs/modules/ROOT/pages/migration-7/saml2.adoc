@@ -1,5 +1,17 @@
 = Saml 2.0 Migrations
 
+== Use OpenSAML 5 By Default
+
+OpenSAML 4.x is no longer supported by the OpenSAML team.
+As such, Spring Security will default to using its `OpenSaml5` components in all cases.
+
+If you want to see how well your application will respond to this, do the following:
+
+1. Update your OpenSAML dependencies to 5.x
+2. If you are constructing an `OpenSaml4XXX` Spring Security component, change it to `OpenSaml5`.
+
+If you cannot opt-in, then add the `opensaml-saml-api` and `opensaml-saml-impl` 4.x dependencies and exclude the 5.x dependencies from `spring-security-saml2-service-provider`.
+
 == Continue Filter Chain When No Relying Party Found
 
 In Spring Security 6, `Saml2WebSsoAuthenticationFilter` throws an exception when the request URI matches, but no relying party registration is found.
@@ -161,5 +173,232 @@ val responseValidator = ResponseValidator.withDefaults { responseToken: Response
 	return@withDefaults Saml2ResponseValidationResult.success()
 }
 provider.setResponseValidator(responseValidator)
+----
+======
+
+== `RelyingPartyRegistration` Improvements
+
+`RelyingPartyRegistration` links metadata from a relying party to metadata from an asserting party.
+
+To prepare for some improvements to the API, please take the following steps:
+
+1. If you are mutating a registration by using `RelyingPartyRegistration#withRelyingPartyRegistration`, instead call `RelyingPartyRegistration#mutate`
+2. If you are providing or retrieving `AssertingPartyDetails`, use `getAssertingPartyMetadata` or `withAssertingPartyMetadata` instead.
+
+== `OpenSaml5AuthenticationProvider` Improvements
+
+Spring Security 7 will remove a handful of static factories from `OpenSaml5AuthenticationProvider` in favor of inner classes.
+These inner classes simplify customization of the response validator, the assertion validator, and the response authentication converter.
+
+=== Response Validation
+
+Instead of doing:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Bean
+OpenSaml5AuthenticationProvider saml2AuthenticationProvider() {
+	OpenSaml5AuthenticationProvider saml2 = new OpenSaml5AuthenticationProvider();
+	saml2.setResponseValidator((responseToken) -> OpenSamlAuthenticationProvider.createDefaultResponseValidator()
+            .andThen((result) -> result
+                .concat(myCustomValidator.convert(responseToken))
+            ));
+	return saml2;
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun saml2AuthenticationProvider(): OpenSaml5AuthenticationProvider {
+	val saml2 = OpenSaml5AuthenticationProvider()
+	saml2.setResponseValidator { responseToken -> OpenSamlAuthenticationProvider.createDefaultResponseValidator()
+        .andThen { result -> result
+            .concat(myCustomValidator.convert(responseToken))
+        }
+    }
+	return saml2
+}
+----
+======
+
+use `OpenSaml5AuthenticationProvider.ResponseValidator`:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Bean
+OpenSaml5AuthenticationProvider saml2AuthenticationProvider() {
+	OpenSaml5AuthenticationProvider saml2 = new OpenSaml5AuthenticationProvider();
+	saml2.setResponseValidator(ResponseValidator.withDefaults(myCustomValidator));
+	return saml2;
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun saml2AuthenticationProvider(): OpenSaml5AuthenticationProvider {
+	val saml2 = OpenSaml5AuthenticationProvider()
+	saml2.setResponseValidator(ResponseValidator.withDefaults(myCustomValidator))
+	return saml2
+}
+----
+======
+
+=== Assertion Validation
+
+Instead of doing:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Bean
+OpenSaml5AuthenticationProvider saml2AuthenticationProvider() {
+	OpenSaml5AuthenticationProvider saml2 = new OpenSaml5AuthenticationProvider();
+    authenticationProvider.setAssertionValidator(OpenSaml5AuthenticationProvider
+        .createDefaultAssertionValidatorWithParameters(assertionToken -> {
+            Map<String, Object> params = new HashMap<>();
+            params.put(CLOCK_SKEW, Duration.ofMinutes(10).toMillis());
+            // ... other validation parameters
+            return new ValidationContext(params);
+        })
+    );
+	return saml2;
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun saml2AuthenticationProvider(): OpenSaml5AuthenticationProvider {
+	val saml2 = OpenSaml5AuthenticationProvider()
+    authenticationProvider.setAssertionValidator(OpenSaml5AuthenticationProvider
+        .createDefaultAssertionValidatorWithParameters { ->
+            val params = HashMap<String, Object>()
+            params.put(CLOCK_SKEW, Duration.ofMinutes(10).toMillis())
+            // ... other validation parameters
+            return ValidationContext(params)
+        }
+    )
+	return saml2
+}
+----
+======
+
+use `OpenSaml5AuthenticationProvider.AssertionValidator`:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Bean
+OpenSaml5AuthenticationProvider saml2AuthenticationProvider() {
+	OpenSaml5AuthenticationProvider saml2 = new OpenSaml5AuthenticationProvider();
+	Duration tenMinutes = Duration.ofMinutes(10);
+    authenticationProvider.setAssertionValidator(AssertionValidator.builder().clockSkew(tenMinutes).build());
+	return saml2;
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun saml2AuthenticationProvider(): OpenSaml5AuthenticationProvider {
+	val saml2 = OpenSaml5AuthenticationProvider()
+	val tenMinutes = Duration.ofMinutes(10)
+    authenticationProvider.setAssertionValidator(AssertionValidator.builder().clockSkew(tenMinutes).build())
+	return saml2
+}
+----
+======
+
+== Response Authentication Converter
+
+Instead of doing:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Bean
+Converter<ResponseToken, Saml2Authentication> authenticationConverter() {
+	return (responseToken) -> {
+		Saml2Authentication authentication = OpenSaml5AutnenticationProvider.createDefaultResponseAuthenticationConverter()
+            .convert(responseToken);
+		// ... work with OpenSAML's Assertion object to extract the principal
+		return new Saml2Authentication(myPrincipal, authentication.getSaml2Response(), authentication.getAuthorities());
+	};
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun authenticationConverter(): Converter<ResponseToken, Saml2Authentication> {
+    return { responseToken ->
+        val authentication =
+            OpenSaml5AutnenticationProvider.createDefaultResponseAuthenticationConverter().convert(responseToken)
+		// ... work with OpenSAML's Assertion object to extract the principal
+		return Saml2Authentication(myPrincipal, authentication.getSaml2Response(), authentication.getAuthorities())
+    }
+}
+----
+======
+
+use `OpenSaml5AuthenticationProvider.ResponseAuthenticationConverter`:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Bean
+ResponseAuthenticationConverter authenticationConverter() {
+	ResponseAuthenticationConverter authenticationConverter = new ResponseAuthenticationConverter();
+	authenticationConverter.setPrincipalNameConverter((assertion) -> {
+		// ... work with OpenSAML's Assertion object to extract the principal
+	});
+	return authenticationConverter;
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun authenticationConverter(): ResponseAuthenticationConverter {
+    val authenticationConverter = ResponseAuthenticationConverter()
+    authenticationConverter.setPrincipalNameConverter { assertion ->
+		// ... work with OpenSAML's Assertion object to extract the principal
+    }
+    return authenticationConverter
+}
 ----
 ======
