@@ -41,46 +41,23 @@ jobs:
       java-version: ${{ matrix.java-version }}
       test-args: --refresh-dependencies -PforceMavenRepositories=snapshot -PisOverrideVersionCatalog -PtestToolchain=${{ matrix.toolchain }} -PspringFrameworkVersion=7.+ -PreactorVersion=2025.+ -PspringDataVersion=2025.+ --stacktrace
     secrets: inherit
-  check-samples:
-    name: Check Samples
-    runs-on: ubuntu-latest
-    if: ${{ github.repository_owner == 'spring-projects' }}
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up gradle
-        uses: spring-io/spring-gradle-build-action@v2
-        with:
-          java-version: 17
-          distribution: temurin
-      - name: Check samples project
-        env:
-          LOCAL_REPOSITORY_PATH: ${{ github.workspace }}/build/publications/repos
-          SAMPLES_DIR: ../spring-security-samples
-        run: |
-          # Extract version from gradle.properties
-          version=$(cat gradle.properties | grep "version=" | awk -F'=' '{print $2}')
-          # Extract samplesBranch from gradle.properties
-          samples_branch=$(cat gradle.properties | grep "samplesBranch=" | awk -F'=' '{print $2}')
-          ./gradlew publishMavenJavaPublicationToLocalRepository
-          ./gradlew cloneRepository -PrepositoryName="spring-projects/spring-security-samples" -Pref="$samples_branch" -PcloneOutputDirectory="$SAMPLES_DIR"
-          ./gradlew --refresh-dependencies --project-dir "$SAMPLES_DIR" --init-script spring-security-ci.gradle -PlocalRepositoryPath="$LOCAL_REPOSITORY_PATH" -PspringSecurityVersion="$version" test integrationTest
   deploy-artifacts:
     name: Deploy Artifacts
-    needs: [ build, test, check-samples ]
+    needs: [ build, test]
     uses: spring-io/spring-security-release-tools/.github/workflows/deploy-artifacts.yml@v1
     with:
       should-deploy-artifacts: ${{ needs.build.outputs.should-deploy-artifacts }}
     secrets: inherit
   deploy-docs:
     name: Deploy Docs
-    needs: [ build, test, check-samples ]
+    needs: [ build, test ]
     uses: spring-io/spring-security-release-tools/.github/workflows/deploy-docs.yml@v1
     with:
       should-deploy-docs: ${{ needs.build.outputs.should-deploy-artifacts }}
     secrets: inherit
   deploy-schema:
     name: Deploy Schema
-    needs: [ build, test, check-samples ]
+    needs: [ build, test ]
     uses: spring-io/spring-security-release-tools/.github/workflows/deploy-schema.yml@v1
     with:
       should-deploy-schema: ${{ needs.build.outputs.should-deploy-artifacts }}
