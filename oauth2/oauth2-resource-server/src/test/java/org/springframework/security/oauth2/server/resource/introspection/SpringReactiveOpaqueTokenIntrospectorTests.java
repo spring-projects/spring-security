@@ -345,7 +345,7 @@ public class SpringReactiveOpaqueTokenIntrospectorTests {
 		WebClient.RequestBodyUriSpec spec = spy(real.post());
 		WebClient webClient = spy(WebClient.class);
 		given(webClient.post()).willReturn(spec);
-		given(spec.exchange()).willThrow(ex);
+		given(spec.exchangeToMono(any())).willThrow(ex);
 		return webClient;
 	}
 

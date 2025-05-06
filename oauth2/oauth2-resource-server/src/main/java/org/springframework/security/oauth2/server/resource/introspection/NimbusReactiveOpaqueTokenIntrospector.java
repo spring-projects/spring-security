@@ -98,9 +98,8 @@ public class NimbusReactiveOpaqueTokenIntrospector implements ReactiveOpaqueToke
 	@Override
 	public Mono<OAuth2AuthenticatedPrincipal> introspect(String token) {
 		// @formatter:off
-		return Mono.just(token)
-				.flatMap(this::makeRequest)
-				.flatMap(this::adaptToNimbusResponse)
+		return this.makeRequest(token)
+				.exchangeToMono(this::adaptToNimbusResponse)
 				.map(this::parseNimbusResponse)
 				.map(this::castToNimbusSuccess)
 				.doOnNext((response) -> validate(token, response))
@@ -109,13 +108,12 @@ public class NimbusReactiveOpaqueTokenIntrospector implements ReactiveOpaqueToke
 		// @formatter:on
 	}
 
-	private Mono<ClientResponse> makeRequest(String token) {
+	private WebClient.RequestHeadersSpec<?> makeRequest(String token) {
 		// @formatter:off
 		return this.webClient.post()
 				.uri(this.introspectionUri)
 				.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-				.body(BodyInserters.fromFormData("token", token))
-				.exchange();
+				.body(BodyInserters.fromFormData("token", token));
 		// @formatter:on
 	}
 
