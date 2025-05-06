@@ -161,7 +161,7 @@ final class HtmlUnitWebTestClient {
 					redirectUrl = scheme + "://" + host + location.toASCIIString();
 				}
 				// @formatter:off
-				ClientRequest redirect = ClientRequest.method(HttpMethod.GET, URI.create(redirectUrl))
+				ClientRequest redirect = ClientRequest.create(HttpMethod.GET, URI.create(redirectUrl))
 						.headers((headers) -> headers.addAll(request.headers()))
 						.cookies((cookies) -> cookies.addAll(request.cookies()))
 						.attributes((attributes) -> attributes.putAll(request.attributes()))
