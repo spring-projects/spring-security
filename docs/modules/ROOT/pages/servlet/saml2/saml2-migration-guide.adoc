@@ -43,6 +43,7 @@ Both Spring Security and Spring Security SAML Extensions have examples for how t
 | Login & Logout | https://github.com/spring-projects/spring-security-samples/tree/main/servlet/spring-boot/java/saml2/login[Sample] |
 https://github.com/jzheaux/spring-security-saml-migrate/tree/main/login-logout[Sample]
 | Login using SAML Extension URLs | https://github.com/spring-projects/spring-security-samples/tree/main/servlet/spring-boot/java/saml2/custom-urls[Sample] | -
+| Metadata support | https://github.com/spring-projects/spring-security-samples/tree/main/servlet/spring-boot/java/saml2/refreshable-metadata[Sample] | -
 |===
 
 You can also see a showcase example in https://github.com/spring-projects/spring-security-saml/tree/main/sample[Spring Security SAML Extension]'s GitHub project.
@@ -54,15 +55,6 @@ Spring Security does not support HTTP-Redirect binding for SAML 2.0 Responses.
 According to the SAML specification, the HTTP-Redirect binding is not permitted for SAML Responses due to URL length and signature limitations. Attempting to use this binding may result in unexpected errors.
 Use HTTP-POST binding instead when configuring your identity provider.
 ====
-
-[[saml2-metadata]]
-== Metadata
-
-Support for metadata is currently quite simple. Additions to its functionality are under consideration.
-
-`RelyingPartyRegistrations` builds off of the existing multitenancy support and can derive multiple ``RelyingPartyRegistration``s from a single EntityDescriptor endpoint. These can then be paired with locally-configured relying party information as needed.
-
-For applications that require Spring Security SAML Extension’s refreshable metadata feature, please see https://github.com/spring-projects/spring-security-samples/tree/main/servlet/spring-boot/java/saml2/refreshable-metadata[the associated Spring Security sample] for how to add.
 
 [[saml2-unported]]
 == Unported Features
