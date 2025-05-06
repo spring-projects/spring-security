@@ -402,7 +402,7 @@ SecurityContextLogoutHandler logoutHandler = new SecurityContextLogoutHandler();
 @PostMapping("/my/logout")
 public String performLogout(Authentication authentication, HttpServletRequest request, HttpServletResponse response) {
     // .. perform logout
-    this.logoutHandler.doLogout(request, response, authentication);
+    this.logoutHandler.logout(request, response, authentication);
     return "redirect:/home";
 }
 ----
@@ -416,7 +416,7 @@ val logoutHandler = SecurityContextLogoutHandler()
 @PostMapping("/my/logout")
 fun performLogout(val authentication: Authentication, val request: HttpServletRequest, val response: HttpServletResponse): String {
     // .. perform logout
-    this.logoutHandler.doLogout(request, response, authentication)
+    this.logoutHandler.logout(request, response, authentication)
     return "redirect:/home"
 }
 ----
