@@ -88,7 +88,7 @@ public class SavedCookieMixinTests extends AbstractMixinTests {
 
 	@Test
 	public void deserializeSavedCookieJsonTest() throws IOException {
-		SavedCookie savedCookie = this.mapper.readValue(COOKIE_JSON, SavedCookie.class);
+		SavedCookie savedCookie = (SavedCookie) this.mapper.readValue(COOKIE_JSON, Object.class);
 		assertThat(savedCookie).isNotNull();
 		assertThat(savedCookie.getName()).isEqualTo("SESSION");
 		assertThat(savedCookie.getValue()).isEqualTo("123456789");
