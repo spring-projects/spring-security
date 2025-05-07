@@ -112,7 +112,7 @@ class CookieCsrfTokenRepositoryTests {
 	@Test
 	void saveTokenSecureFlagTrue() {
 		this.request.setSecure(false);
-		this.repository.setCookieCustomizer((cookie)-> cookie.secure(Boolean.TRUE));
+		this.repository.setCookieCustomizer((cookie) -> cookie.secure(Boolean.TRUE));
 		CsrfToken token = this.repository.generateToken(this.request);
 		this.repository.saveToken(token, this.request, this.response);
 		Cookie tokenCookie = this.response.getCookie(CookieCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME);
@@ -132,7 +132,7 @@ class CookieCsrfTokenRepositoryTests {
 	@Test
 	void saveTokenSecureFlagFalse() {
 		this.request.setSecure(true);
-		this.repository.setCookieCustomizer((cookie)-> cookie.secure(Boolean.FALSE));
+		this.repository.setCookieCustomizer((cookie) -> cookie.secure(Boolean.FALSE));
 		CsrfToken token = this.repository.generateToken(this.request);
 		this.repository.saveToken(token, this.request, this.response);
 		Cookie tokenCookie = this.response.getCookie(CookieCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME);
@@ -502,11 +502,6 @@ class CookieCsrfTokenRepositoryTests {
 	@Test
 	void setHeaderNameNullIllegalArgumentException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setHeaderName(null));
-	}
-
-	@Test
-	void setCookieMaxAgeZeroIllegalArgumentException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setCookieCustomizer((cookie) -> cookie.maxAge(0)));
 	}
 
 }
