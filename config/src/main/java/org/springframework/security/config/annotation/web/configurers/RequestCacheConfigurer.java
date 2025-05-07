@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -145,6 +145,9 @@ public final class RequestCacheConfigurer<H extends HttpSecurityBuilder<H>>
 		RequestMatcher notFavIcon = new NegatedRequestMatcher(getFaviconRequestMatcher());
 		RequestMatcher notXRequestedWith = new NegatedRequestMatcher(
 				new RequestHeaderRequestMatcher("X-Requested-With", "XMLHttpRequest"));
+		RequestMatcher notWebSocket = new NegatedRequestMatcher(
+				new RequestHeaderRequestMatcher("Upgrade", "websocket"));
+
 		boolean isCsrfEnabled = http.getConfigurer(CsrfConfigurer.class) != null;
 		List<RequestMatcher> matchers = new ArrayList<>();
 		if (isCsrfEnabled) {
@@ -156,6 +159,7 @@ public final class RequestCacheConfigurer<H extends HttpSecurityBuilder<H>>
 		matchers.add(notXRequestedWith);
 		matchers.add(notMatchingMediaType(http, MediaType.MULTIPART_FORM_DATA));
 		matchers.add(notMatchingMediaType(http, MediaType.TEXT_EVENT_STREAM));
+		matchers.add(notWebSocket);
 		return new AndRequestMatcher(matchers);
 	}
 
