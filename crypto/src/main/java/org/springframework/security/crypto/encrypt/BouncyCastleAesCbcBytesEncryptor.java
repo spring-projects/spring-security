@@ -16,12 +16,9 @@
 
 package org.springframework.security.crypto.encrypt;
 
-import java.util.function.Supplier;
-
 import org.bouncycastle.crypto.BufferedBlockCipher;
 import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.bouncycastle.crypto.engines.AESEngine;
-import org.bouncycastle.crypto.engines.AESFastEngine;
 import org.bouncycastle.crypto.modes.CBCBlockCipher;
 import org.bouncycastle.crypto.modes.CBCModeCipher;
 import org.bouncycastle.crypto.paddings.PKCS7Padding;
@@ -41,8 +38,6 @@ import org.springframework.security.crypto.util.EncodingUtils;
  */
 public class BouncyCastleAesCbcBytesEncryptor extends BouncyCastleAesBytesEncryptor {
 
-	private Supplier<CBCModeCipher> cipherFactory = () -> CBCBlockCipher.newInstance(AESEngine.newInstance());
-
 	public BouncyCastleAesCbcBytesEncryptor(String password, CharSequence salt) {
 		super(password, salt);
 	}
@@ -54,8 +49,8 @@ public class BouncyCastleAesCbcBytesEncryptor extends BouncyCastleAesBytesEncryp
 	@Override
 	public byte[] encrypt(byte[] bytes) {
 		byte[] iv = this.ivGenerator.generateKey();
-		PaddedBufferedBlockCipher blockCipher = new PaddedBufferedBlockCipher(this.cipherFactory.get(),
-				new PKCS7Padding());
+		CBCModeCipher cbcModeCipher = CBCBlockCipher.newInstance(AESEngine.newInstance());
+		PaddedBufferedBlockCipher blockCipher = new PaddedBufferedBlockCipher(cbcModeCipher, new PKCS7Padding());
 		blockCipher.init(true, new ParametersWithIV(this.secretKey, iv));
 		byte[] encrypted = process(blockCipher, bytes);
 		return (iv != null) ? EncodingUtils.concatenate(iv, encrypted) : encrypted;
@@ -63,10 +58,10 @@ public class BouncyCastleAesCbcBytesEncryptor extends BouncyCastleAesBytesEncryp
 
 	@Override
 	public byte[] decrypt(byte[] encryptedBytes) {
+		CBCModeCipher cbcModeCipher = CBCBlockCipher.newInstance(AESEngine.newInstance());
 		byte[] iv = EncodingUtils.subArray(encryptedBytes, 0, this.ivGenerator.getKeyLength());
 		encryptedBytes = EncodingUtils.subArray(encryptedBytes, this.ivGenerator.getKeyLength(), encryptedBytes.length);
-		PaddedBufferedBlockCipher blockCipher = new PaddedBufferedBlockCipher(this.cipherFactory.get(),
-				new PKCS7Padding());
+		PaddedBufferedBlockCipher blockCipher = new PaddedBufferedBlockCipher(cbcModeCipher, new PKCS7Padding());
 		blockCipher.init(false, new ParametersWithIV(this.secretKey, iv));
 		return process(blockCipher, encryptedBytes);
 	}
@@ -86,19 +81,6 @@ public class BouncyCastleAesCbcBytesEncryptor extends BouncyCastleAesBytesEncryp
 		byte[] out = new byte[bytesWritten];
 		System.arraycopy(buf, 0, out, 0, bytesWritten);
 		return out;
-	}
-
-	/**
-	 * Used to test compatibility with deprecated {@link AESFastEngine}.
-	 */
-	@SuppressWarnings("deprecation")
-	static BouncyCastleAesCbcBytesEncryptor withAESFastEngine(String password, CharSequence salt,
-			BytesKeyGenerator ivGenerator) {
-		BouncyCastleAesCbcBytesEncryptor bytesEncryptor = new BouncyCastleAesCbcBytesEncryptor(password, salt,
-				ivGenerator);
-		bytesEncryptor.cipherFactory = () -> new CBCBlockCipher(new AESFastEngine());
-
-		return bytesEncryptor;
 	}
 
 }

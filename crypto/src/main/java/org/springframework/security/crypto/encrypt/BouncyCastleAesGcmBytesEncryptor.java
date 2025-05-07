@@ -16,11 +16,8 @@
 
 package org.springframework.security.crypto.encrypt;
 
-import java.util.function.Supplier;
-
 import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.bouncycastle.crypto.engines.AESEngine;
-import org.bouncycastle.crypto.engines.AESFastEngine;
 import org.bouncycastle.crypto.modes.AEADBlockCipher;
 import org.bouncycastle.crypto.modes.GCMBlockCipher;
 import org.bouncycastle.crypto.params.AEADParameters;
@@ -39,9 +36,6 @@ import org.springframework.security.crypto.util.EncodingUtils;
  */
 public class BouncyCastleAesGcmBytesEncryptor extends BouncyCastleAesBytesEncryptor {
 
-	private Supplier<GCMBlockCipher> cipherFactory = () -> (GCMBlockCipher) GCMBlockCipher
-		.newInstance(AESEngine.newInstance());
-
 	public BouncyCastleAesGcmBytesEncryptor(String password, CharSequence salt) {
 		super(password, salt);
 	}
@@ -53,7 +47,7 @@ public class BouncyCastleAesGcmBytesEncryptor extends BouncyCastleAesBytesEncryp
 	@Override
 	public byte[] encrypt(byte[] bytes) {
 		byte[] iv = this.ivGenerator.generateKey();
-		AEADBlockCipher blockCipher = this.cipherFactory.get();
+		AEADBlockCipher blockCipher = GCMBlockCipher.newInstance(AESEngine.newInstance());
 		blockCipher.init(true, new AEADParameters(this.secretKey, 128, iv, null));
 		byte[] encrypted = process(blockCipher, bytes);
 		return (iv != null) ? EncodingUtils.concatenate(iv, encrypted) : encrypted;
@@ -63,7 +57,7 @@ public class BouncyCastleAesGcmBytesEncryptor extends BouncyCastleAesBytesEncryp
 	public byte[] decrypt(byte[] encryptedBytes) {
 		byte[] iv = EncodingUtils.subArray(encryptedBytes, 0, this.ivGenerator.getKeyLength());
 		encryptedBytes = EncodingUtils.subArray(encryptedBytes, this.ivGenerator.getKeyLength(), encryptedBytes.length);
-		AEADBlockCipher blockCipher = this.cipherFactory.get();
+		AEADBlockCipher blockCipher = GCMBlockCipher.newInstance(AESEngine.newInstance());
 		blockCipher.init(false, new AEADParameters(this.secretKey, 128, iv, null));
 		return process(blockCipher, encryptedBytes);
 	}
@@ -83,19 +77,6 @@ public class BouncyCastleAesGcmBytesEncryptor extends BouncyCastleAesBytesEncryp
 		byte[] out = new byte[bytesWritten];
 		System.arraycopy(buf, 0, out, 0, bytesWritten);
 		return out;
-	}
-
-	/**
-	 * Used to test compatibility with deprecated {@link AESFastEngine}.
-	 */
-	@SuppressWarnings("deprecation")
-	static BouncyCastleAesGcmBytesEncryptor withAESFastEngine(String password, CharSequence salt,
-			BytesKeyGenerator ivGenerator) {
-		BouncyCastleAesGcmBytesEncryptor bytesEncryptor = new BouncyCastleAesGcmBytesEncryptor(password, salt,
-				ivGenerator);
-		bytesEncryptor.cipherFactory = () -> new GCMBlockCipher(new AESFastEngine());
-
-		return bytesEncryptor;
 	}
 
 }
