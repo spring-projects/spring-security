@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,6 @@ import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
-import org.springframework.security.http.MediaTypes;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 
@@ -99,7 +98,6 @@ public final class DefaultOAuth2TokenRequestHeadersConverter<T extends AbstractO
 	 */
 	static <T extends AbstractOAuth2AuthorizationGrantRequest> DefaultOAuth2TokenRequestHeadersConverter<T> withCharsetUtf8() {
 		DefaultOAuth2TokenRequestHeadersConverter<T> converter = new DefaultOAuth2TokenRequestHeadersConverter<>();
-		converter.accept = List.of(MediaTypes.APPLICATION_JSON_UTF8);
 		converter.contentType = APPLICATION_FORM_URLENCODED_UTF8;
 		return converter;
 	}
