@@ -32,6 +32,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import javax.crypto.SecretKey;
 
@@ -43,6 +44,7 @@ import com.nimbusds.jose.JWSSigner;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.RSASSASigner;
 import com.nimbusds.jose.jwk.source.JWKSource;
+import com.nimbusds.jose.jwk.source.JWKSourceBuilder;
 import com.nimbusds.jose.proc.BadJOSEException;
 import com.nimbusds.jose.proc.DefaultJOSEObjectTypeVerifier;
 import com.nimbusds.jose.proc.JWSKeySelector;
@@ -601,6 +603,13 @@ public class NimbusJwtDecoderTests {
 		assertThat(jwsKeySelector instanceof JWSVerificationKeySelector);
 		JWSVerificationKeySelector<?> jwsVerificationKeySelector = (JWSVerificationKeySelector<?>) jwsKeySelector;
 		assertThat(jwsVerificationKeySelector.isAllowed(JWSAlgorithm.RS256)).isTrue();
+	}
+
+	@Test
+	public void jwkSourceIsCustomizable() {
+		Consumer<JWKSourceBuilder<SecurityContext>> jwkSourceBuilderCustomizer = mock();
+		NimbusJwtDecoder.withJwkSetUri(JWK_SET_URI).jwkSourceBuilderCustomizer(jwkSourceBuilderCustomizer).build();
+		verify(jwkSourceBuilderCustomizer, times(1)).accept(any());
 	}
 
 	@Test
