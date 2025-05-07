@@ -91,8 +91,8 @@ public final class DefaultOAuth2TokenRequestHeadersConverter<T extends AbstractO
 
 	/**
 	 * Creates a {@link DefaultOAuth2TokenRequestHeadersConverter} that populates default
-	 * {@link HttpHeaders} that includes {@code charset=UTF-8} on both the {@code Accept}
-	 * and {@code Content-Type} headers to provide backwards compatibility for
+	 * {@link HttpHeaders} that includes {@code charset=UTF-8} on {@code Content-Type}
+	 * headers to provide backwards compatibility for
 	 * {@link AbstractOAuth2AuthorizationGrantRequestEntityConverter}.
 	 * @return the default headers converter
 	 */
