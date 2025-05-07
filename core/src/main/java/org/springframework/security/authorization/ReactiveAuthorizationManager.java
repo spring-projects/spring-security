@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,8 +50,8 @@ public interface ReactiveAuthorizationManager<T> {
 	 */
 	default Mono<Void> verify(Mono<Authentication> authentication, T object) {
 		// @formatter:off
-		return check(authentication, object)
-				.filter(AuthorizationDecision::isGranted)
+		return authorize(authentication, object)
+				.filter(AuthorizationResult::isGranted)
 				.switchIfEmpty(Mono.defer(() -> Mono.error(new AccessDeniedException("Access Denied"))))
 				.flatMap((decision) -> Mono.empty());
 		// @formatter:on
