@@ -23,8 +23,6 @@ import java.util.Random;
 import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.security.crypto.codec.Hex;
@@ -91,64 +89,6 @@ public class BouncyCastleAesBytesEncryptorEquivalencyTests {
 		BytesEncryptor jceEncryptor = new AesBytesEncryptor(this.password, this.salt, KeyGenerators.secureRandom(16),
 				CipherAlgorithm.GCM);
 		testCompatibility(bcEncryptor, jceEncryptor);
-	}
-
-	@Test
-	public void bouncyCastleAesGcmWithAESFastEngineCompatible() throws Exception {
-		CryptoAssumptions.assumeGCMJCE();
-		BytesEncryptor fastEngineEncryptor = BouncyCastleAesGcmBytesEncryptor.withAESFastEngine(this.password,
-				this.salt, KeyGenerators.secureRandom(16));
-		BytesEncryptor defaultEngineEncryptor = new BouncyCastleAesGcmBytesEncryptor(this.password, this.salt,
-				KeyGenerators.secureRandom(16));
-		testCompatibility(fastEngineEncryptor, defaultEngineEncryptor);
-	}
-
-	@Test
-	public void bouncyCastleAesCbcWithAESFastEngineCompatible() throws Exception {
-		CryptoAssumptions.assumeCBCJCE();
-		BytesEncryptor fastEngineEncryptor = BouncyCastleAesCbcBytesEncryptor.withAESFastEngine(this.password,
-				this.salt, KeyGenerators.secureRandom(16));
-		BytesEncryptor defaultEngineEncryptor = new BouncyCastleAesCbcBytesEncryptor(this.password, this.salt,
-				KeyGenerators.secureRandom(16));
-		testCompatibility(fastEngineEncryptor, defaultEngineEncryptor);
-	}
-
-	/**
-	 * Comment out @Disabled below to compare relative speed of deprecated AESFastEngine
-	 * with the default AESEngine.
-	 */
-	@Disabled
-	@RepeatedTest(100)
-	public void bouncyCastleAesGcmWithAESFastEngineSpeedTest() throws Exception {
-		CryptoAssumptions.assumeGCMJCE();
-		BytesEncryptor defaultEngineEncryptor = new BouncyCastleAesGcmBytesEncryptor(this.password, this.salt,
-				KeyGenerators.secureRandom(16));
-		BytesEncryptor fastEngineEncryptor = BouncyCastleAesGcmBytesEncryptor.withAESFastEngine(this.password,
-				this.salt, KeyGenerators.secureRandom(16));
-		long defaultNanos = testSpeed(defaultEngineEncryptor);
-		long fastNanos = testSpeed(fastEngineEncryptor);
-		System.out.println(nanosToReadableString("AES GCM w/Default Engine", defaultNanos));
-		System.out.println(nanosToReadableString("AES GCM w/   Fast Engine", fastNanos));
-		assertThat(fastNanos).isLessThan(defaultNanos);
-	}
-
-	/**
-	 * Comment out @Disabled below to compare relative speed of deprecated AESFastEngine
-	 * with the default AESEngine.
-	 */
-	@Disabled
-	@RepeatedTest(100)
-	public void bouncyCastleAesCbcWithAESFastEngineSpeedTest() throws Exception {
-		CryptoAssumptions.assumeCBCJCE();
-		BytesEncryptor defaultEngineEncryptor = new BouncyCastleAesCbcBytesEncryptor(this.password, this.salt,
-				KeyGenerators.secureRandom(16));
-		BytesEncryptor fastEngineEncryptor = BouncyCastleAesCbcBytesEncryptor.withAESFastEngine(this.password,
-				this.salt, KeyGenerators.secureRandom(16));
-		long defaultNanos = testSpeed(defaultEngineEncryptor);
-		long fastNanos = testSpeed(fastEngineEncryptor);
-		System.out.println(nanosToReadableString("AES CBC w/Default Engine", defaultNanos));
-		System.out.println(nanosToReadableString("AES CBC w/   Fast Engine", fastNanos));
-		assertThat(fastNanos).isLessThan(defaultNanos);
 	}
 
 	private void testEquivalence(BytesEncryptor left, BytesEncryptor right) {
