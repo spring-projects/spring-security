@@ -410,6 +410,23 @@ public class JdbcUserDetailsManagerTests {
 		verify(mockMapper).mapRow(any(), anyInt());
 	}
 
+	@Test
+	void updatePasswordWhenDisabledReturnOriginalUser() {
+		insertJoe();
+		this.manager.updatePassword(joe, "new");
+		UserDetails newJoe = this.manager.loadUserByUsername("joe");
+		assertThat(newJoe.getPassword()).isEqualTo("password");
+	}
+
+	@Test
+	void updatePasswordWhenEnabledShouldUpdatePassword() {
+		insertJoe();
+		this.manager.setEnableUpdatePassword(true);
+		this.manager.updatePassword(joe, "new");
+		UserDetails newJoe = this.manager.loadUserByUsername("joe");
+		assertThat(newJoe.getPassword()).isEqualTo("new");
+	}
+
 	private Authentication authenticateJoe() {
 		UsernamePasswordAuthenticationToken auth = UsernamePasswordAuthenticationToken.authenticated("joe", "password",
 				joe.getAuthorities());
