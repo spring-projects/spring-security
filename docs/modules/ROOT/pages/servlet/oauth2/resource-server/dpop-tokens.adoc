@@ -1,0 +1,212 @@
+[[oauth2-dpop-bound-access-tokens]]
+= OAuth 2.0 DPoP-bound Access Tokens
+
+https://datatracker.ietf.org/doc/html/rfc9449[RFC 9449 OAuth 2.0 Demonstrating Proof of Possession (DPoP)] is an application-level mechanism for sender-constraining an access token.
+
+The primary goal of DPoP is to prevent unauthorized or illegitimate clients from using leaked or stolen access tokens, by binding an access token to a public key upon issuance by the authorization server and requiring that the client proves possession of the corresponding private key when using the access token at the resource server.
+
+Access tokens that are sender-constrained via DPoP stand in contrast to the typical bearer token, which can be used by any client in possession of the access token.
+
+DPoP introduces the concept of a https://datatracker.ietf.org/doc/html/rfc9449#name-dpop-proof-jwts[DPoP Proof], which is a JWT created by the client and sent as a header in an HTTP request.
+A client uses a DPoP proof to prove the possession of a private key corresponding to a certain public key.
+
+When the client initiates an <<dpop-access-token-request,access token request>>, it attaches a DPoP proof to the request in an HTTP header.
+The authorization server binds (sender-constrains) the access token to the public key associated in the DPoP proof.
+
+When the client initiates a <<dpop-protected-resource-request,protected resource request>>, it again attaches a DPoP proof to the request in an HTTP header.
+
+The resource server obtains information about the public key bound to the access token, either directly in the access token (JWT) or via the token introspection endpoint.
+The resource server then verifies that the public key bound to the access token matches the public key in the DPoP proof.
+It also verifies that the access token hash in the DPoP proof matches the access token in the request.
+
+[[dpop-access-token-request]]
+== DPoP Access Token Request
+
+To request an access token that is bound to a public key using DPoP, the client MUST provide a valid DPoP proof in the `DPoP` header when making an access token request to the authorization server token endpoint.
+This is applicable for all access token requests regardless of authorization grant type (e.g. `authorization_code`, `refresh_token`, `client_credentials`, etc).
+
+The following HTTP request shows an `authorization_code` access token request with a DPoP proof in the `DPoP` header:
+
+[source,shell]
+----
+POST /oauth2/token HTTP/1.1
+Host: server.example.com
+Content-Type: application/x-www-form-urlencoded
+DPoP: eyJraWQiOiJyc2EtandrLWtpZCIsInR5cCI6ImRwb3Arand0IiwiYWxnIjoiUlMyNTYiLCJqd2siOnsia3R5IjoiUlNBIiwiZSI6IkFRQUIiLCJraWQiOiJyc2EtandrLWtpZCIsIm4iOiIzRmxxSnI1VFJza0lRSWdkRTNEZDdEOWxib1dkY1RVVDhhLWZKUjdNQXZRbTdYWE5vWWttM3Y3TVFMMU5ZdER2TDJsOENBbmMwV2RTVElOVTZJUnZjNUtxbzJRNGNzTlg5U0hPbUVmem9ST2pRcWFoRWN2ZTFqQlhsdW9DWGRZdVlweDRfMXRmUmdHNmlpNFVoeGg2aUk4cU5NSlFYLWZMZnFoYmZZZnhCUVZSUHl3QmtBYklQNHgxRUFzYkM2RlNObWtoQ3hpTU5xRWd4YUlwWThDMmtKZEpfWklWLVdXNG5vRGR6cEtxSGN3bUI4RnNydW1sVllfRE5WdlVTRElpcGlxOVBiUDRIOTlUWE4xbzc0Nm9SYU5hMDdycTFob0NnTVNTeS04NVNhZ0NveGxteUUtRC1vZjlTc01ZOE9sOXQwcmR6cG9iQnVoeUpfbzVkZnZqS3cifX0.eyJodG0iOiJQT1NUIiwiaHR1IjoiaHR0cHM6Ly9zZXJ2ZXIuZXhhbXBsZS5jb20vb2F1dGgyL3Rva2VuIiwiaWF0IjoxNzQ2ODA2MzA1LCJqdGkiOiI0YjIzNDBkMi1hOTFmLTQwYTUtYmFhOS1kZDRlNWRlYWM4NjcifQ.wq8gJ_G6vpiEinfaY3WhereqCCLoeJOG8tnWBBAzRWx9F1KU5yAAWq-ZVCk_k07-h6DIqz2wgv6y9dVbNpRYwNwDUeik9qLRsC60M8YW7EFVyI3n_NpujLwzZeub_nDYMVnyn4ii0NaZrYHtoGXOlswQfS_-ET-jpC0XWm5nBZsCdUEXjOYtwaACC6Js-pyNwKmSLp5SKIk11jZUR5xIIopaQy521y9qJHhGRwzj8DQGsP7wMZ98UFL0E--1c-hh4rTy8PMeWCqRHdwjj_ry_eTe0DJFcxxYQdeL7-0_0CIO4Ayx5WHEpcUOIzBRoN32RsNpDZc-5slDNj9ku004DA
+
+grant_type=authorization_code\
+&client_id=s6BhdRkqt\
+&code=SplxlOBeZQQYbYS6WxSbIA\
+&redirect_uri=https%3A%2F%2Fclient%2Eexample%2Ecom%2Fcb\
+&code_verifier=bEaL42izcC-o-xBk0K2vuJ6U-y1p9r_wW2dFWIWgjz-
+----
+
+The following shows a representation of the DPoP Proof JWT header and claims:
+
+[source,json]
+----
+{
+  "typ": "dpop+jwt",
+  "alg": "RS256",
+  "jwk": {
+    "kty": "RSA",
+    "e": "AQAB",
+    "n": "3FlqJr5TRskIQIgdE3Dd7D9lboWdcTUT8a-fJR7MAvQm7XXNoYkm3v7MQL1NYtDvL2l8CAnc0WdSTINU6IRvc5Kqo2Q4csNX9SHOmEfzoROjQqahEcve1jBXluoCXdYuYpx4_1tfRgG6ii4Uhxh6iI8qNMJQX-fLfqhbfYfxBQVRPywBkAbIP4x1EAsbC6FSNmkhCxiMNqEgxaIpY8C2kJdJ_ZIV-WW4noDdzpKqHcwmB8FsrumlVY_DNVvUSDIipiq9PbP4H99TXN1o746oRaNa07rq1hoCgMSSy-85SagCoxlmyE-D-of9SsMY8Ol9t0rdzpobBuhyJ_o5dfvjKw"
+  }
+}
+----
+
+[source,json]
+----
+{
+  "htm": "POST",
+  "htu": "https://server.example.com/oauth2/token",
+  "iat": 1746806305,
+  "jti": "4b2340d2-a91f-40a5-baa9-dd4e5deac867"
+}
+----
+
+The following code shows an example of how to generate the DPoP Proof JWT:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+RSAKey rsaKey = ...
+JWKSource<SecurityContext> jwkSource = (jwkSelector, securityContext) -> jwkSelector
+		.select(new JWKSet(rsaKey));
+NimbusJwtEncoder jwtEncoder = new NimbusJwtEncoder(jwkSource);
+
+JwsHeader jwsHeader = JwsHeader.with(SignatureAlgorithm.RS256)
+		.type("dpop+jwt")
+		.jwk(rsaKey.toPublicJWK().toJSONObject())
+		.build();
+JwtClaimsSet claims = JwtClaimsSet.builder()
+		.issuedAt(Instant.now())
+		.claim("htm", "POST")
+		.claim("htu", "https://server.example.com/oauth2/token")
+		.id(UUID.randomUUID().toString())
+		.build();
+
+Jwt dPoPProof = jwtEncoder.encode(JwtEncoderParameters.from(jwsHeader, claims));
+----
+======
+
+After the authorization server successfully validates the DPoP proof, the public key from the DPoP proof will be bound (sender-constrained) to the issued access token.
+
+The following access token response shows the `token_type` parameter as `DPoP` to signal to the client that the access token was bound to its DPoP proof public key:
+
+[source,shell]
+----
+HTTP/1.1 200 OK
+Content-Type: application/json
+Cache-Control: no-store
+
+{
+ "access_token": "Kz~8mXK1EalYznwH-LC-1fBAo.4Ljp~zsPE_NeO.gxU",
+ "token_type": "DPoP",
+ "expires_in": 2677
+}
+----
+
+[[dpop-public-key-confirmation]]
+== Public Key Confirmation
+
+Resource servers MUST be able to identify whether an access token is DPoP-bound and verify the binding to the public key of the DPoP proof.
+The binding is accomplished by associating the public key with the access token in a way that can be accessed by the resource server, such as embedding the public key hash in the access token directly (JWT) or through token introspection.
+
+When an access token is represented as a JWT, the public key hash is contained in the `jkt` claim under the confirmation method (`cnf`) claim.
+
+The following example shows the claims of a JWT access token containing a `cnf` claim with a `jkt` claim, which is the JWK SHA-256 Thumbprint of the DPoP proof public key:
+
+[source,json]
+----
+{
+  "sub":"user@example.com",
+  "iss":"https://server.example.com",
+  "nbf":1562262611,
+  "exp":1562266216,
+  "cnf":
+  {
+    "jkt":"CQMknzRoZ5YUi7vS58jck1q8TmZT8wiIiXrCN1Ny4VU"
+  }
+}
+----
+
+[[dpop-protected-resource-request]]
+== DPoP Protected Resource Request
+
+Requests to DPoP-protected resources MUST include both a DPoP proof and the DPoP-bound access token.
+The DPoP proof MUST include the `ath` claim with a valid hash of the access token.
+The resource server will calculate the hash of the received access token and verify that it is the same as the `ath` claim in the DPoP proof.
+
+A DPoP-bound access token is sent using the `Authorization` request header with an authentication scheme of `DPoP`.
+
+The following HTTP request shows a protected resource request with a DPoP-bound access token in the `Authorization` header and the DPoP proof in the `DPoP` header:
+
+[source,shell]
+----
+GET /resource HTTP/1.1
+Host: resource.example.com
+Authorization: DPoP Kz~8mXK1EalYznwH-LC-1fBAo.4Ljp~zsPE_NeO.gxU
+DPoP: eyJraWQiOiJyc2EtandrLWtpZCIsInR5cCI6ImRwb3Arand0IiwiYWxnIjoiUlMyNTYiLCJqd2siOnsia3R5IjoiUlNBIiwiZSI6IkFRQUIiLCJraWQiOiJyc2EtandrLWtpZCIsIm4iOiIzRmxxSnI1VFJza0lRSWdkRTNEZDdEOWxib1dkY1RVVDhhLWZKUjdNQXZRbTdYWE5vWWttM3Y3TVFMMU5ZdER2TDJsOENBbmMwV2RTVElOVTZJUnZjNUtxbzJRNGNzTlg5U0hPbUVmem9ST2pRcWFoRWN2ZTFqQlhsdW9DWGRZdVlweDRfMXRmUmdHNmlpNFVoeGg2aUk4cU5NSlFYLWZMZnFoYmZZZnhCUVZSUHl3QmtBYklQNHgxRUFzYkM2RlNObWtoQ3hpTU5xRWd4YUlwWThDMmtKZEpfWklWLVdXNG5vRGR6cEtxSGN3bUI4RnNydW1sVllfRE5WdlVTRElpcGlxOVBiUDRIOTlUWE4xbzc0Nm9SYU5hMDdycTFob0NnTVNTeS04NVNhZ0NveGxteUUtRC1vZjlTc01ZOE9sOXQwcmR6cG9iQnVoeUpfbzVkZnZqS3cifX0.eyJodG0iOiJHRVQiLCJodHUiOiJodHRwczovL3Jlc291cmNlLmV4YW1wbGUuY29tL3Jlc291cmNlIiwiYXRoIjoiZlVIeU8ycjJaM0RaNTNFc05yV0JiMHhXWG9hTnk1OUlpS0NBcWtzbVFFbyIsImlhdCI6MTc0NjgwNzEzOCwianRpIjoiM2MyZWU5YmItMDNhYy00MGNmLWI4MTItMDBiZmJhMzQxY2VlIn0.oS6NwjURR6wZemh1ZBNiBjycGeXwnkguLtgiKdCjQSEhFQpEJm04bBa0tdfZgWT17Z2mBgddnNQSkROzUGfssg8rBBldZXOAiduF-whtEGZA-pXXWJilXrwH3Glb6hIOMZOVmIH8fmYCDmqn-sE_DmDIsv57Il2-jdZbgeDcrxADO-6E5gsuNf1jvy7qqHq7INrKX6jRuydti_Re35lecvaAWfTyD7s7tQ_-3x_xLxxPwf_eA6z8OWbc58O2PYoUeO2JKLiOIg6UVZOZzxLEWV42WIKjha_kkoykvsf98W2y8pWOEr65u0VPsn5esw2X3I1eFL_A-XkxstZHRaGXJg
+----
+
+The following shows a representation of the DPoP Proof JWT header and claims with the `ath` claim:
+
+[source,json]
+----
+{
+  "typ": "dpop+jwt",
+  "alg": "RS256",
+  "jwk": {
+    "kty": "RSA",
+    "e": "AQAB",
+    "n": "3FlqJr5TRskIQIgdE3Dd7D9lboWdcTUT8a-fJR7MAvQm7XXNoYkm3v7MQL1NYtDvL2l8CAnc0WdSTINU6IRvc5Kqo2Q4csNX9SHOmEfzoROjQqahEcve1jBXluoCXdYuYpx4_1tfRgG6ii4Uhxh6iI8qNMJQX-fLfqhbfYfxBQVRPywBkAbIP4x1EAsbC6FSNmkhCxiMNqEgxaIpY8C2kJdJ_ZIV-WW4noDdzpKqHcwmB8FsrumlVY_DNVvUSDIipiq9PbP4H99TXN1o746oRaNa07rq1hoCgMSSy-85SagCoxlmyE-D-of9SsMY8Ol9t0rdzpobBuhyJ_o5dfvjKw"
+  }
+}
+----
+
+[source,json]
+----
+{
+  "htm": "GET",
+  "htu": "https://resource.example.com/resource",
+  "ath": "fUHyO2r2Z3DZ53EsNrWBb0xWXoaNy59IiKCAqksmQEo",
+  "iat": 1746807138,
+  "jti": "3c2ee9bb-03ac-40cf-b812-00bfba341cee"
+}
+----
+
+The following code shows an example of how to generate the DPoP Proof JWT:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+RSAKey rsaKey = ...
+JWKSource<SecurityContext> jwkSource = (jwkSelector, securityContext) -> jwkSelector
+		.select(new JWKSet(rsaKey));
+NimbusJwtEncoder jwtEncoder = new NimbusJwtEncoder(jwkSource);
+
+String accessToken = ...
+
+JwsHeader jwsHeader = JwsHeader.with(SignatureAlgorithm.RS256)
+		.type("dpop+jwt")
+		.jwk(rsaKey.toPublicJWK().toJSONObject())
+		.build();
+JwtClaimsSet claims = JwtClaimsSet.builder()
+		.issuedAt(Instant.now())
+		.claim("htm", "GET")
+		.claim("htu", "https://resource.example.com/resource")
+		.claim("ath", sha256(accessToken))
+		.id(UUID.randomUUID().toString())
+		.build();
+
+Jwt dPoPProof = jwtEncoder.encode(JwtEncoderParameters.from(jwsHeader, claims));
+----
+======

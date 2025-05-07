@@ -7,6 +7,7 @@ Below are the highlights of the release, or you can view https://github.com/spri
 == New Features
 
 * Support for automatic context-propagation with Micrometer (https://github.com/spring-projects/spring-security/issues/16665[gh-16665])
+* OAuth 2.0 Demonstrating Proof of Possession (DPoP) (https://github.com/spring-projects/spring-security/pull/16574[gh-16574])
 
 == Breaking Changes
 

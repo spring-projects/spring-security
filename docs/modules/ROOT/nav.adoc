@@ -82,6 +82,7 @@
 **** xref:servlet/oauth2/resource-server/opaque-token.adoc[Opaque Token]
 **** xref:servlet/oauth2/resource-server/multitenancy.adoc[Multitenancy]
 **** xref:servlet/oauth2/resource-server/bearer-tokens.adoc[Bearer Tokens]
+**** xref:servlet/oauth2/resource-server/dpop-tokens.adoc[DPoP-bound Access Tokens]
 ** xref:servlet/saml2/index.adoc[SAML2]
 *** xref:servlet/saml2/login/index.adoc[SAML2 Log In]
 **** xref:servlet/saml2/login/overview.adoc[SAML2 Log In Overview]
