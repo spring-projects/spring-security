@@ -140,8 +140,9 @@ public abstract class AbstractUserDetailsAuthenticationProvider
 				if (!this.hideUserNotFoundExceptions) {
 					throw ex;
 				}
-				throw new BadCredentialsException(this.messages
-					.getMessage("AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"));
+				String message = this.messages.getMessage("AbstractUserDetailsAuthenticationProvider.badCredentials",
+						"Bad credentials");
+				throw new BadCredentialsException(message, ex);
 			}
 			Assert.notNull(user, "retrieveUser returned null - a violation of the interface contract");
 		}
