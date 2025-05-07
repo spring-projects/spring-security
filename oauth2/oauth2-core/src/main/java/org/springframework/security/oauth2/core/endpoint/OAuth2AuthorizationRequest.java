@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -186,6 +187,35 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 	 */
 	public static Builder authorizationCode() {
 		return new Builder(AuthorizationGrantType.AUTHORIZATION_CODE);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null || this.getClass() != obj.getClass()) {
+			return false;
+		}
+		OAuth2AuthorizationRequest that = (OAuth2AuthorizationRequest) obj;
+
+		return Objects.equals(this.authorizationUri, that.authorizationUri)
+				&& Objects.equals(this.authorizationGrantType, that.authorizationGrantType)
+				&& Objects.equals(this.responseType, that.responseType) && Objects.equals(this.clientId, that.clientId)
+				&& Objects.equals(this.redirectUri, that.redirectUri) && Objects.equals(this.scopes, that.scopes)
+				&& Objects.equals(this.state, that.state)
+				&& Objects.equals(this.additionalParameters, that.additionalParameters)
+				&& Objects.equals(this.authorizationRequestUri, that.authorizationRequestUri)
+				&& Objects.equals(this.attributes, that.attributes);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hashCode(this.authorizationUri) + Objects.hashCode(this.clientId)
+				+ Objects.hashCode(this.authorizationGrantType) + Objects.hashCode(this.responseType)
+				+ Objects.hashCode(this.redirectUri) + Objects.hashCode(this.scopes) + Objects.hashCode(this.state)
+				+ Objects.hashCode(this.additionalParameters) + Objects.hashCode(this.authorizationRequestUri)
+				+ Objects.hashCode(this.attributes);
 	}
 
 	/**
