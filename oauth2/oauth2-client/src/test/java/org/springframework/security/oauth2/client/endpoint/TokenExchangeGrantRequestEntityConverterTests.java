@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -161,8 +161,7 @@ public class TokenExchangeGrantRequestEntityConverterTests {
 		assertThat(requestEntity.getUrl().toASCIIString())
 			.isEqualTo(clientRegistration.getProviderDetails().getTokenUri());
 		HttpHeaders headers = requestEntity.getHeaders();
-		assertThat(headers.getAccept())
-			.contains(MediaType.valueOf(MediaType.APPLICATION_JSON_VALUE + ";charset=UTF-8"));
+		assertThat(headers.getAccept()).contains(MediaType.APPLICATION_JSON);
 		assertThat(headers.getContentType())
 			.isEqualTo(MediaType.valueOf(MediaType.APPLICATION_FORM_URLENCODED_VALUE + ";charset=UTF-8"));
 		assertThat(headers.getFirst(HttpHeaders.AUTHORIZATION)).startsWith("Basic ");
@@ -197,8 +196,7 @@ public class TokenExchangeGrantRequestEntityConverterTests {
 		assertThat(requestEntity.getUrl().toASCIIString())
 			.isEqualTo(clientRegistration.getProviderDetails().getTokenUri());
 		HttpHeaders headers = requestEntity.getHeaders();
-		assertThat(headers.getAccept())
-			.contains(MediaType.valueOf(MediaType.APPLICATION_JSON_VALUE + ";charset=UTF-8"));
+		assertThat(headers.getAccept()).contains(MediaType.APPLICATION_JSON);
 		assertThat(headers.getContentType())
 			.isEqualTo(MediaType.valueOf(MediaType.APPLICATION_FORM_URLENCODED_VALUE + ";charset=UTF-8"));
 		assertThat(headers.getFirst(HttpHeaders.AUTHORIZATION)).isNull();
