@@ -87,6 +87,23 @@ public enum CommonOAuth2Provider {
 
 	},
 
+	X {
+
+		@Override
+		public Builder getBuilder(String registrationId) {
+			ClientRegistration.Builder builder = getBuilder(registrationId,
+					ClientAuthenticationMethod.CLIENT_SECRET_POST, DEFAULT_REDIRECT_URL);
+			builder.scope("users.read", "tweet.read");
+			builder.authorizationUri("https://x.com/i/oauth2/authorize");
+			builder.tokenUri("https://api.x.com/2/oauth2/token");
+			builder.userInfoUri("https://api.x.com/2/users/me");
+			builder.userNameAttributeName("username");
+			builder.clientName("X");
+			return builder;
+		}
+
+	},
+
 	OKTA {
 
 		@Override
