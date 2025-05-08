@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -112,6 +112,24 @@ public class CommonOAuth2ProviderTests {
 		assertThat(registration.getRedirectUri()).isEqualTo(DEFAULT_REDIRECT_URL);
 		assertThat(registration.getScopes()).containsOnly("openid", "profile", "email");
 		assertThat(registration.getClientName()).isEqualTo("Okta");
+		assertThat(registration.getRegistrationId()).isEqualTo("123");
+	}
+
+	@Test
+	public void getBuilderWhenXShouldHaveXSettings() {
+		ClientRegistration registration = build(CommonOAuth2Provider.X);
+		ProviderDetails providerDetails = registration.getProviderDetails();
+		assertThat(providerDetails.getAuthorizationUri()).isEqualTo("https://x.com/i/oauth2/authorize");
+		assertThat(providerDetails.getTokenUri()).isEqualTo("https://api.x.com/2/oauth2/token");
+		assertThat(providerDetails.getUserInfoEndpoint().getUri()).isEqualTo("https://api.x.com/2/users/me");
+		assertThat(providerDetails.getUserInfoEndpoint().getUserNameAttributeName()).isEqualTo("username");
+		assertThat(providerDetails.getJwkSetUri()).isNull();
+		assertThat(registration.getClientAuthenticationMethod())
+			.isEqualTo(ClientAuthenticationMethod.CLIENT_SECRET_POST);
+		assertThat(registration.getAuthorizationGrantType()).isEqualTo(AuthorizationGrantType.AUTHORIZATION_CODE);
+		assertThat(registration.getRedirectUri()).isEqualTo(DEFAULT_REDIRECT_URL);
+		assertThat(registration.getScopes()).containsOnly("users.read", "tweet.read");
+		assertThat(registration.getClientName()).isEqualTo("X");
 		assertThat(registration.getRegistrationId()).isEqualTo("123");
 	}
 
