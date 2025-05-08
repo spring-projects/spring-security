@@ -16,7 +16,11 @@
 
 package org.springframework.security.config.annotation.method.configuration;
 
+import java.util.List;
 import java.util.Map;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Bean;
@@ -24,17 +28,35 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Role;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotWritableException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authorization.method.AuthorizationAdvisorProxyFactory;
+import org.springframework.security.web.util.ThrowableAnalyzer;
+import org.springframework.web.servlet.HandlerExceptionResolver;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.View;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.servlet.mvc.support.DefaultHandlerExceptionResolver;
 
 @Configuration
-class AuthorizationProxyWebConfiguration {
+class AuthorizationProxyWebConfiguration implements WebMvcConfigurer {
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 	AuthorizationAdvisorProxyFactory.TargetVisitor webTargetVisitor() {
 		return new WebTargetVisitor();
+	}
+
+	@Override
+	public void extendHandlerExceptionResolvers(List<HandlerExceptionResolver> resolvers) {
+		for (int i = 0; i < resolvers.size(); i++) {
+			HandlerExceptionResolver resolver = resolvers.get(i);
+			if (resolver instanceof DefaultHandlerExceptionResolver) {
+				resolvers.add(i, new HttpMessageNotWritableAccessDeniedExceptionResolver());
+				return;
+			}
+		}
+		resolvers.add(new HttpMessageNotWritableAccessDeniedExceptionResolver());
 	}
 
 	static class WebTargetVisitor implements AuthorizationAdvisorProxyFactory.TargetVisitor {
@@ -56,6 +78,30 @@ class AuthorizationProxyWebConfiguration {
 						: new ModelAndView(viewName, model);
 				proxied.setStatus(mav.getStatus());
 				return proxied;
+			}
+			return null;
+		}
+
+	}
+
+	static class HttpMessageNotWritableAccessDeniedExceptionResolver implements HandlerExceptionResolver {
+
+		final ThrowableAnalyzer throwableAnalyzer = new ThrowableAnalyzer();
+
+		@Override
+		public ModelAndView resolveException(HttpServletRequest request, HttpServletResponse response, Object handler,
+				Exception ex) {
+			// Only resolves AccessDeniedException if it occurred during serialization,
+			// otherwise lets the user-defined handler deal with it.
+			if (ex instanceof HttpMessageNotWritableException) {
+				Throwable[] causeChain = this.throwableAnalyzer.determineCauseChain(ex);
+				Throwable accessDeniedException = this.throwableAnalyzer
+					.getFirstThrowableOfType(AccessDeniedException.class, causeChain);
+				if (accessDeniedException != null) {
+					return new ModelAndView((model, req, res) -> {
+						throw ex;
+					});
+				}
 			}
 			return null;
 		}
