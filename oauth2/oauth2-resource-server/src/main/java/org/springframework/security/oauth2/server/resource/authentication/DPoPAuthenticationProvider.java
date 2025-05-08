@@ -193,25 +193,22 @@ public final class DPoPAuthenticationProvider implements AuthenticationProvider 
 				return OAuth2TokenValidatorResult.failure(error);
 			}
 
-			PublicKey publicKey = null;
+			JWK jwk = null;
 			@SuppressWarnings("unchecked")
 			Map<String, Object> jwkJson = (Map<String, Object>) jwt.getHeaders().get("jwk");
 			try {
-				JWK jwk = JWK.parse(jwkJson);
-				if (jwk instanceof AsymmetricJWK) {
-					publicKey = ((AsymmetricJWK) jwk).toPublicKey();
-				}
+				jwk = JWK.parse(jwkJson);
 			}
 			catch (Exception ignored) {
 			}
-			if (publicKey == null) {
+			if (jwk == null) {
 				OAuth2Error error = createOAuth2Error("jwk header is missing or invalid.");
 				return OAuth2TokenValidatorResult.failure(error);
 			}
 
 			String jwkThumbprint;
 			try {
-				jwkThumbprint = computeSHA256(publicKey);
+				jwkThumbprint = jwk.computeThumbprint().toString();
 			}
 			catch (Exception ex) {
 				OAuth2Error error = createOAuth2Error("Failed to compute SHA-256 Thumbprint for jwk.");
