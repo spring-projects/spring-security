@@ -19,6 +19,8 @@
 *** xref:features/exploits/headers.adoc[HTTP Headers]
 *** xref:features/exploits/http.adoc[HTTP Requests]
 ** xref:features/integrations/index.adoc[Integrations]
+*** REST Client
+**** xref:features/integrations/rest/http-interface.adoc[HTTP Interface Integration]
 *** xref:features/integrations/cryptography.adoc[Cryptography]
 *** xref:features/integrations/data.adoc[Spring Data]
 *** xref:features/integrations/concurrency.adoc[Java's Concurrency APIs]
