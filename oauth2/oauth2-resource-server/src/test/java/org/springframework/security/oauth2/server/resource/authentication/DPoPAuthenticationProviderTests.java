@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
@@ -218,8 +219,8 @@ public class DPoPAuthenticationProviderTests {
 
 	@Test
 	public void authenticateWhenJktDoesNotMatchThenThrowOAuth2AuthenticationException() throws Exception {
-		// Use different client public key
-		Jwt accessToken = generateAccessToken(TestKeys.DEFAULT_EC_KEY_PAIR.getPublic());
+		// Use different jwk to make it not match
+		Jwt accessToken = generateAccessToken(TestJwks.DEFAULT_EC_JWK);
 		JwtAuthenticationToken jwtAuthenticationToken = new JwtAuthenticationToken(accessToken);
 		given(this.tokenAuthenticationManager.authenticate(any())).willReturn(jwtAuthenticationToken);
 
@@ -285,14 +286,14 @@ public class DPoPAuthenticationProviderTests {
 	}
 
 	private Jwt generateAccessToken() {
-		return generateAccessToken(TestKeys.DEFAULT_PUBLIC_KEY);
+		return generateAccessToken(TestJwks.DEFAULT_RSA_JWK);
 	}
 
-	private Jwt generateAccessToken(PublicKey clientPublicKey) {
+	private Jwt generateAccessToken(JWK clientJwk) {
 		Map<String, Object> jktClaim = null;
-		if (clientPublicKey != null) {
+		if (clientJwk != null) {
 			try {
-				String sha256Thumbprint = computeSHA256(clientPublicKey);
+				String sha256Thumbprint = clientJwk.computeThumbprint().toString();
 				jktClaim = new HashMap<>();
 				jktClaim.put("jkt", sha256Thumbprint);
 			}
@@ -321,11 +322,4 @@ public class DPoPAuthenticationProviderTests {
 		byte[] digest = md.digest(value.getBytes(StandardCharsets.UTF_8));
 		return Base64.getUrlEncoder().withoutPadding().encodeToString(digest);
 	}
-
-	private static String computeSHA256(PublicKey publicKey) throws Exception {
-		MessageDigest md = MessageDigest.getInstance("SHA-256");
-		byte[] digest = md.digest(publicKey.getEncoded());
-		return Base64.getUrlEncoder().withoutPadding().encodeToString(digest);
-	}
-
 }
