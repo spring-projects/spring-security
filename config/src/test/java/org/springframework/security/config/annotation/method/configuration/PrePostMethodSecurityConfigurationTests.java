@@ -33,6 +33,7 @@ import io.micrometer.observation.ObservationHandler;
 import io.micrometer.observation.ObservationRegistry;
 import io.micrometer.observation.ObservationTextPublisher;
 import jakarta.annotation.security.DenyAll;
+import org.aopalliance.aop.Advice;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.junit.jupiter.api.Test;
@@ -42,6 +43,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
 
 import org.springframework.aop.Advisor;
+import org.springframework.aop.Pointcut;
 import org.springframework.aop.config.AopConfigUtils;
 import org.springframework.aop.support.DefaultPointcutAdvisor;
 import org.springframework.aop.support.JdkRegexpMethodPointcut;
@@ -62,8 +64,11 @@ import org.springframework.context.event.EventListener;
 import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 import org.springframework.core.annotation.AnnotationConfigurationException;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotWritableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.access.annotation.BusinessService;
@@ -95,6 +100,7 @@ import org.springframework.security.authorization.method.MethodAuthorizationDeni
 import org.springframework.security.authorization.method.MethodInvocationResult;
 import org.springframework.security.authorization.method.PrePostTemplateDefaults;
 import org.springframework.security.config.annotation.SecurityContextChangedListenerConfig;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.core.GrantedAuthorityDefaults;
 import org.springframework.security.config.observation.SecurityObservationSettings;
 import org.springframework.security.config.test.SpringTestContext;
@@ -106,13 +112,24 @@ import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.context.support.WithSecurityContextTestExecutionListener;
+import org.springframework.security.web.util.ThrowableAnalyzer;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.ConfigurableWebApplicationContext;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -127,6 +144,9 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
  * Tests for {@link PrePostMethodSecurityConfiguration}.
@@ -147,6 +167,9 @@ public class PrePostMethodSecurityConfigurationTests {
 
 	@Autowired(required = false)
 	BusinessService businessService;
+
+	@Autowired(required = false)
+	MockMvc mvc;
 
 	@WithMockUser
 	@Test
@@ -1181,6 +1204,97 @@ public class PrePostMethodSecurityConfigurationTests {
 		}
 	}
 
+	@Test
+	void getWhenPostAuthorizeAuthenticationNameMatchesThenRespondsWithOk() throws Exception {
+		this.spring.register(WebMvcMethodSecurityConfig.class, BasicController.class).autowire();
+		// @formatter:off
+		MockHttpServletRequestBuilder requestWithUser = get("/authorized-person")
+				.param("name", "rob")
+				.with(user("rob"));
+		// @formatter:on
+		this.mvc.perform(requestWithUser).andExpect(status().isOk());
+	}
+
+	@Test
+	void getWhenPostAuthorizeAuthenticationNameNotMatchThenRespondsWithForbidden() throws Exception {
+		this.spring.register(WebMvcMethodSecurityConfig.class, BasicController.class).autowire();
+		// @formatter:off
+		MockHttpServletRequestBuilder requestWithUser = get("/authorized-person")
+				.param("name", "john")
+				.with(user("rob"));
+		// @formatter:on
+		this.mvc.perform(requestWithUser).andExpect(status().isForbidden());
+	}
+
+	@Test
+	void getWhenPostAuthorizeWithinServiceAuthenticationNameMatchesThenRespondsWithOk() throws Exception {
+		this.spring.register(WebMvcMethodSecurityConfig.class, BasicController.class, BasicService.class).autowire();
+		// @formatter:off
+		MockHttpServletRequestBuilder requestWithUser = get("/greetings/authorized-person")
+				.param("name", "rob")
+				.with(user("rob"));
+		// @formatter:on
+		MvcResult mvcResult = this.mvc.perform(requestWithUser).andExpect(status().isOk()).andReturn();
+		assertThat(mvcResult.getResponse().getContentAsString()).isEqualTo("Hello: rob");
+	}
+
+	@Test
+	void getWhenPostAuthorizeWithinServiceAuthenticationNameNotMatchThenCustomHandlerRespondsWithForbidden()
+			throws Exception {
+		this.spring
+			.register(WebMvcMethodSecurityConfig.class, BasicController.class, BasicService.class,
+					BasicControllerAdvice.class)
+			.autowire();
+		// @formatter:off
+		MockHttpServletRequestBuilder requestWithUser = get("/greetings/authorized-person")
+				.param("name", "john")
+				.with(user("rob"));
+		// @formatter:on
+		MvcResult mvcResult = this.mvc.perform(requestWithUser).andExpect(status().isForbidden()).andReturn();
+		assertThat(mvcResult.getResponse().getContentAsString()).isEqualTo("""
+				{"message":"Access Denied"}\
+				""");
+	}
+
+	@Test
+	void getWhenPostAuthorizeAuthenticationNameNotMatchThenCustomHandlerRespondsWithForbidden() throws Exception {
+		this.spring
+			.register(WebMvcMethodSecurityConfig.class, BasicController.class, BasicService.class,
+					BasicControllerAdvice.class)
+			.autowire();
+		// @formatter:off
+		MockHttpServletRequestBuilder requestWithUser = get("/authorized-person")
+				.param("name", "john")
+				.with(user("rob"));
+		// @formatter:on
+		MvcResult mvcResult = this.mvc.perform(requestWithUser).andExpect(status().isForbidden()).andReturn();
+		assertThat(mvcResult.getResponse().getContentAsString()).isEqualTo("""
+				{"message":"Could not write JSON: Access Denied"}\
+				""");
+	}
+
+	@Test
+	void getWhenCustomAdvisorAuthenticationNameMatchesThenRespondsWithOk() throws Exception {
+		this.spring.register(WebMvcMethodSecurityCustomAdvisorConfig.class, BasicController.class).autowire();
+		// @formatter:off
+		MockHttpServletRequestBuilder requestWithUser = get("/authorized-person")
+				.param("name", "rob")
+				.with(user("rob"));
+		// @formatter:on
+		this.mvc.perform(requestWithUser).andExpect(status().isOk());
+	}
+
+	@Test
+	void getWhenCustomAdvisorAuthenticationNameNotMatchThenRespondsWithForbidden() throws Exception {
+		this.spring.register(WebMvcMethodSecurityCustomAdvisorConfig.class, BasicController.class).autowire();
+		// @formatter:off
+		MockHttpServletRequestBuilder requestWithUser = get("/authorized-person")
+				.param("name", "john")
+				.with(user("rob"));
+		// @formatter:on
+		this.mvc.perform(requestWithUser).andExpect(status().isForbidden());
+	}
+
 	private static Consumer<ConfigurableWebApplicationContext> disallowBeanOverriding() {
 		return (context) -> ((AnnotationConfigWebApplicationContext) context).setAllowBeanDefinitionOverriding(false);
 	}
@@ -1915,6 +2029,120 @@ public class PrePostMethodSecurityConfigurationTests {
 		@EventListener
 		void onRequestDenied(AuthorizationDeniedEvent<? extends MethodInvocation> denied) {
 			this.invocations++;
+		}
+
+	}
+
+	@EnableWebMvc
+	@EnableWebSecurity
+	@EnableMethodSecurity
+	static class WebMvcMethodSecurityConfig {
+
+	}
+
+	@EnableWebMvc
+	@EnableWebSecurity
+	@EnableMethodSecurity
+	static class WebMvcMethodSecurityCustomAdvisorConfig {
+
+		@Bean
+		AuthorizationAdvisor customAdvisor(SecurityContextHolderStrategy strategy) {
+			JdkRegexpMethodPointcut pointcut = new JdkRegexpMethodPointcut();
+			pointcut.setPattern(".*AuthorizedPerson.*getName");
+			return new AuthorizationAdvisor() {
+				@Override
+				public Object invoke(MethodInvocation mi) throws Throwable {
+					Authentication auth = strategy.getContext().getAuthentication();
+					Object result = mi.proceed();
+					if (auth.getName().equals(result)) {
+						return result;
+					}
+					throw new AccessDeniedException("Access Denied for User '" + auth.getName() + "'");
+				}
+
+				@Override
+				public Pointcut getPointcut() {
+					return pointcut;
+				}
+
+				@Override
+				public Advice getAdvice() {
+					return this;
+				}
+
+				@Override
+				public int getOrder() {
+					return AuthorizationInterceptorsOrder.POST_FILTER.getOrder() + 1;
+				}
+			};
+		}
+
+	}
+
+	@RestController
+	static class BasicController {
+
+		@Autowired(required = false)
+		BasicService service;
+
+		@GetMapping("/greetings/authorized-person")
+		String getAuthorizedPersonGreeting(@RequestParam String name) {
+			AuthorizedPerson authorizedPerson = this.service.getAuthorizedPerson(name);
+			return "Hello: " + authorizedPerson.getName();
+		}
+
+		@AuthorizeReturnObject
+		@GetMapping(value = "/authorized-person", produces = MediaType.APPLICATION_JSON_VALUE)
+		AuthorizedPerson getAuthorizedPerson(@RequestParam String name) {
+			return new AuthorizedPerson(name);
+		}
+
+	}
+
+	@ControllerAdvice
+	static class BasicControllerAdvice {
+
+		@ExceptionHandler(AccessDeniedException.class)
+		ResponseEntity<Map<String, String>> handleAccessDenied(AccessDeniedException ex) {
+			Map<String, String> responseBody = Map.of("message", ex.getMessage());
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body(responseBody);
+		}
+
+		@ExceptionHandler(HttpMessageNotWritableException.class)
+		ResponseEntity<Map<String, String>> handleHttpMessageNotWritable(HttpMessageNotWritableException ex) {
+			ThrowableAnalyzer throwableAnalyzer = new ThrowableAnalyzer();
+			Throwable[] causeChain = throwableAnalyzer.determineCauseChain(ex);
+			Throwable t = throwableAnalyzer.getFirstThrowableOfType(AccessDeniedException.class, causeChain);
+			if (t != null) {
+				Map<String, String> responseBody = Map.of("message", ex.getMessage());
+				return ResponseEntity.status(HttpStatus.FORBIDDEN).body(responseBody);
+			}
+			throw ex;
+		}
+
+	}
+
+	@Service
+	static class BasicService {
+
+		@AuthorizeReturnObject
+		AuthorizedPerson getAuthorizedPerson(String name) {
+			return new AuthorizedPerson(name);
+		}
+
+	}
+
+	public static class AuthorizedPerson {
+
+		final String name;
+
+		AuthorizedPerson(String name) {
+			this.name = name;
+		}
+
+		@PostAuthorize("returnObject == authentication.name")
+		public String getName() {
+			return this.name;
 		}
 
 	}
