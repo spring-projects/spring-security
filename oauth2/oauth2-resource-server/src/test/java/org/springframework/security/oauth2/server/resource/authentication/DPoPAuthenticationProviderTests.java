@@ -322,11 +322,4 @@ public class DPoPAuthenticationProviderTests {
 		byte[] digest = md.digest(value.getBytes(StandardCharsets.UTF_8));
 		return Base64.getUrlEncoder().withoutPadding().encodeToString(digest);
 	}
-
-	private static String computeSHA256(PublicKey publicKey) throws Exception {
-		MessageDigest md = MessageDigest.getInstance("SHA-256");
-		byte[] digest = md.digest(publicKey.getEncoded());
-		return Base64.getUrlEncoder().withoutPadding().encodeToString(digest);
-	}
-
 }
