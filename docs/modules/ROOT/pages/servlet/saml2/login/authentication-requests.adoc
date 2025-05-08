@@ -67,7 +67,7 @@ spring:
     saml2:
       relyingparty:
         okta:
-          identityprovider:
+          assertingparty:
             entity-id: ...
             singlesignon.sign-request: false
 ----
