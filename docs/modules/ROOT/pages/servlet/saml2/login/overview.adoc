@@ -125,7 +125,7 @@ spring:
       relyingparty:
         registration:
           adfs:
-            identityprovider:
+            assertingparty:
               entity-id: https://idp.example.com/issuer
               verification.credentials:
                 - certificate-location: "classpath:idp.crt"
@@ -839,11 +839,11 @@ spring:
           signing.credentials: &relying-party-credentials
             - private-key-location: classpath:rp.key
               certificate-location: classpath:rp.crt
-          identityprovider:
+          assertingparty:
             entity-id: ...
         azure:
           signing.credentials: *relying-party-credentials
-          identityprovider:
+          assertingparty:
             entity-id: ...
 ----
 
