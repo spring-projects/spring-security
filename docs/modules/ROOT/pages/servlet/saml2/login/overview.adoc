@@ -835,16 +835,17 @@ spring:
   security:
     saml2:
       relyingparty:
-        okta:
-          signing.credentials: &relying-party-credentials
-            - private-key-location: classpath:rp.key
-              certificate-location: classpath:rp.crt
-          assertingparty:
-            entity-id: ...
-        azure:
-          signing.credentials: *relying-party-credentials
-          assertingparty:
-            entity-id: ...
+        registration:
+          okta:
+            signing.credentials: &relying-party-credentials
+              - private-key-location: classpath:rp.key
+                certificate-location: classpath:rp.crt
+            assertingparty:
+              entity-id: ...
+          azure:
+            signing.credentials: *relying-party-credentials
+            assertingparty:
+              entity-id: ...
 ----
 
 Second, in a database, you need not replicate the model of `RelyingPartyRegistration`.
