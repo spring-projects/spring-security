@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,7 +64,8 @@ public class WebSessionServerRequestCache implements ServerRequestCache {
 	/**
 	 * Sets the matcher to determine if the request should be saved. The default is to
 	 * match on any GET request.
-	 * @param saveRequestMatcher
+	 * @param saveRequestMatcher the {@link ServerWebExchangeMatcher} that determines if
+	 * the request should be saved
 	 */
 	public void setSaveRequestMatcher(ServerWebExchangeMatcher saveRequestMatcher) {
 		Assert.notNull(saveRequestMatcher, "saveRequestMatcher cannot be null");
@@ -96,7 +97,7 @@ public class WebSessionServerRequestCache implements ServerRequestCache {
 	public Mono<ServerHttpRequest> removeMatchingRequest(ServerWebExchange exchange) {
 		MultiValueMap<String, String> queryParams = exchange.getRequest().getQueryParams();
 		if (this.matchingRequestParameterName != null && !queryParams.containsKey(this.matchingRequestParameterName)) {
-			this.logger.trace(
+			logger.trace(
 					"matchingRequestParameterName is required for getMatchingRequest to lookup a value, but not provided");
 			return Mono.empty();
 		}
@@ -163,19 +164,6 @@ public class WebSessionServerRequestCache implements ServerRequestCache {
 		MediaTypeServerWebExchangeMatcher html = new MediaTypeServerWebExchangeMatcher(MediaType.TEXT_HTML);
 		html.setIgnoredMediaTypes(Collections.singleton(MediaType.ALL));
 		return new AndServerWebExchangeMatcher(get, notFavicon, html);
-	}
-
-	private static String createQueryString(String queryString, String matchingRequestParameterName) {
-		if (matchingRequestParameterName == null) {
-			return queryString;
-		}
-		if (queryString == null || queryString.length() == 0) {
-			return matchingRequestParameterName;
-		}
-		if (queryString.endsWith("&")) {
-			return queryString + matchingRequestParameterName;
-		}
-		return queryString + "&" + matchingRequestParameterName;
 	}
 
 }
