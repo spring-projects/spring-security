@@ -60,6 +60,7 @@ import static org.mockito.BDDMockito.verify;
  *
  * @author Luke Taylor
  * @author dae won
+ * @author Junhyeok Lee
  */
 public class JdbcUserDetailsManagerTests {
 
@@ -408,6 +409,23 @@ public class JdbcUserDetailsManagerTests {
 		List<GrantedAuthority> authGroup = this.manager.findGroupAuthorities("GROUP_0");
 		assertThat(authGroup.get(0)).isEqualTo(mockAuthority);
 		verify(mockMapper).mapRow(any(), anyInt());
+	}
+
+	@Test
+	void updatePasswordWhenDisabledReturnOriginalUser() {
+		insertJoe();
+		this.manager.updatePassword(joe, "new");
+		UserDetails newJoe = this.manager.loadUserByUsername("joe");
+		assertThat(newJoe.getPassword()).isEqualTo("password");
+	}
+
+	@Test
+	void updatePasswordWhenEnabledShouldUpdatePassword() {
+		insertJoe();
+		this.manager.setEnableUpdatePassword(true);
+		this.manager.updatePassword(joe, "new");
+		UserDetails newJoe = this.manager.loadUserByUsername("joe");
+		assertThat(newJoe.getPassword()).isEqualTo("new");
 	}
 
 	private Authentication authenticateJoe() {
