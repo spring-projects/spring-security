@@ -48,16 +48,28 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 /**
+ * A {@link JwtDecoderFactory factory} that provides a {@link JwtDecoder} for the
+ * specified {@link DPoPProofContext} and is used for authenticating a DPoP Proof
+ * {@link Jwt}.
+ *
  * @author Joe Grandja
  * @since 6.5
+ * @see JwtDecoderFactory
  * @see DPoPProofContext
+ * @see <a target="_blank" href="https://datatracker.ietf.org/doc/html/rfc9449">RFC 9449
+ * OAuth 2.0 Demonstrating Proof of Possession (DPoP)</a>
  */
 public final class DPoPProofJwtDecoderFactory implements JwtDecoderFactory<DPoPProofContext> {
 
+	/**
+	 * The default {@code OAuth2TokenValidator<Jwt>} factory that validates the
+	 * {@code htm}, {@code htu}, {@code jti} and {@code iat} claims of the DPoP Proof
+	 * {@link Jwt}.
+	 */
+	public static final Function<DPoPProofContext, OAuth2TokenValidator<Jwt>> DEFAULT_JWT_VALIDATOR_FACTORY = defaultJwtValidatorFactory();
+
 	private static final JOSEObjectTypeVerifier<SecurityContext> DPOP_TYPE_VERIFIER = new DefaultJOSEObjectTypeVerifier<>(
 			new JOSEObjectType("dpop+jwt"));
-
-	public static final Function<DPoPProofContext, OAuth2TokenValidator<Jwt>> DEFAULT_JWT_VALIDATOR_FACTORY = defaultJwtValidatorFactory();
 
 	private Function<DPoPProofContext, OAuth2TokenValidator<Jwt>> jwtValidatorFactory = DEFAULT_JWT_VALIDATOR_FACTORY;
 
@@ -69,6 +81,14 @@ public final class DPoPProofJwtDecoderFactory implements JwtDecoderFactory<DPoPP
 		return jwtDecoder;
 	}
 
+	/**
+	 * Sets the factory that provides an {@link OAuth2TokenValidator} for the specified
+	 * {@link DPoPProofContext} and is used by the {@link JwtDecoder}. The default
+	 * {@code OAuth2TokenValidator<Jwt>} factory is
+	 * {@link #DEFAULT_JWT_VALIDATOR_FACTORY}.
+	 * @param jwtValidatorFactory the factory that provides an
+	 * {@link OAuth2TokenValidator} for the specified {@link DPoPProofContext}
+	 */
 	public void setJwtValidatorFactory(Function<DPoPProofContext, OAuth2TokenValidator<Jwt>> jwtValidatorFactory) {
 		Assert.notNull(jwtValidatorFactory, "jwtValidatorFactory cannot be null");
 		this.jwtValidatorFactory = jwtValidatorFactory;

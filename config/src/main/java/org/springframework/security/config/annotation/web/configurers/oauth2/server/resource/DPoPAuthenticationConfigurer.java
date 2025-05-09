@@ -53,9 +53,14 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 /**
+ * An {@link AbstractHttpConfigurer} for OAuth 2.0 Demonstrating Proof of Possession
+ * (DPoP) support.
+ *
  * @author Joe Grandja
  * @since 6.5
  * @see DPoPAuthenticationProvider
+ * @see <a target="_blank" href="https://datatracker.ietf.org/doc/html/rfc9449">RFC 9449
+ * OAuth 2.0 Demonstrating Proof of Possession (DPoP)</a>
  */
 final class DPoPAuthenticationConfigurer<B extends HttpSecurityBuilder<B>>
 		extends AbstractHttpConfigurer<DPoPAuthenticationConfigurer<B>, B> {
