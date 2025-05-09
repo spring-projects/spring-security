@@ -64,6 +64,7 @@ import org.springframework.util.Assert;
  * using this implementation for managing your users.
  *
  * @author Luke Taylor
+ * @author Junhyeok Lee
  * @since 2.0
  */
 public class JdbcUserDetailsManager extends JdbcDaoImpl
@@ -621,6 +622,10 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl
 		}
 	}
 
+	/**
+	 * Conditionally updates password based on the setting from
+	 * {@link #setEnableUpdatePassword(boolean)}. {@inheritDoc}
+	 */
 	@Override
 	public UserDetails updatePassword(UserDetails user, String newPassword) {
 		if (this.enableUpdatePassword) {

@@ -60,6 +60,7 @@ import static org.mockito.BDDMockito.verify;
  *
  * @author Luke Taylor
  * @author dae won
+ * @author Junhyeok Lee
  */
 public class JdbcUserDetailsManagerTests {
 
