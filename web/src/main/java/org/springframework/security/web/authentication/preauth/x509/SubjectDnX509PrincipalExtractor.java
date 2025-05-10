@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,6 +43,7 @@ import org.springframework.util.Assert;
  * "EMAILADDRESS=jimi@hendrix.org, CN=..." giving a user name "jimi@hendrix.org"
  *
  * @author Luke Taylor
+ * @author Max Batischev
  */
 public class SubjectDnX509PrincipalExtractor implements X509PrincipalExtractor, MessageSourceAware {
 
@@ -52,14 +53,16 @@ public class SubjectDnX509PrincipalExtractor implements X509PrincipalExtractor, 
 
 	private Pattern subjectDnPattern;
 
+	private boolean extractPrincipalNameFromX500Principal = false;
+
 	public SubjectDnX509PrincipalExtractor() {
 		setSubjectDnRegex("CN=(.*?)(?:,|$)");
 	}
 
 	@Override
 	public Object extractPrincipal(X509Certificate clientCert) {
-		// String subjectDN = clientCert.getSubjectX500Principal().getName();
-		String subjectDN = clientCert.getSubjectDN().getName();
+		String subjectDN = this.extractPrincipalNameFromX500Principal ? clientCert.getSubjectX500Principal().getName()
+				: clientCert.getSubjectDN().getName();
 		this.logger.debug(LogMessage.format("Subject DN is '%s'", subjectDN));
 		Matcher matcher = this.subjectDnPattern.matcher(subjectDN);
 		if (!matcher.find()) {
@@ -96,6 +99,16 @@ public class SubjectDnX509PrincipalExtractor implements X509PrincipalExtractor, 
 	public void setMessageSource(MessageSource messageSource) {
 		Assert.notNull(messageSource, "messageSource cannot be null");
 		this.messages = new MessageSourceAccessor(messageSource);
+	}
+
+	/**
+	 * If true then extracts principal name from X500Principal, defaults to {@code false}
+	 * @param extractPrincipalNameFromX500Principal whether to extract the principal name
+	 * from X500Principal
+	 * @since 7.0
+	 */
+	public void setExtractPrincipalNameFromX500Principal(boolean extractPrincipalNameFromX500Principal) {
+		this.extractPrincipalNameFromX500Principal = extractPrincipalNameFromX500Principal;
 	}
 
 }

@@ -55,6 +55,13 @@ public class SubjectDnX509PrincipalExtractorTests {
 	}
 
 	@Test
+	public void defaultCNPatternReturnsPrincipalWhenExtractPrincipalNameFromX500PrincipalIsTrue() throws Exception {
+		this.extractor.setExtractPrincipalNameFromX500Principal(true);
+		Object principal = this.extractor.extractPrincipal(X509TestUtils.buildTestCertificate());
+		assertThat(principal).isEqualTo("Luke Taylor");
+	}
+
+	@Test
 	public void matchOnEmailReturnsExpectedPrincipal() throws Exception {
 		this.extractor.setSubjectDnRegex("emailAddress=(.*?),");
 		Object principal = this.extractor.extractPrincipal(X509TestUtils.buildTestCertificate());
