@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -74,6 +74,7 @@ public class ObservationAuthorizationManagerTests {
 	void verifyWhenDefaultsThenObserves() {
 		given(this.handler.supportsContext(any())).willReturn(true);
 		given(this.authorizationManager.check(any(), any())).willReturn(this.grant);
+		given(this.authorizationManager.authorize(any(), any())).willCallRealMethod();
 		this.tested.verify(this.token, this.object);
 		ArgumentCaptor<Observation.Context> captor = ArgumentCaptor.forClass(Observation.Context.class);
 		verify(this.handler).onStart(captor.capture());
@@ -92,6 +93,7 @@ public class ObservationAuthorizationManagerTests {
 		this.tested.setMessageSource(source);
 		given(this.handler.supportsContext(any())).willReturn(true);
 		given(this.authorizationManager.check(any(), any())).willReturn(this.deny);
+		given(this.authorizationManager.authorize(any(), any())).willCallRealMethod();
 		given(source.getMessage(eq("AbstractAccessDecisionManager.accessDenied"), any(), any(), any()))
 			.willReturn("accessDenied");
 		assertThatExceptionOfType(AccessDeniedException.class)
@@ -116,6 +118,7 @@ public class ObservationAuthorizationManagerTests {
 			((Supplier<Authentication>) invocation.getArgument(0)).get();
 			return this.grant;
 		});
+		given(this.authorizationManager.authorize(any(), any())).willCallRealMethod();
 		this.tested.verify(this.token, this.object);
 		ArgumentCaptor<Observation.Context> captor = ArgumentCaptor.forClass(Observation.Context.class);
 		verify(this.handler).onStart(captor.capture());

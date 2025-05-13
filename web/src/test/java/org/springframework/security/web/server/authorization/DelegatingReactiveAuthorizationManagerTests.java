@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -81,6 +81,7 @@ public class DelegatingReactiveAuthorizationManagerTests {
 		given(this.match1.matches(any())).willReturn(ServerWebExchangeMatcher.MatchResult.match());
 		given(this.delegate1.check(eq(this.authentication), any(AuthorizationContext.class)))
 			.willReturn(Mono.just(this.decision));
+		given(this.delegate1.authorize(eq(this.authentication), any(AuthorizationContext.class))).willCallRealMethod();
 		assertThat(this.manager.check(this.authentication, this.exchange).block()).isEqualTo(this.decision);
 		verifyNoMoreInteractions(this.match2, this.delegate2);
 	}
@@ -91,6 +92,7 @@ public class DelegatingReactiveAuthorizationManagerTests {
 		given(this.match2.matches(any())).willReturn(ServerWebExchangeMatcher.MatchResult.match());
 		given(this.delegate2.check(eq(this.authentication), any(AuthorizationContext.class)))
 			.willReturn(Mono.just(this.decision));
+		given(this.delegate2.authorize(eq(this.authentication), any(AuthorizationContext.class))).willCallRealMethod();
 		assertThat(this.manager.check(this.authentication, this.exchange).block()).isEqualTo(this.decision);
 		verifyNoMoreInteractions(this.delegate1);
 	}
