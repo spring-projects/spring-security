@@ -18,7 +18,6 @@ package org.springframework.security.oauth2.server.resource.authentication;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
-import java.security.PublicKey;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Base64;
@@ -37,7 +36,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.jose.TestJwks;
-import org.springframework.security.oauth2.jose.TestKeys;
 import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import org.springframework.security.oauth2.jwt.JwsHeader;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -293,7 +291,7 @@ public class DPoPAuthenticationProviderTests {
 		Map<String, Object> jktClaim = null;
 		if (clientJwk != null) {
 			try {
-				String sha256Thumbprint = clientJwk.computeThumbprint().toString();
+				String sha256Thumbprint = clientJwk.toPublicJWK().computeThumbprint().toString();
 				jktClaim = new HashMap<>();
 				jktClaim.put("jkt", sha256Thumbprint);
 			}
@@ -322,4 +320,5 @@ public class DPoPAuthenticationProviderTests {
 		byte[] digest = md.digest(value.getBytes(StandardCharsets.UTF_8));
 		return Base64.getUrlEncoder().withoutPadding().encodeToString(digest);
 	}
+
 }

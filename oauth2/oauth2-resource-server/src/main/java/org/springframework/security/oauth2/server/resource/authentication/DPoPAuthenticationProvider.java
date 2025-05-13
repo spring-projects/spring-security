@@ -18,13 +18,11 @@ package org.springframework.security.oauth2.server.resource.authentication;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
-import java.security.PublicKey;
 import java.time.Instant;
 import java.util.Base64;
 import java.util.Map;
 import java.util.function.Function;
 
-import com.nimbusds.jose.jwk.AsymmetricJWK;
 import com.nimbusds.jose.jwk.JWK;
 
 import org.springframework.security.authentication.AuthenticationManager;
@@ -241,12 +239,6 @@ public final class DPoPAuthenticationProvider implements AuthenticationProvider 
 
 		private static OAuth2Error createOAuth2Error(String reason) {
 			return new OAuth2Error(OAuth2ErrorCodes.INVALID_DPOP_PROOF, reason, null);
-		}
-
-		private static String computeSHA256(PublicKey publicKey) throws Exception {
-			MessageDigest md = MessageDigest.getInstance("SHA-256");
-			byte[] digest = md.digest(publicKey.getEncoded());
-			return Base64.getUrlEncoder().withoutPadding().encodeToString(digest);
 		}
 
 	}
