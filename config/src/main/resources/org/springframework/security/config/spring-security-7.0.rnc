@@ -1308,7 +1308,7 @@ cross-origin-embedder-policy =
 	element cross-origin-embedder-policy {cross-origin-embedder-policy-options.attlist,empty}
 cross-origin-embedder-policy-options.attlist &=
 	## The policies for the Cross-Origin-Embedder-Policy header.
-	attribute policy {"unsafe-none","require-corp"}?
+	attribute policy {"unsafe-none","require-corp", "credentialless"}?
 
 cross-origin-resource-policy =
 	## Adds support for Cross-Origin-Resource-Policy header
