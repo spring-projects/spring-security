@@ -408,10 +408,6 @@ public final class NimbusJwtEncoder implements JwtEncoder {
 	public static KeyPairJwtEncoderBuilder withKeyPair(KeyPair keyPair) {
 		Assert.isTrue(keyPair != null && keyPair.getPrivate() != null && keyPair.getPublic() != null,
 				"keyPair, its private key, and public key must not be null");
-		Assert.isTrue(
-				keyPair.getPrivate() instanceof java.security.interfaces.RSAKey
-						|| keyPair.getPrivate() instanceof java.security.interfaces.ECKey,
-				"keyPair must be an RSAKey or an ECKey");
 		if (keyPair.getPrivate() instanceof java.security.interfaces.RSAKey) {
 			return new RsaKeyPairJwtEncoderBuilder(keyPair);
 		}
@@ -516,6 +512,17 @@ public final class NimbusJwtEncoder implements JwtEncoder {
 		 */
 		public KeyPairJwtEncoderBuilder signatureAlgorithm(SignatureAlgorithm signatureAlgorithm) {
 			Assert.notNull(signatureAlgorithm, "signatureAlgorithm cannot be null");
+			if (this.keyPair.getPrivate() instanceof java.security.interfaces.RSAKey) {
+				Assert.state(JWSAlgorithm.Family.RSA.contains(JWSAlgorithm.parse(signatureAlgorithm.getName())),
+						() -> "The algorithm '" + signatureAlgorithm + "' is not compatible with an RSAKey. "
+								+ "Please use one of the RS256, RS384, RS512, PS256, PS384, or PS512 algorithms.");
+
+			}
+			if (this.keyPair.getPrivate() instanceof java.security.interfaces.ECKey) {
+				Assert.state(JWSAlgorithm.Family.EC.contains(JWSAlgorithm.parse(signatureAlgorithm.getName())),
+						() -> "The algorithm '" + signatureAlgorithm + "' is not compatible with an ECKey. "
+								+ "Please use one of the ES256, ES384, or ES512 algorithms.");
+			}
 			this.jwsAlgorithm = JWSAlgorithm.parse(signatureAlgorithm.getName());
 			return this;
 		}
@@ -572,9 +579,6 @@ public final class NimbusJwtEncoder implements JwtEncoder {
 			if (super.jwsAlgorithm == null) {
 				super.jwsAlgorithm = JWSAlgorithm.RS256;
 			}
-			Assert.state(JWSAlgorithm.Family.RSA.contains(super.jwsAlgorithm),
-					() -> "The algorithm '" + super.jwsAlgorithm + "' is not compatible with an RSAKey. "
-							+ "Please use one of the RS256, RS384, RS512, PS256, PS384, or PS512 algorithms.");
 
 			RSAKey.Builder builder = new RSAKey.Builder(
 					(java.security.interfaces.RSAPublicKey) super.keyPair.getPublic())
@@ -604,9 +608,6 @@ public final class NimbusJwtEncoder implements JwtEncoder {
 			if (super.jwsAlgorithm == null) {
 				super.jwsAlgorithm = JWSAlgorithm.ES256;
 			}
-			Assert.state(JWSAlgorithm.Family.EC.contains(super.jwsAlgorithm),
-					() -> "The algorithm '" + super.jwsAlgorithm + "' is not compatible with an ECKey. "
-							+ "Please use one of the ES256, ES384, or ES512 algorithms.");
 
 			ECPublicKey publicKey = (ECPublicKey) super.keyPair.getPublic();
 			Curve curve = Curve.forECParameterSpec(publicKey.getParams());
