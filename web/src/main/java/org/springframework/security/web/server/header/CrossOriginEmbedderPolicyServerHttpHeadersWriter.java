@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,7 +61,9 @@ public final class CrossOriginEmbedderPolicyServerHttpHeadersWriter implements S
 
 		UNSAFE_NONE("unsafe-none"),
 
-		REQUIRE_CORP("require-corp");
+		REQUIRE_CORP("require-corp"),
+
+		CREDENTIALLESS("credentialless");
 
 		private final String policy;
 
