@@ -103,10 +103,11 @@ spring:
   security:
     saml2:
       relyingparty:
-        okta:
-          identityprovider:
-            entity-id: ...
-            singlesignon.sign-request: false
+        registration:
+          okta:
+            assertingparty:
+              entity-id: ...
+              singlesignon.sign-request: false
 ----
 
 Java::
