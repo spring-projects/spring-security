@@ -51,7 +51,7 @@ class AuthorizationProxyWebConfiguration {
 			if (target instanceof ModelAndView mav) {
 				View view = mav.getView();
 				String viewName = mav.getViewName();
-				Map<String, Object> model = (Map<String, Object>) proxyFactory.proxy(mav.getModel());
+				Map<String, Object> model = proxyFactory.proxy(mav.getModel());
 				ModelAndView proxied = (view != null) ? new ModelAndView(view, model)
 						: new ModelAndView(viewName, model);
 				proxied.setStatus(mav.getStatus());
