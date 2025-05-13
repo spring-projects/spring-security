@@ -18,7 +18,6 @@ package org.springframework.security.config.annotation.web.configurers.oauth2.se
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
-import java.security.PublicKey;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.RSAPrivateKey;
@@ -33,6 +32,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import com.nimbusds.jose.jwk.ECKey;
+import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.JWKSource;
@@ -89,6 +89,8 @@ public class DPoPAuthenticationConfigurerTests {
 
 	private static final ECPrivateKey CLIENT_EC_PRIVATE_KEY = (ECPrivateKey) TestKeys.DEFAULT_EC_KEY_PAIR.getPrivate();
 
+	private static final ECKey CLIENT_EC_KEY = TestJwks.jwk(CLIENT_EC_PUBLIC_KEY, CLIENT_EC_PRIVATE_KEY).build();
+
 	private static NimbusJwtEncoder providerJwtEncoder;
 
 	private static NimbusJwtEncoder clientJwtEncoder;
@@ -104,9 +106,8 @@ public class DPoPAuthenticationConfigurerTests {
 		JWKSource<SecurityContext> providerJwkSource = (jwkSelector, securityContext) -> jwkSelector
 			.select(new JWKSet(providerRsaKey));
 		providerJwtEncoder = new NimbusJwtEncoder(providerJwkSource);
-		ECKey clientEcKey = TestJwks.jwk(CLIENT_EC_PUBLIC_KEY, CLIENT_EC_PRIVATE_KEY).build();
 		JWKSource<SecurityContext> clientJwkSource = (jwkSelector, securityContext) -> jwkSelector
-			.select(new JWKSet(clientEcKey));
+			.select(new JWKSet(CLIENT_EC_KEY));
 		clientJwtEncoder = new NimbusJwtEncoder(clientJwkSource);
 	}
 
@@ -114,7 +115,7 @@ public class DPoPAuthenticationConfigurerTests {
 	public void requestWhenDPoPAndBearerAuthenticationThenUnauthorized() throws Exception {
 		this.spring.register(SecurityConfig.class, ResourceEndpoints.class).autowire();
 		Set<String> scope = Collections.singleton("resource1.read");
-		String accessToken = generateAccessToken(scope, CLIENT_EC_PUBLIC_KEY);
+		String accessToken = generateAccessToken(scope, CLIENT_EC_KEY);
 		String dPoPProof = generateDPoPProof(HttpMethod.GET.name(), "http://localhost/resource1", accessToken);
 		// @formatter:off
 		this.mvc.perform(get("/resource1")
@@ -131,7 +132,7 @@ public class DPoPAuthenticationConfigurerTests {
 	public void requestWhenDPoPAccessTokenMalformedThenUnauthorized() throws Exception {
 		this.spring.register(SecurityConfig.class, ResourceEndpoints.class).autowire();
 		Set<String> scope = Collections.singleton("resource1.read");
-		String accessToken = generateAccessToken(scope, CLIENT_EC_PUBLIC_KEY);
+		String accessToken = generateAccessToken(scope, CLIENT_EC_KEY);
 		String dPoPProof = generateDPoPProof(HttpMethod.GET.name(), "http://localhost/resource1", accessToken);
 		// @formatter:off
 		this.mvc.perform(get("/resource1")
@@ -147,7 +148,7 @@ public class DPoPAuthenticationConfigurerTests {
 	public void requestWhenMultipleDPoPProofsThenUnauthorized() throws Exception {
 		this.spring.register(SecurityConfig.class, ResourceEndpoints.class).autowire();
 		Set<String> scope = Collections.singleton("resource1.read");
-		String accessToken = generateAccessToken(scope, CLIENT_EC_PUBLIC_KEY);
+		String accessToken = generateAccessToken(scope, CLIENT_EC_KEY);
 		String dPoPProof = generateDPoPProof(HttpMethod.GET.name(), "http://localhost/resource1", accessToken);
 		// @formatter:off
 		this.mvc.perform(get("/resource1")
@@ -164,7 +165,7 @@ public class DPoPAuthenticationConfigurerTests {
 	public void requestWhenDPoPAuthenticationValidThenAccessed() throws Exception {
 		this.spring.register(SecurityConfig.class, ResourceEndpoints.class).autowire();
 		Set<String> scope = Collections.singleton("resource1.read");
-		String accessToken = generateAccessToken(scope, CLIENT_EC_PUBLIC_KEY);
+		String accessToken = generateAccessToken(scope, CLIENT_EC_KEY);
 		String dPoPProof = generateDPoPProof(HttpMethod.GET.name(), "http://localhost/resource1", accessToken);
 		// @formatter:off
 		this.mvc.perform(get("/resource1")
@@ -175,11 +176,11 @@ public class DPoPAuthenticationConfigurerTests {
 		// @formatter:on
 	}
 
-	private static String generateAccessToken(Set<String> scope, PublicKey clientPublicKey) {
+	private static String generateAccessToken(Set<String> scope, JWK jwk) {
 		Map<String, Object> jktClaim = null;
-		if (clientPublicKey != null) {
+		if (jwk != null) {
 			try {
-				String sha256Thumbprint = computeSHA256(clientPublicKey);
+				String sha256Thumbprint = jwk.toPublicJWK().computeThumbprint().toString();
 				jktClaim = new HashMap<>();
 				jktClaim.put("jkt", sha256Thumbprint);
 			}
@@ -207,10 +208,7 @@ public class DPoPAuthenticationConfigurerTests {
 
 	private static String generateDPoPProof(String method, String resourceUri, String accessToken) throws Exception {
 		// @formatter:off
-		Map<String, Object> publicJwk = TestJwks.jwk(CLIENT_EC_PUBLIC_KEY, CLIENT_EC_PRIVATE_KEY)
-				.build()
-				.toPublicJWK()
-				.toJSONObject();
+		Map<String, Object> publicJwk = CLIENT_EC_KEY.toPublicJWK().toJSONObject();
 		JwsHeader jwsHeader = JwsHeader.with(SignatureAlgorithm.ES256)
 				.type("dpop+jwt")
 				.jwk(publicJwk)
@@ -230,12 +228,6 @@ public class DPoPAuthenticationConfigurerTests {
 	private static String computeSHA256(String value) throws Exception {
 		MessageDigest md = MessageDigest.getInstance("SHA-256");
 		byte[] digest = md.digest(value.getBytes(StandardCharsets.UTF_8));
-		return Base64.getUrlEncoder().withoutPadding().encodeToString(digest);
-	}
-
-	private static String computeSHA256(PublicKey publicKey) throws Exception {
-		MessageDigest md = MessageDigest.getInstance("SHA-256");
-		byte[] digest = md.digest(publicKey.getEncoded());
 		return Base64.getUrlEncoder().withoutPadding().encodeToString(digest);
 	}
 
