@@ -426,7 +426,7 @@ public class NimbusJwtEncoderTests {
 		KeyPair keyPair = keyPairGenerator.generateKeyPair();
 		JwtClaimsSet claims = buildClaims();
 
-		NimbusJwtEncoder encoder = NimbusJwtEncoder.withKeyPair(keyPair).build();
+		NimbusJwtEncoder encoder = NimbusJwtEncoder.withRsaKeyPair(keyPair).build();
 		Jwt jwt = encoder.encode(JwtEncoderParameters.from(claims));
 
 		assertThat(jwt).isNotNull();
@@ -444,8 +444,8 @@ public class NimbusJwtEncoderTests {
 		KeyPair keyPair = keyPairGenerator.generateKeyPair();
 		JwtClaimsSet claims = buildClaims();
 
-		NimbusJwtEncoder encoder = NimbusJwtEncoder.withKeyPair(keyPair)
-			.signatureAlgorithm(SignatureAlgorithm.RS512)
+		NimbusJwtEncoder encoder = NimbusJwtEncoder.withRsaKeyPair(keyPair)
+			.algorithm(SignatureAlgorithm.RS512)
 			.build();
 		Jwt jwt = encoder.encode(JwtEncoderParameters.from(claims));
 
@@ -463,7 +463,7 @@ public class NimbusJwtEncoderTests {
 		KeyPair keyPair = keyPairGenerator.generateKeyPair();
 		JwtClaimsSet claims = buildClaims();
 
-		NimbusJwtEncoder encoder = NimbusJwtEncoder.withKeyPair(keyPair).build();
+		NimbusJwtEncoder encoder = NimbusJwtEncoder.withEcKeyPair(keyPair).build();
 		Jwt jwt = encoder.encode(JwtEncoderParameters.from(claims));
 
 		assertThat(jwt).isNotNull();
@@ -478,9 +478,9 @@ public class NimbusJwtEncoderTests {
 		KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("EC");
 		keyPairGenerator.initialize(256);
 		KeyPair keyPair = keyPairGenerator.generateKeyPair();
-		NimbusJwtEncoder encoder = NimbusJwtEncoder.withKeyPair(keyPair)
+		NimbusJwtEncoder encoder = NimbusJwtEncoder.withEcKeyPair(keyPair)
 			.keyId(UUID.randomUUID().toString())
-			.signatureAlgorithm(SignatureAlgorithm.ES256)
+			.algorithm(SignatureAlgorithm.ES256)
 			.build();
 
 		JwtClaimsSet claims = buildClaims();
@@ -500,7 +500,7 @@ public class NimbusJwtEncoderTests {
 		String keyId = "test-key-id";
 		JwtClaimsSet claims = buildClaims();
 
-		NimbusJwtEncoder encoder = NimbusJwtEncoder.withKeyPair(keyPair).keyId(keyId).build();
+		NimbusJwtEncoder encoder = NimbusJwtEncoder.withRsaKeyPair(keyPair).keyId(keyId).build();
 		Jwt jwt = encoder.encode(JwtEncoderParameters.from(claims));
 
 		assertThat(jwt).isNotNull();

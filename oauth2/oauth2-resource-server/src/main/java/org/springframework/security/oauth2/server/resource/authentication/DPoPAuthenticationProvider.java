@@ -50,10 +50,15 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 /**
+ * An {@link AuthenticationProvider} implementation that is responsible for authenticating
+ * a DPoP-bound access token for a protected resource request.
+ *
  * @author Joe Grandja
  * @since 6.5
  * @see DPoPAuthenticationToken
  * @see DPoPProofJwtDecoderFactory
+ * @see <a target="_blank" href="https://datatracker.ietf.org/doc/html/rfc9449">RFC 9449
+ * OAuth 2.0 Demonstrating Proof of Possession (DPoP)</a>
  */
 public final class DPoPAuthenticationProvider implements AuthenticationProvider {
 
@@ -61,6 +66,11 @@ public final class DPoPAuthenticationProvider implements AuthenticationProvider 
 
 	private JwtDecoderFactory<DPoPProofContext> dPoPProofVerifierFactory;
 
+	/**
+	 * Constructs a {@code DPoPAuthenticationProvider} using the provided parameters.
+	 * @param tokenAuthenticationManager the {@link AuthenticationManager} used to
+	 * authenticate the DPoP-bound access token
+	 */
 	public DPoPAuthenticationProvider(AuthenticationManager tokenAuthenticationManager) {
 		Assert.notNull(tokenAuthenticationManager, "tokenAuthenticationManager cannot be null");
 		this.tokenAuthenticationManager = tokenAuthenticationManager;
@@ -121,6 +131,13 @@ public final class DPoPAuthenticationProvider implements AuthenticationProvider 
 		return DPoPAuthenticationToken.class.isAssignableFrom(authentication);
 	}
 
+	/**
+	 * Sets the {@link JwtDecoderFactory} that provides a {@link JwtDecoder} for the
+	 * specified {@link DPoPProofContext} and is used for authenticating a DPoP Proof
+	 * {@link Jwt}. The default factory is {@link DPoPProofJwtDecoderFactory}.
+	 * @param dPoPProofVerifierFactory the {@link JwtDecoderFactory} that provides a
+	 * {@link JwtDecoder} for the specified {@link DPoPProofContext}
+	 */
 	public void setDPoPProofVerifierFactory(JwtDecoderFactory<DPoPProofContext> dPoPProofVerifierFactory) {
 		Assert.notNull(dPoPProofVerifierFactory, "dPoPProofVerifierFactory cannot be null");
 		this.dPoPProofVerifierFactory = dPoPProofVerifierFactory;
