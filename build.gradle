@@ -120,6 +120,32 @@ tasks.register('cloneRepository', IncludeRepoTask) {
 	outputDirectory = project.hasProperty("cloneOutputDirectory") ? project.file("$cloneOutputDirectory") : defaultDirectory
 }
 
+tasks.register('updateCopyrights') {
+
+	def now = Calendar.instance.get(Calendar.YEAR) as String
+	def branch = project.hasProperty("branch") ? project.property("branch") : "origin/main"
+	def gitOutput = ["git", "diff", "--diff-filter=M", "--name-only", branch, "--", "*.java"].execute().text
+	gitOutput.readLines()
+			.collect { new File(it) }
+			.each { file ->
+				def line
+				file.withReader { reader ->
+					while (line = reader.readLine()) {
+						def matcher = line =~ /Copyright (20\d\d)-?(20\d\d)? the original author or authors.$/
+						if (matcher.count) {
+							def beginningYear = matcher[0][1]
+							if (now != beginningYear && now != matcher[0][2]) {
+								def sourceCode = file.getText('UTF-8')
+								sourceCode = sourceCode.replaceFirst(/20\d\d(-20\d\d)?/, "$beginningYear-$now")
+								file.text = sourceCode
+								println "Update copyright for file: $file"
+							}
+						}
+					}
+				}
+			}
+}
+
 wrapperUpgrade {
 	gradle {
 		'spring-security' {
