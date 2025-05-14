@@ -31,13 +31,14 @@ import org.springframework.core.log.LogMessage;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.password.ChangePasswordAdvice;
+import org.springframework.security.authentication.password.UserDetailsPasswordManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.CredentialsContainer;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsPasswordService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.core.userdetails.memory.UserAttribute;
 import org.springframework.security.core.userdetails.memory.UserAttributeEditor;
@@ -53,11 +54,13 @@ import org.springframework.util.Assert;
  * @author Luke Taylor
  * @since 3.1
  */
-public class InMemoryUserDetailsManager implements UserDetailsManager, UserDetailsPasswordService {
+public class InMemoryUserDetailsManager implements UserDetailsManager, UserDetailsPasswordManager {
 
 	protected final Log logger = LogFactory.getLog(getClass());
 
 	private final Map<String, MutableUserDetails> users = new HashMap<>();
+
+	private final Map<String, ChangePasswordAdvice> advice = new HashMap<>();
 
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
 		.getContextHolderStrategy();
@@ -162,6 +165,7 @@ public class InMemoryUserDetailsManager implements UserDetailsManager, UserDetai
 			throw new RuntimeException("user '" + username + "' does not exist");
 		}
 		mutableUser.setPassword(newPassword);
+		removePasswordAdvice(mutableUser);
 		return mutableUser;
 	}
 
@@ -176,6 +180,23 @@ public class InMemoryUserDetailsManager implements UserDetailsManager, UserDetai
 		}
 		return new User(user.getUsername(), user.getPassword(), user.isEnabled(), user.isAccountNonExpired(),
 				user.isCredentialsNonExpired(), user.isAccountNonLocked(), user.getAuthorities());
+	}
+
+	@Override
+	public ChangePasswordAdvice loadPasswordAdvice(UserDetails user) {
+		return this.advice.get(user.getUsername());
+	}
+
+	@Override
+	public void savePasswordAdvice(UserDetails user, ChangePasswordAdvice advice) {
+		Assert.notNull(advice,
+				"advice must not be null; if you want to remove advice, please call removePasswordAdvice");
+		this.advice.put(user.getUsername(), advice);
+	}
+
+	@Override
+	public void removePasswordAdvice(UserDetails user) {
+		this.advice.remove(user.getUsername());
 	}
 
 	/**

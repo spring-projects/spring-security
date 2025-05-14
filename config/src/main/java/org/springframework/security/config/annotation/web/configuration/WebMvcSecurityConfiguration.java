@@ -37,6 +37,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.password.ChangePasswordAdviceMethodArgumentResolver;
+import org.springframework.security.web.authentication.password.ChangePasswordAdviceRepository;
+import org.springframework.security.web.authentication.password.HttpSessionChangePasswordAdviceRepository;
 import org.springframework.security.web.debug.DebugFilter;
 import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.security.web.firewall.RequestRejectedHandler;
@@ -72,6 +75,8 @@ class WebMvcSecurityConfiguration implements WebMvcConfigurer, ApplicationContex
 
 	private AnnotationTemplateExpressionDefaults templateDefaults;
 
+	private ChangePasswordAdviceRepository changePasswordAdviceRepository = new HttpSessionChangePasswordAdviceRepository();
+
 	@Override
 	@SuppressWarnings("deprecation")
 	public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
@@ -88,6 +93,9 @@ class WebMvcSecurityConfiguration implements WebMvcConfigurer, ApplicationContex
 		currentSecurityContextArgumentResolver.setTemplateDefaults(this.templateDefaults);
 		argumentResolvers.add(currentSecurityContextArgumentResolver);
 		argumentResolvers.add(new CsrfTokenArgumentResolver());
+		ChangePasswordAdviceMethodArgumentResolver resolver = new ChangePasswordAdviceMethodArgumentResolver();
+		resolver.setChangePasswordAdviceRepository(this.changePasswordAdviceRepository);
+		argumentResolvers.add(resolver);
 	}
 
 	@Bean
@@ -103,6 +111,9 @@ class WebMvcSecurityConfiguration implements WebMvcConfigurer, ApplicationContex
 		}
 		if (applicationContext.getBeanNamesForType(AnnotationTemplateExpressionDefaults.class).length == 1) {
 			this.templateDefaults = applicationContext.getBean(AnnotationTemplateExpressionDefaults.class);
+		}
+		if (applicationContext.getBeanNamesForType(ChangePasswordAdviceRepository.class).length == 1) {
+			this.changePasswordAdviceRepository = applicationContext.getBean(ChangePasswordAdviceRepository.class);
 		}
 	}
 
