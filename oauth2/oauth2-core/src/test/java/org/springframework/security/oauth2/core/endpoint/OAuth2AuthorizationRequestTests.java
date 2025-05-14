@@ -365,4 +365,27 @@ public class OAuth2AuthorizationRequestTests {
 					+ "item1=null&item2=value2");
 	}
 
+	@Test
+	public void equalsWhenAllFieldsEqualEqualsThenTrue() {
+		OAuth2AuthorizationRequest authorizationRequest1 = TestOAuth2AuthorizationRequests.allFields().build();
+
+		OAuth2AuthorizationRequest authorizationRequest2 = TestOAuth2AuthorizationRequests.allFields().build();
+
+		assertThat(authorizationRequest1).isNotSameAs(authorizationRequest2);
+		assertThat(authorizationRequest1).isEqualTo(authorizationRequest2);
+	}
+
+	@Test
+	public void hashCodeWhenAllFieldsEqualThenHashCodesAreEqual() {
+		OAuth2AuthorizationRequest authorizationRequest1 = TestOAuth2AuthorizationRequests.allFields().build();
+
+		OAuth2AuthorizationRequest authorizationRequest2 = TestOAuth2AuthorizationRequests.allFields().build();
+
+		int authorizationRequest1HashCode = authorizationRequest1.hashCode();
+		int authorizationRequest2HashCode = authorizationRequest2.hashCode();
+
+		assertThat(authorizationRequest1).isNotSameAs(authorizationRequest2);
+		assertThat(authorizationRequest1HashCode).isEqualTo(authorizationRequest2HashCode);
+	}
+
 }
