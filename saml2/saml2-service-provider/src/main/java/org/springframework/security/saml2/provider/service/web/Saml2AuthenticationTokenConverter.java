@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,6 +42,8 @@ public final class Saml2AuthenticationTokenConverter implements AuthenticationCo
 	private final RelyingPartyRegistrationResolver relyingPartyRegistrationResolver;
 
 	private Saml2AuthenticationRequestRepository<AbstractSaml2AuthenticationRequest> authenticationRequestRepository;
+
+	private boolean shouldConvertGetRequests = true;
 
 	/**
 	 * Constructs a {@link Saml2AuthenticationTokenConverter} given a strategy for
@@ -86,16 +88,27 @@ public final class Saml2AuthenticationTokenConverter implements AuthenticationCo
 		this.authenticationRequestRepository = authenticationRequestRepository;
 	}
 
+	/**
+	 * Use the given {@code shouldConvertGetRequests} to convert {@code GET} requests.
+	 * Default is {@code true}.
+	 * @param shouldConvertGetRequests the {@code shouldConvertGetRequests} to use
+	 * @since 7.0
+	 */
+	public void setShouldConvertGetRequests(boolean shouldConvertGetRequests) {
+		this.shouldConvertGetRequests = shouldConvertGetRequests;
+	}
+
 	private String decode(HttpServletRequest request) {
 		String encoded = request.getParameter(Saml2ParameterNames.SAML_RESPONSE);
 		if (encoded == null) {
 			return null;
 		}
+		boolean isGet = HttpMethod.GET.matches(request.getMethod());
+		if (!this.shouldConvertGetRequests && isGet) {
+			return null;
+		}
 		try {
-			return Saml2Utils.withEncoded(encoded)
-				.requireBase64(true)
-				.inflate(HttpMethod.GET.matches(request.getMethod()))
-				.decode();
+			return Saml2Utils.withEncoded(encoded).requireBase64(true).inflate(isGet).decode();
 		}
 		catch (Exception ex) {
 			throw new Saml2AuthenticationException(new Saml2Error(Saml2ErrorCodes.INVALID_RESPONSE, ex.getMessage()),
