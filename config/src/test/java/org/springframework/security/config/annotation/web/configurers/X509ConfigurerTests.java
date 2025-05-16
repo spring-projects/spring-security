@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -120,6 +120,16 @@ public class X509ConfigurerTests {
 		// @formatter:off
 		this.mvc.perform(get("/").with(x509(certificate)))
 				.andExpect(authenticated().withUsername("rod"));
+		// @formatter:on
+	}
+
+	@Test
+	public void x509WhenExtractPrincipalNameFromEmailIsTrueThenUsesEmailAddressToExtractPrincipal() throws Exception {
+		this.spring.register(EmailPrincipalConfig.class).autowire();
+		X509Certificate certificate = loadCert("max.cer");
+		// @formatter:off
+		this.mvc.perform(get("/").with(x509(certificate)))
+				.andExpect(authenticated().withUsername("maxbatischev@gmail.com"));
 		// @formatter:on
 	}
 
@@ -269,6 +279,33 @@ public class X509ConfigurerTests {
 		UserDetailsService userDetailsService() {
 			UserDetails user = User.withDefaultPasswordEncoder()
 				.username("rod")
+				.password("password")
+				.roles("USER", "ADMIN")
+				.build();
+			return new InMemoryUserDetailsManager(user);
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	static class EmailPrincipalConfig {
+
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+					.x509((x509) ->
+							x509.extractPrincipalNameFromEmail(true)
+					);
+			// @formatter:on
+			return http.build();
+		}
+
+		@Bean
+		UserDetailsService userDetailsService() {
+			UserDetails user = User.withDefaultPasswordEncoder()
+				.username("maxbatischev@gmail.com")
 				.password("password")
 				.roles("USER", "ADMIN")
 				.build();

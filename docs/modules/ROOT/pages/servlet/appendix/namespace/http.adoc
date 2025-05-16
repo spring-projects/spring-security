@@ -2229,6 +2229,9 @@ Defines a regular expression which will be used to extract the username from the
 Allows a specific `UserDetailsService` to be used with X.509 in the case where multiple instances are configured.
 If not set, an attempt will be made to locate a suitable instance automatically and use that.
 
+[[nsa-x509-extract-principal-name-from-email]]
+* **extract-principal-name-from-email**
+If true then DN will be extracted from EMAIlADDRESS.
 
 [[nsa-filter-chain-map]]
 == <filter-chain-map>
