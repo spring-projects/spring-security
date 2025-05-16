@@ -37,6 +37,7 @@ import org.springframework.security.web.authentication.preauth.x509.SubjectX500P
 import org.springframework.security.web.authentication.preauth.x509.X509AuthenticationFilter;
 import org.springframework.security.web.authentication.preauth.x509.X509PrincipalExtractor;
 import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
+import org.springframework.util.Assert;
 
 /**
  * Adds X509 based pre authentication to an application. Since validating the certificate
@@ -105,6 +106,7 @@ public final class X509Configurer<H extends HttpSecurityBuilder<H>>
 	 * @return the {@link X509Configurer} for further customizations
 	 */
 	public X509Configurer<H> x509AuthenticationFilter(X509AuthenticationFilter x509AuthenticationFilter) {
+		Assert.notNull(x509AuthenticationFilter, "x509AuthenticationFilter cannot be null");
 		this.x509AuthenticationFilter = x509AuthenticationFilter;
 		return this;
 	}
@@ -115,6 +117,7 @@ public final class X509Configurer<H extends HttpSecurityBuilder<H>>
 	 * @return the {@link X509Configurer} to use
 	 */
 	public X509Configurer<H> x509PrincipalExtractor(X509PrincipalExtractor x509PrincipalExtractor) {
+		Assert.notNull(x509PrincipalExtractor, "x509PrincipalExtractor cannot be null");
 		this.x509PrincipalExtractor = x509PrincipalExtractor;
 		return this;
 	}
@@ -126,6 +129,7 @@ public final class X509Configurer<H extends HttpSecurityBuilder<H>>
 	 */
 	public X509Configurer<H> authenticationDetailsSource(
 			AuthenticationDetailsSource<HttpServletRequest, PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails> authenticationDetailsSource) {
+		Assert.notNull(authenticationDetailsSource, "authenticationDetailsSource cannot be null");
 		this.authenticationDetailsSource = authenticationDetailsSource;
 		return this;
 	}
@@ -152,6 +156,7 @@ public final class X509Configurer<H extends HttpSecurityBuilder<H>>
 	 */
 	public X509Configurer<H> authenticationUserDetailsService(
 			AuthenticationUserDetailsService<PreAuthenticatedAuthenticationToken> authenticationUserDetailsService) {
+		Assert.notNull(authenticationUserDetailsService, "authenticationUserDetailsService cannot be null");
 		this.authenticationUserDetailsService = authenticationUserDetailsService;
 		return this;
 	}
