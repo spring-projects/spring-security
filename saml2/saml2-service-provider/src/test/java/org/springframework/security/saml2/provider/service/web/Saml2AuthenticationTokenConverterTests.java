@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,6 +61,7 @@ public class Saml2AuthenticationTokenConverterTests {
 	public void convertWhenSamlResponseThenToken() {
 		Saml2AuthenticationTokenConverter converter = new Saml2AuthenticationTokenConverter(
 				this.relyingPartyRegistrationResolver);
+		converter.setShouldInflateResponse(false);
 		given(this.relyingPartyRegistrationResolver.resolve(any(HttpServletRequest.class), any()))
 			.willReturn(this.relyingPartyRegistration);
 		MockHttpServletRequest request = new MockHttpServletRequest();
@@ -76,6 +77,7 @@ public class Saml2AuthenticationTokenConverterTests {
 	public void convertWhenSamlResponseWithRelyingPartyRegistrationResolver(
 			@Mock RelyingPartyRegistrationResolver resolver) {
 		Saml2AuthenticationTokenConverter converter = new Saml2AuthenticationTokenConverter(resolver);
+		converter.setShouldInflateResponse(false);
 		given(resolver.resolve(any(HttpServletRequest.class), any())).willReturn(this.relyingPartyRegistration);
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setParameter(Saml2ParameterNames.SAML_RESPONSE,
@@ -161,6 +163,7 @@ public class Saml2AuthenticationTokenConverterTests {
 	public void convertWhenUsingSamlUtilsBase64ThenXmlIsValid() throws Exception {
 		Saml2AuthenticationTokenConverter converter = new Saml2AuthenticationTokenConverter(
 				this.relyingPartyRegistrationResolver);
+		converter.setShouldInflateResponse(false);
 		given(this.relyingPartyRegistrationResolver.resolve(any(HttpServletRequest.class), any()))
 			.willReturn(this.relyingPartyRegistration);
 		MockHttpServletRequest request = new MockHttpServletRequest();
@@ -178,6 +181,7 @@ public class Saml2AuthenticationTokenConverterTests {
 			.willReturn(this.relyingPartyRegistration.getRegistrationId());
 		Saml2AuthenticationTokenConverter converter = new Saml2AuthenticationTokenConverter(
 				this.relyingPartyRegistrationResolver);
+		converter.setShouldInflateResponse(false);
 		converter.setAuthenticationRequestRepository(authenticationRequestRepository);
 		given(this.relyingPartyRegistrationResolver.resolve(any(HttpServletRequest.class), any()))
 			.willReturn(this.relyingPartyRegistration);
@@ -203,6 +207,7 @@ public class Saml2AuthenticationTokenConverterTests {
 			.willReturn(this.relyingPartyRegistration.getRegistrationId());
 		Saml2AuthenticationTokenConverter converter = new Saml2AuthenticationTokenConverter(resolver);
 		converter.setAuthenticationRequestRepository(authenticationRequestRepository);
+		converter.setShouldInflateResponse(false);
 		given(resolver.resolve(any(HttpServletRequest.class), any())).willReturn(this.relyingPartyRegistration);
 		given(authenticationRequestRepository.loadAuthenticationRequest(any(HttpServletRequest.class)))
 			.willReturn(authenticationRequest);
