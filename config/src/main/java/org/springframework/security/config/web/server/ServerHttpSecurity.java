@@ -119,7 +119,7 @@ import org.springframework.security.oauth2.server.resource.web.server.BearerToke
 import org.springframework.security.oauth2.server.resource.web.server.authentication.ServerBearerTokenAuthenticationConverter;
 import org.springframework.security.web.PortMapper;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
-import org.springframework.security.web.authentication.preauth.x509.SubjectDnX509PrincipalExtractor;
+import org.springframework.security.web.authentication.preauth.x509.SubjectX500PrincipalExtractor;
 import org.springframework.security.web.authentication.preauth.x509.X509PrincipalExtractor;
 import org.springframework.security.web.server.DefaultServerRedirectStrategy;
 import org.springframework.security.web.server.DelegatingServerAuthenticationEntryPoint;
@@ -943,8 +943,8 @@ public class ServerHttpSecurity {
 	 *  }
 	 * </pre>
 	 *
-	 * Note that if extractor is not specified, {@link SubjectDnX509PrincipalExtractor}
-	 * will be used. If authenticationManager is not specified,
+	 * Note that if extractor is not specified, {@link SubjectX500PrincipalExtractor} will
+	 * be used. If authenticationManager is not specified,
 	 * {@link ReactivePreAuthenticatedAuthenticationManager} will be used.
 	 * @return the {@link X509Spec} to customize
 	 * @since 5.2
@@ -978,8 +978,8 @@ public class ServerHttpSecurity {
 	 *  }
 	 * </pre>
 	 *
-	 * Note that if extractor is not specified, {@link SubjectDnX509PrincipalExtractor}
-	 * will be used. If authenticationManager is not specified,
+	 * Note that if extractor is not specified, {@link SubjectX500PrincipalExtractor} will
+	 * be used. If authenticationManager is not specified,
 	 * {@link ReactivePreAuthenticatedAuthenticationManager} will be used.
 	 * @param x509Customizer the {@link Customizer} to provide more options for the
 	 * {@link X509Spec}
@@ -4180,7 +4180,7 @@ public class ServerHttpSecurity {
 			if (this.principalExtractor != null) {
 				return this.principalExtractor;
 			}
-			return new SubjectDnX509PrincipalExtractor();
+			return new SubjectX500PrincipalExtractor();
 		}
 
 		private ReactiveAuthenticationManager getAuthenticationManager() {

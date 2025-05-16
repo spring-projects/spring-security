@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ import org.springframework.security.web.authentication.preauth.AbstractPreAuthen
  */
 public class X509AuthenticationFilter extends AbstractPreAuthenticatedProcessingFilter {
 
-	private X509PrincipalExtractor principalExtractor = new SubjectDnX509PrincipalExtractor();
+	private X509PrincipalExtractor principalExtractor = new SubjectX500PrincipalExtractor();
 
 	@Override
 	protected Object getPreAuthenticatedPrincipal(HttpServletRequest request) {
