@@ -262,6 +262,16 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 	}
 
 	/**
+	 * Use the given <a href="https://tools.ietf.org/html/rfc7517#section-5">JWK Set</a>
+	 * uri.
+	 * @param jwkSetUri the JWK Set uri to use
+	 * @return a {@link JwkSetUriJwtDecoderBuilder} for further configurations
+	 */
+	public static JwkSetUriJwtDecoderBuilder withJwkSource(JWKSource<SecurityContext> jwkSetUri) {
+		return new JwkSetUriJwtDecoderBuilder(jwkSetUri);
+	}
+
+	/**
 	 * A builder for creating {@link NimbusJwtDecoder} instances based on a
 	 * <a target="_blank" href="https://tools.ietf.org/html/rfc7517#section-5">JWK Set</a>
 	 * uri.
@@ -274,7 +284,7 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 		private static final JOSEObjectTypeVerifier<SecurityContext> NO_TYPE_VERIFIER = (header, context) -> {
 		};
 
-		private final Function<RestOperations, String> jwkSetUri;
+		private Function<RestOperations, String> jwkSetUri;
 
 		private Function<JWKSource<SecurityContext>, Set<JWSAlgorithm>> defaultAlgorithms = (source) -> Set
 			.of(JWSAlgorithm.RS256);
@@ -289,6 +299,8 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 
 		private Consumer<ConfigurableJWTProcessor<SecurityContext>> jwtProcessorCustomizer;
 
+		private JWKSource<SecurityContext> jwkSource;
+
 		private JwkSetUriJwtDecoderBuilder(String jwkSetUri) {
 			Assert.hasText(jwkSetUri, "jwkSetUri cannot be empty");
 			this.jwkSetUri = (rest) -> jwkSetUri;
@@ -302,6 +314,13 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 			Assert.notNull(defaultAlgorithms, "defaultAlgorithms function cannot be null");
 			this.jwkSetUri = jwkSetUri;
 			this.defaultAlgorithms = defaultAlgorithms;
+			this.jwtProcessorCustomizer = (processor) -> {
+			};
+		}
+
+		private JwkSetUriJwtDecoderBuilder(JWKSource<SecurityContext> jwkSource) {
+			Assert.notNull(jwkSource, "jwkSource cannot be null");
+			this.jwkSource = jwkSource;
 			this.jwtProcessorCustomizer = (processor) -> {
 			};
 		}
@@ -436,6 +455,9 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 		}
 
 		JWKSource<SecurityContext> jwkSource() {
+			if (this.jwkSource != null) {
+				return this.jwkSource;
+			}
 			String jwkSetUri = this.jwkSetUri.apply(this.restOperations);
 			return JWKSourceBuilder.create(new SpringJWKSource<>(this.restOperations, this.cache, jwkSetUri))
 				.refreshAheadCache(false)
