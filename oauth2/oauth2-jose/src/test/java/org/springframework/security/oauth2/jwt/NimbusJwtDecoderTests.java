@@ -16,6 +16,8 @@
 
 package org.springframework.security.oauth2.jwt;
 
+import java.io.IOException;
+import java.net.URL;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
@@ -35,14 +37,14 @@ import java.util.Map;
 
 import javax.crypto.SecretKey;
 
-import com.nimbusds.jose.JOSEException;
-import com.nimbusds.jose.JOSEObjectType;
-import com.nimbusds.jose.JWSAlgorithm;
-import com.nimbusds.jose.JWSHeader;
-import com.nimbusds.jose.JWSSigner;
+import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.RSASSASigner;
+import com.nimbusds.jose.jwk.JWKSet;
+import com.nimbusds.jose.jwk.source.JWKSetCacheRefreshEvaluator;
+import com.nimbusds.jose.jwk.source.JWKSetSource;
 import com.nimbusds.jose.jwk.source.JWKSource;
+import com.nimbusds.jose.jwk.source.JWKSourceBuilder;
 import com.nimbusds.jose.proc.BadJOSEException;
 import com.nimbusds.jose.proc.DefaultJOSEObjectTypeVerifier;
 import com.nimbusds.jose.proc.JWSKeySelector;
@@ -60,6 +62,7 @@ import org.mockito.ArgumentCaptor;
 
 import org.springframework.cache.Cache;
 import org.springframework.cache.concurrent.ConcurrentMapCache;
+import org.springframework.cache.support.NoOpCache;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpStatus;
@@ -557,6 +560,22 @@ public class NimbusJwtDecoderTests {
 				.extracting(Jwt::getSubject)
 				.isEqualTo("test-subject");
 		// @formatter:on
+	}
+
+	// gh-7056
+	@Test
+	public void decodeWhenUsingJwkSource() throws Exception {
+		JWKSource<SecurityContext> source = (a, b) -> {
+			try {
+				return JWKSet.parse(JWK_SET).getKeys();
+			}
+			catch (ParseException e) {
+				throw new RuntimeException(e);
+			}
+		};
+		NimbusJwtDecoder decoder = NimbusJwtDecoder.withJwkSource(source).build();
+		Jwt jwt = decoder.decode(SIGNED_JWT);
+		assertThat(jwt.getClaimAsString("sub")).isEqualTo("test-subject");
 	}
 
 	// gh-8730
