@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,12 +18,12 @@ package org.springframework.security.config.web.server;
 
 import java.util.Collections;
 
-import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import reactor.core.publisher.Mono;
 
 import org.springframework.core.ResolvableType;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.EncoderHttpMessageWriter;
 import org.springframework.http.codec.HttpMessageWriter;
@@ -48,6 +48,7 @@ import org.springframework.web.server.WebFilterChain;
  * A filter for the Client-side OIDC Back-Channel Logout endpoint
  *
  * @author Josh Cummings
+ * @author Andrey Litvitski
  * @since 6.2
  * @see <a target="_blank" href=
  * "https://openid.net/specs/openid-connect-backchannel-1_0.html">OIDC Back-Channel Logout
@@ -107,7 +108,7 @@ class OidcBackChannelLogoutWebFilter implements WebFilter {
 
 	private Mono<Void> handleAuthenticationFailure(ServerWebExchange exchange, Exception ex) {
 		this.logger.debug("Failed to process OIDC Back-Channel Logout", ex);
-		exchange.getResponse().setRawStatusCode(HttpServletResponse.SC_BAD_REQUEST);
+		exchange.getResponse().setRawStatusCode(HttpStatus.BAD_REQUEST.value());
 		return this.errorHttpMessageConverter.write(Mono.just(oauth2Error(ex)), ResolvableType.forClass(Object.class),
 				ResolvableType.forClass(Object.class), MediaType.APPLICATION_JSON, exchange.getRequest(),
 				exchange.getResponse(), Collections.emptyMap());
