@@ -1,3 +1,5 @@
+= SAML 2.0 Extension Migration
+
 This document contains guidance for moving SAML 2.0 Service Providers from Spring Security SAML Extensions 1.x to Spring Security Since Spring Security doesn’t provide Identity Provider support, migrating a Spring Security SAML Extensions Identity Provider is out of scope for this document.
 
 Because the two approaches are as different as they are, this document will tend to cover patterns more than precise search-and-replace steps.
