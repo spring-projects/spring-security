@@ -28,7 +28,7 @@ import org.springframework.security.web.authentication.preauth.AbstractPreAuthen
  */
 public class X509AuthenticationFilter extends AbstractPreAuthenticatedProcessingFilter {
 
-	private X509PrincipalExtractor principalExtractor = new SubjectDnX509PrincipalExtractor();
+	private X509PrincipalExtractor principalExtractor = new SubjectX500PrincipalExtractor();
 
 	@Override
 	protected Object getPreAuthenticatedPrincipal(HttpServletRequest request) {

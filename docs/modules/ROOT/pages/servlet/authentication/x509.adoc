@@ -14,37 +14,27 @@ You should get this working before trying it out with Spring Security.
 The Spring Security X.509 module extracts the certificate by using a filter.
 It maps the certificate to an application user and loads that user's set of granted authorities for use with the standard Spring Security infrastructure.
 
-
+[[servlet-x509-config]]
 == Adding X.509 Authentication to Your Web Application
-Enabling X.509 client authentication is very straightforward.
-To do so, add the `<x509/>` element to your http security namespace configuration:
 
-[source,xml]
-----
-<http>
-...
-	<x509 subject-principal-regex="CN=(.*?)," user-service-ref="userService"/>;
-</http>
-----
+Similar to xref:reactive/authentication/x509.adoc[Reactive X.509 authentication], the servlet x509 authentication filter allows extracting an authentication token from a certificate provided by a client.
 
-The element has two optional attributes:
+The following example shows a reactive x509 security configuration:
 
-* `subject-principal-regex`.
-The regular expression used to extract a username from the certificate's subject name.
-The default value is shown in the preceding listing.
-This is the username that is passed to the `UserDetailsService` to load the authorities for the user.
-* `user-service-ref`.
-This is the bean ID of the `UserDetailsService` to be used with X.509.
-It is not needed if there is only one defined in your application context.
+include-code::./DefaultX509Configuration[tag=springSecurity,indent=0]
 
-The `subject-principal-regex` should contain a single group.
-For example, the default expression (`CN=(.*?)`) matches the common name field.
-So, if the subject name in the certificate is "CN=Jimi Hendrix, OU=...", this gives a user name of "Jimi Hendrix".
-The matches are case insensitive.
-So "emailAddress=(+.*?+)," matches "EMAILADDRESS=jimi@hendrix.org,CN=...", giving a user name "jimi@hendrix.org".
-If the client presents a certificate and a valid username is successfully extracted, there should be a valid `Authentication` object in the security context.
-If no certificate is found or no corresponding user could be found, the security context remains empty.
-This means that you can use X.509 authentication with other options, such as a form-based login.
+In the preceding configuration, when neither `principalExtractor` nor `authenticationManager` is provided, defaults are used.
+The default principal extractor is `SubjectX500PrincipalExtractor`, which extracts the CN (common name) field from a certificate provided by a client.
+The default authentication manager is `ReactivePreAuthenticatedAuthenticationManager`, which performs user account validation, checking that a user account with a name extracted by `principalExtractor` exists and that it is not locked, disabled, or expired.
+
+The following example demonstrates how these defaults can be overridden:
+
+include-code::./CustomX509Configuration[tag=springSecurity,indent=0]
+
+In the previous example, a username is extracted from the `emailAddress` field of a client certificate instead of CN, and account lookup uses a custom `ReactiveAuthenticationManager` instance.
+
+For an example of configuring Netty and `WebClient` or `curl` command-line tool to use mutual TLS and enable X.509 authentication, see https://github.com/spring-projects/spring-security-samples/tree/main/servlet/java-configuration/authentication/x509.
+
 
 [[x509-ssl-config]]
 == Setting up SSL in Tomcat
