@@ -74,11 +74,12 @@ public final class ClearSiteDataHeaderWriter implements HeaderWriter {
 		if (this.requestMatcher.matches(request)) {
 			if (!response.containsHeader(CLEAR_SITE_DATA_HEADER)) {
 				response.setHeader(CLEAR_SITE_DATA_HEADER, this.headerValue);
-			}
+			}			
+		} else {
+			this.logger.debug(
+					LogMessage.format("Not injecting Clear-Site-Data header since it did not match the requestMatcher %s",
+							this.requestMatcher));
 		}
-		this.logger.debug(
-				LogMessage.format("Not injecting Clear-Site-Data header since it did not match the requestMatcher %s",
-						this.requestMatcher));
 	}
 
 	private String transformToHeaderValue(Directive... directives) {
