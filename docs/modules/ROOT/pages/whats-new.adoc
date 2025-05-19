@@ -3,11 +3,7 @@
 
 Spring Security 6.5 provides a number of new features.
 Below are the highlights of the release, or you can view https://github.com/spring-projects/spring-security/releases[the release notes] for a detailed listing of each feature and bug fix.
-
-== New Features
-
-* Support for automatic context-propagation with Micrometer (https://github.com/spring-projects/spring-security/issues/16665[gh-16665])
-* OAuth 2.0 Demonstrating Proof of Possession (DPoP) (https://github.com/spring-projects/spring-security/pull/16574[gh-16574])
+Given that this is the last minor release in the 6.x generation, please consider reading the https://docs.spring.io/spring-security/reference/6.5-SNAPSHOT/migration-7/index.html[Prepare for the 7.0 Migration Guide].
 
 == Breaking Changes
 
@@ -16,10 +12,46 @@ Below are the highlights of the release, or you can view https://github.com/spri
 The `security.security.reached.filter.section` key name was corrected to `spring.security.reached.filter.section`.
 Note that this may affect reports that operate on this key name.
 
-== OAuth
+== New Features
 
+* https://github.com/spring-projects/spring-security/issues/16665[gh-16665] - Support for automatic context-propagation with Micrometer
+* https://github.com/spring-projects/spring-security/pull/16574[gh-16574] - OAuth 2.0 Demonstrating Proof of Possession (DPoP)
+
+== Core
+
+* https://github.com/spring-projects/spring-security/issues/16444[gh-16444] - Add `Authentication` request to ``AuthenticationException``s
+* https://github.com/spring-projects/spring-security/issues/16291[gh-16291] - Improve error messaging for impossible authorization configurations
+
+== Messaging
+
+* https://github.com/spring-projects/spring-security/pull/16635[gh-16635] - Add `PathPatternMessageMatcher`
+* https://github.com/spring-projects/spring-security/issues/16766[gh-16766] - Add `matcher` support to `MessageMatcher`
+
+== OAuth 2.0
+
+* https://github.com/spring-projects/spring-security/issues/16380[gh-16380] - Pick up `OAuth2AuthorizationRequestResolver` as a bean
 * https://github.com/spring-projects/spring-security/pull/16386[gh-16386] - Enable PKCE for confidential clients using `ClientRegistration.clientSettings.requireProofKey=true` for xref:servlet/oauth2/client/core.adoc#oauth2Client-client-registration-requireProofKey[servlet] and xref:reactive/oauth2/client/core.adoc#oauth2Client-client-registration-requireProofKey[reactive] applications
 * https://github.com/spring-projects/spring-security/issues/16913[gh-16913] - Prepare OAuth2 Client deprecations for removal in Spring Security 7
+* https://github.com/spring-projects/spring-security/pull/16574[gh-16574] - Support https://datatracker.ietf.org/doc/html/rfc9449[RFC 9499]: Dynamic Proof of Possession (DPoP)
+* https://github.com/spring-projects/spring-security/issues/13185[gh-13185] - OAuth 2.0 Access Token JWT Profile Support (RFC 9068) - https://docs.spring.io/spring-security/reference/6.5-SNAPSHOT/servlet/oauth2/resource-server/jwt.html#oauth2resourceserver-jwt-validation-rfc9068[(docs)]
+* https://github.com/spring-projects/spring-security/pull/16682[gh-16682] - Add `JwtAudienceValidator`
+* https://github.com/spring-projects/spring-security/issues/16672[gh-16672] - Add `JwtTypeValidator`
+
+== SAML 2.0
+
+* https://github.com/spring-projects/spring-security/issues/16915[gh-16915] - Simplify support for Response Validation
+* https://github.com/spring-projects/spring-security/issues/15578[gh-15578] - Simplify support for Assertion Validation, including support for a custom set of validators
+* https://github.com/spring-projects/spring-security/issues/12136[gh-12136] - Simplify support for Response Authentication Conversion, including support for principals not in `<Subject>`
+* https://github.com/spring-projects/spring-security/issues/14793[gh-14793] - Add RelayState-based `<AuthnRequest>` repository
+
+== Web
+
+* https://github.com/spring-projects/spring-security/pull/16502[gh-16502] - Add `HttpStatusAccessDeniedHandler`
+* https://github.com/spring-projects/spring-security/issues/16059[gh-16059] Add support for `ModelAndView` and
+* `ResponseEntity` to `@AuthorizeReturnObject`
+* https://github.com/spring-projects/spring-security/issues/16429[gh-16429] - Replace `MvcRequestMatcher` and `AntPathRequestMatcher` with `PathPatternRequestMatcher`
+* https://github.com/spring-projects/spring-security/issues/16793[gh-16793] - Add support for `AuthenticationConverter` to `AbstractAuthenticationProcessingFilter`
+* https://github.com/spring-projects/spring-security/issues/16678[gh-16678] - Simplify redirect-to-HTTPS support
 
 == WebAuthn
 
