@@ -19,7 +19,7 @@ package org.springframework.security.authentication.password;
 import org.springframework.security.authentication.password.ChangePasswordAdvice.Action;
 import org.springframework.security.core.userdetails.UserDetails;
 
-public class ChangeLengthPasswordAdvisor implements ChangePasswordAdvisor {
+public class ChangeLengthPasswordAdvisor implements ChangeExistingPasswordAdvisor, ChangeUpdatingPasswordAdvisor {
 
 	private final int minLength;
 

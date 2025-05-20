@@ -16,14 +16,12 @@
 
 package org.springframework.security.config.annotation.web.configurers;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.security.authentication.password.ChangeExistingPasswordAdvisor;
 import org.springframework.security.authentication.password.ChangePasswordAdvice;
-import org.springframework.security.authentication.password.ChangePasswordAdvisor;
 import org.springframework.security.authentication.password.ChangePasswordServiceAdvisor;
+import org.springframework.security.authentication.password.ChangeUpdatingPasswordAdvisor;
 import org.springframework.security.authentication.password.DelegatingChangePasswordAdvisor;
 import org.springframework.security.authentication.password.UserDetailsPasswordManager;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
@@ -67,7 +65,9 @@ public final class PasswordManagementConfigurer<B extends HttpSecurityBuilder<B>
 
 	private ChangePasswordAdviceRepository changePasswordAdviceRepository;
 
-	private ChangePasswordAdvisor changePasswordAdvisor;
+	private ChangeExistingPasswordAdvisor changeExistingPasswordAdvisor;
+
+	private ChangeUpdatingPasswordAdvisor changeUpdatingPasswordAdvisor;
 
 	private ChangePasswordAdviceHandler changePasswordAdviceHandler;
 
@@ -97,8 +97,15 @@ public final class PasswordManagementConfigurer<B extends HttpSecurityBuilder<B>
 		return this;
 	}
 
-	public PasswordManagementConfigurer<B> changePasswordAdvisor(ChangePasswordAdvisor changePasswordAdvisor) {
-		this.changePasswordAdvisor = changePasswordAdvisor;
+	public PasswordManagementConfigurer<B> changeExistingPasswordAdvisor(
+			ChangeExistingPasswordAdvisor changePasswordAdvisor) {
+		this.changeExistingPasswordAdvisor = changePasswordAdvisor;
+		return this;
+	}
+
+	public PasswordManagementConfigurer<B> changeUpdatingPasswordAdvisor(
+			ChangeUpdatingPasswordAdvisor changePasswordAdvisor) {
+		this.changeUpdatingPasswordAdvisor = changePasswordAdvisor;
 		return this;
 	}
 
@@ -129,17 +136,18 @@ public final class PasswordManagementConfigurer<B extends HttpSecurityBuilder<B>
 				: this.context.getBeanProvider(ChangePasswordAdviceRepository.class)
 					.getIfUnique(HttpSessionChangePasswordAdviceRepository::new);
 
-		ChangePasswordAdvisor changePasswordAdvisor = (this.changePasswordAdvisor != null) ? this.changePasswordAdvisor
-				: this.context.getBeanProvider(ChangePasswordAdvisor.class).getIfUnique(() -> {
-					List<ChangePasswordAdvisor> advisors = new ArrayList<>();
-					advisors.add(new ChangeCompromisedPasswordAdvisor());
-					advisors.add(new ChangePasswordServiceAdvisor(passwordManager));
-					return new DelegatingChangePasswordAdvisor(advisors);
-				});
+		ChangeExistingPasswordAdvisor changeExistingPasswordAdvisor = (this.changeExistingPasswordAdvisor != null)
+				? this.changeExistingPasswordAdvisor
+				: this.context.getBeanProvider(ChangeExistingPasswordAdvisor.class)
+					.getIfUnique(() -> DelegatingChangePasswordAdvisor.forExisting(
+							new ChangePasswordServiceAdvisor(passwordManager), new ChangeCompromisedPasswordAdvisor()));
+		ChangeUpdatingPasswordAdvisor changeUpdatingPasswordAdvisor = (this.changeExistingPasswordAdvisor != null)
+				? this.changeUpdatingPasswordAdvisor : this.context.getBeanProvider(ChangeUpdatingPasswordAdvisor.class)
+					.getIfUnique(ChangeCompromisedPasswordAdvisor::new);
 
 		http.setSharedObject(ChangePasswordAdviceRepository.class, changePasswordAdviceRepository);
 		http.setSharedObject(UserDetailsPasswordManager.class, passwordManager);
-		http.setSharedObject(ChangePasswordAdvisor.class, changePasswordAdvisor);
+		http.setSharedObject(ChangeUpdatingPasswordAdvisor.class, changeUpdatingPasswordAdvisor);
 
 		FormLoginConfigurer form = http.getConfigurer(FormLoginConfigurer.class);
 		String passwordParameter = (form != null) ? form.getPasswordParameter() : "password";
@@ -147,7 +155,7 @@ public final class PasswordManagementConfigurer<B extends HttpSecurityBuilder<B>
 			.addSessionAuthenticationStrategy((authentication, request, response) -> {
 				UserDetails user = (UserDetails) authentication.getPrincipal();
 				String password = request.getParameter(passwordParameter);
-				ChangePasswordAdvice advice = changePasswordAdvisor.advise(user, password);
+				ChangePasswordAdvice advice = changeExistingPasswordAdvisor.advise(user, password);
 				changePasswordAdviceRepository.savePasswordAdvice(request, response, advice);
 			});
 	}
@@ -181,7 +189,7 @@ public final class PasswordManagementConfigurer<B extends HttpSecurityBuilder<B>
 				http.getSharedObject(UserDetailsPasswordManager.class));
 		processing
 			.setRequestMatcher(PathPatternRequestMatcher.withDefaults().matcher(this.changePasswordProcessingUrl));
-		processing.setChangePasswordAdvisor(http.getSharedObject(ChangePasswordAdvisor.class));
+		processing.setChangePasswordAdvisor(http.getSharedObject(ChangeUpdatingPasswordAdvisor.class));
 		processing.setChangePasswordAdviceRepository(http.getSharedObject(ChangePasswordAdviceRepository.class));
 		processing.setPasswordEncoder(passwordEncoder);
 		processing.setSecurityContextHolderStrategy(getSecurityContextHolderStrategy());

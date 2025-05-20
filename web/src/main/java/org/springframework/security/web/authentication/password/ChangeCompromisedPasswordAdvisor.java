@@ -18,16 +18,18 @@ package org.springframework.security.web.authentication.password;
 
 import java.util.Collection;
 
+import org.springframework.security.authentication.password.ChangeExistingPasswordAdvisor;
 import org.springframework.security.authentication.password.ChangePasswordAdvice;
 import org.springframework.security.authentication.password.ChangePasswordAdvice.Action;
-import org.springframework.security.authentication.password.ChangePasswordAdvisor;
 import org.springframework.security.authentication.password.ChangePasswordReason;
+import org.springframework.security.authentication.password.ChangeUpdatingPasswordAdvisor;
 import org.springframework.security.authentication.password.CompromisedPasswordChecker;
 import org.springframework.security.authentication.password.CompromisedPasswordDecision;
 import org.springframework.security.authentication.password.SimpleChangePasswordAdvice;
 import org.springframework.security.core.userdetails.UserDetails;
 
-public final class ChangeCompromisedPasswordAdvisor implements ChangePasswordAdvisor {
+public final class ChangeCompromisedPasswordAdvisor
+		implements ChangeExistingPasswordAdvisor, ChangeUpdatingPasswordAdvisor {
 
 	private final CompromisedPasswordChecker pwned = new HaveIBeenPwnedRestApiPasswordChecker();
 

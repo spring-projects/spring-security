@@ -27,7 +27,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.authentication.password.ChangePasswordAdvice;
-import org.springframework.security.authentication.password.ChangePasswordAdvisor;
+import org.springframework.security.authentication.password.ChangeUpdatingPasswordAdvisor;
 import org.springframework.security.authentication.password.UserDetailsPasswordManager;
 import org.springframework.security.authorization.AuthenticatedAuthorizationManager;
 import org.springframework.security.authorization.AuthorizationDeniedException;
@@ -75,7 +75,7 @@ public class ChangePasswordProcessingFilter extends OncePerRequestFilter {
 
 	private ChangePasswordAdviceRepository changePasswordAdviceRepository = new HttpSessionChangePasswordAdviceRepository();
 
-	private ChangePasswordAdvisor changePasswordAdvisor = new ChangeCompromisedPasswordAdvisor();
+	private ChangeUpdatingPasswordAdvisor changePasswordAdvisor = new ChangeCompromisedPasswordAdvisor();
 
 	private final UserDetailsPasswordManager passwordManager;
 
@@ -114,7 +114,7 @@ public class ChangePasswordProcessingFilter extends OncePerRequestFilter {
 			return;
 		}
 		UserDetails user = (UserDetails) authentication.getPrincipal();
-		ChangePasswordAdvice advice = this.changePasswordAdvisor.adviseForUpdate(user, password);
+		ChangePasswordAdvice advice = this.changePasswordAdvisor.advise(user, password);
 		if (advice.getAction() == ChangePasswordAdvice.Action.KEEP) {
 			this.passwordManager.updatePassword(user, this.passwordEncoder.encode(password));
 			this.changePasswordAdviceRepository.removePasswordAdvice(request, response);
@@ -129,7 +129,7 @@ public class ChangePasswordProcessingFilter extends OncePerRequestFilter {
 		this.changePasswordAdviceRepository = advice;
 	}
 
-	public void setChangePasswordAdvisor(ChangePasswordAdvisor advisor) {
+	public void setChangePasswordAdvisor(ChangeUpdatingPasswordAdvisor advisor) {
 		this.changePasswordAdvisor = advisor;
 	}
 
