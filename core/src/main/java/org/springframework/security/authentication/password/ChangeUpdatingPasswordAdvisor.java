@@ -16,22 +16,10 @@
 
 package org.springframework.security.authentication.password;
 
-import java.util.Collection;
+import org.springframework.security.core.userdetails.UserDetails;
 
-public interface ChangePasswordAdvice {
+public interface ChangeUpdatingPasswordAdvisor {
 
-	Action getAction();
-
-	Collection<ChangePasswordReason> getReasons();
-
-	static ChangePasswordAdvice keep() {
-		return SimpleChangePasswordAdvice.KEEP;
-	}
-
-	enum Action {
-
-		KEEP, SHOULD_CHANGE, MUST_CHANGE
-
-	}
+	ChangePasswordAdvice advise(UserDetails user, String password);
 
 }

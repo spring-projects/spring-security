@@ -23,7 +23,7 @@ import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.Assert;
 
-public final class ChangeRepeatedPasswordAdvisor implements ChangePasswordAdvisor {
+public final class ChangeRepeatedPasswordAdvisor implements ChangeUpdatingPasswordAdvisor {
 
 	private final UserDetailsService userDetailsService;
 
@@ -37,11 +37,6 @@ public final class ChangeRepeatedPasswordAdvisor implements ChangePasswordAdviso
 
 	@Override
 	public ChangePasswordAdvice advise(UserDetails user, String password) {
-		return null;
-	}
-
-	@Override
-	public ChangePasswordAdvice adviseForUpdate(UserDetails user, String password) {
 		UserDetails withPassword = this.userDetailsService.loadUserByUsername(user.getUsername());
 		if (this.passwordEncoder.matches(password, withPassword.getPassword())) {
 			return new SimpleChangePasswordAdvice(this.action, ChangePasswordReason.REPEATED);

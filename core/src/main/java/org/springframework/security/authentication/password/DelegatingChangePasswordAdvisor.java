@@ -18,32 +18,39 @@ package org.springframework.security.authentication.password;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.BiFunction;
+import java.util.stream.Stream;
 
 import org.springframework.security.core.userdetails.UserDetails;
 
-public final class DelegatingChangePasswordAdvisor implements ChangePasswordAdvisor {
+public final class DelegatingChangePasswordAdvisor
+		implements ChangeExistingPasswordAdvisor, ChangeUpdatingPasswordAdvisor {
 
-	private final List<ChangePasswordAdvisor> advisors;
+	private final List<BiFunction<UserDetails, String, ChangePasswordAdvice>> advisors;
 
-	public DelegatingChangePasswordAdvisor(List<ChangePasswordAdvisor> advisors) {
-		this.advisors = advisors;
+	private DelegatingChangePasswordAdvisor(List<BiFunction<UserDetails, String, ChangePasswordAdvice>> advisors) {
+		this.advisors = Collections.unmodifiableList(advisors);
+	}
+
+	public static ChangeExistingPasswordAdvisor forExisting(ChangeExistingPasswordAdvisor... advisors) {
+		return new DelegatingChangePasswordAdvisor(Stream.of(advisors)
+			.map((advisor) -> (BiFunction<UserDetails, String, ChangePasswordAdvice>) advisor::advise)
+			.toList());
+	}
+
+	public static ChangeUpdatingPasswordAdvisor forUpdating(ChangeUpdatingPasswordAdvisor... advisors) {
+		return new DelegatingChangePasswordAdvisor(Stream.of(advisors)
+			.map((advisor) -> (BiFunction<UserDetails, String, ChangePasswordAdvice>) advisor::advise)
+			.toList());
 	}
 
 	@Override
 	public ChangePasswordAdvice advise(UserDetails user, String password) {
 		Collection<ChangePasswordAdvice> advice = this.advisors.stream()
-			.map((advisor) -> advisor.advise(user, password))
-			.filter(Objects::nonNull)
-			.toList();
-		return new CompositeChangePasswordAdvice(advice);
-	}
-
-	@Override
-	public ChangePasswordAdvice adviseForUpdate(UserDetails user, String password) {
-		Collection<ChangePasswordAdvice> advice = this.advisors.stream()
-			.map((advisor) -> advisor.adviseForUpdate(user, password))
+			.map((advisor) -> advisor.apply(user, password))
 			.filter(Objects::nonNull)
 			.toList();
 		return new CompositeChangePasswordAdvice(advice);

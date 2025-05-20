@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,23 +16,25 @@
 
 package org.springframework.security.authentication.password;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public final class SimpleChangePasswordAdvice implements ChangePasswordAdvice {
+public class SimpleChangePasswordAdvice implements ChangePasswordAdvice {
+
+	static final SimpleChangePasswordAdvice KEEP = new SimpleChangePasswordAdvice(Action.KEEP);
 
 	private final Action action;
 
 	private final Collection<ChangePasswordReason> reasons;
 
-	public SimpleChangePasswordAdvice(Action action, ChangePasswordReason... reasons) {
-		this(action, List.of(reasons));
-	}
-
 	public SimpleChangePasswordAdvice(Action action, Collection<ChangePasswordReason> reasons) {
 		this.action = action;
-		this.reasons = new ArrayList<>(reasons);
+		this.reasons = reasons;
+	}
+
+	public SimpleChangePasswordAdvice(Action action, ChangePasswordReason... reasons) {
+		this.action = action;
+		this.reasons = List.of(reasons);
 	}
 
 	@Override
