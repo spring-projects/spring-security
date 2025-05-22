@@ -605,6 +605,7 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl
 	 * set this to {@code true} to enable password updates.
 	 * @param enableUpdatePassword {@code true} to enable password updates, {@code false}
 	 * otherwise.
+	 * @since 7.0
 	 */
 	public void setEnableUpdatePassword(boolean enableUpdatePassword) {
 		this.enableUpdatePassword = enableUpdatePassword;
@@ -626,6 +627,7 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl
 	/**
 	 * Conditionally updates password based on the setting from
 	 * {@link #setEnableUpdatePassword(boolean)}. {@inheritDoc}
+	 * @since 7.0
 	 */
 	@Override
 	public UserDetails updatePassword(UserDetails user, String newPassword) {
