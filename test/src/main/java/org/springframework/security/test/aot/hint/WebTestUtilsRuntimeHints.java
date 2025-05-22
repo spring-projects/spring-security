@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,12 +58,12 @@ class WebTestUtilsRuntimeHints implements RuntimeHintsRegistrar {
 	}
 
 	private void registerCsrfTokenRepositoryHints(RuntimeHints hints) {
-		hints.reflection().registerType(CsrfFilter.class, MemberCategory.DECLARED_FIELDS);
+		hints.reflection().registerType(CsrfFilter.class, MemberCategory.ACCESS_DECLARED_FIELDS);
 	}
 
 	private void registerSecurityContextRepositoryHints(RuntimeHints hints) {
-		hints.reflection().registerType(SecurityContextPersistenceFilter.class, MemberCategory.DECLARED_FIELDS);
-		hints.reflection().registerType(SecurityContextHolderFilter.class, MemberCategory.DECLARED_FIELDS);
+		hints.reflection().registerType(SecurityContextPersistenceFilter.class, MemberCategory.ACCESS_DECLARED_FIELDS);
+		hints.reflection().registerType(SecurityContextHolderFilter.class, MemberCategory.ACCESS_DECLARED_FIELDS);
 	}
 
 }
