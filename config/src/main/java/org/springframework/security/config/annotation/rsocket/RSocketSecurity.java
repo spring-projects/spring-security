@@ -109,6 +109,7 @@ import org.springframework.security.rsocket.util.matcher.RoutePayloadExchangeMat
  * @author Manuel Tejeda
  * @author Ebert Toribio
  * @author Ngoc Nhan
+ * @author Andrey Litvitski
  * @since 5.2
  */
 public class RSocketSecurity {
@@ -118,6 +119,8 @@ public class RSocketSecurity {
 	private BasicAuthenticationSpec basicAuthSpec;
 
 	private SimpleAuthenticationSpec simpleAuthSpec;
+
+	private boolean disableAnonymous;
 
 	private JwtSpec jwtSpec;
 
@@ -179,6 +182,15 @@ public class RSocketSecurity {
 		return this;
 	}
 
+	/**
+	 * Disables anonymous authentication.
+	 * @return the builder for additional customizations
+	 */
+	public RSocketSecurity disableAnonymous() {
+		this.disableAnonymous = true;
+		return this;
+	}
+
 	public RSocketSecurity jwt(Customizer<JwtSpec> jwt) {
 		if (this.jwtSpec == null) {
 			this.jwtSpec = new JwtSpec();
@@ -214,7 +226,9 @@ public class RSocketSecurity {
 		if (this.jwtSpec != null) {
 			result.addAll(this.jwtSpec.build());
 		}
-		result.add(anonymous());
+		if (!this.disableAnonymous) {
+			result.add(anonymous());
+		}
 		if (this.authorizePayload != null) {
 			result.add(this.authorizePayload.build());
 		}
