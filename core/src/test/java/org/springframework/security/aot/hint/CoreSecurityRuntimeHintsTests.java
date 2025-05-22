@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -81,7 +81,7 @@ class CoreSecurityRuntimeHintsTests {
 	void securityExpressionOperationsHasHints() {
 		assertThat(RuntimeHintsPredicates.reflection()
 			.onType(SecurityExpressionOperations.class)
-			.withMemberCategories(MemberCategory.DECLARED_FIELDS, MemberCategory.INVOKE_DECLARED_METHODS))
+			.withMemberCategories(MemberCategory.ACCESS_DECLARED_FIELDS, MemberCategory.INVOKE_DECLARED_METHODS))
 			.accepts(this.hints);
 	}
 
@@ -89,7 +89,7 @@ class CoreSecurityRuntimeHintsTests {
 	void securityExpressionRootHasHints() {
 		assertThat(RuntimeHintsPredicates.reflection()
 			.onType(SecurityExpressionRoot.class)
-			.withMemberCategories(MemberCategory.DECLARED_FIELDS, MemberCategory.INVOKE_DECLARED_METHODS))
+			.withMemberCategories(MemberCategory.ACCESS_DECLARED_FIELDS, MemberCategory.INVOKE_DECLARED_METHODS))
 			.accepts(this.hints);
 	}
 
