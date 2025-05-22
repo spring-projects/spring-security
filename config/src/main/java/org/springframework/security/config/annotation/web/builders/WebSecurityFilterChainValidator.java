@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,6 +52,9 @@ final class WebSecurityFilterChainValidator implements FilterChainProxy.FilterCh
 	private void checkForAnyRequestRequestMatcher(List<SecurityFilterChain> chains) {
 		DefaultSecurityFilterChain anyRequestFilterChain = null;
 		for (SecurityFilterChain chain : chains) {
+			if (isWebIgnoredRequests(chain)) {
+				continue;
+			}
 			if (anyRequestFilterChain != null) {
 				String message = "A filter chain that matches any request [" + anyRequestFilterChain
 						+ "] has already been configured, which means that this filter chain [" + chain
@@ -69,6 +72,9 @@ final class WebSecurityFilterChainValidator implements FilterChainProxy.FilterCh
 	private void checkForDuplicateMatchers(List<SecurityFilterChain> chains) {
 		DefaultSecurityFilterChain filterChain = null;
 		for (SecurityFilterChain chain : chains) {
+			if (isWebIgnoredRequests(chain)) {
+				continue;
+			}
 			if (filterChain != null) {
 				if (chain instanceof DefaultSecurityFilterChain defaultChain) {
 					if (defaultChain.getRequestMatcher().equals(filterChain.getRequestMatcher())) {
@@ -108,6 +114,10 @@ final class WebSecurityFilterChainValidator implements FilterChainProxy.FilterCh
 			authorizationFilter = null;
 			filterSecurityInterceptor = null;
 		}
+	}
+
+	private boolean isWebIgnoredRequests(SecurityFilterChain chain) {
+		return chain.getFilters().isEmpty();
 	}
 
 }

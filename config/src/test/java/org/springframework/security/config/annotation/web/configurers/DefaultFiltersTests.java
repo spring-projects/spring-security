@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -140,6 +140,32 @@ public class DefaultFiltersTests {
 			.getBean("springSecurityFilterChain", Filter.class)
 			.doFilter(request, response, new MockFilterChain());
 		assertThat(response.getRedirectedUrl()).isEqualTo("/login?logout");
+	}
+
+	@Test
+	public void validateWhenUseIgnoredRequests() {
+		this.spring.register(FilterChainProxyWithWebSecurityCustomizer.class);
+		List<SecurityFilterChain> filterChains = this.spring.getContext()
+			.getBean(FilterChainProxy.class)
+			.getFilterChains();
+		assertThat(filterChains.size()).isEqualTo(2);
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	@EnableWebMvc
+	static class FilterChainProxyWithWebSecurityCustomizer {
+
+		@Bean
+		WebSecurityCustomizer webSecurityCustomizer() {
+			return (web) -> web.ignoring().anyRequest();
+		}
+
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			return http.authorizeHttpRequests((a) -> a.anyRequest().authenticated()).build();
+		}
+
 	}
 
 	@Configuration
