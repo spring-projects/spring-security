@@ -28,7 +28,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Role;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.HttpMessageNotWritableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authorization.method.AuthorizationAdvisorProxyFactory;
 import org.springframework.security.web.util.ThrowableAnalyzer;
@@ -52,11 +51,11 @@ class AuthorizationProxyWebConfiguration implements WebMvcConfigurer {
 		for (int i = 0; i < resolvers.size(); i++) {
 			HandlerExceptionResolver resolver = resolvers.get(i);
 			if (resolver instanceof DefaultHandlerExceptionResolver) {
-				resolvers.add(i, new HttpMessageNotWritableAccessDeniedExceptionResolver());
+				resolvers.add(i, new AccessDeniedExceptionResolver());
 				return;
 			}
 		}
-		resolvers.add(new HttpMessageNotWritableAccessDeniedExceptionResolver());
+		resolvers.add(new AccessDeniedExceptionResolver());
 	}
 
 	static class WebTargetVisitor implements AuthorizationAdvisorProxyFactory.TargetVisitor {
@@ -84,24 +83,20 @@ class AuthorizationProxyWebConfiguration implements WebMvcConfigurer {
 
 	}
 
-	static class HttpMessageNotWritableAccessDeniedExceptionResolver implements HandlerExceptionResolver {
+	static class AccessDeniedExceptionResolver implements HandlerExceptionResolver {
 
 		final ThrowableAnalyzer throwableAnalyzer = new ThrowableAnalyzer();
 
 		@Override
 		public ModelAndView resolveException(HttpServletRequest request, HttpServletResponse response, Object handler,
 				Exception ex) {
-			// Only resolves AccessDeniedException if it occurred during serialization,
-			// otherwise lets the user-defined handler deal with it.
-			if (ex instanceof HttpMessageNotWritableException) {
-				Throwable[] causeChain = this.throwableAnalyzer.determineCauseChain(ex);
-				Throwable accessDeniedException = this.throwableAnalyzer
-					.getFirstThrowableOfType(AccessDeniedException.class, causeChain);
-				if (accessDeniedException != null) {
-					return new ModelAndView((model, req, res) -> {
-						throw ex;
-					});
-				}
+			Throwable[] causeChain = this.throwableAnalyzer.determineCauseChain(ex);
+			Throwable accessDeniedException = this.throwableAnalyzer
+				.getFirstThrowableOfType(AccessDeniedException.class, causeChain);
+			if (accessDeniedException != null) {
+				return new ModelAndView((model, req, res) -> {
+					throw ex;
+				});
 			}
 			return null;
 		}
