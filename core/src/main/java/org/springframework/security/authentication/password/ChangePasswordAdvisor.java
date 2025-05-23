@@ -18,7 +18,7 @@ package org.springframework.security.authentication.password;
 
 import org.springframework.security.core.userdetails.UserDetails;
 
-public interface ChangeExistingPasswordAdvisor {
+public interface ChangePasswordAdvisor {
 
 	ChangePasswordAdvice advise(UserDetails user, String password);
 

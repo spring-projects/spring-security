@@ -18,7 +18,7 @@ package org.springframework.security.authentication.password;
 
 import org.springframework.security.core.userdetails.UserDetails;
 
-public final class ChangePasswordServiceAdvisor implements ChangeExistingPasswordAdvisor {
+public final class ChangePasswordServiceAdvisor implements ChangePasswordAdvisor {
 
 	private final UserDetailsPasswordManager passwordManager;
 

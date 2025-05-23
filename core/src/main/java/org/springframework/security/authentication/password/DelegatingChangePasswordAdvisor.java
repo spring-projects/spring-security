@@ -27,7 +27,7 @@ import java.util.stream.Stream;
 import org.springframework.security.core.userdetails.UserDetails;
 
 public final class DelegatingChangePasswordAdvisor
-		implements ChangeExistingPasswordAdvisor, ChangeUpdatingPasswordAdvisor {
+		implements ChangePasswordAdvisor {
 
 	private final List<BiFunction<UserDetails, String, ChangePasswordAdvice>> advisors;
 
@@ -35,13 +35,7 @@ public final class DelegatingChangePasswordAdvisor
 		this.advisors = Collections.unmodifiableList(advisors);
 	}
 
-	public static ChangeExistingPasswordAdvisor forExisting(ChangeExistingPasswordAdvisor... advisors) {
-		return new DelegatingChangePasswordAdvisor(Stream.of(advisors)
-			.map((advisor) -> (BiFunction<UserDetails, String, ChangePasswordAdvice>) advisor::advise)
-			.toList());
-	}
-
-	public static ChangeUpdatingPasswordAdvisor forUpdating(ChangeUpdatingPasswordAdvisor... advisors) {
+	public static ChangePasswordAdvisor of(ChangePasswordAdvisor... advisors) {
 		return new DelegatingChangePasswordAdvisor(Stream.of(advisors)
 			.map((advisor) -> (BiFunction<UserDetails, String, ChangePasswordAdvice>) advisor::advise)
 			.toList());
