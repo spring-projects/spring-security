@@ -16,29 +16,26 @@
 
 package org.springframework.security.ldap.userdetails;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Function;
-
-import javax.naming.directory.SearchControls;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
+import org.springframework.LdapDataEntry;
 import org.springframework.core.log.LogMessage;
 import org.springframework.ldap.core.ContextSource;
 import org.springframework.ldap.core.DirContextOperations;
-import org.springframework.ldap.core.LdapTemplate;
+import org.springframework.ldap.core.LdapClient;
+import org.springframework.ldap.query.LdapQuery;
+import org.springframework.ldap.query.LdapQueryBuilder;
+import org.springframework.ldap.query.SearchScope;
+import org.springframework.ldap.support.LdapUtils;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.ldap.SpringSecurityLdapTemplate;
 import org.springframework.util.Assert;
-import org.springframework.util.CollectionUtils;
+
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import java.util.*;
+import java.util.function.Function;
 
 /**
  * The default strategy for obtaining user role information from the directory.
@@ -112,15 +109,15 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 	private GrantedAuthority defaultRole;
 
 	/**
-	 * Template that will be used for searching
+	 * LDAP client that will be used for searching
 	 */
-	private final SpringSecurityLdapTemplate ldapTemplate;
+	private final LdapClient ldapClient;
 
 	/**
 	 * Controls used to determine whether group searches should be performed over the full
 	 * sub-tree from the base DN. Modified by searchSubTree property
 	 */
-	private final SearchControls searchControls = new SearchControls();
+	private SearchScope searchScope = SearchScope.ONELEVEL;
 
 	/**
 	 * The ID of the attribute which contains the role name for a group
@@ -150,7 +147,7 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 	/**
 	 * The mapping function to be used to populate authorities.
 	 */
-	private Function<Map<String, List<String>>, GrantedAuthority> authorityMapper;
+	private Function<LdapDataEntry, Set<? extends GrantedAuthority>> authorityMapper;
 
 	/**
 	 * Constructor for group search scenarios. <tt>userRoleAttributes</tt> may still be
@@ -161,8 +158,7 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 	 */
 	public DefaultLdapAuthoritiesPopulator(ContextSource contextSource, String groupSearchBase) {
 		Assert.notNull(contextSource, "contextSource must not be null");
-		this.ldapTemplate = new SpringSecurityLdapTemplate(contextSource);
-		getLdapTemplate().setSearchControls(getSearchControls());
+		this.ldapClient = LdapClient.create(contextSource);
 		this.groupSearchBase = groupSearchBase;
 		if (groupSearchBase == null) {
 			logger.info("Will not perform group search since groupSearchBase is null.");
@@ -170,19 +166,26 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 		else if (groupSearchBase.isEmpty()) {
 			logger.info("Will perform group search from the context source base since groupSearchBase is empty.");
 		}
-		this.authorityMapper = (record) -> {
-			List<String> roles = record.get(this.groupRoleAttribute);
-			if (CollectionUtils.isEmpty(roles)) {
-				return null;
+		this.authorityMapper = (entry) -> {
+			try {
+				Attributes record = entry.getAttributes();
+				Set<LdapAuthority> authorities = new HashSet<>();
+				Attribute userRoles = record.get(this.groupRoleAttribute);
+				if (userRoles != null)
+					userRoles.getAll().asIterator().forEachRemaining(role -> {
+						if (role instanceof String s) {
+							if (this.convertToUpperCase) {
+								s = s.toUpperCase(Locale.ROOT);
+							}
+							authorities.add(new LdapAuthority(this.rolePrefix + s, entry.getDn()));
+						}
+					});
+
+				return authorities;
 			}
-			String role = roles.get(0);
-			if (role == null) {
-				return null;
+			catch (NamingException e) {
+				throw LdapUtils.convertLdapException(e);
 			}
-			if (this.convertToUpperCase) {
-				role = role.toUpperCase(Locale.ROOT);
-			}
-			return new SimpleGrantedAuthority(this.rolePrefix + role);
 		};
 	}
 
@@ -229,21 +232,19 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 		Set<GrantedAuthority> authorities = new HashSet<>();
 		logger.trace(LogMessage.of(() -> "Searching for roles for user " + username + " with DN " + userDn
 				+ " and filter " + this.groupSearchFilter + " in search base " + getGroupSearchBase()));
-		Set<Map<String, List<String>>> userRoles = getLdapTemplate().searchForMultipleAttributeValues(
-				getGroupSearchBase(), this.groupSearchFilter, new String[] { userDn, username },
-				new String[] { this.groupRoleAttribute });
-		logger.debug(LogMessage.of(() -> "Found roles from search " + userRoles));
-		for (Map<String, List<String>> role : userRoles) {
-			GrantedAuthority authority = this.authorityMapper.apply(role);
-			if (authority != null) {
-				authorities.add(authority);
-			}
-		}
-		return authorities;
-	}
 
-	protected ContextSource getContextSource() {
-		return getLdapTemplate().getContextSource();
+		LdapQuery query = LdapQueryBuilder.query()
+			.searchScope(searchScope)
+			.base(getGroupSearchBase())
+			.attributes(getGroupRoleAttribute())
+			.filter(getGroupSearchFilter(), userDn, username);
+
+		getLdapClient().search().query(query).toEntryStream().forEach(entry -> {
+			logger.debug(LogMessage.of(() -> "Found roles from search " + entry));
+
+			authorities.addAll(this.authorityMapper.apply(entry));
+		});
+		return authorities;
 	}
 
 	protected String getGroupSearchBase() {
@@ -292,18 +293,7 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 	 * <tt>groupSearchBase</tt>.
 	 */
 	public void setSearchSubtree(boolean searchSubtree) {
-		int searchScope = searchSubtree ? SearchControls.SUBTREE_SCOPE : SearchControls.ONELEVEL_SCOPE;
-		this.searchControls.setSearchScope(searchScope);
-	}
-
-	/**
-	 * Sets the corresponding property on the underlying template, avoiding specific
-	 * issues with Active Directory.
-	 *
-	 * @see LdapTemplate#setIgnoreNameNotFoundException(boolean)
-	 */
-	public void setIgnorePartialResultException(boolean ignore) {
-		getLdapTemplate().setIgnorePartialResultException(ignore);
+		this.searchScope = searchSubtree ? SearchScope.SUBTREE : SearchScope.ONELEVEL;
 	}
 
 	/**
@@ -311,7 +301,7 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 	 * {@link GrantedAuthority} given the context record.
 	 * @param authorityMapper the mapping function
 	 */
-	public void setAuthorityMapper(Function<Map<String, List<String>>, GrantedAuthority> authorityMapper) {
+	public void setAuthorityMapper(Function<LdapDataEntry, Set<? extends GrantedAuthority>> authorityMapper) {
 		Assert.notNull(authorityMapper, "authorityMapper must not be null");
 		this.authorityMapper = authorityMapper;
 	}
@@ -322,8 +312,8 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 	 * @return the LDAP template
 	 * @see org.springframework.security.ldap.SpringSecurityLdapTemplate
 	 */
-	protected SpringSecurityLdapTemplate getLdapTemplate() {
-		return this.ldapTemplate;
+	protected LdapClient getLdapClient() {
+		return this.ldapClient;
 	}
 
 	/**
@@ -364,15 +354,6 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 	 */
 	protected final boolean isConvertToUpperCase() {
 		return this.convertToUpperCase;
-	}
-
-	/**
-	 * Returns the search controls Method available so that classes extending this can
-	 * override the search controls used
-	 * @return the search controls
-	 */
-	private SearchControls getSearchControls() {
-		return this.searchControls;
 	}
 
 }
