@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -205,6 +205,65 @@ public class DefaultReactiveOAuth2UserServiceTests {
 		assertThat(userAuthority.getAuthority()).isEqualTo("OAUTH2_USER");
 		assertThat(userAuthority.getAttributes()).isEqualTo(user.getAttributes());
 		assertThat(userAuthority.getUserNameAttributeName()).isEqualTo("user-name");
+	}
+
+	@Test
+	public void loadUserWhenUserNameAttributeIsNestedThenExtractCorrectly() {
+		// @formatter:off
+		String userInfoResponse = "{\n"
+				+ "   \"data\": {\n"
+				+ "       \"id\": \"2244994945\",\n"
+				+ "       \"username\": \"testuser\",\n"
+				+ "       \"name\": \"Test User\"\n"
+				+ "   },\n"
+				+ "   \"meta\": {\n"
+				+ "       \"version\": \"1.0\"\n"
+				+ "   }\n"
+				+ "}\n";
+		// @formatter:on
+		enqueueApplicationJsonBody(userInfoResponse);
+		String userInfoUri = this.server.url("/user").toString();
+		ClientRegistration clientRegistration = this.clientRegistration.userInfoUri(userInfoUri)
+			.userInfoAuthenticationMethod(AuthenticationMethod.HEADER)
+			.userNameAttributeName("data.username")
+			.build();
+		OAuth2User user = this.userService.loadUser(new OAuth2UserRequest(clientRegistration, this.accessToken))
+			.block();
+		assertThat(user.getName()).isEqualTo("testuser");
+		assertThat(user.getAttributes()).containsKey("data");
+		Map<String, Object> data = (Map<String, Object>) user.getAttributes().get("data");
+		assertThat(data).containsEntry("username", "testuser");
+		assertThat(user.getAttributes()).containsKey("data.username");
+		assertThat(user.getAttributes().get("data.username")).isEqualTo("testuser");
+	}
+
+	@Test
+	public void loadUserWhenUserNameAttributeIsMultiLevelNestedThenExtractCorrectly() {
+		// @formatter:off
+		String userInfoResponse = "{\n"
+				+ "   \"response\": {\n"
+				+ "       \"user\": {\n"
+				+ "           \"profile\": {\n"
+				+ "               \"id\": \"12345\",\n"
+				+ "               \"login\": \"deepnested\",\n"
+				+ "               \"email\": \"user@example.com\"\n"
+				+ "           }\n"
+				+ "       }\n"
+				+ "   },\n"
+				+ "   \"status\": \"success\"\n"
+				+ "}\n";
+		// @formatter:on
+		enqueueApplicationJsonBody(userInfoResponse);
+		String userInfoUri = this.server.url("/user").toString();
+		ClientRegistration clientRegistration = this.clientRegistration.userInfoUri(userInfoUri)
+			.userInfoAuthenticationMethod(AuthenticationMethod.HEADER)
+			.userNameAttributeName("response.user.profile.login")
+			.build();
+		OAuth2User user = this.userService.loadUser(new OAuth2UserRequest(clientRegistration, this.accessToken))
+			.block();
+		assertThat(user.getName()).isEqualTo("deepnested");
+		assertThat(user.getAttributes()).containsKey("response.user.profile.login");
+		assertThat(user.getAttributes().get("response.user.profile.login")).isEqualTo("deepnested");
 	}
 
 	// gh-5500
