@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -119,7 +119,15 @@ class JoseHeader {
 	 * thumbprint (a.k.a. digest) of the DER encoding of the X.509 certificate
 	 * corresponding to the key used to digitally sign the JWS or encrypt the JWE.
 	 * @return the X.509 certificate SHA-1 thumbprint
+	 * @deprecated The SHA-1 algorithm has been proven to be vulnerable to collision
+	 * attacks and should not be used. See the <a target="_blank" href=
+	 * "https://security.googleblog.com/2017/02/announcing-first-sha1-collision.html">Google
+	 * Security Blog</a> for more info.
+	 * @see <a target="_blank" href=
+	 * "https://security.googleblog.com/2017/02/announcing-first-sha1-collision.html">Announcing
+	 * the first SHA1 collision</a>
 	 */
+	@Deprecated
 	public String getX509SHA1Thumbprint() {
 		return getHeader(JoseHeaderNames.X5T);
 	}
@@ -271,7 +279,15 @@ class JoseHeader {
 		 * corresponding to the key used to digitally sign the JWS or encrypt the JWE.
 		 * @param x509SHA1Thumbprint the X.509 certificate SHA-1 thumbprint
 		 * @return the {@link AbstractBuilder}
+		 * @deprecated The SHA-1 algorithm has been proven to be vulnerable to collision
+		 * attacks and should not be used. See the <a target="_blank" href=
+		 * "https://security.googleblog.com/2017/02/announcing-first-sha1-collision.html">Google
+		 * Security Blog</a> for more info.
+		 * @see <a target="_blank" href=
+		 * "https://security.googleblog.com/2017/02/announcing-first-sha1-collision.html">Announcing
+		 * the first SHA1 collision</a>
 		 */
+		@Deprecated
 		public B x509SHA1Thumbprint(String x509SHA1Thumbprint) {
 			return header(JoseHeaderNames.X5T, x509SHA1Thumbprint);
 		}
