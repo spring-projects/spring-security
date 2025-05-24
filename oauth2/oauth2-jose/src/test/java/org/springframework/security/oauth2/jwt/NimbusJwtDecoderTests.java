@@ -42,6 +42,7 @@ import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.JWSSigner;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.RSASSASigner;
+import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.BadJOSEException;
 import com.nimbusds.jose.proc.DefaultJOSEObjectTypeVerifier;
@@ -557,6 +558,22 @@ public class NimbusJwtDecoderTests {
 				.extracting(Jwt::getSubject)
 				.isEqualTo("test-subject");
 		// @formatter:on
+	}
+
+	// gh-7056
+	@Test
+	public void decodeWhenUsingJwkSource() throws Exception {
+		JWKSource<SecurityContext> source = (a, b) -> {
+			try {
+				return JWKSet.parse(JWK_SET).getKeys();
+			}
+			catch (ParseException ex) {
+				throw new RuntimeException(ex);
+			}
+		};
+		NimbusJwtDecoder decoder = NimbusJwtDecoder.withJwkSource(source).build();
+		Jwt jwt = decoder.decode(SIGNED_JWT);
+		assertThat(jwt.getClaimAsString("sub")).isEqualTo("test-subject");
 	}
 
 	// gh-8730
