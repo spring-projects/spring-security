@@ -29,6 +29,7 @@ import io.micrometer.common.KeyValues;
 import io.micrometer.observation.Observation;
 import io.micrometer.observation.ObservationConvention;
 import io.micrometer.observation.ObservationRegistry;
+import io.micrometer.observation.ObservationView;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -46,6 +47,7 @@ import org.springframework.util.StringUtils;
  * wraps the chain in before and after observations
  *
  * @author Josh Cummings
+ * @author Nikita Konev
  * @since 6.0
  */
 public final class ObservationFilterChainDecorator implements FilterChainProxy.FilterChainDecorator {
@@ -53,6 +55,12 @@ public final class ObservationFilterChainDecorator implements FilterChainProxy.F
 	private static final Log logger = LogFactory.getLog(FilterChainProxy.class);
 
 	private static final String ATTRIBUTE = ObservationFilterChainDecorator.class + ".observation";
+
+	private static final String ATTRIBUTE_BEFORE_OBSERVATION_VIEW = ObservationFilterChainDecorator.class
+			+ ".observation.view.before";
+
+	private static final String ATTRIBUTE_AFTER_OBSERVATION_VIEW = ObservationFilterChainDecorator.class
+			+ ".observation.view.after";
 
 	static final String UNSECURED_OBSERVATION_NAME = "spring.security.http.unsecured.requests";
 
@@ -250,9 +258,30 @@ public final class ObservationFilterChainDecorator implements FilterChainProxy.F
 		private AroundFilterObservation parent(HttpServletRequest request) {
 			FilterChainObservationContext beforeContext = FilterChainObservationContext.before();
 			FilterChainObservationContext afterContext = FilterChainObservationContext.after();
+
+			Object maybeBeforeObservationView = request.getAttribute(ATTRIBUTE_BEFORE_OBSERVATION_VIEW);
+			if (maybeBeforeObservationView != null) {
+				ObservationView observationView = (ObservationView) maybeBeforeObservationView;
+				beforeContext.setParentObservation(observationView);
+			}
+
+			Object maybeAfterObservationView = request.getAttribute(ATTRIBUTE_AFTER_OBSERVATION_VIEW);
+			if (maybeAfterObservationView != null) {
+				ObservationView observationView = (ObservationView) maybeAfterObservationView;
+				afterContext.setParentObservation(observationView);
+			}
+
 			Observation before = Observation.createNotStarted(this.convention, () -> beforeContext, this.registry);
 			Observation after = Observation.createNotStarted(this.convention, () -> afterContext, this.registry);
 			AroundFilterObservation parent = AroundFilterObservation.create(before, after);
+
+			if (maybeBeforeObservationView == null) {
+				request.setAttribute(ATTRIBUTE_BEFORE_OBSERVATION_VIEW, before.getContext().getParentObservation());
+			}
+			if (maybeAfterObservationView == null) {
+				request.setAttribute(ATTRIBUTE_AFTER_OBSERVATION_VIEW, after.getContext().getParentObservation());
+			}
+
 			request.setAttribute(ATTRIBUTE, parent);
 			return parent;
 		}
