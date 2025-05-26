@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,7 +43,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
+import org.springframework.security.web.authentication.preauth.x509.SubjectDnX509PrincipalExtractor;
 import org.springframework.security.web.authentication.preauth.x509.X509AuthenticationFilter;
+import org.springframework.security.web.authentication.preauth.x509.X509PrincipalExtractor;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -152,6 +154,19 @@ public class X509ConfigurerTests {
 		this.mvc.perform(get("/").with(x509(certificate)))
 				.andExpect((result) -> assertThat(result.getRequest().getSession(false)).isNull())
 				.andExpect(authenticated().withUsername("rod"));
+		// @formatter:on
+	}
+
+	@Test
+	public void x509WhenConfiguredX509PrincipalExtractorAsBeanThenUsesCustomExtractor() throws Exception {
+		this.spring.register(X509PrincipalExtractorBeanConfig.class).autowire();
+		X509Certificate certificate = loadCert("rod.cer");
+		// @formatter:off
+		this.mvc.perform(get("/").with(x509(certificate)))
+				.andExpect(authenticated().withUsername("rod"));
+		X509PrincipalExtractor extractor = this.spring.getContext().getBean(
+				X509PrincipalExtractorBeanConfig.CustomX509PrincipalExtractor.class);
+		verify(extractor).extractPrincipal(any(X509Certificate.class));
 		// @formatter:on
 	}
 
@@ -356,6 +371,49 @@ public class X509ConfigurerTests {
 				.roles("USER", "ADMIN")
 				.build();
 			return new InMemoryUserDetailsManager(user);
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	static class X509PrincipalExtractorBeanConfig {
+
+		private final CustomX509PrincipalExtractor extractor = spy(CustomX509PrincipalExtractor.class);
+
+		@Bean
+		SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+					.x509(withDefaults());
+			// @formatter:on
+			return http.build();
+		}
+
+		@Bean
+		X509PrincipalExtractor x509PrincipalExtractor() {
+			return this.extractor;
+		}
+
+		@Bean
+		UserDetailsService userDetailsService() {
+			UserDetails user = User.withDefaultPasswordEncoder()
+				.username("rod")
+				.password("password")
+				.roles("USER", "ADMIN")
+				.build();
+			return new InMemoryUserDetailsManager(user);
+		}
+
+		public static final class CustomX509PrincipalExtractor implements X509PrincipalExtractor {
+
+			private final X509PrincipalExtractor extractor = new SubjectDnX509PrincipalExtractor();
+
+			@Override
+			public Object extractPrincipal(X509Certificate cert) {
+				return this.extractor.extractPrincipal(cert);
+			}
+
 		}
 
 	}
