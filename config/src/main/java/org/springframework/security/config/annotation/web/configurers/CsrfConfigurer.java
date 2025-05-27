@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -397,7 +397,7 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 
 	}
 
-	private static class SpaCsrfTokenRequestHandler implements CsrfTokenRequestHandler {
+	private static final class SpaCsrfTokenRequestHandler implements CsrfTokenRequestHandler {
 
 		private final CsrfTokenRequestAttributeHandler plain = new CsrfTokenRequestAttributeHandler();
 
@@ -409,27 +409,12 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 
 		@Override
 		public void handle(HttpServletRequest request, HttpServletResponse response, Supplier<CsrfToken> csrfToken) {
-			/*
-			 * Always use XorCsrfTokenRequestAttributeHandler to provide BREACH protection
-			 * of the CsrfToken when it is rendered in the response body.
-			 */
 			this.xor.handle(request, response, csrfToken);
 		}
 
 		@Override
 		public String resolveCsrfTokenValue(HttpServletRequest request, CsrfToken csrfToken) {
 			String headerValue = request.getHeader(csrfToken.getHeaderName());
-			/*
-			 * If the request contains a request header, use
-			 * CsrfTokenRequestAttributeHandler to resolve the CsrfToken. This applies
-			 * when a single-page application includes the header value automatically,
-			 * which was obtained via a cookie containing the raw CsrfToken.
-			 *
-			 * In all other cases (e.g. if the request contains a request parameter), use
-			 * XorCsrfTokenRequestAttributeHandler to resolve the CsrfToken. This applies
-			 * when a server-side rendered form includes the _csrf request parameter as a
-			 * hidden input.
-			 */
 			return (StringUtils.hasText(headerValue) ? this.plain : this.xor).resolveCsrfTokenValue(request, csrfToken);
 		}
 
