@@ -404,11 +404,9 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 				oidcAuthorizationCodeAuthenticationProvider.setAuthoritiesMapper(userAuthoritiesMapper);
 				oidcAuthorizedClientRefreshedEventListener.setAuthoritiesMapper(userAuthoritiesMapper);
 			}
-			oidcAuthorizationCodeAuthenticationProvider = this.postProcess(oidcAuthorizationCodeAuthenticationProvider);
-			http.authenticationProvider(oidcAuthorizationCodeAuthenticationProvider);
+			http.authenticationProvider(this.postProcess(oidcAuthorizationCodeAuthenticationProvider));
 
-			oidcAuthorizedClientRefreshedEventListener = this.postProcess(oidcAuthorizedClientRefreshedEventListener);
-			registerDelegateApplicationListener(oidcAuthorizedClientRefreshedEventListener);
+			registerDelegateApplicationListener(this.postProcess(oidcAuthorizedClientRefreshedEventListener));
 			configureOidcUserRefreshedEventListener(http);
 		}
 		else {

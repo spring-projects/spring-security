@@ -43,7 +43,10 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.event.AuthenticationSuccessEvent;
+import org.springframework.security.config.Customizer;
+import org.springframework.security.config.ObjectPostProcessor;
 import org.springframework.security.config.annotation.SecurityContextChangedListenerConfig;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -52,6 +55,7 @@ import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.context.DelegatingApplicationListener;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -212,6 +216,28 @@ public class OAuth2LoginConfigurerTests {
 		assertThat(authentication.getAuthorities()).first()
 			.isInstanceOf(OAuth2UserAuthority.class)
 			.hasToString("OAUTH2_USER");
+	}
+
+	// gh-17175
+	@Test
+	public void postProcessorSucceedsWhenProcessorReturnsAuthenticationProvider() throws Exception {
+		loadConfig(OAuth2LoginConfigCustomWithPostProcessor.class);
+		// setup authorization request
+		OAuth2AuthorizationRequest authorizationRequest = createOAuth2AuthorizationRequest();
+		this.authorizationRequestRepository.saveAuthorizationRequest(authorizationRequest, this.request, this.response);
+		// setup authentication parameters
+		this.request.setParameter("code", "code123");
+		this.request.setParameter("state", authorizationRequest.getState());
+		// perform test
+		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
+		// assertions
+		Authentication authentication = this.securityContextRepository
+				.loadContext(new HttpRequestResponseHolder(this.request, this.response))
+				.getAuthentication();
+		assertThat(authentication.getAuthorities()).hasSize(1);
+		assertThat(authentication.getAuthorities()).first()
+				.isInstanceOf(OAuth2UserAuthority.class)
+				.hasToString("OAUTH2_USER");
 	}
 
 	@Test
@@ -1303,6 +1329,56 @@ public class OAuth2LoginConfigurerTests {
 		@Bean
 		OAuth2AuthorizedClientRepository authorizedClientRepository() {
 			return this.authorizedClientRepository;
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	static class OAuth2LoginConfigCustomWithPostProcessor
+			extends CommonLambdaSecurityFilterChainConfig {
+
+		private ClientRegistrationRepository clientRegistrationRepository = new InMemoryClientRegistrationRepository(
+				GOOGLE_CLIENT_REGISTRATION);
+
+		OAuth2AuthorizationRequestResolver resolver = mock(OAuth2AuthorizationRequestResolver.class);
+
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+					.oauth2Login((oauth2Login) ->
+							oauth2Login
+									.clientRegistrationRepository(this.clientRegistrationRepository)
+//									.authorizedClientRepository(this.authorizedClientRepository)
+									.withObjectPostProcessor(new CustomProcessor())
+					);
+			// @formatter:on
+			return super.configureFilterChain(http);
+		}
+
+		class CustomProcessor implements ObjectPostProcessor<AuthenticationProvider> {
+			@Override
+			public <O extends AuthenticationProvider> O postProcess(O object) {
+				AuthenticationProvider p = new NoopWrapperProvider(object);
+
+				return (O) p;
+			}
+		}
+
+		record NoopWrapperProvider(
+			AuthenticationProvider delegate
+		) implements AuthenticationProvider {
+
+			@Override
+			public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+				return delegate.authenticate(authentication);
+			}
+
+			@Override
+			public boolean supports(Class<?> authentication) {
+				return delegate.supports(authentication);
+			}
 		}
 
 	}
