@@ -1,3 +1,82 @@
 = Reactive
 
 If you have already performed the xref:migration/index.adoc[initial migration steps] for your Reactive application, you're now ready to perform steps specific to Reactive applications.
+
+== Validate `typ` Header with `JwtTypeValidator`
+
+If when following the 6.5 preparatory steps you set `validateTypes` to `false`, you can now remove it.
+You can also remove explicitly adding `JwtTypeValidator` to the list of defaults.
+
+For example, change this:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Bean
+JwtDecoder jwtDecoder() {
+	NimbusReactiveJwtDecoder jwtDecoder = NimbusReactiveJwtDecoder.withIssuerLocation(location)
+        .validateTypes(false) <1>
+        // ... your remaining configuration
+        .build();
+	jwtDecoder.setJwtValidator(JwtValidators.createDefaultWithValidators(
+		new JwtIssuerValidator(location), JwtTypeValidator.jwt())); <2>
+	return jwtDecoder;
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun jwtDecoder(): JwtDecoder {
+    val jwtDecoder = NimbusReactiveJwtDecoder.withIssuerLocation(location)
+        .validateTypes(false) <1>
+        // ... your remaining configuration
+        .build()
+    jwtDecoder.setJwtValidator(JwtValidators.createDefaultWithValidators(
+        JwtIssuerValidator(location), JwtTypeValidator.jwt())) <2>
+    return jwtDecoder
+}
+----
+======
+<1> - Switch off Nimbus verifying the `typ`
+<2> - Add the default `typ` validator
+
+to this:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Bean
+NimbusReactiveJwtDecoder jwtDecoder() {
+	NimbusJwtDecoder jwtDecoder = NimbusReactiveJwtDecoder.withIssuerLocation(location)
+        // ... your remaining configuration <1>
+        .build();
+	jwtDecoder.setJwtValidator(JwtValidators.createDefaultWithIssuer(location)); <2>
+	return jwtDecoder;
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun jwtDecoder(): NimbusReactiveJwtDecoder {
+    val jwtDecoder = NimbusReactiveJwtDecoder.withIssuerLocation(location)
+        // ... your remaining configuration
+        .build()
+    jwtDecoder.setJwtValidator(JwtValidators.createDefaultWithIssuer(location)) <2>
+    return jwtDecoder
+}
+----
+======
+<1> - `validateTypes` now defaults to `false`
+<2> - `JwtTypeValidator#jwt` is added by all `createDefaultXXX` methods

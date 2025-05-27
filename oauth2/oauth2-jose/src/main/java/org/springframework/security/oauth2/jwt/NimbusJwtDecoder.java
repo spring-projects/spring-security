@@ -279,7 +279,7 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 		private Function<JWKSource<SecurityContext>, Set<JWSAlgorithm>> defaultAlgorithms = (source) -> Set
 			.of(JWSAlgorithm.RS256);
 
-		private JOSEObjectTypeVerifier<SecurityContext> typeVerifier = JWT_TYPE_VERIFIER;
+		private JOSEObjectTypeVerifier<SecurityContext> typeVerifier = NO_TYPE_VERIFIER;
 
 		private final Set<SignatureAlgorithm> signatureAlgorithms = new HashSet<>();
 
@@ -548,7 +548,7 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 
 		private JWSAlgorithm jwsAlgorithm;
 
-		private JOSEObjectTypeVerifier<SecurityContext> typeVerifier = JWT_TYPE_VERIFIER;
+		private JOSEObjectTypeVerifier<SecurityContext> typeVerifier = NO_TYPE_VERIFIER;
 
 		private final RSAPublicKey key;
 
@@ -680,7 +680,7 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 
 		private JWSAlgorithm jwsAlgorithm = JWSAlgorithm.HS256;
 
-		private JOSEObjectTypeVerifier<SecurityContext> typeVerifier = JWT_TYPE_VERIFIER;
+		private JOSEObjectTypeVerifier<SecurityContext> typeVerifier = NO_TYPE_VERIFIER;
 
 		private Consumer<ConfigurableJWTProcessor<SecurityContext>> jwtProcessorCustomizer;
 

@@ -458,10 +458,8 @@ public class NimbusJwtDecoderTests {
 		// @formatter:off
 		NimbusJwtDecoder decoder = NimbusJwtDecoder.withPublicKey(publicKey)
 				.signatureAlgorithm(SignatureAlgorithm.RS256)
-				.jwtProcessorCustomizer((p) -> p
-						.setJWSTypeVerifier(new DefaultJOSEObjectTypeVerifier<>(new JOSEObjectType("JWS")))
-				)
 				.build();
+		decoder.setJwtValidator(JwtValidators.createDefaultWithValidators(new JwtTypeValidator("JWS")));
 		// @formatter:on
 		assertThat(decoder.decode(signedJwt.serialize()).hasClaim(JwtClaimNames.EXP)).isNotNull();
 	}
@@ -575,10 +573,8 @@ public class NimbusJwtDecoderTests {
 		// @formatter:off
 		NimbusJwtDecoder decoder = NimbusJwtDecoder.withSecretKey(secretKey)
 				.macAlgorithm(MacAlgorithm.HS256)
-				.jwtProcessorCustomizer((p) -> p
-						.setJWSTypeVerifier(new DefaultJOSEObjectTypeVerifier<>(new JOSEObjectType("JWS")))
-				)
 				.build();
+		decoder.setJwtValidator(JwtValidators.createDefaultWithValidators(new JwtTypeValidator("JWS")));
 		// @formatter:on
 		assertThat(decoder.decode(signedJwt.serialize()).hasClaim(JwtClaimNames.EXP)).isNotNull();
 	}
@@ -837,6 +833,7 @@ public class NimbusJwtDecoderTests {
 		NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withPublicKey(TestKeys.DEFAULT_PUBLIC_KEY)
 			.validateType(false)
 			.build();
+		jwtDecoder.setJwtValidator((jwt) -> OAuth2TokenValidatorResult.success());
 		RSAPrivateKey privateKey = TestKeys.DEFAULT_PRIVATE_KEY;
 		SignedJWT jwt = signedJwt(privateKey,
 				new JWSHeader.Builder(JWSAlgorithm.RS256).type(JOSEObjectType.JOSE).build(),
@@ -849,6 +846,7 @@ public class NimbusJwtDecoderTests {
 		NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withSecretKey(TestKeys.DEFAULT_SECRET_KEY)
 			.validateType(false)
 			.build();
+		jwtDecoder.setJwtValidator((jwt) -> OAuth2TokenValidatorResult.success());
 		SignedJWT jwt = signedJwt(TestKeys.DEFAULT_SECRET_KEY,
 				new JWSHeader.Builder(JWSAlgorithm.HS256).type(JOSEObjectType.JOSE).build(),
 				new JWTClaimsSet.Builder().subject("subject").build());
