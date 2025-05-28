@@ -40,7 +40,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.mockito.Mockito;
 
 import org.springframework.aop.Advisor;
 import org.springframework.aop.Pointcut;
@@ -1831,8 +1830,8 @@ public class PrePostMethodSecurityConfigurationTests {
 
 		@Bean
 		@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-		static TargetVisitor customTargetVisitor() {
-			return TargetVisitor.of(Mockito.mock(), TargetVisitor.defaultsSkipValueTypes());
+		static TargetVisitor skipValueTypes() {
+			return TargetVisitor.defaultsSkipValueTypes();
 		}
 
 		@Bean
