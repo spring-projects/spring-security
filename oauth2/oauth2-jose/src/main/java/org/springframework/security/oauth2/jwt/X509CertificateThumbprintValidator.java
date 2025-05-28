@@ -50,15 +50,15 @@ import org.springframework.web.context.request.RequestContextHolder;
  * "https://datatracker.ietf.org/doc/html/rfc8705#section-3.1">3.1. JWT Certificate
  * Thumbprint Confirmation Method</a>
  */
-final class X509CertificateThumbprintValidator implements OAuth2TokenValidator<Jwt> {
+public class X509CertificateThumbprintValidator implements OAuth2TokenValidator<Jwt> {
 
-	static final Supplier<X509Certificate> DEFAULT_X509_CERTIFICATE_SUPPLIER = new DefaultX509CertificateSupplier();
+	public static final Supplier<X509Certificate> DEFAULT_X509_CERTIFICATE_SUPPLIER = new DefaultX509CertificateSupplier();
 
 	private final Log logger = LogFactory.getLog(getClass());
 
 	private final Supplier<X509Certificate> x509CertificateSupplier;
 
-	X509CertificateThumbprintValidator(Supplier<X509Certificate> x509CertificateSupplier) {
+	public X509CertificateThumbprintValidator(Supplier<X509Certificate> x509CertificateSupplier) {
 		Assert.notNull(x509CertificateSupplier, "x509CertificateSupplier cannot be null");
 		this.x509CertificateSupplier = x509CertificateSupplier;
 	}
@@ -109,7 +109,7 @@ final class X509CertificateThumbprintValidator implements OAuth2TokenValidator<J
 		return OAuth2TokenValidatorResult.success();
 	}
 
-	static String computeSHA256Thumbprint(X509Certificate x509Certificate) throws Exception {
+	public static String computeSHA256Thumbprint(X509Certificate x509Certificate) throws Exception {
 		MessageDigest md = MessageDigest.getInstance("SHA-256");
 		byte[] digest = md.digest(x509Certificate.getEncoded());
 		return Base64.getUrlEncoder().withoutPadding().encodeToString(digest);
