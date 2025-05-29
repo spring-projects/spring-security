@@ -141,10 +141,9 @@ public final class NimbusJwtEncoder implements JwtEncoder {
 	public Jwt encode(JwtEncoderParameters parameters) throws JwtEncodingException {
 		Assert.notNull(parameters, "parameters cannot be null");
 
-		JwsHeader headers = parameters.getJwsHeader();
-		if (headers == null) {
-			headers = (this.defaultJwsHeader != null) ? this.defaultJwsHeader : DEFAULT_JWS_HEADER;
-		}
+		JwsHeader headers = (parameters.getJwsHeader() != null) ? parameters.getJwsHeader()
+				: ((this.defaultJwsHeader != null) ? this.defaultJwsHeader : DEFAULT_JWS_HEADER);
+
 		JwtClaimsSet claims = parameters.getClaims();
 
 		JWK jwk = selectJwk(headers);
@@ -153,13 +152,6 @@ public final class NimbusJwtEncoder implements JwtEncoder {
 		String jws = serialize(headers, claims, jwk);
 
 		return new Jwt(jws, claims.getIssuedAt(), claims.getExpiresAt(), headers.getHeaders(), claims.getClaims());
-	}
-
-	private JwsHeader resolveHeaders(JwtEncoderParameters parameters) {
-		if (this.defaultJwsHeader != null && parameters.getJwsHeader() != null) {
-			return this.defaultJwsHeader;
-		}
-		return parameters.getJwsHeader() != null ? parameters.getJwsHeader() : DEFAULT_JWS_HEADER;
 	}
 
 	private JWK selectJwk(JwsHeader headers) {
@@ -444,6 +436,7 @@ public final class NimbusJwtEncoder implements JwtEncoder {
 		private SecretKeyJwtEncoderBuilder(SecretKey secretKey) {
 			Assert.notNull(secretKey, "secretKey cannot be null");
 			this.secretKey = secretKey;
+			this.algorithm = JWSAlgorithm.HS256;
 		}
 
 		/**
@@ -455,10 +448,6 @@ public final class NimbusJwtEncoder implements JwtEncoder {
 		 */
 		public SecretKeyJwtEncoderBuilder algorithm(MacAlgorithm macAlgorithm) {
 			Assert.notNull(macAlgorithm, "macAlgorithm cannot be null");
-			Assert.state(JWSAlgorithm.Family.HMAC_SHA.contains(this.algorithm),
-					() -> "The algorithm '" + this.algorithm + "' is not compatible with a SecretKey. "
-							+ "Please use one of the HS256, HS384, or HS512 algorithms.");
-
 			this.algorithm = JWSAlgorithm.parse(macAlgorithm.getName());
 			return this;
 		}
@@ -481,7 +470,6 @@ public final class NimbusJwtEncoder implements JwtEncoder {
 		 * with a {@link SecretKey}.
 		 */
 		public NimbusJwtEncoder build() {
-			this.algorithm = (this.algorithm != null) ? this.algorithm : JWSAlgorithm.HS256;
 
 			OctetSequenceKey.Builder builder = new OctetSequenceKey.Builder(this.secretKey).keyUse(KeyUse.SIGNATURE)
 				.algorithm(this.algorithm)
@@ -515,6 +503,7 @@ public final class NimbusJwtEncoder implements JwtEncoder {
 					"keyPair, its private key, and public key must not be null");
 			Assert.isTrue(keyPair.getPrivate() instanceof java.security.interfaces.RSAKey, "keyPair must be an RSAKey");
 			this.keyPair = keyPair;
+			this.algorithm = JWSAlgorithm.RS256;
 		}
 
 		/**
@@ -540,12 +529,6 @@ public final class NimbusJwtEncoder implements JwtEncoder {
 		 */
 		public RsaKeyPairJwtEncoderBuilder algorithm(SignatureAlgorithm signatureAlgorithm) {
 			Assert.notNull(signatureAlgorithm, "signatureAlgorithm cannot be null");
-			if (this.keyPair.getPrivate() instanceof java.security.interfaces.RSAKey) {
-				Assert.state(JWSAlgorithm.Family.RSA.contains(JWSAlgorithm.parse(signatureAlgorithm.getName())),
-						() -> "The algorithm '" + signatureAlgorithm + "' is not compatible with an RSAKey. "
-								+ "Please use one of the RS256, RS384, RS512, PS256, PS384, or PS512 algorithms.");
-
-			}
 			this.algorithm = JWSAlgorithm.parse(signatureAlgorithm.getName());
 			return this;
 		}
@@ -562,9 +545,6 @@ public final class NimbusJwtEncoder implements JwtEncoder {
 		}
 
 		protected JWK buildJwk() {
-			if (this.algorithm == null) {
-				this.algorithm = JWSAlgorithm.RS256;
-			}
 
 			RSAKey.Builder builder = new RSAKey.Builder(
 					(java.security.interfaces.RSAPublicKey) this.keyPair.getPublic())
@@ -616,6 +596,7 @@ public final class NimbusJwtEncoder implements JwtEncoder {
 					"keyPair, its private key, and public key must not be null");
 			Assert.isTrue(keyPair.getPrivate() instanceof java.security.interfaces.ECKey, "keyPair must be an ECKey");
 			this.keyPair = keyPair;
+			this.algorithm = JWSAlgorithm.ES256;
 		}
 
 		/**
@@ -639,11 +620,6 @@ public final class NimbusJwtEncoder implements JwtEncoder {
 		 */
 		public EcKeyPairJwtEncoderBuilder algorithm(SignatureAlgorithm signatureAlgorithm) {
 			Assert.notNull(signatureAlgorithm, "signatureAlgorithm cannot be null");
-			if (this.keyPair.getPrivate() instanceof java.security.interfaces.ECKey) {
-				Assert.state(JWSAlgorithm.Family.EC.contains(JWSAlgorithm.parse(signatureAlgorithm.getName())),
-						() -> "The algorithm '" + signatureAlgorithm + "' is not compatible with an ECKey. "
-								+ "Please use one of the ES256, ES384, or ES512 algorithms.");
-			}
 			this.algorithm = JWSAlgorithm.parse(signatureAlgorithm.getName());
 			return this;
 		}
@@ -660,9 +636,6 @@ public final class NimbusJwtEncoder implements JwtEncoder {
 		}
 
 		private JWK buildJwk() {
-			if (this.algorithm == null) {
-				this.algorithm = JWSAlgorithm.ES256;
-			}
 
 			ECPublicKey publicKey = (ECPublicKey) this.keyPair.getPublic();
 			Curve curve = Curve.forECParameterSpec(publicKey.getParams());

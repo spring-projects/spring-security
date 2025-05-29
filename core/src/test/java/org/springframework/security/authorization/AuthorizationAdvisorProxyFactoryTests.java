@@ -335,7 +335,7 @@ public class AuthorizationAdvisorProxyFactoryTests {
 	@Test
 	public void setTargetVisitorIgnoreValueTypesThenIgnores() {
 		AuthorizationAdvisorProxyFactory factory = AuthorizationAdvisorProxyFactory.withDefaults();
-		assertThatExceptionOfType(ClassCastException.class).isThrownBy(() -> ((Integer) factory.proxy(35)).intValue());
+		assertThatExceptionOfType(ClassCastException.class).isThrownBy(() -> factory.proxy(35).intValue());
 		factory.setTargetVisitor(TargetVisitor.defaultsSkipValueTypes());
 		assertThat(factory.proxy(35)).isEqualTo(35);
 	}

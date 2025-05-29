@@ -154,7 +154,7 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 				return new DirContextAdapter(attrs, LdapUtils.getFullDn(dn, ctx));
 			}
 			catch (NameNotFoundException ex) {
-				throw new UsernameNotFoundException("User " + username + " not found", ex);
+				throw UsernameNotFoundException.fromUsername(username, ex);
 			}
 		});
 	}

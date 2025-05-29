@@ -46,6 +46,7 @@ import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserCache;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsPasswordService;
 import org.springframework.security.core.userdetails.cache.NullUserCache;
 import org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl;
 import org.springframework.util.Assert;
@@ -63,9 +64,11 @@ import org.springframework.util.Assert;
  * using this implementation for managing your users.
  *
  * @author Luke Taylor
+ * @author Junhyeok Lee
  * @since 2.0
  */
-public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsManager, GroupManager {
+public class JdbcUserDetailsManager extends JdbcDaoImpl
+		implements UserDetailsManager, GroupManager, UserDetailsPasswordService {
 
 	public static final String DEF_CREATE_USER_SQL = "insert into users (username, password, enabled) values (?,?,?)";
 
@@ -161,6 +164,8 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 	private RowMapper<UserDetails> userDetailsMapper = this::mapToUser;
 
 	private RowMapper<GrantedAuthority> grantedAuthorityMapper = this::mapToGrantedAuthority;
+
+	private boolean enableUpdatePassword = false;
 
 	public JdbcUserDetailsManager() {
 	}
@@ -591,6 +596,21 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 		this.userCache = userCache;
 	}
 
+	/**
+	 * Sets whether the {@link #updatePassword(UserDetails, String)} method should
+	 * actually update the password.
+	 * <p>
+	 * Defaults to {@code false} to prevent accidental password updates that might produce
+	 * passwords that are too large for the current database schema. Users must explicitly
+	 * set this to {@code true} to enable password updates.
+	 * @param enableUpdatePassword {@code true} to enable password updates, {@code false}
+	 * otherwise.
+	 * @since 7.0
+	 */
+	public void setEnableUpdatePassword(boolean enableUpdatePassword) {
+		this.enableUpdatePassword = enableUpdatePassword;
+	}
+
 	private void validateUserDetails(UserDetails user) {
 		Assert.hasText(user.getUsername(), "Username may not be empty or null");
 		validateAuthorities(user.getAuthorities());
@@ -602,6 +622,21 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 			Assert.notNull(authority, "Authorities list contains a null entry");
 			Assert.hasText(authority.getAuthority(), "getAuthority() method must return a non-empty string");
 		}
+	}
+
+	/**
+	 * Conditionally updates password based on the setting from
+	 * {@link #setEnableUpdatePassword(boolean)}. {@inheritDoc}
+	 * @since 7.0
+	 */
+	@Override
+	public UserDetails updatePassword(UserDetails user, String newPassword) {
+		if (this.enableUpdatePassword) {
+			UserDetails updated = User.withUserDetails(user).password(newPassword).build();
+			updateUser(updated);
+			return updated;
+		}
+		return user;
 	}
 
 }

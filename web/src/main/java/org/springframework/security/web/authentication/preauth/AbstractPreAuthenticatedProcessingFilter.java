@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -79,6 +79,10 @@ import org.springframework.web.filter.GenericFilterBean;
  * raised by the <tt>AuthenticationManager</tt> will the be re-thrown. Note that this will
  * not affect cases where the principal returned by {@link #getPreAuthenticatedPrincipal}
  * is null, when the chain will still proceed as normal.
+ * <p>
+ * The filter saves the {@link SecurityContext} using the configured
+ * {@link SecurityContextRepository}, which can be set via
+ * {@link #setSecurityContextRepository}.
  *
  * @author Luke Taylor
  * @author Ruud Senden
@@ -253,8 +257,8 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
 
 	/**
 	 * Sets the {@link SecurityContextRepository} to save the {@link SecurityContext} on
-	 * authentication success. The default action is not to save the
-	 * {@link SecurityContext}.
+	 * authentication success. The default action is to save the {@link SecurityContext}
+	 * in {@link HttpSession} using {@link HttpSessionSecurityContextRepository}.
 	 * @param securityContextRepository the {@link SecurityContextRepository} to use.
 	 * Cannot be null.
 	 */

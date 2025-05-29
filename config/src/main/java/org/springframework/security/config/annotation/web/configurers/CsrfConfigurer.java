@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,9 +19,11 @@ package org.springframework.security.config.annotation.web.configurers;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.function.Supplier;
 
 import io.micrometer.observation.ObservationRegistry;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.security.access.AccessDeniedException;
@@ -34,13 +36,17 @@ import org.springframework.security.web.access.CompositeAccessDeniedHandler;
 import org.springframework.security.web.access.DelegatingAccessDeniedHandler;
 import org.springframework.security.web.access.ObservationMarkingAccessDeniedHandler;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfAuthenticationStrategy;
 import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.security.web.csrf.CsrfLogoutHandler;
+import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
+import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import org.springframework.security.web.csrf.CsrfTokenRequestHandler;
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
 import org.springframework.security.web.csrf.MissingCsrfTokenException;
+import org.springframework.security.web.csrf.XorCsrfTokenRequestAttributeHandler;
 import org.springframework.security.web.session.InvalidSessionAccessDeniedHandler;
 import org.springframework.security.web.session.InvalidSessionStrategy;
 import org.springframework.security.web.util.matcher.AndRequestMatcher;
@@ -48,6 +54,7 @@ import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 /**
  * Adds
@@ -214,6 +221,21 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 		return this;
 	}
 
+	/**
+	 * <p>
+	 * Sensible CSRF defaults when used in combination with a single page application.
+	 * Creates a cookie-based token repository and a custom request handler to resolve the
+	 * actual token value instead of the encoded token.
+	 * </p>
+	 * @return the {@link CsrfConfigurer} for further customizations
+	 * @since 7.0
+	 */
+	public CsrfConfigurer<H> spa() {
+		this.csrfTokenRepository = CookieCsrfTokenRepository.withHttpOnlyFalse();
+		this.requestHandler = new SpaCsrfTokenRequestHandler();
+		return this;
+	}
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public void configure(H http) {
@@ -371,6 +393,29 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 		protected IgnoreCsrfProtectionRegistry chainRequestMatchers(List<RequestMatcher> requestMatchers) {
 			CsrfConfigurer.this.ignoredCsrfProtectionMatchers.addAll(requestMatchers);
 			return this;
+		}
+
+	}
+
+	private static final class SpaCsrfTokenRequestHandler implements CsrfTokenRequestHandler {
+
+		private final CsrfTokenRequestAttributeHandler plain = new CsrfTokenRequestAttributeHandler();
+
+		private final CsrfTokenRequestAttributeHandler xor = new XorCsrfTokenRequestAttributeHandler();
+
+		SpaCsrfTokenRequestHandler() {
+			this.xor.setCsrfRequestAttributeName(null);
+		}
+
+		@Override
+		public void handle(HttpServletRequest request, HttpServletResponse response, Supplier<CsrfToken> csrfToken) {
+			this.xor.handle(request, response, csrfToken);
+		}
+
+		@Override
+		public String resolveCsrfTokenValue(HttpServletRequest request, CsrfToken csrfToken) {
+			String headerValue = request.getHeader(csrfToken.getHeaderName());
+			return (StringUtils.hasText(headerValue) ? this.plain : this.xor).resolveCsrfTokenValue(request, csrfToken);
 		}
 
 	}

@@ -172,16 +172,16 @@ public final class AuthorizationAdvisorProxyFactory implements AuthorizationProx
 	 * @return the proxied instance
 	 */
 	@Override
-	public Object proxy(Object target) {
+	public <T> T proxy(T target) {
 		if (target == null) {
 			return null;
 		}
 		if (target instanceof AuthorizationProxy proxied) {
-			return proxied;
+			return (T) proxied;
 		}
 		Object proxied = this.visitor.visit(this, target);
 		if (proxied != null) {
-			return proxied;
+			return (T) proxied;
 		}
 		ProxyFactory factory = new ProxyFactory(target);
 		factory.addAdvisors(this.authorizationProxy);
@@ -191,7 +191,7 @@ public final class AuthorizationAdvisorProxyFactory implements AuthorizationProx
 		factory.addInterface(AuthorizationProxy.class);
 		factory.setOpaque(true);
 		factory.setProxyTargetClass(!Modifier.isFinal(target.getClass().getModifiers()));
-		return factory.getProxy();
+		return (T) factory.getProxy();
 	}
 
 	/**
@@ -442,7 +442,7 @@ public final class AuthorizationAdvisorProxyFactory implements AuthorizationProx
 
 		@SuppressWarnings("unchecked")
 		private <T> T proxyCast(AuthorizationProxyFactory proxyFactory, T target) {
-			return (T) proxyFactory.proxy(target);
+			return proxyFactory.proxy(target);
 		}
 
 		private <T> Iterable<T> proxyIterable(AuthorizationProxyFactory proxyFactory, Iterable<T> iterable) {

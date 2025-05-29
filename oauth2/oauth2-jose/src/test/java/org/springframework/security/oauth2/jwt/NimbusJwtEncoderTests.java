@@ -17,7 +17,6 @@
 package org.springframework.security.oauth2.jwt;
 
 import java.security.KeyPair;
-import java.security.KeyPairGenerator;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
 import java.time.Instant;
@@ -40,6 +39,8 @@ import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.KeyUse;
 import com.nimbusds.jose.jwk.OctetSequenceKey;
 import com.nimbusds.jose.jwk.RSAKey;
+import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
+import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 import com.nimbusds.jose.util.Base64URL;
@@ -421,9 +422,8 @@ public class NimbusJwtEncoderTests {
 
 	@Test
 	void keyPairBuilderWithRsaDefaultAlgorithm() throws Exception {
-		KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
-		keyPairGenerator.initialize(2048);
-		KeyPair keyPair = keyPairGenerator.generateKeyPair();
+		RSAKey rsaKey = new RSAKeyGenerator(2048).generate();
+		KeyPair keyPair = new KeyPair(rsaKey.toRSAPublicKey(), rsaKey.toRSAPrivateKey());
 		JwtClaimsSet claims = buildClaims();
 
 		NimbusJwtEncoder encoder = NimbusJwtEncoder.withRsaKeyPair(keyPair).build();
@@ -439,9 +439,8 @@ public class NimbusJwtEncoderTests {
 
 	@Test
 	void keyPairBuilderWithRsaCustomAlgorithm() throws Exception {
-		KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
-		keyPairGenerator.initialize(2048);
-		KeyPair keyPair = keyPairGenerator.generateKeyPair();
+		RSAKey rsaKey = new RSAKeyGenerator(4096).generate();
+		KeyPair keyPair = new KeyPair(rsaKey.toRSAPublicKey(), rsaKey.toRSAPrivateKey());
 		JwtClaimsSet claims = buildClaims();
 
 		NimbusJwtEncoder encoder = NimbusJwtEncoder.withRsaKeyPair(keyPair).algorithm(SignatureAlgorithm.RS512).build();
@@ -456,9 +455,8 @@ public class NimbusJwtEncoderTests {
 
 	@Test
 	void keyPairBuilderWithEcDefaultAlgorithm() throws Exception {
-		KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("EC");
-		keyPairGenerator.initialize(256);
-		KeyPair keyPair = keyPairGenerator.generateKeyPair();
+		ECKey ecKey = new ECKeyGenerator(com.nimbusds.jose.jwk.Curve.P_256).generate();
+		KeyPair keyPair = new KeyPair(ecKey.toECPublicKey(), ecKey.toECPrivateKey());
 		JwtClaimsSet claims = buildClaims();
 
 		NimbusJwtEncoder encoder = NimbusJwtEncoder.withEcKeyPair(keyPair).build();
@@ -473,9 +471,8 @@ public class NimbusJwtEncoderTests {
 
 	@Test
 	void keyPairBuilderWithEcCustomAlgorithm() throws Exception {
-		KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("EC");
-		keyPairGenerator.initialize(256);
-		KeyPair keyPair = keyPairGenerator.generateKeyPair();
+		ECKey ecKey = new ECKeyGenerator(com.nimbusds.jose.jwk.Curve.P_256).generate();
+		KeyPair keyPair = new KeyPair(ecKey.toECPublicKey(), ecKey.toECPrivateKey());
 		NimbusJwtEncoder encoder = NimbusJwtEncoder.withEcKeyPair(keyPair)
 			.keyId(UUID.randomUUID().toString())
 			.algorithm(SignatureAlgorithm.ES256)
@@ -492,9 +489,8 @@ public class NimbusJwtEncoderTests {
 
 	@Test
 	void keyPairBuilderWithKeyId() throws Exception { // d
-		KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
-		keyPairGenerator.initialize(2048);
-		KeyPair keyPair = keyPairGenerator.generateKeyPair();
+		RSAKey rsaKey = new RSAKeyGenerator(4096).generate();
+		KeyPair keyPair = new KeyPair(rsaKey.toRSAPublicKey(), rsaKey.toRSAPrivateKey());
 		String keyId = "test-key-id";
 		JwtClaimsSet claims = buildClaims();
 

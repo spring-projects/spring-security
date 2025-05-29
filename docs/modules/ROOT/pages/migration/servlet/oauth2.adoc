@@ -1,0 +1,80 @@
+= OAuth 2.0 Migrations
+
+== Validate `typ` Header with `JwtTypeValidator`
+
+If when following the 6.5 preparatory steps you set `validateTypes` to `false`, you can now remove it.
+You can also remove explicitly adding `JwtTypeValidator` to the list of defaults.
+
+For example, change this:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Bean
+JwtDecoder jwtDecoder() {
+	NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withIssuerLocation(location)
+        .validateTypes(false) <1>
+        // ... your remaining configuration
+        .build();
+	jwtDecoder.setJwtValidator(JwtValidators.createDefaultWithValidators(
+		new JwtIssuerValidator(location), JwtTypeValidator.jwt())); <2>
+	return jwtDecoder;
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun jwtDecoder(): JwtDecoder {
+    val jwtDecoder = NimbusJwtDecoder.withIssuerLocation(location)
+        .validateTypes(false) <1>
+        // ... your remaining configuration
+        .build()
+    jwtDecoder.setJwtValidator(JwtValidators.createDefaultWithValidators(
+        JwtIssuerValidator(location), JwtTypeValidator.jwt())) <2>
+    return jwtDecoder
+}
+----
+======
+<1> - Switch off Nimbus verifying the `typ`
+<2> - Add the default `typ` validator
+
+to this:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Bean
+JwtDecoder jwtDecoder() {
+	NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withIssuerLocation(location)
+        // ... your remaining configuration <1>
+        .build();
+	jwtDecoder.setJwtValidator(JwtValidators.createDefaultWithIssuer(location)); <2>
+	return jwtDecoder;
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun jwtDecoder(): JwtDecoder {
+    val jwtDecoder = NimbusJwtDecoder.withIssuerLocation(location)
+        // ... your remaining configuration
+        .build()
+    jwtDecoder.setJwtValidator(JwtValidators.createDefaultWithIssuer(location)) <2>
+    return jwtDecoder
+}
+----
+======
+<1> - `validateTypes` now defaults to `false`
+<2> - `JwtTypeValidator#jwt` is added by all `createDefaultXXX` methods

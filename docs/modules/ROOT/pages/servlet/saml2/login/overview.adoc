@@ -125,7 +125,7 @@ spring:
       relyingparty:
         registration:
           adfs:
-            identityprovider:
+            assertingparty:
               entity-id: https://idp.example.com/issuer
               verification.credentials:
                 - certificate-location: "classpath:idp.crt"
@@ -886,16 +886,17 @@ spring:
   security:
     saml2:
       relyingparty:
-        okta:
-          signing.credentials: &relying-party-credentials
-            - private-key-location: classpath:rp.key
-              certificate-location: classpath:rp.crt
-          identityprovider:
-            entity-id: ...
-        azure:
-          signing.credentials: *relying-party-credentials
-          identityprovider:
-            entity-id: ...
+        registration:
+          okta:
+            signing.credentials: &relying-party-credentials
+              - private-key-location: classpath:rp.key
+                certificate-location: classpath:rp.crt
+            assertingparty:
+              entity-id: ...
+          azure:
+            signing.credentials: *relying-party-credentials
+            assertingparty:
+              entity-id: ...
 ----
 
 Second, in a database, you need not replicate the model of `RelyingPartyRegistration`.

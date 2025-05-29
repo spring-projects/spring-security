@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,11 @@ package org.springframework.security.web.server.csrf;
 import java.security.SecureRandom;
 import java.util.Base64;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import reactor.core.publisher.Mono;
 
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.crypto.codec.Utf8;
 import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
@@ -32,9 +35,12 @@ import org.springframework.web.server.ServerWebExchange;
  * masked value as either a form data value or header of the request.
  *
  * @author Steve Riesenberg
+ * @author Yoobin Yoon
  * @since 5.8
  */
 public final class XorServerCsrfTokenRequestAttributeHandler extends ServerCsrfTokenRequestAttributeHandler {
+
+	private static final Log logger = LogFactory.getLog(XorServerCsrfTokenRequestAttributeHandler.class);
 
 	private SecureRandom secureRandom = new SecureRandom();
 
@@ -72,12 +78,16 @@ public final class XorServerCsrfTokenRequestAttributeHandler extends ServerCsrfT
 			actualBytes = Base64.getUrlDecoder().decode(actualToken);
 		}
 		catch (Exception ex) {
+			logger.trace(LogMessage.format("Not returning the CSRF token since it's not Base64-encoded"), ex);
 			return null;
 		}
 
 		byte[] tokenBytes = Utf8.encode(token);
 		int tokenSize = tokenBytes.length;
 		if (actualBytes.length != tokenSize * 2) {
+			logger.trace(LogMessage.format(
+					"Not returning the CSRF token since its Base64-decoded length (%d) is not equal to (%d)",
+					actualBytes.length, tokenSize * 2));
 			return null;
 		}
 
