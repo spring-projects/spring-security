@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ package org.springframework.security.authorization;
  * A factory for wrapping arbitrary objects in authorization-related advice
  *
  * @author Josh Cummings
+ * @author daewon kim
  * @since 6.3
  * @see org.springframework.security.authorization.method.AuthorizationAdvisorProxyFactory
  */
@@ -30,11 +31,12 @@ public interface AuthorizationProxyFactory {
 	 *
 	 * <p>
 	 * Please check the implementation for which kinds of objects it supports.
+	 * @param <T> the type of the object being proxied
 	 * @param object the object to proxy
 	 * @return the proxied object
 	 * @throws org.springframework.aop.framework.AopConfigException if a proxy cannot be
 	 * created
 	 */
-	Object proxy(Object object);
+	<T> T proxy(T object);
 
 }

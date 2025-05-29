@@ -62,7 +62,8 @@ public class JwtValidatorsTests {
 
 		assertThat(containsByType(validator, JwtTimestampValidator.class)).isTrue();
 		assertThat(containsByType(validator, X509CertificateThumbprintValidator.class)).isTrue();
-		assertThat(Objects.requireNonNull(tokenValidators).size()).isEqualTo(2);
+		assertThat(containsByType(validator, JwtTypeValidator.class)).isTrue();
+		assertThat(Objects.requireNonNull(tokenValidators).size()).isEqualTo(3);
 	}
 
 	@Test

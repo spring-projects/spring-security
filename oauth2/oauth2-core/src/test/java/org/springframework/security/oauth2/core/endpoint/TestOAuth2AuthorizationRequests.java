@@ -47,4 +47,15 @@ public final class TestOAuth2AuthorizationRequests {
 		return request().scope("openid");
 	}
 
+	public static OAuth2AuthorizationRequest.Builder allFields() {
+		// @formatter:off
+		return request()
+				.authorizationRequestUri("https://example.com")
+				.additionalParameters(Map.of("someAdditionalParameterKey", "someAdditionalParameterValue"))
+				.parameters((parametersMap) ->
+						parametersMap.put("someParameterKey", "someParameterValue"))
+				.scope("someScope");
+		// @formatter:on
+	}
+
 }

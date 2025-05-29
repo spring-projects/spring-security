@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -93,6 +93,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.request;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.cookie;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -613,6 +614,37 @@ public class CsrfConfigurerTests {
 		assertThat(cookies).isEmpty();
 	}
 
+	@Test
+	public void spaConfigForbidden() throws Exception {
+		this.spring.register(CsrfSpaConfig.class, AllowHttpMethodsFirewallConfig.class, BasicController.class)
+			.autowire();
+		this.mvc.perform(post("/")).andExpect(status().isForbidden());
+	}
+
+	@Test
+	public void spaConfigOk() throws Exception {
+		this.spring.register(CsrfSpaConfig.class, AllowHttpMethodsFirewallConfig.class, BasicController.class)
+			.autowire();
+		this.mvc.perform(post("/").with(csrf())).andExpect(status().isOk());
+	}
+
+	@Test
+	public void spaConfigDoubleSubmit() throws Exception {
+		this.spring.register(CsrfSpaConfig.class, AllowHttpMethodsFirewallConfig.class, BasicController.class)
+			.autowire();
+		var token = this.mvc.perform(post("/"))
+			.andExpect(status().isForbidden())
+			.andExpect(cookie().exists("XSRF-TOKEN"))
+			.andReturn()
+			.getResponse()
+			.getCookie("XSRF-TOKEN");
+
+		this.mvc
+			.perform(post("/").header("X-XSRF-TOKEN", token.getValue())
+				.cookie(new Cookie("XSRF-TOKEN", token.getValue())))
+			.andExpect(status().isOk());
+	}
+
 	@Configuration
 	static class AllowHttpMethodsFirewallConfig {
 
@@ -1002,6 +1034,18 @@ public class CsrfConfigurerTests {
 					.inMemoryAuthentication()
 					.withUser(PasswordEncodedUser.user());
 			// @formatter:on
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	static class CsrfSpaConfig {
+
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			http.csrf(CsrfConfigurer::spa);
+			return http.build();
 		}
 
 	}

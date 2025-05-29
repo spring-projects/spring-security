@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 import org.springframework.util.Assert;
+import org.springframework.util.ObjectUtils;
 
 /**
  * An implementation of {@link OAuth2TokenValidator} for verifying claims in a Jwt-based
@@ -54,6 +55,10 @@ public final class JwtTimestampValidator implements OAuth2TokenValidator<Jwt> {
 
 	private final Duration clockSkew;
 
+	private boolean allowEmptyExpiryClaim = true;
+
+	private boolean allowEmptyNotBeforeClaim = true;
+
 	private Clock clock = Clock.systemUTC();
 
 	/**
@@ -68,30 +73,54 @@ public final class JwtTimestampValidator implements OAuth2TokenValidator<Jwt> {
 		this.clockSkew = clockSkew;
 	}
 
+	/**
+	 * Whether to allow the {@code exp} header to be empty. The default value is
+	 * {@code true}
+	 *
+	 * @since 7.0
+	 */
+	public void setAllowEmptyExpiryClaim(boolean allowEmptyExpiryClaim) {
+		this.allowEmptyExpiryClaim = allowEmptyExpiryClaim;
+	}
+
+	/**
+	 * Whether to allow the {@code nbf} header to be empty. The default value is
+	 * {@code true}
+	 *
+	 * @since 7.0
+	 */
+	public void setAllowEmptyNotBeforeClaim(boolean allowEmptyNotBeforeClaim) {
+		this.allowEmptyNotBeforeClaim = allowEmptyNotBeforeClaim;
+	}
+
 	@Override
 	public OAuth2TokenValidatorResult validate(Jwt jwt) {
 		Assert.notNull(jwt, "jwt cannot be null");
 		Instant expiry = jwt.getExpiresAt();
+		if (!this.allowEmptyExpiryClaim && ObjectUtils.isEmpty(expiry)) {
+			return createOAuth2Error("exp is required");
+		}
 		if (expiry != null) {
 			if (Instant.now(this.clock).minus(this.clockSkew).isAfter(expiry)) {
-				OAuth2Error oAuth2Error = createOAuth2Error(String.format("Jwt expired at %s", jwt.getExpiresAt()));
-				return OAuth2TokenValidatorResult.failure(oAuth2Error);
+				return createOAuth2Error(String.format("Jwt expired at %s", jwt.getExpiresAt()));
 			}
 		}
 		Instant notBefore = jwt.getNotBefore();
+		if (!this.allowEmptyNotBeforeClaim && ObjectUtils.isEmpty(notBefore)) {
+			return createOAuth2Error("nbf is required");
+		}
 		if (notBefore != null) {
 			if (Instant.now(this.clock).plus(this.clockSkew).isBefore(notBefore)) {
-				OAuth2Error oAuth2Error = createOAuth2Error(String.format("Jwt used before %s", jwt.getNotBefore()));
-				return OAuth2TokenValidatorResult.failure(oAuth2Error);
+				return createOAuth2Error(String.format("Jwt used before %s", jwt.getNotBefore()));
 			}
 		}
 		return OAuth2TokenValidatorResult.success();
 	}
 
-	private OAuth2Error createOAuth2Error(String reason) {
+	private OAuth2TokenValidatorResult createOAuth2Error(String reason) {
 		this.logger.debug(reason);
-		return new OAuth2Error(OAuth2ErrorCodes.INVALID_TOKEN, reason,
-				"https://tools.ietf.org/html/rfc6750#section-3.1");
+		return OAuth2TokenValidatorResult.failure(new OAuth2Error(OAuth2ErrorCodes.INVALID_TOKEN, reason,
+				"https://tools.ietf.org/html/rfc6750#section-3.1"));
 	}
 
 	/**
