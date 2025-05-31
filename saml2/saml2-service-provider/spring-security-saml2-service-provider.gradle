@@ -106,6 +106,7 @@ dependencies {
 	provided 'jakarta.servlet:jakarta.servlet-api'
 
 	optional 'com.fasterxml.jackson.core:jackson-databind'
+	optional 'org.springframework:spring-jdbc'
 
 	testImplementation 'com.squareup.okhttp3:mockwebserver'
 	testImplementation "org.assertj:assertj-core"
@@ -118,6 +119,7 @@ dependencies {
 	testImplementation "org.springframework:spring-test"
 
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	testRuntimeOnly 'org.hsqldb:hsqldb'
 }
 
 jar {
