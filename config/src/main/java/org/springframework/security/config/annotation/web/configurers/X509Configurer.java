@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,6 +36,8 @@ import org.springframework.security.web.authentication.preauth.x509.SubjectDnX50
 import org.springframework.security.web.authentication.preauth.x509.X509AuthenticationFilter;
 import org.springframework.security.web.authentication.preauth.x509.X509PrincipalExtractor;
 import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
+import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 /**
  * Adds X509 based pre authentication to an application. Since validating the certificate
@@ -74,6 +76,7 @@ import org.springframework.security.web.context.RequestAttributeSecurityContextR
  *
  * @author Rob Winch
  * @author Ngoc Nhan
+ * @author Max Batischev
  * @since 3.2
  */
 public final class X509Configurer<H extends HttpSecurityBuilder<H>>
@@ -86,6 +89,8 @@ public final class X509Configurer<H extends HttpSecurityBuilder<H>>
 	private AuthenticationUserDetailsService<PreAuthenticatedAuthenticationToken> authenticationUserDetailsService;
 
 	private AuthenticationDetailsSource<HttpServletRequest, PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails> authenticationDetailsSource;
+
+	private String subjectPrincipalRegex;
 
 	/**
 	 * Creates a new instance
@@ -103,6 +108,7 @@ public final class X509Configurer<H extends HttpSecurityBuilder<H>>
 	 * @return the {@link X509Configurer} for further customizations
 	 */
 	public X509Configurer<H> x509AuthenticationFilter(X509AuthenticationFilter x509AuthenticationFilter) {
+		Assert.notNull(x509AuthenticationFilter, "x509AuthenticationFilter cannot be null");
 		this.x509AuthenticationFilter = x509AuthenticationFilter;
 		return this;
 	}
@@ -113,6 +119,7 @@ public final class X509Configurer<H extends HttpSecurityBuilder<H>>
 	 * @return the {@link X509Configurer} to use
 	 */
 	public X509Configurer<H> x509PrincipalExtractor(X509PrincipalExtractor x509PrincipalExtractor) {
+		Assert.notNull(x509PrincipalExtractor, "x509PrincipalExtractor cannot be null");
 		this.x509PrincipalExtractor = x509PrincipalExtractor;
 		return this;
 	}
@@ -124,6 +131,7 @@ public final class X509Configurer<H extends HttpSecurityBuilder<H>>
 	 */
 	public X509Configurer<H> authenticationDetailsSource(
 			AuthenticationDetailsSource<HttpServletRequest, PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails> authenticationDetailsSource) {
+		Assert.notNull(authenticationDetailsSource, "authenticationDetailsSource cannot be null");
 		this.authenticationDetailsSource = authenticationDetailsSource;
 		return this;
 	}
@@ -150,6 +158,7 @@ public final class X509Configurer<H extends HttpSecurityBuilder<H>>
 	 */
 	public X509Configurer<H> authenticationUserDetailsService(
 			AuthenticationUserDetailsService<PreAuthenticatedAuthenticationToken> authenticationUserDetailsService) {
+		Assert.notNull(authenticationUserDetailsService, "authenticationUserDetailsService cannot be null");
 		this.authenticationUserDetailsService = authenticationUserDetailsService;
 		return this;
 	}
@@ -163,9 +172,8 @@ public final class X509Configurer<H extends HttpSecurityBuilder<H>>
 	 * @return the {@link X509Configurer} for further customizations
 	 */
 	public X509Configurer<H> subjectPrincipalRegex(String subjectPrincipalRegex) {
-		SubjectDnX509PrincipalExtractor principalExtractor = new SubjectDnX509PrincipalExtractor();
-		principalExtractor.setSubjectDnRegex(subjectPrincipalRegex);
-		this.x509PrincipalExtractor = principalExtractor;
+		Assert.hasText(subjectPrincipalRegex, "subjectPrincipalRegex cannot be null or empty");
+		this.subjectPrincipalRegex = subjectPrincipalRegex;
 		return this;
 	}
 
@@ -187,9 +195,7 @@ public final class X509Configurer<H extends HttpSecurityBuilder<H>>
 		if (this.x509AuthenticationFilter == null) {
 			this.x509AuthenticationFilter = new X509AuthenticationFilter();
 			this.x509AuthenticationFilter.setAuthenticationManager(authenticationManager);
-			if (this.x509PrincipalExtractor != null) {
-				this.x509AuthenticationFilter.setPrincipalExtractor(this.x509PrincipalExtractor);
-			}
+			this.x509AuthenticationFilter.setPrincipalExtractor(getX509PrincipalExtractor(http));
 			if (this.authenticationDetailsSource != null) {
 				this.x509AuthenticationFilter.setAuthenticationDetailsSource(this.authenticationDetailsSource);
 			}
@@ -207,6 +213,22 @@ public final class X509Configurer<H extends HttpSecurityBuilder<H>>
 			userDetailsService(getSharedOrBean(http, UserDetailsService.class));
 		}
 		return this.authenticationUserDetailsService;
+	}
+
+	private X509PrincipalExtractor getX509PrincipalExtractor(H http) {
+		if (this.x509PrincipalExtractor != null) {
+			return this.x509PrincipalExtractor;
+		}
+		X509PrincipalExtractor extractor = getSharedOrBean(http, X509PrincipalExtractor.class);
+		if (extractor != null) {
+			return extractor;
+		}
+		SubjectDnX509PrincipalExtractor principalExtractor = new SubjectDnX509PrincipalExtractor();
+		if (StringUtils.hasText(this.subjectPrincipalRegex)) {
+			principalExtractor.setSubjectDnRegex(this.subjectPrincipalRegex);
+		}
+		this.x509PrincipalExtractor = principalExtractor;
+		return this.x509PrincipalExtractor;
 	}
 
 	private <C> C getSharedOrBean(H http, Class<C> type) {
