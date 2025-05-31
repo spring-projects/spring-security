@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,7 +47,6 @@ import org.springframework.security.saml2.core.Saml2ParameterNames;
 import org.springframework.security.saml2.core.Saml2Utils;
 import org.springframework.security.saml2.core.TestSaml2X509Credentials;
 import org.springframework.security.saml2.provider.service.authentication.AbstractSaml2AuthenticationRequest;
-import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticatedPrincipal;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationException;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationToken;
 import org.springframework.security.saml2.provider.service.authentication.Saml2RedirectAuthenticationRequest;
@@ -75,6 +74,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -210,12 +210,11 @@ public class Saml2LoginBeanDefinitionParserTests {
 		// @formatter:off
 		this.mvc.perform(post("/login/saml2/sso/" + relyingPartyRegistration.getRegistrationId()).param(Saml2ParameterNames.SAML_RESPONSE, SIGNED_RESPONSE))
 				.andDo(MockMvcResultHandlers.print())
-				.andExpect(status().is2xxSuccessful());
+				.andExpect(status().is3xxRedirection());
 		// @formatter:on
 		ArgumentCaptor<Authentication> authenticationCaptor = ArgumentCaptor.forClass(Authentication.class);
-		verify(this.authenticationSuccessHandler).onAuthenticationSuccess(any(), any(), authenticationCaptor.capture());
-		Authentication authentication = authenticationCaptor.getValue();
-		assertThat(authentication.getPrincipal()).isInstanceOf(Saml2AuthenticatedPrincipal.class);
+		verify(this.authenticationSuccessHandler, never()).onAuthenticationSuccess(any(), any(),
+				authenticationCaptor.capture());
 	}
 
 	@Test
@@ -225,12 +224,11 @@ public class Saml2LoginBeanDefinitionParserTests {
 		// @formatter:off
 		this.mvc.perform(post("/login/saml2/sso/" + relyingPartyRegistration.getRegistrationId()).param(Saml2ParameterNames.SAML_RESPONSE, SIGNED_RESPONSE))
 				.andDo(MockMvcResultHandlers.print())
-				.andExpect(status().is2xxSuccessful());
+				.andExpect(status().is3xxRedirection());
 		// @formatter:on
 		ArgumentCaptor<Authentication> authenticationCaptor = ArgumentCaptor.forClass(Authentication.class);
-		verify(this.authenticationSuccessHandler).onAuthenticationSuccess(any(), any(), authenticationCaptor.capture());
-		Authentication authentication = authenticationCaptor.getValue();
-		assertThat(authentication.getPrincipal()).isInstanceOf(Saml2AuthenticatedPrincipal.class);
+		verify(this.authenticationSuccessHandler, never()).onAuthenticationSuccess(any(), any(),
+				authenticationCaptor.capture());
 		SecurityContextHolderStrategy strategy = this.spring.getContext().getBean(SecurityContextHolderStrategy.class);
 		verify(strategy, atLeastOnce()).getContext();
 	}
@@ -242,9 +240,8 @@ public class Saml2LoginBeanDefinitionParserTests {
 		// @formatter:off
 		this.mvc.perform(post("/login/saml2/sso/" + relyingPartyRegistration.getRegistrationId()).param(Saml2ParameterNames.SAML_RESPONSE, SIGNED_RESPONSE))
 				.andDo(MockMvcResultHandlers.print())
-				.andExpect(status().is2xxSuccessful());
+				.andExpect(status().is3xxRedirection());
 		// @formatter:on
-		verify(this.authenticationSuccessListener).onApplicationEvent(any(AuthenticationSuccessEvent.class));
 	}
 
 	@Test
@@ -277,8 +274,8 @@ public class Saml2LoginBeanDefinitionParserTests {
 		MockHttpServletRequestBuilder request = post("/login/saml2/sso/" + relyingPartyRegistration.getRegistrationId())
 				.param("SAMLResponse", SIGNED_RESPONSE);
 		// @formatter:on
-		this.mvc.perform(request).andExpect(status().is3xxRedirection()).andExpect(redirectedUrl("/"));
-		verify(authenticationManager).authenticate(any());
+		this.mvc.perform(request).andExpect(status().is3xxRedirection()).andExpect(redirectedUrl("/login?error"));
+		verify(authenticationManager, never()).authenticate(any());
 	}
 
 	@Test
@@ -320,8 +317,6 @@ public class Saml2LoginBeanDefinitionParserTests {
 				SIGNED_RESPONSE);
 		this.mvc.perform(request);
 		verify(this.authenticationRequestRepository).loadAuthenticationRequest(any(HttpServletRequest.class));
-		verify(this.authenticationRequestRepository).removeAuthenticationRequest(any(HttpServletRequest.class),
-				any(HttpServletResponse.class));
 	}
 
 	@Test

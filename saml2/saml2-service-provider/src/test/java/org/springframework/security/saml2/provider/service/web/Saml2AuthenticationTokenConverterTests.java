@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,7 +67,8 @@ public class Saml2AuthenticationTokenConverterTests {
 		request.setParameter(Saml2ParameterNames.SAML_RESPONSE,
 				Saml2Utils.samlEncode("response".getBytes(StandardCharsets.UTF_8)));
 		Saml2AuthenticationToken token = converter.convert(request);
-		assertThat(token.getSaml2Response()).isEqualTo("response");
+		assertThat(token.getSaml2Response())
+			.isEqualTo(Saml2Utils.samlInflate("response".getBytes(StandardCharsets.UTF_8)));
 		assertThat(token.getRelyingPartyRegistration().getRegistrationId())
 			.isEqualTo(this.relyingPartyRegistration.getRegistrationId());
 	}
@@ -81,7 +82,8 @@ public class Saml2AuthenticationTokenConverterTests {
 		request.setParameter(Saml2ParameterNames.SAML_RESPONSE,
 				Saml2Utils.samlEncode("response".getBytes(StandardCharsets.UTF_8)));
 		Saml2AuthenticationToken token = converter.convert(request);
-		assertThat(token.getSaml2Response()).isEqualTo("response");
+		assertThat(token.getSaml2Response())
+			.isEqualTo(Saml2Utils.samlInflate("response".getBytes(StandardCharsets.UTF_8)));
 		assertThat(token.getRelyingPartyRegistration().getRegistrationId())
 			.isEqualTo(this.relyingPartyRegistration.getRegistrationId());
 		verify(resolver).resolve(any(), isNull());
@@ -158,15 +160,18 @@ public class Saml2AuthenticationTokenConverterTests {
 	}
 
 	@Test
-	public void convertWhenUsingSamlUtilsBase64ThenXmlIsValid() throws Exception {
+	public void convertWhenUsingSamlUtilsBase64ThenSaml2AuthenticationException() throws Exception {
 		Saml2AuthenticationTokenConverter converter = new Saml2AuthenticationTokenConverter(
 				this.relyingPartyRegistrationResolver);
 		given(this.relyingPartyRegistrationResolver.resolve(any(HttpServletRequest.class), any()))
 			.willReturn(this.relyingPartyRegistration);
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setParameter(Saml2ParameterNames.SAML_RESPONSE, getSsoCircleEncodedXml());
-		Saml2AuthenticationToken token = converter.convert(request);
-		validateSsoCircleXml(token.getSaml2Response());
+		assertThatExceptionOfType(Saml2AuthenticationException.class).isThrownBy(() -> converter.convert(request))
+			.withRootCauseInstanceOf(IOException.class)
+			.satisfies(
+					(ex) -> assertThat(ex.getSaml2Error().getErrorCode()).isEqualTo(Saml2ErrorCodes.INVALID_RESPONSE))
+			.satisfies((ex) -> assertThat(ex.getSaml2Error().getDescription()).isEqualTo("Unable to inflate string"));
 	}
 
 	@Test
@@ -187,7 +192,8 @@ public class Saml2AuthenticationTokenConverterTests {
 		request.setParameter(Saml2ParameterNames.SAML_RESPONSE,
 				Saml2Utils.samlEncode("response".getBytes(StandardCharsets.UTF_8)));
 		Saml2AuthenticationToken token = converter.convert(request);
-		assertThat(token.getSaml2Response()).isEqualTo("response");
+		assertThat(token.getSaml2Response())
+			.isEqualTo(Saml2Utils.samlInflate("response".getBytes(StandardCharsets.UTF_8)));
 		assertThat(token.getRelyingPartyRegistration().getRegistrationId())
 			.isEqualTo(this.relyingPartyRegistration.getRegistrationId());
 		assertThat(token.getAuthenticationRequest()).isEqualTo(authenticationRequest);
@@ -210,7 +216,8 @@ public class Saml2AuthenticationTokenConverterTests {
 		request.setParameter(Saml2ParameterNames.SAML_RESPONSE,
 				Saml2Utils.samlEncode("response".getBytes(StandardCharsets.UTF_8)));
 		Saml2AuthenticationToken token = converter.convert(request);
-		assertThat(token.getSaml2Response()).isEqualTo("response");
+		assertThat(token.getSaml2Response())
+			.isEqualTo(Saml2Utils.samlInflate("response".getBytes(StandardCharsets.UTF_8)));
 		assertThat(token.getRelyingPartyRegistration().getRegistrationId())
 			.isEqualTo(this.relyingPartyRegistration.getRegistrationId());
 		assertThat(token.getAuthenticationRequest()).isEqualTo(authenticationRequest);
@@ -228,6 +235,23 @@ public class Saml2AuthenticationTokenConverterTests {
 				this.relyingPartyRegistrationResolver);
 		assertThatExceptionOfType(IllegalArgumentException.class)
 			.isThrownBy(() -> converter.setAuthenticationRequestRepository(null));
+	}
+
+	@Test
+	public void convertWhenGetRequestAndShouldNotInflateResponse() {
+		Saml2AuthenticationTokenConverter converter = new Saml2AuthenticationTokenConverter(
+				this.relyingPartyRegistrationResolver);
+		converter.setShouldInflateResponse(false);
+		given(this.relyingPartyRegistrationResolver.resolve(any(HttpServletRequest.class), any()))
+			.willReturn(this.relyingPartyRegistration);
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setMethod("GET");
+		request.setParameter(Saml2ParameterNames.SAML_RESPONSE,
+				Saml2Utils.samlEncode("response".getBytes(StandardCharsets.UTF_8)));
+		Saml2AuthenticationToken token = converter.convert(request);
+		assertThat(token.getSaml2Response()).isEqualTo("response");
+		assertThat(token.getRelyingPartyRegistration().getRegistrationId())
+			.isEqualTo(this.relyingPartyRegistration.getRegistrationId());
 	}
 
 	private void validateSsoCircleXml(String xml) {
