@@ -16,22 +16,52 @@
 
 package org.springframework.security.config.annotation.web.configurers;
 
+import java.net.URI;
+import java.util.UUID;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.ResponseEntity;
+import org.springframework.mock.web.MockHttpSession;
+import org.springframework.security.authentication.password.ChangePasswordAdvice;
+import org.springframework.security.authentication.password.ChangePasswordReason;
+import org.springframework.security.authentication.password.SimpleChangePasswordAdvice;
+import org.springframework.security.authentication.password.UserDetailsPasswordManager;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.hamcrest.Matchers.containsString;
 import static org.springframework.security.config.Customizer.withDefaults;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -87,6 +117,54 @@ public class PasswordManagementConfigurerTests {
 			.withMessage("changePasswordPage cannot be empty");
 	}
 
+	@Test
+	void whenAdminSetsExpiredAdviceThenUserLoginRedirectsToResetPassword() throws Exception {
+		this.spring.register(PasswordManagementConfig.class, AdminController.class, HomeController.class).autowire();
+		UserDetailsService users = this.spring.getContext().getBean(UserDetailsService.class);
+		UserDetails admin = users.loadUserByUsername("admin");
+		this.mvc.perform(get("/").with(user(admin))).andExpect(status().isOk());
+		// change the password to a test value
+		String random = UUID.randomUUID().toString();
+		this.mvc.perform(post("/change-password").with(csrf()).with(user(admin)).param("newPassword", random))
+			.andExpect(status().isFound())
+			.andExpect(redirectedUrl("/"));
+		// admin "expires" their own password
+		this.mvc.perform(post("/admin/passwords/expire/admin").with(csrf()).with(user(admin)))
+			.andExpect(status().isCreated());
+		// .andExpect(jsonPath("$.action").value(ChangePasswordAdvice.Action.MUST_CHANGE.toString()));
+		// requests redirect to /change-password
+		MvcResult result = this.mvc
+			.perform(post("/login").with(csrf()).param("username", "admin").param("password", random))
+			.andExpect(status().isFound())
+			.andExpect(redirectedUrl("/"))
+			.andReturn();
+		MockHttpSession session = (MockHttpSession) result.getRequest().getSession();
+		this.mvc.perform(get("/").session(session))
+			.andExpect(status().isFound())
+			.andExpect(redirectedUrl("/change-password"));
+		// reset the password to update
+		random = UUID.randomUUID().toString();
+		this.mvc.perform(post("/change-password").with(csrf()).session(session).param("newPassword", random))
+			.andExpect(status().isFound())
+			.andExpect(redirectedUrl("/"));
+		// now we're good
+		this.mvc.perform(get("/").session(session)).andExpect(status().isOk());
+	}
+
+	@Test
+	void whenCompromisedThenUserLoginAllowed() throws Exception {
+		this.spring.register(PasswordManagementConfig.class, AdminController.class, HomeController.class).autowire();
+		MvcResult result = this.mvc
+			.perform(post("/login").with(csrf()).param("username", "compromised").param("password", "password"))
+			.andExpect(status().isFound())
+			.andExpect(redirectedUrl("/"))
+			.andReturn();
+		MockHttpSession session = (MockHttpSession) result.getRequest().getSession();
+		this.mvc.perform(get("/").session(session))
+			.andExpect(status().isOk())
+			.andExpect(content().string(containsString("COMPROMISED")));
+	}
+
 	@Configuration
 	@EnableWebSecurity
 	static class PasswordManagementWithDefaultChangePasswordPageConfig {
@@ -115,6 +193,92 @@ public class PasswordManagementConfigurerTests {
 					)
 					.build();
 			// @formatter:on
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	@EnableWebMvc
+	static class PasswordManagementConfig {
+
+		@Bean
+		SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+					.authorizeHttpRequests((authz) -> authz
+							.requestMatchers("/admin/**").hasRole("ADMIN")
+							.anyRequest().authenticated()
+					)
+					.formLogin(Customizer.withDefaults())
+					.passwordManagement(Customizer.withDefaults());
+			// @formatter:on
+			return http.build();
+		}
+
+		@Bean
+		UserDetailsService users() {
+			String adminPassword = UUID.randomUUID().toString();
+			UserDetails compromised = User.withUsername("compromised").password("{noop}password").roles("USER").build();
+			UserDetails admin = User.withUsername("admin").password("{noop}" + adminPassword).roles("ADMIN").build();
+			return new InMemoryUserDetailsManager(compromised, admin);
+		}
+
+	}
+
+	@RequestMapping("/admin/passwords")
+	@RestController
+	static class AdminController {
+
+		private final UserDetailsService users;
+
+		private final UserDetailsPasswordManager passwords;
+
+		private final PasswordEncoder encoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
+
+		AdminController(UserDetailsService users) {
+			this.users = users;
+			this.passwords = (UserDetailsPasswordManager) users;
+		}
+
+		@GetMapping("/advice/{username}")
+		ResponseEntity<ChangePasswordAdvice> requireChangePassword(@PathVariable("username") String username) {
+			UserDetails user = this.users.loadUserByUsername(username);
+			if (user == null) {
+				return ResponseEntity.notFound().build();
+			}
+			ChangePasswordAdvice advice = this.passwords.loadPasswordAdvice(user);
+			return ResponseEntity.ok(advice);
+		}
+
+		@PostMapping("/expire/{username}")
+		ResponseEntity<ChangePasswordAdvice> expirePassword(@PathVariable("username") String username) {
+			UserDetails user = this.users.loadUserByUsername(username);
+			if (user == null) {
+				return ResponseEntity.notFound().build();
+			}
+			ChangePasswordAdvice advice = new SimpleChangePasswordAdvice(ChangePasswordAdvice.Action.MUST_CHANGE,
+					ChangePasswordReason.EXPIRED);
+			this.passwords.savePasswordAdvice(user, advice);
+			URI uri = URI.create("/admin/passwords/advice/" + username);
+			return ResponseEntity.created(uri).body(advice);
+		}
+
+		@PostMapping("/change")
+		ResponseEntity<?> changePassword(@AuthenticationPrincipal UserDetails user,
+				@RequestParam("password") String password) {
+			this.passwords.updatePassword(user, this.encoder.encode(password));
+			return ResponseEntity.ok().build();
+		}
+
+	}
+
+	@RestController
+	static class HomeController {
+
+		@GetMapping
+		ChangePasswordAdvice index(ChangePasswordAdvice advice) {
+			return advice;
 		}
 
 	}
