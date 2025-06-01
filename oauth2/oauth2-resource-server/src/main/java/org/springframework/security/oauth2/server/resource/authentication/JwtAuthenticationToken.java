@@ -19,6 +19,7 @@ package org.springframework.security.oauth2.server.resource.authentication;
 import java.util.Collection;
 import java.util.Map;
 
+import org.springframework.security.core.AuthenticatedPrincipal;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.security.core.Transient;
@@ -29,6 +30,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
  * {@link Jwt} {@code Authentication}.
  *
  * @author Joe Grandja
+ * @author Andrey Litvitski
  * @since 5.1
  * @see AbstractOAuth2TokenAuthenticationToken
  * @see Jwt
@@ -70,6 +72,22 @@ public class JwtAuthenticationToken extends AbstractOAuth2TokenAuthenticationTok
 		super(jwt, authorities);
 		this.setAuthenticated(true);
 		this.name = name;
+	}
+
+	/**
+	 * Constructs a {@code JwtAuthenticationToken} using the provided parameters.
+	 * @param jwt the JWT
+	 * @param principal the principal
+	 * @param authorities the authorities assigned to the JWT
+	 */
+	public JwtAuthenticationToken(Jwt jwt, Object principal, Collection<? extends GrantedAuthority> authorities) {
+		super(jwt, principal, jwt, authorities);
+		this.setAuthenticated(true);
+		if (principal instanceof AuthenticatedPrincipal) {
+			this.name = ((AuthenticatedPrincipal) principal).getName();
+		} else {
+			this.name = jwt.getSubject();
+		}
 	}
 
 	@Override
