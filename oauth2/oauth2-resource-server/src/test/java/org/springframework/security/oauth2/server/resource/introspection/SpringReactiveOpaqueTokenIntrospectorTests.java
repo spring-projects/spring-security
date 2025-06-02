@@ -297,6 +297,7 @@ public class SpringReactiveOpaqueTokenIntrospectorTests {
 				.withIntrospectionUri(introspectUri)
 				.clientId("client&1")
 				.clientSecret("secret@$2")
+				.webClientBuilder(WebClient.builder())
 				.build();
 			OAuth2AuthenticatedPrincipal authority = introspectionClient.introspect("token").block();
 			// @formatter:off

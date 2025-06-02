@@ -268,6 +268,7 @@ public class SpringReactiveOpaqueTokenIntrospector implements ReactiveOpaqueToke
 	 * Used to build {@link SpringReactiveOpaqueTokenIntrospector}.
 	 *
 	 * @author Ngoc Nhan
+	 * @author Andrey Litvitski
 	 * @since 6.5
 	 */
 	public static final class Builder {
@@ -277,6 +278,8 @@ public class SpringReactiveOpaqueTokenIntrospector implements ReactiveOpaqueToke
 		private String clientId;
 
 		private String clientSecret;
+
+		private WebClient.Builder webClientBuilder;
 
 		private Builder(String introspectionUri) {
 			this.introspectionUri = introspectionUri;
@@ -309,12 +312,30 @@ public class SpringReactiveOpaqueTokenIntrospector implements ReactiveOpaqueToke
 		}
 
 		/**
+		 * The builder will use the provided {@link WebClient.Builder} to build the
+		 * {@link WebClient} used for token introspection requests. If not provided, a
+		 * default builder will be used.
+		 * @param webClientBuilder The {@link WebClient.Builder} to customize the HTTP
+		 * client
+		 * @return the {@link SpringReactiveOpaqueTokenIntrospector.Builder}
+		 * @since 6.5
+		 */
+		public Builder webClientBuilder(WebClient.Builder webClientBuilder) {
+			Assert.notNull(webClientBuilder, "webClientBuilder cannot be null");
+			this.webClientBuilder = webClientBuilder;
+			return this;
+		}
+
+		/**
 		 * Creates a {@code SpringReactiveOpaqueTokenIntrospector}
 		 * @return the {@link SpringReactiveOpaqueTokenIntrospector}
 		 * @since 6.5
 		 */
 		public SpringReactiveOpaqueTokenIntrospector build() {
-			WebClient webClient = WebClient.builder()
+			if (this.webClientBuilder == null) {
+				this.webClientBuilder = WebClient.builder();
+			}
+			WebClient webClient = this.webClientBuilder
 				.defaultHeaders((h) -> h.setBasicAuth(this.clientId, this.clientSecret))
 				.build();
 			return new SpringReactiveOpaqueTokenIntrospector(this.introspectionUri, webClient);
