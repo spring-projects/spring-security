@@ -107,7 +107,7 @@ import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
  * A {@link HttpSecurity} is similar to Spring Security's XML &lt;http&gt; element in the
  * namespace configuration. It allows configuring web based security for specific http
  * requests. By default it will be applied to all requests, but can be restricted using
- * {@link #requestMatcher(RequestMatcher)} or other similar methods.
+ * {@link #authorizeHttpRequests(Customizer)} or other similar methods.
  *
  * <h2>Example Usage</h2>
  *
@@ -124,7 +124,12 @@ import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
  *
  * 	&#064;Bean
  * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
- * 		http.authorizeHttpRequests().requestMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;).and().formLogin();
+ * 		http
+ * 			.authorizeHttpRequests((authorizeHttpRequests) -&gt;
+ * 				authorizeHttpRequests
+ * 					.requestMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
+ * 			)
+ * 			.formLogin(withDefaults());
  * 		return http.build();
  * 	}
  *
