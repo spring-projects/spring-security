@@ -20,7 +20,6 @@ import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.http.HttpMethod;
 import org.springframework.security.saml2.core.Saml2Error;
-import org.springframework.security.saml2.core.Saml2ErrorCodes;
 import org.springframework.security.saml2.core.Saml2ParameterNames;
 import org.springframework.security.saml2.provider.service.authentication.AbstractSaml2AuthenticationRequest;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationException;
@@ -107,12 +106,12 @@ public final class Saml2AuthenticationTokenConverter implements AuthenticationCo
 		if (!this.shouldConvertGetRequests && isGet) {
 			return null;
 		}
+		Saml2Utils.DecodingConfigurer decoding = Saml2Utils.withEncoded(encoded).requireBase64(true).inflate(isGet);
 		try {
-			return Saml2Utils.withEncoded(encoded).requireBase64(true).inflate(isGet).decode();
+			return decoding.decode();
 		}
 		catch (Exception ex) {
-			throw new Saml2AuthenticationException(new Saml2Error(Saml2ErrorCodes.INVALID_RESPONSE, ex.getMessage()),
-					ex);
+			throw new Saml2AuthenticationException(Saml2Error.invalidResponse(ex.getMessage()), ex);
 		}
 	}
 
