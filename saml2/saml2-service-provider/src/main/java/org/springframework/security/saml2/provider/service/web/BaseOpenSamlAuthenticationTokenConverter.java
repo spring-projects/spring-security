@@ -51,6 +51,8 @@ final class BaseOpenSamlAuthenticationTokenConverter implements AuthenticationCo
 
 	private Saml2AuthenticationRequestRepository<?> authenticationRequests = new HttpSessionSaml2AuthenticationRequestRepository();
 
+	private boolean shouldConvertGetRequests = true;
+
 	/**
 	 * Constructs a {@link BaseOpenSamlAuthenticationTokenConverter} given a repository
 	 * for {@link RelyingPartyRegistration}s
@@ -172,13 +174,19 @@ final class BaseOpenSamlAuthenticationTokenConverter implements AuthenticationCo
 		this.requestMatcher = requestMatcher;
 	}
 
+	void setShouldConvertGetRequests(boolean shouldConvertGetRequests) {
+		this.shouldConvertGetRequests = shouldConvertGetRequests;
+	}
+
 	private String decode(HttpServletRequest request) {
 		String encoded = request.getParameter(Saml2ParameterNames.SAML_RESPONSE);
+		boolean isGet = HttpMethod.GET.matches(request.getMethod());
+		if (!this.shouldConvertGetRequests && isGet) {
+			return null;
+		}
+		Saml2Utils.DecodingConfigurer decoding = Saml2Utils.withEncoded(encoded).requireBase64(true).inflate(isGet);
 		try {
-			return Saml2Utils.withEncoded(encoded)
-				.requireBase64(true)
-				.inflate(HttpMethod.GET.matches(request.getMethod()))
-				.decode();
+			return decoding.decode();
 		}
 		catch (Exception ex) {
 			throw new Saml2AuthenticationException(Saml2Error.invalidResponse(ex.getMessage()), ex);
