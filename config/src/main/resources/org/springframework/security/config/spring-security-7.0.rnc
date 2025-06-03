@@ -683,6 +683,19 @@ opaque-token.attlist &=
     ## Reference to an OpaqueTokenAuthenticationConverter responsible for converting successful introspection result into an Authentication.
     attribute authentication-converter-ref {xsd:token}?
 
+dpop =
+    ## Configuration DpoP
+    element dpop {dpop.attlist}
+dpop.attlist &=
+    ## DPoP Request Matcher
+    attribute dpop-request-matcher-ref {xsd:token}?
+dpop.attlist &=
+    attribute dpop-authentication-converter-ref {xsd:token}?
+dpop.attlist &=
+    attribute dpop-success-handler-ref {xsd:token}?
+dpop.attlist &=
+    attribute dpop-failure-handler-ref {xsd:token}?
+
 saml2-login =
 	## Configures authentication support for SAML 2.0 Login
 	element saml2-login {saml2-login.attlist}
