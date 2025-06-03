@@ -146,6 +146,7 @@ import org.springframework.web.accept.HeaderContentNegotiationStrategy;
  * @author Josh Cummings
  * @author Evgeniy Cheban
  * @author Jerome Wacongne &lt;ch4mp@c4-soft.com&gt;
+ * @author Max Batischev
  * @since 5.1
  * @see BearerTokenAuthenticationFilter
  * @see JwtAuthenticationProvider
@@ -167,6 +168,8 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 			"X-Requested-With", "XMLHttpRequest");
 
 	private final ApplicationContext context;
+
+	private DPoPAuthenticationConfigurer<H> dPoPAuthenticationConfigurer;
 
 	private AuthenticationManagerResolver<HttpServletRequest> authenticationManagerResolver;
 
@@ -268,6 +271,22 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 		return this;
 	}
 
+	/**
+	 * Enables DPoP support.
+	 * @param dpopAuthenticatioCustomizer the {@link Customizer} to provide more options
+	 * for the {@link DPoPAuthenticationConfigurer}
+	 * @return the {@link OAuth2ResourceServerConfigurer} for further customizations
+	 * @since 7.0
+	 */
+	public OAuth2ResourceServerConfigurer<H> dpop(
+			Customizer<DPoPAuthenticationConfigurer<H>> dpopAuthenticatioCustomizer) {
+		if (this.dPoPAuthenticationConfigurer == null) {
+			this.dPoPAuthenticationConfigurer = new DPoPAuthenticationConfigurer<>();
+		}
+		dpopAuthenticatioCustomizer.customize(this.dPoPAuthenticationConfigurer);
+		return this;
+	}
+
 	@Override
 	public void init(H http) {
 		validateConfiguration();
@@ -296,9 +315,8 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 		filter = postProcess(filter);
 		http.addFilter(filter);
 
-		if (dPoPAuthenticationAvailable) {
-			DPoPAuthenticationConfigurer<H> dPoPAuthenticationConfigurer = new DPoPAuthenticationConfigurer<>();
-			dPoPAuthenticationConfigurer.configure(http);
+		if (dPoPAuthenticationAvailable && this.dPoPAuthenticationConfigurer != null) {
+			this.dPoPAuthenticationConfigurer.configure(http);
 		}
 
 		OAuth2ProtectedResourceMetadataFilter protectedResourceMetadataFilter = new OAuth2ProtectedResourceMetadataFilter();
