@@ -1266,7 +1266,8 @@ Reference to an `AuthenticationManagerResolver` which will resolve the `Authenti
 
 [[nsa-oauth2-resource-server-bearer-token-resolver-ref]]
 * **bearer-token-resolver-ref**
-Reference to a `BearerTokenResolver` which will retrieve the bearer token from the request
+Reference to a `BearerTokenResolver` which will retrieve the bearer token from the request.
+This cannot be used in conjunction with `authentication-converter-ref`
 
 [[nsa-oauth2-resource-server-entry-point-ref]]
 * **entry-point-ref**
@@ -1274,7 +1275,8 @@ Reference to a `AuthenticationEntryPoint` which will handle unauthorized request
 
 [[nsa-oauth2-resource-server-authentication-converter-ref]]
 * **authentication-converter-ref**
-Reference to a `AuthenticationConverter` which convert request to authentication
+Reference to a `AuthenticationConverter` which convert request to authentication.
+This cannot be used in conjunction with `bearer-token-resolver-ref`
 
 [[nsa-jwt]]
 == <jwt>

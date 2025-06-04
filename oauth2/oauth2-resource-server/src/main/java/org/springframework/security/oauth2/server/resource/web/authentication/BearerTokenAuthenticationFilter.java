@@ -40,6 +40,7 @@ import org.springframework.security.oauth2.server.resource.BearerTokenErrors;
 import org.springframework.security.oauth2.server.resource.authentication.AbstractOAuth2TokenAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationProvider;
+import org.springframework.security.oauth2.server.resource.authentication.OpaqueTokenAuthenticationProvider;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
 import org.springframework.security.oauth2.server.resource.web.DefaultBearerTokenResolver;
@@ -76,6 +77,8 @@ public class BearerTokenAuthenticationFilter extends OncePerRequestFilter {
 
 	private final AuthenticationManagerResolver<HttpServletRequest> authenticationManagerResolver;
 
+	private final AuthenticationConverter authenticationConverter;
+
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
 		.getContextHolderStrategy();
 
@@ -84,11 +87,7 @@ public class BearerTokenAuthenticationFilter extends OncePerRequestFilter {
 	private AuthenticationFailureHandler authenticationFailureHandler = new AuthenticationEntryPointFailureHandler(
 			(request, response, exception) -> this.authenticationEntryPoint.commence(request, response, exception));
 
-	private AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource = new WebAuthenticationDetailsSource();
-
 	private SecurityContextRepository securityContextRepository = new RequestAttributeSecurityContextRepository();
-
-	private AuthenticationConverter authenticationConverter = new BearerTokenAuthenticationConverter();
 
 	/**
 	 * Construct a {@code BearerTokenAuthenticationFilter} using the provided parameter(s)
@@ -96,8 +95,7 @@ public class BearerTokenAuthenticationFilter extends OncePerRequestFilter {
 	 */
 	public BearerTokenAuthenticationFilter(
 			AuthenticationManagerResolver<HttpServletRequest> authenticationManagerResolver) {
-		Assert.notNull(authenticationManagerResolver, "authenticationManagerResolver cannot be null");
-		this.authenticationManagerResolver = authenticationManagerResolver;
+		this(authenticationManagerResolver, new BearerTokenAuthenticationConverter());
 	}
 
 	/**
@@ -105,8 +103,43 @@ public class BearerTokenAuthenticationFilter extends OncePerRequestFilter {
 	 * @param authenticationManager
 	 */
 	public BearerTokenAuthenticationFilter(AuthenticationManager authenticationManager) {
+		this(authenticationManager, new BearerTokenAuthenticationConverter());
+	}
+
+	/**
+	 * Construct this filter using the provided parameters
+	 * @param authenticationManager the {@link AuthenticationManager} to use
+	 * @param authenticationConverter the {@link AuthenticationConverter} to use
+	 * @since 7.0
+	 * @see JwtAuthenticationProvider
+	 * @see OpaqueTokenAuthenticationProvider
+	 * @see BearerTokenAuthenticationConverter
+	 */
+	public BearerTokenAuthenticationFilter(AuthenticationManager authenticationManager,
+			AuthenticationConverter authenticationConverter) {
 		Assert.notNull(authenticationManager, "authenticationManager cannot be null");
-		this.authenticationManagerResolver = (request) -> authenticationManager;
+		Assert.notNull(authenticationConverter, "authenticationConverter cannot be null");
+		this.authenticationManagerResolver = (authentication) -> authenticationManager;
+		this.authenticationConverter = authenticationConverter;
+	}
+
+	/**
+	 * Construct this filter using the provided parameters
+	 * @param authenticationManagerResolver the {@link AuthenticationManagerResolver} to
+	 * use
+	 * @param authenticationConverter the {@link AuthenticationConverter} to use
+	 * @since 7.0
+	 * @see JwtAuthenticationProvider
+	 * @see OpaqueTokenAuthenticationProvider
+	 * @see BearerTokenAuthenticationConverter
+	 */
+	public BearerTokenAuthenticationFilter(
+			AuthenticationManagerResolver<HttpServletRequest> authenticationManagerResolver,
+			AuthenticationConverter authenticationConverter) {
+		Assert.notNull(authenticationManagerResolver, "authenticationManagerResolver cannot be null");
+		Assert.notNull(authenticationConverter, "authenticationConverter cannot be null");
+		this.authenticationManagerResolver = authenticationManagerResolver;
+		this.authenticationConverter = authenticationConverter;
 	}
 
 	/**
@@ -190,17 +223,20 @@ public class BearerTokenAuthenticationFilter extends OncePerRequestFilter {
 	 * Set the {@link BearerTokenResolver} to use. Defaults to
 	 * {@link DefaultBearerTokenResolver}.
 	 * @param bearerTokenResolver the {@code BearerTokenResolver} to use
+	 * @deprecated Please provide an {@link AuthenticationConverter} in the constructor
+	 * instead
+	 * @see BearerTokenAuthenticationConverter
 	 */
+	@Deprecated
 	public void setBearerTokenResolver(BearerTokenResolver bearerTokenResolver) {
 		Assert.notNull(bearerTokenResolver, "bearerTokenResolver cannot be null");
-		this.authenticationConverter = (request) -> {
-			String token = bearerTokenResolver.resolve(request);
-			if (!StringUtils.hasText(token)) {
-				this.logger.trace("Did not process request since did not find bearer token");
-				return null;
-			}
-			return new BearerTokenAuthenticationToken(token);
-		};
+		if (this.authenticationConverter instanceof BearerTokenAuthenticationConverter converter) {
+			converter.setBearerTokenResolver(bearerTokenResolver);
+		}
+		else {
+			throw new IllegalArgumentException(
+					"You cannot both specify an AuthenticationConverter and a BearerTokenResolver.");
+		}
 	}
 
 	/**
@@ -227,13 +263,24 @@ public class BearerTokenAuthenticationFilter extends OncePerRequestFilter {
 	/**
 	 * Set the {@link AuthenticationDetailsSource} to use. Defaults to
 	 * {@link WebAuthenticationDetailsSource}.
-	 * @param authenticationDetailsSource the {@code AuthenticationConverter} to use
+	 * @param authenticationDetailsSource the {@code AuthenticationDetailsSource} to use
 	 * @since 5.5
+	 * @deprecated Please provide an {@link AuthenticationConverter} in the constructor
+	 * and set the {@link AuthenticationDetailsSource} there instead. For example, you can
+	 * use {@link BearerTokenAuthenticationConverter#setAuthenticationDetailsSource}
+	 * @see BearerTokenAuthenticationConverter
 	 */
+	@Deprecated
 	public void setAuthenticationDetailsSource(
 			AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource) {
 		Assert.notNull(authenticationDetailsSource, "authenticationDetailsSource cannot be null");
-		this.authenticationDetailsSource = authenticationDetailsSource;
+		if (this.authenticationConverter instanceof BearerTokenAuthenticationConverter converter) {
+			converter.setAuthenticationDetailsSource(authenticationDetailsSource);
+		}
+		else {
+			throw new IllegalArgumentException(
+					"You cannot specify both an AuthenticationConverter and an AuthenticationDetailsSource");
+		}
 	}
 
 	private static boolean isDPoPBoundAccessToken(Authentication authentication) {
@@ -247,17 +294,6 @@ public class BearerTokenAuthenticationFilter extends OncePerRequestFilter {
 			jwkThumbprintClaim = (String) confirmationMethodClaim.get("jkt");
 		}
 		return StringUtils.hasText(jwkThumbprintClaim);
-	}
-
-	/**
-	 * Set the {@link AuthenticationConverter} to use. Defaults to
-	 * {@link BearerTokenAuthenticationConverter}.
-	 * @param authenticationConverter the {@code AuthenticationConverter} to use
-	 * @since 6.5
-	 */
-	public void setAuthenticationConverter(AuthenticationConverter authenticationConverter) {
-		Assert.notNull(authenticationConverter, "authenticationConverter cannot be null");
-		this.authenticationConverter = authenticationConverter;
 	}
 
 }

@@ -72,8 +72,6 @@ final class OAuth2ResourceServerBeanDefinitionParser implements BeanDefinitionPa
 
 	static final String BEARER_TOKEN_RESOLVER = "bearerTokenResolver";
 
-	static final String AUTHENTICATION_CONVERTER = "authenticationConverter";
-
 	static final String AUTHENTICATION_ENTRY_POINT = "authenticationEntryPoint";
 
 	private final BeanReference authenticationManager;
@@ -152,7 +150,7 @@ final class OAuth2ResourceServerBeanDefinitionParser implements BeanDefinitionPa
 				this.authenticationFilterSecurityContextHolderStrategy);
 
 		if (authenticationConverter != null) {
-			filterBuilder.addPropertyValue(AUTHENTICATION_CONVERTER, authenticationConverter);
+			filterBuilder.addConstructorArgValue(authenticationConverter);
 		}
 		if (bearerTokenResolver != null) {
 			filterBuilder.addPropertyValue(BEARER_TOKEN_RESOLVER, bearerTokenResolver);
@@ -170,7 +168,9 @@ final class OAuth2ResourceServerBeanDefinitionParser implements BeanDefinitionPa
 		}
 		BeanDefinitionBuilder requestMatcherBuilder = BeanDefinitionBuilder
 			.rootBeanDefinition(BearerTokenAuthenticationRequestMatcher.class);
-		requestMatcherBuilder.addConstructorArgValue(authenticationConverter);
+		if (authenticationConverter != null) {
+			requestMatcherBuilder.addConstructorArgValue(authenticationConverter);
+		}
 		return requestMatcherBuilder.getBeanDefinition();
 	}
 
@@ -408,6 +408,10 @@ final class OAuth2ResourceServerBeanDefinitionParser implements BeanDefinitionPa
 	static final class BearerTokenAuthenticationRequestMatcher implements RequestMatcher {
 
 		private final AuthenticationConverter authenticationConverter;
+
+		BearerTokenAuthenticationRequestMatcher() {
+			this.authenticationConverter = new BearerTokenAuthenticationConverter();
+		}
 
 		BearerTokenAuthenticationRequestMatcher(AuthenticationConverter authenticationConverter) {
 			Assert.notNull(authenticationConverter, "authenticationConverter cannot be null");

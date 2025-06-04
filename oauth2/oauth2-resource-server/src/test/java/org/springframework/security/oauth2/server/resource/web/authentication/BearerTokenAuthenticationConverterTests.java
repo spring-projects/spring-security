@@ -27,6 +27,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.server.resource.web.DefaultBearerTokenResolver;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -46,7 +47,13 @@ public class BearerTokenAuthenticationConverterTests {
 
 	private static final String BEARER_TOKEN = "test_bearer_token";
 
+	private final DefaultBearerTokenResolver resolver = new DefaultBearerTokenResolver();
+
 	private final BearerTokenAuthenticationConverter converter = new BearerTokenAuthenticationConverter();
+
+	{
+		this.converter.setBearerTokenResolver(this.resolver);
+	}
 
 	@Test
 	public void convertWhenAuthorizationHeaderIsPresentThenTokenIsConverted() {
@@ -64,7 +71,7 @@ public class BearerTokenAuthenticationConverterTests {
 		request.setMethod(HttpMethod.GET.name());
 		request.addParameter("access_token", BEARER_TOKEN);
 
-		this.converter.setAllowUriQueryParameter(true);
+		this.resolver.setAllowUriQueryParameter(true);
 
 		Authentication authentication = this.converter.convert(request);
 		assertThat(authentication).isNotNull();
@@ -86,6 +93,7 @@ public class BearerTokenAuthenticationConverterTests {
 		request.setMethod(HttpMethod.GET.name());
 		request.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + BEARER_TOKEN);
 
+		this.resolver.setAllowUriQueryParameter(true);
 		assertThatExceptionOfType(OAuth2AuthenticationException.class).isThrownBy(() -> this.converter.convert(request))
 			.withMessageContaining("Found multiple bearer tokens in the request");
 	}
@@ -95,7 +103,7 @@ public class BearerTokenAuthenticationConverterTests {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader(X_AUTH_TOKEN_HEADER, "Bearer " + TEST_X_AUTH_TOKEN);
 
-		this.converter.setBearerTokenHeaderName(X_AUTH_TOKEN_HEADER);
+		this.resolver.setBearerTokenHeaderName(X_AUTH_TOKEN_HEADER);
 
 		Authentication authentication = this.converter.convert(request);
 		assertThat(authentication).isNotNull();
@@ -140,7 +148,7 @@ public class BearerTokenAuthenticationConverterTests {
 		request.setMethod(HttpMethod.POST.name());
 		request.setContentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE);
 		request.addParameter("access_token", BEARER_TOKEN);
-		this.converter.setAllowFormEncodedBodyParameter(true);
+		this.resolver.setAllowFormEncodedBodyParameter(true);
 
 		assertThat(this.converter.convert(request)).isNotNull();
 	}
