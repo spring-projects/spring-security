@@ -26,6 +26,7 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Role;
+import org.springframework.core.Ordered;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -58,7 +59,9 @@ class AuthorizationProxyWebConfiguration implements WebMvcConfigurer {
 		resolvers.add(new AccessDeniedExceptionResolver());
 	}
 
-	static class WebTargetVisitor implements AuthorizationAdvisorProxyFactory.TargetVisitor {
+	static class WebTargetVisitor implements AuthorizationAdvisorProxyFactory.TargetVisitor, Ordered {
+
+		private static final int DEFAULT_ORDER = 100;
 
 		@Override
 		public Object visit(AuthorizationAdvisorProxyFactory proxyFactory, Object target) {
@@ -79,6 +82,11 @@ class AuthorizationProxyWebConfiguration implements WebMvcConfigurer {
 				return proxied;
 			}
 			return null;
+		}
+
+		@Override
+		public int getOrder() {
+			return DEFAULT_ORDER;
 		}
 
 	}
