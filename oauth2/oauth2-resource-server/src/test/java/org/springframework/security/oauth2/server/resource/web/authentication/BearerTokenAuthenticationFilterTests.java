@@ -75,8 +75,6 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 @ExtendWith(MockitoExtension.class)
 public class BearerTokenAuthenticationFilterTests {
 
-	private static final String TEST_TOKEN = "token";
-
 	@Mock
 	AuthenticationEntryPoint authenticationEntryPoint;
 
@@ -94,9 +92,6 @@ public class BearerTokenAuthenticationFilterTests {
 
 	@Mock
 	AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource;
-
-	@Mock
-	AuthenticationConverter authenticationConverter;
 
 	MockHttpServletRequest request;
 
@@ -270,6 +265,24 @@ public class BearerTokenAuthenticationFilterTests {
 	}
 
 	@Test
+	public void doFilterWhenSetAuthenticationConverterAndAuthenticationDetailsSourceThenIllegalArgument(
+			@Mock AuthenticationConverter authenticationConverter) {
+		BearerTokenAuthenticationFilter filter = new BearerTokenAuthenticationFilter(this.authenticationManager,
+				authenticationConverter);
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> filter.setAuthenticationDetailsSource(this.authenticationDetailsSource));
+	}
+
+	@Test
+	public void doFilterWhenSetBearerTokenResolverAndAuthenticationConverterThenIllegalArgument(
+			@Mock AuthenticationConverter authenticationConverter) {
+		BearerTokenAuthenticationFilter filter = new BearerTokenAuthenticationFilter(this.authenticationManager,
+				authenticationConverter);
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> filter.setBearerTokenResolver(this.bearerTokenResolver));
+	}
+
+	@Test
 	public void setAuthenticationEntryPointWhenNullThenThrowsException() {
 		BearerTokenAuthenticationFilter filter = new BearerTokenAuthenticationFilter(this.authenticationManager);
 		// @formatter:off
@@ -302,9 +315,8 @@ public class BearerTokenAuthenticationFilterTests {
 	@Test
 	public void setConverterWhenNullThenThrowsException() {
 		// @formatter:off
-		BearerTokenAuthenticationFilter filter = new BearerTokenAuthenticationFilter(this.authenticationManager);
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> filter.setAuthenticationConverter(null))
+				.isThrownBy(() -> new BearerTokenAuthenticationFilter(this.authenticationManager, null))
 				.withMessageContaining("authenticationConverter cannot be null");
 		// @formatter:on
 	}
@@ -327,171 +339,6 @@ public class BearerTokenAuthenticationFilterTests {
 		// @formatter:on
 	}
 
-	@Test
-	public void doFilterWhenBearerTokenPresentAndConverterSetThenAuthenticates() throws ServletException, IOException {
-		given(this.authenticationConverter.convert(this.request))
-			.willReturn(new BearerTokenAuthenticationToken(TEST_TOKEN));
-		BearerTokenAuthenticationFilter filter = addMocksWithConverter(
-				new BearerTokenAuthenticationFilter(this.authenticationManager));
-
-		filter.doFilter(this.request, this.response, this.filterChain);
-
-		ArgumentCaptor<BearerTokenAuthenticationToken> captor = ArgumentCaptor
-			.forClass(BearerTokenAuthenticationToken.class);
-		verify(this.authenticationManager).authenticate(captor.capture());
-		assertThat(captor.getValue().getPrincipal()).isEqualTo(TEST_TOKEN);
-		assertThat(this.request.getAttribute(RequestAttributeSecurityContextRepository.DEFAULT_REQUEST_ATTR_NAME))
-			.isNotNull();
-	}
-
-	@Test
-	public void doFilterWhenSecurityContextRepositoryAndConverterSetThenSaves() throws ServletException, IOException {
-		SecurityContextRepository securityContextRepository = mock(SecurityContextRepository.class);
-		given(this.authenticationConverter.convert(this.request))
-			.willReturn(new BearerTokenAuthenticationToken(TEST_TOKEN));
-		TestingAuthenticationToken expectedAuthentication = new TestingAuthenticationToken("test", "password");
-		given(this.authenticationManager.authenticate(any())).willReturn(expectedAuthentication);
-		BearerTokenAuthenticationFilter filter = addMocksWithConverter(
-				new BearerTokenAuthenticationFilter(this.authenticationManager));
-		filter.setSecurityContextRepository(securityContextRepository);
-
-		filter.doFilter(this.request, this.response, this.filterChain);
-
-		ArgumentCaptor<BearerTokenAuthenticationToken> captor = ArgumentCaptor
-			.forClass(BearerTokenAuthenticationToken.class);
-		verify(this.authenticationManager).authenticate(captor.capture());
-		assertThat(captor.getValue().getPrincipal()).isEqualTo(TEST_TOKEN);
-		ArgumentCaptor<SecurityContext> contextArg = ArgumentCaptor.forClass(SecurityContext.class);
-		verify(securityContextRepository).saveContext(contextArg.capture(), eq(this.request), eq(this.response));
-		assertThat(contextArg.getValue().getAuthentication().getName()).isEqualTo(expectedAuthentication.getName());
-	}
-
-	@Test
-	public void doFilterWhenUsingAuthenticationManagerResolverAndConverterSetThenAuthenticates() throws Exception {
-		BearerTokenAuthenticationFilter filter = addMocksWithConverter(
-				new BearerTokenAuthenticationFilter(this.authenticationManagerResolver));
-		given(this.authenticationConverter.convert(this.request))
-			.willReturn(new BearerTokenAuthenticationToken(TEST_TOKEN));
-		given(this.authenticationManagerResolver.resolve(any())).willReturn(this.authenticationManager);
-
-		filter.doFilter(this.request, this.response, this.filterChain);
-
-		ArgumentCaptor<BearerTokenAuthenticationToken> captor = ArgumentCaptor
-			.forClass(BearerTokenAuthenticationToken.class);
-		verify(this.authenticationManager).authenticate(captor.capture());
-		assertThat(captor.getValue().getPrincipal()).isEqualTo(TEST_TOKEN);
-		assertThat(this.request.getAttribute(RequestAttributeSecurityContextRepository.DEFAULT_REQUEST_ATTR_NAME))
-			.isNotNull();
-	}
-
-	@Test
-	public void doFilterWhenNoBearerTokenPresentAndConverterSetThenDoesNotAuthenticate()
-			throws ServletException, IOException {
-		given(this.authenticationConverter.convert(this.request)).willReturn(null);
-		BearerTokenAuthenticationFilter filter = addMocksWithConverter(
-				new BearerTokenAuthenticationFilter(this.authenticationManager));
-
-		filter.doFilter(this.request, this.response, this.filterChain);
-
-		verifyNoMoreInteractions(this.authenticationManager);
-	}
-
-	@Test
-	public void doFilterWhenMalformedBearerTokenAndConverterSetThenPropagatesError()
-			throws ServletException, IOException {
-		BearerTokenError error = new BearerTokenError(BearerTokenErrorCodes.INVALID_REQUEST, HttpStatus.BAD_REQUEST,
-				"description", "uri");
-		OAuth2AuthenticationException exception = new OAuth2AuthenticationException(error);
-		given(this.authenticationConverter.convert(this.request)).willThrow(exception);
-		BearerTokenAuthenticationFilter filter = addMocksWithConverter(
-				new BearerTokenAuthenticationFilter(this.authenticationManager));
-		filter.doFilter(this.request, this.response, this.filterChain);
-
-		verifyNoMoreInteractions(this.authenticationManager);
-		verify(this.authenticationEntryPoint).commence(this.request, this.response, exception);
-	}
-
-	@Test
-	public void doFilterWhenAuthenticationFailsWithDefaultHandlerAndConverterSetThenPropagatesError()
-			throws ServletException, IOException {
-		BearerTokenError error = new BearerTokenError(BearerTokenErrorCodes.INVALID_TOKEN, HttpStatus.UNAUTHORIZED,
-				"description", "uri");
-		OAuth2AuthenticationException exception = new OAuth2AuthenticationException(error);
-		given(this.authenticationConverter.convert(this.request))
-			.willReturn(new BearerTokenAuthenticationToken(TEST_TOKEN));
-		given(this.authenticationManager.authenticate(any(BearerTokenAuthenticationToken.class))).willThrow(exception);
-		BearerTokenAuthenticationFilter filter = addMocksWithConverter(
-				new BearerTokenAuthenticationFilter(this.authenticationManager));
-
-		filter.doFilter(this.request, this.response, this.filterChain);
-
-		verify(this.authenticationEntryPoint).commence(this.request, this.response, exception);
-	}
-
-	@Test
-	public void doFilterWhenAuthenticationFailsWithCustomHandlerAndConverterSetThenPropagatesError()
-			throws ServletException, IOException {
-		BearerTokenError error = new BearerTokenError(BearerTokenErrorCodes.INVALID_TOKEN, HttpStatus.UNAUTHORIZED,
-				"description", "uri");
-		OAuth2AuthenticationException exception = new OAuth2AuthenticationException(error);
-		given(this.authenticationConverter.convert(this.request))
-			.willReturn(new BearerTokenAuthenticationToken(TEST_TOKEN));
-		given(this.authenticationManager.authenticate(any(BearerTokenAuthenticationToken.class))).willThrow(exception);
-		BearerTokenAuthenticationFilter filter = addMocksWithConverter(
-				new BearerTokenAuthenticationFilter(this.authenticationManager));
-		filter.setAuthenticationFailureHandler(this.authenticationFailureHandler);
-
-		filter.doFilter(this.request, this.response, this.filterChain);
-
-		verify(this.authenticationFailureHandler).onAuthenticationFailure(this.request, this.response, exception);
-	}
-
-	@Test
-	public void doFilterWhenConverterSetAndAuthenticationServiceExceptionThenRethrows() {
-		AuthenticationServiceException exception = new AuthenticationServiceException("message");
-		given(this.authenticationConverter.convert(this.request))
-			.willReturn(new BearerTokenAuthenticationToken(TEST_TOKEN));
-		given(this.authenticationManager.authenticate(any())).willThrow(exception);
-		BearerTokenAuthenticationFilter filter = addMocksWithConverter(
-				new BearerTokenAuthenticationFilter(this.authenticationManager));
-
-		assertThatExceptionOfType(AuthenticationServiceException.class)
-			.isThrownBy(() -> filter.doFilter(this.request, this.response, this.filterChain));
-	}
-
-	@Test
-	public void doFilterWhenConverterSetAndCustomEntryPointAndAuthenticationErrorThenUses()
-			throws ServletException, IOException {
-		AuthenticationException exception = new InvalidBearerTokenException("message");
-		given(this.authenticationConverter.convert(this.request))
-			.willReturn(new BearerTokenAuthenticationToken(TEST_TOKEN));
-		given(this.authenticationManager.authenticate(any())).willThrow(exception);
-		BearerTokenAuthenticationFilter filter = addMocksWithConverter(
-				new BearerTokenAuthenticationFilter(this.authenticationManager));
-		AuthenticationEntryPoint entrypoint = mock(AuthenticationEntryPoint.class);
-		filter.setAuthenticationEntryPoint(entrypoint);
-
-		filter.doFilter(this.request, this.response, this.filterChain);
-
-		verify(entrypoint).commence(any(), any(), any(InvalidBearerTokenException.class));
-	}
-
-	@Test
-	public void doFilterWhenConverterSetCustomSecurityContextHolderStrategyThenUses()
-			throws ServletException, IOException {
-		given(this.authenticationConverter.convert(this.request))
-			.willReturn(new BearerTokenAuthenticationToken(TEST_TOKEN));
-		BearerTokenAuthenticationFilter filter = addMocksWithConverter(
-				new BearerTokenAuthenticationFilter(this.authenticationManager));
-		SecurityContextHolderStrategy strategy = mock(SecurityContextHolderStrategy.class);
-		given(strategy.createEmptyContext()).willReturn(new SecurityContextImpl());
-		filter.setSecurityContextHolderStrategy(strategy);
-
-		filter.doFilter(this.request, this.response, this.filterChain);
-
-		verify(strategy).setContext(any());
-	}
-
 	private BearerTokenAuthenticationFilter addMocks(BearerTokenAuthenticationFilter filter) {
 		filter.setAuthenticationEntryPoint(this.authenticationEntryPoint);
 		filter.setBearerTokenResolver(this.bearerTokenResolver);
@@ -504,12 +351,6 @@ public class BearerTokenAuthenticationFilterTests {
 				new BearerTokenAuthenticationFilter(this.authenticationManager));
 		filter.doFilter(this.request, this.response, this.filterChain);
 		verifyNoMoreInteractions(this.authenticationManager);
-	}
-
-	private BearerTokenAuthenticationFilter addMocksWithConverter(BearerTokenAuthenticationFilter filter) {
-		filter.setAuthenticationEntryPoint(this.authenticationEntryPoint);
-		filter.setAuthenticationConverter(this.authenticationConverter);
-		return filter;
 	}
 
 }

@@ -2571,16 +2571,20 @@ public class OAuth2ResourceServerConfigurerTests {
 
 		@Bean
 		AuthenticationConverter authenticationConverterOne() {
-			BearerTokenAuthenticationConverter converter = new BearerTokenAuthenticationConverter();
-			converter.setAllowUriQueryParameter(true);
-			return converter;
+			DefaultBearerTokenResolver resolver = new DefaultBearerTokenResolver();
+			resolver.setAllowUriQueryParameter(true);
+			BearerTokenAuthenticationConverter authenticationConverter = new BearerTokenAuthenticationConverter();
+			authenticationConverter.setBearerTokenResolver(resolver);
+			return authenticationConverter;
 		}
 
 		@Bean
 		AuthenticationConverter authenticationConverterTwo() {
-			BearerTokenAuthenticationConverter converter = new BearerTokenAuthenticationConverter();
-			converter.setAllowUriQueryParameter(true);
-			return converter;
+			DefaultBearerTokenResolver resolver = new DefaultBearerTokenResolver();
+			resolver.setAllowUriQueryParameter(true);
+			BearerTokenAuthenticationConverter authenticationConverter = new BearerTokenAuthenticationConverter();
+			authenticationConverter.setBearerTokenResolver(resolver);
+			return authenticationConverter;
 		}
 
 	}

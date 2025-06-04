@@ -115,3 +115,58 @@ fun authenticationConverter(val registrations: RelyingPartyRegistrationRepositor
 ======
 
 If you must continue using `Saml2AuthenticationTokenConverter`, `OpenSaml4AuthenticationTokenConverter`, or `OpenSaml5AuthenticationTokenConverter` to process GET requests, you can call `setShouldConvertGetRequests` to `true.`
+
+== Provide an AuthenticationConverter to BearerTokenAuthenticationFilter
+
+In Spring Security 7, `BearerTokenAuthenticationFilter#setBearerTokenResolver` and `#setAuthenticaionDetailsSource` are deprecated in favor of configuring those on `BearerTokenAuthenticationConverter`.
+
+The `oauth2ResourceServer` DSL addresses most use cases and you need to nothing.
+
+If you are setting a `BearerTokenResolver` or `AuthenticationDetailsSource` directly on `BearerTokenAuthenticationFilter` similar to the following:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+BearerTokenAuthenticationFilter filter = new BearerTokenAuthenticationFilter(authenticationManager);
+filter.setBearerTokenResolver(myBearerTokenResolver);
+filter.setAuthenticationDetailsSource(myAuthenticationDetailsSource);
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+val filter = BearerTokenAuthenticationFilter(authenticationManager)
+filter.setBearerTokenResolver(myBearerTokenResolver)
+filter.setAuthenticationDetailsSource(myAuthenticationDetailsSource)
+----
+======
+
+you are encouraged to use `BearerTokenAuthenticationConverter` to specify both:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+BearerTokenAuthenticationConverter authenticationConverter =
+    new BearerTokenAuthenticationConverter();
+authenticationConverter.setBearerTokenResolver(myBearerTokenResolver);
+authenticationConverter.setAuthenticationDetailsSource(myAuthenticationDetailsSource);
+BearerTokenAuthenticationFilter filter = new BearerTokenAuthenticationFilter(authenticationManager, authenicationConverter);
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+val authenticationConverter = BearerTokenAuthenticationConverter()
+authenticationConverter.setBearerTokenResolver(myBearerTokenResolver)
+authenticationConverter.setAuthenticationDetailsSource(myAuthenticationDetailsSource)
+val filter = BearerTokenAuthenticationFilter(authenticationManager, authenticationConverter)
+----
+======
