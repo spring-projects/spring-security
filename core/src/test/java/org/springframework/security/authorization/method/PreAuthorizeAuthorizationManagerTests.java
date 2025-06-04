@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import org.aopalliance.intercept.MethodInvocation;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.aop.TargetClassAware;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.core.annotation.AnnotationConfigurationException;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
@@ -160,6 +161,27 @@ public class PreAuthorizeAuthorizationManagerTests {
 			.isThrownBy(() -> handleDeniedInvocationResult("methodOne", manager));
 	}
 
+	@Test
+	public void checkWhenHandlerDeniedApplicationContextHandlerSpecifiedThenLooksForBean() throws Exception {
+		GenericApplicationContext context = new GenericApplicationContext();
+		context.registerBean("deniedHandler", NoDefaultConstructorHandler.class,
+				() -> new NoDefaultConstructorHandler(new Object()));
+		context.refresh();
+		PreAuthorizeAuthorizationManager manager = new PreAuthorizeAuthorizationManager();
+		manager.setApplicationContext(context);
+		assertThat(handleDeniedInvocationResult("methodThree", manager)).isNull();
+	}
+
+	@Test
+	public void checkWhenHandlerDeniedApplicationContextHandlerSpecifiedThenLooksForBeanNotFound() {
+		GenericApplicationContext context = new GenericApplicationContext();
+		context.refresh();
+		PreAuthorizeAuthorizationManager manager = new PreAuthorizeAuthorizationManager();
+		manager.setApplicationContext(context);
+		assertThatExceptionOfType(NoSuchBeanDefinitionException.class)
+			.isThrownBy(() -> handleDeniedInvocationResult("methodThree", manager));
+	}
+
 	private Object handleDeniedInvocationResult(String methodName, PreAuthorizeAuthorizationManager manager)
 			throws Exception {
 		MethodInvocation invocation = new MockMethodInvocation(new UsingHandleDeniedAuthorization(),
@@ -280,6 +302,12 @@ public class PreAuthorizeAuthorizationManagerTests {
 		@HandleAuthorizationDenied(handlerClass = NoDefaultConstructorHandler.class)
 		@PreAuthorize("denyAll()")
 		public String methodTwo() {
+			return "ok";
+		}
+
+		@HandleAuthorizationDenied(handler = "deniedHandler")
+		@PreAuthorize("denyAll()")
+		public String methodThree() {
 			return "ok";
 		}
 
