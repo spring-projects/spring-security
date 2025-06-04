@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,12 +25,15 @@ import org.springframework.security.oauth2.server.resource.web.BearerTokenResolv
 import org.springframework.security.web.AuthenticationEntryPoint
 import org.springframework.security.web.access.AccessDeniedHandler
 import jakarta.servlet.http.HttpServletRequest
+import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.DPoPAuthenticationConfigurer
+import org.springframework.security.config.annotation.web.oauth2.resourceserver.DPoPDsl
 
 /**
  * A Kotlin DSL to configure [HttpSecurity] OAuth 2.0 resource server support using
  * idiomatic Kotlin code.
  *
  * @author Eleftheria Stein
+ * @author Max Batischev
  * @since 5.3
  * @property accessDeniedHandler the [AccessDeniedHandler] to use for requests authenticating
  * with <a href="https://tools.ietf.org/html/rfc6750#section-1.2" target="_blank">Bearer Token</a>s.
@@ -48,6 +51,7 @@ class OAuth2ResourceServerDsl {
 
     private var jwt: ((OAuth2ResourceServerConfigurer<HttpSecurity>.JwtConfigurer) -> Unit)? = null
     private var opaqueToken: ((OAuth2ResourceServerConfigurer<HttpSecurity>.OpaqueTokenConfigurer) -> Unit)? = null
+    private var dpop: ((DPoPAuthenticationConfigurer<HttpSecurity>) -> Unit)? = null
 
     /**
      * Enables JWT-encoded bearer token support.
@@ -109,6 +113,36 @@ class OAuth2ResourceServerDsl {
         this.opaqueToken = OpaqueTokenDsl().apply(opaqueTokenConfig).get()
     }
 
+    /**
+     * Enables DPoP support.
+     *
+     * Example:
+     *
+     * ```
+     * @Configuration
+     * @EnableWebSecurity
+     * class SecurityConfig {
+     *
+     *     @Bean
+     *     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+     *         http {
+     *             oauth2ResourceServer {
+     *                 dpop { }
+     *             }
+     *         }
+     *         return http.build()
+     *     }
+     * }
+     * ```
+     *
+     * @param dpopConfig custom configurations to configure DPoP support
+     * @see [DPoPDsl]
+     * @since 7.0
+     */
+    fun dpop(dpopConfig: DPoPDsl.() -> Unit) {
+        this.dpop = DPoPDsl().apply(dpopConfig).get()
+    }
+
     internal fun get(): (OAuth2ResourceServerConfigurer<HttpSecurity>) -> Unit {
         return { oauth2ResourceServer ->
             accessDeniedHandler?.also { oauth2ResourceServer.accessDeniedHandler(accessDeniedHandler) }
@@ -117,6 +151,7 @@ class OAuth2ResourceServerDsl {
             authenticationManagerResolver?.also { oauth2ResourceServer.authenticationManagerResolver(authenticationManagerResolver) }
             jwt?.also { oauth2ResourceServer.jwt(jwt) }
             opaqueToken?.also { oauth2ResourceServer.opaqueToken(opaqueToken) }
+            dpop?.also { oauth2ResourceServer.dpop(dpop) }
         }
     }
 }
