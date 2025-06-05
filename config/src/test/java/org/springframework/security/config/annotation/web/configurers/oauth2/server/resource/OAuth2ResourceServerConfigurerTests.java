@@ -88,6 +88,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
@@ -2605,7 +2606,9 @@ public class OAuth2ResourceServerConfigurerTests {
 			// @formatter:off
 			http
 				.oauth2ResourceServer()
-					.authenticationManagerResolver(authenticationManagerResolver);
+					.authenticationManagerResolver(authenticationManagerResolver)
+					.and()
+				.anonymous(AbstractHttpConfigurer::disable);
 			return http.build();
 			// @formatter:on
 		}

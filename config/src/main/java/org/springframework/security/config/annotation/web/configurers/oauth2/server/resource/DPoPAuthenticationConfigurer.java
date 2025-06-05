@@ -29,6 +29,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationManagerResolver;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.Authentication;
@@ -51,6 +52,9 @@ import org.springframework.security.web.context.RequestAttributeSecurityContextR
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 /**
  * An {@link AbstractHttpConfigurer} for OAuth 2.0 Demonstrating Proof of Possession
@@ -76,7 +80,7 @@ final class DPoPAuthenticationConfigurer<B extends HttpSecurityBuilder<B>>
 	@Override
 	public void configure(B http) {
 		AuthenticationManager authenticationManager = http.getSharedObject(AuthenticationManager.class);
-		http.authenticationProvider(new DPoPAuthenticationProvider(authenticationManager));
+		http.authenticationProvider(new DPoPAuthenticationProvider(getTokenAuthenticationManager(http)));
 		AuthenticationFilter authenticationFilter = new AuthenticationFilter(authenticationManager,
 				getAuthenticationConverter());
 		authenticationFilter.setRequestMatcher(getRequestMatcher());
@@ -85,6 +89,23 @@ final class DPoPAuthenticationConfigurer<B extends HttpSecurityBuilder<B>>
 		authenticationFilter.setSecurityContextRepository(new RequestAttributeSecurityContextRepository());
 		authenticationFilter = postProcess(authenticationFilter);
 		http.addFilter(authenticationFilter);
+	}
+
+	private AuthenticationManager getTokenAuthenticationManager(B http) {
+		OAuth2ResourceServerConfigurer<B> resourceServerConfigurer = http
+			.getConfigurer(OAuth2ResourceServerConfigurer.class);
+		final AuthenticationManagerResolver<HttpServletRequest> authenticationManagerResolver = resourceServerConfigurer
+			.getAuthenticationManagerResolver();
+		if (authenticationManagerResolver == null) {
+			return resourceServerConfigurer.getAuthenticationManager(http);
+		}
+		return (authentication) -> {
+			RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+			ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) requestAttributes;
+			AuthenticationManager authenticationManager = authenticationManagerResolver
+				.resolve(servletRequestAttributes.getRequest());
+			return authenticationManager.authenticate(authentication);
+		};
 	}
 
 	private RequestMatcher getRequestMatcher() {

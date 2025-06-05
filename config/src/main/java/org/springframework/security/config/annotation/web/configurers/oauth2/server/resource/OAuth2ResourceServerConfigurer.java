@@ -376,6 +376,10 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 		return http.getSharedObject(AuthenticationManager.class);
 	}
 
+	AuthenticationManagerResolver<HttpServletRequest> getAuthenticationManagerResolver() {
+		return this.authenticationManagerResolver;
+	}
+
 	AuthenticationConverter getAuthenticationConverter() {
 		if (this.authenticationConverter != null) {
 			return this.authenticationConverter;
