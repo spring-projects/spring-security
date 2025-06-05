@@ -935,8 +935,8 @@ public final class OpenSaml5AuthenticationProvider implements AuthenticationProv
 
 		private static String authenticatedPrincipal(Assertion assertion) {
 			if (!BaseOpenSamlAuthenticationProvider.hasName(assertion)) {
-				throw new Saml2AuthenticationException(new Saml2Error(Saml2ErrorCodes.SUBJECT_NOT_FOUND,
-						"Assertion [" + assertion.getID() + "] is missing a subject"));
+				throw new Saml2AuthenticationException(
+						Saml2Error.subjectNotFound("Assertion [" + assertion.getID() + "] is missing a subject"));
 			}
 			return assertion.getSubject().getNameID().getValue();
 		}

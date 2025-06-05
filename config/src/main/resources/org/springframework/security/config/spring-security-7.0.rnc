@@ -650,6 +650,9 @@ oauth2-resource-server.attlist &=
 oauth2-resource-server.attlist &=
 	## Reference to a AuthenticationEntryPoint
 	attribute entry-point-ref {xsd:token}?
+oauth2-resource-server.attlist &=
+	## Reference to a AuthenticationConverter
+	attribute authentication-converter-ref {xsd:token}?
 
 jwt =
     ## Configures JWT authentication

@@ -24,7 +24,6 @@ import org.opensaml.saml.saml2.core.Response;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.saml2.core.OpenSamlInitializationService;
 import org.springframework.security.saml2.core.Saml2Error;
-import org.springframework.security.saml2.core.Saml2ErrorCodes;
 import org.springframework.security.saml2.core.Saml2ParameterNames;
 import org.springframework.security.saml2.provider.service.authentication.AbstractSaml2AuthenticationRequest;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationException;
@@ -197,8 +196,7 @@ public final class OpenSamlAuthenticationTokenConverter implements Authenticatio
 				.decode();
 		}
 		catch (Exception ex) {
-			throw new Saml2AuthenticationException(new Saml2Error(Saml2ErrorCodes.INVALID_RESPONSE, ex.getMessage()),
-					ex);
+			throw new Saml2AuthenticationException(Saml2Error.invalidResponse(ex.getMessage()), ex);
 		}
 	}
 

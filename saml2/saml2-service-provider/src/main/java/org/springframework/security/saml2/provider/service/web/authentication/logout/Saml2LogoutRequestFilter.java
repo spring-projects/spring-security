@@ -31,7 +31,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.saml2.core.Saml2Error;
-import org.springframework.security.saml2.core.Saml2ErrorCodes;
 import org.springframework.security.saml2.core.Saml2ParameterNames;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticatedPrincipal;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationException;
@@ -268,8 +267,7 @@ public final class Saml2LogoutRequestFilter extends OncePerRequestFilter {
 					registrationId);
 			if (registration == null) {
 				throw new Saml2AuthenticationException(
-						new Saml2Error(Saml2ErrorCodes.RELYING_PARTY_REGISTRATION_NOT_FOUND, "registration not found"),
-						"registration not found");
+						Saml2Error.relyingPartyRegistrationNotFound("registration not found"));
 			}
 			UriResolver uriResolver = RelyingPartyRegistrationPlaceholderResolvers.uriResolver(request, registration);
 			String entityId = uriResolver.resolve(registration.getEntityId());
