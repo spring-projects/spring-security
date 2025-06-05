@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,6 +57,7 @@ import org.springframework.security.web.authentication.preauth.PreAuthenticatedG
 import org.springframework.security.web.authentication.preauth.j2ee.J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource;
 import org.springframework.security.web.authentication.preauth.j2ee.J2eePreAuthenticatedProcessingFilter;
 import org.springframework.security.web.authentication.preauth.x509.SubjectDnX509PrincipalExtractor;
+import org.springframework.security.web.authentication.preauth.x509.SubjectX500PrincipalExtractor;
 import org.springframework.security.web.authentication.preauth.x509.X509AuthenticationFilter;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
 import org.springframework.security.web.authentication.ui.DefaultLogoutPageGeneratingFilter;
@@ -522,10 +523,23 @@ final class AuthenticationConfigBuilder {
 			filterBuilder.addPropertyValue("securityContextHolderStrategy",
 					authenticationFilterSecurityContextHolderStrategyRef);
 			String regex = x509Elt.getAttribute("subject-principal-regex");
+			String extractPrincipalNameFromEmail = x509Elt.getAttribute("extract-principal-name-from-email");
+			if (StringUtils.hasText(regex) && StringUtils.hasText(extractPrincipalNameFromEmail)) {
+				throw new IllegalStateException(
+						"Cannot use subjectPrincipalRegex and extractPrincipalNameFromEmail together. "
+								+ "Please use one or the other.");
+			}
 			if (StringUtils.hasText(regex)) {
 				BeanDefinitionBuilder extractor = BeanDefinitionBuilder
 					.rootBeanDefinition(SubjectDnX509PrincipalExtractor.class);
 				extractor.addPropertyValue("subjectDnRegex", regex);
+				filterBuilder.addPropertyValue("principalExtractor", extractor.getBeanDefinition());
+			}
+			if (StringUtils.hasText(extractPrincipalNameFromEmail)) {
+				BeanDefinitionBuilder extractor = BeanDefinitionBuilder
+					.rootBeanDefinition(SubjectX500PrincipalExtractor.class);
+				extractor.addPropertyValue("extractPrincipalNameFromEmail",
+						Boolean.parseBoolean(extractPrincipalNameFromEmail));
 				filterBuilder.addPropertyValue("principalExtractor", extractor.getBeanDefinition());
 			}
 			injectAuthenticationDetailsSource(x509Elt, filterBuilder);

@@ -2917,6 +2917,12 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
+      <xs:attribute name="extract-principal-name-from-email" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>If true then DN will be extracted from EMAIlADDRESS
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
   </xs:attributeGroup>
   <xs:element name="jee">
       <xs:annotation>
