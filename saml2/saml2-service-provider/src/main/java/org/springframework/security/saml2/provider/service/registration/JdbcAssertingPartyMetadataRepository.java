@@ -19,16 +19,20 @@ package org.springframework.security.saml2.provider.service.registration;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.Function;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.core.log.LogMessage;
 import org.springframework.core.serializer.DefaultDeserializer;
+import org.springframework.core.serializer.DefaultSerializer;
 import org.springframework.core.serializer.Deserializer;
+import org.springframework.core.serializer.Serializer;
 import org.springframework.jdbc.core.ArgumentPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.PreparedStatementSetter;
@@ -37,6 +41,7 @@ import org.springframework.jdbc.core.SqlParameterValue;
 import org.springframework.security.saml2.core.Saml2X509Credential;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration.AssertingPartyDetails;
 import org.springframework.util.Assert;
+import org.springframework.util.function.ThrowingFunction;
 
 /**
  * A JDBC implementation of {@link AssertingPartyMetadataRepository}.
@@ -50,6 +55,8 @@ public final class JdbcAssertingPartyMetadataRepository implements AssertingPart
 
 	private RowMapper<AssertingPartyMetadata> assertingPartyMetadataRowMapper = new AssertingPartyMetadataRowMapper(
 			ResultSet::getBytes);
+
+	private final AssertingPartyMetadataParametersMapper assertingPartyMetadataParametersMapper = new AssertingPartyMetadataParametersMapper();
 
 	// @formatter:off
 	static final String COLUMN_NAMES = "entity_id, "
@@ -75,6 +82,25 @@ public final class JdbcAssertingPartyMetadataRepository implements AssertingPart
 
 	private static final String LOAD_ALL_SQL = "SELECT " + COLUMN_NAMES
 			+ " FROM " + TABLE_NAME;
+	// @formatter:on
+
+	// @formatter:off
+	private static final String SAVE_CREDENTIAL_RECORD_SQL = "INSERT INTO " + TABLE_NAME
+			+ " (" + COLUMN_NAMES + ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+	// @formatter:on
+
+	// @formatter:off
+	private static final String UPDATE_CREDENTIAL_RECORD_SQL = "UPDATE " + TABLE_NAME
+			+ " SET singlesignon_url = ?, "
+			+ "singlesignon_binding = ?, "
+			+ "singlesignon_sign_request = ?, "
+			+ "signing_algorithms = ?, "
+			+ "verification_credentials = ?, "
+			+ "encryption_credentials = ?, "
+			+ "singlelogout_url = ?, "
+			+ "singlelogout_response_url = ?, "
+			+ "singlelogout_binding = ?"
+			+ " WHERE " + ENTITY_ID_FILTER;
 	// @formatter:on
 
 	/**
@@ -114,6 +140,30 @@ public final class JdbcAssertingPartyMetadataRepository implements AssertingPart
 		List<AssertingPartyMetadata> result = this.jdbcOperations.query(LOAD_ALL_SQL,
 				this.assertingPartyMetadataRowMapper);
 		return result.iterator();
+	}
+
+	/**
+	 * Persist this {@link AssertingPartyMetadata}
+	 * @param metadata the metadata to persist
+	 */
+	public void save(AssertingPartyMetadata metadata) {
+		Assert.notNull(metadata, "metadata cannot be null");
+		int rows = updateCredentialRecord(metadata);
+		if (rows == 0) {
+			insertCredentialRecord(metadata);
+		}
+	}
+
+	private void insertCredentialRecord(AssertingPartyMetadata metadata) {
+		List<SqlParameterValue> parameters = this.assertingPartyMetadataParametersMapper.apply(metadata);
+		this.jdbcOperations.update(SAVE_CREDENTIAL_RECORD_SQL, parameters.toArray());
+	}
+
+	private int updateCredentialRecord(AssertingPartyMetadata metadata) {
+		List<SqlParameterValue> parameters = this.assertingPartyMetadataParametersMapper.apply(metadata);
+		SqlParameterValue credentialId = parameters.remove(0);
+		parameters.add(credentialId);
+		return this.jdbcOperations.update(UPDATE_CREDENTIAL_RECORD_SQL, parameters.toArray());
 	}
 
 	/**
@@ -177,6 +227,34 @@ public final class JdbcAssertingPartyMetadataRepository implements AssertingPart
 				.singleLogoutServiceBinding(singleLogoutBinding)
 				.singleLogoutServiceResponseLocation(singleLogoutResponseUrl);
 			return builder.build();
+		}
+
+	}
+
+	private static class AssertingPartyMetadataParametersMapper
+			implements Function<AssertingPartyMetadata, List<SqlParameterValue>> {
+
+		private final Serializer<Object> serializer = new DefaultSerializer();
+
+		@Override
+		public List<SqlParameterValue> apply(AssertingPartyMetadata record) {
+			List<SqlParameterValue> parameters = new ArrayList<>();
+
+			parameters.add(new SqlParameterValue(Types.VARCHAR, record.getEntityId()));
+			parameters.add(new SqlParameterValue(Types.VARCHAR, record.getSingleSignOnServiceLocation()));
+			parameters.add(new SqlParameterValue(Types.VARCHAR, record.getSingleSignOnServiceBinding().getUrn()));
+			parameters.add(new SqlParameterValue(Types.BOOLEAN, record.getWantAuthnRequestsSigned()));
+			ThrowingFunction<List<String>, byte[]> algorithms = this.serializer::serializeToByteArray;
+			parameters.add(new SqlParameterValue(Types.BLOB, algorithms.apply(record.getSigningAlgorithms())));
+			ThrowingFunction<Collection<Saml2X509Credential>, byte[]> credentials = this.serializer::serializeToByteArray;
+			parameters
+				.add(new SqlParameterValue(Types.BLOB, credentials.apply(record.getVerificationX509Credentials())));
+			parameters.add(new SqlParameterValue(Types.BLOB, credentials.apply(record.getEncryptionX509Credentials())));
+			parameters.add(new SqlParameterValue(Types.VARCHAR, record.getSingleLogoutServiceLocation()));
+			parameters.add(new SqlParameterValue(Types.VARCHAR, record.getSingleLogoutServiceResponseLocation()));
+			parameters.add(new SqlParameterValue(Types.VARCHAR, record.getSingleLogoutServiceBinding().getUrn()));
+
+			return parameters;
 		}
 
 	}
