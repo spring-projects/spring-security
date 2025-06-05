@@ -4,7 +4,7 @@ CREATE TABLE saml2_asserting_party_metadata
     singlesignon_url          VARCHAR(1000) NOT NULL,
     singlesignon_binding      VARCHAR(100),
     singlesignon_sign_request boolean,
-    signing_algorithms        blob,
+    signing_algorithms        VARCHAR(256) NOT NULL,
     verification_credentials  blob          NOT NULL,
     encryption_credentials    blob,
     singlelogout_url          VARCHAR(1000),

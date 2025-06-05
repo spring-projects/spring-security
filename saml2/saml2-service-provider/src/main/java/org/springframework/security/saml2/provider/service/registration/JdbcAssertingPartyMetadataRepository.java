@@ -25,10 +25,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.function.Function;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import org.springframework.core.log.LogMessage;
 import org.springframework.core.serializer.DefaultDeserializer;
 import org.springframework.core.serializer.DefaultSerializer;
 import org.springframework.core.serializer.Deserializer;
@@ -53,8 +49,7 @@ public final class JdbcAssertingPartyMetadataRepository implements AssertingPart
 
 	private final JdbcOperations jdbcOperations;
 
-	private RowMapper<AssertingPartyMetadata> assertingPartyMetadataRowMapper = new AssertingPartyMetadataRowMapper(
-			ResultSet::getBytes);
+	private final RowMapper<AssertingPartyMetadata> assertingPartyMetadataRowMapper = new AssertingPartyMetadataRowMapper();
 
 	private final AssertingPartyMetadataParametersMapper assertingPartyMetadataParametersMapper = new AssertingPartyMetadataParametersMapper();
 
@@ -113,18 +108,6 @@ public final class JdbcAssertingPartyMetadataRepository implements AssertingPart
 		this.jdbcOperations = jdbcOperations;
 	}
 
-	/**
-	 * Sets the {@link RowMapper} used for mapping the current row in
-	 * {@code java.sql.ResultSet} to {@link AssertingPartyMetadata}. The default is
-	 * {@link AssertingPartyMetadataRowMapper}.
-	 * @param assertingPartyMetadataRowMapper the {@link RowMapper} used for mapping the
-	 * current row in {@code java.sql.ResultSet} to {@link AssertingPartyMetadata}
-	 */
-	public void setAssertingPartyMetadataRowMapper(RowMapper<AssertingPartyMetadata> assertingPartyMetadataRowMapper) {
-		Assert.notNull(assertingPartyMetadataRowMapper, "assertingPartyMetadataRowMapper cannot be null");
-		this.assertingPartyMetadataRowMapper = assertingPartyMetadataRowMapper;
-	}
-
 	@Override
 	public AssertingPartyMetadata findByEntityId(String entityId) {
 		Assert.hasText(entityId, "entityId cannot be empty");
@@ -172,15 +155,7 @@ public final class JdbcAssertingPartyMetadataRepository implements AssertingPart
 	 */
 	private static final class AssertingPartyMetadataRowMapper implements RowMapper<AssertingPartyMetadata> {
 
-		private final Log logger = LogFactory.getLog(AssertingPartyMetadataRowMapper.class);
-
 		private final Deserializer<Object> deserializer = new DefaultDeserializer();
-
-		private final GetBytes getBytes;
-
-		AssertingPartyMetadataRowMapper(GetBytes getBytes) {
-			this.getBytes = getBytes;
-		}
 
 		@Override
 		public AssertingPartyMetadata mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -191,33 +166,15 @@ public final class JdbcAssertingPartyMetadataRepository implements AssertingPart
 			String singleLogoutUrl = rs.getString("singlelogout_url");
 			String singleLogoutResponseUrl = rs.getString("singlelogout_response_url");
 			Saml2MessageBinding singleLogoutBinding = Saml2MessageBinding.from(rs.getString("singlelogout_binding"));
-			byte[] signingAlgorithmsBytes = this.getBytes.getBytes(rs, "signing_algorithms");
-			byte[] verificationCredentialsBytes = this.getBytes.getBytes(rs, "verification_credentials");
-			byte[] encryptionCredentialsBytes = this.getBytes.getBytes(rs, "encryption_credentials");
-
+			List<String> algorithms = List.of(rs.getString("signing_algorithms").split(","));
+			byte[] verificationCredentialsBytes = rs.getBytes("verification_credentials");
+			byte[] encryptionCredentialsBytes = rs.getBytes("encryption_credentials");
+			ThrowingFunction<byte[], Collection<Saml2X509Credential>> credentials = (
+					bytes) -> (Collection<Saml2X509Credential>) this.deserializer.deserializeFromByteArray(bytes);
 			AssertingPartyMetadata.Builder<?> builder = new AssertingPartyDetails.Builder();
-			try {
-				if (signingAlgorithmsBytes != null) {
-					List<String> signingAlgorithms = (List<String>) this.deserializer
-						.deserializeFromByteArray(signingAlgorithmsBytes);
-					builder.signingAlgorithms((algorithms) -> algorithms.addAll(signingAlgorithms));
-				}
-				if (verificationCredentialsBytes != null) {
-					Collection<Saml2X509Credential> verificationCredentials = (Collection<Saml2X509Credential>) this.deserializer
-						.deserializeFromByteArray(verificationCredentialsBytes);
-					builder.verificationX509Credentials((credentials) -> credentials.addAll(verificationCredentials));
-				}
-				if (encryptionCredentialsBytes != null) {
-					Collection<Saml2X509Credential> encryptionCredentials = (Collection<Saml2X509Credential>) this.deserializer
-						.deserializeFromByteArray(encryptionCredentialsBytes);
-					builder.encryptionX509Credentials((credentials) -> credentials.addAll(encryptionCredentials));
-				}
-			}
-			catch (Exception ex) {
-				this.logger.debug(LogMessage.format("Parsing serialized credentials for entity %s failed", entityId),
-						ex);
-				return null;
-			}
+			Collection<Saml2X509Credential> verificationCredentials = credentials.apply(verificationCredentialsBytes);
+			Collection<Saml2X509Credential> encryptionCredentials = (encryptionCredentialsBytes != null)
+					? credentials.apply(encryptionCredentialsBytes) : List.of();
 
 			builder.entityId(entityId)
 				.wantAuthnRequestsSigned(singleSignOnSignRequest)
@@ -225,7 +182,10 @@ public final class JdbcAssertingPartyMetadataRepository implements AssertingPart
 				.singleSignOnServiceBinding(singleSignOnBinding)
 				.singleLogoutServiceLocation(singleLogoutUrl)
 				.singleLogoutServiceBinding(singleLogoutBinding)
-				.singleLogoutServiceResponseLocation(singleLogoutResponseUrl);
+				.singleLogoutServiceResponseLocation(singleLogoutResponseUrl)
+				.signingAlgorithms((a) -> a.addAll(algorithms))
+				.verificationX509Credentials((c) -> c.addAll(verificationCredentials))
+				.encryptionX509Credentials((c) -> c.addAll(encryptionCredentials));
 			return builder.build();
 		}
 
@@ -244,8 +204,7 @@ public final class JdbcAssertingPartyMetadataRepository implements AssertingPart
 			parameters.add(new SqlParameterValue(Types.VARCHAR, record.getSingleSignOnServiceLocation()));
 			parameters.add(new SqlParameterValue(Types.VARCHAR, record.getSingleSignOnServiceBinding().getUrn()));
 			parameters.add(new SqlParameterValue(Types.BOOLEAN, record.getWantAuthnRequestsSigned()));
-			ThrowingFunction<List<String>, byte[]> algorithms = this.serializer::serializeToByteArray;
-			parameters.add(new SqlParameterValue(Types.BLOB, algorithms.apply(record.getSigningAlgorithms())));
+			parameters.add(new SqlParameterValue(Types.BLOB, String.join(",", record.getSigningAlgorithms())));
 			ThrowingFunction<Collection<Saml2X509Credential>, byte[]> credentials = this.serializer::serializeToByteArray;
 			parameters
 				.add(new SqlParameterValue(Types.BLOB, credentials.apply(record.getVerificationX509Credentials())));
@@ -256,12 +215,6 @@ public final class JdbcAssertingPartyMetadataRepository implements AssertingPart
 
 			return parameters;
 		}
-
-	}
-
-	private interface GetBytes {
-
-		byte[] getBytes(ResultSet rs, String columnName) throws SQLException;
 
 	}
 
