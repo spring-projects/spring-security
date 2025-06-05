@@ -363,6 +363,10 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 		return http.getSharedObject(AuthenticationManager.class);
 	}
 
+	AuthenticationManagerResolver<HttpServletRequest> getAuthenticationManagerResolver() {
+		return this.authenticationManagerResolver;
+	}
+
 	BearerTokenResolver getBearerTokenResolver() {
 		if (this.bearerTokenResolver == null) {
 			if (this.context.getBeanNamesForType(BearerTokenResolver.class).length > 0) {
