@@ -79,7 +79,7 @@ class JdbcAssertingPartyMetadataRepositoryTests {
 	}
 
 	@Test
-	void findByEntityId() {
+	void findByEntityIdWhenEntityPresentThenReturns() {
 		this.repository.save(this.metadata);
 
 		AssertingPartyMetadata found = this.repository.findByEntityId(this.metadata.getEntityId());
@@ -88,17 +88,14 @@ class JdbcAssertingPartyMetadataRepositoryTests {
 	}
 
 	@Test
-	void findByEntityIdWhenNotExists() {
+	void findByEntityIdWhenNotExistsThenNull() {
 		AssertingPartyMetadata found = this.repository.findByEntityId("non-existent-entity-id");
 		assertThat(found).isNull();
 	}
 
 	@Test
-	void iterator() {
-		AssertingPartyMetadata second = RelyingPartyRegistration.withAssertingPartyMetadata(this.metadata)
-			.assertingPartyMetadata((a) -> a.entityId("https://example.org/idp"))
-			.build()
-			.getAssertingPartyMetadata();
+	void iteratorWhenEnitiesExistThenContains() {
+		AssertingPartyMetadata second = this.metadata.mutate().entityId("https://example.org/idp").build();
 		this.repository.save(this.metadata);
 		this.repository.save(second);
 
