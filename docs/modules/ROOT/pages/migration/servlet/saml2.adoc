@@ -54,3 +54,57 @@ fun logoutResponseResolver(registrations: RelyingPartyRegistrationRepository?): 
 ----
 ======
 
+== Favor `Saml2ResponseAuthenticationAccessor` over `Saml2AuthenticatedPrincipal`
+
+Spring Security 7 separates `<saml2:Assertion>` details from the principal.
+This allows Spring Security to retrieve needed assertion details to perform Single Logout.
+
+This deprecates `Saml2AuthenticatedPrincipal`.
+You no longer need to implement it to use `Saml2Authentication`.
+
+Instead, the credential implements `Saml2ResponseAssertionAccessor`, which Spring Security 7 favors when determining the appropriate action based on the authentication.
+
+This change is made automatically for you when using the defaults.
+
+If this causes you trouble when upgrading, you can publish a custom `ResponseAuhenticationConverter` to return a `Saml2Authentication` instead of returning a `Saml2AssertionAuthentication` like so:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Bean
+OpenSaml5AuthenticationProvider authenticationProvider() {
+	OpenSaml5AuthenticationProvider authenticationProvider =
+		new OpenSaml5AuthenticationProvider();
+	ResponseAuthenticationConverter defaults = new ResponseAuthenticationConverter();
+	authenticationProvider.setResponseAuthenticationConverter(
+		defaults.andThen((authentication) -> new Saml2Authentication(
+			authentication.getPrincipal(),
+			authentication.getSaml2Response(),
+			authentication.getAuthorities())));
+	return authenticationProvider;
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun authenticationProvider(): OpenSaml5AuthenticationProvider {
+	val authenticationProvider = OpenSaml5AuthenticationProvider()
+	val defaults = ResponseAuthenticationConverter()
+	authenticationProvider.setResponseAuthenticationConverter(
+		defaults.andThen { authentication ->
+			Saml2Authentication(authentication.getPrincipal(),
+				authentication.getSaml2Response(),
+				authentication.getAuthorities())
+		})
+	return authenticationProvider
+}
+----
+======
+
+If you are constructing a `Saml2Authentication` instance yourself, consider changing to `Saml2AssertionAuthentication` to get the same benefit as the current default.

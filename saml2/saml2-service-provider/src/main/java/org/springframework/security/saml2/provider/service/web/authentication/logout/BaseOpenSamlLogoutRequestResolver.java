@@ -42,7 +42,9 @@ import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.saml2.core.OpenSamlInitializationService;
 import org.springframework.security.saml2.core.Saml2ParameterNames;
-import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationInfo;
+import org.springframework.security.saml2.provider.service.authentication.Saml2AssertionAuthentication;
+import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticatedPrincipal;
+import org.springframework.security.saml2.provider.service.authentication.Saml2ResponseAssertionAccessor;
 import org.springframework.security.saml2.provider.service.authentication.logout.Saml2LogoutRequest;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding;
@@ -148,17 +150,25 @@ final class BaseOpenSamlLogoutRequestResolver implements Saml2LogoutRequestResol
 		logoutRequest.setIssuer(issuer);
 		NameID nameId = this.nameIdBuilder.buildObject();
 		logoutRequest.setNameID(nameId);
-		Saml2AuthenticationInfo info = Saml2AuthenticationInfo.fromAuthentication(authentication);
-		if (info != null) {
+		if (authentication.getCredentials() instanceof Saml2ResponseAssertionAccessor info) {
 			nameId.setValue(info.getNameId());
+		}
+		else {
+			nameId.setValue(authentication.getName());
+		}
+		if (authentication.getCredentials() instanceof Saml2ResponseAssertionAccessor info) {
 			for (String index : info.getSessionIndexes()) {
 				SessionIndex sessionIndex = this.sessionIndexBuilder.buildObject();
 				sessionIndex.setValue(index);
 				logoutRequest.getSessionIndexes().add(sessionIndex);
 			}
 		}
-		else {
-			nameId.setValue(authentication.getName());
+		else if (authentication.getPrincipal() instanceof Saml2AuthenticatedPrincipal info) {
+			for (String index : info.getSessionIndexes()) {
+				SessionIndex sessionIndex = this.sessionIndexBuilder.buildObject();
+				sessionIndex.setValue(index);
+				logoutRequest.getSessionIndexes().add(sessionIndex);
+			}
 		}
 		logoutRequest.setIssueInstant(Instant.now(this.clock));
 		this.parametersConsumer
@@ -194,9 +204,14 @@ final class BaseOpenSamlLogoutRequestResolver implements Saml2LogoutRequestResol
 		if (this.logger.isTraceEnabled()) {
 			this.logger.trace("Attempting to resolve registrationId from " + authentication);
 		}
-		Saml2AuthenticationInfo info = Saml2AuthenticationInfo.fromAuthentication(authentication);
-		if (info != null) {
-			return info.getRelyingPartyRegistrationId();
+		if (authentication == null) {
+			return null;
+		}
+		if (authentication instanceof Saml2AssertionAuthentication response) {
+			return response.getRelyingPartyRegistrationId();
+		}
+		if (authentication.getPrincipal() instanceof Saml2AuthenticatedPrincipal principal) {
+			return principal.getRelyingPartyRegistrationId();
 		}
 		return null;
 	}

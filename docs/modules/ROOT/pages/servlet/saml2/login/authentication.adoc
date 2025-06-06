@@ -341,8 +341,10 @@ class MyUserDetailsResponseAuthenticationConverter implements Converter<Response
 	    Saml2Authentication authentication = this.delegate.convert(responseToken); <1>
 		UserDetails principal = this.userDetailsService.loadByUsername(username); <2>
 		String saml2Response = authentication.getSaml2Response();
+		Saml2ResponseAssertionAccessor assertion = new OpenSamlResponseAssertionAccessor(
+				saml2Response, CollectionUtils.getFirst(response.getAssertions()));
 		Collection<GrantedAuthority> authorities = principal.getAuthorities();
-		return new Saml2Authentication((AuthenticatedPrincipal) userDetails, saml2Response, authorities); <3>
+		return new Saml2AssertionAuthentication(userDetails, assertion, authorities); <3>
     }
 
 }
@@ -361,8 +363,10 @@ open class MyUserDetailsResponseAuthenticationConverter(val delegate: ResponseAu
 	    val authentication = this.delegate.convert(responseToken) <1>
 		val principal = this.userDetailsService.loadByUsername(username) <2>
 		val saml2Response = authentication.getSaml2Response()
+		val assertion = OpenSamlResponseAssertionAccessor(
+				saml2Response, CollectionUtils.getFirst(response.getAssertions()))
 		val authorities = principal.getAuthorities()
-		return Saml2Authentication(userDetails as AuthenticatedPrincipal, saml2Response, authorities) <3>
+		return Saml2AssertionAuthentication(userDetails, assertion, authorities) <3>
     }
 
 }
