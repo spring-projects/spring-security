@@ -16,12 +16,19 @@
 
 package org.springframework.security.oauth2.jwt;
 
+import java.security.KeyPair;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
+
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.KeySourceException;
@@ -32,6 +39,8 @@ import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.KeyUse;
 import com.nimbusds.jose.jwk.OctetSequenceKey;
 import com.nimbusds.jose.jwk.RSAKey;
+import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
+import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 import com.nimbusds.jose.util.Base64URL;
@@ -48,6 +57,7 @@ import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willAnswer;
@@ -342,6 +352,180 @@ public class NimbusJwtEncoderTests {
 			.isThrownBy(() -> jwtEncoder.encode(JwtEncoderParameters.from(claims)));
 
 		verifyNoInteractions(selector);
+	}
+
+	@Test
+	void secretKeyBuilderWithDefaultAlgorithm() {
+		SecretKey secretKey = new SecretKeySpec("thisIsASecretKeyUsedForTesting12345".getBytes(), "HMAC");
+		JwtClaimsSet claims = buildClaims();
+
+		NimbusJwtEncoder encoder = NimbusJwtEncoder.withSecretKey(secretKey).build();
+		Jwt jwt = encoder.encode(JwtEncoderParameters.from(claims));
+
+		assertThat(jwt).isNotNull();
+		assertThat(jwt.getHeaders().get("alg").toString()).isEqualTo("HS256");
+		assertThatNoException().isThrownBy(jwt::getClaims);
+		assertJwt(jwt);
+	}
+
+	@Test
+	void secretKeyBuilderWithKeyId() {
+		SecretKey secretKey = new SecretKeySpec("thisIsASecretKeyUsedForTesting12345".getBytes(), "HMAC");
+		String keyId = "test-key-id";
+		JwtClaimsSet claims = buildClaims();
+
+		NimbusJwtEncoder encoder = NimbusJwtEncoder.withSecretKey(secretKey).keyId(keyId).build();
+		Jwt jwt = encoder.encode(JwtEncoderParameters.from(claims));
+
+		assertThat(jwt).isNotNull();
+		assertThat(jwt.getHeaders().get("kid").toString()).isEqualTo(keyId);
+		assertThat(jwt.getHeaders().get("alg").toString()).isEqualTo("HS256");
+		assertThatNoException().isThrownBy(jwt::getClaims);
+		assertJwt(jwt);
+	}
+
+	@Test
+	void secretKeyBuilderWithCustomJwkSelector() {
+		SecretKey secretKey = new SecretKeySpec("thisIsASecretKeyUsedForTesting12345".getBytes(), "HMAC");
+		String keyId = "test-key-id";
+		JwtClaimsSet claims = buildClaims();
+
+		NimbusJwtEncoder encoder = NimbusJwtEncoder.withSecretKey(secretKey).keyId(keyId).build();
+		Jwt jwt = encoder.encode(JwtEncoderParameters.from(claims));
+
+		assertThat(jwt).isNotNull();
+		assertThat(jwt.getHeaders().get("kid")).isEqualTo(keyId);
+		assertThat(jwt.getClaims()).containsEntry("sub", "subject");
+		assertThatNoException().isThrownBy(() -> jwt.getClaims());
+		assertJwt(jwt);
+	}
+
+	@Test
+	void secretKeyBuilderWithCustomHeaders() {
+		SecretKey secretKey = new SecretKeySpec("thisIsASecretKeyUsedForTesting12345".getBytes(), "HMAC");
+		JwtClaimsSet claims = buildClaims();
+		JwsHeader headers = JwsHeader.with(org.springframework.security.oauth2.jose.jws.MacAlgorithm.HS256)
+			.type("JWT")
+			.contentType("application/jwt")
+			.build();
+
+		NimbusJwtEncoder encoder = NimbusJwtEncoder.withSecretKey(secretKey).build();
+		Jwt jwt = encoder.encode(JwtEncoderParameters.from(headers, claims));
+
+		assertThat(jwt).isNotNull();
+		assertThat(jwt.getHeaders().get("typ").toString()).isEqualTo("JWT");
+		assertThat(jwt.getHeaders().get("cty").toString()).isEqualTo("application/jwt");
+		assertThat(jwt.getHeaders().get("alg").toString()).isEqualTo("HS256");
+		assertThatNoException().isThrownBy(() -> jwt.getClaims());
+		assertJwt(jwt);
+	}
+
+	@Test
+	void keyPairBuilderWithRsaDefaultAlgorithm() throws Exception {
+		RSAKey rsaKey = new RSAKeyGenerator(2048).generate();
+		KeyPair keyPair = new KeyPair(rsaKey.toRSAPublicKey(), rsaKey.toRSAPrivateKey());
+		JwtClaimsSet claims = buildClaims();
+
+		NimbusJwtEncoder encoder = NimbusJwtEncoder.withRsaKeyPair(keyPair).build();
+		Jwt jwt = encoder.encode(JwtEncoderParameters.from(claims));
+
+		assertThat(jwt).isNotNull();
+		assertThat(jwt.getHeaders().get("alg").toString()).isEqualTo("RS256");
+		assertThat(jwt.getSubject()).isEqualTo(claims.getSubject());
+		assertThat(jwt.getAudience()).isEqualTo(claims.getAudience());
+		assertThatNoException().isThrownBy(() -> jwt.getClaims());
+		assertJwt(jwt);
+	}
+
+	@Test
+	void keyPairBuilderWithRsaCustomAlgorithm() throws Exception {
+		RSAKey rsaKey = new RSAKeyGenerator(4096).generate();
+		KeyPair keyPair = new KeyPair(rsaKey.toRSAPublicKey(), rsaKey.toRSAPrivateKey());
+		JwtClaimsSet claims = buildClaims();
+
+		NimbusJwtEncoder encoder = NimbusJwtEncoder.withRsaKeyPair(keyPair).algorithm(SignatureAlgorithm.RS512).build();
+		Jwt jwt = encoder.encode(JwtEncoderParameters.from(claims));
+
+		assertThat(jwt).isNotNull();
+		assertThat(jwt.getHeaders().get("alg").toString()).isEqualTo("RS512");
+		assertThat(jwt.getSubject()).isEqualTo(claims.getSubject());
+		assertThatNoException().isThrownBy(() -> jwt.getClaims());
+		assertJwt(jwt);
+	}
+
+	@Test
+	void keyPairBuilderWithEcDefaultAlgorithm() throws Exception {
+		ECKey ecKey = new ECKeyGenerator(com.nimbusds.jose.jwk.Curve.P_256).generate();
+		KeyPair keyPair = new KeyPair(ecKey.toECPublicKey(), ecKey.toECPrivateKey());
+		JwtClaimsSet claims = buildClaims();
+
+		NimbusJwtEncoder encoder = NimbusJwtEncoder.withEcKeyPair(keyPair).build();
+		Jwt jwt = encoder.encode(JwtEncoderParameters.from(claims));
+
+		assertThat(jwt).isNotNull();
+		assertThat(jwt.getHeaders().get("alg").toString()).isEqualTo("ES256");
+		assertThat(jwt.getSubject()).isEqualTo(claims.getSubject());
+		assertThatNoException().isThrownBy(() -> jwt.getClaims());
+		assertJwt(jwt);
+	}
+
+	@Test
+	void keyPairBuilderWithEcCustomAlgorithm() throws Exception {
+		ECKey ecKey = new ECKeyGenerator(com.nimbusds.jose.jwk.Curve.P_256).generate();
+		KeyPair keyPair = new KeyPair(ecKey.toECPublicKey(), ecKey.toECPrivateKey());
+		NimbusJwtEncoder encoder = NimbusJwtEncoder.withEcKeyPair(keyPair)
+			.keyId(UUID.randomUUID().toString())
+			.algorithm(SignatureAlgorithm.ES256)
+			.build();
+
+		JwtClaimsSet claims = buildClaims();
+		Jwt jwt = encoder.encode(JwtEncoderParameters.from(claims));
+
+		assertThat(jwt).isNotNull();
+		assertThat(jwt.getHeaders().get("alg").toString()).isEqualTo("ES256");
+		assertThatNoException().isThrownBy(() -> jwt.getClaims());
+		assertJwt(jwt);
+	}
+
+	@Test
+	void keyPairBuilderWithKeyId() throws Exception { // d
+		RSAKey rsaKey = new RSAKeyGenerator(4096).generate();
+		KeyPair keyPair = new KeyPair(rsaKey.toRSAPublicKey(), rsaKey.toRSAPrivateKey());
+		String keyId = "test-key-id";
+		JwtClaimsSet claims = buildClaims();
+
+		NimbusJwtEncoder encoder = NimbusJwtEncoder.withRsaKeyPair(keyPair).keyId(keyId).build();
+		Jwt jwt = encoder.encode(JwtEncoderParameters.from(claims));
+
+		assertThat(jwt).isNotNull();
+		assertThat(jwt.getHeaders().get("kid")).isEqualTo(keyId);
+		assertThat(jwt.getHeaders().get("alg").toString()).isEqualTo("RS256");
+		assertThatNoException().isThrownBy(() -> jwt.getClaims());
+	}
+
+	private JwtClaimsSet buildClaims() {
+		Instant now = Instant.now();
+		return JwtClaimsSet.builder()
+			.issuer("https://example.com")
+			.subject("subject")
+			.audience(Collections.singletonList("audience"))
+			.issuedAt(now)
+			.notBefore(now)
+			.expiresAt(now.plus(1, ChronoUnit.HOURS))
+			.id(UUID.randomUUID().toString())
+			.claim("custom", "value")
+			.build();
+	}
+
+	private static void assertJwt(Jwt jwt) {
+		assertThat(jwt.getIssuer().toString()).isEqualTo("https://example.com");
+		assertThat(jwt.getSubject()).isEqualTo("subject");
+		assertThat(jwt.getAudience()).containsExactly("audience");
+		assertThat(jwt.getIssuedAt()).isNotNull();
+		assertThat(jwt.getNotBefore()).isNotNull();
+		assertThat(jwt.getExpiresAt()).isNotNull();
+		assertThat(jwt.getId()).isNotNull();
+		assertThat(jwt.getClaim("custom").toString()).isEqualTo("value");
 	}
 
 	private static final class JwkListResultCaptor implements Answer<List<JWK>> {
