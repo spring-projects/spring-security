@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package org.springframework.security.web.authentication;
 
 import jakarta.servlet.FilterChain;
+import jakarta.servlet.Servlet;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
@@ -57,6 +58,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 /**
  * @author Sergey Bespalov
+ * @author Andrey Litvitski
  * @since 5.2.0
  */
 @ExtendWith(MockitoExtension.class)
@@ -316,6 +318,20 @@ public class AuthenticationFilterTests {
 		filter.doFilter(request, response, chain);
 		verify(securityContextRepository).saveContext(securityContextArg.capture(), eq(request), eq(response));
 		assertThat(securityContextArg.getValue().getAuthentication()).isEqualTo(authentication);
+	}
+
+	@Test
+	public void filterWhenMultipleInChainThenAllFiltered() throws Exception {
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		AuthenticationFilter filter1 = new AuthenticationFilter(this.authenticationManager,
+				this.authenticationConverter);
+		AuthenticationConverter converter2 = mock(AuthenticationConverter.class);
+		AuthenticationFilter filter2 = new AuthenticationFilter(this.authenticationManager, converter2);
+		FilterChain chain = new MockFilterChain(mock(Servlet.class), filter1, filter2);
+		chain.doFilter(request, response);
+		verify(this.authenticationConverter).convert(any());
+		verify(converter2).convert(any());
 	}
 
 }
