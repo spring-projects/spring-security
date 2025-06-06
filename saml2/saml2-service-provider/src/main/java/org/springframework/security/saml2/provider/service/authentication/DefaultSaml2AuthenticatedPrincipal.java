@@ -30,7 +30,9 @@ import org.springframework.util.Assert;
  *
  * @author Clement Stoquart
  * @since 5.4
+ * @deprecated Please use {@link Saml2ResponseAssertionAccessor}
  */
+@Deprecated
 public class DefaultSaml2AuthenticatedPrincipal implements Saml2AuthenticatedPrincipal, Serializable {
 
 	@Serial
@@ -56,6 +58,12 @@ public class DefaultSaml2AuthenticatedPrincipal implements Saml2AuthenticatedPri
 		this.name = name;
 		this.attributes = attributes;
 		this.sessionIndexes = sessionIndexes;
+	}
+
+	public DefaultSaml2AuthenticatedPrincipal(String name, Saml2ResponseAssertionAccessor assertion) {
+		this.name = name;
+		this.attributes = assertion.getAttributes();
+		this.sessionIndexes = assertion.getSessionIndexes();
 	}
 
 	@Override

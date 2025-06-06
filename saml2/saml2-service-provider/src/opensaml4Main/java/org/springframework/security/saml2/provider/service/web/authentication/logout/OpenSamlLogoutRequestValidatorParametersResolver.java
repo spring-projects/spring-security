@@ -28,8 +28,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.saml2.core.OpenSamlInitializationService;
 import org.springframework.security.saml2.core.Saml2Error;
 import org.springframework.security.saml2.core.Saml2ParameterNames;
+import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticatedPrincipal;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationException;
-import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationInfo;
 import org.springframework.security.saml2.provider.service.authentication.logout.Saml2LogoutRequest;
 import org.springframework.security.saml2.provider.service.authentication.logout.Saml2LogoutRequestValidatorParameters;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
@@ -144,9 +144,11 @@ public final class OpenSamlLogoutRequestValidatorParametersResolver
 		if (registrationId != null) {
 			return registrationId;
 		}
-		Saml2AuthenticationInfo info = Saml2AuthenticationInfo.fromAuthentication(authentication);
-		if (info != null) {
-			return info.getRelyingPartyRegistrationId();
+		if (authentication == null) {
+			return null;
+		}
+		if (authentication.getPrincipal() instanceof Saml2AuthenticatedPrincipal principal) {
+			return principal.getRelyingPartyRegistrationId();
 		}
 		return null;
 	}

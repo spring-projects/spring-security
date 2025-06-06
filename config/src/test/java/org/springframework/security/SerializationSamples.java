@@ -170,11 +170,14 @@ import org.springframework.security.saml2.core.Saml2Error;
 import org.springframework.security.saml2.core.Saml2X509Credential;
 import org.springframework.security.saml2.credentials.TestSaml2X509Credentials;
 import org.springframework.security.saml2.provider.service.authentication.DefaultSaml2AuthenticatedPrincipal;
+import org.springframework.security.saml2.provider.service.authentication.Saml2AssertionAuthentication;
 import org.springframework.security.saml2.provider.service.authentication.Saml2Authentication;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationException;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationToken;
 import org.springframework.security.saml2.provider.service.authentication.Saml2PostAuthenticationRequest;
 import org.springframework.security.saml2.provider.service.authentication.Saml2RedirectAuthenticationRequest;
+import org.springframework.security.saml2.provider.service.authentication.Saml2ResponseAssertion;
+import org.springframework.security.saml2.provider.service.authentication.Saml2ResponseAssertionAccessor;
 import org.springframework.security.saml2.provider.service.authentication.TestSaml2AuthenticationTokens;
 import org.springframework.security.saml2.provider.service.authentication.TestSaml2Authentications;
 import org.springframework.security.saml2.provider.service.authentication.TestSaml2LogoutRequests;
@@ -520,8 +523,16 @@ final class SerializationSamples {
 		generatorByClassName.put(Saml2Exception.class, (r) -> new Saml2Exception("message", new IOException("fail")));
 		generatorByClassName.put(DefaultSaml2AuthenticatedPrincipal.class,
 				(r) -> TestSaml2Authentications.authentication().getPrincipal());
-		generatorByClassName.put(Saml2Authentication.class,
-				(r) -> applyDetails(TestSaml2Authentications.authentication()));
+		Saml2Authentication saml2 = TestSaml2Authentications.authentication();
+		generatorByClassName.put(Saml2Authentication.class, (r) -> applyDetails(saml2));
+		Saml2ResponseAssertionAccessor assertion = Saml2ResponseAssertion.withResponseValue("response")
+			.nameId("name")
+			.sessionIndexes(List.of("id"))
+			.attributes(Map.of("key", List.of("value")))
+			.build();
+		generatorByClassName.put(Saml2ResponseAssertion.class, (r) -> assertion);
+		generatorByClassName.put(Saml2AssertionAuthentication.class, (r) -> applyDetails(
+				new Saml2AssertionAuthentication(assertion, authentication.getAuthorities(), "id")));
 		generatorByClassName.put(Saml2PostAuthenticationRequest.class,
 				(r) -> TestSaml2PostAuthenticationRequests.create());
 		generatorByClassName.put(Saml2RedirectAuthenticationRequest.class,

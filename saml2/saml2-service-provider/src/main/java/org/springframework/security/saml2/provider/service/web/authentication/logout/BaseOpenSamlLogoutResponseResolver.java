@@ -46,8 +46,9 @@ import org.springframework.security.saml2.core.OpenSamlInitializationService;
 import org.springframework.security.saml2.core.Saml2Error;
 import org.springframework.security.saml2.core.Saml2ErrorCodes;
 import org.springframework.security.saml2.core.Saml2ParameterNames;
+import org.springframework.security.saml2.provider.service.authentication.Saml2AssertionAuthentication;
+import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticatedPrincipal;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationException;
-import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationInfo;
 import org.springframework.security.saml2.provider.service.authentication.logout.Saml2LogoutResponse;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
@@ -217,9 +218,14 @@ final class BaseOpenSamlLogoutResponseResolver implements Saml2LogoutResponseRes
 		if (this.logger.isTraceEnabled()) {
 			this.logger.trace("Attempting to resolve registrationId from " + authentication);
 		}
-		Saml2AuthenticationInfo info = Saml2AuthenticationInfo.fromAuthentication(authentication);
-		if (info != null) {
-			return info.getRelyingPartyRegistrationId();
+		if (authentication == null) {
+			return null;
+		}
+		if (authentication instanceof Saml2AssertionAuthentication saml2) {
+			return saml2.getRelyingPartyRegistrationId();
+		}
+		if (authentication.getPrincipal() instanceof Saml2AuthenticatedPrincipal saml2) {
+			return saml2.getRelyingPartyRegistrationId();
 		}
 		return null;
 	}
