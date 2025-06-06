@@ -16,7 +16,7 @@ You can use these as a guideline for defining the schema for the database you us
 
 create table users(
 	username varchar_ignorecase(50) not null primary key,
-	password varchar_ignorecase(50) not null,
+	password varchar_ignorecase(500) not null,
 	enabled boolean not null
 );
 
