@@ -53,7 +53,9 @@ public interface Saml2LogoutResponseResolver {
 	 * processed
 	 * @return a signed and serialized SAML 2.0 Logout Response
 	 */
-	Saml2LogoutResponse resolve(HttpServletRequest request, Authentication authentication,
-			Saml2AuthenticationException authenticationException);
+	default Saml2LogoutResponse resolve(HttpServletRequest request, Authentication authentication,
+			Saml2AuthenticationException authenticationException) {
+		return null;
+	}
 
 }

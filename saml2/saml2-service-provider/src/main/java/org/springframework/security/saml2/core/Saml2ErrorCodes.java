@@ -130,30 +130,6 @@ public final class Saml2ErrorCodes {
 	 */
 	public static final String INVALID_IN_RESPONSE_TO = "invalid_in_response_to";
 
-	/**
-	 * The RP registration does not have configured a logout request endpoint
-	 * @since 6.3
-	 */
-	public static final String MISSING_LOGOUT_REQUEST_ENDPOINT = "missing_logout_request_endpoint";
-
-	/**
-	 * The saml response or logout request was delivered via an invalid binding
-	 * @since 6.3
-	 */
-	public static final String INVALID_BINDING = "invalid_binding";
-
-	/**
-	 * The saml logout request failed validation
-	 * @since 6.3
-	 */
-	public static final String INVALID_LOGOUT_REQUEST = "invalid_logout_request";
-
-	/**
-	 * The saml logout response could not be generated
-	 * @since 6.3
-	 */
-	public static final String FAILED_TO_GENERATE_LOGOUT_RESPONSE = "failed_to_generate_logout_response";
-
 	private Saml2ErrorCodes() {
 	}
 

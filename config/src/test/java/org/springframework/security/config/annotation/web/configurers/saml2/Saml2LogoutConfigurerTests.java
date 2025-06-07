@@ -371,7 +371,7 @@ public class Saml2LogoutConfigurerTests {
 	}
 
 	@Test
-	public void saml2LogoutRequestWhenNoRegistrationThen401() throws Exception {
+	public void saml2LogoutRequestWhenNoRegistrationThen400() throws Exception {
 		this.spring.register(Saml2LogoutDefaultsConfig.class).autowire();
 		DefaultSaml2AuthenticatedPrincipal principal = new DefaultSaml2AuthenticatedPrincipal("user",
 				Collections.emptyMap());
@@ -384,7 +384,7 @@ public class Saml2LogoutConfigurerTests {
 				.param("SigAlg", this.apLogoutRequestSigAlg)
 				.param("Signature", this.apLogoutRequestSignature)
 				.with(authentication(user)))
-			.andExpect(status().isUnauthorized());
+			.andExpect(status().isBadRequest());
 		verifyNoInteractions(getBean(LogoutHandler.class));
 	}
 

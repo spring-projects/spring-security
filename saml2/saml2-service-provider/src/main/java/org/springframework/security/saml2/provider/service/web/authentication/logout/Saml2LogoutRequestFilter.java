@@ -113,27 +113,44 @@ public final class Saml2LogoutRequestFilter extends OncePerRequestFilter {
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
 			throws ServletException, IOException {
 		Authentication authentication = this.securityContextHolderStrategy.getContext().getAuthentication();
+		Saml2LogoutRequestValidatorParameters parameters;
 		try {
-			Saml2LogoutRequestValidatorParameters parameters = this.logoutRequestResolver.resolve(request,
-					authentication);
-			if (parameters == null) {
-				chain.doFilter(request, response);
-				return;
-			}
+			parameters = this.logoutRequestResolver.resolve(request, authentication);
+		}
+		catch (Saml2AuthenticationException ex) {
+			this.logger.trace("Did not process logout request since failed to find requested RelyingPartyRegistration");
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+			return;
+		}
+		if (parameters == null) {
+			chain.doFilter(request, response);
+			return;
+		}
 
-			Saml2LogoutResponse logoutResponse = processLogoutRequest(request, response, authentication, parameters);
-			sendLogoutResponse(request, response, logoutResponse);
+		try {
+			validateLogoutRequest(request, parameters);
 		}
 		catch (Saml2AuthenticationException ex) {
 			Saml2LogoutResponse errorLogoutResponse = this.logoutResponseResolver.resolve(request, authentication, ex);
 			if (errorLogoutResponse == null) {
-				this.logger.trace("Returning error since no error logout response could be generated", ex);
+				this.logger.trace(LogMessage.format(
+						"Returning error since no error logout response could be generated: %s", ex.getSaml2Error()));
 				response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 				return;
 			}
 
 			sendLogoutResponse(request, response, errorLogoutResponse);
+			return;
 		}
+
+		this.handler.logout(request, response, authentication);
+		Saml2LogoutResponse logoutResponse = this.logoutResponseResolver.resolve(request, authentication);
+		if (logoutResponse == null) {
+			this.logger.trace("Returning error since no logout response generated");
+			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+			return;
+		}
+		sendLogoutResponse(request, response, logoutResponse);
 	}
 
 	public void setLogoutRequestMatcher(RequestMatcher logoutRequestMatcher) {
@@ -155,13 +172,12 @@ public final class Saml2LogoutRequestFilter extends OncePerRequestFilter {
 		this.securityContextHolderStrategy = securityContextHolderStrategy;
 	}
 
-	private Saml2LogoutResponse processLogoutRequest(HttpServletRequest request, HttpServletResponse response,
-			Authentication authentication, Saml2LogoutRequestValidatorParameters parameters) {
+	private void validateLogoutRequest(HttpServletRequest request, Saml2LogoutRequestValidatorParameters parameters) {
 		RelyingPartyRegistration registration = parameters.getRelyingPartyRegistration();
 		if (registration.getSingleLogoutServiceLocation() == null) {
 			this.logger.trace(
 					"Did not process logout request since RelyingPartyRegistration has not been configured with a logout request endpoint");
-			throw new Saml2AuthenticationException(new Saml2Error(Saml2ErrorCodes.MISSING_LOGOUT_REQUEST_ENDPOINT,
+			throw new Saml2AuthenticationException(new Saml2Error(Saml2ErrorCodes.INVALID_DESTINATION,
 					"RelyingPartyRegistration has not been configured with a logout request endpoint"));
 		}
 
@@ -169,24 +185,15 @@ public final class Saml2LogoutRequestFilter extends OncePerRequestFilter {
 		if (!registration.getSingleLogoutServiceBindings().contains(saml2MessageBinding)) {
 			this.logger.trace("Did not process logout request since used incorrect binding");
 			throw new Saml2AuthenticationException(
-					new Saml2Error(Saml2ErrorCodes.INVALID_BINDING, "Logout request used invalid binding"));
+					new Saml2Error(Saml2ErrorCodes.INVALID_REQUEST, "Logout request used invalid binding"));
 		}
 
 		Saml2LogoutValidatorResult result = this.logoutRequestValidator.validate(parameters);
 		if (result.hasErrors()) {
 			this.logger.debug(LogMessage.format("Failed to validate LogoutRequest: %s", result.getErrors()));
 			throw new Saml2AuthenticationException(
-					new Saml2Error(Saml2ErrorCodes.INVALID_LOGOUT_REQUEST, "Failed to validate the logout request"));
+					new Saml2Error(Saml2ErrorCodes.INVALID_REQUEST, "Failed to validate the logout request"));
 		}
-
-		this.handler.logout(request, response, authentication);
-		Saml2LogoutResponse logoutResponse = this.logoutResponseResolver.resolve(request, authentication);
-		if (logoutResponse == null) {
-			this.logger.trace("Returning error since no logout response generated");
-			throw new Saml2AuthenticationException(new Saml2Error(Saml2ErrorCodes.FAILED_TO_GENERATE_LOGOUT_RESPONSE,
-					"Could not generated logout response"));
-		}
-		return logoutResponse;
 	}
 
 	private void sendLogoutResponse(HttpServletRequest request, HttpServletResponse response,

@@ -240,9 +240,8 @@ final class BaseOpenSamlLogoutResponseResolver implements Saml2LogoutResponseRes
 	private String getSamlStatus(Saml2AuthenticationException exception) {
 		Saml2Error saml2Error = exception.getSaml2Error();
 		return switch (saml2Error.getErrorCode()) {
-			case Saml2ErrorCodes.MISSING_LOGOUT_REQUEST_ENDPOINT, Saml2ErrorCodes.INVALID_BINDING ->
-				StatusCode.REQUEST_DENIED;
-			case Saml2ErrorCodes.INVALID_LOGOUT_REQUEST -> StatusCode.REQUESTER;
+			case Saml2ErrorCodes.INVALID_DESTINATION -> StatusCode.REQUEST_DENIED;
+			case Saml2ErrorCodes.INVALID_REQUEST -> StatusCode.REQUESTER;
 			default -> StatusCode.RESPONDER;
 		};
 	}
