@@ -65,7 +65,7 @@ public class OpenSaml4LogoutResponseResolverTests {
 		logoutResponseResolver.setParametersConsumer(parametersConsumer);
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		RelyingPartyRegistration registration = TestRelyingPartyRegistrations.relyingPartyRegistration()
-			.assertingPartyDetails(
+			.assertingPartyMetadata(
 					(party) -> party.singleLogoutServiceResponseLocation("https://ap.example.com/logout"))
 			.build();
 		Authentication authentication = new TestingAuthenticationToken("user", "password");
@@ -109,19 +109,10 @@ public class OpenSaml4LogoutResponseResolverTests {
 
 	private static Stream<Arguments> provideAuthExceptionAndExpectedSamlStatusCode() {
 		return Stream.of(
-				Arguments.of(
-						new Saml2AuthenticationException(
-								new Saml2Error(Saml2ErrorCodes.MISSING_LOGOUT_REQUEST_ENDPOINT, "")),
+				Arguments.of(new Saml2AuthenticationException(new Saml2Error(Saml2ErrorCodes.INVALID_DESTINATION, "")),
 						StatusCode.REQUEST_DENIED),
-				Arguments.of(new Saml2AuthenticationException(new Saml2Error(Saml2ErrorCodes.INVALID_BINDING, "")),
-						StatusCode.REQUEST_DENIED),
-				Arguments.of(
-						new Saml2AuthenticationException(new Saml2Error(Saml2ErrorCodes.INVALID_LOGOUT_REQUEST, "")),
-						StatusCode.REQUESTER),
-				Arguments.of(
-						new Saml2AuthenticationException(
-								new Saml2Error(Saml2ErrorCodes.FAILED_TO_GENERATE_LOGOUT_RESPONSE, "")),
-						StatusCode.RESPONDER)
+				Arguments.of(new Saml2AuthenticationException(new Saml2Error(Saml2ErrorCodes.INVALID_REQUEST, "")),
+						StatusCode.REQUESTER)
 
 		);
 	}
