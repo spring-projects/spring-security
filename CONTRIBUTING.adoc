@@ -81,6 +81,9 @@ The wiki pages https://github.com/spring-projects/spring-framework/wiki/Code-Sty
 
 To format the code as well as check the style, run `./gradlew format && ./gradlew check`.
 
+NOTE: Since the Stream API is https://github.com/spring-projects/spring-security/issues/7154[much slower] than `for` loop, please use it judiciously.
+The team may ask you to change it to a `for` loop if the given code is along a hot path.
+
 [[submit-a-pull-request]]
 === Submit a Pull Request
 
