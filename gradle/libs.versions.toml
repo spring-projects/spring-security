@@ -57,7 +57,7 @@ org-apache-directory-server-apacheds-protocol-shared = { module = "org.apache.di
 org-apache-directory-server-apacheds-server-jndi = { module = "org.apache.directory.server:apacheds-server-jndi", version.ref = "org-apache-directory-server" }
 org-apache-directory-shared-shared-ldap = "org.apache.directory.shared:shared-ldap:0.9.15"
 org-apache-httpcomponents-httpclient = "org.apache.httpcomponents:httpclient:4.5.14"
-org-apache-maven-maven-resolver-provider = "org.apache.maven:maven-resolver-provider:3.9.9"
+org-apache-maven-maven-resolver-provider = "org.apache.maven:maven-resolver-provider:3.9.10"
 org-apache-maven-resolver-maven-resolver-connector-basic = { module = "org.apache.maven.resolver:maven-resolver-connector-basic", version.ref = "org-apache-maven-resolver" }
 org-apache-maven-resolver-maven-resolver-impl = { module = "org.apache.maven.resolver:maven-resolver-impl", version.ref = "org-apache-maven-resolver" }
 org-apache-maven-resolver-maven-resolver-transport-http = { module = "org.apache.maven.resolver:maven-resolver-transport-http", version.ref = "org-apache-maven-resolver" }
