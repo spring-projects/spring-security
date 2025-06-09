@@ -52,6 +52,7 @@ import org.springframework.security.oauth2.server.resource.authentication.Bearer
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
 import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.authentication.AuthenticationConverter;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
@@ -264,6 +265,24 @@ public class BearerTokenAuthenticationFilterTests {
 	}
 
 	@Test
+	public void doFilterWhenSetAuthenticationConverterAndAuthenticationDetailsSourceThenIllegalArgument(
+			@Mock AuthenticationConverter authenticationConverter) {
+		BearerTokenAuthenticationFilter filter = new BearerTokenAuthenticationFilter(this.authenticationManager,
+				authenticationConverter);
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> filter.setAuthenticationDetailsSource(this.authenticationDetailsSource));
+	}
+
+	@Test
+	public void doFilterWhenSetBearerTokenResolverAndAuthenticationConverterThenIllegalArgument(
+			@Mock AuthenticationConverter authenticationConverter) {
+		BearerTokenAuthenticationFilter filter = new BearerTokenAuthenticationFilter(this.authenticationManager,
+				authenticationConverter);
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> filter.setBearerTokenResolver(this.bearerTokenResolver));
+	}
+
+	@Test
 	public void setAuthenticationEntryPointWhenNullThenThrowsException() {
 		BearerTokenAuthenticationFilter filter = new BearerTokenAuthenticationFilter(this.authenticationManager);
 		// @formatter:off
@@ -290,6 +309,15 @@ public class BearerTokenAuthenticationFilterTests {
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> filter.setAuthenticationDetailsSource(null))
 				.withMessageContaining("authenticationDetailsSource cannot be null");
+		// @formatter:on
+	}
+
+	@Test
+	public void setConverterWhenNullThenThrowsException() {
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new BearerTokenAuthenticationFilter(this.authenticationManager, null))
+				.withMessageContaining("authenticationConverter cannot be null");
 		// @formatter:on
 	}
 

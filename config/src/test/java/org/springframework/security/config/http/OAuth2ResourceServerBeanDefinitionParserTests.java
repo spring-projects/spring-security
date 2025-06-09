@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,6 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
@@ -50,13 +49,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.w3c.dom.Element;
 
-import org.springframework.beans.BeanMetadataElement;
+import org.springframework.beans.factory.BeanDefinitionStoreException;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.BeanReference;
 import org.springframework.beans.factory.parsing.BeanDefinitionParsingException;
-import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.BeanDefinitionParserDelegate;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.beans.factory.xml.XmlReaderContext;
@@ -85,12 +82,14 @@ import org.springframework.security.oauth2.jwt.JwtClaimNames;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.TestJwts;
+import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.introspection.NimbusOpaqueTokenIntrospector;
 import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
 import org.springframework.security.test.context.annotation.SecurityTestExecutionListeners;
+import org.springframework.security.web.authentication.AuthenticationConverter;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -463,6 +462,24 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 	}
 
 	@Test
+	public void getWhenCustomAuthenticationConverterThenUses() throws Exception {
+		this.spring
+			.configLocations(xml("MockAuthenticationConverter"), xml("MockJwtDecoder"), xml("AuthenticationConverter"))
+			.autowire();
+		JwtDecoder decoder = this.spring.getContext().getBean(JwtDecoder.class);
+		given(decoder.decode("token")).willReturn(TestJwts.jwt().build());
+		AuthenticationConverter authenticationConverter = this.spring.getContext()
+			.getBean(AuthenticationConverter.class);
+		given(authenticationConverter.convert(any(HttpServletRequest.class)))
+			.willReturn(new BearerTokenAuthenticationToken("token"));
+
+		this.mvc.perform(get("/")).andExpect(status().isNotFound());
+
+		verify(decoder).decode("token");
+		verify(authenticationConverter).convert(any(HttpServletRequest.class));
+	}
+
+	@Test
 	public void requestWhenBearerTokenResolverAllowsRequestBodyThenEitherHeaderOrRequestBodyIsAccepted()
 			throws Exception {
 		this.spring.configLocations(xml("MockJwtDecoder"), xml("AllowBearerTokenInBody")).autowire();
@@ -522,14 +539,6 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 	}
 
 	@Test
-	public void getBearerTokenResolverWhenNoResolverSpecifiedThenTheDefaultIsUsed() {
-		OAuth2ResourceServerBeanDefinitionParser oauth2 = new OAuth2ResourceServerBeanDefinitionParser(
-				mock(BeanReference.class), mock(List.class), mock(Map.class), mock(Map.class), mock(List.class),
-				mock(BeanMetadataElement.class));
-		assertThat(oauth2.getBearerTokenResolver(mock(Element.class))).isInstanceOf(RootBeanDefinition.class);
-	}
-
-	@Test
 	public void requestWhenCustomJwtDecoderThenUsed() throws Exception {
 		this.spring.configLocations(xml("MockJwtDecoder"), xml("Jwt")).autowire();
 		JwtDecoder decoder = this.spring.getContext().getBean(JwtDecoder.class);
@@ -543,6 +552,12 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 	public void configureWhenDecoderAndJwkSetUriThenException() {
 		assertThatExceptionOfType(BeanDefinitionParsingException.class)
 			.isThrownBy(() -> this.spring.configLocations(xml("JwtDecoderAndJwkSetUri")).autowire());
+	}
+
+	@Test
+	public void configureWhenAuthenticationConverterAndJwkSetUriThenException() {
+		assertThatExceptionOfType(BeanDefinitionStoreException.class).isThrownBy(
+				() -> this.spring.configLocations(xml("AuthenticationConverterAndBearerTokenResolver")).autowire());
 	}
 
 	@Test

@@ -88,6 +88,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
@@ -127,12 +128,14 @@ import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthen
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
 import org.springframework.security.oauth2.server.resource.web.DefaultBearerTokenResolver;
 import org.springframework.security.oauth2.server.resource.web.access.BearerTokenAccessDeniedHandler;
+import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.access.AccessDeniedHandlerImpl;
+import org.springframework.security.web.authentication.AuthenticationConverter;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultMatcher;
@@ -757,13 +760,6 @@ public class OAuth2ResourceServerConfigurerTests {
 		OAuth2ResourceServerConfigurer oauth2 = new OAuth2ResourceServerConfigurer(context);
 		oauth2.bearerTokenResolver(resolver);
 		assertThat(oauth2.getBearerTokenResolver()).isEqualTo(resolver);
-	}
-
-	@Test
-	public void getBearerTokenResolverWhenNoResolverSpecifiedThenTheDefaultIsUsed() {
-		ApplicationContext context = this.spring.context(new GenericWebApplicationContext()).getContext();
-		OAuth2ResourceServerConfigurer oauth2 = new OAuth2ResourceServerConfigurer(context);
-		assertThat(oauth2.getBearerTokenResolver()).isInstanceOf(DefaultBearerTokenResolver.class);
 	}
 
 	@Test
@@ -1413,6 +1409,47 @@ public class OAuth2ResourceServerConfigurerTests {
 				.andExpect(content().string("jdoe"));
 		// @formatter:on
 		verify(authenticationConverter).convert(any(), any());
+	}
+
+	@Test
+	public void getAuthenticationConverterWhenDuplicateConverterBeansAndAnotherOnTheDslThenTheDslOneIsUsed() {
+		AuthenticationConverter converter = mock(AuthenticationConverter.class);
+		AuthenticationConverter converterBean = mock(AuthenticationConverter.class);
+		GenericWebApplicationContext context = new GenericWebApplicationContext();
+		context.registerBean("converterOne", AuthenticationConverter.class, () -> converterBean);
+		context.registerBean("converterTwo", AuthenticationConverter.class, () -> converterBean);
+		this.spring.context(context).autowire();
+		OAuth2ResourceServerConfigurer oauth2 = new OAuth2ResourceServerConfigurer(context);
+		oauth2.authenticationConverter(converter);
+		assertThat(oauth2.getAuthenticationConverter()).isEqualTo(converter);
+	}
+
+	@Test
+	public void getAuthenticationConverterWhenConverterBeanAndAnotherOnTheDslThenTheDslOneIsUsed() {
+		AuthenticationConverter converter = mock(AuthenticationConverter.class);
+		AuthenticationConverter converterBean = mock(AuthenticationConverter.class);
+		GenericWebApplicationContext context = new GenericWebApplicationContext();
+		context.registerBean(AuthenticationConverter.class, () -> converterBean);
+		this.spring.context(context).autowire();
+		OAuth2ResourceServerConfigurer oauth2 = new OAuth2ResourceServerConfigurer(context);
+		oauth2.authenticationConverter(converter);
+		assertThat(oauth2.getAuthenticationConverter()).isEqualTo(converter);
+	}
+
+	@Test
+	public void getAuthenticationConverterWhenDuplicateConverterBeansThenWiringException() {
+		assertThatExceptionOfType(BeanCreationException.class)
+			.isThrownBy(
+					() -> this.spring.register(MultipleAuthenticationConverterBeansConfig.class, JwtDecoderConfig.class)
+						.autowire())
+			.withRootCauseInstanceOf(NoUniqueBeanDefinitionException.class);
+	}
+
+	@Test
+	public void getAuthenticationConverterWhenNoConverterSpecifiedThenTheDefaultIsUsed() {
+		ApplicationContext context = this.spring.context(new GenericWebApplicationContext()).getContext();
+		OAuth2ResourceServerConfigurer oauth2 = new OAuth2ResourceServerConfigurer(context);
+		assertThat(oauth2.getAuthenticationConverter()).isInstanceOf(BearerTokenAuthenticationConverter.class);
 	}
 
 	private static <T> void registerMockBean(GenericApplicationContext context, String name, Class<T> clazz) {
@@ -2518,6 +2555,43 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
+	static class MultipleAuthenticationConverterBeansConfig {
+
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+					.authorizeRequests()
+					.anyRequest().authenticated()
+					.and()
+					.oauth2ResourceServer()
+					.jwt();
+			return http.build();
+			// @formatter:on
+		}
+
+		@Bean
+		AuthenticationConverter authenticationConverterOne() {
+			DefaultBearerTokenResolver resolver = new DefaultBearerTokenResolver();
+			resolver.setAllowUriQueryParameter(true);
+			BearerTokenAuthenticationConverter authenticationConverter = new BearerTokenAuthenticationConverter();
+			authenticationConverter.setBearerTokenResolver(resolver);
+			return authenticationConverter;
+		}
+
+		@Bean
+		AuthenticationConverter authenticationConverterTwo() {
+			DefaultBearerTokenResolver resolver = new DefaultBearerTokenResolver();
+			resolver.setAllowUriQueryParameter(true);
+			BearerTokenAuthenticationConverter authenticationConverter = new BearerTokenAuthenticationConverter();
+			authenticationConverter.setBearerTokenResolver(resolver);
+			return authenticationConverter;
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
 	static class MultipleIssuersConfig {
 
 		@Autowired
@@ -2532,7 +2606,9 @@ public class OAuth2ResourceServerConfigurerTests {
 			// @formatter:off
 			http
 				.oauth2ResourceServer()
-					.authenticationManagerResolver(authenticationManagerResolver);
+					.authenticationManagerResolver(authenticationManagerResolver)
+					.and()
+				.anonymous(AbstractHttpConfigurer::disable);
 			return http.build();
 			// @formatter:on
 		}
