@@ -51,7 +51,9 @@ public interface Saml2LogoutResponseResolver {
 	 * @param authentication the current user
 	 * @param authenticationException the thrown exception when the logout request was
 	 * processed
-	 * @return a signed and serialized SAML 2.0 Logout Response
+	 * @return a signed and serialized SAML 2.0 Logout Response, or {@code null} if it
+	 * cannot generate a SAML 2.0 Error Logout Response
+	 * @since 7.0
 	 */
 	default Saml2LogoutResponse resolve(HttpServletRequest request, Authentication authentication,
 			Saml2AuthenticationException authenticationException) {

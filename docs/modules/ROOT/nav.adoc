@@ -6,6 +6,7 @@
 * xref:migration/index.adoc[Migrating to 7]
 ** xref:migration/servlet/index.adoc[Servlet]
 *** xref:migration/servlet/oauth2.adoc[OAuth 2.0]
+*** xref:migration/servlet/saml2.adoc[SAML 2.0]
 ** xref:migration/reactive.adoc[Reactive]
 * xref:getting-spring-security.adoc[Getting Spring Security]
 * xref:attachment$api/java/index.html[Javadoc]

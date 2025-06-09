@@ -287,6 +287,7 @@ public class Saml2LogoutBeanDefinitionParserTests {
 			.andExpect(status().isBadRequest());
 	}
 
+	// gh-14635
 	@Test
 	public void saml2LogoutRequestWhenInvalidSamlRequestThen302Redirect() throws Exception {
 		this.spring.configLocations(this.xml("Default")).autowire();

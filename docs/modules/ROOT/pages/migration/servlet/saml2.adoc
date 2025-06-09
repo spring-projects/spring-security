@@ -1,0 +1,56 @@
+= SAML 2.0 Migrations
+
+== Expect `<saml2:LogoutResponse>` When `<saml2:LogoutRequest>` Validation Fails
+
+SAML identity providers expect service providers to return an error `<saml2:LogoutResponse>` if it fails to process the `<saml2:LogoutRequest>`.
+
+Past versions of Spring Security returned a 401 in some cases, breaking the chain of logout requests and responses from each relying party.
+
+In Spring Security 7, this behavior is repaired, and you need do nothing.
+
+However, if this gives you trouble, you can revert back to the old behavior by publishing a `Saml2LogoutRequestResolver` that returns `null` when an error `<saml2:LogoutRequest>` is needed.
+You can create a delegate like this one:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Bean
+Saml2LogoutResponseResolver logoutResponseResolver(RelyingPartyRegistrationRepository registrations) {
+    OpenSaml5LogoutResponseResolver delegate = new OpenSaml5LogoutResponseResolver(registrations);
+    return new Saml2LogoutResponseResolver() {
+        @Override
+        public void resolve(HttpServletRequest request, Authentication authentication) {
+            delegate.resolve(request, authentication);
+        }
+
+        @Override
+        public void resolve(HttpServletRequest request, Authentication authentication, Saml2AuthenticationException error) {
+            return null;
+        }
+    };
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun logoutResponseResolver(registrations: RelyingPartyRegistrationRepository?): Saml2LogoutResponseResolver {
+    val delegate = OpenSaml5LogoutResponseResolver(registrations)
+    return object : Saml2LogoutResponseResolver() {
+        override fun resolve(request: HttpServletRequest?, authentication: Authentication?) {
+            delegate.resolve(request, authentication)
+        }
+
+        override fun resolve(request: HttpServletRequest?, authentication: Authentication?, error: Saml2AuthenticationException?) {
+            return null
+        }
+    }
+}
+----
+======
+
