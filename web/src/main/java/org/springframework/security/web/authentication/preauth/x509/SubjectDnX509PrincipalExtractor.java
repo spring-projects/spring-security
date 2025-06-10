@@ -16,7 +16,6 @@
 
 package org.springframework.security.web.authentication.preauth.x509;
 
-import java.security.Principal;
 import java.security.cert.X509Certificate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -62,7 +61,6 @@ public class SubjectDnX509PrincipalExtractor implements X509PrincipalExtractor, 
 	@Override
 	public Object extractPrincipal(X509Certificate clientCert) {
 		// String subjectDN = clientCert.getSubjectX500Principal().getName();
-		Principal principal = clientCert.getSubjectDN();
 		String subjectDN = clientCert.getSubjectDN().getName();
 		this.logger.debug(LogMessage.format("Subject DN is '%s'", subjectDN));
 		Matcher matcher = this.subjectDnPattern.matcher(subjectDN);
