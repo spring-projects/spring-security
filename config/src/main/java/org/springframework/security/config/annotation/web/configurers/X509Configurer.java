@@ -33,7 +33,6 @@ import org.springframework.security.web.authentication.preauth.PreAuthenticatedA
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails;
 import org.springframework.security.web.authentication.preauth.x509.SubjectDnX509PrincipalExtractor;
-import org.springframework.security.web.authentication.preauth.x509.SubjectX500PrincipalExtractor;
 import org.springframework.security.web.authentication.preauth.x509.X509AuthenticationFilter;
 import org.springframework.security.web.authentication.preauth.x509.X509PrincipalExtractor;
 import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
@@ -75,7 +74,6 @@ import org.springframework.security.web.context.RequestAttributeSecurityContextR
  *
  * @author Rob Winch
  * @author Ngoc Nhan
- * @author Max Batischev
  * @since 3.2
  */
 public final class X509Configurer<H extends HttpSecurityBuilder<H>>
@@ -163,35 +161,14 @@ public final class X509Configurer<H extends HttpSecurityBuilder<H>>
 	 * @param subjectPrincipalRegex the regex to extract the user principal from the
 	 * certificate (i.e. "CN=(.*?)(?:,|$)").
 	 * @return the {@link X509Configurer} for further customizations
-	 * @deprecated Please use {{@link #extractPrincipalNameFromEmail(boolean)}} instead
+	 * @deprecated Please use {{@link #x509PrincipalExtractor(X509PrincipalExtractor)}
+	 * instead
 	 */
 	@Deprecated
 	public X509Configurer<H> subjectPrincipalRegex(String subjectPrincipalRegex) {
-		if (this.x509PrincipalExtractor instanceof SubjectX500PrincipalExtractor) {
-			throw new IllegalStateException(
-					"Cannot use subjectPrincipalRegex and extractPrincipalNameFromEmail together. "
-							+ "Please use one or the other.");
-		}
 		SubjectDnX509PrincipalExtractor principalExtractor = new SubjectDnX509PrincipalExtractor();
 		principalExtractor.setSubjectDnRegex(subjectPrincipalRegex);
 		this.x509PrincipalExtractor = principalExtractor;
-		return this;
-	}
-
-	/**
-	 * If true then DN will be extracted from EMAIlADDRESS, defaults to {@code false}
-	 * @param extractPrincipalNameFromEmail whether to extract DN from EMAIlADDRESS
-	 * @since 7.0
-	 */
-	public X509Configurer<H> extractPrincipalNameFromEmail(boolean extractPrincipalNameFromEmail) {
-		if (this.x509PrincipalExtractor instanceof SubjectDnX509PrincipalExtractor) {
-			throw new IllegalStateException(
-					"Cannot use subjectPrincipalRegex and extractPrincipalNameFromEmail together. "
-							+ "Please use one or the other.");
-		}
-		SubjectX500PrincipalExtractor extractor = new SubjectX500PrincipalExtractor();
-		extractor.setExtractPrincipalNameFromEmail(extractPrincipalNameFromEmail);
-		this.x509PrincipalExtractor = extractor;
 		return this;
 	}
 

@@ -1053,9 +1053,6 @@ x509.attlist &=
 x509.attlist &=
 	## Reference to an AuthenticationDetailsSource which will be used by the authentication filter
 	attribute authentication-details-source-ref {xsd:token}?
-x509.attlist &=
-	## If true then DN will be extracted from EMAIlADDRESS
-	attribute extract-principal-name-from-email {xsd:token}?
 
 jee =
 	## Adds a J2eePreAuthenticatedProcessingFilter to the filter chain to provide integration with container authentication.
