@@ -34,9 +34,10 @@ import org.springframework.security.core.SpringSecurityMessageSource;
 import org.springframework.util.Assert;
 
 /**
- * Obtains the principal from a certificate using RFC2253 and RFC1779 formats. By default,
- * RFC2253 is used: DN is extracted from CN. If extractPrincipalNameFromEmail is true then
- * format RFC1779 will be used: DN is extracted from EMAIlADDRESS.
+ * Extracts the principal from the {@link X500Principal#getName(String)} returned by
+ * {@link X509Certificate#getSubjectX500Principal()} passed into
+ * {@link #extractPrincipal(X509Certificate)} depending on the value of
+ * {@link #setExtractPrincipalNameFromEmail(boolean)}.
  *
  * @author Max Batischev
  * @author Rob Winch
@@ -80,8 +81,26 @@ public final class SubjectX500PrincipalExtractor implements X509PrincipalExtract
 	}
 
 	/**
-	 * If true then DN will be extracted from EMAIlADDRESS, defaults to {@code false}
-	 * @param extractPrincipalNameFromEmail whether to extract DN from EMAIlADDRESS
+	 * Sets if the principal name should be extracted from the emailAddress or CN
+	 * attribute (default).
+	 *
+	 * By default, the format {@link X500Principal#RFC2253} is passed to
+	 * {@link X500Principal#getName(String)} and the principal is extracted from the CN
+	 * attribute as defined in
+	 * <a href="https://datatracker.ietf.org/doc/html/rfc2253#section-2.3">Converting
+	 * AttributeTypeAndValue of RFC2253</a>.
+	 *
+	 * If {@link #setExtractPrincipalNameFromEmail(boolean)} is {@code true}, then the
+	 * format {@link X500Principal#RFC2253} is passed to
+	 * {@link X500Principal#getName(String)} and the principal is extracted from the
+	 * <a href="https://oid-base.com/get/1.2.840.113549.1.9.1">OID.1.2.840.113549.1.9.1
+	 * (emailAddress)</a> attribute as defined in
+	 * <a href="https://datatracker.ietf.org/doc/html/rfc1779#section-2.3">Section 2.3 of
+	 * RFC1779</a>.
+	 * @param extractPrincipalNameFromEmail whether to extract the principal from the
+	 * emailAddress (default false)
+	 * @see <a href="https://datatracker.ietf.org/doc/html/rfc2253">RFC2253</a>
+	 * @see <a href="https://datatracker.ietf.org/doc/html/rfC1779">RFC1779</a>
 	 */
 	public void setExtractPrincipalNameFromEmail(boolean extractPrincipalNameFromEmail) {
 		if (extractPrincipalNameFromEmail) {
