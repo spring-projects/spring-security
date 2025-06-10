@@ -39,29 +39,31 @@ import org.springframework.util.Assert;
  * format RFC1779 will be used: DN is extracted from EMAIlADDRESS.
  *
  * @author Max Batischev
+ * @author Rob Winch
  * @since 7.0
  */
 public final class SubjectX500PrincipalExtractor implements X509PrincipalExtractor, MessageSourceAware {
 
 	private final Log logger = LogFactory.getLog(getClass());
 
+	private static final Pattern EMAIL_SUBJECT_DN_PATTERN = Pattern.compile("OID.1.2.840.113549.1.9.1=(.*?)(?:,|$)",
+			Pattern.CASE_INSENSITIVE);
+
+	private static final Pattern CN_SUBJECT_DN_PATTERN = Pattern.compile("CN=(.*?)(?:,|$)", Pattern.CASE_INSENSITIVE);
+
 	private MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
 
-	private boolean extractPrincipalNameFromEmail = false;
+	private Pattern subjectDnPattern = CN_SUBJECT_DN_PATTERN;
 
-	private final Pattern cnSubjectDnPattern = Pattern.compile("CN=(.*?)(?:,|$)", Pattern.CASE_INSENSITIVE);
-
-	private final Pattern emailSubjectDnPattern = Pattern.compile("OID.1.2.840.113549.1.9.1=(.*?)(?:,|$)",
-			Pattern.CASE_INSENSITIVE);
+	private String x500PrincipalFormat = X500Principal.RFC2253;
 
 	@Override
 	public Object extractPrincipal(X509Certificate clientCert) {
 		Assert.notNull(clientCert, "clientCert cannot be null");
 		X500Principal principal = clientCert.getSubjectX500Principal();
-		String subjectDN = this.extractPrincipalNameFromEmail ? principal.getName("RFC1779") : principal.getName();
+		String subjectDN = principal.getName(this.x500PrincipalFormat);
 		this.logger.debug(LogMessage.format("Subject DN is '%s'", subjectDN));
-		Matcher matcher = this.extractPrincipalNameFromEmail ? this.emailSubjectDnPattern.matcher(subjectDN)
-				: this.cnSubjectDnPattern.matcher(subjectDN);
+		Matcher matcher = this.subjectDnPattern.matcher(subjectDN);
 		if (!matcher.find()) {
 			throw new BadCredentialsException(this.messages.getMessage("SubjectX500PrincipalExtractor.noMatching",
 					new Object[] { subjectDN }, "No matching pattern was found in subject DN: {0}"));
@@ -82,7 +84,14 @@ public final class SubjectX500PrincipalExtractor implements X509PrincipalExtract
 	 * @param extractPrincipalNameFromEmail whether to extract DN from EMAIlADDRESS
 	 */
 	public void setExtractPrincipalNameFromEmail(boolean extractPrincipalNameFromEmail) {
-		this.extractPrincipalNameFromEmail = extractPrincipalNameFromEmail;
+		if (extractPrincipalNameFromEmail) {
+			this.subjectDnPattern = EMAIL_SUBJECT_DN_PATTERN;
+			this.x500PrincipalFormat = X500Principal.RFC1779;
+		}
+		else {
+			this.subjectDnPattern = CN_SUBJECT_DN_PATTERN;
+			this.x500PrincipalFormat = X500Principal.RFC2253;
+		}
 	}
 
 }
