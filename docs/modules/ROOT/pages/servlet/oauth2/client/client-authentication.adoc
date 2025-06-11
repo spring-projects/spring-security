@@ -78,6 +78,62 @@ spring:
             ...
 ----
 
+[[oauth2-client-authentication-client-credentials-custom-request-params]]
+=== Add custom OAuth 2.0 request parameters
+
+Spring Security does not support certain OAuth 2.0 request parameters
+(e.g. https://datatracker.ietf.org/doc/html/rfc8707#name-resource-parameter[Resource Indicators for OAuth 2.0] or others mentioned
+in https://datatracker.ietf.org/doc/html/rfc8693#section-2.1[RFC 8693]), however adding such fields in addition to the default token request conversion is straightforward.
+
+Use the `addParameterConverter` method on `RestClientClientCredentialsTokenResponseClient` to apply arbitrary request field
+values in addition to those from the Spring Boot properties under `spring.security.oauth2.client.registration`
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+// your custom property values, keyed on the same clientRegistrationId used in the respective spring.security.oauth2.client.registration
+private Map<String, String> clientResourceIndicators = new HashMap<>();
+...
+RestClientAuthorizationCodeTokenResponseClient tokenResponseClient =
+        new RestClientAuthorizationCodeTokenResponseClient();
+tokenResponseClient.addParametersConverter(request -> {
+    String registrationId = request.getClientRegistration().getRegistrationId();
+    String resource = clientResourceIndicators.get(registrationId);
+    if (!hasText(resource)) {
+        return null;
+    }
+
+    var customParams = new LinkedMultiValueMap<String, String>();
+    customParams.add("resource", resource);
+    return customParams;
+});
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+// your custom property values, keyed on the same clientRegistrationId used in the respective spring.security.oauth2.client.registration
+private lateinit var clientResourceIndicator: Map<String, String>
+...
+val token = RestClientClientCredentialsTokenResponseClient()
+token.addParametersConverter { request ->
+    val registrationId = request.clientRegistration.registrationId
+    val resource = clientResourceIndicators[registrationId]
+    if (!hasText(resource)) {
+        return@addParametersConverter null;
+    }
+
+    val customParams = LinkedMultiValueMap<String, String>();
+    customParams.add("resource", resource);
+    return@addParametersConverter customParams;
+}
+----
+======
+
 [[oauth2-client-authentication-jwt-bearer]]
 == [[oauth2Client-jwt-bearer-auth]]JWT Bearer
 
