@@ -2218,6 +2218,10 @@ A `PreAuthenticatedAuthenticationProvider` will also be created which delegates 
 * **authentication-details-source-ref**
 A reference to an `AuthenticationDetailsSource`
 
+[[nsa-x509-principal-extractor-ref]]
+* **principal-extractor-ref**
+Reference to an `X509PrincipalExtractor` which will be used by the authentication filter.
+
 
 [[nsa-x509-subject-principal-regex]]
 * **subject-principal-regex**

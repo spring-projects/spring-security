@@ -521,11 +521,23 @@ final class AuthenticationConfigBuilder {
 			filterBuilder.addPropertyValue("authenticationManager", authManager);
 			filterBuilder.addPropertyValue("securityContextHolderStrategy",
 					authenticationFilterSecurityContextHolderStrategyRef);
-			String regex = x509Elt.getAttribute("subject-principal-regex");
-			if (StringUtils.hasText(regex)) {
+			String principalExtractorRef = x509Elt.getAttribute("principal-extractor-ref");
+			String subjectPrincipalRegex = x509Elt.getAttribute("subject-principal-regex");
+			boolean hasPrincipalExtractorRef = StringUtils.hasText(principalExtractorRef);
+			boolean hasSubjectPrincipalRegex = StringUtils.hasText(subjectPrincipalRegex);
+			if (hasPrincipalExtractorRef && hasSubjectPrincipalRegex) {
+				this.pc.getReaderContext()
+					.error("The attribute 'principal-extractor-ref' cannot be used together with the 'subject-principal-regex' attribute within <"
+							+ Elements.X509 + ">", this.pc.extractSource(x509Elt));
+			}
+			if (hasPrincipalExtractorRef) {
+				RuntimeBeanReference principalExtractor = new RuntimeBeanReference(principalExtractorRef);
+				filterBuilder.addPropertyValue("principalExtractor", principalExtractor);
+			}
+			if (hasSubjectPrincipalRegex) {
 				BeanDefinitionBuilder extractor = BeanDefinitionBuilder
 					.rootBeanDefinition(SubjectDnX509PrincipalExtractor.class);
-				extractor.addPropertyValue("subjectDnRegex", regex);
+				extractor.addPropertyValue("subjectDnRegex", subjectPrincipalRegex);
 				filterBuilder.addPropertyValue("principalExtractor", extractor.getBeanDefinition());
 			}
 			injectAuthenticationDetailsSource(x509Elt, filterBuilder);
