@@ -194,7 +194,8 @@ public class OAuth2AuthenticationTokenMixinTests {
 				"      \"@class\": \"java.util.Collections$UnmodifiableMap\",\n" +
 				"      \"username\": \"user\"\n" +
 				"    },\n" +
-				"    \"nameAttributeKey\": \"username\"\n" +
+				"    \"nameAttributeKey\": \"username\",\n" +
+				"    \"username\": \"" + oauth2User.getName() + "\"\n" +
 				"  }";
 		// @formatter:on
 	}
