@@ -1053,6 +1053,9 @@ x509.attlist &=
 x509.attlist &=
 	## Reference to an AuthenticationDetailsSource which will be used by the authentication filter
 	attribute authentication-details-source-ref {xsd:token}?
+x509.attlist &=
+	## Reference to an X509PrincipalExtractor which will be used by the authentication filter
+	attribute principal-extractor-ref {xsd:token}?
 
 jee =
 	## Adds a J2eePreAuthenticatedProcessingFilter to the filter chain to provide integration with container authentication.
