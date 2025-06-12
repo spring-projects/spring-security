@@ -3,3 +3,7 @@
 
 Spring Security 7.0 provides a number of new features.
 Below are the highlights of the release, or you can view https://github.com/spring-projects/spring-security/releases[the release notes] for a detailed listing of each feature and bug fix.
+
+== Web
+
+* Added javadoc:org.springframework.security.web.authentication.preauth.x509.SubjectX500PrincipalExtractor[]
