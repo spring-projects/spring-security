@@ -103,7 +103,7 @@ public class DefaultOAuth2User implements OAuth2User, Serializable {
 				: Collections.unmodifiableSet(new LinkedHashSet<>(AuthorityUtils.NO_AUTHORITIES));
 		this.attributes = Collections.unmodifiableMap(new LinkedHashMap<>(attributes));
 		this.nameAttributeKey = nameAttributeKey;
-		this.username = (username != null) ? username : attributes.get(nameAttributeKey).toString();
+		this.username = username;
 
 		Assert.hasText(this.username, "username cannot be empty");
 	}

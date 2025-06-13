@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,6 +61,7 @@ import static org.mockito.Mockito.mock;
  *
  * @author Joe Grandja
  * @author Eddú Meléndez
+ * @author Yoobin Yoon
  */
 public class DefaultOAuth2UserServiceTests {
 
@@ -163,13 +164,13 @@ public class DefaultOAuth2UserServiceTests {
 	public void loadUserWhenNestedUserInfoSuccessThenReturnUser() {
 		// @formatter:off
 		String userInfoResponse = "{\n"
-				+ "   \"user\": {\"user-name\": \"user1\"},\n"
-				+ "   \"first-name\": \"first\",\n"
-				+ "   \"last-name\": \"last\",\n"
-				+ "   \"middle-name\": \"middle\",\n"
-				+ "   \"address\": \"address\",\n"
-				+ "   \"email\": \"user1@example.com\"\n"
-				+ "}\n";
+			+ "   \"user\": {\"user-name\": \"user1\"},\n"
+			+ "   \"first-name\": \"first\",\n"
+			+ "   \"last-name\": \"last\",\n"
+			+ "   \"middle-name\": \"middle\",\n"
+			+ "   \"address\": \"address\",\n"
+			+ "   \"email\": \"user1@example.com\"\n"
+			+ "}\n";
 		// @formatter:on
 		this.server.enqueue(jsonResponse(userInfoResponse));
 		String userInfoUri = this.server.url("/user").toString();
@@ -247,8 +248,8 @@ public class DefaultOAuth2UserServiceTests {
 	public void loadUserWhenUserInfoErrorResponseThenThrowOAuth2AuthenticationException() {
 		// @formatter:off
 		String userInfoErrorResponse = "{\n"
-				+ "   \"error\": \"invalid_token\"\n"
-				+ "}\n";
+			+ "   \"error\": \"invalid_token\"\n"
+			+ "}\n";
 		// @formatter:on
 		this.server.enqueue(jsonResponse(userInfoErrorResponse).setResponseCode(400));
 		String userInfoUri = this.server.url("/user").toString();
@@ -419,6 +420,113 @@ public class DefaultOAuth2UserServiceTests {
 	public void setAttributesConverterWhenNullThenException() {
 		assertThatExceptionOfType(IllegalArgumentException.class)
 			.isThrownBy(() -> this.userService.setAttributesConverter(null));
+	}
+
+	@Test
+	public void loadUserWhenBackwardCompatibilityWithUserNameAttributeNameThenWorks() {
+		// @formatter:off
+		String userInfoResponse = "{\n"
+			+ "   \"user-name\": \"backwardCompatUser\",\n"
+			+ "   \"email\": \"backward@example.com\"\n"
+			+ "}\n";
+		// @formatter:on
+		this.server.enqueue(jsonResponse(userInfoResponse));
+		String userInfoUri = this.server.url("/user").toString();
+		ClientRegistration clientRegistration = this.clientRegistrationBuilder.userInfoUri(userInfoUri)
+			.userInfoAuthenticationMethod(AuthenticationMethod.HEADER)
+			.userNameAttributeName("user-name")
+			.build();
+		OAuth2User user = this.userService.loadUser(new OAuth2UserRequest(clientRegistration, this.accessToken));
+		assertThat(user.getName()).isEqualTo("backwardCompatUser");
+		assertThat(user.getAttributes()).hasSize(2);
+	}
+
+	@Test
+	public void loadUserWhenUsernameExpressionIsSimpleAttributeThenUseDirectly() {
+		// @formatter:off
+		String userInfoResponse = "{\n"
+			+ "   \"username\": \"simpleUser\",\n"
+			+ "   \"id\": \"54321\",\n"
+			+ "   \"email\": \"simple@example.com\"\n"
+			+ "}\n";
+		// @formatter:on
+		this.server.enqueue(jsonResponse(userInfoResponse));
+		String userInfoUri = this.server.url("/user").toString();
+		ClientRegistration clientRegistration = this.clientRegistrationBuilder.userInfoUri(userInfoUri)
+			.userInfoAuthenticationMethod(AuthenticationMethod.HEADER)
+			.usernameExpression("username")
+			.build();
+		OAuth2User user = this.userService.loadUser(new OAuth2UserRequest(clientRegistration, this.accessToken));
+		assertThat(user.getName()).isEqualTo("simpleUser");
+		assertThat(user.getAttributes()).hasSize(3);
+	}
+
+	@Test
+	public void loadUserWhenUsernameExpressionIsSpelThenEvaluateCorrectly() {
+		// @formatter:off
+		String userInfoResponse = "{\n"
+			+ "   \"data\": {\n"
+			+ "       \"user\": {\n"
+			+ "           \"username\": \"spelUser\"\n"
+			+ "       }\n"
+			+ "   },\n"
+			+ "   \"id\": \"12345\",\n"
+			+ "   \"email\": \"spel@example.com\"\n"
+			+ "}\n";
+		// @formatter:on
+		this.server.enqueue(jsonResponse(userInfoResponse));
+		String userInfoUri = this.server.url("/user").toString();
+		ClientRegistration clientRegistration = this.clientRegistrationBuilder.userInfoUri(userInfoUri)
+			.userInfoAuthenticationMethod(AuthenticationMethod.HEADER)
+			.usernameExpression("data.user.username")
+			.build();
+		OAuth2User user = this.userService.loadUser(new OAuth2UserRequest(clientRegistration, this.accessToken));
+		assertThat(user.getName()).isEqualTo("spelUser");
+		assertThat(user.getAttributes()).hasSize(3);
+		assertThat((String) user.getAttribute("id")).isEqualTo("12345");
+		assertThat((String) user.getAttribute("email")).isEqualTo("spel@example.com");
+	}
+
+	@Test
+	public void loadUserWhenUsernameExpressionInvalidSpelThenThrowOAuth2AuthenticationException() {
+		// @formatter:off
+		String userInfoResponse = "{\n"
+			+ "   \"username\": \"testUser\",\n"
+			+ "   \"id\": \"12345\"\n"
+			+ "}\n";
+		// @formatter:on
+		this.server.enqueue(jsonResponse(userInfoResponse));
+		String userInfoUri = this.server.url("/user").toString();
+		ClientRegistration clientRegistration = this.clientRegistrationBuilder.userInfoUri(userInfoUri)
+			.userInfoAuthenticationMethod(AuthenticationMethod.HEADER)
+			.usernameExpression("nonexistent.invalid.path") // invalid SpEL
+			.build();
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.userService.loadUser(new OAuth2UserRequest(clientRegistration, this.accessToken)))
+			.withMessageContaining("invalid_username_expression")
+			.withMessageContaining("Invalid username expression or SPEL expression");
+	}
+
+	@Test
+	public void loadUserWhenUsernameExpressionResultsInNullThenThrowOAuth2AuthenticationException() {
+		// @formatter:off
+		String userInfoResponse = "{\n"
+			+ "   \"username\": \"testUser\",\n"
+			+ "   \"data\": {\n"
+			+ "       \"username\": null\n"
+			+ "   }\n"
+			+ "}\n";
+		// @formatter:on
+		this.server.enqueue(jsonResponse(userInfoResponse));
+		String userInfoUri = this.server.url("/user").toString();
+		ClientRegistration clientRegistration = this.clientRegistrationBuilder.userInfoUri(userInfoUri)
+			.userInfoAuthenticationMethod(AuthenticationMethod.HEADER)
+			.usernameExpression("data.username")
+			.build();
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.userService.loadUser(new OAuth2UserRequest(clientRegistration, this.accessToken)))
+			.withMessageContaining("invalid_user_info_response")
+			.withMessageContaining("username cannot be null");
 	}
 
 	private DefaultOAuth2UserService withMockResponse(Map<String, Object> response) {
