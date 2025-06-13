@@ -29,37 +29,88 @@ public final class IpOrRange {
 	private static final Log logger = LogFactory.getLog(IpOrRange.class);
 	private final InetAddress address;
 	private final int nMaskBits;
+	private final String hostname;
 
 	public IpOrRange(String addressOrRange) {
+		String addressToParse;
+		String originalInputAddress;
+
 		if (addressOrRange.indexOf('/') > 0) {
 			String[] addressAndMask = addressOrRange.split("/");
-			address = parseAddress(addressAndMask[0]);
+			originalInputAddress = addressAndMask[0];
+			addressToParse = addressAndMask[0];
 			this.nMaskBits = Integer.parseInt(addressAndMask[1]);
 		} else {
+			originalInputAddress = addressOrRange;
+			addressToParse = addressOrRange;
 			this.nMaskBits = -1;
-			address = parseAddress(addressOrRange);
 		}
+
+		if (originalInputAddress.matches(".*[a-zA-Z].*") && !originalInputAddress.contains(":")) {
+			this.hostname = originalInputAddress;
+		} else {
+			this.hostname = null;
+		}
+
+		this.address = parseAddress(addressToParse);
 	}
 
-	public boolean matches(InetAddress toCheck) {
-
-		if (this.nMaskBits < 0) {
-			return toCheck.equals(this.address);
+	private String stripWww(String host) {
+		// host is expected to be non-null by callers in the matches method.
+		if (host.toLowerCase().startsWith("www.")) {
+			return host.substring(4);
 		}
-		byte[] remAddr = toCheck.getAddress();
+		return host;
+	}
+
+	public boolean matches(String toCheckAddressString, InetAddress toCheckInetAddress) {
+		if (this.hostname != null) {
+			// Check if toCheckAddressString is a hostname
+			if (toCheckAddressString.matches(".*[a-zA-Z].*") && !toCheckAddressString.contains(":")) {
+				String normalizedStoredHostname = stripWww(this.hostname);
+				String normalizedToCheckHostname = stripWww(toCheckAddressString);
+				return normalizedStoredHostname.equalsIgnoreCase(normalizedToCheckHostname);
+			}
+			// If this.hostname is not null, but toCheckAddressString is an IP, fall through to IP matching
+		}
+
+		// IP matching logic (either this.hostname is null, or it's a hostname but toCheckAddressString is an IP)
+		if (this.nMaskBits < 0) {
+			// This means this IpOrRange is a single IP address (not a range)
+			if (this.address == null) { // Should not happen if constructor logic is correct
+				return false;
+			}
+			return this.address.equals(toCheckInetAddress);
+		}
+
+		// This is a range comparison
+		if (this.address == null || toCheckInetAddress == null) { // Should not happen
+			return false;
+		}
+
+		byte[] remAddr = toCheckInetAddress.getAddress();
 		byte[] reqAddr = this.address.getAddress();
+
+		// Ensure address families are the same
+		if (remAddr.length != reqAddr.length) {
+			return false;
+		}
+
 		int nMaskFullBytes = this.nMaskBits / 8;
-		byte finalByte = (byte) (0xFF00 >> (this.nMaskBits & 0x07));
+		byte finalByte = (byte) (0xFF00 >> (this.nMaskBits & 0x07)); // MASK for last byte
+
 		for (int i = 0; i < nMaskFullBytes; i++) {
 			if (remAddr[i] != reqAddr[i]) {
 				return false;
 			}
 		}
-		if (finalByte != 0) {
+
+		if (finalByte != 0) { // Check if the mask covers a partial byte
 			return (remAddr[nMaskFullBytes] & finalByte) == (reqAddr[nMaskFullBytes] & finalByte);
 		}
-		return true;
 
+		// If mask is a multiple of 8, then all necessary bytes already matched
+		return true;
 	}
 
 	private InetAddress parseAddress(String address) {

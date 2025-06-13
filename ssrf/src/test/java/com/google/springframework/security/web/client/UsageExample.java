@@ -257,12 +257,13 @@ public class UsageExample {
 
 	public static void example2() {
 		System.out.println("Example 2");
-		RestTemplate exampleTemplate = new SecureRestTemplate.Builder().
-				networkMode(BLOCK_EXTERNAL)
+		RestTemplate exampleTemplate = new SecureRestTemplate.Builder()
+				.withAllowlist("google.com")
 				.build();
 
 		try {
 			exampleTemplate.getForEntity("https://google.com", String.class);
+			System.out.println("Success");
 		} catch (Exception e) {
 			System.err.println("Access blocked: " + e.getMessage());
 		}

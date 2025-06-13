@@ -49,14 +49,14 @@ class ListedSsrfProtectionFilter implements SsrfProtectionFilter {
 		for (InetAddress addr : addresses) {
 			if (mode == FilterMode.BLOCK_LIST) {
 				for (IpOrRange ipOrRange : matchingRules) {
-					if (ipOrRange.matches(addr)) {
+					if (ipOrRange.matches(addr.getHostName(), addr)) {
 						continue outerLoop;
 					}
 				}
 				result.add(addr);
 			} else if (mode == FilterMode.ALLOW_LIST) {
 				for (IpOrRange ipOrRange : matchingRules) {
-					if (ipOrRange.matches(addr)) {
+					if (ipOrRange.matches(addr.getHostName(), addr)) {
 						result.add(addr);
 						continue outerLoop;
 					}
