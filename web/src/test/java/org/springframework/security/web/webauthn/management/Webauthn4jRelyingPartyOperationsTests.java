@@ -138,7 +138,7 @@ class Webauthn4jRelyingPartyOperationsTests {
 	@Test
 	void createPublicKeyCredentialCreationOptionsWhenAnonymousThenIllegalArgumentException() {
 		AnonymousAuthenticationToken anonymous = new AnonymousAuthenticationToken("key", "notAuthenticated",
-				Set.of(() -> "ROLE_ANOYMOUS"));
+				Set.of(() -> "ROLE_ANONYMOUS"));
 		assertThatIllegalArgumentException()
 			.isThrownBy(() -> this.rpOperations.createPublicKeyCredentialCreationOptions(
 					new ImmutablePublicKeyCredentialCreationOptionsRequest(anonymous)));
