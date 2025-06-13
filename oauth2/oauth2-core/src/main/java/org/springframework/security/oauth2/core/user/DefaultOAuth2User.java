@@ -103,7 +103,7 @@ public class DefaultOAuth2User implements OAuth2User, Serializable {
 				: Collections.unmodifiableSet(new LinkedHashSet<>(AuthorityUtils.NO_AUTHORITIES));
 		this.attributes = Collections.unmodifiableMap(new LinkedHashMap<>(attributes));
 		this.nameAttributeKey = nameAttributeKey;
-		this.username = (username != null) ? username : attributes.get(nameAttributeKey).toString();
+		this.username = username;
 
 		Assert.hasText(this.username, "username cannot be empty");
 	}
@@ -112,45 +112,10 @@ public class DefaultOAuth2User implements OAuth2User, Serializable {
 	 * Creates a new {@code DefaultOAuth2User} builder with the username.
 	 * @param username the user's name
 	 * @return a new {@code Builder}
-	 * @since 6.5
+	 * @since 7.0
 	 */
 	public static Builder withUsername(String username) {
 		return new Builder(username);
-	}
-
-	/**
-	 * A builder for {@link DefaultOAuth2User}.
-	 *
-	 * @since 6.5
-	 */
-	public static final class Builder {
-
-		private final String username;
-
-		private Collection<? extends GrantedAuthority> authorities;
-
-		private Map<String, Object> attributes;
-
-		private Builder(String username) {
-			Assert.hasText(username, "username cannot be empty");
-			this.username = username;
-		}
-
-		public Builder authorities(Collection<? extends GrantedAuthority> authorities) {
-			this.authorities = authorities;
-			return this;
-		}
-
-		public Builder attributes(Map<String, Object> attributes) {
-			this.attributes = attributes;
-			return this;
-		}
-
-		public DefaultOAuth2User build() {
-			Assert.notEmpty(this.attributes, "attributes cannot be empty");
-			return new DefaultOAuth2User(this.authorities, this.attributes, null, this.username);
-		}
-
 	}
 
 	@Override
@@ -212,6 +177,41 @@ public class DefaultOAuth2User implements OAuth2User, Serializable {
 		sb.append(getAttributes());
 		sb.append("]");
 		return sb.toString();
+	}
+
+	/**
+	 * A builder for {@link DefaultOAuth2User}.
+	 *
+	 * @since 7.0
+	 */
+	public static final class Builder {
+
+		private final String username;
+
+		private Collection<? extends GrantedAuthority> authorities;
+
+		private Map<String, Object> attributes;
+
+		private Builder(String username) {
+			Assert.hasText(username, "username cannot be empty");
+			this.username = username;
+		}
+
+		public Builder authorities(Collection<? extends GrantedAuthority> authorities) {
+			this.authorities = authorities;
+			return this;
+		}
+
+		public Builder attributes(Map<String, Object> attributes) {
+			this.attributes = attributes;
+			return this;
+		}
+
+		public DefaultOAuth2User build() {
+			Assert.notEmpty(this.attributes, "attributes cannot be empty");
+			return new DefaultOAuth2User(this.authorities, this.attributes, null, this.username);
+		}
+
 	}
 
 }
