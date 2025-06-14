@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import org.springframework.security.oauth2.core.DefaultOAuth2AuthenticatedPrinci
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.util.Assert;
 
 /**
  * A {@link Converter} that takes a {@link Jwt} and converts it into a
@@ -41,6 +42,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
  * {@link BearerTokenAuthentication}.
  *
  * @author Josh Cummings
+ * @author Andrey Litvitski
  * @since 5.2
  */
 public final class JwtBearerTokenAuthenticationConverter implements Converter<Jwt, AbstractAuthenticationToken> {
@@ -56,6 +58,18 @@ public final class JwtBearerTokenAuthenticationConverter implements Converter<Jw
 		Collection<GrantedAuthority> authorities = token.getAuthorities();
 		OAuth2AuthenticatedPrincipal principal = new DefaultOAuth2AuthenticatedPrincipal(attributes, authorities);
 		return new BearerTokenAuthentication(principal, accessToken, authorities);
+	}
+
+	/**
+	 * Sets the {@link Converter Converter&lt;Jwt, Collection&lt;OAuth2AuthenticatedPrincipal&gt;&gt;}
+	 * to use.
+	 * @param jwtPrincipalConverter The converter
+	 * @since 6.5.0
+	 */
+	public void setJwtPrincipalConverter(
+			Converter<Jwt, OAuth2AuthenticatedPrincipal> jwtPrincipalConverter) {
+		Assert.notNull(jwtPrincipalConverter, "jwtPrincipalConverter cannot be null");
+		this.jwtAuthenticationConverter.setJwtPrincipalConverter(jwtPrincipalConverter);
 	}
 
 }
