@@ -35,6 +35,7 @@ import org.springframework.util.Assert;
  * {@link #getPrincipalName() Resource Owner}.
  *
  * @author Joe Grandja
+ * @author Evgeniy Cheban
  * @since 5.0
  * @see ClientRegistration
  * @see OAuth2AccessToken
@@ -51,6 +52,8 @@ public class OAuth2AuthorizedClient implements Serializable {
 	private final OAuth2AccessToken accessToken;
 
 	private final OAuth2RefreshToken refreshToken;
+
+	private final String idToken;
 
 	/**
 	 * Constructs an {@code OAuth2AuthorizedClient} using the provided parameters.
@@ -72,6 +75,21 @@ public class OAuth2AuthorizedClient implements Serializable {
 	 */
 	public OAuth2AuthorizedClient(ClientRegistration clientRegistration, String principalName,
 			OAuth2AccessToken accessToken, @Nullable OAuth2RefreshToken refreshToken) {
+		this(clientRegistration, principalName, accessToken, refreshToken, null);
+	}
+
+	/**
+	 * Constructs an {@code OAuth2AuthorizedClient} using the provided parameters.
+	 * @param clientRegistration the authorized client's registration
+	 * @param principalName the name of the End-User {@code Principal} (Resource Owner)
+	 * @param accessToken the access token credential granted
+	 * @param refreshToken the refresh token credential granted
+	 * @param idToken the {@literal id_token} value associated with the authenticated
+	 * session.
+	 * @since 7.1
+	 */
+	public OAuth2AuthorizedClient(ClientRegistration clientRegistration, String principalName,
+			OAuth2AccessToken accessToken, @Nullable OAuth2RefreshToken refreshToken, @Nullable String idToken) {
 		Assert.notNull(clientRegistration, "clientRegistration cannot be null");
 		Assert.hasText(principalName, "principalName cannot be empty");
 		Assert.notNull(accessToken, "accessToken cannot be null");
@@ -79,6 +97,7 @@ public class OAuth2AuthorizedClient implements Serializable {
 		this.principalName = principalName;
 		this.accessToken = accessToken;
 		this.refreshToken = refreshToken;
+		this.idToken = idToken;
 	}
 
 	/**
@@ -112,6 +131,15 @@ public class OAuth2AuthorizedClient implements Serializable {
 	 */
 	public @Nullable OAuth2RefreshToken getRefreshToken() {
 		return this.refreshToken;
+	}
+
+	/**
+	 * Returns an {@literal id_token} value associated with the authenticated session.
+	 * @return the {@literal id_token}
+	 * @since 7.1
+	 */
+	public @Nullable String getIdToken() {
+		return this.idToken;
 	}
 
 }

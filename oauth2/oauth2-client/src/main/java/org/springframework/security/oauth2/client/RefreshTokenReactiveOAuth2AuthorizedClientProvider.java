@@ -22,6 +22,7 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import reactor.core.publisher.Mono;
@@ -33,6 +34,8 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.security.oauth2.core.OAuth2Token;
+import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
+import org.springframework.security.oauth2.core.oidc.endpoint.OidcParameterNames;
 import org.springframework.util.Assert;
 
 /**
@@ -40,6 +43,7 @@ import org.springframework.util.Assert;
  * {@link AuthorizationGrantType#REFRESH_TOKEN refresh_token} grant.
  *
  * @author Joe Grandja
+ * @author Evgeniy Cheban
  * @since 5.2
  * @see ReactiveOAuth2AuthorizedClientProvider
  * @see WebClientReactiveRefreshTokenTokenResponseClient
@@ -97,11 +101,7 @@ public final class RefreshTokenReactiveOAuth2AuthorizedClientProvider
 			.onErrorMap(OAuth2AuthorizationException.class,
 					(e) -> new ClientAuthorizationException(e.getError(), clientRegistration.getRegistrationId(), e))
 			.map((tokenResponse) -> new OAuth2AuthorizedClient(clientRegistration, context.getPrincipal().getName(),
-					tokenResponse.getAccessToken(), tokenResponse.getRefreshToken()));
-	}
-
-	private boolean hasTokenExpired(OAuth2Token token) {
-		return this.clock.instant().isAfter(token.getExpiresAt().minus(this.clockSkew));
+					tokenResponse.getAccessToken(), tokenResponse.getRefreshToken(), extractIdToken(tokenResponse)));
 	}
 
 	/**
@@ -141,6 +141,18 @@ public final class RefreshTokenReactiveOAuth2AuthorizedClientProvider
 	public void setClock(Clock clock) {
 		Assert.notNull(clock, "clock cannot be null");
 		this.clock = clock;
+	}
+
+	private String extractIdToken(OAuth2AccessTokenResponse response) {
+		Map<String, Object> additionalParameters = response.getAdditionalParameters();
+		if (additionalParameters.get(OidcParameterNames.ID_TOKEN) instanceof String idToken) {
+			return idToken;
+		}
+		return null;
+	}
+
+	private boolean hasTokenExpired(OAuth2Token token) {
+		return this.clock.instant().isAfter(token.getExpiresAt().minus(this.clockSkew));
 	}
 
 }

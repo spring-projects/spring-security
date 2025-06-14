@@ -47,6 +47,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  * Tests for {@link OAuth2AuthorizedClientMixin}.
  *
  * @author Joe Grandja
+ * @author Evgeniy Cheban
  */
 @SuppressWarnings("removal")
 public class OAuth2AuthorizedClientMixinTests {
@@ -60,6 +61,8 @@ public class OAuth2AuthorizedClientMixinTests {
 	private OAuth2RefreshToken refreshToken;
 
 	private String principalName;
+
+	private String idToken;
 
 	@BeforeEach
 	public void setup() {
@@ -78,12 +81,22 @@ public class OAuth2AuthorizedClientMixinTests {
 		this.accessToken = TestOAuth2AccessTokens.scopes("read", "write");
 		this.refreshToken = TestOAuth2RefreshTokens.refreshToken();
 		this.principalName = "principal-name";
+		this.idToken = "id-token";
 	}
 
 	@Test
 	public void serializeWhenMixinRegisteredThenSerializes() throws Exception {
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.clientRegistrationBuilder.build(),
 				this.principalName, this.accessToken, this.refreshToken);
+		String expectedJson = asJson(authorizedClient);
+		String json = this.mapper.writeValueAsString(authorizedClient);
+		JSONAssert.assertEquals(expectedJson, json, true);
+	}
+
+	@Test
+	public void serializeWhenMixinRegisteredWithIdTokenThenSerializes() throws Exception {
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.clientRegistrationBuilder.build(),
+				this.principalName, this.accessToken, this.refreshToken, this.idToken);
 		String expectedJson = asJson(authorizedClient);
 		String json = this.mapper.writeValueAsString(authorizedClient);
 		JSONAssert.assertEquals(expectedJson, json, true);
@@ -287,9 +300,14 @@ public class OAuth2AuthorizedClientMixinTests {
 				"  \"clientRegistration\": " + asJson(authorizedClient.getClientRegistration()) + ",\n" +
 				"  \"principalName\": \"" + authorizedClient.getPrincipalName() + "\",\n" +
 				"  \"accessToken\": " + asJson(authorizedClient.getAccessToken()) + ",\n" +
-				"  \"refreshToken\": " + asJson(authorizedClient.getRefreshToken()) + "\n" +
+				"  \"refreshToken\": " + asJson(authorizedClient.getRefreshToken()) + ",\n" +
+				"  \"idToken\": " + quoteString(authorizedClient.getIdToken()) + "\n" +
 				"}";
 		// @formatter:on
+	}
+
+	private static String quoteString(String s) {
+		return (s != null) ? "\"" + s + "\"" : null;
 	}
 
 	private static String asJson(ClientRegistration clientRegistration) {
