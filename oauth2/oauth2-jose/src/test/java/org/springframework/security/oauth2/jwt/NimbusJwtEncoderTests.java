@@ -18,13 +18,23 @@ package org.springframework.security.oauth2.jwt;
 
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
+import java.util.function.Consumer;
 
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+
+import com.nimbusds.jose.Algorithm;
+import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.KeySourceException;
+import com.nimbusds.jose.jwk.Curve;
 import com.nimbusds.jose.jwk.ECKey;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSelector;
@@ -32,6 +42,8 @@ import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.KeyUse;
 import com.nimbusds.jose.jwk.OctetSequenceKey;
 import com.nimbusds.jose.jwk.RSAKey;
+import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
+import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 import com.nimbusds.jose.util.Base64URL;
@@ -43,6 +55,7 @@ import org.mockito.stubbing.Answer;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.oauth2.jose.TestJwks;
 import org.springframework.security.oauth2.jose.TestKeys;
+import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -342,6 +355,154 @@ public class NimbusJwtEncoderTests {
 			.isThrownBy(() -> jwtEncoder.encode(JwtEncoderParameters.from(claims)));
 
 		verifyNoInteractions(selector);
+	}
+
+	// Default algorithm
+	@Test
+	void keyPairBuilderWithRsaDefaultAlgorithm() throws JOSEException {
+		RSAKeyGenerator generator = new RSAKeyGenerator(2048);
+		RSAKey key = generator.generate();
+		NimbusJwtEncoder jwtEncoder = NimbusJwtEncoder.withRsaKeyPair(key.toRSAPublicKey(), key.toRSAPrivateKey())
+			.build();
+		JwtClaimsSet claims = buildClaims();
+		Jwt jwt = jwtEncoder.encode(JwtEncoderParameters.from(claims));
+		assertJwt(jwt);
+	}
+
+	@Test
+	void keyPairBuilderWithEcDefaultAlgorithm() throws JOSEException {
+		ECKeyGenerator generator = new ECKeyGenerator(Curve.P_256);
+		ECKey key = generator.generate();
+		NimbusJwtEncoder jwtEncoder = NimbusJwtEncoder.withEcKeyPair(key.toECPublicKey(), key.toECPrivateKey()).build();
+		JwtClaimsSet claims = buildClaims();
+		Jwt jwt = jwtEncoder.encode(JwtEncoderParameters.from(claims));
+		assertJwt(jwt);
+	}
+
+	@Test
+	void keyPairBuilderWithSecretKeyDefaultAlgorithm() throws JOSEException {
+		SecretKey key = TestKeys.DEFAULT_SECRET_KEY;
+		NimbusJwtEncoder jwtEncoder = NimbusJwtEncoder.withSecretKey(key).build();
+		JwtClaimsSet claims = buildClaims();
+		Jwt jwt = jwtEncoder.encode(JwtEncoderParameters.from(claims));
+		assertJwt(jwt);
+	}
+
+	// With custom algorithm
+	@Test
+	void keyPairBuilderWithRsaWithAlgorithm() throws JOSEException {
+		RSAKeyGenerator generator = new RSAKeyGenerator(2048);
+		RSAKey key = generator.generate();
+		NimbusJwtEncoder jwtEncoder = NimbusJwtEncoder.withRsaKeyPair(key.toRSAPublicKey(), key.toRSAPrivateKey())
+			.algorithm(SignatureAlgorithm.RS384)
+			.build();
+		JwtClaimsSet claims = buildClaims();
+		Jwt jwt = jwtEncoder.encode(JwtEncoderParameters.from(claims));
+		assertJwt(jwt);
+	}
+
+	// Only ES256 supported for EC keys
+	@Test
+	void keyPairBuilderWithEcWithAlgorithm() throws JOSEException {
+		ECKeyGenerator generator = new ECKeyGenerator(Curve.P_256);
+		ECKey key = generator.generate();
+		NimbusJwtEncoder jwtEncoder = NimbusJwtEncoder.withEcKeyPair(key.toECPublicKey(), key.toECPrivateKey())
+			.algorithm(SignatureAlgorithm.ES256)
+			.build();
+		JwtClaimsSet claims = buildClaims();
+		Jwt jwt = jwtEncoder.encode(JwtEncoderParameters.from(claims));
+		assertJwt(jwt);
+	}
+
+	// Only HS256 supported for secret keys
+	@Test
+	void keyPairBuilderWithSecretKeyWithAlgorithm() throws JOSEException {
+		final String keyStr = UUID.randomUUID().toString();
+		SecretKey Key = new SecretKeySpec(keyStr.getBytes(), "HS256");
+		NimbusJwtEncoder jwtEncoder = NimbusJwtEncoder.withSecretKey(Key).algorithm(MacAlgorithm.HS256).build();
+		JwtClaimsSet claims = buildClaims();
+		Jwt jwt = jwtEncoder.encode(JwtEncoderParameters.from(claims));
+		assertJwt(jwt);
+	}
+
+	// with custom jwkPostProcessor
+	@Test
+	void keyPairBuilderWithRsaWithAlgorithmAndJwkSource() throws JOSEException {
+		RSAKeyGenerator generator = new RSAKeyGenerator(2048);
+		RSAKey key = generator.generate();
+
+		String keyId = UUID.randomUUID().toString();
+		Consumer<RSAKey.Builder> jwkPostProcessor = (
+				builder) -> builder.algorithm(new Algorithm(SignatureAlgorithm.RS384.getName())).keyID(keyId);
+
+		NimbusJwtEncoder jwtEncoder = NimbusJwtEncoder.withRsaKeyPair(key.toRSAPublicKey(), key.toRSAPrivateKey())
+			.jwkPostProcessor(jwkPostProcessor)
+			.build();
+		JwtClaimsSet claims = buildClaims();
+		Jwt jwt = jwtEncoder.encode(JwtEncoderParameters.from(claims));
+		assertJwt(jwt);
+		assertThat(jwt.getHeaders()).containsEntry(JoseHeaderNames.ALG, SignatureAlgorithm.RS384);
+		assertThat(jwt.getHeaders()).containsEntry(JoseHeaderNames.KID, keyId);
+	}
+
+	@Test
+	void keyPairBuilderWithEcWithAlgorithmAndJwkSource() throws JOSEException {
+		ECKeyGenerator generator = new ECKeyGenerator(Curve.P_256);
+		ECKey key = generator.generate();
+
+		String keyId = UUID.randomUUID().toString();
+		Consumer<ECKey.Builder> jwkPostProcessor = (
+				builder) -> builder.algorithm(new Algorithm(SignatureAlgorithm.ES256.getName())).keyID(keyId);
+
+		NimbusJwtEncoder jwtEncoder = NimbusJwtEncoder.withEcKeyPair(key.toECPublicKey(), key.toECPrivateKey())
+			.jwkPostProcessor(jwkPostProcessor)
+			.build();
+		JwtClaimsSet claims = buildClaims();
+		Jwt jwt = jwtEncoder.encode(JwtEncoderParameters.from(claims));
+		assertJwt(jwt);
+		assertThat(jwt.getHeaders()).containsEntry(JoseHeaderNames.ALG, SignatureAlgorithm.ES256);
+		assertThat(jwt.getHeaders()).containsEntry(JoseHeaderNames.KID, keyId);
+	}
+
+	@Test
+	void keyPairBuilderWithSecretKeyWithAlgorithmAndJwkSource() throws JOSEException {
+		final String keyStr = UUID.randomUUID().toString();
+		SecretKey key = new SecretKeySpec(keyStr.getBytes(), "HS256");
+		String keyId = UUID.randomUUID().toString();
+		Consumer<OctetSequenceKey.Builder> jwkPostProcessor = (
+				builder) -> builder.algorithm(new Algorithm(MacAlgorithm.HS256.getName())).keyID(keyId);
+		NimbusJwtEncoder jwtEncoder = NimbusJwtEncoder.withSecretKey(key).jwkPostProcessor(jwkPostProcessor).build();
+		JwtClaimsSet claims = buildClaims();
+		Jwt jwt = jwtEncoder.encode(JwtEncoderParameters.from(claims));
+		assertJwt(jwt);
+		assertThat(jwt.getHeaders()).containsEntry(JoseHeaderNames.ALG, MacAlgorithm.HS256);
+		assertThat(jwt.getHeaders()).containsEntry(JoseHeaderNames.KID, keyId);
+
+	}
+
+	private JwtClaimsSet buildClaims() {
+		Instant now = Instant.now();
+		return JwtClaimsSet.builder()
+			.issuer("https://example.com")
+			.subject("subject")
+			.audience(Collections.singletonList("audience"))
+			.issuedAt(now)
+			.notBefore(now)
+			.expiresAt(now.plus(1, ChronoUnit.HOURS))
+			.id(UUID.randomUUID().toString())
+			.claim("custom", "value")
+			.build();
+	}
+
+	private static void assertJwt(Jwt jwt) {
+		assertThat(jwt.getIssuer().toString()).isEqualTo("https://example.com");
+		assertThat(jwt.getSubject()).isEqualTo("subject");
+		assertThat(jwt.getAudience()).containsExactly("audience");
+		assertThat(jwt.getIssuedAt()).isNotNull();
+		assertThat(jwt.getNotBefore()).isNotNull();
+		assertThat(jwt.getExpiresAt()).isNotNull();
+		assertThat(jwt.getId()).isNotNull();
+		assertThat(jwt.getClaim("custom").toString()).isEqualTo("value");
 	}
 
 	private static final class JwkListResultCaptor implements Answer<List<JWK>> {
