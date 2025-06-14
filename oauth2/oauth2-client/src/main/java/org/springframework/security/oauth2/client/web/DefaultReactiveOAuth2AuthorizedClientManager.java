@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -85,6 +85,7 @@ import org.springframework.web.server.ServerWebExchange;
  *
  * @author Joe Grandja
  * @author Phil Clay
+ * @author Evgeniy Cheban
  * @since 5.2
  * @see ReactiveOAuth2AuthorizedClientManager
  * @see ReactiveOAuth2AuthorizedClientProvider
@@ -319,10 +320,10 @@ public final class DefaultReactiveOAuth2AuthorizedClientManager implements React
 			return Mono.justOrEmpty(serverWebExchange)
 					.switchIfEmpty(currentServerWebExchangeMono)
 					.flatMap((exchange) -> {
-						Map<String, Object> contextAttributes = Collections.emptyMap();
+						Map<String, Object> contextAttributes = new HashMap<>();
+						contextAttributes.put(ServerWebExchange.class.getName(), serverWebExchange);
 						String scope = exchange.getRequest().getQueryParams().getFirst(OAuth2ParameterNames.SCOPE);
 						if (StringUtils.hasText(scope)) {
-							contextAttributes = new HashMap<>();
 							contextAttributes.put(OAuth2AuthorizationContext.REQUEST_SCOPE_ATTRIBUTE_NAME,
 									StringUtils.delimitedListToStringArray(scope, " "));
 						}
