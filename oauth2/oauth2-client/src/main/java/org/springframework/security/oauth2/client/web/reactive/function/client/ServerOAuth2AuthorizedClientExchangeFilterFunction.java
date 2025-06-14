@@ -50,6 +50,8 @@ import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
+import org.springframework.security.web.server.context.ServerSecurityContextRepository;
+import org.springframework.security.web.server.context.WebSessionServerSecurityContextRepository;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.client.ClientRequest;
@@ -95,6 +97,7 @@ import org.springframework.web.server.ServerWebExchange;
  * @author Rob Winch
  * @author Joe Grandja
  * @author Phil Clay
+ * @author Evgeniy Cheban
  * @since 5.1
  */
 public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements ExchangeFilterFunction {
@@ -144,6 +147,9 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 	private String defaultClientRegistrationId;
 
 	private ClientResponseHandler clientResponseHandler;
+
+	// This should be replaced with PrincipalResolver introduced in gh-16284
+	private final ServerSecurityContextRepository serverSecurityContextRepository = new WebSessionServerSecurityContextRepository();
 
 	/**
 	 * Constructs a {@code ServerOAuth2AuthorizedClientExchangeFilterFunction} using the
@@ -336,8 +342,11 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 	}
 
 	private Mono<ClientResponse> exchangeAndHandleResponse(ClientRequest request, ExchangeFunction next) {
-		return next.exchange(request)
-			.transform((responseMono) -> this.clientResponseHandler.handleResponse(request, responseMono));
+		// Re-request an Authentication from serverSecurityContextRepository since it
+		// might have been changed during provider invocation.
+		return effectiveAuthentication(request).flatMap((authentication) -> next.exchange(request)
+			.transform((responseMono) -> this.clientResponseHandler.handleResponse(request, responseMono))
+			.contextWrite(ReactiveSecurityContextHolder.withAuthentication(authentication)));
 	}
 
 	private Mono<OAuth2AuthorizedClient> authorizedClient(ClientRequest request) {
@@ -365,6 +374,17 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 					t3.getT3().ifPresent((exchange) -> builder.attribute(ServerWebExchange.class.getName(), exchange));
 					return builder.build();
 				});
+		// @formatter:on
+	}
+
+	private Mono<Authentication> effectiveAuthentication(ClientRequest request) {
+		// @formatter:off
+		return effectiveServerWebExchange(request)
+			.filter(Optional::isPresent)
+			.map(Optional::get)
+			.flatMap(this.serverSecurityContextRepository::load)
+			.map(SecurityContext::getAuthentication)
+			.switchIfEmpty(this.currentAuthenticationMono);
 		// @formatter:on
 	}
 
