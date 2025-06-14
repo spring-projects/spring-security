@@ -53,7 +53,7 @@ public final class JwtGrantedAuthoritiesConverter implements Converter<Jwt, Coll
 
 	private String authoritiesClaimDelimiter = DEFAULT_AUTHORITIES_CLAIM_DELIMITER;
 
-	private String authoritiesClaimName;
+	private Collection<String> authoritiesClaimNames = WELL_KNOWN_AUTHORITIES_CLAIM_NAMES;
 
 	/**
 	 * Extract {@link GrantedAuthority}s from the given {@link Jwt}.
@@ -102,14 +102,11 @@ public final class JwtGrantedAuthoritiesConverter implements Converter<Jwt, Coll
 	 */
 	public void setAuthoritiesClaimName(String authoritiesClaimName) {
 		Assert.hasText(authoritiesClaimName, "authoritiesClaimName cannot be empty");
-		this.authoritiesClaimName = authoritiesClaimName;
+		this.authoritiesClaimNames = Collections.singletonList(authoritiesClaimName);
 	}
 
 	private String getAuthoritiesClaimName(Jwt jwt) {
-		if (this.authoritiesClaimName != null) {
-			return this.authoritiesClaimName;
-		}
-		for (String claimName : WELL_KNOWN_AUTHORITIES_CLAIM_NAMES) {
+		for (String claimName : this.authoritiesClaimNames) {
 			if (jwt.hasClaim(claimName)) {
 				return claimName;
 			}
