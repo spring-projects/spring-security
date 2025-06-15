@@ -35,8 +35,7 @@ import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.security.oauth2.jwt.TestJwts;
 import org.springframework.security.oauth2.server.resource.BearerTokenErrorCodes;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -149,6 +148,19 @@ public class JwtAuthenticationProviderTests {
 		assertThat(this.provider.authenticate(token))
 				.isEqualTo(authentication).hasFieldOrPropertyWithValue("details",
 						expectedDetails);
+		// @formatter:on
+	}
+
+	@Test
+	public void authenticateWhenConverterReturnsNullThenThrowException() {
+		BearerTokenAuthenticationToken token = this.authentication();
+		Jwt jwt = TestJwts.jwt().build();
+		given(this.jwtDecoder.decode("token")).willReturn(jwt);
+		given(this.jwtAuthenticationConverter.convert(jwt)).willReturn(null);
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.provider.authenticate(token))
+				.withMessageContaining("token cannot be null");
 		// @formatter:on
 	}
 
