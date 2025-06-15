@@ -87,6 +87,7 @@ public final class JwtAuthenticationProvider implements AuthenticationProvider {
 		BearerTokenAuthenticationToken bearer = (BearerTokenAuthenticationToken) authentication;
 		Jwt jwt = getJwt(bearer);
 		AbstractAuthenticationToken token = this.jwtAuthenticationConverter.convert(jwt);
+		Assert.notNull(token, "token cannot be null");
 		if (token.getDetails() == null) {
 			token.setDetails(bearer.getDetails());
 		}
