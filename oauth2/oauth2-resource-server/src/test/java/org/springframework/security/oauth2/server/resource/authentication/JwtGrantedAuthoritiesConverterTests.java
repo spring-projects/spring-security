@@ -21,15 +21,11 @@ import java.util.Collection;
 import java.util.Collections;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.NullSource;
-import org.junit.jupiter.params.provider.ValueSource;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.TestJwts;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -269,23 +265,6 @@ public class JwtGrantedAuthoritiesConverterTests {
 		// @formatter:on
 		JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
 		jwtGrantedAuthoritiesConverter.setAuthoritiesClaimDelimiter(",");
-		Collection<GrantedAuthority> authorities = jwtGrantedAuthoritiesConverter.convert(jwt);
-		assertThat(authorities).containsExactly(new SimpleGrantedAuthority("SCOPE_message:read"),
-				new SimpleGrantedAuthority("SCOPE_message:write"));
-	}
-
-	@ParameterizedTest
-	@ValueSource(strings = { "", "   " })
-	@NullSource
-	public void convertWhenAuthoritiesClaimNameIsBlankThenUsesWellKnownClaims(String invalidClaimName)
-			throws Exception {
-		// @formatter:off
-		Jwt jwt = TestJwts.jwt()
-				.claim("scope", "message:read message:write")
-				.build();
-		// @formatter:on
-		JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
-		ReflectionTestUtils.setField(jwtGrantedAuthoritiesConverter, "authoritiesClaimName", invalidClaimName);
 		Collection<GrantedAuthority> authorities = jwtGrantedAuthoritiesConverter.convert(jwt);
 		assertThat(authorities).containsExactly(new SimpleGrantedAuthority("SCOPE_message:read"),
 				new SimpleGrantedAuthority("SCOPE_message:write"));

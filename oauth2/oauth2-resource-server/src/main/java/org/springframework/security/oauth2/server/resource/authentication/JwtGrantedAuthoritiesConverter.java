@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,7 +53,9 @@ public final class JwtGrantedAuthoritiesConverter implements Converter<Jwt, Coll
 
 	private String authoritiesClaimDelimiter = DEFAULT_AUTHORITIES_CLAIM_DELIMITER;
 
-	private String authoritiesClaimName;
+	private Collection<String> authoritiesClaimNames = WELL_KNOWN_AUTHORITIES_CLAIM_NAMES;
+
+	private boolean isExplicitlySet = false;
 
 	/**
 	 * Extract {@link GrantedAuthority}s from the given {@link Jwt}.
@@ -102,14 +104,15 @@ public final class JwtGrantedAuthoritiesConverter implements Converter<Jwt, Coll
 	 */
 	public void setAuthoritiesClaimName(String authoritiesClaimName) {
 		Assert.hasText(authoritiesClaimName, "authoritiesClaimName cannot be empty");
-		this.authoritiesClaimName = authoritiesClaimName;
+		this.authoritiesClaimNames = Collections.singletonList(authoritiesClaimName);
+		this.isExplicitlySet = true;
 	}
 
 	private String getAuthoritiesClaimName(Jwt jwt) {
-		if (StringUtils.hasText(this.authoritiesClaimName)) {
-			return this.authoritiesClaimName;
+		if (this.isExplicitlySet) {
+			return this.authoritiesClaimNames.iterator().next();
 		}
-		for (String claimName : WELL_KNOWN_AUTHORITIES_CLAIM_NAMES) {
+		for (String claimName : this.authoritiesClaimNames) {
 			if (jwt.hasClaim(claimName)) {
 				return claimName;
 			}
