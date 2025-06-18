@@ -117,7 +117,7 @@ public final class OidcBackChannelLogoutHandler implements LogoutHandler {
 		}
 		headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 		String logout = computeLogoutEndpoint(request, token);
-		MultiValueMap<String, String> body = new LinkedMultiValueMap();
+		MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
 		body.add("logout_token", token.getPrincipal().getTokenValue());
 		body.add("_spring_security_internal_logout", "true");
 		HttpEntity<?> entity = new HttpEntity<>(body, headers);

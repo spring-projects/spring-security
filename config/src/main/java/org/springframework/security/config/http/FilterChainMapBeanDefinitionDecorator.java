@@ -64,7 +64,7 @@ public class FilterChainMapBeanDefinitionDecorator implements BeanDefinitionDeco
 			}
 			BeanDefinition matcher = matcherType.createMatcher(parserContext, path, null);
 			if (filters.equals(HttpSecurityBeanDefinitionParser.OPT_FILTERS_NONE)) {
-				securityFilterChains.add(createSecurityFilterChain(matcher, new ManagedList(0)));
+				securityFilterChains.add(createSecurityFilterChain(matcher, new ManagedList<>(0)));
 			}
 			else {
 				String[] filterBeanNames = StringUtils.tokenizeToStringArray(filters, ",");

@@ -152,7 +152,7 @@ public class HttpHeadersConfigTests {
 
 	@Test
 	public void requestWhenFrameOptionsConfiguredThenIncludesHeader() throws Exception {
-		Map<String, String> headers = new HashMap(defaultHeaders);
+		Map<String, String> headers = new HashMap<>(defaultHeaders);
 		headers.put("X-Frame-Options", "SAMEORIGIN");
 		this.spring.configLocations(this.xml("WithFrameOptions")).autowire();
 		// @formatter:off
