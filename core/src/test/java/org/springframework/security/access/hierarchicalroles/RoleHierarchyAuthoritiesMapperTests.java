@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,8 +32,7 @@ public class RoleHierarchyAuthoritiesMapperTests {
 
 	@Test
 	public void expectedAuthoritiesAreReturned() {
-		RoleHierarchyImpl rh = new RoleHierarchyImpl();
-		rh.setHierarchy("ROLE_A > ROLE_B\nROLE_B > ROLE_C");
+		RoleHierarchyImpl rh = RoleHierarchyImpl.fromHierarchy("ROLE_A > ROLE_B\nROLE_B > ROLE_C");
 		RoleHierarchyAuthoritiesMapper mapper = new RoleHierarchyAuthoritiesMapper(rh);
 		Collection<? extends GrantedAuthority> authorities = mapper
 			.mapAuthorities(AuthorityUtils.createAuthorityList("ROLE_A", "ROLE_D"));

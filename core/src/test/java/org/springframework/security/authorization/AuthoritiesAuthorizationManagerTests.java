@@ -48,7 +48,7 @@ class AuthoritiesAuthorizationManagerTests {
 	@Test
 	void setRoleHierarchyWhenNotNullThenVerifyRoleHierarchy() {
 		AuthoritiesAuthorizationManager manager = new AuthoritiesAuthorizationManager();
-		RoleHierarchy roleHierarchy = new RoleHierarchyImpl();
+		RoleHierarchy roleHierarchy = RoleHierarchyImpl.withDefaultRolePrefix().build();
 		manager.setRoleHierarchy(roleHierarchy);
 		assertThat(manager).extracting("roleHierarchy").isEqualTo(roleHierarchy);
 	}
@@ -76,8 +76,7 @@ class AuthoritiesAuthorizationManagerTests {
 	@Test
 	void checkWhenRoleHierarchySetThenGreaterRoleTakesPrecedence() {
 		AuthoritiesAuthorizationManager manager = new AuthoritiesAuthorizationManager();
-		RoleHierarchyImpl roleHierarchy = new RoleHierarchyImpl();
-		roleHierarchy.setHierarchy("ROLE_ADMIN > ROLE_USER");
+		RoleHierarchyImpl roleHierarchy = RoleHierarchyImpl.fromHierarchy("ROLE_ADMIN > ROLE_USER");
 		manager.setRoleHierarchy(roleHierarchy);
 		Supplier<Authentication> authentication = () -> new TestingAuthenticationToken("user", "password",
 				"ROLE_ADMIN");

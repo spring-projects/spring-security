@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,8 +29,7 @@ public class RoleHierarchyVoterTests {
 
 	@Test
 	public void hierarchicalRoleIsIncludedInDecision() {
-		RoleHierarchyImpl roleHierarchyImpl = new RoleHierarchyImpl();
-		roleHierarchyImpl.setHierarchy("ROLE_A > ROLE_B");
+		RoleHierarchyImpl roleHierarchyImpl = RoleHierarchyImpl.fromHierarchy("ROLE_A > ROLE_B");
 		// User has role A, role B is required
 		TestingAuthenticationToken auth = new TestingAuthenticationToken("user", "password", "ROLE_A");
 		RoleHierarchyVoter voter = new RoleHierarchyVoter(roleHierarchyImpl);
