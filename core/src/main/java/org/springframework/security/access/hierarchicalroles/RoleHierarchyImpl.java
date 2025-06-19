@@ -78,7 +78,7 @@ import org.springframework.util.Assert;
  * @author Michael Mayr
  * @author Josh Cummings
  */
-public class RoleHierarchyImpl implements RoleHierarchy {
+public final class RoleHierarchyImpl implements RoleHierarchy {
 
 	private static final Log logger = LogFactory.getLog(RoleHierarchyImpl.class);
 
