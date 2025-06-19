@@ -103,7 +103,6 @@ import org.springframework.security.authorization.method.AuthorizationManagerBef
 import org.springframework.security.authorization.method.AuthorizeReturnObject;
 import org.springframework.security.authorization.method.MethodAuthorizationDeniedHandler;
 import org.springframework.security.authorization.method.MethodInvocationResult;
-import org.springframework.security.authorization.method.PrePostTemplateDefaults;
 import org.springframework.security.config.annotation.SecurityContextChangedListenerConfig;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.core.GrantedAuthorityDefaults;
@@ -665,7 +664,7 @@ public class PrePostMethodSecurityConfigurationTests {
 	}
 
 	@ParameterizedTest
-	@ValueSource(classes = { LegacyMetaAnnotationPlaceholderConfig.class, MetaAnnotationPlaceholderConfig.class })
+	@ValueSource(classes = { MetaAnnotationPlaceholderConfig.class })
 	@WithMockUser
 	public void methodeWhenParameterizedPreAuthorizeMetaAnnotationThenPasses(Class<?> config) {
 		this.spring.register(config).autowire();
@@ -674,7 +673,7 @@ public class PrePostMethodSecurityConfigurationTests {
 	}
 
 	@ParameterizedTest
-	@ValueSource(classes = { LegacyMetaAnnotationPlaceholderConfig.class, MetaAnnotationPlaceholderConfig.class })
+	@ValueSource(classes = { MetaAnnotationPlaceholderConfig.class })
 	@WithMockUser
 	public void methodRoleWhenPreAuthorizeMetaAnnotationHardcodedParameterThenPasses(Class<?> config) {
 		this.spring.register(config).autowire();
@@ -683,7 +682,7 @@ public class PrePostMethodSecurityConfigurationTests {
 	}
 
 	@ParameterizedTest
-	@ValueSource(classes = { LegacyMetaAnnotationPlaceholderConfig.class, MetaAnnotationPlaceholderConfig.class })
+	@ValueSource(classes = { MetaAnnotationPlaceholderConfig.class })
 	public void methodWhenParameterizedAnnotationThenFails(Class<?> config) {
 		this.spring.register(config).autowire();
 		MetaAnnotationService service = this.spring.getContext().getBean(MetaAnnotationService.class);
@@ -692,7 +691,7 @@ public class PrePostMethodSecurityConfigurationTests {
 	}
 
 	@ParameterizedTest
-	@ValueSource(classes = { LegacyMetaAnnotationPlaceholderConfig.class, MetaAnnotationPlaceholderConfig.class })
+	@ValueSource(classes = { MetaAnnotationPlaceholderConfig.class })
 	@WithMockUser(authorities = "SCOPE_message:read")
 	public void methodWhenMultiplePlaceholdersHasAuthorityThenPasses(Class<?> config) {
 		this.spring.register(config).autowire();
@@ -701,7 +700,7 @@ public class PrePostMethodSecurityConfigurationTests {
 	}
 
 	@ParameterizedTest
-	@ValueSource(classes = { LegacyMetaAnnotationPlaceholderConfig.class, MetaAnnotationPlaceholderConfig.class })
+	@ValueSource(classes = { MetaAnnotationPlaceholderConfig.class })
 	@WithMockUser(roles = "ADMIN")
 	public void methodWhenMultiplePlaceholdersHasRoleThenPasses(Class<?> config) {
 		this.spring.register(config).autowire();
@@ -710,7 +709,7 @@ public class PrePostMethodSecurityConfigurationTests {
 	}
 
 	@ParameterizedTest
-	@ValueSource(classes = { LegacyMetaAnnotationPlaceholderConfig.class, MetaAnnotationPlaceholderConfig.class })
+	@ValueSource(classes = { MetaAnnotationPlaceholderConfig.class })
 	@WithMockUser
 	public void methodWhenPostAuthorizeMetaAnnotationThenAuthorizes(Class<?> config) {
 		this.spring.register(config).autowire();
@@ -721,7 +720,7 @@ public class PrePostMethodSecurityConfigurationTests {
 	}
 
 	@ParameterizedTest
-	@ValueSource(classes = { LegacyMetaAnnotationPlaceholderConfig.class, MetaAnnotationPlaceholderConfig.class })
+	@ValueSource(classes = { MetaAnnotationPlaceholderConfig.class })
 	@WithMockUser
 	public void methodWhenPreFilterMetaAnnotationThenFilters(Class<?> config) {
 		this.spring.register(config).autowire();
@@ -731,7 +730,7 @@ public class PrePostMethodSecurityConfigurationTests {
 	}
 
 	@ParameterizedTest
-	@ValueSource(classes = { LegacyMetaAnnotationPlaceholderConfig.class, MetaAnnotationPlaceholderConfig.class })
+	@ValueSource(classes = { MetaAnnotationPlaceholderConfig.class })
 	@WithMockUser
 	public void methodWhenPostFilterMetaAnnotationThenFilters(Class<?> config) {
 		this.spring.register(config).autowire();
@@ -991,18 +990,6 @@ public class PrePostMethodSecurityConfigurationTests {
 		MethodSecurityService service = this.spring.getContext().getBean(MethodSecurityService.class);
 		String result = service.preAuthorizeDeniedMethodWithNoMaskAnnotation();
 		assertThat(result).isEqualTo("classmask");
-	}
-
-	@Test
-	@WithMockUser
-	void postAuthorizeWhenNullDeniedMetaAnnotationThanWorks() {
-		this.spring
-			.register(MethodSecurityServiceEnabledConfig.class, LegacyMetaAnnotationPlaceholderConfig.class,
-					MethodSecurityService.NullPostProcessor.class)
-			.autowire();
-		MethodSecurityService service = this.spring.getContext().getBean(MethodSecurityService.class);
-		String result = service.postAuthorizeDeniedWithNullDenied();
-		assertThat(result).isNull();
 	}
 
 	@Test
@@ -1683,22 +1670,6 @@ public class PrePostMethodSecurityConfigurationTests {
 		@Bean
 		Authz authz() {
 			return new Authz();
-		}
-
-	}
-
-	@Configuration
-	@EnableMethodSecurity
-	static class LegacyMetaAnnotationPlaceholderConfig {
-
-		@Bean
-		PrePostTemplateDefaults methodSecurityDefaults() {
-			return new PrePostTemplateDefaults();
-		}
-
-		@Bean
-		MetaAnnotationService metaAnnotationService() {
-			return new MetaAnnotationService();
 		}
 
 	}

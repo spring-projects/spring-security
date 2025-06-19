@@ -57,21 +57,6 @@ public final class PreAuthorizeReactiveAuthorizationManager
 	 * By default, this value is <code>null</code>, which indicates that templates should
 	 * not be resolved.
 	 * @param defaults - whether to resolve pre/post-authorization templates parameters
-	 * @since 6.3
-	 * @deprecated please use
-	 * {@link #setTemplateDefaults(AnnotationTemplateExpressionDefaults)}
-	 */
-	@Deprecated
-	public void setTemplateDefaults(PrePostTemplateDefaults defaults) {
-		this.registry.setTemplateDefaults(defaults);
-	}
-
-	/**
-	 * Configure pre/post-authorization template resolution
-	 * <p>
-	 * By default, this value is <code>null</code>, which indicates that templates should
-	 * not be resolved.
-	 * @param defaults - whether to resolve pre/post-authorization templates parameters
 	 * @since 6.4
 	 */
 	public void setTemplateDefaults(AnnotationTemplateExpressionDefaults defaults) {
