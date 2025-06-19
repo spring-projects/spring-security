@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -167,8 +167,7 @@ public class InMemoryUserDetailsManagerTests {
 		UserDetails user = User.builder().username(username).password(password).roles("USER").build();
 		InMemoryUserDetailsManager userManager = new InMemoryUserDetailsManager(user);
 
-		DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
-		authenticationProvider.setUserDetailsService(userManager);
+		DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider(userManager);
 		authenticationProvider.setPasswordEncoder(PasswordEncoderFactories.createDelegatingPasswordEncoder());
 
 		AuthenticationManager authManager = new ProviderManager(authenticationProvider);
