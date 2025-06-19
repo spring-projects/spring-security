@@ -42,8 +42,6 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
-import static org.springframework.security.config.Customizer.withDefaults;
-
 /**
  * Adds URL based authorization based upon SpEL expressions to an application. At least
  * one {@link org.springframework.web.bind.annotation.RequestMapping} needs to be mapped
@@ -253,7 +251,7 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
 		}
 
 		public H and() {
-			return ExpressionUrlAuthorizationConfigurer.this.and();
+			return ExpressionUrlAuthorizationConfigurer.this.getBuilder();
 		}
 
 	}

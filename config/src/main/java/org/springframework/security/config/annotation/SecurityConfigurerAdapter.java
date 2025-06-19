@@ -51,17 +51,6 @@ public abstract class SecurityConfigurerAdapter<O, B extends SecurityBuilder<O>>
 	}
 
 	/**
-	 * Return the {@link SecurityBuilder} when done using the {@link SecurityConfigurer}.
-	 * This is useful for method chaining.
-	 * @return the {@link SecurityBuilder} for further customizations
-	 * @deprecated For removal in 7.0. Use the lambda based configuration instead.
-	 */
-	@Deprecated(since = "6.1", forRemoval = true)
-	public B and() {
-		return getBuilder();
-	}
-
-	/**
 	 * Gets the {@link SecurityBuilder}. Cannot be null.
 	 * @return the {@link SecurityBuilder}
 	 * @throws IllegalStateException if {@link SecurityBuilder} is null

@@ -215,20 +215,6 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 	}
 
 	/**
-	 * @deprecated For removal in 7.0. Use {@link #jwt(Customizer)} or
-	 * {@code jwt(Customizer.withDefaults())} to stick with defaults. See the <a href=
-	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
-	 * for more details.
-	 */
-	@Deprecated(since = "6.1", forRemoval = true)
-	public JwtConfigurer jwt() {
-		if (this.jwtConfigurer == null) {
-			this.jwtConfigurer = new JwtConfigurer(this.context);
-		}
-		return this.jwtConfigurer;
-	}
-
-	/**
 	 * Enables Jwt-encoded bearer token support.
 	 * @param jwtCustomizer the {@link Customizer} to provide more options for the
 	 * {@link JwtConfigurer}
@@ -240,21 +226,6 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 		}
 		jwtCustomizer.customize(this.jwtConfigurer);
 		return this;
-	}
-
-	/**
-	 * @deprecated For removal in 7.0. Use {@link #opaqueToken(Customizer)} or
-	 * {@code opaqueToken(Customizer.withDefaults())} to stick with defaults. See the
-	 * <a href=
-	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
-	 * for more details.
-	 */
-	@Deprecated(since = "6.1", forRemoval = true)
-	public OpaqueTokenConfigurer opaqueToken() {
-		if (this.opaqueTokenConfigurer == null) {
-			this.opaqueTokenConfigurer = new OpaqueTokenConfigurer(this.context);
-		}
-		return this.opaqueTokenConfigurer;
 	}
 
 	/**
@@ -439,17 +410,6 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 				Converter<Jwt, ? extends AbstractAuthenticationToken> jwtAuthenticationConverter) {
 			this.jwtAuthenticationConverter = jwtAuthenticationConverter;
 			return this;
-		}
-
-		/**
-		 * @deprecated For removal in 7.0. Use {@link #jwt(Customizer)} or
-		 * {@code jwt(Customizer.withDefaults())} to stick with defaults. See the <a href=
-		 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
-		 * for more details.
-		 */
-		@Deprecated(since = "6.1", forRemoval = true)
-		public OAuth2ResourceServerConfigurer<H> and() {
-			return OAuth2ResourceServerConfigurer.this;
 		}
 
 		Converter<Jwt, ? extends AbstractAuthenticationToken> getJwtAuthenticationConverter() {

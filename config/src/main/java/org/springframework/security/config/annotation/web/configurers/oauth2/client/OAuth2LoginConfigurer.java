@@ -104,8 +104,6 @@ import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ReflectionUtils;
 
-import static org.springframework.security.config.Customizer.withDefaults;
-
 /**
  * An {@link AbstractHttpConfigurer} for OAuth 2.0 Login, which leverages the OAuth 2.0
  * Authorization Code Grant Flow.
@@ -249,18 +247,6 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 	}
 
 	/**
-	 * Returns the {@link AuthorizationEndpointConfig} for configuring the Authorization
-	 * Server's Authorization Endpoint.
-	 * @return the {@link AuthorizationEndpointConfig}
-	 * @deprecated For removal in 7.0. Use {@link #authorizationEndpoint(Customizer)}
-	 * instead
-	 */
-	@Deprecated(since = "6.1", forRemoval = true)
-	public AuthorizationEndpointConfig authorizationEndpoint() {
-		return this.authorizationEndpointConfig;
-	}
-
-	/**
 	 * Configures the Authorization Server's Authorization Endpoint.
 	 * @param authorizationEndpointCustomizer the {@link Customizer} to provide more
 	 * options for the {@link AuthorizationEndpointConfig}
@@ -270,21 +256,6 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 			Customizer<AuthorizationEndpointConfig> authorizationEndpointCustomizer) {
 		authorizationEndpointCustomizer.customize(this.authorizationEndpointConfig);
 		return this;
-	}
-
-	/**
-	 * Returns the {@link TokenEndpointConfig} for configuring the Authorization Server's
-	 * Token Endpoint.
-	 * @return the {@link TokenEndpointConfig}
-	 * @deprecated For removal in 7.0. Use {@link #tokenEndpoint(Customizer)} or
-	 * {@code tokenEndpoint(Customizer.withDefaults())} to stick with defaults. See the
-	 * <a href=
-	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
-	 * for more details.
-	 */
-	@Deprecated(since = "6.1", forRemoval = true)
-	public TokenEndpointConfig tokenEndpoint() {
-		return this.tokenEndpointConfig;
 	}
 
 	/**
@@ -300,18 +271,6 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 	}
 
 	/**
-	 * Returns the {@link RedirectionEndpointConfig} for configuring the Client's
-	 * Redirection Endpoint.
-	 * @return the {@link RedirectionEndpointConfig}
-	 * @deprecated For removal in 7.0. Use {@link #redirectionEndpoint(Customizer)}
-	 * instead
-	 */
-	@Deprecated(since = "6.1", forRemoval = true)
-	public RedirectionEndpointConfig redirectionEndpoint() {
-		return this.redirectionEndpointConfig;
-	}
-
-	/**
 	 * Configures the Client's Redirection Endpoint.
 	 * @param redirectionEndpointCustomizer the {@link Customizer} to provide more options
 	 * for the {@link RedirectionEndpointConfig}
@@ -321,21 +280,6 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 			Customizer<RedirectionEndpointConfig> redirectionEndpointCustomizer) {
 		redirectionEndpointCustomizer.customize(this.redirectionEndpointConfig);
 		return this;
-	}
-
-	/**
-	 * Returns the {@link UserInfoEndpointConfig} for configuring the Authorization
-	 * Server's UserInfo Endpoint.
-	 * @return the {@link UserInfoEndpointConfig}
-	 * @deprecated For removal in 7.0. Use {@link #userInfoEndpoint(Customizer)} or
-	 * {@code userInfoEndpoint(Customizer.withDefaults())} to stick with defaults. See the
-	 * <a href=
-	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
-	 * for more details.
-	 */
-	@Deprecated(since = "6.1", forRemoval = true)
-	public UserInfoEndpointConfig userInfoEndpoint() {
-		return this.userInfoEndpointConfig;
 	}
 
 	/**
@@ -726,17 +670,6 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 			return this;
 		}
 
-		/**
-		 * Returns the {@link OAuth2LoginConfigurer} for further configuration.
-		 * @return the {@link OAuth2LoginConfigurer}
-		 * @deprecated For removal in 7.0. Use {@link #authorizationEndpoint(Customizer)}
-		 * instead
-		 */
-		@Deprecated(since = "6.1", forRemoval = true)
-		public OAuth2LoginConfigurer<B> and() {
-			return OAuth2LoginConfigurer.this;
-		}
-
 	}
 
 	/**
@@ -763,20 +696,6 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 			return this;
 		}
 
-		/**
-		 * Returns the {@link OAuth2LoginConfigurer} for further configuration.
-		 * @return the {@link OAuth2LoginConfigurer}
-		 * @deprecated For removal in 7.0. Use {@link #tokenEndpoint(Customizer)} or
-		 * {@code tokenEndpoint(Customizer.withDefaults())} to stick with defaults. See
-		 * the <a href=
-		 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
-		 * for more details.
-		 */
-		@Deprecated(since = "6.1", forRemoval = true)
-		public OAuth2LoginConfigurer<B> and() {
-			return OAuth2LoginConfigurer.this;
-		}
-
 	}
 
 	/**
@@ -799,17 +718,6 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 			Assert.hasText(authorizationResponseBaseUri, "authorizationResponseBaseUri cannot be empty");
 			this.authorizationResponseBaseUri = authorizationResponseBaseUri;
 			return this;
-		}
-
-		/**
-		 * Returns the {@link OAuth2LoginConfigurer} for further configuration.
-		 * @return the {@link OAuth2LoginConfigurer}
-		 * @deprecated For removal in 7.0. Use {@link #redirectionEndpoint(Customizer)}
-		 * instead
-		 */
-		@Deprecated(since = "6.1", forRemoval = true)
-		public OAuth2LoginConfigurer<B> and() {
-			return OAuth2LoginConfigurer.this;
 		}
 
 	}
@@ -864,17 +772,6 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 			OAuth2LoginConfigurer.this.getBuilder()
 				.setSharedObject(GrantedAuthoritiesMapper.class, userAuthoritiesMapper);
 			return this;
-		}
-
-		/**
-		 * Returns the {@link OAuth2LoginConfigurer} for further configuration.
-		 * @return the {@link OAuth2LoginConfigurer}
-		 * @deprecated For removal in 7.0. Use {@link #userInfoEndpoint(Customizer)}
-		 * instead
-		 */
-		@Deprecated(since = "6.1", forRemoval = true)
-		public OAuth2LoginConfigurer<B> and() {
-			return OAuth2LoginConfigurer.this;
 		}
 
 	}

@@ -386,6 +386,10 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 		return this;
 	}
 
+	public B and() {
+		return getBuilder();
+	}
+
 	@Override
 	public void configure(B builder) throws Exception {
 		LdapAuthenticationProvider provider = postProcess(build());

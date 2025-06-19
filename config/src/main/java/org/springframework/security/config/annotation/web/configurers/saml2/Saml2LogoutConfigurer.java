@@ -71,8 +71,6 @@ import org.springframework.security.web.util.matcher.AndRequestMatcher;
 import org.springframework.security.web.util.matcher.ParameterRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
-import static org.springframework.security.config.Customizer.withDefaults;
-
 /**
  * Adds SAML 2.0 logout support.
  *
@@ -180,20 +178,6 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 	}
 
 	/**
-	 * Get configurer for SAML 2.0 Logout Request components
-	 * @return the {@link LogoutRequestConfigurer} for further customizations
-	 * @deprecated For removal in 7.0. Use {@link #logoutRequest(Customizer)} or
-	 * {@code logoutRequest(Customizer.withDefaults())} to stick with defaults. See the
-	 * <a href=
-	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
-	 * for more details.
-	 */
-	@Deprecated(since = "6.1", forRemoval = true)
-	public LogoutRequestConfigurer logoutRequest() {
-		return this.logoutRequestConfigurer;
-	}
-
-	/**
 	 * Configures SAML 2.0 Logout Request components
 	 * @param logoutRequestConfigurerCustomizer the {@link Customizer} to provide more
 	 * options for the {@link LogoutRequestConfigurer}
@@ -203,20 +187,6 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 			Customizer<LogoutRequestConfigurer> logoutRequestConfigurerCustomizer) {
 		logoutRequestConfigurerCustomizer.customize(this.logoutRequestConfigurer);
 		return this;
-	}
-
-	/**
-	 * Get configurer for SAML 2.0 Logout Response components
-	 * @return the {@link LogoutResponseConfigurer} for further customizations
-	 * @deprecated For removal in 7.0. Use {@link #logoutResponse(Customizer)} or
-	 * {@code logoutResponse(Customizer.withDefaults())} to stick with defaults. See the
-	 * <a href=
-	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
-	 * for more details.
-	 */
-	@Deprecated(since = "6.1", forRemoval = true)
-	public LogoutResponseConfigurer logoutResponse() {
-		return this.logoutResponseConfigurer;
 	}
 
 	/**
@@ -408,18 +378,6 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 			return this;
 		}
 
-		/**
-		 * @deprecated For removal in 7.0. Use {@link #logoutRequest(Customizer)} or
-		 * {@code logoutRequest(Customizer.withDefaults())} to stick with defaults. See
-		 * the <a href=
-		 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
-		 * for more details.
-		 */
-		@Deprecated(since = "6.1", forRemoval = true)
-		public Saml2LogoutConfigurer<H> and() {
-			return Saml2LogoutConfigurer.this;
-		}
-
 		private Saml2LogoutRequestValidator logoutRequestValidator() {
 			if (this.logoutRequestValidator != null) {
 				return this.logoutRequestValidator;
@@ -488,18 +446,6 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 		public LogoutResponseConfigurer logoutResponseResolver(Saml2LogoutResponseResolver logoutResponseResolver) {
 			this.logoutResponseResolver = logoutResponseResolver;
 			return this;
-		}
-
-		/**
-		 * @deprecated For removal in 7.0. Use {@link #logoutResponse(Customizer)} or
-		 * {@code logoutResponse(Customizer.withDefaults())} to stick with defaults. See
-		 * the <a href=
-		 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
-		 * for more details.
-		 */
-		@Deprecated(since = "6.1", forRemoval = true)
-		public Saml2LogoutConfigurer<H> and() {
-			return Saml2LogoutConfigurer.this;
 		}
 
 		private Saml2LogoutResponseValidator logoutResponseValidator() {
