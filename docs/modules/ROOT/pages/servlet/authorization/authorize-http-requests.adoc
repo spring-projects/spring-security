@@ -741,7 +741,7 @@ import static org.springframework.security.authorization.AuthorityAuthorizationM
 SecurityFilterChain web(HttpSecurity http) throws Exception {
 	http
 		// ...
-		.authorizeHttpRequests(authorize -> authorize                                  // <1>
+		.authorizeHttpRequests((authorize) -> authorize                                  // <1>
             .dispatcherTypeMatchers(FORWARD, ERROR).permitAll() // <2>
 			.requestMatchers("/static/**", "/signup", "/about").permitAll()         // <3>
 			.requestMatchers("/admin/**").hasRole("ADMIN")                             // <4>
@@ -1043,7 +1043,7 @@ public class SecurityConfig {
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		http
 			.securityMatcher("/api/**")                            <1>
-			.authorizeHttpRequests(authorize -> authorize
+			.authorizeHttpRequests((authorize) -> authorize
 				.requestMatchers("/api/user/**").hasRole("USER")   <2>
 				.requestMatchers("/api/admin/**").hasRole("ADMIN") <3>
 				.anyRequest().authenticated()                      <4>
@@ -1106,7 +1106,7 @@ public class SecurityConfig {
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		http
 			.securityMatcher(antMatcher("/api/**"))                              <2>
-			.authorizeHttpRequests(authorize -> authorize
+			.authorizeHttpRequests((authorize) -> authorize
 				.requestMatchers(antMatcher("/api/user/**")).hasRole("USER")     <3>
 				.requestMatchers(regexMatcher("/api/admin/.*")).hasRole("ADMIN") <4>
 				.requestMatchers(new MyCustomRequestMatcher()).hasRole("SUPERVISOR")     <5>

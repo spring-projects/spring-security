@@ -148,10 +148,10 @@ public class SecurityConfig {
         );
 
         http
-            .authorizeHttpRequests(authz -> authz
+            .authorizeHttpRequests((authz) -> authz
                 .anyRequest().authenticated()
             )
-            .saml2Login(saml2 -> saml2
+            .saml2Login((saml2) -> saml2
                 .authenticationManager(new ProviderManager(authenticationProvider))
             );
         return http.build();
@@ -211,10 +211,10 @@ public class SecurityConfig {
                 .clockSkew(Duration.ofMinutes(10)).build();
 		authenticationProvider.setAssertionValidator(assertionValidator);
         http
-            .authorizeHttpRequests(authz -> authz
+            .authorizeHttpRequests((authz) -> authz
                 .anyRequest().authenticated()
             )
-            .saml2Login(saml2 -> saml2
+            .saml2Login((saml2) -> saml2
                 .authenticationManager(new ProviderManager(authenticationProvider))
             );
         return http.build();
@@ -409,10 +409,10 @@ public class SecurityConfig {
         });
 
         http
-            .authorizeHttpRequests(authz -> authz
+            .authorizeHttpRequests((authz) -> authz
                 .anyRequest().authenticated()
             )
-            .saml2Login(saml2 -> saml2
+            .saml2Login((saml2) -> saml2
                 .authenticationManager(new ProviderManager(authenticationProvider))
             );
         return http.build();
@@ -780,10 +780,10 @@ public class SecurityConfig {
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         AuthenticationManager authenticationManager = new MySaml2AuthenticationManager(...);
         http
-            .authorizeHttpRequests(authorize -> authorize
+            .authorizeHttpRequests((authorize) -> authorize
                 .anyRequest().authenticated()
             )
-            .saml2Login(saml2 -> saml2
+            .saml2Login((saml2) -> saml2
                 .authenticationManager(authenticationManager)
             )
         ;

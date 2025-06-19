@@ -59,11 +59,11 @@ public class CustomX509Configuration {
 
 		// @formatter:off
 		http
-			.x509(x509 -> x509
+			.x509((x509) -> x509
 				.principalExtractor(principalExtractor)
 				.authenticationManager(authenticationManager)
 			)
-			.authorizeExchange(exchanges -> exchanges
+			.authorizeExchange((exchanges) -> exchanges
 				.anyExchange().authenticated()
 			);
 		// @formatter:on

@@ -228,7 +228,7 @@ Java::
 mvc
     .perform(get("/endpoint")
         .with(oidcLogin()
-                .idToken(token -> token.claim("user_id", "1234"))
+                .idToken((token) -> token.claim("user_id", "1234"))
         )
     );
 ----
@@ -475,7 +475,7 @@ Java::
 mvc
     .perform(get("/endpoint")
         .with(oauth2Login()
-                .attributes(attrs -> attrs.put("user_id", "1234"))
+                .attributes((attrs) -> attrs.put("user_id", "1234"))
         )
     );
 ----
@@ -875,7 +875,7 @@ Java::
 ----
 mvc
     .perform(get("/endpoint")
-        .with(jwt().jwt(jwt -> jwt.header("kid", "one").claim("iss", "https://idp.example.org"))));
+        .with(jwt().jwt((jwt) -> jwt.header("kid", "one").claim("iss", "https://idp.example.org"))));
 ----
 
 Kotlin::
@@ -898,7 +898,7 @@ Java::
 ----
 mvc
     .perform(get("/endpoint")
-        .with(jwt().jwt(jwt -> jwt.claims(claims -> claims.remove("scope")))));
+        .with(jwt().jwt((jwt) -> jwt.claims((claims) -> claims.remove("scope")))));
 ----
 
 Kotlin::
@@ -1219,7 +1219,7 @@ Java::
 mvc
     .perform(get("/endpoint")
         .with(opaqueToken()
-                .attributes(attrs -> attrs.put("user_id", "1234"))
+                .attributes((attrs) -> attrs.put("user_id", "1234"))
         )
     );
 ----

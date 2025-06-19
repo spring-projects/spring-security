@@ -27,10 +27,10 @@ JwtIssuerReactiveAuthenticationManagerResolver authenticationManagerResolver = J
     .fromTrustedIssuers("https://idp.example.org/issuerOne", "https://idp.example.org/issuerTwo");
 
 http
-    .authorizeExchange(exchanges -> exchanges
+    .authorizeExchange((exchanges) -> exchanges
         .anyExchange().authenticated()
     )
-    .oauth2ResourceServer(oauth2 -> oauth2
+    .oauth2ResourceServer((oauth2) -> oauth2
         .authenticationManagerResolver(authenticationManagerResolver)
     );
 ----
@@ -74,7 +74,7 @@ private Mono<ReactiveAuthenticationManager> addManager(
 	return Mono.fromCallable(() -> ReactiveJwtDecoders.fromIssuerLocation(issuer))
             .subscribeOn(Schedulers.boundedElastic())
             .map(JwtReactiveAuthenticationManager::new)
-            .doOnNext(authenticationManager -> authenticationManagers.put(issuer, authenticationManager));
+            .doOnNext((authenticationManager) -> authenticationManager.put(issuer, authenticationManager));
 }
 
 // ...
@@ -83,10 +83,10 @@ JwtIssuerReactiveAuthenticationManagerResolver authenticationManagerResolver =
         new JwtIssuerReactiveAuthenticationManagerResolver(authenticationManagers::get);
 
 http
-    .authorizeExchange(exchanges -> exchanges
+    .authorizeExchange((exchanges) -> exchanges
         .anyExchange().authenticated()
     )
-    .oauth2ResourceServer(oauth2 -> oauth2
+    .oauth2ResourceServer((oauth2) -> oauth2
         .authenticationManagerResolver(authenticationManagerResolver)
     );
 ----

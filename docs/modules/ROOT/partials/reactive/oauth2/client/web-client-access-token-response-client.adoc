@@ -270,7 +270,7 @@ BodyExtractor<Mono<Map<String, Object>>, ReactiveHttpInputMessage> bodyExtractor
 	BodyExtractors.toMono(new ParameterizedTypeReference<>() {});
 accessTokenResponseClient.setBodyExtractor((inputMessage, context) ->
 	bodyExtractor.extract(inputMessage, context)
-		.map(parameters -> OAuth2AccessTokenResponse.withToken("custom-token")
+		.map((parameters) -> parameters.withToken("custom-token")
 			// ...
 			.build()
 		)

@@ -156,7 +156,7 @@ Java::
 ----
 RelyingPartyRegistration relyingPartyRegistration = RelyingPartyRegistration.withRegistrationId("okta")
         // ...
-        .assertingPartyMetadata(party -> party
+        .assertingPartyMetadata((party) -> party
             // ...
             .wantAuthnRequestsSigned(false)
         )
@@ -239,7 +239,7 @@ Java::
 ----
 RelyingPartyRegistration relyingPartyRegistration = RelyingPartyRegistration.withRegistrationId("okta")
         // ...
-        .assertingPartyMetadata(party -> party
+        .assertingPartyMetadata((party) -> party
             // ...
             .singleSignOnServiceBinding(Saml2MessageBinding.POST)
         )

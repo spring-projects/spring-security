@@ -342,7 +342,7 @@ Java::
 @Bean
 public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http
-        .authorizeHttpRequests(authorize -> authorize
+        .authorizeHttpRequests((authorize) -> authorize
             .anyRequest().authenticated()
         )
         .saml2Login(withDefaults());
@@ -384,7 +384,7 @@ public class MyCustomSecurityConfiguration {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            .authorizeHttpRequests(authorize -> authorize
+            .authorizeHttpRequests((authorize) -> authorize
                 .requestMatchers("/messages/**").hasAuthority("ROLE_USER")
                 .anyRequest().authenticated()
             )
@@ -486,11 +486,11 @@ public RelyingPartyRegistrationRepository relyingPartyRegistrations() throws Exc
     Saml2X509Credential credential = Saml2X509Credential.verification(certificate);
     RelyingPartyRegistration registration = RelyingPartyRegistration
             .withRegistrationId("example")
-            .assertingPartyMetadata(party -> party
+            .assertingPartyMetadata((party) -> party
                 .entityId("https://idp.example.com/issuer")
                 .singleSignOnServiceLocation("https://idp.example.com/SSO.saml2")
                 .wantAuthnRequestsSigned(false)
-                .verificationX509Credentials(c -> c.add(credential))
+                .verificationX509Credentials((c) -> c.add(credential))
             )
             .build();
     return new InMemoryRelyingPartyRegistrationRepository(registration);
@@ -549,11 +549,11 @@ public class MyCustomSecurityConfiguration {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            .authorizeHttpRequests(authorize -> authorize
+            .authorizeHttpRequests((authorize) -> authorize
                 .requestMatchers("/messages/**").hasAuthority("ROLE_USER")
                 .anyRequest().authenticated()
             )
-            .saml2Login(saml2 -> saml2
+            .saml2Login((saml2) -> saml2
                 .relyingPartyRegistrationRepository(relyingPartyRegistrations())
             );
         return http.build();
@@ -699,11 +699,11 @@ Java::
 ----
 RelyingPartyRegistration relyingPartyRegistration = RelyingPartyRegistration.withRegistrationId("my-id")
         .entityId("{baseUrl}/{registrationId}")
-        .decryptionX509Credentials(c -> c.add(relyingPartyDecryptingCredential()))
+        .decryptionX509Credentials((c) -> c.add(relyingPartyDecryptingCredential()))
         .assertionConsumerServiceLocation("/my-login-endpoint/{registrationId}")
-        .assertingPartyMetadata(party -> party
+        .assertingPartyMetadata((party) -> party
                 .entityId("https://ap.example.org")
-                .verificationX509Credentials(c -> c.add(assertingPartyVerifyingCredential()))
+                .verificationX509Credentials((c) -> c.add(assertingPartyVerifyingCredential()))
                 .singleSignOnServiceLocation("https://ap.example.org/SSO.saml2")
         )
         .build();
@@ -913,7 +913,7 @@ private RelyingPartyRegistration.Builder
         addRelyingPartyDetails(RelyingPartyRegistration.Builder builder) {
 
     Saml2X509Credential signingCredential = ...
-    builder.signingX509Credentials(c -> c.addAll(signingCredential));
+    builder.signingX509Credentials((c) -> c.addAll(signingCredential));
     // ... other relying party configurations
 }
 

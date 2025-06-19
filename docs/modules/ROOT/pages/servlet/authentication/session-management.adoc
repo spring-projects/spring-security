@@ -359,7 +359,7 @@ Java::
 @Bean
 public SecurityFilterChain filterChain(HttpSecurity http) {
     http
-        .sessionManagement(session -> session
+        .sessionManagement((session) -> session
             .maximumSessions(1)
         );
     return http.build();
@@ -412,7 +412,7 @@ Java::
 public SecurityFilterChain filterChain(HttpSecurity http) {
 	AuthorizationManager<?> isAdmin = AuthorityAuthorizationManager.hasRole("ADMIN");
     http
-        .sessionManagement(session -> session
+        .sessionManagement((session) -> session
             .maximumSessions((authentication) -> isAdmin.authorize(() -> authentication, null).isGranted() ? -1 : 1)
         );
     return http.build();
@@ -504,7 +504,7 @@ Java::
 @Bean
 public SecurityFilterChain filterChain(HttpSecurity http) {
     http
-        .sessionManagement(session -> session
+        .sessionManagement((session) -> session
             .maximumSessions(1)
             .maxSessionsPreventsLogin(true)
         );
@@ -612,7 +612,7 @@ Java::
 @Bean
 public SecurityFilterChain filterChain(HttpSecurity http) {
     http
-        .sessionManagement(session -> session
+        .sessionManagement((session) -> session
             .invalidSessionUrl("/invalidSession")
         );
     return http.build();
@@ -663,7 +663,7 @@ Java::
 @Bean
 public SecurityFilterChain filterChain(HttpSecurity http) {
     http
-        .sessionManagement(session -> session
+        .sessionManagement((session) -> session
             .invalidSessionStrategy(new MyCustomInvalidSessionStrategy())
         );
     return http.build();
@@ -767,7 +767,7 @@ Java::
 @Bean
 public SecurityFilterChain filterChain(HttpSecurity http) {
     http
-        .logout(logout -> logout
+        .logout((logout) -> logout
             .deleteCookies("JSESSIONID")
         );
     return http.build();
@@ -971,7 +971,7 @@ Java::
 @Bean
 public SecurityFilterChain filterChain(HttpSecurity http) {
     http
-        .sessionManagement(session -> session
+        .sessionManagement((session) -> session
             .sessionCreationPolicy(SessionCreationPolicy.ALWAYS)
         );
     return http.build();

@@ -44,7 +44,7 @@ public class DefaultX509Configuration {
 		// @formatter:off
 		http
 			.x509(Customizer.withDefaults())
-			.authorizeHttpRequests(exchanges -> exchanges
+			.authorizeHttpRequests((exchanges) -> exchanges
 				.anyRequest().authenticated()
 			);
 		// @formatter:on
