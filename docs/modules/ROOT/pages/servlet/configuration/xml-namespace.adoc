@@ -15,7 +15,7 @@ For example, adding the following element from the `security` namespace to an ap
 <security:ldap-server />
 ----
 
-This is much simpler than wiring up the equivalent Apache Directory Server beans.
+This is much simpler than wiring up the equivalent UnboundID Server beans.
 The most common alternative configuration requirements are supported by attributes on the `ldap-server` element, and the user is isolated from worrying about which beans they need to create and what the bean property names are.
 You can find out more about the use of the `ldap-server` element in the chapter on xref:servlet/authentication/passwords/ldap.adoc#servlet-authentication-ldap[LDAP Authentication].
 A good XML editor while editing the application context file should provide information on the attributes and elements that are available.

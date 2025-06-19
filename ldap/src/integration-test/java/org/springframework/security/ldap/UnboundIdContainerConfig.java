@@ -20,31 +20,31 @@ import org.springframework.beans.factory.DisposableBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.ldap.core.ContextSource;
-import org.springframework.security.ldap.server.ApacheDSContainer;
+import org.springframework.security.ldap.server.UnboundIdContainer;
 
 /**
  * @author Eddú Meléndez
  */
 @Configuration
-public class ApacheDsContainerConfig implements DisposableBean {
+public class UnboundIdContainerConfig implements DisposableBean {
 
-	private ApacheDSContainer container;
+	private UnboundIdContainer container;
 
 	@Bean
-	ApacheDSContainer ldapContainer() throws Exception {
-		this.container = new ApacheDSContainer("dc=springframework,dc=org", "classpath:test-server.ldif");
+	UnboundIdContainer ldapContainer() {
+		this.container = new UnboundIdContainer("dc=springframework,dc=org", "classpath:test-server.ldif");
 		this.container.setPort(0);
 		return this.container;
 	}
 
 	@Bean
-	ContextSource contextSource(ApacheDSContainer ldapContainer) throws Exception {
+	ContextSource contextSource(UnboundIdContainer ldapContainer) {
 		return new DefaultSpringSecurityContextSource(
-				"ldap://127.0.0.1:" + ldapContainer.getLocalPort() + "/dc=springframework,dc=org");
+				"ldap://127.0.0.1:" + ldapContainer.getPort() + "/dc=springframework,dc=org");
 	}
 
 	@Override
-	public void destroy() throws Exception {
+	public void destroy() {
 		this.container.stop();
 	}
 

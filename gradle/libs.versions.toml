@@ -4,7 +4,6 @@ io-rsocket = "1.1.5"
 io-spring-javaformat = "0.0.46"
 io-spring-nohttp = "0.0.11"
 jakarta-websocket = "2.2.0"
-org-apache-directory-server = "1.5.5"
 org-apache-maven-resolver = "1.9.23"
 org-aspectj = "1.9.24"
 org-bouncycastle = "1.80"
@@ -50,12 +49,6 @@ jakarta-xml-bind-jakarta-xml-bind-api = "jakarta.xml.bind:jakarta.xml.bind-api:4
 ldapsdk = "ldapsdk:ldapsdk:4.1"
 net-sourceforge-htmlunit = "net.sourceforge.htmlunit:htmlunit:2.70.0"
 org-htmlunit-htmlunit = "org.htmlunit:htmlunit:4.11.1"
-org-apache-directory-server-apacheds-core = { module = "org.apache.directory.server:apacheds-core", version.ref = "org-apache-directory-server" }
-org-apache-directory-server-apacheds-entry = { module = "org.apache.directory.server:apacheds-core-entry", version.ref = "org-apache-directory-server" }
-org-apache-directory-server-apacheds-protocol-ldap = { module = "org.apache.directory.server:apacheds-protocol-ldap", version.ref = "org-apache-directory-server" }
-org-apache-directory-server-apacheds-protocol-shared = { module = "org.apache.directory.server:apacheds-protocol-shared", version.ref = "org-apache-directory-server" }
-org-apache-directory-server-apacheds-server-jndi = { module = "org.apache.directory.server:apacheds-server-jndi", version.ref = "org-apache-directory-server" }
-org-apache-directory-shared-shared-ldap = "org.apache.directory.shared:shared-ldap:0.9.15"
 org-apache-httpcomponents-httpclient = "org.apache.httpcomponents:httpclient:4.5.14"
 org-apache-maven-maven-resolver-provider = "org.apache.maven:maven-resolver-provider:3.9.10"
 org-apache-maven-resolver-maven-resolver-connector-basic = { module = "org.apache.maven.resolver:maven-resolver-connector-basic", version.ref = "org-apache-maven-resolver" }

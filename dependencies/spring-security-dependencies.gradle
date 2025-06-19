@@ -49,12 +49,6 @@ dependencies {
 		api libs.ldapsdk
 		api libs.net.sourceforge.htmlunit
 		api libs.org.htmlunit.htmlunit
-		api libs.org.apache.directory.server.apacheds.entry
-		api libs.org.apache.directory.server.apacheds.core
-		api libs.org.apache.directory.server.apacheds.protocol.ldap
-		api libs.org.apache.directory.server.apacheds.protocol.shared
-		api libs.org.apache.directory.server.apacheds.server.jndi
-		api libs.org.apache.directory.shared.shared.ldap
 		api libs.org.apache.httpcomponents.httpclient
 		api libs.org.aspectj.aspectjrt
 		api libs.org.aspectj.aspectjweaver

@@ -31,7 +31,7 @@ import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.ldap.DefaultSpringSecurityContextSource;
-import org.springframework.security.ldap.server.ApacheDSContainer;
+import org.springframework.security.ldap.server.UnboundIdContainer;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
@@ -93,18 +93,18 @@ public class LdapPasswordComparisonAuthenticationManagerFactoryITests {
 	@EnableWebSecurity
 	abstract static class BaseLdapServerConfig implements DisposableBean {
 
-		private ApacheDSContainer container;
+		private UnboundIdContainer container;
 
 		@Bean
-		ApacheDSContainer ldapServer() throws Exception {
-			this.container = new ApacheDSContainer("dc=springframework,dc=org", "classpath:/test-server.ldif");
+		UnboundIdContainer ldapServer() {
+			this.container = new UnboundIdContainer("dc=springframework,dc=org", "classpath:/test-server.ldif");
 			this.container.setPort(0);
 			return this.container;
 		}
 
 		@Bean
-		BaseLdapPathContextSource contextSource(ApacheDSContainer container) {
-			int port = container.getLocalPort();
+		BaseLdapPathContextSource contextSource(UnboundIdContainer container) {
+			int port = container.getPort();
 			return new DefaultSpringSecurityContextSource("ldap://localhost:" + port + "/dc=springframework,dc=org");
 		}
 
