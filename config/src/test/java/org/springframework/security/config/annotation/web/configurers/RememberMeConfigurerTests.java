@@ -508,8 +508,7 @@ public class RememberMeConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((authorizeRequests) ->
-					authorizeRequests
+				.authorizeRequests((authorize) -> authorize
 						.anyRequest().hasRole("USER")
 				)
 				.formLogin(withDefaults())
@@ -557,8 +556,7 @@ public class RememberMeConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((authorizeRequests) ->
-					authorizeRequests
+				.authorizeRequests((authorize) -> authorize
 						.anyRequest().hasRole("USER")
 				)
 				.formLogin(withDefaults())
@@ -636,8 +634,7 @@ public class RememberMeConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-					.authorizeRequests((authorizeRequests) ->
-							authorizeRequests
+					.authorizeRequests((authorize) -> authorize
 									.anyRequest().hasRole("USER")
 					)
 					.sessionManagement((sessionManagement) ->

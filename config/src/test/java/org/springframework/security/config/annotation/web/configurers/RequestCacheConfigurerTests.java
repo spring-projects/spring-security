@@ -412,8 +412,7 @@ public class RequestCacheConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((authorizeRequests) ->
-					authorizeRequests
+				.authorizeRequests((authorize) -> authorize
 						.anyRequest().authenticated()
 				)
 				.formLogin(withDefaults())
@@ -432,8 +431,7 @@ public class RequestCacheConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((authorizeRequests) ->
-					authorizeRequests
+				.authorizeRequests((authorize) -> authorize
 						.anyRequest().authenticated()
 				)
 				.formLogin(withDefaults())
@@ -452,8 +450,7 @@ public class RequestCacheConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((authorizeRequests) ->
-					authorizeRequests
+				.authorizeRequests((authorize) -> authorize
 						.anyRequest().authenticated()
 				)
 				.formLogin(withDefaults())

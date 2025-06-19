@@ -106,8 +106,7 @@ public class RequestMatcherConfigurerTests {
 					matchers
 						.requestMatchers(new AntPathRequestMatcher("/oauth/**"))
 				)
-				.authorizeRequests((authorizeRequests) ->
-					authorizeRequests
+				.authorizeRequests((authorize) -> authorize
 						.anyRequest().denyAll()
 				);
 			return http.build();
