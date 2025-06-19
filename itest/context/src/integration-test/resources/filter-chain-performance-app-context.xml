@@ -25,9 +25,9 @@
 	<bean id="authenticationManager" class="org.springframework.security.authentication.ProviderManager">
 		<constructor-arg>
 			<list>
-			   <bean class="org.springframework.security.authentication.dao.DaoAuthenticationProvider">
-				   <property name="userDetailsService" ref="userService"/>
-			   </bean>
+				<bean class="org.springframework.security.authentication.dao.DaoAuthenticationProvider">
+					<constructor-arg name="userDetailsService" ref="userService" />
+				</bean>
 			</list>
 		</constructor-arg>
 	</bean>

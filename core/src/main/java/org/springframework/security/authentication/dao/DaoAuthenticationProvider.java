@@ -68,31 +68,11 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
 
 	private CompromisedPasswordChecker compromisedPasswordChecker;
 
-	/**
-	 * @deprecated Please provide the {@link UserDetailsService} in the constructor
-	 */
-	@Deprecated
-	public DaoAuthenticationProvider() {
-	}
-
 	public DaoAuthenticationProvider(UserDetailsService userDetailsService) {
-		setUserDetailsService(userDetailsService);
-	}
-
-	/**
-	 * Creates a new instance using the provided {@link PasswordEncoder}
-	 * @param passwordEncoder the {@link PasswordEncoder} to use. Cannot be null.
-	 * @since 6.0.3
-	 * @deprecated Please provide the {@link UserDetailsService} in the constructor
-	 * followed by {@link #setPasswordEncoder(PasswordEncoder)} instead
-	 */
-	@Deprecated
-	public DaoAuthenticationProvider(PasswordEncoder passwordEncoder) {
-		setPasswordEncoder(passwordEncoder);
+		this.userDetailsService = userDetailsService;
 	}
 
 	@Override
-	@SuppressWarnings("deprecation")
 	protected void additionalAuthenticationChecks(UserDetails userDetails,
 			UsernamePasswordAuthenticationToken authentication) throws AuthenticationException {
 		if (authentication.getCredentials() == null) {
@@ -183,15 +163,6 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
 
 	protected PasswordEncoder getPasswordEncoder() {
 		return this.passwordEncoder.get();
-	}
-
-	/**
-	 * @param userDetailsService
-	 * @deprecated Please provide the {@link UserDetailsService} in the constructor
-	 */
-	@Deprecated
-	public void setUserDetailsService(UserDetailsService userDetailsService) {
-		this.userDetailsService = userDetailsService;
 	}
 
 	protected UserDetailsService getUserDetailsService() {

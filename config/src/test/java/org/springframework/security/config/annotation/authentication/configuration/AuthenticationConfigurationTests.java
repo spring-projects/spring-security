@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -503,8 +503,7 @@ public class AuthenticationConfigurationTests {
 			UserDetails user = User.withUserDetails(PasswordEncodedUser.user()).username("boot").build();
 			List<UserDetails> users = Arrays.asList(user);
 			InMemoryUserDetailsManager inMemory = new InMemoryUserDetailsManager(users);
-			DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-			provider.setUserDetailsService(inMemory);
+			DaoAuthenticationProvider provider = new DaoAuthenticationProvider(inMemory);
 			auth.authenticationProvider(provider);
 		}
 
