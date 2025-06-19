@@ -9,3 +9,248 @@ Consequently, support for ApacheDS will be discontinued in version 7.0.
 
 If you are currently using ApacheDS as an embedded LDAP server, we recommend migrating to https://ldap.com/unboundid-ldap-sdk-for-java/[UnboundId].
 You can find instructions in xref:servlet/authentication/passwords/ldap.adoc#servlet-authentication-ldap-embedded[this section] that describe how to set up an embedded UnboundId LDAP server.
+
+To migrate, you will need to consider the following:
+
+1. <<ldap-migrate-apacheds-unboundid-dependencies,Dependencies>>
+2. <<ldap-migrate-apacheds-unboundid-container,Container Declaration>>
+3. <<ldap-migrate-apacheds-unboundid-password-encoding,Password Encoding>>
+4. <<ldap-migrate-apacheds-unboundid-password-encoding,Password Hiding>>
+
+[[ldap-migrate-apacheds-unboundid-dependencies]]
+=== Switch Your Dependencies
+
+To use UnboundID, you will at least need to remove the ApacheDS dependencies:
+
+[tabs]
+======
+Maven::
++
+[source,maven,role="primary"]
+----
+<dependency>
+	<groupId>org.apache.directory.server</groupId>
+	<artifactId>apacheds-core</artifactId>
+	<version>1.5.5</version>
+	<scope>runtime</scope>
+</dependency>
+<dependency>
+	<groupId>org.apache.directory.server</groupId>
+	<artifactId>apacheds-server-jndi</artifactId>
+	<version>1.5.5</version>
+	<scope>runtime</scope>
+</dependency>
+----
+
+Gradle::
++
+[source,gradkle,role="secondary"]
+----
+implementation("org.apache.directory.server:apacheds-server-jndi")
+implementation("org.apache.directory.server:apacheds-core")
+----
+======
+
+and replace them with UnboundID:
+
+[tabs]
+======
+Maven::
++
+[source,maven,role="primary"]
+----
+<dependency>
+	<groupId>com.unboundid</groupId>
+	<artifactId>unboundid-ldapsdk</artifactId>
+	<version>7.0.3</version>
+	<scope>runtime</scope>
+</dependency>
+----
+
+Gradle::
++
+[source,gradkle,role="secondary"]
+----
+implementation("org.apache.directory.server:apacheds-server-jndi")
+implementation("org.apache.directory.server:apacheds-core")
+----
+======
+
+If you are accepting the LDAP server defaults, this is likely all you will need to do.
+
+[[ldap-migrate-apacheds-unboundid-container]]
+=== Change Server Declaration
+
+If you are declaring an ApacheDS server, then you will need to change its declaration.
+Your configuration may vary somewhat from the following.
+Change this:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Bean
+EmbeddedLdapServerContainer ldapContainer() {
+	EmbeddedLdapServerContainer container =
+        new ApacheDSContainer("dc=springframework,dc=org", "classpath:test-server.ldif");
+	container.setPort(0);
+	return container;
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun ldapContainer(): EmbeddedLdapServerContainer {
+	val container =
+        ApacheDSContainer("dc=springframework,dc=org", "classpath:test-server.ldif")
+	container.setPort(0)
+	return container
+}
+----
+
+Xml::
++
+[source,xml,role="secondary"]
+----
+<ldap-server mode="apacheds"/>
+----
+======
+
+to this:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Bean
+EmbeddedLdapServerContainer ldapContainer() {
+	EmbeddedLdapServerContainer container =
+        new UnboundIdContainer("dc=springframework,dc=org", "classpath:test-server.ldif");
+	container.setPort(0);
+	return container;
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun ldapContainer(): EmbeddedLdapServerContainer {
+	val container =
+        UnboundIdContainer("dc=springframework,dc=org", "classpath:test-server.ldif")
+	container.setPort(0)
+	return container
+}
+----
+
+Xml::
++
+[source,xml,role="secondary"]
+----
+<ldap-server mode="unboundid"/>
+----
+======
+
+
+[[ldap-migrate-apacheds-unboundid-password-encoding]]
+=== Configure Password Encoding
+
+Apache Directory Server supports binding with SHA-hashed passwords, but UnboundID does not.
+
+If you run into trouble with binding users with SHA-hashed passwords, move to Spring Security's `PasswordComparisonAuthenticator` by providing a password encoder to the authentication provider:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Bean
+AuthenticationManager ldapAuthenticationManager(BaseLdapPathContextSource contextSource) {
+    LdapPasswordComparisonAuthenticationManagerFactory factory =
+        new LdapPasswordComparisonAuthenticationManagerFactory(
+            contextSource, new LdapShaPasswordEncoder());
+    // ...
+    return factory.createAuthenticationManager();
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun ldapAuthenticationManager(val contextSource: BaseLdapPathContextSource): AuthenticationManager {
+    val factory = LdapPasswordComparisonAuthenticationManagerFactory(
+            contextSource, LdapShaPasswordEncoder())
+    // ...
+    return factory.createAuthenticationManager()
+}
+----
+
+Xml::
++
+[source,xml,role="secondary"]
+----
+<auhentication-manager>
+    <ldap-authentication-provider>
+        <password-compare>
+			<password-encoder ref='pe' />
+		</password-compare>
+    </ldap-authentication-provider>
+</auhentication-manager>
+<b:bean id='pe' class='org.springframework.security.crypto.password.LdapShaPasswordEncoder' />
+----
+======
+
+[WARN]
+====
+Hashing passwords with `+{SHA}+` is not recommended.
+Please migrate to BCrypt, SCrypt, or Argon2 as soon as possible.
+You can use the same approach above to provide the corresponding password encoder.
+====
+
+[[ldap-migrate-apacheds-unboundid-password-hiding]]
+=== Configure Password Hiding
+
+ApacheDS is configured by Spring Security to hide the `userPassword` attribute from search results unless explicitly queried.
+UnboundID does not support this.
+
+You can achieve this behavior with a custom `InMemoryOperationInterceptor` like the following:
+
+[source,java]
+----
+static class PasswordRemovingOperationInterceptor
+    extends InMemoryOperationInterceptor {
+
+    @Override
+    public void processSearchEntry(InMemoryInterceptedSearchEntry entry) {
+        if (!entry.getRequest().getAttributeList().contains("userPassword")) {
+            if (entry.getSearchEntry().getAttribute("userPassword") != null) {
+                Entry old = entry.getSearchEntry();
+                Collection<Attribute> attributes = old.getAttributes().stream()
+                    .filter(attribute ->
+                        !"userPassword".equals(attribute.getName()))
+                    .collect(Collectors.toList());
+                Entry withoutPassword = new Entry(old.getDN(), attributes);
+                entry.setSearchEntry(withoutPassword);
+            }
+        }
+    }
+}
+----
+
+[NOTE]
+====
+It is better to secure passwords by hashing them and by using queries that identify the specific columns that you need.
+====
+
+`UnboundIdContainer` does not currently have a way to register a custom `InMemoryOperationInterceptor`, but you can either copy the contents of `UnboundIdContainer` or use Spring LDAP Test's `EmbeddedLdapServer` builder in order to provide this interceptor and confirm your application's readiness.

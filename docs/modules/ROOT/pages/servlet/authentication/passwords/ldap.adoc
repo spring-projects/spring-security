@@ -225,9 +225,8 @@ fun ldapContainer(): UnboundIdContainer {
 
 [NOTE]
 ====
-Spring Security uses ApacheDS 1.x, which is no longer maintained.
-Unfortunately, ApacheDS 2.x has only released milestone versions with no stable release.
-Once a stable release of ApacheDS 2.x is available, we will consider updating.
+Spring Security 7 removes support for Apache DS.
+Please use <<servlet-authentication-ldap-unboundid,UnboundID>> instead.
 ====
 
 If you wish to use https://directory.apache.org/apacheds/[Apache DS], specify the following dependencies:
