@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,6 +49,7 @@ import static org.mockito.Mockito.verify;
  * Tests for {@link RefreshTokenReactiveOAuth2AuthorizedClientProvider}.
  *
  * @author Joe Grandja
+ * @author Evgeniy Cheban
  */
 public class RefreshTokenReactiveOAuth2AuthorizedClientProviderTests {
 
@@ -82,6 +83,15 @@ public class RefreshTokenReactiveOAuth2AuthorizedClientProviderTests {
 		assertThatIllegalArgumentException()
 			.isThrownBy(() -> this.authorizedClientProvider.setAccessTokenResponseClient(null))
 			.withMessage("accessTokenResponseClient cannot be null");
+	}
+
+	@Test
+	public void setRefreshTokenSuccessHandlerWhenHandlerIsNullThenThrowIllegalArgumentException() {
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.authorizedClientProvider.setRefreshTokenSuccessHandler(null))
+				.withMessage("refreshTokenSuccessHandler cannot be null");
+		// @formatter:on
 	}
 
 	@Test
