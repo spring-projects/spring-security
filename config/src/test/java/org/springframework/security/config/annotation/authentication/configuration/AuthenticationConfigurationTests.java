@@ -48,7 +48,6 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.configuration.ObjectPostProcessorConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.servlet.configuration.EnableWebMvcSecurity;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.config.users.AuthenticationTestConfiguration;
@@ -103,17 +102,6 @@ public class AuthenticationConfigurationTests {
 	public void orderingAutowiredOnEnableWebSecurity() {
 		this.spring
 			.register(AuthenticationTestConfiguration.class, WebSecurityConfig.class,
-					GlobalMethodSecurityAutowiredConfig.class, ServicesConfig.class)
-			.autowire();
-		SecurityContextHolder.getContext()
-			.setAuthentication(new TestingAuthenticationToken("user", "password", "ROLE_USER"));
-		this.service.run();
-	}
-
-	@Test
-	public void orderingAutowiredOnEnableWebMvcSecurity() {
-		this.spring
-			.register(AuthenticationTestConfiguration.class, WebMvcSecurityConfig.class,
 					GlobalMethodSecurityAutowiredConfig.class, ServicesConfig.class)
 			.autowire();
 		SecurityContextHolder.getContext()
@@ -355,12 +343,6 @@ public class AuthenticationConfigurationTests {
 	@Configuration
 	@EnableWebSecurity
 	static class WebSecurityConfig {
-
-	}
-
-	@Configuration
-	@EnableWebMvcSecurity
-	static class WebMvcSecurityConfig {
 
 	}
 
