@@ -32,6 +32,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.FilterChainProxy;
@@ -144,11 +145,10 @@ public class CustomHttpSecurityConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.apply(CustomConfigurer.customConfigurer())
-					.and()
-				.csrf().disable()
-				.formLogin()
-					.loginPage("/other");
+				.with(CustomConfigurer.customConfigurer(), Customizer.withDefaults())
+				.csrf((csrf) -> csrf.disable())
+				.formLogin((login) -> login
+					.loginPage("/other"));
 			return http.build();
 			// @formatter:on
 		}

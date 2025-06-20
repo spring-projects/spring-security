@@ -44,6 +44,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
+import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
@@ -162,7 +163,7 @@ public class JeeConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.jee();
+				.jee(withDefaults());
 			return http.build();
 			// @formatter:on
 		}
@@ -191,10 +192,9 @@ public class JeeConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.jee()
-					.mappableRoles("USER")
-					.and()
-				.jee();
+				.jee((jee) -> jee
+					.mappableRoles("USER"))
+				.jee(withDefaults());
 			return http.build();
 			// @formatter:on
 		}

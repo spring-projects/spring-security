@@ -45,6 +45,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.security.config.Customizer.withDefaults;
 
 /**
  * @author Marcus Da Coregio
@@ -121,9 +122,9 @@ public class HttpSecuritySecurityMatchersNoMvcTests {
 			// @formatter:off
 			http
 				.securityMatcher("/path")
-				.httpBasic().and()
-				.authorizeHttpRequests()
-					.anyRequest().denyAll();
+				.httpBasic(withDefaults())
+				.authorizeHttpRequests((requests) -> requests
+					.anyRequest().denyAll());
 			// @formatter:on
 			return http.build();
 		}

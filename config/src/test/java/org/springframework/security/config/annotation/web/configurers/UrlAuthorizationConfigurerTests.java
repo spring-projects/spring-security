@@ -49,6 +49,7 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.security.config.Customizer.withDefaults;
 
 /**
  * @author Rob Winch
@@ -135,9 +136,9 @@ public class UrlAuthorizationConfigurerTests {
 				HandlerMappingIntrospector introspector) throws Exception {
 			// @formatter:off
 			http
-				.httpBasic().and()
+				.httpBasic(withDefaults())
 				.apply(new UrlAuthorizationConfigurer(context)).getRegistry()
-					.requestMatchers(new MvcRequestMatcher(introspector, "/path")).hasRole("ADMIN");
+				.requestMatchers(new MvcRequestMatcher(introspector, "/path")).hasRole("ADMIN");
 			// @formatter:on
 			return http.build();
 		}
@@ -171,9 +172,9 @@ public class UrlAuthorizationConfigurerTests {
 			mvcRequestMatcher.setServletPath("/spring");
 			// @formatter:off
 			http
-				.httpBasic().and()
+				.httpBasic(withDefaults())
 				.apply(new UrlAuthorizationConfigurer(context)).getRegistry()
-					.requestMatchers(mvcRequestMatcher).hasRole("ADMIN");
+				.requestMatchers(mvcRequestMatcher).hasRole("ADMIN");
 			// @formatter:on
 			return http.build();
 		}

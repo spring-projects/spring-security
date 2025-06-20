@@ -676,8 +676,8 @@ public class CsrfConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.csrf()
-					.disable();
+				.csrf((csrf) -> csrf
+					.disable());
 			return http.build();
 			// @formatter:on
 		}
@@ -707,13 +707,11 @@ public class CsrfConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().authenticated()
-					.and()
-				.formLogin()
-					.and()
-				.csrf()
-					.disable();
+				.authorizeRequests((requests) -> requests
+					.anyRequest().authenticated())
+				.formLogin(withDefaults())
+				.csrf((csrf) -> csrf
+					.disable());
 			// @formatter:on
 			return http.build();
 		}
@@ -735,13 +733,11 @@ public class CsrfConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().authenticated()
-					.and()
-				.formLogin()
-					.and()
-				.csrf()
-					.csrfTokenRepository(REPO);
+				.authorizeRequests((requests) -> requests
+					.anyRequest().authenticated())
+				.formLogin(withDefaults())
+				.csrf((csrf) -> csrf
+					.csrfTokenRepository(REPO));
 			// @formatter:on
 			return http.build();
 		}
@@ -761,10 +757,9 @@ public class CsrfConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.csrf()
-					.and()
-				.sessionManagement()
-					.invalidSessionUrl("/error/sessionError");
+				.csrf(withDefaults())
+				.sessionManagement((management) -> management
+					.invalidSessionUrl("/error/sessionError"));
 			return http.build();
 			// @formatter:on
 		}
@@ -781,8 +776,8 @@ public class CsrfConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.csrf()
-					.requireCsrfProtectionMatcher(MATCHER);
+				.csrf((csrf) -> csrf
+					.requireCsrfProtectionMatcher(MATCHER));
 			return http.build();
 			// @formatter:on
 		}
@@ -816,10 +811,9 @@ public class CsrfConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.formLogin()
-					.and()
-				.csrf()
-					.csrfTokenRepository(REPO);
+				.formLogin(withDefaults())
+				.csrf((csrf) -> csrf
+					.csrfTokenRepository(REPO));
 			// @formatter:on
 			return http.build();
 		}
@@ -859,8 +853,8 @@ public class CsrfConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.exceptionHandling()
-					.accessDeniedHandler(DENIED_HANDLER);
+				.exceptionHandling((handling) -> handling
+					.accessDeniedHandler(DENIED_HANDLER));
 			return http.build();
 			// @formatter:on
 		}
@@ -879,8 +873,8 @@ public class CsrfConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.exceptionHandling()
-					.defaultAccessDeniedHandlerFor(DENIED_HANDLER, MATCHER);
+				.exceptionHandling((handling) -> handling
+					.defaultAccessDeniedHandlerFor(DENIED_HANDLER, MATCHER));
 			return http.build();
 			// @formatter:on
 		}
@@ -895,7 +889,7 @@ public class CsrfConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.formLogin();
+				.formLogin(withDefaults());
 			return http.build();
 			// @formatter:on
 		}
@@ -910,10 +904,9 @@ public class CsrfConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.formLogin()
-					.and()
-				.logout()
-					.logoutRequestMatcher(new AntPathRequestMatcher("/logout"));
+				.formLogin(withDefaults())
+				.logout((logout) -> logout
+					.logoutRequestMatcher(new AntPathRequestMatcher("/logout")));
 			return http.build();
 			// @formatter:on
 		}
@@ -928,8 +921,8 @@ public class CsrfConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.csrf()
-					.requireCsrfProtectionMatcher(null);
+				.csrf((csrf) -> csrf
+					.requireCsrfProtectionMatcher(null));
 			return http.build();
 			// @formatter:on
 		}
@@ -944,12 +937,10 @@ public class CsrfConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().permitAll()
-					.and()
-				.formLogin()
-					.and()
-				.httpBasic();
+				.authorizeRequests((requests) -> requests
+					.anyRequest().permitAll())
+				.formLogin(withDefaults())
+				.httpBasic(withDefaults());
 			// @formatter:on
 			return http.build();
 		}
@@ -969,8 +960,8 @@ public class CsrfConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-					.csrf()
-					.sessionAuthenticationStrategy(null);
+				.csrf((csrf) -> csrf
+					.sessionAuthenticationStrategy(null));
 			return http.build();
 			// @formatter:on
 		}
@@ -987,10 +978,9 @@ public class CsrfConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-					.formLogin()
-					.and()
-					.csrf()
-					.sessionAuthenticationStrategy(STRATEGY);
+				.formLogin(withDefaults())
+				.csrf((csrf) -> csrf
+					.sessionAuthenticationStrategy(STRATEGY));
 			// @formatter:on
 			return http.build();
 		}

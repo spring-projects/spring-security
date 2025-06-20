@@ -762,7 +762,7 @@ public class AuthorizeHttpRequestsConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeHttpRequests();
+				.authorizeHttpRequests(withDefaults());
 			// @formatter:on
 
 			return http.build();
@@ -793,8 +793,8 @@ public class AuthorizeHttpRequestsConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-					.authorizeHttpRequests()
-					.anyRequest();
+				.authorizeHttpRequests((requests) -> requests
+					.anyRequest());
 			// @formatter:on
 
 			return http.build();
@@ -849,8 +849,8 @@ public class AuthorizeHttpRequestsConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeHttpRequests()
-					.anyRequest().access(authorizationManager);
+				.authorizeHttpRequests((requests) -> requests
+					.anyRequest().access(authorizationManager));
 			// @formatter:on
 
 			return http.build();
@@ -899,12 +899,11 @@ public class AuthorizeHttpRequestsConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			return http
-					.httpBasic()
-						.and()
-					.authorizeHttpRequests((requests) -> requests
+				.httpBasic(withDefaults())
+				.authorizeHttpRequests((requests) -> requests
 						.anyRequest().hasAnyAuthority("ROLE_USER")
-					)
-					.build();
+				)
+				.build();
 			// @formatter:on
 		}
 
@@ -918,12 +917,11 @@ public class AuthorizeHttpRequestsConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			return http
-					.httpBasic()
-						.and()
-					.authorizeHttpRequests((requests) -> requests
+				.httpBasic(withDefaults())
+				.authorizeHttpRequests((requests) -> requests
 						.anyRequest().hasAuthority("ROLE_USER")
-					)
-					.build();
+				)
+				.build();
 			// @formatter:on
 		}
 
@@ -937,12 +935,11 @@ public class AuthorizeHttpRequestsConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			return http
-					.httpBasic()
-						.and()
-					.authorizeHttpRequests((requests) -> requests
+				.httpBasic(withDefaults())
+				.authorizeHttpRequests((requests) -> requests
 						.anyRequest().hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
-					)
-					.build();
+				)
+				.build();
 			// @formatter:on
 		}
 
@@ -1014,12 +1011,11 @@ public class AuthorizeHttpRequestsConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			return http
-					.httpBasic()
-						.and()
-					.authorizeHttpRequests((requests) -> requests
+				.httpBasic(withDefaults())
+				.authorizeHttpRequests((requests) -> requests
 						.anyRequest().denyAll()
-					)
-					.build();
+				)
+				.build();
 			// @formatter:on
 		}
 
@@ -1050,13 +1046,12 @@ public class AuthorizeHttpRequestsConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			return http
-					.httpBasic()
-						.and()
-					.authorizeHttpRequests((requests) -> requests
+				.httpBasic(withDefaults())
+				.authorizeHttpRequests((requests) -> requests
 						.anyRequest().authenticated()
-					)
-					.authorizeHttpRequests(withDefaults())
-					.build();
+				)
+				.authorizeHttpRequests(withDefaults())
+				.build();
 			// @formatter:on
 		}
 
@@ -1090,12 +1085,11 @@ public class AuthorizeHttpRequestsConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			return http
-					.httpBasic()
-						.and()
-					.authorizeHttpRequests((requests) -> requests
+				.httpBasic(withDefaults())
+				.authorizeHttpRequests((requests) -> requests
 						.anyRequest().authenticated()
-					)
-					.build();
+				)
+				.build();
 			// @formatter:on
 		}
 

@@ -28,6 +28,7 @@ import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.test.SpringTestContext;
@@ -582,7 +583,7 @@ public class HeadersConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.headers();
+				.headers(withDefaults());
 			return http.build();
 			// @formatter:on
 		}
@@ -612,9 +613,9 @@ public class HeadersConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.headers()
+				.headers((headers) -> headers
 					.defaultsDisabled()
-					.contentTypeOptions();
+					.contentTypeOptions(Customizer.withDefaults()));
 			return http.build();
 			// @formatter:on
 		}
@@ -648,9 +649,9 @@ public class HeadersConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.headers()
+				.headers((headers) -> headers
 					.defaultsDisabled()
-					.frameOptions();
+					.frameOptions(Customizer.withDefaults()));
 			return http.build();
 			// @formatter:on
 		}
@@ -665,9 +666,9 @@ public class HeadersConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.headers()
+				.headers((headers) -> headers
 					.defaultsDisabled()
-					.httpStrictTransportSecurity();
+					.httpStrictTransportSecurity(Customizer.withDefaults()));
 			return http.build();
 			// @formatter:on
 		}
@@ -682,9 +683,9 @@ public class HeadersConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.headers()
+				.headers((headers) -> headers
 					.defaultsDisabled()
-					.cacheControl();
+					.cacheControl(Customizer.withDefaults()));
 			return http.build();
 			// @formatter:on
 		}
@@ -718,9 +719,9 @@ public class HeadersConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.headers()
+				.headers((headers) -> headers
 					.defaultsDisabled()
-					.xssProtection();
+					.xssProtection(Customizer.withDefaults()));
 			return http.build();
 			// @formatter:on
 		}
@@ -735,10 +736,10 @@ public class HeadersConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.headers()
+				.headers((headers) -> headers
 					.defaultsDisabled()
-					.xssProtection()
-					.headerValue(XXssProtectionHeaderWriter.HeaderValue.ENABLED_MODE_BLOCK);
+					.xssProtection((xss) -> xss
+						.headerValue(XXssProtectionHeaderWriter.HeaderValue.ENABLED_MODE_BLOCK)));
 			// @formatter:on
 			return http.build();
 		}
@@ -791,8 +792,8 @@ public class HeadersConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.headers()
-					.frameOptions().sameOrigin();
+				.headers((headers) -> headers
+					.frameOptions((frameOptions) -> frameOptions.sameOrigin()));
 			return http.build();
 			// @formatter:on
 		}
@@ -825,9 +826,9 @@ public class HeadersConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.headers()
+				.headers((headers) -> headers
 					.defaultsDisabled()
-					.httpPublicKeyPinning();
+					.httpPublicKeyPinning(Customizer.withDefaults()));
 			return http.build();
 			// @formatter:on
 		}
@@ -842,10 +843,10 @@ public class HeadersConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.headers()
+				.headers((headers) -> headers
 					.defaultsDisabled()
-					.httpPublicKeyPinning()
-						.addSha256Pins("d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=");
+					.httpPublicKeyPinning((hpkp) -> hpkp
+						.addSha256Pins("d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=")));
 			return http.build();
 			// @formatter:on
 		}
@@ -863,10 +864,9 @@ public class HeadersConfigurerTests {
 			pins.put("E9CZ9INDbd+2eRQozYqqbQ2yXLVKB9+xcprMF+44U1g=", "sha256");
 			// @formatter:off
 			http
-				.headers()
+				.headers((headers) -> headers
 					.defaultsDisabled()
-					.httpPublicKeyPinning()
-						.withPins(pins);
+					.httpPublicKeyPinning((hpkp) -> hpkp.withPins(pins)));
 			return http.build();
 			// @formatter:on
 		}
@@ -881,11 +881,11 @@ public class HeadersConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.headers()
+				.headers((headers) -> headers
 					.defaultsDisabled()
-					.httpPublicKeyPinning()
+					.httpPublicKeyPinning((hpkp) -> hpkp
 						.addSha256Pins("d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=")
-						.maxAgeInSeconds(604800);
+						.maxAgeInSeconds(604800)));
 			return http.build();
 			// @formatter:on
 		}
@@ -900,11 +900,11 @@ public class HeadersConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.headers()
+				.headers((headers) -> headers
 					.defaultsDisabled()
-					.httpPublicKeyPinning()
+					.httpPublicKeyPinning((hpkp) -> hpkp
 						.addSha256Pins("d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=")
-						.reportOnly(false);
+						.reportOnly(false)));
 			return http.build();
 			// @formatter:on
 		}
@@ -919,11 +919,11 @@ public class HeadersConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.headers()
+				.headers((headers) -> headers
 					.defaultsDisabled()
-					.httpPublicKeyPinning()
+					.httpPublicKeyPinning((hpkp) -> hpkp
 						.addSha256Pins("d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=")
-						.includeSubDomains(true);
+						.includeSubDomains(true)));
 			return http.build();
 			// @formatter:on
 		}
@@ -938,11 +938,11 @@ public class HeadersConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.headers()
+				.headers((headers) -> headers
 					.defaultsDisabled()
-					.httpPublicKeyPinning()
+					.httpPublicKeyPinning((hpkp) -> hpkp
 						.addSha256Pins("d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=")
-						.reportUri(new URI("https://example.net/pkp-report"));
+						.reportUri(URI.create("https://example.net/pkp-report"))));
 			return http.build();
 			// @formatter:on
 		}
@@ -957,11 +957,11 @@ public class HeadersConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.headers()
+				.headers((headers) -> headers
 					.defaultsDisabled()
-					.httpPublicKeyPinning()
+					.httpPublicKeyPinning((hpkp) -> hpkp
 						.addSha256Pins("d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=")
-						.reportUri("https://example.net/pkp-report");
+						.reportUri("https://example.net/pkp-report")));
 			return http.build();
 			// @formatter:on
 		}
@@ -999,9 +999,9 @@ public class HeadersConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.headers()
+				.headers((headers) -> headers
 					.defaultsDisabled()
-					.contentSecurityPolicy("default-src 'self'");
+					.contentSecurityPolicy((csp) -> csp.policyDirectives("default-src 'self'")));
 			return http.build();
 			// @formatter:on
 		}
@@ -1016,10 +1016,11 @@ public class HeadersConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.headers()
+				.headers((headers) -> headers
 					.defaultsDisabled()
-					.contentSecurityPolicy("default-src 'self'; script-src trustedscripts.example.com")
-					.reportOnly();
+					.contentSecurityPolicy((csp) -> csp
+						.policyDirectives("default-src 'self'; script-src trustedscripts.example.com")
+						.reportOnly()));
 			return http.build();
 			// @formatter:on
 		}
@@ -1057,9 +1058,9 @@ public class HeadersConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.headers()
+				.headers((headers) -> headers
 					.defaultsDisabled()
-					.contentSecurityPolicy("");
+					.contentSecurityPolicy((csp) -> csp.policyDirectives("")));
 			return http.build();
 			// @formatter:on
 		}
@@ -1114,9 +1115,9 @@ public class HeadersConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.headers()
+				.headers((headers) -> headers
 					.defaultsDisabled()
-					.referrerPolicy();
+					.referrerPolicy(Customizer.withDefaults()));
 			return http.build();
 			// @formatter:on
 		}
@@ -1134,7 +1135,7 @@ public class HeadersConfigurerTests {
 				.headers((headers) ->
 					headers
 						.defaultsDisabled()
-						.referrerPolicy()
+						.referrerPolicy(Customizer.withDefaults())
 				);
 			return http.build();
 			// @formatter:on
@@ -1150,9 +1151,9 @@ public class HeadersConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.headers()
+				.headers((headers) -> headers
 					.defaultsDisabled()
-					.referrerPolicy(ReferrerPolicy.SAME_ORIGIN);
+					.referrerPolicy((referrer) -> referrer.policy(ReferrerPolicy.SAME_ORIGIN)));
 			return http.build();
 			// @formatter:on
 		}
@@ -1188,9 +1189,9 @@ public class HeadersConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.headers()
+				.headers((headers) -> headers
 					.defaultsDisabled()
-					.featurePolicy("geolocation 'self'");
+					.featurePolicy("geolocation 'self'"));
 			return http.build();
 			// @formatter:on
 		}
@@ -1205,9 +1206,9 @@ public class HeadersConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.headers()
+				.headers((headers) -> headers
 					.defaultsDisabled()
-					.featurePolicy("");
+					.featurePolicy(""));
 			return http.build();
 			// @formatter:on
 		}
@@ -1222,9 +1223,9 @@ public class HeadersConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.headers()
+				.headers((headers) -> headers
 					.defaultsDisabled()
-					.permissionsPolicy((permissionsPolicy) -> permissionsPolicy.policy("geolocation=(self)"));
+					.permissionsPolicy((permissionsPolicy) -> permissionsPolicy.policy("geolocation=(self)")));
 			return http.build();
 			// @formatter:on
 		}
@@ -1239,10 +1240,9 @@ public class HeadersConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.headers()
+				.headers((headers) -> headers
 					.defaultsDisabled()
-					.permissionsPolicy()
-					.policy("geolocation=(self)");
+					.permissionsPolicy((permissions) -> permissions.policy("geolocation=(self)")));
 			return http.build();
 			// @formatter:on
 		}
@@ -1257,9 +1257,9 @@ public class HeadersConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.headers()
+				.headers((headers) -> headers
 					.defaultsDisabled()
-					.permissionsPolicy((permissionsPolicy) -> permissionsPolicy.policy(null));
+					.permissionsPolicy((permissionsPolicy) -> permissionsPolicy.policy(null)));
 			return http.build();
 			// @formatter:on
 		}
@@ -1274,10 +1274,9 @@ public class HeadersConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.headers()
+				.headers((headers) -> headers
 					.defaultsDisabled()
-					.permissionsPolicy()
-					.policy("");
+					.permissionsPolicy((permissions) -> permissions.policy("")));
 			return http.build();
 			// @formatter:on
 		}
@@ -1292,10 +1291,9 @@ public class HeadersConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.headers()
+				.headers((headers) -> headers
 					.defaultsDisabled()
-					.httpStrictTransportSecurity()
-						.preload(true);
+					.httpStrictTransportSecurity((hsts) -> hsts.preload(true)));
 			return http.build();
 			// @formatter:on
 		}
@@ -1353,16 +1351,14 @@ public class HeadersConfigurerTests {
 		@Bean
 		SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
-			http.headers()
-					.defaultsDisabled()
-					.crossOriginOpenerPolicy()
-						.policy(CrossOriginOpenerPolicyHeaderWriter.CrossOriginOpenerPolicy.SAME_ORIGIN)
-						.and()
-					.crossOriginEmbedderPolicy()
-						.policy(CrossOriginEmbedderPolicyHeaderWriter.CrossOriginEmbedderPolicy.REQUIRE_CORP)
-						.and()
-					.crossOriginResourcePolicy()
-						.policy(CrossOriginResourcePolicyHeaderWriter.CrossOriginResourcePolicy.SAME_ORIGIN);
+			http.headers((headers) -> headers
+				.defaultsDisabled()
+				.crossOriginOpenerPolicy((opener) -> opener
+					.policy(CrossOriginOpenerPolicyHeaderWriter.CrossOriginOpenerPolicy.SAME_ORIGIN))
+				.crossOriginEmbedderPolicy((embedder) -> embedder
+					.policy(CrossOriginEmbedderPolicyHeaderWriter.CrossOriginEmbedderPolicy.REQUIRE_CORP))
+				.crossOriginResourcePolicy((resource) -> resource
+					.policy(CrossOriginResourcePolicyHeaderWriter.CrossOriginResourcePolicy.SAME_ORIGIN)));
 			// @formatter:on
 			return http.build();
 		}

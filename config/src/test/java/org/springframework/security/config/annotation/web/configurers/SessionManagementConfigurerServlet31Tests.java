@@ -45,6 +45,7 @@ import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
 import org.springframework.security.web.csrf.XorCsrfTokenRequestAttributeHandler;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.security.config.Customizer.withDefaults;
 
 /**
  * @author Rob Winch
@@ -122,9 +123,8 @@ public class SessionManagementConfigurerServlet31Tests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.formLogin()
-					.and()
-				.sessionManagement();
+				.formLogin(withDefaults())
+				.sessionManagement(withDefaults());
 			// @formatter:on
 			return http.build();
 		}

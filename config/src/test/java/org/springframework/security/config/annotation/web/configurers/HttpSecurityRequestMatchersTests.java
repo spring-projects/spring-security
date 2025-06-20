@@ -222,14 +222,12 @@ public class HttpSecurityRequestMatchersTests {
 			MvcRequestMatcher.Builder mvcMatcherBuilder = new MvcRequestMatcher.Builder(introspector);
 			// @formatter:off
 			http
-				.securityMatchers()
+				.securityMatchers((security) -> security
 					.requestMatchers(mvcMatcherBuilder.pattern("/test-1"))
 					.requestMatchers(mvcMatcherBuilder.pattern("/test-2"))
-					.requestMatchers(mvcMatcherBuilder.pattern("/test-3"))
-					.and()
-				.authorizeRequests()
-					.anyRequest().denyAll()
-					.and()
+					.requestMatchers(mvcMatcherBuilder.pattern("/test-3")))
+				.authorizeRequests((requests) -> requests
+					.anyRequest().denyAll())
 				.httpBasic(withDefaults());
 			// @formatter:on
 			return http.build();
@@ -240,11 +238,10 @@ public class HttpSecurityRequestMatchersTests {
 			MvcRequestMatcher.Builder mvcMatcherBuilder = new MvcRequestMatcher.Builder(introspector);
 			// @formatter:off
 			http
-				.securityMatchers()
-					.requestMatchers(mvcMatcherBuilder.pattern("/test-1"))
-					.and()
-				.authorizeRequests()
-					.anyRequest().permitAll();
+				.securityMatchers((security) -> security
+					.requestMatchers(mvcMatcherBuilder.pattern("/test-1")))
+				.authorizeRequests((requests) -> requests
+					.anyRequest().permitAll());
 			// @formatter:on
 			return http.build();
 		}
@@ -271,9 +268,9 @@ public class HttpSecurityRequestMatchersTests {
 			// @formatter:off
 			http
 				.securityMatcher(new MvcRequestMatcher(introspector, "/path"))
-				.httpBasic().and()
-				.authorizeRequests()
-					.anyRequest().denyAll();
+				.httpBasic(withDefaults())
+				.authorizeRequests((requests) -> requests
+					.anyRequest().denyAll());
 			// @formatter:on
 			return http.build();
 		}
@@ -304,12 +301,11 @@ public class HttpSecurityRequestMatchersTests {
 		SecurityFilterChain filterChain(HttpSecurity http, HandlerMappingIntrospector introspector) throws Exception {
 			// @formatter:off
 			http
-				.securityMatchers()
-					.requestMatchers(new MvcRequestMatcher(introspector, "/path"))
-					.and()
-				.httpBasic().and()
-				.authorizeRequests()
-					.anyRequest().denyAll();
+				.securityMatchers((security) -> security
+					.requestMatchers(new MvcRequestMatcher(introspector, "/path")))
+				.httpBasic(withDefaults())
+				.authorizeRequests((requests) -> requests
+					.anyRequest().denyAll());
 			// @formatter:on
 			return http.build();
 		}
@@ -376,13 +372,12 @@ public class HttpSecurityRequestMatchersTests {
 			mvcMatcherBuilder.servletPath("/spring");
 			// @formatter:off
 			http
-				.securityMatchers()
+				.securityMatchers((security) -> security
 					.requestMatchers(mvcMatcherBuilder.pattern("/path"))
-					.requestMatchers("/never-match")
-					.and()
-				.httpBasic().and()
-				.authorizeRequests()
-					.anyRequest().denyAll();
+					.requestMatchers("/never-match"))
+				.httpBasic(withDefaults())
+				.authorizeRequests((requests) -> requests
+					.anyRequest().denyAll());
 			// @formatter:on
 			return http.build();
 		}

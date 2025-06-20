@@ -365,12 +365,10 @@ public class RememberMeConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().hasRole("USER")
-					.and()
-				.formLogin()
-					.and()
-				.rememberMe();
+				.authorizeRequests((requests) -> requests
+					.anyRequest().hasRole("USER"))
+				.formLogin(withDefaults())
+				.rememberMe(withDefaults());
 			// @formatter:on
 			return http.build();
 		}
@@ -398,8 +396,8 @@ public class RememberMeConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.rememberMe()
-					.userDetailsService(new AuthenticationManagerBuilder(this.objectPostProcessor).getDefaultUserDetailsService());
+				.rememberMe((me) -> me
+					.userDetailsService(new AuthenticationManagerBuilder(this.objectPostProcessor).getDefaultUserDetailsService()));
 			// @formatter:on
 			return http.build();
 		}
@@ -435,12 +433,10 @@ public class RememberMeConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.httpBasic()
-					.and()
-				.rememberMe()
-					.userDetailsService(userDetailsService)
-					.and()
-				.rememberMe();
+				.httpBasic(withDefaults())
+				.rememberMe((me) -> me
+					.userDetailsService(userDetailsService))
+				.rememberMe(withDefaults());
 			return http.build();
 			// @formatter:on
 		}
@@ -489,12 +485,10 @@ public class RememberMeConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().hasRole("USER")
-					.and()
-				.formLogin()
-					.and()
-				.rememberMe();
+				.authorizeRequests((requests) -> requests
+					.anyRequest().hasRole("USER"))
+				.formLogin(withDefaults())
+				.rememberMe(withDefaults());
 			return http.build();
 			// @formatter:on
 		}
@@ -539,13 +533,11 @@ public class RememberMeConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().hasRole("USER")
-					.and()
-				.formLogin()
-					.and()
-				.rememberMe()
-					.rememberMeCookieDomain("spring.io");
+				.authorizeRequests((requests) -> requests
+					.anyRequest().hasRole("USER"))
+				.formLogin(withDefaults())
+				.rememberMe((me) -> me
+					.rememberMeCookieDomain("spring.io"));
 			return http.build();
 			// @formatter:on
 		}
@@ -595,15 +587,13 @@ public class RememberMeConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().hasRole("USER")
-					.and()
-				.formLogin()
-					.and()
-				.rememberMe()
+				.authorizeRequests((requests) -> requests
+					.anyRequest().hasRole("USER"))
+				.formLogin(withDefaults())
+				.rememberMe((me) -> me
 					.rememberMeCookieName("SPRING_COOKIE_DOMAIN")
 					.rememberMeCookieDomain("spring.io")
-					.rememberMeServices(REMEMBER_ME);
+					.rememberMeServices(REMEMBER_ME));
 			return http.build();
 			// @formatter:on
 		}
@@ -627,13 +617,11 @@ public class RememberMeConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().hasRole("USER")
-					.and()
-				.formLogin()
-					.and()
-				.rememberMe()
-					.rememberMeServices(new TokenBasedRememberMeServices("key", userDetailsService()));
+				.authorizeRequests((requests) -> requests
+					.anyRequest().hasRole("USER"))
+				.formLogin(withDefaults())
+				.rememberMe((me) -> me
+					.rememberMeServices(new TokenBasedRememberMeServices("key", userDetailsService())));
 			return http.build();
 			// @formatter:on
 		}

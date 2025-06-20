@@ -199,7 +199,7 @@ public class X509ConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.x509();
+				.x509(withDefaults());
 			return http.build();
 			// @formatter:on
 		}
@@ -228,10 +228,9 @@ public class X509ConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.x509()
-					.subjectPrincipalRegex("CN=(.*?)@example.com(?:,|$)")
-					.and()
-				.x509();
+				.x509((x509) -> x509
+					.subjectPrincipalRegex("CN=(.*?)@example.com(?:,|$)"))
+				.x509(withDefaults());
 			// @formatter:on
 			return http.build();
 		}

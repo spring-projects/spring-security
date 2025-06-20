@@ -486,7 +486,7 @@ public class Saml2LoginConfigurerTests {
 
 		@Bean
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-			http.saml2Login().authenticationManager(getAuthenticationManagerMock("ROLE_AUTH_MANAGER"));
+			http.saml2Login((login) -> login.authenticationManager(getAuthenticationManagerMock("ROLE_AUTH_MANAGER")));
 			return http.build();
 		}
 

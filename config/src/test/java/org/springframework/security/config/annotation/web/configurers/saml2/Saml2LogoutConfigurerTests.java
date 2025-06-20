@@ -591,7 +591,7 @@ public class Saml2LogoutConfigurerTests {
 				.logout((logout) -> logout.logoutSuccessHandler(this.mockLogoutSuccessHandler))
 				.saml2Login(withDefaults())
 				.saml2Logout(withDefaults())
-				.csrf().disable();
+				.csrf((csrf) -> csrf.disable());
 			return http.build();
 			// @formatter:on
 		}

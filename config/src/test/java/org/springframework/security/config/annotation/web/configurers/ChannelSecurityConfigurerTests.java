@@ -46,6 +46,7 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
+import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 
@@ -138,8 +139,8 @@ public class ChannelSecurityConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.requiresChannel()
-					.anyRequest().requiresSecure();
+				.requiresChannel((channel) -> channel
+					.anyRequest().requiresSecure());
 			return http.build();
 			// @formatter:on
 		}
@@ -168,10 +169,9 @@ public class ChannelSecurityConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.requiresChannel()
-					.anyRequest().requiresSecure()
-					.and()
-				.requiresChannel();
+				.requiresChannel((channel) -> channel
+					.anyRequest().requiresSecure())
+				.requiresChannel(withDefaults());
 			return http.build();
 			// @formatter:on
 		}
@@ -204,13 +204,12 @@ public class ChannelSecurityConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.portMapper()
-					.portMapper(new PortMapperImpl())
-					.and()
-				.requiresChannel()
+				.portMapper((mapper) -> mapper
+					.portMapper(new PortMapperImpl()))
+				.requiresChannel((channel) -> channel
 					.redirectStrategy(new TestUrlRedirectStrategy())
 					.anyRequest()
-					.requiresSecure();
+					.requiresSecure());
 			return http.build();
 			// @formatter:on
 		}
@@ -239,18 +238,17 @@ public class ChannelSecurityConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.portMapper()
-					.portMapper(new PortMapperImpl())
-					.and()
-				.requiresChannel()
+				.portMapper((mapper) -> mapper
+					.portMapper(new PortMapperImpl()))
+				.requiresChannel((channel) -> channel
 					.requestMatchers("/test-1")
-						.requiresSecure()
+					.requiresSecure()
 					.requestMatchers("/test-2")
-						.requiresSecure()
+					.requiresSecure()
 					.requestMatchers("/test-3")
-						.requiresSecure()
+					.requiresSecure()
 					.anyRequest()
-						.requiresInsecure();
+					.requiresInsecure());
 			// @formatter:on
 			return http.build();
 		}

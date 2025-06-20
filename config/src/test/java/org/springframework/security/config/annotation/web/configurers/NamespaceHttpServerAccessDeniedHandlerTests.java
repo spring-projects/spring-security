@@ -112,11 +112,10 @@ public class NamespaceHttpServerAccessDeniedHandlerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().denyAll()
-					.and()
-				.exceptionHandling()
-					.accessDeniedPage("/AccessDeniedPageConfig");
+				.authorizeRequests((requests) -> requests
+					.anyRequest().denyAll())
+				.exceptionHandling((handling) -> handling
+					.accessDeniedPage("/AccessDeniedPageConfig"));
 			return http.build();
 			// @formatter:on
 		}
@@ -152,11 +151,10 @@ public class NamespaceHttpServerAccessDeniedHandlerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().denyAll()
-					.and()
-				.exceptionHandling()
-					.accessDeniedHandler(accessDeniedHandler());
+				.authorizeRequests((requests) -> requests
+					.anyRequest().denyAll())
+				.exceptionHandling((handling) -> handling
+					.accessDeniedHandler(accessDeniedHandler()));
 			return http.build();
 			// @formatter:on
 		}

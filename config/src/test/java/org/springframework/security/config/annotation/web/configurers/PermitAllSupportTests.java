@@ -100,12 +100,11 @@ public class PermitAllSupportTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().authenticated()
-					.and()
-				.formLogin()
+				.authorizeRequests((requests) -> requests
+					.anyRequest().authenticated())
+				.formLogin((login) -> login
 					.loginPage("/xyz").permitAll()
-					.loginProcessingUrl("/abc?def").permitAll();
+					.loginProcessingUrl("/abc?def").permitAll());
 			return http.build();
 			// @formatter:on
 		}
@@ -120,12 +119,11 @@ public class PermitAllSupportTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-					.authorizeHttpRequests()
-						.anyRequest().authenticated()
-						.and()
-					.formLogin()
-						.loginPage("/xyz").permitAll()
-						.loginProcessingUrl("/abc?def").permitAll();
+				.authorizeHttpRequests((requests) -> requests
+					.anyRequest().authenticated())
+				.formLogin((login) -> login
+					.loginPage("/xyz").permitAll()
+					.loginProcessingUrl("/abc?def").permitAll());
 			return http.build();
 			// @formatter:on
 		}
@@ -140,15 +138,13 @@ public class PermitAllSupportTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-					.authorizeRequests()
-						.anyRequest().authenticated()
-						.and()
-					.authorizeHttpRequests()
-						.anyRequest().authenticated()
-						.and()
-					.formLogin()
-						.loginPage("/xyz").permitAll()
-						.loginProcessingUrl("/abc?def").permitAll();
+				.authorizeRequests((requests) -> requests
+					.anyRequest().authenticated())
+				.authorizeHttpRequests((requests) -> requests
+					.anyRequest().authenticated())
+				.formLogin((login) -> login
+					.loginPage("/xyz").permitAll()
+					.loginProcessingUrl("/abc?def").permitAll());
 			return http.build();
 			// @formatter:on
 		}
@@ -163,8 +159,8 @@ public class PermitAllSupportTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.formLogin()
-					.permitAll();
+				.formLogin((login) -> login
+					.permitAll());
 			return http.build();
 			// @formatter:on
 		}

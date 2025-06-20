@@ -57,6 +57,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -287,12 +288,10 @@ public class NamespaceRememberMeTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().hasRole("USER")
-					.and()
-				.formLogin()
-					.and()
-				.rememberMe();
+				.authorizeRequests((requests) -> requests
+					.anyRequest().hasRole("USER"))
+				.formLogin(withDefaults())
+				.rememberMe(withDefaults());
 			return http.build();
 			// @formatter:on
 		}
@@ -313,10 +312,9 @@ public class NamespaceRememberMeTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.formLogin()
-					.and()
-				.rememberMe()
-					.rememberMeServices(REMEMBER_ME_SERVICES);
+				.formLogin(withDefaults())
+				.rememberMe((me) -> me
+					.rememberMeServices(REMEMBER_ME_SERVICES));
 			return http.build();
 			// @formatter:on
 		}
@@ -333,10 +331,9 @@ public class NamespaceRememberMeTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.formLogin()
-					.and()
-				.rememberMe()
-					.authenticationSuccessHandler(SUCCESS_HANDLER);
+				.formLogin(withDefaults())
+				.rememberMe((me) -> me
+					.authenticationSuccessHandler(SUCCESS_HANDLER));
 			return http.build();
 			// @formatter:on
 		}
@@ -354,10 +351,9 @@ public class NamespaceRememberMeTests {
 			http
 				.securityMatcher(new AntPathRequestMatcher("/without-key/**"))
 				.authorizeHttpRequests((requests) -> requests.anyRequest().authenticated())
-				.formLogin()
-					.loginProcessingUrl("/without-key/login")
-					.and()
-				.rememberMe();
+				.formLogin((login) -> login
+					.loginProcessingUrl("/without-key/login"))
+				.rememberMe(withDefaults());
 			return http.build();
 			// @formatter:on
 		}
@@ -367,13 +363,11 @@ public class NamespaceRememberMeTests {
 		SecurityFilterChain keyFilterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().authenticated()
-					.and()
-				.formLogin()
-					.and()
-				.rememberMe()
-					.key("KeyConfig");
+				.authorizeRequests((requests) -> requests
+					.anyRequest().authenticated())
+				.formLogin(withDefaults())
+				.rememberMe((me) -> me
+					.key("KeyConfig"));
 			return http.build();
 			// @formatter:on
 		}
@@ -392,10 +386,9 @@ public class NamespaceRememberMeTests {
 			// tokenRepository.setDataSource(dataSource);
 			// @formatter:off
 			http
-				.formLogin()
-					.and()
-				.rememberMe()
-					.tokenRepository(TOKEN_REPOSITORY);
+				.formLogin(withDefaults())
+				.rememberMe((me) -> me
+					.tokenRepository(TOKEN_REPOSITORY));
 			return http.build();
 			// @formatter:on
 		}
@@ -410,13 +403,11 @@ public class NamespaceRememberMeTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().authenticated()
-					.and()
-				.formLogin()
-					.and()
-				.rememberMe()
-					.tokenValiditySeconds(314);
+				.authorizeRequests((requests) -> requests
+					.anyRequest().authenticated())
+				.formLogin(withDefaults())
+				.rememberMe((me) -> me
+					.tokenValiditySeconds(314));
 			return http.build();
 			// @formatter:on
 		}
@@ -431,10 +422,9 @@ public class NamespaceRememberMeTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.formLogin()
-					.and()
-				.rememberMe()
-					.useSecureCookie(true);
+				.formLogin(withDefaults())
+				.rememberMe((me) -> me
+					.useSecureCookie(true));
 			return http.build();
 			// @formatter:on
 		}
@@ -449,10 +439,9 @@ public class NamespaceRememberMeTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.formLogin()
-					.and()
-				.rememberMe()
-					.rememberMeParameter("rememberMe");
+				.formLogin(withDefaults())
+				.rememberMe((me) -> me
+					.rememberMeParameter("rememberMe"));
 			return http.build();
 			// @formatter:on
 		}
@@ -467,10 +456,9 @@ public class NamespaceRememberMeTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.formLogin()
-					.and()
-				.rememberMe()
-					.rememberMeCookieName("rememberMe");
+				.formLogin(withDefaults())
+				.rememberMe((me) -> me
+					.rememberMeCookieName("rememberMe"));
 			return http.build();
 			// @formatter:on
 		}
@@ -487,9 +475,8 @@ public class NamespaceRememberMeTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.formLogin()
-					.and()
-				.rememberMe();
+				.formLogin(withDefaults())
+				.rememberMe(withDefaults());
 			// @formatter:on
 			return http.build();
 		}
@@ -511,10 +498,9 @@ public class NamespaceRememberMeTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.formLogin()
-					.and()
-				.rememberMe()
-					.userDetailsService(USERDETAILS_SERVICE);
+				.formLogin(withDefaults())
+				.rememberMe((me) -> me
+					.userDetailsService(USERDETAILS_SERVICE));
 			return http.build();
 			// @formatter:on
 		}

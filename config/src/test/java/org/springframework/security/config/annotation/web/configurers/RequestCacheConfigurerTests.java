@@ -328,7 +328,7 @@ public class RequestCacheConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.requestCache();
+				.requestCache(withDefaults());
 			return http.build();
 			// @formatter:on
 		}
@@ -359,10 +359,9 @@ public class RequestCacheConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.requestCache()
-					.requestCache(requestCache)
-					.and()
-				.requestCache();
+				.requestCache((cache) -> cache
+					.requestCache(requestCache))
+				.requestCache(withDefaults());
 			return http.build();
 			// @formatter:on
 		}
@@ -377,10 +376,9 @@ public class RequestCacheConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().authenticated()
-					.and()
-				.formLogin();
+				.authorizeRequests((requests) -> requests
+					.anyRequest().authenticated())
+				.formLogin(withDefaults());
 			return http.build();
 			// @formatter:on
 		}

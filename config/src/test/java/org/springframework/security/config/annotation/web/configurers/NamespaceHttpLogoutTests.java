@@ -196,11 +196,11 @@ public class NamespaceHttpLogoutTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.logout()
+				.logout((logout) -> logout
 					.deleteCookies("remove") // logout@delete-cookies
 					.invalidateHttpSession(false) // logout@invalidate-session=false (default is true)
 					.logoutUrl("/custom-logout") // logout@logout-url (default is /logout)
-					.logoutSuccessUrl("/logout-success");
+					.logoutSuccessUrl("/logout-success"));
 			return http.build(); // logout@success-url (default is /login?logout)
 			// @formatter:on
 		}
@@ -237,8 +237,8 @@ public class NamespaceHttpLogoutTests {
 			logoutSuccessHandler.setDefaultTargetUrl("/SuccessHandlerRefHttpLogoutConfig");
 			// @formatter:off
 			http
-				.logout()
-					.logoutSuccessHandler(logoutSuccessHandler);
+				.logout((logout) -> logout
+					.logoutSuccessHandler(logoutSuccessHandler));
 			return http.build();
 			// @formatter:on
 		}

@@ -152,7 +152,7 @@ public class SecurityContextConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.securityContext();
+				.securityContext(withDefaults());
 			return http.build();
 			// @formatter:on
 		}
@@ -183,10 +183,9 @@ public class SecurityContextConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.securityContext()
-					.securityContextRepository(SCR)
-					.and()
-				.securityContext();
+				.securityContext((context) -> context
+					.securityContextRepository(SCR))
+				.securityContext(withDefaults());
 			return http.build();
 			// @formatter:on
 		}
@@ -203,14 +202,11 @@ public class SecurityContextConfigurerTests {
 			// @formatter:off
 			http
 				.addFilter(new WebAsyncManagerIntegrationFilter())
-				.anonymous()
-					.and()
-				.securityContext()
-					.and()
-				.authorizeRequests()
-					.anyRequest().permitAll()
-					.and()
-				.httpBasic();
+				.anonymous(withDefaults())
+				.securityContext(withDefaults())
+				.authorizeRequests((requests) -> requests
+					.anyRequest().permitAll())
+				.httpBasic(withDefaults());
 			// @formatter:on
 			return http.build();
 		}

@@ -113,7 +113,7 @@ public class SecurityReactorContextConfigurationResourceServerTests {
 
 		@Bean
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-			http.securityContext().requireExplicitSave(false);
+			http.securityContext((context) -> context.requireExplicitSave(false));
 			return http.build();
 		}
 

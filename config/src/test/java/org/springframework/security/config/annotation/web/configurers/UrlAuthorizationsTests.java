@@ -141,13 +141,13 @@ public class UrlAuthorizationsTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
+				.authorizeRequests((requests) -> requests
 					.requestMatchers("/role-user-authority").hasAnyAuthority("ROLE_USER")
 					.requestMatchers("/role-admin-authority").hasAnyAuthority("ROLE_ADMIN")
 					.requestMatchers("/role-user-admin-authority").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
 					.requestMatchers("/role-user").hasAnyRole("USER")
 					.requestMatchers("/role-admin").hasAnyRole("ADMIN")
-					.requestMatchers("/role-user-admin").hasAnyRole("USER", "ADMIN");
+					.requestMatchers("/role-user-admin").hasAnyRole("USER", "ADMIN"));
 			return http.build();
 			// @formatter:on
 		}

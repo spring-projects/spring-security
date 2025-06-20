@@ -99,9 +99,9 @@ public class NamespaceHttpExpressionHandlerTests {
 			handler.setExpressionParser(expressionParser());
 			// @formatter:off
 			http
-				.authorizeRequests()
+				.authorizeRequests((requests) -> requests
 					.expressionHandler(handler)
-					.anyRequest().access("hasRole('USER')");
+					.anyRequest().access("hasRole('USER')"));
 			// @formatter:on
 			return http.build();
 		}

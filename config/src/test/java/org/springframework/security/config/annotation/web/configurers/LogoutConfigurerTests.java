@@ -56,6 +56,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -414,8 +415,8 @@ public class LogoutConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.logout()
-					.defaultLogoutSuccessHandlerFor(null, mock(RequestMatcher.class));
+				.logout((logout) -> logout
+					.defaultLogoutSuccessHandlerFor(null, mock(RequestMatcher.class)));
 			return http.build();
 			// @formatter:on
 		}
@@ -447,8 +448,8 @@ public class LogoutConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.logout()
-					.defaultLogoutSuccessHandlerFor(mock(LogoutSuccessHandler.class), null);
+				.logout((logout) -> logout
+					.defaultLogoutSuccessHandlerFor(mock(LogoutSuccessHandler.class), null));
 			return http.build();
 			// @formatter:on
 		}
@@ -482,7 +483,7 @@ public class LogoutConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.logout();
+				.logout(withDefaults());
 			return http.build();
 			// @formatter:on
 		}
@@ -511,10 +512,9 @@ public class LogoutConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.logout()
-					.logoutUrl("/custom/logout")
-					.and()
-				.logout();
+				.logout((logout) -> logout
+					.logoutUrl("/custom/logout"))
+				.logout(withDefaults());
 			// @formatter:on
 			return http.build();
 		}
@@ -534,9 +534,9 @@ public class LogoutConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.csrf()
-					.disable()
-				.logout();
+				.csrf((csrf) -> csrf
+					.disable())
+				.logout(withDefaults());
 			return http.build();
 			// @formatter:on
 		}
@@ -551,10 +551,10 @@ public class LogoutConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.csrf()
-					.disable()
-				.logout()
-					.logoutUrl("/custom/logout");
+				.csrf((csrf) -> csrf
+					.disable())
+				.logout((logout) -> logout
+					.logoutUrl("/custom/logout"));
 			return http.build();
 			// @formatter:on
 		}
@@ -569,8 +569,8 @@ public class LogoutConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.csrf()
-					.disable()
+				.csrf((csrf) -> csrf
+					.disable())
 				.logout((logout) -> logout.logoutUrl("/custom/logout"));
 			return http.build();
 			// @formatter:on
@@ -586,8 +586,8 @@ public class LogoutConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.logout()
-					.addLogoutHandler(null);
+				.logout((logout) -> logout
+					.addLogoutHandler(null));
 			return http.build();
 			// @formatter:on
 		}
@@ -619,8 +619,8 @@ public class LogoutConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.rememberMe()
-					.rememberMeServices(REMEMBER_ME);
+				.rememberMe((me) -> me
+					.rememberMeServices(REMEMBER_ME));
 			return http.build();
 			// @formatter:on
 		}
@@ -641,8 +641,8 @@ public class LogoutConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.logout()
-					.disable();
+				.logout((logout) -> logout
+					.disable());
 			return http.build();
 			// @formatter:on
 		}

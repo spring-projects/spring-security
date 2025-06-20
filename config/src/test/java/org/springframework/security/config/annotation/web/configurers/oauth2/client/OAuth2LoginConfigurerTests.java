@@ -44,6 +44,7 @@ import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.event.AuthenticationSuccessEvent;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.SecurityContextChangedListenerConfig;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -118,6 +119,7 @@ import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
+import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.security.config.annotation.SecurityContextChangedListenerArgumentMatchers.setAuthentication;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -780,9 +782,9 @@ public class OAuth2LoginConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.oauth2Login()
+				.oauth2Login((login) -> login
 					.clientRegistrationRepository(
-						new InMemoryClientRegistrationRepository(GOOGLE_CLIENT_REGISTRATION));
+						new InMemoryClientRegistrationRepository(GOOGLE_CLIENT_REGISTRATION)));
 			// @formatter:on
 			return super.configureFilterChain(http);
 		}
@@ -805,10 +807,9 @@ public class OAuth2LoginConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.oauth2Login()
-					.clientRegistrationRepository(this.clientRegistrationRepository)
-					.and()
-				.formLogin();
+				.oauth2Login((login) -> login
+					.clientRegistrationRepository(this.clientRegistrationRepository))
+				.formLogin(withDefaults());
 			// @formatter:on
 			return super.configureFilterChain(http);
 		}
@@ -850,11 +851,11 @@ public class OAuth2LoginConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.oauth2Login()
+				.oauth2Login((login) -> login
 					.clientRegistrationRepository(
-							new InMemoryClientRegistrationRepository(GOOGLE_CLIENT_REGISTRATION))
-					.userInfoEndpoint()
-						.userAuthoritiesMapper(createGrantedAuthoritiesMapper());
+						new InMemoryClientRegistrationRepository(GOOGLE_CLIENT_REGISTRATION))
+					.userInfoEndpoint((info) -> info
+						.userAuthoritiesMapper(createGrantedAuthoritiesMapper())));
 			// @formatter:on
 			return super.configureFilterChain(http);
 		}
@@ -869,7 +870,7 @@ public class OAuth2LoginConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.oauth2Login();
+				.oauth2Login(withDefaults());
 			// @formatter:on
 			return super.configureFilterChain(http);
 		}
@@ -894,15 +895,13 @@ public class OAuth2LoginConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().authenticated()
-					.and()
-				.securityContext()
-					.securityContextRepository(securityContextRepository())
-					.and()
-				.oauth2Login()
-					.tokenEndpoint()
-						.accessTokenResponseClient(createOauth2AccessTokenResponseClient());
+				.authorizeRequests((requests) -> requests
+					.anyRequest().authenticated())
+				.securityContext((context) -> context
+					.securityContextRepository(securityContextRepository()))
+				.oauth2Login((login) -> login
+					.tokenEndpoint((token) -> token
+						.accessTokenResponseClient(createOauth2AccessTokenResponseClient())));
 			return http.build();
 			// @formatter:on
 		}
@@ -947,10 +946,10 @@ public class OAuth2LoginConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.oauth2Login()
+				.oauth2Login((login) -> login
 					.clientRegistrationRepository(
 						new InMemoryClientRegistrationRepository(GOOGLE_CLIENT_REGISTRATION))
-					.loginProcessingUrl("/login/oauth2/*");
+					.loginProcessingUrl("/login/oauth2/*"));
 			// @formatter:on
 			return super.configureFilterChain(http);
 		}
@@ -970,10 +969,10 @@ public class OAuth2LoginConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.oauth2Login()
+				.oauth2Login((login) -> login
 					.clientRegistrationRepository(this.clientRegistrationRepository)
-					.authorizationEndpoint()
-						.authorizationRequestResolver(this.resolver);
+					.authorizationEndpoint((authorize) -> authorize
+						.authorizationRequestResolver(this.resolver)));
 			// @formatter:on
 			return super.configureFilterChain(http);
 		}
@@ -991,9 +990,9 @@ public class OAuth2LoginConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-					.oauth2Login()
+				.oauth2Login((login) -> login
 					.clientRegistrationRepository(this.clientRegistrationRepository)
-					.authorizationEndpoint();
+					.authorizationEndpoint(Customizer.withDefaults()));
 			// @formatter:on
 			return super.configureFilterChain(http);
 		}
@@ -1106,10 +1105,10 @@ public class OAuth2LoginConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-					.oauth2Login()
+				.oauth2Login((login) -> login
 					.clientRegistrationRepository(
-							new InMemoryClientRegistrationRepository(
-									GOOGLE_CLIENT_REGISTRATION, GITHUB_CLIENT_REGISTRATION));
+						new InMemoryClientRegistrationRepository(
+							GOOGLE_CLIENT_REGISTRATION, GITHUB_CLIENT_REGISTRATION)));
 			// @formatter:on
 			return super.configureFilterChain(http);
 		}
@@ -1124,10 +1123,10 @@ public class OAuth2LoginConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-					.oauth2Login()
+				.oauth2Login((login) -> login
 					.clientRegistrationRepository(
-							new InMemoryClientRegistrationRepository(
-									GOOGLE_CLIENT_REGISTRATION, CLIENT_CREDENTIALS_REGISTRATION));
+						new InMemoryClientRegistrationRepository(
+							GOOGLE_CLIENT_REGISTRATION, CLIENT_CREDENTIALS_REGISTRATION)));
 			// @formatter:on
 			return super.configureFilterChain(http);
 		}
@@ -1142,10 +1141,10 @@ public class OAuth2LoginConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-					.oauth2Login()
+				.oauth2Login((login) -> login
 					.clientRegistrationRepository(
-							new InMemoryClientRegistrationRepository(GOOGLE_CLIENT_REGISTRATION))
-					.loginPage("/custom-login");
+						new InMemoryClientRegistrationRepository(GOOGLE_CLIENT_REGISTRATION))
+					.loginPage("/custom-login"));
 			// @formatter:on
 			return super.configureFilterChain(http);
 		}
@@ -1180,8 +1179,8 @@ public class OAuth2LoginConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.logout()
-					.logoutSuccessHandler(oidcLogoutSuccessHandler());
+				.logout((logout) -> logout
+					.logoutSuccessHandler(oidcLogoutSuccessHandler()));
 			// @formatter:on
 			return super.configureFilterChain(http);
 		}
@@ -1209,11 +1208,10 @@ public class OAuth2LoginConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.oauth2Login()
+				.oauth2Login((login) -> login
 					.clientRegistrationRepository(
-							new InMemoryClientRegistrationRepository(GOOGLE_CLIENT_REGISTRATION))
-					.and()
-				.httpBasic();
+						new InMemoryClientRegistrationRepository(GOOGLE_CLIENT_REGISTRATION)))
+				.httpBasic(withDefaults());
 			// @formatter:on
 			return super.configureFilterChain(http);
 		}
@@ -1254,14 +1252,13 @@ public class OAuth2LoginConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.oauth2Login()
+				.oauth2Login((login) -> login
 					.clientRegistrationRepository(
-							new InMemoryClientRegistrationRepository(GOOGLE_CLIENT_REGISTRATION))
-					.and()
-				.exceptionHandling()
+						new InMemoryClientRegistrationRepository(GOOGLE_CLIENT_REGISTRATION)))
+				.exceptionHandling((handling) -> handling
 					.defaultAuthenticationEntryPointFor(
-							new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED),
-							new RequestHeaderRequestMatcher("X-Requested-With", "XMLHttpRequest"));
+						new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED),
+						new RequestHeaderRequestMatcher("X-Requested-With", "XMLHttpRequest")));
 			// @formatter:on
 			return super.configureFilterChain(http);
 		}
@@ -1312,19 +1309,16 @@ public class OAuth2LoginConfigurerTests {
 		SecurityFilterChain configureFilterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().authenticated()
-					.and()
-				.securityContext()
-					.securityContextRepository(securityContextRepository())
-					.and()
-				.oauth2Login()
-					.tokenEndpoint()
-						.accessTokenResponseClient(createOauth2AccessTokenResponseClient())
-						.and()
-					.userInfoEndpoint()
+				.authorizeRequests((requests) -> requests
+					.anyRequest().authenticated())
+				.securityContext((context) -> context
+					.securityContextRepository(securityContextRepository()))
+				.oauth2Login((login) -> login
+					.tokenEndpoint((token) -> token
+						.accessTokenResponseClient(createOauth2AccessTokenResponseClient()))
+					.userInfoEndpoint((info) -> info
 						.userService(createOauth2UserService())
-						.oidcUserService(createOidcUserService());
+						.oidcUserService(createOidcUserService())));
 			// @formatter:on
 			return http.build();
 		}

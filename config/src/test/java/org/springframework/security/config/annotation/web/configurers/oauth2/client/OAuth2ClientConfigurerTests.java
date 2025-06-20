@@ -354,17 +354,15 @@ public class OAuth2ClientConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().authenticated()
-					.and()
-				.requestCache()
-					.requestCache(requestCache)
-					.and()
-				.oauth2Client()
-					.authorizationCodeGrant()
+				.authorizeRequests((requests) -> requests
+					.anyRequest().authenticated())
+				.requestCache((cache) -> cache
+					.requestCache(requestCache))
+				.oauth2Client((client) -> client
+					.authorizationCodeGrant((code) -> code
 						.authorizationRequestResolver(authorizationRequestResolver)
 						.authorizationRedirectStrategy(authorizationRedirectStrategy)
-						.accessTokenResponseClient(accessTokenResponseClient);
+						.accessTokenResponseClient(accessTokenResponseClient)));
 			return http.build();
 			// @formatter:on
 		}

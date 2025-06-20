@@ -198,8 +198,8 @@ public class AuthorizeRequestsTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.requestMatchers(new AntPathRequestMatcher("/**", HttpMethod.POST.name())).denyAll();
+				.authorizeRequests((requests) -> requests
+					.requestMatchers(new AntPathRequestMatcher("/**", HttpMethod.POST.name())).denyAll());
 			// @formatter:on
 			return http.build();
 		}
@@ -242,9 +242,9 @@ public class AuthorizeRequestsTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-				.requestMatchers(new AntPathRequestMatcher("/user/{user}", null, false)).access("#user == 'user'")
-				.anyRequest().denyAll();
+				.authorizeRequests((requests) -> requests
+					.requestMatchers(new AntPathRequestMatcher("/user/{user}", null, false)).access("#user == 'user'")
+					.anyRequest().denyAll());
 			// @formatter:on
 			return http.build();
 		}
@@ -264,9 +264,9 @@ public class AuthorizeRequestsTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-				.requestMatchers(new AntPathRequestMatcher("/user/{userName}", null, false)).access("#userName == 'user'")
-				.anyRequest().denyAll();
+				.authorizeRequests((requests) -> requests
+					.requestMatchers(new AntPathRequestMatcher("/user/{userName}", null, false)).access("#userName == 'user'")
+					.anyRequest().denyAll());
 			// @formatter:on
 			return http.build();
 		}
@@ -286,8 +286,8 @@ public class AuthorizeRequestsTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().hasRole("ADMIN");
+				.authorizeRequests((requests) -> requests
+					.anyRequest().hasRole("ADMIN"));
 			// @formatter:on
 			return http.build();
 		}
@@ -315,9 +315,9 @@ public class AuthorizeRequestsTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.httpBasic().and()
-				.authorizeRequests()
-					.requestMatchers("/path").denyAll();
+				.httpBasic(withDefaults())
+				.authorizeRequests((requests) -> requests
+					.requestMatchers("/path").denyAll());
 			// @formatter:on
 			return http.build();
 		}
@@ -385,9 +385,9 @@ public class AuthorizeRequestsTests {
 				.servletPath("/spring");
 			// @formatter:off
 			http
-				.httpBasic().and()
-				.authorizeRequests()
-					.requestMatchers(mvcMatcherBuilder.pattern("/path")).denyAll();
+				.httpBasic(withDefaults())
+				.authorizeRequests((requests) -> requests
+					.requestMatchers(mvcMatcherBuilder.pattern("/path")).denyAll());
 			// @formatter:on
 			return http.build();
 		}
@@ -455,9 +455,9 @@ public class AuthorizeRequestsTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.httpBasic().and()
-				.authorizeRequests()
-					.requestMatchers("/user/{userName}").access("#userName == 'user'");
+				.httpBasic(withDefaults())
+				.authorizeRequests((requests) -> requests
+					.requestMatchers("/user/{userName}").access("#userName == 'user'"));
 			// @formatter:on
 			return http.build();
 		}
@@ -523,9 +523,9 @@ public class AuthorizeRequestsTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.httpBasic().and()
-				.authorizeRequests()
-					.requestMatchers("/user").denyAll();
+				.httpBasic(withDefaults())
+				.authorizeRequests((requests) -> requests
+					.requestMatchers("/user").denyAll());
 			// @formatter:on
 			return http.build();
 		}

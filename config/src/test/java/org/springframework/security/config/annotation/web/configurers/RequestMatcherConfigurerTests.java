@@ -78,14 +78,12 @@ public class RequestMatcherConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.securityMatchers()
-					.requestMatchers(new AntPathRequestMatcher("/api/**"))
-					.and()
-				.securityMatchers()
-					.requestMatchers(new AntPathRequestMatcher("/oauth/**"))
-					.and()
-				.authorizeRequests()
-					.anyRequest().denyAll();
+				.securityMatchers((security) -> security
+					.requestMatchers(new AntPathRequestMatcher("/api/**")))
+				.securityMatchers((security) -> security
+					.requestMatchers(new AntPathRequestMatcher("/oauth/**")))
+				.authorizeRequests((requests) -> requests
+					.anyRequest().denyAll());
 			return http.build();
 			// @formatter:on
 		}

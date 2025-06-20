@@ -87,16 +87,15 @@ public class ExceptionHandlingConfigurerAccessDeniedHandlerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().denyAll()
-					.and()
-				.exceptionHandling()
+				.authorizeRequests((requests) -> requests
+					.anyRequest().denyAll())
+				.exceptionHandling((handling) -> handling
 					.defaultAccessDeniedHandlerFor(
-							this.teapotDeniedHandler,
-							new AntPathRequestMatcher("/hello/**"))
+						this.teapotDeniedHandler,
+						new AntPathRequestMatcher("/hello/**"))
 					.defaultAccessDeniedHandlerFor(
-							new AccessDeniedHandlerImpl(),
-							AnyRequestMatcher.INSTANCE);
+						new AccessDeniedHandlerImpl(),
+						AnyRequestMatcher.INSTANCE));
 			return http.build();
 			// @formatter:on
 		}
@@ -146,13 +145,12 @@ public class ExceptionHandlingConfigurerAccessDeniedHandlerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-					.authorizeRequests()
-					.anyRequest().denyAll()
-					.and()
-					.exceptionHandling()
+				.authorizeRequests((requests) -> requests
+					.anyRequest().denyAll())
+				.exceptionHandling((handling) -> handling
 					.defaultAccessDeniedHandlerFor(
-							this.teapotDeniedHandler,
-							new AntPathRequestMatcher("/hello/**"));
+						this.teapotDeniedHandler,
+						new AntPathRequestMatcher("/hello/**")));
 			return http.build();
 			// @formatter:on
 		}

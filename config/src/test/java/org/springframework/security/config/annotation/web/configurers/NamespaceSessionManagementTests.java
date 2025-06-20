@@ -63,6 +63,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
+import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
@@ -287,18 +288,16 @@ public class NamespaceSessionManagementTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().authenticated()
-					.and()
-				.httpBasic()
-					.and()
-				.sessionManagement()
+				.authorizeRequests((requests) -> requests
+					.anyRequest().authenticated())
+				.httpBasic(withDefaults())
+				.sessionManagement((management) -> management
 					.invalidSessionUrl("/invalid-session") // session-management@invalid-session-url
 					.sessionAuthenticationErrorUrl("/session-auth-error") // session-management@session-authentication-error-url
 					.maximumSessions(1) // session-management/concurrency-control@max-sessions
-						.maxSessionsPreventsLogin(true) // session-management/concurrency-control@error-if-maximum-exceeded
-						.expiredUrl("/expired-session") // session-management/concurrency-control@expired-url
-						.sessionRegistry(sessionRegistry());
+					.maxSessionsPreventsLogin(true) // session-management/concurrency-control@error-if-maximum-exceeded
+					.expiredUrl("/expired-session") // session-management/concurrency-control@expired-url
+					.sessionRegistry(sessionRegistry()));
 			return http.build(); // session-management/concurrency-control@session-registry-ref
 			// @formatter:on
 		}
@@ -320,8 +319,8 @@ public class NamespaceSessionManagementTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.sessionManagement()
-					.invalidSessionStrategy(invalidSessionStrategy());
+				.sessionManagement((management) -> management
+					.invalidSessionStrategy(invalidSessionStrategy()));
 			return http.build();
 			// @formatter:on
 		}
@@ -343,10 +342,9 @@ public class NamespaceSessionManagementTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.sessionManagement()
-					.sessionAuthenticationStrategy(sessionAuthenticationStrategy()) // session-management@session-authentication-strategy-ref
-					.and()
-				.httpBasic();
+				.sessionManagement((management) -> management
+					.sessionAuthenticationStrategy(sessionAuthenticationStrategy()))
+				.httpBasic(withDefaults());
 			return http.build();
 			// @formatter:on
 		}
@@ -366,10 +364,9 @@ public class NamespaceSessionManagementTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.sessionManagement()
-					.sessionAuthenticationStrategy(new NullAuthenticatedSessionStrategy())
-					.and()
-				.httpBasic();
+				.sessionManagement((management) -> management
+					.sessionAuthenticationStrategy(new NullAuthenticatedSessionStrategy()))
+				.httpBasic(withDefaults());
 			return http.build();
 			// @formatter:on
 		}
@@ -384,10 +381,9 @@ public class NamespaceSessionManagementTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.sessionManagement()
-					.requireExplicitAuthenticationStrategy(false)
-					.and()
-				.httpBasic();
+				.sessionManagement((management) -> management
+					.requireExplicitAuthenticationStrategy(false))
+				.httpBasic(withDefaults());
 			return http.build();
 			// @formatter:on
 		}
@@ -403,9 +399,9 @@ public class NamespaceSessionManagementTests {
 			// @formatter:off
 			http
 				.sessionManagement((sessions) -> sessions
-					.requireExplicitAuthenticationStrategy(false)
+						.requireExplicitAuthenticationStrategy(false)
 				)
-				.httpBasic();
+				.httpBasic(withDefaults());
 			return http.build();
 			// @formatter:on
 		}
@@ -426,10 +422,10 @@ public class NamespaceSessionManagementTests {
 			// @formatter:off
 			http
 				.sessionManagement((sessions) -> sessions
-					.sessionFixation().newSession()
-					.requireExplicitAuthenticationStrategy(false)
+						.sessionFixation().newSession()
+						.requireExplicitAuthenticationStrategy(false)
 				)
-				.httpBasic();
+				.httpBasic(withDefaults());
 			return http.build();
 			// @formatter:on
 		}

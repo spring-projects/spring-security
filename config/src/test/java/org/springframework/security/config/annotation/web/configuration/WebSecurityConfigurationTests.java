@@ -535,9 +535,9 @@ public class WebSecurityConfigurationTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
+				.authorizeRequests((requests) -> requests
 					.anyRequest().authenticated()
-					.expressionHandler(EXPRESSION_HANDLER);
+					.expressionHandler(EXPRESSION_HANDLER));
 			return http.build();
 			// @formatter:on
 		}
@@ -563,8 +563,8 @@ public class WebSecurityConfigurationTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().authenticated();
+				.authorizeRequests((requests) -> requests
+					.anyRequest().authenticated());
 			return http.build();
 			// @formatter:on
 		}
@@ -616,8 +616,8 @@ public class WebSecurityConfigurationTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().authenticated();
+				.authorizeRequests((requests) -> requests
+					.anyRequest().authenticated());
 			return http.build();
 			// @formatter:on
 		}
@@ -649,8 +649,8 @@ public class WebSecurityConfigurationTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().access("request.method == 'GET' ? @b.grant() : @b.deny()");
+				.authorizeRequests((requests) -> requests
+					.anyRequest().access("request.method == 'GET' ? @b.grant() : @b.deny()"));
 			return http.build();
 			// @formatter:on
 		}

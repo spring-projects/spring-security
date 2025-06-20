@@ -551,11 +551,10 @@ public class SessionManagementConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.requestCache()
-					.requestCache(REQUEST_CACHE)
-					.and()
-				.sessionManagement()
-					.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+				.requestCache((cache) -> cache
+					.requestCache(REQUEST_CACHE))
+				.sessionManagement((management) -> management
+					.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 			return http.build();
 			// @formatter:on
 		}
@@ -572,11 +571,10 @@ public class SessionManagementConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.securityContext()
-					.securityContextRepository(SECURITY_CONTEXT_REPO)
-					.and()
-				.sessionManagement()
-					.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+				.securityContext((context) -> context
+					.securityContextRepository(SECURITY_CONTEXT_REPO))
+				.sessionManagement((management) -> management
+					.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 			return http.build();
 			// @formatter:on
 		}
@@ -591,10 +589,9 @@ public class SessionManagementConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.sessionManagement()
-					.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-					.and()
-				.sessionManagement();
+				.sessionManagement((management) -> management
+					.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+				.sessionManagement(withDefaults());
 			return http.build();
 			// @formatter:on
 		}
@@ -609,11 +606,10 @@ public class SessionManagementConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.httpBasic()
-					.and()
-				.sessionManagement()
+				.httpBasic(withDefaults())
+				.sessionManagement((management) -> management
 					.sessionFixation().none()
-					.maximumSessions(1);
+					.maximumSessions(1));
 			// @formatter:on
 			return http.build();
 		}
@@ -658,11 +654,10 @@ public class SessionManagementConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.formLogin()
-					.and()
-				.sessionManagement()
+				.formLogin(withDefaults())
+				.sessionManagement((management) -> management
 					.maximumSessions(1)
-					.maxSessionsPreventsLogin(true);
+					.maxSessionsPreventsLogin(true));
 			// @formatter:on
 			return http.build();
 		}
@@ -766,8 +761,8 @@ public class SessionManagementConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.sessionManagement()
-					.maximumSessions(1);
+				.sessionManagement((management) -> management
+					.maximumSessions(1));
 			return http.build();
 			// @formatter:on
 		}
@@ -818,8 +813,8 @@ public class SessionManagementConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.sessionManagement()
-				.maximumSessions(1);
+				.sessionManagement((management) -> management
+					.maximumSessions(1));
 			return http.build();
 			// @formatter:on
 		}
@@ -843,8 +838,8 @@ public class SessionManagementConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.sessionManagement()
-				.maximumSessions(1);
+				.sessionManagement((management) -> management
+					.maximumSessions(1));
 			return http.build();
 			// @formatter:on
 		}
