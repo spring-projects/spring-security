@@ -270,10 +270,8 @@ import org.springframework.web.util.pattern.PathPatternParser;
  *     &#064;Bean
  *     public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
  *         http
- *             .authorizeExchange()
- *               .anyExchange().authenticated()
- *             .and()
- *               .httpBasic().and()
+ *             .authorizeExchange((exchange) -> exchange.anyExchange().authenticated())
+ *             .httpBasic(Customizer.withDefaults())
  *               .formLogin();
  *             return http.build();
  *     }
@@ -1219,9 +1217,8 @@ public class ServerHttpSecurity {
 	 *          // ...
 	 *          .headers()
 	 *              // customize frame options to be same origin
-	 *              .frameOptions()
-	 *                  .mode(XFrameOptionsServerHttpHeadersWriter.Mode.SAMEORIGIN)
-	 *                  .and()
+	 *              .frameOptions((frame) -> frame
+	 *                  .mode(XFrameOptionsServerHttpHeadersWriter.Mode.SAMEORIGIN))
 	 *              // disable cache control
 	 *              .cache().disable();
 	 *      return http.build();
@@ -1857,7 +1854,7 @@ public class ServerHttpSecurity {
 	 *
 	 * @author Rob Winch
 	 * @since 5.0
-	 * @see #authorizeExchange()
+	 * @see #authorizeExchange(Customizer)
 	 */
 	public class AuthorizeExchangeSpec extends AbstractServerWebExchangeMatcherRegistry<AuthorizeExchangeSpec.Access> {
 
@@ -2306,7 +2303,7 @@ public class ServerHttpSecurity {
 	 *
 	 * @author Josh Cummings
 	 * @since 5.1
-	 * @see #redirectToHttps()
+	 * @see #redirectToHttps(Customizer)
 	 */
 	public class HttpsRedirectSpec {
 
@@ -2380,7 +2377,7 @@ public class ServerHttpSecurity {
 	 *
 	 * @author Rob Winch
 	 * @since 5.0
-	 * @see #csrf()
+	 * @see #csrf(Customizer)
 	 */
 	public final class CsrfSpec {
 
@@ -2483,7 +2480,7 @@ public class ServerHttpSecurity {
 	 *
 	 * @author Rob Winch
 	 * @since 5.0
-	 * @see #exceptionHandling()
+	 * @see #exceptionHandling(Customizer)
 	 */
 	public final class ExceptionHandlingSpec {
 
@@ -2532,7 +2529,7 @@ public class ServerHttpSecurity {
 	 *
 	 * @author Rob Winch
 	 * @since 5.0
-	 * @see #requestCache()
+	 * @see #requestCache(Customizer)
 	 */
 	public final class RequestCacheSpec {
 
@@ -2588,7 +2585,7 @@ public class ServerHttpSecurity {
 	 *
 	 * @author Rob Winch
 	 * @since 5.0
-	 * @see #httpBasic()
+	 * @see #httpBasic(Customizer)
 	 */
 	public final class HttpBasicSpec {
 
@@ -2814,7 +2811,7 @@ public class ServerHttpSecurity {
 	 *
 	 * @author Rob Winch
 	 * @since 5.0
-	 * @see #formLogin()
+	 * @see #formLogin(Customizer)
 	 */
 	public final class FormLoginSpec {
 
@@ -3080,7 +3077,7 @@ public class ServerHttpSecurity {
 	 *
 	 * @author Rob Winch
 	 * @since 5.0
-	 * @see #headers()
+	 * @see #headers(Customizer)
 	 */
 	public final class HeaderSpec {
 
@@ -3916,7 +3913,7 @@ public class ServerHttpSecurity {
 	 *
 	 * @author Shazin Sadakath
 	 * @since 5.0
-	 * @see #logout()
+	 * @see #logout(Customizer)
 	 */
 	public final class LogoutSpec {
 
@@ -4136,7 +4133,7 @@ public class ServerHttpSecurity {
 	 *
 	 * @author Alexey Nesterov
 	 * @since 5.2
-	 * @see #x509()
+	 * @see #x509(Customizer)
 	 */
 	public final class X509Spec {
 
@@ -5275,7 +5272,7 @@ public class ServerHttpSecurity {
 				AndServerWebExchangeMatcher matcher = new AndServerWebExchangeMatcher(
 						CsrfWebFilter.DEFAULT_CSRF_MATCHER,
 						new NegatedServerWebExchangeMatcher(this.authenticationConverterServerWebExchangeMatcher));
-				http.csrf().requireCsrfProtectionMatcher(matcher);
+				http.csrf((csrf) -> csrf.requireCsrfProtectionMatcher(matcher));
 			}
 		}
 
