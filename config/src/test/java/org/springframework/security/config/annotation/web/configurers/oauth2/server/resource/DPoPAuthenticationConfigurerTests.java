@@ -245,8 +245,7 @@ public class DPoPAuthenticationConfigurerTests {
 						.requestMatchers("/resource2").hasAnyAuthority("SCOPE_resource2.read", "SCOPE_resource2.write")
 						.anyRequest().authenticated()
 				)
-				.oauth2ResourceServer((oauth2ResourceServer) ->
-					oauth2ResourceServer
+				.oauth2ResourceServer((oauth2) -> oauth2
 						.jwt(Customizer.withDefaults()));
 			// @formatter:on
 			return http.build();

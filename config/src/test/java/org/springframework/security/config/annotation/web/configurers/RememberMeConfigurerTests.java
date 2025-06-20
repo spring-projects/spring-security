@@ -560,8 +560,7 @@ public class RememberMeConfigurerTests {
 						.anyRequest().hasRole("USER")
 				)
 				.formLogin(withDefaults())
-				.rememberMe((rememberMe) ->
-					rememberMe
+				.rememberMe((rememberMe) -> rememberMe
 						.rememberMeCookieDomain("spring.io")
 				);
 			return http.build();
@@ -637,8 +636,7 @@ public class RememberMeConfigurerTests {
 					.authorizeRequests((authorize) -> authorize
 									.anyRequest().hasRole("USER")
 					)
-					.sessionManagement((sessionManagement) ->
-							sessionManagement
+					.sessionManagement((sessionManagement) -> sessionManagement
 									.maximumSessions(1)
 					)
 					.formLogin(withDefaults())

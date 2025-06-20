@@ -98,12 +98,10 @@ public class RequestMatcherConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.securityMatchers((matchers) ->
-					matchers
+				.securityMatchers((secure) -> secure
 						.requestMatchers(new AntPathRequestMatcher("/api/**"))
 				)
-				.securityMatchers((matchers) ->
-					matchers
+				.securityMatchers((securityMatchers) -> securityMatchers
 						.requestMatchers(new AntPathRequestMatcher("/oauth/**"))
 				)
 				.authorizeRequests((authorize) -> authorize

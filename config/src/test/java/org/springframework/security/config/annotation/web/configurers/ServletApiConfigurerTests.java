@@ -359,8 +359,7 @@ public class ServletApiConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.servletApi((servletApi) ->
-					servletApi
+				.servletApi((servletApi) -> servletApi
 						.rolePrefix("PERMISSION_")
 				);
 			return http.build();

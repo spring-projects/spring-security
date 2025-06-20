@@ -116,8 +116,7 @@ public class ExceptionHandlingConfigurerAccessDeniedHandlerTests {
 				.authorizeRequests((authorize) -> authorize
 						.anyRequest().denyAll()
 				)
-				.exceptionHandling((exceptionHandling) ->
-					exceptionHandling
+				.exceptionHandling((exceptionHandling) -> exceptionHandling
 						.defaultAccessDeniedHandlerFor(
 								this.teapotDeniedHandler,
 								new AntPathRequestMatcher("/hello/**")

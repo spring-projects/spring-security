@@ -212,8 +212,7 @@ public class JeeConfigurerTests {
 				.authorizeRequests((authorize) -> authorize
 						.anyRequest().hasRole("USER")
 				)
-				.jee((jee) ->
-					jee
+				.jee((jee) -> jee
 						.mappableRoles("USER")
 				);
 			return http.build();
@@ -233,8 +232,7 @@ public class JeeConfigurerTests {
 				.authorizeRequests((authorize) -> authorize
 						.anyRequest().hasRole("USER")
 				)
-				.jee((jee) ->
-					jee
+				.jee((jee) -> jee
 						.mappableAuthorities("ROLE_USER")
 				);
 			return http.build();
@@ -257,8 +255,7 @@ public class JeeConfigurerTests {
 				.authorizeRequests((authorize) -> authorize
 						.anyRequest().hasRole("USER")
 				)
-				.jee((jee) ->
-					jee
+				.jee((jee) -> jee
 						.authenticatedUserDetailsService(authenticationUserDetailsService)
 				);
 			return http.build();

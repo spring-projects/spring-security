@@ -986,12 +986,10 @@ public class OAuth2LoginTests {
 		SecurityWebFilterChain springSecurityFilter(ServerHttpSecurity http) {
 			// @formatter:off
 			http
-				.authorizeExchange((exchanges) ->
-					exchanges
+				.authorizeExchange((authorizeExchange) -> authorizeExchange
 						.anyExchange().authenticated()
 				)
-				.oauth2Login((oauth2Login) ->
-					oauth2Login
+				.oauth2Login((oauth2) -> oauth2
 						.authenticationConverter(this.authenticationConverter)
 						.authenticationManager(this.manager)
 						.authenticationMatcher(this.matcher)

@@ -333,8 +333,7 @@ public class HeaderSpecTests {
 		this.expectedHeaders.set(XXssProtectionServerHttpHeadersWriter.X_XSS_PROTECTION, "0");
 		// @formatter:off
 		this.http.headers((headers) -> headers
-			.xssProtection((xssProtection) ->
-				xssProtection.headerValue(XXssProtectionServerHttpHeadersWriter.HeaderValue.DISABLED)
+			.xssProtection((xssProtection) -> xssProtection.headerValue(XXssProtectionServerHttpHeadersWriter.HeaderValue.DISABLED)
 			));
 		// @formatter:on
 		assertHeaders();

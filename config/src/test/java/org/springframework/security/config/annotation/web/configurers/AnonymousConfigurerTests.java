@@ -129,8 +129,7 @@ public class AnonymousConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.anonymous((anonymous) ->
-					anonymous
+				.anonymous((anonymous) -> anonymous
 						.principal("principal")
 				);
 			return http.build();

@@ -215,8 +215,7 @@ public class NamespaceHttpLogoutTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.logout((logout) ->
-						logout.deleteCookies("remove")
+				.logout((logout) -> logout.deleteCookies("remove")
 							.invalidateHttpSession(false)
 							.logoutUrl("/custom-logout")
 							.logoutSuccessUrl("/logout-success")

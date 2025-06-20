@@ -629,8 +629,7 @@ public class SessionManagementConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.sessionManagement((sessionManagement) ->
-					sessionManagement
+				.sessionManagement((sessionManagement) -> sessionManagement
 						.requireExplicitAuthenticationStrategy(false)
 						.sessionFixation(SessionManagementConfigurer.SessionFixationConfigurer::newSession)
 				)
@@ -678,10 +677,8 @@ public class SessionManagementConfigurerTests {
 			// @formatter:off
 			http
 				.formLogin(withDefaults())
-				.sessionManagement((sessionManagement) ->
-					sessionManagement
-						.sessionConcurrency((sessionConcurrency) ->
-							sessionConcurrency
+				.sessionManagement((sessionManagement) -> sessionManagement
+						.sessionConcurrency((sessionConcurrency) -> sessionConcurrency
 								.maximumSessions(1)
 								.maxSessionsPreventsLogin(true)
 						)
@@ -741,8 +738,7 @@ public class SessionManagementConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.sessionManagement((sessionManagement) ->
-					sessionManagement
+				.sessionManagement((sessionManagement) -> sessionManagement
 						.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 				);
 			return http.build();
@@ -897,8 +893,7 @@ public class SessionManagementConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.sessionManagement((sessionManagement) ->
-					sessionManagement
+				.sessionManagement((sessionManagement) -> sessionManagement
 						.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 				)
 				.httpBasic(withDefaults());

@@ -133,8 +133,7 @@ public class NamespaceHttpServerAccessDeniedHandlerTests {
 				.authorizeRequests((authorize) -> authorize
 						.anyRequest().denyAll()
 				)
-				.exceptionHandling((exceptionHandling) ->
-					exceptionHandling.accessDeniedPage("/AccessDeniedPageConfig")
+				.exceptionHandling((exceptionHandling) -> exceptionHandling.accessDeniedPage("/AccessDeniedPageConfig")
 				);
 			return http.build();
 			// @formatter:on
@@ -178,8 +177,7 @@ public class NamespaceHttpServerAccessDeniedHandlerTests {
 				.authorizeRequests((authorize) -> authorize
 						.anyRequest().denyAll()
 				)
-				.exceptionHandling((exceptionHandling) ->
-						exceptionHandling.accessDeniedHandler(accessDeniedHandler())
+				.exceptionHandling((exceptionHandling) -> exceptionHandling.accessDeniedHandler(accessDeniedHandler())
 				);
 			return http.build();
 			// @formatter:on

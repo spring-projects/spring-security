@@ -630,8 +630,7 @@ public class HeadersConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.headers((headers) ->
-					headers
+				.headers((headers) -> headers
 						.defaultsDisabled()
 						.contentTypeOptions(withDefaults())
 				);
@@ -700,8 +699,7 @@ public class HeadersConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.headers((headers) ->
-					headers
+				.headers((headers) -> headers
 						.defaultsDisabled()
 						.cacheControl(withDefaults())
 				);
@@ -753,8 +751,7 @@ public class HeadersConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.headers((headers) ->
-					headers
+				.headers((headers) -> headers
 						.defaultsDisabled()
 						.xssProtection(withDefaults())
 				);
@@ -772,11 +769,9 @@ public class HeadersConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.headers((headers) ->
-					headers
+				.headers((headers) -> headers
 						.defaultsDisabled()
-						.xssProtection((xXssConfig) ->
-							xXssConfig.headerValue(XXssProtectionHeaderWriter.HeaderValue.ENABLED_MODE_BLOCK)
+						.xssProtection((xXssConfig) -> xXssConfig.headerValue(XXssProtectionHeaderWriter.HeaderValue.ENABLED_MODE_BLOCK)
 						)
 				);
 			// @formatter:on
@@ -808,8 +803,7 @@ public class HeadersConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.headers((headers) ->
-					headers
+				.headers((headers) -> headers
 						.frameOptions((frameOptionsConfig) -> frameOptionsConfig.sameOrigin())
 				);
 			return http.build();
@@ -976,11 +970,9 @@ public class HeadersConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.headers((headers) ->
-					headers
+				.headers((headers) -> headers
 						.defaultsDisabled()
-						.httpPublicKeyPinning((hpkp) ->
-							hpkp
+						.httpPublicKeyPinning((hpkp) -> hpkp
 								.addSha256Pins("d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=")
 								.reportUri("https://example.net/pkp-report")
 						)
@@ -1035,11 +1027,9 @@ public class HeadersConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.headers((headers) ->
-					headers
+				.headers((headers) -> headers
 						.defaultsDisabled()
-						.contentSecurityPolicy((csp) ->
-							csp
+						.contentSecurityPolicy((csp) -> csp
 								.policyDirectives("default-src 'self'; script-src trustedscripts.example.com")
 								.reportOnly()
 						)
@@ -1075,11 +1065,9 @@ public class HeadersConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.headers((headers) ->
-					headers
+				.headers((headers) -> headers
 						.defaultsDisabled()
-						.contentSecurityPolicy((csp) ->
-								csp.policyDirectives("")
+						.contentSecurityPolicy((csp) -> csp.policyDirectives("")
 						)
 				);
 			return http.build();
@@ -1096,8 +1084,7 @@ public class HeadersConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.headers((headers) ->
-					headers
+				.headers((headers) -> headers
 						.defaultsDisabled()
 						.contentSecurityPolicy(withDefaults())
 				);
@@ -1132,8 +1119,7 @@ public class HeadersConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.headers((headers) ->
-					headers
+				.headers((headers) -> headers
 						.defaultsDisabled()
 						.referrerPolicy(Customizer.withDefaults())
 				);
@@ -1168,11 +1154,9 @@ public class HeadersConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.headers((headers) ->
-					headers
+				.headers((headers) -> headers
 						.defaultsDisabled()
-						.referrerPolicy((referrerPolicy) ->
-								referrerPolicy.policy(ReferrerPolicy.SAME_ORIGIN)
+						.referrerPolicy((referrerPolicy) -> referrerPolicy.policy(ReferrerPolicy.SAME_ORIGIN)
 						)
 				);
 			return http.build();
@@ -1308,8 +1292,7 @@ public class HeadersConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.headers((headers) ->
-					headers
+				.headers((headers) -> headers
 						.defaultsDisabled()
 						.httpStrictTransportSecurity((hstsConfig) -> hstsConfig.preload(true))
 				);

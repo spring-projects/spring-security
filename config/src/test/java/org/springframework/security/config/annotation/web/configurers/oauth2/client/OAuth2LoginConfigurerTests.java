@@ -827,8 +827,7 @@ public class OAuth2LoginConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.oauth2Login((oauth2Login) ->
-					oauth2Login
+				.oauth2Login((oauth2) -> oauth2
 						.clientRegistrationRepository(
 							new InMemoryClientRegistrationRepository(GOOGLE_CLIENT_REGISTRATION))
 				);
@@ -1029,11 +1028,9 @@ public class OAuth2LoginConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.oauth2Login((oauth2Login) ->
-					oauth2Login
+				.oauth2Login((oauth2) -> oauth2
 						.clientRegistrationRepository(this.clientRegistrationRepository)
-						.authorizationEndpoint((authorizationEndpoint) ->
-							authorizationEndpoint
+						.authorizationEndpoint((authorizationEndpoint) -> authorizationEndpoint
 								.authorizationRequestResolver(this.resolver)
 						)
 				);
@@ -1056,11 +1053,9 @@ public class OAuth2LoginConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.oauth2Login((oauth2Login) ->
-					oauth2Login
+				.oauth2Login((oauth2) -> oauth2
 						.clientRegistrationRepository(this.clientRegistrationRepository)
-						.authorizationEndpoint((authorizationEndpoint) ->
-							authorizationEndpoint
+						.authorizationEndpoint((authorizationEndpoint) -> authorizationEndpoint
 								.authorizationRedirectStrategy(this.redirectStrategy)
 						)
 				);
@@ -1083,11 +1078,9 @@ public class OAuth2LoginConfigurerTests {
 		SecurityFilterChain configureFilterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-					.oauth2Login((oauth2Login) ->
-							oauth2Login
+					.oauth2Login((oauth2) -> oauth2
 									.clientRegistrationRepository(this.clientRegistrationRepository)
-									.authorizationEndpoint((authorizationEndpoint) ->
-											authorizationEndpoint
+									.authorizationEndpoint((authorizationEndpoint) -> authorizationEndpoint
 													.authorizationRedirectStrategy(this.redirectStrategy)
 									)
 					);
@@ -1159,8 +1152,7 @@ public class OAuth2LoginConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.oauth2Login((oauth2Login) ->
-						oauth2Login
+				.oauth2Login((oauth2) -> oauth2
 							.clientRegistrationRepository(
 									new InMemoryClientRegistrationRepository(GOOGLE_CLIENT_REGISTRATION))
 							.loginPage("/custom-login")
@@ -1343,18 +1335,14 @@ public class OAuth2LoginConfigurerTests {
 				.authorizeHttpRequests((authorize) -> authorize
 						.anyRequest().authenticated()
 				)
-				.securityContext((securityContext) ->
-					securityContext
+				.securityContext((securityContext) -> securityContext
 						.securityContextRepository(securityContextRepository())
 				)
-				.oauth2Login((oauth2Login) ->
-					oauth2Login
-						.tokenEndpoint((tokenEndpoint) ->
-							tokenEndpoint
+				.oauth2Login((oauth2) -> oauth2
+						.tokenEndpoint((tokenEndpoint) -> tokenEndpoint
 								.accessTokenResponseClient(createOauth2AccessTokenResponseClient())
 						)
-						.userInfoEndpoint((userInfoEndpoint) ->
-							userInfoEndpoint
+						.userInfoEndpoint((userInfoEndpoint) -> userInfoEndpoint
 								.userService(createOauth2UserService())
 								.oidcUserService(createOidcUserService())
 						)

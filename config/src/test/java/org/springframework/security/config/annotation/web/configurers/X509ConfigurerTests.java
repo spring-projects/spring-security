@@ -280,8 +280,7 @@ public class X509ConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.x509((x509) ->
-					x509
+				.x509((x509) -> x509
 						.subjectPrincipalRegex("CN=(.*?)@example.com(?:,|$)")
 				);
 			// @formatter:on

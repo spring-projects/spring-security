@@ -336,8 +336,7 @@ public class HttpSecurityRequestMatchersTests {
 		SecurityFilterChain filterChain(HttpSecurity http, HandlerMappingIntrospector introspector) throws Exception {
 			// @formatter:off
 			http
-				.securityMatchers((matchers) ->
-					matchers
+				.securityMatchers((secure) -> secure
 						.requestMatchers(new MvcRequestMatcher(introspector, "/path"))
 				)
 				.httpBasic(withDefaults())
@@ -409,8 +408,7 @@ public class HttpSecurityRequestMatchersTests {
 			mvcMatcherBuilder.servletPath("/spring");
 			// @formatter:off
 			http
-				.securityMatchers((matchers) ->
-					matchers
+				.securityMatchers((secure) -> secure
 						.requestMatchers(mvcMatcherBuilder.pattern("/path"))
 						.requestMatchers("/never-match")
 				)

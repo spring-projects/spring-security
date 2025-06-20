@@ -518,8 +518,7 @@ public class FormLoginConfigurerTests {
 				.authorizeRequests((authorize) -> authorize
 						.anyRequest().hasRole("USER")
 				)
-				.formLogin((formLogin) ->
-					formLogin
+				.formLogin((formLogin) -> formLogin
 						.loginPage("/authenticate")
 						.permitAll()
 				)
@@ -573,15 +572,13 @@ public class FormLoginConfigurerTests {
 				.authorizeRequests((authorize) -> authorize
 						.anyRequest().authenticated()
 				)
-				.formLogin((formLogin) ->
-					formLogin
+				.formLogin((formLogin) -> formLogin
 						.loginProcessingUrl("/loginCheck")
 						.loginPage("/login")
 						.defaultSuccessUrl("/", true)
 						.permitAll()
 				)
-				.logout((logout) ->
-					logout
+				.logout((logout) -> logout
 						.logoutSuccessUrl("/login")
 						.logoutUrl("/logout")
 						.deleteCookies("JSESSIONID")

@@ -280,8 +280,7 @@ public class NamespaceHttpBasicTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.httpBasic((httpBasicConfig) ->
-						httpBasicConfig.authenticationDetailsSource(this.authenticationDetailsSource));
+				.httpBasic((httpBasicConfig) -> httpBasicConfig.authenticationDetailsSource(this.authenticationDetailsSource));
 			return http.build();
 			// @formatter:on
 		}
@@ -326,8 +325,7 @@ public class NamespaceHttpBasicTests {
 				.authorizeRequests((authorize) -> authorize
 						.anyRequest().hasRole("USER")
 				)
-				.httpBasic((httpBasicConfig) ->
-						httpBasicConfig.authenticationEntryPoint(this.authenticationEntryPoint));
+				.httpBasic((httpBasicConfig) -> httpBasicConfig.authenticationEntryPoint(this.authenticationEntryPoint));
 			return http.build();
 			// @formatter:on
 		}

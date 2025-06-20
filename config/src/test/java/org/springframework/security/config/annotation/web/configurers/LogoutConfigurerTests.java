@@ -431,8 +431,7 @@ public class LogoutConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.logout((logout) ->
-					logout.defaultLogoutSuccessHandlerFor(null, mock(RequestMatcher.class))
+				.logout((logout) -> logout.defaultLogoutSuccessHandlerFor(null, mock(RequestMatcher.class))
 				);
 			return http.build();
 			// @formatter:on
@@ -464,8 +463,7 @@ public class LogoutConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.logout((logout) ->
-					logout.defaultLogoutSuccessHandlerFor(mock(LogoutSuccessHandler.class), null)
+				.logout((logout) -> logout.defaultLogoutSuccessHandlerFor(mock(LogoutSuccessHandler.class), null)
 				);
 			return http.build();
 			// @formatter:on

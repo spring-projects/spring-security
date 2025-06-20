@@ -186,8 +186,7 @@ public class ChannelSecurityConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.requiresChannel((requiresChannel) ->
-					requiresChannel
+				.requiresChannel((requiresChannel) -> requiresChannel
 						.anyRequest().requiresSecure()
 			);
 			return http.build();

@@ -377,8 +377,7 @@ public class OAuth2ClientSpecTests {
 		SecurityWebFilterChain springSecurityFilter(ServerHttpSecurity http) {
 			// @formatter:off
 			http
-				.oauth2Client((oauth2Client) ->
-					oauth2Client
+				.oauth2Client((oauth2Client) -> oauth2Client
 						.authenticationConverter(this.authenticationConverter)
 						.authenticationManager(this.manager)
 						.authorizationRequestRepository(this.authorizationRequestRepository))

@@ -454,8 +454,7 @@ public class RequestCacheConfigurerTests {
 						.anyRequest().authenticated()
 				)
 				.formLogin(withDefaults())
-				.requestCache((requestCache) ->
-					requestCache
+				.requestCache((requestCache) -> requestCache
 						.requestCache(new NullRequestCache())
 				);
 			return http.build();

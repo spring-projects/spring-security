@@ -1580,8 +1580,7 @@ public class OAuth2ResourceServerConfigurerTests {
 						.requestMatchers("/requires-read-scope").access("hasAuthority('SCOPE_message:read')")
 						.anyRequest().authenticated()
 				)
-				.oauth2ResourceServer((oauth2ResourceServer) ->
-					oauth2ResourceServer
+				.oauth2ResourceServer((oauth2) -> oauth2
 						.jwt(withDefaults())
 				);
 			return http.build();
@@ -1632,10 +1631,8 @@ public class OAuth2ResourceServerConfigurerTests {
 						.requestMatchers("/requires-read-scope").access("hasAuthority('SCOPE_message:read')")
 						.anyRequest().authenticated()
 				)
-				.oauth2ResourceServer((oauth2ResourceServer) ->
-					oauth2ResourceServer
-						.jwt((jwt) ->
-							jwt
+				.oauth2ResourceServer((oauth2) -> oauth2
+						.jwt((jwt) -> jwt
 								.jwkSetUri(this.jwkSetUri)
 						)
 				);
@@ -2122,10 +2119,8 @@ public class OAuth2ResourceServerConfigurerTests {
 				.authorizeRequests((authorize) -> authorize
 						.anyRequest().authenticated()
 				)
-				.oauth2ResourceServer((oauth2ResourceServer) ->
-					oauth2ResourceServer
-						.jwt((jwt) ->
-							jwt
+				.oauth2ResourceServer((oauth2) -> oauth2
+						.jwt((jwt) -> jwt
 								.decoder(decoder())
 						)
 				);
@@ -2386,8 +2381,7 @@ public class OAuth2ResourceServerConfigurerTests {
 						.requestMatchers("/requires-read-scope").hasAuthority("SCOPE_message:read")
 						.anyRequest().authenticated()
 				)
-				.oauth2ResourceServer((oauth2ResourceServer) ->
-					oauth2ResourceServer
+				.oauth2ResourceServer((oauth2) -> oauth2
 						.opaqueToken(withDefaults())
 				);
 			return http.build();
@@ -2431,10 +2425,8 @@ public class OAuth2ResourceServerConfigurerTests {
 				.authorizeRequests((authorize) -> authorize
 						.anyRequest().authenticated()
 				)
-				.oauth2ResourceServer((oauth2ResourceServer) ->
-					oauth2ResourceServer
-						.opaqueToken((opaqueToken) ->
-							opaqueToken
+				.oauth2ResourceServer((oauth2) -> oauth2
+						.opaqueToken((opaqueToken) -> opaqueToken
 								.authenticationManager(authenticationProvider()::authenticate)
 						)
 				);

@@ -81,8 +81,7 @@ public class RSocketMessageHandlerConnectionITests {
 		// @formatter:off
 		this.server = RSocketServer.create()
 				.payloadDecoder(PayloadDecoder.ZERO_COPY)
-				.interceptors((registry) ->
-					registry.forSocketAcceptor(this.interceptor)
+				.interceptors((registry) -> registry.forSocketAcceptor(this.interceptor)
 				)
 				.acceptor(this.handler.responder())
 				.bind(TcpServerTransport.create("localhost", 0))

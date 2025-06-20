@@ -701,14 +701,11 @@ public class OAuth2ResourceServerSpecTests {
 		SecurityWebFilterChain springSecurity(ServerHttpSecurity http) {
 			// @formatter:off
 			http
-				.authorizeExchange((exchanges) ->
-					exchanges
+				.authorizeExchange((authorizeExchange) -> authorizeExchange
 						.anyExchange().hasAuthority("SCOPE_message:read")
 				)
-				.oauth2ResourceServer((oauth2ResourceServer) ->
-					oauth2ResourceServer
-						.jwt((jwt) ->
-							jwt
+				.oauth2ResourceServer((oauth2) -> oauth2
+						.jwt((jwt) -> jwt
 								.publicKey(publicKey())
 						)
 				);
@@ -782,10 +779,8 @@ public class OAuth2ResourceServerSpecTests {
 			String jwkSetUri = mockWebServer().url("/.well-known/jwks.json").toString();
 			// @formatter:off
 			http
-				.oauth2ResourceServer((oauth2ResourceServer) ->
-					oauth2ResourceServer
-						.jwt((jwt) ->
-							jwt
+				.oauth2ResourceServer((oauth2) -> oauth2
+						.jwt((jwt) -> jwt
 								.jwkSetUri(jwkSetUri)
 						)
 				);
@@ -879,10 +874,8 @@ public class OAuth2ResourceServerSpecTests {
 		SecurityWebFilterChain springSecurity(ServerHttpSecurity http) {
 			// @formatter:off
 			http
-				.oauth2ResourceServer((oauth2ResourceServer) ->
-					oauth2ResourceServer
-						.jwt((jwt) ->
-							jwt
+				.oauth2ResourceServer((oauth2) -> oauth2
+						.jwt((jwt) -> jwt
 								.authenticationManager(authenticationManager())
 						)
 				);
@@ -1078,10 +1071,8 @@ public class OAuth2ResourceServerSpecTests {
 			String introspectionUri = mockWebServer().url("/introspect").toString();
 			// @formatter:off
 			http
-				.oauth2ResourceServer((oauth2ResourceServer) ->
-					oauth2ResourceServer
-						.opaqueToken((opaqueToken) ->
-								opaqueToken
+				.oauth2ResourceServer((oauth2) -> oauth2
+						.opaqueToken((opaqueToken) -> opaqueToken
 									.introspectionUri(introspectionUri)
 									.introspectionClientCredentials("client", "secret")
 						)
