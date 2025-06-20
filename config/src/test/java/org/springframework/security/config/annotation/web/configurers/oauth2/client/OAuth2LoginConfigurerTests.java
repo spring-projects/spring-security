@@ -29,6 +29,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
 
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.NoUniqueBeanDefinitionException;
@@ -45,17 +46,16 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.event.AuthenticationSuccessEvent;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.ObjectPostProcessor;
 import org.springframework.security.config.annotation.SecurityContextChangedListenerConfig;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.oauth2.client.OAuth2LoginConfigurerTests.OAuth2LoginConfigCustomWithPostProcessor.SpyObjectPostProcessor;
 import org.springframework.security.config.oauth2.client.CommonOAuth2Provider;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.context.DelegatingApplicationListener;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -216,28 +216,6 @@ public class OAuth2LoginConfigurerTests {
 		assertThat(authentication.getAuthorities()).first()
 			.isInstanceOf(OAuth2UserAuthority.class)
 			.hasToString("OAUTH2_USER");
-	}
-
-	// gh-17175
-	@Test
-	public void postProcessorSucceedsWhenProcessorReturnsAuthenticationProvider() throws Exception {
-		loadConfig(OAuth2LoginConfigCustomWithPostProcessor.class);
-		// setup authorization request
-		OAuth2AuthorizationRequest authorizationRequest = createOAuth2AuthorizationRequest();
-		this.authorizationRequestRepository.saveAuthorizationRequest(authorizationRequest, this.request, this.response);
-		// setup authentication parameters
-		this.request.setParameter("code", "code123");
-		this.request.setParameter("state", authorizationRequest.getState());
-		// perform test
-		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
-		// assertions
-		Authentication authentication = this.securityContextRepository
-				.loadContext(new HttpRequestResponseHolder(this.request, this.response))
-				.getAuthentication();
-		assertThat(authentication.getAuthorities()).hasSize(1);
-		assertThat(authentication.getAuthorities()).first()
-				.isInstanceOf(OAuth2UserAuthority.class)
-				.hasToString("OAUTH2_USER");
 	}
 
 	@Test
@@ -733,6 +711,22 @@ public class OAuth2LoginConfigurerTests {
 		OAuth2AuthorizedClientRepository authorizedClientRepository = this.spring.getContext()
 			.getBean(OAuth2AuthorizedClientRepository.class);
 		verifyNoInteractions(clientRegistrationRepository, authorizedClientRepository);
+	}
+
+	// gh-17175
+	@Test
+	public void oauth2LoginWhenAuthenticationProviderPostProcessorThenUses() throws Exception {
+		loadConfig(OAuth2LoginConfigCustomWithPostProcessor.class);
+		// setup authorization request
+		OAuth2AuthorizationRequest authorizationRequest = createOAuth2AuthorizationRequest();
+		this.authorizationRequestRepository.saveAuthorizationRequest(authorizationRequest, this.request, this.response);
+		// setup authentication parameters
+		this.request.setParameter("code", "code123");
+		this.request.setParameter("state", authorizationRequest.getState());
+		// perform test
+		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
+		// assertions
+		verify(this.context.getBean(SpyObjectPostProcessor.class).spy).authenticate(any());
 	}
 
 	private void loadConfig(Class<?>... configs) {
@@ -1335,50 +1329,46 @@ public class OAuth2LoginConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class OAuth2LoginConfigCustomWithPostProcessor
-			extends CommonLambdaSecurityFilterChainConfig {
+	static class OAuth2LoginConfigCustomWithPostProcessor {
 
-		private ClientRegistrationRepository clientRegistrationRepository = new InMemoryClientRegistrationRepository(
+		private final ClientRegistrationRepository clientRegistrationRepository = new InMemoryClientRegistrationRepository(
 				GOOGLE_CLIENT_REGISTRATION);
 
-		OAuth2AuthorizationRequestResolver resolver = mock(OAuth2AuthorizationRequestResolver.class);
+		private final ObjectPostProcessor<AuthenticationProvider> postProcessor = new SpyObjectPostProcessor();
 
 		@Bean
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-					.oauth2Login((oauth2Login) ->
-							oauth2Login
-									.clientRegistrationRepository(this.clientRegistrationRepository)
-//									.authorizedClientRepository(this.authorizedClientRepository)
-									.withObjectPostProcessor(new CustomProcessor())
-					);
+				.oauth2Login((oauth2Login) -> oauth2Login
+					.clientRegistrationRepository(this.clientRegistrationRepository)
+					.withObjectPostProcessor(this.postProcessor)
+				);
 			// @formatter:on
-			return super.configureFilterChain(http);
+			return http.build();
 		}
 
-		class CustomProcessor implements ObjectPostProcessor<AuthenticationProvider> {
+		@Bean
+		ObjectPostProcessor<AuthenticationProvider> mockPostProcessor() {
+			return this.postProcessor;
+		}
+
+		@Bean
+		HttpSessionOAuth2AuthorizationRequestRepository oauth2AuthorizationRequestRepository() {
+			return new HttpSessionOAuth2AuthorizationRequestRepository();
+		}
+
+		static class SpyObjectPostProcessor implements ObjectPostProcessor<AuthenticationProvider> {
+
+			AuthenticationProvider spy;
+
 			@Override
 			public <O extends AuthenticationProvider> O postProcess(O object) {
-				AuthenticationProvider p = new NoopWrapperProvider(object);
-
-				return (O) p;
-			}
-		}
-
-		record NoopWrapperProvider(
-			AuthenticationProvider delegate
-		) implements AuthenticationProvider {
-
-			@Override
-			public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-				return delegate.authenticate(authentication);
+				O spy = Mockito.spy(object);
+				this.spy = spy;
+				return spy;
 			}
 
-			@Override
-			public boolean supports(Class<?> authentication) {
-				return delegate.supports(authentication);
-			}
 		}
 
 	}
