@@ -122,6 +122,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
+import static org.springframework.security.config.Customizer.withDefaults;
 
 /**
  * @author Rob Winch
@@ -825,11 +826,10 @@ public class OAuth2LoginTests {
 		SecurityWebFilterChain springSecurity(ServerHttpSecurity http) {
 			// @formatter:off
 			http
-				.requestCache()
-					.requestCache(this.requestCache)
-					.and()
-				.oauth2Login()
-					.authorizationRequestRepository(this.authorizationRequestRepository);
+				.requestCache((cache) -> cache
+					.requestCache(this.requestCache))
+				.oauth2Login((login) -> login
+					.authorizationRequestRepository(this.authorizationRequestRepository));
 			// @formatter:on
 			return http.build();
 		}
@@ -863,12 +863,10 @@ public class OAuth2LoginTests {
 			http.authenticationManager(authenticationManager);
 			// @formatter:off
 			http
-				.authorizeExchange()
-					.anyExchange().authenticated()
-					.and()
-				.oauth2Login()
-					.and()
-				.formLogin();
+				.authorizeExchange((exchange) -> exchange
+					.anyExchange().authenticated())
+				.oauth2Login(withDefaults())
+				.formLogin(withDefaults());
 			// @formatter:on
 			return http.build();
 		}
@@ -887,12 +885,10 @@ public class OAuth2LoginTests {
 			http.authenticationManager(authenticationManager);
 			// @formatter:off
 			http
-				.authorizeExchange()
-					.anyExchange().authenticated()
-					.and()
-				.oauth2Login()
-					.and()
-				.httpBasic();
+				.authorizeExchange((exchange) -> exchange
+					.anyExchange().authenticated())
+				.oauth2Login(withDefaults())
+				.httpBasic(withDefaults());
 			// @formatter:on
 			return http.build();
 		}
@@ -958,16 +954,15 @@ public class OAuth2LoginTests {
 		SecurityWebFilterChain springSecurityFilter(ServerHttpSecurity http) {
 			// @formatter:off
 			http
-				.authorizeExchange()
-					.anyExchange().authenticated()
-					.and()
-				.oauth2Login()
+				.authorizeExchange((exchange) -> exchange
+					.anyExchange().authenticated())
+				.oauth2Login((login) -> login
 					.authenticationConverter(this.authenticationConverter)
 					.authenticationManager(this.manager)
 					.authenticationMatcher(this.matcher)
 					.authorizationRequestResolver(this.resolver)
 					.authenticationSuccessHandler(this.successHandler)
-					.authenticationFailureHandler(this.failureHandler);
+					.authenticationFailureHandler(this.failureHandler));
 			// @formatter:on
 			return http.build();
 		}
@@ -1031,13 +1026,12 @@ public class OAuth2LoginTests {
 		SecurityWebFilterChain springSecurityFilter(ServerHttpSecurity http) {
 			// @formatter:off
 			http
-				.authorizeExchange()
-					.anyExchange().authenticated()
-					.and()
-				.oauth2Login()
+				.authorizeExchange((exchange) -> exchange
+					.anyExchange().authenticated())
+				.oauth2Login((login) -> login
 					.authenticationConverter(this.authenticationConverter)
 					.authenticationManager(authenticationManager())
-					.securityContextRepository(this.securityContextRepository);
+					.securityContextRepository(this.securityContextRepository));
 			return http.build();
 			// @formatter:on
 		}
@@ -1102,14 +1096,13 @@ public class OAuth2LoginTests {
 		SecurityWebFilterChain springSecurity(ServerHttpSecurity http) {
 			// @formatter:off
 			http
-				.csrf().disable()
-				.logout()
+				.csrf((csrf) -> csrf.disable())
+				.logout((logout) -> logout
 					// avoid using mock ServerSecurityContextRepository for logout
 					.logoutHandler(new SecurityContextServerLogoutHandler())
 					.logoutSuccessHandler(
-							new OidcClientInitiatedServerLogoutSuccessHandler(
-									new InMemoryReactiveClientRegistrationRepository(this.withLogout)))
-					.and()
+						new OidcClientInitiatedServerLogoutSuccessHandler(
+							new InMemoryReactiveClientRegistrationRepository(this.withLogout))))
 				.securityContextRepository(this.repository);
 			// @formatter:on
 			return http.build();

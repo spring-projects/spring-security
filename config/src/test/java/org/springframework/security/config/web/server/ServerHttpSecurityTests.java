@@ -146,10 +146,9 @@ public class ServerHttpSecurityTests {
 	public void basic() {
 		given(this.authenticationManager.authenticate(any()))
 			.willReturn(Mono.just(new TestingAuthenticationToken("rob", "rob", "ROLE_USER", "ROLE_ADMIN")));
-		this.http.httpBasic();
+		this.http.httpBasic(withDefaults());
 		this.http.authenticationManager(this.authenticationManager);
-		ServerHttpSecurity.AuthorizeExchangeSpec authorize = this.http.authorizeExchange();
-		authorize.anyExchange().authenticated();
+		this.http.authorizeExchange((authorize) -> authorize.anyExchange().authenticated());
 		WebTestClient client = buildClient();
 		// @formatter:off
 		EntityExchangeResult<String> result = client.get()
@@ -171,10 +170,9 @@ public class ServerHttpSecurityTests {
 		given(this.authenticationManager.authenticate(any()))
 			.willReturn(Mono.just(new TestingAuthenticationToken("rob", "rob", "ROLE_USER", "ROLE_ADMIN")));
 		this.http.securityContextRepository(new WebSessionServerSecurityContextRepository());
-		this.http.httpBasic();
+		this.http.httpBasic(withDefaults());
 		this.http.authenticationManager(this.authenticationManager);
-		ServerHttpSecurity.AuthorizeExchangeSpec authorize = this.http.authorizeExchange();
-		authorize.anyExchange().authenticated();
+		this.http.authorizeExchange((authorize) -> authorize.anyExchange().authenticated());
 		WebTestClient client = buildClient();
 		// @formatter:off
 		EntityExchangeResult<String> result = client.get()
@@ -193,7 +191,7 @@ public class ServerHttpSecurityTests {
 
 	@Test
 	public void basicWhenNoCredentialsThenUnauthorized() {
-		this.http.authorizeExchange().anyExchange().authenticated();
+		this.http.authorizeExchange((exchange) -> exchange.anyExchange().authenticated());
 		WebTestClient client = buildClient();
 		// @formatter:off
 		client.get().uri("/")
@@ -208,8 +206,8 @@ public class ServerHttpSecurityTests {
 	public void basicWhenXHRRequestThenUnauthorized() {
 		ServerAuthenticationEntryPoint authenticationEntryPoint = spy(
 				new HttpStatusServerEntryPoint(HttpStatus.UNAUTHORIZED));
-		this.http.httpBasic().authenticationEntryPoint(authenticationEntryPoint);
-		this.http.authorizeExchange().anyExchange().authenticated();
+		this.http.httpBasic((basic) -> basic.authenticationEntryPoint(authenticationEntryPoint));
+		this.http.authorizeExchange((exchange) -> exchange.anyExchange().authenticated());
 		WebTestClient client = buildClient();
 		// @formatter:off
 		client.get().uri("/")
@@ -228,9 +226,9 @@ public class ServerHttpSecurityTests {
 		ReactiveAuthenticationManager authenticationManager = mock(ReactiveAuthenticationManager.class);
 		ServerAuthenticationFailureHandler authenticationFailureHandler = mock(
 				ServerAuthenticationFailureHandler.class);
-		this.http.httpBasic().authenticationFailureHandler(authenticationFailureHandler);
-		this.http.httpBasic().authenticationManager(authenticationManager);
-		this.http.authorizeExchange().anyExchange().authenticated();
+		this.http.httpBasic((basic) -> basic.authenticationFailureHandler(authenticationFailureHandler));
+		this.http.httpBasic((basic) -> basic.authenticationManager(authenticationManager));
+		this.http.authorizeExchange((exchange) -> exchange.anyExchange().authenticated());
 		given(authenticationManager.authenticate(any()))
 			.willReturn(Mono.error(() -> new BadCredentialsException("bad")));
 		given(authenticationFailureHandler.onAuthenticationFailure(any(), any())).willReturn(Mono.empty());
@@ -261,7 +259,7 @@ public class ServerHttpSecurityTests {
 
 	@Test
 	public void csrfServerLogoutHandlerNotAppliedIfCsrfIsntEnabled() {
-		SecurityWebFilterChain securityWebFilterChain = this.http.csrf().disable().build();
+		SecurityWebFilterChain securityWebFilterChain = this.http.csrf((csrf) -> csrf.disable()).build();
 		assertThat(getWebFilter(securityWebFilterChain, CsrfWebFilter.class)).isNotPresent();
 		Optional<ServerLogoutHandler> logoutHandler = getWebFilter(securityWebFilterChain, LogoutWebFilter.class)
 			.map((logoutWebFilter) -> (ServerLogoutHandler) ReflectionTestUtils.getField(logoutWebFilter,
@@ -271,9 +269,8 @@ public class ServerHttpSecurityTests {
 
 	@Test
 	public void csrfServerLogoutHandlerAppliedIfCsrfIsEnabled() {
-		SecurityWebFilterChain securityWebFilterChain = this.http.csrf()
-			.csrfTokenRepository(this.csrfTokenRepository)
-			.and()
+		SecurityWebFilterChain securityWebFilterChain = this.http
+			.csrf((csrf) -> csrf.csrfTokenRepository(this.csrfTokenRepository))
 			.build();
 		assertThat(getWebFilter(securityWebFilterChain, CsrfWebFilter.class)).get()
 			.extracting((csrfWebFilter) -> ReflectionTestUtils.getField(csrfWebFilter, "csrfTokenRepository"))
@@ -328,8 +325,8 @@ public class ServerHttpSecurityTests {
 	public void anonymous() {
 		// @formatter:off
 		SecurityWebFilterChain securityFilterChain = this.http
-				.anonymous().and()
-				.build();
+			.anonymous(withDefaults())
+			.build();
 		WebTestClient client = WebTestClientBuilder
 				.bindToControllerAndWebFilters(AnonymousAuthenticationWebFilterTests.HttpMeController.class, securityFilterChain)
 				.build();
@@ -360,10 +357,9 @@ public class ServerHttpSecurityTests {
 	public void basicWithAnonymous() {
 		given(this.authenticationManager.authenticate(any()))
 			.willReturn(Mono.just(new TestingAuthenticationToken("rob", "rob", "ROLE_USER", "ROLE_ADMIN")));
-		this.http.httpBasic().and().anonymous();
+		this.http.httpBasic(withDefaults()).anonymous(withDefaults());
 		this.http.authenticationManager(this.authenticationManager);
-		ServerHttpSecurity.AuthorizeExchangeSpec authorize = this.http.authorizeExchange();
-		authorize.anyExchange().hasAuthority("ROLE_ADMIN");
+		this.http.authorizeExchange((authorize) -> authorize.anyExchange().hasAuthority("ROLE_ADMIN"));
 		WebTestClient client = buildClient();
 		// @formatter:off
 		EntityExchangeResult<String> result = client.get()
@@ -384,10 +380,9 @@ public class ServerHttpSecurityTests {
 		this.http.securityContextRepository(new WebSessionServerSecurityContextRepository());
 		HttpBasicServerAuthenticationEntryPoint authenticationEntryPoint = new HttpBasicServerAuthenticationEntryPoint();
 		authenticationEntryPoint.setRealm("myrealm");
-		this.http.httpBasic().authenticationEntryPoint(authenticationEntryPoint);
+		this.http.httpBasic((basic) -> basic.authenticationEntryPoint(authenticationEntryPoint));
 		this.http.authenticationManager(this.authenticationManager);
-		ServerHttpSecurity.AuthorizeExchangeSpec authorize = this.http.authorizeExchange();
-		authorize.anyExchange().authenticated();
+		this.http.authorizeExchange((authorize) -> authorize.anyExchange().authenticated());
 		WebTestClient client = buildClient();
 		// @formatter:off
 		EntityExchangeResult<String> result = client.get()
@@ -408,8 +403,7 @@ public class ServerHttpSecurityTests {
 		authenticationEntryPoint.setRealm("myrealm");
 		this.http.httpBasic((httpBasic) -> httpBasic.authenticationEntryPoint(authenticationEntryPoint));
 		this.http.authenticationManager(this.authenticationManager);
-		ServerHttpSecurity.AuthorizeExchangeSpec authorize = this.http.authorizeExchange();
-		authorize.anyExchange().authenticated();
+		this.http.authorizeExchange((authorize) -> authorize.anyExchange().authenticated());
 		WebTestClient client = buildClient();
 		// @formatter:off
 		EntityExchangeResult<String> result = client.get()
@@ -430,10 +424,9 @@ public class ServerHttpSecurityTests {
 			.willReturn(Mono.just(new TestingAuthenticationToken("rob", "rob", "ROLE_USER", "ROLE_ADMIN")));
 		// @formatter:off
 		SecurityWebFilterChain securityFilterChain = this.http
-				.httpBasic()
-					.authenticationManager(customAuthenticationManager)
-					.and()
-				.build();
+			.httpBasic((basic) -> basic
+				.authenticationManager(customAuthenticationManager))
+			.build();
 		// @formatter:on
 		WebFilterChainProxy springSecurityFilterChain = new WebFilterChainProxy(securityFilterChain);
 		// @formatter:off
@@ -486,7 +479,8 @@ public class ServerHttpSecurityTests {
 	public void addsX509FilterWhenX509AuthenticationIsConfigured() {
 		X509PrincipalExtractor mockExtractor = mock(X509PrincipalExtractor.class);
 		ReactiveAuthenticationManager mockAuthenticationManager = mock(ReactiveAuthenticationManager.class);
-		this.http.x509().principalExtractor(mockExtractor).authenticationManager(mockAuthenticationManager).and();
+		this.http
+			.x509((x509) -> x509.principalExtractor(mockExtractor).authenticationManager(mockAuthenticationManager));
 		SecurityWebFilterChain securityWebFilterChain = this.http.build();
 		WebFilter x509WebFilter = securityWebFilterChain.getWebFilters().filter(this::isX509Filter).blockFirst();
 		assertThat(x509WebFilter).isNotNull();
@@ -505,7 +499,7 @@ public class ServerHttpSecurityTests {
 
 	@Test
 	public void addsX509FilterWhenX509AuthenticationIsConfiguredWithDefaults() {
-		this.http.x509();
+		this.http.x509(withDefaults());
 		SecurityWebFilterChain securityWebFilterChain = this.http.build();
 		WebFilter x509WebFilter = securityWebFilterChain.getWebFilters().filter(this::isX509Filter).blockFirst();
 		assertThat(x509WebFilter).isNotNull();
@@ -600,13 +594,9 @@ public class ServerHttpSecurityTests {
 		ServerRequestCache requestCache = spy(new WebSessionServerRequestCache());
 		ReactiveClientRegistrationRepository clientRegistrationRepository = mock(
 				ReactiveClientRegistrationRepository.class);
-		SecurityWebFilterChain securityFilterChain = this.http.oauth2Login()
-			.clientRegistrationRepository(clientRegistrationRepository)
-			.and()
-			.authorizeExchange()
-			.anyExchange()
-			.authenticated()
-			.and()
+		SecurityWebFilterChain securityFilterChain = this.http
+			.oauth2Login((login) -> login.clientRegistrationRepository(clientRegistrationRepository))
+			.authorizeExchange((exchange) -> exchange.anyExchange().authenticated())
 			.requestCache((c) -> c.requestCache(requestCache))
 			.build();
 		WebTestClient client = WebTestClientBuilder.bindToWebFilters(securityFilterChain).build();
@@ -633,10 +623,9 @@ public class ServerHttpSecurityTests {
 		OAuth2AuthorizationRequest authorizationRequest = TestOAuth2AuthorizationRequests.request().build();
 		given(authorizationRequestRepository.removeAuthorizationRequest(any()))
 			.willReturn(Mono.just(authorizationRequest));
-		SecurityWebFilterChain securityFilterChain = this.http.oauth2Login()
-			.clientRegistrationRepository(clientRegistrationRepository)
-			.authorizationRequestRepository(authorizationRequestRepository)
-			.and()
+		SecurityWebFilterChain securityFilterChain = this.http
+			.oauth2Login((login) -> login.clientRegistrationRepository(clientRegistrationRepository)
+				.authorizationRequestRepository(authorizationRequestRepository))
 			.build();
 		WebTestClient client = WebTestClientBuilder.bindToWebFilters(securityFilterChain).build();
 		client.get().uri("/login/oauth2/code/registration-id").exchange();
@@ -650,9 +639,8 @@ public class ServerHttpSecurityTests {
 		given(clientRegistrationRepository.findByRegistrationId(anyString()))
 			.willReturn(Mono.just(TestClientRegistrations.clientRegistration().build()));
 
-		SecurityWebFilterChain securityFilterChain = this.http.oauth2Login()
-			.clientRegistrationRepository(clientRegistrationRepository)
-			.and()
+		SecurityWebFilterChain securityFilterChain = this.http
+			.oauth2Login((login) -> login.clientRegistrationRepository(clientRegistrationRepository))
 			.build();
 
 		WebTestClient client = WebTestClientBuilder.bindToWebFilters(securityFilterChain).build();
@@ -674,10 +662,9 @@ public class ServerHttpSecurityTests {
 			.willReturn(Mono.just(TestClientRegistrations.clientRegistration().build()));
 		given(authorizationRedirectStrategy.sendRedirect(any(), any())).willReturn(Mono.empty());
 
-		SecurityWebFilterChain securityFilterChain = this.http.oauth2Login()
-			.clientRegistrationRepository(clientRegistrationRepository)
-			.authorizationRedirectStrategy(authorizationRedirectStrategy)
-			.and()
+		SecurityWebFilterChain securityFilterChain = this.http
+			.oauth2Login((login) -> login.clientRegistrationRepository(clientRegistrationRepository)
+				.authorizationRedirectStrategy(authorizationRedirectStrategy))
 			.build();
 
 		WebTestClient client = WebTestClientBuilder.bindToWebFilters(securityFilterChain).build();
@@ -698,9 +685,8 @@ public class ServerHttpSecurityTests {
 		given(clientRegistrationRepository.findByRegistrationId(anyString()))
 			.willReturn(Mono.just(TestClientRegistrations.clientRegistration().build()));
 
-		SecurityWebFilterChain securityFilterChain = this.http.oauth2Client()
-			.clientRegistrationRepository(clientRegistrationRepository)
-			.and()
+		SecurityWebFilterChain securityFilterChain = this.http
+			.oauth2Client((client) -> client.clientRegistrationRepository(clientRegistrationRepository))
 			.build();
 
 		WebTestClient client = WebTestClientBuilder.bindToWebFilters(securityFilterChain).build();
@@ -722,10 +708,9 @@ public class ServerHttpSecurityTests {
 			.willReturn(Mono.just(TestClientRegistrations.clientRegistration().build()));
 		given(authorizationRedirectStrategy.sendRedirect(any(), any())).willReturn(Mono.empty());
 
-		SecurityWebFilterChain securityFilterChain = this.http.oauth2Client()
-			.clientRegistrationRepository(clientRegistrationRepository)
-			.authorizationRedirectStrategy(authorizationRedirectStrategy)
-			.and()
+		SecurityWebFilterChain securityFilterChain = this.http
+			.oauth2Client((client) -> client.clientRegistrationRepository(clientRegistrationRepository)
+				.authorizationRedirectStrategy(authorizationRedirectStrategy))
 			.build();
 
 		WebTestClient client = WebTestClientBuilder.bindToWebFilters(securityFilterChain).build();

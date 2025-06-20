@@ -19,6 +19,7 @@ package org.springframework.security.config.web.server;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.reactive.ServerHttpSecurityConfigurationBuilder;
 import org.springframework.security.test.web.reactive.server.WebTestClientBuilder;
 import org.springframework.security.web.server.SecurityWebFilterChain;
@@ -42,12 +43,11 @@ public class ExceptionHandlingSpecTests {
 	public void defaultAuthenticationEntryPoint() {
 		// @formatter:off
 		SecurityWebFilterChain securityWebFilter = this.http
-				.csrf().disable()
-				.authorizeExchange()
-					.anyExchange().authenticated()
-					.and()
-				.exceptionHandling().and()
-				.build();
+			.csrf((csrf) -> csrf.disable())
+			.authorizeExchange((authorize) -> authorize
+				.anyExchange().authenticated())
+			.exceptionHandling(withDefaults())
+			.build();
 		WebTestClient client = WebTestClientBuilder
 				.bindToWebFilters(securityWebFilter)
 				.build();
@@ -83,14 +83,12 @@ public class ExceptionHandlingSpecTests {
 	public void customAuthenticationEntryPoint() {
 		// @formatter:off
 		SecurityWebFilterChain securityWebFilter = this.http
-				.csrf().disable()
-				.authorizeExchange()
-					.anyExchange().authenticated()
-					.and()
-				.exceptionHandling()
-					.authenticationEntryPoint(redirectServerAuthenticationEntryPoint("/auth"))
-					.and()
-				.build();
+			.csrf((csrf) -> csrf.disable())
+			.authorizeExchange((authorize) -> authorize
+				.anyExchange().authenticated())
+			.exceptionHandling((handling) -> handling
+				.authenticationEntryPoint(redirectServerAuthenticationEntryPoint("/auth")))
+			.build();
 		WebTestClient client = WebTestClientBuilder
 				.bindToWebFilters(securityWebFilter)
 				.build();
@@ -128,13 +126,12 @@ public class ExceptionHandlingSpecTests {
 	public void defaultAccessDeniedHandler() {
 		// @formatter:off
 		SecurityWebFilterChain securityWebFilter = this.http
-				.csrf().disable()
-				.httpBasic().and()
-				.authorizeExchange()
-					.anyExchange().hasRole("ADMIN")
-					.and()
-				.exceptionHandling().and()
-				.build();
+			.csrf((csrf) -> csrf.disable())
+			.httpBasic(Customizer.withDefaults())
+			.authorizeExchange((exchange) -> exchange
+				.anyExchange().hasRole("ADMIN"))
+			.exceptionHandling(withDefaults())
+			.build();
 		WebTestClient client = WebTestClientBuilder
 				.bindToWebFilters(securityWebFilter)
 				.build();
@@ -171,15 +168,13 @@ public class ExceptionHandlingSpecTests {
 	public void customAccessDeniedHandler() {
 		// @formatter:off
 		SecurityWebFilterChain securityWebFilter = this.http
-				.csrf().disable()
-				.httpBasic().and()
-				.authorizeExchange()
-					.anyExchange().hasRole("ADMIN")
-					.and()
-				.exceptionHandling()
-					.accessDeniedHandler(httpStatusServerAccessDeniedHandler(HttpStatus.BAD_REQUEST))
-					.and()
-				.build();
+			.csrf((csrf) -> csrf.disable())
+			.httpBasic(Customizer.withDefaults())
+			.authorizeExchange((exchange) -> exchange
+				.anyExchange().hasRole("ADMIN"))
+			.exceptionHandling((handling) -> handling
+				.accessDeniedHandler(httpStatusServerAccessDeniedHandler(HttpStatus.BAD_REQUEST)))
+			.build();
 		WebTestClient client = WebTestClientBuilder
 				.bindToWebFilters(securityWebFilter)
 				.build();

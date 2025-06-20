@@ -55,6 +55,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.ReactiveAuthenticationManagerResolver;
 import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
@@ -463,9 +464,10 @@ public class OAuth2ResourceServerSpecTests {
 		ReactiveJwtDecoder beanWiredJwtDecoder = mock(ReactiveJwtDecoder.class);
 		ReactiveJwtDecoder dslWiredJwtDecoder = mock(ReactiveJwtDecoder.class);
 		context.registerBean(ReactiveJwtDecoder.class, () -> beanWiredJwtDecoder);
-		ServerHttpSecurity.OAuth2ResourceServerSpec.JwtSpec jwt = http.oauth2ResourceServer().jwt();
-		jwt.jwtDecoder(dslWiredJwtDecoder);
-		assertThat(jwt.getJwtDecoder()).isEqualTo(dslWiredJwtDecoder);
+		http.oauth2ResourceServer((server) -> server.jwt((jwt) -> {
+			jwt.jwtDecoder(dslWiredJwtDecoder);
+			assertThat(jwt.getJwtDecoder()).isEqualTo(dslWiredJwtDecoder);
+		}));
 	}
 
 	@Test
@@ -477,9 +479,10 @@ public class OAuth2ResourceServerSpecTests {
 		ReactiveJwtDecoder dslWiredJwtDecoder = mock(ReactiveJwtDecoder.class);
 		context.registerBean("firstJwtDecoder", ReactiveJwtDecoder.class, () -> beanWiredJwtDecoder);
 		context.registerBean("secondJwtDecoder", ReactiveJwtDecoder.class, () -> beanWiredJwtDecoder);
-		ServerHttpSecurity.OAuth2ResourceServerSpec.JwtSpec jwt = http.oauth2ResourceServer().jwt();
-		jwt.jwtDecoder(dslWiredJwtDecoder);
-		assertThat(jwt.getJwtDecoder()).isEqualTo(dslWiredJwtDecoder);
+		http.oauth2ResourceServer((server) -> server.jwt((jwt) -> {
+			jwt.jwtDecoder(dslWiredJwtDecoder);
+			assertThat(jwt.getJwtDecoder()).isEqualTo(dslWiredJwtDecoder);
+		}));
 	}
 
 	@Test
@@ -490,8 +493,9 @@ public class OAuth2ResourceServerSpecTests {
 		ReactiveJwtDecoder beanWiredJwtDecoder = mock(ReactiveJwtDecoder.class);
 		context.registerBean("firstJwtDecoder", ReactiveJwtDecoder.class, () -> beanWiredJwtDecoder);
 		context.registerBean("secondJwtDecoder", ReactiveJwtDecoder.class, () -> beanWiredJwtDecoder);
-		ServerHttpSecurity.OAuth2ResourceServerSpec.JwtSpec jwt = http.oauth2ResourceServer().jwt();
-		assertThatExceptionOfType(NoUniqueBeanDefinitionException.class).isThrownBy(() -> jwt.getJwtDecoder());
+		http.oauth2ResourceServer(
+				(server) -> server.jwt((jwt) -> assertThatExceptionOfType(NoUniqueBeanDefinitionException.class)
+					.isThrownBy(jwt::getJwtDecoder)));
 	}
 
 	@Test
@@ -499,8 +503,9 @@ public class OAuth2ResourceServerSpecTests {
 		GenericWebApplicationContext context = autowireWebServerGenericWebApplicationContext();
 		ServerHttpSecurity http = new ServerHttpSecurity();
 		http.setApplicationContext(context);
-		ServerHttpSecurity.OAuth2ResourceServerSpec.JwtSpec jwt = http.oauth2ResourceServer().jwt();
-		assertThatExceptionOfType(NoSuchBeanDefinitionException.class).isThrownBy(() -> jwt.getJwtDecoder());
+		http.oauth2ResourceServer(
+				(server) -> server.jwt((jwt) -> assertThatExceptionOfType(NoSuchBeanDefinitionException.class)
+					.isThrownBy(jwt::getJwtDecoder)));
 	}
 
 	@Test
@@ -511,9 +516,10 @@ public class OAuth2ResourceServerSpecTests {
 		ReactiveJwtAuthenticationConverter beanWiredJwtAuthenticationConverter = new ReactiveJwtAuthenticationConverter();
 		ReactiveJwtAuthenticationConverter dslWiredJwtAuthenticationConverter = new ReactiveJwtAuthenticationConverter();
 		context.registerBean(ReactiveJwtAuthenticationConverter.class, () -> beanWiredJwtAuthenticationConverter);
-		ServerHttpSecurity.OAuth2ResourceServerSpec.JwtSpec jwt = http.oauth2ResourceServer().jwt();
-		jwt.jwtAuthenticationConverter(dslWiredJwtAuthenticationConverter);
-		assertThat(jwt.getJwtAuthenticationConverter()).isEqualTo(dslWiredJwtAuthenticationConverter);
+		http.oauth2ResourceServer((server) -> server.jwt((jwt) -> {
+			jwt.jwtAuthenticationConverter(dslWiredJwtAuthenticationConverter);
+			assertThat(jwt.getJwtAuthenticationConverter()).isEqualTo(dslWiredJwtAuthenticationConverter);
+		}));
 	}
 
 	@Test
@@ -527,9 +533,10 @@ public class OAuth2ResourceServerSpecTests {
 				() -> beanWiredJwtAuthenticationConverter);
 		context.registerBean("secondJwtAuthenticationConverter", ReactiveJwtAuthenticationConverter.class,
 				() -> beanWiredJwtAuthenticationConverter);
-		ServerHttpSecurity.OAuth2ResourceServerSpec.JwtSpec jwt = http.oauth2ResourceServer().jwt();
-		jwt.jwtAuthenticationConverter(dslWiredJwtAuthenticationConverter);
-		assertThat(jwt.getJwtAuthenticationConverter()).isEqualTo(dslWiredJwtAuthenticationConverter);
+		http.oauth2ResourceServer((server) -> server.jwt((jwt) -> {
+			jwt.jwtAuthenticationConverter(dslWiredJwtAuthenticationConverter);
+			assertThat(jwt.getJwtAuthenticationConverter()).isEqualTo(dslWiredJwtAuthenticationConverter);
+		}));
 	}
 
 	@Test
@@ -542,8 +549,9 @@ public class OAuth2ResourceServerSpecTests {
 				() -> beanWiredJwtAuthenticationConverter);
 		context.registerBean("secondJwtAuthenticationConverter", ReactiveJwtAuthenticationConverter.class,
 				() -> beanWiredJwtAuthenticationConverter);
-		ServerHttpSecurity.OAuth2ResourceServerSpec.JwtSpec jwt = http.oauth2ResourceServer().jwt();
-		assertThatExceptionOfType(NoUniqueBeanDefinitionException.class).isThrownBy(jwt::getJwtAuthenticationConverter);
+		http.oauth2ResourceServer(
+				(server) -> server.jwt((jwt) -> assertThatExceptionOfType(NoUniqueBeanDefinitionException.class)
+					.isThrownBy(jwt::getJwtAuthenticationConverter)));
 	}
 
 	@Test
@@ -551,8 +559,8 @@ public class OAuth2ResourceServerSpecTests {
 		GenericWebApplicationContext context = autowireWebServerGenericWebApplicationContext();
 		ServerHttpSecurity http = new ServerHttpSecurity();
 		http.setApplicationContext(context);
-		ServerHttpSecurity.OAuth2ResourceServerSpec.JwtSpec jwt = http.oauth2ResourceServer().jwt();
-		assertThat(jwt.getJwtAuthenticationConverter()).isInstanceOf(ReactiveJwtAuthenticationConverter.class);
+		http.oauth2ResourceServer((server) -> server.jwt((jwt) -> assertThat(jwt.getJwtAuthenticationConverter())
+			.isInstanceOf(ReactiveJwtAuthenticationConverter.class)));
 	}
 
 	@Test
@@ -674,12 +682,10 @@ public class OAuth2ResourceServerSpecTests {
 		SecurityWebFilterChain springSecurity(ServerHttpSecurity http) {
 			// @formatter:off
 			http
-				.authorizeExchange()
-					.anyExchange().hasAuthority("SCOPE_message:read")
-					.and()
-				.oauth2ResourceServer()
-					.jwt()
-						.publicKey(publicKey());
+				.authorizeExchange((exchange) -> exchange
+					.anyExchange().hasAuthority("SCOPE_message:read"))
+				.oauth2ResourceServer((server) -> server
+					.jwt((jwt) -> jwt.publicKey(publicKey())));
 			// @formatter:on
 			return http.build();
 		}
@@ -724,12 +730,10 @@ public class OAuth2ResourceServerSpecTests {
 		SecurityWebFilterChain springSecurity(ServerHttpSecurity http) {
 			// @formatter:off
 			http
-				.authorizeExchange()
-					.anyExchange().hasAuthority("SCOPE_message:read")
-					.and()
-				.oauth2ResourceServer()
-					.jwt()
-						.publicKey(this.key);
+				.authorizeExchange((exchange) -> exchange
+					.anyExchange().hasAuthority("SCOPE_message:read"))
+				.oauth2ResourceServer((server) -> server
+					.jwt((jwt) -> jwt.publicKey(this.key)));
 			// @formatter:on
 			return http.build();
 		}
@@ -748,9 +752,8 @@ public class OAuth2ResourceServerSpecTests {
 			String jwkSetUri = mockWebServer().url("/.well-known/jwks.json").toString();
 			// @formatter:off
 			http
-				.oauth2ResourceServer()
-					.jwt()
-						.jwkSetUri(jwkSetUri);
+				.oauth2ResourceServer((server) -> server
+					.jwt((jwt) -> jwt.jwkSetUri(jwkSetUri)));
 			// @formatter:on
 			return http.build();
 		}
@@ -813,8 +816,8 @@ public class OAuth2ResourceServerSpecTests {
 		SecurityWebFilterChain springSecurity(ServerHttpSecurity http) {
 			// @formatter:off
 			http
-				.oauth2ResourceServer()
-					.jwt();
+				.oauth2ResourceServer((server) -> server
+					.jwt(Customizer.withDefaults()));
 			// @formatter:on
 			return http.build();
 		}
@@ -835,12 +838,10 @@ public class OAuth2ResourceServerSpecTests {
 		SecurityWebFilterChain authorization(ServerHttpSecurity http) {
 			// @formatter:off
 			http
-				.authorizeExchange()
-					.anyExchange().denyAll()
-					.and()
-				.oauth2ResourceServer()
-					.jwt()
-						.publicKey(publicKey());
+				.authorizeExchange((exchange) -> exchange
+					.anyExchange().denyAll())
+				.oauth2ResourceServer((server) -> server
+					.jwt((jwt) -> jwt.publicKey(publicKey())));
 			// @formatter:on
 			return http.build();
 		}
@@ -856,9 +857,8 @@ public class OAuth2ResourceServerSpecTests {
 		SecurityWebFilterChain springSecurity(ServerHttpSecurity http) {
 			// @formatter:off
 			http
-				.oauth2ResourceServer()
-					.jwt()
-						.authenticationManager(authenticationManager());
+				.oauth2ResourceServer((server) -> server
+					.jwt((jwt) -> jwt.authenticationManager(authenticationManager())));
 			// @formatter:on
 			return http.build();
 		}
@@ -906,11 +906,10 @@ public class OAuth2ResourceServerSpecTests {
 		SecurityWebFilterChain springSecurity(ServerHttpSecurity http) {
 			// @formatter:off
 			http
-				.authorizeExchange()
-					.pathMatchers("/*/message/**").hasAnyAuthority("SCOPE_message:read")
-					.and()
-				.oauth2ResourceServer()
-					.authenticationManagerResolver(authenticationManagerResolver());
+				.authorizeExchange((exchange) -> exchange
+					.pathMatchers("/*/message/**").hasAnyAuthority("SCOPE_message:read"))
+				.oauth2ResourceServer((server) -> server
+					.authenticationManagerResolver(authenticationManagerResolver()));
 			// @formatter:on
 			return http.build();
 		}
@@ -965,13 +964,11 @@ public class OAuth2ResourceServerSpecTests {
 		SecurityWebFilterChain springSecurity(ServerHttpSecurity http) {
 			// @formatter:off
 			http
-				.authorizeExchange()
-					.anyExchange().hasAuthority("SCOPE_message:read")
-					.and()
-				.oauth2ResourceServer()
+				.authorizeExchange((exchange) -> exchange
+					.anyExchange().hasAuthority("SCOPE_message:read"))
+				.oauth2ResourceServer((server) -> server
 					.bearerTokenConverter(bearerTokenAuthenticationConverter())
-					.jwt()
-						.publicKey(publicKey());
+					.jwt((jwt) -> jwt.publicKey(publicKey())));
 			// @formatter:on
 			return http.build();
 		}
@@ -993,13 +990,12 @@ public class OAuth2ResourceServerSpecTests {
 		SecurityWebFilterChain springSecurity(ServerHttpSecurity http) {
 			// @formatter:off
 			http
-				.authorizeExchange()
-					.anyExchange().hasAuthority("message:read")
-					.and()
-				.oauth2ResourceServer()
-					.jwt()
+				.authorizeExchange((exchange) -> exchange
+					.anyExchange().hasAuthority("message:read"))
+				.oauth2ResourceServer((server) -> server
+					.jwt((jwt) -> jwt
 						.jwtAuthenticationConverter(jwtAuthenticationConverter())
-						.publicKey(publicKey());
+						.publicKey(publicKey())));
 			// @formatter:on
 			return http.build();
 		}
@@ -1025,15 +1021,13 @@ public class OAuth2ResourceServerSpecTests {
 		SecurityWebFilterChain springSecurity(ServerHttpSecurity http) {
 			// @formatter:off
 			http
-				.authorizeExchange()
+				.authorizeExchange((exchange) -> exchange
 					.pathMatchers("/authenticated").authenticated()
-					.pathMatchers("/unobtainable").hasAuthority("unobtainable")
-					.and()
-				.oauth2ResourceServer()
+					.pathMatchers("/unobtainable").hasAuthority("unobtainable"))
+				.oauth2ResourceServer((server) -> server
 					.accessDeniedHandler(new HttpStatusServerAccessDeniedHandler(HttpStatus.BANDWIDTH_LIMIT_EXCEEDED))
 					.authenticationEntryPoint(new HttpStatusServerEntryPoint(HttpStatus.I_AM_A_TEAPOT))
-					.jwt()
-						.publicKey(publicKey());
+					.jwt((jwt) -> jwt.publicKey(publicKey())));
 			// @formatter:on
 			return http.build();
 		}
@@ -1052,10 +1046,10 @@ public class OAuth2ResourceServerSpecTests {
 			String introspectionUri = mockWebServer().url("/introspect").toString();
 			// @formatter:off
 			http
-				.oauth2ResourceServer()
-					.opaqueToken()
+				.oauth2ResourceServer((server) -> server
+					.opaqueToken((opaqueToken) -> opaqueToken
 						.introspectionUri(introspectionUri)
-						.introspectionClientCredentials("client", "secret");
+						.introspectionClientCredentials("client", "secret")));
 			// @formatter:on
 			return http.build();
 		}
@@ -1117,12 +1111,11 @@ public class OAuth2ResourceServerSpecTests {
 		SecurityWebFilterChain springSecurity(ServerHttpSecurity http) {
 			// @formatter:off
 			http
-				.authorizeExchange()
-					.anyExchange().authenticated()
-					.and()
-				.oauth2ResourceServer()
+				.authorizeExchange((exchange) -> exchange
+					.anyExchange().authenticated())
+				.oauth2ResourceServer((server) -> server
 					.authenticationManagerResolver(mock(ReactiveAuthenticationManagerResolver.class))
-					.opaqueToken();
+					.opaqueToken(Customizer.withDefaults()));
 			// @formatter:on
 			return http.build();
 		}
@@ -1141,11 +1134,11 @@ public class OAuth2ResourceServerSpecTests {
 			String introspectionUri = mockWebServer().url("/introspect").toString();
 			// @formatter:off
 			http
-				.oauth2ResourceServer()
-					.opaqueToken()
+				.oauth2ResourceServer((server) -> server
+					.opaqueToken((opaqueToken) -> opaqueToken
 						.introspectionUri(introspectionUri)
 						.introspectionClientCredentials("client", "secret")
-						.authenticationConverter(authenticationConverter());
+						.authenticationConverter(authenticationConverter())));
 			// @formatter:on
 			return http.build();
 		}

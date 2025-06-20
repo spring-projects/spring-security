@@ -44,12 +44,10 @@ public class LogoutSpecTests {
 	public void defaultLogout() {
 		// @formatter:off
 		SecurityWebFilterChain securityWebFilter = this.http
-				.authorizeExchange()
-					.anyExchange().authenticated()
-					.and()
-				.formLogin()
-					.and()
-				.build();
+			.authorizeExchange((exchange) -> exchange
+				.anyExchange().authenticated())
+			.formLogin(withDefaults())
+			.build();
 		WebTestClient webTestClient = WebTestClientBuilder
 				.bindToWebFilters(securityWebFilter)
 				.build();
@@ -80,14 +78,12 @@ public class LogoutSpecTests {
 	public void customLogout() {
 		// @formatter:off
 		SecurityWebFilterChain securityWebFilter = this.http
-				.authorizeExchange()
-					.anyExchange().authenticated()
-					.and()
-				.formLogin().and()
-				.logout()
-					.requiresLogout(ServerWebExchangeMatchers.pathMatchers("/custom-logout"))
-				.and()
-				.build();
+			.authorizeExchange((exchange) -> exchange
+				.anyExchange().authenticated())
+			.formLogin(withDefaults())
+			.logout((logout) -> logout
+				.requiresLogout(ServerWebExchangeMatchers.pathMatchers("/custom-logout")))
+			.build();
 		WebTestClient webTestClient = WebTestClientBuilder
 				.bindToWebFilters(securityWebFilter)
 				.build();
@@ -155,12 +151,11 @@ public class LogoutSpecTests {
 	public void logoutWhenDisabledThenDefaultLogoutPageDoesNotExist() {
 		// @formatter:off
 		SecurityWebFilterChain securityWebFilter = this.http
-				.authorizeExchange()
-					.anyExchange().authenticated()
-					.and()
-				.formLogin().and()
-				.logout().disable()
-				.build();
+			.authorizeExchange((exchange) -> exchange
+				.anyExchange().authenticated())
+			.formLogin(withDefaults())
+			.logout((logout) -> logout.disable())
+			.build();
 		WebTestClient webTestClient = WebTestClientBuilder
 				.bindToControllerAndWebFilters(HomeController.class, securityWebFilter)
 				.build();
@@ -188,13 +183,12 @@ public class LogoutSpecTests {
 		repository.setSpringSecurityContextAttrName("CUSTOM_CONTEXT_ATTR");
 		// @formatter:off
 		SecurityWebFilterChain securityWebFilter = this.http
-				.securityContextRepository(repository)
-				.authorizeExchange()
-					.anyExchange().authenticated()
-					.and()
-				.formLogin().and()
-				.logout().and()
-				.build();
+			.securityContextRepository(repository)
+			.authorizeExchange((exchange) -> exchange
+				.anyExchange().authenticated())
+			.formLogin(withDefaults())
+			.logout(withDefaults())
+			.build();
 		WebTestClient webTestClient = WebTestClientBuilder
 				.bindToWebFilters(securityWebFilter)
 				.build();

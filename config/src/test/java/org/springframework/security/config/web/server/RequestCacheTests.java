@@ -49,11 +49,10 @@ public class RequestCacheTests {
 	public void defaultFormLoginRequestCache() {
 		// @formatter:off
 		SecurityWebFilterChain securityWebFilter = this.http
-				.authorizeExchange()
-					.anyExchange().authenticated()
-					.and()
-				.formLogin().and()
-				.build();
+			.authorizeExchange((exchange) -> exchange
+				.anyExchange().authenticated())
+			.formLogin(withDefaults())
+			.build();
 		WebTestClient webTestClient = WebTestClient
 				.bindToController(new SecuredPageController(), new WebTestClientBuilder.Http200RestController())
 				.webFilter(new WebFilterChainProxy(securityWebFilter))
@@ -76,14 +75,12 @@ public class RequestCacheTests {
 	public void requestCacheNoOp() {
 		// @formatter:off
 		SecurityWebFilterChain securityWebFilter = this.http
-				.authorizeExchange()
-					.anyExchange().authenticated()
-					.and()
-				.formLogin().and()
-				.requestCache()
-					.requestCache(NoOpServerRequestCache.getInstance())
-					.and()
-				.build();
+			.authorizeExchange((exchange) -> exchange
+				.anyExchange().authenticated())
+			.formLogin(withDefaults())
+			.requestCache((cache) -> cache
+				.requestCache(NoOpServerRequestCache.getInstance()))
+			.build();
 		WebTestClient webTestClient = WebTestClient
 				.bindToController(new SecuredPageController(), new WebTestClientBuilder.Http200RestController())
 				.webFilter(new WebFilterChainProxy(securityWebFilter))

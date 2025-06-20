@@ -35,13 +35,11 @@ public class AuthorizeExchangeSpecTests {
 
 	@Test
 	public void antMatchersWhenMethodAndPatternsThenDiscriminatesByMethod() {
-		this.http.csrf()
-			.disable()
-			.authorizeExchange()
-			.pathMatchers(HttpMethod.POST, "/a", "/b")
-			.denyAll()
-			.anyExchange()
-			.permitAll();
+		this.http.csrf((csrf) -> csrf.disable())
+			.authorizeExchange((authorize) -> authorize.pathMatchers(HttpMethod.POST, "/a", "/b")
+				.denyAll()
+				.anyExchange()
+				.permitAll());
 		WebTestClient client = buildClient();
 		// @formatter:off
 		client.get()
@@ -65,7 +63,8 @@ public class AuthorizeExchangeSpecTests {
 
 	@Test
 	public void antMatchersWhenPatternsThenAnyMethod() {
-		this.http.csrf().disable().authorizeExchange().pathMatchers("/a", "/b").denyAll().anyExchange().permitAll();
+		this.http.csrf((csrf) -> csrf.disable())
+			.authorizeExchange((authorize) -> authorize.pathMatchers("/a", "/b").denyAll().anyExchange().permitAll());
 		WebTestClient client = buildClient();
 		// @formatter:off
 		client.get()
@@ -114,25 +113,25 @@ public class AuthorizeExchangeSpecTests {
 
 	@Test
 	public void antMatchersWhenNoAccessAndAnotherMatcherThenThrowsException() {
-		this.http.authorizeExchange().pathMatchers("/incomplete");
+		this.http.authorizeExchange((exchange) -> exchange.pathMatchers("/incomplete"));
 		assertThatIllegalStateException()
-			.isThrownBy(() -> this.http.authorizeExchange().pathMatchers("/throws-exception"));
+			.isThrownBy(() -> this.http.authorizeExchange((exchange) -> exchange.pathMatchers("/throws-exception")));
 	}
 
 	@Test
 	public void anyExchangeWhenFollowedByMatcherThenThrowsException() {
 		assertThatIllegalStateException().isThrownBy(() ->
 		// @formatter:off
-			this.http.authorizeExchange()
-					.anyExchange().denyAll()
-					.pathMatchers("/never-reached")
+			this.http.authorizeExchange((exchange) -> exchange
+				.anyExchange().denyAll()
+				.pathMatchers("/never-reached"))
 		// @formatter:on
 		);
 	}
 
 	@Test
 	public void buildWhenMatcherDefinedWithNoAccessThenThrowsException() {
-		this.http.authorizeExchange().pathMatchers("/incomplete");
+		this.http.authorizeExchange((exchange) -> exchange.pathMatchers("/incomplete"));
 		assertThatIllegalStateException().isThrownBy(this.http::build);
 	}
 

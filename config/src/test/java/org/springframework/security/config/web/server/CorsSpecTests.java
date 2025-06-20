@@ -73,7 +73,7 @@ public class CorsSpecTests {
 	@Test
 	public void corsWhenEnabledThenAccessControlAllowOriginAndSecurityHeaders() {
 		givenGetCorsConfigurationWillReturnWildcard();
-		this.http.cors().configurationSource(this.source);
+		this.http.cors((cors) -> cors.configurationSource(this.source));
 		this.expectedHeaders.set("Access-Control-Allow-Origin", "*");
 		this.expectedHeaders.set("X-Frame-Options", "DENY");
 		assertHeaders();
