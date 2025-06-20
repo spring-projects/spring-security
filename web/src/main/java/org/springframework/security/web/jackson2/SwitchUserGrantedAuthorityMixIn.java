@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ import org.springframework.security.web.authentication.switchuser.SwitchUserGran
  *
  * @author Markus Heiden
  * @since 6.3
+ * @see WebJackson2Module
  * @see WebServletJackson2Module
  * @see org.springframework.security.jackson2.SecurityJackson2Modules
  */

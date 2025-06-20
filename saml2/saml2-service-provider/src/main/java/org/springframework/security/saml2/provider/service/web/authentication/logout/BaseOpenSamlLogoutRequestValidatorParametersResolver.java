@@ -23,8 +23,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.saml2.core.OpenSamlInitializationService;
 import org.springframework.security.saml2.core.Saml2Error;
-import org.springframework.security.saml2.core.Saml2ErrorCodes;
 import org.springframework.security.saml2.core.Saml2ParameterNames;
+import org.springframework.security.saml2.provider.service.authentication.Saml2AssertionAuthentication;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticatedPrincipal;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationException;
 import org.springframework.security.saml2.provider.service.authentication.logout.Saml2LogoutRequest;
@@ -134,8 +134,11 @@ final class BaseOpenSamlLogoutRequestValidatorParametersResolver
 		if (authentication == null) {
 			return null;
 		}
-		if (authentication.getPrincipal() instanceof Saml2AuthenticatedPrincipal principal) {
-			return principal.getRelyingPartyRegistrationId();
+		if (authentication instanceof Saml2AssertionAuthentication saml2) {
+			return saml2.getRelyingPartyRegistrationId();
+		}
+		if (authentication.getPrincipal() instanceof Saml2AuthenticatedPrincipal saml2) {
+			return saml2.getRelyingPartyRegistrationId();
 		}
 		return null;
 	}
@@ -145,8 +148,7 @@ final class BaseOpenSamlLogoutRequestValidatorParametersResolver
 		RelyingPartyRegistration registration = this.registrations.findByRegistrationId(registrationId);
 		if (registration == null) {
 			throw new Saml2AuthenticationException(
-					new Saml2Error(Saml2ErrorCodes.RELYING_PARTY_REGISTRATION_NOT_FOUND, "registration not found"),
-					"registration not found");
+					Saml2Error.relyingPartyRegistrationNotFound("registration not found"));
 		}
 		return logoutRequestByRegistration(request, registration, authentication);
 	}

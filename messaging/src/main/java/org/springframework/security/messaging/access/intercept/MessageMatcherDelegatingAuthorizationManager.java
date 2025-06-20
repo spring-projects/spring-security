@@ -30,6 +30,7 @@ import org.springframework.security.authorization.AuthenticatedAuthorizationMana
 import org.springframework.security.authorization.AuthorityAuthorizationManager;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.authorization.SingleResultAuthorizationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.messaging.util.matcher.MessageMatcher;
@@ -63,11 +64,24 @@ public final class MessageMatcherDelegatingAuthorizationManager implements Autho
 	 * @return an {@link AuthorizationDecision}. If there is no {@link MessageMatcher}
 	 * matching the message, or the {@link AuthorizationManager} could not decide, then
 	 * null is returned
-	 * @deprecated please use {@link #authorize(Supplier, Object)} instead
+	 * @deprecated please use {@link #authorize(Supplier, Message)} instead
 	 */
 	@Deprecated
 	@Override
 	public AuthorizationDecision check(Supplier<Authentication> authentication, Message<?> message) {
+		AuthorizationResult result = authorize(authentication, message);
+		if (result == null) {
+			return null;
+		}
+		if (result instanceof AuthorizationDecision decision) {
+			return decision;
+		}
+		throw new IllegalArgumentException(
+				"Please call #authorize or ensure that the returned result is of type AuthorizationDecision");
+	}
+
+	@Override
+	public AuthorizationResult authorize(Supplier<Authentication> authentication, Message<?> message) {
 		if (this.logger.isTraceEnabled()) {
 			this.logger.trace(LogMessage.format("Authorizing message"));
 		}
@@ -79,7 +93,7 @@ public final class MessageMatcherDelegatingAuthorizationManager implements Autho
 				if (this.logger.isTraceEnabled()) {
 					this.logger.trace(LogMessage.format("Checking authorization on message using %s", manager));
 				}
-				return manager.check(authentication, authorizationContext);
+				return manager.authorize(authentication, authorizationContext);
 			}
 		}
 		this.logger.trace("Abstaining since did not find matching MessageMatcher");

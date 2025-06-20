@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -228,6 +228,21 @@ public class Saml2AuthenticationTokenConverterTests {
 				this.relyingPartyRegistrationResolver);
 		assertThatExceptionOfType(IllegalArgumentException.class)
 			.isThrownBy(() -> converter.setAuthenticationRequestRepository(null));
+	}
+
+	@Test
+	public void shouldNotConvertGetRequests() {
+		Saml2AuthenticationTokenConverter converter = new Saml2AuthenticationTokenConverter(
+				this.relyingPartyRegistrationResolver);
+		converter.setShouldConvertGetRequests(false);
+		given(this.relyingPartyRegistrationResolver.resolve(any(HttpServletRequest.class), any()))
+			.willReturn(this.relyingPartyRegistration);
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setMethod("GET");
+		request.setParameter(Saml2ParameterNames.SAML_RESPONSE,
+				Saml2Utils.samlEncode("response".getBytes(StandardCharsets.UTF_8)));
+		Saml2AuthenticationToken token = converter.convert(request);
+		assertThat(token).isNull();
 	}
 
 	private void validateSsoCircleXml(String xml) {

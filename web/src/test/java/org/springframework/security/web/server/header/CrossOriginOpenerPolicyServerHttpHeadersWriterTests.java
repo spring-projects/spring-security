@@ -49,7 +49,7 @@ class CrossOriginOpenerPolicyServerHttpHeadersWriterTests {
 	void writeHeadersWhenNoValuesThenDoesNotWriteHeaders() {
 		this.writer.writeHttpHeaders(this.exchange);
 		HttpHeaders headers = this.exchange.getResponse().getHeaders();
-		assertThat(headers).isEmpty();
+		assertThat(headers.headerNames()).isEmpty();
 	}
 
 	@Test
@@ -59,7 +59,7 @@ class CrossOriginOpenerPolicyServerHttpHeadersWriterTests {
 			.add(CrossOriginOpenerPolicyServerHttpHeadersWriter.OPENER_POLICY, "same-origin");
 		this.writer.writeHttpHeaders(this.exchange);
 		HttpHeaders headers = this.exchange.getResponse().getHeaders();
-		assertThat(headers).hasSize(1);
+		assertThat(headers.headerNames()).hasSize(1);
 		assertThat(headers.get(CrossOriginOpenerPolicyServerHttpHeadersWriter.OPENER_POLICY))
 			.containsOnly("same-origin");
 	}
@@ -70,7 +70,7 @@ class CrossOriginOpenerPolicyServerHttpHeadersWriterTests {
 			.setPolicy(CrossOriginOpenerPolicyServerHttpHeadersWriter.CrossOriginOpenerPolicy.SAME_ORIGIN_ALLOW_POPUPS);
 		this.writer.writeHttpHeaders(this.exchange);
 		HttpHeaders headers = this.exchange.getResponse().getHeaders();
-		assertThat(headers).hasSize(1);
+		assertThat(headers.headerNames()).hasSize(1);
 		assertThat(headers.get(CrossOriginOpenerPolicyServerHttpHeadersWriter.OPENER_POLICY))
 			.containsOnly("same-origin-allow-popups");
 	}

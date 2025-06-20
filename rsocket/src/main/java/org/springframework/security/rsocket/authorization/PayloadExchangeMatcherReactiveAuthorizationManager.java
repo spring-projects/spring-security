@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import org.springframework.security.authorization.AuthorizationDecision;
+import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.rsocket.api.PayloadExchange;
@@ -51,18 +52,29 @@ public final class PayloadExchangeMatcherReactiveAuthorizationManager
 	}
 
 	/**
-	 * @deprecated please use {@link #authorize(Mono, Object)} instead
+	 * @deprecated please use {@link #authorize(Mono, PayloadExchange)} instead
 	 */
 	@Deprecated
 	@Override
 	public Mono<AuthorizationDecision> check(Mono<Authentication> authentication, PayloadExchange exchange) {
+		return authorize(authentication, exchange).flatMap((result) -> {
+			if (result instanceof AuthorizationDecision decision) {
+				return Mono.just(decision);
+			}
+			return Mono.error(new IllegalArgumentException(
+					"Please call #authorize or ensure that the returned result is of type Mono<AuthorizationDecision>"));
+		});
+	}
+
+	@Override
+	public Mono<AuthorizationResult> authorize(Mono<Authentication> authentication, PayloadExchange exchange) {
 		return Flux.fromIterable(this.mappings)
 			.concatMap((mapping) -> mapping.getMatcher()
 				.matches(exchange)
 				.filter(PayloadExchangeMatcher.MatchResult::isMatch)
 				.map(MatchResult::getVariables)
 				.flatMap((variables) -> mapping.getEntry()
-					.check(authentication, new PayloadExchangeAuthorizationContext(exchange, variables))))
+					.authorize(authentication, new PayloadExchangeAuthorizationContext(exchange, variables))))
 			.next()
 			.switchIfEmpty(Mono.fromCallable(() -> new AuthorizationDecision(false)));
 	}

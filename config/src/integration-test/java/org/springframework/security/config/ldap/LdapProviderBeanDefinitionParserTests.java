@@ -56,7 +56,7 @@ public class LdapProviderBeanDefinitionParserTests {
 		AuthenticationManager authenticationManager = this.appCtx.getBean(BeanIds.AUTHENTICATION_MANAGER,
 				AuthenticationManager.class);
 		Authentication auth = authenticationManager
-			.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("ben", "benspassword"));
+			.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("otherben", "otherbenspassword"));
 		UserDetails ben = (UserDetails) auth.getPrincipal();
 		assertThat(ben.getAuthorities()).hasSize(3);
 	}
@@ -123,6 +123,27 @@ public class LdapProviderBeanDefinitionParserTests {
 				AuthenticationManager.class);
 		Authentication auth = authenticationManager
 			.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("bcrypt", "password"));
+
+		assertThat(auth).isNotNull();
+	}
+
+	@Test
+	public void supportsShaPasswordEncoder() {
+		this.appCtx = new InMemoryXmlApplicationContext("""
+				<ldap-server ldif='classpath:test-server.ldif' port='0'/>
+				<authentication-manager>
+					<ldap-authentication-provider user-dn-pattern='uid={0},ou=people'>
+						<password-compare>
+							<password-encoder ref='pe' />
+						</password-compare>
+					</ldap-authentication-provider>
+				</authentication-manager>
+				<b:bean id='pe' class='org.springframework.security.crypto.password.LdapShaPasswordEncoder' />
+				""");
+		AuthenticationManager authenticationManager = this.appCtx.getBean(BeanIds.AUTHENTICATION_MANAGER,
+				AuthenticationManager.class);
+		Authentication auth = authenticationManager
+			.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("ben", "benspassword"));
 
 		assertThat(auth).isNotNull();
 	}

@@ -30,6 +30,7 @@ import org.springframework.core.log.LogMessage;
 import org.springframework.http.InvalidMediaTypeException;
 import org.springframework.http.MediaType;
 import org.springframework.util.Assert;
+import org.springframework.util.MimeTypeUtils;
 import org.springframework.web.accept.ContentNegotiationStrategy;
 import org.springframework.web.server.NotAcceptableStatusException;
 import org.springframework.web.server.ServerWebExchange;
@@ -138,7 +139,7 @@ public class MediaTypeServerWebExchangeMatcher implements ServerWebExchangeMatch
 	private List<MediaType> resolveMediaTypes(ServerWebExchange exchange) throws NotAcceptableStatusException {
 		try {
 			List<MediaType> mediaTypes = exchange.getRequest().getHeaders().getAccept();
-			MediaType.sortBySpecificityAndQuality(mediaTypes);
+			MimeTypeUtils.sortBySpecificity(mediaTypes);
 			return mediaTypes;
 		}
 		catch (InvalidMediaTypeException ex) {

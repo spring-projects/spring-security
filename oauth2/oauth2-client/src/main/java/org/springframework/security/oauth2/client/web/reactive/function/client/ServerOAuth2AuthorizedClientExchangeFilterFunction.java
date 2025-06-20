@@ -44,6 +44,7 @@ import org.springframework.security.oauth2.client.RemoveAuthorizedClientReactive
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
+import org.springframework.security.oauth2.client.web.ClientAttributes;
 import org.springframework.security.oauth2.client.web.DefaultReactiveOAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
@@ -103,13 +104,6 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 	 * The request attribute name used to locate the {@link OAuth2AuthorizedClient}.
 	 */
 	private static final String OAUTH2_AUTHORIZED_CLIENT_ATTR_NAME = OAuth2AuthorizedClient.class.getName();
-
-	/**
-	 * The client request attribute name used to locate the
-	 * {@link ClientRegistration#getRegistrationId()}
-	 */
-	private static final String CLIENT_REGISTRATION_ID_ATTR_NAME = OAuth2AuthorizedClient.class.getName()
-		.concat(".CLIENT_REGISTRATION_ID");
 
 	/**
 	 * The request attribute name used to locate the
@@ -292,7 +286,7 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 	 * @return the {@link Consumer} to populate the attributes
 	 */
 	public static Consumer<Map<String, Object>> clientRegistrationId(String clientRegistrationId) {
-		return (attributes) -> attributes.put(CLIENT_REGISTRATION_ID_ATTR_NAME, clientRegistrationId);
+		return ClientAttributes.clientRegistrationId(clientRegistrationId);
 	}
 
 	private static String clientRegistrationId(ClientRequest request) {
@@ -300,7 +294,7 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 		if (authorizedClient != null) {
 			return authorizedClient.getClientRegistration().getRegistrationId();
 		}
-		return (String) request.attributes().get(CLIENT_REGISTRATION_ID_ATTR_NAME);
+		return ClientAttributes.resolveClientRegistrationId(request.attributes());
 	}
 
 	/**

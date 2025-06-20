@@ -50,6 +50,7 @@ import org.springframework.security.oauth2.client.RemoveAuthorizedClientOAuth2Au
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.client.web.ClientAttributes;
 import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
@@ -135,9 +136,6 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 	 * The request attribute name used to locate the {@link OAuth2AuthorizedClient}.
 	 */
 	private static final String OAUTH2_AUTHORIZED_CLIENT_ATTR_NAME = OAuth2AuthorizedClient.class.getName();
-
-	private static final String CLIENT_REGISTRATION_ID_ATTR_NAME = OAuth2AuthorizedClient.class.getName()
-		.concat(".CLIENT_REGISTRATION_ID");
 
 	private static final String AUTHENTICATION_ATTR_NAME = Authentication.class.getName();
 
@@ -311,7 +309,7 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 	 * @return the {@link Consumer} to populate the attributes
 	 */
 	public static Consumer<Map<String, Object>> clientRegistrationId(String clientRegistrationId) {
-		return (attributes) -> attributes.put(CLIENT_REGISTRATION_ID_ATTR_NAME, clientRegistrationId);
+		return ClientAttributes.clientRegistrationId(clientRegistrationId);
 	}
 
 	/**
@@ -536,7 +534,7 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 	}
 
 	static String getClientRegistrationId(Map<String, Object> attrs) {
-		return (String) attrs.get(CLIENT_REGISTRATION_ID_ATTR_NAME);
+		return ClientAttributes.resolveClientRegistrationId(attrs);
 	}
 
 	static Authentication getAuthentication(Map<String, Object> attrs) {

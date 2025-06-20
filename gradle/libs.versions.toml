@@ -4,7 +4,6 @@ io-rsocket = "1.1.5"
 io-spring-javaformat = "0.0.46"
 io-spring-nohttp = "0.0.11"
 jakarta-websocket = "2.2.0"
-org-apache-directory-server = "1.5.5"
 org-apache-maven-resolver = "1.9.23"
 org-aspectj = "1.9.24"
 org-bouncycastle = "1.80"
@@ -14,11 +13,11 @@ org-jetbrains-kotlinx = "1.10.2"
 org-mockito = "5.17.0"
 org-opensaml = "4.3.2"
 org-opensaml5 = "5.1.2"
-org-springframework = "6.2.7"
+org-springframework = "7.0.0-SNAPSHOT"
 
 [libraries]
 ch-qos-logback-logback-classic = "ch.qos.logback:logback-classic:1.5.18"
-com-fasterxml-jackson-jackson-bom = "com.fasterxml.jackson:jackson-bom:2.18.4.1"
+com-fasterxml-jackson-jackson-bom = "com.fasterxml.jackson:jackson-bom:2.19.0"
 com-google-inject-guice = "com.google.inject:guice:3.0"
 com-netflix-nebula-nebula-project-plugin = "com.netflix.nebula:nebula-project-plugin:8.2.0"
 com-nimbusds-nimbus-jose-jwt = "com.nimbusds:nimbus-jose-jwt:9.37.3"
@@ -31,18 +30,18 @@ commons-collections = "commons-collections:commons-collections:3.2.2"
 io-micrometer-context-propagation = "io.micrometer:context-propagation:1.1.3"
 io-micrometer-micrometer-observation = "io.micrometer:micrometer-observation:1.14.8"
 io-mockk = "io.mockk:mockk:1.14.2"
-io-projectreactor-reactor-bom = "io.projectreactor:reactor-bom:2023.0.19"
+io-projectreactor-reactor-bom = "io.projectreactor:reactor-bom:2025.0.0-M4"
 io-rsocket-rsocket-bom = { module = "io.rsocket:rsocket-bom", version.ref = "io-rsocket" }
 io-spring-javaformat-spring-javaformat-checkstyle = { module = "io.spring.javaformat:spring-javaformat-checkstyle", version.ref = "io-spring-javaformat" }
 io-spring-javaformat-spring-javaformat-gradle-plugin = { module = "io.spring.javaformat:spring-javaformat-gradle-plugin", version.ref = "io-spring-javaformat" }
 io-spring-nohttp-nohttp-checkstyle = { module = "io.spring.nohttp:nohttp-checkstyle", version.ref = "io-spring-nohttp" }
 io-spring-nohttp-nohttp-gradle = { module = "io.spring.nohttp:nohttp-gradle", version.ref = "io-spring-nohttp" }
 io-spring-security-release-plugin = "io.spring.gradle:spring-security-release-plugin:1.0.6"
-jakarta-annotation-jakarta-annotation-api = "jakarta.annotation:jakarta.annotation-api:2.1.1"
+jakarta-annotation-jakarta-annotation-api = "jakarta.annotation:jakarta.annotation-api:3.0.0"
 jakarta-inject-jakarta-inject-api = "jakarta.inject:jakarta.inject-api:2.0.1"
-jakarta-persistence-jakarta-persistence-api = "jakarta.persistence:jakarta.persistence-api:3.1.0"
-jakarta-servlet-jakarta-servlet-api = "jakarta.servlet:jakarta.servlet-api:6.0.0"
-jakarta-servlet-jsp-jakarta-servlet-jsp-api = "jakarta.servlet.jsp:jakarta.servlet.jsp-api:3.1.1"
+jakarta-persistence-jakarta-persistence-api = "jakarta.persistence:jakarta.persistence-api:3.2.0"
+jakarta-servlet-jakarta-servlet-api = "jakarta.servlet:jakarta.servlet-api:6.1.0"
+jakarta-servlet-jsp-jakarta-servlet-jsp-api = "jakarta.servlet.jsp:jakarta.servlet.jsp-api:4.0.0"
 jakarta-servlet-jsp-jstl-jakarta-servlet-jsp-jstl-api = "jakarta.servlet.jsp.jstl:jakarta.servlet.jsp.jstl-api:3.0.2"
 jakarta-websocket-jakarta-websocket-api = { module = "jakarta.websocket:jakarta.websocket-api", version.ref = "jakarta-websocket" }
 jakarta-websocket-jakarta-websocket-client-api = { module = "jakarta.websocket:jakarta.websocket-client-api", version.ref = "jakarta-websocket" }
@@ -50,12 +49,6 @@ jakarta-xml-bind-jakarta-xml-bind-api = "jakarta.xml.bind:jakarta.xml.bind-api:4
 ldapsdk = "ldapsdk:ldapsdk:4.1"
 net-sourceforge-htmlunit = "net.sourceforge.htmlunit:htmlunit:2.70.0"
 org-htmlunit-htmlunit = "org.htmlunit:htmlunit:4.11.1"
-org-apache-directory-server-apacheds-core = { module = "org.apache.directory.server:apacheds-core", version.ref = "org-apache-directory-server" }
-org-apache-directory-server-apacheds-entry = { module = "org.apache.directory.server:apacheds-core-entry", version.ref = "org-apache-directory-server" }
-org-apache-directory-server-apacheds-protocol-ldap = { module = "org.apache.directory.server:apacheds-protocol-ldap", version.ref = "org-apache-directory-server" }
-org-apache-directory-server-apacheds-protocol-shared = { module = "org.apache.directory.server:apacheds-protocol-shared", version.ref = "org-apache-directory-server" }
-org-apache-directory-server-apacheds-server-jndi = { module = "org.apache.directory.server:apacheds-server-jndi", version.ref = "org-apache-directory-server" }
-org-apache-directory-shared-shared-ldap = "org.apache.directory.shared:shared-ldap:0.9.15"
 org-apache-httpcomponents-httpclient = "org.apache.httpcomponents:httpclient:4.5.14"
 org-apache-maven-maven-resolver-provider = "org.apache.maven:maven-resolver-provider:3.9.10"
 org-apache-maven-resolver-maven-resolver-connector-basic = { module = "org.apache.maven.resolver:maven-resolver-connector-basic", version.ref = "org-apache-maven-resolver" }
@@ -71,7 +64,7 @@ org-bouncycastle-bcprov-jdk15on = { module = "org.bouncycastle:bcprov-jdk18on", 
 org-eclipse-jetty-jetty-server = { module = "org.eclipse.jetty:jetty-server", version.ref = "org-eclipse-jetty" }
 org-eclipse-jetty-jetty-servlet = { module = "org.eclipse.jetty:jetty-servlet", version.ref = "org-eclipse-jetty" }
 org-hamcrest = "org.hamcrest:hamcrest:2.2"
-org-hibernate-orm-hibernate-core = "org.hibernate.orm:hibernate-core:6.6.17.Final"
+org-hibernate-orm-hibernate-core = "org.hibernate.orm:hibernate-core:7.0.1.Final"
 org-hsqldb = "org.hsqldb:hsqldb:2.7.4"
 org-jetbrains-kotlin-kotlin-bom = { module = "org.jetbrains.kotlin:kotlin-bom", version.ref = "org-jetbrains-kotlin" }
 org-jetbrains-kotlin-kotlin-gradle-plugin = "org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.25"
@@ -89,7 +82,7 @@ org-seleniumhq-selenium-selenium-support = "org.seleniumhq.selenium:selenium-sup
 org-skyscreamer-jsonassert = "org.skyscreamer:jsonassert:1.5.3"
 org-slf4j-log4j-over-slf4j = "org.slf4j:log4j-over-slf4j:1.7.36"
 org-slf4j-slf4j-api = "org.slf4j:slf4j-api:2.0.17"
-org-springframework-data-spring-data-bom = "org.springframework.data:spring-data-bom:2024.1.6"
+org-springframework-data-spring-data-bom = "org.springframework.data:spring-data-bom:2025.1.0-SNAPSHOT"
 org-springframework-ldap-spring-ldap-core = "org.springframework.ldap:spring-ldap-core:3.2.12"
 org-springframework-spring-framework-bom = { module = "org.springframework:spring-framework-bom", version.ref = "org-springframework" }
 org-synchronoss-cloud-nio-multipart-parser = "org.synchronoss.cloud:nio-multipart-parser:1.1.0"

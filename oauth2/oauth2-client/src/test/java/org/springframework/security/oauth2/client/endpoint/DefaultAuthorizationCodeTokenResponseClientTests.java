@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -118,7 +118,7 @@ public class DefaultAuthorizationCodeTokenResponseClientTests {
 		Instant expiresAtAfter = Instant.now().plusSeconds(3600);
 		RecordedRequest recordedRequest = this.server.takeRequest();
 		assertThat(recordedRequest.getMethod()).isEqualTo(HttpMethod.POST.toString());
-		assertThat(recordedRequest.getHeader(HttpHeaders.ACCEPT)).isEqualTo(MediaType.APPLICATION_JSON_UTF8_VALUE);
+		assertThat(recordedRequest.getHeader(HttpHeaders.ACCEPT)).isEqualTo(MediaType.APPLICATION_JSON_VALUE);
 		assertThat(recordedRequest.getHeader(HttpHeaders.CONTENT_TYPE))
 			.isEqualTo(MediaType.APPLICATION_FORM_URLENCODED_VALUE + ";charset=UTF-8");
 		String formParameters = recordedRequest.getBody().readUtf8();

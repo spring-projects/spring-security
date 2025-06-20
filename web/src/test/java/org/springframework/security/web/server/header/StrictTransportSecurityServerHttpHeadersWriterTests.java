@@ -17,7 +17,6 @@
 package org.springframework.security.web.server.header;
 
 import java.time.Duration;
-import java.util.Arrays;
 
 import org.junit.jupiter.api.Test;
 
@@ -43,9 +42,10 @@ public class StrictTransportSecurityServerHttpHeadersWriterTests {
 		this.exchange = exchange(MockServerHttpRequest.get("https://example.com/"));
 		this.hsts.writeHttpHeaders(this.exchange);
 		HttpHeaders headers = this.exchange.getResponse().getHeaders();
-		assertThat(headers).hasSize(1);
-		assertThat(headers).containsEntry(StrictTransportSecurityServerHttpHeadersWriter.STRICT_TRANSPORT_SECURITY,
-				Arrays.asList("max-age=31536000 ; includeSubDomains"));
+		assertThat(headers.headerNames()).hasSize(1);
+		assertThat(headers.containsHeaderValue(StrictTransportSecurityServerHttpHeadersWriter.STRICT_TRANSPORT_SECURITY,
+				"max-age=31536000 ; includeSubDomains"))
+			.isTrue();
 	}
 
 	@Test
@@ -55,9 +55,9 @@ public class StrictTransportSecurityServerHttpHeadersWriterTests {
 		this.exchange = exchange(MockServerHttpRequest.get("https://example.com/"));
 		this.hsts.writeHttpHeaders(this.exchange);
 		HttpHeaders headers = this.exchange.getResponse().getHeaders();
-		assertThat(headers).hasSize(1);
-		assertThat(headers).containsEntry(StrictTransportSecurityServerHttpHeadersWriter.STRICT_TRANSPORT_SECURITY,
-				Arrays.asList("max-age=" + maxAge.getSeconds() + " ; includeSubDomains"));
+		assertThat(headers.headerNames()).hasSize(1);
+		assertThat(headers.containsHeaderValue(StrictTransportSecurityServerHttpHeadersWriter.STRICT_TRANSPORT_SECURITY,
+				"max-age=" + maxAge.getSeconds() + " ; includeSubDomains"));
 	}
 
 	@Test
@@ -66,9 +66,9 @@ public class StrictTransportSecurityServerHttpHeadersWriterTests {
 		this.exchange = exchange(MockServerHttpRequest.get("https://example.com/"));
 		this.hsts.writeHttpHeaders(this.exchange);
 		HttpHeaders headers = this.exchange.getResponse().getHeaders();
-		assertThat(headers).hasSize(1);
-		assertThat(headers).containsEntry(StrictTransportSecurityServerHttpHeadersWriter.STRICT_TRANSPORT_SECURITY,
-				Arrays.asList("max-age=31536000"));
+		assertThat(headers.headerNames()).hasSize(1);
+		assertThat(headers.containsHeaderValue(StrictTransportSecurityServerHttpHeadersWriter.STRICT_TRANSPORT_SECURITY,
+				"max-age=31536000"));
 	}
 
 	@Test
@@ -76,7 +76,7 @@ public class StrictTransportSecurityServerHttpHeadersWriterTests {
 		this.exchange = exchange(MockServerHttpRequest.get("/"));
 		this.hsts.writeHttpHeaders(this.exchange);
 		HttpHeaders headers = this.exchange.getResponse().getHeaders();
-		assertThat(headers).isEmpty();
+		assertThat(headers.headerNames()).isEmpty();
 	}
 
 	@Test
@@ -84,7 +84,7 @@ public class StrictTransportSecurityServerHttpHeadersWriterTests {
 		this.exchange = exchange(MockServerHttpRequest.get("http://localhost/"));
 		this.hsts.writeHttpHeaders(this.exchange);
 		HttpHeaders headers = this.exchange.getResponse().getHeaders();
-		assertThat(headers).isEmpty();
+		assertThat(headers.headerNames()).isEmpty();
 	}
 
 	private static MockServerWebExchange exchange(MockServerHttpRequest.BaseBuilder<?> request) {

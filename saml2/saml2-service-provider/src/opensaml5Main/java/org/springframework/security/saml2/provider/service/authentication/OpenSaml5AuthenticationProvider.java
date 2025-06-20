@@ -893,14 +893,15 @@ public final class OpenSaml5AuthenticationProvider implements AuthenticationProv
 			Saml2AuthenticationToken token = responseToken.token;
 			Assertion assertion = CollectionUtils.firstElement(response.getAssertions());
 			String username = this.principalNameConverter.convert(assertion);
-			Map<String, List<Object>> attributes = BaseOpenSamlAuthenticationProvider.getAssertionAttributes(assertion);
-			List<String> sessionIndexes = BaseOpenSamlAuthenticationProvider.getSessionIndexes(assertion);
-			DefaultSaml2AuthenticatedPrincipal principal = new DefaultSaml2AuthenticatedPrincipal(username, attributes,
-					sessionIndexes);
 			String registrationId = responseToken.token.getRelyingPartyRegistration().getRegistrationId();
-			principal.setRelyingPartyRegistrationId(registrationId);
-			return new Saml2Authentication(principal, token.getSaml2Response(),
-					this.grantedAuthoritiesConverter.convert(assertion));
+			Saml2ResponseAssertionAccessor accessor = Saml2ResponseAssertion.withResponseValue(token.getSaml2Response())
+				.nameId(authenticatedPrincipal(assertion))
+				.sessionIndexes(BaseOpenSamlAuthenticationProvider.getSessionIndexes(assertion))
+				.attributes(BaseOpenSamlAuthenticationProvider.getAssertionAttributes(assertion))
+				.build();
+			Saml2AuthenticatedPrincipal principal = new DefaultSaml2AuthenticatedPrincipal(username, accessor);
+			Collection<GrantedAuthority> authorities = this.grantedAuthoritiesConverter.convert(assertion);
+			return new Saml2AssertionAuthentication(principal, accessor, authorities, registrationId);
 		}
 
 		/**
@@ -935,8 +936,8 @@ public final class OpenSaml5AuthenticationProvider implements AuthenticationProv
 
 		private static String authenticatedPrincipal(Assertion assertion) {
 			if (!BaseOpenSamlAuthenticationProvider.hasName(assertion)) {
-				throw new Saml2AuthenticationException(new Saml2Error(Saml2ErrorCodes.SUBJECT_NOT_FOUND,
-						"Assertion [" + assertion.getID() + "] is missing a subject"));
+				throw new Saml2AuthenticationException(
+						Saml2Error.subjectNotFound("Assertion [" + assertion.getID() + "] is missing a subject"));
 			}
 			return assertion.getSubject().getNameID().getValue();
 		}

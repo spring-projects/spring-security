@@ -37,7 +37,6 @@ import org.springframework.security.ldap.authentication.LdapAuthenticator;
 import org.springframework.security.ldap.authentication.PasswordComparisonAuthenticator;
 import org.springframework.security.ldap.search.FilterBasedLdapUserSearch;
 import org.springframework.security.ldap.search.LdapUserSearch;
-import org.springframework.security.ldap.server.ApacheDSContainer;
 import org.springframework.security.ldap.server.UnboundIdContainer;
 import org.springframework.security.ldap.userdetails.DefaultLdapAuthoritiesPopulator;
 import org.springframework.security.ldap.userdetails.InetOrgPersonContextMapper;
@@ -60,11 +59,7 @@ import org.springframework.util.ClassUtils;
 public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuilder<B>>
 		extends SecurityConfigurerAdapter<AuthenticationManager, B> {
 
-	private static final String APACHEDS_CLASSNAME = "org.apache.directory.server.core.DefaultDirectoryService";
-
 	private static final String UNBOUNDID_CLASSNAME = "com.unboundid.ldap.listener.InMemoryDirectoryServer";
-
-	private static final boolean apacheDsPresent;
 
 	private static final boolean unboundIdPresent;
 
@@ -100,7 +95,6 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 
 	static {
 		ClassLoader classLoader = LdapAuthenticationProviderConfigurer.class.getClassLoader();
-		apacheDsPresent = ClassUtils.isPresent(APACHEDS_CLASSNAME, classLoader);
 		unboundIdPresent = ClassUtils.isPresent(UNBOUNDID_CLASSNAME, classLoader);
 	}
 
@@ -467,8 +461,6 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 	 */
 	public final class ContextSourceBuilder {
 
-		private static final String APACHEDS_CLASSNAME = "org.apache.directory.server.core.DefaultDirectoryService";
-
 		private static final String UNBOUNDID_CLASSNAME = "com.unboundid.ldap.listener.InMemoryDirectoryServer";
 
 		private static final int DEFAULT_PORT = 33389;
@@ -584,14 +576,8 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 			return contextSource;
 		}
 
-		private void startEmbeddedLdapServer() throws Exception {
-			if (apacheDsPresent) {
-				ApacheDSContainer apacheDsContainer = new ApacheDSContainer(this.root, this.ldif);
-				apacheDsContainer.setPort(getPort());
-				postProcess(apacheDsContainer);
-				this.port = apacheDsContainer.getLocalPort();
-			}
-			else if (unboundIdPresent) {
+		private void startEmbeddedLdapServer() {
+			if (unboundIdPresent) {
 				UnboundIdContainer unboundIdContainer = new UnboundIdContainer(this.root, this.ldif);
 				unboundIdContainer.setPort(getPort());
 				postProcess(unboundIdContainer);

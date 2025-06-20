@@ -18,8 +18,6 @@ package org.springframework.security.config.web.server;
 
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -114,12 +112,13 @@ public class CorsSpecTests {
 				.exchange()
 				.returnResult(String.class);
 		// @formatter:on
-		Map<String, List<String>> responseHeaders = response.getResponseHeaders();
+		HttpHeaders responseHeaders = response.getResponseHeaders();
 		if (!this.expectedHeaders.isEmpty()) {
-			assertThat(responseHeaders).describedAs(response.toString()).containsAllEntriesOf(this.expectedHeaders);
+			this.expectedHeaders.forEach(
+					(headerName, headerValues) -> assertThat(responseHeaders.get(headerName)).isEqualTo(headerValues));
 		}
 		if (!this.headerNamesNotPresent.isEmpty()) {
-			assertThat(responseHeaders.keySet()).doesNotContainAnyElementsOf(this.headerNamesNotPresent);
+			assertThat(responseHeaders.headerNames()).doesNotContainAnyElementsOf(this.headerNamesNotPresent);
 		}
 	}
 

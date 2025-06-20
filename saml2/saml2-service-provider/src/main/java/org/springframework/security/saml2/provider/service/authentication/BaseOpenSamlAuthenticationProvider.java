@@ -302,7 +302,7 @@ class BaseOpenSamlAuthenticationProvider implements AuthenticationProvider {
 			throw ex;
 		}
 		catch (Exception ex) {
-			throw createAuthenticationException(Saml2ErrorCodes.INTERNAL_VALIDATION_ERROR, ex.getMessage(), ex);
+			throw new Saml2AuthenticationException(Saml2Error.internalValidationError(ex.getMessage()), ex);
 		}
 	}
 
@@ -316,7 +316,7 @@ class BaseOpenSamlAuthenticationProvider implements AuthenticationProvider {
 			return this.saml.deserialize(response);
 		}
 		catch (Exception ex) {
-			throw createAuthenticationException(Saml2ErrorCodes.MALFORMED_RESPONSE_DATA, ex.getMessage(), ex);
+			throw new Saml2AuthenticationException(Saml2Error.malformedResponseData(ex.getMessage()), ex);
 		}
 	}
 
@@ -375,7 +375,7 @@ class BaseOpenSamlAuthenticationProvider implements AuthenticationProvider {
 					.debug("Found " + errors.size() + " validation errors in SAML response [" + response.getID() + "]");
 			}
 			Saml2Error first = errors.iterator().next();
-			throw createAuthenticationException(first.getErrorCode(), first.getDescription(), null);
+			throw new Saml2AuthenticationException(first);
 		}
 		else {
 			if (this.logger.isDebugEnabled()) {
@@ -408,7 +408,7 @@ class BaseOpenSamlAuthenticationProvider implements AuthenticationProvider {
 				this.saml.withDecryptionKeys(registration.getDecryptionX509Credentials()).decrypt(response);
 			}
 			catch (Exception ex) {
-				throw createAuthenticationException(Saml2ErrorCodes.DECRYPTION_ERROR, ex.getMessage(), ex);
+				throw new Saml2AuthenticationException(Saml2Error.decryptionError(ex.getMessage()), ex);
 			}
 		};
 	}
@@ -437,7 +437,7 @@ class BaseOpenSamlAuthenticationProvider implements AuthenticationProvider {
 				this.saml.withDecryptionKeys(registration.getDecryptionX509Credentials()).decrypt(assertion);
 			}
 			catch (Exception ex) {
-				throw createAuthenticationException(Saml2ErrorCodes.DECRYPTION_ERROR, ex.getMessage(), ex);
+				throw new Saml2AuthenticationException(Saml2Error.decryptionError(ex.getMessage()), ex);
 			}
 		};
 	}
@@ -501,11 +501,6 @@ class BaseOpenSamlAuthenticationProvider implements AuthenticationProvider {
 			return ((XSDateTime) xmlObject).getValue();
 		}
 		return xmlObject;
-	}
-
-	private static Saml2AuthenticationException createAuthenticationException(String code, String message,
-			Exception cause) {
-		return new Saml2AuthenticationException(new Saml2Error(code, message), cause);
 	}
 
 	private static Converter<AssertionToken, Saml2ResponseValidatorResult> createAssertionValidator(String errorCode,

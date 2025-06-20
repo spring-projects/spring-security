@@ -18,11 +18,6 @@ package org.springframework.security.config.annotation.web.configurers.oauth2.cl
 
 import java.util.function.Function;
 
-import com.nimbusds.jose.JOSEObjectType;
-import com.nimbusds.jose.proc.DefaultJOSEObjectTypeVerifier;
-import com.nimbusds.jose.proc.JOSEObjectTypeVerifier;
-import com.nimbusds.jose.proc.SecurityContext;
-
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.Authentication;
@@ -38,6 +33,7 @@ import org.springframework.security.oauth2.jwt.BadJwtException;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtDecoderFactory;
+import org.springframework.security.oauth2.jwt.JwtTypeValidator;
 import org.springframework.security.oauth2.jwt.JwtValidators;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.util.Assert;
@@ -67,8 +63,10 @@ final class OidcBackChannelLogoutAuthenticationProvider implements Authenticatio
 	 * Construct an {@link OidcBackChannelLogoutAuthenticationProvider}
 	 */
 	OidcBackChannelLogoutAuthenticationProvider() {
+		JwtTypeValidator type = new JwtTypeValidator("JWT", "logout+jwt");
+		type.setAllowEmpty(true);
 		Function<ClientRegistration, OAuth2TokenValidator<Jwt>> jwtValidator = (clientRegistration) -> JwtValidators
-			.createDefaultWithValidators(new OidcBackChannelLogoutTokenValidator(clientRegistration));
+			.createDefaultWithValidators(type, new OidcBackChannelLogoutTokenValidator(clientRegistration));
 		this.logoutTokenDecoderFactory = (clientRegistration) -> {
 			String jwkSetUri = clientRegistration.getProviderDetails().getJwkSetUri();
 			if (!StringUtils.hasText(jwkSetUri)) {
@@ -79,11 +77,7 @@ final class OidcBackChannelLogoutAuthenticationProvider implements Authenticatio
 						null);
 				throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
 			}
-			JOSEObjectTypeVerifier<SecurityContext> typeVerifier = new DefaultJOSEObjectTypeVerifier<>(null,
-					JOSEObjectType.JWT, new JOSEObjectType("logout+jwt"));
-			NimbusJwtDecoder decoder = NimbusJwtDecoder.withJwkSetUri(jwkSetUri)
-				.jwtProcessorCustomizer((processor) -> processor.setJWSTypeVerifier(typeVerifier))
-				.build();
+			NimbusJwtDecoder decoder = NimbusJwtDecoder.withJwkSetUri(jwkSetUri).build();
 			decoder.setJwtValidator(jwtValidator.apply(clientRegistration));
 			decoder.setClaimSetConverter(OidcIdTokenDecoderFactory.createDefaultClaimTypeConverter());
 			return decoder;

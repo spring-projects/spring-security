@@ -28,7 +28,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.ldap.core.ContextSource;
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.security.ldap.DefaultSpringSecurityContextSource;
-import org.springframework.security.ldap.server.ApacheDSContainer;
+import org.springframework.security.ldap.server.UnboundIdContainer;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -40,7 +40,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Steve Riesenberg
  */
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = FilterBasedLdapUserSearchWithSpacesTests.ApacheDsContainerWithSpacesConfig.class)
+@ContextConfiguration(classes = FilterBasedLdapUserSearchWithSpacesTests.UnboundIdContainerWithSpacesConfig.class)
 public class FilterBasedLdapUserSearchWithSpacesTests {
 
 	@Autowired
@@ -61,22 +61,22 @@ public class FilterBasedLdapUserSearchWithSpacesTests {
 	}
 
 	@Configuration
-	static class ApacheDsContainerWithSpacesConfig implements DisposableBean {
+	static class UnboundIdContainerWithSpacesConfig implements DisposableBean {
 
-		private ApacheDSContainer container;
+		private UnboundIdContainer container;
 
 		@Bean
-		ApacheDSContainer ldapContainer() throws Exception {
-			this.container = new ApacheDSContainer("dc=spring framework,dc=org",
+		UnboundIdContainer ldapContainer() {
+			this.container = new UnboundIdContainer("dc=spring framework,dc=org",
 					"classpath:test-server-with-spaces.ldif");
 			this.container.setPort(0);
 			return this.container;
 		}
 
 		@Bean
-		ContextSource contextSource(ApacheDSContainer ldapContainer) {
+		ContextSource contextSource(UnboundIdContainer ldapContainer) {
 			return new DefaultSpringSecurityContextSource(
-					"ldap://127.0.0.1:" + ldapContainer.getLocalPort() + "/dc=spring%20framework,dc=org");
+					"ldap://127.0.0.1:" + ldapContainer.getPort() + "/dc=spring%20framework,dc=org");
 		}
 
 		@Override

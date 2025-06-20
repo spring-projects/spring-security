@@ -38,7 +38,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  * @author Eddú Meléndez
  */
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = ApacheDsContainerConfig.class)
+@ContextConfiguration(classes = UnboundIdContainerConfig.class)
 public class DefaultSpringSecurityContextSourceTests {
 
 	@Autowired

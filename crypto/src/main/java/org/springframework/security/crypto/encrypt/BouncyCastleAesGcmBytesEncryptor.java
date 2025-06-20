@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2016 the original author or authors.
+ * Copyright 2011-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package org.springframework.security.crypto.encrypt;
 
 import org.bouncycastle.crypto.InvalidCipherTextException;
+import org.bouncycastle.crypto.engines.AESEngine;
 import org.bouncycastle.crypto.modes.AEADBlockCipher;
 import org.bouncycastle.crypto.modes.GCMBlockCipher;
 import org.bouncycastle.crypto.params.AEADParameters;
@@ -44,21 +45,19 @@ public class BouncyCastleAesGcmBytesEncryptor extends BouncyCastleAesBytesEncryp
 	}
 
 	@Override
-	@SuppressWarnings("deprecation")
 	public byte[] encrypt(byte[] bytes) {
 		byte[] iv = this.ivGenerator.generateKey();
-		GCMBlockCipher blockCipher = new GCMBlockCipher(new org.bouncycastle.crypto.engines.AESFastEngine());
+		AEADBlockCipher blockCipher = GCMBlockCipher.newInstance(AESEngine.newInstance());
 		blockCipher.init(true, new AEADParameters(this.secretKey, 128, iv, null));
 		byte[] encrypted = process(blockCipher, bytes);
 		return (iv != null) ? EncodingUtils.concatenate(iv, encrypted) : encrypted;
 	}
 
 	@Override
-	@SuppressWarnings("deprecation")
 	public byte[] decrypt(byte[] encryptedBytes) {
 		byte[] iv = EncodingUtils.subArray(encryptedBytes, 0, this.ivGenerator.getKeyLength());
 		encryptedBytes = EncodingUtils.subArray(encryptedBytes, this.ivGenerator.getKeyLength(), encryptedBytes.length);
-		GCMBlockCipher blockCipher = new GCMBlockCipher(new org.bouncycastle.crypto.engines.AESFastEngine());
+		AEADBlockCipher blockCipher = GCMBlockCipher.newInstance(AESEngine.newInstance());
 		blockCipher.init(false, new AEADParameters(this.secretKey, 128, iv, null));
 		return process(blockCipher, encryptedBytes);
 	}
