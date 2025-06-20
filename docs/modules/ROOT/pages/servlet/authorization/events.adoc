@@ -95,29 +95,28 @@ public class MyAuthorizationEventPublisher implements AuthorizationEventPublishe
 
     @Override
     public <T> void publishAuthorizationEvent(Supplier<Authentication> authentication,
-            T object, AuthorizationDecision decision) {
-        if (decision == null) {
+        T object, AuthorizationResult result) {
+        if (result == null) {
             return;
         }
-        if (!decision.isGranted()) {
-            this.delegate.publishAuthorizationEvent(authentication, object, decision);
+        if (!result.isGranted()) {
+            this.delegate.publishAuthorizationEvent(authentication, object, result);
             return;
         }
-        if (shouldThisEventBePublished(decision)) {
+        if (shouldThisEventBePublished(result)) {
             AuthorizationGrantedEvent granted = new AuthorizationGrantedEvent(
-                    authentication, object, decision);
+                authentication, object, result);
             this.publisher.publishEvent(granted);
         }
     }
 
-    private boolean shouldThisEventBePublished(AuthorizationDecision decision) {
-        if (!(decision instanceof AuthorityAuthorizationDecision)) {
-            return false;
-        }
-        Collection<GrantedAuthority> authorities = ((AuthorityAuthorizationDecision) decision).getAuthorities();
-        for (GrantedAuthority authority : authorities) {
-            if ("ROLE_ADMIN".equals(authority.getAuthority())) {
-                return true;
+    private boolean shouldThisEventBePublished(AuthorizationResult result) {
+        if (result instanceof AuthorityAuthorizationDecision authorityAuthorizationDecision) {
+            Collection<GrantedAuthority> authorities = authorityAuthorizationDecision.getAuthorities();
+            for (GrantedAuthority authority : authorities) {
+                if ("ROLE_ADMIN".equals(authority.getAuthority())) {
+                    return true;
+                }
             }
         }
         return false;
@@ -137,22 +136,22 @@ class MyAuthorizationEventPublisher(val publisher: ApplicationEventPublisher,
     override fun <T : Any?> publishAuthorizationEvent(
         authentication: Supplier<Authentication>?,
         `object`: T,
-        decision: AuthorizationDecision?
+        result: AuthorizationResult?
     ) {
-        if (decision == null) {
+        if (result == null) {
             return
         }
-        if (!decision.isGranted) {
-            this.delegate.publishAuthorizationEvent(authentication, `object`, decision)
+        if (!result.isGranted) {
+            this.delegate.publishAuthorizationEvent(authentication, `object`, result)
             return
         }
-        if (shouldThisEventBePublished(decision)) {
-            val granted = AuthorizationGrantedEvent(authentication, `object`, decision)
+        if (shouldThisEventBePublished(result)) {
+            val granted = AuthorizationGrantedEvent(authentication, `object`, result)
             this.publisher.publishEvent(granted)
         }
     }
 
-    private fun shouldThisEventBePublished(decision: AuthorizationDecision): Boolean {
+    private fun shouldThisEventBePublished(result: AuthorizationResult): Boolean {
         if (decision !is AuthorityAuthorizationDecision) {
             return false
         }

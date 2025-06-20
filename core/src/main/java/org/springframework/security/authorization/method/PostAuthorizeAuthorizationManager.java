@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -100,7 +100,7 @@ public final class PostAuthorizeAuthorizationManager
 	 * {@link PostAuthorize} annotation is not present
 	 */
 	@Override
-	public AuthorizationDecision check(Supplier<Authentication> authentication, MethodInvocationResult mi) {
+	public AuthorizationResult authorize(Supplier<Authentication> authentication, MethodInvocationResult mi) {
 		ExpressionAttribute attribute = this.registry.getAttribute(mi.getMethodInvocation());
 		if (attribute == ExpressionAttribute.NULL_ATTRIBUTE) {
 			return null;
@@ -108,7 +108,7 @@ public final class PostAuthorizeAuthorizationManager
 		MethodSecurityExpressionHandler expressionHandler = this.registry.getExpressionHandler();
 		EvaluationContext ctx = expressionHandler.createEvaluationContext(authentication, mi.getMethodInvocation());
 		expressionHandler.setReturnObject(mi.getResult(), ctx);
-		return (AuthorizationDecision) ExpressionUtils.evaluate(attribute.getExpression(), ctx);
+		return ExpressionUtils.evaluate(attribute.getExpression(), ctx);
 	}
 
 	@Override

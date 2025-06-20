@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -93,7 +93,7 @@ public final class PostAuthorizeReactiveAuthorizationManager
 	 * {@link PostAuthorize} annotation is not present
 	 */
 	@Override
-	public Mono<AuthorizationDecision> check(Mono<Authentication> authentication, MethodInvocationResult result) {
+	public Mono<AuthorizationResult> authorize(Mono<Authentication> authentication, MethodInvocationResult result) {
 		MethodInvocation mi = result.getMethodInvocation();
 		ExpressionAttribute attribute = this.registry.getAttribute(mi);
 		if (attribute == ExpressionAttribute.NULL_ATTRIBUTE) {
@@ -106,7 +106,7 @@ public final class PostAuthorizeReactiveAuthorizationManager
 				.map((auth) -> expressionHandler.createEvaluationContext(auth, mi))
 				.doOnNext((ctx) -> expressionHandler.setReturnObject(result.getResult(), ctx))
 				.flatMap((ctx) -> ReactiveExpressionUtils.evaluate(attribute.getExpression(), ctx))
-				.cast(AuthorizationDecision.class);
+				.cast(AuthorizationResult.class);
 		// @formatter:on
 	}
 

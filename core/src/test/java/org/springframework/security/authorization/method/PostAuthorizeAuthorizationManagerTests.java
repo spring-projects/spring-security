@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,6 @@ import org.springframework.security.access.intercept.method.MockMethodInvocation
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.authentication.TestAuthentication;
 import org.springframework.security.authentication.TestingAuthenticationToken;
-import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.core.Authentication;
 
@@ -70,7 +69,7 @@ public class PostAuthorizeAuthorizationManagerTests {
 				"doSomething", new Class[] {}, new Object[] {});
 		PostAuthorizeAuthorizationManager manager = new PostAuthorizeAuthorizationManager();
 		MethodInvocationResult result = new MethodInvocationResult(methodInvocation, null);
-		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedUser, result);
+		AuthorizationResult decision = manager.authorize(TestAuthentication::authenticatedUser, result);
 		assertThat(decision).isNull();
 	}
 
@@ -80,7 +79,7 @@ public class PostAuthorizeAuthorizationManagerTests {
 				"doSomethingString", new Class[] { String.class }, new Object[] { "grant" });
 		PostAuthorizeAuthorizationManager manager = new PostAuthorizeAuthorizationManager();
 		MethodInvocationResult result = new MethodInvocationResult(methodInvocation, null);
-		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedUser, result);
+		AuthorizationResult decision = manager.authorize(TestAuthentication::authenticatedUser, result);
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isTrue();
 	}
@@ -91,7 +90,7 @@ public class PostAuthorizeAuthorizationManagerTests {
 				"doSomethingString", new Class[] { String.class }, new Object[] { "deny" });
 		MethodInvocationResult result = new MethodInvocationResult(methodInvocation, null);
 		PostAuthorizeAuthorizationManager manager = new PostAuthorizeAuthorizationManager();
-		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedUser, result);
+		AuthorizationResult decision = manager.authorize(TestAuthentication::authenticatedUser, result);
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isFalse();
 	}
@@ -103,7 +102,7 @@ public class PostAuthorizeAuthorizationManagerTests {
 				"doSomethingList", new Class[] { List.class }, new Object[] { list });
 		MethodInvocationResult result = new MethodInvocationResult(methodInvocation, list);
 		PostAuthorizeAuthorizationManager manager = new PostAuthorizeAuthorizationManager();
-		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedUser, result);
+		AuthorizationResult decision = manager.authorize(TestAuthentication::authenticatedUser, result);
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isTrue();
 	}
@@ -115,7 +114,7 @@ public class PostAuthorizeAuthorizationManagerTests {
 				"doSomethingList", new Class[] { List.class }, new Object[] { list });
 		MethodInvocationResult result = new MethodInvocationResult(methodInvocation, list);
 		PostAuthorizeAuthorizationManager manager = new PostAuthorizeAuthorizationManager();
-		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedUser, result);
+		AuthorizationResult decision = manager.authorize(TestAuthentication::authenticatedUser, result);
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isFalse();
 	}
@@ -127,10 +126,10 @@ public class PostAuthorizeAuthorizationManagerTests {
 				ClassLevelAnnotations.class, "securedAdmin");
 		MethodInvocationResult result = new MethodInvocationResult(methodInvocation, null);
 		PostAuthorizeAuthorizationManager manager = new PostAuthorizeAuthorizationManager();
-		AuthorizationDecision decision = manager.check(authentication, result);
+		AuthorizationResult decision = manager.authorize(authentication, result);
 		assertThat(decision.isGranted()).isFalse();
 		authentication = () -> new TestingAuthenticationToken("user", "password", "ROLE_ADMIN");
-		decision = manager.check(authentication, result);
+		decision = manager.authorize(authentication, result);
 		assertThat(decision.isGranted()).isTrue();
 	}
 
@@ -141,10 +140,10 @@ public class PostAuthorizeAuthorizationManagerTests {
 				ClassLevelAnnotations.class, "securedUser");
 		MethodInvocationResult result = new MethodInvocationResult(methodInvocation, null);
 		PostAuthorizeAuthorizationManager manager = new PostAuthorizeAuthorizationManager();
-		AuthorizationDecision decision = manager.check(authentication, result);
+		AuthorizationResult decision = manager.authorize(authentication, result);
 		assertThat(decision.isGranted()).isTrue();
 		authentication = () -> new TestingAuthenticationToken("user", "password", "ROLE_ADMIN");
-		decision = manager.check(authentication, result);
+		decision = manager.authorize(authentication, result);
 		assertThat(decision.isGranted()).isFalse();
 	}
 
@@ -156,7 +155,7 @@ public class PostAuthorizeAuthorizationManagerTests {
 		MethodInvocationResult result = new MethodInvocationResult(methodInvocation, null);
 		PostAuthorizeAuthorizationManager manager = new PostAuthorizeAuthorizationManager();
 		assertThatExceptionOfType(AnnotationConfigurationException.class)
-			.isThrownBy(() -> manager.check(authentication, result));
+			.isThrownBy(() -> manager.authorize(authentication, result));
 	}
 
 	@Test

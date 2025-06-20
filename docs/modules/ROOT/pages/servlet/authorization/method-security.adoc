@@ -1371,12 +1371,12 @@ Java::
 @Component
 public class MyAuthorizationManager implements AuthorizationManager<MethodInvocation>, AuthorizationManager<MethodInvocationResult> {
     @Override
-    public AuthorizationDecision check(Supplier<Authentication> authentication, MethodInvocation invocation) {
+    public AuthorizationResult authorize(Supplier<Authentication> authentication, MethodInvocation invocation) {
         // ... authorization logic
     }
 
     @Override
-    public AuthorizationDecision check(Supplier<Authentication> authentication, MethodInvocationResult invocation) {
+    public AuthorizationResult authorize(Supplier<Authentication> authentication, MethodInvocationResult invocation) {
         // ... authorization logic
     }
 }
@@ -1388,11 +1388,11 @@ Kotlin::
 ----
 @Component
 class MyAuthorizationManager : AuthorizationManager<MethodInvocation>, AuthorizationManager<MethodInvocationResult> {
-    override fun check(authentication: Supplier<Authentication>, invocation: MethodInvocation): AuthorizationDecision {
+    override fun authorize(authentication: Supplier<Authentication>, invocation: MethodInvocation): AuthorizationResult {
         // ... authorization logic
     }
 
-    override fun check(authentication: Supplier<Authentication>, invocation: MethodInvocationResult): AuthorizationDecision {
+    override fun authorize(authentication: Supplier<Authentication>, invocation: MethodInvocationResult): AuthorizationResult {
         // ... authorization logic
     }
 }

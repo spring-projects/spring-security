@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,6 +39,7 @@ import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.config.annotation.method.configuration.MethodSecurityService;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
@@ -463,7 +464,7 @@ public class MethodSecurityBeanDefinitionParserTests {
 	static class MyAuthorizationManager implements AuthorizationManager<MethodInvocation> {
 
 		@Override
-		public AuthorizationDecision check(Supplier<Authentication> authentication, MethodInvocation object) {
+		public AuthorizationResult authorize(Supplier<Authentication> authentication, MethodInvocation object) {
 			return new AuthorizationDecision("bob".equals(authentication.get().getName()));
 		}
 

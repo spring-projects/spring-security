@@ -65,7 +65,7 @@ public final class MessageMatcherDelegatingAuthorizationManagerTests {
 	void checkWhenPermitAllThenPermits() {
 		AuthorizationManager<Message<?>> authorizationManager = builder().anyMessage().permitAll().build();
 		Message<?> message = new GenericMessage<>(new Object());
-		assertThat(authorizationManager.check(mock(Supplier.class), message).isGranted()).isTrue();
+		assertThat(authorizationManager.authorize(mock(Supplier.class), message).isGranted()).isTrue();
 	}
 
 	@Test
@@ -73,9 +73,9 @@ public final class MessageMatcherDelegatingAuthorizationManagerTests {
 		AuthorizationManager<Message<?>> authorizationManager = builder().anyMessage().hasRole("USER").build();
 		Message<?> message = new GenericMessage<>(new Object());
 		Authentication user = new TestingAuthenticationToken("user", "password", "ROLE_USER");
-		assertThat(authorizationManager.check(() -> user, message).isGranted()).isTrue();
+		assertThat(authorizationManager.authorize(() -> user, message).isGranted()).isTrue();
 		Authentication admin = new TestingAuthenticationToken("user", "password", "ROLE_ADMIN");
-		assertThat(authorizationManager.check(() -> admin, message).isGranted()).isFalse();
+		assertThat(authorizationManager.authorize(() -> admin, message).isGranted()).isFalse();
 	}
 
 	@Test
@@ -88,7 +88,7 @@ public final class MessageMatcherDelegatingAuthorizationManagerTests {
 		MessageHeaders headers = new MessageHeaders(
 				Map.of(SimpMessageHeaderAccessor.DESTINATION_HEADER, "destination"));
 		Message<?> message = new GenericMessage<>(new Object(), headers);
-		assertThat(authorizationManager.check(mock(Supplier.class), message).isGranted()).isTrue();
+		assertThat(authorizationManager.authorize(mock(Supplier.class), message).isGranted()).isTrue();
 	}
 
 	@Test
@@ -99,11 +99,11 @@ public final class MessageMatcherDelegatingAuthorizationManagerTests {
 			.denyAll()
 			.build();
 		Message<?> message = new GenericMessage<>(new Object());
-		assertThat(authorizationManager.check(mock(Supplier.class), message).isGranted()).isTrue();
+		assertThat(authorizationManager.authorize(mock(Supplier.class), message).isGranted()).isTrue();
 		MessageHeaders headers = new MessageHeaders(
 				Map.of(SimpMessageHeaderAccessor.DESTINATION_HEADER, "destination"));
 		message = new GenericMessage<>(new Object(), headers);
-		assertThat(authorizationManager.check(mock(Supplier.class), message).isGranted()).isFalse();
+		assertThat(authorizationManager.authorize(mock(Supplier.class), message).isGranted()).isFalse();
 	}
 
 	@Test
@@ -116,7 +116,7 @@ public final class MessageMatcherDelegatingAuthorizationManagerTests {
 		MessageHeaders headers = new MessageHeaders(
 				Map.of(SimpMessageHeaderAccessor.MESSAGE_TYPE_HEADER, SimpMessageType.CONNECT));
 		Message<?> message = new GenericMessage<>(new Object(), headers);
-		assertThat(authorizationManager.check(mock(Supplier.class), message).isGranted()).isTrue();
+		assertThat(authorizationManager.authorize(mock(Supplier.class), message).isGranted()).isTrue();
 	}
 
 	// gh-12540
@@ -130,7 +130,7 @@ public final class MessageMatcherDelegatingAuthorizationManagerTests {
 		MessageHeaders headers = new MessageHeaders(
 				Map.of(SimpMessageHeaderAccessor.DESTINATION_HEADER, "destination/3"));
 		Message<?> message = new GenericMessage<>(new Object(), headers);
-		assertThat(authorizationManager.check(mock(Supplier.class), message).isGranted()).isTrue();
+		assertThat(authorizationManager.authorize(mock(Supplier.class), message).isGranted()).isTrue();
 	}
 
 	@Test
@@ -151,7 +151,7 @@ public final class MessageMatcherDelegatingAuthorizationManagerTests {
 		MessageHeaders headers2 = new MessageHeaders(Map.of(SimpMessageHeaderAccessor.MESSAGE_TYPE_HEADER,
 				SimpMessageType.SUBSCRIBE, SimpMessageHeaderAccessor.DESTINATION_HEADER, "/destination"));
 		Message<?> message2 = new GenericMessage<>(new Object(), headers2);
-		assertThat(authorizationManager.check(mock(Supplier.class), message2).isGranted()).isFalse();
+		assertThat(authorizationManager.authorize(mock(Supplier.class), message2).isGranted()).isFalse();
 	}
 
 	@Test
@@ -166,7 +166,7 @@ public final class MessageMatcherDelegatingAuthorizationManagerTests {
 		MessageHeaders headers = new MessageHeaders(
 				Map.of(SimpMessageHeaderAccessor.DESTINATION_HEADER, "/destination/sub/asdf"));
 		Message<?> message = new GenericMessage<>(new Object(), headers);
-		assertThat(authorizationManager.check(mock(Supplier.class), message).isGranted()).isFalse();
+		assertThat(authorizationManager.authorize(mock(Supplier.class), message).isGranted()).isFalse();
 	}
 
 	private MessageMatcherDelegatingAuthorizationManager.Builder builder() {

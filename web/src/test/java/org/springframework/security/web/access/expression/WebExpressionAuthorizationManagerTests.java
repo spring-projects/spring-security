@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.authentication.TestAuthentication;
-import org.springframework.security.authorization.AuthorizationDecision;
+import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -87,7 +87,7 @@ class WebExpressionAuthorizationManagerTests {
 	@Test
 	void checkWhenExpressionHasRoleAdminConfiguredAndRoleAdminThenGrantedDecision() {
 		WebExpressionAuthorizationManager manager = new WebExpressionAuthorizationManager("hasRole('ADMIN')");
-		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedAdmin,
+		AuthorizationResult decision = manager.authorize(TestAuthentication::authenticatedAdmin,
 				new RequestAuthorizationContext(new MockHttpServletRequest()));
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isTrue();
@@ -96,7 +96,7 @@ class WebExpressionAuthorizationManagerTests {
 	@Test
 	void checkWhenExpressionHasRoleAdminConfiguredAndRoleUserThenDeniedDecision() {
 		WebExpressionAuthorizationManager manager = new WebExpressionAuthorizationManager("hasRole('ADMIN')");
-		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedUser,
+		AuthorizationResult decision = manager.authorize(TestAuthentication::authenticatedUser,
 				new RequestAuthorizationContext(new MockHttpServletRequest()));
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isFalse();

@@ -227,7 +227,7 @@ public final class MessageExpressionAuthorizationManager implements Authorizatio
 	}
 
 	@Override
-	public AuthorizationDecision check(Supplier<Authentication> authentication, MessageAuthorizationContext<?> context) {
+	public AuthorizationResult authorize(Supplier<Authentication> authentication, MessageAuthorizationContext<?> context) {
 		EvaluationContext ctx = this.expressionHandler.createEvaluationContext(authentication, context.getMessage());
 		boolean granted = ExpressionUtils.evaluateAsBoolean(this.expression, ctx);
 		return new ExpressionAuthorizationDecision(granted, this.expression);

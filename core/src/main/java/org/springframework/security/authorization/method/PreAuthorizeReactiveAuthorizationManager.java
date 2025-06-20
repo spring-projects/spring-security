@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
 import org.springframework.security.core.Authentication;
@@ -88,11 +87,11 @@ public final class PreAuthorizeReactiveAuthorizationManager
 	 * by evaluating an expression from the {@link PreAuthorize} annotation.
 	 * @param authentication the {@link Mono} of the {@link Authentication} to check
 	 * @param mi the {@link MethodInvocation} to check
-	 * @return a {@link Mono} of the {@link AuthorizationDecision} or an empty
-	 * {@link Mono} if the {@link PreAuthorize} annotation is not present
+	 * @return a {@link Mono} of the {@link AuthorizationResult} or an empty {@link Mono}
+	 * if the {@link PreAuthorize} annotation is not present
 	 */
 	@Override
-	public Mono<AuthorizationDecision> check(Mono<Authentication> authentication, MethodInvocation mi) {
+	public Mono<AuthorizationResult> authorize(Mono<Authentication> authentication, MethodInvocation mi) {
 		ExpressionAttribute attribute = this.registry.getAttribute(mi);
 		if (attribute == ExpressionAttribute.NULL_ATTRIBUTE) {
 			return Mono.empty();
@@ -101,7 +100,7 @@ public final class PreAuthorizeReactiveAuthorizationManager
 		return authentication
 				.map((auth) -> this.registry.getExpressionHandler().createEvaluationContext(auth, mi))
 				.flatMap((ctx) -> ReactiveExpressionUtils.evaluate(attribute.getExpression(), ctx))
-				.cast(AuthorizationDecision.class);
+				.cast(AuthorizationResult.class);
 		// @formatter:on
 	}
 

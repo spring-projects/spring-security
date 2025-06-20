@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -92,13 +92,13 @@ public final class PreAuthorizeAuthorizationManager
 	 * {@link PreAuthorize} annotation is not present
 	 */
 	@Override
-	public AuthorizationDecision check(Supplier<Authentication> authentication, MethodInvocation mi) {
+	public AuthorizationResult authorize(Supplier<Authentication> authentication, MethodInvocation mi) {
 		ExpressionAttribute attribute = this.registry.getAttribute(mi);
 		if (attribute == ExpressionAttribute.NULL_ATTRIBUTE) {
 			return null;
 		}
 		EvaluationContext ctx = this.registry.getExpressionHandler().createEvaluationContext(authentication, mi);
-		return (AuthorizationDecision) ExpressionUtils.evaluate(attribute.getExpression(), ctx);
+		return ExpressionUtils.evaluate(attribute.getExpression(), ctx);
 	}
 
 	@Override
