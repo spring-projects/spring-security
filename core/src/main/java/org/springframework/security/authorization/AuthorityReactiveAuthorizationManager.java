@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,13 +43,13 @@ public class AuthorityReactiveAuthorizationManager<T> implements ReactiveAuthori
 	}
 
 	@Override
-	public Mono<AuthorizationDecision> check(Mono<Authentication> authentication, T object) {
+	public Mono<AuthorizationResult> authorize(Mono<Authentication> authentication, T object) {
 		// @formatter:off
 		return authentication.filter(Authentication::isAuthenticated)
 				.flatMapIterable(Authentication::getAuthorities)
 				.map(GrantedAuthority::getAuthority)
 				.any((grantedAuthority) -> this.authorities.stream().anyMatch((authority) -> authority.getAuthority().equals(grantedAuthority)))
-				.map((granted) -> ((AuthorizationDecision) new AuthorityAuthorizationDecision(granted, this.authorities)))
+				.map((granted) -> ((AuthorizationResult) new AuthorityAuthorizationDecision(granted, this.authorities)))
 				.defaultIfEmpty(new AuthorityAuthorizationDecision(false, this.authorities));
 		// @formatter:on
 	}

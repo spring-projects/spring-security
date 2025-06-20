@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -182,18 +182,6 @@ public final class AuthorizationManagers {
 	private interface AuthorizationManagerCheckAdapter<T> extends AuthorizationManager<T> {
 
 		@Override
-		default AuthorizationDecision check(Supplier<Authentication> authentication, T object) {
-			AuthorizationResult result = authorize(authentication, object);
-			if (result == null) {
-				return null;
-			}
-			if (result instanceof AuthorizationDecision decision) {
-				return decision;
-			}
-			throw new IllegalArgumentException(
-					"please call #authorize or ensure that the result is of type AuthorizationDecision");
-		}
-
 		AuthorizationResult authorize(Supplier<Authentication> authentication, T object);
 
 	}

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ import org.springframework.security.access.expression.method.MethodSecurityExpre
 import org.springframework.security.access.intercept.method.MockMethodInvocation;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.TestingAuthenticationToken;
-import org.springframework.security.authorization.AuthorizationDecision;
+import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.core.Authentication;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -61,8 +61,8 @@ public class PreAuthorizeReactiveAuthorizationManagerTests {
 		MockMethodInvocation methodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
 				"doSomething", new Class[] {}, new Object[] {});
 		PreAuthorizeReactiveAuthorizationManager manager = new PreAuthorizeReactiveAuthorizationManager();
-		AuthorizationDecision decision = manager
-			.check(ReactiveAuthenticationUtils.getAuthentication(), methodInvocation)
+		AuthorizationResult decision = manager
+			.authorize(ReactiveAuthenticationUtils.getAuthentication(), methodInvocation)
 			.block();
 		assertThat(decision).isNull();
 	}
@@ -72,8 +72,8 @@ public class PreAuthorizeReactiveAuthorizationManagerTests {
 		MockMethodInvocation methodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
 				"doSomethingString", new Class[] { String.class }, new Object[] { "grant" });
 		PreAuthorizeReactiveAuthorizationManager manager = new PreAuthorizeReactiveAuthorizationManager();
-		AuthorizationDecision decision = manager
-			.check(ReactiveAuthenticationUtils.getAuthentication(), methodInvocation)
+		AuthorizationResult decision = manager
+			.authorize(ReactiveAuthenticationUtils.getAuthentication(), methodInvocation)
 			.block();
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isTrue();
@@ -84,8 +84,8 @@ public class PreAuthorizeReactiveAuthorizationManagerTests {
 		MockMethodInvocation methodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
 				"doSomethingString", new Class[] { String.class }, new Object[] { "deny" });
 		PreAuthorizeReactiveAuthorizationManager manager = new PreAuthorizeReactiveAuthorizationManager();
-		AuthorizationDecision decision = manager
-			.check(ReactiveAuthenticationUtils.getAuthentication(), methodInvocation)
+		AuthorizationResult decision = manager
+			.authorize(ReactiveAuthenticationUtils.getAuthentication(), methodInvocation)
 			.block();
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isFalse();
@@ -98,11 +98,11 @@ public class PreAuthorizeReactiveAuthorizationManagerTests {
 		MockMethodInvocation methodInvocation = new MockMethodInvocation(new ClassLevelAnnotations(),
 				ClassLevelAnnotations.class, "securedAdmin");
 		PreAuthorizeReactiveAuthorizationManager manager = new PreAuthorizeReactiveAuthorizationManager();
-		AuthorizationDecision decision = manager.check(authentication, methodInvocation).block();
+		AuthorizationResult decision = manager.authorize(authentication, methodInvocation).block();
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isFalse();
 		authentication = Mono.just(new TestingAuthenticationToken("user", "password", "ROLE_ADMIN"));
-		decision = manager.check(authentication, methodInvocation).block();
+		decision = manager.authorize(authentication, methodInvocation).block();
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isTrue();
 	}
@@ -114,11 +114,11 @@ public class PreAuthorizeReactiveAuthorizationManagerTests {
 		MockMethodInvocation methodInvocation = new MockMethodInvocation(new ClassLevelAnnotations(),
 				ClassLevelAnnotations.class, "securedUser");
 		PreAuthorizeReactiveAuthorizationManager manager = new PreAuthorizeReactiveAuthorizationManager();
-		AuthorizationDecision decision = manager.check(authentication, methodInvocation).block();
+		AuthorizationResult decision = manager.authorize(authentication, methodInvocation).block();
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isTrue();
 		authentication = Mono.just(new TestingAuthenticationToken("user", "password", "ROLE_ADMIN"));
-		decision = manager.check(authentication, methodInvocation).block();
+		decision = manager.authorize(authentication, methodInvocation).block();
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isFalse();
 	}
@@ -131,7 +131,7 @@ public class PreAuthorizeReactiveAuthorizationManagerTests {
 				ConflictingAnnotations.class, "inheritedAnnotations");
 		PreAuthorizeReactiveAuthorizationManager manager = new PreAuthorizeReactiveAuthorizationManager();
 		assertThatExceptionOfType(AnnotationConfigurationException.class)
-			.isThrownBy(() -> manager.check(authentication, methodInvocation));
+			.isThrownBy(() -> manager.authorize(authentication, methodInvocation));
 	}
 
 	public static class TestClass implements InterfaceAnnotationsOne, InterfaceAnnotationsTwo {

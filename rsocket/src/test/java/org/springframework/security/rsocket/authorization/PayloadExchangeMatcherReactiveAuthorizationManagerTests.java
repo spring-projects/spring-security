@@ -52,51 +52,47 @@ public class PayloadExchangeMatcherReactiveAuthorizationManagerTests {
 	@Test
 	public void checkWhenGrantedThenGranted() {
 		AuthorizationDecision expected = new AuthorizationDecision(true);
-		given(this.authz.check(any(), any())).willReturn(Mono.just(expected));
-		given(this.authz.authorize(any(), any())).willCallRealMethod();
+		given(this.authz.authorize(any(), any())).willReturn(Mono.just(expected));
 		PayloadExchangeMatcherReactiveAuthorizationManager manager = PayloadExchangeMatcherReactiveAuthorizationManager
 			.builder()
 			.add(new PayloadExchangeMatcherEntry<>(PayloadExchangeMatchers.anyExchange(), this.authz))
 			.build();
-		assertThat(manager.check(Mono.empty(), this.exchange).block()).isEqualTo(expected);
+		assertThat(manager.authorize(Mono.empty(), this.exchange).block()).isEqualTo(expected);
 	}
 
 	@Test
 	public void checkWhenDeniedThenDenied() {
 		AuthorizationDecision expected = new AuthorizationDecision(false);
-		given(this.authz.check(any(), any())).willReturn(Mono.just(expected));
-		given(this.authz.authorize(any(), any())).willCallRealMethod();
+		given(this.authz.authorize(any(), any())).willReturn(Mono.just(expected));
 		PayloadExchangeMatcherReactiveAuthorizationManager manager = PayloadExchangeMatcherReactiveAuthorizationManager
 			.builder()
 			.add(new PayloadExchangeMatcherEntry<>(PayloadExchangeMatchers.anyExchange(), this.authz))
 			.build();
-		assertThat(manager.check(Mono.empty(), this.exchange).block()).isEqualTo(expected);
+		assertThat(manager.authorize(Mono.empty(), this.exchange).block()).isEqualTo(expected);
 	}
 
 	@Test
 	public void checkWhenFirstMatchThenSecondUsed() {
 		AuthorizationDecision expected = new AuthorizationDecision(true);
-		given(this.authz.check(any(), any())).willReturn(Mono.just(expected));
-		given(this.authz.authorize(any(), any())).willCallRealMethod();
+		given(this.authz.authorize(any(), any())).willReturn(Mono.just(expected));
 		PayloadExchangeMatcherReactiveAuthorizationManager manager = PayloadExchangeMatcherReactiveAuthorizationManager
 			.builder()
 			.add(new PayloadExchangeMatcherEntry<>(PayloadExchangeMatchers.anyExchange(), this.authz))
 			.add(new PayloadExchangeMatcherEntry<>((e) -> PayloadExchangeMatcher.MatchResult.notMatch(), this.authz2))
 			.build();
-		assertThat(manager.check(Mono.empty(), this.exchange).block()).isEqualTo(expected);
+		assertThat(manager.authorize(Mono.empty(), this.exchange).block()).isEqualTo(expected);
 	}
 
 	@Test
 	public void checkWhenSecondMatchThenSecondUsed() {
 		AuthorizationDecision expected = new AuthorizationDecision(true);
-		given(this.authz2.check(any(), any())).willReturn(Mono.just(expected));
-		given(this.authz2.authorize(any(), any())).willCallRealMethod();
+		given(this.authz2.authorize(any(), any())).willReturn(Mono.just(expected));
 		PayloadExchangeMatcherReactiveAuthorizationManager manager = PayloadExchangeMatcherReactiveAuthorizationManager
 			.builder()
 			.add(new PayloadExchangeMatcherEntry<>((e) -> PayloadExchangeMatcher.MatchResult.notMatch(), this.authz))
 			.add(new PayloadExchangeMatcherEntry<>(PayloadExchangeMatchers.anyExchange(), this.authz2))
 			.build();
-		assertThat(manager.check(Mono.empty(), this.exchange).block()).isEqualTo(expected);
+		assertThat(manager.authorize(Mono.empty(), this.exchange).block()).isEqualTo(expected);
 	}
 
 }

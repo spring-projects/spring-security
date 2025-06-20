@@ -87,23 +87,6 @@ public class AuthorizationEvent extends ApplicationEvent {
 	/**
 	 * Get the response to the principal's request
 	 * @return the response to the principal's request
-	 * @deprecated please use {@link #getAuthorizationResult()}
-	 */
-	@Deprecated
-	public AuthorizationDecision getAuthorizationDecision() {
-		if (this.result == null) {
-			return null;
-		}
-		if (this.result instanceof AuthorizationDecision decision) {
-			return decision;
-		}
-		throw new IllegalArgumentException(
-				"Please either call getAuthorizationResult or ensure that the result is of type AuthorizationDecision");
-	}
-
-	/**
-	 * Get the response to the principal's request
-	 * @return the response to the principal's request
 	 * @since 6.4
 	 */
 	public AuthorizationResult getAuthorizationResult() {

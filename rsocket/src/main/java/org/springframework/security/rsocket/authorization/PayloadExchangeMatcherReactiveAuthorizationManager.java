@@ -51,21 +51,6 @@ public final class PayloadExchangeMatcherReactiveAuthorizationManager
 		this.mappings = mappings;
 	}
 
-	/**
-	 * @deprecated please use {@link #authorize(Mono, PayloadExchange)} instead
-	 */
-	@Deprecated
-	@Override
-	public Mono<AuthorizationDecision> check(Mono<Authentication> authentication, PayloadExchange exchange) {
-		return authorize(authentication, exchange).flatMap((result) -> {
-			if (result instanceof AuthorizationDecision decision) {
-				return Mono.just(decision);
-			}
-			return Mono.error(new IllegalArgumentException(
-					"Please call #authorize or ensure that the returned result is of type Mono<AuthorizationDecision>"));
-		});
-	}
-
 	@Override
 	public Mono<AuthorizationResult> authorize(Mono<Authentication> authentication, PayloadExchange exchange) {
 		return Flux.fromIterable(this.mappings)

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,14 +63,14 @@ class AuthoritiesAuthorizationManagerTests {
 	void checkWhenUserHasAnyAuthorityThenGrantedDecision() {
 		AuthoritiesAuthorizationManager manager = new AuthoritiesAuthorizationManager();
 		Supplier<Authentication> authentication = () -> new TestingAuthenticationToken("user", "password", "USER");
-		assertThat(manager.check(authentication, Arrays.asList("ADMIN", "USER")).isGranted()).isTrue();
+		assertThat(manager.authorize(authentication, Arrays.asList("ADMIN", "USER")).isGranted()).isTrue();
 	}
 
 	@Test
 	void checkWhenUserHasNotAnyAuthorityThenDeniedDecision() {
 		AuthoritiesAuthorizationManager manager = new AuthoritiesAuthorizationManager();
 		Supplier<Authentication> authentication = () -> new TestingAuthenticationToken("user", "password", "ANONYMOUS");
-		assertThat(manager.check(authentication, Arrays.asList("ADMIN", "USER")).isGranted()).isFalse();
+		assertThat(manager.authorize(authentication, Arrays.asList("ADMIN", "USER")).isGranted()).isFalse();
 	}
 
 	@Test
@@ -81,7 +81,7 @@ class AuthoritiesAuthorizationManagerTests {
 		manager.setRoleHierarchy(roleHierarchy);
 		Supplier<Authentication> authentication = () -> new TestingAuthenticationToken("user", "password",
 				"ROLE_ADMIN");
-		assertThat(manager.check(authentication, Collections.singleton("ROLE_USER")).isGranted()).isTrue();
+		assertThat(manager.authorize(authentication, Collections.singleton("ROLE_USER")).isGranted()).isTrue();
 	}
 
 }
