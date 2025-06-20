@@ -309,8 +309,6 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 			.builder();
 		boolean mappings = false;
 		for (RequestMatcher ignoredRequest : this.ignoredRequests) {
-			WebSecurity.this.logger.warn("You are asking Spring Security to ignore " + ignoredRequest
-					+ ". This is not recommended -- please use permitAll via HttpSecurity#authorizeHttpRequests instead.");
 			SecurityFilterChain securityFilterChain = new DefaultSecurityFilterChain(ignoredRequest);
 			securityFilterChains.add(securityFilterChain);
 			builder.add(ignoredRequest, SingleResultAuthorizationManager.permitAll());
