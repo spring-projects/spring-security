@@ -29,6 +29,7 @@ import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.access.expression.SecurityExpressionHandler;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.ObjectPostProcessor;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -40,6 +41,8 @@ import org.springframework.security.web.access.expression.WebExpressionVoter;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
+
+import static org.springframework.security.config.Customizer.withDefaults;
 
 /**
  * Adds URL based authorization based upon SpEL expressions to an application. At least
@@ -77,7 +80,7 @@ import org.springframework.util.StringUtils;
  * @author Yanming Zhou
  * @author Ngoc Nhan
  * @since 3.2
- * @see org.springframework.security.config.annotation.web.builders.HttpSecurity#authorizeRequests()
+ * @see org.springframework.security.config.annotation.web.builders.HttpSecurity#authorizeRequests(Customizer)
  * @deprecated Use {@link AuthorizeHttpRequestsConfigurer} instead
  */
 @Deprecated
@@ -104,7 +107,7 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
 
 	/**
 	 * Creates a new instance
-	 * @see HttpSecurity#authorizeRequests()
+	 * @see HttpSecurity#authorizeRequests(Customizer)
 	 */
 	public ExpressionUrlAuthorizationConfigurer(ApplicationContext context) {
 		GrantedAuthorityDefaults grantedAuthorityDefaults = context.getBeanProvider(GrantedAuthorityDefaults.class)

@@ -48,6 +48,8 @@ import org.springframework.security.web.header.writers.frameoptions.XFrameOption
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 
+import static org.springframework.security.config.Customizer.withDefaults;
+
 /**
  * <p>
  * Adds the Security HTTP headers to the response. Security HTTP headers is activated by
@@ -111,7 +113,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 	/**
 	 * Creates a new instance
 	 *
-	 * @see HttpSecurity#headers()
+	 * @see HttpSecurity#headers(Customizer)
 	 */
 	public HeadersConfigurer() {
 	}

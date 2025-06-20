@@ -103,6 +103,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.filter.CorsFilter;
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
+import static org.springframework.security.config.Customizer.withDefaults;
+
 /**
  * A {@link HttpSecurity} is similar to Spring Security's XML &lt;http&gt; element in the
  * namespace configuration. It allows configuring web based security for specific http
@@ -219,8 +221,8 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	/**
 	 * Adds the Security headers to the response. This is activated by default when using
 	 * {@link EnableWebSecurity}. Accepting the default provided by
-	 * {@link EnableWebSecurity} or only invoking {@link #headers()} without invoking
-	 * additional methods on it, is the equivalent of:
+	 * {@link EnableWebSecurity} or only invoking {@link #headers(withDefaults())} without
+	 * invoking additional methods on it, is the equivalent of:
 	 *
 	 * <pre>
 	 * &#064;Configuration
@@ -266,8 +268,8 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 *
 	 * You can enable only a few of the headers by first invoking
 	 * {@link HeadersConfigurer#defaultsDisabled()} and then invoking the appropriate
-	 * methods on the {@link #headers()} result. For example, the following will enable
-	 * {@link HeadersConfigurer#cacheControl()} and
+	 * methods on the {@link #headers(withDefaults())} result. For example, the following
+	 * will enable {@link HeadersConfigurer#cacheControl()} and
 	 * {@link HeadersConfigurer#frameOptions()} only.
 	 *
 	 * <pre>
@@ -331,7 +333,8 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * <h2>Example Configurations</h2>
 	 *
 	 * Accepting the default provided by {@link EnableWebSecurity} or only invoking
-	 * {@link #headers()} without invoking additional methods on it, is the equivalent of:
+	 * {@link #headers(Customizer)} without invoking additional methods on it, is the
+	 * equivalent of:
 	 *
 	 * <pre>
 	 * &#064;Configuration
@@ -372,9 +375,9 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 *
 	 * You can enable only a few of the headers by first invoking
 	 * {@link HeadersConfigurer#defaultsDisabled()} and then invoking the appropriate
-	 * methods on the {@link #headers()} result. For example, the following will enable
-	 * {@link HeadersConfigurer#cacheControl()} and
-	 * {@link HeadersConfigurer#frameOptions()} only.
+	 * methods on the {@link #headers(Customizer)} result. For example, the following will
+	 * enable {@link HeadersConfigurer#cacheControl(Customizer)} and
+	 * {@link HeadersConfigurer#frameOptions(Customizer)} only.
 	 *
 	 * <pre>
 	 * &#064;Configuration
@@ -397,7 +400,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 *
 	 * You can also choose to keep the defaults but explicitly disable a subset of
 	 * headers. For example, the following will enable all the default headers except
-	 * {@link HeadersConfigurer#frameOptions()}.
+	 * {@link HeadersConfigurer#frameOptions(Customizer)}.
 	 *
 	 * <pre>
 	 * &#064;Configuration
@@ -615,9 +618,10 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * {@link HttpSecurity#getSharedObject(Class)}. Other provided
 	 * {@link SecurityConfigurer} objects use this configured {@link PortMapper} as a
 	 * default {@link PortMapper} when redirecting from HTTP to HTTPS or from HTTPS to
-	 * HTTP (for example when used in combination with {@link #requiresChannel()}. By
-	 * default Spring Security uses a {@link PortMapperImpl} which maps the HTTP port 8080
-	 * to the HTTPS port 8443 and the HTTP port of 80 to the HTTPS port of 443.
+	 * HTTP (for example when used in combination with
+	 * {@link #requiresChannel(Customizer)} )}. By default Spring Security uses a
+	 * {@link PortMapperImpl} which maps the HTTP port 8080 to the HTTPS port 8443 and the
+	 * HTTP port of 80 to the HTTPS port of 443.
 	 *
 	 * <h2>Example Configuration</h2>
 	 *
@@ -657,7 +661,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * <a href=
 	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
 	 * for more details.
-	 * @see #requiresChannel()
+	 * @see #requiresChannel(withDefaults())
 	 */
 	@Deprecated(since = "6.1", forRemoval = true)
 	public PortMapperConfigurer<HttpSecurity> portMapper() throws Exception {
@@ -669,9 +673,10 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * {@link HttpSecurity#getSharedObject(Class)}. Other provided
 	 * {@link SecurityConfigurer} objects use this configured {@link PortMapper} as a
 	 * default {@link PortMapper} when redirecting from HTTP to HTTPS or from HTTPS to
-	 * HTTP (for example when used in combination with {@link #requiresChannel()}. By
-	 * default Spring Security uses a {@link PortMapperImpl} which maps the HTTP port 8080
-	 * to the HTTPS port 8443 and the HTTP port of 80 to the HTTPS port of 443.
+	 * HTTP (for example when used in combination with
+	 * {@link #requiresChannel(withDefaults())}. By default Spring Security uses a
+	 * {@link PortMapperImpl} which maps the HTTP port 8080 to the HTTPS port 8443 and the
+	 * HTTP port of 80 to the HTTPS port of 443.
 	 *
 	 * <h2>Example Configuration</h2>
 	 *
@@ -714,7 +719,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * {@link PortMapperConfigurer}
 	 * @return the {@link HttpSecurity} for further customizations
 	 * @throws Exception
-	 * @see #requiresChannel()
+	 * @see #requiresChannel(Customizer)
 	 */
 	public HttpSecurity portMapper(Customizer<PortMapperConfigurer<HttpSecurity>> portMapperCustomizer)
 			throws Exception {
@@ -1776,7 +1781,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * Provides logout support. This is automatically applied when using
 	 * {@link EnableWebSecurity}. The default is that accessing the URL "/logout" will log
 	 * the user out by invalidating the HTTP Session, cleaning up any
-	 * {@link #rememberMe()} authentication that was configured, clearing the
+	 * {@link #rememberMe(Customizer)} authentication that was configured, clearing the
 	 * {@link SecurityContextHolder}, and then redirect to "/login?success".
 	 *
 	 * <h2>Example Custom Configuration</h2>
@@ -1827,8 +1832,8 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * Provides logout support. This is automatically applied when using
 	 * {@link EnableWebSecurity}. The default is that accessing the URL "/logout" will log
 	 * the user out by invalidating the HTTP Session, cleaning up any
-	 * {@link #rememberMe()} authentication that was configured, clearing the
-	 * {@link SecurityContextHolder}, and then redirect to "/login?success".
+	 * {@link #rememberMe(withDefaults())} authentication that was configured, clearing
+	 * the {@link SecurityContextHolder}, and then redirect to "/login?success".
 	 *
 	 * <h2>Example Custom Configuration</h2>
 	 *
@@ -2499,7 +2504,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * {@link RelyingPartyRegistration}(s) are composed within a
 	 * {@link RelyingPartyRegistrationRepository}, which is <b>required</b> and must be
 	 * registered with the {@link ApplicationContext} or configured via
-	 * {@link #saml2Login()}.<br>
+	 * {@link #saml2Login(withDefaults())}.<br>
 	 * <br>
 	 *
 	 * The default configuration provides an auto-generated logout endpoint at

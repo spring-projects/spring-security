@@ -21,6 +21,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.context.ApplicationContext;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.Authentication;
@@ -90,7 +91,7 @@ public final class X509Configurer<H extends HttpSecurityBuilder<H>>
 	/**
 	 * Creates a new instance
 	 *
-	 * @see HttpSecurity#x509()
+	 * @see HttpSecurity#x509(Customizer)
 	 */
 	public X509Configurer() {
 	}

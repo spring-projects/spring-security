@@ -71,6 +71,8 @@ import org.springframework.security.web.util.matcher.AndRequestMatcher;
 import org.springframework.security.web.util.matcher.ParameterRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
+import static org.springframework.security.config.Customizer.withDefaults;
+
 /**
  * Adds SAML 2.0 logout support.
  *
@@ -135,7 +137,7 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 
 	/**
 	 * Creates a new instance
-	 * @see HttpSecurity#logout()
+	 * @see HttpSecurity#logout(Customizer)
 	 */
 	public Saml2LogoutConfigurer(ApplicationContext context) {
 		this.context = context;
@@ -158,7 +160,7 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 	 * @param logoutUrl the URL that will invoke logout
 	 * @return the {@link LogoutConfigurer} for further customizations
 	 * @see LogoutConfigurer#logoutUrl(String)
-	 * @see HttpSecurity#csrf()
+	 * @see HttpSecurity#csrf(Customizer)
 	 */
 	public Saml2LogoutConfigurer<H> logoutUrl(String logoutUrl) {
 		this.logoutUrl = logoutUrl;

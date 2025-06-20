@@ -66,6 +66,8 @@ import org.springframework.security.web.session.SimpleRedirectSessionInformation
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
+import static org.springframework.security.config.Customizer.withDefaults;
+
 /**
  * Allows configuring session management.
  *
@@ -152,7 +154,7 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 
 	/**
 	 * Creates a new instance
-	 * @see HttpSecurity#sessionManagement()
+	 * @see HttpSecurity#sessionManagement(Customizer)
 	 */
 	public SessionManagementConfigurer() {
 	}

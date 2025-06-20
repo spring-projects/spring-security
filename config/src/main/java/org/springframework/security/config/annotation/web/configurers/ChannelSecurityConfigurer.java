@@ -43,6 +43,8 @@ import org.springframework.security.web.access.channel.SecureChannelProcessor;
 import org.springframework.security.web.access.intercept.DefaultFilterInvocationSecurityMetadataSource;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
+import static org.springframework.security.config.Customizer.withDefaults;
+
 /**
  * Adds channel security (i.e. requires HTTPS or HTTP) to an application. In order for
  * {@link ChannelSecurityConfigurer} to be useful, at least one {@link RequestMatcher}
@@ -96,7 +98,7 @@ public final class ChannelSecurityConfigurer<H extends HttpSecurityBuilder<H>>
 
 	/**
 	 * Creates a new instance
-	 * @see HttpSecurity#requiresChannel()
+	 * @see HttpSecurity#requiresChannel(Customizer)
 	 */
 	public ChannelSecurityConfigurer(ApplicationContext context) {
 		this.REGISTRY = new ChannelRequestMatcherRegistry(context);

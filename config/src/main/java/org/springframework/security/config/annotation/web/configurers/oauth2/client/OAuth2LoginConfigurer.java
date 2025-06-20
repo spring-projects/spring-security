@@ -104,6 +104,8 @@ import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ReflectionUtils;
 
+import static org.springframework.security.config.Customizer.withDefaults;
+
 /**
  * An {@link AbstractHttpConfigurer} for OAuth 2.0 Login, which leverages the OAuth 2.0
  * Authorization Code Grant Flow.
@@ -155,7 +157,7 @@ import org.springframework.util.ReflectionUtils;
  * @author Kazuki Shimizu
  * @author Ngoc Nhan
  * @since 5.0
- * @see HttpSecurity#oauth2Login()
+ * @see HttpSecurity#oauth2Login(Customizer)
  * @see OAuth2AuthorizationRequestRedirectFilter
  * @see OAuth2LoginAuthenticationFilter
  * @see ClientRegistrationRepository

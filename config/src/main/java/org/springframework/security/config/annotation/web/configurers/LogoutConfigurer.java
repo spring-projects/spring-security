@@ -23,6 +23,7 @@ import java.util.List;
 import jakarta.servlet.http.HttpSession;
 
 import org.springframework.http.HttpMethod;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.SecurityConfigurer;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.RequestMatcherFactory;
@@ -92,7 +93,7 @@ public final class LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 
 	/**
 	 * Creates a new instance
-	 * @see HttpSecurity#logout()
+	 * @see HttpSecurity#logout(Customizer)
 	 */
 	public LogoutConfigurer() {
 	}
@@ -150,7 +151,7 @@ public final class LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 	 * @param logoutUrl the URL that will invoke logout.
 	 * @return the {@link LogoutConfigurer} for further customization
 	 * @see #logoutRequestMatcher(RequestMatcher)
-	 * @see HttpSecurity#csrf()
+	 * @see HttpSecurity#csrf(Customizer)
 	 */
 	public LogoutConfigurer<H> logoutUrl(String logoutUrl) {
 		this.logoutRequestMatcher = null;
