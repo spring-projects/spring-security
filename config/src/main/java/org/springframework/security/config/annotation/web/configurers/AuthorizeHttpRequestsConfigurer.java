@@ -192,16 +192,6 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 		}
 
 		/**
-		 * @deprecated
-		 */
-		@Deprecated(since = "6.4", forRemoval = true)
-		public AuthorizationManagerRequestMatcherRegistry withObjectPostProcessor(
-				org.springframework.security.config.annotation.ObjectPostProcessor<?> objectPostProcessor) {
-			addObjectPostProcessor(objectPostProcessor);
-			return this;
-		}
-
-		/**
 		 * Sets whether all dispatcher types should be filtered.
 		 * @param shouldFilter should filter all dispatcher types. Default is {@code true}
 		 * @return the {@link AuthorizationManagerRequestMatcherRegistry} for further
