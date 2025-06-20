@@ -240,16 +240,6 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
 			return this;
 		}
 
-		/**
-		 * @deprecated
-		 */
-		@Deprecated(since = "6.4", forRemoval = true)
-		public ExpressionInterceptUrlRegistry withObjectPostProcessor(
-				org.springframework.security.config.annotation.ObjectPostProcessor<?> objectPostProcessor) {
-			addObjectPostProcessor(objectPostProcessor);
-			return this;
-		}
-
 		public H and() {
 			return ExpressionUrlAuthorizationConfigurer.this.getBuilder();
 		}
