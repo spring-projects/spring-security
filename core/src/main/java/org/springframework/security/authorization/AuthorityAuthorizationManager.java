@@ -133,6 +133,9 @@ public final class AuthorityAuthorizationManager<T> implements AuthorizationMana
 		return result;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public AuthorizationResult authorize(Supplier<Authentication> authentication, T object) {
 		return this.delegate.authorize(authentication, this.authorities);

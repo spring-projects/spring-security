@@ -49,6 +49,9 @@ public final class SpringAuthorizationEventPublisher implements AuthorizationEve
 		this.eventPublisher = eventPublisher;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public <T> void publishAuthorizationEvent(Supplier<Authentication> authentication, T object,
 			AuthorizationResult result) {
