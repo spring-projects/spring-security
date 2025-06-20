@@ -60,6 +60,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oauth2Client;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -181,9 +182,9 @@ public class SecurityMockMvcRequestPostProcessorsOAuth2ClientTests {
 			// @formatter:off
 			http
 				.authorizeRequests((authz) -> authz
-					.anyRequest().permitAll()
+						.anyRequest().permitAll()
 				)
-				.oauth2Client();
+				.oauth2Client(withDefaults());
 			return http.build();
 			// @formatter:on
 		}

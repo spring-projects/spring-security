@@ -191,7 +191,7 @@ public class WebTestUtilsTests {
 
 		@Bean
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-			http.csrf().disable();
+			http.csrf((csrf) -> csrf.disable());
 			return http.build();
 		}
 
@@ -208,11 +208,10 @@ public class WebTestUtilsTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.csrf()
-					.csrfTokenRepository(CSRF_REPO)
-					.and()
-				.securityContext()
-					.securityContextRepository(CONTEXT_REPO);
+				.csrf((csrf) -> csrf
+					.csrfTokenRepository(CSRF_REPO))
+				.securityContext((context) -> context
+					.securityContextRepository(CONTEXT_REPO));
 			return http.build();
 			// @formatter:on
 		}
