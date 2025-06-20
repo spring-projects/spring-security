@@ -118,7 +118,6 @@ public class AuthorizationFilterTests {
 	@Test
 	public void filterWhenAuthorizationManagerVerifyThrowsAccessDeniedExceptionThenStopFilterChain() {
 		AuthorizationManager<HttpServletRequest> mockAuthorizationManager = mock(AuthorizationManager.class);
-		given(mockAuthorizationManager.authorize(any(), any())).willCallRealMethod();
 		AuthorizationFilter filter = new AuthorizationFilter(mockAuthorizationManager);
 		TestingAuthenticationToken authenticationToken = new TestingAuthenticationToken("user", "password");
 
@@ -196,7 +195,6 @@ public class AuthorizationFilterTests {
 	@Test
 	public void doFilterWhenErrorThenDoFilter() throws Exception {
 		AuthorizationManager<HttpServletRequest> authorizationManager = mock(AuthorizationManager.class);
-		given(authorizationManager.authorize(any(), any())).willCallRealMethod();
 		AuthorizationFilter authorizationFilter = new AuthorizationFilter(authorizationManager);
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(null, "/path");
 		mockRequest.setDispatcherType(DispatcherType.ERROR);
@@ -233,7 +231,6 @@ public class AuthorizationFilterTests {
 
 	@Test
 	public void doFilterWhenObserveOncePerRequestTrueAndNotAppliedThenInvoked() throws ServletException, IOException {
-		given(this.authorizationManager.authorize(any(), any())).willCallRealMethod();
 		this.filter.setObserveOncePerRequest(true);
 		this.filter.doFilter(this.request, this.response, this.chain);
 		verify(this.authorizationManager).authorize(any(), any());
@@ -242,7 +239,6 @@ public class AuthorizationFilterTests {
 	@Test
 	public void doFilterWhenObserveOncePerRequestFalseAndIsAppliedThenInvoked() throws ServletException, IOException {
 		setIsAppliedTrue();
-		given(this.authorizationManager.authorize(any(), any())).willCallRealMethod();
 		this.filter.setObserveOncePerRequest(false);
 		this.filter.doFilter(this.request, this.response, this.chain);
 		verify(this.authorizationManager).authorize(any(), any());
@@ -250,7 +246,6 @@ public class AuthorizationFilterTests {
 
 	@Test
 	public void doFilterWhenObserveOncePerRequestFalseAndNotAppliedThenInvoked() throws ServletException, IOException {
-		given(this.authorizationManager.authorize(any(), any())).willCallRealMethod();
 		this.filter.setObserveOncePerRequest(false);
 		this.filter.doFilter(this.request, this.response, this.chain);
 		verify(this.authorizationManager).authorize(any(), any());
@@ -266,7 +261,6 @@ public class AuthorizationFilterTests {
 
 	@Test
 	public void doFilterWhenFilterErrorDispatchTrueAndIsErrorThenInvoked() throws ServletException, IOException {
-		given(this.authorizationManager.authorize(any(), any())).willCallRealMethod();
 		this.request.setDispatcherType(DispatcherType.ERROR);
 		this.filter.setFilterErrorDispatch(true);
 		this.filter.doFilter(this.request, this.response, this.chain);
@@ -290,7 +284,6 @@ public class AuthorizationFilterTests {
 
 	@Test
 	public void doFilterWhenFilterAsyncDispatchTrueAndIsAsyncThenInvoked() throws ServletException, IOException {
-		given(this.authorizationManager.authorize(any(), any())).willCallRealMethod();
 		this.request.setDispatcherType(DispatcherType.ASYNC);
 		this.filter.setFilterAsyncDispatch(true);
 		this.filter.doFilter(this.request, this.response, this.chain);

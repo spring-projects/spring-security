@@ -81,7 +81,6 @@ public class DelegatingReactiveAuthorizationManagerTests {
 		given(this.match1.matches(any())).willReturn(ServerWebExchangeMatcher.MatchResult.match());
 		given(this.delegate1.authorize(eq(this.authentication), any(AuthorizationContext.class)))
 			.willReturn(Mono.just(this.decision));
-		given(this.delegate1.authorize(eq(this.authentication), any(AuthorizationContext.class))).willCallRealMethod();
 		assertThat(this.manager.authorize(this.authentication, this.exchange).block()).isEqualTo(this.decision);
 		verifyNoMoreInteractions(this.match2, this.delegate2);
 	}
@@ -92,7 +91,6 @@ public class DelegatingReactiveAuthorizationManagerTests {
 		given(this.match2.matches(any())).willReturn(ServerWebExchangeMatcher.MatchResult.match());
 		given(this.delegate2.authorize(eq(this.authentication), any(AuthorizationContext.class)))
 			.willReturn(Mono.just(this.decision));
-		given(this.delegate2.authorize(eq(this.authentication), any(AuthorizationContext.class))).willCallRealMethod();
 		assertThat(this.manager.authorize(this.authentication, this.exchange).block()).isEqualTo(this.decision);
 		verifyNoMoreInteractions(this.delegate1);
 	}

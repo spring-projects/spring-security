@@ -85,7 +85,6 @@ class AuthorizationManagerWebInvocationPrivilegeEvaluatorTests {
 	@Test
 	void isAllowedWhenServletContextExistsThenFilterInvocationHasServletContext() {
 		ServletContext servletContext = new MockServletContext();
-		given(this.authorizationManager.authorize(any(), any())).willCallRealMethod();
 		this.privilegeEvaluator.setServletContext(servletContext);
 		this.privilegeEvaluator.isAllowed("/test", TestAuthentication.authenticatedUser());
 		ArgumentCaptor<HttpServletRequest> captor = ArgumentCaptor.forClass(HttpServletRequest.class);
@@ -102,7 +101,6 @@ class AuthorizationManagerWebInvocationPrivilegeEvaluatorTests {
 	void isAllowedWhenRequestTransformerThenUsesRequestTransformerResult() {
 		HttpServletRequest request = new MockHttpServletRequest();
 		given(this.requestTransformer.transform(any())).willReturn(request);
-		given(this.authorizationManager.authorize(any(), any())).willCallRealMethod();
 		this.privilegeEvaluator.setRequestTransformer(this.requestTransformer);
 
 		this.privilegeEvaluator.isAllowed("/test", TestAuthentication.authenticatedUser());
