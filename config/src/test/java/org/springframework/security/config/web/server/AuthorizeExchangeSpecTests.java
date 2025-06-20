@@ -89,7 +89,7 @@ public class AuthorizeExchangeSpecTests {
 	@Test
 	public void antMatchersWhenPatternsInLambdaThenAnyMethod() {
 		this.http.csrf(ServerHttpSecurity.CsrfSpec::disable)
-			.authorizeExchange((exchanges) -> exchanges.pathMatchers("/a", "/b").denyAll().anyExchange().permitAll());
+			.authorizeExchange((authorize) -> authorize.pathMatchers("/a", "/b").denyAll().anyExchange().permitAll());
 		WebTestClient client = buildClient();
 		// @formatter:off
 		client.get()
@@ -113,16 +113,16 @@ public class AuthorizeExchangeSpecTests {
 
 	@Test
 	public void antMatchersWhenNoAccessAndAnotherMatcherThenThrowsException() {
-		this.http.authorizeExchange((exchange) -> exchange.pathMatchers("/incomplete"));
+		this.http.authorizeExchange((authorize) -> authorize.pathMatchers("/incomplete"));
 		assertThatIllegalStateException()
-			.isThrownBy(() -> this.http.authorizeExchange((exchange) -> exchange.pathMatchers("/throws-exception")));
+			.isThrownBy(() -> this.http.authorizeExchange((authorize) -> authorize.pathMatchers("/throws-exception")));
 	}
 
 	@Test
 	public void anyExchangeWhenFollowedByMatcherThenThrowsException() {
 		assertThatIllegalStateException().isThrownBy(() ->
 		// @formatter:off
-			this.http.authorizeExchange((exchange) -> exchange
+			this.http.authorizeExchange((authorize) -> authorize
 				.anyExchange().denyAll()
 				.pathMatchers("/never-reached"))
 		// @formatter:on
@@ -131,13 +131,13 @@ public class AuthorizeExchangeSpecTests {
 
 	@Test
 	public void buildWhenMatcherDefinedWithNoAccessThenThrowsException() {
-		this.http.authorizeExchange((exchange) -> exchange.pathMatchers("/incomplete"));
+		this.http.authorizeExchange((authorize) -> authorize.pathMatchers("/incomplete"));
 		assertThatIllegalStateException().isThrownBy(this.http::build);
 	}
 
 	@Test
 	public void buildWhenMatcherDefinedWithNoAccessInLambdaThenThrowsException() {
-		this.http.authorizeExchange((exchanges) -> exchanges.pathMatchers("/incomplete"));
+		this.http.authorizeExchange((authorize) -> authorize.pathMatchers("/incomplete"));
 		assertThatIllegalStateException().isThrownBy(this.http::build);
 	}
 

@@ -69,7 +69,7 @@ public class FormLoginTests {
 	public void defaultLoginPage() {
 		// @formatter:off
 		SecurityWebFilterChain securityWebFilter = this.http
-			.authorizeExchange((exchange) -> exchange
+			.authorizeExchange((authorize) -> authorize
 				.anyExchange().authenticated())
 			.formLogin(withDefaults())
 			.build();
@@ -100,7 +100,7 @@ public class FormLoginTests {
 	@Test
 	public void formLoginWhenDefaultsInLambdaThenCreatesDefaultLoginPage() {
 		SecurityWebFilterChain securityWebFilter = this.http
-			.authorizeExchange((exchanges) -> exchanges.anyExchange().authenticated())
+			.authorizeExchange((authorize) -> authorize.anyExchange().authenticated())
 			.formLogin(withDefaults())
 			.build();
 		WebTestClient webTestClient = WebTestClientBuilder.bindToWebFilters(securityWebFilter).build();
@@ -127,7 +127,7 @@ public class FormLoginTests {
 	public void customLoginPage() {
 		// @formatter:off
 		SecurityWebFilterChain securityWebFilter = this.http
-			.authorizeExchange((exchange) -> exchange
+			.authorizeExchange((authorize) -> authorize
 				.pathMatchers("/login").permitAll()
 				.anyExchange().authenticated())
 			.formLogin((login) -> login
@@ -155,7 +155,7 @@ public class FormLoginTests {
 	public void formLoginWhenCustomLoginPageInLambdaThenUsed() {
 		// @formatter:off
 		SecurityWebFilterChain securityWebFilter = this.http
-				.authorizeExchange((exchanges) -> exchanges
+				.authorizeExchange((authorize) -> authorize
 						.pathMatchers("/login").permitAll()
 						.anyExchange().authenticated()
 				)
@@ -185,7 +185,7 @@ public class FormLoginTests {
 	public void formLoginWhenCustomAuthenticationFailureHandlerThenUsed() {
 		// @formatter:off
 		SecurityWebFilterChain securityWebFilter = this.http
-			.authorizeExchange((exchange) -> exchange
+			.authorizeExchange((authorize) -> authorize
 				.pathMatchers("/login", "/failure").permitAll()
 				.anyExchange().authenticated())
 			.formLogin((login) -> login
@@ -212,7 +212,7 @@ public class FormLoginTests {
 	public void formLoginWhenCustomRequiresAuthenticationMatcherThenUsed() {
 		// @formatter:off
 		SecurityWebFilterChain securityWebFilter = this.http
-			.authorizeExchange((exchange) -> exchange
+			.authorizeExchange((authorize) -> authorize
 				.pathMatchers("/login", "/sign-in").permitAll()
 				.anyExchange().authenticated())
 			.formLogin((login) -> login
@@ -233,7 +233,7 @@ public class FormLoginTests {
 	public void authenticationSuccess() {
 		// @formatter:off
 		SecurityWebFilterChain securityWebFilter = this.http
-			.authorizeExchange((exchange) -> exchange
+			.authorizeExchange((authorize) -> authorize
 				.anyExchange().authenticated())
 			.formLogin((login) -> login
 				.authenticationSuccessHandler(new RedirectServerAuthenticationSuccessHandler("/custom")))
@@ -298,7 +298,7 @@ public class FormLoginTests {
 		given(formLoginSecContextRepository.load(any())).willReturn(authentication(token));
 		// @formatter:off
 		SecurityWebFilterChain securityWebFilter = this.http
-			.authorizeExchange((exchange) -> exchange
+			.authorizeExchange((authorize) -> authorize
 				.anyExchange().authenticated())
 			.securityContextRepository(defaultSecContextRepository)
 			.formLogin((login) -> login

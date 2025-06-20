@@ -682,7 +682,7 @@ public class OAuth2ResourceServerSpecTests {
 		SecurityWebFilterChain springSecurity(ServerHttpSecurity http) {
 			// @formatter:off
 			http
-				.authorizeExchange((exchange) -> exchange
+				.authorizeExchange((authorize) -> authorize
 					.anyExchange().hasAuthority("SCOPE_message:read"))
 				.oauth2ResourceServer((server) -> server
 					.jwt((jwt) -> jwt.publicKey(publicKey())));
@@ -701,7 +701,7 @@ public class OAuth2ResourceServerSpecTests {
 		SecurityWebFilterChain springSecurity(ServerHttpSecurity http) {
 			// @formatter:off
 			http
-				.authorizeExchange((authorizeExchange) -> authorizeExchange
+				.authorizeExchange((authorize) -> authorize
 						.anyExchange().hasAuthority("SCOPE_message:read")
 				)
 				.oauth2ResourceServer((oauth2) -> oauth2
@@ -727,7 +727,7 @@ public class OAuth2ResourceServerSpecTests {
 		SecurityWebFilterChain springSecurity(ServerHttpSecurity http) {
 			// @formatter:off
 			http
-				.authorizeExchange((exchange) -> exchange
+				.authorizeExchange((authorize) -> authorize
 					.anyExchange().hasAuthority("SCOPE_message:read"))
 				.oauth2ResourceServer((server) -> server
 					.jwt((jwt) -> jwt.publicKey(this.key)));
@@ -833,7 +833,7 @@ public class OAuth2ResourceServerSpecTests {
 		SecurityWebFilterChain authorization(ServerHttpSecurity http) {
 			// @formatter:off
 			http
-				.authorizeExchange((exchange) -> exchange
+				.authorizeExchange((authorize) -> authorize
 					.anyExchange().denyAll())
 				.oauth2ResourceServer((server) -> server
 					.jwt((jwt) -> jwt.publicKey(publicKey())));
@@ -899,7 +899,7 @@ public class OAuth2ResourceServerSpecTests {
 		SecurityWebFilterChain springSecurity(ServerHttpSecurity http) {
 			// @formatter:off
 			http
-				.authorizeExchange((exchange) -> exchange
+				.authorizeExchange((authorize) -> authorize
 					.pathMatchers("/*/message/**").hasAnyAuthority("SCOPE_message:read"))
 				.oauth2ResourceServer((server) -> server
 					.authenticationManagerResolver(authenticationManagerResolver()));
@@ -957,7 +957,7 @@ public class OAuth2ResourceServerSpecTests {
 		SecurityWebFilterChain springSecurity(ServerHttpSecurity http) {
 			// @formatter:off
 			http
-				.authorizeExchange((exchange) -> exchange
+				.authorizeExchange((authorize) -> authorize
 					.anyExchange().hasAuthority("SCOPE_message:read"))
 				.oauth2ResourceServer((server) -> server
 					.bearerTokenConverter(bearerTokenAuthenticationConverter())
@@ -983,7 +983,7 @@ public class OAuth2ResourceServerSpecTests {
 		SecurityWebFilterChain springSecurity(ServerHttpSecurity http) {
 			// @formatter:off
 			http
-				.authorizeExchange((exchange) -> exchange
+				.authorizeExchange((authorize) -> authorize
 					.anyExchange().hasAuthority("message:read"))
 				.oauth2ResourceServer((server) -> server
 					.jwt((jwt) -> jwt
@@ -1014,7 +1014,7 @@ public class OAuth2ResourceServerSpecTests {
 		SecurityWebFilterChain springSecurity(ServerHttpSecurity http) {
 			// @formatter:off
 			http
-				.authorizeExchange((exchange) -> exchange
+				.authorizeExchange((authorize) -> authorize
 					.pathMatchers("/authenticated").authenticated()
 					.pathMatchers("/unobtainable").hasAuthority("unobtainable"))
 				.oauth2ResourceServer((server) -> server
@@ -1102,7 +1102,7 @@ public class OAuth2ResourceServerSpecTests {
 		SecurityWebFilterChain springSecurity(ServerHttpSecurity http) {
 			// @formatter:off
 			http
-				.authorizeExchange((exchange) -> exchange
+				.authorizeExchange((authorize) -> authorize
 					.anyExchange().authenticated())
 				.oauth2ResourceServer((server) -> server
 					.authenticationManagerResolver(mock(ReactiveAuthenticationManagerResolver.class))

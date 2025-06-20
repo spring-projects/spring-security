@@ -44,7 +44,7 @@ public class LogoutSpecTests {
 	public void defaultLogout() {
 		// @formatter:off
 		SecurityWebFilterChain securityWebFilter = this.http
-			.authorizeExchange((exchange) -> exchange
+			.authorizeExchange((authorize) -> authorize
 				.anyExchange().authenticated())
 			.formLogin(withDefaults())
 			.build();
@@ -78,7 +78,7 @@ public class LogoutSpecTests {
 	public void customLogout() {
 		// @formatter:off
 		SecurityWebFilterChain securityWebFilter = this.http
-			.authorizeExchange((exchange) -> exchange
+			.authorizeExchange((authorize) -> authorize
 				.anyExchange().authenticated())
 			.formLogin(withDefaults())
 			.logout((logout) -> logout
@@ -114,7 +114,7 @@ public class LogoutSpecTests {
 	public void logoutWhenCustomLogoutInLambdaThenCustomLogoutUsed() {
 		// @formatter:off
 		SecurityWebFilterChain securityWebFilter = this.http
-				.authorizeExchange((exchange) -> exchange
+				.authorizeExchange((authorize) -> authorize
 						.anyExchange().authenticated()
 				)
 				.formLogin(withDefaults())
@@ -151,7 +151,7 @@ public class LogoutSpecTests {
 	public void logoutWhenDisabledThenDefaultLogoutPageDoesNotExist() {
 		// @formatter:off
 		SecurityWebFilterChain securityWebFilter = this.http
-			.authorizeExchange((exchange) -> exchange
+			.authorizeExchange((authorize) -> authorize
 				.anyExchange().authenticated())
 			.formLogin(withDefaults())
 			.logout((logout) -> logout.disable())
@@ -184,7 +184,7 @@ public class LogoutSpecTests {
 		// @formatter:off
 		SecurityWebFilterChain securityWebFilter = this.http
 			.securityContextRepository(repository)
-			.authorizeExchange((exchange) -> exchange
+			.authorizeExchange((authorize) -> authorize
 				.anyExchange().authenticated())
 			.formLogin(withDefaults())
 			.logout(withDefaults())

@@ -63,7 +63,7 @@ public class ExceptionHandlingSpecTests {
 	public void requestWhenExceptionHandlingWithDefaultsInLambdaThenDefaultAuthenticationEntryPointUsed() {
 		// @formatter:off
 		SecurityWebFilterChain securityWebFilter = this.http
-				.authorizeExchange((exchanges) -> exchanges
+				.authorizeExchange((authorize) -> authorize
 						.anyExchange().authenticated()
 				)
 				.exceptionHandling(withDefaults())
@@ -104,7 +104,7 @@ public class ExceptionHandlingSpecTests {
 	public void requestWhenCustomAuthenticationEntryPointInLambdaThenCustomAuthenticationEntryPointUsed() {
 		// @formatter:off
 		SecurityWebFilterChain securityWebFilter = this.http
-				.authorizeExchange((exchanges) -> exchanges
+				.authorizeExchange((authorize) -> authorize
 						.anyExchange().authenticated()
 				)
 				.exceptionHandling((exceptionHandling) -> exceptionHandling
@@ -128,7 +128,7 @@ public class ExceptionHandlingSpecTests {
 		SecurityWebFilterChain securityWebFilter = this.http
 			.csrf((csrf) -> csrf.disable())
 			.httpBasic(Customizer.withDefaults())
-			.authorizeExchange((exchange) -> exchange
+			.authorizeExchange((authorize) -> authorize
 				.anyExchange().hasRole("ADMIN"))
 			.exceptionHandling(withDefaults())
 			.build();
@@ -148,7 +148,7 @@ public class ExceptionHandlingSpecTests {
 		// @formatter:off
 		SecurityWebFilterChain securityWebFilter = this.http
 				.httpBasic(withDefaults())
-				.authorizeExchange((exchanges) -> exchanges
+				.authorizeExchange((authorize) -> authorize
 						.anyExchange().hasRole("ADMIN")
 				)
 				.exceptionHandling(withDefaults())
@@ -170,7 +170,7 @@ public class ExceptionHandlingSpecTests {
 		SecurityWebFilterChain securityWebFilter = this.http
 			.csrf((csrf) -> csrf.disable())
 			.httpBasic(Customizer.withDefaults())
-			.authorizeExchange((exchange) -> exchange
+			.authorizeExchange((authorize) -> authorize
 				.anyExchange().hasRole("ADMIN"))
 			.exceptionHandling((handling) -> handling
 				.accessDeniedHandler(httpStatusServerAccessDeniedHandler(HttpStatus.BAD_REQUEST)))
@@ -191,7 +191,7 @@ public class ExceptionHandlingSpecTests {
 		// @formatter:off
 		SecurityWebFilterChain securityWebFilter = this.http
 				.httpBasic(withDefaults())
-				.authorizeExchange((exchanges) -> exchanges
+				.authorizeExchange((authorize) -> authorize
 						.anyExchange().hasRole("ADMIN")
 				)
 				.exceptionHandling((exceptionHandling) -> exceptionHandling

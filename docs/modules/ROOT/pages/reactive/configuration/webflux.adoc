@@ -87,7 +87,7 @@ public class HelloWebfluxSecurityConfig {
 	@Bean
 	public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 		http
-			.authorizeExchange((exchanges) -> exchanges
+			.authorizeExchange((authorize) -> authorize
 			    .anyExchange().authenticated()
 			)
 			.httpBasic(withDefaults())
@@ -161,7 +161,7 @@ static class MultiSecurityHttpConfig {
     SecurityWebFilterChain apiHttpSecurity(ServerHttpSecurity http) {
         http
             .securityMatcher(new PathPatternParserServerWebExchangeMatcher("/api/**"))      <2>
-            .authorizeExchange((exchanges) -> exchanges
+            .authorizeExchange((authorize) -> authorize
                 .anyExchange().authenticated()
             )
             .oauth2ResourceServer(OAuth2ResourceServerSpec::jwt);                           <3>
@@ -171,7 +171,7 @@ static class MultiSecurityHttpConfig {
     @Bean
     SecurityWebFilterChain webHttpSecurity(ServerHttpSecurity http) {                       <4>
         http
-            .authorizeExchange((exchanges) -> exchanges
+            .authorizeExchange((authorize) -> authorize
                 .anyExchange().authenticated()
             )
             .httpBasic(withDefaults());                                                     <5>

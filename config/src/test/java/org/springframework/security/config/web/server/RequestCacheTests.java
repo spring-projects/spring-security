@@ -49,7 +49,7 @@ public class RequestCacheTests {
 	public void defaultFormLoginRequestCache() {
 		// @formatter:off
 		SecurityWebFilterChain securityWebFilter = this.http
-			.authorizeExchange((exchange) -> exchange
+			.authorizeExchange((authorize) -> authorize
 				.anyExchange().authenticated())
 			.formLogin(withDefaults())
 			.build();
@@ -75,7 +75,7 @@ public class RequestCacheTests {
 	public void requestCacheNoOp() {
 		// @formatter:off
 		SecurityWebFilterChain securityWebFilter = this.http
-			.authorizeExchange((exchange) -> exchange
+			.authorizeExchange((authorize) -> authorize
 				.anyExchange().authenticated())
 			.formLogin(withDefaults())
 			.requestCache((cache) -> cache
@@ -103,7 +103,7 @@ public class RequestCacheTests {
 	public void requestWhenCustomRequestCacheInLambdaThenCustomCacheUsed() {
 		// @formatter:off
 		SecurityWebFilterChain securityWebFilter = this.http
-				.authorizeExchange((exchange) -> exchange
+				.authorizeExchange((authorize) -> authorize
 						.anyExchange().authenticated()
 				)
 				.formLogin(withDefaults())

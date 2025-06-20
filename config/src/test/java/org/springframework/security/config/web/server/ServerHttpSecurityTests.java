@@ -191,7 +191,7 @@ public class ServerHttpSecurityTests {
 
 	@Test
 	public void basicWhenNoCredentialsThenUnauthorized() {
-		this.http.authorizeExchange((exchange) -> exchange.anyExchange().authenticated());
+		this.http.authorizeExchange((authorize) -> authorize.anyExchange().authenticated());
 		WebTestClient client = buildClient();
 		// @formatter:off
 		client.get().uri("/")
@@ -207,7 +207,7 @@ public class ServerHttpSecurityTests {
 		ServerAuthenticationEntryPoint authenticationEntryPoint = spy(
 				new HttpStatusServerEntryPoint(HttpStatus.UNAUTHORIZED));
 		this.http.httpBasic((basic) -> basic.authenticationEntryPoint(authenticationEntryPoint));
-		this.http.authorizeExchange((exchange) -> exchange.anyExchange().authenticated());
+		this.http.authorizeExchange((authorize) -> authorize.anyExchange().authenticated());
 		WebTestClient client = buildClient();
 		// @formatter:off
 		client.get().uri("/")
@@ -228,7 +228,7 @@ public class ServerHttpSecurityTests {
 				ServerAuthenticationFailureHandler.class);
 		this.http.httpBasic((basic) -> basic.authenticationFailureHandler(authenticationFailureHandler));
 		this.http.httpBasic((basic) -> basic.authenticationManager(authenticationManager));
-		this.http.authorizeExchange((exchange) -> exchange.anyExchange().authenticated());
+		this.http.authorizeExchange((authorize) -> authorize.anyExchange().authenticated());
 		given(authenticationManager.authenticate(any()))
 			.willReturn(Mono.error(() -> new BadCredentialsException("bad")));
 		given(authenticationFailureHandler.onAuthenticationFailure(any(), any())).willReturn(Mono.empty());
@@ -596,7 +596,7 @@ public class ServerHttpSecurityTests {
 				ReactiveClientRegistrationRepository.class);
 		SecurityWebFilterChain securityFilterChain = this.http
 			.oauth2Login((login) -> login.clientRegistrationRepository(clientRegistrationRepository))
-			.authorizeExchange((exchange) -> exchange.anyExchange().authenticated())
+			.authorizeExchange((authorize) -> authorize.anyExchange().authenticated())
 			.requestCache((c) -> c.requestCache(requestCache))
 			.build();
 		WebTestClient client = WebTestClientBuilder.bindToWebFilters(securityFilterChain).build();

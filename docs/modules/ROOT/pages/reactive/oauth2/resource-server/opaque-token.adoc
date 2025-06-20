@@ -176,7 +176,7 @@ Java::
 @Bean
 SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	http
-		.authorizeExchange((exchanges) -> exchanges
+		.authorizeExchange((authorize) -> authorize
 			.anyExchange().authenticated()
 		)
 		.oauth2ResourceServer(ServerHttpSecurity.OAuth2ResourceServerSpec::opaqueToken)
@@ -221,7 +221,7 @@ public class MyCustomSecurityConfiguration {
     @Bean
     SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
         http
-            .authorizeExchange((exchanges) -> exchanges
+            .authorizeExchange((authorize) -> authorize
                 .pathMatchers("/messages/**").access(hasScope("message:read"))
                 .anyExchange().authenticated()
             )
@@ -310,7 +310,7 @@ public class DirectlyConfiguredIntrospectionUri {
     @Bean
     SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
         http
-            .authorizeExchange((exchanges) -> exchanges
+            .authorizeExchange((authorize) -> authorize
                 .anyExchange().authenticated()
             )
             .oauth2ResourceServer((oauth2) -> oauth2
@@ -364,7 +364,7 @@ public class DirectlyConfiguredIntrospector {
     @Bean
     SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
         http
-            .authorizeExchange((exchanges) -> exchanges
+            .authorizeExchange((authorize) -> authorize
                 .anyExchange().authenticated()
             )
             .oauth2ResourceServer((oauth2) -> oauth2
@@ -457,7 +457,7 @@ public class MappedAuthorities {
     @Bean
     SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
         http
-            .authorizeExchange((exchange) -> exchange
+            .authorizeExchange((authorize) -> authorize
                 .pathMatchers("/contacts/**").access(hasScope("contacts"))
                 .pathMatchers("/messages/**").access(hasScope("messages"))
                 .anyExchange().authenticated()

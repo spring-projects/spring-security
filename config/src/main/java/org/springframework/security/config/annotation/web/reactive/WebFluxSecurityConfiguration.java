@@ -123,7 +123,7 @@ class WebFluxSecurityConfiguration {
 	 * @return
 	 */
 	private SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
-		http.authorizeExchange((exchange) -> exchange.anyExchange().authenticated());
+		http.authorizeExchange((authorize) -> authorize.anyExchange().authenticated());
 		if (isOAuth2Present && OAuth2ClasspathGuard.shouldConfigure(this.context)) {
 			OAuth2ClasspathGuard.configure(this.context, http);
 		}

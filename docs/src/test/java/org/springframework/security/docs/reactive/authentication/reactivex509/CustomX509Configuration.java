@@ -63,7 +63,7 @@ public class CustomX509Configuration {
 				.principalExtractor(principalExtractor)
 				.authenticationManager(authenticationManager)
 			)
-			.authorizeExchange((exchanges) -> exchanges
+			.authorizeExchange((authorize) -> authorize
 				.anyExchange().authenticated()
 			);
 		// @formatter:on

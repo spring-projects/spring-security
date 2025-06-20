@@ -270,7 +270,7 @@ import org.springframework.web.util.pattern.PathPatternParser;
  *     &#064;Bean
  *     public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
  *         http
- *             .authorizeExchange((exchange) -> exchange.anyExchange().authenticated())
+ *             .authorizeExchange((authorize) -> authorize.anyExchange().authenticated())
  *             .httpBasic(Customizer.withDefaults())
  *               .formLogin();
  *             return http.build();

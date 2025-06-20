@@ -863,7 +863,7 @@ public class OAuth2LoginTests {
 			http.authenticationManager(authenticationManager);
 			// @formatter:off
 			http
-				.authorizeExchange((exchange) -> exchange
+				.authorizeExchange((authorize) -> authorize
 					.anyExchange().authenticated())
 				.oauth2Login(withDefaults())
 				.formLogin(withDefaults());
@@ -885,7 +885,7 @@ public class OAuth2LoginTests {
 			http.authenticationManager(authenticationManager);
 			// @formatter:off
 			http
-				.authorizeExchange((exchange) -> exchange
+				.authorizeExchange((authorize) -> authorize
 					.anyExchange().authenticated())
 				.oauth2Login(withDefaults())
 				.httpBasic(withDefaults());
@@ -954,7 +954,7 @@ public class OAuth2LoginTests {
 		SecurityWebFilterChain springSecurityFilter(ServerHttpSecurity http) {
 			// @formatter:off
 			http
-				.authorizeExchange((exchange) -> exchange
+				.authorizeExchange((authorize) -> authorize
 					.anyExchange().authenticated())
 				.oauth2Login((login) -> login
 					.authenticationConverter(this.authenticationConverter)
@@ -986,7 +986,7 @@ public class OAuth2LoginTests {
 		SecurityWebFilterChain springSecurityFilter(ServerHttpSecurity http) {
 			// @formatter:off
 			http
-				.authorizeExchange((authorizeExchange) -> authorizeExchange
+				.authorizeExchange((authorize) -> authorize
 						.anyExchange().authenticated()
 				)
 				.oauth2Login((oauth2) -> oauth2
@@ -1024,7 +1024,7 @@ public class OAuth2LoginTests {
 		SecurityWebFilterChain springSecurityFilter(ServerHttpSecurity http) {
 			// @formatter:off
 			http
-				.authorizeExchange((exchange) -> exchange
+				.authorizeExchange((authorize) -> authorize
 					.anyExchange().authenticated())
 				.oauth2Login((login) -> login
 					.authenticationConverter(this.authenticationConverter)

@@ -128,7 +128,7 @@ Java::
 @Bean
 SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	http
-		.authorizeExchange((exchanges) -> exchanges
+		.authorizeExchange((authorize) -> authorize
 			.anyExchange().authenticated()
 		)
 		.oauth2ResourceServer(OAuth2ResourceServerSpec::jwt)
@@ -170,7 +170,7 @@ import static org.springframework.security.oauth2.core.authorization.OAuth2React
 @Bean
 SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	http
-		.authorizeExchange((exchanges) -> exchanges
+		.authorizeExchange((authorize) -> authorize
 			.pathMatchers("/message/**").access(hasScope("message:read"))
 			.anyExchange().authenticated()
 		)
@@ -254,7 +254,7 @@ Java::
 @Bean
 SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	http
-		.authorizeExchange((exchanges) -> exchanges
+		.authorizeExchange((authorize) -> authorize
 			.anyExchange().authenticated()
 		)
 		.oauth2ResourceServer((oauth2) -> oauth2
@@ -302,7 +302,7 @@ Java::
 @Bean
 SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	http
-		.authorizeExchange((exchanges) -> exchanges
+		.authorizeExchange((authorize) -> authorize
 			.anyExchange().authenticated()
 		)
 		.oauth2ResourceServer((oauth2) -> oauth2
@@ -691,7 +691,7 @@ import static org.springframework.security.oauth2.core.authorization.OAuth2React
 @Bean
 SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	http
-		.authorizeExchange((exchanges) -> exchanges
+		.authorizeExchange((authorize) -> authorize
 			.mvcMatchers("/contacts/**").access(hasScope("contacts"))
 			.mvcMatchers("/messages/**").access(hasScope("messages"))
 			.anyExchange().authenticated()
@@ -762,7 +762,7 @@ Java::
 @Bean
 SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	http
-		.authorizeExchange((exchanges) -> exchanges
+		.authorizeExchange((authorize) -> authorize
 			.anyExchange().authenticated()
 		)
 		.oauth2ResourceServer((oauth2) -> oauth2
