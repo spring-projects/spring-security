@@ -123,7 +123,7 @@ public class HttpSecuritySecurityMatchersNoMvcTests {
 			http
 				.securityMatcher("/path")
 				.httpBasic(withDefaults())
-				.authorizeHttpRequests((requests) -> requests
+				.authorizeHttpRequests((authorize) -> authorize
 					.anyRequest().denyAll());
 			// @formatter:on
 			return http.build();

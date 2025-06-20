@@ -240,8 +240,7 @@ public class DPoPAuthenticationConfigurerTests {
 		SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeHttpRequests((authorize) ->
-					authorize
+				.authorizeHttpRequests((authorize) -> authorize
 						.requestMatchers("/resource1").hasAnyAuthority("SCOPE_resource1.read", "SCOPE_resource1.write")
 						.requestMatchers("/resource2").hasAnyAuthority("SCOPE_resource2.read", "SCOPE_resource2.write")
 						.anyRequest().authenticated()

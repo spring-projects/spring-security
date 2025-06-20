@@ -912,7 +912,7 @@ public class WebSecurityConfigurationTests {
 			// @formatter:off
 			http
 				.securityMatchers((requests) -> requests.requestMatchers(PathPatternRequestMatcher.withDefaults().matcher("/user")))
-				.authorizeHttpRequests((requests) -> requests.anyRequest().hasRole("USER"));
+				.authorizeHttpRequests((authorize) -> authorize.anyRequest().hasRole("USER"));
 			// @formatter:on
 			return http.build();
 		}
@@ -923,7 +923,7 @@ public class WebSecurityConfigurationTests {
 			// @formatter:off
 			http
 				.securityMatchers((requests) -> requests.requestMatchers(PathPatternRequestMatcher.withDefaults().matcher("/admin")))
-				.authorizeHttpRequests((requests) -> requests.anyRequest().hasRole("ADMIN"));
+				.authorizeHttpRequests((authorize) -> authorize.anyRequest().hasRole("ADMIN"));
 			// @formatter:on
 			return http.build();
 		}
@@ -931,7 +931,7 @@ public class WebSecurityConfigurationTests {
 		@Bean
 		@Order(Ordered.LOWEST_PRECEDENCE)
 		public SecurityFilterChain permitAll(HttpSecurity http) throws Exception {
-			http.authorizeHttpRequests((requests) -> requests.anyRequest().permitAll());
+			http.authorizeHttpRequests((authorize) -> authorize.anyRequest().permitAll());
 			return http.build();
 		}
 

@@ -148,7 +148,7 @@ public class SecurityConfig {
         );
 
         http
-            .authorizeHttpRequests((authz) -> authz
+            .authorizeHttpRequests((authorize) -> authorize
                 .anyRequest().authenticated()
             )
             .saml2Login((saml2) -> saml2
@@ -211,7 +211,7 @@ public class SecurityConfig {
                 .clockSkew(Duration.ofMinutes(10)).build();
 		authenticationProvider.setAssertionValidator(assertionValidator);
         http
-            .authorizeHttpRequests((authz) -> authz
+            .authorizeHttpRequests((authorize) -> authorize
                 .anyRequest().authenticated()
             )
             .saml2Login((saml2) -> saml2
@@ -274,7 +274,7 @@ public class SecurityConfig {
         authenticationProvider.setResponseAuthenticationConverter(this.authenticationConverter);
 
         http
-            .authorizeHttpRequests((authz) -> authz
+            .authorizeHttpRequests((authorize) -> authorize
                 .anyRequest().authenticated())
             .saml2Login((saml2) -> saml2
                 .authenticationManager(new ProviderManager(authenticationProvider))
@@ -409,7 +409,7 @@ public class SecurityConfig {
         });
 
         http
-            .authorizeHttpRequests((authz) -> authz
+            .authorizeHttpRequests((authorize) -> authorize
                 .anyRequest().authenticated()
             )
             .saml2Login((saml2) -> saml2

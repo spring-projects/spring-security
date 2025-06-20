@@ -125,8 +125,7 @@ import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
  * 	&#064;Bean
  * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
  * 		http
- * 			.authorizeHttpRequests((authorizeHttpRequests) -&gt;
- * 				authorizeHttpRequests
+ * 			.authorizeHttpRequests((authorize) -&gt; authorize
  * 					.requestMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
  * 			)
  * 			.formLogin(withDefaults());
@@ -785,8 +784,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * 	&#064;Bean
 	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 			.authorizeHttpRequests((authorizeHttpRequests) -&gt;
-	 * 				authorizeHttpRequests
+	 * 			.authorizeHttpRequests((authorize) -&gt; authorize
 	 * 					.requestMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
 	 * 			)
 	 * 			.formLogin(withDefaults());
@@ -822,8 +820,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * 	&#064;Bean
 	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 			.authorizeHttpRequests((authorizeHttpRequests) -&gt;
-	 * 				authorizeHttpRequests
+	 * 			.authorizeHttpRequests((authorize) -&gt; authorize
 	 * 					.requestMatchers(&quot;/admin/**&quot;).hasRole(&quot;ADMIN&quot;)
 	 * 					.requestMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
 	 * 			)
@@ -860,8 +857,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * 	&#064;Bean
 	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 		 	.authorizeHttpRequests((authorizeHttpRequests) -&gt;
-	 * 		 		authorizeHttpRequests
+	 * 		 	.authorizeHttpRequests((authorize) -&gt; authorize
 	 * 			 		.requestMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
 	 * 			 		.requestMatchers(&quot;/admin/**&quot;).hasRole(&quot;ADMIN&quot;)
 	 * 		 	);

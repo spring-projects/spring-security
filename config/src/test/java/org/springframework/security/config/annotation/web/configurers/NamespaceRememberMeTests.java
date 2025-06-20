@@ -350,7 +350,7 @@ public class NamespaceRememberMeTests {
 			// @formatter:off
 			http
 				.securityMatcher(new AntPathRequestMatcher("/without-key/**"))
-				.authorizeHttpRequests((requests) -> requests.anyRequest().authenticated())
+				.authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated())
 				.formLogin((login) -> login
 					.loginProcessingUrl("/without-key/login"))
 				.rememberMe(withDefaults());

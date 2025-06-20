@@ -119,7 +119,7 @@ public class PermitAllSupportTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeHttpRequests((requests) -> requests
+				.authorizeHttpRequests((authorize) -> authorize
 					.anyRequest().authenticated())
 				.formLogin((login) -> login
 					.loginPage("/xyz").permitAll()
@@ -140,7 +140,7 @@ public class PermitAllSupportTests {
 			http
 				.authorizeRequests((requests) -> requests
 					.anyRequest().authenticated())
-				.authorizeHttpRequests((requests) -> requests
+				.authorizeHttpRequests((authorize) -> authorize
 					.anyRequest().authenticated())
 				.formLogin((login) -> login
 					.loginPage("/xyz").permitAll()

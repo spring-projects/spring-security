@@ -226,7 +226,7 @@ public class HttpSecuritySecurityMatchersTests {
 					.requestMatchers("/test-1")
 					.requestMatchers("/test-2")
 					.requestMatchers("/test-3"))
-				.authorizeHttpRequests((requests) -> requests
+				.authorizeHttpRequests((authorize) -> authorize
 					.anyRequest().denyAll())
 				.httpBasic(withDefaults());
 			// @formatter:on
@@ -239,7 +239,7 @@ public class HttpSecuritySecurityMatchersTests {
 			http
 				.securityMatchers((security) -> security
 					.requestMatchers("/test-1"))
-				.authorizeHttpRequests((requests) -> requests
+				.authorizeHttpRequests((authorize) -> authorize
 					.anyRequest().permitAll());
 			// @formatter:on
 			return http.build();
@@ -269,7 +269,7 @@ public class HttpSecuritySecurityMatchersTests {
 			http
 				.securityMatcher("/path")
 				.httpBasic(withDefaults())
-				.authorizeHttpRequests((requests) -> requests
+				.authorizeHttpRequests((authorize) -> authorize
 					.anyRequest().denyAll());
 			// @formatter:on
 			return http.build();
@@ -299,7 +299,7 @@ public class HttpSecuritySecurityMatchersTests {
 			http
 				.securityMatcher("/path")
 				.httpBasic(withDefaults())
-				.authorizeHttpRequests((requests) -> requests
+				.authorizeHttpRequests((authorize) -> authorize
 					.anyRequest().denyAll());
 			// @formatter:on
 			return http.build();
@@ -366,7 +366,7 @@ public class HttpSecuritySecurityMatchersTests {
 					.requestMatchers(mvcMatcherBuilder.pattern("/never-match"))
 				)
 				.httpBasic(withDefaults())
-				.authorizeHttpRequests((requests) -> requests
+				.authorizeHttpRequests((authorize) -> authorize
 					.anyRequest().denyAll());
 			// @formatter:on
 			return http.build();

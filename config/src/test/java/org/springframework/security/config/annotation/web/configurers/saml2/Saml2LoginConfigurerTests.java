@@ -630,7 +630,7 @@ public class Saml2LoginConfigurerTests {
 
 		@Bean
 		SecurityFilterChain app(HttpSecurity http) throws Exception {
-			http.authorizeHttpRequests((authz) -> authz.anyRequest().authenticated())
+			http.authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated())
 				.saml2Login(Customizer.withDefaults());
 			return http.build();
 		}
@@ -715,7 +715,7 @@ public class Saml2LoginConfigurerTests {
 		SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-					.authorizeHttpRequests((authz) -> authz.anyRequest().authenticated())
+					.authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated())
 					.saml2Login((saml2) -> saml2.authenticationRequestUriQuery("/custom/auth/sso?entityId={registrationId}"));
 			// @formatter:on
 			return http.build();
