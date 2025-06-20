@@ -70,7 +70,7 @@ import org.springframework.security.messaging.context.SecurityContextChannelInte
 import org.springframework.security.messaging.util.matcher.MessageMatcher;
 import org.springframework.security.messaging.util.matcher.SimpDestinationMessageMatcher;
 import org.springframework.security.messaging.util.matcher.SimpMessageTypeMatcher;
-import org.springframework.security.messaging.web.csrf.CsrfChannelInterceptor;
+import org.springframework.security.messaging.web.csrf.XorCsrfChannelInterceptor;
 import org.springframework.security.messaging.web.socket.server.CsrfTokenHandshakeInterceptor;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.Assert;
@@ -368,7 +368,7 @@ public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements
 			interceptors.add(new RootBeanDefinition(SecurityContextChannelInterceptor.class));
 			if (!this.sameOriginDisabled) {
 				if (!registry.containsBeanDefinition(CSRF_CHANNEL_INTERCEPTOR_BEAN_ID)) {
-					interceptors.add(new RootBeanDefinition(CsrfChannelInterceptor.class));
+					interceptors.add(new RootBeanDefinition(XorCsrfChannelInterceptor.class));
 				}
 				else {
 					interceptors.add(new RuntimeBeanReference(CSRF_CHANNEL_INTERCEPTOR_BEAN_ID));

@@ -20,6 +20,7 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -98,6 +99,13 @@ public class WebSocketMessageBrokerConfigTests {
 
 	private static final String CONFIG_LOCATION_PREFIX = "classpath:org/springframework/security/config/websocket/WebSocketMessageBrokerConfigTests";
 
+	/*
+	 * Token format: "token" length random pad bytes + "token" (each byte UTF8 ^= 1).
+	 */
+	private static final byte[] XOR_CSRF_TOKEN_BYTES = new byte[] { 1, 1, 1, 1, 1, 117, 110, 106, 100, 111 };
+
+	private static final String XOR_CSRF_TOKEN_VALUE = Base64.getEncoder().encodeToString(XOR_CSRF_TOKEN_BYTES);
+
 	public final SpringTestContext spring = new SpringTestContext(this);
 
 	@Autowired(required = false)
@@ -126,7 +134,7 @@ public class WebSocketMessageBrokerConfigTests {
 	public void sendWhenAnonymousMessageWithConnectMessageTypeThenPermitted() {
 		this.spring.configLocations(xml("NoIdConfig")).autowire();
 		SimpMessageHeaderAccessor headers = SimpMessageHeaderAccessor.create(SimpMessageType.CONNECT);
-		headers.setNativeHeader(this.token.getHeaderName(), this.token.getToken());
+		headers.setNativeHeader(this.token.getHeaderName(), XOR_CSRF_TOKEN_VALUE);
 		this.clientInboundChannel.send(message("/permitAll", headers));
 	}
 
@@ -198,7 +206,7 @@ public class WebSocketMessageBrokerConfigTests {
 	public void sendWhenAnonymousMessageWithConnectMessageTypeThenAuthorizationManagerPermits() {
 		this.spring.configLocations(xml("NoIdAuthorizationManager")).autowire();
 		SimpMessageHeaderAccessor headers = SimpMessageHeaderAccessor.create(SimpMessageType.CONNECT);
-		headers.setNativeHeader(this.token.getHeaderName(), this.token.getToken());
+		headers.setNativeHeader(this.token.getHeaderName(), XOR_CSRF_TOKEN_VALUE);
 		this.clientInboundChannel.send(message("/permitAll", headers));
 	}
 
