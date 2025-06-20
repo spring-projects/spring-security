@@ -70,7 +70,7 @@ import org.springframework.security.messaging.context.SecurityContextChannelInte
 import org.springframework.security.messaging.util.matcher.MessageMatcher;
 import org.springframework.security.messaging.util.matcher.SimpDestinationMessageMatcher;
 import org.springframework.security.messaging.util.matcher.SimpMessageTypeMatcher;
-import org.springframework.security.messaging.web.csrf.CsrfChannelInterceptor;
+import org.springframework.security.messaging.web.csrf.XorCsrfChannelInterceptor;
 import org.springframework.security.messaging.web.socket.server.CsrfTokenHandshakeInterceptor;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.Assert;
@@ -365,7 +365,7 @@ public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements
 			ManagedList<Object> interceptors = new ManagedList();
 			interceptors.add(new RootBeanDefinition(SecurityContextChannelInterceptor.class));
 			if (!this.sameOriginDisabled) {
-				interceptors.add(new RootBeanDefinition(CsrfChannelInterceptor.class));
+				interceptors.add(new RootBeanDefinition(XorCsrfChannelInterceptor.class));
 			}
 			interceptors.add(registry.getBeanDefinition(this.inboundSecurityInterceptorId));
 			BeanDefinition inboundChannel = registry.getBeanDefinition(CLIENT_INBOUND_CHANNEL_BEAN_ID);
