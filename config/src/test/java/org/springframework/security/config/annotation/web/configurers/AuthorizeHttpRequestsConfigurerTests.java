@@ -44,7 +44,6 @@ import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationEventPublisher;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.authorization.AuthorizationObservationContext;
-import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.authorization.SpringAuthorizationEventPublisher;
 import org.springframework.security.authorization.event.AuthorizationDeniedEvent;
 import org.springframework.security.config.ObjectPostProcessor;
@@ -85,10 +84,8 @@ import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -154,20 +151,17 @@ public class AuthorizeHttpRequestsConfigurerTests {
 	@Test
 	public void configureMvcMatcherAccessAuthorizationManagerWhenNotNullThenVerifyUse() throws Exception {
 		CustomAuthorizationManagerConfig.authorizationManager = mock(AuthorizationManager.class);
-		given(CustomAuthorizationManagerConfig.authorizationManager.authorize(any(), any())).willCallRealMethod();
 		this.spring.register(CustomAuthorizationManagerConfig.class, BasicController.class).autowire();
 		this.mvc.perform(get("/")).andExpect(status().isOk());
-		verify(CustomAuthorizationManagerConfig.authorizationManager).check(any(), any());
+		verify(CustomAuthorizationManagerConfig.authorizationManager).authorize(any(), any());
 	}
 
 	@Test
 	public void configureNoParameterMvcMatcherAccessAuthorizationManagerWhenNotNullThenVerifyUse() throws Exception {
 		CustomAuthorizationManagerNoParameterConfig.authorizationManager = mock(AuthorizationManager.class);
-		given(CustomAuthorizationManagerNoParameterConfig.authorizationManager.authorize(any(), any()))
-			.willCallRealMethod();
 		this.spring.register(CustomAuthorizationManagerNoParameterConfig.class, BasicController.class).autowire();
 		this.mvc.perform(get("/")).andExpect(status().isOk());
-		verify(CustomAuthorizationManagerNoParameterConfig.authorizationManager).check(any(), any());
+		verify(CustomAuthorizationManagerNoParameterConfig.authorizationManager).authorize(any(), any());
 	}
 
 	@Test
@@ -1284,8 +1278,6 @@ public class AuthorizeHttpRequestsConfigurerTests {
 
 		@Bean
 		AuthorizationEventPublisher authorizationEventPublisher() {
-			doCallRealMethod().when(this.publisher)
-				.publishAuthorizationEvent(any(), any(), any(AuthorizationResult.class));
 			return this.publisher;
 		}
 

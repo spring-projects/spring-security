@@ -61,23 +61,6 @@ public final class ObservationAuthorizationManager<T>
 		}
 	}
 
-	/**
-	 * @deprecated please use {@link #authorize(Supplier, Object)} instead
-	 */
-	@Deprecated
-	@Override
-	public AuthorizationDecision check(Supplier<Authentication> authentication, T object) {
-		AuthorizationResult result = authorize(authentication, object);
-		if (result == null) {
-			return null;
-		}
-		if (result instanceof AuthorizationDecision decision) {
-			return decision;
-		}
-		throw new IllegalArgumentException(
-				"Please call #authorize or ensure that the returned result is of type AuthorizationDecision");
-	}
-
 	@Override
 	public AuthorizationResult authorize(Supplier<Authentication> authentication, T object) {
 		AuthorizationObservationContext<T> context = new AuthorizationObservationContext<>(object);

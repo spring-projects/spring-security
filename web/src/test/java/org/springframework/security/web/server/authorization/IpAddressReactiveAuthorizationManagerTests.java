@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ public class IpAddressReactiveAuthorizationManagerTests {
 	public void checkWhenHasIpv6AddressThenReturnTrue() throws UnknownHostException {
 		IpAddressReactiveAuthorizationManager v6manager = IpAddressReactiveAuthorizationManager
 			.hasIpAddress("fe80::21f:5bff:fe33:bd68");
-		boolean granted = v6manager.check(null, context("fe80::21f:5bff:fe33:bd68")).block().isGranted();
+		boolean granted = v6manager.authorize(null, context("fe80::21f:5bff:fe33:bd68")).block().isGranted();
 		assertThat(granted).isTrue();
 	}
 
@@ -46,7 +46,7 @@ public class IpAddressReactiveAuthorizationManagerTests {
 	public void checkWhenHasIpv6AddressThenReturnFalse() throws UnknownHostException {
 		IpAddressReactiveAuthorizationManager v6manager = IpAddressReactiveAuthorizationManager
 			.hasIpAddress("fe80::21f:5bff:fe33:bd68");
-		boolean granted = v6manager.check(null, context("fe80::1c9a:7cfd:29a8:a91e")).block().isGranted();
+		boolean granted = v6manager.authorize(null, context("fe80::1c9a:7cfd:29a8:a91e")).block().isGranted();
 		assertThat(granted).isFalse();
 	}
 
@@ -54,7 +54,7 @@ public class IpAddressReactiveAuthorizationManagerTests {
 	public void checkWhenHasIpv4AddressThenReturnTrue() throws UnknownHostException {
 		IpAddressReactiveAuthorizationManager v4manager = IpAddressReactiveAuthorizationManager
 			.hasIpAddress("192.168.1.104");
-		boolean granted = v4manager.check(null, context("192.168.1.104")).block().isGranted();
+		boolean granted = v4manager.authorize(null, context("192.168.1.104")).block().isGranted();
 		assertThat(granted).isTrue();
 	}
 
@@ -62,7 +62,7 @@ public class IpAddressReactiveAuthorizationManagerTests {
 	public void checkWhenHasIpv4AddressThenReturnFalse() throws UnknownHostException {
 		IpAddressReactiveAuthorizationManager v4manager = IpAddressReactiveAuthorizationManager
 			.hasIpAddress("192.168.1.104");
-		boolean granted = v4manager.check(null, context("192.168.100.15")).block().isGranted();
+		boolean granted = v4manager.authorize(null, context("192.168.100.15")).block().isGranted();
 		assertThat(granted).isFalse();
 	}
 

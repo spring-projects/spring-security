@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package org.springframework.security.web.server.authorization;
 
+import org.springframework.security.authorization.AuthorizationResult;
 import reactor.core.publisher.Mono;
 
 import org.springframework.security.authorization.AuthorizationDecision;
@@ -40,7 +41,7 @@ public final class IpAddressReactiveAuthorizationManager implements ReactiveAuth
 	}
 
 	@Override
-	public Mono<AuthorizationDecision> check(Mono<Authentication> authentication, AuthorizationContext context) {
+	public Mono<AuthorizationResult> authorize(Mono<Authentication> authentication, AuthorizationContext context) {
 		return Mono.just(context.getExchange())
 			.flatMap(this.ipAddressExchangeMatcher::matches)
 			.map((matchResult) -> new AuthorizationDecision(matchResult.isMatch()));

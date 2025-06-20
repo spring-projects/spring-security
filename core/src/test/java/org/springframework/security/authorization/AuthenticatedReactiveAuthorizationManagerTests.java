@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,32 +46,32 @@ public class AuthenticatedReactiveAuthorizationManagerTests {
 	@Test
 	public void checkWhenAuthenticatedThenReturnTrue() {
 		given(this.authentication.isAuthenticated()).willReturn(true);
-		boolean granted = this.manager.check(Mono.just(this.authentication), null).block().isGranted();
+		boolean granted = this.manager.authorize(Mono.just(this.authentication), null).block().isGranted();
 		assertThat(granted).isTrue();
 	}
 
 	@Test
 	public void checkWhenNotAuthenticatedThenReturnFalse() {
-		boolean granted = this.manager.check(Mono.just(this.authentication), null).block().isGranted();
+		boolean granted = this.manager.authorize(Mono.just(this.authentication), null).block().isGranted();
 		assertThat(granted).isFalse();
 	}
 
 	@Test
 	public void checkWhenEmptyThenReturnFalse() {
-		boolean granted = this.manager.check(Mono.empty(), null).block().isGranted();
+		boolean granted = this.manager.authorize(Mono.empty(), null).block().isGranted();
 		assertThat(granted).isFalse();
 	}
 
 	@Test
 	public void checkWhenAnonymousAuthenticatedThenReturnFalse() {
 		AnonymousAuthenticationToken anonymousAuthenticationToken = mock(AnonymousAuthenticationToken.class);
-		boolean granted = this.manager.check(Mono.just(anonymousAuthenticationToken), null).block().isGranted();
+		boolean granted = this.manager.authorize(Mono.just(anonymousAuthenticationToken), null).block().isGranted();
 		assertThat(granted).isFalse();
 	}
 
 	@Test
 	public void checkWhenErrorThenError() {
-		Mono<AuthorizationDecision> result = this.manager.check(Mono.error(new RuntimeException("ooops")), null);
+		Mono<AuthorizationResult> result = this.manager.authorize(Mono.error(new RuntimeException("ooops")), null);
 		// @formatter:off
 		StepVerifier.create(result)
 				.expectError()

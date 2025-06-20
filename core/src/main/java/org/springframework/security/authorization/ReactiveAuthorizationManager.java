@@ -32,16 +32,6 @@ import org.springframework.security.core.Authentication;
 public interface ReactiveAuthorizationManager<T> {
 
 	/**
-	 * Determines if access is granted for a specific authentication and object.
-	 * @param authentication the Authentication to check
-	 * @param object the object to check
-	 * @return an decision or empty Mono if no decision could be made.
-	 * @deprecated please use {@link #authorize(Mono, Object)} instead
-	 */
-	@Deprecated
-	Mono<AuthorizationDecision> check(Mono<Authentication> authentication, T object);
-
-	/**
 	 * Determines if access should be granted for a specific authentication and object
 	 * @param authentication the Authentication to check
 	 * @param object the object to check
@@ -64,8 +54,6 @@ public interface ReactiveAuthorizationManager<T> {
 	 * @return an decision or empty Mono if no decision could be made.
 	 * @since 6.4
 	 */
-	default Mono<AuthorizationResult> authorize(Mono<Authentication> authentication, T object) {
-		return check(authentication, object).cast(AuthorizationResult.class);
-	}
+	Mono<AuthorizationResult> authorize(Mono<Authentication> authentication, T object);
 
 }

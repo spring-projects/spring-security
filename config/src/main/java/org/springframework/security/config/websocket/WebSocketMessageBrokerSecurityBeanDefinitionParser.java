@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,6 +53,7 @@ import org.springframework.security.access.expression.SecurityExpressionHandler;
 import org.springframework.security.access.vote.ConsensusBased;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.config.Elements;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -463,7 +464,7 @@ public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements
 		}
 
 		@Override
-		public AuthorizationDecision check(Supplier<Authentication> authentication,
+		public AuthorizationResult authorize(Supplier<Authentication> authentication,
 				MessageAuthorizationContext<?> object) {
 			EvaluationContext context = this.expressionHandler.createEvaluationContext(authentication, object);
 			boolean granted = ExpressionUtils.evaluateAsBoolean(this.expression, context);

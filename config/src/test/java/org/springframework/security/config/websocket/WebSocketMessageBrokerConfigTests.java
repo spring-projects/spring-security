@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -513,12 +513,11 @@ public class WebSocketMessageBrokerConfigTests {
 		this.spring.configLocations(xml("CustomAuthorizationManagerConfig")).autowire();
 		AuthorizationManager<Message<?>> authorizationManager = this.spring.getContext()
 			.getBean(AuthorizationManager.class);
-		given(authorizationManager.check(any(), any())).willReturn(new AuthorizationDecision(false));
-		given(authorizationManager.authorize(any(), any())).willCallRealMethod();
+		given(authorizationManager.authorize(any(), any())).willReturn(new AuthorizationDecision(false));
 		Message<?> message = message("/any");
 		assertThatExceptionOfType(Exception.class).isThrownBy(send(message))
 			.withCauseInstanceOf(AccessDeniedException.class);
-		verify(authorizationManager).check(any(), any());
+		verify(authorizationManager).authorize(any(), any());
 	}
 
 	private String xml(String configName) {
