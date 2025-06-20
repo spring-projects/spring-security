@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2022 the original author or authors.
+ * Copyright 2012-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,6 @@
  */
 
 package org.springframework.security.web.servlet.util.matcher;
-
-import java.util.Collections;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -69,39 +67,6 @@ public class MvcRequestMatcherTests {
 		this.request.setMethod("GET");
 		this.request.setServletPath("/path");
 		this.matcher = new MvcRequestMatcher(this.introspector, "/path");
-	}
-
-	@Test
-	public void extractUriTemplateVariablesSuccess() throws Exception {
-		this.matcher = new MvcRequestMatcher(this.introspector, "/{p}");
-		given(this.introspector.getMatchableHandlerMapping(this.request)).willReturn(null);
-		assertThat(this.matcher.extractUriTemplateVariables(this.request)).containsEntry("p", "path");
-		assertThat(this.matcher.matcher(this.request).getVariables()).containsEntry("p", "path");
-	}
-
-	@Test
-	public void extractUriTemplateVariablesFail() throws Exception {
-		given(this.result.extractUriTemplateVariables()).willReturn(Collections.<String, String>emptyMap());
-		given(this.introspector.getMatchableHandlerMapping(this.request)).willReturn(this.mapping);
-		given(this.mapping.match(eq(this.request), this.pattern.capture())).willReturn(this.result);
-		assertThat(this.matcher.extractUriTemplateVariables(this.request)).isEmpty();
-		assertThat(this.matcher.matcher(this.request).getVariables()).isEmpty();
-	}
-
-	@Test
-	public void extractUriTemplateVariablesDefaultSuccess() throws Exception {
-		this.matcher = new MvcRequestMatcher(this.introspector, "/{p}");
-		given(this.introspector.getMatchableHandlerMapping(this.request)).willReturn(null);
-		assertThat(this.matcher.extractUriTemplateVariables(this.request)).containsEntry("p", "path");
-		assertThat(this.matcher.matcher(this.request).getVariables()).containsEntry("p", "path");
-	}
-
-	@Test
-	public void extractUriTemplateVariablesDefaultFail() throws Exception {
-		this.matcher = new MvcRequestMatcher(this.introspector, "/nomatch/{p}");
-		given(this.introspector.getMatchableHandlerMapping(this.request)).willReturn(null);
-		assertThat(this.matcher.extractUriTemplateVariables(this.request)).isEmpty();
-		assertThat(this.matcher.matcher(this.request).getVariables()).isEmpty();
 	}
 
 	@Test

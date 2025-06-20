@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@ import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.http.HttpMethod;
 import org.springframework.security.web.util.matcher.RequestMatcher;
-import org.springframework.security.web.util.matcher.RequestVariablesExtractor;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.PathMatcher;
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
@@ -49,7 +48,7 @@ import org.springframework.web.util.UrlPathHelper;
  * @deprecated Please use {@link PathPatternRequestMatcher} instead
  */
 @Deprecated(forRemoval = true)
-public class MvcRequestMatcher implements RequestMatcher, RequestVariablesExtractor {
+public class MvcRequestMatcher implements RequestMatcher {
 
 	private final DefaultMatcher defaultMatcher = new DefaultMatcher();
 
@@ -77,12 +76,6 @@ public class MvcRequestMatcher implements RequestMatcher, RequestVariablesExtrac
 		}
 		RequestMatchResult matchResult = mapping.match(request, this.pattern);
 		return matchResult != null;
-	}
-
-	@Override
-	@Deprecated
-	public Map<String, String> extractUriTemplateVariables(HttpServletRequest request) {
-		return matcher(request).getVariables();
 	}
 
 	@Override
