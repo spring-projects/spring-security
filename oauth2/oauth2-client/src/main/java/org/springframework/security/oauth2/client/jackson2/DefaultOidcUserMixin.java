@@ -40,7 +40,7 @@ import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE,
 		isGetterVisibility = JsonAutoDetect.Visibility.NONE)
-@JsonIgnoreProperties(value = { "attributes" }, ignoreUnknown = true)
+@JsonIgnoreProperties(value = { "attributes", "username" }, ignoreUnknown = true)
 abstract class DefaultOidcUserMixin {
 
 	@JsonCreator

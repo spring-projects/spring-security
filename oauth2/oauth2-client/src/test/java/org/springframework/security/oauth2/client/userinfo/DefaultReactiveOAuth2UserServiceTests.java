@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,6 +60,7 @@ import static org.mockito.Mockito.spy;
 /**
  * @author Rob Winch
  * @author Eddú Meléndez
+ * @author Yoobin Yoon
  * @since 5.1
  */
 public class DefaultReactiveOAuth2UserServiceTests {
@@ -152,13 +153,13 @@ public class DefaultReactiveOAuth2UserServiceTests {
 	public void loadUserWhenUserInfo201CreatedResponseThenReturnUser() {
 		// @formatter:off
 		String userInfoResponse = "{\n"
-				+ "   \"id\": \"user1\",\n"
-				+ "   \"first-name\": \"first\",\n"
-				+ "   \"last-name\": \"last\",\n"
-				+ "   \"middle-name\": \"middle\",\n"
-				+ "   \"address\": \"address\",\n"
-				+ "   \"email\": \"user1@example.com\"\n"
-				+ "}\n";
+			+ "   \"id\": \"user1\",\n"
+			+ "   \"first-name\": \"first\",\n"
+			+ "   \"last-name\": \"last\",\n"
+			+ "   \"middle-name\": \"middle\",\n"
+			+ "   \"address\": \"address\",\n"
+			+ "   \"email\": \"user1@example.com\"\n"
+			+ "}\n";
 		// @formatter:on
 		this.server.enqueue(new MockResponse().setResponseCode(201)
 			.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
@@ -170,13 +171,13 @@ public class DefaultReactiveOAuth2UserServiceTests {
 	public void loadUserWhenNestedUserInfoSuccessThenReturnUser() {
 		// @formatter:off
 		String userInfoResponse = "{\n"
-				+ "   \"user\": {\"user-name\": \"user1\"},\n"
-				+ "   \"first-name\": \"first\",\n"
-				+ "   \"last-name\": \"last\",\n"
-				+ "   \"middle-name\": \"middle\",\n"
-				+ "   \"address\": \"address\",\n"
-				+ "   \"email\": \"user1@example.com\"\n"
-				+ "}\n";
+			+ "   \"user\": {\"user-name\": \"user1\"},\n"
+			+ "   \"first-name\": \"first\",\n"
+			+ "   \"last-name\": \"last\",\n"
+			+ "   \"middle-name\": \"middle\",\n"
+			+ "   \"address\": \"address\",\n"
+			+ "   \"email\": \"user1@example.com\"\n"
+			+ "}\n";
 		// @formatter:on
 		enqueueApplicationJsonBody(userInfoResponse);
 		String userInfoUri = this.server.url("/user").toString();
@@ -257,7 +258,7 @@ public class DefaultReactiveOAuth2UserServiceTests {
 	public void loadUserWhenUserInfoSuccessResponseInvalidThenThrowOAuth2AuthenticationException() {
 		// @formatter:off
 		String userInfoResponse = "{\n"
-			+ "	\"id\": \"user1\",\n"
+			+ "	  \"id\": \"user1\",\n"
 			+ "   \"first-name\": \"first\",\n"
 			+ "   \"last-name\": \"last\",\n"
 			+ "   \"middle-name\": \"middle\",\n"
@@ -336,6 +337,66 @@ public class DefaultReactiveOAuth2UserServiceTests {
 	public void setAttributesConverterWhenNullThenException() {
 		assertThatExceptionOfType(IllegalArgumentException.class)
 			.isThrownBy(() -> this.userService.setAttributesConverter(null));
+	}
+
+	@Test
+	public void loadUserWhenUsernameExpressionIsSpelThenEvaluateCorrectly() {
+		// @formatter:off
+		String userInfoResponse = "{\n"
+			+ "   \"data\": {\n"
+			+ "       \"profile\": {\n"
+			+ "           \"name\": \"reactiveSpelUser\"\n"
+			+ "       }\n"
+			+ "   },\n"
+			+ "   \"id\": \"reactive123\"\n"
+			+ "}\n";
+		// @formatter:on
+		enqueueApplicationJsonBody(userInfoResponse);
+		ClientRegistration clientRegistration = this.clientRegistration.usernameExpression("data.profile.name").build();
+		OAuth2User user = this.userService.loadUser(new OAuth2UserRequest(clientRegistration, this.accessToken))
+			.block();
+		assertThat(user.getName()).isEqualTo("reactiveSpelUser");
+		assertThat(user.getAttributes()).hasSize(2);
+		assertThat((String) user.getAttribute("id")).isEqualTo("reactive123");
+	}
+
+	@Test
+	public void loadUserWhenUsernameExpressionInvalidSpelThenThrowOAuth2AuthenticationException() {
+		// @formatter:off
+		String userInfoResponse = "{\n"
+			+ "   \"id\": \"reactive123\",\n"
+			+ "   \"username\": \"reactiveUser\"\n"
+			+ "}\n";
+		// @formatter:on
+		enqueueApplicationJsonBody(userInfoResponse);
+		ClientRegistration clientRegistration = this.clientRegistration.usernameExpression("invalid.spel.expression")
+			.build();
+		StepVerifier.create(this.userService.loadUser(new OAuth2UserRequest(clientRegistration, this.accessToken)))
+			.expectErrorSatisfies((ex) -> {
+				assertThat(ex).isInstanceOf(OAuth2AuthenticationException.class);
+				assertThat(ex.getMessage()).contains("Invalid username expression or SPEL expression");
+			})
+			.verify();
+	}
+
+	@Test
+	public void loadUserWhenUsernameExpressionResultsInNullThenThrowException() {
+		// @formatter:off
+		String userInfoResponse = "{\n"
+			+ "   \"username\": \"testUser\",\n"
+			+ "   \"data\": {\n"
+			+ "       \"username\": null\n"
+			+ "   }\n"
+			+ "}\n";
+		// @formatter:on
+		enqueueApplicationJsonBody(userInfoResponse);
+		ClientRegistration clientRegistration = this.clientRegistration.usernameExpression("data.username").build();
+		StepVerifier.create(this.userService.loadUser(new OAuth2UserRequest(clientRegistration, this.accessToken)))
+			.expectErrorSatisfies((ex) -> {
+				assertThat(ex).isInstanceOf(OAuth2AuthenticationException.class);
+				assertThat(ex.getMessage()).contains("username cannot be null");
+			})
+			.verify();
 	}
 
 	private DefaultReactiveOAuth2UserService withMockResponse(Map<String, Object> body) {
