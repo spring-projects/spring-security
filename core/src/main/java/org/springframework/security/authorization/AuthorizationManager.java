@@ -47,17 +47,6 @@ public interface AuthorizationManager<T> {
 
 	/**
 	 * Determines if access is granted for a specific authentication and object.
-	 * @param authentication the {@link Supplier} of the {@link Authentication} to check
-	 * @param object the {@link T} object to check
-	 * @return an {@link AuthorizationDecision} or null if no decision could be made
-	 * @deprecated please use {@link #authorize(Supplier, Object)} instead
-	 */
-	@Nullable
-	@Deprecated
-	AuthorizationDecision check(Supplier<Authentication> authentication, T object);
-
-	/**
-	 * Determines if access is granted for a specific authentication and object.
 	 * @param authentication the {@link Supplier} of the {@link Authentication} to
 	 * authorize
 	 * @param object the {@link T} object to authorize
@@ -65,8 +54,6 @@ public interface AuthorizationManager<T> {
 	 * @since 6.4
 	 */
 	@Nullable
-	default AuthorizationResult authorize(Supplier<Authentication> authentication, T object) {
-		return check(authentication, object);
-	}
+	AuthorizationResult authorize(Supplier<Authentication> authentication, T object);
 
 }

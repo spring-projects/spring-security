@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,8 +30,8 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.intercept.method.MockMethodInvocation;
 import org.springframework.security.authentication.TestAuthentication;
 import org.springframework.security.authentication.TestingAuthenticationToken;
-import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.core.Authentication;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -62,9 +62,9 @@ public class SecuredAuthorizationManagerTests {
 		MockMethodInvocation methodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
 				"securedUserOrAdmin");
 		Supplier<Authentication> authentication = TestAuthentication::authenticatedUser;
-		AuthorizationDecision decision = manager.check(authentication, methodInvocation);
+		AuthorizationResult decision = manager.authorize(authentication, methodInvocation);
 		assertThat(decision).isNull();
-		verify(authoritiesAuthorizationManager).check(authentication, Set.of("ROLE_USER", "ROLE_ADMIN"));
+		verify(authoritiesAuthorizationManager).authorize(authentication, Set.of("ROLE_USER", "ROLE_ADMIN"));
 	}
 
 	@Test
@@ -72,7 +72,7 @@ public class SecuredAuthorizationManagerTests {
 		MockMethodInvocation methodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
 				"doSomething");
 		SecuredAuthorizationManager manager = new SecuredAuthorizationManager();
-		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedUser, methodInvocation);
+		AuthorizationResult decision = manager.authorize(TestAuthentication::authenticatedUser, methodInvocation);
 		assertThat(decision).isNull();
 	}
 
@@ -81,7 +81,7 @@ public class SecuredAuthorizationManagerTests {
 		MockMethodInvocation methodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
 				"securedUserOrAdmin");
 		SecuredAuthorizationManager manager = new SecuredAuthorizationManager();
-		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedUser, methodInvocation);
+		AuthorizationResult decision = manager.authorize(TestAuthentication::authenticatedUser, methodInvocation);
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isTrue();
 	}
@@ -91,7 +91,7 @@ public class SecuredAuthorizationManagerTests {
 		MockMethodInvocation methodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
 				"securedUserOrAdmin");
 		SecuredAuthorizationManager manager = new SecuredAuthorizationManager();
-		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedAdmin, methodInvocation);
+		AuthorizationResult decision = manager.authorize(TestAuthentication::authenticatedAdmin, methodInvocation);
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isTrue();
 	}
@@ -103,7 +103,7 @@ public class SecuredAuthorizationManagerTests {
 		MockMethodInvocation methodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
 				"securedUserOrAdmin");
 		SecuredAuthorizationManager manager = new SecuredAuthorizationManager();
-		AuthorizationDecision decision = manager.check(authentication, methodInvocation);
+		AuthorizationResult decision = manager.authorize(authentication, methodInvocation);
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isFalse();
 	}
@@ -114,10 +114,10 @@ public class SecuredAuthorizationManagerTests {
 		MockMethodInvocation methodInvocation = new MockMethodInvocation(new ClassLevelAnnotations(),
 				ClassLevelAnnotations.class, "securedAdmin");
 		SecuredAuthorizationManager manager = new SecuredAuthorizationManager();
-		AuthorizationDecision decision = manager.check(authentication, methodInvocation);
+		AuthorizationResult decision = manager.authorize(authentication, methodInvocation);
 		assertThat(decision.isGranted()).isFalse();
 		authentication = () -> new TestingAuthenticationToken("user", "password", "ROLE_ADMIN");
-		decision = manager.check(authentication, methodInvocation);
+		decision = manager.authorize(authentication, methodInvocation);
 		assertThat(decision.isGranted()).isTrue();
 	}
 
@@ -127,10 +127,10 @@ public class SecuredAuthorizationManagerTests {
 		MockMethodInvocation methodInvocation = new MockMethodInvocation(new ClassLevelAnnotations(),
 				ClassLevelAnnotations.class, "securedUser");
 		SecuredAuthorizationManager manager = new SecuredAuthorizationManager();
-		AuthorizationDecision decision = manager.check(authentication, methodInvocation);
+		AuthorizationResult decision = manager.authorize(authentication, methodInvocation);
 		assertThat(decision.isGranted()).isTrue();
 		authentication = () -> new TestingAuthenticationToken("user", "password", "ROLE_ADMIN");
-		decision = manager.check(authentication, methodInvocation);
+		decision = manager.authorize(authentication, methodInvocation);
 		assertThat(decision.isGranted()).isFalse();
 	}
 
@@ -141,7 +141,7 @@ public class SecuredAuthorizationManagerTests {
 				"inheritedAnnotations");
 		SecuredAuthorizationManager manager = new SecuredAuthorizationManager();
 		assertThatExceptionOfType(AnnotationConfigurationException.class)
-			.isThrownBy(() -> manager.check(authentication, methodInvocation));
+			.isThrownBy(() -> manager.authorize(authentication, methodInvocation));
 	}
 
 	@Test
@@ -151,7 +151,7 @@ public class SecuredAuthorizationManagerTests {
 				"inheritedAnnotations");
 		SecuredAuthorizationManager manager = new SecuredAuthorizationManager();
 		assertThatExceptionOfType(AnnotationConfigurationException.class)
-			.isThrownBy(() -> manager.check(authentication, methodInvocation));
+			.isThrownBy(() -> manager.authorize(authentication, methodInvocation));
 	}
 
 	@Test
@@ -159,10 +159,10 @@ public class SecuredAuthorizationManagerTests {
 		MockMethodInvocation methodInvocation = new MockMethodInvocation(new TestTargetClassAware(),
 				TestTargetClassAware.class, "doSomething");
 		SecuredAuthorizationManager manager = new SecuredAuthorizationManager();
-		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedUser, methodInvocation);
+		AuthorizationResult decision = manager.authorize(TestAuthentication::authenticatedUser, methodInvocation);
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isFalse();
-		decision = manager.check(TestAuthentication::authenticatedAdmin, methodInvocation);
+		decision = manager.authorize(TestAuthentication::authenticatedAdmin, methodInvocation);
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isTrue();
 	}
