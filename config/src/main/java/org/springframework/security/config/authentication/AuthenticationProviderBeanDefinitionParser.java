@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import org.w3c.dom.Element;
 
 import org.springframework.beans.BeanMetadataElement;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.config.ConstructorArgumentValues.ValueHolder;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
@@ -64,7 +65,9 @@ public class AuthenticationProviderBeanDefinitionParser implements BeanDefinitio
 							+ "elements '" + Elements.USER_SERVICE + "', '" + Elements.JDBC_USER_SERVICE + "' or '"
 							+ Elements.LDAP_USER_SERVICE + "'", element);
 			}
-			authProvider.getPropertyValues().add("userDetailsService", new RuntimeBeanReference(ref));
+			ValueHolder userDetailsServiceValueHolder = new ValueHolder(new RuntimeBeanReference(ref));
+			userDetailsServiceValueHolder.setName("userDetailsService");
+			authProvider.getConstructorArgumentValues().addGenericArgumentValue(userDetailsServiceValueHolder);
 		}
 		else {
 			// Use the child elements to create the UserDetailsService
