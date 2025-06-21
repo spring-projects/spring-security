@@ -72,30 +72,6 @@ public final class JwtIssuerReactiveAuthenticationManagerResolver
 	 * Construct a {@link JwtIssuerReactiveAuthenticationManagerResolver} using the
 	 * provided parameters
 	 * @param trustedIssuers an array of trusted issuers
-	 * @deprecated use {@link #fromTrustedIssuers(String...)}
-	 */
-	@Deprecated(since = "6.2", forRemoval = true)
-	public JwtIssuerReactiveAuthenticationManagerResolver(String... trustedIssuers) {
-		this(Set.of(trustedIssuers));
-	}
-
-	/**
-	 * Construct a {@link JwtIssuerReactiveAuthenticationManagerResolver} using the
-	 * provided parameters
-	 * @param trustedIssuers a collection of trusted issuers
-	 * @deprecated use {@link #fromTrustedIssuers(Collection)}
-	 */
-	@Deprecated(since = "6.2", forRemoval = true)
-	public JwtIssuerReactiveAuthenticationManagerResolver(Collection<String> trustedIssuers) {
-		Assert.notEmpty(trustedIssuers, "trustedIssuers cannot be empty");
-		this.authenticationManager = new ResolvingAuthenticationManager(
-				new TrustedIssuerJwtAuthenticationManagerResolver(Set.copyOf(trustedIssuers)::contains));
-	}
-
-	/**
-	 * Construct a {@link JwtIssuerReactiveAuthenticationManagerResolver} using the
-	 * provided parameters
-	 * @param trustedIssuers an array of trusted issuers
 	 * @since 6.2
 	 */
 	public static JwtIssuerReactiveAuthenticationManagerResolver fromTrustedIssuers(String... trustedIssuers) {
