@@ -123,9 +123,9 @@ import org.springframework.security.oauth2.server.resource.authentication.Bearer
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.authentication.JwtIssuerAuthenticationManagerResolver;
-import org.springframework.security.oauth2.server.resource.introspection.NimbusOpaqueTokenIntrospector;
 import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector;
+import org.springframework.security.oauth2.server.resource.introspection.SpringOpaqueTokenIntrospector;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
 import org.springframework.security.oauth2.server.resource.web.DefaultBearerTokenResolver;
@@ -2754,8 +2754,8 @@ public class OAuth2ResourceServerConfigurerTests {
 		}
 
 		@Bean
-		NimbusOpaqueTokenIntrospector tokenIntrospectionClient() {
-			return new NimbusOpaqueTokenIntrospector("https://example.org/introspect", this.rest);
+		OpaqueTokenIntrospector tokenIntrospectionClient() {
+			return new SpringOpaqueTokenIntrospector("https://example.org/introspect", this.rest);
 		}
 
 	}
