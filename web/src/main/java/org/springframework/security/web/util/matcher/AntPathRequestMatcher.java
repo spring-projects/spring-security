@@ -57,7 +57,7 @@ import org.springframework.web.util.UrlPathHelper;
  * @deprecated please use {@link PathPatternRequestMatcher} instead
  */
 @Deprecated(forRemoval = true)
-public final class AntPathRequestMatcher implements RequestMatcher, RequestVariablesExtractor {
+public final class AntPathRequestMatcher implements RequestMatcher {
 
 	private static final String MATCH_ALL = "/**";
 
@@ -192,12 +192,6 @@ public final class AntPathRequestMatcher implements RequestMatcher, RequestVaria
 		}
 		String url = getRequestPath(request);
 		return this.matcher.matches(url);
-	}
-
-	@Override
-	@Deprecated
-	public Map<String, String> extractUriTemplateVariables(HttpServletRequest request) {
-		return matcher(request).getVariables();
 	}
 
 	@Override
