@@ -98,44 +98,6 @@ public class RelyingPartyRegistration implements Serializable {
 	protected RelyingPartyRegistration(String registrationId, String entityId, String assertionConsumerServiceLocation,
 			Saml2MessageBinding assertionConsumerServiceBinding, String singleLogoutServiceLocation,
 			String singleLogoutServiceResponseLocation, Collection<Saml2MessageBinding> singleLogoutServiceBindings,
-			AssertingPartyDetails assertingPartyDetails, String nameIdFormat, boolean authnRequestsSigned,
-			Collection<Saml2X509Credential> decryptionX509Credentials,
-			Collection<Saml2X509Credential> signingX509Credentials) {
-		Assert.hasText(registrationId, "registrationId cannot be empty");
-		Assert.hasText(entityId, "entityId cannot be empty");
-		Assert.hasText(assertionConsumerServiceLocation, "assertionConsumerServiceLocation cannot be empty");
-		Assert.notNull(assertionConsumerServiceBinding, "assertionConsumerServiceBinding cannot be null");
-		Assert.isTrue(singleLogoutServiceLocation == null || !CollectionUtils.isEmpty(singleLogoutServiceBindings),
-				"singleLogoutServiceBindings cannot be null or empty when singleLogoutServiceLocation is set");
-		Assert.notNull(assertingPartyDetails, "assertingPartyDetails cannot be null");
-		Assert.notNull(decryptionX509Credentials, "decryptionX509Credentials cannot be null");
-		for (Saml2X509Credential c : decryptionX509Credentials) {
-			Assert.notNull(c, "decryptionX509Credentials cannot contain null elements");
-			Assert.isTrue(c.isDecryptionCredential(),
-					"All decryptionX509Credentials must have a usage of DECRYPTION set");
-		}
-		Assert.notNull(signingX509Credentials, "signingX509Credentials cannot be null");
-		for (Saml2X509Credential c : signingX509Credentials) {
-			Assert.notNull(c, "signingX509Credentials cannot contain null elements");
-			Assert.isTrue(c.isSigningCredential(), "All signingX509Credentials must have a usage of SIGNING set");
-		}
-		this.registrationId = registrationId;
-		this.entityId = entityId;
-		this.assertionConsumerServiceLocation = assertionConsumerServiceLocation;
-		this.assertionConsumerServiceBinding = assertionConsumerServiceBinding;
-		this.singleLogoutServiceLocation = singleLogoutServiceLocation;
-		this.singleLogoutServiceResponseLocation = singleLogoutServiceResponseLocation;
-		this.singleLogoutServiceBindings = Collections.unmodifiableList(new LinkedList<>(singleLogoutServiceBindings));
-		this.nameIdFormat = nameIdFormat;
-		this.authnRequestsSigned = authnRequestsSigned;
-		this.assertingPartyMetadata = assertingPartyDetails;
-		this.decryptionX509Credentials = Collections.unmodifiableList(new LinkedList<>(decryptionX509Credentials));
-		this.signingX509Credentials = Collections.unmodifiableList(new LinkedList<>(signingX509Credentials));
-	}
-
-	private RelyingPartyRegistration(String registrationId, String entityId, String assertionConsumerServiceLocation,
-			Saml2MessageBinding assertionConsumerServiceBinding, String singleLogoutServiceLocation,
-			String singleLogoutServiceResponseLocation, Collection<Saml2MessageBinding> singleLogoutServiceBindings,
 			AssertingPartyMetadata assertingPartyMetadata, String nameIdFormat, boolean authnRequestsSigned,
 			Collection<Saml2X509Credential> decryptionX509Credentials,
 			Collection<Saml2X509Credential> signingX509Credentials) {
@@ -145,7 +107,7 @@ public class RelyingPartyRegistration implements Serializable {
 		Assert.notNull(assertionConsumerServiceBinding, "assertionConsumerServiceBinding cannot be null");
 		Assert.isTrue(singleLogoutServiceLocation == null || !CollectionUtils.isEmpty(singleLogoutServiceBindings),
 				"singleLogoutServiceBindings cannot be null or empty when singleLogoutServiceLocation is set");
-		Assert.notNull(assertingPartyMetadata, "assertingPartyDetails cannot be null");
+		Assert.notNull(assertingPartyMetadata, "assertingPartyMetadata cannot be null");
 		Assert.notNull(decryptionX509Credentials, "decryptionX509Credentials cannot be null");
 		for (Saml2X509Credential c : decryptionX509Credentials) {
 			Assert.notNull(c, "decryptionX509Credentials cannot contain null elements");
