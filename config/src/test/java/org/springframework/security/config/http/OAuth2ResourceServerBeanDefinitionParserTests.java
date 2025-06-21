@@ -86,9 +86,9 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.TestJwts;
 import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
-import org.springframework.security.oauth2.server.resource.introspection.NimbusOpaqueTokenIntrospector;
 import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector;
+import org.springframework.security.oauth2.server.resource.introspection.SpringOpaqueTokenIntrospector;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
 import org.springframework.security.test.context.annotation.SecurityTestExecutionListeners;
 import org.springframework.security.web.authentication.AuthenticationConverter;
@@ -1064,7 +1064,7 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 
 		@Override
 		public OpaqueTokenIntrospector getObject() throws Exception {
-			return new NimbusOpaqueTokenIntrospector("https://idp.example.org", this.rest);
+			return new SpringOpaqueTokenIntrospector("https://idp.example.org", this.rest);
 		}
 
 		@Override

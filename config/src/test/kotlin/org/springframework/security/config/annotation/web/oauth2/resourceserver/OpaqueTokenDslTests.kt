@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -41,7 +42,6 @@ import org.springframework.security.oauth2.core.DefaultOAuth2AuthenticatedPrinci
 import org.springframework.security.oauth2.core.TestOAuth2AccessTokens
 import org.springframework.security.oauth2.jwt.JwtClaimNames
 import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthentication
-import org.springframework.security.oauth2.server.resource.introspection.NimbusOpaqueTokenIntrospector
 import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector
 import org.springframework.security.oauth2.server.resource.introspection.SpringOpaqueTokenIntrospector
 import org.springframework.security.web.SecurityFilterChain
@@ -84,15 +84,15 @@ class OpaqueTokenDslTests {
         val headers = HttpHeaders().apply {
             contentType = MediaType.APPLICATION_JSON
         }
-        val entity = ResponseEntity("{\n" +
-                "  \"active\" : true,\n" +
-                "  \"sub\": \"test-subject\",\n" +
-                "  \"scope\": \"message:read\",\n" +
-                "  \"exp\": 4683883211\n" +
-                "}", headers, HttpStatus.OK)
+        val responseBody: Map<String, Any> = mapOf(
+            "active" to true,
+            "sub" to "test-subject",
+            "scope" to "message:read",
+            "exp" to 4683883211
+        )
         every {
-            DefaultOpaqueConfig.REST.exchange(any(), eq(String::class.java))
-        } returns entity
+            DefaultOpaqueConfig.REST.exchange(any(), any<ParameterizedTypeReference<Map<String, Any>>>())
+        } returns ResponseEntity(responseBody, headers, HttpStatus.OK)
 
         this.mockMvc.get("/authenticated") {
             header("Authorization", "Bearer token")
@@ -127,8 +127,8 @@ class OpaqueTokenDslTests {
         open fun rest(): RestOperations = REST
 
         @Bean
-        open fun tokenIntrospectionClient(): NimbusOpaqueTokenIntrospector {
-            return NimbusOpaqueTokenIntrospector("https://example.org/introspect", REST)
+        open fun tokenIntrospectionClient(): OpaqueTokenIntrospector {
+            return SpringOpaqueTokenIntrospector("https://example.org/introspect", REST)
         }
     }
 
