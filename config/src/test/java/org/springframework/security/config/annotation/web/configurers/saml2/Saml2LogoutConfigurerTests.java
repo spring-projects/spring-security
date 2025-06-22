@@ -731,14 +731,14 @@ public class Saml2LogoutConfigurerTests {
 			Saml2X509Credential verification = TestSaml2X509Credentials.relyingPartyVerifyingCredential();
 			RelyingPartyRegistration.Builder withCreds = TestRelyingPartyRegistrations.noCredentials()
 				.signingX509Credentials(credential(signing))
-				.assertingPartyDetails((party) -> party.verificationX509Credentials(credential(verification)));
+				.assertingPartyMetadata((party) -> party.verificationX509Credentials(credential(verification)));
 			RelyingPartyRegistration post = withCreds.build();
 			RelyingPartyRegistration get = withCreds.registrationId("get")
 				.singleLogoutServiceBinding(Saml2MessageBinding.REDIRECT)
 				.build();
 			RelyingPartyRegistration ap = withCreds.registrationId("ap")
 				.entityId("ap-entity-id")
-				.assertingPartyDetails(
+				.assertingPartyMetadata(
 						(party) -> party.singleLogoutServiceLocation("https://rp.example.org/logout/saml2/request")
 							.singleLogoutServiceResponseLocation("https://rp.example.org/logout/saml2/response"))
 				.build();

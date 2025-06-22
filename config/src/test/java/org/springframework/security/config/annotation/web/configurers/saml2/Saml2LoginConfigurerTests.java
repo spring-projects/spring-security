@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -134,7 +134,7 @@ public class Saml2LoginConfigurerTests {
 
 	private static final RelyingPartyRegistration registration = TestRelyingPartyRegistrations.noCredentials()
 		.signingX509Credentials((c) -> c.add(TestSaml2X509Credentials.assertingPartySigningCredential()))
-		.assertingPartyDetails((party) -> party
+		.assertingPartyMetadata((party) -> party
 			.verificationX509Credentials((c) -> c.add(TestSaml2X509Credentials.relyingPartyVerifyingCredential())))
 		.build();
 
@@ -170,7 +170,7 @@ public class Saml2LoginConfigurerTests {
 	@BeforeAll
 	static void createResponse() throws Exception {
 		String destination = registration.getAssertionConsumerServiceLocation();
-		String assertingPartyEntityId = registration.getAssertingPartyDetails().getEntityId();
+		String assertingPartyEntityId = registration.getAssertingPartyMetadata().getEntityId();
 		String relyingPartyEntityId = registration.getEntityId();
 		Response response = TestOpenSamlObjects.response(destination, assertingPartyEntityId);
 		Assertion assertion = TestOpenSamlObjects.assertion("test@saml.user", assertingPartyEntityId,
@@ -365,7 +365,7 @@ public class Saml2LoginConfigurerTests {
 		request.queryParam("entityId", registration.getRegistrationId());
 		MvcResult result = this.mvc.perform(request).andExpect(status().isFound()).andReturn();
 		String redirectedUrl = result.getResponse().getRedirectedUrl();
-		assertThat(redirectedUrl).startsWith(registration.getAssertingPartyDetails().getSingleSignOnServiceLocation());
+		assertThat(redirectedUrl).startsWith(registration.getAssertingPartyMetadata().getSingleSignOnServiceLocation());
 	}
 
 	@Test
