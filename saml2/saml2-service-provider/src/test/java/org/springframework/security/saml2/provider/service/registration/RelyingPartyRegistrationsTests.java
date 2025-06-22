@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -65,7 +65,7 @@ public class RelyingPartyRegistrationsTests {
 				.fromMetadataLocation(server.url("/").toString())
 				.entityId("rp")
 				.build();
-			RelyingPartyRegistration.AssertingPartyDetails details = registration.getAssertingPartyDetails();
+			AssertingPartyMetadata details = registration.getAssertingPartyMetadata();
 			assertThat(details.getEntityId()).isEqualTo("https://idp.example.com/idp/shibboleth");
 			assertThat(details.getSingleSignOnServiceLocation())
 				.isEqualTo("https://idp.example.com/idp/profile/SAML2/POST/SSO");
@@ -103,7 +103,7 @@ public class RelyingPartyRegistrationsTests {
 			.fromMetadataLocation("file:" + file.getAbsolutePath())
 			.entityId("rp")
 			.build();
-		RelyingPartyRegistration.AssertingPartyDetails details = registration.getAssertingPartyDetails();
+		AssertingPartyMetadata details = registration.getAssertingPartyMetadata();
 		assertThat(details.getEntityId()).isEqualTo("https://idp.example.com/idp/shibboleth");
 		assertThat(details.getSingleSignOnServiceLocation())
 			.isEqualTo("https://idp.example.com/idp/profile/SAML2/POST/SSO");
@@ -124,7 +124,7 @@ public class RelyingPartyRegistrationsTests {
 			RelyingPartyRegistration registration = RelyingPartyRegistrations.fromMetadata(source)
 				.entityId("rp")
 				.build();
-			RelyingPartyRegistration.AssertingPartyDetails details = registration.getAssertingPartyDetails();
+			AssertingPartyMetadata details = registration.getAssertingPartyMetadata();
 			assertThat(details.getEntityId()).isEqualTo("https://idp.example.com/idp/shibboleth");
 			assertThat(details.getSingleSignOnServiceLocation())
 				.isEqualTo("https://idp.example.com/idp/profile/SAML2/POST/SSO");
@@ -153,7 +153,7 @@ public class RelyingPartyRegistrationsTests {
 				.collect(Collectors.toList());
 			assertThat(registrations).hasSize(2);
 			RelyingPartyRegistration first = registrations.get(0);
-			RelyingPartyRegistration.AssertingPartyDetails details = first.getAssertingPartyDetails();
+			AssertingPartyMetadata details = first.getAssertingPartyMetadata();
 			assertThat(details.getEntityId()).isEqualTo("https://idp.example.com/idp/shibboleth");
 			assertThat(details.getSingleSignOnServiceLocation())
 				.isEqualTo("https://idp.example.com/idp/profile/SAML2/POST/SSO");
@@ -161,7 +161,7 @@ public class RelyingPartyRegistrationsTests {
 			assertThat(details.getVerificationX509Credentials()).hasSize(1);
 			assertThat(details.getEncryptionX509Credentials()).hasSize(1);
 			RelyingPartyRegistration second = registrations.get(1);
-			details = second.getAssertingPartyDetails();
+			details = second.getAssertingPartyMetadata();
 			assertThat(details.getEntityId()).isEqualTo("https://ap.example.org/idp/shibboleth");
 			assertThat(details.getSingleSignOnServiceLocation())
 				.isEqualTo("https://ap.example.org/idp/profile/SAML2/POST/SSO");
@@ -201,7 +201,7 @@ public class RelyingPartyRegistrationsTests {
 			.map((r) -> r.entityId("rp").build())
 			.findFirst()
 			.get();
-		RelyingPartyRegistration.AssertingPartyDetails details = registration.getAssertingPartyDetails();
+		AssertingPartyMetadata details = registration.getAssertingPartyMetadata();
 		assertThat(details.getEntityId()).isEqualTo("https://idp.example.com/idp/shibboleth");
 		assertThat(details.getSingleSignOnServiceLocation())
 			.isEqualTo("https://idp.example.com/idp/profile/SAML2/POST/SSO");
@@ -219,7 +219,7 @@ public class RelyingPartyRegistrationsTests {
 			.map((r) -> r.entityId("rp").build())
 			.findFirst()
 			.get();
-		RelyingPartyRegistration.AssertingPartyDetails details = registration.getAssertingPartyDetails();
+		AssertingPartyMetadata details = registration.getAssertingPartyMetadata();
 		assertThat(details.getEntityId()).isEqualTo("https://idp.example.com/idp/shibboleth");
 		assertThat(details.getSingleSignOnServiceLocation())
 			.isEqualTo("https://idp.example.com/idp/profile/SAML2/POST/SSO");
@@ -242,7 +242,7 @@ public class RelyingPartyRegistrationsTests {
 				.map((r) -> r.entityId("rp").build())
 				.findFirst()
 				.get();
-			RelyingPartyRegistration.AssertingPartyDetails details = registration.getAssertingPartyDetails();
+			AssertingPartyMetadata details = registration.getAssertingPartyMetadata();
 			assertThat(details.getEntityId()).isEqualTo("https://idp.example.com/idp/shibboleth");
 			assertThat(details.getSingleSignOnServiceLocation())
 				.isEqualTo("https://idp.example.com/idp/profile/SAML2/POST/SSO");
@@ -261,7 +261,7 @@ public class RelyingPartyRegistrationsTests {
 				.fromMetadataLocation(server.url("/").toString())
 				.entityId("rp")
 				.build();
-			RelyingPartyRegistration.AssertingPartyDetails details = registration.getAssertingPartyDetails();
+			AssertingPartyMetadata details = registration.getAssertingPartyMetadata();
 			assertThat(registration.getRegistrationId()).isEqualTo(details.getEntityId());
 			assertThat(registration).isInstanceOf(OpenSamlRelyingPartyRegistration.class);
 		}

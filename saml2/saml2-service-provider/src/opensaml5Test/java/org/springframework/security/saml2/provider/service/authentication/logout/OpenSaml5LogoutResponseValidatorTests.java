@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,7 +63,7 @@ public class OpenSaml5LogoutResponseValidatorTests {
 	@Test
 	public void handleWhenRedirectBindingThenValidatesSignatureParameter() {
 		RelyingPartyRegistration registration = signing(verifying(registration()))
-			.assertingPartyDetails((party) -> party.singleLogoutServiceBinding(Saml2MessageBinding.REDIRECT))
+			.assertingPartyMetadata((party) -> party.singleLogoutServiceBinding(Saml2MessageBinding.REDIRECT))
 			.build();
 		Saml2LogoutRequest logoutRequest = Saml2LogoutRequest.withRelyingPartyRegistration(registration)
 			.id("id")
@@ -150,11 +150,11 @@ public class OpenSaml5LogoutResponseValidatorTests {
 
 	private RelyingPartyRegistration.Builder registration() {
 		return signing(verifying(TestRelyingPartyRegistrations.noCredentials()))
-			.assertingPartyDetails((party) -> party.singleLogoutServiceBinding(Saml2MessageBinding.POST));
+			.assertingPartyMetadata((party) -> party.singleLogoutServiceBinding(Saml2MessageBinding.POST));
 	}
 
 	private RelyingPartyRegistration.Builder verifying(RelyingPartyRegistration.Builder builder) {
-		return builder.assertingPartyDetails((party) -> party
+		return builder.assertingPartyMetadata((party) -> party
 			.verificationX509Credentials((c) -> c.add(TestSaml2X509Credentials.relyingPartyVerifyingCredential())));
 	}
 
@@ -180,7 +180,7 @@ public class OpenSaml5LogoutResponseValidatorTests {
 
 	private void sign(LogoutResponse logoutResponse, RelyingPartyRegistration registration) {
 		TestOpenSamlObjects.signed(logoutResponse, registration.getSigningX509Credentials().iterator().next(),
-				registration.getAssertingPartyDetails().getEntityId());
+				registration.getAssertingPartyMetadata().getEntityId());
 	}
 
 	private String serialize(XMLObject object) {
