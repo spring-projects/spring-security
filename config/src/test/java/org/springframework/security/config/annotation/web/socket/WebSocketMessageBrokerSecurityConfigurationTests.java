@@ -69,7 +69,6 @@ import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.config.annotation.SecurityContextChangedListenerConfig;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.messaging.MessageSecurityMetadataSourceRegistry;
 import org.springframework.security.config.observation.SecurityObservationSettings;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AnnotationTemplateExpressionDefaults;
@@ -869,37 +868,6 @@ public class WebSocketMessageBrokerSecurityConfigurationTests {
 				.anyMessage().denyAll();
 			// @formatter:on
 			return messages.build();
-		}
-
-		@Bean
-		TestHandshakeHandler testHandshakeHandler() {
-			return new TestHandshakeHandler();
-		}
-
-	}
-
-	@Configuration
-	@EnableWebSocketSecurity
-	@EnableWebSocketMessageBroker
-	@Import(SyncExecutorConfig.class)
-	static class UsingLegacyConfigurerConfig extends AbstractSecurityWebSocketMessageBrokerConfigurer {
-
-		@Override
-		public void registerStompEndpoints(StompEndpointRegistry registry) {
-			// @formatter:off
-			registry.addEndpoint("/websocket")
-					.setHandshakeHandler(testHandshakeHandler())
-					.addInterceptors(new HttpSessionHandshakeInterceptor());
-			// @formatter:on
-		}
-
-		@Override
-		public void configureInbound(MessageSecurityMetadataSourceRegistry messages) {
-			// @formatter:off
-			messages
-					.simpDestMatchers("/permitAll/**").permitAll()
-					.anyMessage().denyAll();
-			// @formatter:on
 		}
 
 		@Bean
