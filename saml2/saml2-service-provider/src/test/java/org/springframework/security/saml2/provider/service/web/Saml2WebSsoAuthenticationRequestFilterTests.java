@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -84,8 +84,8 @@ public class Saml2WebSsoAuthenticationRequestFilterTests {
 			}
 		};
 		this.rpBuilder = RelyingPartyRegistration.withRegistrationId("registration-id")
-			.assertingPartyDetails((c) -> c.entityId("idp-entity-id"))
-			.assertingPartyDetails((c) -> c.singleSignOnServiceLocation(IDP_SSO_URL))
+			.assertingPartyMetadata((c) -> c.entityId("idp-entity-id"))
+			.assertingPartyMetadata((c) -> c.singleSignOnServiceLocation(IDP_SSO_URL))
 			.assertionConsumerServiceLocation("template")
 			.signingX509Credentials((c) -> c.add(TestSaml2X509Credentials.assertingPartyPrivateCredential()))
 			.decryptionX509Credentials((c) -> c.add(TestSaml2X509Credentials.assertingPartyPrivateCredential()));
@@ -168,7 +168,7 @@ public class Saml2WebSsoAuthenticationRequestFilterTests {
 		String relayStateValue = "https://my-relay-state.example.com?with=param&other=param&javascript{alert('1');}";
 		String relayStateEncoded = HtmlUtils.htmlEscape(relayStateValue);
 		RelyingPartyRegistration registration = this.rpBuilder
-			.assertingPartyDetails((asserting) -> asserting.singleSignOnServiceBinding(Saml2MessageBinding.POST))
+			.assertingPartyMetadata((asserting) -> asserting.singleSignOnServiceBinding(Saml2MessageBinding.POST))
 			.build();
 		Saml2PostAuthenticationRequest request = Saml2PostAuthenticationRequest
 			.withRelyingPartyRegistration(registration)
@@ -213,7 +213,7 @@ public class Saml2WebSsoAuthenticationRequestFilterTests {
 	@Test
 	public void doFilterWhenPostThenSaveRedirectRequest() throws ServletException, IOException {
 		RelyingPartyRegistration registration = this.rpBuilder
-			.assertingPartyDetails((asserting) -> asserting.singleSignOnServiceBinding(Saml2MessageBinding.POST))
+			.assertingPartyMetadata((asserting) -> asserting.singleSignOnServiceBinding(Saml2MessageBinding.POST))
 			.build();
 		Saml2PostAuthenticationRequest request = Saml2PostAuthenticationRequest
 			.withRelyingPartyRegistration(registration)

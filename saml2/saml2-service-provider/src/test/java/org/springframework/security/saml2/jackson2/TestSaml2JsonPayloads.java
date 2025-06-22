@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -147,7 +147,7 @@ final class TestSaml2JsonPayloads {
 		return Saml2PostAuthenticationRequest
 			.withRelyingPartyRegistration(TestRelyingPartyRegistrations.full()
 				.registrationId(RELYINGPARTY_REGISTRATION_ID)
-				.assertingPartyDetails((party) -> party.singleSignOnServiceLocation(AUTHENTICATION_REQUEST_URI))
+				.assertingPartyMetadata((party) -> party.singleSignOnServiceLocation(AUTHENTICATION_REQUEST_URI))
 				.build())
 			.samlRequest(SAML_REQUEST)
 			.relayState(RELAY_STATE)
@@ -159,7 +159,7 @@ final class TestSaml2JsonPayloads {
 		return Saml2RedirectAuthenticationRequest
 			.withRelyingPartyRegistration(TestRelyingPartyRegistrations.full()
 				.registrationId(RELYINGPARTY_REGISTRATION_ID)
-				.assertingPartyDetails((party) -> party.singleSignOnServiceLocation(AUTHENTICATION_REQUEST_URI))
+				.assertingPartyMetadata((party) -> party.singleSignOnServiceLocation(AUTHENTICATION_REQUEST_URI))
 				.build())
 			.samlRequest(SAML_REQUEST)
 			.relayState(RELAY_STATE)
@@ -173,7 +173,7 @@ final class TestSaml2JsonPayloads {
 		return Saml2LogoutRequest
 			.withRelyingPartyRegistration(TestRelyingPartyRegistrations.full()
 				.registrationId(RELYINGPARTY_REGISTRATION_ID)
-				.assertingPartyDetails((party) -> party.singleLogoutServiceLocation(LOCATION)
+				.assertingPartyMetadata((party) -> party.singleLogoutServiceLocation(LOCATION)
 					.singleLogoutServiceBinding(Saml2MessageBinding.REDIRECT))
 				.build())
 			.id(ID)

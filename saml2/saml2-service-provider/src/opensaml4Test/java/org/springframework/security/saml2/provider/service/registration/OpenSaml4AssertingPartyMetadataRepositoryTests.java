@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -224,7 +224,7 @@ public class OpenSaml4AssertingPartyMetadataRepositoryTests {
 			.withTrustedMetadataLocation(web.url(endpoint).toString())
 			.verificationCredentials((c) -> c.add(credential))
 			.build();
-		assertThat(parties.findByEntityId(registration.getAssertingPartyDetails().getEntityId())).isNotNull();
+		assertThat(parties.findByEntityId(registration.getAssertingPartyMetadata().getEntityId())).isNotNull();
 	}
 
 	@Test
@@ -256,7 +256,7 @@ public class OpenSaml4AssertingPartyMetadataRepositoryTests {
 		AssertingPartyMetadataRepository parties = OpenSaml4AssertingPartyMetadataRepository
 			.withTrustedMetadataLocation(web.url(endpoint).toString())
 			.build();
-		assertThat(parties.findByEntityId(registration.getAssertingPartyDetails().getEntityId())).isNotNull();
+		assertThat(parties.findByEntityId(registration.getAssertingPartyMetadata().getEntityId())).isNotNull();
 	}
 
 	@Test
@@ -295,7 +295,7 @@ public class OpenSaml4AssertingPartyMetadataRepositoryTests {
 		AssertingPartyMetadataRepository parties = new OpenSaml4AssertingPartyMetadataRepository(resolver);
 		parties.iterator()
 			.forEachRemaining((p) -> assertThat(p.getEntityId())
-				.isEqualTo(registration.getAssertingPartyDetails().getEntityId()));
+				.isEqualTo(registration.getAssertingPartyMetadata().getEntityId()));
 		verify(((IterableMetadataSource) resolver)).iterator();
 	}
 
@@ -336,7 +336,7 @@ public class OpenSaml4AssertingPartyMetadataRepositoryTests {
 			.withMetadataLocation(web.url(endpoint).toString())
 			.verificationCredentials((c) -> c.add(credential))
 			.build();
-		assertThat(parties.findByEntityId(registration.getAssertingPartyDetails().getEntityId())).isNotNull();
+		assertThat(parties.findByEntityId(registration.getAssertingPartyMetadata().getEntityId())).isNotNull();
 	}
 
 	private static String serialize(XMLObject object) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,7 +48,8 @@ public final class OpenSamlRelyingPartyRegistration extends RelyingPartyRegistra
 		super(registration.getRegistrationId(), registration.getEntityId(),
 				registration.getAssertionConsumerServiceLocation(), registration.getAssertionConsumerServiceBinding(),
 				registration.getSingleLogoutServiceLocation(), registration.getSingleLogoutServiceResponseLocation(),
-				registration.getSingleLogoutServiceBindings(), registration.getAssertingPartyDetails(),
+				registration.getSingleLogoutServiceBindings(),
+				(OpenSamlAssertingPartyDetails) registration.getAssertingPartyMetadata(),
 				registration.getNameIdFormat(), registration.isAuthnRequestsSigned(),
 				registration.getDecryptionX509Credentials(), registration.getSigningX509Credentials());
 	}
@@ -58,7 +59,7 @@ public final class OpenSamlRelyingPartyRegistration extends RelyingPartyRegistra
 	 */
 	@Override
 	public OpenSamlRelyingPartyRegistration.Builder mutate() {
-		OpenSamlAssertingPartyDetails party = getAssertingPartyDetails();
+		OpenSamlAssertingPartyDetails party = (OpenSamlAssertingPartyDetails) getAssertingPartyMetadata();
 		return new Builder(party).registrationId(getRegistrationId())
 			.entityId(getEntityId())
 			.signingX509Credentials((c) -> c.addAll(getSigningX509Credentials()))
@@ -70,14 +71,6 @@ public final class OpenSamlRelyingPartyRegistration extends RelyingPartyRegistra
 			.singleLogoutServiceBindings((c) -> c.addAll(getSingleLogoutServiceBindings()))
 			.nameIdFormat(getNameIdFormat())
 			.authnRequestsSigned(isAuthnRequestsSigned());
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public OpenSamlAssertingPartyDetails getAssertingPartyDetails() {
-		return (OpenSamlAssertingPartyDetails) super.getAssertingPartyDetails();
 	}
 
 	/**
@@ -163,11 +156,6 @@ public final class OpenSamlRelyingPartyRegistration extends RelyingPartyRegistra
 		@Override
 		public Builder authnRequestsSigned(Boolean authnRequestsSigned) {
 			return (Builder) super.authnRequestsSigned(authnRequestsSigned);
-		}
-
-		@Override
-		public Builder assertingPartyDetails(Consumer<AssertingPartyDetails.Builder> assertingPartyDetails) {
-			return (Builder) super.assertingPartyDetails(assertingPartyDetails);
 		}
 
 		@Override

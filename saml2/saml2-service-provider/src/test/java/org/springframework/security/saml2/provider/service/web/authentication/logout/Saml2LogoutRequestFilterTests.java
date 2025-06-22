@@ -93,13 +93,13 @@ public class Saml2LogoutRequestFilterTests {
 		String content = response.getHeader("Location");
 		assertThat(content).contains(Saml2ParameterNames.SAML_RESPONSE);
 		assertThat(content)
-			.startsWith(registration.getAssertingPartyDetails().getSingleLogoutServiceResponseLocation());
+			.startsWith(registration.getAssertingPartyMetadata().getSingleLogoutServiceResponseLocation());
 	}
 
 	@Test
 	public void doFilterWhenSamlRequestThenPosts() throws Exception {
 		RelyingPartyRegistration registration = TestRelyingPartyRegistrations.full()
-			.assertingPartyDetails((party) -> party.singleLogoutServiceBinding(Saml2MessageBinding.POST))
+			.assertingPartyMetadata((party) -> party.singleLogoutServiceBinding(Saml2MessageBinding.POST))
 			.build();
 		Authentication authentication = new TestingAuthenticationToken("user", "password");
 		given(this.securityContextHolderStrategy.getContext()).willReturn(new SecurityContextImpl(authentication));
@@ -270,7 +270,7 @@ public class Saml2LogoutRequestFilterTests {
 	private void checkResponse(String responseContent, RelyingPartyRegistration registration) {
 		assertThat(responseContent).contains(Saml2ParameterNames.SAML_RESPONSE);
 		assertThat(responseContent)
-			.contains(registration.getAssertingPartyDetails().getSingleLogoutServiceResponseLocation());
+			.contains(registration.getAssertingPartyMetadata().getSingleLogoutServiceResponseLocation());
 		assertThat(responseContent).contains(
 				"<meta http-equiv=\"Content-Security-Policy\" content=\"script-src 'sha256-oZhLbc2kO8b8oaYLrUc7uye1MgVKMyLtPqWR4WtKF+c='\">");
 		assertThat(responseContent)

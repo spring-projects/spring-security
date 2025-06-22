@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,6 @@ import org.junit.jupiter.api.Test;
 
 import org.springframework.security.saml2.core.Saml2X509Credential;
 import org.springframework.security.saml2.core.TestSaml2X509Credentials;
-import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration.AssertingPartyDetails;
 import org.springframework.security.saml2.provider.service.web.authentication.Saml2WebSsoAuthenticationFilter;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,12 +36,12 @@ public class RelyingPartyRegistrationTests {
 		RelyingPartyRegistration registration = TestRelyingPartyRegistrations.relyingPartyRegistration()
 			.nameIdFormat("format")
 			.authnRequestsSigned(true)
-			.assertingPartyDetails((a) -> a.singleSignOnServiceBinding(Saml2MessageBinding.POST))
-			.assertingPartyDetails((a) -> a.wantAuthnRequestsSigned(false))
-			.assertingPartyDetails((a) -> a.signingAlgorithms((algs) -> algs.add("alg")))
+			.assertingPartyMetadata((a) -> a.singleSignOnServiceBinding(Saml2MessageBinding.POST))
+			.assertingPartyMetadata((a) -> a.wantAuthnRequestsSigned(false))
+			.assertingPartyMetadata((a) -> a.signingAlgorithms((algs) -> algs.add("alg")))
 			.assertionConsumerServiceBinding(Saml2MessageBinding.REDIRECT)
 			.build();
-		RelyingPartyRegistration copy = RelyingPartyRegistration.withRelyingPartyRegistration(registration).build();
+		RelyingPartyRegistration copy = registration.mutate().build();
 		compareRegistrations(registration, copy);
 	}
 
@@ -50,9 +49,9 @@ public class RelyingPartyRegistrationTests {
 	void mutateWhenInvokedThenCreatesCopy() {
 		RelyingPartyRegistration registration = TestRelyingPartyRegistrations.relyingPartyRegistration()
 			.nameIdFormat("format")
-			.assertingPartyDetails((a) -> a.singleSignOnServiceBinding(Saml2MessageBinding.POST))
-			.assertingPartyDetails((a) -> a.wantAuthnRequestsSigned(false))
-			.assertingPartyDetails((a) -> a.signingAlgorithms((algs) -> algs.add("alg")))
+			.assertingPartyMetadata((a) -> a.singleSignOnServiceBinding(Saml2MessageBinding.POST))
+			.assertingPartyMetadata((a) -> a.wantAuthnRequestsSigned(false))
+			.assertingPartyMetadata((a) -> a.signingAlgorithms((algs) -> algs.add("alg")))
 			.assertionConsumerServiceBinding(Saml2MessageBinding.REDIRECT)
 			.build();
 		RelyingPartyRegistration copy = registration.mutate().build();
@@ -61,8 +60,8 @@ public class RelyingPartyRegistrationTests {
 
 	private void compareRegistrations(RelyingPartyRegistration registration, RelyingPartyRegistration copy) {
 		assertThat(copy.getRegistrationId()).isEqualTo(registration.getRegistrationId()).isEqualTo("simplesamlphp");
-		assertThat(copy.getAssertingPartyDetails().getEntityId())
-			.isEqualTo(registration.getAssertingPartyDetails().getEntityId())
+		assertThat(copy.getAssertingPartyMetadata().getEntityId())
+			.isEqualTo(registration.getAssertingPartyMetadata().getEntityId())
 			.isEqualTo("https://simplesaml-for-spring-saml.apps.pcfone.io/saml2/idp/metadata.php");
 		assertThat(copy.getAssertionConsumerServiceLocation())
 			.isEqualTo(registration.getAssertionConsumerServiceLocation())
@@ -73,25 +72,25 @@ public class RelyingPartyRegistrationTests {
 			.isEqualTo(copy.getEntityId())
 			.isEqualTo(registration.getEntityId())
 			.isEqualTo("{baseUrl}/saml2/service-provider-metadata/{registrationId}");
-		assertThat(copy.getAssertingPartyDetails().getSingleSignOnServiceLocation())
-			.isEqualTo(registration.getAssertingPartyDetails().getSingleSignOnServiceLocation())
+		assertThat(copy.getAssertingPartyMetadata().getSingleSignOnServiceLocation())
+			.isEqualTo(registration.getAssertingPartyMetadata().getSingleSignOnServiceLocation())
 			.isEqualTo("https://simplesaml-for-spring-saml.apps.pcfone.io/saml2/idp/SSOService.php");
-		assertThat(copy.getAssertingPartyDetails().getSingleSignOnServiceBinding())
-			.isEqualTo(registration.getAssertingPartyDetails().getSingleSignOnServiceBinding())
+		assertThat(copy.getAssertingPartyMetadata().getSingleSignOnServiceBinding())
+			.isEqualTo(registration.getAssertingPartyMetadata().getSingleSignOnServiceBinding())
 			.isEqualTo(Saml2MessageBinding.POST);
-		assertThat(copy.getAssertingPartyDetails().getWantAuthnRequestsSigned())
-			.isEqualTo(registration.getAssertingPartyDetails().getWantAuthnRequestsSigned())
+		assertThat(copy.getAssertingPartyMetadata().getWantAuthnRequestsSigned())
+			.isEqualTo(registration.getAssertingPartyMetadata().getWantAuthnRequestsSigned())
 			.isFalse();
 		assertThat(copy.getAssertionConsumerServiceBinding())
 			.isEqualTo(registration.getAssertionConsumerServiceBinding());
 		assertThat(copy.getDecryptionX509Credentials()).isEqualTo(registration.getDecryptionX509Credentials());
 		assertThat(copy.getSigningX509Credentials()).isEqualTo(registration.getSigningX509Credentials());
-		assertThat(copy.getAssertingPartyDetails().getEncryptionX509Credentials())
-			.isEqualTo(registration.getAssertingPartyDetails().getEncryptionX509Credentials());
-		assertThat(copy.getAssertingPartyDetails().getVerificationX509Credentials())
-			.isEqualTo(registration.getAssertingPartyDetails().getVerificationX509Credentials());
-		assertThat(copy.getAssertingPartyDetails().getSigningAlgorithms())
-			.isEqualTo(registration.getAssertingPartyDetails().getSigningAlgorithms());
+		assertThat(copy.getAssertingPartyMetadata().getEncryptionX509Credentials())
+			.isEqualTo(registration.getAssertingPartyMetadata().getEncryptionX509Credentials());
+		assertThat(copy.getAssertingPartyMetadata().getVerificationX509Credentials())
+			.isEqualTo(registration.getAssertingPartyMetadata().getVerificationX509Credentials());
+		assertThat(copy.getAssertingPartyMetadata().getSigningAlgorithms())
+			.isEqualTo(registration.getAssertingPartyMetadata().getSigningAlgorithms());
 		assertThat(copy.getNameIdFormat()).isEqualTo(registration.getNameIdFormat());
 		assertThat(copy.isAuthnRequestsSigned()).isEqualTo(registration.isAuthnRequestsSigned());
 	}
@@ -101,7 +100,7 @@ public class RelyingPartyRegistrationTests {
 		RelyingPartyRegistration relyingPartyRegistration = RelyingPartyRegistration.withRegistrationId("id")
 			.entityId("entity-id")
 			.assertionConsumerServiceLocation("location")
-			.assertingPartyDetails((assertingParty) -> assertingParty.entityId("entity-id")
+			.assertingPartyMetadata((assertingParty) -> assertingParty.entityId("entity-id")
 				.singleSignOnServiceLocation("location")
 				.verificationX509Credentials((c) -> c.add(TestSaml2X509Credentials.relyingPartyVerifyingCredential())))
 			.build();
@@ -119,7 +118,7 @@ public class RelyingPartyRegistrationTests {
 
 		// Test with the alt credentials first
 		RelyingPartyRegistration relyingPartyRegistration = TestRelyingPartyRegistrations.noCredentials()
-			.assertingPartyDetails((assertingParty) -> assertingParty.verificationX509Credentials((c) -> {
+			.assertingPartyMetadata((assertingParty) -> assertingParty.verificationX509Credentials((c) -> {
 				c.add(altApCredential);
 				c.add(verifyingCredential);
 			}).encryptionX509Credentials((c) -> {
@@ -139,14 +138,14 @@ public class RelyingPartyRegistrationTests {
 				signingCredential);
 		assertThat(relyingPartyRegistration.getDecryptionX509Credentials()).containsExactly(altRpCredential,
 				decryptionCredential);
-		assertThat(relyingPartyRegistration.getAssertingPartyDetails().getVerificationX509Credentials())
+		assertThat(relyingPartyRegistration.getAssertingPartyMetadata().getVerificationX509Credentials())
 			.containsExactly(altApCredential, verifyingCredential);
-		assertThat(relyingPartyRegistration.getAssertingPartyDetails().getEncryptionX509Credentials())
+		assertThat(relyingPartyRegistration.getAssertingPartyMetadata().getEncryptionX509Credentials())
 			.containsExactly(altApCredential, encryptingCredential);
 
 		// Test with the alt credentials last
 		relyingPartyRegistration = TestRelyingPartyRegistrations.noCredentials()
-			.assertingPartyDetails((assertingParty) -> assertingParty.verificationX509Credentials((c) -> {
+			.assertingPartyMetadata((assertingParty) -> assertingParty.verificationX509Credentials((c) -> {
 				c.add(verifyingCredential);
 				c.add(altApCredential);
 			}).encryptionX509Credentials((c) -> {
@@ -166,9 +165,9 @@ public class RelyingPartyRegistrationTests {
 				altRpCredential);
 		assertThat(relyingPartyRegistration.getDecryptionX509Credentials()).containsExactly(decryptionCredential,
 				altRpCredential);
-		assertThat(relyingPartyRegistration.getAssertingPartyDetails().getVerificationX509Credentials())
+		assertThat(relyingPartyRegistration.getAssertingPartyMetadata().getVerificationX509Credentials())
 			.containsExactly(verifyingCredential, altApCredential);
-		assertThat(relyingPartyRegistration.getAssertingPartyDetails().getEncryptionX509Credentials())
+		assertThat(relyingPartyRegistration.getAssertingPartyMetadata().getEncryptionX509Credentials())
 			.containsExactly(encryptingCredential, altApCredential);
 	}
 
@@ -203,10 +202,12 @@ public class RelyingPartyRegistrationTests {
 		AssertingPartyMetadata metadata = new CustomAssertingPartyMetadata();
 		assertThatExceptionOfType(IllegalArgumentException.class)
 			.isThrownBy(() -> RelyingPartyRegistration.withAssertingPartyMetadata(metadata)
-				.assertingPartyDetails((a) -> a.entityId("entity-id"))
+				.assertingPartyMetadata((a) -> a.entityId("entity-id"))
 				.build());
-		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(
-				() -> RelyingPartyRegistration.withAssertingPartyMetadata(metadata).build().getAssertingPartyDetails());
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> RelyingPartyRegistration.withAssertingPartyMetadata(metadata)
+				.build()
+				.getAssertingPartyMetadata());
 	}
 
 	@Test
@@ -218,9 +219,9 @@ public class RelyingPartyRegistrationTests {
 			.assertingPartyMetadata((a) -> a.signingAlgorithms((algs) -> algs.add("alg")))
 			.assertionConsumerServiceBinding(Saml2MessageBinding.REDIRECT)
 			.build();
-		AssertingPartyDetails details = registration.getAssertingPartyDetails();
-		RelyingPartyRegistration copied = RelyingPartyRegistration.withAssertingPartyDetails(details)
-			.assertingPartyDetails((a) -> a.entityId(details.getEntityId()))
+		AssertingPartyMetadata details = registration.getAssertingPartyMetadata();
+		RelyingPartyRegistration copied = RelyingPartyRegistration.withAssertingPartyMetadata(details)
+			.assertingPartyMetadata((a) -> a.entityId(details.getEntityId()))
 			.registrationId(registration.getRegistrationId())
 			.entityId(registration.getEntityId())
 			.signingX509Credentials((c) -> c.addAll(registration.getSigningX509Credentials()))

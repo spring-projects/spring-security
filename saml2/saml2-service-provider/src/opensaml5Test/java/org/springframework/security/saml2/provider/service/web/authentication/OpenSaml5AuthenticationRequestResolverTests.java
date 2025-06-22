@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,13 +56,13 @@ public class OpenSaml5AuthenticationRequestResolverTests {
 		Saml2RedirectAuthenticationRequest authnRequest = resolver.resolve(this.request);
 		assertThat(authnRequest.getBinding()).isEqualTo(Saml2MessageBinding.REDIRECT);
 		assertThat(authnRequest.getAuthenticationRequestUri())
-			.isEqualTo(this.registration.getAssertingPartyDetails().getSingleSignOnServiceLocation());
+			.isEqualTo(this.registration.getAssertingPartyMetadata().getSingleSignOnServiceLocation());
 	}
 
 	@Test
 	void resolveWhenPostThenSaml2PostAuthenticationRequest() {
 		RelyingPartyRegistration registration = TestRelyingPartyRegistrations.full()
-			.assertingPartyDetails((party) -> party.singleSignOnServiceBinding(Saml2MessageBinding.POST))
+			.assertingPartyMetadata((party) -> party.singleSignOnServiceBinding(Saml2MessageBinding.POST))
 			.build();
 		RelyingPartyRegistrationResolver relyingParties = mock(RelyingPartyRegistrationResolver.class);
 		given(relyingParties.resolve(any(), any())).willReturn(registration);
@@ -70,7 +70,7 @@ public class OpenSaml5AuthenticationRequestResolverTests {
 		Saml2PostAuthenticationRequest authnRequest = resolver.resolve(this.request);
 		assertThat(authnRequest.getBinding()).isEqualTo(Saml2MessageBinding.POST);
 		assertThat(authnRequest.getAuthenticationRequestUri())
-			.isEqualTo(this.registration.getAssertingPartyDetails().getSingleSignOnServiceLocation());
+			.isEqualTo(this.registration.getAssertingPartyMetadata().getSingleSignOnServiceLocation());
 	}
 
 	@Test
@@ -97,7 +97,7 @@ public class OpenSaml5AuthenticationRequestResolverTests {
 
 		assertThat(authnRequest.getBinding()).isEqualTo(Saml2MessageBinding.REDIRECT);
 		assertThat(authnRequest.getAuthenticationRequestUri())
-			.isEqualTo(this.registration.getAssertingPartyDetails().getSingleSignOnServiceLocation());
+			.isEqualTo(this.registration.getAssertingPartyMetadata().getSingleSignOnServiceLocation());
 
 	}
 
