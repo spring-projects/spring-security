@@ -138,7 +138,7 @@ public final class PathPatternRequestMatcher implements RequestMatcher {
 		if (!(o instanceof PathPatternRequestMatcher that)) {
 			return false;
 		}
-		return Objects.equals(this.pattern, that.pattern);
+		return Objects.equals(this.pattern, that.pattern) && Objects.equals(this.method, that.method);
 	}
 
 	/**
@@ -146,7 +146,7 @@ public final class PathPatternRequestMatcher implements RequestMatcher {
 	 */
 	@Override
 	public int hashCode() {
-		return Objects.hash(this.pattern);
+		return Objects.hash(this.pattern, this.method);
 	}
 
 	/**
