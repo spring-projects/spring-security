@@ -253,8 +253,7 @@ public class RelyingPartyRegistrationsTests {
 	}
 
 	@Test
-	public void fromMetadataLocationWhenResolvableThenUsesEntityIdAndOpenSamlRelyingPartyRegistration()
-			throws Exception {
+	public void fromMetadataLocationWhenResolvableThenUsesEntityIdAndOpenSamlAssertingPartyDetails() throws Exception {
 		try (MockWebServer server = new MockWebServer()) {
 			server.enqueue(new MockResponse().setBody(this.metadata).setResponseCode(200));
 			RelyingPartyRegistration registration = RelyingPartyRegistrations
@@ -263,7 +262,7 @@ public class RelyingPartyRegistrationsTests {
 				.build();
 			AssertingPartyMetadata details = registration.getAssertingPartyMetadata();
 			assertThat(registration.getRegistrationId()).isEqualTo(details.getEntityId());
-			assertThat(registration).isInstanceOf(OpenSamlRelyingPartyRegistration.class);
+			assertThat(details).isInstanceOf(OpenSamlAssertingPartyDetails.class);
 		}
 	}
 
