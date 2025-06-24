@@ -463,22 +463,6 @@ public final class TestOpenSamlObjects {
 		return logoutResponse;
 	}
 
-	public static LogoutRequest relyingPartyLogoutRequest(RelyingPartyRegistration registration) {
-		LogoutRequestBuilder logoutRequestBuilder = new LogoutRequestBuilder();
-		LogoutRequest logoutRequest = logoutRequestBuilder.buildObject();
-		logoutRequest.setID("id");
-		NameIDBuilder nameIdBuilder = new NameIDBuilder();
-		NameID nameId = nameIdBuilder.buildObject();
-		nameId.setValue("user");
-		logoutRequest.setNameID(nameId);
-		IssuerBuilder issuerBuilder = new IssuerBuilder();
-		Issuer issuer = issuerBuilder.buildObject();
-		issuer.setValue(registration.getAssertingPartyMetadata().getEntityId());
-		logoutRequest.setIssuer(issuer);
-		logoutRequest.setDestination(registration.getAssertingPartyMetadata().getSingleLogoutServiceLocation());
-		return logoutRequest;
-	}
-
 	public static EntityDescriptor entityDescriptor(RelyingPartyRegistration registration) {
 		EntityDescriptorBuilder entityDescriptorBuilder = new EntityDescriptorBuilder();
 		EntityDescriptor entityDescriptor = entityDescriptorBuilder.buildObject();
