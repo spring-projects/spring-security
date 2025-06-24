@@ -112,7 +112,11 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 	 * @param method the HTTP method to use or null if any should be used
 	 * @param mvcPatterns the Spring MVC patterns to match on
 	 * @return a List of {@link MvcRequestMatcher} instances
+	 * @deprecated Please use
+	 * {@link org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher.Builder}
+	 * instead
 	 */
+	@Deprecated
 	protected final List<MvcRequestMatcher> createMvcMatchers(HttpMethod method, String... mvcPatterns) {
 		Assert.state(!this.anyRequestConfigured, "Can't configure mvcMatchers after anyRequest");
 		ResolvableType type = ResolvableType.forClassWithGenerics(ObjectPostProcessor.class, Object.class);
