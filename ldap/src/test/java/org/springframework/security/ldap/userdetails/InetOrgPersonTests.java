@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import java.util.Set;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.ldap.core.DirContextAdapter;
-import org.springframework.ldap.core.DistinguishedName;
+import org.springframework.ldap.support.LdapNameBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -95,7 +95,7 @@ public class InetOrgPersonTests {
 		DirContextAdapter ctx2 = new DirContextAdapter();
 		ctx1.setAttributeValues("objectclass",
 				new String[] { "top", "person", "organizationalPerson", "inetOrgPerson" });
-		ctx2.setDn(new DistinguishedName("ignored=ignored"));
+		ctx2.setDn(LdapNameBuilder.newInstance("ignored=ignored").build());
 		InetOrgPerson p = (InetOrgPerson) (new InetOrgPerson.Essence(ctx1)).createUserDetails();
 		p.populateContext(ctx2);
 		assertThat(ctx2).isEqualTo(ctx1);
@@ -105,7 +105,7 @@ public class InetOrgPersonTests {
 	public void copyMatchesOriginalData() {
 		DirContextAdapter ctx1 = createUserContext();
 		DirContextAdapter ctx2 = new DirContextAdapter();
-		ctx2.setDn(new DistinguishedName("ignored=ignored"));
+		ctx2.setDn(LdapNameBuilder.newInstance("ignored=ignored").build());
 		ctx1.setAttributeValues("objectclass",
 				new String[] { "top", "person", "organizationalPerson", "inetOrgPerson" });
 		InetOrgPerson p = (InetOrgPerson) (new InetOrgPerson.Essence(ctx1)).createUserDetails();
@@ -116,7 +116,7 @@ public class InetOrgPersonTests {
 
 	private DirContextAdapter createUserContext() {
 		DirContextAdapter ctx = new DirContextAdapter();
-		ctx.setDn(new DistinguishedName("ignored=ignored"));
+		ctx.setDn(LdapNameBuilder.newInstance("ignored=ignored").build());
 		ctx.setAttributeValue("uid", "ghengis");
 		ctx.setAttributeValue("userPassword", "pillage");
 		ctx.setAttributeValue("carLicense", "HORS1");
