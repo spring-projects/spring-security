@@ -44,7 +44,7 @@ import org.springframework.util.CollectionUtils;
  *	String registrationId = "simplesamlphp";
  *
  * 	String relyingPartyEntityId = "{baseUrl}/saml2/service-provider-metadata/{registrationId}";
- *	String assertionConsumerServiceLocation = "{baseUrl}/login/saml2/sso/{registrationId}";
+ *	String assertingConsumerServiceLocation = "{baseUrl}/login/saml2/sso/{registrationId}";
  *	Saml2X509Credential relyingPartySigningCredential = ...;
  *
  *	String assertingPartyEntityId = "https://simplesaml-for-spring-saml.apps.pcfone.io/saml2/idp/metadata.php";
@@ -56,10 +56,10 @@ import org.springframework.util.CollectionUtils;
  * 			.entityId(relyingPartyEntityId)
  * 			.assertionConsumerServiceLocation(assertingConsumerServiceLocation)
  * 		 	.signingX509Credentials((c) -&gt; c.add(relyingPartySigningCredential))
- * 			.assertingPartyDetails((details) -&gt; details
- * 				.entityId(assertingPartyEntityId));
- * 				.singleSignOnServiceLocation(singleSignOnServiceLocation))
- * 				.verifyingX509Credentials((c) -&gt; c.add(assertingPartyVerificationCredential))
+ * 			.assertingPartyMetadata((details) -&gt; details
+ * 				.entityId(assertingPartyEntityId)
+ * 				.singleSignOnServiceLocation(singleSignOnServiceLocation)
+ * 				.verificationX509Credentials((c) -&gt; c.add(assertingPartyVerificationCredential)))
  * 			.build();
  * </pre>
  *
@@ -995,7 +995,7 @@ public class RelyingPartyRegistration implements Serializable {
 
 		/**
 		 * Set the NameID format
-		 * @param nameIdFormat
+		 * @param nameIdFormat the given NameID format
 		 * @return the {@link Builder} for further configuration
 		 * @since 5.7
 		 */
