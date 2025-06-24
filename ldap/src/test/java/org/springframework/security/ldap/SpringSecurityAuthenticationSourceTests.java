@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.ldap.core.AuthenticationSource;
-import org.springframework.ldap.core.DistinguishedName;
+import org.springframework.ldap.support.LdapNameBuilder;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -82,7 +82,7 @@ public class SpringSecurityAuthenticationSourceTests {
 	public void expectedPrincipalIsReturned() {
 		LdapUserDetailsImpl.Essence user = new LdapUserDetailsImpl.Essence();
 		user.setUsername("joe");
-		user.setDn(new DistinguishedName("uid=joe,ou=users"));
+		user.setDn(LdapNameBuilder.newInstance("uid=joe,ou=users").build());
 		AuthenticationSource source = new SpringSecurityAuthenticationSource();
 		SecurityContextHolder.getContext()
 			.setAuthentication(new TestingAuthenticationToken(user.createUserDetails(), null));
@@ -93,7 +93,7 @@ public class SpringSecurityAuthenticationSourceTests {
 	public void getPrincipalWhenCustomSecurityContextHolderStrategyThenExpectedPrincipalIsReturned() {
 		LdapUserDetailsImpl.Essence user = new LdapUserDetailsImpl.Essence();
 		user.setUsername("joe");
-		user.setDn(new DistinguishedName("uid=joe,ou=users"));
+		user.setDn(LdapNameBuilder.newInstance("uid=joe,ou=users").build());
 		SecurityContextHolderStrategy strategy = mock(SecurityContextHolderStrategy.class);
 		given(strategy.getContext())
 			.willReturn(new SecurityContextImpl(new TestingAuthenticationToken(user.createUserDetails(), null)));

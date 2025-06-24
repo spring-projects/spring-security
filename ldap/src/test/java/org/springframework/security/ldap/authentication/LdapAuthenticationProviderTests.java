@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.ldap.CommunicationException;
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DirContextOperations;
-import org.springframework.ldap.core.DistinguishedName;
+import org.springframework.ldap.support.LdapNameBuilder;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -165,12 +165,12 @@ public class LdapAuthenticationProviderTests {
 			String username = authentication.getName();
 			String password = (String) authentication.getCredentials();
 			if (username.equals("ben") && password.equals("benspassword")) {
-				ctx.setDn(new DistinguishedName("cn=ben,ou=people,dc=springframework,dc=org"));
+				ctx.setDn(LdapNameBuilder.newInstance("cn=jen,ou=people,dc=springframework,dc=org").build());
 				ctx.setAttributeValue("userPassword", "{SHA}nFCebWjxfaLbHHG1Qk5UU4trbvQ=");
 				return ctx;
 			}
 			else if (username.equals("jen") && password.equals("")) {
-				ctx.setDn(new DistinguishedName("cn=jen,ou=people,dc=springframework,dc=org"));
+				ctx.setDn(LdapNameBuilder.newInstance("cn=jen,ou=people,dc=springframework,dc=org").build());
 				return ctx;
 			}
 			throw new BadCredentialsException("Authentication failed.");
