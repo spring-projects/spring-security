@@ -221,7 +221,7 @@ public final class RelyingPartyRegistrations {
 				OpenSamlAssertingPartyDetails assertingParty = OpenSamlAssertingPartyDetails
 					.withEntityDescriptor(descriptor)
 					.build();
-				builders.add(new OpenSamlRelyingPartyRegistration.Builder(assertingParty));
+				builders.add(RelyingPartyRegistration.withAssertingPartyMetadata(assertingParty));
 			}
 		}
 		if (builders.isEmpty()) {
