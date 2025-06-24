@@ -43,7 +43,7 @@ import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler
 import org.springframework.security.web.csrf.CsrfTokenRequestHandler
 import org.springframework.security.web.csrf.DefaultCsrfToken
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
@@ -176,7 +176,7 @@ class CsrfDslTests {
         open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 csrf {
-                    requireCsrfProtectionMatcher = AntPathRequestMatcher("/test1")
+                    requireCsrfProtectionMatcher = PathPatternRequestMatcher.withDefaults().matcher("/test1")
                 }
             }
             return http.build()
@@ -247,8 +247,8 @@ class CsrfDslTests {
         open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 csrf {
-                    requireCsrfProtectionMatcher = AntPathRequestMatcher("/**")
-                    ignoringRequestMatchers(AntPathRequestMatcher("/test2"))
+                    requireCsrfProtectionMatcher = PathPatternRequestMatcher.withDefaults().matcher("/**")
+                    ignoringRequestMatchers(PathPatternRequestMatcher.withDefaults().matcher("/test2"))
                 }
             }
             return http.build()
@@ -279,7 +279,7 @@ class CsrfDslTests {
         open fun filterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 csrf {
-                    requireCsrfProtectionMatcher = AntPathRequestMatcher("/**")
+                    requireCsrfProtectionMatcher = PathPatternRequestMatcher.withDefaults().matcher("/**")
                     ignoringRequestMatchers("/test2")
                 }
             }

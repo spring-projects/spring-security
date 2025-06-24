@@ -30,7 +30,7 @@
 	</http>
 
 	<b:import resource="CsrfConfigTests-shared-userservice.xml"/>
-	<b:import resource="handlermappingintrospector.xml"/>
+	<b:import resource="pathpatternrequestmatcherbuilder.xml"/>
 
 	<b:bean id="firewall" class="org.springframework.security.web.firewall.StrictHttpFirewall"
 			p:unsafeAllowAnyHttpMethod="true"/>

@@ -16,46 +16,62 @@
 
 package org.springframework.security.config.http;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.FactoryBean;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
-import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.util.StringUtils;
 
-@Deprecated
-public final class RequestMatcherFactoryBean implements FactoryBean<RequestMatcher>, ApplicationContextAware {
+public final class PathPatternRequestMatcherFactoryBean
+		implements FactoryBean<PathPatternRequestMatcher>, ApplicationContextAware, InitializingBean {
+
+	private final String pattern;
+
+	private String basePath;
+
+	private HttpMethod method;
 
 	private PathPatternRequestMatcher.Builder builder;
 
-	private final HttpMethod method;
-
-	private final String path;
-
-	public RequestMatcherFactoryBean(String path) {
-		this(path, null);
+	PathPatternRequestMatcherFactoryBean(String pattern) {
+		this.pattern = pattern;
 	}
 
-	public RequestMatcherFactoryBean(String path, HttpMethod method) {
-		this.method = method;
-		this.path = path;
+	PathPatternRequestMatcherFactoryBean(String pattern, String method) {
+		this.pattern = pattern;
+		this.method = StringUtils.hasText(method) ? HttpMethod.valueOf(method) : null;
 	}
 
 	@Override
-	public RequestMatcher getObject() throws Exception {
-		return this.builder.matcher(this.method, this.path);
+	public @Nullable PathPatternRequestMatcher getObject() throws Exception {
+		return this.builder.matcher(this.method, this.pattern);
 	}
 
 	@Override
-	public Class<?> getObjectType() {
-		return null;
+	public @Nullable Class<?> getObjectType() {
+		return PathPatternRequestMatcher.class;
+	}
+
+	public void setBasePath(String basePath) {
+		this.basePath = basePath;
 	}
 
 	@Override
 	public void setApplicationContext(ApplicationContext context) throws BeansException {
 		this.builder = context.getBeanProvider(PathPatternRequestMatcher.Builder.class)
 			.getIfUnique(PathPatternRequestMatcher::withDefaults);
+	}
+
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		if (this.basePath != null) {
+			this.builder.basePath(this.basePath);
+		}
 	}
 
 }

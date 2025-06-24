@@ -27,6 +27,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher.MatchResult;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -60,7 +61,7 @@ public class OrRequestMatcherTests {
 
 	@Test
 	public void constructorListOfDoesNotThrowNullPointer() {
-		new OrRequestMatcher(List.of(new AntPathRequestMatcher("/test")));
+		new OrRequestMatcher(List.of(PathPatternRequestMatcher.withDefaults().matcher("/test")));
 	}
 
 	@Test

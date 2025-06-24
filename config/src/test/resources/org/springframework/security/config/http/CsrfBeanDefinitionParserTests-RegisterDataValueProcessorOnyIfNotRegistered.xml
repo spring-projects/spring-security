@@ -43,7 +43,7 @@ http://www.springframework.org/schema/security https://www.springframework.org/s
 			</security:user-service>
 		</security:authentication-provider>
 	</security:authentication-manager>
-	
-	<import resource="handlermappingintrospector.xml"/>
+
+	<import resource="pathpatternrequestmatcherbuilder.xml"/>
 
 </beans>

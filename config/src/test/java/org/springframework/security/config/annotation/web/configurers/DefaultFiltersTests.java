@@ -128,8 +128,7 @@ public class DefaultFiltersTests {
 	public void defaultFiltersPermitAll() throws IOException, ServletException {
 		this.spring.register(DefaultFiltersConfigPermitAll.class, UserDetailsServiceConfig.class);
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		MockHttpServletRequest request = new MockHttpServletRequest("POST", "");
-		request.setServletPath("/logout");
+		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/logout");
 		CsrfToken csrfToken = new DefaultCsrfToken("X-CSRF-TOKEN", "_csrf", "BaseSpringSpec_CSRFTOKEN");
 		CsrfTokenRepository repository = new HttpSessionCsrfTokenRepository();
 		repository.saveToken(csrfToken, request, response);

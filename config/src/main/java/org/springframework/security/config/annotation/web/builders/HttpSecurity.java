@@ -28,7 +28,6 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 
-import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.OrderComparator;
@@ -45,7 +44,6 @@ import org.springframework.security.config.annotation.SecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.AbstractRequestMatcherRegistry;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
-import org.springframework.security.config.annotation.web.RequestMatcherFactory;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfiguration;
 import org.springframework.security.config.annotation.web.configurers.AnonymousConfigurer;
@@ -91,17 +89,14 @@ import org.springframework.security.web.PortMapperImpl;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.context.AbstractSecurityWebApplicationInitializer;
 import org.springframework.security.web.context.SecurityContextRepository;
-import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
-import org.springframework.util.ClassUtils;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.filter.CorsFilter;
-import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
 /**
  * A {@link HttpSecurity} is similar to Spring Security's XML &lt;http&gt; element in the
@@ -153,12 +148,6 @@ import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<DefaultSecurityFilterChain, HttpSecurity>
 		implements SecurityBuilder<DefaultSecurityFilterChain>, HttpSecurityBuilder<HttpSecurity> {
 
-	private static final String HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME = "mvcHandlerMappingIntrospector";
-
-	private static final String HANDLER_MAPPING_INTROSPECTOR = "org.springframework.web.servlet.handler.HandlerMappingIntrospector";
-
-	private static final boolean mvcPresent;
-
 	private final RequestMatcherConfigurer requestMatcherConfigurer;
 
 	private List<OrderedFilter> filters = new ArrayList<>();
@@ -168,10 +157,6 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	private FilterOrderRegistration filterOrders = new FilterOrderRegistration();
 
 	private AuthenticationManager authenticationManager;
-
-	static {
-		mvcPresent = ClassUtils.isPresent(HANDLER_MAPPING_INTROSPECTOR, HttpSecurity.class.getClassLoader());
-	}
 
 	/**
 	 * Creates a new instance
@@ -320,9 +305,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	/**
 	 * Adds a {@link CorsFilter} to be used. If a bean by the name of corsFilter is
 	 * provided, that {@link CorsFilter} is used. Else if corsConfigurationSource is
-	 * defined, then that {@link CorsConfiguration} is used. Otherwise, if Spring MVC is
-	 * on the classpath a {@link HandlerMappingIntrospector} is used. You can enable CORS
-	 * using:
+	 * defined, then that {@link CorsConfiguration} is used. You can enable CORS using:
 	 *
 	 * <pre>
 	 * &#064;Configuration
@@ -2202,10 +2185,8 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 
 	/**
 	 * Allows configuring the {@link HttpSecurity} to only be invoked when matching the
-	 * provided pattern. This method creates a {@link MvcRequestMatcher} if Spring MVC is
-	 * in the classpath or creates an {@link AntPathRequestMatcher} if not. If more
-	 * advanced configuration is necessary, consider using
-	 * {@link #securityMatchers(Customizer)} or {@link #securityMatcher(RequestMatcher)}.
+	 * provided set of {@code patterns}. See
+	 * {@link org.springframework.web.util.pattern.PathPattern} for matching rules
 	 *
 	 * <p>
 	 * Invoking {@link #securityMatcher(String...)} will override previous invocations of
@@ -2215,19 +2196,16 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * </p>
 	 * @param patterns the pattern to match on (i.e. "/admin/**")
 	 * @return the {@link HttpSecurity} for further customizations
-	 * @see AntPathRequestMatcher
-	 * @see MvcRequestMatcher
+	 * @see org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher
+	 * @see org.springframework.web.util.pattern.PathPattern
 	 */
 	public HttpSecurity securityMatcher(String... patterns) {
 		List<RequestMatcher> matchers = new ArrayList<>();
+		PathPatternRequestMatcher.Builder builder = getContext()
+			.getBeanProvider(PathPatternRequestMatcher.Builder.class)
+			.getIfUnique(PathPatternRequestMatcher::withDefaults);
 		for (String pattern : patterns) {
-			if (RequestMatcherFactory.usesPathPatterns()) {
-				matchers.add(RequestMatcherFactory.matcher(pattern));
-			}
-			else {
-				RequestMatcher matcher = mvcPresent ? createMvcMatcher(pattern) : createAntMatcher(pattern);
-				matchers.add(matcher);
-			}
+			matchers.add(builder.matcher(pattern));
 		}
 		this.requestMatcher = new OrRequestMatcher(matchers);
 		return this;
@@ -2256,26 +2234,6 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	public HttpSecurity webAuthn(Customizer<WebAuthnConfigurer<HttpSecurity>> webAuthn) throws Exception {
 		webAuthn.customize(getOrApply(new WebAuthnConfigurer<>()));
 		return HttpSecurity.this;
-	}
-
-	private RequestMatcher createAntMatcher(String pattern) {
-		return new AntPathRequestMatcher(pattern);
-	}
-
-	private RequestMatcher createMvcMatcher(String mvcPattern) {
-		ResolvableType type = ResolvableType.forClassWithGenerics(ObjectPostProcessor.class, Object.class);
-		ObjectProvider<ObjectPostProcessor<Object>> postProcessors = getContext().getBeanProvider(type);
-		ObjectPostProcessor<Object> opp = postProcessors.getObject();
-		if (!getContext().containsBean(HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME)) {
-			throw new NoSuchBeanDefinitionException("A Bean named " + HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME
-					+ " of type " + HandlerMappingIntrospector.class.getName()
-					+ " is required to use MvcRequestMatcher. Please ensure Spring Security & Spring MVC are configured in a shared ApplicationContext.");
-		}
-		HandlerMappingIntrospector introspector = getContext().getBean(HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME,
-				HandlerMappingIntrospector.class);
-		MvcRequestMatcher matcher = new MvcRequestMatcher(introspector, mvcPattern);
-		opp.postProcess(matcher);
-		return matcher;
 	}
 
 	/**

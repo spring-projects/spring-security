@@ -41,7 +41,7 @@ import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.authentication.ForwardAuthenticationFailureHandler;
 import org.springframework.security.web.authentication.ForwardAuthenticationSuccessHandler;
 import org.springframework.security.web.context.SecurityContextRepository;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -59,6 +59,8 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
  *
  */
 public class AbstractPreAuthenticatedProcessingFilterTests {
+
+	private final PathPatternRequestMatcher.Builder builder = PathPatternRequestMatcher.withDefaults();
 
 	private AbstractPreAuthenticatedProcessingFilter filter;
 
@@ -367,7 +369,7 @@ public class AbstractPreAuthenticatedProcessingFilterTests {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		MockFilterChain chain = new MockFilterChain();
 		ConcretePreAuthenticatedProcessingFilter filter = new ConcretePreAuthenticatedProcessingFilter();
-		filter.setRequiresAuthenticationRequestMatcher(new AntPathRequestMatcher("/no-matching"));
+		filter.setRequiresAuthenticationRequestMatcher(this.builder.matcher("/no-matching"));
 		AuthenticationManager am = mock(AuthenticationManager.class);
 		filter.setAuthenticationManager(am);
 		filter.afterPropertiesSet();
@@ -381,7 +383,7 @@ public class AbstractPreAuthenticatedProcessingFilterTests {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		MockFilterChain chain = new MockFilterChain();
 		ConcretePreAuthenticatedProcessingFilter filter = new ConcretePreAuthenticatedProcessingFilter();
-		filter.setRequiresAuthenticationRequestMatcher(new AntPathRequestMatcher("/**"));
+		filter.setRequiresAuthenticationRequestMatcher(this.builder.matcher("/**"));
 		AuthenticationManager am = mock(AuthenticationManager.class);
 		filter.setAuthenticationManager(am);
 		filter.afterPropertiesSet();

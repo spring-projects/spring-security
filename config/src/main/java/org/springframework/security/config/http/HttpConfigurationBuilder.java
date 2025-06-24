@@ -50,7 +50,6 @@ import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.web.access.AuthorizationManagerWebInvocationPrivilegeEvaluator;
 import org.springframework.security.web.access.DefaultWebInvocationPrivilegeEvaluator;
-import org.springframework.security.web.access.HandlerMappingIntrospectorRequestTransformer;
 import org.springframework.security.web.access.PathPatternRequestTransformer;
 import org.springframework.security.web.access.channel.ChannelDecisionManagerImpl;
 import org.springframework.security.web.access.channel.ChannelProcessingFilter;
@@ -88,7 +87,6 @@ import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
-import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
 /**
  * Stateful class which helps HttpSecurityBDP to create the configuration for the
@@ -99,11 +97,6 @@ import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
  * @since 3.0
  */
 class HttpConfigurationBuilder {
-
-	private static final String HANDLER_MAPPING_INTROSPECTOR = "org.springframework.web.servlet.handler.HandlerMappingIntrospector";
-
-	private static final boolean mvcPresent = ClassUtils.isPresent(HANDLER_MAPPING_INTROSPECTOR,
-			HttpConfigurationBuilder.class.getClassLoader());
 
 	private static final String ATT_CREATE_SESSION = "create-session";
 
@@ -793,10 +786,8 @@ class HttpConfigurationBuilder {
 		BeanDefinitionBuilder wipeBldr = BeanDefinitionBuilder
 			.rootBeanDefinition(AuthorizationManagerWebInvocationPrivilegeEvaluator.class)
 			.addConstructorArgReference(authorizationFilterParser.getAuthorizationManagerRef());
-		if (mvcPresent) {
-			wipeBldr.addPropertyValue("requestTransformer",
-					new RootBeanDefinition(HandlerMappingIntrospectorRequestTransformerFactoryBean.class));
-		}
+		wipeBldr.addPropertyValue("requestTransformer",
+				new RootBeanDefinition(PathPatternRequestTransformerFactoryBean.class));
 		BeanDefinition wipe = wipeBldr.getBeanDefinition();
 		this.pc.registerBeanComponent(
 				new BeanComponentDefinition(wipe, this.pc.getReaderContext().generateBeanName(wipe)));
@@ -966,7 +957,7 @@ class HttpConfigurationBuilder {
 		return BeanDefinitionBuilder.rootBeanDefinition(ObservationRegistryFactory.class).getBeanDefinition();
 	}
 
-	static class HandlerMappingIntrospectorRequestTransformerFactoryBean
+	static class PathPatternRequestTransformerFactoryBean
 			implements FactoryBean<AuthorizationManagerWebInvocationPrivilegeEvaluator.HttpServletRequestTransformer>,
 			ApplicationContextAware {
 
@@ -982,10 +973,7 @@ class HttpConfigurationBuilder {
 			if (requestTransformer != null) {
 				return requestTransformer;
 			}
-			HandlerMappingIntrospector hmi = this.applicationContext.getBeanProvider(HandlerMappingIntrospector.class)
-				.getIfAvailable();
-			return (hmi != null) ? new HandlerMappingIntrospectorRequestTransformer(hmi)
-					: new PathPatternRequestTransformer();
+			return new PathPatternRequestTransformer();
 		}
 
 		@Override

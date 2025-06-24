@@ -21,9 +21,10 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.test.support.ClassPathExclusions;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -41,22 +42,25 @@ public class AbstractRequestMatcherRegistryNoMvcTests {
 	@BeforeEach
 	public void setUp() {
 		this.matcherRegistry = new TestRequestMatcherRegistry();
+		GenericApplicationContext context = new GenericApplicationContext();
+		context.refresh();
+		this.matcherRegistry.setApplicationContext(context);
 	}
 
 	@Test
-	public void requestMatchersWhenPatternAndMvcNotPresentThenReturnAntPathRequestMatcherType() {
+	public void requestMatchersWhenPatternAndMvcNotPresentThenReturnPathPatternRequestMatcherType() {
 		List<RequestMatcher> requestMatchers = this.matcherRegistry.requestMatchers("/path");
 		assertThat(requestMatchers).isNotEmpty();
 		assertThat(requestMatchers).hasSize(1);
-		assertThat(requestMatchers.get(0)).isExactlyInstanceOf(AntPathRequestMatcher.class);
+		assertThat(requestMatchers.get(0)).isExactlyInstanceOf(PathPatternRequestMatcher.class);
 	}
 
 	@Test
-	public void requestMatchersWhenHttpMethodAndPatternAndMvcNotPresentThenReturnAntPathRequestMatcherType() {
+	public void requestMatchersWhenHttpMethodAndPatternAndMvcNotPresentThenReturnPathPatternRequestMatcherType() {
 		List<RequestMatcher> requestMatchers = this.matcherRegistry.requestMatchers(HttpMethod.GET, "/path");
 		assertThat(requestMatchers).isNotEmpty();
 		assertThat(requestMatchers).hasSize(1);
-		assertThat(requestMatchers.get(0)).isExactlyInstanceOf(AntPathRequestMatcher.class);
+		assertThat(requestMatchers.get(0)).isExactlyInstanceOf(PathPatternRequestMatcher.class);
 	}
 
 	@Test
@@ -64,7 +68,7 @@ public class AbstractRequestMatcherRegistryNoMvcTests {
 		List<RequestMatcher> requestMatchers = this.matcherRegistry.requestMatchers(HttpMethod.GET);
 		assertThat(requestMatchers).isNotEmpty();
 		assertThat(requestMatchers).hasSize(1);
-		assertThat(requestMatchers.get(0)).isExactlyInstanceOf(AntPathRequestMatcher.class);
+		assertThat(requestMatchers.get(0)).isExactlyInstanceOf(PathPatternRequestMatcher.class);
 	}
 
 	private static class TestRequestMatcherRegistry extends AbstractRequestMatcherRegistry<List<RequestMatcher>> {

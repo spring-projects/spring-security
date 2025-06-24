@@ -28,7 +28,7 @@ import org.springframework.security.saml2.provider.service.registration.RelyingP
 import org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding;
 import org.springframework.security.saml2.provider.service.registration.TestRelyingPartyRegistrations;
 import org.springframework.security.saml2.provider.service.web.RelyingPartyRegistrationResolver;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -91,7 +91,8 @@ public class OpenSaml5AuthenticationRequestResolverTests {
 		RelyingPartyRegistrationResolver relyingParties = mock(RelyingPartyRegistrationResolver.class);
 		given(relyingParties.resolve(any(), any())).willReturn(this.registration);
 		OpenSaml5AuthenticationRequestResolver resolver = new OpenSaml5AuthenticationRequestResolver(relyingParties);
-		resolver.setRequestMatcher(new AntPathRequestMatcher("/custom/authentication/{registrationId}"));
+		resolver.setRequestMatcher(
+				PathPatternRequestMatcher.withDefaults().matcher("/custom/authentication/{registrationId}"));
 		Saml2RedirectAuthenticationRequest authnRequest = resolver
 			.resolve(givenRequest("/custom/authentication/registration-id"));
 

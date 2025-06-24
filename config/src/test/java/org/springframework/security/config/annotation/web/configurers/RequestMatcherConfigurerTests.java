@@ -27,7 +27,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -79,9 +79,9 @@ public class RequestMatcherConfigurerTests {
 			// @formatter:off
 			http
 				.securityMatchers((security) -> security
-					.requestMatchers(new AntPathRequestMatcher("/api/**")))
+					.requestMatchers(PathPatternRequestMatcher.withDefaults().matcher("/api/**")))
 				.securityMatchers((security) -> security
-					.requestMatchers(new AntPathRequestMatcher("/oauth/**")))
+					.requestMatchers(PathPatternRequestMatcher.withDefaults().matcher("/oauth/**")))
 				.authorizeRequests((requests) -> requests
 					.anyRequest().denyAll());
 			return http.build();
@@ -99,10 +99,10 @@ public class RequestMatcherConfigurerTests {
 			// @formatter:off
 			http
 				.securityMatchers((secure) -> secure
-						.requestMatchers(new AntPathRequestMatcher("/api/**"))
+						.requestMatchers(PathPatternRequestMatcher.withDefaults().matcher("/api/**"))
 				)
 				.securityMatchers((securityMatchers) -> securityMatchers
-						.requestMatchers(new AntPathRequestMatcher("/oauth/**"))
+						.requestMatchers(PathPatternRequestMatcher.withDefaults().matcher("/oauth/**"))
 				)
 				.authorizeRequests((authorize) -> authorize
 						.anyRequest().denyAll()

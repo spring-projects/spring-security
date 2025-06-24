@@ -39,6 +39,7 @@ import org.springframework.security.web.servletapi.SecurityContextHolderAwareReq
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.web.util.pattern.PathPattern;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -120,7 +121,7 @@ public class FilterChainProxyConfigTests {
 
 	private String getPattern(SecurityFilterChain chain) {
 		RequestMatcher requestMatcher = ((DefaultSecurityFilterChain) chain).getRequestMatcher();
-		return (String) ReflectionTestUtils.getField(requestMatcher, "pattern");
+		return ((PathPattern) ReflectionTestUtils.getField(requestMatcher, "pattern")).getPatternString();
 	}
 
 	private void checkPathAndFilterOrder(FilterChainProxy filterChainProxy) {

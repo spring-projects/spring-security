@@ -45,7 +45,7 @@
 
 	<bean id="mockNotAFilter" class="org.springframework.security.web.util.matcher.AnyRequestMatcher"/>
 
-	<bean id="fooMatcher" class="org.springframework.security.web.util.matcher.AntPathRequestMatcher">
+	<bean id="fooMatcher" class="org.springframework.security.config.http.PathPatternRequestMatcherFactoryBean">
 		<constructor-arg value="/foo/**"/>
 	</bean>
 
@@ -135,7 +135,7 @@
 				</bean>
 				<bean class="org.springframework.security.web.DefaultSecurityFilterChain">
 					<constructor-arg>
-						<bean class="org.springframework.security.web.util.matcher.AntPathRequestMatcher">
+						<bean class="org.springframework.security.config.http.PathPatternRequestMatcherFactoryBean">
 							<constructor-arg value="/some/other/path/**"/>
 						</bean>
 					</constructor-arg>
@@ -149,7 +149,7 @@
 				</bean>
 				<bean class="org.springframework.security.web.DefaultSecurityFilterChain">
 					<constructor-arg>
-						<bean class="org.springframework.security.web.util.matcher.AntPathRequestMatcher">
+						<bean class="org.springframework.security.config.http.PathPatternRequestMatcherFactoryBean">
 							<constructor-arg value="/do/not/filter*"/>
 						</bean>
 					</constructor-arg>
@@ -159,7 +159,7 @@
 				</bean>
 				<bean class="org.springframework.security.web.DefaultSecurityFilterChain">
 					<constructor-arg>
-						<bean class="org.springframework.security.web.util.matcher.AntPathRequestMatcher">
+						<bean class="org.springframework.security.config.http.PathPatternRequestMatcherFactoryBean">
 							<constructor-arg value="/**"/>
 						</bean>
 					</constructor-arg>
@@ -174,7 +174,5 @@
 			</list>
 		</constructor-arg>
 	</bean>
-	
-	<bean class="org.springframework.web.servlet.handler.HandlerMappingIntrospector" name="mvcHandlerMappingIntrospector"/>
 
 </beans>

@@ -73,7 +73,6 @@ operator fun HttpSecurity.invoke(httpConfiguration: HttpSecurityDsl.() -> Unit) 
  */
 @SecurityMarker
 class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecurityDsl.() -> Unit) {
-    private val HANDLER_MAPPING_INTROSPECTOR = "org.springframework.web.servlet.handler.HandlerMappingIntrospector"
 
     var authenticationManager: AuthenticationManager? = null
     val context: ApplicationContext = http.getSharedObject(ApplicationContext::class.java)

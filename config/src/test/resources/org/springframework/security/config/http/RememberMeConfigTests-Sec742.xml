@@ -37,5 +37,5 @@
 		class="org.springframework.security.config.http.RememberMeConfigTests.BasicController"/>
 
 	<b:import resource="userservice.xml"/>
-	<b:import resource="handlermappingintrospector.xml"/>
+	<b:import resource="pathpatternrequestmatcherbuilder.xml"/>
 </b:beans>

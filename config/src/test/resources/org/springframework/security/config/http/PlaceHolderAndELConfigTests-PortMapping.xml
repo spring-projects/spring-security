@@ -38,5 +38,5 @@
 	<b:bean name="sc" class="org.springframework.security.config.http.PlaceHolderAndELConfigTests.SimpleController"/>
 
 	<b:import resource="userservice.xml"/>
-	<b:import resource="handlermappingintrospector.xml"/>
+	<b:import resource="pathpatternrequestmatcherbuilder.xml"/>
 </b:beans>

@@ -23,7 +23,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -44,8 +44,8 @@ public class RequestMatcherDelegatingAuthenticationManagerResolverTests {
 	public void resolveWhenMatchesThenReturnsAuthenticationManager() {
 		RequestMatcherDelegatingAuthenticationManagerResolver resolver = RequestMatcherDelegatingAuthenticationManagerResolver
 			.builder()
-			.add(new AntPathRequestMatcher("/one/**"), this.one)
-			.add(new AntPathRequestMatcher("/two/**"), this.two)
+			.add(PathPatternRequestMatcher.withDefaults().matcher("/one/**"), this.one)
+			.add(PathPatternRequestMatcher.withDefaults().matcher("/two/**"), this.two)
 			.build();
 
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/one/location");
@@ -57,8 +57,8 @@ public class RequestMatcherDelegatingAuthenticationManagerResolverTests {
 	public void resolveWhenDoesNotMatchThenReturnsDefaultAuthenticationManager() {
 		RequestMatcherDelegatingAuthenticationManagerResolver resolver = RequestMatcherDelegatingAuthenticationManagerResolver
 			.builder()
-			.add(new AntPathRequestMatcher("/one/**"), this.one)
-			.add(new AntPathRequestMatcher("/two/**"), this.two)
+			.add(PathPatternRequestMatcher.withDefaults().matcher("/one/**"), this.one)
+			.add(PathPatternRequestMatcher.withDefaults().matcher("/two/**"), this.two)
 			.build();
 
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/wrong/location");

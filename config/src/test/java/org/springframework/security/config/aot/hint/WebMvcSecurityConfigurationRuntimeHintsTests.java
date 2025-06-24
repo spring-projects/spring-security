@@ -53,12 +53,4 @@ class WebMvcSecurityConfigurationRuntimeHintsTests {
 			.withMemberCategory(MemberCategory.INVOKE_DECLARED_CONSTRUCTORS)).accepts(this.hints);
 	}
 
-	@Test
-	void handlerMappingIntrospectorCacheFilterFactoryBeanHasHints() {
-		assertThat(RuntimeHintsPredicates.reflection()
-			.onType(TypeReference
-				.of("org.springframework.security.config.annotation.web.configuration.WebMvcSecurityConfiguration$HandlerMappingIntrospectorCacheFilterFactoryBean"))
-			.withMemberCategory(MemberCategory.INVOKE_DECLARED_CONSTRUCTORS)).accepts(this.hints);
-	}
-
 }

@@ -43,7 +43,7 @@ import org.springframework.security.saml2.provider.service.web.Saml2Authenticati
 import org.springframework.security.saml2.provider.service.web.Saml2AuthenticationTokenConverter;
 import org.springframework.security.web.authentication.AuthenticationConverter;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -225,7 +225,7 @@ public class Saml2WebSsoAuthenticationFilterTests {
 		given(this.repository.findByRegistrationId("registration-id")).willReturn(registration);
 		given(this.authenticationManager.authenticate(authentication)).willReturn(authentication);
 		String loginProcessingUrl = "/{registrationId}/login/saml2/sso";
-		RequestMatcher matcher = new AntPathRequestMatcher(loginProcessingUrl);
+		RequestMatcher matcher = PathPatternRequestMatcher.withDefaults().matcher(loginProcessingUrl);
 		DefaultRelyingPartyRegistrationResolver delegate = new DefaultRelyingPartyRegistrationResolver(this.repository);
 		RelyingPartyRegistrationResolver resolver = (request, id) -> {
 			String registrationId = matcher.matcher(request).getVariables().get("registrationId");

@@ -57,7 +57,7 @@ import org.springframework.security.web.csrf.XorCsrfTokenRequestAttributeHandler
 import org.springframework.security.web.firewall.StrictHttpFirewall;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -906,7 +906,7 @@ public class CsrfConfigurerTests {
 			http
 				.formLogin(withDefaults())
 				.logout((logout) -> logout
-					.logoutRequestMatcher(new AntPathRequestMatcher("/logout")));
+					.logoutRequestMatcher(PathPatternRequestMatcher.withDefaults().matcher("/logout")));
 			return http.build();
 			// @formatter:on
 		}

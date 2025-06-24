@@ -46,7 +46,7 @@ import org.springframework.security.web.authentication.AuthenticationConverter;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.util.WebUtils;
 
@@ -531,7 +531,7 @@ public class BasicAuthenticationFilterTests {
 
 	static class TestAuthenticationConverter implements AuthenticationConverter {
 
-		private final RequestMatcher matcher = AntPathRequestMatcher.antMatcher("/ignored");
+		private final RequestMatcher matcher = PathPatternRequestMatcher.withDefaults().matcher("/ignored");
 
 		private final BasicAuthenticationConverter delegate = new BasicAuthenticationConverter();
 

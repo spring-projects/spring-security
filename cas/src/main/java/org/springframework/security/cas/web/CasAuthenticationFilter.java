@@ -52,7 +52,6 @@ import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.savedrequest.SavedRequest;
 import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -335,7 +334,7 @@ public class CasAuthenticationFilter extends AbstractAuthenticationProcessingFil
 	}
 
 	public final void setProxyReceptorUrl(final String proxyReceptorUrl) {
-		this.proxyReceptorMatcher = new AntPathRequestMatcher("/**" + proxyReceptorUrl);
+		this.proxyReceptorMatcher = PathPatternRequestMatcher.withDefaults().matcher(proxyReceptorUrl);
 	}
 
 	public final void setProxyGrantingTicketStorage(final ProxyGrantingTicketStorage proxyGrantingTicketStorage) {

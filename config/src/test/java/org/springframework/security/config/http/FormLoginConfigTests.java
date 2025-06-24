@@ -72,7 +72,7 @@ public class FormLoginConfigTests {
 
 	@Test
 	public void getProtectedPageWhenFormLoginConfiguredThenRedirectsToDefaultLoginPage() throws Exception {
-		this.spring.configLocations(this.xml("WithAntRequestMatcher")).autowire();
+		this.spring.configLocations(this.xml("WithRequestMatcher")).autowire();
 		// @formatter:off
 		this.mvc.perform(get("/"))
 				.andExpect(redirectedUrl("http://localhost/login"));

@@ -19,7 +19,6 @@ package org.springframework.security.config.annotation.web;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
 /**
@@ -34,11 +33,8 @@ public final class RequestMatcherFactory {
 	private static PathPatternRequestMatcher.Builder builder;
 
 	public static void setApplicationContext(ApplicationContext context) {
-		builder = context.getBeanProvider(PathPatternRequestMatcher.Builder.class).getIfUnique();
-	}
-
-	public static boolean usesPathPatterns() {
-		return builder != null;
+		builder = context.getBeanProvider(PathPatternRequestMatcher.Builder.class)
+			.getIfUnique(PathPatternRequestMatcher::withDefaults);
 	}
 
 	public static RequestMatcher matcher(String path) {
@@ -46,10 +42,7 @@ public final class RequestMatcherFactory {
 	}
 
 	public static RequestMatcher matcher(HttpMethod method, String path) {
-		if (builder != null) {
-			return builder.matcher(method, path);
-		}
-		return new AntPathRequestMatcher(path, (method != null) ? method.name() : null);
+		return builder.matcher(method, path);
 	}
 
 	private RequestMatcherFactory() {

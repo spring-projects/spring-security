@@ -32,7 +32,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.util.Assert;
 
 /**
@@ -52,7 +52,7 @@ public class SecurityConfig {
 		// @formatter:off
 		http
 			.authorizeRequests((requests) -> requests
-				.requestMatchers(new AntPathRequestMatcher("/*")).permitAll())
+				.requestMatchers(PathPatternRequestMatcher.withDefaults().matcher("/*")).permitAll())
 			.authenticationProvider(authenticationProvider());
 		// @formatter:on
 		return http.build();

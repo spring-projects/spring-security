@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -37,9 +37,11 @@ import static org.mockito.Mockito.verifyNoInteractions;
  */
 public class RequestMatcherRedirectFilterTests {
 
+	private final PathPatternRequestMatcher.Builder builder = PathPatternRequestMatcher.withDefaults();
+
 	@Test
 	public void doFilterWhenRequestMatchThenRedirectToSpecifiedUrl() throws Exception {
-		RequestMatcherRedirectFilter filter = new RequestMatcherRedirectFilter(new AntPathRequestMatcher("/context"),
+		RequestMatcherRedirectFilter filter = new RequestMatcherRedirectFilter(this.builder.matcher("/context"),
 				"/test");
 
 		MockHttpServletRequest request = new MockHttpServletRequest();
@@ -58,7 +60,7 @@ public class RequestMatcherRedirectFilterTests {
 
 	@Test
 	public void doFilterWhenRequestNotMatchThenNextFilter() throws Exception {
-		RequestMatcherRedirectFilter filter = new RequestMatcherRedirectFilter(new AntPathRequestMatcher("/context"),
+		RequestMatcherRedirectFilter filter = new RequestMatcherRedirectFilter(this.builder.matcher("/context"),
 				"/test");
 
 		MockHttpServletRequest request = new MockHttpServletRequest();
@@ -83,21 +85,21 @@ public class RequestMatcherRedirectFilterTests {
 	@Test
 	public void constructWhenRedirectUrlNull() {
 		assertThatIllegalArgumentException()
-			.isThrownBy(() -> new RequestMatcherRedirectFilter(new AntPathRequestMatcher("/**"), null))
+			.isThrownBy(() -> new RequestMatcherRedirectFilter(this.builder.matcher("/**"), null))
 			.withMessage("redirectUrl cannot be empty");
 	}
 
 	@Test
 	public void constructWhenRedirectUrlEmpty() {
 		assertThatIllegalArgumentException()
-			.isThrownBy(() -> new RequestMatcherRedirectFilter(new AntPathRequestMatcher("/**"), ""))
+			.isThrownBy(() -> new RequestMatcherRedirectFilter(this.builder.matcher("/**"), ""))
 			.withMessage("redirectUrl cannot be empty");
 	}
 
 	@Test
 	public void constructWhenRedirectUrlBlank() {
 		assertThatIllegalArgumentException()
-			.isThrownBy(() -> new RequestMatcherRedirectFilter(new AntPathRequestMatcher("/**"), " "))
+			.isThrownBy(() -> new RequestMatcherRedirectFilter(this.builder.matcher("/**"), " "))
 			.withMessage("redirectUrl cannot be empty");
 	}
 

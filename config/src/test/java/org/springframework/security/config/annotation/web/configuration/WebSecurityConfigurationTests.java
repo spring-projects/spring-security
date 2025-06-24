@@ -63,7 +63,6 @@ import org.springframework.security.web.access.RequestMatcherDelegatingWebInvoca
 import org.springframework.security.web.access.WebInvocationPrivilegeEvaluator;
 import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
 import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.util.ClassUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -106,14 +105,13 @@ public class WebSecurityConfigurationTests {
 		FilterChainProxy filterChainProxy = this.spring.getContext().getBean(FilterChainProxy.class);
 		List<SecurityFilterChain> filterChains = filterChainProxy.getFilterChains();
 		assertThat(filterChains).hasSize(4);
-		MockHttpServletRequest request = new MockHttpServletRequest("GET", "");
-		request.setServletPath("/role1/**");
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/role1/**");
 		assertThat(filterChains.get(0).matches(request)).isTrue();
-		request.setServletPath("/role2/**");
+		request = new MockHttpServletRequest("GET", "/role2/**");
 		assertThat(filterChains.get(1).matches(request)).isTrue();
-		request.setServletPath("/role3/**");
+		request = new MockHttpServletRequest("GET", "/role3/**");
 		assertThat(filterChains.get(2).matches(request)).isTrue();
-		request.setServletPath("/**");
+		request = new MockHttpServletRequest("GET", "/**");
 		assertThat(filterChains.get(3).matches(request)).isTrue();
 	}
 
@@ -123,10 +121,9 @@ public class WebSecurityConfigurationTests {
 		FilterChainProxy filterChainProxy = this.spring.getContext().getBean(FilterChainProxy.class);
 		List<SecurityFilterChain> filterChains = filterChainProxy.getFilterChains();
 		assertThat(filterChains).hasSize(2);
-		MockHttpServletRequest request = new MockHttpServletRequest("GET", "");
-		request.setServletPath("/role1/**");
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/role1/**");
 		assertThat(filterChains.get(0).matches(request)).isTrue();
-		request.setServletPath("/role2/**");
+		request = new MockHttpServletRequest("GET", "/role2/**");
 		assertThat(filterChains.get(1).matches(request)).isTrue();
 	}
 
@@ -240,14 +237,13 @@ public class WebSecurityConfigurationTests {
 		FilterChainProxy filterChainProxy = this.spring.getContext().getBean(FilterChainProxy.class);
 		List<SecurityFilterChain> filterChains = filterChainProxy.getFilterChains();
 		assertThat(filterChains).hasSize(3);
-		MockHttpServletRequest request = new MockHttpServletRequest("GET", "");
-		request.setServletPath("/ignore1");
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/ignore1");
 		assertThat(filterChains.get(0).matches(request)).isTrue();
 		assertThat(filterChains.get(0).getFilters()).isEmpty();
-		request.setServletPath("/ignore2");
+		request = new MockHttpServletRequest("GET", "/ignore2");
 		assertThat(filterChains.get(1).matches(request)).isTrue();
 		assertThat(filterChains.get(1).getFilters()).isEmpty();
-		request.setServletPath("/test/**");
+		request = new MockHttpServletRequest("GET", "/test/**");
 		assertThat(filterChains.get(2).matches(request)).isTrue();
 	}
 
@@ -257,16 +253,15 @@ public class WebSecurityConfigurationTests {
 		FilterChainProxy filterChainProxy = this.spring.getContext().getBean(FilterChainProxy.class);
 		List<SecurityFilterChain> filterChains = filterChainProxy.getFilterChains();
 		assertThat(filterChains).hasSize(3);
-		MockHttpServletRequest request = new MockHttpServletRequest("GET", "");
-		request.setServletPath("/ignore1");
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/ignore1");
 		assertThat(filterChains.get(0).matches(request)).isTrue();
 		assertThat(filterChains.get(0).getFilters()).isEmpty();
-		request.setServletPath("/ignore2");
+		request = new MockHttpServletRequest("GET", "/ignore2");
 		assertThat(filterChains.get(1).matches(request)).isTrue();
 		assertThat(filterChains.get(1).getFilters()).isEmpty();
-		request.setServletPath("/role1/**");
+		request = new MockHttpServletRequest("GET", "/role1/**");
 		assertThat(filterChains.get(2).matches(request)).isTrue();
-		request.setServletPath("/test/**");
+		request = new MockHttpServletRequest("GET", "/test/**");
 		assertThat(filterChains.get(2).matches(request)).isFalse();
 	}
 
@@ -276,11 +271,10 @@ public class WebSecurityConfigurationTests {
 		FilterChainProxy filterChainProxy = this.spring.getContext().getBean(FilterChainProxy.class);
 		List<SecurityFilterChain> filterChains = filterChainProxy.getFilterChains();
 		assertThat(filterChains).hasSize(3);
-		MockHttpServletRequest request = new MockHttpServletRequest("GET", "");
-		request.setServletPath("/ignore1");
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/ignore1");
 		assertThat(filterChains.get(0).matches(request)).isTrue();
 		assertThat(filterChains.get(0).getFilters()).isEmpty();
-		request.setServletPath("/ignore2");
+		request = new MockHttpServletRequest("GET", "/ignore2");
 		assertThat(filterChains.get(1).matches(request)).isTrue();
 		assertThat(filterChains.get(1).getFilters()).isEmpty();
 	}
@@ -420,7 +414,7 @@ public class WebSecurityConfigurationTests {
 		SecurityFilterChain filterChain1(HttpSecurity http) throws Exception {
 			// @formatter:off
 			return http
-					.securityMatcher(new AntPathRequestMatcher("/role1/**"))
+					.securityMatcher(PathPatternRequestMatcher.withDefaults().matcher("/role1/**"))
 					.authorizeRequests((authorize) -> authorize
 							.anyRequest().hasRole("1")
 					)
@@ -433,7 +427,7 @@ public class WebSecurityConfigurationTests {
 		SecurityFilterChain filterChain2(HttpSecurity http) throws Exception {
 			// @formatter:off
 			return http
-					.securityMatcher(new AntPathRequestMatcher("/role2/**"))
+					.securityMatcher(PathPatternRequestMatcher.withDefaults().matcher("/role2/**"))
 					.authorizeRequests((authorize) -> authorize
 							.anyRequest().hasRole("2")
 					)
@@ -446,7 +440,7 @@ public class WebSecurityConfigurationTests {
 		SecurityFilterChain filterChain3(HttpSecurity http) throws Exception {
 			// @formatter:off
 			return http
-					.securityMatcher(new AntPathRequestMatcher("/role3/**"))
+					.securityMatcher(PathPatternRequestMatcher.withDefaults().matcher("/role3/**"))
 					.authorizeRequests((authorize) -> authorize
 							.anyRequest().hasRole("3")
 					)
@@ -477,7 +471,7 @@ public class WebSecurityConfigurationTests {
 		SecurityFilterChain securityFilterChain1(HttpSecurity http) throws Exception {
 			// @formatter:off
 			return http
-					.securityMatcher(new AntPathRequestMatcher("/role1/**"))
+					.securityMatcher(PathPatternRequestMatcher.withDefaults().matcher("/role1/**"))
 					.authorizeRequests((authorize) -> authorize
 							.anyRequest().hasRole("1")
 					)
@@ -734,7 +728,7 @@ public class WebSecurityConfigurationTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			return http
-					.securityMatcher(new AntPathRequestMatcher("/role1/**"))
+					.securityMatcher(PathPatternRequestMatcher.withDefaults().matcher("/role1/**"))
 					.authorizeRequests((authorize) -> authorize
 							.anyRequest().hasRole("1")
 					)
@@ -773,7 +767,7 @@ public class WebSecurityConfigurationTests {
 		public SecurityFilterChain path1(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.securityMatchers((requests) -> requests.requestMatchers(new AntPathRequestMatcher("/path1/**")))
+				.securityMatchers((requests) -> requests.requestMatchers(PathPatternRequestMatcher.withDefaults().matcher("/path1/**")))
 				.authorizeRequests((requests) -> requests.anyRequest().authenticated());
 			// @formatter:on
 			return http.build();
@@ -797,7 +791,7 @@ public class WebSecurityConfigurationTests {
 		public SecurityFilterChain path1(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-					.securityMatchers((requests) -> requests.requestMatchers(new AntPathRequestMatcher("/path1/**")))
+					.securityMatchers((requests) -> requests.requestMatchers(PathPatternRequestMatcher.withDefaults().matcher("/path1/**")))
 					.authorizeRequests((requests) -> requests.anyRequest().authenticated());
 			// @formatter:on
 			return http.build();
@@ -822,7 +816,7 @@ public class WebSecurityConfigurationTests {
 		public SecurityFilterChain notAuthorized(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.securityMatchers((requests) -> requests.requestMatchers(new AntPathRequestMatcher("/user")))
+				.securityMatchers((requests) -> requests.requestMatchers(PathPatternRequestMatcher.withDefaults().matcher("/user")))
 				.authorizeRequests((requests) -> requests.anyRequest().hasRole("USER"));
 			// @formatter:on
 			return http.build();
@@ -833,7 +827,7 @@ public class WebSecurityConfigurationTests {
 		public SecurityFilterChain path1(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.securityMatchers((requests) -> requests.requestMatchers(new AntPathRequestMatcher("/admin")))
+				.securityMatchers((requests) -> requests.requestMatchers(PathPatternRequestMatcher.withDefaults().matcher("/admin")))
 				.authorizeRequests((requests) -> requests.anyRequest().hasRole("ADMIN"));
 			// @formatter:on
 			return http.build();
@@ -864,7 +858,7 @@ public class WebSecurityConfigurationTests {
 		public SecurityFilterChain notAuthorized(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-					.securityMatchers((requests) -> requests.requestMatchers(new AntPathRequestMatcher("/user")))
+					.securityMatchers((requests) -> requests.requestMatchers(PathPatternRequestMatcher.withDefaults().matcher("/user")))
 					.authorizeRequests((requests) -> requests.anyRequest().hasRole("USER"));
 			// @formatter:on
 			return http.build();
@@ -875,7 +869,7 @@ public class WebSecurityConfigurationTests {
 		public SecurityFilterChain admin(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-					.securityMatchers((requests) -> requests.requestMatchers(new AntPathRequestMatcher("/admin")))
+					.securityMatchers((requests) -> requests.requestMatchers(PathPatternRequestMatcher.withDefaults().matcher("/admin")))
 					.authorizeRequests((requests) -> requests.anyRequest().hasRole("ADMIN"));
 			// @formatter:on
 			return http.build();

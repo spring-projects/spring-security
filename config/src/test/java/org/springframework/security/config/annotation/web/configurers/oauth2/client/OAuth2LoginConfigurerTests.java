@@ -185,7 +185,7 @@ public class OAuth2LoginConfigurerTests {
 
 	@BeforeEach
 	public void setup() {
-		this.request = new MockHttpServletRequest("GET", "");
+		this.request = new MockHttpServletRequest("GET", "/login/oauth2/code/google");
 		this.request.setServletPath("/login/oauth2/code/google");
 		this.response = new MockHttpServletResponse();
 		this.filterChain = new MockFilterChain();

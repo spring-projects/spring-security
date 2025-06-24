@@ -25,7 +25,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.stubbing.Answer;
 
-import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.parsing.BeanDefinitionParsingException;
 import org.springframework.mock.web.MockServletContext;
@@ -38,7 +37,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.context.ConfigurableWebApplicationContext;
 import org.springframework.web.util.WebUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -251,21 +249,6 @@ public class InterceptUrlConfigTests {
 	}
 
 	@Test
-	public void requestWhenUsingMvcMatchersThenAuthorizesRequestsAccordingly() throws Exception {
-		this.spring.configLocations(this.xml("MvcMatchers")).autowire();
-		this.mvc.perform(get("/path")).andExpect(status().isUnauthorized());
-	}
-
-	@Test
-	public void requestWhenUsingMvcMatchersAndAuthorizationManagerThenAuthorizesRequestsAccordingly() throws Exception {
-		this.spring.configLocations(this.xml("MvcMatchersAuthorizationManager")).autowire();
-		this.mvc.perform(get("/path")).andExpect(status().isUnauthorized());
-		this.mvc.perform(get("/path.html")).andExpect(status().isUnauthorized());
-		this.mvc.perform(get("/path/")).andExpect(status().isUnauthorized());
-		assertThat(this.spring.getContext().getBean(AuthorizationManager.class)).isNotNull();
-	}
-
-	@Test
 	public void requestWhenUsingMvcMatchersAndPathVariablesThenAuthorizesRequestsAccordingly() throws Exception {
 		this.spring.configLocations(this.xml("MvcMatchersPathVariables")).autowire();
 		// @formatter:off
@@ -291,48 +274,6 @@ public class InterceptUrlConfigTests {
 				.andExpect(status().isForbidden());
 		// @formatter:on
 		assertThat(this.spring.getContext().getBean(AuthorizationManager.class)).isNotNull();
-	}
-
-	@Test
-	public void requestWhenUsingMvcMatchersAndServletPathThenAuthorizesRequestsAccordingly() throws Exception {
-		this.spring.configLocations(this.xml("MvcMatchersServletPath")).autowire();
-		MockServletContext servletContext = mockServletContext("/spring");
-		ConfigurableWebApplicationContext context = this.spring.getContext();
-		context.setServletContext(servletContext);
-		// @formatter:off
-		this.mvc.perform(get("/spring/path").servletPath("/spring"))
-				.andExpect(status().isUnauthorized());
-		// @formatter:on
-	}
-
-	@Test
-	public void requestWhenUsingMvcMatchersAndServletPathAndAuthorizationManagerThenAuthorizesRequestsAccordingly()
-			throws Exception {
-		this.spring.configLocations(this.xml("MvcMatchersServletPathAuthorizationManager")).autowire();
-		MockServletContext servletContext = mockServletContext("/spring");
-		ConfigurableWebApplicationContext context = this.spring.getContext();
-		context.setServletContext(servletContext);
-		// @formatter:off
-		this.mvc.perform(get("/spring/path").servletPath("/spring"))
-				.andExpect(status().isUnauthorized());
-		this.mvc.perform(get("/spring/path.html").servletPath("/spring"))
-				.andExpect(status().isUnauthorized());
-		this.mvc.perform(get("/spring/path/").servletPath("/spring"))
-				.andExpect(status().isUnauthorized());
-		// @formatter:on
-		assertThat(this.spring.getContext().getBean(AuthorizationManager.class)).isNotNull();
-	}
-
-	@Test
-	public void configureWhenUsingAntMatcherAndServletPathThenThrowsException() {
-		assertThatExceptionOfType(BeanDefinitionParsingException.class)
-			.isThrownBy(() -> this.spring.configLocations(this.xml("AntMatcherServletPath")).autowire());
-	}
-
-	@Test
-	public void configureWhenUsingAntMatcherAndServletPathAndAuthorizationManagerThenThrowsException() {
-		assertThatExceptionOfType(BeanDefinitionParsingException.class).isThrownBy(
-				() -> this.spring.configLocations(this.xml("AntMatcherServletPathAuthorizationManager")).autowire());
 	}
 
 	@Test
@@ -364,12 +305,6 @@ public class InterceptUrlConfigTests {
 	public void configureWhenUsingDefaultMatcherAndServletPathThenNoException() {
 		assertThatNoException()
 			.isThrownBy(() -> this.spring.configLocations(this.xml("DefaultMatcherServletPath")).autowire());
-	}
-
-	@Test
-	public void configureWhenUsingDefaultMatcherAndNoIntrospectorBeanThenException() {
-		assertThatExceptionOfType(BeanCreationException.class)
-			.isThrownBy(() -> this.spring.configLocations(this.xml("DefaultMatcherNoIntrospectorBean")).autowire());
 	}
 
 	@Test

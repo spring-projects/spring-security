@@ -26,20 +26,19 @@ import org.springframework.security.authentication.TestAuthentication;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.test.context.annotation.SecurityTestExecutionListeners;
 import org.springframework.security.web.access.AuthorizationManagerWebInvocationPrivilegeEvaluator.HttpServletRequestTransformer;
-import org.springframework.security.web.access.HandlerMappingIntrospectorRequestTransformer;
 import org.springframework.security.web.access.WebInvocationPrivilegeEvaluator;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 /**
- * Checks that HandlerMappingIntrospectorRequestTransformer is autowired into
+ * Checks that
+ * {@link org.springframework.security.web.access.PathPatternRequestTransformer} is
+ * autowired into
  * {@link org.springframework.security.web.access.AuthorizationManagerWebInvocationPrivilegeEvaluator}.
  *
  * @author Rob Winch
@@ -59,20 +58,8 @@ public class AuthorizationManagerWebInvocationPrivilegeEvaluatorConfigTests {
 	WebInvocationPrivilegeEvaluator wipe;
 
 	@Test
-	void mvcEnabledConfigThenHandlerMappingIntrospectorRequestTransformerBeanExists() {
-		this.spring.register(MvcEnabledConfig.class).autowire();
-		assertThat(this.requestTransformer).isInstanceOf(HandlerMappingIntrospectorRequestTransformer.class);
-	}
-
-	@Test
-	void mvcNotEnabledThenNoRequestTransformerBeanExists() {
-		this.spring.register(MvcNotEnabledConfig.class).autowire();
-		assertThat(this.requestTransformer).isNull();
-	}
-
-	@Test
-	void mvcNotEnabledAndTransformerThenWIPEDelegatesToTransformer() {
-		this.spring.register(MvcNotEnabledConfig.class, TransformerConfig.class).autowire();
+	void webAndTransformerThenWIPEDelegatesToTransformer() {
+		this.spring.register(WebConfig.class, TransformerConfig.class).autowire();
 
 		this.wipe.isAllowed("/uri", TestAuthentication.authenticatedUser());
 
@@ -90,15 +77,8 @@ public class AuthorizationManagerWebInvocationPrivilegeEvaluatorConfigTests {
 	}
 
 	@Configuration
-	@EnableWebMvc
 	@EnableWebSecurity
-	static class MvcEnabledConfig {
-
-	}
-
-	@Configuration
-	@EnableWebSecurity
-	static class MvcNotEnabledConfig {
+	static class WebConfig {
 
 	}
 

@@ -39,7 +39,7 @@ import org.springframework.security.core.userdetails.PasswordEncodedUser;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
@@ -150,8 +150,8 @@ public class HttpConfigurationTests {
 			// @formatter:off
 			http
 				.securityMatchers((security) -> security
-					.requestMatchers(new AntPathRequestMatcher("/api/**"))
-					.requestMatchers(new AntPathRequestMatcher("/oauth/**")))
+					.requestMatchers(PathPatternRequestMatcher.withDefaults().matcher("/api/**"))
+					.requestMatchers(PathPatternRequestMatcher.withDefaults().matcher("/oauth/**")))
 				.authorizeRequests((requests) -> requests
 					.anyRequest().hasRole("USER"))
 				.httpBasic(withDefaults());

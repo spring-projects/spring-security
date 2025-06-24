@@ -78,7 +78,7 @@ public class SessionManagementConfigurerServlet31Tests {
 
 	@Test
 	public void changeSessionIdThenPreserveParameters() throws Exception {
-		MockHttpServletRequest request = new MockHttpServletRequest("GET", "");
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/login");
 		String id = request.getSession().getId();
 		request.getSession();
 		request.setServletPath("/login");

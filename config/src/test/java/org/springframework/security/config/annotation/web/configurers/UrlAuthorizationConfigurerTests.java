@@ -33,6 +33,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.web.PathPatternRequestMatcherBuilderFactoryBean;
 import org.springframework.security.core.userdetails.PasswordEncodedUser;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -41,12 +42,11 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.servlet.MockServletContext;
-import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.config.Customizer.withDefaults;
@@ -132,13 +132,18 @@ public class UrlAuthorizationConfigurerTests {
 	static class MvcMatcherConfig {
 
 		@Bean
+		PathPatternRequestMatcherBuilderFactoryBean pathPattern() {
+			return new PathPatternRequestMatcherBuilderFactoryBean();
+		}
+
+		@Bean
 		SecurityFilterChain filterChain(HttpSecurity http, ApplicationContext context,
-				HandlerMappingIntrospector introspector) throws Exception {
+				PathPatternRequestMatcher.Builder builder) throws Exception {
 			// @formatter:off
 			http
 				.httpBasic(withDefaults())
 				.apply(new UrlAuthorizationConfigurer(context)).getRegistry()
-				.requestMatchers(new MvcRequestMatcher(introspector, "/path")).hasRole("ADMIN");
+				.requestMatchers(builder.matcher("/path")).hasRole("ADMIN");
 			// @formatter:on
 			return http.build();
 		}
@@ -166,15 +171,19 @@ public class UrlAuthorizationConfigurerTests {
 	static class MvcMatcherServletPathConfig {
 
 		@Bean
+		PathPatternRequestMatcherBuilderFactoryBean pathPattern() {
+			return new PathPatternRequestMatcherBuilderFactoryBean();
+		}
+
+		@Bean
 		SecurityFilterChain filterChain(HttpSecurity http, ApplicationContext context,
-				HandlerMappingIntrospector introspector) throws Exception {
-			MvcRequestMatcher mvcRequestMatcher = new MvcRequestMatcher(introspector, "/path");
-			mvcRequestMatcher.setServletPath("/spring");
+				PathPatternRequestMatcher.Builder builder) throws Exception {
+			PathPatternRequestMatcher.Builder spring = builder.basePath("/spring");
 			// @formatter:off
 			http
 				.httpBasic(withDefaults())
 				.apply(new UrlAuthorizationConfigurer(context)).getRegistry()
-				.requestMatchers(mvcRequestMatcher).hasRole("ADMIN");
+				.requestMatchers(builder.matcher("/path")).hasRole("ADMIN");
 			// @formatter:on
 			return http.build();
 		}

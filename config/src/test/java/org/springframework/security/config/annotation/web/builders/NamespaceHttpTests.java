@@ -54,8 +54,8 @@ import org.springframework.security.web.access.intercept.FilterSecurityIntercept
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.context.NullSecurityContextRepository;
 import org.springframework.security.web.jaasapi.JaasApiIntegrationFilter;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestWrapper;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.stereotype.Controller;
@@ -195,13 +195,13 @@ public class NamespaceHttpTests {
 	}
 
 	@Test // http@request-matcher-ref ant
-	public void configureWhenAntPatternMatchingThenAntPathRequestMatcherUsed() {
+	public void configureWhenAntPatternMatchingThenPathPatternRequestMatcherUsed() {
 		this.spring.register(RequestMatcherAntConfig.class).autowire();
 		FilterChainProxy filterChainProxy = this.spring.getContext().getBean(FilterChainProxy.class);
 		assertThat(filterChainProxy.getFilterChains().get(0)).isInstanceOf(DefaultSecurityFilterChain.class);
 		DefaultSecurityFilterChain securityFilterChain = (DefaultSecurityFilterChain) filterChainProxy.getFilterChains()
 			.get(0);
-		assertThat(securityFilterChain.getRequestMatcher()).isInstanceOf(AntPathRequestMatcher.class);
+		assertThat(securityFilterChain.getRequestMatcher()).isInstanceOf(PathPatternRequestMatcher.class);
 	}
 
 	@Test // http@request-matcher-ref regex
@@ -226,21 +226,21 @@ public class NamespaceHttpTests {
 	}
 
 	@Test // http@security=none
-	public void configureWhenIgnoredAntPatternsThenAntPathRequestMatcherUsedWithNoFilters() {
+	public void configureWhenIgnoredAntPatternsThenPathPatternRequestMatcherUsedWithNoFilters() {
 		this.spring.register(SecurityNoneConfig.class).autowire();
 		FilterChainProxy filterChainProxy = this.spring.getContext().getBean(FilterChainProxy.class);
 		assertThat(filterChainProxy.getFilterChains().get(0)).isInstanceOf(DefaultSecurityFilterChain.class);
 		DefaultSecurityFilterChain securityFilterChain = (DefaultSecurityFilterChain) filterChainProxy.getFilterChains()
 			.get(0);
-		assertThat(securityFilterChain.getRequestMatcher()).isInstanceOf(AntPathRequestMatcher.class);
-		assertThat(((AntPathRequestMatcher) securityFilterChain.getRequestMatcher()).getPattern())
-			.isEqualTo("/resources/**");
+		assertThat(securityFilterChain.getRequestMatcher()).isInstanceOf(PathPatternRequestMatcher.class);
+		assertThat(securityFilterChain.getRequestMatcher())
+			.isEqualTo(PathPatternRequestMatcher.withDefaults().matcher("/resources/**"));
 		assertThat(securityFilterChain.getFilters()).isEmpty();
 		assertThat(filterChainProxy.getFilterChains().get(1)).isInstanceOf(DefaultSecurityFilterChain.class);
 		securityFilterChain = (DefaultSecurityFilterChain) filterChainProxy.getFilterChains().get(1);
-		assertThat(securityFilterChain.getRequestMatcher()).isInstanceOf(AntPathRequestMatcher.class);
-		assertThat(((AntPathRequestMatcher) securityFilterChain.getRequestMatcher()).getPattern())
-			.isEqualTo("/public/**");
+		assertThat(securityFilterChain.getRequestMatcher()).isInstanceOf(PathPatternRequestMatcher.class);
+		assertThat(securityFilterChain.getRequestMatcher())
+			.isEqualTo(PathPatternRequestMatcher.withDefaults().matcher("/public/**"));
 		assertThat(securityFilterChain.getFilters()).isEmpty();
 	}
 
@@ -482,7 +482,7 @@ public class NamespaceHttpTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.securityMatcher(new AntPathRequestMatcher("/api/**"));
+				.securityMatcher(PathPatternRequestMatcher.withDefaults().matcher("/api/**"));
 			return http.build();
 			// @formatter:on
 		}
@@ -534,8 +534,9 @@ public class NamespaceHttpTests {
 
 		@Bean
 		WebSecurityCustomizer webSecurityCustomizer() {
+			PathPatternRequestMatcher.Builder builder = PathPatternRequestMatcher.withDefaults();
 			return (web) -> web.ignoring()
-				.requestMatchers(new AntPathRequestMatcher("/resources/**"), new AntPathRequestMatcher("/public/**"));
+				.requestMatchers(builder.matcher("/resources/**"), builder.matcher("/public/**"));
 		}
 
 		@Bean
