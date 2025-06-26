@@ -54,11 +54,11 @@ class ServerWebClientHttpInterfaceIntegrationConfiguration {
 
     @Bean
     fun groupConfigurer(server: MockWebServer): WebClientHttpServiceGroupConfigurer {
-        return WebClientHttpServiceGroupConfigurer { groups: HttpServiceGroupConfigurer.Groups<WebClient.Builder?>? ->
+        return WebClientHttpServiceGroupConfigurer { groups: HttpServiceGroupConfigurer.Groups<WebClient.Builder> ->
             val baseUrl = server.url("").toString()
             groups!!
-                .forEachClient(ClientCallback { group: HttpServiceGroup?, builder: WebClient.Builder? ->
-                    builder!!
+                .forEachClient(ClientCallback { group: HttpServiceGroup, builder: WebClient.Builder ->
+                    builder
                         .baseUrl(baseUrl)
                         .defaultHeader("Accept", "application/vnd.github.v3+json")
                 })

@@ -8,7 +8,7 @@ org-apache-maven-resolver = "1.9.23"
 org-aspectj = "1.9.24"
 org-bouncycastle = "1.80"
 org-eclipse-jetty = "11.0.25"
-org-jetbrains-kotlin = "1.9.25"
+org-jetbrains-kotlin = "2.2.0"
 org-jetbrains-kotlinx = "1.10.2"
 org-mockito = "5.17.0"
 org-opensaml = "4.3.2"
@@ -67,7 +67,7 @@ org-hamcrest = "org.hamcrest:hamcrest:2.2"
 org-hibernate-orm-hibernate-core = "org.hibernate.orm:hibernate-core:7.0.1.Final"
 org-hsqldb = "org.hsqldb:hsqldb:2.7.4"
 org-jetbrains-kotlin-kotlin-bom = { module = "org.jetbrains.kotlin:kotlin-bom", version.ref = "org-jetbrains-kotlin" }
-org-jetbrains-kotlin-kotlin-gradle-plugin = "org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.25"
+org-jetbrains-kotlin-kotlin-gradle-plugin = "org.jetbrains.kotlin:kotlin-gradle-plugin:2.2.0"
 org-jetbrains-kotlinx-kotlinx-coroutines-bom = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-bom", version.ref = "org-jetbrains-kotlinx" }
 org-junit-junit-bom = "org.junit:junit-bom:5.12.2"
 org-mockito-mockito-bom = { module = "org.mockito:mockito-bom", version.ref = "org-mockito" }

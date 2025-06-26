@@ -4,7 +4,7 @@ import trang.RncToXsd
 
 apply plugin: 'io.spring.convention.spring-module'
 apply plugin: 'trang'
-apply plugin: 'kotlin'
+apply plugin: 'security-kotlin'
 
 configurations {
 	opensaml5 {
@@ -150,15 +150,6 @@ tasks.named('sourcesJar', Jar).configure {
 	from(rncToXsd) {
 		duplicatesStrategy DuplicatesStrategy.EXCLUDE
 		into 'org/springframework/security/config/'
-	}
-}
-
-tasks.withType(KotlinCompile).configureEach {
-	kotlinOptions {
-		languageVersion = "1.7"
-		apiVersion = "1.7"
-		freeCompilerArgs = ["-Xjsr305=strict", "-Xsuppress-version-warnings"]
-		jvmTarget = "17"
 	}
 }
 
