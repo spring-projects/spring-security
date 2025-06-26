@@ -28,6 +28,7 @@ import org.springframework.security.test.web.reactive.server.WebTestClientBuilde
 import org.springframework.security.web.authentication.preauth.x509.X509TestUtils
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.WebTestClientConfigurer
+import org.springframework.util.Assert
 import org.springframework.web.server.ServerWebExchange
 import org.springframework.web.server.WebFilter
 import org.springframework.web.server.WebFilterChain
@@ -108,18 +109,19 @@ class X509ConfigurationTests {
 
     companion object {
         private fun x509(certificate: X509Certificate): WebTestClientConfigurer {
-            return WebTestClientConfigurer { builder: WebTestClient.Builder, httpHandlerBuilder: WebHttpHandlerBuilder, connector: ClientHttpConnector? ->
+            return WebTestClientConfigurer { builder: WebTestClient.Builder, httpHandlerBuilder: WebHttpHandlerBuilder?, connector: ClientHttpConnector? ->
 
                 val sslInfo: SslInfo = object : SslInfo {
                     override fun getSessionId(): String {
                         return "sessionId"
                     }
 
-                    override fun getPeerCertificates(): Array<X509Certificate?> {
+                    override fun getPeerCertificates(): Array<X509Certificate> {
                         return arrayOf(certificate)
                     }
                 }
-                httpHandlerBuilder.filters(Consumer { filters: MutableList<WebFilter> ->
+                Assert.notNull(httpHandlerBuilder, "httpHandlerBuilder should not be null")
+                httpHandlerBuilder!!.filters(Consumer { filters: MutableList<WebFilter> ->
                     filters.add(
                         0,
                         SslInfoOverrideWebFilter(sslInfo)
