@@ -3033,7 +3033,8 @@ public class ServerHttpSecurity {
 
 		/**
 		 * Configures the logout handler. Default is
-		 * {@code SecurityContextServerLogoutHandler}
+		 * {@code SecurityContextServerLogoutHandler}. This clears any previous handlers
+		 * configured.
 		 * @param logoutHandler
 		 * @return the {@link LogoutSpec} to configure
 		 */
@@ -3046,6 +3047,18 @@ public class ServerHttpSecurity {
 		private LogoutSpec addLogoutHandler(ServerLogoutHandler logoutHandler) {
 			Assert.notNull(logoutHandler, "logoutHandler cannot be null");
 			this.logoutHandlers.add(logoutHandler);
+			return this;
+		}
+
+		/**
+		 * Allows managing the list of {@link ServerLogoutHandler} instances.
+		 * @param handlersConsumer {@link Consumer} for managing the list of handlers.
+		 * @return the {@link LogoutSpec} to configure
+		 * @since 7.0
+		 */
+		public LogoutSpec logoutHandler(Consumer<List<ServerLogoutHandler>> handlersConsumer) {
+			Assert.notNull(handlersConsumer, "consumer cannot be null");
+			handlersConsumer.accept(this.logoutHandlers);
 			return this;
 		}
 
