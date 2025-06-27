@@ -87,7 +87,7 @@ public class OAuth2AuthorizationRequestRedirectFilter extends OncePerRequestFilt
 	/**
 	 * The default base {@code URI} used for authorization requests.
 	 */
-	public static final String DEFAULT_AUTHORIZATION_REQUEST_BASE_URI = "/oauth2/authorization";
+	public static final String DEFAULT_AUTHORIZATION_REQUEST_BASE_URI = DefaultOAuth2AuthorizationRequestResolver.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI;
 
 	private final ThrowableAnalyzer throwableAnalyzer = new DefaultThrowableAnalyzer();
 
@@ -107,7 +107,7 @@ public class OAuth2AuthorizationRequestRedirectFilter extends OncePerRequestFilt
 	 * @param clientRegistrationRepository the repository of client registrations
 	 */
 	public OAuth2AuthorizationRequestRedirectFilter(ClientRegistrationRepository clientRegistrationRepository) {
-		this(clientRegistrationRepository, DEFAULT_AUTHORIZATION_REQUEST_BASE_URI);
+		this(new DefaultOAuth2AuthorizationRequestResolver(clientRegistrationRepository));
 	}
 
 	/**
@@ -119,10 +119,7 @@ public class OAuth2AuthorizationRequestRedirectFilter extends OncePerRequestFilt
 	 */
 	public OAuth2AuthorizationRequestRedirectFilter(ClientRegistrationRepository clientRegistrationRepository,
 			String authorizationRequestBaseUri) {
-		Assert.notNull(clientRegistrationRepository, "clientRegistrationRepository cannot be null");
-		Assert.hasText(authorizationRequestBaseUri, "authorizationRequestBaseUri cannot be empty");
-		this.authorizationRequestResolver = new DefaultOAuth2AuthorizationRequestResolver(clientRegistrationRepository,
-				authorizationRequestBaseUri);
+		this(new DefaultOAuth2AuthorizationRequestResolver(clientRegistrationRepository, authorizationRequestBaseUri));
 	}
 
 	/**
