@@ -98,6 +98,12 @@ public class DefaultOAuth2AuthorizationRequestResolverTests {
 	}
 
 	@Test
+	void authorizationRequestBaseUriEqualToRedirectFilter() {
+		assertThat(DefaultOAuth2AuthorizationRequestResolver.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI)
+			.isEqualTo(OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI);
+	}
+
+	@Test
 	public void constructorWhenClientRegistrationRepositoryIsNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException()
 			.isThrownBy(() -> new DefaultOAuth2AuthorizationRequestResolver(null, this.authorizationRequestBaseUri));

@@ -66,6 +66,11 @@ import org.springframework.web.util.UriComponentsBuilder;
  */
 public final class DefaultOAuth2AuthorizationRequestResolver implements OAuth2AuthorizationRequestResolver {
 
+	/**
+	 * The default base {@code URI} used for authorization requests.
+	 */
+	public static final String DEFAULT_AUTHORIZATION_REQUEST_BASE_URI = "/oauth2/authorization";
+
 	private static final String REGISTRATION_ID_URI_VARIABLE_NAME = "registrationId";
 
 	private static final char PATH_DELIMITER = '/';
@@ -93,8 +98,7 @@ public final class DefaultOAuth2AuthorizationRequestResolver implements OAuth2Au
 	 * authorization requests
 	 */
 	public DefaultOAuth2AuthorizationRequestResolver(ClientRegistrationRepository clientRegistrationRepository) {
-		this(clientRegistrationRepository,
-				OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI);
+		this(clientRegistrationRepository, DEFAULT_AUTHORIZATION_REQUEST_BASE_URI);
 	}
 
 	/**
