@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -78,15 +78,6 @@ public abstract class SecurityConfigurerAdapter<O, B extends SecurityBuilder<O>>
 	 * @param objectPostProcessor the {@link ObjectPostProcessor} to use
 	 */
 	public void addObjectPostProcessor(ObjectPostProcessor<?> objectPostProcessor) {
-		this.objectPostProcessor.addObjectPostProcessor(objectPostProcessor);
-	}
-
-	/**
-	 * @deprecated
-	 */
-	@Deprecated(since = "6.4", forRemoval = true)
-	public void addObjectPostProcessor(
-			org.springframework.security.config.annotation.ObjectPostProcessor<?> objectPostProcessor) {
 		this.objectPostProcessor.addObjectPostProcessor(objectPostProcessor);
 	}
 

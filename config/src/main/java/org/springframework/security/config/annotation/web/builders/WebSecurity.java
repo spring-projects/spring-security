@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -136,14 +136,6 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 	 * @see WebSecurityConfiguration
 	 */
 	public WebSecurity(ObjectPostProcessor<Object> objectPostProcessor) {
-		super(objectPostProcessor);
-	}
-
-	/**
-	 * @deprecated
-	 */
-	@Deprecated(since = "6.4", forRemoval = true)
-	public WebSecurity(org.springframework.security.config.annotation.ObjectPostProcessor<Object> objectPostProcessor) {
 		super(objectPostProcessor);
 	}
 

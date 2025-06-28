@@ -343,13 +343,6 @@ final class SerializationSamples {
 		generatorByClassName.put(Jwt.class, (r) -> TestJwts.user());
 
 		// oauth2-resource-server
-		generatorByClassName
-			.put(org.springframework.security.oauth2.server.resource.BearerTokenAuthenticationToken.class, (r) -> {
-				var token = new org.springframework.security.oauth2.server.resource.BearerTokenAuthenticationToken(
-						"token");
-				token.setDetails(details);
-				return token;
-			});
 		generatorByClassName.put(BearerTokenAuthenticationToken.class, (r) -> {
 			var token = new BearerTokenAuthenticationToken("token");
 			token.setDetails(details);

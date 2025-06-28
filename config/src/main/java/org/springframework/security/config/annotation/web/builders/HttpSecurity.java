@@ -194,23 +194,6 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 		this.requestMatcherConfigurer = new RequestMatcherConfigurer(context);
 	}
 
-	/**
-	 * @deprecated
-	 */
-	@Deprecated(since = "6.4", forRemoval = true)
-	@SuppressWarnings("unchecked")
-	public HttpSecurity(org.springframework.security.config.annotation.ObjectPostProcessor<Object> objectPostProcessor,
-			AuthenticationManagerBuilder authenticationBuilder, Map<Class<?>, Object> sharedObjects) {
-		super(objectPostProcessor);
-		Assert.notNull(authenticationBuilder, "authenticationBuilder cannot be null");
-		setSharedObject(AuthenticationManagerBuilder.class, authenticationBuilder);
-		for (Map.Entry<Class<?>, Object> entry : sharedObjects.entrySet()) {
-			setSharedObject((Class<Object>) entry.getKey(), entry.getValue());
-		}
-		ApplicationContext context = (ApplicationContext) sharedObjects.get(ApplicationContext.class);
-		this.requestMatcherConfigurer = new RequestMatcherConfigurer(context);
-	}
-
 	private ApplicationContext getContext() {
 		return getSharedObject(ApplicationContext.class);
 	}
