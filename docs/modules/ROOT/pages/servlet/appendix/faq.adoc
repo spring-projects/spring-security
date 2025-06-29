@@ -544,7 +544,7 @@ public class DynamicAuthorizationManager implements AuthorizationManager<Request
 	// ...
 
     @Override
-    public AuthorizationDecision check(Supplier<Authentication> authentication, RequestAuthorizationContext context) {
+    public AuthorizationResult authorize(Supplier<Authentication> authentication, RequestAuthorizationContext context) {
 		// query the external service
     }
 }
@@ -565,7 +565,7 @@ class DynamicAuthorizationManager : AuthorizationManager<RequestAuthorizationCon
 
     // ...
 
-    override fun check(authentication: Supplier<Authentication?>?, context: RequestAuthorizationContext?): AuthorizationDecision {
+    override fun authorize(authentication: Supplier<Authentication?>?, context: RequestAuthorizationContext?): AuthorizationResult {
 		// look up rules from the database
     }
 }
@@ -595,7 +595,7 @@ public class DynamicAuthorizationManager implements AuthorizationManager<MethodI
 	// ...
 
     @Override
-    public AuthorizationDecision check(Supplier<Authentication> authentication, MethodInvocation invocation) {
+    public AuthorizationResult authorize(Supplier<Authentication> authentication, MethodInvocation invocation) {
 		// query the external service
     }
 }
@@ -617,7 +617,7 @@ class DynamicAuthorizationManager : AuthorizationManager<MethodInvocation?> {
     private val authz: MyExternalAuthorizationService? = null
 
      // ...
-    override fun check(authentication: Supplier<Authentication?>?, invocation: MethodInvocation?): AuthorizationDecision {
+    override fun authorize(authentication: Supplier<Authentication?>?, invocation: MethodInvocation?): AuthorizationResult {
 		// query the external service
     }
 }

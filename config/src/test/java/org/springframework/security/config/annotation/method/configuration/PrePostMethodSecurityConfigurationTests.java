@@ -93,7 +93,6 @@ import org.springframework.security.access.prepost.PreFilter;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationEventPublisher;
 import org.springframework.security.authorization.AuthorizationManager;
-import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.authorization.SpringAuthorizationEventPublisher;
 import org.springframework.security.authorization.event.AuthorizationDeniedEvent;
 import org.springframework.security.authorization.method.AuthorizationAdvisor;
@@ -143,7 +142,6 @@ import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.clearInvocations;
-import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
@@ -1555,8 +1553,6 @@ public class PrePostMethodSecurityConfigurationTests {
 
 		@Bean
 		AuthorizationEventPublisher authorizationEventPublisher() {
-			doCallRealMethod().when(this.publisher)
-				.publishAuthorizationEvent(any(), any(), any(AuthorizationResult.class));
 			return this.publisher;
 		}
 

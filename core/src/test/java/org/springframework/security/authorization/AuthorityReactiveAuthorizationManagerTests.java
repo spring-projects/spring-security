@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,19 +47,19 @@ public class AuthorityReactiveAuthorizationManagerTests {
 
 	@Test
 	public void checkWhenHasAuthorityAndNotAuthenticatedThenReturnFalse() {
-		boolean granted = this.manager.check(Mono.just(this.authentication), null).block().isGranted();
+		boolean granted = this.manager.authorize(Mono.just(this.authentication), null).block().isGranted();
 		assertThat(granted).isFalse();
 	}
 
 	@Test
 	public void checkWhenHasAuthorityAndEmptyThenReturnFalse() {
-		boolean granted = this.manager.check(Mono.empty(), null).block().isGranted();
+		boolean granted = this.manager.authorize(Mono.empty(), null).block().isGranted();
 		assertThat(granted).isFalse();
 	}
 
 	@Test
 	public void checkWhenHasAuthorityAndErrorThenError() {
-		Mono<AuthorizationDecision> result = this.manager.check(Mono.error(new RuntimeException("ooops")), null);
+		Mono<AuthorizationResult> result = this.manager.authorize(Mono.error(new RuntimeException("ooops")), null);
 		// @formatter:off
 		StepVerifier.create(result)
 				.expectError()
@@ -71,21 +71,21 @@ public class AuthorityReactiveAuthorizationManagerTests {
 	public void checkWhenHasAuthorityAndAuthenticatedAndNoAuthoritiesThenReturnFalse() {
 		given(this.authentication.isAuthenticated()).willReturn(true);
 		given(this.authentication.getAuthorities()).willReturn(Collections.emptyList());
-		boolean granted = this.manager.check(Mono.just(this.authentication), null).block().isGranted();
+		boolean granted = this.manager.authorize(Mono.just(this.authentication), null).block().isGranted();
 		assertThat(granted).isFalse();
 	}
 
 	@Test
 	public void checkWhenHasAuthorityAndAuthenticatedAndWrongAuthoritiesThenReturnFalse() {
 		this.authentication = new TestingAuthenticationToken("rob", "secret", "ROLE_ADMIN");
-		boolean granted = this.manager.check(Mono.just(this.authentication), null).block().isGranted();
+		boolean granted = this.manager.authorize(Mono.just(this.authentication), null).block().isGranted();
 		assertThat(granted).isFalse();
 	}
 
 	@Test
 	public void checkWhenHasAuthorityAndAuthorizedThenReturnTrue() {
 		this.authentication = new TestingAuthenticationToken("rob", "secret", "ADMIN");
-		boolean granted = this.manager.check(Mono.just(this.authentication), null).block().isGranted();
+		boolean granted = this.manager.authorize(Mono.just(this.authentication), null).block().isGranted();
 		assertThat(granted).isTrue();
 	}
 
@@ -94,7 +94,7 @@ public class AuthorityReactiveAuthorizationManagerTests {
 		GrantedAuthority customGrantedAuthority = () -> "ADMIN";
 		this.authentication = new TestingAuthenticationToken("rob", "secret",
 				Collections.singletonList(customGrantedAuthority));
-		boolean granted = this.manager.check(Mono.just(this.authentication), null).block().isGranted();
+		boolean granted = this.manager.authorize(Mono.just(this.authentication), null).block().isGranted();
 		assertThat(granted).isTrue();
 	}
 
@@ -103,7 +103,7 @@ public class AuthorityReactiveAuthorizationManagerTests {
 		GrantedAuthority customGrantedAuthority = () -> "USER";
 		this.authentication = new TestingAuthenticationToken("rob", "secret",
 				Collections.singletonList(customGrantedAuthority));
-		boolean granted = this.manager.check(Mono.just(this.authentication), null).block().isGranted();
+		boolean granted = this.manager.authorize(Mono.just(this.authentication), null).block().isGranted();
 		assertThat(granted).isFalse();
 	}
 
@@ -111,7 +111,7 @@ public class AuthorityReactiveAuthorizationManagerTests {
 	public void checkWhenHasRoleAndAuthorizedThenReturnTrue() {
 		this.manager = AuthorityReactiveAuthorizationManager.hasRole("ADMIN");
 		this.authentication = new TestingAuthenticationToken("rob", "secret", "ROLE_ADMIN");
-		boolean granted = this.manager.check(Mono.just(this.authentication), null).block().isGranted();
+		boolean granted = this.manager.authorize(Mono.just(this.authentication), null).block().isGranted();
 		assertThat(granted).isTrue();
 	}
 
@@ -119,7 +119,7 @@ public class AuthorityReactiveAuthorizationManagerTests {
 	public void checkWhenHasRoleAndNotAuthorizedThenReturnFalse() {
 		this.manager = AuthorityReactiveAuthorizationManager.hasRole("ADMIN");
 		this.authentication = new TestingAuthenticationToken("rob", "secret", "ADMIN");
-		boolean granted = this.manager.check(Mono.just(this.authentication), null).block().isGranted();
+		boolean granted = this.manager.authorize(Mono.just(this.authentication), null).block().isGranted();
 		assertThat(granted).isFalse();
 	}
 
@@ -128,7 +128,7 @@ public class AuthorityReactiveAuthorizationManagerTests {
 		this.manager = AuthorityReactiveAuthorizationManager.hasAnyRole("GENERAL", "USER", "TEST");
 		this.authentication = new TestingAuthenticationToken("rob", "secret", "ROLE_USER", "ROLE_AUDITING",
 				"ROLE_ADMIN");
-		boolean granted = this.manager.check(Mono.just(this.authentication), null).block().isGranted();
+		boolean granted = this.manager.authorize(Mono.just(this.authentication), null).block().isGranted();
 		assertThat(granted).isTrue();
 	}
 
@@ -136,7 +136,7 @@ public class AuthorityReactiveAuthorizationManagerTests {
 	public void checkWhenHasAnyRoleAndNotAuthorizedThenReturnFalse() {
 		this.manager = AuthorityReactiveAuthorizationManager.hasAnyRole("GENERAL", "USER", "TEST");
 		this.authentication = new TestingAuthenticationToken("rob", "secret", "USER", "AUDITING", "ADMIN");
-		boolean granted = this.manager.check(Mono.just(this.authentication), null).block().isGranted();
+		boolean granted = this.manager.authorize(Mono.just(this.authentication), null).block().isGranted();
 		assertThat(granted).isFalse();
 	}
 

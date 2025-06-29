@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -134,17 +134,11 @@ public final class AuthorityAuthorizationManager<T> implements AuthorizationMana
 	}
 
 	/**
-	 * Determines if the current user is authorized by evaluating if the
-	 * {@link Authentication} contains a specified authority.
-	 * @param authentication the {@link Supplier} of the {@link Authentication} to check
-	 * @param object the {@link T} object to check
-	 * @return an {@link AuthorizationDecision}
-	 * @deprecated please use {@link #authorize(Supplier, Object)} instead
+	 * {@inheritDoc}
 	 */
-	@Deprecated
 	@Override
-	public AuthorizationDecision check(Supplier<Authentication> authentication, T object) {
-		return this.delegate.check(authentication, this.authorities);
+	public AuthorizationResult authorize(Supplier<Authentication> authentication, T object) {
+		return this.delegate.authorize(authentication, this.authorities);
 	}
 
 	@Override

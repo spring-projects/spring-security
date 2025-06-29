@@ -31,7 +31,6 @@ import org.aopalliance.intercept.MethodInvocation;
 
 import org.springframework.lang.NonNull;
 import org.springframework.security.authorization.AuthoritiesAuthorizationManager;
-import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.authorization.SingleResultAuthorizationManager;
@@ -81,20 +80,12 @@ public final class Jsr250AuthorizationManager implements AuthorizationManager<Me
 	}
 
 	/**
-	 * Determine if an {@link Authentication} has access to a method by evaluating the
-	 * {@link DenyAll}, {@link PermitAll}, and {@link RolesAllowed} annotations that
-	 * {@link MethodInvocation} specifies.
-	 * @param authentication the {@link Supplier} of the {@link Authentication} to check
-	 * @param methodInvocation the {@link MethodInvocation} to check
-	 * @return an {@link AuthorizationDecision} or null if the JSR-250 security
-	 * annotations is not present
-	 * @deprecated please use {@link #authorize(Supplier, Object)} instead
+	 * {@inheritDoc}
 	 */
-	@Deprecated
 	@Override
-	public AuthorizationDecision check(Supplier<Authentication> authentication, MethodInvocation methodInvocation) {
+	public AuthorizationResult authorize(Supplier<Authentication> authentication, MethodInvocation methodInvocation) {
 		AuthorizationManager<MethodInvocation> delegate = this.registry.getManager(methodInvocation);
-		return delegate.check(authentication, methodInvocation);
+		return delegate.authorize(authentication, methodInvocation);
 	}
 
 	private final class Jsr250AuthorizationManagerRegistry extends AbstractAuthorizationManagerRegistry {
@@ -138,18 +129,6 @@ public final class Jsr250AuthorizationManager implements AuthorizationManager<Me
 	private interface AuthorizationManagerCheckAdapter<T> extends AuthorizationManager<T> {
 
 		@Override
-		default AuthorizationDecision check(Supplier<Authentication> authentication, T object) {
-			AuthorizationResult result = authorize(authentication, object);
-			if (result == null) {
-				return null;
-			}
-			if (result instanceof AuthorizationDecision decision) {
-				return decision;
-			}
-			throw new IllegalArgumentException(
-					"please call #authorize or ensure that the result is of type AuthorizationDecision");
-		}
-
 		AuthorizationResult authorize(Supplier<Authentication> authentication, T object);
 
 	}

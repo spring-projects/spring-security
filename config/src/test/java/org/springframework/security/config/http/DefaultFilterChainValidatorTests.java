@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -124,8 +124,7 @@ public class DefaultFilterChainValidatorTests {
 
 	@Test
 	public void validateCheckLoginPageAllowsAnonymous() {
-		given(this.authorizationManager.check(any(), any())).willReturn(new AuthorizationDecision(false));
-		given(this.authorizationManager.authorize(any(), any())).willCallRealMethod();
+		given(this.authorizationManager.authorize(any(), any())).willReturn(new AuthorizationDecision(false));
 		this.validator.validate(this.chainAuthorizationFilter);
 		verify(this.logger).warn("Anonymous access to the login page doesn't appear to be enabled. "
 				+ "This is almost certainly an error. Please check your configuration allows unauthenticated "

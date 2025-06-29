@@ -69,8 +69,7 @@ public class ObservationReactiveAuthorizationManagerTests {
 	@Test
 	void verifyWhenDefaultsThenObserves() {
 		given(this.handler.supportsContext(any())).willReturn(true);
-		given(this.authorizationManager.check(any(), any())).willReturn(Mono.just(this.grant));
-		given(this.authorizationManager.authorize(any(), any())).willCallRealMethod();
+		given(this.authorizationManager.authorize(any(), any())).willReturn(Mono.just(this.grant));
 		this.tested.verify(this.token, this.object).block();
 		ArgumentCaptor<Observation.Context> captor = ArgumentCaptor.forClass(Observation.Context.class);
 		verify(this.handler).onStart(captor.capture());
@@ -80,14 +79,13 @@ public class ObservationReactiveAuthorizationManagerTests {
 		AuthorizationObservationContext<?> context = (AuthorizationObservationContext<?>) captor.getValue();
 		assertThat(context.getAuthentication()).isNull();
 		assertThat(context.getObject()).isEqualTo(this.object);
-		assertThat(context.getDecision()).isEqualTo(this.grant);
+		assertThat(context.getAuthorizationResult()).isEqualTo(this.grant);
 	}
 
 	@Test
 	void verifyWhenErrorsThenObserves() {
 		given(this.handler.supportsContext(any())).willReturn(true);
-		given(this.authorizationManager.check(any(), any())).willReturn(Mono.just(this.deny));
-		given(this.authorizationManager.authorize(any(), any())).willCallRealMethod();
+		given(this.authorizationManager.authorize(any(), any())).willReturn(Mono.just(this.deny));
 		assertThatExceptionOfType(AccessDeniedException.class)
 			.isThrownBy(() -> this.tested.verify(this.token, this.object).block());
 		ArgumentCaptor<Observation.Context> captor = ArgumentCaptor.forClass(Observation.Context.class);
@@ -98,17 +96,16 @@ public class ObservationReactiveAuthorizationManagerTests {
 		AuthorizationObservationContext<?> context = (AuthorizationObservationContext<?>) captor.getValue();
 		assertThat(context.getAuthentication()).isNull();
 		assertThat(context.getObject()).isEqualTo(this.object);
-		assertThat(context.getDecision()).isEqualTo(this.deny);
+		assertThat(context.getAuthorizationResult()).isEqualTo(this.deny);
 	}
 
 	@Test
 	void verifyWhenLooksUpAuthenticationThenObserves() {
 		given(this.handler.supportsContext(any())).willReturn(true);
-		given(this.authorizationManager.check(any(), any())).willAnswer((invocation) -> {
+		given(this.authorizationManager.authorize(any(), any())).willAnswer((invocation) -> {
 			((Mono<Authentication>) invocation.getArgument(0)).block();
 			return Mono.just(this.grant);
 		});
-		given(this.authorizationManager.authorize(any(), any())).willCallRealMethod();
 		this.tested.verify(this.token, this.object).block();
 		ArgumentCaptor<Observation.Context> captor = ArgumentCaptor.forClass(Observation.Context.class);
 		verify(this.handler).onStart(captor.capture());
@@ -117,7 +114,7 @@ public class ObservationReactiveAuthorizationManagerTests {
 		AuthorizationObservationContext<?> context = (AuthorizationObservationContext<?>) captor.getValue();
 		assertThat(context.getAuthentication()).isEqualTo(this.token.block());
 		assertThat(context.getObject()).isEqualTo(this.object);
-		assertThat(context.getDecision()).isEqualTo(this.grant);
+		assertThat(context.getAuthorizationResult()).isEqualTo(this.grant);
 	}
 
 	@Test
