@@ -42,7 +42,6 @@ import org.springframework.security.authorization.method.PostAuthorizeReactiveAu
 import org.springframework.security.authorization.method.PostFilterAuthorizationReactiveMethodInterceptor;
 import org.springframework.security.authorization.method.PreAuthorizeReactiveAuthorizationManager;
 import org.springframework.security.authorization.method.PreFilterAuthorizationReactiveMethodInterceptor;
-import org.springframework.security.authorization.method.PrePostTemplateDefaults;
 import org.springframework.security.config.ObjectPostProcessor;
 import org.springframework.security.config.core.GrantedAuthorityDefaults;
 import org.springframework.security.core.annotation.AnnotationTemplateExpressionDefaults;
@@ -110,14 +109,6 @@ final class ReactiveAuthorizationManagerMethodSecurityConfiguration
 	public void setApplicationContext(ApplicationContext context) throws BeansException {
 		this.preAuthorizeAuthorizationManager.setApplicationContext(context);
 		this.postAuthorizeAuthorizationManager.setApplicationContext(context);
-	}
-
-	@Autowired(required = false)
-	void setTemplateDefaults(PrePostTemplateDefaults templateDefaults) {
-		this.preFilterMethodInterceptor.setTemplateDefaults(templateDefaults);
-		this.preAuthorizeAuthorizationManager.setTemplateDefaults(templateDefaults);
-		this.postAuthorizeAuthorizationManager.setTemplateDefaults(templateDefaults);
-		this.postFilterMethodInterceptor.setTemplateDefaults(templateDefaults);
 	}
 
 	@Autowired(required = false)
