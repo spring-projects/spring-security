@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,6 @@
 
 package org.springframework.security.web.header.writers.frameoptions;
 
-import java.util.Arrays;
-import java.util.Collections;
-
 import org.junit.jupiter.api.Test;
 
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -29,6 +26,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author Rob Winch
  * @author Ankur Pathak
+ * @author Andrey Litvitski
  * @since 5.0
  */
 public class XFrameOptionsHeaderWriterTests {
@@ -40,22 +38,11 @@ public class XFrameOptionsHeaderWriterTests {
 	private static final String XFRAME_OPTIONS_HEADER = "X-Frame-Options";
 
 	@Test
-	public void writeHeadersWhenWhiteList() {
-		WhiteListedAllowFromStrategy whitelist = new WhiteListedAllowFromStrategy(Arrays.asList("example.com"));
-		XFrameOptionsHeaderWriter writer = new XFrameOptionsHeaderWriter(whitelist);
+	public void writeHeader() {
+		XFrameOptionsHeaderWriter writer = new XFrameOptionsHeaderWriter(
+				XFrameOptionsHeaderWriter.XFrameOptionsMode.DENY);
 		writer.writeHeaders(this.request, this.response);
-		assertThat(this.response.getHeaderValue(XFrameOptionsHeaderWriter.XFRAME_OPTIONS_HEADER)).isEqualTo("DENY");
-	}
-
-	@Test
-	public void writeHeaderWhenNotPresent() {
-		WhiteListedAllowFromStrategy whitelist = new WhiteListedAllowFromStrategy(
-				Collections.singletonList("example.com"));
-		XFrameOptionsHeaderWriter writer = new XFrameOptionsHeaderWriter(whitelist);
-		String value = new String("value");
-		this.response.setHeader(XFRAME_OPTIONS_HEADER, value);
-		writer.writeHeaders(this.request, this.response);
-		assertThat(this.response.getHeader(XFRAME_OPTIONS_HEADER)).isSameAs(value);
+		assertThat(this.response.getHeader(XFRAME_OPTIONS_HEADER)).isEqualTo("DENY");
 	}
 
 }
