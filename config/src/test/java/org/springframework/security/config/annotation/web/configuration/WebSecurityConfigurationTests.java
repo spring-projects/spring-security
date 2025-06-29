@@ -577,9 +577,7 @@ public class WebSecurityConfigurationTests {
 
 		@Bean
 		RoleHierarchy roleHierarchy() {
-			RoleHierarchyImpl roleHierarchy = new RoleHierarchyImpl();
-			roleHierarchy.setHierarchy("ROLE_ADMIN > ROLE_USER");
-			return roleHierarchy;
+			return RoleHierarchyImpl.fromHierarchy("ROLE_ADMIN > ROLE_USER");
 		}
 
 	}
