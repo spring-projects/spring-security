@@ -67,7 +67,7 @@ public class HttpSecuritySecurityMatchersNoMvcTests {
 
 	@BeforeEach
 	public void setup() throws Exception {
-		this.request = new MockHttpServletRequest("GET", "");
+		this.request = new MockHttpServletRequest();
 		this.request.setMethod("GET");
 		this.response = new MockHttpServletResponse();
 		this.chain = new MockFilterChain();
@@ -83,15 +83,15 @@ public class HttpSecuritySecurityMatchersNoMvcTests {
 	@Test
 	public void securityMatcherWhenNoMvcThenAntMatcher() throws Exception {
 		loadConfig(SecurityMatcherNoMvcConfig.class);
-		this.request.setServletPath("/path");
+		this.request.setRequestURI("/path");
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_UNAUTHORIZED);
 		setup();
-		this.request.setServletPath("/path.html");
+		this.request.setRequestURI("/path.html");
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
 		setup();
-		this.request.setServletPath("/path/");
+		this.request.setRequestURI("/path/");
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
 		List<RequestMatcher> requestMatchers = this.springSecurityFilterChain.getFilterChains()
 			.stream()

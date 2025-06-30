@@ -108,6 +108,7 @@ dependencies {
 	optional 'com.fasterxml.jackson.core:jackson-databind'
 	optional 'org.springframework:spring-jdbc'
 
+	testImplementation project(path: ':spring-security-web', configuration: 'tests')
 	testImplementation 'com.squareup.okhttp3:mockwebserver'
 	testImplementation "org.assertj:assertj-core"
 	testImplementation "org.skyscreamer:jsonassert"

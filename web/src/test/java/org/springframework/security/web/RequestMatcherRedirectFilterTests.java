@@ -29,6 +29,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
+import static org.springframework.security.web.servlet.TestMockHttpServletRequests.get;
 
 /**
  * Tests for {@link RequestMatcherRedirectFilter}.
@@ -44,9 +45,7 @@ public class RequestMatcherRedirectFilterTests {
 		RequestMatcherRedirectFilter filter = new RequestMatcherRedirectFilter(this.builder.matcher("/context"),
 				"/test");
 
-		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.setServletPath("/context");
-
+		MockHttpServletRequest request = get("/context").build();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		FilterChain filterChain = mock(FilterChain.class);
 
@@ -63,8 +62,7 @@ public class RequestMatcherRedirectFilterTests {
 		RequestMatcherRedirectFilter filter = new RequestMatcherRedirectFilter(this.builder.matcher("/context"),
 				"/test");
 
-		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.setServletPath("/test");
+		MockHttpServletRequest request = get("/test").build();
 
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		FilterChain filterChain = mock(FilterChain.class);

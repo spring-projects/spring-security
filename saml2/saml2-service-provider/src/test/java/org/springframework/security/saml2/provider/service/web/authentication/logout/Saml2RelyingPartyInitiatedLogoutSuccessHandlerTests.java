@@ -39,6 +39,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.mock;
+import static org.springframework.security.web.servlet.TestMockHttpServletRequests.post;
 
 /**
  * Tests for {@link Saml2RelyingPartyInitiatedLogoutSuccessHandler}
@@ -72,8 +73,7 @@ public class Saml2RelyingPartyInitiatedLogoutSuccessHandlerTests {
 		Saml2LogoutRequest logoutRequest = Saml2LogoutRequest.withRelyingPartyRegistration(registration)
 			.samlRequest("request")
 			.build();
-		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/saml2/logout");
-		request.setServletPath("/saml2/logout");
+		MockHttpServletRequest request = post("/saml2/logout").build();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		given(this.logoutRequestResolver.resolve(any(), any())).willReturn(logoutRequest);
 		this.logoutRequestSuccessHandler.onLogoutSuccess(request, response, authentication);
@@ -92,8 +92,7 @@ public class Saml2RelyingPartyInitiatedLogoutSuccessHandlerTests {
 		Saml2LogoutRequest logoutRequest = Saml2LogoutRequest.withRelyingPartyRegistration(registration)
 			.samlRequest("request")
 			.build();
-		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/saml2/logout");
-		request.setServletPath("/saml2/logout");
+		MockHttpServletRequest request = post("/saml2/logout").build();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		given(this.logoutRequestResolver.resolve(any(), any())).willReturn(logoutRequest);
 		this.logoutRequestSuccessHandler.onLogoutSuccess(request, response, authentication);

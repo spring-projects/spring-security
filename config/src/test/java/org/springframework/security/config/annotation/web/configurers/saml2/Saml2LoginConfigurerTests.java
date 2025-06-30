@@ -94,6 +94,7 @@ import org.springframework.security.web.authentication.AuthenticationFailureHand
 import org.springframework.security.web.context.HttpRequestResponseHolder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
+import org.springframework.security.web.servlet.TestMockHttpServletRequests;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -190,8 +191,7 @@ public class Saml2LoginConfigurerTests {
 
 	@BeforeEach
 	public void setup() {
-		this.request = new MockHttpServletRequest("POST", "");
-		this.request.setServletPath("/login/saml2/sso/test-rp");
+		this.request = TestMockHttpServletRequests.post("/login/saml2/sso/test-rp").build();
 		this.response = new MockHttpServletResponse();
 		this.filterChain = new MockFilterChain();
 	}
@@ -430,7 +430,6 @@ public class Saml2LoginConfigurerTests {
 	private void performSaml2Login(String expected) throws IOException, ServletException {
 		// setup authentication parameters
 		this.request.setRequestURI("/login/saml2/sso/registration-id");
-		this.request.setServletPath("/login/saml2/sso/registration-id");
 		this.request.setParameter("SAMLResponse",
 				Base64.getEncoder().encodeToString("saml2-xml-response-object".getBytes()));
 		// perform test

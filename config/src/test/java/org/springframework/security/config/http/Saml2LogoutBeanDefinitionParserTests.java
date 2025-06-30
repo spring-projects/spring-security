@@ -134,8 +134,7 @@ public class Saml2LogoutBeanDefinitionParserTests {
 		principal.setRelyingPartyRegistrationId("registration-id");
 		this.saml2User = new Saml2Authentication(principal, "response",
 				AuthorityUtils.createAuthorityList("ROLE_USER"));
-		this.request = new MockHttpServletRequest("POST", "");
-		this.request.setServletPath("/login/saml2/sso/test-rp");
+		this.request = new MockHttpServletRequest("POST", "/login/saml2/sso/test-rp");
 		this.response = new MockHttpServletResponse();
 	}
 

@@ -45,6 +45,7 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.config.Customizer.withDefaults;
+import static org.springframework.security.web.servlet.TestMockHttpServletRequests.get;
 
 /**
  * @author Rob Winch
@@ -53,8 +54,6 @@ import static org.springframework.security.config.Customizer.withDefaults;
 public class HttpSecurityRequestMatchersTests {
 
 	AnnotationConfigWebApplicationContext context;
-
-	MockHttpServletRequest request;
 
 	MockHttpServletResponse response;
 
@@ -65,8 +64,6 @@ public class HttpSecurityRequestMatchersTests {
 
 	@BeforeEach
 	public void setup() {
-		this.request = new MockHttpServletRequest("GET", "");
-		this.request.setMethod("GET");
 		this.response = new MockHttpServletResponse();
 		this.chain = new MockFilterChain();
 	}
@@ -87,70 +84,64 @@ public class HttpSecurityRequestMatchersTests {
 	@Test
 	public void requestMatchersMvcMatcherServletPath() throws Exception {
 		loadConfig(RequestMatchersMvcMatcherServeltPathConfig.class);
-		this.request.setServletPath("/spring");
-		this.request.setRequestURI("/spring/path");
-		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
+		MockHttpServletRequest request = get().requestUri(null, "/spring", "/path").build();
+		this.springSecurityFilterChain.doFilter(request, this.response, this.chain);
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_UNAUTHORIZED);
 		setup();
-		this.request.setServletPath("");
-		this.request.setRequestURI("/path");
-		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
+		request = get().requestUri(null, "", "/path").build();
+		this.springSecurityFilterChain.doFilter(request, this.response, this.chain);
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
 		setup();
-		this.request.setServletPath("/other");
-		this.request.setRequestURI("/other/path");
-		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
+		request = get().requestUri(null, "/other", "/path").build();
+		this.springSecurityFilterChain.doFilter(request, this.response, this.chain);
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
 	}
 
 	@Test
 	public void requestMatcherWhensMvcMatcherServletPathInLambdaThenPathIsSecured() throws Exception {
 		loadConfig(RequestMatchersMvcMatcherServletPathInLambdaConfig.class);
-		this.request.setServletPath("/spring");
-		this.request.setRequestURI("/spring/path");
-		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
+		MockHttpServletRequest request = get().requestUri(null, "/spring", "/path").build();
+		this.springSecurityFilterChain.doFilter(request, this.response, this.chain);
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_UNAUTHORIZED);
 		setup();
-		this.request.setServletPath("");
-		this.request.setRequestURI("/path");
-		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
+		request = get().requestUri(null, "", "/path").build();
+		this.springSecurityFilterChain.doFilter(request, this.response, this.chain);
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
 		setup();
-		this.request.setServletPath("/other");
-		this.request.setRequestURI("/other/path");
-		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
+		request = get().requestUri(null, "/other", "/path").build();
+		this.springSecurityFilterChain.doFilter(request, this.response, this.chain);
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
 	}
 
 	@Test
 	public void requestMatcherWhenMultiMvcMatcherInLambdaThenAllPathsAreDenied() throws Exception {
 		loadConfig(MultiMvcMatcherInLambdaConfig.class);
-		this.request.setRequestURI("/test-1");
-		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
+		MockHttpServletRequest request = get("/test-1").build();
+		this.springSecurityFilterChain.doFilter(request, this.response, this.chain);
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_UNAUTHORIZED);
 		setup();
-		this.request.setRequestURI("/test-2");
-		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
+		request = get("/test-2").build();
+		this.springSecurityFilterChain.doFilter(request, this.response, this.chain);
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_UNAUTHORIZED);
 		setup();
-		this.request.setRequestURI("/test-3");
-		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
+		request = get("/test-3").build();
+		this.springSecurityFilterChain.doFilter(request, this.response, this.chain);
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_UNAUTHORIZED);
 	}
 
 	@Test
 	public void requestMatcherWhenMultiMvcMatcherThenAllPathsAreDenied() throws Exception {
 		loadConfig(MultiMvcMatcherConfig.class);
-		this.request.setRequestURI("/test-1");
-		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
+		MockHttpServletRequest request = get("/test-1").build();
+		this.springSecurityFilterChain.doFilter(request, this.response, this.chain);
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_UNAUTHORIZED);
 		setup();
-		this.request.setRequestURI("/test-2");
-		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
+		request = get("/test-2").build();
+		this.springSecurityFilterChain.doFilter(request, this.response, this.chain);
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_UNAUTHORIZED);
 		setup();
-		this.request.setRequestURI("/test-3");
-		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
+		request = get("/test-3").build();
+		this.springSecurityFilterChain.doFilter(request, this.response, this.chain);
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_UNAUTHORIZED);
 	}
 

@@ -33,6 +33,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.springframework.security.web.servlet.TestMockHttpServletRequests.request;
 
 /**
  * Tests {@link DefaultFilterInvocationSecurityMetadataSource}.
@@ -141,12 +142,9 @@ public class DefaultFilterInvocationSecurityMetadataSourceTests {
 
 	private FilterInvocation createFilterInvocation(String servletPath, String pathInfo, String queryString,
 			String method) {
-		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.setRequestURI(null);
-		request.setMethod(method);
-		request.setServletPath(servletPath);
-		request.setPathInfo(pathInfo);
-		request.setQueryString(queryString);
+		MockHttpServletRequest request = request(method).requestUri(null, servletPath, pathInfo)
+			.queryString(queryString)
+			.build();
 		return new FilterInvocation(request, new MockHttpServletResponse(), mock(FilterChain.class));
 	}
 

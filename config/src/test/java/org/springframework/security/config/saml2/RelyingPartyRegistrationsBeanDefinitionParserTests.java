@@ -40,6 +40,7 @@ import org.springframework.security.saml2.provider.service.web.authentication.Op
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
+import static org.springframework.security.web.servlet.TestMockHttpServletRequests.get;
 
 /**
  * Tests for {@link RelyingPartyRegistrationsBeanDefinitionParser}.
@@ -282,9 +283,7 @@ public class RelyingPartyRegistrationsBeanDefinitionParserTests {
 		Converter<HttpServletRequest, String> relayStateResolver = this.spring.getContext().getBean(Converter.class);
 		OpenSaml4AuthenticationRequestResolver authenticationRequestResolver = this.spring.getContext()
 			.getBean(OpenSaml4AuthenticationRequestResolver.class);
-		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.setRequestURI("/saml2/authenticate/one");
-		request.setServletPath("/saml2/authenticate/one");
+		MockHttpServletRequest request = get("/saml2/authenticate/one").build();
 		authenticationRequestResolver.resolve(request);
 		verify(relayStateResolver).convert(request);
 	}

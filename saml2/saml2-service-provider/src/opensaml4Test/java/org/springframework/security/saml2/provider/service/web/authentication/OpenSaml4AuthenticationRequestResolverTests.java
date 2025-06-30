@@ -103,9 +103,7 @@ public class OpenSaml4AuthenticationRequestResolverTests {
 	}
 
 	private MockHttpServletRequest givenRequest(String path) {
-		MockHttpServletRequest request = new MockHttpServletRequest("GET", path);
-		request.setServletPath(path);
-		return request;
+		return new MockHttpServletRequest("GET", path);
 	}
 
 }

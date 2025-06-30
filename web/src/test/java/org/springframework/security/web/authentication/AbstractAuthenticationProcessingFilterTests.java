@@ -59,6 +59,9 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.springframework.security.web.servlet.TestMockHttpServletRequests.Builder;
+import static org.springframework.security.web.servlet.TestMockHttpServletRequests.get;
+import static org.springframework.security.web.servlet.TestMockHttpServletRequests.post;
 
 /**
  * Tests {@link AbstractAuthenticationProcessingFilter}.
@@ -75,13 +78,11 @@ public class AbstractAuthenticationProcessingFilterTests {
 	SimpleUrlAuthenticationFailureHandler failureHandler;
 
 	private MockHttpServletRequest createMockAuthenticationRequest() {
-		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.setServletPath("/j_mock_post");
-		request.setScheme("http");
-		request.setServerName("www.example.com");
-		request.setRequestURI("/mycontext/j_mock_post");
-		request.setContextPath("/mycontext");
-		return request;
+		return withMockAuthenticationRequest().build();
+	}
+
+	private Builder withMockAuthenticationRequest() {
+		return get("www.example.com").requestUri("/mycontext", "/j_mock_post", null);
 	}
 
 	@BeforeEach
@@ -100,12 +101,11 @@ public class AbstractAuthenticationProcessingFilterTests {
 
 	@Test
 	public void testDefaultProcessesFilterUrlMatchesWithPathParameter() {
-		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/login;jsessionid=I8MIONOSTHOR");
+		MockHttpServletRequest request = post("/login;jsessionid=I8MIONOSTHOR").build();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		MockAuthenticationFilter filter = new MockAuthenticationFilter();
 		filter.setFilterProcessesUrl("/login");
 		DefaultHttpFirewall firewall = new DefaultHttpFirewall();
-		request.setServletPath("/login;jsessionid=I8MIONOSTHOR");
 		// the firewall ensures that path parameters are ignored
 		HttpServletRequest firewallRequest = firewall.getFirewalledRequest(request);
 		assertThat(filter.requiresAuthentication(firewallRequest, response)).isTrue();
@@ -114,9 +114,9 @@ public class AbstractAuthenticationProcessingFilterTests {
 	@Test
 	public void testFilterProcessesUrlVariationsRespected() throws Exception {
 		// Setup our HTTP request
-		MockHttpServletRequest request = createMockAuthenticationRequest();
-		request.setServletPath("/j_OTHER_LOCATION");
-		request.setRequestURI("/mycontext/j_OTHER_LOCATION");
+		MockHttpServletRequest request = withMockAuthenticationRequest()
+			.requestUri("/mycontext", "/j_OTHER_LOCATION", null)
+			.build();
 		// Setup our filter configuration
 		MockFilterConfig config = new MockFilterConfig(null, null);
 		// Setup our expectation that the filter chain will not be invoked, as we redirect
@@ -150,9 +150,9 @@ public class AbstractAuthenticationProcessingFilterTests {
 	@Test
 	public void testIgnoresAnyServletPathOtherThanFilterProcessesUrl() throws Exception {
 		// Setup our HTTP request
-		MockHttpServletRequest request = createMockAuthenticationRequest();
-		request.setServletPath("/some.file.html");
-		request.setRequestURI("/mycontext/some.file.html");
+		MockHttpServletRequest request = withMockAuthenticationRequest()
+			.requestUri("/mycontext", "/some.file.html", null)
+			.build();
 		// Setup our filter configuration
 		MockFilterConfig config = new MockFilterConfig(null, null);
 		// Setup our expectation that the filter chain will be invoked, as our request is
@@ -227,9 +227,9 @@ public class AbstractAuthenticationProcessingFilterTests {
 	@Test
 	public void testNormalOperationWithRequestMatcherAndAuthenticationManager() throws Exception {
 		// Setup our HTTP request
-		MockHttpServletRequest request = createMockAuthenticationRequest();
-		request.setServletPath("/j_eradicate_corona_virus");
-		request.setRequestURI("/mycontext/j_eradicate_corona_virus");
+		MockHttpServletRequest request = withMockAuthenticationRequest()
+			.requestUri("/mycontext", "/j_eradicate_corona_virus", null)
+			.build();
 		HttpSession sessionPreAuth = request.getSession();
 		// Setup our filter configuration
 		MockFilterConfig config = new MockFilterConfig(null, null);

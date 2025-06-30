@@ -53,6 +53,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.springframework.security.web.servlet.TestMockHttpServletRequests.get;
 
 /**
  * Tests {@link DigestAuthenticationFilter}.
@@ -131,8 +132,7 @@ public class DigestAuthenticationFilterTests {
 		this.filter = new DigestAuthenticationFilter();
 		this.filter.setUserDetailsService(uds);
 		this.filter.setAuthenticationEntryPoint(ep);
-		this.request = new MockHttpServletRequest("GET", REQUEST_URI);
-		this.request.setServletPath(REQUEST_URI);
+		this.request = get(REQUEST_URI).build();
 	}
 
 	@Test

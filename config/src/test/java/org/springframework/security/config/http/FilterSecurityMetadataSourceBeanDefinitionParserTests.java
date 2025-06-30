@@ -129,9 +129,7 @@ public class FilterSecurityMetadataSourceBeanDefinitionParserTests {
 	}
 
 	private FilterInvocation createFilterInvocation(String path, String method) {
-		MockHttpServletRequest request = new MockHttpServletRequest("GET", "");
-		request.setRequestURI(path);
-		request.setMethod(method);
+		MockHttpServletRequest request = new MockHttpServletRequest(method, path);
 		return new FilterInvocation(request, new MockHttpServletResponse(), new MockFilterChain());
 	}
 

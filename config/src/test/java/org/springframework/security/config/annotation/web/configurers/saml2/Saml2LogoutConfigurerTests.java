@@ -77,6 +77,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
+import org.springframework.security.web.servlet.TestMockHttpServletRequests;
 import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -159,8 +160,7 @@ public class Saml2LogoutConfigurerTests {
 				Collections.emptyMap());
 		principal.setRelyingPartyRegistrationId("registration-id");
 		this.user = new Saml2Authentication(principal, "response", AuthorityUtils.createAuthorityList("ROLE_USER"));
-		this.request = new MockHttpServletRequest("POST", "");
-		this.request.setServletPath("/login/saml2/sso/test-rp");
+		this.request = TestMockHttpServletRequests.post("/login/saml2/sso/test-rp").build();
 		this.response = new MockHttpServletResponse();
 	}
 

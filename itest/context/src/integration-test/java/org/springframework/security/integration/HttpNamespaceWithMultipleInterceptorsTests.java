@@ -43,9 +43,7 @@ public class HttpNamespaceWithMultipleInterceptorsTests {
 
 	@Test
 	public void requestThatIsMatchedByDefaultInterceptorIsAllowed() throws Exception {
-		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.setMethod("GET");
-		request.setServletPath("/somefile.html");
+		MockHttpServletRequest request = TestMockHttpServletRequests.get("/somefile.html").build();
 		request.setSession(createAuthenticatedSession("ROLE_0", "ROLE_1", "ROLE_2"));
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		this.fcp.doFilter(request, response, new MockFilterChain());
@@ -54,10 +52,7 @@ public class HttpNamespaceWithMultipleInterceptorsTests {
 
 	@Test
 	public void securedUrlAccessIsRejectedWithoutRequiredRole() throws Exception {
-		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.setMethod("GET");
-
-		request.setServletPath("/secure/somefile.html");
+		MockHttpServletRequest request = TestMockHttpServletRequests.get("/secure/somefile.html").build();
 		request.setSession(createAuthenticatedSession("ROLE_0"));
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		this.fcp.doFilter(request, response, new MockFilterChain());
