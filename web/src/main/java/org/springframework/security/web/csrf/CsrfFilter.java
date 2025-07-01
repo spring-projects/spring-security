@@ -214,7 +214,7 @@ public final class CsrfFilter extends OncePerRequestFilter {
 
 		@Override
 		public String toString() {
-			return "CsrfNotRequired " + this.allowedMethods;
+			return "IsNotHttpMethod " + this.allowedMethods;
 		}
 
 	}
