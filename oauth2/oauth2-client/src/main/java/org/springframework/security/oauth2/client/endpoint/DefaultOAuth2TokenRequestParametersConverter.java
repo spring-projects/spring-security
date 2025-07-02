@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,6 @@ import org.springframework.util.MultiValueMap;
  * <li>{@code authorization_code}</li>
  * <li>{@code refresh_token}</li>
  * <li>{@code client_credentials}</li>
- * <li>{@code password}</li>
  * <li>{@code urn:ietf:params:oauth:grant-type:jwt-bearer}</li>
  * <li>{@code urn:ietf:params:oauth:grant-type:token-exchange}</li>
  * </ul>
@@ -92,9 +91,6 @@ public final class DefaultOAuth2TokenRequestParametersConverter<T extends Abstra
 			}
 			else if (grantRequest instanceof OAuth2RefreshTokenGrantRequest refreshTokenGrantRequest) {
 				return OAuth2RefreshTokenGrantRequest.defaultParameters(refreshTokenGrantRequest);
-			}
-			else if (grantRequest instanceof OAuth2PasswordGrantRequest passwordGrantRequest) {
-				return OAuth2PasswordGrantRequest.defaultParameters(passwordGrantRequest);
 			}
 			else if (grantRequest instanceof JwtBearerGrantRequest jwtBearerGrantRequest) {
 				return JwtBearerGrantRequest.defaultParameters(jwtBearerGrantRequest);

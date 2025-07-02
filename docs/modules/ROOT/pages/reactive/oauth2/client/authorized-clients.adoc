@@ -56,7 +56,6 @@ It directly uses an xref:reactive/oauth2/client/core.adoc#oauth2Client-authorize
 * An `OAuth2AccessToken` will be requested if the client has not yet been authorized.
 ** `authorization_code` - triggers the Authorization Request redirect to initiate the flow
 ** `client_credentials` - the access token is obtained directly from the Token Endpoint
-** `password` - the access token is obtained directly from the Token Endpoint
 * If the `OAuth2AccessToken` is expired, it will be refreshed (or renewed) if a `ReactiveOAuth2AuthorizedClientProvider` is available to perform the authorization
 
 The following code shows an example of how to configure `WebClient` with OAuth 2.0 Client support:

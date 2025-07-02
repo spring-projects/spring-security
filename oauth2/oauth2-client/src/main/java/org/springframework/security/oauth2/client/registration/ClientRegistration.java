@@ -346,7 +346,7 @@ public final class ClientRegistration implements Serializable {
 
 		private static final List<AuthorizationGrantType> AUTHORIZATION_GRANT_TYPES = Arrays.asList(
 				AuthorizationGrantType.AUTHORIZATION_CODE, AuthorizationGrantType.CLIENT_CREDENTIALS,
-				AuthorizationGrantType.REFRESH_TOKEN, AuthorizationGrantType.PASSWORD);
+				AuthorizationGrantType.REFRESH_TOKEN);
 
 		private String registrationId;
 
@@ -630,9 +630,6 @@ public final class ClientRegistration implements Serializable {
 			if (AuthorizationGrantType.CLIENT_CREDENTIALS.equals(this.authorizationGrantType)) {
 				this.validateClientCredentialsGrantType();
 			}
-			else if (AuthorizationGrantType.PASSWORD.equals(this.authorizationGrantType)) {
-				this.validatePasswordGrantType();
-			}
 			else if (AuthorizationGrantType.AUTHORIZATION_CODE.equals(this.authorizationGrantType)) {
 				this.validateAuthorizationCodeGrantType();
 			}
@@ -692,14 +689,6 @@ public final class ClientRegistration implements Serializable {
 		private void validateClientCredentialsGrantType() {
 			Assert.isTrue(AuthorizationGrantType.CLIENT_CREDENTIALS.equals(this.authorizationGrantType),
 					() -> "authorizationGrantType must be " + AuthorizationGrantType.CLIENT_CREDENTIALS.getValue());
-			Assert.hasText(this.registrationId, "registrationId cannot be empty");
-			Assert.hasText(this.clientId, "clientId cannot be empty");
-			Assert.hasText(this.tokenUri, "tokenUri cannot be empty");
-		}
-
-		private void validatePasswordGrantType() {
-			Assert.isTrue(AuthorizationGrantType.PASSWORD.equals(this.authorizationGrantType),
-					() -> "authorizationGrantType must be " + AuthorizationGrantType.PASSWORD.getValue());
 			Assert.hasText(this.registrationId, "registrationId cannot be empty");
 			Assert.hasText(this.clientId, "clientId cannot be empty");
 			Assert.hasText(this.tokenUri, "tokenUri cannot be empty");

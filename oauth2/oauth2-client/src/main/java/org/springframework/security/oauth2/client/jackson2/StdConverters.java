@@ -66,9 +66,6 @@ abstract class StdConverters {
 			if (AuthorizationGrantType.CLIENT_CREDENTIALS.getValue().equalsIgnoreCase(value)) {
 				return AuthorizationGrantType.CLIENT_CREDENTIALS;
 			}
-			if (AuthorizationGrantType.PASSWORD.getValue().equalsIgnoreCase(value)) {
-				return AuthorizationGrantType.PASSWORD;
-			}
 			return new AuthorizationGrantType(value);
 		}
 

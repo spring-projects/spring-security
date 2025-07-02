@@ -1367,7 +1367,6 @@ public class SecurityConfig {
 				.authorizationCode()
 				.refreshToken()
 				.clientCredentials()
-				.password()
 				.provider(new JwtBearerOAuth2AuthorizedClientProvider())
 				.build();
 
@@ -1398,7 +1397,6 @@ class SecurityConfig {
 			.authorizationCode()
 			.refreshToken()
 			.clientCredentials()
-			.password()
 			.provider(JwtBearerOAuth2AuthorizedClientProvider())
 			.build()
 
@@ -1699,7 +1697,6 @@ Spring Security automatically resolves the following generic types of `OAuth2Acc
 * `OAuth2AuthorizationCodeGrantRequest` (see `DefaultAuthorizationCodeTokenResponseClient`)
 * `OAuth2RefreshTokenGrantRequest` (see `DefaultRefreshTokenTokenResponseClient`)
 * `OAuth2ClientCredentialsGrantRequest` (see `DefaultClientCredentialsTokenResponseClient`)
-* `OAuth2PasswordGrantRequest` (see `DefaultPasswordTokenResponseClient`)
 * `JwtBearerGrantRequest` (see `DefaultJwtBearerTokenResponseClient`)
 * `TokenExchangeGrantRequest` (see `DefaultTokenExchangeTokenResponseClient`)
 
@@ -1761,15 +1758,6 @@ public class SecurityConfig {
 	}
 
 	@Bean
-	public OAuth2AccessTokenResponseClient<OAuth2PasswordGrantRequest> passwordAccessTokenResponseClient() {
-		DefaultPasswordTokenResponseClient accessTokenResponseClient =
-			new DefaultPasswordTokenResponseClient();
-		accessTokenResponseClient.setRestOperations(restTemplate());
-
-		return accessTokenResponseClient;
-	}
-
-	@Bean
 	public OAuth2AccessTokenResponseClient<JwtBearerGrantRequest> jwtBearerAccessTokenResponseClient() {
 		DefaultJwtBearerTokenResponseClient accessTokenResponseClient =
 			new DefaultJwtBearerTokenResponseClient();
@@ -1821,14 +1809,6 @@ class SecurityConfig {
 	@Bean
 	fun clientCredentialsAccessTokenResponseClient(): OAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> {
 		val accessTokenResponseClient = DefaultClientCredentialsTokenResponseClient()
-		accessTokenResponseClient.setRestOperations(restTemplate())
-
-		return accessTokenResponseClient
-	}
-
-	@Bean
-	fun passwordAccessTokenResponseClient(): OAuth2AccessTokenResponseClient<OAuth2PasswordGrantRequest> {
-		val accessTokenResponseClient = DefaultPasswordTokenResponseClient()
 		accessTokenResponseClient.setRestOperations(restTemplate())
 
 		return accessTokenResponseClient
@@ -1917,10 +1897,6 @@ public class SecurityConfig {
 			new DefaultClientCredentialsTokenResponseClient();
 		clientCredentialsAccessTokenResponseClient.setRestOperations(restTemplate());
 
-		DefaultPasswordTokenResponseClient passwordAccessTokenResponseClient =
-			new DefaultPasswordTokenResponseClient();
-		passwordAccessTokenResponseClient.setRestOperations(restTemplate());
-
 		DefaultJwtBearerTokenResponseClient jwtBearerAccessTokenResponseClient =
 			new DefaultJwtBearerTokenResponseClient();
 		jwtBearerAccessTokenResponseClient.setRestOperations(restTemplate());
@@ -1945,9 +1921,6 @@ public class SecurityConfig {
 				)
 				.clientCredentials((clientCredentials) -> clientCredentials
 					.accessTokenResponseClient(clientCredentialsAccessTokenResponseClient)
-				)
-				.password((password) -> password
-					.accessTokenResponseClient(passwordAccessTokenResponseClient)
 				)
 				.provider(jwtBearerAuthorizedClientProvider)
 				.provider(tokenExchangeAuthorizedClientProvider)
@@ -2012,9 +1985,6 @@ class SecurityConfig {
 		val clientCredentialsAccessTokenResponseClient = DefaultClientCredentialsTokenResponseClient()
 		clientCredentialsAccessTokenResponseClient.setRestOperations(restTemplate())
 
-		val passwordAccessTokenResponseClient = DefaultPasswordTokenResponseClient()
-		passwordAccessTokenResponseClient.setRestOperations(restTemplate())
-
 		val jwtBearerAccessTokenResponseClient = DefaultJwtBearerTokenResponseClient()
 		jwtBearerAccessTokenResponseClient.setRestOperations(restTemplate())
 
@@ -2034,9 +2004,6 @@ class SecurityConfig {
 			}
 			.clientCredentials { clientCredentials ->
 				clientCredentials.accessTokenResponseClient(clientCredentialsAccessTokenResponseClient)
-			}
-			.password { password ->
-				password.accessTokenResponseClient(passwordAccessTokenResponseClient)
 			}
 			.provider(jwtBearerAuthorizedClientProvider)
 			.provider(tokenExchangeAuthorizedClientProvider)

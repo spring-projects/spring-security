@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 
 package org.springframework.security.oauth2.client.web;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -46,7 +45,6 @@ import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.core.TestOAuth2AccessTokens;
 import org.springframework.security.oauth2.core.TestOAuth2RefreshTokens;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
-import org.springframework.util.StringUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -307,45 +305,6 @@ public class DefaultOAuth2AuthorizedClientManagerTests {
 				any());
 		verify(this.authorizedClientRepository).saveAuthorizedClient(eq(reauthorizedClient), eq(this.principal),
 				eq(this.request), eq(this.response));
-	}
-
-	@Test
-	public void authorizeWhenRequestParameterUsernamePasswordThenMappedToContext() {
-		given(this.clientRegistrationRepository.findByRegistrationId(eq(this.clientRegistration.getRegistrationId())))
-			.willReturn(this.clientRegistration);
-		given(this.authorizedClientProvider.authorize(any(OAuth2AuthorizationContext.class)))
-			.willReturn(this.authorizedClient);
-		// Set custom contextAttributesMapper
-		this.authorizedClientManager.setContextAttributesMapper((authorizeRequest) -> {
-			Map<String, Object> contextAttributes = new HashMap<>();
-			HttpServletRequest servletRequest = authorizeRequest.getAttribute(HttpServletRequest.class.getName());
-			String username = servletRequest.getParameter(OAuth2ParameterNames.USERNAME);
-			String password = servletRequest.getParameter(OAuth2ParameterNames.PASSWORD);
-			if (StringUtils.hasText(username) && StringUtils.hasText(password)) {
-				contextAttributes.put(OAuth2AuthorizationContext.USERNAME_ATTRIBUTE_NAME, username);
-				contextAttributes.put(OAuth2AuthorizationContext.PASSWORD_ATTRIBUTE_NAME, password);
-			}
-			return contextAttributes;
-		});
-		this.request.addParameter(OAuth2ParameterNames.USERNAME, "username");
-		this.request.addParameter(OAuth2ParameterNames.PASSWORD, "password");
-		// @formatter:off
-		OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest
-				.withClientRegistrationId(this.clientRegistration.getRegistrationId())
-				.principal(this.principal)
-				.attributes((attrs) -> {
-					attrs.put(HttpServletRequest.class.getName(), this.request);
-					attrs.put(HttpServletResponse.class.getName(), this.response);
-				})
-				.build();
-		// @formatter:on
-		this.authorizedClientManager.authorize(authorizeRequest);
-		verify(this.authorizedClientProvider).authorize(this.authorizationContextCaptor.capture());
-		OAuth2AuthorizationContext authorizationContext = this.authorizationContextCaptor.getValue();
-		String username = authorizationContext.getAttribute(OAuth2AuthorizationContext.USERNAME_ATTRIBUTE_NAME);
-		assertThat(username).isEqualTo("username");
-		String password = authorizationContext.getAttribute(OAuth2AuthorizationContext.PASSWORD_ATTRIBUTE_NAME);
-		assertThat(password).isEqualTo("password");
 	}
 
 	@SuppressWarnings("unchecked")

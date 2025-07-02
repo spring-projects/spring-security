@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -145,30 +145,6 @@ public class DefaultOAuth2TokenRequestParametersConverterTests {
 		assertThat(parameters.get(OAuth2ParameterNames.CLIENT_SECRET))
 			.containsExactly(clientRegistration.getClientSecret());
 		assertThat(parameters.get(OAuth2ParameterNames.REFRESH_TOKEN)).containsExactly(refreshToken.getTokenValue());
-		assertThat(parameters.get(OAuth2ParameterNames.SCOPE))
-			.containsExactly(StringUtils.collectionToDelimitedString(clientRegistration.getScopes(), " "));
-	}
-
-	@Test
-	public void convertWhenGrantRequestIsPasswordThenParametersProvided() {
-		ClientRegistration clientRegistration = this.clientRegistration
-			.authorizationGrantType(AuthorizationGrantType.PASSWORD)
-			.build();
-		OAuth2PasswordGrantRequest grantRequest = new OAuth2PasswordGrantRequest(clientRegistration, "user",
-				"password");
-		// @formatter:off
-		DefaultOAuth2TokenRequestParametersConverter<OAuth2PasswordGrantRequest> parametersConverter =
-			new DefaultOAuth2TokenRequestParametersConverter<>();
-		// @formatter:on
-		MultiValueMap<String, String> parameters = parametersConverter.convert(grantRequest);
-		assertThat(parameters).hasSize(6);
-		assertThat(parameters.get(OAuth2ParameterNames.GRANT_TYPE))
-			.containsExactly(AuthorizationGrantType.PASSWORD.getValue());
-		assertThat(parameters.get(OAuth2ParameterNames.CLIENT_ID)).containsExactly(clientRegistration.getClientId());
-		assertThat(parameters.get(OAuth2ParameterNames.CLIENT_SECRET))
-			.containsExactly(clientRegistration.getClientSecret());
-		assertThat(parameters.get(OAuth2ParameterNames.USERNAME)).containsExactly(grantRequest.getUsername());
-		assertThat(parameters.get(OAuth2ParameterNames.PASSWORD)).containsExactly(grantRequest.getPassword());
 		assertThat(parameters.get(OAuth2ParameterNames.SCOPE))
 			.containsExactly(StringUtils.collectionToDelimitedString(clientRegistration.getScopes(), " "));
 	}
