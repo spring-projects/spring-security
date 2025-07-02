@@ -54,6 +54,43 @@ public class ExpressionTemplateSecurityAnnotationScannerTests {
 		assertThat(preAuthorize.value()).isEqualTo("check(#name)");
 	}
 
+	@Test
+	void parseMetaSourceAnnotationWithEnumImplementingExpressionTemplateValueProvider() throws Exception {
+		Method method = MessageService.class.getDeclaredMethod("process");
+		PreAuthorize preAuthorize = this.scanner.scan(method, method.getDeclaringClass());
+		assertThat(preAuthorize.value()).isEqualTo("hasAnyAuthority('user.READ','user.WRITE')");
+	}
+
+	enum Permission implements ExpressionTemplateValueProvider {
+		READ,
+		WRITE;
+
+		@Override
+		public String getExpressionTemplateValue() {
+			return switch (this) {
+				case READ -> "'user.READ'";
+				case WRITE -> "'user.WRITE'";
+			};
+		}
+	}
+
+	@Documented
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target({ ElementType.TYPE, ElementType.METHOD })
+	@PreAuthorize("hasAnyAuthority({permissions})")
+	@interface HasAnyCustomPermissions {
+
+		Permission[] permissions();
+
+	}
+
+	@Documented
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target({ ElementType.TYPE, ElementType.METHOD })
+	@HasAnyCustomPermissions(permissions = { Permission.READ, Permission.WRITE })
+	@interface HasAllCustomPermissions {
+	}
+
 	@Documented
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target({ ElementType.TYPE, ElementType.METHOD })
@@ -85,6 +122,9 @@ public class ExpressionTemplateSecurityAnnotationScannerTests {
 	}
 
 	private interface MessageService {
+
+		@HasAllCustomPermissions
+		void process();
 
 		@HasReadPermission("#name")
 		String sayHello(String name);
