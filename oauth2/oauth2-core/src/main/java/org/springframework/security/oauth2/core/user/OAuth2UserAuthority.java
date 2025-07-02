@@ -30,6 +30,7 @@ import org.springframework.util.Assert;
  * A {@link GrantedAuthority} that may be associated to an {@link OAuth2User}.
  *
  * @author Joe Grandja
+ * @author Yoobin Yoon
  * @since 5.0
  * @see OAuth2User
  */
@@ -41,13 +42,18 @@ public class OAuth2UserAuthority implements GrantedAuthority {
 
 	private final Map<String, Object> attributes;
 
+	@Deprecated
 	private final String userNameAttributeName;
+
+	private final String username;
 
 	/**
 	 * Constructs a {@code OAuth2UserAuthority} using the provided parameters and defaults
 	 * {@link #getAuthority()} to {@code OAUTH2_USER}.
 	 * @param attributes the attributes about the user
+	 * @deprecated Use {@link #withUsername(String)} builder pattern instead
 	 */
+	@Deprecated
 	public OAuth2UserAuthority(Map<String, Object> attributes) {
 		this("OAUTH2_USER", attributes);
 	}
@@ -59,7 +65,9 @@ public class OAuth2UserAuthority implements GrantedAuthority {
 	 * @param userNameAttributeName the attribute name used to access the user's name from
 	 * the attributes
 	 * @since 6.4
+	 * @deprecated Use {@link #withUsername(String)} builder pattern instead
 	 */
+	@Deprecated
 	public OAuth2UserAuthority(Map<String, Object> attributes, @Nullable String userNameAttributeName) {
 		this("OAUTH2_USER", attributes, userNameAttributeName);
 	}
@@ -68,7 +76,9 @@ public class OAuth2UserAuthority implements GrantedAuthority {
 	 * Constructs a {@code OAuth2UserAuthority} using the provided parameters.
 	 * @param authority the authority granted to the user
 	 * @param attributes the attributes about the user
+	 * @deprecated Use {@link #withUsername(String)} builder pattern instead
 	 */
+	@Deprecated
 	public OAuth2UserAuthority(String authority, Map<String, Object> attributes) {
 		this(authority, attributes, null);
 	}
@@ -80,13 +90,43 @@ public class OAuth2UserAuthority implements GrantedAuthority {
 	 * @param userNameAttributeName the attribute name used to access the user's name from
 	 * the attributes
 	 * @since 6.4
+	 * @deprecated Use {@link #withUsername(String)} builder pattern instead
 	 */
+	@Deprecated
 	public OAuth2UserAuthority(String authority, Map<String, Object> attributes, String userNameAttributeName) {
 		Assert.hasText(authority, "authority cannot be empty");
 		Assert.notEmpty(attributes, "attributes cannot be empty");
 		this.authority = authority;
 		this.attributes = Collections.unmodifiableMap(new LinkedHashMap<>(attributes));
 		this.userNameAttributeName = userNameAttributeName;
+		this.username = (userNameAttributeName != null && attributes.get(userNameAttributeName) != null)
+				? attributes.get(userNameAttributeName).toString() : null;
+	}
+
+	/**
+	 * Constructs a {@code OAuth2UserAuthority} using the provided parameters.
+	 * @param username the username
+	 * @param authority the authority granted to the user
+	 * @param attributes the attributes about the user
+	 */
+	protected OAuth2UserAuthority(String username, String authority, Map<String, Object> attributes) {
+		Assert.hasText(username, "username cannot be empty");
+		Assert.hasText(authority, "authority cannot be empty");
+		Assert.notEmpty(attributes, "attributes cannot be empty");
+		this.username = username;
+		this.authority = authority;
+		this.attributes = Collections.unmodifiableMap(new LinkedHashMap<>(attributes));
+		this.userNameAttributeName = null;
+	}
+
+	/**
+	 * Creates a new {@code OAuth2UserAuthority} builder with the username.
+	 * @param username the username
+	 * @return a new {@code Builder}
+	 * @since 7.0
+	 */
+	public static Builder withUsername(String username) {
+		return new Builder(username);
 	}
 
 	@Override
@@ -106,10 +146,24 @@ public class OAuth2UserAuthority implements GrantedAuthority {
 	 * Returns the attribute name used to access the user's name from the attributes.
 	 * @return the attribute name used to access the user's name from the attributes
 	 * @since 6.4
+	 * @deprecated Use {@link #getUsername()} instead
 	 */
+	@Deprecated
 	@Nullable
 	public String getUserNameAttributeName() {
 		return this.userNameAttributeName;
+	}
+
+	/**
+	 * Returns the username of the OAuth2 user.
+	 * <p>
+	 * This method provides direct access to the username without requiring knowledge of
+	 * the attribute structure or SpEL expressions used to extract it.
+	 * @return the username
+	 * @since 7.0
+	 */
+	public String getUsername() {
+		return this.username;
 	}
 
 	@Override
@@ -122,6 +176,9 @@ public class OAuth2UserAuthority implements GrantedAuthority {
 		}
 		OAuth2UserAuthority that = (OAuth2UserAuthority) obj;
 		if (!this.getAuthority().equals(that.getAuthority())) {
+			return false;
+		}
+		if (!Objects.equals(this.username, that.username)) {
 			return false;
 		}
 		Map<String, Object> thatAttributes = that.getAttributes();
@@ -149,7 +206,7 @@ public class OAuth2UserAuthority implements GrantedAuthority {
 	@Override
 	public int hashCode() {
 		int result = this.getAuthority().hashCode();
-		result = 31 * result;
+		result = 31 * result + Objects.hashCode(this.username);
 		for (Map.Entry<String, Object> e : getAttributes().entrySet()) {
 			Object key = e.getKey();
 			Object value = convertURLIfNecessary(e.getValue());
@@ -169,6 +226,41 @@ public class OAuth2UserAuthority implements GrantedAuthority {
 	 */
 	private static Object convertURLIfNecessary(Object value) {
 		return (value instanceof URL) ? ((URL) value).toExternalForm() : value;
+	}
+
+	/**
+	 * A builder for {@link OAuth2UserAuthority}.
+	 *
+	 * @since 7.0
+	 */
+	public static class Builder {
+
+		protected final String username;
+
+		protected String authority = "OAUTH2_USER";
+
+		protected Map<String, Object> attributes;
+
+		protected Builder(String username) {
+			Assert.hasText(username, "username cannot be empty");
+			this.username = username;
+		}
+
+		public Builder authority(String authority) {
+			this.authority = authority;
+			return this;
+		}
+
+		public Builder attributes(Map<String, Object> attributes) {
+			this.attributes = attributes;
+			return this;
+		}
+
+		public OAuth2UserAuthority build() {
+			Assert.notEmpty(this.attributes, "attributes cannot be empty");
+			return new OAuth2UserAuthority(this.username, this.authority, this.attributes);
+		}
+
 	}
 
 }

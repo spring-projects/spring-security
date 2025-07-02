@@ -30,6 +30,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  * Tests for {@link OAuth2UserAuthority}.
  *
  * @author Joe Grandja
+ * @author Yoobin Yoon
  */
 public class OAuth2UserAuthorityTests {
 
@@ -92,6 +93,39 @@ public class OAuth2UserAuthorityTests {
 
 		assertThat(AUTHORITY_WITH_OBJECTURL.hashCode()).isEqualTo(AUTHORITY_WITH_STRINGURL.hashCode());
 		assertThat(AUTHORITY_WITH_STRINGURL.hashCode()).isEqualTo(AUTHORITY_WITH_OBJECTURL.hashCode());
+	}
+
+	@Test
+	public void withUsernameWhenUsernameIsNullThenThrowIllegalArgumentException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> OAuth2UserAuthority.withUsername(null));
+	}
+
+	@Test
+	public void withUsernameWhenUsernameIsEmptyThenThrowIllegalArgumentException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> OAuth2UserAuthority.withUsername(""));
+	}
+
+	@Test
+	public void builderWhenAttributesIsNotSetThenThrowIllegalArgumentException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> OAuth2UserAuthority.withUsername("john_doe").build());
+	}
+
+	@Test
+	public void builderWhenAllParametersProvidedAndValidThenCreated() {
+		String username = "john_doe";
+		OAuth2UserAuthority authority = OAuth2UserAuthority.withUsername(username).attributes(ATTRIBUTES).build();
+
+		assertThat(authority.getUsername()).isEqualTo(username);
+		assertThat(authority.getAuthority()).isEqualTo("OAUTH2_USER");
+		assertThat(authority.getAttributes()).isEqualTo(ATTRIBUTES);
+	}
+
+	@Test
+	public void getUsernameWhenBuiltWithUsernameThenReturnsUsername() {
+		String username = "john_doe";
+		OAuth2UserAuthority authority = OAuth2UserAuthority.withUsername(username).attributes(ATTRIBUTES).build();
+
+		assertThat(authority.getUsername()).isEqualTo(username);
 	}
 
 }
