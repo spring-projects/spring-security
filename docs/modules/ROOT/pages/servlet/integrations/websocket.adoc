@@ -698,7 +698,7 @@ If we use XML-based configuration, we can use thexref:servlet/appendix/namespace
     <b:constructor-arg value="#{T(org.springframework.security.web.csrf.CsrfFilter).DEFAULT_CSRF_MATCHER}"/>
     <b:constructor-arg>
         <b:bean class="org.springframework.security.web.util.matcher.NegatedRequestMatcher">
-          <b:bean class="org.springframework.security.web.util.matcher.AntPathRequestMatcher">
+          <b:bean class="org.springframework.security.config.http.PathPatternRequestMatcherFactoryBean">
             <b:constructor-arg value="/chat/**"/>
           </b:bean>
         </b:bean>

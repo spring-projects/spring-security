@@ -132,7 +132,7 @@ public class MvcWebApplicationInitializer extends
 ----
 
 The reason for this is that Spring Security needs to be able to inspect some Spring MVC configuration in order to appropriately configure xref:servlet/authorization/authorize-http-requests.adoc#authorizing-endpoints[underlying request matchers], so they need to be in the same application context.
-Placing Spring Security in `getRootConfigClasses` places it into a parent application context that may not be able to find Spring MVC's `HandlerMappingIntrospector`.
+Placing Spring Security in `getRootConfigClasses` places it into a parent application context that may not be able to find Spring MVC's `PathPatternParser`.
 
 ==== Configuring for Multiple Spring MVC Dispatchers
 
