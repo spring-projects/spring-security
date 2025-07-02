@@ -46,10 +46,11 @@ import org.springframework.security.web.authentication.session.NullAuthenticated
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 import org.springframework.web.filter.GenericFilterBean;
+
+import static org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher.pathPattern;
 
 /**
  * Abstract processor of browser-based HTTP-based authentication requests.
@@ -395,7 +396,7 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 	 * @param filterProcessesUrl
 	 */
 	public void setFilterProcessesUrl(String filterProcessesUrl) {
-		setRequiresAuthenticationRequestMatcher(new AntPathRequestMatcher(filterProcessesUrl));
+		setRequiresAuthenticationRequestMatcher(pathPattern(filterProcessesUrl));
 	}
 
 	public final void setRequiresAuthenticationRequestMatcher(RequestMatcher requestMatcher) {

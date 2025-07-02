@@ -22,17 +22,18 @@ import java.util.LinkedHashMap;
 import jakarta.servlet.FilterChain;
 import org.junit.jupiter.api.Test;
 
+import org.springframework.http.HttpMethod;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.web.FilterInvocation;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.springframework.security.web.servlet.TestMockHttpServletRequests.request;
+import static org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher.pathPattern;
 
 /**
  * Tests {@link DefaultFilterInvocationSecurityMetadataSource}.
@@ -45,9 +46,9 @@ public class DefaultFilterInvocationSecurityMetadataSourceTests {
 
 	private Collection<ConfigAttribute> def = SecurityConfig.createList("ROLE_ONE");
 
-	private void createFids(String pattern, String method) {
+	private void createFids(String pattern, HttpMethod method) {
 		LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>> requestMap = new LinkedHashMap<>();
-		requestMap.put(new AntPathRequestMatcher(pattern, method), this.def);
+		requestMap.put(pathPattern(method, pattern), this.def);
 		this.fids = new DefaultFilterInvocationSecurityMetadataSource(requestMap);
 	}
 
@@ -89,7 +90,7 @@ public class DefaultFilterInvocationSecurityMetadataSourceTests {
 
 	@Test
 	public void httpMethodLookupSucceeds() {
-		createFids("/somepage**", "GET");
+		createFids("/somepage**", HttpMethod.GET);
 		FilterInvocation fi = createFilterInvocation("/somepage", null, null, "GET");
 		Collection<ConfigAttribute> attrs = this.fids.getAttributes(fi);
 		assertThat(attrs).isEqualTo(this.def);
@@ -105,7 +106,7 @@ public class DefaultFilterInvocationSecurityMetadataSourceTests {
 
 	@Test
 	public void requestWithDifferentHttpMethodDoesntMatch() {
-		createFids("/somepage**", "GET");
+		createFids("/somepage**", HttpMethod.GET);
 		FilterInvocation fi = createFilterInvocation("/somepage", null, null, "POST");
 		Collection<ConfigAttribute> attrs = this.fids.getAttributes(fi);
 		assertThat(attrs).isNull();
@@ -116,8 +117,8 @@ public class DefaultFilterInvocationSecurityMetadataSourceTests {
 	public void mixingPatternsWithAndWithoutHttpMethodsIsSupported() {
 		LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>> requestMap = new LinkedHashMap<>();
 		Collection<ConfigAttribute> userAttrs = SecurityConfig.createList("A");
-		requestMap.put(new AntPathRequestMatcher("/user/**", null), userAttrs);
-		requestMap.put(new AntPathRequestMatcher("/teller/**", "GET"), SecurityConfig.createList("B"));
+		requestMap.put(pathPattern("/user/**"), userAttrs);
+		requestMap.put(pathPattern(HttpMethod.GET, "/teller/**"), SecurityConfig.createList("B"));
 		this.fids = new DefaultFilterInvocationSecurityMetadataSource(requestMap);
 		FilterInvocation fi = createFilterInvocation("/user", null, null, "GET");
 		Collection<ConfigAttribute> attrs = this.fids.getAttributes(fi);

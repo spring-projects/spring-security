@@ -28,14 +28,13 @@ import org.springframework.security.authorization.AuthorityAuthorizationManager;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.SingleResultAuthorizationManager;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcherEntry;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
+import static org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher.pathPattern;
 
 /**
  * Tests for {@link RequestMatcherDelegatingAuthorizationManager}.
@@ -63,18 +62,16 @@ public class RequestMatcherDelegatingAuthorizationManagerTests {
 
 	@Test
 	public void addWhenManagerNullThenException() {
-		assertThatIllegalArgumentException()
-			.isThrownBy(() -> RequestMatcherDelegatingAuthorizationManager.builder()
-				.add(new MvcRequestMatcher(null, "/grant"), null)
-				.build())
+		assertThatIllegalArgumentException().isThrownBy(
+				() -> RequestMatcherDelegatingAuthorizationManager.builder().add(pathPattern("/grant"), null).build())
 			.withMessage("manager cannot be null");
 	}
 
 	@Test
 	public void checkWhenMultipleMappingsConfiguredThenDelegatesMatchingManager() {
 		RequestMatcherDelegatingAuthorizationManager manager = RequestMatcherDelegatingAuthorizationManager.builder()
-			.add(new MvcRequestMatcher(null, "/grant"), SingleResultAuthorizationManager.permitAll())
-			.add(new MvcRequestMatcher(null, "/deny"), SingleResultAuthorizationManager.denyAll())
+			.add(pathPattern(null, "/grant"), SingleResultAuthorizationManager.permitAll())
+			.add(pathPattern(null, "/deny"), SingleResultAuthorizationManager.denyAll())
 			.build();
 
 		Supplier<Authentication> authentication = () -> new TestingAuthenticationToken("user", "password", "ROLE_USER");
@@ -97,11 +94,10 @@ public class RequestMatcherDelegatingAuthorizationManagerTests {
 	public void checkWhenMultipleMappingsConfiguredWithConsumerThenDelegatesMatchingManager() {
 		RequestMatcherDelegatingAuthorizationManager manager = RequestMatcherDelegatingAuthorizationManager.builder()
 			.mappings((m) -> {
-				m.add(new RequestMatcherEntry<>(new MvcRequestMatcher(null, "/grant"),
-						SingleResultAuthorizationManager.permitAll()));
+				m.add(new RequestMatcherEntry<>(pathPattern("/grant"), SingleResultAuthorizationManager.permitAll()));
 				m.add(new RequestMatcherEntry<>(AnyRequestMatcher.INSTANCE,
 						AuthorityAuthorizationManager.hasRole("ADMIN")));
-				m.add(new RequestMatcherEntry<>(new MvcRequestMatcher(null, "/afterAny"),
+				m.add(new RequestMatcherEntry<>(pathPattern("/afterAny"),
 						SingleResultAuthorizationManager.permitAll()));
 			})
 			.build();
@@ -156,7 +152,7 @@ public class RequestMatcherDelegatingAuthorizationManagerTests {
 			.isThrownBy(() -> RequestMatcherDelegatingAuthorizationManager.builder()
 				.anyRequest()
 				.authenticated()
-				.requestMatchers(new AntPathRequestMatcher("/authenticated"))
+				.requestMatchers(pathPattern("/authenticated"))
 				.authenticated()
 				.build())
 			.withMessage("Can't configure requestMatchers after anyRequest");

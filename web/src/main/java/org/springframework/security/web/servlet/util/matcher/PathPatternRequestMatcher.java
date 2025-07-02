@@ -202,7 +202,7 @@ public final class PathPatternRequestMatcher implements RequestMatcher {
 	 * <p>
 	 * To match a request URI like {@code /app/servlet/my/resource/**} where {@code /app}
 	 * is the context path, you can do
-	 * {@code PathPatternRequestMatcher.withDefaults().matcher("/servlet/my/resource/**")}
+	 * {@code PathPatternRequestMatcher.pathPattern("/servlet/my/resource/**")}
 	 *
 	 * <p>
 	 * If you have many paths that have a common path prefix, you can use

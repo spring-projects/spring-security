@@ -32,7 +32,6 @@ import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.web.access.AuthorizationManagerWebInvocationPrivilegeEvaluator.HttpServletRequestTransformer;
 import org.springframework.security.web.access.intercept.RequestMatcherDelegatingAuthorizationManager;
-import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -40,6 +39,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
+import static org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher.pathPattern;
 
 @ExtendWith(MockitoExtension.class)
 class AuthorizationManagerWebInvocationPrivilegeEvaluatorTests {
@@ -118,7 +118,7 @@ class AuthorizationManagerWebInvocationPrivilegeEvaluatorTests {
 	void isAllowedWhenInvokesDelegateThenCachesRequestPath() {
 		RequestMatcherDelegatingAuthorizationManager authorizationManager = RequestMatcherDelegatingAuthorizationManager
 			.builder()
-			.add(PathPatternRequestMatcher.withDefaults().matcher("/test/**"),
+			.add(pathPattern("/test/**"),
 					(authentication, context) -> this.authorizationManager.check(authentication, context.getRequest()))
 			.build();
 		AuthorizationManagerWebInvocationPrivilegeEvaluator privilegeEvaluator = new AuthorizationManagerWebInvocationPrivilegeEvaluator(

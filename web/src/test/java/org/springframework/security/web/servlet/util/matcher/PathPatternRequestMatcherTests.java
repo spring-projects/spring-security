@@ -29,6 +29,7 @@ import org.springframework.web.util.ServletRequestPathUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher.pathPattern;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 /**
@@ -38,49 +39,49 @@ public class PathPatternRequestMatcherTests {
 
 	@Test
 	void matcherWhenPatternMatchesRequestThenMatchResult() {
-		RequestMatcher matcher = PathPatternRequestMatcher.withDefaults().matcher("/uri");
+		RequestMatcher matcher = pathPattern("/uri");
 		assertThat(matcher.matches(request("/uri"))).isTrue();
 	}
 
 	@Test
 	void matcherWhenPatternContainsPlaceholdersThenMatchResult() {
-		RequestMatcher matcher = PathPatternRequestMatcher.withDefaults().matcher("/uri/{username}");
+		RequestMatcher matcher = pathPattern("/uri/{username}");
 		assertThat(matcher.matcher(request("/uri/bob")).getVariables()).containsEntry("username", "bob");
 	}
 
 	@Test
 	void matcherWhenOnlyPathInfoMatchesThenNoMatch() {
-		RequestMatcher matcher = PathPatternRequestMatcher.withDefaults().matcher("/uri");
+		RequestMatcher matcher = pathPattern("/uri");
 		assertThat(matcher.matches(request("GET", "/mvc/uri", "/mvc"))).isFalse();
 	}
 
 	@Test
 	void matcherWhenUriContainsServletPathThenMatch() {
-		RequestMatcher matcher = PathPatternRequestMatcher.withDefaults().matcher("/mvc/uri");
+		RequestMatcher matcher = pathPattern("/mvc/uri");
 		assertThat(matcher.matches(request("GET", "/mvc/uri", "/mvc"))).isTrue();
 	}
 
 	@Test
 	void matcherWhenSameMethodThenMatchResult() {
-		RequestMatcher matcher = PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.GET, "/uri");
+		RequestMatcher matcher = pathPattern(HttpMethod.GET, "/uri");
 		assertThat(matcher.matches(request("/uri"))).isTrue();
 	}
 
 	@Test
 	void matcherWhenDifferentPathThenNoMatch() {
-		RequestMatcher matcher = PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.GET, "/uri");
+		RequestMatcher matcher = pathPattern(HttpMethod.GET, "/uri");
 		assertThat(matcher.matches(request("GET", "/urj", ""))).isFalse();
 	}
 
 	@Test
 	void matcherWhenDifferentMethodThenNoMatch() {
-		RequestMatcher matcher = PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.GET, "/uri");
+		RequestMatcher matcher = pathPattern(HttpMethod.GET, "/uri");
 		assertThat(matcher.matches(request("POST", "/mvc/uri", "/mvc"))).isFalse();
 	}
 
 	@Test
 	void matcherWhenNoMethodThenMatches() {
-		RequestMatcher matcher = PathPatternRequestMatcher.withDefaults().matcher("/uri");
+		RequestMatcher matcher = pathPattern("/uri");
 		assertThat(matcher.matches(request("POST", "/uri", ""))).isTrue();
 		assertThat(matcher.matches(request("GET", "/uri", ""))).isTrue();
 	}

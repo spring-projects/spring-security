@@ -47,7 +47,6 @@ import org.springframework.security.web.authentication.session.SessionAuthentica
 import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.firewall.DefaultHttpFirewall;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -62,6 +61,7 @@ import static org.mockito.Mockito.verify;
 import static org.springframework.security.web.servlet.TestMockHttpServletRequests.Builder;
 import static org.springframework.security.web.servlet.TestMockHttpServletRequests.get;
 import static org.springframework.security.web.servlet.TestMockHttpServletRequests.post;
+import static org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher.pathPattern;
 
 /**
  * Tests {@link AbstractAuthenticationProcessingFilter}.
@@ -238,8 +238,8 @@ public class AbstractAuthenticationProcessingFilterTests {
 		MockFilterChain chain = new MockFilterChain(false);
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		// Setup our test object, to grant access
-		MockAuthenticationFilter filter = new MockAuthenticationFilter(
-				new AntPathRequestMatcher("/j_eradicate_corona_virus"), mock(AuthenticationManager.class));
+		MockAuthenticationFilter filter = new MockAuthenticationFilter(pathPattern("/j_eradicate_corona_virus"),
+				mock(AuthenticationManager.class));
 		filter.setSessionAuthenticationStrategy(mock(SessionAuthenticationStrategy.class));
 		filter.setAuthenticationSuccessHandler(this.successHandler);
 		filter.setAuthenticationFailureHandler(this.failureHandler);
@@ -273,7 +273,7 @@ public class AbstractAuthenticationProcessingFilterTests {
 		filter.setAuthenticationManager(mock(AuthenticationManager.class));
 		filter.setAuthenticationSuccessHandler(this.successHandler);
 		assertThatIllegalArgumentException().isThrownBy(() -> filter.setFilterProcessesUrl(null))
-			.withMessage("Pattern cannot be null or empty");
+			.withMessage("pattern cannot be null");
 	}
 
 	@Test

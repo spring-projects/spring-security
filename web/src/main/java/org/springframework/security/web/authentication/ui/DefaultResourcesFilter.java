@@ -28,10 +28,11 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 import org.springframework.web.filter.GenericFilterBean;
+
+import static org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher.pathPattern;
 
 /**
  * Serve common static assets used in default UIs, such as CSS or Javascript files. For
@@ -89,8 +90,7 @@ public final class DefaultResourcesFilter extends GenericFilterBean {
 	 * @return -
 	 */
 	public static DefaultResourcesFilter css() {
-		return new DefaultResourcesFilter(
-				PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.GET, "/default-ui.css"),
+		return new DefaultResourcesFilter(pathPattern(HttpMethod.GET, "/default-ui.css"),
 				new ClassPathResource("org/springframework/security/default-ui.css"),
 				new MediaType("text", "css", StandardCharsets.UTF_8));
 	}
@@ -107,8 +107,7 @@ public final class DefaultResourcesFilter extends GenericFilterBean {
 	 * @return -
 	 */
 	public static DefaultResourcesFilter webauthn() {
-		return new DefaultResourcesFilter(
-				PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.GET, "/login/webauthn.js"),
+		return new DefaultResourcesFilter(pathPattern(HttpMethod.GET, "/login/webauthn.js"),
 				new ClassPathResource("org/springframework/security/spring-security-webauthn.js"),
 				new MediaType("text", "javascript", StandardCharsets.UTF_8));
 	}
