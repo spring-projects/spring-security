@@ -71,6 +71,40 @@ public final class PathPatternRequestMatcher implements RequestMatcher {
 	}
 
 	/**
+	 * Construct a {@link PathPatternRequestMatcher} using the {@link PathPatternParser}
+	 * defaults.
+	 * <p>
+	 * If you are configuring a custom {@link PathPatternParser}, please use
+	 * {@link #withPathPatternParser} instead.
+	 * @param pattern the URI pattern to match
+	 * @return a {@link PathPatternRequestMatcher} that matches requests to the given
+	 * {@code pattern}
+	 * @since 7.0
+	 * @see PathPattern
+	 */
+	public static PathPatternRequestMatcher pathPattern(String pattern) {
+		return pathPattern(null, pattern);
+	}
+
+	/**
+	 * Construct a {@link PathPatternRequestMatcher} using the {@link PathPatternParser}
+	 * defaults.
+	 * <p>
+	 * If you are configuring a custom {@link PathPatternParser}, please use
+	 * {@link #withPathPatternParser} instead.
+	 * @param method the HTTP method to match, {@code null} indicates that the method does
+	 * not matter
+	 * @param pattern the URI pattern to match
+	 * @return a {@link PathPatternRequestMatcher} that matches requests to the given
+	 * {@code pattern} and {@code method}
+	 * @since 7.0
+	 * @see PathPattern
+	 */
+	public static PathPatternRequestMatcher pathPattern(@Nullable HttpMethod method, String pattern) {
+		return withDefaults().matcher(method, pattern);
+	}
+
+	/**
 	 * Use {@link PathPatternParser#defaultInstance} to parse path patterns.
 	 * @return a {@link Builder} that treats URIs as relative to the context path, if any
 	 */
