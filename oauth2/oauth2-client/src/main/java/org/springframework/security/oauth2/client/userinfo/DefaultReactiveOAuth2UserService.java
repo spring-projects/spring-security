@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,8 +25,12 @@ import com.nimbusds.openid.connect.sdk.UserInfoErrorResponse;
 import net.minidev.json.JSONObject;
 import reactor.core.publisher.Mono;
 
+import org.springframework.context.expression.MapAccessor;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.expression.ExpressionParser;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.expression.spel.support.SimpleEvaluationContext;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
@@ -49,16 +53,17 @@ import org.springframework.web.reactive.function.client.WebClient;
  * An implementation of an {@link ReactiveOAuth2UserService} that supports standard OAuth
  * 2.0 Provider's.
  * <p>
- * For standard OAuth 2.0 Provider's, the attribute name used to access the user's name
- * from the UserInfo response is required and therefore must be available via
- * {@link org.springframework.security.oauth2.client.registration.ClientRegistration.ProviderDetails.UserInfoEndpoint#getUserNameAttributeName()
- * UserInfoEndpoint.getUserNameAttributeName()}.
+ * For standard OAuth 2.0 Provider's, the username expression used to extract the user's
+ * name from the UserInfo response is required and therefore must be available via
+ * {@link org.springframework.security.oauth2.client.registration.ClientRegistration.ProviderDetails.UserInfoEndpoint#getUsernameExpression()
+ * UserInfoEndpoint.getUsernameExpression()}.
  * <p>
  * <b>NOTE:</b> Attribute names are <b>not</b> standardized between providers and
  * therefore will vary. Please consult the provider's API documentation for the set of
  * supported user attribute names.
  *
  * @author Rob Winch
+ * @author Yoobin Yoon
  * @since 5.1
  * @see ReactiveOAuth2UserService
  * @see OAuth2UserRequest
@@ -72,6 +77,10 @@ public class DefaultReactiveOAuth2UserService implements ReactiveOAuth2UserServi
 	private static final String MISSING_USER_INFO_URI_ERROR_CODE = "missing_user_info_uri";
 
 	private static final String MISSING_USER_NAME_ATTRIBUTE_ERROR_CODE = "missing_user_name_attribute";
+
+	private static final String INVALID_USERNAME_EXPRESSION_ERROR_CODE = "invalid_username_expression";
+
+	private static final ExpressionParser expressionParser = new SpelExpressionParser();
 
 	private static final ParameterizedTypeReference<Map<String, Object>> STRING_OBJECT_MAP = new ParameterizedTypeReference<>() {
 	};
@@ -99,17 +108,7 @@ public class DefaultReactiveOAuth2UserService implements ReactiveOAuth2UserServi
 						null);
 				throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
 			}
-			String userNameAttributeName = userRequest.getClientRegistration()
-				.getProviderDetails()
-				.getUserInfoEndpoint()
-				.getUserNameAttributeName();
-			if (!StringUtils.hasText(userNameAttributeName)) {
-				OAuth2Error oauth2Error = new OAuth2Error(MISSING_USER_NAME_ATTRIBUTE_ERROR_CODE,
-						"Missing required \"user name\" attribute name in UserInfoEndpoint for Client Registration: "
-								+ userRequest.getClientRegistration().getRegistrationId(),
-						null);
-				throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
-			}
+			String usernameExpression = getUsernameExpression(userRequest);
 			AuthenticationMethod authenticationMethod = userRequest.getClientRegistration()
 				.getProviderDetails()
 				.getUserInfoEndpoint()
@@ -130,16 +129,21 @@ public class DefaultReactiveOAuth2UserService implements ReactiveOAuth2UserServi
 					.bodyToMono(DefaultReactiveOAuth2UserService.STRING_OBJECT_MAP)
 					.mapNotNull((attributes) -> this.attributesConverter.convert(userRequest).convert(attributes));
 			return userAttributes.map((attrs) -> {
-				GrantedAuthority authority = new OAuth2UserAuthority(attrs, userNameAttributeName);
-				Set<GrantedAuthority> authorities = new HashSet<>();
-				authorities.add(authority);
-				OAuth2AccessToken token = userRequest.getAccessToken();
-				for (String scope : token.getScopes()) {
-					authorities.add(new SimpleGrantedAuthority("SCOPE_" + scope));
-				}
+					String username = evaluateUsername(attrs, usernameExpression);
+					Set<GrantedAuthority> authorities = new HashSet<>();
+					authorities.add(OAuth2UserAuthority.withUsername(username)
+						.attributes(attrs)
+						.build());
+					OAuth2AccessToken token = userRequest.getAccessToken();
+					for (String scope : token.getScopes()) {
+						authorities.add(new SimpleGrantedAuthority("SCOPE_" + scope));
+					}
 
-				return new DefaultOAuth2User(authorities, attrs, userNameAttributeName);
-			})
+					return DefaultOAuth2User.withUsername(username)
+						.authorities(authorities)
+						.attributes(attrs)
+						.build();
+					})
 			.onErrorMap((ex) -> (ex instanceof UnsupportedMediaTypeException ||
 					ex.getCause() instanceof UnsupportedMediaTypeException), (ex) -> {
 				String contentType = (ex instanceof UnsupportedMediaTypeException) ?
@@ -166,6 +170,47 @@ public class DefaultReactiveOAuth2UserService implements ReactiveOAuth2UserServi
 			});
 		});
 		// @formatter:on
+	}
+
+	private String getUsernameExpression(OAuth2UserRequest userRequest) {
+		String usernameExpression = userRequest.getClientRegistration()
+			.getProviderDetails()
+			.getUserInfoEndpoint()
+			.getUsernameExpression();
+		if (!StringUtils.hasText(usernameExpression)) {
+			OAuth2Error oauth2Error = new OAuth2Error(MISSING_USER_NAME_ATTRIBUTE_ERROR_CODE,
+					"Missing required \"user name\" attribute name in UserInfoEndpoint for Client Registration: "
+							+ userRequest.getClientRegistration().getRegistrationId(),
+					null);
+			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
+		}
+		return usernameExpression;
+	}
+
+	private String evaluateUsername(Map<String, Object> attributes, String usernameExpression) {
+		Object value = null;
+
+		try {
+			SimpleEvaluationContext context = SimpleEvaluationContext.forPropertyAccessors(new MapAccessor())
+				.withRootObject(attributes)
+				.build();
+			value = expressionParser.parseExpression(usernameExpression).getValue(context);
+		}
+		catch (Exception ex) {
+			OAuth2Error oauth2Error = new OAuth2Error(INVALID_USERNAME_EXPRESSION_ERROR_CODE,
+					"Invalid username expression or SPEL expression: " + usernameExpression, null);
+			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString(), ex);
+
+		}
+
+		if (value == null) {
+			OAuth2Error oauth2Error = new OAuth2Error(INVALID_USER_INFO_RESPONSE_ERROR_CODE,
+					"An error occurred while attempting to retrieve the UserInfo Resource: username cannot be null",
+					null);
+			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
+		}
+
+		return value.toString();
 	}
 
 	private WebClient.RequestHeadersSpec<?> getRequestHeaderSpec(OAuth2UserRequest userRequest, String userInfoUri,

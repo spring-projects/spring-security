@@ -146,6 +146,11 @@ public class DefaultOAuth2UserTests {
 	}
 
 	@Test
+	public void withUsernameWhenUsernameNullThenThrowIllegalArgumentException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> DefaultOAuth2User.withUsername((String) null));
+	}
+
+	@Test
 	public void withUsernameWhenCreatedThenIsSerializable() {
 		DefaultOAuth2User user = DefaultOAuth2User.withUsername("directUser")
 			.authorities(AUTHORITIES)
@@ -213,6 +218,50 @@ public class DefaultOAuth2UserTests {
 		assertThat(user.getName()).isEqualTo("testUser");
 		assertThat(user.getAuthorities()).isEmpty();
 		assertThat(user.getAttributes()).isEqualTo(ATTRIBUTES);
+	}
+
+	@Test
+	public void withUsernameWhenNestedAttributesThenUsernameExtractedCorrectly() {
+		Map<String, Object> nestedAttributes = new HashMap<>();
+		Map<String, Object> userData = new HashMap<>();
+		userData.put("name", "nestedUser");
+		userData.put("id", "123");
+		nestedAttributes.put("data", userData);
+		nestedAttributes.put("other", "value");
+
+		DefaultOAuth2User user = DefaultOAuth2User.withUsername("nestedUser")
+			.authorities(AUTHORITIES)
+			.attributes(nestedAttributes)
+			.build();
+
+		assertThat(user.getName()).isEqualTo("nestedUser");
+		assertThat(user.getAttributes()).hasSize(2);
+		assertThat(user.getAttributes().get("data")).isEqualTo(userData);
+		assertThat(user.getAttributes().get("other")).isEqualTo("value");
+	}
+
+	@Test
+	public void withUsernameWhenComplexNestedAttributesThenCorrectlyHandled() {
+		Map<String, Object> attributes = new HashMap<>();
+		Map<String, Object> profile = new HashMap<>();
+		Map<String, Object> socialMedia = new HashMap<>();
+
+		socialMedia.put("twitter", "twitterUser");
+		socialMedia.put("github", "githubUser");
+		profile.put("social", socialMedia);
+		profile.put("email", "user@example.com");
+		attributes.put("profile", profile);
+		attributes.put("id", "user123");
+
+		DefaultOAuth2User user = DefaultOAuth2User.withUsername("customUsername")
+			.authorities(AUTHORITIES)
+			.attributes(attributes)
+			.build();
+
+		assertThat(user.getName()).isEqualTo("customUsername");
+		assertThat(user.getAttributes()).isEqualTo(attributes);
+		assertThat(((Map<?, ?>) ((Map<?, ?>) user.getAttribute("profile")).get("social")).get("twitter"))
+			.isEqualTo("twitterUser");
 	}
 
 }

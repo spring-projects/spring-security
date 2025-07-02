@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,6 +40,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  *
  * @author Vedran Pavic
  * @author Joe Grandja
+ * @author Yoobin Yoon
  */
 public class DefaultOidcUserTests {
 
@@ -141,6 +142,39 @@ public class DefaultOidcUserTests {
 		assertThat(user.getIdToken()).isEqualTo(ID_TOKEN);
 		assertThat(user.getUserInfo()).isEqualTo(USER_INFO);
 		assertThat(user.getName()).isEqualTo(EMAIL);
+		assertThat(user.getAuthorities()).hasSize(1);
+		assertThat(user.getAuthorities().iterator().next()).isEqualTo(AUTHORITY);
+		assertThat(user.getAttributes()).containsOnlyKeys(IdTokenClaimNames.ISS, IdTokenClaimNames.SUB,
+				StandardClaimNames.NAME, StandardClaimNames.EMAIL);
+	}
+
+	@Test
+	public void withUsernameWhenUsernameIsNullThenThrowIllegalArgumentException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> DefaultOidcUser.withUsername(null));
+	}
+
+	@Test
+	public void withUsernameWhenUsernameIsEmptyThenThrowIllegalArgumentException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> DefaultOidcUser.withUsername(""));
+	}
+
+	@Test
+	public void builderWhenIdTokenIsNotSetThenThrowIllegalArgumentException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> DefaultOidcUser.withUsername(SUBJECT).build());
+	}
+
+	@Test
+	public void builderWhenAllParametersProvidedAndValidThenCreated() {
+		String username = "custom-username";
+		DefaultOidcUser user = DefaultOidcUser.withUsername(username)
+			.authorities(AUTHORITIES)
+			.idToken(ID_TOKEN)
+			.userInfo(USER_INFO)
+			.build();
+
+		assertThat(user.getName()).isEqualTo(username);
+		assertThat(user.getIdToken()).isEqualTo(ID_TOKEN);
+		assertThat(user.getUserInfo()).isEqualTo(USER_INFO);
 		assertThat(user.getAuthorities()).hasSize(1);
 		assertThat(user.getAuthorities().iterator().next()).isEqualTo(AUTHORITY);
 		assertThat(user.getAttributes()).containsOnlyKeys(IdTokenClaimNames.ISS, IdTokenClaimNames.SUB,
