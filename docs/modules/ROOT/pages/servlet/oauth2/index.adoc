@@ -406,7 +406,7 @@ Consider the following use cases for OAuth2 Client:
 * I want to <<oauth2-client-enable-extension-grant-type,enable an extension grant type>>
 * I want to <<oauth2-client-customize-existing-grant-type,customize an existing grant type>>
 * I want to <<oauth2-client-customize-request-parameters,customize token request parameters>>
-* I want to <<oauth2-client-customize-rest-operations,customize the `RestOperations` used by OAuth2 Client components>>
+* I want to <<oauth2-client-customize-rest-client,customize the `RestClient` used by OAuth2 Client components>>
 
 [[oauth2-client-log-users-in]]
 === Log Users In with OAuth2
@@ -1480,13 +1480,9 @@ public class SecurityConfig {
 
 	@Bean
 	public OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> authorizationCodeAccessTokenResponseClient() {
-		OAuth2AuthorizationCodeGrantRequestEntityConverter requestEntityConverter =
-			new OAuth2AuthorizationCodeGrantRequestEntityConverter();
-		requestEntityConverter.addParametersConverter(parametersConverter());
-
-		DefaultAuthorizationCodeTokenResponseClient accessTokenResponseClient =
-			new DefaultAuthorizationCodeTokenResponseClient();
-		accessTokenResponseClient.setRequestEntityConverter(requestEntityConverter);
+		RestClientAuthorizationCodeTokenResponseClient accessTokenResponseClient =
+			new RestClientAuthorizationCodeTokenResponseClient();
+		accessTokenResponseClient.addParametersConverter(parametersConverter());
 
 		return accessTokenResponseClient;
 	}
@@ -1512,11 +1508,8 @@ class SecurityConfig {
 
 	@Bean
 	fun authorizationCodeAccessTokenResponseClient(): OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> {
-		val requestEntityConverter = OAuth2AuthorizationCodeGrantRequestEntityConverter()
-		requestEntityConverter.addParametersConverter(parametersConverter())
-
-		val accessTokenResponseClient = DefaultAuthorizationCodeTokenResponseClient()
-		accessTokenResponseClient.setRequestEntityConverter(requestEntityConverter)
+		val accessTokenResponseClient = RestClientAuthorizationCodeTokenResponseClient()
+		accessTokenResponseClient.addParametersConverter(parametersConverter())
 
 		return accessTokenResponseClient
 	}
@@ -1555,13 +1548,9 @@ public class SecurityConfig {
 
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-		OAuth2AuthorizationCodeGrantRequestEntityConverter requestEntityConverter =
-			new OAuth2AuthorizationCodeGrantRequestEntityConverter();
-		requestEntityConverter.addParametersConverter(parametersConverter());
-
-		DefaultAuthorizationCodeTokenResponseClient accessTokenResponseClient =
-			new DefaultAuthorizationCodeTokenResponseClient();
-		accessTokenResponseClient.setRequestEntityConverter(requestEntityConverter);
+		RestClientAuthorizationCodeTokenResponseClient accessTokenResponseClient =
+			new RestClientAuthorizationCodeTokenResponseClient();
+		accessTokenResponseClient.addParametersConverter(parametersConverter());
 
 		http
 			.authorizeHttpRequests((authorize) -> authorize
@@ -1600,11 +1589,8 @@ class SecurityConfig {
 
 	@Bean
 	fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
-		val requestEntityConverter = OAuth2AuthorizationCodeGrantRequestEntityConverter()
-		requestEntityConverter.addParametersConverter(parametersConverter())
-
-		val tokenResponseClient = DefaultAuthorizationCodeTokenResponseClient()
-		tokenResponseClient.setRequestEntityConverter(requestEntityConverter)
+		val tokenResponseClient = RestClientAuthorizationCodeTokenResponseClient()
+		tokenResponseClient.addParametersConverter(parametersConverter())
 
 		http {
 			authorizeHttpRequests {
@@ -1648,13 +1634,9 @@ public class SecurityConfig {
 
 	@Bean
 	public OAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> clientCredentialsAccessTokenResponseClient() {
-		OAuth2ClientCredentialsGrantRequestEntityConverter requestEntityConverter =
-			new OAuth2ClientCredentialsGrantRequestEntityConverter();
-		requestEntityConverter.addParametersConverter(parametersConverter());
-
-		DefaultClientCredentialsTokenResponseClient accessTokenResponseClient =
-				new DefaultClientCredentialsTokenResponseClient();
-		accessTokenResponseClient.setRequestEntityConverter(requestEntityConverter);
+		RestClientClientCredentialsTokenResponseClient accessTokenResponseClient =
+				new RestClientClientCredentialsTokenResponseClient();
+		accessTokenResponseClient.addParametersConverter(parametersConverter());
 
 		return accessTokenResponseClient;
 	}
@@ -1675,11 +1657,8 @@ class SecurityConfig {
 
 	@Bean
 	fun clientCredentialsAccessTokenResponseClient(): OAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> {
-		val requestEntityConverter = OAuth2ClientCredentialsGrantRequestEntityConverter()
-		requestEntityConverter.addParametersConverter(parametersConverter())
-
-		val accessTokenResponseClient = DefaultClientCredentialsTokenResponseClient()
-		accessTokenResponseClient.setRequestEntityConverter(requestEntityConverter)
+		val accessTokenResponseClient = RestClientClientCredentialsTokenResponseClient()
+		accessTokenResponseClient.addParametersConverter(parametersConverter())
 
 		return accessTokenResponseClient
 	}
@@ -1694,11 +1673,11 @@ class SecurityConfig {
 
 Spring Security automatically resolves the following generic types of `OAuth2AccessTokenResponseClient` beans:
 
-* `OAuth2AuthorizationCodeGrantRequest` (see `DefaultAuthorizationCodeTokenResponseClient`)
-* `OAuth2RefreshTokenGrantRequest` (see `DefaultRefreshTokenTokenResponseClient`)
-* `OAuth2ClientCredentialsGrantRequest` (see `DefaultClientCredentialsTokenResponseClient`)
-* `JwtBearerGrantRequest` (see `DefaultJwtBearerTokenResponseClient`)
-* `TokenExchangeGrantRequest` (see `DefaultTokenExchangeTokenResponseClient`)
+* `OAuth2AuthorizationCodeGrantRequest` (see `RestClientAuthorizationCodeTokenResponseClient`)
+* `OAuth2RefreshTokenGrantRequest` (see `RestClientRefreshTokenTokenResponseClient`)
+* `OAuth2ClientCredentialsGrantRequest` (see `RestClientClientCredentialsTokenResponseClient`)
+* `JwtBearerGrantRequest` (see `RestClientJwtBearerTokenResponseClient`)
+* `TokenExchangeGrantRequest` (see `RestClientTokenExchangeTokenResponseClient`)
 
 [TIP]
 ====
@@ -1710,17 +1689,17 @@ Publishing a bean of type `OAuth2AccessTokenResponseClient<JwtBearerGrantRequest
 Publishing a bean of type `OAuth2AccessTokenResponseClient<TokenExchangeGrantRequest>` will automatically enable the `token-exchange` grant type without the need to <<oauth2-client-enable-extension-grant-type,configure it separately>>.
 ====
 
-[[oauth2-client-customize-rest-operations]]
-=== Customize the `RestOperations` used by OAuth2 Client Components
+[[oauth2-client-customize-rest-client]]
+=== Customize the `RestClient` used by OAuth2 Client Components
 
-Another common use case is the need to customize the `RestOperations` used when obtaining an access token.
+Another common use case is the need to customize the `RestClient` used when obtaining an access token.
 We might need to do this to customize processing of the response (via a custom `HttpMessageConverter`) or to apply proxy settings for a corporate network (via a customized `ClientHttpRequestFactory`).
 
 With Spring Security 6.2 and later, we can simply publish beans of type `OAuth2AccessTokenResponseClient` and Spring Security will configure and publish an `OAuth2AuthorizedClientManager` bean for us.
 
-The following example customizes the `RestOperations` for all of the supported grant types:
+The following example customizes the `RestClient` for all of the supported grant types:
 
-.Customize `RestOperations` for OAuth2 Client
+.Customize `RestClient` for OAuth2 Client
 [tabs]
 =====
 Java::
@@ -1732,51 +1711,51 @@ public class SecurityConfig {
 
 	@Bean
 	public OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> authorizationCodeAccessTokenResponseClient() {
-		DefaultAuthorizationCodeTokenResponseClient accessTokenResponseClient =
-			new DefaultAuthorizationCodeTokenResponseClient();
-		accessTokenResponseClient.setRestOperations(restTemplate());
+		RestClientAuthorizationCodeTokenResponseClient accessTokenResponseClient =
+			new RestClientAuthorizationCodeTokenResponseClient();
+		accessTokenResponseClient.setRestClient(restClient());
 
 		return accessTokenResponseClient;
 	}
 
 	@Bean
 	public OAuth2AccessTokenResponseClient<OAuth2RefreshTokenGrantRequest> refreshTokenAccessTokenResponseClient() {
-		DefaultRefreshTokenTokenResponseClient accessTokenResponseClient =
-			new DefaultRefreshTokenTokenResponseClient();
-		accessTokenResponseClient.setRestOperations(restTemplate());
+		RestClientRefreshTokenTokenResponseClient accessTokenResponseClient =
+			new RestClientRefreshTokenTokenResponseClient();
+		accessTokenResponseClient.setRestClient(restClient());
 
 		return accessTokenResponseClient;
 	}
 
 	@Bean
 	public OAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> clientCredentialsAccessTokenResponseClient() {
-		DefaultClientCredentialsTokenResponseClient accessTokenResponseClient =
-			new DefaultClientCredentialsTokenResponseClient();
-		accessTokenResponseClient.setRestOperations(restTemplate());
+		RestClientClientCredentialsTokenResponseClient accessTokenResponseClient =
+			new RestClientClientCredentialsTokenResponseClient();
+		accessTokenResponseClient.setRestClient(restClient());
 
 		return accessTokenResponseClient;
 	}
 
 	@Bean
 	public OAuth2AccessTokenResponseClient<JwtBearerGrantRequest> jwtBearerAccessTokenResponseClient() {
-		DefaultJwtBearerTokenResponseClient accessTokenResponseClient =
-			new DefaultJwtBearerTokenResponseClient();
-		accessTokenResponseClient.setRestOperations(restTemplate());
+		RestClientJwtBearerTokenResponseClient accessTokenResponseClient =
+			new RestClientJwtBearerTokenResponseClient();
+		accessTokenResponseClient.setRestClient(restClient());
 
 		return accessTokenResponseClient;
 	}
 
 	@Bean
 	public OAuth2AccessTokenResponseClient<TokenExchangeGrantRequest> tokenExchangeAccessTokenResponseClient() {
-		DefaultTokenExchangeTokenResponseClient accessTokenResponseClient =
-			new DefaultTokenExchangeTokenResponseClient();
-		accessTokenResponseClient.setRestOperations(restTemplate());
+		RestClientTokenExchangeTokenResponseClient accessTokenResponseClient =
+			new RestClientTokenExchangeTokenResponseClient();
+		accessTokenResponseClient.setRestClient(restClient());
 
 		return accessTokenResponseClient;
 	}
 
 	@Bean
-	public RestTemplate restTemplate() {
+	public RestClient restClient() {
 		// ...
 	}
 
@@ -1792,46 +1771,46 @@ class SecurityConfig {
 
 	@Bean
 	fun authorizationCodeAccessTokenResponseClient(): OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> {
-		val accessTokenResponseClient = DefaultAuthorizationCodeTokenResponseClient()
-		accessTokenResponseClient.setRestOperations(restTemplate())
+		val accessTokenResponseClient = RestClientAuthorizationCodeTokenResponseClient()
+		accessTokenResponseClient.setRestClient(restClient())
 
 		return accessTokenResponseClient
 	}
 
 	@Bean
 	fun refreshTokenAccessTokenResponseClient(): OAuth2AccessTokenResponseClient<OAuth2RefreshTokenGrantRequest> {
-		val accessTokenResponseClient = DefaultRefreshTokenTokenResponseClient()
-		accessTokenResponseClient.setRestOperations(restTemplate())
+		val accessTokenResponseClient = RestClientRefreshTokenTokenResponseClient()
+		accessTokenResponseClient.setRestClient(restClient())
 
 		return accessTokenResponseClient
 	}
 
 	@Bean
 	fun clientCredentialsAccessTokenResponseClient(): OAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> {
-		val accessTokenResponseClient = DefaultClientCredentialsTokenResponseClient()
-		accessTokenResponseClient.setRestOperations(restTemplate())
+		val accessTokenResponseClient = RestClientClientCredentialsTokenResponseClient()
+		accessTokenResponseClient.setRestClient(restClient())
 
 		return accessTokenResponseClient
 	}
 
 	@Bean
 	fun jwtBearerAccessTokenResponseClient(): OAuth2AccessTokenResponseClient<JwtBearerGrantRequest> {
-		val accessTokenResponseClient = DefaultJwtBearerTokenResponseClient()
-		accessTokenResponseClient.setRestOperations(restTemplate())
+		val accessTokenResponseClient = RestClientJwtBearerTokenResponseClient()
+		accessTokenResponseClient.setRestClient(restClient())
 
 		return accessTokenResponseClient
 	}
 
 	@Bean
 	fun tokenExchangeAccessTokenResponseClient(): OAuth2AccessTokenResponseClient<TokenExchangeGrantRequest> {
-		val accessTokenResponseClient = DefaultTokenExchangeTokenResponseClient()
-		accessTokenResponseClient.setRestOperations(restTemplate())
+		val accessTokenResponseClient = RestClientTokenExchangeTokenResponseClient()
+		accessTokenResponseClient.setRestClient(restClient())
 
 		return accessTokenResponseClient
 	}
 
 	@Bean
-	fun restTemplate(): RestTemplate {
+	fun restClient(): RestClient {
 		// ...
 	}
 
@@ -1851,7 +1830,7 @@ Prior to Spring Security 6.2, we had to ensure this customization was applied to
 We had to use both the Spring Security DSL (for the `authorization_code` grant) and publish a bean of type `OAuth2AuthorizedClientManager` for other grant types.
 To understand what is being configured behind the scenes, here's what the configuration might have looked like:
 
-.Customize `RestOperations` for OAuth2 Client (prior to 6.2)
+.Customize `RestClient` for OAuth2 Client (prior to 6.2)
 [tabs]
 =====
 Java::
@@ -1864,9 +1843,9 @@ public class SecurityConfig {
 
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-		DefaultAuthorizationCodeTokenResponseClient accessTokenResponseClient =
-			new DefaultAuthorizationCodeTokenResponseClient();
-		accessTokenResponseClient.setRestOperations(restTemplate());
+		RestClientAuthorizationCodeTokenResponseClient accessTokenResponseClient =
+			new RestClientAuthorizationCodeTokenResponseClient();
+		accessTokenResponseClient.setRestClient(restClient());
 
 		http
 			// ...
@@ -1889,25 +1868,25 @@ public class SecurityConfig {
 			ClientRegistrationRepository clientRegistrationRepository,
 			OAuth2AuthorizedClientRepository authorizedClientRepository) {
 
-		DefaultRefreshTokenTokenResponseClient refreshTokenAccessTokenResponseClient =
-			new DefaultRefreshTokenTokenResponseClient();
-		refreshTokenAccessTokenResponseClient.setRestOperations(restTemplate());
+		RestClientRefreshTokenTokenResponseClient refreshTokenAccessTokenResponseClient =
+			new RestClientRefreshTokenTokenResponseClient();
+		refreshTokenAccessTokenResponseClient.setRestClient(restClient());
 
-		DefaultClientCredentialsTokenResponseClient clientCredentialsAccessTokenResponseClient =
-			new DefaultClientCredentialsTokenResponseClient();
-		clientCredentialsAccessTokenResponseClient.setRestOperations(restTemplate());
+		RestClientClientCredentialsTokenResponseClient clientCredentialsAccessTokenResponseClient =
+			new RestClientClientCredentialsTokenResponseClient();
+		clientCredentialsAccessTokenResponseClient.setRestClient(restClient());
 
-		DefaultJwtBearerTokenResponseClient jwtBearerAccessTokenResponseClient =
-			new DefaultJwtBearerTokenResponseClient();
-		jwtBearerAccessTokenResponseClient.setRestOperations(restTemplate());
+		RestClientJwtBearerTokenResponseClient jwtBearerAccessTokenResponseClient =
+			new RestClientJwtBearerTokenResponseClient();
+		jwtBearerAccessTokenResponseClient.setRestClient(restClient());
 
 		JwtBearerOAuth2AuthorizedClientProvider jwtBearerAuthorizedClientProvider =
 			new JwtBearerOAuth2AuthorizedClientProvider();
 		jwtBearerAuthorizedClientProvider.setAccessTokenResponseClient(jwtBearerAccessTokenResponseClient);
 
-		DefaultTokenExchangeTokenResponseClient tokenExchangeAccessTokenResponseClient =
-			new DefaultTokenExchangeTokenResponseClient();
-		tokenExchangeAccessTokenResponseClient.setRestOperations(restTemplate());
+		RestClientTokenExchangeTokenResponseClient tokenExchangeAccessTokenResponseClient =
+			new RestClientTokenExchangeTokenResponseClient();
+		tokenExchangeAccessTokenResponseClient.setRestClient(restClient());
 
 		TokenExchangeOAuth2AuthorizedClientProvider tokenExchangeAuthorizedClientProvider =
 			new TokenExchangeOAuth2AuthorizedClientProvider();
@@ -1935,7 +1914,7 @@ public class SecurityConfig {
 	}
 
 	@Bean
-	public RestTemplate restTemplate() {
+	public RestClient restClient() {
 		// ...
 	}
 
@@ -1954,8 +1933,8 @@ class SecurityConfig {
 
 	@Bean
 	fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
-		val tokenResponseClient = DefaultAuthorizationCodeTokenResponseClient()
-		tokenResponseClient.setRestOperations(restTemplate())
+		val tokenResponseClient = RestClientAuthorizationCodeTokenResponseClient()
+		tokenResponseClient.setRestClient(restClient())
 
 		http {
 			// ...
@@ -1979,20 +1958,20 @@ class SecurityConfig {
 		clientRegistrationRepository: ClientRegistrationRepository?,
 		authorizedClientRepository: OAuth2AuthorizedClientRepository?
 	): OAuth2AuthorizedClientManager {
-		val refreshTokenAccessTokenResponseClient = DefaultRefreshTokenTokenResponseClient()
-		refreshTokenAccessTokenResponseClient.setRestOperations(restTemplate())
+		val refreshTokenAccessTokenResponseClient = RestClientRefreshTokenTokenResponseClient()
+		refreshTokenAccessTokenResponseClient.setRestClient(restClient())
 
-		val clientCredentialsAccessTokenResponseClient = DefaultClientCredentialsTokenResponseClient()
-		clientCredentialsAccessTokenResponseClient.setRestOperations(restTemplate())
+		val clientCredentialsAccessTokenResponseClient = RestClientClientCredentialsTokenResponseClient()
+		clientCredentialsAccessTokenResponseClient.setRestClient(restClient())
 
-		val jwtBearerAccessTokenResponseClient = DefaultJwtBearerTokenResponseClient()
-		jwtBearerAccessTokenResponseClient.setRestOperations(restTemplate())
+		val jwtBearerAccessTokenResponseClient = RestClientJwtBearerTokenResponseClient()
+		jwtBearerAccessTokenResponseClient.setRestClient(restClient())
 
 		val jwtBearerAuthorizedClientProvider = JwtBearerOAuth2AuthorizedClientProvider()
 		jwtBearerAuthorizedClientProvider.setAccessTokenResponseClient(jwtBearerAccessTokenResponseClient)
 
-		val tokenExchangeAccessTokenResponseClient = DefaultTokenExchangeTokenResponseClient()
-		tokenExchangeAccessTokenResponseClient.setRestOperations(restTemplate())
+		val tokenExchangeAccessTokenResponseClient = RestClientTokenExchangeTokenResponseClient()
+		tokenExchangeAccessTokenResponseClient.setRestClient(restClient())
 
 		val tokenExchangeAuthorizedClientProvider = TokenExchangeOAuth2AuthorizedClientProvider()
 		tokenExchangeAuthorizedClientProvider.setAccessTokenResponseClient(tokenExchangeAccessTokenResponseClient)
@@ -2018,7 +1997,7 @@ class SecurityConfig {
 	}
 
 	@Bean
-	fun restTemplate(): RestTemplate {
+	fun restClient(): RestClient {
 		// ...
 	}
 

@@ -370,19 +370,7 @@ Xml::
 See the https://tools.ietf.org/html/rfc6749#section-4.1.3[Access Token Request/Response] protocol flow for the Authorization Code grant.
 ====
 
-There are two implementations of `OAuth2AccessTokenResponseClient` that can be used to make HTTP requests to the Token Endpoint in order to obtain an access token for the Authorization Code grant:
-
-* `DefaultAuthorizationCodeTokenResponseClient` (_default_)
-* `RestClientAuthorizationCodeTokenResponseClient`
-
-The default implementation uses a `RestOperations` instance to exchange an authorization code for an access token at the Authorization Server’s Token Endpoint.
-Spring Security 6.4 introduces a new implementation based on `RestClient`, which provides similar functionality but is better aligned with the Reactive version of the component (based on `WebClient`) in order to provide consistent configuration for applications on either stack.
-
-[NOTE]
-====
-This section focuses on `RestClientAuthorizationCodeTokenResponseClient`.
-You can read about {spring-security-reference-base-url}/6.3/servlet/oauth2/client/authorization-grants.html#_requesting_an_access_token[`DefaultAuthorizationCodeTokenResponseClient`] in the Spring Security 6.3 documentation.
-====
+The default implementation of `OAuth2AccessTokenResponseClient` for the Authorization Code grant is `RestClientAuthorizationCodeTokenResponseClient`, which uses a `RestClient` instance to exchange an authorization code for an access token at the Authorization Server’s Token Endpoint.
 
 :section-id: authorization-code
 :grant-type: Authorization Code
@@ -473,19 +461,7 @@ See the OAuth 2.0 Authorization Framework for further details on the https://too
 See the https://tools.ietf.org/html/rfc6749#section-6[Access Token Request/Response] protocol flow for the Refresh Token grant.
 ====
 
-There are two implementations of `OAuth2AccessTokenResponseClient` that can be used to make HTTP requests to the Token Endpoint in order to obtain an access token for the Refresh Token grant:
-
-* `DefaultRefreshTokenTokenResponseClient` (_default_)
-* `RestClientRefreshTokenTokenResponseClient`
-
-The default implementation uses a `RestOperations` instance to exchange an authorization code for an access token at the Authorization Server’s Token Endpoint.
-Spring Security 6.4 introduces a new implementation based on `RestClient`, which provides similar functionality but is better aligned with the Reactive version of the component (based on `WebClient`) in order to provide consistent configuration for applications on either stack.
-
-[NOTE]
-====
-This section focuses on `RestClientRefreshTokenTokenResponseClient`.
-You can read about {spring-security-reference-base-url}/6.3/servlet/oauth2/client/authorization-grants.html#_refreshing_an_access_token[`DefaultRefreshTokenTokenResponseClient`] in the Spring Security 6.3 documentation.
-====
+The default implementation of `OAuth2AccessTokenResponseClient` for the Refresh Token grant is `RestClientRefreshTokenTokenResponseClient`, which uses a `RestClient` instance to obtain an access token at the Authorization Server’s Token Endpoint.
 
 :section-id: refresh-token
 :grant-type: Refresh Token
@@ -565,19 +541,7 @@ Please refer to the OAuth 2.0 Authorization Framework for further details on the
 See the https://tools.ietf.org/html/rfc6749#section-4.4.2[Access Token Request/Response] protocol flow for the Client Credentials grant.
 ====
 
-There are two implementations of `OAuth2AccessTokenResponseClient` that can be used to make HTTP requests to the Token Endpoint in order to obtain an access token for the Client Credentials grant:
-
-* `DefaultClientCredentialsTokenResponseClient` (_default_)
-* `RestClientClientCredentialsTokenResponseClient`
-
-The default implementation uses a `RestOperations` instance to exchange an authorization code for an access token at the Authorization Server’s Token Endpoint.
-Spring Security 6.4 introduces a new implementation based on `RestClient`, which provides similar functionality but is better aligned with the Reactive version of the component (based on `WebClient`) in order to provide consistent configuration for applications on either stack.
-
-[NOTE]
-====
-This section focuses on `RestClientClientCredentialsTokenResponseClient`.
-You can read about {spring-security-reference-base-url}/6.3/servlet/oauth2/client/authorization-grants.html#_requesting_an_access_token_2[`DefaultClientCredentialsTokenResponseClient`] in the Spring Security 6.3 documentation.
-====
+The default implementation of `OAuth2AccessTokenResponseClient` for the Client Credentials grant is `RestClientClientCredentialsTokenResponseClient`, which uses a `RestClient` instance to obtain an access token at the Authorization Server’s Token Endpoint.
 
 :section-id: client-credentials
 :grant-type: Client Credentials
@@ -794,19 +758,7 @@ Please refer to JSON Web Token (JWT) Profile for OAuth 2.0 Client Authentication
 Please refer to the https://datatracker.ietf.org/doc/html/rfc7523#section-2.1[Access Token Request/Response] protocol flow for the JWT Bearer grant.
 ====
 
-There are two implementations of `OAuth2AccessTokenResponseClient` that can be used to make HTTP requests to the Token Endpoint in order to obtain an access token for the JWT Bearer grant:
-
-* `DefaultJwtBearerTokenResponseClient` (_default_)
-* `RestClientJwtBearerTokenResponseClient`
-
-The default implementation uses a `RestOperations` instance to exchange an authorization code for an access token at the Authorization Server’s Token Endpoint.
-Spring Security 6.4 introduces a new implementation based on `RestClient`, which provides similar functionality but is better aligned with the Reactive version of the component (based on `WebClient`) in order to provide consistent configuration for applications on either stack.
-
-[NOTE]
-====
-This section focuses on `RestClientJwtBearerTokenResponseClient`.
-You can read about {spring-security-reference-base-url}/6.3/servlet/oauth2/client/authorization-grants.html#_requesting_an_access_token_4[`DefaultClientCredentialsTokenResponseClient`] in the Spring Security 6.3 documentation.
-====
+The default implementation of `OAuth2AccessTokenResponseClient` for the JWT Bearer grant is `RestClientJwtBearerTokenResponseClient`, which uses a `RestClient` instance to obtain an access token at the Authorization Server’s Token Endpoint.
 
 :section-id: jwt-bearer
 :grant-type: JWT Bearer
@@ -1015,19 +967,7 @@ Please refer to OAuth 2.0 Token Exchange for further details on the https://data
 Please refer to the https://datatracker.ietf.org/doc/html/rfc8693#section-2[Token Exchange Request and Response] protocol flow for the Token Exchange grant.
 ====
 
-There are two implementations of `OAuth2AccessTokenResponseClient` that can be used to make HTTP requests to the Token Endpoint in order to obtain an access token for the Token Exchange grant:
-
-* `DefaultTokenExchangeTokenResponseClient` (_default_)
-* `RestClientTokenExchangeTokenResponseClient`
-
-The default implementation uses a `RestOperations` instance to exchange an authorization code for an access token at the Authorization Server’s Token Endpoint.
-Spring Security 6.4 introduces a new implementation based on `RestClient`, which provides similar functionality but is better aligned with the Reactive version of the component (based on `WebClient`) in order to provide consistent configuration for applications on either stack.
-
-[NOTE]
-====
-This section focuses on `RestClientTokenExchangeTokenResponseClient`.
-You can read about {spring-security-reference-base-url}/6.3/servlet/oauth2/client/authorization-grants.html#_requesting_an_access_token_5[`DefaultTokenExchangeTokenResponseClient`] in the Spring Security 6.3 documentation.
-====
+The default implementation of `OAuth2AccessTokenResponseClient` for the Token Exchange grant is `RestClientTokenExchangeTokenResponseClient`, which uses a `RestClient` instance to obtain an access token at the Authorization Server’s Token Endpoint.
 
 :section-id: token-exchange
 :grant-type: Token Exchange

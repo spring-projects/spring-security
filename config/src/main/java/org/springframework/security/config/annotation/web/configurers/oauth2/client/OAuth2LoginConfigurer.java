@@ -53,9 +53,9 @@ import org.springframework.security.core.session.SessionIdChangedEvent;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.authentication.OAuth2LoginAuthenticationProvider;
 import org.springframework.security.oauth2.client.authentication.OAuth2LoginAuthenticationToken;
-import org.springframework.security.oauth2.client.endpoint.DefaultAuthorizationCodeTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
+import org.springframework.security.oauth2.client.endpoint.RestClientAuthorizationCodeTokenResponseClient;
 import org.springframework.security.oauth2.client.oidc.authentication.OidcAuthorizationCodeAuthenticationProvider;
 import org.springframework.security.oauth2.client.oidc.authentication.OidcAuthorizedClientRefreshedEventListener;
 import org.springframework.security.oauth2.client.oidc.session.InMemoryOidcSessionRegistry;
@@ -462,7 +462,7 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		ResolvableType resolvableType = ResolvableType.forClassWithGenerics(OAuth2AccessTokenResponseClient.class,
 				OAuth2AuthorizationCodeGrantRequest.class);
 		OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> bean = getBeanOrNull(resolvableType);
-		return (bean != null) ? bean : new DefaultAuthorizationCodeTokenResponseClient();
+		return (bean != null) ? bean : new RestClientAuthorizationCodeTokenResponseClient();
 	}
 
 	private OAuth2UserService<OidcUserRequest, OidcUser> getOidcUserService() {

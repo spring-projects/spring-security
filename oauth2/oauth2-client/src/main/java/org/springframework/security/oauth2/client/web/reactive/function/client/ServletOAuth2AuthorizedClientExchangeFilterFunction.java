@@ -482,7 +482,7 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 		OAuth2AuthorizeRequest authorizeRequest = builder.build();
 		// NOTE: 'authorizedClientManager.authorize()' needs to be executed on a dedicated
 		// thread via subscribeOn(Schedulers.boundedElastic()) since it performs a
-		// blocking I/O operation using RestTemplate internally
+		// blocking I/O operation using RestClient internally
 		return Mono.fromSupplier(() -> this.authorizedClientManager.authorize(authorizeRequest))
 			.subscribeOn(Schedulers.boundedElastic());
 	}
@@ -505,7 +505,7 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 		OAuth2AuthorizeRequest reauthorizeRequest = builder.build();
 		// NOTE: 'authorizedClientManager.authorize()' needs to be executed on a dedicated
 		// thread via subscribeOn(Schedulers.boundedElastic()) since it performs a
-		// blocking I/O operation using RestTemplate internally
+		// blocking I/O operation using RestClient internally
 		return Mono.fromSupplier(() -> this.authorizedClientManager.authorize(reauthorizeRequest))
 			.subscribeOn(Schedulers.boundedElastic());
 	}

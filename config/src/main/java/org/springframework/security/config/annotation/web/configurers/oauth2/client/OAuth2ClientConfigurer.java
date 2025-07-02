@@ -24,9 +24,9 @@ import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthorizationCodeAuthenticationProvider;
-import org.springframework.security.oauth2.client.endpoint.DefaultAuthorizationCodeTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
+import org.springframework.security.oauth2.client.endpoint.RestClientAuthorizationCodeTokenResponseClient;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.AuthenticatedPrincipalOAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
@@ -297,7 +297,7 @@ public final class OAuth2ClientConfigurer<B extends HttpSecurityBuilder<B>>
 			ResolvableType resolvableType = ResolvableType.forClassWithGenerics(OAuth2AccessTokenResponseClient.class,
 					OAuth2AuthorizationCodeGrantRequest.class);
 			OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> bean = getBeanOrNull(resolvableType);
-			return (bean != null) ? bean : new DefaultAuthorizationCodeTokenResponseClient();
+			return (bean != null) ? bean : new RestClientAuthorizationCodeTokenResponseClient();
 		}
 
 		private ClientRegistrationRepository getClientRegistrationRepository(B builder) {

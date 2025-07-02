@@ -36,13 +36,11 @@ import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
  * @author Peter Eastham
  * @author Steve Riesenberg
  * @since 6.3
- * @see AbstractOAuth2AuthorizationGrantRequestEntityConverter
+ * @see AbstractRestClientOAuth2AccessTokenResponseClient
+ * @see AbstractWebClientReactiveOAuth2AccessTokenResponseClient
  */
 public final class DefaultOAuth2TokenRequestHeadersConverter<T extends AbstractOAuth2AuthorizationGrantRequest>
 		implements Converter<T, HttpHeaders> {
-
-	private static final MediaType APPLICATION_FORM_URLENCODED_UTF8 = new MediaType(
-			MediaType.APPLICATION_FORM_URLENCODED, StandardCharsets.UTF_8);
 
 	private List<MediaType> accept = List.of(MediaType.APPLICATION_JSON);
 
@@ -87,19 +85,6 @@ public final class DefaultOAuth2TokenRequestHeadersConverter<T extends AbstractO
 	 */
 	public void setEncodeClientCredentials(boolean encodeClientCredentials) {
 		this.encodeClientCredentials = encodeClientCredentials;
-	}
-
-	/**
-	 * Creates a {@link DefaultOAuth2TokenRequestHeadersConverter} that populates default
-	 * {@link HttpHeaders} that includes {@code charset=UTF-8} on {@code Content-Type}
-	 * headers to provide backwards compatibility for
-	 * {@link AbstractOAuth2AuthorizationGrantRequestEntityConverter}.
-	 * @return the default headers converter
-	 */
-	static <T extends AbstractOAuth2AuthorizationGrantRequest> DefaultOAuth2TokenRequestHeadersConverter<T> withCharsetUtf8() {
-		DefaultOAuth2TokenRequestHeadersConverter<T> converter = new DefaultOAuth2TokenRequestHeadersConverter<>();
-		converter.contentType = APPLICATION_FORM_URLENCODED_UTF8;
-		return converter;
 	}
 
 }

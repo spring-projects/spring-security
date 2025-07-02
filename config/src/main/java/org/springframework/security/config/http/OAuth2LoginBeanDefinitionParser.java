@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -334,9 +334,8 @@ final class OAuth2LoginBeanDefinitionParser implements BeanDefinitionParser {
 		if (StringUtils.hasLength(accessTokenResponseClientRef)) {
 			return new RuntimeBeanReference(accessTokenResponseClientRef);
 		}
-		return BeanDefinitionBuilder
-			.rootBeanDefinition(
-					"org.springframework.security.oauth2.client.endpoint.DefaultAuthorizationCodeTokenResponseClient")
+		return BeanDefinitionBuilder.rootBeanDefinition(
+				"org.springframework.security.oauth2.client.endpoint.RestClientAuthorizationCodeTokenResponseClient")
 			.getBeanDefinition();
 	}
 
