@@ -37,7 +37,7 @@ import org.springframework.security.test.support.ClassPathExclusions;
 import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -101,7 +101,7 @@ public class HttpSecuritySecurityMatchersNoMvcTests {
 			.findFirst()
 			.get();
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
-		assertThat(requestMatchers).hasOnlyElementsOfType(AntPathRequestMatcher.class);
+		assertThat(requestMatchers).hasOnlyElementsOfType(PathPatternRequestMatcher.class);
 	}
 
 	public void loadConfig(Class<?>... configs) {

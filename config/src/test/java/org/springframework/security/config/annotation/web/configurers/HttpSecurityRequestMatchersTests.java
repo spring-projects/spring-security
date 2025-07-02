@@ -36,12 +36,11 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.config.Customizer.withDefaults;
@@ -160,14 +159,13 @@ public class HttpSecurityRequestMatchersTests {
 
 		@Bean
 		@Order(Ordered.HIGHEST_PRECEDENCE)
-		SecurityFilterChain first(HttpSecurity http, HandlerMappingIntrospector introspector) throws Exception {
-			MvcRequestMatcher.Builder mvcMatcherBuilder = new MvcRequestMatcher.Builder(introspector);
+		SecurityFilterChain first(HttpSecurity http, PathPatternRequestMatcher.Builder builder) throws Exception {
 			// @formatter:off
 			http
 				.securityMatchers((requests) -> requests
-					.requestMatchers(mvcMatcherBuilder.pattern("/test-1"))
-					.requestMatchers(mvcMatcherBuilder.pattern("/test-2"))
-					.requestMatchers(mvcMatcherBuilder.pattern("/test-3"))
+					.requestMatchers(builder.matcher("/test-1"))
+					.requestMatchers(builder.matcher("/test-2"))
+					.requestMatchers(builder.matcher("/test-3"))
 				)
 				.authorizeRequests((authorize) -> authorize.anyRequest().denyAll())
 				.httpBasic(withDefaults());
@@ -176,12 +174,11 @@ public class HttpSecurityRequestMatchersTests {
 		}
 
 		@Bean
-		SecurityFilterChain second(HttpSecurity http, HandlerMappingIntrospector introspector) throws Exception {
-			MvcRequestMatcher.Builder mvcMatcherBuilder = new MvcRequestMatcher.Builder(introspector);
+		SecurityFilterChain second(HttpSecurity http, PathPatternRequestMatcher.Builder builder) throws Exception {
 			// @formatter:off
 			http
 				.securityMatchers((requests) -> requests
-					.requestMatchers(mvcMatcherBuilder.pattern("/test-1"))
+					.requestMatchers(builder.matcher("/test-1"))
 				)
 				.authorizeRequests((authorize) -> authorize
 					.anyRequest().permitAll()
@@ -209,14 +206,13 @@ public class HttpSecurityRequestMatchersTests {
 
 		@Bean
 		@Order(Ordered.HIGHEST_PRECEDENCE)
-		SecurityFilterChain first(HttpSecurity http, HandlerMappingIntrospector introspector) throws Exception {
-			MvcRequestMatcher.Builder mvcMatcherBuilder = new MvcRequestMatcher.Builder(introspector);
+		SecurityFilterChain first(HttpSecurity http, PathPatternRequestMatcher.Builder builder) throws Exception {
 			// @formatter:off
 			http
 				.securityMatchers((security) -> security
-					.requestMatchers(mvcMatcherBuilder.pattern("/test-1"))
-					.requestMatchers(mvcMatcherBuilder.pattern("/test-2"))
-					.requestMatchers(mvcMatcherBuilder.pattern("/test-3")))
+					.requestMatchers(builder.matcher("/test-1"))
+					.requestMatchers(builder.matcher("/test-2"))
+					.requestMatchers(builder.matcher("/test-3")))
 				.authorizeRequests((requests) -> requests
 					.anyRequest().denyAll())
 				.httpBasic(withDefaults());
@@ -225,12 +221,11 @@ public class HttpSecurityRequestMatchersTests {
 		}
 
 		@Bean
-		SecurityFilterChain second(HttpSecurity http, HandlerMappingIntrospector introspector) throws Exception {
-			MvcRequestMatcher.Builder mvcMatcherBuilder = new MvcRequestMatcher.Builder(introspector);
+		SecurityFilterChain second(HttpSecurity http, PathPatternRequestMatcher.Builder builder) throws Exception {
 			// @formatter:off
 			http
 				.securityMatchers((security) -> security
-					.requestMatchers(mvcMatcherBuilder.pattern("/test-1")))
+					.requestMatchers(builder.matcher("/test-1")))
 				.authorizeRequests((requests) -> requests
 					.anyRequest().permitAll());
 			// @formatter:on
@@ -255,10 +250,10 @@ public class HttpSecurityRequestMatchersTests {
 	static class MvcMatcherConfig {
 
 		@Bean
-		SecurityFilterChain filterChain(HttpSecurity http, HandlerMappingIntrospector introspector) throws Exception {
+		SecurityFilterChain filterChain(HttpSecurity http, PathPatternRequestMatcher.Builder builder) throws Exception {
 			// @formatter:off
 			http
-				.securityMatcher(new MvcRequestMatcher(introspector, "/path"))
+				.securityMatcher(builder.matcher("/path"))
 				.httpBasic(withDefaults())
 				.authorizeRequests((requests) -> requests
 					.anyRequest().denyAll());
@@ -289,11 +284,11 @@ public class HttpSecurityRequestMatchersTests {
 	static class RequestMatchersMvcMatcherConfig {
 
 		@Bean
-		SecurityFilterChain filterChain(HttpSecurity http, HandlerMappingIntrospector introspector) throws Exception {
+		SecurityFilterChain filterChain(HttpSecurity http, PathPatternRequestMatcher.Builder builder) throws Exception {
 			// @formatter:off
 			http
 				.securityMatchers((security) -> security
-					.requestMatchers(new MvcRequestMatcher(introspector, "/path")))
+					.requestMatchers(builder.matcher("/path")))
 				.httpBasic(withDefaults())
 				.authorizeRequests((requests) -> requests
 					.anyRequest().denyAll());
@@ -324,11 +319,11 @@ public class HttpSecurityRequestMatchersTests {
 	static class RequestMatchersMvcMatcherInLambdaConfig {
 
 		@Bean
-		SecurityFilterChain filterChain(HttpSecurity http, HandlerMappingIntrospector introspector) throws Exception {
+		SecurityFilterChain filterChain(HttpSecurity http, PathPatternRequestMatcher.Builder builder) throws Exception {
 			// @formatter:off
 			http
 				.securityMatchers((secure) -> secure
-						.requestMatchers(new MvcRequestMatcher(introspector, "/path"))
+						.requestMatchers(builder.matcher("/path"))
 				)
 				.httpBasic(withDefaults())
 				.authorizeRequests((authorize) -> authorize
@@ -356,13 +351,11 @@ public class HttpSecurityRequestMatchersTests {
 	static class RequestMatchersMvcMatcherServeltPathConfig {
 
 		@Bean
-		SecurityFilterChain filterChain(HttpSecurity http, HandlerMappingIntrospector introspector) throws Exception {
-			MvcRequestMatcher.Builder mvcMatcherBuilder = new MvcRequestMatcher.Builder(introspector);
-			mvcMatcherBuilder.servletPath("/spring");
+		SecurityFilterChain filterChain(HttpSecurity http, PathPatternRequestMatcher.Builder builder) throws Exception {
 			// @formatter:off
 			http
 				.securityMatchers((security) -> security
-					.requestMatchers(mvcMatcherBuilder.pattern("/path"))
+					.requestMatchers(builder.basePath("/spring").matcher("/path"))
 					.requestMatchers("/never-match"))
 				.httpBasic(withDefaults())
 				.authorizeRequests((requests) -> requests
@@ -394,13 +387,11 @@ public class HttpSecurityRequestMatchersTests {
 	static class RequestMatchersMvcMatcherServletPathInLambdaConfig {
 
 		@Bean
-		SecurityFilterChain filterChain(HttpSecurity http, HandlerMappingIntrospector introspector) throws Exception {
-			MvcRequestMatcher.Builder mvcMatcherBuilder = new MvcRequestMatcher.Builder(introspector);
-			mvcMatcherBuilder.servletPath("/spring");
+		SecurityFilterChain filterChain(HttpSecurity http, PathPatternRequestMatcher.Builder builder) throws Exception {
 			// @formatter:off
 			http
 				.securityMatchers((secure) -> secure
-						.requestMatchers(mvcMatcherBuilder.pattern("/path"))
+						.requestMatchers(builder.basePath("/spring").matcher("/path"))
 						.requestMatchers("/never-match")
 				)
 				.httpBasic(withDefaults())

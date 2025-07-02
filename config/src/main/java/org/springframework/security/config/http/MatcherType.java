@@ -22,13 +22,12 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.ParserContext;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
-import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 
 /**
@@ -39,20 +38,12 @@ import org.springframework.util.StringUtils;
  */
 public enum MatcherType {
 
-	ant(AntPathRequestMatcher.class), regex(RegexRequestMatcher.class), ciRegex(RegexRequestMatcher.class),
-	mvc(MvcRequestMatcher.class);
-
-	private static final String HANDLER_MAPPING_INTROSPECTOR = "org.springframework.web.servlet.handler.HandlerMappingIntrospector";
-
-	private static final boolean mvcPresent;
+	ant(AntPathRequestMatcher.class), path(PathPatternRequestMatcher.class), regex(RegexRequestMatcher.class),
+	ciRegex(RegexRequestMatcher.class), mvc(MvcRequestMatcher.class);
 
 	private static final String ATT_MATCHER_TYPE = "request-matcher";
 
 	final Class<? extends RequestMatcher> type;
-
-	static {
-		mvcPresent = ClassUtils.isPresent(HANDLER_MAPPING_INTROSPECTOR, MatcherType.class.getClassLoader());
-	}
 
 	MatcherType(Class<? extends RequestMatcher> type) {
 		this.type = type;
@@ -66,18 +57,17 @@ public enum MatcherType {
 		if (("/**".equals(path) || "**".equals(path)) && method == null) {
 			return new RootBeanDefinition(AnyRequestMatcher.class);
 		}
-		BeanDefinitionBuilder matcherBldr = BeanDefinitionBuilder.rootBeanDefinition(this.type);
-		if (this == mvc) {
-			matcherBldr.addConstructorArgValue(new RootBeanDefinition(HandlerMappingIntrospectorFactoryBean.class));
-		}
-		matcherBldr.addConstructorArgValue(path);
-		if (this == mvc) {
-			matcherBldr.addPropertyValue("method", (StringUtils.hasText(method) ? HttpMethod.valueOf(method) : null));
-			matcherBldr.addPropertyValue("servletPath", servletPath);
+		BeanDefinitionBuilder matcherBldr;
+		if (this == MatcherType.path) {
+			matcherBldr = BeanDefinitionBuilder.rootBeanDefinition(PathPatternRequestMatcherFactoryBean.class);
+			matcherBldr.addConstructorArgValue(path);
+			matcherBldr.addPropertyValue("basePath", servletPath);
 		}
 		else {
-			matcherBldr.addConstructorArgValue(method);
+			matcherBldr = BeanDefinitionBuilder.rootBeanDefinition(this.type);
+			matcherBldr.addConstructorArgValue(path);
 		}
+		matcherBldr.addConstructorArgValue(method);
 		if (this == ciRegex) {
 			matcherBldr.addConstructorArgValue(true);
 		}
@@ -89,14 +79,10 @@ public enum MatcherType {
 			return valueOf(elt.getAttribute(ATT_MATCHER_TYPE));
 		}
 
-		return ant;
+		return path;
 	}
 
 	static MatcherType fromElementOrMvc(Element elt) {
-		String matcherTypeName = elt.getAttribute(ATT_MATCHER_TYPE);
-		if (!StringUtils.hasText(matcherTypeName) && mvcPresent) {
-			return MatcherType.mvc;
-		}
 		return MatcherType.fromElement(elt);
 	}
 

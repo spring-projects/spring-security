@@ -28,13 +28,13 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
+import static org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher.pathPattern;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -109,7 +109,7 @@ public class CsrfConfigurerIgnoringRequestMatchersTests {
 			// @formatter:off
 			http
 				.csrf((csrf) -> csrf
-					.requireCsrfProtectionMatcher(new AntPathRequestMatcher("/path"))
+					.requireCsrfProtectionMatcher(pathPattern("/path"))
 					.ignoringRequestMatchers(this.requestMatcher));
 			return http.build();
 			// @formatter:on
@@ -129,7 +129,7 @@ public class CsrfConfigurerIgnoringRequestMatchersTests {
 			// @formatter:off
 			http
 				.csrf((csrf) -> csrf
-						.requireCsrfProtectionMatcher(new AntPathRequestMatcher("/path"))
+						.requireCsrfProtectionMatcher(pathPattern("/path"))
 						.ignoringRequestMatchers(this.requestMatcher)
 				);
 			return http.build();
@@ -149,7 +149,7 @@ public class CsrfConfigurerIgnoringRequestMatchersTests {
 			// @formatter:off
 			http
 				.csrf((csrf) -> csrf
-					.ignoringRequestMatchers(new AntPathRequestMatcher("/no-csrf"))
+					.ignoringRequestMatchers(pathPattern("/no-csrf"))
 					.ignoringRequestMatchers(this.requestMatcher));
 			return http.build();
 			// @formatter:on
@@ -169,7 +169,7 @@ public class CsrfConfigurerIgnoringRequestMatchersTests {
 			// @formatter:off
 			http
 				.csrf((csrf) -> csrf
-						.ignoringRequestMatchers(new AntPathRequestMatcher("/no-csrf"))
+						.ignoringRequestMatchers(pathPattern("/no-csrf"))
 						.ignoringRequestMatchers(this.requestMatcher)
 				);
 			return http.build();

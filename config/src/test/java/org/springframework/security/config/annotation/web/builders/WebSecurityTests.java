@@ -42,12 +42,11 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.firewall.HttpStatusRequestRejectedHandler;
-import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.config.Customizer.withDefaults;
@@ -130,8 +129,8 @@ public class WebSecurityTests {
 	static class MvcMatcherConfig {
 
 		@Bean
-		WebSecurityCustomizer webSecurityCustomizer(HandlerMappingIntrospector introspector) {
-			return (web) -> web.ignoring().requestMatchers(new MvcRequestMatcher(introspector, "/path"));
+		WebSecurityCustomizer webSecurityCustomizer(PathPatternRequestMatcher.Builder builder) {
+			return (web) -> web.ignoring().requestMatchers(builder.matcher("/path"));
 		}
 
 		@Bean
@@ -168,9 +167,10 @@ public class WebSecurityTests {
 	static class MvcMatcherServletPathConfig {
 
 		@Bean
-		WebSecurityCustomizer webSecurityCustomizer(HandlerMappingIntrospector introspector) {
-			MvcRequestMatcher.Builder builder = new MvcRequestMatcher.Builder(introspector).servletPath("/spring");
-			return (web) -> web.ignoring().requestMatchers(builder.pattern("/path")).requestMatchers("/notused");
+		WebSecurityCustomizer webSecurityCustomizer(PathPatternRequestMatcher.Builder builder) {
+			return (web) -> web.ignoring()
+				.requestMatchers(builder.basePath("/spring").matcher("/path"))
+				.requestMatchers("/notused");
 		}
 
 		@Bean

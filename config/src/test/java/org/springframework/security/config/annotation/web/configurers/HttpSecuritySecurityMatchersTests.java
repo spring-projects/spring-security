@@ -39,12 +39,11 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.servlet.MockServletContext;
-import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.config.Customizer.withDefaults;
@@ -356,14 +355,13 @@ public class HttpSecuritySecurityMatchersTests {
 	static class SecurityMatchersMvcMatcherServletPathConfig {
 
 		@Bean
-		SecurityFilterChain appSecurity(HttpSecurity http, HandlerMappingIntrospector introspector) throws Exception {
-			MvcRequestMatcher.Builder mvcMatcherBuilder = new MvcRequestMatcher.Builder(introspector)
-				.servletPath("/spring");
+		SecurityFilterChain appSecurity(HttpSecurity http, PathPatternRequestMatcher.Builder builder) throws Exception {
+			PathPatternRequestMatcher.Builder spring = builder.basePath("/spring");
 			// @formatter:off
 			http
 				.securityMatchers((security) -> security
-					.requestMatchers(mvcMatcherBuilder.pattern("/path"))
-					.requestMatchers(mvcMatcherBuilder.pattern("/never-match"))
+					.requestMatchers(spring.matcher("/path"))
+					.requestMatchers(spring.matcher("/never-match"))
 				)
 				.httpBasic(withDefaults())
 				.authorizeHttpRequests((authorize) -> authorize
@@ -391,14 +389,13 @@ public class HttpSecuritySecurityMatchersTests {
 	static class SecurityMatchersMvcMatcherServletPathInLambdaConfig {
 
 		@Bean
-		SecurityFilterChain appSecurity(HttpSecurity http, HandlerMappingIntrospector introspector) throws Exception {
-			MvcRequestMatcher.Builder mvcMatcherBuilder = new MvcRequestMatcher.Builder(introspector)
-				.servletPath("/spring");
+		SecurityFilterChain appSecurity(HttpSecurity http, PathPatternRequestMatcher.Builder builder) throws Exception {
+			PathPatternRequestMatcher.Builder spring = builder.basePath("/spring");
 			// @formatter:off
 			http
 				.securityMatchers((matchers) -> matchers
-					.requestMatchers(mvcMatcherBuilder.pattern("/path"))
-					.requestMatchers(mvcMatcherBuilder.pattern("/never-match"))
+					.requestMatchers(spring.matcher("/path"))
+					.requestMatchers(spring.matcher("/never-match"))
 				)
 				.httpBasic(withDefaults())
 				.authorizeHttpRequests((authorize) -> authorize

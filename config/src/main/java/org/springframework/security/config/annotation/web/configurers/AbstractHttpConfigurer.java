@@ -25,6 +25,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.web.DefaultSecurityFilterChain;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 
 /**
  * Adds a convenient base class for {@link SecurityConfigurer} instances that operate on
@@ -37,6 +38,8 @@ public abstract class AbstractHttpConfigurer<T extends AbstractHttpConfigurer<T,
 		extends SecurityConfigurerAdapter<DefaultSecurityFilterChain, B> {
 
 	private SecurityContextHolderStrategy securityContextHolderStrategy;
+
+	private PathPatternRequestMatcher.Builder requestMatcherBuilder;
 
 	/**
 	 * Disables the {@link AbstractHttpConfigurer} by removing it. After doing so a fresh
@@ -63,6 +66,15 @@ public abstract class AbstractHttpConfigurer<T extends AbstractHttpConfigurer<T,
 		this.securityContextHolderStrategy = context.getBeanProvider(SecurityContextHolderStrategy.class)
 			.getIfUnique(SecurityContextHolder::getContextHolderStrategy);
 		return this.securityContextHolderStrategy;
+	}
+
+	protected PathPatternRequestMatcher.Builder getRequestMatcherBuilder() {
+		if (this.requestMatcherBuilder != null) {
+			return this.requestMatcherBuilder;
+		}
+		ApplicationContext context = getBuilder().getSharedObject(ApplicationContext.class);
+		this.requestMatcherBuilder = context.getBean(PathPatternRequestMatcher.Builder.class);
+		return this.requestMatcherBuilder;
 	}
 
 }

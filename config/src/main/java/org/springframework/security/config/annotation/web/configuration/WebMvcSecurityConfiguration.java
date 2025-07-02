@@ -26,15 +26,7 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 
-import org.springframework.beans.BeanMetadataElement;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.FactoryBean;
-import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
-import org.springframework.beans.factory.support.BeanDefinitionBuilder;
-import org.springframework.beans.factory.support.BeanDefinitionRegistry;
-import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
-import org.springframework.beans.factory.support.ManagedList;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
@@ -45,8 +37,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.access.HandlerMappingIntrospectorRequestTransformer;
-import org.springframework.security.web.context.AbstractSecurityWebApplicationInitializer;
 import org.springframework.security.web.debug.DebugFilter;
 import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.security.web.firewall.RequestRejectedHandler;
@@ -58,7 +48,6 @@ import org.springframework.web.filter.CompositeFilter;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 import org.springframework.web.servlet.support.RequestDataValueProcessor;
 
 /**
@@ -75,10 +64,6 @@ import org.springframework.web.servlet.support.RequestDataValueProcessor;
  * @since 3.2
  */
 class WebMvcSecurityConfiguration implements WebMvcConfigurer, ApplicationContextAware {
-
-	private static final String HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME = "mvcHandlerMappingIntrospector";
-
-	private static final String PATH_PATTERN_REQUEST_TRANSFORMER_BEAN_NAME = "pathPatternRequestTransformer";
 
 	private BeanResolver beanResolver;
 
@@ -119,86 +104,6 @@ class WebMvcSecurityConfiguration implements WebMvcConfigurer, ApplicationContex
 		if (applicationContext.getBeanNamesForType(AnnotationTemplateExpressionDefaults.class).length == 1) {
 			this.templateDefaults = applicationContext.getBean(AnnotationTemplateExpressionDefaults.class);
 		}
-	}
-
-	@Bean
-	static BeanDefinitionRegistryPostProcessor springSecurityHandlerMappingIntrospectorBeanDefinitionRegistryPostProcessor() {
-		return new BeanDefinitionRegistryPostProcessor() {
-			@Override
-			public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
-			}
-
-			@Override
-			public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
-				if (!registry.containsBeanDefinition(HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME)) {
-					return;
-				}
-
-				String hmiRequestTransformerBeanName = HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME + "RequestTransformer";
-				if (!registry.containsBeanDefinition(PATH_PATTERN_REQUEST_TRANSFORMER_BEAN_NAME)
-						&& !registry.containsBeanDefinition(hmiRequestTransformerBeanName)) {
-					if (!registry.containsBeanDefinition(hmiRequestTransformerBeanName)) {
-						BeanDefinition hmiRequestTransformer = BeanDefinitionBuilder
-							.rootBeanDefinition(HandlerMappingIntrospectorRequestTransformer.class)
-							.addConstructorArgReference(HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME)
-							.getBeanDefinition();
-						registry.registerBeanDefinition(hmiRequestTransformerBeanName, hmiRequestTransformer);
-					}
-				}
-
-				BeanDefinition filterChainProxy = registry
-					.getBeanDefinition(AbstractSecurityWebApplicationInitializer.DEFAULT_FILTER_NAME);
-
-				if (!filterChainProxy.getResolvableType().isInstance(CompositeFilterChainProxy.class)) {
-					BeanDefinitionBuilder hmiCacheFilterBldr = BeanDefinitionBuilder
-						.rootBeanDefinition(HandlerMappingIntrospectorCacheFilterFactoryBean.class)
-						.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
-
-					ManagedList<BeanMetadataElement> filters = new ManagedList<>();
-					filters.add(hmiCacheFilterBldr.getBeanDefinition());
-					filters.add(filterChainProxy);
-					BeanDefinitionBuilder compositeSpringSecurityFilterChainBldr = BeanDefinitionBuilder
-						.rootBeanDefinition(CompositeFilterChainProxy.class)
-						.addConstructorArgValue(filters);
-
-					registry.removeBeanDefinition(AbstractSecurityWebApplicationInitializer.DEFAULT_FILTER_NAME);
-					registry.registerBeanDefinition(AbstractSecurityWebApplicationInitializer.DEFAULT_FILTER_NAME,
-							compositeSpringSecurityFilterChainBldr.getBeanDefinition());
-				}
-			}
-		};
-	}
-
-	/**
-	 * {@link FactoryBean} to defer creation of
-	 * {@link HandlerMappingIntrospector#createCacheFilter()}
-	 *
-	 * @deprecated see {@link WebSecurityConfiguration} for
-	 * {@link org.springframework.web.util.pattern.PathPattern} replacement
-	 */
-	@Deprecated
-	static class HandlerMappingIntrospectorCacheFilterFactoryBean
-			implements ApplicationContextAware, FactoryBean<Filter> {
-
-		private ApplicationContext applicationContext;
-
-		@Override
-		public void setApplicationContext(ApplicationContext applicationContext) {
-			this.applicationContext = applicationContext;
-		}
-
-		@Override
-		public Filter getObject() throws Exception {
-			HandlerMappingIntrospector handlerMappingIntrospector = this.applicationContext
-				.getBean(HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME, HandlerMappingIntrospector.class);
-			return handlerMappingIntrospector.createCacheFilter();
-		}
-
-		@Override
-		public Class<?> getObjectType() {
-			return Filter.class;
-		}
-
 	}
 
 	/**

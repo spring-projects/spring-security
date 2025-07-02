@@ -43,7 +43,6 @@ import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.rememberme.AbstractRememberMeServices;
 import org.springframework.security.web.authentication.rememberme.PersistentRememberMeToken;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
@@ -349,7 +348,7 @@ public class NamespaceRememberMeTests {
 		SecurityFilterChain withoutKeyFilterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.securityMatcher(new AntPathRequestMatcher("/without-key/**"))
+				.securityMatcher("/without-key/**")
 				.authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated())
 				.formLogin((login) -> login
 					.loginProcessingUrl("/without-key/login"))

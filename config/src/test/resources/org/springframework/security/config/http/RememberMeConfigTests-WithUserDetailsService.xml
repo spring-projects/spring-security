@@ -41,5 +41,4 @@
 		name="basicController"
 		class="org.springframework.security.config.http.RememberMeConfigTests.BasicController"/>
 
-	<b:import resource="handlermappingintrospector.xml"/>
 </b:beans>

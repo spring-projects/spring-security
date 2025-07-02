@@ -1183,7 +1183,7 @@ hsts-options.attlist &=
 	attribute preload {xsd:boolean}?
 
 cors =
-## Element for configuration of CorsFilter. If no CorsFilter or CorsConfigurationSource is specified a HandlerMappingIntrospector is used as the CorsConfigurationSource
+## Element for configuration of CorsFilter. A CorsConfigurationSource must be specified. If Spring MVC is present, then it will attempt to look up its `CorsConfigurationSource`.
 element cors { cors-options.attlist }
 cors-options.attlist &=
 	ref?

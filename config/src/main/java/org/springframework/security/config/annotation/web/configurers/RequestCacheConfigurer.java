@@ -24,14 +24,12 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
-import org.springframework.security.config.annotation.web.RequestMatcherFactory;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.NullRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.savedrequest.RequestCacheAwareFilter;
 import org.springframework.security.web.util.matcher.AndRequestMatcher;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
 import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestHeaderRequestMatcher;
@@ -151,7 +149,7 @@ public final class RequestCacheConfigurer<H extends HttpSecurityBuilder<H>>
 		boolean isCsrfEnabled = http.getConfigurer(CsrfConfigurer.class) != null;
 		List<RequestMatcher> matchers = new ArrayList<>();
 		if (isCsrfEnabled) {
-			RequestMatcher getRequests = RequestMatcherFactory.matcher(HttpMethod.GET, "/**");
+			RequestMatcher getRequests = getRequestMatcherBuilder().matcher(HttpMethod.GET, "/**");
 			matchers.add(0, getRequests);
 		}
 		matchers.add(notFavIcon);
@@ -174,12 +172,7 @@ public final class RequestCacheConfigurer<H extends HttpSecurityBuilder<H>>
 	}
 
 	private RequestMatcher getFaviconRequestMatcher() {
-		if (RequestMatcherFactory.usesPathPatterns()) {
-			return RequestMatcherFactory.matcher("/favicon.*");
-		}
-		else {
-			return new AntPathRequestMatcher("/**/favicon.*");
-		}
+		return getRequestMatcherBuilder().matcher("/favicon.*");
 	}
 
 }

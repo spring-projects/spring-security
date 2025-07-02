@@ -34,7 +34,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
-import org.springframework.security.config.web.PathPatternRequestMatcherBuilderFactoryBean;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.test.web.servlet.RequestCacheResultMatcher;
@@ -501,11 +500,6 @@ public class RequestCacheConfigurerTests {
 	@Configuration
 	@EnableWebSecurity
 	static class PathPatternFactoryBeanConfig {
-
-		@Bean
-		PathPatternRequestMatcherBuilderFactoryBean factoryBean() {
-			return new PathPatternRequestMatcherBuilderFactoryBean();
-		}
 
 	}
 

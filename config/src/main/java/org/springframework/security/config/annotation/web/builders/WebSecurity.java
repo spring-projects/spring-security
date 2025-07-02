@@ -55,6 +55,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AuthorizationManagerWebInvocationPrivilegeEvaluator;
 import org.springframework.security.web.access.AuthorizationManagerWebInvocationPrivilegeEvaluator.HttpServletRequestTransformer;
 import org.springframework.security.web.access.DefaultWebInvocationPrivilegeEvaluator;
+import org.springframework.security.web.access.PathPatternRequestTransformer;
 import org.springframework.security.web.access.RequestMatcherDelegatingWebInvocationPrivilegeEvaluator;
 import org.springframework.security.web.access.WebInvocationPrivilegeEvaluator;
 import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
@@ -422,7 +423,7 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 		this.filterChainDecoratorPostProcessor = postProcessor.getIfUnique(ObjectPostProcessor::identity);
 		Class<HttpServletRequestTransformer> requestTransformerClass = HttpServletRequestTransformer.class;
 		this.privilegeEvaluatorRequestTransformer = applicationContext.getBeanProvider(requestTransformerClass)
-			.getIfUnique();
+			.getIfUnique(PathPatternRequestTransformer::new);
 	}
 
 	@Override

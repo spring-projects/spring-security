@@ -32,11 +32,11 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.access.AccessDeniedHandlerImpl;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher.pathPattern;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -92,7 +92,7 @@ public class ExceptionHandlingConfigurerAccessDeniedHandlerTests {
 				.exceptionHandling((handling) -> handling
 					.defaultAccessDeniedHandlerFor(
 						this.teapotDeniedHandler,
-						new AntPathRequestMatcher("/hello/**"))
+							pathPattern("/hello/**"))
 					.defaultAccessDeniedHandlerFor(
 						new AccessDeniedHandlerImpl(),
 						AnyRequestMatcher.INSTANCE));
@@ -119,7 +119,7 @@ public class ExceptionHandlingConfigurerAccessDeniedHandlerTests {
 				.exceptionHandling((exceptionHandling) -> exceptionHandling
 						.defaultAccessDeniedHandlerFor(
 								this.teapotDeniedHandler,
-								new AntPathRequestMatcher("/hello/**")
+								pathPattern("/hello/**")
 						)
 						.defaultAccessDeniedHandlerFor(
 								new AccessDeniedHandlerImpl(),
@@ -148,7 +148,7 @@ public class ExceptionHandlingConfigurerAccessDeniedHandlerTests {
 				.exceptionHandling((handling) -> handling
 					.defaultAccessDeniedHandlerFor(
 						this.teapotDeniedHandler,
-						new AntPathRequestMatcher("/hello/**")));
+							pathPattern("/hello/**")));
 			return http.build();
 			// @formatter:on
 		}

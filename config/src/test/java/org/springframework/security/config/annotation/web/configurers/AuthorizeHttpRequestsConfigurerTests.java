@@ -55,7 +55,6 @@ import org.springframework.security.config.core.GrantedAuthorityDefaults;
 import org.springframework.security.config.observation.SecurityObservationSettings;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
-import org.springframework.security.config.web.PathPatternRequestMatcherBuilderFactoryBean;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -68,7 +67,6 @@ import org.springframework.security.web.access.expression.WebExpressionAuthoriza
 import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
 import org.springframework.security.web.access.intercept.RequestMatcherDelegatingAuthorizationManager;
-import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
 import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.stereotype.Component;
 import org.springframework.test.web.servlet.MockMvc;
@@ -81,7 +79,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.DispatcherServlet;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -148,7 +145,7 @@ public class AuthorizeHttpRequestsConfigurerTests {
 	public void configureWhenMvcMatcherAfterAnyRequestThenException() {
 		assertThatExceptionOfType(BeanCreationException.class)
 			.isThrownBy(() -> this.spring.register(AfterAnyRequestConfig.class).autowire())
-			.withMessageContaining("Can't configure mvcMatchers after anyRequest");
+			.withMessageContaining("Can't configure requestMatchers after anyRequest");
 	}
 
 	@Test
@@ -689,7 +686,7 @@ public class AuthorizeHttpRequestsConfigurerTests {
 
 	@Test
 	public void requestMatchersWhenMultipleDispatcherServletsAndPathBeanThenAllows() throws Exception {
-		this.spring.register(MvcRequestMatcherBuilderConfig.class, BasicController.class)
+		this.spring.register(PathPatternRequestMatcherBuilderConfig.class, BasicController.class)
 			.postProcessor((context) -> context.getServletContext()
 				.addServlet("otherDispatcherServlet", DispatcherServlet.class)
 				.addMapping("/mvc"))
@@ -1063,13 +1060,11 @@ public class AuthorizeHttpRequestsConfigurerTests {
 	static class ServletPathConfig {
 
 		@Bean
-		SecurityFilterChain filterChain(HttpSecurity http, HandlerMappingIntrospector introspector) throws Exception {
-			MvcRequestMatcher.Builder mvcMatcherBuilder = new MvcRequestMatcher.Builder(introspector)
-				.servletPath("/spring");
+		SecurityFilterChain filterChain(HttpSecurity http, PathPatternRequestMatcher.Builder builder) throws Exception {
 			// @formatter:off
 			return http
 					.authorizeHttpRequests((authorize) -> authorize
-						.requestMatchers(mvcMatcherBuilder.pattern("/")).hasRole("ADMIN")
+						.requestMatchers(builder.basePath("/spring").matcher("/")).hasRole("ADMIN")
 					)
 					.build();
 			// @formatter:on
@@ -1358,7 +1353,7 @@ public class AuthorizeHttpRequestsConfigurerTests {
 	@Configuration
 	@EnableWebSecurity
 	@EnableWebMvc
-	static class MvcRequestMatcherBuilderConfig {
+	static class PathPatternRequestMatcherBuilderConfig {
 
 		@Bean
 		SecurityFilterChain security(HttpSecurity http) throws Exception {
@@ -1392,11 +1387,6 @@ public class AuthorizeHttpRequestsConfigurerTests {
 			// @formatter:on
 
 			return http.build();
-		}
-
-		@Bean
-		PathPatternRequestMatcherBuilderFactoryBean pathPatternFactoryBean() {
-			return new PathPatternRequestMatcherBuilderFactoryBean();
 		}
 
 	}

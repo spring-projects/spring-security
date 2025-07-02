@@ -42,6 +42,7 @@ import org.springframework.beans.factory.support.ManagedList;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
+import org.springframework.context.annotation.Fallback;
 import org.springframework.context.annotation.ImportAware;
 import org.springframework.core.OrderComparator;
 import org.springframework.core.Ordered;
@@ -57,6 +58,7 @@ import org.springframework.security.config.annotation.web.WebSecurityConfigurer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.crypto.RsaKeyConversionServicePostProcessor;
+import org.springframework.security.config.web.PathPatternRequestMatcherBuilderFactoryBean;
 import org.springframework.security.context.DelegatingApplicationListener;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.web.FilterChainProxy;
@@ -69,7 +71,6 @@ import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.security.web.firewall.RequestRejectedHandler;
 import org.springframework.web.filter.CompositeFilter;
 import org.springframework.web.filter.ServletRequestPathFilter;
-import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
 /**
  * Uses a {@link WebSecurity} to create the {@link FilterChainProxy} that performs the web
@@ -143,6 +144,12 @@ public class WebSecurityConfiguration implements ImportAware {
 		return this.webSecurity.getPrivilegeEvaluator();
 	}
 
+	@Bean
+	@Fallback
+	public PathPatternRequestMatcherBuilderFactoryBean pathPatternRequestMatcherBuilder() {
+		return new PathPatternRequestMatcherBuilderFactoryBean();
+	}
+
 	/**
 	 * Sets the {@code <SecurityConfigurer<FilterChainProxy, WebSecurityBuilder>}
 	 * instances used to create the web configuration.
@@ -209,12 +216,11 @@ public class WebSecurityConfiguration implements ImportAware {
 	/**
 	 * Used to ensure Spring MVC request matching is cached.
 	 *
-	 * Creates a {@link BeanDefinitionRegistryPostProcessor} that detects if a bean named
-	 * HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME is defined. If so, it moves the
+	 * Creates a {@link BeanDefinitionRegistryPostProcessor} that moves the
 	 * AbstractSecurityWebApplicationInitializer.DEFAULT_FILTER_NAME to another bean name
 	 * and then adds a {@link CompositeFilter} that contains
-	 * {@link HandlerMappingIntrospector#createCacheFilter()} and the original
-	 * FilterChainProxy under the original Bean name.
+	 * {@link ServletRequestPathFilter} and the original FilterChainProxy under the
+	 * original Bean name.
 	 * @return
 	 */
 	@Bean

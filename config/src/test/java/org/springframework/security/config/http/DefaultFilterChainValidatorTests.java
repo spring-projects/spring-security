@@ -44,7 +44,7 @@ import org.springframework.security.web.access.intercept.FilterInvocationSecurit
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -144,12 +144,13 @@ public class DefaultFilterChainValidatorTests {
 
 	@Test
 	void validateWhenSameRequestMatchersArePresentThenUnreachableFilterChainException() {
+		PathPatternRequestMatcher.Builder builder = PathPatternRequestMatcher.withDefaults();
 		AnonymousAuthenticationFilter authenticationFilter = mock(AnonymousAuthenticationFilter.class);
 		ExceptionTranslationFilter exceptionTranslationFilter = mock(ExceptionTranslationFilter.class);
-		SecurityFilterChain chain1 = new DefaultSecurityFilterChain(AntPathRequestMatcher.antMatcher("/api"),
-				authenticationFilter, exceptionTranslationFilter, this.authorizationInterceptor);
-		SecurityFilterChain chain2 = new DefaultSecurityFilterChain(AntPathRequestMatcher.antMatcher("/api"),
-				authenticationFilter, exceptionTranslationFilter, this.authorizationInterceptor);
+		SecurityFilterChain chain1 = new DefaultSecurityFilterChain(builder.matcher("/api"), authenticationFilter,
+				exceptionTranslationFilter, this.authorizationInterceptor);
+		SecurityFilterChain chain2 = new DefaultSecurityFilterChain(builder.matcher("/api"), authenticationFilter,
+				exceptionTranslationFilter, this.authorizationInterceptor);
 		List<SecurityFilterChain> chains = new ArrayList<>();
 		chains.add(chain2);
 		chains.add(chain1);

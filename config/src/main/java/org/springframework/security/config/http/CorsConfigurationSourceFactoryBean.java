@@ -22,38 +22,37 @@ import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.lang.Nullable;
-import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
+import org.springframework.web.cors.CorsConfigurationSource;
 
 /**
- * Used for creating an instance of {@link HandlerMappingIntrospector} and autowiring the
+ * Used for creating an instance of {@link CorsConfigurationSource} and autowiring the
  * {@link ApplicationContext}.
  *
  * @author Rob Winch
  * @since 4.1.1
  */
-class HandlerMappingIntrospectorFactoryBean
-		implements FactoryBean<HandlerMappingIntrospector>, ApplicationContextAware {
+class CorsConfigurationSourceFactoryBean implements FactoryBean<CorsConfigurationSource>, ApplicationContextAware {
 
 	private static final String HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME = "mvcHandlerMappingIntrospector";
 
 	private ApplicationContext context;
 
 	@Override
-	public HandlerMappingIntrospector getObject() {
+	public CorsConfigurationSource getObject() {
 		if (!this.context.containsBean(HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME)) {
 			throw new NoSuchBeanDefinitionException(HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME,
 					"A Bean named " + HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME + " of type "
-							+ HandlerMappingIntrospector.class.getName()
-							+ " is required to use MvcRequestMatcher. Please ensure Spring Security & Spring "
+							+ CorsConfigurationSource.class.getName()
+							+ " is required to use <cors>. Please ensure Spring Security & Spring "
 							+ "MVC are configured in a shared ApplicationContext.");
 		}
-		return this.context.getBean(HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME, HandlerMappingIntrospector.class);
+		return this.context.getBean(HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME, CorsConfigurationSource.class);
 	}
 
 	@Nullable
 	@Override
 	public Class<?> getObjectType() {
-		return HandlerMappingIntrospector.class;
+		return CorsConfigurationSource.class;
 	}
 
 	@Override
