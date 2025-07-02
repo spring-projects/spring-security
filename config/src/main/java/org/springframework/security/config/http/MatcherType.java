@@ -22,9 +22,7 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.ParserContext;
-import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
 import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
@@ -38,8 +36,7 @@ import org.springframework.util.StringUtils;
  */
 public enum MatcherType {
 
-	ant(AntPathRequestMatcher.class), path(PathPatternRequestMatcher.class), regex(RegexRequestMatcher.class),
-	ciRegex(RegexRequestMatcher.class), mvc(MvcRequestMatcher.class);
+	path(PathPatternRequestMatcher.class), regex(RegexRequestMatcher.class), ciRegex(RegexRequestMatcher.class);
 
 	private static final String ATT_MATCHER_TYPE = "request-matcher";
 
