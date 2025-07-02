@@ -51,11 +51,11 @@ import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.savedrequest.SavedRequest;
-import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
+
+import static org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher.pathPattern;
 
 /**
  * Processes a CAS service ticket, obtains proxy granting tickets, and processes proxy
@@ -216,7 +216,7 @@ public class CasAuthenticationFilter extends AbstractAuthenticationProcessingFil
 
 	public CasAuthenticationFilter() {
 		super("/login/cas");
-		RequestMatcher processUri = PathPatternRequestMatcher.withDefaults().matcher("/login/cas");
+		RequestMatcher processUri = pathPattern("/login/cas");
 		setRequiresAuthenticationRequestMatcher(processUri);
 		setAuthenticationFailureHandler(new SimpleUrlAuthenticationFailureHandler());
 		setSecurityContextRepository(this.securityContextRepository);
@@ -335,7 +335,7 @@ public class CasAuthenticationFilter extends AbstractAuthenticationProcessingFil
 	}
 
 	public final void setProxyReceptorUrl(final String proxyReceptorUrl) {
-		this.proxyReceptorMatcher = new AntPathRequestMatcher("/**" + proxyReceptorUrl);
+		this.proxyReceptorMatcher = pathPattern(proxyReceptorUrl);
 	}
 
 	public final void setProxyGrantingTicketStorage(final ProxyGrantingTicketStorage proxyGrantingTicketStorage) {

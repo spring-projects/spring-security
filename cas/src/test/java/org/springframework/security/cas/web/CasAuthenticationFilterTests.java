@@ -43,7 +43,6 @@ import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
-import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -57,6 +56,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.springframework.security.web.servlet.TestMockHttpServletRequests.get;
 import static org.springframework.security.web.servlet.TestMockHttpServletRequests.post;
+import static org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher.pathPattern;
 
 /**
  * Tests {@link CasAuthenticationFilter}.
@@ -266,7 +266,7 @@ public class CasAuthenticationFilterTests {
 		MockHttpServletRequest request = get("/pgtCallback").build();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		assertThat(filter.requiresAuthentication(request, response)).isFalse();
-		filter.setProxyReceptorMatcher(PathPatternRequestMatcher.withDefaults().matcher(request.getServletPath()));
+		filter.setProxyReceptorMatcher(pathPattern(request.getServletPath()));
 		assertThat(filter.requiresAuthentication(request, response)).isFalse();
 		filter.setProxyGrantingTicketStorage(mock(ProxyGrantingTicketStorage.class));
 		assertThat(filter.requiresAuthentication(request, response)).isTrue();
