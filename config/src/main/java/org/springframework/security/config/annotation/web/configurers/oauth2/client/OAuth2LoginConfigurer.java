@@ -38,7 +38,6 @@ import org.springframework.core.ResolvableType;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
-import org.springframework.security.config.annotation.web.RequestMatcherFactory;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractAuthenticationFilterConfigurer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -297,7 +296,7 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 	public void init(B http) throws Exception {
 		OAuth2LoginAuthenticationFilter authenticationFilter = new OAuth2LoginAuthenticationFilter(
 				this.getClientRegistrationRepository(), this.getAuthorizedClientRepository(), this.loginProcessingUrl);
-		RequestMatcher processUri = RequestMatcherFactory.matcher(this.loginProcessingUrl);
+		RequestMatcher processUri = getRequestMatcherBuilder().matcher(this.loginProcessingUrl);
 		authenticationFilter.setRequiresAuthenticationRequestMatcher(processUri);
 		authenticationFilter.setSecurityContextHolderStrategy(getSecurityContextHolderStrategy());
 		this.setAuthenticationFilter(authenticationFilter);
@@ -381,7 +380,7 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		OAuth2LoginAuthenticationFilter authenticationFilter = this.getAuthenticationFilter();
 		if (this.redirectionEndpointConfig.authorizationResponseBaseUri != null) {
 			authenticationFilter.setRequiresAuthenticationRequestMatcher(
-					RequestMatcherFactory.matcher(this.redirectionEndpointConfig.authorizationResponseBaseUri));
+					getRequestMatcherBuilder().matcher(this.redirectionEndpointConfig.authorizationResponseBaseUri));
 		}
 		if (this.authorizationEndpointConfig.authorizationRequestRepository != null) {
 			authenticationFilter
@@ -393,7 +392,7 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 
 	@Override
 	protected RequestMatcher createLoginProcessingUrlMatcher(String loginProcessingUrl) {
-		return RequestMatcherFactory.matcher(loginProcessingUrl);
+		return getRequestMatcherBuilder().matcher(loginProcessingUrl);
 	}
 
 	private OAuth2AuthorizationRequestResolver getAuthorizationRequestResolver() {
@@ -531,8 +530,8 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 	}
 
 	private AuthenticationEntryPoint getLoginEntryPoint(B http, String providerLoginPage) {
-		RequestMatcher loginPageMatcher = RequestMatcherFactory.matcher(this.getLoginPage());
-		RequestMatcher faviconMatcher = RequestMatcherFactory.matcher("/favicon.ico");
+		RequestMatcher loginPageMatcher = getRequestMatcherBuilder().matcher(this.getLoginPage());
+		RequestMatcher faviconMatcher = getRequestMatcherBuilder().matcher("/favicon.ico");
 		RequestMatcher defaultEntryPointMatcher = this.getAuthenticationEntryPointMatcher(http);
 		RequestMatcher defaultLoginPageMatcher = new AndRequestMatcher(
 				new OrRequestMatcher(loginPageMatcher, faviconMatcher), defaultEntryPointMatcher);
