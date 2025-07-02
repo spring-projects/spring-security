@@ -36,10 +36,11 @@ import org.springframework.security.saml2.provider.service.registration.RelyingP
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
 import org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding;
 import org.springframework.security.saml2.provider.service.web.RelyingPartyRegistrationPlaceholderResolvers;
-import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
+
+import static org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher.pathPattern;
 
 /**
  * An OpenSAML-based implementation of
@@ -57,9 +58,8 @@ public final class OpenSamlLogoutRequestValidatorParametersResolver
 		OpenSamlInitializationService.initialize();
 	}
 
-	private RequestMatcher requestMatcher = new OrRequestMatcher(
-			PathPatternRequestMatcher.withDefaults().matcher("/logout/saml2/slo/{registrationId}"),
-			PathPatternRequestMatcher.withDefaults().matcher("/logout/saml2/slo"));
+	private RequestMatcher requestMatcher = new OrRequestMatcher(pathPattern("/logout/saml2/slo/{registrationId}"),
+			pathPattern("/logout/saml2/slo"));
 
 	private final OpenSamlOperations saml = new OpenSaml4Template();
 

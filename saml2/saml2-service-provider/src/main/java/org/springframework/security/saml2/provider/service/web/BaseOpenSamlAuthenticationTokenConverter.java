@@ -30,10 +30,11 @@ import org.springframework.security.saml2.provider.service.registration.RelyingP
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
 import org.springframework.security.saml2.provider.service.web.RelyingPartyRegistrationPlaceholderResolvers.UriResolver;
 import org.springframework.security.web.authentication.AuthenticationConverter;
-import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
+
+import static org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher.pathPattern;
 
 final class BaseOpenSamlAuthenticationTokenConverter implements AuthenticationConverter {
 
@@ -45,9 +46,8 @@ final class BaseOpenSamlAuthenticationTokenConverter implements AuthenticationCo
 
 	private final RelyingPartyRegistrationRepository registrations;
 
-	private RequestMatcher requestMatcher = new OrRequestMatcher(
-			PathPatternRequestMatcher.withDefaults().matcher("/login/saml2/sso/{registrationId}"),
-			PathPatternRequestMatcher.withDefaults().matcher("/login/saml2/sso"));
+	private RequestMatcher requestMatcher = new OrRequestMatcher(pathPattern("/login/saml2/sso/{registrationId}"),
+			pathPattern("/login/saml2/sso"));
 
 	private Saml2AuthenticationRequestRepository<?> authenticationRequests = new HttpSessionSaml2AuthenticationRequestRepository();
 
