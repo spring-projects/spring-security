@@ -28,7 +28,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.ldap.core.DirContextAdapter;
-import org.springframework.ldap.core.DistinguishedName;
 import org.springframework.ldap.support.LdapNameBuilder;
 import org.springframework.security.crypto.codec.Utf8;
 import org.springframework.util.Assert;
@@ -101,18 +100,7 @@ public final class LdapUtils {
 	/**
 	 * Gets the full dn of a name by prepending the name of the context it is relative to.
 	 * If the name already contains the base name, it is returned unaltered.
-	 * @deprecated Use {@link #getFullDn(LdapName, Context)}
 	 */
-	@Deprecated
-	public static DistinguishedName getFullDn(DistinguishedName dn, Context baseCtx) throws NamingException {
-		DistinguishedName baseDn = new DistinguishedName(baseCtx.getNameInNamespace());
-		if (dn.contains(baseDn)) {
-			return dn;
-		}
-		baseDn.append(dn);
-		return baseDn;
-	}
-
 	public static LdapName getFullDn(LdapName dn, Context baseCtx) throws NamingException {
 		LdapName baseDn = LdapNameBuilder.newInstance(baseCtx.getNameInNamespace()).build();
 		if (dn.startsWith(baseDn)) {

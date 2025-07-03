@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
 import org.springframework.ldap.core.DirContextAdapter;
-import org.springframework.ldap.core.DistinguishedName;
+import org.springframework.ldap.support.LdapNameBuilder;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.jackson2.SecurityJackson2Modules;
 import org.springframework.security.ldap.userdetails.LdapUserDetailsImpl;
@@ -118,7 +118,7 @@ public class LdapUserDetailsImplMixinTests {
 
 	private DirContextAdapter createUserContext() {
 		DirContextAdapter ctx = new DirContextAdapter();
-		ctx.setDn(new DistinguishedName("ignored=ignored"));
+		ctx.setDn(LdapNameBuilder.newInstance("ignored=ignored").build());
 		ctx.setAttributeValue("userPassword", USER_PASSWORD);
 		return ctx;
 	}
