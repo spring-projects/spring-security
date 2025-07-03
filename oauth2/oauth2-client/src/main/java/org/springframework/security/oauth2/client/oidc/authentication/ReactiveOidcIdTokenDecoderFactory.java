@@ -59,6 +59,7 @@ import org.springframework.util.StringUtils;
  * @author Rafael Dominguez
  * @author Mark Heckler
  * @author Ubaid ur Rehman
+ * @author Ivan Golovko
  * @since 5.2
  * @see ReactiveJwtDecoderFactory
  * @see ClientRegistration
@@ -80,7 +81,7 @@ public final class ReactiveOidcIdTokenDecoderFactory implements ReactiveJwtDecod
 	private static final ClaimTypeConverter DEFAULT_CLAIM_TYPE_CONVERTER = new ClaimTypeConverter(
 			createDefaultClaimTypeConverters());
 
-	private final Map<String, ReactiveJwtDecoder> jwtDecoders = new ConcurrentHashMap<>();
+	private final Map<String, ReactiveJwtDecoder> jwtDecoders;
 
 	private Function<ClientRegistration, OAuth2TokenValidator<Jwt>> jwtValidatorFactory = new DefaultOidcIdTokenValidatorFactory();
 
@@ -89,6 +90,19 @@ public final class ReactiveOidcIdTokenDecoderFactory implements ReactiveJwtDecod
 
 	private Function<ClientRegistration, Converter<Map<String, Object>, Map<String, Object>>> claimTypeConverterFactory = (
 			clientRegistration) -> DEFAULT_CLAIM_TYPE_CONVERTER;
+
+	public ReactiveOidcIdTokenDecoderFactory() {
+		this(true);
+	}
+
+	public ReactiveOidcIdTokenDecoderFactory(boolean withCache) {
+		if (withCache) {
+			this.jwtDecoders = new ConcurrentHashMap<>();
+		}
+		else {
+			this.jwtDecoders = null;
+		}
+	}
 
 	/**
 	 * Returns the default {@link Converter}'s used for type conversion of claim values
@@ -126,16 +140,24 @@ public final class ReactiveOidcIdTokenDecoderFactory implements ReactiveJwtDecod
 	@Override
 	public ReactiveJwtDecoder createDecoder(ClientRegistration clientRegistration) {
 		Assert.notNull(clientRegistration, "clientRegistration cannot be null");
-		return this.jwtDecoders.computeIfAbsent(clientRegistration.getRegistrationId(), (key) -> {
-			NimbusReactiveJwtDecoder jwtDecoder = buildDecoder(clientRegistration);
-			jwtDecoder.setJwtValidator(this.jwtValidatorFactory.apply(clientRegistration));
-			Converter<Map<String, Object>, Map<String, Object>> claimTypeConverter = this.claimTypeConverterFactory
-				.apply(clientRegistration);
-			if (claimTypeConverter != null) {
-				jwtDecoder.setClaimSetConverter(claimTypeConverter);
-			}
-			return jwtDecoder;
-		});
+		if (this.jwtDecoders != null) {
+			return this.jwtDecoders.computeIfAbsent(clientRegistration.getRegistrationId(),
+					(key) -> createFreshDecoder(clientRegistration));
+		}
+		else {
+			return createFreshDecoder(clientRegistration);
+		}
+	}
+
+	private ReactiveJwtDecoder createFreshDecoder(ClientRegistration clientRegistration) {
+		NimbusReactiveJwtDecoder jwtDecoder = buildDecoder(clientRegistration);
+		jwtDecoder.setJwtValidator(this.jwtValidatorFactory.apply(clientRegistration));
+		Converter<Map<String, Object>, Map<String, Object>> claimTypeConverter = this.claimTypeConverterFactory
+			.apply(clientRegistration);
+		if (claimTypeConverter != null) {
+			jwtDecoder.setClaimSetConverter(claimTypeConverter);
+		}
+		return jwtDecoder;
 	}
 
 	private NimbusReactiveJwtDecoder buildDecoder(ClientRegistration clientRegistration) {
