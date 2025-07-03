@@ -38,6 +38,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.springframework.security.web.servlet.TestMockHttpServletRequests.post;
 
 /**
  * Tests for {@link GenerateOneTimeTokenWebFilter}
@@ -55,7 +56,7 @@ public class GenerateOneTimeTokenFilterTests {
 
 	private static final String USERNAME = "user";
 
-	private final MockHttpServletRequest request = new MockHttpServletRequest();
+	private MockHttpServletRequest request;
 
 	private final MockHttpServletResponse response = new MockHttpServletResponse();
 
@@ -63,9 +64,7 @@ public class GenerateOneTimeTokenFilterTests {
 
 	@BeforeEach
 	void setup() {
-		this.request.setMethod("POST");
-		this.request.setServletPath("/ott/generate");
-		this.request.setRequestURI("/ott/generate");
+		this.request = post("/ott/generate").build();
 	}
 
 	@Test
@@ -87,6 +86,7 @@ public class GenerateOneTimeTokenFilterTests {
 	void filterWhenUsernameFormParamIsEmptyThenNull() throws ServletException, IOException {
 		given(this.oneTimeTokenService.generate(ArgumentMatchers.any(GenerateOneTimeTokenRequest.class)))
 			.willReturn((new DefaultOneTimeToken(TOKEN, USERNAME, Instant.now())));
+
 		GenerateOneTimeTokenFilter filter = new GenerateOneTimeTokenFilter(this.oneTimeTokenService,
 				this.successHandler);
 

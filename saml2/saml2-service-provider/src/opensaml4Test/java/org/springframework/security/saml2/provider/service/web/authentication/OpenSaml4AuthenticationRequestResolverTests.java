@@ -28,6 +28,7 @@ import org.springframework.security.saml2.provider.service.registration.RelyingP
 import org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding;
 import org.springframework.security.saml2.provider.service.registration.TestRelyingPartyRegistrations;
 import org.springframework.security.saml2.provider.service.web.RelyingPartyRegistrationResolver;
+import org.springframework.security.web.servlet.TestMockHttpServletRequests;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -102,9 +103,7 @@ public class OpenSaml4AuthenticationRequestResolverTests {
 	}
 
 	private MockHttpServletRequest givenRequest(String path) {
-		MockHttpServletRequest request = new MockHttpServletRequest("GET", path);
-		request.setServletPath(path);
-		return request;
+		return TestMockHttpServletRequests.get(path).build();
 	}
 
 }

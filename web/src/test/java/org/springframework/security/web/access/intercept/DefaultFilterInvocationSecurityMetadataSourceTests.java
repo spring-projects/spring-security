@@ -32,6 +32,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.springframework.security.web.servlet.TestMockHttpServletRequests.request;
 
 /**
  * Tests {@link DefaultFilterInvocationSecurityMetadataSource}.
@@ -53,7 +54,7 @@ public class DefaultFilterInvocationSecurityMetadataSourceTests {
 	@Test
 	public void lookupNotRequiringExactMatchSucceedsIfNotMatching() {
 		createFids("/secure/super/**", null);
-		FilterInvocation fi = createFilterInvocation("/secure/super/somefile.html", null, null, null);
+		FilterInvocation fi = createFilterInvocation("/secure/super/somefile.html", null, null, "GET");
 		assertThat(this.fids.getAttributes(fi)).isEqualTo(this.def);
 	}
 
@@ -64,7 +65,7 @@ public class DefaultFilterInvocationSecurityMetadataSourceTests {
 	@Test
 	public void lookupNotRequiringExactMatchSucceedsIfSecureUrlPathContainsUpperCase() {
 		createFids("/secure/super/**", null);
-		FilterInvocation fi = createFilterInvocation("/secure", "/super/somefile.html", null, null);
+		FilterInvocation fi = createFilterInvocation("/secure", "/super/somefile.html", null, "GET");
 		Collection<ConfigAttribute> response = this.fids.getAttributes(fi);
 		assertThat(response).isEqualTo(this.def);
 	}
@@ -72,7 +73,7 @@ public class DefaultFilterInvocationSecurityMetadataSourceTests {
 	@Test
 	public void lookupRequiringExactMatchIsSuccessful() {
 		createFids("/SeCurE/super/**", null);
-		FilterInvocation fi = createFilterInvocation("/SeCurE/super/somefile.html", null, null, null);
+		FilterInvocation fi = createFilterInvocation("/SeCurE/super/somefile.html", null, null, "GET");
 		Collection<ConfigAttribute> response = this.fids.getAttributes(fi);
 		assertThat(response).isEqualTo(this.def);
 	}
@@ -80,7 +81,7 @@ public class DefaultFilterInvocationSecurityMetadataSourceTests {
 	@Test
 	public void lookupRequiringExactMatchWithAdditionalSlashesIsSuccessful() {
 		createFids("/someAdminPage.html**", null);
-		FilterInvocation fi = createFilterInvocation("/someAdminPage.html", null, "a=/test", null);
+		FilterInvocation fi = createFilterInvocation("/someAdminPage.html", null, "a=/test", "GET");
 		Collection<ConfigAttribute> response = this.fids.getAttributes(fi);
 		assertThat(response); // see SEC-161 (it should truncate after ?
 								// sign).isEqualTo(def)
@@ -129,22 +130,19 @@ public class DefaultFilterInvocationSecurityMetadataSourceTests {
 	@Test
 	public void extraQuestionMarkStillMatches() {
 		createFids("/someAdminPage.html*", null);
-		FilterInvocation fi = createFilterInvocation("/someAdminPage.html", null, null, null);
+		FilterInvocation fi = createFilterInvocation("/someAdminPage.html", null, null, "GET");
 		Collection<ConfigAttribute> response = this.fids.getAttributes(fi);
 		assertThat(response).isEqualTo(this.def);
-		fi = createFilterInvocation("/someAdminPage.html", null, "?", null);
+		fi = createFilterInvocation("/someAdminPage.html", null, "?", "GET");
 		response = this.fids.getAttributes(fi);
 		assertThat(response).isEqualTo(this.def);
 	}
 
 	private FilterInvocation createFilterInvocation(String servletPath, String pathInfo, String queryString,
 			String method) {
-		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.setRequestURI(null);
-		request.setMethod(method);
-		request.setServletPath(servletPath);
-		request.setPathInfo(pathInfo);
-		request.setQueryString(queryString);
+		MockHttpServletRequest request = request(method).requestUri(null, servletPath, pathInfo)
+			.queryString(queryString)
+			.build();
 		return new FilterInvocation(request, new MockHttpServletResponse(), mock(FilterChain.class));
 	}
 

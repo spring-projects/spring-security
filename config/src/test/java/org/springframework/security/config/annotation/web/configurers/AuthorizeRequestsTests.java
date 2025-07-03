@@ -77,7 +77,6 @@ public class AuthorizeRequestsTests {
 	public void setup() {
 		this.servletContext = spy(MockServletContext.mvc());
 		this.request = new MockHttpServletRequest(this.servletContext, "GET", "");
-		this.request.setMethod("GET");
 		this.response = new MockHttpServletResponse();
 		this.chain = new MockFilterChain();
 	}
@@ -111,10 +110,12 @@ public class AuthorizeRequestsTests {
 	public void antMatchersPathVariables() throws Exception {
 		loadConfig(AntPatchersPathVariables.class);
 		this.request.setServletPath("/user/user");
+		this.request.setRequestURI("/user/user");
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
 		this.setup();
 		this.request.setServletPath("/user/deny");
+		this.request.setRequestURI("/user/deny");
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_FORBIDDEN);
 	}
@@ -123,10 +124,12 @@ public class AuthorizeRequestsTests {
 	@Test
 	public void antMatchersPathVariablesCaseInsensitive() throws Exception {
 		loadConfig(AntPatchersPathVariables.class);
+		this.request.setRequestURI("/USER/user");
 		this.request.setServletPath("/USER/user");
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
 		this.setup();
+		this.request.setRequestURI("/USER/deny");
 		this.request.setServletPath("/USER/deny");
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_FORBIDDEN);
@@ -137,10 +140,12 @@ public class AuthorizeRequestsTests {
 	public void antMatchersPathVariablesCaseInsensitiveCamelCaseVariables() throws Exception {
 		loadConfig(AntMatchersPathVariablesCamelCaseVariables.class);
 		this.request.setServletPath("/USER/user");
+		this.request.setRequestURI("/USER/user");
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
 		this.setup();
 		this.request.setServletPath("/USER/deny");
+		this.request.setRequestURI("/USER/deny");
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_FORBIDDEN);
 	}

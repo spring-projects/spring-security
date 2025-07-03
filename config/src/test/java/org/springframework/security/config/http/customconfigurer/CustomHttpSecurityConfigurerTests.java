@@ -60,7 +60,7 @@ public class CustomHttpSecurityConfigurerTests {
 
 	@BeforeEach
 	public void setup() {
-		this.request = new MockHttpServletRequest("GET", "");
+		this.request = new MockHttpServletRequest();
 		this.response = new MockHttpServletResponse();
 		this.chain = new MockFilterChain();
 		this.request.setMethod("GET");
@@ -76,7 +76,7 @@ public class CustomHttpSecurityConfigurerTests {
 	@Test
 	public void customConfiguerPermitAll() throws Exception {
 		loadContext(Config.class);
-		this.request.setPathInfo("/public/something");
+		this.request.setRequestURI("/public/something");
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
 	}
@@ -84,7 +84,7 @@ public class CustomHttpSecurityConfigurerTests {
 	@Test
 	public void customConfiguerFormLogin() throws Exception {
 		loadContext(Config.class);
-		this.request.setPathInfo("/requires-authentication");
+		this.request.setRequestURI("/requires-authentication");
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
 		assertThat(this.response.getRedirectedUrl()).endsWith("/custom");
 	}
@@ -92,7 +92,7 @@ public class CustomHttpSecurityConfigurerTests {
 	@Test
 	public void customConfiguerCustomizeDisablesCsrf() throws Exception {
 		loadContext(ConfigCustomize.class);
-		this.request.setPathInfo("/public/something");
+		this.request.setRequestURI("/public/something");
 		this.request.setMethod("POST");
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
@@ -101,7 +101,7 @@ public class CustomHttpSecurityConfigurerTests {
 	@Test
 	public void customConfiguerCustomizeFormLogin() throws Exception {
 		loadContext(ConfigCustomize.class);
-		this.request.setPathInfo("/requires-authentication");
+		this.request.setRequestURI("/requires-authentication");
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
 		assertThat(this.response.getRedirectedUrl()).endsWith("/other");
 	}

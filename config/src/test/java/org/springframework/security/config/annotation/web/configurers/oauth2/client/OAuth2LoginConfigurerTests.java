@@ -107,6 +107,7 @@ import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.context.HttpRequestResponseHolder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
+import org.springframework.security.web.servlet.TestMockHttpServletRequests;
 import org.springframework.security.web.session.HttpSessionDestroyedEvent;
 import org.springframework.security.web.util.matcher.RequestHeaderRequestMatcher;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -127,6 +128,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.security.config.annotation.SecurityContextChangedListenerArgumentMatchers.setAuthentication;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.web.servlet.TestMockHttpServletRequests.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 
@@ -185,8 +187,7 @@ public class OAuth2LoginConfigurerTests {
 
 	@BeforeEach
 	public void setup() {
-		this.request = new MockHttpServletRequest("GET", "");
-		this.request.setServletPath("/login/oauth2/code/google");
+		this.request = TestMockHttpServletRequests.get("/login/oauth2/code/google").build();
 		this.response = new MockHttpServletResponse();
 		this.filterChain = new MockFilterChain();
 	}
@@ -347,7 +348,7 @@ public class OAuth2LoginConfigurerTests {
 		loadConfig(OAuth2LoginConfigLoginProcessingUrl.class);
 		// setup authorization request
 		OAuth2AuthorizationRequest authorizationRequest = createOAuth2AuthorizationRequest();
-		this.request.setServletPath("/login/oauth2/google");
+		this.request.setRequestURI("/login/oauth2/google");
 		this.authorizationRequestRepository.saveAuthorizationRequest(authorizationRequest, this.request, this.response);
 		// setup authentication parameters
 		this.request.setParameter("code", "code123");
@@ -381,8 +382,7 @@ public class OAuth2LoginConfigurerTests {
 		// @formatter:on
 		given(resolver.resolve(any())).willReturn(result);
 		String requestUri = "/oauth2/authorization/google";
-		this.request = new MockHttpServletRequest("GET", requestUri);
-		this.request.setServletPath(requestUri);
+		this.request = TestMockHttpServletRequests.get(requestUri).build();
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
 		assertThat(this.response.getRedirectedUrl()).isEqualTo(
 				"https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=clientId&scope=openid+profile+email&state=state&redirect_uri=http%3A%2F%2Flocalhost%2Flogin%2Foauth2%2Fcode%2Fgoogle&custom-param1=custom-value1");
@@ -394,8 +394,7 @@ public class OAuth2LoginConfigurerTests {
 		// @formatter:off
 		// @formatter:on
 		String requestUri = "/oauth2/authorization/google";
-		this.request = new MockHttpServletRequest("GET", requestUri);
-		this.request.setServletPath(requestUri);
+		this.request = TestMockHttpServletRequests.get(requestUri).build();
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
 		assertThat(this.response.getRedirectedUrl()).isEqualTo(
 				"https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=clientId&scope=openid+profile+email&state=state&redirect_uri=http%3A%2F%2Flocalhost%2Flogin%2Foauth2%2Fcode%2Fgoogle&custom-param1=custom-value1");
@@ -418,8 +417,7 @@ public class OAuth2LoginConfigurerTests {
 		// @formatter:on
 		given(resolver.resolve(any())).willReturn(result);
 		String requestUri = "/oauth2/authorization/google";
-		this.request = new MockHttpServletRequest("GET", requestUri);
-		this.request.setServletPath(requestUri);
+		this.request = TestMockHttpServletRequests.get(requestUri).build();
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
 		assertThat(this.response.getRedirectedUrl()).isEqualTo(
 				"https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=clientId&scope=openid+profile+email&state=state&redirect_uri=http%3A%2F%2Flocalhost%2Flogin%2Foauth2%2Fcode%2Fgoogle&custom-param1=custom-value1");
@@ -432,8 +430,7 @@ public class OAuth2LoginConfigurerTests {
 		RedirectStrategy redirectStrategy = this.context
 			.getBean(OAuth2LoginConfigCustomAuthorizationRedirectStrategy.class).redirectStrategy;
 		String requestUri = "/oauth2/authorization/google";
-		this.request = new MockHttpServletRequest("GET", requestUri);
-		this.request.setServletPath(requestUri);
+		this.request = get(requestUri).build();
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
 		then(redirectStrategy).should().sendRedirect(any(), any(), anyString());
 	}
@@ -445,8 +442,7 @@ public class OAuth2LoginConfigurerTests {
 		RedirectStrategy redirectStrategy = this.context
 			.getBean(OAuth2LoginConfigCustomAuthorizationRedirectStrategyInLambda.class).redirectStrategy;
 		String requestUri = "/oauth2/authorization/google";
-		this.request = new MockHttpServletRequest("GET", requestUri);
-		this.request.setServletPath(requestUri);
+		this.request = get(requestUri).build();
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
 		then(redirectStrategy).should().sendRedirect(any(), any(), anyString());
 	}
@@ -456,8 +452,7 @@ public class OAuth2LoginConfigurerTests {
 	public void oauth2LoginWithOneClientConfiguredThenRedirectForAuthorization() throws Exception {
 		loadConfig(OAuth2LoginConfig.class);
 		String requestUri = "/";
-		this.request = new MockHttpServletRequest("GET", requestUri);
-		this.request.setServletPath(requestUri);
+		this.request = get(requestUri).build();
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
 		assertThat(this.response.getRedirectedUrl()).matches("http://localhost/oauth2/authorization/google");
 	}
@@ -467,8 +462,7 @@ public class OAuth2LoginConfigurerTests {
 	public void oauth2LoginWithOneClientConfiguredAndFormLoginThenRedirectDefaultLoginPage() throws Exception {
 		loadConfig(OAuth2LoginConfigFormLogin.class);
 		String requestUri = "/";
-		this.request = new MockHttpServletRequest("GET", requestUri);
-		this.request.setServletPath(requestUri);
+		this.request = get(requestUri).build();
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
 		assertThat(this.response.getRedirectedUrl()).matches("http://localhost/login");
 	}
@@ -479,8 +473,7 @@ public class OAuth2LoginConfigurerTests {
 			throws Exception {
 		loadConfig(OAuth2LoginConfig.class);
 		String requestUri = "/favicon.ico";
-		this.request = new MockHttpServletRequest("GET", requestUri);
-		this.request.setServletPath(requestUri);
+		this.request = get(requestUri).build();
 		this.request.addHeader(HttpHeaders.ACCEPT, new MediaType("image", "*").toString());
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
 		assertThat(this.response.getRedirectedUrl()).matches("http://localhost/login");
@@ -491,8 +484,7 @@ public class OAuth2LoginConfigurerTests {
 	public void oauth2LoginWithMultipleClientsConfiguredThenRedirectDefaultLoginPage() throws Exception {
 		loadConfig(OAuth2LoginConfigMultipleClients.class);
 		String requestUri = "/";
-		this.request = new MockHttpServletRequest("GET", requestUri);
-		this.request.setServletPath(requestUri);
+		this.request = get(requestUri).build();
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
 		assertThat(this.response.getRedirectedUrl()).matches("http://localhost/login");
 	}
@@ -503,8 +495,7 @@ public class OAuth2LoginConfigurerTests {
 			throws Exception {
 		loadConfig(OAuth2LoginConfig.class);
 		String requestUri = "/";
-		this.request = new MockHttpServletRequest("GET", requestUri);
-		this.request.setServletPath(requestUri);
+		this.request = get(requestUri).build();
 		this.request.addHeader("X-Requested-With", "XMLHttpRequest");
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
 		assertThat(this.response.getRedirectedUrl()).doesNotMatch("http://localhost/oauth2/authorization/google");
@@ -515,8 +506,7 @@ public class OAuth2LoginConfigurerTests {
 			throws Exception {
 		loadConfig(OAuth2LoginWithHttpBasicConfig.class);
 		String requestUri = "/";
-		this.request = new MockHttpServletRequest("GET", requestUri);
-		this.request.setServletPath(requestUri);
+		this.request = get(requestUri).build();
 		this.request.addHeader("X-Requested-With", "XMLHttpRequest");
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
 		assertThat(this.response.getStatus()).isEqualTo(401);
@@ -527,8 +517,7 @@ public class OAuth2LoginConfigurerTests {
 			throws Exception {
 		loadConfig(OAuth2LoginWithXHREntryPointConfig.class);
 		String requestUri = "/";
-		this.request = new MockHttpServletRequest("GET", requestUri);
-		this.request.setServletPath(requestUri);
+		this.request = get(requestUri).build();
 		this.request.addHeader("X-Requested-With", "XMLHttpRequest");
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
 		assertThat(this.response.getStatus()).isEqualTo(401);
@@ -540,8 +529,7 @@ public class OAuth2LoginConfigurerTests {
 			throws Exception {
 		loadConfig(OAuth2LoginConfigAuthorizationCodeClientAndOtherClients.class);
 		String requestUri = "/";
-		this.request = new MockHttpServletRequest("GET", requestUri);
-		this.request.setServletPath(requestUri);
+		this.request = get(requestUri).build();
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
 		assertThat(this.response.getRedirectedUrl()).matches("http://localhost/oauth2/authorization/google");
 	}
@@ -550,8 +538,7 @@ public class OAuth2LoginConfigurerTests {
 	public void oauth2LoginWithCustomLoginPageThenRedirectCustomLoginPage() throws Exception {
 		loadConfig(OAuth2LoginConfigCustomLoginPage.class);
 		String requestUri = "/";
-		this.request = new MockHttpServletRequest("GET", requestUri);
-		this.request.setServletPath(requestUri);
+		this.request = get(requestUri).build();
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
 		assertThat(this.response.getRedirectedUrl()).matches("http://localhost/custom-login");
 	}
@@ -560,8 +547,7 @@ public class OAuth2LoginConfigurerTests {
 	public void requestWhenOauth2LoginWithCustomLoginPageInLambdaThenRedirectCustomLoginPage() throws Exception {
 		loadConfig(OAuth2LoginConfigCustomLoginPageInLambda.class);
 		String requestUri = "/";
-		this.request = new MockHttpServletRequest("GET", requestUri);
-		this.request.setServletPath(requestUri);
+		this.request = get(requestUri).build();
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
 		assertThat(this.response.getRedirectedUrl()).matches("http://localhost/custom-login");
 	}

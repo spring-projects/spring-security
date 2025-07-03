@@ -39,6 +39,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
+import static org.springframework.security.web.servlet.TestMockHttpServletRequests.post;
 
 /**
  * Tests {@link UsernamePasswordAuthenticationFilter}.
@@ -128,10 +129,10 @@ public class UsernamePasswordAuthenticationFilterTests {
 
 	@Test
 	public void testSecurityContextHolderStrategyUsed() throws Exception {
-		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/login");
-		request.setServletPath("/login");
-		request.addParameter(UsernamePasswordAuthenticationFilter.SPRING_SECURITY_FORM_USERNAME_KEY, "rod");
-		request.addParameter(UsernamePasswordAuthenticationFilter.SPRING_SECURITY_FORM_PASSWORD_KEY, "koala");
+		MockHttpServletRequest request = post("/login")
+			.param(UsernamePasswordAuthenticationFilter.SPRING_SECURITY_FORM_USERNAME_KEY, "rod")
+			.param(UsernamePasswordAuthenticationFilter.SPRING_SECURITY_FORM_PASSWORD_KEY, "koala")
+			.build();
 		UsernamePasswordAuthenticationFilter filter = new UsernamePasswordAuthenticationFilter();
 		filter.setAuthenticationManager(createAuthenticationManager());
 		SecurityContextHolderStrategy strategy = spy(SecurityContextHolder.getContextHolderStrategy());

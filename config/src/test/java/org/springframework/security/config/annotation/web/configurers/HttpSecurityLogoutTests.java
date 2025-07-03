@@ -39,6 +39,7 @@ import org.springframework.security.web.context.HttpSessionSecurityContextReposi
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.security.web.servlet.TestMockHttpServletRequests.post;
 
 /**
  * @author Rob Winch
@@ -47,8 +48,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class HttpSecurityLogoutTests {
 
 	AnnotationConfigWebApplicationContext context;
-
-	MockHttpServletRequest request;
 
 	MockHttpServletResponse response;
 
@@ -59,7 +58,6 @@ public class HttpSecurityLogoutTests {
 
 	@BeforeEach
 	public void setup() {
-		this.request = new MockHttpServletRequest("GET", "");
 		this.response = new MockHttpServletResponse();
 		this.chain = new MockFilterChain();
 	}
@@ -77,11 +75,10 @@ public class HttpSecurityLogoutTests {
 		loadConfig(ClearAuthenticationFalseConfig.class);
 		SecurityContext currentContext = SecurityContextHolder.createEmptyContext();
 		currentContext.setAuthentication(new TestingAuthenticationToken("user", "password", "ROLE_USER"));
-		this.request.getSession()
+		MockHttpServletRequest request = post("/logout").build();
+		request.getSession()
 			.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, currentContext);
-		this.request.setMethod("POST");
-		this.request.setServletPath("/logout");
-		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
+		this.springSecurityFilterChain.doFilter(request, this.response, this.chain);
 		assertThat(currentContext.getAuthentication()).isNotNull();
 	}
 
