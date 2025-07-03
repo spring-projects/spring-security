@@ -1084,7 +1084,7 @@ open class SecurityConfig {
 <3> Allow access to URLs that start with `/api/admin/` to users with the `ADMIN` role
 <4> Any other request that doesn't match the rules above, will require authentication
 
-The `securityMatcher(s)` and `requestMatcher(s)` methods will construct ``RequestMatcher``s using a javadoc:org.springframework.security.web.util.matcher.PathPatternRequestMatcher.Builder[] bean, if available.
+The `securityMatcher(s)` and `requestMatcher(s)` methods will construct ``RequestMatcher``s using a javadoc:org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher$Builder[] bean, if available.
 You can read more about the Spring MVC integration xref:servlet/integrations/mvc.adoc[here].
 
 If you want to use a specific `RequestMatcher`, just pass an implementation to the `securityMatcher` and/or `requestMatcher` methods:
