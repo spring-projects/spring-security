@@ -28,6 +28,8 @@ import java.util.Base64;
 
 import javax.crypto.Cipher;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * @author Dave Syer
  * @since 6.3
@@ -42,7 +44,7 @@ public class RsaRawEncryptor implements BytesEncryptor, TextEncryptor, RsaKeyHol
 
 	private RSAPublicKey publicKey;
 
-	private RSAPrivateKey privateKey;
+	private @Nullable RSAPrivateKey privateKey;
 
 	private Charset defaultCharset;
 
@@ -70,11 +72,12 @@ public class RsaRawEncryptor implements BytesEncryptor, TextEncryptor, RsaKeyHol
 		this(DEFAULT_ENCODING, publicKey, null);
 	}
 
-	public RsaRawEncryptor(String encoding, PublicKey publicKey, PrivateKey privateKey) {
+	public RsaRawEncryptor(String encoding, PublicKey publicKey, @Nullable PrivateKey privateKey) {
 		this(encoding, publicKey, privateKey, RsaAlgorithm.DEFAULT);
 	}
 
-	public RsaRawEncryptor(String encoding, PublicKey publicKey, PrivateKey privateKey, RsaAlgorithm algorithm) {
+	public RsaRawEncryptor(String encoding, PublicKey publicKey, @Nullable PrivateKey privateKey,
+			RsaAlgorithm algorithm) {
 		this.charset = Charset.forName(encoding);
 		this.publicKey = (RSAPublicKey) publicKey;
 		this.privateKey = (RSAPrivateKey) privateKey;
@@ -135,7 +138,7 @@ public class RsaRawEncryptor implements BytesEncryptor, TextEncryptor, RsaKeyHol
 		}
 	}
 
-	private static byte[] decrypt(byte[] text, RSAPrivateKey key, RsaAlgorithm alg) {
+	private static byte[] decrypt(byte[] text, @Nullable RSAPrivateKey key, RsaAlgorithm alg) {
 		ByteArrayOutputStream output = new ByteArrayOutputStream(text.length);
 		try {
 			final Cipher cipher = Cipher.getInstance(alg.getJceName());
@@ -160,7 +163,10 @@ public class RsaRawEncryptor implements BytesEncryptor, TextEncryptor, RsaKeyHol
 	}
 
 	// copied from sun.security.rsa.RSACore.getByteLength(java.math.BigInteger)
-	public static int getByteLength(RSAKey key) {
+	public static int getByteLength(@Nullable RSAKey key) {
+		if (key == null) {
+			throw new IllegalArgumentException("key cannot be null");
+		}
 		int n = key.getModulus().bitLength();
 		return (n + 7) >> 3;
 	}

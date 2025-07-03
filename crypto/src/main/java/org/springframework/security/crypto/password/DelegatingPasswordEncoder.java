@@ -19,6 +19,8 @@ package org.springframework.security.crypto.password;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * A password encoder that delegates to another PasswordEncoder based upon a prefixed
  * identifier.
@@ -146,7 +148,7 @@ public class DelegatingPasswordEncoder implements PasswordEncoder {
 
 	private final PasswordEncoder passwordEncoderForEncode;
 
-	private final Map<String, PasswordEncoder> idToPasswordEncoder;
+	private final Map<@Nullable String, PasswordEncoder> idToPasswordEncoder;
 
 	private PasswordEncoder defaultPasswordEncoderForMatches = new UnmappedIdPasswordEncoder();
 
@@ -232,6 +234,9 @@ public class DelegatingPasswordEncoder implements PasswordEncoder {
 
 	@Override
 	public String encode(CharSequence rawPassword) {
+		if (rawPassword == null) {
+			throw new IllegalArgumentException("rawPassword cannot be null");
+		}
 		return this.idPrefix + this.idForEncode + this.idSuffix + this.passwordEncoderForEncode.encode(rawPassword);
 	}
 
@@ -249,7 +254,7 @@ public class DelegatingPasswordEncoder implements PasswordEncoder {
 		return delegate.matches(rawPassword, encodedPassword);
 	}
 
-	private String extractId(String prefixEncodedPassword) {
+	private @Nullable String extractId(@Nullable String prefixEncodedPassword) {
 		if (prefixEncodedPassword == null) {
 			return null;
 		}
@@ -265,14 +270,17 @@ public class DelegatingPasswordEncoder implements PasswordEncoder {
 	}
 
 	@Override
-	public boolean upgradeEncoding(String prefixEncodedPassword) {
+	public boolean upgradeEncoding(@Nullable String prefixEncodedPassword) {
+		if (prefixEncodedPassword == null) {
+			return false;
+		}
 		String id = extractId(prefixEncodedPassword);
 		if (!this.idForEncode.equalsIgnoreCase(id)) {
 			return true;
 		}
 		else {
 			String encodedPassword = extractEncodedPassword(prefixEncodedPassword);
-			return this.idToPasswordEncoder.get(id).upgradeEncoding(encodedPassword);
+			return this.passwordEncoderForEncode.upgradeEncoding(encodedPassword);
 		}
 	}
 

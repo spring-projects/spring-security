@@ -28,6 +28,8 @@ import java.util.Base64;
 
 import javax.crypto.Cipher;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.crypto.codec.Hex;
 import org.springframework.security.crypto.keygen.KeyGenerators;
 
@@ -50,7 +52,7 @@ public class RsaSecretEncryptor implements BytesEncryptor, TextEncryptor, RsaKey
 
 	private final PublicKey publicKey;
 
-	private final PrivateKey privateKey;
+	private final @Nullable PrivateKey privateKey;
 
 	private final Charset defaultCharset;
 
@@ -120,16 +122,17 @@ public class RsaSecretEncryptor implements BytesEncryptor, TextEncryptor, RsaKey
 		this(DEFAULT_ENCODING, publicKey, null);
 	}
 
-	public RsaSecretEncryptor(String encoding, PublicKey publicKey, PrivateKey privateKey) {
+	public RsaSecretEncryptor(String encoding, PublicKey publicKey, @Nullable PrivateKey privateKey) {
 		this(encoding, publicKey, privateKey, RsaAlgorithm.DEFAULT);
 	}
 
-	public RsaSecretEncryptor(String encoding, PublicKey publicKey, PrivateKey privateKey, RsaAlgorithm algorithm) {
+	public RsaSecretEncryptor(String encoding, PublicKey publicKey, @Nullable PrivateKey privateKey,
+			RsaAlgorithm algorithm) {
 		this(encoding, publicKey, privateKey, algorithm, DEFAULT_SALT, false);
 	}
 
-	public RsaSecretEncryptor(String encoding, PublicKey publicKey, PrivateKey privateKey, RsaAlgorithm algorithm,
-			String salt, boolean gcm) {
+	public RsaSecretEncryptor(String encoding, PublicKey publicKey, @Nullable PrivateKey privateKey,
+			RsaAlgorithm algorithm, String salt, boolean gcm) {
 		this.charset = Charset.forName(encoding);
 		this.publicKey = publicKey;
 		this.privateKey = privateKey;
@@ -206,7 +209,7 @@ public class RsaSecretEncryptor implements BytesEncryptor, TextEncryptor, RsaKey
 		return ((b[0] & 0xFF) << 8) | (b[1] & 0xFF);
 	}
 
-	private static byte[] decrypt(byte[] text, PrivateKey key, RsaAlgorithm alg, String salt, boolean gcm) {
+	private static byte[] decrypt(byte[] text, @Nullable PrivateKey key, RsaAlgorithm alg, String salt, boolean gcm) {
 		ByteArrayInputStream input = new ByteArrayInputStream(text);
 		ByteArrayOutputStream output = new ByteArrayOutputStream(text.length);
 		try {

@@ -22,6 +22,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -43,7 +44,7 @@ public class BCryptPasswordEncoder implements PasswordEncoder {
 
 	private final BCryptVersion version;
 
-	private final SecureRandom random;
+	private final @Nullable SecureRandom random;
 
 	public BCryptPasswordEncoder() {
 		this(-1);
@@ -67,7 +68,7 @@ public class BCryptPasswordEncoder implements PasswordEncoder {
 	 * @param version the version of bcrypt, can be 2a,2b,2y
 	 * @param random the secure random instance to use
 	 */
-	public BCryptPasswordEncoder(BCryptVersion version, SecureRandom random) {
+	public BCryptPasswordEncoder(BCryptVersion version, @Nullable SecureRandom random) {
 		this(version, -1, random);
 	}
 
@@ -75,7 +76,7 @@ public class BCryptPasswordEncoder implements PasswordEncoder {
 	 * @param strength the log rounds to use, between 4 and 31
 	 * @param random the secure random instance to use
 	 */
-	public BCryptPasswordEncoder(int strength, SecureRandom random) {
+	public BCryptPasswordEncoder(int strength, @Nullable SecureRandom random) {
 		this(BCryptVersion.$2A, strength, random);
 	}
 
@@ -92,7 +93,7 @@ public class BCryptPasswordEncoder implements PasswordEncoder {
 	 * @param strength the log rounds to use, between 4 and 31
 	 * @param random the secure random instance to use
 	 */
-	public BCryptPasswordEncoder(BCryptVersion version, int strength, SecureRandom random) {
+	public BCryptPasswordEncoder(BCryptVersion version, int strength, @Nullable SecureRandom random) {
 		if (strength != -1 && (strength < BCrypt.MIN_LOG_ROUNDS || strength > BCrypt.MAX_LOG_ROUNDS)) {
 			throw new IllegalArgumentException("Bad strength");
 		}

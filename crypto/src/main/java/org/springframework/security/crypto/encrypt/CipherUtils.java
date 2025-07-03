@@ -32,6 +32,8 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.PBEParameterSpec;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * Static helper for working with the Cipher API.
  *
@@ -109,7 +111,8 @@ final class CipherUtils {
 	/**
 	 * Initializes the Cipher for use.
 	 */
-	static void initCipher(Cipher cipher, int mode, SecretKey secretKey, AlgorithmParameterSpec parameterSpec) {
+	static void initCipher(Cipher cipher, int mode, SecretKey secretKey,
+			@Nullable AlgorithmParameterSpec parameterSpec) {
 		try {
 			if (parameterSpec != null) {
 				cipher.init(mode, secretKey, parameterSpec);

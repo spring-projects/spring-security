@@ -20,6 +20,8 @@ import java.security.MessageDigest;
 import java.util.Base64;
 import java.util.Locale;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.crypto.codec.Utf8;
 import org.springframework.security.crypto.keygen.BytesKeyGenerator;
 import org.springframework.security.crypto.keygen.KeyGenerators;
@@ -72,7 +74,7 @@ public class LdapShaPasswordEncoder implements PasswordEncoder {
 		this.saltGenerator = saltGenerator;
 	}
 
-	private byte[] combineHashAndSalt(byte[] hash, byte[] salt) {
+	private byte[] combineHashAndSalt(byte[] hash, byte @Nullable [] salt) {
 		if (salt == null) {
 			return hash;
 		}
@@ -96,7 +98,7 @@ public class LdapShaPasswordEncoder implements PasswordEncoder {
 		return encode(rawPass, salt);
 	}
 
-	private String encode(CharSequence rawPassword, byte[] salt) {
+	private String encode(@Nullable CharSequence rawPassword, byte @Nullable [] salt) {
 		MessageDigest sha = getSha(rawPassword);
 		if (salt != null) {
 			sha.update(salt);
@@ -106,7 +108,7 @@ public class LdapShaPasswordEncoder implements PasswordEncoder {
 		return prefix + Utf8.decode(Base64.getEncoder().encode(hash));
 	}
 
-	private MessageDigest getSha(CharSequence rawPassword) {
+	private MessageDigest getSha(@Nullable CharSequence rawPassword) {
 		try {
 			MessageDigest sha = MessageDigest.getInstance("SHA");
 			sha.update(Utf8.encode(rawPassword));
@@ -117,7 +119,7 @@ public class LdapShaPasswordEncoder implements PasswordEncoder {
 		}
 	}
 
-	private String getPrefix(byte[] salt) {
+	private String getPrefix(byte @Nullable [] salt) {
 		if (salt == null || salt.length == 0) {
 			return this.forceLowerCasePrefix ? SHA_PREFIX_LC : SHA_PREFIX;
 		}
@@ -145,7 +147,7 @@ public class LdapShaPasswordEncoder implements PasswordEncoder {
 		return matches((rawPassword != null) ? rawPassword.toString() : null, encodedPassword);
 	}
 
-	private boolean matches(String rawPassword, String encodedPassword) {
+	private boolean matches(@Nullable String rawPassword, String encodedPassword) {
 		String prefix = extractPrefix(encodedPassword);
 		if (prefix == null) {
 			return PasswordEncoderUtils.equals(encodedPassword, rawPassword);
@@ -156,7 +158,7 @@ public class LdapShaPasswordEncoder implements PasswordEncoder {
 		return PasswordEncoderUtils.equals(encodedRawPass, encodedPassword.substring(startOfHash));
 	}
 
-	private byte[] getSalt(String encodedPassword, String prefix) {
+	private byte @Nullable [] getSalt(String encodedPassword, String prefix) {
 		if (prefix.equals(SSHA_PREFIX) || prefix.equals(SSHA_PREFIX_LC)) {
 			return extractSalt(encodedPassword);
 		}
@@ -170,7 +172,7 @@ public class LdapShaPasswordEncoder implements PasswordEncoder {
 	/**
 	 * Returns the hash prefix or null if there isn't one.
 	 */
-	private String extractPrefix(String encPass) {
+	private @Nullable String extractPrefix(String encPass) {
 		if (!encPass.startsWith("{")) {
 			return null;
 		}

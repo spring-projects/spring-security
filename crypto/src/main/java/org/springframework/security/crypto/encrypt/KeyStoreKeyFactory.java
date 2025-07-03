@@ -25,6 +25,8 @@ import java.security.cert.Certificate;
 import java.security.interfaces.RSAPrivateCrtKey;
 import java.security.spec.RSAPublicKeySpec;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.core.io.Resource;
 import org.springframework.util.StringUtils;
 
@@ -39,7 +41,7 @@ public class KeyStoreKeyFactory {
 
 	private final char[] password;
 
-	private KeyStore store;
+	private @Nullable KeyStore store;
 
 	private final Object lock = new Object();
 
