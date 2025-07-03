@@ -64,6 +64,7 @@ configurations {
 dependencies {
 	implementation platform(libs.io.projectreactor.reactor.bom)
 
+	implementation libs.spring.nullability
 	implementation libs.com.google.code.gson.gson
 	implementation libs.com.thaiopensource.trag
 	implementation libs.net.sourceforge.saxon.saxon
