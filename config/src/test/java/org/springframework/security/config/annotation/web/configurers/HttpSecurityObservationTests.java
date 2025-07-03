@@ -87,7 +87,7 @@ public class HttpSecurityObservationTests {
 
 		@Bean
 		SecurityFilterChain app(HttpSecurity http) throws Exception {
-			http.httpBasic(withDefaults()).authorizeHttpRequests((requests) -> requests.anyRequest().authenticated());
+			http.httpBasic(withDefaults()).authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated());
 			return http.build();
 		}
 

@@ -93,7 +93,7 @@ public class SessionManagementConfigurerSessionCreationPolicyTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-					.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+				.sessionManagement((management) -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 			// @formatter:on
 			http.setSharedObject(SessionCreationPolicy.class, SessionCreationPolicy.ALWAYS);
 			return http.build();

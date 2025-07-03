@@ -47,11 +47,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.security.config.Customizer.withDefaults;
 
 /**
  * @author Rob Winch
@@ -85,26 +84,6 @@ public class WebSecurityTests {
 	}
 
 	@Test
-	public void ignoringMvcMatcher() throws Exception {
-		loadConfig(MvcMatcherConfig.class, LegacyMvcMatchingConfig.class);
-		this.request.setRequestURI("/path");
-		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
-		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
-		setup();
-		this.request.setRequestURI("/path.html");
-		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
-		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
-		setup();
-		this.request.setRequestURI("/path/");
-		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
-		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
-		setup();
-		this.request.setRequestURI("/other");
-		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
-		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_UNAUTHORIZED);
-	}
-
-	@Test
 	public void requestRejectedHandlerInvoked() throws ServletException, IOException {
 		loadConfig(DefaultConfig.class);
 		this.request.setServletPath("/spring");
@@ -130,30 +109,6 @@ public class WebSecurityTests {
 		this.request.setRequestURI("/spring/\u0019path");
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_BAD_REQUEST);
-	}
-
-	@Test
-	public void ignoringMvcMatcherServletPath() throws Exception {
-		loadConfig(MvcMatcherServletPathConfig.class, LegacyMvcMatchingConfig.class);
-		this.request.setServletPath("/spring");
-		this.request.setRequestURI("/spring/path");
-		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
-		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
-		setup();
-		this.request.setServletPath("/spring");
-		this.request.setRequestURI("/spring/path.html");
-		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
-		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
-		setup();
-		this.request.setServletPath("/spring");
-		this.request.setRequestURI("/spring/path/");
-		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
-		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
-		setup();
-		this.request.setServletPath("/other");
-		this.request.setRequestURI("/other/path");
-		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
-		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_UNAUTHORIZED);
 	}
 
 	public void loadConfig(Class<?>... configs) {
@@ -183,9 +138,9 @@ public class WebSecurityTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.httpBasic().and()
-				.authorizeRequests()
-					.anyRequest().denyAll();
+				.httpBasic(withDefaults())
+				.authorizeRequests((requests) -> requests
+					.anyRequest().denyAll());
 			// @formatter:on
 			return http.build();
 		}
@@ -222,9 +177,9 @@ public class WebSecurityTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.httpBasic().and()
-				.authorizeRequests()
-					.anyRequest().denyAll();
+				.httpBasic(withDefaults())
+				.authorizeRequests((requests) -> requests
+					.anyRequest().denyAll());
 			// @formatter:on
 			return http.build();
 		}
@@ -242,17 +197,6 @@ public class WebSecurityTests {
 				return "path";
 			}
 
-		}
-
-	}
-
-	@Configuration
-	static class LegacyMvcMatchingConfig implements WebMvcConfigurer {
-
-		@Override
-		public void configurePathMatch(PathMatchConfigurer configurer) {
-			configurer.setUseSuffixPatternMatch(true);
-			configurer.setUseTrailingSlashMatch(true);
 		}
 
 	}

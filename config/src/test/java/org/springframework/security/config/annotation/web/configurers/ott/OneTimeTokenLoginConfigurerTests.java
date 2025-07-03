@@ -242,7 +242,7 @@ public class OneTimeTokenLoginConfigurerTests {
 
 			// @formatter:off
 				http
-					.authorizeHttpRequests((authz) -> authz
+					.authorizeHttpRequests((authorize) -> authorize
 							.anyRequest().authenticated()
 					)
 					.oneTimeTokenLogin((ott) -> ott
@@ -281,7 +281,7 @@ public class OneTimeTokenLoginConfigurerTests {
 				OneTimeTokenGenerationSuccessHandler ottSuccessHandler) throws Exception {
 			// @formatter:off
 			http
-					.authorizeHttpRequests((authz) -> authz
+					.authorizeHttpRequests((authorize) -> authorize
 							.anyRequest().authenticated()
 					)
 					.oneTimeTokenLogin((ott) -> ott
@@ -308,7 +308,7 @@ public class OneTimeTokenLoginConfigurerTests {
 				OneTimeTokenGenerationSuccessHandler ottSuccessHandler) throws Exception {
 			// @formatter:off
 			http
-					.authorizeHttpRequests((authz) -> authz
+					.authorizeHttpRequests((authorize) -> authorize
 							.anyRequest().authenticated()
 					)
 					.oneTimeTokenLogin((ott) -> ott
@@ -336,7 +336,7 @@ public class OneTimeTokenLoginConfigurerTests {
 				OneTimeTokenGenerationSuccessHandler ottSuccessHandler) throws Exception {
 			// @formatter:off
 			http
-					.authorizeHttpRequests((authz) -> authz
+					.authorizeHttpRequests((authorize) -> authorize
 							.anyRequest().authenticated()
 					)
 					.oneTimeTokenLogin((ott) -> ott
@@ -365,7 +365,7 @@ public class OneTimeTokenLoginConfigurerTests {
 		SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-					.authorizeHttpRequests((authz) -> authz
+					.authorizeHttpRequests((authorize) -> authorize
 							.anyRequest().authenticated()
 					)
 					.oneTimeTokenLogin(Customizer.withDefaults());

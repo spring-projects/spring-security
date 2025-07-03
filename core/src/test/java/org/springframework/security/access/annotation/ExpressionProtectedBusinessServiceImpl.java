@@ -16,7 +16,6 @@
 
 package org.springframework.security.access.annotation;
 
-import java.io.Serial;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,10 +23,8 @@ import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.access.prepost.PreFilter;
 
+@SuppressWarnings("serial")
 public class ExpressionProtectedBusinessServiceImpl implements BusinessService {
-
-	@Serial
-	private static final long serialVersionUID = -3320014879907436606L;
 
 	@Override
 	public void someAdminMethod() {

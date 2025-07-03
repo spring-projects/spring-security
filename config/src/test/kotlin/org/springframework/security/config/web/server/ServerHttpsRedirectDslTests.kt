@@ -127,7 +127,7 @@ class ServerHttpsRedirectDslTests {
             return http {
                 redirectToHttps {
                     httpsRedirectWhen {
-                        it.request.headers.containsKey("X-Requires-Https")
+                        it.request.headers.headerNames().contains("X-Requires-Https")
                     }
                 }
             }
@@ -165,7 +165,7 @@ class ServerHttpsRedirectDslTests {
                 redirectToHttps {
                     httpsRedirectWhen(PathPatternParserServerWebExchangeMatcher("/secure"))
                     httpsRedirectWhen {
-                        it.request.headers.containsKey("X-Requires-Https")
+                        it.request.headers.headerNames().contains("X-Requires-Https")
                     }
                 }
             }

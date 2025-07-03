@@ -49,7 +49,7 @@ public class FeaturePolicyServerHttpHeadersWriterTests {
 	public void writeHeadersWhenUsingDefaultsThenDoesNotWrite() {
 		this.writer.writeHttpHeaders(this.exchange);
 		HttpHeaders headers = this.exchange.getResponse().getHeaders();
-		assertThat(headers).isEmpty();
+		assertThat(headers.headerNames()).isEmpty();
 	}
 
 	@Test
@@ -57,7 +57,7 @@ public class FeaturePolicyServerHttpHeadersWriterTests {
 		this.writer.setPolicyDirectives(DEFAULT_POLICY_DIRECTIVES);
 		this.writer.writeHttpHeaders(this.exchange);
 		HttpHeaders headers = this.exchange.getResponse().getHeaders();
-		assertThat(headers).hasSize(1);
+		assertThat(headers.headerNames()).hasSize(1);
 		assertThat(headers.get(FeaturePolicyServerHttpHeadersWriter.FEATURE_POLICY))
 			.containsOnly(DEFAULT_POLICY_DIRECTIVES);
 	}
@@ -69,7 +69,7 @@ public class FeaturePolicyServerHttpHeadersWriterTests {
 		this.exchange.getResponse().getHeaders().set(FeaturePolicyServerHttpHeadersWriter.FEATURE_POLICY, headerValue);
 		this.writer.writeHttpHeaders(this.exchange);
 		HttpHeaders headers = this.exchange.getResponse().getHeaders();
-		assertThat(headers).hasSize(1);
+		assertThat(headers.headerNames()).hasSize(1);
 		assertThat(headers.get(FeaturePolicyServerHttpHeadersWriter.FEATURE_POLICY)).containsOnly(headerValue);
 	}
 

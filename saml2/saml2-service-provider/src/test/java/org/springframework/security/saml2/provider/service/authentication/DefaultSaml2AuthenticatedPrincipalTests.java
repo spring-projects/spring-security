@@ -48,7 +48,8 @@ public class DefaultSaml2AuthenticatedPrincipalTests {
 
 	@Test
 	public void createDefaultSaml2AuthenticatedPrincipalWhenAttributesNullThenException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> new DefaultSaml2AuthenticatedPrincipal("user", null))
+		assertThatIllegalArgumentException()
+			.isThrownBy(() -> new DefaultSaml2AuthenticatedPrincipal("user", (Map<String, List<Object>>) null))
 			.withMessageContaining("attributes cannot be null");
 	}
 

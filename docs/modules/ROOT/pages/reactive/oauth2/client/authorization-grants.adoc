@@ -145,10 +145,10 @@ public class OAuth2LoginSecurityConfig {
 	@Bean
 	public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
 		http
-			.authorizeExchange(authorize -> authorize
+			.authorizeExchange((authorize) -> authorize
 				.anyExchange().authenticated()
 			)
-			.oauth2Login(oauth2 -> oauth2
+			.oauth2Login((oauth2) -> oauth2
 				.authorizationRequestResolver(
 					authorizationRequestResolver(this.clientRegistrationRepository)
 				)
@@ -170,7 +170,7 @@ public class OAuth2LoginSecurityConfig {
 
 	private Consumer<OAuth2AuthorizationRequest.Builder> authorizationRequestCustomizer() {
 		return customizer -> customizer
-					.additionalParameters(params -> params.put("prompt", "consent"));
+					.additionalParameters((params) -> params.put("prompt", "consent"));
 	}
 }
 ----
@@ -252,7 +252,7 @@ Java::
 ----
 private Consumer<OAuth2AuthorizationRequest.Builder> authorizationRequestCustomizer() {
 	return customizer -> customizer
-			.authorizationRequestUri(uriBuilder -> uriBuilder
+			.authorizationRequestUri((uriBuilder) -> uriBuilder
 					.queryParam("prompt", "consent").build());
 }
 ----
@@ -301,7 +301,7 @@ public class OAuth2ClientSecurityConfig {
 	@Bean
 	public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
 		http
-			.oauth2Client(oauth2 -> oauth2
+			.oauth2Client((oauth2) -> oauth2
 				.authorizationRequestRepository(this.authorizationRequestRepository())
 				// ...
 			);
@@ -370,7 +370,7 @@ public class OAuth2ClientSecurityConfig {
 	@Bean
 	public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
 		http
-			.oauth2Client(oauth2 -> oauth2
+			.oauth2Client((oauth2) -> oauth2
 				.authenticationManager(this.authorizationCodeAuthenticationManager())
 				// ...
 			);
@@ -461,7 +461,7 @@ ReactiveOAuth2AccessTokenResponseClient<OAuth2RefreshTokenGrantRequest> refreshT
 ReactiveOAuth2AuthorizedClientProvider authorizedClientProvider =
 		ReactiveOAuth2AuthorizedClientProviderBuilder.builder()
 				.authorizationCode()
-				.refreshToken(configurer -> configurer.accessTokenResponseClient(refreshTokenTokenResponseClient))
+				.refreshToken((configurer) -> configurer.accessTokenResponseClient(refreshTokenTokenResponseClient))
 				.build();
 
 // ...
@@ -540,7 +540,7 @@ ReactiveOAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> cli
 
 ReactiveOAuth2AuthorizedClientProvider authorizedClientProvider =
 		ReactiveOAuth2AuthorizedClientProviderBuilder.builder()
-				.clientCredentials(configurer -> configurer.accessTokenResponseClient(clientCredentialsTokenResponseClient))
+				.clientCredentials((configurer) -> configurer.accessTokenResponseClient(clientCredentialsTokenResponseClient))
 				.build();
 
 // ...
@@ -748,7 +748,7 @@ ReactiveOAuth2AccessTokenResponseClient<OAuth2PasswordGrantRequest> passwordToke
 
 ReactiveOAuth2AuthorizedClientProvider authorizedClientProvider =
 		ReactiveOAuth2AuthorizedClientProviderBuilder.builder()
-				.password(configurer -> configurer.accessTokenResponseClient(passwordTokenResponseClient))
+				.password((configurer) -> configurer.accessTokenResponseClient(passwordTokenResponseClient))
 				.refreshToken()
 				.build();
 

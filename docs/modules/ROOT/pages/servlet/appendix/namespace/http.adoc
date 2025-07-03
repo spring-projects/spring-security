@@ -1266,11 +1266,17 @@ Reference to an `AuthenticationManagerResolver` which will resolve the `Authenti
 
 [[nsa-oauth2-resource-server-bearer-token-resolver-ref]]
 * **bearer-token-resolver-ref**
-Reference to a `BearerTokenResolver` which will retrieve the bearer token from the request
+Reference to a `BearerTokenResolver` which will retrieve the bearer token from the request.
+This cannot be used in conjunction with `authentication-converter-ref`
 
 [[nsa-oauth2-resource-server-entry-point-ref]]
 * **entry-point-ref**
 Reference to a `AuthenticationEntryPoint` which will handle unauthorized requests
+
+[[nsa-oauth2-resource-server-authentication-converter-ref]]
+* **authentication-converter-ref**
+Reference to a `AuthenticationConverter` which convert request to authentication.
+This cannot be used in conjunction with `bearer-token-resolver-ref`
 
 [[nsa-jwt]]
 == <jwt>
@@ -2211,6 +2217,10 @@ A `PreAuthenticatedAuthenticationProvider` will also be created which delegates 
 [[nsa-x509-authentication-details-source-ref]]
 * **authentication-details-source-ref**
 A reference to an `AuthenticationDetailsSource`
+
+[[nsa-x509-principal-extractor-ref]]
+* **principal-extractor-ref**
+Reference to an `X509PrincipalExtractor` which will be used by the authentication filter.
 
 
 [[nsa-x509-subject-principal-regex]]

@@ -21,7 +21,6 @@ import okhttp3.mockwebserver.Dispatcher;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
-import org.apache.commons.lang.StringUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -39,6 +38,7 @@ import org.springframework.security.oauth2.server.resource.web.reactive.function
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -113,7 +113,7 @@ public class SecurityReactorContextConfigurationResourceServerTests {
 
 		@Bean
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-			http.securityContext().requireExplicitSave(false);
+			http.securityContext((context) -> context.requireExplicitSave(false));
 			return http.build();
 		}
 
@@ -197,7 +197,7 @@ public class SecurityReactorContextConfigurationResourceServerTests {
 		public MockResponse dispatch(RecordedRequest request) {
 			MockResponse response = new MockResponse().setResponseCode(200);
 			String header = request.getHeader("Authorization");
-			if (StringUtils.isBlank(header)) {
+			if (!StringUtils.hasText(header)) {
 				return response;
 			}
 			return response.setBody(header);

@@ -17,7 +17,6 @@
 
 	<!-- Method Visibility that we can't reduce -->
 	<suppress files="AbstractAclVoterTests\.java" checks="SpringMethodVisibility"/>
-	<suppress files="AbstractSecurityWebSocketMessageBrokerConfigurerTests\.java" checks="SpringMethodVisibility"/>
 	<suppress files="AnnotationParameterNameDiscovererTests\.java" checks="SpringMethodVisibility"/>
 	<suppress files="AnnotationSecurityAspectTests\.java" checks="SpringMethodVisibility"/>
 	<suppress files="AuthenticationPrincipalArgumentResolverTests\.java" checks="SpringMethodVisibility"/>

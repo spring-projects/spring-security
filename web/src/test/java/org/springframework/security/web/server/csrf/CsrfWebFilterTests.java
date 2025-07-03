@@ -24,6 +24,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import reactor.test.publisher.PublisherProbe;
 
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
@@ -216,7 +217,7 @@ public class CsrfWebFilterTests {
 	// gh-8452
 	public void matchesRequireCsrfProtectionWhenNonStandardHTTPMethodIsUsed() {
 		MockServerWebExchange nonStandardHttpExchange = MockServerWebExchange
-			.from(MockServerHttpRequest.method("non-standard-http-method", "/"));
+			.from(MockServerHttpRequest.method(HttpMethod.valueOf("non-standard-http-method"), "/"));
 		ServerWebExchangeMatcher serverWebExchangeMatcher = CsrfWebFilter.DEFAULT_CSRF_MATCHER;
 		assertThat(serverWebExchangeMatcher.matches(nonStandardHttpExchange).map(MatchResult::isMatch).block())
 			.isTrue();

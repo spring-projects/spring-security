@@ -30,7 +30,11 @@ import org.springframework.util.CollectionUtils;
  *
  * @author Clement Stoquart
  * @since 5.2.2
+ * @deprecated Please use
+ * {@link Saml2AssertionAuthentication#getRelyingPartyRegistrationId()} and
+ * {@link Saml2ResponseAssertionAccessor} instead
  */
+@Deprecated
 public interface Saml2AuthenticatedPrincipal extends AuthenticatedPrincipal {
 
 	/**

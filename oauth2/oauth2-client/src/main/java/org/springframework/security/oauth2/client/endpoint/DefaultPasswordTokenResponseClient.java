@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,12 +52,12 @@ import org.springframework.web.client.RestTemplate;
  * @see <a target="_blank" href=
  * "https://tools.ietf.org/html/rfc6749#section-4.3.3">Section 4.3.3 Access Token Response
  * (Resource Owner Password Credentials Grant)</a>
- * @deprecated The latest OAuth 2.0 Security Best Current Practice disallows the use of
- * the Resource Owner Password Credentials grant. See reference <a target="_blank" href=
- * "https://datatracker.ietf.org/doc/html/draft-ietf-oauth-security-topics-19#section-2.4">OAuth
- * 2.0 Security Best Current Practice.</a>
+ * @deprecated The OAuth 2.0 Security Best Current Practice disallows the use of the
+ * Resource Owner Password Credentials grant. See reference <a target="_blank" href=
+ * "https://datatracker.ietf.org/doc/html/rfc9700#section-2.4">OAuth 2.0 Security Best
+ * Current Practice.</a>
  */
-@Deprecated
+@Deprecated(since = "5.8", forRemoval = true)
 public final class DefaultPasswordTokenResponseClient
 		implements OAuth2AccessTokenResponseClient<OAuth2PasswordGrantRequest> {
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import java.util.Base64;
  *
  * @author Joe Grandja
  * @author Rob Winch
+ * @author Andrey Litvitski
  * @since 5.0
  */
 public class Base64StringKeyGenerator implements StringKeyGenerator {
@@ -67,8 +68,8 @@ public class Base64StringKeyGenerator implements StringKeyGenerator {
 		if (encoder == null) {
 			throw new IllegalArgumentException("encode cannot be null");
 		}
-		if (keyLength < DEFAULT_KEY_LENGTH) {
-			throw new IllegalArgumentException("keyLength must be greater than or equal to" + DEFAULT_KEY_LENGTH);
+		if (keyLength <= 0) {
+			throw new IllegalArgumentException("keyLength must be greater than 0");
 		}
 		this.encoder = encoder;
 		this.keyGenerator = KeyGenerators.secureRandom(keyLength);

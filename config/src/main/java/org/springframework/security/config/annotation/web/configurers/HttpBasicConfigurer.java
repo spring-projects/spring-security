@@ -26,6 +26,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.AuthenticationEntryPoint;
@@ -98,7 +99,7 @@ public final class HttpBasicConfigurer<B extends HttpSecurityBuilder<B>>
 
 	/**
 	 * Creates a new instance
-	 * @see HttpSecurity#httpBasic()
+	 * @see HttpSecurity#httpBasic(Customizer)
 	 */
 	public HttpBasicConfigurer() {
 		realmName(DEFAULT_REALM);

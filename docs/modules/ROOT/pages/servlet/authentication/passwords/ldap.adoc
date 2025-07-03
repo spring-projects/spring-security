@@ -223,82 +223,8 @@ fun ldapContainer(): UnboundIdContainer {
 [[servlet-authentication-ldap-apacheds]]
 === Embedded ApacheDS Server
 
-[NOTE]
-====
-Spring Security uses ApacheDS 1.x, which is no longer maintained.
-Unfortunately, ApacheDS 2.x has only released milestone versions with no stable release.
-Once a stable release of ApacheDS 2.x is available, we will consider updating.
-====
-
-If you wish to use https://directory.apache.org/apacheds/[Apache DS], specify the following dependencies:
-
-.ApacheDS Dependencies
-[tabs]
-======
-Maven::
-+
-[source,xml,role="primary",subs="+attributes"]
-----
-<dependency>
-	<groupId>org.apache.directory.server</groupId>
-	<artifactId>apacheds-core</artifactId>
-	<version>{apacheds-core-version}</version>
-	<scope>runtime</scope>
-</dependency>
-<dependency>
-	<groupId>org.apache.directory.server</groupId>
-	<artifactId>apacheds-server-jndi</artifactId>
-	<version>{apacheds-core-version}</version>
-	<scope>runtime</scope>
-</dependency>
-----
-
-Gradle::
-+
-[source,groovy,role="secondary",subs="+attributes"]
-----
-depenendencies {
-	runtimeOnly "org.apache.directory.server:apacheds-core:{apacheds-core-version}"
-	runtimeOnly "org.apache.directory.server:apacheds-server-jndi:{apacheds-core-version}"
-}
-----
-======
-
-You can then configure the Embedded LDAP Server:
-
-.Embedded LDAP Server Configuration
-[tabs]
-======
-Java::
-+
-[source,java,role="primary"]
-----
-@Bean
-ApacheDSContainer ldapContainer() {
-	return new ApacheDSContainer("dc=springframework,dc=org",
-				"classpath:users.ldif");
-}
-----
-
-XML::
-+
-[source,xml,role="secondary"]
-----
-<b:bean class="org.springframework.security.ldap.server.ApacheDSContainer"
-	c:defaultPartitionSuffix="dc=springframework,dc=org"
-	c:ldif="classpath:users.ldif"/>
-----
-
-Kotlin::
-+
-[source,kotlin,role="secondary"]
-----
-@Bean
-fun ldapContainer(): ApacheDSContainer {
-    return ApacheDSContainer("dc=springframework,dc=org", "classpath:users.ldif")
-}
-----
-======
+Spring Security 7 removes support for Apache DS.
+Please use <<servlet-authentication-ldap-unboundid,UnboundID>> instead.
 
 [[servlet-authentication-ldap-contextsource]]
 == LDAP ContextSource

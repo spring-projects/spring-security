@@ -105,7 +105,6 @@ public class SpringReactiveOpaqueTokenIntrospector implements ReactiveOpaqueToke
 		// @formatter:off
 		return Mono.just(token)
 				.flatMap(this::makeRequest)
-				.flatMap(this::adaptToNimbusResponse)
 				.map(this::convertClaimsSet)
 				.flatMap(this.authenticationConverter::convert)
 				.cast(OAuth2AuthenticatedPrincipal.class)
@@ -113,13 +112,13 @@ public class SpringReactiveOpaqueTokenIntrospector implements ReactiveOpaqueToke
 		// @formatter:on
 	}
 
-	private Mono<ClientResponse> makeRequest(String token) {
+	private Mono<Map<String, Object>> makeRequest(String token) {
 		// @formatter:off
 		return this.webClient.post()
 				.uri(this.introspectionUri)
 				.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
 				.body(BodyInserters.fromFormData("token", token))
-				.exchange();
+				.exchangeToMono(this::adaptToNimbusResponse);
 		// @formatter:on
 	}
 

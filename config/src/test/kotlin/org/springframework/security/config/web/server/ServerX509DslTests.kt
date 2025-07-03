@@ -205,7 +205,7 @@ class ServerX509DslTests {
                                           @Nullable httpHandlerBuilder: WebHttpHandlerBuilder?,
                                           @Nullable connector: ClientHttpConnector?) {
             val filter = SetSslInfoWebFilter(certificate)
-            httpHandlerBuilder!!.filters { filters: MutableList<WebFilter?> -> filters.add(0, filter) }
+            httpHandlerBuilder!!.filters { filters: MutableList<WebFilter> -> filters.add(0, filter) }
         }
     }
 

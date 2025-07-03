@@ -42,6 +42,7 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
+import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -124,10 +125,9 @@ public class NamespaceHttpFormLoginTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().hasRole("USER")
-					.and()
-				.formLogin();
+				.authorizeRequests((requests) -> requests
+					.anyRequest().hasRole("USER"))
+				.formLogin(withDefaults());
 			return http.build();
 			// @formatter:on
 		}
@@ -143,16 +143,15 @@ public class NamespaceHttpFormLoginTests {
 			boolean alwaysUseDefaultSuccess = true;
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().hasRole("USER")
-					.and()
-				.formLogin()
+				.authorizeRequests((requests) -> requests
+					.anyRequest().hasRole("USER"))
+				.formLogin((login) -> login
 					.usernameParameter("username") // form-login@username-parameter
 					.passwordParameter("password") // form-login@password-parameter
 					.loginPage("/authentication/login") // form-login@login-page
 					.failureUrl("/authentication/login?failed") // form-login@authentication-failure-url
 					.loginProcessingUrl("/authentication/login/process") // form-login@login-processing-url
-					.defaultSuccessUrl("/default", alwaysUseDefaultSuccess);
+					.defaultSuccessUrl("/default", alwaysUseDefaultSuccess));
 			return http.build(); // form-login@default-target-url / form-login@always-use-default-target
 			// @formatter:on
 		}
@@ -169,15 +168,13 @@ public class NamespaceHttpFormLoginTests {
 			successHandler.setDefaultTargetUrl("/custom/targetUrl");
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().hasRole("USER")
-					.and()
-				.formLogin()
+				.authorizeRequests((requests) -> requests
+					.anyRequest().hasRole("USER"))
+				.formLogin((login) -> login
 					.loginPage("/login")
 					.failureHandler(new SimpleUrlAuthenticationFailureHandler("/custom/failure")) // form-login@authentication-failure-handler-ref
 					.successHandler(successHandler) // form-login@authentication-success-handler-ref
-					.authenticationDetailsSource(authenticationDetailsSource()) // form-login@authentication-details-source-ref
-					.and();
+					.authenticationDetailsSource(authenticationDetailsSource()));
 			return http.build();
 			// @formatter:on
 		}

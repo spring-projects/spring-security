@@ -29,6 +29,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.context.ApplicationContextException;
 import org.springframework.core.log.LogMessage;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.security.access.AccessDeniedException;
@@ -45,6 +46,7 @@ import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserCache;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsPasswordService;
 import org.springframework.security.core.userdetails.cache.NullUserCache;
 import org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl;
 import org.springframework.util.Assert;
@@ -62,9 +64,11 @@ import org.springframework.util.Assert;
  * using this implementation for managing your users.
  *
  * @author Luke Taylor
+ * @author Junhyeok Lee
  * @since 2.0
  */
-public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsManager, GroupManager {
+public class JdbcUserDetailsManager extends JdbcDaoImpl
+		implements UserDetailsManager, GroupManager, UserDetailsPasswordService {
 
 	public static final String DEF_CREATE_USER_SQL = "insert into users (username, password, enabled) values (?,?,?)";
 
@@ -76,7 +80,7 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 
 	public static final String DEF_DELETE_USER_AUTHORITIES_SQL = "delete from authorities where username = ?";
 
-	public static final String DEF_USER_EXISTS_SQL = "select username from users where username = ?";
+	public static final String DEF_USER_EXISTS_SQL = "select count(*) from users where username = ?";
 
 	public static final String DEF_CHANGE_PASSWORD_SQL = "update users set password = ? where username = ?";
 
@@ -161,6 +165,8 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 
 	private RowMapper<GrantedAuthority> grantedAuthorityMapper = this::mapToGrantedAuthority;
 
+	private boolean enableUpdatePassword = false;
+
 	public JdbcUserDetailsManager() {
 	}
 
@@ -214,7 +220,7 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 	 */
 	@Override
 	protected List<UserDetails> loadUsersByUsername(String username) {
-		return getJdbcTemplate().query(getUsersByUsernameQuery(), this.userDetailsMapper, username);
+		return requireJdbcTemplate().query(getUsersByUsernameQuery(), this.userDetailsMapper, username);
 	}
 
 	private UserDetails mapToUser(ResultSet rs, int rowNum) throws SQLException {
@@ -237,7 +243,7 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 	@Override
 	public void createUser(final UserDetails user) {
 		validateUserDetails(user);
-		getJdbcTemplate().update(this.createUserSql, (ps) -> {
+		requireJdbcTemplate().update(this.createUserSql, (ps) -> {
 			ps.setString(1, user.getUsername());
 			ps.setString(2, user.getPassword());
 			ps.setBoolean(3, user.isEnabled());
@@ -257,7 +263,7 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 	@Override
 	public void updateUser(final UserDetails user) {
 		validateUserDetails(user);
-		getJdbcTemplate().update(this.updateUserSql, (ps) -> {
+		requireJdbcTemplate().update(this.updateUserSql, (ps) -> {
 			ps.setString(1, user.getPassword());
 			ps.setBoolean(2, user.isEnabled());
 			int paramCount = ps.getParameterMetaData().getParameterCount();
@@ -281,7 +287,7 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 
 	private void insertUserAuthorities(UserDetails user) {
 		for (GrantedAuthority auth : user.getAuthorities()) {
-			getJdbcTemplate().update(this.createAuthoritySql, user.getUsername(), auth.getAuthority());
+			requireJdbcTemplate().update(this.createAuthoritySql, user.getUsername(), auth.getAuthority());
 		}
 	}
 
@@ -290,12 +296,12 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 		if (getEnableAuthorities()) {
 			deleteUserAuthorities(username);
 		}
-		getJdbcTemplate().update(this.deleteUserSql, username);
+		requireJdbcTemplate().update(this.deleteUserSql, username);
 		this.userCache.removeUserFromCache(username);
 	}
 
 	private void deleteUserAuthorities(String username) {
-		getJdbcTemplate().update(this.deleteUserAuthoritiesSql, username);
+		requireJdbcTemplate().update(this.deleteUserAuthoritiesSql, username);
 	}
 
 	@Override
@@ -318,7 +324,7 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 			this.logger.debug("No authentication manager set. Password won't be re-checked.");
 		}
 		this.logger.debug("Changing password for user '" + username + "'");
-		getJdbcTemplate().update(this.changePasswordSql, newPassword, username);
+		requireJdbcTemplate().update(this.changePasswordSql, newPassword, username);
 		Authentication authentication = createNewAuthentication(currentUser, newPassword);
 		SecurityContext context = this.securityContextHolderStrategy.createEmptyContext();
 		context.setAuthentication(authentication);
@@ -336,24 +342,24 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 
 	@Override
 	public boolean userExists(String username) {
-		List<String> users = getJdbcTemplate().queryForList(this.userExistsSql, new String[] { username },
-				String.class);
-		if (users.size() > 1) {
-			throw new IncorrectResultSizeDataAccessException("More than one user found with name '" + username + "'",
-					1);
+		@SuppressWarnings("ConstantConditions")
+		int usersCount = getJdbcTemplate().queryForObject(this.userExistsSql, Integer.class, username);
+		if (usersCount > 1) {
+			throw new IncorrectResultSizeDataAccessException(
+					"[" + usersCount + "] users found with name '" + username + "', expected 1", 1);
 		}
-		return users.size() == 1;
+		return usersCount == 1;
 	}
 
 	@Override
 	public List<String> findAllGroups() {
-		return getJdbcTemplate().queryForList(this.findAllGroupsSql, String.class);
+		return requireJdbcTemplate().queryForList(this.findAllGroupsSql, String.class);
 	}
 
 	@Override
 	public List<String> findUsersInGroup(String groupName) {
 		Assert.hasText(groupName, "groupName should have text");
-		return getJdbcTemplate().queryForList(this.findUsersInGroupSql, new String[] { groupName }, String.class);
+		return requireJdbcTemplate().queryForList(this.findUsersInGroupSql, String.class, groupName);
 	}
 
 	@Override
@@ -362,11 +368,11 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 		Assert.notNull(authorities, "authorities cannot be null");
 		this.logger.debug("Creating new group '" + groupName + "' with authorities "
 				+ AuthorityUtils.authorityListToSet(authorities));
-		getJdbcTemplate().update(this.insertGroupSql, groupName);
+		requireJdbcTemplate().update(this.insertGroupSql, groupName);
 		int groupId = findGroupId(groupName);
 		for (GrantedAuthority a : authorities) {
 			String authority = a.getAuthority();
-			getJdbcTemplate().update(this.insertGroupAuthoritySql, (ps) -> {
+			requireJdbcTemplate().update(this.insertGroupAuthoritySql, (ps) -> {
 				ps.setInt(1, groupId);
 				ps.setString(2, authority);
 			});
@@ -379,9 +385,9 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 		Assert.hasText(groupName, "groupName should have text");
 		int id = findGroupId(groupName);
 		PreparedStatementSetter groupIdPSS = (ps) -> ps.setInt(1, id);
-		getJdbcTemplate().update(this.deleteGroupMembersSql, groupIdPSS);
-		getJdbcTemplate().update(this.deleteGroupAuthoritiesSql, groupIdPSS);
-		getJdbcTemplate().update(this.deleteGroupSql, groupIdPSS);
+		requireJdbcTemplate().update(this.deleteGroupMembersSql, groupIdPSS);
+		requireJdbcTemplate().update(this.deleteGroupAuthoritiesSql, groupIdPSS);
+		requireJdbcTemplate().update(this.deleteGroupSql, groupIdPSS);
 	}
 
 	@Override
@@ -389,7 +395,7 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 		this.logger.debug("Changing group name from '" + oldName + "' to '" + newName + "'");
 		Assert.hasText(oldName, "oldName should have text");
 		Assert.hasText(newName, "newName should have text");
-		getJdbcTemplate().update(this.renameGroupSql, newName, oldName);
+		requireJdbcTemplate().update(this.renameGroupSql, newName, oldName);
 	}
 
 	@Override
@@ -398,7 +404,7 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 		Assert.hasText(username, "username should have text");
 		Assert.hasText(groupName, "groupName should have text");
 		int id = findGroupId(groupName);
-		getJdbcTemplate().update(this.insertGroupMemberSql, (ps) -> {
+		requireJdbcTemplate().update(this.insertGroupMemberSql, (ps) -> {
 			ps.setInt(1, id);
 			ps.setString(2, username);
 		});
@@ -411,7 +417,7 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 		Assert.hasText(username, "username should have text");
 		Assert.hasText(groupName, "groupName should have text");
 		int id = findGroupId(groupName);
-		getJdbcTemplate().update(this.deleteGroupMemberSql, (ps) -> {
+		requireJdbcTemplate().update(this.deleteGroupMemberSql, (ps) -> {
 			ps.setInt(1, id);
 			ps.setString(2, username);
 		});
@@ -422,8 +428,7 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 	public List<GrantedAuthority> findGroupAuthorities(String groupName) {
 		this.logger.debug("Loading authorities for group '" + groupName + "'");
 		Assert.hasText(groupName, "groupName should have text");
-		return getJdbcTemplate().query(this.groupAuthoritiesSql, new String[] { groupName },
-				this.grantedAuthorityMapper);
+		return requireJdbcTemplate().query(this.groupAuthoritiesSql, this.grantedAuthorityMapper, groupName);
 	}
 
 	private GrantedAuthority mapToGrantedAuthority(ResultSet rs, int rowNum) throws SQLException {
@@ -437,7 +442,7 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 		Assert.hasText(groupName, "groupName should have text");
 		Assert.notNull(authority, "authority cannot be null");
 		int id = findGroupId(groupName);
-		getJdbcTemplate().update(this.deleteGroupAuthoritySql, (ps) -> {
+		requireJdbcTemplate().update(this.deleteGroupAuthoritySql, (ps) -> {
 			ps.setInt(1, id);
 			ps.setString(2, authority.getAuthority());
 		});
@@ -449,14 +454,20 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 		Assert.hasText(groupName, "groupName should have text");
 		Assert.notNull(authority, "authority cannot be null");
 		int id = findGroupId(groupName);
-		getJdbcTemplate().update(this.insertGroupAuthoritySql, (ps) -> {
+		requireJdbcTemplate().update(this.insertGroupAuthoritySql, (ps) -> {
 			ps.setInt(1, id);
 			ps.setString(2, authority.getAuthority());
 		});
 	}
 
 	private int findGroupId(String group) {
-		return getJdbcTemplate().queryForObject(this.findGroupIdSql, Integer.class, group);
+		return requireJdbcTemplate().queryForObject(this.findGroupIdSql, Integer.class, group);
+	}
+
+	private JdbcTemplate requireJdbcTemplate() {
+		JdbcTemplate jdbc = getJdbcTemplate();
+		Assert.notNull(jdbc, "JdbcTemplate cannot be null");
+		return jdbc;
 	}
 
 	/**
@@ -585,6 +596,21 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 		this.userCache = userCache;
 	}
 
+	/**
+	 * Sets whether the {@link #updatePassword(UserDetails, String)} method should
+	 * actually update the password.
+	 * <p>
+	 * Defaults to {@code false} to prevent accidental password updates that might produce
+	 * passwords that are too large for the current database schema. Users must explicitly
+	 * set this to {@code true} to enable password updates.
+	 * @param enableUpdatePassword {@code true} to enable password updates, {@code false}
+	 * otherwise.
+	 * @since 7.0
+	 */
+	public void setEnableUpdatePassword(boolean enableUpdatePassword) {
+		this.enableUpdatePassword = enableUpdatePassword;
+	}
+
 	private void validateUserDetails(UserDetails user) {
 		Assert.hasText(user.getUsername(), "Username may not be empty or null");
 		validateAuthorities(user.getAuthorities());
@@ -596,6 +622,21 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 			Assert.notNull(authority, "Authorities list contains a null entry");
 			Assert.hasText(authority.getAuthority(), "getAuthority() method must return a non-empty string");
 		}
+	}
+
+	/**
+	 * Conditionally updates password based on the setting from
+	 * {@link #setEnableUpdatePassword(boolean)}. {@inheritDoc}
+	 * @since 7.0
+	 */
+	@Override
+	public UserDetails updatePassword(UserDetails user, String newPassword) {
+		if (this.enableUpdatePassword) {
+			UserDetails updated = User.withUserDetails(user).password(newPassword).build();
+			updateUser(updated);
+			return updated;
+		}
+		return user;
 	}
 
 }

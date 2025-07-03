@@ -18,6 +18,7 @@ package org.springframework.security.config.annotation.web.configurers;
 
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.util.Assert;
@@ -57,7 +58,7 @@ public class CorsConfigurer<H extends HttpSecurityBuilder<H>> extends AbstractHt
 	/**
 	 * Creates a new instance
 	 *
-	 * @see HttpSecurity#cors()
+	 * @see HttpSecurity#cors(Customizer)
 	 */
 	public CorsConfigurer() {
 	}

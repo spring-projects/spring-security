@@ -100,9 +100,9 @@ public class HttpSecurityLogoutTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.csrf().disable()
-				.logout()
-					.clearAuthentication(false);
+				.csrf((csrf) -> csrf.disable())
+				.logout((logout) -> logout
+					.clearAuthentication(false));
 			// @formatter:on
 			return http.build();
 		}

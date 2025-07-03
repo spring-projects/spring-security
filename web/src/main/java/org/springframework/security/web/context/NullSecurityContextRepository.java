@@ -38,7 +38,11 @@ public final class NullSecurityContextRepository implements SecurityContextRepos
 		return false;
 	}
 
+	/**
+	 * @deprecated please see {@link SecurityContextRepository#loadContext}
+	 */
 	@Override
+	@Deprecated
 	public SecurityContext loadContext(HttpRequestResponseHolder requestResponseHolder) {
 		return this.securityContextHolderStrategy.createEmptyContext();
 	}

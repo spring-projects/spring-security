@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,10 @@
 
 package org.springframework.security.saml2.provider.service.web;
 
-import java.util.function.Function;
-
 import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.http.HttpMethod;
 import org.springframework.security.saml2.core.Saml2Error;
-import org.springframework.security.saml2.core.Saml2ErrorCodes;
 import org.springframework.security.saml2.core.Saml2ParameterNames;
 import org.springframework.security.saml2.provider.service.authentication.AbstractSaml2AuthenticationRequest;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationException;
@@ -43,7 +40,9 @@ public final class Saml2AuthenticationTokenConverter implements AuthenticationCo
 
 	private final RelyingPartyRegistrationResolver relyingPartyRegistrationResolver;
 
-	private Function<HttpServletRequest, AbstractSaml2AuthenticationRequest> loader;
+	private Saml2AuthenticationRequestRepository<AbstractSaml2AuthenticationRequest> authenticationRequestRepository;
+
+	private boolean shouldConvertGetRequests = true;
 
 	/**
 	 * Constructs a {@link Saml2AuthenticationTokenConverter} given a strategy for
@@ -54,12 +53,13 @@ public final class Saml2AuthenticationTokenConverter implements AuthenticationCo
 	public Saml2AuthenticationTokenConverter(RelyingPartyRegistrationResolver relyingPartyRegistrationResolver) {
 		Assert.notNull(relyingPartyRegistrationResolver, "relyingPartyRegistrationResolver cannot be null");
 		this.relyingPartyRegistrationResolver = relyingPartyRegistrationResolver;
-		this.loader = new HttpSessionSaml2AuthenticationRequestRepository()::loadAuthenticationRequest;
+		this.authenticationRequestRepository = new HttpSessionSaml2AuthenticationRequestRepository();
 	}
 
 	@Override
 	public Saml2AuthenticationToken convert(HttpServletRequest request) {
-		AbstractSaml2AuthenticationRequest authenticationRequest = loadAuthenticationRequest(request);
+		AbstractSaml2AuthenticationRequest authenticationRequest = this.authenticationRequestRepository
+			.loadAuthenticationRequest(request);
 		String relyingPartyRegistrationId = (authenticationRequest != null)
 				? authenticationRequest.getRelyingPartyRegistrationId() : null;
 		RelyingPartyRegistration relyingPartyRegistration = this.relyingPartyRegistrationResolver.resolve(request,
@@ -84,11 +84,17 @@ public final class Saml2AuthenticationTokenConverter implements AuthenticationCo
 	public void setAuthenticationRequestRepository(
 			Saml2AuthenticationRequestRepository<AbstractSaml2AuthenticationRequest> authenticationRequestRepository) {
 		Assert.notNull(authenticationRequestRepository, "authenticationRequestRepository cannot be null");
-		this.loader = authenticationRequestRepository::loadAuthenticationRequest;
+		this.authenticationRequestRepository = authenticationRequestRepository;
 	}
 
-	private AbstractSaml2AuthenticationRequest loadAuthenticationRequest(HttpServletRequest request) {
-		return this.loader.apply(request);
+	/**
+	 * Use the given {@code shouldConvertGetRequests} to convert {@code GET} requests.
+	 * Default is {@code true}.
+	 * @param shouldConvertGetRequests the {@code shouldConvertGetRequests} to use
+	 * @since 7.0
+	 */
+	public void setShouldConvertGetRequests(boolean shouldConvertGetRequests) {
+		this.shouldConvertGetRequests = shouldConvertGetRequests;
 	}
 
 	private String decode(HttpServletRequest request) {
@@ -96,15 +102,16 @@ public final class Saml2AuthenticationTokenConverter implements AuthenticationCo
 		if (encoded == null) {
 			return null;
 		}
+		boolean isGet = HttpMethod.GET.matches(request.getMethod());
+		if (!this.shouldConvertGetRequests && isGet) {
+			return null;
+		}
+		Saml2Utils.DecodingConfigurer decoding = Saml2Utils.withEncoded(encoded).requireBase64(true).inflate(isGet);
 		try {
-			return Saml2Utils.withEncoded(encoded)
-				.requireBase64(true)
-				.inflate(HttpMethod.GET.matches(request.getMethod()))
-				.decode();
+			return decoding.decode();
 		}
 		catch (Exception ex) {
-			throw new Saml2AuthenticationException(new Saml2Error(Saml2ErrorCodes.INVALID_RESPONSE, ex.getMessage()),
-					ex);
+			throw new Saml2AuthenticationException(Saml2Error.invalidResponse(ex.getMessage()), ex);
 		}
 	}
 

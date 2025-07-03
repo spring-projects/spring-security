@@ -71,6 +71,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
@@ -293,9 +294,9 @@ public class NamespaceHttpTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
+				.authorizeRequests((requests) -> requests
 					.anyRequest().permitAll()
-				.accessDecisionManager(ACCESS_DECISION_MANAGER);
+					.accessDecisionManager(ACCESS_DECISION_MANAGER));
 			return http.build();
 			// @formatter:on
 		}
@@ -311,12 +312,11 @@ public class NamespaceHttpTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
+				.authorizeRequests((requests) -> requests
 					.requestMatchers("/admin").hasRole("ADMIN")
-					.anyRequest().authenticated()
-					.and()
-				.exceptionHandling()
-					.accessDeniedPage("/AccessDeniedPage");
+					.anyRequest().authenticated())
+				.exceptionHandling((handling) -> handling
+					.accessDeniedPage("/AccessDeniedPage"));
 			return http.build();
 			// @formatter:on
 		}
@@ -338,10 +338,9 @@ public class NamespaceHttpTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().authenticated()
-					.and()
-				.formLogin();
+				.authorizeRequests((requests) -> requests
+					.anyRequest().authenticated())
+				.formLogin(withDefaults());
 			return http.build();
 			// @formatter:on
 		}
@@ -356,11 +355,10 @@ public class NamespaceHttpTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().permitAll()
-					.and()
-				.sessionManagement()
-					.sessionCreationPolicy(SessionCreationPolicy.ALWAYS);
+				.authorizeRequests((requests) -> requests
+					.anyRequest().permitAll())
+				.sessionManagement((management) -> management
+					.sessionCreationPolicy(SessionCreationPolicy.ALWAYS));
 			return http.build();
 			// @formatter:on
 		}
@@ -375,11 +373,10 @@ public class NamespaceHttpTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().permitAll()
-					.and()
-				.sessionManagement()
-					.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+				.authorizeRequests((requests) -> requests
+					.anyRequest().permitAll())
+				.sessionManagement((management) -> management
+					.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 			return http.build();
 			// @formatter:on
 		}
@@ -395,14 +392,12 @@ public class NamespaceHttpTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
+				.authorizeRequests((requests) -> requests
 					.requestMatchers("/unsecure").permitAll()
-					.anyRequest().authenticated()
-					.and()
-				.sessionManagement()
-					.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
-					.and()
-				.formLogin();
+					.anyRequest().authenticated())
+				.sessionManagement((management) -> management
+					.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+				.formLogin(withDefaults());
 			return http.build();
 			// @formatter:on
 		}
@@ -417,11 +412,10 @@ public class NamespaceHttpTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().anonymous()
-					.and()
-				.sessionManagement()
-					.sessionCreationPolicy(SessionCreationPolicy.NEVER);
+				.authorizeRequests((requests) -> requests
+					.anyRequest().anonymous())
+				.sessionManagement((management) -> management
+					.sessionCreationPolicy(SessionCreationPolicy.NEVER));
 			return http.build();
 			// @formatter:on
 		}
@@ -436,13 +430,11 @@ public class NamespaceHttpTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().authenticated()
-					.and()
-				.exceptionHandling()
-					.authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/entry-point"))
-					.and()
-				.formLogin();
+				.authorizeRequests((requests) -> requests
+					.anyRequest().authenticated())
+				.exceptionHandling((handling) -> handling
+					.authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/entry-point")))
+				.formLogin(withDefaults());
 			return http.build();
 			// @formatter:on
 		}
@@ -472,11 +464,10 @@ public class NamespaceHttpTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().authenticated()
-					.and()
-				.httpBasic()
-					.realmName("RealmConfig");
+				.authorizeRequests((requests) -> requests
+					.anyRequest().authenticated())
+				.httpBasic((basic) -> basic
+					.realmName("RealmConfig"));
 			return http.build();
 			// @formatter:on
 		}
@@ -562,13 +553,11 @@ public class NamespaceHttpTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().authenticated()
-					.and()
-				.securityContext()
-					.securityContextRepository(new NullSecurityContextRepository())
-					.and()
-				.formLogin();
+				.authorizeRequests((requests) -> requests
+					.anyRequest().authenticated())
+				.securityContext((context) -> context
+					.securityContextRepository(new NullSecurityContextRepository()))
+				.formLogin(withDefaults());
 			// @formatter:on
 			return http.build();
 		}
@@ -588,11 +577,10 @@ public class NamespaceHttpTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().permitAll()
-					.and()
-				.servletApi()
-					.disable();
+				.authorizeRequests((requests) -> requests
+					.anyRequest().permitAll())
+				.servletApi((api) -> api
+					.disable());
 			return http.build();
 			// @formatter:on
 		}
@@ -607,8 +595,8 @@ public class NamespaceHttpTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().permitAll();
+				.authorizeRequests((requests) -> requests
+					.anyRequest().permitAll());
 			return http.build();
 			// @formatter:on
 		}
@@ -641,10 +629,10 @@ public class NamespaceHttpTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
+				.authorizeRequests((requests) -> requests
 					.requestMatchers("/users**", "/sessions/**").hasRole("USER")
 					.requestMatchers("/signup").permitAll()
-					.anyRequest().hasRole("USER");
+					.anyRequest().hasRole("USER"));
 			this.httpSecurity = http;
 			return http.build();
 			// @formatter:on

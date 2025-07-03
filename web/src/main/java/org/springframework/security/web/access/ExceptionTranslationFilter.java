@@ -56,8 +56,7 @@ import org.springframework.web.filter.GenericFilterBean;
  * <p>
  * If an {@link AuthenticationException} is detected, the filter will launch the
  * <code>authenticationEntryPoint</code>. This allows common handling of authentication
- * failures originating from any subclass of
- * {@link org.springframework.security.access.intercept.AbstractSecurityInterceptor}.
+ * failures originating from Web or Method Security.
  * <p>
  * If an {@link AccessDeniedException} is detected, the filter will determine whether or
  * not the user is an anonymous user. If they are an anonymous user, the

@@ -81,9 +81,6 @@ public class CheckClasspathForProhibitedDependencies extends DefaultTask {
 		if (group.startsWith("javax")) {
 			return true;
 		}
-		if (group.equals("commons-logging")) {
-			return true;
-		}
 		if (group.equals("org.slf4j") && id.getName().equals("jcl-over-slf4j")) {
 			return true;
 		}

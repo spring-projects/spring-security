@@ -34,7 +34,9 @@ import org.springframework.security.rsocket.metadata.BearerTokenMetadata;
  *
  * @author Rob Winch
  * @since 5.2
+ * @deprecated please use {@link AuthenticationPayloadExchangeConverter} instead
  */
+@Deprecated
 public class BearerPayloadExchangeConverter implements PayloadExchangeAuthenticationConverter {
 
 	private static final String BEARER_MIME_TYPE_VALUE = BearerTokenMetadata.BEARER_AUTHENTICATION_MIME_TYPE.toString();

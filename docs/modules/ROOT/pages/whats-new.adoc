@@ -14,4 +14,3 @@ Below are the highlights of the release, or you can view https://github.com/spri
 === Username Expression Support for Nested Attributes - https://github.com/spring-projects/spring-security/pull/16390[gh-16390]
 
 OAuth2 Client now supports SpEL expressions for extracting usernames from nested UserInfo responses, eliminating the need for custom `OAuth2UserService` implementations in many cases. This is particularly useful for APIs like Twitter API v2 that return nested user data.
-

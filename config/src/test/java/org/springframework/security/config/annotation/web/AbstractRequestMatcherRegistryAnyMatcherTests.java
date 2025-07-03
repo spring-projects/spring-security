@@ -86,9 +86,9 @@ public class AbstractRequestMatcherRegistryAnyMatcherTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-				.anyRequest().authenticated()
-				.requestMatchers(new AntPathRequestMatcher("/demo/**")).permitAll();
+				.authorizeRequests((requests) -> requests
+					.anyRequest().authenticated()
+					.requestMatchers(new AntPathRequestMatcher("/demo/**")).permitAll());
 			return http.build();
 			// @formatter:on
 		}
@@ -103,9 +103,9 @@ public class AbstractRequestMatcherRegistryAnyMatcherTests {
 		SecurityFilterChain filterChain(HttpSecurity http, HandlerMappingIntrospector introspector) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-				.anyRequest().authenticated()
-				.requestMatchers(new MvcRequestMatcher(introspector, "/demo/**")).permitAll();
+				.authorizeRequests((requests) -> requests
+					.anyRequest().authenticated()
+					.requestMatchers(new MvcRequestMatcher(introspector, "/demo/**")).permitAll());
 			return http.build();
 			// @formatter:on
 		}
@@ -120,9 +120,9 @@ public class AbstractRequestMatcherRegistryAnyMatcherTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-				.anyRequest().authenticated()
-				.requestMatchers(new RegexRequestMatcher(".*", null)).permitAll();
+				.authorizeRequests((requests) -> requests
+					.anyRequest().authenticated()
+					.requestMatchers(new RegexRequestMatcher(".*", null)).permitAll());
 			return http.build();
 			// @formatter:on
 		}
@@ -137,9 +137,9 @@ public class AbstractRequestMatcherRegistryAnyMatcherTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-				.anyRequest().authenticated()
-				.anyRequest().permitAll();
+				.authorizeRequests((requests) -> requests
+					.anyRequest().authenticated()
+					.anyRequest().permitAll());
 			return http.build();
 			// @formatter:on
 		}
@@ -154,9 +154,9 @@ public class AbstractRequestMatcherRegistryAnyMatcherTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-				.anyRequest().authenticated()
-				.requestMatchers(new AntPathRequestMatcher("/**")).permitAll();
+				.authorizeRequests((requests) -> requests
+					.anyRequest().authenticated()
+					.requestMatchers(new AntPathRequestMatcher("/**")).permitAll());
 			return http.build();
 			// @formatter:on
 		}

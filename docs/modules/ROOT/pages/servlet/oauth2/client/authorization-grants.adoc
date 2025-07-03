@@ -147,11 +147,11 @@ public class OAuth2LoginSecurityConfig {
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http
-			.authorizeHttpRequests(authorize -> authorize
+			.authorizeHttpRequests((authorize) -> authorize
 				.anyRequest().authenticated()
 			)
-			.oauth2Login(oauth2 -> oauth2
-				.authorizationEndpoint(authorization -> authorization
+			.oauth2Login((oauth2) -> oauth2
+				.authorizationEndpoint((authorization) -> authorization
 					.authorizationRequestResolver(
 						authorizationRequestResolver(this.clientRegistrationRepository)
 					)
@@ -174,7 +174,7 @@ public class OAuth2LoginSecurityConfig {
 
 	private Consumer<OAuth2AuthorizationRequest.Builder> authorizationRequestCustomizer() {
 		return customizer -> customizer
-					.additionalParameters(params -> params.put("prompt", "consent"));
+					.additionalParameters((params) -> params.put("prompt", "consent"));
 	}
 }
 ----
@@ -257,7 +257,7 @@ Java::
 ----
 private Consumer<OAuth2AuthorizationRequest.Builder> authorizationRequestCustomizer() {
 	return customizer -> customizer
-				.authorizationRequestUri(uriBuilder -> uriBuilder
+				.authorizationRequestUri((uriBuilder) -> uriBuilder
 					.queryParam("prompt", "consent").build());
 }
 ----
@@ -306,14 +306,14 @@ public class OAuth2ClientSecurityConfig {
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http
-			.oauth2Client(oauth2 -> oauth2
-				.authorizationCodeGrant(codeGrant -> codeGrant
+			.oauth2Client((oauth2) -> oauth2
+				.authorizationCodeGrant((codeGrant) -> codeGrant
 					.authorizationRequestRepository(this.authorizationRequestRepository())
 					// ...
 				)
 			)
-            .oauth2Login(oauth2 -> oauth2
-                .authorizationEndpoint(endpoint -> endpoint
+            .oauth2Login((oauth2) -> oauth2
+                .authorizationEndpoint((endpoint) -> endpoint
                     .authorizationRequestRepository(this.authorizationRequestRepository())
                     // ...
                 )
@@ -412,8 +412,8 @@ public class OAuth2ClientSecurityConfig {
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http
-			.oauth2Client(oauth2 -> oauth2
-				.authorizationCodeGrant(codeGrant -> codeGrant
+			.oauth2Client((oauth2) -> oauth2
+				.authorizationCodeGrant((codeGrant) -> codeGrant
 					.accessTokenResponseClient(this.accessTokenResponseClient())
 					// ...
 				)
@@ -514,7 +514,7 @@ OAuth2AccessTokenResponseClient<OAuth2RefreshTokenGrantRequest> refreshTokenToke
 OAuth2AuthorizedClientProvider authorizedClientProvider =
 		OAuth2AuthorizedClientProviderBuilder.builder()
 				.authorizationCode()
-				.refreshToken(configurer -> configurer.accessTokenResponseClient(refreshTokenTokenResponseClient))
+				.refreshToken((configurer) -> configurer.accessTokenResponseClient(refreshTokenTokenResponseClient))
 				.build();
 
 // ...
@@ -605,7 +605,7 @@ OAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> clientCrede
 
 OAuth2AuthorizedClientProvider authorizedClientProvider =
 		OAuth2AuthorizedClientProviderBuilder.builder()
-				.clientCredentials(configurer -> configurer.accessTokenResponseClient(clientCredentialsTokenResponseClient))
+				.clientCredentials((configurer) -> configurer.accessTokenResponseClient(clientCredentialsTokenResponseClient))
 				.build();
 
 // ...
@@ -882,7 +882,7 @@ OAuth2AccessTokenResponseClient<OAuth2PasswordGrantRequest> passwordTokenRespons
 
 OAuth2AuthorizedClientProvider authorizedClientProvider =
 		OAuth2AuthorizedClientProviderBuilder.builder()
-				.password(configurer -> configurer.accessTokenResponseClient(passwordTokenResponseClient))
+				.password((configurer) -> configurer.accessTokenResponseClient(passwordTokenResponseClient))
 				.refreshToken()
 				.build();
 

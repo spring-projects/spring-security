@@ -418,7 +418,7 @@ public class SessionManagementSpecTests {
 		SecurityWebFilterChain springSecurity(ServerHttpSecurity http) {
 			// @formatter:off
 			http
-				.authorizeExchange((exchanges) -> exchanges.anyExchange().authenticated())
+				.authorizeExchange((authorize) -> authorize.anyExchange().authenticated())
 				.formLogin(Customizer.withDefaults())
 				.sessionManagement((sessionManagement) -> sessionManagement
 					.concurrentSessions((concurrentSessions) -> concurrentSessions
@@ -453,7 +453,7 @@ public class SessionManagementSpecTests {
 				DefaultWebSessionManager webSessionManager) {
 			// @formatter:off
 			http
-					.authorizeExchange((exchanges) -> exchanges
+					.authorizeExchange((authorize) -> authorize
 						.anyExchange().authenticated()
 					)
 					.oauth2Login((oauth2Login) -> oauth2Login
@@ -493,7 +493,7 @@ public class SessionManagementSpecTests {
 		SecurityWebFilterChain springSecurity(ServerHttpSecurity http) {
 			// @formatter:off
 			http
-				.authorizeExchange((exchanges) -> exchanges.anyExchange().authenticated())
+				.authorizeExchange((authorize) -> authorize.anyExchange().authenticated())
 				.formLogin(Customizer.withDefaults())
 				.sessionManagement((sessionManagement) -> sessionManagement
 					.concurrentSessions((concurrentSessions) -> concurrentSessions
@@ -516,7 +516,7 @@ public class SessionManagementSpecTests {
 		SecurityWebFilterChain springSecurity(ServerHttpSecurity http) {
 			// @formatter:off
 			http
-				.authorizeExchange((exchanges) -> exchanges.anyExchange().authenticated())
+				.authorizeExchange((authorize) -> authorize.anyExchange().authenticated())
 				.formLogin((login) -> login
 						.authenticationSuccessHandler(new RedirectServerAuthenticationSuccessHandler("/"))
 				)
@@ -542,7 +542,7 @@ public class SessionManagementSpecTests {
 		SecurityWebFilterChain springSecurity(ServerHttpSecurity http) {
 			// @formatter:off
 			http
-					.authorizeExchange((exchanges) -> exchanges.anyExchange().authenticated())
+					.authorizeExchange((authorize) -> authorize.anyExchange().authenticated())
 					.httpBasic((basic) -> basic
 							.securityContextRepository(new WebSessionServerSecurityContextRepository())
 					)

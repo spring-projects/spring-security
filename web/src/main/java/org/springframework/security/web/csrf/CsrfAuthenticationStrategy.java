@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -69,7 +69,7 @@ public final class CsrfAuthenticationStrategy implements SessionAuthenticationSt
 		if (containsToken) {
 			this.tokenRepository.saveToken(null, request, response);
 			DeferredCsrfToken deferredCsrfToken = this.tokenRepository.loadDeferredToken(request, response);
-			this.requestHandler.handle(request, response, deferredCsrfToken::get);
+			this.requestHandler.handle(request, response, deferredCsrfToken);
 			this.logger.debug("Replaced CSRF Token");
 		}
 	}

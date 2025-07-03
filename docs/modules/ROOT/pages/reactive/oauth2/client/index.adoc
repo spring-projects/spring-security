@@ -38,7 +38,7 @@ public class OAuth2ClientSecurityConfig {
 	@Bean
 	public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
 		http
-			.oauth2Client(oauth2 -> oauth2
+			.oauth2Client((oauth2) -> oauth2
 				.clientRegistrationRepository(this.clientRegistrationRepository())
 				.authorizedClientRepository(this.authorizedClientRepository())
 				.authorizationRequestRepository(this.authorizationRequestRepository())

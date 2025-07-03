@@ -51,6 +51,7 @@ import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.web.access.AuthorizationManagerWebInvocationPrivilegeEvaluator;
 import org.springframework.security.web.access.DefaultWebInvocationPrivilegeEvaluator;
 import org.springframework.security.web.access.HandlerMappingIntrospectorRequestTransformer;
+import org.springframework.security.web.access.PathPatternRequestTransformer;
 import org.springframework.security.web.access.channel.ChannelDecisionManagerImpl;
 import org.springframework.security.web.access.channel.ChannelProcessingFilter;
 import org.springframework.security.web.access.channel.InsecureChannelProcessor;
@@ -974,10 +975,17 @@ class HttpConfigurationBuilder {
 		@Override
 		public AuthorizationManagerWebInvocationPrivilegeEvaluator.HttpServletRequestTransformer getObject()
 				throws Exception {
+			AuthorizationManagerWebInvocationPrivilegeEvaluator.HttpServletRequestTransformer requestTransformer = this.applicationContext
+				.getBeanProvider(
+						AuthorizationManagerWebInvocationPrivilegeEvaluator.HttpServletRequestTransformer.class)
+				.getIfUnique();
+			if (requestTransformer != null) {
+				return requestTransformer;
+			}
 			HandlerMappingIntrospector hmi = this.applicationContext.getBeanProvider(HandlerMappingIntrospector.class)
 				.getIfAvailable();
 			return (hmi != null) ? new HandlerMappingIntrospectorRequestTransformer(hmi)
-					: AuthorizationManagerWebInvocationPrivilegeEvaluator.HttpServletRequestTransformer.IDENTITY;
+					: new PathPatternRequestTransformer();
 		}
 
 		@Override

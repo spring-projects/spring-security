@@ -248,7 +248,7 @@ public final class UrlAuthorizationConfigurer<H extends HttpSecurityBuilder<H>>
 		}
 
 		public H and() {
-			return UrlAuthorizationConfigurer.this.and();
+			return UrlAuthorizationConfigurer.this.getBuilder();
 		}
 
 	}

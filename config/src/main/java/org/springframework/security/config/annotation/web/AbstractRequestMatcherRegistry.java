@@ -41,7 +41,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.lang.Nullable;
 import org.springframework.security.config.ObjectPostProcessor;
 import org.springframework.security.config.annotation.web.ServletRegistrationsSupport.RegistrationMapping;
-import org.springframework.security.config.annotation.web.configurers.AbstractConfigAttributeRequestMatcherRegistry;
 import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
@@ -170,7 +169,7 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 
 	/**
 	 * Associates a list of {@link RequestMatcher} instances with the
-	 * {@link AbstractConfigAttributeRequestMatcherRegistry}
+	 * {@link AbstractRequestMatcherRegistry}
 	 * @param requestMatchers the {@link RequestMatcher} instances
 	 * @return the object that is chained after creating the {@link RequestMatcher}
 	 */

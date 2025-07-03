@@ -51,6 +51,7 @@ class X509Dsl {
     var authenticationDetailsSource: AuthenticationDetailsSource<HttpServletRequest, PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails>? = null
     var userDetailsService: UserDetailsService? = null
     var authenticationUserDetailsService: AuthenticationUserDetailsService<PreAuthenticatedAuthenticationToken>? = null
+    @Deprecated("Use x509PrincipalExtractor instead")
     var subjectPrincipalRegex: String? = null
 
 

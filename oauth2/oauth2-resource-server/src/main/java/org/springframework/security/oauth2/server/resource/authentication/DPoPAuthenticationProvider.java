@@ -18,13 +18,11 @@ package org.springframework.security.oauth2.server.resource.authentication;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
-import java.security.PublicKey;
 import java.time.Instant;
 import java.util.Base64;
 import java.util.Map;
 import java.util.function.Function;
 
-import com.nimbusds.jose.jwk.AsymmetricJWK;
 import com.nimbusds.jose.jwk.JWK;
 
 import org.springframework.security.authentication.AuthenticationManager;
@@ -50,10 +48,15 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 /**
+ * An {@link AuthenticationProvider} implementation that is responsible for authenticating
+ * a DPoP-bound access token for a protected resource request.
+ *
  * @author Joe Grandja
  * @since 6.5
  * @see DPoPAuthenticationToken
  * @see DPoPProofJwtDecoderFactory
+ * @see <a target="_blank" href="https://datatracker.ietf.org/doc/html/rfc9449">RFC 9449
+ * OAuth 2.0 Demonstrating Proof of Possession (DPoP)</a>
  */
 public final class DPoPAuthenticationProvider implements AuthenticationProvider {
 
@@ -61,6 +64,11 @@ public final class DPoPAuthenticationProvider implements AuthenticationProvider 
 
 	private JwtDecoderFactory<DPoPProofContext> dPoPProofVerifierFactory;
 
+	/**
+	 * Constructs a {@code DPoPAuthenticationProvider} using the provided parameters.
+	 * @param tokenAuthenticationManager the {@link AuthenticationManager} used to
+	 * authenticate the DPoP-bound access token
+	 */
 	public DPoPAuthenticationProvider(AuthenticationManager tokenAuthenticationManager) {
 		Assert.notNull(tokenAuthenticationManager, "tokenAuthenticationManager cannot be null");
 		this.tokenAuthenticationManager = tokenAuthenticationManager;
@@ -121,6 +129,13 @@ public final class DPoPAuthenticationProvider implements AuthenticationProvider 
 		return DPoPAuthenticationToken.class.isAssignableFrom(authentication);
 	}
 
+	/**
+	 * Sets the {@link JwtDecoderFactory} that provides a {@link JwtDecoder} for the
+	 * specified {@link DPoPProofContext} and is used for authenticating a DPoP Proof
+	 * {@link Jwt}. The default factory is {@link DPoPProofJwtDecoderFactory}.
+	 * @param dPoPProofVerifierFactory the {@link JwtDecoderFactory} that provides a
+	 * {@link JwtDecoder} for the specified {@link DPoPProofContext}
+	 */
 	public void setDPoPProofVerifierFactory(JwtDecoderFactory<DPoPProofContext> dPoPProofVerifierFactory) {
 		Assert.notNull(dPoPProofVerifierFactory, "dPoPProofVerifierFactory cannot be null");
 		this.dPoPProofVerifierFactory = dPoPProofVerifierFactory;
@@ -193,25 +208,22 @@ public final class DPoPAuthenticationProvider implements AuthenticationProvider 
 				return OAuth2TokenValidatorResult.failure(error);
 			}
 
-			PublicKey publicKey = null;
+			JWK jwk = null;
 			@SuppressWarnings("unchecked")
 			Map<String, Object> jwkJson = (Map<String, Object>) jwt.getHeaders().get("jwk");
 			try {
-				JWK jwk = JWK.parse(jwkJson);
-				if (jwk instanceof AsymmetricJWK) {
-					publicKey = ((AsymmetricJWK) jwk).toPublicKey();
-				}
+				jwk = JWK.parse(jwkJson);
 			}
 			catch (Exception ignored) {
 			}
-			if (publicKey == null) {
+			if (jwk == null) {
 				OAuth2Error error = createOAuth2Error("jwk header is missing or invalid.");
 				return OAuth2TokenValidatorResult.failure(error);
 			}
 
 			String jwkThumbprint;
 			try {
-				jwkThumbprint = computeSHA256(publicKey);
+				jwkThumbprint = jwk.computeThumbprint().toString();
 			}
 			catch (Exception ex) {
 				OAuth2Error error = createOAuth2Error("Failed to compute SHA-256 Thumbprint for jwk.");
@@ -227,12 +239,6 @@ public final class DPoPAuthenticationProvider implements AuthenticationProvider 
 
 		private static OAuth2Error createOAuth2Error(String reason) {
 			return new OAuth2Error(OAuth2ErrorCodes.INVALID_DPOP_PROOF, reason, null);
-		}
-
-		private static String computeSHA256(PublicKey publicKey) throws Exception {
-			MessageDigest md = MessageDigest.getInstance("SHA-256");
-			byte[] digest = md.digest(publicKey.getEncoded());
-			return Base64.getUrlEncoder().withoutPadding().encodeToString(digest);
 		}
 
 	}

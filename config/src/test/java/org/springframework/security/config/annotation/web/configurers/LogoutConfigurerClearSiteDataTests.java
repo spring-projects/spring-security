@@ -97,8 +97,8 @@ public class LogoutConfigurerClearSiteDataTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.logout()
-					.addLogoutHandler(new HeaderWriterLogoutHandler(new ClearSiteDataHeaderWriter(SOURCE)));
+				.logout((logout) -> logout
+					.addLogoutHandler(new HeaderWriterLogoutHandler(new ClearSiteDataHeaderWriter(SOURCE))));
 			return http.build();
 			// @formatter:on
 		}

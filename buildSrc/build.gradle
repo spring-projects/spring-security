@@ -1,5 +1,6 @@
 plugins {
 	id "java-gradle-plugin"
+	id "groovy-gradle-plugin"
 	id "java"
 	id "groovy"
 }
@@ -76,6 +77,7 @@ dependencies {
 	implementation libs.com.github.spullara.mustache.java.compiler
 	implementation libs.io.spring.javaformat.spring.javaformat.gradle.plugin
 	implementation libs.io.spring.nohttp.nohttp.gradle
+	implementation libs.org.jetbrains.kotlin.kotlin.gradle.plugin
 	implementation (libs.net.sourceforge.htmlunit) {
 		exclude group: 'org.eclipse.jetty.websocket', module: 'websocket-client'
 	}

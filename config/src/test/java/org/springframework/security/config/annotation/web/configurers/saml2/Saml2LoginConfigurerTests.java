@@ -253,7 +253,7 @@ public class Saml2LoginConfigurerTests {
 	public void authenticationRequestWhenAuthenticationRequestResolverBeanThenUses() throws Exception {
 		this.spring.register(CustomAuthenticationRequestResolverBean.class).autowire();
 		MvcResult result = this.mvc.perform(get("/saml2/authenticate/registration-id")).andReturn();
-		UriComponents components = UriComponentsBuilder.fromHttpUrl(result.getResponse().getRedirectedUrl()).build();
+		UriComponents components = UriComponentsBuilder.fromUriString(result.getResponse().getRedirectedUrl()).build();
 		String samlRequest = components.getQueryParams().getFirst("SAMLRequest");
 		String decoded = URLDecoder.decode(samlRequest, "UTF-8");
 		String inflated = Saml2Utils.samlInflate(Saml2Utils.samlDecode(decoded));
@@ -264,7 +264,7 @@ public class Saml2LoginConfigurerTests {
 	public void authenticationRequestWhenAuthenticationRequestResolverDslThenUses() throws Exception {
 		this.spring.register(CustomAuthenticationRequestResolverDsl.class).autowire();
 		MvcResult result = this.mvc.perform(get("/saml2/authenticate/registration-id")).andReturn();
-		UriComponents components = UriComponentsBuilder.fromHttpUrl(result.getResponse().getRedirectedUrl()).build();
+		UriComponents components = UriComponentsBuilder.fromUriString(result.getResponse().getRedirectedUrl()).build();
 		String samlRequest = components.getQueryParams().getFirst("SAMLRequest");
 		String decoded = URLDecoder.decode(samlRequest, "UTF-8");
 		String inflated = Saml2Utils.samlInflate(Saml2Utils.samlDecode(decoded));
@@ -486,7 +486,7 @@ public class Saml2LoginConfigurerTests {
 
 		@Bean
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-			http.saml2Login().authenticationManager(getAuthenticationManagerMock("ROLE_AUTH_MANAGER"));
+			http.saml2Login((login) -> login.authenticationManager(getAuthenticationManagerMock("ROLE_AUTH_MANAGER")));
 			return http.build();
 		}
 
@@ -630,7 +630,7 @@ public class Saml2LoginConfigurerTests {
 
 		@Bean
 		SecurityFilterChain app(HttpSecurity http) throws Exception {
-			http.authorizeHttpRequests((authz) -> authz.anyRequest().authenticated())
+			http.authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated())
 				.saml2Login(Customizer.withDefaults());
 			return http.build();
 		}
@@ -715,7 +715,7 @@ public class Saml2LoginConfigurerTests {
 		SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-					.authorizeHttpRequests((authz) -> authz.anyRequest().authenticated())
+					.authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated())
 					.saml2Login((saml2) -> saml2.authenticationRequestUriQuery("/custom/auth/sso?entityId={registrationId}"));
 			// @formatter:on
 			return http.build();

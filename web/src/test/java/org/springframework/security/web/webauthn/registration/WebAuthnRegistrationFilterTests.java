@@ -34,7 +34,7 @@ import org.springframework.mock.web.MockServletContext;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.security.web.webauthn.api.ImmutableCredentialRecord;
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialCreationOptions;
-import org.springframework.security.web.webauthn.api.TestCredentialRecord;
+import org.springframework.security.web.webauthn.api.TestCredentialRecords;
 import org.springframework.security.web.webauthn.api.TestPublicKeyCredentialCreationOptions;
 import org.springframework.security.web.webauthn.management.UserCredentialRepository;
 import org.springframework.security.web.webauthn.management.WebAuthnRelyingPartyOperations;
@@ -196,7 +196,7 @@ class WebAuthnRegistrationFilterTests {
 			.createPublicKeyCredentialCreationOptions()
 			.build();
 		given(this.creationOptionsRepository.load(any())).willReturn(creationOptions);
-		ImmutableCredentialRecord userCredential = TestCredentialRecord.userCredential().build();
+		ImmutableCredentialRecord userCredential = TestCredentialRecords.userCredential().build();
 		given(this.operations.registerCredential(any())).willReturn(userCredential);
 		MockHttpServletRequest request = registerCredentialRequest(REGISTRATION_REQUEST_BODY);
 		this.filter.doFilter(request, this.response, this.chain);

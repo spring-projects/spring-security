@@ -29,7 +29,6 @@ import org.springframework.security.saml2.provider.service.authentication.Saml2A
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
 import org.springframework.security.saml2.provider.service.web.DefaultRelyingPartyRegistrationResolver;
 import org.springframework.security.saml2.provider.service.web.HttpSessionSaml2AuthenticationRequestRepository;
-import org.springframework.security.saml2.provider.service.web.RelyingPartyRegistrationResolver;
 import org.springframework.security.saml2.provider.service.web.Saml2AuthenticationRequestRepository;
 import org.springframework.security.saml2.provider.service.web.Saml2AuthenticationTokenConverter;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
@@ -55,6 +54,8 @@ public class Saml2WebSsoAuthenticationFilter extends AbstractAuthenticationProce
 
 	private Saml2AuthenticationRequestRepository<AbstractSaml2AuthenticationRequest> authenticationRequestRepository = new HttpSessionSaml2AuthenticationRequestRepository();
 
+	private boolean continueChainWhenNoRelyingPartyRegistrationFound = false;
+
 	/**
 	 * Creates a {@code Saml2WebSsoAuthenticationFilter} authentication filter that is
 	 * configured to use the {@link #DEFAULT_FILTER_PROCESSES_URI} processing URL
@@ -77,9 +78,7 @@ public class Saml2WebSsoAuthenticationFilter extends AbstractAuthenticationProce
 	public Saml2WebSsoAuthenticationFilter(RelyingPartyRegistrationRepository relyingPartyRegistrationRepository,
 			String filterProcessesUrl) {
 		this(new Saml2AuthenticationTokenConverter(
-				(RelyingPartyRegistrationResolver) new DefaultRelyingPartyRegistrationResolver(
-						relyingPartyRegistrationRepository)),
-				filterProcessesUrl);
+				new DefaultRelyingPartyRegistrationResolver(relyingPartyRegistrationRepository)), filterProcessesUrl);
 		Assert.isTrue(filterProcessesUrl.contains("{registrationId}"),
 				"filterProcessesUrl must contain a {registrationId} match variable");
 	}
@@ -97,6 +96,7 @@ public class Saml2WebSsoAuthenticationFilter extends AbstractAuthenticationProce
 		this.authenticationConverter = authenticationConverter;
 		setAllowSessionCreation(true);
 		setSessionAuthenticationStrategy(new ChangeSessionIdAuthenticationStrategy());
+		setAuthenticationConverter(authenticationConverter);
 	}
 
 	/**
@@ -113,6 +113,7 @@ public class Saml2WebSsoAuthenticationFilter extends AbstractAuthenticationProce
 		this.authenticationConverter = authenticationConverter;
 		setAllowSessionCreation(true);
 		setSessionAuthenticationStrategy(new ChangeSessionIdAuthenticationStrategy());
+		setAuthenticationConverter(authenticationConverter);
 	}
 
 	@Override
@@ -125,6 +126,9 @@ public class Saml2WebSsoAuthenticationFilter extends AbstractAuthenticationProce
 			throws AuthenticationException {
 		Authentication authentication = this.authenticationConverter.convert(request);
 		if (authentication == null) {
+			if (this.continueChainWhenNoRelyingPartyRegistrationFound) {
+				return null;
+			}
 			Saml2Error saml2Error = new Saml2Error(Saml2ErrorCodes.RELYING_PARTY_REGISTRATION_NOT_FOUND,
 					"No relying party registration found");
 			throw new Saml2AuthenticationException(saml2Error);
@@ -159,10 +163,24 @@ public class Saml2WebSsoAuthenticationFilter extends AbstractAuthenticationProce
 	}
 
 	private void setDetails(HttpServletRequest request, Authentication authentication) {
-		if (AbstractAuthenticationToken.class.isAssignableFrom(authentication.getClass())) {
-			Object details = this.authenticationDetailsSource.buildDetails(request);
-			((AbstractAuthenticationToken) authentication).setDetails(details);
+		if (authentication.getDetails() != null) {
+			return;
 		}
+		if (authentication instanceof AbstractAuthenticationToken token) {
+			Object details = this.authenticationDetailsSource.buildDetails(request);
+			token.setDetails(details);
+		}
+	}
+
+	/**
+	 * Indicate whether to continue with the rest of the filter chain in the event that no
+	 * relying party registration is found. This is {@code false} by default, meaning that
+	 * it will throw an exception.
+	 * @param continueChain whether to continue
+	 * @since 6.5
+	 */
+	public void setContinueChainWhenNoRelyingPartyRegistrationFound(boolean continueChain) {
+		this.continueChainWhenNoRelyingPartyRegistrationFound = continueChain;
 	}
 
 }

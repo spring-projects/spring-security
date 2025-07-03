@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
 
 package org.springframework.security.saml2.provider.service.web.authentication;
 
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -94,16 +96,18 @@ public class Saml2WebSsoAuthenticationFilterTests {
 
 	@Test
 	public void requiresAuthenticationWhenHappyPathThenReturnsTrue() {
-		assertThat(this.filter.requiresAuthentication(this.request, this.response)).isTrue();
+		RequiresAuthenticationExposingFilter filter = new RequiresAuthenticationExposingFilter(this.repository);
+		assertThat(filter.requiresAuthentication(this.request, this.response)).isTrue();
 	}
 
 	@Test
 	public void requiresAuthenticationWhenCustomProcessingUrlThenReturnsTrue() {
-		this.filter = new Saml2WebSsoAuthenticationFilter(this.repository, "/some/other/path/{registrationId}");
+		RequiresAuthenticationExposingFilter filter = new RequiresAuthenticationExposingFilter(this.repository,
+				"/some/other/path/{registrationId}");
 		this.request.setRequestURI("/some/other/path/idp-registration-id");
 		this.request.setPathInfo("/some/other/path/idp-registration-id");
 		this.request.setParameter(Saml2ParameterNames.SAML_RESPONSE, "xml-data-goes-here");
-		assertThat(this.filter.requiresAuthentication(this.request, this.response)).isTrue();
+		assertThat(filter.requiresAuthentication(this.request, this.response)).isTrue();
 	}
 
 	@Test
@@ -116,6 +120,31 @@ public class Saml2WebSsoAuthenticationFilterTests {
 		assertThatExceptionOfType(Saml2AuthenticationException.class)
 			.isThrownBy(() -> this.filter.attemptAuthentication(this.request, this.response))
 			.withMessage("No relying party registration found");
+	}
+
+	@Test
+	public void doFilterWhenContinueChainRegistrationIdDoesNotExistThenContinues() throws Exception {
+		given(this.repository.findByRegistrationId("non-existent-id")).willReturn(null);
+		this.filter = new Saml2WebSsoAuthenticationFilter(this.repository, "/some/other/path/{registrationId}");
+		this.filter.setContinueChainWhenNoRelyingPartyRegistrationFound(true);
+		this.request.setRequestURI("/some/other/path/non-existent-id");
+		this.request.setPathInfo("/some/other/path/non-existent-id");
+		FilterChain chain = mock(FilterChain.class);
+		this.filter.doFilter(this.request, this.response, chain);
+		verify(chain).doFilter(this.request, this.response);
+	}
+
+	@Test
+	public void doFilterWhenContinueChainNoSamlResponseThenContinues() throws Exception {
+		given(this.repository.findByRegistrationId("id")).willReturn(TestRelyingPartyRegistrations.full().build());
+		this.filter = new Saml2WebSsoAuthenticationFilter(this.repository, "/some/other/path/{registrationId}");
+		this.filter.setContinueChainWhenNoRelyingPartyRegistrationFound(true);
+		this.request.setRequestURI("/some/other/path/id");
+		this.request.setPathInfo("/some/other/path/id");
+		this.request.removeParameter(Saml2ParameterNames.SAML_RESPONSE);
+		FilterChain chain = mock(FilterChain.class);
+		this.filter.doFilter(this.request, this.response, chain);
+		verify(chain).doFilter(this.request, this.response);
 	}
 
 	@Test
@@ -210,6 +239,23 @@ public class Saml2WebSsoAuthenticationFilterTests {
 		this.request.setParameter(Saml2ParameterNames.SAML_RESPONSE, "response");
 		this.filter.doFilter(this.request, this.response, new MockFilterChain());
 		verify(this.repository).findByRegistrationId("registration-id");
+	}
+
+	static final class RequiresAuthenticationExposingFilter extends Saml2WebSsoAuthenticationFilter {
+
+		RequiresAuthenticationExposingFilter(RelyingPartyRegistrationRepository relyingPartyRegistrationRepository) {
+			super(relyingPartyRegistrationRepository);
+		}
+
+		RequiresAuthenticationExposingFilter(RelyingPartyRegistrationRepository registrations, String url) {
+			super(registrations, url);
+		}
+
+		@Override
+		protected boolean requiresAuthentication(HttpServletRequest request, HttpServletResponse response) {
+			return super.requiresAuthentication(request, response);
+		}
+
 	}
 
 }

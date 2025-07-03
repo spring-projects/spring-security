@@ -18,7 +18,6 @@ package org.springframework.security.config.annotation.web.configurers.oauth2.se
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
-import java.security.PublicKey;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.RSAPrivateKey;
@@ -33,6 +32,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import com.nimbusds.jose.jwk.ECKey;
+import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.JWKSource;
@@ -70,6 +70,7 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
@@ -88,6 +89,8 @@ public class DPoPAuthenticationConfigurerTests {
 
 	private static final ECPrivateKey CLIENT_EC_PRIVATE_KEY = (ECPrivateKey) TestKeys.DEFAULT_EC_KEY_PAIR.getPrivate();
 
+	private static final ECKey CLIENT_EC_KEY = TestJwks.jwk(CLIENT_EC_PUBLIC_KEY, CLIENT_EC_PRIVATE_KEY).build();
+
 	private static NimbusJwtEncoder providerJwtEncoder;
 
 	private static NimbusJwtEncoder clientJwtEncoder;
@@ -103,9 +106,8 @@ public class DPoPAuthenticationConfigurerTests {
 		JWKSource<SecurityContext> providerJwkSource = (jwkSelector, securityContext) -> jwkSelector
 			.select(new JWKSet(providerRsaKey));
 		providerJwtEncoder = new NimbusJwtEncoder(providerJwkSource);
-		ECKey clientEcKey = TestJwks.jwk(CLIENT_EC_PUBLIC_KEY, CLIENT_EC_PRIVATE_KEY).build();
 		JWKSource<SecurityContext> clientJwkSource = (jwkSelector, securityContext) -> jwkSelector
-			.select(new JWKSet(clientEcKey));
+			.select(new JWKSet(CLIENT_EC_KEY));
 		clientJwtEncoder = new NimbusJwtEncoder(clientJwkSource);
 	}
 
@@ -113,14 +115,16 @@ public class DPoPAuthenticationConfigurerTests {
 	public void requestWhenDPoPAndBearerAuthenticationThenUnauthorized() throws Exception {
 		this.spring.register(SecurityConfig.class, ResourceEndpoints.class).autowire();
 		Set<String> scope = Collections.singleton("resource1.read");
-		String accessToken = generateAccessToken(scope, CLIENT_EC_PUBLIC_KEY);
+		String accessToken = generateAccessToken(scope, CLIENT_EC_KEY);
 		String dPoPProof = generateDPoPProof(HttpMethod.GET.name(), "http://localhost/resource1", accessToken);
 		// @formatter:off
 		this.mvc.perform(get("/resource1")
 						.header(HttpHeaders.AUTHORIZATION, "DPoP " + accessToken)
 						.header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
 						.header("DPoP", dPoPProof))
-				.andExpect(status().isUnauthorized());
+				.andExpect(status().isUnauthorized())
+				.andExpect(header().string(HttpHeaders.WWW_AUTHENTICATE,
+						"DPoP error=\"invalid_request\", error_description=\"Found multiple Authorization headers.\", algs=\"RS256 RS384 RS512 PS256 PS384 PS512 ES256 ES384 ES512\""));
 		// @formatter:on
 	}
 
@@ -128,13 +132,15 @@ public class DPoPAuthenticationConfigurerTests {
 	public void requestWhenDPoPAccessTokenMalformedThenUnauthorized() throws Exception {
 		this.spring.register(SecurityConfig.class, ResourceEndpoints.class).autowire();
 		Set<String> scope = Collections.singleton("resource1.read");
-		String accessToken = generateAccessToken(scope, CLIENT_EC_PUBLIC_KEY);
+		String accessToken = generateAccessToken(scope, CLIENT_EC_KEY);
 		String dPoPProof = generateDPoPProof(HttpMethod.GET.name(), "http://localhost/resource1", accessToken);
 		// @formatter:off
 		this.mvc.perform(get("/resource1")
 						.header(HttpHeaders.AUTHORIZATION, "DPoP " + accessToken + " m a l f o r m e d ")
 						.header("DPoP", dPoPProof))
-				.andExpect(status().isUnauthorized());
+				.andExpect(status().isUnauthorized())
+				.andExpect(header().string(HttpHeaders.WWW_AUTHENTICATE,
+						"DPoP error=\"invalid_token\", error_description=\"DPoP access token is malformed.\", algs=\"RS256 RS384 RS512 PS256 PS384 PS512 ES256 ES384 ES512\""));
 		// @formatter:on
 	}
 
@@ -142,14 +148,16 @@ public class DPoPAuthenticationConfigurerTests {
 	public void requestWhenMultipleDPoPProofsThenUnauthorized() throws Exception {
 		this.spring.register(SecurityConfig.class, ResourceEndpoints.class).autowire();
 		Set<String> scope = Collections.singleton("resource1.read");
-		String accessToken = generateAccessToken(scope, CLIENT_EC_PUBLIC_KEY);
+		String accessToken = generateAccessToken(scope, CLIENT_EC_KEY);
 		String dPoPProof = generateDPoPProof(HttpMethod.GET.name(), "http://localhost/resource1", accessToken);
 		// @formatter:off
 		this.mvc.perform(get("/resource1")
 						.header(HttpHeaders.AUTHORIZATION, "DPoP " + accessToken)
 						.header("DPoP", dPoPProof)
 						.header("DPoP", dPoPProof))
-				.andExpect(status().isUnauthorized());
+				.andExpect(status().isUnauthorized())
+				.andExpect(header().string(HttpHeaders.WWW_AUTHENTICATE,
+						"DPoP error=\"invalid_request\", error_description=\"DPoP proof is missing or invalid.\", algs=\"RS256 RS384 RS512 PS256 PS384 PS512 ES256 ES384 ES512\""));
 		// @formatter:on
 	}
 
@@ -157,7 +165,7 @@ public class DPoPAuthenticationConfigurerTests {
 	public void requestWhenDPoPAuthenticationValidThenAccessed() throws Exception {
 		this.spring.register(SecurityConfig.class, ResourceEndpoints.class).autowire();
 		Set<String> scope = Collections.singleton("resource1.read");
-		String accessToken = generateAccessToken(scope, CLIENT_EC_PUBLIC_KEY);
+		String accessToken = generateAccessToken(scope, CLIENT_EC_KEY);
 		String dPoPProof = generateDPoPProof(HttpMethod.GET.name(), "http://localhost/resource1", accessToken);
 		// @formatter:off
 		this.mvc.perform(get("/resource1")
@@ -168,11 +176,11 @@ public class DPoPAuthenticationConfigurerTests {
 		// @formatter:on
 	}
 
-	private static String generateAccessToken(Set<String> scope, PublicKey clientPublicKey) {
+	private static String generateAccessToken(Set<String> scope, JWK jwk) {
 		Map<String, Object> jktClaim = null;
-		if (clientPublicKey != null) {
+		if (jwk != null) {
 			try {
-				String sha256Thumbprint = computeSHA256(clientPublicKey);
+				String sha256Thumbprint = jwk.toPublicJWK().computeThumbprint().toString();
 				jktClaim = new HashMap<>();
 				jktClaim.put("jkt", sha256Thumbprint);
 			}
@@ -200,10 +208,7 @@ public class DPoPAuthenticationConfigurerTests {
 
 	private static String generateDPoPProof(String method, String resourceUri, String accessToken) throws Exception {
 		// @formatter:off
-		Map<String, Object> publicJwk = TestJwks.jwk(CLIENT_EC_PUBLIC_KEY, CLIENT_EC_PRIVATE_KEY)
-				.build()
-				.toPublicJWK()
-				.toJSONObject();
+		Map<String, Object> publicJwk = CLIENT_EC_KEY.toPublicJWK().toJSONObject();
 		JwsHeader jwsHeader = JwsHeader.with(SignatureAlgorithm.ES256)
 				.type("dpop+jwt")
 				.jwk(publicJwk)
@@ -226,12 +231,6 @@ public class DPoPAuthenticationConfigurerTests {
 		return Base64.getUrlEncoder().withoutPadding().encodeToString(digest);
 	}
 
-	private static String computeSHA256(PublicKey publicKey) throws Exception {
-		MessageDigest md = MessageDigest.getInstance("SHA-256");
-		byte[] digest = md.digest(publicKey.getEncoded());
-		return Base64.getUrlEncoder().withoutPadding().encodeToString(digest);
-	}
-
 	@Configuration
 	@EnableWebSecurity
 	@EnableWebMvc
@@ -241,14 +240,12 @@ public class DPoPAuthenticationConfigurerTests {
 		SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeHttpRequests((authorize) ->
-					authorize
+				.authorizeHttpRequests((authorize) -> authorize
 						.requestMatchers("/resource1").hasAnyAuthority("SCOPE_resource1.read", "SCOPE_resource1.write")
 						.requestMatchers("/resource2").hasAnyAuthority("SCOPE_resource2.read", "SCOPE_resource2.write")
 						.anyRequest().authenticated()
 				)
-				.oauth2ResourceServer((oauth2ResourceServer) ->
-					oauth2ResourceServer
+				.oauth2ResourceServer((oauth2) -> oauth2
 						.jwt(Customizer.withDefaults()));
 			// @formatter:on
 			return http.build();

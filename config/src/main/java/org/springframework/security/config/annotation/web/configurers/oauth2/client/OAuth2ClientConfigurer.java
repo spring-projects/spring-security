@@ -142,18 +142,6 @@ public final class OAuth2ClientConfigurer<B extends HttpSecurityBuilder<B>>
 	}
 
 	/**
-	 * Returns the {@link AuthorizationCodeGrantConfigurer} for configuring the OAuth 2.0
-	 * Authorization Code Grant.
-	 * @return the {@link AuthorizationCodeGrantConfigurer}
-	 * @deprecated For removal in 7.0. Use {@link #authorizationCodeGrant(Customizer)}
-	 * instead
-	 */
-	@Deprecated(since = "6.1", forRemoval = true)
-	public AuthorizationCodeGrantConfigurer authorizationCodeGrant() {
-		return this.authorizationCodeGrantConfigurer;
-	}
-
-	/**
 	 * Configures the OAuth 2.0 Authorization Code Grant.
 	 * @param authorizationCodeGrantCustomizer the {@link Customizer} to provide more
 	 * options for the {@link AuthorizationCodeGrantConfigurer}
@@ -240,17 +228,6 @@ public final class OAuth2ClientConfigurer<B extends HttpSecurityBuilder<B>>
 			Assert.notNull(accessTokenResponseClient, "accessTokenResponseClient cannot be null");
 			this.accessTokenResponseClient = accessTokenResponseClient;
 			return this;
-		}
-
-		/**
-		 * Returns the {@link OAuth2ClientConfigurer} for further configuration.
-		 * @return the {@link OAuth2ClientConfigurer}
-		 * @deprecated For removal in 7.0. Use {@link #authorizationCodeGrant(Customizer)}
-		 * instead
-		 */
-		@Deprecated(since = "6.1", forRemoval = true)
-		public OAuth2ClientConfigurer<B> and() {
-			return OAuth2ClientConfigurer.this;
 		}
 
 		private void init(B builder) {

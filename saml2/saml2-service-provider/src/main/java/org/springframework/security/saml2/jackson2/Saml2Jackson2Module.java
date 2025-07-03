@@ -22,10 +22,12 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import org.springframework.security.jackson2.SecurityJackson2Modules;
 import org.springframework.security.saml2.core.Saml2Error;
 import org.springframework.security.saml2.provider.service.authentication.DefaultSaml2AuthenticatedPrincipal;
+import org.springframework.security.saml2.provider.service.authentication.Saml2AssertionAuthentication;
 import org.springframework.security.saml2.provider.service.authentication.Saml2Authentication;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationException;
 import org.springframework.security.saml2.provider.service.authentication.Saml2PostAuthenticationRequest;
 import org.springframework.security.saml2.provider.service.authentication.Saml2RedirectAuthenticationRequest;
+import org.springframework.security.saml2.provider.service.authentication.Saml2ResponseAssertion;
 import org.springframework.security.saml2.provider.service.authentication.logout.Saml2LogoutRequest;
 
 /**
@@ -49,6 +51,8 @@ public class Saml2Jackson2Module extends SimpleModule {
 	@Override
 	public void setupModule(SetupContext context) {
 		context.setMixInAnnotations(Saml2Authentication.class, Saml2AuthenticationMixin.class);
+		context.setMixInAnnotations(Saml2AssertionAuthentication.class, Saml2AssertionAuthenticationMixin.class);
+		context.setMixInAnnotations(Saml2ResponseAssertion.class, SimpleSaml2ResponseAssertionAccessorMixin.class);
 		context.setMixInAnnotations(DefaultSaml2AuthenticatedPrincipal.class,
 				DefaultSaml2AuthenticatedPrincipalMixin.class);
 		context.setMixInAnnotations(Saml2LogoutRequest.class, Saml2LogoutRequestMixin.class);

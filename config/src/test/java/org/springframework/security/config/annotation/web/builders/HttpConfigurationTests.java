@@ -48,6 +48,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
+import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -148,14 +149,12 @@ public class HttpConfigurationTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.securityMatchers()
+				.securityMatchers((security) -> security
 					.requestMatchers(new AntPathRequestMatcher("/api/**"))
-					.requestMatchers(new AntPathRequestMatcher("/oauth/**"))
-					.and()
-				.authorizeRequests()
-					.anyRequest().hasRole("USER")
-					.and()
-				.httpBasic();
+					.requestMatchers(new AntPathRequestMatcher("/oauth/**")))
+				.authorizeRequests((requests) -> requests
+					.anyRequest().hasRole("USER"))
+				.httpBasic(withDefaults());
 			return http.build();
 			// @formatter:on
 		}

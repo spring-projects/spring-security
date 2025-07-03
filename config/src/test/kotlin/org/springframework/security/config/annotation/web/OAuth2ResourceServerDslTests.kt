@@ -223,7 +223,7 @@ class OAuth2ResourceServerDslTests {
 
         companion object {
             val RESOLVER: AuthenticationManagerResolver<HttpServletRequest> =
-                JwtIssuerAuthenticationManagerResolver("issuer")
+                JwtIssuerAuthenticationManagerResolver.fromTrustedIssuers ("issuer")
         }
 
         @Bean

@@ -93,7 +93,6 @@ public class FirewalledResponseTests {
 		Cookie cookie = new Cookie("foo", "bar");
 		cookie.setPath("/foobar");
 		cookie.setDomain("foobar");
-		cookie.setComment("foobar");
 		this.fwResponse.addCookie(cookie);
 		verify(this.response).addCookie(cookie);
 	}

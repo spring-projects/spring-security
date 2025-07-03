@@ -945,7 +945,7 @@ public class OidcLogoutSpecTests {
 		private MockResponse toMockResponse(FluxExchangeResult<String> result) {
 			MockResponse response = new MockResponse();
 			response.setResponseCode(result.getStatus().value());
-			for (String name : result.getResponseHeaders().keySet()) {
+			for (String name : result.getResponseHeaders().headerNames()) {
 				response.addHeader(name, result.getResponseHeaders().getFirst(name));
 			}
 			String body = result.getResponseBody().blockFirst();

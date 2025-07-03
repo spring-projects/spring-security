@@ -49,7 +49,7 @@ class CrossOriginResourcePolicyServerHttpHeadersWriterTests {
 	void writeHeadersWhenNoValuesThenDoesNotWriteHeaders() {
 		this.writer.writeHttpHeaders(this.exchange);
 		HttpHeaders headers = this.exchange.getResponse().getHeaders();
-		assertThat(headers).isEmpty();
+		assertThat(headers.headerNames()).isEmpty();
 	}
 
 	@Test
@@ -59,7 +59,7 @@ class CrossOriginResourcePolicyServerHttpHeadersWriterTests {
 			.add(CrossOriginResourcePolicyServerHttpHeadersWriter.RESOURCE_POLICY, "same-origin");
 		this.writer.writeHttpHeaders(this.exchange);
 		HttpHeaders headers = this.exchange.getResponse().getHeaders();
-		assertThat(headers).hasSize(1);
+		assertThat(headers.headerNames()).hasSize(1);
 		assertThat(headers.get(CrossOriginResourcePolicyServerHttpHeadersWriter.RESOURCE_POLICY))
 			.containsOnly("same-origin");
 	}
@@ -69,7 +69,7 @@ class CrossOriginResourcePolicyServerHttpHeadersWriterTests {
 		this.writer.setPolicy(CrossOriginResourcePolicyServerHttpHeadersWriter.CrossOriginResourcePolicy.SAME_ORIGIN);
 		this.writer.writeHttpHeaders(this.exchange);
 		HttpHeaders headers = this.exchange.getResponse().getHeaders();
-		assertThat(headers).hasSize(1);
+		assertThat(headers.headerNames()).hasSize(1);
 		assertThat(headers.get(CrossOriginResourcePolicyServerHttpHeadersWriter.RESOURCE_POLICY))
 			.containsOnly("same-origin");
 	}

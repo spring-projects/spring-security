@@ -104,7 +104,7 @@ public class AuthenticationTests {
 		DefaultSecurityFilterChain springSecurity(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeHttpRequests((requests) -> requests
+				.authorizeHttpRequests((authorize) -> authorize
 					.anyRequest().authenticated()
 				)
 				.sessionManagement((sessions) -> sessions

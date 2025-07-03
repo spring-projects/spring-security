@@ -51,9 +51,8 @@ public class SecurityConfig {
 	SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		// @formatter:off
 		http
-			.authorizeRequests()
-				.requestMatchers(new AntPathRequestMatcher("/*")).permitAll()
-				.and()
+			.authorizeRequests((requests) -> requests
+				.requestMatchers(new AntPathRequestMatcher("/*")).permitAll())
 			.authenticationProvider(authenticationProvider());
 		// @formatter:on
 		return http.build();

@@ -17,10 +17,12 @@
 package org.springframework.security.oauth2.client.http;
 
 import java.io.IOException;
+import java.net.URI;
 
 import org.junit.jupiter.api.Test;
 
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.http.converter.HttpMessageConverter;
@@ -45,6 +47,10 @@ public class OAuth2ErrorResponseErrorHandlerTests {
 
 	private OAuth2ErrorResponseErrorHandler errorHandler = new OAuth2ErrorResponseErrorHandler();
 
+	private URI anyURi = URI.create("/any");
+
+	private HttpMethod anyMethod = HttpMethod.GET;
+
 	@Test
 	public void handleErrorWhenErrorResponseBodyThenHandled() {
 		// @formatter:off
@@ -55,7 +61,7 @@ public class OAuth2ErrorResponseErrorHandlerTests {
 		// @formatter:on
 		MockClientHttpResponse response = new MockClientHttpResponse(errorResponse.getBytes(), HttpStatus.BAD_REQUEST);
 		assertThatExceptionOfType(OAuth2AuthorizationException.class)
-			.isThrownBy(() -> this.errorHandler.handleError(response))
+			.isThrownBy(() -> this.errorHandler.handleError(this.anyURi, this.anyMethod, response))
 			.withMessage("[unauthorized_client] The client is not authorized");
 	}
 
@@ -74,7 +80,7 @@ public class OAuth2ErrorResponseErrorHandlerTests {
 			.willReturn(new OAuth2Error("unauthorized_client", "The client is not authorized", null));
 
 		assertThatExceptionOfType(OAuth2AuthorizationException.class)
-			.isThrownBy(() -> this.errorHandler.handleError(response))
+			.isThrownBy(() -> this.errorHandler.handleError(this.anyURi, this.anyMethod, response))
 			.withMessage("[unauthorized_client] The client is not authorized");
 		verify(oauth2ErrorConverter).read(eq(OAuth2Error.class), eq(response));
 	}
@@ -85,7 +91,7 @@ public class OAuth2ErrorResponseErrorHandlerTests {
 		MockClientHttpResponse response = new MockClientHttpResponse(new byte[0], HttpStatus.BAD_REQUEST);
 		response.getHeaders().add(HttpHeaders.WWW_AUTHENTICATE, wwwAuthenticateHeader);
 		assertThatExceptionOfType(OAuth2AuthorizationException.class)
-			.isThrownBy(() -> this.errorHandler.handleError(response))
+			.isThrownBy(() -> this.errorHandler.handleError(this.anyURi, this.anyMethod, response))
 			.withMessage("[insufficient_scope] The access token expired");
 	}
 
@@ -95,7 +101,7 @@ public class OAuth2ErrorResponseErrorHandlerTests {
 		MockClientHttpResponse response = new MockClientHttpResponse(new byte[0], HttpStatus.BAD_REQUEST);
 		response.getHeaders().add(HttpHeaders.WWW_AUTHENTICATE, invalidWwwAuthenticateHeader);
 		assertThatExceptionOfType(OAuth2AuthorizationException.class)
-			.isThrownBy(() -> this.errorHandler.handleError(response))
+			.isThrownBy(() -> this.errorHandler.handleError(this.anyURi, this.anyMethod, response))
 			.withMessage("[server_error] ");
 	}
 
@@ -103,7 +109,7 @@ public class OAuth2ErrorResponseErrorHandlerTests {
 	public void handleErrorWhenErrorResponseWithInvalidStatusCodeThenHandled() {
 		CustomMockClientHttpResponse response = new CustomMockClientHttpResponse(new byte[0], 596);
 		assertThatExceptionOfType(IllegalArgumentException.class)
-			.isThrownBy(() -> this.errorHandler.handleError(response))
+			.isThrownBy(() -> this.errorHandler.handleError(this.anyURi, this.anyMethod, response))
 			.withMessage("No matching constant for [596]");
 	}
 

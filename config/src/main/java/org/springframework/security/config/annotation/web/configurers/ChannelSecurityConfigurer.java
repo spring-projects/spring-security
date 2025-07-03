@@ -24,10 +24,7 @@ import java.util.List;
 import org.springframework.context.ApplicationContext;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.ObjectPostProcessor;
-import org.springframework.security.config.annotation.SecurityBuilder;
-import org.springframework.security.config.annotation.SecurityConfigurer;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.DefaultRedirectStrategy;
@@ -96,7 +93,7 @@ public final class ChannelSecurityConfigurer<H extends HttpSecurityBuilder<H>>
 
 	/**
 	 * Creates a new instance
-	 * @see HttpSecurity#requiresChannel()
+	 * @see HttpSecurity#requiresChannel(Customizer)
 	 */
 	public ChannelSecurityConfigurer(ApplicationContext context) {
 		this.REGISTRY = new ChannelRequestMatcherRegistry(context);
@@ -205,18 +202,6 @@ public final class ChannelSecurityConfigurer<H extends HttpSecurityBuilder<H>>
 		public ChannelRequestMatcherRegistry redirectStrategy(RedirectStrategy redirectStrategy) {
 			ChannelSecurityConfigurer.this.redirectStrategy = redirectStrategy;
 			return this;
-		}
-
-		/**
-		 * Return the {@link SecurityBuilder} when done using the
-		 * {@link SecurityConfigurer}. This is useful for method chaining.
-		 * @return the type of {@link HttpSecurityBuilder} that is being configured
-		 * @deprecated For removal in 7.0. Use
-		 * {@link HttpSecurity#requiresChannel(Customizer)} instead
-		 */
-		@Deprecated(since = "6.1", forRemoval = true)
-		public H and() {
-			return ChannelSecurityConfigurer.this.and();
 		}
 
 	}

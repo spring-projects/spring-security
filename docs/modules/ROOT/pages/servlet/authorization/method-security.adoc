@@ -2143,9 +2143,13 @@ Java::
 +
 [source,java,role="primary"]
 ----
+import org.springframework.security.authorization.method.AuthorizationAdvisorProxyFactory.TargetVisitor;
+
+// ...
+
 @Bean
-static Customizer<AuthorizationAdvisorProxyFactory> skipValueTypes() {
-    return (factory) -> factory.setTargetVisitor(TargetVisitor.defaultsSkipValueTypes());
+static TargetVisitor skipValueTypes() {
+    return TargetVisitor.defaultsSkipValueTypes();
 }
 ----
 
@@ -2153,10 +2157,12 @@ Kotlin::
 +
 [source,kotlin,role="secondary"]
 ----
+import org.springframework.security.authorization.method.AuthorizationAdvisorProxyFactory.TargetVisitor
+
+// ...
+
 @Bean
-open fun skipValueTypes() = Customizer<AuthorizationAdvisorProxyFactory> {
-    it.setTargetVisitor(TargetVisitor.defaultsSkipValueTypes())
-}
+open fun skipValueTypes() = TargetVisitor.defaultsSkipValueTypes()
 ----
 ======
 

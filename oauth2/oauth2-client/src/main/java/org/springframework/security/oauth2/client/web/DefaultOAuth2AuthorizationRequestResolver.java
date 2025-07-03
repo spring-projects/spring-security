@@ -66,6 +66,11 @@ import org.springframework.web.util.UriComponentsBuilder;
  */
 public final class DefaultOAuth2AuthorizationRequestResolver implements OAuth2AuthorizationRequestResolver {
 
+	/**
+	 * The default base {@code URI} used for authorization requests.
+	 */
+	public static final String DEFAULT_AUTHORIZATION_REQUEST_BASE_URI = "/oauth2/authorization";
+
 	private static final String REGISTRATION_ID_URI_VARIABLE_NAME = "registrationId";
 
 	private static final char PATH_DELIMITER = '/';
@@ -85,6 +90,16 @@ public final class DefaultOAuth2AuthorizationRequestResolver implements OAuth2Au
 
 	private Consumer<OAuth2AuthorizationRequest.Builder> authorizationRequestCustomizer = (customizer) -> {
 	};
+
+	/**
+	 * Constructs a {@code DefaultOAuth2AuthorizationRequestResolver} using the provided
+	 * parameters.
+	 * @param clientRegistrationRepository the repository of client registrations
+	 * authorization requests
+	 */
+	public DefaultOAuth2AuthorizationRequestResolver(ClientRegistrationRepository clientRegistrationRepository) {
+		this(clientRegistrationRepository, DEFAULT_AUTHORIZATION_REQUEST_BASE_URI);
+	}
 
 	/**
 	 * Constructs a {@code DefaultOAuth2AuthorizationRequestResolver} using the provided
@@ -226,7 +241,7 @@ public final class DefaultOAuth2AuthorizationRequestResolver implements OAuth2Au
 		Map<String, String> uriVariables = new HashMap<>();
 		uriVariables.put("registrationId", clientRegistration.getRegistrationId());
 		// @formatter:off
-		UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl(UrlUtils.buildFullRequestUrl(request))
+		UriComponents uriComponents = UriComponentsBuilder.fromUriString(UrlUtils.buildFullRequestUrl(request))
 				.replacePath(request.getContextPath())
 				.replaceQuery(null)
 				.fragment(null)

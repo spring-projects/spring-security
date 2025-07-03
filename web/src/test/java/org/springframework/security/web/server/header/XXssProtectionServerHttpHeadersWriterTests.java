@@ -47,7 +47,7 @@ public class XXssProtectionServerHttpHeadersWriterTests {
 	@Test
 	public void writeHeadersWhenNoHeadersThenWriteHeaders() {
 		this.writer.writeHttpHeaders(this.exchange);
-		assertThat(this.headers).hasSize(1);
+		assertThat(this.headers.headerNames()).hasSize(1);
 		assertThat(this.headers.get(XXssProtectionServerHttpHeadersWriter.X_XSS_PROTECTION)).containsOnly("0");
 	}
 
@@ -56,7 +56,7 @@ public class XXssProtectionServerHttpHeadersWriterTests {
 		String headerValue = "value";
 		this.headers.set(XXssProtectionServerHttpHeadersWriter.X_XSS_PROTECTION, headerValue);
 		this.writer.writeHttpHeaders(this.exchange);
-		assertThat(this.headers).hasSize(1);
+		assertThat(this.headers.headerNames()).hasSize(1);
 		assertThat(this.headers.get(XXssProtectionServerHttpHeadersWriter.X_XSS_PROTECTION)).containsOnly(headerValue);
 	}
 
@@ -64,7 +64,7 @@ public class XXssProtectionServerHttpHeadersWriterTests {
 	void writeHeadersWhenDisabledThenWriteHeaders() {
 		this.writer.setHeaderValue(XXssProtectionServerHttpHeadersWriter.HeaderValue.DISABLED);
 		this.writer.writeHttpHeaders(this.exchange);
-		assertThat(this.headers).hasSize(1);
+		assertThat(this.headers.headerNames()).hasSize(1);
 		assertThat(this.headers.get(XXssProtectionServerHttpHeadersWriter.X_XSS_PROTECTION)).containsOnly("0");
 	}
 
@@ -72,7 +72,7 @@ public class XXssProtectionServerHttpHeadersWriterTests {
 	void writeHeadersWhenEnabledThenWriteHeaders() {
 		this.writer.setHeaderValue(XXssProtectionServerHttpHeadersWriter.HeaderValue.ENABLED);
 		this.writer.writeHttpHeaders(this.exchange);
-		assertThat(this.headers).hasSize(1);
+		assertThat(this.headers.headerNames()).hasSize(1);
 		assertThat(this.headers.get(XXssProtectionServerHttpHeadersWriter.X_XSS_PROTECTION)).containsOnly("1");
 	}
 
@@ -80,7 +80,7 @@ public class XXssProtectionServerHttpHeadersWriterTests {
 	void writeHeadersWhenEnabledModeBlockThenWriteHeaders() {
 		this.writer.setHeaderValue(XXssProtectionServerHttpHeadersWriter.HeaderValue.ENABLED_MODE_BLOCK);
 		this.writer.writeHttpHeaders(this.exchange);
-		assertThat(this.headers).hasSize(1);
+		assertThat(this.headers.headerNames()).hasSize(1);
 		assertThat(this.headers.get(XXssProtectionServerHttpHeadersWriter.X_XSS_PROTECTION))
 			.containsOnly("1; mode=block");
 	}

@@ -33,7 +33,6 @@ import org.springframework.security.core.Authentication;
  * @author Josh Cummings
  * @since 5.7
  */
-@SuppressWarnings("serial")
 public class AuthorizationGrantedEvent<T> extends AuthorizationEvent implements ResolvableTypeProvider {
 
 	@Serial

@@ -70,15 +70,13 @@ public class NamespaceHttpPortMappingsTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().hasRole("USER")
-					.and()
-				.portMapper()
-					.http(9080).mapsTo(9443)
-					.and()
-				.requiresChannel()
+				.authorizeRequests((requests) -> requests
+					.anyRequest().hasRole("USER"))
+				.portMapper((mapper) -> mapper
+					.http(9080).mapsTo(9443))
+				.requiresChannel((channel) -> channel
 					.requestMatchers("/login", "/secured/**").requiresSecure()
-					.anyRequest().requiresInsecure();
+					.anyRequest().requiresInsecure());
 			// @formatter:on
 			return http.build();
 		}

@@ -69,7 +69,7 @@ Java::
 DefaultBearerTokenResolver resolver = new DefaultBearerTokenResolver();
 resolver.setAllowFormEncodedBodyParameter(true);
 http
-    .oauth2ResourceServer(oauth2 -> oauth2
+    .oauth2ResourceServer((oauth2) -> oauth2
         .bearerTokenResolver(resolver)
     );
 ----
@@ -176,7 +176,7 @@ Java::
 ----
 this.rest.get()
         .uri("https://other-service.example.com/endpoint")
-        .headers(headers -> headers.setBearerAuth(overridingToken))
+        .headers((headers) -> headers.setBearerAuth(overridingToken))
         .retrieve()
         .bodyToMono(String.class)
         .block()

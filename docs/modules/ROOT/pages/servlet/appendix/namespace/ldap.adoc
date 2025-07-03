@@ -24,7 +24,7 @@ This is actually the bean `id` of the `ContextSource` instance, if you want to u
 
 [[nsa-ldap-server-mode]]
 * **mode**
-Explicitly specifies which embedded ldap server should use. Values are `apacheds` and `unboundid`. By default, it will depends if the library is available in the classpath.
+Explicitly specifies which embedded ldap server should use. The only supported value is `unboundid`. By default, it will depends if the library is available in the classpath.
 
 [[nsa-ldap-server-id]]
 * **id**

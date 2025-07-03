@@ -39,13 +39,26 @@ import org.springframework.util.ClassUtils;
  */
 public final class AuthorizeReturnObjectMethodInterceptor implements AuthorizationAdvisor {
 
-	private final AuthorizationProxyFactory authorizationProxyFactory;
+	private AuthorizationProxyFactory authorizationProxyFactory;
 
 	private Pointcut pointcut = Pointcuts.intersection(
 			new MethodReturnTypePointcut(Predicate.not(ClassUtils::isVoidType)),
 			AuthorizationMethodPointcuts.forAnnotations(AuthorizeReturnObject.class));
 
 	private int order = AuthorizationInterceptorsOrder.SECURE_RESULT.getOrder();
+
+	/**
+	 * Construct the interceptor
+	 *
+	 * <p>
+	 * Using this constructor requires you to specify
+	 * {@link #setAuthorizationProxyFactory}
+	 * </p>
+	 * @since 6.5
+	 */
+	public AuthorizeReturnObjectMethodInterceptor() {
+
+	}
 
 	public AuthorizeReturnObjectMethodInterceptor(AuthorizationProxyFactory authorizationProxyFactory) {
 		Assert.notNull(authorizationProxyFactory, "authorizationProxyFactory cannot be null");
@@ -58,7 +71,18 @@ public final class AuthorizeReturnObjectMethodInterceptor implements Authorizati
 		if (result == null) {
 			return null;
 		}
+		Assert.notNull(this.authorizationProxyFactory, "authorizationProxyFactory cannot be null");
 		return this.authorizationProxyFactory.proxy(result);
+	}
+
+	/**
+	 * Use this {@link AuthorizationProxyFactory}
+	 * @param authorizationProxyFactory the proxy factory to use
+	 * @since 6.5
+	 */
+	public void setAuthorizationProxyFactory(AuthorizationProxyFactory authorizationProxyFactory) {
+		Assert.notNull(authorizationProxyFactory, "authorizationProxyFactory cannot be null");
+		this.authorizationProxyFactory = authorizationProxyFactory;
 	}
 
 	@Override

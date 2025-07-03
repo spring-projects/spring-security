@@ -98,6 +98,12 @@ public class DefaultOAuth2AuthorizationRequestResolverTests {
 	}
 
 	@Test
+	void authorizationRequestBaseUriEqualToRedirectFilter() {
+		assertThat(DefaultOAuth2AuthorizationRequestResolver.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI)
+			.isEqualTo(OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI);
+	}
+
+	@Test
 	public void constructorWhenClientRegistrationRepositoryIsNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException()
 			.isThrownBy(() -> new DefaultOAuth2AuthorizationRequestResolver(null, this.authorizationRequestBaseUri));
@@ -566,6 +572,18 @@ public class DefaultOAuth2AuthorizationRequestResolverTests {
 				"https://example.com/login/oauth/authorize\\?" + "response_type=code&" + "scope=openid&state=.{15,}&"
 						+ "redirect_uri=http://localhost/login/oauth2/code/oidc-registration-id&"
 						+ "nonce=([a-zA-Z0-9\\-\\.\\_\\~]){43}&" + "appid=client-id");
+	}
+
+	@Test
+	public void resolveWhenAuthorizationRequestNoProvideAuthorizationRequestBaseUri() {
+		OAuth2AuthorizationRequestResolver resolver = new DefaultOAuth2AuthorizationRequestResolver(
+				this.clientRegistrationRepository);
+		String requestUri = this.authorizationRequestBaseUri + "/" + this.registration2.getRegistrationId();
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", requestUri);
+		request.setServletPath(requestUri);
+		OAuth2AuthorizationRequest authorizationRequest = resolver.resolve(request);
+		assertThat(authorizationRequest.getRedirectUri())
+			.isEqualTo("http://localhost/login/oauth2/code/" + this.registration2.getRegistrationId());
 	}
 
 	@Test

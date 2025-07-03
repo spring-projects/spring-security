@@ -41,7 +41,7 @@ public class Saml2Authentication extends AbstractAuthenticationToken {
 	@Serial
 	private static final long serialVersionUID = 405897702378720477L;
 
-	private final AuthenticatedPrincipal principal;
+	private final Object principal;
 
 	private final String saml2Response;
 
@@ -56,6 +56,14 @@ public class Saml2Authentication extends AbstractAuthenticationToken {
 		super(authorities);
 		Assert.notNull(principal, "principal cannot be null");
 		Assert.hasText(saml2Response, "saml2Response cannot be null");
+		this.principal = principal;
+		this.saml2Response = saml2Response;
+		setAuthenticated(true);
+	}
+
+	public Saml2Authentication(Object principal, String saml2Response,
+			Collection<? extends GrantedAuthority> authorities) {
+		super(authorities);
 		this.principal = principal;
 		this.saml2Response = saml2Response;
 		setAuthenticated(true);

@@ -49,7 +49,7 @@ class CrossOriginEmbedderPolicyServerHttpHeadersWriterTests {
 	void writeHeadersWhenNoValuesThenDoesNotWriteHeaders() {
 		this.writer.writeHttpHeaders(this.exchange);
 		HttpHeaders headers = this.exchange.getResponse().getHeaders();
-		assertThat(headers).isEmpty();
+		assertThat(headers.headerNames()).isEmpty();
 	}
 
 	@Test
@@ -59,7 +59,7 @@ class CrossOriginEmbedderPolicyServerHttpHeadersWriterTests {
 			.add(CrossOriginEmbedderPolicyServerHttpHeadersWriter.EMBEDDER_POLICY, "require-corp");
 		this.writer.writeHttpHeaders(this.exchange);
 		HttpHeaders headers = this.exchange.getResponse().getHeaders();
-		assertThat(headers).hasSize(1);
+		assertThat(headers.headerNames()).hasSize(1);
 		assertThat(headers.get(CrossOriginEmbedderPolicyServerHttpHeadersWriter.EMBEDDER_POLICY))
 			.containsOnly("require-corp");
 	}
@@ -69,7 +69,7 @@ class CrossOriginEmbedderPolicyServerHttpHeadersWriterTests {
 		this.writer.setPolicy(CrossOriginEmbedderPolicyServerHttpHeadersWriter.CrossOriginEmbedderPolicy.REQUIRE_CORP);
 		this.writer.writeHttpHeaders(this.exchange);
 		HttpHeaders headers = this.exchange.getResponse().getHeaders();
-		assertThat(headers).hasSize(1);
+		assertThat(headers.headerNames()).hasSize(1);
 		assertThat(headers.get(CrossOriginEmbedderPolicyServerHttpHeadersWriter.EMBEDDER_POLICY))
 			.containsOnly("require-corp");
 	}

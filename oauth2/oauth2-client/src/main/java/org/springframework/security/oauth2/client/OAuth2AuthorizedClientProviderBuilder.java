@@ -138,13 +138,12 @@ public final class OAuth2AuthorizedClientProviderBuilder {
 	/**
 	 * Configures support for the {@code password} grant.
 	 * @return the {@link OAuth2AuthorizedClientProviderBuilder}
-	 * @deprecated The latest OAuth 2.0 Security Best Current Practice disallows the use
-	 * of the Resource Owner Password Credentials grant. See reference
-	 * <a target="_blank" href=
-	 * "https://datatracker.ietf.org/doc/html/draft-ietf-oauth-security-topics-19#section-2.4">OAuth
-	 * 2.0 Security Best Current Practice.</a>
+	 * @deprecated The OAuth 2.0 Security Best Current Practice disallows the use of the
+	 * Resource Owner Password Credentials grant. See reference <a target="_blank" href=
+	 * "https://datatracker.ietf.org/doc/html/rfc9700#section-2.4">OAuth 2.0 Security Best
+	 * Current Practice.</a>
 	 */
-	@Deprecated
+	@Deprecated(since = "5.8", forRemoval = true)
 	public OAuth2AuthorizedClientProviderBuilder password() {
 		this.builders.computeIfAbsent(PasswordOAuth2AuthorizedClientProvider.class, (k) -> new PasswordGrantBuilder());
 		return OAuth2AuthorizedClientProviderBuilder.this;
@@ -155,13 +154,12 @@ public final class OAuth2AuthorizedClientProviderBuilder {
 	 * @param builderConsumer a {@code Consumer} of {@link PasswordGrantBuilder} used for
 	 * further configuration
 	 * @return the {@link OAuth2AuthorizedClientProviderBuilder}
-	 * @deprecated The latest OAuth 2.0 Security Best Current Practice disallows the use
-	 * of the Resource Owner Password Credentials grant. See reference
-	 * <a target="_blank" href=
-	 * "https://datatracker.ietf.org/doc/html/draft-ietf-oauth-security-topics-19#section-2.4">OAuth
-	 * 2.0 Security Best Current Practice.</a>
+	 * @deprecated The OAuth 2.0 Security Best Current Practice disallows the use of the
+	 * Resource Owner Password Credentials grant. See reference <a target="_blank" href=
+	 * "https://datatracker.ietf.org/doc/html/rfc9700#section-2.4">OAuth 2.0 Security Best
+	 * Current Practice.</a>
 	 */
-	@Deprecated
+	@Deprecated(since = "5.8", forRemoval = true)
 	public OAuth2AuthorizedClientProviderBuilder password(Consumer<PasswordGrantBuilder> builderConsumer) {
 		PasswordGrantBuilder builder = (PasswordGrantBuilder) this.builders
 			.computeIfAbsent(PasswordOAuth2AuthorizedClientProvider.class, (k) -> new PasswordGrantBuilder());

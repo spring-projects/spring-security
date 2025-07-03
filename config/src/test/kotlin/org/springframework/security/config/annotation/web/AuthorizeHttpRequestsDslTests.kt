@@ -150,26 +150,6 @@ class AuthorizeHttpRequestsDslTests {
             }
     }
 
-    @Test
-    fun `request when allowed by mvc then responds with OK`() {
-        this.spring.register(AuthorizeHttpRequestsByMvcConfig::class.java, LegacyMvcMatchingConfig::class.java).autowire()
-
-        this.mockMvc.get("/path")
-            .andExpect {
-                status { isOk() }
-            }
-
-        this.mockMvc.get("/path.html")
-            .andExpect {
-                status { isOk() }
-            }
-
-        this.mockMvc.get("/path/")
-            .andExpect {
-                status { isOk() }
-            }
-    }
-
     @Configuration
     @EnableWebSecurity
     @EnableWebMvc
@@ -190,14 +170,6 @@ class AuthorizeHttpRequestsDslTests {
             @RequestMapping("/path")
             fun path() {
             }
-        }
-    }
-
-    @Configuration
-    open class LegacyMvcMatchingConfig : WebMvcConfigurer {
-        override fun configurePathMatch(configurer: PathMatchConfigurer) {
-            configurer.setUseSuffixPatternMatch(true)
-            configurer.setUseTrailingSlashMatch(true)
         }
     }
 

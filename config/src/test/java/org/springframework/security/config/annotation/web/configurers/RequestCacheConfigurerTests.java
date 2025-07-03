@@ -170,6 +170,23 @@ public class RequestCacheConfigurerTests {
 	}
 
 	@Test
+	public void getWhenBookmarkedRequestIsWebSocketThenPostAuthenticationRedirectsToRoot() throws Exception {
+		this.spring.register(RequestCacheDefaultsConfig.class, DefaultSecurityConfig.class).autowire();
+		MockHttpServletRequestBuilder request = get("/messages").header("Upgrade", "websocket");
+		// @formatter:off
+		MockHttpSession session = (MockHttpSession) this.mvc.perform(request)
+				.andExpect(redirectedUrl("http://localhost/login"))
+				.andReturn()
+				.getRequest()
+				.getSession();
+		// @formatter:on
+		// ignores websocket
+		// This is desirable since websocket requests are typically not invoked
+		// directly from the browser and we don't want the browser to replay them
+		this.mvc.perform(formLogin(session)).andExpect(redirectedUrl("/"));
+	}
+
+	@Test
 	public void getWhenBookmarkedRequestIsAllMediaTypeThenPostAuthenticationRemembers() throws Exception {
 		this.spring.register(RequestCacheDefaultsConfig.class, DefaultSecurityConfig.class).autowire();
 		MockHttpServletRequestBuilder request = get("/messages").header(HttpHeaders.ACCEPT, MediaType.ALL);
@@ -328,7 +345,7 @@ public class RequestCacheConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.requestCache();
+				.requestCache(withDefaults());
 			return http.build();
 			// @formatter:on
 		}
@@ -359,10 +376,9 @@ public class RequestCacheConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.requestCache()
-					.requestCache(requestCache)
-					.and()
-				.requestCache();
+				.requestCache((cache) -> cache
+					.requestCache(requestCache))
+				.requestCache(withDefaults());
 			return http.build();
 			// @formatter:on
 		}
@@ -377,10 +393,9 @@ public class RequestCacheConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().authenticated()
-					.and()
-				.formLogin();
+				.authorizeRequests((requests) -> requests
+					.anyRequest().authenticated())
+				.formLogin(withDefaults());
 			return http.build();
 			// @formatter:on
 		}
@@ -395,7 +410,7 @@ public class RequestCacheConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeHttpRequests((requests) -> requests
+				.authorizeHttpRequests((authorize) -> authorize
 						.anyRequest().authenticated()
 				)
 				.formLogin(Customizer.withDefaults())
@@ -414,8 +429,7 @@ public class RequestCacheConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((authorizeRequests) ->
-					authorizeRequests
+				.authorizeRequests((authorize) -> authorize
 						.anyRequest().authenticated()
 				)
 				.formLogin(withDefaults())
@@ -434,8 +448,7 @@ public class RequestCacheConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((authorizeRequests) ->
-					authorizeRequests
+				.authorizeRequests((authorize) -> authorize
 						.anyRequest().authenticated()
 				)
 				.formLogin(withDefaults())
@@ -454,13 +467,11 @@ public class RequestCacheConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((authorizeRequests) ->
-					authorizeRequests
+				.authorizeRequests((authorize) -> authorize
 						.anyRequest().authenticated()
 				)
 				.formLogin(withDefaults())
-				.requestCache((requestCache) ->
-					requestCache
+				.requestCache((requestCache) -> requestCache
 						.requestCache(new NullRequestCache())
 				);
 			return http.build();

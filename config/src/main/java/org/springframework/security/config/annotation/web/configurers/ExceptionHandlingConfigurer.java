@@ -18,6 +18,7 @@ package org.springframework.security.config.annotation.web.configurers;
 
 import java.util.LinkedHashMap;
 
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.AuthenticationEntryPoint;
@@ -76,7 +77,7 @@ public final class ExceptionHandlingConfigurer<H extends HttpSecurityBuilder<H>>
 
 	/**
 	 * Creates a new instance
-	 * @see HttpSecurity#exceptionHandling()
+	 * @see HttpSecurity#exceptionHandling(Customizer)
 	 */
 	public ExceptionHandlingConfigurer() {
 	}

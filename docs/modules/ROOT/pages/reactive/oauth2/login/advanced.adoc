@@ -36,7 +36,7 @@ public class OAuth2LoginSecurityConfig {
 	@Bean
 	SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 		http
-			.oauth2Login(oauth2 -> oauth2
+			.oauth2Login((oauth2) -> oauth2
 				.authenticationConverter(this.authenticationConverter())
 				.authenticationMatcher(this.authenticationMatcher())
 				.authenticationManager(this.authenticationManager())
@@ -135,10 +135,10 @@ public class OAuth2LoginSecurityConfig {
 	@Bean
 	public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
 		http
-			.exceptionHandling(exceptionHandling -> exceptionHandling
+			.exceptionHandling((exceptionHandling) -> exceptionHandling
 				.authenticationEntryPoint(new RedirectServerAuthenticationEntryPoint("/login/oauth2"))
 			)
-			.oauth2Login(oauth2 -> oauth2
+			.oauth2Login((oauth2) -> oauth2
 				.authorizationRequestResolver(this.authorizationRequestResolver())
 			);
 
@@ -239,7 +239,7 @@ public class OAuth2LoginSecurityConfig {
 	@Bean
 	public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
 		http
-			.oauth2Login(oauth2 -> oauth2
+			.oauth2Login((oauth2) -> oauth2
 				.authenticationMatcher(new PathPatternParserServerWebExchangeMatcher("/login/oauth2/callback/{registrationId}"))
 			);
 
@@ -688,7 +688,7 @@ Java::
 @Bean
 public ReactiveJwtDecoderFactory<ClientRegistration> idTokenDecoderFactory() {
 	ReactiveOidcIdTokenDecoderFactory idTokenDecoderFactory = new ReactiveOidcIdTokenDecoderFactory();
-	idTokenDecoderFactory.setJwsAlgorithmResolver(clientRegistration -> MacAlgorithm.HS256);
+	idTokenDecoderFactory.setJwsAlgorithmResolver((clientRegistration) -> clientRegistration.HS256);
 	return idTokenDecoderFactory;
 }
 ----

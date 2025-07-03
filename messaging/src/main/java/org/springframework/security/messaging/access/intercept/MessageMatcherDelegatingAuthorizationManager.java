@@ -30,6 +30,7 @@ import org.springframework.security.authorization.AuthenticatedAuthorizationMana
 import org.springframework.security.authorization.AuthorityAuthorizationManager;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.authorization.SingleResultAuthorizationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.messaging.util.matcher.MessageMatcher;
@@ -63,11 +64,24 @@ public final class MessageMatcherDelegatingAuthorizationManager implements Autho
 	 * @return an {@link AuthorizationDecision}. If there is no {@link MessageMatcher}
 	 * matching the message, or the {@link AuthorizationManager} could not decide, then
 	 * null is returned
-	 * @deprecated please use {@link #authorize(Supplier, Object)} instead
+	 * @deprecated please use {@link #authorize(Supplier, Message)} instead
 	 */
 	@Deprecated
 	@Override
 	public AuthorizationDecision check(Supplier<Authentication> authentication, Message<?> message) {
+		AuthorizationResult result = authorize(authentication, message);
+		if (result == null) {
+			return null;
+		}
+		if (result instanceof AuthorizationDecision decision) {
+			return decision;
+		}
+		throw new IllegalArgumentException(
+				"Please call #authorize or ensure that the returned result is of type AuthorizationDecision");
+	}
+
+	@Override
+	public AuthorizationResult authorize(Supplier<Authentication> authentication, Message<?> message) {
 		if (this.logger.isTraceEnabled()) {
 			this.logger.trace(LogMessage.format("Authorizing message"));
 		}
@@ -79,7 +93,7 @@ public final class MessageMatcherDelegatingAuthorizationManager implements Autho
 				if (this.logger.isTraceEnabled()) {
 					this.logger.trace(LogMessage.format("Checking authorization on message using %s", manager));
 				}
-				return manager.check(authentication, authorizationContext);
+				return manager.authorize(authentication, authorizationContext);
 			}
 		}
 		this.logger.trace("Abstaining since did not find matching MessageMatcher");
@@ -155,9 +169,9 @@ public final class MessageMatcherDelegatingAuthorizationManager implements Autho
 		/**
 		 * Maps a {@link List} of {@link SimpDestinationMessageMatcher} (or
 		 * {@link PathPatternMessageMatcher} if the application has configured a
-		 * {@link org.springframework.security.messaging.util.matcher.PathPatternMessageMatcherBuilderFactoryBean})
-		 * instances without regard to the {@link SimpMessageType}. If no destination is
-		 * found on the Message, then the Matcher returns false.
+		 * {@link PathPatternMessageMatcher.Builder} bean) instances without regard to the
+		 * {@link SimpMessageType}. If no destination is found on the Message, then the
+		 * Matcher returns false.
 		 * @param patterns the patterns to create {@code MessageMatcher}s from.
 		 */
 		public Builder.Constraint simpDestMatchers(String... patterns) {
@@ -167,9 +181,9 @@ public final class MessageMatcherDelegatingAuthorizationManager implements Autho
 		/**
 		 * Maps a {@link List} of {@link SimpDestinationMessageMatcher} (or
 		 * {@link PathPatternMessageMatcher} if the application has configured a
-		 * {@link org.springframework.security.messaging.util.matcher.PathPatternMessageMatcherBuilderFactoryBean})
-		 * instances that match on {@code SimpMessageType.MESSAGE}. If no destination is
-		 * found on the Message, then the Matcher returns false.
+		 * {@link PathPatternMessageMatcher.Builder} bean) instances that match on
+		 * {@code SimpMessageType.MESSAGE}. If no destination is found on the Message,
+		 * then the Matcher returns false.
 		 * @param patterns the patterns to create {@code MessageMatcher}s from.
 		 */
 		public Builder.Constraint simpMessageDestMatchers(String... patterns) {
@@ -179,9 +193,9 @@ public final class MessageMatcherDelegatingAuthorizationManager implements Autho
 		/**
 		 * Maps a {@link List} of {@link SimpDestinationMessageMatcher} (or
 		 * {@link PathPatternMessageMatcher} if the application has configured a
-		 * {@link org.springframework.security.messaging.util.matcher.PathPatternMessageMatcherBuilderFactoryBean})
-		 * instances that match on {@code SimpMessageType.SUBSCRIBE}. If no destination is
-		 * found on the Message, then the Matcher returns false.
+		 * {@link PathPatternMessageMatcher.Builder} bean) instances that match on
+		 * {@code SimpMessageType.SUBSCRIBE}. If no destination is found on the Message,
+		 * then the Matcher returns false.
 		 * @param patterns the patterns to create {@code MessageMatcher}s from.
 		 */
 		public Builder.Constraint simpSubscribeDestMatchers(String... patterns) {
@@ -189,10 +203,10 @@ public final class MessageMatcherDelegatingAuthorizationManager implements Autho
 		}
 
 		/**
-		 * Maps a {@link List} of {@link SimpDestinationMessageMatcher} instances, or
+		 * Maps a {@link List} of {@link SimpDestinationMessageMatcher} (or
 		 * {@link PathPatternMessageMatcher} if the application has configured a
-		 * {@link org.springframework.security.messaging.util.matcher.PathPatternMessageMatcherBuilderFactoryBean}.
-		 * If no destination is found on the Message, then the Matcher returns false.
+		 * {@link PathPatternMessageMatcher.Builder} bean) instances. If no destination is
+		 * found on the Message, then the Matcher returns false.
 		 * @param type the {@link SimpMessageType} to match on. If null, the
 		 * {@link SimpMessageType} is not considered for matching.
 		 * @param patterns the patterns to create {@code MessageMatcher}s from.

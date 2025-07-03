@@ -247,7 +247,7 @@ class ServerOAuth2ResourceServerDslTests {
     open class AuthenticationManagerResolverConfig {
 
         companion object {
-            val RESOLVER: ReactiveAuthenticationManagerResolver<ServerWebExchange> = JwtIssuerReactiveAuthenticationManagerResolver("issuer")
+            val RESOLVER: ReactiveAuthenticationManagerResolver<ServerWebExchange> = JwtIssuerReactiveAuthenticationManagerResolver.fromTrustedIssuers("issuer")
         }
 
         @Bean

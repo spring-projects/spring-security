@@ -69,12 +69,10 @@ public class FormLoginTests {
 	public void defaultLoginPage() {
 		// @formatter:off
 		SecurityWebFilterChain securityWebFilter = this.http
-				.authorizeExchange()
-					.anyExchange().authenticated()
-					.and()
-				.formLogin()
-					.and()
-				.build();
+			.authorizeExchange((authorize) -> authorize
+				.anyExchange().authenticated())
+			.formLogin(withDefaults())
+			.build();
 		WebTestClient webTestClient = WebTestClientBuilder
 				.bindToWebFilters(securityWebFilter)
 				.build();
@@ -102,7 +100,7 @@ public class FormLoginTests {
 	@Test
 	public void formLoginWhenDefaultsInLambdaThenCreatesDefaultLoginPage() {
 		SecurityWebFilterChain securityWebFilter = this.http
-			.authorizeExchange((exchanges) -> exchanges.anyExchange().authenticated())
+			.authorizeExchange((authorize) -> authorize.anyExchange().authenticated())
 			.formLogin(withDefaults())
 			.build();
 		WebTestClient webTestClient = WebTestClientBuilder.bindToWebFilters(securityWebFilter).build();
@@ -129,14 +127,12 @@ public class FormLoginTests {
 	public void customLoginPage() {
 		// @formatter:off
 		SecurityWebFilterChain securityWebFilter = this.http
-				.authorizeExchange()
-					.pathMatchers("/login").permitAll()
-					.anyExchange().authenticated()
-					.and()
-				.formLogin()
-					.loginPage("/login")
-					.and()
-				.build();
+			.authorizeExchange((authorize) -> authorize
+				.pathMatchers("/login").permitAll()
+				.anyExchange().authenticated())
+			.formLogin((login) -> login
+				.loginPage("/login"))
+			.build();
 		WebTestClient webTestClient = WebTestClient
 				.bindToController(new CustomLoginPageController(), new WebTestClientBuilder.Http200RestController())
 				.webFilter(new WebFilterChainProxy(securityWebFilter))
@@ -159,7 +155,7 @@ public class FormLoginTests {
 	public void formLoginWhenCustomLoginPageInLambdaThenUsed() {
 		// @formatter:off
 		SecurityWebFilterChain securityWebFilter = this.http
-				.authorizeExchange((exchanges) -> exchanges
+				.authorizeExchange((authorize) -> authorize
 						.pathMatchers("/login").permitAll()
 						.anyExchange().authenticated()
 				)
@@ -189,14 +185,12 @@ public class FormLoginTests {
 	public void formLoginWhenCustomAuthenticationFailureHandlerThenUsed() {
 		// @formatter:off
 		SecurityWebFilterChain securityWebFilter = this.http
-				.authorizeExchange()
-					.pathMatchers("/login", "/failure").permitAll()
-					.anyExchange().authenticated()
-					.and()
-				.formLogin()
-					.authenticationFailureHandler(new RedirectServerAuthenticationFailureHandler("/failure"))
-					.and()
-				.build();
+			.authorizeExchange((authorize) -> authorize
+				.pathMatchers("/login", "/failure").permitAll()
+				.anyExchange().authenticated())
+			.formLogin((login) -> login
+				.authenticationFailureHandler(new RedirectServerAuthenticationFailureHandler("/failure")))
+			.build();
 		WebTestClient webTestClient = WebTestClientBuilder
 				.bindToWebFilters(securityWebFilter)
 				.build();
@@ -218,14 +212,12 @@ public class FormLoginTests {
 	public void formLoginWhenCustomRequiresAuthenticationMatcherThenUsed() {
 		// @formatter:off
 		SecurityWebFilterChain securityWebFilter = this.http
-				.authorizeExchange()
-					.pathMatchers("/login", "/sign-in").permitAll()
-					.anyExchange().authenticated()
-					.and()
-				.formLogin()
-					.requiresAuthenticationMatcher(new PathPatternParserServerWebExchangeMatcher("/sign-in"))
-					.and()
-				.build();
+			.authorizeExchange((authorize) -> authorize
+				.pathMatchers("/login", "/sign-in").permitAll()
+				.anyExchange().authenticated())
+			.formLogin((login) -> login
+				.requiresAuthenticationMatcher(new PathPatternParserServerWebExchangeMatcher("/sign-in")))
+			.build();
 		WebTestClient webTestClient = WebTestClientBuilder
 				.bindToWebFilters(securityWebFilter)
 				.build();
@@ -241,13 +233,11 @@ public class FormLoginTests {
 	public void authenticationSuccess() {
 		// @formatter:off
 		SecurityWebFilterChain securityWebFilter = this.http
-				.authorizeExchange()
-					.anyExchange().authenticated()
-					.and()
-				.formLogin()
-					.authenticationSuccessHandler(new RedirectServerAuthenticationSuccessHandler("/custom"))
-					.and()
-				.build();
+			.authorizeExchange((authorize) -> authorize
+				.anyExchange().authenticated())
+			.formLogin((login) -> login
+				.authenticationSuccessHandler(new RedirectServerAuthenticationSuccessHandler("/custom")))
+			.build();
 		WebTestClient webTestClient = WebTestClientBuilder
 				.bindToWebFilters(securityWebFilter)
 				.build();
@@ -275,11 +265,10 @@ public class FormLoginTests {
 			.willReturn(Mono.just(new TestingAuthenticationToken("user", "password", "ROLE_USER", "ROLE_ADMIN")));
 		// @formatter:off
 		SecurityWebFilterChain securityWebFilter = this.http
-				.authenticationManager(defaultAuthenticationManager)
-				.formLogin()
-					.authenticationManager(customAuthenticationManager)
-					.and()
-				.build();
+			.authenticationManager(defaultAuthenticationManager)
+			.formLogin((login) -> login
+				.authenticationManager(customAuthenticationManager))
+			.build();
 		WebTestClient webTestClient = WebTestClientBuilder
 				.bindToWebFilters(securityWebFilter)
 				.build();
@@ -309,14 +298,12 @@ public class FormLoginTests {
 		given(formLoginSecContextRepository.load(any())).willReturn(authentication(token));
 		// @formatter:off
 		SecurityWebFilterChain securityWebFilter = this.http
-				.authorizeExchange()
-					.anyExchange().authenticated()
-					.and()
-				.securityContextRepository(defaultSecContextRepository)
-				.formLogin()
-					.securityContextRepository(formLoginSecContextRepository)
-					.and()
-				.build();
+			.authorizeExchange((authorize) -> authorize
+				.anyExchange().authenticated())
+			.securityContextRepository(defaultSecContextRepository)
+			.formLogin((login) -> login
+				.securityContextRepository(formLoginSecContextRepository))
+			.build();
 		WebTestClient webTestClient = WebTestClientBuilder
 				.bindToWebFilters(securityWebFilter)
 				.build();

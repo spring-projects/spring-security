@@ -23,6 +23,7 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 
 import net.minidev.json.JSONObject;
 import okhttp3.mockwebserver.Dispatcher;
@@ -45,6 +46,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -265,6 +267,7 @@ public class NimbusReactiveOpaqueTokenIntrospectorTests {
 	}
 
 	private WebClient mockResponse(String response, String mediaType) {
+		WebClient.ResponseSpec responseSpec = mock(WebClient.ResponseSpec.class);
 		WebClient real = WebClient.builder().build();
 		WebClient.RequestBodyUriSpec spec = spy(real.post());
 		WebClient webClient = spy(WebClient.class);
@@ -275,7 +278,13 @@ public class NimbusReactiveOpaqueTokenIntrospectorTests {
 		ClientResponse.Headers headers = mock(ClientResponse.Headers.class);
 		given(headers.contentType()).willReturn(Optional.ofNullable(mediaType).map(MediaType::parseMediaType));
 		given(clientResponse.headers()).willReturn(headers);
-		given(spec.exchange()).willReturn(Mono.just(clientResponse));
+		given(responseSpec.bodyToMono(ClientResponse.class)).willReturn(Mono.just(clientResponse));
+		given(spec.exchangeToMono(any())).willAnswer((invocation) -> {
+			Object[] args = invocation.getArguments();
+			Function<ClientResponse, Mono<ClientResponse>> fn = (Function<ClientResponse, Mono<ClientResponse>>) args[0];
+			return fn.apply(clientResponse);
+		});
+		given(spec.retrieve()).willReturn(responseSpec);
 		return webClient;
 	}
 
@@ -284,7 +293,7 @@ public class NimbusReactiveOpaqueTokenIntrospectorTests {
 		WebClient.RequestBodyUriSpec spec = spy(real.post());
 		WebClient webClient = spy(WebClient.class);
 		given(webClient.post()).willReturn(spec);
-		given(spec.exchange()).willThrow(ex);
+		given(spec.exchangeToMono(any())).willReturn(Mono.error(ex));
 		return webClient;
 	}
 

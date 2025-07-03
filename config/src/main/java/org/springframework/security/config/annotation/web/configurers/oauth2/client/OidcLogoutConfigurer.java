@@ -111,11 +111,6 @@ public final class OidcLogoutConfigurer<B extends HttpSecurityBuilder<B>>
 		return this;
 	}
 
-	@Deprecated(forRemoval = true, since = "6.2")
-	public B and() {
-		return getBuilder();
-	}
-
 	@Override
 	public void configure(B builder) throws Exception {
 		if (this.backChannel != null) {

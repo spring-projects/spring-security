@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package org.springframework.security.oauth2.server.resource.web.authentication;
 
 import java.io.IOException;
+import java.util.Collections;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -41,12 +42,17 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2Error;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.TestJwts;
 import org.springframework.security.oauth2.server.resource.BearerTokenError;
 import org.springframework.security.oauth2.server.resource.BearerTokenErrorCodes;
 import org.springframework.security.oauth2.server.resource.InvalidBearerTokenException;
 import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthenticationToken;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
 import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.authentication.AuthenticationConverter;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
@@ -240,6 +246,43 @@ public class BearerTokenAuthenticationFilterTests {
 	}
 
 	@Test
+	public void doFilterWhenDPoPBoundTokenDowngradedThenPropagatesError() throws ServletException, IOException {
+		Jwt jwt = TestJwts.jwt().claim("cnf", Collections.singletonMap("jkt", "jwk-thumbprint")).build();
+		JwtAuthenticationToken authenticationResult = new JwtAuthenticationToken(jwt);
+		given(this.bearerTokenResolver.resolve(this.request)).willReturn("token");
+		given(this.authenticationManager.authenticate(any(BearerTokenAuthenticationToken.class)))
+			.willReturn(authenticationResult);
+		BearerTokenAuthenticationFilter filter = addMocks(
+				new BearerTokenAuthenticationFilter(this.authenticationManager));
+		filter.setAuthenticationFailureHandler(this.authenticationFailureHandler);
+		filter.doFilter(this.request, this.response, this.filterChain);
+		ArgumentCaptor<OAuth2AuthenticationException> exceptionCaptor = ArgumentCaptor
+			.forClass(OAuth2AuthenticationException.class);
+		verify(this.authenticationFailureHandler).onAuthenticationFailure(any(), any(), exceptionCaptor.capture());
+		OAuth2Error error = exceptionCaptor.getValue().getError();
+		assertThat(error.getErrorCode()).isEqualTo(BearerTokenErrorCodes.INVALID_TOKEN);
+		assertThat(error.getDescription()).isEqualTo("Invalid bearer token");
+	}
+
+	@Test
+	public void doFilterWhenSetAuthenticationConverterAndAuthenticationDetailsSourceThenIllegalArgument(
+			@Mock AuthenticationConverter authenticationConverter) {
+		BearerTokenAuthenticationFilter filter = new BearerTokenAuthenticationFilter(this.authenticationManager,
+				authenticationConverter);
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> filter.setAuthenticationDetailsSource(this.authenticationDetailsSource));
+	}
+
+	@Test
+	public void doFilterWhenSetBearerTokenResolverAndAuthenticationConverterThenIllegalArgument(
+			@Mock AuthenticationConverter authenticationConverter) {
+		BearerTokenAuthenticationFilter filter = new BearerTokenAuthenticationFilter(this.authenticationManager,
+				authenticationConverter);
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> filter.setBearerTokenResolver(this.bearerTokenResolver));
+	}
+
+	@Test
 	public void setAuthenticationEntryPointWhenNullThenThrowsException() {
 		BearerTokenAuthenticationFilter filter = new BearerTokenAuthenticationFilter(this.authenticationManager);
 		// @formatter:off
@@ -266,6 +309,15 @@ public class BearerTokenAuthenticationFilterTests {
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> filter.setAuthenticationDetailsSource(null))
 				.withMessageContaining("authenticationDetailsSource cannot be null");
+		// @formatter:on
+	}
+
+	@Test
+	public void setConverterWhenNullThenThrowsException() {
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new BearerTokenAuthenticationFilter(this.authenticationManager, null))
+				.withMessageContaining("authenticationConverter cannot be null");
 		// @formatter:on
 	}
 

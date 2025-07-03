@@ -227,7 +227,7 @@ Java::
 ----
 client
     .mutateWith(mockOidcLogin()
-        .idToken(token -> token.claim("user_id", "1234"))
+        .idToken((token) -> token.claim("user_id", "1234"))
     )
     .get().uri("/endpoint").exchange();
 ----
@@ -470,7 +470,7 @@ Java::
 ----
 client
     .mutateWith(mockOAuth2Login()
-        .attributes(attrs -> attrs.put("user_id", "1234"))
+        .attributes((attrs) -> attrs.put("user_id", "1234"))
     )
     .get().uri("/endpoint").exchange();
 ----
@@ -869,7 +869,7 @@ Java::
 [source,java,role="primary"]
 ----
 client
-	.mutateWith(mockJwt().jwt(jwt -> jwt.header("kid", "one")
+	.mutateWith(mockJwt().jwt((jwt) -> jwt.header("kid", "one")
 		.claim("iss", "https://idp.example.org")))
 	.get().uri("/endpoint").exchange();
 ----
@@ -893,7 +893,7 @@ Java::
 [source,java,role="primary"]
 ----
 client
-	.mutateWith(mockJwt().jwt(jwt -> jwt.claims(claims -> claims.remove("scope"))))
+	.mutateWith(mockJwt().jwt((jwt) -> jwt.claims((claims) -> claims.remove("scope"))))
 	.get().uri("/endpoint").exchange();
 ----
 
@@ -1206,7 +1206,7 @@ Java::
 ----
 client
     .mutateWith(mockOpaqueToken()
-        .attributes(attrs -> attrs.put("user_id", "1234"))
+        .attributes((attrs) -> attrs.put("user_id", "1234"))
     )
     .get().uri("/endpoint").exchange();
 ----

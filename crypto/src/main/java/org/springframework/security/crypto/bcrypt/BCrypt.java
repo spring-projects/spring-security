@@ -611,7 +611,8 @@ public class BCrypt {
 		int rounds, off;
 		StringBuilder rs = new StringBuilder();
 
-		if (passwordb.length > 72) {
+		// Enforce max length for new passwords only
+		if (!for_check && passwordb.length > 72) {
 			throw new IllegalArgumentException("password cannot be more than 72 bytes");
 		}
 		if (salt == null) {

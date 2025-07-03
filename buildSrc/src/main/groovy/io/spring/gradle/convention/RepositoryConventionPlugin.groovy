@@ -80,6 +80,11 @@ class RepositoryConventionPlugin implements Plugin<Project> {
 				}
 				url = 'https://repo.spring.io/release/'
 			}
+			forceMavenRepositories.findAll { it.startsWith('https://') || it.startsWith('file://') }.each { mavenUrl ->
+				maven {
+					url mavenUrl
+				}
+			}
 		}
 	}
 

@@ -127,7 +127,7 @@ public final class OidcBackChannelLogoutHandler implements LogoutHandler {
 	String computeLogoutEndpoint(HttpServletRequest request, OidcBackChannelLogoutAuthentication token) {
 		// @formatter:off
 		UriComponents uriComponents = UriComponentsBuilder
-				.fromHttpUrl(UrlUtils.buildFullRequestUrl(request))
+				.fromUriString(UrlUtils.buildFullRequestUrl(request))
 				.replacePath(request.getContextPath())
 				.replaceQuery(null)
 				.fragment(null)
