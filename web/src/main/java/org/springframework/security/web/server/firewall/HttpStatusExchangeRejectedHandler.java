@@ -56,7 +56,7 @@ public class HttpStatusExchangeRejectedHandler implements ServerExchangeRejected
 	public Mono<Void> handle(ServerWebExchange exchange,
 			ServerExchangeRejectedException serverExchangeRejectedException) {
 		return Mono.fromRunnable(() -> {
-			logger.debug(
+			logger.warn(
 					LogMessage.format("Rejecting request due to: %s", serverExchangeRejectedException.getMessage()),
 					serverExchangeRejectedException);
 			exchange.getResponse().setStatusCode(this.status);
